@@ -192,7 +192,7 @@ export class NativeKernelInterceptorService
       if (relevantCookies.length > 0) {
         effectiveRequest.headers!["Cookie"] = relevantCookies
           .map((cookie) => `${cookie.name!}=${cookie.value!}`)
-          .join(";")
+          .join("; ")
       }
 
       const existingUserAgentHeader = Object.keys(
@@ -230,7 +230,11 @@ export class NativeKernelInterceptorService
             let str = `${c.name}=${c.value}`
             if (c.domain) str += `; Domain=${c.domain}`
             if (c.path) str += `; Path=${c.path}`
-            if (c.expires) str += `; Expires=${c.expires.toUTCString()}`
+            if (c.expires) {
+              const expiresDate =
+                c.expires instanceof Date ? c.expires : new Date(c.expires)
+              str += `; Expires=${expiresDate.toUTCString()}`
+            }
             if (c.secure) str += `; Secure`
             if (c.httpOnly) str += `; HttpOnly`
             if (c.sameSite) str += `; SameSite=${c.sameSite}`
@@ -243,7 +247,7 @@ export class NativeKernelInterceptorService
           )
           if (setCookieHeader) {
             const cookieStrings = (setCookieHeader[1] as string)
-              .split("\n")
+              .split(/\r?\n/)
               .map((s: string) => s.trim())
               .filter(Boolean)
             this.cookieJar.applySetCookieHeaders(cookieStrings, requestUrl)

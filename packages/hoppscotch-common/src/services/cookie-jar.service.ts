@@ -33,7 +33,11 @@ export class CookieJarService extends Service {
       .map((parsed) => ({
         name: parsed.name!,
         value: parsed.value,
-        domain: parsed.domain ?? domain,
+        domain: parsed.domain
+          ? parsed.domain.startsWith(".")
+            ? parsed.domain
+            : `.${parsed.domain}`
+          : domain,
         path: parsed.path ?? "/",
         httpOnly: parsed.httpOnly ?? false,
         secure: parsed.secure ?? false,
@@ -51,7 +55,9 @@ export class CookieJarService extends Service {
 
     for (const cookie of newCookies) {
       const existing = this.cookieJar.value.get(cookie.domain) ?? []
-      const idx = existing.findIndex((c: Cookie) => c.name === cookie.name)
+      const idx = existing.findIndex(
+        (c: Cookie) => c.name === cookie.name && c.path === cookie.path
+      )
       if (idx !== -1) {
         existing[idx] = cookie
       } else {
@@ -63,7 +69,10 @@ export class CookieJarService extends Service {
 
   public getCookiesForURL(url: URL) {
     const relevantDomains = Array.from(this.cookieJar.value.keys()).filter(
-      (domain) => url.hostname.endsWith(domain)
+      (domain) =>
+        domain.startsWith(".")
+          ? url.hostname === domain.slice(1) || url.hostname.endsWith(domain)
+          : url.hostname === domain
     )
 
     return relevantDomains
@@ -75,7 +84,7 @@ export class CookieJarService extends Service {
 
         const passesExpiresCheck = !cookie.expires
           ? true
-          : new Date(cookie.expires).getTime() >= new Date().getTime()
+          : new Date(cookie.expires).getTime() >= Date.now()
 
         const passesSecureCheck = !cookie.secure
           ? true

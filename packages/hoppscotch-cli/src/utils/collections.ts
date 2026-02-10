@@ -1,7 +1,8 @@
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
+import { HoppCollection, HoppRESTRequest, HoppRESTAuth } from "@hoppscotch/data";
 import chalk from "chalk";
 import { log } from "console";
 import * as A from "fp-ts/Array";
+import * as E from "fp-ts/Either";
 import { pipe } from "fp-ts/function";
 import { round } from "lodash-es";
 
@@ -34,6 +35,13 @@ import {
   processRequest,
 } from "./request";
 import { getTestMetrics } from "./test";
+import {
+  generateOAuth2TokenForCollection,
+  hasOAuth2Auth,
+  requiresRedirect,
+  updateCollectionWithToken,
+  OAUTH_CLI_ERROR_MESSAGES,
+} from "./oauth/token-generator";
 
 const { WARN, FAIL, INFO } = exceptionColors;
 
@@ -57,8 +65,79 @@ export const collectionsRunner = async (
   } = param;
 
   const resolvedDelay = delay ?? 0;
-
   const requestsReport: RequestReport[] = [];
+
+  // Process OAuth 2.0 token generation for collections BEFORE running any requests
+  for (const collection of collections) {
+    if (hasOAuth2Auth(collection)) {
+      const auth = collection.auth!
+
+      log(INFO(`\nGenerating OAuth 2.0 token for collection: ${chalk.bold(collection.name)}`));
+
+      // Check if grant type requires redirect (not supported in CLI)
+      if (requiresRedirect(auth)) {
+        const grantType = (auth as Extract<HoppRESTAuth, { authType: "oauth-2" }>).grantTypeInfo.grantType
+        log(
+          FAIL(
+            `\n${chalk.bold("OAuth Error:")} Grant type '${grantType}' requires browser redirect and cannot be used in CLI.`
+          )
+        )
+        log(
+          INFO(
+            `Supported grant types for CLI: CLIENT_CREDENTIALS, PASSWORD`
+          )
+        )
+        process.exit(1)
+      }
+
+      // Generate OAuth token with environment variable expansion
+      // Process secret variables from system environment before OAuth generation
+      const processedGlobal = envs.global.map((variable) => {
+        // Only fetch from system environment for secret variables
+        if (variable.secret) {
+          return {
+            ...variable,
+            currentValue:
+              variable.currentValue ??
+              process.env[variable.key] ??
+              variable.initialValue,
+          }
+        }
+        return variable
+      })
+
+      const processedSelected = envs.selected.map((variable) => {
+        // Only fetch from system environment for secret variables
+        if (variable.secret) {
+          return {
+            ...variable,
+            currentValue:
+              variable.currentValue ??
+              process.env[variable.key] ??
+              variable.initialValue,
+          }
+        }
+        return variable
+      })
+
+      // Combine global and selected environment variables for template expansion
+      const allEnvVariables = [...processedGlobal, ...processedSelected]
+      const tokenResult = await generateOAuth2TokenForCollection(collection, allEnvVariables)
+
+      if (E.isLeft(tokenResult)) {
+        const errorMessage = OAUTH_CLI_ERROR_MESSAGES[tokenResult.left] || "OAuth token generation failed"
+        log(FAIL(`\n${chalk.bold("OAuth Error:")} ${errorMessage}`))
+        process.exit(1)
+      }
+
+      // Update collection with the generated token
+      const { access_token, refresh_token } = tokenResult.right
+      updateCollectionWithToken(collection, access_token, refresh_token)
+
+      log(INFO(`${chalk.green("✓")} OAuth token generated successfully`))
+    }
+  }
+
   const collectionQueue = getCollectionQueue(collections);
 
   // If iteration count is not supplied, it should be based on the size of iteration data if in scope

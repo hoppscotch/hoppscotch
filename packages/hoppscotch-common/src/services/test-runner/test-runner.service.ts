@@ -1,6 +1,7 @@
 import {
   HoppCollection,
   HoppCollectionVariable,
+  HoppRESTAuth,
   HoppRESTHeaders,
   HoppRESTRequest,
 } from "@hoppscotch/data"
@@ -20,6 +21,15 @@ import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { HoppTestData, HoppTestResult } from "~/helpers/types/HoppTestResult"
 import { HoppTab } from "../tab"
 import { populateValuesInInheritedCollectionVars } from "~/helpers/utils/inheritedCollectionVarTransformer"
+import {
+  generateOAuth2TokenForCollection,
+  hasOAuth2Auth,
+  requiresRedirect,
+  updateCollectionWithToken,
+  OAUTH_ERROR_MESSAGES,
+} from "~/helpers/oauth/auto-token-generator"
+import { useI18n } from "~/composables/i18n"
+import { useToast } from "~/composables/toast"
 
 export type TestRunnerOptions = {
   stopRef: Ref<boolean>
@@ -49,10 +59,12 @@ function delay(timeMS: number) {
 export class TestRunnerService extends Service {
   public static readonly ID = "TEST_RUNNER_SERVICE"
 
-  public runTests(
+  public async runTests(
     tab: Ref<HoppTab<HoppTestRunnerDocument>>,
     collection: HoppCollection,
-    options: TestRunnerOptions
+    options: TestRunnerOptions,
+    t: ReturnType<typeof useI18n>,
+    toast: ReturnType<typeof useToast>
   ) {
     // Reset the result collection
     tab.value.document.status = "running"
@@ -66,6 +78,57 @@ export class TestRunnerService extends Service {
       requests: [],
       variables: [],
       description: collection.description ?? null,
+    }
+
+    // Auto-generate OAuth 2.0 token if collection has OAuth configured
+    if (hasOAuth2Auth(collection)) {
+      const auth = collection.auth as Extract<
+        HoppRESTAuth,
+        { authType: "oauth-2" }
+      >
+
+      if (requiresRedirect(auth)) {
+        // Grant types that require redirect cannot be auto-generated
+        toast.error(
+          t("authorization.oauth.redirect_not_supported_for_collection", {
+            grantType: auth.grantTypeInfo.grantType,
+          })
+        )
+        tab.value.document.status = "error"
+        return
+      }
+
+      // Generate token automatically
+      const tokenResult = await generateOAuth2TokenForCollection(collection)
+
+      if (E.isLeft(tokenResult)) {
+        const errorMessage = OAUTH_ERROR_MESSAGES[tokenResult.left]
+        toast.error(
+          errorMessage
+            ? t(errorMessage)
+            : t("authorization.oauth.token_generation_failed")
+        )
+        tab.value.document.status = "error"
+        return
+      }
+
+      // Update collection with the generated token
+      updateCollectionWithToken(
+        collection,
+        tokenResult.right.access_token,
+        tokenResult.right.refresh_token
+      )
+
+      // Also update the result collection if it exists
+      if (tab.value.document.resultCollection) {
+        updateCollectionWithToken(
+          tab.value.document.resultCollection,
+          tokenResult.right.access_token,
+          tokenResult.right.refresh_token
+        )
+      }
+
+      toast.success(t("authorization.oauth.token_fetched_successfully"))
     }
 
     this.runTestCollection(tab, collection, options)
@@ -107,7 +170,7 @@ export class TestRunnerService extends Service {
 
       const inheritedHeaders: HoppRESTHeaders = [
         ...(parentHeaders || []),
-        ...collection.headers,
+        ...(collection.headers || []),
       ]
 
       const inheritedVariables = [
@@ -116,7 +179,7 @@ export class TestRunnerService extends Service {
           parentID || collection._ref_id || collection.id
         ) || []),
         ...(populateValuesInInheritedCollectionVars(
-          collection.variables,
+          collection.variables || [],
           collection._ref_id || collection.id
         ) || []),
       ]

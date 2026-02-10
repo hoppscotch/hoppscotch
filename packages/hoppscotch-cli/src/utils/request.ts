@@ -117,9 +117,12 @@ export const requestRunner =
       if (cookieJar) {
         const cookieString = await cookieJar.getCookieString(requestConfig.url);
         if (cookieString) {
+          const existingCookie = requestConfig.headers?.["Cookie"];
           requestConfig.headers = {
             ...requestConfig.headers,
-            Cookie: cookieString,
+            Cookie: existingCookie
+              ? `${existingCookie}; ${cookieString}`
+              : cookieString,
           };
         }
       }

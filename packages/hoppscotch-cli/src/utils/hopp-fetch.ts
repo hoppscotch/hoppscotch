@@ -9,9 +9,9 @@ import { CookieJar } from "tough-cookie";
  *
  * @returns HoppFetchHook implementation
  */
-export const createHoppFetchHook = (): HoppFetchHook => {
+export const createHoppFetchHook = (externalJar?: CookieJar): HoppFetchHook => {
   // Cookie jar maintains cookies across redirects (matches Postman behavior)
-  const jar = new CookieJar();
+  const jar = externalJar ?? new CookieJar();
   const axiosWithCookies = axiosCookieJarSupport(axios.create());
 
   return async (input, init) => {

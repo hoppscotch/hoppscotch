@@ -4,6 +4,7 @@ import { log } from "console";
 import * as A from "fp-ts/Array";
 import { pipe } from "fp-ts/function";
 import { round } from "lodash-es";
+import { CookieJar } from "tough-cookie";
 
 import { CollectionRunnerParam } from "../types/collections";
 import {
@@ -74,6 +75,9 @@ export const collectionsRunner = async (
     // Reset `envs` to the original value at the start of each iteration
     envs.selected = [...originalSelectedEnvs];
 
+    // Create a shared cookie jar for each iteration so cookies persist across requests
+    const cookieJar = new CookieJar();
+
     if (iterationData) {
       // Ensure last item is picked if the iteration count exceeds size of the iteration data
       const iterationDataItem =
@@ -95,7 +99,8 @@ export const collectionsRunner = async (
         envs,
         resolvedDelay,
         requestsReport,
-        legacySandbox
+        legacySandbox,
+        cookieJar
       );
     }
   }
@@ -109,7 +114,8 @@ const processCollection = async (
   envs: HoppEnvs,
   delay: number,
   requestsReport: RequestReport[],
-  legacySandbox?: boolean
+  legacySandbox?: boolean,
+  cookieJar?: CookieJar
 ) => {
   // Process each request in the collection
   for (const request of collection.requests) {
@@ -127,6 +133,7 @@ const processCollection = async (
       delay,
       legacySandbox,
       collectionVariables,
+      cookieJar,
     };
 
     // Request processing initiated message.
@@ -188,7 +195,8 @@ const processCollection = async (
       envs,
       delay,
       requestsReport,
-      legacySandbox
+      legacySandbox,
+      cookieJar
     );
   }
 };

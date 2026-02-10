@@ -1,6 +1,7 @@
 import { HoppRESTRequest } from "@hoppscotch/data";
 import { TestDescriptor } from "@hoppscotch/js-sandbox";
 import { runTestScript } from "@hoppscotch/js-sandbox/node";
+import { CookieJar } from "tough-cookie";
 import * as A from "fp-ts/Array";
 import * as RA from "fp-ts/ReadonlyArray";
 import * as T from "fp-ts/Task";
@@ -39,7 +40,7 @@ export const testRunner = (
     TE.bind("test_response", () =>
       pipe(
         TE.of(testScriptData),
-        TE.chain(({ request, response, envs, legacySandbox }) => {
+        TE.chain(({ request, response, envs, legacySandbox, cookieJar }) => {
           const { status, statusText, headers, responseTime, body } = response;
 
           const effectiveResponse = {
@@ -51,7 +52,7 @@ export const testRunner = (
           };
 
           const experimentalScriptingSandbox = !legacySandbox;
-          const hoppFetchHook = createHoppFetchHook();
+          const hoppFetchHook = createHoppFetchHook(cookieJar);
 
           return runTestScript(stripModulePrefix(request.testScript), {
             envs,
@@ -160,7 +161,8 @@ export const getTestScriptParams = (
   reqRunnerRes: RequestRunnerResponse,
   request: HoppRESTRequest,
   envs: HoppEnvs,
-  legacySandbox: boolean
+  legacySandbox: boolean,
+  cookieJar?: CookieJar
 ) => {
   const testScriptParams: TestScriptParams = {
     request,
@@ -173,6 +175,7 @@ export const getTestScriptParams = (
     },
     envs,
     legacySandbox,
+    cookieJar,
   };
   return testScriptParams;
 };

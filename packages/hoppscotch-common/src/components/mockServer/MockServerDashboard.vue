@@ -32,7 +32,7 @@
 
     <div class="flex flex-1 flex-col">
       <div
-        v-if="loading"
+        v-if="isFetchingServers"
         class="flex flex-1 flex-col items-center justify-center p-4"
       >
         <HoppSmartSpinner class="mb-4" />
@@ -209,12 +209,14 @@ import { computed, ref } from "vue"
 import { TippyComponent } from "vue-tippy"
 import { useMockServerStatus } from "~/composables/mockServer"
 import { useToast } from "~/composables/toast"
+import { useReadonlyStream } from "~/composables/stream"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import type { MockServer } from "~/newstore/mockServers"
 import { platform } from "~/platform"
 
 import {
   deleteMockServer as deleteMockServerInStore,
+  loading$,
   showCreateMockServerModal$,
   updateMockServer as updateMockServerInStore,
 } from "~/newstore/mockServers"
@@ -242,6 +244,7 @@ const t = useI18n()
 const toast = useToast()
 const colorMode = useColorMode()
 const { mockServers } = useMockServerStatus()
+const isFetchingServers = useReadonlyStream(loading$, false)
 const loading = ref(false)
 const showEditModal = ref(false)
 const showLogsModal = ref(false)

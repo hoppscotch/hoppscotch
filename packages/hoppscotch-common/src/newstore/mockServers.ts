@@ -62,6 +62,7 @@ export type CreateMockServerModalData = {
 
 const defaultMockServerState = {
   mockServers: [] as MockServer[],
+  loading: false,
 }
 
 type MockServerStoreType = typeof defaultMockServerState
@@ -73,6 +74,7 @@ const mockServerDispatchers = defineDispatchers({
   ) {
     return {
       mockServers,
+      loading: false,
     }
   },
 
@@ -104,6 +106,12 @@ const mockServerDispatchers = defineDispatchers({
       mockServers: mockServers.filter((server) => server.id !== id),
     }
   },
+
+  setLoading(_: MockServerStoreType, { loading }: { loading: boolean }) {
+    return {
+      loading,
+    }
+  },
 })
 
 export const mockServerStore = new DispatchingStore(
@@ -112,6 +120,7 @@ export const mockServerStore = new DispatchingStore(
 )
 
 export const mockServers$ = mockServerStore.subject$.pipe(pluck("mockServers"))
+export const loading$ = mockServerStore.subject$.pipe(pluck("loading"))
 
 export function setMockServers(mockServers: MockServer[]) {
   mockServerStore.dispatch({
@@ -141,6 +150,13 @@ export function deleteMockServer(id: string) {
   })
 }
 
+export function setLoading(loading: boolean) {
+  mockServerStore.dispatch({
+    dispatcher: "setLoading",
+    payload: { loading },
+  })
+}
+
 // Modal state management
 const defaultCreateMockServerModalState: CreateMockServerModalData = {
   show: false,
@@ -161,6 +177,7 @@ export function loadMockServers(skip?: number, take?: number) {
     if (currentWorkspace.type === "team" && currentWorkspace.teamID) {
       return loadTeamMockServers(currentWorkspace.teamID, skip, take)
     }
+    setLoading(true)
     return pipe(
       getMyMockServers(skip, take),
       TE.match(
@@ -176,6 +193,7 @@ export function loadMockServers(skip?: number, take?: number) {
     )()
   } catch (_error) {
     // Fallback to user mock servers if workspace service is not available
+    setLoading(true)
     return pipe(
       getMyMockServers(skip, take),
       TE.match(
@@ -198,6 +216,7 @@ export function loadTeamMockServers(
   skip?: number,
   take?: number
 ) {
+  setLoading(true)
   return pipe(
     getTeamMockServers(teamID, skip, take),
     TE.match(

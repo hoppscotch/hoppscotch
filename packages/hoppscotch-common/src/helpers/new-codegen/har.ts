@@ -17,13 +17,29 @@ const splitHarQueryParams = (sep: string) => {
 }
 
 const buildHarHeaders = (req: HoppRESTRequest): Har.Header[] => {
-  return req.headers
+  const activeHeaders = req.headers
     .filter((header) => header.active)
     .map((header) => ({
       name: header.key,
       value: header.value,
     }))
+
+  // check if User-Agent already exists
+  const hasUserAgent = activeHeaders.some(
+    (header) => header.name.toLowerCase() === "user-agent"
+  )
+
+  // if not present, add a default one
+  if (!hasUserAgent) {
+    activeHeaders.push({
+      name: "User-Agent",
+      value: "Hoppscotch",
+    })
+  }
+
+  return activeHeaders;
 }
+
 
 const buildHarQueryStrings = (req: HoppRESTRequest): Har.QueryString[] => {
   return req.params

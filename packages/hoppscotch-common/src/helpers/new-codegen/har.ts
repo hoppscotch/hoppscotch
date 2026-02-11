@@ -37,9 +37,8 @@ const buildHarHeaders = (req: HoppRESTRequest): Har.Header[] => {
     })
   }
 
-  return activeHeaders;
+  return activeHeaders
 }
-
 
 const buildHarQueryStrings = (req: HoppRESTRequest): Har.QueryString[] => {
   return req.params
@@ -58,37 +57,32 @@ const buildHarPostParams = (
       }
     }
 ): Har.Param[] => {
-  // URL Encoded strings have a string style of contents
   if (req.body.contentType === "application/x-www-form-urlencoded") {
     return pipe(
       req.body.body,
       S.split("\n"),
       RA.map(
         flow(
-          // Define how each lines are parsed
-
-          splitHarQueryParams(":"), // Split by the first ":"
-          RA.map(S.trim), // Remove trailing spaces in key/value begins and ends
+          splitHarQueryParams(":"), 
+          RA.map(S.trim),
           ([key, value]) => ({
-            // Convert into a proper key value definition
             name: key,
-            value: value ?? "", // Value can be undefined (if no ":" is present)
+            value: value ?? "",
           })
         )
       ),
       RA.toArray
     )
   }
-  // FormData has its own format
+
   return req.body.body.flatMap((entry) => {
     if (entry.isFile) {
-      // We support multiple files
       const values = Array.isArray(entry.value) ? entry.value : [entry.value]
       return values.map(
         (file) =>
           <Har.Param>{
             name: entry.key,
-            fileName: entry.key, // TODO: Blob doesn't contain file info, anyway to bring file name here ?
+            fileName: entry.key,
             contentType: entry.contentType
               ? entry.contentType
               : typeof file === "object" && file && "type" in file
@@ -125,13 +119,13 @@ const buildHarPostData = (req: HoppRESTRequest): Har.PostData | undefined => {
     ] as const)
   ) {
     return {
-      mimeType: req.body.contentType, // By default assume JSON ?
+      mimeType: req.body.contentType,
       params: buildHarPostParams(req as any),
     }
   }
 
   return {
-    mimeType: req.body.contentType, // Let's assume by default content type is JSON
+    mimeType: req.body.contentType,
     text: (req.body.body as string) ?? "",
   }
 }
@@ -142,10 +136,10 @@ export const buildHarRequest = (
   postData: Har.PostData & Exclude<Har.PostData, undefined>
 } => {
   return {
-    bodySize: -1, // TODO: It would be cool if we can calculate the body size
-    headersSize: -1, // TODO: It would be cool if we can calculate the header size
+    bodySize: -1,
+    headersSize: -1,
     httpVersion: "HTTP/1.1",
-    cookies: [], // Hoppscotch does not have formal support for Cookies as of right now
+    cookies: [],
     headers: buildHarHeaders(req),
     method: req.method,
     queryString: buildHarQueryStrings(req),

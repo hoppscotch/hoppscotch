@@ -598,7 +598,9 @@ export function runRESTRequest$(
             const updatedCookies = postRequestScriptResult.right.updatedCookies
 
             if (updatedCookies) {
-              const newCookieMap = new Map<string, Cookie[]>()
+              console.log('[RequestRunner] Merging script cookies with existing jar')
+              // Create a new Map starting with existing cookies
+              const newCookieMap = new Map(cookieJarService.cookieJar.value)
 
               for (const cookie of updatedCookies) {
                 const domain = cookie.domain
@@ -607,10 +609,21 @@ export function runRESTRequest$(
                   newCookieMap.set(domain, [])
                 }
 
-                newCookieMap.get(domain)!.push(cookie)
+                const domainCookies = newCookieMap.get(domain)!
+                
+                // Remove existing cookie with same name and path if it exists
+                const filteredCookies = domainCookies.filter(
+                  (existingCookie) =>
+                    !(existingCookie.name === cookie.name && existingCookie.path === cookie.path)
+                )
+                
+                // Add the updated cookie
+                filteredCookies.push(cookie)
+                newCookieMap.set(domain, filteredCookies)
               }
 
               cookieJarService.cookieJar.value = newCookieMap
+              console.log('[RequestRunner] After merge, jar size:', cookieJarService.cookieJar.value.size)
             }
           } else {
             tab.value.document.testResults = {

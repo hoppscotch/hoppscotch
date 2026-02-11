@@ -50,6 +50,14 @@
       />
     </HoppSmartTab>
     <HoppSmartTab
+      v-if="properties?.includes('cookies') ?? true"
+      :id="'cookies'"
+      :label="`${t('tab.cookies')}`"
+      :info="`${newActiveCookiesCount}`"
+    >
+      <HttpCookies :url="request.endpoint" />
+    </HoppSmartTab>
+    <HoppSmartTab
       v-if="showPreRequestScriptTab"
       :id="'preRequestScript'"
       :label="`${t('tab.pre_request_script')}`"
@@ -105,16 +113,19 @@ import {
 } from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
 import { computed } from "vue"
+import { useService } from "dioc/vue"
 
 import { defineActionHandler } from "~/helpers/actions"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { AggregateEnvironment } from "~/newstore/environments"
+import { CookieJarService } from "~/services/cookie-jar.service"
 
 const _VALID_OPTION_TABS = [
   "params",
   "bodyParams",
   "headers",
   "authorization",
+  "cookies",
   "preRequestScript",
   "tests",
   "requestVariables",
@@ -186,6 +197,18 @@ const newActiveRequestVariablesCount = computed(() => {
 
 const isBodyFilled = computed(() => {
   return Boolean(request.value.body.body && request.value.body.body.length > 0)
+})
+
+const newActiveCookiesCount = computed(() => {
+  if (!request.value.endpoint) return null
+
+  try {
+    const cookieJarService = useService(CookieJarService)
+    const cookies = cookieJarService.getCookiesForURL(request.value.endpoint)
+    return cookies.length > 0 ? cookies.length : null
+  } catch {
+    return null
+  }
 })
 
 defineActionHandler("request.open-tab", ({ tab }) => {

@@ -107,16 +107,16 @@ import { computed, onMounted, ref, watch } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { useReadonlyStream } from "~/composables/stream"
 import { runGQLQuery } from "~/helpers/backend/GQLClient"
-import { RootCollectionsOfTeamDocument } from "~/helpers/backend/graphql"
+import {
+  RootCollectionsOfTeamDocument,
+  GetCollectionRequestsDocument,
+  GetCollectionChildrenDocument,
+} from "~/helpers/backend/graphql"
 import { TEAMS_BACKEND_PAGE_SIZE } from "~/helpers/teams/TeamCollectionAdapter"
 import { getRESTCollection, restCollections$ } from "~/newstore/collections"
 import { WorkspaceService } from "~/services/workspace.service"
 import * as E from "fp-ts/Either"
-import {
-  getCollectionChildCollections,
-  getSingleCollection,
-} from "~/helpers/teams/TeamCollection"
-import { getCollectionChildRequests } from "~/helpers/teams/TeamRequest"
+import { getSingleCollection } from "~/helpers/teams/TeamCollection"
 import { useToast } from "~/composables/toast"
 
 const workspaceService = useService(WorkspaceService)
@@ -288,41 +288,113 @@ const convertToInheritedProperties = (
   }
 }
 
+// Safety limit to prevent infinite loops from backend bugs
+const MAX_PAGES_PER_COLLECTION = 1000 // 10,000 items max per collection
+
 const getTeamCollection = async (
-  collectionID: string
+  collectionID: string,
+  collectionPath = "root"
 ): Promise<E.Either<any, HoppCollection>> => {
   const rootCollectionRes = await getSingleCollection(collectionID)
 
   if (E.isLeft(rootCollectionRes)) {
-    return E.left(rootCollectionRes.left)
+    return E.left(
+      `Failed to fetch collection '${collectionPath}': ${rootCollectionRes.left}`
+    )
   }
 
   const rootCollection = rootCollectionRes.right.collection
 
   if (!rootCollection) {
-    return E.left("ROOT_COLLECTION_NOT_FOUND")
+    return E.left(`Collection '${collectionPath}' not found`)
   }
 
-  const childRequests = await getCollectionChildRequests(collectionID)
+  const collectionName = rootCollection.title
 
-  if (E.isLeft(childRequests)) {
-    return E.left(childRequests.left)
+  // Fetch ALL requests with pagination + safety limit
+  const allRequests: any[] = []
+  let requestsCursor: string | undefined = undefined
+  let requestsPageCount = 0
+
+  while (requestsPageCount < MAX_PAGES_PER_COLLECTION) {
+    requestsPageCount++
+
+    const requestsRes: E.Either<any, any> = await runGQLQuery({
+      query: GetCollectionRequestsDocument,
+      variables: {
+        collectionID,
+        cursor: requestsCursor,
+      },
+    })
+
+    if (E.isLeft(requestsRes)) {
+      return E.left(
+        `Failed to fetch requests for '${collectionName}' (page ${requestsPageCount}): ${requestsRes.left}`
+      )
+    }
+
+    const requestsPage: any[] = requestsRes.right.requestsInCollection
+    allRequests.push(...requestsPage)
+
+    // If we got fewer than page size, we're done
+    if (requestsPage.length < TEAMS_BACKEND_PAGE_SIZE) break
+
+    // Update cursor for next page
+    requestsCursor = requestsPage[requestsPage.length - 1].id
   }
 
-  const childCollectionsRes = await getCollectionChildCollections(collectionID)
-
-  if (E.isLeft(childCollectionsRes)) {
-    return E.left(childCollectionsRes.left)
-  }
-
-  if (!childCollectionsRes.right.collection) {
-    return E.left("CHILD_COLLECTIONS_NOT_FOUND")
-  }
-
-  const childCollectionExpandedPromises =
-    childCollectionsRes.right.collection.children.map((col) =>
-      getTeamCollection(col.id)
+  if (requestsPageCount >= MAX_PAGES_PER_COLLECTION) {
+    return E.left(
+      `Collection '${collectionName}' exceeded maximum page limit (${MAX_PAGES_PER_COLLECTION} pages) - possible infinite loop`
     )
+  }
+
+  // Fetch ALL child collections with pagination + safety limit
+  const allChildCollections: any[] = []
+  let childrenCursor: string | undefined = undefined
+  let childrenPageCount = 0
+
+  while (childrenPageCount < MAX_PAGES_PER_COLLECTION) {
+    childrenPageCount++
+
+    const childrenRes: E.Either<any, any> = await runGQLQuery({
+      query: GetCollectionChildrenDocument,
+      variables: {
+        collectionID,
+        cursor: childrenCursor,
+      },
+    })
+
+    if (E.isLeft(childrenRes)) {
+      return E.left(
+        `Failed to fetch child collections for '${collectionName}' (page ${childrenPageCount}): ${childrenRes.left}`
+      )
+    }
+
+    if (!childrenRes.right.collection) {
+      return E.left(`Child collections not found for '${collectionName}'`)
+    }
+
+    const childrenPage: any[] = childrenRes.right.collection.children
+    allChildCollections.push(...childrenPage)
+
+    // If we got fewer than page size, we're done
+    if (childrenPage.length < TEAMS_BACKEND_PAGE_SIZE) break
+
+    // Update cursor for next page
+    childrenCursor = childrenPage[childrenPage.length - 1].id
+  }
+
+  if (childrenPageCount >= MAX_PAGES_PER_COLLECTION) {
+    return E.left(
+      `Collection '${collectionName}' exceeded maximum page limit for child collections - possible infinite loop`
+    )
+  }
+
+  // Recursively fetch all nested collections
+  const childCollectionExpandedPromises = allChildCollections.map((col) =>
+    getTeamCollection(col.id, `${collectionPath}/${col.title}`)
+  )
 
   const childCollectionPromiseRes = await Promise.all(
     childCollectionExpandedPromises
@@ -331,7 +403,9 @@ const getTeamCollection = async (
   const hasAnyError = childCollectionPromiseRes.some((res) => E.isLeft(res))
 
   if (hasAnyError) {
-    return E.left("CHILD_COLLECTIONS_NOT_FOUND")
+    // Find first error and preserve its context
+    const firstError = childCollectionPromiseRes.find((res) => E.isLeft(res))
+    return E.left((firstError as E.Left<any>).left)
   }
 
   const unwrappedChildCollections = childCollectionPromiseRes.map(
@@ -339,10 +413,10 @@ const getTeamCollection = async (
   )
 
   const collectionInHoppFormat: HoppCollection = makeCollection({
-    name: rootCollection.title,
+    name: collectionName,
     ...convertToInheritedProperties(rootCollection.data),
     folders: unwrappedChildCollections,
-    requests: childRequests.right.requestsInCollection.map((req) => {
+    requests: allRequests.map((req) => {
       return JSON.parse(req.request) as HoppRESTRequest | HoppGQLRequest
     }),
   })

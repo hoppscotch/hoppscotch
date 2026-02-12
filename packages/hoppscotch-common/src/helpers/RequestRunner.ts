@@ -369,6 +369,17 @@ const delegatePreRequestScriptRunner = (
   const { preRequestScript } = request
 
   const cleanScript = stripModulePrefix(preRequestScript)
+
+  // Short-circuit empty scripts to avoid unnecessary WASM initialization
+  if (cleanScript.trim().length === 0) {
+    return Promise.resolve(
+      E.right({
+        updatedEnvs: envs,
+        updatedCookies: cookies,
+      })
+    )
+  }
+
   if (!EXPERIMENTAL_SCRIPTING_SANDBOX.value) {
     // Strip `export {};\n` before executing in legacy sandbox to prevent syntax errors
 
@@ -399,6 +410,19 @@ const runPostRequestScript = (
   const { testScript } = request
 
   const cleanScript = stripModulePrefix(testScript)
+
+  // Short-circuit empty scripts to avoid unnecessary WASM initialization
+  if (cleanScript.trim().length === 0) {
+    return Promise.resolve(
+      E.right({
+        tests: { descriptor: "root", expectResults: [], children: [] },
+        envs,
+        consoleEntries: [],
+        updatedCookies: cookies,
+      } satisfies SandboxTestResult)
+    )
+  }
+
   if (!EXPERIMENTAL_SCRIPTING_SANDBOX.value) {
     // Strip `export {};\n` before executing in legacy sandbox to prevent syntax errors
 
@@ -481,7 +505,7 @@ export function runRESTRequest$(
     if (cancelCalled) return E.left("cancellation" as const)
 
     if (E.isLeft(preRequestScriptResult)) {
-      console.error(preRequestScriptResult.left)
+      console.error("[Pre-Request Script Error]", preRequestScriptResult.left)
       return E.left("script_fail" as const)
     }
 
@@ -613,6 +637,11 @@ export function runRESTRequest$(
               cookieJarService.cookieJar.value = newCookieMap
             }
           } else {
+            console.error(
+              "[Post-Request Script Error]",
+              postRequestScriptResult.left
+            )
+
             tab.value.document.testResults = {
               description: "",
               expectResults: [],
@@ -798,7 +827,7 @@ export async function runTestRunnerRequest(
     cookieJarEntries
   ).then(async (preRequestScriptResult) => {
     if (E.isLeft(preRequestScriptResult)) {
-      console.error(preRequestScriptResult.left)
+      console.error("[Pre-Request Script Error]", preRequestScriptResult.left)
       return E.left("script_fail" as const)
     }
 
@@ -904,6 +933,13 @@ export async function runTestRunnerRequest(
               updatedRequest: finalRequest,
             })
           }
+
+          // Post-request script failed
+          console.error(
+            "[Post-Request Script Error]",
+            postRequestScriptResult.left
+          )
+
           const sandboxTestResult = {
             description: "",
             expectResults: [],

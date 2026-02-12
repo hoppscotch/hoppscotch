@@ -62,6 +62,7 @@ import { computed } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useService } from "dioc/vue"
 import { CookieJarService } from "~/services/cookie-jar.service"
+import { APP_IS_IN_DEV_MODE } from "~/helpers/dev"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconX from "~icons/lucide/x"
 
@@ -74,17 +75,23 @@ const props = defineProps<{
 const cookieJarService = useService(CookieJarService)
 
 const cookies = computed(() => {
-  console.log('[Cookies.vue] Computing cookies for URL:', props.url)
-  console.log('[Cookies.vue] CookieJar size:', cookieJarService.cookieJar.value.size)
+  if (APP_IS_IN_DEV_MODE) {
+    console.log('[Cookies.vue] Computing cookies for URL:', props.url)
+    console.log('[Cookies.vue] CookieJar size:', cookieJarService.cookieJar.value.size)
+  }
   
   if (!props.url) {
-    console.log('[Cookies.vue] No URL provided')
+    if (APP_IS_IN_DEV_MODE) {
+      console.log('[Cookies.vue] No URL provided')
+    }
     return []
   }
   
   try {
     const result = cookieJarService.getCookiesForURL(props.url)
-    console.log('[Cookies.vue] Cookies found:', result.length, result)
+    if (APP_IS_IN_DEV_MODE) {
+      console.log('[Cookies.vue] Cookies found:', result.length, result)
+    }
     return result
   } catch (error) {
     console.error("[Cookies.vue] Error getting cookies:", error)
@@ -93,43 +100,75 @@ const cookies = computed(() => {
 })
 
 const removeCookie = (cookie: any) => {
-  console.log('[Cookies.vue] removeCookie called:', { name: cookie.name, domain: cookie.domain, path: cookie.path })
+  if (APP_IS_IN_DEV_MODE) {
+    console.log('[Cookies.vue] removeCookie called:', { name: cookie.name, domain: cookie.domain, path: cookie.path })
+  }
   try {
     // Use the exact domain from the cookie object
     cookieJarService.removeCookie(cookie.name, cookie.domain, cookie.path)
-    console.log('[Cookies.vue] removeCookie completed')
+    if (APP_IS_IN_DEV_MODE) {
+      console.log('[Cookies.vue] removeCookie completed')
+    }
   } catch (error) {
     console.error("[Cookies.vue] Error removing cookie:", error)
   }
 }
 
 const clearAllCookies = () => {
-  console.log('[Cookies.vue] clearAllCookies called for URL:', props.url)
+  if (APP_IS_IN_DEV_MODE) {
+    console.log('[Cookies.vue] clearAllCookies called for URL:', props.url)
+  }
   if (!props.url) return
   
   try {
     const url = new URL(props.url)
     const hostname = url.hostname
-    console.log('[Cookies.vue] Hostname:', hostname)
+    if (APP_IS_IN_DEV_MODE) {
+      console.log('[Cookies.vue] Hostname:', hostname)
+    }
     
     // Get all matching domains for this URL (including parent domains with dots)
     const allDomains = Array.from(cookieJarService.cookieJar.value.keys())
-    console.log('[Cookies.vue] All domains in jar:', allDomains)
+    if (APP_IS_IN_DEV_MODE) {
+      console.log('[Cookies.vue] All domains in jar:', allDomains)
+    }
     
     const matchingDomains = allDomains.filter(domain => {
-      // Match exact domain or if hostname ends with the domain (for .domain.com patterns)
-      return hostname === domain || hostname.endsWith(domain) || domain.endsWith(hostname)
+      // Exact match
+      if (hostname === domain) return true
+      
+      // Cookie domain with leading dot (e.g., .example.com)
+      if (domain.startsWith('.')) {
+        const domainWithoutDot = domain.slice(1)
+        // Match if hostname equals domain without dot, or is a subdomain
+        return hostname === domainWithoutDot || hostname.endsWith(domain)
+      }
+      
+      // Cookie domain without leading dot - check if hostname is a subdomain with proper dot boundary
+      // e.g., hostname "www.example.com" should match domain "example.com" but not "ample.com"
+      if (hostname.endsWith('.' + domain)) return true
+      
+      // Cookie domain could be stored as parent of hostname (e.g., domain ".example.com" for hostname "example.com")
+      if (domain.startsWith('.') && domain.slice(1) === hostname) return true
+      
+      return false
     })
     
-    console.log('[Cookies.vue] Matching domains:', matchingDomains)
+    if (APP_IS_IN_DEV_MODE) {
+      console.log('[Cookies.vue] Matching domains:', matchingDomains)
+    }
     
     // Clear cookies for all matching domains
     matchingDomains.forEach(domain => {
-      console.log('[Cookies.vue] Clearing domain:', domain)
+      if (APP_IS_IN_DEV_MODE) {
+        console.log('[Cookies.vue] Clearing domain:', domain)
+      }
       cookieJarService.clearCookiesForDomain(domain)
     })
     
-    console.log('[Cookies.vue] clearAllCookies completed')
+    if (APP_IS_IN_DEV_MODE) {
+      console.log('[Cookies.vue] clearAllCookies completed')
+    }
   } catch (error) {
     console.error("[Cookies.vue] Error clearing cookies:", error)
   }

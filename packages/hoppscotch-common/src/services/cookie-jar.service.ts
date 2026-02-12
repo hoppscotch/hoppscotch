@@ -2,6 +2,7 @@ import { Service } from "dioc"
 import { ref, watch } from "vue"
 import { parseString as setCookieParse } from "set-cookie-parser-es"
 import { Cookie } from "@hoppscotch/data"
+import { APP_IS_IN_DEV_MODE } from "~/helpers/dev"
 
 const COOKIE_JAR_STORAGE_KEY = "hoppscotch_cookie_jar"
 
@@ -15,14 +16,11 @@ export class CookieJarService extends Service {
    */
   public cookieJar = ref(new Map<string, Cookie[]>())
 
-  constructor() {
-    super()
-    console.log('[CookieJar] Service instance created')
-    this.loadCookiesFromStorage()
-  }
-
   override onServiceInit() {
-    console.log('[CookieJar] Service initialized, jar size:', this.cookieJar.value.size)
+    if (APP_IS_IN_DEV_MODE) {
+      console.log('[CookieJar] Service initialized')
+    }
+    this.loadCookiesFromStorage()
     
     // Watch for changes and persist to storage
     watch(
@@ -50,7 +48,9 @@ export class CookieJarService extends Service {
         }
         
         this.cookieJar.value = cookieMap
-        console.log('[CookieJar] Loaded cookies from storage. Domains:', cookieMap.size)
+        if (APP_IS_IN_DEV_MODE) {
+          console.log('[CookieJar] Loaded cookies from storage. Domains:', cookieMap.size)
+        }
       }
     } catch (error) {
       console.error('[CookieJar] Error loading cookies from storage:', error)
@@ -65,7 +65,9 @@ export class CookieJarService extends Service {
       // Convert Map to array for JSON serialization
       const cookieArray = Array.from(cookieJar.entries())
       localStorage.setItem(COOKIE_JAR_STORAGE_KEY, JSON.stringify(cookieArray))
-      console.log('[CookieJar] Saved cookies to storage. Domains:', cookieJar.size)
+      if (APP_IS_IN_DEV_MODE) {
+        console.log('[CookieJar] Saved cookies to storage. Domains:', cookieJar.size)
+      }
     } catch (error) {
       console.error('[CookieJar] Error saving cookies to storage:', error)
     }
@@ -93,27 +95,37 @@ export class CookieJarService extends Service {
    * @param requestUrl The URL of the request that generated the response
    */
   public extractCookiesFromResponse(setCookieHeaders: string[], requestUrl: string) {
-    console.log('[CookieJar] extractCookiesFromResponse called', { headersCount: setCookieHeaders.length, requestUrl })
+    if (APP_IS_IN_DEV_MODE) {
+      console.log('[CookieJar] extractCookiesFromResponse called', { headersCount: setCookieHeaders.length, requestUrl })
+    }
     
     if (!setCookieHeaders || setCookieHeaders.length === 0) return
 
     try {
       const url = new URL(requestUrl)
       const defaultDomain = url.hostname
-      console.log('[CookieJar] Processing cookies for domain:', defaultDomain)
+      if (APP_IS_IN_DEV_MODE) {
+        console.log('[CookieJar] Processing cookies for domain:', defaultDomain)
+      }
 
       setCookieHeaders.forEach((setCookieHeader, index) => {
-        console.log(`[CookieJar] Processing cookie ${index + 1}:`, setCookieHeader)
+        if (APP_IS_IN_DEV_MODE) {
+          console.log(`[CookieJar] Processing cookie ${index + 1}:`, setCookieHeader)
+        }
         const parsedCookie = setCookieParse(setCookieHeader)
         if (parsedCookie) {
           const cookieDomain = parsedCookie.domain || defaultDomain
-          console.log('[CookieJar] Parsed cookie:', { name: parsedCookie.name, domain: cookieDomain })
+          if (APP_IS_IN_DEV_MODE) {
+            console.log('[CookieJar] Parsed cookie:', { name: parsedCookie.name, domain: cookieDomain })
+          }
           this.addCookie(setCookieHeader, cookieDomain)
         } else {
           console.warn('[CookieJar] Failed to parse cookie:', setCookieHeader)
         }
       })
-      console.log('[CookieJar] Cookie extraction completed. Total domains:', this.cookieJar.value.size)
+      if (APP_IS_IN_DEV_MODE) {
+        console.log('[CookieJar] Cookie extraction completed. Total domains:', this.cookieJar.value.size)
+      }
     } catch (error) {
       console.error("Error extracting cookies from response:", error)
     }
@@ -126,16 +138,18 @@ export class CookieJarService extends Service {
    */
   public addCookie(cookieString: string, domain: string) {
     const existingDomainEntries = this.cookieJar.value.get(domain) ?? []
-    console.log('[CookieJar] addCookie - existing entries:', existingDomainEntries.length)
+    if (APP_IS_IN_DEV_MODE) {
+      console.log('[CookieJar] addCookie - existing entries:', existingDomainEntries.length)
+    }
 
     // Parse the new cookie
     const parsedCookie = setCookieParse(cookieString)
-    if (!parsedCookie) return
+    if (!parsedCookie || !parsedCookie.name) return
 
     // Convert parsed cookie to Cookie type
     const cookieEntry: Cookie = {
       name: parsedCookie.name,
-      value: parsedCookie.value,
+      value: parsedCookie.value || "",
       domain: parsedCookie.domain || domain,
       path: parsedCookie.path || "/",
       expires: parsedCookie.expires ? parsedCookie.expires.toISOString() : undefined,
@@ -145,7 +159,9 @@ export class CookieJarService extends Service {
       sameSite: parsedCookie.sameSite === "none" ? "None" : parsedCookie.sameSite === "lax" ? "Lax" : parsedCookie.sameSite === "strict" ? "Strict" : "None",
     }
 
-    console.log('[CookieJar] addCookie - new cookie:', { name: cookieEntry.name, domain: cookieEntry.domain, path: cookieEntry.path })
+    if (APP_IS_IN_DEV_MODE) {
+      console.log('[CookieJar] addCookie - new cookie:', { name: cookieEntry.name, domain: cookieEntry.domain, path: cookieEntry.path })
+    }
 
     // Remove any existing cookie with the same name and path
     const filteredEntries = existingDomainEntries.filter((existingCookie) => {
@@ -155,14 +171,18 @@ export class CookieJarService extends Service {
     // Add the new cookie and create a new array reference
     const newEntries = [...filteredEntries, cookieEntry]
     
-    console.log('[CookieJar] addCookie - new entries count:', newEntries.length)
+    if (APP_IS_IN_DEV_MODE) {
+      console.log('[CookieJar] addCookie - new entries count:', newEntries.length)
+    }
 
     // Create new Map to trigger Vue reactivity
     const newJar = new Map(this.cookieJar.value)
     newJar.set(domain, newEntries)
     this.cookieJar.value = newJar
     
-    console.log('[CookieJar] addCookie - jar updated. Total domains:', this.cookieJar.value.size, 'Cookies in domain:', this.cookieJar.value.get(domain)?.length)
+    if (APP_IS_IN_DEV_MODE) {
+      console.log('[CookieJar] addCookie - jar updated. Total domains:', this.cookieJar.value.size, 'Cookies in domain:', this.cookieJar.value.get(domain)?.length)
+    }
   }
 
   /**
@@ -172,14 +192,20 @@ export class CookieJarService extends Service {
    * @param path Cookie path (optional)
    */
   public removeCookie(name: string, domain: string, path?: string) {
-    console.log('[CookieJar] removeCookie called:', { name, domain, path })
+    if (APP_IS_IN_DEV_MODE) {
+      console.log('[CookieJar] removeCookie called:', { name, domain, path })
+    }
     const domainEntries = this.cookieJar.value.get(domain)
     if (!domainEntries) {
-      console.log('[CookieJar] No entries found for domain:', domain)
+      if (APP_IS_IN_DEV_MODE) {
+        console.log('[CookieJar] No entries found for domain:', domain)
+      }
       return
     }
 
-    console.log('[CookieJar] Before removal, entries count:', domainEntries.length)
+    if (APP_IS_IN_DEV_MODE) {
+      console.log('[CookieJar] Before removal, entries count:', domainEntries.length)
+    }
 
     // Filter returns a new array, so this already creates a new reference
     const filteredEntries = domainEntries.filter((cookie) => {
@@ -189,7 +215,9 @@ export class CookieJarService extends Service {
       return cookie.name !== name
     })
 
-    console.log('[CookieJar] After filtering, entries count:', filteredEntries.length)
+    if (APP_IS_IN_DEV_MODE) {
+      console.log('[CookieJar] After filtering, entries count:', filteredEntries.length)
+    }
 
     // Create a completely new Map with all entries copied to ensure Vue reactivity
     const newJar = new Map<string, Cookie[]>()
@@ -210,8 +238,10 @@ export class CookieJarService extends Service {
     // Assign the new Map to trigger Vue reactivity
     this.cookieJar.value = newJar
     
-    console.log('[CookieJar] After removal, total domains:', this.cookieJar.value.size)
-    console.log('[CookieJar] Remaining cookies for domain:', this.cookieJar.value.get(domain)?.length ?? 0)
+    if (APP_IS_IN_DEV_MODE) {
+      console.log('[CookieJar] After removal, total domains:', this.cookieJar.value.size)
+      console.log('[CookieJar] Remaining cookies for domain:', this.cookieJar.value.get(domain)?.length ?? 0)
+    }
   }
 
   /**
@@ -219,24 +249,32 @@ export class CookieJarService extends Service {
    * @param domain Domain to clear cookies for
    */
   public clearCookiesForDomain(domain: string) {
-    console.log('[CookieJar] clearCookiesForDomain called for:', domain)
-    console.trace('[CookieJar] clearCookiesForDomain stack trace')
+    if (APP_IS_IN_DEV_MODE) {
+      console.log('[CookieJar] clearCookiesForDomain called for:', domain)
+      console.trace('[CookieJar] clearCookiesForDomain stack trace')
+    }
     // Create new Map to trigger Vue reactivity
     const newJar = new Map(this.cookieJar.value)
     newJar.delete(domain)
     this.cookieJar.value = newJar
-    console.log('[CookieJar] After clear, jar size:', this.cookieJar.value.size)
+    if (APP_IS_IN_DEV_MODE) {
+      console.log('[CookieJar] After clear, jar size:', this.cookieJar.value.size)
+    }
   }
 
   /**
    * Clear all cookies
    */
   public clearAllCookies() {
-    console.log('[CookieJar] clearAllCookies called')
-    console.trace('[CookieJar] clearAllCookies stack trace')
+    if (APP_IS_IN_DEV_MODE) {
+      console.log('[CookieJar] clearAllCookies called')
+      console.trace('[CookieJar] clearAllCookies stack trace')
+    }
     // Create new Map to trigger Vue reactivity
     this.cookieJar.value = new Map()
-    console.log('[CookieJar] After clearAll, jar size:', this.cookieJar.value.size)
+    if (APP_IS_IN_DEV_MODE) {
+      console.log('[CookieJar] After clearAll, jar size:', this.cookieJar.value.size)
+    }
   }
 
   public getCookiesForURL(url: URL | string) {
@@ -250,7 +288,12 @@ export class CookieJarService extends Service {
     }
 
     const relevantDomains = Array.from(this.cookieJar.value.keys()).filter(
-      (domain) => urlObj.hostname.endsWith(domain)
+      (domain) => {
+        // Normalize domain by removing leading dot if present
+        const normalized = domain.startsWith(".") ? domain.slice(1) : domain
+        // Match if hostname equals normalized domain, or hostname is a subdomain with dot boundary
+        return urlObj.hostname === normalized || urlObj.hostname.endsWith(`.${normalized}`)
+      }
     )
 
     return relevantDomains

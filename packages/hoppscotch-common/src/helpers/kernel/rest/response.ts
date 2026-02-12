@@ -6,6 +6,7 @@ import {
 } from "~/helpers/types/HoppRESTResponse"
 import { getService } from "~/modules/dioc"
 import { CookieJarService } from "~/services/cookie-jar.service"
+import { APP_IS_IN_DEV_MODE } from "~/helpers/dev"
 
 export type HoppRESTTransformError = {
   type: "fail"
@@ -94,15 +95,21 @@ export const RESTResponse = {
       .filter(header => header.key.toLowerCase() === 'set-cookie')
       .map(header => header.value)
 
-    console.log('[Cookie Debug] Set-Cookie headers found:', setCookieHeaders.length, setCookieHeaders)
+    if (APP_IS_IN_DEV_MODE) {
+      console.log('[Cookie Debug] Set-Cookie headers found:', setCookieHeaders.length, setCookieHeaders)
+    }
 
     if (setCookieHeaders.length > 0) {
       try {
         // Get CookieJarService instance and extract cookies
         const cookieJarService = getService(CookieJarService)
-        console.log('[Cookie Debug] Extracting cookies for URL:', originalRequest.endpoint)
+        if (APP_IS_IN_DEV_MODE) {
+          console.log('[Cookie Debug] Extracting cookies for URL:', originalRequest.endpoint)
+        }
         cookieJarService.extractCookiesFromResponse(setCookieHeaders, originalRequest.endpoint)
-        console.log('[Cookie Debug] Cookies extracted successfully')
+        if (APP_IS_IN_DEV_MODE) {
+          console.log('[Cookie Debug] Cookies extracted successfully')
+        }
       } catch (error) {
         console.warn("Failed to extract cookies from response:", error)
         // Don't fail the response if cookie extraction fails

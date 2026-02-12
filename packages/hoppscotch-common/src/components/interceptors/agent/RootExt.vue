@@ -73,7 +73,7 @@ async function register() {
   try {
     await agentService.initiateRegistration()
     registrationStatus.value = "otp_required"
-  } catch (error) {
+  } catch (_error) {
     toast.error("Failed to initiate registration. Please try again.")
     registrationStatus.value = "initial"
   }
@@ -85,7 +85,7 @@ async function verifyOTP(otp: string) {
     await agentService.verifyRegistration(otp)
     toast.success("Registration successful!")
     hideModal()
-  } catch (error) {
+  } catch (_error) {
     toast.error("Failed to verify OTP. Please try again.")
     registrationStatus.value = "otp_required"
   }

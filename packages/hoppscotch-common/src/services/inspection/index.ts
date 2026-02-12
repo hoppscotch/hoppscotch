@@ -4,7 +4,17 @@ import {
 } from "@hoppscotch/data"
 import { refDebounced } from "@vueuse/core"
 import { Service } from "dioc"
-import { Component, Ref, ref, watch, computed, markRaw, reactive } from "vue"
+import {
+  Component,
+  Ref,
+  ref,
+  watch,
+  computed,
+  markRaw,
+  reactive,
+  effectScope,
+  EffectScope,
+} from "vue"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { RESTTabService } from "../tab/rest"
 /**
@@ -112,8 +122,21 @@ export class InspectionService extends Service {
 
   private readonly restTab = this.bind(RESTTabService)
 
+  private watcherStopHandle: (() => void) | null = null
+  private effectScope: EffectScope | null = null
+
   override onServiceInit() {
     this.initializeListeners()
+
+    // Watch for tab changes and inspector registration to reinitialize
+    // and create new debounced refs
+    watch(
+      () => [this.inspectors.entries(), this.restTab.currentActiveTab.value.id],
+      () => {
+        this.initializeListeners()
+      },
+      { flush: "pre" }
+    )
   }
 
   /**
@@ -126,56 +149,66 @@ export class InspectionService extends Service {
   }
 
   private initializeListeners() {
-    watch(
-      () => [this.inspectors.entries(), this.restTab.currentActiveTab.value.id],
-      () => {
-        const currentTabRequest = computed(() => {
-          if (
-            this.restTab.currentActiveTab.value.document.type === "test-runner"
-          )
-            return null
+    // Dispose previous reactive effects
+    this.watcherStopHandle?.()
+    this.effectScope?.stop()
 
-          return this.restTab.currentActiveTab.value.document.type === "request"
-            ? this.restTab.currentActiveTab.value.document.request
-            : this.restTab.currentActiveTab.value.document.response
-                .originalRequest
-        })
+    // Create new effect scope for all computed refs and watchers
+    this.effectScope = effectScope()
 
-        const currentTabResponse = computed(() => {
-          if (this.restTab.currentActiveTab.value.document.type === "request") {
-            return this.restTab.currentActiveTab.value.document.response
-          }
+    this.effectScope.run(() => {
+      const currentTabRequest = computed(() => {
+        if (this.restTab.currentActiveTab.value.document.type === "test-runner")
           return null
-        })
 
-        const reqRef = computed(() => currentTabRequest.value)
-        const resRef = computed(() => currentTabResponse.value)
+        return this.restTab.currentActiveTab.value.document.type === "request"
+          ? this.restTab.currentActiveTab.value.document.request
+          : this.restTab.currentActiveTab.value.document.response
+              .originalRequest
+      })
 
-        const debouncedReq = refDebounced(reqRef, 1000, { maxWait: 2000 })
-        const debouncedRes = refDebounced(resRef, 1000, { maxWait: 2000 })
+      const currentTabResponse = computed(() => {
+        if (this.restTab.currentActiveTab.value.document.type === "request") {
+          return this.restTab.currentActiveTab.value.document.response
+        }
+        return null
+      })
 
-        const inspectorRefs = Array.from(this.inspectors.values()).map((x) =>
-          // @ts-expect-error - This is a valid call
-          x.getInspections(debouncedReq, debouncedRes)
+      const debouncedReq = refDebounced(currentTabRequest, 1000, {
+        maxWait: 2000,
+      })
+      const debouncedRes = refDebounced(currentTabResponse, 1000, {
+        maxWait: 2000,
+      })
+
+      const inspectorRefs = computed(() => {
+        if (debouncedReq.value === null) return []
+
+        return Array.from(this.inspectors.values()).map((inspector) =>
+          inspector.getInspections(
+            debouncedReq as Readonly<
+              Ref<HoppRESTRequest | HoppRESTResponseOriginalRequest>
+            >,
+            debouncedRes
+          )
         )
+      })
 
-        const activeInspections = computed(() =>
-          inspectorRefs.flatMap((x) => x!.value)
-        )
+      const activeInspections = computed(() =>
+        inspectorRefs.value.flatMap((x) => x?.value ?? [])
+      )
 
-        watch(
-          () => [...inspectorRefs.flatMap((x) => x!.value)],
-          () => {
-            this.tabs.value.set(
-              this.restTab.currentActiveTab.value.id,
-              activeInspections.value
-            )
-          },
-          { immediate: true }
-        )
-      },
-      { immediate: true, flush: "pre" }
-    )
+      this.watcherStopHandle = watch(
+        () => [...activeInspections.value],
+        () => {
+          this.tabs.value.set(
+            this.restTab.currentActiveTab.value.id,
+            activeInspections.value
+          )
+        },
+        { immediate: true, flush: "pre" }
+      )
+    })
   }
 
   public deleteTabInspectorResult(tabID: string) {

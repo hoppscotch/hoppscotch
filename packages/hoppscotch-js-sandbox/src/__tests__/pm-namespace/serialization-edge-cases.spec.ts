@@ -947,7 +947,6 @@ describe("Serialization Edge Cases - Assertion Chaining", () => {
           pm.test("Circular array limitation", function() {
             const arr = [1, 2, 3]
             arr.push(arr)  // Creates circular reference
-
             pm.expect(arr).to.have.lengthOf(4)
           })
         `)()

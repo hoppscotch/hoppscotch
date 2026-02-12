@@ -139,7 +139,7 @@ async function getInitialUserDetails(): Promise<
       }
     }
     return { error: "auth/cookies_not_found" }
-  } catch (error) {
+  } catch (_error) {
     return { error: "auth/cookies_not_found" }
   }
 }
@@ -254,7 +254,7 @@ async function refreshToken() {
     }
 
     return isSuccessful
-  } catch (err) {
+  } catch (_err) {
     return false
   }
 }

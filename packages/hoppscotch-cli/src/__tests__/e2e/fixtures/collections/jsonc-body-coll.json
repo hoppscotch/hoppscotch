@@ -1,0 +1,74 @@
+{
+  "v": 11,
+  "name": "JSONC Body Test Collection",
+  "folders": [],
+  "requests": [
+    {
+      "v": "17",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "body": "{\n  \"key1\": \"value1\", // inline comment\n  \"key2\": \"value2\" // another comment\n}",
+        "contentType": "application/json"
+      },
+      "name": "Echo with inline comments",
+      "method": "POST",
+      "params": [],
+      "headers": [],
+      "endpoint": "https://echo.hoppscotch.io",
+      "testScript": "hopp.test('Should successfully parse JSONC with comments', () => {\n  hopp.expect(hopp.response.statusCode).toBe(200);\n  const data = JSON.parse(hopp.response.body.asJSON().data);\n  hopp.expect(data.key1).toBe('value1');\n  hopp.expect(data.key2).toBe('value2');\n});",
+      "preRequestScript": "",
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "17",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "body": "{\n  /* Multi-line comment\n     should also work */\n  \"message\": \"test\",\n  \"nested\": {\n    \"field\": \"value\" // another comment\n  }\n}",
+        "contentType": "application/json"
+      },
+      "name": "Echo with multiline comments",
+      "method": "POST",
+      "params": [],
+      "headers": [],
+      "endpoint": "https://echo.hoppscotch.io",
+      "testScript": "hopp.test('Should successfully parse JSONC with multiline comments', () => {\n  hopp.expect(hopp.response.statusCode).toBe(200);\n  const data = JSON.parse(hopp.response.body.asJSON().data);\n  hopp.expect(data.message).toBe('test');\n  hopp.expect(data.nested.field).toBe('value');\n});",
+      "preRequestScript": "",
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "17",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "body": "{\n  \"key\": \"value\",\n  \"count\": 42,\n}",
+        "contentType": "application/json"
+      },
+      "name": "Echo with trailing commas",
+      "method": "POST",
+      "params": [],
+      "headers": [],
+      "endpoint": "https://echo.hoppscotch.io",
+      "testScript": "hopp.test('Should successfully parse JSONC with trailing commas', () => {\n  hopp.expect(hopp.response.statusCode).toBe(200);\n  const data = JSON.parse(hopp.response.body.asJSON().data);\n  hopp.expect(data.key).toBe('value');\n  hopp.expect(data.count).toBe(42);\n});",
+      "preRequestScript": "",
+      "requestVariables": [],
+      "responses": {}
+    }
+  ],
+  "auth": {
+    "authType": "inherit",
+    "authActive": true
+  },
+  "headers": [],
+  "variables": [],
+  "description": ""
+}

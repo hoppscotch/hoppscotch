@@ -18,6 +18,7 @@ import { HoppEnvs } from "../types/request";
 import { ExpectResult, TestMetrics, TestRunnerRes } from "../types/response";
 import { getDurationInSeconds } from "./getters";
 import { createHoppFetchHook } from "./hopp-fetch";
+import { stripModulePrefix } from "./mutators";
 import { combineScriptsWithIIFE } from "./scripting";
 
 /**
@@ -61,7 +62,7 @@ export const testRunner = (
             ...inheritedTestScripts.toReversed(),
           ]);
 
-          return runTestScript(combinedScript, {
+          return runTestScript(stripModulePrefix(combinedScript), {
             envs,
             request,
             response: effectiveResponse,

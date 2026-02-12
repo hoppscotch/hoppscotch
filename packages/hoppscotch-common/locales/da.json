@@ -620,7 +620,7 @@
   "response": {
     "audio": "Lyd",
     "body": "Svarbesked",
-    "filter_response_body": "Filtrer JSON-svarbesked (bruger JSONPath-syntaks)",
+    "filter_response_body": "Filtrer JSON-svarbesked (bruger jq-syntaks)",
     "headers": "Headers",
     "html": "HTML",
     "image": "Billede",

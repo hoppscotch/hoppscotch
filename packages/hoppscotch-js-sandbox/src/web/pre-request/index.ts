@@ -1,4 +1,3 @@
-import { FaradayCage } from "faraday-cage"
 import { ConsoleEntry } from "faraday-cage/modules"
 import * as E from "fp-ts/Either"
 import { cloneDeep } from "lodash"
@@ -10,6 +9,7 @@ import {
 } from "~/types"
 
 import { defaultModules, preRequestModule } from "~/cage-modules"
+import { acquireCage } from "~/utils/cage"
 
 import { Cookie, HoppRESTRequest } from "@hoppscotch/data"
 import Worker from "./worker?worker&inline"
@@ -47,7 +47,7 @@ const runPreRequestScriptWithFaradayCage = async (
   let finalRequest = request
   let finalCookies = cookies
 
-  const cage = await FaradayCage.create()
+  const cage = await acquireCage()
 
   try {
     // Create a hook object to receive the capture function from the module

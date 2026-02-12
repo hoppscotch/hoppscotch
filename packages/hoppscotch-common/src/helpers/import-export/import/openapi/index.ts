@@ -33,7 +33,10 @@ import { IMPORTER_INVALID_FILE_FORMAT } from ".."
 import { cloneDeep } from "lodash-es"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
 import { isNumeric } from "~/helpers/utils/number"
-import { generateRequestBodyExampleFromOpenAPIV2Body } from "./example-generators/v2"
+import {
+  generateRequestBodyExampleFromOpenAPIV2Body,
+  generateRequestBodyExampleFromOpenAPIV2BodySchema as generateV2ExampleFromSchemaObject,
+} from "./example-generators/v2"
 import { generateRequestBodyExampleFromMediaObject as generateV3Example } from "./example-generators/v3"
 import { generateRequestBodyExampleFromMediaObject as generateV31Example } from "./example-generators/v31"
 
@@ -165,6 +168,7 @@ const parseOpenAPIVariables = (
   )
 
 const parseOpenAPIV3Responses = (
+  doc: OpenAPI.Document,
   op: OpenAPIV3.OperationObject | OpenAPIV31.OperationObject,
   originalRequest: HoppRESTResponseOriginalRequest
 ): HoppRESTRequestResponses => {
@@ -178,9 +182,11 @@ const parseOpenAPIV3Responses = (
       | OpenAPIV3.ResponseObject
       | OpenAPIV31.ResponseObject
 
-    // add support for schema key as well
     const contentType = Object.keys(response.content ?? {})[0]
-    const body = response.content?.[contentType]
+    const mediaObject = response.content?.[contentType] as
+      | OpenAPIV3.MediaTypeObject
+      | OpenAPIV31.MediaTypeObject
+      | undefined
 
     const name = response.description ?? key
 
@@ -198,16 +204,80 @@ const parseOpenAPIV3Responses = (
     ]
 
     let stringifiedBody = ""
+    // Track whether an explicit example was found (even if empty string)
+    // to avoid overwriting valid empty examples with schema-generated content
+    let hasExplicitExample = false
 
-    // I think it'll be better to just drop the response body with circular refs
-    // because it's not possible to stringify them, using stringify from a library like flatted, will change the structure,
-    // and it converts the object into an array format, which can only be parsed back by the parse method from the same library
-    // also we're displaying it as a string, so doesnt make much sense
-    try {
-      stringifiedBody = JSON.stringify(body ?? "")
-      // the parsing will fail for a circular response schema
-    } catch (e) {
-      // eat five star, do nothing
+    if (mediaObject) {
+      // Priority: example > examples > generate from schema
+      if (mediaObject.example !== undefined) {
+        // Direct example on media object
+        hasExplicitExample = true
+        try {
+          stringifiedBody =
+            typeof mediaObject.example === "string"
+              ? mediaObject.example
+              : JSON.stringify(mediaObject.example, null, 2)
+        } catch (_e) {
+          stringifiedBody = ""
+        }
+      } else if (
+        mediaObject.examples &&
+        Object.keys(mediaObject.examples).length > 0
+      ) {
+        // Examples object (OpenAPI v3 format)
+        const firstExampleKey = Object.keys(mediaObject.examples)[0]
+        const firstExample = mediaObject.examples[firstExampleKey]
+
+        // Skip if this is an unresolved reference
+        if (firstExample && "$ref" in firstExample) {
+          // Reference wasn't dereferenced, fall through to schema generation
+        } else {
+          // Handle Example Object (with value property) or direct value
+          const exampleValue =
+            firstExample && "value" in firstExample
+              ? firstExample.value
+              : firstExample
+
+          hasExplicitExample = true
+          try {
+            stringifiedBody =
+              typeof exampleValue === "string"
+                ? exampleValue
+                : JSON.stringify(exampleValue, null, 2)
+          } catch (_e) {
+            stringifiedBody = ""
+          }
+        }
+      }
+
+      // Only stringify if an example was generated (undefined indicates failure, null and other values are valid)
+      if (!hasExplicitExample && mediaObject.schema) {
+        // Generate example from schema as fallback
+        try {
+          let generatedExample: string | number | boolean | null | object
+          if (isOpenAPIV31Document(doc)) {
+            generatedExample = generateV31Example(
+              mediaObject as OpenAPIV31.MediaTypeObject
+            )
+          } else {
+            generatedExample = generateV3Example(
+              mediaObject as OpenAPIV3.MediaTypeObject
+            )
+          }
+
+          // Only stringify if we got a valid example (null is valid in OpenAPI v3.1)
+          if (generatedExample !== undefined) {
+            stringifiedBody =
+              typeof generatedExample === "string"
+                ? generatedExample
+                : JSON.stringify(generatedExample, null, 2)
+          }
+        } catch (_e) {
+          // If generation fails, leave body empty
+          stringifiedBody = ""
+        }
+      }
     }
 
     res[name] = {
@@ -236,9 +306,8 @@ const parseOpenAPIV2Responses = (
   for (const [key, value] of Object.entries(responses)) {
     const response = value as OpenAPIV2.ResponseObject
 
-    // add support for schema key as well
+    // Get content type from examples or default to application/json
     const contentType = Object.keys(response.examples ?? {})[0]
-    const body = response.examples?.[contentType]
 
     const name = response.description ?? key
 
@@ -254,12 +323,44 @@ const parseOpenAPIV2Responses = (
       },
     ]
 
+    let stringifiedBody = ""
+
+    // Priority: examples > generate from schema
+    if (response.examples && contentType) {
+      // Use the example for the content type
+      const exampleBody = response.examples[contentType]
+      try {
+        stringifiedBody =
+          typeof exampleBody === "string"
+            ? exampleBody
+            : JSON.stringify(exampleBody, null, 2)
+      } catch (_e) {
+        stringifiedBody = ""
+      }
+    } else if (response.schema) {
+      // Generate example from schema as fallback
+      try {
+        const generatedExample = generateV2ExampleFromSchemaObject(
+          response.schema
+        )
+        if (generatedExample !== undefined) {
+          stringifiedBody =
+            typeof generatedExample === "string"
+              ? generatedExample
+              : JSON.stringify(generatedExample, null, 2)
+        }
+      } catch (_e) {
+        // If generation fails, leave body empty
+        stringifiedBody = ""
+      }
+    }
+
     res[name] = {
       name,
       status,
       code,
       headers,
-      body: body ?? "",
+      body: stringifiedBody,
       originalRequest,
     }
   }
@@ -273,7 +374,7 @@ const parseOpenAPIResponses = (
   originalRequest: HoppRESTResponseOriginalRequest
 ): HoppRESTRequestResponses =>
   isOpenAPIV3Operation(doc, op)
-    ? parseOpenAPIV3Responses(op, originalRequest)
+    ? parseOpenAPIV3Responses(doc, op, originalRequest)
     : parseOpenAPIV2Responses(op, originalRequest)
 
 const parseOpenAPIHeaders = (params: OpenAPIParamsType[]): HoppRESTHeader[] =>
@@ -418,48 +519,45 @@ const parseOpenAPIV3Body = (
   // For other content types (JSON, XML, etc.), try to generate sample from schema
   if (media.schema) {
     try {
-      const docAny = doc as any
-      const isV31 = docAny.openapi && docAny.openapi.startsWith("3.1")
-
-      let sampleBody: any
-      if (isV31) {
-        sampleBody = generateV31Example(media as any)
+      let sampleBody: string | number | boolean | null | object
+      if (isOpenAPIV31Document(doc)) {
+        sampleBody = generateV31Example(media as OpenAPIV31.MediaTypeObject)
       } else {
-        sampleBody = generateV3Example(media as any)
+        sampleBody = generateV3Example(media as OpenAPIV3.MediaTypeObject)
       }
 
       return {
-        contentType: contentType as any,
+        contentType,
         body:
           typeof sampleBody === "string"
             ? sampleBody
             : JSON.stringify(sampleBody, null, 2),
-      }
-    } catch (e) {
+      } as HoppRESTReqBody
+    } catch (_e) {
       // If we can't generate a sample, check for examples
       if (media.example !== undefined) {
         return {
-          contentType: contentType as any,
+          contentType,
           body:
             typeof media.example === "string"
               ? media.example
               : JSON.stringify(media.example, null, 2),
-        }
+        } as HoppRESTReqBody
       }
       // Fallback to empty body
-      return { contentType: contentType as any, body: "" }
+      return { contentType, body: "" } as HoppRESTReqBody
     }
   }
 
   // Check for examples if no schema
   if (media.example !== undefined) {
     return {
-      contentType: contentType as any,
+      contentType,
       body:
         typeof media.example === "string"
           ? media.example
           : JSON.stringify(media.example, null, 2),
-    }
+    } as HoppRESTReqBody
   }
 
   // Check for examples array (OpenAPI v3 supports multiple examples)
@@ -467,21 +565,27 @@ const parseOpenAPIV3Body = (
     const firstExampleKey = Object.keys(media.examples)[0]
     const firstExample = media.examples[firstExampleKey]
 
-    // Handle both Example Object and Reference Object
+    // Skip if this is an unresolved reference
+    if (firstExample && "$ref" in firstExample) {
+      // Reference wasn't dereferenced, return empty body
+      return { contentType, body: "" } as HoppRESTReqBody
+    }
+
+    // Handle Example Object (with value property) or direct value
     const exampleValue =
       "value" in firstExample ? firstExample.value : firstExample
 
     return {
-      contentType: contentType as any,
+      contentType,
       body:
         typeof exampleValue === "string"
           ? exampleValue
           : JSON.stringify(exampleValue, null, 2),
-    }
+    } as HoppRESTReqBody
   }
 
   // Fallback to empty body for textual content types
-  return { contentType: contentType as any, body: "" }
+  return { contentType, body: "" } as HoppRESTReqBody
 }
 
 const isOpenAPIV3Operation = (
@@ -491,6 +595,13 @@ const isOpenAPIV3Operation = (
   objectHasProperty(doc, "openapi") &&
   typeof doc.openapi === "string" &&
   doc.openapi.startsWith("3.")
+
+const isOpenAPIV31Document = (
+  doc: OpenAPI.Document
+): doc is OpenAPIV31.Document =>
+  objectHasProperty(doc, "openapi") &&
+  typeof doc.openapi === "string" &&
+  doc.openapi.startsWith("3.1")
 
 const parseOpenAPIBody = (
   doc: OpenAPI.Document,
@@ -1152,7 +1263,7 @@ export const hoppOpenAPIImporter = (fileContents: string[]) =>
               try {
                 const validatedDoc = await dereferenceDocs(docObj)
                 resultDoc.push(validatedDoc)
-              } catch (error) {
+              } catch (_error) {
                 // Check if the document has unresolved references
                 if (hasUnresolvedRefs(docObj)) {
                   console.warn(

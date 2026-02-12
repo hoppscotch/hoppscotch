@@ -230,6 +230,22 @@ function handleKeyDown(ev: KeyboardEvent) {
     return
   }
 
+  // Special handling for shift-/ (support menu) - don't trigger in editors or inputs
+  if (binding === "shift-/") {
+    const target = ev.target
+
+    if (!isDOMElement(target)) return
+
+    // Let editors and inputs handle it normally (user is just typing "/")
+    if (
+      isCodeMirrorEditor(target) ||
+      isMonacoEditor(target) ||
+      isTypableElement(target)
+    ) {
+      return
+    }
+  }
+
   // If no action is bound, do nothing
   if (!boundAction) return
 
@@ -262,11 +278,11 @@ function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
 
   // All key combos backed by modifiers are valid shortcuts (whether currently typing or not)
   if (modifierKey) {
-    // If the modifier is shift and the target is an input, we ignore
+    // If the modifier is shift and the target is an input or codemirror editor, we ignore
     if (
       modifierKey === "shift" &&
       isDOMElement(target) &&
-      isTypableElement(target)
+      (isTypableElement(target) || isCodeMirrorEditor(target))
     ) {
       return null
     }

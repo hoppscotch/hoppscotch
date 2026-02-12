@@ -99,8 +99,8 @@ export class UserRequestService {
    * @param user User who owns the collection
    * @returns Number of requests in the collection
    */
-  getRequestsCountInCollection(collectionID: string): Promise<number> {
-    return this.prisma.userRequest.count({
+  getRequestsCountInCollection(collectionID: string, tx: Prisma.TransactionClient | null = null): Promise<number> {
+    return (tx || this.prisma).userRequest.count({
       where: { collectionID },
     });
   }
@@ -139,7 +139,7 @@ export class UserRequestService {
       newRequest = await this.prisma.$transaction(async (tx) => {
         try {
           // lock the rows
-          await this.prisma.lockTableExclusive(tx, 'UserRequest');
+          await this.prisma.lockUserRequestByCollections(tx, user.uid, [collectionID]);
 
           // fetch last user request
           const lastUserRequest = await tx.userRequest.findFirst({
@@ -235,17 +235,21 @@ export class UserRequestService {
       await this.prisma.$transaction(async (tx) => {
         try {
           // lock the rows
-          await this.prisma.lockTableExclusive(tx, 'UserRequest');
+          await this.prisma.lockUserRequestByCollections(tx, user.uid, [request.collectionID]);
 
-          await tx.userRequest.updateMany({
-            where: {
-              collectionID: request.collectionID,
-              orderIndex: { gt: request.orderIndex },
-            },
-            data: { orderIndex: { decrement: 1 } },
-          });
+          const deletedRequest = await tx.userRequest.delete({ where: { id } });
 
-          await tx.userRequest.delete({ where: { id } });
+          // if request is found, update orderIndexes of siblings
+          // if request was deleted before the transaction started (race condition), do not update siblings orderIndexes
+          if(deletedRequest) {
+            await tx.userRequest.updateMany({
+              where: {
+                collectionID: request.collectionID,
+                orderIndex: { gt: request.orderIndex },
+              },
+              data: { orderIndex: { decrement: 1 } },
+            });
+          }
         } catch (error) {
           throw new ConflictException(error);
         }
@@ -412,10 +416,7 @@ export class UserRequestService {
         E.Left<string> | E.Right<DbUserRequest>
       >(async (tx) => {
         // lock the rows
-        await this.prisma.acquireLocks(tx, 'UserRequest', null, null, [
-          request.id,
-          nextRequest?.id,
-        ]);
+        await this.prisma.lockUserRequestByCollections(tx, request.userUid, [srcCollID, destCollID]);
 
         request = await tx.userRequest.findUnique({
           where: { id: request.id },
@@ -426,64 +427,67 @@ export class UserRequestService {
             })
           : null;
 
-        const isSameCollection = srcCollID === destCollID;
-        const isMovingUp = nextRequest?.orderIndex < request.orderIndex; // false, if nextRequest is null
-
-        const nextReqOrderIndex = nextRequest?.orderIndex;
-        const reqCountInDestColl = nextRequest
-          ? undefined
-          : await this.getRequestsCountInCollection(destCollID);
-
-        // Updating order indexes of other requests in collection(s)
-        if (isSameCollection) {
-          const updateFrom = isMovingUp
-            ? nextReqOrderIndex
-            : request.orderIndex + 1;
-          const updateTo = isMovingUp ? request.orderIndex : nextReqOrderIndex;
-
-          await tx.userRequest.updateMany({
-            where: {
-              collectionID: srcCollID,
-              orderIndex: { gte: updateFrom, lt: updateTo },
-            },
-            data: {
-              orderIndex: isMovingUp ? { increment: 1 } : { decrement: 1 },
-            },
-          });
-        } else {
-          await tx.userRequest.updateMany({
-            where: {
-              collectionID: srcCollID,
-              orderIndex: { gte: request.orderIndex },
-            },
-            data: { orderIndex: { decrement: 1 } },
-          });
-
-          if (nextRequest) {
+        // Check again if request is found in transaction, update orderIndexes of siblings
+        // if request was deleted before the transaction started (race condition), do not update siblings orderIndexes
+        if(request) {
+          const isSameCollection = srcCollID === destCollID;
+          const isMovingUp = nextRequest?.orderIndex < request.orderIndex; // false, if nextRequest is null
+  
+          const nextReqOrderIndex = nextRequest?.orderIndex;
+          const reqCountInDestColl = nextRequest
+            ? undefined
+            : await this.getRequestsCountInCollection(destCollID);
+  
+          // Updating order indexes of other requests in collection(s)
+          if (isSameCollection) {
+            const updateFrom = isMovingUp
+              ? nextReqOrderIndex
+              : request.orderIndex + 1;
+            const updateTo = isMovingUp ? request.orderIndex : nextReqOrderIndex;
+  
             await tx.userRequest.updateMany({
               where: {
-                collectionID: destCollID,
-                orderIndex: { gte: nextReqOrderIndex },
+                collectionID: srcCollID,
+                orderIndex: { gte: updateFrom, lt: updateTo },
               },
-              data: { orderIndex: { increment: 1 } },
+              data: {
+                orderIndex: isMovingUp ? { increment: 1 } : { decrement: 1 },
+              },
             });
+          } else {
+            await tx.userRequest.updateMany({
+              where: {
+                collectionID: srcCollID,
+                orderIndex: { gte: request.orderIndex },
+              },
+              data: { orderIndex: { decrement: 1 } },
+            });
+  
+            if (nextRequest) {
+              await tx.userRequest.updateMany({
+                where: {
+                  collectionID: destCollID,
+                  orderIndex: { gte: nextReqOrderIndex },
+                },
+                data: { orderIndex: { increment: 1 } },
+              });
+            }
           }
+  
+          // Updating order index of the request
+          let adjust: number;
+          if (isSameCollection) adjust = nextRequest ? (isMovingUp ? 0 : -1) : 0;
+          else adjust = nextRequest ? 0 : 1;
+  
+          const newOrderIndex =
+            (nextReqOrderIndex ?? reqCountInDestColl) + adjust;
+  
+          const updatedRequest = await tx.userRequest.update({
+            where: { id: request.id },
+            data: { orderIndex: newOrderIndex, collectionID: destCollID },
+          });
+          return E.right(updatedRequest);
         }
-
-        // Updating order index of the request
-        let adjust: number;
-        if (isSameCollection) adjust = nextRequest ? (isMovingUp ? 0 : -1) : 0;
-        else adjust = nextRequest ? 0 : 1;
-
-        const newOrderIndex =
-          (nextReqOrderIndex ?? reqCountInDestColl) + adjust;
-
-        const updatedRequest = await tx.userRequest.update({
-          where: { id: request.id },
-          data: { orderIndex: newOrderIndex, collectionID: destCollID },
-        });
-
-        return E.right(updatedRequest);
       });
     } catch (error) {
       console.error('Error from UserRequestService.reorderRequests', error);
@@ -516,9 +520,7 @@ export class UserRequestService {
 
     try {
       await this.prisma.$transaction(async (tx) => {
-        await this.prisma.acquireLocks(tx, 'UserRequest', userUid, null, [
-          collectionID,
-        ]);
+        await this.prisma.lockUserRequestByCollections(tx, userUid, [collectionID]);
 
         const userRequests = await tx.userRequest.findMany({
           where: { userUid, collectionID },

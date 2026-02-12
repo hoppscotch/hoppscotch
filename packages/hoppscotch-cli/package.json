@@ -1,6 +1,6 @@
 {
   "name": "@hoppscotch/cli",
-  "version": "0.30.0",
+  "version": "0.30.2",
   "description": "A CLI to run Hoppscotch test scripts in CI environments.",
   "homepage": "https://hoppscotch.io",
   "type": "module",
@@ -48,9 +48,10 @@
     "commander": "14.0.2",
     "isolated-vm": "6.0.2",
     "js-md5": "0.8.3",
+    "jsonc-parser": "3.3.1",
     "lodash-es": "4.17.22",
     "papaparse": "5.5.3",
-    "qs": "6.14.0",
+    "qs": "6.14.1",
     "tough-cookie": "6.0.0",
     "verzod": "0.4.0",
     "xmlbuilder2": "4.0.3",
@@ -64,11 +65,11 @@
     "@types/papaparse": "5.5.2",
     "@types/qs": "6.14.0",
     "fp-ts": "2.16.11",
-    "prettier": "3.7.4",
+    "prettier": "3.8.0",
     "qs": "6.11.2",
     "semver": "7.7.3",
     "tsup": "8.5.1",
     "typescript": "5.9.3",
-    "vitest": "4.0.16"
+    "vitest": "4.0.17"
   }
 }

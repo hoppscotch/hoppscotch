@@ -61,7 +61,7 @@ export const isValidUser = async (): Promise<ValidUserResponse> => {
 
     // For platforms without token verification capability
     return { valid: true, error: "" }
-  } catch (error) {
+  } catch (_error) {
     // Handle errors from token verification
     return attemptTokenRefresh()
   }

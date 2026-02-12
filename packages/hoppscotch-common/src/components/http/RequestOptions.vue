@@ -110,7 +110,7 @@ import { defineActionHandler } from "~/helpers/actions"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { AggregateEnvironment } from "~/newstore/environments"
 
-const VALID_OPTION_TABS = [
+const _VALID_OPTION_TABS = [
   "params",
   "bodyParams",
   "headers",
@@ -120,7 +120,7 @@ const VALID_OPTION_TABS = [
   "requestVariables",
 ] as const
 
-export type RESTOptionTabs = (typeof VALID_OPTION_TABS)[number]
+export type RESTOptionTabs = (typeof _VALID_OPTION_TABS)[number]
 
 const t = useI18n()
 

@@ -1,11 +1,10 @@
 {
-  "v": 10,
-  "id": "cmi8s7e0b000alj0isau8jt3x",
+  "v": 11,
   "name": "scripting-revamp-coll",
   "folders": [],
   "requests": [
     {
-      "v": "16",
+      "v": "17",
       "id": "cmfhzf0oo0092qt0if5rvd2g4",
       "name": "json-response-test",
       "method": "POST",
@@ -20,7 +19,7 @@
         }
       ],
       "preRequestScript": "",
-      "testScript": "hopp.test(\"`hopp.response.body.asJSON()` parses response body as JSON\", () => {\n    const parsedData = JSON.parse(hopp.response.body.asJSON().data)\n\n    hopp.expect(parsedData.name).toBe('John Doe')\n    hopp.expect(parsedData.age).toBeType(\"number\")\n})\n\npm.test(\"`pm.response.json()` parses response body as JSON\", () => {\n    const parsedData = JSON.parse(pm.response.json().data)\n\n    pm.expect(parsedData.name).toBe('John Doe')\n    pm.expect(parsedData.age).toBeType(\"number\")\n})\n\nhopp.test(\"`hopp.response.body.asText()` parses response body as plain text\", () => {\n    const textResponse = hopp.response.body.asText()\n    hopp.expect(textResponse).toInclude('\\\"test-header\\\":\\\"test\\\"')\n})\n\npm.test(\"`pm.response.text()` parses response body as plain text\", () => {\n    const textResponse = pm.response.text()\n    pm.expect(textResponse).toInclude('\\\"test-header\\\":\\\"test\\\"')\n})\n\nhopp.test(\"hopp.response.bytes()` parses response body as raw bytes\", () => {\n    const rawResponse = hopp.response.body.bytes()\n\n    hopp.expect(rawResponse[0]).toBe(123)\n})\n\npm.test(\"pm.response.stream` parses response body as raw bytes\", () => {\n    const rawResponse = pm.response.stream\n\n    pm.expect(rawResponse[0]).toBe(123)\n})\n",
+      "testScript": "export {};\nhopp.test(\"`hopp.response.body.asJSON()` parses response body as JSON\", () => {\n    const parsedData = JSON.parse(hopp.response.body.asJSON().data)\n\n    hopp.expect(parsedData.name).toBe('John Doe')\n    hopp.expect(parsedData.age).toBeType(\"number\")\n})\n\npm.test(\"`pm.response.json()` parses response body as JSON\", () => {\n    const parsedData = JSON.parse(pm.response.json().data)\n\n    pm.expect(parsedData.name).toBe('John Doe')\n    pm.expect(parsedData.age).toBeType(\"number\")\n})\n\nhopp.test(\"`hopp.response.body.asText()` parses response body as plain text\", () => {\n    const textResponse = hopp.response.body.asText()\n    hopp.expect(textResponse).toInclude('\\\"test-header\\\":\\\"test\\\"')\n})\n\npm.test(\"`pm.response.text()` parses response body as plain text\", () => {\n    const textResponse = pm.response.text()\n    pm.expect(textResponse).toInclude('\\\"test-header\\\":\\\"test\\\"')\n})\n\nhopp.test(\"hopp.response.bytes()` parses response body as raw bytes\", () => {\n    const rawResponse = hopp.response.body.bytes()\n\n    hopp.expect(rawResponse[0]).toBe(123)\n})\n\npm.test(\"pm.response.stream` parses response body as raw bytes\", () => {\n    const rawResponse = pm.response.stream\n\n    pm.expect(rawResponse[0]).toBe(123)\n})\n",
       "auth": {
         "authType": "inherit",
         "authActive": true
@@ -31,10 +30,10 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz1_0e51a53b-8e08-4390-a2c8-bf4034623f78"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "cmfhzf0op0093qt0ictgoxymy",
       "name": "html-response-test",
       "method": "GET",
@@ -60,17 +59,17 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz1_87685b90-47bb-4272-b9e3-78efc86ce298"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "cmfhzf0op0094qt0ixbo9rqnw",
       "name": "environment-variables-test",
       "method": "GET",
       "endpoint": "https://echo.hoppscotch.io",
       "params": [],
       "headers": [],
-      "preRequestScript": "hopp.env.set('test_key', 'test_value')\nhopp.env.set('recursive_key', '<<test_key>>')\nhopp.env.global.set('global_key', 'global_value')\nhopp.env.active.set('active_key', 'active_value')\n\n// `pm` namespace equivalents\npm.variables.set('pm_test_key', 'pm_test_value')\npm.environment.set('pm_active_key', 'pm_active_value')\npm.globals.set('pm_global_key', 'pm_global_value')\n",
+      "preRequestScript": "export {};\nhopp.env.set('test_key', 'test_value')\nhopp.env.set('recursive_key', '<<test_key>>')\nhopp.env.global.set('global_key', 'global_value')\nhopp.env.active.set('active_key', 'active_value')\n\n// `pm` namespace equivalents\npm.variables.set('pm_test_key', 'pm_test_value')\npm.environment.set('pm_active_key', 'pm_active_value')\npm.globals.set('pm_global_key', 'pm_global_value')\n",
       "testScript": "\nhopp.test('`hopp.env.get()` retrieves environment variables', () => {\n    const value = hopp.env.get('test_key')\n    hopp.expect(value).toBe('test_value')\n})\n\npm.test('`pm.variables.get()` retrieves environment variables', () => {\n    const value = pm.variables.get('test_key')\n    pm.expect(value).toBe('test_value')\n})\n\nhopp.test('`hopp.env.getRaw()` retrieves raw environment variables without resolution', () => {\n    const rawValue = hopp.env.getRaw('recursive_key')\n    hopp.expect(rawValue).toBe('<<test_key>>')\n})\n\nhopp.test('`hopp.env.get()` resolves recursive environment variables', () => {\n    const resolvedValue = hopp.env.get('recursive_key')\n    hopp.expect(resolvedValue).toBe('test_value')\n})\n\npm.test('`pm.variables.replaceIn()` resolves template variables', () => {\n    const resolved = pm.variables.replaceIn('Value is {{test_key}}')\n    pm.expect(resolved).toBe('Value is test_value')\n})\n\nhopp.test('`hopp.env.global.get()` retrieves global environment variables', () => {\n    const globalValue = hopp.env.global.get('global_key')\n\n    // `hopp.env.global` would be empty for the CLI\n    if (globalValue) {\n      hopp.expect(globalValue).toBe('global_value')\n    }\n})\n\npm.test('`pm.globals.get()` retrieves global environment variables', () => {\n    const globalValue = pm.globals.get('global_key')\n\n    // `pm.globals` would be empty for the CLI\n    if (globalValue) {\n        pm.expect(globalValue).toBe('global_value')\n    }\n})\n\nhopp.test('`hopp.env.active.get()` retrieves active environment variables', () => {\n    const activeValue = hopp.env.active.get('active_key')\n    hopp.expect(activeValue).toBe('active_value')\n})\n\npm.test('`pm.environment.get()` retrieves active environment variables', () => {\n    const activeValue = pm.environment.get('active_key')\n    pm.expect(activeValue).toBe('active_value')\n})\n\nhopp.test('Environment methods return null for non-existent keys', () => {\n    hopp.expect(hopp.env.get('non_existent')).toBe(null)\n    hopp.expect(hopp.env.getRaw('non_existent')).toBe(null)\n    hopp.expect(hopp.env.global.get('non_existent')).toBe(null)\n    hopp.expect(hopp.env.active.get('non_existent')).toBe(null)\n})\n\npm.test('`pm` environment methods handle non-existent keys correctly', () => {\n    pm.expect(pm.variables.get('non_existent')).toBe(undefined)\n    pm.expect(pm.environment.get('non_existent')).toBe(undefined)\n    pm.expect(pm.globals.get('non_existent')).toBe(undefined)\n    pm.expect(pm.variables.has('non_existent')).toBe(false)\n    pm.expect(pm.environment.has('non_existent')).toBe(false)\n    pm.expect(pm.globals.has('non_existent')).toBe(false)\n})\n\npm.test('`pm` variables set in pre-request script are accessible', () => {\n    pm.expect(pm.variables.get('pm_test_key')).toBe('pm_test_value')\n    pm.expect(pm.environment.get('pm_active_key')).toBe('pm_active_value')\n\n    const pmGlobalValue = hopp.env.global.get('pm_global_key')\n\n    // `hopp.env.global` would be empty for the CLI\n    if (pmGlobalValue) {\n      hopp.expect(pmGlobalValue).toBe('pm_global_value')\n    }\n})\n",
       "auth": {
         "authType": "inherit",
@@ -82,10 +81,10 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz1_7e619d82-0e16-4a24-bc03-d070cd5f0621"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "cmfhzf0op0095qt0ieogkxx1w",
       "name": "request-modification-test",
       "method": "GET",
@@ -118,10 +117,10 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz2_5d3ccef8-8ed9-45b4-b8da-a83127730147"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "cmfhzf0op0096qt0i6wellfus",
       "name": "response-parsing-test",
       "method": "POST",
@@ -147,10 +146,10 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz2_d04535d4-ea26-40bf-be2b-e5fef0051b03"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "cmfhzf0op0097qt0ia4wf0lej",
       "name": "request-variables-test",
       "method": "GET",
@@ -185,10 +184,10 @@
         }
       ],
       "responses": {},
-      "_ref_id": "req_mi8s7dz2_29079e08-dc98-4332-87e6-12f86ca273a5"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "cmfhzf0op0098qt0ii9fguj6e",
       "name": "info-context-test",
       "method": "GET",
@@ -207,10 +206,10 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz2_f95a19a0-fcaf-4aac-a0cc-80d103e0a500"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "cmfhzf0op0099qt0iamthw97r",
       "name": "pm-namespace-additional-test",
       "method": "GET",
@@ -229,10 +228,10 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz2_61a82bd3-0884-4b29-bb6e-0807c694e6dd"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "cmfhzf0op009aqt0inw3j6dq9",
       "name": "expectation-methods-test",
       "method": "POST",
@@ -251,10 +250,10 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz2_c7de9aae-5936-4fe7-9205-2823b560f8ad"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "cmfhzf0op00chai1qt0inext01",
       "name": "chai-assertions-hopp-extended",
       "method": "POST",
@@ -273,10 +272,10 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz2_d4acd239-fd73-43e7-a96b-27f293b4f8ce"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "cmfhzf0op00chai2qt0inext02",
       "name": "chai-assertions-pm-parity",
       "method": "POST",
@@ -295,10 +294,10 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz3_e33cf09a-d284-46ca-a394-c8033d5dde84"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "cmfhzf0op00cookies01",
       "name": "cookie-assertions-test",
       "method": "GET",
@@ -324,10 +323,10 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz3_0bff5a56-b147-45f8-a8da-e5175eb940d9"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "cmfhzf0op00schema01",
       "name": "json-schema-validation-test",
       "method": "POST",
@@ -346,10 +345,10 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz3_05e595b7-ff00-4ae8-b695-8957c1381387"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "cmfhzf0op00charset01",
       "name": "charset-validation-test",
       "method": "GET",
@@ -368,10 +367,10 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz3_0e536fee-92a3-4131-8a67-a7fd69cd189f"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "cmfhzf0op00jsonpath01",
       "name": "jsonpath-query-test",
       "method": "POST",
@@ -390,10 +389,10 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz3_db1401ea-7ef8-4838-a570-dc3782610050"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "cmfhzf0op00envext01",
       "name": "environment-extensions-test",
       "method": "GET",
@@ -412,10 +411,10 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz3_b749ccf4-0efb-4543-b8c5-94a142d53876"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "cmfhzf0op00respext01",
       "name": "response-extensions-test",
       "method": "POST",
@@ -434,10 +433,10 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz3_27dfe163-c152-46b4-b3ce-a90377b640f7"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "cmfhzf0op00execext01",
       "name": "execution-context-test",
       "method": "GET",
@@ -456,10 +455,10 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz3_57859840-7e61-4114-b514-199ab51ba57e"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "cmfhzf0op00bddassert01",
       "name": "bdd-response-assertions-test",
       "method": "POST",
@@ -485,10 +484,10 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz3_ec06bb6c-1857-4352-bdb5-24b349a51a09"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "cmfhzf0op00includecontain01",
       "name": "include-contain-assertions-test",
       "method": "POST",
@@ -507,10 +506,10 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz4_11cc69ef-f13a-4d02-9c42-607bcd84054b"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "cmfhzf0op00envunsetclear01",
       "name": "environment-unset-clear-test",
       "method": "GET",
@@ -529,10 +528,10 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz4_ab8af065-c323-4830-86b8-be5f8b8570a7"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "cmfhzf0op00pmmutate01",
       "name": "pm-request-mutation-test",
       "method": "GET",
@@ -565,10 +564,10 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz4_f73dfa1a-8539-425b-a6af-0a4622aec733"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "cmfhzf0op00urlmutate01",
       "name": "pm-url-property-mutations-test",
       "method": "GET",
@@ -587,10 +586,10 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz4_4ecd2c5d-acbe-4f77-987a-a6c257b7f825"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "cmfhzf0op00unsupported01",
       "name": "unsupported-features-test",
       "method": "GET",
@@ -609,10 +608,10 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz4_d3265ddb-982b-4da6-9506-125b0657fa13"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "cmfhzf0op00urlpropertylist01",
       "name": "url-propertylist-helpers-test",
       "method": "GET",
@@ -669,10 +668,10 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz4_d8fa5d58-1a76-420d-946e-5cb063fc65e3"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "name": "propertylist-advanced-methods-test",
       "method": "GET",
       "endpoint": "https://echo.hoppscotch.io/propertylist",
@@ -722,10 +721,10 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz4_8e31db5d-90ed-4bad-b92a-67976c476c35"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "advanced-response-methods-test",
       "name": "advanced-response-methods-test",
       "method": "POST",
@@ -751,17 +750,17 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz4_80b32834-2683-4a4a-a866-90a3a97c7471"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "advanced-chai-map-set-test",
       "name": "advanced-chai-map-set-test",
       "method": "GET",
       "endpoint": "https://echo.hoppscotch.io",
       "params": [],
       "headers": [],
-      "preRequestScript": "export {};",
+      "preRequestScript": "export {};\n",
       "testScript": "\n// Map & Set Assertions\npm.test('Map assertions - size property', () => {\n  const map = new Map([['key1', 'value1'], ['key2', 'value2']])\n  pm.expect(map).to.have.property('size', 2)\n  pm.expect(map.size).to.equal(2)\n})\n\npm.test('Set assertions - size property', () => {\n  const set = new Set([1, 2, 3, 4])\n  pm.expect(set).to.have.property('size', 4)\n  pm.expect(set.size).to.equal(4)\n})\n\npm.test('Map instanceOf assertion', () => {\n  const map = new Map()\n  pm.expect(map).to.be.instanceOf(Map)\n  pm.expect(map).to.be.an.instanceOf(Map)\n})\n\npm.test('Set instanceOf assertion', () => {\n  const set = new Set()\n  pm.expect(set).to.be.instanceOf(Set)\n  pm.expect(set).to.be.an.instanceOf(Set)\n})\n\n// Advanced Chai - closeTo\npm.test('closeTo - validates numbers within delta', () => {\n  pm.expect(3.14159).to.be.closeTo(3.14, 0.01)\n  pm.expect(10.5).to.be.closeTo(11, 1)\n})\n\npm.test('closeTo - negation works', () => {\n  pm.expect(100).to.not.be.closeTo(50, 10)\n  pm.expect(3.14).to.not.be.closeTo(10, 0.1)\n})\n\npm.test('approximately - alias for closeTo', () => {\n  pm.expect(2.5).to.approximately(2.4, 0.2)\n  pm.expect(99.99).to.approximately(100, 0.1)\n})\n\n// Advanced Chai - finite\npm.test('finite - validates finite numbers', () => {\n  pm.expect(123).to.be.finite\n  pm.expect(0).to.be.finite\n  pm.expect(-456).to.be.finite\n})\n\npm.test('finite - negation for Infinity', () => {\n  pm.expect(Infinity).to.not.be.finite\n  pm.expect(-Infinity).to.not.be.finite\n  pm.expect(NaN).to.not.be.finite\n})\n\n// Advanced Chai - satisfy\npm.test('satisfy - custom predicate function', () => {\n  pm.expect(10).to.satisfy((num) => num > 5)\n  pm.expect('hello').to.satisfy((str) => str.length === 5)\n})\n\npm.test('satisfy - complex validation', () => {\n  const obj = { name: 'test', value: 100 }\n  pm.expect(obj).to.satisfy((o) => o.value > 50 && o.name.length > 0)\n})\n\npm.test('satisfy - negation works', () => {\n  pm.expect(5).to.not.satisfy((num) => num > 10)\n  pm.expect('abc').to.not.satisfy((str) => str.length > 5)\n})\n\n// Advanced Chai - respondTo\npm.test('respondTo - validates method existence', () => {\n  class TestClass {\n    testMethod() { return 'test' }\n    anotherMethod() { return 'another' }\n  }\n  pm.expect(TestClass).to.respondTo('testMethod')\n  pm.expect(TestClass).to.respondTo('anotherMethod')\n})\n\npm.test('respondTo - with itself for static methods', () => {\n  class MyClass {\n    static staticMethod() { return 'static' }\n    instanceMethod() { return 'instance' }\n  }\n  pm.expect(MyClass).itself.to.respondTo('staticMethod')\n  pm.expect(MyClass).to.not.itself.respondTo('instanceMethod')\n  pm.expect(MyClass).to.respondTo('instanceMethod')\n})\n\n// Property Ownership - own.property\npm.test('own.property - distinguishes own vs inherited', () => {\n  const parent = { inherited: true }\n  const obj = Object.create(parent)\n  obj.own = true\n  pm.expect(obj).to.have.own.property('own')\n  pm.expect(obj).to.not.have.own.property('inherited')\n  pm.expect(obj).to.have.property('inherited')\n})\n\npm.test('deep.own.property - deep check with ownership', () => {\n  const proto = { shared: 'inherited' }\n  const obj = Object.create(proto)\n  obj.data = { nested: 'value' }\n  pm.expect(obj).to.have.deep.own.property('data', { nested: 'value' })\n  pm.expect(obj).to.not.have.deep.own.property('shared')\n})\n\npm.test('ownProperty - alias for own.property', () => {\n  const obj = { prop: 'value' }\n  pm.expect(obj).to.have.ownProperty('prop')\n  pm.expect(obj).to.have.ownProperty('prop', 'value')\n})\n\n// Hopp namespace parity tests\npm.test('hopp.expect Map/Set support', () => {\n  const map = new Map([['x', 1]])\n  const set = new Set([1, 2])\n  hopp.expect(map.size).toBe(1)\n  hopp.expect(set.size).toBe(2)\n})\n\npm.test('hopp.expect closeTo support', () => {\n  hopp.expect(3.14).to.be.closeTo(3.1, 0.1)\n  hopp.expect(10).to.be.closeTo(10.5, 1)\n})\n\npm.test('hopp.expect finite support', () => {\n  hopp.expect(42).to.be.finite\n  hopp.expect(Infinity).to.not.be.finite\n})\n\npm.test('hopp.expect satisfy support', () => {\n  hopp.expect(100).to.satisfy((n) => n > 50)\n  hopp.expect('test').to.satisfy((s) => s.length === 4)\n})\n\npm.test('hopp.expect respondTo support', () => {\n  class TestClass { method() {} }\n  hopp.expect(TestClass).to.respondTo('method')\n})\n\npm.test('hopp.expect own.property support', () => {\n  const obj = Object.create({ inherited: 1 })\n  obj.own = 2\n  hopp.expect(obj).to.have.own.property('own')\n  hopp.expect(obj).to.not.have.own.property('inherited')\n})\n\npm.test('hopp.expect ordered.members support', () => {\n  const arr = ['a', 'b', 'c']\n  hopp.expect(arr).to.have.ordered.members(['a', 'b', 'c'])\n})\n",
       "auth": {
         "authType": "inherit",
@@ -773,10 +772,10 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz4_c10eecab-a890-4a1b-97bb-99ddaa9bca9c"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "cmfhzf0op00typecoer01",
       "name": "type-preservation-test",
       "method": "GET",
@@ -794,10 +793,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "type_preservation_ui_compat",
       "name": "type-preservation-ui-compatibility-test",
       "method": "POST",
@@ -816,10 +816,10 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s7dz5_94e03aa3-8d21-4bad-8d3f-e4a276e1667e"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "fetch-get-basic",
       "name": "hopp.fetch() - GET request basic",
       "method": "GET",
@@ -837,10 +837,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "fetch-post-json",
       "name": "hopp.fetch() - POST with JSON body",
       "method": "GET",
@@ -858,10 +859,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "fetch-404-error",
       "name": "hopp.fetch() - 404 error handling",
       "method": "GET",
@@ -879,10 +881,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "fetch-custom-headers",
       "name": "hopp.fetch() - Custom headers",
       "method": "GET",
@@ -900,10 +903,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "fetch-env-url",
       "name": "hopp.fetch() - Environment variable URL",
       "method": "GET",
@@ -921,10 +925,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "fetch-response-text",
       "name": "hopp.fetch() - Response text parsing",
       "method": "GET",
@@ -942,10 +947,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "fetch-http-methods",
       "name": "hopp.fetch() - HTTP methods (PUT, DELETE, PATCH)",
       "method": "GET",
@@ -963,10 +969,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "pm-sendrequest-string-url",
       "name": "pm.sendRequest() - String URL format",
       "method": "GET",
@@ -984,10 +991,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "pm-sendrequest-request-object",
       "name": "pm.sendRequest() - Request object format",
       "method": "GET",
@@ -1005,10 +1013,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "pm-sendrequest-urlencoded",
       "name": "pm.sendRequest() - URL-encoded body",
       "method": "GET",
@@ -1026,10 +1035,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "pm-sendrequest-response-format",
       "name": "pm.sendRequest() - Response format validation",
       "method": "GET",
@@ -1047,10 +1057,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "pm-sendrequest-error-codes",
       "name": "pm.sendRequest() - HTTP error status codes",
       "method": "GET",
@@ -1069,10 +1080,10 @@
       },
       "requestVariables": [],
       "responses": {},
-      "_ref_id": "req_mi8s89cl_01becae7-dca6-47ab-87e5-fb2df28fc393"
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "pm-sendrequest-env-integration",
       "name": "pm.sendRequest() - Environment variable integration",
       "method": "GET",
@@ -1090,10 +1101,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "pm-sendrequest-store-response",
       "name": "pm.sendRequest() - Store response in environment",
       "method": "GET",
@@ -1111,10 +1123,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "pm-sendrequest-rfc-object-headers",
       "name": "pm.sendRequest() - RFC pattern with object headers",
       "method": "GET",
@@ -1132,10 +1145,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "fetch-pm-interop",
       "name": "hopp.fetch() and pm.sendRequest() - Interoperability",
       "method": "GET",
@@ -1153,10 +1167,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "fetch-json-parsing",
       "name": "hopp.fetch() - JSON response parsing",
       "method": "GET",
@@ -1181,10 +1196,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "fetch-headers-access",
       "name": "hopp.fetch() - Response headers access",
       "method": "GET",
@@ -1209,10 +1225,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "pm-sendrequest-formdata",
       "name": "pm.sendRequest() - FormData body mode",
       "method": "POST",
@@ -1230,10 +1247,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "pm-sendrequest-json-parsing",
       "name": "pm.sendRequest() - JSON parsing method",
       "method": "POST",
@@ -1251,10 +1269,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "pm-sendrequest-headers-extraction",
       "name": "pm.sendRequest() - Response headers extraction",
       "method": "GET",
@@ -1279,10 +1298,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "fetch-network-error",
       "name": "hopp.fetch() - Network error handling",
       "method": "GET",
@@ -1300,10 +1320,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "pm-sendrequest-network-error",
       "name": "pm.sendRequest() - Network error callback",
       "method": "GET",
@@ -1321,10 +1342,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "fetch-sequential-requests",
       "name": "hopp.fetch() - Sequential requests chain",
       "method": "GET",
@@ -1342,10 +1364,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "pm-sendrequest-nested",
       "name": "pm.sendRequest() - Nested requests",
       "method": "GET",
@@ -1363,10 +1386,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "fetch-binary-response",
       "name": "hopp.fetch() - Binary response (arrayBuffer)",
       "method": "GET",
@@ -1384,10 +1408,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "pm-sendrequest-empty-response",
       "name": "pm.sendRequest() - Empty response body (204)",
       "method": "DELETE",
@@ -1405,10 +1430,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "async_patterns_prereq",
       "name": "Async Patterns - Pre-Request",
       "method": "GET",
@@ -1426,10 +1452,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "async_patterns_test",
       "name": "Async Patterns - Test Script",
       "method": "GET",
@@ -1447,10 +1474,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "workflow_patterns",
       "name": "Workflow Patterns (Sequential, Parallel, Auth)",
       "method": "GET",
@@ -1468,10 +1496,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "error_handling_combined",
       "name": "Error Handling & Edge Cases",
       "method": "GET",
@@ -1489,10 +1518,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "large_payload_formdata",
       "name": "Large Payload & FormData",
       "method": "GET",
@@ -1510,10 +1540,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "get_methods_combined",
       "name": "GET Methods (Query, Headers, URL)",
       "method": "GET",
@@ -1531,10 +1562,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "post_methods_combined",
       "name": "POST Methods (JSON, URLEncoded, Binary)",
       "method": "GET",
@@ -1552,10 +1584,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "http_methods_combined",
       "name": "HTTP Methods (PUT, PATCH, DELETE)",
       "method": "GET",
@@ -1573,10 +1606,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "response_parsing_combined",
       "name": "Response Parsing (Headers, Status, Body)",
       "method": "GET",
@@ -1594,10 +1628,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
     },
     {
-      "v": "16",
+      "v": "17",
       "id": "dynamic_url_construction",
       "name": "Dynamic URL Construction",
       "method": "GET",
@@ -1615,7 +1650,30 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "description": null
+    },
+    {
+      "v": "17",
+      "id": "crypto_module_test",
+      "name": "crypto-module-test",
+      "method": "GET",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "// Hoppscotch Sandbox Crypto Module Tests\n// NOTE: The sandbox crypto API accepts plain arrays instead of TypedArrays.\n// Results include both .length and .byteLength for compatibility.\n// @ts-expect-error comments suppress Monaco's Web Crypto type checking for inputs.\n\n// Test crypto.randomUUID()\nconst uuid = crypto.randomUUID()\npm.environment.set('test_uuid', uuid)\n\n// Test crypto.getRandomValues()\nconst randomBytes = new Array(16).fill(0)\n// @ts-expect-error - Sandbox accepts plain arrays, not just TypedArrays\ncrypto.getRandomValues(randomBytes)\npm.environment.set('random_bytes_length', randomBytes.length)\npm.environment.set('has_random_values', randomBytes.some(v => v !== 0))\n\n// Test crypto.subtle.digest() with SHA-256\nconst testData = [72, 101, 108, 108, 111] // 'Hello' as bytes\n// @ts-expect-error - Sandbox accepts plain arrays as data input\nconst hash = await crypto.subtle.digest('SHA-256', testData)\npm.environment.set('hash_length', hash.byteLength)\n\n// Test crypto.subtle.generateKey() and sign/verify with HMAC\nconst hmacKey = await crypto.subtle.generateKey(\n  { name: 'HMAC', hash: 'SHA-256' },\n  true,\n  ['sign', 'verify']\n)\npm.environment.set('hmac_key_type', hmacKey.type)\n\n// @ts-expect-error - Sandbox accepts plain arrays as data input\nconst signature = await crypto.subtle.sign('HMAC', hmacKey, testData)\npm.environment.set('signature_length', signature.byteLength)\n\n// @ts-expect-error - Sandbox accepts plain arrays for signature and data\nconst isValid = await crypto.subtle.verify('HMAC', hmacKey, signature, testData)\npm.environment.set('signature_valid', isValid)\n\n// Test crypto.subtle.generateKey() with AES-GCM\nconst aesKey = await crypto.subtle.generateKey(\n  { name: 'AES-GCM', length: 256 },\n  true,\n  ['encrypt', 'decrypt']\n)\npm.environment.set('aes_key_type', aesKey.type)\n\n// Test encrypt/decrypt with AES-GCM\nconst iv = new Array(12).fill(0).map((_, i) => i)\nconst plaintext = [83, 101, 99, 114, 101, 116] // 'Secret' as bytes\n\n// @ts-expect-error - Sandbox accepts plain arrays for iv and plaintext\nconst ciphertext = await crypto.subtle.encrypt(\n  { name: 'AES-GCM', iv },\n  aesKey,\n  plaintext\n)\npm.environment.set('ciphertext_length', ciphertext.byteLength)\n\n// @ts-expect-error - Sandbox accepts plain arrays for iv and ciphertext\nconst decrypted = await crypto.subtle.decrypt(\n  { name: 'AES-GCM', iv: iv },\n  aesKey,\n  ciphertext\n)\n// Compare decrypted bytes to original plaintext\nlet decryptMatch = decrypted.length === plaintext.length\nif (decryptMatch) {\n  for (let i = 0; i < plaintext.length; i++) {\n    if (decrypted[i] !== plaintext[i]) { decryptMatch = false; break }\n  }\n}\npm.environment.set('decrypted_matches', decryptMatch)\n\n// Test RSA-OAEP encryption/decryption\nconst rsaKeyPair = await crypto.subtle.generateKey(\n  {\n    name: 'RSA-OAEP',\n    modulusLength: 2048,\n    // @ts-expect-error - Sandbox accepts plain array for publicExponent\n    publicExponent: [1, 0, 1],\n    hash: 'SHA-256'\n  },\n  true,\n  ['encrypt', 'decrypt']\n)\n\n// @ts-expect-error - Sandbox accepts plain arrays as data input\nconst rsaCiphertext = await crypto.subtle.encrypt(\n  { name: 'RSA-OAEP' },\n  rsaKeyPair.publicKey,\n  testData\n)\npm.environment.set('rsa_ciphertext_length', rsaCiphertext.byteLength)\n\nconst rsaDecrypted = await crypto.subtle.decrypt(\n  { name: 'RSA-OAEP' },\n  rsaKeyPair.privateKey,\n  rsaCiphertext\n)\n// Compare RSA decrypted bytes to original testData\nlet rsaMatch = rsaDecrypted.length === testData.length\nif (rsaMatch) {\n  for (let i = 0; i < testData.length; i++) {\n    if (rsaDecrypted[i] !== testData[i]) { rsaMatch = false; break }\n  }\n}\npm.environment.set('rsa_decrypted_matches', rsaMatch)\n\n// Test PBKDF2 key derivation\n// @ts-expect-error - Sandbox accepts plain array as key data\nconst passwordKey = await crypto.subtle.importKey(\n  'raw',\n  [112, 97, 115, 115, 119, 111, 114, 100], // 'password'\n  { name: 'PBKDF2' },\n  false,\n  ['deriveKey']\n)\n\nconst derivedKey = await crypto.subtle.deriveKey(\n  {\n    name: 'PBKDF2',\n    hash: 'SHA-256',\n    // @ts-expect-error - Sandbox accepts plain array for salt\n    salt: [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],\n    iterations: 1000\n  },\n  passwordKey,\n  { name: 'AES-GCM', length: 256 },\n  true,\n  ['encrypt', 'decrypt']\n)\npm.environment.set('pbkdf2_key_type', derivedKey.type)\n",
+      "testScript": "const getNum = (key) => {\n  const v = pm.environment.get(key)\n  return typeof v === 'number' ? v : parseInt(String(v), 10)\n}\n\nconst getBool = (key) => {\n  const v = pm.environment.get(key)\n  return String(v) === 'true'\n}\n\n// crypto.randomUUID() tests\npm.test('crypto.randomUUID() generates valid UUID v4 format', () => {\n  const uuid = pm.environment.get('test_uuid')\n  pm.expect(uuid).to.be.a('string')\n  pm.expect(uuid.length).to.equal(36)\n  \n  // UUID v4 format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx\n  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i\n  pm.expect(uuidPattern.test(uuid)).to.be.true\n})\n\n// crypto.getRandomValues() tests\npm.test('crypto.getRandomValues() fills array with random bytes', () => {\n  pm.expect(getNum('random_bytes_length')).to.equal(16)\n  pm.expect(getBool('has_random_values')).to.be.true\n})\n\n// crypto.subtle.digest() tests\npm.test('crypto.subtle.digest() produces SHA-256 hash', () => {\n  pm.expect(getNum('hash_length')).to.equal(32) // SHA-256 = 32 bytes\n})\n\n// HMAC sign/verify tests\npm.test('crypto.subtle.generateKey() creates HMAC key', () => {\n  pm.expect(pm.environment.get('hmac_key_type')).to.equal('secret')\n})\n\npm.test('crypto.subtle.sign() produces HMAC signature', () => {\n  pm.expect(getNum('signature_length')).to.equal(32) // SHA-256 HMAC = 32 bytes\n})\n\npm.test('crypto.subtle.verify() validates HMAC signature', () => {\n  pm.expect(getBool('signature_valid')).to.be.true\n})\n\n// AES-GCM encrypt/decrypt tests\npm.test('crypto.subtle.generateKey() creates AES-GCM key', () => {\n  pm.expect(pm.environment.get('aes_key_type')).to.equal('secret')\n})\n\npm.test('crypto.subtle.encrypt() produces ciphertext', () => {\n  pm.expect(getNum('ciphertext_length')).to.be.above(0)\n})\n\npm.test('crypto.subtle.decrypt() recovers original plaintext', () => {\n  pm.expect(getBool('decrypted_matches')).to.be.true\n})\n\n// RSA-OAEP encrypt/decrypt tests\npm.test('crypto.subtle.encrypt() produces RSA ciphertext', () => {\n  pm.expect(getNum('rsa_ciphertext_length')).to.be.above(0)\n})\n\npm.test('crypto.subtle.decrypt() recovers RSA plaintext', () => {\n  pm.expect(getBool('rsa_decrypted_matches')).to.be.true\n})\n\n// PBKDF2 key derivation tests\npm.test('crypto.subtle.deriveKey() creates AES key from password', () => {\n  pm.expect(pm.environment.get('pbkdf2_key_type')).to.equal('secret')\n})\n\n// Additional in-script crypto tests\npm.test('crypto.randomUUID() generates unique UUIDs', () => {\n  const uuid1 = crypto.randomUUID()\n  const uuid2 = crypto.randomUUID()\n  pm.expect(uuid1).to.not.equal(uuid2)\n})\n\npm.test('crypto.getRandomValues() mutates array in place', () => {\n  const arr = new Array(10).fill(0)\n  // @ts-expect-error - Sandbox accepts plain arrays, not just TypedArrays\n  const result = crypto.getRandomValues(arr)\n  pm.expect(result).to.equal(arr)\n  pm.expect(arr.some(v => v !== 0)).to.be.true\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {},
+      "description": null
     }
   ],
   "auth": {
@@ -1624,5 +1682,5 @@
   },
   "headers": [],
   "variables": [],
-  "_ref_id": "coll_mi8sfgx8_4523effa-e775-4550-afb8-4ab5a4ef45ae"
+  "description": null
 }

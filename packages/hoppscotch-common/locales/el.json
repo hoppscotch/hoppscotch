@@ -623,7 +623,7 @@
   "response": {
     "audio": "Audio",
     "body": "Σώμα απόκρισης",
-    "filter_response_body": "Filter JSON response body (uses JSONPath syntax)",
+    "filter_response_body": "Filter JSON response body (uses jq syntax)",
     "headers": "Κεφαλίδες",
     "html": "HTML",
     "image": "Εικόνα",

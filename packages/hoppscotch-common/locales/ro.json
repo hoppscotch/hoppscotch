@@ -623,7 +623,7 @@
   "response": {
     "audio": "Audio",
     "body": "Corpul de răspuns",
-    "filter_response_body": "Filtrează corpul răspunsului JSON (folosește sintaxa JSONPath)",
+    "filter_response_body": "Filtrează corpul răspunsului JSON (folosește sintaxa jq)",
     "headers": "Anteturi",
     "html": "HTML",
     "image": "Imagine",

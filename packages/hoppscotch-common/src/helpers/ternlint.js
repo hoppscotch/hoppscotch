@@ -365,7 +365,7 @@ function makeVisitors(server, query, file, messages) {
               infer.findRefs(cur.ast, cur.scope, name, scope, searchRef(cur))
           }
         }
-      } catch (e) {}
+      } catch (_e) {}
       return hasRef
     }
 

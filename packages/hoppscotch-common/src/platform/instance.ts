@@ -18,7 +18,7 @@ export const VENDORED_INSTANCE_CONFIG: Instance = {
   kind: "vendored" as const,
   serverUrl: "app://hoppscotch",
   displayName: "Hoppscotch Desktop",
-  version: "25.12.1",
+  version: "26.1.1",
   lastUsed: new Date().toISOString(),
   bundleName: "Hoppscotch",
 }
@@ -45,6 +45,13 @@ export type InstancePlatformDef = {
    * Custom instance switcher component to replace the default UI
    */
   customInstanceSwitcherComponent?: Component
+
+  /**
+   * Component to render additional entries before the instances list.
+   * Desktop injects the "Hoppscotch Cloud" entry here, which resolves
+   * to the user's last-used org.
+   */
+  additionalEntriesComponent?: Component
 
   /**
    * Returns an observable stream of the current connection state

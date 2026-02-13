@@ -10,18 +10,13 @@ export async function generateBasicAuthHeaders(
   envVars: Environment["variables"],
   showKeyIfSecret = false
 ): Promise<HoppRESTHeader[]> {
-  const username = parseTemplateString(
-    auth.username,
-    envVars,
-    false,
-    showKeyIfSecret
-  )
-  const password = parseTemplateString(
-    auth.password,
-    envVars,
-    false,
-    showKeyIfSecret
-  )
+  // Always resolve the actual env variable values for base64 encoding,
+  // regardless of `showKeyIfSecret`. If we pass `showKeyIfSecret = true`,
+  // secret variables are replaced with placeholder strings like `<<key>>`
+  // which then get base64-encoded, producing incorrect Authorization headers.
+  // See: https://github.com/hoppscotch/hoppscotch/issues/5863
+  const username = parseTemplateString(auth.username, envVars, false, false)
+  const password = parseTemplateString(auth.password, envVars, false, false)
 
   return [
     {

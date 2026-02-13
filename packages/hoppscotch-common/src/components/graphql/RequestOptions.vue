@@ -9,7 +9,7 @@
   </div>
   <HoppSmartTabs
     v-model="selectedOptionTab"
-    styles="sticky bg-primary top-0 z-10 border-b-0"
+    styles="sticky bg-primary top-10 z-10 border-b-0"
     :render-inactive-tabs="true"
   >
     <HoppSmartTab
@@ -339,14 +339,15 @@ const importFromCurl = () => {
   const res = parseCurlToGQL(input)
 
   if (res.status === "error") {
-    toast.error(`${t("error.curl_invalid_format")}`)
+    hideCurlImportModal()
+    toast.error(`${t("error.curl_invalid_format")} (must start with curl)`)
     return
   }
 
-  const request = tabs.currentActiveTab.value.document.request
-  request.url = res.data.url
-  request.query = res.data.query
-  request.variables = res.data.variables
+  const activeRequest = tabs.currentActiveTab.value.document.request
+  activeRequest.url = res.data.url
+  activeRequest.query = res.data.query
+  activeRequest.variables = res.data.variables
   hideCurlImportModal()
 }
 

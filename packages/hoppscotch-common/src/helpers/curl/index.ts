@@ -21,6 +21,12 @@ export type ParseCurlToGQLResult = ParseCurlToGQLSuccess | ParseCurlToGQLError
 
 export const parseCurlToGQL = (curlCommand: string): ParseCurlToGQLResult => {
   try {
+    if (!/^curl(\s|$)/i.test(curlCommand.trim())) {
+      return {
+        status: "error",
+      }
+    }
+
     const restReq = parseCurlToHoppRESTReq(curlCommand)
     const body = typeof restReq.body.body === "string" ? restReq.body.body : ""
 
@@ -30,7 +36,17 @@ export const parseCurlToGQL = (curlCommand: string): ParseCurlToGQLResult => {
     try {
       const bodyJson = JSON.parse(body || "{}")
 
-      if (bodyJson.query) {
+      if (
+        typeof bodyJson === "object" &&
+        bodyJson !== null &&
+        "query" in bodyJson
+      ) {
+        if (typeof bodyJson.query !== "string") {
+          return {
+            status: "error",
+          }
+        }
+
         query = bodyJson.query
         variables = JSON.stringify(bodyJson.variables || {}, null, 2)
       } else {

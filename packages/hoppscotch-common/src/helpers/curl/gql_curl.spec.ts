@@ -35,12 +35,14 @@ describe("parseCurlToGQL", () => {
   it("handles malformed cURL string safely", () => {
     const result = parseCurlToGQL("this-is-not-a-valid-curl-command")
 
-    expect(result.status).toBe("ok")
+    expect(result.status).toBe("error")
+  })
 
-    if (result.status === "ok") {
-      expect(result.data.url).toBe("https://echo.hoppscotch.io/")
-      expect(result.data.query).toBe("")
-      expect(result.data.variables).toBe("{}")
-    }
+  it("returns error when GraphQL query is not a string", () => {
+    const result = parseCurlToGQL(
+      'curl "https://example.com/graphql" --data-raw \'{"query":{"op":"invalid"}}\''
+    )
+
+    expect(result.status).toBe("error")
   })
 })

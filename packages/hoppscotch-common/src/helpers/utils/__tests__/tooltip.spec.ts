@@ -1,4 +1,4 @@
-import { describe, expect, test, beforeEach, vi } from "vitest"
+import { describe, expect, test, beforeEach, afterEach, vi } from "vitest"
 import {
   truncateText,
   formatTooltipValue,
@@ -381,10 +381,15 @@ describe("createTooltipValueRow", () => {
 describe("constrainTooltipToViewport", () => {
   let tooltipBox: HTMLElement
   let tooltipContent: HTMLElement
+  let originalInnerWidth: number
+  let originalInnerHeight: number
 
   beforeEach(() => {
     tooltipBox = document.createElement("div")
     tooltipContent = document.createElement("div")
+
+    originalInnerWidth = window.innerWidth
+    originalInnerHeight = window.innerHeight
 
     // jsdom has window.innerWidth and innerHeight set to 0 by default
     // We mock them for consistent test results
@@ -397,6 +402,19 @@ describe("constrainTooltipToViewport", () => {
       writable: true,
       configurable: true,
       value: 768,
+    })
+  })
+
+  afterEach(() => {
+    Object.defineProperty(window, "innerWidth", {
+      writable: true,
+      configurable: true,
+      value: originalInnerWidth,
+    })
+    Object.defineProperty(window, "innerHeight", {
+      writable: true,
+      configurable: true,
+      value: originalInnerHeight,
     })
   })
 

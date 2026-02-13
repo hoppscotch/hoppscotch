@@ -169,7 +169,8 @@ export const getTestScriptParams = (
   reqRunnerRes: RequestRunnerResponse,
   request: HoppRESTRequest,
   envs: HoppEnvs,
-  legacySandbox: boolean
+  legacySandbox: boolean,
+  inheritedTestScripts: string[] = []
 ) => {
   const testScriptParams: TestScriptParams = {
     request,
@@ -182,6 +183,7 @@ export const getTestScriptParams = (
     },
     envs,
     legacySandbox,
+    inheritedTestScripts,
   };
   return testScriptParams;
 };

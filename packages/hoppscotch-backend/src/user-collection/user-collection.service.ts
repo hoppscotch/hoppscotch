@@ -516,23 +516,24 @@ export class UserCollectionService {
             // lock the rows
             await this.prisma.lockUserCollectionByParent(tx, userID, collection.parentID);
 
-            const deletedCollection = await tx.userCollection.delete({
-              where: { id: collection.id },
-            });
-
-            // if collection is deleted, update siblings orderIndexes
-            // if collection was deleted before the transaction started (race condition), do not update siblings orderIndexes
-            if (deletedCollection) {
-              // update orderIndexes
-              await tx.userCollection.updateMany({
-                where: {
-                  userUid: collection.userUid,
-                  parentID: collection.parentID,
-                  orderIndex: orderIndexCondition,
-                },
-                data: { orderIndex: dataCondition },
+            try {
+              await tx.userCollection.delete({
+                where: { id: collection.id },
               });
+            } catch (deleteError) {
+              // P2025: Record not found — already deleted by a concurrent transaction
+              if (deleteError?.code === 'P2025') return;
+              throw deleteError;
             }
+
+            await tx.userCollection.updateMany({
+              where: {
+                userUid: collection.userUid,
+                parentID: collection.parentID,
+                orderIndex: orderIndexCondition,
+              },
+              data: { orderIndex: dataCondition },
+            });
           } catch (error) {
             throw new ConflictException(error);
           }
@@ -590,7 +591,9 @@ export class UserCollectionService {
             // Throw error if collection is already a root collection
             return E.left(USER_COLL_ALREADY_ROOT);
           }
-    
+
+          await this.prisma.lockUserCollectionByParent(tx, userID, collection.right.parentID);
+
           // Change parent from child to root i.e child collection becomes a root collection
           // Move child collection into root and update orderIndexes for child userCollections
           const updatedCollection = await this.changeParentAndUpdateOrderIndex(
@@ -637,8 +640,21 @@ export class UserCollectionService {
         if (O.isNone(checkIfParent)) {
           return E.left(USER_COLL_IS_PARENT_COLL);
         }
-    
-        // Change parent from null to teamCollection i.e collection becomes a child collection
+
+        // Acquire locks in deterministic order (sorted by parentID) to prevent deadlocks
+        const srcParentID = collection.right.parentID ?? '';
+        const destParentID = destCollection.right.parentID ?? '';
+
+        if (srcParentID === destParentID) {
+          await this.prisma.lockUserCollectionByParent(tx, userID, collection.right.parentID);
+        } else if (srcParentID < destParentID) {
+          await this.prisma.lockUserCollectionByParent(tx, userID, collection.right.parentID);
+          await this.prisma.lockUserCollectionByParent(tx, userID, destCollection.right.parentID);
+        } else {
+          await this.prisma.lockUserCollectionByParent(tx, userID, destCollection.right.parentID);
+          await this.prisma.lockUserCollectionByParent(tx, userID, collection.right.parentID);
+        }
+
         // Move root/child collection into another child collection and update orderIndexes of the previous parent
         const updatedCollection = await this.changeParentAndUpdateOrderIndex(
           tx,

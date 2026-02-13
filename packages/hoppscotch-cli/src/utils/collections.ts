@@ -113,7 +113,6 @@ const processCollection = async (
   parentPreRequestScripts: string[] = [],
   parentTestScripts: string[] = []
 ) => {
-  // Accumulate inherited scripts from the collection hierarchy (root to child order)
   const inheritedPreRequestScripts = [
     ...parentPreRequestScripts,
     ...(collection.preRequestScript ? [collection.preRequestScript] : []),

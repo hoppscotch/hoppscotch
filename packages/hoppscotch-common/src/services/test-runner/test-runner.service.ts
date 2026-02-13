@@ -125,7 +125,6 @@ export class TestRunnerService extends Service {
         ) || []),
       ]
 
-      // Accumulate inherited scripts from the collection hierarchy (root to child order)
       const inheritedPreRequestScripts = [
         ...parentPreRequestScripts,
         ...(collection.preRequestScript ? [collection.preRequestScript] : []),
@@ -156,7 +155,6 @@ export class TestRunnerService extends Service {
           }
         )
 
-        // Pass inherited headers, auth, and scripts to the folder
         await this.runTestCollection(
           tab,
           folder,

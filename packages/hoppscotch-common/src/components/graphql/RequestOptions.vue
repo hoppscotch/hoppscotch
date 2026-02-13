@@ -1,4 +1,12 @@
 <template>
+  <div class="sticky top-0 z-10 flex justify-end bg-primary px-4 pt-2">
+    <HoppButtonSecondary
+      :label="`${t('import.curl')}`"
+      outline
+      filled
+      @click="openCurlImportModal"
+    />
+  </div>
   <HoppSmartTabs
     v-model="selectedOptionTab"
     styles="sticky bg-primary top-0 z-10 border-b-0"
@@ -52,6 +60,50 @@
     :show="showSaveRequestModal"
     @hide-modal="hideRequestModal"
   />
+  <HoppSmartModal
+    v-if="showCurlImportModal"
+    dialog
+    :title="`${t('import.curl')}`"
+    @close="hideCurlImportModal"
+  >
+    <template #body>
+      <div class="rounded border border-dividerLight">
+        <div
+          class="flex items-center justify-between border-b border-dividerLight p-4"
+        >
+          <label class="truncate font-semibold text-secondaryLight">cURL</label>
+        </div>
+        <textarea
+          v-model="curlInput"
+          class="h-52 w-full resize-none rounded-b bg-primaryLight p-4 font-mono text-secondaryDark outline-none"
+          :placeholder="`${t('request.enter_curl')}`"
+        />
+      </div>
+    </template>
+    <template #footer>
+      <span class="flex space-x-2">
+        <HoppButtonPrimary
+          :label="`${t('import.title')}`"
+          outline
+          @click="importFromCurl"
+        />
+        <HoppButtonSecondary
+          :label="`${t('action.cancel')}`"
+          outline
+          filled
+          @click="hideCurlImportModal"
+        />
+      </span>
+      <span class="flex">
+        <HoppButtonSecondary
+          :label="`${t('action.paste')}`"
+          filled
+          outline
+          @click="pasteCurl"
+        />
+      </span>
+    </template>
+  </HoppSmartModal>
 </template>
 
 <script setup lang="ts">
@@ -76,6 +128,7 @@ import { editGraphqlRequest } from "~/newstore/collections"
 import { platform } from "~/platform"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { GQLTabService } from "~/services/tab/graphql"
+import { parseCurlToGQL } from "~/helpers/curl"
 
 const _VALID_GQL_OPERATIONS = [
   "query",
@@ -129,6 +182,8 @@ const activeGQLHeadersCount = computed(
     ).length
 )
 const showSaveRequestModal = ref(false)
+const showCurlImportModal = ref(false)
+const curlInput = ref("")
 const runQuery = async (
   definition: gql.OperationDefinitionNode | null = null
 ) => {
@@ -255,12 +310,53 @@ const changeOptionTab = (e: GQLOptionTabs) => {
   selectedOptionTab.value = e
 }
 
+const openCurlImportModal = () => {
+  curlInput.value = ""
+  showCurlImportModal.value = true
+}
+
+const hideCurlImportModal = () => {
+  showCurlImportModal.value = false
+}
+
+const pasteCurl = async () => {
+  try {
+    const text = await navigator.clipboard.readText()
+    if (text) curlInput.value = text
+  } catch (e) {
+    console.error("Failed to paste: ", e)
+    toast.error(t("profile.no_permission").toString())
+  }
+}
+
+const importFromCurl = () => {
+  const input = curlInput.value.trim()
+  if (!input) {
+    hideCurlImportModal()
+    return
+  }
+
+  const res = parseCurlToGQL(input)
+
+  if (res.status === "error") {
+    toast.error(`${t("error.curl_invalid_format")}`)
+    return
+  }
+
+  const request = tabs.currentActiveTab.value.document.request
+  request.url = res.data.url
+  request.query = res.data.query
+  request.variables = res.data.variables
+  hideCurlImportModal()
+}
+
 defineActionHandler("request.send-cancel", runQuery)
 defineActionHandler("request-response.save", saveRequest)
 defineActionHandler("request.save-as", () => {
   showSaveRequestModal.value = true
 })
 defineActionHandler("request.reset", clearGQLQuery)
+defineActionHandler("request.import-curl", openCurlImportModal)
 
 defineActionHandler("request.open-tab", ({ tab }) => {
   selectedOptionTab.value = tab as GQLOptionTabs

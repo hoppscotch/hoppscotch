@@ -182,3 +182,6 @@ devenv.local.nix
 
 # pre-commit
 .pre-commit-config.yaml
+
+# Local corepack shims
+.corepack-bin/

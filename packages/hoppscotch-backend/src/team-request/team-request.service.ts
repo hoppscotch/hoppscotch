@@ -124,21 +124,23 @@ export class TeamRequestService {
             dbTeamReq.collectionID,
           ]);
 
-          const deletedTeamRequest = await tx.teamRequest.delete({
-            where: { id: requestID },
-          });
-
-          // if request is deleted, update orderIndexes of siblings
-          // if request was deleted before the transaction started (race condition), do not update siblings orderIndexes
-          if (deletedTeamRequest) {
-            await tx.teamRequest.updateMany({
-              where: {
-                collectionID: dbTeamReq.collectionID,
-                orderIndex: { gte: dbTeamReq.orderIndex },
-              },
-              data: { orderIndex: { decrement: 1 } },
+          try {
+            await tx.teamRequest.delete({
+              where: { id: requestID },
             });
+          } catch (deleteError) {
+            // P2025: Record not found — already deleted by a concurrent transaction
+            if (deleteError?.code === 'P2025') return;
+            throw deleteError;
           }
+
+          await tx.teamRequest.updateMany({
+            where: {
+              collectionID: dbTeamReq.collectionID,
+              orderIndex: { gte: dbTeamReq.orderIndex },
+            },
+            data: { orderIndex: { decrement: 1 } },
+          });
         } catch (error) {
           throw new ConflictException(error);
         }

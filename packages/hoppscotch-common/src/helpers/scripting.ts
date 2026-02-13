@@ -9,9 +9,13 @@ export const MODULE_PREFIX = "export {};\n" as const
  * (non-module context) or when exporting collections.
  */
 export const stripModulePrefix = (script: string): string => {
-  return script.startsWith(MODULE_PREFIX)
-    ? script.slice(MODULE_PREFIX.length)
-    : script
+  if (script.startsWith(MODULE_PREFIX)) {
+    return script.slice(MODULE_PREFIX.length)
+  }
+  if (script.startsWith("export {};")) {
+    return script.slice("export {};".length)
+  }
+  return script
 }
 
 /**
@@ -32,7 +36,8 @@ export const MODULE_PREFIX_REGEX_JSON_SERIALIZED = /export \{\};\\n/g
 export const wrapInIIFE = (script: string): string => {
   const trimmed = script?.trim()
   if (!trimmed) return ""
-  return `(async function() {\n${trimmed}\n})();`
+  const stripped = stripModulePrefix(trimmed)
+  return `(async function() {\n${stripped}\n})();`
 }
 
 /**

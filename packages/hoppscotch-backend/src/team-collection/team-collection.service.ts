@@ -557,23 +557,24 @@ export class TeamCollectionService {
             // lock the rows
             await this.prisma.lockTeamCollectionByTeamAndParent(tx, collection.teamID, collection.parentID);
 
-            const deletedCollection = await tx.teamCollection.delete({
-              where: { id: collection.id },
-            });
-            
-            // if collection is deleted, update siblings orderIndexes
-            // if collection was deleted before the transaction started (race condition), do not update siblings orderIndexes
-            if (deletedCollection) { 
-              // update siblings orderIndexes
-              await tx.teamCollection.updateMany({
-                where: {
-                  teamID: collection.teamID,
-                  parentID: collection.parentID,
-                  orderIndex: orderIndexCondition,
-                },
-                data: { orderIndex: dataCondition },
+            try {
+              await tx.teamCollection.delete({
+                where: { id: collection.id },
               });
+            } catch (deleteError) {
+              // P2025: Record not found — already deleted by a concurrent transaction
+              if (deleteError?.code === 'P2025') return;
+              throw deleteError;
             }
+
+            await tx.teamCollection.updateMany({
+              where: {
+                teamID: collection.teamID,
+                parentID: collection.parentID,
+                orderIndex: orderIndexCondition,
+              },
+              data: { orderIndex: dataCondition },
+            });
           } catch (error) {
             throw new ConflictException(error);
           }
@@ -738,8 +739,7 @@ export class TeamCollectionService {
         // Get collection details of collectionID
         const collection = await this.getCollection(collectionID, tx);
         if (E.isLeft(collection)) return E.left(collection.left);
-        // lock the rows of the collection and its siblings
-        await this.prisma.lockTeamCollectionByTeamAndParent(tx, collection.right.teamID, collection.right.parentID);
+
         // destCollectionID == null i.e move collection to root
         if (!destCollectionID) {
           if (!collection.right.parentID) {
@@ -747,7 +747,9 @@ export class TeamCollectionService {
             // Throw error if collection is already a root collection
             return E.left(TEAM_COL_ALREADY_ROOT);
           }
-    
+
+          await this.prisma.lockTeamCollectionByTeamAndParent(tx, collection.right.teamID, collection.right.parentID);
+
           // Change parent from child to root i.e child collection becomes a root collection
           // Move child collection into root and update orderIndexes for root teamCollections
           const updatedCollection = await this.changeParentAndUpdateOrderIndex(
@@ -790,8 +792,21 @@ export class TeamCollectionService {
           return E.left(TEAM_COLL_IS_PARENT_COLL);
         }
 
-        // lock the rows of the destination collection and its siblings
-        await this.prisma.lockTeamCollectionByTeamAndParent(tx, destCollection.right.teamID, destCollection.right.parentID);
+        // Acquire locks in deterministic order (sorted by parentID) to prevent deadlocks
+        // when two concurrent moves happen in opposite directions
+        const srcParentID = collection.right.parentID ?? '';
+        const destParentID = destCollection.right.parentID ?? '';
+        const teamID = collection.right.teamID;
+
+        if (srcParentID === destParentID) {
+          await this.prisma.lockTeamCollectionByTeamAndParent(tx, teamID, collection.right.parentID);
+        } else if (srcParentID < destParentID) {
+          await this.prisma.lockTeamCollectionByTeamAndParent(tx, teamID, collection.right.parentID);
+          await this.prisma.lockTeamCollectionByTeamAndParent(tx, teamID, destCollection.right.parentID);
+        } else {
+          await this.prisma.lockTeamCollectionByTeamAndParent(tx, teamID, destCollection.right.parentID);
+          await this.prisma.lockTeamCollectionByTeamAndParent(tx, teamID, collection.right.parentID);
+        }
     
         // Change parent from null to teamCollection i.e collection becomes a child collection
         // Move root/child collection into another child collection and update orderIndexes of the previous parent

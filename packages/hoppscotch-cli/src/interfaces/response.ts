@@ -39,12 +39,14 @@ export interface RequestRunnerResponse extends TestResponse {
  * @property {TestResponse} response Response structure for test script runner.
  * @property {HoppEnvs} envs Environment variables for test script runner.
  * @property {boolean} legacySandbox Whether to use the legacy sandbox.
+ * @property {string[]} inheritedTestScripts Test scripts inherited from parent collections.
  */
 export interface TestScriptParams {
   request: HoppRESTRequest;
   response: TestResponse;
   envs: HoppEnvs;
   legacySandbox: boolean;
+  inheritedTestScripts?: string[];
 }
 
 /**

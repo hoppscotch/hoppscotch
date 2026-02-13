@@ -74,21 +74,6 @@ export function formatTooltipValue(
 }
 
 /**
- * Determines whether a string value is considered "long" enough to
- * warrant special overflow handling in the tooltip.
- *
- * @param value - The string to evaluate
- * @param threshold - Character count threshold (defaults to 80)
- * @returns true when the value exceeds the threshold
- */
-export function isLongValue(value: string | undefined | null, threshold: number = 80): boolean {
-  if (!value) {
-    return false
-  }
-  return value.length > threshold
-}
-
-/**
  * Calculates appropriate tooltip dimensions so the tooltip stays
  * within the visible viewport.
  *
@@ -141,22 +126,6 @@ export function applyTooltipOverflowStyles(
 }
 
 /**
- * Applies word-wrapping and text-overflow styles to a value display
- * element so long strings break properly within the tooltip.
- *
- * @param element - The span/div element showing the value text
- */
-export function applyValueTextStyles(element: HTMLElement): void {
-  element.style.overflowWrap = "break-word"
-  element.style.wordBreak = "break-all"
-  element.style.whiteSpace = "pre-wrap"
-  element.style.overflow = "hidden"
-  element.style.display = "inline-block"
-  element.style.maxWidth = "100%"
-  element.style.verticalAlign = "top"
-}
-
-/**
  * Creates a fully styled value row for the tooltip, including
  * a label (e.g., "Initial" or "Current") and a value element
  * with proper overflow handling.
@@ -180,14 +149,12 @@ export function createTooltipValueRow(
   labelEl.className = "font-bold"
   labelEl.style.flexShrink = "0"
   labelEl.style.minWidth = "50px"
-  labelEl.style.marginRight = label === "Initial" ? "1rem" : "0.375rem"
+  labelEl.style.marginRight = "0.5rem"
 
   const valueEl = document.createElement("span")
   valueEl.className = "env-tooltip-value"
   const displayValue = formatTooltipValue(value, maxValueLength)
   valueEl.textContent = displayValue
-
-  applyValueTextStyles(valueEl)
 
   // Add a title attribute with the truncated indicator so users
   // know the full length if it was truncated
@@ -223,25 +190,4 @@ export function constrainTooltipToViewport(
   tooltipContent.style.maxWidth = "100%"
   tooltipContent.style.overflow = "hidden"
   tooltipContent.style.boxSizing = "border-box"
-}
-
-/**
- * Escapes HTML entities in a string to prevent XSS in tooltip
- * content that may be rendered with innerHTML.
- *
- * @param text - The raw text to escape
- * @returns The text with HTML entities escaped
- */
-export function escapeHtmlForTooltip(text: string): string {
-  if (!text) return ""
-
-  const escapeMap: Record<string, string> = {
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#x27;",
-  }
-
-  return text.replace(/[&<>"']/g, (char) => escapeMap[char] ?? char)
 }

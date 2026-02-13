@@ -1,14 +1,11 @@
-import { describe, expect, test, beforeEach, afterEach, vi } from "vitest"
+import { describe, expect, test, beforeEach, afterEach } from "vitest"
 import {
   truncateText,
   formatTooltipValue,
-  isLongValue,
   calculateTooltipDimensions,
   applyTooltipOverflowStyles,
-  applyValueTextStyles,
   createTooltipValueRow,
   constrainTooltipToViewport,
-  escapeHtmlForTooltip,
   TOOLTIP_MAX_VALUE_LENGTH,
   TOOLTIP_MAX_WIDTH_PX,
   TOOLTIP_MIN_WIDTH_PX,
@@ -116,43 +113,6 @@ describe("formatTooltipValue", () => {
   })
 })
 
-// ─── isLongValue ─────────────────────────────────────────────────
-
-describe("isLongValue", () => {
-  test("returns false for null", () => {
-    expect(isLongValue(null)).toBe(false)
-  })
-
-  test("returns false for undefined", () => {
-    expect(isLongValue(undefined)).toBe(false)
-  })
-
-  test("returns false for empty string", () => {
-    expect(isLongValue("")).toBe(false)
-  })
-
-  test("returns false for string within default threshold", () => {
-    expect(isLongValue("a".repeat(80))).toBe(false)
-  })
-
-  test("returns true for string exceeding default threshold", () => {
-    expect(isLongValue("a".repeat(81))).toBe(true)
-  })
-
-  test("uses custom threshold", () => {
-    expect(isLongValue("abc", 2)).toBe(true)
-    expect(isLongValue("ab", 2)).toBe(false)
-  })
-
-  test("returns false for threshold of 0 with empty string", () => {
-    expect(isLongValue("", 0)).toBe(false)
-  })
-
-  test("returns true for any non-empty string with threshold of 0", () => {
-    expect(isLongValue("a", 0)).toBe(true)
-  })
-})
-
 // ─── calculateTooltipDimensions ──────────────────────────────────
 
 describe("calculateTooltipDimensions", () => {
@@ -236,51 +196,6 @@ describe("applyTooltipOverflowStyles", () => {
   test("does not set maxHeight when undefined", () => {
     applyTooltipOverflowStyles(element)
     expect(element.style.maxHeight).toBe("")
-  })
-})
-
-// ─── applyValueTextStyles ────────────────────────────────────────
-
-describe("applyValueTextStyles", () => {
-  let element: HTMLElement
-
-  beforeEach(() => {
-    element = document.createElement("span")
-  })
-
-  test("sets overflowWrap to break-word", () => {
-    applyValueTextStyles(element)
-    expect(element.style.overflowWrap).toBe("break-word")
-  })
-
-  test("sets wordBreak to break-all", () => {
-    applyValueTextStyles(element)
-    expect(element.style.wordBreak).toBe("break-all")
-  })
-
-  test("sets whiteSpace to pre-wrap", () => {
-    applyValueTextStyles(element)
-    expect(element.style.whiteSpace).toBe("pre-wrap")
-  })
-
-  test("sets overflow to hidden", () => {
-    applyValueTextStyles(element)
-    expect(element.style.overflow).toBe("hidden")
-  })
-
-  test("sets display to inline-block", () => {
-    applyValueTextStyles(element)
-    expect(element.style.display).toBe("inline-block")
-  })
-
-  test("sets maxWidth to 100%", () => {
-    applyValueTextStyles(element)
-    expect(element.style.maxWidth).toBe("100%")
-  })
-
-  test("sets verticalAlign to top", () => {
-    applyValueTextStyles(element)
-    expect(element.style.verticalAlign).toBe("top")
   })
 })
 
@@ -368,11 +283,10 @@ describe("createTooltipValueRow", () => {
     expect(value!.textContent).toContain("\u2026")
   })
 
-  test("applies overflow styles to value span", () => {
+  test("applies env-tooltip-value class for overflow styles", () => {
     const row = createTooltipValueRow("Initial", "test")
     const value = row.querySelector("span")
-    expect(value!.style.overflowWrap).toBe("break-word")
-    expect(value!.style.wordBreak).toBe("break-all")
+    expect(value!.classList.contains("env-tooltip-value")).toBe(true)
   })
 })
 
@@ -450,55 +364,6 @@ describe("constrainTooltipToViewport", () => {
     // Should use minimum width since viewport is too small
     expect(parseInt(tooltipBox.style.maxWidth)).toBeLessThanOrEqual(
       TOOLTIP_MAX_WIDTH_PX
-    )
-  })
-})
-
-// ─── escapeHtmlForTooltip ────────────────────────────────────────
-
-describe("escapeHtmlForTooltip", () => {
-  test("returns empty string for empty input", () => {
-    expect(escapeHtmlForTooltip("")).toBe("")
-  })
-
-  test("returns empty string for null-like input", () => {
-    expect(escapeHtmlForTooltip(null as unknown as string)).toBe("")
-    expect(escapeHtmlForTooltip(undefined as unknown as string)).toBe("")
-  })
-
-  test("escapes ampersand", () => {
-    expect(escapeHtmlForTooltip("a&b")).toBe("a&amp;b")
-  })
-
-  test("escapes less-than sign", () => {
-    expect(escapeHtmlForTooltip("a<b")).toBe("a&lt;b")
-  })
-
-  test("escapes greater-than sign", () => {
-    expect(escapeHtmlForTooltip("a>b")).toBe("a&gt;b")
-  })
-
-  test("escapes double quotes", () => {
-    expect(escapeHtmlForTooltip('a"b')).toBe("a&quot;b")
-  })
-
-  test("escapes single quotes", () => {
-    expect(escapeHtmlForTooltip("a'b")).toBe("a&#x27;b")
-  })
-
-  test("escapes multiple special characters", () => {
-    expect(escapeHtmlForTooltip('<script>alert("xss")</script>')).toBe(
-      "&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;"
-    )
-  })
-
-  test("does not alter safe strings", () => {
-    expect(escapeHtmlForTooltip("hello world 123")).toBe("hello world 123")
-  })
-
-  test("handles string with only special characters", () => {
-    expect(escapeHtmlForTooltip("<>&\"'")).toBe(
-      "&lt;&gt;&amp;&quot;&#x27;"
     )
   })
 })

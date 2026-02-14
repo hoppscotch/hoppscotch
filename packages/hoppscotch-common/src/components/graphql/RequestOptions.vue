@@ -347,8 +347,23 @@ const importFromCurl = () => {
   const activeRequest = tabs.currentActiveTab.value.document.request
   activeRequest.url = res.data.url
   activeRequest.query = res.data.query
-  activeRequest.variables = res.data.variables ?? ""
-  activeRequest.headers = res.data.headers
+  activeRequest.variables = res.data.variables
+
+  // Merge headers instead of overwriting
+  const existingHeaders = activeRequest.headers
+  const newHeaders = res.data.headers
+
+  newHeaders.forEach((newHeader) => {
+    const index = existingHeaders.findIndex(
+      (h) => h.key.toLowerCase() === newHeader.key.toLowerCase()
+    )
+    if (index !== -1) {
+      existingHeaders[index] = newHeader
+    } else {
+      existingHeaders.push(newHeader)
+    }
+  })
+
   activeRequest.auth = res.data.auth
   hideCurlImportModal()
 }

@@ -10,7 +10,7 @@ type ParseCurlToGQLSuccess = {
   data: {
     url: string
     query: string
-    variables: string | undefined
+    variables: string
     headers: {
       key: string
       value: string
@@ -39,7 +39,7 @@ export const parseCurlToGQL = (curlCommand: string): ParseCurlToGQLResult => {
     const body = typeof restReq.body.body === "string" ? restReq.body.body : ""
 
     let query = ""
-    let variables: string | undefined = undefined
+    let variables = "{}"
 
     try {
       const bodyJson = JSON.parse(body || "{}")
@@ -56,16 +56,14 @@ export const parseCurlToGQL = (curlCommand: string): ParseCurlToGQLResult => {
         }
 
         query = bodyJson.query
-        if (bodyJson.variables && Object.keys(bodyJson.variables).length > 0) {
+        if (bodyJson.variables && typeof bodyJson.variables === "object") {
           variables = JSON.stringify(bodyJson.variables, null, 2)
         }
       } else {
         query = body
-        variables = "{}"
       }
     } catch (_error) {
       query = body
-      variables = "{}"
     }
 
     return {

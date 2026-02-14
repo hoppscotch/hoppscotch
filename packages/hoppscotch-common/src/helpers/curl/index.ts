@@ -1,3 +1,4 @@
+import { HoppGQLAuth } from "@hoppscotch/data"
 import { flow } from "fp-ts/function"
 import { cloneDeep } from "lodash-es"
 import { parseCurlCommand } from "./curlparser"
@@ -10,6 +11,13 @@ type ParseCurlToGQLSuccess = {
     url: string
     query: string
     variables: string | undefined
+    headers: {
+      key: string
+      value: string
+      active: boolean
+      description: string
+    }[]
+    auth: HoppGQLAuth
   }
 }
 
@@ -31,7 +39,7 @@ export const parseCurlToGQL = (curlCommand: string): ParseCurlToGQLResult => {
     const body = typeof restReq.body.body === "string" ? restReq.body.body : ""
 
     let query = ""
-    let variables = undefined
+    let variables: string | undefined = undefined
 
     try {
       const bodyJson = JSON.parse(body || "{}")
@@ -53,9 +61,11 @@ export const parseCurlToGQL = (curlCommand: string): ParseCurlToGQLResult => {
         }
       } else {
         query = body
+        variables = "{}"
       }
     } catch (_error) {
       query = body
+      variables = "{}"
     }
 
     return {
@@ -64,6 +74,8 @@ export const parseCurlToGQL = (curlCommand: string): ParseCurlToGQLResult => {
         url: restReq.endpoint,
         query,
         variables,
+        headers: restReq.headers,
+        auth: restReq.auth,
       },
     }
   } catch (_error) {

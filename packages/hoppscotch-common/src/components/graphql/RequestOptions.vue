@@ -348,6 +348,8 @@ const importFromCurl = () => {
   activeRequest.url = res.data.url
   activeRequest.query = res.data.query
   activeRequest.variables = res.data.variables ?? ""
+  activeRequest.headers = res.data.headers
+  activeRequest.auth = res.data.auth
   hideCurlImportModal()
 }
 

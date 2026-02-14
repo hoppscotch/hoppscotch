@@ -347,7 +347,7 @@ const importFromCurl = () => {
   const activeRequest = tabs.currentActiveTab.value.document.request
   activeRequest.url = res.data.url
   activeRequest.query = res.data.query
-  activeRequest.variables = res.data.variables
+  activeRequest.variables = res.data.variables ?? ""
   hideCurlImportModal()
 }
 

@@ -34,7 +34,7 @@ function buildRequest(
 describe("hoppCollectionToOpenAPI", () => {
   it("produces a valid OpenAPI 3.1.0 document structure", () => {
     const collection = buildCollection({ name: "My API" })
-    const doc = hoppCollectionToOpenAPI(collection)
+    const { doc } = hoppCollectionToOpenAPI(collection)
 
     expect(doc.openapi).toBe("3.1.0")
     expect(doc.info.title).toBe("My API")
@@ -47,14 +47,14 @@ describe("hoppCollectionToOpenAPI", () => {
       name: "My API",
       description: "A test API",
     })
-    const doc = hoppCollectionToOpenAPI(collection)
+    const { doc } = hoppCollectionToOpenAPI(collection)
 
     expect(doc.info.description).toBe("A test API")
   })
 
   it("omits description when null", () => {
     const collection = buildCollection({ description: null })
-    const doc = hoppCollectionToOpenAPI(collection)
+    const { doc } = hoppCollectionToOpenAPI(collection)
 
     expect(doc.info.description).toBeUndefined()
   })
@@ -70,7 +70,7 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const doc = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
 
       expect(doc.paths["/users"]).toBeDefined()
       expect(doc.paths["/users"]!.get).toBeDefined()
@@ -87,7 +87,7 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const doc = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
 
       expect(doc.servers).toEqual([{ url: "https://api.example.com" }])
     })
@@ -105,7 +105,7 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const doc = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
 
       expect(doc.servers).toHaveLength(1)
     })
@@ -114,7 +114,7 @@ describe("hoppCollectionToOpenAPI", () => {
       const collection = buildCollection({
         requests: [buildRequest({ name: "Test", endpoint: "/api/test" })],
       })
-      const doc = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
 
       expect(doc.servers).toBeUndefined()
       expect(doc.paths["/api/test"]).toBeDefined()
@@ -129,7 +129,7 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const doc = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
 
       expect(doc.paths["/users/{id}"]).toBeDefined()
     })
@@ -149,7 +149,7 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const doc = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
 
       expect(doc.paths["/users"]!.get).toBeDefined()
       expect(doc.paths["/users"]!.post).toBeDefined()
@@ -165,7 +165,7 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const doc = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
 
       expect(doc.paths["/users"]!.get!.description).toBe("Fetches all users")
     })
@@ -185,7 +185,7 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const doc = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
       const params = doc.paths["/search"]!.get!.parameters as any[]
 
       expect(params).toHaveLength(1)
@@ -206,7 +206,7 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const doc = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
       const params = doc.paths["/test"]!.get!.parameters as any[]
 
       expect(params).toHaveLength(1)
@@ -227,7 +227,7 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const doc = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
       const params = doc.paths["/users/{id}"]!.get!.parameters as any[]
 
       const pathParam = params.find((p: any) => p.in === "path")
@@ -249,7 +249,7 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const doc = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
 
       expect(doc.paths["/test"]!.get!.parameters).toBeUndefined()
     })
@@ -270,7 +270,7 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const doc = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
       const reqBody = doc.paths["/users"]!.post!.requestBody as any
 
       expect(reqBody.content["application/json"].example).toEqual({
@@ -292,7 +292,7 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const doc = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
       const reqBody = doc.paths["/test"]!.post!.requestBody as any
 
       expect(reqBody.content["application/json"].example).toBe("not json")
@@ -331,7 +331,7 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const doc = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
       const schema = (doc.paths["/upload"]!.post!.requestBody as any).content[
         "multipart/form-data"
       ].schema
@@ -361,7 +361,7 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const doc = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
       const schema = (doc.paths["/login"]!.post!.requestBody as any).content[
         "application/x-www-form-urlencoded"
       ].schema
@@ -387,7 +387,7 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const doc = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
       const reqBody = doc.paths["/text"]!.post!.requestBody as any
 
       expect(reqBody.content["text/plain"].example).toBe("Hello world")
@@ -403,7 +403,7 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const doc = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
 
       expect(doc.paths["/test"]!.get!.requestBody).toBeUndefined()
     })
@@ -425,7 +425,7 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const doc = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
 
       expect(doc.components!.securitySchemes!.basicAuth).toEqual({
         type: "http",
@@ -448,7 +448,7 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const doc = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
 
       expect(doc.components!.securitySchemes!.bearerAuth).toEqual({
         type: "http",
@@ -472,7 +472,7 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const doc = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
       const scheme = doc.components!.securitySchemes![
         "apiKey_header_X-API-Key"
       ] as any
@@ -500,7 +500,7 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const doc = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
       const scheme = doc.components!.securitySchemes![
         "apiKey_query_api_key"
       ] as any
@@ -509,6 +509,156 @@ describe("hoppCollectionToOpenAPI", () => {
         type: "apiKey",
         in: "query",
         name: "api_key",
+      })
+    })
+
+    it("converts JWT auth", () => {
+      const collection = buildCollection({
+        requests: [
+          buildRequest({
+            name: "Test",
+            endpoint: "https://api.example.com/test",
+            auth: {
+              authType: "jwt",
+              authActive: true,
+              secret: "s3cret",
+              privateKey: "",
+              algorithm: "HS256",
+              payload: "{}",
+              addTo: "HEADERS",
+              headerPrefix: "Bearer",
+            } as any,
+          }),
+        ],
+      })
+      const { doc } = hoppCollectionToOpenAPI(collection)
+
+      expect(doc.components!.securitySchemes!.jwtAuth).toEqual({
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "JWT",
+      })
+      expect(doc.paths["/test"]!.get!.security).toEqual([{ jwtAuth: [] }])
+    })
+
+    it("converts digest auth", () => {
+      const collection = buildCollection({
+        requests: [
+          buildRequest({
+            name: "Test",
+            endpoint: "https://api.example.com/test",
+            auth: {
+              authType: "digest",
+              authActive: true,
+              username: "user",
+              password: "pass",
+              realm: "",
+              nonce: "",
+              algorithm: "MD5",
+              qop: "auth",
+              nc: "",
+              cnonce: "",
+              opaque: "",
+            } as any,
+          }),
+        ],
+      })
+      const { doc } = hoppCollectionToOpenAPI(collection)
+
+      expect(doc.components!.securitySchemes!.digestAuth).toEqual({
+        type: "http",
+        scheme: "digest",
+      })
+    })
+
+    it("converts AWS Signature auth", () => {
+      const collection = buildCollection({
+        requests: [
+          buildRequest({
+            name: "Test",
+            endpoint: "https://api.example.com/test",
+            auth: {
+              authType: "aws-signature",
+              authActive: true,
+              accessKey: "AKIA...",
+              secretKey: "secret",
+              region: "us-east-1",
+              serviceName: "s3",
+              addTo: "HEADERS",
+            } as any,
+          }),
+        ],
+      })
+      const { doc } = hoppCollectionToOpenAPI(collection)
+
+      expect(doc.components!.securitySchemes!.awsSigV4).toEqual({
+        type: "apiKey",
+        in: "header",
+        name: "Authorization",
+        description: "AWS Signature Version 4",
+      })
+    })
+
+    it("converts HAWK auth", () => {
+      const collection = buildCollection({
+        requests: [
+          buildRequest({
+            name: "Test",
+            endpoint: "https://api.example.com/test",
+            auth: {
+              authType: "hawk",
+              authActive: true,
+              authId: "id123",
+              authKey: "key456",
+              algorithm: "sha256",
+              includePayloadHash: false,
+              timestamp: "",
+              nonce: "",
+              ext: "",
+              app: "",
+              dlg: "",
+            } as any,
+          }),
+        ],
+      })
+      const { doc } = hoppCollectionToOpenAPI(collection)
+
+      expect(doc.components!.securitySchemes!.hawkAuth).toEqual({
+        type: "apiKey",
+        in: "header",
+        name: "Authorization",
+        description: "Hawk authentication",
+      })
+    })
+
+    it("converts Akamai EdgeGrid auth", () => {
+      const collection = buildCollection({
+        requests: [
+          buildRequest({
+            name: "Test",
+            endpoint: "https://api.example.com/test",
+            auth: {
+              authType: "akamai-eg",
+              authActive: true,
+              accessToken: "token",
+              clientToken: "client",
+              clientSecret: "secret",
+              baseURL: "",
+              timestamp: "",
+              nonce: "",
+              headersToSign: "",
+              maxBodySize: 131072,
+            } as any,
+          }),
+        ],
+      })
+      const { doc } = hoppCollectionToOpenAPI(collection)
+
+      expect(doc.components!.securitySchemes!.akamaiEdgeGrid).toEqual({
+        type: "apiKey",
+        in: "header",
+        name: "Authorization",
+        description: "Akamai EdgeGrid authentication",
       })
     })
 
@@ -527,10 +677,106 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const doc = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
 
       expect(doc.components).toBeUndefined()
       expect(doc.paths["/test"]!.get!.security).toBeUndefined()
+    })
+
+    it("exports collection-level auth as global security", () => {
+      const collection = buildCollection({
+        auth: {
+          authType: "basic",
+          authActive: true,
+          username: "user",
+          password: "pass",
+        },
+        requests: [
+          buildRequest({
+            name: "Test",
+            endpoint: "https://api.example.com/test",
+          }),
+        ],
+      })
+      const { doc } = hoppCollectionToOpenAPI(collection)
+
+      expect(doc.security).toEqual([{ basicAuth: [] }])
+      expect(doc.components!.securitySchemes!.basicAuth).toEqual({
+        type: "http",
+        scheme: "basic",
+      })
+    })
+
+    it("skips global security for inherit/none collection auth", () => {
+      const collection = buildCollection({
+        auth: { authType: "inherit", authActive: true },
+        requests: [
+          buildRequest({
+            name: "Test",
+            endpoint: "https://api.example.com/test",
+          }),
+        ],
+      })
+      const { doc } = hoppCollectionToOpenAPI(collection)
+
+      expect(doc.security).toBeUndefined()
+    })
+  })
+
+  describe("collection-level headers", () => {
+    it("includes collection-level headers in operation parameters", () => {
+      const collection = buildCollection({
+        headers: [
+          {
+            key: "X-Global",
+            value: "global-val",
+            active: true,
+            description: "",
+          },
+        ],
+        requests: [
+          buildRequest({
+            name: "Test",
+            endpoint: "https://api.example.com/test",
+          }),
+        ],
+      })
+      const { doc } = hoppCollectionToOpenAPI(collection)
+      const params = doc.paths["/test"]!.get!.parameters as any[]
+
+      expect(params).toContainEqual(
+        expect.objectContaining({
+          name: "X-Global",
+          in: "header",
+          example: "global-val",
+        })
+      )
+    })
+
+    it("request headers override collection headers (case-insensitive)", () => {
+      const collection = buildCollection({
+        headers: [
+          {
+            key: "X-Custom",
+            value: "collection-val",
+            active: true,
+            description: "",
+          },
+        ],
+        requests: [
+          buildRequest({
+            name: "Test",
+            endpoint: "https://api.example.com/test",
+            headers: [{ key: "x-custom", value: "request-val", active: true }],
+          }),
+        ],
+      })
+      const { doc } = hoppCollectionToOpenAPI(collection)
+      const params = doc.paths["/test"]!.get!.parameters as any[]
+
+      const headerParams = params.filter((p: any) => p.in === "header")
+      expect(headerParams).toHaveLength(1)
+      expect(headerParams[0].example).toBe("request-val")
     })
   })
 
@@ -549,7 +795,7 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const doc = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
 
       expect(doc.tags).toContainEqual({ name: "Users" })
       expect(doc.paths["/users"]!.get!.tags).toEqual(["Users"])
@@ -574,7 +820,7 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const doc = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
 
       expect(doc.tags).toContainEqual({ name: "API" })
       expect(doc.tags).toContainEqual({ name: "API/Users" })
@@ -590,7 +836,7 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const doc = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
 
       expect(doc.paths["/health"]!.get!.tags).toBeUndefined()
       expect(doc.tags).toBeUndefined()
@@ -608,7 +854,7 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const doc = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
 
       expect(doc.paths["/test"]!.get!.responses).toEqual({
         "200": { description: "Successful response" },
@@ -636,7 +882,7 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const doc = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
       const resp = doc.paths["/test"]!.get!.responses["200"] as any
 
       expect(resp.description).toBe("Success")
@@ -644,6 +890,68 @@ describe("hoppCollectionToOpenAPI", () => {
       expect(resp.content["application/json"].example).toEqual({
         result: "ok",
       })
+    })
+  })
+
+  describe("warnings", () => {
+    it("warns when requests have scripts", () => {
+      const collection = buildCollection({
+        requests: [
+          buildRequest({
+            name: "Test",
+            endpoint: "https://api.example.com/test",
+            preRequestScript: "console.log('hi')",
+          }),
+        ],
+      })
+      const { warnings } = hoppCollectionToOpenAPI(collection)
+
+      expect(warnings).toContain(
+        "Pre-request and test scripts were not included in the OpenAPI export."
+      )
+    })
+
+    it("warns when lossy auth types are used", () => {
+      const collection = buildCollection({
+        requests: [
+          buildRequest({
+            name: "Test",
+            endpoint: "https://api.example.com/test",
+            auth: {
+              authType: "digest",
+              authActive: true,
+              username: "user",
+              password: "pass",
+              realm: "",
+              nonce: "",
+              algorithm: "MD5",
+              qop: "auth",
+              nc: "",
+              cnonce: "",
+              opaque: "",
+            } as any,
+          }),
+        ],
+      })
+      const { warnings } = hoppCollectionToOpenAPI(collection)
+
+      expect(warnings).toContain(
+        "Some auth types (Digest, HAWK, Akamai EdgeGrid) were exported with limited detail."
+      )
+    })
+
+    it("returns no warnings for a clean collection", () => {
+      const collection = buildCollection({
+        requests: [
+          buildRequest({
+            name: "Test",
+            endpoint: "https://api.example.com/test",
+          }),
+        ],
+      })
+      const { warnings } = hoppCollectionToOpenAPI(collection)
+
+      expect(warnings).toHaveLength(0)
     })
   })
 })

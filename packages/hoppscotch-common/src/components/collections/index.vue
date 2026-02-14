@@ -3267,7 +3267,12 @@ const doExportOpenAPI = async (format: "json" | "yaml") => {
   }
 
   if (collectionsType.value.type === "my-collections") {
-    const openAPIDoc = hoppCollectionToOpenAPI(collection as HoppCollection)
+    const { doc: openAPIDoc, warnings } = hoppCollectionToOpenAPI(
+      collection as HoppCollection
+    )
+    for (const warning of warnings) {
+      toast.info(warning)
+    }
     const name = (collection as HoppCollection).name
     await saveOpenAPIDoc(openAPIDoc, name)
   } else {
@@ -3283,7 +3288,11 @@ const doExportOpenAPI = async (format: "json" | "yaml") => {
         },
         async (coll) => {
           const hoppColl = teamCollToHoppRESTColl(coll)
-          const openAPIDoc = hoppCollectionToOpenAPI(hoppColl)
+          const { doc: openAPIDoc, warnings } =
+            hoppCollectionToOpenAPI(hoppColl)
+          for (const warning of warnings) {
+            toast.info(warning)
+          }
           await saveOpenAPIDoc(openAPIDoc, hoppColl.name)
           exportLoading.value = false
         }

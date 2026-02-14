@@ -162,6 +162,46 @@ function convertAuth(auth: HoppRESTRequest["auth"]): {
         },
       }
     }
+    case "jwt":
+      return {
+        schemeName: "jwtAuth",
+        scheme: { type: "http", scheme: "bearer", bearerFormat: "JWT" },
+      }
+    case "digest":
+      return {
+        schemeName: "digestAuth",
+        scheme: { type: "http", scheme: "digest" },
+      }
+    case "aws-signature":
+      return {
+        schemeName: "awsSigV4",
+        scheme: {
+          type: "apiKey",
+          in: "header",
+          name: "Authorization",
+          description: "AWS Signature Version 4",
+        },
+      }
+    case "hawk":
+      return {
+        schemeName: "hawkAuth",
+        scheme: {
+          type: "apiKey",
+          in: "header",
+          name: "Authorization",
+          description: "Hawk authentication",
+        },
+      }
+    case "akamai-eg":
+      return {
+        schemeName: "akamaiEdgeGrid",
+        scheme: {
+          type: "apiKey",
+          in: "header",
+          name: "Authorization",
+          description: "Akamai EdgeGrid authentication",
+        },
+      }
     case "oauth-2": {
       const flows: OpenAPIV3_1.OAuthFlowsObject = {}
       const grantInfo = auth.grantTypeInfo
@@ -280,14 +320,19 @@ function convertResponses(
 
 /**
  * Convert a HoppCollection to an OpenAPI 3.1.0 document.
+ * Returns the document along with any data-loss warnings.
  */
-export function hoppCollectionToOpenAPI(
-  collection: HoppCollection
-): OpenAPIV3_1.Document {
+export function hoppCollectionToOpenAPI(collection: HoppCollection): {
+  doc: OpenAPIV3_1.Document
+  warnings: string[]
+} {
   const paths: OpenAPIV3_1.PathsObject = {}
   const tags: OpenAPIV3_1.TagObject[] = []
   const securitySchemes: Record<string, OpenAPIV3_1.SecuritySchemeObject> = {}
   const servers = new Set<string>()
+  const lossyAuthTypes = new Set(["digest", "hawk", "akamai-eg"])
+  let hasScripts = false
+  let hasLossyAuth = false
 
   function processRequests(
     requests: HoppRESTRequest[],
@@ -313,9 +358,24 @@ export function hoppCollectionToOpenAPI(
         })
       }
 
-      // Headers
+      // Headers (request-level)
+      const requestHeaderKeys = new Set<string>()
       for (const header of request.headers) {
         if (!header.active || !header.key) continue
+        requestHeaderKeys.add(header.key.toLowerCase())
+        parameters.push({
+          name: header.key,
+          in: "header",
+          schema: { type: "string" },
+          example: header.value || undefined,
+          description: header.description || undefined,
+        })
+      }
+
+      // Collection-level headers (skip if request already defines the same key)
+      for (const header of collection.headers) {
+        if (!header.active || !header.key) continue
+        if (requestHeaderKeys.has(header.key.toLowerCase())) continue
         parameters.push({
           name: header.key,
           in: "header",
@@ -368,6 +428,17 @@ export function hoppCollectionToOpenAPI(
         operation.security = [{ [authResult.schemeName]: [] }]
       }
 
+      // Track warnings
+      if (request.preRequestScript || request.testScript) {
+        hasScripts = true
+      }
+      if (
+        request.auth.authActive &&
+        lossyAuthTypes.has(request.auth.authType)
+      ) {
+        hasLossyAuth = true
+      }
+
       if (!paths[path]) {
         paths[path] = {}
       }
@@ -415,9 +486,34 @@ export function hoppCollectionToOpenAPI(
     doc.tags = tags
   }
 
+  // Collection-level auth → global security
+  const collectionAuth = convertAuth(collection.auth as HoppRESTRequest["auth"])
+  if (collectionAuth) {
+    securitySchemes[collectionAuth.schemeName] = collectionAuth.scheme
+    doc.security = [{ [collectionAuth.schemeName]: [] }]
+  }
+  if (
+    collection.auth.authActive &&
+    lossyAuthTypes.has(collection.auth.authType)
+  ) {
+    hasLossyAuth = true
+  }
+
   if (Object.keys(securitySchemes).length > 0) {
     doc.components = { securitySchemes }
   }
 
-  return doc
+  const warnings: string[] = []
+  if (hasScripts) {
+    warnings.push(
+      "Pre-request and test scripts were not included in the OpenAPI export."
+    )
+  }
+  if (hasLossyAuth) {
+    warnings.push(
+      "Some auth types (Digest, HAWK, Akamai EdgeGrid) were exported with limited detail."
+    )
+  }
+
+  return { doc, warnings }
 }

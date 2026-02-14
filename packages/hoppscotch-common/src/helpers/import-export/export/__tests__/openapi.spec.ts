@@ -134,6 +134,68 @@ describe("hoppCollectionToOpenAPI", () => {
       expect(doc.paths["/users/{id}"]).toBeDefined()
     })
 
+    it("auto-generates path params for template variables without requestVariables", () => {
+      const collection = buildCollection({
+        requests: [
+          buildRequest({
+            name: "Get User",
+            endpoint: "https://api.example.com/users/<<id>>/posts/<<postId>>",
+          }),
+        ],
+      })
+      const { doc } = hoppCollectionToOpenAPI(collection)
+      const params = doc.paths["/users/{id}/posts/{postId}"]!.get!
+        .parameters as any[]
+
+      const pathParams = params.filter((p: any) => p.in === "path")
+      expect(pathParams).toHaveLength(2)
+      expect(pathParams).toContainEqual(
+        expect.objectContaining({ name: "id", in: "path", required: true })
+      )
+      expect(pathParams).toContainEqual(
+        expect.objectContaining({ name: "postId", in: "path", required: true })
+      )
+    })
+
+    it("does not duplicate path params already defined in requestVariables", () => {
+      const collection = buildCollection({
+        requests: [
+          buildRequest({
+            name: "Get User",
+            endpoint: "https://api.example.com/users/<<id>>",
+            requestVariables: [{ key: "id", value: "123", active: true }],
+          }),
+        ],
+      })
+      const { doc } = hoppCollectionToOpenAPI(collection)
+      const params = doc.paths["/users/{id}"]!.get!.parameters as any[]
+
+      const pathParams = params.filter((p: any) => p.in === "path")
+      expect(pathParams).toHaveLength(1)
+      expect(pathParams[0].example).toBe("123")
+    })
+
+    it("deduplicates operationIds for requests with the same name", () => {
+      const collection = buildCollection({
+        requests: [
+          buildRequest({
+            name: "Get Users",
+            method: "GET",
+            endpoint: "https://api.example.com/users",
+          }),
+          buildRequest({
+            name: "Get Users",
+            method: "POST",
+            endpoint: "https://api.example.com/users",
+          }),
+        ],
+      })
+      const { doc } = hoppCollectionToOpenAPI(collection)
+
+      expect(doc.paths["/users"]!.get!.operationId).toBe("Get_Users")
+      expect(doc.paths["/users"]!.post!.operationId).toBe("Get_Users_2")
+    })
+
     it("maps multiple HTTP methods to the same path", () => {
       const collection = buildCollection({
         requests: [

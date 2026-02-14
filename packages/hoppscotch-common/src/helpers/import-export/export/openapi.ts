@@ -330,6 +330,7 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
   const tags: OpenAPIV3_1.TagObject[] = []
   const securitySchemes: Record<string, OpenAPIV3_1.SecuritySchemeObject> = {}
   const servers = new Set<string>()
+  const usedOperationIds = new Set<string>()
   const lossyAuthTypes = new Set(["digest", "hawk", "akamai-eg"])
   let hasScripts = false
   let hasLossyAuth = false
@@ -385,9 +386,11 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
         })
       }
 
-      // Path variables
+      // Path variables from requestVariables
+      const definedPathParams = new Set<string>()
       for (const variable of request.requestVariables) {
         if (!variable.key) continue
+        definedPathParams.add(variable.key)
         parameters.push({
           name: variable.key,
           in: "path",
@@ -395,6 +398,20 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
           schema: { type: "string" },
           example: variable.value || undefined,
         })
+      }
+
+      // Auto-generate path params for any {var} in the path not already defined
+      const pathParamMatches = path.matchAll(/\{(\w+)\}/g)
+      for (const match of pathParamMatches) {
+        const paramName = match[1]
+        if (!definedPathParams.has(paramName)) {
+          parameters.push({
+            name: paramName,
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          })
+        }
       }
 
       const operation: OpenAPIV3_1.OperationObject = {
@@ -406,7 +423,16 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
         operation.description = request.description
       }
 
-      operation.operationId = sanitizeOperationId(request.name)
+      let operationId = sanitizeOperationId(request.name)
+      if (usedOperationIds.has(operationId)) {
+        let counter = 2
+        while (usedOperationIds.has(`${operationId}_${counter}`)) {
+          counter++
+        }
+        operationId = `${operationId}_${counter}`
+      }
+      usedOperationIds.add(operationId)
+      operation.operationId = operationId
 
       if (tagPath) {
         operation.tags = [tagPath]

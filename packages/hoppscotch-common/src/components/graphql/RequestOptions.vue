@@ -9,7 +9,7 @@
   </div>
   <HoppSmartTabs
     v-model="selectedOptionTab"
-    styles="sticky bg-primary top-10 z-10 border-b-0"
+    styles="sticky bg-primary top-upperPrimaryStickyFold z-10 border-b-0"
     :render-inactive-tabs="true"
   >
     <HoppSmartTab

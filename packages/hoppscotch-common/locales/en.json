@@ -731,13 +731,17 @@
   },
   "export": {
     "as_json": "Export as JSON",
+    "as_openapi": "Export as OpenAPI",
+    "choose_format": "Choose export format",
     "create_secret_gist": "Create secret Gist",
     "create_secret_gist_tooltip_text": "Export as secret Gist",
     "failed": "Something went wrong while exporting",
     "secret_gist_success": "Successfully exported as secret Gist",
     "require_github": "Login with GitHub to create secret gist",
     "title": "Export",
-    "success": "Successfully exported"
+    "success": "Successfully exported",
+    "openapi_scripts_not_included": "Pre-request and test scripts were not included in the OpenAPI export.",
+    "openapi_auth_limited_detail": "Some auth types (Digest, HAWK, Akamai EdgeGrid) were exported with limited detail."
   },
   "file_upload": {
     "choose_file": "Choose file",

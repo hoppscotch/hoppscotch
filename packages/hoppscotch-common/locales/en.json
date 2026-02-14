@@ -731,6 +731,8 @@
   },
   "export": {
     "as_json": "Export as JSON",
+    "as_openapi": "Export as OpenAPI",
+    "choose_format": "Choose export format",
     "create_secret_gist": "Create secret Gist",
     "create_secret_gist_tooltip_text": "Export as secret Gist",
     "failed": "Something went wrong while exporting",

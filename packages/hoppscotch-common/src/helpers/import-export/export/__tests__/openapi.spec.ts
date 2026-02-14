@@ -906,9 +906,7 @@ describe("hoppCollectionToOpenAPI", () => {
       })
       const { warnings } = hoppCollectionToOpenAPI(collection)
 
-      expect(warnings).toContain(
-        "Pre-request and test scripts were not included in the OpenAPI export."
-      )
+      expect(warnings).toContain("export.openapi_scripts_not_included")
     })
 
     it("warns when lossy auth types are used", () => {
@@ -935,9 +933,23 @@ describe("hoppCollectionToOpenAPI", () => {
       })
       const { warnings } = hoppCollectionToOpenAPI(collection)
 
-      expect(warnings).toContain(
-        "Some auth types (Digest, HAWK, Akamai EdgeGrid) were exported with limited detail."
-      )
+      expect(warnings).toContain("export.openapi_auth_limited_detail")
+    })
+
+    it("does not warn for empty scripts with module prefix", () => {
+      const collection = buildCollection({
+        requests: [
+          buildRequest({
+            name: "Test",
+            endpoint: "https://api.example.com/test",
+            preRequestScript: "export {};\n",
+            testScript: "export {};\n",
+          }),
+        ],
+      })
+      const { warnings } = hoppCollectionToOpenAPI(collection)
+
+      expect(warnings).not.toContain("export.openapi_scripts_not_included")
     })
 
     it("returns no warnings for a clean collection", () => {

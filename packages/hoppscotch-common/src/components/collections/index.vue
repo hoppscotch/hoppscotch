@@ -3271,7 +3271,7 @@ const doExportOpenAPI = async (format: "json" | "yaml") => {
       collection as HoppCollection
     )
     for (const warning of warnings) {
-      toast.info(warning)
+      toast.info(t(warning))
     }
     const name = (collection as HoppCollection).name
     await saveOpenAPIDoc(openAPIDoc, name)
@@ -3291,7 +3291,7 @@ const doExportOpenAPI = async (format: "json" | "yaml") => {
           const { doc: openAPIDoc, warnings } =
             hoppCollectionToOpenAPI(hoppColl)
           for (const warning of warnings) {
-            toast.info(warning)
+            toast.info(t(warning))
           }
           await saveOpenAPIDoc(openAPIDoc, hoppColl.name)
           exportLoading.value = false

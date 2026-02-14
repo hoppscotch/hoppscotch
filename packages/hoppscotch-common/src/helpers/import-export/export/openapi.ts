@@ -429,7 +429,12 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
       }
 
       // Track warnings
-      if (request.preRequestScript || request.testScript) {
+      const stripModulePrefix = (s: string) =>
+        s.startsWith("export {};\n") ? s.slice("export {};\n".length) : s
+      if (
+        stripModulePrefix(request.preRequestScript).trim() ||
+        stripModulePrefix(request.testScript).trim()
+      ) {
         hasScripts = true
       }
       if (
@@ -505,14 +510,10 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
 
   const warnings: string[] = []
   if (hasScripts) {
-    warnings.push(
-      "Pre-request and test scripts were not included in the OpenAPI export."
-    )
+    warnings.push("export.openapi_scripts_not_included")
   }
   if (hasLossyAuth) {
-    warnings.push(
-      "Some auth types (Digest, HAWK, Akamai EdgeGrid) were exported with limited detail."
-    )
+    warnings.push("export.openapi_auth_limited_detail")
   }
 
   return { doc, warnings }

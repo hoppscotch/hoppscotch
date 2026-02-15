@@ -1,7 +1,15 @@
 <template>
+  <div class="sticky top-0 z-10 flex justify-end bg-primary px-4 pt-2">
+    <HoppButtonSecondary
+      :label="`${t('import.curl')}`"
+      outline
+      filled
+      @click="openCurlImportModal"
+    />
+  </div>
   <HoppSmartTabs
     v-model="selectedOptionTab"
-    styles="sticky bg-primary top-0 z-10 border-b-0"
+    styles="sticky bg-primary top-upperPrimaryStickyFold z-10 border-b-0"
     :render-inactive-tabs="true"
   >
     <HoppSmartTab
@@ -52,6 +60,50 @@
     :show="showSaveRequestModal"
     @hide-modal="hideRequestModal"
   />
+  <HoppSmartModal
+    v-if="showCurlImportModal"
+    dialog
+    :title="`${t('import.curl')}`"
+    @close="hideCurlImportModal"
+  >
+    <template #body>
+      <div class="rounded border border-dividerLight">
+        <div
+          class="flex items-center justify-between border-b border-dividerLight p-4"
+        >
+          <label class="truncate font-semibold text-secondaryLight">cURL</label>
+        </div>
+        <textarea
+          v-model="curlInput"
+          class="h-52 w-full resize-none rounded-b bg-primaryLight p-4 font-mono text-secondaryDark outline-none"
+          :placeholder="`${t('request.enter_curl')}`"
+        />
+      </div>
+    </template>
+    <template #footer>
+      <span class="flex space-x-2">
+        <HoppButtonPrimary
+          :label="`${t('import.title')}`"
+          outline
+          @click="importFromCurl"
+        />
+        <HoppButtonSecondary
+          :label="`${t('action.cancel')}`"
+          outline
+          filled
+          @click="hideCurlImportModal"
+        />
+      </span>
+      <span class="flex">
+        <HoppButtonSecondary
+          :label="`${t('action.paste')}`"
+          filled
+          outline
+          @click="pasteCurl"
+        />
+      </span>
+    </template>
+  </HoppSmartModal>
 </template>
 
 <script setup lang="ts">
@@ -76,6 +128,7 @@ import { editGraphqlRequest } from "~/newstore/collections"
 import { platform } from "~/platform"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { GQLTabService } from "~/services/tab/graphql"
+import { parseCurlToGQL } from "~/helpers/curl"
 
 const _VALID_GQL_OPERATIONS = [
   "query",
@@ -129,6 +182,8 @@ const activeGQLHeadersCount = computed(
     ).length
 )
 const showSaveRequestModal = ref(false)
+const showCurlImportModal = ref(false)
+const curlInput = ref("")
 const runQuery = async (
   definition: gql.OperationDefinitionNode | null = null
 ) => {
@@ -255,12 +310,92 @@ const changeOptionTab = (e: GQLOptionTabs) => {
   selectedOptionTab.value = e
 }
 
+const openCurlImportModal = () => {
+  curlInput.value = ""
+  showCurlImportModal.value = true
+}
+
+const hideCurlImportModal = () => {
+  showCurlImportModal.value = false
+}
+
+const pasteCurl = async () => {
+  try {
+    const text = await navigator.clipboard.readText()
+    if (text) curlInput.value = text
+  } catch (e) {
+    console.error("Failed to paste: ", e)
+    toast.error(t("profile.no_permission").toString())
+  }
+}
+
+const importFromCurl = () => {
+  const input = curlInput.value.trim()
+  if (!input) {
+    hideCurlImportModal()
+    return
+  }
+
+  const res = parseCurlToGQL(input)
+
+  if (res.status === "error") {
+    hideCurlImportModal()
+    const errorKey = res.message
+      ? `error.${res.message}`
+      : "error.curl_invalid_format"
+    toast.error(`${t(errorKey)}`)
+    return
+  }
+
+  const activeRequest = tabs.currentActiveTab.value.document.request
+  activeRequest.url = res.data.url
+  activeRequest.query = res.data.query
+
+  // 1. Smart Variable Merge
+  try {
+    const existingVars = JSON.parse(activeRequest.variables || "{}")
+    const newVars = JSON.parse(res.data.variables || "{}")
+    activeRequest.variables = JSON.stringify(
+      { ...existingVars, ...newVars },
+      null,
+      2
+    )
+  } catch (_e) {
+    activeRequest.variables = res.data.variables
+  }
+
+  // 2. Smart Header Merge (with GQL blacklist)
+  const GQL_HEADER_BLACKLIST = ["content-type", "accept"]
+  const existingHeaders = activeRequest.headers
+  const newHeaders = res.data.headers.filter(
+    (h) => !GQL_HEADER_BLACKLIST.includes(h.key.toLowerCase())
+  )
+
+  newHeaders.forEach((newHeader) => {
+    const index = existingHeaders.findIndex(
+      (h) => h.key.toLowerCase() === newHeader.key.toLowerCase()
+    )
+    if (index !== -1) {
+      existingHeaders[index] = newHeader
+    } else {
+      existingHeaders.push(newHeader)
+    }
+  })
+
+  // 3. Smart Auth Merge
+  if (res.data.auth.authType !== "none") {
+    activeRequest.auth = res.data.auth
+  }
+  hideCurlImportModal()
+}
+
 defineActionHandler("request.send-cancel", runQuery)
 defineActionHandler("request-response.save", saveRequest)
 defineActionHandler("request.save-as", () => {
   showSaveRequestModal.value = true
 })
 defineActionHandler("request.reset", clearGQLQuery)
+defineActionHandler("request.import-curl", openCurlImportModal)
 
 defineActionHandler("request.open-tab", ({ tab }) => {
   selectedOptionTab.value = tab as GQLOptionTabs

@@ -684,6 +684,8 @@
     "check_console_details": "请检查控制台日志以获取详细信息",
     "check_how_to_add_origin": "检查如何添加源",
     "curl_invalid_format": "cURL 格式不正确",
+    "curl_invalid_gql_query": "请求正文中不包含有效的 GraphQL 查询",
+    "curl_invalid_gql_query": "请求正文中不包含有效的 GraphQL 查询",
     "danger_zone": "危险区域",
     "delete_account": "您的帐号目前为这些团队的拥有者：",
     "delete_account_description": "您在删除帐号前必须先将您自己从团队中移除、转移拥有权，或是删除团队。",

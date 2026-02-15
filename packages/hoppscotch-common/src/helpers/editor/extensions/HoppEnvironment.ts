@@ -41,6 +41,10 @@ import {
   ENV_VAR_NAME_REGEX,
   HOPP_ENVIRONMENT_REGEX,
 } from "~/helpers/environment-regex"
+import {
+  constrainTooltipToViewport,
+  createTooltipValueRow,
+} from "~/helpers/utils/tooltip"
 
 const HOPP_ENV_HIGHLIGHT =
   "cursor-help transition rounded px-1 focus:outline-none mx-0.5 env-highlight"
@@ -284,34 +288,30 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           tooltipContainer.appendChild(envContainer)
           envContainer.className =
             "flex flex-col items-start space-y-1 flex-1 w-full mt-2 !z-[1002]"
+          envContainer.style.overflow = "hidden"
 
-          const initialValueBlock = document.createElement("div")
-          initialValueBlock.className = "flex items-center space-x-2"
-          const initialValueTitle = document.createElement("div")
-          initialValueTitle.textContent = "Initial"
-          initialValueTitle.className = "font-bold mr-4 "
-          const initialValue = document.createElement("span")
-          initialValue.textContent = envInitialValue || ""
-          initialValueBlock.appendChild(initialValueTitle)
-          initialValueBlock.appendChild(initialValue)
+          // Use createTooltipValueRow for overflow-safe value display
+          const initialValueRow = createTooltipValueRow(
+            "Initial",
+            envInitialValue
+          )
+          const currentValueRow = createTooltipValueRow(
+            "Current",
+            envCurrentValue
+          )
 
-          const currentValueBlock = document.createElement("div")
-          currentValueBlock.className = "flex items-center space-x-2"
-          const currentValueTitle = document.createElement("div")
-          currentValueTitle.textContent = "Current"
-          currentValueTitle.className = "font-bold mr-1.5"
-          const currentValue = document.createElement("span")
-          currentValue.textContent = envCurrentValue || ""
-          currentValueBlock.appendChild(currentValueTitle)
-          currentValueBlock.appendChild(currentValue)
+          envContainer.appendChild(initialValueRow)
+          envContainer.appendChild(currentValueRow)
 
-          envContainer.appendChild(initialValueBlock)
-          envContainer.appendChild(currentValueBlock)
-
-          tooltipContainer.className = "tippy-content env-tooltip-content"
+          tooltipContainer.className =
+            "tippy-content env-tooltip-content env-tooltip-constrained"
           dom.className = "tippy-box"
           dom.dataset.theme = "tooltip"
           dom.appendChild(tooltipContainer)
+
+          // Apply viewport-aware overflow constraints to the tooltip
+          constrainTooltipToViewport(dom, tooltipContainer)
+
           return { dom }
         },
       }

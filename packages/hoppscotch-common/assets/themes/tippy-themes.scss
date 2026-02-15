@@ -16,6 +16,25 @@
       @apply flex-col;
     }
 
+    // Constrained tooltip styles to prevent overflow beyond the viewport
+    // when environment variable values are very long (fixes #5876)
+    .env-tooltip-constrained {
+      @apply flex-col;
+      min-width: 200px;
+      box-sizing: border-box;
+      overflow: hidden;
+
+      .env-tooltip-value {
+        overflow-wrap: break-word;
+        word-break: break-all;
+        white-space: pre-wrap;
+        overflow: hidden;
+        display: inline-block;
+        max-width: 100%;
+        vertical-align: top;
+      }
+    }
+
     .tippy-content {
       @apply flex;
       @apply text-tiny;

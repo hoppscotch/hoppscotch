@@ -23,19 +23,22 @@ type ParseCurlToGQLSuccess = {
 
 type ParseCurlToGQLError = {
   status: "error"
+  message?: string
 }
 
 export type ParseCurlToGQLResult = ParseCurlToGQLSuccess | ParseCurlToGQLError
 
 export const parseCurlToGQL = (curlCommand: string): ParseCurlToGQLResult => {
   try {
-    if (!/^curl(\s|$)/i.test(curlCommand.trim())) {
+    const trimmedCurl = curlCommand.trim()
+    if (!/^curl(\s|$)/i.test(trimmedCurl)) {
       return {
         status: "error",
+        message: "invalid_curl_format",
       }
     }
 
-    const restReq = parseCurlToHoppRESTReq(curlCommand.trim())
+    const restReq = parseCurlToHoppRESTReq(trimmedCurl)
     const body = typeof restReq.body.body === "string" ? restReq.body.body : ""
 
     let query = ""
@@ -52,6 +55,7 @@ export const parseCurlToGQL = (curlCommand: string): ParseCurlToGQLResult => {
         if (typeof bodyJson.query !== "string") {
           return {
             status: "error",
+            message: "invalid_gql_query_in_body",
           }
         }
 
@@ -76,9 +80,10 @@ export const parseCurlToGQL = (curlCommand: string): ParseCurlToGQLResult => {
         auth: restReq.auth,
       },
     }
-  } catch (_error) {
+  } catch (error: any) {
     return {
       status: "error",
+      message: error?.message ?? "unknown_error",
     }
   }
 }

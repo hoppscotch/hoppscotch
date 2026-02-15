@@ -340,18 +340,35 @@ const importFromCurl = () => {
 
   if (res.status === "error") {
     hideCurlImportModal()
-    toast.error(`${t("error.curl_invalid_format")} (must start with curl)`)
+    toast.error(
+      `${t("error.curl_invalid_format")} (${res.message ?? "unknown"})`
+    )
     return
   }
 
   const activeRequest = tabs.currentActiveTab.value.document.request
   activeRequest.url = res.data.url
   activeRequest.query = res.data.query
-  activeRequest.variables = res.data.variables
 
-  // Merge headers instead of overwriting
+  // 1. Smart Variable Merge
+  try {
+    const existingVars = JSON.parse(activeRequest.variables || "{}")
+    const newVars = JSON.parse(res.data.variables || "{}")
+    activeRequest.variables = JSON.stringify(
+      { ...existingVars, ...newVars },
+      null,
+      2
+    )
+  } catch (_e) {
+    activeRequest.variables = res.data.variables
+  }
+
+  // 2. Smart Header Merge (with GQL blacklist)
+  const GQL_HEADER_BLACKLIST = ["content-type", "accept"]
   const existingHeaders = activeRequest.headers
-  const newHeaders = res.data.headers
+  const newHeaders = res.data.headers.filter(
+    (h) => !GQL_HEADER_BLACKLIST.includes(h.key.toLowerCase())
+  )
 
   newHeaders.forEach((newHeader) => {
     const index = existingHeaders.findIndex(
@@ -364,6 +381,7 @@ const importFromCurl = () => {
     }
   })
 
+  // 3. Smart Auth Merge
   if (res.data.auth.authType !== "none") {
     activeRequest.auth = res.data.auth
   }

@@ -55,7 +55,7 @@ export const parseCurlToGQL = (curlCommand: string): ParseCurlToGQLResult => {
         if (typeof bodyJson.query !== "string") {
           return {
             status: "error",
-            message: "invalid_gql_query_in_body",
+            message: "curl_invalid_gql_query",
           }
         }
 

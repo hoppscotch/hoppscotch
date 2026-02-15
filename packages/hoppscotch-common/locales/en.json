@@ -687,6 +687,8 @@
     "check_console_details": "Check console log for details.",
     "check_how_to_add_origin": "Check how you can add an origin",
     "curl_invalid_format": "cURL is not formatted properly",
+    "curl_invalid_gql_query": "The request body does not contain a valid GraphQL query",
+    "curl_invalid_gql_query": "The request body does not contain a valid GraphQL query",
     "danger_zone": "Danger zone",
     "delete_account": "Your account is currently the sole owner in these workspaces:",
     "delete_account_description": "You must either remove yourself, transfer ownership, or delete these workspaces before you can delete your account.",

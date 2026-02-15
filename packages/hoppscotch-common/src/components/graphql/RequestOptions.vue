@@ -340,9 +340,10 @@ const importFromCurl = () => {
 
   if (res.status === "error") {
     hideCurlImportModal()
-    toast.error(
-      `${t("error.curl_invalid_format")} (${res.message ?? "unknown"})`
-    )
+    const errorKey = res.message
+      ? `error.${res.message}`
+      : "error.curl_invalid_format"
+    toast.error(`${t(errorKey)}`)
     return
   }
 

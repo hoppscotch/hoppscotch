@@ -1,4 +1,3 @@
-# reindex actions
 name: Build Desktop Self Host - AIO
 on:
   workflow_dispatch:

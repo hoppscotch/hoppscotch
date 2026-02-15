@@ -364,7 +364,9 @@ const importFromCurl = () => {
     }
   })
 
-  activeRequest.auth = res.data.auth
+  if (res.data.auth.authType !== "none") {
+    activeRequest.auth = res.data.auth
+  }
   hideCurlImportModal()
 }
 

@@ -238,7 +238,9 @@
     :mode="publishModalMode"
     :is-first-publish="!isCollectionPublished && !isCreatingNewVersion"
     :is-auto-sync-locked="
-      !!selectedVersionDoc?.autoSync && !isCreatingNewVersion
+      !!selectedVersionDoc &&
+      isLiveVersion(selectedVersionDoc) &&
+      !isCreatingNewVersion
     "
     :published-doc-id="publishedDocId"
     :existing-data="existingPublishedData"
@@ -391,10 +393,7 @@ const selectedVersionDoc = ref<PublishedDocInfo | null>(null)
  * Falls back to the last doc (oldest, since the list is in descending order).
  */
 const findCurrentVersion = (docs: PublishedDocInfo[]): PublishedDocInfo => {
-  return (
-    docs.find((d) => d.version.toUpperCase() === "CURRENT") ||
-    docs[docs.length - 1]
-  )
+  return docs.find((d) => isLiveVersion(d)) || docs[docs.length - 1]
 }
 
 watch(

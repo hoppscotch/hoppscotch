@@ -70,7 +70,7 @@ describe("Basic Auth", () => {
       expect(headers[0].value).toBe(`Basic ${btoa("testuser:testpass")}`)
     })
 
-    test("resolves secret env variables in both username and password before encoding", async () => {
+    test("resolves mixed secret and non-secret env variables before encoding", async () => {
       const auth: HoppRESTAuth & { authType: "basic" } = {
         authActive: true,
         authType: "basic",

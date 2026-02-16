@@ -396,13 +396,14 @@ export class DocumentationService extends Service {
       }
     } else if (info) {
       // Update or add
-      const index = existing.findIndex((doc) => doc.id === info.id)
+      const updated = [...existing]
+      const index = updated.findIndex((doc) => doc.id === info.id)
       if (index !== -1) {
-        existing[index] = info
+        updated[index] = info
       } else {
-        existing.push(info)
+        updated.push(info)
       }
-      newMap.set(collectionId, existing)
+      newMap.set(collectionId, updated)
     } else {
       // Remove all if info is null and no removeId
       newMap.delete(collectionId)

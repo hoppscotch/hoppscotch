@@ -472,6 +472,8 @@ describe("DocumentationService", () => {
           version: "v1",
           autoSync: true,
           url: "url-1",
+          createdOn: "2023-01-01",
+          updatedOn: "2023-01-01",
         },
       ]
 
@@ -502,6 +504,8 @@ describe("DocumentationService", () => {
           version: "v2",
           autoSync: false,
           url: "url-2",
+          createdOn: "2023-01-02",
+          updatedOn: "2023-01-02",
         },
       ]
 
@@ -560,6 +564,9 @@ describe("DocumentationService", () => {
         version: "v3",
         autoSync: true,
         url: "url-3",
+        collection: { id: "col-3" },
+        createdOn: "2023-01-03",
+        updatedOn: "2023-01-03",
       }
 
       service.setPublishedDocStatus("col-3", info)
@@ -574,6 +581,9 @@ describe("DocumentationService", () => {
         version: "v3",
         autoSync: true,
         url: "url-3",
+        collection: { id: "col-3" },
+        createdOn: "2023-01-03",
+        updatedOn: "2023-01-03",
       }
 
       service.setPublishedDocStatus("col-3", info)
@@ -592,6 +602,8 @@ describe("DocumentationService", () => {
           version: "v1",
           autoSync: true,
           url: "url-slow",
+          createdOn: "2023-01-01",
+          updatedOn: "2023-01-01",
         },
       ]
 
@@ -603,6 +615,8 @@ describe("DocumentationService", () => {
           version: "v2",
           autoSync: true,
           url: "url-fast",
+          createdOn: "2023-01-02",
+          updatedOn: "2023-01-02",
         },
       ]
 
@@ -633,6 +647,9 @@ describe("DocumentationService", () => {
           version: "v2",
           autoSync: true,
           url: "url-fast",
+          collection: { id: "col-1" },
+          createdOn: "2023-01-02",
+          updatedOn: "2023-01-02",
         },
       ])
 
@@ -648,6 +665,9 @@ describe("DocumentationService", () => {
           version: "v2",
           autoSync: true,
           url: "url-fast",
+          collection: { id: "col-1" },
+          createdOn: "2023-01-02",
+          updatedOn: "2023-01-02",
         },
       ])
     })
@@ -659,6 +679,9 @@ describe("DocumentationService", () => {
         version: "v1",
         autoSync: true,
         url: "url-1",
+        collection: { id: "col-1" },
+        createdOn: "2023-01-01",
+        updatedOn: "2023-01-01",
       }
       const info2 = {
         id: "doc-2",
@@ -666,6 +689,9 @@ describe("DocumentationService", () => {
         version: "v2",
         autoSync: true,
         url: "url-2",
+        collection: { id: "col-1" },
+        createdOn: "2023-01-02",
+        updatedOn: "2023-01-02",
       }
 
       service.setPublishedDocStatus("col-1", info1)
@@ -683,6 +709,9 @@ describe("DocumentationService", () => {
         version: "v1",
         autoSync: true,
         url: "url-1",
+        collection: { id: "col-1" },
+        createdOn: "2023-01-01",
+        updatedOn: "2023-01-01",
       }
       const info2 = {
         id: "doc-2",
@@ -690,6 +719,9 @@ describe("DocumentationService", () => {
         version: "v2",
         autoSync: true,
         url: "url-2",
+        collection: { id: "col-1" },
+        createdOn: "2023-01-02",
+        updatedOn: "2023-01-02",
       }
 
       service.setPublishedDocStatus("col-1", info1)

@@ -89,7 +89,7 @@ jobs:
             libssl-dev \
             libgtk-3-dev \
             libappindicator3-dev \
-            librsvg2-dev\
+            librsvg2-dev \
             rpm;
 
           sudo apt install -y \

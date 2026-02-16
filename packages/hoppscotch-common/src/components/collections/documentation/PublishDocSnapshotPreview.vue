@@ -8,20 +8,6 @@
           {{ existingData?.title }}
         </h3>
         <div class="flex items-center space-x-2">
-          <!-- <span
-            class="py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded"
-            :class="
-              existingData?.autoSync
-                ? 'bg-green-500/10 text-green-600'
-                : 'bg-accent/10 text-accent'
-            "
-          >
-            {{
-              existingData?.autoSync
-                ? t("documentation.publish.live")
-                : t("documentation.publish.snapshot")
-            }}
-          </span> -->
           <span
             class="text-xs text-secondaryLight rounded border border-dividerDark px-2 py-0.5"
           >
@@ -109,30 +95,6 @@
     <div
       class="flex-1 min-w-0 rounded-md border border-divider flex flex-col overflow-hidden bg-primary"
     >
-      <!-- Preview header -->
-      <!-- <div
-        class="px-3 py-2 bg-primaryLight border-b border-divider flex items-center justify-between flex-shrink-0"
-      >
-        <div class="flex items-center space-x-2">
-          <icon-lucide-book-open
-            class="w-3.5 h-3.5 text-secondaryLight flex-shrink-0"
-          />
-          <span class="text-xs font-medium text-secondaryDark">
-            {{ t("documentation.publish.snapshot_preview") }}
-          </span>
-        </div>
-        <span
-          v-if="snapshotCollectionData && snapshotItems.length > 0"
-          class="text-[10px] text-secondaryLight tabular-nums"
-        >
-          {{
-            t("documentation.publish.snapshot_item_count", {
-              count: snapshotItems.length,
-            })
-          }}
-        </span>
-      </div> -->
-
       <!-- Loading state -->
       <div
         v-if="isLoadingSnapshot"

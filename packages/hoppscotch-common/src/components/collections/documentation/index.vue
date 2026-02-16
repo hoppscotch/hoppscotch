@@ -176,17 +176,6 @@
                       />
                     </div>
 
-                    <!-- <HoppSmartItem
-                      reverse
-                      :icon="IconPenLine"
-                      :label="t('documentation.publish.edit_published_doc')"
-                      @click="
-                        () => {
-                          hide()
-                          openPublishModal()
-                        }
-                      "
-                    /> -->
                     <HoppSmartItem
                       v-if="
                         selectedVersionDoc?.autoSync &&

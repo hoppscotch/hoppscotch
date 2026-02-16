@@ -166,7 +166,6 @@ const fetchEnvironments = async () => {
         )
       }
     } else {
-      console.log("personalEnvironments", personalEnvironments.value)
       availableEnvironments.value = personalEnvironments.value
         .filter((env: Environment) => env.name)
         .map((env: Environment, index: number) => ({

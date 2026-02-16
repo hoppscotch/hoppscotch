@@ -398,12 +398,9 @@ const fetchSnapshotPreview = async () => {
     }
 
     const publishedData = JSON.parse(result.right.documentTree)
-    console.log("publishedData", publishedData)
     const hoppCollection = collectionFolderToHoppCollection(publishedData)
-    console.log("hoppCollection", hoppCollection)
     snapshotCollectionData.value = hoppCollection
     snapshotItems.value = flattenCollection(hoppCollection)
-    console.log("snapshotItems", snapshotItems.value)
   } catch (error) {
     console.error("Error loading snapshot preview:", error)
     snapshotError.value = true

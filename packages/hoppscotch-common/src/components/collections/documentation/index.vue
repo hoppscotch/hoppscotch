@@ -319,7 +319,6 @@ import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 import { refAutoReset, useClipboard } from "@vueuse/core"
-import { findPublishedDocForCollection } from "~/helpers/backend/queries/PublishedDocs"
 
 const t = useI18n()
 const toast = useToast()
@@ -394,8 +393,6 @@ const publishedDocs = computed(() => {
   if (!props.collectionID) return []
   return documentationService.getPublishedDocStatus(props.collectionID) || []
 })
-
-console.log("publishedDocs", publishedDocs.value)
 
 const selectedVersionDoc = ref<PublishedDocInfo | null>(null)
 
@@ -519,8 +516,6 @@ const currentCollection = computed<HoppCollection | null>(() => {
   return props.collection as HoppCollection
 })
 
-console.log("collection", currentCollection.value)
-
 // Handle toggle all documentation - process items in parent
 const handleToggleAllDocumentation = async () => {
   if (!showAllDocumentation.value) {
@@ -561,16 +556,8 @@ const handleToggleAllDocumentation = async () => {
 // Reset fetched collection data when modal opens/closes
 watch(
   () => props.show,
-  async (newVal) => {
-    if (newVal) {
-      const res = await findPublishedDocForCollection(
-        props.collectionID,
-        props.isTeamCollection,
-        props.teamID
-      )()
-      console.log("published doc", res)
-      // No need to manually check published docs status as it is now reactive
-    } else {
+  (newVal) => {
+    if (!newVal) {
       // Reset when modal closes
       fullCollectionData.value = null
       isLoadingTeamCollection.value = false

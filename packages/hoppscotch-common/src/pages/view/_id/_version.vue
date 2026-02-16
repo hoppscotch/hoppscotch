@@ -200,8 +200,6 @@ const fetchDocs = async (docId: string, version: string) => {
   // If version is provided, fetch that specific version; otherwise fetch latest
   const result = await getPublishedDocByIDREST(docId, version)()
 
-  console.log("result", result)
-
   if (E.isLeft(result)) {
     console.error("Error fetching published doc:", result.left)
     error.value = t("documentation.publish.not_found")

@@ -15,7 +15,8 @@
     "build:decl": "tsc --project tsconfig.decl.json",
     "build": "pnpm run build:code && pnpm run build:decl",
     "prepare": "pnpm run build:code && pnpm run build:decl",
-    "do-typecheck": "pnpm exec tsc --noEmit"
+    "do-typecheck": "pnpm exec tsc --noEmit",
+    "test": "vitest run"
   },
   "exports": {
     ".": {
@@ -37,7 +38,8 @@
   "devDependencies": {
     "@types/lodash": "4.17.23",
     "typescript": "5.9.3",
-    "vite": "7.3.1"
+    "vite": "7.3.1",
+    "vitest": "latest"
   },
   "dependencies": {
     "fp-ts": "2.16.11",

@@ -21,7 +21,7 @@ function utf8Btoa(str: string): string {
 export async function generateBasicAuthHeaders(
   auth: HoppRESTAuth & { authType: "basic" },
   envVars: Environment["variables"],
-  // showKeyIfSecret is intentionally not forwarded to parseTemplateString here.
+  // `showKeyIfSecret` is intentionally not forwarded to `parseTemplateString()` here.
   // The base64 encoding must always use actual values, otherwise the
   // Authorization header is unusable (see #5863).
   _showKeyIfSecret = false

@@ -1,10 +1,16 @@
 <template>
   <main class="flex-1 flex overflow-hidden">
-    <div class="w-80 border-r border-divider bg-primary overflow-y-auto h-full">
+    <div
+      :class="[
+        'border-r border-divider bg-primary overflow-y-auto h-full flex-shrink-0',
+        compact ? 'w-48' : 'w-80',
+      ]"
+    >
       <CollectionsDocumentationCollectionStructure
         v-if="collectionData"
         :collection="collectionData"
-        :is-doc-modal="false"
+        :compact="compact"
+        :is-doc-modal="isDocModal"
         @request-select="handleRequestSelect"
         @folder-select="handleFolderSelect"
         @scroll-to-top="handleScrollToTop"
@@ -52,6 +58,7 @@
               :collection-i-d="collectionData.id"
               :inherited-properties="getInheritedProperties(item)"
               :read-only="true"
+              :environment-variables="environmentVariables"
             />
           </div>
         </div>
@@ -62,7 +69,7 @@
 
 <script setup lang="ts">
 import { PropType, ref, onMounted } from "vue"
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import { Environment, HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { useRouter, useRoute } from "vue-router"
 
@@ -83,6 +90,18 @@ const props = defineProps({
     default: () => [],
   },
   updateUrlOnSelect: {
+    type: Boolean,
+    default: false,
+  },
+  compact: {
+    type: Boolean,
+    default: false,
+  },
+  environmentVariables: {
+    type: Array as PropType<Environment["variables"]>,
+    default: () => [],
+  },
+  isDocModal: {
     type: Boolean,
     default: false,
   },
@@ -123,14 +142,25 @@ const handleFolderSelect = (folder: HoppCollection) => {
 
 /**
  * Scrolls to a specific item by its ID
+ * Uses the mainContentRef as the scroll container to avoid issues
+ * when embedded in modals or other nested scroll contexts
  */
 const scrollToItem = (id: string): void => {
   setTimeout(() => {
-    const element = document.getElementById(`doc-item-${id}`)
+    const container = mainContentRef.value
+    if (!container) return
+
+    const element = container.querySelector(
+      `#doc-item-${CSS.escape(id)}`
+    ) as HTMLElement | null
     if (element) {
-      element.scrollIntoView({
+      const containerRect = container.getBoundingClientRect()
+      const elementRect = element.getBoundingClientRect()
+      const offset = elementRect.top - containerRect.top + container.scrollTop
+
+      container.scrollTo({
+        top: offset - 14, // account for scroll-mt-14
         behavior: "smooth",
-        block: "start",
       })
     } else {
       console.error("Item not found:", id)

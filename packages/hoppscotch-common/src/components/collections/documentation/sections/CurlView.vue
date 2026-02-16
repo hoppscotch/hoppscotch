@@ -209,6 +209,7 @@ const props = withDefaults(
     requestIndex?: number | null
     teamID?: string
     inheritedProperties?: HoppInheritedProperty
+    environmentVariables?: Environment["variables"]
   }>(),
   {
     request: null,
@@ -217,6 +218,7 @@ const props = withDefaults(
     folderPath: null,
     requestIndex: null,
     teamID: undefined,
+    environmentVariables: () => [],
   }
 )
 
@@ -336,6 +338,8 @@ const getEffectiveRequest = async () => {
             sourceEnv: "Global",
           } as AggregateEnvironment) || envVar.initialValue,
       })),
+      // Published doc environment variables (from attached environment)
+      ...(props.environmentVariables || []),
     ],
   }
 
@@ -344,6 +348,7 @@ const getEffectiveRequest = async () => {
       ...props.request,
     }),
     env,
+    true,
     true
   )
 
@@ -351,6 +356,17 @@ const getEffectiveRequest = async () => {
 
   return result
 }
+
+// Re-generate when environment variables change (e.g., environment toggle in header)
+watch(
+  () => props.environmentVariables,
+  () => {
+    if (isVisible.value) {
+      generateCurlCommand()
+    }
+  },
+  { deep: true }
+)
 
 // Lazy computed for cURL command
 const curlCommand = ref<string>("")

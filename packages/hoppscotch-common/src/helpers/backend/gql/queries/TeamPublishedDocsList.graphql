@@ -16,6 +16,7 @@ query TeamPublishedDocsList(
     autoSync
     url
     documentTree
+    environmentName
     collection {
       id
     }

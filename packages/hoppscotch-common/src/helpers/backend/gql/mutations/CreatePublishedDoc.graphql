@@ -5,6 +5,7 @@ mutation CreatePublishedDoc($args: CreatePublishedDocsArgs!) {
     version
     autoSync
     url
+    environmentName
     createdOn
     updatedOn
     workspaceType

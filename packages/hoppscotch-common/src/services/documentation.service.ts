@@ -17,6 +17,13 @@ export interface PublishedDocInfo {
   version: string
   autoSync: boolean
   url: string
+  environmentName?: string | null
+  environmentID?: string | null
+  collection: {
+    id: string
+  }
+  createdOn: string
+  updatedOn: string
 }
 
 /**
@@ -260,6 +267,8 @@ export class DocumentationService extends Service {
     try {
       const result = await getUserPublishedDocs()()
 
+      console.log("//////fetchUserPublishedDocs//////", result)
+
       // If a newer request has started, ignore this result
       if (requestId !== this.fetchRequestId) return
 
@@ -275,6 +284,11 @@ export class DocumentationService extends Service {
               version: doc.version,
               autoSync: doc.autoSync,
               url: doc.url,
+              collection: {
+                id: doc.collection.id,
+              },
+              createdOn: doc.createdOn,
+              updatedOn: doc.updatedOn,
             })
             newMap.set(doc.collection.id, existing)
           }
@@ -316,6 +330,11 @@ export class DocumentationService extends Service {
               version: doc.version,
               autoSync: doc.autoSync,
               url: doc.url,
+              collection: {
+                id: doc.collection.id,
+              },
+              createdOn: doc.createdOn,
+              updatedOn: doc.updatedOn,
             })
             newMap.set(doc.collection.id, existing)
           }

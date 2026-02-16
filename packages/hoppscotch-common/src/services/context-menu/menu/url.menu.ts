@@ -14,38 +14,42 @@ import {
 } from ".."
 
 /**
+ * Checks if a string matches a URL via the URL constructor or a regex fallback.
+ * The URL constructor rejects endpoints like "localhost:3000" (no protocol),
+ * so the regex covers common patterns without a scheme.
+ */
+function checkURL(url: string): boolean {
+  try {
+    new URL(url)
+    return true
+  } catch {
+    return /^(https?:\/\/)?([\w.-]+)(\.[\w.-]+)+([/?].*)?$/.test(url)
+  }
+}
+
+/**
  * Used to check if a string is a valid URL
  * @param url The string to check
  * @returns Whether the string is a valid URL
  */
 function isValidURL(url: string) {
-  try {
-    // Try to create a URL object
-    // this will fail for endpoints like "localhost:3000", ie without a protocol
-    new URL(url)
-    return true
-  } catch (_error) {
-    // Fallback to regular expression check
-    const pattern = /^(https?:\/\/)?([\w.-]+)(\.[\w.-]+)+([/?].*)?$/
-    if (pattern.test(url)) return true
+  if (checkURL(url)) return true
 
-    // If the string is percent-encoded (eg: contains "%"), try decoding
-    // and validate the decoded value as a URL as well. decodeURIComponent
-    // can throw for malformed input, so guard it.
-    if (!url.includes("%")) return false
+  // Iteratively decode percent-encoded strings so that encode/decode
+  // round-trips work across multiple levels of encoding.
+  let current = url
+  for (let i = 0; i < 10 && current.includes("%"); i++) {
     try {
-      const decoded = decodeURIComponent(url)
-      // Try URL constructor on decoded value
-      try {
-        new URL(decoded)
-        return true
-      } catch {
-        return pattern.test(decoded)
-      }
+      const decoded = decodeURIComponent(current)
+      if (decoded === current) break
+      if (checkURL(decoded)) return true
+      current = decoded
     } catch {
-      return false
+      break
     }
   }
+
+  return false
 }
 
 export class URLMenuService extends Service implements ContextMenu {
@@ -146,8 +150,8 @@ export class URLMenuService extends Service implements ContextMenu {
               this.replaceSelectedText(text, decoded)
             } catch (error) {
               console.warn(
-                "[URLMenuService] Failed to decode URI component from context menu action.",
-                { text, error }
+                "[URLMenuService] Failed to decode URI component:",
+                error
               )
             }
           },

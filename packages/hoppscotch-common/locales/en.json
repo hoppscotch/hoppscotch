@@ -641,6 +641,18 @@
     "details": "Details"
   },
   "error": {
+    "cors": {
+      "heading": "CORS Error",
+      "description": "The request was blocked by the browser's CORS (Cross-Origin Resource Sharing) policy.",
+      "explanation": "CORS is a browser security feature that prevents websites from making requests to different domains. This is not a bug in Hoppscotch, but a browser security restriction.",
+      "solutions": {
+        "heading": "How to fix this:",
+        "option1": "Enable Proxy Mode in Settings to route requests through Hoppscotch's proxy server",
+        "option2": "Use the Hoppscotch browser extension, which bypasses CORS restrictions",
+        "option3": "Ask the API server administrator to add your origin to their CORS allowed list",
+        "option4": "Use a CORS proxy service for development/testing"
+      }
+    },
     "network": {
       "heading": "Network Error",
       "description": "Network connection failed. {message}: {cause}"

@@ -68,7 +68,7 @@
 
       <!-- Status notice -->
       <div
-        v-if="existingData && !existingData.autoSync"
+        v-if="existingData && !isLive"
         class="flex items-start space-x-2 px-3 py-2.5 rounded-md bg-primaryLight border border-divider"
       >
         <icon-lucide-lock
@@ -79,7 +79,7 @@
         </span>
       </div>
       <div
-        v-else-if="existingData && existingData.autoSync"
+        v-else-if="existingData && isLive"
         class="flex items-start space-x-2 px-3 py-2.5 rounded-md bg-green-500/5 border border-green-500/15"
       >
         <icon-lucide-refresh-cw
@@ -147,6 +147,7 @@
           :all-items="snapshotItems"
           :update-url-on-select="false"
           :compact="true"
+          :is-doc-modal="true"
           :environment-variables="snapshotEnvironmentVariables"
         />
       </div>
@@ -155,7 +156,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, markRaw } from "vue"
+import { ref, watch, markRaw, computed } from "vue"
 import { useI18n } from "~/composables/i18n"
 import {
   HoppCollection,
@@ -175,6 +176,7 @@ import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
 import IconExternalLink from "~icons/lucide/external-link"
 import IconRefreshCw from "~icons/lucide/refresh-cw"
+import { isLiveVersion } from "~/services/documentation.service"
 
 const t = useI18n()
 
@@ -218,6 +220,14 @@ const snapshotError = ref(false)
 const snapshotCollectionData = ref<HoppCollection | null>(null)
 const snapshotItems = ref<SnapshotDocumentationItem[]>([])
 const snapshotEnvironmentVariables = ref<Environment["variables"]>([])
+
+/**
+ * Checks whether the currently displayed published doc is the live (current) version.
+ */
+const isLive = computed(() => {
+  if (!props.existingData) return true
+  return isLiveVersion(props.existingData)
+})
 
 /**
  * Extracts slug and version from a published doc URL

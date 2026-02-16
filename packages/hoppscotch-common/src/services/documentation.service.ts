@@ -96,6 +96,20 @@ export interface SetRequestDocumentationOptions extends BaseDocumentationOptions
 }
 
 /**
+ * Checks whether a published doc version is the live (current) version.
+ * A live version is auto-synced, has the CURRENT version identifier,
+ * or has version 1.0.0 (used in older versions of the project).
+ * This version is in sync with the particular collection and will update if the collection is updated.
+ */
+export const isLiveVersion = (doc: {
+  autoSync: boolean
+  version: string
+}): boolean =>
+  doc.autoSync ||
+  doc.version.toUpperCase() === "CURRENT" ||
+  doc.version === "1.0.0"
+
+/**
  * This service manages edited documentation for collections and requests.
  * It temporarily stores the edited documentation in a map for efficient saving.
  * So that multiple edits can be batched together.

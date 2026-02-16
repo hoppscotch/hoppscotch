@@ -30,13 +30,13 @@
               <button
                 class="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md cursor-pointer transition-colors"
                 :class="
-                  publishedDoc?.autoSync && publishedDoc?.version === 'CURRENT'
+                  isCurrentDocLive
                     ? 'bg-green-500/10 text-green-600 hover:bg-green-500/20'
                     : 'bg-accent/10 text-accent hover:bg-accent/20'
                 "
               >
                 {{
-                  publishedDoc?.autoSync && publishedDoc?.version === "CURRENT"
+                  isCurrentDocLive
                     ? t("documentation.publish.live")
                     : `${publishedDoc?.version}`
                 }}
@@ -72,13 +72,13 @@
                       <span
                         class="px-1.5 py-0.5 text-[10px] font-semibold uppercase rounded mr-2"
                         :class="
-                          ver.autoSync && ver.version === 'CURRENT'
+                          isLiveVersion(ver)
                             ? 'bg-green-500/10 text-green-600'
                             : 'bg-accent/10 text-accent'
                         "
                       >
                         {{
-                          ver.autoSync && ver.version === "CURRENT"
+                          isLiveVersion(ver)
                             ? t("documentation.publish.live")
                             : t("documentation.publish.snapshot")
                         }}
@@ -154,10 +154,11 @@
 <script setup lang="ts">
 import { useI18n } from "~/composables/i18n"
 import { useRouter } from "vue-router"
-import { PropType, ref } from "vue"
+import { computed, PropType, ref } from "vue"
 import { PublishedDocs } from "~/helpers/backend/graphql"
 import IconCheck from "~icons/lucide/check"
 import IconLayers from "~icons/lucide/layers"
+import { isLiveVersion } from "~/services/documentation.service"
 
 type PublishedDocVersion = {
   id: string
@@ -201,9 +202,20 @@ defineEmits<{
 const versionDropdownRef = ref<HTMLElement | null>(null)
 const envDropdownRef = ref<HTMLElement | null>(null)
 
+/**
+ * Checks whether the currently displayed published doc is the live (current) version.
+ * This is true if the doc is auto-synced, has the CURRENT version identifier, or has version 1.0.0 (legacy).
+ */
+const isCurrentDocLive = computed(() => {
+  if (!props.publishedDoc?.version) return true
+  return isLiveVersion({
+    autoSync: props.publishedDoc.autoSync ?? false,
+    version: props.publishedDoc.version,
+  })
+})
+
 const getVersionLabel = (ver: PublishedDocVersion): string => {
-  if (ver.autoSync && ver.version === "CURRENT")
-    return t("documentation.publish.live")
+  if (isLiveVersion(ver)) return t("documentation.publish.live")
   return `${ver.version}`
 }
 

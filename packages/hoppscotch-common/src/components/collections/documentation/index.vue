@@ -178,21 +178,8 @@
 
                     <HoppSmartItem
                       v-if="
-                        selectedVersionDoc?.autoSync &&
-                        selectedVersionDoc.version === 'CURRENT'
+                        selectedVersionDoc && !isLiveVersion(selectedVersionDoc)
                       "
-                      reverse
-                      :icon="IconPenLine"
-                      :label="t('documentation.publish.edit_published_doc')"
-                      @click="
-                        () => {
-                          hide()
-                          openPublishModal()
-                        }
-                      "
-                    />
-                    <HoppSmartItem
-                      v-else
                       reverse
                       :icon="IconEye"
                       :label="t('documentation.publish.view_snapshot')"
@@ -200,6 +187,18 @@
                         () => {
                           hide()
                           openPublishModalForView()
+                        }
+                      "
+                    />
+                    <HoppSmartItem
+                      v-else
+                      reverse
+                      :icon="IconPenLine"
+                      :label="t('documentation.publish.edit_published_doc')"
+                      @click="
+                        () => {
+                          hide()
+                          openPublishModal()
                         }
                       "
                     />
@@ -279,6 +278,7 @@ import { getErrorMessage } from "~/helpers/backend/mutations/MockServer"
 
 import {
   DocumentationService,
+  isLiveVersion,
   type DocumentationItem,
   type PublishedDocInfo,
 } from "~/services/documentation.service"
@@ -438,9 +438,11 @@ const isViewingSnapshot = ref(false)
 const publishModalMode = computed<"create" | "update" | "view">(() => {
   if (isCreatingNewVersion.value) return "create"
   if (isViewingSnapshot.value) return "view"
-  // Only allow update mode for autoSync versions; frozen versions open in view mode
+  // Only allow update mode for live versions; snapshot versions open in view mode
   if (isCollectionPublished.value) {
-    return selectedVersionDoc.value?.autoSync ? "update" : "view"
+    return selectedVersionDoc.value && !isLiveVersion(selectedVersionDoc.value)
+      ? "view"
+      : "update"
   }
   return "create"
 })
@@ -603,7 +605,7 @@ const handleVersionSelect = (
   hideDropdown: () => void
 ) => {
   selectedVersionDoc.value = doc
-  if (!doc.autoSync) {
+  if (!isLiveVersion(doc)) {
     hideDropdown()
     openPublishModalForView()
   }

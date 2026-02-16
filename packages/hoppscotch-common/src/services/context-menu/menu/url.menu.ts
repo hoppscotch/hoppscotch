@@ -4,6 +4,8 @@ import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { getI18n } from "~/modules/i18n"
 import { RESTTabService } from "~/services/tab/rest"
 import IconCopyPlus from "~icons/lucide/copy-plus"
+import IconLock from "~icons/lucide/lock"
+import IconUnlock from "~icons/lucide/unlock"
 import {
   ContextMenu,
   ContextMenuResult,
@@ -12,21 +14,42 @@ import {
 } from ".."
 
 /**
+ * Checks if a string matches a URL via the URL constructor or a regex fallback.
+ * The URL constructor rejects endpoints like "localhost:3000" (no protocol),
+ * so the regex covers common patterns without a scheme.
+ */
+function checkURL(url: string): boolean {
+  try {
+    new URL(url)
+    return true
+  } catch {
+    return /^(https?:\/\/)?([\w.-]+)(\.[\w.-]+)+([/?].*)?$/.test(url)
+  }
+}
+
+/**
  * Used to check if a string is a valid URL
  * @param url The string to check
  * @returns Whether the string is a valid URL
  */
 function isValidURL(url: string) {
-  try {
-    // Try to create a URL object
-    // this will fail for endpoints like "localhost:3000", ie without a protocol
-    new URL(url)
-    return true
-  } catch (_error) {
-    // Fallback to regular expression check
-    const pattern = /^(https?:\/\/)?([\w.-]+)(\.[\w.-]+)+([/?].*)?$/
-    return pattern.test(url)
+  if (checkURL(url)) return true
+
+  // Iteratively decode percent-encoded strings so that encode/decode
+  // round-trips work across multiple levels of encoding.
+  let current = url
+  for (let i = 0; i < 10 && current.includes("%"); i++) {
+    try {
+      const decoded = decodeURIComponent(current)
+      if (decoded === current) break
+      if (checkURL(decoded)) return true
+      current = decoded
+    } catch {
+      break
+    }
   }
+
+  return false
 }
 
 export class URLMenuService extends Service implements ContextMenu {
@@ -61,6 +84,31 @@ export class URLMenuService extends Service implements ContextMenu {
     })
   }
 
+  /**
+   * Replaces the selected text in the current endpoint with encoded/decoded version
+   * @param selectedText The selected text to replace
+   * @param replacement The replacement text (encoded or decoded)
+   */
+  private replaceSelectedText(selectedText: string, replacement: string) {
+    const currentTab = this.restTab.currentActiveTab.value
+
+    if (!currentTab || currentTab.document.type !== "request") {
+      return
+    }
+
+    const endpoint = currentTab.document.request.endpoint
+
+    // Find and replace the selected text in the endpoint
+    const index = endpoint.indexOf(selectedText)
+    if (index === -1) return
+
+    const newEndpoint =
+      endpoint.slice(0, index) +
+      replacement +
+      endpoint.slice(index + selectedText.length)
+    currentTab.document.request.endpoint = newEndpoint
+  }
+
   getMenuFor(text: Readonly<string>): ContextMenuState {
     const results = ref<ContextMenuResult[]>([])
 
@@ -75,6 +123,37 @@ export class URLMenuService extends Service implements ContextMenu {
           icon: markRaw(IconCopyPlus),
           action: () => {
             this.openNewTab(text)
+          },
+        },
+        {
+          id: "encode-url",
+          text: {
+            type: "text",
+            text: this.t("context_menu.encode_uri_component"),
+          },
+          icon: markRaw(IconLock),
+          action: () => {
+            const encoded = encodeURIComponent(text)
+            this.replaceSelectedText(text, encoded)
+          },
+        },
+        {
+          id: "decode-url",
+          text: {
+            type: "text",
+            text: this.t("context_menu.decode_uri_component"),
+          },
+          icon: markRaw(IconUnlock),
+          action: () => {
+            try {
+              const decoded = decodeURIComponent(text)
+              this.replaceSelectedText(text, decoded)
+            } catch (error) {
+              console.warn(
+                "[URLMenuService] Failed to decode URI component:",
+                error
+              )
+            }
           },
         },
       ]

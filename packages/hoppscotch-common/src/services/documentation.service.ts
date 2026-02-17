@@ -96,6 +96,12 @@ export interface SetRequestDocumentationOptions extends BaseDocumentationOptions
 }
 
 /**
+ * The string identifier for the current live version of documentation.
+ * The initial version of a published doc will 'CURRENT'
+ */
+export const CURRENT_VERSION_TAG = "CURRENT"
+
+/**
  * Checks whether a published doc version is the live (current) version.
  * A live version is auto-synced, has the CURRENT version identifier,
  * or has version 1.0.0 (used in older versions of the project).
@@ -106,7 +112,7 @@ export const isLiveVersion = (doc: {
   version: string
 }): boolean =>
   doc.autoSync &&
-  (doc.version.toUpperCase() === "CURRENT" || doc.version === "1.0.0")
+  (doc.version.toUpperCase() === CURRENT_VERSION_TAG || doc.version === "1.0.0")
 
 /**
  * This service manages edited documentation for collections and requests.

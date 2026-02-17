@@ -99,6 +99,7 @@ import {
   WorkspaceType,
 } from "~/helpers/backend/graphql"
 import { useClipboard } from "@vueuse/core"
+import { CURRENT_VERSION_TAG } from "~/services/documentation.service"
 
 const t = useI18n()
 const toast = useToast()
@@ -133,7 +134,7 @@ const emit = defineEmits<{
 }>()
 
 const publishTitle = ref(props.existingData?.title || props.collectionTitle)
-const publishVersion = ref(props.existingData?.version || "latest")
+const publishVersion = ref(props.existingData?.version || CURRENT_VERSION_TAG)
 const autoSync = ref(props.existingData?.autoSync ?? false)
 const publishedUrl = ref<string | null>(props.existingData?.url || null)
 const selectedEnvironmentID = ref<string | null>(
@@ -154,7 +155,7 @@ const initializeFormData = () => {
     selectedEnvironmentID.value = props.existingData.environmentID ?? null
   } else if (props.isFirstPublish) {
     publishTitle.value = props.collectionTitle
-    publishVersion.value = "CURRENT"
+    publishVersion.value = CURRENT_VERSION_TAG
     autoSync.value = true
     publishedUrl.value = null
     selectedEnvironmentID.value = null

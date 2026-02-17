@@ -190,7 +190,7 @@ const canPublish = computed(() => {
 
 const isValidVersion = computed(() => {
   const version = publishVersion.value.trim()
-  const regex = /^[a-zA-Z0-9.-]+$/
+  const regex = /^[a-zA-Z0-9]+([.-][a-zA-Z0-9]+)*$/
   return version.length > 0 && regex.test(version)
 })
 

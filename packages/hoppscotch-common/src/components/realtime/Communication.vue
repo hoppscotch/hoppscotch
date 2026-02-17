@@ -22,7 +22,7 @@
     >
       <div class="flex items-center justify-between pl-4">
         <span class="flex items-center">
-          <label class="font-semibold text-secondaryLight">
+          <label class="truncate font-semibold text-secondaryLight">
             {{ t("websocket.message") }}
           </label>
           <tippy

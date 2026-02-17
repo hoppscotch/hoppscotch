@@ -55,7 +55,7 @@
         @change="autoSyncModel = !autoSyncModel"
       >
         <div>
-          <span class="text-sm font-medium text-secondaryDark">
+          <span class="text-sm text-secondaryDark">
             {{ t("documentation.publish.auto_sync") }}
           </span>
           <span class="text-tiny text-secondaryLight">
@@ -70,14 +70,17 @@
       <span class="block text-sm font-medium text-secondaryDark">
         {{ t("documentation.publish.environment") }}
       </span>
+      <p class="text-xs text-secondaryLight">
+        {{ t("documentation.publish.environment_description") }}
+      </p>
+      <p class="text-tiny text-secondaryLight !mt-1">
+        {{ t("documentation.publish.sensitive_data_warning") }}
+      </p>
       <CollectionsDocumentationEnvironmentPicker
         v-model="environmentModel"
         :workspace-type="workspaceType"
         :workspace-i-d="workspaceID"
       />
-      <p class="text-xs text-secondaryLight">
-        {{ t("documentation.publish.environment_description") }}
-      </p>
     </div>
 
     <!-- Published URL (shown after publishing or in update mode) -->

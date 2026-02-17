@@ -252,12 +252,11 @@ export const getPublishedDocByID = (id: string) =>
 
 /**
  *
- * @param id - The ID of the published doc to fetch
+ * @param slug - The slug of the published doc to fetch
  * @param version - The version of the published doc to fetch
- * @param tree - The tree level to fetch (FULL or MINIMAL) Default is FULL so we can skip it, keeping it for future use
- * @returns The published doc with the specified ID
+ * @returns The published doc with the specified slug
  */
-export const getPublishedDocByIDREST = (
+export const getPublishedDocBySlugREST = (
   slug: string,
   version?: string
 ): TE.TaskEither<GetPublishedDocError, PublishedDocs> =>

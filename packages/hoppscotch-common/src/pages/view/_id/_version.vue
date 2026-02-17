@@ -41,7 +41,7 @@ import { ref, onMounted, computed, watch } from "vue"
 import { useRoute } from "vue-router"
 import { useI18n } from "~/composables/i18n"
 import {
-  getPublishedDocByIDREST,
+  getPublishedDocBySlugREST,
   collectionFolderToHoppCollection,
 } from "~/helpers/backend/queries/PublishedDocs"
 import * as E from "fp-ts/Either"
@@ -198,7 +198,7 @@ const fetchDocs = async (docId: string, version: string) => {
 
   // Fetch published doc using REST API (public access, no authentication required)
   // If version is provided, fetch that specific version; otherwise fetch latest
-  const result = await getPublishedDocByIDREST(docId, version)()
+  const result = await getPublishedDocBySlugREST(docId, version)()
 
   if (E.isLeft(result)) {
     console.error("Error fetching published doc:", result.left)

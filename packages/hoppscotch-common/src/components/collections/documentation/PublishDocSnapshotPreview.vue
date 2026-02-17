@@ -166,7 +166,7 @@ import {
 } from "@hoppscotch/data"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import {
-  getPublishedDocByIDREST,
+  getPublishedDocBySlugREST,
   collectionFolderToHoppCollection,
 } from "~/helpers/backend/queries/PublishedDocs"
 import * as E from "fp-ts/Either"
@@ -341,7 +341,10 @@ const fetchSnapshotPreview = async () => {
   snapshotEnvironmentVariables.value = []
 
   try {
-    const result = await getPublishedDocByIDREST(parsed.slug, parsed.version)()
+    const result = await getPublishedDocBySlugREST(
+      parsed.slug,
+      parsed.version
+    )()
 
     if (E.isLeft(result)) {
       snapshotError.value = true

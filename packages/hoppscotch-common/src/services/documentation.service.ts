@@ -281,8 +281,6 @@ export class DocumentationService extends Service {
     try {
       const result = await getUserPublishedDocs()()
 
-      console.log("//////fetchUserPublishedDocs//////", result)
-
       // If a newer request has started, ignore this result
       if (requestId !== this.fetchRequestId) return
 
@@ -398,6 +396,12 @@ export class DocumentationService extends Service {
     info: PublishedDocInfo | null,
     removeId?: string
   ) {
+    if (info && removeId) {
+      throw new Error(
+        "setPublishedDocStatus: Cannot provide both 'info' and 'removeId'. Please call separately."
+      )
+    }
+
     const newMap = new Map(this.publishedDocsMap.value)
     const existing = newMap.get(collectionId) || []
 

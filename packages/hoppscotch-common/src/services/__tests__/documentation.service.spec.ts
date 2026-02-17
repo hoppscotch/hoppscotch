@@ -467,13 +467,13 @@ describe("DocumentationService", () => {
       const mockDocs = [
         {
           id: "doc-1",
-          collection: { id: "col-1" },
           title: "Doc 1",
           version: "v1",
           autoSync: true,
-          url: "url-1",
-          createdOn: "2023-01-01",
-          updatedOn: "2023-01-01",
+          url: "http://example.com/doc-1",
+          collection: { id: "coll-1" },
+          createdOn: new Date().toISOString(),
+          updatedOn: new Date().toISOString(),
         },
       ]
 
@@ -483,14 +483,17 @@ describe("DocumentationService", () => {
 
       await service.fetchUserPublishedDocs()
 
-      const status = service.getPublishedDocStatus("col-1")
+      const status = service.getPublishedDocStatus("coll-1")
       expect(status).toEqual([
         {
           id: "doc-1",
           title: "Doc 1",
           version: "v1",
           autoSync: true,
-          url: "url-1",
+          url: "http://example.com/doc-1",
+          collection: { id: "coll-1" },
+          createdOn: mockDocs[0].createdOn, // Use the generated date for comparison
+          updatedOn: mockDocs[0].updatedOn, // Use the generated date for comparison
         },
       ])
     })
@@ -499,13 +502,13 @@ describe("DocumentationService", () => {
       const mockDocs = [
         {
           id: "doc-2",
-          collection: { id: "col-2" },
           title: "Doc 2",
           version: "v2",
           autoSync: false,
           url: "url-2",
-          createdOn: "2023-01-02",
-          updatedOn: "2023-01-02",
+          collection: { id: "col-2" },
+          createdOn: new Date().toISOString(),
+          updatedOn: new Date().toISOString(),
         },
       ]
 
@@ -515,7 +518,6 @@ describe("DocumentationService", () => {
 
       await service.fetchTeamPublishedDocs("team-1")
 
-      const status = service.getPublishedDocStatus("col-2")
       expect(status).toEqual([
         {
           id: "doc-2",
@@ -523,6 +525,9 @@ describe("DocumentationService", () => {
           version: "v2",
           autoSync: false,
           url: "url-2",
+          collection: { id: "col-2" },
+          createdOn: mockDocs[0].createdOn,
+          updatedOn: mockDocs[0].updatedOn,
         },
       ])
     })
@@ -597,11 +602,11 @@ describe("DocumentationService", () => {
       const slowDocs = [
         {
           id: "doc-slow",
-          collection: { id: "col-1" },
           title: "Slow Doc",
           version: "v1",
           autoSync: true,
           url: "url-slow",
+          collection: { id: "col-1" },
           createdOn: "2023-01-01",
           updatedOn: "2023-01-01",
         },
@@ -610,11 +615,11 @@ describe("DocumentationService", () => {
       const fastDocs = [
         {
           id: "doc-fast",
-          collection: { id: "col-1" },
           title: "Fast Doc",
           version: "v2",
           autoSync: true,
           url: "url-fast",
+          collection: { id: "col-1" },
           createdOn: "2023-01-02",
           updatedOn: "2023-01-02",
         },

@@ -275,6 +275,8 @@ export class PublishedDocsService {
       orderBy: [{ autoSync: 'desc' }, { createdOn: 'desc' }],
     });
 
+    if (allVersions.length === 0) return E.left(PUBLISHED_DOCS_NOT_FOUND);
+
     return E.right(allVersions.map((doc) => this.cast(doc)));
   }
 
@@ -341,7 +343,7 @@ export class PublishedDocsService {
           collectionResult.left === TEAM_INVALID_COLL_ID;
 
         if (isCollectionNotFound) {
-          this.prisma.publishedDocs.delete({
+          await this.prisma.publishedDocs.delete({
             where: { id: publishedDocs.id },
           });
         }
@@ -364,6 +366,7 @@ export class PublishedDocsService {
           publishedDocs.workspaceType as WorkspaceType,
           workspaceID,
         );
+        if (E.isLeft(envResult)) return E.left(envResult.left);
 
         if (E.isRight(envResult) && envResult.right) {
           environmentName = envResult.right.name;
@@ -373,7 +376,7 @@ export class PublishedDocsService {
 
       docToReturn = {
         ...publishedDocs,
-        documentTree: collectionResult.right as any,
+        documentTree: collectionResult.right as unknown as JsonValue,
         environmentName,
         environmentVariables,
       };
@@ -400,7 +403,7 @@ export class PublishedDocsService {
 
     if (docsToDelete.length > 0) {
       const idsToDelete = docsToDelete.map((doc) => doc.id);
-      this.prisma.publishedDocs.deleteMany({
+      await this.prisma.publishedDocs.deleteMany({
         where: { id: { in: idsToDelete } },
       });
     }
@@ -591,7 +594,7 @@ export class PublishedDocsService {
           autoSync: args.autoSync,
           workspaceType: args.workspaceType,
           workspaceID: workspaceID,
-          documentTree: documentTree as any,
+          documentTree: documentTree as unknown as JsonValue,
           metadata: metadata.right,
           environmentID: args.environmentID ?? null,
           environmentName,
@@ -710,7 +713,9 @@ export class PublishedDocsService {
           version: args.version,
           autoSync: args.autoSync,
           documentTree:
-            documentTree !== undefined ? (documentTree as any) : undefined,
+            documentTree !== undefined
+              ? (documentTree as unknown as JsonValue)
+              : undefined,
           metadata:
             metadata && E.isRight(metadata) ? metadata.right : undefined,
           environmentID:

@@ -207,6 +207,10 @@ export class PublishedDocs {
   @Expose()
   updatedOn: Date;
 
+  @Field(() => [PublishedDocsVersion], {
+    description: 'All available versions of this published documentation',
+    nullable: true,
+  })
   @ApiProperty({
     description: 'All available versions of this published documentation',
     type: [PublishedDocsVersion],

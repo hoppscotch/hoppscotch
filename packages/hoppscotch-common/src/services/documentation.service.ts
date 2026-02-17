@@ -105,9 +105,8 @@ export const isLiveVersion = (doc: {
   autoSync: boolean
   version: string
 }): boolean =>
-  doc.autoSync ||
-  doc.version.toUpperCase() === "CURRENT" ||
-  doc.version === "1.0.0"
+  doc.autoSync &&
+  (doc.version.toUpperCase() === "CURRENT" || doc.version === "1.0.0")
 
 /**
  * This service manages edited documentation for collections and requests.

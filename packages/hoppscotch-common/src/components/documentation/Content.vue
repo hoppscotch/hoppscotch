@@ -150,8 +150,12 @@ const scrollToItem = (id: string): void => {
     const container = mainContentRef.value
     if (!container) return
 
+    // Manual escape for ID to ensure compatibility with older browsers
+    const escapeId = (str: string) =>
+      str.replace(/[!"#$%&'()*+,./:;<=>?@[\\\]^`{|}~]/g, "\\$&")
+
     const element = container.querySelector(
-      `#doc-item-${CSS.escape(id)}`
+      `#doc-item-${escapeId(id)}`
     ) as HTMLElement | null
     if (element) {
       const containerRect = container.getBoundingClientRect()

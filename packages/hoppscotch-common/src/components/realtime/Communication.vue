@@ -120,6 +120,7 @@
             />
           </label>
           <input
+            id="payload"
             ref="payload"
             class="input"
             name="payload"

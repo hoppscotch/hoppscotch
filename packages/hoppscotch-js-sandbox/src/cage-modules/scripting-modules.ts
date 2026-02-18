@@ -386,7 +386,7 @@ const createScriptingModule = (
   type: ModuleType,
   bootstrapCode: string,
   config: ModuleConfig,
-  captureHook?: { capture?: () => void }
+  captureHook?: { capture?: () => void; bootstrapError?: unknown }
 ) => {
   return defineCageModule((ctx) => {
     // Track test promises for keepAlive (only for post-request scripts)
@@ -479,13 +479,15 @@ const createScriptingModule = (
       sandboxInputsObj
     )
 
-    // Extract the test execution chain promise from the bootstrap function's return value
+    // Track bootstrap state for error detection
     let testExecutionChainPromise: any = null
     if (bootstrapResult.error) {
-      console.error(
-        "[SCRIPTING] Bootstrap function error:",
-        ctx.vm.dump(bootstrapResult.error)
-      )
+      const bootstrapError = ctx.vm.dump(bootstrapResult.error)
+
+      if (captureHook) {
+        captureHook.bootstrapError = bootstrapError
+      }
+
       bootstrapResult.error.dispose()
     } else if (bootstrapResult.value) {
       testExecutionChainPromise = bootstrapResult.value
@@ -539,11 +541,11 @@ const createScriptingModule = (
 
 export const preRequestModule = (
   config: PreRequestModuleConfig,
-  captureHook?: { capture?: () => void }
+  captureHook?: { capture?: () => void; bootstrapError?: unknown }
 ) => createScriptingModule("pre", preRequestBootstrapCode, config, captureHook)
 
 export const postRequestModule = (
   config: PostRequestModuleConfig,
-  captureHook?: { capture?: () => void }
+  captureHook?: { capture?: () => void; bootstrapError?: unknown }
 ) =>
   createScriptingModule("post", postRequestBootstrapCode, config, captureHook)

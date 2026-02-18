@@ -11,7 +11,7 @@ import {
   TestResponse,
   TestResult,
 } from "~/types"
-import { acquireCage } from "~/utils/cage"
+import { acquireCage, resetCage, isInfraError } from "~/utils/cage"
 import { preventCyclicObjects } from "~/utils/shared"
 
 import { Cookie, HoppRESTRequest } from "@hoppscotch/data"
@@ -39,14 +39,19 @@ const runPostRequestScriptWithWebWorker = (
   })
 }
 
-const runPostRequestScriptWithFaradayCage = async (
+/**
+ * Runs a post-request/test script on the given cage instance.
+ * Returns the result or "retry" if a bootstrap error triggered a cage reset.
+ */
+const executeTestOnCage = async (
+  cage: Awaited<ReturnType<typeof acquireCage>>,
   testScript: string,
   envs: TestResult["envs"],
   request: HoppRESTRequest,
   response: TestResponse,
   cookies: Cookie[] | null,
   hoppFetchHook?: HoppFetchHook
-): Promise<E.Either<string, SandboxTestResult>> => {
+): Promise<E.Either<string, SandboxTestResult> | "retry"> => {
   const testRunStack: TestDescriptor[] = [
     { descriptor: "root", expectResults: [], children: [] },
   ]
@@ -57,77 +62,132 @@ const runPostRequestScriptWithFaradayCage = async (
   let finalCookies = cookies
   const testPromises: Promise<void>[] = []
 
-  const cage = await acquireCage()
+  const captureHook: { capture?: () => void; bootstrapError?: unknown } = {}
 
-  try {
-    // Create a hook object to receive the capture function from the module
-    const captureHook: { capture?: () => void } = {}
+  const result = await cage.runCode(testScript, [
+    ...defaultModules({
+      handleConsoleEntry: (consoleEntry) => consoleEntries.push(consoleEntry),
+      hoppFetchHook,
+    }),
 
-    const result = await cage.runCode(testScript, [
-      ...defaultModules({
-        handleConsoleEntry: (consoleEntry) => consoleEntries.push(consoleEntry),
-        hoppFetchHook,
-      }),
-
-      postRequestModule(
-        {
-          envs: cloneDeep(envs),
-          testRunStack: cloneDeep(testRunStack),
-          request: cloneDeep(request),
-          response: cloneDeep(response),
-          cookies: cookies ? cloneDeep(cookies) : null,
-          handleSandboxResults: ({ envs, testRunStack, cookies }) => {
-            finalEnvs = envs
-            finalTestResults = testRunStack
-            finalCookies = cookies
-          },
-          onTestPromise: (promise) => {
-            testPromises.push(promise)
-          },
+    postRequestModule(
+      {
+        envs: cloneDeep(envs),
+        testRunStack: cloneDeep(testRunStack),
+        request: cloneDeep(request),
+        response: cloneDeep(response),
+        cookies: cookies ? cloneDeep(cookies) : null,
+        handleSandboxResults: ({ envs, testRunStack, cookies }) => {
+          finalEnvs = envs
+          finalTestResults = testRunStack
+          finalCookies = cookies
         },
-        captureHook
-      ),
-    ])
+        onTestPromise: (promise) => {
+          testPromises.push(promise)
+        },
+      },
+      captureHook
+    ),
+  ])
 
-    // Check for script execution errors first
-    if (result.type === "error") {
-      if (
-        result.err !== null &&
-        typeof result.err === "object" &&
-        "message" in result.err
-      ) {
-        return E.left(`Script execution failed: ${result.err.message}`)
-      }
+  if (result.type === "error") {
+    const bootstrapFailed = captureHook.bootstrapError !== undefined
+    const errorToAnalyze = bootstrapFailed
+      ? captureHook.bootstrapError
+      : result.err
 
-      return E.left(`Script execution failed: ${String(result.err)}`)
+    if (bootstrapFailed || isInfraError(errorToAnalyze)) {
+      resetCage()
+      return "retry"
     }
 
-    // Wait for async test functions before capturing results.
-    if (testPromises.length > 0) {
-      await Promise.all(testPromises)
+    if (
+      result.err !== null &&
+      typeof result.err === "object" &&
+      "message" in result.err
+    ) {
+      const name =
+        "name" in result.err && typeof result.err.name === "string"
+          ? result.err.name
+          : ""
+      const prefix = name ? `${name}: ` : ""
+      return E.left(`Script execution failed: ${prefix}${result.err.message}`)
     }
 
-    // Capture results AFTER all async tests complete
-    // This prevents showing intermediate/failed state in UI
-    if (captureHook.capture) {
-      captureHook.capture()
+    return E.left(`Script execution failed: ${String(result.err)}`)
+  }
+
+  // Wait for async test functions before capturing results.
+  if (testPromises.length > 0) {
+    await Promise.all(testPromises)
+  }
+
+  if (captureHook.capture) {
+    captureHook.capture()
+  }
+
+  const safeTestResults = cloneDeep(finalTestResults[0])
+
+  const safeEnvs = cloneDeep(finalEnvs)
+  const safeConsoleEntries = cloneDeep(consoleEntries)
+  const safeCookies = finalCookies ? cloneDeep(finalCookies) : null
+
+  return E.right({
+    tests: safeTestResults,
+    envs: safeEnvs,
+    consoleEntries: safeConsoleEntries,
+    updatedCookies: safeCookies,
+  } satisfies SandboxTestResult)
+}
+
+const runPostRequestScriptWithFaradayCage = async (
+  testScript: string,
+  envs: TestResult["envs"],
+  request: HoppRESTRequest,
+  response: TestResponse,
+  cookies: Cookie[] | null,
+  hoppFetchHook?: HoppFetchHook
+): Promise<E.Either<string, SandboxTestResult>> => {
+  try {
+    const cage = await acquireCage()
+
+    const firstAttempt = await executeTestOnCage(
+      cage,
+      testScript,
+      envs,
+      request,
+      response,
+      cookies,
+      hoppFetchHook
+    )
+
+    if (firstAttempt !== "retry") {
+      return firstAttempt
     }
 
-    // Deep clone results to prevent mutable references causing UI flickering.
-    const safeTestResults = cloneDeep(finalTestResults[0])
+    // Bootstrap error detected and cage was reset — retry once on a fresh cage
+    const freshCage = await acquireCage()
+    const retryResult = await executeTestOnCage(
+      freshCage,
+      testScript,
+      envs,
+      request,
+      response,
+      cookies,
+      hoppFetchHook
+    )
 
-    const safeEnvs = cloneDeep(finalEnvs)
-    const safeConsoleEntries = cloneDeep(consoleEntries)
-    const safeCookies = finalCookies ? cloneDeep(finalCookies) : null
+    if (retryResult === "retry") {
+      return E.left(
+        "Script execution failed: sandbox initialization error (persistent)"
+      )
+    }
 
-    return E.right(<SandboxTestResult>{
-      tests: safeTestResults,
-      envs: safeEnvs,
-      consoleEntries: safeConsoleEntries,
-      updatedCookies: safeCookies,
-    })
-  } finally {
-    // FaradayCage relies on garbage collection for cleanup.
+    return retryResult
+  } catch (error) {
+    const name = error instanceof Error && error.name ? `${error.name}: ` : ""
+    const message = error instanceof Error ? error.message : String(error)
+    return E.left(`Script execution failed: ${name}${message}`)
   }
 }
 

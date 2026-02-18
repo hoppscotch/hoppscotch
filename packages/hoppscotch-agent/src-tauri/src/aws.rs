@@ -35,9 +35,13 @@ pub async fn list_profiles(
 
     let mut profiles = Vec::new();
 
-    // Parse ~/.aws/credentials for profile sections
-    if let Some(home) = dirs::home_dir() {
-        let credentials_path = home.join(".aws").join("credentials");
+    // Parse credentials file (respects AWS_SHARED_CREDENTIALS_FILE)
+    let credentials_path = std::env::var("AWS_SHARED_CREDENTIALS_FILE")
+        .map(std::path::PathBuf::from)
+        .ok()
+        .or_else(|| dirs::home_dir().map(|h| h.join(".aws").join("credentials")));
+
+    if let Some(credentials_path) = credentials_path {
         if let Ok(contents) = tokio::fs::read_to_string(&credentials_path).await {
             for line in contents.lines() {
                 let trimmed = line.trim();
@@ -49,9 +53,15 @@ pub async fn list_profiles(
                 }
             }
         }
+    }
 
-        // Parse ~/.aws/config for profile sections (prefixed with "profile ")
-        let config_path = home.join(".aws").join("config");
+    // Parse config file (respects AWS_CONFIG_FILE)
+    let config_path = std::env::var("AWS_CONFIG_FILE")
+        .map(std::path::PathBuf::from)
+        .ok()
+        .or_else(|| dirs::home_dir().map(|h| h.join(".aws").join("config")));
+
+    if let Some(config_path) = config_path {
         if let Ok(contents) = tokio::fs::read_to_string(&config_path).await {
             for line in contents.lines() {
                 let trimmed = line.trim();

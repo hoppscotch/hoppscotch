@@ -223,7 +223,7 @@ import { useI18n } from "@composables/i18n"
 import { HoppRESTAuthAWSSignature } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 import { useVModel } from "@vueuse/core"
-import { computed, onMounted, ref, watch } from "vue"
+import { computed, ref, watch } from "vue"
 import { AggregateEnvironment } from "~/newstore/environments"
 import { AgentInterceptorService } from "~/platform/std/interceptors/agent"
 import IconChevronDown from "~icons/lucide/chevron-down"
@@ -252,7 +252,10 @@ const profileTippyActions = ref<any | null>(null)
 const profiles = ref<string[]>([])
 const isLoadingProfiles = ref(false)
 const agentConnected = computed(
-  () => agentService.isAgentRunning.value && agentService.authKey.value !== null
+  () =>
+    agentService.isAgentRunning.value &&
+    !!agentService.authKey.value &&
+    !!agentService.sharedSecretB16.value
 )
 
 const credentialModes = [
@@ -304,17 +307,12 @@ async function loadProfiles() {
 }
 
 watch(
-  () => auth.value.credentialMode,
-  (mode) => {
-    if (mode === "profile") {
+  [() => auth.value.credentialMode, agentConnected],
+  ([mode, isConnected]) => {
+    if (mode === "profile" && isConnected) {
       loadProfiles()
     }
-  }
+  },
+  { immediate: true }
 )
-
-onMounted(() => {
-  if (auth.value.credentialMode === "profile") {
-    loadProfiles()
-  }
-})
 </script>

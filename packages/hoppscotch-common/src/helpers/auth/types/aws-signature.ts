@@ -59,7 +59,7 @@ async function signAWSRequest({
   let accessKeyId: string
   let secretAccessKey: string
   let sessionToken: string | undefined
-  const region = parseTemplateString(auth.region, envVars) ?? "us-east-1"
+  const region = parseTemplateString(auth.region, envVars) || "us-east-1"
   const service = parseTemplateString(auth.serviceName, envVars)
 
   const profileName = parseTemplateString(auth.profileName, envVars)

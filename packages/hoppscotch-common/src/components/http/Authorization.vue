@@ -270,6 +270,7 @@ const selectAWSSignatureAuthType = () => {
     secretKey = "",
     region = "",
     serviceName = "",
+    serviceToken = "",
     addTo = "HEADERS",
     credentialMode = "manual",
     profileName = "",
@@ -283,6 +284,7 @@ const selectAWSSignatureAuthType = () => {
     secretKey,
     region,
     serviceName,
+    serviceToken,
     credentialMode,
     profileName,
   }

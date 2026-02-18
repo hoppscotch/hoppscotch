@@ -80,7 +80,7 @@ const cursorTooltipField = () =>
       const variableIcon = `<span class="inline-flex items-center justify-center my-1">${IconSquareAsterisk}</span>`
       const variableDescription =
         variable !== undefined
-          ? `${variableName} - ${variable.description}`
+          ? `${variableName} - ${truncateText(variable.description)}`
           : `${variableName} is not a valid predefined variable.`
 
       return {
@@ -126,7 +126,7 @@ const cursorTooltipField = () =>
           const valueTitle = document.createElement("div")
           const value = document.createElement("span")
           value.className = "env-tooltip-value"
-          value.textContent = truncateText(variableDescription || "")
+          value.textContent = variableDescription
           valueTitle.textContent = "Value"
           valueTitle.className = "font-bold mr-4"
           valueTitle.style.flexShrink = "0"

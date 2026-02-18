@@ -6,11 +6,20 @@ RUN apk add --no-cache curl git
 # Install Go 1.26.0 from GitHub releases to fix CVE-2025-47907
 ARG TARGETARCH
 ENV GOLANG_VERSION=1.26.0
-# Download and install Go from the official tarball
+# Download Go tarball
 RUN case "${TARGETARCH}" in amd64) GOARCH=amd64 ;; arm64) GOARCH=arm64 ;; *) echo "Unsupported arch: ${TARGETARCH}" && exit 1 ;; esac && \
-  curl -fsSL "https://go.dev/dl/go${GOLANG_VERSION}.linux-${GOARCH}.tar.gz" -o go.tar.gz && \
-  tar -C /usr/local -xzf go.tar.gz && \
-  rm go.tar.gz
+  curl -fsSL "https://go.dev/dl/go${GOLANG_VERSION}.linux-${GOARCH}.tar.gz" -o go.tar.gz
+# Checksum verification of Go tarball
+RUN case "${TARGETARCH}" in \
+    amd64) expected="aac1b08a0fb0c4e0a7c1555beb7b59180b05dfc5a3d62e40e9de90cd42f88235" ;; \
+    arm64) expected="bd03b743eb6eb4193ea3c3fd3956546bf0e3ca5b7076c8226334afe6b75704cd" ;; \
+  esac && \
+  actual=$(sha256sum go.tar.gz | cut -d' ' -f1) && \
+  [ "$actual" = "$expected" ] && \
+  echo "✅ Go Tarball Checksum OK" || \
+  (echo "❌ Go Tarball Checksum failed! Expected: ${expected} Got: ${actual}" && exit 1)
+# Install Go from verified tarball
+RUN tar -C /usr/local -xzf go.tar.gz && rm go.tar.gz
 # Set up Go environment variables
 ENV PATH="/usr/local/go/bin:${PATH}" \
   GOPATH="/go" \

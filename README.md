@@ -139,6 +139,7 @@ _Customized themes are synced with your cloud/local session._
 - Unlimited collections, folders, and requests
 - Nested folders
 - Export and import as a file or GitHub gist
+- Export a collection as an OpenAPI Specification - v3.1
 
 _Collections are synced with your cloud/local session storage._
 

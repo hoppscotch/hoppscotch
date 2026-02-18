@@ -11,8 +11,8 @@ RUN case "${TARGETARCH}" in amd64) GOARCH=amd64 ;; arm64) GOARCH=arm64 ;; *) ech
   curl -fsSL "https://go.dev/dl/go${GOLANG_VERSION}.linux-${GOARCH}.tar.gz" -o go.tar.gz
 # Checksum verification of Go tarball
 RUN case "${TARGETARCH}" in \
-    amd64) expected="aac1b08a0fb0c4e0a7c1555beb7b59180b05dfc5a3d62e40e9de90cd42f88235" ;; \
-    arm64) expected="bd03b743eb6eb4193ea3c3fd3956546bf0e3ca5b7076c8226334afe6b75704cd" ;; \
+  amd64) expected="aac1b08a0fb0c4e0a7c1555beb7b59180b05dfc5a3d62e40e9de90cd42f88235" ;; \
+  arm64) expected="bd03b743eb6eb4193ea3c3fd3956546bf0e3ca5b7076c8226334afe6b75704cd" ;; \
   esac && \
   actual=$(sha256sum go.tar.gz | cut -d' ' -f1) && \
   [ "$actual" = "$expected" ] && \
@@ -41,8 +41,6 @@ WORKDIR /tmp/caddy-build
 RUN tar xvf /tmp/caddy-build/src.tar.gz && \
   # Patch to resolve CVE-2025-64702 on quic-go
   go get github.com/quic-go/quic-go@v0.57.0 && \
-  # Patch to resolve CVE-2025-62820 on nebula
-  go get github.com/slackhq/nebula@v1.9.7 && \
   # Patch to resolve CVE-2025-47913 on crypto
   go get golang.org/x/crypto@v0.45.0 && \
   # Patch to resolve CVE-2025-44005 on smallstep
@@ -93,7 +91,11 @@ RUN tar -xzf npm.tgz && \
 RUN npm install -g pnpm@10.29.3 @import-meta-env/cli
 
 # Fix CVE-2025-64756 by replacing vulnerable glob with patched version
-RUN npm install -g glob@11.1.0 && \
+RUN npm install -g glob@11.1.0 tar@7.5.8 && \
+  # Replace tar in npm's node_modules
+  rm -rf /usr/lib/node_modules/npm/node_modules/tar && \
+  cp -r /usr/lib/node_modules/tar /usr/lib/node_modules/npm/node_modules/ && \
+  cp -r /usr/lib/node_modules/tar /usr/lib/node_modules/pnpm/dist/node_modules/ && \
   # Replace glob in @import-meta-env/cli's node_modules
   rm -rf /usr/lib/node_modules/@import-meta-env/cli/node_modules/glob && \
   cp -r /usr/lib/node_modules/glob /usr/lib/node_modules/@import-meta-env/cli/node_modules/

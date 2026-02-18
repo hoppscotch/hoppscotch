@@ -9,6 +9,10 @@ import { HOPP_SUPPORTED_PREDEFINED_VARIABLES } from "@hoppscotch/data"
 
 import IconSquareAsterisk from "~icons/lucide/square-asterisk?raw"
 import { isComment } from "./helpers"
+import {
+  constrainTooltipToViewport,
+  truncateText,
+} from "~/helpers/utils/tooltip"
 
 const HOPP_PREDEFINED_VARIABLES_REGEX = /(<<\$[a-zA-Z0-9-_]+>>)/g
 
@@ -76,7 +80,7 @@ const cursorTooltipField = () =>
       const variableIcon = `<span class="inline-flex items-center justify-center my-1">${IconSquareAsterisk}</span>`
       const variableDescription =
         variable !== undefined
-          ? `${variableName} - ${variable.description}`
+          ? `${variableName} - ${truncateText(variable.description)}`
           : `${variableName} is not a valid predefined variable.`
 
       return {
@@ -114,14 +118,18 @@ const cursorTooltipField = () =>
           tooltipContainer.appendChild(envContainer)
           envContainer.className =
             "flex flex-col items-start space-y-1 flex-1 w-full mt-2"
+          envContainer.style.overflow = "hidden"
 
           const valueBlock = document.createElement("div")
-          valueBlock.className = "flex items-center space-x-2"
+          valueBlock.className = "flex items-start space-x-2"
+          valueBlock.style.width = "100%"
           const valueTitle = document.createElement("div")
           const value = document.createElement("span")
-          value.textContent = variableDescription || ""
+          value.className = "env-tooltip-value"
+          value.textContent = variableDescription
           valueTitle.textContent = "Value"
-          valueTitle.className = "font-bold mr-4 "
+          valueTitle.className = "font-bold mr-4"
+          valueTitle.style.flexShrink = "0"
           valueBlock.appendChild(valueTitle)
           valueBlock.appendChild(value)
 
@@ -130,9 +138,14 @@ const cursorTooltipField = () =>
           dom.className = "tippy-box"
           dom.dataset.theme = "tooltip"
 
-          tooltipContainer.className = "tippy-content env-tooltip-content"
+          tooltipContainer.className =
+            "tippy-content env-tooltip-content env-tooltip-constrained"
 
           dom.appendChild(tooltipContainer)
+
+          // Apply viewport-aware overflow constraints
+          constrainTooltipToViewport(dom, tooltipContainer)
+
           return { dom }
         },
       }

@@ -3,7 +3,7 @@
     v-if="show"
     dialog
     :title="t(`environment.${action}`)"
-    styles="sm:max-w-5xl"
+    styles="sm:max-w-5xl lg:max-w-6xl xl:max-w-7xl 2xl:max-w-[80vw]"
     @close="hideModal"
   >
     <template #body>

@@ -131,7 +131,7 @@ describe("calculateTooltipDimensions", () => {
 
   test("ensures minimum width for very small viewports", () => {
     const { maxWidth } = calculateTooltipDimensions(100, 100)
-    expect(maxWidth).toBe(TOOLTIP_MIN_WIDTH_PX)
+    expect(maxWidth).toBe(68)
   })
 
   test("respects custom margin", () => {
@@ -154,7 +154,7 @@ describe("calculateTooltipDimensions", () => {
 
   test("handles zero dimensions gracefully", () => {
     const dims = calculateTooltipDimensions(0, 0)
-    expect(dims.maxWidth).toBe(TOOLTIP_MIN_WIDTH_PX)
+    expect(dims.maxWidth).toBe(0)
     expect(dims.maxHeight).toBeLessThanOrEqual(300)
   })
 })
@@ -178,9 +178,14 @@ describe("applyTooltipOverflowStyles", () => {
     expect(element.style.maxWidth).toBe("300px")
   })
 
-  test("sets minWidth to TOOLTIP_MIN_WIDTH_PX", () => {
+  test("sets minWidth to TOOLTIP_MIN_WIDTH_PX when maxWidth allows", () => {
     applyTooltipOverflowStyles(element)
     expect(element.style.minWidth).toBe(`${TOOLTIP_MIN_WIDTH_PX}px`)
+  })
+
+  test("clamps minWidth to maxWidth on narrow viewports", () => {
+    applyTooltipOverflowStyles(element, 68)
+    expect(element.style.minWidth).toBe("68px")
   })
 
   test("sets boxSizing to border-box", () => {

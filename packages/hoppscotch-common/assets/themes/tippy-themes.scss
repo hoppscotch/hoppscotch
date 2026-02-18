@@ -20,7 +20,6 @@
     // when environment variable values are very long (fixes #5876)
     .env-tooltip-constrained {
       @apply flex-col;
-      min-width: 200px;
       box-sizing: border-box;
       overflow: hidden;
 

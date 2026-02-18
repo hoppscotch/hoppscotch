@@ -10,7 +10,6 @@ import { HOPP_SUPPORTED_PREDEFINED_VARIABLES } from "@hoppscotch/data"
 import IconSquareAsterisk from "~icons/lucide/square-asterisk?raw"
 import { isComment } from "./helpers"
 import {
-  applyValueTextStyles,
   constrainTooltipToViewport,
   truncateText,
 } from "~/helpers/utils/tooltip"
@@ -128,7 +127,6 @@ const cursorTooltipField = () =>
           const value = document.createElement("span")
           value.className = "env-tooltip-value"
           value.textContent = truncateText(variableDescription || "")
-          applyValueTextStyles(value)
           valueTitle.textContent = "Value"
           valueTitle.className = "font-bold mr-4"
           valueTitle.style.flexShrink = "0"

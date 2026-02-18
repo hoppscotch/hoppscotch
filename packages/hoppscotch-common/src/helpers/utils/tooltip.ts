@@ -40,14 +40,17 @@ export function truncateText(
   text: string,
   maxLength: number = TOOLTIP_MAX_VALUE_LENGTH
 ): string {
-  if (!text || text.length <= maxLength) {
+  if (!text) {
     return text ?? ""
   }
 
+  const codePoints = Array.from(text)
+  if (codePoints.length <= maxLength) return text
+
   // Show the beginning of the text plus a count so the user knows
   // the full length of the value.
-  const truncated = text.slice(0, maxLength)
-  return `${truncated}\u2026 (${text.length} chars)`
+  const truncated = codePoints.slice(0, maxLength).join("")
+  return `${truncated}\u2026 (${codePoints.length} chars)`
 }
 
 /**
@@ -87,13 +90,10 @@ export function calculateTooltipDimensions(
   viewportHeight: number,
   margin: number = TOOLTIP_VIEWPORT_MARGIN_PX
 ): { maxWidth: number; maxHeight: number } {
-  const effectiveWidth = viewportWidth - margin * 2
-  const effectiveHeight = viewportHeight - margin * 2
+  const effectiveWidth = Math.max(viewportWidth - margin * 2, 0)
+  const effectiveHeight = Math.max(viewportHeight - margin * 2, 0)
 
-  const maxWidth = Math.min(
-    Math.max(effectiveWidth, TOOLTIP_MIN_WIDTH_PX),
-    TOOLTIP_MAX_WIDTH_PX
-  )
+  const maxWidth = Math.min(effectiveWidth, TOOLTIP_MAX_WIDTH_PX)
 
   const maxHeight = Math.min(effectiveHeight, 300)
 
@@ -115,9 +115,10 @@ export function applyTooltipOverflowStyles(
   maxHeight?: number
 ): void {
   const resolvedMaxWidth = maxWidth ?? TOOLTIP_MAX_WIDTH_PX
+  const resolvedMinWidth = Math.min(TOOLTIP_MIN_WIDTH_PX, resolvedMaxWidth)
 
   element.style.maxWidth = `${resolvedMaxWidth}px`
-  element.style.minWidth = `${TOOLTIP_MIN_WIDTH_PX}px`
+  element.style.minWidth = `${resolvedMinWidth}px`
   element.style.boxSizing = "border-box"
 
   if (maxHeight !== undefined) {
@@ -133,7 +134,7 @@ export function applyTooltipOverflowStyles(
  * @param label - The label text (e.g., "Initial", "Current", "Value")
  * @param value - The raw value string to display
  * @param maxValueLength - Maximum characters before truncation
- * @returns An object containing the row container element
+ * @returns The row container element
  */
 export function createTooltipValueRow(
   label: string,

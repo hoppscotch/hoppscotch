@@ -212,6 +212,10 @@ export class KernelInterceptorAgentStore extends Service {
     return this.authKey.value !== null
   }
 
+  public isEncryptionReady(): boolean {
+    return this.authKey.value !== null && this.sharedSecretB16.value !== null
+  }
+
   public async initiateRegistration() {
     const otp = Math.floor(100000 + Math.random() * 900000).toString()
 

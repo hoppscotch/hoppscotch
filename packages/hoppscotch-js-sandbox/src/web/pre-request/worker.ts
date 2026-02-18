@@ -21,7 +21,11 @@ const executeScriptInContext = (
       updatedCookies: null,
     })
   } catch (error) {
-    return TE.left(`Script execution failed: ${(error as Error).message}`)
+    return TE.left(
+      `Script execution failed: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    )
   }
 }
 

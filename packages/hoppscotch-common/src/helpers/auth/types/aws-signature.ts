@@ -56,13 +56,30 @@ async function signAWSRequest({
     baseUrl
   )
 
-  const accessKeyId = parseTemplateString(auth.accessKey, envVars)
-  const secretAccessKey = parseTemplateString(auth.secretKey, envVars)
-  const region = parseTemplateString(auth.region, envVars) ?? "us-east-1"
+  let accessKeyId: string
+  let secretAccessKey: string
+  let sessionToken: string | undefined
+  const region = parseTemplateString(auth.region, envVars) || "us-east-1"
   const service = parseTemplateString(auth.serviceName, envVars)
-  const sessionToken = auth.serviceToken
-    ? parseTemplateString(auth.serviceToken, envVars)
-    : undefined
+
+  const profileName = parseTemplateString(auth.profileName, envVars)
+
+  if (auth.credentialMode === "profile" && profileName) {
+    const { getService } = await import("~/modules/dioc")
+    const { AgentInterceptorService } =
+      await import("~/platform/std/interceptors/agent")
+    const agentService = getService(AgentInterceptorService)
+    const creds = await agentService.resolveAwsCredentials(profileName, region)
+    accessKeyId = creds.access_key_id
+    secretAccessKey = creds.secret_access_key
+    sessionToken = creds.session_token ?? undefined
+  } else {
+    accessKeyId = parseTemplateString(auth.accessKey, envVars)
+    secretAccessKey = parseTemplateString(auth.secretKey, envVars)
+    sessionToken = auth.serviceToken
+      ? parseTemplateString(auth.serviceToken, envVars)
+      : undefined
+  }
 
   const signerConfig: ConstructorParameters<typeof AwsV4Signer>[0] = {
     method: request.method,

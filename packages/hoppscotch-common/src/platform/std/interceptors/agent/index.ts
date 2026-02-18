@@ -650,11 +650,8 @@ export class AgentInterceptorService extends Service implements Interceptor {
     }
   }
 
-  private async getEncryptedRequestDef(
-    def: RequestDef
-  ): Promise<[string, ArrayBuffer]> {
-    const defJSON = JSON.stringify(def)
-    const defJSONBytes = new TextEncoder().encode(defJSON)
+  private async encryptPayload(data: unknown): Promise<[string, ArrayBuffer]> {
+    const jsonBytes = new TextEncoder().encode(JSON.stringify(data))
 
     const nonce = window.crypto.getRandomValues(new Uint8Array(12))
     const nonceB16 = base16.encode(nonce).toLowerCase()
@@ -671,13 +668,13 @@ export class AgentInterceptorService extends Service implements Interceptor {
       ["encrypt", "decrypt"]
     )
 
-    const encryptedDef = await window.crypto.subtle.encrypt(
+    const encrypted = await window.crypto.subtle.encrypt(
       { name: "AES-GCM", iv: nonce },
       sharedSecretKey,
-      defJSONBytes
+      jsonBytes
     )
 
-    return [nonceB16, encryptedDef]
+    return [nonceB16, encrypted]
   }
 
   private async getDecryptedResponse<T>(
@@ -707,6 +704,66 @@ export class AgentInterceptorService extends Service implements Interceptor {
     const plainText = new TextDecoder().decode(plainTextDefBytes)
 
     return JSON.parse(plainText) as T
+  }
+
+  public async listAwsProfiles(): Promise<string[]> {
+    if (!this.authKey.value || !this.sharedSecretB16.value) {
+      return []
+    }
+
+    const response = await axios.get("http://localhost:9119/aws/profiles", {
+      headers: {
+        Authorization: `Bearer ${this.authKey.value}`,
+      },
+      responseType: "arraybuffer",
+    })
+
+    const responseNonceB16: string = response.headers["x-hopp-nonce"]
+    const parsed = await this.getDecryptedResponse<{
+      profiles: string[]
+    }>(responseNonceB16, response.data)
+
+    return parsed.profiles
+  }
+
+  public async resolveAwsCredentials(
+    profileName: string,
+    region?: string
+  ): Promise<{
+    access_key_id: string
+    secret_access_key: string
+    session_token: string | null
+    expiration: string | null
+  }> {
+    if (!this.authKey.value || !this.sharedSecretB16.value) {
+      throw new Error("Agent not registered")
+    }
+
+    const [nonceB16, encryptedPayload] = await this.encryptPayload({
+      profile_name: profileName,
+      region: region || null,
+    })
+
+    const response = await axios.post(
+      "http://localhost:9119/aws/resolve-credentials",
+      encryptedPayload,
+      {
+        headers: {
+          Authorization: `Bearer ${this.authKey.value}`,
+          "X-Hopp-Nonce": nonceB16,
+          "Content-Type": "application/octet-stream",
+        },
+        responseType: "arraybuffer",
+      }
+    )
+
+    const responseNonceB16: string = response.headers["x-hopp-nonce"]
+    return await this.getDecryptedResponse<{
+      access_key_id: string
+      secret_access_key: string
+      session_token: string | null
+      expiration: string | null
+    }>(responseNonceB16, response.data)
   }
 
   public runRequest(
@@ -773,8 +830,7 @@ export class AgentInterceptorService extends Service implements Interceptor {
           this.proxyInfo.value
         )
 
-        const [nonceB16, encryptedDef] =
-          await this.getEncryptedRequestDef(requestDef)
+        const [nonceB16, encryptedDef] = await this.encryptPayload(requestDef)
 
         try {
           const http_response = await axios.post(

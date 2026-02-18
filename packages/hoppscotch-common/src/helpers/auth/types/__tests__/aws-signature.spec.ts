@@ -30,6 +30,23 @@ vi.mock("~/helpers/utils/EffectiveURL", () => ({
   getFinalBodyFromRequest: vi.fn().mockReturnValue("test body"),
 }))
 
+const mockResolveAwsCredentials = vi.fn().mockResolvedValue({
+  access_key_id: "profile-access-key",
+  secret_access_key: "profile-secret-key",
+  session_token: "profile-session-token",
+})
+
+vi.mock("~/modules/dioc", () => ({
+  getService: vi.fn().mockReturnValue({
+    resolveAwsCredentials: (...args: unknown[]) =>
+      mockResolveAwsCredentials(...args),
+  }),
+}))
+
+vi.mock("~/platform/std/interceptors/agent", () => ({
+  AgentInterceptorService: "AgentInterceptorService",
+}))
+
 describe("AWS Signature Auth", () => {
   const mockEnvVars: Environment["variables"] = [
     {
@@ -70,6 +87,8 @@ describe("AWS Signature Auth", () => {
     region: "us-east-1",
     serviceName: "s3",
     serviceToken: "",
+    credentialMode: "manual",
+    profileName: "",
     ...overrides,
   })
 
@@ -408,6 +427,196 @@ describe("AWS Signature Auth", () => {
         mockEnvVars
       )
       expect(result).toHaveLength(2)
+    })
+  })
+
+  describe("profile credential mode", () => {
+    test("should resolve credentials from agent when credentialMode is profile", async () => {
+      const { AwsV4Signer } = await import("aws4fetch")
+
+      const auth = createBaseAuth({
+        credentialMode: "profile",
+        profileName: "my-profile",
+      })
+      const request = createBaseRequest()
+
+      await generateAwsSignatureAuthHeaders(auth, request, mockEnvVars)
+
+      expect(mockResolveAwsCredentials).toHaveBeenCalledWith(
+        "my-profile",
+        "us-east-1"
+      )
+
+      expect(vi.mocked(AwsV4Signer)).toHaveBeenCalledWith(
+        expect.objectContaining({
+          accessKeyId: "profile-access-key",
+          secretAccessKey: "profile-secret-key",
+          sessionToken: "profile-session-token",
+        })
+      )
+    })
+
+    test("should pass resolved session token from profile credentials", async () => {
+      const { AwsV4Signer } = await import("aws4fetch")
+
+      mockResolveAwsCredentials.mockResolvedValueOnce({
+        access_key_id: "key",
+        secret_access_key: "secret",
+        session_token: null,
+      })
+
+      const auth = createBaseAuth({
+        credentialMode: "profile",
+        profileName: "no-token-profile",
+      })
+      const request = createBaseRequest()
+
+      await generateAwsSignatureAuthHeaders(auth, request, mockEnvVars)
+
+      expect(vi.mocked(AwsV4Signer)).toHaveBeenCalledWith(
+        expect.objectContaining({
+          accessKeyId: "key",
+          secretAccessKey: "secret",
+          sessionToken: undefined,
+        })
+      )
+    })
+
+    test("should pass region to agent when resolving profile credentials", async () => {
+      const auth = createBaseAuth({
+        credentialMode: "profile",
+        profileName: "my-profile",
+        region: "eu-west-1",
+      })
+      const request = createBaseRequest()
+
+      await generateAwsSignatureAuthHeaders(auth, request, mockEnvVars)
+
+      expect(mockResolveAwsCredentials).toHaveBeenCalledWith(
+        "my-profile",
+        "eu-west-1"
+      )
+    })
+
+    test("should parse template strings in profileName", async () => {
+      const envVarsWithProfile: Environment["variables"] = [
+        ...mockEnvVars,
+        {
+          key: "AWS_PROFILE",
+          secret: false,
+          initialValue: "production",
+          currentValue: "production",
+        },
+      ]
+
+      const auth = createBaseAuth({
+        credentialMode: "profile",
+        profileName: "<<AWS_PROFILE>>",
+      })
+      const request = createBaseRequest()
+
+      await generateAwsSignatureAuthHeaders(auth, request, envVarsWithProfile)
+
+      expect(mockResolveAwsCredentials).toHaveBeenCalledWith(
+        "production",
+        "us-east-1"
+      )
+    })
+
+    test("should fall back to manual mode when profileName is empty", async () => {
+      const { AwsV4Signer } = await import("aws4fetch")
+
+      const auth = createBaseAuth({
+        credentialMode: "profile",
+        profileName: "",
+      })
+      const request = createBaseRequest()
+
+      await generateAwsSignatureAuthHeaders(auth, request, mockEnvVars)
+
+      expect(mockResolveAwsCredentials).not.toHaveBeenCalled()
+
+      expect(vi.mocked(AwsV4Signer)).toHaveBeenCalledWith(
+        expect.objectContaining({
+          accessKeyId: "test-access-key",
+          secretAccessKey: "test-secret-key",
+        })
+      )
+    })
+
+    test("should use manual credentials when credentialMode is manual", async () => {
+      const { AwsV4Signer } = await import("aws4fetch")
+
+      const auth = createBaseAuth({
+        credentialMode: "manual",
+        profileName: "should-be-ignored",
+      })
+      const request = createBaseRequest()
+
+      await generateAwsSignatureAuthHeaders(auth, request, mockEnvVars)
+
+      expect(mockResolveAwsCredentials).not.toHaveBeenCalled()
+
+      expect(vi.mocked(AwsV4Signer)).toHaveBeenCalledWith(
+        expect.objectContaining({
+          accessKeyId: "test-access-key",
+          secretAccessKey: "test-secret-key",
+        })
+      )
+    })
+
+    test("should generate query params with profile credentials", async () => {
+      const { AwsV4Signer } = await import("aws4fetch")
+      vi.mocked(AwsV4Signer).mockImplementation(function (config) {
+        return {
+          sign: vi.fn().mockImplementation(function () {
+            return Promise.resolve({
+              headers: new Map(),
+              url: new URL(
+                config.url +
+                  "?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Signature=test-signature"
+              ),
+            })
+          }),
+        }
+      })
+
+      const auth = createBaseAuth({
+        addTo: "QUERY_PARAMS",
+        credentialMode: "profile",
+        profileName: "my-profile",
+      })
+      const request = createBaseRequest()
+
+      const result = await generateAwsSignatureAuthParams(
+        auth,
+        request,
+        mockEnvVars
+      )
+
+      expect(mockResolveAwsCredentials).toHaveBeenCalledWith(
+        "my-profile",
+        "us-east-1"
+      )
+      expect(result).toHaveLength(2)
+      expect(result.find((p) => p.key === "X-Amz-Algorithm")).toBeDefined()
+      expect(result.find((p) => p.key === "X-Amz-Signature")).toBeDefined()
+    })
+
+    test("should propagate errors from agent credential resolution", async () => {
+      mockResolveAwsCredentials.mockRejectedValueOnce(
+        new Error("Agent not connected")
+      )
+
+      const auth = createBaseAuth({
+        credentialMode: "profile",
+        profileName: "bad-profile",
+      })
+      const request = createBaseRequest()
+
+      await expect(
+        generateAwsSignatureAuthHeaders(auth, request, mockEnvVars)
+      ).rejects.toThrow("Agent not connected")
     })
   })
 })

@@ -277,7 +277,11 @@
       "secret_key": "Secret Key",
       "service_name": "Service Name",
       "aws_region": "AWS Region",
-      "service_token": "Service Token"
+      "service_token": "Service Token",
+      "credential_mode": "Credentials",
+      "manual": "Manual",
+      "profile": "AWS Profile",
+      "agent_required": "Connect the Hoppscotch Agent to use AWS profiles"
     },
     "digest": {
       "realm": "Realm",

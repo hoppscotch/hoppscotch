@@ -47,6 +47,8 @@ native-dialog = "0.7.0"
 sha2 = "0.10.9"
 file-rotate = "0.8.0"
 dirs = "6.0.0"
+aws-config = "1.5"
+aws-credential-types = { version = "1.2", features = ["hardcoded-credentials"] }
 
 [target.'cfg(windows)'.dependencies]
 tempfile = { version = "3.23.0" }

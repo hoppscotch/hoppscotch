@@ -271,6 +271,8 @@ const selectAWSSignatureAuthType = () => {
     region = "",
     serviceName = "",
     addTo = "HEADERS",
+    credentialMode = "manual",
+    profileName = "",
   } = auth.value as HoppRESTAuthAWSSignature
 
   auth.value = {
@@ -281,6 +283,8 @@ const selectAWSSignatureAuthType = () => {
     secretKey,
     region,
     serviceName,
+    credentialMode,
+    profileName,
   }
 }
 

@@ -56,6 +56,8 @@ pub enum AgentError {
     LogInit(String),
     #[error("Log init global error: {0}")]
     LogInitGlobal(#[from] tracing::subscriber::SetGlobalDefaultError),
+    #[error("AWS config error: {0}")]
+    AwsConfigError(String),
 }
 
 impl From<tracing_appender::rolling::InitError> for AgentError {
@@ -82,6 +84,10 @@ impl IntoResponse for AgentError {
             AgentError::InvalidHeaders => (StatusCode::BAD_REQUEST, self.to_string()),
             AgentError::RequestRunError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
             AgentError::RequestCancelled => (StatusCode::BAD_REQUEST, self.to_string()),
+            AgentError::AwsConfigError(ref msg) => {
+                tracing::error!(details = %msg, "AWS credential resolution failed");
+                (StatusCode::INTERNAL_SERVER_ERROR, "Failed to resolve AWS credentials".to_string())
+            }
             _ => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "Internal Server Error".to_string(),

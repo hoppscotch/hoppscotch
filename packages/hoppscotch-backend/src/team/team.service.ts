@@ -23,6 +23,7 @@ import * as T from 'fp-ts/Task';
 import * as A from 'fp-ts/Array';
 import { isValidLength, throwErr } from 'src/utils';
 import { AuthUser } from '../types/AuthUser';
+import { OffsetPaginationArgs } from 'src/types/input-types.args';
 
 @Injectable()
 export class TeamService implements UserDataHandler, OnModuleInit {
@@ -522,6 +523,7 @@ export class TeamService implements UserDataHandler, OnModuleInit {
    * @param cursorID string of teamID or undefined
    * @param take number of items to query
    * @returns an array of `Team` object
+   * @deprecated use fetchAllTeamsV2 instead
    */
   async fetchAllTeams(cursorID: string, take: number) {
     const options = {
@@ -531,6 +533,32 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     };
 
     const fetchedTeams = await this.prisma.team.findMany(options);
+    return fetchedTeams;
+  }
+
+  /**
+   * Fetch all the teams in the `Team` table with offset pagination and search
+   * @param searchString search on team name or ID
+   * @param paginationOption pagination options
+   * @returns an array of `Team` object
+   */
+  async fetchAllTeamsV2(
+    searchString: string,
+    paginationOption: OffsetPaginationArgs,
+  ) {
+    const fetchedTeams = await this.prisma.team.findMany({
+      skip: paginationOption.skip,
+      take: paginationOption.take,
+      where: searchString
+        ? {
+            OR: [
+              { name: { contains: searchString, mode: 'insensitive' } },
+              { id: { contains: searchString, mode: 'insensitive' } },
+            ],
+          }
+        : undefined,
+      orderBy: { name: 'asc' },
+    });
     return fetchedTeams;
   }
 

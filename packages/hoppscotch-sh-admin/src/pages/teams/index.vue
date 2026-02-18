@@ -12,14 +12,32 @@
       </div>
 
       <div class="overflow-x-auto">
-        <div v-if="fetching" class="flex justify-center">
-          <HoppSmartSpinner />
+        <div class="mb-3 flex items-center justify-end">
+          <HoppButtonSecondary
+            outline
+            filled
+            :icon="IconLeft"
+            :disabled="page === 1"
+            @click="page--"
+          />
+
+          <div class="flex h-full w-10 items-center justify-center">
+            <span>{{ page }}</span>
+          </div>
+
+          <HoppButtonSecondary
+            outline
+            filled
+            :icon="IconRight"
+            :disabled="teamsList.length < teamsPerPage"
+            @click="page++"
+          />
         </div>
 
         <HoppSmartTable
-          v-else
           :headings="headings"
-          :list="filteredTeamsList"
+          :list="teamsList"
+          :loading="fetching"
           @onRowClicked="goToTeamDetails"
         >
           <template #extension>
@@ -37,7 +55,7 @@
           <template #empty-state>
             <td colspan="4">
               <span class="flex justify-center p-3">
-                {{ error ? t('teams.load_list_error') : (searchQuery ? t('teams.no_search_results') : t('teams.no_teams')) }}
+                {{ error ? t('teams.load_list_error') : (activeSearch ? t('teams.no_search_results') : t('teams.no_teams')) }}
               </span>
             </td>
           </template>
@@ -106,15 +124,6 @@
             </td>
           </template>
         </HoppSmartTable>
-
-        <div
-          v-if="hasNextPage && teamsList.length >= teamsPerPage"
-          class="flex items-center w-28 px-3 py-2 mt-5 mx-auto font-semibold text-secondaryDark bg-divider hover:bg-dividerDark rounded-3xl cursor-pointer"
-          @click="fetchNextTeams"
-        >
-          <span>{{ t('teams.show_more') }}</span>
-          <icon-lucide-chevron-down class="ml-2" />
-        </div>
       </div>
     </div>
   </div>
@@ -136,11 +145,13 @@
 
 <script setup lang="ts">
 import { useMutation, useQuery } from '@urql/vue';
-import { computed, ref } from 'vue';
+import { computed, onUnmounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
 import { usePagedQuery } from '~/composables/usePagedQuery';
+import IconLeft from '~icons/lucide/chevron-left';
+import IconRight from '~icons/lucide/chevron-right';
 import IconMoreHorizontal from '~icons/lucide/more-horizontal';
 import IconAddUsers from '~icons/lucide/plus';
 import IconTrash from '~icons/lucide/trash';
@@ -149,17 +160,14 @@ import {
   MetricsDocument,
   RemoveTeamDocument,
   TeamInfoQuery,
-  TeamListDocument,
+  TeamListV2Document,
   UsersListDocument,
 } from '../../helpers/backend/graphql';
 
 const t = useI18n();
 const toast = useToast();
 
-// Search functionality
-const searchQuery = ref('');
-
-// Get Users List
+// Get Users List (for team creation modal)
 const { data } = useQuery({ query: MetricsDocument, variables: {} });
 const usersPerPage = computed(() => data.value?.infra.usersCount || 10000);
 
@@ -173,36 +181,33 @@ const { list: usersList } = usePagedQuery(
 
 const allUsersEmail = computed(() => usersList.value.map((user) => user.email));
 
-// Filter teams based on search query
-const filteredTeamsList = computed(() => {
-  if (!searchQuery.value.trim()) {
-    return teamsList.value;
-  }
+// Paginated Teams with server-side search
+const teamsPerPage = 20;
+const page = ref(1);
+const searchQuery = ref('');
+const activeSearch = ref('');
+let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
-  const query = searchQuery.value.toLowerCase().trim();
-  return teamsList.value.filter((team) => {
-    const teamName = team.name?.toLowerCase() || '';
-    const teamId = team.id.toLowerCase();
-    return teamName.includes(query) || teamId.includes(query);
-  });
+watch(searchQuery, (val) => {
+  if (debounceTimer) clearTimeout(debounceTimer);
+  const apply = () => { activeSearch.value = val; page.value = 1; };
+  val.length ? (debounceTimer = setTimeout(apply, 500)) : apply();
 });
 
-// Get Paginated Results of all the teams in the infra
-const teamsPerPage = 20;
-const {
-  fetching,
-  error,
-  goToNextPage: fetchNextTeams,
-  refetch,
-  list: teamsList,
-  hasNextPage,
-} = usePagedQuery(
-  TeamListDocument,
-  (x) => x.infra.allTeams,
-  teamsPerPage,
-  { cursor: undefined, take: teamsPerPage },
-  (x) => x.id
-);
+onUnmounted(() => { if (debounceTimer) clearTimeout(debounceTimer); });
+
+// useQuery auto-refetches when computed variables change (page or search)
+const { data: teamsData, fetching, error, executeQuery } = useQuery({
+  query: TeamListV2Document,
+  variables: computed(() => ({
+    searchString: activeSearch.value || null,
+    skip: (page.value - 1) * teamsPerPage,
+    take: teamsPerPage,
+  })),
+});
+
+const teamsList = computed(() => teamsData.value?.infra.allTeamsV2 ?? []);
+const refetch = () => executeQuery({ requestPolicy: 'network-only' });
 
 // Table Headings
 const headings = [
@@ -240,13 +245,12 @@ const createTeam = async (newTeamName: string, ownerEmail: string) => {
     } else {
       toast.error(t('state.create_team_failure'));
     }
-    createTeamLoading.value = false;
   } else {
     toast.success(t('state.create_team_success'));
     showCreateTeamModal.value = false;
-    createTeamLoading.value = false;
     refetch();
   }
+  createTeamLoading.value = false;
 };
 
 // Go To Individual Team Details Page
@@ -270,15 +274,13 @@ const deleteTeamMutation = async (id: string | null) => {
     toast.error(t('state.delete_team_failure'));
     return;
   }
-  const variables = { uid: id };
-  const result = await teamDeletion.executeMutation(variables);
+  const result = await teamDeletion.executeMutation({ uid: id });
   if (result.error) {
     toast.error(t('state.delete_team_failure'));
   } else {
-    teamsList.value = teamsList.value.filter((team) => team.id !== id);
     toast.success(t('state.delete_team_success'));
+    refetch();
   }
-
   confirmDeletion.value = false;
   deleteTeamID.value = null;
 };

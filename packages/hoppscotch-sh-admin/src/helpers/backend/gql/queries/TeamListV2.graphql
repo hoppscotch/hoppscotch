@@ -1,0 +1,11 @@
+query TeamListV2($searchString: String, $skip: Int, $take: Int) {
+  infra {
+    allTeamsV2(searchString: $searchString, skip: $skip, take: $take) {
+      id
+      name
+      teamMembers {
+        membershipID
+      }
+    }
+  }
+}

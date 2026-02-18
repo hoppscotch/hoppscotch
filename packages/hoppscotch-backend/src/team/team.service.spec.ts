@@ -962,6 +962,86 @@ describe('fetchAllTeams', () => {
   });
 });
 
+describe('fetchAllTeamsV2', () => {
+  test('should return teams with offset pagination when no search string', async () => {
+    mockPrisma.team.findMany.mockResolvedValueOnce(teams);
+
+    const result = await teamService.fetchAllTeamsV2('', {
+      skip: 0,
+      take: 20,
+    });
+
+    expect(result).toEqual(teams);
+    expect(mockPrisma.team.findMany).toHaveBeenCalledWith({
+      skip: 0,
+      take: 20,
+      where: undefined,
+      orderBy: { name: 'asc' },
+    });
+  });
+
+  test('should search by name and id when search string is provided', async () => {
+    mockPrisma.team.findMany.mockResolvedValueOnce([teams[0]]);
+
+    const result = await teamService.fetchAllTeamsV2('team', {
+      skip: 0,
+      take: 20,
+    });
+
+    expect(result).toEqual([teams[0]]);
+    expect(mockPrisma.team.findMany).toHaveBeenCalledWith({
+      skip: 0,
+      take: 20,
+      where: {
+        OR: [
+          { name: { contains: 'team', mode: 'insensitive' } },
+          { id: { contains: 'team', mode: 'insensitive' } },
+        ],
+      },
+      orderBy: { name: 'asc' },
+    });
+  });
+
+  test('should apply skip for pagination', async () => {
+    mockPrisma.team.findMany.mockResolvedValueOnce(teams);
+
+    const result = await teamService.fetchAllTeamsV2('', {
+      skip: 20,
+      take: 20,
+    });
+
+    expect(result).toEqual(teams);
+    expect(mockPrisma.team.findMany).toHaveBeenCalledWith({
+      skip: 20,
+      take: 20,
+      where: undefined,
+      orderBy: { name: 'asc' },
+    });
+  });
+
+  test('should return empty array when no teams match', async () => {
+    mockPrisma.team.findMany.mockResolvedValueOnce([]);
+
+    const result = await teamService.fetchAllTeamsV2('nonexistent', {
+      skip: 0,
+      take: 20,
+    });
+
+    expect(result).toEqual([]);
+    expect(mockPrisma.team.findMany).toHaveBeenCalledWith({
+      skip: 0,
+      take: 20,
+      where: {
+        OR: [
+          { name: { contains: 'nonexistent', mode: 'insensitive' } },
+          { id: { contains: 'nonexistent', mode: 'insensitive' } },
+        ],
+      },
+      orderBy: { name: 'asc' },
+    });
+  });
+});
+
 describe('getCountOfMembersInTeam', () => {
   test('should resolve right and return a total team member count ', async () => {
     mockPrisma.teamMember.count.mockResolvedValueOnce(2);

@@ -123,11 +123,24 @@ const multipartFunctions = {
           S.split("="),
           O.fromPredicate((q) => q.length === 2),
           O.map(
-            (nameArr) =>
-              [nameArr[1], pair[0].includes("filename") ? "" : pair[1]] as [
-                string,
-                string,
-              ]
+            (nameArr) => {
+              // Check if this is a file upload
+              const isFile = pair[0].includes("filename")
+              let value = pair[1]
+              
+              // If it's a file, try to extract filename and preserve content
+              if (isFile) {
+                // Extract filename if available
+                const filenameMatch = pair[0].match(/filename="([^"]+)"/)
+                if (filenameMatch && filenameMatch[1]) {
+                  // For files, we keep the actual content instead of empty string
+                  // This preserves the file data and allows proper MIME detection
+                  value = pair[1] || filenameMatch[1]
+                }
+              }
+              
+              return [nameArr[1], value] as [string, string]
+            }
           )
         )
       )

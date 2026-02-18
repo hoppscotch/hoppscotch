@@ -53,6 +53,8 @@ const HOPP_COLLECTION_ENVIRONMENT_HIGHLIGHT = "collection-variable-highlight"
 const HOPP_ENVIRONMENT_HIGHLIGHT = "environment-variable-highlight"
 const HOPP_GLOBAL_ENVIRONMENT_HIGHLIGHT = "global-variable-highlight"
 const HOPP_ENV_HIGHLIGHT_NOT_FOUND = "environment-not-found-highlight"
+// Keep value rows above overlapping CodeMirror decoration layers inside tooltip content.
+const TOOLTIP_ENV_CONTAINER_Z_INDEX_CLASS = "!z-[1002]"
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
 const currentEnvironmentValueService = getService(CurrentValueService)
@@ -287,7 +289,7 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           const envContainer = document.createElement("div")
           tooltipContainer.appendChild(envContainer)
           envContainer.className =
-            "flex flex-col items-start space-y-1 flex-1 w-full mt-2 !z-[1002]"
+            `flex flex-col items-start space-y-1 flex-1 w-full mt-2 ${TOOLTIP_ENV_CONTAINER_Z_INDEX_CLASS}`
           envContainer.style.overflow = "hidden"
 
           // Use createTooltipValueRow for overflow-safe value display

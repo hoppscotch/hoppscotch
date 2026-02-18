@@ -7,6 +7,7 @@ import {
   createTooltipValueRow,
   constrainTooltipToViewport,
   TOOLTIP_MAX_VALUE_LENGTH,
+  TOOLTIP_MAX_HEIGHT_PX,
   TOOLTIP_MAX_WIDTH_PX,
   TOOLTIP_MIN_WIDTH_PX,
   TOOLTIP_VIEWPORT_MARGIN_PX,
@@ -30,13 +31,13 @@ describe("truncateText", () => {
     const result = truncateText(long)
     expect(result.length).toBeLessThan(long.length)
     expect(result).toContain("\u2026")
-    expect(result).toContain(`(${long.length} chars)`)
+    expect(result).toContain(`${long.length} chars)`)
   })
 
   test("truncates string with custom max length", () => {
     const text = "abcdefghij"
     const result = truncateText(text, 5)
-    expect(result).toBe("abcde\u2026 (10 chars)")
+    expect(result).toBe("abcde\u2026 (truncated, 10 chars)")
   })
 
   test("returns empty string for null input", () => {
@@ -54,12 +55,12 @@ describe("truncateText", () => {
   test("handles maxLength of 0 by truncating everything", () => {
     const result = truncateText("abc", 0)
     expect(result).toContain("\u2026")
-    expect(result).toContain("(3 chars)")
+    expect(result).toContain("3 chars)")
   })
 
   test("handles maxLength of 1", () => {
     const result = truncateText("abc", 1)
-    expect(result).toBe("a\u2026 (3 chars)")
+    expect(result).toBe("a\u2026 (truncated, 3 chars)")
   })
 
   test("preserves unicode characters during truncation", () => {
@@ -72,7 +73,7 @@ describe("truncateText", () => {
     const veryLong = "z".repeat(10000)
     const result = truncateText(veryLong, 100)
     expect(result.startsWith("z".repeat(100))).toBe(true)
-    expect(result).toContain("(10000 chars)")
+    expect(result).toContain("10000 chars)")
   })
 })
 
@@ -99,12 +100,12 @@ describe("formatTooltipValue", () => {
     const longValue = "v".repeat(600)
     const result = formatTooltipValue(longValue)
     expect(result).toContain("\u2026")
-    expect(result).toContain("(600 chars)")
+    expect(result).toContain("600 chars)")
   })
 
   test("respects custom maxLength parameter", () => {
     const result = formatTooltipValue("abcdef", 3)
-    expect(result).toBe("abc\u2026 (6 chars)")
+    expect(result).toBe("abc\u2026 (truncated, 6 chars)")
   })
 
   test("does not truncate when value equals maxLength", () => {
@@ -141,9 +142,9 @@ describe("calculateTooltipDimensions", () => {
     expect(maxWidth).toBe(300)
   })
 
-  test("caps maxHeight at 300px", () => {
+  test("caps maxHeight at TOOLTIP_MAX_HEIGHT_PX", () => {
     const { maxHeight } = calculateTooltipDimensions(1920, 1080)
-    expect(maxHeight).toBe(300)
+    expect(maxHeight).toBe(TOOLTIP_MAX_HEIGHT_PX)
   })
 
   test("uses available height when viewport is small", () => {
@@ -231,7 +232,7 @@ describe("createTooltipValueRow", () => {
     const row = createTooltipValueRow("Initial", longValue)
     const value = row.querySelector("span")
     expect(value!.textContent).toContain("\u2026")
-    expect(value!.textContent).toContain("(600 chars)")
+    expect(value!.textContent).toContain("600 chars)")
   })
 
   test("shows 'Empty' for empty string value", () => {

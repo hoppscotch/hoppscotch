@@ -16,6 +16,9 @@ export const TOOLTIP_MAX_WIDTH_PX = 450
 /** Minimum pixel width for the tooltip container. */
 export const TOOLTIP_MIN_WIDTH_PX = 200
 
+/** Maximum pixel height for the tooltip container. */
+export const TOOLTIP_MAX_HEIGHT_PX = 300
+
 /** Viewport margin in pixels — the tooltip will stay this far from edges. */
 export const TOOLTIP_VIEWPORT_MARGIN_PX = 16
 
@@ -50,7 +53,7 @@ export function truncateText(
   // Show the beginning of the text plus a count so the user knows
   // the full length of the value.
   const truncated = codePoints.slice(0, maxLength).join("")
-  return `${truncated}\u2026 (${codePoints.length} chars)`
+  return `${truncated}\u2026 (truncated, ${codePoints.length} chars)`
 }
 
 /**
@@ -95,7 +98,7 @@ export function calculateTooltipDimensions(
 
   const maxWidth = Math.min(effectiveWidth, TOOLTIP_MAX_WIDTH_PX)
 
-  const maxHeight = Math.min(effectiveHeight, 300)
+  const maxHeight = Math.min(effectiveHeight, TOOLTIP_MAX_HEIGHT_PX)
 
   return { maxWidth, maxHeight }
 }

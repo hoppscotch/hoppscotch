@@ -1,26 +1,127 @@
 <template>
-  <div class="flex flex-1 border-b border-dividerLight">
-    <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
-      {{ t("authorization.aws_signature.access_key") }}
-    </label>
-    <SmartEnvInput
-      v-model="auth.accessKey"
-      :auto-complete-env="true"
-      placeholder="AKIAIOSFODNN7EXAMPLE"
-      :envs="envs"
-    />
+  <div class="flex items-center border-b border-dividerLight">
+    <span class="flex items-center">
+      <label class="ml-4 text-secondaryLight">
+        {{ t("authorization.aws_signature.credential_mode") }}
+      </label>
+      <tippy
+        interactive
+        trigger="click"
+        theme="popover"
+        :on-shown="() => credentialModeTippyActions?.focus()"
+      >
+        <HoppSmartSelectWrapper>
+          <HoppButtonSecondary
+            :label="credentialModeLabel"
+            class="ml-2 rounded-none pr-8"
+          />
+        </HoppSmartSelectWrapper>
+        <template #content="{ hide }">
+          <div
+            ref="credentialModeTippyActions"
+            class="flex flex-col focus:outline-none"
+            tabindex="0"
+            @keyup.escape="hide()"
+          >
+            <HoppSmartItem
+              v-for="mode in credentialModes"
+              :key="mode.id"
+              :label="mode.label"
+              :icon="
+                auth.credentialMode === mode.id ? IconCircleDot : IconCircle
+              "
+              :active="auth.credentialMode === mode.id"
+              @click="
+                () => {
+                  auth.credentialMode = mode.id
+                  hide()
+                }
+              "
+            />
+          </div>
+        </template>
+      </tippy>
+    </span>
   </div>
-  <div class="flex flex-1 border-b border-dividerLight">
-    <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
-      {{ t("authorization.aws_signature.secret_key") }}
-    </label>
-    <SmartEnvInput
-      v-model="auth.secretKey"
-      :auto-complete-env="true"
-      placeholder="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-      :envs="envs"
-    />
-  </div>
+
+  <template v-if="auth.credentialMode === 'profile'">
+    <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.aws_signature.profile") }}
+      </label>
+      <div class="flex flex-1 items-center">
+        <span v-if="isLoadingProfiles" class="ml-4 text-secondaryLight">
+          {{ t("state.loading") }}
+        </span>
+        <span v-else-if="!agentConnected" class="ml-4 text-secondaryLight">
+          {{ t("authorization.aws_signature.agent_required") }}
+        </span>
+        <template v-else>
+          <SmartEnvInput
+            v-model="auth.profileName"
+            :auto-complete-env="true"
+            :placeholder="profiles.length > 0 ? profiles[0] : 'default'"
+            :envs="envs"
+          />
+          <tippy
+            v-if="profiles.length > 0"
+            interactive
+            trigger="click"
+            theme="popover"
+            :on-shown="() => profileTippyActions?.focus()"
+          >
+            <HoppButtonSecondary :icon="IconChevronDown" class="rounded-none" />
+            <template #content="{ hide }">
+              <div
+                ref="profileTippyActions"
+                class="flex flex-col focus:outline-none"
+                tabindex="0"
+                @keyup.escape="hide()"
+              >
+                <HoppSmartItem
+                  v-for="profile in profiles"
+                  :key="profile"
+                  :label="profile"
+                  :active="auth.profileName === profile"
+                  @click="
+                    () => {
+                      auth.profileName = profile
+                      hide()
+                    }
+                  "
+                />
+              </div>
+            </template>
+          </tippy>
+        </template>
+      </div>
+    </div>
+  </template>
+
+  <template v-else>
+    <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.aws_signature.access_key") }}
+      </label>
+      <SmartEnvInput
+        v-model="auth.accessKey"
+        :auto-complete-env="true"
+        placeholder="AKIAIOSFODNN7EXAMPLE"
+        :envs="envs"
+      />
+    </div>
+    <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.aws_signature.secret_key") }}
+      </label>
+      <SmartEnvInput
+        v-model="auth.secretKey"
+        :auto-complete-env="true"
+        placeholder="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+        :envs="envs"
+      />
+    </div>
+  </template>
 
   <!-- advanced config -->
 
@@ -56,17 +157,19 @@
         :envs="envs"
       />
     </div>
-    <div class="flex flex-1">
-      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
-        {{ t("authorization.aws_signature.service_token") }}
-      </label>
-      <SmartEnvInput
-        v-model="auth.serviceToken"
-        :auto-complete-env="true"
-        placeholder="session-token-here"
-        :envs="envs"
-      />
-    </div>
+    <template v-if="auth.credentialMode !== 'profile'">
+      <div class="flex flex-1">
+        <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+          {{ t("authorization.aws_signature.service_token") }}
+        </label>
+        <SmartEnvInput
+          v-model="auth.serviceToken"
+          :auto-complete-env="true"
+          placeholder="session-token-here"
+          :envs="envs"
+        />
+      </div>
+    </template>
 
     <div class="flex items-center border-b border-dividerLight">
       <span class="flex items-center">
@@ -118,9 +221,12 @@
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { HoppRESTAuthAWSSignature } from "@hoppscotch/data"
+import { useService } from "dioc/vue"
 import { useVModel } from "@vueuse/core"
-import { computed, ref } from "vue"
+import { computed, onMounted, ref, watch } from "vue"
 import { AggregateEnvironment } from "~/newstore/environments"
+import { AgentInterceptorService } from "~/platform/std/interceptors/agent"
+import IconChevronDown from "~icons/lucide/chevron-down"
 import IconCircle from "~icons/lucide/circle"
 import IconCircleDot from "~icons/lucide/circle-dot"
 
@@ -137,7 +243,35 @@ const emit = defineEmits<{
 
 const auth = useVModel(props, "modelValue", emit)
 
+const agentService = useService(AgentInterceptorService)
+
 const authTippyActions = ref<any | null>(null)
+const credentialModeTippyActions = ref<any | null>(null)
+const profileTippyActions = ref<any | null>(null)
+
+const profiles = ref<string[]>([])
+const isLoadingProfiles = ref(false)
+const agentConnected = computed(
+  () => agentService.isAgentRunning.value && agentService.authKey.value !== null
+)
+
+const credentialModes = [
+  {
+    id: "manual" as const,
+    label: t("authorization.aws_signature.manual"),
+  },
+  {
+    id: "profile" as const,
+    label: t("authorization.aws_signature.profile"),
+  },
+]
+
+const credentialModeLabel = computed(() => {
+  return (
+    credentialModes.find((mode) => mode.id === auth.value.credentialMode)
+      ?.label || t("authorization.aws_signature.manual")
+  )
+})
 
 const addToTargets = [
   {
@@ -155,5 +289,32 @@ const passBy = computed(() => {
     addToTargets.find((target) => target.id === auth.value.addTo)?.label ||
     t("state.none")
   )
+})
+
+async function loadProfiles() {
+  if (!agentConnected.value) return
+  isLoadingProfiles.value = true
+  try {
+    profiles.value = await agentService.listAwsProfiles()
+  } catch (_e) {
+    profiles.value = []
+  } finally {
+    isLoadingProfiles.value = false
+  }
+}
+
+watch(
+  () => auth.value.credentialMode,
+  (mode) => {
+    if (mode === "profile") {
+      loadProfiles()
+    }
+  }
+)
+
+onMounted(() => {
+  if (auth.value.credentialMode === "profile") {
+    loadProfiles()
+  }
 })
 </script>

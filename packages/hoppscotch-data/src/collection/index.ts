@@ -11,6 +11,7 @@ import V8_VERSION from "./v/8"
 import V9_VERSION from "./v/9"
 import V10_VERSION from "./v/10"
 import V11_VERSION from "./v/11"
+import V12_VERSION from "./v/12"
 
 export { CollectionVariable } from "./v/10"
 
@@ -24,7 +25,7 @@ const versionedObject = z.object({
 })
 
 export const HoppCollection = createVersionedEntity({
-  latestVersion: 11,
+  latestVersion: 12,
   versionMap: {
     1: V1_VERSION,
     2: V2_VERSION,
@@ -37,6 +38,7 @@ export const HoppCollection = createVersionedEntity({
     9: V9_VERSION,
     10: V10_VERSION,
     11: V11_VERSION,
+    12: V12_VERSION,
   },
   getVersion(data) {
     const versionCheck = versionedObject.safeParse(data)
@@ -56,7 +58,7 @@ export type HoppCollectionVariable = InferredEntity<
   typeof HoppCollection
 >["variables"][number]
 
-export const CollectionSchemaVersion = 11
+export const CollectionSchemaVersion = 12
 
 /**
  * Generates a Collection object. This ignores the version number object

@@ -108,3 +108,33 @@ pub enum LogLevel {
     Warn,
     Error,
 }
+
+#[derive(Debug, Serialize)]
+pub struct AwsProfilesResponse {
+    pub profiles: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct AwsResolveRequest {
+    pub profile_name: String,
+    pub region: Option<String>,
+}
+
+#[derive(Serialize)]
+pub struct AwsCredentialsResponse {
+    pub access_key_id: String,
+    pub secret_access_key: String,
+    pub session_token: Option<String>,
+    pub expiration: Option<String>,
+}
+
+impl std::fmt::Debug for AwsCredentialsResponse {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("AwsCredentialsResponse")
+            .field("access_key_id", &"[REDACTED]")
+            .field("secret_access_key", &"[REDACTED]")
+            .field("session_token", &self.session_token.as_ref().map(|_| "[REDACTED]"))
+            .field("expiration", &self.expiration)
+            .finish()
+    }
+}

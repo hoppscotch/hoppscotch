@@ -1,3 +1,4 @@
+pub mod aws;
 pub mod command;
 pub mod controller;
 pub mod dialog;

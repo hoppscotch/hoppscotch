@@ -1,38 +1,46 @@
 # Base Go builder with Go lang installation
 # This stage is used to build both Caddy and the webapp server,
 # preventing vulnerable packages on the dependency chain
-FROM alpine:3.23.2 AS go_builder
+FROM alpine:3.23.3 AS go_builder
+RUN apk add --no-cache curl git
+# Install Go 1.26.0 from GitHub releases to fix CVE-2025-47907
+ARG TARGETARCH
+ENV GOLANG_VERSION=1.26.0
+# Download Go tarball
+RUN case "${TARGETARCH}" in amd64) GOARCH=amd64 ;; arm64) GOARCH=arm64 ;; *) echo "Unsupported arch: ${TARGETARCH}" && exit 1 ;; esac && \
+  curl -fsSL "https://go.dev/dl/go${GOLANG_VERSION}.linux-${GOARCH}.tar.gz" -o go.tar.gz
+# Checksum verification of Go tarball
+RUN case "${TARGETARCH}" in \
+  amd64) expected="aac1b08a0fb0c4e0a7c1555beb7b59180b05dfc5a3d62e40e9de90cd42f88235" ;; \
+  arm64) expected="bd03b743eb6eb4193ea3c3fd3956546bf0e3ca5b7076c8226334afe6b75704cd" ;; \
+  esac && \
+  actual=$(sha256sum go.tar.gz | cut -d' ' -f1) && \
+  [ "$actual" = "$expected" ] && \
+  echo "✅ Go Tarball Checksum OK" || \
+  (echo "❌ Go Tarball Checksum failed! Expected: ${expected} Got: ${actual}" && exit 1)
+# Install Go from verified tarball
+RUN tar -C /usr/local -xzf go.tar.gz && rm go.tar.gz
+# Set up Go environment variables
+ENV PATH="/usr/local/go/bin:${PATH}" \
+  GOPATH="/go" \
+  GOBIN="/go/bin"
 
-RUN apk add --no-cache curl git && \
-  mkdir -p /tmp/caddy-build && \
+
+
+# Build Caddy from the Go base
+FROM go_builder AS caddy_builder
+RUN mkdir -p /tmp/caddy-build && \
   curl -L -o /tmp/caddy-build/src.tar.gz https://github.com/caddyserver/caddy/releases/download/v2.10.2/caddy_2.10.2_src.tar.gz
-
 # Checksum verification of caddy source
 RUN expected="a9efa00c161922dd24650fd0bee2f4f8bb2fb69ff3e63dcc44f0694da64bb0cf" && \
   actual=$(sha256sum /tmp/caddy-build/src.tar.gz | cut -d' ' -f1) && \
   [ "$actual" = "$expected" ] && \
   echo "✅ Caddy Source Checksum OK" || \
   (echo "❌ Caddy Source Checksum failed!" && exit 1)
-
-# Install Go 1.25.4 from GitHub releases to fix CVE-2025-47907
-ARG TARGETARCH
-ENV GOLANG_VERSION=1.25.6
-# Download and install Go from the official tarball
-RUN case "${TARGETARCH}" in amd64) GOARCH=amd64 ;; arm64) GOARCH=arm64 ;; *) echo "Unsupported arch: ${TARGETARCH}" && exit 1 ;; esac && \
-  curl -fsSL "https://go.dev/dl/go${GOLANG_VERSION}.linux-${GOARCH}.tar.gz" -o go.tar.gz && \
-  tar -C /usr/local -xzf go.tar.gz && \
-  rm go.tar.gz
-# Set up Go environment variables
-ENV PATH="/usr/local/go/bin:${PATH}" \
-  GOPATH="/go" \
-  GOBIN="/go/bin"
-
 WORKDIR /tmp/caddy-build
 RUN tar xvf /tmp/caddy-build/src.tar.gz && \
   # Patch to resolve CVE-2025-64702 on quic-go
   go get github.com/quic-go/quic-go@v0.57.0 && \
-  # Patch to resolve CVE-2025-62820 on nebula
-  go get github.com/slackhq/nebula@v1.9.7 && \
   # Patch to resolve CVE-2025-47913 on crypto
   go get golang.org/x/crypto@v0.45.0 && \
   # Patch to resolve CVE-2025-44005 on smallstep
@@ -41,12 +49,11 @@ RUN tar xvf /tmp/caddy-build/src.tar.gz && \
   rm -rf vendor && \
   go mod tidy && \
   go mod vendor
-
-# Build Caddy from the Go base
-FROM go_builder AS caddy_builder
 WORKDIR /tmp/caddy-build/cmd/caddy
 # Build using the updated vendored dependencies
 RUN go build
+
+
 
 # Build webapp server from the Go base
 # This reuses the Go installation from go_builder, avoiding a separate image pull
@@ -61,16 +68,16 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o webapp-server .
 
 
 # Shared Node.js base with optimized NPM installation
-FROM alpine:3.23.2 AS node_base
+FROM alpine:3.23.3 AS node_base
 # Install dependencies
 RUN apk add --no-cache nodejs curl bash tini ca-certificates
 # Set working directory for NPM installation
 RUN mkdir -p /tmp/npm-install
 WORKDIR /tmp/npm-install
 # Download NPM tarball
-RUN curl -fsSL https://registry.npmjs.org/npm/-/npm-11.7.0.tgz -o npm.tgz
+RUN curl -fsSL https://registry.npmjs.org/npm/-/npm-11.10.0.tgz -o npm.tgz
 # Verify checksum
-RUN expected="292f142dc1a8c01199ba34a07e57cf016c260ea2c59b64f3eee8aaae7a2e7504" \
+RUN expected="43c653384c39617756846ad405705061a78fb6bbddb2ced57ab79fb92e8af2a7" \
   && actual=$(sha256sum npm.tgz | cut -d' ' -f1) \
   && [ "$actual" = "$expected" ] \
   && echo "✅ NPM Tarball Checksum OK" \
@@ -78,30 +85,21 @@ RUN expected="292f142dc1a8c01199ba34a07e57cf016c260ea2c59b64f3eee8aaae7a2e7504" 
 # Install NPM from verified tarball and global packages
 RUN tar -xzf npm.tgz && \
   cd package && \
-  node bin/npm-cli.js install -g npm@11.7.0 && \
+  node bin/npm-cli.js install -g npm@11.10.0 && \
   cd / && \
   rm -rf /tmp/npm-install
-RUN npm install -g pnpm@10.28.1 @import-meta-env/cli
+RUN npm install -g pnpm@10.29.3 @import-meta-env/cli
 
 # Fix CVE-2025-64756 by replacing vulnerable glob with patched version
-# Fix CVE-2026-23745 by replacing vulnerable tar with patched version
-# Fix GHSA-73rr-hh4g-fpgx replacing vulnerable diff with patched version
-RUN npm install -g glob@11.1.0 tar@7.5.3 diff@8.0.3 && \
+RUN npm install -g glob@11.1.0 tar@7.5.8 && \
   # Replace tar in npm's node_modules
   rm -rf /usr/lib/node_modules/npm/node_modules/tar && \
   cp -r /usr/lib/node_modules/tar /usr/lib/node_modules/npm/node_modules/ && \
-  # Replace tar in npm's node_modules
-  rm -rf /usr/lib/node_modules/npm/node_modules/diff && \
-  cp -r /usr/lib/node_modules/diff /usr/lib/node_modules/npm/node_modules/ && \
+  cp -r /usr/lib/node_modules/tar /usr/lib/node_modules/pnpm/dist/node_modules/ && \
   # Replace glob in @import-meta-env/cli's node_modules
   rm -rf /usr/lib/node_modules/@import-meta-env/cli/node_modules/glob && \
-  cp -r /usr/lib/node_modules/glob /usr/lib/node_modules/@import-meta-env/cli/node_modules/ && \
-  # Replace tar in @import-meta-env/cli's node_modules
-  rm -rf /usr/lib/node_modules/@import-meta-env/cli/node_modules/tar && \
-  cp -r /usr/lib/node_modules/tar /usr/lib/node_modules/@import-meta-env/cli/node_modules/ && \
-  # Replace diff in @import-meta-env/cli's node_modules
-  rm -rf /usr/lib/node_modules/@import-meta-env/cli/node_modules/diff && \
-  cp -r /usr/lib/node_modules/diff /usr/lib/node_modules/@import-meta-env/cli/node_modules/ 
+  cp -r /usr/lib/node_modules/glob /usr/lib/node_modules/@import-meta-env/cli/node_modules/
+
 
 
 FROM node_base AS base_builder

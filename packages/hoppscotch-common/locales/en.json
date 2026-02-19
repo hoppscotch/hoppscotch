@@ -2219,13 +2219,12 @@
     "admin": "Admin"
   },
   "organization_sidebar": {
-    "instances": "Instances",
     "hoppscotch_cloud": "Hoppscotch Cloud",
     "admin": "Admin",
-    "no_orgs_title": "No organizations yet",
-    "no_orgs_description": "Join or create an organization to collaborate with your team",
     "error_loading": "Failed to load organizations",
     "inactive_orgs": "Inactive Organizations",
+    "no_orgs_found": "No organizations found",
+    "organizations_for": "Organizations for {email}",
     "multi_account_notice": "Each organization keeps its own login, using the last account accessed.",
     "inactive_orgs_tooltip": "Contact support for assistance."
   },

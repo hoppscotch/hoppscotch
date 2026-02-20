@@ -220,9 +220,27 @@ export class AdminService {
    * @param cursorID team id
    * @param take number of items to fetch
    * @returns an array of teams
+   * @deprecated use fetchAllTeamsV2 instead
    */
   async fetchAllTeams(cursorID: string, take: number) {
     const allTeams = await this.teamService.fetchAllTeams(cursorID, take);
+    return allTeams;
+  }
+
+  /**
+   * Fetch all the teams in the infra.
+   * @param searchString search on team name or ID
+   * @param paginationOption pagination options
+   * @returns an array of teams
+   */
+  async fetchAllTeamsV2(
+    searchString: string,
+    paginationOption: OffsetPaginationArgs,
+  ) {
+    const allTeams = await this.teamService.fetchAllTeamsV2(
+      searchString,
+      paginationOption,
+    );
     return allTeams;
   }
 

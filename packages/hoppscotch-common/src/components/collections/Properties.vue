@@ -65,6 +65,70 @@
         </HoppSmartTab>
 
         <HoppSmartTab
+          v-if="hasTeamWriteAccess && source === 'REST'"
+          id="scripts"
+          :label="`${t('tab.scripts')}`"
+        >
+          <div class="flex flex-col">
+            <div
+              class="flex flex-shrink-0 items-center justify-between border-b border-dividerLight bg-primary pl-4"
+            >
+              <span class="font-semibold text-secondaryLight">
+                {{ t("preRequest.javascript_code") }}
+              </span>
+            </div>
+            <div class="p-4">
+              <label class="pb-2 text-secondaryLight">
+                {{ t("tab.pre_request_script") }}
+              </label>
+              <div
+                class="h-48 border border-dividerLight rounded overflow-hidden relative"
+              >
+                <MonacoScriptEditor
+                  v-if="
+                    EXPERIMENTAL_SCRIPTING_SANDBOX && activeTab === 'scripts'
+                  "
+                  v-model="editableCollection.preRequestScript"
+                  type="pre-request"
+                />
+                <div
+                  v-else
+                  ref="preRequestEditor"
+                  class="h-full absolute inset-0"
+                ></div>
+              </div>
+            </div>
+            <div class="p-4 pt-0">
+              <label class="pb-2 text-secondaryLight">
+                {{ t("test.script") }}
+              </label>
+              <div
+                class="h-48 border border-dividerLight rounded overflow-hidden relative"
+              >
+                <MonacoScriptEditor
+                  v-if="
+                    EXPERIMENTAL_SCRIPTING_SANDBOX && activeTab === 'scripts'
+                  "
+                  v-model="editableCollection.testScript"
+                  type="post-request"
+                />
+                <div
+                  v-else
+                  ref="testScriptEditor"
+                  class="h-full absolute inset-0"
+                ></div>
+              </div>
+            </div>
+            <div
+              class="bg-bannerInfo px-4 py-2 flex items-center sticky bottom-0"
+            >
+              <icon-lucide-info class="svg-icons mr-2" />
+              {{ t("helpers.collection_properties_scripts") }}
+            </div>
+          </div>
+        </HoppSmartTab>
+
+        <HoppSmartTab
           v-if="showDetails"
           :id="'details'"
           :label="t('collection.details')"
@@ -138,11 +202,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue"
+import { computed, reactive, ref, watch } from "vue"
 import { refAutoReset, useVModel } from "@vueuse/core"
 import { clone } from "lodash-es"
+import { useCodemirror } from "@composables/codemirror"
 import { useI18n } from "@composables/i18n"
+import { useSetting } from "~/composables/settings"
 import { useToast } from "~/composables/toast"
+import preRequestCompleter from "~/helpers/editor/completion/preRequest"
+import testScriptCompleter from "~/helpers/editor/completion/testScript"
+import preRequestLinter from "~/helpers/editor/linting/preRequest"
+import testScriptLinter from "~/helpers/editor/linting/testScript"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { useService } from "dioc/vue"
 
@@ -206,10 +276,14 @@ const editableCollection = ref<{
   headers: HoppCollectionHeaders
   auth: HoppCollectionAuth
   variables: HoppCollectionVariable[]
+  preRequestScript: string
+  testScript: string
 }>({
   headers: [],
   auth: { authType: "inherit", authActive: false },
   variables: [],
+  preRequestScript: "",
+  testScript: "",
 })
 
 const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
@@ -219,6 +293,59 @@ const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
 const activeTab = useVModel(props, "modelValue", emit)
 
 const activeTabIsDetails = computed(() => activeTab.value === "details")
+
+const EXPERIMENTAL_SCRIPTING_SANDBOX = useSetting(
+  "EXPERIMENTAL_SCRIPTING_SANDBOX"
+)
+
+const preRequestEditor = ref<any | null>(null)
+const testScriptEditor = ref<any | null>(null)
+
+const preRequestScriptModel = computed({
+  get: () => editableCollection.value.preRequestScript,
+  set: (val: string) => {
+    editableCollection.value.preRequestScript = val
+  },
+})
+
+const testScriptModel = computed({
+  get: () => editableCollection.value.testScript,
+  set: (val: string) => {
+    editableCollection.value.testScript = val
+  },
+})
+
+useCodemirror(
+  preRequestEditor,
+  preRequestScriptModel,
+  reactive({
+    extendedEditorConfig: {
+      mode: "application/javascript",
+      lineWrapping: true,
+      placeholder: `${t("preRequest.javascript_code")}`,
+    },
+    linter: preRequestLinter,
+    completer: preRequestCompleter,
+    environmentHighlights: false,
+    contextMenuEnabled: false,
+  })
+)
+
+useCodemirror(
+  testScriptEditor,
+  testScriptModel,
+  reactive({
+    extendedEditorConfig: {
+      mode: "application/javascript",
+      lineWrapping: true,
+      placeholder: `${t("test.javascript_code")}`,
+    },
+    linter: testScriptLinter,
+    completer: testScriptCompleter,
+    environmentHighlights: false,
+    contextMenuEnabled: false,
+  })
+)
 
 const persistUnsavedChanges = async (
   updated: typeof editableCollection.value
@@ -258,6 +385,13 @@ const enforceTabAccessRules = () => {
     ["headers", "authorization"].includes(activeTab.value)
   )
     activeTab.value = "variables"
+  // `Scripts` tab only exists for REST collections with write access
+  // Switch to `Variables` tab if scripts tab becomes unavailable
+  if (
+    activeTab.value === "scripts" &&
+    (!props.hasTeamWriteAccess || props.source !== "REST")
+  )
+    activeTab.value = "variables"
 }
 
 const loadEditableCollection = () => {
@@ -267,6 +401,9 @@ const loadEditableCollection = () => {
       props.editingProperties.collection!.headers as HoppCollectionHeaders
     ),
     variables: clone(props.editingProperties.collection!.variables || []),
+    preRequestScript:
+      props.editingProperties.collection!.preRequestScript || "",
+    testScript: props.editingProperties.collection!.testScript || "",
   }
 }
 
@@ -275,6 +412,8 @@ const resetEditableCollection = () => {
     headers: [],
     auth: { authType: "inherit", authActive: false },
     variables: [],
+    preRequestScript: "",
+    testScript: "",
   }
 }
 

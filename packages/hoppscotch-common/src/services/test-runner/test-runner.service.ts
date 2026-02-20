@@ -66,6 +66,8 @@ export class TestRunnerService extends Service {
       requests: [],
       variables: [],
       description: collection.description ?? null,
+      preRequestScript: collection.preRequestScript ?? "",
+      testScript: collection.testScript ?? "",
     }
 
     this.runTestCollection(tab, collection, options)
@@ -96,7 +98,9 @@ export class TestRunnerService extends Service {
     parentHeaders?: HoppRESTHeaders,
     parentAuth?: HoppRESTRequest["auth"],
     parentVariables: HoppCollection["variables"] = [],
-    parentID?: string
+    parentID?: string,
+    parentPreRequestScripts: string[] = [],
+    parentTestScripts: string[] = []
   ) {
     try {
       // Compute inherited auth and headers for this collection
@@ -121,6 +125,15 @@ export class TestRunnerService extends Service {
         ) || []),
       ]
 
+      const inheritedPreRequestScripts = [
+        ...parentPreRequestScripts,
+        ...(collection.preRequestScript ? [collection.preRequestScript] : []),
+      ]
+      const inheritedTestScripts = [
+        ...parentTestScripts,
+        ...(collection.testScript ? [collection.testScript] : []),
+      ]
+
       // Process folders progressively
       for (let i = 0; i < collection.folders.length; i++) {
         if (options.stopRef?.value) {
@@ -142,7 +155,6 @@ export class TestRunnerService extends Service {
           }
         )
 
-        // Pass inherited headers and auth to the folder
         await this.runTestCollection(
           tab,
           folder,
@@ -151,7 +163,9 @@ export class TestRunnerService extends Service {
           inheritedHeaders,
           inheritedAuth,
           inheritedVariables,
-          collection._ref_id || collection.id
+          collection._ref_id || collection.id,
+          inheritedPreRequestScripts,
+          inheritedTestScripts
         )
       }
 
@@ -188,7 +202,9 @@ export class TestRunnerService extends Service {
           collection,
           options,
           currentPath,
-          inheritedVariables
+          inheritedVariables,
+          inheritedPreRequestScripts,
+          inheritedTestScripts
         )
 
         if (options.delay && options.delay > 0) {
@@ -279,7 +295,9 @@ export class TestRunnerService extends Service {
     collection: HoppCollection,
     options: TestRunnerOptions,
     path: number[],
-    inheritedVariables: HoppCollectionVariable[] = []
+    inheritedVariables: HoppCollectionVariable[] = [],
+    inheritedPreRequestScripts: string[] = [],
+    inheritedTestScripts: string[] = []
   ) {
     if (options.stopRef?.value) {
       throw new Error("Test execution stopped")
@@ -305,7 +323,9 @@ export class TestRunnerService extends Service {
         request,
         options.keepVariableValues,
         inheritedVariables,
-        initialEnvironmentState
+        initialEnvironmentState,
+        inheritedPreRequestScripts,
+        inheritedTestScripts
       )
 
       if (options.stopRef?.value) {

@@ -402,9 +402,9 @@ const updateFullEndpoint = async () => {
   getFullEndpoint.value = url
 }
 
-// Re-compute endpoint when environment variables change (e.g., environment toggle)
+// Re-compute endpoint when environment variables or request change
 watch(
-  () => props.environmentVariables,
+  [() => props.environmentVariables, () => props.request],
   () => {
     updateFullEndpoint()
   },

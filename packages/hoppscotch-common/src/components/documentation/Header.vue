@@ -222,15 +222,15 @@ const getVersionLabel = (ver: PublishedDocVersion): string => {
 const navigateToVersion = (ver: PublishedDocVersion) => {
   if (ver.version === props.publishedDoc?.version) return
 
-  // Extract path from the version URL and navigate
+  // Extract path from the version URL and navigate (handles both absolute and relative URLs)
   try {
-    const url = new URL(ver.url)
+    const url = new URL(ver.url, window.location.origin)
     router.push(url.pathname)
   } catch {
     // Fallback: use regex to extract the path
-    const match = ver.url.match(/\/view\/([^/]+)\/([^/]+)/)
+    const match = ver.url.match(/\/view\/([^/]+)/)
     if (match) {
-      router.push(`/view/${match[1]}/${match[2]}`)
+      router.push(match[0])
     }
   }
 }

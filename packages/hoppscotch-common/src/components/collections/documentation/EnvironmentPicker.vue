@@ -180,9 +180,9 @@ const fetchEnvironments = async () => {
   }
 }
 
-// Fetch environments when workspace props change
+// Fetch environments when workspace props change or environment list changes
 watch(
-  [() => props.workspaceType, () => props.workspaceID],
+  [() => props.workspaceType, () => props.workspaceID, personalEnvironments],
   () => {
     fetchEnvironments()
   },

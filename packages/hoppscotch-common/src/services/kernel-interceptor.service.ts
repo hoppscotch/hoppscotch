@@ -155,7 +155,21 @@ export class KernelInterceptorService extends Service {
 
   public execute(req: RelayRequest): ExecutionResult {
     const interceptor = this.validateAndGetActiveInterceptor()
-    return interceptor.execute(req)
+
+    // Browser interceptor cannot send body with GET/HEAD (XHR/fetch spec strips it).
+    // Route through proxy when GET/HEAD has body - proxy supports it.
+    const proxyInterceptor = this.state.interceptors.get("proxy")
+    const needsProxyForGetBody =
+      interceptor.id === "browser" &&
+      proxyInterceptor != null &&
+      ["GET", "HEAD"].includes(req.method) &&
+      req.content != null
+
+    const effectiveInterceptor = needsProxyForGetBody
+      ? proxyInterceptor
+      : interceptor
+
+    return effectiveInterceptor.execute(req)
   }
 
   private validateAndGetActiveInterceptor(): KernelInterceptor {

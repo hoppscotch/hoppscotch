@@ -976,7 +976,7 @@ describe('fetchAllTeamsV2', () => {
       skip: 0,
       take: 20,
       where: undefined,
-      orderBy: { name: 'asc' },
+      orderBy: [{ name: 'asc' }, { id: 'asc' }],
     });
   });
 
@@ -998,7 +998,7 @@ describe('fetchAllTeamsV2', () => {
           { id: { contains: 'team', mode: 'insensitive' } },
         ],
       },
-      orderBy: { name: 'asc' },
+      orderBy: [{ name: 'asc' }, { id: 'asc' }],
     });
   });
 
@@ -1015,7 +1015,7 @@ describe('fetchAllTeamsV2', () => {
       skip: 20,
       take: 20,
       where: undefined,
-      orderBy: { name: 'asc' },
+      orderBy: [{ name: 'asc' }, { id: 'asc' }],
     });
   });
 
@@ -1037,7 +1037,7 @@ describe('fetchAllTeamsV2', () => {
           { id: { contains: 'nonexistent', mode: 'insensitive' } },
         ],
       },
-      orderBy: { name: 'asc' },
+      orderBy: [{ name: 'asc' }, { id: 'asc' }],
     });
   });
 });

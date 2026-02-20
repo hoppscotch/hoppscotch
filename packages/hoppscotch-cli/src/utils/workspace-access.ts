@@ -179,6 +179,8 @@ export const transformWorkspaceCollections = (
       headers?: HoppRESTHeaders;
       variables: HoppCollectionVariable[];
       description: string | null;
+      preRequestScript?: string;
+      testScript?: string;
     } = data ? JSON.parse(data) : {};
 
     const {
@@ -186,6 +188,8 @@ export const transformWorkspaceCollections = (
       headers = [],
       variables = [],
       description = null,
+      preRequestScript = "",
+      testScript = "",
     } = parsedData;
 
     const transformedAuth = transformAuth(auth);
@@ -211,6 +215,8 @@ export const transformWorkspaceCollections = (
       headers: transformedHeaders,
       variables: filteredCollectionVariables,
       description,
+      preRequestScript,
+      testScript,
     };
   });
 };

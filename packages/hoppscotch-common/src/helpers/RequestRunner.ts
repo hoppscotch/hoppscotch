@@ -413,7 +413,7 @@ const runPostRequestScript = (
   // Each script is wrapped in an IIFE to isolate local variable scope and prevent clashes
   const combinedScript = combineScriptsWithIIFE([
     testScript,
-    ...inheritedTestScripts.toReversed(),
+    ...inheritedTestScripts.slice().reverse(),
   ])
 
   const cleanScript = stripModulePrefix(combinedScript)

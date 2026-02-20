@@ -31,7 +31,7 @@ export default defineVersion({
       v: 12 as const,
       preRequestScript: old.preRequestScript ?? "",
       testScript: old.testScript ?? "",
-      folders: old.folders.map((folder: Output) => {
+      folders: old.folders.map((folder) => {
         const result = HoppCollection.safeParseUpToVersion(folder, 12)
 
         if (result.type !== "ok") {

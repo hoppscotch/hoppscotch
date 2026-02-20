@@ -309,8 +309,6 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
             configMap.MAILER_SMTP_HOST &&
             configMap.MAILER_SMTP_PORT &&
             configMap.MAILER_SMTP_SECURE &&
-            configMap.MAILER_SMTP_USER &&
-            configMap.MAILER_SMTP_PASSWORD &&
             configMap.MAILER_TLS_REJECT_UNAUTHORIZED &&
             configMap.MAILER_ADDRESS_FROM
           );
@@ -695,10 +693,13 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
           if (!domainPart || !domainRegex.test(domainPart)) return fail();
           break;
 
-        case InfraConfigEnum.MAILER_SMTP_HOST:
-        case InfraConfigEnum.MAILER_SMTP_PORT:
         case InfraConfigEnum.MAILER_SMTP_USER:
         case InfraConfigEnum.MAILER_SMTP_PASSWORD:
+          // Allow empty strings for SMTP servers that don't require authentication
+          break;
+
+        case InfraConfigEnum.MAILER_SMTP_HOST:
+        case InfraConfigEnum.MAILER_SMTP_PORT:
         case InfraConfigEnum.GOOGLE_CLIENT_ID:
         case InfraConfigEnum.GOOGLE_CLIENT_SECRET:
         case InfraConfigEnum.GOOGLE_SCOPE:

@@ -65,10 +65,12 @@ export const preRequestScriptRunner = (
   // Combine inherited pre-request scripts with the request's script
   // Order: Root collection → Parent folder → Child folder → Request
   // Each script is wrapped in an IIFE to isolate local variable scope and prevent clashes
-  const combinedScript = combineScriptsWithIIFE([
-    ...inheritedPreRequestScripts,
-    request.preRequestScript,
-  ]);
+  const combinedScript = combineScriptsWithIIFE(
+    [...inheritedPreRequestScripts, request.preRequestScript].filter(
+      (script): script is string =>
+        typeof script === "string" && script.trim().length > 0
+    )
+  );
 
   return pipe(
     TE.of(request),

@@ -57,10 +57,12 @@ export const testRunner = (
           // Combine request test script with inherited test scripts (from child to root collection)
           // Order: Request → Child folder → Parent folder → Root collection
           // Each script is wrapped in an IIFE to isolate local variable scope and prevent clashes
-          const combinedScript = combineScriptsWithIIFE([
-            request.testScript,
-            ...inheritedTestScripts.slice().reverse(),
-          ]);
+          const combinedScript = combineScriptsWithIIFE(
+            [request.testScript, ...inheritedTestScripts.slice().reverse()].filter(
+              (script): script is string =>
+                typeof script === "string" && script.trim().length > 0
+            )
+          );
 
           return runTestScript(stripModulePrefix(combinedScript), {
             envs,

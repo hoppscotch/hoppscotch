@@ -1,24 +1,24 @@
 <template>
   <div class="flex flex-col">
-    <h1 class="text-lg font-bold text-secondaryDark">{{ t('teams.teams') }}</h1>
-
     <div class="flex flex-col">
-      <div class="flex py-10">
+      <h1 class="text-lg font-bold text-secondaryDark">
+        {{ t('teams.teams') }}
+      </h1>
+      <div class="flex items-center mt-10 mb-5">
         <HoppButtonPrimary
           :icon="IconAddUsers"
           :label="t('teams.create_team')"
           @click="showCreateTeamModal = true"
         />
       </div>
-
-      <div class="overflow-x-auto">
+      <div class="overflow-x-auto mb-5">
         <div class="mb-3 flex items-center justify-end">
           <HoppButtonSecondary
             outline
             filled
             :icon="IconLeft"
             :disabled="page === 1"
-            @click="page--"
+            @click="changePage(PageDirection.Previous)"
           />
 
           <div class="flex h-full w-10 items-center justify-center">
@@ -29,8 +29,8 @@
             outline
             filled
             :icon="IconRight"
-            :disabled="teamsList.length < teamsPerPage"
-            @click="page++"
+            :disabled="!hasNextPage"
+            @click="changePage(PageDirection.Next)"
           />
         </div>
 
@@ -44,7 +44,7 @@
             <div class="flex w-full items-center bg-primary">
               <icon-lucide-search class="mx-3 text-xs" />
               <HoppSmartInput
-                v-model="searchQuery"
+                v-model="query"
                 styles="w-full bg-primary py-1"
                 input-styles="h-full border-none"
                 :placeholder="t('teams.search_placeholder')"
@@ -55,7 +55,13 @@
           <template #empty-state>
             <td colspan="4">
               <span class="flex justify-center p-3">
-                {{ error ? t('teams.load_list_error') : (activeSearch ? t('teams.no_search_results') : t('teams.no_teams')) }}
+                {{
+                  error
+                    ? t('teams.load_list_error')
+                    : searchQuery
+                      ? t('teams.no_search_results')
+                      : t('teams.no_teams')
+                }}
               </span>
             </td>
           </template>
@@ -176,7 +182,7 @@ const { list: usersList } = usePagedQuery(
   (x) => x.infra.allUsers,
   usersPerPage.value,
   { cursor: undefined, take: usersPerPage.value },
-  (x) => x.uid
+  (x) => x.uid,
 );
 
 const allUsersEmail = computed(() => usersList.value.map((user) => user.email));
@@ -184,30 +190,87 @@ const allUsersEmail = computed(() => usersList.value.map((user) => user.email));
 // Paginated Teams with server-side search
 const teamsPerPage = 20;
 const page = ref(1);
-const searchQuery = ref('');
-const activeSearch = ref('');
+
+// Ensure this variable is declared outside the debounce function
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
-watch(searchQuery, (val) => {
-  if (debounceTimer) clearTimeout(debounceTimer);
-  const apply = () => { activeSearch.value = val; page.value = 1; };
-  val.length ? (debounceTimer = setTimeout(apply, 500)) : apply();
+onUnmounted(() => {
+  if (debounceTimer) {
+    clearTimeout(debounceTimer);
+  }
 });
 
-onUnmounted(() => { if (debounceTimer) clearTimeout(debounceTimer); });
+// Debounce Function
+const debounce = (func: () => void, delay: number) => {
+  if (debounceTimer) clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(func, delay);
+};
+
+// Search
+const query = ref('');
+// Query which is sent to the backend after debouncing
+const searchQuery = ref('');
+
+const handleSearch = (input: string) => {
+  searchQuery.value = input;
+  // Reset the page to 1 when the search query changes
+  page.value = 1;
+};
+
+watch(query, () => {
+  if (query.value.length === 0) {
+    handleSearch(query.value);
+  } else {
+    debounce(() => {
+      handleSearch(query.value);
+    }, 500);
+  }
+});
 
 // useQuery auto-refetches when computed variables change (page or search)
-const { data: teamsData, fetching, error, executeQuery } = useQuery({
+// Fetches teamsPerPage + 1 to determine if a next page exists without a total count
+const {
+  data: teamsData,
+  fetching,
+  error,
+  executeQuery,
+} = useQuery({
   query: TeamListV2Document,
   variables: computed(() => ({
-    searchString: activeSearch.value || null,
+    searchString: searchQuery.value || null,
     skip: (page.value - 1) * teamsPerPage,
-    take: teamsPerPage,
+    take: teamsPerPage + 1,
   })),
 });
 
-const teamsList = computed(() => teamsData.value?.infra.allTeamsV2 ?? []);
+const teamsRaw = computed(() => teamsData.value?.infra.allTeamsV2 ?? []);
+const hasNextPage = computed(() => teamsRaw.value.length > teamsPerPage);
+const teamsList = computed(() => teamsRaw.value.slice(0, teamsPerPage));
 const refetch = () => executeQuery({ requestPolicy: 'network-only' });
+
+// If a page loads empty and we're not on page 1, auto-regress
+watch(teamsList, (list) => {
+  if (list.length === 0 && page.value > 1) {
+    page.value = 1;
+  }
+});
+
+// Pagination
+enum PageDirection {
+  Previous,
+  Next,
+}
+
+const changePage = (direction: PageDirection) => {
+  const isPrevious = direction === PageDirection.Previous;
+
+  const isValidPreviousAction = isPrevious && page.value > 1;
+  const isValidNextAction = !isPrevious && hasNextPage.value;
+
+  if (isValidNextAction || isValidPreviousAction) {
+    page.value += isPrevious ? -1 : 1;
+  }
+};
 
 // Table Headings
 const headings = [
@@ -279,7 +342,12 @@ const deleteTeamMutation = async (id: string | null) => {
     toast.error(t('state.delete_team_failure'));
   } else {
     toast.success(t('state.delete_team_success'));
-    refetch();
+    // If the current page becomes empty after deletion, go back to the previous page
+    if (teamsList.value.length === 1 && page.value > 1) {
+      page.value--;
+    } else {
+      refetch();
+    }
   }
   confirmDeletion.value = false;
   deleteTeamID.value = null;

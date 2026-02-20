@@ -81,21 +81,43 @@
               <label class="pb-2 text-secondaryLight">
                 {{ t("tab.pre_request_script") }}
               </label>
-              <textarea
-                v-model="editableCollection.preRequestScript"
-                class="w-full h-32 p-2 font-mono text-sm bg-primaryLight border border-dividerLight rounded resize-y"
-                :placeholder="t('preRequest.javascript_code')"
-              ></textarea>
+              <div
+                class="h-48 border border-dividerLight rounded overflow-hidden relative"
+              >
+                <MonacoScriptEditor
+                  v-if="
+                    EXPERIMENTAL_SCRIPTING_SANDBOX && activeTab === 'scripts'
+                  "
+                  v-model="editableCollection.preRequestScript"
+                  type="pre-request"
+                />
+                <div
+                  v-else
+                  ref="preRequestEditor"
+                  class="h-full absolute inset-0"
+                ></div>
+              </div>
             </div>
             <div class="p-4 pt-0">
               <label class="pb-2 text-secondaryLight">
                 {{ t("test.script") }}
               </label>
-              <textarea
-                v-model="editableCollection.testScript"
-                class="w-full h-32 p-2 font-mono text-sm bg-primaryLight border border-dividerLight rounded resize-y"
-                :placeholder="t('test.javascript_code')"
-              ></textarea>
+              <div
+                class="h-48 border border-dividerLight rounded overflow-hidden relative"
+              >
+                <MonacoScriptEditor
+                  v-if="
+                    EXPERIMENTAL_SCRIPTING_SANDBOX && activeTab === 'scripts'
+                  "
+                  v-model="editableCollection.testScript"
+                  type="post-request"
+                />
+                <div
+                  v-else
+                  ref="testScriptEditor"
+                  class="h-full absolute inset-0"
+                ></div>
+              </div>
             </div>
             <div
               class="bg-bannerInfo px-4 py-2 flex items-center sticky bottom-0"
@@ -180,11 +202,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue"
+import { computed, reactive, ref, watch } from "vue"
 import { refAutoReset, useVModel } from "@vueuse/core"
 import { clone } from "lodash-es"
+import { useCodemirror } from "@composables/codemirror"
 import { useI18n } from "@composables/i18n"
+import { useSetting } from "~/composables/settings"
 import { useToast } from "~/composables/toast"
+import preRequestCompleter from "~/helpers/editor/completion/preRequest"
+import testScriptCompleter from "~/helpers/editor/completion/testScript"
+import preRequestLinter from "~/helpers/editor/linting/preRequest"
+import testScriptLinter from "~/helpers/editor/linting/testScript"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { useService } from "dioc/vue"
 
@@ -265,6 +293,59 @@ const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
 const activeTab = useVModel(props, "modelValue", emit)
 
 const activeTabIsDetails = computed(() => activeTab.value === "details")
+
+const EXPERIMENTAL_SCRIPTING_SANDBOX = useSetting(
+  "EXPERIMENTAL_SCRIPTING_SANDBOX"
+)
+
+const preRequestEditor = ref<any | null>(null)
+const testScriptEditor = ref<any | null>(null)
+
+const preRequestScriptModel = computed({
+  get: () => editableCollection.value.preRequestScript,
+  set: (val: string) => {
+    editableCollection.value.preRequestScript = val
+  },
+})
+
+const testScriptModel = computed({
+  get: () => editableCollection.value.testScript,
+  set: (val: string) => {
+    editableCollection.value.testScript = val
+  },
+})
+
+useCodemirror(
+  preRequestEditor,
+  preRequestScriptModel,
+  reactive({
+    extendedEditorConfig: {
+      mode: "application/javascript",
+      lineWrapping: true,
+      placeholder: `${t("preRequest.javascript_code")}`,
+    },
+    linter: preRequestLinter,
+    completer: preRequestCompleter,
+    environmentHighlights: false,
+    contextMenuEnabled: false,
+  })
+)
+
+useCodemirror(
+  testScriptEditor,
+  testScriptModel,
+  reactive({
+    extendedEditorConfig: {
+      mode: "application/javascript",
+      lineWrapping: true,
+      placeholder: `${t("test.javascript_code")}`,
+    },
+    linter: testScriptLinter,
+    completer: testScriptCompleter,
+    environmentHighlights: false,
+    contextMenuEnabled: false,
+  })
+)
 
 const persistUnsavedChanges = async (
   updated: typeof editableCollection.value

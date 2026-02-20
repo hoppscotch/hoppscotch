@@ -144,6 +144,8 @@ export const TRANSFORMED_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_VARIABLES_M
                   headers: [],
                   variables: [],
                   description: null,
+                  preRequestScript: "",
+                  testScript: "",
                 },
               ],
               requests: [
@@ -192,6 +194,8 @@ export const TRANSFORMED_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_VARIABLES_M
                 },
               ],
               description: null,
+              preRequestScript: "",
+              testScript: "",
             },
           ],
           requests: [
@@ -224,6 +228,8 @@ export const TRANSFORMED_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_VARIABLES_M
           headers: [],
           variables: [],
           description: null,
+          preRequestScript: "",
+          testScript: "",
         },
       ],
       requests: [
@@ -273,6 +279,8 @@ export const TRANSFORMED_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_VARIABLES_M
         },
       ],
       description: null,
+      preRequestScript: "",
+      testScript: "",
     },
   ];
 
@@ -567,6 +575,8 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
                 },
               ],
               description: null,
+              preRequestScript: "",
+              testScript: "",
             },
             {
               v: CollectionSchemaVersion,
@@ -634,6 +644,8 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
                 },
               ],
               description: null,
+              preRequestScript: "",
+              testScript: "",
             },
             {
               v: CollectionSchemaVersion,
@@ -719,6 +731,8 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
                 },
               ],
               description: null,
+              preRequestScript: "",
+              testScript: "",
             },
           ],
           requests: [
@@ -764,6 +778,8 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
             },
           ],
           description: null,
+          preRequestScript: "",
+          testScript: "",
         },
         {
           v: CollectionSchemaVersion,
@@ -818,6 +834,8 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
                 },
               ],
               description: null,
+              preRequestScript: "",
+              testScript: "",
             },
             {
               v: CollectionSchemaVersion,
@@ -885,6 +903,8 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
                 },
               ],
               description: null,
+              preRequestScript: "",
+              testScript: "",
             },
             {
               v: CollectionSchemaVersion,
@@ -957,6 +977,8 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
                 },
               ],
               description: null,
+              preRequestScript: "",
+              testScript: "",
             },
           ],
           requests: [
@@ -1008,6 +1030,8 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
             },
           ],
           description: null,
+          preRequestScript: "",
+          testScript: "",
         },
 
         {
@@ -1063,6 +1087,8 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
                 },
               ],
               description: null,
+              preRequestScript: "",
+              testScript: "",
             },
             {
               v: CollectionSchemaVersion,
@@ -1130,6 +1156,8 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
                 },
               ],
               description: null,
+              preRequestScript: "",
+              testScript: "",
             },
             {
               v: CollectionSchemaVersion,
@@ -1202,6 +1230,8 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
                 },
               ],
               description: null,
+              preRequestScript: "",
+              testScript: "",
             },
           ],
           requests: [
@@ -1266,6 +1296,8 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
             },
           ],
           description: null,
+          preRequestScript: "",
+          testScript: "",
         },
       ],
       requests: [
@@ -1321,6 +1353,8 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
         },
       ],
       description: null,
+      preRequestScript: "",
+      testScript: "",
     },
   ];
 
@@ -1428,6 +1462,8 @@ export const TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_VARIABLES_AT_CERTAIN_L
           headers: [],
           variables: [],
           description: null,
+          preRequestScript: "",
+          testScript: "",
         },
         {
           v: CollectionSchemaVersion,
@@ -1476,6 +1512,8 @@ export const TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_VARIABLES_AT_CERTAIN_L
             },
           ],
           description: null,
+          preRequestScript: "",
+          testScript: "",
         },
         {
           v: CollectionSchemaVersion,
@@ -1490,6 +1528,8 @@ export const TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_VARIABLES_AT_CERTAIN_L
           headers: [],
           variables: [],
           description: null,
+          preRequestScript: "",
+          testScript: "",
         },
         {
           v: CollectionSchemaVersion,
@@ -1518,6 +1558,8 @@ export const TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_VARIABLES_AT_CERTAIN_L
             },
           ],
           description: null,
+          preRequestScript: "",
+          testScript: "",
         },
       ],
       requests: [],
@@ -1528,6 +1570,8 @@ export const TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_VARIABLES_AT_CERTAIN_L
       headers: [],
       variables: [],
       description: null,
+      preRequestScript: "",
+      testScript: "",
     },
   ];
 

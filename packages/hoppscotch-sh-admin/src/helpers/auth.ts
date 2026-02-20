@@ -53,6 +53,14 @@ export type OnboardingStatus = {
   onboardingCompleted: boolean;
 };
 
+/**
+ * Tracks consecutive token refresh failures to prevent infinite retry loops.
+ * Reset to 0 on successful refresh or login.
+ * @see https://github.com/hoppscotch/hoppscotch/issues/5885
+ */
+const AUTH_REFRESH_MAX_RETRIES = 3;
+let refreshFailCount = 0;
+
 const currentUser$ = new BehaviorSubject<HoppUser | null>(null);
 
 const signOut = async (reloadWindow = false) => {
@@ -120,6 +128,8 @@ const setInitialUser = async () => {
 
     setUser(hoppUser);
 
+    refreshFailCount = 0;
+
     authEvents$.next({
       event: 'login',
       user: hoppUser,
@@ -130,13 +140,27 @@ const setInitialUser = async () => {
 };
 
 const refreshToken = async () => {
+  // Short-circuit if we've already failed too many times (#5885)
+  if (refreshFailCount >= AUTH_REFRESH_MAX_RETRIES) {
+    return false;
+  }
+
   try {
     const res = await authQuery.refreshToken();
-    authEvents$.next({
-      event: 'token_refresh',
-    });
-    return res.status === 200;
+    const isSuccessful = res.status === 200;
+
+    if (isSuccessful) {
+      refreshFailCount = 0;
+      authEvents$.next({
+        event: 'token_refresh',
+      });
+    } else {
+      refreshFailCount++;
+    }
+
+    return isSuccessful;
   } catch {
+    refreshFailCount++;
     return false;
   }
 };

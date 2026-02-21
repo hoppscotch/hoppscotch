@@ -45,6 +45,40 @@
             </template>
           </tippy>
 
+          <!-- Organization Switcher (Web/Cloud) -->
+          <tippy
+            v-else-if="
+              platform.organization?.customOrganizationSwitcherComponent
+            "
+            interactive
+            trigger="click"
+            theme="popover"
+            :on-shown="() => orgSwitcherRef?.focus()"
+            :on-create="onOrgSwitcherCreate"
+          >
+            <HoppButtonSecondary
+              class="!font-bold uppercase tracking-wide !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark"
+              :label="t('app.name')"
+              :icon="IconChevronDown"
+              reverse
+            />
+            <template #content="{ hide }">
+              <div
+                ref="orgSwitcherRef"
+                class="flex flex-col focus:outline-none min-w-72"
+                tabindex="0"
+                @keyup.escape="hide()"
+              >
+                <component
+                  :is="
+                    platform.organization.customOrganizationSwitcherComponent
+                  "
+                  @close-dropdown="hide()"
+                />
+              </div>
+            </template>
+          </tippy>
+
           <HoppButtonSecondary
             v-else
             class="!font-bold uppercase tracking-wide !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark"
@@ -360,7 +394,9 @@ import { breakpointsTailwind, useBreakpoints, useNetwork } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
+import type { Instance } from "tippy.js"
 import { computed, onMounted, reactive, ref, watch } from "vue"
+
 import { useToast } from "~/composables/toast"
 import { GetMyTeamsQuery, TeamAccessRole } from "~/helpers/backend/graphql"
 import { deleteTeam as backendDeleteTeam } from "~/helpers/backend/mutations/Team"
@@ -390,6 +426,16 @@ const downloadableLinksRef =
   kernelMode === "web" ? ref<any | null>(null) : ref(null)
 const instanceSwitcherRef =
   kernelMode === "desktop" ? ref<any | null>(null) : ref(null)
+const orgSwitcherRef = ref<HTMLElement | null>(null)
+
+// Reserve scrollbar gutter so content width doesn't shift when the list
+// grows long enough to scroll inside the popover's `max-h-[45vh]` container.
+const onOrgSwitcherCreate = (instance: Instance) => {
+  const content = instance.popper?.querySelector(".tippy-content")
+  if (content instanceof HTMLElement) {
+    content.style.scrollbarGutter = "stable"
+  }
+}
 
 const isUserAdmin = ref(false)
 

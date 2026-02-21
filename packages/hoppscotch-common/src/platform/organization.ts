@@ -13,16 +13,11 @@ export type OrganizationPlatformDef = {
   initiateOnboarding: () => void
 
   /**
-   * Whether organization switching is enabled for this platform
-   * If true, an organization switcher will be shown
+   * Custom component for the organization switcher dropdown
+   * If provided, will be shown as a dropdown in the header (like the instance switcher)
+   * The component should emit 'close-dropdown' when the dropdown should close
    */
-  organizationSwitchingEnabled?: boolean
-
-  /**
-   * Custom component for the organization sidebar
-   * If provided, will be shown as a sidebar in the layout
-   */
-  customOrganizationSidebarComponent?: Component
+  customOrganizationSwitcherComponent?: Component
 
   /**
    * Switch to a specific organization instance or default cloud instance

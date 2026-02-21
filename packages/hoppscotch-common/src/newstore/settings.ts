@@ -54,7 +54,6 @@ export type SettingsDef = {
     multipartFormdata: boolean
   }
 
-  CURRENT_INTERCEPTOR_ID: string
   CURRENT_KERNEL_INTERCEPTOR_ID: string
 
   URL_EXCLUDES: {
@@ -121,7 +120,6 @@ export const getDefaultSettings = (): SettingsDef => {
     },
 
     // Set empty because interceptor module will set the default value
-    CURRENT_INTERCEPTOR_ID: "",
     CURRENT_KERNEL_INTERCEPTOR_ID: "",
 
     // TODO: Interceptor related settings should move under the interceptor systems
@@ -317,17 +315,20 @@ export function performSettingsDataMigrations(data: any): SettingsDef {
   const source = cloneDeep(data)
 
   if (source["EXTENSIONS_ENABLED"]) {
-    const result = JSON.parse(source["EXTENSIONS_ENABLED"])
-
-    if (result) source["CURRENT_INTERCEPTOR_ID"] = "extension"
     delete source["EXTENSIONS_ENABLED"]
   }
 
   if (source["PROXY_ENABLED"]) {
-    const result = JSON.parse(source["PROXY_ENABLED"])
-
-    if (result) source["CURRENT_INTERCEPTOR_ID"] = "proxy"
     delete source["PROXY_ENABLED"]
+  }
+
+  // Remove legacy interceptor ID if present,
+  // NOTE: These are not for `kernel` interceptors,
+  // those now don't participate in global settings,
+  // rather each has its own `store.ts` that can be
+  // controlled independently.
+  if (has(source, "CURRENT_INTERCEPTOR_ID")) {
+    delete source["CURRENT_INTERCEPTOR_ID"]
   }
 
   const final = defaultsDeep(source, getDefaultSettings())

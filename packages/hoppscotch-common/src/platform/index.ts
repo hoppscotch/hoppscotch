@@ -10,9 +10,6 @@ import { HistoryPlatformDef } from "./history"
 import { InfraPlatformDef } from "./infra"
 import { InspectorsPlatformDef } from "./inspectors"
 import { KernelInterceptorsPlatformDef } from "./kernel-interceptors"
-// NOTE: To be deprecated
-// import { InterceptorsPlatformDef } from "./interceptors"
-// import { IOPlatformDef } from "./io"
 import { LimitsPlatformDef } from "./limits"
 import { SettingsPlatformDef } from "./settings"
 import { SpotlightPlatformDef } from "./spotlight"
@@ -29,8 +26,6 @@ export type PlatformDef = {
   addedServices?: Array<ServiceClassInstance<unknown>>
   auth: AuthPlatformDef
   analytics?: AnalyticsPlatformDef
-  // NOTE: To be deprecated
-  // io: IOPlatformDef
   kernelIO: KernelIO
   instance: InstancePlatformDef
   sync: {
@@ -39,8 +34,6 @@ export type PlatformDef = {
     settings: SettingsPlatformDef
     history: HistoryPlatformDef
   }
-  // NOTE: To be deprecated
-  // interceptors: InterceptorsPlatformDef
   kernelInterceptors: KernelInterceptorsPlatformDef
   instance?: InstancePlatformDef
   additionalInspectors?: InspectorsPlatformDef

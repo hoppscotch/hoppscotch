@@ -23,7 +23,7 @@ import {
 import { KernelInterceptorAgentStore } from "./store"
 import SettingsAgent from "~/components/settings/Agent.vue"
 import SettingsAgentSubtitle from "~/components/settings/AgentSubtitle.vue"
-import InterceptorsErrorPlaceholder from "~/components/interceptors/ErrorPlaceholder.vue"
+import InterceptorsErrorPlaceholder from "~/components/settings/InterceptorErrorPlaceholder.vue"
 import { CookieJarService } from "~/services/cookie-jar.service"
 
 export class AgentKernelInterceptorService

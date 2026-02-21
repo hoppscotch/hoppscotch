@@ -104,7 +104,8 @@ export function parseTemplateStringE(
   str: string,
   variables: Environment["variables"],
   maskValue = false,
-  showKeyIfSecret = false
+  showKeyIfSecret = false,
+  showKeyIfNotFound = false
 ) {
   if (!variables || !str) {
     return E.right(str)
@@ -119,42 +120,55 @@ export function parseTemplateStringE(
     depth <= ENV_MAX_EXPAND_LIMIT &&
     !isSecret
   ) {
-    result = decodeURI(encodeURI(result)).replace(REGEX_ENV_VAR, (_, p1) => {
-      // Prioritise predefined variable values over normal environment variables processing.
-      const foundPredefinedVar = HOPP_SUPPORTED_PREDEFINED_VARIABLES.find(
-        (preVar) => preVar.key === p1
-      )
+    const currentResult = decodeURI(encodeURI(result)).replace(
+      REGEX_ENV_VAR,
+      (_, p1) => {
+        // Prioritise predefined variable values over normal environment variables processing.
+        const foundPredefinedVar = HOPP_SUPPORTED_PREDEFINED_VARIABLES.find(
+          (preVar) => preVar.key === p1
+        )
 
-      if (foundPredefinedVar) {
-        return foundPredefinedVar.getValue()
-      }
+        if (foundPredefinedVar) {
+          return foundPredefinedVar.getValue()
+        }
 
-      const variable = variables.find((x) => x && x.key === p1)
+        const variable = variables.find((x) => x && x.key === p1)
 
-      if (variable && "currentValue" in variable) {
-        // Show the key if it is a secret and explicitly specified
-        if (variable.secret && showKeyIfSecret) {
-          isSecret = true
+        if (variable && "currentValue" in variable) {
+          // Show the key if it is a secret and explicitly specified
+          if (variable.secret && showKeyIfSecret) {
+            isSecret = true
+            return `<<${p1}>>`
+          }
+          // Mask the value if it is a secret and explicitly specified
+          if (variable.secret && maskValue) {
+            return "*".repeat(
+              (
+                variable as {
+                  secret: true
+                  initialValue: string
+                  currentValue: string
+                  key: string
+                }
+              ).currentValue.length
+            )
+          }
+          return variable.currentValue
+        }
+
+        if (showKeyIfNotFound) {
           return `<<${p1}>>`
         }
-        // Mask the value if it is a secret and explicitly specified
-        if (variable.secret && maskValue) {
-          return "*".repeat(
-            (
-              variable as {
-                secret: true
-                initialValue: string
-                currentValue: string
-                key: string
-              }
-            ).currentValue.length
-          )
-        }
-        return variable.currentValue
-      }
 
-      return ""
-    })
+        return ""
+      }
+    )
+
+    if (currentResult === result) {
+      break
+    }
+
+    result = currentResult
     depth++
   }
 
@@ -179,10 +193,17 @@ export const parseTemplateString = (
   str: string,
   variables: Environment["variables"],
   maskValue = false,
-  showKeyIfSecret = false
+  showKeyIfSecret = false,
+  showKeyIfNotFound = false
 ) =>
   pipe(
-    parseTemplateStringE(str, variables, maskValue, showKeyIfSecret),
+    parseTemplateStringE(
+      str,
+      variables,
+      maskValue,
+      showKeyIfSecret,
+      showKeyIfNotFound
+    ),
     E.getOrElse(() => str)
   )
 

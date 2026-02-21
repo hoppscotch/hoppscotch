@@ -467,11 +467,13 @@ describe("DocumentationService", () => {
       const mockDocs = [
         {
           id: "doc-1",
-          collection: { id: "col-1" },
           title: "Doc 1",
           version: "v1",
           autoSync: true,
-          url: "url-1",
+          url: "http://example.com/doc-1",
+          collection: { id: "coll-1" },
+          createdOn: new Date().toISOString(),
+          updatedOn: new Date().toISOString(),
         },
       ]
 
@@ -481,25 +483,32 @@ describe("DocumentationService", () => {
 
       await service.fetchUserPublishedDocs()
 
-      const status = service.getPublishedDocStatus("col-1")
-      expect(status).toEqual({
-        id: "doc-1",
-        title: "Doc 1",
-        version: "v1",
-        autoSync: true,
-        url: "url-1",
-      })
+      const status = service.getPublishedDocStatus("coll-1")
+      expect(status).toEqual([
+        {
+          id: "doc-1",
+          title: "Doc 1",
+          version: "v1",
+          autoSync: true,
+          url: "http://example.com/doc-1",
+          collection: { id: "coll-1" },
+          createdOn: mockDocs[0].createdOn, // Use the generated date for comparison
+          updatedOn: mockDocs[0].updatedOn, // Use the generated date for comparison
+        },
+      ])
     })
 
     it("should fetch team published docs and update map", async () => {
       const mockDocs = [
         {
           id: "doc-2",
-          collection: { id: "col-2" },
           title: "Doc 2",
           version: "v2",
           autoSync: false,
           url: "url-2",
+          collection: { id: "col-2" },
+          createdOn: new Date().toISOString(),
+          updatedOn: new Date().toISOString(),
         },
       ]
 
@@ -509,14 +518,18 @@ describe("DocumentationService", () => {
 
       await service.fetchTeamPublishedDocs("team-1")
 
-      const status = service.getPublishedDocStatus("col-2")
-      expect(status).toEqual({
-        id: "doc-2",
-        title: "Doc 2",
-        version: "v2",
-        autoSync: false,
-        url: "url-2",
-      })
+      expect(status).toEqual([
+        {
+          id: "doc-2",
+          title: "Doc 2",
+          version: "v2",
+          autoSync: false,
+          url: "url-2",
+          collection: { id: "col-2" },
+          createdOn: mockDocs[0].createdOn,
+          updatedOn: mockDocs[0].updatedOn,
+        },
+      ])
     })
 
     it("should handle error when fetching user published docs", async () => {
@@ -556,11 +569,14 @@ describe("DocumentationService", () => {
         version: "v3",
         autoSync: true,
         url: "url-3",
+        collection: { id: "col-3" },
+        createdOn: "2023-01-03",
+        updatedOn: "2023-01-03",
       }
 
       service.setPublishedDocStatus("col-3", info)
 
-      expect(service.getPublishedDocStatus("col-3")).toEqual(info)
+      expect(service.getPublishedDocStatus("col-3")).toEqual([info])
     })
 
     it("should remove published doc status", () => {
@@ -570,6 +586,9 @@ describe("DocumentationService", () => {
         version: "v3",
         autoSync: true,
         url: "url-3",
+        collection: { id: "col-3" },
+        createdOn: "2023-01-03",
+        updatedOn: "2023-01-03",
       }
 
       service.setPublishedDocStatus("col-3", info)
@@ -583,22 +602,26 @@ describe("DocumentationService", () => {
       const slowDocs = [
         {
           id: "doc-slow",
-          collection: { id: "col-1" },
           title: "Slow Doc",
           version: "v1",
           autoSync: true,
           url: "url-slow",
+          collection: { id: "col-1" },
+          createdOn: "2023-01-01",
+          updatedOn: "2023-01-01",
         },
       ]
 
       const fastDocs = [
         {
           id: "doc-fast",
-          collection: { id: "col-1" },
           title: "Fast Doc",
           version: "v2",
           autoSync: true,
           url: "url-fast",
+          collection: { id: "col-1" },
+          createdOn: "2023-01-02",
+          updatedOn: "2023-01-02",
         },
       ]
 
@@ -622,26 +645,100 @@ describe("DocumentationService", () => {
       await secondCall
 
       // Verify the fast response is applied
-      expect(service.getPublishedDocStatus("col-1")).toEqual({
-        id: "doc-fast",
-        title: "Fast Doc",
-        version: "v2",
-        autoSync: true,
-        url: "url-fast",
-      })
+      expect(service.getPublishedDocStatus("col-1")).toEqual([
+        {
+          id: "doc-fast",
+          title: "Fast Doc",
+          version: "v2",
+          autoSync: true,
+          url: "url-fast",
+          collection: { id: "col-1" },
+          createdOn: "2023-01-02",
+          updatedOn: "2023-01-02",
+        },
+      ])
 
       // Now resolve the slow request
       resolveSlow!(E.right(slowDocs as any))
       await firstCall
 
       // Verify the state hasn't changed (slow response ignored)
-      expect(service.getPublishedDocStatus("col-1")).toEqual({
-        id: "doc-fast",
-        title: "Fast Doc",
+      expect(service.getPublishedDocStatus("col-1")).toEqual([
+        {
+          id: "doc-fast",
+          title: "Fast Doc",
+          version: "v2",
+          autoSync: true,
+          url: "url-fast",
+          collection: { id: "col-1" },
+          createdOn: "2023-01-02",
+          updatedOn: "2023-01-02",
+        },
+      ])
+    })
+
+    it("should get published doc by version", () => {
+      const info1 = {
+        id: "doc-1",
+        title: "Doc 1",
+        version: "v1",
+        autoSync: true,
+        url: "url-1",
+        collection: { id: "col-1" },
+        createdOn: "2023-01-01",
+        updatedOn: "2023-01-01",
+      }
+      const info2 = {
+        id: "doc-2",
+        title: "Doc 2",
         version: "v2",
         autoSync: true,
-        url: "url-fast",
-      })
+        url: "url-2",
+        collection: { id: "col-1" },
+        createdOn: "2023-01-02",
+        updatedOn: "2023-01-02",
+      }
+
+      service.setPublishedDocStatus("col-1", info1)
+      service.setPublishedDocStatus("col-1", info2)
+
+      expect(service.getPublishedDocByVersion("col-1", "v1")).toEqual(info1)
+      expect(service.getPublishedDocByVersion("col-1", "v2")).toEqual(info2)
+      expect(service.getPublishedDocByVersion("col-1", "v3")).toBeUndefined()
+    })
+
+    it("should remove specific published doc version", () => {
+      const info1 = {
+        id: "doc-1",
+        title: "Doc 1",
+        version: "v1",
+        autoSync: true,
+        url: "url-1",
+        collection: { id: "col-1" },
+        createdOn: "2023-01-01",
+        updatedOn: "2023-01-01",
+      }
+      const info2 = {
+        id: "doc-2",
+        title: "Doc 2",
+        version: "v2",
+        autoSync: true,
+        url: "url-2",
+        collection: { id: "col-1" },
+        createdOn: "2023-01-02",
+        updatedOn: "2023-01-02",
+      }
+
+      service.setPublishedDocStatus("col-1", info1)
+      service.setPublishedDocStatus("col-1", info2)
+
+      expect(service.getPublishedDocStatus("col-1")).toHaveLength(2)
+
+      service.setPublishedDocStatus("col-1", null, "doc-1")
+
+      const status = service.getPublishedDocStatus("col-1")
+      expect(status).toHaveLength(1)
+      expect(status![0]).toEqual(info2)
     })
   })
 })

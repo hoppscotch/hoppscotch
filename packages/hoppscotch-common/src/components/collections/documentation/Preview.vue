@@ -158,6 +158,7 @@
       <div v-if="showAllDocumentation" class="p-4 sticky top-0">
         <CollectionsDocumentationCollectionStructure
           :collection="collection"
+          :is-doc-modal="true"
           @request-select="handleRequestSelect"
           @folder-select="handleFolderSelect"
           @scroll-to-top="handleScrollToTop"

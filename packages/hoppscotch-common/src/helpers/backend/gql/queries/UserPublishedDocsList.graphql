@@ -5,6 +5,8 @@ query UserPublishedDocsList($skip: Int!, $take: Int!) {
     version
     autoSync
     url
+    documentTree
+    environmentName
     collection {
       id
     }

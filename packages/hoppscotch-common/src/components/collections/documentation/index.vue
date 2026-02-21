@@ -69,77 +69,144 @@
         </span>
 
         <div class="flex space-x-2 items-center">
-          <!-- Publish Button - Simple button when not published -->
-          <HoppButtonSecondary
-            v-if="
-              currentCollection && !isCollectionPublished && hasTeamWriteAccess
-            "
-            :icon="IconShare2"
-            :label="t('documentation.publish.button')"
-            outline
-            filled
-            @click="openPublishModal"
-          />
-          <tippy
-            v-else-if="
-              currentCollection && isCollectionPublished && hasTeamWriteAccess
-            "
-            ref="publishedDropdown"
-            interactive
-            trigger="click"
-            theme="popover"
-            :on-shown="() => publishedDropdownActions?.focus()"
-          >
-            <div
-              class="flex items-center border border-accent pl-4 pr-2 rounded cursor-pointer"
+          <!-- Show published documentation button only when showAllDocumentation is true -->
+          <div v-if="showAllDocumentation">
+            <!-- Publish Button - when not published -->
+            <HoppButtonSecondary
+              v-if="
+                currentCollection &&
+                !isCollectionPublished &&
+                hasTeamWriteAccess
+              "
+              :icon="IconShare2"
+              :label="t('documentation.publish.button')"
+              outline
+              filled
+              @click="openPublishModal"
+            />
+            <tippy
+              v-else-if="
+                currentCollection && isCollectionPublished && hasTeamWriteAccess
+              "
+              ref="publishedDropdown"
+              interactive
+              trigger="click"
+              theme="popover"
+              :on-shown="
+                () => {
+                  publishedDropdownActions?.focus()
+                  scrollToActiveDoc()
+                }
+              "
             >
-              <icon-lucide-globe class="svg-icons" />
-
-              <HoppButtonSecondary
-                :icon="IconCheveronDown"
-                reverse
-                :label="t('documentation.publish.published')"
-                class="!pr-2"
-              />
-            </div>
-
-            <template #content="{ hide }">
               <div
-                ref="publishedDropdownActions"
-                class="flex flex-col focus:outline-none"
-                tabindex="0"
-                @keyup.escape="hide()"
+                class="flex items-center border border-accent pl-4 pr-2 rounded cursor-pointer"
               >
-                <div class="flex flex-col space-y-2">
-                  <div class="flex items-center space-x-2">
-                    <HoppSmartInput
-                      :model-value="existingPublishedData?.url"
-                      disabled
-                      class="flex-1 !min-w-60"
+                <icon-lucide-globe class="svg-icons" />
+
+                <HoppButtonSecondary
+                  :icon="IconCheveronDown"
+                  reverse
+                  :label="
+                    selectedVersionDoc?.version ||
+                    t('documentation.publish.published')
+                  "
+                  class="!pr-2"
+                />
+              </div>
+
+              <template #content="{ hide }">
+                <div
+                  ref="publishedDropdownActions"
+                  class="flex flex-col focus:outline-none"
+                  tabindex="0"
+                  @keyup.escape="hide()"
+                >
+                  <div class="flex flex-col space-y-2">
+                    <HoppSmartItem
+                      :icon="IconPlus"
+                      :label="t('documentation.publish.create_new_version')"
+                      @click="
+                        () => {
+                          hide()
+                          createNewVersion()
+                        }
+                      "
                     />
-                    <HoppButtonSecondary
-                      v-tippy="{ theme: 'tooltip' }"
-                      :title="t('documentation.publish.copy_url')"
-                      :icon="copyIcon"
-                      @click="copyPublishedUrl"
+                    <div class="h-px bg-divider my-1"></div>
+                    <div
+                      v-if="publishedDocs.length > 0"
+                      ref="publishedDocsListRef"
+                      class="flex flex-col space-y-1 mb-2 max-h-32 overflow-y-auto"
+                    >
+                      <span
+                        class="text-tiny font-bold text-secondaryLight uppercase px-2"
+                      >
+                        {{ t("documentation.publish.versions") }}
+                      </span>
+                      <div
+                        v-for="doc in publishedDocs"
+                        :key="doc.id"
+                        ref="publishedDocItemRefs"
+                        class="px-2 py-1 rounded cursor-pointer hover:bg-primaryLight flex items-center justify-between"
+                        :class="{
+                          'text-accent': doc.id === selectedVersionDoc?.id,
+                        }"
+                        @click="handleVersionSelect(doc, hide)"
+                      >
+                        <span>{{ doc.version }}</span>
+                        <icon-lucide-check
+                          v-if="doc.id === selectedVersionDoc?.id"
+                          class="w-3 h-3 text-accent"
+                        />
+                      </div>
+                    </div>
+                    <div class="h-px bg-divider my-1"></div>
+                    <div class="flex items-center space-x-2">
+                      <HoppSmartInput
+                        :model-value="existingPublishedData?.url"
+                        disabled
+                        class="flex-1 !min-w-60"
+                      />
+                      <HoppButtonSecondary
+                        v-tippy="{ theme: 'tooltip' }"
+                        :title="t('documentation.publish.copy_url')"
+                        :icon="copyIcon"
+                        @click="copyPublishedUrl"
+                      />
+                    </div>
+
+                    <HoppSmartItem
+                      v-if="
+                        selectedVersionDoc && !isLiveVersion(selectedVersionDoc)
+                      "
+                      reverse
+                      :icon="IconEye"
+                      :label="t('documentation.publish.view_snapshot')"
+                      @click="
+                        () => {
+                          hide()
+                          openPublishModalForView()
+                        }
+                      "
+                    />
+                    <HoppSmartItem
+                      v-else
+                      reverse
+                      :icon="IconPenLine"
+                      :label="t('documentation.publish.edit_published_doc')"
+                      @click="
+                        () => {
+                          hide()
+                          openPublishModal()
+                        }
+                      "
                     />
                   </div>
-
-                  <HoppSmartItem
-                    reverse
-                    :icon="IconPenLine"
-                    :label="t('documentation.publish.edit_published_doc')"
-                    @click="
-                      () => {
-                        hide()
-                        openPublishModal()
-                      }
-                    "
-                  />
                 </div>
-              </div>
-            </template>
-          </tippy>
+              </template>
+            </tippy>
+          </div>
           <HoppButtonSecondary
             v-if="currentCollection"
             :icon="isDocumentationProcessing ? IconLoader2 : IconFileText"
@@ -169,6 +236,12 @@
     :workspace-type="isTeamCollection ? WorkspaceType.Team : WorkspaceType.User"
     :workspace-i-d="isTeamCollection ? teamID || '' : ''"
     :mode="publishModalMode"
+    :is-first-publish="!isCollectionPublished && !isCreatingNewVersion"
+    :is-auto-sync-locked="
+      !!selectedVersionDoc &&
+      isLiveVersion(selectedVersionDoc) &&
+      !isCreatingNewVersion
+    "
     :published-doc-id="publishedDocId"
     :existing-data="existingPublishedData"
     :loading="isProcessingPublish"
@@ -207,7 +280,9 @@ import { getErrorMessage } from "~/helpers/backend/mutations/MockServer"
 
 import {
   DocumentationService,
+  isLiveVersion,
   type DocumentationItem,
+  type PublishedDocInfo,
 } from "~/services/documentation.service"
 
 import IconFileText from "~icons/lucide/file-text"
@@ -217,6 +292,8 @@ import IconPenLine from "~icons/lucide/pen-line"
 import IconCheveronDown from "~icons/lucide/chevron-down"
 import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
+import IconPlus from "~icons/lucide/plus"
+import IconEye from "~icons/lucide/eye"
 
 import {
   WorkspaceType,
@@ -228,8 +305,6 @@ import {
   deletePublishedDoc,
   updatePublishedDoc,
 } from "~/helpers/backend/mutations/PublishedDocs"
-
-import { TippyComponent } from "vue-tippy"
 
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
@@ -282,30 +357,93 @@ const allItems = ref<Array<any>>([])
 
 const showAllDocumentation = ref<boolean>(false)
 const showPublishModal = ref<boolean>(false)
+const isCreatingNewVersion = ref<boolean>(false)
 
-const publishedDropdown = ref<TippyComponent | null>(null)
 const publishedDropdownActions = ref<HTMLDivElement | null>(null)
+const publishedDocsListRef = ref<HTMLDivElement | null>(null)
+const publishedDocItemRefs = ref<HTMLDivElement[]>([])
+
+const scrollToActiveDoc = async () => {
+  await nextTick()
+  if (!selectedVersionDoc.value || !publishedDocsListRef.value) return
+
+  const index = publishedDocs.value.findIndex(
+    (doc) => doc.id === selectedVersionDoc.value?.id
+  )
+
+  if (index !== -1 && publishedDocItemRefs.value[index]) {
+    publishedDocItemRefs.value[index].scrollIntoView({
+      block: "nearest",
+      behavior: "smooth",
+    })
+  }
+}
 
 // Published docs state
-const publishedDocStatus = computed(() => {
-  if (!props.collectionID) return undefined
-  return documentationService.getPublishedDocStatus(props.collectionID)
+const publishedDocs = computed(() => {
+  if (!props.collectionID) return []
+  return documentationService.getPublishedDocStatus(props.collectionID) || []
 })
 
-const isCollectionPublished = computed(() => !!publishedDocStatus.value)
-const publishedDocId = computed(() => publishedDocStatus.value?.id)
+const selectedVersionDoc = ref<PublishedDocInfo | null>(null)
+
+/**
+ * Finds the CURRENT version from the published docs list.
+ * The CURRENT version is the initial publish — identified by version string "CURRENT" (case-insensitive).
+ * Falls back to the last doc (oldest, since the list is in descending order).
+ */
+const findCurrentVersion = (docs: PublishedDocInfo[]): PublishedDocInfo => {
+  return docs.find((d) => isLiveVersion(d)) || docs[docs.length - 1]
+}
+
+watch(
+  publishedDocs,
+  (docs) => {
+    if (docs && docs.length > 0) {
+      // If we already have a selected version, try to keep it (by ID)
+      if (selectedVersionDoc.value) {
+        const found = docs.find((d) => d.id === selectedVersionDoc.value?.id)
+        if (found) {
+          selectedVersionDoc.value = found
+          return
+        }
+      }
+      // Default to the CURRENT version since the editor always shows live content
+      selectedVersionDoc.value = findCurrentVersion(docs)
+    } else {
+      selectedVersionDoc.value = null
+    }
+  },
+  { immediate: true }
+)
+
+const isCollectionPublished = computed(() => publishedDocs.value.length > 0)
+const publishedDocId = computed(() => selectedVersionDoc.value?.id)
 const existingPublishedData = computed(() => {
-  if (!publishedDocStatus.value) return undefined
+  if (isCreatingNewVersion.value) return undefined
+  if (!selectedVersionDoc.value) return undefined
   return {
-    title: publishedDocStatus.value.title,
-    version: publishedDocStatus.value.version,
-    autoSync: publishedDocStatus.value.autoSync,
-    url: publishedDocStatus.value.url,
+    title: selectedVersionDoc.value.title,
+    version: selectedVersionDoc.value.version,
+    autoSync: selectedVersionDoc.value.autoSync,
+    url: selectedVersionDoc.value.url,
+    environmentName: selectedVersionDoc.value.environmentName ?? null,
+    environmentID: selectedVersionDoc.value.environmentID ?? null,
   }
 })
 
+const isViewingSnapshot = ref(false)
+
 const publishModalMode = computed<"create" | "update" | "view">(() => {
-  return isCollectionPublished.value ? "update" : "create"
+  if (isCreatingNewVersion.value) return "create"
+  if (isViewingSnapshot.value) return "view"
+  // Only allow update mode for live versions; snapshot versions open in view mode
+  if (isCollectionPublished.value) {
+    return selectedVersionDoc.value && !isLiveVersion(selectedVersionDoc.value)
+      ? "view"
+      : "update"
+  }
+  return "create"
 })
 
 const isDocumentationProcessing = computed(() => {
@@ -408,10 +546,8 @@ const handleToggleAllDocumentation = async () => {
 // Reset fetched collection data when modal opens/closes
 watch(
   () => props.show,
-  async (newVal) => {
-    if (newVal) {
-      // No need to manually check published docs status as it is now reactive
-    } else {
+  (newVal) => {
+    if (!newVal) {
       // Reset when modal closes
       fullCollectionData.value = null
       isLoadingTeamCollection.value = false
@@ -449,8 +585,50 @@ watch(
 )
 
 const openPublishModal = () => {
+  isViewingSnapshot.value = false
   showPublishModal.value = true
 }
+
+const openPublishModalForView = () => {
+  isViewingSnapshot.value = true
+  showPublishModal.value = true
+}
+
+/**
+ * Handles version selection from the dropdown.
+ * For frozen (snapshot) versions, auto-opens the snapshot view modal.
+ * For live versions, just selects them (user can then click Edit).
+ */
+const handleVersionSelect = (
+  doc: PublishedDocInfo,
+  hideDropdown: () => void
+) => {
+  selectedVersionDoc.value = doc
+  if (!isLiveVersion(doc)) {
+    hideDropdown()
+    openPublishModalForView()
+  }
+}
+
+const createNewVersion = () => {
+  isCreatingNewVersion.value = true
+  isViewingSnapshot.value = false
+  showPublishModal.value = true
+}
+
+watch(showPublishModal, (isOpen) => {
+  if (!isOpen) {
+    // Reset selection back to the CURRENT version so the dropdown
+    // label matches what the editor is actually showing
+    if (isViewingSnapshot.value || isCreatingNewVersion.value) {
+      if (publishedDocs.value.length > 0) {
+        selectedVersionDoc.value = findCurrentVersion(publishedDocs.value)
+      }
+    }
+    isCreatingNewVersion.value = false
+    isViewingSnapshot.value = false
+  }
+})
 
 const copyPublishedUrl = () => {
   if (existingPublishedData.value?.url) {
@@ -785,8 +963,18 @@ const hideModal = () => {
   if (closeTimeout) clearTimeout(closeTimeout)
 }
 
-const handlePublish = async (doc: CreatePublishedDocsArgs) => {
+const handlePublish = async (
+  doc: CreatePublishedDocsArgs,
+  environmentVariables?: string
+) => {
   isProcessingPublish.value = true
+
+  if (environmentVariables) {
+    const metadata = JSON.parse(doc.metadata || "{}")
+    metadata.environmentVariables = environmentVariables
+    doc.metadata = JSON.stringify(metadata)
+  }
+
   await pipe(
     createPublishedDoc(doc),
     TE.match(
@@ -804,6 +992,13 @@ const handlePublish = async (doc: CreatePublishedDocsArgs) => {
           version: doc.version,
           autoSync: doc.autoSync,
           url: url,
+          environmentName: data.createPublishedDoc.environmentName ?? null,
+          environmentID: doc.environmentID ?? null,
+          collection: {
+            id: props.collectionID || "",
+          },
+          createdOn: data.createPublishedDoc.createdOn,
+          updatedOn: data.createPublishedDoc.updatedOn,
         }
 
         // Update service
@@ -813,14 +1008,29 @@ const handlePublish = async (doc: CreatePublishedDocsArgs) => {
             newDocInfo
           )
         }
+
+        // Select the new version and exit create mode
+        selectedVersionDoc.value = newDocInfo
+        isCreatingNewVersion.value = false
       }
     )
   )()
   isProcessingPublish.value = false
 }
 
-const handleUpdate = async (id: string, doc: UpdatePublishedDocsArgs) => {
+const handleUpdate = async (
+  id: string,
+  doc: UpdatePublishedDocsArgs,
+  environmentVariables?: string
+) => {
   isProcessingPublish.value = true
+
+  if (environmentVariables) {
+    const metadata = JSON.parse(doc.metadata || "{}")
+    metadata.environmentVariables = environmentVariables
+    doc.metadata = JSON.stringify(metadata)
+  }
+
   await pipe(
     updatePublishedDoc(id, doc),
     TE.match(
@@ -839,6 +1049,13 @@ const handleUpdate = async (id: string, doc: UpdatePublishedDocsArgs) => {
             version: data.updatePublishedDoc.version,
             autoSync: data.updatePublishedDoc.autoSync,
             url: url,
+            environmentName: data.updatePublishedDoc.environmentName ?? null,
+            environmentID: doc.environmentID ?? null,
+            collection: {
+              id: props.collectionID || "",
+            },
+            createdOn: data.updatePublishedDoc.createdOn,
+            updatedOn: data.updatePublishedDoc.updatedOn,
           }
 
           // Update service
@@ -873,7 +1090,11 @@ const handleDelete = async () => {
 
         // Update service
         if (props.collectionID) {
-          documentationService.setPublishedDocStatus(props.collectionID, null)
+          documentationService.setPublishedDocStatus(
+            props.collectionID,
+            null,
+            publishedDocId.value
+          )
         }
       }
     )

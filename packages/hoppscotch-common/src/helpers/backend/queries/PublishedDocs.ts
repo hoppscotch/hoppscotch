@@ -27,6 +27,7 @@ export type PublishedDocListItem = {
   version: string
   autoSync: boolean
   url: string
+  environmentName?: string | null
   collection: {
     id: string
   }
@@ -47,6 +48,7 @@ export type PublishedDoc = PublishedDocListItem & {
     id: string
     title: string
   }
+  versions?: PublishedDocListItem[]
 }
 
 // Type for the GraphQL query response
@@ -61,6 +63,27 @@ export type CollectionFolder = {
   requests: any[]
   name: string
   data?: string
+}
+
+// Type for the versions list in the REST response source of truth: packages/hoppscotch-backend/src/published-docs/published-docs.model.ts
+export type PublishedDocsVersion = {
+  id: string
+  slug: string
+  version: string
+  title: string
+  autoSync: boolean
+  url: string
+  workspaceID: string
+  workspaceType: string
+  createdOn: string
+  updatedOn: string
+  creatorUid: string
+  metadata: string
+  documentTree: string
+}
+
+export type PublishedDocREST = PublishedDocsVersion & {
+  versions?: PublishedDocsVersion[]
 }
 
 /**
@@ -229,18 +252,21 @@ export const getPublishedDocByID = (id: string) =>
 
 /**
  *
- * @param id - The ID of the published doc to fetch
- * @param tree - The tree level to fetch (FULL or MINIMAL) Default is FULL so we can skip it, keeping it for future use
- * @returns The published doc with the specified ID
+ * @param slug - The slug of the published doc to fetch
+ * @param version - The version of the published doc to fetch
+ * @returns The published doc with the specified slug
  */
-export const getPublishedDocByIDREST = (
-  id: string
-  //tree: "FULL" | "MINIMAL" = "FULL"
+export const getPublishedDocBySlugREST = (
+  slug: string,
+  version?: string
 ): TE.TaskEither<GetPublishedDocError, PublishedDocs> =>
   TE.tryCatch(
     async () => {
       const backendUrl = import.meta.env.VITE_BACKEND_API_URL || ""
-      const response = await fetch(`${backendUrl}/published-docs/${id}`)
+      const url = version
+        ? `${backendUrl}/published-docs/${slug}/${version}`
+        : `${backendUrl}/published-docs/${slug}`
+      const response = await fetch(url)
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)

@@ -44,7 +44,6 @@
         />
       </div>
 
-      <!-- Check performance issue -->
       <CollectionsDocumentationSectionsCurlView
         :request="request"
         :collection-i-d="collectionID"
@@ -53,6 +52,7 @@
         :request-index="requestIndex"
         :team-i-d="teamID"
         :inherited-properties="inheritedProperties"
+        :environment-variables="environmentVariables"
       />
 
       <CollectionsDocumentationSectionsAuth
@@ -106,7 +106,6 @@ import { DocumentationService } from "~/services/documentation.service"
 import { cascadeParentCollectionForProperties } from "~/newstore/collections"
 import { cloneDeep } from "lodash-es"
 import { getEffectiveRESTRequest } from "~/helpers/utils/EffectiveURL"
-import { computedAsync } from "@vueuse/core"
 import {
   AggregateEnvironment,
   getCurrentEnvironment,
@@ -131,6 +130,7 @@ const props = withDefaults(
     teamID?: string
     readOnly?: boolean
     inheritedProperties?: HoppInheritedProperty
+    environmentVariables?: Environment["variables"]
   }>(),
   {
     documentationDescription: "",
@@ -143,6 +143,7 @@ const props = withDefaults(
     teamID: undefined,
     readOnly: false,
     inheritedProperties: undefined,
+    environmentVariables: () => [],
   }
 )
 
@@ -241,6 +242,8 @@ const getEffectiveRequest = async () => {
             sourceEnv: "CollectionVariables",
           }) || e.initialValue,
       })),
+      // Published doc environment variables (from attached environment)
+      ...(props.environmentVariables || []),
     ],
   }
 
@@ -249,6 +252,7 @@ const getEffectiveRequest = async () => {
       ...props.request,
     }),
     env,
+    true,
     true
   )
 
@@ -357,19 +361,28 @@ function getMethodClass(method: string): string {
   }
 }
 
-const getFullEndpoint = computedAsync(async () => {
+const getFullEndpoint = ref("")
+
+const updateFullEndpoint = async () => {
   const res = await getEffectiveRequest()
 
-  if (!res) return ""
+  if (!res) {
+    getFullEndpoint.value = ""
+    return
+  }
 
   const { effectiveRequest } = res
 
-  if (!effectiveRequest) return ""
+  if (!effectiveRequest) {
+    getFullEndpoint.value = ""
+    return
+  }
 
   const input = effectiveRequest.effectiveFinalURL
 
   if (!input) {
-    return "https://"
+    getFullEndpoint.value = "https://"
+    return
   }
 
   let url = input.trim()
@@ -386,8 +399,17 @@ const getFullEndpoint = computedAsync(async () => {
     url = (isLocalOrIP ? "http://" : "https://") + endpoint
   }
 
-  return url
-})
+  getFullEndpoint.value = url
+}
+
+// Re-compute endpoint when environment variables or request change
+watch(
+  [() => props.environmentVariables, () => props.request],
+  () => {
+    updateFullEndpoint()
+  },
+  { immediate: true, deep: true }
+)
 
 const copyToClipboard = async (text: string | undefined) => {
   if (!text) return

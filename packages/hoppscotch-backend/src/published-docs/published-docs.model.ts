@@ -1,5 +1,69 @@
 import { ObjectType, Field, ID } from '@nestjs/graphql';
 import { ApiProperty } from '@nestjs/swagger';
+import { Expose, Type } from 'class-transformer';
+
+@ObjectType()
+export class PublishedDocsVersion {
+  @Field(() => ID, {
+    description: 'ID of the published document version',
+  })
+  @ApiProperty({
+    description: 'ID of the published document version',
+    example: 'doc_12345',
+  })
+  @Expose()
+  id: string;
+
+  @Field(() => String, {
+    description: 'Slug of the published document',
+  })
+  @ApiProperty({
+    description: 'Slug of the published document',
+    example: 'abc-123-uuid',
+  })
+  @Expose()
+  slug: string;
+
+  @Field(() => String, {
+    description: 'Version string',
+  })
+  @ApiProperty({
+    description: 'Version string',
+    example: '1.0.0',
+  })
+  @Expose()
+  version: string;
+
+  @Field(() => String, {
+    description: 'Title of the API documentation',
+  })
+  @ApiProperty({
+    description: 'Title of the API documentation',
+    example: 'API Documentation v1.0',
+  })
+  @Expose()
+  title: string;
+
+  @Field(() => Boolean, {
+    description: 'Indicates if the documentation is set to auto-sync',
+  })
+  @ApiProperty({
+    description: 'Indicates if the documentation is set to auto-sync',
+    example: true,
+  })
+  @Expose()
+  autoSync: boolean;
+
+  @Field(() => String, {
+    description: 'URL where the published API documentation can be accessed',
+  })
+  @ApiProperty({
+    description: 'URL where the published API documentation can be accessed',
+    example: 'https://docs.example.com/api/v1.0',
+  })
+  @Expose()
+  url: string;
+}
 
 @ObjectType()
 export class PublishedDocs {
@@ -10,13 +74,27 @@ export class PublishedDocs {
     description: 'ID of the published API documentation',
     example: 'doc_12345',
   })
+  @Expose()
   id: string;
+
+  @Field(() => ID, {
+    description:
+      'Slug of the published API documentation (unique with version)',
+  })
+  @ApiProperty({
+    description:
+      'Slug of the published API documentation (unique with version)',
+    example: 'my-api-docs',
+  })
+  @Expose()
+  slug: string;
 
   @Field({ description: 'Title of the published API documentation' })
   @ApiProperty({
     description: 'Title of the published API documentation',
     example: 'My API Documentation',
   })
+  @Expose()
   title: string;
 
   @Field({
@@ -26,6 +104,7 @@ export class PublishedDocs {
     description: 'URL where the published API documentation can be accessed',
     example: 'https://docs.example.com/api',
   })
+  @Expose()
   url: string;
 
   @Field({ description: 'Version of the published API documentation' })
@@ -33,6 +112,7 @@ export class PublishedDocs {
     description: 'Version of the published API documentation',
     example: '1.0.0',
   })
+  @Expose()
   version: string;
 
   @Field({ description: 'Indicates if the documentation is set to auto-sync' })
@@ -40,6 +120,7 @@ export class PublishedDocs {
     description: 'Indicates if the documentation is set to auto-sync',
     example: true,
   })
+  @Expose()
   autoSync: boolean;
 
   @Field({
@@ -50,6 +131,7 @@ export class PublishedDocs {
     example:
       '{"id": "string", "name": "string", "folders": [], "requests": [], "data": "string"}',
   })
+  @Expose()
   documentTree: string;
 
   @Field({
@@ -79,13 +161,42 @@ export class PublishedDocs {
     description: 'Metadata of the documentation',
     example: '{"author": "John Doe", "tags": ["api", "rest"]}',
   })
+  @Expose()
   metadata: string;
+
+  @Field({
+    description: 'Name of the environment associated with the documentation',
+    nullable: true,
+  })
+  @ApiProperty({
+    description: 'Name of the environment associated with the documentation',
+    example: 'Production',
+    nullable: true,
+  })
+  @Expose()
+  environmentName?: string;
+
+  @Field({
+    description:
+      'Stringified JSON of the environment variables associated with the documentation',
+    nullable: true,
+  })
+  @ApiProperty({
+    description:
+      'Stringified JSON of the environment variables associated with the documentation',
+    example:
+      '[{"key":"base_url","secret":false,"currentValue":"","initialValue":"http://hoppscotch.com"}]',
+    nullable: true,
+  })
+  @Expose()
+  environmentVariables?: string;
 
   @Field({ description: 'Timestamp when the documentation was created' })
   @ApiProperty({
     description: 'Timestamp when the documentation was created',
     example: '2024-01-01T00:00:00.000Z',
   })
+  @Expose()
   createdOn: Date;
 
   @Field({ description: 'Timestamp when the documentation was last updated' })
@@ -93,7 +204,20 @@ export class PublishedDocs {
     description: 'Timestamp when the documentation was last updated',
     example: '2024-01-15T12:30:00.000Z',
   })
+  @Expose()
   updatedOn: Date;
+
+  @Field(() => [PublishedDocsVersion], {
+    description: 'All available versions of this published documentation',
+    nullable: true,
+  })
+  @ApiProperty({
+    description: 'All available versions of this published documentation',
+    type: [PublishedDocsVersion],
+  })
+  @Expose()
+  @Type(() => PublishedDocsVersion)
+  versions?: PublishedDocsVersion[];
 }
 
 @ObjectType()

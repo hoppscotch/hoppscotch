@@ -3,7 +3,11 @@
     <DocumentationHeader
       v-if="!loading && !error && publishedDoc"
       :published-doc="publishedDoc"
+      :versions="availableVersions"
       :instance-display-name="instanceDisplayName"
+      :environment-name="environmentName"
+      :environment-enabled="environmentEnabled"
+      @toggle-environment="handleEnvironmentToggle"
     />
 
     <DocumentationSkeleton v-if="loading" />
@@ -24,25 +28,36 @@
     <DocumentationContent
       v-else-if="collectionData"
       :collection-data="collectionData"
+      :is-doc-modal="false"
       :all-items="allItems"
       :update-url-on-select="true"
+      :environment-variables="environmentVariables"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue"
+import { ref, onMounted, computed, watch } from "vue"
 import { useRoute } from "vue-router"
 import { useI18n } from "~/composables/i18n"
 import {
-  getPublishedDocByIDREST,
+  getPublishedDocBySlugREST,
   collectionFolderToHoppCollection,
 } from "~/helpers/backend/queries/PublishedDocs"
 import * as E from "fp-ts/Either"
 import IconAlertCircle from "~icons/lucide/alert-circle"
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import {
+  Environment,
+  HoppCollection,
+  HoppRESTRequest,
+  translateToNewEnvironmentVariables,
+} from "@hoppscotch/data"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
-import { PublishedDocs } from "~/helpers/backend/graphql"
+import {
+  PublishedDocREST,
+  PublishedDocsVersion,
+} from "~/helpers/backend/queries/PublishedDocs"
+
 import { getKernelMode } from "@hoppscotch/kernel"
 import { platform } from "~/platform"
 import { useReadonlyStream } from "~/composables/stream"
@@ -77,10 +92,17 @@ const instanceDisplayName = computed(() => {
   return currentState.value.instance.displayName
 })
 
-const publishedDoc = ref<Partial<PublishedDocs> | null>(null)
+const publishedDoc = ref<Partial<PublishedDocREST> | null>(null)
+const availableVersions = ref<PublishedDocsVersion[]>([])
 const collectionData = ref<HoppCollection | null>(null)
 const loading = ref(true)
 const error = ref<string | null>(null)
+
+const environmentVariables = ref<Environment["variables"]>([])
+// Store the original parsed env vars so we can restore them when toggling
+const parsedEnvironmentVariables = ref<Environment["variables"]>([])
+const environmentName = ref<string | null>(null)
+const environmentEnabled = ref(true)
 
 type DocumentationItem = {
   id: string
@@ -164,46 +186,104 @@ const allItems = computed<DocumentationItem[]>(() => {
   return flattenCollection(collectionData.value)
 })
 
-onMounted(async () => {
-  const docId = route.params.id as string
-  // will use in next iteration
-  //const version = route.params.version as string
+const fetchDocs = async (docId: string, version: string) => {
+  loading.value = true
+  error.value = null
 
   if (!docId) {
-    error.value = "No document ID provided"
+    error.value = t("documentation.publish.no_doc_id")
     loading.value = false
     return
   }
 
   // Fetch published doc using REST API (public access, no authentication required)
-  const result = await getPublishedDocByIDREST(docId)()
+  // If version is provided, fetch that specific version; otherwise fetch latest
+  const result = await getPublishedDocBySlugREST(docId, version)()
 
   if (E.isLeft(result)) {
     console.error("Error fetching published doc:", result.left)
-    error.value = "Published documentation not found"
+    error.value = t("documentation.publish.not_found")
     loading.value = false
     return
   }
 
   publishedDoc.value = {
-    autoSync: false,
+    autoSync: result.right.autoSync ?? false,
     createdOn: result.right.createdOn,
     id: result.right.id,
     updatedOn: result.right.updatedOn,
     version: result.right.version,
     metadata: result.right.metadata,
     title: result.right.title,
-    creator: result.right.creator,
+    creatorUid: result.right.creatorUid,
+    versions: result.right.versions,
   }
+
+  // Store environment name from the published doc response
+  environmentName.value = result.right.environmentName ?? null
+
+  // Parse environment variables from the published doc response
+  const rawEnvVars = result.right.environmentVariables
+  if (rawEnvVars) {
+    try {
+      const parsed =
+        typeof rawEnvVars === "string" ? JSON.parse(rawEnvVars) : rawEnvVars
+      if (Array.isArray(parsed)) {
+        parsedEnvironmentVariables.value = parsed.map((v) => {
+          const normalized = translateToNewEnvironmentVariables(v)
+          // Ensure currentValue falls back to initialValue
+          return {
+            ...normalized,
+            currentValue: normalized.currentValue || normalized.initialValue,
+          }
+        })
+      }
+    } catch (e) {
+      console.error("Error parsing environment variables:", e)
+      parsedEnvironmentVariables.value = []
+    }
+  }
+
+  if (availableVersions.value.length === 0 && result.right.versions) {
+    availableVersions.value = result.right.versions
+  }
+
+  // Apply environment variables based on toggle state
+  // Reset to enabled for new version fetches
+  environmentEnabled.value = !!environmentName.value
+  environmentVariables.value = environmentEnabled.value
+    ? parsedEnvironmentVariables.value
+    : []
 
   const publishedData = JSON.parse(result.right.documentTree)
 
   // Convert the REST API response (CollectionFolder) to HoppCollection format
   const hoppCollection = collectionFolderToHoppCollection(publishedData)
+
   collectionData.value = hoppCollection
 
   loading.value = false
+}
+
+const handleEnvironmentToggle = (enabled: boolean) => {
+  environmentEnabled.value = enabled
+  environmentVariables.value = enabled ? parsedEnvironmentVariables.value : []
+}
+
+onMounted(() => {
+  const docId = route.params.id as string
+  const version = route.params.version as string
+  fetchDocs(docId, version)
 })
+
+watch(
+  () => [route.params.id, route.params.version],
+  ([newId, newVersion], [oldId, oldVersion]) => {
+    if (newId !== oldId || newVersion !== oldVersion) {
+      fetchDocs(newId as string, newVersion as string)
+    }
+  }
+)
 
 usePageHead({
   title: computed(

@@ -80,6 +80,7 @@ export class UserEnvironmentsResolver {
   })
   @UseGuards(GqlAuthGuard)
   async updateUserEnvironment(
+    @GqlUser() user: User,
     @Args({
       name: 'id',
       description: 'ID of the user environment',
@@ -103,6 +104,7 @@ export class UserEnvironmentsResolver {
         id,
         name,
         variables,
+        user
       );
     if (E.isLeft(userEnvironment)) throwErr(userEnvironment.left);
     return userEnvironment.right;

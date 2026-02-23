@@ -323,5 +323,9 @@ export function createExamplePetStoreCollection(
       authActive: true,
     },
     headers: [],
+    variables: [],
+    description: null,
+    preRequestScript: "",
+    testScript: "",
   })
 }

@@ -354,6 +354,8 @@ export class TeamSearchService extends Service {
 
     const defaultInheritedVariables: HoppInheritedProperty["variables"] = []
 
+    const defaultInheritedScripts: HoppInheritedProperty["scripts"] = []
+
     const collection = Object.values(this.searchResultsCollections).find(
       (col) => col.id === collectionID
     )
@@ -363,12 +365,14 @@ export class TeamSearchService extends Service {
         auth: defaultInheritedAuth,
         headers: defaultInheritedHeaders,
         variables: defaultInheritedVariables,
+        scripts: defaultInheritedScripts,
       }
 
     const inheritedAuthData = this.findInheritableParentAuth(collectionID)
     const inheritedHeadersData = this.findInheritableParentHeaders(collectionID)
     const inheritedVariablesData =
       this.findInheritableParentVariables(collectionID)
+    const inheritedScriptsData = this.findInheritableParentScripts(collectionID)
 
     return {
       auth: E.isRight(inheritedAuthData)
@@ -380,6 +384,9 @@ export class TeamSearchService extends Service {
       variables: E.isRight(inheritedVariablesData)
         ? Object.values(inheritedVariablesData.right)
         : defaultInheritedVariables,
+      scripts: E.isRight(inheritedScriptsData)
+        ? Object.values(inheritedScriptsData.right)
+        : defaultInheritedScripts,
     }
   }
 
@@ -515,6 +522,49 @@ export class TeamSearchService extends Service {
     }
 
     return E.right(vars)
+  }
+
+  findInheritableParentScripts = (
+    collectionID: string,
+    existingScripts: HoppInheritedProperty["scripts"] = []
+  ): E.Either<string, HoppInheritedProperty["scripts"]> => {
+    const collection = Object.values(this.searchResultsCollections).find(
+      (col) => col.id === collectionID
+    )
+
+    const scripts = [...Object.values(existingScripts)]
+
+    if (!collection) {
+      return E.left("PARENT_NOT_FOUND" as const)
+    }
+
+    if (collection.data) {
+      const parentData = JSON.parse(collection.data) as {
+        auth: HoppRESTAuth
+        headers: HoppRESTHeader[]
+        variables: HoppCollectionVariable[]
+        preRequestScript?: string
+        testScript?: string
+      }
+
+      const preRequestScript = parentData.preRequestScript ?? ""
+      const testScript = parentData.testScript ?? ""
+
+      if (preRequestScript || testScript) {
+        scripts.push({
+          parentID: collection.id,
+          parentName: collection.title,
+          preRequestScript,
+          testScript,
+        })
+      }
+    }
+
+    if (collection.parentID) {
+      return this.findInheritableParentScripts(collection.parentID, scripts)
+    }
+
+    return E.right(scripts)
   }
 
   expandCollection = async (collectionID: string) => {

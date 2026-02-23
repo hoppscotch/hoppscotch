@@ -626,6 +626,8 @@ const getHoppFolder = (
     headers: [],
     variables: getHoppCollVariables(ig),
     description: getCollectionDescription(ig.description),
+    preRequestScript: "",
+    testScript: "",
   })
 
 export const getHoppCollections = (

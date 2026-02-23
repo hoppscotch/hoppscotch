@@ -541,6 +541,8 @@ const saveCollectionDocumentation = async () => {
       headers: collection.headers || [],
       variables: collection.variables || [],
       description: documentationDescription.value,
+      preRequestScript: collection.preRequestScript || "",
+      testScript: collection.testScript || "",
     }
 
     pipe(
@@ -635,6 +637,8 @@ const saveCollectionDocumentationById = async (
         headers: collectionData.headers || [],
         variables: collectionData.variables || [],
         description: documentation,
+        preRequestScript: collectionData.preRequestScript || "",
+        testScript: collectionData.testScript || "",
       }
 
       const result = await pipe(

@@ -92,13 +92,8 @@
 
 <script setup lang="ts">
 import {
-  GQLHeader,
   HoppCollection,
-  HoppCollectionVariable,
-  HoppGQLAuth,
   HoppGQLRequest,
-  HoppRESTAuth,
-  HoppRESTHeader,
   HoppRESTRequest,
   makeCollection,
 } from "@hoppscotch/data"
@@ -118,6 +113,7 @@ import {
 } from "~/helpers/teams/TeamCollection"
 import { getCollectionChildRequests } from "~/helpers/teams/TeamRequest"
 import { useToast } from "~/composables/toast"
+import { CollectionDataProps } from "~/helpers/backend/helpers"
 
 const workspaceService = useService(WorkspaceService)
 const teamListAdapter = workspaceService.acquireTeamListAdapter(null)
@@ -259,32 +255,33 @@ const getWorkspaceRootCollections = async (workspaceID: string) => {
 
 const convertToInheritedProperties = (
   data?: string | null
-): {
-  auth: HoppRESTAuth | HoppGQLAuth
-  headers: Array<HoppRESTHeader | GQLHeader>
-  variables: HoppCollectionVariable[]
-} => {
-  const collectionLevelAuthAndHeaders = data
-    ? (JSON.parse(data) as {
-        auth: HoppRESTAuth | HoppGQLAuth
-        headers: Array<HoppRESTHeader | GQLHeader>
-        variables: HoppCollectionVariable[]
-      })
+): CollectionDataProps => {
+  const collectionInheritedProps = data
+    ? (JSON.parse(data) as CollectionDataProps)
     : null
 
-  const headers = collectionLevelAuthAndHeaders?.headers ?? []
+  const headers = collectionInheritedProps?.headers ?? []
 
-  const auth = collectionLevelAuthAndHeaders?.auth ?? {
+  const auth = collectionInheritedProps?.auth ?? {
     authType: "none",
     authActive: true,
   }
 
-  const variables = collectionLevelAuthAndHeaders?.variables ?? []
+  const variables = collectionInheritedProps?.variables ?? []
+
+  const description = collectionInheritedProps?.description ?? ""
+
+  const preRequestScript = collectionInheritedProps?.preRequestScript ?? ""
+
+  const testScript = collectionInheritedProps?.testScript ?? ""
 
   return {
     auth,
     headers,
     variables,
+    description,
+    preRequestScript,
+    testScript,
   }
 }
 

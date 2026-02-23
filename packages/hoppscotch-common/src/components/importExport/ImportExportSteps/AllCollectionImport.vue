@@ -269,7 +269,7 @@ const convertToInheritedProperties = (
 
   const variables = collectionInheritedProps?.variables ?? []
 
-  const description = collectionInheritedProps?.description ?? ""
+  const description = collectionInheritedProps?.description ?? null
 
   const preRequestScript = collectionInheritedProps?.preRequestScript ?? ""
 

@@ -13,6 +13,8 @@ import {
   RequestDocumentationItem,
   SetCollectionDocumentationOptions,
   SetRequestDocumentationOptions,
+  isLiveVersion,
+  CURRENT_VERSION_TAG,
 } from "../documentation.service"
 import {
   getUserPublishedDocs,
@@ -742,5 +744,37 @@ describe("DocumentationService", () => {
       expect(status).toHaveLength(1)
       expect(status![0]).toEqual(info2)
     })
+  })
+})
+
+describe("isLiveVersion", () => {
+  it("returns true when autoSync is true and version is CURRENT", () => {
+    expect(
+      isLiveVersion({ autoSync: true, version: CURRENT_VERSION_TAG })
+    ).toBe(true)
+  })
+
+  it("is case-insensitive for CURRENT tag", () => {
+    expect(isLiveVersion({ autoSync: true, version: "current" })).toBe(true)
+    expect(isLiveVersion({ autoSync: true, version: "Current" })).toBe(true)
+  })
+
+  it("returns true for legacy 1.0.0 version with autoSync", () => {
+    expect(isLiveVersion({ autoSync: true, version: "1.0.0" })).toBe(true)
+  })
+
+  it("returns false when autoSync is false even if version is CURRENT", () => {
+    expect(
+      isLiveVersion({ autoSync: false, version: CURRENT_VERSION_TAG })
+    ).toBe(false)
+  })
+
+  it("returns false when autoSync is false for legacy 1.0.0", () => {
+    expect(isLiveVersion({ autoSync: false, version: "1.0.0" })).toBe(false)
+  })
+
+  it("returns false for a snapshot version string", () => {
+    expect(isLiveVersion({ autoSync: true, version: "2.0.0" })).toBe(false)
+    expect(isLiveVersion({ autoSync: false, version: "2.0.0" })).toBe(false)
   })
 })

@@ -1246,6 +1246,34 @@ describe('getPublishedDocBySlugPublic', () => {
 
     expect(E.isRight(result)).toBe(true);
   });
+
+  test('should use first version as default when no version specified and versions exist', async () => {
+    mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([
+      {
+        id: 'v1',
+        slug: 'test-slug',
+        version: 'CURRENT',
+        title: 'V1',
+        autoSync: true,
+      },
+    ] as any);
+    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce({
+      ...userPublishedDoc,
+      version: 'CURRENT',
+      autoSync: false,
+    });
+
+    await publishedDocsService.getPublishedDocBySlugPublic('test-slug', null);
+
+    expect(mockPrisma.publishedDocs.findUnique).toHaveBeenCalledWith({
+      where: {
+        slug_version: {
+          slug: 'test-slug',
+          version: 'CURRENT',
+        },
+      },
+    });
+  });
 });
 
 describe('createPublishedDoc - slug generation and race conditions', () => {

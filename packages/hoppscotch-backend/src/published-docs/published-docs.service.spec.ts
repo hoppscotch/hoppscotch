@@ -1087,16 +1087,13 @@ describe('getPublishedDocsVersions', () => {
     }
   });
 
-  test('should return empty array when no versions found', async () => {
+  test('should return PUBLISHED_DOCS_NOT_FOUND when no versions found', async () => {
     mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([]);
 
     const result =
       await publishedDocsService.getPublishedDocsVersions('non-existent-slug');
 
-    expect(E.isRight(result)).toBe(true);
-    if (E.isRight(result)) {
-      expect(result.right).toEqual([]);
-    }
+    expect(result).toEqualLeft(PUBLISHED_DOCS_NOT_FOUND);
   });
 
   test('should query with correct orderBy clause for autoSync priority', async () => {
@@ -1846,7 +1843,7 @@ describe('getPublishedDocBySlugPublic - environment support', () => {
     expect(mockPrisma.teamEnvironment.findFirst).not.toHaveBeenCalled();
   });
 
-  test('should fall back to stored environment when re-fetch fails', async () => {
+  test('should return error when re-fetch of environment fails', async () => {
     const collectionData = {
       id: 'collection_1',
       name: 'Test Collection',
@@ -1876,14 +1873,7 @@ describe('getPublishedDocBySlugPublic - environment support', () => {
       '1.0.0',
     );
 
-    expect(E.isRight(result)).toBe(true);
-    if (E.isRight(result)) {
-      // Falls back to stored values
-      expect(result.right.environmentName).toBe('Deleted Env');
-      expect(result.right.environmentVariables).toBe(
-        JSON.stringify(docWithEnv.environmentVariables),
-      );
-    }
+    expect(result).toEqualLeft(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
   });
 
   test('should return null environment fields when no environment is associated', async () => {

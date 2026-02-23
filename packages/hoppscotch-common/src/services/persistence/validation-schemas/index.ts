@@ -326,6 +326,16 @@ const HoppInheritedPropertySchema = z
         })
       )
       .catch([]),
+    scripts: z
+      .array(
+        z.object({
+          parentID: z.string(),
+          parentName: z.string(),
+          preRequestScript: z.string(),
+          testScript: z.string(),
+        })
+      )
+      .catch([]),
   })
   .strict()
 

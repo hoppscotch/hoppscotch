@@ -97,6 +97,8 @@ function parseCollectionDataFromString(data?: string): CollectionDataProps {
     headers: [],
     variables: [],
     description: null,
+    preRequestScript: "",
+    testScript: "",
   }
 
   if (!data) {
@@ -110,6 +112,9 @@ function parseCollectionDataFromString(data?: string): CollectionDataProps {
       headers: parsed.headers || defaultDataProps.headers,
       variables: parsed.variables || defaultDataProps.variables,
       description: parsed.description || defaultDataProps.description,
+      preRequestScript:
+        parsed.preRequestScript || defaultDataProps.preRequestScript,
+      testScript: parsed.testScript || defaultDataProps.testScript,
     }
   } catch (error) {
     console.error("Failed to parse collection data:", error)
@@ -126,8 +131,14 @@ export function collectionFolderToHoppCollection(
   folder: CollectionFolder
 ): HoppCollection {
   // Parse the data field to extract auth, headers, variables, and description
-  const { auth, headers, variables, description } =
-    parseCollectionDataFromString(folder.data)
+  const {
+    auth,
+    headers,
+    variables,
+    description,
+    preRequestScript,
+    testScript,
+  } = parseCollectionDataFromString(folder.data)
 
   return makeCollection({
     name: folder.name,
@@ -138,6 +149,8 @@ export function collectionFolderToHoppCollection(
     variables,
     description,
     id: folder.id,
+    preRequestScript: preRequestScript ?? "",
+    testScript: testScript ?? "",
   })
 }
 

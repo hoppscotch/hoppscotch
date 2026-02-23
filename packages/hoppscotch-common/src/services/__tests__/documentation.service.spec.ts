@@ -40,6 +40,8 @@ describe("DocumentationService", () => {
     variables: [],
     id: "collection-123",
     description: null,
+    preRequestScript: "",
+    testScript: "",
   })
 
   const mockRequest: HoppRESTRequest = makeRESTRequest({

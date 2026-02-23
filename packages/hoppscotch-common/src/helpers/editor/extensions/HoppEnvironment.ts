@@ -288,8 +288,7 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
 
           const envContainer = document.createElement("div")
           tooltipContainer.appendChild(envContainer)
-          envContainer.className =
-            `flex flex-col items-start space-y-1 flex-1 w-full mt-2 ${TOOLTIP_ENV_CONTAINER_Z_INDEX_CLASS}`
+          envContainer.className = `flex flex-col items-start space-y-1 flex-1 w-full mt-2 ${TOOLTIP_ENV_CONTAINER_Z_INDEX_CLASS}`
           envContainer.style.overflow = "hidden"
 
           // Use createTooltipValueRow for overflow-safe value display

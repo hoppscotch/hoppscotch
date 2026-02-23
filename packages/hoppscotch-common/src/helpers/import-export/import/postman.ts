@@ -550,6 +550,38 @@ const getHoppScripts = (
   return { preRequestScript, testScript }
 }
 
+/**
+ * Extracts pre-request and test scripts from a Postman ItemGroup (collection/folder)
+ * Postman collections and folders can have their own scripts that run before/after all requests
+ */
+const getHoppCollectionScripts = (
+  ig: ItemGroup<Item>,
+  importScripts: boolean
+): { preRequestScript: string; testScript: string } => {
+  console.log("Extracting collection/folder scripts for", ig)
+  console.log("Import scripts enabled?", importScripts)
+  if (!importScripts) {
+    return { preRequestScript: "", testScript: "" }
+  }
+
+  let preRequestScript = ""
+  let testScript = ""
+
+  // ItemGroup (collection/folder) stores scripts in the events property
+  if (ig.events) {
+    const events = ig.events.all()
+    events.forEach((event: any) => {
+      if (event.listen === "prerequest") {
+        preRequestScript = extractScriptFromEvent(event)
+      } else if (event.listen === "test") {
+        testScript = extractScriptFromEvent(event)
+      }
+    })
+  }
+
+  return { preRequestScript, testScript }
+}
+
 const getCollectionDescription = (
   docField?: string | DescriptionDefinition
 ): string | null => {
@@ -609,8 +641,13 @@ const getHoppRequest = (
 const getHoppFolder = (
   ig: ItemGroup<Item>,
   importScripts: boolean
-): HoppCollection =>
-  makeCollection({
+): HoppCollection => {
+  const { preRequestScript, testScript } = getHoppCollectionScripts(
+    ig,
+    importScripts
+  )
+
+  return makeCollection({
     name: ig.name,
     folders: pipe(
       ig.items.all(),
@@ -626,9 +663,10 @@ const getHoppFolder = (
     headers: [],
     variables: getHoppCollVariables(ig),
     description: getCollectionDescription(ig.description),
-    preRequestScript: "",
-    testScript: "",
+    preRequestScript,
+    testScript,
   })
+}
 
 export const getHoppCollections = (
   collections: PMCollection[],

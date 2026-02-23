@@ -784,6 +784,13 @@ export const INFRA_CONFIG_OPERATION_NOT_ALLOWED =
   'infra_config/operation_not_allowed';
 
 /**
+ * Error message for when the onboarding status fetch fails
+ * (InfraConfigService)
+ */
+export const INFRA_CONFIG_FETCH_FAILED =
+  'infra_config/fetch_failed' as const;
+
+/**
  * Error message for when the database table does not exist
  * (InfraConfigService)
  */

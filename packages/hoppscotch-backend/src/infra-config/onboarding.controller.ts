@@ -63,16 +63,20 @@ export class OnboardingController {
     const onboardingStatus =
       await this.infraConfigService.getOnboardingStatus();
 
+    if (E.isLeft(onboardingStatus))
+      throwHTTPErr(<RESTError>{
+        message: onboardingStatus.left,
+        statusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+      });
+
     if (
-      E.isLeft(onboardingStatus) ||
-      (onboardingStatus.right.onboardingCompleted &&
-        !onboardingStatus.right.canReRunOnboarding)
-    ) {
+      onboardingStatus.right.onboardingCompleted &&
+      !onboardingStatus.right.canReRunOnboarding
+    )
       throwHTTPErr(<RESTError>{
         message: 'Onboarding cannot be re-run',
         statusCode: HttpStatus.BAD_REQUEST,
       });
-    }
 
     const updateConfigResult =
       await this.infraConfigService.updateOnboardingConfig(dto);

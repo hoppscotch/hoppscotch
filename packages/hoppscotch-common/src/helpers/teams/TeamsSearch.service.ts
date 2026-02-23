@@ -1,7 +1,5 @@
 import {
-  HoppCollectionVariable,
   HoppRESTAuth,
-  HoppRESTHeader,
   HoppRESTRequest,
   getDefaultRESTRequest,
 } from "@hoppscotch/data"
@@ -19,6 +17,24 @@ import {
   TeamRequest,
   getCollectionChildCollections,
 } from "./TeamRequest"
+import { CollectionDataProps } from "../backend/helpers"
+
+/**
+ * Parses collection data that may be double-encoded JSON
+ * Handles both single and double JSON stringification
+ */
+const parseCollectionData = (data: string): CollectionDataProps | null => {
+  try {
+    let parsed = JSON.parse(data)
+    // Handle double-encoded JSON (string containing JSON string)
+    if (typeof parsed === "string") {
+      parsed = JSON.parse(parsed)
+    }
+    return parsed as CollectionDataProps
+  } catch {
+    return null
+  }
+}
 
 type CollectionSearchMeta = {
   isSearchResult?: boolean
@@ -354,6 +370,8 @@ export class TeamSearchService extends Service {
 
     const defaultInheritedVariables: HoppInheritedProperty["variables"] = []
 
+    const defaultInheritedScripts: HoppInheritedProperty["scripts"] = []
+
     const collection = Object.values(this.searchResultsCollections).find(
       (col) => col.id === collectionID
     )
@@ -363,12 +381,14 @@ export class TeamSearchService extends Service {
         auth: defaultInheritedAuth,
         headers: defaultInheritedHeaders,
         variables: defaultInheritedVariables,
+        scripts: defaultInheritedScripts,
       }
 
     const inheritedAuthData = this.findInheritableParentAuth(collectionID)
     const inheritedHeadersData = this.findInheritableParentHeaders(collectionID)
     const inheritedVariablesData =
       this.findInheritableParentVariables(collectionID)
+    const inheritedScriptsData = this.findInheritableParentScripts(collectionID)
 
     return {
       auth: E.isRight(inheritedAuthData)
@@ -380,6 +400,9 @@ export class TeamSearchService extends Service {
       variables: E.isRight(inheritedVariablesData)
         ? Object.values(inheritedVariablesData.right)
         : defaultInheritedVariables,
+      scripts: E.isRight(inheritedScriptsData)
+        ? Object.values(inheritedScriptsData.right)
+        : defaultInheritedScripts,
     }
   }
 
@@ -403,15 +426,11 @@ export class TeamSearchService extends Service {
 
     // has inherited data
     if (collection.data) {
-      const parentInheritedData = JSON.parse(collection.data) as {
-        auth: HoppRESTAuth
-        headers: HoppRESTHeader[]
-        variables: HoppCollectionVariable[]
-      }
+      const parentInheritedData = parseCollectionData(collection.data)
 
-      const inheritedAuth = parentInheritedData.auth
+      const inheritedAuth = parentInheritedData?.auth
 
-      if (inheritedAuth.authType !== "inherit") {
+      if (inheritedAuth && inheritedAuth.authType !== "inherit") {
         return E.right({
           parentID: collectionID,
           parentName: collection.title,
@@ -447,13 +466,9 @@ export class TeamSearchService extends Service {
 
     // see if it has headers to inherit, if yes, add it to the existing headers
     if (collection.data) {
-      const parentInheritedData = JSON.parse(collection.data) as {
-        auth: HoppRESTAuth
-        headers: HoppRESTHeader[]
-        variables: HoppCollectionVariable[]
-      }
+      const parentInheritedData = parseCollectionData(collection.data)
 
-      const inheritedHeaders = parentInheritedData.headers
+      const inheritedHeaders = parentInheritedData?.headers
 
       if (inheritedHeaders) {
         inheritedHeaders.forEach((header) => {
@@ -493,13 +508,9 @@ export class TeamSearchService extends Service {
     }
 
     if (collection.data) {
-      const parentData = JSON.parse(collection.data) as {
-        auth: HoppRESTAuth
-        headers: HoppRESTHeader[]
-        variables: HoppCollectionVariable[]
-      }
+      const parentData = parseCollectionData(collection.data)
 
-      const variables = parentData.variables
+      const variables = parentData?.variables
 
       if (variables) {
         vars.push({
@@ -515,6 +526,51 @@ export class TeamSearchService extends Service {
     }
 
     return E.right(vars)
+  }
+
+  findInheritableParentScripts = (
+    collectionID: string,
+    existingScripts: HoppInheritedProperty["scripts"] = []
+  ): E.Either<string, HoppInheritedProperty["scripts"]> => {
+    const collection = Object.values(this.searchResultsCollections).find(
+      (col) => col.id === collectionID
+    )
+
+    if (!collection) {
+      return E.left("PARENT_NOT_FOUND" as const)
+    }
+
+    // Recurse to parent first to build root→parent→child order
+    let scripts = [...existingScripts]
+    if (collection.parentID) {
+      const parentResult = this.findInheritableParentScripts(
+        collection.parentID,
+        scripts
+      )
+      if (E.isLeft(parentResult)) {
+        return parentResult
+      }
+      scripts = parentResult.right
+    }
+
+    // Then add current collection's scripts
+    if (collection.data) {
+      const parentData = parseCollectionData(collection.data)
+
+      const preRequestScript = parentData?.preRequestScript ?? ""
+      const testScript = parentData?.testScript ?? ""
+
+      if (preRequestScript || testScript) {
+        scripts.push({
+          parentID: collection.id,
+          parentName: collection.title,
+          preRequestScript,
+          testScript,
+        })
+      }
+    }
+
+    return E.right(scripts)
   }
 
   expandCollection = async (collectionID: string) => {

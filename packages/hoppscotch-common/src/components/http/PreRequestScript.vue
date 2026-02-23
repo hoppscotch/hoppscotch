@@ -54,6 +54,29 @@
       <div
         class="z-[9] sticky top-upperTertiaryStickyFold h-full min-w-[12rem] max-w-1/3 flex-shrink-0 overflow-auto overflow-x-auto bg-primary p-4"
       >
+        <div
+          v-if="inheritedScripts.length > 0"
+          class="mb-4 flex flex-col gap-2 rounded bg-primaryLight p-3 border border-dividerLight"
+        >
+          <span
+            class="flex items-center gap-2 text-tiny font-semibold text-secondaryDark"
+          >
+            <icon-lucide-file-symlink class="svg-icons !w-3 !h-3" />
+            {{ t("script.inheriting") }}
+          </span>
+          <div class="flex flex-col gap-1.5">
+            <span
+              v-for="script in inheritedScripts"
+              :key="script.parentID"
+              class="flex items-center gap-2 text-tiny text-secondaryLight"
+            >
+              <icon-lucide-folder
+                class="svg-icons !w-3 !h-3 text-secondaryLight opacity-75"
+              />
+              <span class="truncate">{{ script.parentName }}</span>
+            </span>
+          </div>
+        </div>
         <div class="pb-2 text-secondaryLight">
           {{ t("helpers.pre_request_script") }}
         </div>
@@ -101,6 +124,7 @@ import { useReadonlyStream } from "~/composables/stream"
 import { invokeAction } from "~/helpers/actions"
 import completer from "~/helpers/editor/completion/preRequest"
 import linter from "~/helpers/editor/linting/preRequest"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { platform } from "~/platform"
 import { RESTTabService } from "~/services/tab/rest"
@@ -114,12 +138,21 @@ const t = useI18n()
 const props = defineProps<{
   modelValue: string
   isActive?: boolean
+  inheritedProperties?: HoppInheritedProperty
 }>()
 const emit = defineEmits<{
   (e: "update:modelValue", value: string): void
 }>()
 
 const preRequestScript = useVModel(props, "modelValue", emit)
+
+const inheritedScripts = computed(() => {
+  return (
+    props.inheritedProperties?.scripts?.filter(
+      (script) => script.preRequestScript && script.preRequestScript.length > 0
+    ) ?? []
+  )
+})
 
 const preRequestEditor = ref<any | null>(null)
 const WRAP_LINES = useNestedSetting("WRAP_LINES", "httpPreRequest")

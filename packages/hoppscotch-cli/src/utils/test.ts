@@ -19,6 +19,7 @@ import { ExpectResult, TestMetrics, TestRunnerRes } from "../types/response";
 import { getDurationInSeconds } from "./getters";
 import { createHoppFetchHook } from "./hopp-fetch";
 import { stripModulePrefix } from "./mutators";
+import { combineScriptsWithIIFE } from "./scripting";
 
 /**
  * Executes test script and runs testDescriptorParser to generate test-report using
@@ -39,7 +40,7 @@ export const testRunner = (
     TE.bind("test_response", () =>
       pipe(
         TE.of(testScriptData),
-        TE.chain(({ request, response, envs, legacySandbox }) => {
+        TE.chain(({ request, response, envs, legacySandbox, inheritedTestScripts = [] }) => {
           const { status, statusText, headers, responseTime, body } = response;
 
           const effectiveResponse = {
@@ -53,7 +54,17 @@ export const testRunner = (
           const experimentalScriptingSandbox = !legacySandbox;
           const hoppFetchHook = createHoppFetchHook();
 
-          return runTestScript(stripModulePrefix(request.testScript), {
+          // Combine request test script with inherited test scripts (from child to root collection)
+          // Order: Request → Child folder → Parent folder → Root collection
+          // Each script is wrapped in an IIFE to isolate local variable scope and prevent clashes
+          const combinedScript = combineScriptsWithIIFE(
+            [request.testScript, ...inheritedTestScripts.slice().reverse()].filter(
+              (script): script is string =>
+                typeof script === "string" && script.trim().length > 0
+            )
+          );
+
+          return runTestScript(stripModulePrefix(combinedScript), {
             envs,
             request,
             response: effectiveResponse,
@@ -160,7 +171,8 @@ export const getTestScriptParams = (
   reqRunnerRes: RequestRunnerResponse,
   request: HoppRESTRequest,
   envs: HoppEnvs,
-  legacySandbox: boolean
+  legacySandbox: boolean,
+  inheritedTestScripts: string[] = []
 ) => {
   const testScriptParams: TestScriptParams = {
     request,
@@ -173,6 +185,7 @@ export const getTestScriptParams = (
     },
     envs,
     legacySandbox,
+    inheritedTestScripts,
   };
   return testScriptParams;
 };

@@ -54,17 +54,17 @@
       :id="'preRequestScript'"
       :label="`${t('tab.pre_request_script')}`"
       :indicator="
-        'preRequestScript' in request &&
-        request.preRequestScript &&
-        request.preRequestScript.length > 0
-          ? true
-          : false
+        ('preRequestScript' in request &&
+          request.preRequestScript &&
+          request.preRequestScript.length > 0) ||
+        hasInheritedPreRequestScripts
       "
     >
       <HttpPreRequestScript
         v-if="'preRequestScript' in request"
         v-model="request.preRequestScript"
         :is-active="selectedOptionTab === 'preRequestScript'"
+        :inherited-properties="inheritedProperties"
       />
     </HoppSmartTab>
     <HoppSmartTab
@@ -72,17 +72,17 @@
       :id="'tests'"
       :label="`${t('tab.post_request_script')}`"
       :indicator="
-        'testScript' in request &&
-        request.testScript &&
-        request.testScript.length > 0
-          ? true
-          : false
+        ('testScript' in request &&
+          request.testScript &&
+          request.testScript.length > 0) ||
+        hasInheritedTestScripts
       "
     >
       <HttpTests
         v-if="'testScript' in request"
         v-model="request.testScript"
         :is-active="selectedOptionTab === 'tests'"
+        :inherited-properties="inheritedProperties"
       />
     </HoppSmartTab>
     <HoppSmartTab
@@ -186,6 +186,22 @@ const newActiveRequestVariablesCount = computed(() => {
 
 const isBodyFilled = computed(() => {
   return Boolean(request.value.body.body && request.value.body.body.length > 0)
+})
+
+const hasInheritedPreRequestScripts = computed(() => {
+  return (
+    props.inheritedProperties?.scripts?.some(
+      (script) => script.preRequestScript && script.preRequestScript.length > 0
+    ) ?? false
+  )
+})
+
+const hasInheritedTestScripts = computed(() => {
+  return (
+    props.inheritedProperties?.scripts?.some(
+      (script) => script.testScript && script.testScript.length > 0
+    ) ?? false
+  )
 })
 
 defineActionHandler("request.open-tab", ({ tab }) => {

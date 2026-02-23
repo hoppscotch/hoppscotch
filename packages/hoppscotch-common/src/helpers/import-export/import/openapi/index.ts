@@ -1161,6 +1161,8 @@ const convertOpenApiDocsToHopp = (
           auth: { authType: "inherit", authActive: true },
           headers: [],
           variables: [],
+          preRequestScript: "",
+          testScript: "",
         })
       ),
       requests: requestsWithoutTags,
@@ -1168,6 +1170,8 @@ const convertOpenApiDocsToHopp = (
       headers: [],
       variables: [],
       description,
+      preRequestScript: "",
+      testScript: "",
     })
   })
 

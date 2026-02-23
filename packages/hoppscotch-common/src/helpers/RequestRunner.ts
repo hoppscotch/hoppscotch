@@ -27,7 +27,7 @@ import { map } from "fp-ts/Either"
 import { runPreRequestScript, runTestScript } from "@hoppscotch/js-sandbox/web"
 import { useSetting } from "~/composables/settings"
 import { getService } from "~/modules/dioc"
-import { stripModulePrefix } from "~/helpers/scripting"
+import { combineScriptsWithIIFE, stripModulePrefix } from "~/helpers/scripting"
 import { createHoppFetchHook } from "~/helpers/hopp-fetch"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import {
@@ -364,11 +364,20 @@ const delegatePreRequestScriptRunner = (
     selected: Environment["variables"]
     temp: Environment["variables"]
   },
-  cookies: Cookie[] | null
+  cookies: Cookie[] | null,
+  inheritedPreRequestScripts: string[] = []
 ): Promise<E.Either<string, SandboxPreRequestResult>> => {
   const { preRequestScript } = request
 
-  const cleanScript = stripModulePrefix(preRequestScript)
+  // Combine inherited pre-request scripts (from root to child collection) with the request's script
+  // Order: Root collection → Parent folder → Child folder → Request
+  // Each script is wrapped in an IIFE to isolate local variable scope and prevent clashes
+  const combinedScript = combineScriptsWithIIFE([
+    ...inheritedPreRequestScripts,
+    preRequestScript,
+  ])
+
+  const cleanScript = stripModulePrefix(combinedScript)
   if (!EXPERIMENTAL_SCRIPTING_SANDBOX.value) {
     // Strip `export {};\n` before executing in legacy sandbox to prevent syntax errors
 
@@ -394,11 +403,20 @@ const runPostRequestScript = (
   envs: TestResult["envs"],
   request: HoppRESTRequest,
   response: HoppRESTResponse,
-  cookies: Cookie[] | null
+  cookies: Cookie[] | null,
+  inheritedTestScripts: string[] = []
 ): Promise<E.Either<string, SandboxTestResult>> => {
   const { testScript } = request
 
-  const cleanScript = stripModulePrefix(testScript)
+  // Combine request test script with inherited test scripts (from child to root collection)
+  // Order: Request → Child folder → Parent folder → Root collection
+  // Each script is wrapped in an IIFE to isolate local variable scope and prevent clashes
+  const combinedScript = combineScriptsWithIIFE([
+    testScript,
+    ...inheritedTestScripts.slice().reverse(),
+  ])
+
+  const cleanScript = stripModulePrefix(combinedScript)
   if (!EXPERIMENTAL_SCRIPTING_SANDBOX.value) {
     // Strip `export {};\n` before executing in legacy sandbox to prevent syntax errors
 
@@ -473,10 +491,18 @@ export function runRESTRequest$(
     initialEnvsForComparison,
   } = captureInitialEnvironmentState()
 
+  // Extract inherited scripts from collection hierarchy
+  const inheritedScripts = inheritedProperties?.scripts ?? []
+  const inheritedPreRequestScripts = inheritedScripts.map(
+    (s) => s.preRequestScript
+  )
+  const inheritedTestScripts = inheritedScripts.map((s) => s.testScript)
+
   const res = delegatePreRequestScriptRunner(
     resolvedRequest,
     initialEnvs,
-    cookieJarEntries
+    cookieJarEntries,
+    inheritedPreRequestScripts
   ).then(async (preRequestScriptResult) => {
     if (cancelCalled) return E.left("cancellation" as const)
 
@@ -555,7 +581,8 @@ export function runRESTRequest$(
               statusText: res.statusText,
               responseTime: res.meta.responseDuration,
             },
-            preRequestScriptResult.right.updatedCookies ?? null
+            preRequestScriptResult.right.updatedCookies ?? null,
+            inheritedTestScripts
           )
 
           if (E.isRight(postRequestScriptResult)) {
@@ -766,7 +793,9 @@ export async function runTestRunnerRequest(
   request: HoppRESTRequest,
   persistEnv = true,
   inheritedVariables: HoppCollectionVariable[] = [],
-  initialEnvironmentState: InitialEnvironmentState
+  initialEnvironmentState: InitialEnvironmentState,
+  inheritedPreRequestScripts: string[] = [],
+  inheritedTestScripts: string[] = []
 ): Promise<
   | E.Left<"script_fail">
   | E.Right<{
@@ -795,7 +824,8 @@ export async function runTestRunnerRequest(
   return delegatePreRequestScriptRunner(
     request,
     initialEnvs,
-    cookieJarEntries
+    cookieJarEntries,
+    inheritedPreRequestScripts
   ).then(async (preRequestScriptResult) => {
     if (E.isLeft(preRequestScriptResult)) {
       console.error(preRequestScriptResult.left)
@@ -854,7 +884,8 @@ export async function runTestRunnerRequest(
               statusText: res.statusText,
               responseTime: res.meta.responseDuration,
             },
-            preRequestScriptResult.right.updatedCookies ?? null
+            preRequestScriptResult.right.updatedCookies ?? null,
+            inheritedTestScripts
           )
 
           if (E.isRight(postRequestScriptResult)) {

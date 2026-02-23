@@ -518,6 +518,8 @@ describe("DocumentationService", () => {
 
       await service.fetchTeamPublishedDocs("team-1")
 
+      const status = service.getPublishedDocStatus("col-2")
+
       expect(status).toEqual([
         {
           id: "doc-2",

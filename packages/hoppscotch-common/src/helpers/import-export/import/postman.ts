@@ -558,8 +558,6 @@ const getHoppCollectionScripts = (
   ig: ItemGroup<Item>,
   importScripts: boolean
 ): { preRequestScript: string; testScript: string } => {
-  console.log("Extracting collection/folder scripts for", ig)
-  console.log("Import scripts enabled?", importScripts)
   if (!importScripts) {
     return { preRequestScript: "", testScript: "" }
   }

@@ -151,6 +151,15 @@ const flattenCollection = (
         })),
       },
     ],
+    scripts: [
+      ...(inheritedProperties?.scripts || []),
+      {
+        parentID: collection.id || "",
+        parentName: collection.name,
+        preRequestScript: collection.preRequestScript || "",
+        testScript: collection.testScript || "",
+      },
+    ],
   }
 
   if (collection.folders && collection.folders.length > 0) {

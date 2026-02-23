@@ -1257,6 +1257,9 @@
     "saved": "Response saved",
     "invalid_name": "Please provide a name for the response"
   },
+  "script": {
+    "inheriting": "Inheriting scripts from"
+  },
   "settings": {
     "accent_color": "Accent color",
     "account": "Account",

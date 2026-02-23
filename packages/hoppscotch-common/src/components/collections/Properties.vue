@@ -69,56 +69,65 @@
           id="scripts"
           :label="`${t('tab.scripts')}`"
         >
-          <div class="flex flex-col">
-            <div
-              class="flex flex-shrink-0 items-center justify-between border-b border-dividerLight bg-primary pl-4"
+          <div class="flex flex-col flex-1">
+            <HoppSmartTabs
+              v-model="activeScriptsTab"
+              styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-0 z-10"
+              render-inactive-tabs
             >
-              <span class="font-semibold text-secondaryLight">
-                {{ t("preRequest.javascript_code") }}
-              </span>
-            </div>
-            <div class="p-4">
-              <label class="pb-2 text-secondaryLight">
-                {{ t("tab.pre_request_script") }}
-              </label>
-              <div
-                class="h-48 border border-dividerLight rounded overflow-hidden relative"
+              <HoppSmartTab
+                id="pre-request"
+                :label="`${t('tab.pre_request_script')}`"
+                :indicator="!!editableCollection.preRequestScript"
               >
-                <MonacoScriptEditor
-                  v-if="
-                    EXPERIMENTAL_SCRIPTING_SANDBOX && activeTab === 'scripts'
-                  "
-                  v-model="editableCollection.preRequestScript"
-                  type="pre-request"
-                />
-                <div
-                  v-else
-                  ref="preRequestEditor"
-                  class="h-full absolute inset-0"
-                ></div>
-              </div>
-            </div>
-            <div class="p-4 pt-0">
-              <label class="pb-2 text-secondaryLight">
-                {{ t("test.script") }}
-              </label>
-              <div
-                class="h-48 border border-dividerLight rounded overflow-hidden relative"
+                <div class="flex flex-col flex-1">
+                  <div class="h-64 overflow-hidden relative">
+                    <MonacoScriptEditor
+                      v-if="
+                        EXPERIMENTAL_SCRIPTING_SANDBOX &&
+                        activeTab === 'scripts' &&
+                        activeScriptsTab === 'pre-request'
+                      "
+                      v-model="editableCollection.preRequestScript"
+                      type="pre-request"
+                    />
+                    <div
+                      v-else
+                      ref="preRequestEditor"
+                      class="h-full absolute inset-0"
+                    ></div>
+                  </div>
+                </div>
+              </HoppSmartTab>
+
+              <HoppSmartTab
+                id="test-script"
+                :label="`${t('tab.post_request_script')}`"
+                :indicator="!!editableCollection.testScript"
               >
-                <MonacoScriptEditor
-                  v-if="
-                    EXPERIMENTAL_SCRIPTING_SANDBOX && activeTab === 'scripts'
-                  "
-                  v-model="editableCollection.testScript"
-                  type="post-request"
-                />
-                <div
-                  v-else
-                  ref="testScriptEditor"
-                  class="h-full absolute inset-0"
-                ></div>
-              </div>
-            </div>
+                <div class="flex flex-col flex-1">
+                  <div
+                    class="h-64 border-b border-dividerLight overflow-hidden relative"
+                  >
+                    <MonacoScriptEditor
+                      v-if="
+                        EXPERIMENTAL_SCRIPTING_SANDBOX &&
+                        activeTab === 'scripts' &&
+                        activeScriptsTab === 'test-script'
+                      "
+                      v-model="editableCollection.testScript"
+                      type="post-request"
+                    />
+                    <div
+                      v-else
+                      ref="testScriptEditor"
+                      class="h-full absolute inset-0"
+                    ></div>
+                  </div>
+                </div>
+              </HoppSmartTab>
+            </HoppSmartTabs>
+
             <div
               class="bg-bannerInfo px-4 py-2 flex items-center sticky bottom-0"
             >
@@ -291,6 +300,7 @@ const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
   1000
 )
 const activeTab = useVModel(props, "modelValue", emit)
+const activeScriptsTab = ref<"pre-request" | "test-script">("pre-request")
 
 const activeTabIsDetails = computed(() => activeTab.value === "details")
 

@@ -129,6 +129,7 @@ export class UserEnvironmentsService {
    * @param id environment id
    * @param name environments name
    * @param variables environment variables
+   * @param user User object for authorization
    * @returns an Either of `UserEnvironment` or error
    */
   async updateUserEnvironment(

@@ -11,6 +11,7 @@ import { InfraConfigService } from './infra-config.service';
 import { RESTError } from 'src/types/RESTError';
 import { throwHTTPErr } from 'src/utils';
 import * as E from 'fp-ts/Either';
+import { ONBOARDING_CANNOT_BE_RERUN } from 'src/errors';
 import {
   GetOnboardingConfigResponse,
   GetOnboardingStatusResponse,
@@ -74,7 +75,7 @@ export class OnboardingController {
       !onboardingStatus.right.canReRunOnboarding
     )
       throwHTTPErr(<RESTError>{
-        message: 'Onboarding cannot be re-run',
+        message: ONBOARDING_CANNOT_BE_RERUN,
         statusCode: HttpStatus.BAD_REQUEST,
       });
 

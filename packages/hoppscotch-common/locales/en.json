@@ -952,7 +952,8 @@
     "instance_changed": "Switched to instance",
     "current_instance_error": "Failed to track current instance",
     "not_available": "Instance switching is not available",
-    "cleanup_completed": "Instance switcher cleanup completed"
+    "cleanup_completed": "Instance switcher cleanup completed",
+    "self_hosted": "Self-hosted instances"
   },
   "inspections": {
     "description": "Inspect possible errors",
@@ -2246,6 +2247,7 @@
   },
   "organization_sidebar": {
     "hoppscotch_cloud": "Hoppscotch Cloud",
+    "cloud_locked": "Default instance cannot be removed",
     "admin": "Admin",
     "error_loading": "Failed to load organizations",
     "inactive_orgs": "Inactive Organizations",

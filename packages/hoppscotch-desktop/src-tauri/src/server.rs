@@ -92,3 +92,65 @@ pub(crate) fn init<R: Runtime>(port: u16, handle: tauri::AppHandle<R>) -> u16 {
 
     port
 }
+
+// `AuthTokensQuery` gets deserialized from query params on the `/device-token`
+// endpoint. the desktop app receives auth tokens this way after the user does
+// browser-based login and gets redirected back. `refresh_token` is optional
+// because some auth flows (like the device code flow) don't always return one,
+// and we don't wanna blow up if it's missing.
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_auth_tokens_query_deserialize_both_tokens() {
+        let json = r#"{"access_token":"abc123","refresh_token":"def456"}"#;
+        let query: AuthTokensQuery = serde_json::from_str(json).unwrap();
+
+        assert_eq!(query.access_token, "abc123");
+        assert_eq!(query.refresh_token, Some("def456".to_string()));
+    }
+
+    #[test]
+    fn test_auth_tokens_query_deserialize_without_refresh() {
+        let json = r#"{"access_token":"abc123"}"#;
+        let query: AuthTokensQuery = serde_json::from_str(json).unwrap();
+
+        assert_eq!(query.access_token, "abc123");
+        assert_eq!(query.refresh_token, None);
+    }
+
+    #[test]
+    fn test_auth_tokens_query_deserialize_fails_without_access_token() {
+        let json = r#"{"refresh_token":"def456"}"#;
+        let result: Result<AuthTokensQuery, _> = serde_json::from_str(json);
+
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_auth_tokens_query_roundtrip() {
+        let original = AuthTokensQuery {
+            access_token: "token_value".to_string(),
+            refresh_token: Some("refresh_value".to_string()),
+        };
+
+        let serialized = serde_json::to_value(&original).unwrap();
+        assert_eq!(serialized["access_token"], "token_value");
+        assert_eq!(serialized["refresh_token"], "refresh_value");
+
+        let deserialized: AuthTokensQuery =
+            serde_json::from_value(serialized).unwrap();
+        assert_eq!(deserialized.access_token, original.access_token);
+        assert_eq!(deserialized.refresh_token, original.refresh_token);
+    }
+
+    #[test]
+    fn test_auth_tokens_query_null_refresh_token() {
+        let json = r#"{"access_token":"abc123","refresh_token":null}"#;
+        let query: AuthTokensQuery = serde_json::from_str(json).unwrap();
+
+        assert_eq!(query.access_token, "abc123");
+        assert_eq!(query.refresh_token, None);
+    }
+}

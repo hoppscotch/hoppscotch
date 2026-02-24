@@ -35,7 +35,6 @@ export type PlatformDef = {
     history: HistoryPlatformDef
   }
   kernelInterceptors: KernelInterceptorsPlatformDef
-  instance?: InstancePlatformDef
   additionalInspectors?: InspectorsPlatformDef
   spotlight?: SpotlightPlatformDef
   platformFeatureFlags: {

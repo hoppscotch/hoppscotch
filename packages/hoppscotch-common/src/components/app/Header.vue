@@ -14,47 +14,17 @@
         }"
       >
         <div class="flex">
-          <!-- Instance Switcher (Desktop/On-prem) -->
+          <!-- Unified Switcher (orgs + instances in one dropdown) -->
           <tippy
-            v-if="platform.instance?.instanceSwitchingEnabled"
-            interactive
-            trigger="click"
-            theme="popover"
-            :on-shown="() => instanceSwitcherRef.focus()"
-          >
-            <div class="flex items-center cursor-pointer">
-              <span
-                class="!font-bold uppercase tracking-wide !text-secondaryDark pr-1"
-              >
-                {{
-                  platform.instance.getCurrentInstance?.()?.displayName ||
-                  "Hoppscotch"
-                }}
-              </span>
-              <IconChevronDown class="h-4 w-4 text-secondaryDark" />
-            </div>
-            <template #content="{ hide }">
-              <div
-                ref="instanceSwitcherRef"
-                class="flex flex-col focus:outline-none min-w-64"
-                tabindex="0"
-                @keyup.escape="hide()"
-              >
-                <InstanceSwitcher @close-dropdown="hide()" />
-              </div>
-            </template>
-          </tippy>
-
-          <!-- Organization Switcher (Web/Cloud) -->
-          <tippy
-            v-else-if="
-              platform.organization?.customOrganizationSwitcherComponent
+            v-if="
+              platform.organization?.organizationSwitchingEnabled ||
+              platform.instance?.instanceSwitchingEnabled
             "
             interactive
             trigger="click"
             theme="popover"
-            :on-shown="() => orgSwitcherRef?.focus()"
-            :on-create="onOrgSwitcherCreate"
+            :on-shown="() => switcherRef?.focus()"
+            :on-create="onSwitcherCreate"
           >
             <HoppButtonSecondary
               class="!font-bold uppercase tracking-wide !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark"
@@ -64,15 +34,24 @@
             />
             <template #content="{ hide }">
               <div
-                ref="orgSwitcherRef"
+                ref="switcherRef"
                 class="flex flex-col focus:outline-none min-w-72"
                 tabindex="0"
                 @keyup.escape="hide()"
               >
                 <component
                   :is="
-                    platform.organization.customOrganizationSwitcherComponent
+                    platform.organization
+                      .customOrganizationSwitcherComponent
                   "
+                  v-if="
+                    platform.organization
+                      ?.customOrganizationSwitcherComponent
+                  "
+                  @close-dropdown="hide()"
+                />
+                <InstanceSwitcher
+                  v-if="platform.instance?.instanceSwitchingEnabled"
                   @close-dropdown="hide()"
                 />
               </div>
@@ -424,13 +403,11 @@ const kernelMode = getKernelMode()
 
 const downloadableLinksRef =
   kernelMode === "web" ? ref<any | null>(null) : ref(null)
-const instanceSwitcherRef =
-  kernelMode === "desktop" ? ref<any | null>(null) : ref(null)
-const orgSwitcherRef = ref<HTMLElement | null>(null)
+const switcherRef = ref<HTMLElement | null>(null)
 
 // Reserve scrollbar gutter so content width doesn't shift when the list
 // grows long enough to scroll inside the popover's `max-h-[45vh]` container.
-const onOrgSwitcherCreate = (instance: Instance) => {
+const onSwitcherCreate = (instance: Instance) => {
   const content = instance.popper?.querySelector(".tippy-content")
   if (content instanceof HTMLElement) {
     content.style.scrollbarGutter = "stable"

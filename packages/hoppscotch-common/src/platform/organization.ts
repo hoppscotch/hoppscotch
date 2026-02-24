@@ -13,15 +13,10 @@ export type OrganizationPlatformDef = {
   initiateOnboarding: () => void
 
   /**
-   * Whether organization switching is enabled for this platform
-   * If true, an organization switcher will be shown
-   */
-  organizationSwitchingEnabled?: boolean
-
-  /**
-   * Custom component for the organization switcher dropdown
-   * If provided, will be shown as a dropdown in the header (like the instance switcher)
-   * The component should emit 'close-dropdown' when the dropdown should close
+   * Custom component for the organization switcher dropdown.
+   * If provided, organization switching is considered enabled and the component
+   * will be rendered in the unified header dropdown alongside the instance switcher.
+   * The component should emit 'close-dropdown' when the dropdown should close.
    */
   customOrganizationSwitcherComponent?: Component
 

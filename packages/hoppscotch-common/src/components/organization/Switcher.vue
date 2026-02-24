@@ -1,7 +1,7 @@
 <template>
   <!-- Use custom component if platform provides one -->
   <component
-    :is="platform.organization.customOrganizationSwitcherComponent"
+    :is="platform.organization?.customOrganizationSwitcherComponent"
     v-if="platform.organization?.customOrganizationSwitcherComponent"
     @close-dropdown="$emit('close-dropdown')"
   />

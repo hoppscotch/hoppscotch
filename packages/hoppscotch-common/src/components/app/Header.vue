@@ -17,7 +17,7 @@
           <!-- Unified Switcher (orgs + instances in one dropdown) -->
           <tippy
             v-if="
-              platform.organization?.organizationSwitchingEnabled ||
+              platform.organization?.customOrganizationSwitcherComponent ||
               platform.instance?.instanceSwitchingEnabled
             "
             interactive

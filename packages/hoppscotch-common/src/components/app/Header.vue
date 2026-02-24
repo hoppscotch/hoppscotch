@@ -41,12 +41,10 @@
               >
                 <component
                   :is="
-                    platform.organization
-                      .customOrganizationSwitcherComponent
+                    platform.organization.customOrganizationSwitcherComponent
                   "
                   v-if="
-                    platform.organization
-                      ?.customOrganizationSwitcherComponent
+                    platform.organization?.customOrganizationSwitcherComponent
                   "
                   @close-dropdown="hide()"
                 />

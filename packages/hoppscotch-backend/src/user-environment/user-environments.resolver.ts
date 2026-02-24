@@ -104,7 +104,7 @@ export class UserEnvironmentsResolver {
         id,
         name,
         variables,
-        user
+        user,
       );
     if (E.isLeft(userEnvironment)) throwErr(userEnvironment.left);
     return userEnvironment.right;

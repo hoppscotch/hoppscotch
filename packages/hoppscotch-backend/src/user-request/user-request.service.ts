@@ -99,7 +99,10 @@ export class UserRequestService {
    * @param user User who owns the collection
    * @returns Number of requests in the collection
    */
-  getRequestsCountInCollection(collectionID: string, tx: Prisma.TransactionClient | null = null): Promise<number> {
+  getRequestsCountInCollection(
+    collectionID: string,
+    tx: Prisma.TransactionClient | null = null,
+  ): Promise<number> {
     return (tx || this.prisma).userRequest.count({
       where: { collectionID },
     });
@@ -124,8 +127,10 @@ export class UserRequestService {
     const jsonRequest = stringToJson(request);
     if (E.isLeft(jsonRequest)) return E.left(jsonRequest.left);
 
-    const collection =
-      await this.userCollectionService.getUserCollection(collectionID);
+    const collection = await this.userCollectionService.getUserCollection(
+      collectionID,
+      user.uid,
+    );
     if (E.isLeft(collection)) return E.left(collection.left);
 
     if (collection.right.userUid !== user.uid)
@@ -139,7 +144,9 @@ export class UserRequestService {
       newRequest = await this.prisma.$transaction(async (tx) => {
         try {
           // lock the rows
-          await this.prisma.lockUserRequestByCollections(tx, user.uid, [collectionID]);
+          await this.prisma.lockUserRequestByCollections(tx, user.uid, [
+            collectionID,
+          ]);
 
           // fetch last user request
           const lastUserRequest = await tx.userRequest.findFirst({
@@ -235,13 +242,15 @@ export class UserRequestService {
       await this.prisma.$transaction(async (tx) => {
         try {
           // lock the rows
-          await this.prisma.lockUserRequestByCollections(tx, user.uid, [request.collectionID]);
+          await this.prisma.lockUserRequestByCollections(tx, user.uid, [
+            request.collectionID,
+          ]);
 
           const deletedRequest = await tx.userRequest.delete({ where: { id } });
 
           // if request is found, update orderIndexes of siblings
           // if request was deleted before the transaction started (race condition), do not update siblings orderIndexes
-          if(deletedRequest) {
+          if (deletedRequest) {
             await tx.userRequest.updateMany({
               where: {
                 collectionID: request.collectionID,
@@ -298,6 +307,7 @@ export class UserRequestService {
       destCollID,
       dbRequest,
       dbNextRequest,
+      user,
     );
     if (E.isLeft(isTypeValidate)) return E.left(isTypeValidate.left);
 
@@ -332,10 +342,11 @@ export class UserRequestService {
     destCollID,
     request,
     nextRequest,
+    user: AuthUser,
   ) {
     const collections = await Promise.all([
-      this.userCollectionService.getUserCollection(srcCollID),
-      this.userCollectionService.getUserCollection(destCollID),
+      this.userCollectionService.getUserCollection(srcCollID, user.uid),
+      this.userCollectionService.getUserCollection(destCollID, user.uid),
     ]);
 
     const srcColl = collections[0];
@@ -416,7 +427,10 @@ export class UserRequestService {
         E.Left<string> | E.Right<DbUserRequest>
       >(async (tx) => {
         // lock the rows
-        await this.prisma.lockUserRequestByCollections(tx, request.userUid, [srcCollID, destCollID]);
+        await this.prisma.lockUserRequestByCollections(tx, request.userUid, [
+          srcCollID,
+          destCollID,
+        ]);
 
         request = await tx.userRequest.findUnique({
           where: { id: request.id },
@@ -429,22 +443,24 @@ export class UserRequestService {
 
         // Check again if request is found in transaction, update orderIndexes of siblings
         // if request was deleted before the transaction started (race condition), do not update siblings orderIndexes
-        if(request) {
+        if (request) {
           const isSameCollection = srcCollID === destCollID;
           const isMovingUp = nextRequest?.orderIndex < request.orderIndex; // false, if nextRequest is null
-  
+
           const nextReqOrderIndex = nextRequest?.orderIndex;
           const reqCountInDestColl = nextRequest
             ? undefined
             : await this.getRequestsCountInCollection(destCollID);
-  
+
           // Updating order indexes of other requests in collection(s)
           if (isSameCollection) {
             const updateFrom = isMovingUp
               ? nextReqOrderIndex
               : request.orderIndex + 1;
-            const updateTo = isMovingUp ? request.orderIndex : nextReqOrderIndex;
-  
+            const updateTo = isMovingUp
+              ? request.orderIndex
+              : nextReqOrderIndex;
+
             await tx.userRequest.updateMany({
               where: {
                 collectionID: srcCollID,
@@ -462,7 +478,7 @@ export class UserRequestService {
               },
               data: { orderIndex: { decrement: 1 } },
             });
-  
+
             if (nextRequest) {
               await tx.userRequest.updateMany({
                 where: {
@@ -473,15 +489,16 @@ export class UserRequestService {
               });
             }
           }
-  
+
           // Updating order index of the request
           let adjust: number;
-          if (isSameCollection) adjust = nextRequest ? (isMovingUp ? 0 : -1) : 0;
+          if (isSameCollection)
+            adjust = nextRequest ? (isMovingUp ? 0 : -1) : 0;
           else adjust = nextRequest ? 0 : 1;
-  
+
           const newOrderIndex =
             (nextReqOrderIndex ?? reqCountInDestColl) + adjust;
-  
+
           const updatedRequest = await tx.userRequest.update({
             where: { id: request.id },
             data: { orderIndex: newOrderIndex, collectionID: destCollID },
@@ -520,7 +537,9 @@ export class UserRequestService {
 
     try {
       await this.prisma.$transaction(async (tx) => {
-        await this.prisma.lockUserRequestByCollections(tx, userUid, [collectionID]);
+        await this.prisma.lockUserRequestByCollections(tx, userUid, [
+          collectionID,
+        ]);
 
         const userRequests = await tx.userRequest.findMany({
           where: { userUid, collectionID },

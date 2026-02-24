@@ -653,6 +653,7 @@ describe('getUserCollection', () => {
 
     const result = await userCollectionService.getUserCollection(
       rootRESTUserCollection.id,
+      user.uid,
     );
     expect(result).toEqualRight(rootRESTUserCollection);
   });
@@ -661,7 +662,10 @@ describe('getUserCollection', () => {
       'NotFoundError',
     );
 
-    const result = await userCollectionService.getUserCollection('123');
+    const result = await userCollectionService.getUserCollection(
+      '123',
+      user.uid,
+    );
     expect(result).toEqualLeft(USER_COLL_NOT_FOUND);
   });
 });
@@ -1057,7 +1061,10 @@ describe('deleteUserCollection', () => {
       .spyOn(userCollectionService, 'getUserCollection')
       .mockResolvedValueOnce(E.right(rootRESTUserCollection));
     jest
-      .spyOn(userCollectionService as any, 'removeCollectionAndUpdateSiblingsOrderIndex')
+      .spyOn(
+        userCollectionService as any,
+        'removeCollectionAndUpdateSiblingsOrderIndex',
+      )
       .mockResolvedValueOnce(E.left(USER_COLL_REORDERING_FAILED));
 
     const result = await userCollectionService.deleteUserCollection(
@@ -1803,10 +1810,13 @@ describe('FIX: updateMany queries now include userUid filter for root collection
       );
 
       // Verify Alice's delete only affected Alice's collections
-      const aliceDeleteCall = mockPrisma.userCollection.updateMany.mock.calls[0][0];
+      const aliceDeleteCall =
+        mockPrisma.userCollection.updateMany.mock.calls[0][0];
       expect(aliceDeleteCall.where.userUid).toBe(alice.uid);
       expect(aliceDeleteCall.where.parentID).toBe(null);
-      expect(aliceDeleteCall.where.orderIndex).toEqual({ gt: aliceCollection2.orderIndex });
+      expect(aliceDeleteCall.where.orderIndex).toEqual({
+        gt: aliceCollection2.orderIndex,
+      });
 
       // Reset mocks for Bob's operation
       mockReset(mockPrisma);
@@ -1831,7 +1841,8 @@ describe('FIX: updateMany queries now include userUid filter for root collection
       );
 
       // Verify Bob's reorder only affected Bob's collections
-      const bobReorderCall = mockPrisma.userCollection.updateMany.mock.calls[0][0];
+      const bobReorderCall =
+        mockPrisma.userCollection.updateMany.mock.calls[0][0];
       expect(bobReorderCall.where.userUid).toBe(bob.uid);
       expect(bobReorderCall.where.parentID).toBe(null);
     });
@@ -1873,7 +1884,8 @@ describe('FIX: updateMany queries now include userUid filter for root collection
       );
 
       // Verify Alice's operation is scoped to Alice
-      const aliceReorderCall = mockPrisma.userCollection.updateMany.mock.calls[0][0];
+      const aliceReorderCall =
+        mockPrisma.userCollection.updateMany.mock.calls[0][0];
       expect(aliceReorderCall.where.userUid).toBe(alice.uid);
       expect(aliceReorderCall.where.parentID).toBe(null);
 
@@ -1903,7 +1915,8 @@ describe('FIX: updateMany queries now include userUid filter for root collection
       );
 
       // Verify Bob's operation is scoped to Bob
-      const bobReorderCall = mockPrisma.userCollection.updateMany.mock.calls[0][0];
+      const bobReorderCall =
+        mockPrisma.userCollection.updateMany.mock.calls[0][0];
       expect(bobReorderCall.where.userUid).toBe(bob.uid);
       expect(bobReorderCall.where.parentID).toBe(null);
     });
@@ -1937,7 +1950,9 @@ describe('FIX: updateMany queries now include userUid filter for root collection
         .mockResolvedValueOnce(E.right(aliceChildCollection));
 
       mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
-      mockPrisma.userCollection.findFirst.mockResolvedValueOnce(aliceCollection3); // Last root
+      mockPrisma.userCollection.findFirst.mockResolvedValueOnce(
+        aliceCollection3,
+      ); // Last root
       mockPrisma.userCollection.update.mockResolvedValueOnce({
         ...aliceChildCollection,
         parentID: null,
@@ -1952,7 +1967,8 @@ describe('FIX: updateMany queries now include userUid filter for root collection
       );
 
       // Verify Alice's move-to-root only affects Alice's collections
-      const aliceMoveCall = mockPrisma.userCollection.updateMany.mock.calls[0][0];
+      const aliceMoveCall =
+        mockPrisma.userCollection.updateMany.mock.calls[0][0];
       expect(aliceMoveCall.where.userUid).toBe(alice.uid);
       expect(aliceMoveCall.where.parentID).toBe(aliceChildCollection.parentID);
 
@@ -1976,10 +1992,13 @@ describe('FIX: updateMany queries now include userUid filter for root collection
       );
 
       // Verify Bob's delete only affects Bob's collections
-      const bobDeleteCall = mockPrisma.userCollection.updateMany.mock.calls[0][0];
+      const bobDeleteCall =
+        mockPrisma.userCollection.updateMany.mock.calls[0][0];
       expect(bobDeleteCall.where.userUid).toBe(bob.uid);
       expect(bobDeleteCall.where.parentID).toBe(null);
-      expect(bobDeleteCall.where.orderIndex).toEqual({ gt: bobCollection2.orderIndex });
+      expect(bobDeleteCall.where.orderIndex).toEqual({
+        gt: bobCollection2.orderIndex,
+      });
     });
   });
 
@@ -2016,7 +2035,8 @@ describe('FIX: updateMany queries now include userUid filter for root collection
     );
 
     expect(mockPrisma.userCollection.updateMany).toHaveBeenCalled();
-    const updateManyCall = mockPrisma.userCollection.updateMany.mock.calls[0][0];
+    const updateManyCall =
+      mockPrisma.userCollection.updateMany.mock.calls[0][0];
 
     // FIXED: The where clause now includes userUid to prevent cross-user data corruption
     expect(updateManyCall.where).toEqual({
@@ -2061,7 +2081,8 @@ describe('FIX: updateMany queries now include userUid filter for root collection
       user.uid,
     );
 
-    const updateManyCall = mockPrisma.userCollection.updateMany.mock.calls[0][0];
+    const updateManyCall =
+      mockPrisma.userCollection.updateMany.mock.calls[0][0];
 
     // FIXED: Now includes userUid - only affects current user's root collections
     expect(updateManyCall.where).toEqual({
@@ -2117,7 +2138,8 @@ describe('FIX: updateMany queries now include userUid filter for root collection
       user.uid,
     );
 
-    const updateManyCall = mockPrisma.userCollection.updateMany.mock.calls[0][0];
+    const updateManyCall =
+      mockPrisma.userCollection.updateMany.mock.calls[0][0];
 
     // FIXED: Now includes userUid - only affects current user's root collections
     expect(updateManyCall.where).toEqual({
@@ -2159,7 +2181,8 @@ describe('FIX: updateMany queries now include userUid filter for root collection
       user.uid,
     );
 
-    const updateManyCall = mockPrisma.userCollection.updateMany.mock.calls[0][0];
+    const updateManyCall =
+      mockPrisma.userCollection.updateMany.mock.calls[0][0];
 
     // FIXED: Now includes userUid - only affects current user's root collections
     expect(updateManyCall.where).toEqual({

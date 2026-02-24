@@ -8,7 +8,6 @@ import {
   UserRequest as DbUserRequest,
 } from 'src/generated/prisma/client';
 import {
-  USER_COLLECTION_NOT_FOUND,
   USER_REQUEST_CREATION_FAILED,
   USER_REQUEST_INVALID_TYPE,
   USER_REQUEST_NOT_FOUND,
@@ -132,9 +131,6 @@ export class UserRequestService {
       user.uid,
     );
     if (E.isLeft(collection)) return E.left(collection.left);
-
-    if (collection.right.userUid !== user.uid)
-      return E.left(USER_COLLECTION_NOT_FOUND);
 
     if (collection.right.type !== ReqType[type])
       return E.left(USER_REQUEST_INVALID_TYPE);

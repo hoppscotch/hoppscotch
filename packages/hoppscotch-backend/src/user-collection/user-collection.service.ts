@@ -231,10 +231,6 @@ export class UserCollectionService {
             );
             if (E.isLeft(parentCollection)) throw Error(parentCollection.left);
 
-            // Check to see if parentUserCollectionID belongs to this User
-            if (parentCollection.right.userUid !== user.uid)
-              throw Error(USER_NOT_OWNER);
-
             // Check to see if parent collection is of the same type of new collection being created
             if (parentCollection.right.type !== type)
               throw Error(USER_COLL_NOT_SAME_TYPE);
@@ -400,9 +396,6 @@ export class UserCollectionService {
     // Get collection details of collectionID
     const collection = await this.getUserCollection(collectionID, userID);
     if (E.isLeft(collection)) return E.left(USER_COLL_NOT_FOUND);
-
-    // Check to see is the collection belongs to the user
-    if (collection.right.userUid !== userID) return E.left(USER_NOT_OWNER);
 
     // Delete all child collections and requests in the collection
     const isDeleted = await this.removeCollectionAndUpdateSiblingsOrderIndex(
@@ -595,9 +588,6 @@ export class UserCollectionService {
         );
         if (E.isLeft(collection)) return E.left(USER_COLL_NOT_FOUND);
 
-        // Check to see is the collection belongs to the user
-        if (collection.right.userUid !== userID) return E.left(USER_NOT_OWNER);
-
         // destCollectionID == null i.e move collection to root
         if (!destCollectionID) {
           if (!collection.right.parentID) {
@@ -641,11 +631,6 @@ export class UserCollectionService {
         // Check if collection and destCollection belong to the same collection type
         if (collection.right.type !== destCollection.right.type) {
           return E.left(USER_COLL_NOT_SAME_TYPE);
-        }
-
-        // Check if collection and destCollection belong to the same user account
-        if (collection.right.userUid !== destCollection.right.userUid) {
-          return E.left(USER_COLL_NOT_SAME_USER);
         }
 
         // Check if collection is present on the parent tree for destCollection
@@ -723,9 +708,6 @@ export class UserCollectionService {
     // Get collection details of collectionID
     const collection = await this.getUserCollection(collectionID, userID);
     if (E.isLeft(collection)) return E.left(USER_COLL_NOT_FOUND);
-
-    // Check to see is the collection belongs to the user
-    if (collection.right.userUid !== userID) return E.left(USER_NOT_OWNER);
 
     if (!nextCollectionID) {
       // nextCollectionID == null i.e move collection to the end of the list
@@ -1124,10 +1106,6 @@ export class UserCollectionService {
       );
       if (E.isLeft(parentCollection)) return E.left(parentCollection.left);
 
-      // Check to see if parentUserCollectionID belongs to this User
-      if (parentCollection.right.userUid !== userID)
-        return E.left(USER_NOT_OWNER);
-
       // Check to see if parent collection is of the same type of new collection being created
       if (parentCollection.right.type !== reqType)
         return E.left(USER_COLL_NOT_SAME_TYPE);
@@ -1279,7 +1257,6 @@ export class UserCollectionService {
     const collection = await this.getUserCollection(collectionID, userID);
     if (E.isLeft(collection)) return E.left(USER_COLL_NOT_FOUND);
 
-    if (collection.right.userUid !== userID) return E.left(USER_NOT_OWNER);
     if (collection.right.type !== reqType)
       return E.left(USER_COLL_NOT_SAME_TYPE);
 

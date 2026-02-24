@@ -1670,11 +1670,6 @@ describe('FIX: updateMany queries now include teamID filter for root collections
     mockReset(mockPrisma);
   });
 
-  const team2: Team = {
-    id: 'team_2',
-    name: 'Team 2',
-  };
-
   test('FIX: deleteCollection - updateMany now correctly filters by teamID for root collections', async () => {
     /**
      * Scenario: Team 1 deletes a root collection

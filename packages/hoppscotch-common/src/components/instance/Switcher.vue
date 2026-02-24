@@ -104,13 +104,6 @@
 
     <hr />
 
-    <!-- Platform-specific additional entries (e.g., cloud orgs on desktop) -->
-    <component
-      :is="platform.instance.additionalEntriesComponent"
-      v-if="platform.instance?.additionalEntriesComponent"
-      @close-dropdown="$emit('close-dropdown')"
-    />
-
     <HoppButtonSecondary
       :label="t('instances.add_instance') || 'Add an instance'"
       :icon="IconLucidePlus"

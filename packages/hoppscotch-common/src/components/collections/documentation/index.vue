@@ -4,7 +4,7 @@
     dialog
     :title="t('documentation.title')"
     :full-width-body="true"
-    styles="sm:max-w-6xl"
+    styles="sm:max-w-6xl lg:max-w-6xl xl:max-w-7xl 2xl:max-w-[80vw]"
     @close="hideModal"
   >
     <template #body>

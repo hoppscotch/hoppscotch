@@ -293,6 +293,72 @@
               </div>
             </div>
             <div
+              v-if="hasActiveCollection"
+              class="sticky top-0 mt-2 flex items-center justify-between truncate rounded border border-divider bg-primary pl-4 font-semibold text-secondaryDark"
+            >
+              {{ t("environment.collection_variables") }}
+              <HoppButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="t('action.edit')"
+                :icon="IconEdit"
+                @click="
+                  () => {
+                    editCollectionVariables()
+                    hide()
+                  }
+                "
+              />
+            </div>
+            <div
+              v-if="hasActiveCollection"
+              class="my-2 flex flex-1 flex-col space-y-2 pl-4 pr-2"
+            >
+              <div class="flex flex-1 space-x-4">
+                <span
+                  class="min-w-[9rem] w-1/4 truncate text-tiny font-semibold"
+                >
+                  {{ t("environment.name") }}
+                </span>
+                <span
+                  class="min-w-[4rem] w-full truncate text-tiny font-semibold"
+                >
+                  {{ t("environment.initial_value") }}
+                </span>
+                <span
+                  class="min-w-[4rem] w-full truncate text-tiny font-semibold"
+                >
+                  {{ t("environment.current_value") }}
+                </span>
+              </div>
+              <div
+                v-for="(variable, index) in collectionVariables"
+                :key="`collection-variable-${index}`"
+                class="flex flex-1 space-x-4"
+              >
+                <span class="min-w-[9rem] w-1/4 truncate text-secondaryLight">
+                  {{ variable.key }}
+                </span>
+                <span class="min-w-[4rem] w-full truncate text-secondaryLight">
+                  <template v-if="variable.secret"> ******** </template>
+                  <template v-else>
+                    {{ variable.initialValue }}
+                  </template>
+                </span>
+                <span class="min-w-[4rem] w-full truncate text-secondaryLight">
+                  <template v-if="variable.secret"> ******** </template>
+                  <template v-else>
+                    {{ variable.currentValue }}
+                  </template>
+                </span>
+              </div>
+              <div
+                v-if="collectionVariables.length === 0"
+                class="text-secondaryLight"
+              >
+                {{ t("environment.no_collection_variables") }}
+              </div>
+            </div>
+            <div
               class="sticky top-0 mt-2 flex items-center justify-between truncate rounded border border-divider bg-primary pl-4 font-semibold text-secondaryDark"
               :class="{
                 'bg-primaryLight': !selectedEnv.variables,
@@ -397,7 +463,9 @@ import {
 } from "~/newstore/environments"
 import { useLocalState } from "~/newstore/localstate"
 import { CurrentValueService } from "~/services/current-environment-value.service"
+import { RESTTabService } from "~/services/tab/rest"
 import { WorkspaceService } from "~/services/workspace.service"
+import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
 import IconCheck from "~icons/lucide/check"
 import IconEdit from "~icons/lucide/edit"
 import IconEye from "~icons/lucide/eye"
@@ -466,6 +534,7 @@ const myEnvironments = useReadonlyStream(environments$, [])
 
 const workspaceService = useService(WorkspaceService)
 const workspace = workspaceService.currentWorkspace
+const restTabService = useService(RESTTabService)
 
 const currentEnvironmentValueService = useService(CurrentValueService)
 
@@ -770,6 +839,57 @@ const environmentVariables = computed(() => {
   }
   return []
 })
+
+const hasActiveCollection = computed(() => {
+  const activeTab = restTabService.currentActiveTab.value
+
+  if (!activeTab || activeTab.document.type === "test-runner") return false
+
+  const saveContext = activeTab.document.saveContext
+  if (!saveContext) return false
+
+  if (saveContext.originLocation === "user-collection") {
+    return saveContext.requestIndex !== undefined
+  }
+
+  return !!saveContext.collectionID
+})
+
+const collectionVariables = computed(() => {
+  if (!hasActiveCollection.value) return []
+
+  const activeTab = restTabService.currentActiveTab.value
+  if (!activeTab || activeTab.document.type === "test-runner") return []
+
+  const inheritedVariables = activeTab.document.inheritedProperties?.variables
+  if (!inheritedVariables) return []
+
+  return transformInheritedCollectionVariablesToAggregateEnv(
+    inheritedVariables,
+    false
+  )
+})
+
+const editCollectionVariables = () => {
+  const activeTab = restTabService.currentActiveTab.value
+
+  if (!activeTab || activeTab.document.type === "test-runner") return
+
+  const saveContext = activeTab.document.saveContext
+  if (!saveContext) return
+
+  if (saveContext.originLocation === "user-collection") {
+    invokeAction("modals.collection.edit-variables", {
+      originLocation: "user-collection",
+      collectionPath: saveContext.folderPath,
+    })
+  } else if (saveContext.collectionID) {
+    invokeAction("modals.collection.edit-variables", {
+      originLocation: "team-collection",
+      collectionID: saveContext.collectionID,
+    })
+  }
+}
 
 const editGlobalEnv = () => {
   invokeAction("modals.global.environment.update", {})

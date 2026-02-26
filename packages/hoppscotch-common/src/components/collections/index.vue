@@ -3650,10 +3650,68 @@ const getErrorMessage = (err: GQLError<string>) => {
   }
 }
 
+const findTeamCollectionByIDWithPath = (
+  collections: TeamCollection[],
+  targetID: string,
+  path = ""
+): { collection: TeamCollection; path: string } | null => {
+  for (const collection of collections) {
+    const currentPath = path ? `${path}/${collection.id}` : collection.id
+
+    if (collection.id === targetID) {
+      return { collection, path: currentPath }
+    }
+
+    if (collection.children) {
+      const nestedResult = findTeamCollectionByIDWithPath(
+        collection.children,
+        targetID,
+        currentPath
+      )
+
+      if (nestedResult) return nestedResult
+    }
+  }
+
+  return null
+}
+
 defineActionHandler("collection.new", () => {
   displayModalAdd(true)
 })
 defineActionHandler("modals.collection.import", () => {
   displayModalImportExport(true)
+})
+defineActionHandler("modals.collection.edit-variables", (payload) => {
+  collectionPropertiesModalActiveTab.value = "variables"
+
+  if (payload.originLocation === "user-collection") {
+    const path = payload.collectionPath
+    const targetCollection = navigateToFolderWithIndexPath(
+      myCollections.value,
+      path.split("/").map((x) => parseInt(x))
+    )
+
+    if (!targetCollection) return
+
+    editProperties({
+      collectionIndex: path,
+      collection: targetCollection,
+    })
+
+    return
+  }
+
+  const targetCollection = findTeamCollectionByIDWithPath(
+    teamCollections.value,
+    payload.collectionID
+  )
+
+  if (!targetCollection) return
+
+  editProperties({
+    collectionIndex: targetCollection.path,
+    collection: targetCollection.collection,
+  })
 })
 </script>

@@ -15,16 +15,12 @@ import { entityReference } from "verzod"
 import { z } from "zod"
 import { HoppAccentColors, HoppBgColors } from "~/newstore/settings"
 
-const ThemeColorSchema = z.enum([
-  "green",
-  "teal",
-  "blue",
-  "indigo",
-  "purple",
-  "yellow",
-  "orange",
-  "red",
-  "pink",
+const ThemeColorSchema = z.union([
+  z.enum(HoppAccentColors),
+  // Accept common CSS color formats: hex (#fff, #ffffff), rgb(...), rgba(...), hsl(...), hsla(...)
+  z
+    .string()
+    .regex(/^(#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6}))$|^(rgb|rgba|hsl|hsla)\(/),
 ])
 
 const BgColorSchema = z.enum(["system", "light", "dark", "black"])
@@ -108,7 +104,7 @@ export const VUEX_SCHEMA = z.object({
   ),
 })
 
-export const THEME_COLOR_SCHEMA = z.enum(HoppAccentColors)
+export const THEME_COLOR_SCHEMA = ThemeColorSchema
 
 export const NUXT_COLOR_MODE_SCHEMA = z.enum(HoppBgColors)
 

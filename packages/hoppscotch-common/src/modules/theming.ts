@@ -6,6 +6,8 @@ import type { HoppBgColor } from "~/newstore/settings"
 import { PersistenceService } from "~/services/persistence"
 import { HoppModule } from "."
 import { getService } from "./dioc"
+import { colord } from "colord"
+import { HoppAccentColors } from "~/newstore/settings"
 
 export type HoppColorMode = {
   preference: HoppBgColor
@@ -64,10 +66,57 @@ const applyColorMode = (app: App) => {
 const applyAccentColor = (_app: App) => {
   const [pref] = useSettingStatic("THEME_COLOR")
 
+  const root = document.documentElement
+  const removeInlineAccentVars = () => {
+    ;[
+      "--accent-color",
+      "--accent-light-color",
+      "--accent-dark-color",
+      "--accent-contrast-color",
+      "--gradient-from-color",
+      "--gradient-via-color",
+      "--gradient-to-color",
+    ].forEach((v) => root.style.removeProperty(v))
+  }
+
   watch(
     pref,
     (newPref) => {
-      document.documentElement.setAttribute("data-accent", newPref)
+      if (!newPref) return
+
+      // If a preset accent color is chosen, keep using the SCSS mixins via data-accent
+      if ((HoppAccentColors as readonly string[]).includes(newPref as string)) {
+        root.setAttribute("data-accent", newPref as string)
+        // ensure we don't keep stale inline custom variables
+        removeInlineAccentVars()
+        return
+      }
+
+      // Otherwise treat the value as a custom color string (HEX/RGB) and compute shades
+      root.setAttribute("data-accent", "custom")
+
+      try {
+        const c = colord(newPref as string)
+        const main = c.toHex()
+        const light = c.lighten(0.18).toHex()
+        const dark = c.darken(0.16).toHex()
+        const gradFrom = c.lighten(0.34).toHex()
+        const gradVia = c.lighten(0.18).toHex()
+        const gradTo = c.darken(0.12).toHex()
+        const contrast = c.isLight() ? "#000000" : "#ffffff"
+
+        root.style.setProperty("--accent-color", main)
+        root.style.setProperty("--accent-light-color", light)
+        root.style.setProperty("--accent-dark-color", dark)
+        root.style.setProperty("--accent-contrast-color", contrast)
+        root.style.setProperty("--gradient-from-color", gradFrom)
+        root.style.setProperty("--gradient-via-color", gradVia)
+        root.style.setProperty("--gradient-to-color", gradTo)
+      } catch (_e) {
+        // If parsing fails, fallback to removing any custom inline vars and revert to a default accent
+        removeInlineAccentVars()
+        root.removeAttribute("data-accent")
+      }
     },
     { immediate: true }
   )

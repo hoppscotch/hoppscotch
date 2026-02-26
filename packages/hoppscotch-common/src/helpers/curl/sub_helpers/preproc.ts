@@ -57,6 +57,59 @@ const prescreenXArgs = flow(
 )
 
 /**
+ * Remove curl output/display flags (-s, -S, -v, -i, -sS, --silent, etc.) that don't
+ * affect the HTTP request. Only strips when outside quotes so header/data/URL
+ * content is never touched.
+ */
+const removeCurlOutputFlags = (curlCmd: string): string => {
+  let i = 0
+  const out: string[] = []
+  let inQuote: "'" | '"' | null = null
+
+  while (i < curlCmd.length) {
+    const rest = curlCmd.slice(i)
+
+    if (inQuote === null) {
+      // Outside quotes: strip output flags only
+      const combined = rest.match(/^ -([sSv]+)(?=\s)/)
+      if (combined && /^[sSv]+$/.test(combined[1])) {
+        out.push(" ")
+        i += combined[0].length
+        continue
+      }
+      if (/^ -s(?=\s)/.test(rest)) { out.push(" "); i += 4; continue }
+      if (/^ -S(?=\s)/.test(rest)) { out.push(" "); i += 4; continue }
+      if (/^ -v(?=\s)/.test(rest)) { out.push(" "); i += 4; continue }
+      if (/^ -i(?=\s)/.test(rest)) { out.push(" "); i += 4; continue }
+      const long = rest.match(/^ --(silent|show-error|verbose|include|progress-bar|no-progress-meter)(?=\s)/)
+      if (long) { out.push(" "); i += long[0].length; continue }
+      if (rest[0] === "'" || rest[0] === '"') {
+        inQuote = rest[0]
+        out.push(rest[0])
+        i += 1
+        continue
+      }
+    } else if (inQuote === "'") {
+      out.push(rest[0])
+      if (rest[0] === "'") inQuote = null
+      i += 1
+      continue
+    } else {
+      if (rest[0] === "\\" && rest.length > 1) { out.push(rest[0], rest[1]); i += 2; continue }
+      out.push(rest[0])
+      if (rest[0] === '"') inQuote = null
+      i += 1
+      continue
+    }
+
+    out.push(rest[0])
+    i += 1
+  }
+
+  return out.join("")
+}
+
+/**
  * Sanitizes and makes curl string processable
  * @param curlCommand Raw curl command string
  * @returns Processed curl command string
@@ -65,6 +118,13 @@ export const preProcessCurlCommand = (curlCommand: string) =>
   pipe(
     curlCommand,
     O.fromPredicate((curlCmd) => curlCmd.length > 0),
-    O.map(flow(paperCuts, replaceLongOptions, prescreenXArgs)),
+    O.map(
+      flow(
+        paperCuts,
+        replaceLongOptions,
+        prescreenXArgs,
+        removeCurlOutputFlags
+      )
+    ),
     O.getOrElse(() => "")
   )

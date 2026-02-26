@@ -749,6 +749,11 @@ watch(
   @apply flex-shrink-0;
   @apply whitespace-nowrap py-4;
 
+  // 隐藏 Firefox 中 CodeMirror 的水平滚动条（Chrome 通过全局 ::-webkit-scrollbar { h-0 } 处理）
+  :deep(.cm-scroller) {
+    scrollbar-width: none;
+  }
+
   .suggestions {
     @apply absolute;
     @apply bg-popover;

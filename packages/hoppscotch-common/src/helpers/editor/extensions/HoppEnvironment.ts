@@ -391,7 +391,7 @@ const getRequestAndCollectionVariables = (
     false
   )
 
-  return [...reqVars, ...collVars]
+  return { reqVars, collVars }
 }
 
 export class HoppEnvironmentPlugin {
@@ -425,13 +425,13 @@ export class HoppEnvironmentPlugin {
             ? request.requestVariables
             : []
 
-        const requestAndCollVars = getRequestAndCollectionVariables(
+        const { reqVars, collVars } = getRequestAndCollectionVariables(
           requestVariables,
           collectionVariables
         )
 
         const currentAggregateEnvs = getAggregateEnvsWithCurrentValue()
-        this.envs = [...requestAndCollVars, ...currentAggregateEnvs]
+        this.envs = [...reqVars, ...currentAggregateEnvs, ...collVars]
 
         this.editorView.value?.dispatch({
           effects: this.compartment.reconfigure([
@@ -456,12 +456,12 @@ export class HoppEnvironmentPlugin {
       const requestVariables =
         request && "requestVariables" in request ? request.requestVariables : []
 
-      const freshRequestAndCollVars = getRequestAndCollectionVariables(
+      const { reqVars, collVars } = getRequestAndCollectionVariables(
         requestVariables,
         inheritedProperties?.variables ?? []
       )
 
-      this.envs = [...freshRequestAndCollVars, ...envs]
+      this.envs = [...reqVars, ...envs, ...collVars]
 
       this.editorView.value?.dispatch({
         effects: this.compartment.reconfigure([

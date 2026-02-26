@@ -182,7 +182,8 @@ export const getTestableBody = (
  * 1. Request variables
  * 2. Temporary variables (if any)
  * 3. Selected environment variables
- * 4. Global environment variables
+ * 4. Collection variables
+ * 5. Global environment variables
  * @param variables The environment variables to combine
  * @returns The combined environment variables
  */
@@ -196,9 +197,9 @@ export const combineEnvVariables = (variables: {
   collectionVariables: Environment["variables"]
 }) => [
   ...variables.requestVariables,
-  ...variables.collectionVariables,
   ...(variables.environments.temp ?? []),
   ...variables.environments.selected,
+  ...variables.collectionVariables,
   ...variables.environments.global,
 ]
 

@@ -272,8 +272,8 @@ const buildFinalEnvironment = (): Environment => {
 
   const allVariables = [
     ...requestVariables,
-    ...collectionVariables,
     ...environmentVariables,
+    ...collectionVariables,
   ]
 
   const filteredVariables = filterNonEmptyEnvironmentVariables(allVariables)

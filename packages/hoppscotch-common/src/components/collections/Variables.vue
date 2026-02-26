@@ -296,7 +296,7 @@ const liveEnvs = computed(() => {
     transformInheritedCollectionVariablesToAggregateEnv(
       props.inheritedProperties?.variables ?? []
     )
-  return [...currentEnvs, ...parentInheritedVariables, ...aggregateEnvs.value]
+  return [...currentEnvs, ...aggregateEnvs.value, ...parentInheritedVariables]
 })
 
 const addEnvironmentVariable = () => {

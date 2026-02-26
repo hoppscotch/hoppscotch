@@ -380,6 +380,7 @@
     "add_parameters": "Add to parameters",
     "open_request_in_new_tab": "Open request in new tab",
     "set_environment_variable": "Set as variable",
+    "set_collection_variable": "Save as Collection Variable",
     "encode_uri_component": "Encode URL component",
     "decode_uri_component": "Decode URL component"
   },
@@ -627,6 +628,7 @@
     "added": "Environment addition",
     "create_new": "Create new environment",
     "created": "Environment created",
+    "collection_variable_exists": "A variable with this key already exists in the collection",
     "current_value": "Current value",
     "deleted": "Environment deletion",
     "duplicated": "Environment duplicated",

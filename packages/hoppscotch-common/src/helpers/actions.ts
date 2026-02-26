@@ -193,6 +193,19 @@ type HoppActionArgsMap = {
   "modals.environment.add": {
     envName: string
     variableName: string
+    scope?: "global" | "my-environment" | "team-environment" | "collection"
+    collection?:
+      | {
+          originLocation: "user-collection"
+          collectionRefID: string
+          collectionPath: string
+          collectionName: string
+        }
+      | {
+          originLocation: "team-collection"
+          collectionID: string
+          collectionName: string
+        }
   }
 }
 

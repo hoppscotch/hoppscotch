@@ -71,6 +71,24 @@
               }
             "
           />
+          <HoppSmartItem
+            v-if="isScopeSelector && collectionScope && modelValue"
+            :label="collectionScope.collectionName"
+            :icon="IconLayers"
+            :info-icon="
+              modelValue.type === 'collection' ? IconCheck : undefined
+            "
+            :active-info-icon="modelValue.type === 'collection'"
+            @click="
+              () => {
+                $emit('update:modelValue', {
+                  type: 'collection',
+                  ...collectionScope,
+                })
+                hide()
+              }
+            "
+          />
           <HoppSmartTabs
             v-model="selectedEnvTab"
             :styles="`sticky overflow-x-auto mb-2  border border-divider rounded flex-shrink-0 z-10 top-0 bg-primary ${
@@ -400,9 +418,34 @@ export type Scope =
       type: "team-environment"
       environment: TeamEnvironment
     }
+  | {
+      type: "collection"
+      originLocation: "user-collection"
+      collectionRefID: string
+      collectionPath: string
+      collectionName: string
+    }
+  | {
+      type: "collection"
+      originLocation: "team-collection"
+      collectionID: string
+      collectionName: string
+    }
 const props = defineProps<{
   isScopeSelector?: boolean
   modelValue?: Scope
+  collectionScope?:
+    | {
+        originLocation: "user-collection"
+        collectionRefID: string
+        collectionPath: string
+        collectionName: string
+      }
+    | {
+        originLocation: "team-collection"
+        collectionID: string
+        collectionName: string
+      }
 }>()
 const emit = defineEmits<{
   (e: "update:modelValue", data: Scope): void
@@ -576,6 +619,7 @@ const isTeamSelected = computed(
 )
 
 const selectedEnvTab = ref<EnvironmentType>("my-environments")
+const collectionScope = computed(() => props.collectionScope)
 
 watch(
   () => workspace.value,
@@ -609,6 +653,11 @@ const selectedEnv = computed(() => {
         teamEnvID: props.modelValue.environment.id,
         variables: props.modelValue.environment.environment.variables,
         id: props.modelValue.environment.id,
+      }
+    } else if (props.modelValue?.type === "collection") {
+      return {
+        type: "COLLECTION",
+        name: props.modelValue.collectionName,
       }
     }
     return {
@@ -651,6 +700,10 @@ const selectedEnv = computed(() => {
 // Set the selected environment as initial scope value
 onMounted(() => {
   if (props.isScopeSelector) {
+    if (props.modelValue?.type === "collection") {
+      return
+    }
+
     if (
       selectedEnvironmentIndex.value.type === "MY_ENV" &&
       selectedEnvironmentIndex.value.index !== undefined

@@ -256,6 +256,21 @@ function createComparator<T>(
     return 0
   }
 }
+
+function findCollectionByRefID(
+  collections: HoppCollection[],
+  refID: string
+): HoppCollection | null {
+  for (const collection of collections) {
+    if (collection._ref_id === refID) return collection
+
+    const nested = findCollectionByRefID(collection.folders, refID)
+    if (nested) return nested
+  }
+
+  return null
+}
+
 const restCollectionDispatchers = defineDispatchers({
   setCollections(
     _: RESTCollectionStoreType,
@@ -317,6 +332,84 @@ const restCollectionDispatchers = defineDispatchers({
           : col
       ),
     }
+  },
+
+  addCollectionVariable(
+    { state }: RESTCollectionStoreType,
+    {
+      collectionRefID,
+      key,
+      value,
+    }: {
+      collectionRefID: string
+      key: string
+      value: string
+    }
+  ) {
+    const targetCollection = findCollectionByRefID(state, collectionRefID)
+
+    if (!targetCollection) return {}
+
+    const targetVariables = targetCollection.variables ?? []
+    targetCollection.variables = [
+      ...targetVariables,
+      {
+        key,
+        initialValue: value,
+        currentValue: value,
+        secret: false,
+      },
+    ]
+
+    return { state }
+  },
+
+  updateCollectionVariable(
+    { state }: RESTCollectionStoreType,
+    {
+      collectionRefID,
+      key,
+      value,
+    }: {
+      collectionRefID: string
+      key: string
+      value: string
+    }
+  ) {
+    const targetCollection = findCollectionByRefID(state, collectionRefID)
+
+    if (!targetCollection) return {}
+
+    const variable = (targetCollection.variables ?? []).find(
+      (v) => v.key === key
+    )
+    if (!variable) return {}
+
+    variable.initialValue = value
+    variable.currentValue = value
+
+    return { state }
+  },
+
+  deleteCollectionVariable(
+    { state }: RESTCollectionStoreType,
+    {
+      collectionRefID,
+      key,
+    }: {
+      collectionRefID: string
+      key: string
+    }
+  ) {
+    const targetCollection = findCollectionByRefID(state, collectionRefID)
+
+    if (!targetCollection || !targetCollection.variables) return {}
+
+    targetCollection.variables = targetCollection.variables.filter(
+      (variable) => variable.key !== key
+    )
+
+    return { state }
   },
 
   sortRESTCollection(
@@ -1480,6 +1573,46 @@ export function editRESTCollection(
     payload: {
       collectionIndex,
       partialCollection: partialCollection,
+    },
+  })
+}
+
+export function addCollectionVariable(
+  collectionRefID: string,
+  key: string,
+  value: string
+) {
+  restCollectionStore.dispatch({
+    dispatcher: "addCollectionVariable",
+    payload: {
+      collectionRefID,
+      key,
+      value,
+    },
+  })
+}
+
+export function updateCollectionVariable(
+  collectionRefID: string,
+  key: string,
+  value: string
+) {
+  restCollectionStore.dispatch({
+    dispatcher: "updateCollectionVariable",
+    payload: {
+      collectionRefID,
+      key,
+      value,
+    },
+  })
+}
+
+export function deleteCollectionVariable(collectionRefID: string, key: string) {
+  restCollectionStore.dispatch({
+    dispatcher: "deleteCollectionVariable",
+    payload: {
+      collectionRefID,
+      key,
     },
   })
 }

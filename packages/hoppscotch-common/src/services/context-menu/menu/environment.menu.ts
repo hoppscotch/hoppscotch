@@ -107,7 +107,7 @@ export class EnvironmentMenuService extends Service implements ContextMenu {
                   originLocation: "user-collection",
                   collectionRefID,
                   collectionPath: `${rootCollectionIndex}`,
-                  collectionName: targetCollection.name,
+                  collectionName: targetCollection.name ?? "",
                 },
               })
             },
@@ -139,7 +139,7 @@ export class EnvironmentMenuService extends Service implements ContextMenu {
               collection: {
                 originLocation: "team-collection",
                 collectionID: collection.id,
-                collectionName: collection.title,
+                collectionName: collection.title ?? "",
               },
             })
           },

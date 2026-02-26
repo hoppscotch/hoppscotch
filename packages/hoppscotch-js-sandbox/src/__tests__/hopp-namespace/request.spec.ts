@@ -105,7 +105,7 @@ describe("hopp.request", () => {
         })
       ).resolves.toEqualLeft(
         expect.stringContaining(
-          `Script execution failed: hopp.request.${property} is read-only`
+          `Script execution failed: TypeError: hopp.request.${property} is read-only`
         )
       )
     )
@@ -124,7 +124,7 @@ describe("hopp.request", () => {
         })
       ).resolves.toEqualLeft(
         expect.stringContaining(
-          `Script execution failed: hopp.request.${property} is read-only`
+          `Script execution failed: TypeError: hopp.request.${property} is read-only`
         )
       )
     )
@@ -531,7 +531,9 @@ describe("hopp.request", () => {
         }
       )
     ).resolves.toEqualLeft(
-      expect.stringContaining(`Script execution failed: not a function`)
+      expect.stringContaining(
+        `Script execution failed: TypeError: not a function`
+      )
     )
   })
 

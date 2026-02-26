@@ -51,6 +51,15 @@ export class CreatePublishedDocsArgs {
     description: 'Metadata associated with the published document',
   })
   metadata: string;
+
+  @Field({
+    name: 'environmentID',
+    description:
+      'ID of the environment to associate with the published document',
+    nullable: true,
+  })
+  @IsOptional()
+  environmentID?: string;
 }
 
 @InputType()
@@ -60,6 +69,7 @@ export class UpdatePublishedDocsArgs {
     description: 'Title of the published document',
     nullable: true,
   })
+  @IsOptional()
   title?: string;
 
   @Field({
@@ -80,6 +90,7 @@ export class UpdatePublishedDocsArgs {
       'Whether the published document should auto-sync with the source',
     nullable: true,
   })
+  @IsOptional()
   autoSync?: boolean;
 
   @Field({
@@ -87,5 +98,15 @@ export class UpdatePublishedDocsArgs {
     description: 'Metadata associated with the published document',
     nullable: true,
   })
+  @IsOptional()
   metadata?: string;
+
+  @Field({
+    name: 'environmentID',
+    description:
+      'ID of the environment to associate with the published document. Pass null to remove the environment.',
+    nullable: true,
+  })
+  @IsOptional()
+  environmentID?: string;
 }

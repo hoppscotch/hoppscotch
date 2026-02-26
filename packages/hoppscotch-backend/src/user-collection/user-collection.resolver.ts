@@ -132,6 +132,7 @@ export class UserCollectionResolver {
   })
   @UseGuards(GqlAuthGuard)
   async userCollection(
+    @GqlUser() user: AuthUser,
     @Args({
       type: () => ID,
       name: 'userCollectionID',
@@ -139,8 +140,10 @@ export class UserCollectionResolver {
     })
     userCollectionID: string,
   ) {
-    const userCollection =
-      await this.userCollectionService.getUserCollection(userCollectionID);
+    const userCollection = await this.userCollectionService.getUserCollection(
+      userCollectionID,
+      user.uid,
+    );
 
     if (E.isLeft(userCollection)) throwErr(userCollection.left);
     return <UserCollection>{

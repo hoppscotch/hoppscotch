@@ -104,8 +104,15 @@ export function useAppInitialization() {
 
         await download({ serverUrl: instance.serverUrl })
 
+        // cloud-org instances pass serverUrl as host so window.location.hostname reflects the
+        // org subdomain (like acme.hoppscotch.io). This becomes the source of truth for org
+        // context throughout the app instead of needing to pass state through multiple layers.
+        const host =
+          instance.kind === "cloud-org" ? instance.serverUrl : undefined
+
         const loadResp = await load({
           bundleName: instance.bundleName!,
+          host,
           window: { title: "Hoppscotch" },
         })
 

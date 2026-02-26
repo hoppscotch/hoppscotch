@@ -6,6 +6,8 @@ query PublishedDoc($id: ID!) {
     autoSync
     url
     metadata
+    environmentName
+    environmentVariables
     createdOn
     updatedOn
     creator {

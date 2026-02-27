@@ -22,13 +22,13 @@
         <!-- palette icon button that opens the native color picker -->
         <button
           type="button"
-          :class="['rounded py-1', { 'bg-primaryLight': activeIsCustom }]"
+          :class="['rounded p-2', { 'bg-primaryLight': activeIsCustom }]"
           title="Custom accent color"
           aria-label="Custom accent color"
           aria-haspopup="dialog"
           @click="openColorPicker"
         >
-          <IconPalette class="w-5 h-5" />
+          <IconPalette :style="{ color: paletteIconColor }" class="w-5 h-5" />
         </button>
 
         <!-- overlay native color input (transparent) so the native color picker anchors to the icon -->
@@ -72,6 +72,13 @@ const colorInputRef = ref<HTMLInputElement | null>(null)
 const activeIsCustom = computed(
   () => !!active.value && !isPresetAccentColor(active.value)
 )
+
+const paletteIconColor = computed<string | undefined>(() => {
+  if (active.value && !isPresetAccentColor(active.value)) {
+    return active.value as string
+  }
+  return undefined
+})
 
 const setActiveColor = (color: HoppAccentColor | string) => {
   // Do not mutate DOM here - theming module watches THEME_COLOR and updates

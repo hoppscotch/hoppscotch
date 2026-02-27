@@ -22,8 +22,10 @@
         <!-- palette icon button that opens the native color picker -->
         <button
           type="button"
-          class="rounded py-1"
+          :class="['rounded py-1', { 'bg-primaryLight': activeIsCustom }]"
           title="Custom accent color"
+          aria-label="Custom accent color"
+          aria-haspopup="dialog"
           @click="openColorPicker"
         >
           <IconPalette class="w-5 h-5" />
@@ -53,22 +55,29 @@ import {
   applySetting,
 } from "~/newstore/settings"
 import { useSetting } from "@composables/settings"
-import { ref } from "vue"
+import { ref, computed } from "vue"
+import { isPresetAccentColor } from "~/helpers/theme"
 
 const accentColors = HoppAccentColors
 const active = useSetting("THEME_COLOR")
 
 const customColorValue = ref<string | null>(null)
+
+if (active.value && !isPresetAccentColor(active.value)) {
+  // Initialize the custom color picker with the currently active custom theme color
+  customColorValue.value = active.value as string
+}
 const colorInputRef = ref<HTMLInputElement | null>(null)
 
+const activeIsCustom = computed(
+  () => !!active.value && !isPresetAccentColor(active.value)
+)
+
 const setActiveColor = (color: HoppAccentColor | string) => {
-  if ((accentColors as readonly string[]).includes(color as string)) {
-    document.documentElement.setAttribute("data-accent", color as string)
-  } else {
-    // custom color selected
-    document.documentElement.setAttribute("data-accent", "custom")
-  }
-  applySetting("THEME_COLOR", color as string)
+  // Do not mutate DOM here - theming module watches THEME_COLOR and updates
+  // documentElement (data-accent and inline CSS vars). Only persist the
+  // new value; the theming runtime is the single source of truth.
+  applySetting("THEME_COLOR", color)
 }
 
 const onCustomColorInput = (e: Event) => {

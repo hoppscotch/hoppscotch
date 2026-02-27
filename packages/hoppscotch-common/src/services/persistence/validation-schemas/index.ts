@@ -13,14 +13,22 @@ import {
 } from "@hoppscotch/data"
 import { entityReference } from "verzod"
 import { z } from "zod"
+import { colord } from "colord"
 import { HoppAccentColors, HoppBgColors } from "~/newstore/settings"
 
 const ThemeColorSchema = z.union([
   z.enum(HoppAccentColors),
-  // Accept common CSS color formats: hex (#fff, #ffffff), rgb(...), rgba(...), hsl(...), hsla(...)
-  z
-    .string()
-    .regex(/^(#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6}))$|^(rgb|rgba|hsl|hsla)\(/),
+  // Accept any string that `colord` can parse as a color (hex, rgb/rgba, hsl/hsla, named colors, etc.)
+  z.string().refine(
+    (s) => {
+      try {
+        return colord(s).isValid()
+      } catch (_e) {
+        return false
+      }
+    },
+    { message: "Invalid color format" }
+  ),
 ])
 
 const BgColorSchema = z.enum(["system", "light", "dark", "black"])

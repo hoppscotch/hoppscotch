@@ -71,17 +71,17 @@ const removeCurlOutputFlags = (curlCmd: string): string => {
 
     if (inQuote === null) {
       // Outside quotes: strip output flags only
-      const combined = rest.match(/^ -([sSv]+)(?=\s)/)
+      const combined = rest.match(/^\s+-([sSv]+)(?=\s)/)
       if (combined && /^[sSv]+$/.test(combined[1])) {
         out.push(" ")
         i += combined[0].length
         continue
       }
-      if (/^ -s(?=\s)/.test(rest)) { out.push(" "); i += 4; continue }
-      if (/^ -S(?=\s)/.test(rest)) { out.push(" "); i += 4; continue }
-      if (/^ -v(?=\s)/.test(rest)) { out.push(" "); i += 4; continue }
-      if (/^ -i(?=\s)/.test(rest)) { out.push(" "); i += 4; continue }
-      const long = rest.match(/^ --(silent|show-error|verbose|include|progress-bar|no-progress-meter)(?=\s)/)
+      if (/^\s+-s(?=\s)/.test(rest)) { out.push(" "); i += 4; continue }
+      if (/^\s+-S(?=\s)/.test(rest)) { out.push(" "); i += 4; continue }
+      if (/^\s+-v(?=\s)/.test(rest)) { out.push(" "); i += 4; continue }
+      if (/^\s+-i(?=\s)/.test(rest)) { out.push(" "); i += 4; continue }
+      const long = rest.match(/^\s+--(silent|show-error|verbose|include|progress-bar|no-progress-meter)(?=\s)/)
       if (long) { out.push(" "); i += long[0].length; continue }
       if (rest[0] === "'" || rest[0] === '"') {
         inQuote = rest[0]

@@ -49,13 +49,14 @@
 import IconCircle from "~icons/lucide/circle"
 import IconCircleDot from "~icons/lucide/circle-dot"
 import IconPalette from "~icons/lucide/palette"
+import { colord } from "colord"
 import {
   HoppAccentColors,
   HoppAccentColor,
   applySetting,
 } from "~/newstore/settings"
 import { useSetting } from "@composables/settings"
-import { ref, computed } from "vue"
+import { ref, computed, watch } from "vue"
 import { isPresetAccentColor } from "~/helpers/theme"
 
 const accentColors = HoppAccentColors
@@ -63,10 +64,23 @@ const active = useSetting("THEME_COLOR")
 
 const customColorValue = ref<string | null>(null)
 
-if (active.value && !isPresetAccentColor(active.value)) {
-  // Initialize the custom color picker with the currently active custom theme color
-  customColorValue.value = active.value as string
-}
+// Keep the native color input in sync with the active custom value.
+// Convert any non-hex color (rgb/hsl/etc.) to a hex string because
+// <input type="color"> only accepts hex values.
+watch(
+  active,
+  (val) => {
+    if (val && !isPresetAccentColor(val)) {
+      const parsed = colord(val as string)
+      if (parsed.isValid()) {
+        customColorValue.value = parsed.toHex()
+        return
+      }
+    }
+    customColorValue.value = null
+  },
+  { immediate: true }
+)
 const colorInputRef = ref<HTMLInputElement | null>(null)
 
 const activeIsCustom = computed(

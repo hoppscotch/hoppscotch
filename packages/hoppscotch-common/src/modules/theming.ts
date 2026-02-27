@@ -97,6 +97,11 @@ const applyAccentColor = (_app: App) => {
 
       try {
         const c = colord(newPref as string)
+        if (!c.isValid()) {
+          removeInlineAccentVars()
+          root.removeAttribute("data-accent")
+          return
+        }
         const main = c.toHex()
         const light = c.lighten(0.18).toHex()
         const dark = c.darken(0.16).toHex()

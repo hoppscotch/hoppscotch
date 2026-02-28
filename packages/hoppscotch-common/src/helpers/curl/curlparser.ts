@@ -42,7 +42,26 @@ export const parseCurlCommand = (curlCommand: string) => {
 
   curlCommand = preProcessCurlCommand(curlCommand)
 
-  const args: parser.Arguments = parser(curlCommand)
+  // Curl flags that only control terminal output behavior and don't take
+  // an argument. Without this, yargs-parser treats them as string options
+  // and swallows the next positional arg (usually the URL) as their value.
+  const args: parser.Arguments = parser(curlCommand, {
+    boolean: [
+      "s", // --silent
+      "S", // --show-error
+      "v", // --verbose
+      "k", // --insecure
+      "L", // --location
+      "N", // --no-buffer
+      "f", // --fail
+      "q", // --disable (.curlrc)
+      "n", // --netrc
+      "#", // --progress-bar
+      "0", // --http1.0
+      "4", // --ipv4
+      "6", // --ipv6
+    ],
+  })
 
   const parsedArguments = pipe(
     args,

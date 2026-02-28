@@ -51,8 +51,8 @@ export class AccessTokenController {
 
   @Delete('revoke')
   @UseGuards(JwtAuthGuard)
-  async deletePAT(@Query('id') id: string) {
-    const result = await this.accessTokenService.deletePAT(id);
+  async deletePAT(@GqlUser() user: AuthUser, @Query('id') id: string) {
+    const result = await this.accessTokenService.deletePAT(id, user.uid);
 
     if (E.isLeft(result)) throwHTTPErr(result.left);
     return result.right;

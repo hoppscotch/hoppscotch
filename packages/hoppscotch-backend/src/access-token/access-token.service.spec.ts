@@ -116,7 +116,7 @@ describe('AccessTokenService', () => {
         'RecordNotFound',
       );
 
-      const result = await accessTokenService.deletePAT(userAccessToken.id);
+      const result = await accessTokenService.deletePAT(userAccessToken.id, user.uid);
       expect(result).toEqualLeft({
         message: ACCESS_TOKEN_NOT_FOUND,
         statusCode: HttpStatus.NOT_FOUND,
@@ -128,7 +128,7 @@ describe('AccessTokenService', () => {
         userAccessToken,
       );
 
-      const result = await accessTokenService.deletePAT(userAccessToken.id);
+      const result = await accessTokenService.deletePAT(userAccessToken.id, user.uid);
       expect(result).toEqualRight(true);
     });
   });

@@ -103,12 +103,13 @@ export class AccessTokenService {
    * Delete a Personal Access Token
    *
    * @param accessTokenID ID of the Personal Access Token
+   * @param userUid UID of the user requesting the deletion
    * @returns Either of true or error message
    */
-  async deletePAT(accessTokenID: string) {
+  async deletePAT(accessTokenID: string, userUid: string) {
     try {
       await this.prisma.personalAccessToken.delete({
-        where: { id: accessTokenID },
+        where: { id: accessTokenID, userUid },
       });
       return E.right(true);
     } catch {

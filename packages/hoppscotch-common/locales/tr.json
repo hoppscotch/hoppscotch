@@ -762,7 +762,7 @@
     },
     "response": {
       "copy": "Yanıtı panoya kopyala",
-      "download": "Yanıtı dosya olarak indir",
+      : "Yanıtı dosya olarak indir",
       "title": "Yanıt"
     },
     "theme": {
@@ -831,7 +831,7 @@
     },
     "response": {
       "copy": "Yanıtı kopyala",
-      "download": "Yanıtı dosya olarak indir",
+      : "Yanıtı dosya olarak indir",
       "title": "Yanıt"
     },
     "section": {

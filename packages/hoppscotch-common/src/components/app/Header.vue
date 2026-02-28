@@ -87,6 +87,8 @@
             :on-shown="() => downloadableLinksRef.focus()"
           >
             <HoppButtonSecondary
+              v-tippy="{ content: t('app.download_app'), theme: 'tooltip' }"
+              :aria-label="t('app.download_app')"
               :icon="IconDownload"
               class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
             />

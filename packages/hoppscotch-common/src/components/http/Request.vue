@@ -480,11 +480,13 @@ watch(
 )
 
 onUnmounted(() => {
-  //check if current tab id exist in the current tab id lists
+  if (autoSaveTimeout) {
+    clearTimeout(autoSaveTimeout)
+    autoSaveTimeout = null
+  }
   const isCurrentTabRemoved = !tabs
     .getActiveTabs()
-    .value.some((tab) => tab.id === currentTabID)
-
+    .value.some((t) => t.id === currentTabID)
   if (isCurrentTabRemoved) cancelRequest()
 })
 
@@ -569,11 +571,12 @@ const cycleDownMethod = () => {
   }
 }
 
-const saveRequest = async () => {
+const saveRequest = async (options?: { silent?: boolean }) => {
   const isValidToken = await handleTokenValidation()
   if (!isValidToken) return
 
   const saveCtx = tab.value.document.saveContext
+  const silent = options?.silent === true
 
   if (!saveCtx) {
     showSaveRequestModal.value = true
@@ -599,7 +602,7 @@ const saveRequest = async () => {
         workspaceType: "personal",
       })
 
-      toast.success(`${t("request.saved")}`)
+      if (!silent) toast.success(`${t("request.saved")}`)
     } catch (_e) {
       tab.value.document.saveContext = undefined
       saveRequest()
@@ -607,8 +610,8 @@ const saveRequest = async () => {
   } else if (saveCtx.originLocation === "team-collection") {
     const req = tab.value.document.request
 
-    // TODO: handle error case (NOTE: overwriteRequestTeams is async)
     try {
+      saveInProgress.value = true
       platform.analytics?.logEvent({
         type: "HOPP_SAVE_REQUEST",
         platform: "rest",
@@ -622,16 +625,24 @@ const saveRequest = async () => {
           title: req.name,
           request: JSON.stringify(req),
         },
-      })().then((result) => {
-        if (E.isLeft(result)) {
-          toast.error(`${t("profile.no_permission")}`)
-        } else {
-          tab.value.document.isDirty = false
-
-          toast.success(`${t("request.saved")}`)
-        }
-      })
+      })()
+        .then((result) => {
+          if (E.isLeft(result)) {
+            toast.error(`${t("profile.no_permission")}`)
+          } else {
+            tab.value.document.isDirty = false
+            if (!silent) toast.success(`${t("request.saved")}`)
+          }
+        })
+        .catch((error) => {
+          toast.error(`${t("error.something_went_wrong")}`)
+          console.error(error)
+        })
+        .finally(() => {
+          saveInProgress.value = false
+        })
     } catch (error) {
+      saveInProgress.value = false
       showSaveRequestModal.value = true
       toast.error(`${t("error.something_went_wrong")}`)
       console.error(error)
@@ -681,6 +692,51 @@ const isCustomMethod = computed(() => {
 })
 
 const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
+
+const AUTO_SAVE_REQUESTS = useSetting("AUTO_SAVE_REQUESTS")
+const AUTO_SAVE_DELAY_MS = useSetting("AUTO_SAVE_DELAY_MS")
+
+const saveInProgress = ref(false)
+let autoSaveTimeout: ReturnType<typeof setTimeout> | null = null
+
+watch(
+  [
+    () => tab.value.document.isDirty,
+    () => tab.value.document.saveContext,
+    () => AUTO_SAVE_REQUESTS.value,
+  ],
+  ([isDirty, saveCtx, autoSaveEnabled]) => {
+    if (autoSaveTimeout) {
+      clearTimeout(autoSaveTimeout)
+      autoSaveTimeout = null
+    }
+    if (
+      !autoSaveEnabled ||
+      !isDirty ||
+      !saveCtx ||
+      tab.value.document.type !== "request"
+    ) {
+      return
+    }
+    const delay = Math.min(
+      10000,
+      Math.max(500, Number(AUTO_SAVE_DELAY_MS.value) || 2000)
+    )
+    autoSaveTimeout = setTimeout(() => {
+      autoSaveTimeout = null
+      if (
+        saveInProgress.value ||
+        !tab.value.document.saveContext ||
+        !tab.value.document.isDirty ||
+        tab.value.document.type !== "request"
+      ) {
+        return
+      }
+      saveRequest({ silent: true })
+    }, delay)
+  },
+  { flush: "sync" }
+)
 
 const tabResults = inspectionService.getResultViewFor(tabs.currentTabID.value)
 </script>

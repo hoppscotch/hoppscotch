@@ -34,6 +34,45 @@
 
           <section>
             <h4 class="font-semibold text-secondaryDark">
+              {{ t("settings.auto_save_requests") }}
+            </h4>
+            <div class="my-1 text-secondaryLight">
+              {{ t("settings.auto_save_requests_description") }}
+            </div>
+            <div class="space-y-4 py-4">
+              <div class="flex items-center">
+                <HoppSmartToggle
+                  :on="AUTO_SAVE_REQUESTS"
+                  @change="toggleSetting('AUTO_SAVE_REQUESTS')"
+                >
+                  {{ t("settings.auto_save_requests") }}
+                </HoppSmartToggle>
+              </div>
+              <div
+                v-if="AUTO_SAVE_REQUESTS"
+                class="flex flex-col space-y-2 w-full max-w-xs"
+              >
+                <label class="text-secondaryLight">
+                  {{ t("settings.auto_save_delay_ms") }}
+                </label>
+                <input
+                  v-model.number="AUTO_SAVE_DELAY_MS"
+                  type="number"
+                  min="500"
+                  max="10000"
+                  step="500"
+                  class="bg-primaryLight px-4 py-2 rounded border border-dividerLight focus:border-divider transition"
+                  @change="onAutoSaveDelayChange"
+                />
+                <span class="text-tiny text-secondaryLight">
+                  {{ t("settings.auto_save_delay_ms_hint") }}
+                </span>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <h4 class="font-semibold text-secondaryDark">
               {{ t("settings.experiments") }}
             </h4>
             <div class="my-1 text-secondaryLight">
@@ -280,7 +319,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue"
-import { toggleSetting } from "~/newstore/settings"
+import { toggleSetting, applySetting } from "~/newstore/settings"
 import { useSetting } from "@composables/settings"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
@@ -335,6 +374,9 @@ const ENABLE_EXPERIMENTAL_DOCUMENTATION = useSetting(
   "ENABLE_EXPERIMENTAL_DOCUMENTATION"
 )
 
+const AUTO_SAVE_REQUESTS = useSetting("AUTO_SAVE_REQUESTS")
+const AUTO_SAVE_DELAY_MS = useSetting("AUTO_SAVE_DELAY_MS")
+
 const supportedNamingStyles = [
   {
     id: "DESCRIPTIVE_WITH_SPACES" as const,
@@ -374,6 +416,15 @@ const hasAIExperimentsSupport =
 const showConfirmModal = () => {
   if (TELEMETRY_ENABLED.value) confirmRemove.value = true
   else toggleSetting("TELEMETRY_ENABLED")
+}
+
+const onAutoSaveDelayChange = () => {
+  const val = Number(AUTO_SAVE_DELAY_MS.value)
+  const clamped = Math.min(
+    10000,
+    Math.max(500, Number.isFinite(val) ? val : 2000)
+  )
+  applySetting("AUTO_SAVE_DELAY_MS", clamped)
 }
 
 const getColorModeName = (colorMode: string) => {

@@ -62,7 +62,7 @@ import { computedWithControl, useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import * as gql from "graphql"
 import { clone } from "lodash-es"
-import { computed, ref, watch } from "vue"
+import { computed, ref, watch, onUnmounted } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
 import {
   connection,
@@ -72,7 +72,10 @@ import {
 } from "~/helpers/graphql/connection"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { completePageProgress, startPageProgress } from "~/modules/loadingbar"
+import * as E from "fp-ts/Either"
+import { updateTeamRequest } from "~/helpers/backend/mutations/TeamRequest"
 import { editGraphqlRequest } from "~/newstore/collections"
+import { useSetting } from "@composables/settings"
 import { platform } from "~/platform"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { GQLTabService } from "~/services/tab/graphql"
@@ -230,22 +233,55 @@ const updateCursorPos = (pos: number) => {
 const hideRequestModal = () => {
   showSaveRequestModal.value = false
 }
-const saveRequest = () => {
-  if (
-    tabs.currentActiveTab.value.document.saveContext &&
-    tabs.currentActiveTab.value.document.saveContext.originLocation ===
-      "user-collection"
-  ) {
-    editGraphqlRequest(
-      tabs.currentActiveTab.value.document.saveContext.folderPath,
-      tabs.currentActiveTab.value.document.saveContext.requestIndex,
-      tabs.currentActiveTab.value.document.request
-    )
+const saveRequest = (options?: { silent?: boolean }) => {
+  const tab = tabs.currentActiveTab.value
+  const saveCtx = tab?.document.saveContext
+  const silent = options?.silent === true
 
-    tabs.currentActiveTab.value.document.isDirty = false
-  } else {
+  if (!saveCtx) {
     showSaveRequestModal.value = true
+    return
   }
+  if (saveCtx.originLocation === "user-collection") {
+    editGraphqlRequest(
+      saveCtx.folderPath,
+      saveCtx.requestIndex,
+      tab.document.request
+    )
+    tab.document.isDirty = false
+    if (!silent) toast.success(`${t("request.saved")}`)
+    return
+  }
+  if (saveCtx.originLocation === "team-collection") {
+    saveInProgress.value = true
+    platform.analytics?.logEvent({
+      type: "HOPP_SAVE_REQUEST",
+      platform: "graphql",
+      createdNow: false,
+      workspaceType: "team",
+    })
+    updateTeamRequest(saveCtx.requestID, {
+      request: JSON.stringify(tab.document.request),
+      title: tab.document.request.name,
+    })()
+      .then((result) => {
+        if (E.isLeft(result)) {
+          toast.error(`${t("profile.no_permission")}`)
+        } else {
+          tab.document.isDirty = false
+          if (!silent) toast.success(`${t("request.saved")}`)
+        }
+      })
+      .catch((error) => {
+        toast.error(`${t("error.something_went_wrong")}`)
+        console.error(error)
+      })
+      .finally(() => {
+        saveInProgress.value = false
+      })
+    return
+  }
+  showSaveRequestModal.value = true
 }
 const clearGQLQuery = () => {
   request.value.query = ""
@@ -264,6 +300,59 @@ defineActionHandler("request.reset", clearGQLQuery)
 
 defineActionHandler("request.open-tab", ({ tab }) => {
   selectedOptionTab.value = tab as GQLOptionTabs
+})
+
+const AUTO_SAVE_REQUESTS = useSetting("AUTO_SAVE_REQUESTS")
+const AUTO_SAVE_DELAY_MS = useSetting("AUTO_SAVE_DELAY_MS")
+
+const saveInProgress = ref(false)
+let autoSaveTimeout: ReturnType<typeof setTimeout> | null = null
+
+watch(
+  [
+    () => tabs.currentActiveTab.value?.document.isDirty,
+    () => tabs.currentActiveTab.value?.document.saveContext,
+    () => AUTO_SAVE_REQUESTS.value,
+  ],
+  ([isDirty, saveCtx, autoSaveEnabled]) => {
+    if (autoSaveTimeout) {
+      clearTimeout(autoSaveTimeout)
+      autoSaveTimeout = null
+    }
+    const tab = tabs.currentActiveTab.value
+    if (
+      !autoSaveEnabled ||
+      !isDirty ||
+      !saveCtx ||
+      !tab?.document.saveContext
+    ) {
+      return
+    }
+    const delay = Math.min(
+      10000,
+      Math.max(500, Number(AUTO_SAVE_DELAY_MS.value) || 2000)
+    )
+    autoSaveTimeout = setTimeout(() => {
+      autoSaveTimeout = null
+      const currentTab = tabs.currentActiveTab.value
+      if (
+        saveInProgress.value ||
+        !currentTab?.document.saveContext ||
+        !currentTab.document.isDirty
+      ) {
+        return
+      }
+      saveRequest({ silent: true })
+    }, delay)
+  },
+  { flush: "sync" }
+)
+
+onUnmounted(() => {
+  if (autoSaveTimeout) {
+    clearTimeout(autoSaveTimeout)
+    autoSaveTimeout = null
+  }
 })
 </script>
 

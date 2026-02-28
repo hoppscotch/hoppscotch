@@ -34,7 +34,7 @@
         <!-- overlay native color input (transparent) so the native color picker anchors to the icon -->
         <input
           ref="colorInputRef"
-          class="color-picker absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          class="color-picker absolute inset-0 w-full h-full opacity-0 cursor-pointer pointer-events-none"
           type="color"
           :value="customColorValue || '#000000'"
           aria-label="Pick custom accent color"

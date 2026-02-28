@@ -52,6 +52,8 @@ export const parseCurlCommand = (curlCommand: string) => {
       "v", // --verbose
       "k", // --insecure
       "L", // --location
+      "I", // --head
+      "G", // --get
       "N", // --no-buffer
       "f", // --fail
       "q", // --disable (.curlrc)
@@ -60,6 +62,21 @@ export const parseCurlCommand = (curlCommand: string) => {
       "0", // --http1.0
       "4", // --ipv4
       "6", // --ipv6
+      "compressed",
+      "silent",
+      "show-error",
+      "verbose",
+      "insecure",
+      "location",
+      "head",
+      "get",
+      "no-buffer",
+      "fail",
+      "disable",
+      "netrc",
+      "progress-bar",
+      "ipv4",
+      "ipv6",
     ],
   })
 

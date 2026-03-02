@@ -121,7 +121,7 @@ const buildHarPostData = (req: HoppRESTRequest): Har.PostData | undefined => {
   if (req.body.contentType === "application/octet-stream") {
     const file = req.body.body as File | Blob | null
     const pathOrName =
-      file instanceof File
+      typeof File !== "undefined" && file instanceof File
         ? (file as any).path || file.name || "<binary-file>"
         : "<binary-file>"
     return {

@@ -46,7 +46,7 @@ export class UserCollectionService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly pubsub: PubSubService,
-  ) { }
+  ) {}
 
   TITLE_LENGTH = 1;
   MAX_RETRIES = 5; // Maximum number of retries for database transactions

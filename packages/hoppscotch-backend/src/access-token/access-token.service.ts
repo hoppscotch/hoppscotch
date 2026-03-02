@@ -107,17 +107,18 @@ export class AccessTokenService {
    * @returns Either of true or error message
    */
   async deletePAT(accessTokenID: string, userUid: string) {
-    try {
-      await this.prisma.personalAccessToken.delete({
-        where: { id: accessTokenID, userUid },
-      });
-      return E.right(true);
-    } catch {
+    const { count } = await this.prisma.personalAccessToken.deleteMany({
+      where: { id: accessTokenID, userUid },
+    });
+
+    if (count === 0) {
       return E.left({
         message: ACCESS_TOKEN_NOT_FOUND,
         statusCode: HttpStatus.NOT_FOUND,
       });
     }
+
+    return E.right(true);
   }
 
   /**

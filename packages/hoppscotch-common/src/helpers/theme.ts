@@ -20,6 +20,7 @@ export function getContrastColor(
 ): "#000000" | "#ffffff" {
   try {
     const c = colord(hexOrColor)
+    if (!c.isValid()) return "#000000"
     const { r, g, b } = c.toRgb()
 
     const srgb = [r, g, b].map((v) => v / 255)

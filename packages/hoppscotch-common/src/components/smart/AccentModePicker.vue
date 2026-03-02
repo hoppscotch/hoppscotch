@@ -68,7 +68,7 @@ const active = useSetting("THEME_COLOR")
 
 const customColorValue = ref<string | null>(null)
 
-const { t } = { t: useI18n() }
+const t = useI18n()
 
 // Keep the native color input in sync with the active custom value.
 // Convert any non-hex color (rgb/hsl/etc.) to a hex string because

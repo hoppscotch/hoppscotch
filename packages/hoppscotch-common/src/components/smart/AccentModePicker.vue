@@ -37,7 +37,8 @@
           class="color-picker absolute inset-0 w-full h-full opacity-0 cursor-pointer pointer-events-none"
           type="color"
           :value="customColorValue || '#000000'"
-          aria-label="Pick custom accent color"
+          tabindex="-1"
+          aria-hidden="true"
           @input="onCustomColorInput"
         />
       </div>

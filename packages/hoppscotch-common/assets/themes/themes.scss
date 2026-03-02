@@ -67,14 +67,3 @@
 :root[data-accent="yellow"] {
   @include yellow-theme;
 }
-
-/* Runtime-injected custom accent variables
-   When a user chooses a custom accent color we set data-accent="custom"
-   and the theming runtime injects the actual CSS custom properties into :root.
-   This rule exists as documentation and provides a minimal marker so
-   linters/tools do not complain about an empty selector.
-*/
-:root[data-accent="custom"] {
-  /* Marker variable — real accent variables are injected at runtime by modules/theming.ts */
-  --hoppscotch-custom-accent: 1;
-}

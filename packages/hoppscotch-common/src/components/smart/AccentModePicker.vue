@@ -41,6 +41,7 @@
           type="color"
           :value="customColorValue || '#000000'"
           :aria-label="t('settings.custom_accent')"
+          tabindex="-1"
           @input="onCustomColorInput"
         />
       </div>

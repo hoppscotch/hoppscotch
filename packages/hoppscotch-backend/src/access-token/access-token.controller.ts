@@ -52,7 +52,7 @@ export class AccessTokenController {
   @Delete('revoke')
   @UseGuards(JwtAuthGuard)
   async deletePAT(@GqlUser() user: AuthUser, @Query('id') id: string) {
-    if (!id || typeof id !== 'string' || id.trim().length === 0) {
+    if (!id) {
       throw new BadRequestException(
         createCLIErrorResponse(ACCESS_TOKENS_INVALID_DATA_ID),
       );

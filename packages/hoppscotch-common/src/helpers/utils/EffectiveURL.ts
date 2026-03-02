@@ -355,13 +355,15 @@ export function getFinalBodyFromRequest(
  * @param request The request to source from
  * @param environment The environment to apply
  * @param showKeyIfSecret Whether to show the key if the value is a secret
+ * @param showKeyIfNotFound Whether to show the key if the value is not found
  *
  * @returns An object with extra fields defining a complete request
  */
 export async function getEffectiveRESTRequest(
   request: HoppRESTRequest,
   environment: Environment,
-  showKeyIfSecret = false
+  showKeyIfSecret = false,
+  showKeyIfNotFound = false
 ): Promise<EffectiveHoppRESTRequest> {
   const effectiveFinalHeaders = pipe(
     (
@@ -433,7 +435,8 @@ export async function getEffectiveRESTRequest(
       request.endpoint,
       environment.variables,
       false,
-      showKeyIfSecret
+      showKeyIfSecret,
+      showKeyIfNotFound
     ),
     effectiveFinalHeaders,
     effectiveFinalParams,

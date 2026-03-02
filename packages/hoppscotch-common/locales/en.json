@@ -971,7 +971,12 @@
       "404_error": "Please check your request URL and method type.",
       "cors_error": "Please check your Cross-Origin Resource Sharing configuration.",
       "default_error": "Please check your request.",
-      "network_error": "Please check your network connection."
+      "network_error": "Please check your network connection.",
+      "cors_explanation": "CORS is a browser security feature that prevents requests to different domains unless the server explicitly allows it.",
+      "cors_workaround_1": "Enable the Hoppscotch Proxy in Settings",
+      "cors_workaround_2": "Use the Hoppscotch Desktop app (no CORS restrictions)",
+      "cors_workaround_3": "Install a CORS bypass extension for development",
+      "technical_details": "Show technical error details"
     },
     "title": "Inspector",
     "url": {

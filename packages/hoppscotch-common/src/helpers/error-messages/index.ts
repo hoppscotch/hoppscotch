@@ -16,3 +16,10 @@ export const getEnvActionErrorMessage = (err: GQLError<string>) => {
       return "error.something_went_wrong"
   }
 }
+
+// Re-export CORS helper functions
+export {
+  isCorsError,
+  getCorsErrorMessage,
+  getNetworkErrorMessage,
+} from "./cors-helper"

@@ -9,6 +9,7 @@ import { getService } from "./dioc"
 import { colord } from "colord"
 import { isPresetAccentColor, getContrastColor } from "~/helpers/theme"
 import { useToast } from "~/composables/toast"
+import { useI18n } from "@composables/i18n"
 
 export type HoppColorMode = {
   preference: HoppBgColor
@@ -131,9 +132,11 @@ const applyAccentColor = (_app: App) => {
         // If parsing fails, fallback to removing any custom inline vars and revert to a default accent
         // Log for debugging and notify the user
         try {
+          const t = useI18n()
           const toast = useToast()
           toast.info(
-            "Failed to apply custom accent color. Reverted to default."
+            t("settings.failed_apply_custom_accent") ||
+              "Failed to apply custom accent color. Reverted to default."
           )
         } catch (_toastErr) {
           // ignore toast errors in non-browser contexts

@@ -1258,6 +1258,8 @@
   },
   "settings": {
     "accent_color": "Accent color",
+    "custom_accent": "Custom accent color",
+    "failed_apply_custom_accent": "Failed to apply custom accent color. Using default in the UI.",
     "account": "Account",
     "account_deleted": "Your account has been deleted",
     "account_description": "Customize your account settings.",

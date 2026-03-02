@@ -5,8 +5,11 @@
       <HoppButtonSecondary
         v-for="(color, index) of accentColors"
         :key="`color-${index}`"
-        v-tippy="{ theme: 'tooltip' }"
-        :title="`${color.charAt(0).toUpperCase()}${color.slice(1)}`"
+        v-tippy="{
+          content: `${color.charAt(0).toUpperCase()}${color.slice(1)}`,
+          theme: 'tooltip',
+        }"
+        :aria-label="`${color.charAt(0).toUpperCase()}${color.slice(1)}`"
         :class="[{ 'bg-primaryLight': color === active }]"
         class="rounded"
         :icon="color === active ? IconCircleDot : IconCircle"
@@ -21,10 +24,10 @@
       <div class="relative">
         <!-- palette icon button that opens the native color picker -->
         <button
+          v-tippy="{ content: t('settings.custom_accent'), theme: 'tooltip' }"
           type="button"
           :class="['rounded p-2', { 'bg-primaryLight': activeIsCustom }]"
-          title="Custom accent color"
-          aria-label="Custom accent color"
+          :aria-label="t('settings.custom_accent')"
           aria-haspopup="dialog"
           @click="openColorPicker"
         >
@@ -37,7 +40,7 @@
           class="color-picker absolute inset-0 w-full h-full opacity-0 cursor-pointer pointer-events-none"
           type="color"
           :value="customColorValue || '#000000'"
-          aria-label="Pick custom accent color"
+          :aria-label="t('settings.custom_accent')"
           @input="onCustomColorInput"
         />
       </div>
@@ -58,11 +61,14 @@ import {
 import { useSetting } from "@composables/settings"
 import { ref, computed, watch } from "vue"
 import { isPresetAccentColor } from "~/helpers/theme"
+import { useI18n } from "@composables/i18n"
 
 const accentColors = HoppAccentColors
 const active = useSetting("THEME_COLOR")
 
 const customColorValue = ref<string | null>(null)
+
+const { t } = { t: useI18n() }
 
 // Keep the native color input in sync with the active custom value.
 // Convert any non-hex color (rgb/hsl/etc.) to a hex string because

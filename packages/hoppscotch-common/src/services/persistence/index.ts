@@ -310,7 +310,7 @@ export class PersistenceService extends Service {
       const result = THEME_COLOR_SCHEMA.safeParse(themeColor)
       if (result.success) {
         // result.data can be either a preset accent or a custom color string
-        applySetting("THEME_COLOR", result.data as HoppAccentColor | string)
+        applySetting("THEME_COLOR", result.data)
       } else {
         this.showErrorToast(themeColorKey)
         window.localStorage.setItem(`${themeColorKey}-backup`, themeColor)

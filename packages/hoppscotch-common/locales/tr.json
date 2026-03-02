@@ -831,7 +831,7 @@
     },
     "response": {
       "copy": "Yanıtı kopyala",
-      : "Yanıtı dosya olarak indir",
+      "download": "Yanıtı dosya olarak indir",
       "title": "Yanıt"
     },
     "section": {

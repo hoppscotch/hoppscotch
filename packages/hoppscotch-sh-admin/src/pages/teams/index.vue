@@ -59,8 +59,8 @@
                   error
                     ? t('teams.load_list_error')
                     : searchQuery
-                      ? t('teams.no_search_results')
-                      : t('teams.no_teams')
+                    ? t('teams.no_search_results')
+                    : t('teams.no_teams')
                 }}
               </span>
             </td>
@@ -176,13 +176,17 @@ const toast = useToast();
 // Get Users List (for team creation modal)
 const { data } = useQuery({ query: MetricsDocument, variables: {} });
 const usersPerPage = computed(() => data.value?.infra.usersCount || 10000);
+import { watch } from 'vue';
+watch(usersPerPage, (val) => {
+  console.log('usersPerPage updated:', val);
+});
 
 const { list: usersList } = usePagedQuery(
   UsersListDocument,
   (x) => x.infra.allUsers,
   usersPerPage.value,
   { cursor: undefined, take: usersPerPage.value },
-  (x) => x.uid,
+  (x) => x.uid
 );
 
 const allUsersEmail = computed(() => usersList.value.map((user) => user.email));

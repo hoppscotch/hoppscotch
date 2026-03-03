@@ -2,9 +2,7 @@
   <div
     class="sticky top-0 z-20 flex-none flex-shrink-0 bg-primary p-4 sm:flex sm:flex-shrink-0 sm:space-x-2"
   >
-    <div
-      class="min-w-[12rem] flex flex-1 whitespace-nowrap rounded border border-divider"
-    >
+    <div class="flex flex-1 min-w-0 rounded border border-divider">
       <div class="relative flex">
         <label for="method">
           <tippy
@@ -53,7 +51,7 @@
         </label>
       </div>
       <div
-        class="flex flex-1 whitespace-nowrap rounded-r border-l border-divider bg-primaryLight transition"
+        class="flex flex-1 min-w-0 rounded-r border-l border-divider bg-primaryLight transition"
       >
         <SmartEnvInput
           ref="urlInput"

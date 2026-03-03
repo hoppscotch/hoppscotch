@@ -176,10 +176,6 @@ const toast = useToast();
 // Get Users List (for team creation modal)
 const { data } = useQuery({ query: MetricsDocument, variables: {} });
 const usersPerPage = computed(() => data.value?.infra.usersCount || 10000);
-import { watch } from 'vue';
-watch(usersPerPage, (val) => {
-  console.log('usersPerPage updated:', val);
-});
 
 const { list: usersList } = usePagedQuery(
   UsersListDocument,

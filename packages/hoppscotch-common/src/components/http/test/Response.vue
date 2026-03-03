@@ -1,7 +1,8 @@
 <template>
   <div class="relative flex flex-1 flex-col">
+    <!-- CORS-specific error -->
     <div
-      v-if="doc.response?.type === 'network_fail'"
+      v-if="doc.response?.type === 'network_fail' && isCorsError(doc.error)"
       class="sticky top-0 z-50 flex-none flex-shrink-0 items-center justify-center whitespace-nowrap bg-primary p-4"
     >
       <div class="space-y-2">
@@ -24,6 +25,16 @@
           <pre class="mt-1 p-2 bg-primaryDark rounded text-red-400 overflow-auto max-h-40">{{ doc.error }}</pre>
         </details>
       </div>
+    </div>
+    <!-- Generic network error (fallback) -->
+    <div
+      v-else-if="doc.response?.type === 'network_fail'"
+      class="sticky top-0 z-50 flex-none flex-shrink-0 items-center justify-center whitespace-nowrap bg-primary p-4"
+    >
+      <span class="text-secondary">
+        {{ t("response.status") }}:
+        <span class="text-red-500">{{ t("response.generic_network_error") }}</span>
+      </span>
     </div>
     <HttpResponseMeta
       v-else
@@ -63,6 +74,7 @@ import { useI18n } from "~/composables/i18n"
 import { useColorMode } from "~/composables/theming"
 import { HoppRequestDocument } from "~/helpers/rest/document"
 import { TestRunnerRequest } from "~/services/test-runner/test-runner.service"
+import { isCorsError } from "~/helpers/error-messages/cors-helper"
 
 const t = useI18n()
 const colorMode = useColorMode()

@@ -972,6 +972,7 @@
       "cors_error": "Please check your Cross-Origin Resource Sharing configuration.",
       "default_error": "Please check your request.",
       "network_error": "Please check your network connection.",
+      "generic_network_error": "The request failed due to a network error. Please check your internet connection and try again.",
       "cors_explanation": "CORS is a browser security feature that prevents requests to different domains unless the server explicitly allows it.",
       "cors_workaround_1": "Enable the Hoppscotch Proxy in Settings",
       "cors_workaround_2": "Use the Hoppscotch Desktop app (no CORS restrictions)",

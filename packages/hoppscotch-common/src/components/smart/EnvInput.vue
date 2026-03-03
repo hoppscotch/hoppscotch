@@ -746,9 +746,8 @@ watch(
   @apply relative;
   @apply flex;
   @apply flex-1;
-  @apply flex-shrink-0;
-  @apply whitespace-nowrap py-4;
-
+  @apply min-w-0;
+  @apply py-4;
   .suggestions {
     @apply absolute;
     @apply bg-popover;
@@ -759,10 +758,8 @@ watch(
     @apply overflow-y-auto;
     @apply -left-[1px];
     @apply -right-[1px];
-
     top: calc(100% + 1px);
     border-radius: 0 0 8px 8px;
-
     li {
       @apply flex;
       @apply items-center;
@@ -771,11 +768,9 @@ watch(
       @apply px-4 py-2;
       @apply text-secondary;
       @apply cursor-pointer;
-
       &:last-child {
         border-radius: 0 0 0 8px;
       }
-
       &:hover,
       &.active {
         @apply bg-primaryDark;

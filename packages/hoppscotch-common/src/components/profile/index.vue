@@ -145,14 +145,14 @@ const updateDisplayName = async () => {
     return
   }
 
-   if (inputName.length > 30) {
-    toast.error("Profile name must be 30 characters or fewer")
+  if (inputName.length > 30) {
+    toast.error(t("error.profile_name_too_long"))
     return
   }
 
   const emojiRegex = /\p{Extended_Pictographic}/u
   if (emojiRegex.test(inputName)) {
-    toast.error("Profile name cannot contain emojis")
+    toast.error(t("error.profile_name_no_emojis"))
     return
   }
 

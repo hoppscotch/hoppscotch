@@ -150,7 +150,7 @@ const updateDisplayName = async () => {
     return
   }
 
-   const emojiRegex = /\p{Emoji}/u
++   const emojiRegex = /\p{Extended_Pictographic}/u
   if (emojiRegex.test(inputName)) {
     toast.error("Profile name cannot contain emojis")
     return

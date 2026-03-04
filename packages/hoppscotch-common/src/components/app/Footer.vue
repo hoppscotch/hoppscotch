@@ -12,8 +12,8 @@
         />
         <tippy interactive trigger="click" theme="popover">
           <HoppButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :title="t('settings.interceptor')"
+            v-tippy="{ content: t('settings.interceptor'), theme: 'tooltip' }"
+            :aria-label="t('settings.interceptor')"
             :icon="IconShieldCheck"
           />
           <template #content>

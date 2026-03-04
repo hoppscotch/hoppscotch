@@ -46,34 +46,37 @@
         @click="saveRequest"
       />
       <HoppButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
+        v-tippy="{ content: t('app.wiki'), theme: 'tooltip' }"
+        :aria-label="t('app.wiki')"
         to="https://docs.hoppscotch.io/documentation/features/graphql-api-testing"
         blank
-        :title="t('app.wiki')"
         :icon="IconHelpCircle"
       />
       <HoppButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        :title="t('action.clear_all')"
+        v-tippy="{ content: t('action.clear_all'), theme: 'tooltip' }"
+        :aria-label="t('action.clear_all')"
         :icon="IconTrash2"
         @click="clearGQLQuery()"
       />
+
       <HoppButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        :title="t('state.linewrap')"
+        v-tippy="{ content: t('state.linewrap'), theme: 'tooltip' }"
+        :aria-label="t('state.linewrap')"
         :class="{ '!text-accent': WRAP_LINES }"
         :icon="IconWrapText"
         @click.prevent="toggleNestedSetting('WRAP_LINES', 'graphqlQuery')"
       />
+
       <HoppButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        :title="t('action.prettify')"
+        v-tippy="{ content: t('action.prettify'), theme: 'tooltip' }"
+        :aria-label="t('action.prettify')"
         :icon="prettifyQueryIcon"
         @click="prettifyQuery"
       />
+
       <HoppButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        :title="t('action.copy')"
+        v-tippy="{ content: t('action.copy'), theme: 'tooltip' }"
+        :aria-label="t('action.copy')"
         :icon="copyQueryIcon"
         @click="copyQuery"
       />

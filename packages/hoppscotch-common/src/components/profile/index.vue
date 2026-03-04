@@ -16,6 +16,7 @@
           :autofocus="false"
           styles="mt-2 md:max-w-sm"
           :placeholder="`${t('settings.profile_name')}`"
+          maxlength="30"
         >
           <template #button>
             <HoppButtonSecondary
@@ -141,6 +142,17 @@ const updateDisplayName = async () => {
   const inputName = displayName.value.trim()
   if (!inputName) {
     toast.error(`${t("error.empty_profile_name")}`)
+    return
+  }
+
+   if (inputName.length > 30) {
+    toast.error("Profile name must be 30 characters or fewer")
+    return
+  }
+
+   const emojiRegex = /\p{Emoji}/u
+  if (emojiRegex.test(inputName)) {
+    toast.error("Profile name cannot contain emojis")
     return
   }
 

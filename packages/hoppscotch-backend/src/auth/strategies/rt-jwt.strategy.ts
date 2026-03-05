@@ -24,15 +24,23 @@ export class RTJwtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (request: Request) => {
-          const RTCookie = request.cookies?.['refresh_token'];
-          if (!RTCookie) {
-            console.error('`refresh_token` not found');
-            throw new ForbiddenException(COOKIES_NOT_FOUND);
-          }
-          return RTCookie;
-        },
-      ]),
+  (request: Request) => {
+    // 1. Check cookie first
+    const RTCookie = request.cookies?.['refresh_token'];
+    if (RTCookie) {
+      return RTCookie;
+    }
+
+    // 2️. Fallback to Authorization header
+    const authHeader = request.headers?.authorization;
+    if (authHeader?.startsWith('Bearer ')) {
+      return authHeader.split(' ')[1];
+    }
+
+    console.error('Refresh token not found in cookie or Authorization header');
+    throw new ForbiddenException(COOKIES_NOT_FOUND);
+  },
+]),
       secretOrKey: configService.get('INFRA.JWT_SECRET'),
     });
   }

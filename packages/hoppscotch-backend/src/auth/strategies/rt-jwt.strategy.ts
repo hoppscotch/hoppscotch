@@ -31,7 +31,7 @@ export class RTJwtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
       return RTCookie;
     }
 
-    // 2️. Fallback to Authorization header
+    // 2. Fallback to Authorization header
     const authHeader = request.headers?.authorization;
     if (authHeader?.startsWith('Bearer ')) {
       const token = authHeader.slice(7).trim();

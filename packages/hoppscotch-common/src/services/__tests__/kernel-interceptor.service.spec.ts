@@ -157,6 +157,176 @@ describe("KernelInterceptorService", () => {
 
       expect(interceptor.execute).toHaveBeenCalledWith(request)
     })
+
+    it("routes browser GET with body through proxy interceptor", () => {
+      const container = new TestContainer()
+      const service = container.bind(KernelInterceptorService)
+
+      const browserInterceptor: KernelInterceptor = {
+        id: "browser",
+        name: () => "Browser",
+        selectable: { type: "selectable" },
+        capabilities: {},
+        execute: vi.fn(),
+      }
+
+      const proxyInterceptor: KernelInterceptor = {
+        id: "proxy",
+        name: () => "Proxy",
+        selectable: { type: "selectable" },
+        capabilities: {},
+        execute: vi.fn(),
+      }
+
+      service.register(browserInterceptor)
+      service.register(proxyInterceptor)
+      service.setActive("browser")
+
+      const request = {
+        method: "GET",
+        content: "request body",
+      } as RelayRequest
+      service.execute(request)
+
+      expect(proxyInterceptor.execute).toHaveBeenCalledWith(request)
+      expect(browserInterceptor.execute).not.toHaveBeenCalled()
+    })
+
+    it("routes browser HEAD with body through proxy interceptor", () => {
+      const container = new TestContainer()
+      const service = container.bind(KernelInterceptorService)
+
+      const browserInterceptor: KernelInterceptor = {
+        id: "browser",
+        name: () => "Browser",
+        selectable: { type: "selectable" },
+        capabilities: {},
+        execute: vi.fn(),
+      }
+
+      const proxyInterceptor: KernelInterceptor = {
+        id: "proxy",
+        name: () => "Proxy",
+        selectable: { type: "selectable" },
+        capabilities: {},
+        execute: vi.fn(),
+      }
+
+      service.register(browserInterceptor)
+      service.register(proxyInterceptor)
+      service.setActive("browser")
+
+      const request = {
+        method: "HEAD",
+        content: "body",
+      } as RelayRequest
+      service.execute(request)
+
+      expect(proxyInterceptor.execute).toHaveBeenCalledWith(request)
+      expect(browserInterceptor.execute).not.toHaveBeenCalled()
+    })
+
+    it("does not route through proxy when browser GET has no body", () => {
+      const container = new TestContainer()
+      const service = container.bind(KernelInterceptorService)
+
+      const browserInterceptor: KernelInterceptor = {
+        id: "browser",
+        name: () => "Browser",
+        selectable: { type: "selectable" },
+        capabilities: {},
+        execute: vi.fn(),
+      }
+
+      const proxyInterceptor: KernelInterceptor = {
+        id: "proxy",
+        name: () => "Proxy",
+        selectable: { type: "selectable" },
+        capabilities: {},
+        execute: vi.fn(),
+      }
+
+      service.register(browserInterceptor)
+      service.register(proxyInterceptor)
+      service.setActive("browser")
+
+      const request = {
+        method: "GET",
+        content: null,
+      } as RelayRequest
+      service.execute(request)
+
+      expect(browserInterceptor.execute).toHaveBeenCalledWith(request)
+      expect(proxyInterceptor.execute).not.toHaveBeenCalled()
+    })
+
+    it("does not route through proxy when browser POST has body", () => {
+      const container = new TestContainer()
+      const service = container.bind(KernelInterceptorService)
+
+      const browserInterceptor: KernelInterceptor = {
+        id: "browser",
+        name: () => "Browser",
+        selectable: { type: "selectable" },
+        capabilities: {},
+        execute: vi.fn(),
+      }
+
+      const proxyInterceptor: KernelInterceptor = {
+        id: "proxy",
+        name: () => "Proxy",
+        selectable: { type: "selectable" },
+        capabilities: {},
+        execute: vi.fn(),
+      }
+
+      service.register(browserInterceptor)
+      service.register(proxyInterceptor)
+      service.setActive("browser")
+
+      const request = {
+        method: "POST",
+        content: "request body",
+      } as RelayRequest
+      service.execute(request)
+
+      expect(browserInterceptor.execute).toHaveBeenCalledWith(request)
+      expect(proxyInterceptor.execute).not.toHaveBeenCalled()
+    })
+
+    it("does not route through proxy when non-browser interceptor has GET with body", () => {
+      const container = new TestContainer()
+      const service = container.bind(KernelInterceptorService)
+
+      const nativeInterceptor: KernelInterceptor = {
+        id: "native",
+        name: () => "Native",
+        selectable: { type: "selectable" },
+        capabilities: {},
+        execute: vi.fn(),
+      }
+
+      const proxyInterceptor: KernelInterceptor = {
+        id: "proxy",
+        name: () => "Proxy",
+        selectable: { type: "selectable" },
+        capabilities: {},
+        execute: vi.fn(),
+      }
+
+      service.register(nativeInterceptor)
+      service.register(proxyInterceptor)
+      service.setActive("native")
+
+      const request = {
+        method: "GET",
+        content: "body",
+      } as RelayRequest
+      service.execute(request)
+
+      expect(nativeInterceptor.execute).toHaveBeenCalledWith(request)
+      expect(proxyInterceptor.execute).not.toHaveBeenCalled()
+    })
   })
 
   describe("validation", () => {

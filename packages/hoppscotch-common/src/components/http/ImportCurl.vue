@@ -47,9 +47,14 @@
       <span class="flex space-x-2">
         <HoppButtonPrimary
           ref="importButton"
-          :label="`${t('import.title')}`"
+          :label="`${t('import.import_in_new_tab')}`"
           outline
-          @click="handleImport"
+          @click="handleImportInNewTab"
+        />
+        <HoppButtonSecondary
+          :label="`${t('import.import_in_active_tab')}`"
+          outline
+          @click="handleImportInActiveTab"
         />
         <HoppButtonSecondary
           :label="`${t('action.cancel')}`"
@@ -138,8 +143,46 @@ const hideModal = () => {
   emit("hide-modal")
 }
 
-const handleImport = () => {
+const validateCurlInput = (text: string): boolean => {
+  // Check if input is empty or contains only whitespace
+  if (!text.trim()) {
+    toast.error(`${t("error.empty_curl")}`)
+    return false
+  }
+  return true
+}
+
+const handleImportInNewTab = () => {
   const text = curl.value
+
+  if (!validateCurlInput(text)) return
+
+  try {
+    const req = parseCurlToHoppRESTReq(text)
+
+    // Create a new tab with the imported cURL request
+    tabs.createNewTab({
+      type: "request",
+      request: req,
+      isDirty: true,
+    })
+
+    // Log the event to analytics
+    platform.analytics?.logEvent({
+      type: "HOPP_REST_IMPORT_CURL",
+    })
+  } catch (e) {
+    console.error(e)
+    toast.error(`${t("error.curl_invalid_format")}`)
+  }
+  hideModal()
+}
+
+const handleImportInActiveTab = () => {
+  const text = curl.value
+
+  if (!validateCurlInput(text)) return
+
   try {
     const req = parseCurlToHoppRESTReq(text)
 
@@ -149,11 +192,16 @@ const handleImport = () => {
 
     if (tabs.currentActiveTab.value.document.type === "example-response") return
 
-    // Preserve the existing request name when importing cURL
+    // Preserve the existing request id and name when importing cURL
     const currentRequest = tabs.currentActiveTab.value.document.request
+    const reqID = currentRequest?.id ?? req.id
     const reqName = currentRequest?.name ?? req.name
 
-    tabs.currentActiveTab.value.document.request = { ...req, name: reqName }
+    tabs.currentActiveTab.value.document.request = {
+      ...req,
+      id: reqID,
+      name: reqName,
+    }
   } catch (e) {
     console.error(e)
     toast.error(`${t("error.curl_invalid_format")}`)

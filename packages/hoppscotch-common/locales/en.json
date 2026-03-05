@@ -670,8 +670,9 @@
   },
   "error": {
     "network": {
-      "heading": "Network Error",
-      "description": "Network connection failed. {message}: {cause}"
+     "heading": "Network Error",
+     "description": "Network connection failed. {message}: {cause}",
+     "cors_hint": "The request was blocked by the browser, likely due to CORS restrictions. Consider using Proxy or Agent mode."
     },
     "timeout": {
       "heading": "Timeout Error",

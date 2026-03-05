@@ -1,4 +1,4 @@
-import { Node, parseTree, stripComments as stripComments_ } from "jsonc-parser"
+import { Node, parseTree} from "jsonc-parser"
 import jsoncParse from "~/helpers/jsoncParse"
 import { convertIndexToLineCh } from "../utils"
 import { LinterDefinition, LinterResult } from "./linter"

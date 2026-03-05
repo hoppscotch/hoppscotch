@@ -102,7 +102,7 @@ function stripCommentsAndCommas(text: string): string {
  */
 
 export function stripComments(jsonString: string) {
-  return stripCommentsAndCommas(stripComments_(jsonString) ?? jsonString)
+  return stripCommentsAndCommas(jsonString)
 }
 
 export default linter

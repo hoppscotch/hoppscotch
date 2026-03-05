@@ -124,11 +124,13 @@ const initPasswordOauthFlow = async ({
 
   const withAccessTokenSchema = z.object({
     access_token: z.string(),
+    refresh_token: z.string().optional(),
   })
 
-  const responsePayload = parseBytesToJSON<{ access_token: string }>(
-    res.right.body.body
-  )
+  const responsePayload = parseBytesToJSON<{
+    access_token: string
+    refresh_token?: string
+  }>(res.right.body.body)
 
   if (O.isSome(responsePayload)) {
     const parsedTokenResponse = withAccessTokenSchema.safeParse(
@@ -210,6 +212,7 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
 
   const withAccessTokenSchema = z.object({
     access_token: z.string(),
+    refresh_token: z.string().optional(),
   })
 
   const parsedTokenResponse = withAccessTokenSchema.safeParse(

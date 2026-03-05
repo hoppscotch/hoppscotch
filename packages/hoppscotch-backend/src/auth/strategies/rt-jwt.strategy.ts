@@ -34,7 +34,10 @@ export class RTJwtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
     // 2️. Fallback to Authorization header
     const authHeader = request.headers?.authorization;
     if (authHeader?.startsWith('Bearer ')) {
-      return authHeader.split(' ')[1];
+      const token = authHeader.slice(7).trim();
+      if (token) {
+        return token;
+      }
     }
 
     console.error('Refresh token not found in cookie or Authorization header');

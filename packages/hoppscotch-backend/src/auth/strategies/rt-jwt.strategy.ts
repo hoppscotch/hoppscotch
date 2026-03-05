@@ -36,10 +36,23 @@ export class RTJwtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
     if (authHeader?.startsWith('Bearer ')) {
       const token = authHeader.slice(7).trim();
       if (token) {
-        return token;
-      }
+
+    let bearerHeader: string | undefined;
+
+    if (Array.isArray(authHeader)) {
+      bearerHeader = authHeader.find(
+        (value) => typeof value === 'string' && value.startsWith('Bearer '),
+      );
+    } else if (typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
+      bearerHeader = authHeader;
     }
 
+    if (bearerHeader) {
+      const parts = bearerHeader.split(' ');
+      if (parts.length >= 2 && parts[1]) {
+        return parts[1];
+      }
+    }
     console.error('Refresh token not found in cookie or Authorization header');
     throw new ForbiddenException(COOKIES_NOT_FOUND);
   },

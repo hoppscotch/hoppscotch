@@ -71,8 +71,6 @@ export function getAuthProviderRequiredKeys(
             InfraConfigEnum.MAILER_SMTP_HOST,
             InfraConfigEnum.MAILER_SMTP_PORT,
             InfraConfigEnum.MAILER_SMTP_SECURE,
-            InfraConfigEnum.MAILER_SMTP_USER,
-            InfraConfigEnum.MAILER_SMTP_PASSWORD,
             InfraConfigEnum.MAILER_TLS_REJECT_UNAUTHORIZED,
             InfraConfigEnum.MAILER_ADDRESS_FROM,
           ]

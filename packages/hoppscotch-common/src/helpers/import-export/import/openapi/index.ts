@@ -120,6 +120,13 @@ type OpenAPIOperationType =
   | OpenAPIV3.OperationObject
   | OpenAPIV31.OperationObject
 
+// Resolves request name from OpenAPI operation: operationId > summary > title > fallback
+const getOpenAPIOperationName = (info: OpenAPIOperationType): string =>
+  info.operationId ??
+  info.summary ??
+  (info as any).title ??
+  "Untitled Request"
+
 // Removes the OpenAPI Path Templating to the Hoppscotch Templating (<< ? >>)
 const replaceOpenApiPathTemplating = flow(
   S.replace(/{/g, "<<"),
@@ -1039,7 +1046,7 @@ const convertPathToHoppReqs = (
         }
       } = {
         request: makeRESTRequest({
-          name: info.operationId ?? info.summary ?? "Untitled Request",
+          name: getOpenAPIOperationName(info),
           description: info.description ?? null,
           method: method.toUpperCase(),
           endpoint,
@@ -1067,7 +1074,7 @@ const convertPathToHoppReqs = (
             doc,
             info,
             makeHoppRESTResponseOriginalRequest({
-              name: info.operationId ?? info.summary ?? "Untitled Request",
+              name: getOpenAPIOperationName(info),
               auth: parseOpenAPIAuth(doc, info),
               body: parseOpenAPIBody(doc, info),
               endpoint,

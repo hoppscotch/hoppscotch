@@ -1148,7 +1148,7 @@
     "modal_title": "Share as MCP Tools",
     "url_label": "MCP Server URL",
     "copy_url": "Copy URL",
-    "copied": "Copied!",
+    "copied": "Copied",
     "revoke": "Revoke access",
     "revoked": "Access revoked",
     "generate": "Generate MCP link",

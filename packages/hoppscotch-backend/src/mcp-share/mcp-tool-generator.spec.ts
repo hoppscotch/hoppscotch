@@ -195,4 +195,56 @@ describe('collectionToMcpTools', () => {
     expect(meta.headers).toHaveLength(1);
     expect(meta.headers[0].key).toBe('Authorization');
   });
+
+  it('tracks queryKeys separately from bodyKeys for REST requests', () => {
+    const collection = makeCollection({
+      requests: [
+        {
+          name: 'Create Post',
+          method: 'POST',
+          endpoint: 'https://api.example.com/posts/:category',
+          headers: [],
+          params: [{ key: 'draft', value: 'true', active: true }],
+          body: { contentType: 'application/json', body: '{"title": "", "content": ""}' },
+          auth: null,
+        },
+      ],
+    });
+
+    const tools = collectionToMcpTools(collection);
+    const schema = tools[0].inputSchema;
+
+    // Path param is required, not in queryKeys or bodyKeys
+    expect(schema.required).toContain('category');
+    expect(schema.queryKeys).not.toContain('category');
+    expect(schema.bodyKeys).not.toContain('category');
+
+    // Query param is in queryKeys, not bodyKeys
+    expect(schema.queryKeys).toContain('draft');
+    expect(schema.bodyKeys).not.toContain('draft');
+
+    // Body fields are in bodyKeys, not queryKeys
+    expect(schema.bodyKeys).toContain('title');
+    expect(schema.bodyKeys).toContain('content');
+    expect(schema.queryKeys).not.toContain('title');
+  });
+
+  it('GQL tools have empty bodyKeys and queryKeys', () => {
+    const collection = makeCollection({
+      requests: [
+        {
+          name: 'Get Repo',
+          query: 'query GetRepo($owner: String!) { repository(owner: $owner) { id } }',
+          variables: '{"owner": "octocat"}',
+          endpoint: 'https://api.github.com/graphql',
+          headers: [],
+          auth: null,
+        },
+      ],
+    });
+
+    const tools = collectionToMcpTools(collection);
+    expect(tools[0].inputSchema.bodyKeys).toEqual([]);
+    expect(tools[0].inputSchema.queryKeys).toEqual([]);
+  });
 });

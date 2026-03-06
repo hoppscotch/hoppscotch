@@ -12,19 +12,39 @@ import * as E from 'fp-ts/Either';
 import { ThrottlerBehindProxyGuard } from 'src/guards/throttler-behind-proxy.guard';
 import { McpShareService } from './mcp-share.service';
 import { collectionToMcpTools, McpToolDefinition } from './mcp-tool-generator';
-import { CollectionFolder } from 'src/types/CollectionFolder';
 import { MCP_SHARE_TOOL_NOT_FOUND } from 'src/errors';
+import { McpShare as DbMcpShare } from 'src/generated/prisma/client';
 
 // JSON-RPC error codes per MCP spec
 const JSONRPC_INVALID_PARAMS = -32602;
 const JSONRPC_METHOD_NOT_FOUND = -32601;
 
 // In-process TTL cache: shareToken → { tools, expiresAt }
+// Bounded to MAX_CACHE_ENTRIES to prevent unbounded memory growth.
+const CACHE_TTL_MS = 60_000;
+const MAX_CACHE_ENTRIES = 1000;
 const toolsCache = new Map<
   string,
   { tools: McpToolDefinition[]; expiresAt: number }
 >();
-const CACHE_TTL_MS = 60_000;
+
+/**
+ * Reject URLs that resolve to loopback or RFC-1918 private addresses to
+ * prevent SSRF from user-controlled collection endpoints.
+ */
+function isPrivateUrl(raw: string): boolean {
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    return true; // malformed URL — block it
+  }
+  const host = url.hostname;
+  // IPv4 loopback / link-local / private ranges and IPv6 loopback
+  const privatePattern =
+    /^(127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|169\.254\.|0\.0\.0\.0|::1$|localhost$)/i;
+  return privatePattern.test(host);
+}
 
 function jsonRpcSuccess(id: unknown, result: unknown) {
   return { jsonrpc: '2.0', id, result };
@@ -152,7 +172,7 @@ export class McpShareController {
 
   private async getToolsForShare(
     shareToken: string,
-    share: any,
+    share: DbMcpShare,
   ): Promise<E.Either<string, McpToolDefinition[]>> {
     const cached = toolsCache.get(shareToken);
     if (cached && cached.expiresAt > Date.now()) {
@@ -162,7 +182,12 @@ export class McpShareController {
     const treeResult = await this.mcpShareService.getCollectionTree(share);
     if (E.isLeft(treeResult)) return E.left(treeResult.left);
 
-    const tools = collectionToMcpTools(treeResult.right as CollectionFolder);
+    const tools = collectionToMcpTools(treeResult.right);
+
+    // Evict oldest entry when at capacity to keep memory bounded.
+    if (toolsCache.size >= MAX_CACHE_ENTRIES) {
+      toolsCache.delete(toolsCache.keys().next().value);
+    }
     toolsCache.set(shareToken, { tools, expiresAt: Date.now() + CACHE_TTL_MS });
     return E.right(tools);
   }
@@ -173,6 +198,10 @@ export class McpShareController {
   ): Promise<E.Either<string, string>> {
     try {
       const meta = tool._meta;
+
+      if (isPrivateUrl(meta.endpoint)) {
+        return E.left('Request blocked: endpoint resolves to a private address');
+      }
 
       if (meta.reqType === 'GQL') {
         // GQL execution: POST to the stored endpoint
@@ -201,16 +230,15 @@ export class McpShareController {
       // REST execution
       let endpoint = meta.endpoint;
 
-      // Substitute path params (:param)
-      for (const [key, value] of Object.entries(args)) {
-        endpoint = endpoint.replace(`:${key}`, encodeURIComponent(String(value)));
+      // Substitute path params (:param) — required keys
+      for (const key of tool.inputSchema.required) {
+        if (args[key] !== undefined) {
+          endpoint = endpoint.replace(`:${key}`, encodeURIComponent(String(args[key])));
+        }
       }
 
-      // Build query string from schema-defined query params
-      const queryProps = Object.keys(tool.inputSchema.properties).filter(
-        (k) => !tool.inputSchema.required.includes(k),
-      );
-      const queryEntries = queryProps
+      // Build query string from schema-defined query keys
+      const queryEntries = tool.inputSchema.queryKeys
         .filter((k) => args[k] !== undefined)
         .map((k) => `${encodeURIComponent(k)}=${encodeURIComponent(args[k])}`);
 
@@ -218,14 +246,6 @@ export class McpShareController {
         const sep = endpoint.includes('?') ? '&' : '?';
         endpoint = endpoint + sep + queryEntries.join('&');
       }
-
-      // Build body for non-GET requests
-      const bodyFields = Object.keys(tool.inputSchema.properties).filter(
-        (k) =>
-          !tool.inputSchema.required.includes(k) &&
-          !queryProps.includes(k) &&
-          args[k] !== undefined,
-      );
 
       const fetchOptions: RequestInit = {
         method: meta.method,
@@ -235,12 +255,17 @@ export class McpShareController {
         },
       };
 
-      if (meta.method !== 'GET' && meta.method !== 'HEAD' && bodyFields.length > 0) {
+      // Build body for non-GET/HEAD requests using schema-tracked body keys
+      if (meta.method !== 'GET' && meta.method !== 'HEAD') {
         const bodyObj: Record<string, string> = {};
-        for (const k of bodyFields) {
-          bodyObj[k] = args[k];
+        for (const k of tool.inputSchema.bodyKeys) {
+          if (args[k] !== undefined) {
+            bodyObj[k] = args[k];
+          }
         }
-        fetchOptions.body = JSON.stringify(bodyObj);
+        if (Object.keys(bodyObj).length > 0) {
+          fetchOptions.body = JSON.stringify(bodyObj);
+        }
       }
 
       const response = await fetch(endpoint, fetchOptions);

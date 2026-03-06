@@ -9,6 +9,10 @@ export interface McpToolInputSchema {
   type: 'object';
   properties: Record<string, { type: string; description: string }>;
   required: string[];
+  /** Keys sourced from the JSON request body (used by non-GET requests). */
+  bodyKeys: string[];
+  /** Keys sourced from the URL query string. */
+  queryKeys: string[];
 }
 
 export interface McpToolDefinition {
@@ -119,7 +123,7 @@ export function collectionToMcpTools(
         tools.push({
           name: toolName,
           description,
-          inputSchema: { type: 'object', properties, required },
+          inputSchema: { type: 'object', properties, required, bodyKeys: [], queryKeys: [] },
           _meta: {
             endpoint: req.endpoint ?? '',
             method: 'POST',
@@ -139,6 +143,8 @@ export function collectionToMcpTools(
         const properties: Record<string, { type: string; description: string }> =
           {};
         const required: string[] = [];
+        const queryKeys: string[] = [];
+        const bodyKeys: string[] = [];
 
         // Path params: /:param or :param
         for (const param of extractPathParams(endpoint)) {
@@ -161,6 +167,7 @@ export function collectionToMcpTools(
               type: 'string',
               description: `Query parameter: ${p.key}`,
             };
+            queryKeys.push(p.key);
           }
         }
 
@@ -175,13 +182,14 @@ export function collectionToMcpTools(
           const bodyProps = inferBodySchema(body.body);
           for (const [k, v] of Object.entries(bodyProps)) {
             properties[k] = v;
+            bodyKeys.push(k);
           }
         }
 
         tools.push({
           name: toolName,
           description,
-          inputSchema: { type: 'object', properties, required },
+          inputSchema: { type: 'object', properties, required, bodyKeys, queryKeys },
           _meta: {
             endpoint,
             method,

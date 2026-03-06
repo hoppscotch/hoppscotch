@@ -17,6 +17,7 @@ import {
 } from 'src/errors';
 import { McpShare as GqlMcpShare } from './mcp-share.model';
 import { McpShare as DbMcpShare } from 'src/generated/prisma/client';
+import { CollectionFolder } from 'src/types/CollectionFolder';
 
 @Injectable()
 export class McpShareService {
@@ -64,12 +65,14 @@ export class McpShareService {
 
   /**
    * Verify the user has access to the collection.
+   * Returns the workspaceID (teamID for TEAM, userUid for USER) so the caller
+   * does not need a second DB round-trip.
    */
   private async validateCollectionAccess(
     user: AuthUser,
     collectionID: string,
     workspaceType: WorkspaceType,
-  ): Promise<E.Either<string, boolean>> {
+  ): Promise<E.Either<string, string>> {
     if (workspaceType === WorkspaceType.TEAM) {
       const collection = await this.prisma.teamCollection.findUnique({
         where: { id: collectionID },
@@ -86,13 +89,15 @@ export class McpShareService {
         },
       });
       if (!member) return E.left(MCP_SHARE_UNAUTHORIZED);
+
+      return E.right(collection.teamID);
     } else {
       const collection = await this.prisma.userCollection.findUnique({
         where: { id: collectionID, userUid: user.uid },
       });
       if (!collection) return E.left(MCP_SHARE_NOT_FOUND);
+      return E.right(user.uid);
     }
-    return E.right(true);
   }
 
   async createShare(
@@ -107,15 +112,7 @@ export class McpShareService {
     );
     if (E.isLeft(accessCheck)) return E.left(accessCheck.left);
 
-    // Determine workspaceID
-    const workspaceID =
-      workspaceType === WorkspaceType.TEAM
-        ? (
-            await this.prisma.teamCollection.findUnique({
-              where: { id: collectionID },
-            })
-          )?.teamID ?? user.uid
-        : user.uid;
+    const workspaceID = accessCheck.right;
 
     try {
       const shareToken = this.generateShareToken();
@@ -178,7 +175,9 @@ export class McpShareService {
     return shares.map((s) => this.cast(s));
   }
 
-  async getCollectionTree(share: DbMcpShare) {
+  async getCollectionTree(
+    share: DbMcpShare,
+  ): Promise<E.Either<string, CollectionFolder>> {
     if (share.workspaceType === WorkspaceType.TEAM) {
       return this.teamCollectionService.exportCollectionToJSONObject(
         share.workspaceID,

@@ -19,6 +19,9 @@ import { McpShare as DbMcpShare } from 'src/generated/prisma/client';
 const JSONRPC_INVALID_PARAMS = -32602;
 const JSONRPC_METHOD_NOT_FOUND = -32601;
 
+// Abort upstream requests after 30 seconds to prevent hanging connections.
+const FETCH_TIMEOUT_MS = 30_000;
+
 // In-process TTL cache: shareToken → { tools, expiresAt }
 // Bounded to MAX_CACHE_ENTRIES to prevent unbounded memory growth.
 const CACHE_TTL_MS = 60_000;
@@ -197,7 +200,8 @@ export class McpShareController {
 
     // Evict oldest entry when at capacity to keep memory bounded.
     if (toolsCache.size >= MAX_CACHE_ENTRIES) {
-      toolsCache.delete(toolsCache.keys().next().value);
+      const oldest = toolsCache.keys().next().value;
+      if (oldest) toolsCache.delete(oldest);
     }
     toolsCache.set(shareToken, { tools, expiresAt: Date.now() + CACHE_TTL_MS });
     return E.right(tools);
@@ -233,6 +237,7 @@ export class McpShareController {
             ...this.buildHeaders(meta.headers),
           },
           body: JSON.stringify({ query: meta.gqlQuery, variables }),
+          signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
         });
         const text = await response.text();
         return E.right(text);
@@ -264,6 +269,7 @@ export class McpShareController {
           'Content-Type': 'application/json',
           ...this.buildHeaders(meta.headers),
         },
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       };
 
       // Build body for non-GET/HEAD requests using schema-tracked body keys

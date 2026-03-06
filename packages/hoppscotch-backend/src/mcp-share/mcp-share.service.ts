@@ -134,10 +134,11 @@ export class McpShareService {
   async getShare(
     shareToken: string,
   ): Promise<E.Either<string, DbMcpShare>> {
-    const share = await this.prisma.mcpShare.findFirst({
-      where: { shareToken, isActive: true, deletedAt: null },
+    const share = await this.prisma.mcpShare.findUnique({
+      where: { shareToken },
     });
-    if (!share) return E.left(MCP_SHARE_NOT_FOUND);
+    if (!share || !share.isActive || share.deletedAt)
+      return E.left(MCP_SHARE_NOT_FOUND);
 
     if (share.expiresAt && share.expiresAt < new Date()) {
       return E.left(MCP_SHARE_EXPIRED);

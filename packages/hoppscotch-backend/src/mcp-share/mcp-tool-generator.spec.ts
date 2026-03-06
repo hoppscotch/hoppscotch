@@ -157,7 +157,7 @@ describe('collectionToMcpTools', () => {
     });
 
     const tools = collectionToMcpTools(collection);
-    expect(tools[0].name).toBe('create_new___user_admin');
+    expect(tools[0].name).toBe('create_new_user_admin');
   });
 
   it('truncates tool names to 64 chars', () => {

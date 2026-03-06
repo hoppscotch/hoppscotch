@@ -55,7 +55,7 @@ export class McpShareService {
       isActive: share.isActive,
       shareUrlPathBased,
       shareUrlDomainBased,
-    };
+    } as GqlMcpShare;
   }
 
   private generateShareToken(): string {

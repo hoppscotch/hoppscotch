@@ -40,9 +40,14 @@ function isPrivateUrl(raw: string): boolean {
     return true; // malformed URL — block it
   }
   const host = url.hostname;
-  // IPv4 loopback / link-local / private ranges and IPv6 loopback
+  // Block loopback, link-local, RFC-1918 private ranges, and IPv6 loopback.
+  // Patterns are anchored with full-segment boundaries to avoid false positives
+  // on legitimate external hostnames like "10.0.0.1.cdn.example.com".
+  // Node's URL parser normalises decimal/hex-encoded IPs (e.g. 0x7f000001 →
+  // 127.0.0.1) so we only need to match the canonical dotted-decimal form.
+  // IPv6 loopback is returned by URL as "[::1]" (brackets included).
   const privatePattern =
-    /^(127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|169\.254\.|0\.0\.0\.0|::1$|localhost$)/i;
+    /^(127\.\d+\.\d+\.\d+|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|169\.254\.\d+\.\d+|0\.0\.0\.0|\[::1\]|localhost)$/i;
   return privatePattern.test(host);
 }
 
@@ -117,7 +122,13 @@ export class McpShareController {
           tools: tools.right.map((t) => ({
             name: t.name,
             description: t.description,
-            inputSchema: t.inputSchema,
+            // Strip internal routing metadata (bodyKeys, queryKeys) — only
+            // expose the JSON Schema fields that MCP clients understand.
+            inputSchema: {
+              type: t.inputSchema.type,
+              properties: t.inputSchema.properties,
+              required: t.inputSchema.required,
+            },
           })),
         }),
       );

@@ -13,11 +13,18 @@ import '../assets/scss/styles.scss';
 import '../assets/scss/tailwind.scss';
 // END STYLES
 
-import { pipe } from 'fp-ts/function';
 import * as O from 'fp-ts/Option';
 import { auth } from './helpers/auth';
 import { GRAPHQL_UNAUTHORIZED } from './helpers/errors';
 import { HOPP_MODULES } from './modules';
+
+/**
+ * Maximum number of consecutive auth refresh failures before signing the user out.
+ * Prevents infinite retry loops when tokens are permanently invalid.
+ * @see https://github.com/hoppscotch/hoppscotch/issues/5885
+ */
+const AUTH_REFRESH_MAX_RETRIES = 3;
+let authRefreshFailCount = 0;
 
 (async () => {
   try {
@@ -35,10 +42,24 @@ import { HOPP_MODULES } from './modules';
             return operation;
           },
           async refreshAuth() {
-            pipe(
-              await auth.performAuthRefresh(),
-              O.getOrElseW(() => auth.signOutUser(true))
-            );
+            // Prevent infinite retry loop when refresh permanently fails (#5885)
+            if (authRefreshFailCount >= AUTH_REFRESH_MAX_RETRIES) {
+              authRefreshFailCount = 0;
+              auth.signOutUser(true);
+              return;
+            }
+
+            const result = await auth.performAuthRefresh();
+
+            if (O.isSome(result)) {
+              authRefreshFailCount = 0;
+            } else {
+              authRefreshFailCount++;
+              if (authRefreshFailCount >= AUTH_REFRESH_MAX_RETRIES) {
+                authRefreshFailCount = 0;
+                auth.signOutUser(true);
+              }
+            }
           },
           didAuthError(error, _operation) {
             return error.message === GRAPHQL_UNAUTHORIZED;

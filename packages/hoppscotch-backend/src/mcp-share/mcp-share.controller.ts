@@ -31,6 +31,9 @@ const toolsCache = new Map<
   { tools: McpToolDefinition[]; expiresAt: number }
 >();
 
+// Maximum response body size (1 MB) to prevent OOM from malicious upstreams.
+const MAX_RESPONSE_BYTES = 1_048_576;
+
 /**
  * Reject URLs that resolve to loopback or RFC-1918 private addresses to
  * prevent SSRF from user-controlled collection endpoints.
@@ -48,9 +51,10 @@ function isPrivateUrl(raw: string): boolean {
   // on legitimate external hostnames like "10.0.0.1.cdn.example.com".
   // Node's URL parser normalises decimal/hex-encoded IPs (e.g. 0x7f000001 →
   // 127.0.0.1) so we only need to match the canonical dotted-decimal form.
-  // IPv6 loopback is returned by URL as "[::1]" (brackets included).
+  // IPv6 addresses are returned by URL with brackets (e.g. "[::1]").
+  // Covers: IPv4-mapped IPv6 ([::ffff:x.x.x.x]), ULA (fc/fd), link-local (fe80).
   const privatePattern =
-    /^(127\.\d+\.\d+\.\d+|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|169\.254\.\d+\.\d+|0\.0\.0\.0|\[::1\]|localhost)$/i;
+    /^(127\.\d+\.\d+\.\d+|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|169\.254\.\d+\.\d+|0\.0\.0\.0|\[::1\]|\[::ffff:(127\.\d+\.\d+\.\d+|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|169\.254\.\d+\.\d+|0\.0\.0\.0)\]|\[f[cd][0-9a-f]{2}:.*\]|\[fe80:.*\]|localhost)$/i;
   return privatePattern.test(host);
 }
 
@@ -60,6 +64,35 @@ function jsonRpcSuccess(id: unknown, result: unknown) {
 
 function jsonRpcError(id: unknown, code: number, message: string) {
   return { jsonrpc: '2.0', id, error: { code, message } };
+}
+
+/**
+ * Read response body with a size cap to prevent OOM from malicious upstreams.
+ */
+async function readResponseBounded(response: globalThis.Response): Promise<string> {
+  const contentLength = response.headers.get('content-length');
+  if (contentLength && parseInt(contentLength, 10) > MAX_RESPONSE_BYTES) {
+    throw new Error('Response too large');
+  }
+
+  const reader = response.body?.getReader();
+  if (!reader) return '';
+
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    totalBytes += value.byteLength;
+    if (totalBytes > MAX_RESPONSE_BYTES) {
+      reader.cancel();
+      throw new Error('Response too large');
+    }
+    chunks.push(value);
+  }
+
+  return Buffer.concat(chunks).toString('utf-8');
 }
 
 @UseGuards(ThrottlerBehindProxyGuard)
@@ -91,11 +124,18 @@ export class McpShareController {
     const share = shareResult.right;
 
     const body = req.body;
-    const id = body?.id ?? null;
     const method: string = body?.method ?? '';
     const params = body?.params ?? {};
 
     res.setHeader('Content-Type', 'application/json');
+
+    // MCP notifications (e.g. notifications/initialized) have no "id" field.
+    // Per JSON-RPC spec, notifications must not receive a response.
+    if (!('id' in body)) {
+      return res.status(202).send();
+    }
+
+    const id = body.id;
 
     // initialize
     if (method === 'initialize') {
@@ -238,8 +278,9 @@ export class McpShareController {
           },
           body: JSON.stringify({ query: meta.gqlQuery, variables }),
           signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+          redirect: 'manual',
         });
-        const text = await response.text();
+        const text = await readResponseBounded(response);
         return E.right(text);
       }
 
@@ -270,6 +311,7 @@ export class McpShareController {
           ...this.buildHeaders(meta.headers),
         },
         signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+        redirect: 'manual',
       };
 
       // Build body for non-GET/HEAD requests using schema-tracked body keys
@@ -286,7 +328,7 @@ export class McpShareController {
       }
 
       const response = await fetch(endpoint, fetchOptions);
-      const text = await response.text();
+      const text = await readResponseBounded(response);
       return E.right(text);
     } catch (err) {
       return E.left(`Request failed: ${(err as Error).message}`);

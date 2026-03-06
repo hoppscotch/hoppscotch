@@ -84,7 +84,7 @@ export class McpShareService {
           teamID: collection.teamID,
           userUid: user.uid,
           role: {
-            in: [TeamAccessRole.OWNER, TeamAccessRole.EDITOR, TeamAccessRole.VIEWER],
+            in: [TeamAccessRole.OWNER, TeamAccessRole.EDITOR],
           },
         },
       });

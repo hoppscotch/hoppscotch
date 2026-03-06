@@ -320,6 +320,11 @@ function getPressedKey(ev: KeyboardEvent): Key | null {
     return code.slice(5) as Key
   }
 
+   // Handle numpad digits (Numpad0–Numpad9)
+  if (code.startsWith("Numpad") && code.length === 7) {
+    return code.slice(6) as Key
+  }
+
   // Arrow keys (ArrowUp → up)
   if (key.startsWith("arrow")) {
     return key.slice(5) as Key

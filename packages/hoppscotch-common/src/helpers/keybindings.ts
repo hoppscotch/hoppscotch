@@ -317,6 +317,9 @@ function getPressedKey(ev: KeyboardEvent): Key | null {
   }
 
   if (code.startsWith("Digit")) {
+    if (key === "/" || key === "." || key === "[" || key === "]") {
+      return key as Key
+    }
     return code.slice(5) as Key
   }
 

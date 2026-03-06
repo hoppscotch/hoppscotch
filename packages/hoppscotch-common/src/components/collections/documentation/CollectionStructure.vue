@@ -2,14 +2,15 @@
   <div
     class="rounded-md border border-divider"
     :class="{
-      ' w-64': isDocModal,
+      'w-64': isDocModal,
+      'w-full': compact,
     }"
   >
     <div
       class="sticky top-0 z-[99] py-2 border-b border-divider bg-primaryLight flex items-center justify-between space-x-3"
     >
       <div
-        class="font-medium text-secondaryDark flex flex-1 items-center text-xs px-2 truncate cursor-pointer transition-colors"
+        class="font-medium text-secondaryDark flex flex-1 items-center text-xs px-4 truncate cursor-pointer transition-colors"
         @click="scrollToTop"
       >
         <span class="truncate">
@@ -28,7 +29,7 @@
     <div
       class="overflow-y-auto"
       :class="{
-        '!max-h-[400px]': isDocModal,
+        'max-h-[400px]': isDocModal,
       }"
     >
       <div v-if="hasItems(collectionFolders)">
@@ -97,10 +98,12 @@ const props = withDefaults(
     collection: HoppCollection
     initiallyExpanded?: boolean
     isDocModal?: boolean
+    compact?: boolean
   }>(),
   {
     initiallyExpanded: false,
     isDocModal: true,
+    compact: false,
   }
 )
 

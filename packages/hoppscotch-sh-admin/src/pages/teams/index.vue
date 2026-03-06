@@ -1,29 +1,71 @@
 <template>
   <div class="flex flex-col">
-    <h1 class="text-lg font-bold text-secondaryDark">{{ t('teams.teams') }}</h1>
-
     <div class="flex flex-col">
-      <div class="flex py-10">
+      <h1 class="text-lg font-bold text-secondaryDark">
+        {{ t('teams.teams') }}
+      </h1>
+      <div class="flex items-center mt-10 mb-5">
         <HoppButtonPrimary
           :icon="IconAddUsers"
           :label="t('teams.create_team')"
           @click="showCreateTeamModal = true"
         />
       </div>
+      <div class="overflow-x-auto mb-5">
+        <div class="mb-3 flex items-center justify-end">
+          <HoppButtonSecondary
+            outline
+            filled
+            :icon="IconLeft"
+            :disabled="page === 1"
+            @click="changePage(PageDirection.Previous)"
+          />
 
-      <div class="overflow-x-auto">
-        <div v-if="fetching" class="flex justify-center">
-          <HoppSmartSpinner />
+          <div class="flex h-full w-10 items-center justify-center">
+            <span>{{ page }}</span>
+          </div>
+
+          <HoppButtonSecondary
+            outline
+            filled
+            :icon="IconRight"
+            :disabled="!hasNextPage"
+            @click="changePage(PageDirection.Next)"
+          />
         </div>
 
-        <div v-else-if="error">{{ t('teams.load_list_error') }}</div>
-
         <HoppSmartTable
-          v-else-if="teamsList.length"
           :headings="headings"
           :list="teamsList"
+          :loading="fetching"
           @onRowClicked="goToTeamDetails"
         >
+          <template #extension>
+            <div class="flex w-full items-center bg-primary">
+              <icon-lucide-search class="mx-3 text-xs" />
+              <HoppSmartInput
+                v-model="query"
+                styles="w-full bg-primary py-1"
+                input-styles="h-full border-none"
+                :placeholder="t('teams.search_placeholder')"
+              />
+            </div>
+          </template>
+
+          <template #empty-state>
+            <td colspan="4">
+              <span class="flex justify-center p-3">
+                {{
+                  error
+                    ? t('teams.load_list_error')
+                    : searchQuery
+                      ? t('teams.no_search_results')
+                      : t('teams.no_teams')
+                }}
+              </span>
+            </td>
+          </template>
+
           <template #head>
             <th class="px-6 py-2">{{ t('teams.id') }}</th>
             <th class="px-6 py-2">{{ t('teams.name') }}</th>
@@ -88,19 +130,6 @@
             </td>
           </template>
         </HoppSmartTable>
-
-        <div v-else class="px-2">
-          {{ t('teams.no_teams') }}
-        </div>
-
-        <div
-          v-if="hasNextPage && teamsList.length >= teamsPerPage"
-          class="flex items-center w-28 px-3 py-2 mt-5 mx-auto font-semibold text-secondaryDark bg-divider hover:bg-dividerDark rounded-3xl cursor-pointer"
-          @click="fetchNextTeams"
-        >
-          <span>{{ t('teams.show_more') }}</span>
-          <icon-lucide-chevron-down class="ml-2" />
-        </div>
       </div>
     </div>
   </div>
@@ -122,11 +151,13 @@
 
 <script setup lang="ts">
 import { useMutation, useQuery } from '@urql/vue';
-import { computed, ref } from 'vue';
+import { computed, onUnmounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
 import { usePagedQuery } from '~/composables/usePagedQuery';
+import IconLeft from '~icons/lucide/chevron-left';
+import IconRight from '~icons/lucide/chevron-right';
 import IconMoreHorizontal from '~icons/lucide/more-horizontal';
 import IconAddUsers from '~icons/lucide/plus';
 import IconTrash from '~icons/lucide/trash';
@@ -135,14 +166,14 @@ import {
   MetricsDocument,
   RemoveTeamDocument,
   TeamInfoQuery,
-  TeamListDocument,
+  TeamListV2Document,
   UsersListDocument,
 } from '../../helpers/backend/graphql';
 
 const t = useI18n();
 const toast = useToast();
 
-// Get Users List
+// Get Users List (for team creation modal)
 const { data } = useQuery({ query: MetricsDocument, variables: {} });
 const usersPerPage = computed(() => data.value?.infra.usersCount || 10000);
 
@@ -151,27 +182,95 @@ const { list: usersList } = usePagedQuery(
   (x) => x.infra.allUsers,
   usersPerPage.value,
   { cursor: undefined, take: usersPerPage.value },
-  (x) => x.uid
+  (x) => x.uid,
 );
 
 const allUsersEmail = computed(() => usersList.value.map((user) => user.email));
 
-// Get Paginated Results of all the teams in the infra
+// Paginated Teams with server-side search
 const teamsPerPage = 20;
+const page = ref(1);
+
+// Ensure this variable is declared outside the debounce function
+let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+onUnmounted(() => {
+  if (debounceTimer) {
+    clearTimeout(debounceTimer);
+  }
+});
+
+// Debounce Function
+const debounce = (func: () => void, delay: number) => {
+  if (debounceTimer) clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(func, delay);
+};
+
+// Search
+const query = ref('');
+// Query which is sent to the backend after debouncing
+const searchQuery = ref('');
+
+const handleSearch = (input: string) => {
+  searchQuery.value = input;
+  // Reset the page to 1 when the search query changes
+  page.value = 1;
+};
+
+watch(query, () => {
+  if (query.value.length === 0) {
+    handleSearch(query.value);
+  } else {
+    debounce(() => {
+      handleSearch(query.value);
+    }, 500);
+  }
+});
+
+// useQuery auto-refetches when computed variables change (page or search)
+// Fetches teamsPerPage + 1 to determine if a next page exists without a total count
 const {
+  data: teamsData,
   fetching,
   error,
-  goToNextPage: fetchNextTeams,
-  refetch,
-  list: teamsList,
-  hasNextPage,
-} = usePagedQuery(
-  TeamListDocument,
-  (x) => x.infra.allTeams,
-  teamsPerPage,
-  { cursor: undefined, take: teamsPerPage },
-  (x) => x.id
-);
+  executeQuery,
+} = useQuery({
+  query: TeamListV2Document,
+  variables: computed(() => ({
+    searchString: searchQuery.value || null,
+    skip: (page.value - 1) * teamsPerPage,
+    take: teamsPerPage + 1,
+  })),
+});
+
+const teamsRaw = computed(() => teamsData.value?.infra.allTeamsV2 ?? []);
+const hasNextPage = computed(() => teamsRaw.value.length > teamsPerPage);
+const teamsList = computed(() => teamsRaw.value.slice(0, teamsPerPage));
+const refetch = () => executeQuery({ requestPolicy: 'network-only' });
+
+// If a page loads empty and we're not on page 1, auto-regress
+watch(teamsList, (list) => {
+  if (list.length === 0 && page.value > 1) {
+    page.value = 1;
+  }
+});
+
+// Pagination
+enum PageDirection {
+  Previous,
+  Next,
+}
+
+const changePage = (direction: PageDirection) => {
+  const isPrevious = direction === PageDirection.Previous;
+
+  const isValidPreviousAction = isPrevious && page.value > 1;
+  const isValidNextAction = !isPrevious && hasNextPage.value;
+
+  if (isValidNextAction || isValidPreviousAction) {
+    page.value += isPrevious ? -1 : 1;
+  }
+};
 
 // Table Headings
 const headings = [
@@ -209,13 +308,12 @@ const createTeam = async (newTeamName: string, ownerEmail: string) => {
     } else {
       toast.error(t('state.create_team_failure'));
     }
-    createTeamLoading.value = false;
   } else {
     toast.success(t('state.create_team_success'));
     showCreateTeamModal.value = false;
-    createTeamLoading.value = false;
     refetch();
   }
+  createTeamLoading.value = false;
 };
 
 // Go To Individual Team Details Page
@@ -239,15 +337,18 @@ const deleteTeamMutation = async (id: string | null) => {
     toast.error(t('state.delete_team_failure'));
     return;
   }
-  const variables = { uid: id };
-  const result = await teamDeletion.executeMutation(variables);
+  const result = await teamDeletion.executeMutation({ uid: id });
   if (result.error) {
     toast.error(t('state.delete_team_failure'));
   } else {
-    teamsList.value = teamsList.value.filter((team) => team.id !== id);
     toast.success(t('state.delete_team_success'));
+    // If the current page becomes empty after deletion, go back to the previous page
+    if (teamsList.value.length === 1 && page.value > 1) {
+      page.value--;
+    } else {
+      refetch();
+    }
   }
-
   confirmDeletion.value = false;
   deleteTeamID.value = null;
 };

@@ -404,14 +404,14 @@ export class TeamSearchService extends Service {
     // has inherited data
     if (collection.data) {
       const parentInheritedData = JSON.parse(collection.data) as {
-        auth: HoppRESTAuth
-        headers: HoppRESTHeader[]
-        variables: HoppCollectionVariable[]
+        auth?: HoppRESTAuth
+        headers?: HoppRESTHeader[]
+        variables?: HoppCollectionVariable[]
       }
 
       const inheritedAuth = parentInheritedData.auth
 
-      if (inheritedAuth.authType !== "inherit") {
+      if (inheritedAuth && inheritedAuth.authType !== "inherit") {
         return E.right({
           parentID: collectionID,
           parentName: collection.title,
@@ -448,9 +448,9 @@ export class TeamSearchService extends Service {
     // see if it has headers to inherit, if yes, add it to the existing headers
     if (collection.data) {
       const parentInheritedData = JSON.parse(collection.data) as {
-        auth: HoppRESTAuth
-        headers: HoppRESTHeader[]
-        variables: HoppCollectionVariable[]
+        auth?: HoppRESTAuth
+        headers?: HoppRESTHeader[]
+        variables?: HoppCollectionVariable[]
       }
 
       const inheritedHeaders = parentInheritedData.headers
@@ -494,9 +494,9 @@ export class TeamSearchService extends Service {
 
     if (collection.data) {
       const parentData = JSON.parse(collection.data) as {
-        auth: HoppRESTAuth
-        headers: HoppRESTHeader[]
-        variables: HoppCollectionVariable[]
+        auth?: HoppRESTAuth
+        headers?: HoppRESTHeader[]
+        variables?: HoppCollectionVariable[]
       }
 
       const variables = parentData.variables

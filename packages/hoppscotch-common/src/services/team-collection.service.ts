@@ -1144,9 +1144,9 @@ export class TeamCollectionsService extends Service<void> {
       }
 
       const data: {
-        auth: HoppRESTAuth
-        headers: HoppRESTHeader[]
-        variables: HoppCollectionVariable[]
+        auth?: HoppRESTAuth
+        headers?: HoppRESTHeader[]
+        variables?: HoppCollectionVariable[]
       } = parentFolder.data
         ? JSON.parse(parentFolder.data)
         : {

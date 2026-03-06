@@ -84,7 +84,9 @@
             </div>
             <div
               class="px-3 py-2 border border-divider rounded bg-primaryLight font-mono text-xs whitespace-pre overflow-x-auto"
-            >{{ snippetForTab }}</div>
+            >
+              {{ snippetForTab }}
+            </div>
           </div>
 
           <!-- Revoke button -->
@@ -124,8 +126,6 @@ import {
   getMyMcpShares,
   McpShareResult,
 } from "~/helpers/backend/mutations/McpShare"
-import * as TE from "fp-ts/TaskEither"
-import { pipe } from "fp-ts/function"
 
 import IconCheck from "~icons/lucide/check"
 import IconCopy from "~icons/lucide/copy"
@@ -214,6 +214,8 @@ const loadExistingShare = async () => {
         shares.find(
           (s) => s.collectionID === props.collectionID && s.isActive
         ) ?? null
+    } else {
+      error.value = t("error.something_went_wrong")
     }
   } catch {
     error.value = t("error.something_went_wrong")

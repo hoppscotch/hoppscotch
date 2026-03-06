@@ -1,7 +1,6 @@
 import { gql } from "@urql/core"
 import * as TE from "fp-ts/TaskEither"
 import { client } from "../GQLClient"
-import { GQLError } from "../GQLClient"
 
 export type McpShareResult = {
   id: string
@@ -55,16 +54,61 @@ const MY_MCP_SHARES = gql`
 
 export const createMcpShare = (
   collectionID: string,
-  workspaceType: "USER" | "TEAM",
-): TE.TaskEither<GQLError<string>, McpShareResult> =>
-  client.mutationTE(CREATE_MCP_SHARE, { collectionID, workspaceType }) as any
+  workspaceType: "USER" | "TEAM"
+) =>
+  TE.tryCatch(
+    async () => {
+      const result = await client
+        .value!.mutation(CREATE_MCP_SHARE, { collectionID, workspaceType })
+        .toPromise()
 
-export const deleteMcpShare = (
-  shareToken: string,
-): TE.TaskEither<GQLError<string>, boolean> =>
-  client.mutationTE(DELETE_MCP_SHARE, { shareToken }) as any
+      if (result.error) {
+        throw new Error(result.error.message || "Failed to create MCP share")
+      }
 
-export const getMyMcpShares = (): TE.TaskEither<
-  GQLError<string>,
-  McpShareResult[]
-> => client.queryTE(MY_MCP_SHARES, {}) as any
+      if (!result.data) {
+        throw new Error("No data returned from create MCP share mutation")
+      }
+
+      return result.data.createMcpShare as McpShareResult
+    },
+    (error) => (error as Error).message
+  )
+
+export const deleteMcpShare = (shareToken: string) =>
+  TE.tryCatch(
+    async () => {
+      const result = await client
+        .value!.mutation(DELETE_MCP_SHARE, { shareToken })
+        .toPromise()
+
+      if (result.error) {
+        throw new Error(result.error.message || "Failed to delete MCP share")
+      }
+
+      if (!result.data) {
+        throw new Error("No data returned from delete MCP share mutation")
+      }
+
+      return result.data.deleteMcpShare as boolean
+    },
+    (error) => (error as Error).message
+  )
+
+export const getMyMcpShares = () =>
+  TE.tryCatch(
+    async () => {
+      const result = await client.value!.query(MY_MCP_SHARES, {}).toPromise()
+
+      if (result.error) {
+        throw new Error(result.error.message || "Failed to fetch MCP shares")
+      }
+
+      if (!result.data) {
+        throw new Error("No data returned from MCP shares query")
+      }
+
+      return result.data.myMcpShares as McpShareResult[]
+    },
+    (error) => (error as Error).message
+  )

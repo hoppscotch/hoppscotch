@@ -353,7 +353,6 @@ model McpShare {
   isActive      Boolean       @default(true)
   deletedAt     DateTime?     @db.Timestamptz(3)
 
-  @@index([shareToken])
   @@index([collectionID])
   @@index([createdBy])
 }

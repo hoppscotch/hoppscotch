@@ -18,9 +18,6 @@ CREATE TABLE "McpShare" (
 CREATE UNIQUE INDEX "McpShare_shareToken_key" ON "McpShare"("shareToken");
 
 -- CreateIndex
-CREATE INDEX "McpShare_shareToken_idx" ON "McpShare"("shareToken");
-
--- CreateIndex
 CREATE INDEX "McpShare_collectionID_idx" ON "McpShare"("collectionID");
 
 -- CreateIndex

@@ -307,36 +307,40 @@ function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
 }
 
 function getPressedKey(ev: KeyboardEvent): Key | null {
-  // Sometimes the property code is not available on the KeyboardEvent object
   const key = (ev.key ?? "").toLowerCase()
+  const code = ev.code ?? ""
 
-  // Check arrow keys
+  // Use event.code for letters and digits so shortcuts work
+  // across different keyboard layouts (e.g., Russian)
+  if (code.startsWith("Key")) {
+    return code.slice(3).toLowerCase() as Key
+  }
+
+  if (code.startsWith("Digit")) {
+    if (key === "/" || key === "." || key === "[" || key === "]") {
+      return key as Key
+    }
+    return code.slice(5) as Key
+  }
+
+   // Handle numpad digits (Numpad0–Numpad9)
+  if (code.startsWith("Numpad") && code.length === 7) {
+    return code.slice(6) as Key
+  }
+
+  // Arrow keys (ArrowUp → up)
   if (key.startsWith("arrow")) {
     return key.slice(5) as Key
   }
 
-  // Check for Tab key
   if (key === "tab") return "tab"
-
-  // Check for Delete key
   if (key === "delete") return "delete"
-
   if (key === "backspace") return "backspace"
 
-  // Check letter keys
-  const isLetter = key.length === 1 && key >= "a" && key <= "z"
-  if (isLetter) return key as Key
-
-  // Check if number keys
-  const isDigit = key.length === 1 && key >= "0" && key <= "9"
-  if (isDigit) return key as Key
-
-  // Check if slash, period or enter
+  // Punctuation and enter
   if (key === "/" || key === "." || key === "enter") return key
-
   if (key === "[" || key === "]") return key
 
-  // If no other cases match, this is not a valid key
   return null
 }
 

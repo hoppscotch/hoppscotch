@@ -7,6 +7,7 @@
       get: (key) => convertMarkerToValue(inputs.envGet(key)),
       getResolve: (key) => convertMarkerToValue(inputs.envGetResolve(key)),
       set: (key, value) => inputs.envSet(key, value),
+      setSecret: (key, value) => inputs.envSetSecret(key, value),
       unset: (key) => inputs.envUnset(key),
       resolve: (key) => inputs.envResolve(key),
     },
@@ -82,6 +83,7 @@
         )
       },
       set: (key, value) => inputs.envSet(key, value),
+      setSecret: (key, value) => inputs.envSetSecret(key, value),
       delete: (key) => inputs.envUnset(key),
       reset: (key) => inputs.envReset(key),
       getInitialRaw: (key) => {

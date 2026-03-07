@@ -211,16 +211,16 @@ importers:
         version: 11.2.6(@nestjs/common@11.1.13(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.13)(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)
       '@nestjs/terminus':
         specifier: 11.0.0
-        version: 11.0.0(@nestjs/common@11.1.13(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.13)(@prisma/client@7.4.0(prisma@7.4.0(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3))(typescript@5.9.3))(reflect-metadata@0.2.2)(rxjs@7.8.2)
+        version: 11.0.0(@nestjs/common@11.1.13(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.13)(@prisma/client@7.4.2(prisma@7.4.2(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3))(typescript@5.9.3))(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@nestjs/throttler':
         specifier: 6.5.0
         version: 6.5.0(@nestjs/common@11.1.13(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.13)(reflect-metadata@0.2.2)
       '@prisma/adapter-pg':
-        specifier: 7.4.0
-        version: 7.4.0
+        specifier: 7.4.2
+        version: 7.4.2
       '@prisma/client':
-        specifier: 7.4.0
-        version: 7.4.0(prisma@7.4.0(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3))(typescript@5.9.3)
+        specifier: 7.4.2
+        version: 7.4.2(prisma@7.4.2(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3))(typescript@5.9.3)
       argon2:
         specifier: 0.44.0
         version: 0.44.0
@@ -300,8 +300,8 @@ importers:
         specifier: 5.24.15
         version: 5.24.15
       prisma:
-        specifier: 7.4.0
-        version: 7.4.0(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
+        specifier: 7.4.2
+        version: 7.4.2(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
       reflect-metadata:
         specifier: 0.2.2
         version: 0.2.2
@@ -4807,14 +4807,14 @@ packages:
   '@posthog/core@1.22.0':
     resolution: {integrity: sha512-WkmOnq95aAOu6yk6r5LWr5cfXsQdpVbWDCwOxQwxSne8YV6GuZET1ziO5toSQXgrgbdcjrSz2/GopAfiL6iiAA==}
 
-  '@prisma/adapter-pg@7.4.0':
-    resolution: {integrity: sha512-LWwTHaio0bMxvzahmpwpWqsZM0vTfMqwF8zo06YvILL/o47voaSfKzCVxZw/o9awf4fRgS5Vgthobikj9Dusaw==}
+  '@prisma/adapter-pg@7.4.2':
+    resolution: {integrity: sha512-oUo2Zhe9Tf6YwVL8kLPuOLTK1Z2pwi/Ua77t2PuGyBan2w7shRKqHvYK+3XXmRH9RWhPJ4SMtHZKpNo6Ax/4bQ==}
 
-  '@prisma/client-runtime-utils@7.4.0':
-    resolution: {integrity: sha512-jTmWAOBGBSCT8n7SMbpjCpHjELgcDW9GNP/CeK6CeqjUFlEL6dn8Cl81t/NBDjJdXDm85XDJmc+PEQqqQee3xw==}
+  '@prisma/client-runtime-utils@7.4.2':
+    resolution: {integrity: sha512-cID+rzOEb38VyMsx5LwJMEY4NGIrWCNpKu/0ImbeooQ2Px7TI+kOt7cm0NelxUzF2V41UVVXAmYjANZQtCu1/Q==}
 
-  '@prisma/client@7.4.0':
-    resolution: {integrity: sha512-Sc+ncr7+ph1hMf1LQfn6UyEXDEamCd5pXMsx8Q3SBH0NGX+zjqs3eaABt9hXwbcK9l7f8UyK8ldxOWA2LyPynQ==}
+  '@prisma/client@7.4.2':
+    resolution: {integrity: sha512-ts2mu+cQHriAhSxngO3StcYubBGTWDtu/4juZhXCUKOwgh26l+s4KD3vT2kMUzFyrYnll9u/3qWrtzRv9CGWzA==}
     engines: {node: ^20.19 || ^22.12 || >=24.0}
     peerDependencies:
       prisma: '*'
@@ -4825,35 +4825,35 @@ packages:
       typescript:
         optional: true
 
-  '@prisma/config@7.4.0':
-    resolution: {integrity: sha512-EnNrZMwZ9+O6UlG+YO9SP3VhVw4zwMahDRzQm3r0DQn9KeU5NwzmaDAY+BzACrgmaU71Id1/0FtWIDdl7xQp9g==}
+  '@prisma/config@7.4.2':
+    resolution: {integrity: sha512-CftBjWxav99lzY1Z4oDgomdb1gh9BJFAOmWF6P2v1xRfXqQb56DfBub+QKcERRdNoAzCb3HXy3Zii8Vb4AsXhg==}
 
   '@prisma/debug@7.2.0':
     resolution: {integrity: sha512-YSGTiSlBAVJPzX4ONZmMotL+ozJwQjRmZweQNIq/ER0tQJKJynNkRB3kyvt37eOfsbMCXk3gnLF6J9OJ4QWftw==}
 
-  '@prisma/debug@7.4.0':
-    resolution: {integrity: sha512-fZicwzgFHvvPMrRLCUinrsBTdadJsi/1oirzShjmFvNLwtu2DYlkxwRVy5zEGhp85mrEGnLeS/PdNRCdE027+Q==}
+  '@prisma/debug@7.4.2':
+    resolution: {integrity: sha512-aP7qzu+g/JnbF6U69LMwHoUkELiserKmWsE2shYuEpNUJ4GrtxBCvZwCyCBHFSH2kLTF2l1goBlBh4wuvRq62w==}
 
   '@prisma/dev@0.20.0':
     resolution: {integrity: sha512-ovlBYwWor0OzG+yH4J3Ot+AneD818BttLA+Ii7wjbcLHUrnC4tbUPVGyNd3c/+71KETPKZfjhkTSpdS15dmXNQ==}
 
-  '@prisma/driver-adapter-utils@7.4.0':
-    resolution: {integrity: sha512-jEyE5LkqZ27Ba/DIOfCGOQl6nKMLxuwJNRceCfh7/LRs46UkIKn3bmkI97MEH2t7zkYV3PGBrUr+6sMJaHvc0A==}
+  '@prisma/driver-adapter-utils@7.4.2':
+    resolution: {integrity: sha512-REdjFpT/ye9KdDs+CXAXPIbMQkVLhne9G5Pe97sNY4Ovx4r2DAbWM9hOFvvB1Oq8H8bOCdu0Ri3AoGALquQqVw==}
 
-  '@prisma/engines-version@7.4.0-20.ab56fe763f921d033a6c195e7ddeb3e255bdbb57':
-    resolution: {integrity: sha512-5o3/bubIYdUeg38cyNf+VDq+LVtxvvi2393Fd1Uru52LPfkGJnmVbCaX1wBOAncgKR3BCloMJFD+Koog9LtYqQ==}
+  '@prisma/engines-version@7.5.0-10.94a226be1cf2967af2541cca5529f0f7ba866919':
+    resolution: {integrity: sha512-5FIKY3KoYQlBuZC2yc16EXfVRQ8HY+fLqgxkYfWCtKhRb3ajCRzP/rPeoSx11+NueJDANdh4hjY36mdmrTcGSg==}
 
-  '@prisma/engines@7.4.0':
-    resolution: {integrity: sha512-H+dgpbbY3VN/j5hOSVP1LXsv/rU0w/4C2zh5PZUwo/Q3NqZjOvBlVvkhtziioRmeEZ3SBAqPCsf1sQ74sI3O/w==}
+  '@prisma/engines@7.4.2':
+    resolution: {integrity: sha512-B+ZZhI4rXlzjVqRw/93AothEKOU5/x4oVyJFGo9RpHPnBwaPwk4Pi0Q4iGXipKxeXPs/dqljgNBjK0m8nocOJA==}
 
-  '@prisma/fetch-engine@7.4.0':
-    resolution: {integrity: sha512-IXPOYskT89UTVsntuSnMTiKRWCuTg5JMWflgEDV1OSKFpuhwP5vqbfF01/iwo9y6rCjR0sDIO+jdV5kq38/hgA==}
+  '@prisma/fetch-engine@7.4.2':
+    resolution: {integrity: sha512-f/c/MwYpdJO7taLETU8rahEstLeXfYgQGlz5fycG7Fbmva3iPdzGmjiSWHeSWIgNnlXnelUdCJqyZnFocurZuA==}
 
   '@prisma/get-platform@7.2.0':
     resolution: {integrity: sha512-k1V0l0Td1732EHpAfi2eySTezyllok9dXb6UQanajkJQzPUGi3vO2z7jdkz67SypFTdmbnyGYxvEvYZdZsMAVA==}
 
-  '@prisma/get-platform@7.4.0':
-    resolution: {integrity: sha512-fOUIoGzAPgtjHVs4DsVSnEDPBEauAmFeZr4Ej3tMwxywam7hHdRtCzgKagQBKcYIJuya8gzYrTqUoukzXtWJaA==}
+  '@prisma/get-platform@7.4.2':
+    resolution: {integrity: sha512-UTnChXRwiauzl/8wT4hhe7Xmixja9WE28oCnGpBtRejaHhvekx5kudr3R4Y9mLSA0kqGnAMeyTiKwDVMjaEVsw==}
 
   '@prisma/query-plan-executor@7.2.0':
     resolution: {integrity: sha512-EOZmNzcV8uJ0mae3DhTsiHgoNCuu1J9mULQpGCh62zN3PxPTd+qI9tJvk5jOst8WHKQNwJWR3b39t0XvfBB0WQ==}
@@ -10559,8 +10559,8 @@ packages:
     resolution: {integrity: sha512-ZtV1YrwscEjlrUzYrTSs6Nwo49JM3pXLM4fFOBSC3wSni+bxaWlw9/Qgk75PZO8M7cX2EybmL2iwvaV3vkAttw==}
     engines: {node: '>=14'}
 
-  prisma@7.4.0:
-    resolution: {integrity: sha512-n2xU9vSaH4uxZF/l2aKoGYtKtC7BL936jM9Q94Syk1zOD39t/5hjDUxMgaPkVRDX5wWEMsIqvzQxoebNIesOKw==}
+  prisma@7.4.2:
+    resolution: {integrity: sha512-2bP8Ruww3Q95Z2eH4Yqh4KAENRsj/SxbdknIVBfd6DmjPwmpsC4OVFMLOeHt6tM3Amh8ebjvstrUz3V/hOe1dA==}
     engines: {node: ^20.19 || ^22.12 || >=24.0}
     hasBin: true
     peerDependencies:
@@ -16494,7 +16494,7 @@ snapshots:
       class-transformer: 0.5.1
       class-validator: 0.14.3
 
-  '@nestjs/terminus@11.0.0(@nestjs/common@11.1.13(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.13)(@prisma/client@7.4.0(prisma@7.4.0(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3))(typescript@5.9.3))(reflect-metadata@0.2.2)(rxjs@7.8.2)':
+  '@nestjs/terminus@11.0.0(@nestjs/common@11.1.13(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.13)(@prisma/client@7.4.2(prisma@7.4.2(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3))(typescript@5.9.3))(reflect-metadata@0.2.2)(rxjs@7.8.2)':
     dependencies:
       '@nestjs/common': 11.1.13(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@nestjs/core': 11.1.13(@nestjs/common@11.1.13(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.13)(reflect-metadata@0.2.2)(rxjs@7.8.2)
@@ -16503,7 +16503,7 @@ snapshots:
       reflect-metadata: 0.2.2
       rxjs: 7.8.2
     optionalDependencies:
-      '@prisma/client': 7.4.0(prisma@7.4.0(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3))(typescript@5.9.3)
+      '@prisma/client': 7.4.2(prisma@7.4.2(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3))(typescript@5.9.3)
 
   '@nestjs/testing@11.1.13(@nestjs/common@11.1.13(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.13)(@nestjs/platform-express@11.1.13)':
     dependencies:
@@ -16655,24 +16655,24 @@ snapshots:
     dependencies:
       cross-spawn: 7.0.6
 
-  '@prisma/adapter-pg@7.4.0':
+  '@prisma/adapter-pg@7.4.2':
     dependencies:
-      '@prisma/driver-adapter-utils': 7.4.0
+      '@prisma/driver-adapter-utils': 7.4.2
       pg: 8.18.0
       postgres-array: 3.0.4
     transitivePeerDependencies:
       - pg-native
 
-  '@prisma/client-runtime-utils@7.4.0': {}
+  '@prisma/client-runtime-utils@7.4.2': {}
 
-  '@prisma/client@7.4.0(prisma@7.4.0(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3))(typescript@5.9.3)':
+  '@prisma/client@7.4.2(prisma@7.4.2(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
-      '@prisma/client-runtime-utils': 7.4.0
+      '@prisma/client-runtime-utils': 7.4.2
     optionalDependencies:
-      prisma: 7.4.0(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
+      prisma: 7.4.2(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
       typescript: 5.9.3
 
-  '@prisma/config@7.4.0':
+  '@prisma/config@7.4.2':
     dependencies:
       c12: 3.1.0
       deepmerge-ts: 7.1.5
@@ -16683,7 +16683,7 @@ snapshots:
 
   '@prisma/debug@7.2.0': {}
 
-  '@prisma/debug@7.4.0': {}
+  '@prisma/debug@7.4.2': {}
 
   '@prisma/dev@0.20.0(typescript@5.9.3)':
     dependencies:
@@ -16707,32 +16707,32 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@prisma/driver-adapter-utils@7.4.0':
+  '@prisma/driver-adapter-utils@7.4.2':
     dependencies:
-      '@prisma/debug': 7.4.0
+      '@prisma/debug': 7.4.2
 
-  '@prisma/engines-version@7.4.0-20.ab56fe763f921d033a6c195e7ddeb3e255bdbb57': {}
+  '@prisma/engines-version@7.5.0-10.94a226be1cf2967af2541cca5529f0f7ba866919': {}
 
-  '@prisma/engines@7.4.0':
+  '@prisma/engines@7.4.2':
     dependencies:
-      '@prisma/debug': 7.4.0
-      '@prisma/engines-version': 7.4.0-20.ab56fe763f921d033a6c195e7ddeb3e255bdbb57
-      '@prisma/fetch-engine': 7.4.0
-      '@prisma/get-platform': 7.4.0
+      '@prisma/debug': 7.4.2
+      '@prisma/engines-version': 7.5.0-10.94a226be1cf2967af2541cca5529f0f7ba866919
+      '@prisma/fetch-engine': 7.4.2
+      '@prisma/get-platform': 7.4.2
 
-  '@prisma/fetch-engine@7.4.0':
+  '@prisma/fetch-engine@7.4.2':
     dependencies:
-      '@prisma/debug': 7.4.0
-      '@prisma/engines-version': 7.4.0-20.ab56fe763f921d033a6c195e7ddeb3e255bdbb57
-      '@prisma/get-platform': 7.4.0
+      '@prisma/debug': 7.4.2
+      '@prisma/engines-version': 7.5.0-10.94a226be1cf2967af2541cca5529f0f7ba866919
+      '@prisma/get-platform': 7.4.2
 
   '@prisma/get-platform@7.2.0':
     dependencies:
       '@prisma/debug': 7.2.0
 
-  '@prisma/get-platform@7.4.0':
+  '@prisma/get-platform@7.4.2':
     dependencies:
-      '@prisma/debug': 7.4.0
+      '@prisma/debug': 7.4.2
 
   '@prisma/query-plan-executor@7.2.0': {}
 
@@ -23582,11 +23582,11 @@ snapshots:
       uuid: 9.0.1
     optional: true
 
-  prisma@7.4.0(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3):
+  prisma@7.4.2(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3):
     dependencies:
-      '@prisma/config': 7.4.0
+      '@prisma/config': 7.4.2
       '@prisma/dev': 0.20.0(typescript@5.9.3)
-      '@prisma/engines': 7.4.0
+      '@prisma/engines': 7.4.2
       '@prisma/studio-core': 0.13.1(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       mysql2: 3.15.3
       postgres: 3.4.7

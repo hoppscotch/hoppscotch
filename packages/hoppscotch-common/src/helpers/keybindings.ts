@@ -307,7 +307,16 @@ function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
 }
 
 function getPressedKey(ev: KeyboardEvent): Key | null {
-  // Sometimes the property code is not available on the KeyboardEvent object
+  // For letter keys, use ev.code which is keyboard layout independent
+  // ev.key returns the character produced which varies by keyboard layout
+  const code = ev.code ?? ""
+
+  // Check for letter keys using code (KeyA, KeyB, etc.)
+  if (code.startsWith("Key") && code.length === 4) {
+    return code[3].toLowerCase() as Key
+  }
+
+  // For other keys, fall back to ev.key
   const key = (ev.key ?? "").toLowerCase()
 
   // Check arrow keys
@@ -323,13 +332,10 @@ function getPressedKey(ev: KeyboardEvent): Key | null {
 
   if (key === "backspace") return "backspace"
 
-  // Check letter keys
-  const isLetter = key.length === 1 && key >= "a" && key <= "z"
-  if (isLetter) return key as Key
-
-  // Check if number keys
-  const isDigit = key.length === 1 && key >= "0" && key <= "9"
-  if (isDigit) return key as Key
+  // Check if number keys using code (Digit0, Digit1, etc.)
+  if (code.startsWith("Digit") && code.length === 6) {
+    return code[5] as Key
+  }
 
   // Check if slash, period or enter
   if (key === "/" || key === "." || key === "enter") return key

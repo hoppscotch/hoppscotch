@@ -96,27 +96,48 @@ export class PublishedDocsService {
    * Fetch environment by ID based on workspace type
    * Returns the environment name and variables, or an error if not found
    */
-  private async fetchEnvironment(
-    environmentID: string,
-    workspaceType: WorkspaceType,
-    workspaceID: string,
-  ): Promise<E.Either<string, { name: string; variables: JsonValue } | null>> {
-    if (workspaceType === WorkspaceType.TEAM) {
-      const env = await this.prisma.teamEnvironment.findFirst({
-        where: { id: environmentID, teamID: workspaceID },
-      });
-      if (!env) return E.left(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
-      return E.right({ name: env.name, variables: env.variables });
-    } else if (workspaceType === WorkspaceType.USER) {
-      const env = await this.prisma.userEnvironment.findFirst({
-        where: { id: environmentID, userUid: workspaceID },
-      });
-      if (!env) return E.left(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
-      return E.right({ name: env.name ?? '', variables: env.variables });
+ private async fetchEnvironment(
+  environmentID: string,
+  workspaceType: WorkspaceType,
+  workspaceID: string,
+): Promise<E.Either<string, { name: string; variables: JsonValue } | null>> {
+
+  // TEAM workspace environment
+  if (workspaceType === WorkspaceType.TEAM) {
+    const env = await this.prisma.teamEnvironment.findUnique({
+      where: { id: environmentID },
+    });
+
+    // Validate environment exists and belongs to the correct team
+    if (!env || env.teamID !== workspaceID) {
+      return E.left(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
     }
 
-    return E.left(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
+    return E.right({
+      name: env.name,
+      variables: env.variables,
+    });
   }
+
+  // USER workspace environment
+  if (workspaceType === WorkspaceType.USER) {
+    const env = await this.prisma.userEnvironment.findUnique({
+      where: { id: environmentID },
+    });
+
+    // Validate environment exists and belongs to the correct user
+    if (!env || env.userUid !== workspaceID) {
+      return E.left(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
+    }
+
+    return E.right({
+      name: env.name ?? '',
+      variables: env.variables,
+    });
+  }
+
+  return E.left(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
+}
 
   /**
    * Check if user has access to a team with specific roles

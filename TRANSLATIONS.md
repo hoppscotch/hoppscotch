@@ -60,7 +60,7 @@ Changing keys may cause the application to fail to locate the correct translatio
 
 ### Language file naming
 
-Translation files should follow the **ISO 639-1 language code format**.
+Translation filenames should match the locale `code`/`file` entries in `languages.json` (typically lowercase, e.g., `en.json`, `pt-br.json`).
 
 Examples:
 

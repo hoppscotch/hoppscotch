@@ -241,6 +241,7 @@ import { useSetting } from "@composables/settings"
 import { useReadonlyStream, useStreamSubscriber } from "@composables/stream"
 import { useToast } from "@composables/toast"
 import { useVModel } from "@vueuse/core"
+import { watchDebounced } from "@vueuse/core"
 import * as E from "fp-ts/Either"
 import { computed, ref, onUnmounted, watch } from "vue"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
@@ -269,6 +270,7 @@ import { RESTTabService } from "~/services/tab/rest"
 import { getMethodLabelColor } from "~/helpers/rest/labelColoring"
 import { WorkspaceService } from "~/services/workspace.service"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
+import { isValidUser } from "~/helpers/isValidUser"
 import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 
 const t = useI18n()
@@ -480,10 +482,6 @@ watch(
 )
 
 onUnmounted(() => {
-  if (autoSaveTimeout) {
-    clearTimeout(autoSaveTimeout)
-    autoSaveTimeout = null
-  }
   const isCurrentTabRemoved = !tabs
     .getActiveTabs()
     .value.some((t) => t.id === currentTabID)
@@ -548,8 +546,6 @@ const shareRequest = () => {
 const cycleUpMethod = () => {
   const currentIndex = methods.indexOf(newMethod.value)
   if (currentIndex === -1) {
-    // Most probs we are in CUSTOM mode
-    // Cycle up from CUSTOM is PATCH
     updateMethod("PATCH")
   } else if (currentIndex === 0) {
     updateMethod("CUSTOM")
@@ -561,8 +557,6 @@ const cycleUpMethod = () => {
 const cycleDownMethod = () => {
   const currentIndex = methods.indexOf(newMethod.value)
   if (currentIndex === -1) {
-    // Most probs we are in CUSTOM mode
-    // Cycle down from CUSTOM is GET
     updateMethod("GET")
   } else if (currentIndex === methods.length - 1) {
     updateMethod("GET")
@@ -571,10 +565,16 @@ const cycleDownMethod = () => {
   }
 }
 
+const saveInProgress = ref(false)
+
 const saveRequest = async (options?: { silent?: boolean }) => {
   const silent = options?.silent === true
-  const isValidToken = silent ? isValidUser() : await handleTokenValidation()
-  if (!isValidToken) return
+
+  const tokenCheck = silent
+    ? (await isValidUser()).valid
+    : await handleTokenValidation()
+
+  if (!tokenCheck) return
 
   const saveCtx = tab.value.document.saveContext
 
@@ -587,7 +587,6 @@ const saveRequest = async (options?: { silent?: boolean }) => {
 
     try {
       if (saveCtx.requestIndex === undefined) {
-        // requestIndex missing; prompt user to resave properly
         showSaveRequestModal.value = true
         return
       }
@@ -696,46 +695,31 @@ const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
 const AUTO_SAVE_REQUESTS = useSetting("AUTO_SAVE_REQUESTS")
 const AUTO_SAVE_DELAY_MS = useSetting("AUTO_SAVE_DELAY_MS")
 
-const saveInProgress = ref(false)
-let autoSaveTimeout: ReturnType<typeof setTimeout> | null = null
+watchDebounced(
+  () => tab.value.document.request,
+  () => {
+    const isDirty = tab.value.document.isDirty
+    const saveCtx = tab.value.document.saveContext
+    const autoSaveEnabled = AUTO_SAVE_REQUESTS.value
 
-watch(
-  [
-    () => tab.value.document.isDirty,
-    () => tab.value.document.saveContext,
-    () => AUTO_SAVE_REQUESTS.value,
-  ],
-  ([isDirty, saveCtx, autoSaveEnabled]) => {
-    if (autoSaveTimeout) {
-      clearTimeout(autoSaveTimeout)
-      autoSaveTimeout = null
-    }
     if (
       !autoSaveEnabled ||
       !isDirty ||
       !saveCtx ||
+      saveInProgress.value ||
       tab.value.document.type !== "request"
     ) {
       return
     }
-    const delay = Math.min(
-      10000,
-      Math.max(500, Number(AUTO_SAVE_DELAY_MS.value) || 2000)
-    )
-    autoSaveTimeout = setTimeout(() => {
-      autoSaveTimeout = null
-      if (
-        saveInProgress.value ||
-        !tab.value.document.saveContext ||
-        !tab.value.document.isDirty ||
-        tab.value.document.type !== "request"
-      ) {
-        return
-      }
-      saveRequest({ silent: true })
-    }, delay)
+
+    saveRequest({ silent: true })
   },
-  { flush: "sync" }
+  {
+    deep: true,
+    debounce: computed(() =>
+      Math.min(10000, Math.max(500, Number(AUTO_SAVE_DELAY_MS.value) || 2000))
+    ),
+  }
 )
 
 const tabResults = inspectionService.getResultViewFor(tabs.currentTabID.value)

@@ -59,10 +59,11 @@ import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { HoppGQLAuth, HoppGQLRequest } from "@hoppscotch/data"
 import { computedWithControl, useVModel } from "@vueuse/core"
+import { watchDebounced } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import * as gql from "graphql"
 import { clone } from "lodash-es"
-import { computed, ref, watch, onUnmounted } from "vue"
+import { computed, ref, watch } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
 import {
   connection,
@@ -96,7 +97,6 @@ const toast = useToast()
 
 const tabs = useService(GQLTabService)
 
-// v-model integration with props and emit
 const props = withDefaults(
   defineProps<{
     modelValue: HoppGQLRequest
@@ -131,7 +131,9 @@ const activeGQLHeadersCount = computed(
       (x) => x.active && (x.key !== "" || x.value !== "")
     ).length
 )
+
 const showSaveRequestModal = ref(false)
+
 const runQuery = async (
   definition: gql.OperationDefinitionNode | null = null
 ) => {
@@ -189,12 +191,9 @@ watch(
         event?.type === "response" &&
         event?.operationType !== "subscription"
       ) {
-        // response.value = [event]
         emit("update:response", [event])
       } else {
         emit("update:response", [...(props.response ?? []), event])
-
-        // TODO: subscription indicator??
       }
     } catch (error) {
       console.log(error)
@@ -233,6 +232,9 @@ const updateCursorPos = (pos: number) => {
 const hideRequestModal = () => {
   showSaveRequestModal.value = false
 }
+
+const saveInProgress = ref(false)
+
 const saveRequest = (options?: { silent?: boolean }) => {
   const tab = tabs.currentActiveTab.value
   const saveCtx = tab?.document.saveContext
@@ -283,6 +285,7 @@ const saveRequest = (options?: { silent?: boolean }) => {
   }
   showSaveRequestModal.value = true
 }
+
 const clearGQLQuery = () => {
   request.value.query = ""
 }
@@ -305,55 +308,28 @@ defineActionHandler("request.open-tab", ({ tab }) => {
 const AUTO_SAVE_REQUESTS = useSetting("AUTO_SAVE_REQUESTS")
 const AUTO_SAVE_DELAY_MS = useSetting("AUTO_SAVE_DELAY_MS")
 
-const saveInProgress = ref(false)
-let autoSaveTimeout: ReturnType<typeof setTimeout> | null = null
-
-watch(
-  [
-    () => tabs.currentActiveTab.value?.document.isDirty,
-    () => tabs.currentActiveTab.value?.document.saveContext,
-    () => AUTO_SAVE_REQUESTS.value,
-  ],
-  ([isDirty, saveCtx, autoSaveEnabled]) => {
-    if (autoSaveTimeout) {
-      clearTimeout(autoSaveTimeout)
-      autoSaveTimeout = null
-    }
+watchDebounced(
+  request,
+  () => {
     const tab = tabs.currentActiveTab.value
-    if (
-      !autoSaveEnabled ||
-      !isDirty ||
-      !saveCtx ||
-      !tab?.document.saveContext
-    ) {
+    const isDirty = tab?.document.isDirty
+    const saveCtx = tab?.document.saveContext
+    const autoSaveEnabled = AUTO_SAVE_REQUESTS.value
+
+    if (!autoSaveEnabled || !isDirty || !saveCtx || saveInProgress.value) {
       return
     }
-    const delay = Math.min(
-      10000,
-      Math.max(500, Number(AUTO_SAVE_DELAY_MS.value) || 2000)
-    )
-    autoSaveTimeout = setTimeout(() => {
-      autoSaveTimeout = null
-      const currentTab = tabs.currentActiveTab.value
-      if (
-        saveInProgress.value ||
-        !currentTab?.document.saveContext ||
-        !currentTab.document.isDirty
-      ) {
-        return
-      }
-      saveRequest({ silent: true })
-    }, delay)
-  },
-  { flush: "sync" }
-)
 
-onUnmounted(() => {
-  if (autoSaveTimeout) {
-    clearTimeout(autoSaveTimeout)
-    autoSaveTimeout = null
+    saveRequest({ silent: true })
+  },
+  {
+    deep: true,
+    // Clamp delay between 500 ms and 10 000 ms, default 2 000 ms
+    debounce: computed(() =>
+      Math.min(10000, Math.max(500, Number(AUTO_SAVE_DELAY_MS.value) || 2000))
+    ),
   }
-})
+)
 </script>
 
 <style lang="scss" scoped>

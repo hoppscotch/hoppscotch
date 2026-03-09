@@ -66,7 +66,6 @@ describe("MCPHTTPConnection", () => {
 
     it("should transition to CONNECTED on successful connection", async () => {
       connection = new MCPHTTPConnection(mockRequest)
-
       ;(global.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => ({
@@ -85,7 +84,6 @@ describe("MCPHTTPConnection", () => {
 
     it("should transition to DISCONNECTED on connection error", async () => {
       connection = new MCPHTTPConnection(mockRequest)
-
       ;(global.fetch as any).mockRejectedValueOnce(new Error("Network error"))
 
       await expect(connection.connect()).rejects.toThrow()
@@ -94,7 +92,6 @@ describe("MCPHTTPConnection", () => {
 
     it("should transition to DISCONNECTED when disconnect is called", async () => {
       connection = new MCPHTTPConnection(mockRequest)
-
       ;(global.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => ({
@@ -121,7 +118,6 @@ describe("MCPHTTPConnection", () => {
       mockRequest.authActive = true
 
       connection = new MCPHTTPConnection(mockRequest)
-
       ;(global.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => ({
@@ -151,7 +147,6 @@ describe("MCPHTTPConnection", () => {
       mockRequest.authActive = true
 
       connection = new MCPHTTPConnection(mockRequest)
-
       ;(global.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => ({
@@ -183,7 +178,6 @@ describe("MCPHTTPConnection", () => {
       mockRequest.authActive = true
 
       connection = new MCPHTTPConnection(mockRequest)
-
       ;(global.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => ({
@@ -213,7 +207,6 @@ describe("MCPHTTPConnection", () => {
       mockRequest.authActive = false
 
       connection = new MCPHTTPConnection(mockRequest)
-
       ;(global.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => ({
@@ -328,7 +321,6 @@ describe("MCPHTTPConnection", () => {
     it("should emit event on capability load", async () => {
       const events: any[] = []
       connection.event$.subscribe((event) => events.push(event))
-
       ;(global.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => ({
@@ -351,7 +343,6 @@ describe("MCPHTTPConnection", () => {
   describe("Tool Invocation", () => {
     beforeEach(async () => {
       connection = new MCPHTTPConnection(mockRequest)
-
       ;(global.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => ({
@@ -414,7 +405,6 @@ describe("MCPHTTPConnection", () => {
   describe("JSON-RPC Protocol", () => {
     beforeEach(async () => {
       connection = new MCPHTTPConnection(mockRequest)
-
       ;(global.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => ({
@@ -474,7 +464,6 @@ describe("MCPHTTPConnection", () => {
   describe("Error Handling", () => {
     it("should throw error on HTTP error response", async () => {
       connection = new MCPHTTPConnection(mockRequest)
-
       ;(global.fetch as any).mockResolvedValueOnce({
         ok: false,
         status: 500,
@@ -488,10 +477,7 @@ describe("MCPHTTPConnection", () => {
 
     it("should throw error on network failure", async () => {
       connection = new MCPHTTPConnection(mockRequest)
-
-      ;(global.fetch as any).mockRejectedValueOnce(
-        new Error("Failed to fetch")
-      )
+      ;(global.fetch as any).mockRejectedValueOnce(new Error("Failed to fetch"))
 
       await expect(connection.connect()).rejects.toThrow("Failed to fetch")
     })
@@ -500,9 +486,7 @@ describe("MCPHTTPConnection", () => {
       mockRequest.httpConfig = null
       connection = new MCPHTTPConnection(mockRequest)
 
-      await expect(connection.connect()).rejects.toThrow(
-        "HTTP URL is required"
-      )
+      await expect(connection.connect()).rejects.toThrow("HTTP URL is required")
     })
   })
 })

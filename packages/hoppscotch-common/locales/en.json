@@ -1935,7 +1935,16 @@
     "no_tools_available": "No tools available",
     "no_prompts_available": "No prompts available",
     "no_resources_available": "No resources available",
-    "search_methods": "Search methods"
+    "search_methods": "Search methods",
+    "server_catalog": "Server Catalog",
+    "server_catalog_description": "Browse and connect to popular MCP servers",
+    "browse_servers": "Browse Servers",
+    "popular_servers": "Popular Servers",
+    "all_categories": "All",
+    "no_servers_found": "No servers found",
+    "server_loaded": "Server configuration loaded",
+    "popular": "Popular",
+    "view_documentation": "View Documentation"
   },
   "workspace": {
     "change": "Change workspace",

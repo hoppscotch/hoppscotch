@@ -4,23 +4,32 @@
       <div
         class="sticky top-0 z-10 flex flex-shrink-0 flex-col space-y-2 overflow-x-auto bg-primary p-4"
       >
-        <!-- Transport Type Selector -->
-        <div class="flex items-center space-x-2">
-          <label class="text-secondaryLight font-semibold">
-            {{ t("mcp.transport_type") }}
-          </label>
-          <div class="flex space-x-2">
-            <HoppButtonSecondary
-              :label="t('mcp.http')"
-              :filled="transportType === 'http'"
-              @click="switchTransport('http')"
-            />
-            <HoppButtonSecondary
-              :label="t('mcp.stdio')"
-              :filled="transportType === 'stdio'"
-              @click="switchTransport('stdio')"
-            />
+        <!-- Header with Server Catalog Button -->
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center space-x-2">
+            <label class="text-secondaryLight font-semibold">
+              {{ t("mcp.transport_type") }}
+            </label>
+            <div class="flex space-x-2">
+              <HoppButtonSecondary
+                :label="t('mcp.http')"
+                :filled="transportType === 'http'"
+                @click="switchTransport('http')"
+              />
+              <HoppButtonSecondary
+                :label="t('mcp.stdio')"
+                :filled="transportType === 'stdio'"
+                @click="switchTransport('stdio')"
+              />
+            </div>
           </div>
+          <HoppButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t('mcp.browse_servers')"
+            :icon="IconBookOpen"
+            :label="t('mcp.browse_servers')"
+            @click="showServerCatalog = true"
+          />
         </div>
 
         <!-- HTTP Configuration -->
@@ -146,11 +155,24 @@
       />
     </template>
   </AppPaneLayout>
+
+  <!-- Server Catalog Modal -->
+  <HoppSmartModal
+    v-if="showServerCatalog"
+    dialog
+    :title="t('mcp.server_catalog')"
+    @close="showServerCatalog = false"
+  >
+    <template #body>
+      <MCPServerCatalog @select="handleServerSelect" />
+    </template>
+  </HoppSmartModal>
 </template>
 
 <script setup lang="ts">
 import { ref, watch, onUnmounted, onMounted, computed } from "vue"
 import IconLucideAlertCircle from "~icons/lucide/alert-circle"
+import IconBookOpen from "~icons/lucide/book-open"
 import {
   MCPTransportType$,
   MCPHTTPConfig$,
@@ -166,6 +188,7 @@ import {
   setMCPLog,
   addMCPLogLine,
   setMCPCapabilities,
+  setMCPAuth,
   MCPTransportType,
 } from "~/newstore/MCPSession"
 import { useI18n } from "@composables/i18n"
@@ -178,7 +201,9 @@ import MCPConfiguration from "~/components/mcp/Configuration.vue"
 import MCPToolsList from "~/components/mcp/ToolsList.vue"
 import MCPPromptsList from "~/components/mcp/PromptsList.vue"
 import MCPResourcesList from "~/components/mcp/ResourcesList.vue"
+import MCPServerCatalog from "~/components/mcp/ServerCatalog.vue"
 import { usePageHead } from "~/composables/head"
+import type { MCPServerEntry } from "~/helpers/mcp/servers"
 
 const t = useI18n()
 const toast = useToast()
@@ -191,6 +216,8 @@ usePageHead({
 const selectedTab = ref<"configuration" | "tools" | "prompts" | "resources">(
   "configuration"
 )
+
+const showServerCatalog = ref(false)
 
 const transportType = useStream(
   MCPTransportType$,
@@ -435,6 +462,36 @@ const readResource = async (resource: any) => {
 
 const clearLogEntries = () => {
   log.value = []
+}
+
+const handleServerSelect = (server: MCPServerEntry) => {
+  showServerCatalog.value = false
+
+  // Set transport type
+  setMCPTransportType(server.transport)
+
+  // Configure based on transport
+  if (server.transport === "http") {
+    if (server.url) {
+      httpUrl.value = server.url
+      setMCPHTTPConfig({ url: server.url })
+    }
+    if (server.auth) {
+      setMCPAuth(server.auth)
+    }
+  } else if (server.transport === "stdio") {
+    if (server.command) {
+      const commandStr = [server.command, ...(server.args || [])].join(" ")
+      stdioCommand.value = commandStr
+      setMCPSTDIOConfig({
+        command: commandStr,
+        args: server.args || [],
+        env: server.envVars || [],
+      })
+    }
+  }
+
+  toast.success(`${t("mcp.server_loaded")}: ${server.name}`)
 }
 
 onMounted(() => {

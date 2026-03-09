@@ -117,7 +117,7 @@ import IconTrash2 from "~icons/lucide/trash-2"
 import IconPlus from "~icons/lucide/plus"
 import IconLucideAlertCircle from "~icons/lucide/alert-circle"
 import { useI18n } from "@composables/i18n"
-import { useStream, useReadonlyStream } from "@composables/stream"
+import { useStream, useStreamSubscriber } from "@composables/stream"
 import {
   MCPTransportType$,
   MCPHTTPConfig$,
@@ -132,6 +132,7 @@ import MCPHTTPAuth from "./HTTPAuth.vue"
 import MCPEnvVarsList from "./EnvVarsList.vue"
 
 const t = useI18n()
+const { subscribeToStream } = useStreamSubscriber()
 
 const transportType = useStream(MCPTransportType$, "http", () => {})
 const httpConfig = useStream(MCPHTTPConfig$, null, setMCPHTTPConfig)
@@ -141,10 +142,23 @@ const connection = useStream(MCPConnection$, null as any, () => {})
 const httpUrl = ref("")
 const stdioCommand = ref("")
 const capabilitiesLoading = ref(false)
-
-const isConnected = useReadonlyStream(
-  connection.value?.connectionState$ || null,
+const isConnected = ref<"DISCONNECTED" | "CONNECTING" | "CONNECTED">(
   "DISCONNECTED"
+)
+
+// Watch connection and subscribe to its state
+watch(
+  connection,
+  (newConnection) => {
+    if (newConnection?.connectionState$) {
+      subscribeToStream(newConnection.connectionState$, (state) => {
+        isConnected.value = state
+      })
+    } else {
+      isConnected.value = "DISCONNECTED"
+    }
+  },
+  { immediate: true }
 )
 
 watch(

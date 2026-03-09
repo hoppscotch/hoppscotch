@@ -102,6 +102,9 @@ export class MCPSTDIOConnection extends MCPConnection {
       })
 
       if (response) {
+        // Send notifications/initialized as per MCP protocol
+        await this.sendNotification("notifications/initialized", {})
+
         this.connectionState$.next("CONNECTED")
         this.addEvent({
           type: "CONNECTED",
@@ -122,12 +125,18 @@ export class MCPSTDIOConnection extends MCPConnection {
   }
 
   disconnect(): void {
+    // Reject all pending requests
+    const disconnectError = new Error("Connection closed")
+    this.pendingRequests.forEach((pending) => {
+      pending.reject(disconnectError)
+    })
+    this.pendingRequests.clear()
+
     // Clean up the spawned process
     if (this.processAPI && this.processAPI.killProcess) {
       this.processAPI.killProcess()
     }
 
-    this.pendingRequests.clear()
     this.connectionState$.next("DISCONNECTED")
     this.addEvent({
       type: "DISCONNECTED",
@@ -138,17 +147,25 @@ export class MCPSTDIOConnection extends MCPConnection {
 
   async loadCapabilities(): Promise<void> {
     try {
-      const [toolsResponse, promptsResponse, resourcesResponse] =
-        await Promise.all([
-          this.sendRequest("tools/list", {}),
-          this.sendRequest("prompts/list", {}),
-          this.sendRequest("resources/list", {}),
-        ])
+      const results = await Promise.allSettled([
+        this.sendRequest("tools/list", {}),
+        this.sendRequest("prompts/list", {}),
+        this.sendRequest("resources/list", {}),
+      ])
 
       const capabilities: MCPCapabilities = {
-        tools: (toolsResponse as any)?.tools || [],
-        prompts: (promptsResponse as any)?.prompts || [],
-        resources: (resourcesResponse as any)?.resources || [],
+        tools:
+          results[0].status === "fulfilled"
+            ? (results[0].value as any)?.tools || []
+            : [],
+        prompts:
+          results[1].status === "fulfilled"
+            ? (results[1].value as any)?.prompts || []
+            : [],
+        resources:
+          results[2].status === "fulfilled"
+            ? (results[2].value as any)?.resources || []
+            : [],
       }
 
       this.capabilities$.next(capabilities)
@@ -276,6 +293,23 @@ export class MCPSTDIOConnection extends MCPConnection {
     } catch (error) {
       this.handleError(error as MCPErrorMessage)
     }
+  }
+
+  private async sendNotification(
+    method: string,
+    params: unknown
+  ): Promise<void> {
+    if (!this.processAPI || !this.processAPI.sendMessage) {
+      throw new Error("Process API not available")
+    }
+
+    const notification = {
+      jsonrpc: "2.0",
+      method,
+      params,
+    }
+
+    await this.processAPI.sendMessage(JSON.stringify(notification))
   }
 
   private async sendRequest(method: string, params: unknown): Promise<unknown> {

@@ -67,25 +67,17 @@
             <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="
-                envVar.hasOwnProperty('active')
-                  ? envVar.active
-                    ? t('action.turn_off')
-                    : t('action.turn_on')
-                  : t('action.turn_off')
+                (envVar.active ?? true)
+                  ? t('action.turn_off')
+                  : t('action.turn_on')
               "
-              :icon="
-                envVar.hasOwnProperty('active')
-                  ? envVar.active
-                    ? IconCheckCircle
-                    : IconCircle
-                  : IconCheckCircle
-              "
+              :icon="(envVar.active ?? true) ? IconCheckCircle : IconCircle"
               color="green"
               @click="
                 updateEnvVar(index, {
                   key: envVar.key,
                   value: envVar.value,
-                  active: !envVar.active,
+                  active: !(envVar.active ?? true),
                 })
               "
             />
@@ -141,7 +133,7 @@ const envVars = computed(() => stdioConfig.value?.env || [])
 const envVarsWithID = computed({
   get() {
     return envVars.value.map((envVar, index) => ({
-      id: `envvar-${index}-${envVar.key}`,
+      id: `envvar-${index}`,
       envVar,
     }))
   },

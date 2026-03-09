@@ -66,10 +66,16 @@ export abstract class MCPConnection {
 
   protected handleError(error: MCPErrorMessage) {
     this.connectionState$.next("DISCONNECTED")
+    this.capabilities$.next(null)
     this.addEvent({
       time: Date.now(),
       type: "ERROR",
       error,
+    })
+    this.addEvent({
+      time: Date.now(),
+      type: "DISCONNECTED",
+      manual: false,
     })
   }
 }

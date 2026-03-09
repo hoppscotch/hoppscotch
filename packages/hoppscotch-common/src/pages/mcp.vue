@@ -181,10 +181,15 @@ import MCPConfiguration from "~/components/mcp/Configuration.vue"
 import MCPToolsList from "~/components/mcp/ToolsList.vue"
 import MCPPromptsList from "~/components/mcp/PromptsList.vue"
 import MCPResourcesList from "~/components/mcp/ResourcesList.vue"
+import { usePageHead } from "~/composables/head"
 
 const t = useI18n()
 const toast = useToast()
 const { subscribeToStream } = useStreamSubscriber()
+
+usePageHead({
+  title: computed(() => t("navigation.mcp")),
+})
 
 const selectedTab = ref<"configuration" | "tools" | "prompts" | "resources">(
   "configuration"

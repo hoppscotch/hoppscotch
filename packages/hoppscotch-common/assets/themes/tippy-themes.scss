@@ -64,6 +64,15 @@
     }
   }
 
+  // Override truncation for multiline member-list tooltips
+  .tippy-box[data-theme~="member-list"] {
+    .tippy-content {
+      @apply whitespace-pre-line;
+      @apply block;
+      @apply overflow-auto;
+    }
+  }
+
   .tippy-box[data-theme~="popover"] {
     @apply bg-popover;
     @apply border-solid;

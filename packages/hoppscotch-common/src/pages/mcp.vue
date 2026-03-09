@@ -335,7 +335,7 @@ const connectToServer = async () => {
       // Fix: Use stored auth instead of hardcoded "none"
       newConnection = new MCPHTTPConnection(httpUrl.value, auth.value)
     } else {
-      // Fix: Use stored config and parse command properly
+      // Fix: Always parse command from input to respect manual edits
       const config = stdioConfig.value || {
         command: stdioCommand.value,
         args: [],
@@ -344,10 +344,8 @@ const connectToServer = async () => {
       // Simple command parsing - split on spaces but respect quotes
       const parts = config.command.match(/[^\s"']+|"([^"]*)"|'([^']*)'/g) || []
       const command = parts[0]?.replace(/["']/g, "") || ""
-      const args =
-        config.args.length > 0
-          ? config.args
-          : parts.slice(1).map((arg) => arg.replace(/["']/g, ""))
+      // Always parse args from command to respect user edits
+      const args = parts.slice(1).map((arg) => arg.replace(/["']/g, ""))
 
       newConnection = new MCPSTDIOConnection({
         command,
@@ -448,7 +446,32 @@ const handleMCPEvent = (event: any) => {
 const invokeTool = async (tool: any, args: any) => {
   try {
     if (connection.value) {
-      await connection.value.invokeTool(tool.name, args)
+      const response = await connection.value.invokeTool(tool.name, args)
+
+      // Add to history
+      const { addMCPHistoryEntry } = await import("~/newstore/history")
+      const { makeMCPRequest } = await import("@hoppscotch/data")
+
+      addMCPHistoryEntry({
+        v: 1,
+        request: makeMCPRequest({
+          name: `Tool: ${tool.name}`,
+          transportType: transportType.value,
+          stdioConfig:
+            transportType.value === "stdio" ? stdioConfig.value : null,
+          httpConfig: transportType.value === "http" ? httpConfig.value : null,
+          auth: auth.value,
+          authActive: auth.value.authActive,
+          method: {
+            methodType: "tools",
+            methodName: tool.name,
+            arguments: JSON.stringify(args),
+          },
+        }),
+        response: JSON.stringify(response, null, 2),
+        star: false,
+        updatedOn: new Date(),
+      })
     }
   } catch (error: any) {
     toast.error(error.message || "Failed to invoke tool")
@@ -458,7 +481,32 @@ const invokeTool = async (tool: any, args: any) => {
 const invokePrompt = async (prompt: any, args: any) => {
   try {
     if (connection.value) {
-      await connection.value.invokePrompt(prompt.name, args)
+      const response = await connection.value.invokePrompt(prompt.name, args)
+
+      // Add to history
+      const { addMCPHistoryEntry } = await import("~/newstore/history")
+      const { makeMCPRequest } = await import("@hoppscotch/data")
+
+      addMCPHistoryEntry({
+        v: 1,
+        request: makeMCPRequest({
+          name: `Prompt: ${prompt.name}`,
+          transportType: transportType.value,
+          stdioConfig:
+            transportType.value === "stdio" ? stdioConfig.value : null,
+          httpConfig: transportType.value === "http" ? httpConfig.value : null,
+          auth: auth.value,
+          authActive: auth.value.authActive,
+          method: {
+            methodType: "prompts",
+            methodName: prompt.name,
+            arguments: JSON.stringify(args),
+          },
+        }),
+        response: JSON.stringify(response, null, 2),
+        star: false,
+        updatedOn: new Date(),
+      })
     }
   } catch (error: any) {
     toast.error(error.message || "Failed to invoke prompt")
@@ -468,7 +516,32 @@ const invokePrompt = async (prompt: any, args: any) => {
 const readResource = async (resource: any) => {
   try {
     if (connection.value) {
-      await connection.value.readResource(resource.uri)
+      const response = await connection.value.readResource(resource.uri)
+
+      // Add to history
+      const { addMCPHistoryEntry } = await import("~/newstore/history")
+      const { makeMCPRequest } = await import("@hoppscotch/data")
+
+      addMCPHistoryEntry({
+        v: 1,
+        request: makeMCPRequest({
+          name: `Resource: ${resource.name || resource.uri}`,
+          transportType: transportType.value,
+          stdioConfig:
+            transportType.value === "stdio" ? stdioConfig.value : null,
+          httpConfig: transportType.value === "http" ? httpConfig.value : null,
+          auth: auth.value,
+          authActive: auth.value.authActive,
+          method: {
+            methodType: "resources",
+            methodName: resource.uri,
+            arguments: JSON.stringify({ uri: resource.uri }),
+          },
+        }),
+        response: JSON.stringify(response, null, 2),
+        star: false,
+        updatedOn: new Date(),
+      })
     }
   } catch (error: any) {
     toast.error(error.message || "Failed to read resource")

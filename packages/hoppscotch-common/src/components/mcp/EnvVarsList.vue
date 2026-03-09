@@ -130,21 +130,13 @@ const stdioConfig = useStream(MCPSTDIOConfig$, null, setMCPSTDIOConfig)
 
 const envVars = computed(() => stdioConfig.value?.env || [])
 
-// Generate stable IDs based on content, not just index
-const generateEnvVarId = (envVar: MCPEnvVar, index: number) => {
-  const keyPart = envVar.key || "empty"
-  const valuePart = envVar.value || "empty"
-  // Use a hash-like ID based on content to maintain stability
-  return `envvar-${keyPart}-${valuePart}-${index}`.replace(
-    /[^a-zA-Z0-9-]/g,
-    "_"
-  )
-}
-
+// Use index-based IDs which are stable during edits (most common operation)
+// They may shift during drag operations but that's acceptable as the drag
+// completes before re-render
 const envVarsWithID = computed({
   get() {
     return envVars.value.map((envVar, index) => ({
-      id: generateEnvVarId(envVar, index),
+      id: index,
       envVar,
     }))
   },

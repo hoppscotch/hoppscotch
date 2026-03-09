@@ -298,6 +298,8 @@ declare module 'vue' {
     McpMethodCard: typeof import('./components/mcp/MethodCard.vue')['default']
     McpPromptsList: typeof import('./components/mcp/PromptsList.vue')['default']
     McpResourcesList: typeof import('./components/mcp/ResourcesList.vue')['default']
+    McpServerCard: typeof import('./components/mcp/ServerCard.vue')['default']
+    McpServerCatalog: typeof import('./components/mcp/ServerCatalog.vue')['default']
     McpToolsList: typeof import('./components/mcp/ToolsList.vue')['default']
     MockServerConfigureMockServerModal: typeof import('./components/mockServer/ConfigureMockServerModal.vue')['default']
     MockServerCreateNewMockServerModal: typeof import('./components/mockServer/CreateNewMockServerModal.vue')['default']

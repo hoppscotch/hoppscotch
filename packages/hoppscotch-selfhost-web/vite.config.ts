@@ -119,14 +119,15 @@ export default defineConfig({
         // })
       },
     }),
-    StaticCopy({
-      targets: [
-        {
-          src: normalizePath(path.resolve(__dirname, "./.sitemap-gen/*")),
-          dest: normalizePath(path.resolve(__dirname, "./dist")),
-        },
-      ],
-    }),
+    // Disabled: sitemap generation is commented out above
+    // StaticCopy({
+    //   targets: [
+    //     {
+    //       src: normalizePath(path.resolve(__dirname, "./.sitemap-gen/*")),
+    //       dest: normalizePath(path.resolve(__dirname, "./dist")),
+    //     },
+    //   ],
+    // }),
     Layouts({
       layoutsDirs: "../hoppscotch-common/src/layouts",
       defaultLayout: "default",

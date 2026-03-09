@@ -34,6 +34,11 @@ export interface MCPServerEntry {
 
 /**
  * Built-in MCP Server Catalog
+ *
+ * Note: STDIO entries use `npx -y` without version pins to always fetch
+ * the latest published packages. This is intentional for ease of use but
+ * means servers may change behavior between runs. Users should review
+ * and test configurations before use in production.
  */
 export const MCP_SERVER_CATALOG: MCPServerEntry[] = [
   // Development Tools

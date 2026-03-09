@@ -243,19 +243,34 @@ const stdioCommand = ref("")
 const connectionState = ref<"DISCONNECTED" | "CONNECTING" | "CONNECTED">(
   "DISCONNECTED"
 )
+let connectionStateSubscription: any = null
 watch(
   connection,
   (newConnection) => {
+    // Clean up previous subscription
+    if (connectionStateSubscription) {
+      connectionStateSubscription.unsubscribe()
+      connectionStateSubscription = null
+    }
+
     if (newConnection?.connectionState$) {
-      subscribeToStream(newConnection.connectionState$, (state) => {
-        connectionState.value = state
-      })
+      connectionStateSubscription = newConnection.connectionState$.subscribe(
+        (state) => {
+          connectionState.value = state
+        }
+      )
     } else {
       connectionState.value = "DISCONNECTED"
     }
   },
   { immediate: true }
 )
+
+onUnmounted(() => {
+  if (connectionStateSubscription) {
+    connectionStateSubscription.unsubscribe()
+  }
+})
 
 const tools = computed(() => capabilities.value?.tools || [])
 const prompts = computed(() => capabilities.value?.prompts || [])
@@ -290,8 +305,8 @@ watch(stdioCommand, (newCommand) => {
   if (transportType.value === "stdio") {
     setMCPSTDIOConfig({
       command: newCommand,
-      args: [],
-      env: [],
+      args: stdioConfig.value?.args || [],
+      env: stdioConfig.value?.env || [],
     })
   }
 })
@@ -466,6 +481,11 @@ const clearLogEntries = () => {
 
 const handleServerSelect = (server: MCPServerEntry) => {
   showServerCatalog.value = false
+
+  // Disconnect if already connected
+  if (connectionState.value !== "DISCONNECTED") {
+    connection.value?.disconnect()
+  }
 
   // Set transport type
   setMCPTransportType(server.transport)

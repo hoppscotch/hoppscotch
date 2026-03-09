@@ -104,7 +104,7 @@
             : t('mcp.load_capabilities')
         "
         :loading="capabilitiesLoading"
-        :disabled="!isConnected || capabilitiesLoading"
+        :disabled="isConnected !== 'CONNECTED' || capabilitiesLoading"
         @click="loadCapabilities"
       />
     </div>

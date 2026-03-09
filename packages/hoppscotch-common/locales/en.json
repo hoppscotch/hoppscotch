@@ -1073,6 +1073,7 @@
     "profile": "Profile",
     "realtime": "Realtime",
     "rest": "REST",
+    "mcp": "MCP",
     "mock_servers": "Mock Servers",
     "settings": "Settings",
     "goto_app": "Goto App",

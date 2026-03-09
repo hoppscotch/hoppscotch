@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, test } from "vitest"
+import { describe, expect, beforeEach, test } from "vitest"
 import * as E from "fp-ts/Either"
 import { moveItems, reorderItems, sortByOrder } from "../teams.workspace"
 

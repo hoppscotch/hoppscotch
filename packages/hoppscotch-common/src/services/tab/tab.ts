@@ -133,7 +133,7 @@ export abstract class TabService<Doc>
       this.mruOrder = []
       this.mruNavigationIndex = -1
 
-      for (const doc of data.orderedDocs) {
+      for (const doc of data.orderedDocs ?? []) {
         let requestHandle: Handle<WorkspaceRequest> | null = null
         let resolvedTabDoc = doc.doc
 

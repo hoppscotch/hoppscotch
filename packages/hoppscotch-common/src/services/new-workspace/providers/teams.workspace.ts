@@ -984,10 +984,6 @@ export class TeamsWorkspaceProviderService
 
           let previousOrder: string | null = null
 
-          console.group("Root Collections Fetched")
-          console.log(collections.right)
-          console.groupEnd()
-
           this.collections.value.push(
             ...collections.right.map((collection) => {
               const collectionProperties = collection.data
@@ -2871,16 +2867,3 @@ const parseInheritedData = (inheritedData?: string) => {
   }
 }
 
-// TODO
-// where to put the getChildren api call
-// cursor + pagination stuff
-// decor stuff
-// inherited auth + headers stuff
-
-// you're working on the TeamsWorkspaceSelector.vue
-// implementing the displaying of workspaces
-// right now, workspaceService.getWorkspaces is stuck in the loading state
-// you're debugging this issue
-
-// you're experimenting with an issue where there's some issue with generating the order of a new collection when the parentCollectionID is null / undefined
-// fix the types

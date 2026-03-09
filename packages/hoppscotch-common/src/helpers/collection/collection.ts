@@ -12,7 +12,6 @@ import { CollectionDataProps } from "../backend/helpers"
 import { CollectionFolder } from "../backend/queries/PublishedDocs"
 import { HoppGQLSaveContext } from "../graphql/document"
 import { HoppRESTSaveContext } from "../rest/document"
-import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
 import { getAffectedIndexes } from "./affectedIndex"
 
 /**

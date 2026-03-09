@@ -17,7 +17,6 @@ import {
 import * as TE from "fp-ts/TaskEither"
 import { fetchAllTeams } from "~/helpers/teams/TeamListAdapter"
 import {
-  CreateNewRootCollectionMutation,
   CreateRequestInCollectionMutation,
   DeleteCollectionMutation,
   GetCollectionChildrenQuery,
@@ -42,7 +41,6 @@ import {
 } from "~/helpers/backend/mutations/TeamRequest"
 import {
   getDefaultRESTRequest,
-  HoppCollection,
   HoppRESTAuth,
   HoppRESTHeader,
 } from "@hoppscotch/data"
@@ -215,9 +213,117 @@ describe("TeamsWorkspaceProviderService", () => {
             "type": "collection",
             "value": {
               "collectionID": "child_collection_id_0",
-              "isLastItem": true,
+              "isLastItem": false,
               "name": "Test Child Collection #0",
               "parentCollectionID": "root_collection_id_0",
+            },
+          },
+          {
+            "type": "collection",
+            "value": {
+              "collectionID": "child_collection_id_1",
+              "isLastItem": false,
+              "name": "Test Child Collection #1",
+              "parentCollectionID": "root_collection_id_0",
+            },
+          },
+          {
+            "type": "collection",
+            "value": {
+              "collectionID": "child_collection_id_2",
+              "isLastItem": true,
+              "name": "Test Child Collection #2",
+              "parentCollectionID": "root_collection_id_0",
+            },
+          },
+          {
+            "type": "request",
+            "value": {
+              "collectionID": "root_collection_id_0",
+              "isLastItem": false,
+              "request": {
+                "_ref_id": "req_mmj0kyog_a9907856-fa32-4b1b-8c32-04e7bcc251ab",
+                "auth": {
+                  "authActive": true,
+                  "authType": "inherit",
+                },
+                "body": {
+                  "body": null,
+                  "contentType": null,
+                },
+                "description": null,
+                "endpoint": "https://echo.hoppscotch.io",
+                "headers": [],
+                "method": "GET",
+                "name": "Untitled",
+                "params": [],
+                "preRequestScript": "",
+                "requestVariables": [],
+                "responses": {},
+                "testScript": "",
+                "v": "17",
+              },
+              "requestID": "request_id_0",
+            },
+          },
+          {
+            "type": "request",
+            "value": {
+              "collectionID": "root_collection_id_0",
+              "isLastItem": false,
+              "request": {
+                "_ref_id": "req_mmj0kyog_2831872c-4613-4086-9898-9648ac08dc07",
+                "auth": {
+                  "authActive": true,
+                  "authType": "inherit",
+                },
+                "body": {
+                  "body": null,
+                  "contentType": null,
+                },
+                "description": null,
+                "endpoint": "https://echo.hoppscotch.io",
+                "headers": [],
+                "method": "GET",
+                "name": "Untitled",
+                "params": [],
+                "preRequestScript": "",
+                "requestVariables": [],
+                "responses": {},
+                "testScript": "",
+                "v": "17",
+              },
+              "requestID": "request_id_1",
+            },
+          },
+          {
+            "type": "request",
+            "value": {
+              "collectionID": "root_collection_id_0",
+              "isLastItem": true,
+              "request": {
+                "_ref_id": "req_mmj0kyog_db92466d-78c9-4ba8-b995-9056b2391be9",
+                "auth": {
+                  "authActive": true,
+                  "authType": "inherit",
+                },
+                "body": {
+                  "body": null,
+                  "contentType": null,
+                },
+                "description": null,
+                "endpoint": "https://echo.hoppscotch.io",
+                "headers": [],
+                "method": "GET",
+                "name": "Untitled",
+                "params": [],
+                "preRequestScript": "",
+                "requestVariables": [],
+                "responses": {},
+                "testScript": "",
+                "v": "17",
+              },
+              "requestID": "request_id_2",
             },
           },
         ]
@@ -310,6 +416,7 @@ describe("TeamsWorkspaceProviderService", () => {
           "collectionID": "root_collection_id_0",
           "providerID": "TEAMS_WORKSPACE_PROVIDER",
           "request": {
+            "_ref_id": "req_mmj0kyoi_95f51df1-4068-4604-b15a-7574f2e8f07e",
             "auth": {
               "authActive": true,
               "authType": "inherit",
@@ -318,6 +425,7 @@ describe("TeamsWorkspaceProviderService", () => {
               "body": null,
               "contentType": null,
             },
+            "description": null,
             "endpoint": "https://echo.hoppscotch.io",
             "headers": [],
             "method": "GET",
@@ -325,8 +433,9 @@ describe("TeamsWorkspaceProviderService", () => {
             "params": [],
             "preRequestScript": "",
             "requestVariables": [],
+            "responses": {},
             "testScript": "",
-            "v": "4",
+            "v": "17",
           },
           "requestID": "request_id_0",
           "workspaceID": "workspace_id_0",
@@ -388,6 +497,7 @@ describe("TeamsWorkspaceProviderService", () => {
           "collectionID": "root_collection_id_0",
           "providerID": "TEAMS_WORKSPACE_PROVIDER",
           "request": {
+            "_ref_id": "req_mmj0kyoj_970d75bc-3a7d-413a-8b96-51eff3ab2579",
             "auth": {
               "authActive": true,
               "authType": "inherit",
@@ -396,6 +506,7 @@ describe("TeamsWorkspaceProviderService", () => {
               "body": null,
               "contentType": null,
             },
+            "description": null,
             "endpoint": "https://echo.hoppscotch.io",
             "headers": [],
             "method": "GET",
@@ -403,8 +514,9 @@ describe("TeamsWorkspaceProviderService", () => {
             "params": [],
             "preRequestScript": "",
             "requestVariables": [],
+            "responses": {},
             "testScript": "",
-            "v": "4",
+            "v": "17",
           },
           "requestID": "request_id_0",
           "workspaceID": "workspace_id_0",
@@ -507,6 +619,7 @@ describe("TeamsWorkspaceProviderService", () => {
           "collectionID": "root_collection_id_0",
           "providerID": "TEAMS_WORKSPACE_PROVIDER",
           "request": {
+            "_ref_id": "req_mmj0kyok_2eb6a28d-e023-4d76-ade1-fc15de27f1d1",
             "auth": {
               "authActive": true,
               "authType": "inherit",
@@ -515,6 +628,7 @@ describe("TeamsWorkspaceProviderService", () => {
               "body": null,
               "contentType": null,
             },
+            "description": null,
             "endpoint": "https://echo.hoppscotch.io",
             "headers": [],
             "method": "GET",
@@ -522,8 +636,9 @@ describe("TeamsWorkspaceProviderService", () => {
             "params": [],
             "preRequestScript": "",
             "requestVariables": [],
+            "responses": {},
             "testScript": "",
-            "v": "4",
+            "v": "17",
           },
           "requestID": "request_id_0",
           "workspaceID": "workspace_id_0",
@@ -551,6 +666,7 @@ describe("TeamsWorkspaceProviderService", () => {
   test("get child collections and requests of a collection", async () => {
     mockFetchAllTeams()
     mockGetCollectionChildren()
+    mockGetCollectionChildRequests()
 
     const container = new TestContainer()
     const teamsWorkspaceProviderService = container.bind(
@@ -598,49 +714,6 @@ describe("TeamsWorkspaceProviderService", () => {
           "type": "collection",
           "value": {
             "collectionID": "child_collection_id_0",
-            "isLastItem": true,
-            "name": "Test Child Collection #0",
-            "parentCollectionID": "root_collection_id_0",
-          },
-        },
-      ]
-    `)
-
-    // verify the loading state and other properties
-    expect({
-      collectionID: childrenHandle.value.data.collectionID,
-      loading: childrenHandle.value.data.loading.value,
-      providerID: childrenHandle.value.data.providerID,
-      workspaceID: childrenHandle.value.data.workspaceID,
-    }).toMatchInlineSnapshot(`
-      {
-        "collectionID": "root_collection_id_0",
-        "loading": true,
-        "providerID": "TEAMS_WORKSPACE_PROVIDER",
-        "workspaceID": "workspace_id_0",
-      }
-    `)
-
-    let resolve: (value: undefined) => void
-
-    const promise = new Promise<void>((res) => {
-      resolve = res
-    })
-
-    // wait for the value of childrenHandle to change
-    watch(childrenHandle, () => {
-      resolve(undefined)
-    })
-
-    await promise
-
-    // verify the computed value after the getChildren is resolved, here we've mocked it to return 3 child collections
-    expect(childrenHandle.value.data.content.value).toMatchInlineSnapshot(`
-      [
-        {
-          "type": "collection",
-          "value": {
-            "collectionID": "child_collection_id_0",
             "isLastItem": false,
             "name": "Test Child Collection #0",
             "parentCollectionID": "root_collection_id_0",
@@ -670,6 +743,7 @@ describe("TeamsWorkspaceProviderService", () => {
             "collectionID": "root_collection_id_0",
             "isLastItem": false,
             "request": {
+              "_ref_id": "req_mmj0kyol_e0ae152f-590c-4448-b55c-ef27abcf24bf",
               "auth": {
                 "authActive": true,
                 "authType": "inherit",
@@ -678,6 +752,7 @@ describe("TeamsWorkspaceProviderService", () => {
                 "body": null,
                 "contentType": null,
               },
+              "description": null,
               "endpoint": "https://echo.hoppscotch.io",
               "headers": [],
               "method": "GET",
@@ -685,8 +760,9 @@ describe("TeamsWorkspaceProviderService", () => {
               "params": [],
               "preRequestScript": "",
               "requestVariables": [],
+              "responses": {},
               "testScript": "",
-              "v": "4",
+              "v": "17",
             },
             "requestID": "request_id_0",
           },
@@ -697,6 +773,7 @@ describe("TeamsWorkspaceProviderService", () => {
             "collectionID": "root_collection_id_0",
             "isLastItem": false,
             "request": {
+              "_ref_id": "req_mmj0kyol_857201e9-7949-4bac-9612-19c0585b4bb5",
               "auth": {
                 "authActive": true,
                 "authType": "inherit",
@@ -705,6 +782,7 @@ describe("TeamsWorkspaceProviderService", () => {
                 "body": null,
                 "contentType": null,
               },
+              "description": null,
               "endpoint": "https://echo.hoppscotch.io",
               "headers": [],
               "method": "GET",
@@ -712,8 +790,9 @@ describe("TeamsWorkspaceProviderService", () => {
               "params": [],
               "preRequestScript": "",
               "requestVariables": [],
+              "responses": {},
               "testScript": "",
-              "v": "4",
+              "v": "17",
             },
             "requestID": "request_id_1",
           },
@@ -724,6 +803,7 @@ describe("TeamsWorkspaceProviderService", () => {
             "collectionID": "root_collection_id_0",
             "isLastItem": true,
             "request": {
+              "_ref_id": "req_mmj0kyol_e322f9b0-4581-4094-9909-1b2444e0a213",
               "auth": {
                 "authActive": true,
                 "authType": "inherit",
@@ -732,6 +812,7 @@ describe("TeamsWorkspaceProviderService", () => {
                 "body": null,
                 "contentType": null,
               },
+              "description": null,
               "endpoint": "https://echo.hoppscotch.io",
               "headers": [],
               "method": "GET",
@@ -739,13 +820,29 @@ describe("TeamsWorkspaceProviderService", () => {
               "params": [],
               "preRequestScript": "",
               "requestVariables": [],
+              "responses": {},
               "testScript": "",
-              "v": "4",
+              "v": "17",
             },
             "requestID": "request_id_2",
           },
         },
       ]
+    `)
+
+    // verify the loading state and other properties
+    expect({
+      collectionID: childrenHandle.value.data.collectionID,
+      loading: childrenHandle.value.data.loading.value,
+      providerID: childrenHandle.value.data.providerID,
+      workspaceID: childrenHandle.value.data.workspaceID,
+    }).toMatchInlineSnapshot(`
+      {
+        "collectionID": "root_collection_id_0",
+        "loading": false,
+        "providerID": "TEAMS_WORKSPACE_PROVIDER",
+        "workspaceID": "workspace_id_0",
+      }
     `)
 
     // verify the loading state and other properties
@@ -819,8 +916,26 @@ describe("TeamsWorkspaceProviderService", () => {
         "collections": [
           {
             "collectionID": "root_collection_id_0",
-            "isLastItem": true,
+            "isLastItem": false,
             "name": "Test Collection #0",
+            "parentCollectionID": null,
+          },
+          {
+            "collectionID": "root_collection_id_0",
+            "isLastItem": false,
+            "name": "Test Collection #0",
+            "parentCollectionID": null,
+          },
+          {
+            "collectionID": "root_collection_id_1",
+            "isLastItem": false,
+            "name": "Test Collection #1",
+            "parentCollectionID": null,
+          },
+          {
+            "collectionID": "root_collection_id_2",
+            "isLastItem": true,
+            "name": "Test Collection #2",
             "parentCollectionID": null,
           },
         ],
@@ -1091,7 +1206,7 @@ describe("TeamsWorkspaceProviderService", () => {
           "data": {
             "auth": {
               "inheritedAuth": {
-                "addTo": "header",
+                "addTo": "HEADERS",
                 "authActive": true,
                 "authType": "api-key",
                 "key": "API_KEY",
@@ -1328,170 +1443,191 @@ describe("TeamsWorkspaceProviderService", () => {
       .mocked(initializeDownloadFile)
       .mockResolvedValue(E.right("DOWNLOAD_STARTED"))
 
-    const exportedJSON =
-      await teamsWorkspaceProviderService.exportRESTCollections(sampleWorkspace)
+    await teamsWorkspaceProviderService.exportRESTCollections(sampleWorkspace)
 
     expect(JSON.parse(mockedInitializedDownloadFile.mock.calls[0][0]))
       .toMatchInlineSnapshot(`
-      [
-        {
-          "auth": {
-            "authActive": true,
-            "authType": "inherit",
+        [
+          {
+            "auth": {
+              "authActive": true,
+              "authType": "inherit",
+            },
+            "description": null,
+            "folders": [
+              {
+                "auth": {
+                  "authActive": true,
+                  "authType": "inherit",
+                },
+                "description": null,
+                "folders": [
+                  {
+                    "auth": {
+                      "authActive": true,
+                      "authType": "inherit",
+                    },
+                    "description": null,
+                    "folders": [],
+                    "headers": [],
+                    "id": "nested_child_collection_0_0_0",
+                    "name": "Nested Child Collection 0 0 0",
+                    "order": "a0",
+                    "parentCollectionID": "child_collection_0_0",
+                    "requests": [],
+                    "v": 11,
+                    "variables": [],
+                  },
+                ],
+                "headers": [],
+                "id": "child_collection_0_0",
+                "name": "Child Collection 0 0",
+                "order": "a0",
+                "parentCollectionID": "root_collection_0",
+                "requests": [],
+                "v": 11,
+                "variables": [],
+              },
+              {
+                "auth": {
+                  "authActive": true,
+                  "authType": "inherit",
+                },
+                "description": null,
+                "folders": [],
+                "headers": [],
+                "id": "child_collection_0_1",
+                "name": "Child Collection 0 1",
+                "order": "a1",
+                "parentCollectionID": "root_collection_0",
+                "requests": [],
+                "v": 11,
+                "variables": [],
+              },
+              {
+                "auth": {
+                  "authActive": true,
+                  "authType": "inherit",
+                },
+                "description": null,
+                "folders": [],
+                "headers": [],
+                "id": "child_collection_0_2",
+                "name": "Child Collection 0 2",
+                "order": "a2",
+                "parentCollectionID": "root_collection_0",
+                "requests": [],
+                "v": 11,
+                "variables": [],
+              },
+            ],
+            "headers": [],
+            "id": "root_collection_0",
+            "name": "Root Collection 0",
+            "order": "a0",
+            "requests": [],
+            "v": 11,
+            "variables": [],
           },
-          "folders": [
-            {
-              "auth": {
-                "authActive": true,
-                "authType": "inherit",
-              },
-              "folders": [
-                {
-                  "auth": {
-                    "authActive": true,
-                    "authType": "inherit",
-                  },
-                  "folders": [],
-                  "headers": [],
-                  "id": "nested_child_collection_0_0_0",
-                  "name": "Nested Child Collection 0 0 0",
-                  "order": "a0",
-                  "parentCollectionID": "child_collection_0_0",
-                  "requests": [],
-                  "v": 2,
+          {
+            "auth": {
+              "authActive": true,
+              "authType": "inherit",
+            },
+            "description": null,
+            "folders": [
+              {
+                "auth": {
+                  "authActive": true,
+                  "authType": "inherit",
                 },
-              ],
-              "headers": [],
-              "id": "child_collection_0_0",
-              "name": "Child Collection 0 0",
-              "order": "a0",
-              "parentCollectionID": "root_collection_0",
-              "requests": [],
-              "v": 2,
-            },
-            {
-              "auth": {
-                "authActive": true,
-                "authType": "inherit",
+                "description": null,
+                "folders": [
+                  {
+                    "auth": {
+                      "authActive": true,
+                      "authType": "inherit",
+                    },
+                    "description": null,
+                    "folders": [],
+                    "headers": [],
+                    "id": "nested_child_collection_1_0_0",
+                    "name": "Nested Child Collection 1 0 0",
+                    "order": "a0",
+                    "parentCollectionID": "child_collection_1_0",
+                    "requests": [],
+                    "v": 11,
+                    "variables": [],
+                  },
+                  {
+                    "auth": {
+                      "authActive": true,
+                      "authType": "inherit",
+                    },
+                    "description": null,
+                    "folders": [],
+                    "headers": [],
+                    "id": "nested_child_collection_1_0_1",
+                    "name": "Nested Child Collection 1 0 1",
+                    "order": "a1",
+                    "parentCollectionID": "child_collection_1_0",
+                    "requests": [],
+                    "v": 11,
+                    "variables": [],
+                  },
+                ],
+                "headers": [],
+                "id": "child_collection_1_0",
+                "name": "Child Collection 1 0",
+                "order": "a0",
+                "parentCollectionID": "root_collection_1",
+                "requests": [],
+                "v": 11,
+                "variables": [],
               },
-              "folders": [],
-              "headers": [],
-              "id": "child_collection_0_1",
-              "name": "Child Collection 0 1",
-              "order": "a1",
-              "parentCollectionID": "root_collection_0",
-              "requests": [],
-              "v": 2,
-            },
-            {
-              "auth": {
-                "authActive": true,
-                "authType": "inherit",
+              {
+                "auth": {
+                  "authActive": true,
+                  "authType": "inherit",
+                },
+                "description": null,
+                "folders": [],
+                "headers": [],
+                "id": "child_collection_1_1",
+                "name": "Child Collection 1 1",
+                "order": "a1",
+                "parentCollectionID": "root_collection_1",
+                "requests": [],
+                "v": 11,
+                "variables": [],
               },
-              "folders": [],
-              "headers": [],
-              "id": "child_collection_0_2",
-              "name": "Child Collection 0 2",
-              "order": "a2",
-              "parentCollectionID": "root_collection_0",
-              "requests": [],
-              "v": 2,
-            },
-          ],
-          "headers": [],
-          "id": "root_collection_0",
-          "name": "Root Collection 0",
-          "order": "a0",
-          "requests": [],
-          "v": 2,
-        },
-        {
-          "auth": {
-            "authActive": true,
-            "authType": "inherit",
+              {
+                "auth": {
+                  "authActive": true,
+                  "authType": "inherit",
+                },
+                "description": null,
+                "folders": [],
+                "headers": [],
+                "id": "child_collection_1_2",
+                "name": "Child Collection 1 2",
+                "order": "a2",
+                "parentCollectionID": "root_collection_1",
+                "requests": [],
+                "v": 11,
+                "variables": [],
+              },
+            ],
+            "headers": [],
+            "id": "root_collection_1",
+            "name": "Root Collection 1",
+            "order": "a1",
+            "requests": [],
+            "v": 11,
+            "variables": [],
           },
-          "folders": [
-            {
-              "auth": {
-                "authActive": true,
-                "authType": "inherit",
-              },
-              "folders": [
-                {
-                  "auth": {
-                    "authActive": true,
-                    "authType": "inherit",
-                  },
-                  "folders": [],
-                  "headers": [],
-                  "id": "nested_child_collection_1_0_0",
-                  "name": "Nested Child Collection 1 0 0",
-                  "order": "a0",
-                  "parentCollectionID": "child_collection_1_0",
-                  "requests": [],
-                  "v": 2,
-                },
-                {
-                  "auth": {
-                    "authActive": true,
-                    "authType": "inherit",
-                  },
-                  "folders": [],
-                  "headers": [],
-                  "id": "nested_child_collection_1_0_1",
-                  "name": "Nested Child Collection 1 0 1",
-                  "order": "a1",
-                  "parentCollectionID": "child_collection_1_0",
-                  "requests": [],
-                  "v": 2,
-                },
-              ],
-              "headers": [],
-              "id": "child_collection_1_0",
-              "name": "Child Collection 1 0",
-              "order": "a0",
-              "parentCollectionID": "root_collection_1",
-              "requests": [],
-              "v": 2,
-            },
-            {
-              "auth": {
-                "authActive": true,
-                "authType": "inherit",
-              },
-              "folders": [],
-              "headers": [],
-              "id": "child_collection_1_1",
-              "name": "Child Collection 1 1",
-              "order": "a1",
-              "parentCollectionID": "root_collection_1",
-              "requests": [],
-              "v": 2,
-            },
-            {
-              "auth": {
-                "authActive": true,
-                "authType": "inherit",
-              },
-              "folders": [],
-              "headers": [],
-              "id": "child_collection_1_2",
-              "name": "Child Collection 1 2",
-              "order": "a2",
-              "parentCollectionID": "root_collection_1",
-              "requests": [],
-              "v": 2,
-            },
-          ],
-          "headers": [],
-          "id": "root_collection_1",
-          "name": "Root Collection 1",
-          "order": "a1",
-          "requests": [],
-          "v": 2,
-        },
-      ]
-    `)
+        ]
+      `)
   })
 
   describe("move + reorder", () => {
@@ -2169,95 +2305,91 @@ const mockGetCollectionChildren = (
 
       const mockValue = mockCollections ? mockCollections[collectionID] : null
 
-      return E.right(<GetCollectionChildrenQuery>{
-        collection: {
-          children: mockValue || defaultChildren,
-        },
-      })
+      return E.right(
+        (mockValue || defaultChildren) as NonNullable<
+          GetCollectionChildrenQuery["collection"]
+        >["children"]
+      )
     })
 }
 
 const mockGetCollectionChildRequests = () => {
   return vi.mocked(getCollectionChildRequests).mockImplementation(async () => {
-    return E.right(<GetCollectionRequestsQuery>{
-      requestsInCollection: [
-        {
-          id: "request_id_0",
-          title: "Test Request #0",
-          request: JSON.stringify(getDefaultRESTRequest()),
-        },
-        {
-          id: "request_id_1",
-          title: "Test Request #1",
-          request: JSON.stringify(getDefaultRESTRequest()),
-        },
-        {
-          id: "request_id_2",
-          title: "Test Request #2",
-          request: JSON.stringify(getDefaultRESTRequest()),
-        },
-      ],
-    })
+    return E.right([
+      {
+        id: "request_id_0",
+        title: "Test Request #0",
+        request: JSON.stringify(getDefaultRESTRequest()),
+      },
+      {
+        id: "request_id_1",
+        title: "Test Request #1",
+        request: JSON.stringify(getDefaultRESTRequest()),
+      },
+      {
+        id: "request_id_2",
+        title: "Test Request #2",
+        request: JSON.stringify(getDefaultRESTRequest()),
+      },
+    ] as GetCollectionRequestsQuery["requestsInCollection"])
   })
 }
 
 const mockGetRootCollections = () => {
   return vi.mocked(getRootCollections).mockImplementation(async () => {
-    return E.right(<RootCollectionsOfTeamQuery>{
-      rootCollectionsOfTeam: [
-        {
-          id: "root_collection_id_0",
-          title: "Test Collection #0",
-          data: JSON.stringify({
-            auth: {
-              authType: "none",
-              authActive: true,
+    return E.right([
+      {
+        id: "root_collection_id_0",
+        title: "Test Collection #0",
+        data: JSON.stringify({
+          auth: {
+            authType: "none",
+            authActive: true,
+          },
+          headers: [
+            {
+              key: "X-Vitest-Mocked-Header",
+              value: "mocked-header",
+              active: true,
             },
-            headers: [
-              {
-                key: "X-Vitest-Mocked-Header",
-                value: "mocked-header",
-                active: true,
-              },
-            ],
-          }),
-        },
-        {
-          id: "root_collection_id_1",
-          title: "Test Collection #1",
-          data: JSON.stringify({
-            auth: {
-              authType: "none",
-              authActive: true,
+          ],
+        }),
+      },
+      {
+        id: "root_collection_id_1",
+        title: "Test Collection #1",
+        data: JSON.stringify({
+          auth: {
+            authType: "none",
+            authActive: true,
+          },
+          headers: [
+            {
+              key: "X-Vitest-Mocked-Header",
+              value: "mocked-header",
+              active: true,
             },
-            headers: [
-              {
-                key: "X-Vitest-Mocked-Header",
-                value: "mocked-header",
-                active: true,
-              },
-            ],
-          }),
-        },
-        {
-          id: "root_collection_id_2",
-          title: "Test Collection #2",
-          data: JSON.stringify({
-            auth: {
-              authType: "none",
-              authActive: true,
+          ],
+        }),
+      },
+      {
+        id: "root_collection_id_2",
+        title: "Test Collection #2",
+        data: JSON.stringify({
+          auth: {
+            authType: "none",
+            authActive: true,
+          },
+          headers: [
+            {
+              key: "X-Vitest-Mocked-Header",
+              value: "mocked-header",
+              active: true,
             },
-            headers: [
-              {
-                key: "X-Vitest-Mocked-Header",
-                value: "mocked-header",
-                active: true,
-              },
-            ],
-          }),
-        },
-      ],
-    })
+          ],
+        }),
+      },
+    ] as RootCollectionsOfTeamQuery["rootCollectionsOfTeam"])
   })
 }
 

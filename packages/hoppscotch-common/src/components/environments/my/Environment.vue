@@ -213,7 +213,7 @@ const exportEnvironmentAsJSON = async () => {
   const { environment, environmentIndex } = props
 
   if (environmentIndex === null || environmentIndex === "Global") {
-    const result = exportAsJSON(environment, environmentIndex)
+    const result = await exportAsJSON(environment, environmentIndex)
 
     result
       ? toast.success(t("state.download_started"))

@@ -100,7 +100,7 @@ export class PublishedDocsService {
   environmentID: string,
   workspaceType: WorkspaceType,
   workspaceID: string,
-): Promise<E.Either<string, { name: string; variables: JsonValue } | null>> {
+): Promise<E.Either<string, { name: string; variables: JsonValue }>> {
 
   // TEAM workspace environment
   if (workspaceType === WorkspaceType.TEAM) {

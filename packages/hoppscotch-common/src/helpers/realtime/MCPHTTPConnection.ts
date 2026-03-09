@@ -238,11 +238,15 @@ export class MCPHTTPConnection extends MCPConnection {
     const headers = this.buildHeaders()
     const requestUrl = this.buildRequestUrl()
 
-    await fetch(requestUrl, {
+    const response = await fetch(requestUrl, {
       method: "POST",
       headers,
       body: JSON.stringify(notification),
     })
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+    }
   }
 
   private async sendRequest(method: string, params: unknown): Promise<unknown> {

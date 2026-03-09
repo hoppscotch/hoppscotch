@@ -286,8 +286,6 @@ const handleDrop = (e: DragEvent) => {
     updateRequestOrder(e)
   } else if (orderingLastItem.value) {
     updateLastItemOrder(e)
-  } else {
-    updateRequestOrder(e)
   }
 }
 

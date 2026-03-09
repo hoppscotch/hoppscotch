@@ -234,7 +234,7 @@ const exportEnvironment = async (environmentID: number) => {
   const environmentHandleResult =
     await workspaceService.getRESTEnvironmentHandle(
       activeWorkspaceHandle.value,
-      environmentID
+      environmentID.toString()
     )
 
   if (E.isLeft(environmentHandleResult)) {

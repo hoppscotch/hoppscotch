@@ -50,7 +50,7 @@ export class NewWorkspaceService extends Service {
 
     return this.registeredProviders.get(
       activeWorkspaceHandleRef.value.data.providerID
-    )!.workspaceDecor
+    )?.workspaceDecor
   })
 
   public workspaceSelectorComponents = computed(() => {

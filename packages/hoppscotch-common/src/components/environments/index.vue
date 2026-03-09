@@ -413,7 +413,7 @@ const duplicateEnvironment = async (environmentID: number) => {
   const environmentHandleResult =
     await newWorkspaceService.getRESTEnvironmentHandle(
       activeWorkspaceHandle.value,
-      environmentID
+      environmentID.toString()
     )
 
   if (E.isLeft(environmentHandleResult)) {
@@ -454,7 +454,7 @@ const updateEnvironment = async (
   const environmentHandleResult =
     await newWorkspaceService.getRESTEnvironmentHandle(
       activeWorkspaceHandle.value,
-      environmentID
+      environmentID.toString()
     )
 
   if (E.isLeft(environmentHandleResult)) {
@@ -486,7 +486,7 @@ const removeEnvironment = async (environmentID: number) => {
   const environmentHandleResult =
     await newWorkspaceService.getRESTEnvironmentHandle(
       activeWorkspaceHandle.value,
-      environmentID
+      environmentID.toString()
     )
 
   if (E.isLeft(environmentHandleResult)) {
@@ -495,6 +495,13 @@ const removeEnvironment = async (environmentID: number) => {
   }
 
   const environmentHandle = environmentHandleResult.right
+
+  // Capture the environment's ID before deletion so we can clean up the secret
+  const environmentHandleRef = environmentHandle.get()
+  const secretEnvID =
+    environmentHandleRef.value.type === "ok"
+      ? environmentHandleRef.value.data.environmentID
+      : undefined
 
   const deletedEnvironmentHandleResult =
     await newWorkspaceService.removeRESTEnvironment(environmentHandle)
@@ -508,20 +515,8 @@ const removeEnvironment = async (environmentID: number) => {
     return
   }
 
-  const environmentsViewResult =
-    await newWorkspaceService.getRESTEnvironmentsView(
-      activeWorkspaceHandle.value
-    )
-
-  if (E.isRight(environmentsViewResult)) {
-    const environmentsViewHandleRef = environmentsViewResult.right.get()
-
-    if (environmentsViewHandleRef.value.type === "ok") {
-      const { environments } = environmentsViewHandleRef.value.data
-
-      const { id } = environments.value[environmentID]
-      secretEnvironmentService.deleteSecretEnvironment(id)
-    }
+  if (secretEnvID) {
+    secretEnvironmentService.deleteSecretEnvironment(secretEnvID)
   }
 
   const activeWorkspaceHandleRef = activeWorkspaceHandle.value.get()

@@ -770,12 +770,14 @@ const addNewRootCollection = async (name: string) => {
 
   if (E.isLeft(collectionHandleResult)) {
     // TODO: Error Handling
+    modalLoadingState.value = false
     return
   }
 
   // Workspace invalidated
   if (collectionHandleResult.right.get().value.type === "invalid") {
     // TODO: Error Handling
+    modalLoadingState.value = false
     return
   }
 
@@ -854,8 +856,14 @@ const onAddRequest = async (requestName: string) => {
     return
   }
 
+  const activeDocument = tabs.currentActiveTab.value.document
+
+  if (activeDocument.type !== "request") {
+    return
+  }
+
   const newRequest = {
-    ...cloneDeep(tabs.currentActiveTab.value.document.request),
+    ...cloneDeep(activeDocument.request),
     name: requestName,
   }
 
@@ -1085,7 +1093,7 @@ const onRemoveChildCollection = async () => {
 
   if (
     isSelected({
-      folderPath: parentCollectionIndexPath.split("/").pop(),
+      folderPath: parentCollectionIndexPath,
     })
   ) {
     emit("select", null)

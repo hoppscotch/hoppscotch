@@ -34,6 +34,7 @@ import { SortTeamCollectionResolver } from './orchestration/sort/sort-team-colle
 import { SortUserCollectionResolver } from './orchestration/sort/sort-user-collection.resolver';
 import { MockServerResolver } from './mock-server/mock-server.resolver';
 import { PublishedDocsResolver } from './published-docs/published-docs.resolver';
+import { UserTeamsResolver } from './team/user-teams.resolver';
 
 /**
  * All the resolvers present in the application.
@@ -45,7 +46,6 @@ const RESOLVERS = [
   AdminResolver,
   ShortcodeResolver,
   TeamResolver,
-  TeamEnvsTeamResolver,
   TeamMemberResolver,
   TeamCollectionResolver,
   TeamTeamInviteExtResolver,
@@ -54,7 +54,6 @@ const RESOLVERS = [
   TeamInvitationResolver,
   TeamRequestResolver,
   UserResolver,
-  UserCollectionResolver,
   UserEnvironmentsResolver,
   UserEnvsUserResolver,
   UserHistoryUserResolver,
@@ -64,6 +63,7 @@ const RESOLVERS = [
   UserRequestUserCollectionResolver,
   UserSettingsResolver,
   UserSettingsUserResolver,
+  UserTeamsResolver,
   InfraConfigResolver,
   InfraTokenResolver,
   SortUserCollectionResolver,

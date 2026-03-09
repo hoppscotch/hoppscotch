@@ -4,6 +4,7 @@ import { TeamResolver } from './team.resolver';
 import { UserModule } from '../user/user.module';
 import { TeamMemberResolver } from './team-member.resolver';
 import { GqlTeamMemberGuard } from './guards/gql-team-member.guard';
+import { UserTeamsResolver } from './user-teams.resolver';
 
 @Module({
   imports: [UserModule],
@@ -11,6 +12,7 @@ import { GqlTeamMemberGuard } from './guards/gql-team-member.guard';
     TeamService,
     TeamResolver,
     TeamMemberResolver,
+    UserTeamsResolver,
     GqlTeamMemberGuard,
   ],
   exports: [TeamService, GqlTeamMemberGuard],

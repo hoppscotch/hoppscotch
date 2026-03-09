@@ -33,8 +33,8 @@
     <!-- Tools List -->
     <div v-if="filteredTools.length > 0" class="flex flex-col">
       <div
-        v-for="(tool, index) in filteredTools"
-        :key="index"
+        v-for="tool in filteredTools"
+        :key="tool.name"
         class="border-b border-dividerLight"
       >
         <MCPMethodCard

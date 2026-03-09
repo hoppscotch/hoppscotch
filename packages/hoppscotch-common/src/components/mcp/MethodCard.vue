@@ -148,7 +148,7 @@ watch(argumentsJson, (newValue) => {
     JSON.parse(newValue)
     jsonError.value = null
   } catch (_error) {
-    jsonError.value = "Invalid JSON"
+    jsonError.value = t("error.json_parsing_failed")
   }
 })
 
@@ -158,7 +158,7 @@ const handleInvoke = () => {
     emit("invoke", props.method, args)
     showDetails.value = false
   } catch (_error) {
-    jsonError.value = "Invalid JSON"
+    jsonError.value = t("error.json_parsing_failed")
   }
 }
 </script>

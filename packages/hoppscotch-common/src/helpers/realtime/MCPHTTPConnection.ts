@@ -70,6 +70,9 @@ export class MCPHTTPConnection extends MCPConnection {
       })
 
       if (response) {
+        // Send notifications/initialized as per MCP protocol
+        await this.sendNotification("notifications/initialized", {})
+
         this.connectionState$.next("CONNECTED")
         this.addEvent({
           type: "CONNECTED",
@@ -110,17 +113,25 @@ export class MCPHTTPConnection extends MCPConnection {
 
   async loadCapabilities(): Promise<void> {
     try {
-      const [toolsResponse, promptsResponse, resourcesResponse] =
-        await Promise.all([
-          this.sendRequest("tools/list", {}),
-          this.sendRequest("prompts/list", {}),
-          this.sendRequest("resources/list", {}),
-        ])
+      const results = await Promise.allSettled([
+        this.sendRequest("tools/list", {}),
+        this.sendRequest("prompts/list", {}),
+        this.sendRequest("resources/list", {}),
+      ])
 
       const capabilities: MCPCapabilities = {
-        tools: (toolsResponse as any)?.tools || [],
-        prompts: (promptsResponse as any)?.prompts || [],
-        resources: (resourcesResponse as any)?.resources || [],
+        tools:
+          results[0].status === "fulfilled"
+            ? (results[0].value as any)?.tools || []
+            : [],
+        prompts:
+          results[1].status === "fulfilled"
+            ? (results[1].value as any)?.prompts || []
+            : [],
+        resources:
+          results[2].status === "fulfilled"
+            ? (results[2].value as any)?.resources || []
+            : [],
       }
 
       this.capabilities$.next(capabilities)
@@ -214,6 +225,26 @@ export class MCPHTTPConnection extends MCPConnection {
     }
   }
 
+  private async sendNotification(
+    method: string,
+    params: unknown
+  ): Promise<void> {
+    const notification = {
+      jsonrpc: "2.0",
+      method,
+      params,
+    }
+
+    const headers = this.buildHeaders()
+    const requestUrl = this.buildRequestUrl()
+
+    await fetch(requestUrl, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(notification),
+    })
+  }
+
   private async sendRequest(method: string, params: unknown): Promise<unknown> {
     this.abortController = new AbortController()
 
@@ -224,6 +255,30 @@ export class MCPHTTPConnection extends MCPConnection {
       params,
     }
 
+    const headers = this.buildHeaders()
+    const requestUrl = this.buildRequestUrl()
+
+    const response = await fetch(requestUrl, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(request),
+      signal: this.abortController.signal,
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+    }
+
+    const data: MCPJSONRPCResponse = await response.json()
+
+    if (data.error) {
+      throw new Error(`MCP Error: ${data.error.message}`)
+    }
+
+    return data.result
+  }
+
+  private buildHeaders(): Record<string, string> {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
     }
@@ -248,8 +303,11 @@ export class MCPHTTPConnection extends MCPConnection {
       }
     }
 
+    return headers
+  }
+
+  private buildRequestUrl(): string {
     // Build URL with query params for API key if needed
-    let requestUrl = this.url
     if (
       this.auth.type === "api-key" &&
       this.auth.addTo === "QUERY_PARAMS" &&
@@ -258,26 +316,9 @@ export class MCPHTTPConnection extends MCPConnection {
     ) {
       const url = new URL(this.url)
       url.searchParams.set(this.auth.key, this.auth.value)
-      requestUrl = url.toString()
+      return url.toString()
     }
 
-    const response = await fetch(requestUrl, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(request),
-      signal: this.abortController.signal,
-    })
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-    }
-
-    const data: MCPJSONRPCResponse = await response.json()
-
-    if (data.error) {
-      throw new Error(`MCP Error: ${data.error.message}`)
-    }
-
-    return data.result
+    return this.url
   }
 }

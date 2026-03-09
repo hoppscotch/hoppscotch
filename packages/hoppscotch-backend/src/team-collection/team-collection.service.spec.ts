@@ -893,7 +893,10 @@ describe('deleteCollection', () => {
       .spyOn(teamCollectionService, 'getCollection')
       .mockResolvedValueOnce(E.right(rootTeamCollection));
     jest
-      .spyOn(teamCollectionService as any, 'deleteCollectionAndUpdateSiblingsOrderIndex')
+      .spyOn(
+        teamCollectionService as any,
+        'deleteCollectionAndUpdateSiblingsOrderIndex',
+      )
       .mockResolvedValueOnce(E.left(TEAM_COL_REORDERING_FAILED));
 
     const result = await teamCollectionService.deleteCollection(
@@ -1667,23 +1670,6 @@ describe('FIX: updateMany queries now include teamID filter for root collections
     mockReset(mockPrisma);
   });
 
-  const team2: Team = {
-    id: 'team_2',
-    name: 'Team 2',
-  };
-
-  // Team 2's root collection - should NOT be affected by Team 1's operations
-  const team2RootCollection: DBTeamCollection = {
-    id: 'team2-root-coll',
-    orderIndex: 1,
-    parentID: null,
-    title: 'Team 2 Root Collection',
-    teamID: team2.id,
-    data: {},
-    createdOn: currentTime,
-    updatedOn: currentTime,
-  };
-
   test('FIX: deleteCollection - updateMany now correctly filters by teamID for root collections', async () => {
     /**
      * Scenario: Team 1 deletes a root collection
@@ -1717,7 +1703,8 @@ describe('FIX: updateMany queries now include teamID filter for root collections
     await teamCollectionService.deleteCollection(team1RootToDelete.id);
 
     // Get the updateMany call from the transaction
-    const updateManyCall = mockPrisma.teamCollection.updateMany.mock.calls[0][0];
+    const updateManyCall =
+      mockPrisma.teamCollection.updateMany.mock.calls[0][0];
 
     // FIX VERIFICATION: The query now correctly includes teamID
     // This ensures only Team 1's root collections are affected
@@ -1769,7 +1756,8 @@ describe('FIX: updateMany queries now include teamID filter for root collections
     );
 
     // Get the actual updateMany call arguments
-    const updateManyCall = mockPrisma.teamCollection.updateMany.mock.calls[0][0];
+    const updateManyCall =
+      mockPrisma.teamCollection.updateMany.mock.calls[0][0];
 
     // FIX VERIFICATION: The query now correctly includes teamID
     expect(updateManyCall.where).toEqual({
@@ -1830,7 +1818,8 @@ describe('FIX: updateMany queries now include teamID filter for root collections
     );
 
     // Get the actual updateMany call arguments
-    const updateManyCall = mockPrisma.teamCollection.updateMany.mock.calls[0][0];
+    const updateManyCall =
+      mockPrisma.teamCollection.updateMany.mock.calls[0][0];
 
     // FIX VERIFICATION: The query now correctly includes teamID
     expect(updateManyCall.where).toEqual({

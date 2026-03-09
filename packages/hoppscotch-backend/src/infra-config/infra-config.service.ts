@@ -7,6 +7,7 @@ import { InfraConfigEnum } from 'src/types/InfraConfig';
 import {
   AUTH_PROVIDER_NOT_SPECIFIED,
   DATABASE_TABLE_NOT_EXIST,
+  INFRA_CONFIG_FETCH_FAILED,
   INFRA_CONFIG_INVALID_INPUT,
   INFRA_CONFIG_NOT_FOUND,
   INFRA_CONFIG_RESET_FAILED,
@@ -512,13 +513,17 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
    * @returns GetOnboardingStatusResponse
    */
   async getOnboardingStatus() {
-    const configMap = await this.getInfraConfigsMap();
-    const usersCount = await this.userService.getUsersCount();
+    try {
+      const configMap = await this.getInfraConfigsMap();
+      const usersCount = await this.userService.getUsersCount();
 
-    return E.right({
-      onboardingCompleted: configMap.ONBOARDING_COMPLETED === 'true',
-      canReRunOnboarding: usersCount === 0,
-    } as GetOnboardingStatusResponse);
+      return E.right({
+        onboardingCompleted: configMap.ONBOARDING_COMPLETED === 'true',
+        canReRunOnboarding: usersCount === 0,
+      } as GetOnboardingStatusResponse);
+    } catch {
+      return E.left(INFRA_CONFIG_FETCH_FAILED);
+    }
   }
 
   /**

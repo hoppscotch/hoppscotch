@@ -11,6 +11,15 @@
     v-else-if="isInstanceSwitchingEnabled"
     class="flex flex-col space-y-1 w-full"
   >
+    <!-- Section header -->
+    <div
+      class="flex items-center justify-between border-b border-dividerLight px-4 py-2"
+    >
+      <span class="text-xs text-secondary">
+        {{ t("instances.self_hosted") || "Self-hosted instances" }}
+      </span>
+    </div>
+
     <div
       v-if="connectedInstance"
       class="flex items-center justify-between px-4 py-3 bg-accent text-accentContrast rounded-md"
@@ -242,6 +251,7 @@ import type {
 
 import IconLucideGlobe from "~icons/lucide/globe"
 import IconLucideCheck from "~icons/lucide/check"
+import IconLucideLock from "~icons/lucide/lock"
 import IconLucideServer from "~icons/lucide/server"
 import IconLucideTrash from "~icons/lucide/trash"
 import IconLucideTrash2 from "~icons/lucide/trash-2"
@@ -282,12 +292,20 @@ const isInstanceSwitchingEnabled = computed(() => {
 })
 
 const connectedInstance = computed(() => {
-  return isConnectedState(connectionState.value) ? currentInstance.value : null
+  if (!isConnectedState(connectionState.value)) return null
+  const instance = currentInstance.value
+  // cloud and cloud-org instances belong in the org section, not here
+  if (instance?.kind === "cloud" || instance?.kind === "cloud-org") return null
+  return instance
 })
 
 const recentInstances = computed(() => {
   return recentInstancesList.value.filter(
-    (instance) => instance.serverUrl !== currentInstance.value?.serverUrl
+    (instance) =>
+      instance.serverUrl !== currentInstance.value?.serverUrl &&
+      // cloud and cloud-org instances are accessed via the dedicated cloud entry
+      instance.kind !== "cloud" &&
+      instance.kind !== "cloud-org"
   )
 })
 

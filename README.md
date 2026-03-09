@@ -16,7 +16,7 @@
   </b>
   <p>
 
-[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen?logo=github)](CODE_OF_CONDUCT.md) [![Website](https://img.shields.io/website?url=https%3A%2F%2Fhoppscotch.io&logo=hoppscotch)](https://hoppscotch.io) [![Tests](https://github.com/hoppscotch/hoppscotch/actions/workflows/tests.yml/badge.svg)](https://github.com/hoppscotch/hoppscotch/actions) [![Tweet](https://img.shields.io/twitter/url?url=https%3A%2F%2Fhoppscotch.io%2F)](https://twitter.com/share?text=%F0%9F%91%BD%20Hoppscotch%20%E2%80%A2%20Open%20source%20API%20development%20ecosystem%20-%20Helps%20you%20create%20requests%20faster,%20saving%20precious%20time%20on%20development.&url=https://hoppscotch.io&hashtags=hoppscotch&via=hoppscotch_io)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen?logo=github)](CODE_OF_CONDUCT.md) [![Website](https://img.shields.io/website?url=https%3A%2F%2Fhoppscotch.io&logo=hoppscotch)](https://hoppscotch.io) [![Tests](https://github.com/hoppscotch/hoppscotch/actions/workflows/tests.yml/badge.svg)](https://github.com/hoppscotch/hoppscotch/actions) [![Tweet](https://img.shields.io/twitter/url?url=https%3A%2F%2Fhoppscotch.io%2F)](https://x.com/share?text=%F0%9F%91%BD%20Hoppscotch%20%E2%80%A2%20Open%20source%20API%20development%20ecosystem%20-%20Helps%20you%20create%20requests%20faster,%20saving%20precious%20time%20on%20development.&url=https://hoppscotch.io&hashtags=hoppscotch&via=hoppscotch_io)
 
   </p>
   <p>
@@ -253,33 +253,34 @@ _Add-ons are developed and maintained under **[Hoppscotch Organization](https://
 
 ## **Demo**
 
-[hoppscotch.io](https://hoppscotch.io)
+- Web : [hoppscotch.io](https://hoppscotch.io)
+- Windows/Linux/macOS : [Desktop Apps](https://docs.hoppscotch.io/documentation/clients/desktop#download-hoppscotch-desktop-app)
 
-## **Usage**
+## Usage
 
 1. Provide your API endpoint in the URL field
 2. Click "Send" to simulate the request
 3. View the response
 
-## **Developing**
+## Developing
 
 Follow our [self-hosting documentation](https://docs.hoppscotch.io/documentation/self-host/getting-started) to get started with the development environment.
 
-## **Contributing**
+## Contributing
 
 Please contribute using [GitHub Flow](https://guides.github.com/introduction/flow). Create a branch, add commits, and [open a pull request](https://github.com/hoppscotch/hoppscotch/compare).
 
 Please read [`CONTRIBUTING`](CONTRIBUTING.md) for details on our [`CODE OF CONDUCT`](CODE_OF_CONDUCT.md), and the process for submitting pull requests to us.
 
-## **Continuous Integration**
+## Continuous Integration
 
 We use [GitHub Actions](https://github.com/features/actions) for continuous integration. Check out our [build workflows](https://github.com/hoppscotch/hoppscotch/actions).
 
-## **Changelog**
+## Changelog
 
 See the [`CHANGELOG`](CHANGELOG.md) file for details.
 
-## **Authors**
+## Authors
 
 This project owes its existence to the collective efforts of all those who contribute — [contribute now](CONTRIBUTING.md).
 
@@ -291,7 +292,7 @@ This project owes its existence to the collective efforts of all those who contr
   </a>
 </div>
 
-## **License**
+## License
 
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT) — see the [`LICENSE`](LICENSE) file for details.
 

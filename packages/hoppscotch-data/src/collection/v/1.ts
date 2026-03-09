@@ -1,7 +1,8 @@
-import { defineVersion, entityReference } from "verzod"
+import { defineVersion, entityReference, entityRefUptoVersion } from "verzod"
 import { z } from "zod"
 import { HoppRESTRequest } from "../../rest"
 import { HoppGQLRequest } from "../../graphql"
+import { HoppCollection } from ".."
 
 const baseCollectionSchema = z.object({
   v: z.literal(1),
@@ -26,9 +27,9 @@ type Output = z.output<typeof baseCollectionSchema> & {
   folders: Output[]
 }
 
-export const V1_SCHEMA: z.ZodType<Output, z.ZodTypeDef, Input> = baseCollectionSchema.extend({
-  folders: z.lazy(() => z.array(V1_SCHEMA)),
-})
+export const V1_SCHEMA = baseCollectionSchema.extend({
+  folders: z.lazy(() => z.array(entityRefUptoVersion(HoppCollection, 1))),
+}) as z.ZodType<Output, z.ZodTypeDef, Input>
 
 export default defineVersion({
   initial: true,

@@ -1,4 +1,9 @@
-import { Environment, HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
+import {
+  Environment,
+  HoppCollection,
+  HoppCollectionVariable,
+  HoppRESTRequest,
+} from "@hoppscotch/data";
 import { z } from "zod";
 
 import { TestReport } from "../interfaces/response";
@@ -7,6 +12,7 @@ import { HoppCLIError } from "./errors";
 export type FormDataEntry = {
   key: string;
   value: string | Blob;
+  contentType?: string;
 };
 
 export type HoppEnvPair = Environment["variables"][number];
@@ -18,7 +24,7 @@ export type HoppEnvs = {
   selected: HoppEnvPair[];
 };
 
-export type CollectionStack = {
+export type CollectionQueue = {
   path: string;
   collection: HoppCollection;
 };
@@ -36,4 +42,6 @@ export type ProcessRequestParams = {
   envs: HoppEnvs;
   path: string;
   delay: number;
+  legacySandbox?: boolean;
+  collectionVariables?: HoppCollectionVariable[];
 };

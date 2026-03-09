@@ -12,7 +12,6 @@ import {
   INVALID_EMAIL,
   ONLY_ONE_ADMIN_ACCOUNT,
   TEAM_INVITE_ALREADY_MEMBER,
-  TEAM_INVITE_NO_INVITE_FOUND,
   USERS_NOT_FOUND,
   USER_ALREADY_INVITED,
   USER_INVITATION_DELETION_FAILED,
@@ -26,11 +25,12 @@ import { TeamCollectionService } from '../team-collection/team-collection.servic
 import { TeamRequestService } from '../team-request/team-request.service';
 import { TeamEnvironmentsService } from '../team-environments/team-environments.service';
 import { TeamInvitationService } from '../team-invitation/team-invitation.service';
-import { TeamMemberRole } from '../team/team.model';
+import { TeamAccessRole } from '../team/team.model';
 import { ShortcodeService } from 'src/shortcode/shortcode.service';
 import { ConfigService } from '@nestjs/config';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
 import { UserDeletionResult } from 'src/user/user.model';
+import { UserHistoryService } from 'src/user-history/user-history.service';
 
 @Injectable()
 export class AdminService {
@@ -46,6 +46,7 @@ export class AdminService {
     private readonly mailerService: MailerService,
     private readonly shortcodeService: ShortcodeService,
     private readonly configService: ConfigService,
+    private readonly userHistoryService: UserHistoryService,
   ) {}
 
   /**
@@ -161,6 +162,13 @@ export class AdminService {
    * @returns an Either of boolean or error string
    */
   async revokeUserInvitations(inviteeEmails: string[]) {
+    const areAllEmailsValid = inviteeEmails.every((email) =>
+      validateEmail(email),
+    );
+    if (!areAllEmailsValid) {
+      return E.left(INVALID_EMAIL);
+    }
+
     try {
       await this.prisma.invitedUsers.deleteMany({
         where: {
@@ -212,9 +220,27 @@ export class AdminService {
    * @param cursorID team id
    * @param take number of items to fetch
    * @returns an array of teams
+   * @deprecated use fetchAllTeamsV2 instead
    */
   async fetchAllTeams(cursorID: string, take: number) {
     const allTeams = await this.teamService.fetchAllTeams(cursorID, take);
+    return allTeams;
+  }
+
+  /**
+   * Fetch all the teams in the infra.
+   * @param searchString search on team name or ID
+   * @param paginationOption pagination options
+   * @returns an array of teams
+   */
+  async fetchAllTeamsV2(
+    searchString: string,
+    paginationOption: OffsetPaginationArgs,
+  ) {
+    const allTeams = await this.teamService.fetchAllTeamsV2(
+      searchString,
+      paginationOption,
+    );
     return allTeams;
   }
 
@@ -224,9 +250,8 @@ export class AdminService {
    * @returns a count of team members
    */
   async membersCountInTeam(teamID: string) {
-    const teamMembersCount = await this.teamService.getCountOfMembersInTeam(
-      teamID,
-    );
+    const teamMembersCount =
+      await this.teamService.getCountOfMembersInTeam(teamID);
     return teamMembersCount;
   }
 
@@ -269,9 +294,8 @@ export class AdminService {
    * @returns an array team invitations
    */
   async pendingInvitationCountInTeam(teamID: string) {
-    const invitations = await this.teamInvitationService.getTeamInvitations(
-      teamID,
-    );
+    const invitations =
+      await this.teamInvitationService.getTeamInvitations(teamID);
 
     return invitations;
   }
@@ -285,9 +309,9 @@ export class AdminService {
   async changeRoleOfUserTeam(
     userUid: string,
     teamID: string,
-    newRole: TeamMemberRole,
+    newRole: TeamAccessRole,
   ) {
-    const updatedTeamMember = await this.teamService.updateTeamMemberRole(
+    const updatedTeamMember = await this.teamService.updateTeamAccessRole(
       teamID,
       userUid,
       newRole,
@@ -318,7 +342,7 @@ export class AdminService {
    * @param role team member role for the user
    * @returns an Either of boolean or error
    */
-  async addUserToTeam(teamID: string, userEmail: string, role: TeamMemberRole) {
+  async addUserToTeam(teamID: string, userEmail: string, role: TeamAccessRole) {
     if (!validateEmail(userEmail)) return E.left(INVALID_EMAIL);
 
     const user = await this.userService.findUserByEmail(userEmail);
@@ -420,7 +444,7 @@ export class AdminService {
    * Remove a user account by UID
    * @param userUid User UID
    * @returns an Either of boolean or error
-   * @deprecated use removeUserAccounts instead
+   *
    */
   async removeUserAccount(userUid: string) {
     const user = await this.userService.findUserById(userUid);
@@ -457,7 +481,7 @@ export class AdminService {
     });
 
     const nonAdminUsers = allUsersList.filter((user) => !user.isAdmin);
-    let deletedUserEmails: string[] = [];
+    const deletedUserEmails: string[] = [];
 
     // step 3: delete non-admin users
     const deletionPromises = nonAdminUsers.map((user) => {
@@ -607,9 +631,8 @@ export class AdminService {
    * @returns an Either of boolean or error
    */
   async revokeTeamInviteByID(inviteID: string) {
-    const teamInvite = await this.teamInvitationService.revokeInvitation(
-      inviteID,
-    );
+    const teamInvite =
+      await this.teamInvitationService.revokeInvitation(inviteID);
 
     if (E.isLeft(teamInvite)) return E.left(teamInvite.left);
 
@@ -642,6 +665,17 @@ export class AdminService {
    */
   async deleteShortcode(shortcodeID: string) {
     const result = await this.shortcodeService.deleteShortcode(shortcodeID);
+
+    if (E.isLeft(result)) return E.left(result.left);
+    return E.right(result.right);
+  }
+
+  /**
+   * Delete all user history
+   * @returns Boolean on successful deletion
+   */
+  async deleteAllUserHistory() {
+    const result = await this.userHistoryService.deleteAllHistories();
 
     if (E.isLeft(result)) return E.left(result.left);
     return E.right(result.right);

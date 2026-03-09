@@ -1,5 +1,10 @@
+{
+  admin off
+  persist_config off
+}
+
 :80 :3000 {
 	try_files {path} /
-	root * /site
+	root * /site/selfhost-web
 	file_server
 }

@@ -1,0 +1,12 @@
+mutation UpdatePublishedDoc($id: ID!, $args: UpdatePublishedDocsArgs!) {
+  updatePublishedDoc(id: $id, args: $args) {
+    id
+    title
+    version
+    autoSync
+    url
+    environmentName
+    createdOn
+    updatedOn
+  }
+}

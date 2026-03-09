@@ -11,7 +11,7 @@ import {
   TEAM_NOT_REQUIRED_ROLE,
 } from 'src/errors';
 import { throwErr } from 'src/utils';
-import { TeamMemberRole } from 'src/team/team.model';
+import { TeamAccessRole } from 'src/team/team.model';
 
 /**
  * This guard only allows team owner to execute the resolver
@@ -45,7 +45,7 @@ export class TeamInviteTeamOwnerGuard implements CanActivate {
     );
 
     if (!teamMember) throwErr(TEAM_MEMBER_NOT_FOUND);
-    if (teamMember.role !== TeamMemberRole.OWNER)
+    if (teamMember.role !== TeamAccessRole.OWNER)
       throwErr(TEAM_NOT_REQUIRED_ROLE);
 
     return true;

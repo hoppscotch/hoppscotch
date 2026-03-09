@@ -54,7 +54,7 @@ export class TeamsSpotlightSearcherService
         return "rest"
       }
       return "other"
-    } catch (e) {
+    } catch (_e) {
       return "other"
     }
   }
@@ -218,12 +218,12 @@ export class TeamsSpotlightSearcherService
 
     if (!selectedRequest) return
 
-    const collectionID = result.id
+    const collectionID = selectedRequest.collectionID
 
     if (!collectionID) return
 
     inheritedProperties =
-      this.teamsSearch.cascadeParentCollectionForHeaderAuthForSearchResults(
+      this.teamsSearch.cascadeParentCollectionForPropertiesForSearchResults(
         collectionID
       )
 
@@ -238,6 +238,7 @@ export class TeamsSpotlightSearcherService
       this.tabs.createNewTab({
         request: cloneDeep(selectedRequest.request as HoppRESTRequest),
         isDirty: false,
+        type: "request",
         saveContext: {
           originLocation: "team-collection",
           requestID: selectedRequest.id,

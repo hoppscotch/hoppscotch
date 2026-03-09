@@ -1,7 +1,15 @@
+/*
+ * Type used to send error data to the Fallback catch-all component
+ */
+export type ErrorPageData = {
+  message: string;
+  statusCode?: number;
+};
+
 /* No cookies were found in the auth request
  * (AuthService)
  */
-export const COOKIES_NOT_FOUND = 'auth/cookies_not_found' as const;
+export const COOKIES_NOT_FOUND = '[GraphQL] auth/cookies_not_found' as const;
 
 export const UNAUTHORIZED = 'Unauthorized' as const;
 
@@ -36,6 +44,9 @@ export const AUTH_PROVIDER_NOT_SPECIFIED =
 export const BOTH_EMAILS_CANNOT_BE_SAME =
   '[GraphQL] email/both_emails_cannot_be_same' as const;
 
+export const INFRA_TOKEN_LABEL_SHORT =
+  '[GraphQL] infra_token/label_too_short' as const;
+
 type ErrorMessages = {
   message: string;
   alternateMessage?: string;
@@ -67,6 +78,9 @@ const ERROR_MESSAGES: Record<string, ErrorMessages> = {
   },
   [BOTH_EMAILS_CANNOT_BE_SAME]: {
     message: 'state.emails_cannot_be_same',
+  },
+  [INFRA_TOKEN_LABEL_SHORT]: {
+    message: 'state.infra_token_label_short',
   },
 };
 

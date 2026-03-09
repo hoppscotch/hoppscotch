@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { TeamMember, TeamMemberRole, Team } from './team.model';
+import { TeamMember, TeamAccessRole, Team } from './team.model';
 import { PrismaService } from '../prisma/prisma.service';
-import { TeamMember as DbTeamMember } from '@prisma/client';
+import { TeamMember as DbTeamMember } from 'src/generated/prisma/client';
 import { UserService } from '../user/user.service';
 import { UserDataHandler } from 'src/user/user.data.handler';
 import {
@@ -21,8 +21,9 @@ import * as O from 'fp-ts/Option';
 import * as E from 'fp-ts/Either';
 import * as T from 'fp-ts/Task';
 import * as A from 'fp-ts/Array';
-import { throwErr } from 'src/utils';
+import { isValidLength, throwErr } from 'src/utils';
 import { AuthUser } from '../types/AuthUser';
+import { OffsetPaginationArgs } from 'src/types/input-types.args';
 
 @Injectable()
 export class TeamService implements UserDataHandler, OnModuleInit {
@@ -32,13 +33,15 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     private readonly pubsub: PubSubService,
   ) {}
 
+  TITLE_LENGTH = 1;
+
   onModuleInit() {
     this.userService.registerUserDataHandler(this);
   }
 
   canAllowUserDeletion(user: AuthUser): TO.TaskOption<string> {
     return pipe(
-      this.isUserOwnerRoleInTeams(user.uid),
+      this.isUserSoleOwnerInAnyTeam(user.uid),
       TO.fromTask,
       TO.chain((isOwner) => (isOwner ? TO.some(USER_IS_OWNER) : TO.none)),
     );
@@ -50,7 +53,7 @@ export class TeamService implements UserDataHandler, OnModuleInit {
 
   async getCountOfUsersWithRoleInTeam(
     teamID: string,
-    role: TeamMemberRole,
+    role: TeamAccessRole,
   ): Promise<number> {
     return await this.prisma.teamMember.count({
       where: {
@@ -63,7 +66,7 @@ export class TeamService implements UserDataHandler, OnModuleInit {
   async addMemberToTeamWithEmail(
     teamID: string,
     email: string,
-    role: TeamMemberRole,
+    role: TeamAccessRole,
   ): Promise<E.Left<string> | E.Right<TeamMember>> {
     const user = await this.userService.findUserByEmail(email);
     if (O.isNone(user)) return E.left(USER_NOT_FOUND);
@@ -75,7 +78,7 @@ export class TeamService implements UserDataHandler, OnModuleInit {
   async addMemberToTeam(
     teamID: string,
     uid: string,
-    role: TeamMemberRole,
+    role: TeamAccessRole,
   ): Promise<TeamMember> {
     const teamMember = await this.prisma.teamMember.create({
       data: {
@@ -92,7 +95,7 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     const member: TeamMember = {
       membershipID: teamMember.id,
       userUid: teamMember.userUid,
-      role: TeamMemberRole[teamMember.role],
+      role: TeamAccessRole[teamMember.role],
     };
 
     this.pubsub.publish(`team/${teamID}/member_added`, member);
@@ -123,17 +126,12 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     return E.right(true);
   }
 
-  validateTeamName(title: string): E.Left<string> | E.Right<boolean> {
-    if (!title || title.length < 6) return E.left(TEAM_NAME_INVALID);
-    return E.right(true);
-  }
-
   async renameTeam(
     teamID: string,
     newName: string,
   ): Promise<E.Left<string> | E.Right<Team>> {
-    const isValidTitle = this.validateTeamName(newName);
-    if (E.isLeft(isValidTitle)) return isValidTitle;
+    const isValidTitle = isValidLength(newName, this.TITLE_LENGTH);
+    if (!isValidTitle) return E.left(TEAM_NAME_INVALID);
 
     try {
       const updatedTeam = await this.prisma.team.update({
@@ -151,15 +149,15 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     }
   }
 
-  async updateTeamMemberRole(
+  async updateTeamAccessRole(
     teamID: string,
     userUid: string,
-    newRole: TeamMemberRole,
+    newRole: TeamAccessRole,
   ): Promise<E.Left<string> | E.Right<TeamMember>> {
     const ownerCount = await this.prisma.teamMember.count({
       where: {
         teamID,
-        role: TeamMemberRole.OWNER,
+        role: TeamAccessRole.OWNER,
       },
     });
 
@@ -174,8 +172,8 @@ export class TeamService implements UserDataHandler, OnModuleInit {
 
     if (!member) return E.left(TEAM_MEMBER_NOT_FOUND);
     if (
-      member.role === TeamMemberRole.OWNER &&
-      newRole != TeamMemberRole.OWNER &&
+      member.role === TeamAccessRole.OWNER &&
+      newRole != TeamAccessRole.OWNER &&
       ownerCount === 1
     ) {
       return E.left(TEAM_ONLY_ONE_OWNER);
@@ -196,7 +194,7 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     const updatedMember: TeamMember = {
       membershipID: result.id,
       userUid: result.userUid,
-      role: TeamMemberRole[result.role],
+      role: TeamAccessRole[result.role],
     };
 
     this.pubsub.publish(`team/${teamID}/member_updated`, updatedMember);
@@ -211,14 +209,14 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     const ownerCount = await this.prisma.teamMember.count({
       where: {
         teamID,
-        role: TeamMemberRole.OWNER,
+        role: TeamAccessRole.OWNER,
       },
     });
 
     const member = await this.getTeamMember(teamID, userUid);
     if (!member) return E.left(TEAM_INVALID_ID_OR_USER);
 
-    if (ownerCount === 1 && member.role === TeamMemberRole.OWNER) {
+    if (ownerCount === 1 && member.role === TeamAccessRole.OWNER) {
       return E.left(TEAM_ONLY_ONE_OWNER);
     }
 
@@ -245,8 +243,8 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     name: string,
     creatorUid: string,
   ): Promise<E.Left<string> | E.Right<Team>> {
-    const isValidName = this.validateTeamName(name);
-    if (E.isLeft(isValidName)) return isValidName;
+    const isValidName = isValidLength(name, this.TITLE_LENGTH);
+    if (!isValidName) return E.left(TEAM_NAME_INVALID);
 
     const team = await this.prisma.team.create({
       data: {
@@ -254,7 +252,7 @@ export class TeamService implements UserDataHandler, OnModuleInit {
         members: {
           create: {
             userUid: creatorUid,
-            role: TeamMemberRole.OWNER,
+            role: TeamAccessRole.OWNER,
           },
         },
       },
@@ -368,7 +366,7 @@ export class TeamService implements UserDataHandler, OnModuleInit {
       return <TeamMember>{
         membershipID: teamMember.id,
         userUid: userUid,
-        role: TeamMemberRole[teamMember.role],
+        role: TeamAccessRole[teamMember.role],
       };
     } catch (e) {
       return null;
@@ -391,23 +389,39 @@ export class TeamService implements UserDataHandler, OnModuleInit {
   async getRoleOfUserInTeam(
     teamID: string,
     userUid: string,
-  ): Promise<TeamMemberRole | null> {
+  ): Promise<TeamAccessRole | null> {
     const teamMember = await this.getTeamMember(teamID, userUid);
     return teamMember ? teamMember.role : null;
   }
 
-  isUserOwnerRoleInTeams(uid: string): T.Task<boolean> {
-    return pipe(
-      () =>
-        this.prisma.teamMember.count({
+  isUserSoleOwnerInAnyTeam(uid: string): T.Task<boolean> {
+    return async () => {
+      // Find all teams where the user is an OWNER
+      const userOwnedTeams = await this.prisma.teamMember.findMany({
+        where: {
+          userUid: uid,
+          role: TeamAccessRole.OWNER,
+        },
+        select: {
+          teamID: true,
+        },
+      });
+
+      for (const userOwnedTeam of userOwnedTeams) {
+        const ownerCount = await this.prisma.teamMember.count({
           where: {
-            userUid: uid,
-            role: TeamMemberRole.OWNER,
+            teamID: userOwnedTeam.teamID,
+            role: TeamAccessRole.OWNER,
           },
-          take: 1,
-        }),
-      T.map((count) => count > 0),
-    );
+        });
+
+        // early return true if the user is the sole owner
+        if (ownerCount === 1) return true;
+      }
+
+      // return false if the user is not the sole owner in any team
+      return false;
+    };
   }
 
   deleteUserFromAllTeams(uid: string) {
@@ -444,7 +458,7 @@ export class TeamService implements UserDataHandler, OnModuleInit {
         <TeamMember>{
           membershipID: entry.id,
           userUid: entry.userUid,
-          role: TeamMemberRole[entry.role],
+          role: TeamAccessRole[entry.role],
         },
     );
 
@@ -497,7 +511,7 @@ export class TeamService implements UserDataHandler, OnModuleInit {
         <TeamMember>{
           membershipID: entry.id,
           userUid: entry.userUid,
-          role: TeamMemberRole[entry.role],
+          role: TeamAccessRole[entry.role],
         },
     );
 
@@ -509,6 +523,7 @@ export class TeamService implements UserDataHandler, OnModuleInit {
    * @param cursorID string of teamID or undefined
    * @param take number of items to query
    * @returns an array of `Team` object
+   * @deprecated use fetchAllTeamsV2 instead
    */
   async fetchAllTeams(cursorID: string, take: number) {
     const options = {
@@ -518,6 +533,32 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     };
 
     const fetchedTeams = await this.prisma.team.findMany(options);
+    return fetchedTeams;
+  }
+
+  /**
+   * Fetch all the teams in the `Team` table with offset pagination and search
+   * @param searchString search on team name or ID
+   * @param paginationOption pagination options
+   * @returns an array of `Team` object
+   */
+  async fetchAllTeamsV2(
+    searchString: string,
+    paginationOption: OffsetPaginationArgs,
+  ) {
+    const fetchedTeams = await this.prisma.team.findMany({
+      skip: paginationOption.skip,
+      take: paginationOption.take,
+      where: searchString
+        ? {
+            OR: [
+              { name: { contains: searchString, mode: 'insensitive' } },
+              { id: { contains: searchString, mode: 'insensitive' } },
+            ],
+          }
+        : undefined,
+      orderBy: [{ name: 'asc' }, { id: 'asc' }],
+    });
     return fetchedTeams;
   }
 

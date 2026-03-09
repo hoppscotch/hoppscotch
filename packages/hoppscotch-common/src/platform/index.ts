@@ -1,18 +1,24 @@
-import { AuthPlatformDef } from "./auth"
-import { UIPlatformDef } from "./ui"
-import { EnvironmentsPlatformDef } from "./environments"
-import { CollectionsPlatformDef } from "./collections"
-import { SettingsPlatformDef } from "./settings"
-import { HistoryPlatformDef } from "./history"
-import { AnalyticsPlatformDef } from "./analytics"
-import { InterceptorsPlatformDef } from "./interceptors"
-import { HoppModule } from "~/modules"
-import { InspectorsPlatformDef } from "./inspectors"
 import { ServiceClassInstance } from "dioc"
-import { IOPlatformDef } from "./io"
-import { SpotlightPlatformDef } from "./spotlight"
-import { InfraPlatformDef } from "./infra"
 import { Ref } from "vue"
+import { HoppModule } from "~/modules"
+import { AnalyticsPlatformDef } from "./analytics"
+import { AuthPlatformDef } from "./auth"
+import { CollectionsPlatformDef } from "./collections"
+import { EnvironmentsPlatformDef } from "./environments"
+import { ExperimentsPlatformDef } from "./experiments"
+import { HistoryPlatformDef } from "./history"
+import { InfraPlatformDef } from "./infra"
+import { InspectorsPlatformDef } from "./inspectors"
+import { KernelInterceptorsPlatformDef } from "./kernel-interceptors"
+import { LimitsPlatformDef } from "./limits"
+import { SettingsPlatformDef } from "./settings"
+import { SpotlightPlatformDef } from "./spotlight"
+import { UIPlatformDef } from "./ui"
+import { BackendPlatformDef } from "./backend"
+import { OrganizationPlatformDef } from "./organization"
+import { KernelIO } from "./kernel-io"
+import { AdditionalLinksPlatformDef } from "./additionalLinks"
+import { InstancePlatformDef } from "./instance"
 
 export type PlatformDef = {
   ui?: UIPlatformDef
@@ -20,14 +26,15 @@ export type PlatformDef = {
   addedServices?: Array<ServiceClassInstance<unknown>>
   auth: AuthPlatformDef
   analytics?: AnalyticsPlatformDef
-  io: IOPlatformDef
+  kernelIO: KernelIO
+  instance: InstancePlatformDef
   sync: {
     environments: EnvironmentsPlatformDef
     collections: CollectionsPlatformDef
     settings: SettingsPlatformDef
     history: HistoryPlatformDef
   }
-  interceptors: InterceptorsPlatformDef
+  kernelInterceptors: KernelInterceptorsPlatformDef
   additionalInspectors?: InspectorsPlatformDef
   spotlight?: SpotlightPlatformDef
   platformFeatureFlags: {
@@ -52,8 +59,22 @@ export type PlatformDef = {
      * Whether to show the A/B testing workspace switcher click login flow or not
      */
     workspaceSwitcherLogin?: Ref<boolean>
+
+    /**
+     * Whether the platform uses cookie-based authentication.
+     * This affects CSRF security warnings for same-origin fetch calls in scripts.
+     * Self-hosted web instances use cookies, while cloud/desktop use bearer tokens.
+     *
+     * If not provided, defaults to false (no cookie-based auth).
+     */
+    hasCookieBasedAuth?: boolean
   }
+  limits?: LimitsPlatformDef
   infra?: InfraPlatformDef
+  experiments?: ExperimentsPlatformDef
+  backend: BackendPlatformDef
+  organization?: OrganizationPlatformDef
+  additionalLinks?: AdditionalLinksPlatformDef
 }
 
 export let platform: PlatformDef

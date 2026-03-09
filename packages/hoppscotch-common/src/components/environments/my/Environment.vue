@@ -1,30 +1,45 @@
 <template>
   <div
     class="group flex items-stretch"
-    @contextmenu.prevent="options!.tippy.show()"
+    @contextmenu.prevent="options!.tippy?.show()"
   >
     <span
-      v-if="environmentIndex === 'Global'"
       class="flex cursor-pointer items-center justify-center px-4"
-      @click="emit('edit-environment')"
+      @click="emit('select-environment')"
     >
-      <icon-lucide-globe class="svg-icons" />
-    </span>
-    <span
-      v-else
-      class="flex cursor-pointer items-center justify-center px-4"
-      @click="emit('edit-environment')"
-    >
-      <icon-lucide-layers class="svg-icons" />
+      <icon-lucide-globe
+        v-if="environmentIndex === 'Global'"
+        class="svg-icons"
+      />
+      <icon-lucide-check-circle
+        v-else-if="selected"
+        class="svg-icons text-green-500"
+      />
+      <icon-lucide-layers v-else class="svg-icons" />
     </span>
     <span
       class="flex min-w-0 flex-1 cursor-pointer py-2 pr-2 transition group-hover:text-secondaryDark"
-      @click="emit('edit-environment')"
+      @click="emit('select-environment')"
     >
-      <span class="truncate">
-        {{ environment.name }}
-      </span>
+      <span class="truncate"> {{ environment.name }} </span>
     </span>
+
+    <div class="flex">
+      <HoppButtonSecondary
+        v-tippy="{ theme: 'tooltip' }"
+        :icon="IconEdit"
+        :title="`${t('action.edit')}`"
+        class="hidden group-hover:inline-flex"
+        @click="emitEditEnvironment"
+      />
+      <HoppButtonSecondary
+        v-tippy="{ theme: 'tooltip' }"
+        :icon="IconCopy"
+        :title="`${t('action.duplicate')}`"
+        class="hidden group-hover:inline-flex"
+        @click="duplicateEnvironments"
+      />
+    </div>
     <span>
       <tippy
         ref="options"
@@ -59,22 +74,24 @@
               :icon="IconEdit"
               :label="`${t('action.edit')}`"
               :shortcut="['E']"
+              :disabled="duplicateGlobalEnvironmentLoading"
               @click="
-                () => {
-                  emit('edit-environment')
-                  hide()
+                async () => {
+                  const ok = await emitEditEnvironment()
+                  if (ok) hide()
                 }
               "
             />
             <HoppSmartItem
               ref="duplicate"
               :icon="IconCopy"
-              :label="`${t('action.duplicate')}`"
+              :label="t('action.duplicate')"
               :shortcut="['D']"
+              :loading="duplicateGlobalEnvironmentLoading"
               @click="
                 () => {
                   duplicateEnvironments()
-                  hide()
+                  !showContextMenuLoadingState && hide()
                 }
               "
             />
@@ -83,6 +100,7 @@
               :icon="IconEdit"
               :label="`${t('export.as_json')}`"
               :shortcut="['J']"
+              :disabled="duplicateGlobalEnvironmentLoading"
               @click="
                 () => {
                   exportEnvironmentAsJSON()
@@ -96,6 +114,7 @@
               :icon="IconTrash2"
               :label="`${t('action.delete')}`"
               :shortcut="['⌫']"
+              :disabled="duplicateGlobalEnvironmentLoading"
               @click="
                 () => {
                   confirmRemove = true
@@ -124,38 +143,71 @@ import { HoppSmartItem } from "@hoppscotch/ui"
 import { useService } from "dioc/vue"
 import * as E from "fp-ts/Either"
 import { cloneDeep } from "lodash-es"
-import { ref } from "vue"
+import { computed, ref, watch } from "vue"
 import { TippyComponent } from "vue-tippy"
 
 import { exportAsJSON } from "~/helpers/import-export/export/environment"
 import { createEnvironment, getGlobalVariables } from "~/newstore/environments"
 import { NewWorkspaceService } from "~/services/new-workspace"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import IconCopy from "~icons/lucide/copy"
 import IconEdit from "~icons/lucide/edit"
 import IconMoreVertical from "~icons/lucide/more-vertical"
 import IconTrash2 from "~icons/lucide/trash-2"
+import { CurrentValueService } from "~/services/current-environment-value.service"
 
 const t = useI18n()
 const toast = useToast()
 
 const secretEnvironmentService = useService(SecretEnvironmentService)
+const currentEnvironmentValueService = useService(CurrentValueService)
 const workspaceService = useService(NewWorkspaceService)
 
-const props = defineProps<{
-  environment: Environment
-  environmentIndex: number | "Global" | null
-}>()
+const emitEditEnvironment = async (): Promise<boolean> => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return false
+  emit("edit-environment")
+  return true
+}
+
+const props = withDefaults(
+  defineProps<{
+    environment: Environment
+    environmentIndex: number | "Global" | null
+    duplicateGlobalEnvironmentLoading?: boolean
+    showContextMenuLoadingState?: boolean
+    selected?: boolean
+  }>(),
+  {
+    duplicateGlobalEnvironmentLoading: false,
+    showContextMenuLoadingState: false,
+    selected: false,
+  }
+)
 
 const emit = defineEmits<{
   (e: "edit-environment"): void
   (e: "duplicate-environment", environmentID: number): void
   (e: "delete-environment", environmentID: number): void
+  (e: "duplicate-global-environment"): void
+  (e: "select-environment"): void
 }>()
 
 const activeWorkspaceHandle = workspaceService.activeWorkspaceHandle
 
 const confirmRemove = ref(false)
+
+watch(
+  () => props.duplicateGlobalEnvironmentLoading,
+  (newDuplicateGlobalEnvironmentLoadingVal) => {
+    if (!newDuplicateGlobalEnvironmentLoadingVal) {
+      options?.value?.tippy?.hide()
+    }
+  }
+)
+
+const isGlobalEnvironment = computed(() => props.environmentIndex === "Global")
 
 const exportEnvironmentAsJSON = async () => {
   const { environment, environmentIndex } = props
@@ -207,39 +259,37 @@ const exportEnvironment = async (environmentID: number) => {
   }
 }
 
-const tippyActions = ref<TippyComponent | null>(null)
+const tippyActions = ref<HTMLDivElement | null>(null)
 const options = ref<TippyComponent | null>(null)
 const edit = ref<typeof HoppSmartItem>()
 const duplicate = ref<typeof HoppSmartItem>()
 const exportAsJsonEl = ref<typeof HoppSmartItem>()
 const deleteAction = ref<typeof HoppSmartItem>()
 
-const removeEnvironment = () => {
-  if (props.environmentIndex === null) {
-    return
-  }
-
-  if (props.environmentIndex !== "Global") {
-    emit("delete-environment", props.environmentIndex)
+const removeEnvironment = async () => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
+  if (props.environmentIndex === null) return
+  if (!isGlobalEnvironment.value) {
+    emit("delete-environment", props.environmentIndex as number)
 
     secretEnvironmentService.deleteSecretEnvironment(props.environment.id)
+    currentEnvironmentValueService.deleteEnvironment(props.environment.id)
   }
 }
 
-const duplicateEnvironments = () => {
+const duplicateEnvironments = async () => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   if (props.environmentIndex === null) {
     return
   }
 
-  if (props.environmentIndex === "Global") {
-    createEnvironment(
-      `Global - ${t("action.duplicate")}`,
-      cloneDeep(getGlobalVariables())
-    )
-
+  if (isGlobalEnvironment.value) {
+    emit("duplicate-global-environment")
     return
   }
 
-  emit("duplicate-environment", props.environmentIndex)
+  emit("duplicate-environment", props.environmentIndex as number)
 }
 </script>

@@ -1,4 +1,4 @@
-import { Environment } from "@hoppscotch/data";
+import { Environment, NonSecretEnvironment } from "@hoppscotch/data";
 import { entityReference } from "verzod";
 import { z } from "zod";
 
@@ -60,10 +60,35 @@ export async function parseEnvsData(options: TestCmdEnvironmentOptions) {
 
   if (HoppEnvKeyPairResult.success) {
     for (const [key, value] of Object.entries(HoppEnvKeyPairResult.data)) {
-      envPairs.push({ key, value, secret: false });
+      envPairs.push({
+        key,
+        initialValue: value,
+        currentValue: value,
+        secret: false,
+      });
     }
   } else if (HoppEnvExportObjectResult.type === "ok") {
-    envPairs.push(...HoppEnvExportObjectResult.value.variables);
+    // Original environment variables from the supplied export file
+    const originalEnvVariables = (contents as Environment).variables;
+
+    // Above environment variables conforming to the latest schema
+    // `value` fields if specified will be omitted for secret environment variables
+    const migratedEnvVariables = HoppEnvExportObjectResult.value.variables;
+
+    // The values supplied for secret environment variables have to be considered in the CLI
+    // For each secret environment variable, include the value in case supplied
+    const resolvedEnvVariables = migratedEnvVariables.map((variable, idx) => {
+      if (variable.secret && originalEnvVariables[idx].initialValue) {
+        return {
+          ...variable,
+          initialValue: originalEnvVariables[idx].initialValue,
+        };
+      }
+
+      return variable;
+    });
+
+    envPairs.push(...resolvedEnvVariables);
   }
 
   return <HoppEnvs>{ global: [], selected: envPairs };

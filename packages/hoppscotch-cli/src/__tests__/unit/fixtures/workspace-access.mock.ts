@@ -3,6 +3,7 @@ import {
   Environment,
   EnvironmentSchemaVersion,
   HoppCollection,
+  RESTReqSchemaVersion,
 } from "@hoppscotch/data";
 
 import {
@@ -10,29 +11,29 @@ import {
   WorkspaceEnvironment,
 } from "../../../utils/workspace-access";
 
-export const WORKSPACE_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: WorkspaceCollection[] =
+export const WORKSPACE_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_VARIABLES_MOCK: WorkspaceCollection[] =
   [
     {
       id: "clx1ldkzs005t10f8rp5u60q7",
-      data: '{"auth":{"token":"BearerToken","authType":"bearer","authActive":true},"headers":[{"key":"X-Test-Header","value":"Set at root collection","active":true}]}',
+      data: '{"auth":{"token":"BearerToken","authType":"bearer","authActive":true},"headers":[{"key":"X-Test-Header","value":"Set at root collection","active":true,"description":""}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
       title: "CollectionA",
       parentID: null,
       folders: [
         {
           id: "clx1ldkzs005v10f86b9wx4yc",
-          data: '{"auth":{"authType":"inherit","authActive":true},"headers":[]}',
+          data: '{"auth":{"authType":"inherit","authActive":true},"headers":[],"variables":[]}',
           title: "FolderA",
           parentID: "clx1ldkzs005t10f8rp5u60q7",
           folders: [
             {
               id: "clx1ldkzt005x10f8i0u5lzgj",
-              data: '{"auth":{"key":"key","addTo":"HEADERS","value":"test-key","authType":"api-key","authActive":true},"headers":[{"key":"X-Test-Header","value":"Overriden at FolderB","active":true}]}',
+              data: '{"auth":{"key":"key","addTo":"HEADERS","value":"test-key","authType":"api-key","authActive":true},"headers":[{"key":"X-Test-Header","value":"Overriden at FolderB","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
               title: "FolderB",
               parentID: "clx1ldkzs005v10f86b9wx4yc",
               folders: [
                 {
                   id: "clx1ldkzu005z10f880zx17bg",
-                  data: '{"auth":{"authType":"inherit","authActive":true},"headers":[]}',
+                  data: '{"auth":{"authType":"inherit","authActive":true},"headers":[],"variables":[]}',
                   title: "FolderC",
                   parentID: "clx1ldkzt005x10f8i0u5lzgj",
                   folders: [],
@@ -78,14 +79,13 @@ export const WORKSPACE_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Workspa
           collectionID: "clx1ldkzs005t10f8rp5u60q7",
           teamID: "clws3hg58000011o8h07glsb1",
           title: "RequestA",
-          request:
-            '{"v":"5","id":"clpttpdq00003qp16kut6doqv","auth":{"authType":"inherit","authActive":true},"body":{"body":null,"contentType":null},"name":"RequestA","method":"GET","params":[],"headers":[],"endpoint":"https://echo.hoppscotch.io","testScript":"pw.test(\\"Correctly inherits auth and headers from the root collection\\", ()=> {\\n    pw.expect(pw.response.body.headers[\\"x-test-header\\"]).toBe(\\"Set at root collection\\");\\n  pw.expect(pw.response.body.headers[\\"authorization\\"]).toBe(\\"Bearer BearerToken\\");\\n});","preRequestScript":"","requestVariables":[]}',
+          request: `{"v":"${RESTReqSchemaVersion}","id":"clpttpdq00003qp16kut6doqv","auth":{"authType":"inherit","authActive":true},"body":{"body":null,"contentType":null},"name":"RequestA","method":"GET","params":[],"headers":[],"endpoint":"https://echo.hoppscotch.io","testScript":"pw.test(\\"Correctly inherits auth and headers from the root collection\\", ()=> {\\n    pw.expect(pw.response.body.headers[\\"x-test-header\\"]).toBe(\\"Set at root collection\\");\\n  pw.expect(pw.response.body.headers[\\"authorization\\"]).toBe(\\"Bearer BearerToken\\");\\n});","preRequestScript":"","requestVariables":[],"responses":{},"description":""}`,
         },
       ],
     },
   ];
 
-export const TRANSFORMED_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: HoppCollection[] =
+export const TRANSFORMED_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_VARIABLES_MOCK: HoppCollection[] =
   [
     {
       v: CollectionSchemaVersion,
@@ -142,6 +142,8 @@ export const TRANSFORMED_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: HoppC
                     authActive: true,
                   },
                   headers: [],
+                  variables: [],
+                  description: null,
                 },
               ],
               requests: [
@@ -178,8 +180,18 @@ export const TRANSFORMED_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: HoppC
                   key: "X-Test-Header",
                   value: "Overriden at FolderB",
                   active: true,
+                  description: "",
                 },
               ],
+              variables: [
+                {
+                  key: "collection-variable",
+                  currentValue: "collection-variable-value",
+                  initialValue: "collection-variable-value",
+                  secret: false,
+                },
+              ],
+              description: null,
             },
           ],
           requests: [
@@ -210,11 +222,13 @@ export const TRANSFORMED_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: HoppC
             authActive: true,
           },
           headers: [],
+          variables: [],
+          description: null,
         },
       ],
       requests: [
         {
-          v: "5",
+          v: RESTReqSchemaVersion,
           id: "clpttpdq00003qp16kut6doqv",
           auth: {
             authType: "inherit",
@@ -233,6 +247,8 @@ export const TRANSFORMED_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: HoppC
             'pw.test("Correctly inherits auth and headers from the root collection", ()=> {\n    pw.expect(pw.response.body.headers["x-test-header"]).toBe("Set at root collection");\n  pw.expect(pw.response.body.headers["authorization"]).toBe("Bearer BearerToken");\n});',
           preRequestScript: "",
           requestVariables: [],
+          responses: {},
+          description: "",
         },
       ],
       auth: {
@@ -245,29 +261,39 @@ export const TRANSFORMED_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: HoppC
           key: "X-Test-Header",
           value: "Set at root collection",
           active: true,
+          description: "",
         },
       ],
+      variables: [
+        {
+          key: "collection-variable",
+          currentValue: "collection-variable-value",
+          initialValue: "collection-variable-value",
+          secret: false,
+        },
+      ],
+      description: null,
     },
   ];
 
-export const WORKSPACE_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: WorkspaceCollection[] =
+export const WORKSPACE_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_VARIABLES_MOCK: WorkspaceCollection[] =
   [
     {
       id: "clx1f86hv000010f8szcfya0t",
-      data: '{"auth":{"authType":"basic","password":"testpass","username":"testuser","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value set at the root collection","active":true},{"key":"Inherited-Header","value":"Inherited header at all levels","active":true}]}',
+      data: '{"auth":{"authType":"basic","password":"testpass","username":"testuser","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value set at the root collection","active":true},{"key":"Inherited-Header","value":"Inherited header at all levels","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
       title:
-        "Multiple child collections with authorization & headers set at each level",
+        "Multiple child collections with authorization, headers and variables set at each level",
       parentID: null,
       folders: [
         {
           id: "clx1fjgah000110f8a5bs68gd",
-          data: '{"auth":{"authType":"inherit","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-1","active":true}]}',
+          data: '{"auth":{"authType":"inherit","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-1","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
           title: "folder-1",
           parentID: "clx1f86hv000010f8szcfya0t",
           folders: [
             {
               id: "clx1fjwmm000410f8l1gkkr1a",
-              data: '{"auth":{"authType":"inherit","authActive":true},"headers":[{"key":"key","value":"Set at folder-11","active":true}]}',
+              data: '{"auth":{"authType":"inherit","authActive":true},"headers":[{"key":"key","value":"Set at folder-11","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
               title: "folder-11",
               parentID: "clx1fjgah000110f8a5bs68gd",
               folders: [],
@@ -284,7 +310,7 @@ export const WORKSPACE_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Worksp
             },
             {
               id: "clx1fjyxm000510f8pv90dt43",
-              data: '{"auth":{"authType":"none","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-12","active":true},{"key":"key","value":"Set at folder-12","active":true}]}',
+              data: '{"auth":{"authType":"none","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-12","active":true},{"key":"key","value":"Set at folder-12","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
               title: "folder-12",
               parentID: "clx1fjgah000110f8a5bs68gd",
               folders: [],
@@ -301,7 +327,7 @@ export const WORKSPACE_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Worksp
             },
             {
               id: "clx1fk1cv000610f88kc3aupy",
-              data: '{"auth":{"token":"test-token","authType":"bearer","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-13","active":true},{"key":"key","value":"Set at folder-13","active":true}]}',
+              data: '{"auth":{"token":"test-token","authType":"bearer","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-13","active":true},{"key":"key","value":"Set at folder-13","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
               title: "folder-13",
               parentID: "clx1fjgah000110f8a5bs68gd",
               folders: [],
@@ -330,13 +356,13 @@ export const WORKSPACE_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Worksp
         },
         {
           id: "clx1fjk9o000210f8j0573pls",
-          data: '{"auth":{"authType":"none","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-2","active":true}]}',
+          data: '{"auth":{"authType":"none","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-2","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
           title: "folder-2",
           parentID: "clx1f86hv000010f8szcfya0t",
           folders: [
             {
               id: "clx1fk516000710f87sfpw6bo",
-              data: '{"auth":{"authType":"inherit","authActive":true},"headers":[{"key":"key","value":"Set at folder-21","active":true}]}',
+              data: '{"auth":{"authType":"inherit","authActive":true},"headers":[{"key":"key","value":"Set at folder-21","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
               title: "folder-21",
               parentID: "clx1fjk9o000210f8j0573pls",
               folders: [],
@@ -353,7 +379,7 @@ export const WORKSPACE_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Worksp
             },
             {
               id: "clx1fk72t000810f8gfwkpi5y",
-              data: '{"auth":{"authType":"none","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-22","active":true},{"key":"key","value":"Set at folder-22","active":true}]}',
+              data: '{"auth":{"authType":"none","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-22","active":true},{"key":"key","value":"Set at folder-22","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
               title: "folder-22",
               parentID: "clx1fjk9o000210f8j0573pls",
               folders: [],
@@ -370,7 +396,7 @@ export const WORKSPACE_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Worksp
             },
             {
               id: "clx1fk95g000910f8bunhaoo8",
-              data: '{"auth":{"token":"test-token","authType":"bearer","password":"testpass","username":"testuser","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-23","active":true},{"key":"key","value":"Set at folder-23","active":true}]}',
+              data: '{"auth":{"token":"test-token","authType":"bearer","password":"testpass","username":"testuser","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-23","active":true},{"key":"key","value":"Set at folder-23","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
               title: "folder-23",
               parentID: "clx1fjk9o000210f8j0573pls",
               folders: [],
@@ -399,13 +425,13 @@ export const WORKSPACE_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Worksp
         },
         {
           id: "clx1fjmlq000310f86o4d3w2o",
-          data: '{"auth":{"key":"testuser","addTo":"HEADERS","value":"testpass","authType":"basic","password":"testpass","username":"testuser","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-3","active":true}]}',
+          data: '{"auth":{"key":"testuser","addTo":"HEADERS","value":"testpass","authType":"basic","password":"testpass","username":"testuser","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-3","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
           title: "folder-3",
           parentID: "clx1f86hv000010f8szcfya0t",
           folders: [
             {
               id: "clx1iwq0p003e10f8u8zg0p85",
-              data: '{"auth":{"authType":"inherit","authActive":true},"headers":[{"key":"key","value":"Set at folder-31","active":true}]}',
+              data: '{"auth":{"authType":"inherit","authActive":true},"headers":[{"key":"key","value":"Set at folder-31","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
               title: "folder-31",
               parentID: "clx1fjmlq000310f86o4d3w2o",
               folders: [],
@@ -422,7 +448,7 @@ export const WORKSPACE_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Worksp
             },
             {
               id: "clx1izut7003m10f894ip59zg",
-              data: '{"auth":{"authType":"none","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-32","active":true},{"key":"key","value":"Set at folder-32","active":true}]}',
+              data: '{"auth":{"authType":"none","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-32","active":true},{"key":"key","value":"Set at folder-32","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
               title: "folder-32",
               parentID: "clx1fjmlq000310f86o4d3w2o",
               folders: [],
@@ -439,7 +465,7 @@ export const WORKSPACE_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Worksp
             },
             {
               id: "clx1j2ka9003q10f8cdbzpgpg",
-              data: '{"auth":{"token":"test-token","authType":"bearer","password":"testpass","username":"testuser","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-33","active":true},{"key":"key","value":"Set at folder-33","active":true}]}',
+              data: '{"auth":{"token":"test-token","authType":"bearer","password":"testpass","username":"testuser","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-33","active":true},{"key":"key","value":"Set at folder-33","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
               title: "folder-33",
               parentID: "clx1fjmlq000310f86o4d3w2o",
               folders: [],
@@ -473,20 +499,838 @@ export const WORKSPACE_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Worksp
           collectionID: "clx1f86hv000010f8szcfya0t",
           teamID: "clws3hg58000011o8h07glsb1",
           title: "root-collection-request",
-          request:
-            '{"v":"4","auth":{"authType":"inherit","authActive":true},"body":{"body":null,"contentType":null},"name":"root-collection-request","method":"GET","params":[],"headers":[],"endpoint":"https://httpbin.org/get","testScript":"// Check status code is 200\\npw.test(\\"Status code is 200\\", ()=> {\\n    pw.expect(pw.response.status).toBe(200);\\n});\\n\\npw.test(\\"Successfully inherits authorization/header set at the parent collection level\\", () => {\\n  pw.expect(pw.response.body.headers[\\"Authorization\\"]).toBe(\\"Basic dGVzdHVzZXI6dGVzdHBhc3M=\\")\\n  \\n  pw.expect(pw.response.body.headers[\\"Custom-Header\\"]).toBe(\\"Custom header value set at the root collection\\")\\n  pw.expect(pw.response.body.headers[\\"Inherited-Header\\"]).toBe(\\"Inherited header at all levels\\")\\n})","preRequestScript":"","requestVariables":[]}',
+          request: `{"v":"${RESTReqSchemaVersion}","auth":{"authType":"inherit","authActive":true},"body":{"body":null,"contentType":null},"name":"root-collection-request","method":"GET","params":[],"headers":[],"endpoint":"https://httpbin.org/get","testScript":"// Check status code is 200\\npw.test(\\"Status code is 200\\", ()=> {\\n    pw.expect(pw.response.status).toBe(200);\\n});\\n\\npw.test(\\"Successfully inherits authorization/header set at the parent collection level\\", () => {\\n  pw.expect(pw.response.body.headers[\\"Authorization\\"]).toBe(\\"Basic dGVzdHVzZXI6dGVzdHBhc3M=\\")\\n  \\n  pw.expect(pw.response.body.headers[\\"Custom-Header\\"]).toBe(\\"Custom header value set at the root collection\\")\\n  pw.expect(pw.response.body.headers[\\"Inherited-Header\\"]).toBe(\\"Inherited header at all levels\\")\\n})","preRequestScript":"","requestVariables":[],"responses":{}, "description": ""}`,
         },
       ],
     },
   ];
 
+export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: HoppCollection[] =
+  [
+    {
+      v: CollectionSchemaVersion,
+      id: "clx1f86hv000010f8szcfya0t",
+      name: "Multiple child collections with authorization, headers and variables set at each level",
+      folders: [
+        {
+          v: 11,
+          id: "clx1fjgah000110f8a5bs68gd",
+          name: "folder-1",
+          folders: [
+            {
+              v: 11,
+              id: "clx1fjwmm000410f8l1gkkr1a",
+              name: "folder-11",
+              folders: [],
+              requests: [
+                {
+                  v: "4",
+                  auth: {
+                    authType: "inherit",
+                    password: "testpass",
+                    username: "testuser",
+                    authActive: true,
+                  },
+                  body: {
+                    body: null,
+                    contentType: null,
+                  },
+                  name: "folder-11-request",
+                  method: "GET",
+                  params: [],
+                  headers: [],
+                  endpoint: "https://httpbin.org/get",
+                  testScript:
+                    '// Check status code is 200\npw.test("Status code is 200", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test("Successfully inherits authorization/header set at the parent collection level", () => {\n  pw.expect(pw.response.body.headers["Authorization"]).toBe("Basic dGVzdHVzZXI6dGVzdHBhc3M=")\n  \n  pw.expect(pw.response.body.headers["Custom-Header"]).toBe("Custom header value overriden at folder-1")\n  pw.expect(pw.response.body.headers["Inherited-Header"]).toBe("Inherited header at all levels")\n})',
+                  preRequestScript: "",
+                  requestVariables: [],
+                },
+              ],
+              auth: {
+                authType: "inherit",
+                authActive: true,
+              },
+              headers: [
+                {
+                  key: "key",
+                  value: "Set at folder-11",
+                  active: true,
+                  description: "",
+                },
+              ],
+              variables: [
+                {
+                  key: "collection-variable",
+                  currentValue: "collection-variable-value",
+                  initialValue: "collection-variable-value",
+                  secret: false,
+                },
+              ],
+              description: null,
+            },
+            {
+              v: 11,
+              id: "clx1fjyxm000510f8pv90dt43",
+              name: "folder-12",
+              folders: [],
+              requests: [
+                {
+                  v: "4",
+                  auth: {
+                    authType: "none",
+                    authActive: true,
+                  },
+                  body: {
+                    body: null,
+                    contentType: null,
+                  },
+                  name: "folder-12-request",
+                  method: "GET",
+                  params: [],
+                  headers: [
+                    {
+                      key: "Custom-Header",
+                      value:
+                        "Custom header value overriden at folder-12-request",
+                      active: true,
+                    },
+                    {
+                      key: "key",
+                      value: "Overriden at folder-12-request",
+                      active: true,
+                    },
+                  ],
+                  endpoint: "https://httpbin.org/get",
+                  testScript:
+                    '// Check status code is 200\npw.test("Status code is 200", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test("Successfully inherits/overrides authorization/header set at the parent collection level", () => {\n  pw.expect(pw.response.body.headers["Authorization"]).toBe(undefined)\n  \n  pw.expect(pw.response.body.headers["Custom-Header"]).toBe("Custom header value overriden at folder-12-request")\n  pw.expect(pw.response.body.headers["Inherited-Header"]).toBe("Inherited header at all levels")\n  pw.expect(pw.response.body.headers["Key"]).toBe("Overriden at folder-12-request")\n})',
+                  preRequestScript: "",
+                  requestVariables: [],
+                },
+              ],
+              auth: {
+                authType: "none",
+                authActive: true,
+              },
+              headers: [
+                {
+                  key: "Custom-Header",
+                  value: "Custom header value overriden at folder-12",
+                  active: true,
+                  description: "",
+                },
+                {
+                  key: "key",
+                  value: "Set at folder-12",
+                  active: true,
+                  description: "",
+                },
+              ],
+              variables: [
+                {
+                  key: "collection-variable",
+                  currentValue: "collection-variable-value",
+                  initialValue: "collection-variable-value",
+                  secret: false,
+                },
+              ],
+              description: null,
+            },
+            {
+              v: 11,
+              id: "clx1fk1cv000610f88kc3aupy",
+              name: "folder-13",
+              folders: [],
+              requests: [
+                {
+                  v: "4",
+                  auth: {
+                    key: "api-key",
+                    addTo: "HEADERS",
+                    value: "api-key-value",
+                    authType: "basic",
+                    password: "testpass",
+                    username: "testuser",
+                    authActive: true,
+                    grantTypeInfo: {
+                      token: "",
+                      isPKCE: true,
+                      clientID: "sfasfa",
+                      password: "",
+                      username: "",
+                      grantType: "AUTHORIZATION_CODE",
+                      authEndpoint: "asfafs",
+                      clientSecret: "sfasfasf",
+                      tokenEndpoint: "asfa",
+                      codeVerifierMethod: "S256",
+                    },
+                  },
+                  body: {
+                    body: null,
+                    contentType: null,
+                  },
+                  name: "folder-13-request",
+                  method: "GET",
+                  params: [],
+                  headers: [
+                    {
+                      key: "Custom-Header-Request-Level",
+                      value:
+                        "New custom header added at the folder-13-request level",
+                      active: true,
+                    },
+                    {
+                      key: "key",
+                      value: "Overriden at folder-13-request",
+                      active: true,
+                    },
+                  ],
+                  endpoint: "https://httpbin.org/get",
+                  testScript:
+                    '// Check status code is 200\npw.test("Status code is 200", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test("Successfully inherits/overrides authorization/header set at the parent collection level with new header addition", () => {\n  pw.expect(pw.response.body.headers["Authorization"]).toBe("Basic dGVzdHVzZXI6dGVzdHBhc3M=")\n  \n  pw.expect(pw.response.body.headers["Custom-Header"]).toBe("Custom header value overriden at folder-13")\n  pw.expect(pw.response.body.headers["Inherited-Header"]).toBe("Inherited header at all levels")\n    pw.expect(pw.response.body.headers["Key"]).toBe("Overriden at folder-13-request")\n  pw.expect(pw.response.body.headers["Custom-Header-Request-Level"]).toBe("New custom header added at the folder-13-request level")\n})',
+                  preRequestScript: "",
+                  requestVariables: [],
+                },
+              ],
+              auth: {
+                token: "test-token",
+                authType: "bearer",
+                authActive: true,
+              },
+              headers: [
+                {
+                  key: "Custom-Header",
+                  value: "Custom header value overriden at folder-13",
+                  active: true,
+                  description: "",
+                },
+                {
+                  key: "key",
+                  value: "Set at folder-13",
+                  active: true,
+                  description: "",
+                },
+              ],
+              variables: [
+                {
+                  key: "collection-variable",
+                  currentValue: "collection-variable-value",
+                  initialValue: "collection-variable-value",
+                  secret: false,
+                },
+              ],
+              description: null,
+            },
+          ],
+          requests: [
+            {
+              v: "4",
+              auth: {
+                authType: "inherit",
+                authActive: true,
+              },
+              body: {
+                body: null,
+                contentType: null,
+              },
+              name: "folder-1-request",
+              method: "GET",
+              params: [],
+              headers: [],
+              endpoint: "https://httpbin.org/get",
+              testScript:
+                '// Check status code is 200\npw.test("Status code is 200", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test("Successfully inherits authorization/header set at the parent collection level", () => {\n  pw.expect(pw.response.body.headers["Authorization"]).toBe("Basic dGVzdHVzZXI6dGVzdHBhc3M=")\n  \n  pw.expect(pw.response.body.headers["Custom-Header"]).toBe("Custom header value overriden at folder-1")\n  pw.expect(pw.response.body.headers["Inherited-Header"]).toBe("Inherited header at all levels")\n})',
+              preRequestScript: "",
+              requestVariables: [],
+            },
+          ],
+          auth: {
+            authType: "inherit",
+            authActive: true,
+          },
+          headers: [
+            {
+              key: "Custom-Header",
+              value: "Custom header value overriden at folder-1",
+              active: true,
+              description: "",
+            },
+          ],
+          variables: [
+            {
+              key: "collection-variable",
+              currentValue: "collection-variable-value",
+              initialValue: "collection-variable-value",
+              secret: false,
+            },
+          ],
+          description: null,
+        },
+        {
+          v: 11,
+          id: "clx1fjk9o000210f8j0573pls",
+          name: "folder-2",
+          folders: [
+            {
+              v: 11,
+              id: "clx1fk516000710f87sfpw6bo",
+              name: "folder-21",
+              folders: [],
+              requests: [
+                {
+                  v: "4",
+                  auth: {
+                    authType: "inherit",
+                    authActive: true,
+                  },
+                  body: {
+                    body: null,
+                    contentType: null,
+                  },
+                  name: "folder-21-request",
+                  method: "GET",
+                  params: [],
+                  headers: [],
+                  endpoint: "https://httpbin.org/get",
+                  testScript:
+                    '// Check status code is 200\npw.test("Status code is 200", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test("Successfully inherits authorization/header set at the parent collection level", () => {\n  pw.expect(pw.response.body.headers["Authorization"]).toBe(undefined)\n  \n  pw.expect(pw.response.body.headers["Custom-Header"]).toBe("Custom header value overriden at folder-2")\n  pw.expect(pw.response.body.headers["Inherited-Header"]).toBe("Inherited header at all levels")\n})',
+                  preRequestScript: "",
+                  requestVariables: [],
+                },
+              ],
+              auth: {
+                authType: "inherit",
+                authActive: true,
+              },
+              headers: [
+                {
+                  key: "key",
+                  value: "Set at folder-21",
+                  active: true,
+                  description: "",
+                },
+              ],
+              variables: [
+                {
+                  key: "collection-variable",
+                  currentValue: "collection-variable-value",
+                  initialValue: "collection-variable-value",
+                  secret: false,
+                },
+              ],
+              description: null,
+            },
+            {
+              v: 11,
+              id: "clx1fk72t000810f8gfwkpi5y",
+              name: "folder-22",
+              folders: [],
+              requests: [
+                {
+                  v: "4",
+                  auth: {
+                    authType: "none",
+                    authActive: true,
+                  },
+                  body: {
+                    body: null,
+                    contentType: null,
+                  },
+                  name: "folder-22-request",
+                  method: "GET",
+                  params: [],
+                  headers: [
+                    {
+                      key: "Custom-Header",
+                      value:
+                        "Custom header value overriden at folder-22-request",
+                      active: true,
+                    },
+                    {
+                      key: "key",
+                      value: "Overriden at folder-22-request",
+                      active: true,
+                    },
+                  ],
+                  endpoint: "https://httpbin.org/get",
+                  testScript:
+                    '// Check status code is 200\npw.test("Status code is 200", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test("Successfully inherits/overrides authorization/header set at the parent collection level", () => {\n  pw.expect(pw.response.body.headers["Authorization"]).toBe(undefined)\n  \n  pw.expect(pw.response.body.headers["Custom-Header"]).toBe("Custom header value overriden at folder-22-request")\n  pw.expect(pw.response.body.headers["Inherited-Header"]).toBe("Inherited header at all levels")\n  pw.expect(pw.response.body.headers["Key"]).toBe("Overriden at folder-22-request")\n})',
+                  preRequestScript: "",
+                  requestVariables: [],
+                },
+              ],
+              auth: {
+                authType: "none",
+                authActive: true,
+              },
+              headers: [
+                {
+                  key: "Custom-Header",
+                  value: "Custom header value overriden at folder-22",
+                  active: true,
+                  description: "",
+                },
+                {
+                  key: "key",
+                  value: "Set at folder-22",
+                  active: true,
+                  description: "",
+                },
+              ],
+              variables: [
+                {
+                  key: "collection-variable",
+                  currentValue: "collection-variable-value",
+                  initialValue: "collection-variable-value",
+                  secret: false,
+                },
+              ],
+              description: null,
+            },
+            {
+              v: 11,
+              id: "clx1fk95g000910f8bunhaoo8",
+              name: "folder-23",
+              folders: [],
+              requests: [
+                {
+                  v: "4",
+                  auth: {
+                    authType: "basic",
+                    password: "testpass",
+                    username: "testuser",
+                    authActive: true,
+                  },
+                  body: {
+                    body: null,
+                    contentType: null,
+                  },
+                  name: "folder-23-request",
+                  method: "GET",
+                  params: [],
+                  headers: [
+                    {
+                      key: "Custom-Header-Request-Level",
+                      value:
+                        "New custom header added at the folder-23-request level",
+                      active: true,
+                    },
+                    {
+                      key: "key",
+                      value: "Overriden at folder-23-request",
+                      active: true,
+                    },
+                  ],
+                  endpoint: "https://httpbin.org/get",
+                  testScript:
+                    '// Check status code is 200\npw.test("Status code is 200", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test("Successfully inherits/overrides authorization/header set at the parent collection level with new header addition", () => {\n  pw.expect(pw.response.body.headers["Authorization"]).toBe("Basic dGVzdHVzZXI6dGVzdHBhc3M=")\n  \n  pw.expect(pw.response.body.headers["Custom-Header"]).toBe("Custom header value overriden at folder-23")\n  pw.expect(pw.response.body.headers["Inherited-Header"]).toBe("Inherited header at all levels")\n    pw.expect(pw.response.body.headers["Key"]).toBe("Overriden at folder-23-request")\n  pw.expect(pw.response.body.headers["Custom-Header-Request-Level"]).toBe("New custom header added at the folder-23-request level")\n})',
+                  preRequestScript: "",
+                  requestVariables: [],
+                },
+              ],
+              auth: {
+                token: "test-token",
+                authType: "bearer",
+                password: "testpass",
+                username: "testuser",
+                authActive: true,
+              },
+              headers: [
+                {
+                  key: "Custom-Header",
+                  value: "Custom header value overriden at folder-23",
+                  active: true,
+                  description: "",
+                },
+                {
+                  key: "key",
+                  value: "Set at folder-23",
+                  active: true,
+                  description: "",
+                },
+              ],
+              variables: [
+                {
+                  key: "collection-variable",
+                  currentValue: "collection-variable-value",
+                  initialValue: "collection-variable-value",
+                  secret: false,
+                },
+              ],
+              description: null,
+            },
+          ],
+          requests: [
+            {
+              v: "4",
+              auth: {
+                authType: "none",
+                authActive: true,
+              },
+              body: {
+                body: null,
+                contentType: null,
+              },
+              name: "folder-2-request",
+              method: "GET",
+              params: [],
+              headers: [
+                {
+                  key: "Custom-Header",
+                  value: "Custom header value overriden at folder-2-request",
+                  active: true,
+                },
+              ],
+              endpoint: "https://httpbin.org/get",
+              testScript:
+                '// Check status code is 200\npw.test("Status code is 200", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test("Successfully inherits/overrides authorization/header set at the parent collection level", () => {\n  pw.expect(pw.response.body.headers["Authorization"]).toBe(undefined)\n  \n  pw.expect(pw.response.body.headers["Custom-Header"]).toBe("Custom header value overriden at folder-2-request")\n  pw.expect(pw.response.body.headers["Inherited-Header"]).toBe("Inherited header at all levels")\n})',
+              preRequestScript: "",
+              requestVariables: [],
+            },
+          ],
+          auth: {
+            authType: "none",
+            authActive: true,
+          },
+          headers: [
+            {
+              key: "Custom-Header",
+              value: "Custom header value overriden at folder-2",
+              active: true,
+              description: "",
+            },
+          ],
+          variables: [
+            {
+              key: "collection-variable",
+              currentValue: "collection-variable-value",
+              initialValue: "collection-variable-value",
+              secret: false,
+            },
+          ],
+          description: null,
+        },
+
+        {
+          v: 11,
+          id: "clx1fjmlq000310f86o4d3w2o",
+          name: "folder-3",
+          folders: [
+            {
+              v: 11,
+              id: "clx1iwq0p003e10f8u8zg0p85",
+              name: "folder-31",
+              folders: [],
+              requests: [
+                {
+                  v: "4",
+                  auth: {
+                    authType: "inherit",
+                    authActive: true,
+                  },
+                  body: {
+                    body: null,
+                    contentType: null,
+                  },
+                  name: "folder-31-request",
+                  method: "GET",
+                  params: [],
+                  headers: [],
+                  endpoint: "https://httpbin.org/get",
+                  testScript:
+                    '// Check status code is 200\npw.test("Status code is 200", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test("Successfully inherits authorization/header set at the parent collection level", () => {\n  pw.expect(pw.response.body.headers["Authorization"]).toBe("Basic dGVzdHVzZXI6dGVzdHBhc3M=")\n  \n  pw.expect(pw.response.body.headers["Custom-Header"]).toBe("Custom header value overriden at folder-3")\n  pw.expect(pw.response.body.headers["Inherited-Header"]).toBe("Inherited header at all levels")\n})',
+                  preRequestScript: "",
+                  requestVariables: [],
+                },
+              ],
+              auth: {
+                authType: "inherit",
+                authActive: true,
+              },
+              headers: [
+                {
+                  key: "key",
+                  value: "Set at folder-31",
+                  active: true,
+                  description: "",
+                },
+              ],
+              variables: [
+                {
+                  key: "collection-variable",
+                  currentValue: "collection-variable-value",
+                  initialValue: "collection-variable-value",
+                  secret: false,
+                },
+              ],
+              description: null,
+            },
+            {
+              v: 11,
+              id: "clx1izut7003m10f894ip59zg",
+              name: "folder-32",
+              folders: [],
+              requests: [
+                {
+                  v: "4",
+                  auth: {
+                    authType: "none",
+                    authActive: true,
+                  },
+                  body: {
+                    body: null,
+                    contentType: null,
+                  },
+                  name: "folder-32-request",
+                  method: "GET",
+                  params: [],
+                  headers: [
+                    {
+                      key: "Custom-Header",
+                      value:
+                        "Custom header value overriden at folder-32-request",
+                      active: true,
+                    },
+                    {
+                      key: "key",
+                      value: "Overriden at folder-32-request",
+                      active: true,
+                    },
+                  ],
+                  endpoint: "https://httpbin.org/get",
+                  testScript:
+                    '// Check status code is 200\npw.test("Status code is 200", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test("Successfully inherits/overrides authorization/header set at the parent collection level", () => {\n  pw.expect(pw.response.body.headers["Authorization"]).toBe(undefined)\n  \n  pw.expect(pw.response.body.headers["Custom-Header"]).toBe("Custom header value overriden at folder-32-request")\n  pw.expect(pw.response.body.headers["Inherited-Header"]).toBe("Inherited header at all levels")\n  pw.expect(pw.response.body.headers["Key"]).toBe("Overriden at folder-32-request")\n})',
+                  preRequestScript: "",
+                  requestVariables: [],
+                },
+              ],
+              auth: {
+                authType: "none",
+                authActive: true,
+              },
+              headers: [
+                {
+                  key: "Custom-Header",
+                  value: "Custom header value overriden at folder-32",
+                  active: true,
+                  description: "",
+                },
+                {
+                  key: "key",
+                  value: "Set at folder-32",
+                  active: true,
+                  description: "",
+                },
+              ],
+              variables: [
+                {
+                  key: "collection-variable",
+                  currentValue: "collection-variable-value",
+                  initialValue: "collection-variable-value",
+                  secret: false,
+                },
+              ],
+              description: null,
+            },
+            {
+              v: 11,
+              id: "clx1j2ka9003q10f8cdbzpgpg",
+              name: "folder-33",
+              folders: [],
+              requests: [
+                {
+                  v: "4",
+                  auth: {
+                    authType: "basic",
+                    password: "testpass",
+                    username: "testuser",
+                    authActive: true,
+                  },
+                  body: {
+                    body: null,
+                    contentType: null,
+                  },
+                  name: "folder-33-request",
+                  method: "GET",
+                  params: [],
+                  headers: [
+                    {
+                      key: "Custom-Header-Request-Level",
+                      value:
+                        "New custom header added at the folder-33-request level",
+                      active: true,
+                    },
+                    {
+                      key: "key",
+                      value: "Overriden at folder-33-request",
+                      active: true,
+                    },
+                  ],
+                  endpoint: "https://httpbin.org/get",
+                  testScript:
+                    '// Check status code is 200\npw.test("Status code is 200", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test("Successfully inherits/overrides authorization/header set at the parent collection level with new header addition", () => {\n  pw.expect(pw.response.body.headers["Authorization"]).toBe("Basic dGVzdHVzZXI6dGVzdHBhc3M=")\n  \n  pw.expect(pw.response.body.headers["Custom-Header"]).toBe("Custom header value overriden at folder-33")\n  pw.expect(pw.response.body.headers["Inherited-Header"]).toBe("Inherited header at all levels")\n    pw.expect(pw.response.body.headers["Key"]).toBe("Overriden at folder-33-request")\n  pw.expect(pw.response.body.headers["Custom-Header-Request-Level"]).toBe("New custom header added at the folder-33-request level")\n})',
+                  preRequestScript: "",
+                  requestVariables: [],
+                },
+              ],
+              auth: {
+                token: "test-token",
+                authType: "bearer",
+                password: "testpass",
+                username: "testuser",
+                authActive: true,
+              },
+              headers: [
+                {
+                  key: "Custom-Header",
+                  value: "Custom header value overriden at folder-33",
+                  active: true,
+                  description: "",
+                },
+                {
+                  key: "key",
+                  value: "Set at folder-33",
+                  active: true,
+                  description: "",
+                },
+              ],
+              variables: [
+                {
+                  key: "collection-variable",
+                  currentValue: "collection-variable-value",
+                  initialValue: "collection-variable-value",
+                  secret: false,
+                },
+              ],
+              description: null,
+            },
+          ],
+          requests: [
+            {
+              v: "4",
+              auth: {
+                authType: "basic",
+                password: "testpass",
+                username: "testuser",
+                authActive: true,
+              },
+              body: {
+                body: null,
+                contentType: null,
+              },
+              name: "folder-3-request",
+              method: "GET",
+              params: [],
+              headers: [
+                {
+                  key: "Custom-Header-Request-Level",
+                  value:
+                    "New custom header added at the folder-3-request level",
+                  active: true,
+                },
+                {
+                  key: "key",
+                  value: "Set at folder-3-request",
+                  active: true,
+                },
+              ],
+              endpoint: "https://httpbin.org/get",
+              testScript:
+                '// Check status code is 200\npw.test("Status code is 200", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test("Successfully inherits/overrides authorization/header set at the parent collection level with new header addition", () => {\n  pw.expect(pw.response.body.headers["Authorization"]).toBe("Basic dGVzdHVzZXI6dGVzdHBhc3M=")\n  \n  pw.expect(pw.response.body.headers["Custom-Header"]).toBe("Custom header value overriden at folder-3")\n  pw.expect(pw.response.body.headers["Inherited-Header"]).toBe("Inherited header at all levels")\n      pw.expect(pw.response.body.headers["Key"]).toBe("Set at folder-3-request")\n  pw.expect(pw.response.body.headers["Custom-Header-Request-Level"]).toBe("New custom header added at the folder-3-request level")\n})',
+              preRequestScript: "",
+              requestVariables: [],
+            },
+          ],
+          auth: {
+            key: "testuser",
+            addTo: "HEADERS",
+            value: "testpass",
+            authType: "basic",
+            password: "testpass",
+            username: "testuser",
+            authActive: true,
+          },
+          headers: [
+            {
+              key: "Custom-Header",
+              value: "Custom header value overriden at folder-3",
+              active: true,
+              description: "",
+            },
+          ],
+          variables: [
+            {
+              key: "collection-variable",
+              currentValue: "collection-variable-value",
+              initialValue: "collection-variable-value",
+              secret: false,
+            },
+          ],
+          description: null,
+        },
+      ],
+      requests: [
+        {
+          v: RESTReqSchemaVersion,
+          auth: {
+            authType: "inherit",
+            authActive: true,
+          },
+          body: {
+            body: null,
+            contentType: null,
+          },
+          name: "root-collection-request",
+          method: "GET",
+          params: [],
+          headers: [],
+          endpoint: "https://httpbin.org/get",
+          testScript:
+            '// Check status code is 200\npw.test("Status code is 200", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test("Successfully inherits authorization/header set at the parent collection level", () => {\n  pw.expect(pw.response.body.headers["Authorization"]).toBe("Basic dGVzdHVzZXI6dGVzdHBhc3M=")\n  \n  pw.expect(pw.response.body.headers["Custom-Header"]).toBe("Custom header value set at the root collection")\n  pw.expect(pw.response.body.headers["Inherited-Header"]).toBe("Inherited header at all levels")\n})',
+          preRequestScript: "",
+          requestVariables: [],
+          responses: {},
+          description: "",
+        },
+      ],
+      auth: {
+        authType: "basic",
+        password: "testpass",
+        username: "testuser",
+        authActive: true,
+      },
+      headers: [
+        {
+          key: "Custom-Header",
+          value: "Custom header value set at the root collection",
+          active: true,
+          description: "",
+        },
+        {
+          key: "Inherited-Header",
+          value: "Inherited header at all levels",
+          active: true,
+          description: "",
+        },
+      ],
+      variables: [
+        {
+          key: "collection-variable",
+          currentValue: "collection-variable-value",
+          initialValue: "collection-variable-value",
+          secret: false,
+        },
+      ],
+      description: null,
+    },
+  ];
+
 // Collections with `data` field set to `null` at certain levels
-export const WORKSPACE_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK: WorkspaceCollection[] =
+export const WORKSPACE_COLLECTIONS_WITHOUT_AUTH_HEADERS_VARIABLES_AT_CERTAIN_LEVELS_MOCK: WorkspaceCollection[] =
   [
     {
       id: "clx1kxvao005m10f8luqivrf1",
       data: null,
-      title: "Collection with no authorization/headers set",
+      title: "Collection with no authorization/headers/variables set",
       parentID: null,
       folders: [
         {
@@ -508,7 +1352,7 @@ export const WORKSPACE_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK: 
         },
         {
           id: "clx1kym98005o10f8qg17t9o2",
-          data: '{"auth":{"authType":"none","authActive":true},"headers":[{"key":"Custom-Header","value":"Set at folder-2","active":true}]}',
+          data: '{"auth":{"authType":"none","authActive":true},"headers":[{"key":"Custom-Header","value":"Set at folder-2","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
           title: "folder-2",
           parentID: "clx1kxvao005m10f8luqivrf1",
           folders: [],
@@ -533,7 +1377,7 @@ export const WORKSPACE_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK: 
         },
         {
           id: "clx1l2eaz005s10f8loetbbeb",
-          data: '{"auth":{"authType":"none","authActive":true},"headers":[{"key":"Custom-Header","value":"Set at folder-4","active":true}]}',
+          data: '{"auth":{"authType":"none","authActive":true},"headers":[{"key":"Custom-Header","value":"Set at folder-4","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
           title: "folder-4",
           parentID: "clx1kxvao005m10f8luqivrf1",
           folders: [],
@@ -544,15 +1388,15 @@ export const WORKSPACE_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK: 
     },
   ];
 
-export const TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK: HoppCollection[] =
+export const TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_VARIABLES_AT_CERTAIN_LEVELS_MOCK: HoppCollection[] =
   [
     {
-      v: 2,
+      v: CollectionSchemaVersion,
       id: "clx1kxvao005m10f8luqivrf1",
-      name: "Collection with no authorization/headers set",
+      name: "Collection with no authorization/headers/variables set",
       folders: [
         {
-          v: 2,
+          v: CollectionSchemaVersion,
           id: "clx1kygjt005n10f8m1nkhjux",
           name: "folder-1",
           folders: [],
@@ -582,9 +1426,11 @@ export const TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK
             authActive: true,
           },
           headers: [],
+          variables: [],
+          description: null,
         },
         {
-          v: 2,
+          v: CollectionSchemaVersion,
           id: "clx1kym98005o10f8qg17t9o2",
           name: "folder-2",
           folders: [],
@@ -618,11 +1464,21 @@ export const TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK
               key: "Custom-Header",
               value: "Set at folder-2",
               active: true,
+              description: "",
             },
           ],
+          variables: [
+            {
+              key: "collection-variable",
+              currentValue: "collection-variable-value",
+              initialValue: "collection-variable-value",
+              secret: false,
+            },
+          ],
+          description: null,
         },
         {
-          v: 2,
+          v: CollectionSchemaVersion,
           id: "clx1l2bu6005r10f8daynohge",
           name: "folder-3",
           folders: [],
@@ -632,9 +1488,11 @@ export const TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK
             authActive: true,
           },
           headers: [],
+          variables: [],
+          description: null,
         },
         {
-          v: 2,
+          v: CollectionSchemaVersion,
           id: "clx1l2eaz005s10f8loetbbeb",
           name: "folder-4",
           folders: [],
@@ -648,8 +1506,18 @@ export const TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK
               key: "Custom-Header",
               value: "Set at folder-4",
               active: true,
+              description: "",
             },
           ],
+          variables: [
+            {
+              key: "collection-variable",
+              currentValue: "collection-variable-value",
+              initialValue: "collection-variable-value",
+              secret: false,
+            },
+          ],
+          description: null,
         },
       ],
       requests: [],
@@ -658,100 +1526,192 @@ export const TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK
         authActive: true,
       },
       headers: [],
+      variables: [],
+      description: null,
     },
   ];
 
-export const WORKSPACE_ENVIRONMENT_MOCK: WorkspaceEnvironment = {
+export const WORKSPACE_ENVIRONMENT_V0_FORMAT_MOCK = {
+  id: "clwudd68q00079rufju8uo3om",
+  teamID: "clws3hg58000011o8h07glsb1",
+  name: "Workspace environment v0 format",
+  variables: [
+    {
+      key: "firstName",
+      value: "John",
+    },
+    {
+      key: "lastName",
+      value: "Doe",
+    },
+  ],
+};
+
+export const TRANSFORMED_ENVIRONMENT_V0_FORMAT_MOCK: Environment = {
+  v: EnvironmentSchemaVersion,
+  id: "clwudd68q00079rufju8uo3om",
+  name: "Workspace environment v0 format",
+  variables: [
+    {
+      key: "firstName",
+      initialValue: "John",
+      currentValue: "John",
+      secret: false,
+    },
+    {
+      key: "lastName",
+      initialValue: "Doe",
+      currentValue: "Doe",
+      secret: false,
+    },
+  ],
+};
+
+export const WORKSPACE_ENVIRONMENT_V1_FORMAT_MOCK = {
+  id: "clwudd68q00079rufju8uo3om",
+  teamID: "clws3hg58000011o8h07glsb1",
+  name: "Workspace environment v1 format",
+  variables: [
+    {
+      key: "firstName",
+      value: "John",
+      secret: false,
+    },
+    {
+      key: "lastName",
+      value: "Doe",
+      secret: false,
+    },
+  ],
+};
+
+export const TRANSFORMED_ENVIRONMENT_V1_FORMAT_MOCK: Environment = {
+  v: EnvironmentSchemaVersion,
+  id: "clwudd68q00079rufju8uo3om",
+  name: "Workspace environment v1 format",
+  variables: [
+    {
+      key: "firstName",
+      initialValue: "John",
+      currentValue: "John",
+      secret: false,
+    },
+    {
+      key: "lastName",
+      initialValue: "Doe",
+      currentValue: "Doe",
+      secret: false,
+    },
+  ],
+};
+
+export const WORKSPACE_ENVIRONMENT_V2_FORMAT_MOCK: WorkspaceEnvironment = {
   id: "clwudd68q00079rufju8uo3on",
   teamID: "clws3hg58000011o8h07glsb1",
   name: "Response body sample",
   variables: [
     {
       key: "firstName",
-      value: "John",
+      initialValue: "John",
+      currentValue: "John",
       secret: false,
     },
     {
       key: "lastName",
-      value: "Doe",
+      initialValue: "Doe",
+      currentValue: "Doe",
       secret: false,
     },
     {
       key: "id",
-      value: "7",
+      initialValue: "7",
+      currentValue: "7",
       secret: false,
     },
     {
       key: "fullName",
-      value: "<<firstName>> <<lastName>>",
+      initialValue: "<<firstName>> <<lastName>>",
+      currentValue: "<<firstName>> <<lastName>>",
       secret: false,
     },
     {
       key: "recursiveVarX",
-      value: "<<recursiveVarY>>",
+      initialValue: "<<recursiveVarY>>",
+      currentValue: "<<recursiveVarY>>",
       secret: false,
     },
     {
       key: "recursiveVarY",
-      value: "<<salutation>>",
+      initialValue: "<<salutation>>",
+      currentValue: "<<salutation>>",
       secret: false,
     },
     {
       key: "salutation",
-      value: "Hello",
+      initialValue: "Hello",
+      currentValue: "Hello",
       secret: false,
     },
     {
       key: "greetText",
-      value: "<<salutation>> <<fullName>>",
+      initialValue: "<<salutation>> <<fullName>>",
+      currentValue: "<<salutation>> <<fullName>>",
       secret: false,
     },
   ],
 };
 
-export const TRANSFORMED_ENVIRONMENT_MOCK: Environment = {
+export const TRANSFORMED_ENVIRONMENT_V2_FORMAT_MOCK: Environment = {
   v: EnvironmentSchemaVersion,
   id: "clwudd68q00079rufju8uo3on",
   name: "Response body sample",
   variables: [
     {
       key: "firstName",
-      value: "John",
+      initialValue: "John",
+      currentValue: "John",
       secret: false,
     },
     {
       key: "lastName",
-      value: "Doe",
+      initialValue: "Doe",
+      currentValue: "Doe",
       secret: false,
     },
     {
       key: "id",
-      value: "7",
+      initialValue: "7",
+      currentValue: "7",
       secret: false,
     },
     {
       key: "fullName",
-      value: "<<firstName>> <<lastName>>",
+      initialValue: "<<firstName>> <<lastName>>",
+      currentValue: "<<firstName>> <<lastName>>",
       secret: false,
     },
     {
       key: "recursiveVarX",
-      value: "<<recursiveVarY>>",
+      initialValue: "<<recursiveVarY>>",
+      currentValue: "<<recursiveVarY>>",
       secret: false,
     },
     {
       key: "recursiveVarY",
-      value: "<<salutation>>",
+      initialValue: "<<salutation>>",
+      currentValue: "<<salutation>>",
       secret: false,
     },
     {
       key: "salutation",
-      value: "Hello",
+      initialValue: "Hello",
+      currentValue: "Hello",
       secret: false,
     },
     {
       key: "greetText",
-      value: "<<salutation>> <<fullName>>",
+      initialValue: "<<salutation>> <<fullName>>",
+      currentValue: "<<salutation>> <<fullName>>",
       secret: false,
     },
   ],

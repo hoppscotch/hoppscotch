@@ -2,7 +2,6 @@ import { Global, Module } from '@nestjs/common';
 import { MailerModule as NestMailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { MailerService } from './mailer.service';
-import { ConfigService } from '@nestjs/config';
 import { loadInfraConfiguration } from 'src/infra-config/helper';
 import { getMailerAddressFrom, getTransportOption } from './helper';
 
@@ -14,7 +13,8 @@ import { getMailerAddressFrom, getTransportOption } from './helper';
 })
 export class MailerModule {
   static async register() {
-    const config = new ConfigService();
+    if (process.env.GENERATE_GQL_SCHEMA) return { module: MailerModule };
+
     const env = await loadInfraConfiguration();
 
     // If mailer SMTP is DISABLED, return the module without any configuration (service, listener, etc.)
@@ -28,9 +28,9 @@ export class MailerModule {
     // If mailer is ENABLED, return the module with configuration (service, etc.)
 
     // Determine transport configuration based on custom config flag
-    let transportOption = getTransportOption(env, config);
+    const transportOption = getTransportOption(env);
     // Get mailer address from environment or config
-    const mailerAddressFrom = getMailerAddressFrom(env, config);
+    const mailerAddressFrom = getMailerAddressFrom(env);
 
     return {
       module: MailerModule,

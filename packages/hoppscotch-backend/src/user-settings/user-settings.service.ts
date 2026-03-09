@@ -4,7 +4,7 @@ import { PubSubService } from 'src/pubsub/pubsub.service';
 import { User } from 'src/user/user.model';
 import * as E from 'fp-ts/Either';
 import { stringToJson } from 'src/utils';
-import { UserSettings as DbUserSettings } from '@prisma/client';
+import { UserSettings as DbUserSettings } from 'src/generated/prisma/client';
 import { UserSettings } from './user-settings.model';
 import {
   USER_SETTINGS_ALREADY_EXISTS,

@@ -14,7 +14,9 @@
         :text="t('cookies.modal.interceptor_no_support')"
       >
         <template #body>
-          <AppInterceptor class="rounded border border-dividerLight p-2" />
+          <AppKernelInterceptor
+            class="rounded border border-dividerLight p-2"
+          />
         </template>
       </HoppSmartPlaceholder>
       <div v-else class="flex flex-col">
@@ -50,7 +52,7 @@
             class="flex flex-col"
           >
             <div class="flex flex-1 items-center justify-between">
-              <label for="cookiesList" class="p-4">
+              <label class="p-4">
                 {{ domain }}
               </label>
               <div class="flex">
@@ -79,13 +81,19 @@
                 <template v-else>
                   <div
                     v-for="(entry, entryIndex) in entries"
-                    :key="`${entry}-${entryIndex}`"
-                    class="flex divide-x divide-dividerLight"
+                    :key="`${entry.name}-${entryIndex}`"
+                    class="flex w-full divide-x divide-dividerLight items-center"
                   >
                     <input
                       class="flex flex-1 bg-transparent px-4 py-2"
-                      :value="entry"
+                      :value="`${entry.name} => ${entry.value}`"
                       readonly
+                    />
+                    <HoppButtonSecondary
+                      v-tippy="{ theme: 'tooltip' }"
+                      :title="t('action.copy')"
+                      :icon="IconCopy"
+                      @click="copyCookie(entry)"
                     />
                     <HoppButtonSecondary
                       v-tippy="{ theme: 'tooltip' }"
@@ -143,50 +151,42 @@
 import { useI18n } from "@composables/i18n"
 import { useService } from "dioc/vue"
 import { CookieJarService } from "~/services/cookie-jar.service"
+import { Cookie } from "@hoppscotch/data"
 import IconTrash from "~icons/lucide/trash"
 import IconEdit from "~icons/lucide/edit"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconPlus from "~icons/lucide/plus"
+import IconCopy from "~icons/lucide/copy"
 import { cloneDeep } from "lodash-es"
 import { ref, watch, computed } from "vue"
-import { InterceptorService } from "~/services/interceptor.service"
 import { EditCookieConfig } from "./EditCookie.vue"
 import { useColorMode } from "@composables/theming"
 import { useToast } from "@composables/toast"
+import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 
-const props = defineProps<{
-  show: boolean
-}>()
-
-const emit = defineEmits<{
-  (e: "hide-modal"): void
-}>()
+const props = defineProps<{ show: boolean }>()
+const emit = defineEmits<{ (e: "hide-modal"): void }>()
 
 const t = useI18n()
 const colorMode = useColorMode()
 const toast = useToast()
 
 const newDomainText = ref("")
-
-const interceptorService = useService(InterceptorService)
+const interceptorService = useService(KernelInterceptorService)
 const cookieJarService = useService(CookieJarService)
 
 const workingCookieJar = ref(cloneDeep(cookieJarService.cookieJar.value))
 
 const currentInterceptorSupportsCookies = computed(() => {
-  const currentInterceptor = interceptorService.currentInterceptor.value
-
-  if (!currentInterceptor) return true
-
-  return currentInterceptor.supportsCookies ?? false
+  const caps = interceptorService.current.value?.capabilities
+  return caps?.advanced?.has("cookies") ?? false
 })
 
 function addNewDomain() {
-  if (newDomainText.value === "" || /^\s+$/.test(newDomainText.value)) {
+  if (newDomainText.value.trim() === "") {
     toast.error(`${t("cookies.modal.empty_domain")}`)
     return
   }
-
   workingCookieJar.value.set(newDomainText.value, [])
   newDomainText.value = ""
 }
@@ -224,7 +224,7 @@ function cancelCookieChanges() {
   hideModal()
 }
 
-function editCookie(domain: string, entryIndex: number, cookieEntry: string) {
+function editCookie(domain: string, entryIndex: number, cookieEntry: Cookie) {
   showEditModalFor.value = {
     type: "edit",
     domain,
@@ -235,35 +235,42 @@ function editCookie(domain: string, entryIndex: number, cookieEntry: string) {
 
 function deleteCookie(domain: string, entryIndex: number) {
   const entry = workingCookieJar.value.get(domain)
+  if (entry) entry.splice(entryIndex, 1)
+}
 
-  if (entry) {
-    entry.splice(entryIndex, 1)
+function saveCookie(value: string) {
+  if (showEditModalFor.value?.type === "create") {
+    const { domain } = showEditModalFor.value
+    const entry = workingCookieJar.value.get(domain)!
+
+    const name = `Cookie-${entry.length}`
+    entry.push(makeUICookie(domain, value, name))
+    showEditModalFor.value = null
+    return
+  }
+  if (showEditModalFor.value?.type === "edit") {
+    const { domain, entryIndex } = showEditModalFor.value
+    const entry = workingCookieJar.value.get(domain)
+    if (entry) entry[entryIndex].value = value
+    showEditModalFor.value = null
   }
 }
 
-function saveCookie(cookie: string) {
-  if (showEditModalFor.value?.type === "create") {
-    const { domain } = showEditModalFor.value
-
-    const entry = workingCookieJar.value.get(domain)!
-    entry.push(cookie)
-
-    showEditModalFor.value = null
-
-    return
+function makeUICookie(domain: string, value: string, name: string): Cookie {
+  return {
+    name,
+    value,
+    domain,
+    path: "/",
+    httpOnly: false,
+    secure: false,
+    sameSite: "Lax",
   }
+}
 
-  if (showEditModalFor.value?.type !== "edit") return
-
-  const { domain, entryIndex } = showEditModalFor.value!
-
-  const entry = workingCookieJar.value.get(domain)
-
-  if (entry) {
-    entry[entryIndex] = cookie
-  }
-
-  showEditModalFor.value = null
+function copyCookie(cookie: Cookie) {
+  navigator.clipboard.writeText(`${cookie.name}=${cookie.value}`)
+  toast.success(t("state.copied"))
 }
 
 const hideModal = () => {

@@ -1,7 +1,7 @@
 import { AdminService } from './admin.service';
 import { PubSubService } from '../pubsub/pubsub.service';
 import { mockDeep } from 'jest-mock-extended';
-import { InvitedUsers, User as DbUser } from '@prisma/client';
+import { InvitedUsers, User as DbUser } from 'src/generated/prisma/client';
 import { UserService } from '../user/user.service';
 import { TeamService } from '../team/team.service';
 import { TeamEnvironmentsService } from '../team-environments/team-environments.service';
@@ -16,12 +16,12 @@ import {
   ONLY_ONE_ADMIN_ACCOUNT,
   USER_ALREADY_INVITED,
   USER_INVITATION_DELETION_FAILED,
-  USER_NOT_FOUND,
 } from '../errors';
 import { ShortcodeService } from 'src/shortcode/shortcode.service';
 import { ConfigService } from '@nestjs/config';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
 import * as E from 'fp-ts/Either';
+import { UserHistoryService } from 'src/user-history/user-history.service';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockPubSub = mockDeep<PubSubService>();
@@ -34,6 +34,7 @@ const mockTeamCollectionService = mockDeep<TeamCollectionService>();
 const mockMailerService = mockDeep<MailerService>();
 const mockShortcodeService = mockDeep<ShortcodeService>();
 const mockConfigService = mockDeep<ConfigService>();
+const mockUserHistoryService = mockDeep<UserHistoryService>();
 
 const adminService = new AdminService(
   mockUserService,
@@ -42,11 +43,12 @@ const adminService = new AdminService(
   mockTeamRequestService,
   mockTeamEnvironmentsService,
   mockTeamInvitationService,
-  mockPubSub as any,
-  mockPrisma as any,
+  mockPubSub,
+  mockPrisma,
   mockMailerService,
   mockShortcodeService,
   mockConfigService,
+  mockUserHistoryService,
 );
 
 const invitedUsers: InvitedUsers[] = [
@@ -96,14 +98,11 @@ const dbAdminUsers: DbUser[] = [
 describe('AdminService', () => {
   describe('fetchInvitedUsers', () => {
     test('should resolve right and apply pagination correctly', async () => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       mockPrisma.user.findMany.mockResolvedValue([dbAdminUsers[0]]);
-      // @ts-ignore
       mockPrisma.invitedUsers.findMany.mockResolvedValue(invitedUsers);
 
       const paginationArgs: OffsetPaginationArgs = { take: 5, skip: 2 };
-      const results = await adminService.fetchInvitedUsers(paginationArgs);
+      await adminService.fetchInvitedUsers(paginationArgs);
 
       expect(mockPrisma.invitedUsers.findMany).toHaveBeenCalledWith({
         ...paginationArgs,
@@ -123,10 +122,7 @@ describe('AdminService', () => {
     test('should resolve right and return an array of invited users', async () => {
       const paginationArgs: OffsetPaginationArgs = { take: 10, skip: 0 };
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       mockPrisma.user.findMany.mockResolvedValue([dbAdminUsers[0]]);
-      // @ts-ignore
       mockPrisma.invitedUsers.findMany.mockResolvedValue(invitedUsers);
 
       const results = await adminService.fetchInvitedUsers(paginationArgs);
@@ -214,7 +210,6 @@ describe('AdminService', () => {
     });
 
     test('should resolve right and return deleted invitee email', async () => {
-      const adminUid = 'adminUid';
       mockPrisma.invitedUsers.deleteMany.mockResolvedValueOnce({ count: 1 });
 
       const result = await adminService.revokeUserInvitations([
@@ -290,6 +285,17 @@ describe('AdminService', () => {
 
       const result = await adminService.getTeamRequestsCount();
       expect(result).toEqual(10);
+    });
+  });
+
+  describe('deleteAllUserHistory', () => {
+    test('should resolve right and delete all user history', async () => {
+      mockUserHistoryService.deleteAllHistories.mockResolvedValueOnce(
+        E.right(true),
+      );
+
+      const result = await adminService.deleteAllUserHistory();
+      expect(result).toEqualRight(true);
     });
   });
 });

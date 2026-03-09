@@ -8,7 +8,7 @@
           v-if="currentTabID"
           :id="'gql_windows'"
           :model-value="currentTabID"
-          @update:model-value="(tabID) => tabs.setActiveTab(tabID)"
+          @update:model-value="changeTab"
           @remove-tab="removeTab"
           @add-tab="addNewTab"
           @sort="sortTabs"
@@ -62,6 +62,7 @@
     <CollectionsEditRequest
       v-model="editReqModalReqName"
       :show="showRenamingReqNameModalForTabID !== undefined"
+      :request-context="requestToRename"
       @submit="renameReqName"
       @hide-modal="showRenamingReqNameModalForTabID = undefined"
     />
@@ -91,12 +92,14 @@ import { defineActionHandler } from "~/helpers/actions"
 import { connection, disconnect } from "~/helpers/graphql/connection"
 import { getDefaultGQLRequest } from "~/helpers/graphql/default"
 import { HoppGQLDocument } from "~/helpers/graphql/document"
+import { useExplorer } from "~/helpers/graphql/explorer"
 import { InspectionService } from "~/services/inspection"
 import { HoppTab } from "~/services/tab"
 import { GQLTabService } from "~/services/tab/graphql"
 
 const t = useI18n()
 const tabs = useService(GQLTabService)
+const { reset } = useExplorer()
 
 const currentTabID = computed(() => tabs.currentTabID.value)
 
@@ -114,12 +117,17 @@ const addNewTab = () => {
   const tab = tabs.createNewTab({
     request: getDefaultGQLRequest(),
     isDirty: false,
+    cursorPosition: 0,
   })
 
   tabs.setActiveTab(tab.id)
 }
 const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
   tabs.updateTabOrdering(e.oldIndex, e.newIndex)
+}
+const changeTab = (tabID: string) => {
+  reset()
+  tabs.setActiveTab(tabID)
 }
 
 const removeTab = (tabID: string) => {
@@ -184,6 +192,12 @@ onBeforeUnmount(() => {
 const editReqModalReqName = ref("")
 const showRenamingReqNameModalForTabID = ref<string>()
 
+const requestToRename = computed(() => {
+  if (!showRenamingReqNameModalForTabID.value) return null
+  const tab = tabs.getTabRef(showRenamingReqNameModalForTabID.value)
+  return tab.value.document.request
+})
+
 const openReqRenameModal = (tab: HoppTab<HoppGQLDocument>) => {
   editReqModalReqName.value = tab.document.request.name
   showRenamingReqNameModalForTabID.value = tab.id
@@ -204,6 +218,7 @@ const duplicateTab = (tabID: string) => {
     const newTab = tabs.createNewTab({
       request: tab.value.document.request,
       isDirty: true,
+      cursorPosition: 0,
     })
     tabs.setActiveTab(newTab.id)
   }
@@ -214,6 +229,7 @@ defineActionHandler("gql.request.open", ({ request, saveContext }) => {
     saveContext,
     request: request,
     isDirty: false,
+    cursorPosition: 0,
   })
 })
 
@@ -224,11 +240,42 @@ defineActionHandler("request.rename", () => {
 defineActionHandler("tab.duplicate-tab", ({ tabID }) => {
   duplicateTab(tabID ?? currentTabID.value)
 })
+
 defineActionHandler("tab.close-current", () => {
   removeTab(currentTabID.value)
 })
+
 defineActionHandler("tab.close-other", () => {
   tabs.closeOtherTabs(currentTabID.value)
 })
+
 defineActionHandler("tab.open-new", addNewTab)
+
+defineActionHandler("tab.next", () => {
+  tabs.goToNextTab()
+})
+
+defineActionHandler("tab.prev", () => {
+  tabs.goToPreviousTab()
+})
+
+defineActionHandler("tab.switch-to-first", () => {
+  tabs.goToFirstTab()
+})
+
+defineActionHandler("tab.switch-to-last", () => {
+  tabs.goToLastTab()
+})
+
+defineActionHandler("tab.reopen-closed", () => {
+  tabs.reopenClosedTab()
+})
+
+defineActionHandler("tab.mru-switch", () => {
+  tabs.goToMRUTab()
+})
+
+defineActionHandler("tab.mru-switch-reverse", () => {
+  tabs.goToPreviousMRUTab()
+})
 </script>

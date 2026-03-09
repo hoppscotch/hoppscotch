@@ -1,57 +1,117 @@
-name: Bug report
+name: Bug Report
 description: Create a bug report to help us improve Hoppscotch
 title: "[bug]: "
 labels: [bug, need testing]
 body:
-- type: markdown
-  attributes:
-    value: |
-      Thank you for taking the time to fill out this bug report.
-- type: checkboxes
-  attributes:
-    label: Is there an existing issue for this?
-    description: Please search to see if an issue already exists for the bug you encountered
-    options:
-    - label: I have searched the existing issues
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to report this issue. Complete information helps us resolve it faster.
+
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue for this?
+      description: Please search to see if an issue already exists for the bug you encountered
+      options:
+        - label: I have searched existing issues and this bug hasn't been reported yet
+          required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      description: How are you accessing Hoppscotch?
+      options:
+        - Web App
+        - Desktop App
+    validations:
       required: true
-- type: textarea
-  attributes:
-    label: Current behavior
-    description: A concise description of what you're experiencing and what you expect
-    placeholder: |
-      When I do <X>, <Y> happens and I see the error message attached below:
-      ```...```
-      What I expect is <Z>
-  validations:
-    required: true
-- type: textarea
-  attributes:
-    label: Steps to reproduce
-    description: Add steps to reproduce this behaviour, include console or network logs and screenshots
-    placeholder: |
-      1. Go to '...'
-      2. Click on '....'
-      3. Scroll down to '....'
-      4. See error
-  validations:
-    required: true
-- type: dropdown
-  id: env
-  attributes:
-    label: Environment
-    options:
-      - Production
-      - Release
-      - Deploy preview
-  validations:
-    required: true
-- type: dropdown
-  id: version
-  attributes:
-    label: Version
-    options:
-      - Cloud
-      - Self-hosted
-      - Local
-  validations:
-    required: true
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      description: |
+        Which browser is affected?
+        - For web app: Select the browser you're using
+        - For desktop app: Select your default browser
+      options:
+        - Chrome
+        - Firefox
+        - Safari
+        - Edge
+        - Opera
+        - Other (specify in additional info)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      description: Which operating system are you using?
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - Other (specify in additional info)
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Bug Description
+      description: |
+        Describe the bug, how to reproduce it, and any additional context that would help us fix it. Include screenshots when possible.
+
+        **For request-related issues:** Please specify which interceptor you're using (Browser, Agent, Extension, Proxy, Native, etc.)
+      placeholder: |
+        ## What happened?
+        When I do <X>, <Y> happens and I see the error:
+        ```
+        [paste error message here]
+        ```
+        What I expected is <Z>
+
+        ## Steps to reproduce
+        1. Go to '...'
+        2. Click on '....'
+        3. See error
+
+        ## Screenshots
+        [Attach screenshots here if available - they're really helpful!]
+
+        ## Additional context
+        Interceptor used (if request-related): [Browser/Agent/Extension/Proxy/Native/etc.]
+
+        ## Logs and Console Output (if available)
+        ```
+        Paste any relevant logs here
+        ```
+
+        ## Additional details (if relevant)
+        - Device specifics:
+        - Special configurations:
+    validations:
+      required: true
+
+  - type: dropdown
+    id: deployment
+    attributes:
+      label: Deployment Type
+      description: What type of Hoppscotch deployment are you using?
+      options:
+        - Hoppscotch Cloud
+        - Self-hosted (on-prem deployment)
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: |
+        For Self-Hosted deployments: Specify your deployment version
+        For Desktop App: Specify your app version
+    validations:
+      required: false

@@ -1,5 +1,0 @@
-mutation CreateGQLRootUserCollection($title: String!) {
-  createGQLRootUserCollection(title: $title) {
-    id
-  }
-}

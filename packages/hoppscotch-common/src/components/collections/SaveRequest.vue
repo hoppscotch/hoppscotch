@@ -8,14 +8,34 @@
   >
     <template #body>
       <div class="flex flex-col">
-        <HoppSmartInput
-          v-model="requestName"
-          styles="relative flex"
-          placeholder=" "
-          :label="t('request.name')"
-          input-styles="floating-input"
-          @submit="saveRequestAs"
-        />
+        <div class="flex gap-1">
+          <HoppSmartInput
+            v-model="requestName"
+            class="flex-grow"
+            styles="relative flex"
+            placeholder=" "
+            :label="t('request.name')"
+            input-styles="floating-input"
+            @submit="saveRequestAs"
+          />
+          <HoppButtonSecondary
+            v-if="canDoRequestNameGeneration"
+            v-tippy="{ theme: 'tooltip' }"
+            :icon="IconSparkle"
+            :disabled="isGenerateRequestNamePending"
+            class="rounded-md"
+            :class="{
+              'animate-pulse': isGenerateRequestNamePending,
+            }"
+            :title="t('ai_experiments.generate_request_name')"
+            @click="
+              async () => {
+                await generateRequestName(requestContext)
+                submittedFeedback = false
+              }
+            "
+          />
+        </div>
 
         <label class="p-4">
           {{ t("collection.select_location") }}
@@ -43,20 +63,61 @@
       </div>
     </template>
     <template #footer>
-      <span class="flex space-x-2">
-        <HoppButtonPrimary
-          :label="`${t('action.save')}`"
-          :loading="modalLoadingState"
-          outline
-          @click="saveRequestAs"
-        />
-        <HoppButtonSecondary
-          :label="`${t('action.cancel')}`"
-          outline
-          filled
-          @click="hideModal"
-        />
-      </span>
+      <div class="flex justify-between items-center w-full">
+        <div class="flex space-x-2">
+          <HoppButtonPrimary
+            :label="`${t('action.save')}`"
+            :loading="modalLoadingState"
+            outline
+            @click="saveRequestAs"
+          />
+          <HoppButtonSecondary
+            :label="`${t('action.cancel')}`"
+            outline
+            filled
+            @click="hideModal"
+          />
+        </div>
+
+        <div
+          v-if="lastTraceID && !submittedFeedback"
+          class="flex items-center gap-2"
+        >
+          <p>{{ t("ai_experiments.feedback_cta_request_name") }}</p>
+          <template v-if="!isSubmitFeedbackPending">
+            <HoppButtonSecondary
+              :icon="IconThumbsUp"
+              outline
+              @click="
+                async () => {
+                  if (lastTraceID) {
+                    await submitFeedback('positive', lastTraceID)
+                    submittedFeedback = true
+                  }
+                }
+              "
+            />
+            <HoppButtonSecondary
+              :icon="IconThumbsDown"
+              outline
+              @click="
+                async () => {
+                  if (lastTraceID) {
+                    await submitFeedback('negative', lastTraceID)
+                    submittedFeedback = true
+                  }
+                }
+              "
+            />
+          </template>
+          <template v-else>
+            <HoppSmartSpinner />
+          </template>
+        </div>
+        <div v-if="submittedFeedback">
+          <p>{{ t("ai_experiments.feedback_thank_you") }}</p>
+        </div>
+      </div>
     </template>
   </HoppSmartModal>
 </template>
@@ -74,10 +135,18 @@ import { useService } from "dioc/vue"
 import * as E from "fp-ts/Either"
 import { cloneDeep } from "lodash-es"
 import { computed, nextTick, reactive, ref, watch } from "vue"
-
+import {
+  useRequestNameGeneration,
+  useSubmitFeedback,
+} from "~/composables/ai-experiments"
+import { GQLError } from "~/helpers/backend/GQLClient"
+import {
+  createRequestInCollection,
+  updateTeamRequest,
+} from "~/helpers/backend/mutations/TeamRequest"
 import { Picked } from "~/helpers/types/HoppPicked"
 import {
-  cascadeParentCollectionForHeaderAuth,
+  cascadeParentCollectionForProperties,
   editGraphqlRequest,
   saveGraphqlRequestAs,
 } from "~/newstore/collections"
@@ -85,6 +154,11 @@ import { platform } from "~/platform"
 import { NewWorkspaceService } from "~/services/new-workspace"
 import { GQLTabService } from "~/services/tab/graphql"
 import { RESTTabService } from "~/services/tab/rest"
+import { TeamWorkspace } from "~/services/workspace.service"
+import IconSparkle from "~icons/lucide/sparkles"
+import IconThumbsDown from "~icons/lucide/thumbs-down"
+import IconThumbsUp from "~icons/lucide/thumbs-up"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 
 const t = useI18n()
 const toast = useToast()
@@ -136,7 +210,10 @@ const gqlRequestName = computedWithControl(
 
 const restRequestName = computedWithControl(
   () => RESTTabs.currentActiveTab.value,
-  () => RESTTabs.currentActiveTab.value.document.request.name
+  () =>
+    RESTTabs.currentActiveTab.value.document.type === "request"
+      ? RESTTabs.currentActiveTab.value.document.request.name
+      : ""
 )
 
 const reqName = computed(() => {
@@ -148,12 +225,50 @@ const reqName = computed(() => {
   return gqlRequestName.value
 })
 
+const requestContext = computed(() => {
+  if (props.request) {
+    return props.request
+  }
+
+  if (
+    props.mode === "rest" &&
+    RESTTabs.currentActiveTab.value.document.type === "request"
+  ) {
+    return RESTTabs.currentActiveTab.value.document.request
+  }
+
+  return GQLTabs.currentActiveTab.value.document.request
+})
+
 const requestName = ref(reqName.value)
+
+const {
+  canDoRequestNameGeneration,
+  generateRequestName,
+  isGenerateRequestNamePending,
+  lastTraceID,
+} = useRequestNameGeneration(requestName)
+
+watch(
+  () => props.show,
+  (newVal) => {
+    if (!newVal) {
+      submittedFeedback.value = false
+      lastTraceID.value = null
+    }
+  }
+)
+
+const submittedFeedback = ref(false)
+const { submitFeedback, isSubmitFeedbackPending } = useSubmitFeedback()
 
 watch(
   () => [RESTTabs.currentActiveTab.value, GQLTabs.currentActiveTab.value],
   () => {
-    if (props.mode === "rest") {
+    if (
+      props.mode === "rest" &&
+      RESTTabs.currentActiveTab.value.document.type === "request"
+    ) {
       requestName.value =
         RESTTabs.currentActiveTab.value?.document.request.name ?? ""
     } else {
@@ -208,6 +323,9 @@ const onSelect = (pickedVal: Picked | null) => {
 }
 
 const saveRequestAs = async () => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
+
   if (!requestName.value) {
     toast.error(`${t("error.empty_req_name")}`)
     return
@@ -219,8 +337,14 @@ const saveRequestAs = async () => {
 
   const updatedRequest =
     props.mode === "rest"
-      ? cloneDeep(RESTTabs.currentActiveTab.value.document.request)
+      ? cloneDeep(
+          RESTTabs.currentActiveTab.value.document.type === "request"
+            ? RESTTabs.currentActiveTab.value.document.request
+            : null
+        )
       : cloneDeep(GQLTabs.currentActiveTab.value.document.request)
+
+  if (!updatedRequest) return
 
   updatedRequest.name = requestName.value
 
@@ -275,6 +399,7 @@ const saveRequestAs = async () => {
     RESTTabs.currentActiveTab.value.document = {
       request: updatedRequest,
       isDirty: false,
+      type: "request",
       saveContext: {
         originLocation: "workspace-user-collection",
         requestHandle,
@@ -318,21 +443,15 @@ const saveRequestAs = async () => {
     RESTTabs.currentActiveTab.value.document = {
       request: updatedRequest,
       isDirty: false,
+      type: "request",
       saveContext: {
         originLocation: "workspace-user-collection",
         requestHandle,
       },
     }
 
-    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-      picked.value.folderPath,
-      "rest"
-    )
-
-    RESTTabs.currentActiveTab.value.document.inheritedProperties = {
-      auth,
-      headers,
-    }
+    RESTTabs.currentActiveTab.value.document.inheritedProperties =
+      cascadeParentCollectionForProperties(picked.value.folderPath, "rest")
 
     requestSaved()
   }
@@ -407,6 +526,16 @@ const saveRequestAs = async () => {
       updatedRequest as HoppGQLRequest
     )
 
+    GQLTabs.currentActiveTab.value.document = {
+      request: requestUpdated as HoppGQLRequest,
+      isDirty: false,
+      saveContext: {
+        originLocation: "user-collection",
+        folderPath: picked.value.folderPath,
+        requestIndex: picked.value.requestIndex,
+      },
+    }
+
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
       createdNow: false,
@@ -414,23 +543,26 @@ const saveRequestAs = async () => {
       workspaceType: "team",
     })
 
-    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-      picked.value.folderPath,
-      "graphql"
-    )
+    GQLTabs.currentActiveTab.value.document.inheritedProperties =
+      cascadeParentCollectionForProperties(picked.value.folderPath, "graphql")
 
-    GQLTabs.currentActiveTab.value.document.inheritedProperties = {
-      auth,
-      headers,
-    }
-
-    requestSaved()
+    requestSaved("GQL")
   } else if (picked.value.pickedType === "gql-my-folder") {
     // TODO: Check for GQL request ?
-    saveGraphqlRequestAs(
+    const insertionIndex = saveGraphqlRequestAs(
       picked.value.folderPath,
       updatedRequest as HoppGQLRequest
     )
+
+    GQLTabs.currentActiveTab.value.document = {
+      request: requestUpdated as HoppGQLRequest,
+      isDirty: false,
+      saveContext: {
+        originLocation: "user-collection",
+        folderPath: picked.value.folderPath,
+        requestIndex: insertionIndex,
+      },
+    }
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
@@ -439,23 +571,26 @@ const saveRequestAs = async () => {
       workspaceType: "team",
     })
 
-    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-      picked.value.folderPath,
-      "graphql"
-    )
+    GQLTabs.currentActiveTab.value.document.inheritedProperties =
+      cascadeParentCollectionForProperties(picked.value.folderPath, "graphql")
 
-    GQLTabs.currentActiveTab.value.document.inheritedProperties = {
-      auth,
-      headers,
-    }
-
-    requestSaved()
+    requestSaved("GQL")
   } else if (picked.value.pickedType === "gql-my-collection") {
     // TODO: Check for GQL request ?
-    saveGraphqlRequestAs(
+    const insertionIndex = saveGraphqlRequestAs(
       `${picked.value.collectionIndex}`,
       updatedRequest as HoppGQLRequest
     )
+
+    GQLTabs.currentActiveTab.value.document = {
+      request: requestUpdated as HoppGQLRequest,
+      isDirty: false,
+      saveContext: {
+        originLocation: "user-collection",
+        folderPath: `${picked.value.collectionIndex}`,
+        requestIndex: insertionIndex,
+      },
+    }
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
@@ -464,17 +599,13 @@ const saveRequestAs = async () => {
       workspaceType: "team",
     })
 
-    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-      `${picked.value.collectionIndex}`,
-      "graphql"
-    )
+    GQLTabs.currentActiveTab.value.document.inheritedProperties =
+      cascadeParentCollectionForProperties(
+        `${picked.value.collectionIndex}`,
+        "graphql"
+      )
 
-    GQLTabs.currentActiveTab.value.document.inheritedProperties = {
-      auth,
-      headers,
-    }
-
-    requestSaved()
+    requestSaved("GQL")
   }
 }
 
@@ -513,6 +644,7 @@ const saveRequestAs = async () => {
 //         RESTTabs.currentActiveTab.value.document = {
 //           request: requestUpdated,
 //           isDirty: false,
+//           type: "request",
 //           saveContext: {
 //             originLocation: "team-collection",
 //             requestID: createRequestInCollection.id,
@@ -528,10 +660,14 @@ const saveRequestAs = async () => {
 //   )()
 // }
 
-const requestSaved = () => {
+const requestSaved = (tab: "REST" | "GQL" = "REST") => {
   toast.success(`${t("request.added")}`)
   nextTick(() => {
-    RESTTabs.currentActiveTab.value.document.isDirty = false
+    if (tab === "REST") {
+      RESTTabs.currentActiveTab.value.document.isDirty = false
+    } else {
+      GQLTabs.currentActiveTab.value.document.isDirty = false
+    }
   })
   hideModal()
 }
@@ -562,4 +698,3 @@ const hideModal = () => {
 //   }
 // }
 </script>
-, editGraphqlRequest, saveGraphqlRequestAs

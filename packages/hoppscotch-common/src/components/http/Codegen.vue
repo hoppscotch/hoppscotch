@@ -45,6 +45,7 @@
               @click="
                 () => {
                   codegenType = codegen.name
+                  codegenMode = codegen.lang
                   hide()
                 }
               "
@@ -108,7 +109,12 @@
 <script setup lang="ts">
 import { useCodemirror } from "@composables/codemirror"
 import { useI18n } from "@composables/i18n"
-import { Environment, makeRESTRequest } from "@hoppscotch/data"
+import {
+  Environment,
+  HoppRESTAuth,
+  HoppRESTHeaders,
+  makeRESTRequest,
+} from "@hoppscotch/data"
 import * as O from "fp-ts/Option"
 import { computed, reactive, ref } from "vue"
 import {
@@ -119,12 +125,16 @@ import {
   CodegenDefinitions,
   CodegenName,
   generateCode,
+  CodegenLang,
 } from "~/helpers/new-codegen"
 import {
   getEffectiveRESTRequest,
   resolvesEnvsInBody,
 } from "~/helpers/utils/EffectiveURL"
-import { getAggregateEnvs } from "~/newstore/environments"
+import {
+  AggregateEnvironment,
+  getAggregateEnvsWithCurrentValue,
+} from "~/newstore/environments"
 
 import { useService } from "dioc/vue"
 import cloneDeep from "lodash-es/cloneDeep"
@@ -135,14 +145,43 @@ import { platform } from "~/platform"
 import { RESTTabService } from "~/services/tab/rest"
 import IconCheck from "~icons/lucide/check"
 import IconWrapText from "~icons/lucide/wrap-text"
+import { asyncComputed } from "@vueuse/core"
+import { getDefaultRESTRequest } from "~/helpers/rest/default"
+import { CurrentValueService } from "~/services/current-environment-value.service"
+import { getCurrentEnvironment } from "../../newstore/environments"
+import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
+import { filterNonEmptyEnvironmentVariables } from "~/helpers/RequestRunner"
 
 const t = useI18n()
 
 const tabs = useService(RESTTabService)
-const request = computed(() =>
-  cloneDeep(tabs.currentActiveTab.value.document.request)
+const currentEnvironmentValueService = useService(CurrentValueService)
+
+// Get the current active request if the current active tab is a request else get the original request from the response tab
+const currentActiveRequest = computed(() => {
+  let effectiveRequest = null
+
+  if (currentActiveTabDocument.value.type === "request") {
+    effectiveRequest = currentActiveTabDocument.value.request
+  }
+
+  if (currentActiveTabDocument.value.type === "example-response") {
+    effectiveRequest = makeRESTRequest({
+      ...getDefaultRESTRequest(),
+      ...currentActiveTabDocument.value.response.originalRequest,
+    })
+  }
+
+  return cloneDeep(effectiveRequest) ?? getDefaultRESTRequest()
+})
+
+// Retrieve the document
+const currentActiveTabDocument = computed(() =>
+  cloneDeep(tabs.currentActiveTab.value.document)
 )
+
 const codegenType = ref<CodegenName>("shell-curl")
+const codegenMode = ref<CodegenLang>("shell")
 const errorState = ref(false)
 
 defineProps({
@@ -156,35 +195,163 @@ const emit = defineEmits<{
   (e: "request-code", value: string): void
 }>()
 
-const requestCode = computed(() => {
-  const aggregateEnvs = getAggregateEnvs()
-  const requestVariables = request.value.requestVariables.map(
-    (requestVariable) => {
-      if (requestVariable.active)
-        return {
-          key: requestVariable.key,
-          value: requestVariable.value,
-          secret: false,
-        }
-      return {}
-    }
+const getCurrentValue = (env: AggregateEnvironment) => {
+  const currentSelectedEnvironment = getCurrentEnvironment()
+
+  if (env && env.secret) {
+    return env.currentValue
+  }
+  return currentEnvironmentValueService.getEnvironmentByKey(
+    env?.sourceEnv !== "Global" ? currentSelectedEnvironment.id : "Global",
+    env?.key ?? ""
+  )?.currentValue
+}
+
+const getFinalURL = (input: string): string => {
+  // If the URL is empty, return "https://"
+  // This is to ensure that the URL is always valid and can be used in code generation
+  if (!input) {
+    return "https://"
+  }
+
+  let url = input.trim()
+
+  // Fix malformed protocols
+  url = url.replace(/^https?:\s*\/+\s*/i, (match) =>
+    match.toLowerCase().startsWith("https") ? "https://" : "http://"
   )
-  const env: Environment = {
-    v: 1,
+
+  // If the URL does not start with http(s):// or is not a variable, prepend http(s)://
+  // If the URL starts with <<, it is a variable and should not be modified
+  if (!/^https?:\/\//i.test(url) && !url.startsWith("<<")) {
+    const endpoint = url
+    const domain = endpoint.split(/[/:#?]+/)[0]
+
+    // Check if the domain is a local address or an IP address
+    // If it is, use http, otherwise use https
+    const isLocalOrIP = /^(localhost|(\d{1,3}\.){3}\d{1,3})$/.test(domain)
+    url = (isLocalOrIP ? "http://" : "https://") + endpoint
+  }
+
+  return url
+}
+
+/**
+ * Combines all environment variables into a single environment object
+ */
+const buildFinalEnvironment = (): Environment => {
+  const aggregateEnvs = getAggregateEnvsWithCurrentValue()
+  const inheritedVariables =
+    currentActiveTabDocument.value.inheritedProperties?.variables || []
+
+  const requestVariables = (currentActiveRequest.value?.requestVariables || [])
+    .filter((variable) => variable.active)
+    .map((variable) => ({
+      key: variable.key,
+      initialValue: variable.value,
+      currentValue: variable.value,
+      secret: false,
+    }))
+
+  const collectionVariables =
+    transformInheritedCollectionVariablesToAggregateEnv(inheritedVariables).map(
+      ({ key, initialValue, currentValue, secret }) => ({
+        key,
+        initialValue,
+        currentValue,
+        secret,
+      })
+    )
+
+  const environmentVariables = aggregateEnvs.map((env) => ({
+    key: env.key,
+    secret: env.secret,
+    initialValue: env.initialValue,
+    currentValue: getCurrentValue(env) || env.initialValue,
+  }))
+
+  const allVariables = [
+    ...requestVariables,
+    ...collectionVariables,
+    ...environmentVariables,
+  ]
+
+  const filteredVariables = filterNonEmptyEnvironmentVariables(allVariables)
+
+  return {
+    v: 2,
     id: "env",
     name: "Env",
-    variables: [
-      ...(requestVariables as Environment["variables"]),
-      ...aggregateEnvs,
-    ],
+    variables: filteredVariables,
   }
-  const effectiveRequest = getEffectiveRESTRequest(request.value, env)
+}
 
-  const result = generateCode(
-    codegenType.value,
-    makeRESTRequest({
+/**
+ * Resolves authentication and headers with inheritance
+ */
+const resolveRequestAuthAndHeaders = () => {
+  const { auth, headers } = currentActiveRequest.value
+  const { inheritedProperties } = currentActiveTabDocument.value
+
+  const resolvedAuth: HoppRESTAuth =
+    auth.authType === "inherit" && auth.authActive
+      ? ((inheritedProperties?.auth?.inheritedAuth as HoppRESTAuth) ?? {
+          authType: "none",
+          authActive: false,
+        })
+      : auth
+
+  const inheritedHeaders =
+    inheritedProperties?.headers
+      ?.flatMap((header) => header.inheritedHeader)
+      ?.filter(Boolean) ?? []
+
+  const resolvedHeaders: HoppRESTHeaders = [...inheritedHeaders, ...headers]
+
+  return { auth: resolvedAuth, headers: resolvedHeaders }
+}
+
+/**
+ * Creates the final request object for code generation
+ */
+const buildFinalRequest = (auth: HoppRESTAuth, headers: HoppRESTHeaders) => {
+  return {
+    ...currentActiveRequest.value,
+    auth,
+    headers,
+  }
+}
+
+/**
+ * Generates the request code based on the current request and selected codegen type
+ */
+const requestCode = asyncComputed(async (): Promise<string> => {
+  try {
+    if (currentActiveTabDocument.value.type !== "request") {
+      errorState.value = true
+      return ""
+    }
+
+    const selectedCodegenType = codegenType.value
+
+    // Build environment with all variable sources
+    const environment = buildFinalEnvironment()
+
+    // Resolve authentication and headers with inheritance
+    const { auth, headers } = resolveRequestAuthAndHeaders()
+
+    const finalRequest = buildFinalRequest(auth, headers)
+
+    const effectiveRequest = await getEffectiveRESTRequest(
+      finalRequest,
+      environment,
+      true
+    )
+
+    // Build the request object for code generation
+    const codegenRequest = makeRESTRequest({
       ...effectiveRequest,
-      body: resolvesEnvsInBody(effectiveRequest.body, env),
+      body: resolvesEnvsInBody(effectiveRequest.body, environment),
       headers: effectiveRequest.effectiveFinalHeaders.map((header) => ({
         ...header,
         active: true,
@@ -193,7 +360,7 @@ const requestCode = computed(() => {
         ...param,
         active: true,
       })),
-      endpoint: effectiveRequest.effectiveFinalURL,
+      endpoint: getFinalURL(effectiveRequest.effectiveFinalURL),
       requestVariables: effectiveRequest.effectiveFinalRequestVariables.map(
         (requestVariable) => ({
           ...requestVariable,
@@ -201,15 +368,24 @@ const requestCode = computed(() => {
         })
       ),
     })
-  )
 
-  if (O.isSome(result)) {
-    errorState.value = false
-    emit("request-code", result.value)
-    return result.value
+    const codeResult = generateCode(selectedCodegenType, codegenRequest)
+
+    if (O.isSome(codeResult)) {
+      errorState.value = false
+      const generatedCode = codeResult.value
+      emit("request-code", generatedCode)
+      return generatedCode
+    }
+
+    console.warn("Code generation failed for type:", selectedCodegenType)
+    errorState.value = true
+    return ""
+  } catch (error) {
+    console.error("Error generating request code:", error)
+    errorState.value = true
+    return ""
   }
-  errorState.value = true
-  return ""
 })
 
 // Template refs
@@ -222,7 +398,7 @@ useCodemirror(
   requestCode,
   reactive({
     extendedEditorConfig: {
-      mode: "text/plain",
+      mode: codegenMode,
       readOnly: true,
       lineWrapping: WRAP_LINES,
     },
@@ -249,5 +425,11 @@ const filteredCodegenDefinitions = computed(() => {
 })
 
 const { copyIcon, copyResponse } = useCopyResponse(requestCode)
-const { downloadIcon, downloadResponse } = useDownloadResponse("", requestCode)
+const { downloadIcon, downloadResponse } = useDownloadResponse(
+  "",
+  computed(() => requestCode.value || ""),
+  t("filename.codegen", {
+    request_name: currentActiveRequest.value.name,
+  })
+)
 </script>

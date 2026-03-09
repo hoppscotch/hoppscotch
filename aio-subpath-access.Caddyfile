@@ -1,16 +1,9 @@
-:3000 {
-	respond 404
+{
+  admin off
+  persist_config off
 }
 
-:3100 {
-	respond 404
-}
-
-:3170 {
-	reverse_proxy localhost:8080
-}
-
-:80 {
+:{$HOPP_AIO_ALTERNATE_PORT:80} {
 	# Serve the `selfhost-web` SPA by default
 	root * /site/selfhost-web
 	file_server
@@ -25,7 +18,23 @@
 
 	# Handle requests under `/backend*` path
 	handle_path /backend* {
-		reverse_proxy localhost:8080
+		@mock {
+			header_regexp host Host ^[^.]+\.mock\..*$
+		}
+		
+		handle @mock {
+			rewrite * /mock{uri}
+			reverse_proxy localhost:8080
+		}
+		
+		handle {
+			reverse_proxy localhost:8080
+		}
+	}
+
+	# Handle requests under `/desktop-app-server*` path
+	handle_path /desktop-app-server* {
+		reverse_proxy localhost:3200
 	}
 
 	# Catch-all route for unknown paths, serves `selfhost-web` SPA

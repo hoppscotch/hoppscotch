@@ -8,21 +8,31 @@ import {
 import { z } from "zod"
 import { getService } from "~/modules/dioc"
 import * as E from "fp-ts/Either"
-import { ImplicitOauthFlowParams } from "@hoppscotch/data"
+import {
+  ImplicitOauthFlowParams as ImplicitOauthFlowParamsData,
+  OAuth2AuthRequestParam,
+} from "@hoppscotch/data"
+import { OAuth2ParamSchema } from "../utils"
 
 const persistenceService = getService(PersistenceService)
 
-const ImplicitOauthFlowParamsSchema = ImplicitOauthFlowParams.pick({
-  authEndpoint: true,
-  clientID: true,
-  scopes: true,
-}).refine((params) => {
-  return (
-    params.authEndpoint.length >= 1 &&
-    params.clientID.length >= 1 &&
-    (params.scopes === undefined || params.scopes.length >= 1)
-  )
+// Use the existing schema from hoppscotch-data
+const ImplicitOauthFlowParamsSchema = ImplicitOauthFlowParamsData.omit({
+  grantType: true,
+  token: true,
 })
+  .extend({
+    // Override optional arrays to be required for the service layer
+    authRequestParams: z.array(OAuth2AuthRequestParam),
+    refreshRequestParams: z.array(OAuth2ParamSchema),
+  })
+  .refine((params) => {
+    return (
+      params.authEndpoint.length >= 1 &&
+      params.clientID.length >= 1 &&
+      (params.scopes === undefined || params.scopes.length >= 1)
+    )
+  })
 
 export type ImplicitOauthFlowParams = z.infer<
   typeof ImplicitOauthFlowParamsSchema
@@ -33,24 +43,27 @@ export const getDefaultImplicitOauthFlowParams =
     authEndpoint: "",
     clientID: "",
     scopes: undefined,
+    authRequestParams: [],
+    refreshRequestParams: [],
   })
 
 const initImplicitOauthFlow = async ({
   clientID,
   scopes,
   authEndpoint,
+  authRequestParams,
 }: ImplicitOauthFlowParams) => {
   const state = generateRandomString()
 
   const localOAuthTempConfig =
-    persistenceService.getLocalConfig("oauth_temp_config")
+    await persistenceService.getLocalConfig("oauth_temp_config")
 
   const persistedOAuthConfig: PersistedOAuthConfig = localOAuthTempConfig
     ? { ...JSON.parse(localOAuthTempConfig) }
     : {}
 
   // Persist the necessary information for retrieval while getting redirected back
-  persistenceService.setLocalConfig(
+  await persistenceService.setLocalConfig(
     "oauth_temp_config",
     JSON.stringify(<PersistedOAuthConfig>{
       ...persistedOAuthConfig,
@@ -59,6 +72,7 @@ const initImplicitOauthFlow = async ({
         authEndpoint,
         scopes,
         state,
+        authRequestParams,
       },
       grant_type: "IMPLICIT",
     })
@@ -78,6 +92,15 @@ const initImplicitOauthFlow = async ({
   url.searchParams.set("redirect_uri", OauthAuthService.redirectURI)
 
   if (scopes) url.searchParams.set("scope", scopes)
+
+  // Process additional auth request parameters
+  if (authRequestParams) {
+    authRequestParams
+      .filter((param) => param.active && param.key && param.value)
+      .forEach((param) => {
+        url.searchParams.set(param.key, param.value)
+      })
+  }
 
   // Redirect to the authorization server
   window.location.assign(url.toString())

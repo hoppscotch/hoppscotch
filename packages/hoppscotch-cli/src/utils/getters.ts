@@ -1,8 +1,9 @@
 import {
-  Environment,
-  HoppCollection,
+  EnvironmentVariable,
+  HoppCollectionVariable,
   HoppRESTHeader,
   HoppRESTParam,
+  HoppRESTRequestVariables,
   parseTemplateStringE,
 } from "@hoppscotch/data";
 import axios, { AxiosError } from "axios";
@@ -58,12 +59,12 @@ export const getColorStatusCode = (
  * Replaces all template-string with their effective ENV values to generate effective
  * request headers/parameters meta-data.
  * @param metaData Headers/parameters on which ENVs will be applied.
- * @param environment Provides ENV variables for parsing template-string.
+ * @param resolvedVariables Provides ENV variables for parsing template-string.
  * @returns Active, non-empty-key, parsed headers/parameters pairs.
  */
 export const getEffectiveFinalMetaData = (
   metaData: HoppRESTHeader[] | HoppRESTParam[],
-  environment: Environment
+  resolvedVariables: EnvironmentVariable[]
 ) =>
   pipe(
     metaData,
@@ -72,11 +73,14 @@ export const getEffectiveFinalMetaData = (
      * Selecting only non-empty and active pairs.
      */
     A.filter(({ key, active }) => !S.isEmpty(key) && active),
-    A.map(({ key, value }) => ({
-      active: true,
-      key: parseTemplateStringE(key, environment.variables),
-      value: parseTemplateStringE(value, environment.variables),
-    })),
+    A.map(({ key, value, description }) => {
+      return {
+        active: true,
+        key: parseTemplateStringE(key, resolvedVariables),
+        value: parseTemplateStringE(value, resolvedVariables),
+        description,
+      };
+    }),
     E.fromPredicate(
       /**
        * Check if every key-value is right either. Else return HoppCLIError with
@@ -89,9 +93,14 @@ export const getEffectiveFinalMetaData = (
       /**
        * Filtering and mapping only right-eithers for each key-value as [string, string].
        */
-      A.filterMap(({ key, value }) =>
+      A.filterMap(({ key, value, description }) =>
         E.isRight(key) && E.isRight(value)
-          ? O.some({ active: true, key: key.right, value: value.right })
+          ? O.some({
+              active: true,
+              key: key.right,
+              value: value.right,
+              description,
+            })
           : O.none
       )
     )
@@ -252,4 +261,75 @@ export const getResourceContents = async (
   }
 
   return contents;
+};
+
+/**
+ * Processes incoming request variables and environment variables and returns a list
+ * where active request variables are picked and prioritised over the supplied environment variables.
+ * Falls back to environment variables for an empty request variable.
+ *
+ * @param {HoppRESTRequestVariables} requestVariables - Incoming request variables.
+ * @param {EnvironmentVariable[]} environmentVariables - Incoming environment variables.
+ * @param {HoppCollectionVariable[]} collectionVariables - Optional collection variables to be included.
+ * @returns {EnvironmentVariable[]} The resolved list of variables that conforms to the shape of environment variables.
+ */
+export const getResolvedVariables = (
+  requestVariables: HoppRESTRequestVariables,
+  environmentVariables: EnvironmentVariable[],
+  collectionVariables: HoppCollectionVariable[] = []
+): EnvironmentVariable[] => {
+  // Transforming request variables to the shape of environment variables
+  const activeRequestVariables = requestVariables
+    .filter(({ active, value }) => active && value)
+    .map(({ key, value }) => ({
+      key,
+      initialValue: value,
+      currentValue: value,
+      secret: false,
+    }));
+
+  const requestVariableKeys = activeRequestVariables.map(({ key }) => key);
+
+  // Request variables have higher priority, hence filtering out collection variables with the same keys
+  const filteredCollectionVariables = collectionVariables.filter(
+    ({ key }) => !requestVariableKeys.includes(key)
+  );
+
+  const collectionVariableKeys = filteredCollectionVariables.map(
+    ({ key }) => key
+  );
+
+  // Filtering out environment variables that have keys present in request or collection variables
+  const filteredEnvironmentVariables = environmentVariables.filter(
+    ({ key }) =>
+      ![...requestVariableKeys, ...collectionVariableKeys].includes(key)
+  );
+
+  // Setting currentValue to initialValue for environment variables
+  // because the exported file might not have the currentValue field
+  const processedEnvironmentVariables = filteredEnvironmentVariables.map(
+    ({ key, initialValue, currentValue, secret }) => ({
+      key,
+      initialValue,
+      currentValue:
+        currentValue && currentValue !== "" ? currentValue : initialValue,
+      secret,
+    })
+  );
+
+  const processedCollectionVariables = filteredCollectionVariables.map(
+    ({ key, initialValue, currentValue, secret }) => ({
+      key,
+      initialValue,
+      currentValue:
+        currentValue && currentValue !== "" ? currentValue : initialValue,
+      secret,
+    })
+  );
+
+  return [
+    ...activeRequestVariables,
+    ...processedCollectionVariables,
+    ...processedEnvironmentVariables,
+  ];
 };

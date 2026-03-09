@@ -1,0 +1,3 @@
+mutation DeletePublishedDoc($id: ID!) {
+  deletePublishedDoc(id: $id)
+}

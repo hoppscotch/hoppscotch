@@ -6,43 +6,44 @@
     @close="emit('hide-modal')"
   >
     <template #body>
-      <HoppSmartInput
-        v-model="editingName"
-        placeholder=" "
-        :label="t('action.label')"
-        input-styles="floating-input"
-        @submit="addRequest"
-      />
+      <div class="flex gap-1 items-center">
+        <HoppSmartInput
+          v-model="editingName"
+          class="flex-grow"
+          placeholder=" "
+          :label="t('action.label')"
+          input-styles="floating-input"
+          @submit="addRequest"
+        />
+      </div>
     </template>
     <template #footer>
-      <span class="flex space-x-2">
-        <HoppButtonPrimary
-          :label="t('action.save')"
-          outline
-          @click="addRequest"
-        />
-        <HoppButtonSecondary
-          :label="t('action.cancel')"
-          outline
-          filled
-          @click="hideModal"
-        />
-      </span>
+      <div class="flex justify-between items-center w-full">
+        <div class="flex space-x-2">
+          <HoppButtonPrimary
+            :label="t('action.save')"
+            outline
+            @click="addRequest"
+          />
+          <HoppButtonSecondary
+            :label="t('action.cancel')"
+            outline
+            filled
+            @click="hideModal"
+          />
+        </div>
+      </div>
     </template>
   </HoppSmartModal>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { useService } from "dioc/vue"
-import { GQLTabService } from "~/services/tab/graphql"
+import { ref } from "vue"
 
 const toast = useToast()
 const t = useI18n()
-
-const tabs = useService(GQLTabService)
 
 const props = defineProps<{
   show: boolean
@@ -61,15 +62,6 @@ const emit = defineEmits<{
 }>()
 
 const editingName = ref("")
-
-watch(
-  () => props.show,
-  (show) => {
-    if (show) {
-      editingName.value = tabs.currentActiveTab.value?.document.request.name
-    }
-  }
-)
 
 const addRequest = () => {
   if (!editingName.value) {

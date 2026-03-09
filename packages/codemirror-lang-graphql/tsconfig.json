@@ -5,7 +5,9 @@
     "module": "es2020",
     "newLine": "lf",
     "declaration": true,
+    "declarationDir": "./dist",
     "moduleResolution": "node",
+    "skipLibCheck": true,
     "allowJs": true
   },
   "include": ["src/*"]

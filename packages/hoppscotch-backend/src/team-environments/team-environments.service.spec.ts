@@ -3,13 +3,12 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { TeamEnvironment } from './team-environments.model';
 import { TeamEnvironmentsService } from './team-environments.service';
 import {
-  JSON_INVALID,
   TEAM_ENVIRONMENT_NOT_FOUND,
   TEAM_ENVIRONMENT_SHORT_NAME,
   TEAM_MEMBER_NOT_FOUND,
 } from 'src/errors';
 import { TeamService } from 'src/team/team.service';
-import { TeamMemberRole } from 'src/team/team.model';
+import { TeamAccessRole } from 'src/team/team.model';
 
 const mockPrisma = mockDeep<PrismaService>();
 
@@ -81,7 +80,7 @@ describe('TeamEnvironmentsService', () => {
 
     test('should throw TEAM_ENVIRONMENT_SHORT_NAME if input TeamEnvironment name is invalid', async () => {
       const result = await teamEnvironmentsService.createTeamEnvironment(
-        '12',
+        '',
         teamEnvironment.teamID,
         JSON.stringify(teamEnvironment.variables),
       );
@@ -92,7 +91,7 @@ describe('TeamEnvironmentsService', () => {
     test('should send pubsub message to "team_environment/<teamID>/created" if team environment is created successfully', async () => {
       mockPrisma.teamEnvironment.create.mockResolvedValue(teamEnvironment);
 
-      const result = await teamEnvironmentsService.createTeamEnvironment(
+      await teamEnvironmentsService.createTeamEnvironment(
         teamEnvironment.name,
         teamEnvironment.teamID,
         JSON.stringify(teamEnvironment.variables),
@@ -122,9 +121,8 @@ describe('TeamEnvironmentsService', () => {
     test('should throw TEAM_ENVIRONMMENT_NOT_FOUND if given id is invalid', async () => {
       mockPrisma.teamEnvironment.delete.mockRejectedValue('RecordNotFound');
 
-      const result = await teamEnvironmentsService.deleteTeamEnvironment(
-        'invalidid',
-      );
+      const result =
+        await teamEnvironmentsService.deleteTeamEnvironment('invalidid');
 
       expect(result).toEqualLeft(TEAM_ENVIRONMENT_NOT_FOUND);
     });
@@ -132,9 +130,7 @@ describe('TeamEnvironmentsService', () => {
     test('should send pubsub message to "team_environment/<teamID>/deleted" if team environment is deleted successfully', async () => {
       mockPrisma.teamEnvironment.delete.mockResolvedValueOnce(teamEnvironment);
 
-      const result = await teamEnvironmentsService.deleteTeamEnvironment(
-        teamEnvironment.id,
-      );
+      await teamEnvironmentsService.deleteTeamEnvironment(teamEnvironment.id);
 
       expect(mockPubSub.publish).toHaveBeenCalledWith(
         `team_environment/${teamEnvironment.teamID}/deleted`,
@@ -222,7 +218,7 @@ describe('TeamEnvironmentsService', () => {
     test('should throw TEAM_ENVIRONMENT_SHORT_NAME if input TeamEnvironment name is invalid', async () => {
       const result = await teamEnvironmentsService.updateTeamEnvironment(
         teamEnvironment.id,
-        '12',
+        '',
         JSON.stringify([{ key: 'value' }]),
       );
 
@@ -244,7 +240,7 @@ describe('TeamEnvironmentsService', () => {
     test('should send pubsub message to "team_environment/<teamID>/updated" if team environment is updated successfully', async () => {
       mockPrisma.teamEnvironment.update.mockResolvedValueOnce(teamEnvironment);
 
-      const result = await teamEnvironmentsService.updateTeamEnvironment(
+      await teamEnvironmentsService.updateTeamEnvironment(
         teamEnvironment.id,
         teamEnvironment.name,
         JSON.stringify([{ key: 'value' }]),
@@ -289,10 +285,9 @@ describe('TeamEnvironmentsService', () => {
     test('should send pubsub message to "team_environment/<teamID>/updated" if team environment is updated successfully', async () => {
       mockPrisma.teamEnvironment.update.mockResolvedValueOnce(teamEnvironment);
 
-      const result =
-        await teamEnvironmentsService.deleteAllVariablesFromTeamEnvironment(
-          teamEnvironment.id,
-        );
+      await teamEnvironmentsService.deleteAllVariablesFromTeamEnvironment(
+        teamEnvironment.id,
+      );
 
       expect(mockPubSub.publish).toHaveBeenCalledWith(
         `team_environment/${teamEnvironment.teamID}/updated`,
@@ -348,7 +343,7 @@ describe('TeamEnvironmentsService', () => {
         ...teamEnvironment,
       });
 
-      const result = await teamEnvironmentsService.createDuplicateEnvironment(
+      await teamEnvironmentsService.createDuplicateEnvironment(
         teamEnvironment.id,
       );
 
@@ -394,7 +389,7 @@ describe('TeamEnvironmentsService', () => {
       mockTeamService.getTeamMember.mockResolvedValue({
         membershipID: 'sdc3sfdv',
         userUid: '123454',
-        role: TeamMemberRole.OWNER,
+        role: TeamAccessRole.OWNER,
       });
 
       const result = await teamEnvironmentsService.getTeamEnvironmentForCLI(

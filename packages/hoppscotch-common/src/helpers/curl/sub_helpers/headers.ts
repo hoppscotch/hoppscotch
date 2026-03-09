@@ -1,16 +1,17 @@
-import parser from "yargs-parser"
-import { pipe, flow } from "fp-ts/function"
 import { HoppRESTHeader } from "@hoppscotch/data"
 import * as A from "fp-ts/Array"
-import * as S from "fp-ts/string"
+import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
-import { tupleToRecord } from "~/helpers/functional/record"
+import * as S from "fp-ts/string"
+import parser from "yargs-parser"
 import {
-  objHasProperty,
   objHasArrayProperty,
+  objHasProperty,
 } from "~/helpers/functional/object"
+import { tupleToRecord } from "~/helpers/functional/record"
 
 const getHeaderPair = flow(
+  S.replace(":", ": "),
   S.split(": "),
   // must have a key and a value
   O.fromPredicate((arr) => arr.length === 2),
@@ -66,11 +67,9 @@ export const recordToHoppHeaders = (
       key,
       value: headers[key],
       active: true,
+      description: "",
     })),
     A.filter(
-      (header) =>
-        header.key !== "Authorization" &&
-        header.key !== "content-type" &&
-        header.key !== "Content-Type"
+      (header) => header.key !== "content-type" && header.key !== "Content-Type"
     )
   )

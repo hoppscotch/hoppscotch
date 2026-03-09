@@ -1,4 +1,4 @@
-import { HTTPSnippet } from "httpsnippet"
+import { HTTPSnippet } from "@hoppscotch/httpsnippet"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import * as O from "fp-ts/Option"
 import * as E from "fp-ts/Either"
@@ -157,6 +157,12 @@ export const CodegenDefinitions = [
     caption: "Ruby - Ruby Native",
   },
   {
+    name: "rust-reqwest",
+    lang: "rust",
+    mode: "reqwest",
+    caption: "Rust - Reqwest",
+  },
+  {
     name: "shell-curl",
     lang: "shell",
     mode: "curl",
@@ -186,6 +192,11 @@ export const CodegenDefinitions = [
  * A type which defines all the valid code generators
  */
 export type CodegenName = (typeof CodegenDefinitions)[number]["name"]
+
+/**
+ * A type which defines all the valid code generator languages
+ */
+export type CodegenLang = (typeof CodegenDefinitions)[number]["lang"]
 
 /**
  * Generates Source Code for the given codgen

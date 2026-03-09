@@ -1,12 +1,15 @@
 <template>
   <div
-    class="flex items-center overflow-x-auto whitespace-nowrap border-b border-dividerLight px-4 py-2 text-tiny text-secondaryLight"
+    class="flex justify-between border-b border-dividerLight px-4 py-2 text-tiny text-secondaryLight"
   >
-    <span class="truncate">
-      {{ workspaceName ?? t("workspace.no_workspace") }}
-    </span>
-    <icon-lucide-chevron-right v-if="section" class="mx-2" />
-    {{ section }}
+    <div class="flex items-center overflow-x-auto whitespace-nowrap">
+      <span class="truncate">
+        {{ workspaceName ?? t("workspace.no_workspace") }}
+      </span>
+      <icon-lucide-chevron-right v-if="section" class="mx-2" />
+      {{ section }}
+    </div>
+    <slot name="item"></slot>
   </div>
 </template>
 

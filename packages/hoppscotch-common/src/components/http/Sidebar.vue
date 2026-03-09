@@ -24,7 +24,7 @@
       :icon="IconClock"
       :label="`${t('tab.history')}`"
     >
-      <History :page="'rest'" />
+      <History :page="'rest'" :selected-tab="selectedNavigationTab" />
     </HoppSmartTab>
     <HoppSmartTab
       :id="'share-request'"
@@ -51,6 +51,19 @@
         class="px-4 mt-4"
       />
     </HoppSmartTab>
+    <HoppSmartTab
+      v-if="isMockServerVisible"
+      :id="'mock-servers'"
+      :icon="IconServer"
+      :label="`${t('tab.mock_servers')}`"
+    >
+      <div
+        class="flex items-center overflow-x-auto whitespace-nowrap border-b border-dividerLight px-4 py-2 text-tiny text-secondaryLight"
+      >
+        <span class="truncate"> {{ t("tab.mock_servers") }} </span>
+      </div>
+      <MockServerDashboard v-if="selectedNavigationTab === 'mock-servers'" />
+    </HoppSmartTab>
   </HoppSmartTabs>
 </template>
 
@@ -61,9 +74,15 @@ import IconClock from "~icons/lucide/clock"
 import IconCode from "~icons/lucide/code"
 import IconFolder from "~icons/lucide/folder"
 import IconLayers from "~icons/lucide/layers"
+import IconServer from "~icons/lucide/server"
 import IconShare2 from "~icons/lucide/share-2"
+import MockServerDashboard from "~/components/mockServer/MockServerDashboard.vue"
+import { useMockServerWorkspaceSync } from "~/composables/mockServerWorkspace"
+import { useMockServerVisibility } from "~/composables/mockServerVisibility"
 
 const t = useI18n()
+
+const { isMockServerVisible } = useMockServerVisibility()
 
 type RequestOptionTabs =
   | "history"
@@ -71,6 +90,10 @@ type RequestOptionTabs =
   | "env"
   | "share-request"
   | "codegen"
+  | "mock-servers"
 
 const selectedNavigationTab = ref<RequestOptionTabs>("collections")
+
+// Ensure mock servers are kept in sync with workspace changes globally
+useMockServerWorkspaceSync()
 </script>

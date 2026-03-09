@@ -39,8 +39,8 @@ import { ServiceStatus } from 'src/infra-config/helper';
 @Resolver(() => Infra)
 export class InfraResolver {
   constructor(
-    private adminService: AdminService,
-    private infraConfigService: InfraConfigService,
+    private readonly adminService: AdminService,
+    private readonly infraConfigService: InfraConfigService,
   ) {}
 
   @Query(() => Infra, {
@@ -120,9 +120,29 @@ export class InfraResolver {
 
   @ResolveField(() => [Team], {
     description: 'Returns a list of all the teams in the infra',
+    deprecationReason: 'Use allTeamsV2 instead',
   })
   async allTeams(@Args() args: PaginationArgs): Promise<Team[]> {
     const teams = await this.adminService.fetchAllTeams(args.cursor, args.take);
+    return teams;
+  }
+
+  @ResolveField(() => [Team], {
+    description: 'Returns a list of all the teams in the infra',
+  })
+  async allTeamsV2(
+    @Args({
+      name: 'searchString',
+      nullable: true,
+      description: 'Search on team name or ID',
+    })
+    searchString: string,
+    @Args() paginationOption: OffsetPaginationArgs,
+  ): Promise<Team[]> {
+    const teams = await this.adminService.fetchAllTeamsV2(
+      searchString,
+      paginationOption,
+    );
     return teams;
   }
 
@@ -214,9 +234,8 @@ export class InfraResolver {
     })
     teamID: string,
   ) {
-    const invitations = await this.adminService.pendingInvitationCountInTeam(
-      teamID,
-    );
+    const invitations =
+      await this.adminService.pendingInvitationCountInTeam(teamID);
     return invitations;
   }
 
@@ -352,9 +371,8 @@ export class InfraResolver {
     })
     providerInfo: EnableAndDisableSSOArgs[],
   ) {
-    const isUpdated = await this.infraConfigService.enableAndDisableSSO(
-      providerInfo,
-    );
+    const isUpdated =
+      await this.infraConfigService.enableAndDisableSSO(providerInfo);
     if (E.isLeft(isUpdated)) throwErr(isUpdated.left);
 
     return true;
@@ -372,7 +390,26 @@ export class InfraResolver {
     })
     status: ServiceStatus,
   ) {
-    const isUpdated = await this.infraConfigService.enableAndDisableSMTP(
+    const isUpdated =
+      await this.infraConfigService.enableAndDisableSMTP(status);
+    if (E.isLeft(isUpdated)) throwErr(isUpdated.left);
+    return true;
+  }
+
+  @Mutation(() => Boolean, {
+    description: 'Enable or Disable User History Storing in DB',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async toggleUserHistoryStore(
+    @Args({
+      name: 'status',
+      type: () => ServiceStatus,
+      description: 'Toggle User History Store',
+    })
+    status: ServiceStatus,
+  ) {
+    const isUpdated = await this.infraConfigService.toggleServiceStatus(
+      InfraConfigEnum.USER_HISTORY_STORE_ENABLED,
       status,
     );
     if (E.isLeft(isUpdated)) throwErr(isUpdated.left);

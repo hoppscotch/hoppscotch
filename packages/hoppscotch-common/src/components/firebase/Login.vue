@@ -27,7 +27,11 @@
             @click="provider.action"
           />
 
-          <hr v-if="additionalLoginItems.length > 0" />
+          <hr
+            v-if="
+              additionalLoginItems.length > 0 && allowedAuthProviders.length
+            "
+          />
 
           <HoppSmartItem
             v-for="loginItem in additionalLoginItems"
@@ -56,6 +60,27 @@
             :label="`${t('auth.send_magic_link')}`"
           />
         </form>
+
+        <div
+          v-if="!allowedAuthProviders?.length && !additionalLoginItems.length"
+          class="flex flex-col items-center text-center"
+        >
+          <p>{{ t("state.require_auth_provider") }}</p>
+          <p>{{ t("state.configure_auth") }}</p>
+          <div class="mt-5">
+            <a
+              href="https://docs.hoppscotch.io/documentation/self-host/getting-started"
+            >
+              <HoppButtonSecondary
+                outline
+                filled
+                blank
+                :icon="IconFileText"
+                :label="t('state.self_host_docs')"
+              />
+            </a>
+          </div>
+        </div>
         <div v-if="mode === 'email-sent'" class="flex flex-col px-4">
           <div class="flex max-w-md flex-col items-center justify-center">
             <icon-lucide-inbox class="h-6 w-6 text-accent" />
@@ -133,6 +158,7 @@ import IconGithub from "~icons/auth/github"
 import IconGoogle from "~icons/auth/google"
 import IconMicrosoft from "~icons/auth/microsoft"
 import IconArrowLeft from "~icons/lucide/arrow-left"
+import IconFileText from "~icons/lucide/file-text"
 
 import { useService } from "dioc/vue"
 import { LoginItemDef } from "~/platform/auth"
@@ -316,9 +342,9 @@ const signInWithEmail = async () => {
 
   await platform.auth
     .signInWithEmail(form.email)
-    .then(() => {
+    .then(async () => {
       mode.value = "email-sent"
-      persistenceService.setLocalConfig("emailForSignIn", form.email)
+      await persistenceService.setLocalConfig("emailForSignIn", form.email)
     })
     .catch((e) => {
       console.error(e)

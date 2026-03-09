@@ -1,102 +1,81 @@
 <template>
-  <div>
-    <div class="flex justify-between gap-2">
+  <div class="hopp-doc-explorer-item" @click="handleClick">
+    <div class="flex space-x-2 items-center flex-1">
       <div
-        class="field-title flex-1"
-        :class="{ 'field-highlighted': isHighlighted }"
+        class="inline-flex items-center align-bottom gap-2"
+        :class="{
+          '!line-through': field.deprecationReason,
+          '!px-4': !showAddField,
+        }"
       >
-        {{ fieldName }}
-        <span v-if="fieldArgs.length > 0">
-          (
-          <span v-for="(field, index) in fieldArgs" :key="`field-${index}`">
-            {{ field.name }}:
-            <GraphqlTypeLink
-              :gql-type="field.type"
-              @jump-to-type="jumpToType"
-            />
-            <span v-if="index !== fieldArgs.length - 1">, </span>
-          </span>
-          ) </span
-        >:
-        <GraphqlTypeLink :gql-type="gqlField.type" @jump-to-type="jumpToType" />
+        <GraphqlFieldLink
+          :field="field"
+          :show-add-field="showAddField"
+          :is-added="isFieldInOperation(field)"
+          @add-field="insertQuery"
+        />
+        <template v-if="args.length > 0"> (...) </template>
+        <span> : </span>
+        <GraphqlTypeLink :type="field.type" />
+        <GraphqlDefaultValue :field="field" />
       </div>
-      <div v-if="gqlField.deprecationReason">
-        <span
-          v-tippy="{ theme: 'tomato' }"
-          class="flex cursor-pointer items-center gap-2 text-xs !text-red-500 hover:!text-red-600"
-          :title="gqlField.deprecationReason"
-        >
-          <IconAlertTriangle /> {{ t("state.deprecated") }}
-        </span>
-      </div>
+
+      <span
+        v-if="field.deprecationReason"
+        v-tippy="{ theme: 'tooltip' }"
+        class="hopp-doc-explorer-deprecated inline-flex items-center justify-center"
+        :title="field.deprecationReason"
+      >
+        <icon-lucide-triangle-alert />
+      </span>
     </div>
-    <div
-      v-if="gqlField.description"
-      class="field-desc py-2 text-secondaryLight"
+
+    <AppMarkdown
+      v-if="field.description"
+      type="description"
+      class="hidden p-4"
+      :only-show-first-child="true"
     >
-      {{ gqlField.description }}
-    </div>
-    <div v-if="fieldArgs.length > 0">
-      <h5 class="my-2">Arguments:</h5>
-      <div class="border-l-2 border-divider pl-4">
-        <div v-for="(field, index) in fieldArgs" :key="`field-${index}`">
-          <span>
-            {{ field.name }}:
-            <GraphqlTypeLink
-              :gql-type="field.type"
-              @jump-to-type="jumpToType"
-            />
-          </span>
-          <div
-            v-if="field.description"
-            class="field-desc py-2 text-secondaryLight"
-          >
-            {{ field.description }}
-          </div>
-        </div>
-      </div>
-    </div>
+      {{ field.description }}
+    </AppMarkdown>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useI18n } from "@composables/i18n"
-import { GraphQLType } from "graphql"
 import { computed } from "vue"
-import IconAlertTriangle from "~icons/lucide/alert-triangle"
-
-const t = useI18n()
+import { ExplorerFieldDef, useExplorer } from "~/helpers/graphql/explorer"
+import { useQuery } from "~/helpers/graphql/query"
 
 const props = withDefaults(
   defineProps<{
-    gqlField: any
-    isHighlighted: boolean
+    field: ExplorerFieldDef
+    showAddField: boolean
   }>(),
   {
-    gqlField: {},
-    isHighlighted: false,
+    showAddField: true,
   }
 )
 
-const emit = defineEmits<{
-  (e: "jump-to-type", type: GraphQLType): void
-}>()
+const { push } = useExplorer()
+const { handleAddField, isFieldInOperation } = useQuery()
 
-const fieldName = computed(() => props.gqlField.name)
-
-const fieldArgs = computed(() => props.gqlField.args || [])
-
-const jumpToType = (type: GraphQLType) => {
-  emit("jump-to-type", type)
+const handleClick = () => {
+  push({ name: props.field.name, def: props.field })
 }
+
+const insertQuery = () => {
+  handleAddField(props.field)
+}
+
+const args = computed(() =>
+  "args" in props.field
+    ? props.field.args.filter((arg) => !arg.deprecationReason)
+    : []
+)
 </script>
 
-<style lang="scss" scoped>
-.field-highlighted {
-  @apply border-b-2 border-accent;
-}
-
-.field-title {
-  @apply select-text;
+<style scoped lang="scss">
+.hopp-doc-explorer-item {
+  @apply cursor-pointer transition hover:bg-primaryLight;
 }
 </style>

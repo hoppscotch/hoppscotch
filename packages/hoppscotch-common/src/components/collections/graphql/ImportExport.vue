@@ -34,6 +34,7 @@ import { gqlCollectionsExporter } from "~/helpers/import-export/export/gqlCollec
 import { gistExporter } from "~/helpers/import-export/export/gist"
 import { computed } from "vue"
 import { hoppGQLImporter } from "~/helpers/import-export/import/hopp"
+import { ReqType } from "~/helpers/backend/graphql"
 
 const t = useI18n()
 const toast = useToast()
@@ -71,7 +72,7 @@ const GqlCollectionsHoppImporter: ImporterOrExporter = {
       )()
 
       if (E.isRight(validatedCollection)) {
-        handleImportToStore(validatedCollection.right)
+        await handleImportToStore(validatedCollection.right)
 
         platform.analytics?.logEvent({
           type: "HOPP_IMPORT_COLLECTION",
@@ -110,7 +111,7 @@ const GqlCollectionsGistImporter: ImporterOrExporter = {
         return
       }
 
-      handleImportToStore(res.right)
+      await handleImportToStore(res.right)
 
       platform.analytics?.logEvent({
         type: "HOPP_IMPORT_COLLECTION",
@@ -140,7 +141,7 @@ const GqlCollectionsHoppExporter: ImporterOrExporter = {
 
     const message = await initializeDownloadFile(
       gqlCollectionsExporter(gqlCollections.value),
-      "GQLCollections"
+      "hoppscotch-gql-collections"
     )
 
     if (E.isLeft(message)) {
@@ -148,7 +149,7 @@ const GqlCollectionsHoppExporter: ImporterOrExporter = {
       return
     }
 
-    toast.success(message.right)
+    toast.success(t("state.download_started"))
 
     platform.analytics?.logEvent({
       type: "HOPP_EXPORT_COLLECTION",
@@ -208,7 +209,7 @@ const GqlCollectionsGistExporter: ImporterOrExporter = {
         exporter: "gist",
       })
 
-      platform.io.openExternalLink(res.right)
+      platform.kernelIO.openExternalLink({ url: res.right })
     }
 
     isGqlCollectionGistExportInProgress.value = false
@@ -231,7 +232,17 @@ const showImportFailedError = () => {
   toast.error(t("import.failed"))
 }
 
-const handleImportToStore = async (gqlCollections: HoppCollection[]) => {
+const handleImportToStore = (gqlCollections: HoppCollection[]) => {
+  if (
+    platform.sync.collections.importToPersonalWorkspace &&
+    currentUser.value
+  ) {
+    return platform.sync.collections.importToPersonalWorkspace(
+      gqlCollections,
+      ReqType.Gql
+    )
+  }
+
   appendGraphqlCollections(gqlCollections)
   toast.success(t("state.file_imported"))
 }

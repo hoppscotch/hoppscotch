@@ -1,3 +1,8 @@
+{
+  admin off
+  persist_config off
+}
+
 :80 :3100 {
 	handle_path /admin* {
 		root * /site/sh-admin-subpath-access

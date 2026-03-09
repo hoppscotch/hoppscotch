@@ -1,0 +1,3 @@
+mutation RevokeInfraToken($id: ID!) {
+  revokeInfraToken(id: $id)
+}

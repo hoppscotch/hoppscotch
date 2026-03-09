@@ -46,7 +46,7 @@ export type SaveFileResponse =
   | {
       /**
        * The implementation was unable to determine the status of the save operation.
-       * This cannot be considered a success or a failure and should be handled as an uncertainity.
+       * This cannot be considered a success or a failure and should be handled as an uncertainty.
        * The browser standard implementation (std) returns this value as there is no way to
        * check if the user downloaded the file or not.
        */

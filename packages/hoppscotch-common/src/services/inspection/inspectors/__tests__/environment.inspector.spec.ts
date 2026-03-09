@@ -4,6 +4,7 @@ import { EnvironmentInspectorService } from "../environment.inspector"
 import { InspectionService } from "../../index"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { ref } from "vue"
+import { CurrentValueService } from "~/services/current-environment-value.service"
 
 vi.mock("~/modules/i18n", () => ({
   __esModule: true,
@@ -15,9 +16,19 @@ vi.mock("~/newstore/environments", async () => {
 
   return {
     __esModule: true,
-    aggregateEnvsWithSecrets$: new BehaviorSubject([
-      { key: "EXISTING_ENV_VAR", value: "test_value", secret: false },
-      { key: "EXISTING_ENV_VAR_2", value: "", secret: false },
+    aggregateEnvsWithCurrentValue$: new BehaviorSubject([
+      {
+        key: "EXISTING_ENV_VAR",
+        currentValue: "test_value",
+        initialValue: "test_value",
+        secret: false,
+      },
+      {
+        key: "EXISTING_ENV_VAR_2",
+        currentValue: "",
+        initialValue: "",
+        secret: false,
+      },
     ]),
     getCurrentEnvironment: () => ({
       id: "1",
@@ -25,7 +36,8 @@ vi.mock("~/newstore/environments", async () => {
       v: 1,
       variables: {
         key: "EXISTING_ENV_VAR",
-        value: "test_value",
+        currentValue: "test_value",
+        initialValue: "test_value",
         secret: false,
       },
     }),
@@ -75,6 +87,12 @@ describe("EnvironmentInspectorService", () => {
 
     it("should not return an inspector result when the URL contains defined environment variables", () => {
       const container = new TestContainer()
+      container.bindMock(CurrentValueService, {
+        hasValue: vi.fn((key) => {
+          if (key === "EXISTING_ENV_VAR_2") return false
+          return true
+        }),
+      })
       const envInspector = container.bind(EnvironmentInspectorService)
 
       const req = ref({
@@ -95,7 +113,12 @@ describe("EnvironmentInspectorService", () => {
         ...getDefaultRESTRequest(),
         endpoint: "http://example.com/api/data",
         headers: [
-          { key: "<<UNDEFINED_ENV_VAR>>", value: "some-value", active: true },
+          {
+            key: "<<UNDEFINED_ENV_VAR>>",
+            value: "some-value",
+            active: true,
+            description: "",
+          },
         ],
       })
 
@@ -115,13 +138,24 @@ describe("EnvironmentInspectorService", () => {
 
     it("should not return an inspector result when the headers contain defined environment variables", () => {
       const container = new TestContainer()
+      container.bindMock(CurrentValueService, {
+        hasValue: vi.fn((key) => {
+          if (key === "EXISTING_ENV_VAR_2") return false
+          return true
+        }),
+      })
       const envInspector = container.bind(EnvironmentInspectorService)
 
       const req = ref({
         ...getDefaultRESTRequest(),
         endpoint: "http://example.com/api/data",
         headers: [
-          { key: "<<EXISTING_ENV_VAR>>", value: "some-value", active: true },
+          {
+            key: "<<EXISTING_ENV_VAR>>",
+            value: "some-value",
+            active: true,
+            description: "",
+          },
         ],
       })
 
@@ -138,7 +172,12 @@ describe("EnvironmentInspectorService", () => {
         ...getDefaultRESTRequest(),
         endpoint: "http://example.com/api/data",
         params: [
-          { key: "<<UNDEFINED_ENV_VAR>>", value: "some-value", active: true },
+          {
+            key: "<<UNDEFINED_ENV_VAR>>",
+            value: "some-value",
+            active: true,
+            description: "",
+          },
         ],
       })
 
@@ -158,6 +197,12 @@ describe("EnvironmentInspectorService", () => {
 
     it("should not return an inspector result when the params contain defined environment variables", () => {
       const container = new TestContainer()
+      container.bindMock(CurrentValueService, {
+        hasValue: vi.fn((key) => {
+          if (key === "EXISTING_ENV_VAR") return false
+          return true
+        }),
+      })
       const envInspector = container.bind(EnvironmentInspectorService)
 
       const req = ref({
@@ -165,7 +210,12 @@ describe("EnvironmentInspectorService", () => {
         endpoint: "http://example.com/api/data",
         headers: [],
         params: [
-          { key: "<<EXISTING_ENV_VAR>>", value: "some-value", active: true },
+          {
+            key: "<<EXISTING_ENV_VAR>>",
+            value: "some-value",
+            active: true,
+            description: "",
+          },
         ],
       })
 
@@ -176,6 +226,12 @@ describe("EnvironmentInspectorService", () => {
 
     it("should return an inspector result when the URL contains empty value in a environment variable", () => {
       const container = new TestContainer()
+      container.bindMock(CurrentValueService, {
+        hasValue: vi.fn((key) => {
+          if (key === "EXISTING_ENV_VAR_2") return true
+          return false
+        }),
+      })
       const envInspector = container.bind(EnvironmentInspectorService)
 
       const req = ref({
@@ -188,8 +244,14 @@ describe("EnvironmentInspectorService", () => {
       expect(result.value).toHaveLength(1)
     })
 
-    it("should not return an inspector result when the URL contains non empty value in a environemnt variable", () => {
+    it("should not return an inspector result when the URL contains non empty value in a environment variable", () => {
       const container = new TestContainer()
+      container.bindMock(CurrentValueService, {
+        hasValue: vi.fn((key) => {
+          if (key === "EXISTING_ENV_VAR") return false
+          return true
+        }),
+      })
       const envInspector = container.bind(EnvironmentInspectorService)
 
       const req = ref({
@@ -210,7 +272,12 @@ describe("EnvironmentInspectorService", () => {
         ...getDefaultRESTRequest(),
         endpoint: "http://example.com/api/data",
         headers: [
-          { key: "<<EXISTING_ENV_VAR_2>>", value: "some-value", active: true },
+          {
+            key: "<<EXISTING_ENV_VAR_2>>",
+            value: "some-value",
+            active: true,
+            description: "",
+          },
         ],
       })
 
@@ -219,15 +286,26 @@ describe("EnvironmentInspectorService", () => {
       expect(result.value).toHaveLength(1)
     })
 
-    it("should not return an inspector result when the headers contain non empty value in a environemnt variable", () => {
+    it("should not return an inspector result when the headers contain non empty value in a environment variable", () => {
       const container = new TestContainer()
+      container.bindMock(CurrentValueService, {
+        hasValue: vi.fn((key) => {
+          if (key === "EXISTING_ENV_VAR") return false
+          return true
+        }),
+      })
       const envInspector = container.bind(EnvironmentInspectorService)
 
       const req = ref({
         ...getDefaultRESTRequest(),
         endpoint: "http://example.com/api/data",
         headers: [
-          { key: "<<EXISTING_ENV_VAR>>", value: "some-value", active: true },
+          {
+            key: "<<EXISTING_ENV_VAR>>",
+            value: "some-value",
+            active: true,
+            description: "",
+          },
         ],
       })
 
@@ -245,7 +323,12 @@ describe("EnvironmentInspectorService", () => {
         endpoint: "http://example.com/api/data",
         headers: [],
         params: [
-          { key: "<<EXISTING_ENV_VAR_2>>", value: "some-value", active: true },
+          {
+            key: "<<EXISTING_ENV_VAR_2>>",
+            value: "some-value",
+            active: true,
+            description: "",
+          },
         ],
       })
 
@@ -254,8 +337,14 @@ describe("EnvironmentInspectorService", () => {
       expect(result.value).toHaveLength(1)
     })
 
-    it("should not return an inspector result when the params contain non empty value in a environemnt variable", () => {
+    it("should not return an inspector result when the params contain non empty value in a environment variable", () => {
       const container = new TestContainer()
+      container.bindMock(CurrentValueService, {
+        hasValue: vi.fn((key) => {
+          if (key === "EXISTING_ENV_VAR") return false
+          return true
+        }),
+      })
       const envInspector = container.bind(EnvironmentInspectorService)
 
       const req = ref({
@@ -263,7 +352,12 @@ describe("EnvironmentInspectorService", () => {
         endpoint: "http://example.com/api/data",
         headers: [],
         params: [
-          { key: "<<EXISTING_ENV_VAR>>", value: "some-value", active: true },
+          {
+            key: "<<EXISTING_ENV_VAR>>",
+            value: "some-value",
+            active: true,
+            description: "",
+          },
         ],
       })
 

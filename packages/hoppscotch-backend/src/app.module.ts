@@ -1,4 +1,4 @@
-import { ForbiddenException, HttpException, Module } from '@nestjs/common';
+import { HttpException, Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { UserModule } from './user/user.module';
@@ -8,7 +8,10 @@ import { UserSettingsModule } from './user-settings/user-settings.module';
 import { UserEnvironmentsModule } from './user-environment/user-environments.module';
 import { UserRequestModule } from './user-request/user-request.module';
 import { UserHistoryModule } from './user-history/user-history.module';
-import { subscriptionContextCookieParser } from './auth/helper';
+import {
+  subscriptionContextCookieParser,
+  extractAccessTokenFromAuthRecords,
+} from './auth/helper';
 import { TeamModule } from './team/team.module';
 import { TeamEnvironmentsModule } from './team-environments/team-environments.module';
 import { TeamCollectionModule } from './team-collection/team-collection.module';
@@ -24,11 +27,17 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { InfraConfigModule } from './infra-config/infra-config.module';
 import { loadInfraConfiguration } from './infra-config/helper';
 import { MailerModule } from './mailer/mailer.module';
-import { PosthogModule } from './posthog/posthog.module';
+import { PostHogModule } from './posthog/posthog.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { HealthModule } from './health/health.module';
 import { AccessTokenModule } from './access-token/access-token.module';
 import { UserLastActiveOnInterceptor } from './interceptors/user-last-active-on.interceptor';
+import { InfraTokenModule } from './infra-token/infra-token.module';
+import { PrismaModule } from './prisma/prisma.module';
+import { PubSubModule } from './pubsub/pubsub.module';
+import { SortModule } from './orchestration/sort/sort.module';
+import { MockServerModule } from './mock-server/mock-server.module';
+import { PublishedDocsModule } from './published-docs/published-docs.module';
 
 @Module({
   imports: [
@@ -38,7 +47,6 @@ import { UserLastActiveOnInterceptor } from './interceptors/user-last-active-on.
     }),
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
-      imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
         return {
@@ -51,18 +59,28 @@ import { UserLastActiveOnInterceptor } from './interceptors/user-last-active-on.
           subscriptions: {
             'subscriptions-transport-ws': {
               path: '/graphql',
-              onConnect: (_, websocket) => {
+              onConnect: (connectionParams, websocket) => {
+                const websocketHeaders = websocket?.upgradeReq?.headers;
+
                 try {
-                  const cookies = subscriptionContextCookieParser(
-                    websocket.upgradeReq.headers.cookie,
-                  );
-                  return {
-                    headers: { ...websocket?.upgradeReq?.headers, cookies },
-                  };
-                } catch (error) {
-                  throw new HttpException(COOKIES_NOT_FOUND, 400, {
-                    cause: new Error(COOKIES_NOT_FOUND),
-                  });
+                  const accessToken =
+                    extractAccessTokenFromAuthRecords(connectionParams);
+                  const authorization = `Bearer ${accessToken}`;
+
+                  return { headers: { ...websocketHeaders, authorization } };
+                } catch (authError) {
+                  const cookiesFromHeader = websocketHeaders?.cookie;
+                  const cookies = cookiesFromHeader
+                    ? subscriptionContextCookieParser(cookiesFromHeader)
+                    : null;
+
+                  if (!cookies) {
+                    throw new HttpException(COOKIES_NOT_FOUND, 400, {
+                      cause: new Error(COOKIES_NOT_FOUND),
+                    });
+                  }
+
+                  return { headers: { ...websocketHeaders, cookies } };
                 }
               },
             },
@@ -76,15 +94,16 @@ import { UserLastActiveOnInterceptor } from './interceptors/user-last-active-on.
       },
     }),
     ThrottlerModule.forRootAsync({
-      imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => [
         {
-          ttl: +configService.get('RATE_LIMIT_TTL'),
-          limit: +configService.get('RATE_LIMIT_MAX'),
+          ttl: +configService.get('INFRA.RATE_LIMIT_TTL'),
+          limit: +configService.get('INFRA.RATE_LIMIT_MAX'),
         },
       ],
     }),
+    PrismaModule,
+    PubSubModule,
     MailerModule.register(),
     UserModule,
     AuthModule.register(),
@@ -101,10 +120,14 @@ import { UserLastActiveOnInterceptor } from './interceptors/user-last-active-on.
     UserCollectionModule,
     ShortcodeModule,
     InfraConfigModule,
-    PosthogModule,
+    PostHogModule,
     ScheduleModule.forRoot(),
     HealthModule,
     AccessTokenModule,
+    InfraTokenModule,
+    SortModule,
+    MockServerModule,
+    PublishedDocsModule,
   ],
   providers: [
     GQLComplexityPlugin,

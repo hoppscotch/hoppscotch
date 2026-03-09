@@ -1,8 +1,8 @@
-import { pipe, flow } from "fp-ts/function"
-import * as O from "fp-ts/Option"
-import * as A from "fp-ts/Array"
-import * as Sep from "fp-ts/Separated"
 import { HoppRESTParam } from "@hoppscotch/data"
+import * as A from "fp-ts/Array"
+import { flow, pipe } from "fp-ts/function"
+import * as O from "fp-ts/Option"
+import * as Sep from "fp-ts/Separated"
 
 const isDangling = ([, value]: [string, string]) => !value
 
@@ -26,6 +26,7 @@ export function getQueries(params: Array<[string, string]>): {
             key,
             value,
             active: true,
+            description: "",
           })),
           A.map(([key]) => key)
         ),

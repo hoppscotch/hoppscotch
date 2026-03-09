@@ -101,7 +101,7 @@ export class SettingsSpotlightSearcherService extends StaticSpotlightSearcherSer
     },
   })
 
-  // TODO: Constuctors are no longer recommended as of dioc > 3, move to onServiceInit
+  // TODO: Constructors are no longer recommended as of dioc > 3, move to onServiceInit
   constructor(c: Container) {
     super(c, {
       searchFields: ["text", "alternates"],

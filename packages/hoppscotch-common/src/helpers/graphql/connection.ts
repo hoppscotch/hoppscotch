@@ -1,5 +1,11 @@
-import { GQLHeader, HoppGQLAuth, makeGQLRequest } from "@hoppscotch/data"
+import {
+  HoppGQLAuth,
+  HoppGQLRequest,
+  HoppRESTHeaders,
+  makeGQLRequest,
+} from "@hoppscotch/data"
 import { OperationType } from "@urql/core"
+import { AwsV4Signer } from "aws4fetch"
 import * as E from "fp-ts/Either"
 import {
   GraphQLEnumType,
@@ -11,24 +17,38 @@ import {
   getIntrospectionQuery,
   printSchema,
 } from "graphql"
+import { clone } from "lodash-es"
 import { Component, computed, reactive, ref } from "vue"
+import { useToast } from "~/composables/toast"
 import { getService } from "~/modules/dioc"
 import { getI18n } from "~/modules/i18n"
 
 import { addGraphqlHistoryEntry, makeGQLHistoryEntry } from "~/newstore/history"
 
-import { InterceptorService } from "~/services/interceptor.service"
+import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { GQLTabService } from "~/services/tab/graphql"
 
+import { MediaType, content, Method, RelayRequest } from "@hoppscotch/kernel"
+import { GQLRequest } from "~/helpers/kernel/gql/request"
+import { GQLResponse } from "~/helpers/kernel/gql/response"
+
 const GQL_SCHEMA_POLL_INTERVAL = 7000
+
+type ConnectionRequestOptions = {
+  url: string
+  request: HoppGQLRequest
+  inheritedHeaders: HoppGQLRequest["headers"]
+  inheritedAuth?: HoppGQLAuth
+}
 
 type RunQueryOptions = {
   name?: string
   url: string
-  headers: GQLHeader[]
+  request: HoppGQLRequest
+  inheritedHeaders: HoppGQLRequest["headers"]
+  inheritedAuth?: HoppGQLAuth
   query: string
   variables: string
-  auth: HoppGQLAuth
   operationName: string | undefined
   operationType: OperationType
 }
@@ -41,6 +61,15 @@ export type GQLResponseEvent =
       operationType: OperationType
       data: string
       rawQuery?: RunQueryOptions
+      document?: {
+        type: string
+        statusCode: number
+        statusText: string
+        meta: {
+          responseSize: number
+          responseDuration: number
+        }
+      }
     }
   | {
       type: "error"
@@ -51,7 +80,11 @@ export type GQLResponseEvent =
       }
     }
 
-export type ConnectionState = "CONNECTING" | "CONNECTED" | "DISCONNECTED"
+export type ConnectionState =
+  | "CONNECTING"
+  | "CONNECTED"
+  | "DISCONNECTED"
+  | "ERROR"
 export type SubscriptionState = "SUBSCRIBING" | "SUBSCRIBED" | "UNSUBSCRIBED"
 
 const GQL = {
@@ -91,52 +124,44 @@ export const connection = reactive<Connection>({
 })
 
 export const schema = computed(() => connection.schema)
-export const subscriptionState = computed(() => {
-  return connection.subscriptionState.get(currentTabID.value)
-})
+export const subscriptionState = computed(() =>
+  connection.subscriptionState.get(currentTabID.value)
+)
 
 export const gqlMessageEvent = ref<GQLResponseEvent | "reset">()
 
 export const schemaString = computed(() => {
-  if (!connection.schema) return ""
-
-  return printSchema(connection.schema, {
-    commentDescriptions: true,
-  })
+  if (!connection.schema || !(connection.schema instanceof GraphQLSchema))
+    return ""
+  return printSchema(connection.schema)
 })
 
 export const queryFields = computed(() => {
-  if (!connection.schema) return []
-
+  if (!connection.schema || !(connection.schema instanceof GraphQLSchema))
+    return []
   const fields = connection.schema.getQueryType()?.getFields()
-  if (!fields) return []
-
-  return Object.values(fields)
+  return fields ? Object.values(fields) : []
 })
 
 export const mutationFields = computed(() => {
-  if (!connection.schema) return []
-
+  if (!connection.schema || !(connection.schema instanceof GraphQLSchema))
+    return []
   const fields = connection.schema.getMutationType()?.getFields()
-  if (!fields) return []
-
-  return Object.values(fields)
+  return fields ? Object.values(fields) : []
 })
 
 export const subscriptionFields = computed(() => {
-  if (!connection.schema) return []
-
+  if (!connection.schema || !(connection.schema instanceof GraphQLSchema))
+    return []
   const fields = connection.schema.getSubscriptionType()?.getFields()
-  if (!fields) return []
-
-  return Object.values(fields)
+  return fields ? Object.values(fields) : []
 })
 
 export const graphqlTypes = computed(() => {
-  if (!connection.schema) return []
+  if (!connection.schema || !(connection.schema instanceof GraphQLSchema))
+    return []
 
   const typeMap = connection.schema.getTypeMap()
-
   const queryTypeName = connection.schema.getQueryType()?.name ?? ""
   const mutationTypeName = connection.schema.getMutationType()?.name ?? ""
   const subscriptionTypeName =
@@ -158,23 +183,40 @@ export const graphqlTypes = computed(() => {
 
 let timeoutSubscription: any
 
-export const connect = (url: string, headers: GQLHeader[]) => {
+export const connect = async (
+  options: ConnectionRequestOptions,
+  isRunGQLOperation = false
+) => {
   if (connection.state === "CONNECTED") {
     throw new Error(
       "A connection is already running. Close it before starting another."
     )
   }
 
-  // Polling
-  connection.state = "CONNECTED"
+  const toast = useToast()
+  const t = getI18n()
+
+  connection.state = "CONNECTING"
 
   const poll = async () => {
-    await getSchema(url, headers)
-    timeoutSubscription = setTimeout(() => {
-      poll()
-    }, GQL_SCHEMA_POLL_INTERVAL)
+    try {
+      await getSchema(options)
+      if (connection.state !== "CONNECTED") connection.state = "CONNECTED"
+      timeoutSubscription = setTimeout(() => {
+        poll()
+      }, GQL_SCHEMA_POLL_INTERVAL)
+    } catch (error) {
+      connection.state = "ERROR"
+
+      if (!isRunGQLOperation) {
+        toast.error(t("graphql.connection_error_http"))
+      }
+
+      console.error(error)
+    }
   }
-  poll()
+
+  await poll()
 }
 
 export const disconnect = () => {
@@ -184,6 +226,7 @@ export const disconnect = () => {
 
   clearTimeout(timeoutSubscription)
   connection.state = "DISCONNECTED"
+  connection.schema = null
 }
 
 export const reset = () => {
@@ -193,60 +236,97 @@ export const reset = () => {
   connection.schema = null
 }
 
-const getSchema = async (url: string, headers: GQLHeader[]) => {
+const getSchema = async (options: ConnectionRequestOptions) => {
   try {
-    const introspectionQuery = JSON.stringify({
-      query: getIntrospectionQuery(),
-    })
+    const { url, request, inheritedHeaders, inheritedAuth } = options
+
+    const headers = request?.headers || []
+
+    const auth =
+      request?.auth.authType === "inherit" && request.auth.authActive
+        ? clone(inheritedAuth)
+        : clone(request.auth)
+
+    let runHeaders: HoppGQLRequest["headers"] = []
+
+    if (inheritedHeaders) {
+      runHeaders = [
+        ...inheritedHeaders,
+        ...clone(request.headers),
+      ] as HoppRESTHeaders
+    } else {
+      runHeaders = clone(request.headers)
+    }
 
     const finalHeaders: Record<string, string> = {}
-    headers
-      .filter((x) => x.active && x.key !== "")
-      .forEach((x) => (finalHeaders[x.key] = x.value))
 
-    const reqOptions = {
-      method: "POST",
-      url,
+    const { authHeaders } = await generateAuthHeader(url, auth)
+
+    runHeaders.forEach((header) => {
+      if (header.active && header.key !== "") {
+        finalHeaders[header.key] = header.value
+      }
+    })
+    Object.assign(finalHeaders, authHeaders)
+
+    headers
+      .filter((item) => item.active && item.key !== "")
+      .forEach(({ key, value }) => (finalHeaders[key] = value))
+
+    const kernelRequest: RelayRequest = {
+      id: Date.now(),
+      url: options.url,
+      method: "POST" as Method,
+      version: "HTTP/1.1",
       headers: {
         ...finalHeaders,
         "content-type": "application/json",
       },
-      data: introspectionQuery,
+      content: content.json(
+        { query: getIntrospectionQuery() },
+        MediaType.APPLICATION_JSON
+      ),
     }
 
-    const interceptorService = getService(InterceptorService)
+    const kernelInterceptorService = getService(KernelInterceptorService)
+    const { response } = kernelInterceptorService.execute(kernelRequest)
 
-    const res = await interceptorService.runRequest(reqOptions).response
+    const res = await response
 
     if (E.isLeft(res)) {
-      if (
-        res.left !== "cancellation" &&
-        res.left.error === "NO_PW_EXT_HOOK" &&
-        res.left.humanMessage
-      ) {
+      connection.state = "ERROR"
+
+      if (res.left !== "cancellation" && typeof res.left === "object") {
         connection.error = {
-          type: res.left.error,
-          message: (t: ReturnType<typeof getI18n>) =>
-            res.left.humanMessage.description(t),
+          type: res.left.error?.kind || "error",
+          message: (t: ReturnType<typeof getI18n>) => {
+            if (res.left !== "cancellation" && typeof res.left === "object") {
+              return (
+                res.left.humanMessage?.description(t) ||
+                t("graphql.connection_error_http")
+              )
+            }
+            return "Unknown"
+          },
           component: res.left.component,
         }
       }
 
-      throw new Error(res.left.toString())
+      throw new Error(
+        typeof res.left === "string" ? res.left : res.left.error.message
+      )
     }
 
     const data = res.right
 
-    // HACK : Temporary trailing null character issue from the extension fix
-    const response = new TextDecoder("utf-8")
-      .decode(data.data as any)
-      .replace(/\0+$/, "")
+    const decoder = new TextDecoder("utf-8")
+    const responseText = decoder.decode(data.body.body)
 
-    const introspectResponse = JSON.parse(response)
+    const introspectResponse = JSON.parse(responseText)
 
-    const schema = buildClientSchema(introspectResponse.data)
+    const schemaData = buildClientSchema(introspectResponse.data)
 
-    connection.schema = schema
+    connection.schema = schemaData
     connection.error = null
   } catch (e: any) {
     console.error(e)
@@ -255,16 +335,185 @@ const getSchema = async (url: string, headers: GQLHeader[]) => {
 }
 
 export const runGQLOperation = async (options: RunQueryOptions) => {
-  const { url, headers, query, variables, auth, operationName, operationType } =
-    options
+  if (connection.state !== "CONNECTED") {
+    await connect(
+      {
+        url: options.url,
+        request: options.request,
+        inheritedHeaders: options.inheritedHeaders,
+        inheritedAuth: options.inheritedAuth,
+      },
+      true
+    )
+  }
+
+  const {
+    url,
+    request,
+    query,
+    variables,
+    operationName,
+    inheritedHeaders,
+    inheritedAuth,
+    operationType,
+  } = options
+
+  const headers = request?.headers || []
+
+  const auth =
+    request?.auth.authType === "inherit" && request.auth.authActive
+      ? clone(inheritedAuth)
+      : clone(request.auth)
+
+  let runHeaders: HoppGQLRequest["headers"] = []
+
+  if (inheritedHeaders) {
+    runHeaders = [
+      ...inheritedHeaders,
+      ...clone(request.headers),
+    ] as HoppRESTHeaders
+  } else {
+    runHeaders = clone(request.headers)
+  }
 
   const finalHeaders: Record<string, string> = {}
 
-  const parsedVariables = JSON.parse(variables || "{}")
+  const { authHeaders, authParams } = await generateAuthHeader(url, auth)
 
+  let finalUrl = url
+  if (Object.keys(authParams).length > 0) {
+    const urlObj = new URL(url)
+    for (const [key, value] of Object.entries(authParams)) {
+      urlObj.searchParams.append(key, value)
+    }
+    finalUrl = urlObj.toString()
+  }
+
+  runHeaders.forEach((header) => {
+    if (header.active && header.key !== "") {
+      finalHeaders[header.key] = header.value
+    }
+  })
+  Object.assign(finalHeaders, authHeaders)
+
+  headers
+    .filter((item) => item.active && item.key !== "")
+    .forEach(({ key, value }) => (finalHeaders[key] = value))
+
+  const finalHoppHeaders: HoppRESTHeaders = Object.entries(finalHeaders).map(
+    ([key, value]) => ({
+      active: true,
+      key,
+      value,
+      description: "",
+    })
+  )
+
+  const gqlRequest: HoppGQLRequest = {
+    v: 9,
+    name: options.name || "Untitled Request",
+    url: finalUrl,
+    headers: finalHoppHeaders,
+    query,
+    variables,
+    auth: auth ?? request.auth,
+  }
+
+  if (operationType === "subscription") {
+    return runSubscription(options, finalHeaders)
+  }
+
+  try {
+    const kernelRequest = await GQLRequest.toRequest(gqlRequest)
+
+    if (operationName) {
+      if (kernelRequest.content?.kind === "json") {
+        const content = kernelRequest.content.content as any
+        content.operationName = operationName
+        kernelRequest.content.content = content
+      }
+    }
+
+    const kernelInterceptorService = getService(KernelInterceptorService)
+    const { response } = kernelInterceptorService.execute(kernelRequest)
+
+    const result = await response
+
+    if (E.isLeft(result)) {
+      if (result.left !== "cancellation" && typeof result.left === "object") {
+        connection.error = {
+          type: result.left.error?.kind || "error",
+          message: (t: ReturnType<typeof getI18n>) => {
+            if (
+              result.left !== "cancellation" &&
+              typeof result.left === "object"
+            ) {
+              return (
+                result.left.humanMessage?.description(t) ||
+                t("graphql.operation_error")
+              )
+            }
+            return "Unknown"
+          },
+          component: result.left.component,
+        }
+      }
+
+      throw new Error(
+        typeof result.left === "string"
+          ? result.left
+          : result.left.error.message
+      )
+    }
+
+    const relayResponse = result.right
+
+    const parsedResponse = await GQLResponse.toResponse(relayResponse, options)
+
+    if (parsedResponse.type === "error") {
+      throw new Error(parsedResponse.error.message)
+    }
+
+    const timeStart = Date.now()
+    const timeEnd = Date.now()
+
+    gqlMessageEvent.value = {
+      ...parsedResponse,
+      document: {
+        type: "success",
+        statusCode: relayResponse.status,
+        statusText: relayResponse.statusText,
+        meta: {
+          responseSize: relayResponse.body.body.byteLength,
+          responseDuration: timeEnd - timeStart,
+        },
+      },
+    }
+
+    addQueryToHistory(options, parsedResponse.data)
+
+    return parsedResponse.data
+  } catch (error: any) {
+    gqlMessageEvent.value = {
+      type: "error",
+      error: {
+        type: "network_error",
+        message: error.message || "An unknown error occurred",
+      },
+    }
+
+    throw error
+  }
+}
+
+const generateAuthHeader = async (
+  url: string,
+  auth: HoppGQLAuth | undefined
+) => {
+  const finalHeaders: Record<string, string> = {}
   const params: Record<string, string> = {}
 
-  if (auth.authActive) {
+  if (auth?.authActive) {
     if (auth.authType === "basic") {
       const username = auth.username
       const password = auth.password
@@ -286,76 +535,39 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
       } else if (addTo === "QUERY_PARAMS") {
         params[key] = value
       }
-    }
-  }
+    } else if (auth.authType === "aws-signature") {
+      const { accessKey, secretKey, region, serviceName, addTo, serviceToken } =
+        auth
 
-  headers
-    .filter((item) => item.active && item.key !== "")
-    .forEach(({ key, value }) => (finalHeaders[key] = value))
+      const currentDate = new Date()
+      const amzDate = currentDate.toISOString().replace(/[:-]|\.\d{3}/g, "")
 
-  const reqOptions = {
-    method: "POST",
-    url,
-    headers: {
-      ...finalHeaders,
-      "content-type": "application/json",
-    },
-    data: JSON.stringify({
-      query,
-      variables: parsedVariables,
-      operationName,
-    }),
-    params: {
-      ...params,
-    },
-  }
+      const signer = new AwsV4Signer({
+        datetime: amzDate,
+        signQuery: addTo === "QUERY_PARAMS",
+        accessKeyId: accessKey,
+        secretAccessKey: secretKey,
+        region: region ?? "us-east-1",
+        service: serviceName,
+        url,
+        sessionToken: serviceToken,
+      })
 
-  if (operationType === "subscription") {
-    return runSubscription(options, finalHeaders)
-  }
+      const sign = await signer.sign()
 
-  const interceptorService = getService(InterceptorService)
-  const result = await interceptorService.runRequest(reqOptions).response
-
-  if (E.isLeft(result)) {
-    if (
-      result.left !== "cancellation" &&
-      result.left.error === "NO_PW_EXT_HOOK" &&
-      result.left.humanMessage
-    ) {
-      connection.error = {
-        type: result.left.error,
-        message: (t: ReturnType<typeof getI18n>) =>
-          result.left.humanMessage.description(t),
-        component: result.left.component,
+      if (addTo === "HEADERS") {
+        sign.headers.forEach((v, k) => {
+          finalHeaders[k] = v
+        })
+      } else if (addTo === "QUERY_PARAMS") {
+        for (const [k, v] of sign.url.searchParams) {
+          params[k] = v
+        }
       }
     }
-    throw new Error(result.left.toString())
   }
 
-  const res = result.right
-
-  // HACK: Temporary trailing null character issue from the extension fix
-  const responseText = new TextDecoder("utf-8")
-    .decode(res.data as any)
-    .replace(/\0+$/, "")
-
-  gqlMessageEvent.value = {
-    type: "response",
-    time: Date.now(),
-    operationName: operationName ?? "query",
-    data: responseText,
-    rawQuery: options,
-    operationType,
-  }
-
-  if (connection.state !== "CONNECTED") {
-    connection.state = "CONNECTED"
-  }
-
-  addQueryToHistory(options, responseText)
-
-  return responseText
+  return { authHeaders: finalHeaders, authParams: params }
 }
 
 export const runSubscription = (
@@ -436,16 +648,16 @@ export const socketDisconnect = () => {
 }
 
 const addQueryToHistory = (options: RunQueryOptions, response: string) => {
-  const { name, url, headers, query, variables, auth } = options
+  const { name, url, request, query, variables } = options
   addGraphqlHistoryEntry(
     makeGQLHistoryEntry({
       request: makeGQLRequest({
         name: name ?? "Untitled Request",
         url,
         query,
-        headers,
+        headers: request.headers,
         variables,
-        auth,
+        auth: request.auth as HoppGQLAuth,
       }),
       response,
       star: false,

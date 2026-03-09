@@ -1,0 +1,43 @@
+{
+  "v": 2,
+  "id": "cm00r7kpb0006mbd2nq1560w6",
+  "name": "Request variables alongside environment variables",
+  "variables": [
+    {
+      "key": "url",
+      "initialValue": "https://echo.hoppscotch.io",
+      "currentValue": "https://echo.hoppscotch.io",
+      "secret": false
+    },
+    {
+      "key": "secretBasicAuthPasswordEnvVar",
+      "initialValue": "",
+      "currentValue": "",
+      "secret": true
+    },
+    {
+      "key": "secretBasicAuthUsernameEnvVar",
+      "initialValue": "username",
+      "currentValue": "",
+      "secret": true
+    },
+    {
+      "key": "username",
+      "initialValue": "",
+      "currentValue": "",
+      "secret": true
+    },
+    {
+      "key": "password",
+      "initialValue": "",
+      "currentValue": "",
+      "secret": true
+    },
+    {
+      "key": "testHeaderValue",
+      "initialValue": "test-header-value",
+      "currentValue": "",
+      "secret": false
+    }
+  ]
+}

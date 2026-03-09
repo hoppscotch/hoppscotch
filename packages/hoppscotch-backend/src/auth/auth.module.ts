@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UserModule } from 'src/user/user.module';
-import { PrismaModule } from 'src/prisma/prisma.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
@@ -11,39 +10,41 @@ import { GoogleStrategy } from './strategies/google.strategy';
 import { GithubStrategy } from './strategies/github.strategy';
 import { MicrosoftStrategy } from './strategies/microsoft.strategy';
 import { AuthProvider, authProviderCheck } from './helper';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import {
+  getConfiguredSSOProvidersFromInfraConfig,
   isInfraConfigTablePopulated,
-  loadInfraConfiguration,
 } from 'src/infra-config/helper';
 import { InfraConfigModule } from 'src/infra-config/infra-config.module';
 
 @Module({
   imports: [
-    PrismaModule,
     UserModule,
     PassportModule,
     JwtModule.registerAsync({
-      imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get('JWT_SECRET'),
+        secret: configService.get('INFRA.JWT_SECRET'),
       }),
     }),
     InfraConfigModule,
   ],
-  providers: [AuthService, JwtStrategy, RTJwtStrategy],
+  providers: [AuthService],
   controllers: [AuthController],
 })
 export class AuthModule {
   static async register() {
+    if (process.env.GENERATE_GQL_SCHEMA === 'true') {
+      return { module: AuthModule };
+    }
+
     const isInfraConfigPopulated = await isInfraConfigTablePopulated();
     if (!isInfraConfigPopulated) {
       return { module: AuthModule };
     }
 
-    const env = await loadInfraConfiguration();
-    const allowedAuthProviders = env.INFRA.VITE_ALLOWED_AUTH_PROVIDERS;
+    const allowedAuthProviders =
+      await getConfiguredSSOProvidersFromInfraConfig();
 
     const providers = [
       ...(authProviderCheck(AuthProvider.GOOGLE, allowedAuthProviders)
@@ -59,7 +60,7 @@ export class AuthModule {
 
     return {
       module: AuthModule,
-      providers,
+      providers: [...providers, JwtStrategy, RTJwtStrategy],
     };
   }
 }

@@ -72,18 +72,37 @@ describe("SecretEnvironmentService", () => {
   })
 
   describe("getSecretEnvironmentVariableValue", () => {
-    it("should return the value of the specified secret environment variable", () => {
+    it("should return the value and initialValue of the specified secret environment variable", () => {
       const id = "testEnvironment"
-      const secretVars = [{ key: "key1", value: "value1", varIndex: 1 }]
+      const secretVars = [
+        { key: "key1", value: "value1", initialValue: "init1", varIndex: 1 },
+      ]
 
       service.secretEnvironments.set(id, secretVars)
 
       const result = service.getSecretEnvironmentVariableValue(id, 1)
 
-      expect(result).toEqual(secretVars[0].value)
+      expect(result).toEqual({
+        value: "value1",
+        initialValue: "init1",
+      })
     })
 
-    it("should return undefined if the specified variable does not exist", () => {
+    it("should return null if the variable has no value/initialValue", () => {
+      const id = "testEnvironment"
+      const secretVars = [{ key: "key1", varIndex: 1 }]
+
+      service.secretEnvironments.set(id, secretVars as any)
+
+      const result = service.getSecretEnvironmentVariableValue(id, 1)
+
+      expect(result).toEqual({
+        value: "",
+        initialValue: "",
+      })
+    })
+
+    it("should return null if the specified variable does not exist", () => {
       const id = "testEnvironment"
       const secretVars = [{ key: "key1", value: "value1", varIndex: 1 }]
 
@@ -91,15 +110,15 @@ describe("SecretEnvironmentService", () => {
 
       const result = service.getSecretEnvironmentVariableValue(id, 2)
 
-      expect(result).toBeUndefined()
+      expect(result).toBeNull()
     })
 
-    it("should return undefined if the specified environment does not exist", () => {
+    it("should return null if the specified environment does not exist", () => {
       const id = "nonExistentEnvironment"
 
       const result = service.getSecretEnvironmentVariableValue(id, 1)
 
-      expect(result).toBeUndefined()
+      expect(result).toBeNull()
     })
   })
 

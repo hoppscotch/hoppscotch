@@ -2,9 +2,9 @@ name: Node.js CI
 
 on:
   push:
-    branches: [main, staging, "release/**"]
+    branches: [main, next, patch]
   pull_request:
-    branches: [main, staging, "release/**"]
+    branches: [main, next, patch]
 
 jobs:
   test:
@@ -13,7 +13,9 @@ jobs:
 
     strategy:
       matrix:
-        node-version: ["lts/*"]
+        # Pinned to Node.js 22 due to known test failures on Node.js 24.
+        # Future TODO: Investigate test failures and move to Node.js 24 (Active LTS).
+        node-version: [22]
 
     steps:
       - name: Checkout
@@ -30,8 +32,14 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: 8
-          run_install: true
+          version: 10
+          run_install: false
+
+      - name: Install dependencies
+        run: pnpm install
+        env:
+          DATABASE_URL: postgresql://postgres:testpass@localhost:5432/hoppscotch
+          DATA_ENCRYPTION_KEY: "12345678901234567890123456789012"
 
       - name: Run tests
         run: pnpm test

@@ -2,9 +2,7 @@ import {
   Args,
   ID,
   Mutation,
-  Parent,
   Query,
-  ResolveField,
   Resolver,
   Subscription,
 } from '@nestjs/graphql';
@@ -33,7 +31,7 @@ import { UserDeletionResult } from 'src/user/user.model';
 @Resolver(() => Admin)
 export class AdminResolver {
   constructor(
-    private adminService: AdminService,
+    private readonly adminService: AdminService,
     private readonly pubsub: PubSubService,
   ) {}
 
@@ -117,9 +115,8 @@ export class AdminResolver {
     })
     userUIDs: string[],
   ): Promise<UserDeletionResult[]> {
-    const deletionResults = await this.adminService.removeUserAccounts(
-      userUIDs,
-    );
+    const deletionResults =
+      await this.adminService.removeUserAccounts(userUIDs);
     if (E.isLeft(deletionResults)) throwErr(deletionResults.left);
     return deletionResults.right;
   }
@@ -357,6 +354,16 @@ export class AdminResolver {
   ): Promise<boolean> {
     const res = await this.adminService.deleteShortcode(code);
     if (E.isLeft(res)) throwErr(res.left);
+    return true;
+  }
+
+  @Mutation(() => Boolean, {
+    description: 'Revoke all User History',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async revokeAllUserHistoryByAdmin(): Promise<boolean> {
+    const isDeleted = await this.adminService.deleteAllUserHistory();
+    if (E.isLeft(isDeleted)) throwErr(isDeleted.left);
     return true;
   }
 

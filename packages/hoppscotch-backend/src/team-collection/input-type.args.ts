@@ -47,14 +47,12 @@ export class RenameTeamCollectionArgs {
   @Field(() => ID, {
     name: 'collectionID',
     description: 'ID of the collection',
-    deprecationReason: 'Switch to updateTeamCollection mutation instead',
   })
   collectionID: string;
 
   @Field({
     name: 'newTitle',
     description: 'The updated title of the collection',
-    deprecationReason: 'Switch to updateTeamCollection mutation instead',
   })
   newTitle: string;
 }
@@ -90,29 +88,6 @@ export class UpdateTeamCollectionOrderArgs {
     nullable: true,
   })
   destCollID: string;
-}
-
-@ArgsType()
-export class ReplaceTeamCollectionArgs {
-  @Field(() => ID, {
-    name: 'teamID',
-    description: 'Id of the team to add to',
-  })
-  teamID: string;
-
-  @Field({
-    name: 'jsonString',
-    description: 'JSON string to replace with',
-  })
-  jsonString: string;
-
-  @Field(() => ID, {
-    name: 'parentCollectionID',
-    description:
-      'ID to the collection to which to import to (null if to import to the root of team)',
-    nullable: true,
-  })
-  parentCollectionID?: string;
 }
 
 @ArgsType()

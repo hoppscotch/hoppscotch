@@ -39,8 +39,8 @@ const caddyProcess = runChildProcessWithPrefix(
   'App/Admin Dashboard Caddy',
 );
 const backendProcess = runChildProcessWithPrefix(
-  'pnpm',
-  ['run', 'start:prod'],
+  'node',
+  ['/dist/backend/dist/src/main.js'],
   'Backend Server',
 );
 

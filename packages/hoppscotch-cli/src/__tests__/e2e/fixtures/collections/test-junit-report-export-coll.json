@@ -1,0 +1,150 @@
+{
+    "v": 2,
+    "name": "test-junit-report-export",
+    "folders": [
+        {
+            "v": 2,
+            "name": "assertions",
+            "folders": [],
+            "requests": [
+                {
+                    "v": "5",
+                    "auth": {
+                        "authType": "inherit",
+                        "authActive": true
+                    },
+                    "body": {
+                        "body": null,
+                        "contentType": null
+                    },
+                    "name": "error",
+                    "method": "GET",
+                    "params": [],
+                    "headers": [],
+                    "endpoint": "https://echo.hoppscotch.io",
+                    "testScript": "pw.test(\"`toBeLevelxxx()` error scenarios\", ()=> {\n    pw.expect(\"foo\").toBeLevel2xx();\n    pw.expect(\"foo\").not.toBeLevel2xx();\n});\n\npw.test(\"`toBeType()` error scenarios\", () => {\n  pw.expect(2).toBeType(\"foo\")\n  pw.expect(\"2\").toBeType(\"bar\")\n  pw.expect(true).toBeType(\"baz\")\n  pw.expect({}).toBeType(\"qux\")\n  pw.expect(undefined).toBeType(\"quux\")\n  \n  pw.expect(2).not.toBeType(\"foo\")\n  pw.expect(\"2\").not.toBeType(\"bar\")\n  pw.expect(true).not.toBeType(\"baz\")\n  pw.expect({}).not.toBeType(\"qux\")\n  pw.expect(undefined).not.toBeType(\"quux\")\n})\n\npw.test(\"`toHaveLength()` error scenarios\", () => {\n  pw.expect(5).toHaveLength(0)\n  pw.expect(true).toHaveLength(0)\n\n  pw.expect(5).not.toHaveLength(0)\n  pw.expect(true).not.toHaveLength(0)\n\n  pw.expect([1, 2, 3, 4]).toHaveLength(\"a\")\n\n  pw.expect([1, 2, 3, 4]).not.toHaveLength(\"a\")\n})\n\npw.test(\"`toInclude() error scenarios`\", () => {\n  pw.expect(5).not.toInclude(0)\n  pw.expect(true).not.toInclude(0)\n\n  pw.expect([1, 2, 3, 4]).not.toInclude(null)\n\n  pw.expect([1, 2, 3, 4]).not.toInclude(undefined)\n})",
+                    "preRequestScript": "",
+                    "requestVariables": []
+                },
+                {
+                    "v": "5",
+                    "auth": {
+                        "authType": "inherit",
+                        "authActive": true
+                    },
+                    "body": {
+                        "body": null,
+                        "contentType": null
+                    },
+                    "name": "success",
+                    "method": "GET",
+                    "params": [],
+                    "headers": [],
+                    "endpoint": "https://echo.hoppscotch.io",
+                    "testScript": "\n\n// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\n// Check headers\npw.test(\"Check headers\", ()=> {\n    pw.expect(pw.response.body.headers[\"accept\"]).toBe(\"application/json, text/plain, */*,image/webp\");\n    pw.expect(pw.response.body.headers[\"host\"]).toBe(\"echo.hoppscotch.io\")\n  pw.expect(pw.response.body.headers[\"custom-header\"]).toBe(undefined)\n});\n\n// Check status code is 2xx\npw.test(\"Status code is 2xx\", ()=> {\n    pw.expect(pw.response.status).toBeLevel2xx();\n});",
+                    "preRequestScript": "",
+                    "requestVariables": []
+                },
+                {
+                    "v": "5",
+                    "auth": {
+                        "authType": "inherit",
+                        "authActive": true
+                    },
+                    "body": {
+                        "body": null,
+                        "contentType": null
+                    },
+                    "name": "failure",
+                    "method": "GET",
+                    "params": [],
+                    "headers": [],
+                    "endpoint": "https://echo.hoppscotch.io",
+                    "testScript": "\n\n// Check status code is 200\npw.test(\"Simulating failure - Status code is 200\", ()=> {\n    pw.expect(pw.response.status).not.toBe(200);\n});\n\n// Check JSON response property\npw.test(\"Simulating failure - Check headers\", ()=> {\n    pw.expect(pw.response.body.headers[\"accept\"]).not.toBe(\"application/json, text/plain, */*\");\n    pw.expect(pw.response.body.headers[\"host\"]).not.toBe(\"httpbin.org\")\n  pw.expect(pw.response.body.headers[\"custom-header\"]).not.toBe(\"value\")\n});\n\n// Check status code is 2xx\npw.test(\"Simulating failure - Status code is 2xx\", ()=> {\n    pw.expect(pw.response.status).not.toBeLevel2xx();\n});",
+                    "preRequestScript": "",
+                    "requestVariables": []
+                }
+            ],
+            "auth": {
+                "authType": "inherit",
+                "authActive": true
+            },
+            "headers": []
+        },
+        {
+            "v": 2,
+            "name": "request-level-errors",
+            "folders": [],
+            "requests": [
+                {
+                    "v": "5",
+                    "auth": {
+                        "authType": "inherit",
+                        "authActive": true
+                    },
+                    "body": {
+                        "body": null,
+                        "contentType": null
+                    },
+                    "name": "invalid-url",
+                    "method": "GET",
+                    "params": [],
+                    "headers": [],
+                    "endpoint": "invalid-url",
+                    "testScript": "pw.test(\"`toBeLevelxxx()` error scenarios\", ()=> {\n    pw.expect(\"foo\").toBeLevel2xx();\n    pw.expect(\"foo\").not.toBeLevel2xx();\n});\n\npw.test(\"`toBeType()` error scenarios\", () => {\n  pw.expect(2).toBeType(\"foo\")\n  pw.expect(\"2\").toBeType(\"bar\")\n  pw.expect(true).toBeType(\"baz\")\n  pw.expect({}).toBeType(\"qux\")\n  pw.expect(undefined).toBeType(\"quux\")\n  \n  pw.expect(2).not.toBeType(\"foo\")\n  pw.expect(\"2\").not.toBeType(\"bar\")\n  pw.expect(true).not.toBeType(\"baz\")\n  pw.expect({}).not.toBeType(\"qux\")\n  pw.expect(undefined).not.toBeType(\"quux\")\n})\n\npw.test(\"`toHaveLength()` error scenarios\", () => {\n  pw.expect(5).toHaveLength(0)\n  pw.expect(true).toHaveLength(0)\n\n  pw.expect(5).not.toHaveLength(0)\n  pw.expect(true).not.toHaveLength(0)\n\n  pw.expect([1, 2, 3, 4]).toHaveLength(\"a\")\n\n  pw.expect([1, 2, 3, 4]).not.toHaveLength(\"a\")\n})\n\npw.test(\"`toInclude() error scenarios`\", () => {\n  pw.expect(5).not.toInclude(0)\n  pw.expect(true).not.toInclude(0)\n\n  pw.expect([1, 2, 3, 4]).not.toInclude(null)\n\n  pw.expect([1, 2, 3, 4]).not.toInclude(undefined)\n})",
+                    "preRequestScript": "",
+                    "requestVariables": []
+                },
+                {
+                    "v": "5",
+                    "auth": {
+                        "authType": "inherit",
+                        "authActive": true
+                    },
+                    "body": {
+                        "body": null,
+                        "contentType": null
+                    },
+                    "name": "test-script-reference-error",
+                    "method": "GET",
+                    "params": [],
+                    "headers": [],
+                    "endpoint": "invalid-url",
+                    "testScript": "pw.test(\"Reference error\", () => {\n  pw.expect(status).toBe(200);\n})",
+                    "preRequestScript": "",
+                    "requestVariables": []
+                },
+                {
+                    "v": "5",
+                    "auth": {
+                        "authType": "inherit",
+                        "authActive": true
+                    },
+                    "body": {
+                        "body": "{\n  \"key\": \"<<key>>\"\n}",
+                        "contentType": "application/json"
+                    },
+                    "name": "non-existent-env-var",
+                    "method": "POST",
+                    "params": [],
+                    "headers": [],
+                    "endpoint": "https://echo.hoppscotch.io",
+                    "testScript": "pw.test(\"`toBeLevelxxx()` error scenarios\", ()=> {\n    pw.expect(\"foo\").toBeLevel2xx();\n    pw.expect(\"foo\").not.toBeLevel2xx();\n});\n\npw.test(\"`toBeType()` error scenarios\", () => {\n  pw.expect(2).toBeType(\"foo\")\n  pw.expect(\"2\").toBeType(\"bar\")\n  pw.expect(true).toBeType(\"baz\")\n  pw.expect({}).toBeType(\"qux\")\n  pw.expect(undefined).toBeType(\"quux\")\n  \n  pw.expect(2).not.toBeType(\"foo\")\n  pw.expect(\"2\").not.toBeType(\"bar\")\n  pw.expect(true).not.toBeType(\"baz\")\n  pw.expect({}).not.toBeType(\"qux\")\n  pw.expect(undefined).not.toBeType(\"quux\")\n})\n\npw.test(\"`toHaveLength()` error scenarios\", () => {\n  pw.expect(5).toHaveLength(0)\n  pw.expect(true).toHaveLength(0)\n\n  pw.expect(5).not.toHaveLength(0)\n  pw.expect(true).not.toHaveLength(0)\n\n  pw.expect([1, 2, 3, 4]).toHaveLength(\"a\")\n\n  pw.expect([1, 2, 3, 4]).not.toHaveLength(\"a\")\n})\n\npw.test(\"`toInclude() error scenarios`\", () => {\n  pw.expect(5).not.toInclude(0)\n  pw.expect(true).not.toInclude(0)\n\n  pw.expect([1, 2, 3, 4]).not.toInclude(null)\n\n  pw.expect([1, 2, 3, 4]).not.toInclude(undefined)\n})",
+                    "preRequestScript": "",
+                    "requestVariables": []
+                }
+            ],
+            "auth": {
+                "authType": "inherit",
+                "authActive": true
+            },
+            "headers": []
+        }
+    ],
+    "requests": [],
+    "auth": {
+        "authType": "inherit",
+        "authActive": true
+    },
+    "headers": []
+}

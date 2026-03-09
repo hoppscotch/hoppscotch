@@ -8,7 +8,7 @@ import {
 } from '@nestjs/graphql';
 import * as E from 'fp-ts/Either';
 import { UseGuards } from '@nestjs/common';
-import { Shortcode, ShortcodeWithUserEmail } from './shortcode.model';
+import { Shortcode } from './shortcode.model';
 import { ShortcodeService } from './shortcode.service';
 import { throwErr } from 'src/utils';
 import { GqlUser } from 'src/decorators/gql-user.decorator';
@@ -19,7 +19,6 @@ import { AuthUser } from '../types/AuthUser';
 import { PaginationArgs } from 'src/types/input-types.args';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { SkipThrottle } from '@nestjs/throttler';
-import { GqlAdminGuard } from 'src/admin/guards/gql-admin.guard';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => Shortcode)

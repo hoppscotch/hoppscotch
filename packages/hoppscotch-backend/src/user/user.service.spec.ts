@@ -153,6 +153,14 @@ const exampleSSOProfileData = {
   photos: 'https://en.wikipedia.org/wiki/Dwight_Schrute',
 };
 
+beforeAll(() => {
+  process.env.DATA_ENCRYPTION_KEY = '12345678901234567890123456789012';
+});
+
+afterAll(() => {
+  delete process.env.DATA_ENCRYPTION_KEY; // Clean up after tests
+});
+
 beforeEach(() => {
   mockReset(mockPrisma);
   mockPubSub.publish.mockClear();
@@ -680,7 +688,7 @@ describe('UserService', () => {
       const result = service.deleteUserByUID(user)();
       return expect(result).resolves.toBeLeft();
     });
-    test('should resolve left when ther is an unsuccessful deletion of userdata from firestore', () => {
+    test('should resolve left when there is an unsuccessful deletion of userdata from firestore', () => {
       // Handlers allow deletion to proceed
       handler1.canAllowUserDeletion.mockImplementation(() => TO.none);
       handler2.canAllowUserDeletion.mockImplementation(() => TO.none);

@@ -43,8 +43,8 @@ const t = useI18n()
 
 const props = withDefaults(
   defineProps<{
-    show: boolean
-    loadingState: boolean
+    show?: boolean
+    loadingState?: boolean
   }>(),
   {
     show: false,
@@ -69,10 +69,15 @@ watch(
 )
 
 const addFolder = () => {
+  if (props.loadingState) {
+    return
+  }
+
   if (editingName.value.trim() === "") {
     toast.error(t("folder.invalid_name"))
     return
   }
+
   emit("add-folder", editingName.value)
 }
 

@@ -38,16 +38,15 @@ export const getSyncInitFunction = <T extends DispatchingStore<any, any>>(
   let oldSyncStatus = shouldSyncValue()
 
   // Start and stop the subscriptions according to the sync settings from profile
-  shouldSyncObservable &&
-    shouldSyncObservable.subscribe((newSyncStatus) => {
-      if (oldSyncStatus === true && newSyncStatus === false) {
-        stopListeningToSubscriptions()
-      } else if (oldSyncStatus === false && newSyncStatus === true) {
-        startListeningToSubscriptions()
-      }
+  shouldSyncObservable?.subscribe((newSyncStatus) => {
+    if (oldSyncStatus && !newSyncStatus) {
+      stopListeningToSubscriptions()
+    } else if (newSyncStatus) {
+      startListeningToSubscriptions()
+    }
 
-      oldSyncStatus = newSyncStatus
-    })
+    oldSyncStatus = newSyncStatus
+  })
 
   function startStoreSync() {
     store.dispatches$.subscribe((actionParams) => {
@@ -80,7 +79,7 @@ export const getSyncInitFunction = <T extends DispatchingStore<any, any>>(
       )
     }
 
-    stopSubscriptions = startSubscriptions()
+    stopSubscriptions = startSubscriptions?.()
   }
 
   function stopListeningToSubscriptions() {
@@ -90,7 +89,7 @@ export const getSyncInitFunction = <T extends DispatchingStore<any, any>>(
       )
     }
 
-    stopSubscriptions()
+    stopSubscriptions?.()
   }
 
   return {

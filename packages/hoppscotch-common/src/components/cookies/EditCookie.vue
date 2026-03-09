@@ -84,7 +84,7 @@ export type EditCookieConfig =
       type: "edit"
       domain: string
       entryIndex: number
-      currentCookieEntry: string
+      currentCookieEntry: Cookie
     }
 </script>
 
@@ -104,6 +104,7 @@ import {
 } from "~/composables/lens-actions"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
+import { Cookie } from "@hoppscotch/data"
 
 // TODO: Build Managed Mode!
 
@@ -156,7 +157,7 @@ watch(
       return
     }
 
-    rawCookieString.value = props.entry.currentCookieEntry
+    rawCookieString.value = `${props.entry.currentCookieEntry.name}=${props.entry.currentCookieEntry.value}`
   }
 )
 
@@ -187,8 +188,9 @@ function saveCookieChange() {
 
 const { copyIcon, copyResponse } = useCopyResponse(rawCookieString)
 const { downloadIcon, downloadResponse } = useDownloadResponse(
-  "",
-  rawCookieString
+  "text/plain",
+  rawCookieString,
+  t("filename.cookie_key_value_pairs")
 )
 
 function clearContent() {

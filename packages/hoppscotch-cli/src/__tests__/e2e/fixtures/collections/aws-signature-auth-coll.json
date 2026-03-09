@@ -1,0 +1,101 @@
+{
+  "v": 3,
+  "name": "AWS Signature Auth - collection",
+  "folders": [],
+  "requests": [
+    {
+      "v": "7",
+      "id": "cm0dm70cw000687bnxi830zz7",
+      "auth": {
+        "addTo": "HEADERS",
+        "region": "<<awsRegion>>",
+        "authType": "aws-signature",
+        "accessKey": "<<accessKey>>",
+        "secretKey": "<<secretVarKey>>",
+        "authActive": true,
+        "serviceName": "<<serviceName>>",
+        "serviceToken": "",
+        "grantTypeInfo": {
+          "token": "",
+          "isPKCE": false,
+          "clientID": "",
+          "grantType": "AUTHORIZATION_CODE",
+          "authEndpoint": "",
+          "clientSecret": "",
+          "tokenEndpoint": "",
+          "codeVerifierMethod": "S256"
+        }
+      },
+      "body": {
+        "body": null,
+        "contentType": null
+      },
+      "name": "aws-signature-auth-headers",
+      "method": "GET",
+      "params": [],
+      "headers": [],
+      "endpoint": "<<url>>",
+      "testScript": "pw.test(\"Successfully sends relevant AWS signature information via headers\", ()=> {\n    const { headers } = pw.response.body\n\n  // Dynamic values, hence comparing the type.\n  pw.expect(headers[\"authorization\"]).toBeType(\"string\");\n  pw.expect(headers[\"x-amz-date\"]).toBeType(\"string\");\n  \n  pw.expect(headers[\"x-amz-content-sha256\"]).toBe(\"UNSIGNED-PAYLOAD\")\n  \n  // No session token supplied\n  pw.expect(headers[\"x-amz-security-token\"]).toBe(undefined)\n  \n});",
+      "preRequestScript": "",
+      "requestVariables": [
+        {
+          "key": "secretVarKey",
+          "value": "<<secretKey>>",
+          "active": true
+        }
+      ]
+    },
+    {
+      "v": "7",
+      "id": "cm0dm70cw000687bnxi830zz7",
+      "auth": {
+        "addTo": "QUERY_PARAMS",
+        "region": "<<awsRegion>>",
+        "authType": "aws-signature",
+        "accessKey": "<<accessKey>>",
+        "secretKey": "<<secretKey>>",
+        "authActive": true,
+        "serviceName": "<<serviceName>>",
+        "serviceToken": "<<serviceToken>>",
+        "grantTypeInfo": {
+          "token": "",
+          "isPKCE": false,
+          "clientID": "",
+          "grantType": "AUTHORIZATION_CODE",
+          "authEndpoint": "",
+          "clientSecret": "",
+          "tokenEndpoint": "",
+          "codeVerifierMethod": "S256"
+        }
+      },
+      "body": {
+        "body": null,
+        "contentType": null
+      },
+      "name": "aws-signature-auth-query-params",
+      "method": "GET",
+      "params": [],
+      "headers": [],
+      "endpoint": "<<url>>",
+      "testScript": "pw.test(\"Successfully sends relevant AWS signature information via query params\", ()=> {\n    const { args } = pw.response.body\n    pw.expect(args[\"X-Amz-Algorithm\"]).toBe(\"AWS4-HMAC-SHA256\");\n    pw.expect(args[\"X-Amz-Algorithm\"]).toBe(\"AWS4-HMAC-SHA256\");\n    pw.expect(args[\"X-Amz-Credential\"]).toInclude(\"test-access-key\");\n    pw.expect(args[\"X-Amz-Credential\"]).toInclude(\"eu-west-1/s3\");\n\n  // Dynamic values, hence comparing the type.\n  pw.expect(args[\"X-Amz-Date\"]).toBeType(\"string\");\n  pw.expect(args[\"X-Amz-Signature\"]).toBeType(\"string\");\n\n  pw.expect(args[\"X-Amz-Expires\"]).toBe(\"86400\")\n  pw.expect(args[\"X-Amz-SignedHeaders\"]).toBe(\"host\")\n  pw.expect(args[\"X-Amz-Security-Token\"]).toBe(\"test-token\")\n  \n});",
+      "preRequestScript": "",
+      "requestVariables": [
+        {
+          "key": "awsRegion",
+          "value": "eu-west-1",
+          "active": true
+        },
+        {
+          "key": "secretKey",
+          "value": "test-secret-key-overriden",
+          "active": true
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "authType": "inherit",
+    "authActive": true
+  },
+  "headers": []
+}

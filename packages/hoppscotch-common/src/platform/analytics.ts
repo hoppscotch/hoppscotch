@@ -63,6 +63,10 @@ export type AnalyticsEvent =
   | ({
       type: "HOPP_SPOTLIGHT_SESSION"
     } & HoppSpotlightSessionEventData)
+  | {
+      type: "EXPERIMENTS_GENERATE_REQUEST_NAME_WITH_AI"
+      platform: "rest" | "gql"
+    }
 
 export type AnalyticsPlatformDef = {
   initAnalytics: () => void

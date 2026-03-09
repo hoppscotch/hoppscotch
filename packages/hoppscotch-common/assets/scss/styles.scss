@@ -22,13 +22,13 @@
 
   @apply selection:bg-accentDark;
   @apply selection:text-accentContrast;
-  @apply overscroll-none;
 }
 
 :root {
-  @apply antialiased;
   accent-color: var(--accent-color);
   font-variant-ligatures: common-ligatures;
+  @apply antialiased;
+  @apply overscroll-none;
 }
 
 ::-webkit-scrollbar-track {
@@ -153,104 +153,6 @@ a {
   }
 }
 
-.cm-tooltip {
-  .tippy-box {
-    @apply shadow-none #{!important};
-    @apply fixed;
-    @apply inline-flex;
-    @apply -mt-7;
-  }
-}
-
-.tippy-box[data-theme~="tooltip"] {
-  @apply bg-tooltip;
-  @apply border-solid border-tooltip;
-  @apply rounded;
-  @apply shadow;
-
-  .tippy-content {
-    @apply flex;
-    @apply text-tiny text-primary;
-    @apply font-semibold;
-    @apply px-2 py-1;
-    @apply truncate;
-    @apply leading-body;
-    @apply items-center;
-
-    kbd {
-      @apply hidden;
-      @apply font-sans;
-      background-color: rgba(107, 114, 128, 0.45);
-      @apply text-primaryLight;
-      @apply rounded-sm;
-      @apply px-1;
-      @apply my-0 ml-1;
-      @apply truncate;
-      @apply sm:inline-flex;
-    }
-
-    .env-icon {
-      @apply transition;
-      @apply inline-flex;
-      @apply items-center;
-    }
-  }
-
-  .tippy-svg-arrow {
-    svg:first-child {
-      @apply fill-tooltip;
-    }
-
-    svg:last-child {
-      @apply fill-tooltip;
-    }
-  }
-}
-
-.tippy-box[data-theme~="popover"] {
-  @apply bg-popover;
-  @apply border-solid border-dividerDark;
-  @apply rounded;
-  @apply shadow-lg;
-  @apply max-w-[45vw] #{!important};
-
-  .tippy-content {
-    @apply flex flex-col;
-    @apply max-h-[45vh];
-    @apply items-stretch;
-    @apply overflow-y-auto;
-    @apply text-body text-secondary;
-    @apply p-2;
-    @apply leading-body;
-    @apply focus:outline-none;
-    scroll-behavior: smooth;
-
-    & > span {
-      @apply block #{!important};
-    }
-  }
-
-  .tippy-svg-arrow {
-    svg:first-child {
-      @apply fill-dividerDark;
-    }
-
-    svg:last-child {
-      @apply fill-popover;
-    }
-  }
-}
-
-[data-v-tippy] {
-  @apply flex flex-1;
-  @apply truncate;
-}
-
-[interactive] > div {
-  @apply flex flex-1;
-  @apply h-full;
-}
-
 hr {
   @apply border-b border-dividerLight;
   @apply my-2 #{!important};
@@ -344,26 +246,44 @@ pre.ace_editor {
 
 .info-response {
   color: var(--status-info-color);
+  &.outlined {
+    border: 1px solid var(--status-info-color);
+  }
 }
 
 .success-response {
   color: var(--status-success-color);
+  &.outlined {
+    border: 1px solid var(--status-success-color);
+  }
 }
 
 .redirect-response {
   color: var(--status-redirect-color);
+  &.outlined {
+    border: 1px solid var(--status-redirect-color);
+  }
 }
 
 .critical-error-response {
   color: var(--status-critical-error-color);
+  &.outlined {
+    border: 1px solid var(--status-critical-error-color);
+  }
 }
 
 .server-error-response {
   color: var(--status-server-error-color);
+  &.outlined {
+    border: 1px solid var(--status-server-error-color);
+  }
 }
 
 .missing-data-response {
   color: var(--status-missing-data-color);
+  &.outlined {
+    border: 1px solid var(--status-missing-data-color);
+  }
 }
 
 .toasted-container {
@@ -560,12 +480,32 @@ details[open] summary .indicator {
   }
 }
 
-.env-highlight {
-  @apply text-accentContrast;
+.env-highlight,
+.predefined-variable-highlight {
+  // forcing the text colour to be white inside a highlighted environment variable and predefined variable
+  @apply text-accentContrast #{!important};
+  span {
+    @apply text-accentContrast #{!important};
+  }
 
+  // setting the text colour to be visible when it's selected and common item is highlighted
+  .cm-selectionMatch {
+    @apply text-secondaryDark #{!important};
+    span {
+      @apply text-secondaryDark #{!important};
+    }
+  }
+}
+
+.env-highlight {
   &.request-variable-highlight {
     @apply bg-amber-500;
     @apply hover:bg-amber-600;
+  }
+
+  &.collection-variable-highlight {
+    @apply bg-purple-500;
+    @apply hover:bg-purple-600;
   }
 
   &.environment-variable-highlight {
@@ -581,6 +521,18 @@ details[open] summary .indicator {
   &.environment-not-found-highlight {
     @apply bg-red-500;
     @apply hover:bg-red-600;
+  }
+}
+
+.predefined-variable-highlight {
+  &.predefined-variable-valid {
+    @apply bg-yellow-500;
+    @apply hover:bg-yellow-600;
+  }
+
+  &.predefined-variable-invalid {
+    @apply hover:bg-red-300;
+    @apply bg-red-300;
   }
 }
 

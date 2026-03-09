@@ -10,7 +10,7 @@ import { Ref, computed, effectScope, markRaw, ref, watch } from "vue"
 import { getI18n } from "~/modules/i18n"
 import MiniSearch from "minisearch"
 import {
-  cascadeParentCollectionForHeaderAuth,
+  cascadeParentCollectionForProperties,
   graphqlCollectionStore,
   restCollectionStore,
 } from "~/newstore/collections"
@@ -119,7 +119,7 @@ export class CollectionsSpotlightSearcherService
         return "rest"
       }
       return "other"
-    } catch (e) {
+    } catch (_e) {
       return "other"
     }
   }
@@ -318,13 +318,9 @@ export class CollectionsSpotlightSearcherService
 
         if (!req) return
 
-        const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-          folderPath.join("/"),
-          "rest"
-        )
-
         this.restTab.createNewTab(
           {
+            type: "request",
             request: req,
             isDirty: false,
             saveContext: {
@@ -332,10 +328,10 @@ export class CollectionsSpotlightSearcherService
               folderPath: folderPath.join("/"),
               requestIndex: reqIndex,
             },
-            inheritedProperties: {
-              auth,
-              headers,
-            },
+            inheritedProperties: cascadeParentCollectionForProperties(
+              folderPath.join("/"),
+              "rest"
+            ),
           },
           true
         )
@@ -349,22 +345,19 @@ export class CollectionsSpotlightSearcherService
 
       if (!req) return
 
-      const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-        folderPath.join("/"),
-        "graphql"
-      )
       this.gqlTab.createNewTab({
         saveContext: {
           originLocation: "user-collection",
           folderPath: folderPath.join("/"),
           requestIndex: reqIndex,
         },
+        cursorPosition: 0,
         request: req,
         isDirty: false,
-        inheritedProperties: {
-          auth,
-          headers,
-        },
+        inheritedProperties: cascadeParentCollectionForProperties(
+          folderPath.join("/"),
+          "graphql"
+        ),
       })
     }
   }

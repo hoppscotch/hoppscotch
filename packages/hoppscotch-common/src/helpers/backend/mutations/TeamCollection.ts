@@ -9,6 +9,9 @@ import {
   DeleteCollectionDocument,
   DeleteCollectionMutation,
   DeleteCollectionMutationVariables,
+  DuplicateTeamCollectionDocument,
+  DuplicateTeamCollectionMutation,
+  DuplicateTeamCollectionMutationVariables,
   ImportFromJsonDocument,
   ImportFromJsonMutation,
   ImportFromJsonMutationVariables,
@@ -18,6 +21,10 @@ import {
   RenameCollectionDocument,
   RenameCollectionMutation,
   RenameCollectionMutationVariables,
+  SortOptions,
+  SortTeamCollectionsDocument,
+  SortTeamCollectionsMutation,
+  SortTeamCollectionsMutationVariables,
   UpdateCollectionOrderDocument,
   UpdateCollectionOrderMutation,
   UpdateCollectionOrderMutationVariables,
@@ -25,6 +32,7 @@ import {
   UpdateTeamCollectionMutation,
   UpdateTeamCollectionMutationVariables,
 } from "../graphql"
+import { CollectionDataProps } from "../helpers"
 
 type CreateNewRootCollectionError = "team_coll/short_title"
 
@@ -128,7 +136,7 @@ export const importJSONToTeam = (collectionJSON: string, teamID: string) =>
 
 export const updateTeamCollection = (
   collectionID: string,
-  data?: string,
+  data?: CollectionDataProps,
   newTitle?: string
 ) =>
   runMutation<
@@ -137,6 +145,30 @@ export const updateTeamCollection = (
     ""
   >(UpdateTeamCollectionDocument, {
     collectionID,
-    data,
+    data: JSON.stringify(data),
     newTitle,
+  })
+
+export const duplicateTeamCollection = (collectionID: string) =>
+  runMutation<
+    DuplicateTeamCollectionMutation,
+    DuplicateTeamCollectionMutationVariables,
+    ""
+  >(DuplicateTeamCollectionDocument, {
+    collectionID,
+  })
+
+export const sortTeamCollections = (
+  teamID: string,
+  parentCollectionID: string | null,
+  sortOption: SortOptions
+) =>
+  runMutation<
+    SortTeamCollectionsMutation,
+    SortTeamCollectionsMutationVariables,
+    ""
+  >(SortTeamCollectionsDocument, {
+    teamID,
+    parentCollectionID,
+    sortOption,
   })

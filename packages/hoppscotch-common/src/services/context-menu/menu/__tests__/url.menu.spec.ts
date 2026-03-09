@@ -32,7 +32,7 @@ describe("URLMenuService", () => {
         try {
           new URL(url)
           return true
-        } catch (error) {
+        } catch (_error) {
           // Fallback to regular expression check
           const pattern = /^(https?:\/\/)?([\w.-]+)(\.[\w.-]+)+([/?].*)?$/
           return pattern.test(url)
@@ -76,6 +76,7 @@ describe("URLMenuService", () => {
       expect(createNewTabFn).toHaveBeenCalledWith({
         request: request,
         isDirty: false,
+        type: "request",
       })
     })
   })

@@ -1,17 +1,16 @@
-import { computed, ComputedRef, ref, Ref } from "vue"
-import IconDownload from "~icons/lucide/download"
-import IconCopy from "~icons/lucide/copy"
-import IconCheck from "~icons/lucide/check"
-import { pipe } from "fp-ts/function"
-import * as S from "fp-ts/string"
-import * as RNEA from "fp-ts/ReadonlyNonEmptyArray"
-import { useToast } from "./toast"
-import { useI18n } from "./i18n"
-import { refAutoReset } from "@vueuse/core"
-import { copyToClipboard } from "@helpers/utils/clipboard"
 import { HoppRESTResponse } from "@helpers/types/HoppRESTResponse"
-import { platform } from "~/platform"
+import { copyToClipboard } from "@helpers/utils/clipboard"
+import { refAutoReset } from "@vueuse/core"
+import { computed, ComputedRef, ref, Ref, watch } from "vue"
+
 import jsonToLanguage from "~/helpers/utils/json-to-language"
+import { platform } from "~/platform"
+import IconCheck from "~icons/lucide/check"
+import IconCopy from "~icons/lucide/copy"
+import IconDownload from "~icons/lucide/download"
+import { useI18n } from "./i18n"
+import { useToast } from "./toast"
+import { HoppRESTRequestResponse } from "@hoppscotch/data"
 
 export function useCopyInterface(responseBodyText: Ref<string>) {
   const toast = useToast()
@@ -57,7 +56,8 @@ export type downloadResponseReturnType = (() => void) | Ref<any>
 
 export function useDownloadResponse(
   contentType: string,
-  responseBody: Ref<string | ArrayBuffer>
+  responseBody: Ref<string | ArrayBuffer>,
+  filename: string
 ) {
   const downloadIcon = refAutoReset(IconDownload, 1000)
 
@@ -67,26 +67,8 @@ export function useDownloadResponse(
   const downloadResponse = async () => {
     const dataToWrite = responseBody.value
 
-    // Guess extension and filename
-    const file = new Blob([dataToWrite], { type: contentType })
-    const url = URL.createObjectURL(file)
-
-    const filename = pipe(
-      url,
-      S.split("/"),
-      RNEA.last,
-      S.split("#"),
-      RNEA.head,
-      S.split("?"),
-      RNEA.head
-    )
-
-    URL.revokeObjectURL(url)
-
-    console.log(filename)
-
     // TODO: Look at the mime type and determine extension ?
-    const result = await platform.io.saveFileWithDialog({
+    const result = await platform.kernelIO.saveFileWithDialog({
       data: dataToWrite,
       contentType: contentType,
       suggestedFilename: filename,
@@ -106,22 +88,22 @@ export function useDownloadResponse(
 }
 
 export function usePreview(
-  previewEnabledDefault: boolean,
+  previewEnabled: Ref<boolean>,
   responseBodyText: Ref<string>
 ): {
-  previewFrame: any
+  previewFrame: Ref<HTMLIFrameElement | null>
   previewEnabled: Ref<boolean>
   togglePreview: () => void
 } {
-  const previewFrame = ref<any | null>(null)
-  const previewEnabled = ref(previewEnabledDefault)
+  const previewFrame: Ref<HTMLIFrameElement | null> = ref(null)
   const url = ref("")
 
-  const togglePreview = () => {
-    previewEnabled.value = !previewEnabled.value
-    if (previewEnabled.value) {
-      if (previewFrame.value.getAttribute("data-previewing-url") === url.value)
-        return
+  const updatePreviewFrame = () => {
+    if (
+      previewEnabled.value &&
+      previewFrame.value &&
+      shouldUpdatePreviewFrame.value
+    ) {
       // Use DOMParser to parse document HTML.
       const previewDocument = new DOMParser().parseFromString(
         responseBodyText.value,
@@ -130,10 +112,42 @@ export function usePreview(
       // Inject <base href="..."> tag to head, to fix relative CSS/HTML paths.
       previewDocument.head.innerHTML =
         `<base href="${url.value}">` + previewDocument.head.innerHTML
+
       // Finally, set the iframe source to the resulting HTML.
       previewFrame.value.srcdoc = previewDocument.documentElement.outerHTML
       previewFrame.value.setAttribute("data-previewing-url", url.value)
+
+      // Enable sandboxing for the iframe but this can have security implications
+      // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe#attr-sandbox
+      // https://stackoverflow.com/a/30785417
+      // previewFrame.value.setAttribute(
+      //   "sandbox",
+      //   "allow-scripts allow-same-origin"
+      // )
     }
+  }
+
+  // `previewFrame` is a template ref that gets attached to the `iframe` element when the component mounts
+  // Ensures the HTML content is rendered immediately after a request, persists between tab switches, and is not limited to preview toggles
+  // Also watches for changes in the `previewEnabled` state to update the `iframe` element attributes
+  watch(
+    previewEnabled,
+    () => {
+      updatePreviewFrame()
+    },
+    {
+      immediate: true,
+    }
+  )
+
+  // Prevent updating the `iframe` element attributes during preview toggle actions after they are set initially
+  const shouldUpdatePreviewFrame = computed(
+    () => previewFrame.value?.getAttribute("data-previewing-url") !== url.value
+  )
+
+  const togglePreview = () => {
+    previewEnabled.value = !previewEnabled.value
+    updatePreviewFrame()
   }
 
   return {
@@ -143,24 +157,33 @@ export function usePreview(
   }
 }
 
-export function useResponseBody(response: HoppRESTResponse): {
+export function useResponseBody(
+  response: HoppRESTResponse | HoppRESTRequestResponse
+): {
   responseBodyText: ComputedRef<string>
 } {
   const responseBodyText = computed(() => {
-    if (
-      response.type === "loading" ||
-      response.type === "network_fail" ||
-      response.type === "script_fail" ||
-      response.type === "fail"
-    )
-      return ""
-    if (typeof response.body === "string") return response.body
-
-    const res = new TextDecoder("utf-8").decode(response.body)
-    // HACK: Temporary trailing null character issue from the extension fix
-    return res.replace(/\0+$/, "")
+    if ("type" in response) {
+      if (
+        response.type === "loading" ||
+        response.type === "network_fail" ||
+        response.type === "script_fail" ||
+        response.type === "fail" ||
+        response.type === "extension_error"
+      )
+        return ""
+    }
+    return getResponseBodyText(response.body)
   })
   return {
     responseBodyText,
   }
+}
+
+export function getResponseBodyText(body: ArrayBuffer | string): string {
+  if (typeof body === "string") return body
+
+  const res = new TextDecoder("utf-8").decode(body)
+  // HACK: Temporary trailing null character issue from the extension fix
+  return res.replace(/\0+$/, "")
 }

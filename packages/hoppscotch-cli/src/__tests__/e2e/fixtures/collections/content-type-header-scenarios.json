@@ -1,0 +1,171 @@
+{
+    "v": 2,
+    "name": "content-type-header-scenarios",
+    "folders": [],
+    "requests": [
+        {
+            "v": "6",
+            "auth": {
+                "authType": "inherit",
+                "authActive": true
+            },
+            "body": {
+                "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<request>\n    <user>\n        <id>12345</id>\n        <name>John Doe</name>\n        <email>john.doe@example.com</email>\n    </user>\n    <order>\n        <id>98765</id>\n        <product>Sample Product</product>\n        <quantity>2</quantity>\n    </order>\n</request>\n",
+                "contentType": "text/xml"
+            },
+            "name": "content-type-header-assignment",
+            "method": "POST",
+            "params": [],
+            "headers": [],
+            "endpoint": "https://echo.hoppscotch.io",
+            "testScript": "pw.test(\"The `Content-Type` header is assigned the content type value set at the request body level\", ()=> {\n    pw.expect(pw.response.body.headers[\"content-type\"]).toBe(\"text/xml\");\n});",
+            "preRequestScript": "",
+            "requestVariables": []
+        },
+        {
+            "v": "6",
+            "auth": {
+                "authType": "inherit",
+                "authActive": true
+            },
+            "body": {
+                "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<request>\n    <user>\n        <id>12345</id>\n        <name>John Doe</name>\n        <email>john.doe@example.com</email>\n    </user>\n    <order>\n        <id>98765</id>\n        <product>Sample Product</product>\n        <quantity>2</quantity>\n    </order>\n</request>\n",
+                "contentType": "application/json"
+            },
+            "name": "content-type-header-override",
+            "method": "POST",
+            "params": [],
+            "headers": [
+                {
+                    "key": "Content-Type",
+                    "value": "application/xml",
+                    "active": true
+                }
+            ],
+            "endpoint": "https://echo.hoppscotch.io",
+            "testScript": "pw.test(\"The `Content-Type` header overrides the content type value set at the request body level\", ()=> {\n    pw.expect(pw.response.body.headers[\"content-type\"]).toBe(\"application/xml\");\n});",
+            "preRequestScript": "",
+            "requestVariables": []
+        },
+        {
+            "v": "6",
+            "auth": {
+                "authType": "inherit",
+                "authActive": true
+            },
+            "body": {
+                "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<request>\n    <user>\n        <id>12345</id>\n        <name>John Doe</name>\n        <email>john.doe@example.com</email>\n    </user>\n    <order>\n        <id>98765</id>\n        <product>Sample Product</product>\n        <quantity>2</quantity>\n    </order>\n</request>\n",
+                "contentType": "application/json"
+            },
+            "name": "multiple-content-type-headers",
+            "method": "POST",
+            "params": [],
+            "headers": [
+                {
+                    "key": "Content-Type",
+                    "value": "text/xml",
+                    "active": true
+                },
+                {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "active": true
+                },
+                {
+                    "key": "Content-Type",
+                    "value": "application/xml",
+                    "active": true
+                }
+            ],
+            "endpoint": "https://echo.hoppscotch.io",
+            "testScript": "pw.test(\"The last occurrence will be considered among multiple `Content-Type` headers\", ()=> {\n    pw.expect(pw.response.body.headers[\"content-type\"]).toBe(\"application/xml\");\n});",
+            "preRequestScript": "",
+            "requestVariables": []
+        },
+        {
+            "v": "6",
+            "auth": {
+                "authType": "inherit",
+                "authActive": true
+            },
+            "body": {
+                "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<request>\n    <user>\n        <id>12345</id>\n        <name>John Doe</name>\n        <email>john.doe@example.com</email>\n    </user>\n    <order>\n        <id>98765</id>\n        <product>Sample Product</product>\n        <quantity>2</quantity>\n    </order>\n</request>\n",
+                "contentType": null
+            },
+            "name": "multiple-content-type-headers-different-casing",
+            "method": "POST",
+            "params": [],
+            "headers": [
+                {
+                    "key": "Content-Type",
+                    "value": "text/xml",
+                    "active": true
+                },
+                {
+                    "key": "content-Type",
+                    "value": "application/json",
+                    "active": true
+                },
+                {
+                    "key": "Content-type",
+                    "value": "text/plain",
+                    "active": true
+                },
+                {
+                    "key": "CONTENT-TYPE",
+                    "value": "application/xml",
+                    "active": true
+                }
+            ],
+            "endpoint": "https://echo.hoppscotch.io",
+            "testScript": "pw.test(\"The last occurrence will be considered among multiple `Content-Type` headers following different casing\", ()=> {\n    pw.expect(pw.response.body.headers[\"content-type\"]).toBe(\"application/xml\");\n});",
+            "preRequestScript": "",
+            "requestVariables": []
+        },
+        {
+            "v": "6",
+            "auth": {
+                "authType": "inherit",
+                "authActive": true
+            },
+            "body": {
+                "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<request>\n    <user>\n        <id>12345</id>\n        <name>John Doe</name>\n        <email>john.doe@example.com</email>\n    </user>\n    <order>\n        <id>98765</id>\n        <product>Sample Product</product>\n        <quantity>2</quantity>\n    </order>\n</request>\n",
+                "contentType": null
+            },
+            "name": "multiple-content-type-headers-different-casing-without-value-set-at-body",
+            "method": "POST",
+            "params": [],
+            "headers": [
+                {
+                    "key": "Content-Type",
+                    "value": "text/xml",
+                    "active": true
+                },
+                {
+                    "key": "content-Type",
+                    "value": "application/json",
+                    "active": true
+                },
+                {
+                    "key": "Content-type",
+                    "value": "text/plain",
+                    "active": true
+                },
+                {
+                    "key": "CONTENT-TYPE",
+                    "value": "application/xml",
+                    "active": true
+                }
+            ],
+            "endpoint": "https://echo.hoppscotch.io",
+            "testScript": "pw.test(\"The content type is inferred from the `Content-Type` header if not set at the request body\", ()=> {\n    pw.expect(pw.response.body.headers[\"content-type\"]).toBe(\"application/xml\");\n});",
+            "preRequestScript": "",
+            "requestVariables": []
+        }
+    ],
+    "auth": {
+        "authType": "inherit",
+        "authActive": true
+    },
+    "headers": []
+}

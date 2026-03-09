@@ -100,6 +100,62 @@ export interface TabService<Doc> {
   closeOtherTabs(tabID: string): void
 
   /**
+   * Navigates to the next tab in the tab order.
+   */
+  goToNextTab(): void
+
+  /**
+   * Navigates to the previous tab in the tab order.
+   */
+  goToPreviousTab(): void
+
+  /**
+   * NOTE: Currently inert, plumbing is done, some platform issues around shortcuts, WIP for future.
+   * Navigates to a tab by its index position (1-based).
+   * @param index - The 1-based index of the tab to navigate to.
+   */
+  goToTabByIndex(index: number): void
+
+  /**
+   * Navigates to the first tab in the tab order.
+   */
+  goToFirstTab(): void
+
+  /**
+   * Navigates to the last tab in the tab order.
+   */
+  goToLastTab(): void
+
+  /**
+   * Reopens the most recently closed tab.
+   * @returns True if a tab was reopened, false if no closed tabs are available.
+   */
+  reopenClosedTab(): boolean
+
+  /**
+   * Navigates forward through the MRU list (to older tabs).
+   * Each call moves one step forward in the MRU history.
+   */
+  goToMRUTab(): void
+
+  /**
+   * Navigates backward through the MRU list (to more recent tabs).
+   * Each call moves one step backward in the MRU history.
+   */
+  goToPreviousMRUTab(): void
+
+  /**
+   * Commits the current MRU navigation selection.
+   * Should be called when the modifier key is released to finalize the tab switch.
+   */
+  commitMRUNavigation(): void
+
+  /**
+   * Resets MRU navigation state without committing.
+   */
+  resetMRUNavigation(): void
+
+  /**
    * Gets a computed reference to a persistable tab state.
    * @returns A computed reference to a persistable tab state object.
    */

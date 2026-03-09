@@ -1,0 +1,5 @@
+# compiled binary
+webapp-server
+
+# dev mode key directory
+.webapp-server/

@@ -19,40 +19,89 @@ hopp [options or commands] arguments
 
 ## **Command Descriptions:**
 
-1. #### **`hopp -v` / `hopp --ver`**
+1.  #### **`hopp -v` / `hopp --ver`**
 
-   - Prints out the current version of the Hoppscotch CLI
+    - Prints out the current version of the Hoppscotch CLI
 
-2. #### **`hopp -h` / `hopp --help`**
+2.  #### **`hopp -h` / `hopp --help`**
 
-   - Displays the help text
+    - Displays the help text
 
-3. #### **`hopp test [options] <file_path>`**
-   - Interactive CLI to accept Hoppscotch collection JSON path
-   - Parses the collection JSON and executes each requests
-   - Executes pre-request script.
-   - Outputs the response of each request.
-   - Executes and outputs test-script response.
+3.  #### **`hopp test [options] <file_path_or_id>`**
+
+    - Interactive CLI to accept Hoppscotch collection JSON path
+    - Parses the collection JSON and executes each requests
+    - Executes pre-request script.
+    - Outputs the response of each request.
+    - Executes and outputs test-script response.
 
     #### Options:
 
-    ##### `-e <file_path>` / `--env <file_path>`
+    ##### `-e, --env <file_path_or_id> `
 
     - Accepts path to env.json with contents in below format:
 
-        ```json
-        {
-            "ENV1":"value1",
-            "ENV2":"value2"
-        }
-        ```
+      ```json
+      {
+        "ENV1": "value1",
+        "ENV2": "value2"
+      }
+      ```
 
     - You can now access those variables using `pw.env.get('<var_name>')`
 
-		Taking the above example, `pw.env.get("ENV1")` will return `"value1"`
+      Taking the above example, `pw.env.get("ENV1")` will return `"value1"`
+
+    #### `-d, --delay <delay_in_ms>`
+
+    - Used to defer the execution of requests in a collection.
+
+    #### `--token <access_token>`
+
+    - Expects a personal access token to be passed for establishing connection with your Hoppscotch account.
+
+    #### `--server <server_url>`
+
+    - URL of your self-hosted instance, if your collections are on a self-hosted instance.
+
+    #### `--reporter-junit [path]`
+
+    - Expects a file path to store the JUnit Report.
+
+    ##### `--iteration-count <no_of_iterations>`
+
+    - Accepts the number of iterations to run the collection
+
+    ##### `--iteration-data <file_path>`
+
+    - Accepts the path to a CSV file with contents in the below format:
+
+      ```text
+      key1,key2,key3
+      value1,value2,value3
+      value4,value5,value6
+      ```
+
+      For every iteration the values will be replaced with the respective keys in the environment. For iteration 1 the value1,value2,value3 will be replaced and for iteration 2 value4,value5,value6 will be replaced and so on.
+
+    #### `--legacy-sandbox`
+
+    - Opt out from the experimental scripting sandbox.
+
+## Versioning
+
+The Hoppscotch CLI follows **pre-1.0 semantic versioning** conventions while in alpha (version `< 1.0.0`):
+
+- **Feature releases** (e.g., `0.20.0` → `0.21.0`): New features, enhancements, or improvements
+- **Patch releases** (e.g., `0.20.0` → `0.20.1`): Bug fixes, security patches, and minor improvements
+- **Breaking changes** (e.g., `0.21.0` → `0.30.0`): Major version-like bumps for backwards-incompatible changes
+
+> Once the CLI reaches stability and a mature feature set, we will transition to standard semantic versioning starting with `1.0.0`.
 
 ## Install
+
 - Before you install Hoppscotch CLI you need to make sure you have the dependencies it requires to run.
+
   - **Windows & macOS**: You will need `node-gyp` installed. Find instructions here: https://github.com/nodejs/node-gyp
   - **Debian/Ubuntu derivatives**:
     ```sh
@@ -75,7 +124,6 @@ hopp [options or commands] arguments
     sudo dnf install python3 make gcc gcc-c++ zlib-devel brotli-devel openssl-devel libuv-devel
     ```
 
-
 - Once the dependencies are installed, install [@hoppscotch/cli](https://www.npmjs.com/package/@hoppscotch/cli) from npm by running:
   ```
   npm i -g @hoppscotch/cli
@@ -85,10 +133,17 @@ hopp [options or commands] arguments
 
 1. Clone the repository, make sure you've installed latest [pnpm](https://pnpm.io).
 2. `pnpm install`
-3. `cd packages/hoppscotch-cli`
-4. `pnpm run build`
-5. `sudo pnpm link --global`
-6. Test the installation by executing `hopp`
+3. Build required workspace dependencies (if needed):
+   ```bash
+   # These auto-build via postinstall hooks during 'pnpm install'
+   # Rebuild manually only when you make changes to these packages:
+   pnpm --filter @hoppscotch/data run build
+   pnpm --filter @hoppscotch/js-sandbox run build
+   ```
+4. `cd packages/hoppscotch-cli`
+5. `pnpm run build`
+6. `sudo pnpm link --global`
+7. Test the installation by executing `hopp`
 
 ## **Contributing:**
 
@@ -112,39 +167,45 @@ Please note we have a code of conduct, please follow it in all your interactions
 
 1. After cloning the repository, execute the following commands:
 
-    ```bash
-    pnpm install
-    pnpm run build
-    ```
+   ```bash
+   pnpm install
+   # Build required workspace dependencies (if needed)
+   # These auto-build via postinstall hooks during 'pnpm install'
+   # Rebuild manually only when you make changes to these packages:
+   pnpm --filter @hoppscotch/data run build
+   pnpm --filter @hoppscotch/js-sandbox run build
+   # Then build the CLI
+   cd packages/hoppscotch-cli && pnpm run build
+   ```
 
 2. In order to test locally, you can use two types of package linking:
 
-    1. The 'pnpm exec' way (preferred since it does not hamper your original installation of the CLI):
+   1. The 'pnpm exec' way (preferred since it does not hamper your original installation of the CLI):
 
-        ```bash
-        pnpm link @hoppscotch/cli
+      ```bash
+      pnpm link @hoppscotch/cli
 
-        // Then to use or test the CLI:
-        pnpm exec hopp
+      // Then to use or test the CLI:
+      pnpm exec hopp
 
-        // After testing, to remove the package linking:
-        pnpm rm @hoppscotch/cli
-        ```
+      // After testing, to remove the package linking:
+      pnpm rm @hoppscotch/cli
+      ```
 
-    2. The 'global' way (warning: this might override the globally installed CLI, if exists):
+   2. The 'global' way (warning: this might override the globally installed CLI, if exists):
 
-        ```bash
-        sudo pnpm link --global
+      ```bash
+      sudo pnpm link --global
 
-        // Then to use or test the CLI:
-        hopp
+      // Then to use or test the CLI:
+      hopp
 
-        // After testing, to remove the package linking:
-        sudo pnpm rm --global @hoppscotch/cli
-        ```
+      // After testing, to remove the package linking:
+      sudo pnpm rm --global @hoppscotch/cli
+      ```
 
 3. To use the Typescript watch scripts:
 
-      ```bash
-      pnpm run dev
-      ```
+   ```bash
+   pnpm run dev
+   ```

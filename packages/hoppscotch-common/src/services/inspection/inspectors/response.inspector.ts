@@ -1,12 +1,13 @@
 import { Service } from "dioc"
 import { InspectionService, Inspector, InspectorResult } from ".."
 import { getI18n } from "~/modules/i18n"
-import { HoppRESTRequest } from "@hoppscotch/data"
-import { markRaw } from "vue"
+import {
+  HoppRESTRequest,
+  HoppRESTResponseOriginalRequest,
+} from "@hoppscotch/data"
 import IconAlertTriangle from "~icons/lucide/alert-triangle"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
-import { Ref } from "vue"
-import { computed } from "vue"
+import { computed, Ref, markRaw } from "vue"
 
 /**
  * This inspector is responsible for inspecting the response of a request.
@@ -28,7 +29,7 @@ export class ResponseInspectorService extends Service implements Inspector {
   }
 
   getInspections(
-    _req: Readonly<Ref<HoppRESTRequest>>,
+    _req: Readonly<Ref<HoppRESTRequest | HoppRESTResponseOriginalRequest>>,
     res: Readonly<Ref<HoppRESTResponse | null | undefined>>
   ) {
     return computed(() => {

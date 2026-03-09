@@ -4,7 +4,7 @@ import { viteStaticCopy as StaticCopy } from "vite-plugin-static-copy"
 import generateSitemap from "vite-plugin-pages-sitemap"
 import HtmlConfig from "vite-plugin-html-config"
 import Vue from "@vitejs/plugin-vue"
-import VueI18n from "@intlify/vite-plugin-vue-i18n"
+import VueI18n from "@intlify/unplugin-vue-i18n/vite"
 import Components from "unplugin-vue-components/vite"
 import Icons from "unplugin-icons/vite"
 import Inspect from "vite-plugin-inspect"
@@ -27,6 +27,7 @@ export default defineConfig({
   define: {
     // For 'util' polyfill required by dep of '@apidevtools/swagger-parser'
     "process.env": {},
+    "process.platform": '"browser"',
   },
   server: {
     port: 3000,
@@ -42,8 +43,12 @@ export default defineConfig({
       maxParallelFileOps: 2,
     },
   },
+  worker: {
+    format: "es",
+  },
   resolve: {
     alias: {
+      // Config files
       "tailwind.config.cjs": path.resolve(
         __dirname,
         "../hoppscotch-common/tailwind.config.cjs"
@@ -52,26 +57,41 @@ export default defineConfig({
         __dirname,
         "../hoppscotch-common/postcss.config.cjs"
       ),
+
       // TODO: Maybe leave ~ only for individual apps and not use on common
+      // Common package aliases
       "~": path.resolve(__dirname, "../hoppscotch-common/src"),
       "@hoppscotch/common": "@hoppscotch/common/src",
+
+      // Common (shared) modules (legacy - TODO: migrate these to @common/*)
       "@composables": path.resolve(
         __dirname,
         "../hoppscotch-common/src/composables"
       ),
       "@modules": path.resolve(__dirname, "../hoppscotch-common/src/modules"),
+      "@services": path.resolve(__dirname, "../hoppscotch-common/src/services"),
       "@components": path.resolve(
         __dirname,
         "../hoppscotch-common/src/components"
       ),
       "@helpers": path.resolve(__dirname, "../hoppscotch-common/src/helpers"),
+      "@platform": path.resolve(__dirname, "../hoppscotch-common/src/platform"),
       "@functional": path.resolve(
         __dirname,
         "../hoppscotch-common/src/helpers/functional"
       ),
       "@workers": path.resolve(__dirname, "../hoppscotch-common/src/workers"),
-      "@platform": path.resolve(__dirname, "./src/platform"),
-      "@lib": path.resolve(__dirname, "./src/lib"),
+
+      // Application layer
+      "@app/platform": path.resolve(__dirname, "./src/platform"),
+      "@app/services": path.resolve(__dirname, "./src/services"),
+      "@app/components": path.resolve(__dirname, "./src/components"),
+      "@app/helpers": path.resolve(__dirname, "./src/helpers"),
+      "@app/api": path.resolve(__dirname, "./src/api"),
+      "@app/lib": path.resolve(__dirname, "./src/lib"),
+      "@app/kernel": path.resolve(__dirname, "./src/kernel"),
+
+      // Node.js polyfills
       stream: "stream-browserify",
       util: "util",
       querystring: "qs",
@@ -86,7 +106,7 @@ export default defineConfig({
     Vue(),
     Pages({
       routeStyle: "nuxt",
-      dirs: "../hoppscotch-common/src/pages",
+      dirs: ["../hoppscotch-common/src/pages", "./src/pages"],
       importMode: "async",
       onRoutesGenerated(routes) {
         generateSitemap({
@@ -208,7 +228,7 @@ export default defineConfig({
       registerType: "prompt",
       workbox: {
         cleanupOutdatedCaches: true,
-        maximumFileSizeToCacheInBytes: 4194304,
+        maximumFileSizeToCacheInBytes: 15728640, // 15 MB
         navigateFallbackDenylist: [
           /robots.txt/,
           /sitemap.xml/,

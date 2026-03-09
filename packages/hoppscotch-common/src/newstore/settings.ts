@@ -3,6 +3,7 @@ import { Observable } from "rxjs"
 import { distinctUntilChanged, pluck } from "rxjs/operators"
 import type { KeysMatching } from "~/types/ts-utils"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
+import { DEFAULT_HOPP_PROXY_URL, getDefaultProxyUrl } from "~/helpers/proxyUrl"
 
 export const HoppBgColors = ["system", "light", "dark", "black"] as const
 
@@ -19,6 +20,10 @@ export const HoppAccentColors = [
   "red",
   "pink",
 ] as const
+
+export const EncodeModes = ["enable", "disable", "auto"] as const
+
+export type EncodeMode = (typeof EncodeModes)[number]
 
 export type HoppAccentColor = (typeof HoppAccentColors)[number]
 
@@ -46,9 +51,10 @@ export type SettingsDef = {
     importCurl: boolean
     codeGen: boolean
     cookie: boolean
+    multipartFormdata: boolean
   }
 
-  CURRENT_INTERCEPTOR_ID: string
+  CURRENT_KERNEL_INTERCEPTOR_ID: string
 
   URL_EXCLUDES: {
     auth: boolean
@@ -59,6 +65,7 @@ export type SettingsDef = {
   }
   THEME_COLOR: HoppAccentColor
   BG_COLOR: HoppBgColor
+  ENCODE_MODE: EncodeMode
   TELEMETRY_ENABLED: boolean
   EXPAND_NAVIGATION: boolean
   SIDEBAR: boolean
@@ -66,54 +73,83 @@ export type SettingsDef = {
   COLUMN_LAYOUT: boolean
 
   HAS_OPENED_SPOTLIGHT: boolean
+  ENABLE_AI_EXPERIMENTS: boolean
+  AI_REQUEST_NAMING_STYLE:
+    | "DESCRIPTIVE_WITH_SPACES"
+    | "camelCase"
+    | "snake_case"
+    | "PascalCase"
+    | "CUSTOM"
+  CUSTOM_NAMING_STYLE: string
+
+  EXPERIMENTAL_SCRIPTING_SANDBOX: boolean
+  ENABLE_EXPERIMENTAL_MOCK_SERVERS: boolean
+  ENABLE_EXPERIMENTAL_DOCUMENTATION: boolean
 }
 
-export const getDefaultSettings = (): SettingsDef => ({
-  syncCollections: true,
-  syncHistory: true,
-  syncEnvironments: true,
+let defaultProxyURL = DEFAULT_HOPP_PROXY_URL
 
-  WRAP_LINES: {
-    httpRequestBody: true,
-    httpResponseBody: true,
-    httpHeaders: true,
-    httpParams: true,
-    httpUrlEncoded: true,
-    httpPreRequest: true,
-    httpTest: true,
-    httpRequestVariables: true,
-    graphqlQuery: true,
-    graphqlResponseBody: true,
-    graphqlHeaders: false,
-    graphqlVariables: false,
-    graphqlSchema: true,
-    importCurl: true,
-    codeGen: true,
-    cookie: true,
-  },
-
-  // Set empty because interceptor module will set the default value
-  CURRENT_INTERCEPTOR_ID: "",
-
-  // TODO: Interceptor related settings should move under the interceptor systems
-  PROXY_URL: "https://proxy.hoppscotch.io/",
-  URL_EXCLUDES: {
-    auth: true,
-    httpUser: true,
-    httpPassword: true,
-    bearerToken: true,
-    oauth2Token: true,
-  },
-  THEME_COLOR: "indigo",
-  BG_COLOR: "system",
-  TELEMETRY_ENABLED: true,
-  EXPAND_NAVIGATION: false,
-  SIDEBAR: true,
-  SIDEBAR_ON_LEFT: false,
-  COLUMN_LAYOUT: true,
-
-  HAS_OPENED_SPOTLIGHT: false,
+getDefaultProxyUrl().then((url) => {
+  defaultProxyURL = url
 })
+
+export const getDefaultSettings = (): SettingsDef => {
+  return {
+    syncCollections: true,
+    syncHistory: true,
+    syncEnvironments: true,
+
+    WRAP_LINES: {
+      httpRequestBody: true,
+      httpResponseBody: true,
+      httpHeaders: true,
+      httpParams: true,
+      httpUrlEncoded: true,
+      httpPreRequest: true,
+      httpTest: true,
+      httpRequestVariables: true,
+      graphqlQuery: true,
+      graphqlResponseBody: true,
+      graphqlHeaders: false,
+      graphqlVariables: false,
+      graphqlSchema: true,
+      importCurl: true,
+      codeGen: true,
+      cookie: true,
+      multipartFormdata: true,
+    },
+
+    // Set empty because interceptor module will set the default value
+    CURRENT_KERNEL_INTERCEPTOR_ID: "",
+
+    // TODO: Interceptor related settings should move under the interceptor systems
+    PROXY_URL: defaultProxyURL,
+    URL_EXCLUDES: {
+      auth: true,
+      httpUser: true,
+      httpPassword: true,
+      bearerToken: true,
+      oauth2Token: true,
+    },
+    THEME_COLOR: "indigo",
+    BG_COLOR: "system",
+    ENCODE_MODE: "enable",
+    TELEMETRY_ENABLED: true,
+    EXPAND_NAVIGATION: false,
+    SIDEBAR: true,
+    SIDEBAR_ON_LEFT: false,
+    COLUMN_LAYOUT: true,
+
+    HAS_OPENED_SPOTLIGHT: false,
+    ENABLE_AI_EXPERIMENTS: true,
+    AI_REQUEST_NAMING_STYLE: "DESCRIPTIVE_WITH_SPACES",
+    CUSTOM_NAMING_STYLE: "",
+
+    EXPERIMENTAL_SCRIPTING_SANDBOX: true,
+    ENABLE_EXPERIMENTAL_MOCK_SERVERS: true,
+    ENABLE_EXPERIMENTAL_DOCUMENTATION: true,
+  }
+}
 
 type ApplySettingPayload = {
   [K in keyof SettingsDef]: {
@@ -237,9 +273,9 @@ export function toggleNestedSetting<
 >(settingKey: K, property: P) {
   settingsStore.dispatch({
     dispatcher: "toggleNestedSetting",
+    // @ts-expect-error TS is not able to understand the type semantics here
     payload: {
       settingKey,
-      // @ts-expect-error TS is not able to understand the type semantics here
       property,
     },
   })
@@ -251,10 +287,9 @@ export function applySetting<K extends keyof SettingsDef>(
 ) {
   settingsStore.dispatch({
     dispatcher: "applySetting",
+    // @ts-expect-error TS is not able to understand the type semantics here
     payload: {
-      // @ts-expect-error TS is not able to understand the type semantics here
       settingKey,
-      // @ts-expect-error TS is not able to understand the type semantics here
       value,
     },
   })
@@ -267,9 +302,9 @@ export function applyNestedSetting<
 >(settingKey: K, property: P, value: R) {
   settingsStore.dispatch({
     dispatcher: "applyNestedSetting",
+    // @ts-expect-error TS is not able to understand the type semantics here
     payload: {
       settingKey,
-      // @ts-expect-error TS is not able to understand the type semantics here
       property,
       value,
     },
@@ -280,17 +315,20 @@ export function performSettingsDataMigrations(data: any): SettingsDef {
   const source = cloneDeep(data)
 
   if (source["EXTENSIONS_ENABLED"]) {
-    const result = JSON.parse(source["EXTENSIONS_ENABLED"])
-
-    if (result) source["CURRENT_INTERCEPTOR_ID"] = "extension"
     delete source["EXTENSIONS_ENABLED"]
   }
 
   if (source["PROXY_ENABLED"]) {
-    const result = JSON.parse(source["PROXY_ENABLED"])
-
-    if (result) source["CURRENT_INTERCEPTOR_ID"] = "proxy"
     delete source["PROXY_ENABLED"]
+  }
+
+  // Remove legacy interceptor ID if present,
+  // NOTE: These are not for `kernel` interceptors,
+  // those now don't participate in global settings,
+  // rather each has its own `store.ts` that can be
+  // controlled independently.
+  if (has(source, "CURRENT_INTERCEPTOR_ID")) {
+    delete source["CURRENT_INTERCEPTOR_ID"]
   }
 
   const final = defaultsDeep(source, getDefaultSettings())

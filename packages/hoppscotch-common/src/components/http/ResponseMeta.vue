@@ -17,7 +17,7 @@
 
     <div v-else-if="response" class="flex flex-1 flex-col">
       <div
-        v-if="response.type === 'loading'"
+        v-if="response.type === 'loading' || isLoading"
         class="flex flex-col items-center justify-center"
       >
         <HoppSmartSpinner class="my-4" />
@@ -30,6 +30,26 @@
         class="flex-1"
       />
       <HoppSmartPlaceholder
+        v-if="response.type === 'interceptor_error'"
+        :src="`/images/states/${colorMode.value}/upload_error.svg`"
+        :alt="
+          response.error?.humanMessage?.heading?.(t) || t('error.network_fail')
+        "
+        :heading="
+          response.error?.humanMessage?.heading?.(t) || t('error.network_fail')
+        "
+        :text="
+          response.error?.humanMessage?.description?.(t) ||
+          t('error.network_fail')
+        "
+      >
+        <template #body>
+          <AppKernelInterceptor
+            class="rounded border border-dividerLight p-2"
+          />
+        </template>
+      </HoppSmartPlaceholder>
+      <HoppSmartPlaceholder
         v-if="response.type === 'network_fail'"
         :src="`/images/states/${colorMode.value}/upload_error.svg`"
         :alt="`${t('error.network_fail')}`"
@@ -37,7 +57,9 @@
         :text="t('helpers.network_fail')"
       >
         <template #body>
-          <AppInterceptor class="rounded border border-dividerLight p-2" />
+          <AppKernelInterceptor
+            class="rounded border border-dividerLight p-2"
+          />
         </template>
       </HoppSmartPlaceholder>
       <HoppSmartPlaceholder
@@ -57,7 +79,10 @@
         </template>
       </HoppSmartPlaceholder>
       <div
-        v-if="response.type === 'success' || response.type === 'fail'"
+        v-if="
+          (response.type === 'success' || response.type === 'fail') &&
+          !isLoading
+        "
         class="flex items-center text-tiny font-semibold"
       >
         <div
@@ -125,10 +150,16 @@ const t = useI18n()
 const colorMode = useColorMode()
 const tabs = useService(RESTTabService)
 
-const props = defineProps<{
-  response: HoppRESTResponse | null | undefined
-  isEmbed?: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    response: HoppRESTResponse | null | undefined
+    isEmbed?: boolean
+    isLoading?: boolean
+  }>(),
+  {
+    isLoading: false,
+  }
+)
 
 /**
  * Gives the response size in a human readable format
@@ -143,7 +174,8 @@ const readableResponseSize = computed(() => {
     props.response.type === "loading" ||
     props.response.type === "network_fail" ||
     props.response.type === "script_fail" ||
-    props.response.type === "fail"
+    props.response.type === "fail" ||
+    props.response.type === "extension_error"
   )
     return undefined
 
@@ -162,7 +194,8 @@ const statusCategory = computed(() => {
     props.response.type === "loading" ||
     props.response.type === "network_fail" ||
     props.response.type === "script_fail" ||
-    props.response.type === "fail"
+    props.response.type === "fail" ||
+    props.response.type === "extension_error"
   )
     return {
       name: "error",

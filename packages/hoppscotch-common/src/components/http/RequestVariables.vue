@@ -21,7 +21,7 @@
           @click="clearContent()"
         />
         <HoppButtonSecondary
-          v-if="bulkVariables"
+          v-if="bulkMode"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
           :class="{ '!text-accent': WRAP_LINES }"
@@ -46,7 +46,7 @@
         />
       </div>
     </div>
-    <div v-if="bulkMode" class="h-full relative">
+    <div v-if="bulkMode" class="h-full relative flex flex-col flex-1">
       <div ref="bulkEditor" class="absolute inset-0"></div>
     </div>
     <div v-else>
@@ -59,6 +59,10 @@
         ghost-class="cursor-move"
         chosen-class="bg-primaryLight"
         drag-class="cursor-grabbing"
+        :move="
+          (event: DragDropEvent) =>
+            isDragDropAllowed(event, workingRequestVariables.length)
+        "
       >
         <template #item="{ element: variable, index }">
           <div
@@ -84,6 +88,7 @@
             <SmartEnvInput
               v-model="variable.key"
               :placeholder="`${t('count.variable', { count: index + 1 })}`"
+              :class="{ 'opacity-50': !variable.active }"
               @change="
                 updateVariable(index, {
                   id: variable.id,
@@ -96,6 +101,7 @@
             <SmartEnvInput
               v-model="variable.value"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
+              :class="{ 'opacity-50': !variable.active }"
               @change="
                 updateVariable(index, {
                   id: variable.id,
@@ -185,6 +191,7 @@ import { useI18n } from "~/composables/i18n"
 import { useNestedSetting } from "~/composables/settings"
 import { useColorMode } from "~/composables/theming"
 import { useToast } from "~/composables/toast"
+import { isDragDropAllowed, DragDropEvent } from "~/helpers/dragDropValidation"
 import linter from "~/helpers/editor/linting/rawKeyValue"
 import { objRemoveKey } from "~/helpers/functional/object"
 import { toggleNestedSetting } from "~/newstore/settings"
@@ -234,6 +241,7 @@ useCodemirror(
     linter,
     completer: null,
     environmentHighlights: true,
+    predefinedVariablesHighlights: true,
   })
 )
 
@@ -249,6 +257,21 @@ const workingRequestVariables = ref<
     active: true,
   },
 ])
+
+// Rule: Working Request variable always have last element is always an empty param
+watch(workingRequestVariables, (variableList) => {
+  if (
+    variableList.length > 0 &&
+    variableList[variableList.length - 1].key !== ""
+  ) {
+    workingRequestVariables.value.push({
+      id: idTicker.value++,
+      key: "",
+      value: "",
+      active: true,
+    })
+  }
+})
 
 // Sync logic between params and working/bulk params
 watch(
@@ -320,21 +343,6 @@ watch(bulkVariables, (newBulkParams) => {
 
   if (!isEqual(requestVariables.value, filteredBulkRequestVariables)) {
     requestVariables.value = filteredBulkRequestVariables
-  }
-})
-
-// Rule: Working Request variable always have last element is always an empty param
-watch(workingRequestVariables, (variableList) => {
-  if (
-    variableList.length > 0 &&
-    variableList[variableList.length - 1].key !== ""
-  ) {
-    workingRequestVariables.value.push({
-      id: idTicker.value++,
-      key: "",
-      value: "",
-      active: true,
-    })
   }
 })
 

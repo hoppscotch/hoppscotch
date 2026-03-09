@@ -1,29 +1,34 @@
 @import "./base-themes.scss";
 @import "./editor-themes.scss";
 @import "./accent-themes.scss";
+@import "./tippy-themes.scss";
 
 :root {
   @include base-theme;
   @include dark-theme;
   @include green-theme;
   @include dark-editor-theme;
+  @include dark-tippy-theme;
 }
 
 :root.light {
   @include light-theme;
   @include light-editor-theme;
+  @include light-tippy-theme;
   color-scheme: light;
 }
 
 :root.dark {
   @include dark-theme;
   @include dark-editor-theme;
+  @include dark-tippy-theme;
   color-scheme: dark;
 }
 
 :root.black {
   @include black-theme;
   @include black-editor-theme;
+  @include black-tippy-theme;
   color-scheme: dark;
 }
 

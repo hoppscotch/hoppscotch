@@ -2,21 +2,53 @@
  * For example, sending a request.
  */
 
-import { Ref, onBeforeUnmount, onMounted, reactive, watch } from "vue"
+import { Ref, onBeforeUnmount, onMounted, reactive, watch, computed } from "vue"
 import { BehaviorSubject } from "rxjs"
-import { HoppRESTDocument } from "./rest/document"
+import { HoppRequestDocument } from "./rest/document"
 import { Environment, HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
 import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
 import { HoppGQLSaveContext } from "./graphql/document"
 import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
-import { computed } from "vue"
+import { getKernelMode } from "@hoppscotch/kernel"
+import { invoke } from "@tauri-apps/api/core"
+import { undo, redo, toggleComment } from "@codemirror/commands"
+import { EditorView } from "@codemirror/view"
+import { isCodeMirrorEditor } from "./utils/dom"
+
+// Global registry for CodeMirror views
+const codeMirrorViews = new WeakMap<Element, EditorView>()
+
+/**
+ * Register a CodeMirror view with its DOM element
+ */
+export function registerCodeMirrorView(element: Element, view: EditorView) {
+  codeMirrorViews.set(element, view)
+}
+
+/**
+ * Unregister a CodeMirror view
+ */
+export function unregisterCodeMirrorView(element: Element) {
+  codeMirrorViews.delete(element)
+}
+
+/**
+ * Get the CodeMirror EditorView instance from a DOM element
+ */
+function getCodeMirrorView(element: Element): EditorView | null {
+  const editorElement = element.closest(".cm-editor")
+  if (editorElement) {
+    return codeMirrorViews.get(editorElement) || null
+  }
+  return null
+}
 
 export type HoppAction =
   | "contextmenu.open" // Send/Cancel a Hoppscotch Request
   | "request.send-cancel" // Send/Cancel a Hoppscotch Request
   | "request.reset" // Clear request data
   | "request.share-request" // Share Request
-  | "request.save" // Save to Collections
+  | "request-response.save" // Save Request or Response
   | "request.save-as" // Save As
   | "request.rename" // Rename request on REST or GraphQL
   | "request.method.next" // Select Next Method
@@ -33,6 +65,14 @@ export type HoppAction =
   | "tab.close-current" // Close current tab
   | "tab.close-other" // Close other tabs
   | "tab.open-new" // Open new tab
+  | "tab.next" // Switch to next tab
+  | "tab.prev" // Switch to previous tab
+  | "tab.switch-to-first" // Switch to first tab
+  | "tab.switch-to-last" // Switch to last tab
+  | "tab.reopen-closed" // Reopen recently closed tab
+  | "tab.mru-switch" // Switch to MRU tab (Ctrl/Cmd+Alt+])
+  | "tab.mru-switch-reverse" // Switch to previous MRU tab (Ctrl/Cmd+Alt+[)
+  | "request.focus-url" // Focus the URL bar
   | "collection.new" // Create root collection
   | "flyouts.chat.open" // Shows the keybinds flyout
   | "flyouts.keybinds.toggle" // Shows the keybinds flyout
@@ -61,13 +101,21 @@ export type HoppAction =
   | "settings.theme.dark" // Use dark theme
   | "settings.theme.black" // Use black theme
   | "response.preview.toggle" // Toggle response preview
+  | "response.schema.toggle" // Toggle response data schema
   | "response.file.download" // Download response as file
   | "response.copy" // Copy response to clipboard
+  | "response.erase" // Erase/clear response
+  | "response.save" // Save response
+  | "response.save-as-example" // Save response as example
   | "modals.login.toggle" // Login to Hoppscotch
+  | "modals.instance-switcher.toggle" // Switch Hoppscotch instances (self-hosted)
   | "history.clear" // Clear REST History
   | "user.login" // Login to Hoppscotch
   | "user.logout" // Log out of Hoppscotch
   | "editor.format" // Format editor content
+  | "editor.undo" // Undo editor content
+  | "editor.redo" // Redo editor content
+  | "editor.comment-toggle" // Toggle comment in editor
   | "modals.team.delete" // Delete team
   | "workspace.switch" // Switch workspace
   | "rest.request.open" // Open REST request
@@ -75,6 +123,7 @@ export type HoppAction =
   | "share.request" // Share REST request
   | "tab.duplicate-tab" // Duplicate REST request
   | "gql.request.open" // Open GraphQL request
+  | "app.quit" // Quit app
 
 /**
  * Defines the arguments, if present for a given type that is required to be passed on
@@ -116,12 +165,12 @@ type HoppActionArgsMap = {
     teamId: string
   }
   "rest.request.open": {
-    doc: HoppRESTDocument
+    doc: HoppRequestDocument
   }
   "request.save-as":
     | {
         requestType: "rest"
-        request: HoppRESTRequest
+        request: HoppRESTRequest | null
       }
     | {
         requestType: "gql"
@@ -310,3 +359,67 @@ export function defineActionHandler<A extends HoppAction>(
     )
   }
 }
+
+/**
+ * NOTE: This Sets up core app-level action handlers that
+ * should be available throughout the app's lifecycle.
+ * These handlers are bound immediately when the actions module
+ * is imported and don't depend on some component lifecycle.
+ */
+function setupCoreActionHandlers() {
+  //
+  // This action is triggered by either by
+  // keyboard shortcut: Cmd+Q (macOS) / Ctrl+Q (Windows/Linux)
+  // or `invokeAction("app.quit")`
+  //
+  // Desktop calls native `quit_app` command to close the app,
+  // and it's a no-op on web app.
+  //
+  // @see {@link https://docs.rs/tauri/latest/tauri/struct.AppHandle.html#method.exit}
+  // for native `app.exit` docs.
+  bindAction("app.quit", async () => {
+    if (getKernelMode() === "desktop") {
+      try {
+        await invoke("quit_app")
+      } catch (error) {
+        console.error("Failed to quit application:", error)
+        // NOTE: Don't call window.close() here as a fallback because
+        // if the native command fails, it likely means this not in
+        // the proper context, and window.close() would close the wrong thing.
+      }
+    }
+  })
+}
+
+// Editor action handlers
+bindAction("editor.undo", () => {
+  const activeElement = document.activeElement
+  if (activeElement && isCodeMirrorEditor(activeElement)) {
+    const editorView = getCodeMirrorView(activeElement)
+    if (editorView) {
+      undo(editorView)
+    }
+  }
+})
+
+bindAction("editor.redo", () => {
+  const activeElement = document.activeElement
+  if (activeElement && isCodeMirrorEditor(activeElement)) {
+    const editorView = getCodeMirrorView(activeElement)
+    if (editorView) {
+      redo(editorView)
+    }
+  }
+})
+
+bindAction("editor.comment-toggle", () => {
+  const activeElement = document.activeElement
+  if (activeElement && isCodeMirrorEditor(activeElement)) {
+    const editorView = getCodeMirrorView(activeElement)
+    if (editorView) {
+      toggleComment(editorView)
+    }
+  }
+})
+
+setupCoreActionHandlers()

@@ -69,7 +69,7 @@ export class SIOConnection {
           },
         })
       } else {
-        this.socket.connect(url)
+        this.socket.connect(url, { path })
       }
 
       this.socket.on("connect", () => {

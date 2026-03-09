@@ -13,22 +13,30 @@
       @dragend="resetDragState"
     ></div>
     <div
-      class="group flex items-stretch"
+      class="group flex items-center"
       :draggable="!hasNoTeamAccess"
       @drop="handelDrop"
       @dragstart="dragStart"
       @dragover="handleDragOver($event)"
       @dragleave="resetDragState"
       @dragend="resetDragState"
-      @contextmenu.prevent="options?.tippy.show()"
+      @contextmenu.prevent="options?.tippy?.show()"
     >
+      <div class="ms-1 w-3 flex items-center justify-end">
+        <component
+          :is="isResponseVisible ? IconArrowDown : IconArrowRight"
+          v-if="request.responses && Object.keys(request.responses).length > 0"
+          class="svg-icons w-3 cursor-pointer hover:bg-primaryDark transition rounded"
+          @click="toggleRequestResponse()"
+        />
+      </div>
       <div
         class="pointer-events-auto flex min-w-0 flex-1 cursor-pointer items-center justify-center"
         @click="selectRequest()"
       >
         <span
-          class="pointer-events-none flex w-16 items-center justify-center truncate px-2"
-          :style="{ color: getMethodLabelColorClassOf(request) }"
+          class="pointer-events-none flex w-8 items-center justify-start truncate px-0.5"
+          :style="{ color: getMethodLabelColorClassOf(request.method) }"
         >
           <component
             :is="IconCheckCircle"
@@ -63,9 +71,9 @@
           </span>
         </span>
       </div>
-      <div v-if="!hasNoTeamAccess" class="flex">
+      <div class="flex">
         <HoppButtonSecondary
-          v-if="!saveRequest"
+          v-if="!saveRequest && !hasNoTeamAccess"
           v-tippy="{ theme: 'tooltip' }"
           :icon="IconRotateCCW"
           :title="t('action.restore')"
@@ -94,9 +102,12 @@
                 @keyup.d="duplicate?.$el.click()"
                 @keyup.delete="deleteAction?.$el.click()"
                 @keyup.s="shareAction?.$el.click()"
+                @keyup.i="documentationAction?.$el.click()"
+                @keyup.a="addExampleAction?.$el.click()"
                 @keyup.escape="hide()"
               >
                 <HoppSmartItem
+                  v-if="!hasNoTeamAccess"
                   ref="edit"
                   :icon="IconEdit"
                   :label="t('action.edit')"
@@ -109,31 +120,46 @@
                   "
                 />
                 <HoppSmartItem
+                  v-if="!hasNoTeamAccess"
                   ref="duplicate"
                   :icon="IconCopy"
                   :label="t('action.duplicate')"
-                  :loading="duplicateLoading"
+                  :loading="duplicateRequestLoading"
                   :shortcut="['D']"
                   @click="
                     () => {
-                      emit('duplicate-request'),
-                        collectionsType === 'my-collections' ? hide() : null
+                      emit('duplicate-request')
                     }
                   "
                 />
                 <HoppSmartItem
-                  ref="deleteAction"
-                  :icon="IconTrash2"
-                  :label="t('action.delete')"
-                  :shortcut="['⌫']"
+                  v-if="!hasNoTeamAccess"
+                  ref="addExampleAction"
+                  :icon="IconPlusCircle"
+                  :label="t('action.add_example')"
+                  :shortcut="['A']"
                   @click="
                     () => {
-                      emit('remove-request')
+                      emit('add-example')
                       hide()
                     }
                   "
                 />
                 <HoppSmartItem
+                  v-if="isDocumentationVisible"
+                  ref="documentationAction"
+                  :icon="IconBook"
+                  :label="t('documentation.title')"
+                  :shortcut="['I']"
+                  @click="
+                    () => {
+                      handleDocumentationAction()
+                      hide()
+                    }
+                  "
+                />
+                <HoppSmartItem
+                  v-if="!hasNoTeamAccess"
                   ref="shareAction"
                   :icon="IconShare2"
                   :label="t('action.share')"
@@ -141,6 +167,19 @@
                   @click="
                     () => {
                       emit('share-request')
+                      hide()
+                    }
+                  "
+                />
+                <HoppSmartItem
+                  v-if="!hasNoTeamAccess"
+                  ref="deleteAction"
+                  :icon="IconTrash2"
+                  :label="t('action.delete')"
+                  :shortcut="['⌫']"
+                  @click="
+                    () => {
+                      emit('remove-request')
                       hide()
                     }
                   "
@@ -164,6 +203,33 @@
       @dragleave="resetDragState"
       @dragend="resetDragState"
     ></div>
+
+    <div v-if="isResponseVisible" class="flex">
+      <div
+        class="ml-[1.35rem] flex w-0.5 transform cursor-nsResize bg-dividerLight transition hover:scale-x-125 hover:bg-dividerDark"
+      ></div>
+      <div class="flex flex-col w-full pl-3">
+        <CollectionsExampleResponse
+          v-for="[index, [key, value]] of Object.entries(
+            Object.entries(request.responses)
+          )"
+          :key="key"
+          :response-name="key"
+          :response="value"
+          :save-context="{
+            requestID: requestID,
+            exampleID: index,
+            parentID: parentID,
+            collectionsType: collectionsType,
+            saveRequest: saveRequest,
+          }"
+          @edit-response="emit('edit-response', $event)"
+          @remove-response="emit('remove-response', $event)"
+          @duplicate-response="emit('duplicate-response', $event)"
+          @select-response="emit('select-response', $event)"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -175,9 +241,14 @@ import IconCopy from "~icons/lucide/copy"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconRotateCCW from "~icons/lucide/rotate-ccw"
 import IconShare2 from "~icons/lucide/share-2"
+import IconArrowRight from "~icons/lucide/chevron-right"
+import IconArrowDown from "~icons/lucide/chevron-down"
+import IconBook from "~icons/lucide/book"
+import IconPlusCircle from "~icons/lucide/plus-circle"
 import { ref, PropType, watch, computed } from "vue"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { useI18n } from "@composables/i18n"
+import { useDocumentationVisibility } from "~/composables/documentationVisibility"
 import { TippyComponent } from "vue-tippy"
 import {
   changeCurrentReorderStatus,
@@ -185,6 +256,8 @@ import {
 } from "~/newstore/reordering"
 import { useReadonlyStream } from "~/composables/stream"
 import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
+import { platform } from "~/platform"
+import { invokeAction } from "~/helpers/actions"
 
 type CollectionType = "my-collections" | "team-collections"
 
@@ -211,7 +284,7 @@ const props = defineProps({
     default: "my-collections",
     required: true,
   },
-  duplicateLoading: {
+  duplicateRequestLoading: {
     type: Boolean,
     default: false,
     required: false,
@@ -248,27 +321,45 @@ const props = defineProps({
   },
 })
 
+type ResponsePayload = {
+  responseName: string
+  responseID: string
+}
+
 const emit = defineEmits<{
   (event: "edit-request"): void
+  (event: "edit-response", payload: ResponsePayload): void
   (event: "duplicate-request"): void
+  (event: "open-request-documentation"): void
   (event: "remove-request"): void
   (event: "select-request"): void
   (event: "share-request"): void
+  (event: "add-example"): void
   (event: "drag-request", payload: DataTransfer): void
   (event: "update-request-order", payload: DataTransfer): void
   (event: "update-last-request-order", payload: DataTransfer): void
+  (event: "duplicate-response", payload: ResponsePayload): void
+  (event: "remove-response", payload: ResponsePayload): void
+  (event: "select-response", payload: ResponsePayload): void
+  (event: "toggle-children"): void
 }>()
 
-const tippyActions = ref<TippyComponent | null>(null)
+const tippyActions = ref<HTMLButtonElement | null>(null)
 const edit = ref<HTMLButtonElement | null>(null)
 const deleteAction = ref<HTMLButtonElement | null>(null)
 const options = ref<TippyComponent | null>(null)
 const duplicate = ref<HTMLButtonElement | null>(null)
 const shareAction = ref<HTMLButtonElement | null>(null)
+const documentationAction = ref<HTMLButtonElement | null>(null)
+const addExampleAction = ref<HTMLButtonElement | null>(null)
+
+const { isDocumentationVisible } = useDocumentationVisibility()
 
 const dragging = ref(false)
 const ordering = ref(false)
 const orderingLastItem = ref(false)
+
+const isResponseVisible = ref(false)
 
 const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
   type: "collection",
@@ -277,16 +368,21 @@ const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
 })
 
 watch(
-  () => props.duplicateLoading,
+  () => props.duplicateRequestLoading,
   (val) => {
     if (!val) {
-      options.value!.tippy.hide()
+      options.value!.tippy?.hide()
     }
   }
 )
 
 const selectRequest = () => {
   emit("select-request")
+}
+
+const toggleRequestResponse = () => {
+  emit("toggle-children")
+  isResponseVisible.value = !isResponseVisible.value
 }
 
 const dragStart = ({ dataTransfer }: DragEvent) => {
@@ -377,6 +473,19 @@ const isRequestLoading = computed(() => {
   }
   return false
 })
+
+const handleDocumentationAction = () => {
+  const currentUser = platform.auth.getCurrentUser()
+
+  if (!currentUser) {
+    // Show login modal if user is not authenticated
+    invokeAction("modals.login.toggle")
+    return
+  }
+
+  // User is authenticated, proceed with opening documentation
+  emit("open-request-documentation")
+}
 
 const resetDragState = () => {
   dragging.value = false

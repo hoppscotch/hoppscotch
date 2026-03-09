@@ -1,0 +1,72 @@
+{
+  "v": 3,
+  "name": "OAuth2 Authorization Code Grant Type - Collection",
+  "folders": [],
+  "requests": [
+    {
+      "v": "7",
+      "endpoint": "https://echo.hoppscotch.io",
+      "name": "oauth2-auth-code-sample-req-pass-by-headers",
+      "params": [],
+      "headers": [],
+      "method": "GET",
+      "auth": {
+        "authType": "oauth-2",
+        "authActive": true,
+        "addTo": "HEADERS",
+        "grantTypeInfo": {
+          "authEndpoint": "test-authorization-endpoint",
+          "tokenEndpoint": "test-token-endpont",
+          "clientID": "test-client-id",
+          "clientSecret": "test-client-secret",
+          "isPKCE": true,
+          "codeVerifierMethod": "S256",
+          "grantType": "AUTHORIZATION_CODE",
+          "token": "test-token"
+        }
+      },
+      "preRequestScript": "",
+      "testScript": "pw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully derives Authorization header from the supplied fields\", ()=> {\n    pw.expect(pw.response.body.headers[\"authorization\"]).toBeType(\"string\");\n});",
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": []
+    },
+    {
+      "v": "7",
+      "endpoint": "https://echo.hoppscotch.io",
+      "name": "oauth2-auth-code-sample-req-pass-by-query-params",
+      "params": [],
+      "headers": [],
+      "method": "GET",
+      "auth": {
+        "authType": "oauth-2",
+        "authActive": true,
+        "addTo": "HEADERS",
+        "grantTypeInfo": {
+          "authEndpoint": "test-authorization-endpoint",
+          "tokenEndpoint": "test-token-endpont",
+          "clientID": "test-client-id",
+          "clientSecret": "test-client-secret",
+          "isPKCE": true,
+          "codeVerifierMethod": "S256",
+          "grantType": "AUTHORIZATION_CODE",
+          "token": "test-token"
+        }
+      },
+      "preRequestScript": "",
+      "testScript": "pw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully derives Authorization header from the supplied fields\", ()=> {\n    pw.expect(pw.response.body.headers[\"authorization\"]).toBeType(\"string\");\n});",
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": []
+    }
+  ],
+  "auth": {
+    "authType": "none",
+    "authActive": true
+  },
+  "headers": []
+}

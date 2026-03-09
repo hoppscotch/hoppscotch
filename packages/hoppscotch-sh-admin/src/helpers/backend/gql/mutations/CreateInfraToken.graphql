@@ -1,0 +1,12 @@
+mutation CreateInfraToken($label: String!, $expiryInDays: Int) {
+  createInfraToken(label: $label, expiryInDays: $expiryInDays) {
+    info {
+      id
+      label
+      lastUsedOn
+      createdOn
+      expiresOn
+    }
+    token
+  }
+}

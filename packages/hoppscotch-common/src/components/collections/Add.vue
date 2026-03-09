@@ -43,8 +43,8 @@ const t = useI18n()
 
 const props = withDefaults(
   defineProps<{
-    show: boolean
-    loadingState: boolean
+    show?: boolean
+    loadingState?: boolean
   }>(),
   {
     show: false,
@@ -69,7 +69,11 @@ watch(
 )
 
 const addNewCollection = () => {
-  if (!editingName.value) {
+  if (props.loadingState) {
+    return
+  }
+
+  if (editingName.value.trim() === "") {
     toast.error(t("collection.invalid_name"))
     return
   }

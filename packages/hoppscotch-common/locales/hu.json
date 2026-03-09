@@ -24,8 +24,10 @@
     "go_back": "Vissza",
     "go_forward": "Előre",
     "group_by": "Csoportosítás",
+    "hide_secret": "Hide secret",
     "label": "Címke",
     "learn_more": "Tudjon meg többet",
+    "download_here": "Download here",
     "less": "Kevesebb",
     "more": "Több",
     "new": "Új",
@@ -43,6 +45,7 @@
     "search": "Keresés",
     "send": "Küldés",
     "share": "Megosztás",
+    "show_secret": "Show secret",
     "start": "Indítás",
     "starting": "Indítás",
     "stop": "Leállítás",
@@ -95,14 +98,18 @@
     "twitter": "Twitter",
     "type_a_command_search": "Írjon be parancsot vagy keresést…",
     "we_use_cookies": "Sütiket használunk",
+    "updated_text": "Hoppscotch has been updated to v{version} 🎉",
     "whats_new": "Mik az újdonságok?",
+    "see_whats_new": "See what’s new",
     "wiki": "Wiki"
   },
   "auth": {
     "account_exists": "A fiók különböző hitelesítési adatokkal létezik – jelentkezzen be a két fiók összekapcsolásához",
     "all_sign_in_options": "Összes bejelentkezési lehetőség",
+    "continue_with_auth_provider": "Continue with {provider}",
     "continue_with_email": "Folytatás e-mail-címmel",
     "continue_with_github": "Folytatás GitHub használatával",
+    "continue_with_github_enterprise": "Continue with GitHub Enterprise",
     "continue_with_google": "Folytatás Google használatával",
     "continue_with_microsoft": "Folytatás Microsoft használatával",
     "email": "E-mail",
@@ -135,9 +142,30 @@
       "redirect_no_token_endpoint": "Nincs \"Token Endpoint\"",
       "something_went_wrong_on_oauth_redirect": "Valami rosszul sikerült az OAuth átirányításakor",
       "something_went_wrong_on_token_generation": "Valami rosszul sikerült a token generálásakor",
-      "token_generation_oidc_discovery_failed": "Hiba a token generálásakor: OpenID Connect Discovery hiba"
+      "token_generation_oidc_discovery_failed": "Hiba a token generálásakor: OpenID Connect Discovery hiba",
+      "grant_type": "Grant Type",
+      "grant_type_auth_code": "Authorization Code",
+      "token_fetched_successfully": "Token fetched successfully",
+      "token_fetch_failed": "Failed to fetch token",
+      "validation_failed": "Validation Failed, please check the form fields",
+      "label_authorization_endpoint": "Authorization Endpoint",
+      "label_client_id": "Client ID",
+      "label_client_secret": "Client Secret",
+      "label_code_challenge": "Code Challenge",
+      "label_code_challenge_method": "Code Challenge Method",
+      "label_code_verifier": "Code Verifier",
+      "label_scopes": "Scopes",
+      "label_token_endpoint": "Token Endpoint",
+      "label_use_pkce": "Use PKCE",
+      "label_implicit": "Implicit",
+      "label_password": "Password",
+      "label_username": "Username",
+      "label_auth_code": "Authorization Code",
+      "label_client_credentials": "Client Credentials"
     },
     "pass_key_by": "Átadta",
+    "pass_by_query_params_label": "Query Parameters",
+    "pass_by_headers_label": "Headers",
     "password": "Jelszó",
     "save_to_inherit": "Kérjük, mentse el ezt kérést bármelyik gyűjteménybe, hogy az azonosítás örökölhető lehessen",
     "token": "Token",
@@ -149,6 +177,7 @@
     "different_parent": "Nem lehet átrendezni a különböző szülővel rendelkező gyűjteményt",
     "edit": "Gyűjtemény szerkesztése",
     "import_or_create": "Gyűjtemény importálása vagy létrehozása",
+    "import_collection": "Import Collection",
     "invalid_name": "Adjon nevet a gyűjteménynek",
     "invalid_root_move": "A gyűjtemény már a gyökérben van",
     "moved": "Sikeresen áthelyezve",
@@ -165,6 +194,7 @@
     "save_to_collection": "Mentés egy gyűjteménybe",
     "select": "Gyűjtemény kiválasztása",
     "select_location": "Hely kiválasztása",
+    "details": "Details",
     "select_team": "Csapat kiválasztása",
     "team_collections": "Csapat gyűjteményei"
   },
@@ -183,7 +213,8 @@
     "remove_telemetry": "Biztosan ki szeretné kapcsolni a telemetriát?",
     "request_change": "Biztosan el szeretné vetni a jelenlegi kérést? Minden mentetlen változtatás el fog veszni.",
     "save_unsaved_tab": "Szeretné menteni az ezen a lapon elvégzett változtatásokat?",
-    "sync": "Szeretné visszaállítani a munkaterületét a felhőből? Ez el fogja vetni a helyi folyamatát."
+    "sync": "Szeretné visszaállítani a munkaterületét a felhőből? Ez el fogja vetni a helyi folyamatát.",
+    "delete_access_token": "Are you sure you want to delete the access token {tokenLabel}?"
   },
   "context_menu": {
     "add_parameters": "Paraméterek hozzáadása",
@@ -237,13 +268,16 @@
     "pending_invites": "Nincsenek függőben lévő meghívások ennél a csapatnál",
     "profile": "Jelentkezzen be a profilja megtekintéséhez",
     "protocols": "A protokollok üresek",
+    "request_variables": "This request does not have any request variables",
     "schema": "Kapcsolódjon egy GraphQL-végponthoz a séma megtekintéséhez",
+    "secret_environments": "Secrets are not synced to Hoppscotch",
     "shared_requests": "Shared requests are empty",
     "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "A feliratkozások üresek",
     "team_name": "A csapat neve üres",
     "teams": "Ön nem tartozik semmilyen csapathoz",
     "tests": "Nincsenek tesztek ehhez a kéréshez",
+    "access_tokens": "Access tokens are empty",
     "shortcodes": "A rövid kódok üresek"
   },
   "environment": {
@@ -270,6 +304,8 @@
     "quick_peek": "Környezet gyors megnézése",
     "replace_with_variable": "Cserélje le egy változóra",
     "scope": "Hatókör",
+    "secrets": "Secrets",
+    "secret_value": "Secret value",
     "select": "Környezet kiválasztása",
     "set": "Környezet beállítása",
     "set_as_environment": "Környezetként való beállítás",
@@ -278,7 +314,10 @@
     "updated": "Környezet frissítve",
     "value": "Érték",
     "variable": "Változó",
-    "variable_list": "Változólista"
+    "variables": "Variables",
+    "variable_list": "Változólista",
+    "properties": "Environment Properties",
+    "details": "Details"
   },
   "error": {
     "authproviders_load_error": "Nem sikerült betölteni az azonosító szolgáltatókat",
@@ -289,6 +328,8 @@
     "danger_zone": "Veszélyes zóna",
     "delete_account": "Az Ön fiókja jelenleg tulajdonos ezekben a csapatokban:",
     "delete_account_description": "El kell távolítani magát, át kell adnia a tulajdonjogot vagy törölnie kell ezeket a csapatokat, mielőtt törölhetné a fiókját.",
+    "empty_email_address": "Email Address cannot be empty",
+    "empty_profile_name": "Profile name cannot be empty",
     "empty_req_name": "Üres kérésnév",
     "f12_details": "(F12 a részletekért)",
     "gql_prettify_invalid_query": "Nem sikerült csinosítani egy érvénytelen lekérdezést, oldja meg a lekérdezés szintaktikai hibáit, és próbálja újra",
@@ -296,6 +337,7 @@
     "incorrect_email": "Hibás e-mail",
     "invalid_link": "Érvénytelen hivatkozás",
     "invalid_link_description": "A kattintott hivatkozás érvénytelen vagy lejárt.",
+    "invalid_embed_link": "The embed does not exist or is invalid.",
     "json_parsing_failed": "Érvénytelen JSON",
     "json_prettify_invalid_body": "Nem sikerült csinosítani egy érvénytelen törzset, oldja meg a JSON szintaktikai hibáit, és próbálja újra",
     "network_error": "Úgy tűnik, hogy hálózati hiba van. Próbálja újra.",
@@ -307,17 +349,26 @@
     "page_not_found": "Ez az oldal nem található",
     "please_install_extension": "Kérjük telepítse a bővítményt és adja hozzá a forráshoz.",
     "proxy_error": "Proxy hiba",
+    "same_email_address": "Updated email address is same as the current email address",
+    "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "Nem sikerült végrehajtani a kérés előtti parancsfájlt",
     "something_went_wrong": "Valami elromlott",
-    "test_script_fail": "Nem sikerült végrehajtani a kérés utáni parancsfájlt"
+    "post_request_script_fail": "Nem sikerült végrehajtani a kérés utáni parancsfájlt",
+    "reading_files": "Error while reading one or more files.",
+    "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
+    "generate_access_token": "Something went wrong while generating the access token",
+    "delete_access_token": "Something went wrong while deleting the access token"
   },
   "export": {
     "as_json": "Exportálás JSON formátumban",
     "create_secret_gist": "Titkos Gist létrehozása",
+    "create_secret_gist_tooltip_text": "Export as secret Gist",
     "failed": "Valami hiba történt az exportálás közben",
-    "gist_created": "Gist létrehozva",
+    "secret_gist_success": "Successfully exported as secret Gist",
     "require_github": "Jelentkezzen be GitHub használatával a titkos Gist létrehozásához",
-    "title": "Exportálás"
+    "title": "Exportálás",
+    "success": "Successfully exported",
+    "gist_created": "Gist létrehozva"
   },
   "filter": {
     "all": "Összes",
@@ -339,7 +390,8 @@
     "mutations": "Mutációk",
     "schema": "Séma",
     "subscriptions": "Feliratkozások",
-    "switch_connection": "Kapcsolat váltása"
+    "switch_connection": "Kapcsolat váltása",
+    "url_placeholder": "Enter a GraphQL endpoint URL"
   },
   "graphql_collections": {
     "title": "GraphQL gyűjtemény"
@@ -364,8 +416,8 @@
     "post_request_tests": "A tesztparancsfájlokat JavaScriptben írták, és a válasz megérkezése után lesznek futtatva.",
     "pre_request_script": "A kérés előtti parancsfájlokat JavaScriptben írták, és a kérés elküldése előtt lesznek futtatva.",
     "script_fail": "Úgy tűnik, hogy működési hiba van a kérés előtti parancsfájlban. Nézze meg az alábbi hibát, és annak megfelelően javítsa a parancsfájlt.",
-    "test_script_fail": "Úgy tűnik, hogy hiba van a tesztparancsfájlokkal. Javítsa ki a hibákat, és futtassa újra a teszteket.",
-    "tests": "Írjon tesztparancsfájlt a hibakeresés automatizálására."
+    "post_request_script_fail": "Úgy tűnik, hogy hiba van az utólagos kérés parancsfájlokkal. Javítsa ki a hibákat, és futtassa újra a teszteket.",
+    "post_request_script": "Írjon tesztparancsfájlt a hibakeresés automatizálására."
   },
   "hide": {
     "collection": "Gyűjteménypanel összecsukása",
@@ -405,12 +457,17 @@
     "json_description": "Gyűjtemények importálása Hoppscotch-gyűjtemények JSON-fájlból",
     "postman_environment": "Postman környezet",
     "postman_environment_description": "Postman környezet importálása  JSON fájlból",
-    "title": "Importálás"
+    "title": "Importálás",
+    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of 10MB. Only the first {files} selected will be imported",
+    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of 10MB. Please select another file.",
+    "success": "Successfully imported"
   },
   "inspections": {
     "description": "Lehetséges hibák ellenőrzése",
     "environment": {
       "add_environment": "Hozzáadás a környezethez",
+      "add_environment_value": "Add value",
+      "empty_value": "Environment value is empty for the variable '{variable}' ",
       "not_found": "\"{environment}\" környezet nem található."
     },
     "header": {
@@ -546,6 +603,7 @@
     "raw_body": "Nyers kéréstörzs",
     "rename": "Rename Request",
     "renamed": "Kérés átnevezve",
+    "request_variables": "Request variables",
     "run": "Futtatás",
     "save": "Mentés",
     "save_as": "Mentés másként",
@@ -557,6 +615,7 @@
     "title": "Kérés",
     "type": "Kérés típusa",
     "url": "URL",
+    "url_placeholder": "Enter a URL or paste a cURL command",
     "variables": "Változók",
     "view_my_links": "Saját hivatkozások megtekintése",
     "copy_link": "Hivatkozás másolása"
@@ -564,7 +623,7 @@
   "response": {
     "audio": "Hang",
     "body": "Válasz törzse",
-    "filter_response_body": "JSON-válasz törzsének szűrése (JSONPath szintaxist használ)",
+    "filter_response_body": "JSON-válasz törzsének szűrése (jq szintaxist használ)",
     "headers": "Fejlécek",
     "html": "HTML",
     "image": "Kép",
@@ -811,6 +870,13 @@
       "new": "Új csapat létrehozása",
       "switch_to_personal": "Váltás a személyes munkaterületére",
       "title": "Csapatok"
+    },
+    "phrases": {
+      "try": "Try",
+      "import_collections": "Import collections",
+      "create_environment": "Create environment",
+      "create_workspace": "Create workspace",
+      "share_request": "Share request"
     }
   },
   "sse": {
@@ -867,9 +933,9 @@
     "forum": "Tegyen fel kérdéseket és kapjon válaszokat",
     "github": "Kövessen minket GitHubon",
     "shortcuts": "Az alkalmazás gyorsabb böngészése",
-    "team": "Vegye fel a kapcsolatot a csapattal",
     "title": "Támogatás",
-    "twitter": "Kövessen minket Twitteren"
+    "twitter": "Kövessen minket Twitteren",
+    "team": "Vegye fel a kapcsolatot a csapattal"
   },
   "tab": {
     "authorization": "Azonosítás",
@@ -889,6 +955,9 @@
     "query": "Lekérdezés",
     "schema": "Séma",
     "shared_requests": "Shared Requests",
+    "codegen": "Generate Code",
+    "code_snippet": "Code snippet",
+    "share_tab_request": "Share tab request",
     "socketio": "Socket.IO",
     "sse": "SSE",
     "tests": "Tesztek",
@@ -917,7 +986,6 @@
     "invite_tooltip": "Emberek meghívása erre a munkaterületre",
     "invited_to_team": "{owner} meghívta Önt, hogy csatlakozzon ehhez a csapathoz: {team}",
     "join": "Meghívás elfogadva",
-    "join_beta": "Csatlakozzon a béta programhoz, hogy hozzáférjen a csapatokhoz.",
     "join_team": "Csatlakozás ehhez: {team}",
     "joined_team": "Ön csatlakozott ehhez a csapathoz: {team}",
     "joined_team_description": "Ön mostantól ennek a csapatnak a tagja",
@@ -950,7 +1018,12 @@
     "success_invites": "Success invites",
     "title": "Csapatok",
     "we_sent_invite_link": "Elküldtünk egy meghívási hivatkozást az összes meghívottnak.",
-    "we_sent_invite_link_description": "Kérje meg az összes meghívottat, hogy nézzék meg a beérkező leveleiket. Kattintsanak a hivatkozásra a csapathoz való csatlakozáshoz."
+    "invite_sent_smtp_disabled": "Invite links generated",
+    "we_sent_invite_link_description": "Kérje meg az összes meghívottat, hogy nézzék meg a beérkező leveleiket. Kattintsanak a hivatkozásra a csapathoz való csatlakozáshoz.",
+    "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of Hoppscotch. Please use the Copy link button to copy and share the invite link manually.",
+    "copy_invite_link": "Copy Invite Link",
+    "search_title": "Team Requests",
+    "join_beta": "Csatlakozzon a béta programhoz, hogy hozzáférjen a csapatokhoz."
   },
   "team_environment": {
     "deleted": "Környezet törölve",
@@ -977,8 +1050,49 @@
   "workspace": {
     "change": "Munkaterület váltása",
     "personal": "Saját munkaterület",
+    "other_workspaces": "My Workspaces",
     "team": "Csapat-munkaterület",
     "title": "Munkaterületek"
+  },
+  "site_protection": {
+    "login_to_continue": "Login to continue",
+    "login_to_continue_description": "You need to be logged in to access this Hoppscotch Enterprise Instance.",
+    "error_fetching_site_protection_status": "Something Went Wrong While Fetching Site Protection Status"
+  },
+  "access_tokens": {
+    "tab_title": "Tokens",
+    "section_title": "Personal Access Tokens",
+    "section_description": "Personal access tokens currently helps you connect the CLI to your Hoppscotch account",
+    "last_used_on": "Last used on",
+    "expires_on": "Expires on",
+    "no_expiration": "No expiration",
+    "expired": "Expired",
+    "copy_token_warning": "Make sure to copy your personal access token now. You won't be able to see it again!",
+    "token_purpose": "What's this token for?",
+    "expiration_label": "Expiration",
+    "scope_label": "Scope",
+    "workspace_read_only_access": "Read-only access to workspace data.",
+    "personal_workspace_access_limitation": "Personal Access Tokens can't access your personal workspace.",
+    "generate_token": "Generate Token",
+    "invalid_label": "Please provide a label for the token",
+    "no_expiration_verbose": "This token will never expire!",
+    "token_expires_on": "This token will expire on",
+    "generate_new_token": "Generate new token",
+    "generate_modal_title": "New Personal Access Token",
+    "deletion_success": "The access token {label} has been deleted"
+  },
+  "collection_runner": {
+    "collection_id": "Collection ID",
+    "environment_id": "Environment ID",
+    "cli_collection_id_description": "This collection ID will be used by the CLI collection runner for Hoppscotch.",
+    "cli_environment_id_description": "This environment ID will be used by the CLI collection runner for Hoppscotch.",
+    "include_active_environment": "Include active environment:",
+    "cli": "CLI",
+    "ui": "Runner (coming soon)",
+    "cli_command_generation_description_cloud": "Copy the below command and run it from the CLI. Please specify a personal access token.",
+    "cli_command_generation_description_sh": "Copy the below command and run it from the CLI. Please specify a personal access token and verify the generated SH instance server URL.",
+    "cli_command_generation_description_sh_with_server_url_placeholder": "Copy the below command and run it from the CLI. Please specify a personal access token and the SH instance server URL.",
+    "run_collection": "Run collection"
   },
   "shortcodes": {
     "actions": "Műveletek",

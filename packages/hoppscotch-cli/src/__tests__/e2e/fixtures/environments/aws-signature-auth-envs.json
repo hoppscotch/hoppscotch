@@ -1,0 +1,43 @@
+{
+  "v": 2,
+  "id": "cm0dsn3v70004p4qk3l9b7sjm",
+  "name": "AWS Signature - environments",
+  "variables": [
+    {
+      "key": "awsRegion",
+      "currentValue": "us-east-1",
+      "initialValue": "us-east-1",
+      "secret": false
+    },
+    {
+      "key": "serviceName",
+      "currentValue": "s3",
+      "initialValue": "s3",
+      "secret": false
+    },
+    {
+      "key": "accessKey",
+      "currentValue": "test-access-key",
+      "initialValue": "test-access-key",
+      "secret": true
+    },
+    {
+      "key": "secretKey",
+      "currentValue": "",
+      "initialValue": "",
+      "secret": true
+    },
+    {
+      "key": "url",
+      "currentValue": "https://echo.hoppscotch.io",
+      "initialValue": "https://echo.hoppscotch.io",
+      "secret": false
+    },
+    {
+      "key": "serviceToken",
+      "currentValue": "",
+      "initialValue": "",
+      "secret": true
+    }
+  ]
+}

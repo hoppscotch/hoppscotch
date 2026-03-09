@@ -58,7 +58,7 @@ const request = computed(() => {
     return pathFolders.value[pathFolders.value.length - 1].requests[
       requestIndex
     ]
-  } catch (e) {
+  } catch (_e) {
     return null
   }
 })

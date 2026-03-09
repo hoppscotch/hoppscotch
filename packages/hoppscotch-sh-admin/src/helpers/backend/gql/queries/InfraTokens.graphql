@@ -1,0 +1,9 @@
+query InfraTokens($skip: Int, $take: Int) {
+  infraTokens(skip: $skip, take: $take) {
+    id
+    label
+    createdOn
+    lastUsedOn
+    expiresOn
+  }
+}

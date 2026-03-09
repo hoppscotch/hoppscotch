@@ -1,17 +1,15 @@
 <template>
-  <div
-    v-if="response.type === 'success' || response.type === 'fail'"
-    class="flex flex-1 flex-col"
-  >
+  <div v-if="showResponse" class="flex flex-1 flex-col">
     <div
       class="sticky top-lowerSecondaryStickyFold z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
+      :class="{ 'py-2': !responseBodyText }"
     >
       <label class="truncate font-semibold text-secondaryLight">
         {{ t("response.body") }}
       </label>
       <div class="flex items-center">
         <HoppButtonSecondary
-          v-if="response.body"
+          v-if="showResponse"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
           :class="{ '!text-accent': WRAP_LINES }"
@@ -19,7 +17,7 @@
           @click.prevent="toggleNestedSetting('WRAP_LINES', 'httpResponseBody')"
         />
         <HoppButtonSecondary
-          v-if="response.body"
+          v-if="showResponse"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.filter')"
           :icon="IconFilter"
@@ -27,7 +25,7 @@
           @click.prevent="toggleFilterState"
         />
         <HoppButtonSecondary
-          v-if="response.body"
+          v-if="showResponse"
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t(
             'action.download_file'
@@ -36,7 +34,23 @@
           @click="downloadResponse"
         />
         <HoppButtonSecondary
-          v-if="response.body"
+          v-if="showResponse && !isEditable"
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
+          :title="
+            isSavable
+              ? `${t(
+                  'action.save_as_example'
+                )} <kbd>${getSpecialKey()}</kbd><kbd>E</kbd>`
+              : t('response.please_save_request')
+          "
+          :icon="IconSave"
+          :class="{
+            'opacity-75 cursor-not-allowed select-none': !isSavable,
+          }"
+          @click="isSavable ? saveAsExample() : null"
+        />
+        <HoppButtonSecondary
+          v-if="showResponse"
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t(
             'action.copy'
@@ -45,7 +59,7 @@
           @click="copyResponse"
         />
         <tippy
-          v-if="response.body"
+          v-if="showResponse && response.body && !isEditable"
           interactive
           trigger="click"
           theme="popover"
@@ -53,7 +67,7 @@
         >
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
-            :title="t('app.copy_interface_type')"
+            :title="t('action.more')"
             :icon="IconMore"
           />
           <template #content="{ hide }">
@@ -64,15 +78,21 @@
               @keyup.escape="hide()"
             >
               <HoppSmartItem
-                v-for="(language, index) in interfaceLanguages"
-                :key="index"
-                :label="language"
-                :icon="
-                  copiedInterfaceLanguage === language
-                    ? copyInterfaceIcon
-                    : IconCopy
+                :label="t('response.generate_data_schema')"
+                :icon="IconNetwork"
+                @click="
+                  () => {
+                    invokeAction('response.schema.toggle')
+                    hide()
+                  }
                 "
-                @click="runCopyInterface(language)"
+              />
+              <HoppSmartItem
+                v-if="!isTestRunner"
+                :label="t('action.clear_response')"
+                :icon="IconEraser"
+                :shortcut="[getSpecialKey(), 'Delete']"
+                @click="eraseResponse"
               />
             </div>
           </template>
@@ -98,33 +118,39 @@
         </span>
         <div
           v-if="filterResponseError"
-          class="flex items-center justify-center rounded px-2 py-1 text-tiny text-accentContrast"
+          v-tippy="{
+            theme: 'tooltip',
+            content: filterResponseError.error,
+            placement: 'bottom',
+          }"
+          role="alert"
+          aria-live="assertive"
+          class="flex max-w-[10rem] cursor-help items-center justify-center rounded px-2 py-1 text-tiny text-accentContrast sm:max-w-[16rem]"
           :class="{
             'bg-red-500':
               filterResponseError.type === 'JSON_PARSE_FAILED' ||
-              filterResponseError.type === 'JSON_PATH_QUERY_ERROR',
+              filterResponseError.type === 'JSON_QUERY_FAILED',
             'bg-amber-500': filterResponseError.type === 'RESPONSE_EMPTY',
           }"
         >
-          <icon-lucide-info class="svg-icons mr-1.5" />
-          <span>{{ filterResponseError.error }}</span>
+          <icon-lucide-info class="svg-icons mr-1.5 flex-shrink-0" />
+          <span class="truncate">{{ filterResponseError.error }}</span>
         </div>
         <HoppButtonSecondary
-          v-if="response.body"
+          v-if="showResponse"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('app.wiki')"
           :icon="IconHelpCircle"
-          to="https://github.com/JSONPath-Plus/JSONPath"
+          to="https://jqlang.org/manual/"
           blank
         />
       </div>
     </div>
-    <div class="h-full relative overflow-auto">
-      <div
-        ref="jsonResponse"
-        :class="toggleFilter ? 'responseToggleOn' : 'responseToggleOff'"
-        class="absolute inset-0 h-full"
-      ></div>
+    <div
+      ref="containerRef"
+      class="h-full relative overflow-auto flex flex-col flex-1"
+    >
+      <div ref="jsonResponse" class="absolute inset-0 h-full"></div>
     </div>
     <div
       v-if="outlinePath"
@@ -238,13 +264,16 @@ import IconWrapText from "~icons/lucide/wrap-text"
 import IconFilter from "~icons/lucide/filter"
 import IconMore from "~icons/lucide/more-horizontal"
 import IconHelpCircle from "~icons/lucide/help-circle"
-import IconCopy from "~icons/lucide/copy"
+import IconNetwork from "~icons/lucide/network"
+import IconSave from "~icons/lucide/save"
+import IconEraser from "~icons/lucide/eraser"
 import * as LJSON from "lossless-json"
 import * as O from "fp-ts/Option"
 import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
 import { computed, ref, reactive } from "vue"
-import { JSONPath } from "jsonpath-plus"
+import { computedAsync, refDebounced } from "@vueuse/core"
+import * as jq from "jq-wasm"
 import { useCodemirror } from "@composables/codemirror"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import jsonParse, { JSONObjectMember, JSONValue } from "~/helpers/jsonParse"
@@ -258,78 +287,162 @@ import {
   useCopyResponse,
   useResponseBody,
   useDownloadResponse,
-  useCopyInterface,
 } from "@composables/lens-actions"
-import { defineActionHandler } from "~/helpers/actions"
+import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
-import interfaceLanguages from "~/helpers/utils/interfaceLanguages"
+import { HoppRESTRequestResponse } from "@hoppscotch/data"
+import { useScrollerRef } from "~/composables/useScrollerRef"
 
 const t = useI18n()
 
 const props = defineProps<{
-  response: HoppRESTResponse
+  response: HoppRESTResponse | HoppRESTRequestResponse
+  isSavable: boolean
+  isEditable: boolean
+  tabId: string
+  isTestRunner?: boolean
 }>()
 
-const { responseBodyText } = useResponseBody(props.response)
+const { containerRef } = useScrollerRef(
+  "JSONLens",
+  ".cm-scroller",
+  undefined, // skip initial
+  `${props.tabId}::json`
+)
+
+const emit = defineEmits<{
+  (e: "save-as-example"): void
+  (e: "update:response", val: HoppRESTRequestResponse | HoppRESTResponse): void
+}>()
+
+const showResponse = computed(() => {
+  if ("type" in props.response) {
+    return props.response.type === "success" || props.response.type === "fail"
+  }
+
+  return "body" in props.response
+})
+
+const isHttpResponse = computed(() => {
+  return (
+    "type" in props.response &&
+    (props.response.type === "success" || props.response.type === "fail")
+  )
+})
 
 const toggleFilter = ref(false)
 const filterQueryText = ref("")
-const copiedInterfaceLanguage = ref("")
-
-const runCopyInterface = (language: string) => {
-  copyInterface(language).then(() => {
-    copiedInterfaceLanguage.value = language
-  })
-}
+const debouncedFilterQuery = refDebounced(filterQueryText, 300)
 
 type BodyParseError =
   | { type: "JSON_PARSE_FAILED" }
-  | { type: "JSON_PATH_QUERY_FAILED"; error: Error }
+  | { type: "JSON_QUERY_FAILED"; error: Error }
 
-const responseJsonObject = computed(() =>
-  pipe(
-    responseBodyText.value,
-    E.tryCatchK(
-      LJSON.parse,
-      (): BodyParseError => ({ type: "JSON_PARSE_FAILED" })
+const responseJsonObject = computed(() => {
+  if (isHttpResponse.value) {
+    const { responseBodyText } = useResponseBody(
+      props.response as HoppRESTResponse
     )
-  )
-)
 
-const jsonResponseBodyText = computed(() => {
-  if (filterQueryText.value.length > 0) {
     return pipe(
-      responseJsonObject.value,
-      E.chain((parsedJSON) =>
-        E.tryCatch(
-          () =>
-            JSONPath({
-              path: filterQueryText.value,
-              json: parsedJSON,
-            }) as undefined,
-          (err): BodyParseError => ({
-            type: "JSON_PATH_QUERY_FAILED",
-            error: err as Error,
-          })
-        )
-      ),
-      E.map(JSON.stringify)
+      responseBodyText.value,
+      E.tryCatchK(
+        LJSON.parse,
+        (): BodyParseError => ({ type: "JSON_PARSE_FAILED" })
+      )
     )
   }
-  return E.right(responseBodyText.value)
+
+  return undefined
 })
 
-const jsonBodyText = computed(() =>
-  pipe(
+const responseName = computed(() => {
+  if ("type" in props.response) {
+    if (props.response.type === "success") {
+      return props.response.req.name
+    }
+    return "Untitled"
+  }
+
+  return props.response.name
+})
+
+const { responseBodyText } = useResponseBody(props.response)
+
+const jsonResponseBodyText = computedAsync(
+  async (): Promise<E.Either<BodyParseError, string | object>> => {
+    if (debouncedFilterQuery.value.length > 0 && responseJsonObject.value) {
+      if (E.isLeft(responseJsonObject.value)) {
+        return responseJsonObject.value
+      }
+
+      try {
+        const input = JSON.parse(
+          LJSON.stringify(responseJsonObject.value.right as any) || "{}"
+        )
+        const { exitCode, stdout, stderr } = await jq.raw(
+          input,
+          debouncedFilterQuery.value
+        )
+
+        if (exitCode !== 0) {
+          // Extract first line of jq error for user-friendly message
+          const errorMessage = stderr?.split("\n")[0]?.trim() || "Syntax Error"
+          throw new Error(errorMessage)
+        }
+
+        return E.right(stdout as string | object)
+      } catch (err) {
+        return E.left({
+          type: "JSON_QUERY_FAILED",
+          error: err as Error,
+        })
+      }
+    }
+
+    return E.right(responseBodyText.value)
+  },
+  E.right(responseBodyText.value)
+)
+
+const jsonBodyText = computed(() => {
+  const { responseBodyText } = useResponseBody(
+    props.response as HoppRESTResponse
+  )
+
+  const rawValue = pipe(
     jsonResponseBodyText.value,
-    E.getOrElse(() => responseBodyText.value),
+    E.getOrElse(() => responseBodyText.value)
+  )
+
+  // If the rawValue is already an object (from JSON filtering), stringify it directly
+  if (typeof rawValue === "object" && rawValue !== null) {
+    return JSON.stringify(rawValue, null, 2)
+  }
+
+  // If it's a string, we need to parse and re-stringify
+  const stringValue = rawValue as string
+
+  // If we're filtering, the string should already be clean JSON (no lossless numbers)
+  if (debouncedFilterQuery.value.length > 0) {
+    return pipe(
+      stringValue,
+      O.tryCatchK(JSON.parse),
+      O.map((val) => JSON.stringify(val, null, 2)),
+      O.getOrElse(() => stringValue)
+    )
+  }
+
+  // For unfiltered responses, use LJSON for lossless parsing
+  return pipe(
+    stringValue,
     O.tryCatchK(LJSON.parse),
     O.map((val) => LJSON.stringify(val, undefined, 2)),
-    O.getOrElse(() => responseBodyText.value)
+    O.getOrElse(() => stringValue)
   )
-)
+})
 
 const ast = computed(() =>
   pipe(
@@ -345,8 +458,8 @@ const filterResponseError = computed(() =>
     E.match(
       (e) => {
         switch (e.type) {
-          case "JSON_PATH_QUERY_FAILED":
-            return { type: "JSON_PATH_QUERY_ERROR", error: e.error.message }
+          case "JSON_QUERY_FAILED":
+            return { type: "JSON_QUERY_FAILED", error: e.error.message }
           case "JSON_PARSE_FAILED":
             return {
               type: "JSON_PARSE_FAILED",
@@ -354,22 +467,44 @@ const filterResponseError = computed(() =>
             }
         }
       },
-      (result) =>
-        result === "[]"
+      (result) => {
+        const isEmpty =
+          typeof result === "object" && result !== null
+            ? Array.isArray(result) && result.length === 0
+            : result === "[]"
+
+        return isEmpty
           ? {
               type: "RESPONSE_EMPTY",
               error: t("error.no_results_found").toString(),
             }
           : undefined
+      }
     )
   )
 )
 
+const saveAsExample = () => {
+  emit("save-as-example")
+}
+
 const { copyIcon, copyResponse } = useCopyResponse(jsonBodyText)
-const { copyInterfaceIcon, copyInterface } = useCopyInterface(jsonBodyText)
+
+/**
+ * Erases the response body.
+ * Do not erase if the tab is a saved example or test runner.
+ *
+ */
+const eraseResponse = () => {
+  if (!props.isEditable && !props.isTestRunner) emit("update:response", null)
+}
+
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "application/json",
-  jsonBodyText
+  jsonBodyText,
+  t("filename.lens", {
+    request_name: responseName.value,
+  })
 )
 
 // Template refs
@@ -384,12 +519,18 @@ const { cursor } = useCodemirror(
   reactive({
     extendedEditorConfig: {
       mode: "application/ld+json",
-      readOnly: true,
+      readOnly: !props.isEditable,
       lineWrapping: WRAP_LINES,
     },
     linter: null,
     completer: null,
     environmentHighlights: true,
+    onChange: (update: string) => {
+      emit("update:response", {
+        ...props.response,
+        body: update,
+      } as HoppRESTRequestResponse)
+    },
   })
 )
 
@@ -420,6 +561,10 @@ const toggleFilterState = () => {
 
 defineActionHandler("response.file.download", () => downloadResponse())
 defineActionHandler("response.copy", () => copyResponse())
+defineActionHandler("response.erase", () => eraseResponse())
+defineActionHandler("response.save-as-example", () => {
+  props.isSavable ? saveAsExample() : null
+})
 </script>
 
 <style lang="scss" scoped>
@@ -433,13 +578,5 @@ defineActionHandler("response.copy", () => copyResponse())
   @apply py-1;
   @apply transition;
   @apply hover:text-secondary;
-}
-
-:deep(.responseToggleOff .cm-panels) {
-  @apply top-lowerTertiaryStickyFold #{!important};
-}
-
-:deep(.responseToggleOn .cm-panels) {
-  @apply top-lowerFourthStickyFold #{!important};
 }
 </style>

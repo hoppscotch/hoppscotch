@@ -9,21 +9,28 @@ import {
 import { z } from "zod"
 import { getService } from "~/modules/dioc"
 import * as E from "fp-ts/Either"
-import { InterceptorService } from "~/services/interceptor.service"
-import { AuthCodeGrantTypeParams } from "@hoppscotch/data"
+import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
+import { content } from "@hoppscotch/kernel"
+import { refreshToken, OAuth2ParamSchema } from "../utils"
+import {
+  AuthCodeGrantTypeParams,
+  OAuth2AuthRequestParam,
+} from "@hoppscotch/data"
 
 const persistenceService = getService(PersistenceService)
-const interceptorService = getService(InterceptorService)
+const interceptorService = getService(KernelInterceptorService)
 
-const AuthCodeOauthFlowParamsSchema = AuthCodeGrantTypeParams.pick({
-  authEndpoint: true,
-  tokenEndpoint: true,
-  clientID: true,
-  clientSecret: true,
-  scopes: true,
-  isPKCE: true,
-  codeVerifierMethod: true,
+// Use the existing schema from hoppscotch-data but ensure required arrays
+const AuthCodeOauthFlowParamsSchema = AuthCodeGrantTypeParams.omit({
+  grantType: true,
+  token: true,
 })
+  .extend({
+    // Override optional arrays to be required for the service layer
+    authRequestParams: z.array(OAuth2AuthRequestParam),
+    tokenRequestParams: z.array(OAuth2ParamSchema),
+    refreshRequestParams: z.array(OAuth2ParamSchema),
+  })
   .refine(
     (params) => {
       return (
@@ -46,6 +53,13 @@ export type AuthCodeOauthFlowParams = z.infer<
   typeof AuthCodeOauthFlowParamsSchema
 >
 
+export type AuthCodeOauthRefreshParams = {
+  tokenEndpoint: string
+  clientID: string
+  clientSecret?: string
+  refreshToken: string
+}
+
 export const getDefaultAuthCodeOauthFlowParams =
   (): AuthCodeOauthFlowParams => ({
     authEndpoint: "",
@@ -55,6 +69,9 @@ export const getDefaultAuthCodeOauthFlowParams =
     scopes: undefined,
     isPKCE: false,
     codeVerifierMethod: "S256",
+    authRequestParams: [],
+    refreshRequestParams: [],
+    tokenRequestParams: [],
   })
 
 const initAuthCodeOauthFlow = async ({
@@ -65,17 +82,28 @@ const initAuthCodeOauthFlow = async ({
   authEndpoint,
   isPKCE,
   codeVerifierMethod,
+  authRequestParams,
+  refreshRequestParams,
+  tokenRequestParams,
 }: AuthCodeOauthFlowParams) => {
   const state = generateRandomString()
 
   let codeVerifier: string | undefined
   let codeChallenge: string | undefined
 
+  // Ensure backward compatibility for collections that were imported before
+  // `codeVerifierMethod` was added. If PKCE is enabled but the method is
+  // missing, default to 'plain' as requested by the user.
+  const codeVerifierMethodNormalized =
+    isPKCE && !codeVerifierMethod ? ("plain" as const) : codeVerifierMethod
+
   if (isPKCE) {
     codeVerifier = generateCodeVerifier()
+    // codeVerifierMethodNormalized might be undefined only if isPKCE is false,
+    // but here we guard with isPKCE so it's safe to pass a value.
     codeChallenge = await generateCodeChallenge(
       codeVerifier,
-      codeVerifierMethod
+      codeVerifierMethodNormalized
     )
   }
 
@@ -91,6 +119,24 @@ const initAuthCodeOauthFlow = async ({
     codeVerifierMethod?: string
     codeChallenge?: string
     scopes?: string
+    authRequestParams?: Array<{
+      key: string
+      value: string
+      active: boolean
+      sendIn?: string
+    }>
+    refreshRequestParams?: Array<{
+      key: string
+      value: string
+      active: boolean
+      sendIn?: string
+    }>
+    tokenRequestParams?: Array<{
+      key: string
+      value: string
+      active: boolean
+      sendIn?: string
+    }>
   } = {
     state,
     grant_type: "AUTHORIZATION_CODE",
@@ -99,8 +145,12 @@ const initAuthCodeOauthFlow = async ({
     clientSecret,
     clientID,
     isPKCE,
-    codeVerifierMethod,
+    // Persist the normalized method so subsequent redirect handling has a value
+    codeVerifierMethod: codeVerifierMethodNormalized,
     scopes,
+    authRequestParams,
+    refreshRequestParams,
+    tokenRequestParams,
   }
 
   if (codeVerifier && codeChallenge) {
@@ -112,7 +162,7 @@ const initAuthCodeOauthFlow = async ({
   }
 
   const localOAuthTempConfig =
-    persistenceService.getLocalConfig("oauth_temp_config")
+    await persistenceService.getLocalConfig("oauth_temp_config")
 
   const persistedOAuthConfig: PersistedOAuthConfig = localOAuthTempConfig
     ? { ...JSON.parse(localOAuthTempConfig) }
@@ -122,7 +172,7 @@ const initAuthCodeOauthFlow = async ({
 
   // persist the state so we can compare it when we get redirected back
   // also persist the grant_type,tokenEndpoint and clientSecret so we can use them when we get redirected back
-  persistenceService.setLocalConfig(
+  await persistenceService.setLocalConfig(
     "oauth_temp_config",
     JSON.stringify(<PersistedOAuthConfig>{
       ...persistedOAuthConfig,
@@ -135,7 +185,7 @@ const initAuthCodeOauthFlow = async ({
 
   try {
     url = new URL(authEndpoint)
-  } catch (e) {
+  } catch (_e) {
     return E.left("INVALID_AUTH_ENDPOINT")
   }
 
@@ -150,6 +200,14 @@ const initAuthCodeOauthFlow = async ({
   if (codeVerifierMethod && codeChallenge) {
     url.searchParams.set("code_challenge", codeChallenge)
     url.searchParams.set("code_challenge_method", codeVerifierMethod)
+  }
+
+  if (authRequestParams.length > 0) {
+    authRequestParams.forEach((param) => {
+      if (param.active && param.key && param.value) {
+        url.searchParams.set(param.key, param.value)
+      }
+    })
   }
 
   // Redirect to the authorization server
@@ -198,25 +256,25 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
   }
 
   // exchange the code for a token
-  const formData = new URLSearchParams()
-  formData.append("grant_type", "authorization_code")
-  formData.append("code", code)
-  formData.append("client_id", decodedLocalConfig.data.clientID)
-  formData.append("client_secret", decodedLocalConfig.data.clientSecret)
-  formData.append("redirect_uri", OauthAuthService.redirectURI)
-
-  if (decodedLocalConfig.data.codeVerifier) {
-    formData.append("code_verifier", decodedLocalConfig.data.codeVerifier)
-  }
-
-  const { response } = interceptorService.runRequest({
+  const { response } = interceptorService.execute({
+    id: Date.now(),
     url: decodedLocalConfig.data.tokenEndpoint,
     method: "POST",
+    version: "HTTP/1.1",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
       Accept: "application/json",
     },
-    data: formData.toString(),
+    content: content.urlencoded({
+      code,
+      grant_type: "authorization_code",
+      client_id: decodedLocalConfig.data.clientID,
+      client_secret: decodedLocalConfig.data.clientSecret,
+      redirect_uri: OauthAuthService.redirectURI,
+      ...(decodedLocalConfig.data.codeVerifier && {
+        code_verifier: decodedLocalConfig.data.codeVerifier,
+      }),
+    }),
   })
 
   const res = await response
@@ -233,6 +291,7 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
 
   const withAccessTokenSchema = z.object({
     access_token: z.string(),
+    refresh_token: z.string().optional(),
   })
 
   const parsedTokenResponse = withAccessTokenSchema.safeParse(
@@ -288,5 +347,6 @@ export default createFlowConfig(
   "AUTHORIZATION_CODE" as const,
   AuthCodeOauthFlowParamsSchema,
   initAuthCodeOauthFlow,
-  handleRedirectForAuthCodeOauthFlow
+  handleRedirectForAuthCodeOauthFlow,
+  refreshToken
 )

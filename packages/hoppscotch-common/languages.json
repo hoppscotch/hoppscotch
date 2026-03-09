@@ -85,6 +85,12 @@
     "name": "Magyar"
   },
   {
+    "code": "hy",
+    "file": "hy.json",
+    "iso": "hy-AM",
+    "name": "Հայերեն"
+  },
+  {
     "code": "id",
     "file": "id.json",
     "iso": "id",

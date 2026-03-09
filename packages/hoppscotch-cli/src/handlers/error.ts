@@ -65,6 +65,9 @@ export const handleError = <T extends HoppErrorCode>(error: HoppError<T>) => {
     case "INVALID_FILE_TYPE":
       ERROR_MSG = `Please provide file of extension type .json: ${error.data}`;
       break;
+    case "INVALID_DATA_FILE_TYPE":
+      ERROR_MSG = `Please provide file of extension type .csv: ${error.data}`;
+      break;
     case "REQUEST_ERROR":
     case "TEST_SCRIPT_ERROR":
     case "PRE_REQUEST_SCRIPT_ERROR":
@@ -96,6 +99,10 @@ export const handleError = <T extends HoppErrorCode>(error: HoppError<T>) => {
       break;
     case "SERVER_CONNECTION_REFUSED":
       ERROR_MSG = `Unable to connect to the server. Please check your network connection or server instance URL and try again: ${error.data}`;
+      break;
+    case "REPORT_EXPORT_FAILED":
+      const moreInfo = error.data ? `: ${error.data}` : S.empty;
+      ERROR_MSG = `Failed to export the report at ${error.path}${moreInfo}`;
       break;
   }
 

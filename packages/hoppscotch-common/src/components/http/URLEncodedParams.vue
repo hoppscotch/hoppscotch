@@ -21,10 +21,10 @@
           @click="clearContent()"
         />
         <HoppButtonSecondary
-          v-if="bulkUrlEncodedParams"
+          v-if="isBulkEditing"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
-          :class="{ '!text-accent': WRAP_LINES }"
+          :class="{ '!text-accent': wrapLines }"
           :icon="IconWrapText"
           @click.prevent="toggleNestedSetting('WRAP_LINES', 'httpUrlEncoded')"
         />
@@ -32,19 +32,22 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.bulk_mode')"
           :icon="IconEdit"
-          :class="{ '!text-accent': bulkMode }"
-          @click="bulkMode = !bulkMode"
+          :class="{ '!text-accent': isBulkEditing }"
+          @click="toggleBulkEdit"
         />
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('add.new')"
           :icon="IconPlus"
-          :disabled="bulkMode"
+          :disabled="isBulkEditing"
           @click="addUrlEncodedParam"
         />
       </div>
     </div>
-    <div v-if="bulkMode" class="h-full relative">
+    <div
+      v-if="isBulkEditing"
+      class="h-full relative w-full flex flex-col flex-1"
+    >
       <div ref="bulkEditor" class="absolute inset-0"></div>
     </div>
     <div v-else>
@@ -57,6 +60,10 @@
         ghost-class="cursor-move"
         chosen-class="bg-primaryLight"
         drag-class="cursor-grabbing"
+        :move="
+          (event: DragDropEvent) =>
+            isDragDropAllowed(event, workingUrlEncodedParams.length)
+        "
       >
         <template #item="{ element: param, index }">
           <div
@@ -83,6 +90,7 @@
             </span>
             <SmartEnvInput
               v-model="param.key"
+              :class="{ 'opacity-50': !param.active }"
               :placeholder="`${t('count.parameter', { count: index + 1 })}`"
               :auto-complete-env="true"
               :envs="envs"
@@ -97,6 +105,7 @@
             />
             <SmartEnvInput
               v-model="param.value"
+              :class="{ 'opacity-50': !param.active }"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
               :auto-complete-env="true"
               :envs="envs"
@@ -150,7 +159,7 @@
         </template>
       </draggable>
       <HoppSmartPlaceholder
-        v-if="workingUrlEncodedParams.length === 0"
+        v-if="workingUrlEncodedParams.length === 0 && !isBulkEditing"
         :src="`/images/states/${colorMode.value}/add_category.svg`"
         :alt="`${t('empty.body')}`"
         :text="t('empty.body')"
@@ -190,7 +199,6 @@ import {
 import { flow, pipe } from "fp-ts/function"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
-import * as RA from "fp-ts/ReadonlyArray"
 import * as E from "fp-ts/Either"
 import draggable from "vuedraggable-es"
 import { useCodemirror } from "@composables/codemirror"
@@ -205,6 +213,7 @@ import { useVModel } from "@vueuse/core"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { AggregateEnvironment } from "~/newstore/environments"
+import { isDragDropAllowed, DragDropEvent } from "~/helpers/dragDropValidation"
 
 type Body = HoppRESTReqBody & {
   contentType: "application/x-www-form-urlencoded"
@@ -227,27 +236,7 @@ const colorMode = useColorMode()
 
 const idTicker = ref(0)
 
-const bulkMode = ref(false)
-const bulkUrlEncodedParams = ref("")
-const bulkEditor = ref<any | null>(null)
-const WRAP_LINES = useNestedSetting("WRAP_LINES", "httpUrlEncoded")
-
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
-
-useCodemirror(
-  bulkEditor,
-  bulkUrlEncodedParams,
-  reactive({
-    extendedEditorConfig: {
-      mode: "text/x-yaml",
-      placeholder: `${t("state.bulk_mode_placeholder")}`,
-      lineWrapping: WRAP_LINES,
-    },
-    linter,
-    completer: null,
-    environmentHighlights: true,
-  })
-)
 
 // The functional urlEncodedParams list (the urlEncodedParams actually in the system)
 const urlEncodedParamsRaw = pluckRef(body, "body")
@@ -302,26 +291,10 @@ watch(
       )
     )
 
-    const filteredBulkUrlEncodedParams = pipe(
-      parseRawKeyValueEntriesE(bulkUrlEncodedParams.value),
-      E.map(
-        flow(
-          RA.filter((e) => e.key !== ""),
-          RA.toArray
-        )
-      )
-    )
-
     if (!isEqual(newurlEncodedParamList, filteredWorkingUrlEncodedParams)) {
       workingUrlEncodedParams.value = pipe(
         newurlEncodedParamList,
         A.map((x) => ({ id: idTicker.value++, ...x }))
-      )
-    }
-
-    if (!isEqual(newurlEncodedParamList, filteredBulkUrlEncodedParams)) {
-      bulkUrlEncodedParams.value = rawKeyValueEntriesToString(
-        newurlEncodedParamList
       )
     }
   },
@@ -341,23 +314,6 @@ watch(workingUrlEncodedParams, (newWorkingUrlEncodedParams) => {
 
   if (!isEqual(urlEncodedParams.value, fixedUrlEncodedParams)) {
     urlEncodedParams.value = fixedUrlEncodedParams
-  }
-})
-
-watch(bulkUrlEncodedParams, (newBulkUrlEncodedParams) => {
-  const filteredBulkParams = pipe(
-    parseRawKeyValueEntriesE(newBulkUrlEncodedParams),
-    E.map(
-      flow(
-        RA.filter((e) => e.key !== ""),
-        RA.toArray
-      )
-    ),
-    E.getOrElse(() => [] as RawKeyValueEntry[])
-  )
-
-  if (!isEqual(urlEncodedParams.value, filteredBulkParams)) {
-    urlEncodedParams.value = filteredBulkParams
   }
 })
 
@@ -422,6 +378,72 @@ const deleteUrlEncodedParam = (index: number) => {
   )
 }
 
+const convertWorkingParamsToBulkEditContent = (params: RawKeyValueEntry[]) => {
+  return params
+    .filter((param) => param.key !== "")
+    .map((param) => `${!param.active ? "# " : ""}${param.key}: ${param.value}`)
+    .join("\n")
+}
+
+const bulkEditor = ref<HTMLElement | null>(null)
+const bulkEditContent = ref<string | undefined>(
+  convertWorkingParamsToBulkEditContent(urlEncodedParams.value)
+)
+const isBulkEditing = ref(body.value.isBulkEditing)
+const wrapLines = useNestedSetting("WRAP_LINES", "httpUrlEncoded")
+
+watch(isBulkEditing, () => {
+  body.value.isBulkEditing = isBulkEditing.value
+})
+
+// update working params when bulk edit content changes
+watch(bulkEditContent, () => {
+  if (isBulkEditing.value && bulkEditContent.value !== undefined) {
+    const res = parseRawKeyValueEntriesE(bulkEditContent.value)
+
+    if (E.isLeft(res)) {
+      return
+    }
+
+    workingUrlEncodedParams.value = [
+      ...res.right.map((entry) => ({
+        id: idTicker.value++,
+        key: entry.key,
+        value: entry.value,
+        active: entry.active,
+      })),
+    ]
+  }
+})
+
+const toggleBulkEdit = () => {
+  isBulkEditing.value = !isBulkEditing.value
+
+  if (isBulkEditing.value) {
+    bulkEditContent.value = convertWorkingParamsToBulkEditContent(
+      workingUrlEncodedParams.value
+    )
+  } else {
+    bulkEditContent.value = undefined
+  }
+}
+
+useCodemirror(
+  bulkEditor,
+  bulkEditContent,
+  reactive({
+    extendedEditorConfig: {
+      mode: "text/x-yaml",
+      placeholder: t("state.bulk_mode_placeholder").toString(),
+      lineWrapping: wrapLines,
+    },
+    linter,
+    completer: null,
+    environmentHighlights: true,
+    predefinedVariablesHighlights: true,
+  })
+)
+
 const clearContent = () => {
   // set urlEncodedParams list to the initial state
   workingUrlEncodedParams.value = [
@@ -433,7 +455,7 @@ const clearContent = () => {
     },
   ]
 
-  bulkUrlEncodedParams.value = ""
+  bulkEditContent.value = ""
 }
 </script>
 

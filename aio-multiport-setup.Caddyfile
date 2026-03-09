@@ -1,3 +1,8 @@
+{
+	admin off
+	persist_config off
+}
+
 :3000 {
 	try_files {path} /
 	root * /site/selfhost-web
@@ -11,9 +16,16 @@
 }
 
 :3170 {
-	reverse_proxy localhost:8080
-}
-
-:80 {
-	respond 404
+	@mock {
+		header_regexp host Host ^[^.]+\.mock\..*$
+	}
+	
+	handle @mock {
+		rewrite * /mock{uri}
+		reverse_proxy localhost:8080
+	}
+	
+	handle {
+		reverse_proxy localhost:8080
+	}
 }

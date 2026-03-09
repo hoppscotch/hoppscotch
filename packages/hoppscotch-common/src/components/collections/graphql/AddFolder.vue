@@ -43,7 +43,7 @@ const toast = useToast()
 const props = defineProps<{
   show: boolean
   folderPath?: string
-  collectionIndex: number
+  collectionIndex?: number
 }>()
 
 const emit = defineEmits<{

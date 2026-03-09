@@ -1,18 +1,11 @@
 <template>
-  <div class="flex flex-col">
-    <HoppSmartExpand v-if="showExpand">
-      <template #body>
-        <HoppSmartItem
-          v-for="importer in importers"
-          :key="importer.id"
-          :icon="importer.icon"
-          :label="t(`${importer.name}`)"
-          @click="emit('importer-selected', importer.id)"
-        />
-      </template>
-    </HoppSmartExpand>
-
-    <div v-else class="flex flex-col space-y-2">
+  <div
+    class="flex flex-col"
+    :class="{
+      'space-y-2': !hasTeamWriteAccess,
+    }"
+  >
+    <div class="flex flex-col space-y-2">
       <HoppSmartItem
         v-for="importer in importers"
         :key="importer.id"
@@ -21,7 +14,7 @@
         @click="emit('importer-selected', importer.id)"
       />
     </div>
-    <hr />
+    <hr v-if="hasTeamWriteAccess" />
     <div class="flex flex-col space-y-2">
       <template v-for="exporter in exporters" :key="exporter.id">
         <!-- adding the title to a span if the item is visible, otherwise the title won't be shown -->
@@ -59,7 +52,7 @@
 
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
-import { Component, computed } from "vue"
+import { Component } from "vue"
 
 const t = useI18n()
 
@@ -73,15 +66,14 @@ type ImportExportEntryMeta = {
   isVisible?: boolean
 }
 
-const props = defineProps<{
+defineProps<{
   importers: ImportExportEntryMeta[]
   exporters: ImportExportEntryMeta[]
+  hasTeamWriteAccess: boolean
 }>()
 
 const emit = defineEmits<{
   (e: "importer-selected", importerID: string): void
   (e: "exporter-selected", exporterID: string): void
 }>()
-
-const showExpand = computed(() => props.importers.length >= 4)
 </script>

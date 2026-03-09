@@ -1,0 +1,42 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Capability for the main window and all app:// origins",
+  "windows": ["*"],
+  "webviews": ["*"],
+  "remote": {
+    "urls": ["app://*"]
+  },
+  "permissions": [
+    "core:default",
+    "core:window:default",
+    "core:window:allow-start-dragging",
+    "core:event:default",
+    "core:path:default",
+    "core:webview:default",
+    "shell:allow-open",
+    "store:default",
+    "dialog:default",
+    "process:default",
+    "updater:default",
+    "fs:allow-copy-file",
+    "fs:allow-remove",
+    "fs:allow-exists",
+    "fs:allow-read-file",
+    "fs:allow-read-dir",
+    "fs:allow-write-file",
+    "fs:allow-write-text-file",
+    {
+      "identifier": "fs:scope",
+      "allow": [
+        { "path": "$APPCONFIG" },
+        { "path": "$APPCONFIG/**" },
+        { "path": "$APPDATA" },
+        { "path": "$APPDATA/**" }
+      ]
+    },
+    "deep-link:default",
+    "appload:default",
+    "relay:default"
+  ]
+}

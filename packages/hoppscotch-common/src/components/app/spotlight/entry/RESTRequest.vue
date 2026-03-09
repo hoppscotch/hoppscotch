@@ -7,9 +7,9 @@
       <icon-lucide-chevron-right class="flex flex-shrink-0" />
     </template>
     <span
-      v-if="request"
+      v-if="request && 'method' in request"
       class="flex flex-shrink-0 truncate rounded-md border border-dividerDark px-1 text-tiny font-semibold"
-      :style="{ color: getMethodLabelColorClassOf(request) }"
+      :style="{ color: getMethodLabelColorClassOf(request.method) }"
     >
       {{ request.method.toUpperCase() }}
     </span>
@@ -64,7 +64,7 @@ const request = computed(() => {
     return pathFolders.value[pathFolders.value.length - 1].requests[
       requestIndex
     ]
-  } catch (e) {
+  } catch (_e) {
     return null
   }
 })

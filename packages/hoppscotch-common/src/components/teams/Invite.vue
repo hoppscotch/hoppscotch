@@ -34,8 +34,9 @@
             <div
               v-for="(invitee, index) in successInvites"
               :key="`invitee-${index}`"
+              class="flex items-center"
             >
-              <p class="flex items-center">
+              <p class="flex items-center flex-1">
                 <component
                   :is="IconMailCheck"
                   class="svg-icons mr-4 text-green-500"
@@ -69,6 +70,7 @@
             <div
               v-for="(invitee, index) in failedInvites"
               :key="`invitee-${index}`"
+              class="flex flex-col"
             >
               <p class="flex items-center">
                 <component
@@ -77,7 +79,7 @@
                 />
                 <span class="truncate">{{ invitee.email }}</span>
               </p>
-              <p class="ml-8 mt-2 text-red-500">
+              <p class="ml-8 mt-1 text-secondaryLight text-tiny">
                 {{ getErrorMessage(invitee.error) }}
               </p>
             </div>
@@ -230,7 +232,7 @@
                       :active="invitee.value === 'OWNER'"
                       @click="
                         () => {
-                          updateNewInviteeRole(index, TeamMemberRole.Owner)
+                          updateNewInviteeRole(index, TeamAccessRole.Owner)
                           hide()
                         }
                       "
@@ -243,7 +245,7 @@
                       :active="invitee.value === 'EDITOR'"
                       @click="
                         () => {
-                          updateNewInviteeRole(index, TeamMemberRole.Editor)
+                          updateNewInviteeRole(index, TeamAccessRole.Editor)
                           hide()
                         }
                       "
@@ -256,7 +258,7 @@
                       :active="invitee.value === 'VIEWER'"
                       @click="
                         () => {
-                          updateNewInviteeRole(index, TeamMemberRole.Viewer)
+                          updateNewInviteeRole(index, TeamAccessRole.Viewer)
                           hide()
                         }
                       "
@@ -358,7 +360,7 @@
               newInvites = [
                 {
                   key: '',
-                  value: TeamMemberRole.Viewer,
+                  value: TeamAccessRole.Viewer,
                 },
               ]
             }
@@ -388,46 +390,46 @@
 </template>
 
 <script setup lang="ts">
-import { watch, ref, reactive, computed, Ref, onMounted } from "vue"
-import * as T from "fp-ts/Task"
-import * as E from "fp-ts/Either"
+import { useGQLQuery } from "@composables/graphql"
 import * as A from "fp-ts/Array"
+import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
+import * as T from "fp-ts/Task"
 import { flow, pipe } from "fp-ts/function"
-import { Email, EmailCodec } from "../../helpers/backend/types/Email"
+import { computed, onMounted, reactive, ref, Ref, watch } from "vue"
+import { GQLError } from "~/helpers/backend/GQLClient"
 import {
-  TeamInvitationAddedDocument,
-  TeamInvitationRemovedDocument,
-  TeamMemberRole,
   GetPendingInvitesDocument,
   GetPendingInvitesQuery,
   GetPendingInvitesQueryVariables,
+  TeamInvitationAddedDocument,
+  TeamInvitationRemovedDocument,
+  TeamAccessRole,
 } from "../../helpers/backend/graphql"
 import {
   createTeamInvitation,
   CreateTeamInvitationErrors,
   revokeTeamInvitation,
 } from "../../helpers/backend/mutations/TeamInvitation"
-import { GQLError } from "~/helpers/backend/GQLClient"
-import { useGQLQuery } from "@composables/graphql"
+import { Email, EmailCodec } from "../../helpers/backend/types/Email"
 
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { useColorMode } from "~/composables/theming"
 
-import IconTrash from "~icons/lucide/trash"
-import IconPlus from "~icons/lucide/plus"
-import IconAlertTriangle from "~icons/lucide/alert-triangle"
-import IconMailCheck from "~icons/lucide/mail-check"
-import IconCircleDot from "~icons/lucide/circle-dot"
-import IconCircle from "~icons/lucide/circle"
-import IconArrowLeft from "~icons/lucide/arrow-left"
-import IconCopy from "~icons/lucide/copy"
-import IconCheck from "~icons/lucide/check"
-import { TippyComponent } from "vue-tippy"
 import { refAutoReset } from "@vueuse/core"
+import { TippyComponent } from "vue-tippy"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { platform } from "~/platform"
+import IconAlertTriangle from "~icons/lucide/alert-triangle"
+import IconArrowLeft from "~icons/lucide/arrow-left"
+import IconCheck from "~icons/lucide/check"
+import IconCircle from "~icons/lucide/circle"
+import IconCircleDot from "~icons/lucide/circle-dot"
+import IconCopy from "~icons/lucide/copy"
+import IconMailCheck from "~icons/lucide/mail-check"
+import IconPlus from "~icons/lucide/plus"
+import IconTrash from "~icons/lucide/trash"
 
 const copyIcons: Record<string, Ref<typeof IconCopy | typeof IconCheck>> = {}
 const getCopyIcon = (id: string) => {
@@ -461,6 +463,8 @@ const emit = defineEmits<{
 
 const inviteMethod = ref<"email" | "link">("email")
 
+let organizationDomain = ""
+
 onMounted(async () => {
   const getIsSMTPEnabled = platform.infra?.getIsSMTPEnabled
 
@@ -470,6 +474,18 @@ onMounted(async () => {
     if (E.isRight(res)) {
       inviteMethod.value = res.right ? "email" : "link"
     }
+  }
+
+  const { organization } = platform
+
+  if (!organization) {
+    return
+  }
+
+  if (!organization.isDefaultCloudInstance) {
+    const orgInfo = await organization.getOrgInfo()
+
+    organizationDomain = orgInfo?.orgDomain ?? ""
   }
 })
 
@@ -483,6 +499,7 @@ const pendingInvites = useGQLQuery<
     teamID: props.editingTeamID,
   }),
   pollDuration: 10000,
+  pollLoadingEnabled: false,
   updateSubs: computed(() =>
     !props.editingTeamID
       ? []
@@ -541,21 +558,21 @@ const removeInvitee = async (id: string, index: number) => {
   isLoadingIndex.value = null
 }
 
-const newInvites = ref<Array<{ key: string; value: TeamMemberRole }>>([
+const newInvites = ref<Array<{ key: string; value: TeamAccessRole }>>([
   {
     key: "",
-    value: TeamMemberRole.Viewer,
+    value: TeamAccessRole.Viewer,
   },
 ])
 
 const addNewInvitee = () => {
   newInvites.value.push({
     key: "",
-    value: TeamMemberRole.Viewer,
+    value: TeamAccessRole.Viewer,
   })
 }
 
-const updateNewInviteeRole = (index: number, role: TeamMemberRole) => {
+const updateNewInviteeRole = (index: number, role: TeamAccessRole) => {
   newInvites.value[index].value = role
 }
 
@@ -564,9 +581,18 @@ const removeNewInvitee = (id: number) => {
 }
 
 const copyInviteLink = (invitationID: string) => {
-  copyToClipboard(
-    `${import.meta.env.VITE_BASE_URL}/join-team?id=${invitationID}`
-  )
+  let inviteLink = ""
+
+  const { organization } = platform
+
+  if (organization && !organization.isDefaultCloudInstance) {
+    const rootDomain = organization?.getRootDomain()
+    inviteLink = `https://${organizationDomain}.${rootDomain}/join-team?id=${invitationID}`
+  } else {
+    inviteLink = `${import.meta.env.VITE_BASE_URL}/join-team?id=${invitationID}`
+  }
+
+  copyToClipboard(inviteLink)
 
   getCopyIcon(invitationID).value = IconCheck
 }
@@ -597,7 +623,7 @@ const sendInvites = async () => {
   const validationResult = pipe(
     newInvites.value,
     O.fromPredicate(
-      (invites): invites is Array<{ key: Email; value: TeamMemberRole }> =>
+      (invites): invites is Array<{ key: Email; value: TeamAccessRole }> =>
         pipe(
           invites,
           A.every((invitee) => EmailCodec.is(invitee.key))
@@ -660,6 +686,8 @@ const getErrorMessage = (error: SendInvitesErrorType) => {
       return t("team.already_member")
     case "team_invite/member_has_invite":
       return t("team.member_has_invite")
+    case "user/not_found":
+      return t("team.user_not_found")
   }
 }
 
@@ -669,7 +697,7 @@ const hideModal = () => {
   newInvites.value = [
     {
       key: "",
-      value: TeamMemberRole.Viewer,
+      value: TeamAccessRole.Viewer,
     },
   ]
   emit("hide-modal")

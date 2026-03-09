@@ -1,10 +1,10 @@
 <template>
   <section class="p-4">
     <h4 class="font-semibold text-secondaryDark">
-      {{ t("settings.delete_account") }}
+      {{ deleteAccountLabel }}
     </h4>
     <div class="my-1 mb-4 text-secondaryLight">
-      {{ t("settings.delete_account_description") }}
+      {{ deleteAccountDescription }}
     </div>
     <HoppButtonSecondary
       filled
@@ -16,7 +16,7 @@
     <HoppSmartModal
       v-if="showDeleteAccountModal"
       dialog
-      :title="t('settings.delete_account')"
+      :title="deleteAccountLabel"
       @close="showDeleteAccountModal = false"
     >
       <template #body>
@@ -36,6 +36,12 @@
             <ul class="my-4 ml-8 list-disc space-y-2">
               <li v-for="team in myTeams" :key="team.id">
                 {{ team.name }}
+
+                <component
+                  :is="platform.ui.additionalUserDeletionSoleTeamOwnerInfo"
+                  v-if="platform.ui?.additionalUserDeletionSoleTeamOwnerInfo"
+                  :team="team"
+                />
               </li>
             </ul>
             <span class="font-semibold">
@@ -51,7 +57,7 @@
               {{ t("error.danger_zone") }}
             </h2>
             <div class="font-medium text-secondaryDark">
-              {{ t("settings.delete_account_description") }}
+              {{ deleteAccountDescription }}
             </div>
           </div>
           <div class="flex flex-col">
@@ -101,13 +107,13 @@
 <script setup lang="ts">
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
-import { ref, watch } from "vue"
-import { GQLError, runGQLQuery } from "~/helpers/backend/GQLClient"
+import { GQLError } from "~/helpers/backend/GQLClient"
 import * as E from "fp-ts/Either"
+import { computed, ref, watch } from "vue"
 import { useRouter } from "vue-router"
 import { useI18n } from "~/composables/i18n"
+import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { useToast } from "~/composables/toast"
-import { GetMyTeamsDocument, GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { deleteUser } from "~/helpers/backend/mutations/Profile"
 import { platform } from "~/platform"
 
@@ -119,6 +125,7 @@ const showDeleteAccountModal = ref(false)
 const userVerificationInput = ref("")
 
 const loading = ref(true)
+
 const myTeams = ref<GetMyTeamsQuery["myTeams"]>([])
 
 watch(showDeleteAccountModal, (isModalOpen) => {
@@ -127,12 +134,23 @@ watch(showDeleteAccountModal, (isModalOpen) => {
   }
 })
 
+const deleteAccountLabel = computed(() =>
+  platform.organization
+    ? t("organization.delete_account")
+    : t("settings.delete_account")
+)
+
+const deleteAccountDescription = computed(() =>
+  platform.organization
+    ? t("organization.delete_account_description")
+    : t("settings.delete_account_description")
+)
+
 const fetchMyTeams = async () => {
   loading.value = true
-  const result = await runGQLQuery({
-    query: GetMyTeamsDocument,
-    variables: {},
-  })
+
+  const result = await platform.backend.getUserTeams(undefined, true)
+
   loading.value = false
 
   if (E.isLeft(result)) {
@@ -173,6 +191,16 @@ const deleteUserAccount = async () => {
 const getErrorMessage = (err: GQLError<string>) => {
   if (err.type === "network_error") {
     return t("error.network_error")
+  }
+
+  const { error } = err
+
+  if (error.includes("user/is_sole_admin")) {
+    return t("organization.user_deletion_failed_sole_admin")
+  }
+
+  if (error.includes("user/is_owner")) {
+    return t("organization.user_deletion_failed_sole_team_owner")
   }
 
   return t("error.something_went_wrong")

@@ -5,7 +5,7 @@ import { SandboxTestResult, TestResponse, TestResult } from "~/types"
 import {
   getTestRunnerScriptMethods,
   preventCyclicObjects,
-} from "~/shared-utils"
+} from "~/utils/shared"
 
 const executeScriptInContext = (
   testScript: string,
@@ -26,12 +26,17 @@ const executeScriptInContext = (
     // Execute the script
     executeScript({ ...pw, response: responseObjHandle.right })
 
-    return TE.right(<SandboxTestResult>{
+    return TE.right({
       tests: testRunStack[0],
       envs: updatedEnvs,
-    })
+      updatedCookies: null,
+    } satisfies SandboxTestResult)
   } catch (error) {
-    return TE.left(`Script execution failed: ${(error as Error).message}`)
+    return TE.left(
+      `Script execution failed: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    )
   }
 }
 

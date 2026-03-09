@@ -6,16 +6,19 @@ import { z } from "zod"
 
 import V0_VERSION from "./v/0"
 import V1_VERSION, { uniqueID } from "./v/1"
+import V2_VERSION from "./v/2"
+import { HOPP_SUPPORTED_PREDEFINED_VARIABLES } from "../predefinedVariables"
 
 const versionedObject = z.object({
   v: z.number(),
 })
 
 export const Environment = createVersionedEntity({
-  latestVersion: 1,
+  latestVersion: 2,
   versionMap: {
     0: V0_VERSION,
     1: V1_VERSION,
+    2: V2_VERSION,
   },
   getVersion(data) {
     const versionCheck = versionedObject.safeParse(data)
@@ -47,7 +50,7 @@ const ENV_MAX_EXPAND_LIMIT = 10
  */
 const ENV_EXPAND_LOOP = "ENV_EXPAND_LOOP" as const
 
-export const EnvironmentSchemaVersion = 1
+export const EnvironmentSchemaVersion = 2
 
 export function parseBodyEnvVariablesE(
   body: string,
@@ -58,12 +61,21 @@ export function parseBodyEnvVariablesE(
 
   while (result.match(REGEX_ENV_VAR) != null && depth <= ENV_MAX_EXPAND_LIMIT) {
     result = result.replace(REGEX_ENV_VAR, (key) => {
-      const found = env.find(
-        (envVar) => envVar.key === key.replace(/[<>]/g, "")
+      const variableName = key.replace(/[<>]/g, "")
+
+      // Prioritise predefined variable values over normal environment variables processing.
+      const foundPredefinedVar = HOPP_SUPPORTED_PREDEFINED_VARIABLES.find(
+        (preVar) => preVar.key === variableName
       )
 
-      if (found && "value" in found) {
-        return found.value
+      if (foundPredefinedVar) {
+        return foundPredefinedVar.getValue()
+      }
+
+      const foundEnv = env.find((envVar) => envVar.key === variableName)
+
+      if (foundEnv && "currentValue" in foundEnv) {
+        return foundEnv.currentValue
       }
       return key
     })
@@ -90,10 +102,10 @@ export const parseBodyEnvVariables = (
 
 export function parseTemplateStringE(
   str: string,
-  variables:
-    | Environment["variables"]
-    | { secret: true; value: string; key: string }[],
-  maskValue = false
+  variables: Environment["variables"],
+  maskValue = false,
+  showKeyIfSecret = false,
+  showKeyIfNotFound = false
 ) {
   if (!variables || !str) {
     return E.right(str)
@@ -101,24 +113,62 @@ export function parseTemplateStringE(
 
   let result = str
   let depth = 0
+  let isSecret = false
 
-  while (result.match(REGEX_ENV_VAR) != null && depth <= ENV_MAX_EXPAND_LIMIT) {
-    result = decodeURI(encodeURI(result)).replace(REGEX_ENV_VAR, (_, p1) => {
-      const variable = variables.find((x) => x && x.key === p1)
+  while (
+    result.match(REGEX_ENV_VAR) != null &&
+    depth <= ENV_MAX_EXPAND_LIMIT &&
+    !isSecret
+  ) {
+    const currentResult = decodeURI(encodeURI(result)).replace(
+      REGEX_ENV_VAR,
+      (_, p1) => {
+        // Prioritise predefined variable values over normal environment variables processing.
+        const foundPredefinedVar = HOPP_SUPPORTED_PREDEFINED_VARIABLES.find(
+          (preVar) => preVar.key === p1
+        )
 
-      if (variable && "value" in variable) {
-        // Mask the value if it is a secret and explicitly specified
-        if (variable.secret && maskValue) {
-          return "*".repeat(
-            (variable as { secret: true; value: string; key: string }).value
-              .length
-          )
+        if (foundPredefinedVar) {
+          return foundPredefinedVar.getValue()
         }
-        return variable.value
-      }
 
-      return ""
-    })
+        const variable = variables.find((x) => x && x.key === p1)
+
+        if (variable && "currentValue" in variable) {
+          // Show the key if it is a secret and explicitly specified
+          if (variable.secret && showKeyIfSecret) {
+            isSecret = true
+            return `<<${p1}>>`
+          }
+          // Mask the value if it is a secret and explicitly specified
+          if (variable.secret && maskValue) {
+            return "*".repeat(
+              (
+                variable as {
+                  secret: true
+                  initialValue: string
+                  currentValue: string
+                  key: string
+                }
+              ).currentValue.length
+            )
+          }
+          return variable.currentValue
+        }
+
+        if (showKeyIfNotFound) {
+          return `<<${p1}>>`
+        }
+
+        return ""
+      }
+    )
+
+    if (currentResult === result) {
+      break
+    }
+
+    result = currentResult
     depth++
   }
 
@@ -141,13 +191,19 @@ export type NonSecretEnvironment = Omit<Environment, "variables"> & {
  */
 export const parseTemplateString = (
   str: string,
-  variables:
-    | Environment["variables"]
-    | { secret: true; value: string; key: string }[],
-  maskValue = false
+  variables: Environment["variables"],
+  maskValue = false,
+  showKeyIfSecret = false,
+  showKeyIfNotFound = false
 ) =>
   pipe(
-    parseTemplateStringE(str, variables, maskValue),
+    parseTemplateStringE(
+      str,
+      variables,
+      maskValue,
+      showKeyIfSecret,
+      showKeyIfNotFound
+    ),
     E.getOrElse(() => str)
   )
 
@@ -156,8 +212,9 @@ export const translateToNewEnvironmentVariables = (
 ): Environment["variables"][number] => {
   return {
     key: x.key,
-    value: x.value,
-    secret: false,
+    initialValue: x.initialValue ?? x.value ?? "",
+    currentValue: x.currentValue ?? x.value ?? "",
+    secret: x.secret ?? false,
   }
 }
 

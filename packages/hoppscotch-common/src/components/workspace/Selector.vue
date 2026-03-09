@@ -1,5 +1,5 @@
 <template>
-  <div ref="rootEl">
+  <div class="flex flex-col">
     <div class="flex flex-col">
       <div
         v-for="(selectorComponent, index) in workspaceSelectorComponents"
@@ -12,6 +12,7 @@
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { useService } from "dioc/vue"
 import { NewWorkspaceService } from "~/services/new-workspace"

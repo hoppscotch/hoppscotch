@@ -1,3 +1,5 @@
+import * as E from "fp-ts/Either"
+import * as O from "fp-ts/Option"
 import {
   OauthAuthService,
   createFlowConfig,
@@ -5,35 +7,39 @@ import {
 } from "../oauth.service"
 import { z } from "zod"
 import { getService } from "~/modules/dioc"
-import * as E from "fp-ts/Either"
-import { InterceptorService } from "~/services/interceptor.service"
+import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { useToast } from "~/composables/toast"
+import { content } from "@hoppscotch/kernel"
+import { parseBytesToJSON } from "~/helpers/functional/json"
+import { refreshToken, OAuth2ParamSchema } from "../utils"
 import { PasswordGrantTypeParams } from "@hoppscotch/data"
 
-const interceptorService = getService(InterceptorService)
+const interceptorService = getService(KernelInterceptorService)
 
-const PasswordFlowParamsSchema = PasswordGrantTypeParams.pick({
-  authEndpoint: true,
-  clientID: true,
-  clientSecret: true,
-  scopes: true,
-  username: true,
-  password: true,
-}).refine(
-  (params) => {
-    return (
-      params.authEndpoint.length >= 1 &&
-      params.clientID.length >= 1 &&
-      params.clientSecret.length >= 1 &&
-      params.username.length >= 1 &&
-      params.password.length >= 1 &&
-      (!params.scopes || params.scopes.length >= 1)
-    )
-  },
-  {
-    message: "Minimum length requirement not met for one or more parameters",
-  }
-)
+// Use the existing schema from hoppscotch-data
+const PasswordFlowParamsSchema = PasswordGrantTypeParams.omit({
+  grantType: true,
+  token: true,
+})
+  .extend({
+    // Override optional arrays to be required for the service layer
+    tokenRequestParams: z.array(OAuth2ParamSchema),
+    refreshRequestParams: z.array(OAuth2ParamSchema),
+  })
+  .refine(
+    (params) => {
+      return (
+        params.authEndpoint.length >= 1 &&
+        params.clientID.length >= 1 &&
+        params.username.length >= 1 &&
+        params.password.length >= 1 &&
+        (!params.scopes || params.scopes.length >= 1)
+      )
+    },
+    {
+      message: "Minimum length requirement not met for one or more parameters",
+    }
+  )
 
 export type PasswordFlowParams = z.infer<typeof PasswordFlowParamsSchema>
 
@@ -44,6 +50,8 @@ export const getDefaultPasswordFlowParams = (): PasswordFlowParams => ({
   scopes: undefined,
   username: "",
   password: "",
+  tokenRequestParams: [],
+  refreshRequestParams: [],
 })
 
 const initPasswordOauthFlow = async ({
@@ -53,28 +61,58 @@ const initPasswordOauthFlow = async ({
   clientSecret,
   scopes,
   authEndpoint,
+  tokenRequestParams,
 }: PasswordFlowParams) => {
   const toast = useToast()
 
-  const formData = new URLSearchParams()
-  formData.append("grant_type", "password")
-  formData.append("client_id", clientID)
-  formData.append("client_secret", clientSecret)
-  formData.append("username", username)
-  formData.append("password", password)
-
-  if (scopes) {
-    formData.append("scope", scopes)
+  const headers: Record<string, string> = {
+    "Content-Type": "application/x-www-form-urlencoded",
+    Accept: "application/json",
   }
 
-  const { response } = interceptorService.runRequest({
-    url: authEndpoint,
+  const bodyParams: Record<string, string> = {
+    grant_type: "password",
+    client_id: clientID,
+    username,
+    password,
+    ...(clientSecret && {
+      client_secret: clientSecret,
+    }),
+    ...(scopes && {
+      scope: scopes,
+    }),
+  }
+
+  const urlParams: Record<string, string> = {}
+
+  // Process additional token request parameters
+  if (tokenRequestParams) {
+    tokenRequestParams
+      .filter((param) => param.active && param.key && param.value)
+      .forEach((param) => {
+        if (param.sendIn === "headers") {
+          headers[param.key] = param.value
+        } else if (param.sendIn === "url") {
+          urlParams[param.key] = param.value
+        } else {
+          // Default to body
+          bodyParams[param.key] = param.value
+        }
+      })
+  }
+
+  const url = new URL(authEndpoint)
+  Object.entries(urlParams).forEach(([key, value]) => {
+    url.searchParams.set(key, value)
+  })
+
+  const { response } = interceptorService.execute({
+    id: Date.now(),
+    url: url.toString(),
     method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Accept: "application/json",
-    },
-    data: formData.toString(),
+    version: "HTTP/1.1",
+    headers,
+    content: content.urlencoded(bodyParams),
   })
 
   const res = await response
@@ -84,25 +122,24 @@ const initPasswordOauthFlow = async ({
     return E.left("AUTH_TOKEN_REQUEST_FAILED" as const)
   }
 
-  const responsePayload = new TextDecoder("utf-8")
-    .decode(res.right.data as any)
-    .replaceAll("\x00", "")
-
   const withAccessTokenSchema = z.object({
     access_token: z.string(),
   })
 
-  const parsedTokenResponse = withAccessTokenSchema.safeParse(
-    JSON.parse(responsePayload)
+  const responsePayload = parseBytesToJSON<{ access_token: string }>(
+    res.right.body.body
   )
 
-  if (!parsedTokenResponse.success) {
-    toast.error("AUTH_TOKEN_REQUEST_INVALID_RESPONSE")
+  if (O.isSome(responsePayload)) {
+    const parsedTokenResponse = withAccessTokenSchema.safeParse(
+      responsePayload.value
+    )
+    return parsedTokenResponse.success
+      ? E.right(parsedTokenResponse.data)
+      : E.left("AUTH_TOKEN_REQUEST_INVALID_RESPONSE" as const)
   }
 
-  return parsedTokenResponse.success
-    ? E.right(parsedTokenResponse.data)
-    : E.left("AUTH_TOKEN_REQUEST_INVALID_RESPONSE" as const)
+  return E.left("AUTH_TOKEN_REQUEST_INVALID_RESPONSE" as const)
 }
 
 const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
@@ -140,20 +177,23 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
   }
 
   // exchange the code for a token
-  const formData = new URLSearchParams()
-  formData.append("code", code)
-  formData.append("client_id", decodedLocalConfig.data.clientID)
-  formData.append("client_secret", decodedLocalConfig.data.clientSecret)
-  formData.append("redirect_uri", OauthAuthService.redirectURI)
+  const config = {
+    code,
+    client_id: decodedLocalConfig.data.clientID,
+    client_secret: decodedLocalConfig.data.clientSecret,
+    redirect_uri: OauthAuthService.redirectURI,
+  }
 
-  const { response } = interceptorService.runRequest({
+  const { response } = interceptorService.execute({
+    id: Date.now(),
     url: decodedLocalConfig.data.tokenEndpoint,
     method: "POST",
+    version: "HTTP/1.1",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
       Accept: "application/json",
     },
-    data: formData.toString(),
+    content: content.urlencoded(config),
   })
 
   const res = await response
@@ -185,5 +225,6 @@ export default createFlowConfig(
   "PASSWORD" as const,
   PasswordFlowParamsSchema,
   initPasswordOauthFlow,
-  handleRedirectForAuthCodeOauthFlow
+  handleRedirectForAuthCodeOauthFlow,
+  refreshToken
 )

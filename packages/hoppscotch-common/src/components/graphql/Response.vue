@@ -1,5 +1,6 @@
 <template>
   <div class="flex flex-1 flex-col overflow-auto whitespace-nowrap">
+    <GraphqlResponseMeta :response="response" />
     <div
       v-if="
         response && response.length === 1 && response[0].type === 'response'
@@ -46,7 +47,7 @@
           >
             <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              :title="t('app.copy_interface_type')"
+              :title="t('action.more')"
               :icon="IconMore"
             />
             <template #content="{ hide }">
@@ -57,23 +58,22 @@
                 @keyup.escape="hide()"
               >
                 <HoppSmartItem
-                  v-for="(language, index) in interfaceLanguages"
-                  :key="index"
-                  :label="language"
-                  :icon="
-                    copiedInterfaceLanguage === language
-                      ? copyInterfaceIcon
-                      : IconCopy
+                  :label="t('response.generate_data_schema')"
+                  :icon="IconNetwork"
+                  @click="
+                    () => {
+                      invokeAction('response.schema.toggle')
+                      hide()
+                    }
                   "
-                  @click="runCopyInterface(language)"
                 />
               </div>
             </template>
           </tippy>
         </div>
       </div>
-      <div class="h-full">
-        <div ref="schemaEditor"></div>
+      <div class="h-full relative overflow-auto flex flex-col flex-1">
+        <div ref="schemaEditor" class="absolute inset-0 h-full"></div>
       </div>
     </div>
     <component
@@ -89,25 +89,22 @@
     >
       <GraphqlSubscriptionLog :log="response" />
     </div>
-    <AppShortcutsPrompt v-else class="p-4" />
   </div>
 </template>
 
 <script setup lang="ts">
 import IconWrapText from "~icons/lucide/wrap-text"
-import IconCopy from "~icons/lucide/copy"
+import IconNetwork from "~icons/lucide/network"
 import IconMore from "~icons/lucide/more-horizontal"
 import { computed, reactive, ref } from "vue"
 import { useCodemirror } from "@composables/codemirror"
 import { useI18n } from "@composables/i18n"
-import { defineActionHandler } from "~/helpers/actions"
+import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { GQLResponseEvent } from "~/helpers/graphql/connection"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
-import interfaceLanguages from "~/helpers/utils/interfaceLanguages"
 import {
-  useCopyInterface,
   useCopyResponse,
   useDownloadResponse,
 } from "~/composables/lens-actions"
@@ -158,19 +155,11 @@ useCodemirror(
 )
 
 const { copyIcon, copyResponse } = useCopyResponse(responseString)
-const { copyInterfaceIcon, copyInterface } = useCopyInterface(responseString)
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "application/json",
-  responseString
+  responseString,
+  t("filename.graphql_response")
 )
-
-const copiedInterfaceLanguage = ref("")
-
-const runCopyInterface = (language: string) => {
-  copyInterface(language).then(() => {
-    copiedInterfaceLanguage.value = language
-  })
-}
 
 defineActionHandler(
   "response.file.download",
@@ -183,9 +172,3 @@ defineActionHandler(
   computed(() => !!props.response && props.response.length > 0)
 )
 </script>
-
-<style lang="scss" scoped>
-:deep(.cm-panels) {
-  @apply top-sidebarPrimaryStickyFold #{!important};
-}
-</style>

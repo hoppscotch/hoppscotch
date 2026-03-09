@@ -2,218 +2,293 @@
   <div>
     <header
       ref="headerRef"
-      class="flex flex-1 flex-shrink-0 items-center justify-between space-x-2 overflow-x-auto overflow-y-hidden px-2 py-2"
-      @mousedown.prevent="platform.ui?.appHeader?.onHeaderAreaClick?.()"
+      data-tauri-drag-region
+      class="grid grid-cols-5 grid-rows-1 gap-2 overflow-x-auto overflow-y-hidden p-2"
     >
       <div
-        class="inline-flex flex-1 items-center justify-start space-x-2"
+        data-tauri-drag-region
+        class="col-span-2 flex items-center justify-between space-x-2"
         :style="{
           paddingTop: platform.ui?.appHeader?.paddingTop?.value,
           paddingLeft: platform.ui?.appHeader?.paddingLeft?.value,
         }"
       >
-        <HoppButtonSecondary
-          class="!font-bold uppercase tracking-wide !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark"
-          :label="t('app.name')"
-          to="/"
-        />
-      </div>
-      <div class="inline-flex flex-1 items-center justify-center space-x-2">
-        <button
-          class="flex max-w-[15rem] flex-1 cursor-text items-center justify-between self-stretch rounded border border-dividerDark bg-primaryDark px-2 py-1 text-secondaryLight transition hover:border-dividerDark hover:bg-primaryLight hover:text-secondary focus-visible:border-dividerDark focus-visible:bg-primaryLight focus-visible:text-secondary"
-          @click="invokeAction('modals.search.toggle')"
-        >
-          <span class="inline-flex flex-1 items-center">
-            <icon-lucide-search class="svg-icons mr-2" />
-            {{ t("app.search") }}
-          </span>
-          <span class="flex space-x-1">
-            <kbd class="shortcut-key">{{ getPlatformSpecialKey() }}</kbd>
-            <kbd class="shortcut-key">K</kbd>
-          </span>
-        </button>
-        <HoppButtonSecondary
-          v-if="showInstallButton"
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('header.install_pwa')"
-          :icon="IconDownload"
-          class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
-          @click="installPWA()"
-        />
-        <HoppButtonSecondary
-          v-tippy="{ theme: 'tooltip', allowHTML: true }"
-          :title="`${
-            mdAndLarger ? t('support.title') : t('app.options')
-          } <kbd>?</kbd>`"
-          :icon="IconLifeBuoy"
-          class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
-          @click="invokeAction('modals.support.toggle')"
-        />
-      </div>
-      <div class="inline-flex flex-1 items-center justify-end space-x-2">
-        <div
-          v-if="currentUser === null"
-          class="inline-flex items-center space-x-2"
-        >
-          <HoppButtonSecondary
-            :icon="IconUploadCloud"
-            :label="t('header.save_workspace')"
-            class="py-1.75 !focus-visible:text-green-600 !hover:text-green-600 hidden border border-green-600/25 bg-green-500/[.15] !text-green-500 hover:border-green-800/50 hover:bg-green-400/10 focus-visible:border-green-800/50 focus-visible:bg-green-400/10 md:flex"
-            @click="invokeAction('modals.login.toggle')"
-          />
-          <HoppButtonPrimary
-            :label="t('header.login')"
-            @click="invokeAction('modals.login.toggle')"
-          />
-        </div>
-        <div v-else class="inline-flex items-center space-x-2">
-          <TeamsMemberStack
-            v-if="
-              workspace.type === 'team' &&
-              selectedTeam &&
-              selectedTeam.teamMembers.length > 1
-            "
-            :team-members="selectedTeam.teamMembers"
-            show-count
-            class="mx-2"
-            @handle-click="handleTeamEdit()"
-          />
-          <div
-            class="flex divide-x divide-green-600/25 rounded border border-green-600/25 bg-green-500/[.15] focus-within:divide-green-800/50 focus-within:border-green-800/50 focus-within:bg-green-400/10 hover:divide-green-800/50 hover:border-green-800/50 hover:bg-green-400/10"
-          >
-            <HoppButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="t('team.invite_tooltip')"
-              :icon="IconUserPlus"
-              class="py-1.75 !focus-visible:text-green-600 !hover:text-green-600 !text-green-500"
-              @click="handleInvite()"
-            />
-            <HoppButtonSecondary
-              v-if="
-                workspace.type === 'team' &&
-                selectedTeam &&
-                selectedTeam?.myRole === 'OWNER'
-              "
-              v-tippy="{ theme: 'tooltip' }"
-              :title="t('team.edit')"
-              :icon="IconSettings"
-              class="py-1.75 !focus-visible:text-green-600 !hover:text-green-600 !text-green-500"
-              @click="handleTeamEdit()"
-            />
-          </div>
+        <div class="flex">
+          <!-- Unified Switcher (orgs + instances in one dropdown) -->
           <tippy
+            v-if="
+              platform.organization?.customOrganizationSwitcherComponent ||
+              platform.instance?.instanceSwitchingEnabled
+            "
             interactive
             trigger="click"
             theme="popover"
-            :on-shown="() => accountActions.focus()"
+            :on-shown="() => switcherRef?.focus()"
+            :on-create="onSwitcherCreate"
           >
             <HoppButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="t('workspace.change')"
-              :label="mdAndLarger ? activeWorkspaceName : ``"
-              :icon="activeWorkspaceIcon"
-              class="select-wrapper !focus-visible:text-blue-600 !hover:text-blue-600 rounded border border-blue-600/25 bg-blue-500/[.15] py-[0.4375rem] pr-8 !text-blue-500 hover:border-blue-800/50 hover:bg-blue-400/10 focus-visible:border-blue-800/50 focus-visible:bg-blue-400/10"
+              class="!font-bold uppercase tracking-wide !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark"
+              :label="t('app.name')"
+              :icon="IconChevronDown"
+              reverse
             />
             <template #content="{ hide }">
               <div
-                ref="accountActions"
-                class="flex flex-col focus:outline-none"
+                ref="switcherRef"
+                class="flex flex-col focus:outline-none min-w-72"
                 tabindex="0"
                 @keyup.escape="hide()"
-                @click="hide()"
               >
-                <WorkspaceSelector />
+                <component
+                  :is="
+                    platform.organization.customOrganizationSwitcherComponent
+                  "
+                  v-if="
+                    platform.organization?.customOrganizationSwitcherComponent
+                  "
+                  @close-dropdown="hide()"
+                />
+                <InstanceSwitcher
+                  v-if="platform.instance?.instanceSwitchingEnabled"
+                  @close-dropdown="hide()"
+                />
               </div>
             </template>
           </tippy>
-          <span class="px-2">
+
+          <HoppButtonSecondary
+            v-else
+            class="!font-bold uppercase tracking-wide !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark"
+            :label="t('app.name')"
+            to="/"
+          />
+        </div>
+      </div>
+      <div
+        data-tauri-drag-region
+        class="col-span-1 flex items-center justify-between space-x-2"
+      >
+        <AppSpotlightSearch />
+      </div>
+      <div
+        data-tauri-drag-region
+        class="col-span-2 flex items-center justify-between space-x-2"
+      >
+        <div class="flex">
+          <tippy
+            v-if="
+              kernelMode === 'web' &&
+              downloadableLinks &&
+              downloadableLinks.length > 0
+            "
+            interactive
+            trigger="click"
+            theme="popover"
+            :on-shown="() => downloadableLinksRef.focus()"
+          >
+            <HoppButtonSecondary
+              :icon="IconDownload"
+              class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
+            />
+            <template #content="{ hide }">
+              <div
+                ref="downloadableLinksRef"
+                class="flex flex-col focus:outline-none"
+                tabindex="0"
+                @keyup.escape="hide()"
+              >
+                <template v-for="link in downloadableLinks" :key="link.id">
+                  <HoppButtonSecondary
+                    v-if="link.show ?? true"
+                    :icon="link.icon"
+                    :label="link.text(t)"
+                    :blank="true"
+                    class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark justify-between"
+                    :to="
+                      link.action.type === 'link' ? link.action.href : undefined
+                    "
+                    @click="
+                      link.action.type === 'custom' ? link.action.do() : null
+                    "
+                  />
+                </template>
+              </div>
+            </template>
+          </tippy>
+
+          <HoppButtonSecondary
+            v-tippy="{ theme: 'tooltip', allowHTML: true }"
+            :title="`${
+              mdAndLarger ? t('support.title') : t('app.options')
+            } <kbd>?</kbd>`"
+            :icon="IconLifeBuoy"
+            class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
+            @click="invokeAction('modals.support.toggle')"
+          />
+        </div>
+        <div
+          class="flex"
+          :class="{
+            'flex-row-reverse gap-2':
+              workspaceSelectorFlagEnabled && !currentUser,
+          }"
+        >
+          <div
+            v-if="currentUser === null"
+            class="inline-flex items-center space-x-2"
+          >
+            <HoppButtonSecondary
+              :icon="IconUploadCloud"
+              :label="t('header.save_workspace')"
+              class="py-1.75 !focus-visible:text-green-600 !hover:text-green-600 hidden border border-green-600/25 bg-green-500/[.15] !text-green-500 hover:border-green-800/50 hover:bg-green-400/10 focus-visible:border-green-800/50 focus-visible:bg-green-400/10 md:flex"
+              @click="invokeAction('modals.login.toggle')"
+            />
+            <HoppButtonPrimary
+              :label="t('header.login')"
+              @click="invokeAction('modals.login.toggle')"
+            />
+          </div>
+          <div v-else class="inline-flex items-center space-x-2">
+            <TeamsMemberStack
+              v-if="
+                workspace.type === 'team' &&
+                selectedTeam &&
+                selectedTeam.teamMembers.length > 1
+              "
+              :team-members="selectedTeam.teamMembers"
+              show-count
+              class="mx-2"
+              @handle-click="handleTeamEdit()"
+            />
+            <div
+              class="flex divide-x divide-green-600/25 rounded border border-green-600/25 bg-green-500/[.15] focus-within:divide-green-800/50 focus-within:border-green-800/50 focus-within:bg-green-400/10 hover:divide-green-800/50 hover:border-green-800/50 hover:bg-green-400/10"
+            >
+              <HoppButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="t('team.invite_tooltip')"
+                :icon="IconUserPlus"
+                class="py-1.75 !focus-visible:text-green-600 !hover:text-green-600 !text-green-500"
+                @click="handleInvite()"
+              />
+              <HoppButtonSecondary
+                v-if="
+                  workspace.type === 'team' &&
+                  selectedTeam &&
+                  selectedTeam?.myRole === 'OWNER'
+                "
+                v-tippy="{ theme: 'tooltip' }"
+                :title="t('team.edit')"
+                :icon="IconSettings"
+                class="py-1.75 !focus-visible:text-green-600 !hover:text-green-600 !text-green-500"
+                @click="handleTeamEdit()"
+              />
+            </div>
             <tippy
               interactive
               trigger="click"
               theme="popover"
-              :on-shown="() => tippyActions.focus()"
+              :on-shown="() => accountActions.focus()"
             >
-              <HoppSmartPicture
-                v-if="currentUser.photoURL"
-                v-tippy="{
-                  theme: 'tooltip',
-                }"
-                :url="currentUser.photoURL"
-                :alt="
-                  currentUser.displayName ||
-                  t('profile.default_hopp_displayname')
-                "
-                :title="
-                  currentUser.displayName ||
-                  currentUser.email ||
-                  t('profile.default_hopp_displayname')
-                "
-                indicator
-                :indicator-styles="
-                  network.isOnline ? 'bg-green-500' : 'bg-red-500'
-                "
-              />
-              <HoppSmartPicture
-                v-else
+              <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
-                :title="
-                  currentUser.displayName ||
-                  currentUser.email ||
-                  t('profile.default_hopp_displayname')
-                "
-                :initial="currentUser.displayName || currentUser.email"
-                indicator
-                :indicator-styles="
-                  network.isOnline ? 'bg-green-500' : 'bg-red-500'
-                "
+                :title="t('workspace.change')"
+                :label="mdAndLarger ? activeWorkspaceName : ``"
+                :icon="activeWorkspaceIcon"
+                class="select-wrapper !focus-visible:text-blue-600 !hover:text-blue-600 rounded border border-blue-600/25 bg-blue-500/[.15] py-[0.4375rem] pr-8 !text-blue-500 hover:border-blue-800/50 hover:bg-blue-400/10 focus-visible:border-blue-800/50 focus-visible:bg-blue-400/10"
               />
               <template #content="{ hide }">
                 <div
-                  ref="tippyActions"
+                  ref="accountActions"
                   class="flex flex-col focus:outline-none"
                   tabindex="0"
-                  @keyup.p="profile.$el.click()"
-                  @keyup.s="settings.$el.click()"
-                  @keyup.l="logout.$el.click()"
                   @keyup.escape="hide()"
+                  @click="hide()"
                 >
-                  <div class="flex flex-col px-2 text-tiny">
-                    <span class="inline-flex truncate font-semibold">
-                      {{
-                        currentUser.displayName ||
-                        t("profile.default_hopp_displayname")
-                      }}
-                    </span>
-                    <span class="inline-flex truncate text-secondaryLight">
-                      {{ currentUser.email }}
-                    </span>
-                  </div>
-                  <hr />
-                  <HoppSmartItem
-                    ref="profile"
-                    to="/profile"
-                    :icon="IconUser"
-                    :label="t('navigation.profile')"
-                    :shortcut="['P']"
-                    @click="hide()"
-                  />
-                  <HoppSmartItem
-                    ref="settings"
-                    to="/settings"
-                    :icon="IconSettings"
-                    :label="t('navigation.settings')"
-                    :shortcut="['S']"
-                    @click="hide()"
-                  />
-                  <FirebaseLogout
-                    ref="logout"
-                    :shortcut="['L']"
-                    @confirm-logout="hide()"
-                  />
+                  <WorkspaceSelector />
                 </div>
               </template>
             </tippy>
-          </span>
+            <span v-if="currentUser" class="px-2">
+              <tippy
+                interactive
+                trigger="click"
+                theme="popover"
+                :on-shown="() => tippyActions.focus()"
+              >
+                <HoppSmartPicture
+                  v-tippy="{
+                    theme: 'tooltip',
+                  }"
+                  :name="currentUser.uid"
+                  :title="
+                    currentUser.displayName ||
+                    currentUser.email ||
+                    t('profile.default_hopp_displayname')
+                  "
+                  indicator
+                  :indicator-styles="
+                    network.isOnline ? 'bg-green-500' : 'bg-red-500'
+                  "
+                />
+                <template #content="{ hide }">
+                  <div
+                    ref="tippyActions"
+                    class="flex flex-col focus:outline-none"
+                    tabindex="0"
+                    @keyup.p="profile.$el.click()"
+                    @keyup.s="settings.$el.click()"
+                    @keyup.d="dashboard.$el.click()"
+                    @keyup.l="logout.$el.click()"
+                    @keyup.escape="hide()"
+                  >
+                    <div class="flex flex-col px-2">
+                      <span class="inline-flex truncate font-semibold">
+                        {{
+                          currentUser.displayName ||
+                          t("profile.default_hopp_displayname")
+                        }}
+                      </span>
+                      <span
+                        class="inline-flex truncate text-secondaryLight text-tiny"
+                        >{{ currentUser.email }}</span
+                      >
+                    </div>
+                    <hr />
+                    <HoppSmartItem
+                      ref="profile"
+                      to="/profile"
+                      :icon="IconUser"
+                      :label="t('navigation.profile')"
+                      :shortcut="['P']"
+                      @click="hide()"
+                    />
+                    <HoppSmartItem
+                      ref="settings"
+                      to="/settings"
+                      :icon="IconSettings"
+                      :label="t('navigation.settings')"
+                      :shortcut="['S']"
+                      @click="hide()"
+                    />
+                    <HoppSmartItem
+                      v-if="isUserAdmin"
+                      ref="dashboard"
+                      to="/admin/dashboard"
+                      :icon="IconLayoutDashboard"
+                      :label="t('navigation.admin_dashboard')"
+                      :shortcut="['D']"
+                      @click="hide()"
+                    />
+                    <FirebaseLogout
+                      ref="logout"
+                      :shortcut="['L']"
+                      @confirm-logout="hide()"
+                    />
+                  </div>
+                </template>
+              </tippy>
+            </span>
+          </div>
         </div>
       </div>
     </header>
@@ -223,13 +298,41 @@
       @dismiss="dismissBanner"
     />
     <TeamsModal :show="showTeamsModal" @hide-modal="showTeamsModal = false" />
-    <TeamsInvite
-      v-if="workspace.type === 'team' && workspace.teamID"
-      :show="showModalInvite"
+
+    <template v-if="workspace.type === 'team' && workspace.teamID">
+      <component
+        :is="platform.ui.additionalTeamInviteComponent"
+        v-if="
+          platform.ui?.additionalTeamInviteComponent &&
+          workspace.type === 'team' &&
+          workspace.teamID
+        "
+        :show="showModalInvite"
+        :editing-team-i-d="editingTeamID"
+        @hide-modal="displayModalInvite(false)"
+      />
+
+      <TeamsInvite
+        v-else
+        :show="showModalInvite"
+        :editing-team-i-d="editingTeamID"
+        @hide-modal="displayModalInvite(false)"
+      />
+    </template>
+
+    <component
+      :is="platform.ui.additionalTeamEditComponent"
+      v-if="platform.ui?.additionalTeamEditComponent"
+      :show="showModalEdit"
+      :editing-team="editingTeamName"
       :editing-team-i-d="editingTeamID"
-      @hide-modal="displayModalInvite(false)"
+      @hide-modal="displayModalEdit(false)"
+      @invite-team="inviteTeam(editingTeamName, editingTeamID)"
+      @refetch-teams="refetchTeams"
     />
+
     <TeamsEdit
+      v-else
       :show="showModalEdit"
       :editing-team="editingTeamName"
       :editing-team-i-d="editingTeamID"
@@ -248,21 +351,24 @@
 </template>
 
 <script setup lang="ts">
+import { getKernelMode } from "@hoppscotch/kernel"
+
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { defineActionHandler, invokeAction } from "@helpers/actions"
-import { installPWA, pwaDefferedPrompt } from "@modules/pwa"
 import { breakpointsTailwind, useBreakpoints, useNetwork } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
-import { computed, reactive, ref, watch } from "vue"
+import type { Instance } from "tippy.js"
+import { computed, onMounted, reactive, ref, watch } from "vue"
 
 import { useToast } from "~/composables/toast"
-import { GetMyTeamsQuery, TeamMemberRole } from "~/helpers/backend/graphql"
+import { GetMyTeamsQuery, TeamAccessRole } from "~/helpers/backend/graphql"
 import { deleteTeam as backendDeleteTeam } from "~/helpers/backend/mutations/Team"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import { platform } from "~/platform"
+import { AdditionalLinksService } from "~/services/additionalLinks.service"
 import {
   BANNER_PRIORITY_LOW,
   BannerContent,
@@ -270,7 +376,9 @@ import {
 } from "~/services/banner.service"
 import { NewWorkspaceService } from "~/services/new-workspace"
 import { WorkspaceService } from "~/services/workspace.service"
+import IconChevronDown from "~icons/lucide/chevron-down"
 import IconDownload from "~icons/lucide/download"
+import IconLayoutDashboard from "~icons/lucide/layout-dashboard"
 import IconLifeBuoy from "~icons/lucide/life-buoy"
 import IconSettings from "~icons/lucide/settings"
 import IconUploadCloud from "~icons/lucide/upload-cloud"
@@ -279,14 +387,44 @@ import IconUserPlus from "~icons/lucide/user-plus"
 
 const t = useI18n()
 const toast = useToast()
+const kernelMode = getKernelMode()
+
+const downloadableLinksRef =
+  kernelMode === "web" ? ref<any | null>(null) : ref(null)
+const switcherRef = ref<HTMLElement | null>(null)
+
+// Reserve scrollbar gutter so content width doesn't shift when the list
+// grows long enough to scroll inside the popover's `max-h-[45vh]` container.
+const onSwitcherCreate = (instance: Instance) => {
+  const content = instance.popper?.querySelector(".tippy-content")
+  if (content instanceof HTMLElement) {
+    content.style.scrollbarGutter = "stable"
+  }
+}
+
+const isUserAdmin = ref(false)
 
 /**
- * Once the PWA code is initialized, this holds a method
- * that can be called to show the user the installation
- * prompt.
+ * Feature flag to enable the workspace selector login conversion
  */
+const workspaceSelectorFlagEnabled = computed(
+  () => !!platform.platformFeatureFlags.workspaceSwitcherLogin?.value
+)
 
-const showInstallButton = computed(() => !!pwaDefferedPrompt.value)
+/**
+ * Show the dashboard link if the user is not on the default cloud instance and is an Admin
+ */
+onMounted(async () => {
+  const { organization } = platform
+
+  if (!organization || organization.isDefaultCloudInstance) return
+
+  const orgInfo = await organization.getOrgInfo()
+
+  if (orgInfo) {
+    isUserAdmin.value = !!orgInfo.isAdmin
+  }
+})
 
 const showTeamsModal = ref(false)
 
@@ -304,6 +442,24 @@ const offlineBanner: BannerContent = {
   score: BANNER_PRIORITY_LOW,
   dismissible: true,
 }
+
+const additionalLinks = useService(AdditionalLinksService)
+
+platform.additionalLinks?.forEach((linkSet) => {
+  useService(linkSet)
+})
+
+const downloadableLinks = computed(() => {
+  if (kernelMode !== "web") return null
+
+  const headerDownloadableLink = additionalLinks?.getLinkSet(
+    "HEADER_DOWNLOADABLE_LINKS"
+  )
+
+  if (!headerDownloadableLink) return null
+
+  return headerDownloadableLink.getLinks().value
+})
 
 // Show the offline banner if the app is offline
 const network = reactive(useNetwork())
@@ -470,6 +626,7 @@ const deleteTeam = () => {
 const tippyActions = ref<any | null>(null)
 const profile = ref<any | null>(null)
 const settings = ref<any | null>(null)
+const dashboard = ref<any | null>(null)
 const logout = ref<any | null>(null)
 const accountActions = ref<any | null>(null)
 
@@ -495,7 +652,7 @@ defineActionHandler(
 )
 
 defineActionHandler("modals.team.delete", ({ teamId }) => {
-  if (selectedTeam.value?.myRole !== TeamMemberRole.Owner) return noPermission()
+  if (selectedTeam.value?.myRole !== TeamAccessRole.Owner) return noPermission()
   teamID.value = teamId
   confirmRemove.value = true
 })

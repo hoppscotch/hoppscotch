@@ -44,7 +44,7 @@
         />
       </div>
     </div>
-    <div v-if="bulkMode" class="h-full relative">
+    <div v-if="bulkMode" class="h-full relative flex flex-col flex-1">
       <div ref="bulkEditor" class="absolute inset-0"></div>
     </div>
     <div v-else>
@@ -57,104 +57,31 @@
         ghost-class="cursor-move"
         chosen-class="bg-primaryLight"
         drag-class="cursor-grabbing"
+        :move="
+          (event: DragDropEvent) =>
+            isDragDropAllowed(event, workingParams.length)
+        "
       >
         <template #item="{ element: param, index }">
-          <div
-            class="draggable-content group flex divide-x divide-dividerLight border-b border-dividerLight"
-          >
-            <span>
-              <HoppButtonSecondary
-                v-tippy="{
-                  theme: 'tooltip',
-                  delay: [500, 20],
-                  content:
-                    index !== workingParams?.length - 1
-                      ? t('action.drag_to_reorder')
-                      : null,
-                }"
-                :icon="IconGripVertical"
-                class="opacity-0"
-                :class="{
-                  'draggable-handle cursor-grab group-hover:opacity-100':
-                    index !== workingParams?.length - 1,
-                }"
-                tabindex="-1"
-              />
-            </span>
-            <SmartEnvInput
-              v-model="param.key"
-              :placeholder="`${t('count.parameter', { count: index + 1 })}`"
-              :inspection-results="
-                getInspectorResult(parameterKeyResults, index)
-              "
-              :auto-complete-env="true"
-              :envs="envs"
-              @change="
-                updateParam(index, {
-                  id: param.id,
-                  key: $event,
-                  value: param.value,
-                  active: param.active,
-                })
-              "
-            />
-            <SmartEnvInput
-              v-model="param.value"
-              :placeholder="`${t('count.value', { count: index + 1 })}`"
-              :inspection-results="
-                getInspectorResult(parameterValueResults, index)
-              "
-              :auto-complete-env="true"
-              :envs="envs"
-              @change="
-                updateParam(index, {
-                  id: param.id,
-                  key: param.key,
-                  value: $event,
-                  active: param.active,
-                })
-              "
-            />
-            <span>
-              <HoppButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="
-                  param.hasOwnProperty('active')
-                    ? param.active
-                      ? t('action.turn_off')
-                      : t('action.turn_on')
-                    : t('action.turn_off')
-                "
-                :icon="
-                  param.hasOwnProperty('active')
-                    ? param.active
-                      ? IconCheckCircle
-                      : IconCircle
-                    : IconCheckCircle
-                "
-                color="green"
-                @click="
-                  updateParam(index, {
-                    id: param.id,
-                    key: param.key,
-                    value: param.value,
-                    active: param.hasOwnProperty('active')
-                      ? !param.active
-                      : false,
-                  })
-                "
-              />
-            </span>
-            <span>
-              <HoppButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="t('action.remove')"
-                :icon="IconTrash"
-                color="red"
-                @click="deleteParam(index)"
-              />
-            </span>
-          </div>
+          <HttpKeyValue
+            v-model:name="param.key"
+            v-model:value="param.value"
+            v-model:description="param.description"
+            :total="workingParams.length"
+            :index="index"
+            :entity-id="param.id"
+            :entity-active="param.active"
+            :envs="envs"
+            :is-active="param.hasOwnProperty('active')"
+            :inspection-key-result="
+              getInspectorResult(parameterKeyResults, index)
+            "
+            :inspection-value-result="
+              getInspectorResult(parameterValueResults, index)
+            "
+            @update-entity="updateParam($event.index, $event.payload)"
+            @delete-entity="deleteParam($event)"
+          />
         </template>
       </draggable>
       <HoppSmartPlaceholder
@@ -181,10 +108,6 @@ import IconHelpCircle from "~icons/lucide/help-circle"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconEdit from "~icons/lucide/edit"
 import IconPlus from "~icons/lucide/plus"
-import IconGripVertical from "~icons/lucide/grip-vertical"
-import IconCheckCircle from "~icons/lucide/check-circle"
-import IconCircle from "~icons/lucide/circle"
-import IconTrash from "~icons/lucide/trash"
 import IconWrapText from "~icons/lucide/wrap-text"
 import { reactive, ref, watch } from "vue"
 import { flow, pipe } from "fp-ts/function"
@@ -201,6 +124,7 @@ import {
 import { isEqual, cloneDeep } from "lodash-es"
 import draggable from "vuedraggable-es"
 import linter from "~/helpers/editor/linting/rawKeyValue"
+import { isDragDropAllowed, DragDropEvent } from "~/helpers/dragDropValidation"
 import { useCodemirror } from "@composables/codemirror"
 import { useColorMode } from "@composables/theming"
 import { useI18n } from "@composables/i18n"
@@ -242,6 +166,7 @@ useCodemirror(
     linter,
     completer: null,
     environmentHighlights: true,
+    predefinedVariablesHighlights: true,
   })
 )
 
@@ -264,6 +189,7 @@ const workingParams = ref<Array<HoppRESTParam & { id: number }>>([
     key: "",
     value: "",
     active: true,
+    description: "",
   },
 ])
 
@@ -275,6 +201,7 @@ watch(workingParams, (paramsList) => {
       key: "",
       value: "",
       active: true,
+      description: "",
     })
   }
 })
@@ -312,8 +239,16 @@ watch(
       )
     }
 
-    if (!isEqual(newParamsList, filteredBulkParams)) {
-      bulkParams.value = rawKeyValueEntriesToString(newParamsList)
+    const newParamsListKeyValuePairs = newParamsList.map(
+      ({ key, value, active }) => ({
+        key,
+        value,
+        active,
+      })
+    )
+
+    if (!isEqual(newParamsListKeyValuePairs, filteredBulkParams)) {
+      bulkParams.value = rawKeyValueEntriesToString(newParamsListKeyValuePairs)
     }
   },
   { immediate: true }
@@ -347,8 +282,18 @@ watch(bulkParams, (newBulkParams) => {
     E.getOrElse(() => [] as RawKeyValueEntry[])
   )
 
-  if (!isEqual(params.value, filteredBulkParams)) {
-    params.value = filteredBulkParams
+  const paramKeyValuePairs = params.value.map(({ key, value, active }) => ({
+    key,
+    value,
+    active,
+  }))
+
+  if (!isEqual(paramKeyValuePairs, filteredBulkParams)) {
+    params.value = filteredBulkParams.map((param, idx) => ({
+      ...param,
+      // Adding a new key-value pair in the bulk edit context won't have a corresponding entry under `params.value`, hence the fallback
+      description: params.value[idx]?.description ?? "",
+    }))
   }
 })
 
@@ -358,6 +303,7 @@ const addParam = () => {
     key: "",
     value: "",
     active: true,
+    description: "",
   })
 }
 
@@ -414,6 +360,7 @@ const clearContent = () => {
       key: "",
       value: "",
       active: true,
+      description: "",
     },
   ]
 
@@ -437,7 +384,11 @@ const parameterValueResults = inspectionService.getResultViewFor(
 
 const getInspectorResult = (results: InspectorResult[], index: number) => {
   return results.filter((result) => {
-    if (result.locations.type === "url" || result.locations.type === "response")
+    if (
+      result.locations.type === "url" ||
+      result.locations.type === "response" ||
+      result.locations.type === "body-content-type-header"
+    )
       return
     return result.locations.index === index
   })

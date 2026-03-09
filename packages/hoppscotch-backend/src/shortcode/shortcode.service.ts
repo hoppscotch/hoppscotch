@@ -11,7 +11,7 @@ import {
 } from 'src/errors';
 import { UserDataHandler } from 'src/user/user.data.handler';
 import { Shortcode, ShortcodeWithUserEmail } from './shortcode.model';
-import { Shortcode as DBShortCode } from '@prisma/client';
+import { Shortcode as DBShortCode } from 'src/generated/prisma/client';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { UserService } from 'src/user/user.service';
 import { stringToJson } from 'src/utils';

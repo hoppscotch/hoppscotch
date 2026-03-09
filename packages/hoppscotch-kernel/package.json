@@ -1,0 +1,72 @@
+{
+  "name": "@hoppscotch/kernel",
+  "version": "0.2.0",
+  "description": "Cross-platform runtime kernel for Hoppscotch platform-ops",
+  "type": "module",
+  "main": "dist/hoppscotch-kernel.cjs",
+  "module": "dist/hoppscotch-kernel.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/*"
+  ],
+  "scripts": {
+    "dev": "vite build --watch",
+    "build:code": "vite build",
+    "build:decl": "tsc --project tsconfig.decl.json",
+    "build": "pnpm run build:code && pnpm run build:decl",
+    "prepare": "pnpm run build:code && pnpm run build:decl",
+    "do-typecheck": "pnpm exec tsc --noEmit",
+    "lint": "eslint src",
+    "lintfix": "eslint --fix src",
+    "do-lint": "pnpm run lint",
+    "do-lintfix": "pnpm run lintfix"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/hoppscotch-kernel.js",
+      "require": "./dist/hoppscotch-kernel.cjs"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hoppscotch/hoppscotch.git"
+  },
+  "author": "Hoppscotch (support@hoppscotch.io)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hoppscotch/hoppscotch/issues"
+  },
+  "homepage": "https://github.com/hoppscotch/hoppscotch#readme",
+  "devDependencies": {
+    "@eslint/js": "9.39.2",
+    "@types/node": "24.9.1",
+    "@typescript-eslint/eslint-plugin": "8.56.0",
+    "@typescript-eslint/parser": "8.56.0",
+    "eslint": "9.39.2",
+    "eslint-plugin-prettier": "5.5.5",
+    "globals": "16.5.0",
+    "typescript": "5.9.3",
+    "vite": "7.3.1"
+  },
+  "peerDependencies": {
+    "@tauri-apps/api": "2.1.1"
+  },
+  "peerDependenciesMeta": {
+    "@tauri-apps/api": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@hoppscotch/plugin-relay": "github:CuriousCorrelation/tauri-plugin-relay#7cf09c1ad31e228758738c2f4e1c8fe9cc141291",
+    "@tauri-apps/plugin-dialog": "2.0.1",
+    "@tauri-apps/plugin-fs": "2.0.2",
+    "@tauri-apps/plugin-shell": "2.2.1",
+    "@tauri-apps/plugin-store": "2.4.1",
+    "aws4fetch": "1.0.20",
+    "axios": "1.13.5",
+    "fp-ts": "2.16.11",
+    "superjson": "2.2.6",
+    "zod": "3.25.32"
+  }
+}

@@ -21,12 +21,16 @@ import { hoppEnvImporter } from "~/helpers/import-export/import/hoppEnv"
 import { FileSource } from "~/helpers/import-export/import/import-sources/FileSource"
 import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
 
-import { addGlobalEnvVariable } from "~/newstore/environments"
+import {
+  addGlobalEnvVariable,
+  appendEnvironments,
+  environments$,
+} from "~/newstore/environments"
 
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { CreateTeamEnvironmentMutation } from "~/helpers/backend/graphql"
 import { createTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
-import { insomniaEnvImporter } from "~/helpers/import-export/import/insomniaEnv"
+import { insomniaEnvImporter } from "~/helpers/import-export/import/insomnia/insomniaEnv"
 import { postmanEnvImporter } from "~/helpers/import-export/import/postmanEnv"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 
@@ -57,6 +61,11 @@ const workspaceService = useService(NewWorkspaceService)
 
 const activeWorkspaceHandle = workspaceService.activeWorkspaceHandle
 
+const isPostmanImporterInProgress = ref(false)
+const isInsomniaImporterInProgress = ref(false)
+const isRESTImporterInProgress = ref(false)
+const isGistImporterInProgress = ref(false)
+
 const isEnvironmentGistExportInProgress = ref(false)
 
 const isTeamEnvironment = computed(() => {
@@ -73,6 +82,10 @@ const getActiveWorkspaceEnvironment = async () => {
       (x) => x.environment as Environment
     )
     return teamEnvironments
+  }
+
+  if (!activeWorkspaceHandle.value) {
+    return []
   }
 
   const environmentsViewResult = await workspaceService.getRESTEnvironmentsView(
@@ -94,6 +107,10 @@ const getActiveWorkspaceEnvironment = async () => {
   return environments.value
 }
 
+const workspaceType = computed(() =>
+  isTeamEnvironment.value ? "team" : "personal"
+)
+
 const HoppEnvironmentsImport: ImporterOrExporter = {
   metadata: {
     id: "import.from_json",
@@ -107,23 +124,27 @@ const HoppEnvironmentsImport: ImporterOrExporter = {
     acceptedFileTypes: "application/json",
     caption: "import.hoppscotch_environment_description",
     onImportFromFile: async (environments) => {
+      isRESTImporterInProgress.value = true
+
       const res = await hoppEnvImporter(environments)()
 
-      if (E.isLeft(res)) {
+      if (E.isRight(res)) {
+        await handleImportToStore(res.right)
+
+        platform.analytics?.logEvent({
+          type: "HOPP_IMPORT_ENVIRONMENT",
+          platform: "rest",
+          workspaceType: isTeamEnvironment.value ? "team" : "personal",
+        })
+
+        emit("hide-modal")
+      } else {
         showImportFailedError()
-        return
       }
 
-      handleImportToStore(res.right)
-
-      platform.analytics?.logEvent({
-        type: "HOPP_IMPORT_ENVIRONMENT",
-        platform: "rest",
-        workspaceType: isTeamEnvironment.value ? "team" : "personal",
-      })
-
-      emit("hide-modal")
+      isRESTImporterInProgress.value = false
     },
+    isLoading: isRESTImporterInProgress,
   }),
 }
 
@@ -140,23 +161,27 @@ const PostmanEnvironmentsImport: ImporterOrExporter = {
     acceptedFileTypes: "application/json",
     caption: "import.postman_environment_description",
     onImportFromFile: async (environments) => {
+      isPostmanImporterInProgress.value = true
+
       const res = await postmanEnvImporter(environments)()
 
-      if (E.isLeft(res)) {
+      if (E.isRight(res)) {
+        await handleImportToStore(res.right)
+
+        platform.analytics?.logEvent({
+          type: "HOPP_IMPORT_ENVIRONMENT",
+          platform: "rest",
+          workspaceType: isTeamEnvironment.value ? "team" : "personal",
+        })
+
+        emit("hide-modal")
+      } else {
         showImportFailedError()
-        return
       }
 
-      handleImportToStore(res.right)
-
-      platform.analytics?.logEvent({
-        type: "HOPP_IMPORT_ENVIRONMENT",
-        platform: "rest",
-        workspaceType: isTeamEnvironment.value ? "team" : "personal",
-      })
-
-      emit("hide-modal")
+      isPostmanImporterInProgress.value = false
     },
+    isLoading: isPostmanImporterInProgress,
   }),
 }
 
@@ -170,33 +195,37 @@ const insomniaEnvironmentsImport: ImporterOrExporter = {
     disabled: false,
   },
   component: FileSource({
-    acceptedFileTypes: "application/json",
+    acceptedFileTypes: ".json, .yaml, .yml",
     caption: "import.insomnia_environment_description",
     onImportFromFile: async (environments) => {
+      isInsomniaImporterInProgress.value = true
+
       const res = await insomniaEnvImporter(environments)()
 
-      if (E.isLeft(res)) {
+      if (E.isRight(res)) {
+        const globalEnvs = res.right.filter(
+          (env) => env.name === "Base Environment"
+        )
+        const otherEnvs = res.right.filter(
+          (env) => env.name !== "Base Environment"
+        )
+
+        await handleImportToStore(otherEnvs, globalEnvs)
+
+        platform.analytics?.logEvent({
+          type: "HOPP_IMPORT_ENVIRONMENT",
+          platform: "rest",
+          workspaceType: isTeamEnvironment.value ? "team" : "personal",
+        })
+
+        emit("hide-modal")
+      } else {
         showImportFailedError()
-        return
       }
 
-      const globalEnvs = res.right.filter(
-        (env) => env.name === "Base Environment"
-      )
-      const otherEnvs = res.right.filter(
-        (env) => env.name !== "Base Environment"
-      )
-
-      handleImportToStore(otherEnvs, globalEnvs)
-
-      platform.analytics?.logEvent({
-        type: "HOPP_IMPORT_ENVIRONMENT",
-        platform: "rest",
-        workspaceType: isTeamEnvironment.value ? "team" : "personal",
-      })
-
-      emit("hide-modal")
+      isInsomniaImporterInProgress.value = false
     },
+    isLoading: isInsomniaImporterInProgress,
   }),
 }
 
@@ -217,21 +246,26 @@ const EnvironmentsImportFromGIST: ImporterOrExporter = {
         return
       }
 
+      isGistImporterInProgress.value = true
+
       const res = await hoppEnvImporter(environments.right)()
 
-      if (E.isLeft(res)) {
+      if (E.isRight(res)) {
+        await handleImportToStore(res.right)
+
+        platform.analytics?.logEvent({
+          type: "HOPP_IMPORT_ENVIRONMENT",
+          platform: "rest",
+          workspaceType: isTeamEnvironment.value ? "team" : "personal",
+        })
+        emit("hide-modal")
+      } else {
         showImportFailedError()
-        return
       }
 
-      handleImportToStore(res.right)
-      platform.analytics?.logEvent({
-        type: "HOPP_IMPORT_ENVIRONMENT",
-        platform: "rest",
-        workspaceType: isTeamEnvironment.value ? "team" : "personal",
-      })
-      emit("hide-modal")
+      isGistImporterInProgress.value = false
     },
+    isLoading: isGistImporterInProgress,
   }),
 }
 
@@ -319,7 +353,7 @@ const HoppEnvironmentsGistExporter: ImporterOrExporter = {
         platform: "rest",
       })
 
-      platform.io.openExternalLink(res.right)
+      platform.kernelIO.openExternalLink({ url: res.right })
     }
 
     isEnvironmentGistExportInProgress.value = false
@@ -353,8 +387,8 @@ const handleImportToStore = async (
 ) => {
   // Add global envs to the store
   globalEnvs.forEach(({ variables }) => {
-    variables.forEach(({ key, value, secret }) => {
-      addGlobalEnvVariable({ key, value, secret })
+    variables.forEach(({ key, initialValue, currentValue, secret }) => {
+      addGlobalEnvVariable({ key, initialValue, currentValue, secret })
     })
   })
 

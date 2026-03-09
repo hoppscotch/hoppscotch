@@ -1,40 +1,69 @@
 import {
-  Collection as PMCollection,
-  Item,
-  ItemGroup,
-  QueryParam,
-  RequestAuthDefinition,
-  VariableDefinition,
-  Variable,
-} from "postman-collection"
-import {
+  FormDataKeyValue,
+  HoppCollection,
   HoppRESTAuth,
   HoppRESTHeader,
   HoppRESTParam,
   HoppRESTReqBody,
   HoppRESTRequest,
-  makeRESTRequest,
-  HoppCollection,
-  makeCollection,
-  ValidContentTypes,
-  knownContentTypes,
-  FormDataKeyValue,
   HoppRESTRequestVariable,
+  knownContentTypes,
+  makeCollection,
+  makeRESTRequest,
+  ValidContentTypes,
+  HoppRESTRequestResponses,
+  makeHoppRESTResponseOriginalRequest,
+  HoppCollectionVariable,
 } from "@hoppscotch/data"
-import { pipe, flow } from "fp-ts/function"
-import * as S from "fp-ts/string"
 import * as A from "fp-ts/Array"
+import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
+import * as S from "fp-ts/string"
 import * as TE from "fp-ts/TaskEither"
-import { IMPORTER_INVALID_FILE_FORMAT } from "."
-import { PMRawLanguage } from "~/types/pm-coll-exts"
+import {
+  DescriptionDefinition,
+  Item,
+  ItemGroup,
+  Collection as PMCollection,
+  QueryParam,
+  RequestAuthDefinition,
+  Variable,
+  VariableDefinition,
+  VariableList,
+} from "postman-collection"
 import { stringArrayJoin } from "~/helpers/functional/array"
+import { PMRawLanguage } from "~/types/pm-coll-exts"
+import { IMPORTER_INVALID_FILE_FORMAT } from "."
 
 const safeParseJSON = (jsonStr: string) => O.tryCatch(() => JSON.parse(jsonStr))
 
 const isPMItem = (x: unknown): x is Item => Item.isItem(x)
 
-const replacePMVarTemplating = flow(
+/**
+ * Checks if the Postman collection schema version supports scripts (v2.0+)
+ * @param schema - The schema URL from collection.info.schema
+ * @returns true if v2.0 or v2.1, false otherwise
+ */
+const isSchemaVersionSupported = (schema?: string): boolean => {
+  if (!schema) return false
+  // Support both schema.getpostman.com and schema.postman.com
+  return schema.includes("/v2.0.") || schema.includes("/v2.1.")
+}
+
+/**
+ * Extracts the collection schema from raw JSON data
+ * Note: PMCollection SDK doesn't expose .info.schema, so we parse raw JSON
+ */
+const getCollectionSchema = (jsonStr: string): string | null => {
+  try {
+    const data = JSON.parse(jsonStr)
+    return data?.info?.schema ?? null
+  } catch {
+    return null
+  }
+}
+
+export const replacePMVarTemplating = flow(
   S.replace(/{{\s*/g, "<<"),
   S.replace(/\s*}}/g, ">>")
 )
@@ -64,57 +93,173 @@ const readPMCollection = (def: string) =>
     )
   )
 
-const getHoppReqHeaders = (item: Item): HoppRESTHeader[] =>
-  pipe(
-    item.request.headers.all(),
-    A.map((header) => {
-      return <HoppRESTHeader>{
-        key: replacePMVarTemplating(header.key),
-        value: replacePMVarTemplating(header.value),
-        active: !header.disabled,
-      }
-    })
-  )
+const parseDescription = (descField?: string | DescriptionDefinition) => {
+  if (!descField) {
+    return ""
+  }
 
-const getHoppReqParams = (item: Item): HoppRESTParam[] => {
-  return pipe(
-    item.request.url.query.all(),
-    A.filter(
-      (param): param is QueryParam & { key: string } =>
-        param.key !== undefined && param.key !== null && param.key.length > 0
-    ),
-    A.map((param) => {
-      return <HoppRESTHeader>{
-        key: replacePMVarTemplating(param.key),
-        value: replacePMVarTemplating(param.value ?? ""),
-        active: !param.disabled,
-      }
-    })
-  )
+  if (typeof descField === "string") {
+    return descField
+  }
+
+  return descField.content
 }
 
-const getHoppReqVariables = (item: Item) => {
+const getHoppCollVariables = (
+  ig: ItemGroup<Item>
+): HoppCollectionVariable[] => {
+  if (!("variables" in ig && ig.variables)) {
+    return []
+  }
+
   return pipe(
-    item.request.url.variables.all(),
+    (ig.variables as VariableList).all(),
     A.filter(
-      (variable): variable is Variable =>
+      (variable) =>
         variable.key !== undefined &&
         variable.key !== null &&
         variable.key.length > 0
     ),
     A.map((variable) => {
-      return <HoppRESTRequestVariable>{
+      return <HoppCollectionVariable>{
         key: replacePMVarTemplating(variable.key ?? ""),
-        value: replacePMVarTemplating(variable.value ?? ""),
-        active: !variable.disabled,
+        initialValue: replacePMVarTemplating(variable.value ?? ""),
+        currentValue: "",
+        secret: variable.type === "secret",
       }
     })
   )
 }
 
+const getHoppReqHeaders = (
+  headers: Item["request"]["headers"] | null
+): HoppRESTHeader[] => {
+  if (!headers) return []
+  return pipe(
+    headers.all(),
+    A.map((header) => {
+      const description = parseDescription(header.description)
+
+      return <HoppRESTHeader>{
+        key: replacePMVarTemplating(header.key),
+        value: replacePMVarTemplating(header.value),
+        active: !header.disabled,
+        description,
+      }
+    })
+  )
+}
+
+const getHoppReqParams = (
+  query: Item["request"]["url"]["query"] | null
+): HoppRESTParam[] => {
+  {
+    if (!query) return []
+    return pipe(
+      query.all(),
+      A.filter(
+        (param): param is QueryParam & { key: string } =>
+          param.key !== undefined && param.key !== null && param.key.length > 0
+      ),
+      A.map((param) => {
+        const description = parseDescription(param.description)
+
+        return <HoppRESTHeader>{
+          key: replacePMVarTemplating(param.key),
+          value: replacePMVarTemplating(param.value ?? ""),
+          active: !param.disabled,
+          description,
+        }
+      })
+    )
+  }
+}
+
+const getHoppReqVariables = (
+  variables: Item["request"]["url"]["variables"] | null
+): HoppRESTRequestVariable[] => {
+  {
+    if (!variables) return []
+    return pipe(
+      variables.all(),
+      A.filter(
+        (variable): variable is Variable =>
+          variable.key !== undefined &&
+          variable.key !== null &&
+          variable.key.length > 0
+      ),
+      A.map((variable) => {
+        return <HoppRESTRequestVariable>{
+          key: replacePMVarTemplating(variable.key ?? ""),
+          value: replacePMVarTemplating(variable.value ?? ""),
+          active: !variable.disabled,
+        }
+      })
+    )
+  }
+}
+
+// This regex is used to remove unsupported unicode characters from the response body which fails in Prisma
+// https://dba.stackexchange.com/questions/115029/unicode-error-with-u0000-on-copy-of-large-json-file-into-postgres
+const UNSUPPORTED_UNICODES_REGEX = /[\u0000]/g
+
+const getHoppResponseBody = (
+  body: string | ArrayBuffer | undefined
+): string => {
+  if (!body) return ""
+  if (typeof body === "string")
+    return body.replace(UNSUPPORTED_UNICODES_REGEX, "")
+  if (body instanceof ArrayBuffer) {
+    return new TextDecoder()
+      .decode(body)
+      .replace(UNSUPPORTED_UNICODES_REGEX, "")
+  }
+
+  return ""
+}
+
+const getHoppResponses = (
+  responses: Item["responses"]
+): HoppRESTRequestResponses => {
+  return Object.fromEntries(
+    pipe(
+      responses.all(),
+      A.map((response) => {
+        const res = {
+          name: response.name,
+          status: response.status,
+          body: getHoppResponseBody(response.body),
+          headers: getHoppReqHeaders(response.headers),
+          code: response.code,
+          originalRequest: makeHoppRESTResponseOriginalRequest({
+            auth: getHoppReqAuth(response.originalRequest?.auth),
+            body: getHoppReqBody({
+              body: response.originalRequest?.body,
+              headers: response.originalRequest?.headers ?? null,
+            }) ?? { contentType: null, body: null },
+            endpoint: getHoppReqURL(response.originalRequest?.url ?? null),
+            headers: getHoppReqHeaders(
+              response.originalRequest?.headers ?? null
+            ),
+            method: response.originalRequest?.method ?? "",
+            name: response.originalRequest?.name ?? response.name,
+            params: getHoppReqParams(
+              response.originalRequest?.url.query ?? null
+            ),
+            requestVariables: getHoppReqVariables(
+              response.originalRequest?.url.variables ?? null
+            ),
+          }),
+        }
+        return [response.name, res]
+      })
+    )
+  )
+}
+
 type PMRequestAuthDef<
-  AuthType extends
-    RequestAuthDefinition["type"] = RequestAuthDefinition["type"],
+  AuthType extends RequestAuthDefinition["type"] =
+    RequestAuthDefinition["type"],
 > = AuthType extends RequestAuthDefinition["type"] & string
   ? // eslint-disable-next-line no-unused-vars
     { type: AuthType } & { [x in AuthType]: VariableDefinition[] }
@@ -123,11 +268,16 @@ type PMRequestAuthDef<
 const getVariableValue = (defs: VariableDefinition[], key: string) =>
   defs.find((param) => param.key === key)?.value as string | undefined
 
-const getHoppReqAuth = (item: Item): HoppRESTAuth => {
-  if (!item.request.auth) return { authType: "none", authActive: true }
+const getHoppReqAuth = (
+  hoppAuth: Item["request"]["auth"] | null
+): HoppRESTAuth => {
+  if (!hoppAuth) return { authType: "inherit", authActive: true }
 
-  // Cast to the type for more stricter checking down the line
-  const auth = item.request.auth as unknown as PMRequestAuthDef
+  const auth = hoppAuth as unknown as PMRequestAuthDef
+
+  if (auth.type === "noauth") {
+    return { authType: "none", authActive: true }
+  }
 
   if (auth.type === "basic") {
     return {
@@ -149,7 +299,7 @@ const getHoppReqAuth = (item: Item): HoppRESTAuth => {
         getVariableValue(auth.apikey, "value") ?? ""
       ),
       addTo:
-        (getVariableValue(auth.apikey, "in") ?? "query") === "query"
+        getVariableValue(auth.apikey, "in") === "query"
           ? "QUERY_PARAMS"
           : "HEADERS",
     }
@@ -177,6 +327,31 @@ const getHoppReqAuth = (item: Item): HoppRESTAuth => {
     const token = replacePMVarTemplating(
       getVariableValue(auth.oauth2, "accessToken") ?? ""
     )
+    const clientSecret = replacePMVarTemplating(
+      getVariableValue(auth.oauth2, "clientSecret") ?? ""
+    )
+
+    // Check for PKCE settings
+    const usePkce = getVariableValue(auth.oauth2, "usePkce")
+    const isPKCE = usePkce === "true"
+
+    // Get challenge algorithm, default to S256 if PKCE is enabled but no algorithm specified
+    const challengeAlgorithm = getVariableValue(
+      auth.oauth2,
+      "challengeAlgorithm"
+    )
+    let codeVerifierMethod: "plain" | "S256" | undefined
+
+    if (isPKCE) {
+      // Postman uses "SHA-256" or "plain" - normalize to our format
+      // Default to S256 for any value other than "plain"
+      if (challengeAlgorithm === "plain") {
+        codeVerifierMethod = "plain"
+      } else {
+        // Covers "S256", "SHA-256", undefined, and any other value
+        codeVerifierMethod = "S256"
+      }
+    }
 
     return {
       authType: "oauth-2",
@@ -188,20 +363,28 @@ const getHoppReqAuth = (item: Item): HoppRESTAuth => {
         scopes: scope,
         token: token,
         tokenEndpoint: accessTokenURL,
-        clientSecret: "",
-        isPKCE: false,
+        clientSecret: clientSecret,
+        isPKCE: isPKCE,
+        ...(codeVerifierMethod ? { codeVerifierMethod } : {}),
+        authRequestParams: [],
+        tokenRequestParams: [],
+        refreshRequestParams: [],
       },
       addTo: "HEADERS",
     }
   }
 
-  return { authType: "none", authActive: true }
+  return { authType: "inherit", authActive: true }
 }
 
-const getHoppReqBody = (item: Item): HoppRESTReqBody => {
-  if (!item.request.body) return { contentType: null, body: null }
-
-  const body = item.request.body
+const getHoppReqBody = ({
+  body,
+  headers,
+}: {
+  body: Item["request"]["body"] | null
+  headers: Item["request"]["headers"] | null
+}): HoppRESTReqBody => {
+  if (!body) return { contentType: null, body: null }
 
   if (body.mode === "formdata") {
     return {
@@ -213,7 +396,7 @@ const getHoppReqBody = (item: Item): HoppRESTReqBody => {
             <FormDataKeyValue>{
               key: replacePMVarTemplating(param.key),
               value: replacePMVarTemplating(
-                param.type === "text" ? (param.value as string) : ""
+                param.type === "text" ? String(param.value) : ""
               ),
               active: !param.disabled,
               isFile: false, // TODO: Preserve isFile state ?
@@ -230,7 +413,7 @@ const getHoppReqBody = (item: Item): HoppRESTReqBody => {
           (param) =>
             `${replacePMVarTemplating(
               param.key ?? ""
-            )}: ${replacePMVarTemplating(param.value ?? "")}`
+            )}: ${replacePMVarTemplating(String(param.value ?? ""))}`
         ),
         stringArrayJoin("\n")
       ),
@@ -243,7 +426,7 @@ const getHoppReqBody = (item: Item): HoppRESTReqBody => {
       O.bind("contentType", () =>
         pipe(
           // Get the info from the content-type header
-          getHoppReqHeaders(item),
+          getHoppReqHeaders(headers),
           A.findFirst(({ key }) => key.toLowerCase() === "content-type"),
           O.map((x) => x.value),
 
@@ -253,7 +436,7 @@ const getHoppReqBody = (item: Item): HoppRESTReqBody => {
               contentType in knownContentTypes
           ),
 
-          // Back-up plan, assume language from raw language defintion
+          // Back-up plan, assume language from raw language definition
           O.alt(() =>
             pipe(
               body.options?.raw?.language,
@@ -288,62 +471,199 @@ const getHoppReqBody = (item: Item): HoppRESTReqBody => {
           }
       )
     )
+  } else if (body.mode === "graphql") {
+    const formattedQuery = {
+      // @ts-expect-error - this is a valid option, but seems like the types are not updated
+      query: body.graphql?.query,
+      variables: pipe(
+        // @ts-expect-error - this is a valid option, but seems like the types are not updated
+        body.graphql?.variables,
+        safeParseJSON,
+        O.getOrElse(() => undefined)
+      ),
+    }
+
+    return {
+      contentType: "application/json",
+      body: pipe(
+        JSON.stringify(formattedQuery, null, 2),
+        replacePMVarTemplating
+      ),
+    }
   }
 
   // TODO: File
-  // TODO: GraphQL ?
 
   return { contentType: null, body: null }
 }
 
-const getHoppReqURL = (item: Item): string =>
-  pipe(
-    item.request.url.toString(false),
+const getHoppReqURL = (url: Item["request"]["url"] | null): string => {
+  if (!url) return ""
+  return pipe(
+    url.toString(false),
     S.replace(/\?.+/g, ""),
     replacePMVarTemplating
   )
+}
 
-const getHoppRequest = (item: Item): HoppRESTRequest => {
+/**
+ * Extracts script content from a Postman event
+ * Handles both string format and exec array format
+ */
+const extractScriptFromEvent = (event: any): string => {
+  if (!event?.script) return ""
+
+  if (typeof event.script === "string") {
+    return event.script
+  }
+
+  if (event.script.exec && Array.isArray(event.script.exec)) {
+    return event.script.exec.join("\n")
+  }
+
+  return ""
+}
+
+const getHoppScripts = (
+  item: Item,
+  importScripts: boolean
+): { preRequestScript: string; testScript: string } => {
+  if (!importScripts) {
+    return { preRequestScript: "", testScript: "" }
+  }
+
+  let preRequestScript = ""
+  let testScript = ""
+
+  // Postman stores scripts in the events array
+  if (item.events) {
+    const events = item.events.all()
+    events.forEach((event: any) => {
+      if (event.listen === "prerequest") {
+        preRequestScript = extractScriptFromEvent(event)
+      } else if (event.listen === "test") {
+        testScript = extractScriptFromEvent(event)
+      }
+    })
+  }
+
+  return { preRequestScript, testScript }
+}
+
+const getCollectionDescription = (
+  docField?: string | DescriptionDefinition
+): string | null => {
+  if (!docField) {
+    return null
+  }
+
+  if (typeof docField === "string") {
+    return docField
+  } else if (typeof docField === "object" && "content" in docField) {
+    return docField.content || null
+  }
+
+  return null
+}
+
+const getRequestDescription = (
+  docField?: string | DescriptionDefinition
+): string | null => {
+  if (!docField) {
+    return null
+  }
+
+  if (typeof docField === "string") {
+    return docField
+  } else if (typeof docField === "object" && "content" in docField) {
+    return docField.content || null
+  }
+
+  return null
+}
+
+const getHoppRequest = (
+  item: Item,
+  importScripts: boolean
+): HoppRESTRequest => {
+  const { preRequestScript, testScript } = getHoppScripts(item, importScripts)
   return makeRESTRequest({
     name: item.name,
-    endpoint: getHoppReqURL(item),
+    endpoint: getHoppReqURL(item.request.url),
     method: item.request.method.toUpperCase(),
-    headers: getHoppReqHeaders(item),
-    params: getHoppReqParams(item),
-    auth: getHoppReqAuth(item),
-    body: getHoppReqBody(item),
-    requestVariables: getHoppReqVariables(item),
-
-    // TODO: Decide about this
-    preRequestScript: "",
-    testScript: "",
+    headers: getHoppReqHeaders(item.request.headers),
+    params: getHoppReqParams(item.request.url.query),
+    auth: getHoppReqAuth(item.request.auth),
+    body: getHoppReqBody({
+      body: item.request.body,
+      headers: item.request.headers,
+    }),
+    requestVariables: getHoppReqVariables(item.request.url.variables),
+    responses: getHoppResponses(item.responses),
+    preRequestScript,
+    testScript,
+    description: getRequestDescription(item.request.description),
   })
 }
 
-const getHoppFolder = (ig: ItemGroup<Item>): HoppCollection =>
+const getHoppFolder = (
+  ig: ItemGroup<Item>,
+  importScripts: boolean
+): HoppCollection =>
   makeCollection({
     name: ig.name,
     folders: pipe(
       ig.items.all(),
       A.filter(isPMItemGroup),
-      A.map(getHoppFolder)
+      A.map((folder) => getHoppFolder(folder, importScripts))
     ),
-    requests: pipe(ig.items.all(), A.filter(isPMItem), A.map(getHoppRequest)),
-    auth: { authType: "inherit", authActive: true },
+    requests: pipe(
+      ig.items.all(),
+      A.filter(isPMItem),
+      A.map((item) => getHoppRequest(item, importScripts))
+    ),
+    auth: getHoppReqAuth(ig.auth),
     headers: [],
+    variables: getHoppCollVariables(ig),
+    description: getCollectionDescription(ig.description),
   })
 
-export const getHoppCollections = (collections: PMCollection[]) => {
-  return collections.map(getHoppFolder)
+export const getHoppCollections = (
+  collections: PMCollection[],
+  importScripts: boolean
+) => {
+  return collections.map((collection) =>
+    getHoppFolder(collection, importScripts)
+  )
 }
 
-export const hoppPostmanImporter = (fileContents: string[]) =>
+export const hoppPostmanImporter = (
+  fileContents: string[],
+  importScripts = false
+) =>
   pipe(
     // Try reading
     fileContents,
     A.traverse(O.Applicative)(readPMCollection),
 
-    O.map(flow(getHoppCollections)),
+    O.map((collections) => {
+      // Validate schema version if importing scripts
+      if (importScripts && fileContents.length > 0) {
+        const schema = getCollectionSchema(fileContents[0])
+        const isSupported = isSchemaVersionSupported(schema ?? undefined)
+
+        if (!isSupported) {
+          console.warn(
+            `[Postman Import] Script import requested but collection schema "${schema ?? "unknown"}" does not support scripts. ` +
+              `Only Postman Collection Format v2.0 and v2.1 are supported. Scripts will be skipped.`
+          )
+          // Skip script import for unsupported versions
+          return getHoppCollections(collections, false)
+        }
+      }
+
+      return getHoppCollections(collections, importScripts)
+    }),
 
     TE.fromOption(() => IMPORTER_INVALID_FILE_FORMAT)
   )

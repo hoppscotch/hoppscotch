@@ -4,6 +4,9 @@ import { HoppGQLDocument, HoppGQLSaveContext } from "~/helpers/graphql/document"
 import { TabService } from "./tab"
 import { computed } from "vue"
 import { Container } from "dioc"
+import { getService } from "~/modules/dioc"
+import { PersistenceService, STORE_KEYS } from "../persistence"
+import { PersistableTabState } from "."
 
 export class GQLTabService extends TabService<HoppGQLDocument> {
   public static readonly ID = "GQL_TAB_SERVICE"
@@ -19,6 +22,7 @@ export class GQLTabService extends TabService<HoppGQLDocument> {
         request: getDefaultGQLRequest(),
         isDirty: false,
         optionTabPreference: "query",
+        cursorPosition: 0,
       },
     })
 
@@ -39,6 +43,14 @@ export class GQLTabService extends TabService<HoppGQLDocument> {
       }
     }),
   }))
+
+  protected async loadPersistedState(): Promise<PersistableTabState<HoppGQLDocument> | null> {
+    const persistenceService = getService(PersistenceService)
+    const savedState = await persistenceService.getNullable<
+      PersistableTabState<HoppGQLDocument>
+    >(STORE_KEYS.GQL_TABS)
+    return savedState
+  }
 
   public getTabRefWithSaveContext(ctx: HoppGQLSaveContext) {
     for (const tab of this.tabMap.values()) {

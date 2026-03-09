@@ -6,6 +6,10 @@ import {
   HoppRESTAuth,
   HoppRESTRequest,
   HoppRESTHeaders,
+  HoppRESTRequestResponse,
+  HoppCollection,
+  GlobalEnvironment,
+  CollectionVariable,
 } from "@hoppscotch/data"
 import { entityReference } from "verzod"
 import { z } from "zod"
@@ -25,12 +29,14 @@ const ThemeColorSchema = z.enum([
 
 const BgColorSchema = z.enum(["system", "light", "dark", "black"])
 
+const EncodeMode = z.enum(["enable", "disable", "auto"])
+
 const SettingsDefSchema = z.object({
   syncCollections: z.boolean(),
   syncHistory: z.boolean(),
   syncEnvironments: z.boolean(),
   PROXY_URL: z.string(),
-  CURRENT_INTERCEPTOR_ID: z.string(),
+  CURRENT_KERNEL_INTERCEPTOR_ID: z.string(),
   URL_EXCLUDES: z.object({
     auth: z.boolean(),
     httpUser: z.boolean(),
@@ -40,6 +46,7 @@ const SettingsDefSchema = z.object({
   }),
   THEME_COLOR: ThemeColorSchema,
   BG_COLOR: BgColorSchema,
+  ENCODE_MODE: EncodeMode.catch("enable"),
   TELEMETRY_ENABLED: z.boolean(),
   EXPAND_NAVIGATION: z.boolean(),
   SIDEBAR: z.boolean(),
@@ -64,42 +71,30 @@ const SettingsDefSchema = z.object({
       importCurl: z.boolean().catch(true),
       codeGen: z.boolean().catch(true),
       cookie: z.boolean().catch(true),
+      multipartFormdata: z.boolean().catch(true),
     })
   ),
 
   HAS_OPENED_SPOTLIGHT: z.optional(z.boolean()),
-})
+  ENABLE_AI_EXPERIMENTS: z.optional(z.boolean()),
+  AI_REQUEST_NAMING_STYLE: z
+    .string()
+    .optional()
+    .catch("DESCRIPTIVE_WITH_SPACES"),
+  CUSTOM_NAMING_STYLE: z.string().optional().catch(""),
 
-// Common properties shared across REST & GQL collections
-const HoppCollectionSchemaCommonProps = z
-  .object({
-    v: z.number(),
-    name: z.string(),
-    id: z.optional(z.string()),
-  })
-  .strict()
+  EXPERIMENTAL_SCRIPTING_SANDBOX: z.optional(z.boolean()),
+  ENABLE_EXPERIMENTAL_MOCK_SERVERS: z.optional(z.boolean()),
+  ENABLE_EXPERIMENTAL_DOCUMENTATION: z.optional(z.boolean()),
+})
 
 const HoppRESTRequestSchema = entityReference(HoppRESTRequest)
 
 const HoppGQLRequestSchema = entityReference(HoppGQLRequest)
 
-// @ts-expect-error recursive schema
-const HoppRESTCollectionSchema = HoppCollectionSchemaCommonProps.extend({
-  folders: z.array(z.lazy(() => HoppRESTCollectionSchema)),
-  requests: z.optional(z.array(HoppRESTRequestSchema)),
+const HoppRESTCollectionSchema = entityReference(HoppCollection)
 
-  auth: z.optional(HoppRESTAuth),
-  headers: z.optional(HoppRESTHeaders),
-}).strict()
-
-// @ts-expect-error recursive schema
-const HoppGQLCollectionSchema = HoppCollectionSchemaCommonProps.extend({
-  folders: z.array(z.lazy(() => HoppGQLCollectionSchema)),
-  requests: z.optional(z.array(HoppGQLRequestSchema)),
-
-  auth: z.optional(HoppGQLAuth),
-  headers: z.optional(z.array(GQLHeader)),
-}).strict()
+const HoppGQLCollectionSchema = entityReference(HoppCollection)
 
 export const VUEX_SCHEMA = z.object({
   postwoman: z.optional(
@@ -165,6 +160,8 @@ export const REST_COLLECTION_SCHEMA = HoppRESTCollectionSchema
 export const GQL_COLLECTION_SCHEMA = HoppGQLCollectionSchema
 
 export const ENVIRONMENTS_SCHEMA = z.array(entityReference(Environment))
+
+export const GLOBAL_ENVIRONMENT_SCHEMA = entityReference(GlobalEnvironment)
 
 export const SELECTED_ENV_INDEX_SCHEMA = z.nullable(
   z.discriminatedUnion("type", [
@@ -235,20 +232,15 @@ export const MQTT_REQUEST_SCHEMA = z.nullable(
 const EnvironmentVariablesSchema = z.union([
   z.object({
     key: z.string(),
-    value: z.string(),
-    secret: z.literal(false).catch(false),
-  }),
-  z.object({
-    key: z.string(),
-    secret: z.literal(true),
+    initialValue: z.string(),
+    currentValue: z.string(),
+    secret: z.boolean(),
   }),
   z.object({
     key: z.string(),
     value: z.string(),
   }),
 ])
-
-export const GLOBAL_ENV_SCHEMA = z.array(EnvironmentVariablesSchema)
 
 const OperationTypeSchema = z.enum([
   "subscription",
@@ -323,6 +315,16 @@ const HoppInheritedPropertySchema = z
         inheritedHeader: z.union([HoppRESTHeaders, GQLHeader]),
       })
     ),
+    variables: z
+      .array(
+        z.object({
+          parentPath: z.optional(z.string()),
+          parentID: z.string(),
+          parentName: z.string(),
+          inheritedVariables: z.array(CollectionVariable),
+        })
+      )
+      .catch([]),
   })
   .strict()
 
@@ -342,6 +344,7 @@ export const GQL_TAB_STATE_SCHEMA = z
             responseTabPreference: z.optional(z.string()),
             optionTabPreference: z.optional(z.enum(validGqlOperations)),
             inheritedProperties: z.optional(HoppInheritedPropertySchema),
+            cursorPosition: z.optional(z.number()),
           })
           .strict(),
       })
@@ -377,10 +380,41 @@ export const SECRET_ENVIRONMENT_VARIABLE_SCHEMA = z.union([
         .object({
           key: z.string(),
           value: z.string(),
+          initialValue: z.string().optional().catch(""),
           varIndex: z.number(),
         })
         .strict()
     )
+  ),
+])
+
+export const CURRENT_ENVIRONMENT_VALUE_SCHEMA = z.union([
+  z.object({}).strict(),
+
+  z.record(
+    z.string(),
+    z.array(
+      z
+        .object({
+          key: z.string(),
+          currentValue: z.string(),
+          varIndex: z.number(),
+          isSecret: z.boolean().catch(false),
+        })
+        .strict()
+    )
+  ),
+])
+
+export const CURRENT_SORT_VALUES_SCHEMA = z.union([
+  z.object({}).strict(),
+
+  z.record(
+    z.string(),
+    z.object({
+      sortBy: z.enum(["name"]),
+      sortOrder: z.enum(["asc", "desc"]),
+    })
   ),
 ])
 
@@ -396,12 +430,9 @@ const HoppTestResultSchema = z
           .object({
             additions: z.array(EnvironmentVariablesSchema),
             updations: z.array(
-              EnvironmentVariablesSchema.refine(
-                (x) => "secret" in x && !x.secret
-              ).and(
-                z.object({
-                  previousValue: z.optional(z.string()),
-                })
+              z.intersection(
+                EnvironmentVariablesSchema,
+                z.object({ previousValue: z.optional(z.string()) })
               )
             ),
             deletions: z.array(EnvironmentVariablesSchema),
@@ -411,12 +442,9 @@ const HoppTestResultSchema = z
           .object({
             additions: z.array(EnvironmentVariablesSchema),
             updations: z.array(
-              EnvironmentVariablesSchema.refine(
-                (x) => "secret" in x && !x.secret
-              ).and(
-                z.object({
-                  previousValue: z.optional(z.string()),
-                })
+              z.intersection(
+                EnvironmentVariablesSchema,
+                z.object({ previousValue: z.optional(z.string()) })
               )
             ),
             deletions: z.array(EnvironmentVariablesSchema),
@@ -424,6 +452,7 @@ const HoppTestResultSchema = z
           .strict(),
       })
       .strict(),
+    consoleEntries: z.optional(z.array(z.record(z.string(), z.unknown()))),
   })
   .strict()
 
@@ -505,7 +534,9 @@ const HoppRESTSaveContextSchema = z.nullable(
       .object({
         originLocation: z.literal("user-collection"),
         folderPath: z.string(),
-        requestIndex: z.number(),
+        requestIndex: z.optional(z.number()),
+        exampleID: z.optional(z.string()),
+        requestRefID: z.optional(z.string()),
       })
       .strict(),
     z
@@ -514,6 +545,8 @@ const HoppRESTSaveContextSchema = z.nullable(
         requestID: z.string(),
         teamID: z.optional(z.string()),
         collectionID: z.optional(z.string()),
+        exampleID: z.optional(z.string()),
+        requestRefID: z.optional(z.string()),
       })
       .strict(),
   ])
@@ -535,10 +568,39 @@ export const REST_TAB_STATE_SCHEMA = z
     orderedDocs: z.array(
       z.object({
         tabID: z.string(),
-        doc: z
-          .object({
+        doc: z.union([
+          z.object({
+            type: z.literal("test-runner").catch("test-runner"),
+            config: z.object({
+              delay: z.number(),
+              iterations: z.number(),
+              keepVariableValues: z.boolean(),
+              persistResponses: z.boolean(),
+              stopOnError: z.boolean(),
+            }),
+            status: z.enum(["idle", "running", "stopped", "error"]),
+            collection: HoppRESTCollectionSchema,
+            collectionType: z.enum(["my-collections", "team-collections"]),
+            collectionID: z.optional(z.string()),
+            resultCollection: z.optional(HoppRESTCollectionSchema),
+            testRunnerMeta: z.object({
+              totalRequests: z.number(),
+              completedRequests: z.number(),
+              totalTests: z.number(),
+              passedTests: z.number(),
+              failedTests: z.number(),
+              totalTime: z.number(),
+            }),
+            request: z.nullable(entityReference(HoppRESTRequest)),
+            response: z.nullable(HoppRESTResponseSchema),
+            testResults: z.optional(z.nullable(HoppTestResultSchema)),
+            isDirty: z.boolean(),
+            inheritedProperties: z.optional(HoppInheritedPropertySchema),
+          }),
+          z.object({
             // !Versioned entity
             request: entityReference(HoppRESTRequest),
+            type: z.literal("request").catch("request"),
             isDirty: z.boolean(),
             saveContext: z.optional(HoppRESTSaveContextSchema),
             response: z.optional(z.nullable(HoppRESTResponseSchema)),
@@ -546,8 +608,16 @@ export const REST_TAB_STATE_SCHEMA = z
             responseTabPreference: z.optional(z.string()),
             optionTabPreference: z.optional(z.enum(validRestOperations)),
             inheritedProperties: z.optional(HoppInheritedPropertySchema),
-          })
-          .strict(),
+            cancelFunction: z.optional(z.function()),
+          }),
+          z.object({
+            type: z.literal("example-response").catch("example-response"),
+            response: entityReference(HoppRESTRequestResponse),
+            saveContext: z.optional(HoppRESTSaveContextSchema),
+            isDirty: z.boolean(),
+            inheritedProperties: z.optional(HoppInheritedPropertySchema),
+          }),
+        ]),
       })
     ),
   })

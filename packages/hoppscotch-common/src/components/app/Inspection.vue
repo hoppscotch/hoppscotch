@@ -42,6 +42,7 @@
               >
                 {{ inspector.text.text }}
                 <HoppSmartLink
+                  v-if="inspector.doc"
                   blank
                   :to="inspector.doc.link"
                   class="text-accent transition hover:text-accentDark"
@@ -50,9 +51,12 @@
                   <icon-lucide-arrow-up-right class="svg-icons" />
                 </HoppSmartLink>
               </span>
-              <span v-if="inspector.action" class="flex space-x-2 p-2">
+              <span
+                v-if="inspector.action ? inspector.action.showAction : true"
+                class="flex space-x-2 p-2"
+              >
                 <HoppButtonSecondary
-                  :label="inspector.action.text"
+                  :label="inspector.action?.text"
                   outline
                   filled
                   @click="

@@ -475,7 +475,7 @@ describe("SpotlightService", () => {
         expect(onResultSelectFn).not.toHaveBeenCalled()
       })
 
-      it("calls the correspondig searcher's onResultSelect method", () => {
+      it("calls the corresponding searcher's onResultSelect method", () => {
         const container = new TestContainer()
 
         const spotlight = container.bind(SpotlightService)

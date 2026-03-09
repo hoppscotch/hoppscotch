@@ -1,0 +1,55 @@
+{
+  "v": 3,
+  "name": "Multipart form data content type - Collection",
+  "folders": [],
+  "requests": [
+    {
+      "v": "7",
+      "endpoint": "https://echo.hoppscotch.io",
+      "name": "multipart-form-data-sample-req",
+      "params": [],
+      "headers": [],
+      "method": "POST",
+      "auth": {
+        "authType": "none",
+        "authActive": true,
+        "addTo": "HEADERS",
+        "grantTypeInfo": {
+          "authEndpoint": "test-authorization-endpoint",
+          "tokenEndpoint": "test-token-endpont",
+          "clientID": "test-client-id",
+          "clientSecret": "test-client-secret",
+          "isPKCE": true,
+          "codeVerifierMethod": "S256",
+          "grantType": "AUTHORIZATION_CODE",
+          "token": "test-token"
+        }
+      },
+      "preRequestScript": "",
+      "testScript": "pw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully derives the relevant headers based on the content type\", () => {\n    pw.expect(pw.response.body.headers['content-type']).toInclude(\"multipart/form-data\");\n});\n\npw.test(\"Successfully sends the form data in the request body\", () => {\n    // Dynamic value\n    pw.expect(pw.response.body.data).toBeType(\"string\");\n});",
+      "body": {
+        "contentType": "multipart/form-data",
+        "body": [
+          {
+            "key": "key1",
+            "value": "value1",
+            "active": true,
+            "isFile": false
+          },
+          {
+            "key": "key2",
+            "value": [{}],
+            "active": true,
+            "isFile": true
+          }
+        ]
+      },
+      "requestVariables": []
+    }
+  ],
+  "auth": {
+    "authType": "none",
+    "authActive": true
+  },
+  "headers": []
+}

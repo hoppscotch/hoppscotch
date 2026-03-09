@@ -13,7 +13,7 @@
 
   <HoppSmartPlaceholder
     v-else-if="accessTokens.length === 0"
-    :src="`/images/states/${colorMode}/pack.svg`"
+    :src="`/images/states/${colorMode.value}/pack.svg`"
     :alt="`${t('empty.access_tokens')}`"
     :text="t('empty.access_tokens')"
     @drop.stop
@@ -85,7 +85,7 @@
 
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
-import { useColorMode } from "@vueuse/core"
+import { useColorMode } from "@composables/theming"
 import { computed } from "vue"
 
 import { shortDateTime } from "~/helpers/utils/date"

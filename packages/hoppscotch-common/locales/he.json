@@ -24,8 +24,10 @@
     "go_back": "תחזור",
     "go_forward": "Go forward",
     "group_by": "Group by",
+    "hide_secret": "Hide secret",
     "label": "תווית",
     "learn_more": "למד עוד",
+    "download_here": "Download here",
     "less": "Less",
     "more": "יותר",
     "new": "חָדָשׁ",
@@ -43,6 +45,7 @@
     "search": "לחפש",
     "send": "לִשְׁלוֹחַ",
     "share": "Share",
+    "show_secret": "Show secret",
     "start": "הַתחָלָה",
     "starting": "Starting",
     "stop": "תפסיק",
@@ -95,14 +98,18 @@
     "twitter": "Twitter",
     "type_a_command_search": "הקלד פקודה או חפש ...",
     "we_use_cookies": "אנו משתמשים בעוגיות",
+    "updated_text": "Hoppscotch has been updated to v{version} 🎉",
     "whats_new": "מה חדש?",
+    "see_whats_new": "See what’s new",
     "wiki": "ויקי"
   },
   "auth": {
     "account_exists": "החשבון קיים עם אישורים שונים - התחבר לקישור שני החשבונות",
     "all_sign_in_options": "כל אפשרויות הכניסה",
+    "continue_with_auth_provider": "Continue with {provider}",
     "continue_with_email": "המשך עם מייל",
     "continue_with_github": "המשך עם GitHub",
+    "continue_with_github_enterprise": "Continue with GitHub Enterprise",
     "continue_with_google": "המשך עם גוגל",
     "continue_with_microsoft": "Continue with Microsoft",
     "email": "אימייל",
@@ -135,9 +142,30 @@
       "redirect_no_token_endpoint": "No Token Endpoint Defined",
       "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect",
       "something_went_wrong_on_token_generation": "Something went wrong on token generation",
-      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed"
+      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed",
+      "grant_type": "Grant Type",
+      "grant_type_auth_code": "Authorization Code",
+      "token_fetched_successfully": "Token fetched successfully",
+      "token_fetch_failed": "Failed to fetch token",
+      "validation_failed": "Validation Failed, please check the form fields",
+      "label_authorization_endpoint": "Authorization Endpoint",
+      "label_client_id": "Client ID",
+      "label_client_secret": "Client Secret",
+      "label_code_challenge": "Code Challenge",
+      "label_code_challenge_method": "Code Challenge Method",
+      "label_code_verifier": "Code Verifier",
+      "label_scopes": "Scopes",
+      "label_token_endpoint": "Token Endpoint",
+      "label_use_pkce": "Use PKCE",
+      "label_implicit": "Implicit",
+      "label_password": "Password",
+      "label_username": "Username",
+      "label_auth_code": "Authorization Code",
+      "label_client_credentials": "Client Credentials"
     },
     "pass_key_by": "Pass by",
+    "pass_by_query_params_label": "Query Parameters",
+    "pass_by_headers_label": "Headers",
     "password": "סיסמה",
     "save_to_inherit": "Please save this request in any collection to inherit the authorization",
     "token": "אֲסִימוֹן",
@@ -149,6 +177,7 @@
     "different_parent": "Cannot reorder collection with different parent",
     "edit": "ערוך אוסף",
     "import_or_create": "Import or create a collection",
+    "import_collection": "Import Collection",
     "invalid_name": "אנא ספק שם תקף לאוסף",
     "invalid_root_move": "Collection already in the root",
     "moved": "Moved Successfully",
@@ -165,6 +194,7 @@
     "save_to_collection": "Save to Collection",
     "select": "בחר אוסף",
     "select_location": "תבחר מיקום",
+    "details": "Details",
     "select_team": "בחר צוות",
     "team_collections": "אוספי צוות"
   },
@@ -183,7 +213,8 @@
     "remove_telemetry": "האם אתה בטוח שברצונך לבטל את הסכמתך לטלמטריה?",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "save_unsaved_tab": "Do you want to save changes made in this tab?",
-    "sync": "האם אתה בטוח שברצונך לסנכרן את סביבת העבודה הזו?"
+    "sync": "האם אתה בטוח שברצונך לסנכרן את סביבת העבודה הזו?",
+    "delete_access_token": "Are you sure you want to delete the access token {tokenLabel}?"
   },
   "context_menu": {
     "add_parameters": "Add to parameters",
@@ -237,13 +268,16 @@
     "pending_invites": "There are no pending invites for this team",
     "profile": "Login to view your profile",
     "protocols": "הפרוטוקולים ריקים",
+    "request_variables": "This request does not have any request variables",
     "schema": "התחבר לנקודת קצה של GraphQL",
+    "secret_environments": "Secrets are not synced to Hoppscotch",
     "shared_requests": "Shared requests are empty",
     "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "Subscriptions are empty",
     "team_name": "שם הקבוצה ריק",
     "teams": "הקבוצות ריקות",
     "tests": "אין בדיקות לבקשה זו",
+    "access_tokens": "Access tokens are empty",
     "shortcodes": "Shortcodes are empty"
   },
   "environment": {
@@ -270,6 +304,8 @@
     "quick_peek": "Environment Quick Peek",
     "replace_with_variable": "Replace with variable",
     "scope": "Scope",
+    "secrets": "Secrets",
+    "secret_value": "Secret value",
     "select": "בחר סביבה",
     "set": "Set environment",
     "set_as_environment": "Set as environment",
@@ -278,7 +314,10 @@
     "updated": "Environment updation",
     "value": "Value",
     "variable": "Variable",
-    "variable_list": "רשימת משתנים"
+    "variables": "Variables",
+    "variable_list": "רשימת משתנים",
+    "properties": "Environment Properties",
+    "details": "Details"
   },
   "error": {
     "authproviders_load_error": "Unable to load auth providers",
@@ -289,6 +328,8 @@
     "danger_zone": "Danger zone",
     "delete_account": "Your account is currently an owner in these teams:",
     "delete_account_description": "You must either remove yourself, transfer ownership, or delete these teams before you can delete your account.",
+    "empty_email_address": "Email Address cannot be empty",
+    "empty_profile_name": "Profile name cannot be empty",
     "empty_req_name": "שם הבקשה ריק",
     "f12_details": "(F12 לפרטים)",
     "gql_prettify_invalid_query": "לא ניתן היה לייפות שאילתה לא חוקית, לפתור שגיאות תחביר שאילתות ולנסות שוב",
@@ -296,6 +337,7 @@
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
+    "invalid_embed_link": "The embed does not exist or is invalid.",
     "json_parsing_failed": "Invalid JSON",
     "json_prettify_invalid_body": "לא ניתן היה לייפות גוף לא חוקי, לפתור שגיאות תחביר של json ולנסות שוב",
     "network_error": "There seems to be a network error. Please try again.",
@@ -307,17 +349,26 @@
     "page_not_found": "This page could not be found",
     "please_install_extension": "Please install the extension and add origin to the extension.",
     "proxy_error": "Proxy error",
+    "same_email_address": "Updated email address is same as the current email address",
+    "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "לא ניתן להפעיל סקריפט של בקשה מראש",
     "something_went_wrong": "משהו השתבש",
-    "test_script_fail": "Could not execute post-request script"
+    "post_request_script_fail": "Could not execute post-request script",
+    "reading_files": "Error while reading one or more files.",
+    "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
+    "generate_access_token": "Something went wrong while generating the access token",
+    "delete_access_token": "Something went wrong while deleting the access token"
   },
   "export": {
     "as_json": "ייצא כ- JSON",
     "create_secret_gist": "צור גיסט סודי",
+    "create_secret_gist_tooltip_text": "Export as secret Gist",
     "failed": "Something went wrong while exporting",
-    "gist_created": "גיסט נוצר",
+    "secret_gist_success": "Successfully exported as secret Gist",
     "require_github": "התחבר עם GitHub כדי ליצור תמצית סודית",
-    "title": "Export"
+    "title": "Export",
+    "success": "Successfully exported",
+    "gist_created": "גיסט נוצר"
   },
   "filter": {
     "all": "All",
@@ -339,7 +390,8 @@
     "mutations": "מוטציות",
     "schema": "סכֵימָה",
     "subscriptions": "מנויים",
-    "switch_connection": "Switch connection"
+    "switch_connection": "Switch connection",
+    "url_placeholder": "Enter a GraphQL endpoint URL"
   },
   "graphql_collections": {
     "title": "GraphQL Collections"
@@ -364,8 +416,8 @@
     "post_request_tests": "סקריפטים לבדיקה נכתבים ב- JavaScript ומופעלים לאחר קבלת התגובה.",
     "pre_request_script": "סקריפטים לבקשה מראש נכתבים ב- JavaScript ומופעלים לפני שליחת הבקשה.",
     "script_fail": "נראה שיש תקלה בסקריפט שלפני הבקשה. בדוק את השגיאה למטה ותקן את הסקריפט בהתאם.",
-    "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
-    "tests": "כתוב סקריפט בדיקה כדי לבצע ניפוי באגים באופן אוטומטי."
+    "post_request_script_fail": "There seems to be an error with post-request script. Please fix the errors and run tests again",
+    "post_request_script": "כתוב סקריפט בדיקה כדי לבצע ניפוי באגים באופן אוטומטי."
   },
   "hide": {
     "collection": "Collapse Collection Panel",
@@ -405,12 +457,17 @@
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment from a JSON file",
-    "title": "יְבוּא"
+    "title": "יְבוּא",
+    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of 10MB. Only the first {files} selected will be imported",
+    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of 10MB. Please select another file.",
+    "success": "Successfully imported"
   },
   "inspections": {
     "description": "Inspect possible errors",
     "environment": {
       "add_environment": "Add to Environment",
+      "add_environment_value": "Add value",
+      "empty_value": "Environment value is empty for the variable '{variable}' ",
       "not_found": "Environment variable “{environment}” not found."
     },
     "header": {
@@ -546,6 +603,7 @@
     "raw_body": "גוף בקשה גולמית",
     "rename": "Rename Request",
     "renamed": "שם הבקשה שונה",
+    "request_variables": "Request variables",
     "run": "לָרוּץ",
     "save": "להציל",
     "save_as": "שמור כ",
@@ -557,6 +615,7 @@
     "title": "בַּקָשָׁה",
     "type": "סוג בקשה",
     "url": "כתובת URL",
+    "url_placeholder": "Enter a URL or paste a cURL command",
     "variables": "משתנים",
     "view_my_links": "View my links",
     "copy_link": "העתק קישור"
@@ -564,7 +623,7 @@
   "response": {
     "audio": "Audio",
     "body": "גוף תגובה",
-    "filter_response_body": "Filter JSON response body (uses JSONPath syntax)",
+    "filter_response_body": "Filter JSON response body (uses jq syntax)",
     "headers": "כותרות",
     "html": "HTML",
     "image": "תמונה",
@@ -811,6 +870,13 @@
       "new": "Create new team",
       "switch_to_personal": "Switch to your personal workspace",
       "title": "Teams"
+    },
+    "phrases": {
+      "try": "Try",
+      "import_collections": "Import collections",
+      "create_environment": "Create environment",
+      "create_workspace": "Create workspace",
+      "share_request": "Share request"
     }
   },
   "sse": {
@@ -867,9 +933,9 @@
     "forum": "שאל שאלות וקבל תשובות",
     "github": "Follow us on Github",
     "shortcuts": "עיון באפליקציה מהר יותר",
-    "team": "צרו קשר עם הצוות",
     "title": "תמיכה",
-    "twitter": "עקבו אחרינו בטוויטר"
+    "twitter": "עקבו אחרינו בטוויטר",
+    "team": "צרו קשר עם הצוות"
   },
   "tab": {
     "authorization": "הרשאה",
@@ -889,6 +955,9 @@
     "query": "שאילתא",
     "schema": "Schema",
     "shared_requests": "Shared Requests",
+    "codegen": "Generate Code",
+    "code_snippet": "Code snippet",
+    "share_tab_request": "Share tab request",
     "socketio": "Socket.IO",
     "sse": "SSE",
     "tests": "בדיקות",
@@ -917,7 +986,6 @@
     "invite_tooltip": "Invite people to this workspace",
     "invited_to_team": "{owner} invited you to join {team}",
     "join": "Invitation accepted",
-    "join_beta": "הצטרף לתוכנית הביטא לגישה לצוותים.",
     "join_team": "Join {team}",
     "joined_team": "You have joined {team}",
     "joined_team_description": "You are now a member of this team",
@@ -950,7 +1018,12 @@
     "success_invites": "Success invites",
     "title": "צוותים",
     "we_sent_invite_link": "We sent an invite link to all invitees!",
-    "we_sent_invite_link_description": "Ask all invitees to check their inbox. Click on the link to join the team."
+    "invite_sent_smtp_disabled": "Invite links generated",
+    "we_sent_invite_link_description": "Ask all invitees to check their inbox. Click on the link to join the team.",
+    "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of Hoppscotch. Please use the Copy link button to copy and share the invite link manually.",
+    "copy_invite_link": "Copy Invite Link",
+    "search_title": "Team Requests",
+    "join_beta": "הצטרף לתוכנית הביטא לגישה לצוותים."
   },
   "team_environment": {
     "deleted": "Environment Deleted",
@@ -977,8 +1050,49 @@
   "workspace": {
     "change": "Change workspace",
     "personal": "My Workspace",
+    "other_workspaces": "My Workspaces",
     "team": "Team Workspace",
     "title": "Workspaces"
+  },
+  "site_protection": {
+    "login_to_continue": "Login to continue",
+    "login_to_continue_description": "You need to be logged in to access this Hoppscotch Enterprise Instance.",
+    "error_fetching_site_protection_status": "Something Went Wrong While Fetching Site Protection Status"
+  },
+  "access_tokens": {
+    "tab_title": "Tokens",
+    "section_title": "Personal Access Tokens",
+    "section_description": "Personal access tokens currently helps you connect the CLI to your Hoppscotch account",
+    "last_used_on": "Last used on",
+    "expires_on": "Expires on",
+    "no_expiration": "No expiration",
+    "expired": "Expired",
+    "copy_token_warning": "Make sure to copy your personal access token now. You won't be able to see it again!",
+    "token_purpose": "What's this token for?",
+    "expiration_label": "Expiration",
+    "scope_label": "Scope",
+    "workspace_read_only_access": "Read-only access to workspace data.",
+    "personal_workspace_access_limitation": "Personal Access Tokens can't access your personal workspace.",
+    "generate_token": "Generate Token",
+    "invalid_label": "Please provide a label for the token",
+    "no_expiration_verbose": "This token will never expire!",
+    "token_expires_on": "This token will expire on",
+    "generate_new_token": "Generate new token",
+    "generate_modal_title": "New Personal Access Token",
+    "deletion_success": "The access token {label} has been deleted"
+  },
+  "collection_runner": {
+    "collection_id": "Collection ID",
+    "environment_id": "Environment ID",
+    "cli_collection_id_description": "This collection ID will be used by the CLI collection runner for Hoppscotch.",
+    "cli_environment_id_description": "This environment ID will be used by the CLI collection runner for Hoppscotch.",
+    "include_active_environment": "Include active environment:",
+    "cli": "CLI",
+    "ui": "Runner (coming soon)",
+    "cli_command_generation_description_cloud": "Copy the below command and run it from the CLI. Please specify a personal access token.",
+    "cli_command_generation_description_sh": "Copy the below command and run it from the CLI. Please specify a personal access token and verify the generated SH instance server URL.",
+    "cli_command_generation_description_sh_with_server_url_placeholder": "Copy the below command and run it from the CLI. Please specify a personal access token and the SH instance server URL.",
+    "run_collection": "Run collection"
   },
   "shortcodes": {
     "actions": "Actions",

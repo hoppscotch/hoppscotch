@@ -109,7 +109,12 @@
 
             <td @click.stop class="flex justify-end w-20">
               <div class="mt-2 mr-5">
-                <tippy interactive trigger="click" theme="popover">
+                <tippy
+                  :key="user.uid"
+                  interactive
+                  trigger="click"
+                  theme="popover"
+                >
                   <HoppButtonSecondary
                     v-tippy="{ theme: 'tooltip' }"
                     :icon="IconMoreHorizontal"
@@ -203,11 +208,20 @@
       </div>
     </div>
 
+    <!-- Modals -->
     <UsersInviteModal
       v-if="showInviteUserModal"
       :smtp-enabled="smtpEnabled"
       @hide-modal="showInviteUserModal = false"
       @send-invite="sendInvite"
+      @copy-invite-link="copyInviteLink"
+    />
+    <UsersSuccessInviteModal
+      v-if="inviteSuccessModal"
+      v-model:invite-success="inviteSuccessModal"
+      :baseURL="baseURL"
+      :smtp-enabled="smtpEnabled"
+      @hide-modal="inviteSuccessModal = false"
       @copy-invite-link="copyInviteLink"
     />
     <HoppSmartConfirmModal
@@ -281,7 +295,7 @@ const t = useI18n();
 const toast = useToast();
 
 // Time and Date Helpers
-const getCreatedDate = (date: string) => format(new Date(date), 'dd-MM-yyyy');
+const getCreatedDate = (date: string) => format(new Date(date), 'dd-MMMM-yyyy');
 const getCreatedTime = (date: string) => format(new Date(date), 'hh:mm a');
 const getLastActiveOn = (date: string | null) =>
   date ? useTimeAgo(date).value : t('users.not_available');
@@ -406,7 +420,7 @@ enum PageDirection {
 }
 
 const page = ref(1);
-const { data } = useQuery({ query: MetricsDocument });
+const { data } = useQuery({ query: MetricsDocument, variables: {} });
 const usersCount = computed(() => data?.value?.infra.usersCount);
 
 const changePage = (direction: PageDirection) => {
@@ -451,8 +465,18 @@ const goToUserDetails = (user: UserInfoQuery['infra']['userInfo']) =>
   router.push('/users/' + user.uid);
 
 // Check if SMTP is enabled
-const { data: status } = useQuery({ query: IsSmtpEnabledDocument });
+const { data: status } = useQuery({
+  query: IsSmtpEnabledDocument,
+  variables: {},
+});
 const smtpEnabled = computed(() => status?.value?.isSMTPEnabled);
+const inviteSuccessModal = ref(false);
+
+const baseURL = import.meta.env.VITE_BASE_URL ?? '';
+const copyInviteLink = () => {
+  copyToClipboard(baseURL);
+  toast.success(t('state.link_copied_to_clipboard'));
+};
 
 // Send Invitation through Email
 const showInviteUserModal = ref(false);
@@ -482,16 +506,9 @@ const sendInvite = async (email: string) => {
   } else {
     if (smtpEnabled.value) toast.success(t('state.email_success'));
     showInviteUserModal.value = false;
+    inviteSuccessModal.value = true;
     return true;
   }
-};
-
-const copyInviteLink = async (email: string) => {
-  const result = await sendInvite(email);
-  if (!result) return;
-  const baseURL = import.meta.env.VITE_BASE_URL ?? '';
-  copyToClipboard(baseURL);
-  toast.success(t('state.link_copied_to_clipboard'));
 };
 
 // Make Multiple Users Admin

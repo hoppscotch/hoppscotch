@@ -1,17 +1,23 @@
 <template>
   <div class="flex flex-1 border-b border-dividerLight">
+    <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+      {{ t("agent.key") }}
+    </label>
     <SmartEnvInput
       v-model="auth.key"
       :auto-complete-env="true"
-      placeholder="Key"
+      placeholder="X-API-Key"
       :envs="envs"
     />
   </div>
   <div class="flex flex-1 border-b border-dividerLight">
+    <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+      {{ t("environment.value") }}
+    </label>
     <SmartEnvInput
       v-model="auth.value"
       :auto-complete-env="true"
-      placeholder="Value"
+      placeholder="sk_live_abc123xyz789"
       :envs="envs"
     />
   </div>

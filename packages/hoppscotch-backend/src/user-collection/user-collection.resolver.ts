@@ -16,6 +16,7 @@ import { AuthUser } from 'src/types/AuthUser';
 import { UserCollectionService } from './user-collection.service';
 import {
   UserCollection,
+  UserCollectionDuplicatedData,
   UserCollectionExportJSONData,
   UserCollectionRemovedData,
   UserCollectionReorderData,
@@ -131,6 +132,7 @@ export class UserCollectionResolver {
   })
   @UseGuards(GqlAuthGuard)
   async userCollection(
+    @GqlUser() user: AuthUser,
     @Args({
       type: () => ID,
       name: 'userCollectionID',
@@ -140,6 +142,7 @@ export class UserCollectionResolver {
   ) {
     const userCollection = await this.userCollectionService.getUserCollection(
       userCollectionID,
+      user.uid,
     );
 
     if (E.isLeft(userCollection)) throwErr(userCollection.left);
@@ -183,6 +186,30 @@ export class UserCollectionResolver {
 
     if (E.isLeft(jsonString)) throwErr(jsonString.left as string);
     return jsonString.right;
+  }
+
+  @Query(() => String, {
+    description:
+      'Returns a JSON string of all the contents of a User Collection',
+  })
+  @UseGuards(GqlAuthGuard)
+  async exportUserCollectionToJSON(
+    @GqlUser() user: AuthUser,
+    @Args({
+      type: () => ID,
+      name: 'collectionID',
+      description: 'ID of the user collection',
+    })
+    collectionID: string,
+  ) {
+    const jsonString =
+      await this.userCollectionService.exportUserCollectionToJSONObject(
+        user.uid,
+        collectionID,
+      );
+
+    if (E.isLeft(jsonString)) throwErr(jsonString.left as string);
+    return JSON.stringify(jsonString.right);
   }
 
   // Mutations
@@ -351,7 +378,7 @@ export class UserCollectionResolver {
     return res.right;
   }
 
-  @Mutation(() => Boolean, {
+  @Mutation(() => UserCollectionExportJSONData, {
     description: 'Import collections from JSON string to the specified Team',
   })
   @UseGuards(GqlAuthGuard)
@@ -388,6 +415,36 @@ export class UserCollectionResolver {
 
     if (E.isLeft(updatedUserCollection)) throwErr(updatedUserCollection.left);
     return updatedUserCollection.right;
+  }
+
+  @Mutation(() => Boolean, {
+    description: 'Duplicate a User Collection',
+  })
+  @UseGuards(GqlAuthGuard)
+  async duplicateUserCollection(
+    @GqlUser() user: AuthUser,
+    @Args({
+      name: 'collectionID',
+      description: 'ID of the collection',
+    })
+    collectionID: string,
+    @Args({
+      name: 'reqType',
+      description: 'Type of UserCollection',
+      type: () => ReqType,
+    })
+    reqType: ReqType,
+  ) {
+    const duplicatedUserCollection =
+      await this.userCollectionService.duplicateUserCollection(
+        collectionID,
+        user.uid,
+        reqType,
+      );
+
+    if (E.isLeft(duplicatedUserCollection))
+      throwErr(duplicatedUserCollection.left);
+    return duplicatedUserCollection.right;
   }
 
   // Subscriptions
@@ -439,5 +496,15 @@ export class UserCollectionResolver {
   @UseGuards(GqlAuthGuard)
   userCollectionOrderUpdated(@GqlUser() user: AuthUser) {
     return this.pubSub.asyncIterator(`user_coll/${user.uid}/order_updated`);
+  }
+
+  @Subscription(() => UserCollectionDuplicatedData, {
+    description: 'Listen to when a User Collection has been duplicated',
+    resolve: (value) => value,
+  })
+  @SkipThrottle()
+  @UseGuards(GqlAuthGuard)
+  userCollectionDuplicated(@GqlUser() user: AuthUser) {
+    return this.pubSub.asyncIterator(`user_coll/${user.uid}/duplicated`);
   }
 }

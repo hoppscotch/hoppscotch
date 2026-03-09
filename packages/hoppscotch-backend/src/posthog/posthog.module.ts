@@ -1,9 +1,7 @@
 import { Module } from '@nestjs/common';
-import { PosthogService } from './posthog.service';
-import { PrismaModule } from 'src/prisma/prisma.module';
+import { PostHogService } from './posthog.service';
 
 @Module({
-  imports: [PrismaModule],
-  providers: [PosthogService],
+  providers: [PostHogService],
 })
-export class PosthogModule {}
+export class PostHogModule {}

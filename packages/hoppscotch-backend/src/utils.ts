@@ -1,22 +1,39 @@
 import { ExecutionContext, HttpException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
+import { Prisma } from 'src/generated/prisma/client';
+import * as A from 'fp-ts/Array';
+import * as E from 'fp-ts/Either';
 import { pipe } from 'fp-ts/lib/function';
 import * as O from 'fp-ts/Option';
-import * as TE from 'fp-ts/TaskEither';
 import * as T from 'fp-ts/Task';
-import * as E from 'fp-ts/Either';
-import * as A from 'fp-ts/Array';
-import { TeamMemberRole } from './team/team.model';
-import { User } from './user/user.model';
-import {
-  ENV_EMPTY_AUTH_PROVIDERS,
-  ENV_NOT_FOUND_KEY_AUTH_PROVIDERS,
-  ENV_NOT_SUPPORT_AUTH_PROVIDERS,
-  JSON_INVALID,
-} from './errors';
-import { AuthProvider } from './auth/helper';
+import * as TE from 'fp-ts/TaskEither';
+import { ENV_NOT_FOUND_KEY_DATA_ENCRYPTION_KEY, JSON_INVALID } from './errors';
+import { TeamAccessRole } from './team/team.model';
 import { RESTError } from './types/RESTError';
+import * as crypto from 'crypto';
+
+/**
+ * Delays the execution for a given number of milliseconds.
+ * @param ms The number of milliseconds to delay
+ * @returns A promise that resolves after the delay
+ */
+export function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Safely parses a string to an integer, returning undefined if the value is null, undefined, or results in NaN.
+ * @param value The string value to parse
+ * @returns The parsed integer or undefined
+ */
+export function parseIntSafe(
+  value: string | null | undefined,
+): number | undefined {
+  if (!value) return undefined;
+  const parsed = parseInt(value, 10);
+  return !isNaN(parsed) ? parsed : undefined;
+}
 
 /**
  * A workaround to throw an exception in an expression.
@@ -74,7 +91,7 @@ export const getAnnotatedRequiredRoles = (
   context: ExecutionContext,
 ) =>
   pipe(
-    reflector.get<TeamMemberRole[]>('requiresTeamRole', context.getHandler()),
+    reflector.get<TeamAccessRole[]>('requiresTeamRole', context.getHandler()),
     O.fromNullable,
   );
 
@@ -114,6 +131,17 @@ export const getGqlArg = <ArgName extends string>(
   );
 
 /**
+ * To the daring adventurer who has stumbled upon this relic of code... welcome.
+ * Many have gazed upon its depths, yet few have returned with answers.
+ * I could have deleted it, but that felt... too easy, too final.
+ *
+ * If you're still reading, perhaps you're the one destined to unravel its secrets.
+ * Or, maybe you're like me—content to let it linger, a puzzle for the ages.
+ * The choice is yours, but beware... once you start, there is no turning back.
+ *
+ * PLEASE, NO ONE KNOWS HOW THIS WORKS...
+ * -- Balu, whispering from the great beyond... probably still trying to understand this damn thing.
+ *
  * Sequences an array of TaskEither values while maintaining an array of all the error values
  * @param arr Array of TaskEithers
  * @returns A TaskEither saying all the errors possible on the left or all the success values on the right
@@ -214,41 +242,11 @@ export function stringToJson<T>(
  * @returns boolean if title is of valid length or not
  */
 export function isValidLength(title: string, length: number) {
-  if (title.length < length) {
+  if (!title || title.trim() === '' || title.length < length) {
     return false;
   }
 
   return true;
-}
-
-/**
- * This function is called by bootstrap() in main.ts
- * It checks if the "VITE_ALLOWED_AUTH_PROVIDERS" environment variable is properly set or not.
- * If not, it throws an error.
- */
-export function checkEnvironmentAuthProvider(
-  VITE_ALLOWED_AUTH_PROVIDERS: string,
-) {
-  if (!VITE_ALLOWED_AUTH_PROVIDERS) {
-    throw new Error(ENV_NOT_FOUND_KEY_AUTH_PROVIDERS);
-  }
-
-  if (VITE_ALLOWED_AUTH_PROVIDERS === '') {
-    throw new Error(ENV_EMPTY_AUTH_PROVIDERS);
-  }
-
-  const givenAuthProviders = VITE_ALLOWED_AUTH_PROVIDERS.split(',').map(
-    (provider) => provider.toLocaleUpperCase(),
-  );
-  const supportedAuthProviders = Object.values(AuthProvider).map(
-    (provider: string) => provider.toLocaleUpperCase(),
-  );
-
-  for (const givenAuthProvider of givenAuthProviders) {
-    if (!supportedAuthProviders.includes(givenAuthProvider)) {
-      throw new Error(ENV_NOT_SUPPORT_AUTH_PROVIDERS);
-    }
-  }
 }
 
 /**
@@ -285,4 +283,88 @@ export function escapeSqlLikeString(str: string) {
       // and double/single quotes
     }
   });
+}
+
+/**
+ * Calculate the expiration date of the token
+ *
+ * @param expiresInDays Number of days the token is valid for
+ * @returns Date object of the expiration date
+ */
+export function calculateExpirationDate(expiresInDays: null | number) {
+  if (expiresInDays === null) return null;
+  return new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000);
+}
+
+/*
+ * Transforms the collection level properties (authorization & headers) under the `data` field.
+ * Preserves `null` values and prevents duplicate stringification.
+ *
+ * @param {Prisma.JsonValue} collectionData - The team collection data to transform.
+ * @returns {string | null} The transformed team collection data as a string.
+ */
+export function transformCollectionData(
+  collectionData: Prisma.JsonValue,
+): string | null {
+  if (!collectionData) {
+    return null;
+  }
+
+  return typeof collectionData === 'string'
+    ? collectionData
+    : JSON.stringify(collectionData);
+}
+
+// Encrypt and Decrypt functions. InfraConfig and Account table uses these functions to encrypt and decrypt the data.
+const ENCRYPTION_ALGORITHM = 'aes-256-cbc';
+
+/**
+ * Encrypts a text using a key
+ * @param text The text to encrypt
+ * @param key The key to use for encryption
+ * @returns The encrypted text
+ */
+export function encrypt(text: string, key = process.env.DATA_ENCRYPTION_KEY) {
+  if (!key) throw new Error(ENV_NOT_FOUND_KEY_DATA_ENCRYPTION_KEY);
+
+  if (!text || text === '') return text;
+
+  const iv = crypto.randomBytes(16);
+  const cipher = crypto.createCipheriv(
+    ENCRYPTION_ALGORITHM,
+    Buffer.from(key),
+    iv,
+  );
+  let encrypted = cipher.update(text);
+  encrypted = Buffer.concat([encrypted, cipher.final()]);
+  return iv.toString('hex') + ':' + encrypted.toString('hex');
+}
+
+/**
+ * Decrypts a text using a key
+ * @param text The text to decrypt
+ * @param key The key to use for decryption
+ * @returns The decrypted text
+ */
+export function decrypt(
+  encryptedData: string,
+  key = process.env.DATA_ENCRYPTION_KEY,
+) {
+  if (!key) throw new Error(ENV_NOT_FOUND_KEY_DATA_ENCRYPTION_KEY);
+
+  if (!encryptedData || encryptedData === '') {
+    return encryptedData;
+  }
+
+  const textParts = encryptedData.split(':');
+  const iv = Buffer.from(textParts.shift(), 'hex');
+  const encryptedText = Buffer.from(textParts.join(':'), 'hex');
+  const decipher = crypto.createDecipheriv(
+    ENCRYPTION_ALGORITHM,
+    Buffer.from(key),
+    iv,
+  );
+  let decrypted = decipher.update(encryptedText);
+  decrypted = Buffer.concat([decrypted, decipher.final()]);
+  return decrypted.toString();
 }

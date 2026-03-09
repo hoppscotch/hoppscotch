@@ -61,7 +61,7 @@ export class ParameterMenuService extends Service implements ContextMenu {
       text = url.search.slice(1)
     }
 
-    const regex = /(\w+)=(\w+)/g
+    const regex = /([^&=]+)=([^&]+)/g
     const matches = text.matchAll(regex)
     const params: Param = {}
 
@@ -89,21 +89,28 @@ export class ParameterMenuService extends Service implements ContextMenu {
 
     const tabService = getService(RESTTabService)
 
+    if (tabService.currentActiveTab.value.document.type === "test-runner")
+      return
+
+    const currentActiveRequest =
+      tabService.currentActiveTab.value.document.type === "request"
+        ? tabService.currentActiveTab.value.document.request
+        : tabService.currentActiveTab.value.document.response.originalRequest
+
     // add the parameters to the current request parameters
-    tabService.currentActiveTab.value.document.request.params = [
-      ...tabService.currentActiveTab.value.document.request.params,
-      ...queryParams,
+    currentActiveRequest.params = [
+      ...currentActiveRequest.params,
+      ...queryParams.map((param) => ({ ...param, description: "" })),
     ]
 
     if (newURL) {
-      tabService.currentActiveTab.value.document.request.endpoint = newURL
+      currentActiveRequest.endpoint = newURL
     } else {
       // remove the parameter from the URL
       const textRegex = new RegExp(`\\b${text.replace(/\?/g, "")}\\b`, "gi")
-      const sanitizedWord =
-        tabService.currentActiveTab.value.document.request.endpoint
+      const sanitizedWord = currentActiveRequest.endpoint
       const newURL = sanitizedWord.replace(textRegex, "")
-      tabService.currentActiveTab.value.document.request.endpoint = newURL
+      currentActiveRequest.endpoint = newURL
     }
   }
 
@@ -113,7 +120,7 @@ export class ParameterMenuService extends Service implements ContextMenu {
     if (urlAndParameterRegex.test(text)) {
       results.value = [
         {
-          id: "environment",
+          id: "parameter",
           text: {
             type: "text",
             text: this.t("context_menu.add_parameters"),

@@ -28,7 +28,7 @@ export const arrayFlatMap =
 
 export const tupleToRecord = <
   KeyType extends string | number | symbol,
-  ValueType
+  ValueType,
 >(
   tuples: [KeyType, ValueType][]
 ): Record<KeyType, ValueType> =>

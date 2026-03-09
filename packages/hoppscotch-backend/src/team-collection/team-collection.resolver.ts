@@ -9,7 +9,7 @@ import {
   ID,
 } from '@nestjs/graphql';
 import { CollectionReorderData, TeamCollection } from './team-collection.model';
-import { Team, TeamMemberRole } from '../team/team.model';
+import { Team, TeamAccessRole } from '../team/team.model';
 import { TeamCollectionService } from './team-collection.service';
 import { GqlAuthGuard } from '../guards/gql-auth.guard';
 import { GqlTeamMemberGuard } from '../team/guards/gql-team-member.guard';
@@ -24,7 +24,6 @@ import {
   GetRootTeamCollectionsArgs,
   MoveTeamCollectionArgs,
   RenameTeamCollectionArgs,
-  ReplaceTeamCollectionArgs,
   UpdateTeamCollectionArgs,
   UpdateTeamCollectionOrderArgs,
 } from './input-type.args';
@@ -86,20 +85,49 @@ export class TeamCollectionResolver {
   })
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(
-    TeamMemberRole.VIEWER,
-    TeamMemberRole.EDITOR,
-    TeamMemberRole.OWNER,
+    TeamAccessRole.VIEWER,
+    TeamAccessRole.EDITOR,
+    TeamAccessRole.OWNER,
   )
   async exportCollectionsToJSON(
     @Args({ name: 'teamID', description: 'ID of the team', type: () => ID })
     teamID: string,
   ) {
-    const jsonString = await this.teamCollectionService.exportCollectionsToJSON(
-      teamID,
-    );
+    const jsonString =
+      await this.teamCollectionService.exportCollectionsToJSON(teamID);
 
     if (E.isLeft(jsonString)) throwErr(jsonString.left as string);
     return jsonString.right;
+  }
+
+  @Query(() => String, {
+    description:
+      'Returns a JSON string of all the contents of a Team Collection',
+  })
+  @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
+  @RequiresTeamRole(
+    TeamAccessRole.VIEWER,
+    TeamAccessRole.EDITOR,
+    TeamAccessRole.OWNER,
+  )
+  async exportCollectionToJSON(
+    @Args({ name: 'teamID', description: 'ID of the team', type: () => ID })
+    teamID: string,
+    @Args({
+      name: 'collectionID',
+      description: 'ID of the collection',
+      type: () => ID,
+    })
+    collectionID: string,
+  ) {
+    const collectionData =
+      await this.teamCollectionService.exportCollectionToJSONObject(
+        teamID,
+        collectionID,
+      );
+
+    if (E.isLeft(collectionData)) throwErr(collectionData.left as string);
+    return JSON.stringify(collectionData.right);
   }
 
   @Query(() => [TeamCollection], {
@@ -107,9 +135,9 @@ export class TeamCollectionResolver {
   })
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(
-    TeamMemberRole.VIEWER,
-    TeamMemberRole.EDITOR,
-    TeamMemberRole.OWNER,
+    TeamAccessRole.VIEWER,
+    TeamAccessRole.EDITOR,
+    TeamAccessRole.OWNER,
   )
   async rootCollectionsOfTeam(@Args() args: GetRootTeamCollectionsArgs) {
     return this.teamCollectionService.getTeamRootCollections(
@@ -125,9 +153,9 @@ export class TeamCollectionResolver {
   })
   @UseGuards(GqlAuthGuard, GqlCollectionTeamMemberGuard)
   @RequiresTeamRole(
-    TeamMemberRole.VIEWER,
-    TeamMemberRole.EDITOR,
-    TeamMemberRole.OWNER,
+    TeamAccessRole.VIEWER,
+    TeamAccessRole.EDITOR,
+    TeamAccessRole.OWNER,
   )
   async collection(
     @Args({
@@ -137,9 +165,8 @@ export class TeamCollectionResolver {
     })
     collectionID: string,
   ) {
-    const teamCollections = await this.teamCollectionService.getCollection(
-      collectionID,
-    );
+    const teamCollections =
+      await this.teamCollectionService.getCollection(collectionID);
 
     if (E.isLeft(teamCollections)) throwErr(teamCollections.left);
     return <TeamCollection>{
@@ -158,7 +185,7 @@ export class TeamCollectionResolver {
       'Creates a collection at the root of the team hierarchy (no parent collection)',
   })
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
-  @RequiresTeamRole(TeamMemberRole.OWNER, TeamMemberRole.EDITOR)
+  @RequiresTeamRole(TeamAccessRole.OWNER, TeamAccessRole.EDITOR)
   async createRootCollection(@Args() args: CreateRootTeamCollectionArgs) {
     const teamCollection = await this.teamCollectionService.createCollection(
       args.teamID,
@@ -175,7 +202,7 @@ export class TeamCollectionResolver {
     description: 'Import collections from JSON string to the specified Team',
   })
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
-  @RequiresTeamRole(TeamMemberRole.OWNER, TeamMemberRole.EDITOR)
+  @RequiresTeamRole(TeamAccessRole.OWNER, TeamAccessRole.EDITOR)
   async importCollectionsFromJSON(
     @Args({
       name: 'teamID',
@@ -204,32 +231,14 @@ export class TeamCollectionResolver {
         parentCollectionID ?? null,
       );
     if (E.isLeft(importedCollection)) throwErr(importedCollection.left);
-    return importedCollection.right;
-  }
-
-  @Mutation(() => Boolean, {
-    description:
-      'Replace existing collections of a specific team with collections in JSON string',
-  })
-  @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
-  @RequiresTeamRole(TeamMemberRole.OWNER, TeamMemberRole.EDITOR)
-  async replaceCollectionsWithJSON(@Args() args: ReplaceTeamCollectionArgs) {
-    const teamCollection =
-      await this.teamCollectionService.replaceCollectionsWithJSON(
-        args.jsonString,
-        args.teamID,
-        args.parentCollectionID ?? null,
-      );
-
-    if (E.isLeft(teamCollection)) throwErr(teamCollection.left);
-    return teamCollection.right;
+    return true;
   }
 
   @Mutation(() => TeamCollection, {
     description: 'Create a collection that has a parent collection',
   })
   @UseGuards(GqlAuthGuard, GqlCollectionTeamMemberGuard)
-  @RequiresTeamRole(TeamMemberRole.OWNER, TeamMemberRole.EDITOR)
+  @RequiresTeamRole(TeamAccessRole.OWNER, TeamAccessRole.EDITOR)
   async createChildCollection(@Args() args: CreateChildTeamCollectionArgs) {
     const team = await this.teamCollectionService.getTeamOfCollection(
       args.collectionID,
@@ -252,7 +261,7 @@ export class TeamCollectionResolver {
     deprecationReason: 'Switch to updateTeamCollection mutation instead',
   })
   @UseGuards(GqlAuthGuard, GqlCollectionTeamMemberGuard)
-  @RequiresTeamRole(TeamMemberRole.OWNER, TeamMemberRole.EDITOR)
+  @RequiresTeamRole(TeamAccessRole.OWNER, TeamAccessRole.EDITOR)
   async renameCollection(@Args() args: RenameTeamCollectionArgs) {
     const updatedTeamCollection =
       await this.teamCollectionService.renameCollection(
@@ -268,7 +277,7 @@ export class TeamCollectionResolver {
     description: 'Delete a collection',
   })
   @UseGuards(GqlAuthGuard, GqlCollectionTeamMemberGuard)
-  @RequiresTeamRole(TeamMemberRole.OWNER, TeamMemberRole.EDITOR)
+  @RequiresTeamRole(TeamAccessRole.OWNER, TeamAccessRole.EDITOR)
   async deleteCollection(
     @Args({
       name: 'collectionID',
@@ -277,9 +286,8 @@ export class TeamCollectionResolver {
     })
     collectionID: string,
   ) {
-    const result = await this.teamCollectionService.deleteCollection(
-      collectionID,
-    );
+    const result =
+      await this.teamCollectionService.deleteCollection(collectionID);
 
     if (E.isLeft(result)) throwErr(result.left);
     return result.right;
@@ -290,7 +298,7 @@ export class TeamCollectionResolver {
       'Move a collection into a new parent collection or the root of the team',
   })
   @UseGuards(GqlAuthGuard, GqlCollectionTeamMemberGuard)
-  @RequiresTeamRole(TeamMemberRole.OWNER, TeamMemberRole.EDITOR)
+  @RequiresTeamRole(TeamAccessRole.OWNER, TeamAccessRole.EDITOR)
   async moveCollection(@Args() args: MoveTeamCollectionArgs) {
     const res = await this.teamCollectionService.moveCollection(
       args.collectionID,
@@ -304,7 +312,7 @@ export class TeamCollectionResolver {
     description: 'Update the order of collections',
   })
   @UseGuards(GqlAuthGuard, GqlCollectionTeamMemberGuard)
-  @RequiresTeamRole(TeamMemberRole.OWNER, TeamMemberRole.EDITOR)
+  @RequiresTeamRole(TeamAccessRole.OWNER, TeamAccessRole.EDITOR)
   async updateCollectionOrder(@Args() args: UpdateTeamCollectionOrderArgs) {
     const request = await this.teamCollectionService.updateCollectionOrder(
       args.collectionID,
@@ -318,7 +326,7 @@ export class TeamCollectionResolver {
     description: 'Update Team Collection details',
   })
   @UseGuards(GqlAuthGuard, GqlCollectionTeamMemberGuard)
-  @RequiresTeamRole(TeamMemberRole.OWNER, TeamMemberRole.EDITOR)
+  @RequiresTeamRole(TeamAccessRole.OWNER, TeamAccessRole.EDITOR)
   async updateTeamCollection(@Args() args: UpdateTeamCollectionArgs) {
     const updatedTeamCollection =
       await this.teamCollectionService.updateTeamCollection(
@@ -331,6 +339,26 @@ export class TeamCollectionResolver {
     return updatedTeamCollection.right;
   }
 
+  @Mutation(() => Boolean, {
+    description: 'Duplicate a Team Collection',
+  })
+  @UseGuards(GqlAuthGuard, GqlCollectionTeamMemberGuard)
+  @RequiresTeamRole(TeamAccessRole.OWNER, TeamAccessRole.EDITOR)
+  async duplicateTeamCollection(
+    @Args({
+      name: 'collectionID',
+      description: 'ID of the collection',
+    })
+    collectionID: string,
+  ) {
+    const duplicatedTeamCollection =
+      await this.teamCollectionService.duplicateTeamCollection(collectionID);
+
+    if (E.isLeft(duplicatedTeamCollection))
+      throwErr(duplicatedTeamCollection.left);
+    return duplicatedTeamCollection.right;
+  }
+
   // Subscriptions
 
   @Subscription(() => TeamCollection, {
@@ -339,9 +367,9 @@ export class TeamCollectionResolver {
     resolve: (value) => value,
   })
   @RequiresTeamRole(
-    TeamMemberRole.OWNER,
-    TeamMemberRole.EDITOR,
-    TeamMemberRole.VIEWER,
+    TeamAccessRole.OWNER,
+    TeamAccessRole.EDITOR,
+    TeamAccessRole.VIEWER,
   )
   @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
@@ -361,9 +389,9 @@ export class TeamCollectionResolver {
     resolve: (value) => value,
   })
   @RequiresTeamRole(
-    TeamMemberRole.OWNER,
-    TeamMemberRole.EDITOR,
-    TeamMemberRole.VIEWER,
+    TeamAccessRole.OWNER,
+    TeamAccessRole.EDITOR,
+    TeamAccessRole.VIEWER,
   )
   @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
@@ -383,9 +411,9 @@ export class TeamCollectionResolver {
     resolve: (value) => value,
   })
   @RequiresTeamRole(
-    TeamMemberRole.OWNER,
-    TeamMemberRole.EDITOR,
-    TeamMemberRole.VIEWER,
+    TeamAccessRole.OWNER,
+    TeamAccessRole.EDITOR,
+    TeamAccessRole.VIEWER,
   )
   @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
@@ -405,9 +433,9 @@ export class TeamCollectionResolver {
     resolve: (value) => value,
   })
   @RequiresTeamRole(
-    TeamMemberRole.OWNER,
-    TeamMemberRole.EDITOR,
-    TeamMemberRole.VIEWER,
+    TeamAccessRole.OWNER,
+    TeamAccessRole.EDITOR,
+    TeamAccessRole.VIEWER,
   )
   @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
@@ -427,9 +455,9 @@ export class TeamCollectionResolver {
     resolve: (value) => value,
   })
   @RequiresTeamRole(
-    TeamMemberRole.OWNER,
-    TeamMemberRole.EDITOR,
-    TeamMemberRole.VIEWER,
+    TeamAccessRole.OWNER,
+    TeamAccessRole.EDITOR,
+    TeamAccessRole.VIEWER,
   )
   @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)

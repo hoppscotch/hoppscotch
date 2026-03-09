@@ -572,11 +572,11 @@ const cycleDownMethod = () => {
 }
 
 const saveRequest = async (options?: { silent?: boolean }) => {
-  const isValidToken = await handleTokenValidation()
+  const silent = options?.silent === true
+  const isValidToken = silent ? isValidUser() : await handleTokenValidation()
   if (!isValidToken) return
 
   const saveCtx = tab.value.document.saveContext
-  const silent = options?.silent === true
 
   if (!saveCtx) {
     showSaveRequestModal.value = true

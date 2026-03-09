@@ -146,7 +146,7 @@ export class TeamResolver {
     description: 'Returns the list of teams a user is a member of (admin-only)',
   })
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
-  async teamsOfUser(
+  async teamsOfUserByAdmin(
     @Args({
       name: 'userUid',
       type: () => ID,

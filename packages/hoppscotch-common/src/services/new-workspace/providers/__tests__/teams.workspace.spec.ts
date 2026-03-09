@@ -946,12 +946,6 @@ describe("TeamsWorkspaceProviderService", () => {
             "parentCollectionID": null,
           },
           {
-            "collectionID": "root_collection_id_0",
-            "isLastItem": false,
-            "name": "Test Collection #0",
-            "parentCollectionID": null,
-          },
-          {
             "collectionID": "root_collection_id_1",
             "isLastItem": false,
             "name": "Test Collection #1",
@@ -997,12 +991,6 @@ describe("TeamsWorkspaceProviderService", () => {
     }).toMatchInlineSnapshot(`
       {
         "collections": [
-          {
-            "collectionID": "root_collection_id_0",
-            "isLastItem": false,
-            "name": "Test Collection #0",
-            "parentCollectionID": null,
-          },
           {
             "collectionID": "root_collection_id_0",
             "isLastItem": false,

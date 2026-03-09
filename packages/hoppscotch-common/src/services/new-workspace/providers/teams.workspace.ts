@@ -142,7 +142,7 @@ export class TeamsWorkspaceProviderService
   }
 
   public async init() {
-    this.fetchingWorkspaces = ref(true)
+    this.fetchingWorkspaces.value = true
 
     const res = await fetchAllTeams()
 
@@ -604,10 +604,6 @@ export class TeamsWorkspaceProviderService
       return req
     })
 
-    if (E.isLeft(res)) {
-      return res
-    }
-
     return E.right(undefined)
   }
 
@@ -977,9 +973,9 @@ export class TeamsWorkspaceProviderService
             return
           }
 
-          // remove the existing collections
+          // remove existing root collections before re-inserting fresh ones
           this.collections.value = this.collections.value.filter(
-            (collection) => !collection.parentCollectionID
+            (collection) => collection.parentCollectionID !== null
           )
 
           let previousOrder: string | null = null
@@ -1682,7 +1678,7 @@ export class TeamsWorkspaceProviderService
     }
 
     const environment = this.environments.value.find(
-      (env) => env.id === environmentHandleRef.value.data.workspaceID
+      (env) => env.id === environmentHandleRef.value.data.environmentID
     )
 
     if (!environment) {
@@ -1733,7 +1729,7 @@ export class TeamsWorkspaceProviderService
     }
 
     const environment = this.environments.value.find(
-      (env) => env.id === environmentHandleRef.value.data.workspaceID
+      (env) => env.id === environmentHandleRef.value.data.environmentID
     )
 
     if (!environment) {

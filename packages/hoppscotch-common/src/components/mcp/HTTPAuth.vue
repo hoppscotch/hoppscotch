@@ -2,11 +2,20 @@
   <div class="flex flex-col">
     <!-- Auth Type Selector -->
     <div class="p-4 border-b border-dividerLight">
-      <HoppSmartSelect
-        v-model="authType"
-        :options="authTypes"
-        :label="t('authorization.type')"
-      />
+      <label
+        class="text-xs font-semibold text-secondaryLight uppercase mb-2 block"
+      >
+        {{ t("authorization.type") }}
+      </label>
+      <div class="flex flex-wrap gap-2">
+        <HoppButtonSecondary
+          v-for="option in authTypes"
+          :key="option.value"
+          :label="option.label"
+          :filled="authType === option.value"
+          @click="authType = option.value"
+        />
+      </div>
     </div>
 
     <!-- None -->
@@ -86,13 +95,18 @@
         <label class="text-xs font-semibold text-secondaryLight uppercase">
           {{ t("authorization.add_to") }}
         </label>
-        <HoppSmartSelect
-          v-model="apiAddTo"
-          :options="[
-            { label: 'Headers', value: 'HEADERS' },
-            { label: 'Query Parameters', value: 'QUERY_PARAMS' },
-          ]"
-        />
+        <div class="flex gap-2">
+          <HoppButtonSecondary
+            label="Headers"
+            :filled="apiAddTo === 'HEADERS'"
+            @click="apiAddTo = 'HEADERS'"
+          />
+          <HoppButtonSecondary
+            label="Query Parameters"
+            :filled="apiAddTo === 'QUERY_PARAMS'"
+            @click="apiAddTo = 'QUERY_PARAMS'"
+          />
+        </div>
       </div>
     </div>
   </div>

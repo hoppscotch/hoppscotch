@@ -25,6 +25,7 @@ import IconWebsocket from "~icons/hopp/websocket"
 import IconSocketio from "~icons/hopp/socketio"
 import IconMqtt from "~icons/hopp/mqtt"
 import IconSse from "~icons/lucide/satellite-dish"
+import IconMcp from "~icons/lucide/brain"
 
 const t = useI18n()
 const router = useRouter()
@@ -50,6 +51,11 @@ const REALTIME_NAVIGATION = [
     target: "mqtt",
     title: t("tab.mqtt"),
     icon: IconMqtt,
+  },
+  {
+    target: "mcp",
+    title: t("tab.mcp"),
+    icon: IconMcp,
   },
 ] as const
 

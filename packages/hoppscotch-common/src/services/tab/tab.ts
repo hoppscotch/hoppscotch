@@ -11,7 +11,7 @@ import {
   shallowReadonly,
   watch,
 } from "vue"
-import { HoppRESTDocument } from "~/helpers/rest/document"
+import { HoppRequestDocument } from "~/helpers/rest/document"
 import {
   HoppTab,
   PersistableTabState,
@@ -138,7 +138,7 @@ export abstract class TabService<Doc>
         let resolvedTabDoc = doc.doc
 
         // TODO: Account for GQL
-        const { saveContext } = doc.doc as HoppRESTDocument | HoppGQLDocument
+        const { saveContext } = doc.doc as HoppRequestDocument | HoppGQLDocument
 
         if (saveContext?.originLocation === "workspace-user-collection") {
           const { providerID, requestID, workspaceID } = saveContext
@@ -290,7 +290,7 @@ export abstract class TabService<Doc>
   }
 
   public getPersistedDocument(tabDoc: Doc): Doc {
-    const { saveContext } = tabDoc as HoppRESTDocument | HoppGQLDocument
+    const { saveContext } = tabDoc as HoppRequestDocument | HoppGQLDocument
 
     if (saveContext?.originLocation !== "workspace-user-collection") {
       return tabDoc

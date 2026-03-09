@@ -3,6 +3,7 @@ import { useTimestamp } from "@vueuse/core"
 import { Service } from "dioc"
 import { WorkspaceProvider } from "../provider"
 import * as E from "fp-ts/Either"
+import { HoppCollection } from "@hoppscotch/data"
 import { Handle, HandleRef } from "../handle"
 import { Workspace, WorkspaceCollection } from "../workspace"
 import { NewWorkspaceService } from ".."
@@ -59,7 +60,7 @@ const testData = reactive({
 
 export class TestWorkspaceProviderService
   extends Service
-  implements WorkspaceProvider
+  implements Partial<WorkspaceProvider>
 {
   public static readonly ID = "TEST_WORKSPACE_PROVIDER_SERVICE"
 
@@ -74,26 +75,28 @@ export class TestWorkspaceProviderService
   private readonly workspaceService = this.bind(NewWorkspaceService)
 
   override onServiceInit() {
-    this.workspaceService.registerWorkspaceProvider(this)
+    this.workspaceService.registerWorkspaceProvider(this as unknown as WorkspaceProvider)
   }
 
   public createRESTRootCollection(
-    workspaceHandle: HandleRef<Workspace>,
-    collectionName: string
+    workspaceHandle: Handle<Workspace>,
+    newCollection: Partial<Exclude<HoppCollection, "id">> & { name: string }
   ): Promise<
     E.Either<"INVALID_WORKSPACE_HANDLE", Handle<WorkspaceCollection>>
   > {
-    if (workspaceHandle.value.type !== "ok") {
+    const workspaceHandleRef = workspaceHandle.get()
+
+    if (workspaceHandleRef.value.type !== "ok") {
       return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
     }
 
-    const workspaceID = workspaceHandle.value.data.workspaceID
+    const workspaceID = workspaceHandleRef.value.data.workspaceID
 
     const newCollID =
       testData[workspaceID as keyof typeof testData].collections.length
 
     testData[workspaceID as keyof typeof testData].collections.push({
-      name: collectionName,
+      name: newCollection.name,
       collections: [],
       requests: [],
     })
@@ -102,8 +105,8 @@ export class TestWorkspaceProviderService
   }
 
   public createRESTChildCollection(
-    parentCollHandle: HandleRef<WorkspaceCollection>,
-    collectionName: string
+    parentCollectionHandle: Handle<WorkspaceCollection>,
+    newChildCollection: Partial<HoppCollection> & { name: string }
   ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>> {
     // TODO: Implement
     throw new Error("Method not implemented.")
@@ -113,188 +116,197 @@ export class TestWorkspaceProviderService
     workspaceID: string
   ): Promise<E.Either<never, Handle<Workspace>>> {
     return Promise.resolve(
-      E.right(
-        computed(() => {
-          if (!(workspaceID in testData)) {
-            return {
-              type: "invalid",
-              reason: "WORKSPACE_WENT_OUT" as const,
+      E.right({
+        get: () =>
+          computed(() => {
+            if (!(workspaceID in testData)) {
+              return {
+                type: "invalid" as const,
+                reason: "WORKSPACE_WENT_OUT" as const,
+              }
             }
-          }
 
-          return {
-            type: "ok",
-            data: {
-              providerID: this.providerID,
-              workspaceID,
-              name: testData[workspaceID as keyof typeof testData].name,
-              collectionsAreReadonly: false,
-            },
-          }
-        })
-      )
+            return {
+              type: "ok" as const,
+              data: {
+                providerID: this.providerID,
+                workspaceID,
+                name: testData[workspaceID as keyof typeof testData].name,
+              },
+            }
+          }) as HandleRef<Workspace>,
+      })
     )
   }
 
   public getRESTCollectionHandle(
-    workspaceHandle: HandleRef<Workspace>,
+    workspaceHandle: Handle<Workspace>,
     collectionID: string
   ): Promise<
     E.Either<"INVALID_WORKSPACE_HANDLE", Handle<WorkspaceCollection>>
   > {
     return Promise.resolve(
-      E.right(
-        computed(() => {
-          if (workspaceHandle.value.type !== "ok") {
-            return {
-              type: "invalid",
-              reason: "INVALID_WORKSPACE_HANDLE" as const,
+      E.right({
+        get: () =>
+          computed(() => {
+            const workspaceHandleRef = workspaceHandle.get()
+
+            if (workspaceHandleRef.value.type !== "ok") {
+              return {
+                type: "invalid" as const,
+                reason: "INVALID_WORKSPACE_HANDLE" as const,
+              }
             }
-          }
 
-          const workspaceID = workspaceHandle.value.data.workspaceID
-          const collectionPath = collectionID
-            .split("/")
-            .flatMap((x) => ["collections", x])
+            const workspaceID = workspaceHandleRef.value.data.workspaceID
+            const collectionPath = collectionID
+              .split("/")
+              .flatMap((x) => ["collections", x])
 
-          const result: TestCollDef | undefined = get(
-            testData[workspaceID as keyof typeof testData],
-            collectionPath
-          )
+            const result: TestCollDef | undefined = get(
+              testData[workspaceID as keyof typeof testData],
+              collectionPath
+            )
 
-          if (!result) {
-            return {
-              type: "invalid",
-              reason: "INVALID_COLL_ID",
+            if (!result) {
+              return {
+                type: "invalid" as const,
+                reason: "INVALID_COLL_ID",
+              }
             }
-          }
 
-          return {
-            type: "ok",
-            data: {
-              providerID: this.providerID,
-              workspaceID,
-              collectionID,
-              name: result.name,
-            },
-          }
-        })
-      )
+            return {
+              type: "ok" as const,
+              data: {
+                providerID: this.providerID,
+                workspaceID,
+                collectionID,
+                name: result.name,
+              },
+            }
+          }) as HandleRef<WorkspaceCollection>,
+      })
     )
   }
 
   public getRESTCollectionChildrenView(
-    collectionHandle: HandleRef<WorkspaceCollection>
+    collectionHandle: Handle<WorkspaceCollection>
   ): Promise<E.Either<never, Handle<RESTCollectionChildrenView>>> {
     return Promise.resolve(
-      E.right(
-        computed(() => {
-          if (collectionHandle.value.type === "invalid") {
-            return {
-              type: "invalid",
-              reason: "COLL_HANDLE_IS_INVALID" as const,
+      E.right({
+        get: () =>
+          computed(() => {
+            const collectionHandleRef = collectionHandle.get()
+
+            if (collectionHandleRef.value.type === "invalid") {
+              return {
+                type: "invalid" as const,
+                reason: "COLL_HANDLE_IS_INVALID" as const,
+              }
             }
-          }
 
-          const workspaceID = collectionHandle.value.data.workspaceID
-          const collectionID = collectionHandle.value.data.collectionID
+            const workspaceID = collectionHandleRef.value.data.workspaceID
+            const collectionID = collectionHandleRef.value.data.collectionID
 
-          if (!(workspaceID in testData)) {
-            return {
-              type: "invalid",
-              reason: "WORKSPACE_NOT_PRESENT" as const,
+            if (!(workspaceID in testData)) {
+              return {
+                type: "invalid" as const,
+                reason: "WORKSPACE_NOT_PRESENT" as const,
+              }
             }
-          }
 
-          const collectionPath = collectionID
-            .split("/")
-            .flatMap((x) => ["collections", x])
+            const collectionPath = collectionID
+              .split("/")
+              .flatMap((x) => ["collections", x])
 
-          return markRaw({
-            type: "ok",
-            data: {
-              providerID: this.providerID,
-              workspaceID,
-              collectionID,
+            return markRaw({
+              type: "ok" as const,
+              data: {
+                providerID: this.providerID,
+                workspaceID,
+                collectionID,
 
-              loading: ref(false),
+                loading: ref(false),
 
-              content: computed(() => [
-                ...(
-                  get(testData[workspaceID as keyof typeof testData], [
-                    ...collectionPath,
-                    "collections",
-                  ]) as TestCollDef[]
-                ).map((item, i) => ({
-                  type: "collection" as const,
-                  value: {
-                    collectionID: `${collectionID}/${i}`,
-                    name: item.name,
-                  },
-                })),
-                ...(
-                  get(testData[workspaceID as keyof typeof testData], [
-                    ...collectionPath,
-                    "requests",
-                  ]) as TestReqDef[]
-                ).map((item, i) => ({
-                  type: "request" as const,
-                  value: {
-                    requestID: `${collectionID}/${i}`,
-                    name: item.name,
-                    method: "get",
-                  },
-                })),
-              ]),
-            },
-          })
-        })
-      )
+                content: computed(() => [
+                  ...(
+                    get(testData[workspaceID as keyof typeof testData], [
+                      ...collectionPath,
+                      "collections",
+                    ]) as TestCollDef[]
+                  ).map((item, i) => ({
+                    type: "collection" as const,
+                    value: {
+                      collectionID: `${collectionID}/${i}`,
+                      name: item.name,
+                    },
+                  })),
+                  ...(
+                    get(testData[workspaceID as keyof typeof testData], [
+                      ...collectionPath,
+                      "requests",
+                    ]) as TestReqDef[]
+                  ).map((item, i) => ({
+                    type: "request" as const,
+                    value: {
+                      requestID: `${collectionID}/${i}`,
+                      name: item.name,
+                      method: "get",
+                    },
+                  })),
+                ]),
+              },
+            })
+          }) as HandleRef<RESTCollectionChildrenView>,
+      })
     )
   }
 
   public getRESTRootCollectionView(
-    workspaceHandle: HandleRef<Workspace>
+    workspaceHandle: Handle<Workspace>
   ): Promise<E.Either<never, Handle<RootRESTCollectionView>>> {
     return Promise.resolve(
-      E.right(
-        computed(() => {
-          if (workspaceHandle.value.type === "invalid") {
-            return {
-              type: "invalid",
-              reason: "WORKSPACE_IS_INVALID" as const,
+      E.right({
+        get: () =>
+          computed(() => {
+            const workspaceHandleRef = workspaceHandle.get()
+
+            if (workspaceHandleRef.value.type === "invalid") {
+              return {
+                type: "invalid" as const,
+                reason: "WORKSPACE_IS_INVALID" as const,
+              }
             }
-          }
 
-          const workspaceID = workspaceHandle.value.data.workspaceID
+            const workspaceID = workspaceHandleRef.value.data.workspaceID
 
-          if (!(workspaceID in testData)) {
-            return {
-              type: "invalid",
-              reason: "WORKSPACE_NOT_PRESENT" as const,
+            if (!(workspaceID in testData)) {
+              return {
+                type: "invalid" as const,
+                reason: "WORKSPACE_NOT_PRESENT" as const,
+              }
             }
-          }
 
-          return markRaw({
-            type: "ok",
-            data: {
-              providerID: this.providerID,
-              workspaceID,
+            return markRaw({
+              type: "ok" as const,
+              data: {
+                providerID: this.providerID,
+                workspaceID,
 
-              loading: ref(false),
+                loading: ref(false),
 
-              collections: computed(() => {
-                return testData[
-                  workspaceID as keyof typeof testData
-                ].collections.map((x, i) => ({
-                  collectionID: i.toString(),
-                  name: x.name,
-                }))
-              }),
-            },
-          })
-        })
-      )
+                collections: computed(() => {
+                  return testData[
+                    workspaceID as keyof typeof testData
+                  ].collections.map((x, i) => ({
+                    collectionID: i.toString(),
+                    name: x.name,
+                  }))
+                }),
+              },
+            })
+          }) as HandleRef<RootRESTCollectionView>,
+      })
     )
   }
 

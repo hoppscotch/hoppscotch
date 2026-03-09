@@ -61,7 +61,7 @@ export class RESTTabService extends TabService<HoppTabDocument> {
         },
       }
     }),
-  }))
+  }) as PersistableTabState<HoppTabDocument>)
 
   protected async loadPersistedState(): Promise<PersistableTabState<HoppTabDocument> | null> {
     const persistenceService = getService(PersistenceService)
@@ -134,6 +134,7 @@ export class RESTTabService extends TabService<HoppTabDocument> {
       }
 
       if (
+        tab.document.type !== "test-runner" &&
         tab.document.saveContext?.originLocation === "workspace-user-collection"
       ) {
         const requestHandle = tab.document.saveContext.requestHandle

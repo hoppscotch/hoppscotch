@@ -190,6 +190,8 @@ export class PersonalWorkspaceProviderService
         authType: "inherit",
         authActive: false,
       },
+      variables: [],
+      description: null,
       ...newCollection,
     })
     addRESTCollection(newRootCollection)

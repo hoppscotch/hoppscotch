@@ -35,6 +35,7 @@ import {
   updateOrderRESTTeamRequest,
 } from "~/helpers/backend/mutations/TeamRequest"
 import { createTeam } from "~/helpers/backend/mutations/Team"
+import { TeamName } from "~/helpers/backend/types/TeamName"
 import { Ref, computed, ref } from "vue"
 import {
   RESTCollectionChildrenView,
@@ -47,7 +48,6 @@ import {
 } from "../view"
 import {
   GQLError,
-  runGQLQuery,
   runGQLSubscription,
   runMutation,
 } from "~/helpers/backend/GQLClient"
@@ -55,7 +55,6 @@ import {
   ImportFromJsonDocument,
   ImportFromJsonMutation,
   ImportFromJsonMutationVariables,
-  RootCollectionsOfTeamDocument,
   TeamCollectionAddedDocument,
   TeamCollectionMovedDocument,
   TeamCollectionRemovedDocument,
@@ -153,7 +152,7 @@ export class TeamsWorkspaceProviderService
       return
     }
 
-    this.workspaces.value = res.right.myTeams.map((team) => {
+    this.workspaces.value = res.right.myTeams.map((team: { id: string; name: string }) => {
       return {
         name: team.name,
         workspaceID: team.id,
@@ -174,7 +173,7 @@ export class TeamsWorkspaceProviderService
   async createWorkspace(
     workspaceName: string
   ): Promise<E.Either<unknown, Handle<Workspace>>> {
-    const res = await createTeam(workspaceName)()
+    const res = await createTeam(workspaceName as TeamName)()
 
     if (E.isLeft(res)) {
       return res
@@ -467,10 +466,12 @@ export class TeamsWorkspaceProviderService
 
     const res = await updateTeamCollection(
       collectionHandleRef.value.data.collectionID,
-      JSON.stringify({
+      {
         headers,
         auth,
-      }),
+        variables: [],
+        description: null,
+      },
       name
     )()
 
@@ -1399,13 +1400,9 @@ export class TeamsWorkspaceProviderService
             }
           }
 
-          const searchResults = computed(() => {
-            return this.teamSearchService.teamsSearchResults
-          })
-
           const data: RESTSearchResultsView = {
             loading: this.teamSearchService.teamsSearchResultsLoading,
-            results: searchResults,
+            results: this.teamSearchService.teamsSearchResults as unknown as Ref<HoppCollection[]>,
             providerID: this.providerID,
             workspaceID: workspaceHandleRef.value.data.workspaceID,
             onSessionEnd() {},
@@ -1984,12 +1981,20 @@ export class TeamsWorkspaceProviderService
             (env) => env.teamID === teamID
           )
 
-          const hoppEnvs: Environment[] = environments.map((env) => ({
-            name: env.name,
-            variables: JSON.parse(env.variables), // TODO: validate this ?
-            id: env.id,
-            v: 1,
-          }))
+          const hoppEnvs: Environment[] = environments.map((env) => {
+            const parsedVars = JSON.parse(env.variables) as Array<{ key: string; value?: string; initialValue?: string; currentValue?: string; secret: boolean }>
+            return {
+              name: env.name,
+              variables: parsedVars.map((v) => ({
+                key: v.key,
+                initialValue: v.initialValue ?? v.value ?? "",
+                currentValue: v.currentValue ?? v.value ?? "",
+                secret: v.secret,
+              })),
+              id: env.id,
+              v: 2 as const,
+            }
+          })
 
           return {
             type: "ok" as const,
@@ -2461,18 +2466,6 @@ const isValidRequestHandle = (
   )
 }
 
-const fetchRootCollections = async (teamID: string, cursor?: string) => {
-  const result = await runGQLQuery({
-    query: RootCollectionsOfTeamDocument,
-    variables: {
-      teamID,
-      cursor,
-    },
-  })
-
-  return result
-}
-
 const runTeamCollectionAddedSubscription = (teamID: string) =>
   runGQLSubscription({
     query: TeamCollectionAddedDocument,
@@ -2723,8 +2716,12 @@ function buildTreeForSingleCollection(
   )
 
   return {
-    v: 2,
-    ...collection,
+    v: 11,
+    name: collection.name,
+    auth: collection.auth,
+    headers: collection.headers,
+    variables: [],
+    description: null,
     folders: childCollections.map((childCollection) =>
       buildTreeForSingleCollection(childCollection, collections, requests)
     ),
@@ -2761,7 +2758,7 @@ function makeCollectionTree(
   const collectionsTree: HoppCollection[] = []
   const collectionsMap = new Map<
     string,
-    HoppCollection & { parentCollectionID?: string; id: string; order: string }
+    HoppCollection & { parentCollectionID: string | null; id: string; order: string }
   >()
 
   // build a copy of the collections array with empty folders & requests
@@ -2780,10 +2777,12 @@ function makeCollectionTree(
       name: collection.name,
       auth: collection.auth,
       headers: collection.headers,
+      variables: [],
+      description: null,
       // we'll populate the child collections and child requests in the next steps
       folders: [],
       requests: [],
-      v: 2,
+      v: 11,
     })
   )
 

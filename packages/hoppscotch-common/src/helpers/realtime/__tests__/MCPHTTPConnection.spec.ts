@@ -5,6 +5,7 @@ import type { HoppMCPRequest } from "@hoppscotch/data"
 describe("MCPHTTPConnection", () => {
   let connection: MCPHTTPConnection
   let mockRequest: HoppMCPRequest
+  let originalFetch: typeof global.fetch
 
   beforeEach(() => {
     mockRequest = {
@@ -28,12 +29,15 @@ describe("MCPHTTPConnection", () => {
       },
     } as HoppMCPRequest
 
-    // Mock fetch globally
+    // Save original fetch and mock it globally
+    originalFetch = global.fetch
     global.fetch = vi.fn()
   })
 
   afterEach(() => {
     vi.restoreAllMocks()
+    // Restore original fetch
+    global.fetch = originalFetch
   })
 
   describe("Connection State", () => {

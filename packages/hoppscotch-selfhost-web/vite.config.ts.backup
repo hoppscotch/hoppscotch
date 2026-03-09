@@ -86,7 +86,6 @@ export default defineConfig({
       "@app/platform": path.resolve(__dirname, "./src/platform"),
       "@app/services": path.resolve(__dirname, "./src/services"),
       "@app/components": path.resolve(__dirname, "./src/components"),
-      "@app/composables": path.resolve(__dirname, "./src/composables"),
       "@app/helpers": path.resolve(__dirname, "./src/helpers"),
       "@app/api": path.resolve(__dirname, "./src/api"),
       "@app/lib": path.resolve(__dirname, "./src/lib"),
@@ -110,14 +109,13 @@ export default defineConfig({
       dirs: ["../hoppscotch-common/src/pages", "./src/pages"],
       importMode: "async",
       onRoutesGenerated(routes) {
-        // Temporarily disabled sitemap generation to fix dev server
-        // generateSitemap({
-        //   routes,
-        //   nuxtStyle: true,
-        //   allowRobots: true,
-        //   dest: ".sitemap-gen",
-        //   hostname: ENV.VITE_BASE_URL,
-        // })
+        generateSitemap({
+          routes,
+          nuxtStyle: true,
+          allowRobots: true,
+          dest: ".sitemap-gen",
+          hostname: ENV.VITE_BASE_URL,
+        })
       },
     }),
     StaticCopy({

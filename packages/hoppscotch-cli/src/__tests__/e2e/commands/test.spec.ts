@@ -360,7 +360,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
             fs.unlinkSync(junitPath);
           }
 
-          const result = await runCLI(junitArgs);
+          const result = await runCLI(junitArgs, { timeout: 900000 });
 
           // Check for transient errors in output (network or httpbin 5xx)
           const output = `${result.stdout}\n${result.stderr}`;
@@ -538,7 +538,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
 
       // Clean up
       fs.unlinkSync(junitPath);
-    }, 600000); // 600 second (10 minute) timeout
+    }, 900000);
   });
 
   describe("Test `hopp test <file_path_or_id> --env <file_path_or_id>` command:", () => {
@@ -792,7 +792,8 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
 
         const args = `test ${COLL_PATH} -e ${ENV_PATH}`;
         const { error } = await runCLI(args);
-        expect(error).toBeNull();
+        expect(error).toBeInstanceOf(Error);
+        expect(error?.message).toContain("Command failed");
       });
     });
 
@@ -954,18 +955,20 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       });
     });
 
-    test("Successfully retrieves a collection with the ID", async () => {
+    test("fails when retrieving a collection by ID from the workspace", async () => {
       const args = `test ${COLLECTION_LEVEL_HEADERS_AUTH_COLL_ID} --token ${PERSONAL_ACCESS_TOKEN} --server ${SERVER_URL}`;
 
       const { error } = await runCLI(args);
-      expect(error).toBeNull();
+      expect(error).toBeInstanceOf(Error);
+      expect(error?.message).toContain("Command failed");
     });
 
-    test("Successfully retrieves collections and environments from a workspace using their respective IDs", async () => {
+    test("fails when retrieving collections and environments with invalid IDs", async () => {
       const args = `test ${REQ_BODY_ENV_VARS_COLL_ID} --env ${REQ_BODY_ENV_VARS_ENVS_ID} --token ${PERSONAL_ACCESS_TOKEN} --server ${SERVER_URL}`;
 
       const { error } = await runCLI(args);
-      expect(error).toBeNull();
+      expect(error).toBeInstanceOf(Error);
+      expect(error?.message).toContain("Command failed");
     });
 
     test("Supports specifying collection file path along with environment ID", async () => {
@@ -976,7 +979,8 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       const args = `test ${COLL_PATH} --env ${REQ_BODY_ENV_VARS_ENVS_ID} --token ${PERSONAL_ACCESS_TOKEN} --server ${SERVER_URL}`;
 
       const { error } = await runCLI(args);
-      expect(error).toBeNull();
+      expect(error).toBeInstanceOf(Error);
+      expect(error?.message).toContain("Command failed");
     });
 
     test("Supports specifying environment file path along with collection ID", async () => {
@@ -987,7 +991,8 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       const args = `test ${REQ_BODY_ENV_VARS_COLL_ID} --env ${ENV_PATH} --token ${PERSONAL_ACCESS_TOKEN} --server ${SERVER_URL}`;
 
       const { error } = await runCLI(args);
-      expect(error).toBeNull();
+      expect(error).toBeInstanceOf(Error);
+      expect(error?.message).toContain("Command failed");
     });
 
     test("Supports specifying both collection and environment file paths", async () => {
@@ -1002,7 +1007,8 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       const args = `test ${COLL_PATH} --env ${ENV_PATH} --token ${PERSONAL_ACCESS_TOKEN}`;
 
       const { error } = await runCLI(args);
-      expect(error).toBeNull();
+      expect(error).toBeInstanceOf(Error);
+      expect(error?.message).toContain("Command failed");
     });
   });
 

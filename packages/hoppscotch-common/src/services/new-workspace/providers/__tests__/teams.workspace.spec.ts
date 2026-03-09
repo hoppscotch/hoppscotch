@@ -52,6 +52,27 @@ import {
 import { toRaw, watch } from "vue"
 import { initializeDownloadFile } from "~/helpers/import-export/export"
 
+let refIdCounter = 0
+vi.mock("@hoppscotch/data", async () => {
+  const actual =
+    await vi.importActual<typeof import("@hoppscotch/data")>(
+      "@hoppscotch/data"
+    )
+
+  return {
+    ...actual,
+    getDefaultRESTRequest: () => ({
+      ...actual.getDefaultRESTRequest(),
+      _ref_id: `req_test_${String(++refIdCounter).padStart(4, "0")}`,
+    }),
+    makeRESTRequest: (x: Parameters<typeof actual.makeRESTRequest>[0]) =>
+      actual.makeRESTRequest({
+        ...x,
+        _ref_id: x._ref_id ?? `req_test_${String(++refIdCounter).padStart(4, "0")}`,
+      }),
+  }
+})
+
 vi.mock("./../../../../platform", () => {
   const actual = vi.importActual("./../../../../platform")
 
@@ -112,6 +133,10 @@ describe("TeamsWorkspaceProviderService", () => {
     vi.mocked(createChildCollection).mockReset()
     vi.mocked(updateTeamCollection).mockReset()
     vi.mocked(fetchAllTeams).mockReset()
+  })
+
+  beforeEach(() => {
+    refIdCounter = 0
   })
 
   test("can create a root collection", async () => {
@@ -242,7 +267,7 @@ describe("TeamsWorkspaceProviderService", () => {
               "collectionID": "root_collection_id_0",
               "isLastItem": false,
               "request": {
-                "_ref_id": "req_mmj0kyog_a9907856-fa32-4b1b-8c32-04e7bcc251ab",
+                "_ref_id": "req_test_0001",
                 "auth": {
                   "authActive": true,
                   "authType": "inherit",
@@ -272,7 +297,7 @@ describe("TeamsWorkspaceProviderService", () => {
               "collectionID": "root_collection_id_0",
               "isLastItem": false,
               "request": {
-                "_ref_id": "req_mmj0kyog_2831872c-4613-4086-9898-9648ac08dc07",
+                "_ref_id": "req_test_0002",
                 "auth": {
                   "authActive": true,
                   "authType": "inherit",
@@ -302,7 +327,7 @@ describe("TeamsWorkspaceProviderService", () => {
               "collectionID": "root_collection_id_0",
               "isLastItem": true,
               "request": {
-                "_ref_id": "req_mmj0kyog_db92466d-78c9-4ba8-b995-9056b2391be9",
+                "_ref_id": "req_test_0003",
                 "auth": {
                   "authActive": true,
                   "authType": "inherit",
@@ -416,7 +441,7 @@ describe("TeamsWorkspaceProviderService", () => {
           "collectionID": "root_collection_id_0",
           "providerID": "TEAMS_WORKSPACE_PROVIDER",
           "request": {
-            "_ref_id": "req_mmj0kyoi_95f51df1-4068-4604-b15a-7574f2e8f07e",
+            "_ref_id": "req_test_0001",
             "auth": {
               "authActive": true,
               "authType": "inherit",
@@ -497,7 +522,7 @@ describe("TeamsWorkspaceProviderService", () => {
           "collectionID": "root_collection_id_0",
           "providerID": "TEAMS_WORKSPACE_PROVIDER",
           "request": {
-            "_ref_id": "req_mmj0kyoj_970d75bc-3a7d-413a-8b96-51eff3ab2579",
+            "_ref_id": "req_test_0001",
             "auth": {
               "authActive": true,
               "authType": "inherit",
@@ -619,7 +644,7 @@ describe("TeamsWorkspaceProviderService", () => {
           "collectionID": "root_collection_id_0",
           "providerID": "TEAMS_WORKSPACE_PROVIDER",
           "request": {
-            "_ref_id": "req_mmj0kyok_2eb6a28d-e023-4d76-ade1-fc15de27f1d1",
+            "_ref_id": "req_test_0001",
             "auth": {
               "authActive": true,
               "authType": "inherit",
@@ -743,7 +768,7 @@ describe("TeamsWorkspaceProviderService", () => {
             "collectionID": "root_collection_id_0",
             "isLastItem": false,
             "request": {
-              "_ref_id": "req_mmj0kyol_e0ae152f-590c-4448-b55c-ef27abcf24bf",
+              "_ref_id": "req_test_0001",
               "auth": {
                 "authActive": true,
                 "authType": "inherit",
@@ -773,7 +798,7 @@ describe("TeamsWorkspaceProviderService", () => {
             "collectionID": "root_collection_id_0",
             "isLastItem": false,
             "request": {
-              "_ref_id": "req_mmj0kyol_857201e9-7949-4bac-9612-19c0585b4bb5",
+              "_ref_id": "req_test_0002",
               "auth": {
                 "authActive": true,
                 "authType": "inherit",
@@ -803,7 +828,7 @@ describe("TeamsWorkspaceProviderService", () => {
             "collectionID": "root_collection_id_0",
             "isLastItem": true,
             "request": {
-              "_ref_id": "req_mmj0kyol_e322f9b0-4581-4094-9909-1b2444e0a213",
+              "_ref_id": "req_test_0003",
               "auth": {
                 "authActive": true,
                 "authType": "inherit",

@@ -7,7 +7,6 @@ import {
 import { Service } from "dioc"
 import * as E from "fp-ts/Either"
 import { isEqual, merge } from "lodash-es"
-import path from "path"
 import {
   Ref,
   computed,
@@ -159,6 +158,14 @@ export class PersonalWorkspaceProviderService
   private isAlreadyInRoot(id: string) {
     const indexPath = this.pathToIndex(id)
     return indexPath.length === 1
+  }
+
+  /**
+   * Checks if a request/collection ID belongs to a given collection path.
+   * Prevents greedy prefix matching (e.g. collection "1" matching request "10/0").
+   */
+  private idBelongsToCollection(id: string, collectionID: string): boolean {
+    return id === collectionID || id.startsWith(collectionID + "/")
   }
 
   public setIssuedHandles(
@@ -350,7 +357,7 @@ export class PersonalWorkspaceProviderService
 
       const { requestID } = handle.value.data
 
-      if (requestID.startsWith(removedCollectionID)) {
+      if (this.idBelongsToCollection(requestID, removedCollectionID)) {
         handle.value = {
           type: "invalid",
           reason: "REQUEST_INVALIDATED",
@@ -378,7 +385,9 @@ export class PersonalWorkspaceProviderService
       // If the collection lies below the removed collection, reduce the index position for child request handles by `1`
       if (matchingCollectionIndexPos > collectionIndexPos) {
         const newCollectionIndexPos = matchingCollectionIndexPos - 1
-        const newMatchingCollectionID = `${parentRequestIDSubset}${newCollectionIndexPos}`
+        const newMatchingCollectionID = parentRequestIDSubset
+          ? `${parentRequestIDSubset}/${newCollectionIndexPos}`
+          : `${newCollectionIndexPos}`
 
         const newRequestID = requestID.replace(
           requestIDSubset,
@@ -405,12 +414,10 @@ export class PersonalWorkspaceProviderService
         collectionToRemove ? collectionToRemove.id : undefined
       )
     } else {
-      const folderToRemove = path
-        ? navigateToFolderWithIndexPath(
-            this.restCollectionState.value.state,
-            removedCollectionID.split("/").map((id) => parseInt(id))
-          )
-        : undefined
+      const folderToRemove = navigateToFolderWithIndexPath(
+        this.restCollectionState.value.state,
+        removedCollectionID.split("/").map((id) => parseInt(id))
+      )
 
       removeRESTFolder(
         removedCollectionID,
@@ -539,7 +546,7 @@ export class PersonalWorkspaceProviderService
 
     const { collectionID, requestID, request } = requestHandleRef.value.data
 
-    const newRequest: HoppRESTRequest = merge(request, updatedRequest)
+    const newRequest: HoppRESTRequest = merge({}, request, updatedRequest)
     const requestIndexPos = parseInt(requestID.split("/").slice(-1)[0])
 
     editRESTRequest(collectionID, requestIndexPos, newRequest)
@@ -735,7 +742,7 @@ export class PersonalWorkspaceProviderService
             if (
               handle.value.type === "ok" &&
               "requestID" in handle.value.data &&
-              handle.value.data.requestID.startsWith(oldCollectionID)
+              this.idBelongsToCollection(handle.value.data.requestID, oldCollectionID)
             ) {
               handleUpdateMap.set(handle.value.data.requestID, {
                 oldCollectionID,
@@ -890,7 +897,7 @@ export class PersonalWorkspaceProviderService
 
       const { collectionID, requestID } = handle.value.data
 
-      if (requestID.startsWith(draggedCollectionID)) {
+      if (this.idBelongsToCollection(requestID, draggedCollectionID)) {
         const newCollectionID = collectionID.replace(
           draggedCollectionID,
           resolvedDestinationCollectionID
@@ -920,7 +927,7 @@ export class PersonalWorkspaceProviderService
           return
         }
 
-        if (handle.value.data.requestID.startsWith(affectedCollectionID)) {
+        if (this.idBelongsToCollection(handle.value.data.requestID, affectedCollectionID)) {
           const { collectionID, requestID } = handle.value.data
 
           affectedIDsMap.set(requestID, {
@@ -1123,7 +1130,7 @@ export class PersonalWorkspaceProviderService
       }
 
       // Check if this request is in the same collection as the dragged request
-      if (requestID.startsWith(draggedRequestCollectionID)) {
+      if (this.idBelongsToCollection(requestID, draggedRequestCollectionID)) {
         const resolvedRequestIndexPos = Number(
           requestID.split("/").slice(-1)[0]
         )

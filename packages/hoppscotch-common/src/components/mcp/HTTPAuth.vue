@@ -97,12 +97,12 @@
         </label>
         <div class="flex gap-2">
           <HoppButtonSecondary
-            label="Headers"
+            :label="t('authorization.pass_by_headers_label')"
             :filled="apiAddTo === 'HEADERS'"
             @click="apiAddTo = 'HEADERS'"
           />
           <HoppButtonSecondary
-            label="Query Parameters"
+            :label="t('authorization.pass_by_query_params_label')"
             :filled="apiAddTo === 'QUERY_PARAMS'"
             @click="apiAddTo = 'QUERY_PARAMS'"
           />
@@ -136,7 +136,9 @@ const authTypes = computed(() => [
 const authType = computed({
   get: () => auth.value.authType,
   set: (value: "none" | "basic" | "bearer" | "api-key") => {
+    // Fix: Preserve existing credentials when switching auth type
     setMCPAuth({
+      ...auth.value,
       authType: value,
       authActive: value !== "none",
     })

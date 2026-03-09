@@ -158,6 +158,7 @@ import {
   MCPConnection$,
   MCPLog$,
   MCPCapabilities$,
+  MCPAuth$,
   setMCPTransportType,
   setMCPHTTPConfig,
   setMCPSTDIOConfig,
@@ -168,11 +169,7 @@ import {
   MCPTransportType,
 } from "~/newstore/MCPSession"
 import { useI18n } from "@composables/i18n"
-import {
-  useStream,
-  useStreamSubscriber,
-  useReadonlyStream,
-} from "@composables/stream"
+import { useStream, useStreamSubscriber } from "@composables/stream"
 import { useToast } from "@composables/toast"
 import { MCPHTTPConnection } from "@helpers/realtime/MCPHTTPConnection"
 import { MCPSTDIOConnection } from "@helpers/realtime/MCPSTDIOConnection"
@@ -205,14 +202,32 @@ const stdioConfig = useStream(MCPSTDIOConfig$, null, setMCPSTDIOConfig)
 const connection = useStream(MCPConnection$, null as any, setMCPConnection)
 const log = useStream(MCPLog$, [], setMCPLog)
 const capabilities = useStream(MCPCapabilities$, null, setMCPCapabilities)
+const auth = useStream(
+  MCPAuth$,
+  { authType: "none", authActive: false },
+  () => {}
+)
 
 // Simplified state for inputs
 const httpUrl = ref("")
 const stdioCommand = ref("")
 
-const connectionState = useReadonlyStream(
-  connection.value?.connectionState$ || null,
+// Fix: React to connection changes
+const connectionState = ref<"DISCONNECTED" | "CONNECTING" | "CONNECTED">(
   "DISCONNECTED"
+)
+watch(
+  connection,
+  (newConnection) => {
+    if (newConnection?.connectionState$) {
+      subscribeToStream(newConnection.connectionState$, (state) => {
+        connectionState.value = state
+      })
+    } else {
+      connectionState.value = "DISCONNECTED"
+    }
+  },
+  { immediate: true }
 )
 
 const tools = computed(() => capabilities.value?.tools || [])
@@ -275,14 +290,30 @@ const connectToServer = async () => {
     let newConnection
 
     if (transportType.value === "http") {
-      newConnection = new MCPHTTPConnection(httpUrl.value, { type: "none" })
+      // Fix: Use stored auth instead of hardcoded "none"
+      newConnection = new MCPHTTPConnection(httpUrl.value, auth.value)
     } else {
-      const command = stdioCommand.value.split(" ")[0]
-      const args = stdioCommand.value.split(" ").slice(1)
+      // Fix: Use stored config and parse command properly
+      const config = stdioConfig.value || {
+        command: stdioCommand.value,
+        args: [],
+        env: [],
+      }
+      // Simple command parsing - split on spaces but respect quotes
+      const parts = config.command.match(/[^\s"']+|"([^"]*)"|'([^']*)'/g) || []
+      const command = parts[0]?.replace(/["']/g, "") || ""
+      const args =
+        config.args.length > 0
+          ? config.args
+          : parts.slice(1).map((arg) => arg.replace(/["']/g, ""))
+
       newConnection = new MCPSTDIOConnection({
         command,
         args,
-        env: {},
+        env: config.env.reduce(
+          (acc, { key, value }) => ({ ...acc, [key]: value }),
+          {}
+        ),
       })
     }
 

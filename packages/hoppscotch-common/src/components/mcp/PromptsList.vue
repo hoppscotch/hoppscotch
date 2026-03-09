@@ -33,8 +33,8 @@
     <!-- Prompts List -->
     <div v-if="filteredPrompts.length > 0" class="flex flex-col">
       <div
-        v-for="(prompt, index) in filteredPrompts"
-        :key="index"
+        v-for="prompt in filteredPrompts"
+        :key="prompt.name"
         class="border-b border-dividerLight"
       >
         <MCPMethodCard

@@ -1716,7 +1716,7 @@ export class TeamsWorkspaceProviderService
       return E.left("ENV_CREATED_BUT_FAILED_TO_GENERATE_HANDLE" as const)
     }
 
-    return this.getRESTEnvironmentHandle(workspaceHandle.right, environment.id)
+    return this.getRESTEnvironmentHandle(workspaceHandle.right, newEnvironment.id)
   }
 
   async exportRESTEnvironment(
@@ -1974,10 +1974,13 @@ export class TeamsWorkspaceProviderService
           )
 
           const hoppEnvs: Environment[] = environments.map((env) => {
-            const parsedVars = JSON.parse(env.variables) as Array<{ key: string; value?: string; initialValue?: string; currentValue?: string; secret: boolean }>
+            // env.variables is already parsed when stored in this.environments
+            const vars = (typeof env.variables === "string"
+              ? JSON.parse(env.variables)
+              : env.variables) as Array<{ key: string; value?: string; initialValue?: string; currentValue?: string; secret: boolean }>
             return {
               name: env.name,
-              variables: parsedVars.map((v) => ({
+              variables: vars.map((v) => ({
                 key: v.key,
                 initialValue: v.initialValue ?? v.value ?? "",
                 currentValue: v.currentValue ?? v.value ?? "",
@@ -2680,7 +2683,7 @@ export const moveItems = <
 export const sortByOrder = <OrderedItem extends { order: string }>(
   items: OrderedItem[]
 ) => {
-  return items.sort((item1, item2) => {
+  return [...items].sort((item1, item2) => {
     if (item1.order < item2.order) {
       return -1
     }

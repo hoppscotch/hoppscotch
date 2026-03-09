@@ -100,7 +100,7 @@
                 collection: node.data.data.data,
               })
             "
-            @edit-properties="
+            @edit-collection-properties="
               node.data.type === 'collections' &&
                 emit('edit-collection-properties', {
                   collectionIndex: node.id,
@@ -205,7 +205,7 @@
                 collection: node.data.data.data,
               })
             "
-            @edit-properties="
+            @edit-collection-properties="
               node.data.type === 'folders' &&
                 emit('edit-collection-properties', {
                   collectionIndex: node.id,

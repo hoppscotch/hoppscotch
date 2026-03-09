@@ -111,7 +111,7 @@
                 pathOrID: node.data.data.data.id,
               })
             "
-            @edit-properties="
+            @edit-collection-properties="
               node.data.type === 'collections' &&
                 emit('edit-collection-properties', {
                   collectionIndex: node.id,
@@ -227,7 +227,7 @@
                 pathOrID: node.data.data.data.id,
               })
             "
-            @edit-properties="
+            @edit-collection-properties="
               node.data.type === 'folders' &&
                 emit('edit-collection-properties', {
                   collectionIndex: node.id,

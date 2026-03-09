@@ -139,11 +139,6 @@ import {
   useRequestNameGeneration,
   useSubmitFeedback,
 } from "~/composables/ai-experiments"
-import { GQLError } from "~/helpers/backend/GQLClient"
-import {
-  createRequestInCollection,
-  updateTeamRequest,
-} from "~/helpers/backend/mutations/TeamRequest"
 import { Picked } from "~/helpers/types/HoppPicked"
 import {
   cascadeParentCollectionForProperties,
@@ -154,7 +149,6 @@ import { platform } from "~/platform"
 import { NewWorkspaceService } from "~/services/new-workspace"
 import { GQLTabService } from "~/services/tab/graphql"
 import { RESTTabService } from "~/services/tab/rest"
-import { TeamWorkspace } from "~/services/workspace.service"
 import IconSparkle from "~icons/lucide/sparkles"
 import IconThumbsDown from "~icons/lucide/thumbs-down"
 import IconThumbsUp from "~icons/lucide/thumbs-up"
@@ -527,7 +521,7 @@ const saveRequestAs = async () => {
     )
 
     GQLTabs.currentActiveTab.value.document = {
-      request: requestUpdated as HoppGQLRequest,
+      request: updatedRequest as HoppGQLRequest,
       isDirty: false,
       saveContext: {
         originLocation: "user-collection",
@@ -555,7 +549,7 @@ const saveRequestAs = async () => {
     )
 
     GQLTabs.currentActiveTab.value.document = {
-      request: requestUpdated as HoppGQLRequest,
+      request: updatedRequest as HoppGQLRequest,
       isDirty: false,
       saveContext: {
         originLocation: "user-collection",
@@ -583,7 +577,7 @@ const saveRequestAs = async () => {
     )
 
     GQLTabs.currentActiveTab.value.document = {
-      request: requestUpdated as HoppGQLRequest,
+      request: updatedRequest as HoppGQLRequest,
       isDirty: false,
       saveContext: {
         originLocation: "user-collection",

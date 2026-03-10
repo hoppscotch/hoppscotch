@@ -31,6 +31,10 @@ export async function createHoppApp(
 
   const app = createApp(App)
 
+  // TODO: Remove this
+  getService(TestWorkspaceProviderService)
+  getService(PersonalWorkspaceProviderService)
+
   // Initialize core services before app mounting
   const initService = getService(InitializationService)
 
@@ -58,10 +62,6 @@ export async function createHoppApp(
 
   HOPP_MODULES.forEach((mod) => mod.onVueAppInit?.(app))
   platformDef.addedHoppModules?.forEach((mod) => mod.onVueAppInit?.(app))
-
-  // TODO: Remove this
-  getService(TestWorkspaceProviderService)
-  getService(PersonalWorkspaceProviderService)
 
   app.mount(el)
 

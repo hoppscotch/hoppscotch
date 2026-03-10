@@ -1,4 +1,9 @@
 import { beforeAll, beforeEach, describe, expect, test, vi } from "vitest"
+
+vi.mock("~/modules/i18n", () => ({
+  getI18n: () => (key: string) => key,
+}))
+
 import {
   sortByOrder,
   TeamsWorkspaceProviderService,

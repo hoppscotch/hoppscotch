@@ -93,19 +93,20 @@ export function resolveSaveContextOnCollectionReorder(
         tab.value.document.saveContext.folderPath
       )!
       tab.value.document.saveContext.folderPath = newPath
+      continue
     }
 
     if (
       tab.value.document.saveContext?.originLocation !==
       "workspace-user-collection"
     ) {
-      return false
+      continue
     }
 
     const requestHandleRef = tab.value.document.saveContext.requestHandle?.get()
 
     if (!requestHandleRef || requestHandleRef.value.type === "invalid") {
-      return false
+      continue
     }
 
     const { requestID } = requestHandleRef.value.data
@@ -182,7 +183,7 @@ export function updateSaveContextForAffectedRequests(
         }
       }
 
-      return
+      continue
     }
 
     if (
@@ -191,7 +192,7 @@ export function updateSaveContextForAffectedRequests(
       const requestHandleRef = tab.document.saveContext.requestHandle?.get()
 
       if (!requestHandleRef || requestHandleRef.value.type === "invalid") {
-        return false
+        continue
       }
 
       const { requestID } = requestHandleRef.value.data

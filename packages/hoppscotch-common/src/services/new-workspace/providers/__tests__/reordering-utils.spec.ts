@@ -1,4 +1,8 @@
-import { describe, expect, beforeEach, test } from "vitest"
+import { describe, expect, beforeEach, test, vi } from "vitest"
+
+vi.mock("~/modules/i18n", () => ({
+  getI18n: () => (key: string) => key,
+}))
 import * as E from "fp-ts/Either"
 import { moveItems, reorderItems, sortByOrder } from "../teams.workspace"
 

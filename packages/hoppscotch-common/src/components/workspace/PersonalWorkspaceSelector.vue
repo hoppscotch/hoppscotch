@@ -2,7 +2,7 @@
   <div>
     <div class="flex flex-col">
       <HoppSmartItem
-        :label="'Personal Workspace'"
+        :label="t('workspace.personal')"
         :info-icon="
           activeWorkspaceInfo?.provider ===
             personalWorkspaceProviderService.providerID &&
@@ -27,6 +27,9 @@ import { NewWorkspaceService } from "~/services/new-workspace"
 import { computed } from "vue"
 import { PersonalWorkspaceProviderService } from "~/services/new-workspace/providers/personal.workspace"
 import IconCheck from "~icons/lucide/check"
+import { useI18n } from "~/composables/i18n"
+
+const t = useI18n()
 
 const workspaceService = useService(NewWorkspaceService)
 const personalWorkspaceProviderService = useService(

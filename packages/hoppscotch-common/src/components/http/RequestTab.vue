@@ -52,19 +52,10 @@ watch(
         return
       }
 
-      if (
-        !tab.value.document.isDirty &&
-        !isEqual(oldRequest, requestHandleRef?.value.data.request)
-      ) {
-        tab.value.document.isDirty = true
-      }
-
-      if (
-        tab.value.document.isDirty &&
-        isEqual(oldRequest, requestHandleRef?.value.data.request)
-      ) {
-        tab.value.document.isDirty = false
-      }
+      tab.value.document.isDirty = !isEqual(
+        updatedValue,
+        requestHandleRef.value.data.request
+      )
 
       return
     }

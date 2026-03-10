@@ -900,10 +900,15 @@ const restCollectionDispatchers = defineDispatchers({
 
     // if the destination is null, we are moving to the end of the list
     if (destinationRequestIndex === null) {
-      // TODO: Verify if this can be safely removed
       targetLocation.requests.push(
         targetLocation.requests.splice(requestIndex, 1)[0]
       )
+
+      resolveSaveContextOnRequestReorder({
+        lastIndex: requestIndex,
+        newIndex: targetLocation.requests.length,
+        folderPath: destinationCollectionPath,
+      })
 
       return {
         state: newState,
@@ -911,6 +916,12 @@ const restCollectionDispatchers = defineDispatchers({
     }
 
     reorderItems(targetLocation.requests, requestIndex, destinationRequestIndex)
+
+    resolveSaveContextOnRequestReorder({
+      lastIndex: requestIndex,
+      newIndex: destinationRequestIndex,
+      folderPath: destinationCollectionPath,
+    })
 
     return {
       state: newState,

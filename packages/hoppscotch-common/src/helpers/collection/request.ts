@@ -74,19 +74,20 @@ export function resolveSaveContextOnRequestReorder(payload: {
         tab.value.document.saveContext?.requestIndex
       )!
       tab.value.document.saveContext.requestIndex = newIndex
+      continue
     }
 
     if (
       tab.value.document.saveContext?.originLocation !==
       "workspace-user-collection"
     ) {
-      return
+      continue
     }
 
     const requestHandleRef = tab.value.document.saveContext.requestHandle?.get()
 
     if (!requestHandleRef || requestHandleRef.value.type === "invalid") {
-      return
+      continue
     }
 
     const { requestID } = requestHandleRef.value.data

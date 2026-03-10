@@ -1,8 +1,12 @@
 import { getDefaultRESTRequest } from "@hoppscotch/data"
 import { TestContainer } from "dioc/testing"
 import * as E from "fp-ts/Either"
-import { beforeEach, describe, expect, it } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 import { ref } from "vue"
+
+vi.mock("~/modules/i18n", () => ({
+  getI18n: () => (key: string) => key,
+}))
 
 import {
   navigateToFolderWithIndexPath,

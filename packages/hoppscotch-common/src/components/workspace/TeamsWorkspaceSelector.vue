@@ -66,17 +66,13 @@
 <script setup lang="ts">
 import { useService } from "dioc/vue"
 import { NewWorkspaceService } from "~/services/new-workspace"
-import { computed, watch } from "vue"
+import { computed, ref } from "vue"
 import { PersonalWorkspaceProviderService } from "~/services/new-workspace/providers/personal.workspace"
 import IconPlus from "~icons/lucide/plus"
-// import IconUsers from "~/icons/lucide/users"
-// import IconDone from "~/icons/lucide/check"
-import { ref } from "vue"
 import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { useReadonlyStream } from "~/composables/stream"
 import { useLocalState } from "~/newstore/localstate"
 import { platform } from "~/platform"
-import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { useColorMode } from "~/composables/theming"
 import { useI18n } from "~/composables/i18n"
 import { TeamsWorkspaceProviderService } from "~/services/new-workspace/providers/teams.workspace"
@@ -96,14 +92,17 @@ const personalWorkspaceProviderService = useService(
 )
 
 const isActiveWorkspace = computed(() => (id: string) => {
-  // if (workspace.value.type === "personal") return false
-  // return workspace.value.teamID === id
-
-  return true
+  const activeHandle = workspaceService.activeWorkspaceHandle.value
+  if (!activeHandle) return false
+  const activeHandleRef = activeHandle.get()
+  if (activeHandleRef.value.type !== "ok") return false
+  return (
+    activeHandleRef.value.data.providerID === "TEAMS_WORKSPACE_PROVIDER" &&
+    activeHandleRef.value.data.workspaceID === id
+  )
 })
 
 const teamListadapter = new TeamListAdapter(true)
-// const myTeams = useReadonlyStream(teamListadapter.teamList$, [])
 const isTeamListLoading = useReadonlyStream(teamListadapter.loading$, false)
 const teamListAdapterError = useReadonlyStream(teamListadapter.error$, null)
 const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
@@ -118,24 +117,11 @@ const teamsService = useService(TeamsWorkspaceProviderService)
 
 const workspaces = teamsService.getWorkspaces()
 
-window.teamsService = teamsService
-// const loading = computed(
-//   () => isTeamListLoading.value && myTeams.value.length === 0
-// )
-
-// const loading = ref(false)
-
 const loading = computed(() => {
   return (
     workspaces.value.type === "invalid" &&
     workspaces.value.reason === "LOADING_WORKSPACES"
   )
-})
-
-watch(loading, () => {
-  console.group("loading teams")
-  console.log("loading", loading.value)
-  console.groupEnd()
 })
 
 const errorFetchingWorkspaces = computed(() => {
@@ -162,29 +148,9 @@ const validWorkspaces = computed(() => {
   )
 
   return validWorkspaceHandles
-
-  // return validWorkspaceHandles.map((workspaceHandle) => {
-  //   return workspaceHandle.value.data
-  // })
 })
 
-// const switchToTeamWorkspace = (team: GetMyTeamsQuery["myTeams"][number]) => {
-//   REMEMBERED_TEAM_ID.value = team.id
-
-//   // changeWorkspace({
-//   //   teamID: team.id,
-//   //   teamName: team.name,
-//   //   type: "team",
-//   // })
-// }
-
 function selectWorkspace(workspace: HandleRef<Workspace>) {
-  console.group("selectWorkspace")
-  // console.log("workspace", workspace)
   teamsService.selectWorkspace(workspace)
-  console.groupEnd()
-
-  // workspaceService.activeWorkspaceHandle.value =
-  //   personalWorkspaceProviderService.getPersonalWorkspaceHandle()
 }
 </script>

@@ -10,6 +10,7 @@ import {
   HoppUser,
 } from "@hoppscotch/common/platform/auth"
 import { PersistenceService } from "@hoppscotch/common/services/persistence"
+import { settingsStore } from "@hoppscotch/common/newstore/settings"
 
 import { getAllowedAuthProviders, updateUserDisplayName } from "./api"
 
@@ -339,12 +340,14 @@ export const def: AuthPlatformDef = {
   },
 
   async signOutUser() {
-    // if (!currentUser$.value) throw new Error("No user has logged in")
-
     await logout()
 
     probableUser$.next(null)
     currentUser$.next(null)
+
+    if (settingsStore.value.CLEAR_LOCAL_DATA_ON_LOGOUT) {
+      await persistenceService.clearWorkspaceData()
+    }
 
     await persistenceService.removeLocalConfig("login_state")
 

@@ -8,6 +8,7 @@ import { StorageLike, watchDebounced } from "@vueuse/core"
 import { assign, clone, isEmpty, cloneDeep } from "lodash-es"
 
 import {
+  Environment,
   GlobalEnvironmentVariable,
   translateToNewGQLCollection,
   translateToNewRESTCollection,
@@ -24,6 +25,7 @@ import {
 } from "../secret-environment.service"
 
 import { useToast } from "~/composables/toast"
+import { getI18n } from "~/modules/i18n"
 
 import {
   graphqlCollectionStore,
@@ -94,6 +96,7 @@ import {
 import { PersistableTabState } from "../tab"
 import { HoppTabDocument } from "~/helpers/rest/document"
 import { HoppGQLDocument } from "~/helpers/graphql/document"
+import { uniqueID } from "~/helpers/utils/uniqueID"
 import {
   CurrentValueService,
   Variable,
@@ -195,6 +198,8 @@ export class PersistenceService extends Service {
   private readonly currentSortValuesService = this.bind(
     CurrentSortValuesService
   )
+
+  private _isPersistencePaused = false
 
   private showErrorToast(key: string) {
     const toast = useToast()
@@ -359,6 +364,7 @@ export class PersistenceService extends Service {
     }
 
     localStateStore.subject$.subscribe(async (state) => {
+      if (this._isPersistencePaused) return
       await Store.set(STORE_NAMESPACE, STORE_KEYS.LOCAL_STATE, state)
     })
   }
@@ -391,6 +397,7 @@ export class PersistenceService extends Service {
     }
 
     settingsStore.subject$.subscribe(async (settings) => {
+      if (this._isPersistencePaused) return
       await Store.set(STORE_NAMESPACE, STORE_KEYS.SETTINGS, settings)
     })
   }
@@ -423,6 +430,7 @@ export class PersistenceService extends Service {
     }
 
     restHistoryStore.subject$.subscribe(async ({ state }) => {
+      if (this._isPersistencePaused) return
       await Store.set(STORE_NAMESPACE, STORE_KEYS.REST_HISTORY, state)
     })
   }
@@ -455,6 +463,7 @@ export class PersistenceService extends Service {
     }
 
     graphqlHistoryStore.subject$.subscribe(async ({ state }) => {
+      if (this._isPersistencePaused) return
       await Store.set(STORE_NAMESPACE, STORE_KEYS.GQL_HISTORY, state)
     })
   }
@@ -494,6 +503,7 @@ export class PersistenceService extends Service {
     }
 
     restCollectionStore.subject$.subscribe(async ({ state }) => {
+      if (this._isPersistencePaused) return
       await Store.set(STORE_NAMESPACE, STORE_KEYS.REST_COLLECTIONS, state)
     })
   }
@@ -528,6 +538,7 @@ export class PersistenceService extends Service {
     }
 
     graphqlCollectionStore.subject$.subscribe(async ({ state }) => {
+      if (this._isPersistencePaused) return
       await Store.set(STORE_NAMESPACE, STORE_KEYS.GQL_COLLECTIONS, state)
     })
   }
@@ -574,6 +585,7 @@ export class PersistenceService extends Service {
     }
 
     environments$.subscribe(async (envs) => {
+      if (this._isPersistencePaused) return
       await Store.set(STORE_NAMESPACE, STORE_KEYS.ENVIRONMENTS, envs)
     })
   }
@@ -614,6 +626,7 @@ export class PersistenceService extends Service {
     watchDebounced(
       this.secretEnvironmentService.persistableSecretEnvironments,
       async (newData: Record<string, SecretVariable[]>) => {
+        if (this._isPersistencePaused) return
         await Store.set(
           STORE_NAMESPACE,
           STORE_KEYS.SECRET_ENVIRONMENTS,
@@ -663,6 +676,7 @@ export class PersistenceService extends Service {
     watchDebounced(
       this.currentEnvironmentValueService.persistableEnvironments,
       async (newData: Record<string, Variable[]>) => {
+        if (this._isPersistencePaused) return
         await Store.set(
           STORE_NAMESPACE,
           STORE_KEYS.CURRENT_ENVIRONMENT_VALUE,
@@ -704,6 +718,7 @@ export class PersistenceService extends Service {
     }
 
     selectedEnvironmentIndex$.subscribe(async (index) => {
+      if (this._isPersistencePaused) return
       await Store.set(STORE_NAMESPACE, STORE_KEYS.SELECTED_ENV, index)
     })
   }
@@ -742,6 +757,7 @@ export class PersistenceService extends Service {
     watchDebounced(
       this.currentSortValuesService.persistableCurrentSortValues,
       async (newData: Record<string, CurrentSortOption>) => {
+        if (this._isPersistencePaused) return
         await Store.set(
           STORE_NAMESPACE,
           STORE_KEYS.CURRENT_SORT_VALUES,
@@ -785,6 +801,7 @@ export class PersistenceService extends Service {
     }
 
     WSRequest$.subscribe(async (req) => {
+      if (this._isPersistencePaused) return
       await Store.set(STORE_NAMESPACE, STORE_KEYS.WEBSOCKET, req)
     })
   }
@@ -822,6 +839,7 @@ export class PersistenceService extends Service {
     }
 
     SIORequest$.subscribe(async (req) => {
+      if (this._isPersistencePaused) return
       await Store.set(STORE_NAMESPACE, STORE_KEYS.SOCKETIO, req)
     })
   }
@@ -852,6 +870,7 @@ export class PersistenceService extends Service {
     }
 
     SSERequest$.subscribe(async (req) => {
+      if (this._isPersistencePaused) return
       await Store.set(STORE_NAMESPACE, STORE_KEYS.SSE, req)
     })
   }
@@ -882,6 +901,7 @@ export class PersistenceService extends Service {
     }
 
     MQTTRequest$.subscribe(async (req) => {
+      if (this._isPersistencePaused) return
       await Store.set(STORE_NAMESPACE, STORE_KEYS.MQTT, req)
     })
   }
@@ -913,6 +933,7 @@ export class PersistenceService extends Service {
     }
 
     globalEnv$.subscribe(async (vars) => {
+      if (this._isPersistencePaused) return
       await Store.set(STORE_NAMESPACE, STORE_KEYS.GLOBAL_ENV, vars)
     })
   }
@@ -962,6 +983,7 @@ export class PersistenceService extends Service {
     watchDebounced(
       this.restTabService.persistableTabState,
       async (newData) => {
+        if (this._isPersistencePaused) return
         await Store.set(STORE_NAMESPACE, STORE_KEYS.REST_TABS, newData)
       },
       { debounce: 500, deep: true }
@@ -1005,6 +1027,7 @@ export class PersistenceService extends Service {
     watchDebounced(
       this.gqlTabService.persistableTabState,
       async (newData) => {
+        if (this._isPersistencePaused) return
         await Store.set(STORE_NAMESPACE, STORE_KEYS.GQL_TABS, newData)
       },
       { debounce: 500, deep: true }
@@ -1134,5 +1157,98 @@ export class PersistenceService extends Service {
    */
   public async removeLocalConfig(key: string): Promise<void> {
     await Store.remove(STORE_NAMESPACE, key)
+  }
+
+  /**
+   * Removes all workspace data from persistent storage and resets in-memory stores.
+   * Settings and schema version are preserved so user preferences survive across sessions.
+   * On storage failure, logs errors and shows a non-blocking toast; in-memory state is still reset.
+   */
+  public async clearWorkspaceData(): Promise<void> {
+    // Pause persistence so that resetting in-memory state doesn't
+    // trigger subscribers to re-write data back to the store.
+    this._isPersistencePaused = true
+
+    const keysToRemove = [
+      STORE_KEYS.REST_HISTORY,
+      STORE_KEYS.GQL_HISTORY,
+      STORE_KEYS.REST_COLLECTIONS,
+      STORE_KEYS.GQL_COLLECTIONS,
+      STORE_KEYS.ENVIRONMENTS,
+      STORE_KEYS.SELECTED_ENV,
+      STORE_KEYS.GLOBAL_ENV,
+      STORE_KEYS.SECRET_ENVIRONMENTS,
+      STORE_KEYS.CURRENT_ENVIRONMENT_VALUE,
+      STORE_KEYS.REST_TABS,
+      STORE_KEYS.GQL_TABS,
+      STORE_KEYS.WEBSOCKET,
+      STORE_KEYS.SOCKETIO,
+      STORE_KEYS.SSE,
+      STORE_KEYS.MQTT,
+      STORE_KEYS.LOCAL_STATE,
+      STORE_KEYS.CURRENT_SORT_VALUES,
+    ] as const
+
+    const results = await Promise.all(
+      keysToRemove.map((key) => Store.remove(STORE_NAMESPACE, key))
+    )
+
+    const failedKeys: string[] = []
+    results.forEach((result, index) => {
+      if (E.isLeft(result)) {
+        const key = keysToRemove[index]
+        console.error(
+          `[PersistenceService] Failed to remove workspace key ${STORE_NAMESPACE}:${key}:`,
+          result.left
+        )
+        failedKeys.push(key)
+      }
+    })
+
+    if (failedKeys.length > 0) {
+      const toast = useToast()
+      const t = getI18n()
+      toast.error(
+        t("settings.clear_workspace_data_partial_failure") ??
+          "Some workspace data could not be cleared. You may need to refresh the page."
+      )
+    }
+
+    this.resetInMemoryWorkspaceState()
+  }
+
+  /**
+   * Resets all in-memory workspace state (collections, history, environments, tabs, etc.)
+   * so the UI reflects cleared data immediately without a page reload.
+   */
+  private resetInMemoryWorkspaceState(): void {
+    setRESTCollections([])
+    setGraphqlCollections([])
+    setRESTHistoryEntries([])
+    setGraphqlHistoryEntries([])
+
+    const defaultEnvironment: Environment = {
+      v: 2,
+      id: uniqueID(),
+      name: "My Environment Variables",
+      variables: [],
+    }
+    replaceEnvironments([defaultEnvironment])
+    setSelectedEnvironmentIndex({ type: "NO_ENV_SELECTED" })
+    setGlobalEnvVariables({ v: 2, variables: [] })
+
+    this.secretEnvironmentService.loadSecretEnvironmentsFromPersistedState({})
+    this.currentEnvironmentValueService.environments.clear()
+    this.currentSortValuesService.clearAllSortOptions()
+
+    setWSRequest(undefined)
+    setSIORequest(undefined)
+    setSSERequest(undefined)
+    setMQTTRequest(undefined)
+
+    bulkApplyLocalState({})
+
+    this.restTabService.resetToDefaultState()
+    this.gqlTabService.resetToDefaultState()
   }
 }

@@ -215,9 +215,9 @@ const exportEnvironmentAsJSON = async () => {
   if (environmentIndex === null || environmentIndex === "Global") {
     const result = await exportAsJSON(environment, environmentIndex)
 
-    result
-      ? toast.success(t("state.download_started"))
-      : toast.error(t("state.download_failed"))
+    E.isRight(result)
+      ? toast.success(t(result.right))
+      : toast.error(t(result.left))
 
     return
   }

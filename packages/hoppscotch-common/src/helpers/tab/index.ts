@@ -4,10 +4,6 @@ import { PersonalWorkspaceProviderService } from "~/services/new-workspace/provi
 import { HoppTab } from "~/services/tab"
 import { HoppRESTDocument } from "../rest/document"
 
-const personalWorkspaceProviderService = getService(
-  PersonalWorkspaceProviderService
-)
-
 /**
  * Remove the request handle corresponding to the tab being closed from the issued handles list under `PersonalWorkspaceProviderService`
  *
@@ -20,6 +16,9 @@ export const updateIssuedHandlesForPersonalWorkspace = (
   tabState: HoppTab<HoppRESTDocument>,
   action: "include" | "exclude"
 ) => {
+  const personalWorkspaceProviderService = getService(
+    PersonalWorkspaceProviderService
+  )
   const { saveContext } = tabState.document
 
   if (!saveContext) {

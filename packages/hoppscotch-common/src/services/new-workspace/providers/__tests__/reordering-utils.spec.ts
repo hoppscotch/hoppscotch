@@ -57,8 +57,7 @@ describe("reorder items", () => {
     const result = reorderItems("item-2", "item-1", items, "id", "parentID")
 
     if (E.isLeft(result)) {
-      console.log(result.left)
-      throw new Error("SOMETHING WENT WRONG WHILE REORDERING")
+      expect.unreachable(`reorder failed: ${JSON.stringify(result.left)}`)
     }
 
     expect(sortByOrder(result.right.filter((item) => !item.parentID)))
@@ -84,8 +83,7 @@ describe("reorder items", () => {
     const result = reorderItems("item-1", null, items, "id", "parentID")
 
     if (E.isLeft(result)) {
-      console.log(result.left)
-      throw new Error("SOMETHING WENT WRONG WHILE REORDERING")
+      expect.unreachable(`reorder failed: ${JSON.stringify(result.left)}`)
     }
 
     expect(sortByOrder(result.right.filter((item) => !item.parentID)))
@@ -112,8 +110,7 @@ describe("reorder items", () => {
     const result = reorderItems("item-1_3", "item-1_2", items, "id", "parentID")
 
     if (E.isLeft(result)) {
-      console.log(result.left)
-      throw new Error("SOMETHING WENT WRONG WHILE REORDERING")
+      expect.unreachable(`reorder failed: ${JSON.stringify(result.left)}`)
     }
 
     expect(
@@ -153,8 +150,7 @@ describe("reorder items", () => {
     const result = moveItems("item-1_1_2", "item-2", items, "id", "parentID")
 
     if (E.isLeft(result)) {
-      console.log(result.left)
-      throw new Error("SOMETHING WENT WRONG WHILE REORDERING")
+      expect.unreachable(`reorder failed: ${JSON.stringify(result.left)}`)
     }
 
     // check if the item_1_1_2 is removed from its parent
@@ -190,8 +186,7 @@ describe("reorder items", () => {
     const result = moveItems("item-1_2", "item-1_1", items, "id", "parentID")
 
     if (E.isLeft(result)) {
-      console.log(result.left)
-      throw new Error("SOMETHING WENT WRONG WHILE REORDERING")
+      expect.unreachable(`reorder failed: ${JSON.stringify(result.left)}`)
     }
 
     expect(
@@ -249,8 +244,7 @@ describe("reorder items", () => {
     const result = moveItems("item-1_1", null, items, "id", "parentID")
 
     if (E.isLeft(result)) {
-      console.log(result.left)
-      throw new Error("SOMETHING WENT WRONG WHILE REORDERING")
+      expect.unreachable(`reorder failed: ${JSON.stringify(result.left)}`)
     }
 
     expect(sortByOrder(result.right.filter((item) => item.parentID === null)))

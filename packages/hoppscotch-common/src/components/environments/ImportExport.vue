@@ -290,7 +290,7 @@ const HoppEnvironmentsExport: ImporterOrExporter = {
     // INVALID_COLLECTION_HANDLE | NO_ENVIRONMENTS_TO_EXPORT
     if (E.isLeft(result)) {
       if (result.left.error === "NO_ENVIRONMENTS_TO_EXPORT") {
-        return toast.error(t("no_environments_to_export"))
+        return toast.error(t("error.no_environments_to_export"))
       }
 
       return toast.error(t("export.failed"))

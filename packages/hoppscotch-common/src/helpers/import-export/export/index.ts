@@ -14,7 +14,7 @@ export const initializeDownloadFile = async (
   const result = await platform.io.saveFileWithDialog({
     data: contentsJSON,
     contentType: "application/json",
-    suggestedFilename: `${name ?? "collection"}.json`,
+    suggestedFilename: `${(name ?? "collection").replace(/\.json$/i, "")}.json`,
     filters: [
       {
         name: "Hoppscotch Collection/Environment JSON file",

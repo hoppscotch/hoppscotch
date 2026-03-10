@@ -343,21 +343,23 @@ async function* _getCollectionChildren(collectionID: string) {
         },
       })
 
-      if (E.isRight(result)) {
-        const childrenCount: number = result.right.collection!.children.length
-        const isLastPage = childrenCount < BACKEND_PAGE_SIZE
+      if (E.isLeft(result)) {
+        yield result
+        break
+      }
 
-        if (childrenCount > 0) {
-          cursor = result.right.collection?.children[childrenCount - 1]?.id
-        }
+      const childrenCount: number = result.right.collection!.children.length
+      const isLastPage = childrenCount < BACKEND_PAGE_SIZE
 
-        if (isLastPage) {
-          yield result
-          break
-        }
+      if (childrenCount > 0) {
+        cursor = result.right.collection?.children[childrenCount - 1]?.id
       }
 
       yield result
+
+      if (isLastPage) {
+        break
+      }
     }
   } catch (error) {
     yield E.left(error)

@@ -83,6 +83,8 @@ const SettingsDefSchema = z.object({
     .catch("DESCRIPTIVE_WITH_SPACES"),
   CUSTOM_NAMING_STYLE: z.string().optional().catch(""),
 
+  CLEAR_LOCAL_DATA_ON_LOGOUT: z.optional(z.boolean().catch(false)),
+
   EXPERIMENTAL_SCRIPTING_SANDBOX: z.optional(z.boolean()),
   ENABLE_EXPERIMENTAL_MOCK_SERVERS: z.optional(z.boolean()),
   ENABLE_EXPERIMENTAL_DOCUMENTATION: z.optional(z.boolean()),

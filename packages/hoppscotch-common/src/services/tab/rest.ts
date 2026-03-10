@@ -106,4 +106,20 @@ export class RESTTabService extends TabService<HoppTabDocument> {
 
     return count
   }
+
+  /**
+   * Resets tabs to a single default request tab. Used when clearing workspace data on logout.
+   */
+  public resetToDefaultState(): void {
+    const defaultDoc: HoppTabDocument = {
+      type: "request",
+      request: getDefaultRESTRequest(),
+      isDirty: false,
+      optionTabPreference: "params",
+    }
+    this.loadTabsFromPersistedState({
+      lastActiveTabID: "test",
+      orderedDocs: [{ tabID: "test", doc: defaultDoc }],
+    })
+  }
 }

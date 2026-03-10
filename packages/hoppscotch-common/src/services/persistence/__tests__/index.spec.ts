@@ -1931,4 +1931,81 @@ describe("PersistenceService", () => {
     )
     expect(removeItemSpy).toHaveBeenCalledWith(`${STORE_NAMESPACE}:${testKey}`)
   })
+
+  it("`clearWorkspaceData` removes all workspace keys but preserves SETTINGS and SCHEMA_VERSION", async () => {
+    const removeItemSpy = spyOnRemoveItem()
+
+    const service = bindPersistenceService()
+
+    const workspaceKeys = [
+      STORE_KEYS.REST_HISTORY,
+      STORE_KEYS.GQL_HISTORY,
+      STORE_KEYS.REST_COLLECTIONS,
+      STORE_KEYS.GQL_COLLECTIONS,
+      STORE_KEYS.ENVIRONMENTS,
+      STORE_KEYS.SELECTED_ENV,
+      STORE_KEYS.GLOBAL_ENV,
+      STORE_KEYS.SECRET_ENVIRONMENTS,
+      STORE_KEYS.CURRENT_ENVIRONMENT_VALUE,
+      STORE_KEYS.REST_TABS,
+      STORE_KEYS.GQL_TABS,
+      STORE_KEYS.WEBSOCKET,
+      STORE_KEYS.SOCKETIO,
+      STORE_KEYS.SSE,
+      STORE_KEYS.MQTT,
+      STORE_KEYS.LOCAL_STATE,
+      STORE_KEYS.CURRENT_SORT_VALUES,
+    ]
+
+    const preservedKeys = [STORE_KEYS.SETTINGS, STORE_KEYS.SCHEMA_VERSION]
+
+    for (const key of [...workspaceKeys, ...preservedKeys]) {
+      window.localStorage.setItem(
+        `${STORE_NAMESPACE}:${key}`,
+        JSON.stringify({ test: "data" })
+      )
+    }
+
+    await service.clearWorkspaceData()
+
+    for (const key of workspaceKeys) {
+      expect(removeItemSpy).toHaveBeenCalledWith(`${STORE_NAMESPACE}:${key}`)
+    }
+    for (const key of preservedKeys) {
+      expect(removeItemSpy).not.toHaveBeenCalledWith(
+        `${STORE_NAMESPACE}:${key}`
+      )
+    }
+    expect(
+      window.localStorage.getItem(`${STORE_NAMESPACE}:${STORE_KEYS.SETTINGS}`)
+    ).toBeTruthy()
+    expect(
+      window.localStorage.getItem(
+        `${STORE_NAMESPACE}:${STORE_KEYS.SCHEMA_VERSION}`
+      )
+    ).toBeTruthy()
+  })
+
+  it("`clearWorkspaceData` shows toast and still resets in-memory state when a storage remove fails", async () => {
+    const service = bindPersistenceService()
+
+    window.localStorage.setItem(
+      `${STORE_NAMESPACE}:${STORE_KEYS.REST_HISTORY}`,
+      "[]"
+    )
+
+    const removeSpy = vi
+      .spyOn(Store, "remove")
+      .mockImplementation(async (_ns, key) => {
+        if (key === STORE_KEYS.REST_HISTORY) {
+          return E.left({ kind: "storage", message: "test failure" })
+        }
+        return E.right(true)
+      })
+
+    await service.clearWorkspaceData()
+
+    expect(toastErrorFn).toHaveBeenCalledWith("test")
+    removeSpy.mockRestore()
+  })
 })

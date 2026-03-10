@@ -78,4 +78,20 @@ export class GQLTabService extends TabService<HoppGQLDocument> {
 
     return count
   }
+
+  /**
+   * Resets tabs to a single default request tab. Used when clearing workspace data on logout.
+   */
+  public resetToDefaultState(): void {
+    const defaultDoc: HoppGQLDocument = {
+      request: getDefaultGQLRequest(),
+      isDirty: false,
+      optionTabPreference: "query",
+      cursorPosition: 0,
+    }
+    this.loadTabsFromPersistedState({
+      lastActiveTabID: "test",
+      orderedDocs: [{ tabID: "test", doc: defaultDoc }],
+    })
+  }
 }

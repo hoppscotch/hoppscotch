@@ -92,6 +92,25 @@
       </div>
     </section>
 
+    <section class="p-4">
+      <h4 class="font-semibold text-secondaryDark">
+        {{ t("settings.privacy") }}
+      </h4>
+      <div class="my-1 text-secondaryLight">
+        {{ t("settings.privacy_description") }}
+      </div>
+      <div class="space-y-4 py-4">
+        <div class="flex items-center">
+          <HoppSmartToggle
+            :on="CLEAR_LOCAL_DATA_ON_LOGOUT"
+            @change="toggleSetting('CLEAR_LOCAL_DATA_ON_LOGOUT')"
+          >
+            {{ t("settings.clear_local_data_on_logout") }}
+          </HoppSmartToggle>
+        </div>
+      </div>
+    </section>
+
     <template v-if="platform.ui?.additionalProfileSections?.length">
       <template
         v-for="(item, index) in platform.ui?.additionalProfileSections"
@@ -124,6 +143,7 @@ const toast = useToast()
 const SYNC_COLLECTIONS = useSetting("syncCollections")
 const SYNC_ENVIRONMENTS = useSetting("syncEnvironments")
 const SYNC_HISTORY = useSetting("syncHistory")
+const CLEAR_LOCAL_DATA_ON_LOGOUT = useSetting("CLEAR_LOCAL_DATA_ON_LOGOUT")
 const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),
   platform.auth.getCurrentUser()

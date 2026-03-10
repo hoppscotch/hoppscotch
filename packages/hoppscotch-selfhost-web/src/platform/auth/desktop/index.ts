@@ -11,6 +11,7 @@ import { getService } from "@hoppscotch/common/modules/dioc"
 import { parseBodyAsJSON } from "@hoppscotch/common/helpers/functional/json"
 import { AuthEvent, AuthPlatformDef } from "@hoppscotch/common/platform/auth"
 import { PersistenceService } from "@hoppscotch/common/services/persistence"
+import { settingsStore } from "@hoppscotch/common/newstore/settings"
 import { KernelInterceptorService } from "@hoppscotch/common/services/kernel-interceptor.service"
 
 import Login from "@app/components/Login.vue"
@@ -514,6 +515,11 @@ export const def: AuthPlatformDef = {
 
     probableUser$.next(null)
     currentUser$.next(null)
+
+    if (settingsStore.value.CLEAR_LOCAL_DATA_ON_LOGOUT) {
+      await persistenceService.clearWorkspaceData()
+    }
+
     await persistenceService.removeLocalConfig("login_state")
 
     authEvents$.next({

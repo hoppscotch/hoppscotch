@@ -36,7 +36,7 @@ import {
 } from "~/helpers/backend/mutations/TeamRequest"
 import { createTeam } from "~/helpers/backend/mutations/Team"
 import { TeamName } from "~/helpers/backend/types/TeamName"
-import { Ref, computed, ref } from "vue"
+import { Ref, computed, effectScope, markRaw, ref, watch } from "vue"
 import {
   RESTCollectionChildrenView,
   RESTCollectionJSONView,
@@ -92,6 +92,7 @@ import {
   updateTeamEnvironment,
 } from "~/helpers/backend/mutations/TeamEnvironment"
 import { fetchAllTeamEnvironments } from "~/helpers/teams/TeamEnvironmentAdapter"
+import { debounce } from "lodash-es"
 
 type TeamsWorkspaceCollection = WorkspaceCollection & {
   parentCollectionID: string | null
@@ -1380,31 +1381,65 @@ export class TeamsWorkspaceProviderService
     workspaceHandle: Handle<Workspace>,
     searchQuery: Ref<string>
   ): Promise<E.Either<never, Handle<RESTSearchResultsView>>> {
+    const workspaceHandleRef = workspaceHandle.get()
+
+    if (!isValidWorkspaceHandle(workspaceHandleRef, this.providerID)) {
+      return E.right({
+        get: () =>
+          computed(() => ({
+            type: "invalid" as const,
+            reason: "INVALID_WORKSPACE_HANDLE" as const,
+          })),
+      })
+    }
+
+    const scopeHandle = effectScope()
+
+    scopeHandle.run(() => {
+      const searchTeamCollections = debounce((query: string) => {
+        this.teamSearchService
+          .searchTeams(query, workspaceHandleRef.value.data.workspaceID)
+          .catch(() => {})
+      }, 400)
+
+      watch(
+        searchQuery,
+        (query) => {
+          if (!query) {
+            this.teamSearchService.teamsSearchResults.value =
+              this.collections.value
+            return
+          }
+
+          searchTeamCollections(query)
+        },
+        {
+          immediate: true,
+        }
+      )
+    })
+
+    const onSessionEnd = () => {
+      scopeHandle.stop()
+      this.teamSearchService.teamsSearchResults.value = []
+      this.teamSearchService.teamsSearchResultsLoading.value = false
+    }
+
     return E.right({
       get: () =>
-        computed(() => {
-          const workspaceHandleRef = workspaceHandle.get()
-
-          if (!isValidWorkspaceHandle(workspaceHandleRef, this.providerID)) {
-            return {
-              type: "invalid" as const,
-              reason: "INVALID_WORKSPACE_HANDLE",
-            }
-          }
-
-          const data: RESTSearchResultsView = {
-            loading: this.teamSearchService.teamsSearchResultsLoading,
-            results: this.teamSearchService.teamsSearchResults as unknown as Ref<HoppCollection[]>,
-            providerID: this.providerID,
-            workspaceID: workspaceHandleRef.value.data.workspaceID,
-            onSessionEnd() {},
-          }
-
-          return {
+        computed(() =>
+          markRaw({
             type: "ok" as const,
-            data,
-          }
-        }),
+            data: {
+              loading: this.teamSearchService.teamsSearchResultsLoading,
+              results: this.teamSearchService
+                .teamsSearchResults as unknown as Ref<HoppCollection[]>,
+              providerID: this.providerID,
+              workspaceID: workspaceHandleRef.value.data.workspaceID,
+              onSessionEnd,
+            },
+          })
+        ),
     })
   }
 

@@ -190,16 +190,12 @@ const props = withDefaults(
     modelValue: string
     showDetails?: boolean
     hasTeamWriteAccess?: boolean
-    // TODO: Purpose of this prop is to maintain backwards compatibility
-    // To be removed after porting all usages of this component
-    emitWithFullCollection: boolean
   }>(),
   {
     show: false,
     loadingState: false,
     showDetails: false,
     hasTeamWriteAccess: true,
-    emitWithFullCollection: true,
   }
 )
 

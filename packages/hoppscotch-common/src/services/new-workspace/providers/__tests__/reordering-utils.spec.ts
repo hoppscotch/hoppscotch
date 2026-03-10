@@ -27,7 +27,7 @@ type Item = {
  *
  */
 
-describe("reorder items", async () => {
+describe("reorder items", () => {
   let items: Item[]
 
   beforeEach(() => {

@@ -45,9 +45,7 @@ export class WorkspaceRESTSearchCollectionTreeAdapter
                 type: "collection",
                 value: {
                   isLastItem:
-                    item.folders?.length > 1
-                      ? childCollectionID === item.folders.length - 1
-                      : false,
+                    childCollectionID === item.folders.length - 1,
                   collectionID: `${nodeID}/${childCollectionID}`,
                   name: childCollection.name,
                   parentCollectionID: nodeID,
@@ -64,9 +62,7 @@ export class WorkspaceRESTSearchCollectionTreeAdapter
               type: "request",
               value: {
                 isLastItem:
-                  item.requests?.length > 1
-                    ? requestID === item.requests.length - 1
-                    : false,
+                    requestID === item.requests.length - 1,
                 parentCollectionID: nodeID,
                 collectionID: nodeID,
                 requestID: `${nodeID}/${requestID}`,

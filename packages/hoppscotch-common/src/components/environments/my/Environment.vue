@@ -227,7 +227,7 @@ const exportEnvironmentAsJSON = async () => {
 
 const exportEnvironment = async (environmentID: number) => {
   if (!activeWorkspaceHandle.value) {
-    toast.error("error.something_went_wrong")
+    toast.error(t("error.something_went_wrong"))
     return
   }
 

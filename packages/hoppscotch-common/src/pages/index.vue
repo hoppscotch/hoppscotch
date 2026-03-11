@@ -344,7 +344,7 @@ const onCloseConfirmSaveTab = () => {
 const onResolveConfirmSaveTab = () => {
   const { saveContext } = tabs.currentActiveTab.value.document
 
-  // There're two cases where the save request under a collection modal should open
+  // There are two cases where the save request under a collection modal should open
   // 1. Attempting to save a request that is not under a collection (When the save context is not available)
   // 2. Deleting a request from the collection tree and attempting to save it while closing the respective tab (When the request handle is invalid)
   if (

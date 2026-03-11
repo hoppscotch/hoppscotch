@@ -1,7 +1,4 @@
-import {
-  ChildrenResult,
-  SmartTreeAdapter,
-} from "@hoppscotch/ui/dist/src/helpers/treeAdapter"
+import { ChildrenResult, SmartTreeAdapter } from "@hoppscotch/ui"
 import * as E from "fp-ts/Either"
 import { EffectScope, Ref, effectScope, ref, watchEffect } from "vue"
 import { NewWorkspaceService } from "~/services/new-workspace"

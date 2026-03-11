@@ -84,21 +84,21 @@ const isNewTeamModalOpen = ref(false)
 
 const workspaceService = useService(NewWorkspaceService)
 
+const teamsService = useService(TeamsWorkspaceProviderService)
+
 const isActiveWorkspace = computed(() => (id: string) => {
   const activeHandle = workspaceService.activeWorkspaceHandle.value
   if (!activeHandle) return false
   const activeHandleRef = activeHandle.get()
   if (activeHandleRef.value.type !== "ok") return false
   return (
-    activeHandleRef.value.data.providerID === "TEAMS_WORKSPACE_PROVIDER" &&
+    activeHandleRef.value.data.providerID === teamsService.providerID &&
     activeHandleRef.value.data.workspaceID === id
   )
 })
 
 const teamListadapter = new TeamListAdapter(true)
 const teamListAdapterError = useReadonlyStream(teamListadapter.error$, null)
-
-const teamsService = useService(TeamsWorkspaceProviderService)
 
 const workspaces = teamsService.getWorkspaces()
 

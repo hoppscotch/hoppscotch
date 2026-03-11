@@ -310,8 +310,6 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
             configMap.MAILER_SMTP_HOST &&
             configMap.MAILER_SMTP_PORT &&
             configMap.MAILER_SMTP_SECURE &&
-            configMap.MAILER_SMTP_USER &&
-            configMap.MAILER_SMTP_PASSWORD &&
             configMap.MAILER_TLS_REJECT_UNAUTHORIZED &&
             configMap.MAILER_ADDRESS_FROM
           );
@@ -678,6 +676,7 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
         case InfraConfigEnum.MAILER_USE_CUSTOM_CONFIGS:
         case InfraConfigEnum.MAILER_SMTP_SECURE:
         case InfraConfigEnum.MAILER_TLS_REJECT_UNAUTHORIZED:
+        case InfraConfigEnum.MAILER_SMTP_IGNORE_TLS:
           if (value !== 'true' && value !== 'false') return fail();
           break;
 
@@ -702,8 +701,6 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
 
         case InfraConfigEnum.MAILER_SMTP_HOST:
         case InfraConfigEnum.MAILER_SMTP_PORT:
-        case InfraConfigEnum.MAILER_SMTP_USER:
-        case InfraConfigEnum.MAILER_SMTP_PASSWORD:
         case InfraConfigEnum.GOOGLE_CLIENT_ID:
         case InfraConfigEnum.GOOGLE_CLIENT_SECRET:
         case InfraConfigEnum.GOOGLE_SCOPE:

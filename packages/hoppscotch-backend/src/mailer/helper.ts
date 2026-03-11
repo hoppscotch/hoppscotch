@@ -24,17 +24,26 @@ export function getTransportOption(env): TransportType {
     return env.INFRA.MAILER_SMTP_URL ?? throwErr(MAILER_SMTP_URL_UNDEFINED);
   } else {
     console.log('Using advanced mailer configuration');
+
+    const auth =
+      env.INFRA.MAILER_SMTP_USER?.trim() ||
+      env.INFRA.MAILER_SMTP_PASSWORD?.trim()
+        ? {
+            user:
+              env.INFRA.MAILER_SMTP_USER ??
+              throwErr(MAILER_SMTP_USER_UNDEFINED),
+            pass:
+              env.INFRA.MAILER_SMTP_PASSWORD ??
+              throwErr(MAILER_SMTP_PASSWORD_UNDEFINED),
+          }
+        : undefined;
+
     return {
       host: env.INFRA.MAILER_SMTP_HOST,
       port: +env.INFRA.MAILER_SMTP_PORT,
       secure: env.INFRA.MAILER_SMTP_SECURE === 'true',
-      auth: {
-        user:
-          env.INFRA.MAILER_SMTP_USER ?? throwErr(MAILER_SMTP_USER_UNDEFINED),
-        pass:
-          env.INFRA.MAILER_SMTP_PASSWORD ??
-          throwErr(MAILER_SMTP_PASSWORD_UNDEFINED),
-      },
+      ...(auth && { auth }),
+      ignoreTLS: env.INFRA.MAILER_SMTP_IGNORE_TLS === 'true',
       tls: {
         rejectUnauthorized: env.INFRA.MAILER_TLS_REJECT_UNAUTHORIZED === 'true',
       },

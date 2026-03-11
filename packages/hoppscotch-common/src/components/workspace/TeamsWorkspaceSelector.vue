@@ -66,18 +66,14 @@
 <script setup lang="ts">
 import { useService } from "dioc/vue"
 import { NewWorkspaceService } from "~/services/new-workspace"
-import { computed, ref } from "vue"
-import { PersonalWorkspaceProviderService } from "~/services/new-workspace/providers/personal.workspace"
+import { computed, ref, Ref } from "vue"
 import IconPlus from "~icons/lucide/plus"
 import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { useReadonlyStream } from "~/composables/stream"
-import { useLocalState } from "~/newstore/localstate"
-import { platform } from "~/platform"
 import { useColorMode } from "~/composables/theming"
 import { useI18n } from "~/composables/i18n"
 import { TeamsWorkspaceProviderService } from "~/services/new-workspace/providers/teams.workspace"
 import { Workspace } from "~/services/new-workspace/workspace"
-import { Ref } from "vue"
 import { HandleRef } from "~/services/new-workspace/handle"
 
 const t = useI18n()
@@ -87,9 +83,6 @@ const colorMode = useColorMode()
 const isNewTeamModalOpen = ref(false)
 
 const workspaceService = useService(NewWorkspaceService)
-const personalWorkspaceProviderService = useService(
-  PersonalWorkspaceProviderService
-)
 
 const isActiveWorkspace = computed(() => (id: string) => {
   const activeHandle = workspaceService.activeWorkspaceHandle.value
@@ -103,15 +96,7 @@ const isActiveWorkspace = computed(() => (id: string) => {
 })
 
 const teamListadapter = new TeamListAdapter(true)
-const isTeamListLoading = useReadonlyStream(teamListadapter.loading$, false)
 const teamListAdapterError = useReadonlyStream(teamListadapter.error$, null)
-const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
-const teamListFetched = ref(false)
-
-const currentUser = useReadonlyStream(
-  platform.auth.getProbableUserStream(),
-  platform.auth.getProbableUser()
-)
 
 const teamsService = useService(TeamsWorkspaceProviderService)
 
@@ -121,13 +106,6 @@ const loading = computed(() => {
   return (
     workspaces.value.type === "invalid" &&
     workspaces.value.reason === "LOADING_WORKSPACES"
-  )
-})
-
-const errorFetchingWorkspaces = computed(() => {
-  return (
-    workspaces.value.type === "invalid" &&
-    workspaces.value.reason !== "LOADING_WORKSPACES"
   )
 })
 

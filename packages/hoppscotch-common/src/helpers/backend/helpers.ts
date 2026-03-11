@@ -401,21 +401,23 @@ async function* _getCollectionChildRequests(collectionID: string) {
         },
       })
 
-      if (E.isRight(result)) {
-        const requestCount: number = result.right.requestsInCollection.length
-        const isLastPage = requestCount < BACKEND_PAGE_SIZE
+      if (E.isLeft(result)) {
+        yield result
+        break
+      }
 
-        if (requestCount > 0) {
-          cursor = result.right.requestsInCollection[requestCount - 1]?.id
-        }
+      const requestCount: number = result.right.requestsInCollection.length
+      const isLastPage = requestCount < BACKEND_PAGE_SIZE
 
-        if (isLastPage) {
-          yield result
-          break
-        }
+      if (requestCount > 0) {
+        cursor = result.right.requestsInCollection[requestCount - 1]?.id
       }
 
       yield result
+
+      if (isLastPage) {
+        break
+      }
     }
   } catch (error) {
     yield E.left(error)
@@ -457,20 +459,22 @@ async function* _getRootCollections(teamID: string) {
         },
       })
 
-      if (E.isRight(result)) {
-        const collectionCount: number =
-          result.right.rootCollectionsOfTeam.length
-
-        const isLastPage = collectionCount < BACKEND_PAGE_SIZE
-        cursor = result.right.rootCollectionsOfTeam[collectionCount - 1]?.id
-
-        if (isLastPage) {
-          yield result
-          break
-        }
+      if (E.isLeft(result)) {
+        yield result
+        break
       }
 
+      const collectionCount: number =
+        result.right.rootCollectionsOfTeam.length
+
+      const isLastPage = collectionCount < BACKEND_PAGE_SIZE
+      cursor = result.right.rootCollectionsOfTeam[collectionCount - 1]?.id
+
       yield result
+
+      if (isLastPage) {
+        break
+      }
     }
   } catch (error) {
     yield E.left(error)

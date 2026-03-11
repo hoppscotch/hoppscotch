@@ -508,10 +508,7 @@ const removeEnvironment = async (environmentID: number) => {
 
   if (E.isLeft(deletedEnvironmentHandleResult)) {
     // INVALID_WORKSPACE_HANDLE | team workspace n/w call failure
-    toast.error(
-      (deletedEnvironmentHandleResult.left.error as string) ??
-        "error.something_went_wrong"
-    )
+    toast.error(t("error.something_went_wrong"))
     return
   }
 

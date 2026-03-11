@@ -367,7 +367,10 @@ async function* _getCollectionChildren(collectionID: string) {
       }
     }
   } catch (error) {
-    yield E.left(error)
+    yield E.left({
+      type: "network_error",
+      error: error instanceof Error ? error : new Error(String(error)),
+    } as GQLError<string>)
   }
 }
 
@@ -425,7 +428,10 @@ async function* _getCollectionChildRequests(collectionID: string) {
       }
     }
   } catch (error) {
-    yield E.left(error)
+    yield E.left({
+      type: "network_error",
+      error: error instanceof Error ? error : new Error(String(error)),
+    } as GQLError<string>)
   }
 }
 
@@ -482,7 +488,10 @@ async function* _getRootCollections(teamID: string) {
       }
     }
   } catch (error) {
-    yield E.left(error)
+    yield E.left({
+      type: "network_error",
+      error: error instanceof Error ? error : new Error(String(error)),
+    } as GQLError<string>)
   }
 }
 

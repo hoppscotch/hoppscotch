@@ -98,8 +98,8 @@ const isActiveWorkspace = computed(() => (id: string) => {
   )
 })
 
-const teamListadapter = new TeamListAdapter(true)
-const teamListAdapterError = useReadonlyStream(teamListadapter.error$, null)
+const teamListAdapter = new TeamListAdapter(true)
+const teamListAdapterError = useReadonlyStream(teamListAdapter.error$, null)
 
 const workspaces = teamsService.getWorkspaces()
 

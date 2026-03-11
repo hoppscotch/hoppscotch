@@ -20,6 +20,7 @@ import * as TE from "fp-ts/TaskEither";
 import { flow, pipe } from "fp-ts/function";
 import * as S from "fp-ts/string";
 import qs from "qs";
+import { CookieJar } from "tough-cookie";
 import { createHoppFetchHook } from "./hopp-fetch";
 
 import { EffectiveHoppRESTRequest } from "../interfaces/request";
@@ -49,13 +50,14 @@ export const preRequestScriptRunner = (
   request: HoppRESTRequest,
   envs: HoppEnvs,
   legacySandbox: boolean,
-  collectionVariables?: HoppCollectionVariable[]
+  collectionVariables?: HoppCollectionVariable[],
+  cookieJar?: CookieJar
 ): TE.TaskEither<
   HoppCLIError,
   { effectiveRequest: EffectiveHoppRESTRequest } & { updatedEnvs: HoppEnvs }
 > => {
   const experimentalScriptingSandbox = !legacySandbox;
-  const hoppFetchHook = createHoppFetchHook();
+  const hoppFetchHook = createHoppFetchHook(cookieJar);
 
   return pipe(
     TE.of(request),

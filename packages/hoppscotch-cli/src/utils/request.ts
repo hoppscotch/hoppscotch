@@ -5,6 +5,7 @@ import {
   RESTReqSchemaVersion,
 } from "@hoppscotch/data";
 import axios, { Method } from "axios";
+import { CookieJar } from "tough-cookie";
 import * as A from "fp-ts/Array";
 import * as E from "fp-ts/Either";
 import * as T from "fp-ts/Task";
@@ -102,7 +103,8 @@ export const createRequest = (req: EffectiveHoppRESTRequest): RequestConfig => {
  */
 export const requestRunner =
   (
-    requestConfig: RequestConfig
+    requestConfig: RequestConfig,
+    cookieJar?: CookieJar
   ): TE.TaskEither<HoppCLIError, RequestRunnerResponse> =>
   async () => {
     const start = hrtime();
@@ -110,6 +112,20 @@ export const requestRunner =
     try {
       // NOTE: Temporary parsing check for request endpoint.
       requestConfig.url = new URL(requestConfig.url ?? "").toString();
+
+      // Inject cookies from the shared jar into the request headers
+      if (cookieJar) {
+        const cookieString = await cookieJar.getCookieString(requestConfig.url);
+        if (cookieString) {
+          const existingCookie = requestConfig.headers?.["Cookie"];
+          requestConfig.headers = {
+            ...requestConfig.headers,
+            Cookie: existingCookie
+              ? `${existingCookie}; ${cookieString}`
+              : cookieString,
+          };
+        }
+      }
 
       const baseResponse = await axios(requestConfig);
       const { config } = baseResponse;
@@ -127,6 +143,19 @@ export const requestRunner =
               key,
               value: Array.isArray(value) ? value.join(", ") : String(value),
             });
+          }
+        }
+      }
+
+      // Store Set-Cookie headers in the shared jar
+      if (cookieJar && baseResponse.headers["set-cookie"]) {
+        const setCookies = baseResponse.headers["set-cookie"];
+        const cookies = Array.isArray(setCookies) ? setCookies : [setCookies];
+        for (const cookie of cookies) {
+          try {
+            await cookieJar.setCookie(cookie, requestConfig.url!);
+          } catch {
+            // Ignore invalid cookies
           }
         }
       }
@@ -179,6 +208,19 @@ export const requestRunner =
             }
           }
           runnerResponse.headers = transformedHeaders;
+
+          // Store Set-Cookie headers from error responses in the shared jar
+          if (cookieJar && headers?.["set-cookie"]) {
+            const setCookies = headers["set-cookie"];
+            const cookies = Array.isArray(setCookies) ? setCookies : [setCookies];
+            for (const cookie of cookies) {
+              try {
+                await cookieJar.setCookie(cookie, e.config?.url ?? "");
+              } catch {
+                // Ignore invalid cookies
+              }
+            }
+          }
         } else if (e.request) {
           return E.left(error({ code: "REQUEST_ERROR", data: E.toError(e) }));
         }
@@ -232,7 +274,7 @@ export const processRequest =
     params: ProcessRequestParams
   ): T.Task<{ envs: HoppEnvs; report: RequestReport }> =>
   async () => {
-    const { envs, path, request, delay, legacySandbox, collectionVariables } =
+    const { envs, path, request, delay, legacySandbox, collectionVariables, cookieJar } =
       params;
 
     // Initialising updatedEnvs with given parameter envs, will eventually get updated.
@@ -268,7 +310,8 @@ export const processRequest =
       request,
       processedEnvs,
       legacySandbox ?? false,
-      collectionVariables
+      collectionVariables,
+      cookieJar
     )();
     if (E.isLeft(preRequestRes)) {
       printPreRequestRunner.fail();
@@ -302,7 +345,7 @@ export const processRequest =
     // Executing request-runner.
     const requestRunnerRes = await delayPromiseFunction<
       E.Either<HoppCLIError, RequestRunnerResponse>
-    >(requestRunner(requestConfig), delay);
+    >(requestRunner(requestConfig, cookieJar), delay);
     if (E.isLeft(requestRunnerRes)) {
       // Updating report for errors & current result
       report.errors.push(requestRunnerRes.left);
@@ -322,7 +365,8 @@ export const processRequest =
       _requestRunnerRes,
       effectiveRequest,
       updatedEnvs,
-      legacySandbox ?? false
+      legacySandbox ?? false,
+      cookieJar
     );
 
     // Executing test-runner.

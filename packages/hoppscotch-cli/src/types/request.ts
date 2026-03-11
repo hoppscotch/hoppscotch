@@ -4,6 +4,7 @@ import {
   HoppCollectionVariable,
   HoppRESTRequest,
 } from "@hoppscotch/data";
+import { CookieJar } from "tough-cookie";
 import { z } from "zod";
 
 import { TestReport } from "../interfaces/response";
@@ -44,4 +45,5 @@ export type ProcessRequestParams = {
   delay: number;
   legacySandbox?: boolean;
   collectionVariables?: HoppCollectionVariable[];
+  cookieJar?: CookieJar;
 };

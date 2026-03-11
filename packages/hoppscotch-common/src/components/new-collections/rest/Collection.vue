@@ -358,7 +358,7 @@ const dragStart = ({ dataTransfer }: DragEvent) => {
     emit("drag-event", dataTransfer)
 
     dropItemID.value = dataTransfer.getData("collectionIndex")
-    dragging.value = !dragging.value
+    dragging.value = true
 
     changeCurrentReorderStatus({
       type: "collection",

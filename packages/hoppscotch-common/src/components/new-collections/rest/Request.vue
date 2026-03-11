@@ -270,7 +270,7 @@ const requestLabelColor = computed(() =>
 const dragStart = ({ dataTransfer }: DragEvent) => {
   if (dataTransfer) {
     emit("drag-request", dataTransfer)
-    dragging.value = !dragging.value
+    dragging.value = true
 
     changeCurrentReorderStatus({
       type: "request",

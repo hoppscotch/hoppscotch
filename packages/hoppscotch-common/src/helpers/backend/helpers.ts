@@ -210,8 +210,8 @@ export const getCompleteCollectionTree = (
         TE.map((result) =>
           result.collection
             ? {
-                title: result.collection!.title,
-                data: result.collection!.data,
+                title: result.collection.title,
+                data: result.collection.data,
               }
             : null
         )
@@ -348,11 +348,16 @@ async function* _getCollectionChildren(collectionID: string) {
         break
       }
 
-      const childrenCount: number = result.right.collection!.children.length
+      if (!result.right.collection) {
+        yield E.left({ type: "NETWORK_ERROR", error: "collection is null" } as GQLError<string>)
+        break
+      }
+
+      const childrenCount: number = result.right.collection.children.length
       const isLastPage = childrenCount < BACKEND_PAGE_SIZE
 
       if (childrenCount > 0) {
-        cursor = result.right.collection?.children[childrenCount - 1]?.id
+        cursor = result.right.collection.children[childrenCount - 1]?.id
       }
 
       yield result

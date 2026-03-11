@@ -597,7 +597,7 @@ const HoppMyCollectionsExporter: ImporterOrExporter = {
   },
   action: async () => {
     if (!activeWorkspaceHandle.value) {
-      return toast.error("error.something_went_wrong")
+      return toast.error(t("error.something_went_wrong"))
     }
 
     isHoppMyCollectionExporterInProgress.value = true

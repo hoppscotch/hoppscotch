@@ -63,7 +63,7 @@ export function resolveSaveContextOnRequestReorder(payload: {
 
     const { requestID } = requestHandleRef.value.data
     const collectionID = requestID.split("/").slice(0, -1).join("/")
-    const requestIndex = parseInt(requestID.split("/").slice(-1)[0])
+    const requestIndex = parseInt(requestID.split("/").slice(-1)[0], 10)
 
     return collectionID === folderPath && affectedIndices.has(requestIndex)
   })
@@ -94,7 +94,7 @@ export function resolveSaveContextOnRequestReorder(payload: {
 
     const requestIDArr = requestID.split("/")
     const requestIndex = affectedIndices.get(
-      parseInt(requestIDArr[requestIDArr.length - 1])
+      parseInt(requestIDArr[requestIDArr.length - 1], 10)
     )!
 
     requestIDArr[requestIDArr.length - 1] = requestIndex.toString()
@@ -111,7 +111,7 @@ export function getRequestsByPath(
   path: string
 ): HoppRESTRequest[] | HoppGQLRequest[] {
   // path will be like this "0/0/1" these are the indexes of the folders
-  const pathArray = path.split("/").map((index) => parseInt(index))
+  const pathArray = path.split("/").map((index) => parseInt(index, 10))
 
   let currentCollection = collections[pathArray[0]]
 

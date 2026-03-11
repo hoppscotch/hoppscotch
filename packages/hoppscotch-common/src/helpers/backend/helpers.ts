@@ -479,7 +479,9 @@ async function* _getRootCollections(teamID: string) {
         result.right.rootCollectionsOfTeam.length
 
       const isLastPage = collectionCount < BACKEND_PAGE_SIZE
-      cursor = result.right.rootCollectionsOfTeam[collectionCount - 1]?.id
+      if (collectionCount > 0) {
+        cursor = result.right.rootCollectionsOfTeam[collectionCount - 1]?.id
+      }
 
       yield result
 

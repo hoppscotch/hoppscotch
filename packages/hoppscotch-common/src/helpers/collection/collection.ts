@@ -319,7 +319,7 @@ function resetSaveContextForAffectedRequests(folderPath: string) {
   })
 
   for (const tab of tabs) {
-    if (tab.value.document.type === "test-runner") return
+    if (tab.value.document.type === "test-runner") continue
     tab.value.document.saveContext = null
     tab.value.document.isDirty = true
 
@@ -345,7 +345,7 @@ export async function resetTeamRequestsContext() {
   })
 
   for (const tab of tabs) {
-    if (tab.value.document.type === "test-runner") return
+    if (tab.value.document.type === "test-runner") continue
     if (tab.value.document.saveContext?.originLocation === "team-collection") {
       const data = await runGQLQuery({
         query: GetSingleRequestDocument,

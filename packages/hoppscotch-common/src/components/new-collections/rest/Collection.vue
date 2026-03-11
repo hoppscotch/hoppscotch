@@ -31,7 +31,7 @@
         @dragend="
           () => {
             resetDragState()
-            dropItemID = ''
+            dropItemID.value = ''
           }
         "
         @drop="handleDrop($event)"

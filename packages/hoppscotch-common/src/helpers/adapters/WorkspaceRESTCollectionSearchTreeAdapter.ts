@@ -32,7 +32,7 @@ export class WorkspaceRESTSearchCollectionTreeAdapter
         }
       }
 
-      const indexPath = nodeID.split("/").map((x) => parseInt(x))
+      const indexPath = nodeID.split("/").map((x) => parseInt(x, 10))
 
       const item = navigateToFolderWithIndexPath(this.data.value, indexPath)
 

@@ -14,6 +14,7 @@
       filled
       outline
       :icon="IconPlus"
+      @click="isNewTeamModalOpen = true"
     />
   </HoppSmartPlaceholder>
   <div class="flex flex-col">

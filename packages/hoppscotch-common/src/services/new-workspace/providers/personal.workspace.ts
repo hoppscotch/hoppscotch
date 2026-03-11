@@ -256,7 +256,7 @@ export class PersonalWorkspaceProviderService
     // TODO: Verify whether a collection update action is reflected correctly in the handle being returned below
 
     const createdCollectionHandle = await this.getRESTCollectionHandle(
-      parentCollectionHandle,
+      this.getPersonalWorkspaceHandle(),
       newChildCollectionID
     )
 
@@ -513,6 +513,11 @@ export class PersonalWorkspaceProviderService
         return
       }
 
+      // Only adjust handles belonging to the same collection
+      if (handle.value.data.collectionID !== collectionID) {
+        return
+      }
+
       const resolvedRequestIndexPos = Number(requestID.split("/").slice(-1)[0])
 
       // Affected requests appear below the request being removed
@@ -571,7 +576,7 @@ export class PersonalWorkspaceProviderService
       handleToUpdate.value.type === "ok" &&
       "requestID" in handleToUpdate.value.data
     ) {
-      handleToUpdate.value.data.request.name = newRequest.name
+      handleToUpdate.value.data.request = newRequest
     }
 
     return Promise.resolve(E.right(undefined))

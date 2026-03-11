@@ -109,29 +109,25 @@ export function resolveSaveContextOnRequestReorder(payload: {
 export function getRequestsByPath(
   collections: HoppCollection[],
   path: string
-): HoppRESTRequest[] | HoppGQLRequest[] {
+): (HoppRESTRequest | HoppGQLRequest)[] {
   // path will be like this "0/0/1" these are the indexes of the folders
   const pathArray = path.split("/").map((index) => parseInt(index, 10))
 
   let currentCollection = collections[pathArray[0]]
 
   if (pathArray.length === 1) {
-    const latestVersionedRequests = currentCollection.requests.filter(
+    return currentCollection.requests.filter(
       (req): req is HoppRESTRequest | HoppGQLRequest =>
         req.v === RESTReqSchemaVersion || req.v === GQL_REQ_SCHEMA_VERSION
     )
-
-    return latestVersionedRequests as HoppRESTRequest[] | HoppGQLRequest[]
   }
   for (let i = 1; i < pathArray.length; i++) {
     const folder = currentCollection.folders[pathArray[i]]
     if (folder) currentCollection = folder
   }
 
-  const latestVersionedRequests = currentCollection.requests.filter(
+  return currentCollection.requests.filter(
     (req): req is HoppRESTRequest | HoppGQLRequest =>
       req.v === RESTReqSchemaVersion || req.v === GQL_REQ_SCHEMA_VERSION
   )
-
-  return latestVersionedRequests as HoppRESTRequest[] | HoppGQLRequest[]
 }

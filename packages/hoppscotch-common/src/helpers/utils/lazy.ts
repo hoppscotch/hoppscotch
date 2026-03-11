@@ -3,15 +3,14 @@
  */
 export function lazy<T>(fn: () => T): () => T {
   let funcRan = false
-  let result: T | null = null
+  let result: T
 
   return () => {
     if (!funcRan) {
       result = fn()
       funcRan = true
-
-      return result
     }
-    return result!
+
+    return result
   }
 }

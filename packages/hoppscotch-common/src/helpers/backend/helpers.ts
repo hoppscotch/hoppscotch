@@ -349,7 +349,7 @@ async function* _getCollectionChildren(collectionID: string) {
       }
 
       if (!result.right.collection) {
-        yield E.left({ type: "NETWORK_ERROR", error: "collection is null" } as GQLError<string>)
+        yield E.left({ type: "network_error", error: new Error("collection is null") } as GQLError<string>)
         break
       }
 

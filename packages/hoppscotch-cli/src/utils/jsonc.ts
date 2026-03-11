@@ -16,7 +16,7 @@ class InvalidJSONCNodeError extends Error {
  * @throws {InvalidJSONCNodeError} if the node is in an invalid configuration
  * @returns The JSON string without comments and trailing commas
  */
-function convertNodeToJSON(node: Node): string {
+function convertNodeToJSON(node: Node, originalText: string): string {
   switch (node.type) {
     case "string":
       return JSON.stringify(node.value);
@@ -28,10 +28,13 @@ function convertNodeToJSON(node: Node): string {
       }
 
       return `[${node.children
-        .map((child) => convertNodeToJSON(child))
+        .map((child) => convertNodeToJSON(child, originalText))
         .join(",")}]`;
     case "number":
-      return JSON.stringify(node.value);
+      // Slice the original source text to preserve full numeric precision.
+      // JSON.stringify(node.value) loses precision for integers beyond
+      // Number.MAX_SAFE_INTEGER because jsonc-parser stores them as JS numbers.
+      return originalText.slice(node.offset, node.offset + node.length);
     case "boolean":
       return JSON.stringify(node.value);
     case "object":
@@ -40,7 +43,7 @@ function convertNodeToJSON(node: Node): string {
       }
 
       return `{${node.children
-        .map((child) => convertNodeToJSON(child))
+        .map((child) => convertNodeToJSON(child, originalText))
         .join(",")}}`;
     case "property":
       if (!node.children || node.children.length !== 2) {
@@ -53,7 +56,7 @@ function convertNodeToJSON(node: Node): string {
       // Attempting to JSON.stringify(keyNode) directly would throw
       // "Converting circular structure to JSON" error.
       // If the valueNode configuration is wrong, this will return an error, which will propagate up
-      return `${JSON.stringify(keyNode.value)}:${convertNodeToJSON(valueNode)}`;
+      return `${JSON.stringify(keyNode.value)}:${convertNodeToJSON(valueNode, originalText)}`;
   }
 }
 
@@ -70,7 +73,7 @@ function stripCommentsAndCommas(text: string): string {
 
   // convertNodeToJSON can throw an error if the tree is invalid
   try {
-    return convertNodeToJSON(tree);
+    return convertNodeToJSON(tree, text);
   } catch (_) {
     return text;
   }

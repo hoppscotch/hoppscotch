@@ -120,6 +120,29 @@ type OpenAPIOperationType =
   | OpenAPIV3.OperationObject
   | OpenAPIV31.OperationObject
 
+// Resolves request name from OpenAPI operation: operationId > summary > title > fallback
+// NOTE: Unlike the previous `??`-based implementation, empty and whitespace-only strings
+// are now skipped (e.g. operationId = " " will fall through to the next candidate).
+const getOpenAPIOperationName = (info: OpenAPIOperationType): string => {
+  const title =
+    objectHasProperty(info, "title") && typeof info.title === "string"
+      ? info.title
+      : undefined
+
+  const candidates: Array<string | undefined> = [info.operationId, info.summary, title]
+
+  for (const candidate of candidates) {
+    if (typeof candidate === "string") {
+      const trimmed = candidate.trim()
+      if (trimmed !== "") {
+        return trimmed
+      }
+    }
+  }
+
+  return "Untitled Request"
+}
+
 // Removes the OpenAPI Path Templating to the Hoppscotch Templating (<< ? >>)
 const replaceOpenApiPathTemplating = flow(
   S.replace(/{/g, "<<"),
@@ -1039,7 +1062,7 @@ const convertPathToHoppReqs = (
         }
       } = {
         request: makeRESTRequest({
-          name: info.operationId ?? info.summary ?? "Untitled Request",
+          name: getOpenAPIOperationName(info),
           description: info.description ?? null,
           method: method.toUpperCase(),
           endpoint,
@@ -1067,7 +1090,7 @@ const convertPathToHoppReqs = (
             doc,
             info,
             makeHoppRESTResponseOriginalRequest({
-              name: info.operationId ?? info.summary ?? "Untitled Request",
+              name: getOpenAPIOperationName(info),
               auth: parseOpenAPIAuth(doc, info),
               body: parseOpenAPIBody(doc, info),
               endpoint,

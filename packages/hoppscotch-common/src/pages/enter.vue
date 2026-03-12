@@ -29,18 +29,46 @@ export default defineComponent({
   beforeMount() {
     initializeApp()
   },
+  methods: {
+    getSafeRedirectUrl(rawRedirect: string): URL | null {
+      // Reject backslashes to prevent WHATWG URL parser \ -> / normalization bypass
+      if (rawRedirect.includes("\\")) return null
+
+      try {
+        const target = new URL("https://" + rawRedirect)
+        const rootDomain = platform.organization?.getRootDomain()
+        if (!rootDomain) return null
+
+        const isAllowed =
+          target.hostname.endsWith("." + rootDomain) ||
+          target.hostname === rootDomain
+
+        return isAllowed ? target : null
+      } catch {
+        return null
+      }
+    },
+  },
   async mounted() {
     const { redirect, ...queryParams } = this.route.query
 
-    if (redirect && Object.keys(queryParams).length) {
-      const url = new URL(("https://" + redirect) as string)
+    // Redirect param is only generated for cloud org subdomains (not the default instance)
+    if (platform.organization && typeof redirect === "string") {
+      const redirectTarget = this.getSafeRedirectUrl(redirect)
 
-      Object.entries(queryParams).forEach(([key, value]) => {
-        url.searchParams.set(key, value as string)
-      })
+      if (
+        redirectTarget &&
+        platform.auth.isSignInWithEmailLink(window.location.href)
+      ) {
+        Object.entries(queryParams).forEach(([key, value]) => {
+          if (typeof value === "string") {
+            redirectTarget.searchParams.set(key, value)
+          }
+        })
 
-      window.location.href = url.href
-      return
+        window.location.href = redirectTarget.href
+        return
+      }
     }
 
     this.signingInWithEmail = true

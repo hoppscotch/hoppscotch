@@ -165,26 +165,28 @@ pub fn run() {
 
     let app = tauri::Builder::default()
         .setup(|app| {
-            // Set up native Edit menu to enable clipboard shortcuts (Ctrl+V, etc.)
+            // Set up native Edit menu to enable standard clipboard shortcuts (copy, paste, etc.)
             // Required on Linux where webkit2gtk does not handle these without menu items
-            let handle = app.handle();
-            let edit_menu = Submenu::with_items(
-                handle,
-                "Edit",
-                true,
-                &[
-                    &PredefinedMenuItem::undo(handle, None)?,
-                    &PredefinedMenuItem::redo(handle, None)?,
-                    &PredefinedMenuItem::separator(handle)?,
-                    &PredefinedMenuItem::cut(handle, None)?,
-                    &PredefinedMenuItem::copy(handle, None)?,
-                    &PredefinedMenuItem::paste(handle, None)?,
-                    &PredefinedMenuItem::separator(handle)?,
-                    &PredefinedMenuItem::select_all(handle, None)?,
-                ],
-            )?;
-            let menu = Menu::with_items(handle, &[&edit_menu])?;
-            app.set_menu(menu)?;
+            if cfg!(target_os = "linux") {
+                let handle = app.handle();
+                let edit_menu = Submenu::with_items(
+                    handle,
+                    "Edit",
+                    true,
+                    &[
+                        &PredefinedMenuItem::undo(handle, None)?,
+                        &PredefinedMenuItem::redo(handle, None)?,
+                        &PredefinedMenuItem::separator(handle)?,
+                        &PredefinedMenuItem::cut(handle, None)?,
+                        &PredefinedMenuItem::copy(handle, None)?,
+                        &PredefinedMenuItem::paste(handle, None)?,
+                        &PredefinedMenuItem::separator(handle)?,
+                        &PredefinedMenuItem::select_all(handle, None)?,
+                    ],
+                )?;
+                let menu = Menu::with_items(handle, &[&edit_menu])?;
+                app.set_menu(menu)?;
+            }
 
             tauri::async_runtime::block_on(async {
                 if let Err(e) = setup_version_backup(app).await {

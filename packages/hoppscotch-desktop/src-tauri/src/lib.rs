@@ -11,6 +11,7 @@ pub mod webview;
 
 use std::sync::OnceLock;
 
+use tauri::menu::{Menu, PredefinedMenuItem, Submenu};
 use tauri::Emitter;
 use tauri_plugin_deep_link::DeepLinkExt;
 use tauri_plugin_window_state::StateFlags;
@@ -164,6 +165,29 @@ pub fn run() {
 
     let app = tauri::Builder::default()
         .setup(|app| {
+            // Set up native Edit menu to enable standard clipboard shortcuts (copy, paste, etc.)
+            // Required on Linux where webkit2gtk does not handle these without menu items
+            if cfg!(target_os = "linux") {
+                let handle = app.handle();
+                let edit_menu = Submenu::with_items(
+                    handle,
+                    "Edit",
+                    true,
+                    &[
+                        &PredefinedMenuItem::undo(handle, None)?,
+                        &PredefinedMenuItem::redo(handle, None)?,
+                        &PredefinedMenuItem::separator(handle)?,
+                        &PredefinedMenuItem::cut(handle, None)?,
+                        &PredefinedMenuItem::copy(handle, None)?,
+                        &PredefinedMenuItem::paste(handle, None)?,
+                        &PredefinedMenuItem::separator(handle)?,
+                        &PredefinedMenuItem::select_all(handle, None)?,
+                    ],
+                )?;
+                let menu = Menu::with_items(handle, &[&edit_menu])?;
+                app.set_menu(menu)?;
+            }
+
             tauri::async_runtime::block_on(async {
                 if let Err(e) = setup_version_backup(app).await {
                     tracing::error!(error = %e, "Failed to setup version backup");

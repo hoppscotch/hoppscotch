@@ -121,11 +121,25 @@ type OpenAPIOperationType =
   | OpenAPIV31.OperationObject
 
 // Resolves request name from OpenAPI operation: operationId > summary > title > fallback
-const getOpenAPIOperationName = (info: OpenAPIOperationType): string =>
-  info.operationId ??
-  info.summary ??
-  (info as any).title ??
-  "Untitled Request"
+const getOpenAPIOperationName = (info: OpenAPIOperationType): string => {
+  const title =
+    objectHasProperty(info, "title") && typeof info.title === "string"
+      ? info.title
+      : undefined
+
+  const candidates: Array<unknown> = [info.operationId, info.summary, title]
+
+  for (const candidate of candidates) {
+    if (typeof candidate === "string") {
+      const trimmed = candidate.trim()
+      if (trimmed !== "") {
+        return trimmed
+      }
+    }
+  }
+
+  return "Untitled Request"
+}
 
 // Removes the OpenAPI Path Templating to the Hoppscotch Templating (<< ? >>)
 const replaceOpenApiPathTemplating = flow(

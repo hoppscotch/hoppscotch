@@ -88,7 +88,6 @@ const baseBindings: {
   "ctrl-z": "editor.undo",
   "ctrl-y": "editor.redo",
   "ctrl-delete": "response.erase",
-  "ctrl-backspace": "response.erase",
 }
 
 // Web-only bindings

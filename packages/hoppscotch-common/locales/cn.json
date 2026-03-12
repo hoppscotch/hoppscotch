@@ -54,6 +54,8 @@
     "retry": "重试",
     "save": "保存",
     "save_as_example": "保存示例",
+    "add_example": "添加示例",
+    "invalid_request": "无效的请求数据",
     "scroll_to_bottom": "滚动至底部",
     "scroll_to_top": "滚动至顶部",
     "search": "搜索",
@@ -152,6 +154,7 @@
     "new_version_found": "已发现新版本。刷新页面以更新。",
     "open_in_hoppscotch": "在 Hoppscotch 中打开",
     "options": "选项",
+    "powered_by": "Powered by Hoppscotch",
     "proxy_privacy_policy": "代理隐私政策",
     "reload": "重新加载",
     "search": "搜索",
@@ -376,7 +379,9 @@
   "context_menu": {
     "add_parameters": "添加至参数",
     "open_request_in_new_tab": "在新标签页中打开请求",
-    "set_environment_variable": "设置为变量"
+    "set_environment_variable": "设置为变量",
+    "encode_uri_component": "编码 URL 组件",
+    "decode_uri_component": "解码 URL 组件"
   },
   "cookies": {
     "modal": {
@@ -528,7 +533,33 @@
         "update_title": "更新已发布文档",
         "url_copied": "URL 已复制到剪贴板！",
         "view_published": "查看已发布文档",
-        "view_title": "查看已发布文档"
+        "view_title": "已发布文档快照",
+        "versions": "版本",
+        "create_new_version": "创建新版本",
+        "invalid_version": "版本只能包含字母数字字符、点和连字符",
+        "snapshot_description": "这会将当前文档快照保存为此版本",
+        "live": "实时版",
+        "snapshot": "快照",
+        "version_immutable": "已发布版本为只读快照",
+        "view_snapshot": "查看快照",
+        "current_version": "当前",
+        "not_found": "未找到已发布文档",
+        "no_doc_id": "未提供文档 ID",
+        "version_label": "v{version}",
+        "unpublish_version": "取消发布此版本",
+        "loading_snapshot": "正在加载快照...",
+        "retry_snapshot": "重试",
+        "sensitive_data_warning": "请确保已发布文档中未暴露敏感数据。",
+        "snapshot_preview": "快照预览",
+        "snapshot_load_error": "加载快照预览失败",
+        "snapshot_empty": "此快照中没有请求或文件夹",
+        "snapshot_item_count": "{count} 项",
+        "auto_sync_live_notice": "此版本会与实时集合自动同步",
+        "untitled_project": "未命名项目",
+        "first_publish_hint": "您的文档将作为一个实时版本发布，并自动与您的集合保持同步",
+        "environment": "环境",
+        "no_environment": "无环境",
+        "environment_description": "附加一个环境以解析已发布文档中的变量"
     },
     "request_opened_in_new_tab": "请求已在新标签页中打开！",
     "response": {
@@ -723,7 +754,8 @@
     "fetching_access_tokens_list": "获取令牌列表时出错",
     "generate_access_token": "生成访问令牌时出错",
     "delete_access_token": "删除访问令牌时出错",
-    "extension_not_found": "未找到扩展"
+    "extension_not_found": "未找到扩展",
+    "invalid_request": "无效请求数据"
   },
   "export": {
     "as_json": "导出为 JSON",
@@ -734,6 +766,22 @@
     "require_github": "使用 GitHub 登录以创建私密 Gist",
     "title": "导出",
     "success": "成功导出"
+  },
+  "file_upload": {
+    "choose_file": "选择文件",
+    "max_size_format": "最大 5MB。支持 JPEG、PNG、GIF、WebP 格式",
+    "profile_photo_updated": "头像更新成功",
+    "profile_photo_removed": "头像已成功移除",
+    "org_logo_updated": "组织头像更新成功",
+    "error_size_limit": "文件大小必须小于 5MB",
+    "error_invalid_format": "文件必须是图片（JPEG、PNG、GIF 或 WebP）",
+    "error_invalid_upload_type": "无效的上传类型",
+    "error_invalid_org_id": "无效的组织 ID 格式",
+    "error_upload_failed": "上传失败，请重试",
+    "error_network_failed": "网络错误，请检查你的连接",
+    "error_timeout": "上传在 30 秒后超时，请重试",
+    "error_missing_backend_url": "未配置后端 URL。请在环境设置中设置 VITE_BACKEND_API_URL 环境变量",
+    "error_invalid_backend_url": "无效的后端 URL 配置"
   },
   "filename": {
     "cookie_key_value_pairs": "Cookie",
@@ -904,7 +952,8 @@
     "instance_changed": "已切换到实例",
     "current_instance_error": "追踪当前实例失败",
     "not_available": "实例切换不可用",
-    "cleanup_completed": "实例切换器清理已完成"
+    "cleanup_completed": "实例切换器清理已完成",
+    "self_hosted": "自托管实例"
   },
   "inspections": {
     "description": "检查可能存在的错误",
@@ -1257,6 +1306,7 @@
     "profile_description": "更新你的资料",
     "profile_email": "电子邮箱地址",
     "profile_name": "名称",
+    "profile_photo": "头像",
     "proxy": "网络代理",
     "proxy_url": "代理网址",
     "proxy_use_toggle": "使用代理中间件发送请求",
@@ -1370,7 +1420,11 @@
       "command_menu": "搜索与命令菜单",
       "help_menu": "帮助菜单",
       "show_all": "键盘快捷键",
-      "title": "通用"
+      "title": "通用",
+      "comment_uncomment": "注释/取消注释",
+      "close_tab": "关闭标签页",
+      "undo": "撤销",
+      "redo": "重做"
     },
     "miscellaneous": {
       "invite": "邀请使用 Hoppscotch",
@@ -1408,7 +1462,8 @@
       "send_request": "发送请求",
       "share_request": "共享请求",
       "show_code": "生成代码片段",
-      "title": "请求"
+      "title": "请求",
+      "focus_url": "聚焦地址栏"
     },
     "response": {
       "copy": "复制响应至剪贴板",
@@ -1423,7 +1478,9 @@
       "next_tab": "下一个标签页",
       "previous_tab": "上一个标签页",
       "first_tab": "切换到首个标签页",
-      "last_tab": "切换到最后一个标签页"
+      "last_tab": "切换到最后一个标签页",
+      "mru_switch": "切换到最近的标签页 (MRU)",
+      "mru_switch_reverse": "切换到上一个最近的标签页 (MRU)"
     },
     "theme": {
       "black": "切换为黑色主题",
@@ -1520,6 +1577,8 @@
       "previous": "切换到上一个标签页",
       "switch_to_first": "切换到第一个标签页",
       "switch_to_last": "切换到最后一个标签页",
+      "mru_switch": "切换到最近的标签页",
+      "mru_switch_reverse": "切换到上一个最近的标签页",
       "title": "标签页"
     },
     "workspace": {
@@ -2182,7 +2241,21 @@
     "delete_account_description": "这将删除与您的 Hoppscotch 账户关联的所有数据，包括您当前所属以及参与的任何其他组织实例。",
     "delete_account": "删除 Hoppscotch 账户",
     "user_deletion_failed_sole_admin": "该用户是一个或多个组织实例的唯一管理员。请在删除前先取消其管理员权限。",
-    "user_deletion_failed_sole_team_owner": "该用户在一个或多个组织实例中是工作区的唯一所有者。请在删除前转移所有权或删除相关的工作区。"
+    "user_deletion_failed_sole_team_owner": "该用户在一个或多个组织实例中是工作区的唯一所有者。请在删除前转移所有权或删除相关的工作区。",
+    "no_organizations": "你不属于任何组织",
+    "admin": "Admin"
+  },
+  "organization_sidebar": {
+    "hoppscotch_cloud": "Hoppscotch 云",
+    "cloud_locked": "默认实例无法移除",
+    "admin": "管理",
+    "error_loading": "加载组织失败",
+    "inactive_orgs": "未激活的组织",
+    "no_orgs_found": "未找到组织",
+    "no_active_orgs_found": "没有活跃组织",
+    "organizations_for": "{email} 的组织",
+    "multi_account_notice": "每个组织都使用独立的登录状态，基于最近访问的账号。",
+    "inactive_orgs_tooltip": "请联系支持以获取帮助。"
   },
   "billing": {
     "confirm": {

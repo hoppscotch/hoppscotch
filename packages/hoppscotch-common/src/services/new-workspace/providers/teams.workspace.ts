@@ -803,9 +803,13 @@ export class TeamsWorkspaceProviderService
     })
 
     if (isValidCollectionHandle(collectionHandleRef, this.providerID)) {
+      // Capture stable values before async gaps — the computed ref may
+      // re-evaluate to "invalid" if a subscription deletes the collection
+      const { collectionID, workspaceID } = collectionHandleRef.value.data
+
       isFetchingCollection.value = true
       // fetch the child collections
-      await getCollectionChildren(collectionHandleRef.value.data.collectionID)
+      await getCollectionChildren(collectionID)
         .then((children) => {
           if (E.isLeft(children)) {
             return
@@ -814,8 +818,7 @@ export class TeamsWorkspaceProviderService
           // remove the existing children
           this.collections.value = this.collections.value.filter(
             (collection) =>
-              collection.parentCollectionID !==
-              collectionHandleRef.value.data.collectionID
+              collection.parentCollectionID !== collectionID
           )
 
           let previousOrder: string | null = null
@@ -856,9 +859,9 @@ export class TeamsWorkspaceProviderService
               return {
                 collectionID: collection.id,
                 providerID: this.providerID,
-                workspaceID: collectionHandleRef.value.data.workspaceID,
+                workspaceID,
                 name: collection.title,
-                parentCollectionID: collectionHandleRef.value.data.collectionID,
+                parentCollectionID: collectionID,
                 order,
                 auth: auth,
                 headers: headers,
@@ -872,9 +875,7 @@ export class TeamsWorkspaceProviderService
 
       // fetch the child requests
       isFetchingRequests.value = true
-      await getCollectionChildRequests(
-        collectionHandleRef.value.data.collectionID
-      )
+      await getCollectionChildRequests(collectionID)
         .then((requests) => {
           if (E.isLeft(requests)) {
             return
@@ -883,8 +884,7 @@ export class TeamsWorkspaceProviderService
           // remove the existing requests
           this.requests.value = this.requests.value.filter(
             (request) =>
-              request.collectionID !==
-              collectionHandleRef.value.data.collectionID
+              request.collectionID !== collectionID
           )
 
           let previousOrder: string | null = null
@@ -898,8 +898,8 @@ export class TeamsWorkspaceProviderService
               return {
                 requestID: request.id,
                 providerID: this.providerID,
-                workspaceID: collectionHandleRef.value.data.workspaceID,
-                collectionID: collectionHandleRef.value.data.collectionID,
+                workspaceID,
+                collectionID,
                 request: JSON.parse(request.request), // TODO: validation
                 order,
               }

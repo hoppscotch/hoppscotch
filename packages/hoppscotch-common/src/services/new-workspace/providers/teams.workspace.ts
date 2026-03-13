@@ -217,6 +217,12 @@ export class TeamsWorkspaceProviderService
     this.subscriptions.forEach((sub) => sub.unsubscribe())
     this.subscriptions = []
 
+    // clear stale state before setting up new subscriptions to avoid
+    // race conditions where subscription events push into old state
+    // that gets overwritten by the initial fetch below
+    this.collections.value = []
+    this.requests.value = []
+
     // setup new subscriptions
     this.setupTeamsCollectionAddedSubscription(
       workspaceHandle.value.data.workspaceID
@@ -254,8 +260,6 @@ export class TeamsWorkspaceProviderService
     this.setupTeamsEnvironmentDeletedSubscription(
       workspaceHandle.value.data.workspaceID
     )
-
-    this.requests.value = []
 
     const initialData = await Promise.allSettled([
       getRootCollections(workspaceHandle.value.data.workspaceID),
@@ -2311,6 +2315,14 @@ export class TeamsWorkspaceProviderService
 
       const order = generateKeyBetween(lastSibling?.order, null)
 
+      let parsedRequest
+      try {
+        parsedRequest = JSON.parse(result.right.teamRequestAdded.request)
+      } catch (e) {
+        console.error("Failed to parse request from subscription", e)
+        return
+      }
+
       const request: WorkspaceRequest & {
         order: string
       } = {
@@ -2318,7 +2330,7 @@ export class TeamsWorkspaceProviderService
         providerID: this.providerID,
         workspaceID: workspaceID,
         collectionID: result.right.teamRequestAdded.collectionID,
-        request: JSON.parse(result.right.teamRequestAdded.request),
+        request: parsedRequest,
         order,
       }
 
@@ -2338,12 +2350,20 @@ export class TeamsWorkspaceProviderService
         return
       }
 
+      let parsedRequest
+      try {
+        parsedRequest = JSON.parse(result.right.teamRequestUpdated.request)
+      } catch (e) {
+        console.error("Failed to parse updated request from subscription", e)
+        return
+      }
+
       const updatedRequest: WorkspaceRequest = {
         collectionID: result.right.teamRequestUpdated.collectionID,
         providerID: this.providerID,
         requestID: result.right.teamRequestUpdated.id,
         workspaceID: workspaceID,
-        request: JSON.parse(result.right.teamRequestUpdated.request),
+        request: parsedRequest,
       }
 
       this.requests.value = this.requests.value.map((request) => {
@@ -2457,11 +2477,19 @@ export class TeamsWorkspaceProviderService
         return
       }
 
+      let parsedVars
+      try {
+        parsedVars = JSON.parse(result.right.teamEnvironmentCreated.variables)
+      } catch (e) {
+        console.error("Failed to parse environment variables from subscription", e)
+        return
+      }
+
       const newEnv: TeamEnvironment = {
         id: result.right.teamEnvironmentCreated.id,
         name: result.right.teamEnvironmentCreated.name,
         teamID: result.right.teamEnvironmentCreated.teamID,
-        variables: JSON.parse(result.right.teamEnvironmentCreated.variables),
+        variables: parsedVars,
       }
 
       this.environments.value.push(newEnv)
@@ -2500,14 +2528,20 @@ export class TeamsWorkspaceProviderService
         return
       }
 
+      let parsedVars
+      try {
+        parsedVars = JSON.parse(result.right.teamEnvironmentUpdated.variables)
+      } catch (e) {
+        console.error("Failed to parse updated environment from subscription", e)
+        return
+      }
+
       this.environments.value = this.environments.value.map((env) => {
         if (env.id === result.right.teamEnvironmentUpdated.id) {
           return {
             ...env,
             name: result.right.teamEnvironmentUpdated.name,
-            variables: JSON.parse(
-              result.right.teamEnvironmentUpdated.variables
-            ),
+            variables: parsedVars,
           }
         }
 

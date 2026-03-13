@@ -420,11 +420,11 @@ export class TeamsWorkspaceProviderService
       return this.getRESTCollectionHandle(parentCollectionHandle, collectionID)
     }
 
-    const lastSibling = this.collections.value
-      .filter(
+    const lastSibling = sortByOrder(
+      this.collections.value.filter(
         (collection) => collection.parentCollectionID === parentCollectionID
       )
-      .at(-1)
+    ).at(-1)
 
     const order = generateKeyBetween(lastSibling?.order, null)
 
@@ -542,8 +542,10 @@ export class TeamsWorkspaceProviderService
       return this.getRequestHandle(parentCollectionHandle, requestID)
     }
 
-    const siblingRequests = this.requests.value.filter(
-      (request) => request.collectionID === collectionID
+    const siblingRequests = sortByOrder(
+      this.requests.value.filter(
+        (request) => request.collectionID === collectionID
+      )
     )
 
     const lastSibling = siblingRequests.at(-1)
@@ -2119,10 +2121,13 @@ export class TeamsWorkspaceProviderService
         return
       }
 
-      const parentCollectionID = result.right.teamCollectionAdded.parent?.id
+      const parentCollectionID =
+        result.right.teamCollectionAdded.parent?.id ?? null
 
-      const siblingCollections = this.collections.value.filter(
-        (collection) => collection.parentCollectionID === parentCollectionID
+      const siblingCollections = sortByOrder(
+        this.collections.value.filter(
+          (collection) => collection.parentCollectionID === parentCollectionID
+        )
       )
       const lastChild = siblingCollections.at(-1)
       const order = generateKeyBetween(lastChild?.order, null)
@@ -2246,9 +2251,11 @@ export class TeamsWorkspaceProviderService
         return
       }
 
-      const siblingRequests = this.requests.value.filter(
-        (request) =>
-          request.collectionID === result.right.teamRequestAdded.collectionID
+      const siblingRequests = sortByOrder(
+        this.requests.value.filter(
+          (request) =>
+            request.collectionID === result.right.teamRequestAdded.collectionID
+        )
       )
 
       const lastSibling = siblingRequests.at(-1)

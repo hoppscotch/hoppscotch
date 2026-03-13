@@ -102,10 +102,43 @@ const generateArrayRequestBodyExample = (
 const generateRequestBodyExampleFromSchemaObject = (
   schemaObject: OpenAPIV31.SchemaObject
 ): RequestBodyExample => {
-  // TODO: Handle schema objects with oneof or anyof
   if (schemaObject.example) return schemaObject.example as RequestBodyExample
   if (schemaObject.examples)
     return schemaObject.examples[0] as RequestBodyExample
+
+  // Merge all sub-schemas for allOf (used for inheritance / composition)
+  if (schemaObject.allOf) {
+    return schemaObject.allOf.reduce<RequestBodyExample>(
+      (merged, subSchema) => {
+        const sub = generateRequestBodyExampleFromSchemaObject(
+          subSchema as OpenAPIV31.SchemaObject
+        )
+        if (
+          typeof merged === "object" &&
+          merged !== null &&
+          !Array.isArray(merged) &&
+          typeof sub === "object" &&
+          sub !== null &&
+          !Array.isArray(sub)
+        ) {
+          return { ...merged, ...sub }
+        }
+        return sub
+      },
+      {}
+    )
+  }
+
+  // For oneOf / anyOf, pick the first schema to generate an example
+  if (schemaObject.oneOf)
+    return generateRequestBodyExampleFromSchemaObject(
+      schemaObject.oneOf[0] as OpenAPIV31.SchemaObject
+    )
+  if (schemaObject.anyOf)
+    return generateRequestBodyExampleFromSchemaObject(
+      schemaObject.anyOf[0] as OpenAPIV31.SchemaObject
+    )
+
   if (!schemaObject.type) return ""
   if (isSchemaTypePrimitive(schemaObject.type))
     return generatePrimitiveRequestBodyExample(

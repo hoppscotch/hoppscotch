@@ -59,8 +59,26 @@ const defaultGraphqlCollectionState = {
   ],
 }
 
+const defaultMCPCollectionState = {
+  state: [
+    makeCollection({
+      name: "My MCP Collection",
+      folders: [],
+      requests: [],
+      auth: {
+        authType: "inherit",
+        authActive: false,
+      },
+      headers: [],
+      variables: [],
+      description: null,
+    }),
+  ],
+}
+
 type RESTCollectionStoreType = typeof defaultRESTCollectionState
 type GraphqlCollectionStoreType = typeof defaultGraphqlCollectionState
+type MCPCollectionStoreType = typeof defaultMCPCollectionState
 
 /**
  * NOTE: this function is not pure. It mutates the indexPaths inplace
@@ -1312,6 +1330,57 @@ export const graphqlCollectionStore = new DispatchingStore(
   gqlCollectionDispatchers
 )
 
+const mcpCollectionDispatchers = defineDispatchers({
+  ...gqlCollectionDispatchers,
+  setCollections(_: MCPCollectionStoreType, { entries }: { entries: any[] }) {
+    return {
+      state: entries,
+    }
+  },
+  appendCollections(
+    { state }: MCPCollectionStoreType,
+    { entries }: { entries: any[] }
+  ) {
+    return {
+      state: [...state, ...entries],
+    }
+  },
+  addCollection(
+    { state }: MCPCollectionStoreType,
+    { collection }: { collection: any }
+  ) {
+    return {
+      state: [...state, collection],
+    }
+  },
+  removeCollection(
+    { state }: MCPCollectionStoreType,
+    { collectionIndex }: { collectionIndex: number; collectionID?: string }
+  ) {
+    return {
+      state: (state as any[]).filter((_, i) => i !== collectionIndex),
+    }
+  },
+  editCollection(
+    { state }: MCPCollectionStoreType,
+    {
+      collectionIndex,
+      collection,
+    }: { collectionIndex: number; collection: any }
+  ) {
+    return {
+      state: (state as any[]).map((col, index) =>
+        index === collectionIndex ? { ...col, ...collection } : col
+      ),
+    }
+  },
+})
+
+export const mcpCollectionStore = new DispatchingStore(
+  defaultMCPCollectionState,
+  mcpCollectionDispatchers
+)
+
 export function setRESTCollections(entries: HoppCollection[]) {
   restCollectionStore.dispatch({
     dispatcher: "setCollections",
@@ -1328,6 +1397,8 @@ export const restCollections$ = restCollectionStore.subject$.pipe(
 export const graphqlCollections$ = graphqlCollectionStore.subject$.pipe(
   pluck("state")
 )
+
+export const mcpCollections$ = mcpCollectionStore.subject$.pipe(pluck("state"))
 
 export function appendRESTCollections(entries: HoppCollection[]) {
   restCollectionStore.dispatch({
@@ -1906,4 +1977,121 @@ function removeDuplicateCollectionsFromPath(
 
     return arrayWithID
   }
+}
+
+// MCP Collections
+export function setMCPCollections(entries: HoppCollection[]) {
+  mcpCollectionStore.dispatch({
+    dispatcher: "setCollections",
+    payload: {
+      entries,
+    },
+  })
+}
+
+export function appendMCPCollections(entries: HoppCollection[]) {
+  mcpCollectionStore.dispatch({
+    dispatcher: "appendCollections",
+    payload: {
+      entries,
+    },
+  })
+}
+
+export function addMCPCollection(collection: HoppCollection) {
+  mcpCollectionStore.dispatch({
+    dispatcher: "addCollection",
+    payload: {
+      collection,
+    },
+  })
+}
+
+export function removeMCPCollection(
+  collectionIndex: number,
+  collectionID?: string
+) {
+  mcpCollectionStore.dispatch({
+    dispatcher: "removeCollection",
+    payload: {
+      collectionIndex,
+      collectionID,
+    },
+  })
+}
+
+export function editMCPCollection(
+  collectionIndex: number,
+  collection: Partial<HoppCollection>
+) {
+  mcpCollectionStore.dispatch({
+    dispatcher: "editCollection",
+    payload: {
+      collectionIndex,
+      collection,
+    },
+  })
+}
+
+export function addMCPFolder(name: string, path: string) {
+  mcpCollectionStore.dispatch({
+    dispatcher: "addFolder",
+    payload: {
+      name,
+      path,
+    },
+  })
+}
+
+export function editMCPFolder(path: string, folder: Partial<HoppCollection>) {
+  mcpCollectionStore.dispatch({
+    dispatcher: "editFolder",
+    payload: {
+      path,
+      folder,
+    },
+  })
+}
+
+export function removeMCPFolder(path: string, folderID?: string) {
+  mcpCollectionStore.dispatch({
+    dispatcher: "removeFolder",
+    payload: {
+      path,
+      folderID,
+    },
+  })
+}
+
+export function saveMCPRequestAs(path: string, request: any) {
+  const targetLocation = navigateToFolderWithIndexPath(
+    mcpCollectionStore.value.state,
+    path.split("/").map((x) => parseInt(x))
+  )
+
+  const insertionIndex = targetLocation!.requests.length
+
+  mcpCollectionStore.dispatch({
+    dispatcher: "saveRequestAs",
+    payload: {
+      path,
+      request,
+      insertionIndex,
+    },
+  })
+}
+
+export function removeMCPRequest(
+  path: string,
+  requestIndex: number,
+  requestID?: string
+) {
+  mcpCollectionStore.dispatch({
+    dispatcher: "removeRequest",
+    payload: {
+      path,
+      requestIndex,
+      requestID,
+    },
+  })
 }

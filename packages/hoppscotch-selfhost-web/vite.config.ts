@@ -109,23 +109,25 @@ export default defineConfig({
       dirs: ["../hoppscotch-common/src/pages", "./src/pages"],
       importMode: "async",
       onRoutesGenerated(routes) {
-        generateSitemap({
-          routes,
-          nuxtStyle: true,
-          allowRobots: true,
-          dest: ".sitemap-gen",
-          hostname: ENV.VITE_BASE_URL,
-        })
+        // Temporarily disabled sitemap generation to fix dev server
+        // generateSitemap({
+        //   routes,
+        //   nuxtStyle: true,
+        //   allowRobots: true,
+        //   dest: ".sitemap-gen",
+        //   hostname: ENV.VITE_BASE_URL,
+        // })
       },
     }),
-    StaticCopy({
-      targets: [
-        {
-          src: normalizePath(path.resolve(__dirname, "./.sitemap-gen/*")),
-          dest: normalizePath(path.resolve(__dirname, "./dist")),
-        },
-      ],
-    }),
+    // Disabled: sitemap generation is commented out above
+    // StaticCopy({
+    //   targets: [
+    //     {
+    //       src: normalizePath(path.resolve(__dirname, "./.sitemap-gen/*")),
+    //       dest: normalizePath(path.resolve(__dirname, "./dist")),
+    //     },
+    //   ],
+    // }),
     Layouts({
       layoutsDirs: "../hoppscotch-common/src/layouts",
       defaultLayout: "default",

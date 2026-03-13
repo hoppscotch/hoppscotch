@@ -282,6 +282,10 @@ export class PersonalWorkspaceProviderService
       collectionID.split("/").map((id) => parseInt(id))
     )
 
+    if (!collection) {
+      return Promise.resolve(E.left("COLLECTION_DOES_NOT_EXIST" as const))
+    }
+
     const newCollection = {
       ...collection,
       ...updatedCollection,
@@ -1911,6 +1915,10 @@ export class PersonalWorkspaceProviderService
         parseInt(environmentHandleRef.value.data.environmentID)
       ]
 
+    if (!existingEnvironment) {
+      return Promise.resolve(E.left("ENVIRONMENT_DOES_NOT_EXIST" as const))
+    }
+
     const { id: environmentSyncID } = existingEnvironment
 
     const newEnvironment = {
@@ -1979,10 +1987,14 @@ export class PersonalWorkspaceProviderService
       }
     }
 
-    const { id: environmentSyncID } =
+    const existingEnvironment =
       this.restEnvironmentState.value[parseInt(environmentID)]
 
-    deleteEnvironment(parseInt(environmentID), environmentSyncID)
+    if (!existingEnvironment) {
+      return Promise.resolve(E.left("ENVIRONMENT_DOES_NOT_EXIST" as const))
+    }
+
+    deleteEnvironment(parseInt(environmentID), existingEnvironment.id)
 
     return Promise.resolve(E.right(undefined))
   }

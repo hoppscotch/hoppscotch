@@ -582,9 +582,11 @@ export class TeamsWorkspaceProviderService
       return E.left("REQUEST_DOES_NOT_EXIST" as const)
     }
 
+    const mergedRequest = { ...request.request, ...updatedRequest }
+
     const res = await updateTeamRequest(requestHandleRef.value.data.requestID, {
-      request: JSON.stringify(updatedRequest),
-      title: updatedRequest.name ?? request.request.name,
+      request: JSON.stringify(mergedRequest),
+      title: mergedRequest.name,
     })()
 
     if (E.isLeft(res)) {
@@ -838,6 +840,7 @@ export class TeamsWorkspaceProviderService
         })
 
       // fetch the child requests
+      isFetchingRequests.value = true
       await getCollectionChildRequests(
         collectionHandleRef.value.data.collectionID
       )

@@ -1500,7 +1500,7 @@ export class PersonalWorkspaceProviderService
 
     return Promise.resolve(
       E.right({
-        get: () =>
+        get: lazy(() =>
           computed(() => {
             if (
               !isValidCollectionHandle(
@@ -1574,6 +1574,7 @@ export class PersonalWorkspaceProviderService
               },
             })
           }),
+        ),
       })
     )
   }

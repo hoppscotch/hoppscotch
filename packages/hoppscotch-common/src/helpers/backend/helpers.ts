@@ -334,8 +334,11 @@ export const getSingleTeamCollectionJSON = async (
   const result = await getTeamCollectionObject(teamID, collectionID)
 
   if (E.isLeft(result)) {
-    const t = getI18n()
-    return E.left(t("error.no_collections_to_export"))
+    const errorMsg =
+      typeof result.left === "string"
+        ? result.left
+        : result.left.error.toString()
+    return E.left(errorMsg)
   }
 
   return E.right(JSON.stringify(result.right, null, 2))

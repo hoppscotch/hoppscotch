@@ -116,6 +116,7 @@ export class MCPSTDIOConnection extends MCPConnection {
       }
     } catch (error) {
       this.handleError(error as MCPErrorMessage)
+      throw error
     }
 
     platform.analytics?.logEvent({

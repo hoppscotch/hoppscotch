@@ -352,8 +352,9 @@ const MCPHistoryDispatchers = defineDispatchers({
 
     if (entries.length === 2) {
       const indexToRemove = currentVal.state.findIndex((e) => e.id === id)
-
-      currentVal.state.splice(indexToRemove, 1)
+      return {
+        state: currentVal.state.filter((_, i) => i !== indexToRemove),
+      }
     }
 
     return {

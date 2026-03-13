@@ -56,7 +56,7 @@
                   {{ t("settings.auto_save_delay_ms") }}
                 </label>
                 <input
-                  v-model.number="AUTO_SAVE_DELAY_MS"
+                  v-model.number.lazy="AUTO_SAVE_DELAY_MS"
                   type="number"
                   min="500"
                   max="10000"

@@ -37,6 +37,14 @@ const defaultRESTReq = getDefaultRESTRequest()
 const containsEnvVariables = (str: string) => HOPP_ENVIRONMENT_REGEX.test(str)
 
 export const parseCurlCommand = (curlCommand: string) => {
+  const safeDecode = (str: string) => {
+    try {
+      return decodeURIComponent(str)
+    } catch (e) {
+      return str // malformed면 그대로 반환
+    }
+  }
+
   // const isDataBinary = curlCommand.includes(" --data-binary")
   // const compressed = !!parsedArguments.compressed
 
@@ -117,7 +125,7 @@ export const parseCurlCommand = (curlCommand: string) => {
   )
 
   const stringToPair = flow(
-    decodeURIComponent,
+    safeDecode,
     (pair) => <[string, string]>pair.split("=", 2)
   )
   const pairs = pipe(
@@ -160,7 +168,8 @@ export const parseCurlCommand = (curlCommand: string) => {
 
   const concatedURL = concatParams(urlObject, danglingParams)
 
-  const decodedURL = decodeURIComponent(concatedURL)
+  const decodedURL = safeDecode(concatedURL)
+
 
   // Decode the URL only if it’s safe to do so without corrupting environment variables.
   // This is to ensure that environment variables are not decoded and remain in the format `<<variable_name>>`.

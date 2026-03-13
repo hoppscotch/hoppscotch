@@ -33,8 +33,12 @@ export default defineComponent({
   async mounted() {
     const { redirect, ...queryParams } = this.route.query
 
-    // Redirect param is only generated for cloud org subdomains (not the default instance)
-    if (platform.organization && typeof redirect === "string") {
+    // Org subdomain magic-link flow: redirect back to the originating subdomain
+    if (
+      platform.organization &&
+      !platform.organization.isDefaultCloudInstance &&
+      typeof redirect === "string"
+    ) {
       const redirectTarget = getSafeRedirectUrl(
         redirect,
         platform.organization.getRootDomain()

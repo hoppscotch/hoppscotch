@@ -4,11 +4,14 @@ export function getSafeRedirectUrl(
 ): URL | null {
   if (!rootDomain) return null
 
-  // Reject backslashes to prevent WHATWG URL parser \ -> / normalization bypass
-  if (rawRedirect.includes("\\")) return null
+  // Reject characters the WHATWG URL parser normalizes or strips silently:
+  // backslash (\ -> /), tab, newline, carriage-return
+  if (/[\\\t\r\n]/.test(rawRedirect)) return null
 
   try {
     const target = new URL("https://" + rawRedirect)
+
+    if (target.username || target.password) return null
 
     const isAllowed =
       target.hostname.endsWith("." + rootDomain) ||

@@ -24,11 +24,31 @@ describe("getSafeRedirectUrl", () => {
     expect(getSafeRedirectUrl("evil-hoppscotch.io", ROOT)).toBeNull()
   })
 
-  it("rejects backslashes (WHATWG normalization bypass)", () => {
-    expect(getSafeRedirectUrl("acme.hoppscotch.io\\@example.com", ROOT)).toBeNull()
+  it("rejects a domain that contains the root as an interior label", () => {
+    expect(
+      getSafeRedirectUrl("example.com.hoppscotch.io.attacker.com", ROOT)
+    ).toBeNull()
   })
 
-  it("rejects percent-encoded backslashes via URL parse failure", () => {
+  it("rejects backslashes (WHATWG normalization bypass)", () => {
+    expect(
+      getSafeRedirectUrl("acme.hoppscotch.io\\@example.com", ROOT)
+    ).toBeNull()
+  })
+
+  it("rejects tab characters (WHATWG strip bypass)", () => {
+    expect(getSafeRedirectUrl("evil.com\tacme.hoppscotch.io", ROOT)).toBeNull()
+  })
+
+  it("rejects newline characters (WHATWG strip bypass)", () => {
+    expect(getSafeRedirectUrl("evil.com\nacme.hoppscotch.io", ROOT)).toBeNull()
+  })
+
+  it("rejects carriage-return characters (WHATWG strip bypass)", () => {
+    expect(getSafeRedirectUrl("evil.com\racme.hoppscotch.io", ROOT)).toBeNull()
+  })
+
+  it("rejects percent-encoded backslashes", () => {
     expect(getSafeRedirectUrl("%5C%5Cexample.com", ROOT)).toBeNull()
   })
 
@@ -37,7 +57,17 @@ describe("getSafeRedirectUrl", () => {
     expect(result).toBeNull()
   })
 
-  it("rejects percent-encoded null bytes via URL parse failure", () => {
+  it("rejects userinfo on an allowed hostname", () => {
+    expect(
+      getSafeRedirectUrl("acme.hoppscotch.io@hoppscotch.io", ROOT)
+    ).toBeNull()
+  })
+
+  it("rejects userinfo with credentials on an allowed hostname", () => {
+    expect(getSafeRedirectUrl("user:pass@hoppscotch.io", ROOT)).toBeNull()
+  })
+
+  it("rejects percent-encoded null bytes", () => {
     expect(getSafeRedirectUrl("example.com%00.hoppscotch.io", ROOT)).toBeNull()
   })
 

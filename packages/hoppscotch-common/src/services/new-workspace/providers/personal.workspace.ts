@@ -299,20 +299,6 @@ export class PersonalWorkspaceProviderService
       editRESTFolder(collectionID, newCollection)
     }
 
-    const updatedCollectionHandle = await this.getRESTCollectionHandle(
-      this.getPersonalWorkspaceHandle(),
-      collectionID
-    )
-
-    if (E.isRight(updatedCollectionHandle)) {
-      const updatedCollectionHandleRef = updatedCollectionHandle.right.get()
-
-      if (updatedCollectionHandleRef.value.type === "ok") {
-        // Name is guaranteed to be present for a collection
-        updatedCollectionHandleRef.value.data.name = newCollection.name!
-      }
-    }
-
     return Promise.resolve(E.right(undefined))
   }
 
@@ -334,22 +320,6 @@ export class PersonalWorkspaceProviderService
     const collectionIndexPos = isRootCollection
       ? parseInt(removedCollectionID)
       : this.pathToLastIndex(removedCollectionID)
-
-    const removedCollectionHandle = await this.getRESTCollectionHandle(
-      this.getPersonalWorkspaceHandle(),
-      removedCollectionID
-    )
-
-    if (E.isRight(removedCollectionHandle)) {
-      const removedCollectionHandleRef = removedCollectionHandle.right.get()
-
-      if (removedCollectionHandleRef.value.type === "ok") {
-        removedCollectionHandleRef.value = {
-          type: "invalid",
-          reason: "COLLECTION_INVALIDATED",
-        }
-      }
-    }
 
     this.issuedHandles.forEach((handle) => {
       if (
@@ -1963,19 +1933,6 @@ export class PersonalWorkspaceProviderService
           }
     )
 
-    const updatedEnvironmentHandle = await this.getRESTEnvironmentHandle(
-      this.getPersonalWorkspaceHandle(),
-      environmentID
-    )
-
-    if (E.isRight(updatedEnvironmentHandle)) {
-      const updatedEnvironmentHandleRef = updatedEnvironmentHandle.right.get()
-
-      if (updatedEnvironmentHandleRef.value.type === "ok") {
-        updatedEnvironmentHandleRef.value.data.name = newEnvironment.name
-      }
-    }
-
     return Promise.resolve(E.right(undefined))
   }
 
@@ -1995,22 +1952,6 @@ export class PersonalWorkspaceProviderService
     }
 
     const { environmentID } = environmentHandleRef.value.data
-
-    const removedEnvironmentHandle = await this.getRESTEnvironmentHandle(
-      this.getPersonalWorkspaceHandle(),
-      environmentID
-    )
-
-    if (E.isRight(removedEnvironmentHandle)) {
-      const removedEnvironmentHandleRef = removedEnvironmentHandle.right.get()
-
-      if (removedEnvironmentHandleRef.value.type === "ok") {
-        removedEnvironmentHandleRef.value = {
-          type: "invalid",
-          reason: "ENVIRONMENT_INVALIDATED",
-        }
-      }
-    }
 
     const existingEnvironment =
       this.restEnvironmentState.value[parseInt(environmentID)]

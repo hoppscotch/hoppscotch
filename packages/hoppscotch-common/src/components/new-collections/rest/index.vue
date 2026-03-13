@@ -907,6 +907,7 @@ const onAddRequest = async (requestName: string) => {
   const { auth, headers } = cascadingAuthHeadersHandle.value.data
 
   tabs.createNewTab({
+    type: "request",
     request: newRequest,
     isDirty: false,
     saveContext: {
@@ -1287,6 +1288,7 @@ const selectRequest = async (requestIndexPath: string) => {
   } else if (requestHandleRef.value.type === "ok") {
     // If not, open the request in a new tab
     tabs.createNewTab({
+      type: "request",
       request: requestHandleRef.value.data.request as HoppRESTRequest,
       isDirty: false,
       saveContext: {

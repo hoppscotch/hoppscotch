@@ -2,7 +2,7 @@ import { getService } from "~/modules/dioc"
 
 import { PersonalWorkspaceProviderService } from "~/services/new-workspace/providers/personal.workspace"
 import { HoppTab } from "~/services/tab"
-import { HoppRESTDocument } from "../rest/document"
+import { HoppTabDocument } from "../rest/document"
 
 /**
  * Remove the request handle corresponding to the tab being closed from the issued handles list under `PersonalWorkspaceProviderService`
@@ -13,7 +13,7 @@ import { HoppRESTDocument } from "../rest/document"
  */
 
 export const updateIssuedHandlesForPersonalWorkspace = (
-  tabState: HoppTab<HoppRESTDocument>,
+  tabState: HoppTab<HoppTabDocument>,
   action: "include" | "exclude"
 ) => {
   const personalWorkspaceProviderService = getService(

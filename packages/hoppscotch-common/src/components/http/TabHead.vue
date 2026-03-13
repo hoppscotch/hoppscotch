@@ -113,7 +113,6 @@
 import { ref, computed } from "vue"
 import { TippyComponent } from "vue-tippy"
 import { useI18n } from "~/composables/i18n"
-import { HoppRESTDocument } from "~/helpers/rest/document"
 import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
 import { HoppTab } from "~/services/tab"
 import IconCopy from "~icons/lucide/copy"

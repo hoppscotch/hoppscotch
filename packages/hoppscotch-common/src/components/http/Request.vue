@@ -251,7 +251,7 @@ import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
-import { HoppRESTDocument } from "~/helpers/rest/document"
+import { HoppRequestDocument } from "~/helpers/rest/document"
 import { getMethodLabelColor } from "~/helpers/rest/labelColoring"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { RESTHistoryEntry, restHistory$ } from "~/newstore/history"
@@ -291,7 +291,7 @@ const toast = useToast()
 
 const { subscribeToStream } = useStreamSubscriber()
 
-const props = defineProps<{ modelValue: HoppTab<HoppRESTDocument> }>()
+const props = defineProps<{ modelValue: HoppTab<HoppRequestDocument> }>()
 const emit = defineEmits(["update:modelValue"])
 
 const tab = useVModel(props, "modelValue", emit)

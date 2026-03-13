@@ -1929,6 +1929,7 @@
     "select_method": "Select a method",
     "log": "Log",
     "stdio_requires_agent": "STDIO transport requires Hoppscotch Agent or Desktop App",
+    "stdio_requires_agent_description": "STDIO transport requires spawning processes, which is not available in browsers. Please use Hoppscotch Desktop App or install the Hoppscotch Agent.",
     "install_agent": "Install Agent",
     "server_command_placeholder": "e.g., npx -y @modelcontextprotocol/server-filesystem /path",
     "args_placeholder": "e.g., -y, @modelcontextprotocol/server-filesystem, /path",
@@ -1944,7 +1945,8 @@
     "no_servers_found": "No servers found",
     "server_loaded": "Server configuration loaded",
     "popular": "Popular",
-    "view_documentation": "View Documentation"
+    "view_documentation": "View Documentation",
+    "disconnect_before_switching": "Please disconnect before switching transport"
   },
   "workspace": {
     "change": "Change workspace",

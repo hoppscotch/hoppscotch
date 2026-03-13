@@ -326,23 +326,34 @@ export class MCPSTDIOConnection extends MCPConnection {
     }
 
     return new Promise((resolve, reject) => {
-      this.pendingRequests.set(id, { resolve, reject })
-
-      // Send the request to the spawned process
-      this.processAPI
-        .sendMessage(JSON.stringify(request))
-        .catch((error: Error) => {
-          this.pendingRequests.delete(id)
-          reject(error)
-        })
-
       // Set a timeout for the request
-      setTimeout(() => {
+      const timeoutHandle = setTimeout(() => {
         if (this.pendingRequests.has(id)) {
           this.pendingRequests.delete(id)
           reject(new Error(`Request timeout: ${method}`))
         }
       }, 30000) // 30 second timeout
+
+      // Store resolve/reject with timeout handle
+      this.pendingRequests.set(id, {
+        resolve: (value: unknown) => {
+          clearTimeout(timeoutHandle)
+          resolve(value)
+        },
+        reject: (error: Error) => {
+          clearTimeout(timeoutHandle)
+          reject(error)
+        },
+      })
+
+      // Send the request to the spawned process
+      this.processAPI
+        .sendMessage(JSON.stringify(request))
+        .catch((error: Error) => {
+          clearTimeout(timeoutHandle)
+          this.pendingRequests.delete(id)
+          reject(error)
+        })
     })
   }
 }

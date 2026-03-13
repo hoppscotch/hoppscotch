@@ -1331,6 +1331,7 @@ export const graphqlCollectionStore = new DispatchingStore(
 )
 
 const mcpCollectionDispatchers = defineDispatchers({
+  ...gqlCollectionDispatchers,
   setCollections(_: MCPCollectionStoreType, { entries }: { entries: any[] }) {
     return {
       state: entries,
@@ -1373,7 +1374,6 @@ const mcpCollectionDispatchers = defineDispatchers({
       ),
     }
   },
-  ...gqlCollectionDispatchers,
 })
 
 export const mcpCollectionStore = new DispatchingStore(

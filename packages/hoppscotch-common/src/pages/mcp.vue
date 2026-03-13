@@ -171,7 +171,6 @@
 
 <script setup lang="ts">
 import { ref, watch, onUnmounted, onMounted, computed } from "vue"
-import IconLucideAlertCircle from "~icons/lucide/alert-circle"
 import IconBookOpen from "~icons/lucide/book-open"
 import {
   MCPTransportType$,
@@ -313,7 +312,7 @@ watch(stdioCommand, (newCommand) => {
 
 const switchTransport = (type: MCPTransportType) => {
   if (connectionState.value !== "DISCONNECTED") {
-    toast.error("Please disconnect before switching transport")
+    toast.error(t("mcp.disconnect_before_switching"))
     return
   }
   setMCPTransportType(type)
@@ -332,8 +331,19 @@ const connectToServer = async () => {
     let newConnection
 
     if (transportType.value === "http") {
-      // Fix: Use stored auth instead of hardcoded "none"
-      newConnection = new MCPHTTPConnection(httpUrl.value, auth.value)
+      // Map session auth to connection auth format
+      const httpAuth: any = auth.value.authActive
+        ? {
+            type: auth.value.authType,
+            username: auth.value.username,
+            password: auth.value.password,
+            token: auth.value.token,
+            key: auth.value.key,
+            value: auth.value.value,
+            addTo: auth.value.addTo,
+          }
+        : { type: "none" }
+      newConnection = new MCPHTTPConnection(httpUrl.value, httpAuth)
     } else {
       // Fix: Always parse command from input to respect manual edits
       const config = stdioConfig.value || {
@@ -350,10 +360,10 @@ const connectToServer = async () => {
       newConnection = new MCPSTDIOConnection({
         command,
         args,
-        env: config.env.reduce(
-          (acc, { key, value }) => ({ ...acc, [key]: value }),
-          {}
-        ),
+        // Only include active env vars
+        env: config.env
+          .filter((envVar) => envVar.active !== false)
+          .reduce((acc, { key, value }) => ({ ...acc, [key]: value }), {}),
       })
     }
 
@@ -463,7 +473,7 @@ const invokeTool = async (tool: any, args: any) => {
           auth: auth.value,
           authActive: auth.value.authActive,
           method: {
-            methodType: "tools",
+            methodType: "tool",
             methodName: tool.name,
             arguments: JSON.stringify(args),
           },
@@ -498,7 +508,7 @@ const invokePrompt = async (prompt: any, args: any) => {
           auth: auth.value,
           authActive: auth.value.authActive,
           method: {
-            methodType: "prompts",
+            methodType: "prompt",
             methodName: prompt.name,
             arguments: JSON.stringify(args),
           },
@@ -533,7 +543,7 @@ const readResource = async (resource: any) => {
           auth: auth.value,
           authActive: auth.value.authActive,
           method: {
-            methodType: "resources",
+            methodType: "resource",
             methodName: resource.uri,
             arguments: JSON.stringify({ uri: resource.uri }),
           },

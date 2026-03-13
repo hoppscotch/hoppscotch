@@ -36,7 +36,7 @@
     <div class="flex flex-col">
       <div
         v-for="(collection, index) in filteredCollections"
-        :key="`collection-${index}`"
+        :key="`collection-${collection.id || collection.name}-${index}`"
         class="border-b border-dividerLight p-4"
       >
         <div class="flex items-center justify-between">
@@ -48,14 +48,14 @@
               v-tippy="{ theme: 'tooltip' }"
               :title="t('action.edit')"
               :icon="IconEdit"
-              @click="editCollection(collection, index)"
+              @click="editCollection(collection)"
             />
             <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('action.delete')"
               :icon="IconTrash"
               color="red"
-              @click="removeCollection(index)"
+              @click="removeCollection(collection)"
             />
           </div>
         </div>
@@ -163,14 +163,22 @@ const displayModalEdit = (show: boolean) => {
   }
 }
 
-const editCollection = (collection: HoppCollection, index: number) => {
+const editCollection = (collection: HoppCollection) => {
+  // Find actual index in full collections array
+  const actualIndex = collections.value.findIndex((c) => c === collection)
+  if (actualIndex === -1) return
+
   editingCollection.value = collection
-  editingCollectionIndex.value = index
+  editingCollectionIndex.value = actualIndex
   displayModalEdit(true)
 }
 
-const removeCollection = (index: number) => {
-  removeMCPCollection(index)
+const removeCollection = (collection: HoppCollection) => {
+  // Find actual index in full collections array
+  const actualIndex = collections.value.findIndex((c) => c === collection)
+  if (actualIndex === -1) return
+
+  removeMCPCollection(actualIndex)
   toast.success(t("state.deleted"))
 }
 </script>

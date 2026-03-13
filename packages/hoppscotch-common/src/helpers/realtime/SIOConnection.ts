@@ -122,7 +122,8 @@ export class SIOConnection {
   }
 
   private handleError(error: unknown, type: SIOErrorType) {
-    this.disconnect()
+    this.socket?.close()
+    this.connectionState$.next("DISCONNECTED")
     this.addEvent({
       time: Date.now(),
       type: "ERROR",

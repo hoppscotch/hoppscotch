@@ -80,7 +80,7 @@ export class WSConnection {
   }
 
   private handleError(error: WSErrorMessage) {
-    this.disconnect()
+    this.socket?.close()
     this.addEvent({
       time: Date.now(),
       type: "ERROR",

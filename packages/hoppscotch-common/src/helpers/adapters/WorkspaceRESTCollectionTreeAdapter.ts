@@ -98,7 +98,8 @@ export class WorkspaceRESTCollectionTreeAdapter
               }
             })
           })
-        } catch {
+        } catch (error) {
+          console.error("Failed to load collection children:", error)
           result.value = { status: "loaded", data: [] }
         }
       })()
@@ -140,7 +141,8 @@ export class WorkspaceRESTCollectionTreeAdapter
               }
             })
           })
-        } catch {
+        } catch (error) {
+          console.error("Failed to load root collections:", error)
           result.value = { status: "loaded", data: [] }
         }
       })()

@@ -143,39 +143,31 @@ export abstract class TabService<Doc>
         if (saveContext?.originLocation === "workspace-user-collection") {
           const { providerID, requestID, workspaceID } = saveContext
 
-          if (!providerID || !workspaceID || !requestID) {
-            continue
-          }
+          if (providerID && workspaceID && requestID) {
+            const workspaceHandleResult =
+              await this.workspaceService.getWorkspaceHandle(
+                providerID,
+                workspaceID
+              )
 
-          const workspaceHandleResult =
-            await this.workspaceService.getWorkspaceHandle(
-              providerID!,
-              workspaceID!
-            )
+            if (E.isRight(workspaceHandleResult)) {
+              const requestHandleResult =
+                await this.workspaceService.getRESTRequestHandle(
+                  workspaceHandleResult.right,
+                  requestID
+                )
 
-          if (E.isLeft(workspaceHandleResult)) {
-            continue
-          }
+              if (E.isRight(requestHandleResult)) {
+                requestHandle = requestHandleResult.right
 
-          const workspaceHandle = workspaceHandleResult.right
-
-          const requestHandleResult =
-            await this.workspaceService.getRESTRequestHandle(
-              workspaceHandle,
-              requestID!
-            )
-
-          if (E.isRight(requestHandleResult)) {
-            requestHandle = requestHandleResult.right
-
-            const { originLocation } = saveContext
-
-            resolvedTabDoc = {
-              ...resolvedTabDoc,
-              saveContext: {
-                originLocation,
-                requestHandle,
-              },
+                resolvedTabDoc = {
+                  ...resolvedTabDoc,
+                  saveContext: {
+                    originLocation: saveContext.originLocation,
+                    requestHandle,
+                  },
+                }
+              }
             }
           }
         }

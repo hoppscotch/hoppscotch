@@ -551,11 +551,11 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("INVALID_REQUEST_HANDLE" as const))
     }
 
-    delete updatedRequest.id
+    const { id: _id, ...restOfUpdate } = updatedRequest
 
     const { collectionID, requestID, request } = requestHandleRef.value.data
 
-    const newRequest: HoppRESTRequest = { ...request, ...updatedRequest }
+    const newRequest: HoppRESTRequest = { ...request, ...restOfUpdate }
     const requestIndexPos = parseInt(requestID.split("/").slice(-1)[0])
 
     editRESTRequest(collectionID, requestIndexPos, newRequest)

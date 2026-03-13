@@ -215,6 +215,7 @@ export class TeamsWorkspaceProviderService
 
     // unsubscribe previous subscriptions
     this.subscriptions.forEach((sub) => sub.unsubscribe())
+    this.subscriptions = []
 
     // setup new subscriptions
     this.setupTeamsCollectionAddedSubscription(
@@ -1996,21 +1997,17 @@ export class TeamsWorkspaceProviderService
     )
 
     const successfulImports = importRes.filter(
-      (res): res is PromiseFulfilledResult<E.Either<unknown, CreateTeamEnvironmentMutation>> =>
-        res.status === "fulfilled"
+      (res): res is PromiseFulfilledResult<E.Right<CreateTeamEnvironmentMutation>> =>
+        res.status === "fulfilled" && E.isRight(res.value)
     )
 
-    // if not even one import was successful, return the first "CANNOT_IMPORT_ENVIRONMENT" error
+    // if not even one import was successful, return an error
     if (successfulImports.length === 0) {
       return E.left("CANNOT_IMPORT_ENVIRONMENTS" as const)
     }
 
     // insert the successfully imported environments into the local state
     successfulImports.forEach((res) => {
-      if (E.isLeft(res.value)) {
-        return
-      }
-
       const environment = res.value.right.createTeamEnvironment
 
       const newEnv: TeamEnvironment = {

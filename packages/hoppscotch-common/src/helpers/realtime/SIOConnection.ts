@@ -135,7 +135,16 @@ export class SIOConnection {
     if (this.connectionState$.value === "DISCONNECTED") return
     const { message, eventName } = event
 
-    this.socket?.emit(eventName, message, (data) => {
+    // Parse JSON strings into objects so socket.io sends them as
+    // native JSON rather than double-serialized string payloads
+    let payload: unknown = message
+    try {
+      payload = JSON.parse(message)
+    } catch {
+      // Not valid JSON, send as plain string
+    }
+
+    this.socket?.emit(eventName, payload, (data) => {
       // receive response from server
       this.addEvent({
         time: Date.now(),

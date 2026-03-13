@@ -1119,7 +1119,7 @@ export class TeamsWorkspaceProviderService
     collectionHandle: Handle<WorkspaceCollection>
   ): Promise<E.Either<never, Handle<RESTCollectionLevelAuthHeadersView>>> {
     return E.right({
-      get: () =>
+      get: lazy(() =>
         computed(() => {
           const collectionHandleRef = collectionHandle.get()
 
@@ -1220,7 +1220,8 @@ export class TeamsWorkspaceProviderService
             },
             type: "ok" as const,
           }
-        }),
+        })
+      ),
     })
   }
 
@@ -1266,7 +1267,7 @@ export class TeamsWorkspaceProviderService
     const workspaceHandleRef = workspaceHandle.get()
 
     return E.right({
-      get: () =>
+      get: lazy(() =>
         computed(() => {
           if (!isValidWorkspaceHandle(workspaceHandleRef, this.providerID)) {
             return {
@@ -1302,7 +1303,8 @@ export class TeamsWorkspaceProviderService
             type: "ok" as const,
             data: view,
           }
-        }),
+        })
+      ),
     })
   }
 
@@ -1385,11 +1387,12 @@ export class TeamsWorkspaceProviderService
 
     if (!isValidWorkspaceHandle(workspaceHandleRef, this.providerID)) {
       return E.right({
-        get: () =>
+        get: lazy(() =>
           computed(() => ({
             type: "invalid" as const,
             reason: "INVALID_WORKSPACE_HANDLE" as const,
-          })),
+          }))
+        ),
       })
     }
 
@@ -1426,7 +1429,7 @@ export class TeamsWorkspaceProviderService
     }
 
     return E.right({
-      get: () =>
+      get: lazy(() =>
         computed(() =>
           markRaw({
             type: "ok" as const,
@@ -1439,7 +1442,8 @@ export class TeamsWorkspaceProviderService
               onSessionEnd,
             },
           })
-        ),
+        )
+      ),
     })
   }
 
@@ -1723,7 +1727,7 @@ export class TeamsWorkspaceProviderService
     const environmentVariables = environment?.variables ?? []
 
     const createEnvironmentRes = await createTeamEnvironment(
-      environmentVariables,
+      JSON.stringify(environmentVariables),
       environment.teamID,
       environment.name
     )()
@@ -1860,7 +1864,7 @@ export class TeamsWorkspaceProviderService
     }
 
     const updatedName = updatedEnvironment.name ?? environment.name
-    const updatedVariables = updatedEnvironment.variables ?? []
+    const updatedVariables = updatedEnvironment.variables ?? environment.variables
 
     const updateEnvironmentRes = await updateTeamEnvironment(
       JSON.stringify(updatedVariables),
@@ -1991,7 +1995,7 @@ export class TeamsWorkspaceProviderService
     workspaceHandle: Handle<Workspace>
   ): Promise<E.Either<never, Handle<RESTEnvironmentsView>>> {
     return E.right({
-      get: () =>
+      get: lazy(() =>
         computed(() => {
           const workspaceHandleRef = workspaceHandle.get()
 
@@ -2034,7 +2038,8 @@ export class TeamsWorkspaceProviderService
               environments: ref(hoppEnvs),
             },
           }
-        }),
+        })
+      ),
     })
   }
 

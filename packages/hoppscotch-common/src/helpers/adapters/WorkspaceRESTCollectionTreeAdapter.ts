@@ -52,9 +52,9 @@ export class WorkspaceRESTCollectionTreeAdapter
             nodeID
           )
 
-        // TODO: Better error handling
         if (E.isLeft(collectionHandleResult)) {
-          throw new Error(JSON.stringify(collectionHandleResult.left.error))
+          result.value = { status: "loaded", data: [] }
+          return
         }
 
         const collectionHandle = collectionHandleResult.right
@@ -64,9 +64,9 @@ export class WorkspaceRESTCollectionTreeAdapter
             collectionHandle
           )
 
-        // TODO: Better error handling
         if (E.isLeft(collectionChildrenResult)) {
-          throw new Error(JSON.stringify(collectionChildrenResult.left.error))
+          result.value = { status: "loaded", data: [] }
+          return
         }
 
         const collectionChildrenViewHandle =
@@ -105,9 +105,9 @@ export class WorkspaceRESTCollectionTreeAdapter
             this.workspaceHandle
           )
 
-        // TODO: Better error handling
         if (E.isLeft(viewResult)) {
-          throw new Error(JSON.stringify(viewResult.left.error))
+          result.value = { status: "loaded", data: [] }
+          return
         }
 
         const viewHandle = viewResult.right.get()

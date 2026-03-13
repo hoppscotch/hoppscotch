@@ -65,7 +65,7 @@ export interface WorkspaceProvider {
 
   createRESTRootCollection(
     workspaceHandle: Handle<Workspace>,
-    newCollection: Partial<Exclude<HoppCollection, "id">> & { name: string }
+    newCollection: Partial<Omit<HoppCollection, "id">> & { name: string }
   ): Promise<E.Either<unknown, Handle<WorkspaceCollection>>>
   createRESTChildCollection(
     parentCollectionHandle: Handle<WorkspaceCollection>,

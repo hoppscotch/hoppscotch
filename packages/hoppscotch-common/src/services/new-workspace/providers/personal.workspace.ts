@@ -919,10 +919,12 @@ export class PersonalWorkspaceProviderService
     for (let idx = 1; idx <= affectedParentCollectionIDRange; idx++) {
       const affectedCollectionIndexPos = draggedCollectionIndexPos + idx
 
-      const affectedCollectionID = `${draggedParentCollectionID}/${affectedCollectionIndexPos}`
-      const newAffectedCollectionID = `${draggedParentCollectionID}/${
-        affectedCollectionIndexPos - 1
-      }`
+      const affectedCollectionID = draggedCollectionIsInRoot
+        ? `${affectedCollectionIndexPos}`
+        : `${draggedParentCollectionID}/${affectedCollectionIndexPos}`
+      const newAffectedCollectionID = draggedCollectionIsInRoot
+        ? `${affectedCollectionIndexPos - 1}`
+        : `${draggedParentCollectionID}/${affectedCollectionIndexPos - 1}`
 
       this.issuedHandles.forEach((handle) => {
         if (

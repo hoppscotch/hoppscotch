@@ -224,7 +224,7 @@ export class NewWorkspaceService extends Service {
 
   public async createRESTRootCollection(
     workspaceHandle: Handle<Workspace>,
-    newCollection: Partial<Exclude<HoppCollection, "id">> & { name: string }
+    newCollection: Partial<Omit<HoppCollection, "id">> & { name: string }
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,

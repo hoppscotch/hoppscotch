@@ -2,6 +2,14 @@ import { FormDataKeyValue, HoppRESTRequest } from "@hoppscotch/data"
 import { getDefaultRESTRequest } from "./rest/default"
 import { isJSONContentType } from "./utils/contenttypes"
 
+const safeJSONParse = <T>(value: string, fallback: T): T => {
+  try {
+    return JSON.parse(value) as T
+  } catch {
+    return fallback
+  }
+}
+
 /**
  * Handles translations for all the hopp.io REST Shareable URL params
  */
@@ -32,11 +40,11 @@ function parseV0ExtURL(
   }
 
   if (urlParams.headers && typeof urlParams.headers === "string") {
-    resolvedReq.headers = JSON.parse(urlParams.headers)
+    resolvedReq.headers = safeJSONParse(urlParams.headers, resolvedReq.headers)
   }
 
   if (urlParams.params && typeof urlParams.params === "string") {
-    resolvedReq.params = JSON.parse(urlParams.params)
+    resolvedReq.params = safeJSONParse(urlParams.params, resolvedReq.params)
   }
 
   if (urlParams.httpUser && typeof urlParams.httpUser === "string") {
@@ -60,7 +68,7 @@ function parseV0ExtURL(
     if (urlParams.contentType === "multipart/form-data") {
       resolvedReq.body = {
         contentType: "multipart/form-data",
-        body: JSON.parse(urlParams.bodyParams || "[]").map(
+        body: safeJSONParse<any[]>(urlParams.bodyParams || "[]", []).map(
           (x: any) =>
             <FormDataKeyValue>{
               active: x.active,
@@ -100,11 +108,11 @@ function parseV1ExtURL(
   const resolvedReq = initialReq ?? getDefaultRESTRequest()
 
   if (urlParams.headers && typeof urlParams.headers === "string") {
-    resolvedReq.headers = JSON.parse(urlParams.headers)
+    resolvedReq.headers = safeJSONParse(urlParams.headers, resolvedReq.headers)
   }
 
   if (urlParams.params && typeof urlParams.params === "string") {
-    resolvedReq.params = JSON.parse(urlParams.params)
+    resolvedReq.params = safeJSONParse(urlParams.params, resolvedReq.params)
   }
 
   if (urlParams.method && typeof urlParams.method === "string") {
@@ -116,7 +124,7 @@ function parseV1ExtURL(
   }
 
   if (urlParams.body && typeof urlParams.body === "string") {
-    resolvedReq.body = JSON.parse(urlParams.body)
+    resolvedReq.body = safeJSONParse(urlParams.body, resolvedReq.body)
   }
 
   return resolvedReq

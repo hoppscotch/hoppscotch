@@ -21,7 +21,8 @@
 <script setup lang="ts">
 import { watch } from "vue"
 import { useVModel } from "@vueuse/core"
-import { cloneDeep, isEqual } from "lodash-es"
+import { cloneDeep } from "lodash-es"
+import { isEqualHoppRESTRequest } from "@hoppscotch/data"
 import { HoppTab } from "~/services/tab"
 import { HoppRequestDocument } from "~/helpers/rest/document"
 
@@ -53,7 +54,7 @@ watch(
         return
       }
 
-      tab.value.document.isDirty = !isEqual(
+      tab.value.document.isDirty = !isEqualHoppRESTRequest(
         updatedValue,
         requestHandleRef.value.data.request
       )
@@ -62,7 +63,7 @@ watch(
     }
 
     // Unsaved request
-    if (!tab.value.document.isDirty && !isEqual(oldRequest, updatedValue)) {
+    if (!tab.value.document.isDirty && !isEqualHoppRESTRequest(oldRequest, updatedValue)) {
       tab.value.document.isDirty = true
     }
 

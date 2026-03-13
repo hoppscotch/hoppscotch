@@ -2027,6 +2027,8 @@ export class TeamsWorkspaceProviderService
   async getRESTEnvironmentsView(
     workspaceHandle: Handle<Workspace>
   ): Promise<E.Either<never, Handle<RESTEnvironmentsView>>> {
+    const environmentsRef = ref<Environment[]>([])
+
     return E.right({
       get: lazy(() =>
         computed(() => {
@@ -2046,7 +2048,6 @@ export class TeamsWorkspaceProviderService
           )
 
           const hoppEnvs: Environment[] = environments.map((env) => {
-            // env.variables is already parsed when stored in this.environments
             const vars = (typeof env.variables === "string"
               ? JSON.parse(env.variables)
               : env.variables) as Array<{ key: string; value?: string; initialValue?: string; currentValue?: string; secret: boolean }>
@@ -2063,12 +2064,14 @@ export class TeamsWorkspaceProviderService
             }
           })
 
+          environmentsRef.value = hoppEnvs
+
           return {
             type: "ok" as const,
             data: {
               providerID: this.providerID,
               workspaceID: teamID,
-              environments: ref(hoppEnvs),
+              environments: environmentsRef,
             },
           }
         })
@@ -2834,13 +2837,12 @@ function makeCollectionTree(
   const uniqueParentCollectionIDs = new Set<string>()
 
   hoppCollections.forEach((collection) => {
-    if (collection.parentCollectionID) {
-      uniqueParentCollectionIDs.add(collection.parentCollectionID)
-    } else {
+    if (!collection.parentCollectionID) {
       collectionsTree.push(collection)
-      uniqueParentCollectionIDs.add(collection.id)
     }
 
+    // every collection can be a parent (has child collections or requests)
+    uniqueParentCollectionIDs.add(collection.id)
     collectionsMap.set(collection.id, collection)
   })
 

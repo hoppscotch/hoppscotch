@@ -91,17 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  GQLHeader,
-  HoppCollection,
-  HoppCollectionVariable,
-  HoppGQLAuth,
-  HoppGQLRequest,
-  HoppRESTAuth,
-  HoppRESTHeader,
-  HoppRESTRequest,
-  makeCollection,
-} from "@hoppscotch/data"
+import { HoppCollection } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 import { computed, onMounted, ref, watch } from "vue"
 import { useI18n } from "~/composables/i18n"
@@ -109,14 +99,13 @@ import { useReadonlyStream } from "~/composables/stream"
 import { runGQLQuery } from "~/helpers/backend/GQLClient"
 import {
   RootCollectionsOfTeamDocument,
-  GetCollectionRequestsDocument,
-  GetCollectionChildrenDocument,
+  ExportCollectionToJsonDocument,
 } from "~/helpers/backend/graphql"
+import { teamCollectionJSONToHoppRESTColl } from "~/helpers/backend/helpers"
 import { TEAMS_BACKEND_PAGE_SIZE } from "~/helpers/teams/TeamCollectionAdapter"
 import { getRESTCollection, restCollections$ } from "~/newstore/collections"
 import { WorkspaceService } from "~/services/workspace.service"
 import * as E from "fp-ts/Either"
-import { getSingleCollection } from "~/helpers/teams/TeamCollection"
 import { useToast } from "~/composables/toast"
 
 const workspaceService = useService(WorkspaceService)
@@ -257,171 +246,37 @@ const getWorkspaceRootCollections = async (workspaceID: string) => {
   return E.right(totalCollections)
 }
 
-const convertToInheritedProperties = (
-  data?: string | null
-): {
-  auth: HoppRESTAuth | HoppGQLAuth
-  headers: Array<HoppRESTHeader | GQLHeader>
-  variables: HoppCollectionVariable[]
-} => {
-  const collectionLevelAuthAndHeaders = data
-    ? (JSON.parse(data) as {
-        auth: HoppRESTAuth | HoppGQLAuth
-        headers: Array<HoppRESTHeader | GQLHeader>
-        variables: HoppCollectionVariable[]
-      })
-    : null
-
-  const headers = collectionLevelAuthAndHeaders?.headers ?? []
-
-  const auth = collectionLevelAuthAndHeaders?.auth ?? {
-    authType: "none",
-    authActive: true,
-  }
-
-  const variables = collectionLevelAuthAndHeaders?.variables ?? []
-
-  return {
-    auth,
-    headers,
-    variables,
-  }
-}
-
-// Safety limit to prevent infinite loops from backend bugs
-const MAX_PAGES_PER_COLLECTION = 1000 // 10,000 items max per collection
-
+/**
+ * Fetches the entire collection tree using the backend's exportCollectionToJSON
+ * query, which resolves everything server-side in a single request.
+ */
 const getTeamCollection = async (
-  collectionID: string,
-  collectionPath = "root"
+  collectionID: string
 ): Promise<E.Either<any, HoppCollection>> => {
-  const rootCollectionRes = await getSingleCollection(collectionID)
+  const teamID = selectedWorkspaceID.value
 
-  if (E.isLeft(rootCollectionRes)) {
-    return E.left(
-      `Failed to fetch collection '${collectionPath}': ${rootCollectionRes.left}`
-    )
+  if (!teamID) {
+    return E.left("No workspace selected")
   }
 
-  const rootCollection = rootCollectionRes.right.collection
-
-  if (!rootCollection) {
-    return E.left(`Collection '${collectionPath}' not found`)
-  }
-
-  const collectionName = rootCollection.title
-
-  // Fetch ALL requests with pagination + safety limit
-  const allRequests: any[] = []
-  let requestsCursor: string | undefined = undefined
-  let requestsPageCount = 0
-
-  while (requestsPageCount < MAX_PAGES_PER_COLLECTION) {
-    requestsPageCount++
-
-    const requestsRes: E.Either<any, any> = await runGQLQuery({
-      query: GetCollectionRequestsDocument,
-      variables: {
-        collectionID,
-        cursor: requestsCursor,
-      },
-    })
-
-    if (E.isLeft(requestsRes)) {
-      return E.left(
-        `Failed to fetch requests for '${collectionName}' (page ${requestsPageCount}): ${requestsRes.left}`
-      )
-    }
-
-    const requestsPage: any[] = requestsRes.right.requestsInCollection
-    allRequests.push(...requestsPage)
-
-    // If we got fewer than page size, we're done
-    if (requestsPage.length < TEAMS_BACKEND_PAGE_SIZE) break
-
-    // Update cursor for next page
-    requestsCursor = requestsPage[requestsPage.length - 1].id
-  }
-
-  if (requestsPageCount >= MAX_PAGES_PER_COLLECTION) {
-    return E.left(
-      `Collection '${collectionName}' exceeded maximum page limit (${MAX_PAGES_PER_COLLECTION} pages) - possible infinite loop`
-    )
-  }
-
-  // Fetch ALL child collections with pagination + safety limit
-  const allChildCollections: any[] = []
-  let childrenCursor: string | undefined = undefined
-  let childrenPageCount = 0
-
-  while (childrenPageCount < MAX_PAGES_PER_COLLECTION) {
-    childrenPageCount++
-
-    const childrenRes: E.Either<any, any> = await runGQLQuery({
-      query: GetCollectionChildrenDocument,
-      variables: {
-        collectionID,
-        cursor: childrenCursor,
-      },
-    })
-
-    if (E.isLeft(childrenRes)) {
-      return E.left(
-        `Failed to fetch child collections for '${collectionName}' (page ${childrenPageCount}): ${childrenRes.left}`
-      )
-    }
-
-    if (!childrenRes.right.collection) {
-      return E.left(`Child collections not found for '${collectionName}'`)
-    }
-
-    const childrenPage: any[] = childrenRes.right.collection.children
-    allChildCollections.push(...childrenPage)
-
-    // If we got fewer than page size, we're done
-    if (childrenPage.length < TEAMS_BACKEND_PAGE_SIZE) break
-
-    // Update cursor for next page
-    childrenCursor = childrenPage[childrenPage.length - 1].id
-  }
-
-  if (childrenPageCount >= MAX_PAGES_PER_COLLECTION) {
-    return E.left(
-      `Collection '${collectionName}' exceeded maximum page limit for child collections - possible infinite loop`
-    )
-  }
-
-  // Recursively fetch all nested collections
-  const childCollectionExpandedPromises = allChildCollections.map((col) =>
-    getTeamCollection(col.id, `${collectionPath}/${col.title}`)
-  )
-
-  const childCollectionPromiseRes = await Promise.all(
-    childCollectionExpandedPromises
-  )
-
-  const hasAnyError = childCollectionPromiseRes.some((res) => E.isLeft(res))
-
-  if (hasAnyError) {
-    // Find first error and preserve its context
-    const firstError = childCollectionPromiseRes.find((res) => E.isLeft(res))
-    return E.left((firstError as E.Left<any>).left)
-  }
-
-  const unwrappedChildCollections = childCollectionPromiseRes.map(
-    (res) => (res as E.Right<HoppCollection>).right
-  )
-
-  const collectionInHoppFormat: HoppCollection = makeCollection({
-    name: collectionName,
-    ...convertToInheritedProperties(rootCollection.data),
-    folders: unwrappedChildCollections,
-    requests: allRequests.map((req) => {
-      return JSON.parse(req.request) as HoppRESTRequest | HoppGQLRequest
-    }),
+  const res = await runGQLQuery({
+    query: ExportCollectionToJsonDocument,
+    variables: {
+      teamID,
+      collectionID,
+    },
   })
 
-  return E.right(collectionInHoppFormat)
+  if (E.isLeft(res)) {
+    return E.left(res.left)
+  }
+
+  try {
+    const collectionFolder = JSON.parse(res.right.exportCollectionToJSON)
+    return E.right(teamCollectionJSONToHoppRESTColl(collectionFolder))
+  } catch (_error) {
+    return E.left("Failed to parse collection data")
+  }
 }
 
 const getCollectionDetailsAndImport = async () => {

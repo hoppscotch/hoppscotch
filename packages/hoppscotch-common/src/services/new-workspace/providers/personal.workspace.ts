@@ -817,7 +817,8 @@ export class PersonalWorkspaceProviderService
         ? // Move to root
           this.restCollectionState.value.state.length.toString()
         : this.isAlreadyInRoot(destinationCollectionID)
-      : !!destinationCollectionID?.startsWith(draggedParentCollectionID)
+      : destinationCollectionID === draggedParentCollectionID ||
+        !!destinationCollectionID?.startsWith(draggedParentCollectionID + "/")
 
     const draggedCollectionIndexPos = this.pathToLastIndex(draggedCollectionID)
 
@@ -1208,6 +1209,18 @@ export class PersonalWorkspaceProviderService
               }
             }
 
+            const currentCollection = navigateToFolderWithIndexPath(
+              this.restCollectionState.value.state,
+              collectionID.split("/").map((x) => parseInt(x))
+            )
+
+            if (!currentCollection) {
+              return {
+                type: "invalid" as const,
+                reason: "COLLECTION_DOES_NOT_EXIST" as const,
+              }
+            }
+
             const { providerID, workspaceID } = workspaceHandleRef.value.data
 
             return {
@@ -1216,7 +1229,7 @@ export class PersonalWorkspaceProviderService
                 providerID,
                 workspaceID,
                 collectionID,
-                name: collection.name,
+                name: currentCollection.name,
               },
             }
           })

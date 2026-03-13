@@ -2609,7 +2609,7 @@ export const reorderItems = <
       (item) => item[idKey] === destinationItemID
     )
 
-    if (!destinationIndex && destinationIndex !== 0) {
+    if (destinationIndex === -1) {
       return E.left("DESTINATION_ITEM_NOT_FOUND_WHILE_REORDERING")
     }
 

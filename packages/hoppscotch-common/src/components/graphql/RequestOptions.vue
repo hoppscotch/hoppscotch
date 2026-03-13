@@ -253,7 +253,7 @@ const saveRequest = (options?: { silent?: boolean }) => {
   const saveCtx = tabToSave.document.saveContext
 
   if (!saveCtx) {
-    showSaveRequestModal.value = true
+    if (!silent) showSaveRequestModal.value = true
     return
   }
 

@@ -618,8 +618,12 @@ const saveRequest = async (options?: { silent?: boolean }) => {
         }
       } catch (_e) {
         tab.value.document.saveContext = undefined
-        // Forward silent flag — without it, recursive call would open modal during auto-save
-        if (!silent) saveRequest()
+        // Reset saveInProgress before recursive call — the guard at the top of
+        // saveRequest would see true and return immediately, blocking the modal
+        if (!silent) {
+          saveInProgress.value = false
+          await saveRequest()
+        }
       }
     } else if (saveCtx.originLocation === "team-collection") {
       const req = tab.value.document.request
@@ -635,34 +639,21 @@ const saveRequest = async (options?: { silent?: boolean }) => {
           })
         }
 
-        runMutation(UpdateRequestDocument, {
+        const result = await runMutation(UpdateRequestDocument, {
           requestID: saveCtx.requestID,
           data: {
             title: req.name,
             request: JSON.stringify(req),
           },
         })()
-          .then((result) => {
-            if (E.isLeft(result)) {
-              // Only show error toast for manual saves — silent auto-save must never toast
-              if (!silent) toast.error(`${t("profile.no_permission")}`)
-            } else {
-              tab.value.document.isDirty = false
-              if (!silent) toast.success(`${t("request.saved")}`)
-            }
-          })
-          .catch((error) => {
-            // Only show error toast for manual saves — silent auto-save must never toast
-            if (!silent) toast.error(`${t("error.something_went_wrong")}`)
-            console.error(error)
-          })
-          .finally(() => {
-            saveInProgress.value = false
-          })
 
-        // saveInProgress is cleared in the .finally above — return early to skip
-        // the outer finally from resetting it prematurely
-        return
+        if (E.isLeft(result)) {
+          // Only show error toast for manual saves — silent auto-save must never toast
+          if (!silent) toast.error(`${t("profile.no_permission")}`)
+        } else {
+          tab.value.document.isDirty = false
+          if (!silent) toast.success(`${t("request.saved")}`)
+        }
       } catch (error) {
         // Only show modal and toast for manual saves — silent auto-save must never open modals
         if (!silent) {

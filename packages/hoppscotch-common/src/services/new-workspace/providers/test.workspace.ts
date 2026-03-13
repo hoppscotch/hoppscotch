@@ -80,7 +80,7 @@ export class TestWorkspaceProviderService
 
   public createRESTRootCollection(
     workspaceHandle: Handle<Workspace>,
-    newCollection: Partial<Exclude<HoppCollection, "id">> & { name: string }
+    newCollection: Partial<Omit<HoppCollection, "id">> & { name: string }
   ): Promise<
     E.Either<"INVALID_WORKSPACE_HANDLE", Handle<WorkspaceCollection>>
   > {

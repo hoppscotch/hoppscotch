@@ -108,11 +108,11 @@ const generateRequestBodyExampleFromSchemaObject = (
   }
 
   // For oneOf / anyOf, pick the first schema to generate an example
-  if (schemaObject.oneOf)
+  if (schemaObject.oneOf && schemaObject.oneOf.length > 0)
     return generateRequestBodyExampleFromSchemaObject(
       schemaObject.oneOf[0] as OpenAPIV3.SchemaObject
     )
-  if (schemaObject.anyOf)
+  if (schemaObject.anyOf && schemaObject.anyOf.length > 0)
     return generateRequestBodyExampleFromSchemaObject(
       schemaObject.anyOf[0] as OpenAPIV3.SchemaObject
     )

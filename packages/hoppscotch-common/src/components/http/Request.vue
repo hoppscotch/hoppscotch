@@ -593,7 +593,8 @@ const saveRequest = async (options?: { silent?: boolean }) => {
 
     try {
       if (saveCtx.requestIndex === undefined) {
-        showSaveRequestModal.value = true
+        // Only open the modal for manual saves — silent auto-save must never open modals
+        if (!silent) showSaveRequestModal.value = true
         return
       }
       editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, req)
@@ -612,7 +613,8 @@ const saveRequest = async (options?: { silent?: boolean }) => {
       }
     } catch (_e) {
       tab.value.document.saveContext = undefined
-      saveRequest()
+      // Forward silent flag — without it, recursive call would open modal during auto-save
+      if (!silent) saveRequest()
     }
   } else if (saveCtx.originLocation === "team-collection") {
     const req = tab.value.document.request

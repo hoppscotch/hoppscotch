@@ -2867,6 +2867,8 @@ function makeCollectionTree(
     )
   })
 
+  collectionsTree.sort((a, b) => a.order.localeCompare(b.order))
+
   return collectionsTree
 }
 

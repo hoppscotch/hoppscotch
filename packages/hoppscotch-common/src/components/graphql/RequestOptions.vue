@@ -287,7 +287,8 @@ const saveRequest = (options?: { silent?: boolean }) => {
     })()
       .then((result) => {
         if (E.isLeft(result)) {
-          toast.error(`${t("profile.no_permission")}`)
+          // Only show error toast for manual saves — silent auto-save must never toast
+          if (!silent) toast.error(`${t("profile.no_permission")}`)
         } else {
           // Use captured tabToSave — not tab.value — to avoid stale ref in async
           tabToSave.document.isDirty = false
@@ -295,7 +296,8 @@ const saveRequest = (options?: { silent?: boolean }) => {
         }
       })
       .catch((error) => {
-        toast.error(`${t("error.something_went_wrong")}`)
+        // Only show error toast for manual saves — silent auto-save must never toast
+        if (!silent) toast.error(`${t("error.something_went_wrong")}`)
         console.error(error)
       })
       .finally(() => {
@@ -341,7 +343,14 @@ const stopAutoSave = watchDebounced(
     const saveCtx = tabToSave.document.saveContext
     const autoSaveEnabled = AUTO_SAVE_REQUESTS.value
 
-    if (!autoSaveEnabled || !isDirty || !saveCtx || saveInProgress.value) {
+    // Guard: match REST component by also checking document type
+    if (
+      !autoSaveEnabled ||
+      !isDirty ||
+      !saveCtx ||
+      saveInProgress.value ||
+      tabToSave.document.type !== "request"
+    ) {
       return
     }
 
@@ -349,6 +358,7 @@ const stopAutoSave = watchDebounced(
   },
   {
     deep: true,
+    // Clamp delay between 500 ms and 10 000 ms, default 2 000 ms
     debounce: computed(() =>
       Math.min(10000, Math.max(500, Number(AUTO_SAVE_DELAY_MS.value) || 2000))
     ),

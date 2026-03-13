@@ -38,103 +38,111 @@ export class WorkspaceRESTCollectionTreeAdapter
 
     if (nodeID !== null) {
       ;(async () => {
-        if (nodeType === "request") {
-          result.value = {
-            status: "loaded",
-            data: [],
-          }
-          return
-        }
-
-        const collectionHandleResult =
-          await this.workspaceService.getRESTCollectionHandle(
-            this.workspaceHandle,
-            nodeID
-          )
-
-        if (E.isLeft(collectionHandleResult)) {
-          result.value = { status: "loaded", data: [] }
-          return
-        }
-
-        const collectionHandle = collectionHandleResult.right
-
-        const collectionChildrenResult =
-          await this.workspaceService.getRESTCollectionChildrenView(
-            collectionHandle
-          )
-
-        if (E.isLeft(collectionChildrenResult)) {
-          result.value = { status: "loaded", data: [] }
-          return
-        }
-
-        const collectionChildrenViewHandle =
-          collectionChildrenResult.right.get()
-
-        this.scope.run(() => {
-          watchEffect(() => {
-            if (collectionChildrenViewHandle.value.type !== "ok") return
-
-            if (collectionChildrenViewHandle.value.data.loading.value) {
-              result.value = {
-                status: "loading",
-              }
-            } else {
-              result.value = {
-                status: "loaded",
-                data: collectionChildrenViewHandle.value.data.content.value.map(
-                  (item) => ({
-                    id:
-                      item.type === "request"
-                        ? item.value.requestID
-                        : item.value.collectionID,
-
-                    data: item,
-                  })
-                ),
-              }
+        try {
+          if (nodeType === "request") {
+            result.value = {
+              status: "loaded",
+              data: [],
             }
+            return
+          }
+
+          const collectionHandleResult =
+            await this.workspaceService.getRESTCollectionHandle(
+              this.workspaceHandle,
+              nodeID
+            )
+
+          if (E.isLeft(collectionHandleResult)) {
+            result.value = { status: "loaded", data: [] }
+            return
+          }
+
+          const collectionHandle = collectionHandleResult.right
+
+          const collectionChildrenResult =
+            await this.workspaceService.getRESTCollectionChildrenView(
+              collectionHandle
+            )
+
+          if (E.isLeft(collectionChildrenResult)) {
+            result.value = { status: "loaded", data: [] }
+            return
+          }
+
+          const collectionChildrenViewHandle =
+            collectionChildrenResult.right.get()
+
+          this.scope.run(() => {
+            watchEffect(() => {
+              if (collectionChildrenViewHandle.value.type !== "ok") return
+
+              if (collectionChildrenViewHandle.value.data.loading.value) {
+                result.value = {
+                  status: "loading",
+                }
+              } else {
+                result.value = {
+                  status: "loaded",
+                  data: collectionChildrenViewHandle.value.data.content.value.map(
+                    (item) => ({
+                      id:
+                        item.type === "request"
+                          ? item.value.requestID
+                          : item.value.collectionID,
+
+                      data: item,
+                    })
+                  ),
+                }
+              }
+            })
           })
-        })
+        } catch {
+          result.value = { status: "loaded", data: [] }
+        }
       })()
     } else {
       ;(async () => {
-        const viewResult =
-          await this.workspaceService.getRESTRootCollectionView(
-            this.workspaceHandle
-          )
+        try {
+          const viewResult =
+            await this.workspaceService.getRESTRootCollectionView(
+              this.workspaceHandle
+            )
 
-        if (E.isLeft(viewResult)) {
-          result.value = { status: "loaded", data: [] }
-          return
-        }
+          if (E.isLeft(viewResult)) {
+            result.value = { status: "loaded", data: [] }
+            return
+          }
 
-        const viewHandle = viewResult.right.get()
+          const viewHandle = viewResult.right.get()
 
-        this.scope.run(() => {
-          watchEffect(() => {
-            if (viewHandle.value.type !== "ok") return
+          this.scope.run(() => {
+            watchEffect(() => {
+              if (viewHandle.value.type !== "ok") return
 
-            if (viewHandle.value.data.loading.value) {
-              result.value = {
-                status: "loading",
+              if (viewHandle.value.data.loading.value) {
+                result.value = {
+                  status: "loading",
+                }
+              } else {
+                result.value = {
+                  status: "loaded",
+                  data: viewHandle.value.data.collections.value.map((coll) => ({
+                    id: coll.collectionID,
+
+                    data: {
+                      type: "collection",
+                      value: coll,
+                    },
+                  })),
+                }
               }
-            } else {
-              result.value = {
-                status: "loaded",
-                data: viewHandle.value.data.collections.value.map((coll) => ({
-                  id: coll.collectionID,
-
-                  data: {
-                    type: "collection",
-                    value: coll,
-                  },
-                })),
-              }
-            }
+            })
           })
-        })
+        } catch {
+          result.value = { status: "loaded", data: [] }
+        }
       })()
     }
 

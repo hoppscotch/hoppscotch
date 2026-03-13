@@ -6,7 +6,7 @@ import {
 } from "@hoppscotch/data"
 import { Service } from "dioc"
 import * as E from "fp-ts/Either"
-import { isEqual, merge } from "lodash-es"
+import { isEqual } from "lodash-es"
 import {
   Ref,
   computed,
@@ -555,7 +555,7 @@ export class PersonalWorkspaceProviderService
 
     const { collectionID, requestID, request } = requestHandleRef.value.data
 
-    const newRequest: HoppRESTRequest = merge({}, request, updatedRequest)
+    const newRequest: HoppRESTRequest = { ...request, ...updatedRequest }
     const requestIndexPos = parseInt(requestID.split("/").slice(-1)[0])
 
     editRESTRequest(collectionID, requestIndexPos, newRequest)

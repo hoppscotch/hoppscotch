@@ -76,7 +76,7 @@ export abstract class TabService<Doc>
   public async init() {
     const persistedState = await this.loadPersistedState()
     if (persistedState) {
-      this.loadTabsFromPersistedState(persistedState)
+      await this.loadTabsFromPersistedState(persistedState)
     }
   }
 

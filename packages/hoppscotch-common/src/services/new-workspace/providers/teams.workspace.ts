@@ -58,6 +58,7 @@ import {
   runMutation,
 } from "~/helpers/backend/GQLClient"
 import {
+  CreateTeamEnvironmentMutation,
   ImportFromJsonDocument,
   ImportFromJsonMutation,
   ImportFromJsonMutationVariables,
@@ -1995,7 +1996,8 @@ export class TeamsWorkspaceProviderService
     )
 
     const successfulImports = importRes.filter(
-      (res) => res.status === "fulfilled"
+      (res): res is PromiseFulfilledResult<E.Either<unknown, CreateTeamEnvironmentMutation>> =>
+        res.status === "fulfilled"
     )
 
     // if not even one import was successful, return the first "CANNOT_IMPORT_ENVIRONMENT" error
@@ -2027,7 +2029,34 @@ export class TeamsWorkspaceProviderService
   async getRESTEnvironmentsView(
     workspaceHandle: Handle<Workspace>
   ): Promise<E.Either<never, Handle<RESTEnvironmentsView>>> {
-    const environmentsRef = ref<Environment[]>([])
+    const environmentsComputed = computed<Environment[]>(() => {
+      const workspaceHandleRef = workspaceHandle.get()
+
+      if (!isValidWorkspaceHandle(workspaceHandleRef, this.providerID)) {
+        return []
+      }
+
+      const teamID = workspaceHandleRef.value.data.workspaceID
+
+      return this.environments.value
+        .filter((env) => env.teamID === teamID)
+        .map((env) => {
+          const vars = (typeof env.variables === "string"
+            ? JSON.parse(env.variables)
+            : env.variables) as Array<{ key: string; value?: string; initialValue?: string; currentValue?: string; secret: boolean }>
+          return {
+            name: env.name,
+            variables: vars.map((v) => ({
+              key: v.key,
+              initialValue: v.initialValue ?? v.value ?? "",
+              currentValue: v.currentValue ?? v.value ?? "",
+              secret: v.secret,
+            })),
+            id: env.id,
+            v: 2 as const,
+          }
+        })
+    })
 
     return E.right({
       get: lazy(() =>
@@ -2043,35 +2072,12 @@ export class TeamsWorkspaceProviderService
 
           const teamID = workspaceHandleRef.value.data.workspaceID
 
-          const environments = this.environments.value.filter(
-            (env) => env.teamID === teamID
-          )
-
-          const hoppEnvs: Environment[] = environments.map((env) => {
-            const vars = (typeof env.variables === "string"
-              ? JSON.parse(env.variables)
-              : env.variables) as Array<{ key: string; value?: string; initialValue?: string; currentValue?: string; secret: boolean }>
-            return {
-              name: env.name,
-              variables: vars.map((v) => ({
-                key: v.key,
-                initialValue: v.initialValue ?? v.value ?? "",
-                currentValue: v.currentValue ?? v.value ?? "",
-                secret: v.secret,
-              })),
-              id: env.id,
-              v: 2 as const,
-            }
-          })
-
-          environmentsRef.value = hoppEnvs
-
           return {
             type: "ok" as const,
             data: {
               providerID: this.providerID,
               workspaceID: teamID,
-              environments: environmentsRef,
+              environments: environmentsComputed,
             },
           }
         })

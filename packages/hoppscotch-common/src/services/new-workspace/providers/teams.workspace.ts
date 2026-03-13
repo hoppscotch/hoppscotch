@@ -253,6 +253,8 @@ export class TeamsWorkspaceProviderService
       workspaceHandle.value.data.workspaceID
     )
 
+    this.requests.value = []
+
     const initialData = await Promise.allSettled([
       getRootCollections(workspaceHandle.value.data.workspaceID),
       fetchAllTeamEnvironments(workspaceHandle.value.data.workspaceID),

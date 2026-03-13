@@ -715,7 +715,9 @@ export class PersonalWorkspaceProviderService
 
     const resolvedDestinationCollectionID =
       destinationCollectionIndexPos > draggedCollectionIndexPos
-        ? `${destinationCollectionID}/${resolvedDestinationCollectionIDPostfix}`
+        ? parentCollectionID === null
+          ? `${resolvedDestinationCollectionIDPostfix}`
+          : `${parentCollectionID}/${resolvedDestinationCollectionIDPostfix}`
         : destinationCollectionID
 
     const resolvedDestinationCollectionIndexPos =
@@ -1140,8 +1142,8 @@ export class PersonalWorkspaceProviderService
         return
       }
 
-      // Check if this request is in the same collection as the dragged request
-      if (this.idBelongsToCollection(requestID, draggedRequestCollectionID)) {
+      // Check if this request is in the same collection as the dragged request (exact match, not prefix)
+      if (handle.value.data.collectionID === draggedRequestCollectionID) {
         const resolvedRequestIndexPos = Number(
           requestID.split("/").slice(-1)[0]
         )
@@ -1365,6 +1367,16 @@ export class PersonalWorkspaceProviderService
               }
             }
 
+            const env =
+              this.restEnvironmentState.value[parseInt(environmentID)]
+
+            if (!env) {
+              return {
+                type: "invalid" as const,
+                reason: "ENVIRONMENT_DOES_NOT_EXIST" as const,
+              }
+            }
+
             const { providerID, workspaceID } = workspaceHandleRef.value.data
 
             return {
@@ -1373,7 +1385,7 @@ export class PersonalWorkspaceProviderService
                 providerID,
                 workspaceID,
                 environmentID,
-                name: environment.name,
+                name: env.name,
               },
             }
           })

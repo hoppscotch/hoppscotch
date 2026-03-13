@@ -97,11 +97,8 @@ import { computed, onMounted, ref, watch } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { useReadonlyStream } from "~/composables/stream"
 import { runGQLQuery } from "~/helpers/backend/GQLClient"
-import {
-  RootCollectionsOfTeamDocument,
-  ExportCollectionToJsonDocument,
-} from "~/helpers/backend/graphql"
-import { teamCollectionJSONToHoppRESTColl } from "~/helpers/backend/helpers"
+import { RootCollectionsOfTeamDocument } from "~/helpers/backend/graphql"
+import { getTeamCollectionObject } from "~/helpers/backend/helpers"
 import { TEAMS_BACKEND_PAGE_SIZE } from "~/helpers/teams/TeamCollectionAdapter"
 import { getRESTCollection, restCollections$ } from "~/newstore/collections"
 import { WorkspaceService } from "~/services/workspace.service"
@@ -246,39 +243,6 @@ const getWorkspaceRootCollections = async (workspaceID: string) => {
   return E.right(totalCollections)
 }
 
-/**
- * Fetches the entire collection tree using the backend's exportCollectionToJSON
- * query, which resolves everything server-side in a single request.
- */
-const getTeamCollection = async (
-  collectionID: string
-): Promise<E.Either<any, HoppCollection>> => {
-  const teamID = selectedWorkspaceID.value
-
-  if (!teamID) {
-    return E.left("No workspace selected")
-  }
-
-  const res = await runGQLQuery({
-    query: ExportCollectionToJsonDocument,
-    variables: {
-      teamID,
-      collectionID,
-    },
-  })
-
-  if (E.isLeft(res)) {
-    return E.left(res.left)
-  }
-
-  try {
-    const collectionFolder = JSON.parse(res.right.exportCollectionToJSON)
-    return E.right(teamCollectionJSONToHoppRESTColl(collectionFolder))
-  } catch (_error) {
-    return E.left("Failed to parse collection data")
-  }
-}
-
 const getCollectionDetailsAndImport = async () => {
   if (!selectedCollectionID.value) {
     return
@@ -289,7 +253,10 @@ const getCollectionDetailsAndImport = async () => {
   if (selectedWorkspaceID.value === "personal") {
     collectionToImport = getRESTCollection(parseInt(selectedCollectionID.value))
   } else {
-    const res = await getTeamCollection(selectedCollectionID.value)
+    const res = await getTeamCollectionObject(
+      selectedWorkspaceID.value!,
+      selectedCollectionID.value
+    )
 
     if (E.isLeft(res)) {
       toast.error(t("import.failed"))

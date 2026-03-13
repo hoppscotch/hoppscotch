@@ -988,7 +988,8 @@ const parseOpenAPIUrl = (
     // add base url variable to each request
     const host = doc.host?.trim() || "<<baseUrl>>"
     const basePath = doc.basePath?.trim() || ""
-    return `${host}${basePath}`
+    const scheme = doc.schemes?.[0] ?? "https"
+    return `${scheme}://${host}${basePath}`
   }
 
   /**

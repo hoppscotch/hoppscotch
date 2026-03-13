@@ -11,7 +11,7 @@ export const initializeDownloadFile = async (
   contentsJSON: string,
   name: string | null
 ) => {
-  const result = await platform.io.saveFileWithDialog({
+  const result = await platform.kernelIO.saveFileWithDialog({
     data: contentsJSON,
     contentType: "application/json",
     suggestedFilename: `${(name ?? "collection").replace(/\.json$/i, "")}.json`,

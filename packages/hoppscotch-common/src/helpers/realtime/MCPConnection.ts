@@ -65,6 +65,11 @@ export abstract class MCPConnection {
   abstract readResource(uri: string): Promise<unknown>
 
   protected handleError(error: MCPErrorMessage) {
+    // Don't emit error events for user-initiated aborts (e.g., during disconnect)
+    if (error instanceof Error && error.name === "AbortError") {
+      return
+    }
+
     this.connectionState$.next("DISCONNECTED")
     this.capabilities$.next(null)
     this.addEvent({

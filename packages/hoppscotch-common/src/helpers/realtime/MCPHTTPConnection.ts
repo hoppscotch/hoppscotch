@@ -84,6 +84,7 @@ export class MCPHTTPConnection extends MCPConnection {
       }
     } catch (error) {
       this.handleError(error as MCPErrorMessage)
+      throw error
     }
 
     platform.analytics?.logEvent({

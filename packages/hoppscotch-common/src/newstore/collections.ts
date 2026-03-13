@@ -1416,7 +1416,7 @@ const mcpCollectionDispatchers = defineDispatchers({
   ) {
     return {
       state: (state as any[]).map((col, index) =>
-        index === collectionIndex ? collection : col
+        index === collectionIndex ? { ...col, ...collection } : col
       ),
     }
   },

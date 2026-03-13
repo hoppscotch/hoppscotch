@@ -3,7 +3,7 @@
  * Registry of known MCP servers for quick connection
  */
 
-import { HoppMCPAuth } from "@hoppscotch/data"
+import type { MCPAuth } from "@hoppscotch/data"
 
 export interface MCPServerEntry {
   id: string
@@ -20,7 +20,7 @@ export interface MCPServerEntry {
   transport: "http" | "stdio"
   // HTTP transport config
   url?: string
-  auth?: HoppMCPAuth
+  auth?: MCPAuth
   // STDIO transport config
   command?: string
   args?: string[]

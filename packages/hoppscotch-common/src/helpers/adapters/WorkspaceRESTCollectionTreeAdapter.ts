@@ -29,7 +29,10 @@ export class WorkspaceRESTCollectionTreeAdapter
     const workspaceHandleRef = this.workspaceHandle.get()
 
     if (workspaceHandleRef.value.type !== "ok") {
-      throw new Error("Cannot issue children with invalid workspace handle")
+      return ref<ChildrenResult<RESTCollectionViewItem>>({
+        status: "loaded",
+        data: [],
+      })
     }
 
     const result = ref<ChildrenResult<RESTCollectionViewItem>>({

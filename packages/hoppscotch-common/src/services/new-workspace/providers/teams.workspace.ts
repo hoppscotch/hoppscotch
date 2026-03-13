@@ -561,10 +561,10 @@ export class TeamsWorkspaceProviderService
 
   async updateRESTRequest(
     requestHandle: Handle<WorkspaceRequest>,
-    updatedRequest: Partial<HoppRESTRequest> & { name: string }
+    updatedRequest: Partial<HoppRESTRequest>
   ): Promise<
     E.Either<
-      "INVALID_REQUEST_HANDLE" | "REQUEST_DOES_NOT_EXIST" | GQLError<any>,
+      "INVALID_REQUEST_HANDLE" | "REQUEST_DOES_NOT_EXIST" | GQLError<string>,
       void
     >
   > {
@@ -584,7 +584,7 @@ export class TeamsWorkspaceProviderService
 
     const res = await updateTeamRequest(requestHandleRef.value.data.requestID, {
       request: JSON.stringify(updatedRequest),
-      title: updatedRequest.name,
+      title: updatedRequest.name ?? request.request.name,
     })()
 
     if (E.isLeft(res)) {

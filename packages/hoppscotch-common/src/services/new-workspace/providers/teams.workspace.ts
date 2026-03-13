@@ -642,11 +642,31 @@ export class TeamsWorkspaceProviderService
       return res
     }
 
-    // remove the collection from the collections
-    // the subscriptions will also take care of this
+    // remove the collection and all descendants from local state
+    // the backend cascade-deletes children, but the subscription only fires for the top-level ID
+    const removedID = collectionHandleRef.value.data.collectionID
+    const removedIDs = new Set<string>([removedID])
+
+    let changed = true
+    while (changed) {
+      changed = false
+      for (const coll of this.collections.value) {
+        if (
+          coll.parentCollectionID &&
+          removedIDs.has(coll.parentCollectionID) &&
+          !removedIDs.has(coll.collectionID)
+        ) {
+          removedIDs.add(coll.collectionID)
+          changed = true
+        }
+      }
+    }
+
     this.collections.value = this.collections.value.filter(
-      (collection) =>
-        collection.collectionID !== collectionHandleRef.value.data.collectionID
+      (c) => !removedIDs.has(c.collectionID)
+    )
+    this.requests.value = this.requests.value.filter(
+      (r) => !removedIDs.has(r.collectionID)
     )
 
     return E.right(undefined)
@@ -2194,9 +2214,32 @@ export class TeamsWorkspaceProviderService
         return
       }
 
+      // cascade-remove descendants since the backend deletes children
+      // but the subscription only fires for the top-level ID
+      const removedIDs = new Set<string>([
+        result.right.teamCollectionRemoved,
+      ])
+
+      let changed = true
+      while (changed) {
+        changed = false
+        for (const coll of this.collections.value) {
+          if (
+            coll.parentCollectionID &&
+            removedIDs.has(coll.parentCollectionID) &&
+            !removedIDs.has(coll.collectionID)
+          ) {
+            removedIDs.add(coll.collectionID)
+            changed = true
+          }
+        }
+      }
+
       this.collections.value = this.collections.value.filter(
-        (collection) =>
-          collection.collectionID !== result.right.teamCollectionRemoved
+        (c) => !removedIDs.has(c.collectionID)
+      )
+      this.requests.value = this.requests.value.filter(
+        (r) => !removedIDs.has(r.collectionID)
       )
     })
   }

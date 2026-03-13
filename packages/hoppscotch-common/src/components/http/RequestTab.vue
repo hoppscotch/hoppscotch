@@ -49,6 +49,7 @@ watch(
         tab.value.document.saveContext.requestHandle?.get()
 
       if (!requestHandleRef || requestHandleRef.value.type === "invalid") {
+        tab.value.document.isDirty = true
         return
       }
 

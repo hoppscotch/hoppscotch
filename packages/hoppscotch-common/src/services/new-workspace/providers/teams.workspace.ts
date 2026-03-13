@@ -3,6 +3,12 @@ import { WorkspaceProvider } from "../provider"
 import { NewWorkspaceService } from ".."
 import { Handle, HandleRef } from "../handle"
 import {
+  isValidWorkspaceHandle,
+  isValidCollectionHandle,
+  isValidEnvironmentHandle,
+  isValidRequestHandle,
+} from "../helpers"
+import {
   Workspace,
   WorkspaceCollection,
   WorkspaceDecor,
@@ -2451,57 +2457,6 @@ export class TeamsWorkspaceProviderService
       })
     })
   }
-}
-
-const isValidWorkspaceHandle = (
-  workspace: HandleRef<Workspace>,
-  providerID: string
-): workspace is Ref<{
-  data: Workspace
-  type: "ok"
-}> => {
-  return (
-    workspace.value.type === "ok" &&
-    workspace.value.data.providerID === providerID
-  )
-}
-
-const isValidCollectionHandle = (
-  collection: HandleRef<WorkspaceCollection>,
-  providerID: string
-): collection is Ref<{
-  data: WorkspaceCollection
-  type: "ok"
-}> => {
-  return (
-    collection.value.type === "ok" &&
-    collection.value.data.providerID === providerID
-  )
-}
-
-const isValidEnvironmentHandle = (
-  environment: HandleRef<WorkspaceEnvironment>,
-  providerID: string
-): environment is Ref<{
-  data: WorkspaceEnvironment
-  type: "ok"
-}> => {
-  return (
-    environment.value.type === "ok" &&
-    environment.value.data.providerID === providerID
-  )
-}
-
-const isValidRequestHandle = (
-  request: HandleRef<WorkspaceRequest>,
-  providerID: string
-): request is Ref<{
-  data: WorkspaceRequest
-  type: "ok"
-}> => {
-  return (
-    request.value.type === "ok" && request.value.data.providerID === providerID
-  )
 }
 
 const runTeamCollectionAddedSubscription = (teamID: string) =>

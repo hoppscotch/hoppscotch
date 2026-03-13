@@ -1543,9 +1543,7 @@ export class PersonalWorkspaceProviderService
                         value: {
                           collectionID: `${collectionID}/${id}`,
                           isLastItem:
-                            item.folders?.length > 1
-                              ? id === item.folders.length - 1
-                              : false,
+                            id === item.folders.length - 1,
                           name: childColl.name,
                           parentCollectionID: collectionID,
                         },
@@ -1557,9 +1555,7 @@ export class PersonalWorkspaceProviderService
                         type: "request",
                         value: {
                           isLastItem:
-                            item.requests?.length > 1
-                              ? id === item.requests.length - 1
-                              : false,
+                            id === item.requests.length - 1,
                           collectionID,
                           requestID: `${collectionID}/${id}`,
                           request: req,

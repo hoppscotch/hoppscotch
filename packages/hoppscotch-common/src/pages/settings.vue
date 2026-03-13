@@ -55,8 +55,16 @@
                 <label class="text-secondaryLight">
                   {{ t("settings.auto_save_delay_ms") }}
                 </label>
+                <!--
+                  Intentionally using :value (one-way) + @change only.
+                  v-model.number.lazy is avoided here because it would write
+                  the raw unclamped value to the store before onAutoSaveDelayChange
+                  clamps it. The handler reads event.target.value and calls
+                  applySetting with the clamped result, so no intermediate
+                  invalid write ever reaches the store.
+                -->
                 <input
-                  v-model.number.lazy="AUTO_SAVE_DELAY_MS"
+                  :value="AUTO_SAVE_DELAY_MS"
                   type="number"
                   min="500"
                   max="10000"
@@ -418,13 +426,21 @@ const showConfirmModal = () => {
   else toggleSetting("TELEMETRY_ENABLED")
 }
 
-const onAutoSaveDelayChange = () => {
-  const val = Number(AUTO_SAVE_DELAY_MS.value)
+/**
+ * Handles the auto-save delay input change.
+ * Uses :value + @change (not v-model.number.lazy) so that the raw unclamped
+ * value is never written to the store. Only the clamped result reaches applySetting.
+ */
+const onAutoSaveDelayChange = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const val = Number(target.value)
   const clamped = Math.min(
     10000,
     Math.max(500, Number.isFinite(val) ? val : 2000)
   )
   applySetting("AUTO_SAVE_DELAY_MS", clamped)
+  // Reflect the clamped value back to the input in case the user typed out-of-range
+  target.value = String(clamped)
 }
 
 const getColorModeName = (colorMode: string) => {

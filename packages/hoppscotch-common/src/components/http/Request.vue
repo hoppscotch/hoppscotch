@@ -229,7 +229,7 @@
       v-if="showSaveRequestModal"
       mode="rest"
       :show="showSaveRequestModal"
-      :request="request"
+      :request="saveAsRequest"
       @hide-modal="showSaveRequestModal = false"
     />
   </div>
@@ -469,6 +469,8 @@ function isCURL(curl: string) {
   return curl.includes("curl ")
 }
 
+// Intentionally captured (not reactive) — used in onUnmounted to check
+// whether this specific tab was removed vs. just deactivated
 const currentTabID = tabs.currentTabID.value
 
 // Clear loading state when test results are set
@@ -492,7 +494,7 @@ const cancelRequest = () => {
   tab.value.document.cancelFunction?.()
   updateRESTResponse(null)
 
-  // Set empty testResults - watcher will clear loading
+  // Set empty testResults — watcher will clear loading
   // Only set if null to avoid overwriting existing test results
   if (tab.value.document.testResults === null) {
     tab.value.document.testResults = {
@@ -567,6 +569,9 @@ const cycleDownMethod = () => {
 
 const saveInProgress = ref(false)
 
+// Separate ref for the "Save As" modal request — replaces the unused `request` ref
+const saveAsRequest = ref<HoppRESTRequest | null>(null)
+
 const saveRequest = async (options?: { silent?: boolean }) => {
   const silent = options?.silent === true
 
@@ -582,6 +587,7 @@ const saveRequest = async (options?: { silent?: boolean }) => {
     showSaveRequestModal.value = true
     return
   }
+
   if (saveCtx.originLocation === "user-collection") {
     const req = tab.value.document.request
 
@@ -594,14 +600,16 @@ const saveRequest = async (options?: { silent?: boolean }) => {
 
       tab.value.document.isDirty = false
 
-      platform.analytics?.logEvent({
-        type: "HOPP_SAVE_REQUEST",
-        platform: "rest",
-        createdNow: false,
-        workspaceType: "personal",
-      })
-
-      if (!silent) toast.success(`${t("request.saved")}`)
+      // Only log analytics for deliberate user-initiated saves
+      if (!silent) {
+        platform.analytics?.logEvent({
+          type: "HOPP_SAVE_REQUEST",
+          platform: "rest",
+          createdNow: false,
+          workspaceType: "personal",
+        })
+        toast.success(`${t("request.saved")}`)
+      }
     } catch (_e) {
       tab.value.document.saveContext = undefined
       saveRequest()
@@ -611,12 +619,16 @@ const saveRequest = async (options?: { silent?: boolean }) => {
 
     try {
       saveInProgress.value = true
-      platform.analytics?.logEvent({
-        type: "HOPP_SAVE_REQUEST",
-        platform: "rest",
-        createdNow: false,
-        workspaceType: "team",
-      })
+
+      // Only log analytics for deliberate user-initiated saves
+      if (!silent) {
+        platform.analytics?.logEvent({
+          type: "HOPP_SAVE_REQUEST",
+          platform: "rest",
+          createdNow: false,
+          workspaceType: "team",
+        })
+      }
 
       runMutation(UpdateRequestDocument, {
         requestID: saveCtx.requestID,
@@ -649,8 +661,6 @@ const saveRequest = async (options?: { silent?: boolean }) => {
   }
 }
 
-const request = ref<HoppRESTRequest | null>(null)
-
 defineActionHandler("request.send-cancel", () => {
   if (!loading.value) newSendRequest()
   else cancelRequest()
@@ -663,7 +673,7 @@ defineActionHandler("request-response.save", saveRequest)
 defineActionHandler("request.save-as", (req) => {
   showSaveRequestModal.value = true
   if (req?.requestType === "rest" && req.request) {
-    request.value = req.request
+    saveAsRequest.value = req.request
   }
 })
 defineActionHandler("request.method.get", () => updateMethod("GET"))
@@ -695,7 +705,9 @@ const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
 const AUTO_SAVE_REQUESTS = useSetting("AUTO_SAVE_REQUESTS")
 const AUTO_SAVE_DELAY_MS = useSetting("AUTO_SAVE_DELAY_MS")
 
-watchDebounced(
+// Stop the watcher on unmount to prevent debounce callbacks firing on a
+// stale/destroyed component instance
+const stopAutoSave = watchDebounced(
   () => tab.value.document.request,
   () => {
     const isDirty = tab.value.document.isDirty
@@ -721,6 +733,11 @@ watchDebounced(
     ),
   }
 )
+
+onUnmounted(() => {
+  // Cancel any pending debounced auto-save to avoid callbacks on stale refs
+  stopAutoSave()
+})
 
 const tabResults = inspectionService.getResultViewFor(tabs.currentTabID.value)
 </script>

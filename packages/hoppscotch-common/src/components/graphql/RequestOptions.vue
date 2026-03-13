@@ -63,7 +63,7 @@ import { watchDebounced } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import * as gql from "graphql"
 import { clone } from "lodash-es"
-import { computed, ref, watch } from "vue"
+import { computed, ref, watch, onUnmounted } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
 import {
   connection,
@@ -120,9 +120,12 @@ const selectedOptionTab = useVModel(props, "optionTab", emit)
 
 const request = useVModel(props, "modelValue", emit)
 
+// Scoped to this component's tab — never reads currentActiveTab
+const tab = tabs.getTabRef(props.tabId)
+
 const url = computedWithControl(
-  () => tabs.currentActiveTab.value,
-  () => tabs.currentActiveTab.value.document.request.url
+  () => tab.value,
+  () => tab.value?.document.request.url ?? ""
 )
 
 const activeGQLHeadersCount = computed(
@@ -145,7 +148,7 @@ const runQuery = async (
     const runVariables = clone(request.value.variables)
 
     const inheritedHeaders =
-      tabs.currentActiveTab.value.document.inheritedProperties?.headers.map(
+      tab.value?.document.inheritedProperties?.headers.map(
         (header) => header.inheritedHeader
       ) ?? []
 
@@ -154,8 +157,8 @@ const runQuery = async (
       url: runURL,
       request: request.value,
       inheritedHeaders,
-      inheritedAuth: tabs.currentActiveTab.value.document.inheritedProperties
-        ?.auth.inheritedAuth as HoppGQLAuth | undefined,
+      inheritedAuth: tab.value?.document.inheritedProperties?.auth
+        .inheritedAuth as HoppGQLAuth | undefined,
       query: runQuery,
       variables: runVariables,
       operationName: definition?.name?.value,
@@ -226,7 +229,7 @@ watch(
 )
 
 const updateCursorPos = (pos: number) => {
-  tabs.currentActiveTab.value.document.cursorPosition = pos
+  if (tab.value) tab.value.document.cursorPosition = pos
 }
 
 const hideRequestModal = () => {
@@ -236,41 +239,58 @@ const hideRequestModal = () => {
 const saveInProgress = ref(false)
 
 const saveRequest = (options?: { silent?: boolean }) => {
-  const tab = tabs.currentActiveTab.value
-  const saveCtx = tab?.document.saveContext
-  const silent = options?.silent === true
+  const silent = options?.silent ?? false
+
+  // For manual saves, only proceed if this is the active tab
+  if (!silent && tabs.currentActiveTab.value.id !== props.tabId) {
+    return
+  }
+
+  // Always use the component-scoped tab ref, never currentActiveTab
+  const tabToSave = tab.value
+  if (!tabToSave) return
+
+  const saveCtx = tabToSave.document.saveContext
 
   if (!saveCtx) {
     showSaveRequestModal.value = true
     return
   }
+
   if (saveCtx.originLocation === "user-collection") {
     editGraphqlRequest(
       saveCtx.folderPath,
       saveCtx.requestIndex,
-      tab.document.request
+      tabToSave.document.request
     )
-    tab.document.isDirty = false
+    tabToSave.document.isDirty = false
     if (!silent) toast.success(`${t("request.saved")}`)
     return
   }
+
   if (saveCtx.originLocation === "team-collection") {
     saveInProgress.value = true
-    platform.analytics?.logEvent({
-      type: "HOPP_SAVE_REQUEST",
-      platform: "graphql",
-      createdNow: false,
-      workspaceType: "team",
-    })
+
+    // Only log analytics for deliberate user-initiated saves
+    if (!silent) {
+      platform.analytics?.logEvent({
+        type: "HOPP_SAVE_REQUEST",
+        platform: "graphql",
+        createdNow: false,
+        workspaceType: "team",
+      })
+    }
+
     updateTeamRequest(saveCtx.requestID, {
-      request: JSON.stringify(tab.document.request),
-      title: tab.document.request.name,
+      request: JSON.stringify(tabToSave.document.request),
+      title: tabToSave.document.request.name,
     })()
       .then((result) => {
         if (E.isLeft(result)) {
           toast.error(`${t("profile.no_permission")}`)
         } else {
-          tab.document.isDirty = false
+          // Use captured tabToSave — not tab.value — to avoid stale ref in async
+          tabToSave.document.isDirty = false
           if (!silent) toast.success(`${t("request.saved")}`)
         }
       })
@@ -283,6 +303,7 @@ const saveRequest = (options?: { silent?: boolean }) => {
       })
     return
   }
+
   showSaveRequestModal.value = true
 }
 
@@ -308,12 +329,16 @@ defineActionHandler("request.open-tab", ({ tab }) => {
 const AUTO_SAVE_REQUESTS = useSetting("AUTO_SAVE_REQUESTS")
 const AUTO_SAVE_DELAY_MS = useSetting("AUTO_SAVE_DELAY_MS")
 
-watchDebounced(
+// Stop the watcher on unmount to prevent debounce callbacks firing on a
+// stale/destroyed component instance
+const stopAutoSave = watchDebounced(
   request,
   () => {
-    const tab = tabs.currentActiveTab.value
-    const isDirty = tab?.document.isDirty
-    const saveCtx = tab?.document.saveContext
+    const tabToSave = tab.value
+    if (!tabToSave) return
+
+    const isDirty = tabToSave.document.isDirty
+    const saveCtx = tabToSave.document.saveContext
     const autoSaveEnabled = AUTO_SAVE_REQUESTS.value
 
     if (!autoSaveEnabled || !isDirty || !saveCtx || saveInProgress.value) {
@@ -324,12 +349,16 @@ watchDebounced(
   },
   {
     deep: true,
-    // Clamp delay between 500 ms and 10 000 ms, default 2 000 ms
     debounce: computed(() =>
       Math.min(10000, Math.max(500, Number(AUTO_SAVE_DELAY_MS.value) || 2000))
     ),
   }
 )
+
+onUnmounted(() => {
+  // Cancel any pending debounced auto-save to avoid callbacks on stale refs
+  stopAutoSave()
+})
 </script>
 
 <style lang="scss" scoped>

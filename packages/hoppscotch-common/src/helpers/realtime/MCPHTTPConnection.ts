@@ -38,7 +38,7 @@ export class MCPHTTPConnection extends MCPConnection {
   private auth: MCPHTTPAuth
   private requestId = 0
   private eventSource: EventSource | null = null
-  private abortController: AbortController | null = null
+  private abortControllers: Map<number, AbortController> = new Map()
 
   constructor(url: string, auth: MCPHTTPAuth = { type: "none" }) {
     super()
@@ -98,10 +98,9 @@ export class MCPHTTPConnection extends MCPConnection {
       this.eventSource = null
     }
 
-    if (this.abortController) {
-      this.abortController.abort()
-      this.abortController = null
-    }
+    // Abort all in-flight requests
+    this.abortControllers.forEach((controller) => controller.abort())
+    this.abortControllers.clear()
 
     this.connectionState$.next("DISCONNECTED")
     this.addEvent({
@@ -250,11 +249,13 @@ export class MCPHTTPConnection extends MCPConnection {
   }
 
   private async sendRequest(method: string, params: unknown): Promise<unknown> {
-    this.abortController = new AbortController()
+    const requestId = ++this.requestId
+    const abortController = new AbortController()
+    this.abortControllers.set(requestId, abortController)
 
     const request: MCPJSONRPCRequest = {
       jsonrpc: "2.0",
-      id: ++this.requestId,
+      id: requestId,
       method,
       params,
     }
@@ -262,24 +263,29 @@ export class MCPHTTPConnection extends MCPConnection {
     const headers = this.buildHeaders()
     const requestUrl = this.buildRequestUrl()
 
-    const response = await fetch(requestUrl, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(request),
-      signal: this.abortController.signal,
-    })
+    try {
+      const response = await fetch(requestUrl, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(request),
+        signal: abortController.signal,
+      })
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+
+      const data: MCPJSONRPCResponse = await response.json()
+
+      if (data.error) {
+        throw new Error(`MCP Error: ${data.error.message}`)
+      }
+
+      return data.result
+    } finally {
+      // Clean up the abort controller after request completes
+      this.abortControllers.delete(requestId)
     }
-
-    const data: MCPJSONRPCResponse = await response.json()
-
-    if (data.error) {
-      throw new Error(`MCP Error: ${data.error.message}`)
-    }
-
-    return data.result
   }
 
   private buildHeaders(): Record<string, string> {

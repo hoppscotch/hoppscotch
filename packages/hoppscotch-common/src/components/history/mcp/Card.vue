@@ -43,23 +43,23 @@
     </div>
     <div v-if="expand" class="flex flex-col text-tiny px-4 pb-2 space-y-1">
       <div class="text-secondaryLight">
-        <span class="font-semibold">Transport:</span>
+        <span class="font-semibold">{{ t("mcp.transport") }}:</span>
         {{ entry.request.transportType }}
       </div>
       <div v-if="entry.request.method.methodName" class="text-secondaryLight">
-        <span class="font-semibold">Method:</span>
+        <span class="font-semibold">{{ t("mcp.method_name") }}:</span>
         {{ entry.request.method.methodType }} -
         {{ entry.request.method.methodName }}
       </div>
       <div v-if="entry.request.httpConfig" class="text-secondaryLight truncate">
-        <span class="font-semibold">URL:</span>
+        <span class="font-semibold">{{ t("mcp.url") }}:</span>
         {{ entry.request.httpConfig.url }}
       </div>
       <div
         v-if="entry.request.stdioConfig"
         class="text-secondaryLight truncate"
       >
-        <span class="font-semibold">Command:</span>
+        <span class="font-semibold">{{ t("mcp.command") }}:</span>
         {{ entry.request.stdioConfig.command }}
       </div>
     </div>
@@ -83,7 +83,6 @@ const t = useI18n()
 
 const props = defineProps<{
   entry: MCPHistoryEntry
-  showMore: boolean
 }>()
 
 const emit = defineEmits<{
@@ -118,6 +117,6 @@ const getEntryDisplayName = () => {
 const useEntry = () => {
   // TODO: Implement loading the request into the current session
   // This would require updating the MCP session store with the history entry
-  console.log("Load MCP history entry:", props.entry)
+  // For now, this is disabled until the restore functionality is implemented
 }
 </script>

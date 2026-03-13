@@ -85,9 +85,7 @@
         <div class="flex flex-col space-y-1">
           <span class="font-semibold">{{ t("mcp.stdio_requires_agent") }}</span>
           <span>
-            STDIO transport requires spawning processes, which is not available
-            in browsers. Please use Hoppscotch Desktop App or install the
-            Hoppscotch Agent.
+            {{ t("mcp.stdio_requires_agent_description") }}
           </span>
         </div>
       </div>

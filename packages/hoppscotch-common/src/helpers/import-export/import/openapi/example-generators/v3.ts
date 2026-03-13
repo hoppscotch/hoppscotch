@@ -76,22 +76,30 @@ const generateRequestBodyExampleFromSchemaObject = (
 ): RequestBodyExample => {
   if (schemaObject.example) return schemaObject.example as RequestBodyExample
 
-  // Merge all sub-schemas for allOf (used for inheritance / composition)
+  // Merge all sub-schemas for allOf (used for inheritance / composition).
+  // Constraint-only sub-schemas (e.g. those that only set "required")
+  // produce "" because they have no type — skip them to avoid replacing
+  // already-merged properties.
   if (schemaObject.allOf) {
     return schemaObject.allOf.reduce<RequestBodyExample>(
       (merged, subSchema) => {
         const sub = generateRequestBodyExampleFromSchemaObject(
           subSchema as OpenAPIV3.SchemaObject
         )
-        if (
+        const isMergedObject =
           typeof merged === "object" &&
           merged !== null &&
-          !Array.isArray(merged) &&
-          typeof sub === "object" &&
-          sub !== null &&
-          !Array.isArray(sub)
-        ) {
+          !Array.isArray(merged)
+        const isSubObject =
+          typeof sub === "object" && sub !== null && !Array.isArray(sub)
+
+        if (isMergedObject && isSubObject) {
           return { ...merged, ...sub }
+        }
+        // Keep the accumulated object if the sub-schema produced
+        // a non-object value (e.g. "" from a constraint-only schema)
+        if (isMergedObject && !isSubObject) {
+          return merged
         }
         return sub
       },

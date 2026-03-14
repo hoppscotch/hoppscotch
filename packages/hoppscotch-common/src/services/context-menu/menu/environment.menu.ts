@@ -12,7 +12,29 @@ import { getI18n } from "~/modules/i18n"
 import { RESTTabService } from "~/services/tab/rest"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
-import { getRESTCollection } from "~/newstore/collections"
+import {
+  navigateToFolderWithIndexPath,
+  restCollectionStore,
+} from "~/newstore/collections"
+
+/**
+ * Recursively searches for a TeamCollection by its leaf ID within a tree.
+ */
+function findTeamCollectionInTree(
+  collections: TeamCollection[],
+  collectionID: string
+): TeamCollection | null {
+  for (const collection of collections) {
+    if (collection.id === collectionID) return collection
+
+    if (collection.children) {
+      const nested = findTeamCollectionInTree(collection.children, collectionID)
+      if (nested) return nested
+    }
+  }
+
+  return null
+}
 
 /**
  * This menu returns a single result that allows the user
@@ -43,23 +65,6 @@ export class EnvironmentMenuService extends Service implements ContextMenu {
         ? currentTab.document.saveContext
         : null
 
-    const findTeamCollectionByID = (
-      collections: TeamCollection[],
-      collectionID: string
-    ): TeamCollection | null => {
-      for (const collection of collections) {
-        if (collection.id === collectionID) return collection
-
-        const nestedCollection = collection.children
-          ? findTeamCollectionByID(collection.children, collectionID)
-          : null
-
-        if (nestedCollection) return nestedCollection
-      }
-
-      return null
-    }
-
     results.value = [
       {
         id: "environment",
@@ -78,17 +83,14 @@ export class EnvironmentMenuService extends Service implements ContextMenu {
     ]
 
     if (saveContext?.originLocation === "user-collection") {
-      const rootCollectionIndex = Number.parseInt(
-        saveContext.folderPath.split("/")[0] ?? "",
-        10
+      const folderPath = saveContext.folderPath
+      const targetCollection = navigateToFolderWithIndexPath(
+        restCollectionStore.value.state,
+        folderPath.split("/").map((x) => parseInt(x))
       )
 
-      if (
-        !Number.isNaN(rootCollectionIndex) &&
-        saveContext.requestIndex !== undefined
-      ) {
-        const targetCollection = getRESTCollection(rootCollectionIndex)
-        const collectionRefID = targetCollection?._ref_id
+      if (targetCollection && saveContext.requestIndex !== undefined) {
+        const collectionRefID = targetCollection._ref_id
 
         if (collectionRefID) {
           results.value.push({
@@ -106,7 +108,7 @@ export class EnvironmentMenuService extends Service implements ContextMenu {
                 collection: {
                   originLocation: "user-collection",
                   collectionRefID,
-                  collectionPath: `${rootCollectionIndex}`,
+                  collectionPath: folderPath,
                   collectionName: targetCollection.name ?? "",
                 },
               })
@@ -118,9 +120,12 @@ export class EnvironmentMenuService extends Service implements ContextMenu {
       saveContext?.originLocation === "team-collection" &&
       saveContext.collectionID
     ) {
-      const collection = findTeamCollectionByID(
+      const leafCollectionID =
+        saveContext.collectionID.split("/").pop() ?? saveContext.collectionID
+
+      const collection = findTeamCollectionInTree(
         this.teamCollectionService.collections.value,
-        saveContext.collectionID
+        leafCollectionID
       )
 
       if (collection) {

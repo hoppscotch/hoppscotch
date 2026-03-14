@@ -226,9 +226,12 @@ const addEnvironment = async () => {
       toast.success(`${t("environment.updated")}`)
     } else {
       const collectionID = scope.value.collectionID
+      // Normalize to leaf ID: saveContext stores full paths like "rootID/childID",
+      // but the tree lookup and backend call need only the actual collection ID.
+      const leafCollectionID = collectionID.split("/").pop() ?? collectionID
       const teamCollection = findTeamCollectionByID(
         teamCollectionService.collections.value,
-        collectionID
+        leafCollectionID
       )
 
       if (!teamCollection) {
@@ -257,7 +260,7 @@ const addEnvironment = async () => {
       ]
 
       await pipe(
-        updateTeamCollection(collectionID, {
+        updateTeamCollection(leafCollectionID, {
           auth: collectionData.auth,
           headers: collectionData.headers,
           variables: updatedVariables,

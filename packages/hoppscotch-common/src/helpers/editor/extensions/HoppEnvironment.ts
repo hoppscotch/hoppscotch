@@ -431,7 +431,7 @@ export class HoppEnvironmentPlugin {
         )
 
         const currentAggregateEnvs = getAggregateEnvsWithCurrentValue()
-        this.envs = [...reqVars, ...currentAggregateEnvs, ...collVars]
+        this.envs = [...reqVars, ...collVars, ...currentAggregateEnvs]
 
         this.editorView.value?.dispatch({
           effects: this.compartment.reconfigure([
@@ -461,7 +461,7 @@ export class HoppEnvironmentPlugin {
         inheritedProperties?.variables ?? []
       )
 
-      this.envs = [...reqVars, ...envs, ...collVars]
+      this.envs = [...reqVars, ...collVars, ...envs]
 
       this.editorView.value?.dispatch({
         effects: this.compartment.reconfigure([

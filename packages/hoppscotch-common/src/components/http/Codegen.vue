@@ -270,10 +270,11 @@ const buildFinalEnvironment = (): Environment => {
     currentValue: getCurrentValue(env) || env.initialValue,
   }))
 
+  // Priority: request vars > collection vars > env/global vars
   const allVariables = [
     ...requestVariables,
-    ...environmentVariables,
     ...collectionVariables,
+    ...environmentVariables,
   ]
 
   const filteredVariables = filterNonEmptyEnvironmentVariables(allVariables)

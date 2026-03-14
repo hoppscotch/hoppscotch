@@ -257,20 +257,6 @@ function createComparator<T>(
   }
 }
 
-function findCollectionByRefID(
-  collections: HoppCollection[],
-  refID: string
-): HoppCollection | null {
-  for (const collection of collections) {
-    if (collection._ref_id === refID) return collection
-
-    const nested = findCollectionByRefID(collection.folders, refID)
-    if (nested) return nested
-  }
-
-  return null
-}
-
 const restCollectionDispatchers = defineDispatchers({
   setCollections(
     _: RESTCollectionStoreType,
@@ -346,7 +332,14 @@ const restCollectionDispatchers = defineDispatchers({
       value: string
     }
   ) {
-    const targetCollection = findCollectionByRefID(state, collectionRefID)
+    let targetCollection: HoppCollection | null = null
+    for (const collection of state) {
+      const found = findCollection(collection, collectionRefID)
+      if (found) {
+        targetCollection = found
+        break
+      }
+    }
 
     if (!targetCollection) return {}
 
@@ -376,7 +369,14 @@ const restCollectionDispatchers = defineDispatchers({
       value: string
     }
   ) {
-    const targetCollection = findCollectionByRefID(state, collectionRefID)
+    let targetCollection: HoppCollection | null = null
+    for (const collection of state) {
+      const found = findCollection(collection, collectionRefID)
+      if (found) {
+        targetCollection = found
+        break
+      }
+    }
 
     if (!targetCollection) return {}
 
@@ -401,7 +401,14 @@ const restCollectionDispatchers = defineDispatchers({
       key: string
     }
   ) {
-    const targetCollection = findCollectionByRefID(state, collectionRefID)
+    let targetCollection: HoppCollection | null = null
+    for (const collection of state) {
+      const found = findCollection(collection, collectionRefID)
+      if (found) {
+        targetCollection = found
+        break
+      }
+    }
 
     if (!targetCollection || !targetCollection.variables) return {}
 

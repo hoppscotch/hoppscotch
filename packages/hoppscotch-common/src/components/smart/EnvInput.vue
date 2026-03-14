@@ -437,7 +437,8 @@ const envVars = computed(() => {
       secret: false,
     }))
 
-  return [...requestVariables, ...aggregateEnvs.value, ...collectionVariables]
+  // Priority: request vars > collection vars > env/global vars
+  return [...requestVariables, ...collectionVariables, ...aggregateEnvs.value]
 })
 
 function envAutoCompletion(context: CompletionContext) {

@@ -884,9 +884,11 @@ const editCollectionVariables = () => {
       collectionPath: saveContext.folderPath,
     })
   } else if (saveContext.collectionID) {
+    const leafCollectionID =
+      saveContext.collectionID.split("/").pop() ?? saveContext.collectionID
     invokeAction("modals.collection.edit-variables", {
       originLocation: "team-collection",
-      collectionID: saveContext.collectionID,
+      collectionID: leafCollectionID,
     })
   }
 }

@@ -3702,9 +3702,14 @@ defineActionHandler("modals.collection.edit-variables", (payload) => {
     return
   }
 
+  // Normalize collectionID: saveContext stores full paths like "rootID/childID",
+  // but findTeamCollectionByIDWithPath expects only the leaf ID.
+  const leafCollectionID =
+    payload.collectionID.split("/").pop() ?? payload.collectionID
+
   const targetCollection = findTeamCollectionByIDWithPath(
     teamCollections.value,
-    payload.collectionID
+    leafCollectionID
   )
 
   if (!targetCollection) return

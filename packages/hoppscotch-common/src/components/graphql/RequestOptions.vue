@@ -256,7 +256,7 @@ let manualSavePollTimer: ReturnType<typeof setTimeout> | null = null
 
 // Marks this component instance as unmounted so we can stop scheduling or
 // running retries against a tab that has been removed.
-const componentUnmounted = false
+let componentUnmounted = false
 
 // tabRef is the reactive tab ref type returned by getTabRef
 type TabRef = ReturnType<typeof tabs.getTabRef>["value"]
@@ -500,6 +500,8 @@ const stopAutoSave = watchDebounced(
 )
 
 onUnmounted(() => {
+  componentUnmounted = true
+
   // Cancel any pending debounced auto-save and retry timers
   stopAutoSave()
   if (retryTimer !== null) {

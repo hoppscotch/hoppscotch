@@ -270,11 +270,18 @@ const buildFinalEnvironment = (): Environment => {
     currentValue: getCurrentValue(env) || env.initialValue,
   }))
 
-  // Priority: request vars > collection vars > env/global vars
+  // Priority: request → selected env → collection → global (matches combineEnvVariables)
+  const nonGlobalEnvs = environmentVariables.filter(
+    (e) => e.sourceEnv !== "Global"
+  )
+  const globalEnvs = environmentVariables.filter(
+    (e) => e.sourceEnv === "Global"
+  )
   const allVariables = [
     ...requestVariables,
+    ...nonGlobalEnvs,
     ...collectionVariables,
-    ...environmentVariables,
+    ...globalEnvs,
   ]
 
   const filteredVariables = filterNonEmptyEnvironmentVariables(allVariables)

@@ -431,7 +431,13 @@ export class HoppEnvironmentPlugin {
         )
 
         const currentAggregateEnvs = getAggregateEnvsWithCurrentValue()
-        this.envs = [...reqVars, ...collVars, ...currentAggregateEnvs]
+        const nonGlobalEnvs = currentAggregateEnvs.filter(
+          (e) => e.sourceEnv !== "Global"
+        )
+        const globalEnvs = currentAggregateEnvs.filter(
+          (e) => e.sourceEnv === "Global"
+        )
+        this.envs = [...reqVars, ...nonGlobalEnvs, ...collVars, ...globalEnvs]
 
         this.editorView.value?.dispatch({
           effects: this.compartment.reconfigure([
@@ -461,7 +467,9 @@ export class HoppEnvironmentPlugin {
         inheritedProperties?.variables ?? []
       )
 
-      this.envs = [...reqVars, ...collVars, ...envs]
+      const nonGlobalEnvs = envs.filter((e) => e.sourceEnv !== "Global")
+      const globalEnvs = envs.filter((e) => e.sourceEnv === "Global")
+      this.envs = [...reqVars, ...nonGlobalEnvs, ...collVars, ...globalEnvs]
 
       this.editorView.value?.dispatch({
         effects: this.compartment.reconfigure([

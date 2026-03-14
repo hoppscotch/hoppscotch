@@ -98,7 +98,7 @@ import {
 import { updateTeamCollection } from "~/helpers/backend/mutations/TeamCollection"
 import { teamCollToHoppRESTColl } from "~/helpers/backend/helpers"
 import { TeamCollectionsService } from "~/services/team-collection.service"
-import { TeamCollection } from "~/helpers/teams/TeamCollection"
+import { findTeamCollectionByID } from "~/helpers/utils/teamCollection"
 import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
 
 const t = useI18n()
@@ -177,23 +177,6 @@ const replaceWithVariable = ref(false)
 const editingName = ref(props.name)
 const editingValue = ref(props.value)
 
-const findTeamCollectionByID = (
-  collections: TeamCollection[],
-  collectionID: string
-): TeamCollection | null => {
-  for (const collection of collections) {
-    if (collection.id === collectionID) return collection
-
-    const nestedCollection = collection.children
-      ? findTeamCollectionByID(collection.children, collectionID)
-      : null
-
-    if (nestedCollection) return nestedCollection
-  }
-
-  return null
-}
-
 const addEnvironment = async () => {
   if (!editingName.value) {
     toast.error(`${t("environment.invalid_name")}`)
@@ -270,6 +253,7 @@ const addEnvironment = async () => {
           (err: GQLError<string>) => {
             console.error(err)
             toast.error(t(getEnvActionErrorMessage(err)))
+            return
           },
           () => {
             updateInheritedPropertiesForAffectedRequests(collectionID, "rest")

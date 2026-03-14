@@ -11,30 +11,11 @@ import IconPlusCircle from "~icons/lucide/plus-circle"
 import { getI18n } from "~/modules/i18n"
 import { RESTTabService } from "~/services/tab/rest"
 import { TeamCollectionsService } from "~/services/team-collection.service"
-import { TeamCollection } from "~/helpers/teams/TeamCollection"
 import {
   navigateToFolderWithIndexPath,
   restCollectionStore,
 } from "~/newstore/collections"
-
-/**
- * Recursively searches for a TeamCollection by its leaf ID within a tree.
- */
-function findTeamCollectionInTree(
-  collections: TeamCollection[],
-  collectionID: string
-): TeamCollection | null {
-  for (const collection of collections) {
-    if (collection.id === collectionID) return collection
-
-    if (collection.children) {
-      const nested = findTeamCollectionInTree(collection.children, collectionID)
-      if (nested) return nested
-    }
-  }
-
-  return null
-}
+import { findTeamCollectionByID } from "~/helpers/utils/teamCollection"
 
 /**
  * This menu returns a single result that allows the user
@@ -123,7 +104,7 @@ export class EnvironmentMenuService extends Service implements ContextMenu {
       const leafCollectionID =
         saveContext.collectionID.split("/").pop() ?? saveContext.collectionID
 
-      const collection = findTeamCollectionInTree(
+      const collection = findTeamCollectionByID(
         this.teamCollectionService.collections.value,
         leafCollectionID
       )

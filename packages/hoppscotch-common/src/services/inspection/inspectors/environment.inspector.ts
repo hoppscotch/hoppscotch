@@ -102,11 +102,18 @@ export class EnvironmentInspectorService extends Service implements Inspector {
           secret: false,
         })) ?? []
 
-    // combine everything into one list (priority: request > collection > env/global)
+    // Priority: request → selected env → collection → global (matches combineEnvVariables)
+    const nonGlobalEnvs = this.aggregateEnvsWithValue.value.filter(
+      (e) => e.sourceEnv !== "Global"
+    )
+    const globalEnvs = this.aggregateEnvsWithValue.value.filter(
+      (e) => e.sourceEnv === "Global"
+    )
     const environmentVariables = [
       ...requestVariables,
+      ...nonGlobalEnvs,
       ...collectionVariables,
-      ...this.aggregateEnvsWithValue.value,
+      ...globalEnvs,
     ]
     const envKeysSet = new Set(environmentVariables.map((e) => e.key))
 
@@ -239,11 +246,18 @@ export class EnvironmentInspectorService extends Service implements Inspector {
               )
             : []
 
-        // Merge all variables (priority: request > collection > env/global)
+        // Priority: request → selected env → collection → global (matches combineEnvVariables)
+        const nonGlobalEnvs = this.aggregateEnvsWithValue.value.filter(
+          (e) => e.sourceEnv !== "Global"
+        )
+        const globalEnvs = this.aggregateEnvsWithValue.value.filter(
+          (e) => e.sourceEnv === "Global"
+        )
         const environmentVariables = this.filterNonEmptyEnvironmentVariables([
           ...requestVariables,
+          ...nonGlobalEnvs,
           ...collectionVariables,
-          ...this.aggregateEnvsWithValue.value,
+          ...globalEnvs,
         ])
 
         // Check each variable for missing values

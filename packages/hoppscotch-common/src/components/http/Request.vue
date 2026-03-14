@@ -516,7 +516,6 @@ const updateMethod = (method: string) => {
 }
 
 const onSelectMethod = (e: Event | any) => {
-  // type any because of value property not being recognized by TS in the event.target object. It is a valid property though.
   updateMethod(e.target.value)
 }
 
@@ -629,6 +628,11 @@ const saveRequest = async (options?: { silent?: boolean }) => {
     // where a second debounced auto-save could slip through the guard above
     saveInProgress.value = true
 
+    // Hoist requestSnapshot above try so it's accessible in finally.
+    // Initialized to "" — the finally guard checks requestSnapshot !== ""
+    // to know whether the mutation was actually attempted.
+    let requestSnapshot = ""
+
     try {
       // Auth check is only needed for team requests (network operation)
       const tokenCheck = silent
@@ -654,7 +658,7 @@ const saveRequest = async (options?: { silent?: boolean }) => {
 
       // Snapshot the request before the mutation so we can detect edits
       // that arrive while the network call is in-flight
-      const requestSnapshot = JSON.stringify(tab.value.document.request)
+      requestSnapshot = JSON.stringify(tab.value.document.request)
 
       const result = await runMutation(UpdateRequestDocument, {
         requestID: saveCtx.requestID,
@@ -686,11 +690,17 @@ const saveRequest = async (options?: { silent?: boolean }) => {
       console.error(error)
     } finally {
       saveInProgress.value = false
+      // Only retry if new edits arrived *during* the mutation.
+      // requestSnapshot === "" means the mutation was never attempted (early return
+      // or auth failure) — no point retrying in that case.
+      // If the save failed with unchanged content, leave isDirty for the next
+      // debounce cycle rather than hammering the endpoint immediately.
       const newSnapshot = JSON.stringify(tab.value.document.request)
       if (
+        requestSnapshot &&
         tab.value.document.isDirty &&
         tab.value.document.saveContext &&
-        newSnapshot !== requestSnapshot // ← only retry if new edits arrived
+        newSnapshot !== requestSnapshot
       ) {
         saveRequest({ silent: true })
       }
@@ -747,21 +757,25 @@ const AUTO_SAVE_DELAY_MS = useSetting("AUTO_SAVE_DELAY_MS")
 const stopAutoSave = watchDebounced(
   () => tab.value.document.request,
   () => {
-    const isDirty = tab.value.document.isDirty
-    const saveCtx = tab.value.document.saveContext
-    const autoSaveEnabled = AUTO_SAVE_REQUESTS.value
+    try {
+      const isDirty = tab.value.document.isDirty
+      const saveCtx = tab.value.document.saveContext
+      const autoSaveEnabled = AUTO_SAVE_REQUESTS.value
 
-    if (
-      !autoSaveEnabled ||
-      !isDirty ||
-      !saveCtx ||
-      saveInProgress.value ||
-      tab.value.document.type !== "request"
-    ) {
-      return
+      if (
+        !autoSaveEnabled ||
+        !isDirty ||
+        !saveCtx ||
+        saveInProgress.value ||
+        tab.value.document.type !== "request"
+      ) {
+        return
+      }
+
+      saveRequest({ silent: true })
+    } catch {
+      // Tab was removed between the watcher firing and execution — safe to ignore
     }
-
-    saveRequest({ silent: true })
   },
   {
     deep: true,

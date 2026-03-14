@@ -239,7 +239,7 @@ const hideRequestModal = () => {
 // Only blocks concurrent silent auto-saves — manual saves always proceed.
 const saveInProgress = ref(false)
 
-const saveRequest = (options?: { silent?: boolean }) => {
+const saveRequest = async (options?: { silent?: boolean }) => {
   const silent = options?.silent ?? false
 
   // Block concurrent silent auto-saves only.
@@ -286,6 +286,11 @@ const saveRequest = (options?: { silent?: boolean }) => {
   if (saveCtx.originLocation === "team-collection") {
     saveInProgress.value = true
 
+    // Hoist requestSnapshot above try so it's accessible in finally.
+    // Initialized to "" — the finally guard checks requestSnapshot !== ""
+    // to know whether the mutation was actually attempted.
+    let requestSnapshot = ""
+
     try {
       // Only log analytics for deliberate user-initiated saves
       if (!silent) {
@@ -299,9 +304,9 @@ const saveRequest = (options?: { silent?: boolean }) => {
 
       // Snapshot the request before the mutation so we can detect edits
       // that arrive while the network call is in-flight
-      const requestSnapshot = JSON.stringify(tabToSave.document.request)
+      requestSnapshot = JSON.stringify(tabToSave.document.request)
 
-      updateTeamRequest(saveCtx.requestID, {
+      await updateTeamRequest(saveCtx.requestID, {
         request: requestSnapshot,
         title: tabToSave.document.request.name,
       })()
@@ -327,24 +332,27 @@ const saveRequest = (options?: { silent?: boolean }) => {
           if (!silent) toast.error(`${t("error.something_went_wrong")}`)
           console.error(error)
         })
-        .finally(() => {
-          saveInProgress.value = false
-          // Only re-save if new edits arrived *during* the mutation.
-          // If the save itself failed, isDirty stays true for the next debounce cycle —
-          // don't retry immediately or we risk an infinite loop on persistent errors.
-          const newSnapshot = JSON.stringify(tabToSave.document.request)
-          if (
-            tabToSave.document.isDirty &&
-            tabToSave.document.saveContext &&
-            newSnapshot !== requestSnapshot
-          ) {
-            saveRequest({ silent: true })
-          }
-        })
     } catch {
       // Synchronous throw before promise was created — reset immediately
       // so future auto-saves are not permanently blocked
       saveInProgress.value = false
+      return
+    } finally {
+      saveInProgress.value = false
+      // Only retry if new edits arrived *during* the mutation.
+      // requestSnapshot === "" means the mutation was never attempted —
+      // no point retrying in that case.
+      // If the save failed with unchanged content, leave isDirty for the
+      // next debounce cycle rather than hammering the endpoint immediately.
+      const newSnapshot = JSON.stringify(tabToSave.document.request)
+      if (
+        requestSnapshot &&
+        tabToSave.document.isDirty &&
+        tabToSave.document.saveContext &&
+        newSnapshot !== requestSnapshot
+      ) {
+        saveRequest({ silent: true })
+      }
     }
     return
   }
@@ -380,9 +388,6 @@ const AUTO_SAVE_DELAY_MS = useSetting("AUTO_SAVE_DELAY_MS")
 const stopAutoSave = watchDebounced(
   request,
   () => {
-    // getTabRef throws (not returns null) when the tab is not in the map.
-    // This can happen in the narrow race between the debounce firing and
-    // onUnmounted running. Wrap in try/catch so it fails silently.
     try {
       const tabToSave = tab.value
 

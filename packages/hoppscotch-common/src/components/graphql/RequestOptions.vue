@@ -80,6 +80,8 @@ import { useSetting } from "@composables/settings"
 import { platform } from "~/platform"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { GQLTabService } from "~/services/tab/graphql"
+import { isValidUser } from "~/helpers/isValidUser"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 
 const _VALID_GQL_OPERATIONS = [
   "query",
@@ -187,7 +189,6 @@ watch(
       emit("update:response", [])
       return
     }
-
     try {
       if (
         event?.type === "response" &&
@@ -236,20 +237,58 @@ const hideRequestModal = () => {
 }
 
 // Tracks whether a team-collection async mutation is currently in-flight.
-// Only blocks concurrent silent auto-saves — manual saves always proceed.
+// Blocks ALL concurrent saves (both silent and manual) to prevent
+// out-of-order mutations that could overwrite newer content with older snapshots.
 const saveInProgress = ref(false)
 
+// Retry state for failed saves where content hasn't changed.
+// Uses exponential backoff: 2s → 4s → 8s, max 3 attempts.
+// Reset on any successful save or when new user edits arrive (debounce watcher).
+const MAX_RETRY_ATTEMPTS = 3
+const BASE_RETRY_DELAY_MS = 2000
+let retryCount = 0
+let retryTimer: ReturnType<typeof setTimeout> | null = null
+
+// tabRef is the reactive tab ref type returned by getTabRef
+type TabRef = ReturnType<typeof tabs.getTabRef>["value"]
+
+const scheduleRetry = (tabToSave: TabRef) => {
+  if (retryCount >= MAX_RETRY_ATTEMPTS) return
+  if (retryTimer !== null) clearTimeout(retryTimer)
+  const delay = BASE_RETRY_DELAY_MS * Math.pow(2, retryCount)
+  retryCount++
+  retryTimer = setTimeout(() => {
+    retryTimer = null
+    // Use the captured tabToSave ref — safe even if the tab was closed
+    if (tabToSave.document.isDirty && tabToSave.document.saveContext) {
+      saveRequest({ silent: true })
+    }
+  }, delay)
+}
+
+// Declared as async to match REST and allow callers to await completion.
 const saveRequest = async (options?: { silent?: boolean }) => {
   const silent = options?.silent ?? false
 
-  // Block concurrent silent auto-saves only.
-  // Manual saves always proceed so the user is never silently ignored.
-  if (silent && saveInProgress.value) return
-
-  // For manual saves, only proceed if this is the active tab
-  if (!silent && tabs.currentActiveTab.value.id !== props.tabId) {
+  // Block ALL concurrent saves — both silent and manual — while a mutation
+  // is in-flight. This prevents out-of-order updates where a manual save
+  // races an auto-save and overwrites newer content with an older snapshot.
+  if (saveInProgress.value) {
+    if (!silent) {
+      // For a manual save blocked by an in-flight mutation, poll until
+      // the in-flight save completes then re-invoke so the user's intent
+      // is never silently dropped.
+      const waitAndRetry = () => {
+        if (saveInProgress.value) setTimeout(waitAndRetry, 100)
+        else saveRequest({ silent: false })
+      }
+      setTimeout(waitAndRetry, 100)
+    }
     return
   }
+
+  // For manual saves, only proceed if this is the active tab
+  if (!silent && tabs.currentActiveTab.value.id !== props.tabId) return
 
   // Always use the component-scoped tab ref — never currentActiveTab
   const tabToSave = tab.value
@@ -258,7 +297,6 @@ const saveRequest = async (options?: { silent?: boolean }) => {
   const saveCtx = tabToSave.document.saveContext
 
   if (!saveCtx) {
-    // Only open the Save modal for manual saves — auto-save must never open modals
     if (!silent) showSaveRequestModal.value = true
     return
   }
@@ -272,7 +310,7 @@ const saveRequest = async (options?: { silent?: boolean }) => {
         tabToSave.document.request
       )
       tabToSave.document.isDirty = false
-      // Only toast for manual saves — auto-save must never show toasts
+      retryCount = 0
       if (!silent) toast.success(`${t("request.saved")}`)
     } catch (_e) {
       // saveContext may be stale (e.g. collection restructured) — clear it
@@ -286,13 +324,20 @@ const saveRequest = async (options?: { silent?: boolean }) => {
   if (saveCtx.originLocation === "team-collection") {
     saveInProgress.value = true
 
-    // Hoist requestSnapshot above try so it's accessible in finally.
-    // Initialized to "" — the finally guard checks requestSnapshot !== ""
-    // to know whether the mutation was actually attempted.
+    // Hoisted above try so it's in scope for finally.
+    // Empty string signals the mutation was never attempted (early return / auth fail).
     let requestSnapshot = ""
 
     try {
-      // Only log analytics for deliberate user-initiated saves
+      // Auth pre-flight — avoids a wasted network round-trip when the session
+      // is expired. Mirrors the same check the REST path uses.
+      // Silent saves use a lightweight token check; manual saves use the full flow.
+      const tokenCheck = silent
+        ? (await isValidUser()).valid
+        : await handleTokenValidation()
+
+      if (!tokenCheck) return
+
       if (!silent) {
         platform.analytics?.logEvent({
           type: "HOPP_SAVE_REQUEST",
@@ -303,7 +348,7 @@ const saveRequest = async (options?: { silent?: boolean }) => {
       }
 
       // Snapshot the request before the mutation so we can detect edits
-      // that arrive while the network call is in-flight
+      // that arrive while the network call is in-flight.
       requestSnapshot = JSON.stringify(tabToSave.document.request)
 
       await updateTeamRequest(saveCtx.requestID, {
@@ -312,38 +357,41 @@ const saveRequest = async (options?: { silent?: boolean }) => {
       })()
         .then((result) => {
           if (E.isLeft(result)) {
-            // Only toast for manual saves — auto-save must never show toasts
             if (!silent) toast.error(`${t("profile.no_permission")}`)
+            // Mutation reached the server but was rejected — schedule a backoff
+            // retry so a transient permission issue or token expiry self-heals.
+            scheduleRetry(tabToSave)
           } else {
             // Only clear isDirty if no new edits arrived during the mutation.
-            // If the request changed while in-flight, leave isDirty=true — the
-            // finally block below will trigger a follow-up save after resetting
-            // saveInProgress so the guard at the top of saveRequest passes.
             if (
               JSON.stringify(tabToSave.document.request) === requestSnapshot
             ) {
               tabToSave.document.isDirty = false
+              retryCount = 0
             }
             if (!silent) toast.success(`${t("request.saved")}`)
           }
         })
         .catch((error) => {
-          // Only toast for manual saves — auto-save must never show toasts
           if (!silent) toast.error(`${t("error.something_went_wrong")}`)
           console.error(error)
+          // Network or unexpected error — schedule a backoff retry.
+          scheduleRetry(tabToSave)
         })
     } catch {
-      // Synchronous throw before promise was created — reset immediately
-      // so future auto-saves are not permanently blocked
+      // Synchronous throw before the promise chain was created (e.g. analytics
+      // or JSON.stringify threw) — reset saveInProgress immediately so future
+      // saves are not permanently blocked.
       saveInProgress.value = false
       return
     } finally {
       saveInProgress.value = false
-      // Only retry if new edits arrived *during* the mutation.
+      // Only trigger an immediate follow-up save if new content arrived
+      // *during* the in-flight mutation (snapshot diverged).
       // requestSnapshot === "" means the mutation was never attempted —
-      // no point retrying in that case.
-      // If the save failed with unchanged content, leave isDirty for the
-      // next debounce cycle rather than hammering the endpoint immediately.
+      // no retry needed in that case.
+      // Failure-driven retries are handled by scheduleRetry with backoff,
+      // so we never hammer the endpoint on persistent errors.
       const newSnapshot = JSON.stringify(tabToSave.document.request)
       if (
         requestSnapshot &&
@@ -375,7 +423,6 @@ defineActionHandler("request.save-as", () => {
   showSaveRequestModal.value = true
 })
 defineActionHandler("request.reset", clearGQLQuery)
-
 defineActionHandler("request.open-tab", ({ tab }) => {
   selectedOptionTab.value = tab as GQLOptionTabs
 })
@@ -384,13 +431,20 @@ const AUTO_SAVE_REQUESTS = useSetting("AUTO_SAVE_REQUESTS")
 const AUTO_SAVE_DELAY_MS = useSetting("AUTO_SAVE_DELAY_MS")
 
 // Stop the watcher on unmount to prevent debounce callbacks firing on a
-// stale/destroyed component instance
+// stale/destroyed component instance.
 const stopAutoSave = watchDebounced(
   request,
   () => {
     try {
-      const tabToSave = tab.value
+      // New user edit arrived — reset retry state so the fresh content gets a
+      // full retry budget rather than inheriting an exhausted counter.
+      retryCount = 0
+      if (retryTimer !== null) {
+        clearTimeout(retryTimer)
+        retryTimer = null
+      }
 
+      const tabToSave = tab.value
       const isDirty = tabToSave.document.isDirty
       const saveCtx = tabToSave.document.saveContext
       const autoSaveEnabled = AUTO_SAVE_REQUESTS.value
@@ -401,7 +455,7 @@ const stopAutoSave = watchDebounced(
 
       saveRequest({ silent: true })
     } catch {
-      // Tab was removed between the watcher firing and execution — safe to ignore
+      // Tab was removed between the watcher firing and execution — safe to ignore.
     }
   },
   {
@@ -414,8 +468,12 @@ const stopAutoSave = watchDebounced(
 )
 
 onUnmounted(() => {
-  // Cancel any pending debounced auto-save to avoid callbacks on stale refs
+  // Cancel any pending debounced auto-save and retry timers
   stopAutoSave()
+  if (retryTimer !== null) {
+    clearTimeout(retryTimer)
+    retryTimer = null
+  }
 })
 </script>
 

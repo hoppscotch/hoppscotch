@@ -100,12 +100,12 @@
                 collection: node.data.data.data,
               })
             "
-            @edit-properties="
+            @edit-collection-properties="
               node.data.type === 'collections' &&
-              emit('edit-properties', {
-                collectionIndex: node.id,
-                collection: node.data.data.data,
-              })
+                emit('edit-collection-properties', {
+                  collectionIndex: node.id,
+                  collection: node.data.data.data,
+                })
             "
             @create-mock-server="
               node.data.type === 'collections' &&
@@ -205,12 +205,12 @@
                 collection: node.data.data.data,
               })
             "
-            @edit-properties="
+            @edit-collection-properties="
               node.data.type === 'folders' &&
-              emit('edit-properties', {
-                collectionIndex: node.id,
-                collection: node.data.data.data,
-              })
+                emit('edit-collection-properties', {
+                  collectionIndex: node.id,
+                  collection: node.data.data.data,
+                })
             "
             @export-data="
               node.data.type === 'folders' &&
@@ -610,7 +610,7 @@ const emit = defineEmits<{
     }
   ): void
   (
-    event: "edit-properties",
+    event: "edit-collection-properties",
     payload: {
       collectionIndex: string
       collection: HoppCollection

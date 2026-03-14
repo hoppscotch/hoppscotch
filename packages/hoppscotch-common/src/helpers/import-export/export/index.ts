@@ -11,15 +11,10 @@ export const initializeDownloadFile = async (
   contentsJSON: string,
   name: string | null
 ) => {
-  const file = new Blob([contentsJSON], { type: "application/json" })
-  const url = URL.createObjectURL(file)
-
-  const fileName = name ?? url.split("/").pop()!.split("#")[0].split("?")[0]
-
-  const result = await platform.kernelIO.saveFileWithDialog({
+  const result = await platform.io.saveFileWithDialog({
     data: contentsJSON,
     contentType: "application/json",
-    suggestedFilename: `${fileName}.json`,
+    suggestedFilename: `${(name ?? "collection").replace(/\.json$/i, "")}.json`,
     filters: [
       {
         name: "Hoppscotch Collection/Environment JSON file",

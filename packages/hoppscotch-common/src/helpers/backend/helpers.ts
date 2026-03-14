@@ -21,9 +21,14 @@ import { GQLError, runGQLQuery } from "./GQLClient"
 import {
   ExportAsJsonDocument,
   ExportCollectionToJsonDocument,
+  GetCollectionChildrenDocument,
   GetCollectionChildrenIDsDocument,
+  GetCollectionChildrenQuery,
   GetCollectionRequestsDocument,
+  GetCollectionRequestsQuery,
   GetCollectionTitleAndDataDocument,
+  RootCollectionsOfTeamDocument,
+  RootCollectionsOfTeamQuery,
 } from "./graphql"
 import { stripRefIdReplacer } from "../import-export/export"
 
@@ -205,8 +210,8 @@ export const getCompleteCollectionTree = (
         TE.map((result) =>
           result.collection
             ? {
-                title: result.collection!.title,
-                data: result.collection!.data,
+                title: result.collection.title,
+                data: result.collection.data,
               }
             : null
         )
@@ -322,3 +327,191 @@ export const getSingleTeamCollectionJSON = async (
   const hoppCollection = teamCollectionJSONToHoppRESTColl(collection)
   return E.right(JSON.stringify(hoppCollection, null, 2))
 }
+
+async function* _getCollectionChildren(collectionID: string) {
+  let cursor: string | undefined = undefined
+  try {
+    while (true) {
+      const result: E.Either<
+        GQLError<string>,
+        GetCollectionChildrenQuery
+      > = await runGQLQuery({
+        query: GetCollectionChildrenDocument,
+        variables: {
+          collectionID,
+          cursor,
+        },
+      })
+
+      if (E.isLeft(result)) {
+        yield result
+        break
+      }
+
+      if (!result.right.collection) {
+        yield E.left({ type: "network_error", error: new Error("collection is null") } as GQLError<string>)
+        break
+      }
+
+      const childrenCount: number = result.right.collection.children.length
+      const isLastPage = childrenCount < BACKEND_PAGE_SIZE
+
+      if (childrenCount > 0) {
+        cursor = result.right.collection.children[childrenCount - 1]?.id
+      }
+
+      yield result
+
+      if (isLastPage) {
+        break
+      }
+    }
+  } catch (error) {
+    yield E.left({
+      type: "network_error",
+      error: error instanceof Error ? error : new Error(String(error)),
+    } as GQLError<string>)
+  }
+}
+
+export async function getCollectionChildren(collectionID: string) {
+  let children: NonNullable<
+    GetCollectionChildrenQuery["collection"]
+  >["children"] = []
+  let hasErrors = false
+
+  for await (const result of _getCollectionChildren(collectionID)) {
+    if (E.isLeft(result)) {
+      hasErrors = true
+      break
+    }
+
+    children = children.concat(result.right.collection?.children ?? [])
+  }
+
+  return hasErrors
+    ? E.left("ERROR_FETCHING_COLLECTION_CHILDREN")
+    : E.right(children)
+}
+
+async function* _getCollectionChildRequests(collectionID: string) {
+  let cursor: string | undefined = undefined
+  try {
+    while (true) {
+      const result: E.Either<
+        GQLError<string>,
+        GetCollectionRequestsQuery
+      > = await runGQLQuery({
+        query: GetCollectionRequestsDocument,
+        variables: {
+          collectionID,
+          cursor,
+        },
+      })
+
+      if (E.isLeft(result)) {
+        yield result
+        break
+      }
+
+      const requestCount: number = result.right.requestsInCollection.length
+      const isLastPage = requestCount < BACKEND_PAGE_SIZE
+
+      if (requestCount > 0) {
+        cursor = result.right.requestsInCollection[requestCount - 1]?.id
+      }
+
+      yield result
+
+      if (isLastPage) {
+        break
+      }
+    }
+  } catch (error) {
+    yield E.left({
+      type: "network_error",
+      error: error instanceof Error ? error : new Error(String(error)),
+    } as GQLError<string>)
+  }
+}
+
+export async function getCollectionChildRequests(collectionID: string) {
+  let requests: GetCollectionRequestsQuery["requestsInCollection"] = []
+  let hasErrors = false
+
+  for await (const result of _getCollectionChildRequests(collectionID)) {
+    if (E.isLeft(result)) {
+      hasErrors = true
+      break
+    }
+
+    const newRequests = result.right.requestsInCollection
+
+    requests = requests.concat(newRequests)
+  }
+
+  return hasErrors
+    ? E.left("ERROR_FETCHING_COLLECTION_REQUESTS")
+    : E.right(requests)
+}
+
+async function* _getRootCollections(teamID: string) {
+  let cursor: string | undefined = undefined
+  try {
+    while (true) {
+      const result: E.Either<
+        GQLError<string>,
+        RootCollectionsOfTeamQuery
+      > = await runGQLQuery({
+        query: RootCollectionsOfTeamDocument,
+        variables: {
+          teamID,
+          cursor,
+        },
+      })
+
+      if (E.isLeft(result)) {
+        yield result
+        break
+      }
+
+      const collectionCount: number =
+        result.right.rootCollectionsOfTeam.length
+
+      const isLastPage = collectionCount < BACKEND_PAGE_SIZE
+      if (collectionCount > 0) {
+        cursor = result.right.rootCollectionsOfTeam[collectionCount - 1]?.id
+      }
+
+      yield result
+
+      if (isLastPage) {
+        break
+      }
+    }
+  } catch (error) {
+    yield E.left({
+      type: "network_error",
+      error: error instanceof Error ? error : new Error(String(error)),
+    } as GQLError<string>)
+  }
+}
+
+export async function getRootCollections(teamID: string) {
+  let collections: RootCollectionsOfTeamQuery["rootCollectionsOfTeam"] = []
+
+  let hasErrors = false
+
+  for await (const result of _getRootCollections(teamID)) {
+    if (E.isLeft(result)) {
+      hasErrors = true
+      break
+    }
+
+    collections = collections.concat(result.right.rootCollectionsOfTeam)
+  }
+
+  return hasErrors ? E.left("ERROR_FETCHING_COLLECTIONS") : E.right(collections)
+}
+
+// TODO: extract pagination logic to a common function

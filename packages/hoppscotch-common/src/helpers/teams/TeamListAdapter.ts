@@ -97,3 +97,14 @@ export default class TeamListAdapter {
     this.loading$.next(false)
   }
 }
+
+export const fetchAllTeams = async (cursor?: string) => {
+  const result = await runGQLQuery({
+    query: GetMyTeamsDocument,
+    variables: {
+      cursor,
+    },
+  })
+
+  return result
+}

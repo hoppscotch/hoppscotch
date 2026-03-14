@@ -40,6 +40,8 @@
       :environment="env"
       :selected="isEnvironmentSelected(index)"
       @edit-environment="editEnvironment(index)"
+      @duplicate-environment="emit('duplicate-environment', $event)"
+      @delete-environment="emit('delete-environment', $event)"
       @select-environment="selectEnvironment(index, env)"
     />
     <HoppSmartPlaceholder
@@ -94,6 +96,11 @@
       :editing-environment-index="editingEnvironmentIndex"
       :editing-variable-name="editingVariableName"
       :is-secret-option-selected="secretOptionSelected"
+      @create-environment="emit('create-environment', $event)"
+      @update-environment="
+        (environmentID, updatedEnvironment) =>
+          emit('update-environment', environmentID, updatedEnvironment)
+      "
       @hide-modal="displayModalEdit(false)"
     />
     <EnvironmentsImportExport
@@ -112,14 +119,14 @@ import {
 } from "~/newstore/environments"
 import { useColorMode } from "~/composables/theming"
 import { useReadonlyStream } from "@composables/stream"
+import { Environment } from "@hoppscotch/data"
 import { useI18n } from "~/composables/i18n"
-import IconPlus from "~icons/lucide/plus"
+import { defineActionHandler } from "~/helpers/actions"
 import IconImport from "~icons/lucide/folder-down"
 import IconHelpCircle from "~icons/lucide/help-circle"
-import { defineActionHandler } from "~/helpers/actions"
+import IconPlus from "~icons/lucide/plus"
 import { sortPersonalEnvironmentsAlphabetically } from "~/helpers/utils/sortEnvironmentsAlphabetically"
 import { HandleEnvChangeProp } from "../index.vue"
-import { Environment } from "@hoppscotch/data"
 import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 
 const t = useI18n()
@@ -127,6 +134,14 @@ const colorMode = useColorMode()
 
 const emit = defineEmits<{
   (e: "select-environment", data: HandleEnvChangeProp): void
+  (e: "create-environment", newEnvironment: Environment): void
+  (e: "duplicate-environment", environmentID: number): void
+  (
+    e: "update-environment",
+    environmentID: number,
+    updatedEnvironment: Partial<Environment>
+  ): void
+  (e: "delete-environment", environmentID: number): void
 }>()
 
 const environments = useReadonlyStream(environments$, [])

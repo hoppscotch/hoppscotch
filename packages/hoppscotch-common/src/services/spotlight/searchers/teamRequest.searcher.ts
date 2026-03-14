@@ -213,7 +213,8 @@ export class TeamsSpotlightSearcherService
 
     let inheritedProperties: HoppInheritedProperty | undefined = undefined
 
-    const selectedRequest = this.teamsSearch.searchResultsRequests[result.id]
+    const selectedRequest =
+      this.teamsSearch.searchResultsRequests.value[result.id]
 
     if (!selectedRequest) return
 

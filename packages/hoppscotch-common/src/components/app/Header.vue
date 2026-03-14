@@ -138,47 +138,40 @@
             class="inline-flex items-center space-x-2"
           >
             <HoppButtonSecondary
-              v-if="!workspaceSelectorFlagEnabled"
               :icon="IconUploadCloud"
               :label="t('header.save_workspace')"
-              class="!focus-visible:text-emerald-600 !hover:text-emerald-600 hidden h-8 border border-emerald-600/25 bg-emerald-500/10 !text-emerald-500 hover:border-emerald-600/20 hover:bg-emerald-600/20 focus-visible:border-emerald-600/20 focus-visible:bg-emerald-600/20 md:flex"
+              class="py-1.75 !focus-visible:text-green-600 !hover:text-green-600 hidden border border-green-600/25 bg-green-500/[.15] !text-green-500 hover:border-green-800/50 hover:bg-green-400/10 focus-visible:border-green-800/50 focus-visible:bg-green-400/10 md:flex"
               @click="invokeAction('modals.login.toggle')"
             />
             <HoppButtonPrimary
               :label="t('header.login')"
-              class="h-8"
               @click="invokeAction('modals.login.toggle')"
             />
           </div>
-          <TeamsMemberStack
-            v-else-if="
-              currentUser !== null &&
-              workspace.type === 'team' &&
-              selectedTeam &&
-              selectedTeam.teamMembers.length > 1
-            "
-            :team-members="selectedTeam.teamMembers"
-            show-count
-            class="mx-2"
-            @handle-click="handleTeamEdit()"
-          />
-          <div
-            v-if="workspaceSelectorFlagEnabled || currentUser"
-            class="inline-flex items-center space-x-2"
-          >
+          <div v-else class="inline-flex items-center space-x-2">
+            <TeamsMemberStack
+              v-if="
+                workspace.type === 'team' &&
+                selectedTeam &&
+                selectedTeam.teamMembers.length > 1
+              "
+              :team-members="selectedTeam.teamMembers"
+              show-count
+              class="mx-2"
+              @handle-click="handleTeamEdit()"
+            />
             <div
-              class="flex h-8 divide-x divide-emerald-600/25 rounded border border-emerald-600/25 bg-emerald-500/10 focus-within:divide-emerald-600/20 focus-within:border-emerald-600/20 focus-within:bg-emerald-600/20 hover:divide-emerald-600/20 hover:border-emerald-600/20 hover:bg-emerald-600/20"
+              class="flex divide-x divide-green-600/25 rounded border border-green-600/25 bg-green-500/[.15] focus-within:divide-green-800/50 focus-within:border-green-800/50 focus-within:bg-green-400/10 hover:divide-green-800/50 hover:border-green-800/50 hover:bg-green-400/10"
             >
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="t('team.invite_tooltip')"
                 :icon="IconUserPlus"
-                class="!focus-visible:text-emerald-600 !hover:text-emerald-600 !text-emerald-500"
+                class="py-1.75 !focus-visible:text-green-600 !hover:text-green-600 !text-green-500"
                 @click="handleInvite()"
               />
               <HoppButtonSecondary
                 v-if="
-                  currentUser &&
                   workspace.type === 'team' &&
                   selectedTeam &&
                   selectedTeam?.myRole === 'OWNER'
@@ -186,7 +179,7 @@
                 v-tippy="{ theme: 'tooltip' }"
                 :title="t('team.edit')"
                 :icon="IconSettings"
-                class="!focus-visible:text-emerald-600 !hover:text-emerald-600 !text-emerald-500"
+                class="py-1.75 !focus-visible:text-green-600 !hover:text-green-600 !text-green-500"
                 @click="handleTeamEdit()"
               />
             </div>
@@ -196,18 +189,14 @@
               theme="popover"
               :on-shown="() => accountActions.focus()"
             >
-              <HoppSmartSelectWrapper
-                class="!text-blue-500 !focus-visible:text-blue-600 !hover:text-blue-600"
-              >
-                <HoppButtonSecondary
-                  v-tippy="{ theme: 'tooltip' }"
-                  :title="t('workspace.change')"
-                  :label="mdAndLarger ? workspaceName : ``"
-                  :icon="workspace.type === 'personal' ? IconUser : IconUsers"
-                  class="!focus-visible:text-blue-600 !hover:text-blue-600 h-8 rounded border border-blue-600/25 bg-blue-500/10 pr-8 !text-blue-500 hover:border-blue-600/20 hover:bg-blue-600/20 focus-visible:border-blue-600/20 focus-visible:bg-blue-600/20"
-                />
-              </HoppSmartSelectWrapper>
-              <template #content="{ hide, state }">
+              <HoppButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="t('workspace.change')"
+                :label="mdAndLarger ? activeWorkspaceName : ``"
+                :icon="activeWorkspaceIcon"
+                class="select-wrapper !focus-visible:text-blue-600 !hover:text-blue-600 rounded border border-blue-600/25 bg-blue-500/[.15] py-[0.4375rem] pr-8 !text-blue-500 hover:border-blue-800/50 hover:bg-blue-400/10 focus-visible:border-blue-800/50 focus-visible:bg-blue-400/10"
+              />
+              <template #content="{ hide }">
                 <div
                   ref="accountActions"
                   class="flex flex-col focus:outline-none"
@@ -215,7 +204,7 @@
                   @keyup.escape="hide()"
                   @click="hide()"
                 >
-                  <WorkspaceSelector :state="state" />
+                  <WorkspaceSelector />
                 </div>
               </template>
             </tippy>
@@ -377,6 +366,7 @@ import { computed, onMounted, reactive, ref, watch } from "vue"
 import { useToast } from "~/composables/toast"
 import { GetMyTeamsQuery, TeamAccessRole } from "~/helpers/backend/graphql"
 import { deleteTeam as backendDeleteTeam } from "~/helpers/backend/mutations/Team"
+import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import { platform } from "~/platform"
 import { AdditionalLinksService } from "~/services/additionalLinks.service"
 import {
@@ -384,6 +374,7 @@ import {
   BannerContent,
   BannerService,
 } from "~/services/banner.service"
+import { NewWorkspaceService } from "~/services/new-workspace"
 import { WorkspaceService } from "~/services/workspace.service"
 import IconChevronDown from "~icons/lucide/chevron-down"
 import IconDownload from "~icons/lucide/download"
@@ -393,7 +384,6 @@ import IconSettings from "~icons/lucide/settings"
 import IconUploadCloud from "~icons/lucide/upload-cloud"
 import IconUser from "~icons/lucide/user"
 import IconUserPlus from "~icons/lucide/user-plus"
-import IconUsers from "~icons/lucide/users"
 
 const t = useI18n()
 const toast = useToast()
@@ -446,7 +436,7 @@ const bannerContent = computed(() => banner.content.value?.content)
 let offlineBannerID: number | null = null
 
 const offlineBanner: BannerContent = {
-  type: "warning",
+  type: "info",
   text: (t) => t("helpers.offline"),
   alternateText: (t) => t("helpers.offline_short"),
   score: BANNER_PRIORITY_LOW,
@@ -511,12 +501,6 @@ const myTeams = useReadonlyStream(teamListAdapter.teamList$, null)
 
 const workspace = workspaceService.currentWorkspace
 
-const workspaceName = computed(() => {
-  return workspace.value.type === "personal"
-    ? t("workspace.personal")
-    : workspace.value.teamName
-})
-
 const refetchTeams = () => {
   teamListAdapter.fetchList()
 }
@@ -550,6 +534,23 @@ watch(
     }
   }
 )
+
+const newWorkspaceService = useService(NewWorkspaceService)
+
+const activeWorkspaceName = computed(() => {
+  const activeWorkspaceHandleRef =
+    newWorkspaceService.activeWorkspaceHandle.value?.get()
+
+  if (activeWorkspaceHandleRef?.value.type === "ok") {
+    return activeWorkspaceHandleRef.value.data.name
+  }
+
+  return t("workspace.no_workspace")
+})
+
+const activeWorkspaceIcon = computed(() => {
+  return newWorkspaceService.activeWorkspaceDecor.value?.value.headerCurrentIcon
+})
 
 const showModalInvite = ref(false)
 const showModalEdit = ref(false)

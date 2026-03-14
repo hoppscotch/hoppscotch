@@ -4,7 +4,7 @@
   >
     <div class="flex items-center overflow-x-auto whitespace-nowrap">
       <span class="truncate">
-        {{ currentWorkspace }}
+        {{ workspaceName ?? t("workspace.no_workspace") }}
       </span>
       <icon-lucide-chevron-right v-if="section" class="mx-2" />
       {{ section }}
@@ -14,32 +14,27 @@
 </template>
 
 <script setup lang="ts">
-import { useService } from "dioc/vue"
 import { computed } from "vue"
 import { useI18n } from "~/composables/i18n"
-import { WorkspaceService } from "~/services/workspace.service"
+import { useService } from "dioc/vue"
+import { NewWorkspaceService } from "~/services/new-workspace"
+
+defineProps<{
+  section?: string
+}>()
 
 const t = useI18n()
 
-const props = defineProps<{
-  section?: string
-  isOnlyPersonal?: boolean
-}>()
+const workspaceService = useService(NewWorkspaceService)
+const activeWorkspaceHandle = workspaceService.activeWorkspaceHandle
 
-const workspaceService = useService(WorkspaceService)
-const workspace = workspaceService.currentWorkspace
+const workspaceName = computed(() => {
+  const activeWorkspaceHandleRef = activeWorkspaceHandle.value?.get()
 
-const currentWorkspace = computed(() => {
-  if (props.isOnlyPersonal || workspace.value.type === "personal") {
-    return t("workspace.personal")
+  if (activeWorkspaceHandleRef?.value.type === "ok") {
+    return activeWorkspaceHandleRef.value.data.name
   }
-  return teamWorkspaceName.value
-})
 
-const teamWorkspaceName = computed(() => {
-  if (workspace.value.type === "team" && workspace.value.teamName) {
-    return workspace.value.teamName
-  }
-  return `${t("workspace.team")}`
+  return undefined
 })
 </script>

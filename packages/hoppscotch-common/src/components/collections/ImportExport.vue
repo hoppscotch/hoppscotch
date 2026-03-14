@@ -34,7 +34,6 @@ import { defineStep } from "~/composables/step-components"
 import AllCollectionImport from "~/components/importExport/ImportExportSteps/AllCollectionImport.vue"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
-import { appendRESTCollections, restCollections$ } from "~/newstore/collections"
 
 import IconInsomnia from "~icons/hopp/insomnia"
 import IconPostman from "~icons/hopp/postman"
@@ -52,11 +51,12 @@ import { platform } from "~/platform"
 
 import { initializeDownloadFile } from "~/helpers/import-export/export"
 import { gistExporter } from "~/helpers/import-export/export/gist"
-import { myCollectionsExporter } from "~/helpers/import-export/export/myCollections"
 import { teamCollectionsExporter } from "~/helpers/import-export/export/teamCollections"
 
+import { useService } from "dioc/vue"
 import { ImporterOrExporter } from "~/components/importExport/types"
 import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
+import { NewWorkspaceService } from "~/services/new-workspace"
 import { TeamWorkspace } from "~/services/workspace.service"
 import { invokeAction } from "~/helpers/actions"
 import { ReqType } from "~/helpers/backend/graphql"
@@ -95,17 +95,39 @@ const currentUser = useReadonlyStream(
   platform.auth.getCurrentUser()
 )
 
-const myCollections = useReadonlyStream(restCollections$, [])
+const workspaceService = useService(NewWorkspaceService)
+
+const activeWorkspaceHandle = workspaceService.activeWorkspaceHandle
 
 const showImportFailedError = () => {
   toast.error(t("import.failed"))
 }
 
 const handleImportToStore = async (collections: HoppCollection[]) => {
-  const importResult =
-    props.collectionsType.type === "my-collections"
-      ? await importToPersonalWorkspace(collections)
-      : await importToTeamsWorkspace(collections)
+  // TODO: Remove the check once the team workspace changes are in place
+  if (props.collectionsType.type === "my-collections") {
+    if (!activeWorkspaceHandle.value) {
+      return E.left("INVALID_WORKSPACE_HANDLE")
+    }
+
+    const collectionHandleResult = await workspaceService.importRESTCollections(
+      activeWorkspaceHandle.value,
+      collections
+    )
+
+    if (E.isLeft(collectionHandleResult)) {
+      // INVALID_WORKSPACE_HANDLE
+      return toast.error(t("import.failed"))
+    }
+
+    toast.success(t("state.file_imported"))
+    emit("hide-modal")
+
+    return
+  }
+
+  // TODO: Remove once the team workspace changes are in place
+  const importResult = await importToTeamsWorkspace(collections)
 
   if (E.isRight(importResult)) {
     toast.success(t("state.file_imported"))
@@ -114,28 +136,21 @@ const handleImportToStore = async (collections: HoppCollection[]) => {
   }
 }
 
-/**
- * Import collections to personal workspace
- * We sanitize the collections before importing to remove old id from the imported collection and folders and transform it to new collection format
- * @param collections Collections to import
- */
-const importToPersonalWorkspace = (collections: HoppCollection[]) => {
-  // Remove old id from the imported collection and folders and transform it to new collection format
-  const sanitizedCollections = collections.map(sanitizeCollection)
+function translateToTeamCollectionFormat(x: HoppCollection) {
+  const folders: HoppCollection[] = (x.folders ?? []).map(
+    translateToTeamCollectionFormat
+  )
 
-  if (
-    platform.sync.collections.importToPersonalWorkspace &&
-    currentUser.value
-  ) {
-    // The SH adds the id to the collection and folders but for safety we remove it by sanitizeCollection
-    return platform.sync.collections.importToPersonalWorkspace(
-      sanitizedCollections,
-      ReqType.Rest
-    )
+  const data = {
+    auth: x.auth,
+    headers: x.headers,
   }
 
-  appendRESTCollections(sanitizedCollections)
-  return E.right({ success: true })
+  return {
+    ...x,
+    folders,
+    data: JSON.stringify(data),
+  }
 }
 
 /**
@@ -580,30 +595,29 @@ const HoppMyCollectionsExporter: ImporterOrExporter = {
     isLoading: isHoppMyCollectionExporterInProgress,
     format: "hoppscotch",
   },
-  importSummary: currentImportSummary,
   action: async () => {
-    if (!myCollections.value.length) {
-      return toast.error(t("error.no_collections_to_export"))
+    if (!activeWorkspaceHandle.value) {
+      return toast.error(t("error.something_went_wrong"))
     }
 
     isHoppMyCollectionExporterInProgress.value = true
 
-    const message = await initializeDownloadFile(
-      myCollectionsExporter(myCollections.value),
-      "hoppscotch-personal-collections"
+    const result = await workspaceService.exportRESTCollections(
+      activeWorkspaceHandle.value
     )
 
-    if (E.isRight(message)) {
-      toast.success(t("state.download_started"))
+    // INVALID_COLLECTION_HANDLE | NO_COLLECTIONS_TO_EXPORT
+    if (E.isLeft(result)) {
+      isHoppMyCollectionExporterInProgress.value = false
 
-      platform.analytics?.logEvent({
-        type: "HOPP_EXPORT_COLLECTION",
-        exporter: "json",
-        platform: "rest",
-      })
-    } else {
-      toast.error(t(message.left))
+      if (result.left.error === "NO_COLLECTIONS_TO_EXPORT") {
+        return toast.error(t("error.no_collections_to_export"))
+      }
+
+      return toast.error(t("export.failed"))
     }
+
+    toast.success(t("state.download_started"))
 
     isHoppMyCollectionExporterInProgress.value = false
   },
@@ -622,6 +636,8 @@ const HoppTeamCollectionsExporter: ImporterOrExporter = {
   importSummary: currentImportSummary,
   action: async () => {
     isHoppTeamCollectionExporterInProgress.value = true
+
+    // TODO: Replace with `workspaceService.exportRESTCollections()` once the team workspace changes are in place
     if (
       props.collectionsType.type === "team-collections" &&
       props.collectionsType.selectedTeam
@@ -677,7 +693,7 @@ const HoppGistCollectionsExporter: ImporterOrExporter = {
     const collectionJSON = await getCollectionJSON()
     const accessToken = currentUser.value?.accessToken
 
-    if (!accessToken) {
+    if (!accessToken || E.isLeft(collectionJSON)) {
       toast.error(t("error.something_went_wrong"))
       isHoppGistCollectionExporterInProgress.value = false
       return
@@ -819,6 +835,7 @@ const selectedTeamID = computed(() => {
 })
 
 const getCollectionJSON = async () => {
+  // TODO: Implement `getRESTCollectionJSONView` for team workspace
   if (
     props.collectionsType.type === "team-collections" &&
     props.collectionsType.selectedTeam?.teamID
@@ -831,7 +848,29 @@ const getCollectionJSON = async () => {
   }
 
   if (props.collectionsType.type === "my-collections") {
-    return E.right(JSON.stringify(myCollections.value, null, 2))
+    if (!activeWorkspaceHandle.value) {
+      return E.left("INVALID_WORKSPACE_HANDLE")
+    }
+
+    const collectionJSONHandleResult =
+      await workspaceService.getRESTCollectionJSONView(
+        activeWorkspaceHandle.value
+      )
+
+    if (E.isLeft(collectionJSONHandleResult)) {
+      return E.left(collectionJSONHandleResult.left.error)
+    }
+
+    const collectionJSONHandle = collectionJSONHandleResult.right
+
+    const collectionJSONHandleRef = collectionJSONHandle.get()
+
+    if (collectionJSONHandleRef.value.type === "invalid") {
+      // INVALID_WORKSPACE_HANDLE
+      return E.left("INVALID_WORKSPACE_HANDLE")
+    }
+
+    return E.right(collectionJSONHandleRef.value.data.content)
   }
 
   return E.left("INVALID_SELECTED_TEAM_OR_INVALID_COLLECTION_TYPE")

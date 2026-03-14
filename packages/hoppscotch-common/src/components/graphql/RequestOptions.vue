@@ -59,10 +59,11 @@ import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { HoppGQLAuth, HoppGQLRequest } from "@hoppscotch/data"
 import { computedWithControl, useVModel } from "@vueuse/core"
+import { watchDebounced } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import * as gql from "graphql"
 import { clone } from "lodash-es"
-import { computed, ref, watch } from "vue"
+import { computed, ref, watch, onUnmounted } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
 import {
   connection,
@@ -72,10 +73,15 @@ import {
 } from "~/helpers/graphql/connection"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { completePageProgress, startPageProgress } from "~/modules/loadingbar"
+import * as E from "fp-ts/Either"
+import { updateTeamRequest } from "~/helpers/backend/mutations/TeamRequest"
 import { editGraphqlRequest } from "~/newstore/collections"
+import { useSetting } from "@composables/settings"
 import { platform } from "~/platform"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { GQLTabService } from "~/services/tab/graphql"
+import { isValidUser } from "~/helpers/isValidUser"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 
 const _VALID_GQL_OPERATIONS = [
   "query",
@@ -93,7 +99,6 @@ const toast = useToast()
 
 const tabs = useService(GQLTabService)
 
-// v-model integration with props and emit
 const props = withDefaults(
   defineProps<{
     modelValue: HoppGQLRequest
@@ -114,12 +119,14 @@ const emit = defineEmits<{
 }>()
 
 const selectedOptionTab = useVModel(props, "optionTab", emit)
-
 const request = useVModel(props, "modelValue", emit)
 
+// Scoped to this component's tab — never reads currentActiveTab
+const tab = tabs.getTabRef(props.tabId)
+
 const url = computedWithControl(
-  () => tabs.currentActiveTab.value,
-  () => tabs.currentActiveTab.value.document.request.url
+  () => tab.value,
+  () => tab.value?.document.request.url ?? ""
 )
 
 const activeGQLHeadersCount = computed(
@@ -128,7 +135,9 @@ const activeGQLHeadersCount = computed(
       (x) => x.active && (x.key !== "" || x.value !== "")
     ).length
 )
+
 const showSaveRequestModal = ref(false)
+
 const runQuery = async (
   definition: gql.OperationDefinitionNode | null = null
 ) => {
@@ -140,7 +149,7 @@ const runQuery = async (
     const runVariables = clone(request.value.variables)
 
     const inheritedHeaders =
-      tabs.currentActiveTab.value.document.inheritedProperties?.headers.map(
+      tab.value?.document.inheritedProperties?.headers.map(
         (header) => header.inheritedHeader
       ) ?? []
 
@@ -149,8 +158,8 @@ const runQuery = async (
       url: runURL,
       request: request.value,
       inheritedHeaders,
-      inheritedAuth: tabs.currentActiveTab.value.document.inheritedProperties
-        ?.auth.inheritedAuth as HoppGQLAuth | undefined,
+      inheritedAuth: tab.value?.document.inheritedProperties?.auth
+        .inheritedAuth as HoppGQLAuth | undefined,
       query: runQuery,
       variables: runVariables,
       operationName: definition?.name?.value,
@@ -180,18 +189,14 @@ watch(
       emit("update:response", [])
       return
     }
-
     try {
       if (
         event?.type === "response" &&
         event?.operationType !== "subscription"
       ) {
-        // response.value = [event]
         emit("update:response", [event])
       } else {
         emit("update:response", [...(props.response ?? []), event])
-
-        // TODO: subscription indicator??
       }
     } catch (error) {
       console.log(error)
@@ -224,29 +229,222 @@ watch(
 )
 
 const updateCursorPos = (pos: number) => {
-  tabs.currentActiveTab.value.document.cursorPosition = pos
+  if (tab.value) tab.value.document.cursorPosition = pos
 }
 
 const hideRequestModal = () => {
   showSaveRequestModal.value = false
 }
-const saveRequest = () => {
-  if (
-    tabs.currentActiveTab.value.document.saveContext &&
-    tabs.currentActiveTab.value.document.saveContext.originLocation ===
-      "user-collection"
-  ) {
-    editGraphqlRequest(
-      tabs.currentActiveTab.value.document.saveContext.folderPath,
-      tabs.currentActiveTab.value.document.saveContext.requestIndex,
-      tabs.currentActiveTab.value.document.request
-    )
 
-    tabs.currentActiveTab.value.document.isDirty = false
-  } else {
-    showSaveRequestModal.value = true
-  }
+// Tracks whether a team-collection async mutation is currently in-flight.
+// Blocks ALL concurrent saves (both silent and manual) to prevent
+// out-of-order mutations that could overwrite newer content with older snapshots.
+const saveInProgress = ref(false)
+
+// Retry state for failed saves where content hasn't changed.
+// Uses exponential backoff: 2s → 4s → 8s, max 3 attempts.
+// Reset on any successful save or when new user edits arrive (debounce watcher).
+const MAX_RETRY_ATTEMPTS = 3
+const BASE_RETRY_DELAY_MS = 2000
+let retryCount = 0
+let retryTimer: ReturnType<typeof setTimeout> | null = null
+
+// Tracks the polling timer used to honor a user's manual save request that
+// arrives while a mutation is already in-flight. Ensures we never have more
+// than one outstanding poll and that pending polls are cancelled on unmount.
+let manualSavePollTimer: ReturnType<typeof setTimeout> | null = null
+
+// Marks this component instance as unmounted so we can stop scheduling or
+// running retries against a tab that has been removed.
+let componentUnmounted = false
+
+// tabRef is the reactive tab ref type returned by getTabRef
+type TabRef = ReturnType<typeof tabs.getTabRef>["value"]
+
+const scheduleRetry = (tabToSave: TabRef) => {
+  if (componentUnmounted) return
+  if (retryCount >= MAX_RETRY_ATTEMPTS) return
+  if (retryTimer !== null) clearTimeout(retryTimer)
+  const delay = BASE_RETRY_DELAY_MS * Math.pow(2, retryCount)
+  retryCount++
+  retryTimer = setTimeout(() => {
+    retryTimer = null
+    if (componentUnmounted) return
+
+    // Guard against retries for tabs that have been removed from the service.
+    const stillExists = tabs
+      .getActiveTabs()
+      .value.some((t) => t.id === tabToSave.id)
+    if (
+      !stillExists ||
+      !tabToSave.document.isDirty ||
+      !tabToSave.document.saveContext
+    ) {
+      return
+    }
+
+    saveRequest({ silent: true })
+  }, delay)
 }
+
+// Declared as async to match REST and allow callers to await completion.
+const saveRequest = async (options?: { silent?: boolean }) => {
+  const silent = options?.silent ?? false
+
+  // Block ALL concurrent saves — both silent and manual — while a mutation
+  // is in-flight. This prevents out-of-order updates where a manual save
+  // races an auto-save and overwrites newer content with an older snapshot.
+  if (saveInProgress.value) {
+    if (!silent) {
+      // For a manual save blocked by an in-flight mutation, poll until
+      // the in-flight save completes then re-invoke so the user's intent
+      // is never silently dropped. We track the timer so repeated button
+      // presses don't accumulate multiple concurrent polls.
+      const waitAndRetry = () => {
+        if (saveInProgress.value) {
+          manualSavePollTimer = setTimeout(waitAndRetry, 100)
+        } else {
+          manualSavePollTimer = null
+          saveRequest({ silent: false })
+        }
+      }
+
+      if (manualSavePollTimer !== null) {
+        clearTimeout(manualSavePollTimer)
+        manualSavePollTimer = null
+      }
+
+      manualSavePollTimer = setTimeout(waitAndRetry, 100)
+    }
+    return
+  }
+
+  // For manual saves, only proceed if this is the active tab
+  if (!silent && tabs.currentActiveTab.value.id !== props.tabId) return
+
+  // Always use the component-scoped tab ref — never currentActiveTab
+  const tabToSave = tab.value
+  if (!tabToSave) return
+
+  const saveCtx = tabToSave.document.saveContext
+
+  if (!saveCtx) {
+    if (!silent) showSaveRequestModal.value = true
+    return
+  }
+
+  if (saveCtx.originLocation === "user-collection") {
+    // Pure in-memory operation — no auth check needed
+    try {
+      editGraphqlRequest(
+        saveCtx.folderPath,
+        saveCtx.requestIndex,
+        tabToSave.document.request
+      )
+      tabToSave.document.isDirty = false
+      retryCount = 0
+      if (!silent) toast.success(`${t("request.saved")}`)
+    } catch (_e) {
+      // saveContext may be stale (e.g. collection restructured) — clear it
+      // so the user is re-prompted on the next manual save
+      tabToSave.document.saveContext = undefined
+      if (!silent) showSaveRequestModal.value = true
+    }
+    return
+  }
+
+  if (saveCtx.originLocation === "team-collection") {
+    saveInProgress.value = true
+
+    // Hoisted above try so it's in scope for finally.
+    // Empty string signals the mutation was never attempted (early return / auth fail).
+    let requestSnapshot = ""
+
+    try {
+      // Auth pre-flight — avoids a wasted network round-trip when the session
+      // is expired. Mirrors the same check the REST path uses.
+      // Silent saves use a lightweight token check; manual saves use the full flow.
+      const tokenCheck = silent
+        ? (await isValidUser()).valid
+        : await handleTokenValidation()
+
+      if (!tokenCheck) return
+
+      if (!silent) {
+        platform.analytics?.logEvent({
+          type: "HOPP_SAVE_REQUEST",
+          platform: "graphql",
+          createdNow: false,
+          workspaceType: "team",
+        })
+      }
+
+      // Snapshot the request before the mutation so we can detect edits
+      // that arrive while the network call is in-flight.
+      requestSnapshot = JSON.stringify(tabToSave.document.request)
+
+      await updateTeamRequest(saveCtx.requestID, {
+        request: requestSnapshot,
+        title: tabToSave.document.request.name,
+      })()
+        .then((result) => {
+          if (E.isLeft(result)) {
+            if (!silent) toast.error(`${t("profile.no_permission")}`)
+            // Mutation reached the server but was rejected — schedule a backoff
+            // retry so a transient permission issue or token expiry self-heals.
+            scheduleRetry(tabToSave)
+          } else {
+            // Only clear isDirty if no new edits arrived during the mutation.
+            if (
+              JSON.stringify(tabToSave.document.request) === requestSnapshot
+            ) {
+              tabToSave.document.isDirty = false
+              retryCount = 0
+            }
+            if (!silent) toast.success(`${t("request.saved")}`)
+          }
+        })
+        .catch((error) => {
+          if (!silent) toast.error(`${t("error.something_went_wrong")}`)
+          console.error(error)
+          // Network or unexpected error — schedule a backoff retry.
+          scheduleRetry(tabToSave)
+        })
+    } catch {
+      // Synchronous throw before the promise chain was created (e.g. analytics
+      // or JSON.stringify threw) — reset saveInProgress immediately so future
+      // saves are not permanently blocked.
+      saveInProgress.value = false
+      return
+    } finally {
+      saveInProgress.value = false
+      // Only trigger an immediate follow-up save if new content arrived
+      // *during* the in-flight mutation (snapshot diverged).
+      // requestSnapshot === "" means the mutation was never attempted —
+      // no retry needed in that case.
+      // Failure-driven retries are handled by scheduleRetry with backoff,
+      // so we never hammer the endpoint on persistent errors.
+      const newSnapshot = JSON.stringify(tabToSave.document.request)
+      const stillExists = tabs
+        .getActiveTabs()
+        .value.some((t) => t.id === tabToSave.id)
+      if (
+        stillExists &&
+        requestSnapshot &&
+        tabToSave.document.isDirty &&
+        tabToSave.document.saveContext &&
+        newSnapshot !== requestSnapshot
+      ) {
+        saveRequest({ silent: true })
+      }
+    }
+    return
+  }
+
+  // saveCtx.originLocation is unrecognised — only open modal for manual saves
+  if (!silent) showSaveRequestModal.value = true
+}
+
 const clearGQLQuery = () => {
   request.value.query = ""
 }
@@ -261,9 +459,63 @@ defineActionHandler("request.save-as", () => {
   showSaveRequestModal.value = true
 })
 defineActionHandler("request.reset", clearGQLQuery)
-
 defineActionHandler("request.open-tab", ({ tab }) => {
   selectedOptionTab.value = tab as GQLOptionTabs
+})
+
+const AUTO_SAVE_REQUESTS = useSetting("AUTO_SAVE_REQUESTS")
+const AUTO_SAVE_DELAY_MS = useSetting("AUTO_SAVE_DELAY_MS")
+
+// Stop the watcher on unmount to prevent debounce callbacks firing on a
+// stale/destroyed component instance.
+const stopAutoSave = watchDebounced(
+  request,
+  () => {
+    try {
+      // New user edit arrived — reset retry state so the fresh content gets a
+      // full retry budget rather than inheriting an exhausted counter.
+      retryCount = 0
+      if (retryTimer !== null) {
+        clearTimeout(retryTimer)
+        retryTimer = null
+      }
+
+      const tabToSave = tab.value
+      const isDirty = tabToSave.document.isDirty
+      const saveCtx = tabToSave.document.saveContext
+      const autoSaveEnabled = AUTO_SAVE_REQUESTS.value
+
+      if (!autoSaveEnabled || !isDirty || !saveCtx || saveInProgress.value) {
+        return
+      }
+
+      saveRequest({ silent: true })
+    } catch {
+      // Tab was removed between the watcher firing and execution — safe to ignore.
+    }
+  },
+  {
+    deep: true,
+    // Clamp delay between 500 ms and 10 000 ms, default 2 000 ms
+    debounce: computed(() =>
+      Math.min(10000, Math.max(500, Number(AUTO_SAVE_DELAY_MS.value) || 2000))
+    ),
+  }
+)
+
+onUnmounted(() => {
+  componentUnmounted = true
+
+  // Cancel any pending debounced auto-save and retry timers
+  stopAutoSave()
+  if (retryTimer !== null) {
+    clearTimeout(retryTimer)
+    retryTimer = null
+  }
+  if (manualSavePollTimer !== null) {
+    clearTimeout(manualSavePollTimer)
+    manualSavePollTimer = null
+  }
 })
 </script>
 

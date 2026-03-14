@@ -35,7 +35,11 @@
           <div
             class="relative flex flex-1 flex-col rounded border border-divider focus-visible:border-dividerDark"
           >
-            <EnvironmentsSelector v-model="scope" :is-scope-selector="true" />
+            <EnvironmentsSelector
+              v-model="scope"
+              :is-scope-selector="true"
+              :collection-scope="collectionScope"
+            />
           </div>
         </div>
         <div v-if="replaceWithVariable" class="mt-3 flex space-x-2">
@@ -87,18 +91,45 @@ import { CurrentValueService } from "~/services/current-environment-value.servic
 import { RESTTabService } from "~/services/tab/rest"
 import { Scope } from "./Selector.vue"
 import { GlobalEnvironment } from "@hoppscotch/data"
+import {
+  addCollectionVariable,
+  getRESTCollectionByRefId,
+} from "~/newstore/collections"
+import { updateTeamCollection } from "~/helpers/backend/mutations/TeamCollection"
+import { teamCollToHoppRESTColl } from "~/helpers/backend/helpers"
+import { TeamCollectionsService } from "~/services/team-collection.service"
+import { findTeamCollectionByID } from "~/helpers/utils/teamCollection"
+import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
 
 const t = useI18n()
 const toast = useToast()
 
 const tabs = useService(RESTTabService)
 const currentEnvironmentValueService = useService(CurrentValueService)
+const teamCollectionService = useService(TeamCollectionsService)
 
 const props = defineProps<{
   show: boolean
   position: { top: number; left: number }
   name: string
   value: string
+  preferredScope?:
+    | "global"
+    | "my-environment"
+    | "team-environment"
+    | "collection"
+  collection?:
+    | {
+        originLocation: "user-collection"
+        collectionRefID: string
+        collectionPath: string
+        collectionName: string
+      }
+    | {
+        originLocation: "team-collection"
+        collectionID: string
+        collectionName: string
+      }
 }>()
 
 const emit = defineEmits<{
@@ -109,27 +140,37 @@ const hideModal = () => {
   emit("hide-modal")
 }
 
+const defaultScope = (): Scope => ({
+  type: "global",
+  variables: [],
+})
+
+const collectionScope = ref(props.collection)
+
 watch(
   () => props.show,
   (newVal) => {
     if (!newVal) {
-      scope.value = {
-        type: "global",
-        variables: [],
-      }
+      scope.value = defaultScope()
       replaceWithVariable.value = false
       editingName.value = ""
       editingValue.value = ""
+      collectionScope.value = undefined
+    } else {
+      collectionScope.value = props.collection
+      if (props.preferredScope === "collection" && props.collection) {
+        scope.value = {
+          type: "collection",
+          ...props.collection,
+        }
+      }
     }
     editingName.value = props.name
     editingValue.value = props.value
   }
 )
 
-const scope = ref<Scope>({
-  type: "global",
-  variables: [],
-})
+const scope = ref<Scope>(defaultScope())
 
 const replaceWithVariable = ref(false)
 
@@ -141,7 +182,109 @@ const addEnvironment = async () => {
     toast.error(`${t("environment.invalid_name")}`)
     return
   }
-  if (scope.value.type === "global") {
+  if (scope.value.type === "collection") {
+    if (scope.value.originLocation === "user-collection") {
+      const targetCollection = getRESTCollectionByRefId(
+        scope.value.collectionRefID
+      )
+      const hasDuplicateKey = (targetCollection?.variables ?? []).some(
+        (variable) => variable.key === editingName.value
+      )
+
+      if (hasDuplicateKey) {
+        toast.error(t("environment.collection_variable_exists"))
+        return
+      }
+
+      addCollectionVariable(
+        scope.value.collectionRefID,
+        editingName.value,
+        editingValue.value
+      )
+      updateInheritedPropertiesForAffectedRequests(
+        scope.value.collectionPath,
+        "rest"
+      )
+
+      toast.success(`${t("environment.updated")}`)
+
+      if (replaceWithVariable.value && tabs.currentActiveTab.value) {
+        const variableName = `<<${editingName.value}>>`
+        tabs.currentActiveTab.value.document.request.endpoint =
+          tabs.currentActiveTab.value.document.request.endpoint.replace(
+            editingValue.value,
+            variableName
+          )
+      }
+
+      hideModal()
+    } else {
+      const collectionID = scope.value.collectionID
+      // Normalize to leaf ID: saveContext stores full paths like "rootID/childID",
+      // but the tree lookup and backend call need only the actual collection ID.
+      const leafCollectionID = collectionID.split("/").pop() ?? collectionID
+      const teamCollection = findTeamCollectionByID(
+        teamCollectionService.collections.value,
+        leafCollectionID
+      )
+
+      if (!teamCollection) {
+        toast.error(`${t("error.something_went_wrong")}`)
+        return
+      }
+
+      const collectionData = teamCollToHoppRESTColl(teamCollection)
+      const hasDuplicateKey = (collectionData.variables ?? []).some(
+        (variable) => variable.key === editingName.value
+      )
+
+      if (hasDuplicateKey) {
+        toast.error(t("environment.collection_variable_exists"))
+        return
+      }
+
+      const updatedVariables = [
+        ...(collectionData.variables ?? []),
+        {
+          key: editingName.value,
+          initialValue: editingValue.value,
+          currentValue: editingValue.value,
+          secret: false,
+        },
+      ]
+
+      await pipe(
+        updateTeamCollection(leafCollectionID, {
+          auth: collectionData.auth,
+          headers: collectionData.headers,
+          variables: updatedVariables,
+          description: collectionData.description ?? null,
+        }),
+        TE.match(
+          (err) => {
+            console.error(err)
+            toast.error(t(getEnvActionErrorMessage(err)))
+            return
+          },
+          () => {
+            updateInheritedPropertiesForAffectedRequests(collectionID, "rest")
+            toast.success(`${t("environment.updated")}`)
+
+            if (replaceWithVariable.value && tabs.currentActiveTab.value) {
+              const variableName = `<<${editingName.value}>>`
+              tabs.currentActiveTab.value.document.request.endpoint =
+                tabs.currentActiveTab.value.document.request.endpoint.replace(
+                  editingValue.value,
+                  variableName
+                )
+            }
+
+            hideModal()
+          }
+        )
+      )()
+    }
+  } else if (scope.value.type === "global") {
     const newVariables = [
       ...scope.value.variables,
       {
@@ -165,6 +308,17 @@ const addEnvironment = async () => {
       varIndex: scope.value.variables.length,
     })
     toast.success(`${t("environment.updated")}`)
+
+    if (replaceWithVariable.value && tabs.currentActiveTab.value) {
+      const variableName = `<<${editingName.value}>>`
+      tabs.currentActiveTab.value.document.request.endpoint =
+        tabs.currentActiveTab.value.document.request.endpoint.replace(
+          editingValue.value,
+          variableName
+        )
+    }
+
+    hideModal()
   } else if (scope.value.type === "my-environment") {
     const newVariables = [
       ...scope.value.environment.variables,
@@ -192,6 +346,17 @@ const addEnvironment = async () => {
       }
     )
     toast.success(`${t("environment.updated")}`)
+
+    if (replaceWithVariable.value && tabs.currentActiveTab.value) {
+      const variableName = `<<${editingName.value}>>`
+      tabs.currentActiveTab.value.document.request.endpoint =
+        tabs.currentActiveTab.value.document.request.endpoint.replace(
+          editingValue.value,
+          variableName
+        )
+    }
+
+    hideModal()
   } else {
     const newVariables = [
       ...scope.value.environment.environment.variables,
@@ -227,23 +392,21 @@ const addEnvironment = async () => {
               }
             )
           }
+
+          if (replaceWithVariable.value && tabs.currentActiveTab.value) {
+            const variableName = `<<${editingName.value}>>`
+            tabs.currentActiveTab.value.document.request.endpoint =
+              tabs.currentActiveTab.value.document.request.endpoint.replace(
+                editingValue.value,
+                variableName
+              )
+          }
+
           hideModal()
           toast.success(`${t("environment.updated")}`)
         }
       )
     )()
   }
-  if (replaceWithVariable.value) {
-    //replace the current tab endpoint with the variable name with << and >>
-    const variableName = `<<${editingName.value}>>`
-    //replace the currenttab endpoint containing the value in the text with variablename
-    tabs.currentActiveTab.value.document.request.endpoint =
-      tabs.currentActiveTab.value.document.request.endpoint.replace(
-        editingValue.value,
-        variableName
-      )
-  }
-
-  hideModal()
 }
 </script>

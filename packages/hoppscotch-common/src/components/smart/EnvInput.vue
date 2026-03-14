@@ -437,7 +437,17 @@ const envVars = computed(() => {
       secret: false,
     }))
 
-  return [...requestVariables, ...collectionVariables, ...aggregateEnvs.value]
+  // Priority: request → selected env → collection → global (matches combineEnvVariables)
+  const nonGlobalEnvs = aggregateEnvs.value.filter(
+    (e) => e.sourceEnv !== "Global"
+  )
+  const globalEnvs = aggregateEnvs.value.filter((e) => e.sourceEnv === "Global")
+  return [
+    ...requestVariables,
+    ...nonGlobalEnvs,
+    ...collectionVariables,
+    ...globalEnvs,
+  ]
 })
 
 function envAutoCompletion(context: CompletionContext) {

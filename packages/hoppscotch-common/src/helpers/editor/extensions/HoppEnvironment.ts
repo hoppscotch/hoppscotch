@@ -391,7 +391,7 @@ const getRequestAndCollectionVariables = (
     false
   )
 
-  return [...reqVars, ...collVars]
+  return { reqVars, collVars }
 }
 
 export class HoppEnvironmentPlugin {
@@ -425,13 +425,19 @@ export class HoppEnvironmentPlugin {
             ? request.requestVariables
             : []
 
-        const requestAndCollVars = getRequestAndCollectionVariables(
+        const { reqVars, collVars } = getRequestAndCollectionVariables(
           requestVariables,
           collectionVariables
         )
 
         const currentAggregateEnvs = getAggregateEnvsWithCurrentValue()
-        this.envs = [...requestAndCollVars, ...currentAggregateEnvs]
+        const nonGlobalEnvs = currentAggregateEnvs.filter(
+          (e) => e.sourceEnv !== "Global"
+        )
+        const globalEnvs = currentAggregateEnvs.filter(
+          (e) => e.sourceEnv === "Global"
+        )
+        this.envs = [...reqVars, ...nonGlobalEnvs, ...collVars, ...globalEnvs]
 
         this.editorView.value?.dispatch({
           effects: this.compartment.reconfigure([
@@ -456,12 +462,14 @@ export class HoppEnvironmentPlugin {
       const requestVariables =
         request && "requestVariables" in request ? request.requestVariables : []
 
-      const freshRequestAndCollVars = getRequestAndCollectionVariables(
+      const { reqVars, collVars } = getRequestAndCollectionVariables(
         requestVariables,
         inheritedProperties?.variables ?? []
       )
 
-      this.envs = [...freshRequestAndCollVars, ...envs]
+      const nonGlobalEnvs = envs.filter((e) => e.sourceEnv !== "Global")
+      const globalEnvs = envs.filter((e) => e.sourceEnv === "Global")
+      this.envs = [...reqVars, ...nonGlobalEnvs, ...collVars, ...globalEnvs]
 
       this.editorView.value?.dispatch({
         effects: this.compartment.reconfigure([

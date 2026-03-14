@@ -256,6 +256,7 @@ function createComparator<T>(
     return 0
   }
 }
+
 const restCollectionDispatchers = defineDispatchers({
   setCollections(
     _: RESTCollectionStoreType,
@@ -317,6 +318,43 @@ const restCollectionDispatchers = defineDispatchers({
           : col
       ),
     }
+  },
+
+  addCollectionVariable(
+    { state }: RESTCollectionStoreType,
+    {
+      collectionRefID,
+      key,
+      value,
+    }: {
+      collectionRefID: string
+      key: string
+      value: string
+    }
+  ) {
+    let targetCollection: HoppCollection | null = null
+    for (const collection of state) {
+      const found = findCollection(collection, collectionRefID)
+      if (found) {
+        targetCollection = found
+        break
+      }
+    }
+
+    if (!targetCollection) return {}
+
+    const targetVariables = targetCollection.variables ?? []
+    targetCollection.variables = [
+      ...targetVariables,
+      {
+        key,
+        initialValue: value,
+        currentValue: value,
+        secret: false,
+      },
+    ]
+
+    return { state }
   },
 
   sortRESTCollection(
@@ -1480,6 +1518,21 @@ export function editRESTCollection(
     payload: {
       collectionIndex,
       partialCollection: partialCollection,
+    },
+  })
+}
+
+export function addCollectionVariable(
+  collectionRefID: string,
+  key: string,
+  value: string
+) {
+  restCollectionStore.dispatch({
+    dispatcher: "addCollectionVariable",
+    payload: {
+      collectionRefID,
+      key,
+      value,
     },
   })
 }

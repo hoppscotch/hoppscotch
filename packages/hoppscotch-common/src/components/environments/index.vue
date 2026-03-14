@@ -42,6 +42,8 @@
       :name="editingVariableName"
       :value="editingVariableValue"
       :position="position"
+      :preferred-scope="editingVariableScope"
+      :collection="editingCollectionScope"
       @hide-modal="displayModalNew(false)"
     />
   </div>
@@ -204,6 +206,23 @@ const action = ref<"new" | "edit">("edit")
 const editingEnvironmentIndex = ref<"Global" | null>(null)
 const editingVariableName = ref("")
 const editingVariableValue = ref("")
+const editingVariableScope = ref<
+  "global" | "my-environment" | "team-environment" | "collection" | undefined
+>(undefined)
+const editingCollectionScope = ref<
+  | {
+      originLocation: "user-collection"
+      collectionRefID: string
+      collectionPath: string
+      collectionName: string
+    }
+  | {
+      originLocation: "team-collection"
+      collectionID: string
+      collectionName: string
+    }
+  | undefined
+>(undefined)
 const secretOptionSelected = ref(false)
 const duplicateGlobalEnvironmentLoading = ref(false)
 
@@ -322,6 +341,8 @@ const resetSelectedData = () => {
   editingEnvironmentIndex.value = null
   editingVariableName.value = ""
   editingVariableValue.value = ""
+  editingVariableScope.value = undefined
+  editingCollectionScope.value = undefined
   secretOptionSelected.value = false
 }
 
@@ -387,9 +408,14 @@ watch(
   { deep: true }
 )
 
-defineActionHandler("modals.environment.add", ({ envName, variableName }) => {
-  editingVariableName.value = envName
-  editingVariableValue.value = variableName ?? ""
-  displayModalNew(true)
-})
+defineActionHandler(
+  "modals.environment.add",
+  ({ envName, variableName, scope, collection }) => {
+    editingVariableName.value = envName
+    editingVariableValue.value = variableName ?? ""
+    editingVariableScope.value = scope
+    editingCollectionScope.value = collection
+    displayModalNew(true)
+  }
+)
 </script>

@@ -249,6 +249,11 @@ const BASE_RETRY_DELAY_MS = 2000
 let retryCount = 0
 let retryTimer: ReturnType<typeof setTimeout> | null = null
 
+// Tracks the polling timer used to honor a user's manual save request that
+// arrives while a mutation is already in-flight. Ensures we never have more
+// than one outstanding poll and that pending polls are cancelled on unmount.
+let manualSavePollTimer: ReturnType<typeof setTimeout> | null = null
+
 // tabRef is the reactive tab ref type returned by getTabRef
 type TabRef = ReturnType<typeof tabs.getTabRef>["value"]
 
@@ -277,12 +282,23 @@ const saveRequest = async (options?: { silent?: boolean }) => {
     if (!silent) {
       // For a manual save blocked by an in-flight mutation, poll until
       // the in-flight save completes then re-invoke so the user's intent
-      // is never silently dropped.
+      // is never silently dropped. We track the timer so repeated button
+      // presses don't accumulate multiple concurrent polls.
       const waitAndRetry = () => {
-        if (saveInProgress.value) setTimeout(waitAndRetry, 100)
-        else saveRequest({ silent: false })
+        if (saveInProgress.value) {
+          manualSavePollTimer = setTimeout(waitAndRetry, 100)
+        } else {
+          manualSavePollTimer = null
+          saveRequest({ silent: false })
+        }
       }
-      setTimeout(waitAndRetry, 100)
+
+      if (manualSavePollTimer !== null) {
+        clearTimeout(manualSavePollTimer)
+        manualSavePollTimer = null
+      }
+
+      manualSavePollTimer = setTimeout(waitAndRetry, 100)
     }
     return
   }
@@ -473,6 +489,10 @@ onUnmounted(() => {
   if (retryTimer !== null) {
     clearTimeout(retryTimer)
     retryTimer = null
+  }
+  if (manualSavePollTimer !== null) {
+    clearTimeout(manualSavePollTimer)
+    manualSavePollTimer = null
   }
 })
 </script>

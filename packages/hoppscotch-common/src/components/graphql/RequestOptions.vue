@@ -236,15 +236,14 @@ const hideRequestModal = () => {
 }
 
 // Tracks whether a team-collection async mutation is currently in-flight.
-// Only used to prevent concurrent silent auto-saves from piling up.
-// Manual saves (silent=false) always proceed regardless of this flag.
+// Only blocks concurrent silent auto-saves — manual saves always proceed.
 const saveInProgress = ref(false)
 
 const saveRequest = (options?: { silent?: boolean }) => {
   const silent = options?.silent ?? false
 
   // Block concurrent silent auto-saves only.
-  // Manual saves always proceed so the user never gets silently ignored.
+  // Manual saves always proceed so the user is never silently ignored.
   if (silent && saveInProgress.value) return
 
   // For manual saves, only proceed if this is the active tab
@@ -266,14 +265,21 @@ const saveRequest = (options?: { silent?: boolean }) => {
 
   if (saveCtx.originLocation === "user-collection") {
     // Pure in-memory operation — no auth check needed
-    editGraphqlRequest(
-      saveCtx.folderPath,
-      saveCtx.requestIndex,
-      tabToSave.document.request
-    )
-    tabToSave.document.isDirty = false
-    // Only toast for manual saves — auto-save must never show toasts
-    if (!silent) toast.success(`${t("request.saved")}`)
+    try {
+      editGraphqlRequest(
+        saveCtx.folderPath,
+        saveCtx.requestIndex,
+        tabToSave.document.request
+      )
+      tabToSave.document.isDirty = false
+      // Only toast for manual saves — auto-save must never show toasts
+      if (!silent) toast.success(`${t("request.saved")}`)
+    } catch (_e) {
+      // saveContext may be stale (e.g. collection restructured) — clear it
+      // so the user is re-prompted on the next manual save
+      tabToSave.document.saveContext = undefined
+      if (!silent) showSaveRequestModal.value = true
+    }
     return
   }
 
@@ -346,18 +352,24 @@ const AUTO_SAVE_DELAY_MS = useSetting("AUTO_SAVE_DELAY_MS")
 const stopAutoSave = watchDebounced(
   request,
   () => {
-    const tabToSave = tab.value
-    if (!tabToSave) return
+    // getTabRef throws (not returns null) when the tab is not in the map.
+    // This can happen in the narrow race between the debounce firing and
+    // onUnmounted running. Wrap in try/catch so it fails silently.
+    try {
+      const tabToSave = tab.value
 
-    const isDirty = tabToSave.document.isDirty
-    const saveCtx = tabToSave.document.saveContext
-    const autoSaveEnabled = AUTO_SAVE_REQUESTS.value
+      const isDirty = tabToSave.document.isDirty
+      const saveCtx = tabToSave.document.saveContext
+      const autoSaveEnabled = AUTO_SAVE_REQUESTS.value
 
-    if (!autoSaveEnabled || !isDirty || !saveCtx || saveInProgress.value) {
-      return
+      if (!autoSaveEnabled || !isDirty || !saveCtx || saveInProgress.value) {
+        return
+      }
+
+      saveRequest({ silent: true })
+    } catch {
+      // Tab was removed between the watcher firing and execution — safe to ignore
     }
-
-    saveRequest({ silent: true })
   },
   {
     deep: true,

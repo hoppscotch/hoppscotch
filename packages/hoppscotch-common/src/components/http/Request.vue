@@ -568,8 +568,7 @@ const cycleDownMethod = () => {
 }
 
 // Tracks whether a team-collection async mutation is currently in-flight.
-// Only used to prevent concurrent silent auto-saves from piling up.
-// Manual saves (silent=false) always proceed regardless of this flag.
+// Only blocks concurrent silent auto-saves — manual saves always proceed.
 const saveInProgress = ref(false)
 
 // Separate ref for the "Save As" modal request
@@ -579,9 +578,10 @@ const saveRequest = async (options?: { silent?: boolean }) => {
   const silent = options?.silent === true
 
   // Block concurrent silent auto-saves only.
-  // Manual saves always proceed so the user never gets silently ignored.
+  // Manual saves always proceed so the user is never silently ignored.
   if (silent && saveInProgress.value) return
 
+  // Capture saveCtx before any await so we can verify it hasn't changed afterward
   const saveCtx = tab.value.document.saveContext
 
   if (!saveCtx) {
@@ -604,7 +604,7 @@ const saveRequest = async (options?: { silent?: boolean }) => {
       editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, req)
       tab.value.document.isDirty = false
 
-      // Only log analytics and show toast for deliberate user-initiated saves
+      // Only log analytics and toast for deliberate user-initiated saves
       if (!silent) {
         platform.analytics?.logEvent({
           type: "HOPP_SAVE_REQUEST",
@@ -615,14 +615,14 @@ const saveRequest = async (options?: { silent?: boolean }) => {
         toast.success(`${t("request.saved")}`)
       }
     } catch (_e) {
-      // saveContext is stale — clear it and re-prompt the user to pick a location
+      // saveContext is stale — clear it and re-prompt the user on next manual save
       tab.value.document.saveContext = undefined
       // Only re-prompt for manual saves — auto-save silently drops this attempt
       if (!silent) await saveRequest()
     }
   } else if (saveCtx.originLocation === "team-collection") {
-    // Set saveInProgress BEFORE the first await so the guard at the top of
-    // this function sees it during the async auth check gap
+    // Set saveInProgress BEFORE the first await to close the race window
+    // where a second debounced auto-save could slip through the guard above
     saveInProgress.value = true
 
     try {
@@ -632,6 +632,11 @@ const saveRequest = async (options?: { silent?: boolean }) => {
         : await handleTokenValidation()
 
       if (!tokenCheck) return
+
+      // Re-verify saveContext after the async auth gap.
+      // If a "Save As" ran during the auth check, the context points to a
+      // different request — abort to avoid overwriting the wrong backend record.
+      if (tab.value.document.saveContext !== saveCtx) return
 
       // Only log analytics for deliberate user-initiated saves
       if (!silent) {

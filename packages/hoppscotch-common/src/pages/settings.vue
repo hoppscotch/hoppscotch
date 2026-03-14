@@ -57,11 +57,10 @@
                 </label>
                 <!--
                   Intentionally using :value (one-way) + @change only.
-                  v-model.number.lazy is avoided here because it would write
-                  the raw unclamped value to the store before onAutoSaveDelayChange
-                  clamps it. The handler reads event.target.value and calls
-                  applySetting with the clamped result, so no intermediate
-                  invalid write ever reaches the store.
+                  v-model.number.lazy is avoided because it would write the raw
+                  unclamped value to the store before onAutoSaveDelayChange clamps it.
+                  The handler reads event.target.value, clamps it, and calls applySetting
+                  so no invalid value ever reaches the store.
                 -->
                 <input
                   :value="AUTO_SAVE_DELAY_MS"
@@ -426,20 +425,15 @@ const showConfirmModal = () => {
   else toggleSetting("TELEMETRY_ENABLED")
 }
 
-/**
- * Handles the auto-save delay input change.
- * Uses :value + @change (not v-model.number.lazy) so that the raw unclamped
- * value is never written to the store. Only the clamped result reaches applySetting.
- */
 const onAutoSaveDelayChange = (event: Event) => {
   const target = event.target as HTMLInputElement
-  const val = Number(target.value)
-  const clamped = Math.min(
-    10000,
-    Math.max(500, Number.isFinite(val) ? val : 2000)
-  )
+  const raw = target.value.trim()
+  const val = raw === "" ? NaN : Number(raw)
+  // Treat empty, non-numeric, zero, or negative as "restore default"
+  const clamped =
+    Number.isFinite(val) && val > 0 ? Math.min(10000, Math.max(500, val)) : 2000
   applySetting("AUTO_SAVE_DELAY_MS", clamped)
-  // Reflect the clamped value back to the input in case the user typed out-of-range
+  // Reflect the clamped value back so the input always shows what was saved
   target.value = String(clamped)
 }
 

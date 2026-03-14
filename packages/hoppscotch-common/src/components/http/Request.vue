@@ -648,11 +648,15 @@ const saveRequest = async (options?: { silent?: boolean }) => {
         })
       }
 
+      // Snapshot the request before the mutation so we can detect edits
+      // that arrive while the network call is in-flight
+      const requestSnapshot = JSON.stringify(tab.value.document.request)
+
       const result = await runMutation(UpdateRequestDocument, {
         requestID: saveCtx.requestID,
         data: {
           title: tab.value.document.request.name,
-          request: JSON.stringify(tab.value.document.request),
+          request: requestSnapshot,
         },
       })()
 
@@ -660,7 +664,12 @@ const saveRequest = async (options?: { silent?: boolean }) => {
         // Only toast for manual saves — auto-save must never show toasts
         if (!silent) toast.error(`${t("profile.no_permission")}`)
       } else {
-        tab.value.document.isDirty = false
+        // Only clear isDirty if no new edits arrived during the mutation.
+        // If the request changed while in-flight, leave isDirty=true so the
+        // next debounce cycle picks it up and saves the newer content.
+        if (JSON.stringify(tab.value.document.request) === requestSnapshot) {
+          tab.value.document.isDirty = false
+        }
         if (!silent) toast.success(`${t("request.saved")}`)
       }
     } catch (error) {
@@ -754,5 +763,5 @@ onUnmounted(() => {
   stopAutoSave()
 })
 
-const tabResults = inspectionService.getResultViewFor(tabs.currentTabID.value)
+const tabResults = inspectionService.getResultViewFor(tab.value.id)
 </script>

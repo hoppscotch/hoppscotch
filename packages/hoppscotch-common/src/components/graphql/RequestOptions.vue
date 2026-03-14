@@ -296,8 +296,12 @@ const saveRequest = (options?: { silent?: boolean }) => {
       })
     }
 
+    // Snapshot the request before the mutation so we can detect edits
+    // that arrive while the network call is in-flight
+    const requestSnapshot = JSON.stringify(tabToSave.document.request)
+
     updateTeamRequest(saveCtx.requestID, {
-      request: JSON.stringify(tabToSave.document.request),
+      request: requestSnapshot,
       title: tabToSave.document.request.name,
     })()
       .then((result) => {
@@ -305,8 +309,12 @@ const saveRequest = (options?: { silent?: boolean }) => {
           // Only toast for manual saves — auto-save must never show toasts
           if (!silent) toast.error(`${t("profile.no_permission")}`)
         } else {
-          // Use captured tabToSave — not tab.value — to avoid stale ref in async
-          tabToSave.document.isDirty = false
+          // Only clear isDirty if no new edits arrived during the mutation.
+          // If the request changed while in-flight, leave isDirty=true so the
+          // next debounce cycle picks it up and saves the newer content.
+          if (JSON.stringify(tabToSave.document.request) === requestSnapshot) {
+            tabToSave.document.isDirty = false
+          }
           if (!silent) toast.success(`${t("request.saved")}`)
         }
       })

@@ -621,26 +621,28 @@ const saveRequest = async (options?: { silent?: boolean }) => {
       if (!silent) await saveRequest()
     }
   } else if (saveCtx.originLocation === "team-collection") {
-    // Auth check is only needed for team requests (network operation)
-    const tokenCheck = silent
-      ? (await isValidUser()).valid
-      : await handleTokenValidation()
-
-    if (!tokenCheck) return
-
+    // Set saveInProgress BEFORE the first await so the guard at the top of
+    // this function sees it during the async auth check gap
     saveInProgress.value = true
 
-    // Only log analytics for deliberate user-initiated saves
-    if (!silent) {
-      platform.analytics?.logEvent({
-        type: "HOPP_SAVE_REQUEST",
-        platform: "rest",
-        createdNow: false,
-        workspaceType: "team",
-      })
-    }
-
     try {
+      // Auth check is only needed for team requests (network operation)
+      const tokenCheck = silent
+        ? (await isValidUser()).valid
+        : await handleTokenValidation()
+
+      if (!tokenCheck) return
+
+      // Only log analytics for deliberate user-initiated saves
+      if (!silent) {
+        platform.analytics?.logEvent({
+          type: "HOPP_SAVE_REQUEST",
+          platform: "rest",
+          createdNow: false,
+          workspaceType: "team",
+        })
+      }
+
       const result = await runMutation(UpdateRequestDocument, {
         requestID: saveCtx.requestID,
         data: {

@@ -690,9 +690,16 @@ const saveRequest = async (options?: { silent?: boolean }) => {
 
       if (E.isLeft(result)) {
         if (!silent) toast.error(`${t("profile.no_permission")}`)
-        // Mutation reached the server but was rejected — schedule a backoff
-        // retry so a transient permission issue or token expiry self-heals.
-        scheduleRetry(tabSnapshot)
+        // Mutation reached the server but was rejected — only schedule a
+        // backoff retry when the request snapshot hasn't diverged. If the
+        // user edited during the in-flight mutation, the follow-up path in
+        // finally will handle saving the newer content.
+        if (
+          requestSnapshot &&
+          JSON.stringify(tabSnapshot.document.request) === requestSnapshot
+        ) {
+          scheduleRetry(tabSnapshot)
+        }
       } else {
         // Only clear isDirty if no new edits arrived during the mutation.
         if (JSON.stringify(tabSnapshot.document.request) === requestSnapshot) {
@@ -707,8 +714,16 @@ const saveRequest = async (options?: { silent?: boolean }) => {
         toast.error(`${t("error.something_went_wrong")}`)
       }
       console.error(error)
-      // Network or unexpected error — schedule a backoff retry.
-      scheduleRetry(tabSnapshot)
+      // Network or unexpected error — only schedule a backoff retry when
+      // the request snapshot hasn't diverged. If edits arrived during the
+      // failed mutation, the finally block will pick up and save the new
+      // content instead of retrying the stale snapshot.
+      if (
+        requestSnapshot &&
+        JSON.stringify(tabSnapshot.document.request) === requestSnapshot
+      ) {
+        scheduleRetry(tabSnapshot)
+      }
     } finally {
       saveInProgress.value = false
       // Only trigger an immediate follow-up save if new content arrived

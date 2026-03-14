@@ -425,7 +425,11 @@ const saveRequest = async (options?: { silent?: boolean }) => {
       // Failure-driven retries are handled by scheduleRetry with backoff,
       // so we never hammer the endpoint on persistent errors.
       const newSnapshot = JSON.stringify(tabToSave.document.request)
+      const stillExists = tabs
+        .getActiveTabs()
+        .value.some((t) => t.id === tabToSave.id)
       if (
+        stillExists &&
         requestSnapshot &&
         tabToSave.document.isDirty &&
         tabToSave.document.saveContext &&

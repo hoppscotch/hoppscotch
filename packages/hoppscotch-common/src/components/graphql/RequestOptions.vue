@@ -117,7 +117,6 @@ const emit = defineEmits<{
 }>()
 
 const selectedOptionTab = useVModel(props, "optionTab", emit)
-
 const request = useVModel(props, "modelValue", emit)
 
 // Scoped to this component's tab — never reads currentActiveTab
@@ -236,34 +235,44 @@ const hideRequestModal = () => {
   showSaveRequestModal.value = false
 }
 
+// Tracks whether a team-collection async mutation is currently in-flight.
+// Only used to prevent concurrent silent auto-saves from piling up.
+// Manual saves (silent=false) always proceed regardless of this flag.
 const saveInProgress = ref(false)
 
 const saveRequest = (options?: { silent?: boolean }) => {
   const silent = options?.silent ?? false
+
+  // Block concurrent silent auto-saves only.
+  // Manual saves always proceed so the user never gets silently ignored.
+  if (silent && saveInProgress.value) return
 
   // For manual saves, only proceed if this is the active tab
   if (!silent && tabs.currentActiveTab.value.id !== props.tabId) {
     return
   }
 
-  // Always use the component-scoped tab ref, never currentActiveTab
+  // Always use the component-scoped tab ref — never currentActiveTab
   const tabToSave = tab.value
   if (!tabToSave) return
 
   const saveCtx = tabToSave.document.saveContext
 
   if (!saveCtx) {
+    // Only open the Save modal for manual saves — auto-save must never open modals
     if (!silent) showSaveRequestModal.value = true
     return
   }
 
   if (saveCtx.originLocation === "user-collection") {
+    // Pure in-memory operation — no auth check needed
     editGraphqlRequest(
       saveCtx.folderPath,
       saveCtx.requestIndex,
       tabToSave.document.request
     )
     tabToSave.document.isDirty = false
+    // Only toast for manual saves — auto-save must never show toasts
     if (!silent) toast.success(`${t("request.saved")}`)
     return
   }
@@ -287,7 +296,7 @@ const saveRequest = (options?: { silent?: boolean }) => {
     })()
       .then((result) => {
         if (E.isLeft(result)) {
-          // Only show error toast for manual saves — silent auto-save must never toast
+          // Only toast for manual saves — auto-save must never show toasts
           if (!silent) toast.error(`${t("profile.no_permission")}`)
         } else {
           // Use captured tabToSave — not tab.value — to avoid stale ref in async
@@ -296,7 +305,7 @@ const saveRequest = (options?: { silent?: boolean }) => {
         }
       })
       .catch((error) => {
-        // Only show error toast for manual saves — silent auto-save must never toast
+        // Only toast for manual saves — auto-save must never show toasts
         if (!silent) toast.error(`${t("error.something_went_wrong")}`)
         console.error(error)
       })
@@ -306,7 +315,8 @@ const saveRequest = (options?: { silent?: boolean }) => {
     return
   }
 
-  showSaveRequestModal.value = true
+  // saveCtx.originLocation is unrecognised — only open modal for manual saves
+  if (!silent) showSaveRequestModal.value = true
 }
 
 const clearGQLQuery = () => {
@@ -343,14 +353,7 @@ const stopAutoSave = watchDebounced(
     const saveCtx = tabToSave.document.saveContext
     const autoSaveEnabled = AUTO_SAVE_REQUESTS.value
 
-    // Guard: match REST component by also checking document type
-    if (
-      !autoSaveEnabled ||
-      !isDirty ||
-      !saveCtx ||
-      saveInProgress.value ||
-      tabToSave.document.type !== "request"
-    ) {
+    if (!autoSaveEnabled || !isDirty || !saveCtx || saveInProgress.value) {
       return
     }
 

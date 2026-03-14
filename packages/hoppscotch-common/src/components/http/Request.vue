@@ -567,104 +567,105 @@ const cycleDownMethod = () => {
   }
 }
 
+// Tracks whether a team-collection async mutation is currently in-flight.
+// Only used to prevent concurrent silent auto-saves from piling up.
+// Manual saves (silent=false) always proceed regardless of this flag.
 const saveInProgress = ref(false)
 
-// Separate ref for the "Save As" modal request — replaces the unused `request` ref
+// Separate ref for the "Save As" modal request
 const saveAsRequest = ref<HoppRESTRequest | null>(null)
 
 const saveRequest = async (options?: { silent?: boolean }) => {
   const silent = options?.silent === true
 
-  // Guard against concurrent saves before any async gap
-  if (saveInProgress.value) return
-  saveInProgress.value = true
+  // Block concurrent silent auto-saves only.
+  // Manual saves always proceed so the user never gets silently ignored.
+  if (silent && saveInProgress.value) return
 
-  try {
+  const saveCtx = tab.value.document.saveContext
+
+  if (!saveCtx) {
+    // Only open the Save modal for manual saves — auto-save must never open modals
+    if (!silent) showSaveRequestModal.value = true
+    return
+  }
+
+  if (saveCtx.originLocation === "user-collection") {
+    // Pure in-memory operation — no auth check needed
+    const req = tab.value.document.request
+
+    try {
+      if (saveCtx.requestIndex === undefined) {
+        // Only open the Save modal for manual saves — auto-save must never open modals
+        if (!silent) showSaveRequestModal.value = true
+        return
+      }
+
+      editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, req)
+      tab.value.document.isDirty = false
+
+      // Only log analytics and show toast for deliberate user-initiated saves
+      if (!silent) {
+        platform.analytics?.logEvent({
+          type: "HOPP_SAVE_REQUEST",
+          platform: "rest",
+          createdNow: false,
+          workspaceType: "personal",
+        })
+        toast.success(`${t("request.saved")}`)
+      }
+    } catch (_e) {
+      // saveContext is stale — clear it and re-prompt the user to pick a location
+      tab.value.document.saveContext = undefined
+      // Only re-prompt for manual saves — auto-save silently drops this attempt
+      if (!silent) await saveRequest()
+    }
+  } else if (saveCtx.originLocation === "team-collection") {
+    // Auth check is only needed for team requests (network operation)
     const tokenCheck = silent
       ? (await isValidUser()).valid
       : await handleTokenValidation()
 
     if (!tokenCheck) return
 
-    const saveCtx = tab.value.document.saveContext
+    saveInProgress.value = true
 
-    if (!saveCtx) {
-      if (!silent) showSaveRequestModal.value = true
-      return
+    // Only log analytics for deliberate user-initiated saves
+    if (!silent) {
+      platform.analytics?.logEvent({
+        type: "HOPP_SAVE_REQUEST",
+        platform: "rest",
+        createdNow: false,
+        workspaceType: "team",
+      })
     }
 
-    if (saveCtx.originLocation === "user-collection") {
-      const req = tab.value.document.request
+    try {
+      const result = await runMutation(UpdateRequestDocument, {
+        requestID: saveCtx.requestID,
+        data: {
+          title: tab.value.document.request.name,
+          request: JSON.stringify(tab.value.document.request),
+        },
+      })()
 
-      try {
-        if (saveCtx.requestIndex === undefined) {
-          // Only open the modal for manual saves — silent auto-save must never open modals
-          if (!silent) showSaveRequestModal.value = true
-          return
-        }
-        editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, req)
-
+      if (E.isLeft(result)) {
+        // Only toast for manual saves — auto-save must never show toasts
+        if (!silent) toast.error(`${t("profile.no_permission")}`)
+      } else {
         tab.value.document.isDirty = false
-
-        // Only log analytics for deliberate user-initiated saves
-        if (!silent) {
-          platform.analytics?.logEvent({
-            type: "HOPP_SAVE_REQUEST",
-            platform: "rest",
-            createdNow: false,
-            workspaceType: "personal",
-          })
-          toast.success(`${t("request.saved")}`)
-        }
-      } catch (_e) {
-        tab.value.document.saveContext = undefined
-        // Reset saveInProgress before recursive call — the guard at the top of
-        // saveRequest would see true and return immediately, blocking the modal
-        if (!silent) {
-          saveInProgress.value = false
-          await saveRequest()
-        }
+        if (!silent) toast.success(`${t("request.saved")}`)
       }
-    } else if (saveCtx.originLocation === "team-collection") {
-      const req = tab.value.document.request
-
-      try {
-        // Only log analytics for deliberate user-initiated saves
-        if (!silent) {
-          platform.analytics?.logEvent({
-            type: "HOPP_SAVE_REQUEST",
-            platform: "rest",
-            createdNow: false,
-            workspaceType: "team",
-          })
-        }
-
-        const result = await runMutation(UpdateRequestDocument, {
-          requestID: saveCtx.requestID,
-          data: {
-            title: req.name,
-            request: JSON.stringify(req),
-          },
-        })()
-
-        if (E.isLeft(result)) {
-          // Only show error toast for manual saves — silent auto-save must never toast
-          if (!silent) toast.error(`${t("profile.no_permission")}`)
-        } else {
-          tab.value.document.isDirty = false
-          if (!silent) toast.success(`${t("request.saved")}`)
-        }
-      } catch (error) {
-        // Only show modal and toast for manual saves — silent auto-save must never open modals
-        if (!silent) {
-          showSaveRequestModal.value = true
-          toast.error(`${t("error.something_went_wrong")}`)
-        }
-        console.error(error)
+    } catch (error) {
+      // Only show modal and toast for manual saves — auto-save must never open modals
+      if (!silent) {
+        showSaveRequestModal.value = true
+        toast.error(`${t("error.something_went_wrong")}`)
       }
+      console.error(error)
+    } finally {
+      saveInProgress.value = false
     }
-  } finally {
-    saveInProgress.value = false
   }
 }
 

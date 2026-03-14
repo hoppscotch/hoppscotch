@@ -686,10 +686,12 @@ const saveRequest = async (options?: { silent?: boolean }) => {
       console.error(error)
     } finally {
       saveInProgress.value = false
-      // If edits arrived during the mutation, isDirty is still true.
-      // Trigger a follow-up silent save now that saveInProgress is cleared —
-      // the debounce watcher won't re-arm if the user stopped typing.
-      if (tab.value.document.isDirty && tab.value.document.saveContext) {
+      const newSnapshot = JSON.stringify(tab.value.document.request)
+      if (
+        tab.value.document.isDirty &&
+        tab.value.document.saveContext &&
+        newSnapshot !== requestSnapshot // ← only retry if new edits arrived
+      ) {
         saveRequest({ silent: true })
       }
     }

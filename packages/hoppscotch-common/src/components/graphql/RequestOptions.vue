@@ -286,53 +286,66 @@ const saveRequest = (options?: { silent?: boolean }) => {
   if (saveCtx.originLocation === "team-collection") {
     saveInProgress.value = true
 
-    // Only log analytics for deliberate user-initiated saves
-    if (!silent) {
-      platform.analytics?.logEvent({
-        type: "HOPP_SAVE_REQUEST",
-        platform: "graphql",
-        createdNow: false,
-        workspaceType: "team",
-      })
-    }
+    try {
+      // Only log analytics for deliberate user-initiated saves
+      if (!silent) {
+        platform.analytics?.logEvent({
+          type: "HOPP_SAVE_REQUEST",
+          platform: "graphql",
+          createdNow: false,
+          workspaceType: "team",
+        })
+      }
 
-    // Snapshot the request before the mutation so we can detect edits
-    // that arrive while the network call is in-flight
-    const requestSnapshot = JSON.stringify(tabToSave.document.request)
+      // Snapshot the request before the mutation so we can detect edits
+      // that arrive while the network call is in-flight
+      const requestSnapshot = JSON.stringify(tabToSave.document.request)
 
-    updateTeamRequest(saveCtx.requestID, {
-      request: requestSnapshot,
-      title: tabToSave.document.request.name,
-    })()
-      .then((result) => {
-        if (E.isLeft(result)) {
-          // Only toast for manual saves — auto-save must never show toasts
-          if (!silent) toast.error(`${t("profile.no_permission")}`)
-        } else {
-          // Only clear isDirty if no new edits arrived during the mutation.
-          // If the request changed while in-flight, leave isDirty=true — the
-          // finally block below will trigger a follow-up save after resetting
-          // saveInProgress so the guard at the top of saveRequest passes.
-          if (JSON.stringify(tabToSave.document.request) === requestSnapshot) {
-            tabToSave.document.isDirty = false
+      updateTeamRequest(saveCtx.requestID, {
+        request: requestSnapshot,
+        title: tabToSave.document.request.name,
+      })()
+        .then((result) => {
+          if (E.isLeft(result)) {
+            // Only toast for manual saves — auto-save must never show toasts
+            if (!silent) toast.error(`${t("profile.no_permission")}`)
+          } else {
+            // Only clear isDirty if no new edits arrived during the mutation.
+            // If the request changed while in-flight, leave isDirty=true — the
+            // finally block below will trigger a follow-up save after resetting
+            // saveInProgress so the guard at the top of saveRequest passes.
+            if (
+              JSON.stringify(tabToSave.document.request) === requestSnapshot
+            ) {
+              tabToSave.document.isDirty = false
+            }
+            if (!silent) toast.success(`${t("request.saved")}`)
           }
-          if (!silent) toast.success(`${t("request.saved")}`)
-        }
-      })
-      .catch((error) => {
-        // Only toast for manual saves — auto-save must never show toasts
-        if (!silent) toast.error(`${t("error.something_went_wrong")}`)
-        console.error(error)
-      })
-      .finally(() => {
-        saveInProgress.value = false
-        // If edits arrived during the mutation, isDirty is still true.
-        // Trigger a follow-up silent save now that saveInProgress is cleared —
-        // the debounce watcher won't re-arm if the user stopped typing.
-        if (tabToSave.document.isDirty && tabToSave.document.saveContext) {
-          saveRequest({ silent: true })
-        }
-      })
+        })
+        .catch((error) => {
+          // Only toast for manual saves — auto-save must never show toasts
+          if (!silent) toast.error(`${t("error.something_went_wrong")}`)
+          console.error(error)
+        })
+        .finally(() => {
+          saveInProgress.value = false
+          // Only re-save if new edits arrived *during* the mutation.
+          // If the save itself failed, isDirty stays true for the next debounce cycle —
+          // don't retry immediately or we risk an infinite loop on persistent errors.
+          const newSnapshot = JSON.stringify(tabToSave.document.request)
+          if (
+            tabToSave.document.isDirty &&
+            tabToSave.document.saveContext &&
+            newSnapshot !== requestSnapshot
+          ) {
+            saveRequest({ silent: true })
+          }
+        })
+    } catch {
+      // Synchronous throw before promise was created — reset immediately
+      // so future auto-saves are not permanently blocked
+      saveInProgress.value = false
+    }
     return
   }
 

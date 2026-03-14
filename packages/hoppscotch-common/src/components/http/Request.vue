@@ -581,6 +581,10 @@ const saveRequest = async (options?: { silent?: boolean }) => {
   // Manual saves always proceed so the user is never silently ignored.
   if (silent && saveInProgress.value) return
 
+  // For manual saves, only proceed if this is the active tab.
+  // invokeAction fires all registered handlers — guard against non-active instances.
+  if (!silent && tabs.currentActiveTab.value.id !== tab.value.id) return
+
   // Capture saveCtx before any await so we can verify it hasn't changed afterward
   const saveCtx = tab.value.document.saveContext
 
@@ -665,8 +669,9 @@ const saveRequest = async (options?: { silent?: boolean }) => {
         if (!silent) toast.error(`${t("profile.no_permission")}`)
       } else {
         // Only clear isDirty if no new edits arrived during the mutation.
-        // If the request changed while in-flight, leave isDirty=true so the
-        // next debounce cycle picks it up and saves the newer content.
+        // If the request changed while in-flight, leave isDirty=true — the
+        // finally block below will trigger a follow-up save after resetting
+        // saveInProgress so the guard at the top of saveRequest passes.
         if (JSON.stringify(tab.value.document.request) === requestSnapshot) {
           tab.value.document.isDirty = false
         }
@@ -681,6 +686,12 @@ const saveRequest = async (options?: { silent?: boolean }) => {
       console.error(error)
     } finally {
       saveInProgress.value = false
+      // If edits arrived during the mutation, isDirty is still true.
+      // Trigger a follow-up silent save now that saveInProgress is cleared —
+      // the debounce watcher won't re-arm if the user stopped typing.
+      if (tab.value.document.isDirty && tab.value.document.saveContext) {
+        saveRequest({ silent: true })
+      }
     }
   }
 }

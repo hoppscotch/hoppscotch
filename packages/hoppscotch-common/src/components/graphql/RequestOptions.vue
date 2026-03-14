@@ -310,8 +310,9 @@ const saveRequest = (options?: { silent?: boolean }) => {
           if (!silent) toast.error(`${t("profile.no_permission")}`)
         } else {
           // Only clear isDirty if no new edits arrived during the mutation.
-          // If the request changed while in-flight, leave isDirty=true so the
-          // next debounce cycle picks it up and saves the newer content.
+          // If the request changed while in-flight, leave isDirty=true — the
+          // finally block below will trigger a follow-up save after resetting
+          // saveInProgress so the guard at the top of saveRequest passes.
           if (JSON.stringify(tabToSave.document.request) === requestSnapshot) {
             tabToSave.document.isDirty = false
           }
@@ -325,6 +326,12 @@ const saveRequest = (options?: { silent?: boolean }) => {
       })
       .finally(() => {
         saveInProgress.value = false
+        // If edits arrived during the mutation, isDirty is still true.
+        // Trigger a follow-up silent save now that saveInProgress is cleared —
+        // the debounce watcher won't re-arm if the user stopped typing.
+        if (tabToSave.document.isDirty && tabToSave.document.saveContext) {
+          saveRequest({ silent: true })
+        }
       })
     return
   }

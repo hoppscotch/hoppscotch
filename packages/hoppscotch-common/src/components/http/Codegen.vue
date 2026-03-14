@@ -263,7 +263,19 @@ const buildFinalEnvironment = (): Environment => {
       })
     )
 
-  const environmentVariables = aggregateEnvs.map((env) => ({
+  const nonGlobalEnvs = aggregateEnvs.filter(
+    (env) => env.sourceEnv !== "Global"
+  )
+  const globalEnvs = aggregateEnvs.filter((env) => env.sourceEnv === "Global")
+
+  const nonGlobalEnvVariables = nonGlobalEnvs.map((env) => ({
+    key: env.key,
+    secret: env.secret,
+    initialValue: env.initialValue,
+    currentValue: getCurrentValue(env) || env.initialValue,
+  }))
+
+  const globalEnvVariables = globalEnvs.map((env) => ({
     key: env.key,
     secret: env.secret,
     initialValue: env.initialValue,
@@ -271,17 +283,11 @@ const buildFinalEnvironment = (): Environment => {
   }))
 
   // Priority: request → selected env → collection → global (matches combineEnvVariables)
-  const nonGlobalEnvs = environmentVariables.filter(
-    (e) => e.sourceEnv !== "Global"
-  )
-  const globalEnvs = environmentVariables.filter(
-    (e) => e.sourceEnv === "Global"
-  )
   const allVariables = [
     ...requestVariables,
-    ...nonGlobalEnvs,
+    ...nonGlobalEnvVariables,
     ...collectionVariables,
-    ...globalEnvs,
+    ...globalEnvVariables,
   ]
 
   const filteredVariables = filterNonEmptyEnvironmentVariables(allVariables)

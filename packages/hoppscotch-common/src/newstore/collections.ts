@@ -357,68 +357,6 @@ const restCollectionDispatchers = defineDispatchers({
     return { state }
   },
 
-  updateCollectionVariable(
-    { state }: RESTCollectionStoreType,
-    {
-      collectionRefID,
-      key,
-      value,
-    }: {
-      collectionRefID: string
-      key: string
-      value: string
-    }
-  ) {
-    let targetCollection: HoppCollection | null = null
-    for (const collection of state) {
-      const found = findCollection(collection, collectionRefID)
-      if (found) {
-        targetCollection = found
-        break
-      }
-    }
-
-    if (!targetCollection) return {}
-
-    const variable = (targetCollection.variables ?? []).find(
-      (v) => v.key === key
-    )
-    if (!variable) return {}
-
-    variable.initialValue = value
-    variable.currentValue = value
-
-    return { state }
-  },
-
-  deleteCollectionVariable(
-    { state }: RESTCollectionStoreType,
-    {
-      collectionRefID,
-      key,
-    }: {
-      collectionRefID: string
-      key: string
-    }
-  ) {
-    let targetCollection: HoppCollection | null = null
-    for (const collection of state) {
-      const found = findCollection(collection, collectionRefID)
-      if (found) {
-        targetCollection = found
-        break
-      }
-    }
-
-    if (!targetCollection || !targetCollection.variables) return {}
-
-    targetCollection.variables = targetCollection.variables.filter(
-      (variable) => variable.key !== key
-    )
-
-    return { state }
-  },
-
   sortRESTCollection(
     { state }: RESTCollectionStoreType,
     {
@@ -1595,31 +1533,6 @@ export function addCollectionVariable(
       collectionRefID,
       key,
       value,
-    },
-  })
-}
-
-export function updateCollectionVariable(
-  collectionRefID: string,
-  key: string,
-  value: string
-) {
-  restCollectionStore.dispatch({
-    dispatcher: "updateCollectionVariable",
-    payload: {
-      collectionRefID,
-      key,
-      value,
-    },
-  })
-}
-
-export function deleteCollectionVariable(collectionRefID: string, key: string) {
-  restCollectionStore.dispatch({
-    dispatcher: "deleteCollectionVariable",
-    payload: {
-      collectionRefID,
-      key,
     },
   })
 }

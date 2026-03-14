@@ -254,20 +254,36 @@ let retryTimer: ReturnType<typeof setTimeout> | null = null
 // than one outstanding poll and that pending polls are cancelled on unmount.
 let manualSavePollTimer: ReturnType<typeof setTimeout> | null = null
 
+// Marks this component instance as unmounted so we can stop scheduling or
+// running retries against a tab that has been removed.
+const componentUnmounted = false
+
 // tabRef is the reactive tab ref type returned by getTabRef
 type TabRef = ReturnType<typeof tabs.getTabRef>["value"]
 
 const scheduleRetry = (tabToSave: TabRef) => {
+  if (componentUnmounted) return
   if (retryCount >= MAX_RETRY_ATTEMPTS) return
   if (retryTimer !== null) clearTimeout(retryTimer)
   const delay = BASE_RETRY_DELAY_MS * Math.pow(2, retryCount)
   retryCount++
   retryTimer = setTimeout(() => {
     retryTimer = null
-    // Use the captured tabToSave ref — safe even if the tab was closed
-    if (tabToSave.document.isDirty && tabToSave.document.saveContext) {
-      saveRequest({ silent: true })
+    if (componentUnmounted) return
+
+    // Guard against retries for tabs that have been removed from the service.
+    const stillExists = tabs
+      .getActiveTabs()
+      .value.some((t) => t.id === tabToSave.id)
+    if (
+      !stillExists ||
+      !tabToSave.document.isDirty ||
+      !tabToSave.document.saveContext
+    ) {
+      return
     }
+
+    saveRequest({ silent: true })
   }, delay)
 }
 

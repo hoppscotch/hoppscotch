@@ -468,8 +468,6 @@ watch(
 )
 
 onUnmounted(() => {
-  componentUnmounted = true
-
   const isCurrentTabRemoved = !tabs
     .getActiveTabs()
     .value.some((t) => t.id === currentTabID)
@@ -561,20 +559,13 @@ const BASE_RETRY_DELAY_MS = 2000
 let retryCount = 0
 let retryTimer: ReturnType<typeof setTimeout> | null = null
 
-// Marks this component instance as unmounted so we can stop scheduling or
-// running retries against a tab that has been removed.
-let componentUnmounted = false
-
 const scheduleRetry = (tabSnapshot: HoppTab<HoppRequestDocument>) => {
-  if (componentUnmounted) return
   if (retryCount >= MAX_RETRY_ATTEMPTS) return
   if (retryTimer !== null) clearTimeout(retryTimer)
   const delay = BASE_RETRY_DELAY_MS * Math.pow(2, retryCount)
   retryCount++
   retryTimer = setTimeout(() => {
     retryTimer = null
-    if (componentUnmounted) return
-
     // Guard against retries for tabs that have been removed from the service.
     const stillExists = tabs
       .getActiveTabs()
@@ -726,7 +717,6 @@ const saveRequest = async (options?: { silent?: boolean }) => {
       // no retry needed in that case.
       // Failure-driven retries are handled by scheduleRetry with backoff,
       // so we never hammer the endpoint on persistent errors.
-      // Uses tabSnapshot (captured before any await) — safe if the tab was closed.
       const newSnapshot = JSON.stringify(tabSnapshot.document.request)
       if (
         requestSnapshot &&
@@ -734,7 +724,12 @@ const saveRequest = async (options?: { silent?: boolean }) => {
         tabSnapshot.document.saveContext &&
         newSnapshot !== requestSnapshot
       ) {
-        saveRequest({ silent: true })
+        const stillExists = tabs
+          .getActiveTabs()
+          .value.some((t) => t.id === tabSnapshot.id)
+        if (stillExists) {
+          saveRequest({ silent: true })
+        }
       }
     }
   }

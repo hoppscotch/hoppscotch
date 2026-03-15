@@ -769,7 +769,9 @@ export class TeamCollectionsService extends Service<void> {
       this.updateRequest({
         id: result.right.teamRequestUpdated.id,
         collectionID: result.right.teamRequestUpdated.collectionID,
-        request: JSON.parse(result.right.teamRequestUpdated.request),
+        request: translateToNewRequest(
+          JSON.parse(result.right.teamRequestUpdated.request)
+        ),
         title: result.right.teamRequestUpdated.title,
       })
     })
@@ -811,7 +813,7 @@ export class TeamCollectionsService extends Service<void> {
         id: requestMoved.id,
         collectionID: requestMoved.collectionID,
         title: requestMoved.title,
-        request: JSON.parse(requestMoved.request),
+        request: translateToNewRequest(JSON.parse(requestMoved.request)),
       }
 
       this.moveRequest(request)

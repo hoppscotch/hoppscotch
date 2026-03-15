@@ -793,7 +793,9 @@ export default class NewTeamCollectionAdapter {
       this.updateRequest({
         id: result.right.teamRequestUpdated.id,
         collectionID: result.right.teamRequestUpdated.collectionID,
-        request: JSON.parse(result.right.teamRequestUpdated.request),
+        request: translateToNewRequest(
+          JSON.parse(result.right.teamRequestUpdated.request)
+        ),
         title: result.right.teamRequestUpdated.title,
       })
     })
@@ -835,7 +837,7 @@ export default class NewTeamCollectionAdapter {
         id: requestMoved.id,
         collectionID: requestMoved.collectionID,
         title: requestMoved.title,
-        request: JSON.parse(requestMoved.request),
+        request: translateToNewRequest(JSON.parse(requestMoved.request)),
       }
 
       this.moveRequest(request)

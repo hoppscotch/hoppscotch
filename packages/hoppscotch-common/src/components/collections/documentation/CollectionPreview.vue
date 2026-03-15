@@ -49,7 +49,7 @@ import {
   HoppRESTHeaders,
   HoppCollectionVariable,
 } from "@hoppscotch/data"
-import { ref, computed } from "vue"
+import { ref, computed, watch } from "vue"
 import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { DocumentationService } from "~/services/documentation.service"
@@ -146,6 +146,12 @@ const documentationService = useService(DocumentationService)
 
 // Edit mode state and content management
 const editableContent = ref<string>(collectionDescription.value)
+
+// Sync editableContent when collectionDescription changes externally (e.g., team subscription updates)
+// Edit-mode protection is handled by MarkdownEditor's internal watcher (MarkdownEditor.vue:87-95)
+watch(collectionDescription, (newVal) => {
+  editableContent.value = newVal ?? ""
+})
 
 // Handle blur event - save changes and exit edit mode
 function handleBlur(): void {

@@ -182,3 +182,8 @@ devenv.local.nix
 
 # pre-commit
 .pre-commit-config.yaml
+
+.omc
+.omx
+.serena
+docker-compose.debug.yml

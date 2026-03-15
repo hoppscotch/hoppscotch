@@ -22,6 +22,7 @@ import { throwErr } from 'src/utils';
 import { AuthUser } from 'src/types/AuthUser';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { SkipThrottle } from '@nestjs/throttler';
+import { GqlAdminGuard } from 'src/admin/guards/gql-admin.guard';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => Team)
@@ -139,6 +140,29 @@ export class TeamResolver {
     teamID: string,
   ): Promise<Team | null> {
     return this.teamService.getTeamWithID(teamID);
+  }
+
+  @Query(() => [Team], {
+    description: 'Returns the list of teams a user is a member of (admin-only)',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async teamsOfUserByAdmin(
+    @Args({
+      name: 'userUid',
+      type: () => ID,
+      description: 'UID of the user to fetch teams for',
+    })
+    userUid: string,
+    @Args({
+      name: 'cursor',
+      type: () => ID,
+      description:
+        'The ID of the last returned team entry (used for pagination)',
+      nullable: true,
+    })
+    cursor?: string,
+  ): Promise<Team[]> {
+    return this.teamService.getTeamsOfUser(userUid, cursor ?? null);
   }
 
   // Mutation

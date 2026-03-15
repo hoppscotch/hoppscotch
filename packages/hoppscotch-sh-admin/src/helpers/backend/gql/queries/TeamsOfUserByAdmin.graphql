@@ -1,0 +1,13 @@
+query TeamsOfUserByAdmin($userUid: ID!, $cursor: ID) {
+  teamsOfUserByAdmin(userUid: $userUid, cursor: $cursor) {
+    id
+    name
+    teamMembers {
+      membershipID
+      role
+      user {
+        uid
+      }
+    }
+  }
+}

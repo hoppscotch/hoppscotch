@@ -36,6 +36,9 @@
         <HoppSmartTab :id="'requests'" :label="t('shared_requests.title')">
           <UsersSharedRequests :email="user.email" />
         </HoppSmartTab>
+        <HoppSmartTab :id="'teams'" :label="t('user_teams.title')">
+          <UsersTeams :user-uid="user.uid" class="py-8" />
+        </HoppSmartTab>
       </HoppSmartTabs>
     </div>
 
@@ -79,7 +82,7 @@ const t = useI18n();
 const toast = useToast();
 
 // Tabs
-type OptionTabs = 'details' | 'requests';
+type OptionTabs = 'details' | 'requests' | 'teams';
 const selectedOptionTab = ref<OptionTabs>('details');
 
 const currentTabName = computed(() => {
@@ -88,6 +91,8 @@ const currentTabName = computed(() => {
       return t('users.details');
     case 'requests':
       return t('shared_requests.title');
+    case 'teams':
+      return t('user_teams.title');
     default:
       return '';
   }
@@ -99,7 +104,7 @@ const { fetching, error, data, fetchData } = useClientHandler(
   UserInfoDocument,
   {
     uid: route.params.id.toString(),
-  }
+  },
 );
 
 onMounted(async () => {

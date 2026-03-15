@@ -35,7 +35,7 @@
             class="text-xs font-medium px-2.5 py-0.5 rounded-full"
             :class="roleBadgeClass(team.role)"
           >
-            {{ team.role }}
+            {{ team.role ?? t('user_teams.role_unknown') }}
           </span>
         </td>
       </template>

@@ -436,6 +436,7 @@
     "load_error": "Unable to load workspace memberships",
     "no_teams": "This user does not belong to any workspaces",
     "role": "Role",
+    "role_unknown": "Unknown",
     "show_more": "Show more",
     "title": "Workspaces",
     "workspace_id": "Workspace ID",

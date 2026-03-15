@@ -37,7 +37,11 @@
           <UsersSharedRequests :email="user.email" />
         </HoppSmartTab>
         <HoppSmartTab :id="'teams'" :label="t('user_teams.title')">
-          <UsersTeams :user-uid="user.uid" class="py-8" />
+          <UsersTeams
+            v-if="hasOpenedTeamsTab"
+            :user-uid="user.uid"
+            class="py-8"
+          />
         </HoppSmartTab>
       </HoppSmartTabs>
     </div>
@@ -65,7 +69,7 @@
 
 <script setup lang="ts">
 import { useMutation } from '@urql/vue';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
@@ -84,6 +88,17 @@ const toast = useToast();
 // Tabs
 type OptionTabs = 'details' | 'requests' | 'teams';
 const selectedOptionTab = ref<OptionTabs>('details');
+const hasOpenedTeamsTab = ref(false);
+
+watch(
+  selectedOptionTab,
+  (tab) => {
+    if (tab === 'teams') {
+      hasOpenedTeamsTab.value = true;
+    }
+  },
+  { immediate: true },
+);
 
 const currentTabName = computed(() => {
   switch (selectedOptionTab.value) {

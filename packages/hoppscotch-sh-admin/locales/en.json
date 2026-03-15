@@ -432,6 +432,15 @@
     "valid_name": "Please enter a valid workspace name",
     "valid_owner_email": "Please enter a valid owner email"
   },
+  "user_teams": {
+    "load_error": "Unable to load workspace memberships",
+    "no_teams": "This user does not belong to any workspaces",
+    "role": "Role",
+    "show_more": "Show more",
+    "title": "Workspaces",
+    "workspace_id": "Workspace ID",
+    "workspace_name": "Workspace Name"
+  },
   "users": {
     "add_user": "Add User",
     "admin": "Admin",

@@ -396,7 +396,8 @@ export class TeamService implements UserDataHandler, OnModuleInit {
         _count: { teamID: true },
       });
 
-      // Check if any team has exactly 1 owner (the user themselves)
+      // Note: groupBy omits teams that have no matching OWNER rows,
+      // so teams absent from ownerCounts are treated as having ≥2 owners.
       return ownerCounts.some((group) => group._count.teamID === 1);
     };
   }

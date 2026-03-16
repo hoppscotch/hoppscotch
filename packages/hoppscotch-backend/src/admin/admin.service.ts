@@ -194,7 +194,7 @@ export class AdminService {
       SELECT "adminUid", "adminEmail", "inviteeEmail", "invitedOn"
       FROM "InvitedUsers" i
       WHERE NOT EXISTS (
-        SELECT 1 FROM "User" u WHERE u.email = i."inviteeEmail"
+        SELECT 1 FROM "User" u WHERE LOWER(u.email) = LOWER(i."inviteeEmail")
       )
       ORDER BY "invitedOn" DESC
       LIMIT ${paginationOption.take}

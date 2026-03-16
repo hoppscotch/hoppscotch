@@ -918,7 +918,9 @@ export class UserCollectionService {
       };
     };
 
-    return { childrenMap, requestsMap, buildFolder };
+    const collectionsById = new Map(allCollections.map((c) => [c.id, c]));
+
+    return { childrenMap, requestsMap, buildFolder, collectionsById };
   }
 
   /**
@@ -954,7 +956,7 @@ export class UserCollectionService {
     collectionID: string | null,
     reqType: ReqType,
   ) {
-    const { childrenMap, requestsMap, buildFolder } =
+    const { childrenMap, requestsMap, buildFolder, collectionsById } =
       await this.buildUserCollectionTree(userUID);
 
     // Filter root-level children by type and parentID
@@ -968,23 +970,19 @@ export class UserCollectionService {
 
     // If collectionID is not null, return JSON stringified data for specific collection
     if (collectionID) {
-      // Get Details of collection
-      const parentCollection = await this.getUserCollection(
-        collectionID,
-        userUID,
-      );
-      if (E.isLeft(parentCollection)) return E.left(parentCollection.left);
+      // Use the already-loaded collectionsById map instead of an extra DB round-trip
+      const parentColl = collectionsById.get(collectionID);
+      if (!parentColl) return E.left(USER_COLL_NOT_FOUND);
 
-      if (parentCollection.right.type !== reqType)
+      if (parentColl.type !== reqType)
         return E.left(USER_COLL_NOT_SAME_TYPE);
 
-      // Use the already-fetched requestsMap instead of issuing another DB query
-      const requests = requestsMap.get(parentCollection.right.id) || [];
+      const requests = requestsMap.get(parentColl.id) || [];
 
       return E.right(<UserCollectionExportJSONData>{
         exportedCollection: JSON.stringify({
-          id: parentCollection.right.id,
-          name: parentCollection.right.title,
+          id: parentColl.id,
+          name: parentColl.title,
           folders: collectionListObjects,
           requests: requests.map((x) => {
             return {
@@ -993,9 +991,9 @@ export class UserCollectionService {
               name: x.title,
             };
           }),
-          data: JSON.stringify(parentCollection.right.data),
+          data: JSON.stringify(parentColl.data),
         }),
-        collectionType: parentCollection.right.type,
+        collectionType: parentColl.type,
       });
     }
 

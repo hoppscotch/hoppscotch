@@ -79,7 +79,8 @@ export class WorkspaceRESTSearchCollectionTreeAdapter
       }
 
       return {
-        status: "loading" as const,
+        status: "loaded" as const,
+        data: [],
       }
     })
   }

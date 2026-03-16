@@ -102,6 +102,59 @@ export class TeamCollectionService {
   }
 
   /**
+   * Fetch all collections and requests for a team and build lookup maps + tree builder.
+   * Shared helper to avoid duplicating bulk-fetch logic across export methods.
+   */
+  private async buildTeamCollectionTree(teamID: string) {
+    const [allCollections, allRequests] = await Promise.all([
+      this.prisma.teamCollection.findMany({
+        where: { teamID },
+        orderBy: { orderIndex: 'asc' },
+      }),
+      this.prisma.teamRequest.findMany({
+        where: { teamID },
+        orderBy: { orderIndex: 'asc' },
+      }),
+    ]);
+
+    // Build lookup maps for O(1) access
+    const childrenMap = new Map<string | null, typeof allCollections>();
+    for (const coll of allCollections) {
+      const key = coll.parentID;
+      if (!childrenMap.has(key)) childrenMap.set(key, []);
+      childrenMap.get(key).push(coll);
+    }
+
+    const requestsMap = new Map<string, typeof allRequests>();
+    for (const req of allRequests) {
+      const key = req.collectionID;
+      if (!requestsMap.has(key)) requestsMap.set(key, []);
+      requestsMap.get(key).push(req);
+    }
+
+    // Recursively build a subtree from any node (no DB calls)
+    const buildFolder = (collId: string, collTitle: string, collData: any): CollectionFolder => {
+      const children = childrenMap.get(collId) || [];
+      const requests = requestsMap.get(collId) || [];
+      const data = transformCollectionData(collData);
+
+      return {
+        id: collId,
+        name: collTitle,
+        folders: children.map((c) => buildFolder(c.id, c.title, c.data)),
+        requests: requests.map((x) => {
+          const requestData =
+            typeof x.request === 'string' ? JSON.parse(x.request) : x.request;
+          return { ...requestData, id: x.id };
+        }),
+        data,
+      };
+    };
+
+    return { childrenMap, buildFolder };
+  }
+
+  /**
    * Generate a JSON containing all the contents of a collection
    *
    * @param teamID The Team ID
@@ -115,52 +168,9 @@ export class TeamCollectionService {
     const collection = await this.getCollection(collectionID);
     if (E.isLeft(collection)) return E.left(TEAM_INVALID_COLL_ID);
 
-    // Fetch ALL collections and requests for this team in just 2 queries
-    // instead of recursive per-collection queries (N+1 pattern)
-    const [allCollections, allRequests] = await Promise.all([
-      this.prisma.teamCollection.findMany({
-        where: { teamID },
-        orderBy: { orderIndex: 'asc' },
-      }),
-      this.prisma.teamRequest.findMany({
-        where: { teamID },
-        orderBy: { orderIndex: 'asc' },
-      }),
-    ]);
-
-    // Build lookup maps for O(1) access
-    const childrenMap = new Map<string | null, typeof allCollections>();
-    for (const coll of allCollections) {
-      const key = coll.parentID;
-      if (!childrenMap.has(key)) childrenMap.set(key, []);
-      childrenMap.get(key).push(coll);
-    }
-
-    const requestsMap = new Map<string, typeof allRequests>();
-    for (const req of allRequests) {
-      const key = req.collectionID;
-      if (!requestsMap.has(key)) requestsMap.set(key, []);
-      requestsMap.get(key).push(req);
-    }
-
-    // Recursively build tree in-memory (no DB calls)
-    const buildFolder = (collId: string, collTitle: string, collData: any): CollectionFolder => {
-      const children = childrenMap.get(collId) || [];
-      const requests = requestsMap.get(collId) || [];
-      const data = transformCollectionData(collData);
-
-      return {
-        id: collId,
-        name: collTitle,
-        folders: children.map((c) => buildFolder(c.id, c.title, c.data)),
-        requests: requests.map((x) => {
-          const requestData =
-            typeof x.request === 'string' ? JSON.parse(x.request) : x.request;
-          return { ...requestData, id: x.id };
-        }),
-        data,
-      };
-    };
+    // Fetch all collections and requests for the team in 2 queries,
+    // then build the subtree in-memory (no further DB calls)
+    const { buildFolder } = await this.buildTeamCollectionTree(teamID);
 
     return E.right(
       buildFolder(collection.right.id, collection.right.title, collection.right.data),
@@ -174,51 +184,7 @@ export class TeamCollectionService {
    * @returns A JSON string containing all the contents of collections and requests of a team
    */
   async exportCollectionsToJSON(teamID: string) {
-    // Fetch ALL collections and requests for this team in just 2 queries
-    const [allCollections, allRequests] = await Promise.all([
-      this.prisma.teamCollection.findMany({
-        where: { teamID },
-        orderBy: { orderIndex: 'asc' },
-      }),
-      this.prisma.teamRequest.findMany({
-        where: { teamID },
-        orderBy: { orderIndex: 'asc' },
-      }),
-    ]);
-
-    // Build lookup maps for O(1) access
-    const childrenMap = new Map<string | null, typeof allCollections>();
-    for (const coll of allCollections) {
-      const key = coll.parentID;
-      if (!childrenMap.has(key)) childrenMap.set(key, []);
-      childrenMap.get(key).push(coll);
-    }
-
-    const requestsMap = new Map<string, typeof allRequests>();
-    for (const req of allRequests) {
-      const key = req.collectionID;
-      if (!requestsMap.has(key)) requestsMap.set(key, []);
-      requestsMap.get(key).push(req);
-    }
-
-    // Recursively build tree in-memory (no DB calls)
-    const buildFolder = (collId: string, collTitle: string, collData: any): CollectionFolder => {
-      const children = childrenMap.get(collId) || [];
-      const requests = requestsMap.get(collId) || [];
-      const data = transformCollectionData(collData);
-
-      return {
-        id: collId,
-        name: collTitle,
-        folders: children.map((c) => buildFolder(c.id, c.title, c.data)),
-        requests: requests.map((x) => {
-          const requestData =
-            typeof x.request === 'string' ? JSON.parse(x.request) : x.request;
-          return { ...requestData, id: x.id };
-        }),
-        data,
-      };
-    };
+    const { childrenMap, buildFolder } = await this.buildTeamCollectionTree(teamID);
 
     const rootCollections = childrenMap.get(null) || [];
     const rootCollectionObjects = rootCollections.map((coll) =>

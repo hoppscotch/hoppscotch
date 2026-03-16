@@ -1,7 +1,10 @@
 import { TeamService } from './team.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { Team, TeamMember, TeamAccessRole } from './team.model';
-import { TeamMember as DbTeamMember } from 'src/generated/prisma/client';
+import {
+  TeamMember as DbTeamMember,
+  Prisma,
+} from 'src/generated/prisma/client';
 import {
   USER_NOT_FOUND,
   TEAM_INVALID_ID,
@@ -273,7 +276,12 @@ describe('deleteTeam', () => {
   });
 
   test('rejects for invalid team id', async () => {
-    mockPrisma.team.delete.mockRejectedValue('RecordNotFound');
+    mockPrisma.team.delete.mockRejectedValue(
+      new Prisma.PrismaClientKnownRequestError('Record not found', {
+        code: 'P2025',
+        clientVersion: '0.0.0',
+      }),
+    );
 
     const result = await teamService.deleteTeam(team.id);
     return expect(result).toEqualLeft(TEAM_INVALID_ID);

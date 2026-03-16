@@ -1,7 +1,10 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { TeamMember, TeamAccessRole, Team } from './team.model';
 import { PrismaService } from '../prisma/prisma.service';
-import { TeamMember as DbTeamMember } from 'src/generated/prisma/client';
+import {
+  TeamMember as DbTeamMember,
+  Prisma,
+} from 'src/generated/prisma/client';
 import { UserService } from '../user/user.service';
 import { UserDataHandler } from 'src/user/user.data.handler';
 import {
@@ -115,7 +118,15 @@ export class TeamService implements UserDataHandler, OnModuleInit {
 
       return E.right(true);
     } catch (e) {
-      return E.left(TEAM_INVALID_ID);
+      // Only treat Prisma "record not found" as an invalid ID;
+      // re-throw all other errors (connectivity, constraints, etc.)
+      if (
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        e.code === 'P2025'
+      ) {
+        return E.left(TEAM_INVALID_ID);
+      }
+      throw e;
     }
   }
 

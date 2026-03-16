@@ -548,7 +548,7 @@ export class UserRequestService {
         // Build a single UPDATE with CASE WHEN instead of N individual updates.
         // This reduces N round-trips to the database down to 1.
         // IMPORTANT: if the Prisma model 'UserRequest', field 'orderIndex', or field
-        // 'updatedOn' is renamed, this raw SQL must be updated to match.
+        // 'id' is renamed, this raw SQL must be updated to match.
         const ids = userRequests.map((r) => r.id);
         const caseClauses = userRequests.map(
           (r, i) => Prisma.sql`WHEN ${r.id} THEN ${Prisma.raw(String(i + 1))}`,

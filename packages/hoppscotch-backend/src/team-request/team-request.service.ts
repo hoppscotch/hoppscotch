@@ -567,7 +567,7 @@ export class TeamRequestService {
         // Build a single UPDATE with CASE WHEN instead of N individual updates.
         // This reduces N round-trips to the database down to 1.
         // IMPORTANT: if the Prisma model 'TeamRequest', field 'orderIndex', or field
-        // 'updatedOn' is renamed, this raw SQL must be updated to match.
+        // 'id' is renamed, this raw SQL must be updated to match.
         const ids = teamRequests.map((r) => r.id);
         const caseClauses = teamRequests.map(
           (r, i) => Prisma.sql`WHEN ${r.id} THEN ${Prisma.raw(String(i + 1))}`,

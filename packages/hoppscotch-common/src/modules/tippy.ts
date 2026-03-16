@@ -83,6 +83,9 @@ export default <HoppModule>{
         const opts = resolveOpts(el, binding, vnode)
         // Remove native title to prevent browser's default tooltip
         el.removeAttribute("title")
+        // useTippy is a composable but works here because vue-tippy v6.x
+        // guards getCurrentInstance() internally. We use it instead of tippy()
+        // directly to ensure setDefaultProps (arrow, animation, etc.) are applied.
         useTippy(el, opts)
       },
 

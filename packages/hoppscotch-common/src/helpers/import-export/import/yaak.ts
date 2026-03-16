@@ -16,9 +16,13 @@ import { z } from "zod"
 import { safeParseJSON } from "~/helpers/functional/json"
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
 
-/* ---------------- Types ---------------- */
-
 type YaakHeader = {
+  name: string
+  value: string
+  enabled: boolean
+}
+
+type YaakParam = {
   name: string
   value: string
   enabled: boolean
@@ -31,6 +35,7 @@ type YaakRequest = {
   method?: string
   folderId?: string | null
   headers?: YaakHeader[]
+  urlParameters?: YaakParam[]
   body?: { text?: string }
   bodyType?: string | null
 }
@@ -40,8 +45,6 @@ type YaakFolder = {
   name: string
   folderId?: string | null
 }
-
-/* ---------------- Zod Schema ---------------- */
 
 const yaakExportSchema = z.object({
   yaakVersion: z.string(),
@@ -74,6 +77,7 @@ const yaakExportSchema = z.object({
           url: z.string().optional(),
           method: z.string().optional(),
           folderId: z.string().nullable().optional(),
+
           headers: z
             .array(
               z.object({
@@ -83,11 +87,23 @@ const yaakExportSchema = z.object({
               })
             )
             .optional(),
+
+          urlParameters: z
+            .array(
+              z.object({
+                name: z.string(),
+                value: z.string(),
+                enabled: z.boolean(),
+              })
+            )
+            .optional(),
+
           body: z
             .object({
               text: z.string().optional(),
             })
             .optional(),
+
           bodyType: z.string().nullable().optional(),
         })
       )
@@ -97,16 +113,12 @@ const yaakExportSchema = z.object({
 
 type YaakExport = z.infer<typeof yaakExportSchema>
 
-/* ---------------- Content Type Mapping ---------------- */
-
 const yaakContentTypeMap: Record<string, ValidContentTypes> = {
   json: "application/json",
   text: "text/plain",
   xml: "application/xml",
   html: "text/html",
 }
-
-/* ---------------- Helpers ---------------- */
 
 const convertHeaders = (headers: YaakHeader[] = []) =>
   headers.map((h) => ({
@@ -139,7 +151,14 @@ const convertRequest = (req: YaakRequest) =>
     endpoint: req.url ?? "",
     method: (req.method ?? "GET").toUpperCase(),
     headers: convertHeaders(req.headers),
-    params: [],
+
+    params: (req.urlParameters ?? []).map((p) => ({
+      key: p.name,
+      value: p.value,
+      active: p.enabled,
+      description: "",
+    })),
+
     auth: { authType: "inherit", authActive: true },
     body: convertBody(req),
     requestVariables: [],
@@ -149,21 +168,25 @@ const convertRequest = (req: YaakRequest) =>
     description: null,
   })
 
-/* ---------------- Folder Tree ---------------- */
+const getRootFolders = (folders: YaakFolder[]) => {
+  const ids = new Set(folders.map((f) => f.id))
+
+  return folders.filter((f) => !f.folderId || !ids.has(f.folderId))
+}
 
 const buildFolderTree = (
   folders: YaakFolder[],
   requests: YaakRequest[],
-  parentId: string | null = null
+  parentId: string | null
 ): HoppCollection[] =>
   folders
-    .filter((f) => (f.folderId ?? null) === parentId)
+    .filter((f) => f.folderId === parentId)
     .map((folder) =>
       makeCollection({
         name: folder.name,
         folders: buildFolderTree(folders, requests, folder.id),
         requests: requests
-          .filter((r) => (r.folderId ?? null) === folder.id)
+          .filter((r) => r.folderId === folder.id)
           .map(convertRequest),
         auth: { authType: "inherit", authActive: true },
         headers: [],
@@ -171,8 +194,6 @@ const buildFolderTree = (
         description: null,
       })
     )
-
-/* ---------------- Importer ---------------- */
 
 export const hoppYaakImporter = (fileContents: string[]) =>
   pipe(
@@ -184,7 +205,6 @@ export const hoppYaakImporter = (fileContents: string[]) =>
 
         O.chain((json) => {
           const parsed = yaakExportSchema.safeParse(json)
-
           return parsed.success ? O.of(parsed.data) : O.none
         })
       )
@@ -198,7 +218,21 @@ export const hoppYaakImporter = (fileContents: string[]) =>
         const folders = exp.resources?.folders ?? []
         const requests = exp.resources?.httpRequests ?? []
 
-        const folderCollections = buildFolderTree(folders, requests)
+        const rootFolders = getRootFolders(folders)
+
+        const folderCollections = rootFolders.map((folder) =>
+          makeCollection({
+            name: folder.name,
+            folders: buildFolderTree(folders, requests, folder.id),
+            requests: requests
+              .filter((r) => r.folderId === folder.id)
+              .map(convertRequest),
+            auth: { authType: "inherit", authActive: true },
+            headers: [],
+            variables: [],
+            description: null,
+          })
+        )
 
         const rootRequests = requests
           .filter((r) => !r.folderId)

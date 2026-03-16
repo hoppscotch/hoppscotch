@@ -29,6 +29,34 @@ export type TippyState = {
   isShown: boolean
 }
 
+// Resolves tooltip options from directive binding, vnode props, and DOM attrs.
+// Reads from vnode.props first (immune to DOM stripping by parent <tippy>
+// components), then falls back to DOM attributes.
+function resolveOpts(
+  el: TippyElement,
+  binding: DirectiveBinding,
+  vnode: VNode
+): Record<string, unknown> {
+  const opts =
+    typeof binding.value === "string"
+      ? { content: binding.value }
+      : { ...(binding.value || {}) }
+
+  if (!opts.content) {
+    const title = vnode.props?.title || el.getAttribute("title")
+    if (title) {
+      opts.content = title
+      el.removeAttribute("title")
+    }
+  }
+
+  if (!opts.content && el.getAttribute("content")) {
+    opts.content = el.getAttribute("content")
+  }
+
+  return opts
+}
+
 export default <HoppModule>{
   onVueAppInit(app) {
     // Register VueTippy with a noop directive name so the plugin's built-in
@@ -43,40 +71,15 @@ export default <HoppModule>{
     //
     // This fix reads from `vnode.props` instead (immune to DOM stripping)
     // and copies binding.value to prevent mutation leaks.
-
+    //
     // Fixes #5915 (https://github.com/hoppscotch/hoppscotch/issues/5915)
-    // Buttons inside a tippy wrapper were not showing tooltips because the
-    // title attribute was being stripped by the parent tippy component before
-    // the directive could read it. This change makes the directive read from
-    // vnode.props first, which is not affected by DOM stripping, and then
-    // fall back to reading from the DOM attributes if necessary.
 
     app.directive("tippy", {
       // Called once when the element is inserted into the DOM.
-      // This is where we create the tippy instance. We read the tooltip
-      // content from vnode.props (not the DOM) to avoid the title-stripping
-      // race condition with parent <tippy> wrappers.
+      // Creates the tippy instance with content resolved from vnode.props
+      // to avoid the title-stripping race with parent <tippy> wrappers.
       mounted(el: TippyElement, binding: DirectiveBinding, vnode: VNode) {
-        const opts =
-          typeof binding.value === "string"
-            ? { content: binding.value }
-            : { ...(binding.value || {}) }
-
-        // Read title from VNode props first (always available, immune to DOM
-        // stripping by parent <tippy> components), then fall back to DOM attrs
-        if (!opts.content) {
-          const title = vnode.props?.title || el.getAttribute("title")
-          if (title) {
-            opts.content = title
-            el.removeAttribute("title")
-          }
-        }
-
-        if (!opts.content && el.getAttribute("content")) {
-          opts.content = el.getAttribute("content")
-        }
-
-        useTippy(el, opts)
+        useTippy(el, resolveOpts(el, binding, vnode))
       },
 
       // Cleanup when the element is removed from the DOM (e.g. via v-if).
@@ -98,22 +101,7 @@ export default <HoppModule>{
         const tippy = el.$tippy || el._tippy
         if (!tippy) return
 
-        const opts =
-          typeof binding.value === "string"
-            ? { content: binding.value }
-            : { ...(binding.value || {}) }
-
-        if (!opts.content) {
-          const title = vnode.props?.title || el.getAttribute("title")
-          if (title) {
-            opts.content = title
-            el.removeAttribute("title")
-          }
-        }
-
-        if (!opts.content && el.getAttribute("content")) {
-          opts.content = el.getAttribute("content")
-        }
+        const opts = resolveOpts(el, binding, vnode)
 
         if (!opts.content) {
           opts.content = ""
@@ -122,14 +110,12 @@ export default <HoppModule>{
         // Skip setProps if nothing changed — tippy.js doesn't diff
         // internally and does expensive work (listener teardown/re-add,
         // Popper instance recreation) on every call.
-        // Check both binding.value identity (covers reactive options like
-        // theme/delay) and resolved content (covers :title changes)
+        // Note: binding.value is a new object ref on every render for inline
+        // literals like v-tippy="{ theme: 'tooltip' }", so we only guard on
+        // resolved content. If reactive options (theme/delay) are needed in
+        // the future, add a shallow comparison of opts vs tippy.props here.
         const currentContent = tippy.props?.content
-        if (
-          binding.value === binding.oldValue &&
-          opts.content === currentContent
-        )
-          return
+        if (opts.content === currentContent) return
 
         tippy.setProps(opts)
       },

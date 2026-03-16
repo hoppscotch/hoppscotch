@@ -890,7 +890,7 @@ export class TeamsWorkspaceProviderService
               try {
                 parsedRequest = JSON.parse(request.request)
               } catch (e) {
-                console.error("Failed to parse request response", e)
+                console.error("Failed to parse request data", e)
                 return []
               }
 
@@ -1738,11 +1738,18 @@ export class TeamsWorkspaceProviderService
 
     const environment = createEnvironmentRes.right.createTeamEnvironment
 
+    let parsedVariables: unknown = []
+    try {
+      parsedVariables = JSON.parse(environment.variables)
+    } catch (e) {
+      console.error("Failed to parse environment variables", e)
+    }
+
     const newEnv: TeamEnvironment = {
       id: environment.id,
       name: environment.name,
       teamID: environment.teamID,
-      variables: JSON.parse(environment.variables),
+      variables: Array.isArray(parsedVariables) ? parsedVariables : [],
     }
 
     this.environments.value.push(newEnv)
@@ -1781,11 +1788,18 @@ export class TeamsWorkspaceProviderService
 
     const newEnvironment = createEnvironmentRes.right.createTeamEnvironment
 
+    let parsedVariables: unknown = []
+    try {
+      parsedVariables = JSON.parse(newEnvironment.variables)
+    } catch (e) {
+      console.error("Failed to parse environment variables", e)
+    }
+
     const duplicatedEnv: TeamEnvironment = {
       id: newEnvironment.id,
       name: newEnvironment.name,
       teamID: newEnvironment.teamID,
-      variables: JSON.parse(newEnvironment.variables),
+      variables: Array.isArray(parsedVariables) ? parsedVariables : [],
     }
 
     this.environments.value.push(duplicatedEnv)
@@ -1923,10 +1937,17 @@ export class TeamsWorkspaceProviderService
 
     this.environments.value = this.environments.value.map((env) => {
       if (env.id === updatedEnv.id) {
+        let parsedVariables: unknown = []
+        try {
+          parsedVariables = JSON.parse(updatedEnv.variables)
+        } catch (e) {
+          console.error("Failed to parse environment variables", e)
+        }
+
         return {
           ...env,
           name: updatedName,
-          variables: JSON.parse(updatedEnv.variables),
+          variables: Array.isArray(parsedVariables) ? parsedVariables : [],
         }
       }
 
@@ -2018,11 +2039,18 @@ export class TeamsWorkspaceProviderService
     successfulImports.forEach((res) => {
       const environment = res.value.right.createTeamEnvironment
 
+      let parsedVariables: unknown = []
+      try {
+        parsedVariables = JSON.parse(environment.variables)
+      } catch (e) {
+        console.error("Failed to parse environment variables", e)
+      }
+
       const newEnv: TeamEnvironment = {
         id: environment.id,
         name: environment.name,
         teamID: environment.teamID,
-        variables: JSON.parse(environment.variables),
+        variables: Array.isArray(parsedVariables) ? parsedVariables : [],
       }
 
       this.environments.value.push(newEnv)
@@ -2046,9 +2074,27 @@ export class TeamsWorkspaceProviderService
       return this.environments.value
         .filter((env) => env.teamID === teamID)
         .map((env) => {
-          const vars = (typeof env.variables === "string"
-            ? JSON.parse(env.variables)
-            : env.variables) as Array<{ key: string; value?: string; initialValue?: string; currentValue?: string; secret: boolean }>
+          let vars: Array<{
+            key: string
+            value?: string
+            initialValue?: string
+            currentValue?: string
+            secret: boolean
+          }> = []
+
+          if (typeof env.variables === "string") {
+            try {
+              const parsedVariables = JSON.parse(env.variables)
+              if (Array.isArray(parsedVariables)) {
+                vars = parsedVariables as typeof vars
+              }
+            } catch (e) {
+              console.error("Failed to parse environment variables", e)
+            }
+          } else if (Array.isArray(env.variables)) {
+            vars = env.variables as typeof vars
+          }
+
           return {
             name: env.name,
             variables: vars.map((v) => ({

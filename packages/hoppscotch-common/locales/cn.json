@@ -103,17 +103,17 @@
     "star": "添加星标"
   },
   "agent": {
-    "registration_instruction": "请使用您的网页客户端注册 Hoppscotch Agent 以继续。",
-    "enter_otp_instruction": "请输入由 Hoppscotch Agent 生成的验证码以完成注册。",
+    "registration_instruction": "请使用您的网页客户端注册 Hoppscotch 代理程序以继续。",
+    "enter_otp_instruction": "请输入由 Hoppscotch 代理程序生成的验证码以完成注册。",
     "otp_label": "验证码",
     "processing": "正在处理您的请求...",
-    "not_running_title": "未检测到Agent",
-    "registration_title": "注册Agent",
-    "verify_ssl_certs": "验证SSL证书",
+    "not_running_title": "未检测到代理",
+    "registration_title": "注册代理",
+    "verify_ssl_certs": "验证 SSL 证书",
     "ca_certs": "CA 证书",
     "client_certs": "客户端证书",
-    "use_http_proxy": "使用HTTP代理",
-    "proxy_capabilities": "Hoppscotch Agent 支持 HTTP/HTTPS/SOCKS 代理，以及 NTLM 和 Basic 认证。请在代理 URL 中包含用于认证的用户名和密码。",
+    "use_http_proxy": "使用 HTTP 代理",
+    "proxy_capabilities": "Hoppscotch 代理程序支持 HTTP/HTTPS/SOCKS 代理，以及 NTLM 和 Basic 认证。请在代理 URL 中包含用于认证的用户名和密码。",
     "add_cert_file": "添加证书文件",
     "add_client_cert": "添加客户端证书",
     "add_key_file": "添加私钥文件",
@@ -132,6 +132,7 @@
       "web_app": "Web App",
       "cli": "CLI"
     },
+    "downloads": "下载",
     "chat_with_us": "与我们交谈",
     "contact_us": "联系我们",
     "cookies": "Cookies",
@@ -624,11 +625,11 @@
   "environment": {
     "heading": "环境",
     "add_to_global": "添加到全局环境",
-    "added": "环境已添加",
+    "added": "环境变量已添加",
     "create_new": "创建新环境",
     "created": "环境已创建",
     "current_value": "当前值",
-    "deleted": "环境已删除",
+    "deleted": "环境变量已删除",
     "duplicated": "环境已复制",
     "edit": "编辑环境",
     "empty_variables": "没有变量",
@@ -979,11 +980,11 @@
       "extension_unknown_origin": "确保您已将 API 端点的源添加到 Hoppscotch 浏览器扩展列表中。",
       "extention_enable_action": "启用浏览器扩展",
       "extention_not_enabled": "扩展未启用。",
-      "localaccess_unsupported": "当前拦截器不支持本地访问，请考虑使用代理程序(Agent)、扩展拦截器或桌面应用程序"
+      "localaccess_unsupported": "当前拦截器不支持本地访问，请考虑使用代理程序、扩展拦截器或桌面应用程序"
     },
     "auth": {
-      "digest": "使用 Digest 认证时，建议在Web应用中使用代理程序(Agent)拦截器，或在桌面应用中使用原生拦截器。",
-      "hawk": "使用 Hawk 认证时，建议在Web应用中使用代理程序(Agent)拦截器，或在桌面应用中使用原生拦截器。"
+      "digest": "使用 Digest 认证时，建议在Web应用中使用代理程序拦截器，或在桌面应用中使用原生拦截器。",
+      "hawk": "使用 Hawk 认证时，建议在Web应用中使用代理程序拦截器，或在桌面应用中使用原生拦截器。"
     },
     "body": {
       "binary": "当前拦截器尚不支持发送二进制数据。"
@@ -992,29 +993,29 @@
       "pre_request": "预请求脚本",
       "post_request": "请求后脚本",
       "both_scripts": "预请求和请求后脚本",
-      "unsupported_interceptor": "您的 {scriptType} 使用了 {apiUsed}。为确保脚本可靠执行，请切换到代理拦截器（网页应用）或原生拦截器（桌面应用）。{interceptor} 拦截器对脚本化请求的支持有限，可能无法按预期工作。",
-      "same_origin_csrf_warning": "安全警告：您的 {scriptType} 使用 {apiUsed} 进行了同源请求。由于本平台使用基于 Cookie 的身份验证，这些请求会自动包含您的会话 Cookie，可能导致恶意脚本执行未授权操作。请使用代理拦截器处理同源请求，或仅运行您信任的脚本。"
+      "unsupported_interceptor": "您的 {scriptType} 使用了 {apiUsed}。为确保脚本可靠执行，请切换到代理程序拦截器（网页应用）或原生拦截器（桌面应用）。{interceptor} 拦截器对脚本化请求的支持有限，可能无法按预期工作。",
+      "same_origin_csrf_warning": "安全警告：您的 {scriptType} 使用 {apiUsed} 进行了同源请求。由于本平台使用基于 Cookie 的身份验证，这些请求会自动包含您的会话 Cookie，可能导致恶意脚本执行未授权操作。请使用代理程序拦截器处理同源请求，或仅运行您信任的脚本。"
     }
   },
   "interceptor": {
     "native": {
-      "name": "原生",
+      "name": "原生(Native)",
       "settings_title": "原生"
     },
     "agent": {
-      "name": "代理程序",
-      "settings_title": "代理程序(Agent)"
+      "name": "代理程序(Agent)",
+      "settings_title": "代理程序"
     },
     "proxy": {
-      "name": "网络代理",
-      "settings_title": "网络代理(Proxy)"
+      "name": "网络代理(Proxy)",
+      "settings_title": "网络代理"
     },
     "browser": {
-      "name": "浏览器",
+      "name": "浏览器(Browser)",
       "settings_title": "浏览器"
     },
     "extension": {
-      "name": "扩展",
+      "name": "扩展(Extension)",
       "settings_title": "扩展"
     }
   },
@@ -1088,9 +1089,9 @@
     "start_server": "启动服务",
     "stop_server": "停止服务",
     "mock_server_created": "Mock 服务创建成功",
-    "mock_server_started": "mock启动成功",
-    "mock_server_stopped": "mock停止成功",
-    "active": "Mock正在运行",
+    "mock_server_started": "Mock 服务启动成功",
+    "mock_server_stopped": "Mock 服务停止成功",
+    "active": "Mock 服务正在运行",
     "inactive": "Mock 服务未运行",
     "edit_mock_server": "编辑 Mock 服务",
     "path_based_url": "基于路径的 URL",
@@ -1263,15 +1264,15 @@
     "account_email_description": "您的主要电子邮箱地址。",
     "account_name_description": "这是您的显示名称。",
     "additional": "其他设置",
-    "agent_not_running": "未检测到 Hoppscotch Agent。请检查 Agent 是否正在运行。",
-    "agent_not_running_short": "检查 Agent 状态。",
-    "agent_running": "Hoppscotch Agent 正在运行。",
-    "agent_running_short": "Hoppscotch Agent 正在运行。",
-    "agent_discard_registration": "取消 Agent 注册",
-    "agent_registered": "Agent 已注册",
-    "agent_registration_successful": "Agent 注册成功",
-    "agent_registration_fetch_failed": "无法获取 Agent 注册信息。请重新注册 Agent。",
-    "agent_registration_already_in_progress": "Agent 注册已在进程中。请先完成或取消当前注册，然后重试。",
+    "agent_not_running": "未检测到 Hoppscotch 代理程序。请检查代理是否正在运行。",
+    "agent_not_running_short": "检查代理程序状态。",
+    "agent_running": "Hoppscotch 代理程序正在运行。",
+    "agent_running_short": "代理程序正在运行。",
+    "agent_discard_registration": "取消代理注册",
+    "agent_registered": "代理已注册",
+    "agent_registration_successful": "代理注册成功",
+    "agent_registration_fetch_failed": "无法获取代理注册信息。请重新注册代理。",
+    "agent_registration_already_in_progress": "代理注册已在进程中。请先完成或取消当前注册，然后重试。",
     "auto_encode_mode": "自动",
     "auto_encode_mode_tooltip": "仅在存在特殊字符时才对请求中的参数进行编码",
     "background": "背景",
@@ -1282,7 +1283,7 @@
     "delete_account_description": "一旦您删除了您的帐号，您的所有数据将被永久删除。此操作无法复原。",
     "disable_encode_mode_tooltip": "从不编码请求中的参数",
     "enable_encode_mode_tooltip": "始终编码请求中的参数",
-    "enter_otp": "输入 Agent 的验证码",
+    "enter_otp": "输入代理程序的验证码",
     "expand_navigation": "展开导航栏",
     "experiments": "实验功能",
     "experiments_notice": "下面是我们正在开发中的一些实验功能，这些功能可能会很有用，可能很有趣，又或者二者都是或都不是。这些功能并非最终版本且可能不稳定，所以如果发生了一些过于奇怪的事情，不要惊慌，关掉它们就好了。玩笑归玩笑，",
@@ -1311,7 +1312,7 @@
     "proxy_url": "代理网址",
     "proxy_use_toggle": "使用代理中间件发送请求",
     "read_the": "阅读",
-    "register_agent": "注册 Agent",
+    "register_agent": "注册代理",
     "reset_default": "重置为默认",
     "short_codes": "快捷键",
     "short_codes_description": "我们为您打造的快捷键。",
@@ -1367,7 +1368,7 @@
     "ca_certificate": "CA 证书",
     "ca_certificates": "CA 证书",
     "ca_certificates_support": "Hoppscotch 支持包含一个或多个证书的 .crt、.cer 或 .pem 文件。",
-    "proxy_capabilities": "Hoppscotch Agent 和桌面应用支持 HTTP/HTTPS/SOCKS 代理，并支持 NTLM 和 Basic 身份验证。",
+    "proxy_capabilities": "Hoppscotch 代理程序和桌面应用支持 HTTP/HTTPS/SOCKS 代理，并支持 NTLM 和 Basic 身份验证。",
     "proxy_auth": "您还可以在 URL 中包含用户名和密码。"
   },
   "shared_requests": {
@@ -2248,7 +2249,7 @@
   "organization_sidebar": {
     "hoppscotch_cloud": "Hoppscotch 云",
     "cloud_locked": "默认实例无法移除",
-    "admin": "管理",
+    "admin": "管理员",
     "error_loading": "加载组织失败",
     "inactive_orgs": "未激活的组织",
     "no_orgs_found": "未找到组织",

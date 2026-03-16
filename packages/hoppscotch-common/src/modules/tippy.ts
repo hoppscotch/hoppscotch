@@ -10,10 +10,12 @@ import "tippy.js/dist/svg-arrow.css"
 // Extended HTMLElement with tippy instance properties added by vue-tippy
 interface TippyElement extends HTMLElement {
   $tippy?: {
+    props: Record<string, unknown>
     setProps: (opts: Record<string, unknown>) => void
     destroy: () => void
   }
   _tippy?: {
+    props: Record<string, unknown>
     setProps: (opts: Record<string, unknown>) => void
     destroy: () => void
   }
@@ -93,6 +95,9 @@ export default <HoppModule>{
       // (e.g. toggling "Add star" ↔ "Remove star" in History). Without this,
       // useTippy won't pick up changes since we pass a plain object, not a ref.
       updated(el: TippyElement, binding: DirectiveBinding, vnode: VNode) {
+        const tippy = el.$tippy || el._tippy
+        if (!tippy) return
+
         const opts =
           typeof binding.value === "string"
             ? { content: binding.value }
@@ -111,14 +116,16 @@ export default <HoppModule>{
         }
 
         if (!opts.content) {
-          opts.content = null
+          opts.content = ""
         }
 
-        if (el.$tippy) {
-          el.$tippy.setProps(opts || {})
-        } else if (el._tippy) {
-          el._tippy.setProps(opts || {})
-        }
+        // Skip setProps if content hasn't changed — tippy.js doesn't diff
+        // internally and does expensive work (listener teardown/re-add,
+        // Popper instance recreation) on every call
+        const currentContent = tippy.props?.content
+        if (opts.content === currentContent) return
+
+        tippy.setProps(opts)
       },
     })
 

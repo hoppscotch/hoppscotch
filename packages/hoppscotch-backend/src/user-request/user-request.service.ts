@@ -552,7 +552,7 @@ export class UserRequestService {
           (r, i) => Prisma.sql`WHEN ${r.id} THEN ${i + 1}`,
         );
         await tx.$executeRaw(
-          Prisma.sql`UPDATE "UserRequest" SET "orderIndex" = CASE "id" ${Prisma.join(caseClauses, ' ')} END WHERE "id" IN (${Prisma.join(ids)})`,
+          Prisma.sql`UPDATE "UserRequest" SET "orderIndex" = CASE "id" ${Prisma.join(caseClauses, ' ')} END, "updatedOn" = CURRENT_TIMESTAMP WHERE "id" IN (${Prisma.join(ids)})`,
         );
       });
     } catch (error) {

@@ -55,7 +55,6 @@ model TeamCollection {
   requests   TeamRequest[]
 
   @@unique([teamID, parentID, orderIndex])
-  @@index([teamID, parentID])
 }
 
 model TeamRequest {
@@ -223,7 +222,6 @@ model UserCollection {
   requests   UserRequest[]
 
   @@unique([userUid, parentID, orderIndex])
-  @@index([userUid, parentID])
 }
 
 model InfraConfig {

@@ -4,9 +4,6 @@
 -- TeamMember: queried by userUid when listing teams for a user
 CREATE INDEX "TeamMember_userUid_idx" ON "TeamMember"("userUid");
 
--- TeamCollection: queried by (teamID, parentID) for hierarchical collection lookups
-CREATE INDEX "TeamCollection_teamID_parentID_idx" ON "TeamCollection"("teamID", "parentID");
-
 -- TeamRequest: queried by collectionID for listing requests in a collection
 CREATE INDEX "TeamRequest_collectionID_idx" ON "TeamRequest"("collectionID");
 
@@ -21,9 +18,6 @@ CREATE INDEX "UserEnvironment_userUid_idx" ON "UserEnvironment"("userUid");
 
 -- UserRequest: queried by collectionID for listing requests in a collection
 CREATE INDEX "UserRequest_collectionID_idx" ON "UserRequest"("collectionID");
-
--- UserCollection: queried by (userUid, parentID) for hierarchical collection lookups
-CREATE INDEX "UserCollection_userUid_parentID_idx" ON "UserCollection"("userUid", "parentID");
 
 -- PersonalAccessToken: queried by userUid for listing tokens
 CREATE INDEX "PersonalAccessToken_userUid_idx" ON "PersonalAccessToken"("userUid");

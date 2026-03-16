@@ -41,23 +41,6 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       maxParallelFileOps: 2,
-      output: {
-        manualChunks(id) {
-          // Split heavy vendor dependencies into separate chunks for better caching.
-          // When app code changes, users only re-download the app chunk, not vendor code.
-          if (id.includes("node_modules")) {
-            if (id.includes("codemirror") || id.includes("@codemirror") || id.includes("@lezer")) {
-              return "vendor-codemirror"
-            }
-            if (id.includes("@urql") || id.includes("graphql") || id.includes("wonka")) {
-              return "vendor-graphql"
-            }
-            if (id.includes("fp-ts")) {
-              return "vendor-fp-ts"
-            }
-          }
-        },
-      },
     },
   },
   worker: {
@@ -116,8 +99,7 @@ export default defineConfig({
     dedupe: ["vue"],
   },
   plugins: [
-    // Only enable the inspect plugin in dev mode to avoid unnecessary overhead in production
-    ...(process.env.NODE_ENV !== "production" ? [Inspect()] : []),
+    Inspect(), // go to url -> /__inspect
     HtmlConfig({
       metas: META_TAGS(ENV),
     }),

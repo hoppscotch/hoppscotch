@@ -101,6 +101,15 @@ import {
 import { fetchAllTeamEnvironments } from "~/helpers/teams/TeamEnvironmentAdapter"
 import { debounce } from "lodash-es"
 
+function safeJSONParse<T>(json: string, fallback: T, context: string): T {
+  try {
+    return JSON.parse(json)
+  } catch (e) {
+    console.error(`Failed to parse ${context}`, e)
+    return fallback
+  }
+}
+
 type TeamsWorkspaceCollection = WorkspaceCollection & {
   parentCollectionID: string | null
   order: string
@@ -815,7 +824,7 @@ export class TeamsWorkspaceProviderService
           this.collections.value.push(
             ...children.right.map((collection) => {
               const collectionProperties = collection.data
-                ? JSON.parse(collection.data)
+                ? safeJSONParse(collection.data, null, "collection data")
                 : null
 
               let auth: HoppRESTAuth = {
@@ -877,20 +886,23 @@ export class TeamsWorkspaceProviderService
 
           let previousOrder: string | null = null
 
-          // now push the new requests
+          // now push the new requests, skipping any with unparseable data
           this.requests.value.push(
-            ...requests.right.map((request) => {
+            ...requests.right.flatMap((request) => {
+              const parsed = safeJSONParse(request.request, null, "request data")
+              if (!parsed) return []
+
               const order = generateKeyBetween(previousOrder, null)
               previousOrder = order
 
-              return {
+              return [{
                 requestID: request.id,
                 providerID: this.providerID,
                 workspaceID,
                 collectionID,
-                request: JSON.parse(request.request), // TODO: validation
+                request: parsed,
                 order,
-              }
+              }]
             })
           )
         })
@@ -1006,7 +1018,7 @@ export class TeamsWorkspaceProviderService
           this.collections.value.push(
             ...collections.right.map((collection) => {
               const collectionProperties = collection.data
-                ? JSON.parse(collection.data)
+                ? safeJSONParse(collection.data, null, "collection data")
                 : null
 
               let auth: HoppRESTAuth = {
@@ -1721,7 +1733,7 @@ export class TeamsWorkspaceProviderService
       id: environment.id,
       name: environment.name,
       teamID: environment.teamID,
-      variables: JSON.parse(environment.variables),
+      variables: safeJSONParse(environment.variables, [], "environment variables"),
     }
 
     this.environments.value.push(newEnv)
@@ -1764,7 +1776,7 @@ export class TeamsWorkspaceProviderService
       id: newEnvironment.id,
       name: newEnvironment.name,
       teamID: newEnvironment.teamID,
-      variables: JSON.parse(newEnvironment.variables),
+      variables: safeJSONParse(newEnvironment.variables, [], "duplicated environment variables"),
     }
 
     this.environments.value.push(duplicatedEnv)
@@ -1905,7 +1917,11 @@ export class TeamsWorkspaceProviderService
         return {
           ...env,
           name: updatedName,
-          variables: JSON.parse(updatedEnv.variables),
+          variables: safeJSONParse(
+            updatedEnv.variables,
+            env.variables,
+            "updated environment variables"
+          ),
         }
       }
 
@@ -2001,7 +2017,7 @@ export class TeamsWorkspaceProviderService
         id: environment.id,
         name: environment.name,
         teamID: environment.teamID,
-        variables: JSON.parse(environment.variables),
+        variables: safeJSONParse(environment.variables, [], "imported environment variables"),
       }
 
       this.environments.value.push(newEnv)
@@ -2026,7 +2042,7 @@ export class TeamsWorkspaceProviderService
         .filter((env) => env.teamID === teamID)
         .map((env) => {
           const vars = (typeof env.variables === "string"
-            ? JSON.parse(env.variables)
+            ? safeJSONParse(env.variables, [], "environment variables view")
             : env.variables) as Array<{ key: string; value?: string; initialValue?: string; currentValue?: string; secret: boolean }>
           return {
             name: env.name,
@@ -2298,13 +2314,12 @@ export class TeamsWorkspaceProviderService
 
       const order = generateKeyBetween(lastSibling?.order, null)
 
-      let parsedRequest
-      try {
-        parsedRequest = JSON.parse(result.right.teamRequestAdded.request)
-      } catch (e) {
-        console.error("Failed to parse request from subscription", e)
-        return
-      }
+      const parsedRequest = safeJSONParse(
+        result.right.teamRequestAdded.request,
+        null,
+        "added request subscription"
+      )
+      if (!parsedRequest) return
 
       const request: WorkspaceRequest & {
         order: string
@@ -2333,13 +2348,12 @@ export class TeamsWorkspaceProviderService
         return
       }
 
-      let parsedRequest
-      try {
-        parsedRequest = JSON.parse(result.right.teamRequestUpdated.request)
-      } catch (e) {
-        console.error("Failed to parse updated request from subscription", e)
-        return
-      }
+      const parsedRequest = safeJSONParse(
+        result.right.teamRequestUpdated.request,
+        null,
+        "updated request subscription"
+      )
+      if (!parsedRequest) return
 
       const updatedRequest: WorkspaceRequest = {
         collectionID: result.right.teamRequestUpdated.collectionID,
@@ -2460,13 +2474,12 @@ export class TeamsWorkspaceProviderService
         return
       }
 
-      let parsedVars
-      try {
-        parsedVars = JSON.parse(result.right.teamEnvironmentCreated.variables)
-      } catch (e) {
-        console.error("Failed to parse environment variables from subscription", e)
-        return
-      }
+      const parsedVars = safeJSONParse(
+        result.right.teamEnvironmentCreated.variables,
+        null,
+        "created environment subscription"
+      )
+      if (!parsedVars) return
 
       const newEnv: TeamEnvironment = {
         id: result.right.teamEnvironmentCreated.id,
@@ -2511,20 +2524,16 @@ export class TeamsWorkspaceProviderService
         return
       }
 
-      let parsedVars
-      try {
-        parsedVars = JSON.parse(result.right.teamEnvironmentUpdated.variables)
-      } catch (e) {
-        console.error("Failed to parse updated environment from subscription", e)
-        return
-      }
-
       this.environments.value = this.environments.value.map((env) => {
         if (env.id === result.right.teamEnvironmentUpdated.id) {
           return {
             ...env,
             name: result.right.teamEnvironmentUpdated.name,
-            variables: parsedVars,
+            variables: safeJSONParse(
+              result.right.teamEnvironmentUpdated.variables,
+              env.variables,
+              "updated environment subscription"
+            ),
           }
         }
 

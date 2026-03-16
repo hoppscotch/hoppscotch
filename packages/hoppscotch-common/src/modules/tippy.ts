@@ -29,9 +29,11 @@ export type TippyState = {
 
 export default <HoppModule>{
   onVueAppInit(app) {
-    app.use(VueTippy)
+    // Register VueTippy with a noop directive name so the plugin's built-in
+    // v-tippy directive doesn't conflict with our custom one below.
+    app.use(VueTippy, { directive: "tippy-original" })
 
-    // Override the v-tippy directive to fix tooltips inside <tippy> wrappers.
+    // Custom v-tippy directive to fix tooltips inside <tippy> wrappers.
     //
     // The original vue-tippy directive reads content from
     // `el.getAttribute('title')` which fails inside <tippy> wrappers because
@@ -44,7 +46,7 @@ export default <HoppModule>{
     // Buttons inside a tippy wrapper were not showing tooltips because the
     // title attribute was being stripped by the parent tippy component before
     // the directive could read it. This change makes the directive read from
-    //  vnode.props first, which is not affected by DOM stripping,and then
+    // vnode.props first, which is not affected by DOM stripping, and then
     // fall back to reading from the DOM attributes if necessary.
 
     app.directive("tippy", {
@@ -73,6 +75,17 @@ export default <HoppModule>{
         }
 
         useTippy(el, opts)
+      },
+
+      // Cleanup when the element is removed from the DOM (e.g. via v-if).
+      // useTippy's internal onBeforeUnmount only fires when the parent
+      // component unmounts, not when the element itself is conditionally removed.
+      unmounted(el: TippyElement) {
+        if (el._tippy) {
+          el._tippy.destroy()
+        } else if (el.$tippy) {
+          el.$tippy.destroy()
+        }
       },
 
       // Called on every re-render of the parent component.

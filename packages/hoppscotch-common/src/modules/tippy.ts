@@ -32,8 +32,8 @@ export type TippyState = {
 // Resolves tooltip options from directive binding, vnode props, and DOM attrs.
 // Reads from vnode.props first (immune to DOM stripping by parent <tippy>
 // components), then falls back to DOM attributes.
-// Side effect: removes the title attribute from el to prevent the browser's
-// native tooltip from showing alongside the tippy tooltip.
+// Pure — does not mutate the DOM. Callers are responsible for removing the
+// title attribute to suppress the browser's native tooltip.
 function resolveOpts(
   el: TippyElement,
   binding: DirectiveBinding,
@@ -45,10 +45,9 @@ function resolveOpts(
       : { ...(binding.value || {}) }
 
   if (!opts.content) {
-    const title = vnode.props?.title || el.getAttribute("title")
+    const title = vnode.props?.title ?? el.getAttribute("title")
     if (title) {
       opts.content = title
-      el.removeAttribute("title")
     }
   }
 
@@ -81,7 +80,10 @@ export default <HoppModule>{
       // Creates the tippy instance with content resolved from vnode.props
       // to avoid the title-stripping race with parent <tippy> wrappers.
       mounted(el: TippyElement, binding: DirectiveBinding, vnode: VNode) {
-        useTippy(el, resolveOpts(el, binding, vnode))
+        const opts = resolveOpts(el, binding, vnode)
+        // Remove native title to prevent browser's default tooltip
+        el.removeAttribute("title")
+        useTippy(el, opts)
       },
 
       // Cleanup when the element is removed from the DOM (e.g. via v-if).
@@ -116,6 +118,11 @@ export default <HoppModule>{
         // literals like v-tippy="{ theme: 'tooltip' }", so we only guard on
         // resolved content. If reactive options (theme/delay) are needed in
         // the future, add a shallow comparison of opts vs tippy.props here.
+        // Remove native title to prevent browser's default tooltip.
+        // This runs on every render but is necessary because Vue re-applies
+        // :title on each patch cycle.
+        el.removeAttribute("title")
+
         const currentContent = tippy.props?.content
         if (opts.content === currentContent) return
 

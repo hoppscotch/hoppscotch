@@ -289,7 +289,7 @@ describe('UserHistoryService', () => {
   describe('toggleHistoryStarStatus', () => {
     test('Should resolve right and star/unstar a request in the history', async () => {
       const createdOnDate = new Date();
-      mockPrisma.userHistory.findFirst.mockResolvedValueOnce({
+      mockPrisma.userHistory.findUnique.mockResolvedValueOnce({
         userUid: 'abc',
         id: '1',
         request: [{}],
@@ -324,7 +324,7 @@ describe('UserHistoryService', () => {
       ).toEqualRight(userHistory);
     });
     test('Should resolve left and error out due to invalid user history request ID', async () => {
-      mockPrisma.userHistory.findFirst.mockResolvedValueOnce(null);
+      mockPrisma.userHistory.findUnique.mockResolvedValueOnce(null);
 
       return expect(
         await userHistoryService.toggleHistoryStarStatus('abc', '1'),
@@ -333,7 +333,7 @@ describe('UserHistoryService', () => {
     test('Should star/unstar a request in the history and publish a updated subscription', async () => {
       const executedOn = new Date();
 
-      mockPrisma.userHistory.findFirst.mockResolvedValueOnce({
+      mockPrisma.userHistory.findUnique.mockResolvedValueOnce({
         userUid: 'abc',
         id: '1',
         request: [{}],

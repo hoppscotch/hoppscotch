@@ -877,94 +877,123 @@ export class UserCollectionService {
     const collection = await this.getUserCollection(collectionID, userUID);
     if (E.isLeft(collection)) return E.left(collection.left);
 
-    const childrenCollectionObjects: CollectionFolder[] = [];
+    // Fetch ALL user collections and requests in just 2 queries
+    // instead of recursive per-collection queries (N+1 pattern)
+    const [allCollections, allRequests] = await Promise.all([
+      this.prisma.userCollection.findMany({
+        where: { userUid: userUID },
+        orderBy: { orderIndex: 'asc' },
+      }),
+      this.prisma.userRequest.findMany({
+        where: { userUid: userUID },
+        orderBy: { orderIndex: 'asc' },
+      }),
+    ]);
 
-    // Get all child collections whose parentID === collectionID
-    const childCollectionList = await this.prisma.userCollection.findMany({
-      where: {
-        parentID: collectionID,
-        userUid: userUID,
-      },
-      orderBy: {
-        orderIndex: 'asc',
-      },
-    });
-
-    // Create a list of child collection and request data ready for export
-    for (const coll of childCollectionList) {
-      const result = await this.exportUserCollectionToJSONObject(
-        userUID,
-        coll.id,
-      );
-      if (E.isLeft(result)) return E.left(result.left);
-
-      childrenCollectionObjects.push(result.right);
+    // Build lookup maps for O(1) access
+    const childrenMap = new Map<string | null, typeof allCollections>();
+    for (const coll of allCollections) {
+      const key = coll.parentID;
+      if (!childrenMap.has(key)) childrenMap.set(key, []);
+      childrenMap.get(key).push(coll);
     }
 
-    // Fetch all child requests that belong to collectionID
-    const requests = await this.prisma.userRequest.findMany({
-      where: {
-        userUid: userUID,
-        collectionID,
-      },
-      orderBy: {
-        orderIndex: 'asc',
-      },
-    });
+    const requestsMap = new Map<string, typeof allRequests>();
+    for (const req of allRequests) {
+      const key = req.collectionID;
+      if (!requestsMap.has(key)) requestsMap.set(key, []);
+      requestsMap.get(key).push(req);
+    }
 
-    const data = transformCollectionData(collection.right.data);
+    // Recursively build tree in-memory (no DB calls)
+    const buildFolder = (collId: string, collTitle: string, collData: any): CollectionFolder => {
+      const children = childrenMap.get(collId) || [];
+      const requests = requestsMap.get(collId) || [];
+      const data = transformCollectionData(collData);
 
-    const result: CollectionFolder = {
-      id: collection.right.id,
-      name: collection.right.title,
-      folders: childrenCollectionObjects,
-      requests: requests.map((x) => {
-        return {
-          ...(x.request as Record<string, unknown>), // type casting x.request of type Prisma.JSONValue to an object to enable spread
+      return {
+        id: collId,
+        name: collTitle,
+        folders: children.map((c) => buildFolder(c.id, c.title, c.data)),
+        requests: requests.map((x) => ({
+          ...(x.request as Record<string, unknown>),
           id: x.id,
           name: x.title,
-        };
-      }),
-      data,
+        })),
+        data,
+      };
     };
 
-    return E.right(result);
+    return E.right(
+      buildFolder(collection.right.id, collection.right.title, collection.right.data),
+    );
   }
 
   /**
-   * Generate a JSON containing all the contents of collections and requests of a team
+   * Generate a JSON containing all the contents of collections and requests of a user
    *
    * @param userUID The User UID
-   * @returns A JSON string containing all the contents of collections and requests of a team
+   * @returns A JSON string containing all the contents of collections and requests of a user
    */
   async exportUserCollectionsToJSON(
     userUID: string,
     collectionID: string | null,
     reqType: ReqType,
   ) {
-    // Get all child collections details
-    const childCollectionList = await this.prisma.userCollection.findMany({
-      where: {
-        userUid: userUID,
-        parentID: collectionID,
-        type: reqType,
-      },
-      orderBy: {
-        orderIndex: 'asc',
-      },
-    });
+    // Fetch ALL user collections and requests in just 2 queries
+    const [allCollections, allRequests] = await Promise.all([
+      this.prisma.userCollection.findMany({
+        where: { userUid: userUID },
+        orderBy: { orderIndex: 'asc' },
+      }),
+      this.prisma.userRequest.findMany({
+        where: { userUid: userUID },
+        orderBy: { orderIndex: 'asc' },
+      }),
+    ]);
 
-    // Create a list of child collection and request data ready for export
-    const collectionListObjects: CollectionFolder[] = [];
-    for (const coll of childCollectionList) {
-      const result = await this.exportUserCollectionToJSONObject(
-        userUID,
-        coll.id,
-      );
-      if (E.isLeft(result)) return E.left(result.left);
-
-      collectionListObjects.push(result.right);
+    // Build lookup maps for O(1) access
+    const childrenMap = new Map<string | null, typeof allCollections>();
+    for (const coll of allCollections) {
+      const key = coll.parentID;
+      if (!childrenMap.has(key)) childrenMap.set(key, []);
+      childrenMap.get(key).push(coll);
     }
+
+    const requestsMap = new Map<string, typeof allRequests>();
+    for (const req of allRequests) {
+      const key = req.collectionID;
+      if (!requestsMap.has(key)) requestsMap.set(key, []);
+      requestsMap.get(key).push(req);
+    }
+
+    // Recursively build tree in-memory (no DB calls)
+    const buildFolder = (collId: string, collTitle: string, collData: any): CollectionFolder => {
+      const children = childrenMap.get(collId) || [];
+      const requests = requestsMap.get(collId) || [];
+      const data = transformCollectionData(collData);
+
+      return {
+        id: collId,
+        name: collTitle,
+        folders: children.map((c) => buildFolder(c.id, c.title, c.data)),
+        requests: requests.map((x) => ({
+          ...(x.request as Record<string, unknown>),
+          id: x.id,
+          name: x.title,
+        })),
+        data,
+      };
+    };
+
+    // Filter root-level children by type and parentID
+    const childCollectionList = (childrenMap.get(collectionID) || []).filter(
+      (c) => c.type === reqType,
+    );
+
+    const collectionListObjects: CollectionFolder[] = childCollectionList.map(
+      (coll) => buildFolder(coll.id, coll.title, coll.data),
+    );
 
     // If collectionID is not null, return JSON stringified data for specific collection
     if (collectionID) {

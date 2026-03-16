@@ -119,7 +119,7 @@ const shortcodesWithUserEmail = [
 describe('ShortcodeService', () => {
   describe('getShortCode', () => {
     test('should return a valid Shortcode with valid Shortcode ID', async () => {
-      mockPrisma.shortcode.findFirstOrThrow.mockResolvedValueOnce(mockEmbed);
+      mockPrisma.shortcode.findUniqueOrThrow.mockResolvedValueOnce(mockEmbed);
 
       const result = await shortcodeService.getShortCode(mockEmbed.id);
       expect(result).toEqualRight(<Shortcode>{
@@ -131,7 +131,7 @@ describe('ShortcodeService', () => {
     });
 
     test('should throw SHORTCODE_NOT_FOUND error when shortcode ID is invalid', async () => {
-      mockPrisma.shortcode.findFirstOrThrow.mockRejectedValueOnce(
+      mockPrisma.shortcode.findUniqueOrThrow.mockRejectedValueOnce(
         'NotFoundError',
       );
 
@@ -236,7 +236,7 @@ describe('ShortcodeService', () => {
 
     test('should successfully create a new Embed with valid user uid', async () => {
       // generateUniqueShortCodeID --> getShortcode
-      mockPrisma.shortcode.findFirstOrThrow.mockRejectedValueOnce(
+      mockPrisma.shortcode.findUniqueOrThrow.mockRejectedValueOnce(
         'NotFoundError',
       );
       mockPrisma.shortcode.create.mockResolvedValueOnce(mockEmbed);
@@ -252,7 +252,7 @@ describe('ShortcodeService', () => {
 
     test('should successfully create a new ShortCode with valid user uid', async () => {
       // generateUniqueShortCodeID --> getShortcode
-      mockPrisma.shortcode.findFirstOrThrow.mockRejectedValueOnce(
+      mockPrisma.shortcode.findUniqueOrThrow.mockRejectedValueOnce(
         'NotFoundError',
       );
       mockPrisma.shortcode.create.mockResolvedValueOnce(mockShortcode);
@@ -268,7 +268,7 @@ describe('ShortcodeService', () => {
 
     test('should send pubsub message to `shortcode/{uid}/created` on successful creation of a Shortcode', async () => {
       // generateUniqueShortCodeID --> getShortcode
-      mockPrisma.shortcode.findFirstOrThrow.mockRejectedValueOnce(
+      mockPrisma.shortcode.findUniqueOrThrow.mockRejectedValueOnce(
         'NotFoundError',
       );
       mockPrisma.shortcode.create.mockResolvedValueOnce(mockShortcode);
@@ -288,7 +288,7 @@ describe('ShortcodeService', () => {
 
     test('should send pubsub message to `shortcode/{uid}/created` on successful creation of an Embed', async () => {
       // generateUniqueShortCodeID --> getShortcode
-      mockPrisma.shortcode.findFirstOrThrow.mockRejectedValueOnce(
+      mockPrisma.shortcode.findUniqueOrThrow.mockRejectedValueOnce(
         'NotFoundError',
       );
       mockPrisma.shortcode.create.mockResolvedValueOnce(mockEmbed);

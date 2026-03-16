@@ -1,0 +1,44 @@
+-- Add indexes on frequently-queried foreign key columns to avoid full table scans.
+-- These indexes cover the most common WHERE, JOIN, and ORDER BY patterns in the codebase.
+
+-- TeamMember: queried by userUid when listing teams for a user
+CREATE INDEX "TeamMember_userUid_idx" ON "TeamMember"("userUid");
+
+-- TeamCollection: queried by (teamID, parentID) for hierarchical collection lookups
+CREATE INDEX "TeamCollection_teamID_parentID_idx" ON "TeamCollection"("teamID", "parentID");
+
+-- TeamRequest: queried by collectionID for listing requests in a collection
+CREATE INDEX "TeamRequest_collectionID_idx" ON "TeamRequest"("collectionID");
+
+-- TeamEnvironment: queried by teamID for listing environments in a team
+CREATE INDEX "TeamEnvironment_teamID_idx" ON "TeamEnvironment"("teamID");
+
+-- UserHistory: queried by (userUid, reqType) with executedOn ordering
+CREATE INDEX "UserHistory_userUid_reqType_executedOn_idx" ON "UserHistory"("userUid", "reqType", "executedOn" DESC);
+
+-- UserEnvironment: queried by userUid for listing user environments
+CREATE INDEX "UserEnvironment_userUid_idx" ON "UserEnvironment"("userUid");
+
+-- UserRequest: queried by collectionID for listing requests in a collection
+CREATE INDEX "UserRequest_collectionID_idx" ON "UserRequest"("collectionID");
+
+-- UserCollection: queried by (userUid, parentID) for hierarchical collection lookups
+CREATE INDEX "UserCollection_userUid_parentID_idx" ON "UserCollection"("userUid", "parentID");
+
+-- PersonalAccessToken: queried by userUid for listing tokens
+CREATE INDEX "PersonalAccessToken_userUid_idx" ON "PersonalAccessToken"("userUid");
+
+-- Shortcode: queried by creatorUid for listing user's shortcodes
+CREATE INDEX "Shortcode_creatorUid_idx" ON "Shortcode"("creatorUid");
+
+-- MockServer: queried by (workspaceType, workspaceID, deletedAt) for listing mock servers
+CREATE INDEX "MockServer_workspaceType_workspaceID_deletedAt_idx" ON "MockServer"("workspaceType", "workspaceID", "deletedAt");
+
+-- MockServer: queried by (creatorUid, deletedAt) for user's mock servers
+CREATE INDEX "MockServer_creatorUid_deletedAt_idx" ON "MockServer"("creatorUid", "deletedAt");
+
+-- Account: queried by userId for user's provider accounts
+CREATE INDEX "Account_userId_idx" ON "Account"("userId");
+
+-- VerificationToken: queried by userUid for user's verification tokens
+CREATE INDEX "VerificationToken_userUid_idx" ON "VerificationToken"("userUid");

@@ -99,7 +99,7 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
    */
   async getShortCode(shortcode: string) {
     try {
-      const shortcodeInfo = await this.prisma.shortcode.findFirstOrThrow({
+      const shortcodeInfo = await this.prisma.shortcode.findUniqueOrThrow({
         where: { id: shortcode },
       });
       return E.right(this.cast(shortcodeInfo));

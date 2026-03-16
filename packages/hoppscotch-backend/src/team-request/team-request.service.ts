@@ -98,6 +98,7 @@ export class TeamRequestService {
         teamID: teamID,
         title: {
           contains: searchTerm,
+          mode: 'insensitive',
         },
       },
     });
@@ -111,7 +112,7 @@ export class TeamRequestService {
    * @param requestID Request ID to delete
    */
   async deleteTeamRequest(requestID: string) {
-    const dbTeamReq = await this.prisma.teamRequest.findFirst({
+    const dbTeamReq = await this.prisma.teamRequest.findUnique({
       where: { id: requestID },
     });
     if (!dbTeamReq) return E.left(TEAM_REQ_NOT_FOUND);
@@ -561,14 +562,17 @@ export class TeamRequestService {
           select: { id: true },
         });
 
-        // Update the orderIndex of each request based on the new order (parallel)
-        const promises = teamRequests.map((request, i) =>
-          tx.teamRequest.update({
-            where: { id: request.id },
-            data: { orderIndex: i + 1 },
-          }),
+        if (teamRequests.length === 0) return;
+
+        // Build a single UPDATE with CASE WHEN instead of N individual updates.
+        // This reduces N round-trips to the database down to 1.
+        const ids = teamRequests.map((r) => r.id);
+        const caseClauses = teamRequests.map(
+          (r, i) => Prisma.sql`WHEN ${r.id} THEN ${i + 1}`,
         );
-        await Promise.all(promises);
+        await tx.$executeRaw(
+          Prisma.sql`UPDATE "TeamRequest" SET "orderIndex" = CASE "id" ${Prisma.join(caseClauses, ' ')} END WHERE "id" IN (${Prisma.join(ids)})`,
+        );
       });
     } catch (error) {
       console.error('Error from TeamRequestService.sortTeamRequests', error);

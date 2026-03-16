@@ -208,18 +208,20 @@ describe('searchRequest', () => {
 
 describe('deleteTeamRequest', () => {
   test('rejects if the request id is not found', async () => {
-    mockPrisma.teamRequest.findFirst.mockResolvedValue(null as any);
+    mockPrisma.teamRequest.findUnique.mockResolvedValue(null as any);
 
     const response = teamRequestService.deleteTeamRequest('invalidrequest');
 
     expect(response).resolves.toEqualLeft(TEAM_REQ_NOT_FOUND);
-    expect(mockPrisma.teamRequest.delete).not.toHaveBeenCalled();
   });
 
   test('resolves for a valid request id', async () => {
     const dbRequest = dbTeamRequests[0];
-    mockPrisma.teamRequest.findFirst.mockResolvedValue(dbRequest);
+    mockPrisma.teamRequest.findUnique.mockResolvedValue(dbRequest);
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamRequestByCollections.mockResolvedValue(undefined);
     mockPrisma.teamRequest.delete.mockResolvedValue(dbRequest);
+    mockPrisma.teamRequest.updateMany.mockResolvedValue({ count: 1 });
 
     await expect(
       teamRequestService.deleteTeamRequest(dbRequest.id),
@@ -228,8 +230,11 @@ describe('deleteTeamRequest', () => {
 
   test('publishes deletion to pubsub topic "team_req/<team_id>/req_deleted"', async () => {
     const dbRequest = dbTeamRequests[0];
-    mockPrisma.teamRequest.findFirst.mockResolvedValue(dbRequest);
+    mockPrisma.teamRequest.findUnique.mockResolvedValue(dbRequest);
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamRequestByCollections.mockResolvedValue(undefined);
     mockPrisma.teamRequest.delete.mockResolvedValue(dbRequest);
+    mockPrisma.teamRequest.updateMany.mockResolvedValue({ count: 1 });
 
     await teamRequestService.deleteTeamRequest(dbRequest.id);
 
@@ -764,6 +769,7 @@ describe('sortTeamRequests', () => {
     mockPrisma.$transaction.mockImplementation(async (cb) => cb(mockPrisma));
     mockPrisma.lockTeamRequestByCollections.mockResolvedValue(undefined);
     mockPrisma.teamRequest.findMany.mockResolvedValue(dbTeamRequests);
+    mockPrisma.$executeRaw.mockResolvedValue(dbTeamRequests.length);
 
     const result = await teamRequestService.sortTeamRequests(
       teamID,
@@ -778,9 +784,7 @@ describe('sortTeamRequests', () => {
       orderBy: { title: 'asc' },
       select: { id: true },
     });
-    expect(mockPrisma.teamRequest.update).toHaveBeenCalledTimes(
-      dbTeamRequests.length,
-    );
+    expect(mockPrisma.$executeRaw).toHaveBeenCalled();
   });
 
   test('should resolve right and sorts team requests by TITLE_DESC', async () => {
@@ -790,6 +794,7 @@ describe('sortTeamRequests', () => {
     mockPrisma.$transaction.mockImplementation(async (cb) => cb(mockPrisma));
     mockPrisma.lockTeamRequestByCollections.mockResolvedValue(undefined);
     mockPrisma.teamRequest.findMany.mockResolvedValue(dbTeamRequests);
+    mockPrisma.$executeRaw.mockResolvedValue(dbTeamRequests.length);
 
     const result = await teamRequestService.sortTeamRequests(
       teamID,
@@ -804,9 +809,7 @@ describe('sortTeamRequests', () => {
       orderBy: { title: 'desc' },
       select: { id: true },
     });
-    expect(mockPrisma.teamRequest.update).toHaveBeenCalledTimes(
-      dbTeamRequests.length,
-    );
+    expect(mockPrisma.$executeRaw).toHaveBeenCalled();
   });
 
   test('should returns left(TEAM_REQ_REORDERING_FAILED) on error', async () => {

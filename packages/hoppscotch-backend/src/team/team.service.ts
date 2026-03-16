@@ -104,26 +104,19 @@ export class TeamService implements UserDataHandler, OnModuleInit {
   }
 
   async deleteTeam(teamID: string): Promise<E.Left<string> | E.Right<boolean>> {
-    const team = await this.prisma.team.findUnique({
-      where: {
-        id: teamID,
-      },
-    });
-    if (!team) return E.left(TEAM_INVALID_ID);
+    try {
+      // TeamMember has onDelete: Cascade on team relation,
+      // so deleting the team automatically cascades to members
+      await this.prisma.team.delete({
+        where: {
+          id: teamID,
+        },
+      });
 
-    await this.prisma.teamMember.deleteMany({
-      where: {
-        teamID: teamID,
-      },
-    });
-
-    await this.prisma.team.delete({
-      where: {
-        id: teamID,
-      },
-    });
-
-    return E.right(true);
+      return E.right(true);
+    } catch (e) {
+      return E.left(TEAM_INVALID_ID);
+    }
   }
 
   async renameTeam(
@@ -262,37 +255,17 @@ export class TeamService implements UserDataHandler, OnModuleInit {
   }
 
   async getTeamsOfUser(uid: string, cursor: string | null): Promise<Team[]> {
-    if (!cursor) {
-      const entries = await this.prisma.teamMember.findMany({
-        take: 10,
-        where: {
-          userUid: uid,
-        },
-        include: {
-          team: true,
-        },
-      });
+    const entries = await this.prisma.teamMember.findMany({
+      take: 10,
+      skip: cursor ? 1 : 0,
+      cursor: cursor
+        ? { teamID_userUid: { teamID: cursor, userUid: uid } }
+        : undefined,
+      where: { userUid: uid },
+      include: { team: true },
+    });
 
-      return entries.map((entry) => entry.team);
-    } else {
-      const entries = await this.prisma.teamMember.findMany({
-        take: 10,
-        skip: 1,
-        cursor: {
-          teamID_userUid: {
-            teamID: cursor,
-            userUid: uid,
-          },
-        },
-        where: {
-          userUid: uid,
-        },
-        include: {
-          team: true,
-        },
-      });
-      return entries.map((entry) => entry.team);
-    }
+    return entries.map((entry) => entry.team);
   }
 
   async getTeamWithID(teamID: string): Promise<Team | null> {
@@ -331,20 +304,14 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     teamID: string,
     members: TeamMember[],
   ): Promise<TeamMember[]> {
-    const memberUsers = await Promise.all(
-      members.map(async (member) => {
-        const user = await this.userService.findUserById(member.userUid);
+    if (members.length === 0) return [];
 
-        // // TODO:Investigate if a race condition exists that deletes user from teams.
-        // // Delete the membership if the user doesnt exist
-        // if (!user) this.leaveTeam(teamID, member.userUid);
+    // Batch lookup: fetch all users in a single query instead of N individual queries
+    const userUids = members.map((m) => m.userUid);
+    const existingUsers = await this.userService.findUsersByIds(userUids);
+    const existingUids = new Set(existingUsers.map((u) => u.uid));
 
-        if (O.isSome(user)) return member;
-        else return null;
-      }),
-    );
-
-    return memberUsers.filter((x) => x !== null) as TeamMember[];
+    return members.filter((member) => existingUids.has(member.userUid));
   }
 
   async getTeamMember(
@@ -407,20 +374,22 @@ export class TeamService implements UserDataHandler, OnModuleInit {
         },
       });
 
-      for (const userOwnedTeam of userOwnedTeams) {
-        const ownerCount = await this.prisma.teamMember.count({
-          where: {
-            teamID: userOwnedTeam.teamID,
-            role: TeamAccessRole.OWNER,
-          },
-        });
+      if (userOwnedTeams.length === 0) return false;
 
-        // early return true if the user is the sole owner
-        if (ownerCount === 1) return true;
-      }
+      const teamIDs = userOwnedTeams.map((t) => t.teamID);
 
-      // return false if the user is not the sole owner in any team
-      return false;
+      // Batch query: count owners per team in a single groupBy query instead of N individual counts
+      const ownerCounts = await this.prisma.teamMember.groupBy({
+        by: ['teamID'],
+        where: {
+          teamID: { in: teamIDs },
+          role: TeamAccessRole.OWNER,
+        },
+        _count: { teamID: true },
+      });
+
+      // Check if any team has exactly 1 owner (the user themselves)
+      return ownerCounts.some((group) => group._count.teamID === 1);
     };
   }
 
@@ -484,27 +453,12 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     teamID: string,
     cursor: string | null,
   ): Promise<TeamMember[]> {
-    let teamMembers: DbTeamMember[];
-
-    if (!cursor) {
-      teamMembers = await this.prisma.teamMember.findMany({
-        take: 10,
-        where: {
-          teamID,
-        },
-      });
-    } else {
-      teamMembers = await this.prisma.teamMember.findMany({
-        take: 10,
-        skip: 1,
-        cursor: {
-          id: cursor,
-        },
-        where: {
-          teamID,
-        },
-      });
-    }
+    const teamMembers = await this.prisma.teamMember.findMany({
+      take: 10,
+      skip: cursor ? 1 : 0,
+      cursor: cursor ? { id: cursor } : undefined,
+      where: { teamID },
+    });
 
     const members = teamMembers.map(
       (entry) =>

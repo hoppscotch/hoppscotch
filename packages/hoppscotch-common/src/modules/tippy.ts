@@ -119,11 +119,17 @@ export default <HoppModule>{
           opts.content = ""
         }
 
-        // Skip setProps if content hasn't changed — tippy.js doesn't diff
+        // Skip setProps if nothing changed — tippy.js doesn't diff
         // internally and does expensive work (listener teardown/re-add,
-        // Popper instance recreation) on every call
+        // Popper instance recreation) on every call.
+        // Check both binding.value identity (covers reactive options like
+        // theme/delay) and resolved content (covers :title changes)
         const currentContent = tippy.props?.content
-        if (opts.content === currentContent) return
+        if (
+          binding.value === binding.oldValue &&
+          opts.content === currentContent
+        )
+          return
 
         tippy.setProps(opts)
       },

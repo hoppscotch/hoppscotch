@@ -21,7 +21,7 @@
       >
         <Pane
           :size="PANE_MAIN_TOP_SIZE"
-          class="flex flex-col overflow-auto"
+          class="flex flex-col overflow-auto scroll-smooth"
           :min-size="isEmbed ? 12 : 25"
         >
           <slot name="primary" />
@@ -29,7 +29,7 @@
         <Pane
           v-if="hasSecondary"
           :size="PANE_MAIN_BOTTOM_SIZE"
-          class="flex flex-col overflow-auto"
+          class="flex flex-col overflow-auto scroll-smooth"
           min-size="25"
         >
           <slot name="secondary" />
@@ -39,7 +39,7 @@
     <Pane
       :size="SIDEBAR && hasSidebar ? PANE_SIDEBAR_SIZE : 0"
       :min-size="25"
-      class="flex flex-col !overflow-auto bg-primaryContrast"
+      class="flex flex-col !overflow-auto scroll-smooth bg-primaryContrast"
     >
       <slot name="sidebar" />
     </Pane>

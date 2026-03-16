@@ -9,6 +9,7 @@ import {
 } from "@hoppscotch/data"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { executedResponses$ } from "~/helpers/RequestRunner"
+import { settingsStore } from "~/newstore/settings"
 
 export type RESTHistoryEntry = {
   v: number
@@ -19,6 +20,8 @@ export type RESTHistoryEntry = {
     duration: number | null
     statusCode: number | null
   }
+  responseBody?: string
+  responseHeaders?: Array<{ key: string; value: string }>
 
   star: boolean
 
@@ -129,8 +132,10 @@ const RESTHistoryDispatchers = defineDispatchers({
     currentVal: RESTHistoryType,
     { entry }: { entry: RESTHistoryEntry }
   ) {
+    const maxCount =
+      settingsStore.subject$.value.MAX_HISTORY_COUNT ?? HISTORY_LIMIT
     return {
-      state: [entry, ...currentVal.state].slice(0, HISTORY_LIMIT),
+      state: [entry, ...currentVal.state].slice(0, maxCount),
     }
   },
   deleteEntry(
@@ -341,11 +346,30 @@ export function removeDuplicateGraphqlHistoryEntry(id: string) {
 
 // Listen to completed responses to add to history
 executedResponses$.subscribe((res) => {
+  const settings = settingsStore.subject$.value
+  const saveResponse = settings.SAVE_RESPONSE_IN_HISTORY ?? false
+  const maxSizeKB = settings.MAX_HISTORY_ENTRY_SIZE_KB ?? 100
+
+  let responseBody: string | undefined
+  let responseHeaders: Array<{ key: string; value: string }> | undefined
+
+  if (saveResponse) {
+    const rawBody = new TextDecoder("utf-8")
+      .decode(res.body)
+      .replaceAll("\x00", "")
+    const sizeKB = new Blob([rawBody]).size / 1024
+    if (sizeKB <= maxSizeKB) {
+      responseBody = rawBody
+      responseHeaders = res.headers as Array<{ key: string; value: string }>
+    }
+  }
+
   addRESTHistoryEntry(
     makeRESTHistoryEntry({
       request: {
         auth: res.req.auth,
         body: res.req.body,
+        description: res.req.description,
         endpoint: res.req.endpoint,
         headers: res.req.headers,
         method: res.req.method,
@@ -361,6 +385,8 @@ executedResponses$.subscribe((res) => {
         duration: res.meta.responseDuration,
         statusCode: res.statusCode,
       },
+      responseBody,
+      responseHeaders,
       star: false,
       updatedOn: new Date(),
     })

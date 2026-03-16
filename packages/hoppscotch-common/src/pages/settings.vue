@@ -261,6 +261,55 @@
           <component :is="item" />
         </template>
       </template>
+
+      <div class="md:grid md:grid-cols-3 md:gap-4">
+        <div class="p-8 md:col-span-1">
+          <h3 class="heading">
+            {{ t("settings.history") }}
+          </h3>
+          <p class="my-1 text-secondaryLight">
+            {{ t("settings.history_description") }}
+          </p>
+        </div>
+        <div class="space-y-8 p-8 md:col-span-2">
+          <section>
+            <div class="space-y-4 py-2">
+              <div class="flex items-center">
+                <HoppSmartToggle
+                  :on="SAVE_RESPONSE_IN_HISTORY"
+                  @change="toggleSetting('SAVE_RESPONSE_IN_HISTORY')"
+                >
+                  {{ t("settings.save_response_in_history") }}
+                </HoppSmartToggle>
+              </div>
+              <div class="flex flex-col space-y-1">
+                <label class="text-sm text-secondaryLight">
+                  {{ t("settings.max_history_count") }}
+                </label>
+                <input
+                  v-model.number="MAX_HISTORY_COUNT"
+                  type="number"
+                  min="1"
+                  max="500"
+                  class="input max-w-xs"
+                />
+              </div>
+              <div class="flex flex-col space-y-1">
+                <label class="text-sm text-secondaryLight">
+                  {{ t("settings.max_history_entry_size_kb") }}
+                </label>
+                <input
+                  v-model.number="MAX_HISTORY_ENTRY_SIZE_KB"
+                  type="number"
+                  min="1"
+                  max="10240"
+                  class="input max-w-xs"
+                />
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
     </div>
     <HoppSmartConfirmModal
       :show="confirmRemove"
@@ -334,6 +383,10 @@ const ENABLE_EXPERIMENTAL_MOCK_SERVERS = useSetting(
 const ENABLE_EXPERIMENTAL_DOCUMENTATION = useSetting(
   "ENABLE_EXPERIMENTAL_DOCUMENTATION"
 )
+
+const SAVE_RESPONSE_IN_HISTORY = useSetting("SAVE_RESPONSE_IN_HISTORY")
+const MAX_HISTORY_COUNT = useSetting("MAX_HISTORY_COUNT")
+const MAX_HISTORY_ENTRY_SIZE_KB = useSetting("MAX_HISTORY_ENTRY_SIZE_KB")
 
 const supportedNamingStyles = [
   {

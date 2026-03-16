@@ -850,6 +850,10 @@
     "post_request_script_fail": "There seems to be an error with post-request script. Please fix the errors and run tests again",
     "post_request_script": "Write a post-request script to automate debugging."
   },
+  "history": {
+    "response_preview": "Response Preview",
+    "no_response_saved": "No response saved for this entry. Enable \"Save response in history\" in Settings."
+  },
   "hide": {
     "collection": "Collapse Collection Panel",
     "more": "Hide more",
@@ -1333,6 +1337,11 @@
     "sync_environments": "Environments",
     "sync_history": "History",
     "history_disabled": "History is disabled. Contact your organization admin to enable history",
+    "history": "History",
+    "history_description": "Configure response saving and history limits.",
+    "save_response_in_history": "Save response body and headers in history",
+    "max_history_count": "Maximum history entries",
+    "max_history_entry_size_kb": "Maximum response size per entry (KB)",
     "system_mode": "System",
     "telemetry": "Telemetry",
     "telemetry_helps_us": "Telemetry helps us to personalize our operations and deliver the best experience to you.",

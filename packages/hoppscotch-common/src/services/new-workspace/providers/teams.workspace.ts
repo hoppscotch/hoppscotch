@@ -21,6 +21,7 @@ import {
   HoppRESTAuth,
   HoppRESTHeader,
   HoppRESTHeaders,
+  HoppRESTRequest,
 } from "@hoppscotch/data"
 
 import * as E from "fp-ts/Either"
@@ -814,9 +815,14 @@ export class TeamsWorkspaceProviderService
           // now push the new children
           this.collections.value.push(
             ...children.right.map((collection) => {
-              const collectionProperties = collection.data
-                ? JSON.parse(collection.data)
-                : null
+              let collectionProperties: unknown = null
+              if (collection.data) {
+                try {
+                  collectionProperties = JSON.parse(collection.data)
+                } catch (e) {
+                  console.error("Failed to parse collection properties", e)
+                }
+              }
 
               let auth: HoppRESTAuth = {
                 authType: "inherit",
@@ -879,18 +885,28 @@ export class TeamsWorkspaceProviderService
 
           // now push the new requests
           this.requests.value.push(
-            ...requests.right.map((request) => {
+            ...requests.right.flatMap((request) => {
+              let parsedRequest: unknown
+              try {
+                parsedRequest = JSON.parse(request.request)
+              } catch (e) {
+                console.error("Failed to parse request response", e)
+                return []
+              }
+
               const order = generateKeyBetween(previousOrder, null)
               previousOrder = order
 
-              return {
-                requestID: request.id,
-                providerID: this.providerID,
-                workspaceID,
-                collectionID,
-                request: JSON.parse(request.request), // TODO: validation
-                order,
-              }
+              return [
+                {
+                  requestID: request.id,
+                  providerID: this.providerID,
+                  workspaceID,
+                  collectionID,
+                  request: parsedRequest as HoppRESTRequest,
+                  order,
+                },
+              ]
             })
           )
         })
@@ -1005,9 +1021,14 @@ export class TeamsWorkspaceProviderService
 
           this.collections.value.push(
             ...collections.right.map((collection) => {
-              const collectionProperties = collection.data
-                ? JSON.parse(collection.data)
-                : null
+              let collectionProperties: unknown = null
+              if (collection.data) {
+                try {
+                  collectionProperties = JSON.parse(collection.data)
+                } catch (e) {
+                  console.error("Failed to parse collection properties", e)
+                }
+              }
 
               let auth: HoppRESTAuth = {
                 authType: "none",
@@ -2931,4 +2952,3 @@ const parseInheritedData = (inheritedData?: string) => {
     headers,
   }
 }
-

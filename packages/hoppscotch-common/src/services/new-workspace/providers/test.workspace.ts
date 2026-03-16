@@ -21,11 +21,9 @@ type TestCollDef = {
   requests: TestReqDef[]
 }
 
-const timestamp = ref(Date.now())
-
 const testData = reactive({
   workspaceA: {
-    name: computed(() => `Workspace A: ${timestamp.value}`),
+    name: "Workspace A",
     collections: [
       <TestCollDef>{
         name: "Collection A",
@@ -71,7 +69,7 @@ export class TestWorkspaceProviderService
   private readonly workspaceService = this.bind(NewWorkspaceService)
 
   override onServiceInit() {
-    this.workspaceService.registerWorkspaceProvider(this as unknown as WorkspaceProvider)
+    this.workspaceService.registerWorkspaceProvider(this)
   }
 
   public createRESTRootCollection(

@@ -882,7 +882,7 @@
     "from_openapi_import_summary": "Collections ( will be created from tags ), Requests and response examples will be imported.",
     "from_postman": "Import from Postman",
     "from_postman_description": "Import from Postman collection",
-    "from_postman_import_summary": "Collections, Requests and response examples will be imported.",
+    "from_yaak_import_summary": "Import requests from a Yaak export file",
     "from_yaak": "Import from Yaak",
     "from_yaak_description": "Import collections exported from Yaak",
     "from_yaak_import_summary": "Import requests from a Yaak export file",

@@ -938,7 +938,10 @@ export class UserCollectionService {
     const collection = await this.getUserCollection(collectionID, userUID);
     if (E.isLeft(collection)) return E.left(collection.left);
 
-    const { buildFolder } = await this.buildUserCollectionTree(userUID);
+    const { buildFolder } = await this.buildUserCollectionTree(
+      userUID,
+      collection.right.type,
+    );
 
     return E.right(
       buildFolder(collection.right.id, collection.right.title, collection.right.data),
@@ -956,11 +959,19 @@ export class UserCollectionService {
     collectionID: string | null,
     reqType: ReqType,
   ) {
+    // When collectionID is non-null, load all types so the type-mismatch check
+    // can distinguish "not found" from "wrong type". When null (root export),
+    // filter by reqType at the query level to halve the data transfer.
     const { childrenMap, requestsMap, buildFolder, collectionsById } =
-      await this.buildUserCollectionTree(userUID, reqType as unknown as DBReqType);
+      await this.buildUserCollectionTree(
+        userUID,
+        collectionID ? undefined : (reqType as unknown as DBReqType),
+      );
 
-    // Filter root-level children by parentID (type already filtered at query level)
-    const childCollectionList = childrenMap.get(collectionID) || [];
+    // Filter root-level children by type and parentID
+    const childCollectionList = (childrenMap.get(collectionID) || []).filter(
+      (c) => c.type === reqType,
+    );
 
     const collectionListObjects: CollectionFolder[] = childCollectionList.map(
       (coll) => buildFolder(coll.id, coll.title, coll.data),

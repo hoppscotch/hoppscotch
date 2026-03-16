@@ -32,6 +32,8 @@ export type TippyState = {
 // Resolves tooltip options from directive binding, vnode props, and DOM attrs.
 // Reads from vnode.props first (immune to DOM stripping by parent <tippy>
 // components), then falls back to DOM attributes.
+// Side effect: removes the title attribute from el to prevent the browser's
+// native tooltip from showing alongside the tippy tooltip.
 function resolveOpts(
   el: TippyElement,
   binding: DirectiveBinding,

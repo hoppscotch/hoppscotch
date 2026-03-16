@@ -202,8 +202,8 @@
         :on-shown="() => envQuickPeekActions!.focus()"
       >
         <HoppButtonSecondary
-          v-tippy="{ content: t('environment.quick_peek'), theme: 'tooltip' }"
-          :aria-label="t('environment.quick_peek')"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="`${t('environment.quick_peek')}`"
           :icon="IconEye"
           class="!px-4"
         />

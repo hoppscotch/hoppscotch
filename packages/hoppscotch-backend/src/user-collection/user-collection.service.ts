@@ -983,8 +983,9 @@ export class UserCollectionService {
       );
 
     // Filter root-level children by type and parentID
+    const dbReqType = this.toDBReqType(reqType);
     const childCollectionList = (childrenMap.get(collectionID) || []).filter(
-      (c) => c.type === reqType,
+      (c) => c.type === dbReqType,
     );
 
     const collectionListObjects: CollectionFolder[] = childCollectionList.map(
@@ -997,7 +998,7 @@ export class UserCollectionService {
       const parentColl = collectionsById.get(collectionID);
       if (!parentColl) return E.left(USER_COLL_NOT_FOUND);
 
-      if (parentColl.type !== reqType)
+      if (parentColl.type !== this.toDBReqType(reqType))
         return E.left(USER_COLL_NOT_SAME_TYPE);
 
       const requests = requestsMap.get(parentColl.id) || [];

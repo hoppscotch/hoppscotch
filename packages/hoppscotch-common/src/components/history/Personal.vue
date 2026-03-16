@@ -112,6 +112,7 @@
           @delete-entry="deleteHistory(entry.entry)"
           @use-entry="useHistory(toRaw(entry.entry))"
           @add-to-collection="addToCollection(entry.entry)"
+          @show-response="showResponsePreview(entry.entry as RESTHistoryEntry)"
         />
       </details>
     </div>
@@ -156,6 +157,12 @@
       @hide-modal="confirmRemove = false"
       @resolve="clearHistory"
     />
+    <HistoryRestResponsePreview
+      v-if="activePreviewEntry"
+      :show="!!activePreviewEntry"
+      :entry="activePreviewEntry"
+      @close="activePreviewEntry = null"
+    />
   </div>
 </template>
 
@@ -189,6 +196,7 @@ import {
 
 import HistoryRestCard from "./rest/Card.vue"
 import HistoryGraphqlCard from "./graphql/Card.vue"
+import HistoryRestResponsePreview from "./rest/ResponsePreview.vue"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
@@ -212,6 +220,11 @@ const colorMode = useColorMode()
 const filterText = ref("")
 const showMore = ref(false)
 const confirmRemove = ref(false)
+const activePreviewEntry = ref<RESTHistoryEntry | null>(null)
+
+const showResponsePreview = (entry: RESTHistoryEntry) => {
+  activePreviewEntry.value = entry
+}
 
 const history = useReadonlyStream<RESTHistoryEntry[] | GQLHistoryEntry[]>(
   props.page === "rest" ? restHistory$ : graphqlHistory$,

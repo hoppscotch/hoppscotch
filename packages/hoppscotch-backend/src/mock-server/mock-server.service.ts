@@ -971,6 +971,7 @@ export class MockServerService {
     });
     if (!rootCollection) return [];
 
+    const visitedIds = new Set<string>([rootCollectionId]);
     const allIds: string[] = [rootCollectionId];
     let currentLevelIds = [rootCollectionId];
 
@@ -980,7 +981,8 @@ export class MockServerService {
         select: { id: true },
       });
 
-      currentLevelIds = children.map((c) => c.id);
+      currentLevelIds = children.map((c) => c.id).filter((id) => !visitedIds.has(id));
+      currentLevelIds.forEach((id) => visitedIds.add(id));
       allIds.push(...currentLevelIds);
     }
 
@@ -1000,6 +1002,7 @@ export class MockServerService {
     });
     if (!rootCollection) return [];
 
+    const visitedIds = new Set<string>([rootCollectionId]);
     const allIds: string[] = [rootCollectionId];
     let currentLevelIds = [rootCollectionId];
 
@@ -1009,7 +1012,8 @@ export class MockServerService {
         select: { id: true },
       });
 
-      currentLevelIds = children.map((c) => c.id);
+      currentLevelIds = children.map((c) => c.id).filter((id) => !visitedIds.has(id));
+      currentLevelIds.forEach((id) => visitedIds.add(id));
       allIds.push(...currentLevelIds);
     }
 

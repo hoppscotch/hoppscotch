@@ -9,7 +9,6 @@ import tsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker"
 
 import { PlatformDef, setPlatformDef } from "./platform"
 import { PersonalWorkspaceProviderService } from "./services/new-workspace/providers/personal.workspace"
-import { TestWorkspaceProviderService } from "./services/new-workspace/providers/test.workspace"
 
 import "nprogress/nprogress.css"
 import "../assets/scss/styles.scss"
@@ -31,8 +30,6 @@ export async function createHoppApp(
 
   const app = createApp(App)
 
-  // TODO: Remove this
-  getService(TestWorkspaceProviderService)
   getService(PersonalWorkspaceProviderService)
 
   // Initialize core services before app mounting

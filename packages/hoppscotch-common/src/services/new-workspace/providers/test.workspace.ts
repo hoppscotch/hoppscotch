@@ -1,5 +1,4 @@
 import { computed, markRaw, reactive, ref } from "vue"
-import { useTimestamp } from "@vueuse/core"
 import { Service } from "dioc"
 import { WorkspaceProvider } from "../provider"
 import * as E from "fp-ts/Either"
@@ -22,8 +21,7 @@ type TestCollDef = {
   requests: TestReqDef[]
 }
 
-const timestamp = useTimestamp({ interval: 3000 })
-// const timestamp = ref(Date.now())
+const timestamp = ref(Date.now())
 
 const testData = reactive({
   workspaceA: {
@@ -56,11 +54,9 @@ const testData = reactive({
   },
 })
 
-;(window as any).testData = testData
-
 export class TestWorkspaceProviderService
   extends Service
-  implements Partial<WorkspaceProvider>
+  implements WorkspaceProvider
 {
   public static readonly ID = "TEST_WORKSPACE_PROVIDER_SERVICE"
 
@@ -317,5 +313,87 @@ export class TestWorkspaceProviderService
         name: testData[workspaceID as keyof typeof testData].name,
       }))
     )
+  }
+
+  // The remaining methods are stubs — this provider exists only for
+  // development/testing of the workspace UI; unimplemented paths throw
+  // so they're caught immediately rather than silently returning wrong data.
+
+  public getRESTRequestHandle(): Promise<E.Either<never, never>> {
+    throw new Error("not implemented")
+  }
+  public getRESTEnvironmentHandle(): Promise<E.Either<never, never>> {
+    throw new Error("not implemented")
+  }
+  public getRESTCollectionLevelAuthHeadersView(): Promise<
+    E.Either<never, never>
+  > {
+    throw new Error("not implemented")
+  }
+  public getRESTSearchResultsView(): Promise<E.Either<never, never>> {
+    throw new Error("not implemented")
+  }
+  public getRESTCollectionJSONView(): Promise<E.Either<never, never>> {
+    throw new Error("not implemented")
+  }
+  public getRESTEnvironmentsView(): Promise<E.Either<never, never>> {
+    throw new Error("not implemented")
+  }
+  public updateRESTCollection(): Promise<E.Either<never, never>> {
+    throw new Error("not implemented")
+  }
+  public removeRESTCollection(): Promise<E.Either<never, never>> {
+    throw new Error("not implemented")
+  }
+  public createRESTRequest(): Promise<E.Either<never, never>> {
+    throw new Error("not implemented")
+  }
+  public updateRESTRequest(): Promise<E.Either<never, never>> {
+    throw new Error("not implemented")
+  }
+  public removeRESTRequest(): Promise<E.Either<never, never>> {
+    throw new Error("not implemented")
+  }
+  public importRESTCollections(): Promise<E.Either<never, never>> {
+    throw new Error("not implemented")
+  }
+  public exportRESTCollections(): Promise<E.Either<never, never>> {
+    throw new Error("not implemented")
+  }
+  public exportRESTCollection(): Promise<E.Either<never, never>> {
+    throw new Error("not implemented")
+  }
+  public reorderRESTCollection(): Promise<E.Either<never, never>> {
+    throw new Error("not implemented")
+  }
+  public moveRESTCollection(): Promise<E.Either<never, never>> {
+    throw new Error("not implemented")
+  }
+  public reorderRESTRequest(): Promise<E.Either<never, never>> {
+    throw new Error("not implemented")
+  }
+  public moveRESTRequest(): Promise<E.Either<never, never>> {
+    throw new Error("not implemented")
+  }
+  public createRESTEnvironment(): Promise<E.Either<never, never>> {
+    throw new Error("not implemented")
+  }
+  public duplicateRESTEnvironment(): Promise<E.Either<never, never>> {
+    throw new Error("not implemented")
+  }
+  public updateRESTEnvironment(): Promise<E.Either<never, never>> {
+    throw new Error("not implemented")
+  }
+  public removeRESTEnvironment(): Promise<E.Either<never, never>> {
+    throw new Error("not implemented")
+  }
+  public importRESTEnvironments(): Promise<E.Either<never, never>> {
+    throw new Error("not implemented")
+  }
+  public exportRESTEnvironments(): Promise<E.Either<never, never>> {
+    throw new Error("not implemented")
+  }
+  public exportRESTEnvironment(): Promise<E.Either<never, never>> {
+    throw new Error("not implemented")
   }
 }

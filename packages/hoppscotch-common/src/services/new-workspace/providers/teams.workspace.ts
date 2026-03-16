@@ -735,23 +735,6 @@ export class TeamsWorkspaceProviderService
       }
     })
 
-    // return this.workspaces.value.map((workspace) => {
-    //   return computed(() => {
-    //     const existsStill = this.workspaces.value.includes(workspace)
-
-    //     if (!existsStill) {
-    //       return {
-    //         type: "invalid" as const,
-    //         reason: "WORKSPACE_DOES_NOT_EXIST",
-    //       }
-    //     }
-
-    //     return {
-    //       data: workspace,
-    //       type: "ok" as const,
-    //     }
-    //   })
-    // })
   }
 
   async getRESTCollectionHandle(
@@ -2656,14 +2639,6 @@ const importJSONToTeam = (collectionJSON: string, teamID: string) =>
     }
   )
 
-// createWorkspace + selectWorkspace situation
-// cache the children of a collection
-
-// another drawback of the approch we're taking
-// not keeping one way for the source of truth -> i could update a collection & return a handle that does not exist
-// also every place we're issuing a collection/request handle, we need to test if its proper and works as expected when it comes to reactivity
-
-// TODO: throw an error if source and destination doesnt have the same parent
 export const reorderItems = <
   ParentIDKey extends keyof Reorderable,
   IDKey extends keyof Reorderable,

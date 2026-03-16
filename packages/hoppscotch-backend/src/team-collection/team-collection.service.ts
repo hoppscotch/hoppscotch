@@ -122,14 +122,14 @@ export class TeamCollectionService {
     for (const coll of allCollections) {
       const key = coll.parentID;
       if (!childrenMap.has(key)) childrenMap.set(key, []);
-      childrenMap.get(key).push(coll);
+      childrenMap.get(key)!.push(coll);
     }
 
     const requestsMap = new Map<string, typeof allRequests>();
     for (const req of allRequests) {
       const key = req.collectionID;
       if (!requestsMap.has(key)) requestsMap.set(key, []);
-      requestsMap.get(key).push(req);
+      requestsMap.get(key)!.push(req);
     }
 
     // Recursively build a subtree from any node (no DB calls)

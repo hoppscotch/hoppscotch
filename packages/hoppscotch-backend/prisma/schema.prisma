@@ -97,6 +97,9 @@ model TeamEnvironment {
   @@index([teamID])
 }
 
+// NOTE: A functional index on LOWER(email) exists for the fetchInvitedUsers
+// NOT EXISTS query (see migration 20260316060000_add_performance_indexes).
+// Prisma cannot represent expression indexes in schema.prisma.
 model User {
   uid                  String                @id @default(cuid())
   displayName          String?

@@ -187,7 +187,7 @@
 
     .tippy-svg-arrow {
       svg:first-child {
-        @apply fill-primaryDark;
+        @apply fill-divider;
       }
 
       svg:last-child {
@@ -234,7 +234,7 @@
 
     .tippy-svg-arrow {
       svg:first-child {
-        @apply fill-primaryLight;
+        @apply fill-divider;
       }
 
       svg:last-child {

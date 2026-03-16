@@ -768,7 +768,7 @@ const HoppYaakImporter: ImporterOrExporter = {
   component: FileSource({
     caption: "import.from_file",
     acceptedFileTypes: ".json",
-    description: "Import Yaak workspace",
+    description: "import.from_yaak_import_summary",
 
     onImportFromFile: async (content: string[]) => {
       const res = await hoppYaakImporter(content)()

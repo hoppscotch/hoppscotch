@@ -233,9 +233,10 @@ export const hoppYaakImporter = (fileContents: string[]) =>
             description: null,
           })
         )
+        const folderIds = new Set(folders.map((f) => f.id))
 
         const rootRequests = requests
-          .filter((r) => !r.folderId)
+          .filter((r) => !r.folderId || !folderIds.has(r.folderId))
           .map(convertRequest)
 
         return makeCollection({

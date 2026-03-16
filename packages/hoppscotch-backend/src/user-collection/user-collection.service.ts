@@ -868,14 +868,14 @@ export class UserCollectionService {
    * Shared by exportUserCollectionToJSONObject and exportUserCollectionsToJSON
    * to avoid duplicating the bulk-fetch + map-building logic.
    */
-  private async buildUserCollectionTree(userUID: string) {
+  private async buildUserCollectionTree(userUID: string, reqType?: DBReqType) {
     const [allCollections, allRequests] = await Promise.all([
       this.prisma.userCollection.findMany({
-        where: { userUid: userUID },
+        where: { userUid: userUID, ...(reqType ? { type: reqType } : {}) },
         orderBy: { orderIndex: 'asc' },
       }),
       this.prisma.userRequest.findMany({
-        where: { userUid: userUID },
+        where: { userUid: userUID, ...(reqType ? { type: reqType } : {}) },
         orderBy: { orderIndex: 'asc' },
       }),
     ]);
@@ -957,12 +957,10 @@ export class UserCollectionService {
     reqType: ReqType,
   ) {
     const { childrenMap, requestsMap, buildFolder, collectionsById } =
-      await this.buildUserCollectionTree(userUID);
+      await this.buildUserCollectionTree(userUID, reqType as unknown as DBReqType);
 
-    // Filter root-level children by type and parentID
-    const childCollectionList = (childrenMap.get(collectionID) || []).filter(
-      (c) => c.type === reqType,
-    );
+    // Filter root-level children by parentID (type already filtered at query level)
+    const childCollectionList = childrenMap.get(collectionID) || [];
 
     const collectionListObjects: CollectionFolder[] = childCollectionList.map(
       (coll) => buildFolder(coll.id, coll.title, coll.data),

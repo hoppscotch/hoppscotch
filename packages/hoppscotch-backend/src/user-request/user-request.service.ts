@@ -551,7 +551,7 @@ export class UserRequestService {
         // 'updatedOn' is renamed, this raw SQL must be updated to match.
         const ids = userRequests.map((r) => r.id);
         const caseClauses = userRequests.map(
-          (r, i) => Prisma.sql`WHEN ${r.id} THEN ${i + 1}`,
+          (r, i) => Prisma.sql`WHEN ${r.id} THEN ${Prisma.raw(String(i + 1))}`,
         );
         await tx.$executeRaw(
           Prisma.sql`UPDATE "UserRequest" SET "orderIndex" = CASE "id" ${Prisma.join(caseClauses, ' ')} END WHERE "id" IN (${Prisma.join(ids)})`,

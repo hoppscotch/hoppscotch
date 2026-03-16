@@ -36,3 +36,7 @@ CREATE INDEX "Account_userId_idx" ON "Account"("userId");
 
 -- VerificationToken: queried by userUid for user's verification tokens
 CREATE INDEX "VerificationToken_userUid_idx" ON "VerificationToken"("userUid");
+
+-- User: functional index on LOWER(email) to support case-insensitive email
+-- matching in the fetchInvitedUsers NOT EXISTS subquery without full table scans
+CREATE INDEX "User_email_lower_idx" ON "User" (LOWER("email"));

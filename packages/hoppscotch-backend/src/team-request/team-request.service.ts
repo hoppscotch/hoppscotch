@@ -570,7 +570,7 @@ export class TeamRequestService {
         // 'updatedOn' is renamed, this raw SQL must be updated to match.
         const ids = teamRequests.map((r) => r.id);
         const caseClauses = teamRequests.map(
-          (r, i) => Prisma.sql`WHEN ${r.id} THEN ${i + 1}`,
+          (r, i) => Prisma.sql`WHEN ${r.id} THEN ${Prisma.raw(String(i + 1))}`,
         );
         await tx.$executeRaw(
           Prisma.sql`UPDATE "TeamRequest" SET "orderIndex" = CASE "id" ${Prisma.join(caseClauses, ' ')} END WHERE "id" IN (${Prisma.join(ids)})`,

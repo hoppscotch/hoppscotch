@@ -190,6 +190,10 @@ export class AdminService {
     // into memory. The previous approach loaded every email from the User table
     // into a JS array, then passed it as a huge IN clause — O(n) memory and
     // slow for large user bases. This pushes the filtering to the database.
+    //
+    // NOTE: $queryRaw bypasses Prisma middleware / query extensions.
+    // If logging or soft-delete middleware is added later, this query will
+    // need manual adjustments to stay consistent.
     const pendingInvitedUsers = await this.prisma.$queryRaw<InvitedUser[]>`
       SELECT "adminUid", "adminEmail", "inviteeEmail", "invitedOn"
       FROM "InvitedUsers" i

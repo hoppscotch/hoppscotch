@@ -554,7 +554,7 @@ export class UserRequestService {
           (r, i) => Prisma.sql`WHEN ${r.id} THEN ${Prisma.raw(String(i + 1))}`,
         );
         await tx.$executeRaw(
-          Prisma.sql`UPDATE "UserRequest" SET "orderIndex" = CASE "id" ${Prisma.join(caseClauses, ' ')} END WHERE "id" IN (${Prisma.join(ids)})`,
+          Prisma.sql`UPDATE "UserRequest" SET "orderIndex" = CASE "id" ${Prisma.join(caseClauses, ' ')} ELSE "orderIndex" END WHERE "id" IN (${Prisma.join(ids)})`,
         );
       });
     } catch (error) {

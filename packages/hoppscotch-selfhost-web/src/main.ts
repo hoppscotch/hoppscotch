@@ -281,7 +281,7 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           !e.altKey &&
-          e.key.toLowerCase() === "q"
+          e.code === "KeyQ"
         ) {
           // Ctrl/Cmd + Q - Quit Application
           e.preventDefault()
@@ -292,7 +292,7 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           !e.altKey &&
-          e.key.toLowerCase() === "t"
+          e.code === "KeyT"
         ) {
           // Ctrl/Cmd + T - New Tab
           e.preventDefault()
@@ -303,7 +303,7 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           !e.altKey &&
-          e.key.toLowerCase() === "w"
+          e.code === "KeyW"
         ) {
           // Ctrl/Cmd + W - Close Tab
           e.preventDefault()
@@ -314,7 +314,7 @@ async function initApp() {
           isCtrlOrCmd &&
           e.shiftKey &&
           !e.altKey &&
-          e.key.toLowerCase() === "t"
+          e.code === "KeyT"
         ) {
           // Ctrl/Cmd + Shift + T - Reopen Tab
           e.preventDefault()
@@ -347,7 +347,7 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           e.altKey &&
-          (e.key === "9" || e.code === "Digit9")
+          e.code === "Digit9"
         ) {
           // Ctrl/Cmd + Alt + 9 - First Tab
           e.preventDefault()
@@ -358,7 +358,7 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           e.altKey &&
-          (e.key === "0" || e.code === "Digit0")
+          e.code === "Digit0"
         ) {
           // Ctrl/Cmd + Alt + 0 - Last Tab
           e.preventDefault()

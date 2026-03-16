@@ -205,7 +205,15 @@ export class AdminService {
       OFFSET ${paginationOption.skip}
     `;
 
-    return pendingInvitedUsers;
+    // Explicitly map fields so TypeScript catches mismatches if InvitedUser
+    // or the InvitedUsers table schema changes (Prisma's $queryRaw generic
+    // cast is not validated at runtime).
+    return pendingInvitedUsers.map((row) => ({
+      adminUid: row.adminUid,
+      adminEmail: row.adminEmail,
+      inviteeEmail: row.inviteeEmail,
+      invitedOn: row.invitedOn,
+    }));
   }
 
   /**

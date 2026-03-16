@@ -52,6 +52,20 @@ export class UserCollectionService {
   MAX_RETRIES = 5; // Maximum number of retries for database transactions
 
   /**
+   * Maps the app-level ReqType enum to the Prisma-generated DBReqType enum.
+   * Both enums currently have identical string values, but this explicit
+   * mapping ensures TypeScript will flag any future divergence at compile time.
+   */
+  private toDBReqType(reqType: ReqType): DBReqType {
+    switch (reqType) {
+      case ReqType.REST:
+        return DBReqType.REST;
+      case ReqType.GQL:
+        return DBReqType.GQL;
+    }
+  }
+
+  /**
    * Typecast a database UserCollection to a UserCollection model
    * @param userCollection database UserCollection
    * @returns UserCollection model
@@ -965,7 +979,7 @@ export class UserCollectionService {
     const { childrenMap, requestsMap, buildFolder, collectionsById } =
       await this.buildUserCollectionTree(
         userUID,
-        collectionID ? undefined : (reqType as unknown as DBReqType),
+        collectionID ? undefined : this.toDBReqType(reqType),
       );
 
     // Filter root-level children by type and parentID

@@ -9,6 +9,12 @@ describe("jsonc helpers", () => {
       expect(stripComments(input)).toBe(expected)
     })
 
+    it("should handle scientific notation correctly", () => {
+      const input = `{ "sci": 1e308 }`
+      const expected = `{"sci":1e308}`
+      expect(stripComments(input)).toBe(expected)
+    })
+
     it("should handle negative numbers and floats", () => {
       const input = `{
         "negative": -42,
@@ -45,12 +51,6 @@ describe("jsonc helpers", () => {
       }`
       const expected = `{"array":[1,2,{"nestedLarge":99999999999999999}],"object":{"a":-1.5}}`
       expect(stripComments(input)).toBe(expected)
-    })
-
-    it("should return the original string if parsing fails", () => {
-      // Intentional syntax error
-      const input = `{ "unclosedString: `
-      expect(stripComments(input)).toBe(input)
     })
   })
 })

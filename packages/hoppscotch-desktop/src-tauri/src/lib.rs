@@ -11,7 +11,6 @@ pub mod webview;
 
 use std::sync::OnceLock;
 
-use tauri::menu::{Menu, PredefinedMenuItem, Submenu};
 use tauri::Emitter;
 use tauri_plugin_deep_link::DeepLinkExt;
 use tauri_plugin_window_state::StateFlags;
@@ -167,7 +166,10 @@ pub fn run() {
         .setup(|app| {
             // Set up native Edit menu to enable standard clipboard shortcuts (copy, paste, etc.)
             // Required on Linux where webkit2gtk does not handle these without menu items
-            if cfg!(target_os = "linux") {
+            #[cfg(target_os = "linux")]
+            {
+                use tauri::menu::{Menu, PredefinedMenuItem, Submenu};
+
                 let handle = app.handle();
                 let edit_menu = Submenu::with_items(
                     handle,

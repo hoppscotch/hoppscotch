@@ -26,6 +26,9 @@ export function createAuthRetryGuard(onExhausted: () => void | Promise<void>) {
      * consecutive failures and stays exhausted until `reset()` is called.
      */
     async execute(refreshFn: () => Promise<boolean>): Promise<boolean> {
+      // isExhausted covers the normal path; failCount >= MAX_RETRIES covers
+      // the concurrent-call edge case where two callers both passed the check
+      // at failCount = 2 before either could set isExhausted = true.
       if (isExhausted || failCount >= MAX_RETRIES) {
         return false
       }

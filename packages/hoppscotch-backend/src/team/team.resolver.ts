@@ -18,11 +18,14 @@ import { RequiresTeamRole } from './decorators/requires-team-role.decorator';
 import { GqlTeamMemberGuard } from './guards/gql-team-member.guard';
 import { PubSubService } from '../pubsub/pubsub.service';
 import * as E from 'fp-ts/Either';
+import * as O from 'fp-ts/Option';
 import { throwErr } from 'src/utils';
 import { AuthUser } from 'src/types/AuthUser';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { SkipThrottle } from '@nestjs/throttler';
 import { GqlAdminGuard } from 'src/admin/guards/gql-admin.guard';
+import { UserService } from 'src/user/user.service';
+import { USER_NOT_FOUND } from 'src/errors';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => Team)
@@ -30,6 +33,7 @@ export class TeamResolver {
   constructor(
     private readonly teamService: TeamService,
     private readonly pubsub: PubSubService,
+    private readonly userService: UserService,
   ) {}
 
   // Field Resolvers
@@ -162,6 +166,8 @@ export class TeamResolver {
     })
     cursor?: string,
   ): Promise<Team[]> {
+    const user = await this.userService.findUserById(userUid);
+    if (O.isNone(user)) throwErr(USER_NOT_FOUND);
     return this.teamService.getTeamsOfUser(userUid, cursor ?? null);
   }
 

@@ -82,13 +82,22 @@ export class MockServerController {
 
       const mockResponse = result.right;
 
-      // Set response headers if any
+      // Set response headers if any, but exclude security-sensitive headers
+      // that could be abused for XSS
+      const securityHeaderBlocklist = new Set([
+        'content-security-policy',
+        'x-content-type-options',
+        'x-frame-options',
+        'content-disposition',
+      ]);
+
       if (mockResponse.headers) {
         try {
           const headers = JSON.parse(mockResponse.headers);
           Object.keys(headers).forEach((key) => {
-            console.log('Setting header:', key, headers[key]);
-            res.setHeader(key, headers[key]);
+            if (!securityHeaderBlocklist.has(key.toLowerCase())) {
+              res.setHeader(key, headers[key]);
+            }
           });
         } catch (error) {
           console.error('Error parsing response headers:', error);
@@ -100,6 +109,24 @@ export class MockServerController {
         await new Promise((resolve) =>
           setTimeout(resolve, mockServer.delayInMs),
         );
+      }
+
+      // Prevent XSS: downgrade active content types to text/plain
+      const activeContentTypes = [
+        'text/html',
+        'application/xhtml+xml',
+        'image/svg+xml',
+        'text/xml',
+        'application/xml',
+      ];
+      const currentContentType = res.getHeader('Content-Type');
+      if (
+        typeof currentContentType === 'string' &&
+        activeContentTypes.some((ct) =>
+          currentContentType.toLowerCase().startsWith(ct),
+        )
+      ) {
+        res.setHeader('Content-Type', 'text/plain');
       }
 
       // Only set Content-Type if not already set
@@ -123,8 +150,10 @@ export class MockServerController {
 
         res.setHeader('Content-Type', defaultContentType);
       }
-      // Security headers
+      // Security headers to prevent XSS via mock responses
       res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Content-Security-Policy', "default-src 'none'; sandbox");
+      res.setHeader('X-Frame-Options', 'DENY');
 
       // Send response
       return res.status(mockResponse.statusCode).send(mockResponse.body);

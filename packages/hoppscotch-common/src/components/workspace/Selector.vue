@@ -7,7 +7,7 @@
         class="flex flex-col"
       >
         <component :is="selectorComponent" />
-        <hr />
+        <hr v-if="index < workspaceSelectorComponents.length - 1" />
       </div>
     </div>
   </div>
@@ -24,14 +24,4 @@ const newWorkspaceService = useService(NewWorkspaceService)
 const workspaceSelectorComponents =
   newWorkspaceService.workspaceSelectorComponents
 
-// TODO: Handle the updates to these actions
-//  defineActionHandler("modals.team.new", () => {
-//    displayModalAdd(true)
-//  })
-//
-//  defineActionHandler("workspace.switch.personal", switchToPersonalWorkspace)
-//  defineActionHandler("workspace.switch", ({ teamId }) => {
-//    const team = myTeams.value.find((t) => t.id === teamId)
-//    if (team) switchToTeamWorkspace(team)
-//  })
 </script>

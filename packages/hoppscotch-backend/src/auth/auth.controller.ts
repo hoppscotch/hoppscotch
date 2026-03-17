@@ -20,8 +20,8 @@ import { GqlUser } from 'src/decorators/gql-user.decorator';
 import { AuthUser } from 'src/types/AuthUser';
 import { RTCookie } from 'src/decorators/rt-cookie.decorator';
 import { AuthProvider, authCookieHandler, authProviderCheck } from './helper';
-import { GoogleSSOGuard } from './guards/google-sso.guard';
-import { GithubSSOGuard } from './guards/github-sso.guard';
+import { isValidLocalhostRedirectUri } from './redirect-uri.validator';
+import { GoogleSSOGuard } from './guards/google-sso.guard';import { GithubSSOGuard } from './guards/github-sso.guard';
 import { MicrosoftSSOGuard } from './guards/microsoft-sso.guard';
 import { ThrottlerBehindProxyGuard } from 'src/guards/throttler-behind-proxy.guard';
 import { SkipThrottle } from '@nestjs/throttler';
@@ -204,7 +204,7 @@ export class AuthController {
     @GqlUser() user: AuthUser,
     @Query('redirect_uri') redirectUri: string,
   ) {
-    if (!redirectUri || !redirectUri.startsWith('http://localhost')) {
+    if (!isValidLocalhostRedirectUri(redirectUri)) {
       throwHTTPErr({
         message: 'Invalid desktop callback URL',
         statusCode: 400,

@@ -21,7 +21,7 @@ import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 import { pipe, constVoid, flow } from "fp-ts/function"
 import { subscribe, pipe as wonkaPipe } from "wonka"
-import { filter, map, Subject } from "rxjs"
+import { filter, map, Subject, Subscription } from "rxjs"
 import { platform } from "~/platform"
 import { createAuthRetryGuard } from "~/helpers/retryAuthGuard"
 
@@ -149,6 +149,7 @@ const createHoppClient = () => {
 }
 
 let subscriptionClient: SubscriptionClient | null
+let authEventSubscription: Subscription | null = null
 export const client = ref<Client>()
 
 export function initBackendGQLClient() {
@@ -156,11 +157,14 @@ export function initBackendGQLClient() {
 
   // Reset the retry guard only on successful login, not on every
   // client recreation (which also fires on logout/token_refresh).
-  platform.auth.getAuthEventsStream().subscribe((event) => {
-    if (event.event === "login") {
-      authRetryGuard.reset()
-    }
-  })
+  authEventSubscription?.unsubscribe()
+  authEventSubscription = platform.auth
+    .getAuthEventsStream()
+    .subscribe((event) => {
+      if (event.event === "login") {
+        authRetryGuard.reset()
+      }
+    })
 
   platform.auth.onBackendGQLClientShouldReconnect(() => {
     const currentUser = platform.auth.getCurrentUser()

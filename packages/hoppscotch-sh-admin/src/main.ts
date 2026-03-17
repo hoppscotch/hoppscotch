@@ -2,6 +2,8 @@ import { authExchange } from '@urql/exchange-auth';
 import urql, { cacheExchange, createClient, fetchExchange } from '@urql/vue';
 import { createApp, h } from 'vue';
 import * as O from 'fp-ts/Option';
+import * as TE from 'fp-ts/TaskEither';
+import { pipe } from 'fp-ts/function';
 import App from './App.vue';
 import ErrorComponent from './pages/_.vue';
 
@@ -53,9 +55,16 @@ authEvents$.subscribe((event) => {
             if (authRefreshExhausted || authRefreshFailCount >= MAX_RETRIES)
               return;
 
-            const result = await auth.performAuthRefresh();
+            const success = await pipe(
+              TE.tryCatch(
+                () => auth.performAuthRefresh(),
+                () => false as const
+              ),
+              TE.map(O.isSome),
+              TE.getOrElse(() => async () => false)
+            )();
 
-            if (O.isSome(result)) {
+            if (success) {
               authRefreshFailCount = 0;
             } else {
               authRefreshFailCount++;

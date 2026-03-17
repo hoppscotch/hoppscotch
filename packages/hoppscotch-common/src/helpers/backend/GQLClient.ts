@@ -114,7 +114,7 @@ const createHoppClient = () => {
           const refresh = platform.auth.refreshAuthToken
           if (!refresh) return
 
-          await authRetryGuard.execute(refresh)
+          await authRetryGuard.execute(() => refresh.call(platform.auth))
         },
       }
     }),

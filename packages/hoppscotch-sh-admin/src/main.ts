@@ -14,7 +14,7 @@ import '../assets/scss/styles.scss';
 import '../assets/scss/tailwind.scss';
 // END STYLES
 
-import { auth } from './helpers/auth';
+import { auth, authEvents$ } from './helpers/auth';
 import { GRAPHQL_UNAUTHORIZED } from './helpers/errors';
 import { HOPP_MODULES } from './modules';
 
@@ -25,6 +25,12 @@ import { HOPP_MODULES } from './modules';
  */
 const MAX_RETRIES = 3;
 let authRefreshFailCount = 0;
+
+authEvents$.subscribe((event) => {
+  if (event.event === 'login') {
+    authRefreshFailCount = 0;
+  }
+});
 
 (async () => {
   try {

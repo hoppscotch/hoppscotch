@@ -16,6 +16,7 @@ const MAX_RETRIES = 3
  */
 export function createAuthRetryGuard(onExhausted: () => void | Promise<void>) {
   let failCount = 0
+  let isExhausted = false
 
   return {
     /**
@@ -24,7 +25,7 @@ export function createAuthRetryGuard(onExhausted: () => void | Promise<void>) {
      * consecutive failures and stays exhausted until `reset()` is called.
      */
     async execute(refreshFn: () => Promise<boolean>): Promise<boolean> {
-      if (failCount >= MAX_RETRIES) {
+      if (isExhausted || failCount >= MAX_RETRIES) {
         return false
       }
 
@@ -36,7 +37,8 @@ export function createAuthRetryGuard(onExhausted: () => void | Promise<void>) {
       }
 
       failCount++
-      if (failCount >= MAX_RETRIES) {
+      if (failCount >= MAX_RETRIES && !isExhausted) {
+        isExhausted = true
         await onExhausted()
       }
 
@@ -46,6 +48,7 @@ export function createAuthRetryGuard(onExhausted: () => void | Promise<void>) {
     /** Reset the failure counter (e.g. on login or manual logout). */
     reset() {
       failCount = 0
+      isExhausted = false
     },
   }
 }

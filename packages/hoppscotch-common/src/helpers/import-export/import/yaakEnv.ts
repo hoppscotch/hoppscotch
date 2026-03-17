@@ -60,7 +60,6 @@ export const yaakEnvImporter = (contents: string[]) =>
       )
     ),
 
-    // Convert to Hoppscotch environments
     O.map((exports) =>
       exports.flatMap((files) =>
         files.flatMap((exp) =>
@@ -68,15 +67,18 @@ export const yaakEnvImporter = (contents: string[]) =>
             id: uniqueID(),
             v: EnvironmentSchemaVersion,
             name: env.name,
-            variables: env.variables.map((v) => ({
-              key: v.name,
-              initialValue: v.value,
-              currentValue: v.value,
-              secret: false,
-            })),
+            variables: env.variables
+              .filter((v) => v.enabled !== false)
+              .map((v) => ({
+                key: v.name,
+                initialValue: v.value,
+                currentValue: v.value,
+                secret: false,
+              })),
           }))
         )
       )
+    ),
     ),
 
     // Fail if parsing/validation failed

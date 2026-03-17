@@ -523,7 +523,7 @@ export const def: AuthPlatformDef = {
 
   async refreshAuthToken() {
     const refreshed = await refreshToken()
-    return refreshed ?? false
+    return refreshed
   },
 
   /**
@@ -553,6 +553,6 @@ export const def: AuthPlatformDef = {
     }
 
     const refreshed = await refreshToken()
-    return refreshed ?? false
+    return refreshed
   },
 }

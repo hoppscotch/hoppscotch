@@ -30,7 +30,14 @@ export function createAuthRetryGuard(onExhausted: () => void | Promise<void>) {
         return false
       }
 
-      const success = await refreshFn()
+      let success: boolean
+      try {
+        success = await refreshFn()
+      } catch (_) {
+        // Treat thrown errors (network failures, etc.) as a failed refresh
+        // so they count toward exhaustion and don't bypass the guard.
+        success = false
+      }
 
       if (success) {
         failCount = 0

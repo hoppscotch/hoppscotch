@@ -25,10 +25,7 @@ const yaakEnvSchema = z.object({
 })
 
 export const yaakEnvImporter = (contents: string[]) => {
-  console.log("Yaak env importer started")
-
-  const parsedContents = contents.map((str, index) => {
-    console.log("Parsing file", index)
+  const parsedContents = contents.map((str) => {
     return safeParseJSON(str, true)
   })
 
@@ -39,8 +36,6 @@ export const yaakEnvImporter = (contents: string[]) => {
 
   const parsedValues = parsedContents.flatMap((parsed) => {
     const json = O.toNullable(parsed)
-
-    console.log("Raw parsed JSON", json)
 
     if (!json) return []
 
@@ -57,8 +52,6 @@ export const yaakEnvImporter = (contents: string[]) => {
 
       const envs = validation.data.resources.environments
 
-      console.log("Environments found:", envs.length)
-
       return envs.map((env) => ({
         name: env.name,
         variables: env.variables.map((v) => ({
@@ -68,8 +61,6 @@ export const yaakEnvImporter = (contents: string[]) => {
       }))
     })
   })
-
-  console.log("Converted environments:", parsedValues)
 
   const environments: Environment[] = parsedValues.map(
     ({ name, variables }) => ({
@@ -84,8 +75,6 @@ export const yaakEnvImporter = (contents: string[]) => {
       })),
     })
   )
-
-  console.log("Final Hoppscotch environments:", environments)
 
   return TE.right(environments)
 }

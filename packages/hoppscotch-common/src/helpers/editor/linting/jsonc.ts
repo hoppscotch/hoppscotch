@@ -51,7 +51,7 @@ function convertNodeToJSON(node: Node, sourceText: string): string {
         .join(",")}]`
     case "number":
       // Slicing the original source text to preserve numeric precision for large integers
-      return sourceText.slice(node.offset, node.offset + node.length)
+      return sourceText.slice(node.offset, node.offset + node.length).trim()
     case "boolean":
       return JSON.stringify(node.value)
     case "object":

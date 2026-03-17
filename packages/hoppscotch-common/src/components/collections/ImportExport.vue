@@ -69,6 +69,7 @@ const isRESTImporterInProgress = ref(false)
 const isAllCollectionImporterInProgress = ref(false)
 const isHarImporterInProgress = ref(false)
 const isGistImporterInProgress = ref(false)
+const isYaakImporterInProgress = ref(false)
 
 const t = useI18n()
 const toast = useToast()
@@ -771,6 +772,8 @@ const HoppYaakImporter: ImporterOrExporter = {
     description: "import.from_yaak_import_summary",
 
     onImportFromFile: async (content: string[]) => {
+      isYaakImporterInProgress.value = true
+
       const res = await hoppYaakImporter(content)()
 
       if (E.isRight(res)) {
@@ -788,7 +791,9 @@ const HoppYaakImporter: ImporterOrExporter = {
         showImportFailedError()
         unsetCurrentImportSummary()
       }
+      isYaakImporterInProgress.value = false
     },
+    isLoading: isYaakImporterInProgress,
   }),
 }
 const importerModules = computed(() => {

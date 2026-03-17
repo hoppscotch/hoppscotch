@@ -147,7 +147,7 @@ const convertBody = (req: YaakRequest): HoppRESTReqBody => {
 
 const convertRequest = (req: YaakRequest) =>
   makeRESTRequest({
-    name: req.name ?? "",
+    name: req.name || "Untitled Request",
     endpoint: req.url ?? "",
     method: (req.method ?? "GET").toUpperCase(),
     headers: convertHeaders(req.headers),

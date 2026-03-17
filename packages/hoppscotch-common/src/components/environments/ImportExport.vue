@@ -31,6 +31,7 @@ import { CreateTeamEnvironmentMutation } from "~/helpers/backend/graphql"
 import { createTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
 import { insomniaEnvImporter } from "~/helpers/import-export/import/insomnia/insomniaEnv"
 import { postmanEnvImporter } from "~/helpers/import-export/import/postmanEnv"
+import { yaakEnvImporter } from "~/helpers/import-export/import/yaakEnv"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 
 import { computed } from "vue"
@@ -65,6 +66,7 @@ const isPostmanImporterInProgress = ref(false)
 const isInsomniaImporterInProgress = ref(false)
 const isRESTImporterInProgress = ref(false)
 const isGistImporterInProgress = ref(false)
+const isYaakImporterInProgress = ref(false)
 
 const isEnvironmentGistExportInProgress = ref(false)
 
@@ -335,11 +337,43 @@ const HoppEnvironmentsGistExporter: ImporterOrExporter = {
   },
 }
 
+const YaakEnvironmentsImport: ImporterOrExporter = {
+  metadata: {
+    id: "import.from_yaak",
+    name: "import.from_yaak",
+    icon: IconFolderPlus,
+    title: "import.from_json",
+    applicableTo: ["personal-workspace", "team-workspace"],
+    disabled: false,
+  },
+
+  component: FileSource({
+    acceptedFileTypes: "application/json",
+    caption: "import.yaak_environment_description",
+
+    onImportFromFile: async (environments) => {
+      isYaakImporterInProgress.value = true
+
+      const res = await yaakEnvImporter(environments)()
+
+      if (E.isRight(res)) {
+        await handleImportToStore(res.right)
+        emit("hide-modal")
+      } else {
+        showImportFailedError()
+      }
+      isPostmanImporterInProgress.value = false
+    },
+    isLoading: isPostmanImporterInProgress,
+  }),
+}
+
 const importerModules = [
   HoppEnvironmentsImport,
   EnvironmentsImportFromGIST,
   PostmanEnvironmentsImport,
   insomniaEnvironmentsImport,
+  YaakEnvironmentsImport,
 ]
 
 const exporterModules = computed(() => {

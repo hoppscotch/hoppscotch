@@ -6,10 +6,22 @@ import { computed } from "vue"
 import { Container } from "dioc"
 import { getService } from "~/modules/dioc"
 import { PersistenceService, STORE_KEYS } from "../persistence"
-import { PersistableTabState } from "."
+import { HoppTab, PersistableTabState } from "."
 
 export class GQLTabService extends TabService<HoppGQLDocument> {
   public static readonly ID = "GQL_TAB_SERVICE"
+
+  protected createFallbackTab(): HoppTab<HoppGQLDocument> {
+    return {
+      id: "__empty_gql_tab__",
+      document: {
+        request: getDefaultGQLRequest(),
+        isDirty: false,
+        optionTabPreference: "query",
+        cursorPosition: 0,
+      },
+    }
+  }
 
   // TODO: Moving this to `onServiceInit` breaks `persistableTabState`
   // Figure out how to fix this

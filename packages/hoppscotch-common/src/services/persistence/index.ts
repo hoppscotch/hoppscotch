@@ -936,6 +936,8 @@ export class PersistenceService extends Service {
         }
         const result = REST_TAB_STATE_SCHEMA.safeParse(transformedTabs)
         if (result.success) {
+          if (result.data.orderedDocs.length === 0) return
+
           // SAFETY: We know the schema matches
           this.restTabService.loadTabsFromPersistedState(
             result.data as PersistableTabState<HoppTabDocument>
@@ -979,6 +981,8 @@ export class PersistenceService extends Service {
         const result = GQL_TAB_STATE_SCHEMA.safeParse(loadResult.right)
 
         if (result.success) {
+          if (result.data.orderedDocs.length === 0) return
+
           // SAFETY: We know the schema matches
           this.gqlTabService.loadTabsFromPersistedState(
             result.data as PersistableTabState<HoppGQLDocument>

@@ -2,10 +2,10 @@
   <div>
     <AppPaneLayout layout-id="graphql">
       <template #primary>
-        <GraphqlRequest />
+        <GraphqlRequest v-if="hasTabs" />
 
         <HoppSmartWindows
-          v-if="currentTabID"
+          v-if="hasTabs"
           :id="'gql_windows'"
           :model-value="currentTabID"
           @update:model-value="changeTab"
@@ -18,13 +18,13 @@
             :id="tab.id"
             :key="'removable_tab_' + tab.id"
             :label="tab.document.request.name"
-            :is-removable="activeTabs.length > 1"
+            :is-removable="true"
             :close-visibility="'hover'"
           >
             <template #tabhead>
               <GraphqlTabHead
                 :tab="tab"
-                :is-removable="activeTabs.length > 1"
+                :is-removable="true"
                 @open-rename-modal="openReqRenameModal(tab)"
                 @close-tab="removeTab(tab.id)"
                 @close-other-tabs="closeOtherTabsAction(tab.id)"
@@ -54,6 +54,19 @@
             />
           </HoppSmartWindow>
         </HoppSmartWindows>
+        <div
+          v-else
+          class="flex h-full w-full items-center justify-center bg-primary p-4 sm:p-8"
+        >
+          <AppShortcutsPrompt
+            :shortcuts="emptyStateShortcuts"
+            :primary-action-label="t('shortcut.tabs.new_tab')"
+            :secondary-action-label="t('collection.new')"
+            :show-documentation="false"
+            @primary-action="addNewTab"
+            @secondary-action="openNewCollection"
+          />
+        </div>
       </template>
       <template #sidebar>
         <GraphqlSidebar />
@@ -88,11 +101,12 @@ import { usePageHead } from "@composables/head"
 import { useI18n } from "@composables/i18n"
 import { useService } from "dioc/vue"
 import { computed, onBeforeUnmount, ref } from "vue"
-import { defineActionHandler } from "~/helpers/actions"
+import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { connection, disconnect } from "~/helpers/graphql/connection"
 import { getDefaultGQLRequest } from "~/helpers/graphql/default"
 import { HoppGQLDocument } from "~/helpers/graphql/document"
 import { useExplorer } from "~/helpers/graphql/explorer"
+import { getShortcuts, type ShortcutDef } from "~/helpers/shortcuts"
 import { InspectionService } from "~/services/inspection"
 import { HoppTab } from "~/services/tab"
 import { GQLTabService } from "~/services/tab/graphql"
@@ -112,6 +126,23 @@ usePageHead({
 })
 
 const activeTabs = tabs.getActiveTabs()
+const hasTabs = computed(() => activeTabs.value.length > 0)
+const emptyStateShortcuts = computed(() => {
+  const preferredShortcuts = [
+    t("shortcut.tabs.new_tab"),
+    t("shortcut.request.send_request"),
+    t("shortcut.general.show_all"),
+    t("shortcut.general.command_menu"),
+    t("shortcut.general.help_menu"),
+  ]
+
+  return preferredShortcuts
+    .map((label) =>
+      getShortcuts(t).find((shortcut) => shortcut.label === label)
+    )
+    .filter((shortcut): shortcut is ShortcutDef => shortcut !== undefined)
+})
+const openNewCollection = () => invokeAction("collection.new")
 
 const addNewTab = () => {
   const tab = tabs.createNewTab({
@@ -234,19 +265,21 @@ defineActionHandler("gql.request.open", ({ request, saveContext }) => {
 })
 
 defineActionHandler("request.rename", () => {
+  if (!currentTabID.value) return
   openReqRenameModal(tabs.getTabRef(currentTabID.value).value!)
 })
 
 defineActionHandler("tab.duplicate-tab", ({ tabID }) => {
-  duplicateTab(tabID ?? currentTabID.value)
+  const targetTabID = tabID ?? currentTabID.value
+  if (targetTabID) duplicateTab(targetTabID)
 })
 
 defineActionHandler("tab.close-current", () => {
-  removeTab(currentTabID.value)
+  if (currentTabID.value) removeTab(currentTabID.value)
 })
 
 defineActionHandler("tab.close-other", () => {
-  tabs.closeOtherTabs(currentTabID.value)
+  if (currentTabID.value) tabs.closeOtherTabs(currentTabID.value)
 })
 
 defineActionHandler("tab.open-new", addNewTab)

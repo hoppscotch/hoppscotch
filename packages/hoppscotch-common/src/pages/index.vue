@@ -3,7 +3,7 @@
     <AppPaneLayout layout-id="http">
       <template #primary>
         <HoppSmartWindows
-          v-if="currentTabID"
+          v-if="hasTabs"
           :id="'rest_windows'"
           v-model="currentTabID"
           @remove-tab="removeTab"
@@ -15,13 +15,13 @@
             :id="tab.id"
             :key="tab.id"
             :label="getTabName(tab)"
-            :is-removable="activeTabs.length > 1"
+            :is-removable="true"
             :close-visibility="'hover'"
           >
             <template v-if="tab.document.type === 'request'" #tabhead>
               <HttpTabHead
                 :tab="tab"
-                :is-removable="activeTabs.length > 1"
+                :is-removable="true"
                 @open-rename-modal="openReqRenameModal(tab.id)"
                 @close-tab="removeTab(tab.id)"
                 @close-other-tabs="closeOtherTabsAction(tab.id)"
@@ -67,6 +67,19 @@
             <EnvironmentsSelector class="h-full" />
           </template>
         </HoppSmartWindows>
+        <div
+          v-else
+          class="flex h-full w-full items-center justify-center bg-primary p-4 sm:p-8"
+        >
+          <AppShortcutsPrompt
+            :shortcuts="emptyStateShortcuts"
+            :primary-action-label="t('shortcut.tabs.new_tab')"
+            :secondary-action-label="t('collection.new')"
+            :show-documentation="false"
+            @primary-action="addNewTab"
+            @secondary-action="openNewCollection"
+          />
+        </div>
       </template>
       <template #sidebar>
         <HttpSidebar />
@@ -153,6 +166,7 @@ import { RESTTabService } from "~/services/tab/rest"
 import { HoppTab } from "~/services/tab"
 import { HoppRequestDocument, HoppTabDocument } from "~/helpers/rest/document"
 import { ScrollService } from "~/services/scroll.service"
+import { getShortcuts, type ShortcutDef } from "~/helpers/shortcuts"
 
 const scrollService = useService(ScrollService)
 
@@ -195,6 +209,23 @@ const contextMenu = ref<PopupDetails>({
 })
 
 const activeTabs = tabs.getActiveTabs()
+const hasTabs = computed(() => activeTabs.value.length > 0)
+const emptyStateShortcuts = computed(() => {
+  const preferredShortcuts = [
+    t("shortcut.tabs.new_tab"),
+    t("shortcut.request.send_request"),
+    t("shortcut.general.show_all"),
+    t("shortcut.general.command_menu"),
+    t("shortcut.general.help_menu"),
+  ]
+
+  return preferredShortcuts
+    .map((label) =>
+      getShortcuts(t).find((shortcut) => shortcut.label === label)
+    )
+    .filter((shortcut): shortcut is ShortcutDef => shortcut !== undefined)
+})
+const openNewCollection = () => invokeAction("collection.new")
 
 function bindRequestToURLParams() {
   const route = useRoute()
@@ -205,7 +236,11 @@ function bindRequestToURLParams() {
     // We skip URL params parsing
     if (Object.keys(query).length === 0 || query.code || query.error) return
 
-    if (tabs.currentActiveTab.value.document.type !== "request") return
+    if (
+      !hasTabs.value ||
+      tabs.currentActiveTab.value.document.type !== "request"
+    )
+      return
 
     const request = tabs.currentActiveTab.value.document.request
 
@@ -317,6 +352,8 @@ const openReqRenameModal = (tabID?: string) => {
     reqName.value = tab.value.document.request.name
     renameTabID.value = tabID
   } else {
+    if (!hasTabs.value) return
+
     const { id, document } = tabs.currentActiveTab.value
 
     if (document.type !== "request") return
@@ -410,20 +447,21 @@ defineActionHandler("rest.request.open", ({ doc }) => {
 })
 
 defineActionHandler("request.rename", () => {
-  if (tabs.currentActiveTab.value.document.type === "request")
+  if (hasTabs.value && tabs.currentActiveTab.value.document.type === "request")
     openReqRenameModal(tabs.currentActiveTab.value.id)
 })
 
 defineActionHandler("tab.duplicate-tab", ({ tabID }) => {
-  duplicateTab(tabID ?? currentTabID.value)
+  const targetTabID = tabID ?? currentTabID.value
+  if (targetTabID) duplicateTab(targetTabID)
 })
 
 defineActionHandler("tab.close-current", () => {
-  removeTab(currentTabID.value)
+  if (currentTabID.value) removeTab(currentTabID.value)
 })
 
 defineActionHandler("tab.close-other", () => {
-  tabs.closeOtherTabs(currentTabID.value)
+  if (currentTabID.value) tabs.closeOtherTabs(currentTabID.value)
 })
 
 defineActionHandler("tab.open-new", addNewTab)

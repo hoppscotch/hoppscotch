@@ -15,15 +15,16 @@ const yaakEnvSchema = z.object({
   resources: z.object({
     environments: z
       .array(
-        z.object({
-          name: z.string(),
-          variables: z.array(
-            z.object({
-              name: z.string(),
-              value: z.string(),
-              enabled: z.boolean().optional(),
-            })
-          ),
+          variables: z
+            .array(
+              z.object({
+                name: z.string(),
+                value: z.string(),
+                enabled: z.boolean().optional(),
+              })
+            )
+            .optional()
+            .default([]),
         })
       )
       .optional()

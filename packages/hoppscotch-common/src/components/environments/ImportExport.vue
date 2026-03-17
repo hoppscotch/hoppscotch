@@ -362,9 +362,9 @@ const YaakEnvironmentsImport: ImporterOrExporter = {
       } else {
         showImportFailedError()
       }
-      isPostmanImporterInProgress.value = false
+      isYaakImporterInProgress.value = false
     },
-    isLoading: isPostmanImporterInProgress,
+    isLoading: isYaakImporterInProgress,
   }),
 }
 

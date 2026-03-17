@@ -2,8 +2,6 @@ import { authExchange } from '@urql/exchange-auth';
 import urql, { cacheExchange, createClient, fetchExchange } from '@urql/vue';
 import { createApp, h } from 'vue';
 import * as O from 'fp-ts/Option';
-import * as TE from 'fp-ts/TaskEither';
-import { pipe } from 'fp-ts/function';
 import App from './App.vue';
 import ErrorComponent from './pages/_.vue';
 
@@ -50,16 +48,10 @@ authEvents$.subscribe((event) => {
             return operation;
           },
           async refreshAuth() {
-            await authRetryGuard.execute(() =>
-              pipe(
-                TE.tryCatch(
-                  () => auth.performAuthRefresh(),
-                  () => false as const
-                ),
-                TE.map(O.isSome),
-                TE.getOrElse(() => async () => false)
-              )()
-            );
+            await authRetryGuard.execute(async () => {
+              const result = await auth.performAuthRefresh();
+              return O.isSome(result);
+            });
           },
           didAuthError(error, _operation) {
             return error.message === GRAPHQL_UNAUTHORIZED;

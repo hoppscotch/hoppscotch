@@ -13,18 +13,21 @@ const yaakEnvSchema = z.object({
   yaakVersion: z.string(),
   yaakSchema: z.number(),
   resources: z.object({
-    environments: z.array(
-      z.object({
-        name: z.string(),
-        variables: z.array(
-          z.object({
-            name: z.string(),
-            value: z.string(),
-            enabled: z.boolean().optional(),
-          })
-        ),
-      })
-    ),
+    environments: z
+      .array(
+        z.object({
+          name: z.string(),
+          variables: z.array(
+            z.object({
+              name: z.string(),
+              value: z.string(),
+              enabled: z.boolean().optional(),
+            })
+          ),
+        })
+      )
+      .optional()
+      .default([]),
   }),
 })
 

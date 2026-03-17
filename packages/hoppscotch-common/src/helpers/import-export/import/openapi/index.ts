@@ -988,14 +988,16 @@ export const extractServerVariables = (
   if (objectHasProperty(doc, "swagger")) {
     const v2Doc = doc as OpenAPIV2.Document
     const host = v2Doc.host?.trim()
-    const basePath = v2Doc.basePath?.trim()
+    const basePath = (v2Doc.basePath?.trim() ?? "").replace(/\/$/, "")
+    const scheme = v2Doc.schemes?.[0] ?? "https"
 
     if (host) {
+      const value = `${scheme}://${host}${basePath}`
       return [
         {
           key: "baseUrl",
-          initialValue: `${host}${basePath ?? ""}`,
-          currentValue: `${host}${basePath ?? ""}`,
+          initialValue: value,
+          currentValue: value,
           secret: false,
         },
       ]
@@ -1011,12 +1013,14 @@ export const extractServerVariables = (
     const variables = server.variables
     if (!variables || Object.keys(variables).length === 0) return []
 
-    return Object.entries(variables).map(([key, variable]) => ({
-      key,
-      initialValue: variable.default,
-      currentValue: variable.default,
-      secret: false,
-    }))
+    return Object.entries(variables)
+      .filter(([key]) => server.url.includes(`{${key}}`))
+      .map(([key, variable]) => ({
+        key,
+        initialValue: String(variable.default ?? ""),
+        currentValue: String(variable.default ?? ""),
+        secret: false,
+      }))
   }
 
   return []
@@ -1031,11 +1035,15 @@ export const parseOpenAPIUrl = (
    * And host and basePath are in the document's host and basePath properties.
    * Relevant v2 reference: https://swagger.io/specification/v2/#:~:text=to%20be%20obscured.-,Schema,-Swagger%20Object
    **/
-
   if (objectHasProperty(doc, "swagger")) {
-    // When host is available, use <<baseUrl>> so it references the collection variable
-    // populated by extractServerVariables
-    return "<<baseUrl>>"
+    const v2Doc = doc as OpenAPIV2.Document
+    const basePath = (v2Doc.basePath?.trim() ?? "").replace(/\/$/, "")
+
+    // When host is present, <<baseUrl>> resolves via collection variable from
+    // extractServerVariables (which includes scheme + host + basePath).
+    // When host is absent, <<baseUrl>> is a user-defined placeholder and
+    // basePath is appended directly.
+    return v2Doc.host ? "<<baseUrl>>" : `<<baseUrl>>${basePath}`
   }
 
   /**

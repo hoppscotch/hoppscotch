@@ -149,31 +149,108 @@ describe("extractServerVariables", () => {
         },
       ])
     })
-  })
 
-  describe("OpenAPI V2 (Swagger)", () => {
-    test("creates baseUrl variable from host and basePath", () => {
-      const doc = {
-        swagger: "2.0",
+    test("filters out variables not referenced in the server URL", () => {
+      const doc: OpenAPIV3.Document = {
+        openapi: "3.0.0",
         info: { title: "Test", version: "1.0" },
-        host: "api.example.com",
-        basePath: "/v1",
         paths: {},
-      } as OpenAPIV2.Document
+        servers: [
+          {
+            url: "https://{env}.example.com",
+            variables: {
+              env: { default: "prod" },
+              orphaned: { default: "unused" },
+            },
+          },
+        ],
+      }
 
       const result = extractServerVariables(doc)
 
       expect(result).toEqual([
         {
-          key: "baseUrl",
-          initialValue: "api.example.com/v1",
-          currentValue: "api.example.com/v1",
+          key: "env",
+          initialValue: "prod",
+          currentValue: "prod",
           secret: false,
         },
       ])
     })
 
-    test("creates baseUrl variable from host only (no basePath)", () => {
+    test("coerces non-string default values to strings", () => {
+      const doc = {
+        openapi: "3.0.0",
+        info: { title: "Test", version: "1.0" },
+        paths: {},
+        servers: [
+          {
+            url: "https://api.example.com/{port}",
+            variables: {
+              port: { default: 8080 as any },
+            },
+          },
+        ],
+      } as OpenAPIV3.Document
+
+      const result = extractServerVariables(doc)
+
+      expect(result).toEqual([
+        {
+          key: "port",
+          initialValue: "8080",
+          currentValue: "8080",
+          secret: false,
+        },
+      ])
+    })
+  })
+
+  describe("OpenAPI V2 (Swagger)", () => {
+    test("creates baseUrl variable with scheme, host and basePath", () => {
+      const doc = {
+        swagger: "2.0",
+        info: { title: "Test", version: "1.0" },
+        host: "api.example.com",
+        basePath: "/v1",
+        schemes: ["https"],
+        paths: {},
+      } as OpenAPIV2.Document
+
+      const result = extractServerVariables(doc)
+
+      expect(result).toEqual([
+        {
+          key: "baseUrl",
+          initialValue: "https://api.example.com/v1",
+          currentValue: "https://api.example.com/v1",
+          secret: false,
+        },
+      ])
+    })
+
+    test("uses first scheme from schemes array", () => {
+      const doc = {
+        swagger: "2.0",
+        info: { title: "Test", version: "1.0" },
+        host: "api.example.com",
+        schemes: ["http", "https"],
+        paths: {},
+      } as OpenAPIV2.Document
+
+      const result = extractServerVariables(doc)
+
+      expect(result).toEqual([
+        {
+          key: "baseUrl",
+          initialValue: "http://api.example.com",
+          currentValue: "http://api.example.com",
+          secret: false,
+        },
+      ])
+    })
+
+    test("defaults to https when no schemes defined", () => {
       const doc = {
         swagger: "2.0",
         info: { title: "Test", version: "1.0" },
@@ -186,8 +263,29 @@ describe("extractServerVariables", () => {
       expect(result).toEqual([
         {
           key: "baseUrl",
-          initialValue: "api.example.com",
-          currentValue: "api.example.com",
+          initialValue: "https://api.example.com",
+          currentValue: "https://api.example.com",
+          secret: false,
+        },
+      ])
+    })
+
+    test("strips trailing slash from basePath to avoid double-slash", () => {
+      const doc = {
+        swagger: "2.0",
+        info: { title: "Test", version: "1.0" },
+        host: "api.example.com",
+        basePath: "/",
+        paths: {},
+      } as OpenAPIV2.Document
+
+      const result = extractServerVariables(doc)
+
+      expect(result).toEqual([
+        {
+          key: "baseUrl",
+          initialValue: "https://api.example.com",
+          currentValue: "https://api.example.com",
           secret: false,
         },
       ])
@@ -243,14 +341,29 @@ describe("parseOpenAPIUrl", () => {
       expect(parseOpenAPIUrl(doc)).toBe("<<baseUrl>>")
     })
 
-    test("uses <<baseUrl>> variable when no host is defined", () => {
+    test("uses <<baseUrl>> placeholder when no host is defined (no variable created)", () => {
       const doc = {
         swagger: "2.0",
         info: { title: "Test", version: "1.0" },
         paths: {},
       } as OpenAPIV2.Document
 
+      // parseOpenAPIUrl returns <<baseUrl>> as a user-defined placeholder
       expect(parseOpenAPIUrl(doc)).toBe("<<baseUrl>>")
+      // extractServerVariables returns nothing — same behavior as the old literal fallback
+      expect(extractServerVariables(doc)).toEqual([])
+    })
+
+    test("preserves basePath when host is absent", () => {
+      const doc = {
+        swagger: "2.0",
+        info: { title: "Test", version: "1.0" },
+        basePath: "/v1",
+        paths: {},
+      } as OpenAPIV2.Document
+
+      expect(parseOpenAPIUrl(doc)).toBe("<<baseUrl>>/v1")
+      expect(extractServerVariables(doc)).toEqual([])
     })
   })
 

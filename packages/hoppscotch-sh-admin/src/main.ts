@@ -1,6 +1,7 @@
 import { authExchange } from '@urql/exchange-auth';
 import urql, { cacheExchange, createClient, fetchExchange } from '@urql/vue';
 import { createApp, h } from 'vue';
+import * as O from 'fp-ts/Option';
 import App from './App.vue';
 import ErrorComponent from './pages/_.vue';
 
@@ -13,17 +14,16 @@ import '../assets/scss/styles.scss';
 import '../assets/scss/tailwind.scss';
 // END STYLES
 
-import * as O from 'fp-ts/Option';
 import { auth } from './helpers/auth';
 import { GRAPHQL_UNAUTHORIZED } from './helpers/errors';
 import { HOPP_MODULES } from './modules';
 
 /**
- * Maximum number of consecutive auth refresh failures before signing the user out.
- * Prevents infinite retry loops when tokens are permanently invalid.
+ * Auth retry guard — prevents infinite refreshAuth loops when tokens
+ * are permanently invalid. Stays exhausted until the page reloads.
  * @see https://github.com/hoppscotch/hoppscotch/issues/5885
  */
-const AUTH_REFRESH_MAX_RETRIES = 3;
+const MAX_RETRIES = 3;
 let authRefreshFailCount = 0;
 
 (async () => {
@@ -42,12 +42,7 @@ let authRefreshFailCount = 0;
             return operation;
           },
           async refreshAuth() {
-            // Prevent infinite retry loop when refresh permanently fails (#5885)
-            if (authRefreshFailCount >= AUTH_REFRESH_MAX_RETRIES) {
-              authRefreshFailCount = 0;
-              auth.signOutUser(true);
-              return;
-            }
+            if (authRefreshFailCount >= MAX_RETRIES) return;
 
             const result = await auth.performAuthRefresh();
 
@@ -55,9 +50,8 @@ let authRefreshFailCount = 0;
               authRefreshFailCount = 0;
             } else {
               authRefreshFailCount++;
-              if (authRefreshFailCount >= AUTH_REFRESH_MAX_RETRIES) {
-                authRefreshFailCount = 0;
-                auth.signOutUser(true);
+              if (authRefreshFailCount >= MAX_RETRIES) {
+                await auth.signOutUser(true);
               }
             }
           },

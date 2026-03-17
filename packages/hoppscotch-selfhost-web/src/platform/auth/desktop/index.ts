@@ -47,14 +47,6 @@ const isGettingInitialUser: Ref<null | boolean> = ref(null)
 const persistenceService = getService(PersistenceService)
 const interceptorService = getService(KernelInterceptorService)
 
-/**
- * Tracks consecutive token refresh failures to prevent infinite retry loops.
- * Reset to 0 on successful refresh or login.
- * @see https://github.com/hoppscotch/hoppscotch/issues/5885
- */
-const AUTH_REFRESH_MAX_RETRIES = 3
-let refreshFailCount = 0
-
 async function logout() {
   const { response } = interceptorService.execute({
     id: Date.now(),
@@ -219,8 +211,6 @@ export async function setInitialUser() {
     await setUser(HoppUserWithAuthDetail)
     isGettingInitialUser.value = false
 
-    refreshFailCount = 0
-
     authEvents$.next({
       event: "login",
       user: HoppUserWithAuthDetail,
@@ -229,15 +219,10 @@ export async function setInitialUser() {
 }
 
 async function refreshToken() {
-  // Short-circuit if we've already failed too many times (#5885)
-  if (refreshFailCount >= AUTH_REFRESH_MAX_RETRIES) {
-    return false
-  }
-
   try {
     const refreshToken =
       await persistenceService.getLocalConfig("refresh_token")
-    if (!refreshToken) return null
+    if (!refreshToken) return false
 
     const { response } = interceptorService.execute({
       id: Date.now(),
@@ -250,36 +235,26 @@ async function refreshToken() {
     })
 
     const res = await response
-    if (E.isLeft(res)) {
-      refreshFailCount++
-      return false
-    }
+    if (E.isLeft(res)) return false
 
     await setAuthCookies(res.right.headers)
     const isSuccessful = res.right.status === 200
 
-    if (isSuccessful) {
-      refreshFailCount = 0
-
-      if (currentUser$.value) {
-        authEvents$.next({
-          event: "login",
-          user: {
-            uid: currentUser$.value.uid,
-            displayName: currentUser$.value.displayName,
-            email: currentUser$.value.email,
-            photoURL: currentUser$.value.photoURL,
-            emailVerified: currentUser$.value.emailVerified,
-          },
-        })
-      }
-    } else {
-      refreshFailCount++
+    if (isSuccessful && currentUser$.value) {
+      authEvents$.next({
+        event: "login",
+        user: {
+          uid: currentUser$.value.uid,
+          displayName: currentUser$.value.displayName,
+          email: currentUser$.value.email,
+          photoURL: currentUser$.value.photoURL,
+          emailVerified: currentUser$.value.emailVerified,
+        },
+      })
     }
 
     return isSuccessful
   } catch (_err) {
-    refreshFailCount++
     return false
   }
 }

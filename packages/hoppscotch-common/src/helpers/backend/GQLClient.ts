@@ -23,6 +23,7 @@ import { pipe, constVoid, flow } from "fp-ts/function"
 import { subscribe, pipe as wonkaPipe } from "wonka"
 import { filter, map, Subject } from "rxjs"
 import { platform } from "~/platform"
+import { createAuthRetryGuard } from "~/helpers/retryAuthGuard"
 
 // TODO: Implement caching
 
@@ -30,19 +31,6 @@ const BACKEND_GQL_URL =
   import.meta.env.VITE_BACKEND_GQL_URL ?? "https://api.hoppscotch.io/graphql"
 const BACKEND_WS_URL =
   import.meta.env.VITE_BACKEND_WS_URL ?? "wss://api.hoppscotch.io/graphql"
-
-/**
- * Maximum number of consecutive auth refresh failures before signing the user out.
- * Prevents infinite retry loops when tokens are permanently invalid.
- * @see https://github.com/hoppscotch/hoppscotch/issues/5885
- */
-const AUTH_REFRESH_MAX_RETRIES = 3
-
-/**
- * Tracks consecutive auth refresh failures across the authExchange lifecycle.
- * Reset to 0 on successful refresh or when a new client is created.
- */
-let authRefreshFailCount = 0
 
 type GQLOpType = "query" | "mutation" | "subscription"
 /**
@@ -78,9 +66,10 @@ const createSubscriptionClient = () => {
   })
 }
 
+const authRetryGuard = createAuthRetryGuard(() => platform.auth.signOutUser())
+
 const createHoppClient = () => {
-  // Reset refresh failure counter when creating a new client (e.g. after re-login)
-  authRefreshFailCount = 0
+  authRetryGuard.reset()
 
   const exchanges = [
     // devtoolsExchange,
@@ -125,26 +114,7 @@ const createHoppClient = () => {
           const refresh = platform.auth.refreshAuthToken
           if (!refresh) return
 
-          // Prevent infinite retry loop when refresh permanently fails (#5885)
-          if (authRefreshFailCount >= AUTH_REFRESH_MAX_RETRIES) {
-            authRefreshFailCount = 0
-            await platform.auth.signOutUser()
-            return
-          }
-
-          const success = await refresh()
-
-          if (success) {
-            authRefreshFailCount = 0
-          } else {
-            authRefreshFailCount++
-
-            // If we've exhausted retries, sign out immediately
-            if (authRefreshFailCount >= AUTH_REFRESH_MAX_RETRIES) {
-              authRefreshFailCount = 0
-              await platform.auth.signOutUser()
-            }
-          }
+          await authRetryGuard.execute(refresh)
         },
       }
     }),

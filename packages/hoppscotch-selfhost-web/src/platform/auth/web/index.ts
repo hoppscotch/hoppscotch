@@ -19,14 +19,6 @@ export const probableUser$ = new BehaviorSubject<HoppUser | null>(null)
 
 const persistenceService = getService(PersistenceService)
 
-/**
- * Tracks consecutive token refresh failures to prevent infinite retry loops.
- * Reset to 0 on successful refresh or login.
- * @see https://github.com/hoppscotch/hoppscotch/issues/5885
- */
-const AUTH_REFRESH_MAX_RETRIES = 3
-let refreshFailCount = 0
-
 async function logout() {
   await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/auth/logout`, {
     withCredentials: true,
@@ -148,8 +140,6 @@ async function setInitialUser() {
 
     isGettingInitialUser.value = false
 
-    refreshFailCount = 0
-
     authEvents$.next({
       event: "login",
       user: hoppUser,
@@ -160,11 +150,6 @@ async function setInitialUser() {
 }
 
 async function refreshToken() {
-  // Short-circuit if we've already failed too many times (#5885)
-  if (refreshFailCount >= AUTH_REFRESH_MAX_RETRIES) {
-    return false
-  }
-
   try {
     const res = await axios.get(
       `${import.meta.env.VITE_BACKEND_API_URL}/auth/refresh`,
@@ -176,17 +161,13 @@ async function refreshToken() {
     const isSuccessful = res.status === 200
 
     if (isSuccessful) {
-      refreshFailCount = 0
       authEvents$.next({
         event: "token_refresh",
       })
-    } else {
-      refreshFailCount++
     }
 
     return isSuccessful
   } catch (_error) {
-    refreshFailCount++
     return false
   }
 }
@@ -358,8 +339,6 @@ export const def: AuthPlatformDef = {
   },
 
   async signOutUser() {
-    // if (!currentUser$.value) throw new Error("No user has logged in")
-
     await logout()
 
     probableUser$.next(null)

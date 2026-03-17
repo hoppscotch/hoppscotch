@@ -170,24 +170,35 @@ pub fn run() {
             {
                 use tauri::menu::{Menu, PredefinedMenuItem, Submenu};
 
-                let handle = app.handle();
-                let edit_menu = Submenu::with_items(
-                    handle,
-                    "Edit",
-                    true,
-                    &[
-                        &PredefinedMenuItem::undo(handle, None)?,
-                        &PredefinedMenuItem::redo(handle, None)?,
-                        &PredefinedMenuItem::separator(handle)?,
-                        &PredefinedMenuItem::cut(handle, None)?,
-                        &PredefinedMenuItem::copy(handle, None)?,
-                        &PredefinedMenuItem::paste(handle, None)?,
-                        &PredefinedMenuItem::separator(handle)?,
-                        &PredefinedMenuItem::select_all(handle, None)?,
-                    ],
-                )?;
-                let menu = Menu::with_items(handle, &[&edit_menu])?;
-                app.set_menu(menu)?;
+                let result = (|| -> Result<(), Box<dyn std::error::Error>> {
+                    let handle = app.handle();
+                    let edit_menu = Submenu::with_items(
+                        handle,
+                        "Edit",
+                        true,
+                        &[
+                            &PredefinedMenuItem::undo(handle, None)?,
+                            &PredefinedMenuItem::redo(handle, None)?,
+                            &PredefinedMenuItem::separator(handle)?,
+                            &PredefinedMenuItem::cut(handle, None)?,
+                            &PredefinedMenuItem::copy(handle, None)?,
+                            &PredefinedMenuItem::paste(handle, None)?,
+                            &PredefinedMenuItem::separator(handle)?,
+                            &PredefinedMenuItem::select_all(handle, None)?,
+                        ],
+                    )?;
+                    // NOTE: This menu bar will be visible on Linux. Removing it or hiding it
+                    // also removes the accelerator registrations and breaks clipboard shortcuts
+                    // (webkit2gtk requires native menu items to recognise Ctrl+C/V/X etc.).
+                    // See https://github.com/tauri-apps/tauri/issues/2397
+                    let menu = Menu::with_items(handle, &[&edit_menu])?;
+                    app.set_menu(menu)?;
+                    Ok(())
+                })();
+
+                if let Err(e) = result {
+                    tracing::warn!(error = %e, "Failed to set up native Edit menu; clipboard shortcuts may not work");
+                }
             }
 
             tauri::async_runtime::block_on(async {

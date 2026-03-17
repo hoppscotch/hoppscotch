@@ -129,7 +129,7 @@ const convertHeaders = (headers: YaakHeader[] = []) =>
   }))
 
 const convertBody = (req: YaakRequest): HoppRESTReqBody => {
-  if (!req.body?.text) {
+  if (req.body?.text == null) {
     return {
       contentType: null,
       body: null,

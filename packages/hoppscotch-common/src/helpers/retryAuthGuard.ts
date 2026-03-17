@@ -51,7 +51,7 @@ export function createAuthRetryGuard(onExhausted: () => void | Promise<void>) {
       if (failCount >= MAX_RETRIES && !isExhausted) {
         isExhausted = true
         try {
-          exhaustionPromise = Promise.resolve(onExhausted())
+          exhaustionPromise = Promise.resolve().then(() => onExhausted())
           await exhaustionPromise
         } catch (_) {
           // Sign-out failed (e.g. network error), but the guard stays

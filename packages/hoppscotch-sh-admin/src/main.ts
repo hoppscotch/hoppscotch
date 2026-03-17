@@ -25,10 +25,12 @@ import { HOPP_MODULES } from './modules';
  */
 const MAX_RETRIES = 3;
 let authRefreshFailCount = 0;
+let authRefreshExhausted = false;
 
 authEvents$.subscribe((event) => {
   if (event.event === 'login') {
     authRefreshFailCount = 0;
+    authRefreshExhausted = false;
   }
 });
 
@@ -48,7 +50,8 @@ authEvents$.subscribe((event) => {
             return operation;
           },
           async refreshAuth() {
-            if (authRefreshFailCount >= MAX_RETRIES) return;
+            if (authRefreshExhausted || authRefreshFailCount >= MAX_RETRIES)
+              return;
 
             const result = await auth.performAuthRefresh();
 
@@ -56,8 +59,16 @@ authEvents$.subscribe((event) => {
               authRefreshFailCount = 0;
             } else {
               authRefreshFailCount++;
-              if (authRefreshFailCount >= MAX_RETRIES) {
-                await auth.signOutUser(true);
+              if (
+                authRefreshFailCount >= MAX_RETRIES &&
+                !authRefreshExhausted
+              ) {
+                authRefreshExhausted = true;
+                auth.signOutUser(true).catch(() => {
+                  // Best-effort: sign-out failed (e.g. backend unreachable),
+                  // but the guard stays exhausted so refreshAuth() won't loop.
+                  // signOutUser(true) triggers a page reload on success anyway.
+                });
               }
             }
           },

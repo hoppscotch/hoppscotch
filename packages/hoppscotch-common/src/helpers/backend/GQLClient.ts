@@ -69,8 +69,6 @@ const createSubscriptionClient = () => {
 const authRetryGuard = createAuthRetryGuard(() => platform.auth.signOutUser())
 
 const createHoppClient = () => {
-  authRetryGuard.reset()
-
   const exchanges = [
     // devtoolsExchange,
     authExchange(async (): Promise<AuthConfig> => {
@@ -155,6 +153,14 @@ export const client = ref<Client>()
 
 export function initBackendGQLClient() {
   client.value = createHoppClient()
+
+  // Reset the retry guard only on successful login, not on every
+  // client recreation (which also fires on logout/token_refresh).
+  platform.auth.getAuthEventsStream().subscribe((event) => {
+    if (event.event === "login") {
+      authRetryGuard.reset()
+    }
+  })
 
   platform.auth.onBackendGQLClientShouldReconnect(() => {
     const currentUser = platform.auth.getCurrentUser()

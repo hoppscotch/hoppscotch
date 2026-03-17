@@ -17,6 +17,7 @@ const MAX_RETRIES = 3
 export function createAuthRetryGuard(onExhausted: () => void | Promise<void>) {
   let failCount = 0
   let isExhausted = false
+  let exhaustionPromise: Promise<void> | null = null
 
   return {
     /**
@@ -39,14 +40,27 @@ export function createAuthRetryGuard(onExhausted: () => void | Promise<void>) {
       failCount++
       if (failCount >= MAX_RETRIES && !isExhausted) {
         isExhausted = true
-        await onExhausted()
+        try {
+          exhaustionPromise = Promise.resolve(onExhausted())
+          await exhaustionPromise
+        } catch (_) {
+          // Sign-out failed (e.g. network error), but the guard stays
+          // exhausted so we don't re-enter the refresh loop.
+        } finally {
+          exhaustionPromise = null
+        }
       }
 
       return false
     },
 
-    /** Reset the failure counter (e.g. on login or manual logout). */
+    /**
+     * Reset the failure counter (e.g. on login or manual logout).
+     * No-op while an exhaustion callback (sign-out) is still in-flight.
+     */
     reset() {
+      if (exhaustionPromise) return
+
       failCount = 0
       isExhausted = false
     },

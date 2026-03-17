@@ -18,6 +18,7 @@ import '../assets/scss/tailwind.scss';
 
 import { auth, authEvents$ } from './helpers/auth';
 import { GRAPHQL_UNAUTHORIZED } from './helpers/errors';
+import { createAuthRetryGuard } from './helpers/retryAuthGuard';
 import { HOPP_MODULES } from './modules';
 
 /**
@@ -25,14 +26,11 @@ import { HOPP_MODULES } from './modules';
  * are permanently invalid. Stays exhausted until the page reloads.
  * @see https://github.com/hoppscotch/hoppscotch/issues/5885
  */
-const MAX_RETRIES = 3;
-let authRefreshFailCount = 0;
-let authRefreshExhausted = false;
+const authRetryGuard = createAuthRetryGuard(() => auth.signOutUser(true));
 
 authEvents$.subscribe((event) => {
   if (event.event === 'login') {
-    authRefreshFailCount = 0;
-    authRefreshExhausted = false;
+    authRetryGuard.reset();
   }
 });
 
@@ -52,34 +50,16 @@ authEvents$.subscribe((event) => {
             return operation;
           },
           async refreshAuth() {
-            if (authRefreshExhausted || authRefreshFailCount >= MAX_RETRIES)
-              return;
-
-            const success = await pipe(
-              TE.tryCatch(
-                () => auth.performAuthRefresh(),
-                () => false as const
-              ),
-              TE.map(O.isSome),
-              TE.getOrElse(() => async () => false)
-            )();
-
-            if (success) {
-              authRefreshFailCount = 0;
-            } else {
-              authRefreshFailCount++;
-              if (
-                authRefreshFailCount >= MAX_RETRIES &&
-                !authRefreshExhausted
-              ) {
-                authRefreshExhausted = true;
-                auth.signOutUser(true).catch(() => {
-                  // Best-effort: sign-out failed (e.g. backend unreachable),
-                  // but the guard stays exhausted so refreshAuth() won't loop.
-                  // signOutUser(true) triggers a page reload on success anyway.
-                });
-              }
-            }
+            await authRetryGuard.execute(() =>
+              pipe(
+                TE.tryCatch(
+                  () => auth.performAuthRefresh(),
+                  () => false as const
+                ),
+                TE.map(O.isSome),
+                TE.getOrElse(() => async () => false)
+              )()
+            );
           },
           didAuthError(error, _operation) {
             return error.message === GRAPHQL_UNAUTHORIZED;

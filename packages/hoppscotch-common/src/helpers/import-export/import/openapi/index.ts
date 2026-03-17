@@ -1037,13 +1037,14 @@ export const parseOpenAPIUrl = (
    **/
   if (objectHasProperty(doc, "swagger")) {
     const v2Doc = doc as OpenAPIV2.Document
+    const hasHost = !!v2Doc.host?.trim()
     const basePath = (v2Doc.basePath?.trim() ?? "").replace(/\/$/, "")
 
     // When host is present, <<baseUrl>> resolves via collection variable from
     // extractServerVariables (which includes scheme + host + basePath).
     // When host is absent, <<baseUrl>> is a user-defined placeholder and
     // basePath is appended directly.
-    return v2Doc.host ? "<<baseUrl>>" : `<<baseUrl>>${basePath}`
+    return hasHost ? "<<baseUrl>>" : `<<baseUrl>>${basePath}`
   }
 
   /**
@@ -1207,6 +1208,8 @@ const convertOpenApiDocsToHopp = (
       }
     })
 
+    // serverVariables are set only at root level; sub-folders inherit them
+    // through Hoppscotch's collection-variable inheritance mechanism
     const serverVariables = extractServerVariables(doc)
 
     return makeCollection({

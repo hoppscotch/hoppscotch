@@ -1,6 +1,8 @@
-import { Environment, EnvironmentSchemaVersion } from "@hoppscotch/data"
+import { EnvironmentSchemaVersion } from "@hoppscotch/data"
 import * as O from "fp-ts/Option"
 import * as TE from "fp-ts/TaskEither"
+import { pipe } from "fp-ts/function"
+import * as A from "fp-ts/Array"
 import { z } from "zod"
 
 import { safeParseJSON } from "~/helpers/functional/json"
@@ -8,6 +10,8 @@ import { IMPORTER_INVALID_FILE_FORMAT } from "."
 import { uniqueID } from "~/helpers/utils/uniqueID"
 
 const yaakEnvSchema = z.object({
+  yaakVersion: z.string(),
+  yaakSchema: z.number(),
   resources: z.object({
     environments: z.array(
       z.object({
@@ -26,52 +30,51 @@ const yaakEnvSchema = z.object({
 
 type YaakEnvFile = z.infer<typeof yaakEnvSchema>
 
-export const yaakEnvImporter = (contents: string[]) => {
-  const parsedContents = contents.map((str) => safeParseJSON(str, true))
+export const yaakEnvImporter = (contents: string[]) =>
+  pipe(
+    contents,
 
-  if (parsedContents.some((parsed) => O.isNone(parsed))) {
-    return TE.left(IMPORTER_INVALID_FILE_FORMAT)
-  }
+    // Parse JSON safely
+    A.traverse(O.Applicative)((content) =>
+      pipe(
+        safeParseJSON(content),
 
-  const parsedValues = parsedContents.flatMap((parsed) => {
-    const json = O.toNullable(parsed)
+        // Validate schema
+        O.chain((json) => {
+          const files = Array.isArray(json) ? json : [json]
 
-    if (!json) return []
+          const parsed = files.map((file) => yaakEnvSchema.safeParse(file))
 
-    // Yaak exports may wrap workspace exports in an array
-    const files = Array.isArray(json) ? json : [json]
+          if (parsed.some((p) => !p.success)) {
+            return O.none
+          }
 
-    return files.flatMap((file) => {
-      const validation = yaakEnvSchema.safeParse(file)
+          return O.of(
+            parsed.map((p) => (p as z.SafeParseSuccess<YaakEnvFile>).data)
+          )
+        })
+      )
+    ),
 
-      if (!validation.success) {
-        return []
-      }
+    // Convert to Hoppscotch environments
+    O.map((exports) =>
+      exports.flatMap((files) =>
+        files.flatMap((exp) =>
+          exp.resources.environments.map((env) => ({
+            id: uniqueID(),
+            v: EnvironmentSchemaVersion,
+            name: env.name,
+            variables: env.variables.map((v) => ({
+              key: v.name,
+              initialValue: v.value,
+              currentValue: v.value,
+              secret: false,
+            })),
+          }))
+        )
+      )
+    ),
 
-      const data: YaakEnvFile = validation.data
-
-      return data.resources.environments.map((env) => ({
-        name: env.name,
-        variables: env.variables.map((v) => ({
-          key: v.name,
-          value: String(v.value),
-        })),
-      }))
-    })
-  })
-  const environments: Environment[] = parsedValues.map(
-    ({ name, variables }) => ({
-      id: uniqueID(),
-      v: EnvironmentSchemaVersion,
-      name,
-      variables: variables.map(({ key, value }) => ({
-        key,
-        initialValue: value,
-        currentValue: value,
-        secret: false,
-      })),
-    })
+    // Fail if parsing/validation failed
+    TE.fromOption(() => IMPORTER_INVALID_FILE_FORMAT)
   )
-
-  return TE.right(environments)
-}

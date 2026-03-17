@@ -24,13 +24,12 @@ const yaakEnvSchema = z.object({
   }),
 })
 
+type YaakEnvFile = z.infer<typeof yaakEnvSchema>
+
 export const yaakEnvImporter = (contents: string[]) => {
-  const parsedContents = contents.map((str) => {
-    return safeParseJSON(str, true)
-  })
+  const parsedContents = contents.map((str) => safeParseJSON(str, true))
 
   if (parsedContents.some((parsed) => O.isNone(parsed))) {
-    console.error("JSON parsing failed")
     return TE.left(IMPORTER_INVALID_FILE_FORMAT)
   }
 
@@ -39,20 +38,19 @@ export const yaakEnvImporter = (contents: string[]) => {
 
     if (!json) return []
 
-    // Handle array or object
+    // Yaak exports may wrap workspace exports in an array
     const files = Array.isArray(json) ? json : [json]
 
     return files.flatMap((file) => {
       const validation = yaakEnvSchema.safeParse(file)
 
       if (!validation.success) {
-        console.error("Yaak schema validation failed", validation.error)
         return []
       }
 
-      const envs = validation.data.resources.environments
+      const data: YaakEnvFile = validation.data
 
-      return envs.map((env) => ({
+      return data.resources.environments.map((env) => ({
         name: env.name,
         variables: env.variables.map((v) => ({
           key: v.name,
@@ -61,6 +59,10 @@ export const yaakEnvImporter = (contents: string[]) => {
       }))
     })
   })
+
+  if (!parsedValues.length) {
+    return TE.left(IMPORTER_INVALID_FILE_FORMAT)
+  }
 
   const environments: Environment[] = parsedValues.map(
     ({ name, variables }) => ({

@@ -59,11 +59,6 @@ export const yaakEnvImporter = (contents: string[]) => {
       }))
     })
   })
-
-  if (!parsedValues.length) {
-    return TE.left(IMPORTER_INVALID_FILE_FORMAT)
-  }
-
   const environments: Environment[] = parsedValues.map(
     ({ name, variables }) => ({
       id: uniqueID(),

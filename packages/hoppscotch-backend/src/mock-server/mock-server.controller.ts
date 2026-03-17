@@ -89,6 +89,7 @@ export class MockServerController {
         'x-content-type-options',
         'x-frame-options',
         'content-disposition',
+        'set-cookie',
       ]);
 
       if (mockResponse.headers) {
@@ -96,7 +97,11 @@ export class MockServerController {
           const headers = JSON.parse(mockResponse.headers);
           Object.keys(headers).forEach((key) => {
             if (!securityHeaderBlocklist.has(key.toLowerCase())) {
-              res.setHeader(key, headers[key]);
+              const rawValue = headers[key];
+              // Only allow string and number values to prevent type bypass attacks
+              if (typeof rawValue === 'string' || typeof rawValue === 'number') {
+                res.setHeader(key, rawValue);
+              }
             }
           });
         } catch (error) {
@@ -111,22 +116,27 @@ export class MockServerController {
         );
       }
 
-      // Prevent XSS: downgrade active content types to text/plain
-      const activeContentTypes = [
+      // Prevent XSS: downgrade script-capable content types to text/plain
+      const activeContentTypes = new Set([
         'text/html',
         'application/xhtml+xml',
         'image/svg+xml',
         'text/xml',
         'application/xml',
-      ];
-      const currentContentType = res.getHeader('Content-Type');
-      if (
-        typeof currentContentType === 'string' &&
-        activeContentTypes.some((ct) =>
-          currentContentType.toLowerCase().startsWith(ct),
-        )
-      ) {
-        res.setHeader('Content-Type', 'text/plain');
+        'application/javascript',
+        'text/javascript',
+        'text/xsl',
+      ]);
+      const rawContentType = res.getHeader('Content-Type');
+      if (typeof rawContentType === 'string') {
+        // Normalize: trim, strip parameters (e.g. charset), lowercase
+        const mimeType = rawContentType.split(';')[0].trim().toLowerCase();
+        if (
+          activeContentTypes.has(mimeType) ||
+          mimeType.endsWith('+xml')
+        ) {
+          res.setHeader('Content-Type', 'text/plain');
+        }
       }
 
       // Only set Content-Type if not already set

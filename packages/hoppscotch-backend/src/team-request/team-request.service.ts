@@ -383,8 +383,9 @@ export class TeamRequestService {
     } else {
       // When nextRequestID is null, validate that the destination collection
       // belongs to the same team as the request to prevent cross-team moves
-      const destCollection = await this.prisma.teamCollection.findFirst({
+      const destCollection = await this.prisma.teamCollection.findUnique({
         where: { id: destCollID },
+        select: { teamID: true },
       });
       if (!destCollection) return E.left(TEAM_INVALID_COLL_ID);
 

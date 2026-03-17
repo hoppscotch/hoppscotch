@@ -489,9 +489,8 @@ describe('findRequestAndNextRequest', () => {
       nextRequestID: null,
     };
 
-    mockPrisma.teamRequest.findFirst
-      .mockResolvedValueOnce(dbTeamRequests[0])
-      .mockResolvedValueOnce(null);
+    mockPrisma.teamRequest.findFirst.mockResolvedValueOnce(dbTeamRequests[0]);
+    mockPrisma.teamCollection.findUnique.mockResolvedValueOnce(teamCollection);
 
     const result = (teamRequestService as any).findRequestAndNextRequest(
       args.srcCollID,

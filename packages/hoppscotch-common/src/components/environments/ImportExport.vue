@@ -358,6 +358,11 @@ const YaakEnvironmentsImport: ImporterOrExporter = {
 
       if (E.isRight(res)) {
         await handleImportToStore(res.right)
+        platform.analytics?.logEvent({
+          type: "HOPP_IMPORT_ENVIRONMENT",
+          platform: "rest",
+          workspaceType: isTeamEnvironment.value ? "team" : "personal",
+        })
         emit("hide-modal")
       } else {
         showImportFailedError()

@@ -5,6 +5,7 @@ import {
   HoppRESTRequest,
 } from "@hoppscotch/data"
 import { Service } from "dioc"
+import { hasActualScript } from "~/helpers/scripting"
 import * as E from "fp-ts/Either"
 import { cloneDeep } from "lodash-es"
 import { nextTick, Ref } from "vue"
@@ -127,11 +128,15 @@ export class TestRunnerService extends Service {
 
       const inheritedPreRequestScripts = [
         ...parentPreRequestScripts,
-        ...(collection.preRequestScript ? [collection.preRequestScript] : []),
+        ...(hasActualScript(collection.preRequestScript)
+          ? [collection.preRequestScript]
+          : []),
       ]
       const inheritedTestScripts = [
         ...parentTestScripts,
-        ...(collection.testScript ? [collection.testScript] : []),
+        ...(hasActualScript(collection.testScript)
+          ? [collection.testScript]
+          : []),
       ]
 
       // Process folders progressively

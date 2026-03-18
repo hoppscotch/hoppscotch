@@ -34,6 +34,7 @@ import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { ref, watch } from "vue"
 import { Service } from "dioc"
 import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
+import { hasActualScript } from "~/helpers/scripting"
 
 export const TEAMS_BACKEND_PAGE_SIZE = 10
 
@@ -1241,7 +1242,10 @@ export class TeamCollectionsService extends Service<void> {
       const parentPreRequestScript = data.preRequestScript ?? ""
       const parentTestScript = data.testScript ?? ""
 
-      if (parentPreRequestScript || parentTestScript) {
+      if (
+        hasActualScript(parentPreRequestScript) ||
+        hasActualScript(parentTestScript)
+      ) {
         const currentPath = path.slice(0, i + 1).join("/")
 
         scripts.push({

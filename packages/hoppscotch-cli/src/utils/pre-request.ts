@@ -74,7 +74,7 @@ export const preRequestScriptRunner = (
 
   return pipe(
     TE.of(request),
-    TE.chain(({ preRequestScript }) =>
+    TE.chain(() =>
       runPreRequestScript(stripModulePrefix(combinedScript), {
         envs,
         experimentalScriptingSandbox,

@@ -34,6 +34,7 @@ import {
   processRequest,
 } from "./request";
 import { getTestMetrics } from "./test";
+import { filterValidScripts } from "./scripting";
 
 const { WARN, FAIL, INFO } = exceptionColors;
 
@@ -114,14 +115,15 @@ const processCollection = async (
   ancestorTestScripts: string[] = []
 ) => {
   // Accumulate scripts from root -> current collection for inheritance
-  const inheritedPreRequestScripts = [
+  // filterValidScripts strips empty, whitespace-only, and module-prefix-only scripts
+  const inheritedPreRequestScripts = filterValidScripts([
     ...ancestorPreRequestScripts,
-    ...(collection.preRequestScript ? [collection.preRequestScript] : []),
-  ];
-  const inheritedTestScripts = [
+    collection.preRequestScript,
+  ]);
+  const inheritedTestScripts = filterValidScripts([
     ...ancestorTestScripts,
-    ...(collection.testScript ? [collection.testScript] : []),
-  ];
+    collection.testScript,
+  ]);
 
   // Process each request in the collection
   for (const request of collection.requests) {

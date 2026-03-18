@@ -28,3 +28,7 @@ dist-ssr
 
 # Backend Code generation
 src/api/generated
+
+# webapp-server
+webapp-server/webapp-server
+webapp-server/.webapp-server

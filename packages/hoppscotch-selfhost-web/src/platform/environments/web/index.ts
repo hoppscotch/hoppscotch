@@ -11,15 +11,19 @@ import {
   setGlobalEnvVariables,
   updateEnvironment,
 } from "@hoppscotch/common/newstore/environments"
-import { authEvents$, def as platformAuth } from "@platform/auth/web"
+import { authEvents$, def as platformAuth } from "@app/platform/auth/web"
 
 import { runGQLSubscription } from "@hoppscotch/common/helpers/backend/GQLClient"
 import { EnvironmentsPlatformDef } from "@hoppscotch/common/src/platform/environments"
 
-import { environnmentsSyncer } from "@platform/environments/web/sync"
+import { environnmentsSyncer } from "@app/platform/environments/web/sync"
 
-import { GlobalEnvironment } from "@hoppscotch/data"
-import { runDispatchWithOutSyncing } from "@lib/sync"
+import {
+  Environment,
+  EnvironmentSchemaVersion,
+  GlobalEnvironment,
+} from "@hoppscotch/data"
+import { runDispatchWithOutSyncing } from "@app/lib/sync"
 import {
   createUserGlobalEnvironment,
   getGlobalEnvironments,
@@ -82,13 +86,26 @@ async function loadUserEnvironments() {
 
     if (environments.length > 0) {
       runDispatchWithOutSyncing(() => {
+        const formatedEnvironments = environments.map(
+          (env) =>
+            <Environment>{
+              id: env.id,
+              name: env.name,
+              variables: JSON.parse(env.variables),
+            }
+        )
+
         replaceEnvironments(
-          environments.map(({ id, variables, name }) => ({
-            v: 1,
-            id,
-            name,
-            variables: JSON.parse(variables),
-          }))
+          formatedEnvironments.map((environment) => {
+            const parsedEnv = Environment.safeParse(environment)
+
+            return parsedEnv.type === "ok"
+              ? parsedEnv.value
+              : {
+                  ...environment,
+                  v: EnvironmentSchemaVersion,
+                }
+          })
         )
       })
     }
@@ -174,13 +191,24 @@ function setupUserEnvironmentUpdatedSubscription() {
         )
 
         if ((localIndex || localIndex == 0) && name) {
+          const environment = {
+            id,
+            name,
+            variables: JSON.parse(variables),
+          }
+
+          const parsedEnvResult = Environment.safeParse(environment)
+
+          const parsedEnv: Environment =
+            parsedEnvResult.type === "ok"
+              ? parsedEnvResult.value
+              : {
+                  ...environment,
+                  v: EnvironmentSchemaVersion,
+                }
+
           runDispatchWithOutSyncing(() => {
-            updateEnvironment(localIndex, {
-              v: 1,
-              id,
-              name,
-              variables: JSON.parse(variables),
-            })
+            updateEnvironment(localIndex, parsedEnv)
           })
         }
       }

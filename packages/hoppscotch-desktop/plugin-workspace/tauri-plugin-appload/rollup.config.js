@@ -19,8 +19,9 @@ export default {
   ],
   plugins: [
     typescript({
+      tsconfig: './tsconfig.json',
       declaration: true,
-      declarationDir: `./${pkg.exports.import.split('/')[0]}`
+      declarationDir: './dist-js'
     })
   ],
   external: [

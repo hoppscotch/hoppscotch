@@ -10,7 +10,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@tauri-apps/api": "^2.0.0-alpha.11",
+    "@tauri-apps/api": "2.1.1",
     "tauri-plugin-appload-api": "file:../../"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 mutation AddUserToTeamByAdmin(
   $userEmail: String!
-  $role: TeamMemberRole!
+  $role: TeamAccessRole!
   $teamID: ID!
 ) {
   addUserToTeamByAdmin(role: $role, userEmail: $userEmail, teamID: $teamID) {

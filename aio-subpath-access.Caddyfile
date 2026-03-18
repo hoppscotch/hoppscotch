@@ -18,7 +18,18 @@
 
 	# Handle requests under `/backend*` path
 	handle_path /backend* {
-		reverse_proxy localhost:8080
+		@mock {
+			header_regexp host Host ^[^.]+\.mock\..*$
+		}
+		
+		handle @mock {
+			rewrite * /mock{uri}
+			reverse_proxy localhost:8080
+		}
+		
+		handle {
+			reverse_proxy localhost:8080
+		}
 	}
 
 	# Handle requests under `/desktop-app-server*` path

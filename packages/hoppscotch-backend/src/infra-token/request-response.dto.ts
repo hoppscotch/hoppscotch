@@ -1,16 +1,15 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Expose, Transform, Type } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
   IsBoolean,
-  IsEmail,
   IsNotEmpty,
   IsOptional,
   IsString,
   MinLength,
 } from 'class-validator';
-import { TeamMemberRole } from 'src/team/team.model';
+import { TeamAccessRole } from 'src/team/team.model';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
 
 // POST v1/infra/user-invitations
@@ -140,7 +139,7 @@ export class GetUserWorkspacesResponse {
   @Expose()
   name: string;
 
-  @ApiProperty({ enum: TeamMemberRole })
+  @ApiProperty({ enum: TeamAccessRole })
   @Expose()
   role: string;
 

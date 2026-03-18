@@ -79,11 +79,11 @@ export class UserDeletionResult {
   @Field(() => Boolean, {
     description: 'Flag to determine if user deletion was successful or not',
   })
-  isDeleted: Boolean;
+  isDeleted: boolean;
 
   @Field({
     nullable: true,
     description: 'Error message if user deletion was not successful',
   })
-  errorMessage: String;
+  errorMessage: string;
 }

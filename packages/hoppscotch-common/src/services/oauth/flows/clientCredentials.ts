@@ -8,33 +8,39 @@ import { getService } from "~/modules/dioc"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import { useToast } from "~/composables/toast"
-import { ClientCredentialsGrantTypeParams } from "@hoppscotch/data"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { RelayRequest, content } from "@hoppscotch/kernel"
 import { parseBytesToJSON } from "~/helpers/functional/json"
+import { refreshToken, OAuth2ParamSchema } from "../utils"
+import { ClientCredentialsGrantTypeParams } from "@hoppscotch/data"
 
 const interceptorService = getService(KernelInterceptorService)
 
-const ClientCredentialsFlowParamsSchema = ClientCredentialsGrantTypeParams.pick(
+// Use the existing schema from hoppscotch-data but add client authentication mode
+const ClientCredentialsFlowParamsSchema = ClientCredentialsGrantTypeParams.omit(
   {
-    authEndpoint: true,
-    clientID: true,
-    clientSecret: true,
-    scopes: true,
-    clientAuthentication: true,
-  }
-).refine(
-  (params) => {
-    return (
-      params.authEndpoint.length >= 1 &&
-      params.clientID.length >= 1 &&
-      (!params.scopes || params.scopes.length >= 1)
-    )
-  },
-  {
-    message: "Minimum length requirement not met for one or more parameters",
+    grantType: true,
+    token: true,
   }
 )
+  .extend({
+    clientAuthentication: z.enum(["AS_BASIC_AUTH_HEADERS", "IN_BODY"]),
+    // Override optional arrays to be required for the service layer
+    tokenRequestParams: z.array(OAuth2ParamSchema),
+    refreshRequestParams: z.array(OAuth2ParamSchema),
+  })
+  .refine(
+    (params) => {
+      return (
+        params.authEndpoint.length >= 1 &&
+        params.clientID.length >= 1 &&
+        (!params.scopes || params.scopes.length >= 1)
+      )
+    },
+    {
+      message: "Minimum length requirement not met for one or more parameters",
+    }
+  )
 
 export type ClientCredentialsFlowParams = z.infer<
   typeof ClientCredentialsFlowParamsSchema
@@ -47,6 +53,8 @@ export const getDefaultClientCredentialsFlowParams =
     clientSecret: "",
     scopes: undefined,
     clientAuthentication: "IN_BODY",
+    tokenRequestParams: [],
+    refreshRequestParams: [],
   })
 
 const initClientCredentialsOAuthFlow = async (
@@ -169,56 +177,115 @@ export default createFlowConfig(
   "CLIENT_CREDENTIALS" as const,
   ClientCredentialsFlowParamsSchema,
   initClientCredentialsOAuthFlow,
-  handleRedirectForAuthCodeOauthFlow
+  handleRedirectForAuthCodeOauthFlow,
+  refreshToken
 )
 
-const getPayloadForViaBasicAuthHeader = (
-  payload: Omit<ClientCredentialsFlowParams, "clientAuthentication">
-): RelayRequest => {
-  const { clientID, clientSecret, scopes, authEndpoint } = payload
-
+const getPayloadForViaBasicAuthHeader = ({
+  clientID,
+  clientSecret,
+  scopes,
+  authEndpoint,
+  tokenRequestParams,
+}: ClientCredentialsFlowParams): RelayRequest => {
   // RFC 6749 Section 2.3.1 states that the client ID and secret should be URL encoded.
   const encodedClientID = encodeBasicAuthComponent(clientID)
   const encodedClientSecret = encodeBasicAuthComponent(clientSecret || "")
   const basicAuthToken = btoa(`${encodedClientID}:${encodedClientSecret}`)
 
+  const headers: Record<string, string> = {
+    Authorization: `Basic ${basicAuthToken}`,
+    "Content-Type": "application/x-www-form-urlencoded",
+    Accept: "application/json",
+  }
+
+  const bodyParams: Record<string, string> = {
+    grant_type: "client_credentials",
+    ...(scopes && { scope: scopes }),
+  }
+
+  const urlParams: Record<string, string> = {}
+
+  // Process additional token request parameters
+  if (tokenRequestParams) {
+    tokenRequestParams
+      .filter((param) => param.active && param.key && param.value)
+      .forEach((param) => {
+        if (param.sendIn === "headers") {
+          headers[param.key] = param.value
+        } else if (param.sendIn === "url") {
+          urlParams[param.key] = param.value
+        } else {
+          // Default to body
+          bodyParams[param.key] = param.value
+        }
+      })
+  }
+
+  const url = new URL(authEndpoint)
+  Object.entries(urlParams).forEach(([key, value]) => {
+    url.searchParams.set(key, value)
+  })
+
   return {
     id: Date.now(),
-    url: authEndpoint,
+    url: url.toString(),
     method: "POST",
     version: "HTTP/1.1",
-    headers: {
-      Authorization: `Basic ${basicAuthToken}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-      Accept: "application/json",
-    },
-    content: content.urlencoded({
-      grant_type: "client_credentials",
-      ...(scopes && { scope: scopes }),
-    }),
+    headers,
+    content: content.urlencoded(bodyParams),
   }
 }
 
-const getPayloadForViaBody = (
-  payload: Omit<ClientCredentialsFlowParams, "clientAuthentication">
-): RelayRequest => {
-  const { clientID, clientSecret, scopes, authEndpoint } = payload
+const getPayloadForViaBody = ({
+  clientID,
+  clientSecret,
+  scopes,
+  authEndpoint,
+  tokenRequestParams,
+}: ClientCredentialsFlowParams): RelayRequest => {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/x-www-form-urlencoded",
+    Accept: "application/json",
+  }
+
+  const bodyParams: Record<string, string> = {
+    grant_type: "client_credentials",
+    client_id: clientID,
+    ...(clientSecret && { client_secret: clientSecret }),
+    ...(scopes && { scope: scopes }),
+  }
+
+  const urlParams: Record<string, string> = {}
+
+  // Process additional token request parameters
+  if (tokenRequestParams) {
+    tokenRequestParams
+      .filter((param) => param.active && param.key && param.value)
+      .forEach((param) => {
+        if (param.sendIn === "headers") {
+          headers[param.key] = param.value
+        } else if (param.sendIn === "url") {
+          urlParams[param.key] = param.value
+        } else {
+          // Default to body
+          bodyParams[param.key] = param.value
+        }
+      })
+  }
+
+  const url = new URL(authEndpoint)
+  Object.entries(urlParams).forEach(([key, value]) => {
+    url.searchParams.set(key, value)
+  })
 
   return {
     id: Date.now(),
-    url: authEndpoint,
+    url: url.toString(),
     method: "POST",
     version: "HTTP/1.1",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Accept: "application/json",
-    },
-    content: content.urlencoded({
-      grant_type: "client_credentials",
-      client_id: clientID,
-      ...(clientSecret && { client_secret: clientSecret }),
-      ...(scopes && { scope: scopes }),
-    }),
+    headers,
+    content: content.urlencoded(bodyParams),
   }
 }
 

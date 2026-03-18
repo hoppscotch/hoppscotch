@@ -30,7 +30,7 @@
         :icon="IconEdit"
         :title="`${t('action.edit')}`"
         class="hidden group-hover:inline-flex"
-        @click="emit('edit-environment')"
+        @click="emitEditEnvironment"
       />
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
@@ -76,9 +76,9 @@
               :shortcut="['E']"
               :disabled="duplicateGlobalEnvironmentLoading"
               @click="
-                () => {
-                  emit('edit-environment')
-                  hide()
+                async () => {
+                  const ok = await emitEditEnvironment()
+                  if (ok) hide()
                 }
               "
             />
@@ -150,14 +150,23 @@ import {
   deleteEnvironment,
   duplicateEnvironment,
 } from "~/newstore/environments"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import IconCopy from "~icons/lucide/copy"
 import IconEdit from "~icons/lucide/edit"
 import IconMoreVertical from "~icons/lucide/more-vertical"
 import IconTrash2 from "~icons/lucide/trash-2"
+import { CurrentValueService } from "~/services/current-environment-value.service"
 
 const t = useI18n()
 const toast = useToast()
+
+const emitEditEnvironment = async (): Promise<boolean> => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return false
+  emit("edit-environment")
+  return true
+}
 
 const props = withDefaults(
   defineProps<{
@@ -183,6 +192,7 @@ const emit = defineEmits<{
 const confirmRemove = ref(false)
 
 const secretEnvironmentService = useService(SecretEnvironmentService)
+const currentEnvironmentValueService = useService(CurrentValueService)
 
 watch(
   () => props.duplicateGlobalEnvironmentLoading,
@@ -211,16 +221,21 @@ const duplicate = ref<typeof HoppSmartItem>()
 const exportAsJsonEl = ref<typeof HoppSmartItem>()
 const deleteAction = ref<typeof HoppSmartItem>()
 
-const removeEnvironment = () => {
+const removeEnvironment = async () => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   if (props.environmentIndex === null) return
   if (!isGlobalEnvironment.value) {
     deleteEnvironment(props.environmentIndex as number, props.environment.id)
     secretEnvironmentService.deleteSecretEnvironment(props.environment.id)
+    currentEnvironmentValueService.deleteEnvironment(props.environment.id)
   }
   toast.success(`${t("state.deleted")}`)
 }
 
-const duplicateEnvironments = () => {
+const duplicateEnvironments = async () => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   if (props.environmentIndex === null) {
     return
   }

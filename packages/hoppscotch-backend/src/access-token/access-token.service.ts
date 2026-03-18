@@ -10,8 +10,9 @@ import {
   ACCESS_TOKEN_NOT_FOUND,
 } from 'src/errors';
 import { CreateAccessTokenResponse } from './helper';
-import { PersonalAccessToken } from '@prisma/client';
+import { PersonalAccessToken } from 'src/generated/prisma/client';
 import { AccessToken } from 'src/types/AccessToken';
+
 @Injectable()
 export class AccessTokenService {
   constructor(private readonly prisma: PrismaService) {}
@@ -102,20 +103,22 @@ export class AccessTokenService {
    * Delete a Personal Access Token
    *
    * @param accessTokenID ID of the Personal Access Token
+   * @param userUid UID of the user requesting the deletion
    * @returns Either of true or error message
    */
-  async deletePAT(accessTokenID: string) {
-    try {
-      await this.prisma.personalAccessToken.delete({
-        where: { id: accessTokenID },
-      });
-      return E.right(true);
-    } catch {
+  async deletePAT(accessTokenID: string, userUid: string) {
+    const { count } = await this.prisma.personalAccessToken.deleteMany({
+      where: { id: accessTokenID, userUid },
+    });
+
+    if (count === 0) {
       return E.left({
         message: ACCESS_TOKEN_NOT_FOUND,
         statusCode: HttpStatus.NOT_FOUND,
       });
     }
+
+    return E.right(true);
   }
 
   /**

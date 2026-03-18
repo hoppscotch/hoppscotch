@@ -57,6 +57,10 @@
         ghost-class="cursor-move"
         chosen-class="bg-primaryLight"
         drag-class="cursor-grabbing"
+        :move="
+          (event: DragDropEvent) =>
+            isDragDropAllowed(event, workingParams.length)
+        "
       >
         <template #item="{ element: param, index }">
           <HttpKeyValue
@@ -120,6 +124,7 @@ import {
 import { isEqual, cloneDeep } from "lodash-es"
 import draggable from "vuedraggable-es"
 import linter from "~/helpers/editor/linting/rawKeyValue"
+import { isDragDropAllowed, DragDropEvent } from "~/helpers/dragDropValidation"
 import { useCodemirror } from "@composables/codemirror"
 import { useColorMode } from "@composables/theming"
 import { useI18n } from "@composables/i18n"

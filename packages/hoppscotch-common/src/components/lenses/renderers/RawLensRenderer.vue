@@ -7,9 +7,8 @@
       <label class="truncate font-semibold text-secondaryLight">
         {{ t("response.body") }}
       </label>
-      <div class="flex">
+      <div v-if="response.body" class="flex">
         <HoppButtonSecondary
-          v-if="response.body"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
           :class="{ '!text-accent': WRAP_LINES }"
@@ -17,7 +16,6 @@
           @click.prevent="toggleNestedSetting('WRAP_LINES', 'httpResponseBody')"
         />
         <HoppButtonSecondary
-          v-if="response.body"
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t(
             'action.download_file'
@@ -42,7 +40,6 @@
           @click="isSavable ? saveAsExample() : null"
         />
         <HoppButtonSecondary
-          v-if="response.body"
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t(
             'action.copy'
@@ -50,9 +47,41 @@
           :icon="copyIcon"
           @click="copyResponse"
         />
+        <tippy
+          v-if="showResponse && !isEditable"
+          interactive
+          trigger="click"
+          theme="popover"
+          :on-shown="() => responseMoreActionsTippy?.focus()"
+        >
+          <HoppButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t('action.more')"
+            :icon="IconMore"
+          />
+          <template #content="{ hide }">
+            <div
+              ref="responseMoreActionsTippy"
+              class="flex flex-col focus:outline-none"
+              tabindex="0"
+              @keyup.escape="hide()"
+            >
+              <HoppSmartItem
+                v-if="!isTestRunner"
+                :label="t('action.clear_response')"
+                :icon="IconEraser"
+                :shortcut="[getSpecialKey(), 'Delete']"
+                @click="eraseResponse"
+              />
+            </div>
+          </template>
+        </tippy>
       </div>
     </div>
-    <div class="h-full relative overflow-auto flex flex-col flex-1">
+    <div
+      ref="containerRef"
+      class="h-full relative overflow-auto flex flex-col flex-1"
+    >
       <div ref="rawResponse" class="absolute inset-0"></div>
     </div>
   </div>
@@ -61,6 +90,8 @@
 <script setup lang="ts">
 import IconWrapText from "~icons/lucide/wrap-text"
 import IconSave from "~icons/lucide/save"
+import IconEraser from "~icons/lucide/eraser"
+import IconMore from "~icons/lucide/more-horizontal"
 import { ref, computed, reactive } from "vue"
 import { flow, pipe } from "fp-ts/function"
 import * as S from "fp-ts/string"
@@ -81,6 +112,7 @@ import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { HoppRESTRequestResponse } from "@hoppscotch/data"
+import { useScrollerRef } from "~/composables/useScrollerRef"
 
 const t = useI18n()
 
@@ -90,6 +122,8 @@ const props = defineProps<{
     | HoppRESTRequestResponse
   isEditable: boolean
   isSavable: boolean
+  tabId: string
+  isTestRunner?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -101,6 +135,13 @@ const emit = defineEmits<{
   ): void
   (e: "save-as-example"): void
 }>()
+
+const { containerRef } = useScrollerRef(
+  "RawLens",
+  ".cm-scroller",
+  undefined, // skip initial scrollTop
+  `${props.tabId}::raw` // unique scroll key for RawLens
+)
 
 const { responseBodyText } = useResponseBody(props.response)
 
@@ -125,6 +166,15 @@ const showResponse = computed(() => {
 
 const saveAsExample = () => {
   emit("save-as-example")
+}
+
+/**
+ * Erases the response body.
+ * Do not erase if the tab is a saved example or test runner.
+ *
+ */
+const eraseResponse = () => {
+  if (!props.isEditable && !props.isTestRunner) emit("update:response", null)
 }
 
 const responseType = computed(() =>
@@ -166,6 +216,7 @@ const { copyIcon, copyResponse } = useCopyResponse(responseBodyText)
 
 const rawResponse = ref<any | null>(null)
 const WRAP_LINES = useNestedSetting("WRAP_LINES", "httpResponseBody")
+const responseMoreActionsTippy = ref<HTMLElement | null>(null)
 
 useCodemirror(
   rawResponse,
@@ -190,4 +241,5 @@ useCodemirror(
 
 defineActionHandler("response.file.download", () => downloadResponse())
 defineActionHandler("response.copy", () => copyResponse())
+defineActionHandler("response.erase", () => eraseResponse())
 </script>

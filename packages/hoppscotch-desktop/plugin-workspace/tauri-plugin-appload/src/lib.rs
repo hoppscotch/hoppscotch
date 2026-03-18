@@ -1,4 +1,4 @@
-// Copyright 2024 CuriousCorrelation
+// Copyright 2025 CuriousCorrelation
 // SPDX-License-Identifier: Apache-2.0
 // SPDX-License-Identifier: MIT
 
@@ -17,6 +17,8 @@ use tauri::{
     Manager, Runtime,
 };
 
+pub use config::Config;
+pub use config::{ApiConfig, CacheConfig, StorageConfig};
 pub use models::*;
 
 #[cfg(desktop)]
@@ -32,6 +34,7 @@ mod config;
 mod envvar;
 mod error;
 mod global;
+mod mapping;
 mod models;
 mod storage;
 mod ui;
@@ -40,35 +43,29 @@ mod vendor;
 mod verification;
 
 pub use error::{Error, Result};
-pub use vendor::{VendorConfig, VendorConfigBuilder};
+pub use mapping::HostMapper;
+pub use vendor::VendorConfig;
 
 #[cfg(mobile)]
 use mobile::Appload;
 
 const KERNEL_JS: &str = include_str!("kernel.js");
 
-pub fn init<R: Runtime>(vendor: VendorConfigBuilder) -> TauriPlugin<R> {
+pub fn init<R: Runtime>(config: Config) -> TauriPlugin<R> {
     Builder::new("appload")
         .setup(move |app, api| {
             tracing::info!("Initializing appload plugin");
 
-            tracing::debug!("Loading configuration settings.");
-            let mut config = config::Config::default();
-
-            tracing::debug!("Resolving app config directory for storage root.");
-            let app_config_dir = app.path().app_config_dir().map_err(|e| {
-                tracing::error!(error = %e, "Failed to resolve app config directory.");
-                Error::Config(e.to_string())
-            })?;
+            tracing::debug!("Using provided configuration settings.");
+            let storage_root = config.storage.root_dir.clone();
 
             tracing::info!(
-                path = ?app_config_dir,
-                "Setting storage root to app config directory."
+                path = ?storage_root,
+                "Using configured storage root directory."
             );
-            config.storage.root_dir = app_config_dir;
 
             let storage = tauri::async_runtime::block_on(async {
-                let storage = storage::StorageManager::new(config.storage.root_dir.clone())
+                let storage = storage::StorageManager::new(storage_root)
                     .await
                     .map_err(|e| {
                         tracing::error!(error = %e, "Failed to initialize storage manager");
@@ -100,22 +97,23 @@ pub fn init<R: Runtime>(vendor: VendorConfigBuilder) -> TauriPlugin<R> {
             tracing::debug!("Setting up bundle loader.");
             let bundle_loader = Arc::new(bundle::BundleLoader::new(cache.clone(), storage.clone()));
 
-            let uri_handler = Arc::new(uri::UriHandler::new(cache.clone(), tauri_config.clone()));
+            tracing::debug!("Initializing host mapper.");
+            let host_mapper = Arc::new(mapping::HostMapper::new());
+
+            tracing::debug!("Initializing uri handler.");
+            let uri_handler = Arc::new(uri::UriHandler::new(
+                cache.clone(),
+                tauri_config.clone(),
+                host_mapper.clone(),
+            ));
 
             {
                 let tauri_config = tauri_config.clone();
                 let cache = cache.clone();
                 let storage = storage.clone();
                 tauri::async_runtime::block_on(async move {
-                    match vendor.build() {
-                        Ok(vendor) => {
-                            if let Err(e) = vendor.initialize(tauri_config, cache, storage).await {
-                                tracing::error!(error = %e, "Failed to initialize vendor.");
-                            }
-                        }
-                        Err(e) => {
-                            tracing::error!(error = %e, "Failed to build vendor.");
-                        }
+                    if let Err(e) = config.vendor.initialize(tauri_config, cache, storage).await {
+                        tracing::error!(error = %e, "Failed to initialize vendor.");
                     }
                 });
             }
@@ -133,6 +131,7 @@ pub fn init<R: Runtime>(vendor: VendorConfigBuilder) -> TauriPlugin<R> {
             app.manage(bundle_loader);
             app.manage(cache);
             app.manage(storage);
+            app.manage(host_mapper);
             app.manage(uri_handler);
             app.manage(view);
 
@@ -142,6 +141,7 @@ pub fn init<R: Runtime>(vendor: VendorConfigBuilder) -> TauriPlugin<R> {
         .invoke_handler(tauri::generate_handler![
             commands::download,
             commands::load,
+            commands::close,
             commands::remove,
             commands::clear
         ])

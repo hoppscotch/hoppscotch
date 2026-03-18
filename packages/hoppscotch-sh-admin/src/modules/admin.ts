@@ -4,7 +4,8 @@ import { HoppModule } from '.';
 
 const isSetupRoute = (to: unknown) => to === 'setup';
 
-const isGuestRoute = (to: unknown) => ['index', 'enter'].includes(to as string);
+const isGuestRoute = (to: unknown) =>
+  ['index', 'enter', 'onboarding'].includes(to as string);
 
 const getFirstTimeInfraSetupStatus = async () => {
   const isInfraNotSetup = await auth.getFirstTimeInfraSetupStatus();
@@ -23,14 +24,43 @@ const getFirstTimeInfraSetupStatus = async () => {
  * @param {function} next
  * @returns {void}
  */
-
 export default <HoppModule>{
   async onBeforeRouteChange(to, _from, next) {
+    // Check if onboarding is completed
+    const onboardingStatus = await auth.getOnboardingStatus();
+
+    if (
+      !onboardingStatus?.onboardingCompleted &&
+      to.name !== 'onboarding' &&
+      to.name === 'index'
+    ) {
+      // If onboarding is not completed, redirect to the onboarding page
+      return next({ name: 'onboarding' });
+    }
+
     const res = await auth.getUserDetails();
 
     // Allow performing the silent refresh flow for an invalid access token state
     if (res.errors?.[0].message === UNAUTHORIZED) {
       return next();
+    }
+
+    if (
+      !onboardingStatus?.onboardingCompleted &&
+      !onboardingStatus?.canReRunOnboarding &&
+      to.name !== 'index' &&
+      to.name === 'onboarding'
+    ) {
+      return next();
+    }
+
+    if (
+      onboardingStatus?.onboardingCompleted &&
+      !onboardingStatus.canReRunOnboarding &&
+      to.name === 'onboarding'
+    ) {
+      // If onboarding is completed, redirect to the dashboard
+      return next({ name: 'index' });
     }
 
     const isAdmin = res.data?.me.isAdmin;
@@ -44,7 +74,7 @@ export default <HoppModule>{
       return next({ name: 'index' });
     }
 
-    if (isAdmin) {
+    if (isAdmin && onboardingStatus?.onboardingCompleted) {
       // These route guards applies to the case where the user is logged in successfully and validated as an admin
       const isInfraNotSetup = await getFirstTimeInfraSetupStatus();
 

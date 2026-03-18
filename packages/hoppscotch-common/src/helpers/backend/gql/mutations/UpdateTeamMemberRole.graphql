@@ -1,9 +1,9 @@
-mutation UpdateTeamMemberRole(
-  $newRole: TeamMemberRole!,
+mutation UpdateTeamAccessRole(
+  $newRole: TeamAccessRole!,
   $userUid: ID!,
   $teamID: ID!
 ) {
-  updateTeamMemberRole(
+  updateTeamAccessRole(
     newRole: $newRole
     userUid: $userUid
     teamID: $teamID

@@ -1,6 +1,0 @@
-subscription UserHistoryDeletedMany {
-  userHistoryDeletedMany {
-    count
-    reqType
-  }
-}

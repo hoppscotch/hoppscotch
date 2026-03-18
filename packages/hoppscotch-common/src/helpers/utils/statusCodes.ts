@@ -111,7 +111,7 @@ export const getFullStatusCodePhrase = () => {
 // return all status codes and their phrases
 // like code • phrase
 export const getStatusCodePhrase = (
-  code: number | undefined,
+  code: number | undefined | null,
   statusText: string
 ) => {
   if (!code) return statusText

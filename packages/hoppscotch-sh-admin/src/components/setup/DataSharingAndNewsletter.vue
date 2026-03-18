@@ -58,7 +58,7 @@
         />
         <HoppSmartAnchor
           blank
-          to="http://docs.hoppscotch.io"
+          to="https://docs.hoppscotch.io"
           :icon="IconBookOpenText"
           :label="t('app.read_documentation')"
         />

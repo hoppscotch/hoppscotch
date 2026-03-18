@@ -10,8 +10,10 @@ import { watchDebounced } from "@vueuse/core"
 import { TestContainer } from "dioc/testing"
 import { cloneDeep } from "lodash-es"
 import superjson from "superjson"
-import { afterAll, beforeEach, describe, expect, it, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
+import { getKernelMode, initKernel } from "@hoppscotch/kernel"
+import { Store } from "~/kernel"
 import { MQTTRequest$, setMQTTRequest } from "~/newstore/MQTTSession"
 import { SSERequest$, setSSERequest } from "~/newstore/SSESession"
 import { SIORequest$, setSIORequest } from "~/newstore/SocketIOSession"
@@ -46,6 +48,7 @@ import {
   performSettingsDataMigrations,
   settingsStore,
 } from "~/newstore/settings"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { GQLTabService } from "~/services/tab/graphql"
 import { RESTTabService } from "~/services/tab/rest"
 import {
@@ -70,9 +73,6 @@ import {
   VUEX_DATA_MOCK,
   WEBSOCKET_REQUEST_MOCK,
 } from "./__mocks__"
-import { SecretEnvironmentService } from "~/services/secret-environment.service"
-import { getKernelMode, initKernel } from "@hoppscotch/kernel"
-import { Store } from "~/kernel"
 
 initKernel(getKernelMode())
 
@@ -208,7 +208,7 @@ describe("PersistenceService", () => {
     await Store.remove(STORE_NAMESPACE, STORE_KEYS.SCHEMA_VERSION)
   })
 
-  afterAll(() => {
+  afterEach(() => {
     // Clear all mocks
     vi.clearAllMocks()
 
@@ -292,14 +292,14 @@ describe("PersistenceService", () => {
 
       it(`shows an error and sets the entry as a backup in localStorage if "${vuexKey}" read from localStorage doesn't match the schema`, async () => {
         // Invalid shape for `vuex`
-        // `postwoman.settings.CURRENT_INTERCEPTOR_ID` -> `string`
+        // `postwoman.settings.CURRENT_KERNEL_INTERCEPTOR_ID` -> should be `string`, not `number`
         const vuexData = {
           ...VUEX_DATA_MOCK,
           postwoman: {
             ...VUEX_DATA_MOCK.postwoman,
             settings: {
               ...VUEX_DATA_MOCK.postwoman.settings,
-              CURRENT_INTERCEPTOR_ID: 1234,
+              CURRENT_KERNEL_INTERCEPTOR_ID: 1234,
             },
           },
         }
@@ -954,10 +954,10 @@ describe("PersistenceService", () => {
         // Invalid shape for `environments`
         const environments = [
           // `entries` -> `variables`
+          // no name for the environment
           {
             v: 1,
             id: "ENV_1",
-            name: "Test",
             entries: [{ key: "test-key", value: "test-value", secret: false }],
           },
         ]

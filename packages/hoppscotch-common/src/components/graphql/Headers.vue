@@ -59,6 +59,10 @@
       ghost-class="cursor-move"
       chosen-class="bg-primaryLight"
       drag-class="cursor-grabbing"
+      :move="
+        (event: DragDropEvent) =>
+          isDragDropAllowed(event, workingHeaders.length)
+      "
     >
       <template #item="{ element: header, index }">
         <HttpKeyValue
@@ -143,7 +147,7 @@
     </draggable>
 
     <draggable
-      v-model="inheritedProperties"
+      v-model="inheritedProperty"
       item-key="id"
       animation="250"
       handle=".draggable-handle"
@@ -253,6 +257,7 @@ import { throwError } from "~/helpers/functional/error"
 import { objRemoveKey } from "~/helpers/functional/object"
 import { commonHeaders } from "~/helpers/headers"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { isDragDropAllowed, DragDropEvent } from "~/helpers/dragDropValidation"
 import { toggleNestedSetting } from "~/newstore/settings"
 import IconArrowUpRight from "~icons/lucide/arrow-up-right"
 import IconEdit from "~icons/lucide/edit"
@@ -533,9 +538,7 @@ const getComputedAuthHeaders = async (
   if (req && req.headers.find((h) => h.key.toLowerCase() === "authorization"))
     return []
 
-  if (!request) return []
-
-  if (!request.auth || !request.auth.authActive) return []
+  if (!request || !request.auth || !request.auth.authActive) return []
 
   const headers: GQLHeader[] = []
 
@@ -627,75 +630,61 @@ const computedHeaders = computedAsync(async () =>
   }))
 )
 
-const inheritedProperties = computedAsync(async () => {
-  if (!props.inheritedProperties?.auth || !props.inheritedProperties.headers)
-    return []
-
-  //filter out headers that are already in the request headers
-
-  const inheritedHeaders = props.inheritedProperties.headers.filter(
-    (header) =>
-      !request.value.headers.some(
-        (requestHeader) => requestHeader.key === header.inheritedHeader?.key
-      )
-  )
-
-  const headers = inheritedHeaders
-    .filter(
-      (header) =>
-        header.inheritedHeader !== null &&
-        header.inheritedHeader !== undefined &&
-        header.inheritedHeader.active
-    )
-    .map((header, index) => {
-      const { key, value, active, description } = header.inheritedHeader
-
-      return {
-        inheritedFrom: props.inheritedProperties?.headers[index].parentName,
-        source: "headers",
-        id: `header-${index}`,
-        header: {
-          key,
-          value,
-          active,
-          description,
-        },
-      }
-    })
-
-  let auth = [] as {
+const inheritedProperty = ref<
+  {
     inheritedFrom: string
-    source: "auth"
+    source: "auth" | "headers"
     id: string
-    header: {
-      key: string
-      value: string
-      active: boolean
-    }
+    header: GQLHeader
   }[]
+>([])
 
-  const [computedAuthHeader] = await getComputedAuthHeaders(
-    request.value,
-    props.inheritedProperties.auth.inheritedAuth as HoppGQLAuth
-  )
+watch(
+  () => [props.inheritedProperties, request.value],
+  async () => {
+    if (!props.inheritedProperties) return
 
-  if (
-    computedAuthHeader &&
-    request.value.auth.authType === "inherit" &&
-    request.value.auth.authActive
-  ) {
-    auth = [
-      {
-        inheritedFrom: props.inheritedProperties?.auth.parentName,
-        source: "auth",
-        id: `header-auth`,
-        header: computedAuthHeader,
-      },
-    ]
-  }
+    //filter out headers that are already in the request headers
+    const inheritedHeaders = props.inheritedProperties.headers.filter(
+      (header) =>
+        !request.value.headers.some(
+          (requestHeader) =>
+            requestHeader.key === header.inheritedHeader?.key &&
+            requestHeader.active
+        )
+    )
+    inheritedProperty.value = inheritedHeaders.map((header, index) => ({
+      inheritedFrom: props.inheritedProperties!.headers[index].parentName!,
+      source: "headers",
+      id: `header-${index}`,
+      header: header.inheritedHeader,
+    }))
 
-  return [...headers, ...auth]
-})
+    if (
+      props.inheritedProperties.auth &&
+      request.value.auth.authType === "inherit" &&
+      request.value.auth.authActive &&
+      !request.value.headers.some(
+        (requestHeader) =>
+          requestHeader.key === "Authorization" && requestHeader.active
+      )
+    ) {
+      const [computedAuthHeader] = await getComputedAuthHeaders(
+        request.value,
+        props.inheritedProperties.auth.inheritedAuth as HoppGQLAuth
+      )
+      if (computedAuthHeader) {
+        inheritedProperty.value.push({
+          inheritedFrom: props.inheritedProperties.auth.parentName,
+          source: "auth",
+          id: `header-auth`,
+          header: computedAuthHeader,
+        })
+      }
+    }
+  },
+  { immediate: true, deep: true }
+)
 
 const masking = ref(true)
 

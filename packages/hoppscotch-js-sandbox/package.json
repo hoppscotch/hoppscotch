@@ -24,12 +24,11 @@
   },
   "types": "./index.d.ts",
   "engines": {
-    "node": ">=14",
-    "pnpm": ">=3"
+    "node": ">=22"
   },
   "scripts": {
-    "lint": "eslint --ext .ts,.js --ignore-path .gitignore .",
-    "lintfix": "eslint --fix --ext .ts,.js --ignore-path .gitignore .",
+    "lint": "eslint .",
+    "lintfix": "eslint --fix .",
     "test": "vitest run",
     "build": "vite build && tsc --emitDeclarationOnly",
     "clean": "pnpm tsc --build --clean",
@@ -53,29 +52,35 @@
   "dependencies": {
     "@hoppscotch/data": "workspace:^",
     "@types/lodash-es": "4.17.12",
-    "fp-ts": "2.16.9",
-    "lodash": "4.17.21",
-    "lodash-es": "4.17.21"
+    "chai": "6.2.2",
+    "faraday-cage": "0.1.0",
+    "fp-ts": "2.16.11",
+    "lodash": "4.17.23",
+    "lodash-es": "4.17.23"
   },
   "devDependencies": {
     "@digitak/esrun": "3.2.26",
+    "@eslint/eslintrc": "3.3.3",
+    "@eslint/js": "9.39.2",
     "@relmify/jest-fp-ts": "2.1.1",
-    "@types/jest": "29.5.13",
-    "@types/lodash": "4.17.10",
-    "@types/node": "22.7.5",
-    "@typescript-eslint/eslint-plugin": "8.9.0",
-    "@typescript-eslint/parser": "8.9.0",
-    "eslint": "8.57.0",
-    "eslint-config-prettier": "9.1.0",
-    "eslint-plugin-prettier": "5.2.1",
-    "io-ts": "2.2.21",
-    "prettier": "3.3.3",
-    "typescript": "5.5.4",
-    "vite": "5.4.9",
-    "vitest": "2.1.3"
+    "@types/chai": "5.2.3",
+    "@types/jest": "30.0.0",
+    "@types/lodash": "4.17.23",
+    "@types/node": "24.10.1",
+    "@typescript-eslint/eslint-plugin": "8.56.0",
+    "@typescript-eslint/parser": "8.56.0",
+    "eslint": "9.39.2",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-prettier": "5.5.5",
+    "globals": "16.5.0",
+    "io-ts": "2.2.22",
+    "prettier": "3.8.1",
+    "typescript": "5.9.3",
+    "vite": "7.3.1",
+    "vitest": "4.0.18"
   },
   "peerDependencies": {
-    "isolated-vm": "5.0.1"
+    "isolated-vm": "6.0.2"
   },
   "peerDependenciesMeta": {
     "isolated-vm": {

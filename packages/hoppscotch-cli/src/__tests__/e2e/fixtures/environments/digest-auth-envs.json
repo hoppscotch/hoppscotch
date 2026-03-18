@@ -1,21 +1,25 @@
 {
-  "v": 1,
+  "v": 2,
   "id": "cm0dsn3v70004p4qk3l9b7sjm",
   "name": "Digest Auth - environments",
   "variables": [
     {
       "key": "username",
-      "value": "admin",
+      "currentValue": "",
+      "initialValue": "admin",
       "secret": true
     },
     {
       "key": "password",
-      "value": "admin",
+      "currentValue": "",
+      "initialValue": "admin",
       "secret": true
     },
     {
       "key": "url",
-      "value": "https://test.insightres.org/digest/"
+      "currentValue": "",
+      "initialValue": "https://test.insightres.org/digest/",
+      "secret": false
     }
   ]
 }

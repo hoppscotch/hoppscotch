@@ -22,12 +22,23 @@ export const hoppEnvImporter = (contents: string[]) => {
       return unwrappedContent.map((contentEntry) => {
         return {
           ...contentEntry,
-          variables: contentEntry.variables?.map((valueEntry) => ({
-            ...valueEntry,
-            ...("value" in valueEntry
-              ? { value: String(valueEntry.value) }
-              : {}),
-          })),
+          variables: contentEntry.variables?.map((valueEntry) => {
+            if ("value" in valueEntry) {
+              return {
+                ...valueEntry,
+                value: String(valueEntry.value),
+              }
+            }
+
+            if ("initialValue" in valueEntry) {
+              return {
+                ...valueEntry,
+                initialValue: String(valueEntry.initialValue),
+              }
+            }
+
+            return valueEntry
+          }),
         }
       })
     }

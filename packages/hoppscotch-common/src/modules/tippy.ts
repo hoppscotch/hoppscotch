@@ -6,6 +6,14 @@ import "tippy.js/animations/scale-subtle.css"
 import "tippy.js/dist/border.css"
 import "tippy.js/dist/svg-arrow.css"
 
+export type TippyState = {
+  isEnabled: boolean
+  isVisible: boolean
+  isDestroyed: boolean
+  isMounted: boolean
+  isShown: boolean
+}
+
 export default <HoppModule>{
   onVueAppInit(app) {
     app.use(VueTippy)

@@ -94,6 +94,7 @@
 import {
   GQLHeader,
   HoppCollection,
+  HoppCollectionVariable,
   HoppGQLAuth,
   HoppGQLRequest,
   HoppRESTAuth,
@@ -261,11 +262,13 @@ const convertToInheritedProperties = (
 ): {
   auth: HoppRESTAuth | HoppGQLAuth
   headers: Array<HoppRESTHeader | GQLHeader>
+  variables: HoppCollectionVariable[]
 } => {
   const collectionLevelAuthAndHeaders = data
     ? (JSON.parse(data) as {
         auth: HoppRESTAuth | HoppGQLAuth
         headers: Array<HoppRESTHeader | GQLHeader>
+        variables: HoppCollectionVariable[]
       })
     : null
 
@@ -276,9 +279,12 @@ const convertToInheritedProperties = (
     authActive: true,
   }
 
+  const variables = collectionLevelAuthAndHeaders?.variables ?? []
+
   return {
     auth,
     headers,
+    variables,
   }
 }
 

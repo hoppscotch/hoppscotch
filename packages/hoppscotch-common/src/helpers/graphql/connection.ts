@@ -38,7 +38,7 @@ type ConnectionRequestOptions = {
   url: string
   request: HoppGQLRequest
   inheritedHeaders: HoppGQLRequest["headers"]
-  inheritedAuth: HoppGQLAuth
+  inheritedAuth?: HoppGQLAuth
 }
 
 type RunQueryOptions = {
@@ -46,7 +46,7 @@ type RunQueryOptions = {
   url: string
   request: HoppGQLRequest
   inheritedHeaders: HoppGQLRequest["headers"]
-  inheritedAuth: HoppGQLAuth
+  inheritedAuth?: HoppGQLAuth
   query: string
   variables: string
   operationName: string | undefined
@@ -61,6 +61,15 @@ export type GQLResponseEvent =
       operationType: OperationType
       data: string
       rawQuery?: RunQueryOptions
+      document?: {
+        type: string
+        statusCode: number
+        statusText: string
+        meta: {
+          responseSize: number
+          responseDuration: number
+        }
+      }
     }
   | {
       type: "error"
@@ -391,14 +400,23 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
     .filter((item) => item.active && item.key !== "")
     .forEach(({ key, value }) => (finalHeaders[key] = value))
 
+  const finalHoppHeaders: HoppRESTHeaders = Object.entries(finalHeaders).map(
+    ([key, value]) => ({
+      active: true,
+      key,
+      value,
+      description: "",
+    })
+  )
+
   const gqlRequest: HoppGQLRequest = {
-    v: 8,
+    v: 9,
     name: options.name || "Untitled Request",
     url: finalUrl,
-    headers: request.headers,
+    headers: finalHoppHeaders,
     query,
     variables,
-    auth: request.auth as HoppGQLAuth,
+    auth: auth ?? request.auth,
   }
 
   if (operationType === "subscription") {
@@ -456,7 +474,21 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
       throw new Error(parsedResponse.error.message)
     }
 
-    gqlMessageEvent.value = parsedResponse
+    const timeStart = Date.now()
+    const timeEnd = Date.now()
+
+    gqlMessageEvent.value = {
+      ...parsedResponse,
+      document: {
+        type: "success",
+        statusCode: relayResponse.status,
+        statusText: relayResponse.statusText,
+        meta: {
+          responseSize: relayResponse.body.body.byteLength,
+          responseDuration: timeEnd - timeStart,
+        },
+      },
+    }
 
     addQueryToHistory(options, parsedResponse.data)
 

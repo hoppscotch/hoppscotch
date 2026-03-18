@@ -1,0 +1,3 @@
+subscription TeamChildCollectionSorted($teamID: ID!) {
+  teamChildCollectionsSorted(teamID: $teamID)
+}

@@ -35,6 +35,13 @@ type UseQueryOptions<T = any, V = object> = {
   updateSubs?: MaybeRef<GraphQLRequest<any, object>[]>
   defer?: boolean
   pollDuration?: number | undefined
+
+  /**
+   * Determines the behavior of the loading state during polling.
+   * If true, the loading state toggles each time the poller runs;
+   * if false, it is set to true only once when the poller starts.
+   */
+  pollLoadingEnabled?: boolean
 }
 
 export const useGQLQuery = <
@@ -57,6 +64,8 @@ export const useGQLQuery = <
   const isPaused: Ref<boolean> = ref(args.defer ?? false)
 
   const pollDuration: Ref<number | null> = ref(args.pollDuration ?? null)
+
+  const pollLoadingEnabled: Ref<boolean> = ref(args.pollLoadingEnabled ?? true)
 
   const request: Ref<GraphQLRequest<DocType, DocVarType>> = ref(
     createRequest<DocType, DocVarType>(
@@ -101,6 +110,10 @@ export const useGQLQuery = <
   )
 
   const rerunQuery = () => {
+    if (pollLoadingEnabled.value) {
+      loading.value = true
+    }
+
     source.value = !isPaused.value
       ? client.value?.executeQuery<DocType, DocVarType>(request.value, {
           requestPolicy: "network-only",
@@ -122,7 +135,9 @@ export const useGQLQuery = <
 
   watchSyncEffect((onInvalidate) => {
     if (source.value) {
-      loading.value = true
+      if (pollLoadingEnabled.value) {
+        loading.value = true
+      }
       isStale.value = false
 
       const invalidateStops = args.updateSubs!.map((sub) => {

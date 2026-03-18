@@ -54,7 +54,6 @@ export type SettingsDef = {
     multipartFormdata: boolean
   }
 
-  CURRENT_INTERCEPTOR_ID: string
   CURRENT_KERNEL_INTERCEPTOR_ID: string
 
   URL_EXCLUDES: {
@@ -82,6 +81,10 @@ export type SettingsDef = {
     | "PascalCase"
     | "CUSTOM"
   CUSTOM_NAMING_STYLE: string
+
+  EXPERIMENTAL_SCRIPTING_SANDBOX: boolean
+  ENABLE_EXPERIMENTAL_MOCK_SERVERS: boolean
+  ENABLE_EXPERIMENTAL_DOCUMENTATION: boolean
 }
 
 let defaultProxyURL = DEFAULT_HOPP_PROXY_URL
@@ -117,7 +120,6 @@ export const getDefaultSettings = (): SettingsDef => {
     },
 
     // Set empty because interceptor module will set the default value
-    CURRENT_INTERCEPTOR_ID: "",
     CURRENT_KERNEL_INTERCEPTOR_ID: "",
 
     // TODO: Interceptor related settings should move under the interceptor systems
@@ -142,6 +144,10 @@ export const getDefaultSettings = (): SettingsDef => {
     ENABLE_AI_EXPERIMENTS: true,
     AI_REQUEST_NAMING_STYLE: "DESCRIPTIVE_WITH_SPACES",
     CUSTOM_NAMING_STYLE: "",
+
+    EXPERIMENTAL_SCRIPTING_SANDBOX: true,
+    ENABLE_EXPERIMENTAL_MOCK_SERVERS: true,
+    ENABLE_EXPERIMENTAL_DOCUMENTATION: true,
   }
 }
 
@@ -281,8 +287,8 @@ export function applySetting<K extends keyof SettingsDef>(
 ) {
   settingsStore.dispatch({
     dispatcher: "applySetting",
+    // @ts-expect-error TS is not able to understand the type semantics here
     payload: {
-      // @ts-expect-error TS is not able to understand the type semantics here
       settingKey,
       value,
     },
@@ -309,17 +315,20 @@ export function performSettingsDataMigrations(data: any): SettingsDef {
   const source = cloneDeep(data)
 
   if (source["EXTENSIONS_ENABLED"]) {
-    const result = JSON.parse(source["EXTENSIONS_ENABLED"])
-
-    if (result) source["CURRENT_INTERCEPTOR_ID"] = "extension"
     delete source["EXTENSIONS_ENABLED"]
   }
 
   if (source["PROXY_ENABLED"]) {
-    const result = JSON.parse(source["PROXY_ENABLED"])
-
-    if (result) source["CURRENT_INTERCEPTOR_ID"] = "proxy"
     delete source["PROXY_ENABLED"]
+  }
+
+  // Remove legacy interceptor ID if present,
+  // NOTE: These are not for `kernel` interceptors,
+  // those now don't participate in global settings,
+  // rather each has its own `store.ts` that can be
+  // controlled independently.
+  if (has(source, "CURRENT_INTERCEPTOR_ID")) {
+    delete source["CURRENT_INTERCEPTOR_ID"]
   }
 
   const final = defaultsDeep(source, getDefaultSettings())

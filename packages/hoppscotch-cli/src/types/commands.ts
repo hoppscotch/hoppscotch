@@ -6,6 +6,7 @@ export type TestCmdOptions = {
   reporterJunit?: string;
   iterationCount?: number;
   iterationData?: string;
+  legacySandbox?: boolean;
 };
 
 // Consumed in the collection `file_path_or_id` argument action handler

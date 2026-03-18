@@ -1,249 +1,670 @@
+name: Build Agent Self Host - AIO
 on:
   workflow_dispatch:
     inputs:
       version:
         description: Tag of the version to build
         required: true
-
+      branch:
+        description: Branch to checkout
+        required: true
+        default: "main"
+      release_notes:
+        description: Release notes for the update
+        required: false
+        default: "PLACEHOLDER RELEASE NOTES"
+      build_macos_x64:
+        description: Build for macOS x64
+        type: boolean
+        required: false
+        default: true
+      build_macos_arm64:
+        description: Build for macOS ARM64
+        type: boolean
+        required: false
+        default: true
+      build_linux_deb:
+        description: Build Linux DEB package
+        type: boolean
+        required: false
+        default: true
+      build_linux_appimage:
+        description: Build Linux AppImage
+        type: boolean
+        required: false
+        default: true
+      build_windows_installer:
+        description: Build Windows MSI installer
+        type: boolean
+        required: false
+        default: true
+      build_windows_portable:
+        description: Build Windows portable executable
+        type: boolean
+        required: false
+        default: true
 env:
   CARGO_TERM_COLOR: always
-
 jobs:
-  build:
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [macos-latest, ubuntu-22.04, windows-latest]
-
-    runs-on: ${{ matrix.platform }}
+  build-macos-x86_64:
+    name: Build MacOS x86_64 (.dmg)
+    runs-on: macos-latest
+    if: ${{ inputs.build_macos_x64 }}
     defaults:
       run:
         shell: bash
-
+    timeout-minutes: 60
     steps:
-    - name: Checkout hoppscotch/hoppscotch
-      uses: actions/checkout@v3
-      with:
-        repository: hoppscotch/hoppscotch
-        ref: main
-        token: ${{ secrets.CHECKOUT_GITHUB_TOKEN }}
+      - name: Checkout hoppscotch/hoppscotch
+        uses: actions/checkout@v3
+        with:
+          repository: hoppscotch/hoppscotch
+          ref: ${{ inputs.branch }}
+          token: ${{ secrets.HOPPSCOTCH_GITHUB_CHECKOUT_TOKEN }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.15.0
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - name: Install Rust target
+        timeout-minutes: 5
+        run: rustup target add x86_64-apple-darwin
+      - name: Install additional tools
+        timeout-minutes: 5
+        run: |
+          mkdir __dist/
+          cd __dist/
+          curl -LO "https://github.com/tauri-apps/tauri/releases/download/tauri-cli-v2.0.1/cargo-tauri-x86_64-apple-darwin.zip"
+          unzip cargo-tauri-x86_64-apple-darwin.zip
+          chmod +x cargo-tauri
+          sudo mv cargo-tauri /usr/local/bin/tauri
+      - name: Import Code-Signing Certificates
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.HOPPSCOTCH_APPLE_CERTIFICATE }}
+          p12-password: ${{ secrets.HOPPSCOTCH_APPLE_CERTIFICATE_PASSWORD }}
+          keychain-password: ${{ secrets.KEYCHAIN_PASSWORD }}
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-x86-${{ hashFiles('**/Cargo.lock') }}
+      - name: Install dependencies
+        timeout-minutes: 15
+        run: |
+          cd packages/hoppscotch-agent
+          pnpm install --filter hoppscotch-agent
+      - name: Build Tauri app
+        timeout-minutes: 30
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.AGENT_TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.AGENT_TAURI_SIGNING_PASSWORD }}
+          APPLE_ID: ${{ secrets.HOPPSCOTCH_APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.HOPPSCOTCH_APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.HOPPSCOTCH_APPLE_TEAM_ID }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.HOPPSCOTCH_APPLE_SIGNING_IDENTITY }}
+        run: |
+          cd packages/hoppscotch-agent
+          echo "Starting x86_64 build..."
+          pnpm tauri build --verbose --target x86_64-apple-darwin
+          echo "Build completed"
+      - name: Prepare artifacts
+        run: |
+          mkdir -p artifacts/{sigs,updaters,shas}
+          mv packages/hoppscotch-agent/src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/*_x64.dmg artifacts/Hoppscotch_Agent_mac_x64.dmg
+          mv packages/hoppscotch-agent/src-tauri/target/x86_64-apple-darwin/release/bundle/macos/*.app.tar.gz artifacts/updaters/Hoppscotch_Agent_mac_update_x64.tar.gz
+          mv packages/hoppscotch-agent/src-tauri/target/x86_64-apple-darwin/release/bundle/macos/*.app.tar.gz.sig artifacts/sigs/Hoppscotch_Agent_mac_update_x64.tar.gz.sig
+      - name: Generate checksums
+        timeout-minutes: 2
+        run: |
+          cd artifacts
+          for file in *; do
+            if [ -f "$file" ]; then
+              shasum -a 256 "$file" > "shas/${file}.sha256"
+            fi
+          done
+          cd updaters
+          for file in *; do
+            if [ -f "$file" ]; then
+              shasum -a 256 "$file" > "../shas/${file}.sha256"
+            fi
+          done
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Hoppscotch_Agent-macos-x86_64
+          path: artifacts/*
+  build-macos-aarch64:
+    name: Build MacOS ARM64 (.dmg)
+    runs-on: macos-latest
+    if: ${{ inputs.build_macos_arm64 }}
+    defaults:
+      run:
+        shell: bash
+    timeout-minutes: 60
+    steps:
+      - name: Checkout hoppscotch/hoppscotch
+        uses: actions/checkout@v3
+        with:
+          repository: hoppscotch/hoppscotch
+          ref: ${{ inputs.branch }}
+          token: ${{ secrets.HOPPSCOTCH_GITHUB_CHECKOUT_TOKEN }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.15.0
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - name: Install Rust target
+        timeout-minutes: 5
+        run: rustup target add aarch64-apple-darwin
+      - name: Install additional tools
+        timeout-minutes: 5
+        run: |
+          mkdir __dist/
+          cd __dist/
+          curl -LO "https://github.com/tauri-apps/tauri/releases/download/tauri-cli-v2.0.1/cargo-tauri-aarch64-apple-darwin.zip"
+          unzip cargo-tauri-aarch64-apple-darwin.zip
+          chmod +x cargo-tauri
+          sudo mv cargo-tauri /usr/local/bin/tauri
+      - name: Import Code-Signing Certificates
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.HOPPSCOTCH_APPLE_CERTIFICATE }}
+          p12-password: ${{ secrets.HOPPSCOTCH_APPLE_CERTIFICATE_PASSWORD }}
+          keychain-password: ${{ secrets.KEYCHAIN_PASSWORD }}
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-arm-${{ hashFiles('**/Cargo.lock') }}
+      - name: Install dependencies
+        timeout-minutes: 15
+        run: |
+          cd packages/hoppscotch-agent
+          pnpm install --filter hoppscotch-agent
+      - name: Build Tauri app
+        timeout-minutes: 30
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.AGENT_TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.AGENT_TAURI_SIGNING_PASSWORD }}
+          APPLE_ID: ${{ secrets.HOPPSCOTCH_APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.HOPPSCOTCH_APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.HOPPSCOTCH_APPLE_TEAM_ID }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.HOPPSCOTCH_APPLE_SIGNING_IDENTITY }}
+        run: |
+          cd packages/hoppscotch-agent
+          echo "Starting ARM64 build..."
+          pnpm tauri build --verbose --target aarch64-apple-darwin
+          echo "Build completed"
+      - name: Prepare artifacts
+        run: |
+          mkdir -p artifacts/{sigs,updaters,shas}
+          mv packages/hoppscotch-agent/src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*_aarch64.dmg artifacts/Hoppscotch_Agent_mac_aarch64.dmg
+          mv packages/hoppscotch-agent/src-tauri/target/aarch64-apple-darwin/release/bundle/macos/*.app.tar.gz artifacts/updaters/Hoppscotch_Agent_mac_update_aarch64.tar.gz
+          mv packages/hoppscotch-agent/src-tauri/target/aarch64-apple-darwin/release/bundle/macos/*.app.tar.gz.sig artifacts/sigs/Hoppscotch_Agent_mac_update_aarch64.tar.gz.sig
+      - name: Generate checksums
+        timeout-minutes: 2
+        run: |
+          cd artifacts
+          for file in *; do
+            if [ -f "$file" ]; then
+              shasum -a 256 "$file" > "shas/${file}.sha256"
+            fi
+          done
+          cd updaters
+          for file in *; do
+            if [ -f "$file" ]; then
+              shasum -a 256 "$file" > "../shas/${file}.sha256"
+            fi
+          done
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Hoppscotch_Agent-macos-arm64
+          path: artifacts/*
+  build-linux-deb:
+    name: Build Linux x86_64 (.deb)
+    runs-on: ubuntu-22.04
+    if: ${{ inputs.build_linux_deb }}
+    defaults:
+      run:
+        shell: bash
+    timeout-minutes: 60
+    steps:
+      - name: Checkout hoppscotch/hoppscotch
+        uses: actions/checkout@v3
+        with:
+          repository: hoppscotch/hoppscotch
+          ref: ${{ inputs.branch }}
+          token: ${{ secrets.HOPPSCOTCH_GITHUB_CHECKOUT_TOKEN }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.15.0
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - name: Install system dependencies
+        timeout-minutes: 5
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev \
+              build-essential \
+              curl \
+              wget \
+              file \
+              libxdo-dev \
+              libssl-dev \
+              libayatana-appindicator3-dev \
+              librsvg2-dev
+      - name: Install additional tools
+        timeout-minutes: 5
+        run: |
+          curl -LO "https://github.com/tauri-apps/tauri/releases/download/tauri-cli-v2.0.1/cargo-tauri-x86_64-unknown-linux-gnu.tgz"
+          tar -xzf cargo-tauri-x86_64-unknown-linux-gnu.tgz
+          chmod +x cargo-tauri
+          sudo mv cargo-tauri /usr/local/bin/tauri
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: 20
+          curl -LO "https://github.com/thedodd/trunk/releases/download/v0.17.5/trunk-x86_64-unknown-linux-gnu.tar.gz"
+          tar -xzf trunk-x86_64-unknown-linux-gnu.tar.gz
+          chmod +x trunk
+          sudo mv trunk /usr/local/bin/
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Install dependencies
+        timeout-minutes: 15
+        run: |
+          cd packages/hoppscotch-agent
+          pnpm install --filter hoppscotch-agent
+      - name: Build Tauri app
+        timeout-minutes: 30
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+        run: |
+          cd packages/hoppscotch-agent
+          pnpm tauri build --verbose -b deb -b updater
+      - name: Prepare artifacts
+        run: |
+          mkdir -p artifacts/{sigs,shas}
+          mv packages/hoppscotch-agent/src-tauri/target/release/bundle/deb/*.deb artifacts/Hoppscotch_Agent_linux_x64.deb
+      - name: Generate checksums
+        run: |
+          cd artifacts
+          for file in *; do
+            if [ -f "$file" ]; then
+              sha256sum "$file" > "shas/${file}.sha256"
+            fi
+          done
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Hoppscotch_Agent-linux-deb
+          path: artifacts/*
+  build-linux-appimage:
+    name: Build Linux x86_64 (.AppImage)
+    runs-on: ubuntu-22.04
+    if: ${{ inputs.build_linux_appimage }}
+    defaults:
+      run:
+        shell: bash
+    timeout-minutes: 60
+    steps:
+      - name: Checkout hoppscotch/hoppscotch
+        uses: actions/checkout@v3
+        with:
+          repository: hoppscotch/hoppscotch
+          ref: ${{ inputs.branch }}
+          token: ${{ secrets.HOPPSCOTCH_GITHUB_CHECKOUT_TOKEN }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.15.0
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - name: Install system dependencies
+        timeout-minutes: 5
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev \
+              build-essential \
+              curl \
+              wget \
+              file \
+              libxdo-dev \
+              libssl-dev \
+              libayatana-appindicator3-dev \
+              librsvg2-dev
+      - name: Install additional tools
+        timeout-minutes: 5
+        run: |
+          curl -LO "https://github.com/tauri-apps/tauri/releases/download/tauri-cli-v2.0.1/cargo-tauri-x86_64-unknown-linux-gnu.tgz"
+          tar -xzf cargo-tauri-x86_64-unknown-linux-gnu.tgz
+          chmod +x cargo-tauri
+          sudo mv cargo-tauri /usr/local/bin/tauri
 
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v2
-      with:
-        version: 9
-
-    - name: Install Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-        override: true
-
-    - name: Install Rust targets (Mac)
-      if: matrix.platform == 'macos-latest'
-      run: |
-        rustup target add aarch64-apple-darwin
-        rustup target add x86_64-apple-darwin
-
-    - name: Install additional tools (Linux)
-      if: matrix.platform == 'ubuntu-22.04'
-      run: |
-        # Install Tauri CLI (binary)
-        curl -LO "https://github.com/tauri-apps/tauri/releases/download/tauri-cli-v2.0.1/cargo-tauri-x86_64-unknown-linux-gnu.tgz"
-        tar -xzf cargo-tauri-x86_64-unknown-linux-gnu.tgz
-        chmod +x cargo-tauri
-        sudo mv cargo-tauri /usr/local/bin/tauri
-
-        # Install Trunk (binary)
-        curl -LO "https://github.com/thedodd/trunk/releases/download/v0.17.5/trunk-x86_64-unknown-linux-gnu.tar.gz"
-        tar -xzf trunk-x86_64-unknown-linux-gnu.tar.gz
-        chmod +x trunk
-        sudo mv trunk /usr/local/bin/
-
-    - name: Install additional tools (Mac)
-      if: matrix.platform == 'macos-latest'
-      run: |
-        # Install Tauri CLI (binary)
-        mkdir __dist/
-        cd __dist/
-        curl -LO "https://github.com/tauri-apps/tauri/releases/download/tauri-cli-v2.0.1/cargo-tauri-aarch64-apple-darwin.zip"
-        unzip cargo-tauri-aarch64-apple-darwin.zip
-        chmod +x cargo-tauri
-        sudo mv cargo-tauri /usr/local/bin/tauri
-
-    - name: Install system dependencies (Ubuntu only)
-      if: matrix.platform == 'ubuntu-22.04'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libwebkit2gtk-4.1-dev \
-            build-essential \
-            curl \
-            wget \
-            file \
-            libxdo-dev \
-            libssl-dev \
-            libayatana-appindicator3-dev \
-            librsvg2-dev
-
-    - name: Setting up Windows Environment and injecting before bundle command (Windows only)
-      if: matrix.platform == 'windows-latest'
-      shell: bash
-      env:
-        WINDOWS_SIGN_COMMAND: trusted-signing-cli -e ${{ secrets.AZURE_ENDPOINT }} -a ${{ secrets.AZURE_CODE_SIGNING_NAME }} -c ${{ secrets.AZURE_CERT_PROFILE_NAME }} %1
-      run: |
-        cd packages/hoppscotch-agent
-        # Inject signing command into main conf.
-        cat './src-tauri/tauri.conf.json' | jq '.bundle .windows += { "signCommand": env.WINDOWS_SIGN_COMMAND}' > './src-tauri/temp.json' && mv './src-tauri/temp.json' './src-tauri/tauri.conf.json'
-        # Inject signing command into portable conf.
-        cat './src-tauri/tauri.portable.conf.json' | jq '.bundle .windows += { "signCommand": env.WINDOWS_SIGN_COMMAND}' > './src-tauri/temp_portable.json' && mv './src-tauri/temp_portable.json' './src-tauri/tauri.portable.conf.json'
-        cargo install trusted-signing-cli@0.3.0
-
-    - name: Set platform-specific variables
-      run: |
-        if [ "${{ matrix.platform }}" = "ubuntu-22.04" ]; then
-          echo "target_arch=$(rustc -Vv | grep host | awk '{print $2}')" >> $GITHUB_ENV
-          echo "target_ext=" >> $GITHUB_ENV
-          echo "target_os_name=linux" >> $GITHUB_ENV
-        elif [ "${{ matrix.platform }}" = "windows-latest" ]; then
-          echo "target_arch=x86_64-pc-windows-msvc" >> $GITHUB_ENV
-          echo "target_ext=.exe" >> $GITHUB_ENV
-          echo "target_os_name=win" >> $GITHUB_ENV
-        elif [ "${{ matrix.platform }}" = "macos-latest" ]; then
-          echo "target_os_name=mac" >> $GITHUB_ENV
-        fi
-
-    - name: Setup macOS code signing
-      if: matrix.platform == 'macos-latest'
-      env:
-        APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-        APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-        APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
-        KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-      run: |
-        echo $APPLE_CERTIFICATE | base64 --decode > certificate.p12
-        security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
-        security default-keychain -s build.keychain
-        security unlock-keychain -p $KEYCHAIN_PASSWORD build.keychain
-        security import certificate.p12 -k build.keychain -P $APPLE_CERTIFICATE_PASSWORD -T /usr/bin/codesign
-        security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
-
-    - name: Cache Rust dependencies
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.cargo/registry
-          ~/.cargo/git
-          target
-        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-    - name: Install dependencies
-      shell: bash
-      run: |
-        cd packages/hoppscotch-agent
-        pnpm install --filter hoppscotch-agent
-
-    - name: Build Tauri app (Linux)
-      if: matrix.platform == 'ubuntu-22.04'
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.AGENT_TAURI_SIGNING_PRIVATE_KEY }}
-        TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.AGENT_TAURI_SIGNING_PASSWORD }}
-      run: |
-        cd packages/hoppscotch-agent
-        pnpm tauri build --verbose -b deb -b appimage -b updater
-
-    - name: Build Tauri app (Mac)
-      if: matrix.platform == 'macos-latest'
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.AGENT_TAURI_SIGNING_PRIVATE_KEY }}
-        TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.AGENT_TAURI_SIGNING_PASSWORD }}
-        APPLE_ID: ${{ secrets.APPLE_ID }}
-        APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-        APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-        APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
-      run: |
-        cd packages/hoppscotch-agent
-        pnpm tauri build --verbose --target x86_64-apple-darwin
-        pnpm tauri build --verbose --target aarch64-apple-darwin
-
-    - name: Build Tauri app (Windows)
-      if: matrix.platform == 'windows-latest'
-      shell: powershell
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.AGENT_TAURI_SIGNING_PRIVATE_KEY }}
-        TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.AGENT_TAURI_SIGNING_PASSWORD }}
-        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-        AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-      run: |
-        cd packages/hoppscotch-agent
-        # Build the portable version first and move it.
-        # This way the next build will regenerate `hoppscotch-agent.exe`.
-        pnpm tauri build --verbose --config src-tauri/tauri.portable.conf.json -- --no-default-features --features portable
-        Rename-Item -Path "src-tauri/target/release/hoppscotch-agent.exe" -NewName "hoppscotch-agent-portable.exe"
-
-        # Build the installer version.
-        pnpm tauri build --verbose -b msi -b updater
-
-    - name: Zip portable executable (Windows)
-      if: matrix.platform == 'windows-latest'
-      shell: powershell
-      run: |
-        Compress-Archive -Path "packages/hoppscotch-agent/src-tauri/target/release/hoppscotch-agent-portable.exe" -DestinationPath "packages/hoppscotch-agent/src-tauri/target/release/Hoppscotch_Agent_win_x64_portable.zip"
-
-    - name: Prepare artifacts
-      shell: bash
-      run: |
-        mkdir artifacts
-        mkdir artifacts/sigs
-        if [ "${{ matrix.platform }}" = "ubuntu-22.04" ]; then
+          curl -LO "https://github.com/thedodd/trunk/releases/download/v0.17.5/trunk-x86_64-unknown-linux-gnu.tar.gz"
+          tar -xzf trunk-x86_64-unknown-linux-gnu.tar.gz
+          chmod +x trunk
+          sudo mv trunk /usr/local/bin/
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Install dependencies
+        timeout-minutes: 15
+        run: |
+          cd packages/hoppscotch-agent
+          pnpm install --filter hoppscotch-agent
+      - name: Build Tauri app
+        timeout-minutes: 30
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+        run: |
+          cd packages/hoppscotch-agent
+          pnpm tauri build --verbose -b appimage -b updater
+      - name: Prepare artifacts
+        run: |
+          mkdir -p artifacts/{sigs,shas}
           mv packages/hoppscotch-agent/src-tauri/target/release/bundle/appimage/*.AppImage artifacts/Hoppscotch_Agent_linux_x64.AppImage
           mv packages/hoppscotch-agent/src-tauri/target/release/bundle/appimage/*.AppImage.sig artifacts/sigs/Hoppscotch_Agent_linux_x64.AppImage.sig
-          mv packages/hoppscotch-agent/src-tauri/target/release/bundle/deb/*.deb artifacts/Hoppscotch_Agent_linux_x64.deb
-        elif [ "${{ matrix.platform }}" = "macos-latest" ]; then
-          mv packages/hoppscotch-agent/src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/*_x64.dmg artifacts/Hoppscotch_Agent_mac_x64.dmg
-          mv packages/hoppscotch-agent/src-tauri/target/x86_64-apple-darwin/release/bundle/macos/*.app.tar.gz artifacts/Hoppscotch_Agent_mac_update_x64.tar.gz
-          mv packages/hoppscotch-agent/src-tauri/target/x86_64-apple-darwin/release/bundle/macos/*.app.tar.gz.sig artifacts/sigs/Hoppscotch_Agent_mac_update_x64.tar.gz.sig
-          mv packages/hoppscotch-agent/src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*_aarch64.dmg artifacts/Hoppscotch_Agent_mac_aarch64.dmg
-          mv packages/hoppscotch-agent/src-tauri/target/aarch64-apple-darwin/release/bundle/macos/*.app.tar.gz artifacts/Hoppscotch_Agent_mac_update_aarch64.tar.gz
-          mv packages/hoppscotch-agent/src-tauri/target/aarch64-apple-darwin/release/bundle/macos/*.app.tar.gz.sig artifacts/sigs/Hoppscotch_Agent_mac_update_aarch64.tar.gz.sig
-        elif [ "${{ matrix.platform }}" = "windows-latest" ]; then
+      - name: Generate checksums
+        run: |
+          cd artifacts
+          for file in *; do
+            if [ -f "$file" ]; then
+              sha256sum "$file" > "shas/${file}.sha256"
+            fi
+          done
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Hoppscotch_Agent-linux-appimage
+          path: artifacts/*
+  build-windows-installer:
+    name: Build Windows x86_64 (.msi)
+    runs-on: windows-latest
+    if: ${{ inputs.build_windows_installer }}
+    defaults:
+      run:
+        shell: bash
+    timeout-minutes: 60
+    steps:
+      - name: Checkout hoppscotch/hoppscotch
+        uses: actions/checkout@v3
+        with:
+          repository: hoppscotch/hoppscotch
+          ref: ${{ inputs.branch }}
+          token: ${{ secrets.HOPPSCOTCH_GITHUB_CHECKOUT_TOKEN }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.15.0
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - name: Download trusted-signing-cli
+        shell: pwsh
+        run: |
+          $ProgressPreference = 'SilentlyContinue'
+          Invoke-WebRequest -Uri "https://github.com/Levminer/trusted-signing-cli/releases/download/0.8.0/trusted-signing-cli.exe" -OutFile "trusted-signing-cli.exe"
+          Move-Item -Path "trusted-signing-cli.exe" -Destination "$env:GITHUB_WORKSPACE\trusted-signing-cli.exe"
+          echo "$env:GITHUB_WORKSPACE" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+      - name: Setting up Windows Environment
+        timeout-minutes: 20
+        shell: bash
+        env:
+          WINDOWS_SIGN_COMMAND: trusted-signing-cli -e ${{ secrets.AZURE_ENDPOINT }} -a ${{ secrets.AZURE_CODE_SIGNING_NAME }} -c ${{ secrets.AZURE_CERT_PROFILE_NAME }} %1
+        run: |
+          cd packages/hoppscotch-agent
+          cat './src-tauri/tauri.conf.json' | jq '.bundle .windows += { "signCommand": env.WINDOWS_SIGN_COMMAND}' > './src-tauri/temp.json' && mv './src-tauri/temp.json' './src-tauri/tauri.conf.json'
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Install dependencies
+        timeout-minutes: 15
+        shell: bash
+        run: |
+          cd packages/hoppscotch-agent
+          pnpm install --filter hoppscotch-agent
+      - name: Build Tauri app
+        timeout-minutes: 30
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.AGENT_TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.AGENT_TAURI_SIGNING_PASSWORD }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        run: |
+          cd packages/hoppscotch-agent
+          pnpm tauri build --verbose -b msi -b updater
+      - name: Prepare artifacts
+        shell: bash
+        run: |
+          mkdir -p artifacts/{sigs,shas}
           mv packages/hoppscotch-agent/src-tauri/target/release/bundle/msi/*_x64_en-US.msi artifacts/Hoppscotch_Agent_win_x64.msi
           mv packages/hoppscotch-agent/src-tauri/target/release/bundle/msi/*_x64_en-US.msi.sig artifacts/sigs/Hoppscotch_Agent_win_x64.msi.sig
+      - name: Generate checksums
+        shell: powershell
+        run: |
+          cd artifacts
+          Get-ChildItem -File | ForEach-Object {
+            $hash = Get-FileHash -Algorithm SHA256 $_.Name
+            $hash.Hash + " " + $_.Name | Out-File -Encoding UTF8 "shas/$($_.Name).sha256"
+          }
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Hoppscotch_Agent-windows-installer
+          path: artifacts/*
+  build-windows-portable:
+    name: Build Windows x86_64 Portable
+    runs-on: windows-latest
+    if: ${{ inputs.build_windows_portable }}
+    defaults:
+      run:
+        shell: bash
+    timeout-minutes: 60
+    steps:
+      - name: Checkout hoppscotch/hoppscotch
+        uses: actions/checkout@v3
+        with:
+          repository: hoppscotch/hoppscotch
+          ref: ${{ inputs.branch }}
+          token: ${{ secrets.HOPPSCOTCH_GITHUB_CHECKOUT_TOKEN }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.15.0
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - name: Download trusted-signing-cli
+        shell: pwsh
+        run: |
+          $ProgressPreference = 'SilentlyContinue'
+          Invoke-WebRequest -Uri "https://github.com/Levminer/trusted-signing-cli/releases/download/0.8.0/trusted-signing-cli.exe" -OutFile "trusted-signing-cli.exe"
+          Move-Item -Path "trusted-signing-cli.exe" -Destination "$env:GITHUB_WORKSPACE\trusted-signing-cli.exe"
+          echo "$env:GITHUB_WORKSPACE" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+      - name: Setting up Windows Environment
+        timeout-minutes: 20
+        shell: bash
+        env:
+          WINDOWS_SIGN_COMMAND: trusted-signing-cli -e ${{ secrets.AZURE_ENDPOINT }} -a ${{ secrets.AZURE_CODE_SIGNING_NAME }} -c ${{ secrets.AZURE_CERT_PROFILE_NAME }} %1
+        run: |
+          cd packages/hoppscotch-agent
+          cat './src-tauri/tauri.portable.conf.json' | jq '.bundle .windows += { "signCommand": env.WINDOWS_SIGN_COMMAND}' > './src-tauri/temp_portable.json' && mv './src-tauri/temp_portable.json' './src-tauri/tauri.portable.conf.json'
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Install dependencies
+        timeout-minutes: 15
+        shell: bash
+        run: |
+          cd packages/hoppscotch-agent
+          pnpm install --filter hoppscotch-agent
+      - name: Build Tauri app
+        timeout-minutes: 30
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.AGENT_TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.AGENT_TAURI_SIGNING_PASSWORD }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        run: |
+          cd packages/hoppscotch-agent
+          pnpm tauri build --verbose --config src-tauri/tauri.portable.conf.json -- --no-default-features --features portable
+      - name: Sign portable executable
+        shell: powershell
+        env:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        run: |
+          cd packages/hoppscotch-agent
+          trusted-signing-cli -e ${{ secrets.AZURE_ENDPOINT }} -a ${{ secrets.AZURE_CODE_SIGNING_NAME }} -c ${{ secrets.AZURE_CERT_PROFILE_NAME }} "src-tauri/target/release/hoppscotch-agent.exe"
+      - name: Zip portable executable
+        shell: powershell
+        run: |
+          Compress-Archive -Path "packages/hoppscotch-agent/src-tauri/target/release/hoppscotch-agent.exe" -DestinationPath "packages/hoppscotch-agent/src-tauri/target/release/Hoppscotch_Agent_win_x64_portable.zip"
+      - name: Prepare artifacts
+        shell: bash
+        run: |
+          mkdir -p artifacts/{sigs,shas}
           mv packages/hoppscotch-agent/src-tauri/target/release/Hoppscotch_Agent_win_x64_portable.zip artifacts/Hoppscotch_Agent_win_x64_portable.zip
-        fi
+      - name: Generate checksums
+        shell: powershell
+        run: |
+          cd artifacts
+          Get-ChildItem -File | ForEach-Object {
+            $hash = Get-FileHash -Algorithm SHA256 $_.Name
+            $hash.Hash + " " + $_.Name | Out-File -Encoding UTF8 "shas/$($_.Name).sha256"
+          }
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Hoppscotch_Agent-windows-portable
+          path: artifacts/*
+  create-update-manifest:
+    name: Create Update Manifest
+    needs: [build-macos-x86_64, build-macos-aarch64, build-linux-deb, build-linux-appimage, build-windows-installer, build-windows-portable]
+    runs-on: ubuntu-latest
+    if: ${{ inputs.build_macos_x64 && inputs.build_macos_arm64 && inputs.build_linux_appimage && inputs.build_windows_installer }}
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: List downloaded artifacts
+        run: find artifacts -type f | sort
+      - name: Create update manifest
+        run: |
+          VERSION="${{ inputs.version }}"
+          CURRENT_DATE=$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
 
-    - name: Generate checksums (Linux)
-      if: matrix.platform == 'ubuntu-22.04'
-      run: |
-        cd artifacts
-        mkdir shas
-        for file in *; do
-          if [ -f "$file" ]; then
-            sha256sum "$file" > "shas/${file}.sha256"
-          fi
-        done
-
-    - name: Generate checksums (Mac)
-      if: matrix.platform == 'macos-latest'
-      run: |
-        cd artifacts
-        mkdir shas
-        for file in *; do
-          if [ -f "$file" ]; then
-            shasum -a 256 "$file" > "shas/${file}.sha256"
-          fi
-        done
-
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: Hoppscotch_Agent-${{ matrix.platform }}
-        path: artifacts/*
+          cat > artifacts/hoppscotch-agent-update.json << EOF
+          {
+            "version": "${VERSION}",
+            "notes": "${{ inputs.release_notes }}",
+            "pub_date": "${CURRENT_DATE}",
+            "platforms": {
+              "darwin-x86_64": {
+                "signature": "$(cat artifacts/Hoppscotch_Agent-macos-x86_64/sigs/Hoppscotch_Agent_mac_update_x64.tar.gz.sig)",
+                "url": "https://github.com/hoppscotch/agent-releases/releases/download/${VERSION}/Hoppscotch_Agent_mac_update_x64.tar.gz"
+              },
+              "darwin-aarch64": {
+                "signature": "$(cat artifacts/Hoppscotch_Agent-macos-arm64/sigs/Hoppscotch_Agent_mac_update_aarch64.tar.gz.sig)",
+                "url": "https://github.com/hoppscotch/agent-releases/releases/download/${VERSION}/Hoppscotch_Agent_mac_update_aarch64.tar.gz"
+              },
+              "linux-x86_64": {
+                "signature": "$(cat artifacts/Hoppscotch_Agent-linux-appimage/sigs/Hoppscotch_Agent_linux_x64.AppImage.sig)",
+                "url": "https://github.com/hoppscotch/agent-releases/releases/download/${VERSION}/Hoppscotch_Agent_linux_x64.AppImage"
+              },
+              "windows-x86_64": {
+                "signature": "$(cat artifacts/Hoppscotch_Agent-windows-installer/sigs/Hoppscotch_Agent_win_x64.msi.sig)",
+                "url": "https://github.com/hoppscotch/agent-releases/releases/download/${VERSION}/Hoppscotch_Agent_win_x64.msi"
+              }
+            }
+          }
+          EOF
+      - name: Upload manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: update-manifest
+          path: artifacts/hoppscotch-agent-update.json

@@ -1,5 +1,5 @@
 import { ArgsType, Field, ID } from '@nestjs/graphql';
-import { TeamMemberRole } from 'src/team/team.model';
+import { TeamAccessRole } from 'src/team/team.model';
 
 @ArgsType()
 export class CreateTeamInvitationArgs {
@@ -12,9 +12,9 @@ export class CreateTeamInvitationArgs {
   @Field({ name: 'inviteeEmail', description: 'Email of the user to invite' })
   inviteeEmail: string;
 
-  @Field(() => TeamMemberRole, {
+  @Field(() => TeamAccessRole, {
     name: 'inviteeRole',
     description: 'Role to be given to the user',
   })
-  inviteeRole: TeamMemberRole;
+  inviteeRole: TeamAccessRole;
 }

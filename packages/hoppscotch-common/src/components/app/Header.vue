@@ -14,32 +14,48 @@
         }"
       >
         <div class="flex">
+          <!-- Unified Switcher (orgs + instances in one dropdown) -->
           <tippy
-            v-if="kernelMode === 'desktop'"
+            v-if="
+              platform.organization?.customOrganizationSwitcherComponent ||
+              platform.instance?.instanceSwitchingEnabled
+            "
             interactive
             trigger="click"
             theme="popover"
-            :on-shown="() => instanceSwitcherRef.focus()"
+            :on-shown="() => switcherRef?.focus()"
+            :on-create="onSwitcherCreate"
           >
-            <div class="flex items-center cursor-pointer">
-              <span
-                class="!font-bold uppercase tracking-wide !text-secondaryDark pr-1"
-              >
-                {{ instanceDisplayName }}
-              </span>
-              <IconChevronDown class="h-4 w-4 text-secondaryDark" />
-            </div>
+            <HoppButtonSecondary
+              class="!font-bold uppercase tracking-wide !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark"
+              :label="t('app.name')"
+              :icon="IconChevronDown"
+              reverse
+            />
             <template #content="{ hide }">
               <div
-                ref="instanceSwitcherRef"
-                class="flex flex-col focus:outline-none min-w-64"
+                ref="switcherRef"
+                class="flex flex-col focus:outline-none min-w-72"
                 tabindex="0"
                 @keyup.escape="hide()"
               >
-                <InstanceSwitcher @close-dropdown="hide()" />
+                <component
+                  :is="
+                    platform.organization.customOrganizationSwitcherComponent
+                  "
+                  v-if="
+                    platform.organization?.customOrganizationSwitcherComponent
+                  "
+                  @close-dropdown="hide()"
+                />
+                <InstanceSwitcher
+                  v-if="platform.instance?.instanceSwitchingEnabled"
+                  @close-dropdown="hide()"
+                />
               </div>
             </template>
           </tippy>
+
           <HoppButtonSecondary
             v-else
             class="!font-bold uppercase tracking-wide !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark"
@@ -59,14 +75,47 @@
         class="col-span-2 flex items-center justify-between space-x-2"
       >
         <div class="flex">
-          <HoppButtonSecondary
-            v-if="showInstallButton"
-            v-tippy="{ theme: 'tooltip' }"
-            :title="t('header.install_pwa')"
-            :icon="IconDownload"
-            class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
-            @click="installPWA()"
-          />
+          <tippy
+            v-if="
+              kernelMode === 'web' &&
+              downloadableLinks &&
+              downloadableLinks.length > 0
+            "
+            interactive
+            trigger="click"
+            theme="popover"
+            :on-shown="() => downloadableLinksRef.focus()"
+          >
+            <HoppButtonSecondary
+              :icon="IconDownload"
+              class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
+            />
+            <template #content="{ hide }">
+              <div
+                ref="downloadableLinksRef"
+                class="flex flex-col focus:outline-none"
+                tabindex="0"
+                @keyup.escape="hide()"
+              >
+                <template v-for="link in downloadableLinks" :key="link.id">
+                  <HoppButtonSecondary
+                    v-if="link.show ?? true"
+                    :icon="link.icon"
+                    :label="link.text(t)"
+                    :blank="true"
+                    class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark justify-between"
+                    :to="
+                      link.action.type === 'link' ? link.action.href : undefined
+                    "
+                    @click="
+                      link.action.type === 'custom' ? link.action.do() : null
+                    "
+                  />
+                </template>
+              </div>
+            </template>
+          </tippy>
+
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip', allowHTML: true }"
             :title="`${
@@ -158,7 +207,7 @@
                   class="!focus-visible:text-blue-600 !hover:text-blue-600 h-8 rounded border border-blue-600/25 bg-blue-500/10 pr-8 !text-blue-500 hover:border-blue-600/20 hover:bg-blue-600/20 focus-visible:border-blue-600/20 focus-visible:bg-blue-600/20"
                 />
               </HoppSmartSelectWrapper>
-              <template #content="{ hide }">
+              <template #content="{ hide, state }">
                 <div
                   ref="accountActions"
                   class="flex flex-col focus:outline-none"
@@ -166,7 +215,7 @@
                   @keyup.escape="hide()"
                   @click="hide()"
                 >
-                  <WorkspaceSelector />
+                  <WorkspaceSelector :state="state" />
                 </div>
               </template>
             </tippy>
@@ -260,13 +309,31 @@
       @dismiss="dismissBanner"
     />
     <TeamsModal :show="showTeamsModal" @hide-modal="showTeamsModal = false" />
-    <TeamsInvite
-      v-if="workspace.type === 'team' && workspace.teamID"
-      :show="showModalInvite"
-      :editing-team-i-d="editingTeamID"
-      @hide-modal="displayModalInvite(false)"
-    />
-    <TeamsEdit
+
+    <template v-if="workspace.type === 'team' && workspace.teamID">
+      <component
+        :is="platform.ui.additionalTeamInviteComponent"
+        v-if="
+          platform.ui?.additionalTeamInviteComponent &&
+          workspace.type === 'team' &&
+          workspace.teamID
+        "
+        :show="showModalInvite"
+        :editing-team-i-d="editingTeamID"
+        @hide-modal="displayModalInvite(false)"
+      />
+
+      <TeamsInvite
+        v-else
+        :show="showModalInvite"
+        :editing-team-i-d="editingTeamID"
+        @hide-modal="displayModalInvite(false)"
+      />
+    </template>
+
+    <component
+      :is="platform.ui.additionalTeamEditComponent"
+      v-if="platform.ui?.additionalTeamEditComponent"
       :show="showModalEdit"
       :editing-team="editingTeamName"
       :editing-team-i-d="editingTeamID"
@@ -274,6 +341,17 @@
       @invite-team="inviteTeam(editingTeamName, editingTeamID)"
       @refetch-teams="refetchTeams"
     />
+
+    <TeamsEdit
+      v-else
+      :show="showModalEdit"
+      :editing-team="editingTeamName"
+      :editing-team-i-d="editingTeamID"
+      @hide-modal="displayModalEdit(false)"
+      @invite-team="inviteTeam(editingTeamName, editingTeamID)"
+      @refetch-teams="refetchTeams"
+    />
+
     <HoppSmartConfirmModal
       :show="confirmRemove"
       :title="t('confirm.remove_team')"
@@ -289,60 +367,52 @@ import { getKernelMode } from "@hoppscotch/kernel"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { defineActionHandler, invokeAction } from "@helpers/actions"
-import { installPWA, pwaDefferedPrompt } from "@modules/pwa"
 import { breakpointsTailwind, useBreakpoints, useNetwork } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
+import type { Instance } from "tippy.js"
 import { computed, onMounted, reactive, ref, watch } from "vue"
+
 import { useToast } from "~/composables/toast"
-import { GetMyTeamsQuery, TeamMemberRole } from "~/helpers/backend/graphql"
+import { GetMyTeamsQuery, TeamAccessRole } from "~/helpers/backend/graphql"
 import { deleteTeam as backendDeleteTeam } from "~/helpers/backend/mutations/Team"
 import { platform } from "~/platform"
+import { AdditionalLinksService } from "~/services/additionalLinks.service"
 import {
   BANNER_PRIORITY_LOW,
   BannerContent,
   BannerService,
 } from "~/services/banner.service"
 import { WorkspaceService } from "~/services/workspace.service"
-import { InstanceSwitcherService } from "~/services/instance-switcher.service"
+import IconChevronDown from "~icons/lucide/chevron-down"
 import IconDownload from "~icons/lucide/download"
+import IconLayoutDashboard from "~icons/lucide/layout-dashboard"
 import IconLifeBuoy from "~icons/lucide/life-buoy"
 import IconSettings from "~icons/lucide/settings"
 import IconUploadCloud from "~icons/lucide/upload-cloud"
 import IconUser from "~icons/lucide/user"
 import IconUserPlus from "~icons/lucide/user-plus"
 import IconUsers from "~icons/lucide/users"
-import IconChevronDown from "~icons/lucide/chevron-down"
-import IconLayoutDashboard from "~icons/lucide/layout-dashboard"
 
 const t = useI18n()
 const toast = useToast()
 const kernelMode = getKernelMode()
-const instanceSwitcherService =
-  kernelMode === "desktop" ? useService(InstanceSwitcherService) : null
-const instanceSwitcherRef =
-  kernelMode === "desktop" ? ref<any | null>(null) : ref(null)
+
+const downloadableLinksRef =
+  kernelMode === "web" ? ref<any | null>(null) : ref(null)
+const switcherRef = ref<HTMLElement | null>(null)
+
+// Reserve scrollbar gutter so content width doesn't shift when the list
+// grows long enough to scroll inside the popover's `max-h-[45vh]` container.
+const onSwitcherCreate = (instance: Instance) => {
+  const content = instance.popper?.querySelector(".tippy-content")
+  if (content instanceof HTMLElement) {
+    content.style.scrollbarGutter = "stable"
+  }
+}
 
 const isUserAdmin = ref(false)
-
-const currentState =
-  kernelMode === "desktop" && instanceSwitcherService
-    ? useReadonlyStream(
-        instanceSwitcherService.getStateStream(),
-        instanceSwitcherService.getCurrentState().value
-      )
-    : ref({
-        status: "disconnected",
-        instance: { displayName: "Hoppscotch" },
-      })
-
-const instanceDisplayName = computed(() => {
-  if (currentState.value.status !== "connected") {
-    return "Hoppscotch"
-  }
-  return currentState.value.instance.displayName
-})
 
 /**
  * Feature flag to enable the workspace selector login conversion
@@ -352,15 +422,7 @@ const workspaceSelectorFlagEnabled = computed(
 )
 
 /**
- * Once the PWA code is initialized, this holds a method
- * that can be called to show the user the installation
- * prompt.
- */
-
-const showInstallButton = computed(() => !!pwaDefferedPrompt.value)
-
-/**
- * Show the dashboard link if the user is not on the default cloud instance and is an admin
+ * Show the dashboard link if the user is not on the default cloud instance and is an Admin
  */
 onMounted(async () => {
   const { organization } = platform
@@ -390,6 +452,24 @@ const offlineBanner: BannerContent = {
   score: BANNER_PRIORITY_LOW,
   dismissible: true,
 }
+
+const additionalLinks = useService(AdditionalLinksService)
+
+platform.additionalLinks?.forEach((linkSet) => {
+  useService(linkSet)
+})
+
+const downloadableLinks = computed(() => {
+  if (kernelMode !== "web") return null
+
+  const headerDownloadableLink = additionalLinks?.getLinkSet(
+    "HEADER_DOWNLOADABLE_LINKS"
+  )
+
+  if (!headerDownloadableLink) return null
+
+  return headerDownloadableLink.getLinks().value
+})
 
 // Show the offline banner if the app is offline
 const network = reactive(useNetwork())
@@ -571,7 +651,7 @@ defineActionHandler(
 )
 
 defineActionHandler("modals.team.delete", ({ teamId }) => {
-  if (selectedTeam.value?.myRole !== TeamMemberRole.Owner) return noPermission()
+  if (selectedTeam.value?.myRole !== TeamAccessRole.Owner) return noPermission()
   teamID.value = teamId
   confirmRemove.value = true
 })

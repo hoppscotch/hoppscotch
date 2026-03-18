@@ -1,7 +1,6 @@
 import { mockDeep, mockReset } from 'jest-mock-extended';
 import { PrismaService } from '../prisma/prisma.service';
 import {
-  INVALID_EMAIL,
   SHORTCODE_INVALID_PROPERTIES_JSON,
   SHORTCODE_INVALID_REQUEST_JSON,
   SHORTCODE_NOT_FOUND,
@@ -11,27 +10,15 @@ import { Shortcode, ShortcodeWithUserEmail } from './shortcode.model';
 import { ShortcodeService } from './shortcode.service';
 import { UserService } from 'src/user/user.service';
 import { AuthUser } from 'src/types/AuthUser';
+import { PubSubService } from 'src/pubsub/pubsub.service';
 
 const mockPrisma = mockDeep<PrismaService>();
+const mockPubSub = mockDeep<PubSubService>();
+const mockUserService = mockDeep<UserService>();
 
-const mockPubSub = {
-  publish: jest.fn().mockResolvedValue(null),
-};
-
-const mockDocFunc = jest.fn();
-
-const mockFB = {
-  firestore: {
-    doc: mockDocFunc,
-  },
-};
-const mockUserService = new UserService(mockPrisma as any, mockPubSub as any);
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 const shortcodeService = new ShortcodeService(
   mockPrisma,
-  mockPubSub as any,
+  mockPubSub,
   mockUserService,
 );
 
@@ -286,7 +273,7 @@ describe('ShortcodeService', () => {
       );
       mockPrisma.shortcode.create.mockResolvedValueOnce(mockShortcode);
 
-      const result = await shortcodeService.createShortcode('{}', null, user);
+      await shortcodeService.createShortcode('{}', null, user);
 
       expect(mockPubSub.publish).toHaveBeenCalledWith(
         `shortcode/${mockShortcode.creatorUid}/created`,
@@ -306,7 +293,7 @@ describe('ShortcodeService', () => {
       );
       mockPrisma.shortcode.create.mockResolvedValueOnce(mockEmbed);
 
-      const result = await shortcodeService.createShortcode('{}', '{}', user);
+      await shortcodeService.createShortcode('{}', '{}', user);
 
       expect(mockPubSub.publish).toHaveBeenCalledWith(
         `shortcode/${mockEmbed.creatorUid}/created`,
@@ -365,7 +352,7 @@ describe('ShortcodeService', () => {
     test('should send pubsub message to `shortcode/{uid}/revoked` on successful deletion of Shortcode', async () => {
       mockPrisma.shortcode.delete.mockResolvedValueOnce(mockEmbed);
 
-      const result = await shortcodeService.revokeShortCode(
+      await shortcodeService.revokeShortCode(
         mockEmbed.id,
         mockEmbed.creatorUid,
       );
@@ -456,7 +443,7 @@ describe('ShortcodeService', () => {
         embedProperties: '{"foo":"bar"}',
       });
 
-      const result = await shortcodeService.updateEmbedProperties(
+      await shortcodeService.updateEmbedProperties(
         mockEmbed.id,
         user.uid,
         '{"foo":"bar"}',

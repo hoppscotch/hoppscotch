@@ -1,0 +1,14 @@
+mutation CreatePublishedDoc($args: CreatePublishedDocsArgs!) {
+  createPublishedDoc(args: $args) {
+    id
+    title
+    version
+    autoSync
+    url
+    environmentName
+    createdOn
+    updatedOn
+    workspaceType
+    workspaceID
+  }
+}

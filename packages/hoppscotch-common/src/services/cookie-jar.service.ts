@@ -1,14 +1,7 @@
 import { Service } from "dioc"
 import { ref } from "vue"
 import { parseString as setCookieParse } from "set-cookie-parser-es"
-
-export type CookieDef = {
-  name: string
-  value: string
-  domain: string
-  path: string
-  expires: string
-}
+import { Cookie } from "@hoppscotch/data"
 
 export class CookieJarService extends Service {
   public static readonly ID = "COOKIE_JAR_SERVICE"
@@ -18,13 +11,13 @@ export class CookieJarService extends Service {
    * The keys correspond to the domain of the cookie.
    * The cookie strings are stored as an array of strings corresponding to the domain
    */
-  public cookieJar = ref(new Map<string, string[]>())
+  public cookieJar = ref(new Map<string, Cookie[]>())
 
   public parseSetCookieString(setCookieString: string) {
     return setCookieParse(setCookieString)
   }
 
-  public bulkApplyCookiesToDomain(cookies: string[], domain: string) {
+  public bulkApplyCookiesToDomain(cookies: Cookie[], domain: string) {
     const existingDomainEntries = this.cookieJar.value.get(domain) ?? []
     existingDomainEntries.push(...cookies)
 
@@ -43,7 +36,7 @@ export class CookieJarService extends Service {
         const cookieStrings = this.cookieJar.value.get(domain)! // We know not nullable from how we filter above
 
         return cookieStrings.map((cookieString) =>
-          this.parseSetCookieString(cookieString)
+          this.parseSetCookieString(cookieString.value)
         )
       })
       .filter((cookie) => {

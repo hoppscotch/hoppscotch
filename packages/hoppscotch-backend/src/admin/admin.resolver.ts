@@ -2,9 +2,7 @@ import {
   Args,
   ID,
   Mutation,
-  Parent,
   Query,
-  ResolveField,
   Resolver,
   Subscription,
 } from '@nestjs/graphql';
@@ -33,7 +31,7 @@ import { UserDeletionResult } from 'src/user/user.model';
 @Resolver(() => Admin)
 export class AdminResolver {
   constructor(
-    private adminService: AdminService,
+    private readonly adminService: AdminService,
     private readonly pubsub: PubSubService,
   ) {}
 

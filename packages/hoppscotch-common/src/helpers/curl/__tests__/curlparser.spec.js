@@ -1033,7 +1033,27 @@ data2: {"type":"test2","typeId":"123"}`,
 describe("Parse curl command to Hopp REST Request", () => {
   for (const [i, { command, response }] of samples.entries()) {
     test(`for sample #${i + 1}:\n\n${command}`, () => {
-      expect(parseCurlToHoppRESTReq(command)).toEqual(response)
+      const actual = parseCurlToHoppRESTReq(command)
+
+      /**
+       * An object possibly carrying an internal reference id.
+       * @typedef {object} RefIdCarrier
+       * @property {unknown} [_ref_id]
+       */
+
+      /**
+       * @template {object} T
+       * @param {T & RefIdCarrier} obj
+       * @returns {Omit<T, "_ref_id">}
+       */
+      const stripRefId = (obj) => {
+        const clone = { ...obj }
+        delete clone._ref_id
+        return clone
+      }
+
+      // Strip off _ref_id added by makeRESTRequest for equality check because it is generated randomly
+      expect(stripRefId(actual)).toEqual(stripRefId(response))
     })
   }
 })

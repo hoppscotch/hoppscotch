@@ -1,5 +1,4 @@
 import { Container } from "dioc"
-import { isEqual } from "lodash-es"
 import { computed } from "vue"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { HoppRESTSaveContext, HoppTabDocument } from "~/helpers/rest/document"
@@ -84,7 +83,13 @@ export class RESTTabService extends TabService<HoppTabDocument> {
         ) {
           return this.getTabRef(tab.id)
         }
-      } else if (isEqual(ctx, tab.document.saveContext)) {
+      } else if (
+        tab.document.saveContext?.originLocation === "user-collection" &&
+        tab.document.saveContext.folderPath === ctx?.folderPath &&
+        tab.document.saveContext.requestIndex === ctx?.requestIndex &&
+        tab.document.saveContext.exampleID === ctx?.exampleID &&
+        tab.document.saveContext.requestRefID === ctx?.requestRefID
+      ) {
         return this.getTabRef(tab.id)
       }
     }

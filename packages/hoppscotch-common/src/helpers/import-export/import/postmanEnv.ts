@@ -1,4 +1,4 @@
-import { Environment } from "@hoppscotch/data"
+import { Environment, EnvironmentSchemaVersion } from "@hoppscotch/data"
 import * as O from "fp-ts/Option"
 import * as TE from "fp-ts/TaskEither"
 import { z } from "zod"
@@ -6,6 +6,7 @@ import { z } from "zod"
 import { safeParseJSON } from "~/helpers/functional/json"
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
 import { uniqueID } from "~/helpers/utils/uniqueID"
+import { replacePMVarTemplating } from "./postman"
 
 const postmanEnvSchema = z.object({
   name: z.string(),
@@ -52,11 +53,12 @@ export const postmanEnvImporter = (contents: string[]) => {
   const environments: Environment[] = validationResult.data.map(
     ({ name, values }) => ({
       id: uniqueID(),
-      v: 1,
+      v: EnvironmentSchemaVersion,
       name,
       variables: values.map(({ key, value, type }) => ({
         key,
-        value,
+        initialValue: replacePMVarTemplating(value),
+        currentValue: replacePMVarTemplating(value),
         secret: type === "secret",
       })),
     })

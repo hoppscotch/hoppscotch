@@ -37,6 +37,7 @@ import { ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { editGraphqlFolder } from "~/newstore/collections"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 
 const t = useI18n()
 const toast = useToast()
@@ -59,11 +60,13 @@ watch(
   }
 )
 
-const editFolder = () => {
+const editFolder = async () => {
   if (!name.value) {
     toast.error(`${t("collection.invalid_name")}`)
     return
   }
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   editGraphqlFolder(props.folderPath, {
     ...(props.folder as any),
     name: name.value,

@@ -118,11 +118,11 @@
                   :shortcut="['D']"
                   @click="
                     () => {
-                      emit('duplicate-collection', {
+                      ;(emit('duplicate-collection', {
                         path: folderPath,
                         collectionSyncID: folder.id,
                       }),
-                        hide()
+                        hide())
                     }
                   "
                 />
@@ -146,8 +146,8 @@
                   @click="
                     () => {
                       emit('edit-properties', {
-                        collectionIndex: collectionIndex,
-                        collection: collection,
+                        collectionIndex: folderPath,
+                        collection: folder,
                       })
                       hide()
                     }
@@ -182,12 +182,7 @@
           @duplicate-collection="emit('duplicate-collection', $event)"
           @edit-request="emit('edit-request', $event)"
           @duplicate-request="emit('duplicate-request', $event)"
-          @edit-properties="
-            emit('edit-properties', {
-              collectionIndex: `${folderPath}/${String(subFolderIndex)}`,
-              collection: subFolder,
-            })
-          "
+          @edit-properties="emit('edit-properties', $event)"
           @select="emit('select', $event)"
           @select-request="$emit('select-request', $event)"
         />
@@ -237,6 +232,7 @@ import { useToast } from "@composables/toast"
 import { HoppCollection } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 import { computed, ref } from "vue"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 import { Picked } from "~/helpers/types/HoppPicked"
 import { removeGraphqlFolder } from "~/newstore/collections"
 import { GQLTabService } from "~/services/tab/graphql"
@@ -322,7 +318,9 @@ const toggleShowChildren = () => {
   showChildren.value = !showChildren.value
 }
 
-const removeFolder = () => {
+const removeFolder = async () => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   // Cancel pick if the picked folder is deleted
   if (
     props.picked?.pickedType === "gql-my-folder" &&

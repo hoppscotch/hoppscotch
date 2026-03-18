@@ -61,6 +61,12 @@
           </div>
         </div>
       </HoppSmartTab>
+
+      <HoppSmartTab id="token" :label="t('configs.auth_providers.token.title')">
+        <div class="pb-8 px-4">
+          <SettingsAuthToken v-model:config="workingConfigs" />
+        </div>
+      </HoppSmartTab>
     </HoppSmartTabs>
   </div>
 </template>
@@ -82,7 +88,7 @@ const emit = defineEmits<{
 }>();
 
 // Auth Sub Tabs
-type AuthSubTabs = 'auth-providers' | 'email-auth';
+type AuthSubTabs = 'auth-providers' | 'email-auth' | 'token';
 const selectedAuthSubTab = ref<AuthSubTabs>('auth-providers');
 
 const workingConfigs = useVModel(props, 'config', emit);

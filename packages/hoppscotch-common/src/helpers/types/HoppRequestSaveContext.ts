@@ -24,6 +24,10 @@ export type HoppRequestSaveContext =
        * Current request
        */
       req?: HoppRESTRequest
+      /**
+       * Reference ID of the request, if available
+       */
+      requestRefID?: string
     }
   | {
       /**
@@ -46,4 +50,8 @@ export type HoppRequestSaveContext =
        * Current request
        */
       req?: HoppRESTRequest
+      /**
+       * Reference ID of the request, if available
+       */
+      requestRefID?: string
     }

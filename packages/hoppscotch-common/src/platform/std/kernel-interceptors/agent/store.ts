@@ -4,7 +4,7 @@ import * as E from "fp-ts/Either"
 import axios from "axios"
 import { Store } from "~/kernel/store"
 import type { PluginRequest, PluginResponse } from "@hoppscotch/kernel"
-import { x25519 } from "@noble/curves/ed25519"
+import { x25519 } from "@noble/curves/ed25519.js"
 import { base16 } from "@scure/base"
 import {
   InputDomainSetting,
@@ -34,6 +34,9 @@ const defaultDomainConfig: InputDomainSetting = {
     verifyPeer: true,
   },
   proxy: undefined,
+  options: {
+    followRedirects: true,
+  },
 }
 
 export class KernelInterceptorAgentStore extends Service {
@@ -90,18 +93,16 @@ export class KernelInterceptorAgentStore extends Service {
     }
   }
 
-  private setupWatchers() {
-    Store.watch(STORE_NAMESPACE, STORE_KEYS.SETTINGS).on(
-      "change",
-      async ({ value }) => {
-        if (value) {
-          const store = value as StoredData
-          this.domainSettings = new Map(Object.entries(store.domains))
-          this.authKey.value = store.auth.key
-          this.sharedSecretB16.value = store.auth.sharedSecret
-        }
+  private async setupWatchers() {
+    const watcher = await Store.watch(STORE_NAMESPACE, STORE_KEYS.SETTINGS)
+    watcher.on("change", async ({ value }: { value: unknown }) => {
+      if (value) {
+        const store = value as StoredData
+        this.domainSettings = new Map(Object.entries(store.domains))
+        this.authKey.value = store.auth.key
+        this.sharedSecretB16.value = store.auth.sharedSecret
       }
-    )
+    })
   }
 
   private async persistStore(): Promise<void> {
@@ -149,6 +150,15 @@ export class KernelInterceptorAgentStore extends Service {
     )
   }
 
+  private mergeOptions(
+    ...settings: (Required<InputDomainSetting>["options"] | undefined)[]
+  ): Required<InputDomainSetting>["options"] | undefined {
+    return settings.reduce(
+      (acc, setting) => (setting ? { ...acc, ...setting } : acc),
+      undefined as Required<InputDomainSetting>["options"] | undefined
+    )
+  }
+
   private getMergedSettings(domain: string): InputDomainSetting {
     const domainSettings = this.domainSettings.get(domain)
     const globalSettings =
@@ -162,13 +172,17 @@ export class KernelInterceptorAgentStore extends Service {
         domainSettings?.security
       ),
       proxy: this.mergeProxy(globalSettings?.proxy, domainSettings?.proxy),
+      options: this.mergeOptions(
+        globalSettings?.options,
+        domainSettings?.options
+      ),
     }
 
     return { version: "v1", ...result }
   }
 
   public completeRequest(
-    request: Omit<PluginRequest, "proxy" | "security">
+    request: Omit<PluginRequest, "proxy" | "security" | "meta">
   ): PluginRequest {
     const host = new URL(request.url).host
     const settings = this.getMergedSettings(host)
@@ -214,7 +228,7 @@ export class KernelInterceptorAgentStore extends Service {
   }
 
   public async verifyRegistration(otp: string): Promise<void> {
-    const myPrivateKey = x25519.utils.randomPrivateKey()
+    const myPrivateKey = crypto.getRandomValues(new Uint8Array(32))
     const myPublicKey = x25519.getPublicKey(myPrivateKey)
     const myPublicKeyB16 = base16.encode(myPublicKey).toLowerCase()
 
@@ -232,7 +246,9 @@ export class KernelInterceptorAgentStore extends Service {
     if (typeof newAuthKey !== "string")
       throw new Error("Invalid auth key received")
 
-    const agentPublicKey = base16.decode(agentPublicKeyB16.toUpperCase())
+    const agentPublicKey = new Uint8Array(
+      base16.decode(agentPublicKeyB16.toUpperCase())
+    )
     const sharedSecret = x25519.getSharedSecret(myPrivateKey, agentPublicKey)
     const sharedSecretB16 = base16.encode(sharedSecret).toLowerCase()
 
@@ -274,13 +290,14 @@ export class KernelInterceptorAgentStore extends Service {
     request: PluginRequest,
     reqID: number
   ): Promise<[string, ArrayBuffer]> {
-    const reqJSON = JSON.stringify({ ...request, id: reqID })
+    const fullRequest = { ...request, id: reqID }
+    const reqJSON = JSON.stringify(fullRequest)
     const reqJSONBytes = new TextEncoder().encode(reqJSON)
     const nonce = window.crypto.getRandomValues(new Uint8Array(12))
     const nonceB16 = base16.encode(nonce).toLowerCase()
 
-    const sharedSecretKeyBytes = base16.decode(
-      this.sharedSecretB16.value!.toUpperCase()
+    const sharedSecretKeyBytes = new Uint8Array(
+      base16.decode(this.sharedSecretB16.value!.toUpperCase())
     )
     const sharedSecretKey = await window.crypto.subtle.importKey(
       "raw",
@@ -303,11 +320,10 @@ export class KernelInterceptorAgentStore extends Service {
     nonceB16: string,
     encryptedResponse: ArrayBuffer
   ): Promise<PluginResponse> {
-    const nonce = base16.decode(nonceB16.toUpperCase())
-    const sharedSecretKeyBytes = base16.decode(
-      this.sharedSecretB16.value!.toUpperCase()
+    const nonce = new Uint8Array(base16.decode(nonceB16.toUpperCase()))
+    const sharedSecretKeyBytes = new Uint8Array(
+      base16.decode(this.sharedSecretB16.value!.toUpperCase())
     )
-
     const sharedSecretKey = await window.crypto.subtle.importKey(
       "raw",
       sharedSecretKeyBytes,

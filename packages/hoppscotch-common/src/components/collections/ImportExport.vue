@@ -13,6 +13,7 @@
 import { HoppCollection } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import { PropType, Ref, computed, ref } from "vue"
+import { transformCollectionForImport } from "~/helpers/collection/collection"
 
 import { FileSource } from "~/helpers/import-export/import/import-sources/FileSource"
 import { UrlSource } from "~/helpers/import-export/import/import-sources/UrlSource"
@@ -58,8 +59,9 @@ import { ImporterOrExporter } from "~/components/importExport/types"
 import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
 import { TeamWorkspace } from "~/services/workspace.service"
 import { invokeAction } from "~/helpers/actions"
+import { ReqType } from "~/helpers/backend/graphql"
+import { sanitizeCollection } from "~/helpers/import-export/import"
 
-const isPostmanImporterInProgress = ref(false)
 const isInsomniaImporterInProgress = ref(false)
 const isOpenAPIImporterInProgress = ref(false)
 const isRESTImporterInProgress = ref(false)
@@ -102,7 +104,7 @@ const showImportFailedError = () => {
 const handleImportToStore = async (collections: HoppCollection[]) => {
   const importResult =
     props.collectionsType.type === "my-collections"
-      ? importToPersonalWorkspace(collections)
+      ? await importToPersonalWorkspace(collections)
       : await importToTeamsWorkspace(collections)
 
   if (E.isRight(importResult)) {
@@ -112,34 +114,35 @@ const handleImportToStore = async (collections: HoppCollection[]) => {
   }
 }
 
+/**
+ * Import collections to personal workspace
+ * We sanitize the collections before importing to remove old id from the imported collection and folders and transform it to new collection format
+ * @param collections Collections to import
+ */
 const importToPersonalWorkspace = (collections: HoppCollection[]) => {
-  appendRESTCollections(collections)
-  return E.right({
-    success: true,
-  })
-}
+  // Remove old id from the imported collection and folders and transform it to new collection format
+  const sanitizedCollections = collections.map(sanitizeCollection)
 
-function translateToTeamCollectionFormat(x: HoppCollection) {
-  const folders: HoppCollection[] = (x.folders ?? []).map(
-    translateToTeamCollectionFormat
-  )
-
-  const data = {
-    auth: x.auth,
-    headers: x.headers,
+  if (
+    platform.sync.collections.importToPersonalWorkspace &&
+    currentUser.value
+  ) {
+    // The SH adds the id to the collection and folders but for safety we remove it by sanitizeCollection
+    return platform.sync.collections.importToPersonalWorkspace(
+      sanitizedCollections,
+      ReqType.Rest
+    )
   }
 
-  const obj = {
-    ...x,
-    folders,
-    data,
-  }
-
-  if (x.id) obj.id = x.id
-
-  return obj
+  appendRESTCollections(sanitizedCollections)
+  return E.right({ success: true })
 }
 
+/**
+ * Import collections to teams workspace
+ * No need to sanitize the collections before importing to teams workspace because the BE handles this and add the new id to the collection and folders
+ * @param collections Collections to import
+ */
 const importToTeamsWorkspace = async (collections: HoppCollection[]) => {
   if (!hasTeamWriteAccess.value || !selectedTeamID.value) {
     return E.left({
@@ -148,7 +151,7 @@ const importToTeamsWorkspace = async (collections: HoppCollection[]) => {
   }
 
   const transformedCollection = collections.map((collection) =>
-    translateToTeamCollectionFormat(collection)
+    transformCollectionForImport(collection)
   )
 
   const res = await toTeamsImporter(
@@ -170,6 +173,7 @@ const emit = defineEmits<{
 const isHoppMyCollectionExporterInProgress = ref(false)
 const isHoppTeamCollectionExporterInProgress = ref(false)
 const isHoppGistCollectionExporterInProgress = ref(false)
+const isPostmanImporterInProgress = ref(false)
 
 const isTeamWorkspace = computed(() => {
   return props.collectionsType.type === "team-collections"
@@ -178,19 +182,83 @@ const isTeamWorkspace = computed(() => {
 const currentImportSummary: Ref<{
   showImportSummary: boolean
   importedCollections: HoppCollection[] | null
+  scriptsImported?: boolean
+  originalScriptCounts?: { preRequest: number; test: number }
 }> = ref({
   showImportSummary: false,
   importedCollections: null,
+  scriptsImported: false,
+  originalScriptCounts: undefined,
 })
 
-const setCurrentImportSummary = (collections: HoppCollection[]) => {
+const setCurrentImportSummary = (
+  collections: HoppCollection[],
+  scriptsImported?: boolean,
+  originalScriptCounts?: { preRequest: number; test: number }
+) => {
   currentImportSummary.value.importedCollections = collections
   currentImportSummary.value.showImportSummary = true
+  currentImportSummary.value.scriptsImported = scriptsImported
+  currentImportSummary.value.originalScriptCounts = originalScriptCounts
 }
 
 const unsetCurrentImportSummary = () => {
   currentImportSummary.value.importedCollections = null
   currentImportSummary.value.showImportSummary = false
+  currentImportSummary.value.scriptsImported = false
+  currentImportSummary.value.originalScriptCounts = undefined
+}
+
+// Count scripts in raw Postman collection JSON (before import strips them)
+const countPostmanScripts = (
+  content: string[]
+): { preRequest: number; test: number } => {
+  let preRequestCount = 0
+  let testCount = 0
+
+  const countInItem = (item: any) => {
+    // Only count if this is a request (has request object), not a folder
+    const isRequest = item?.request !== undefined
+
+    if (isRequest && item?.event) {
+      const prerequest = item.event.find((e: any) => e.listen === "prerequest")
+      const test = item.event.find((e: any) => e.listen === "test")
+
+      if (
+        prerequest?.script?.exec &&
+        Array.isArray(prerequest.script.exec) &&
+        prerequest.script.exec.some((line: string) => line?.trim())
+      ) {
+        preRequestCount++
+      }
+
+      if (
+        test?.script?.exec &&
+        Array.isArray(test.script.exec) &&
+        test.script.exec.some((line: string) => line?.trim())
+      ) {
+        testCount++
+      }
+    }
+
+    // Recursively count in nested items (folders)
+    if (item?.item && Array.isArray(item.item)) {
+      item.item.forEach(countInItem)
+    }
+  }
+
+  content.forEach((fileContent) => {
+    try {
+      const collection = JSON.parse(fileContent)
+      if (collection?.item && Array.isArray(collection.item)) {
+        collection.item.forEach(countInItem)
+      }
+    } catch (_e) {
+      // Invalid JSON, skip
+    }
+  })
+
+  return { preRequest: preRequestCount, test: testCount }
 }
 
 const HoppRESTImporter: ImporterOrExporter = {
@@ -269,7 +337,7 @@ const HoppAllCollectionImporter: ImporterOrExporter = {
           exporter: "import_to_teams",
           platform: "rest",
         })
-      } catch (e) {
+      } catch (_e) {
         showImportFailedError()
         unsetCurrentImportSummary()
       }
@@ -378,15 +446,20 @@ const HoppPostmanImporter: ImporterOrExporter = {
     caption: "import.from_file",
     acceptedFileTypes: ".json",
     description: "import.from_postman_import_summary",
-    onImportFromFile: async (content) => {
+    showPostmanScriptOption: true,
+    onImportFromFile: async (content: string[], importScripts?: boolean) => {
       isPostmanImporterInProgress.value = true
 
-      const res = await hoppPostmanImporter(content)()
+      // Count scripts from raw Postman JSON before importing
+      const originalCounts =
+        importScripts === undefined ? countPostmanScripts(content) : undefined
+
+      const res = await hoppPostmanImporter(content, importScripts ?? false)()
 
       if (E.isRight(res)) {
         await handleImportToStore(res.right)
 
-        setCurrentImportSummary(res.right)
+        setCurrentImportSummary(res.right, importScripts, originalCounts)
 
         platform.analytics?.logEvent({
           platform: "rest",
@@ -419,7 +492,7 @@ const HoppInsomniaImporter: ImporterOrExporter = {
   importSummary: currentImportSummary,
   component: FileSource({
     caption: "import.from_file",
-    acceptedFileTypes: ".json",
+    acceptedFileTypes: ".json, .yaml, .yml, .har",
     description: "import.from_insomnia_import_summary",
     onImportFromFile: async (content) => {
       isInsomniaImporterInProgress.value = true

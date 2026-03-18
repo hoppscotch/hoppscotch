@@ -3,6 +3,7 @@ pub mod controller;
 pub mod dialog;
 pub mod error;
 pub mod global;
+pub mod logger;
 pub mod model;
 pub mod route;
 pub mod server;
@@ -16,11 +17,12 @@ use std::sync::Arc;
 use tauri::{AppHandle, Emitter, Listener, Manager, WebviewWindowBuilder};
 use tauri_plugin_updater::UpdaterExt;
 use tokio_util::sync::CancellationToken;
-use tracing_subscriber::{fmt::format::JsonFields, EnvFilter};
 
 use error::{AgentError, AgentResult};
-use model::{LogGuard, Payload};
+use model::Payload;
 use state::AppState;
+
+pub const HOPPSCOTCH_AGENT_IDENTIFIER: &str = "io.hoppscotch.agent";
 
 #[tracing::instrument(skip(app_handle))]
 fn create_main_window(app_handle: &AppHandle) -> AgentResult<()> {
@@ -100,8 +102,6 @@ pub fn run() {
         }))
         .plugin(tauri_plugin_store::Builder::new().build())
         .setup(move |app| {
-            // let _ = setup_logging(&app.handle())?;
-
             tracing::info!("Setting up application");
             let app_handle = app.handle();
 
@@ -257,48 +257,4 @@ pub fn run() {
         }
         _ => {}
     });
-}
-
-#[tracing::instrument(skip(app_handle))]
-pub fn setup_logging(app_handle: &AppHandle) -> AgentResult<()> {
-    tracing::info!("Setting up logging system");
-
-    let app_data_dir = app_handle.path().app_data_dir()?;
-    tracing::debug!(path = ?app_data_dir, "Creating app data directory");
-    std::fs::create_dir_all(&app_data_dir)?;
-
-    tracing::debug!("Configuring file appender");
-    let file_appender = tracing_appender::rolling::RollingFileAppender::builder()
-        .rotation(tracing_appender::rolling::Rotation::DAILY)
-        .filename_prefix("hoppscotch-agent")
-        .filename_suffix("log")
-        .max_log_files(1)
-        .build(&app_data_dir)?;
-
-    let (non_blocking, _guard) = tracing_appender::non_blocking(file_appender);
-
-    tracing::debug!("Building subscriber with JSON formatting");
-    let subscriber = tracing_subscriber::fmt()
-        .fmt_fields(JsonFields::new())
-        .with_target(false)
-        .with_writer(non_blocking)
-        .with_ansi(false)
-        .with_timer(tracing_subscriber::fmt::time::UtcTime::rfc_3339())
-        .with_env_filter(EnvFilter::try_from_default_env().unwrap_or_else(|_| {
-            if cfg!(debug_assertions) {
-                "debug"
-            } else {
-                "info"
-            }
-            .into()
-        }))
-        .with_filter_reloading()
-        .finish();
-
-    tracing::subscriber::set_global_default(subscriber)?;
-
-    app_handle.manage(LogGuard(_guard));
-
-    tracing::info!("Logging system initialized successfully");
-    Ok(())
 }

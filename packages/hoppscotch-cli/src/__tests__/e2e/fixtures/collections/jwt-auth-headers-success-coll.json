@@ -1,0 +1,41 @@
+{
+  "v": 3,
+  "name": "JWT Auth (headers) - collection",
+  "folders": [],
+  "requests": [
+    {
+      "v": "13",
+      "id": "cm0dm70cw000687bnxi830zz3",
+      "auth": {
+        "authType": "jwt",
+        "authActive": true,
+        "addTo": "HEADERS",
+        "algorithm": "<<algorithm>>",
+        "secret": "<<secret>>",
+        "privateKey": "<<privateKey>>",
+        "payload": "<<payload>>",
+        "jwtHeaders": "<<jwtHeaders>>",
+        "headerPrefix": "<<headerPrefix>>",
+        "isSecretBase64Encoded": false
+      },
+      "body": {
+        "body": null,
+        "contentType": null
+      },
+      "name": "jwt-auth-headers",
+      "method": "GET",
+      "params": [],
+      "headers": [],
+      "endpoint": "<<url>>",
+      "testScript": "pw.test(\"Status code is 200\", ()=> { pw.expect(pw.response.status).toBe(200);});",
+      "preRequestScript": "",
+      "responses": {},
+      "requestVariables": []
+    }
+  ],
+  "auth": {
+    "authType": "inherit",
+    "authActive": true
+  },
+  "headers": []
+}

@@ -7,7 +7,6 @@ import {
 import { Request } from 'express';
 import { AccessTokenService } from 'src/access-token/access-token.service';
 import * as E from 'fp-ts/Either';
-import { DateTime } from 'luxon';
 import { ACCESS_TOKEN_EXPIRED, ACCESS_TOKEN_INVALID } from 'src/errors';
 import { createCLIErrorResponse } from 'src/access-token/helper';
 @Injectable()
@@ -28,17 +27,23 @@ export class PATAuthGuard implements CanActivate {
       throw new BadRequestException(
         createCLIErrorResponse(ACCESS_TOKEN_INVALID),
       );
+
     request.user = userAccessToken.right.user;
-
     const accessToken = userAccessToken.right;
-    if (accessToken.expiresOn === null) return true;
 
-    const today = DateTime.now().toISO();
-    if (accessToken.expiresOn.toISOString() > today) return true;
+    // If token has no expiration, it's valid
+    if (accessToken.expiresOn === null) {
+      return true;
+    }
 
-    throw new BadRequestException(
-      createCLIErrorResponse(ACCESS_TOKEN_EXPIRED),
-    );
+    // Check if token has expired
+    if (new Date() > accessToken.expiresOn) {
+      throw new BadRequestException(
+        createCLIErrorResponse(ACCESS_TOKEN_EXPIRED),
+      );
+    }
+
+    return true;
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {

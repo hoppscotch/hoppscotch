@@ -1,9 +1,0 @@
-subscription UserRequestUpdated {
-  userRequestUpdated {
-    id
-    collectionID
-    title
-    request
-    type
-  }
-}

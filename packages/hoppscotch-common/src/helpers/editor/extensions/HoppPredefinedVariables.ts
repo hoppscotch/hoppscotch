@@ -9,6 +9,10 @@ import { HOPP_SUPPORTED_PREDEFINED_VARIABLES } from "@hoppscotch/data"
 
 import IconSquareAsterisk from "~icons/lucide/square-asterisk?raw"
 import { isComment } from "./helpers"
+import {
+  constrainTooltipToViewport,
+  truncateText,
+} from "~/helpers/utils/tooltip"
 
 const HOPP_PREDEFINED_VARIABLES_REGEX = /(<<\$[a-zA-Z0-9-_]+>>)/g
 
@@ -76,32 +80,72 @@ const cursorTooltipField = () =>
       const variableIcon = `<span class="inline-flex items-center justify-center my-1">${IconSquareAsterisk}</span>`
       const variableDescription =
         variable !== undefined
-          ? `${variableName} - ${variable.description}`
+          ? `${variableName} - ${truncateText(variable.description)}`
           : `${variableName} is not a valid predefined variable.`
 
       return {
-        pos: start,
-        end: to,
-        above: true,
+        // The start and end positions of the environment variable in the text
+        // We add 2 to the end position to include the closing `>>` in the tooltip
+        // and -1 to the start position to include the opening `<<` in the tooltip
+        pos: start - 1,
+        end: end + 2,
         arrow: true,
         create() {
           const dom = document.createElement("div")
-          dom.className = "tippy-box"
-          dom.dataset.theme = "tooltip"
+
+          const tooltipContainer = document.createElement("div")
+
+          const tooltipHeaderBlock = document.createElement("div")
+          tooltipHeaderBlock.className =
+            "flex items-center justify-between w-full space-x-2 "
+          tooltipContainer.appendChild(tooltipHeaderBlock)
+
+          const iconNameContainer = document.createElement("div")
+          iconNameContainer.className =
+            "flex items-center space-x-2 flex-1 mr-4 "
+          tooltipHeaderBlock.appendChild(iconNameContainer)
 
           const icon = document.createElement("span")
           icon.innerHTML = variableIcon
-          icon.className = "mr-2"
 
-          const tooltipContainer = document.createElement("span")
-          tooltipContainer.className = "tippy-content"
+          const envNameBlock = document.createElement("span")
+          envNameBlock.innerText = variableName
 
-          tooltipContainer.appendChild(icon)
-          tooltipContainer.appendChild(
-            document.createTextNode(variableDescription)
-          )
+          iconNameContainer.appendChild(icon)
+          iconNameContainer.appendChild(envNameBlock)
+
+          const envContainer = document.createElement("div")
+          tooltipContainer.appendChild(envContainer)
+          envContainer.className =
+            "flex flex-col items-start space-y-1 flex-1 w-full mt-2"
+          envContainer.style.overflow = "hidden"
+
+          const valueBlock = document.createElement("div")
+          valueBlock.className = "flex items-start space-x-2"
+          valueBlock.style.width = "100%"
+          const valueTitle = document.createElement("div")
+          const value = document.createElement("span")
+          value.className = "env-tooltip-value"
+          value.textContent = variableDescription
+          valueTitle.textContent = "Value"
+          valueTitle.className = "font-bold mr-4"
+          valueTitle.style.flexShrink = "0"
+          valueBlock.appendChild(valueTitle)
+          valueBlock.appendChild(value)
+
+          envContainer.appendChild(valueBlock)
+
+          dom.className = "tippy-box"
+          dom.dataset.theme = "tooltip"
+
+          tooltipContainer.className =
+            "tippy-content env-tooltip-content env-tooltip-constrained"
 
           dom.appendChild(tooltipContainer)
+
+          // Apply viewport-aware overflow constraints
+          constrainTooltipToViewport(dom, tooltipContainer)
+
           return { dom }
         },
       }

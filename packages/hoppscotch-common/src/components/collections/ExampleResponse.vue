@@ -4,11 +4,11 @@
     @contextmenu.prevent="options?.tippy?.show()"
   >
     <div
-      class="pointer-events-auto flex min-w-0 flex-1 space-x-2 cursor-pointer items-center justify-center"
+      class="pointer-events-auto flex min-w-0 flex-1 space-x-1 cursor-pointer items-center justify-center"
       @click="selectResponse()"
     >
       <span
-        class="pointer-events-none flex w-10 px-2 items-center justify-start truncate relative"
+        class="pointer-events-none flex w-8 items-center justify-center truncate relative"
       >
         <span
           class="truncate text-tiny font-semibold relative"
@@ -19,7 +19,7 @@
       </span>
 
       <span
-        class="pointer-events-none flex min-w-0 flex-1 items-center py-2 pr-2 transition group-hover:text-secondaryDark"
+        class="pointer-events-none flex min-w-0 flex-1 items-center py-2 transition group-hover:text-secondaryDark"
       >
         <span class="truncate font-semibold group-hover:text-secondaryDark">
           {{ responseName }}

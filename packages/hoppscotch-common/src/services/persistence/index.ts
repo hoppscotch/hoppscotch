@@ -5,7 +5,7 @@ import { z } from "zod"
 
 import { Service } from "dioc"
 import { StorageLike, watchDebounced } from "@vueuse/core"
-import { assign, clone, isEmpty } from "lodash-es"
+import { assign, clone, isEmpty, cloneDeep } from "lodash-es"
 
 import {
   GlobalEnvironmentVariable,
@@ -69,6 +69,8 @@ import { SIORequest$, setSIORequest } from "../../newstore/SocketIOSession"
 import { WSRequest$, setWSRequest } from "../../newstore/WebSocketSession"
 
 import {
+  CURRENT_ENVIRONMENT_VALUE_SCHEMA,
+  CURRENT_SORT_VALUES_SCHEMA,
   ENVIRONMENTS_SCHEMA,
   GLOBAL_ENVIRONMENT_SCHEMA,
   GQL_COLLECTION_SCHEMA,
@@ -92,6 +94,16 @@ import {
 import { PersistableTabState } from "../tab"
 import { HoppTabDocument } from "~/helpers/rest/document"
 import { HoppGQLDocument } from "~/helpers/graphql/document"
+import {
+  CurrentValueService,
+  Variable,
+} from "../current-environment-value.service"
+import { fixBrokenRequestVersion } from "~/helpers/fixBrokenRequestVersion"
+import { fixBrokenEnvironmentVersion } from "~/helpers/fixBrokenEnvironmentVersion"
+import {
+  CurrentSortOption,
+  CurrentSortValuesService,
+} from "../current-sort.service"
 
 export const STORE_NAMESPACE = "persistence.v1"
 
@@ -113,6 +125,8 @@ export const STORE_KEYS = {
   REST_TABS: "restTabs",
   GQL_TABS: "gqlTabs",
   SECRET_ENVIRONMENTS: "secretEnvironments",
+  CURRENT_ENVIRONMENT_VALUE: "currentEnvironmentValue",
+  CURRENT_SORT_VALUES: "currentSortValues",
   SCHEMA_VERSION: "schema_version",
 } as const
 
@@ -174,6 +188,12 @@ export class PersistenceService extends Service {
   private readonly gqlTabService = this.bind(GQLTabService)
   private readonly secretEnvironmentService = this.bind(
     SecretEnvironmentService
+  )
+  private readonly currentEnvironmentValueService =
+    this.bind(CurrentValueService)
+
+  private readonly currentSortValuesService = this.bind(
+    CurrentSortValuesService
   )
 
   private showErrorToast(key: string) {
@@ -334,7 +354,7 @@ export class PersistenceService extends Service {
           )
         }
       }
-    } catch (e) {
+    } catch (_e) {
       console.error(`Failed parsing persisted LOCAL_STATE:`, loadResult)
     }
 
@@ -366,7 +386,7 @@ export class PersistenceService extends Service {
           )
         }
       }
-    } catch (e) {
+    } catch (_e) {
       console.error(`Failed parsing persisted SETTINGS:`, loadResult)
     }
 
@@ -398,7 +418,7 @@ export class PersistenceService extends Service {
           )
         }
       }
-    } catch (e) {
+    } catch (_e) {
       console.error(`Failed parsing persisted REST_HISTORY:`, restLoadResult)
     }
 
@@ -430,7 +450,7 @@ export class PersistenceService extends Service {
           )
         }
       }
-    } catch (e) {
+    } catch (_e) {
       console.error(`Failed parsing persisted GQL_HISTORY:`, gqlLoadResult)
     }
 
@@ -452,8 +472,10 @@ export class PersistenceService extends Service {
 
         if (result.success) {
           const translatedData = result.data.map(translateToNewRESTCollection)
+
           setRESTCollections(translatedData)
         } else {
+          console.error(`Failed with `, result.error, data)
           this.showErrorToast(STORE_KEYS.REST_COLLECTIONS)
           await Store.set(
             STORE_NAMESPACE,
@@ -464,7 +486,7 @@ export class PersistenceService extends Service {
           setRESTCollections(data)
         }
       }
-    } catch (e) {
+    } catch (_e) {
       console.error(
         `Failed parsing persisted REST_COLLECTIONS:`,
         restLoadResult
@@ -501,7 +523,7 @@ export class PersistenceService extends Service {
           setGraphqlCollections(data)
         }
       }
-    } catch (e) {
+    } catch (_e) {
       console.error(`Failed parsing persisted GQL_COLLECTIONS:`, gqlLoadResult)
     }
 
@@ -519,7 +541,9 @@ export class PersistenceService extends Service {
     try {
       if (E.isRight(loadResult)) {
         const data = loadResult.right ?? []
-        const result = ENVIRONMENTS_SCHEMA.safeParse(data)
+        const environments = fixBrokenEnvironmentVersion(data)
+
+        const result = ENVIRONMENTS_SCHEMA.safeParse(environments)
 
         if (result.success) {
           // Check for and handle globals
@@ -545,7 +569,7 @@ export class PersistenceService extends Service {
           )
         }
       }
-    } catch (e) {
+    } catch (_e) {
       console.error(`Failed parsing persisted ENVIRONMENTS:`, loadResult)
     }
 
@@ -583,7 +607,7 @@ export class PersistenceService extends Service {
           )
         }
       }
-    } catch (e) {
+    } catch (_e) {
       console.error(`Failed parsing persisted SECRET_ENVIRONMENTS:`, loadResult)
     }
 
@@ -593,6 +617,55 @@ export class PersistenceService extends Service {
         await Store.set(
           STORE_NAMESPACE,
           STORE_KEYS.SECRET_ENVIRONMENTS,
+          newData
+        )
+      },
+      { debounce: 500 }
+    )
+  }
+
+  private async setupCurrentEnvironmentValuePersistence() {
+    const loadResult = await Store.get<any>(
+      STORE_NAMESPACE,
+      STORE_KEYS.CURRENT_ENVIRONMENT_VALUE
+    )
+
+    try {
+      if (E.isRight(loadResult) && loadResult.right) {
+        const result = CURRENT_ENVIRONMENT_VALUE_SCHEMA.safeParse(
+          loadResult.right
+        )
+
+        if (result.success) {
+          this.currentEnvironmentValueService.loadEnvironmentsFromPersistedState(
+            result.data
+          )
+        } else {
+          this.showErrorToast(STORE_KEYS.CURRENT_ENVIRONMENT_VALUE)
+          await Store.set(
+            STORE_NAMESPACE,
+            `${STORE_KEYS.CURRENT_ENVIRONMENT_VALUE}-backup`,
+            loadResult.right
+          )
+          console.error(
+            `Failed parsing persisted CURRENT_ENVIRONMENT_VALUE:`,
+            JSON.stringify(loadResult.right)
+          )
+        }
+      }
+    } catch (_e) {
+      console.error(
+        `Failed parsing persisted CURRENT_ENVIRONMENT_VALUE:`,
+        loadResult
+      )
+    }
+
+    watchDebounced(
+      this.currentEnvironmentValueService.persistableEnvironments,
+      async (newData: Record<string, Variable[]>) => {
+        await Store.set(
+          STORE_NAMESPACE,
+          STORE_KEYS.CURRENT_ENVIRONMENT_VALUE,
           newData
         )
       },
@@ -626,13 +699,57 @@ export class PersistenceService extends Service {
           )
         }
       }
-    } catch (e) {
+    } catch (_e) {
       console.error(`Failed parsing persisted SELECTED_ENV:`, loadResult)
     }
 
     selectedEnvironmentIndex$.subscribe(async (index) => {
       await Store.set(STORE_NAMESPACE, STORE_KEYS.SELECTED_ENV, index)
     })
+  }
+
+  private async setupCurrentSortValuesPersistence() {
+    const loadResult = await Store.get<any>(
+      STORE_NAMESPACE,
+      STORE_KEYS.CURRENT_SORT_VALUES
+    )
+
+    try {
+      if (E.isRight(loadResult) && loadResult.right) {
+        const result = CURRENT_SORT_VALUES_SCHEMA.safeParse(loadResult.right)
+
+        if (result.success) {
+          this.currentSortValuesService.loadCurrentSortValuesFromPersistedState(
+            result.data
+          )
+        } else {
+          this.showErrorToast(STORE_KEYS.CURRENT_SORT_VALUES)
+          await Store.set(
+            STORE_NAMESPACE,
+            `${STORE_KEYS.CURRENT_SORT_VALUES}-backup`,
+            loadResult.right
+          )
+          console.error(
+            `Failed parsing persisted CURRENT_SORT_VALUES:`,
+            JSON.stringify(loadResult.right)
+          )
+        }
+      }
+    } catch (_e) {
+      console.error(`Failed parsing persisted CURRENT_SORT_VALUES:`, loadResult)
+    }
+
+    watchDebounced(
+      this.currentSortValuesService.persistableCurrentSortValues,
+      async (newData: Record<string, CurrentSortOption>) => {
+        await Store.set(
+          STORE_NAMESPACE,
+          STORE_KEYS.CURRENT_SORT_VALUES,
+          newData
+        )
+      },
+      { debounce: 500 }
+    )
   }
 
   private async setupWebsocketPersistence() {
@@ -663,7 +780,7 @@ export class PersistenceService extends Service {
           }
         }
       }
-    } catch (e) {
+    } catch (_e) {
       console.error(`Failed parsing persisted WEBSOCKET:`, loadResult)
     }
 
@@ -700,7 +817,7 @@ export class PersistenceService extends Service {
           }
         }
       }
-    } catch (e) {
+    } catch (_e) {
       console.error(`Failed parsing persisted SOCKETIO:`, loadResult)
     }
 
@@ -730,7 +847,7 @@ export class PersistenceService extends Service {
           }
         }
       }
-    } catch (e) {
+    } catch (_e) {
       console.error(`Failed parsing persisted SSE:`, loadResult)
     }
 
@@ -760,7 +877,7 @@ export class PersistenceService extends Service {
           }
         }
       }
-    } catch (e) {
+    } catch (_e) {
       console.error(`Failed parsing persisted MQTT:`, loadResult)
     }
 
@@ -791,7 +908,7 @@ export class PersistenceService extends Service {
           )
         }
       }
-    } catch (e) {
+    } catch (_e) {
       console.error(`Failed parsing persisted GLOBAL_ENV:`, loadResult)
     }
 
@@ -808,8 +925,16 @@ export class PersistenceService extends Service {
 
     try {
       if (E.isRight(loadResult) && loadResult.right) {
-        const result = REST_TAB_STATE_SCHEMA.safeParse(loadResult.right)
+        // Correcting the request schema for broken data
+        const orderedDocs = fixBrokenRequestVersion(
+          cloneDeep(loadResult.right.orderedDocs) ?? []
+        )
 
+        const transformedTabs = {
+          ...loadResult.right,
+          orderedDocs,
+        }
+        const result = REST_TAB_STATE_SCHEMA.safeParse(transformedTabs)
         if (result.success) {
           // SAFETY: We know the schema matches
           this.restTabService.loadTabsFromPersistedState(
@@ -830,7 +955,7 @@ export class PersistenceService extends Service {
           this.restTabService.loadTabsFromPersistedState(loadResult.right)
         }
       }
-    } catch (e) {
+    } catch (_e) {
       console.error(`Failed parsing persisted REST_TABS:`, loadResult)
     }
 
@@ -873,7 +998,7 @@ export class PersistenceService extends Service {
           this.gqlTabService.loadTabsFromPersistedState(loadResult.right)
         }
       }
-    } catch (e) {
+    } catch (_e) {
       console.error(`Failed parsing persisted GQL_TABS:`, loadResult)
     }
 
@@ -914,6 +1039,9 @@ export class PersistenceService extends Service {
       this.setupGQLTabsPersistence(),
 
       this.setupSecretEnvironmentsPersistence(),
+      this.setupCurrentEnvironmentValuePersistence(),
+
+      this.setupCurrentSortValuesPersistence(),
     ])
   }
 

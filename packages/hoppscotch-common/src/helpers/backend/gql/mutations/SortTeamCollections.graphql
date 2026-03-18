@@ -1,0 +1,11 @@
+mutation SortTeamCollections(
+  $teamID: ID!
+  $parentCollectionID: ID
+  $sortOption: SortOptions!
+) {
+  sortTeamCollections(
+    teamID: $teamID
+    parentCollectionID: $parentCollectionID
+    sortOption: $sortOption
+  )
+}

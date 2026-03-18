@@ -153,17 +153,32 @@ impl StorageManager {
             StorageError::Io(e)
         })?;
 
+        // Convert both paths to the same format for comparison, Windows...
+        let normalized_storage = dunce::canonicalize(&storage_path).unwrap_or(storage_path.clone());
+
         // NOTE: There cannot be more than one user config storage disk,
         // although even if there is, defaulting to the first one we found
         // is as good of a guess as any.
+        // Find the disk with the longest matching mount point
         let disk = disks
             .into_iter()
-            .find(|disk| storage_path.starts_with(disk.mount_point()));
+            .filter_map(|disk| {
+                let normalized_disk = dunce::canonicalize(disk.mount_point())
+                    .unwrap_or_else(|_| disk.mount_point().to_path_buf());
 
-        let Some(disk) = disk else {
-            tracing::error!("Fatal error, unable to resolve user config storage disk");
-            return Err(StorageError::DiskNotFound);
-        };
+                normalized_storage
+                    .starts_with(&normalized_disk)
+                    .then_some((disk, normalized_disk))
+            })
+            .max_by_key(|(_, normalized_disk)| normalized_disk.as_os_str().len())
+            .map(|(disk, _)| disk)
+            .ok_or_else(|| {
+                tracing::error!(
+                    storage_path = %storage_path.display(),
+                    "Fatal error, unable to resolve user config storage disk"
+                );
+                StorageError::DiskNotFound
+            })?;
 
         let available = disk.available_space();
 

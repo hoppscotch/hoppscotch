@@ -6,7 +6,7 @@
       autocomplete="off"
       class="flex w-full bg-transparent px-4 py-2 h-8 border-b border-dividerLight"
       :placeholder="t('action.search')"
-      :disabled="loading || !teamEnvironments.length"
+      :disabled="loading"
     />
     <div
       class="sticky top-upperPrimaryStickyFold z-10 flex flex-1 flex-shrink-0 justify-between overflow-x-auto border-b border-dividerLight bg-primary"
@@ -172,6 +172,7 @@ import { getEnvActionErrorMessage } from "~/helpers/error-messages"
 import { HandleEnvChangeProp } from "../index.vue"
 import { selectedEnvironmentIndex$ } from "~/newstore/environments"
 import { useReadonlyStream } from "~/composables/stream"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 
 const t = useI18n()
 
@@ -223,7 +224,9 @@ const selectedEnvironmentID = ref<string | null>(null)
 
 const isTeamViewer = computed(() => props.team?.role === "VIEWER")
 
-const displayModalAdd = (shouldDisplay: boolean) => {
+const displayModalAdd = async (shouldDisplay: boolean) => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   action.value = "new"
   showModalDetails.value = shouldDisplay
 }

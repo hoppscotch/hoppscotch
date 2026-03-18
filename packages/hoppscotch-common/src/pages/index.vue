@@ -134,7 +134,7 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, computed } from "vue"
-import { safelyExtractRESTRequest } from "@hoppscotch/data"
+import { generateUniqueRefId, safelyExtractRESTRequest } from "@hoppscotch/data"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import { useRoute } from "vue-router"
 import { useI18n } from "@composables/i18n"
@@ -147,10 +147,14 @@ import { InspectionService } from "~/services/inspection"
 import { RequestInspectorService } from "~/services/inspection/inspectors/request.inspector"
 import { EnvironmentInspectorService } from "~/services/inspection/inspectors/environment.inspector"
 import { ResponseInspectorService } from "~/services/inspection/inspectors/response.inspector"
+import { ScriptingInterceptorInspectorService } from "~/services/inspection/inspectors/scripting-interceptor.inspector"
 import { cloneDeep } from "lodash-es"
 import { RESTTabService } from "~/services/tab/rest"
 import { HoppTab } from "~/services/tab"
 import { HoppRequestDocument, HoppTabDocument } from "~/helpers/rest/document"
+import { ScrollService } from "~/services/scroll.service"
+
+const scrollService = useService(ScrollService)
 
 const savingRequest = ref(false)
 const confirmingCloseForTabID = ref<string | null>(null)
@@ -249,6 +253,7 @@ const removeTab = (tabID: string) => {
   if (tabState.document.isDirty) {
     confirmingCloseForTabID.value = tabID
   } else {
+    scrollService.cleanupScrollForTab(tabState.id)
     tabs.closeTab(tabState.id)
     inspectionService.deleteTabInspectorResult(tabState.id)
   }
@@ -266,6 +271,7 @@ const closeOtherTabsAction = (tabID: string) => {
     unsavedTabsCount.value = balanceDirtyTabCount
     exceptedTabID.value = tabID
   } else {
+    scrollService.cleanupAllScroll(tabID)
     tabs.closeOtherTabs(tabID)
   }
 }
@@ -275,7 +281,10 @@ const duplicateTab = (tabID: string) => {
   if (tab.value && tab.value.document.type === "request") {
     const newTab = tabs.createNewTab({
       type: "request",
-      request: cloneDeep(tab.value.document.request),
+      request: {
+        ...cloneDeep(tab.value.document.request),
+        _ref_id: generateUniqueRefId("req"),
+      },
       isDirty: true,
     })
     tabs.setActiveTab(newTab.id)
@@ -283,7 +292,10 @@ const duplicateTab = (tabID: string) => {
 }
 
 const onResolveConfirmCloseAllTabs = () => {
-  if (exceptedTabID.value) tabs.closeOtherTabs(exceptedTabID.value)
+  if (exceptedTabID.value) {
+    scrollService.cleanupAllScroll(exceptedTabID.value)
+    tabs.closeOtherTabs(exceptedTabID.value)
+  }
   confirmingCloseAllTabs.value = false
 }
 
@@ -401,20 +413,53 @@ defineActionHandler("request.rename", () => {
   if (tabs.currentActiveTab.value.document.type === "request")
     openReqRenameModal(tabs.currentActiveTab.value.id)
 })
+
 defineActionHandler("tab.duplicate-tab", ({ tabID }) => {
   duplicateTab(tabID ?? currentTabID.value)
 })
+
 defineActionHandler("tab.close-current", () => {
   removeTab(currentTabID.value)
 })
+
 defineActionHandler("tab.close-other", () => {
   tabs.closeOtherTabs(currentTabID.value)
 })
+
 defineActionHandler("tab.open-new", addNewTab)
+
+defineActionHandler("tab.next", () => {
+  tabs.goToNextTab()
+})
+
+defineActionHandler("tab.prev", () => {
+  tabs.goToPreviousTab()
+})
+
+defineActionHandler("tab.switch-to-first", () => {
+  tabs.goToFirstTab()
+})
+
+defineActionHandler("tab.switch-to-last", () => {
+  tabs.goToLastTab()
+})
+
+defineActionHandler("tab.reopen-closed", () => {
+  tabs.reopenClosedTab()
+})
+
+defineActionHandler("tab.mru-switch", () => {
+  tabs.goToMRUTab()
+})
+
+defineActionHandler("tab.mru-switch-reverse", () => {
+  tabs.goToPreviousMRUTab()
+})
 
 useService(RequestInspectorService)
 useService(EnvironmentInspectorService)
 useService(ResponseInspectorService)
+useService(ScriptingInterceptorInspectorService)
 
 for (const inspectorDef of platform.additionalInspectors ?? []) {
   useService(inspectorDef.service)

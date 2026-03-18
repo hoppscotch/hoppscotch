@@ -10,14 +10,16 @@
   <div
     :class="[
       open ? '' : '-translate-x-full ease-in',
-      expanded ? 'w-56' : 'w-16'
+      expanded ? 'w-56' : 'w-16',
     ]"
     class="fixed md:static md:translate-x-0 md:inset-0 inset-y-0 left-0 z-30 transition duration-300 flex overflow-y-auto bg-primary border-r border-divider"
   >
     <div class="w-full">
       <div class="flex items-center px-4 my-4">
         <img src="/logo.svg" alt="Hoppscotch" class="h-7 w-7" />
-        <span v-if="expanded" class="ml-4 font-semibold text-accentContrast">HOPPSCOTCH</span>
+        <span v-if="expanded" class="ml-4 font-semibold text-accentContrast"
+          >HOPPSCOTCH</span
+        >
       </div>
 
       <nav class="my-5">

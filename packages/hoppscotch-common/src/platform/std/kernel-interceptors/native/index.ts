@@ -20,7 +20,7 @@ import type {
   KernelInterceptorError,
 } from "~/services/kernel-interceptor.service"
 import { CookieJarService } from "~/services/cookie-jar.service"
-import InterceptorsErrorPlaceholder from "~/components/interceptors/ErrorPlaceholder.vue"
+import InterceptorsErrorPlaceholder from "~/components/settings/InterceptorErrorPlaceholder.vue"
 import SettingsNative from "~/components/settings/Native.vue"
 import { KernelInterceptorNativeStore } from "./store"
 
@@ -207,7 +207,7 @@ export class NativeKernelInterceptorService
           ...effectiveRequest.headers,
           "User-Agent": existingUserAgentHeader
             ? effectiveRequest.headers[existingUserAgentHeader]
-            : "HoppscotchKernel/0.1.0",
+            : "HoppscotchKernel/0.2.0",
         },
       }
 

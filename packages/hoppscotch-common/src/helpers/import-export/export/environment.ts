@@ -19,7 +19,7 @@ const getEnvironmentJSON = (
       ? environmentIndex
       : environmentObj.id
 
-  // Eliminate `value` field from secret environment variables prior to export
+  // Eliminate `currentValue` field from environment variables prior to export
   const transformedEnvironment = transformEnvironmentVariables(newEnvironment)
 
   return environmentId !== null
@@ -39,17 +39,16 @@ export const transformEnvironmentVariables = ({
     v,
     name,
     variables: variables.map((variable) => {
-      const { key, secret } = variable
+      const { key, secret, initialValue } = variable
 
-      // Eliminate `value` field for secret environment variables
-      if (secret) {
-        return {
-          key,
-          secret,
-        }
+      // Eliminate `currentValue` field for secret environment variables and currentValue
+
+      return {
+        key,
+        secret,
+        initialValue,
+        currentValue: variable.secret ? "" : (variable.currentValue ?? ""),
       }
-
-      return variable
     }),
   }
 }

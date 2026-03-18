@@ -35,7 +35,6 @@
             :placeholder="`${t('action.search')}`"
             :context-menu-enabled="false"
             class="border border-dividerDark focus:border-primaryDark rounded"
-            :readonly="isFilterInputDisabled"
           />
           <HoppSmartItem
             v-if="!isScopeSelector"
@@ -66,6 +65,7 @@
               () => {
                 $emit('update:modelValue', {
                   type: 'global',
+                  variables: globalVals.variables,
                 })
                 hide()
               }
@@ -239,30 +239,38 @@
                   {{ t("environment.name") }}
                 </span>
                 <span
-                  class="min-w-[9rem] w-full truncate text-tiny font-semibold"
+                  class="min-w-[4rem] w-full truncate text-tiny font-semibold"
                 >
-                  {{ t("environment.value") }}
+                  {{ t("environment.initial_value") }}
+                </span>
+                <span
+                  class="min-w-[4rem] w-full truncate text-tiny font-semibold"
+                >
+                  {{ t("environment.current_value") }}
                 </span>
               </div>
               <div
-                v-for="(variable, index) in globalEnvs.variables"
+                v-for="(variable, index) in globalEnvs"
                 :key="index"
                 class="flex flex-1 space-x-4"
               >
                 <span class="min-w-[9rem] w-1/4 truncate text-secondaryLight">
                   {{ variable.key }}
                 </span>
-                <span class="min-w-[9rem] w-full truncate text-secondaryLight">
+                <span class="min-w-[4rem] w-full truncate text-secondaryLight">
                   <template v-if="variable.secret"> ******** </template>
                   <template v-else>
-                    {{ variable.value }}
+                    {{ variable.initialValue }}
+                  </template>
+                </span>
+                <span class="min-w-[4rem] w-full truncate text-secondaryLight">
+                  <template v-if="variable.secret"> ******** </template>
+                  <template v-else>
+                    {{ variable.currentValue }}
                   </template>
                 </span>
               </div>
-              <div
-                v-if="globalEnvs.variables.length === 0"
-                class="text-secondaryLight"
-              >
+              <div v-if="globalEnvs.length === 0" class="text-secondaryLight">
                 {{ t("environment.empty_variables") }}
               </div>
             </div>
@@ -300,9 +308,14 @@
                   {{ t("environment.name") }}
                 </span>
                 <span
-                  class="min-w-[9rem] w-full truncate text-tiny font-semibold"
+                  class="min-w-[4rem] w-full truncate text-tiny font-semibold"
                 >
-                  {{ t("environment.value") }}
+                  {{ t("environment.initial_value") }}
+                </span>
+                <span
+                  class="min-w-[4rem] w-full truncate text-tiny font-semibold"
+                >
+                  {{ t("environment.current_value") }}
                 </span>
               </div>
               <div
@@ -313,10 +326,16 @@
                 <span class="min-w-[9rem] w-1/4 truncate text-secondaryLight">
                   {{ variable.key }}
                 </span>
-                <span class="min-w-[9rem] w-full truncate text-secondaryLight">
+                <span class="min-w-[4rem] w-full truncate text-secondaryLight">
                   <template v-if="variable.secret"> ******** </template>
                   <template v-else>
-                    {{ variable.value }}
+                    {{ variable.initialValue }}
+                  </template>
+                </span>
+                <span class="min-w-[4rem] w-full truncate text-secondaryLight">
+                  <template v-if="variable.secret"> ******** </template>
+                  <template v-else>
+                    {{ variable.currentValue }}
                   </template>
                 </span>
               </div>
@@ -359,6 +378,7 @@ import {
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
 import { useLocalState } from "~/newstore/localstate"
+import { CurrentValueService } from "~/services/current-environment-value.service"
 import { WorkspaceService } from "~/services/workspace.service"
 import IconCheck from "~icons/lucide/check"
 import IconEdit from "~icons/lucide/edit"
@@ -366,9 +386,10 @@ import IconEye from "~icons/lucide/eye"
 import IconGlobe from "~icons/lucide/globe"
 import IconLayers from "~icons/lucide/layers"
 
-type Scope =
+export type Scope =
   | {
       type: "global"
+      variables: GlobalEnvironment["variables"]
     }
   | {
       type: "my-environment"
@@ -402,6 +423,8 @@ const myEnvironments = useReadonlyStream(environments$, [])
 
 const workspaceService = useService(WorkspaceService)
 const workspace = workspaceService.currentWorkspace
+
+const currentEnvironmentValueService = useService(CurrentValueService)
 
 // TeamList-Adapter
 const teamListAdapter = workspaceService.acquireTeamListAdapter(null)
@@ -577,6 +600,7 @@ const selectedEnv = computed(() => {
         index: props.modelValue.index,
         name: props.modelValue.environment?.name,
         variables: props.modelValue.environment?.variables,
+        id: props.modelValue.environment.id,
       }
     } else if (props.modelValue?.type === "team-environment") {
       return {
@@ -584,11 +608,13 @@ const selectedEnv = computed(() => {
         name: props.modelValue.environment.environment.name,
         teamEnvID: props.modelValue.environment.id,
         variables: props.modelValue.environment.environment.variables,
+        id: props.modelValue.environment.id,
       }
     }
     return {
       type: "global",
       name: "Global",
+      variables: globalVals.value.variables,
     }
   }
   if (selectedEnvironmentIndex.value.type === "MY_ENV") {
@@ -599,6 +625,7 @@ const selectedEnv = computed(() => {
       index: selectedEnvironmentIndex.value.index,
       name: environment.name,
       variables: environment.variables,
+      id: environment.id,
     }
   } else if (selectedEnvironmentIndex.value.type === "TEAM_ENV") {
     const teamEnv = teamEnvironmentList.value.find(
@@ -613,6 +640,7 @@ const selectedEnv = computed(() => {
         name: teamEnv.environment.name,
         teamEnvID: selectedEnvironmentIndex.value.teamEnvID,
         variables: teamEnv.environment.variables,
+        id: teamEnv.id,
       }
     }
     return { type: "NO_ENV_SELECTED" }
@@ -653,6 +681,7 @@ onMounted(() => {
     } else {
       emit("update:modelValue", {
         type: "global",
+        variables: globalVals.value.variables,
       })
     }
   }
@@ -662,11 +691,29 @@ onMounted(() => {
 const envSelectorActions = ref<TippyComponent | null>(null)
 const envQuickPeekActions = ref<TippyComponent | null>(null)
 
-const globalEnvs = useReadonlyStream(globalEnv$, {} as GlobalEnvironment)
+const globalVals = useReadonlyStream(globalEnv$, {} as GlobalEnvironment)
+
+const globalEnvs = computed(() => {
+  return globalVals.value.variables.map((variable, index) => ({
+    ...variable,
+    currentValue:
+      currentEnvironmentValueService.getEnvironmentVariableValue(
+        "Global",
+        index
+      ) ?? "",
+  }))
+})
 
 const environmentVariables = computed(() => {
-  if (selectedEnv.value.variables) {
-    return selectedEnv.value.variables
+  if (selectedEnv.value.variables && selectedEnv.value.id) {
+    return selectedEnv.value.variables.map((variable, index) => ({
+      ...variable,
+      currentValue:
+        currentEnvironmentValueService.getEnvironmentVariableValue(
+          selectedEnv.value.id ?? "",
+          index
+        ) ?? "",
+    }))
   }
   return []
 })
@@ -674,14 +721,6 @@ const environmentVariables = computed(() => {
 const editGlobalEnv = () => {
   invokeAction("modals.global.environment.update", {})
 }
-
-// Filter input disabled if no environments are available
-const isFilterInputDisabled = computed(() => {
-  if (selectedEnvTab.value === "my-environments") {
-    return myEnvironments.value.length === 0
-  }
-  return teamEnvironmentList.value.length === 0
-})
 
 const editEnv = () => {
   if (selectedEnv.value.type === "MY_ENV" && selectedEnv.value.name) {

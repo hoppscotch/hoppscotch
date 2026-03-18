@@ -4,12 +4,16 @@
       <HttpRequest v-model="tab" />
       <HttpRequestOptions
         v-model="tab.document.request"
-        v-model:option-tab="tab.document.optionTabPreference"
+        v-model:option-tab="tab.document.optionTabPreference!"
         v-model:inherited-properties="tab.document.inheritedProperties"
       />
     </template>
     <template #secondary>
-      <HttpResponse v-model:document="tab.document" :is-embed="false" />
+      <HttpResponse
+        v-model:document="tab.document"
+        :tab-id="tab.id"
+        :is-embed="false"
+      />
     </template>
   </AppPaneLayout>
 </template>

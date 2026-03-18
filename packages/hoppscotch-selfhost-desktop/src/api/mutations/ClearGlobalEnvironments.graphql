@@ -1,5 +1,0 @@
-mutation ClearGlobalEnvironments($id: ID!) {
-  clearGlobalEnvironments(id: $id) {
-    id
-  }
-}

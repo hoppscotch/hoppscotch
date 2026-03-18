@@ -40,7 +40,7 @@ const caddyProcess = runChildProcessWithPrefix(
 );
 const backendProcess = runChildProcessWithPrefix(
   'node',
-  ['/dist/backend/dist/main.js'],
+  ['/dist/backend/dist/src/main.js'],
   'Backend Server',
 );
 

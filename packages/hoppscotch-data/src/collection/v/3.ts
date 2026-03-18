@@ -1,4 +1,4 @@
-import { defineVersion } from "verzod"
+import { defineVersion, entityRefUptoVersion } from "verzod"
 import { z } from "zod"
 
 import { GQLHeader as V1_GQLHeader } from "../../graphql/v/1"
@@ -11,6 +11,7 @@ import {
 } from "../../rest/v/7"
 
 import { v2_baseCollectionSchema, V2_SCHEMA } from "./2"
+import { HoppCollection } from ".."
 
 export const v3_baseCollectionSchema = v2_baseCollectionSchema.extend({
   v: z.literal(3),
@@ -30,10 +31,9 @@ type Output = z.output<typeof v3_baseCollectionSchema> & {
   folders: Output[]
 }
 
-export const V3_SCHEMA: z.ZodType<Output, z.ZodTypeDef, Input> =
-  v3_baseCollectionSchema.extend({
-    folders: z.lazy(() => z.array(V3_SCHEMA)),
-  })
+export const V3_SCHEMA = v3_baseCollectionSchema.extend({
+  folders: z.lazy(() => z.array(entityRefUptoVersion(HoppCollection, 3))),
+}) as z.ZodType<Output, z.ZodTypeDef, Input>
 
 export default defineVersion({
   initial: false,
@@ -46,11 +46,19 @@ export default defineVersion({
       })
     )
 
-    // @ts-expect-error
     const result: z.infer<typeof V3_SCHEMA> = {
       ...old,
       v: 3,
       headers,
+      folders: old.folders.map((folder) => {
+        const result = HoppCollection.safeParseUpToVersion(folder, 3)
+
+        if (result.type !== "ok") {
+          throw new Error("Failed to migrate child collections")
+        }
+
+        return result.value
+      }),
     }
 
     return result

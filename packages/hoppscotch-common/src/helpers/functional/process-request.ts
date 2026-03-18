@@ -90,5 +90,8 @@ export const preProcessRelayRequest = (req: RelayRequest): RelayRequest =>
       : req
   )
 
-export const postProcessRelayRequest = (req: RelayRequest): RelayRequest =>
-  pipe(cloneDeep(req), (req) => superjson.serialize(req).json)
+export const postProcessRelayRequest = (req: RelayRequest): RelayRequest => {
+  const result = pipe(cloneDeep(req), (req) => superjson.serialize(req).json)
+
+  return result
+}

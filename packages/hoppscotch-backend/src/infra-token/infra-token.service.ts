@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { InfraToken as dbInfraToken } from '@prisma/client';
+import { InfraToken as dbInfraToken } from 'src/generated/prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateInfraTokenResponse, InfraToken } from './infra-token.model';
 import { calculateExpirationDate, isValidLength } from 'src/utils';

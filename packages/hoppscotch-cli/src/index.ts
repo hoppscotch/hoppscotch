@@ -78,6 +78,7 @@ program
     "--iteration-data <file_path>",
     "path to a CSV file for data-driven testing"
   )
+  .option("--legacy-sandbox", "Opt out from the experimental scripting sandbox")
   .allowExcessArguments(false)
   .allowUnknownOption(false)
   .description("running hoppscotch collection.json file")

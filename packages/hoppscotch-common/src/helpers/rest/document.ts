@@ -22,11 +22,15 @@ export type HoppRESTSaveContext =
       /**
        * Index to the request
        */
-      requestIndex: number
+      requestIndex?: number
       /**
        * ID of the example response
        */
       exampleID?: string
+      /**
+       * Reference ID of the request, if available
+       */
+      requestRefID?: string
     }
   | {
       /**
@@ -49,6 +53,10 @@ export type HoppRESTSaveContext =
        * ID of the example response
        */
       exampleID?: string
+      /**
+       * Reference ID of the request, if available
+       */
+      requestRefID?: string
     }
   | null
 
@@ -259,6 +267,12 @@ export type HoppSavedExampleDocument = {
    * (atleast as far as we can say)
    */
   isDirty: boolean
+
+  /**
+   * The inherited properties from the parent collection
+   * (if any)
+   */
+  inheritedProperties?: HoppInheritedProperty
 }
 
 /**

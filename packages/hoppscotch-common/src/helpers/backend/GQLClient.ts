@@ -96,11 +96,20 @@ const createHoppClient = () => {
         willAuthError() {
           return platform.auth.willBackendHaveAuthError()
         },
-        didAuthError() {
-          return false
+        didAuthError(error) {
+          // Check for specific error patterns that indicate expired token
+          return error.graphQLErrors.some(
+            (e) =>
+              e.message.includes("auth/fail") ||
+              e.message.includes("jwt expired") ||
+              e.extensions?.code === "UNAUTHENTICATED"
+          )
         },
         async refreshAuth() {
-          // TODO
+          const refresh = platform.auth.refreshAuthToken
+          // should we logout if refreshAuthToken is not defined?
+          if (!refresh) return
+          await refresh()
         },
       }
     }),
@@ -132,6 +141,7 @@ const createHoppClient = () => {
     ...(platform.auth.getGQLClientOptions
       ? platform.auth.getGQLClientOptions()
       : {}),
+    preferGetMethod: false,
   })
 }
 

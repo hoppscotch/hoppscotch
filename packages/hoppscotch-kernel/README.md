@@ -42,7 +42,7 @@ Cross-platform persistence with encryption support:
 interface StoreV1 {
   readonly capabilities: Set<StoreCapability>
   set(namespace: string, key: string, value: unknown, options?: StorageOptions): Promise<Either<StoreError, void>>
-  watch(namespace: string, key: string): StoreEventEmitter<StoreEvents>
+  watch(namespace: string, key: string): Promise<StoreEventEmitter<StoreEvents>>
 }
 ```
 
@@ -86,7 +86,8 @@ await kernel.store.set("collections", "team-a", data, {
 })
 
 // Watch for changes
-kernel.store.watch("collections", "team-a").on("change", 
+const watcher = await kernel.store.watch("collections", "team-a")
+watcher.on("change", 
   (update) => console.log("Collection updated:", update)
 )
 ```

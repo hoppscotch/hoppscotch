@@ -8,6 +8,7 @@ import { PaginationArgs } from '../types/input-types.args';
 @Resolver(() => User)
 export class UserHistoryUserResolver {
   constructor(private userHistoryService: UserHistoryService) {}
+
   @ResolveField(() => [UserHistory], {
     description: 'Returns a users REST history',
   })

@@ -16,6 +16,8 @@
         v-model:response="doc.response"
         :is-savable="isSavable"
         :is-editable="isEditable"
+        :tab-id="props.tabId"
+        :is-test-runner="props.isTestRunner"
         @save-as-example="$emit('save-as-example')"
       />
     </HoppSmartTab>
@@ -35,7 +37,10 @@
       :indicator="showIndicator"
       class="flex flex-1 flex-col"
     >
-      <HttpTestResult v-model="doc.testResults" />
+      <HttpTestResult
+        v-model="doc.testResults"
+        :is-loading="doc.response?.type === 'loading'"
+      />
     </HoppSmartTab>
     <HoppSmartTab
       v-if="requestHeaders"
@@ -49,23 +54,34 @@
         :is-editable="false"
       />
     </HoppSmartTab>
+    <HoppSmartTab
+      v-if="showConsoleTab"
+      id="console"
+      label="Console"
+      class="flex flex-1 flex-col"
+    >
+      <ConsolePanel :messages="consoleEntries" />
+    </HoppSmartTab>
   </HoppSmartTabs>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue"
-import {
-  getSuitableLenses,
-  getLensRenderers,
-  Lens,
-} from "~/helpers/lenses/lenses"
 import { useI18n } from "@composables/i18n"
 import { useVModel } from "@vueuse/core"
+import { computed, ref, watch } from "vue"
+import { useSetting } from "~/composables/settings"
+import {
+  getLensRenderers,
+  getSuitableLenses,
+  Lens,
+} from "~/helpers/lenses/lenses"
 import { HoppRequestDocument } from "~/helpers/rest/document"
+import { ConsoleEntry } from "../console/Panel.vue"
 
 const props = defineProps<{
   document: HoppRequestDocument
   isEditable: boolean
+  tabId: string
   isTestRunner?: boolean
 }>()
 
@@ -75,6 +91,10 @@ const emit = defineEmits<{
 }>()
 
 const doc = useVModel(props, "document", emit)
+const t = useI18n()
+const EXPERIMENTAL_SCRIPTING_SANDBOX = useSetting(
+  "EXPERIMENTAL_SCRIPTING_SANDBOX"
+)
 
 const isSavable = computed(() => {
   return doc.value.response?.type === "success" && doc.value.saveContext
@@ -86,10 +106,10 @@ const showIndicator = computed(() => {
   const { expectResults, tests, envDiff } = doc.value.testResults
   return Boolean(
     expectResults.length ||
-      tests.length ||
-      envDiff.selected.additions.length ||
-      envDiff.selected.updations.length ||
-      envDiff.global.updations.length
+    tests.length ||
+    envDiff.selected.additions.length ||
+    envDiff.selected.updations.length ||
+    envDiff.global.updations.length
   )
 })
 
@@ -98,8 +118,6 @@ const allLensRenderers = getLensRenderers()
 function lensRendererFor(name: string) {
   return allLensRenderers[name]
 }
-
-const t = useI18n()
 
 const selectedLensTab = ref("")
 
@@ -132,6 +150,27 @@ const requestHeaders = computed(() => {
 const validLenses = computed(() => {
   if (!doc.value.response) return []
   return getSuitableLenses(doc.value.response)
+})
+
+const showConsoleTab = computed(() => {
+  if (!doc.value.testResults?.consoleEntries) {
+    return false
+  }
+
+  return (
+    doc.value.testResults?.consoleEntries.length > 0 &&
+    EXPERIMENTAL_SCRIPTING_SANDBOX.value
+  )
+})
+
+const consoleEntries = computed(() => {
+  if (!doc.value.testResults?.consoleEntries) {
+    return []
+  }
+
+  return doc.value.testResults?.consoleEntries.filter(({ type }) =>
+    ["log", "warn", "debug", "error", "info"].includes(type)
+  ) as ConsoleEntry[]
 })
 
 watch(

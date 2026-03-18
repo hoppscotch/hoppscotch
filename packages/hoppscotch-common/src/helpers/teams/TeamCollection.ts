@@ -13,7 +13,7 @@ export interface TeamCollection {
   title: string
   children: TeamCollection[] | null
   requests: TeamRequest[] | null
-  data: string | null
+  data?: string | null
 }
 
 export const getSingleCollection = (collectionID: string) =>

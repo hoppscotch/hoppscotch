@@ -10,7 +10,7 @@ import {
 } from "@relay/v/1"
 import type { VersionedAPI } from "@type/versioning"
 
-import { AwsV4Signer } from "aws4fetch"
+import { AwsV4Signer as _AwsV4Signer } from "aws4fetch"
 import axios, { AxiosRequestConfig } from "axios"
 
 import * as E from "fp-ts/Either"
@@ -222,6 +222,11 @@ export const implementation: VersionedAPI<RelayV1> = {
               normalizedHeaders["Content-Type"] ||
               normalizedHeaders["CONTENT-TYPE"]
 
+            const rawBody = axiosResponse.data
+            const bodySize = rawBody.byteLength
+
+            const headerSize = JSON.stringify(axiosResponse.headers).length
+
             const response: RelayResponse = {
               id: request.id,
               status: axiosResponse.status,
@@ -235,11 +240,9 @@ export const implementation: VersionedAPI<RelayV1> = {
                   end: endTime,
                 },
                 size: {
-                  headers: JSON.stringify(axiosResponse.headers).length,
-                  body: axiosResponse.data?.length ?? 0,
-                  total:
-                    JSON.stringify(axiosResponse.headers).length +
-                    (axiosResponse.data?.length ?? 0),
+                  headers: headerSize,
+                  body: bodySize,
+                  total: headerSize + bodySize,
                 },
               },
             }

@@ -166,6 +166,7 @@ import IconEdit from "~icons/lucide/edit"
 import IconMoreVertical from "~icons/lucide/more-vertical"
 import IconSettings2 from "~icons/lucide/settings-2"
 import IconTrash2 from "~icons/lucide/trash-2"
+import { CurrentValueService } from "~/services/current-environment-value.service"
 
 const t = useI18n()
 const toast = useToast()
@@ -183,6 +184,7 @@ const emit = defineEmits<{
 }>()
 
 const secretEnvironmentService = useService(SecretEnvironmentService)
+const currentEnvironmentValueService = useService(CurrentValueService)
 
 const confirmRemove = ref(false)
 
@@ -214,6 +216,7 @@ const removeEnvironment = () => {
       () => {
         toast.success(`${t("team_environment.deleted")}`)
         secretEnvironmentService.deleteSecretEnvironment(props.environment.id)
+        currentEnvironmentValueService.deleteEnvironment(props.environment.id)
       }
     )
   )()

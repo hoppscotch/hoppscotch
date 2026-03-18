@@ -7,21 +7,34 @@ use tauri::{
 
 use super::error::Result;
 use crate::cache::CacheManager;
+use crate::mapping::HostMapper;
 
 pub struct UriHandler {
     cache: Arc<CacheManager>,
+    mapper: Arc<HostMapper>,
     config: Config,
 }
 
 impl UriHandler {
-    pub fn new(cache: Arc<CacheManager>, config: Config) -> Self {
-        Self { cache, config }
+    pub fn new(cache: Arc<CacheManager>, config: Config, mapper: Arc<HostMapper>) -> Self {
+        Self {
+            cache,
+            config,
+            mapper,
+        }
     }
 
     async fn fetch_content(&self, host: &str, path: &str) -> Result<Vec<u8>> {
         let file_path = if path.is_empty() { "index.html" } else { path };
-        tracing::debug!(host = %host, path = %path, resolved_path = %file_path, "Fetching file content.");
-        Ok(self.cache.get_file(host, file_path).await?)
+        let bundle_name = self.mapper.resolve(host);
+        tracing::debug!(
+            host = %host,
+            bundle = %bundle_name,
+            path = %path,
+            resolved_path = %file_path,
+            "Fetching file content."
+        );
+        Ok(self.cache.get_file(&bundle_name, file_path).await?)
     }
 
     fn determine_mime(path: &str) -> &str {

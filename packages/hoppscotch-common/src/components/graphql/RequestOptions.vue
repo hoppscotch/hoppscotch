@@ -77,14 +77,14 @@ import { platform } from "~/platform"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { GQLTabService } from "~/services/tab/graphql"
 
-const VALID_GQL_OPERATIONS = [
+const _VALID_GQL_OPERATIONS = [
   "query",
   "headers",
   "variables",
   "authorization",
 ] as const
 
-export type GQLOptionTabs = (typeof VALID_GQL_OPERATIONS)[number]
+export type GQLOptionTabs = (typeof _VALID_GQL_OPERATIONS)[number]
 
 const interceptorService = useService(KernelInterceptorService)
 
@@ -141,21 +141,16 @@ const runQuery = async (
 
     const inheritedHeaders =
       tabs.currentActiveTab.value.document.inheritedProperties?.headers.map(
-        (header) => {
-          if (header.inheritedHeader) {
-            return header.inheritedHeader
-          }
-          return []
-        }
-      ) as HoppGQLRequest["headers"]
+        (header) => header.inheritedHeader
+      ) ?? []
 
     await runGQLOperation({
       name: request.value.name,
       url: runURL,
       request: request.value,
-      inheritedHeaders: inheritedHeaders,
+      inheritedHeaders,
       inheritedAuth: tabs.currentActiveTab.value.document.inheritedProperties
-        ?.auth.inheritedAuth as HoppGQLAuth,
+        ?.auth.inheritedAuth as HoppGQLAuth | undefined,
       query: runQuery,
       variables: runVariables,
       operationName: definition?.name?.value,

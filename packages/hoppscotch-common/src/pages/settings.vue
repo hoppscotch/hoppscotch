@@ -149,10 +149,38 @@
                           )
                         "
                         rows="4"
-                      />
+                      >
+                      </textarea>
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            <div class="flex flex-col space-y-4 py-4">
+              <div class="flex items-center">
+                <HoppSmartToggle
+                  :on="EXPERIMENTAL_SCRIPTING_SANDBOX"
+                  @change="toggleSetting('EXPERIMENTAL_SCRIPTING_SANDBOX')"
+                >
+                  {{ t("settings.experimental_scripting_sandbox") }}
+                </HoppSmartToggle>
+              </div>
+              <div class="flex items-center">
+                <HoppSmartToggle
+                  :on="ENABLE_EXPERIMENTAL_MOCK_SERVERS"
+                  @change="toggleSetting('ENABLE_EXPERIMENTAL_MOCK_SERVERS')"
+                >
+                  {{ t("settings.enable_experimental_mock_servers") }}
+                </HoppSmartToggle>
+              </div>
+              <div class="flex items-center">
+                <HoppSmartToggle
+                  :on="ENABLE_EXPERIMENTAL_DOCUMENTATION"
+                  @change="toggleSetting('ENABLE_EXPERIMENTAL_DOCUMENTATION')"
+                >
+                  {{ t("settings.enable_experimental_documentation") }}
+                </HoppSmartToggle>
               </div>
             </div>
           </section>
@@ -196,33 +224,6 @@
           </section>
         </div>
       </div>
-
-      <!-- NOTE: Old interceptors
-      <div class="md:grid md:grid-cols-3 md:gap-4">
-        <div class="p-8 md:col-span-1">
-          <h3 class="heading">
-            {{ t("settings.interceptor") }}
-          </h3>
-          <p class="my-1 text-secondaryLight">
-            {{ t("settings.interceptor_description") }}
-          </p>
-        </div>
-        <div class="space-y-8 p-8 md:col-span-2">
-          <section class="flex flex-col space-y-2">
-            <h4 class="font-semibold text-secondaryDark">
-              {{ t("settings.interceptor") }}
-            </h4>
-            <AppInterceptor :is-tooltip-component="false" />
-          </section>
-          <section v-for="[id, settings] in interceptorsWithSettings" :key="id">
-            <h4 class="font-semibold text-secondaryDark">
-              {{ settings.entryTitle(t) }}
-            </h4>
-            <component :is="settings.component" />
-          </section>
-        </div>
-      </div>
-      -->
 
       <div class="md:grid md:grid-cols-3 md:gap-4">
         <div class="p-8 md:col-span-1">
@@ -285,8 +286,6 @@ import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { usePageHead } from "@composables/head"
 import { useService } from "dioc/vue"
-// NOTE: Old interceptors
-// import { InterceptorService } from "~/services/interceptor.service"
 import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
@@ -318,22 +317,6 @@ const kernelInterceptorsWithSettings = computed(() =>
   )
 )
 
-// NOTE: Old interceptors
-// const interceptorService: InterceptorService = useService(InterceptorService)
-// const interceptorsWithSettings = computed(() =>
-//   pipe(
-//     interceptorService.availableInterceptors.value,
-//     A.filterMap((interceptor) =>
-//       interceptor.settingsPageEntry
-//         ? O.some([
-//             interceptor.interceptorID,
-//             interceptor.settingsPageEntry,
-//           ] as const)
-//         : O.none
-//     )
-//   )
-// )
-
 const ACCENT_COLOR = useSetting("THEME_COLOR")
 const TELEMETRY_ENABLED = useSetting("TELEMETRY_ENABLED")
 const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")
@@ -341,6 +324,16 @@ const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
 const ENABLE_AI_EXPERIMENTS = useSetting("ENABLE_AI_EXPERIMENTS")
 const AI_REQUEST_NAMING_STYLE = useSetting("AI_REQUEST_NAMING_STYLE")
 const CUSTOM_NAMING_STYLE = useSetting("CUSTOM_NAMING_STYLE")
+
+const EXPERIMENTAL_SCRIPTING_SANDBOX = useSetting(
+  "EXPERIMENTAL_SCRIPTING_SANDBOX"
+)
+const ENABLE_EXPERIMENTAL_MOCK_SERVERS = useSetting(
+  "ENABLE_EXPERIMENTAL_MOCK_SERVERS"
+)
+const ENABLE_EXPERIMENTAL_DOCUMENTATION = useSetting(
+  "ENABLE_EXPERIMENTAL_DOCUMENTATION"
+)
 
 const supportedNamingStyles = [
   {

@@ -20,11 +20,13 @@ export const stripModulePrefix = (script: string): string => {
 
 /**
  * Regex for stripping the JSON-serialized module prefix from scripts during
- * collection exports. Matches both `export {};\\n` (with newline) and
+ * collection exports. Anchored after `"` to only match at the start of a
+ * JSON string value, preventing corruption of `export {};` used as actual
+ * code mid-script. Matches both `export {};\\n` (with newline) and
  * `export {};` (without newline, common in JSON exports).
  * Note: `\\n` matches the literal backslash-n, not an actual newline character.
  */
-export const MODULE_PREFIX_REGEX_JSON_SERIALIZED = /export \{\};(?:\\n)?/g
+export const MODULE_PREFIX_REGEX_JSON_SERIALIZED = /(?<=")export \{\};(?:\\n)?/g
 
 /**
  * Wraps a script body in an async function expression (without invoking it).

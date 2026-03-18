@@ -2141,7 +2141,7 @@
     "email": "Email ng workspace owner",
     "email_address": "Email Address",
     "email_title": "Email",
-    "empty_name": "Team name cannot be empty!!",
+    "empty_name": "Hindi maaring walang pangalan ang team!!",
     "error": "May nagkaproblema. Pakisubukan ulit mamaya.",
     "id": "Workspace ID",
     "invited_email": "Email ng Inimbitahan",

@@ -8,6 +8,7 @@ import { Service } from "dioc"
 import * as E from "fp-ts/Either"
 import { Ref, ref } from "vue"
 import { getSingleCollection, TeamCollection } from "./TeamCollection"
+import { hasActualScript } from "~/helpers/scripting"
 
 import { platform } from "~/platform"
 import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
@@ -560,7 +561,7 @@ export class TeamSearchService extends Service {
       const preRequestScript = parentData?.preRequestScript ?? ""
       const testScript = parentData?.testScript ?? ""
 
-      if (preRequestScript || testScript) {
+      if (hasActualScript(preRequestScript) || hasActualScript(testScript)) {
         scripts.push({
           parentID: collection.id,
           parentName: collection.title,

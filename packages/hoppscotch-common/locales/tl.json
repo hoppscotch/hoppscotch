@@ -1292,7 +1292,7 @@
     "extensions_use_toggle": "Gamitin ang browser extension para magpadala ng requests (kung meron)",
     "follow": "I-follow kami",
     "general": "General",
-    "general_description": " Mga pangkalahatang settings na ginagamit sa application",
+    "general_description": "Mga pangkalahatang settings na ginagamit sa application",
     "interceptor": "Interceptor",
     "interceptor_description": "Middleware sa pagitan ng application at APIs.",
     "kernel_interceptor": "Interceptor",

@@ -64,12 +64,13 @@ export const testRunner = (
 
             // Combine request test script with inherited test scripts (from child to root collection)
             // Order: Request → Child folder → Parent folder → Root collection
-            const combinedScript = [
-              request.testScript,
-              ...inheritedTestScripts.filter((s) => s.trim()).reverse(),
-            ]
-              .filter((s) => s.trim())
-              .join("\n\n");
+            // Each script is wrapped in an IIFE for scope isolation (consistent with pre-request scripts)
+            const combinedScript = combineScriptsWithIIFE(
+              filterValidScripts([
+                request.testScript,
+                ...inheritedTestScripts.slice().reverse(),
+              ])
+            );
 
             return runTestScript(stripModulePrefix(combinedScript), {
               envs,

@@ -54,12 +54,13 @@ export const combineScriptsWithIIFE = (scripts: string[]): string => {
 };
 
 /**
- * Filters out empty, whitespace-only, or non-string entries from a scripts array.
+ * Filters out empty, whitespace-only, module-prefix-only, or non-string entries from a scripts array.
  */
 export const filterValidScripts = (
   scripts: (string | undefined | null)[]
 ): string[] =>
   scripts.filter(
     (script): script is string =>
-      typeof script === "string" && script.trim().length > 0
+      typeof script === "string" &&
+      stripModulePrefix(script).trim().length > 0
   );

@@ -36,7 +36,7 @@ import { arrayFlatMap, arraySort, tupleToRecord } from "./functions/array";
 import { getEffectiveFinalMetaData, getResolvedVariables } from "./getters";
 import { stripComments } from "./jsonc";
 import { stripModulePrefix, toFormData } from "./mutators";
-import { combineScriptsWithIIFE } from "./scripting";
+import { combineScriptsWithIIFE, filterValidScripts } from "./scripting";
 
 /**
  * Runs pre-request-script runner over given request which extracts set ENVs and
@@ -66,10 +66,10 @@ export const preRequestScriptRunner = (
   // Order: Root collection → Parent folder → Child folder → Request
   // Each script is wrapped in an IIFE to isolate local variable scope and prevent clashes
   const combinedScript = combineScriptsWithIIFE(
-    [...inheritedPreRequestScripts, request.preRequestScript].filter(
-      (script): script is string =>
-        typeof script === "string" && script.trim().length > 0
-    )
+    filterValidScripts([
+      ...inheritedPreRequestScripts,
+      request.preRequestScript,
+    ])
   );
 
   return pipe(

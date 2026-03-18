@@ -110,15 +110,16 @@ const processCollection = async (
   delay: number,
   requestsReport: RequestReport[],
   legacySandbox?: boolean,
-  parentPreRequestScripts: string[] = [],
-  parentTestScripts: string[] = []
+  ancestorPreRequestScripts: string[] = [],
+  ancestorTestScripts: string[] = []
 ) => {
+  // Accumulate scripts from root -> current collection for inheritance
   const inheritedPreRequestScripts = [
-    ...parentPreRequestScripts,
+    ...ancestorPreRequestScripts,
     ...(collection.preRequestScript ? [collection.preRequestScript] : []),
   ];
   const inheritedTestScripts = [
-    ...parentTestScripts,
+    ...ancestorTestScripts,
     ...(collection.testScript ? [collection.testScript] : []),
   ];
 

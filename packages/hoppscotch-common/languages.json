@@ -61,6 +61,12 @@
     "name": "Español"
   },
   {
+    "code": "fil-PH",
+    "file": "fil.json",
+    "iso": "fil-PH",
+    "name": "Filipino"
+  },
+  {
     "code": "fi",
     "file": "fi.json",
     "iso": "fi-FI",
@@ -71,12 +77,6 @@
     "file": "fr.json",
     "iso": "fr-FR",
     "name": "Français"
-  },
-  {
-    "code": "fil-PH",
-    "file": "fil-PH.json",
-    "iso": "fil-PH",
-    "name": "Filipino"
   },
   {
     "code": "he",

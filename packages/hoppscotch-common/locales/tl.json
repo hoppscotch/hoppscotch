@@ -722,7 +722,7 @@
     "delete_all_activity_logs": "Nag-fail ang pagbura sa lahat ng mga activity log",
     "email_already_exists": "May ibang account na gamit na ang email na ito. Maglagay ng ibang email address.",
     "empty_email_address": "Hindi maaring walang laman ang Email Address",
-    "empty_profile_name": "Hindi maaring walang pangalan  ang profile",
+    "empty_profile_name": "Hindi maaring walang pangalan ang profile",
     "empty_req_name": "Walang Laman ang Pangalan ng Request",
     "fetch_activity_logs": "Nag-fail na makuha ang activity logs",
     "f12_details": "(Pindutin ang F12 para sa mga detalye)",

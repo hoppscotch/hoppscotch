@@ -57,3 +57,12 @@ export const combineScriptsWithIIFE = (scripts: string[]): string => {
   const awaited = fns.map((fn) => `  await (${fn})();`).join("\n")
   return `(async () => {\n${awaited}\n})();`
 }
+
+/**
+ * Returns true if a script contains actual code beyond the module prefix.
+ * Monaco adds `export {};\n` to empty scripts, so we strip it before checking.
+ */
+export const hasActualScript = (script: string | undefined | null): boolean => {
+  if (!script) return false
+  return stripModulePrefix(script).trim().length > 0
+}

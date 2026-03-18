@@ -11,6 +11,7 @@ import {
   GQLHeader,
 } from "@hoppscotch/data"
 import { cloneDeep } from "lodash-es"
+import { hasActualScript } from "~/helpers/scripting"
 import { pluck } from "rxjs/operators"
 import { resolveSaveContextOnRequestReorder } from "~/helpers/collection/request"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
@@ -234,7 +235,10 @@ export function cascadeParentCollectionForProperties(
     const parentPreRequestScript = parentFolder.preRequestScript ?? ""
     const parentTestScript = parentFolder.testScript ?? ""
 
-    if (parentPreRequestScript || parentTestScript) {
+    if (
+      hasActualScript(parentPreRequestScript) ||
+      hasActualScript(parentTestScript)
+    ) {
       const currentPath = [...path.slice(0, i + 1)].join("/")
 
       scripts.push({

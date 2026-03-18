@@ -1,11 +1,6 @@
 import * as E from "fp-ts/Either"
 import { Subscription } from "rxjs"
-import {
-  HoppCollectionVariable,
-  HoppRESTAuth,
-  HoppRESTHeader,
-  translateToNewRequest,
-} from "@hoppscotch/data"
+import { HoppCollectionVariable, translateToNewRequest } from "@hoppscotch/data"
 import { pull, remove } from "lodash-es"
 import { Subscription as WSubscription } from "wonka"
 import {
@@ -35,6 +30,7 @@ import { ref, watch } from "vue"
 import { Service } from "dioc"
 import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
 import { hasActualScript } from "~/helpers/scripting"
+import { CollectionDataProps } from "~/helpers/backend/helpers"
 
 export const TEAMS_BACKEND_PAGE_SIZE = 10
 
@@ -1146,21 +1142,9 @@ export class TeamCollectionsService extends Service<void> {
         return { auth, headers, variables, scripts }
       }
 
-      const data: {
-        auth: HoppRESTAuth
-        headers: HoppRESTHeader[]
-        variables: HoppCollectionVariable[]
-        preRequestScript: string
-        testScript: string
-      } = parentFolder.data
+      const data: Partial<CollectionDataProps> = parentFolder.data
         ? JSON.parse(parentFolder.data)
-        : {
-            auth: null,
-            headers: null,
-            variables: null,
-            preRequestScript: "",
-            testScript: "",
-          }
+        : {}
 
       if (!data.auth) {
         data.auth = {

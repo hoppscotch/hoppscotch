@@ -33,17 +33,15 @@
         class="!p-0.75 rounded ml-8"
         @click="isNewTeamModalOpen = true"
       />
-      <!-- @click="displayModalAdd(true)" -->
     </div>
-    <!-- Debug: using IconPlus for IconUsers & IconDone for now -->
     <HoppSmartItem
       v-for="workspace in validWorkspaces"
       :key="workspace.value.data.workspaceID"
-      :icon="IconPlus"
+      :icon="IconUsers"
       :label="workspace.value.data.name"
       :info-icon="
         isActiveWorkspace(workspace.value.data.workspaceID)
-          ? IconPlus
+          ? IconCheck
           : undefined
       "
       :active-info-icon="isActiveWorkspace(workspace.value.data.workspaceID)"
@@ -69,6 +67,8 @@ import { useService } from "dioc/vue"
 import { NewWorkspaceService } from "~/services/new-workspace"
 import { computed, ref, Ref } from "vue"
 import IconPlus from "~icons/lucide/plus"
+import IconUsers from "~icons/lucide/users"
+import IconCheck from "~icons/lucide/check"
 import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { useReadonlyStream } from "~/composables/stream"
 import { useColorMode } from "~/composables/theming"

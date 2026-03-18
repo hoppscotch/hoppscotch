@@ -17,7 +17,7 @@
       class="group flex items-stretch"
       :draggable="true"
       @dragstart="dragStart"
-      @dragover="handleDragOver($event)"
+      @dragover.prevent="handleDragOver($event)"
       @dragleave="resetDragState"
       @dragend="resetDragState"
       @drop="handleDrop"

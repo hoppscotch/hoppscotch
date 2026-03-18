@@ -37,6 +37,7 @@ const wrapInAsyncFn = (script: string): string => {
   const trimmed = script?.trim()
   if (!trimmed) return ""
   const stripped = stripModulePrefix(trimmed)
+  if (!stripped) return ""
   return `async function() {\n${stripped}\n}`
 }
 

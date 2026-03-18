@@ -1,4 +1,4 @@
-// RFC 8252 §8.3 — only true loopback addresses are safe for native app redirects
+// Only true loopback addresses are safe for native app redirects
 const LOOPBACK_HOSTS = ['localhost', '127.0.0.1', '::1', '[::1]'];
 
 export function isValidLocalhostRedirectUri(uri: string): boolean {
@@ -17,6 +17,6 @@ export function isValidLocalhostRedirectUri(uri: string): boolean {
   // block credential-stuffed URIs like http://user:pass@localhost
   if (url.username || url.password) return false;
 
-  // exact match only — startsWith('localhost') was the original bug
+  // exact match only
   return LOOPBACK_HOSTS.indexOf(url.hostname) !== -1;
 }

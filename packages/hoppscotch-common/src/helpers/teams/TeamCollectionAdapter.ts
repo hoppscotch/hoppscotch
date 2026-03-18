@@ -1,13 +1,9 @@
 import * as E from "fp-ts/Either"
 import { BehaviorSubject, Subscription } from "rxjs"
-import {
-  HoppCollectionVariable,
-  HoppRESTAuth,
-  HoppRESTHeader,
-  translateToNewRequest,
-} from "@hoppscotch/data"
+import { HoppCollectionVariable, translateToNewRequest } from "@hoppscotch/data"
 import { pull, remove } from "lodash-es"
 import { hasActualScript } from "~/helpers/scripting"
+import { CollectionDataProps } from "~/helpers/backend/helpers"
 import { Subscription as WSubscription } from "wonka"
 import { runGQLQuery, runGQLSubscription } from "../backend/GQLClient"
 import { TeamCollection } from "./TeamCollection"
@@ -1116,21 +1112,9 @@ export default class NewTeamCollectionAdapter {
         return { auth, headers, variables, scripts }
       }
 
-      const data: {
-        auth: HoppRESTAuth
-        headers: HoppRESTHeader[]
-        variables: HoppCollectionVariable[]
-        preRequestScript?: string
-        testScript?: string
-      } = parentFolder.data
+      const data: Partial<CollectionDataProps> = parentFolder.data
         ? JSON.parse(parentFolder.data)
-        : {
-            auth: null,
-            headers: null,
-            variables: null,
-            preRequestScript: "",
-            testScript: "",
-          }
+        : {}
 
       if (!data.auth) {
         data.auth = {

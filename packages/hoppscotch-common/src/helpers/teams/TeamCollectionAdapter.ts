@@ -7,6 +7,7 @@ import {
   translateToNewRequest,
 } from "@hoppscotch/data"
 import { pull, remove } from "lodash-es"
+import { hasActualScript } from "~/helpers/scripting"
 import { Subscription as WSubscription } from "wonka"
 import { runGQLQuery, runGQLSubscription } from "../backend/GQLClient"
 import { TeamCollection } from "./TeamCollection"
@@ -1210,7 +1211,10 @@ export default class NewTeamCollectionAdapter {
       }
 
       // Update scripts
-      if (parentFolderPreRequestScript || parentFolderTestScript) {
+      if (
+        hasActualScript(parentFolderPreRequestScript) ||
+        hasActualScript(parentFolderTestScript)
+      ) {
         const currentPath = [...path.slice(0, i + 1)].join("/")
 
         scripts.push({

@@ -59,7 +59,7 @@
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { refAutoReset } from "@vueuse/core"
-import { computed, ref } from "vue"
+import { computed, ref, watch } from "vue"
 import { stripModulePrefix } from "~/helpers/scripting"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import IconCheck from "~icons/lucide/check"
@@ -85,6 +85,16 @@ const emit = defineEmits<{
 const t = useI18n()
 
 const selectedScriptID = ref<string | null>(null)
+
+// Reset selection when modal reopens to avoid stale state
+watch(
+  () => props.show,
+  (isVisible) => {
+    if (isVisible) {
+      selectedScriptID.value = null
+    }
+  }
+)
 
 const isSelected = (id: string) =>
   selectedScriptID.value === id ||

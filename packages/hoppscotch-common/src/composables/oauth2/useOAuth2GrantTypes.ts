@@ -196,7 +196,10 @@ export const useOAuth2GrantTypes = (
                 }
               : null,
           (value) => {
-            if (!("codeVerifierMethod" in auth.value.grantTypeInfo) || !value) {
+            if (
+              auth.value.grantTypeInfo.grantType !== "AUTHORIZATION_CODE" ||
+              !value
+            ) {
               return
             }
 

@@ -64,5 +64,5 @@ export const combineScriptsWithIIFE = (scripts: string[]): string => {
  */
 export const hasActualScript = (script: string | undefined | null): boolean => {
   if (!script) return false
-  return stripModulePrefix(script).trim().length > 0
+  return stripModulePrefix(script.trim()).length > 0
 }

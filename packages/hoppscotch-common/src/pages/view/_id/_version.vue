@@ -53,6 +53,7 @@ import {
   translateToNewEnvironmentVariables,
 } from "@hoppscotch/data"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { hasActualScript } from "~/helpers/scripting"
 import {
   PublishedDocREST,
   PublishedDocsVersion,
@@ -153,12 +154,20 @@ const flattenCollection = (
     ],
     scripts: [
       ...(inheritedProperties?.scripts || []),
-      {
-        parentID: collection.id || "",
-        parentName: collection.name,
-        preRequestScript: collection.preRequestScript || "",
-        testScript: collection.testScript || "",
-      },
+      ...(hasActualScript(collection.preRequestScript) ||
+      hasActualScript(collection.testScript)
+        ? [
+            {
+              parentID:
+                collection.id ||
+                collection._ref_id ||
+                `collection-${collection.name}`,
+              parentName: collection.name,
+              preRequestScript: collection.preRequestScript || "",
+              testScript: collection.testScript || "",
+            },
+          ]
+        : []),
     ],
   }
 

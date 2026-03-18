@@ -61,12 +61,6 @@
     "name": "Español"
   },
   {
-    "code": "fil",
-    "file": "fil.json",
-    "iso": "fil-PH",
-    "name": "Filipino"
-  },
-  {
     "code": "fi",
     "file": "fi.json",
     "iso": "fi-FI",
@@ -173,6 +167,12 @@
     "file": "sv.json",
     "iso": "sv-SV",
     "name": "Svenska"
+  },
+  {
+    "code": "tl",
+    "file": "tl.json",
+    "iso": "tl-PH",
+    "name": "Tagalog"
   },
   {
     "code": "tr",

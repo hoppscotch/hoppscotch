@@ -100,7 +100,13 @@ export class WSConnection {
   }
 
   disconnect() {
+    if (!this.socket) {
+      // Ensure stale manualDisconnect state is not carried over
+      this.manualDisconnect = false
+      return
+    }
+
     this.manualDisconnect = true
-    this.socket?.close()
+    this.socket.close()
   }
 }

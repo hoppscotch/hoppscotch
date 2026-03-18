@@ -1258,7 +1258,10 @@
     "invalid_name": "Please provide a name for the response"
   },
   "script": {
-    "inheriting": "Inheriting scripts from"
+    "inheriting": "Inheriting scripts from",
+    "inheriting_from_count": "Inheriting from {count} collection | Inheriting from {count} collections",
+    "inherited_scripts": "Inherited Scripts",
+    "view_inherited": "View inherited scripts"
   },
   "settings": {
     "accent_color": "Accent color",

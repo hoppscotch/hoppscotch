@@ -78,7 +78,9 @@
               <HoppSmartTab
                 id="pre-request"
                 :label="`${t('tab.pre_request_script')}`"
-                :indicator="!!editableCollection.preRequestScript"
+                :indicator="
+                  hasActualScript(editableCollection.preRequestScript)
+                "
               >
                 <div class="flex flex-col flex-1">
                   <div class="h-64 overflow-hidden relative">
@@ -103,7 +105,7 @@
               <HoppSmartTab
                 id="test-script"
                 :label="`${t('tab.post_request_script')}`"
-                :indicator="!!editableCollection.testScript"
+                :indicator="hasActualScript(editableCollection.testScript)"
               >
                 <div class="flex flex-col flex-1">
                   <div
@@ -233,6 +235,7 @@ import {
   HoppRESTHeaders,
   GQLHeader,
 } from "@hoppscotch/data"
+import { hasActualScript } from "~/helpers/scripting"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { PersistenceService } from "~/services/persistence"
 

@@ -55,8 +55,7 @@
       :label="`${t('tab.pre_request_script')}`"
       :indicator="
         ('preRequestScript' in request &&
-          request.preRequestScript &&
-          request.preRequestScript.length > 0) ||
+          hasActualScript(request.preRequestScript)) ||
         hasInheritedPreRequestScripts
       "
     >
@@ -72,9 +71,7 @@
       :id="'tests'"
       :label="`${t('tab.post_request_script')}`"
       :indicator="
-        ('testScript' in request &&
-          request.testScript &&
-          request.testScript.length > 0) ||
+        ('testScript' in request && hasActualScript(request.testScript)) ||
         hasInheritedTestScripts
       "
     >
@@ -107,6 +104,7 @@ import { useVModel } from "@vueuse/core"
 import { computed } from "vue"
 
 import { defineActionHandler } from "~/helpers/actions"
+import { hasActualScript } from "~/helpers/scripting"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { AggregateEnvironment } from "~/newstore/environments"
 
@@ -190,16 +188,16 @@ const isBodyFilled = computed(() => {
 
 const hasInheritedPreRequestScripts = computed(() => {
   return (
-    props.inheritedProperties?.scripts?.some(
-      (script) => script.preRequestScript && script.preRequestScript.length > 0
+    props.inheritedProperties?.scripts?.some((script) =>
+      hasActualScript(script.preRequestScript)
     ) ?? false
   )
 })
 
 const hasInheritedTestScripts = computed(() => {
   return (
-    props.inheritedProperties?.scripts?.some(
-      (script) => script.testScript && script.testScript.length > 0
+    props.inheritedProperties?.scripts?.some((script) =>
+      hasActualScript(script.testScript)
     ) ?? false
   )
 })

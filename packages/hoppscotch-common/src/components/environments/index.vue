@@ -28,10 +28,7 @@
       :adapter-error="adapterError"
       @select-environment="handleEnvironmentChange"
       @environments-changed="
-        environmentType.selectedTeam &&
-        adapter &&
-        adapter.fetchList &&
-        adapter.fetchList().catch(() => {})
+        environmentType.selectedTeam && adapter.fetchList().catch(() => {})
       "
     />
     <EnvironmentsMyDetails
@@ -320,6 +317,7 @@ const removeSelectedEnvironment = () => {
         },
         () => {
           toast.success(`${t("team_environment.deleted")}`)
+          setSelectedEnvironmentIndex({ type: "NO_ENV_SELECTED" })
           if (environmentType.value.type === "team-environments")
             adapter.fetchList().catch(() => {})
         }

@@ -649,7 +649,7 @@ const saveEnvironment = async () => {
           () => {
             hideModal()
             toast.success(`${t("environment.updated")}`)
-
+            emit("environments-changed")
             isLoading.value = false
           }
         )

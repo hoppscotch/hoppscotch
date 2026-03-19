@@ -423,6 +423,7 @@ const loadEditableCollection = () => {
 }
 
 const resetEditableCollection = () => {
+  activeScriptsTab.value = "pre-request"
   editableCollection.value = {
     headers: [],
     auth: { authType: "inherit", authActive: false },

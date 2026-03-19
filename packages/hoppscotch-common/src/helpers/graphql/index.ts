@@ -31,7 +31,7 @@ export const HoppGQLRequestEq = Eq.struct<HoppGQLRequest>({
   name: S.Eq,
   url: S.Eq,
   headers: mapThenEq(
-    (arr) => arr.filter((h) => h.key !== "" && h.value !== ""),
+    (arr) => arr.filter((h) => h.key !== ""),
     lodashIsEqualEq
   ),
   query: S.Eq,

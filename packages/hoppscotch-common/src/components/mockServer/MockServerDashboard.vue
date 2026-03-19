@@ -22,7 +22,7 @@
       <span class="flex">
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          to="https://docs.hoppscotch.io/documentation/features/mock-servers"
+          to="https://docs.hoppscotch.io/documentation/features/mock"
           blank
           :title="t('app.wiki')"
           :icon="IconHelpCircle"

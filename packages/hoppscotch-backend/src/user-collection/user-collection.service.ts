@@ -920,9 +920,9 @@ export class UserCollectionService {
       folders: childrenCollectionObjects,
       requests: requests.map((x) => {
         return {
+          ...(x.request as Record<string, unknown>), // type casting x.request of type Prisma.JSONValue to an object to enable spread
           id: x.id,
           name: x.title,
-          ...(x.request as Record<string, unknown>), // type casting x.request of type Prisma.JSONValue to an object to enable spread
         };
       }),
       data,
@@ -996,9 +996,9 @@ export class UserCollectionService {
           folders: collectionListObjects,
           requests: requests.map((x) => {
             return {
+              ...(x.request as Record<string, unknown>), // type casting x.request of type Prisma.JSONValue to an object to enable spread
               id: x.id,
               name: x.title,
-              ...(x.request as Record<string, unknown>), // type casting x.request of type Prisma.JSONValue to an object to enable spread
             };
           }),
           data: JSON.stringify(parentCollection.right.data),

@@ -27,7 +27,11 @@ import { map } from "fp-ts/Either"
 import { runPreRequestScript, runTestScript } from "@hoppscotch/js-sandbox/web"
 import { useSetting } from "~/composables/settings"
 import { getService } from "~/modules/dioc"
-import { combineScriptsWithIIFE, stripModulePrefix } from "~/helpers/scripting"
+import {
+  combineScriptsWithIIFE,
+  hasActualScript,
+  stripModulePrefix,
+} from "~/helpers/scripting"
 import { createHoppFetchHook } from "~/helpers/hopp-fetch"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import {
@@ -515,12 +519,14 @@ export function runRESTRequest$(
     initialEnvsForComparison,
   } = captureInitialEnvironmentState()
 
-  // Extract inherited scripts from collection hierarchy
+  // Extract inherited scripts from collection hierarchy, filtering out empty/module-prefix-only scripts
   const inheritedScripts = inheritedProperties?.scripts ?? []
-  const inheritedPreRequestScripts = inheritedScripts.map(
-    (s) => s.preRequestScript
-  )
-  const inheritedTestScripts = inheritedScripts.map((s) => s.testScript)
+  const inheritedPreRequestScripts = inheritedScripts
+    .map((s) => s.preRequestScript)
+    .filter(hasActualScript)
+  const inheritedTestScripts = inheritedScripts
+    .map((s) => s.testScript)
+    .filter(hasActualScript)
 
   const res = delegatePreRequestScriptRunner(
     resolvedRequest,

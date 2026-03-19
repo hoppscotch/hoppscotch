@@ -41,6 +41,8 @@ WORKDIR /tmp/caddy-build
 RUN tar xvf /tmp/caddy-build/src.tar.gz && \
   # Fix CVE: upgrade google.golang.org/grpc to 1.79.3 (CVSS 9.1)
   go get google.golang.org/grpc@v1.79.3 && \
+  # Fix CVE: upgrade github.com/smallstep/certificates to 0.30.0 (CVSS 10)
+  go get github.com/smallstep/certificates@v0.30.0 && \
   # Clean up any existing vendor directory and regenerate with updated deps
   rm -rf vendor && \
   go mod tidy && \

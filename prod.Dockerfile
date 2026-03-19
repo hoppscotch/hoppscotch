@@ -38,7 +38,13 @@ RUN expected="40cb9dc5e0b005bba635e830ba2354450248831fca3b58f5c49892a4747d0e76" 
   echo "✅ Caddy Source Checksum OK" || \
   (echo "❌ Caddy Source Checksum failed!" && exit 1)
 WORKDIR /tmp/caddy-build
-RUN tar xvf /tmp/caddy-build/src.tar.gz
+RUN tar xvf /tmp/caddy-build/src.tar.gz && \
+  # Fix CVE: upgrade google.golang.org/grpc to 1.79.3 (CVSS 9.1)
+  go get google.golang.org/grpc@v1.79.3 && \
+  # Clean up any existing vendor directory and regenerate with updated deps
+  rm -rf vendor && \
+  go mod tidy && \
+  go mod vendor
 WORKDIR /tmp/caddy-build/cmd/caddy
 RUN go build
 
@@ -59,7 +65,8 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o webapp-server .
 # Shared Node.js base with optimized NPM installation
 FROM alpine:3.23.3 AS node_base
 # Install dependencies
-RUN apk add --no-cache nodejs curl bash tini ca-certificates
+RUN apk upgrade --no-cache && \
+  apk add --no-cache nodejs curl bash tini ca-certificates
 # Set working directory for NPM installation
 RUN mkdir -p /tmp/npm-install
 WORKDIR /tmp/npm-install
@@ -83,6 +90,11 @@ RUN npm install -g pnpm@10.32.1 @import-meta-env/cli
 RUN npm install -g glob@11.1.0 && \
   rm -rf /usr/lib/node_modules/@import-meta-env/cli/node_modules/glob && \
   cp -r /usr/lib/node_modules/glob /usr/lib/node_modules/@import-meta-env/cli/node_modules/
+
+# Fix CVE: upgrade serialize-javascript in @import-meta-env/cli (ships 6.0.2, fix requires >=7.0.3)
+RUN npm install -g serialize-javascript@7.0.3 && \
+  rm -rf /usr/lib/node_modules/@import-meta-env/cli/node_modules/serialize-javascript && \
+  cp -r /usr/lib/node_modules/serialize-javascript /usr/lib/node_modules/@import-meta-env/cli/node_modules/
 
 
 

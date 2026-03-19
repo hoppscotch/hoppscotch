@@ -35,6 +35,7 @@
   },
   "pnpm": {
     "overrides": {
+      "@hono/node-server@<1.19.10": "1.19.10",
       "@nestjs-modules/mailer>mjml": "5.0.0-alpha.4",
       "apiconnect-wsdl": "2.0.36",
       "body-parser": "2.2.1",
@@ -42,11 +43,15 @@
       "execa@<2.0.0": "2.0.0",
       "form-data": "4.0.4",
       "glob@<11.1.0": "11.1.0",
-      "hono@4.11.4": "4.11.7",
-      "lodash@4.17.21": "4.17.23",
+      "hono@<4.12.7": "4.12.7",
+      "liquidjs@<10.25.0": "10.25.0",
+      "lodash@>=4.0.0 <4.17.23": "4.17.23",
+      "mailparser@<3.9.3": "3.9.3",
+      "minimatch@>=5.0.0 <10.2.3": "10.2.3",
       "nodemailer@<7.0.11": "7.0.11",
-      "qs@6.14.1": "6.14.2",
+      "serialize-javascript@<7.0.3": "7.0.3",
       "subscriptions-transport-ws>ws": "7.5.10",
+      "svgo@4.0.0": "4.0.1",
       "vue": "3.5.30",
       "ws": "8.17.1"
     },

@@ -402,12 +402,9 @@ const enforceTabAccessRules = () => {
     ["headers", "authorization"].includes(activeTab.value)
   )
     activeTab.value = "variables"
-  // `Scripts` tab only exists for REST collections with write access
+  // `Scripts` tab only exists for REST collections
   // Switch to `Variables` tab if scripts tab becomes unavailable
-  if (
-    activeTab.value === "scripts" &&
-    (!props.hasTeamWriteAccess || props.source !== "REST")
-  )
+  if (activeTab.value === "scripts" && props.source !== "REST")
     activeTab.value = "variables"
 }
 

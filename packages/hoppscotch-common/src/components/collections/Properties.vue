@@ -65,7 +65,7 @@
         </HoppSmartTab>
 
         <HoppSmartTab
-          v-if="hasTeamWriteAccess && source === 'REST'"
+          v-if="source === 'REST'"
           id="scripts"
           :label="`${t('tab.scripts')}`"
         >
@@ -92,6 +92,7 @@
                       "
                       v-model="editableCollection.preRequestScript"
                       type="pre-request"
+                      :read-only="!hasTeamWriteAccess"
                     />
                     <div
                       v-else
@@ -119,6 +120,7 @@
                       "
                       v-model="editableCollection.testScript"
                       type="post-request"
+                      :read-only="!hasTeamWriteAccess"
                     />
                     <div
                       v-else
@@ -336,6 +338,7 @@ useCodemirror(
       mode: "application/javascript",
       lineWrapping: true,
       placeholder: `${t("preRequest.javascript_code")}`,
+      readOnly: !props.hasTeamWriteAccess,
     },
     linter: preRequestLinter,
     completer: preRequestCompleter,
@@ -352,6 +355,7 @@ useCodemirror(
       mode: "application/javascript",
       lineWrapping: true,
       placeholder: `${t("test.javascript_code")}`,
+      readOnly: !props.hasTeamWriteAccess,
     },
     linter: testScriptLinter,
     completer: testScriptCompleter,

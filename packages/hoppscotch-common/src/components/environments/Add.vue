@@ -187,7 +187,11 @@ const addEnvironment = async () => {
       const targetCollection = getRESTCollectionByRefId(
         scope.value.collectionRefID
       )
-      const hasDuplicateKey = (targetCollection?.variables ?? []).some(
+      if (!targetCollection) {
+        toast.error(`${t("error.something_went_wrong")}`)
+        return
+      }
+      const hasDuplicateKey = (targetCollection.variables ?? []).some(
         (variable) => variable.key === editingName.value
       )
 

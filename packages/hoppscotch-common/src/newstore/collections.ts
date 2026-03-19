@@ -354,7 +354,7 @@ const restCollectionDispatchers = defineDispatchers({
       },
     ]
 
-    return { state }
+    return { state: [...state] }
   },
 
   sortRESTCollection(

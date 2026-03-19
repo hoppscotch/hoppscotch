@@ -27,6 +27,12 @@
       :loading="loading"
       :adapter-error="adapterError"
       @select-environment="handleEnvironmentChange"
+      @environments-changed="
+        environmentType.selectedTeam &&
+        adapter &&
+        adapter.fetchList &&
+        adapter.fetchList().catch(() => {})
+      "
     />
     <EnvironmentsMyDetails
       :show="showModalDetails"
@@ -277,6 +283,8 @@ const duplicateGlobalEnvironment = async () => {
         },
         () => {
           toast.success(t("environment.duplicated"))
+          if (workspace.value.type === "team")
+            adapter.fetchList().catch(() => {})
         }
       )
     )()
@@ -312,6 +320,8 @@ const removeSelectedEnvironment = () => {
         },
         () => {
           toast.success(`${t("team_environment.deleted")}`)
+          if (environmentType.value.type === "team-environments")
+            adapter.fetchList().catch(() => {})
         }
       )
     )()

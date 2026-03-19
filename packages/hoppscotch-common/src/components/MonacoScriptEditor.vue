@@ -26,9 +26,11 @@ const props = withDefaults(
   defineProps<{
     modelValue: string
     type: "pre-request" | "post-request"
+    readOnly?: boolean
   }>(),
   {
     modelValue: "",
+    readOnly: false,
   }
 )
 
@@ -40,12 +42,15 @@ const emit = defineEmits<{
 
 const editorModel = ref<monaco.editor.ITextModel | null>(null)
 
-const MONACO_EDITOR_OPTIONS: Readonly<monaco.editor.IStandaloneEditorConstructionOptions> =
-  {
-    automaticLayout: true,
-    formatOnType: true,
-    formatOnPaste: true,
-  }
+const MONACO_EDITOR_OPTIONS = computed<
+  Readonly<monaco.editor.IStandaloneEditorConstructionOptions>
+>(() => ({
+  automaticLayout: true,
+  formatOnType: !props.readOnly,
+  formatOnPaste: !props.readOnly,
+  readOnly: props.readOnly,
+  domReadOnly: props.readOnly,
+}))
 
 // Static imports: import X from "URL"
 const staticImportRegex =

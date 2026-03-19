@@ -412,6 +412,7 @@ const enforceTabAccessRules = () => {
 }
 
 const loadEditableCollection = () => {
+  activeScriptsTab.value = "pre-request"
   editableCollection.value = {
     auth: clone(props.editingProperties.collection!.auth as HoppCollectionAuth),
     headers: clone(

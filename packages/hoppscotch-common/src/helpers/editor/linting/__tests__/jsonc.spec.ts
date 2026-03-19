@@ -4,8 +4,8 @@ import { stripComments } from "../jsonc"
 describe("jsonc helpers", () => {
   describe("stripComments", () => {
     it("should preserve numeric precision for large integers", () => {
-      const input = `{ "largeNumber": 9007199254740993 }`
-      const expected = `{"largeNumber":9007199254740993}`
+      const input = '{ "largeNumber": 9007199254740993 }'
+      const expected = '{"largeNumber":9007199254740993}'
       expect(stripComments(input)).toBe(expected)
     })
 
@@ -49,7 +49,8 @@ describe("jsonc helpers", () => {
         "array": [1, 2, { "nestedLarge": 99999999999999999 }],
         "object": { "a": -1.5 }
       }`
-      const expected = `{"array":[1,2,{"nestedLarge":99999999999999999}],"object":{"a":-1.5}}`
+      const expected =
+        '{"array":[1,2,{"nestedLarge":99999999999999999}],"object":{"a":-1.5}}'
       expect(stripComments(input)).toBe(expected)
     })
   })

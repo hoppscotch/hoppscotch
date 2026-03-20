@@ -258,8 +258,13 @@ export class TeamCollectionsService extends Service<void> {
   }
 
   private async initialize() {
-    await this.loadRootCollections()
     this.registerSubscriptions()
+    try {
+      await this.loadRootCollections()
+    } catch (e) {
+      this.unsubscribeSubscriptions()
+      throw e
+    }
   }
 
   /**

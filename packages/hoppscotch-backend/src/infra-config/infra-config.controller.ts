@@ -1,4 +1,4 @@
-import { Controller, Get, HttpStatus, Put, UseGuards } from '@nestjs/common';
+import { Controller, Get, Header, HttpStatus, Put, UseGuards } from '@nestjs/common';
 import { ThrottlerBehindProxyGuard } from 'src/guards/throttler-behind-proxy.guard';
 import { InfraConfigService } from './infra-config.service';
 import * as E from 'fp-ts/Either';
@@ -15,6 +15,7 @@ export class SiteController {
 
   @Get('proxy-config')
   @UseGuards(JwtAuthGuard)
+  @Header('Cache-Control', 'no-store')
   getProxyConfig() {
     return {
       proxyUrl: process.env.VITE_PROXY_URL ?? '',

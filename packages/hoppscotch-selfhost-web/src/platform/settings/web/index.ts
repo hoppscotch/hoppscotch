@@ -34,7 +34,7 @@ function initSettingsSync() {
     }
   })
 
-  authEvents$.subscribe((event) => {
+  authEvents$.subscribe(async (event) => {
     if (event.event == "login" || event.event == "token_refresh") {
       settingsSyncer.startListeningToSubscriptions()
     }
@@ -42,7 +42,7 @@ function initSettingsSync() {
     if (event.event == "logout") {
       settingsSyncer.stopListeningToSubscriptions()
       const proxyStore = getService(KernelInterceptorProxyStore)
-      proxyStore.resetSettings()
+      await proxyStore.resetSettings()
     }
   })
 }

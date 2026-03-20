@@ -99,10 +99,17 @@ export function resolveSaveContextOnRequestReorder(payload: {
 
     requestIDArr[requestIDArr.length - 1] = requestIndex.toString()
 
-    requestHandleRef.value.data.requestID = requestIDArr.join("/")
-    requestHandleRef.value.data.collectionID = requestIDArr
-      .slice(0, -1)
-      .join("/")
+    const updatedRequestID = requestIDArr.join("/")
+    const updatedCollectionID = requestIDArr.slice(0, -1).join("/")
+
+    requestHandleRef.value = {
+      ...requestHandleRef.value,
+      data: {
+        ...requestHandleRef.value.data,
+        requestID: updatedRequestID,
+        collectionID: updatedCollectionID,
+      },
+    }
   }
 }
 

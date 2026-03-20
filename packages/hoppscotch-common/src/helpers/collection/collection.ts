@@ -118,10 +118,13 @@ export function resolveSaveContextOnCollectionReorder(
       requestID.split("/").slice(-1)[0]
     }`
 
-    requestHandleRef.value.data = {
-      ...requestHandleRef.value.data,
-      collectionID: newCollectionID!,
-      requestID: newRequestID,
+    requestHandleRef.value = {
+      ...requestHandleRef.value,
+      data: {
+        ...requestHandleRef.value.data,
+        collectionID: newCollectionID!,
+        requestID: newRequestID,
+      },
     }
   }
 }

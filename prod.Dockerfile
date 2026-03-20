@@ -38,7 +38,7 @@ RUN expected="40cb9dc5e0b005bba635e830ba2354450248831fca3b58f5c49892a4747d0e76" 
   echo "✅ Caddy Source Checksum OK" || \
   (echo "❌ Caddy Source Checksum failed!" && exit 1)
 WORKDIR /tmp/caddy-build
-RUN tar xvf /tmp/caddy-build/src.tar.gz && \
+RUN tar -xzf /tmp/caddy-build/src.tar.gz && \
   # Fix CVE: upgrade google.golang.org/grpc to 1.79.3 (CVSS 9.1)
   go get google.golang.org/grpc@v1.79.3 && \
   # Fix CVE: upgrade github.com/smallstep/certificates to 0.30.0 (CVSS 10)
@@ -86,17 +86,23 @@ RUN tar -xzf npm.tgz && \
   node bin/npm-cli.js install -g npm@11.11.1 && \
   cd / && \
   rm -rf /tmp/npm-install
-RUN npm install -g pnpm@10.32.1 @import-meta-env/cli
+RUN npm install -g pnpm@10.32.1 @import-meta-env/cli@0.7.4
 
 # Fix CVE-2025-64756 by replacing vulnerable glob in @import-meta-env/cli (ships glob@11.0.2, fix requires >=11.1.0)
-RUN npm install -g glob@11.1.0 && \
+RUN mkdir -p /tmp/glob-fix && \
+  cd /tmp/glob-fix && \
+  npm install glob@11.1.0 && \
   rm -rf /usr/lib/node_modules/@import-meta-env/cli/node_modules/glob && \
-  cp -r /usr/lib/node_modules/glob /usr/lib/node_modules/@import-meta-env/cli/node_modules/
+  cp -r node_modules/glob /usr/lib/node_modules/@import-meta-env/cli/node_modules/ && \
+  rm -rf /tmp/glob-fix
 
 # Fix CVE: upgrade serialize-javascript in @import-meta-env/cli (ships 6.0.2, fix requires >=7.0.3)
-RUN npm install -g serialize-javascript@7.0.3 && \
+RUN mkdir -p /tmp/serialize-fix && \
+  cd /tmp/serialize-fix && \
+  npm install serialize-javascript@7.0.3 && \
   rm -rf /usr/lib/node_modules/@import-meta-env/cli/node_modules/serialize-javascript && \
-  cp -r /usr/lib/node_modules/serialize-javascript /usr/lib/node_modules/@import-meta-env/cli/node_modules/
+  cp -r node_modules/serialize-javascript /usr/lib/node_modules/@import-meta-env/cli/node_modules/ && \
+  rm -rf /tmp/serialize-fix
 
 
 

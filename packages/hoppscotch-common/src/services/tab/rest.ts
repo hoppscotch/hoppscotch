@@ -1,4 +1,5 @@
 import { Container } from "dioc"
+import { isEqual } from "lodash-es"
 import { computed } from "vue"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { HoppRESTSaveContext, HoppTabDocument } from "~/helpers/rest/document"
@@ -55,12 +56,12 @@ export class RESTTabService extends TabService<HoppTabDocument> {
       return {
         tabID: tab.id,
         doc: {
-          ...tab.document,
+          ...this.getPersistedDocument(tab.document),
           response: null,
         },
       }
     }),
-  }))
+  }) as PersistableTabState<HoppTabDocument>)
 
   protected async loadPersistedState(): Promise<PersistableTabState<HoppTabDocument> | null> {
     const persistenceService = getService(PersistenceService)
@@ -70,7 +71,7 @@ export class RESTTabService extends TabService<HoppTabDocument> {
     return savedState
   }
 
-  public getTabRefWithSaveContext(ctx: HoppRESTSaveContext) {
+  public getTabRefWithSaveContext(ctx: Partial<HoppRESTSaveContext>) {
     for (const tab of this.tabMap.values()) {
       // For `team-collection` request id can be considered unique
       if (tab.document.type === "test-runner") continue
@@ -83,14 +84,40 @@ export class RESTTabService extends TabService<HoppTabDocument> {
         ) {
           return this.getTabRef(tab.id)
         }
+      } else if (ctx?.originLocation === "user-collection") {
+        if (isEqual(ctx, tab.document.saveContext)) {
+          return this.getTabRef(tab.id)
+        }
       } else if (
-        tab.document.saveContext?.originLocation === "user-collection" &&
-        tab.document.saveContext.folderPath === ctx?.folderPath &&
-        tab.document.saveContext.requestIndex === ctx?.requestIndex &&
-        tab.document.saveContext.exampleID === ctx?.exampleID &&
-        tab.document.saveContext.requestRefID === ctx?.requestRefID
+        ctx?.originLocation === "workspace-user-collection" &&
+        tab.document.saveContext?.originLocation === "workspace-user-collection"
       ) {
-        return this.getTabRef(tab.id)
+        const requestHandle = tab.document.saveContext.requestHandle
+
+        if (!ctx.requestHandle || !requestHandle) {
+          continue
+        }
+
+        const tabRequestHandleRef = requestHandle.get()
+        const requestHandleRef = ctx.requestHandle.get()
+
+        if (
+          requestHandleRef.value.type === "invalid" ||
+          tabRequestHandleRef.value.type === "invalid"
+        ) {
+          continue
+        }
+
+        if (
+          requestHandleRef.value.data.providerID ===
+            tabRequestHandleRef.value.data.providerID &&
+          requestHandleRef.value.data.workspaceID ===
+            tabRequestHandleRef.value.data.workspaceID &&
+          requestHandleRef.value.data.requestID ===
+            tabRequestHandleRef.value.data.requestID
+        ) {
+          return this.getTabRef(tab.id)
+        }
       }
     }
 
@@ -101,7 +128,21 @@ export class RESTTabService extends TabService<HoppTabDocument> {
     let count = 0
 
     for (const tab of this.tabMap.values()) {
-      if (tab.document.isDirty) count++
+      if (tab.document.isDirty) {
+        count++
+        continue
+      }
+
+      if (
+        tab.document.type !== "test-runner" &&
+        tab.document.saveContext?.originLocation === "workspace-user-collection"
+      ) {
+        const requestHandle = tab.document.saveContext.requestHandle
+
+        if (requestHandle?.get().value.type === "invalid") {
+          count++
+        }
+      }
     }
 
     return count

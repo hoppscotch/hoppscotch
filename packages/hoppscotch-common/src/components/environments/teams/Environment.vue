@@ -172,6 +172,7 @@ const t = useI18n()
 const toast = useToast()
 
 const props = defineProps<{
+  // TODO: Add an `environmentIndex` prop corresponding to `environmentID` for use across `workspaceService` methods
   environment: TeamEnvironment
   isViewer: boolean
   selected?: boolean
@@ -180,6 +181,9 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "edit-environment"): void
   (e: "show-environment-properties"): void
+  // TODO: Enable once the team workspace changes are in place
+  // (e: "duplicate-environment", environmentID: number): void
+  // (e: "delete-environment", environmentID: number): void
   (e: "select-environment"): void
 }>()
 
@@ -188,6 +192,7 @@ const currentEnvironmentValueService = useService(CurrentValueService)
 
 const confirmRemove = ref(false)
 
+// TODO: Replace with `workspaceService.exportRESTEnvironment` and probably introduce a prop `environmentIndex` corresponding to the `environmentID`
 const exportEnvironmentAsJSON = async () => {
   const message = await exportAsJSON(props.environment)
   E.isRight(message)
@@ -206,6 +211,8 @@ const propertiesAction = ref<typeof HoppSmartItem>()
 const duplicateEnvironmentLoading = ref(false)
 
 const removeEnvironment = () => {
+  // TODO: Perform deletion using the `workspaceService` method
+  // emit("remove-environment", props.environmentIndex)
   pipe(
     deleteTeamEnvironment(props.environment.id),
     TE.match(

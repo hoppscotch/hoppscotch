@@ -241,17 +241,14 @@ import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import { flow, pipe } from "fp-ts/function"
 import { ComputedRef, computed, ref, watch } from "vue"
+
 import { uniqueID } from "~/helpers/utils/uniqueID"
 import {
-  createEnvironment,
-  environments$,
   environmentsStore,
   getEnvironment,
   getGlobalVariables,
   globalEnv$,
   setGlobalEnvVariables,
-  setSelectedEnvironmentIndex,
-  updateEnvironment,
 } from "~/newstore/environments"
 import { platform } from "~/platform"
 import { CurrentValueService } from "~/services/current-environment-value.service"
@@ -296,6 +293,12 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   (e: "hide-modal"): void
+  (e: "create-environment", newEnvironment: Environment): void
+  (
+    e: "update-environment",
+    environmentID: number,
+    updatedEnvironment: Partial<Environment>
+  ): void
 }>()
 
 const idTicker = ref(0)
@@ -391,8 +394,6 @@ const workingEnv = computed(() => {
   }
   return null
 })
-
-const envList = useReadonlyStream(environments$, []) || props.envVars()
 
 const evnExpandError = computed(() => {
   const variables = pipe(
@@ -612,22 +613,7 @@ const saveEnvironment = () => {
   }
 
   if (props.action === "new") {
-    // Creating a new environment
-    createEnvironment(
-      editingName.value,
-      environmentUpdated.variables,
-      editingID.value
-    )
-    setSelectedEnvironmentIndex({
-      type: "MY_ENV",
-      index: envList.value.length - 1,
-    })
-    toast.success(`${t("environment.created")}`)
-
-    platform.analytics?.logEvent({
-      type: "HOPP_CREATE_ENVIRONMENT",
-      workspaceType: "personal",
-    })
+    emit("create-environment", { ...environmentUpdated, id: editingID.value })
   } else if (props.editingEnvironmentIndex === "Global") {
     // Editing the Global environment
     setGlobalEnvVariables(environmentUpdated)
@@ -637,18 +623,10 @@ const saveEnvironment = () => {
       environmentsStore.value.environments[props.editingEnvironmentIndex].id
 
     // Editing an environment
-    updateEnvironment(
-      props.editingEnvironmentIndex,
-      envID
-        ? {
-            ...environmentUpdated,
-            id: envID,
-          }
-        : {
-            ...environmentUpdated,
-          }
-    )
-    toast.success(`${t("environment.updated")}`)
+    emit("update-environment", props.editingEnvironmentIndex, {
+      ...environmentUpdated,
+      ...(envID && { id: envID }),
+    })
   }
 
   hideModal()

@@ -281,7 +281,7 @@
                     :shortcut="['P']"
                     @click="
                       () => {
-                        emit('edit-properties')
+                        emit('edit-collection-properties')
                         hide()
                       }
                     "
@@ -407,7 +407,7 @@ const emit = defineEmits<{
   (event: "add-folder"): void
   (event: "run-collection"): void
   (event: "edit-collection"): void
-  (event: "edit-properties"): void
+  (event: "edit-collection-properties"): void
   (event: "duplicate-collection"): void
   (event: "open-documentation"): void
   (event: "export-data"): void

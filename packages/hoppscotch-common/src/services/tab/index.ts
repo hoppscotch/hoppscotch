@@ -58,7 +58,7 @@ export interface TabService<Doc> {
    * Loads tabs and their ordering from a persisted state.
    * @param data - The persisted tab state to load.
    */
-  loadTabsFromPersistedState(data: PersistableTabState<Doc>): void
+  loadTabsFromPersistedState(data: PersistableTabState<Doc>): Promise<void>
 
   /**
    * Gets a read-only computed reference to the active tabs.

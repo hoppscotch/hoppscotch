@@ -1,8 +1,8 @@
 import * as E from "fp-ts/Either"
 import { BehaviorSubject } from "rxjs"
 import { platform } from "~/platform"
-import { GQLError } from "../backend/GQLClient"
-import { GetMyTeamsQuery } from "../backend/graphql"
+import { runGQLQuery, GQLError } from "../backend/GQLClient"
+import { GetMyTeamsDocument, GetMyTeamsQuery } from "../backend/graphql"
 
 const BACKEND_PAGE_SIZE = 10
 const POLL_DURATION = 10000
@@ -96,4 +96,15 @@ export default class TeamListAdapter {
 
     this.loading$.next(false)
   }
+}
+
+export const fetchAllTeams = async (cursor?: string) => {
+  const result = await runGQLQuery({
+    query: GetMyTeamsDocument,
+    variables: {
+      cursor,
+    },
+  })
+
+  return result
 }

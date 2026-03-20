@@ -1901,7 +1901,9 @@
     "personal": "Personal Workspace",
     "other_workspaces": "My Workspaces",
     "team": "Workspace",
-    "title": "Workspaces"
+    "title": "Workspaces",
+    "no_workspace": "No Workspace",
+    "no_workspace_selected": "No workspace selected."
   },
   "site_protection": {
     "login_to_continue": "Login to continue",

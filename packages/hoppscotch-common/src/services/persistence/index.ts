@@ -937,7 +937,7 @@ export class PersistenceService extends Service {
         const result = REST_TAB_STATE_SCHEMA.safeParse(transformedTabs)
         if (result.success) {
           // SAFETY: We know the schema matches
-          this.restTabService.loadTabsFromPersistedState(
+          await this.restTabService.loadTabsFromPersistedState(
             result.data as PersistableTabState<HoppTabDocument>
           )
         } else {
@@ -952,7 +952,7 @@ export class PersistenceService extends Service {
             JSON.stringify(loadResult.right)
           )
           // NOTE: Still loading data to match legacy behavior
-          this.restTabService.loadTabsFromPersistedState(loadResult.right)
+          await this.restTabService.loadTabsFromPersistedState(loadResult.right)
         }
       }
     } catch (_e) {
@@ -980,7 +980,7 @@ export class PersistenceService extends Service {
 
         if (result.success) {
           // SAFETY: We know the schema matches
-          this.gqlTabService.loadTabsFromPersistedState(
+          await this.gqlTabService.loadTabsFromPersistedState(
             result.data as PersistableTabState<HoppGQLDocument>
           )
         } else {
@@ -995,7 +995,7 @@ export class PersistenceService extends Service {
             JSON.stringify(loadResult.right)
           )
           // NOTE: Still loading data to match legacy behavior
-          this.gqlTabService.loadTabsFromPersistedState(loadResult.right)
+          await this.gqlTabService.loadTabsFromPersistedState(loadResult.right)
         }
       }
     } catch (_e) {

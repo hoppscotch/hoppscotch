@@ -141,15 +141,14 @@ import { useToast } from "@composables/toast"
 import { Environment } from "@hoppscotch/data"
 import { HoppSmartItem } from "@hoppscotch/ui"
 import { useService } from "dioc/vue"
+import * as E from "fp-ts/Either"
+import { cloneDeep } from "lodash-es"
 import { computed, ref, watch } from "vue"
 import { TippyComponent } from "vue-tippy"
-import * as E from "fp-ts/Either"
 
 import { exportAsJSON } from "~/helpers/import-export/export/environment"
-import {
-  deleteEnvironment,
-  duplicateEnvironment,
-} from "~/newstore/environments"
+import { createEnvironment, getGlobalVariables } from "~/newstore/environments"
+import { NewWorkspaceService } from "~/services/new-workspace"
 import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import IconCopy from "~icons/lucide/copy"
@@ -160,6 +159,10 @@ import { CurrentValueService } from "~/services/current-environment-value.servic
 
 const t = useI18n()
 const toast = useToast()
+
+const secretEnvironmentService = useService(SecretEnvironmentService)
+const currentEnvironmentValueService = useService(CurrentValueService)
+const workspaceService = useService(NewWorkspaceService)
 
 const emitEditEnvironment = async (): Promise<boolean> => {
   const isValidToken = await handleTokenValidation()
@@ -185,14 +188,15 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   (e: "edit-environment"): void
+  (e: "duplicate-environment", environmentID: number): void
+  (e: "delete-environment", environmentID: number): void
   (e: "duplicate-global-environment"): void
   (e: "select-environment"): void
 }>()
 
-const confirmRemove = ref(false)
+const activeWorkspaceHandle = workspaceService.activeWorkspaceHandle
 
-const secretEnvironmentService = useService(SecretEnvironmentService)
-const currentEnvironmentValueService = useService(CurrentValueService)
+const confirmRemove = ref(false)
 
 watch(
   () => props.duplicateGlobalEnvironmentLoading,
@@ -208,10 +212,51 @@ const isGlobalEnvironment = computed(() => props.environmentIndex === "Global")
 const exportEnvironmentAsJSON = async () => {
   const { environment, environmentIndex } = props
 
-  const message = await exportAsJSON(environment, environmentIndex)
-  E.isRight(message)
-    ? toast.success(t(message.right))
-    : toast.error(t(message.left))
+  if (environmentIndex === null || environmentIndex === "Global") {
+    const result = await exportAsJSON(environment, environmentIndex)
+
+    E.isRight(result)
+      ? toast.success(t(result.right))
+      : toast.error(t(result.left))
+
+    return
+  }
+
+  await exportEnvironment(environmentIndex)
+}
+
+const exportEnvironment = async (environmentID: number) => {
+  if (!activeWorkspaceHandle.value) {
+    toast.error(t("error.something_went_wrong"))
+    return
+  }
+
+  const environmentHandleResult =
+    await workspaceService.getRESTEnvironmentHandle(
+      activeWorkspaceHandle.value,
+      environmentID.toString()
+    )
+
+  if (E.isLeft(environmentHandleResult)) {
+    // INVALID_WORKSPACE_HANDLE | ENVIRONMENT_DOES_NOT_EXIST
+    return
+  }
+
+  const environmentHandle = environmentHandleResult.right
+
+  const environmentHandleRef = environmentHandle.get()
+
+  if (environmentHandleRef.value.type === "invalid") {
+    // INVALID_WORKSPACE_HANDLE
+    return
+  }
+
+  const result = await workspaceService.exportRESTEnvironment(environmentHandle)
+
+  if (E.isLeft(result)) {
+    // INVALID_ENVIRONMENT_HANDLE | ENVIRONMENT_DOES_NOT_EXIST | EXPORT_FAILED
+    return toast.error(t("export.failed"))
+  }
 }
 
 const tippyActions = ref<HTMLDivElement | null>(null)
@@ -226,11 +271,11 @@ const removeEnvironment = async () => {
   if (!isValidToken) return
   if (props.environmentIndex === null) return
   if (!isGlobalEnvironment.value) {
-    deleteEnvironment(props.environmentIndex as number, props.environment.id)
+    emit("delete-environment", props.environmentIndex as number)
+
     secretEnvironmentService.deleteSecretEnvironment(props.environment.id)
     currentEnvironmentValueService.deleteEnvironment(props.environment.id)
   }
-  toast.success(`${t("state.deleted")}`)
 }
 
 const duplicateEnvironments = async () => {
@@ -245,7 +290,6 @@ const duplicateEnvironments = async () => {
     return
   }
 
-  duplicateEnvironment(props.environmentIndex as number)
-  toast.success(`${t("environment.duplicated")}`)
+  emit("duplicate-environment", props.environmentIndex as number)
 }
 </script>

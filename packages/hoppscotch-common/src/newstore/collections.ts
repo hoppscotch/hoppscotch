@@ -432,6 +432,7 @@ const restCollectionDispatchers = defineDispatchers({
       )
       return {}
     }
+
     // We get the index path to the folder itself,
     // we have to find the folder containing the target folder,
     // so we pop the last path index
@@ -899,7 +900,6 @@ const restCollectionDispatchers = defineDispatchers({
 
     // if the destination is null, we are moving to the end of the list
     if (destinationRequestIndex === null) {
-      // move to the end of the list
       targetLocation.requests.push(
         targetLocation.requests.splice(requestIndex, 1)[0]
       )

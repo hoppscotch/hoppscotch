@@ -749,6 +749,11 @@ watch(
   @apply flex-shrink-0;
   @apply whitespace-nowrap py-4;
 
+  // Hide horizontal scrollbar for CodeMirror in Firefox (Chrome is handled by global ::-webkit-scrollbar { h-0 })
+  :deep(.cm-scroller) {
+    scrollbar-width: none;
+  }
+
   .suggestions {
     @apply absolute;
     @apply bg-popover;

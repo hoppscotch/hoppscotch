@@ -623,28 +623,29 @@ export class UserService {
       },
     });
 
-    const workspaces: GetUserWorkspacesResponse[] = [];
-    team.forEach((t) => {
-      const ownerCount = t.members.filter(
-        (m) => m.role === TeamAccessRole.OWNER,
-      ).length;
-      const editorCount = t.members.filter(
-        (m) => m.role === TeamAccessRole.EDITOR,
-      ).length;
-      const viewerCount = t.members.filter(
-        (m) => m.role === TeamAccessRole.VIEWER,
-      ).length;
-      const memberCount = t.members.length;
+    const workspaces: GetUserWorkspacesResponse[] = team.map((t) => {
+      // Single pass over members array instead of 4 separate .filter() calls
+      let ownerCount = 0;
+      let editorCount = 0;
+      let viewerCount = 0;
+      let userRole: string | undefined;
 
-      workspaces.push({
+      for (const m of t.members) {
+        if (m.role === TeamAccessRole.OWNER) ownerCount++;
+        else if (m.role === TeamAccessRole.EDITOR) editorCount++;
+        else if (m.role === TeamAccessRole.VIEWER) viewerCount++;
+        if (m.userUid === userUid) userRole = m.role;
+      }
+
+      return {
         id: t.id,
         name: t.name,
-        role: t.members.find((m) => m.userUid === userUid)?.role,
+        role: userRole,
         owner_count: ownerCount,
         editor_count: editorCount,
         viewer_count: viewerCount,
-        member_count: memberCount,
-      });
+        member_count: t.members.length,
+      };
     });
     return E.right(workspaces);
   }

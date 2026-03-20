@@ -957,57 +957,67 @@ export class MockServerService {
   }
 
   /**
-   * Get all collection IDs including children (recursive)
+   * Get all collection IDs including children using breadth-first traversal.
+   * Uses batched queries per level instead of recursive individual queries.
+   * For a tree with depth D and branching factor B, this makes D queries
+   * instead of (B^D - 1) / (B - 1) recursive queries.
    */
   private async getAllUserCollectionIds(
     rootCollectionId: string,
   ): Promise<string[]> {
-    // First verify the root collection exists
     const rootCollection = await this.prisma.userCollection.findUnique({
       where: { id: rootCollectionId },
-    });
-
-    if (!rootCollection) return []; // Collection doesn't exist
-
-    const ids = [rootCollectionId];
-    const children = await this.prisma.userCollection.findMany({
-      where: { parentID: rootCollectionId },
       select: { id: true },
     });
+    if (!rootCollection) return [];
 
-    for (const child of children) {
-      const childIds = await this.getAllUserCollectionIds(child.id);
-      ids.push(...childIds);
+    const visitedIds = new Set<string>([rootCollectionId]);
+    const allIds: string[] = [rootCollectionId];
+    let currentLevelIds = [rootCollectionId];
+
+    while (currentLevelIds.length > 0) {
+      const children = await this.prisma.userCollection.findMany({
+        where: { parentID: { in: currentLevelIds } },
+        select: { id: true },
+      });
+
+      currentLevelIds = children.map((c) => c.id).filter((id) => !visitedIds.has(id));
+      currentLevelIds.forEach((id) => visitedIds.add(id));
+      allIds.push(...currentLevelIds);
     }
 
-    return ids;
+    return allIds;
   }
 
   /**
-   * Get all team collection IDs including children (recursive)
+   * Get all team collection IDs including children using breadth-first traversal.
+   * Uses batched queries per level instead of recursive individual queries.
    */
   private async getAllTeamCollectionIds(
     rootCollectionId: string,
   ): Promise<string[]> {
-    // First verify the root collection exists
     const rootCollection = await this.prisma.teamCollection.findUnique({
       where: { id: rootCollectionId },
-    });
-
-    if (!rootCollection) return []; // Collection doesn't exist
-
-    const ids = [rootCollectionId];
-    const children = await this.prisma.teamCollection.findMany({
-      where: { parentID: rootCollectionId },
       select: { id: true },
     });
+    if (!rootCollection) return [];
 
-    for (const child of children) {
-      const childIds = await this.getAllTeamCollectionIds(child.id);
-      ids.push(...childIds);
+    const visitedIds = new Set<string>([rootCollectionId]);
+    const allIds: string[] = [rootCollectionId];
+    let currentLevelIds = [rootCollectionId];
+
+    while (currentLevelIds.length > 0) {
+      const children = await this.prisma.teamCollection.findMany({
+        where: { parentID: { in: currentLevelIds } },
+        select: { id: true },
+      });
+
+      currentLevelIds = children.map((c) => c.id).filter((id) => !visitedIds.has(id));
+      currentLevelIds.forEach((id) => visitedIds.add(id));
+      allIds.push(...currentLevelIds);
     }
 
-    return ids;
+    return allIds;
   }
 
   /**

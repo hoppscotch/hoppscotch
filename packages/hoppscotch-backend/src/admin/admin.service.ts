@@ -186,33 +186,34 @@ export class AdminService {
    * @returns an Either of array of `InvitedUser` object or error
    */
   async fetchInvitedUsers(paginationOption: OffsetPaginationArgs) {
-    const userEmailObjs = await this.prisma.user.findMany({
-      select: {
-        email: true,
-      },
-    });
+    // Use a raw query with NOT EXISTS subquery instead of fetching ALL user emails
+    // into memory. The previous approach loaded every email from the User table
+    // into a JS array, then passed it as a huge IN clause — O(n) memory and
+    // slow for large user bases. This pushes the filtering to the database.
+    //
+    // NOTE: $queryRaw bypasses Prisma middleware / query extensions.
+    // If logging or soft-delete middleware is added later, this query will
+    // need manual adjustments to stay consistent.
+    const pendingInvitedUsers = await this.prisma.$queryRaw<InvitedUser[]>`
+      SELECT "adminUid", "adminEmail", "inviteeEmail", "invitedOn"
+      FROM "InvitedUsers" i
+      WHERE NOT EXISTS (
+        SELECT 1 FROM "User" u WHERE LOWER(u.email) = LOWER(i."inviteeEmail")
+      )
+      ORDER BY "invitedOn" DESC
+      LIMIT ${paginationOption.take}
+      OFFSET ${paginationOption.skip}
+    `;
 
-    const pendingInvitedUsers = await this.prisma.invitedUsers.findMany({
-      take: paginationOption.take,
-      skip: paginationOption.skip,
-      orderBy: {
-        invitedOn: 'desc',
-      },
-      where: {
-        NOT: {
-          inviteeEmail: {
-            in: userEmailObjs.map((user) => user.email),
-            mode: 'insensitive',
-          },
-        },
-      },
-    });
-
-    const users: InvitedUser[] = pendingInvitedUsers.map(
-      (user) => <InvitedUser>{ ...user },
-    );
-
-    return users;
+    // Explicitly map fields so TypeScript catches mismatches if InvitedUser
+    // or the InvitedUsers table schema changes (Prisma's $queryRaw generic
+    // cast is not validated at runtime).
+    return pendingInvitedUsers.map((row) => ({
+      adminUid: row.adminUid,
+      adminEmail: row.adminEmail,
+      inviteeEmail: row.inviteeEmail,
+      invitedOn: row.invitedOn,
+    }));
   }
 
   /**

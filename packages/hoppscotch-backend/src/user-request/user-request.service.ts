@@ -543,14 +543,19 @@ export class UserRequestService {
           select: { id: true },
         });
 
-        // Update the orderIndex of each request based on the new order (parallel)
-        const promises = userRequests.map((request, i) =>
-          tx.userRequest.update({
-            where: { id: request.id },
-            data: { orderIndex: i + 1 },
-          }),
+        if (userRequests.length === 0) return;
+
+        // Build a single UPDATE with CASE WHEN instead of N individual updates.
+        // This reduces N round-trips to the database down to 1.
+        // IMPORTANT: if the Prisma model 'UserRequest', field 'orderIndex', or field
+        // 'id' is renamed, this raw SQL must be updated to match.
+        const ids = userRequests.map((r) => r.id);
+        const caseClauses = userRequests.map(
+          (r, i) => Prisma.sql`WHEN ${r.id} THEN ${Prisma.raw(String(i + 1))}`,
         );
-        await Promise.all(promises);
+        await tx.$executeRaw(
+          Prisma.sql`UPDATE "UserRequest" SET "orderIndex" = CASE "id" ${Prisma.join(caseClauses, ' ')} ELSE "orderIndex" END WHERE "id" IN (${Prisma.join(ids)})`,
+        );
       });
     } catch (error) {
       console.error('Error from UserRequestService.sortUserRequests', error);

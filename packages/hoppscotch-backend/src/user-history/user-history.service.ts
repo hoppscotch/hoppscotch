@@ -210,10 +210,8 @@ export class UserHistoryService {
    * @returns an `UserHistory` object
    */
   async fetchUserHistoryByID(id: string) {
-    const userHistory = await this.prisma.userHistory.findFirst({
-      where: {
-        id: id,
-      },
+    const userHistory = await this.prisma.userHistory.findUnique({
+      where: { id },
     });
     if (userHistory == null) return O.none;
 

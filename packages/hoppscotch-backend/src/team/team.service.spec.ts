@@ -1,7 +1,10 @@
 import { TeamService } from './team.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { Team, TeamMember, TeamAccessRole } from './team.model';
-import { TeamMember as DbTeamMember } from 'src/generated/prisma/client';
+import {
+  TeamMember as DbTeamMember,
+  Prisma,
+} from 'src/generated/prisma/client';
 import {
   USER_NOT_FOUND,
   TEAM_INVALID_ID,
@@ -254,12 +257,6 @@ describe('addMemberToTeamWithEmail', () => {
 
 describe('deleteTeam', () => {
   test('resolves for proper deletion', async () => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    mockPrisma.team.findUnique.mockResolvedValue(team);
-    mockPrisma.teamMember.deleteMany.mockResolvedValue({
-      count: 10,
-    });
     mockPrisma.team.delete.mockResolvedValue(team);
 
     const result = await teamService.deleteTeam(team.id);
@@ -267,10 +264,6 @@ describe('deleteTeam', () => {
   });
 
   test('performs deletion on database', async () => {
-    mockPrisma.team.findUnique.mockResolvedValue(team);
-    mockPrisma.teamMember.deleteMany.mockResolvedValue({
-      count: 10,
-    });
     mockPrisma.team.delete.mockResolvedValue(team);
 
     await teamService.deleteTeam(team.id);
@@ -283,17 +276,13 @@ describe('deleteTeam', () => {
   });
 
   test('rejects for invalid team id', async () => {
-    mockPrisma.team.findUnique.mockResolvedValue(null);
+    mockPrisma.team.delete.mockRejectedValue(
+      new Prisma.PrismaClientKnownRequestError('Record not found', {
+        code: 'P2025',
+        clientVersion: '0.0.0',
+      }),
+    );
 
-    // If invalid team ID, team member deletes nothing (count 0)
-    mockPrisma.teamMember.deleteMany.mockResolvedValue({
-      count: 0,
-    });
-
-    // TODO: Confirm RecordNotFound works like this
-    mockPrisma.team.delete.mockRejectedValue('RecordNotFound');
-
-    // Team will not find and reject
     const result = await teamService.deleteTeam(team.id);
     return expect(result).toEqualLeft(TEAM_INVALID_ID);
   });
@@ -755,6 +744,8 @@ describe('getMembersOfTeam', () => {
 
     expect(mockPrisma.teamMember.findMany).toHaveBeenCalledWith({
       take: 10,
+      skip: 0,
+      cursor: undefined,
       where: {
         teamID: team.id,
       },
@@ -806,6 +797,8 @@ describe('getTeamsOfUser', () => {
 
     expect(mockPrisma.teamMember.findMany).toHaveBeenCalledWith({
       take: 10,
+      skip: 0,
+      cursor: undefined,
       where: {
         userUid: dbTeamMember.userUid,
       },

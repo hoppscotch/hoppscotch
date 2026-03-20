@@ -97,41 +97,19 @@ const dbAdminUsers: DbUser[] = [
 
 describe('AdminService', () => {
   describe('fetchInvitedUsers', () => {
-    test('should resolve right and apply pagination correctly', async () => {
-      mockPrisma.user.findMany.mockResolvedValue([dbAdminUsers[0]]);
-      mockPrisma.invitedUsers.findMany.mockResolvedValue(invitedUsers);
-
-      const paginationArgs: OffsetPaginationArgs = { take: 5, skip: 2 };
-      await adminService.fetchInvitedUsers(paginationArgs);
-
-      expect(mockPrisma.invitedUsers.findMany).toHaveBeenCalledWith({
-        ...paginationArgs,
-        orderBy: {
-          invitedOn: 'desc',
-        },
-        where: {
-          NOT: {
-            inviteeEmail: {
-              in: [dbAdminUsers[0].email],
-              mode: 'insensitive',
-            },
-          },
-        },
-      });
-    });
-    test('should resolve right and return an array of invited users', async () => {
+    test('should resolve right and return an array of invited users using raw query', async () => {
       const paginationArgs: OffsetPaginationArgs = { take: 10, skip: 0 };
 
-      mockPrisma.user.findMany.mockResolvedValue([dbAdminUsers[0]]);
-      mockPrisma.invitedUsers.findMany.mockResolvedValue(invitedUsers);
+      mockPrisma.$queryRaw.mockResolvedValue(invitedUsers);
 
       const results = await adminService.fetchInvitedUsers(paginationArgs);
       expect(results).toEqual(invitedUsers);
+      expect(mockPrisma.$queryRaw).toHaveBeenCalled();
     });
-    test('should resolve left and return an empty array if invited users not found', async () => {
+    test('should resolve and return an empty array if no pending invited users found', async () => {
       const paginationArgs: OffsetPaginationArgs = { take: 10, skip: 0 };
 
-      mockPrisma.invitedUsers.findMany.mockResolvedValue([]);
+      mockPrisma.$queryRaw.mockResolvedValue([]);
 
       const results = await adminService.fetchInvitedUsers(paginationArgs);
       expect(results).toEqual([]);

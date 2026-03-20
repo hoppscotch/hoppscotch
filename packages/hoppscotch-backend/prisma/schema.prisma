@@ -25,6 +25,7 @@ model TeamMember {
   team    Team           @relation(fields: [teamID], references: [id], onDelete: Cascade)
 
   @@unique([teamID, userUid])
+  @@index([userUid])
 }
 
 model TeamInvitation {
@@ -70,6 +71,7 @@ model TeamRequest {
   team         Team           @relation(fields: [teamID], references: [id], onDelete: Cascade)
 
   @@unique([teamID, collectionID, orderIndex])
+  @@index([collectionID])
 }
 
 model Shortcode {
@@ -82,6 +84,7 @@ model Shortcode {
   User            User?    @relation(fields: [creatorUid], references: [uid])
 
   @@unique([id, creatorUid], name: "creator_uid_shortcode_unique")
+  @@index([creatorUid])
 }
 
 model TeamEnvironment {
@@ -90,8 +93,13 @@ model TeamEnvironment {
   name      String
   variables Json
   team      Team   @relation(fields: [teamID], references: [id], onDelete: Cascade)
+
+  @@index([teamID])
 }
 
+// NOTE: A functional index on LOWER(email) exists for the fetchInvitedUsers
+// NOT EXISTS query (see migration 20260316060000_add_performance_indexes).
+// Prisma cannot represent expression indexes in schema.prisma.
 model User {
   uid                  String                @id @default(cuid())
   displayName          String?
@@ -129,6 +137,7 @@ model Account {
   user                 User     @relation(fields: [userId], references: [uid], onDelete: Cascade)
 
   @@unique([provider, providerAccountId], name: "verifyProviderAccount")
+  @@index([userId])
 }
 
 model VerificationToken {
@@ -139,6 +148,7 @@ model VerificationToken {
   user             User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)
 
   @@unique([deviceIdentifier, token], name: "passwordless_deviceIdentifier_tokens")
+  @@index([userUid])
 }
 
 model UserSettings {
@@ -158,6 +168,8 @@ model UserHistory {
   isStarred        Boolean
   executedOn       DateTime @default(now()) @db.Timestamptz(3)
   user             User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+
+  @@index([userUid, reqType, executedOn(sort: Desc)])
 }
 
 model UserEnvironment {
@@ -167,6 +179,8 @@ model UserEnvironment {
   variables Json
   isGlobal  Boolean
   user      User    @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+
+  @@index([userUid])
 }
 
 model InvitedUsers {
@@ -192,6 +206,7 @@ model UserRequest {
   user           User           @relation(fields: [userUid], references: [uid], onDelete: Cascade)
 
   @@unique([userUid, collectionID, orderIndex])
+  @@index([collectionID])
 }
 
 model UserCollection {
@@ -231,6 +246,8 @@ model PersonalAccessToken {
   createdOn DateTime  @default(now()) @db.Timestamptz(3)
   updatedOn DateTime  @updatedAt @db.Timestamptz(3)
   user      User      @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+
+  @@index([userUid])
 }
 
 model InfraToken {
@@ -262,6 +279,9 @@ model MockServer {
   user            User?                @relation(fields: [creatorUid], references: [uid], onDelete: SetNull)
   requestLogs     MockServerLog[]
   activityHistory MockServerActivity[]
+
+  @@index([workspaceType, workspaceID, deletedAt])
+  @@index([creatorUid, deletedAt])
 }
 
 model MockServerLog {

@@ -13,6 +13,10 @@ import {
   getDefaultSettings,
 } from "@hoppscotch/common/newstore/settings"
 import { runDispatchWithOutSyncing } from "@app/lib/sync"
+import { getService } from "@hoppscotch/common/modules/dioc"
+import { KernelInterceptorProxyStore } from "@hoppscotch/common/platform/std/kernel-interceptors/proxy/store"
+import { PersistenceService } from "@hoppscotch/common/services/persistence"
+import axios from "axios"
 
 function initSettingsSync() {
   const currentUser$ = platformAuth.getCurrentUserStream()
@@ -27,6 +31,7 @@ function initSettingsSync() {
     if (user) {
       // load the settings
       loadUserSettings()
+      loadProxyConfig()
     }
   })
 
@@ -37,8 +42,32 @@ function initSettingsSync() {
 
     if (event.event == "logout") {
       settingsSyncer.stopListeningToSubscriptions()
+      const proxyStore = getService(KernelInterceptorProxyStore)
+      proxyStore.resetSettings()
     }
   })
+}
+
+async function loadProxyConfig() {
+  try {
+    const persistence = getService(PersistenceService)
+    const accessToken = await persistence.getLocalConfig("access_token")
+    if (!accessToken) return
+
+    const res = await axios.get<{ proxyUrl: string; accessToken: string }>(
+      `${import.meta.env.VITE_BACKEND_API_URL}/site/proxy-config`,
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    )
+
+    const { proxyUrl, accessToken: proxyToken } = res.data
+    const proxyStore = getService(KernelInterceptorProxyStore)
+    await proxyStore.updateSettings({
+      ...(proxyUrl && { proxyUrl }),
+      accessToken: proxyToken,
+    })
+  } catch {
+    // Proxy config is optional — silently ignore if endpoint is unavailable
+  }
 }
 
 async function loadUserSettings() {

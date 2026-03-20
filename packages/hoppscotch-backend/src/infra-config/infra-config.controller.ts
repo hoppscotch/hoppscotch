@@ -13,6 +13,15 @@ import { throwHTTPErr } from 'src/utils';
 export class SiteController {
   constructor(private infraConfigService: InfraConfigService) {}
 
+  @Get('proxy-config')
+  @UseGuards(JwtAuthGuard)
+  getProxyConfig() {
+    return {
+      proxyUrl: process.env.VITE_PROXY_URL ?? '',
+      accessToken: process.env.PROXYSCOTCH_ACCESS_TOKEN ?? '',
+    };
+  }
+
   @Get('setup')
   @UseGuards(JwtAuthGuard, RESTAdminGuard)
   async fetchSetupInfo() {

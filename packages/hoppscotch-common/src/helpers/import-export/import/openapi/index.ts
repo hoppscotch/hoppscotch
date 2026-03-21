@@ -396,17 +396,36 @@ const parseOpenAPIHeaders = (params: OpenAPIParamsType[]): HoppRESTHeader[] =>
     )
   )
 
+const getSupportedContentType = (
+  contentType: string
+): keyof typeof knownContentTypes | null => {
+  if (contentType in knownContentTypes) {
+    return contentType as keyof typeof knownContentTypes
+  }
+
+  if (contentType.match(/application\/.*\+json/)) {
+    return "application/json"
+  }
+
+  if (contentType.match(/application\/.*\+xml/)) {
+    return "application/xml"
+  }
+
+  return null
+}
+
 const parseOpenAPIV2Body = (op: OpenAPIV2.OperationObject): HoppRESTReqBody => {
   const obj = (op.consumes ?? [])[0] as string | undefined
 
-  // Not a content-type Hoppscotch supports
-  if (!obj || !(obj in knownContentTypes))
-    return { contentType: null, body: null }
+  if (!obj) return { contentType: null, body: null }
+
+  const supportedContentType = getSupportedContentType(obj)
+  if (!supportedContentType) return { contentType: null, body: null }
 
   // For form data types, extract form fields
   if (
-    obj === "multipart/form-data" ||
-    obj === "application/x-www-form-urlencoded"
+    supportedContentType === "multipart/form-data" ||
+    supportedContentType === "application/x-www-form-urlencoded"
   ) {
     const formDataValues = pipe(
       (op.parameters ?? []) as OpenAPIV2.Parameter[],
@@ -427,12 +446,12 @@ const parseOpenAPIV2Body = (op: OpenAPIV2.OperationObject): HoppRESTReqBody => {
       )
     )
 
-    return obj === "application/x-www-form-urlencoded"
+    return supportedContentType === "application/x-www-form-urlencoded"
       ? {
-          contentType: obj,
+          contentType: supportedContentType,
           body: formDataValues.map(({ key }) => `${key}: `).join("\n"),
         }
-      : { contentType: obj, body: formDataValues }
+      : { contentType: supportedContentType, body: formDataValues }
   }
 
   // For other content types (JSON, XML, etc.)
@@ -444,14 +463,14 @@ const parseOpenAPIV2Body = (op: OpenAPIV2.OperationObject): HoppRESTReqBody => {
     const result = generateRequestBodyExampleFromOpenAPIV2Body(op)
     if (result) {
       return {
-        contentType: obj as any,
+        contentType: supportedContentType as any,
         body: result,
       }
     }
   }
 
   // Fallback to empty body for textual content types
-  return { contentType: obj as any, body: "" }
+  return { contentType: supportedContentType as any, body: "" }
 }
 
 const parseOpenAPIV3BodyFormData = (
@@ -506,15 +525,15 @@ const parseOpenAPIV3Body = (
     OpenAPIV3.MediaTypeObject | OpenAPIV31.MediaTypeObject,
   ] = objs[0]
 
-  if (!(contentType in knownContentTypes))
-    return { contentType: null, body: null }
+  const supportedType = getSupportedContentType(contentType)
+  if (!supportedType) return { contentType: null, body: null }
 
   // Handle form data types
   if (
-    contentType === "multipart/form-data" ||
-    contentType === "application/x-www-form-urlencoded"
+    supportedType === "multipart/form-data" ||
+    supportedType === "application/x-www-form-urlencoded"
   )
-    return parseOpenAPIV3BodyFormData(contentType, media)
+    return parseOpenAPIV3BodyFormData(supportedType, media)
 
   // For other content types (JSON, XML, etc.), try to generate sample from schema
   if (media.schema) {
@@ -527,7 +546,7 @@ const parseOpenAPIV3Body = (
       }
 
       return {
-        contentType,
+        contentType: supportedType,
         body:
           typeof sampleBody === "string"
             ? sampleBody
@@ -537,7 +556,7 @@ const parseOpenAPIV3Body = (
       // If we can't generate a sample, check for examples
       if (media.example !== undefined) {
         return {
-          contentType,
+          contentType: supportedType,
           body:
             typeof media.example === "string"
               ? media.example
@@ -545,14 +564,14 @@ const parseOpenAPIV3Body = (
         } as HoppRESTReqBody
       }
       // Fallback to empty body
-      return { contentType, body: "" } as HoppRESTReqBody
+      return { contentType: supportedType, body: "" } as HoppRESTReqBody
     }
   }
 
   // Check for examples if no schema
   if (media.example !== undefined) {
     return {
-      contentType,
+      contentType: supportedType,
       body:
         typeof media.example === "string"
           ? media.example
@@ -568,7 +587,7 @@ const parseOpenAPIV3Body = (
     // Skip if this is an unresolved reference
     if (firstExample && "$ref" in firstExample) {
       // Reference wasn't dereferenced, return empty body
-      return { contentType, body: "" } as HoppRESTReqBody
+      return { contentType: supportedType, body: "" } as HoppRESTReqBody
     }
 
     // Handle Example Object (with value property) or direct value
@@ -576,7 +595,7 @@ const parseOpenAPIV3Body = (
       "value" in firstExample ? firstExample.value : firstExample
 
     return {
-      contentType,
+      contentType: supportedType,
       body:
         typeof exampleValue === "string"
           ? exampleValue
@@ -585,7 +604,7 @@ const parseOpenAPIV3Body = (
   }
 
   // Fallback to empty body for textual content types
-  return { contentType, body: "" } as HoppRESTReqBody
+  return { contentType: supportedType, body: "" } as HoppRESTReqBody
 }
 
 const isOpenAPIV3Operation = (

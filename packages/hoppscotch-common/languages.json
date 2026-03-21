@@ -79,11 +79,11 @@
     "name": "עִברִית"
   },
   {
-  "code": "hi",
-  "file": "hi.json",
-  "iso": "hi-IN",
-  "name": "हिन्दी"
-},
+    "code": "hi",
+    "file": "hi.json",
+    "iso": "hi-IN",
+    "name": "हिन्दी"
+  },
   {
     "code": "hu",
     "file": "hu.json",

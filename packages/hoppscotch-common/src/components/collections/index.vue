@@ -60,6 +60,7 @@
       @edit-properties="editProperties"
       @create-mock-server="createMockServer"
       @export-data="exportData"
+      @export-openapi="exportOpenAPI"
       @remove-collection="removeCollection"
       @remove-folder="removeFolder"
       @remove-request="removeRequest"
@@ -112,6 +113,7 @@
       @open-request-documentation="openRequestDocumentation"
       @create-mock-server="createTeamMockServer"
       @export-data="exportData"
+      @export-openapi="exportOpenAPI"
       @expand-team-collection="expandTeamCollection"
       @remove-collection="removeCollection"
       @remove-folder="removeFolder"
@@ -225,6 +227,33 @@
         </span>
       </template>
     </HoppSmartModal>
+    <HoppSmartModal
+      v-if="showOpenAPIFormatModal"
+      dialog
+      :title="t('export.choose_format')"
+      @close="displayModalOpenAPIFormat(false)"
+    >
+      <template #body>
+        <div class="flex gap-2">
+          <HoppButtonSecondary
+            :label="'JSON'"
+            outline
+            class="flex-1"
+            :loading="exportLoading"
+            :disabled="exportLoading"
+            @click="doExportOpenAPI('json')"
+          />
+          <HoppButtonSecondary
+            :label="'YAML'"
+            outline
+            class="flex-1"
+            :loading="exportLoading"
+            :disabled="exportLoading"
+            @click="doExportOpenAPI('yaml')"
+          />
+        </div>
+      </template>
+    </HoppSmartModal>
     <HoppSmartConfirmModal
       :show="showConfirmModal"
       :title="confirmModalTitle"
@@ -313,6 +342,7 @@ import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
 import { flow } from "fp-ts/function"
 
+import yaml from "js-yaml"
 import { cloneDeep, debounce, isEqual } from "lodash-es"
 import { PropType, computed, nextTick, onMounted, ref, watch } from "vue"
 import { useReadonlyStream } from "~/composables/stream"
@@ -355,6 +385,7 @@ import {
 } from "~/helpers/collection/request"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
 import { stripRefIdReplacer } from "~/helpers/import-export/export"
+import { hoppCollectionToOpenAPI } from "~/helpers/import-export/export/openapi"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import { TeamSearchService } from "~/helpers/teams/TeamsSearch.service"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
@@ -456,6 +487,10 @@ const editingRequestID = ref<string | null>(null)
 
 const editingResponseID = ref<string | null>(null)
 const showAddExampleModal = ref(false)
+const showOpenAPIFormatModal = ref(false)
+const openAPIExportCollection = ref<HoppCollection | TeamCollection | null>(
+  null
+)
 
 const editingProperties = ref<EditingProperties>({
   collection: null,
@@ -884,6 +919,17 @@ const displayModalAddExample = (show: boolean) => {
   showAddExampleModal.value = show
 
   if (!show) resetSelectedData()
+}
+
+let exportGeneration = 0
+
+const displayModalOpenAPIFormat = (show: boolean) => {
+  showOpenAPIFormatModal.value = show
+
+  if (!show) {
+    openAPIExportCollection.value = null
+    exportLoading.value = false
+  }
 }
 
 const addNewRootCollection = async (name: string) => {
@@ -3188,6 +3234,106 @@ const exportData = async (collection: HoppCollection | TeamCollection) => {
             hoppColl.name
           )
           exportLoading.value = false
+        }
+      )
+    )()
+  }
+}
+
+const exportOpenAPI = (collection: HoppCollection | TeamCollection) => {
+  openAPIExportCollection.value = collection
+  displayModalOpenAPIFormat(true)
+}
+
+const doExportOpenAPI = async (format: "json" | "yaml") => {
+  const collection = openAPIExportCollection.value
+  if (!collection) return
+
+  const thisGeneration = ++exportGeneration
+
+  const saveOpenAPIDoc = async (
+    openAPIDoc: Record<string, unknown>,
+    name: string
+  ) => {
+    const isYaml = format === "yaml"
+    let data: string
+    try {
+      data = isYaml
+        ? yaml.dump(openAPIDoc)
+        : JSON.stringify(openAPIDoc, null, 2)
+    } catch {
+      toast.error(t("error.something_went_wrong"))
+      return
+    }
+    const contentType = isYaml ? "application/x-yaml" : "application/json"
+    const extension = isYaml ? "yaml" : "json"
+
+    try {
+      await platform.kernelIO.saveFileWithDialog({
+        data,
+        contentType,
+        suggestedFilename: `${name}-openapi.${extension}`,
+        filters: [
+          {
+            name: `OpenAPI ${extension.toUpperCase()} file`,
+            extensions: [extension],
+          },
+        ],
+      })
+    } catch {
+      toast.error(t("error.something_went_wrong"))
+    }
+  }
+
+  exportLoading.value = true
+
+  if (collectionsType.value.type === "my-collections") {
+    try {
+      const { doc: openAPIDoc, warnings } = hoppCollectionToOpenAPI(
+        collection as HoppCollection
+      )
+      for (const warning of warnings) {
+        toast.info(t(warning))
+      }
+      const name = (collection as HoppCollection).name
+      await saveOpenAPIDoc(openAPIDoc, name)
+    } catch {
+      toast.error(t("error.something_went_wrong"))
+    } finally {
+      if (thisGeneration === exportGeneration) displayModalOpenAPIFormat(false)
+    }
+  } else {
+    if (!collection.id) {
+      exportLoading.value = false
+      displayModalOpenAPIFormat(false)
+      return
+    }
+
+    await pipe(
+      getCompleteCollectionTree(collection.id),
+      TE.match(
+        (err: GQLError<string>) => {
+          toast.error(`${getErrorMessage(err)}`)
+          if (thisGeneration === exportGeneration) {
+            displayModalOpenAPIFormat(false)
+          }
+        },
+        async (coll) => {
+          try {
+            const hoppColl = teamCollToHoppRESTColl(coll)
+            const { doc: openAPIDoc, warnings } =
+              hoppCollectionToOpenAPI(hoppColl)
+            for (const warning of warnings) {
+              toast.info(t(warning))
+            }
+            await saveOpenAPIDoc(openAPIDoc, hoppColl.name)
+          } catch {
+            toast.error(t("error.something_went_wrong"))
+          } finally {
+            if (thisGeneration === exportGeneration) {
+              displayModalOpenAPIFormat(false)
+            }
+          }
         }
       )
     )()

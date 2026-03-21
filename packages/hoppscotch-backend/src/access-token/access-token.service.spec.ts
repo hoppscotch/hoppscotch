@@ -112,11 +112,17 @@ describe('AccessTokenService', () => {
 
   describe('deletePAT', () => {
     test('should throw ACCESS_TOKEN_NOT_FOUND if Access Token is not found', async () => {
-      mockPrisma.personalAccessToken.delete.mockRejectedValueOnce(
-        'RecordNotFound',
-      );
+      mockPrisma.personalAccessToken.deleteMany.mockResolvedValueOnce({
+        count: 0,
+      });
 
-      const result = await accessTokenService.deletePAT(userAccessToken.id);
+      const result = await accessTokenService.deletePAT(
+        userAccessToken.id,
+        user.uid,
+      );
+      expect(mockPrisma.personalAccessToken.deleteMany).toHaveBeenCalledWith({
+        where: { id: userAccessToken.id, userUid: user.uid },
+      });
       expect(result).toEqualLeft({
         message: ACCESS_TOKEN_NOT_FOUND,
         statusCode: HttpStatus.NOT_FOUND,
@@ -124,12 +130,36 @@ describe('AccessTokenService', () => {
     });
 
     test('should successfully delete a new Access Token', async () => {
-      mockPrisma.personalAccessToken.delete.mockResolvedValueOnce(
-        userAccessToken,
-      );
+      mockPrisma.personalAccessToken.deleteMany.mockResolvedValueOnce({
+        count: 1,
+      });
 
-      const result = await accessTokenService.deletePAT(userAccessToken.id);
+      const result = await accessTokenService.deletePAT(
+        userAccessToken.id,
+        user.uid,
+      );
+      expect(mockPrisma.personalAccessToken.deleteMany).toHaveBeenCalledWith({
+        where: { id: userAccessToken.id, userUid: user.uid },
+      });
       expect(result).toEqualRight(true);
+    });
+
+    test('should throw ACCESS_TOKEN_NOT_FOUND when token belongs to a different user', async () => {
+      mockPrisma.personalAccessToken.deleteMany.mockResolvedValueOnce({
+        count: 0,
+      });
+
+      const result = await accessTokenService.deletePAT(
+        userAccessToken.id,
+        'different-user-uid',
+      );
+      expect(mockPrisma.personalAccessToken.deleteMany).toHaveBeenCalledWith({
+        where: { id: userAccessToken.id, userUid: 'different-user-uid' },
+      });
+      expect(result).toEqualLeft({
+        message: ACCESS_TOKEN_NOT_FOUND,
+        statusCode: HttpStatus.NOT_FOUND,
+      });
     });
   });
 

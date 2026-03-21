@@ -87,6 +87,8 @@
             :on-shown="() => downloadableLinksRef.focus()"
           >
             <HoppButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('action.download_file')"
               :icon="IconDownload"
               class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
             />

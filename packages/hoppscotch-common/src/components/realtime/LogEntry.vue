@@ -42,6 +42,8 @@
           @click="copyQuery(entry.payload)"
         />
         <HoppButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('action.toggle_details')"
           :icon="IconChevronDown"
           class="transform"
           :class="{ 'rotate-180': !minimized }"

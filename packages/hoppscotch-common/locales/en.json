@@ -77,7 +77,10 @@
     "verify": "Verify",
     "enable": "Enable",
     "disable": "Disable",
-    "assign": "Assign"
+    "assign": "Assign",
+    "toggle_details": "Toggle details",
+    "positive_feedback": "Good response",
+    "negative_feedback": "Bad response"
   },
   "activity_logs": {
     "ACTIVITY_LOG_DELETE": "Activity log has been deleted",

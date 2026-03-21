@@ -99,6 +99,8 @@ const { submitFeedback, isSubmitFeedbackPending } = useSubmitFeedback()
           <p>{{ t("ai_experiments.feedback_cta_text_long") }}</p>
           <template v-if="!isSubmitFeedbackPending">
             <HoppButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('action.positive_feedback')"
               :icon="IconThumbsUp"
               outline
               @click="
@@ -112,6 +114,8 @@ const { submitFeedback, isSubmitFeedbackPending } = useSubmitFeedback()
             />
 
             <HoppButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('action.negative_feedback')"
               :icon="IconThumbsDown"
               outline
               @click="

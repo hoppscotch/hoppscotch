@@ -118,6 +118,10 @@
               node.data.type === 'collections' &&
               emit('export-data', node.data.data.data)
             "
+            @export-openapi="
+              node.data.type === 'collections' &&
+              emit('export-openapi', node.data.data.data)
+            "
             @remove-collection="emit('remove-collection', node.id)"
             @sort-collections="emit('sort-collections', $event)"
             @drop-event="dropEvent($event, node.id)"
@@ -215,6 +219,10 @@
             @export-data="
               node.data.type === 'folders' &&
               emit('export-data', node.data.data.data)
+            "
+            @export-openapi="
+              node.data.type === 'folders' &&
+              emit('export-openapi', node.data.data.data)
             "
             @remove-collection="
               node.data.type === 'folders' && emit('remove-folder', node.id)
@@ -634,6 +642,7 @@ const emit = defineEmits<{
   ): void
   (event: "duplicate-response", payload: ResponsePayload): void
   (event: "export-data", payload: HoppCollection): void
+  (event: "export-openapi", payload: HoppCollection): void
   (event: "remove-collection", payload: string): void
   (event: "remove-folder", payload: string): void
   (

@@ -66,6 +66,13 @@ const applyColorMode = (app: App) => {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const applyAccentColor = (_app: App) => {
   const [pref] = useSettingStatic("THEME_COLOR")
+  let toast: ReturnType<typeof useToast> | null = null
+
+  try {
+    toast = useToast()
+  } catch (_e) {
+    // ignore toast errors in non-browser contexts
+  }
 
   const root = document.documentElement
   const removeInlineAccentVars = () => {
@@ -130,14 +137,7 @@ const applyAccentColor = (_app: App) => {
       } catch (err) {
         // If parsing fails, fallback to removing any custom inline vars and revert to a default accent
         // Log for debugging and notify the user
-        try {
-          const toast = useToast()
-          toast.info(
-            "Failed to apply custom accent color. Reverted to default."
-          )
-        } catch (_toastErr) {
-          // ignore toast errors in non-browser contexts
-        }
+        toast?.info("Failed to apply custom accent color. Reverted to default.")
         console.warn("[theming] Failed parsing custom accent color:", err)
         removeInlineAccentVars()
         root.removeAttribute("data-accent")

@@ -18,11 +18,12 @@ import { HoppAccentColors, HoppBgColors } from "~/newstore/settings"
 
 const ThemeColorSchema = z.union([
   z.enum(HoppAccentColors),
-  // Accept any string that `colord` can parse as a color (hex, rgb/rgba, hsl/hsla, named colors, etc.)
+  // Accept custom colors only when they parse successfully as fully opaque values.
   z.string().refine(
     (s) => {
       try {
-        return colord(s).isValid()
+        const color = colord(s)
+        return color.isValid() && color.alpha() === 1
       } catch (_e) {
         return false
       }

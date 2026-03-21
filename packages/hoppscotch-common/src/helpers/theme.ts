@@ -28,18 +28,18 @@ export function getContrastColor(
     )
     const L = 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2]
 
-    // contrast ratios against white and black
-    const contrastWithWhite = (1.0 + 0.05) / (L + 0.05)
-    const contrastWithBlack = (L + 0.05) / (0.0 + 0.05)
+    // Contrast ratios for white/black text on top of the input color.
+    const contrastAgainstWhite = (1.0 + 0.05) / (L + 0.05)
+    const contrastAgainstBlack = (L + 0.05) / (0.0 + 0.05)
 
-    const meetsWhite = contrastWithWhite >= threshold
-    const meetsBlack = contrastWithBlack >= threshold
+    const meetsWhite = contrastAgainstWhite >= threshold
+    const meetsBlack = contrastAgainstBlack >= threshold
 
     if (meetsWhite && !meetsBlack) return "#ffffff"
     if (meetsBlack && !meetsWhite) return "#000000"
 
-    // If both meet or both fail, return the one with higher contrast ratio
-    return contrastWithWhite >= contrastWithBlack ? "#ffffff" : "#000000"
+    // If both meet or both fail, prefer the higher WCAG contrast ratio.
+    return contrastAgainstWhite >= contrastAgainstBlack ? "#ffffff" : "#000000"
   } catch (_e) {
     return "#000000"
   }

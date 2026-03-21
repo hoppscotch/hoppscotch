@@ -403,11 +403,11 @@ const getSupportedContentType = (
     return contentType as keyof typeof knownContentTypes
   }
 
-  if (contentType.match(/application\/.*\+json/)) {
+  if (/^application\/.+\+json$/.test(contentType)) {
     return "application/json"
   }
 
-  if (contentType.match(/application\/.*\+xml/)) {
+  if (/^application\/.+\+xml$/.test(contentType)) {
     return "application/xml"
   }
 
@@ -1051,6 +1051,32 @@ const convertPathToHoppReqs = (
           ? openAPIUrl + openAPIPath.slice(1)
           : openAPIUrl + openAPIPath
 
+      const body = parseOpenAPIBody(doc, info)
+      const headers = parseOpenAPIHeaders(
+        (info.parameters as OpenAPIParamsType[] | undefined) ?? []
+      )
+
+      // Add original content type header if it differs from the mapped body content type
+      const originalContentType = isOpenAPIV3Operation(doc, info)
+        ? (Object.keys((info.requestBody as any)?.content ?? {})[0] ?? null)
+        : ((info as OpenAPIV2.OperationObject).consumes?.[0] ?? null)
+
+      if (
+        originalContentType &&
+        body.contentType &&
+        originalContentType !== body.contentType
+      ) {
+        // Only add if not already present in headers
+        if (!headers.some((h) => h.key.toLowerCase() === "content-type")) {
+          headers.push({
+            key: "Content-Type",
+            value: originalContentType,
+            description: "Original Content-Type from OpenAPI spec",
+            active: true,
+          })
+        }
+      }
+
       const res: {
         request: HoppRESTRequest
         metadata: {
@@ -1067,13 +1093,11 @@ const convertPathToHoppReqs = (
           params: parseOpenAPIParams(
             (info.parameters as OpenAPIParamsType[] | undefined) ?? []
           ),
-          headers: parseOpenAPIHeaders(
-            (info.parameters as OpenAPIParamsType[] | undefined) ?? []
-          ),
+          headers,
 
           auth: parseOpenAPIAuth(doc, info),
 
-          body: parseOpenAPIBody(doc, info),
+          body,
 
           preRequestScript: "",
           testScript: "",
@@ -1088,15 +1112,13 @@ const convertPathToHoppReqs = (
             makeHoppRESTResponseOriginalRequest({
               name: info.operationId ?? info.summary ?? "Untitled Request",
               auth: parseOpenAPIAuth(doc, info),
-              body: parseOpenAPIBody(doc, info),
+              body,
               endpoint,
               // We don't need to worry about reference types as the Dereferencing pass should remove them
               params: parseOpenAPIParams(
                 (info.parameters as OpenAPIParamsType[] | undefined) ?? []
               ),
-              headers: parseOpenAPIHeaders(
-                (info.parameters as OpenAPIParamsType[] | undefined) ?? []
-              ),
+              headers,
               method: method.toUpperCase(),
               requestVariables: parseOpenAPIVariables(
                 (info.parameters as OpenAPIParamsType[] | undefined) ?? []

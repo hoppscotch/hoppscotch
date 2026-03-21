@@ -34,10 +34,11 @@
         <!-- overlay native color input (transparent) so the native color picker anchors to the icon -->
         <input
           ref="colorInputRef"
-          class="color-picker absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          class="color-picker pointer-events-none absolute inset-0 w-full h-full opacity-0"
           type="color"
           :value="customColorValue || '#000000'"
-          aria-label="Pick custom accent color"
+          aria-hidden="true"
+          tabindex="-1"
           @input="onCustomColorInput"
         />
       </div>
@@ -108,6 +109,11 @@ const onCustomColorInput = (e: Event) => {
 }
 
 const openColorPicker = () => {
+  if (colorInputRef.value?.showPicker) {
+    colorInputRef.value.showPicker()
+    return
+  }
+
   colorInputRef.value?.click()
 }
 </script>

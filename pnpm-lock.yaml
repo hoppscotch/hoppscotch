@@ -625,6 +625,9 @@ importers:
       buffer:
         specifier: 6.0.3
         version: 6.0.3
+      colord:
+        specifier: ^2.9.3
+        version: 2.9.3
       cookie-es:
         specifier: 2.0.0
         version: 2.0.0
@@ -18850,8 +18853,7 @@ snapshots:
 
   color-name@1.1.4: {}
 
-  colord@2.9.3:
-    optional: true
+  colord@2.9.3: {}
 
   colorette@2.0.20: {}
 

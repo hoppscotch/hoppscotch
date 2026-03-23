@@ -263,7 +263,6 @@ export class ProxyKernelInterceptorService
       version: "HTTP/1.1" as Version,
       headers: {
         "content-type": content.mediaType,
-        origin: window.location.origin,
         ...(content.kind === "multipart"
           ? {
               "multipart-part-key": multipartKey,

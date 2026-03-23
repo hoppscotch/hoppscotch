@@ -399,15 +399,17 @@ const parseOpenAPIHeaders = (params: OpenAPIParamsType[]): HoppRESTHeader[] =>
 const getSupportedContentType = (
   contentType: string
 ): keyof typeof knownContentTypes | null => {
-  if (contentType in knownContentTypes) {
-    return contentType as keyof typeof knownContentTypes
+  const normalized = contentType.trim().toLowerCase().split(";")[0].trim()
+
+  if (Object.hasOwn(knownContentTypes, normalized)) {
+    return normalized as keyof typeof knownContentTypes
   }
 
-  if (/^application\/.+\+json$/.test(contentType)) {
+  if (/^application\/.+\+json$/.test(normalized)) {
     return "application/json"
   }
 
-  if (/^application\/.+\+xml$/.test(contentType)) {
+  if (/^application\/.+\+xml$/.test(normalized)) {
     return "application/xml"
   }
 
@@ -1056,7 +1058,10 @@ const convertPathToHoppReqs = (
         (info.parameters as OpenAPIParamsType[] | undefined) ?? []
       )
 
-      // Add original content type header if it differs from the mapped body content type
+      // Preserve the original content type as an explicit header when it differs
+      // from the mapped body content type (e.g. application/vnd.custom+json mapped
+      // to application/json for editor support). The explicit header reliably
+      // overrides the body-derived Content-Type at request time.
       const originalContentType = isOpenAPIV3Operation(doc, info)
         ? (Object.keys((info.requestBody as any)?.content ?? {})[0] ?? null)
         : ((info as OpenAPIV2.OperationObject).consumes?.[0] ?? null)
@@ -1066,14 +1071,30 @@ const convertPathToHoppReqs = (
         body.contentType &&
         originalContentType !== body.contentType
       ) {
-        // Only add if not already present in headers
-        if (!headers.some((h) => h.key.toLowerCase() === "content-type")) {
+        // Add or update Content-Type header:
+        // - If no Content-Type header exists, add one.
+        // - If a Content-Type header exists but is inactive or has an empty value,
+        //   update it with the original content type and activate it.
+        const existingContentTypeHeader = headers.find(
+          (h) => h.key.toLowerCase() === "content-type"
+        )
+        if (!existingContentTypeHeader) {
           headers.push({
             key: "Content-Type",
             value: originalContentType,
             description: "Original Content-Type from OpenAPI spec",
             active: true,
           })
+        } else if (
+          !existingContentTypeHeader.active ||
+          !existingContentTypeHeader.value
+        ) {
+          existingContentTypeHeader.value = originalContentType
+          if (!existingContentTypeHeader.description) {
+            existingContentTypeHeader.description =
+              "Original Content-Type from OpenAPI spec"
+          }
+          existingContentTypeHeader.active = true
         }
       }
 
@@ -1112,7 +1133,7 @@ const convertPathToHoppReqs = (
             makeHoppRESTResponseOriginalRequest({
               name: info.operationId ?? info.summary ?? "Untitled Request",
               auth: parseOpenAPIAuth(doc, info),
-              body,
+              body: cloneDeep(body),
               endpoint,
               // We don't need to worry about reference types as the Dereferencing pass should remove them
               params: parseOpenAPIParams(

@@ -137,6 +137,8 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
           ),
           mailer_smtp_secure:
             getFieldValue(InfraConfigEnum.MailerSmtpSecure) === 'true',
+          mailer_smtp_ignore_tls:
+            getFieldValue(InfraConfigEnum.MailerSmtpIgnoreTls) === 'true',
           mailer_tls_reject_unauthorized:
             getFieldValue(InfraConfigEnum.MailerTlsRejectUnauthorized) ===
             'true',
@@ -273,8 +275,10 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       if (section.name === 'email') {
         const { mailer_use_custom_configs, ...otherFields } = section.fields;
 
+        // mailer_smtp_user and mailer_smtp_password are always optional (auth is optional)
+        const optionalMailerKeys = ['mailer_smtp_user', 'mailer_smtp_password'];
         const excludeKeys = mailer_use_custom_configs
-          ? ['mailer_smtp_url']
+          ? ['mailer_smtp_url', ...optionalMailerKeys]
           : [
               'mailer_smtp_host',
               'mailer_smtp_port',

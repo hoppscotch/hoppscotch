@@ -172,6 +172,10 @@ const smtpConfigFields = reactive<Field[]>([
     key: 'mailer_smtp_secure',
   },
   {
+    name: t('configs.mail_configs.ignore_tls'),
+    key: 'mailer_smtp_ignore_tls',
+  },
+  {
     name: t('configs.mail_configs.tls_reject_unauthorized'),
     key: 'mailer_tls_reject_unauthorized',
   },
@@ -200,6 +204,7 @@ const fieldCondition = (field: Field) => {
     'mailer_smtp_user',
     'mailer_smtp_password',
     'mailer_smtp_secure',
+    'mailer_smtp_ignore_tls',
     'mailer_tls_reject_unauthorized',
   ];
   const basicFields = ['mailer_smtp_url'];
@@ -216,7 +221,11 @@ const fieldCondition = (field: Field) => {
 };
 
 const isCheckboxField = (field: Field) => {
-  const checkboxKeys = ['mailer_smtp_secure', 'mailer_tls_reject_unauthorized'];
+  const checkboxKeys = [
+    'mailer_smtp_secure',
+    'mailer_smtp_ignore_tls',
+    'mailer_tls_reject_unauthorized',
+  ];
   return checkboxKeys.includes(field.key);
 };
 

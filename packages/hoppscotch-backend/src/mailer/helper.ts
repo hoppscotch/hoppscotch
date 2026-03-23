@@ -1,9 +1,5 @@
 import { TransportType } from '@nestjs-modules/mailer/dist/interfaces/mailer-options.interface';
-import {
-  MAILER_SMTP_PASSWORD_UNDEFINED,
-  MAILER_SMTP_URL_UNDEFINED,
-  MAILER_SMTP_USER_UNDEFINED,
-} from 'src/errors';
+import { MAILER_SMTP_URL_UNDEFINED } from 'src/errors';
 import { throwErr } from 'src/utils';
 
 function isSMTPCustomConfigsEnabled(value) {
@@ -27,14 +23,14 @@ export function getTransportOption(env): TransportType {
 
     const smtpUser = env.INFRA.MAILER_SMTP_USER?.trim() || undefined;
     const smtpPass = env.INFRA.MAILER_SMTP_PASSWORD?.trim() || undefined;
-    const hasAnyAuth = !!(smtpUser || smtpPass);
 
-    const auth = hasAnyAuth
-      ? {
-          user: smtpUser ?? throwErr(MAILER_SMTP_USER_UNDEFINED),
-          pass: smtpPass ?? throwErr(MAILER_SMTP_PASSWORD_UNDEFINED),
-        }
-      : undefined;
+    const auth =
+      smtpUser || smtpPass
+        ? {
+            ...(smtpUser && { user: smtpUser }),
+            ...(smtpPass && { pass: smtpPass }),
+          }
+        : undefined;
 
     return {
       host: env.INFRA.MAILER_SMTP_HOST,

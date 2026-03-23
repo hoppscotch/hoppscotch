@@ -41,6 +41,13 @@
         </HoppSmartCheckbox>
 
         <HoppSmartCheckbox
+          :on="smtp.SMTP_IGNORE_TLS.enabled"
+          @change="toggleConfig('SMTP_IGNORE_TLS')"
+        >
+          {{ smtp.SMTP_IGNORE_TLS.text }}
+        </HoppSmartCheckbox>
+
+        <HoppSmartCheckbox
           :on="smtp.TLS_REJECT_UNAUTHORIZED.enabled"
           @change="toggleConfig('TLS_REJECT_UNAUTHORIZED')"
         >
@@ -122,6 +129,12 @@ const smtp = computed<MailerConfig>(() => {
       text: 'SMTP Secure',
       value: cfg.MAILER_SMTP_SECURE,
       enabled: isCustom && cfg.MAILER_SMTP_SECURE === 'true',
+    },
+    SMTP_IGNORE_TLS: {
+      id: 'MAILER_SMTP_IGNORE_TLS',
+      text: 'Ignore TLS',
+      value: cfg.MAILER_SMTP_IGNORE_TLS,
+      enabled: isCustom && cfg.MAILER_SMTP_IGNORE_TLS === 'true',
     },
     TLS_REJECT_UNAUTHORIZED: {
       id: 'MAILER_TLS_REJECT_UNAUTHORIZED',

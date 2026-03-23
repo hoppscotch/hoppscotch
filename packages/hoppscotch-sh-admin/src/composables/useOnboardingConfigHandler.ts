@@ -30,6 +30,7 @@ export type MailerConfigKeys =
   | 'SMTP_SECURE'
   | 'SMTP_USER'
   | 'SMTP_PASSWORD'
+  | 'SMTP_IGNORE_TLS'
   | 'TLS_REJECT_UNAUTHORIZED';
 
 export type Configs = {
@@ -89,6 +90,7 @@ function mapMailerConfigs(
     MAILER_SMTP_SECURE: configs.MAILER_SMTP_SECURE || 'false',
     MAILER_SMTP_USER: configs.MAILER_SMTP_USER ?? '',
     MAILER_SMTP_PASSWORD: configs.MAILER_SMTP_PASSWORD ?? '',
+    MAILER_SMTP_IGNORE_TLS: configs.MAILER_SMTP_IGNORE_TLS || 'false',
     MAILER_TLS_REJECT_UNAUTHORIZED:
       configs.MAILER_TLS_REJECT_UNAUTHORIZED || 'false',
   };
@@ -229,6 +231,7 @@ export function useOnboardingConfigHandler() {
         'MAILER_ADDRESS_FROM',
         'MAILER_USE_CUSTOM_CONFIGS',
         'MAILER_SMTP_SECURE',
+        'MAILER_SMTP_IGNORE_TLS',
         'MAILER_TLS_REJECT_UNAUTHORIZED',
         'MAILER_SMTP_ENABLE',
       ].includes(key);
@@ -253,7 +256,11 @@ export function useOnboardingConfigHandler() {
     );
 
     const neededKeys = filterNeededConfigs(relevantKeys);
-    const allFilled = neededKeys.every((key) => configs[key]);
+    // MAILER_SMTP_USER and MAILER_SMTP_PASSWORD are optional (SMTP auth is optional)
+    const optionalKeys = new Set(['MAILER_SMTP_USER', 'MAILER_SMTP_PASSWORD']);
+    const allFilled = neededKeys.every(
+      (key) => configs[key] || optionalKeys.has(key)
+    );
 
     if (!allFilled) {
       neededKeys.forEach((key) => {

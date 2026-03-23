@@ -85,6 +85,7 @@
       "port": "MAILER PORT",
       "secure": "MAILER SECURE",
       "smtp_url": "MAILER SMTP URL",
+      "ignore_tls": "IGNORE TLS",
       "tls_reject_unauthorized": "TLS REJECT UNAUTHORIZED",
       "title": "SMTP Configurations",
       "toggle_failure": "Failed to toggle smtp!!",

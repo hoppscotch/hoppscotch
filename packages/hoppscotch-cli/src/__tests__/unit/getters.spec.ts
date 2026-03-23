@@ -237,7 +237,7 @@ describe("getters", () => {
         },
       ];
 
-      test.each(cases)("$description", ({ args, axiosMock, expected }) => {
+      test.each(cases)("$description", async ({ args, axiosMock, expected }) => {
         const { code, response } = axiosMock;
         const axiosErrMessage = code ?? response?.data?.reason;
 
@@ -253,10 +253,10 @@ describe("getters", () => {
           )
         );
 
-        expect(getResourceContents(args)).rejects.toEqual(expected);
+        await expect(getResourceContents(args)).rejects.toEqual(expected);
       });
 
-      test("Promise rejects with the code `INVALID_SERVER_URL` if the network call succeeds and the received response content type is not `application/json`", () => {
+      test("Promise rejects with the code `INVALID_SERVER_URL` if the network call succeeds and the received response content type is not `application/json`", async () => {
         const expected = {
           code: "INVALID_SERVER_URL",
           data: args.serverUrl,
@@ -269,10 +269,10 @@ describe("getters", () => {
           })
         );
 
-        expect(getResourceContents(args)).rejects.toEqual(expected);
+        await expect(getResourceContents(args)).rejects.toEqual(expected);
       });
 
-      test("Promise rejects with the code `UNKNOWN_ERROR` while encountering an error that is not an instance of `AxiosError`", () => {
+      test("Promise rejects with the code `UNKNOWN_ERROR` while encountering an error that is not an instance of `AxiosError`", async () => {
         const expected = {
           code: "UNKNOWN_ERROR",
           data: new Error("UNKNOWN_ERROR"),
@@ -282,7 +282,7 @@ describe("getters", () => {
           Promise.reject(new Error("UNKNOWN_ERROR"))
         );
 
-        expect(getResourceContents(args)).rejects.toEqual(expected);
+        await expect(getResourceContents(args)).rejects.toEqual(expected);
       });
     });
 

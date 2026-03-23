@@ -249,6 +249,8 @@ export const getResourceContents = async (
         ) {
           throw error({ code: "INVALID_SERVER_URL", data: resolvedServerUrl });
         }
+
+        throw error({ code: "UNKNOWN_ERROR", data: err });
       } else {
         throw error({ code: "UNKNOWN_ERROR", data: err });
       }

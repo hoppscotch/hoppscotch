@@ -223,6 +223,18 @@ describe("getters", () => {
             data: "test-environment-id-or-path",
           },
         },
+        {
+          description:
+            "Promise rejects with the code `UNKNOWN_ERROR` if the network call fails with a timeout error (ETIMEDOUT)",
+          args,
+          axiosMock: {
+            code: "ETIMEDOUT",
+          },
+          expected: {
+            code: "UNKNOWN_ERROR",
+            data: new AxiosError("ETIMEDOUT", "ETIMEDOUT"),
+          },
+        },
       ];
 
       test.each(cases)("$description", ({ args, axiosMock, expected }) => {

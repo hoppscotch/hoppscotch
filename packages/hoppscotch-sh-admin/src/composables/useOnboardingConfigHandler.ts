@@ -256,7 +256,10 @@ export function useOnboardingConfigHandler() {
     );
 
     const neededKeys = filterNeededConfigs(relevantKeys);
-    // SMTP user and password are fully optional (can be blank individually or both)
+    // SMTP auth is optional (both blank = no-auth SMTP server).
+    // These keys are excluded from mandatory "filled" checks, but are still
+    // included in the returned payload even when empty so the backend can
+    // explicitly clear previously stored credentials on re-visits.
     const optionalSmtpKeys = new Set([
       'MAILER_SMTP_USER',
       'MAILER_SMTP_PASSWORD',
@@ -277,11 +280,13 @@ export function useOnboardingConfigHandler() {
       return;
     }
 
+    // Allow empty strings through for optional SMTP keys so the backend
+    // receives an explicit clear rather than silently retaining old values
     return Object.fromEntries(
       Object.entries(configs).filter(
         ([key, val]) =>
           enabledConfigs.value.includes(key.split('_')[0] as EnabledConfig) &&
-          val
+          (val || optionalSmtpKeys.has(key))
       )
     );
   };

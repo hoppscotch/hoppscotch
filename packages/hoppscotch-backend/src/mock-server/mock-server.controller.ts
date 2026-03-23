@@ -35,6 +35,7 @@ export class MockServerController {
     // Mock server ID and info are attached by the guard
     const mockServerId = (req as any).mockServerId as string;
     const mockServer = (req as any).mockServer as MockServer;
+    const isSubdomainAccess = (req as any).isSubdomainAccess === true;
 
     if (!mockServerId) {
       return res.status(HttpStatus.NOT_FOUND).json({
@@ -99,7 +100,10 @@ export class MockServerController {
             if (!securityHeaderBlocklist.has(key.toLowerCase())) {
               const rawValue = headers[key];
               // Only allow string and number values to prevent type bypass attacks
-              if (typeof rawValue === 'string' || typeof rawValue === 'number') {
+              if (
+                typeof rawValue === 'string' ||
+                typeof rawValue === 'number'
+              ) {
                 res.setHeader(key, rawValue);
               }
             }
@@ -116,26 +120,27 @@ export class MockServerController {
         );
       }
 
-      // Prevent XSS: downgrade script-capable content types to text/plain
-      const activeContentTypes = new Set([
-        'text/html',
-        'application/xhtml+xml',
-        'image/svg+xml',
-        'text/xml',
-        'application/xml',
-        'application/javascript',
-        'text/javascript',
-        'text/xsl',
-      ]);
-      const rawContentType = res.getHeader('Content-Type');
-      if (typeof rawContentType === 'string') {
-        // Normalize: trim, strip parameters (e.g. charset), lowercase
-        const mimeType = rawContentType.split(';')[0].trim().toLowerCase();
-        if (
-          activeContentTypes.has(mimeType) ||
-          mimeType.endsWith('+xml')
-        ) {
-          res.setHeader('Content-Type', 'text/plain');
+      // Prevent XSS on path-based (same-origin) requests by downgrading
+      // script-capable content types to text/plain.
+      // Subdomain-based requests are on a different origin, so HTML is safe.
+      if (!isSubdomainAccess) {
+        const activeContentTypes = new Set([
+          'application/javascript',
+          'application/xhtml+xml',
+          'application/xml',
+          'image/svg+xml',
+          'text/html',
+          'text/javascript',
+          'text/xml',
+          'text/xsl',
+        ]);
+        const rawContentType = res.getHeader('Content-Type');
+        if (typeof rawContentType === 'string') {
+          // Normalize: trim, strip parameters (e.g. charset), lowercase
+          const mimeType = rawContentType.split(';')[0].trim().toLowerCase();
+          if (activeContentTypes.has(mimeType) || mimeType.endsWith('+xml')) {
+            res.setHeader('Content-Type', 'text/plain');
+          }
         }
       }
 

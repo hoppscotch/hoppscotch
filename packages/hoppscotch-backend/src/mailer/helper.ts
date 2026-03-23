@@ -25,18 +25,16 @@ export function getTransportOption(env): TransportType {
   } else {
     console.log('Using advanced mailer configuration');
 
-    const auth =
-      env.INFRA.MAILER_SMTP_USER?.trim() ||
-      env.INFRA.MAILER_SMTP_PASSWORD?.trim()
-        ? {
-            user:
-              env.INFRA.MAILER_SMTP_USER ??
-              throwErr(MAILER_SMTP_USER_UNDEFINED),
-            pass:
-              env.INFRA.MAILER_SMTP_PASSWORD ??
-              throwErr(MAILER_SMTP_PASSWORD_UNDEFINED),
-          }
-        : undefined;
+    const smtpUser = env.INFRA.MAILER_SMTP_USER?.trim() || undefined;
+    const smtpPass = env.INFRA.MAILER_SMTP_PASSWORD?.trim() || undefined;
+    const hasAnyAuth = !!(smtpUser || smtpPass);
+
+    const auth = hasAnyAuth
+      ? {
+          user: smtpUser ?? throwErr(MAILER_SMTP_USER_UNDEFINED),
+          pass: smtpPass ?? throwErr(MAILER_SMTP_PASSWORD_UNDEFINED),
+        }
+      : undefined;
 
     return {
       host: env.INFRA.MAILER_SMTP_HOST,

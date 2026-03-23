@@ -119,26 +119,26 @@ const buildHarPostData = (req: HoppRESTRequest): Har.PostData | undefined => {
   // "[object File]" which causes HTTPSnippet to throw and code generation to
   // fail entirely.
   if (req.body.contentType === "application/octet-stream") {
-  const body = req.body.body
+    const body = req.body.body
 
-  // Preserve string if it ever exists
-  if (typeof body === "string") {
+    // Preserve string if it ever exists
+    if (typeof body === "string") {
+      return {
+        mimeType: req.body.contentType,
+        text: body,
+      }
+    }
+
+    const pathOrName =
+      typeof File !== "undefined" && body instanceof File
+        ? (body as any).path || body.name || "<binary-file>"
+        : "<binary-file>"
+
     return {
       mimeType: req.body.contentType,
-      text: body,
+      text: `@${pathOrName}`,
     }
   }
-
-  const pathOrName =
-    typeof File !== "undefined" && body instanceof File
-      ? (body as any).path || body.name || "<binary-file>"
-      : "<binary-file>"
-
-  return {
-    mimeType: req.body.contentType,
-    text: `@${pathOrName}`,
-  }
-}
 
   return {
     mimeType: req.body.contentType, // Let's assume by default content type is JSON

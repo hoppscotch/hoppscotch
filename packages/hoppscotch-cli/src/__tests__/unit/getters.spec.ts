@@ -515,5 +515,81 @@ describe("getters", () => {
         getResolvedVariables(requestVariables, environmentVariables)
       ).toEqual(expected);
     });
+
+    test("Priority logic: Request variables > Collection variables > Environment variables", () => {
+      const collectionVariables = [
+        {
+          key: "SHARED_KEY_I",
+          initialValue: "collection-variable-shared-value-I",
+          currentValue: "collection-variable-shared-value-I",
+          secret: false,
+        },
+        {
+          key: "ENV_VAR_III",
+          initialValue: "collection-variable-value-III",
+          currentValue: "collection-variable-value-III",
+          secret: false,
+        },
+        {
+          key: "COLL_VAR_VI",
+          initialValue: "collection-variable-value-VI",
+          currentValue: "collection-variable-value-VI",
+          secret: false,
+        },
+      ];
+
+      const expected = [
+        {
+          key: "SHARED_KEY_I",
+          currentValue: "request-variable-shared-value-I",
+          initialValue: "request-variable-shared-value-I",
+          secret: false,
+        },
+        {
+          key: "REQUEST_VAR_III",
+          currentValue: "request-variable-value-III",
+          initialValue: "request-variable-value-III",
+          secret: false,
+        },
+        {
+          key: "SHARED_KEY_II",
+          currentValue: "environment-variable-shared-value-II",
+          initialValue: "environment-variable-shared-value-II",
+          secret: false,
+        },
+        {
+          key: "ENV_VAR_III",
+          currentValue: "collection-variable-value-III",
+          initialValue: "collection-variable-value-III",
+          secret: false,
+        },
+        {
+          key: "COLL_VAR_VI",
+          currentValue: "collection-variable-value-VI",
+          initialValue: "collection-variable-value-VI",
+          secret: false,
+        },
+        {
+          key: "ENV_VAR_IV",
+          currentValue: "environment-variable-value-IV",
+          initialValue: "environment-variable-value-IV",
+          secret: false,
+        },
+        {
+          key: "ENV_VAR_V",
+          currentValue: "environment-variable-value-V",
+          initialValue: "environment-variable-value-V",
+          secret: false,
+        },
+      ];
+
+      expect(
+        getResolvedVariables(
+          requestVariables,
+          environmentVariables,
+          collectionVariables
+        )
+      ).toEqual(expected);
+    });
   });
 });

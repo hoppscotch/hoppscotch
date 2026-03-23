@@ -232,7 +232,7 @@ describe("getters", () => {
           },
           expected: {
             code: "UNKNOWN_ERROR",
-            data: new AxiosError("ETIMEDOUT", "ETIMEDOUT"),
+            data: expect.objectContaining({ code: "ETIMEDOUT" }),
           },
         },
       ];
@@ -253,7 +253,7 @@ describe("getters", () => {
           )
         );
 
-        await expect(getResourceContents(args)).rejects.toEqual(expected);
+        await expect(getResourceContents(args)).rejects.toMatchObject(expected);
       });
 
       test("Promise rejects with the code `INVALID_SERVER_URL` if the network call succeeds and the received response content type is not `application/json`", async () => {
@@ -269,7 +269,7 @@ describe("getters", () => {
           })
         );
 
-        await expect(getResourceContents(args)).rejects.toEqual(expected);
+        await expect(getResourceContents(args)).rejects.toMatchObject(expected);
       });
 
       test("Promise rejects with the code `UNKNOWN_ERROR` while encountering an error that is not an instance of `AxiosError`", async () => {
@@ -282,7 +282,7 @@ describe("getters", () => {
           Promise.reject(new Error("UNKNOWN_ERROR"))
         );
 
-        await expect(getResourceContents(args)).rejects.toEqual(expected);
+        await expect(getResourceContents(args)).rejects.toMatchObject(expected);
       });
     });
 

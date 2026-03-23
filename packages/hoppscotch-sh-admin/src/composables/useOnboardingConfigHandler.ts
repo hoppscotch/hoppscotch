@@ -256,15 +256,18 @@ export function useOnboardingConfigHandler() {
     );
 
     const neededKeys = filterNeededConfigs(relevantKeys);
-    // MAILER_SMTP_USER and MAILER_SMTP_PASSWORD are optional (SMTP auth is optional)
-    const optionalKeys = new Set(['MAILER_SMTP_USER', 'MAILER_SMTP_PASSWORD']);
+    // SMTP user and password are fully optional (can be blank individually or both)
+    const optionalSmtpKeys = new Set([
+      'MAILER_SMTP_USER',
+      'MAILER_SMTP_PASSWORD',
+    ]);
     const allFilled = neededKeys.every(
-      (key) => configs[key] || optionalKeys.has(key)
+      (key) => configs[key] || optionalSmtpKeys.has(key)
     );
 
     if (!allFilled) {
       neededKeys.forEach((key) => {
-        if (!configs[key])
+        if (!configs[key] && !optionalSmtpKeys.has(key))
           toast.error(
             t('onboarding.please_fill_configurations', {
               fieldName: makeReadableKey(key),

@@ -275,7 +275,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       if (section.name === 'email') {
         const { mailer_use_custom_configs, ...otherFields } = section.fields;
 
-        // mailer_smtp_user and mailer_smtp_password are always optional (auth is optional)
+        // SMTP user and password are fully optional (can be blank individually or both)
         const optionalMailerKeys = ['mailer_smtp_user', 'mailer_smtp_password'];
         const excludeKeys = mailer_use_custom_configs
           ? ['mailer_smtp_url', ...optionalMailerKeys]
@@ -289,7 +289,8 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
         return (
           section.enabled &&
           Object.entries(otherFields).some(
-            ([key, value]) => isFieldEmpty(value) && !excludeKeys.includes(key)
+            ([key, value]) =>
+              isFieldEmpty(value) && !excludeKeys.includes(key)
           )
         );
       }

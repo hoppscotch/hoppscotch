@@ -213,12 +213,10 @@ export const CUSTOM_MAIL_CONFIGS: Config[] = [
   {
     name: InfraConfigEnum.MailerSmtpUser,
     key: 'mailer_smtp_user',
-    optional: true,
   },
   {
     name: InfraConfigEnum.MailerSmtpPassword,
     key: 'mailer_smtp_password',
-    optional: true,
   },
   {
     name: InfraConfigEnum.MailerSmtpSecure,

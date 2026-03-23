@@ -137,7 +137,10 @@
       "description": "Configure mock server settings used to host example responses.",
       "wildcard_domain": "Wildcard Domain",
       "wildcard_domain_description": "This field requires a full wildcard domain format. The input must start with an asterisk (*) followed by a dot (.) and then the domain name.",
-      "wildcard_domain_example": "Example: *.mock.domain.com"
+      "wildcard_domain_example": "Example: *.mock.domain.com",
+      "subpath_content_type_notice_prefix": "When using a subpath (instead of a wildcard subdomain), responses with the following content types will be served as",
+      "subpath_content_type_text_plain": "text/plain",
+      "subpath_content_type_notice_suffix": "to help prevent XSS:"
     },
     "update_failure": "Failed to update server configurations"
   },

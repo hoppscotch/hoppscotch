@@ -17,9 +17,13 @@ overrides:
   liquidjs@<10.25.0: 10.25.0
   lodash@>=4.0.0 <4.17.23: 4.17.23
   mailparser@<3.9.3: 3.9.3
+  flatted@<3.4.2: 3.4.2
+  minimatch@>=3.0.0 <3.1.3: 3.1.5
+  minimatch@>=4.0.0 <4.2.5: 4.2.5
   minimatch@>=5.0.0 <10.2.3: 10.2.3
   nodemailer@<7.0.11: 7.0.11
   serialize-javascript@<7.0.3: 7.0.3
+  socket.io-parser@>=4.0.0 <4.2.6: 4.2.6
   subscriptions-transport-ws>ws: 7.5.10
   svgo@4.0.0: 4.0.1
   vue: 3.5.30
@@ -8198,8 +8202,8 @@ packages:
     resolution: {integrity: sha512-b6suED+5/3rTpUBdG1gupIl8MPFCAMA0QXwmljLhvCUKcUvdE4gWky9zpuGCcXHOsz4J9wPGNWq6OKpmIzz3hQ==}
     hasBin: true
 
-  flatted@3.3.3:
-    resolution: {integrity: sha512-GX+ysw4PBCz0PzosHDepZGANEuFCMLrnRTiEy9McGjmkCQYwRq4A/X786G/fjM/+OjsWSU1ZrY5qyARZmO/uwg==}
+  flatted@3.4.2:
+    resolution: {integrity: sha512-PjDse7RzhcPkIJwy5t7KPWQSZ9cAbzQXcafsetQoD7sOJRQlGikNbx7yZp2OotDnJyrDcbyRq3Ttb18iYOqkxA==}
 
   follow-redirects@1.15.11:
     resolution: {integrity: sha512-deG2P0JfjrTxl50XGCDyfI97ZGVCxIpfKYmfyrQ54n5FO/0gfIES8C/Psl6kWVDolizcaaxZJnTS0QSMxvnsBQ==}
@@ -9758,14 +9762,11 @@ packages:
     resolution: {integrity: sha512-oRjTw/97aTBN0RHbYCdtF1MQfvusSIBQM0IZEgzl6426+8jSC0nF1a/GmnVLpfB9yyr6g6FTqWqiZVbxrtaCIg==}
     engines: {node: 18 || 20 || >=22}
 
-  minimatch@3.1.2:
-    resolution: {integrity: sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==}
-
   minimatch@3.1.5:
     resolution: {integrity: sha512-VgjWUsnnT6n+NUk6eZq77zeFdpW2LWDzP6zFGrCbHXiYNul5Dzqk2HHQ5uFH2DNW5Xbp8+jVzaeNt94ssEEl4w==}
 
-  minimatch@4.2.3:
-    resolution: {integrity: sha512-lIUdtK5hdofgCTu3aT0sOaHsYR37viUuIc0rwnnDXImbwFRcumyLMeZaM0t0I/fgxS6s6JMfu0rLD1Wz9pv1ng==}
+  minimatch@4.2.5:
+    resolution: {integrity: sha512-0htgU9jHBKHj95GPRwJaz73vT2ABPD7ge+OYBarvKbNtKkVQtxlIJb12LIl5ImbKqh1zcreY2fwKc8FnemLy5A==}
     engines: {node: '>=10'}
 
   minimist@1.2.8:
@@ -11521,12 +11522,8 @@ packages:
   socket.io-parser@3.3.4:
     resolution: {integrity: sha512-z/pFQB3x+EZldRRzORYW1vwVO8m/3ILkswtnpoeU6Ve3cbMWkmHEWDAVJn4QJtchiiFTo5j7UG2QvwxvaA9vow==}
 
-  socket.io-parser@4.0.5:
-    resolution: {integrity: sha512-sNjbT9dX63nqUFIOv95tTVm6elyIU4RvB1m8dOeZt+IgWwcWklFDOdmGcfo3zSiRsnR/3pJkjY5lfoGqEe4Eig==}
-    engines: {node: '>=10.0.0'}
-
-  socket.io-parser@4.2.4:
-    resolution: {integrity: sha512-/GbIKmo8ioc+NIWIhwdecY0ge+qVBSMdgxGygevmdHj24bsfgtCmcUUcQ5ZzcylGFHsN3k4HB4Cgkl96KVnuew==}
+  socket.io-parser@4.2.6:
+    resolution: {integrity: sha512-asJqbVBDsBCJx0pTqw3WfesSY0iRX+2xzWEWzrpcH7L6fLzrhyF8WPI8UaeM4YCuDfpwA/cgsdugMsmtz8EJeg==}
     engines: {node: '>=10.0.0'}
 
   socketio-wildcard@2.0.0:
@@ -20552,7 +20549,7 @@ snapshots:
       is-glob: 4.0.3
       json-stable-stringify-without-jsonify: 1.0.1
       lodash.merge: 4.6.2
-      minimatch: 3.1.2
+      minimatch: 3.1.5
       natural-compare: 1.4.0
       optionator: 0.9.4
     optionalDependencies:
@@ -20891,12 +20888,12 @@ snapshots:
 
   flat-cache@4.0.1:
     dependencies:
-      flatted: 3.3.3
+      flatted: 3.4.2
       keyv: 4.5.4
 
   flat@5.0.2: {}
 
-  flatted@3.3.3: {}
+  flatted@3.4.2: {}
 
   follow-redirects@1.15.11: {}
 
@@ -21136,7 +21133,7 @@ snapshots:
       cosmiconfig: 8.0.0
       graphql: 16.13.1
       jiti: 1.17.1
-      minimatch: 4.2.3
+      minimatch: 4.2.5
       string-env-interpolation: 1.0.1
       tslib: 2.8.1
     transitivePeerDependencies:
@@ -22737,15 +22734,11 @@ snapshots:
     dependencies:
       brace-expansion: 5.0.2
 
-  minimatch@3.1.2:
-    dependencies:
-      brace-expansion: 1.1.12
-
   minimatch@3.1.5:
     dependencies:
       brace-expansion: 1.1.12
 
-  minimatch@4.2.3:
+  minimatch@4.2.5:
     dependencies:
       brace-expansion: 1.1.12
 
@@ -23444,7 +23437,7 @@ snapshots:
       chalk: 2.4.2
       cross-spawn: 7.0.6
       memorystream: 0.3.1
-      minimatch: 3.1.2
+      minimatch: 3.1.5
       pidtree: 0.3.1
       read-pkg: 3.0.0
       shell-quote: 1.8.3
@@ -25048,7 +25041,7 @@ snapshots:
       debug: 4.3.7
       engine.io-client: 4.1.4
       parseuri: 0.0.6
-      socket.io-parser: 4.0.5
+      socket.io-parser: 4.2.6
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -25059,7 +25052,7 @@ snapshots:
       '@socket.io/component-emitter': 3.1.2
       debug: 4.3.7
       engine.io-client: 6.6.3
-      socket.io-parser: 4.2.4
+      socket.io-parser: 4.2.6
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -25073,18 +25066,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  socket.io-parser@4.0.5:
-    dependencies:
-      '@types/component-emitter': 1.2.14
-      component-emitter: 1.3.1
-      debug: 4.3.7
-    transitivePeerDependencies:
-      - supports-color
-
-  socket.io-parser@4.2.4:
+  socket.io-parser@4.2.6:
     dependencies:
       '@socket.io/component-emitter': 3.1.2
-      debug: 4.3.7
+      debug: 4.4.3(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -25502,7 +25487,7 @@ snapshots:
       acorn-walk: 6.2.0
       enhanced-resolve: 2.3.0
       glob: 11.1.0
-      minimatch: 3.1.2
+      minimatch: 3.1.5
       resolve-from: 2.0.0
 
   terser-webpack-plugin@5.3.16(webpack@5.104.1):

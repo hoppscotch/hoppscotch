@@ -1,3 +1,5 @@
+import { WorkspaceType } from "~/helpers/backend/graphql"
+
 /**
  * Canonical MockServer type used across the frontend.
  * Shared by BackendPlatformDef, newstore/mockServers, and mutation helpers.
@@ -8,7 +10,7 @@ export type MockServer = {
   subdomain: string
   serverUrlPathBased?: string
   serverUrlDomainBased?: string | null
-  workspaceType: "USER" | "TEAM"
+  workspaceType: WorkspaceType
   workspaceID?: string | null
   delayInMs?: number
   isPublic: boolean

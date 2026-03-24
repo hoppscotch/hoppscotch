@@ -15,6 +15,27 @@ import { MockRequestGuard } from './mock-request.guard';
 import { MockServer } from 'src/generated/prisma/client';
 import { ThrottlerBehindProxyGuard } from 'src/guards/throttler-behind-proxy.guard';
 
+/** Security-sensitive headers that mock responses must not override. */
+const SECURITY_HEADER_BLOCKLIST = new Set([
+  'content-security-policy',
+  'x-content-type-options',
+  'x-frame-options',
+  'content-disposition',
+  'set-cookie',
+]);
+
+/** MIME types that can execute scripts and must be downgraded on same-origin (subpath) responses. */
+const ACTIVE_CONTENT_TYPES = new Set([
+  'application/javascript',
+  'application/xhtml+xml',
+  'application/xml',
+  'image/svg+xml',
+  'text/html',
+  'text/javascript',
+  'text/xml',
+  'text/xsl',
+]);
+
 /**
  * Mock server controller with dual routing support:
  * 1. Subdomain pattern: mock-server-id.mock.hopp.io/product
@@ -85,29 +106,27 @@ export class MockServerController {
 
       // Set response headers if any, but exclude security-sensitive headers
       // that could be abused for XSS
-      const securityHeaderBlocklist = new Set([
-        'content-security-policy',
-        'x-content-type-options',
-        'x-frame-options',
-        'content-disposition',
-        'set-cookie',
-      ]);
-
       if (mockResponse.headers) {
         try {
           const headers = JSON.parse(mockResponse.headers);
-          Object.keys(headers).forEach((key) => {
-            if (!securityHeaderBlocklist.has(key.toLowerCase())) {
-              const rawValue = headers[key];
-              // Only allow string and number values to prevent type bypass attacks
-              if (
-                typeof rawValue === 'string' ||
-                typeof rawValue === 'number'
-              ) {
-                res.setHeader(key, rawValue);
+          if (
+            headers !== null &&
+            typeof headers === 'object' &&
+            !Array.isArray(headers)
+          ) {
+            Object.keys(headers).forEach((key) => {
+              if (!SECURITY_HEADER_BLOCKLIST.has(key.toLowerCase())) {
+                const rawValue = headers[key];
+                // Only allow string and number values to prevent type bypass attacks
+                if (
+                  typeof rawValue === 'string' ||
+                  typeof rawValue === 'number'
+                ) {
+                  res.setHeader(key, String(rawValue));
+                }
               }
-            }
-          });
+            });
+          }
         } catch (error) {
           console.error('Error parsing response headers:', error);
         }
@@ -124,21 +143,11 @@ export class MockServerController {
       // script-capable content types to text/plain.
       // Subdomain-based requests are on a different origin, so HTML is safe.
       if (!isSubdomainAccess) {
-        const activeContentTypes = new Set([
-          'application/javascript',
-          'application/xhtml+xml',
-          'application/xml',
-          'image/svg+xml',
-          'text/html',
-          'text/javascript',
-          'text/xml',
-          'text/xsl',
-        ]);
         const rawContentType = res.getHeader('Content-Type');
         if (typeof rawContentType === 'string') {
           // Normalize: trim, strip parameters (e.g. charset), lowercase
           const mimeType = rawContentType.split(';')[0].trim().toLowerCase();
-          if (activeContentTypes.has(mimeType) || mimeType.endsWith('+xml')) {
+          if (ACTIVE_CONTENT_TYPES.has(mimeType) || mimeType.endsWith('+xml')) {
             res.setHeader('Content-Type', 'text/plain');
           }
         }
@@ -167,8 +176,13 @@ export class MockServerController {
       }
       // Security headers to prevent XSS via mock responses
       res.setHeader('X-Content-Type-Options', 'nosniff');
-      res.setHeader('Content-Security-Policy', "default-src 'none'; sandbox");
-      res.setHeader('X-Frame-Options', 'DENY');
+      if (!isSubdomainAccess) {
+        res.setHeader(
+          'Content-Security-Policy',
+          "default-src 'none'; sandbox",
+        );
+        res.setHeader('X-Frame-Options', 'DENY');
+      }
 
       // Send response
       return res.status(mockResponse.statusCode).send(mockResponse.body);

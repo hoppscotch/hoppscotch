@@ -102,6 +102,7 @@ const sanitizedContentTypes = [
   'application/javascript',
   'application/xhtml+xml',
   'application/xml',
+  'application/*+xml (all +xml subtypes)',
   'image/svg+xml',
   'text/html',
   'text/javascript',

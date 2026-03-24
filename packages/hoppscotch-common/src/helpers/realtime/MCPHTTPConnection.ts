@@ -289,7 +289,7 @@ export class MCPHTTPConnection extends MCPConnection {
         requestUrl.searchParams.set(this.auth.key, this.auth.value)
         return requestUrl.toString()
       } catch {
-        throw new Error(`Invalid MCP server URL: "${this.url}"`)
+        throw new Error("Invalid MCP server URL")
       }
     }
 

@@ -15,6 +15,7 @@ import {
   GetInviteDetailsQueryVariables,
   GetMockServerLogsQuery,
   GetMyTeamsQuery,
+  PublishedDocQuery,
   GetUserShortcodesQuery,
   TeamAccessRole,
   TeamPublishedDocsListQuery,
@@ -102,6 +103,8 @@ export type BackendPlatformDef = {
 
   deleteMockServer: (id: string) => TE.TaskEither<string, boolean>
 
+  getMockServer: (id: string) => TE.TaskEither<string, MockServer>
+
   getMyMockServers: (
     skip?: number,
     take?: number
@@ -134,6 +137,10 @@ export type BackendPlatformDef = {
   deletePublishedDoc: (
     id: string
   ) => TE.TaskEither<GQLError<string>, DeletePublishedDocMutation>
+
+  getPublishedDocByID: (
+    id: string
+  ) => TE.TaskEither<string, PublishedDocQuery["publishedDoc"]>
 
   getUserPublishedDocs: (
     skip?: number,

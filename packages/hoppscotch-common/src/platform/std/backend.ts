@@ -37,6 +37,7 @@ import {
   deleteMockServer,
 } from "../../helpers/backend/mutations/MockServer"
 import {
+  getMockServer,
   getMyMockServers,
   getTeamMockServers,
 } from "../../helpers/backend/queries/MockServer"
@@ -50,6 +51,7 @@ import {
   deletePublishedDoc,
 } from "../../helpers/backend/mutations/PublishedDocs"
 import {
+  getPublishedDocByID,
   getUserPublishedDocs,
   getTeamPublishedDocs,
 } from "../../helpers/backend/queries/PublishedDocs"
@@ -155,6 +157,7 @@ export const def: BackendPlatformDef = {
   createMockServer,
   updateMockServer,
   deleteMockServer,
+  getMockServer,
   getMyMockServers,
   getTeamMockServers,
   getMockServerLogs,
@@ -162,6 +165,7 @@ export const def: BackendPlatformDef = {
   createPublishedDoc,
   updatePublishedDoc,
   deletePublishedDoc,
+  getPublishedDocByID,
   getUserPublishedDocs,
   getTeamPublishedDocs,
 }

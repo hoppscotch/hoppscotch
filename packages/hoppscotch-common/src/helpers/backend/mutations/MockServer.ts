@@ -6,7 +6,6 @@ import {
   CreateMockServerDocument,
   UpdateMockServerDocument,
   DeleteMockServerDocument,
-  GetTeamMockServersDocument,
   WorkspaceType,
 } from "../graphql"
 
@@ -147,42 +146,6 @@ export const deleteMockServer = (id: string) =>
       return result.data.deleteMockServer as boolean
     },
     (error) => (error as Error).message as DeleteMockServerError
-  )
-
-export const getTeamMockServers = (
-  teamID: string,
-  skip?: number,
-  take?: number
-) =>
-  TE.tryCatch(
-    async () => {
-      const result = await client
-        .value!.query(GetTeamMockServersDocument, {
-          teamID,
-          skip,
-          take,
-        })
-        .toPromise()
-
-      if (result.error) {
-        throw new Error(
-          result.error.message || "Failed to get team mock servers"
-        )
-      }
-
-      if (!result.data) {
-        throw new Error("No data returned from get team mock servers query")
-      }
-
-      const data = result.data.teamMockServers
-      // Map the GraphQL response to frontend format
-      return data.map((mockServer: any) => ({
-        ...mockServer,
-        userUid: mockServer.creator?.uid || "", // Legacy field
-        collectionID: mockServer.collection?.id || "", // Legacy field
-      })) as MockServer[]
-    },
-    (error) => (error as Error).message as CreateMockServerError
   )
 
 // Centralized mapper for backend GraphQL error tokens to user-facing messages.

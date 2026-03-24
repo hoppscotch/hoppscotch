@@ -18,7 +18,7 @@ export class SiteController {
   @Header('Cache-Control', 'no-store')
   getProxyConfig() {
     return {
-      proxyUrl: process.env.VITE_PROXY_URL ?? 'https://proxy.hoppscotch.io/',
+      proxyUrl: process.env.VITE_PROXY_URL || null,
       accessToken: process.env.PROXYSCOTCH_ACCESS_TOKEN ?? '',
     };
   }

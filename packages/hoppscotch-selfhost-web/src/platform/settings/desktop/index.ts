@@ -54,17 +54,25 @@ async function loadProxyConfig() {
     const accessToken = await persistence.getLocalConfig("access_token")
     if (!accessToken) return
 
-    const res = await axios.get<{ proxyUrl: string; accessToken: string }>(
-      `${import.meta.env.VITE_BACKEND_API_URL}/site/proxy-config`,
-      { headers: { Authorization: `Bearer ${accessToken}` } }
-    )
+    const res = await axios.get<{
+      proxyUrl?: string | null
+      accessToken: string
+    }>(`${import.meta.env.VITE_BACKEND_API_URL}/site/proxy-config`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
 
     const { proxyUrl, accessToken: proxyToken } = res.data
     const proxyStore = getService(KernelInterceptorProxyStore)
-    await proxyStore.updateSettings({
-      ...(proxyUrl && { proxyUrl }),
+
+    const updatedSettings: { proxyUrl?: string; accessToken: string } = {
       accessToken: proxyToken,
-    })
+    }
+
+    if (proxyUrl !== undefined && proxyUrl !== null) {
+      updatedSettings.proxyUrl = proxyUrl
+    }
+
+    await proxyStore.updateSettings(updatedSettings)
   } catch {
     // Proxy config is optional — silently ignore if endpoint is unavailable
   }

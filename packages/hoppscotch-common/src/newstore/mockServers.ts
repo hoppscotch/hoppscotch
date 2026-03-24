@@ -6,9 +6,9 @@ import { getService } from "~/modules/dioc"
 import { WorkspaceService } from "~/services/workspace.service"
 import { platform } from "~/platform"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
-import type { MockServer } from "~/helpers/backend/types/MockServer"
 
-export type WorkspaceType = "USER" | "TEAM"
+import type { MockServer } from "~/helpers/backend/types/MockServer"
+import { WorkspaceType } from "~/helpers/backend/graphql"
 
 export type CreateMockServerInput = {
   name: string

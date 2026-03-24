@@ -352,7 +352,7 @@ const filteredHistory = computed(() => {
       entry.response,
     ]
 
-    return searchableParts.some((value) => value.toLowerCase().includes(query))
+    return searchableParts.some((value) => value?.toLowerCase().includes(query))
   })
 })
 

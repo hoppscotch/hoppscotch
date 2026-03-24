@@ -284,9 +284,13 @@ export class MCPHTTPConnection extends MCPConnection {
 
   private buildRequestUrl() {
     if (this.auth.type === "api-key" && this.auth.addTo === "QUERY_PARAMS") {
-      const requestUrl = new URL(this.url)
-      requestUrl.searchParams.set(this.auth.key, this.auth.value)
-      return requestUrl.toString()
+      try {
+        const requestUrl = new URL(this.url)
+        requestUrl.searchParams.set(this.auth.key, this.auth.value)
+        return requestUrl.toString()
+      } catch {
+        throw new Error(`Invalid MCP server URL: "${this.url}"`)
+      }
     }
 
     return this.url

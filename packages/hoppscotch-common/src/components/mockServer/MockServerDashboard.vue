@@ -211,7 +211,7 @@ import { useMockServerStatus } from "~/composables/mockServer"
 import { useToast } from "~/composables/toast"
 import { useReadonlyStream } from "~/composables/stream"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
-import type { MockServer } from "~/newstore/mockServers"
+import type { MockServer } from "~/helpers/backend/types/MockServer"
 import { platform } from "~/platform"
 
 import {

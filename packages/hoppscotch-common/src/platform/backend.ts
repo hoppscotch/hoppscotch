@@ -4,9 +4,12 @@ import * as E from "fp-ts/lib/Either"
 
 import { GQLError } from "~/helpers/backend/GQLClient"
 import {
+  AcceptTeamInvitationMutation,
   CreatePublishedDocMutation,
   CreatePublishedDocsArgs,
   CreateShortcodeMutation,
+  CreateTeamInvitationMutation,
+  CreateTeamMutation,
   DeletePublishedDocMutation,
   GetInviteDetailsQuery,
   GetInviteDetailsQueryVariables,
@@ -25,13 +28,8 @@ import {
 
 import { useGQLQuery } from "~/composables/graphql"
 import { Email } from "~/helpers/backend/types/Email"
+import type { MockServer } from "~/helpers/backend/types/MockServer"
 import { TeamName } from "~/helpers/backend/types/TeamName"
-import {
-  AcceptTeamInvitationMutation,
-  CreateTeamInvitationMutation,
-  CreateTeamMutation,
-} from "../helpers/backend/graphql"
-import type { MockServer } from "~/helpers/backend/mutations/MockServer"
 
 export type BackendPlatformDef = {
   // Read actions via GQL queries

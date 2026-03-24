@@ -10,32 +10,7 @@ import {
   WorkspaceType,
 } from "../graphql"
 
-// Types for mock server
-export type MockServer = {
-  id: string
-  name: string
-  subdomain: string
-  serverUrlPathBased?: string
-  serverUrlDomainBased?: string | null
-  workspaceType: WorkspaceType
-  workspaceID?: string | null
-  delayInMs?: number
-  isPublic: boolean
-  isActive: boolean
-  createdOn: Date
-  updatedOn: Date
-  creator?: {
-    uid: string
-  } | null
-  collection?: {
-    id: string
-    title: string
-    requests?: any[]
-  } | null
-  // Legacy fields for backward compatibility
-  userUid?: string
-  collectionID?: string
-}
+import type { MockServer } from "../types/MockServer"
 
 type CreateMockServerError =
   | "mock_server/invalid_collection"

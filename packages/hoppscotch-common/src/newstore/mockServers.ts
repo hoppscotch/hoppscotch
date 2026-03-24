@@ -6,34 +6,9 @@ import { getService } from "~/modules/dioc"
 import { WorkspaceService } from "~/services/workspace.service"
 import { platform } from "~/platform"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
+import type { MockServer } from "~/helpers/backend/types/MockServer"
 
 export type WorkspaceType = "USER" | "TEAM"
-
-export type MockServer = {
-  id: string
-  name: string
-  subdomain: string
-  serverUrlPathBased?: string
-  serverUrlDomainBased?: string | null
-  workspaceType: WorkspaceType
-  workspaceID?: string | null
-  delayInMs?: number
-  isPublic: boolean
-  isActive: boolean
-  createdOn: Date
-  updatedOn: Date
-  creator?: {
-    uid: string
-  } | null
-  collection?: {
-    id: string
-    title: string
-    requests?: any[]
-  } | null
-  // Legacy fields for backward compatibility
-  userUid?: string
-  collectionID?: string
-}
 
 export type CreateMockServerInput = {
   name: string

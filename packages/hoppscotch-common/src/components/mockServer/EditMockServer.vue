@@ -171,7 +171,7 @@ import { ref, watch } from "vue"
 import { useToast } from "~/composables/toast"
 import { platform } from "~/platform"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
-import type { MockServer } from "~/newstore/mockServers"
+import type { MockServer } from "~/helpers/backend/types/MockServer"
 import { updateMockServer as updateMockServerInStore } from "~/newstore/mockServers"
 
 // Icons

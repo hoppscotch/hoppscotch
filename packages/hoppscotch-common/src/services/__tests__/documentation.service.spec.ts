@@ -89,7 +89,7 @@ describe("DocumentationService", () => {
   }
 
   beforeEach(() => {
-    vi.clearAllMocks()
+    vi.resetAllMocks()
     container = new TestContainer()
     service = container.bind(DocumentationService)
   })

@@ -5,7 +5,8 @@ import { useService } from "dioc/vue"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 import { computed } from "vue"
-import { MockServer, WorkspaceType } from "~/helpers/backend/graphql"
+import { WorkspaceType } from "~/helpers/backend/graphql"
+import type { MockServer } from "~/helpers/backend/types/MockServer"
 import { platform } from "~/platform"
 import {
   createTeamEnvironment,

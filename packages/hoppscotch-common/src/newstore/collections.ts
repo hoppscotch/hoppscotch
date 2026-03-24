@@ -2,12 +2,15 @@ import {
   generateUniqueRefId,
   HoppCollection,
   HoppCollectionVariable,
+  HoppMCPCollection,
+  HoppMCPRequest,
   HoppGQLAuth,
   HoppGQLRequest,
   HoppRESTAuth,
   HoppRESTHeaders,
   HoppRESTRequest,
   makeCollection,
+  makeMCPCollection,
   GQLHeader,
 } from "@hoppscotch/data"
 import { cloneDeep } from "lodash-es"
@@ -59,8 +62,19 @@ const defaultGraphqlCollectionState = {
   ],
 }
 
+const defaultMCPCollectionState = {
+  state: [
+    makeMCPCollection({
+      name: "My MCP Collection",
+      description: null,
+      requests: [],
+    }),
+  ],
+}
+
 type RESTCollectionStoreType = typeof defaultRESTCollectionState
 type GraphqlCollectionStoreType = typeof defaultGraphqlCollectionState
+type MCPCollectionStoreType = typeof defaultMCPCollectionState
 
 /**
  * NOTE: this function is not pure. It mutates the indexPaths inplace
@@ -1312,6 +1326,111 @@ export const graphqlCollectionStore = new DispatchingStore(
   gqlCollectionDispatchers
 )
 
+const mcpCollectionDispatchers = defineDispatchers({
+  setCollections(
+    _: MCPCollectionStoreType,
+    { entries }: { entries: HoppMCPCollection[] }
+  ) {
+    return {
+      state: entries,
+    }
+  },
+  appendCollections(
+    { state }: MCPCollectionStoreType,
+    { entries }: { entries: HoppMCPCollection[] }
+  ) {
+    return {
+      state: [...state, ...entries],
+    }
+  },
+  addCollection(
+    { state }: MCPCollectionStoreType,
+    { collection }: { collection: HoppMCPCollection }
+  ) {
+    return {
+      state: [...state, collection],
+    }
+  },
+  removeCollection(
+    { state }: MCPCollectionStoreType,
+    { collectionIndex }: { collectionIndex: number }
+  ) {
+    return {
+      state: state.filter((_, index) => index !== collectionIndex),
+    }
+  },
+  editCollection(
+    { state }: MCPCollectionStoreType,
+    {
+      collectionIndex,
+      partialCollection,
+    }: {
+      collectionIndex: number
+      partialCollection: Partial<HoppMCPCollection>
+    }
+  ) {
+    return {
+      state: state.map((collection, index) =>
+        index === collectionIndex
+          ? {
+              ...collection,
+              ...cloneDeep(partialCollection),
+            }
+          : collection
+      ),
+    }
+  },
+  addRequest(
+    { state }: MCPCollectionStoreType,
+    {
+      collectionIndex,
+      request,
+    }: {
+      collectionIndex: number
+      request: HoppMCPRequest
+    }
+  ) {
+    return {
+      state: state.map((collection, index) =>
+        index === collectionIndex
+          ? {
+              ...collection,
+              requests: [...collection.requests, request],
+            }
+          : collection
+      ),
+    }
+  },
+  removeRequest(
+    { state }: MCPCollectionStoreType,
+    {
+      collectionIndex,
+      requestIndex,
+    }: {
+      collectionIndex: number
+      requestIndex: number
+    }
+  ) {
+    return {
+      state: state.map((collection, index) =>
+        index === collectionIndex
+          ? {
+              ...collection,
+              requests: collection.requests.filter(
+                (_, currentRequestIndex) => currentRequestIndex !== requestIndex
+              ),
+            }
+          : collection
+      ),
+    }
+  },
+})
+
+export const mcpCollectionStore = new DispatchingStore(
+  defaultMCPCollectionState,
+  mcpCollectionDispatchers
+)
+
 export function setRESTCollections(entries: HoppCollection[]) {
   restCollectionStore.dispatch({
     dispatcher: "setCollections",
@@ -1329,11 +1448,88 @@ export const graphqlCollections$ = graphqlCollectionStore.subject$.pipe(
   pluck("state")
 )
 
+export const mcpCollections$ = mcpCollectionStore.subject$.pipe(pluck("state"))
+
 export function appendRESTCollections(entries: HoppCollection[]) {
   restCollectionStore.dispatch({
     dispatcher: "appendCollections",
     payload: {
       entries,
+    },
+  })
+}
+
+export function setMCPCollections(entries: HoppMCPCollection[]) {
+  mcpCollectionStore.dispatch({
+    dispatcher: "setCollections",
+    payload: {
+      entries,
+    },
+  })
+}
+
+export function appendMCPCollections(entries: HoppMCPCollection[]) {
+  mcpCollectionStore.dispatch({
+    dispatcher: "appendCollections",
+    payload: {
+      entries,
+    },
+  })
+}
+
+export function addMCPCollection(collection: HoppMCPCollection) {
+  mcpCollectionStore.dispatch({
+    dispatcher: "addCollection",
+    payload: {
+      collection,
+    },
+  })
+}
+
+export function removeMCPCollection(collectionIndex: number) {
+  mcpCollectionStore.dispatch({
+    dispatcher: "removeCollection",
+    payload: {
+      collectionIndex,
+    },
+  })
+}
+
+export function editMCPCollection(
+  collectionIndex: number,
+  partialCollection: Partial<HoppMCPCollection>
+) {
+  mcpCollectionStore.dispatch({
+    dispatcher: "editCollection",
+    payload: {
+      collectionIndex,
+      partialCollection,
+    },
+  })
+}
+
+export function addMCPRequestToCollection(
+  collectionIndex: number,
+  request: HoppMCPRequest
+) {
+  mcpCollectionStore.dispatch({
+    dispatcher: "addRequest",
+    payload: {
+      collectionIndex,
+      request,
+    },
+  })
+}
+
+export function removeMCPRequestFromCollection(
+  collectionIndex: number,
+  requestIndex: number
+) {
+  mcpCollectionStore.dispatch({
+    dispatcher: "removeRequest",
+    payload: {
+      collectionIndex,
+      requestIndex,
     },
   })
 }

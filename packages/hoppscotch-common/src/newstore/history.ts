@@ -1,11 +1,14 @@
 import { isEqual } from "lodash-es"
 import { pluck } from "rxjs/operators"
 import {
+  HoppMCPRequest,
   HoppRESTRequest,
-  translateToNewRequest,
   HoppGQLRequest,
-  translateToGQLRequest,
   GQL_REQ_SCHEMA_VERSION,
+  MCP_REQ_SCHEMA_VERSION,
+  translateToGQLRequest,
+  translateToMCPRequest,
+  translateToNewRequest,
 } from "@hoppscotch/data"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { executedResponses$ } from "~/helpers/RequestRunner"
@@ -40,6 +43,19 @@ export type GQLHistoryEntry = {
   updatedOn?: Date
 }
 
+export type MCPHistoryEntry = {
+  v: number
+  request: HoppMCPRequest
+
+  response: string
+
+  star: boolean
+
+  id?: string
+
+  updatedOn?: Date
+}
+
 export function makeRESTHistoryEntry(
   x: Omit<RESTHistoryEntry, "v">
 ): RESTHistoryEntry {
@@ -52,6 +68,16 @@ export function makeRESTHistoryEntry(
 export function makeGQLHistoryEntry(
   x: Omit<GQLHistoryEntry, "v">
 ): GQLHistoryEntry {
+  return {
+    v: 1,
+    ...x,
+    updatedOn: new Date(),
+  }
+}
+
+export function makeMCPHistoryEntry(
+  x: Omit<MCPHistoryEntry, "v">
+): MCPHistoryEntry {
   return {
     v: 1,
     ...x,
@@ -106,6 +132,39 @@ export function translateToNewGQLHistory(x: any): GQLHistoryEntry {
   return obj
 }
 
+export function translateToNewMCPHistory(legacy: unknown): MCPHistoryEntry {
+  const entry = legacy as Partial<MCPHistoryEntry> & {
+    request?: unknown
+    response?: string
+  }
+
+  if (
+    entry.v === 1 &&
+    entry.request &&
+    typeof entry.request === "object" &&
+    "v" in entry.request &&
+    entry.request.v === MCP_REQ_SCHEMA_VERSION
+  ) {
+    return entry as MCPHistoryEntry
+  }
+
+  const request = translateToMCPRequest(entry.request ?? legacy)
+  const star = entry.star ?? false
+  const response = entry.response ?? ""
+  const updatedOn = entry.updatedOn ?? ""
+
+  const normalized = makeMCPHistoryEntry({
+    request,
+    response,
+    star,
+    updatedOn,
+  })
+
+  if (entry.id) normalized.id = entry.id
+
+  return normalized
+}
+
 export const defaultRESTHistoryState = {
   state: [] as RESTHistoryEntry[],
 }
@@ -114,10 +173,15 @@ export const defaultGraphqlHistoryState = {
   state: [] as GQLHistoryEntry[],
 }
 
+export const defaultMCPHistoryState = {
+  state: [] as MCPHistoryEntry[],
+}
+
 export const HISTORY_LIMIT = 50
 
 type RESTHistoryType = typeof defaultRESTHistoryState
 type GraphqlHistoryType = typeof defaultGraphqlHistoryState
+type MCPHistoryType = typeof defaultMCPHistoryState
 
 const RESTHistoryDispatchers = defineDispatchers({
   setEntries(_: RESTHistoryType, { entries }: { entries: RESTHistoryEntry[] }) {
@@ -242,6 +306,64 @@ const GQLHistoryDispatchers = defineDispatchers({
   },
 })
 
+const MCPHistoryDispatchers = defineDispatchers({
+  setEntries(_: MCPHistoryType, { entries }: { entries: MCPHistoryEntry[] }) {
+    return {
+      state: entries,
+    }
+  },
+  addEntry(currentVal: MCPHistoryType, { entry }: { entry: MCPHistoryEntry }) {
+    return {
+      state: [entry, ...currentVal.state].slice(0, HISTORY_LIMIT),
+    }
+  },
+  deleteEntry(
+    currentVal: MCPHistoryType,
+    { entry }: { entry: MCPHistoryEntry }
+  ) {
+    return {
+      state: currentVal.state.filter((e) => !isEqual(e, entry)),
+    }
+  },
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  clearHistory(_, {}) {
+    return {
+      state: [],
+    }
+  },
+  toggleStar(
+    currentVal: MCPHistoryType,
+    { entry }: { entry: MCPHistoryEntry }
+  ) {
+    return {
+      state: currentVal.state.map((e) => {
+        if (isEqual(e, entry) && e.star !== undefined) {
+          return {
+            ...e,
+            star: !e.star,
+          }
+        }
+        return e
+      }),
+    }
+  },
+  removeDuplicateEntry(currentVal: MCPHistoryType, { id }: { id: string }) {
+    const entries = currentVal.state.filter((e) => e.id === id)
+
+    if (entries.length === 2) {
+      const indexToRemove = currentVal.state.findIndex((e) => e.id === id)
+
+      return {
+        state: currentVal.state.filter((_, index) => index !== indexToRemove),
+      }
+    }
+
+    return {
+      state: currentVal.state,
+    }
+  },
+})
+
 export const restHistoryStore = new DispatchingStore(
   defaultRESTHistoryState,
   RESTHistoryDispatchers
@@ -252,8 +374,14 @@ export const graphqlHistoryStore = new DispatchingStore(
   GQLHistoryDispatchers
 )
 
+export const mcpHistoryStore = new DispatchingStore(
+  defaultMCPHistoryState,
+  MCPHistoryDispatchers
+)
+
 export const restHistory$ = restHistoryStore.subject$.pipe(pluck("state"))
 export const graphqlHistory$ = graphqlHistoryStore.subject$.pipe(pluck("state"))
+export const mcpHistory$ = mcpHistoryStore.subject$.pipe(pluck("state"))
 
 export function setRESTHistoryEntries(entries: RESTHistoryEntry[]) {
   restHistoryStore.dispatch({
@@ -334,6 +462,48 @@ export function removeDuplicateRestHistoryEntry(id: string) {
 
 export function removeDuplicateGraphqlHistoryEntry(id: string) {
   graphqlHistoryStore.dispatch({
+    dispatcher: "removeDuplicateEntry",
+    payload: { id },
+  })
+}
+
+export function setMCPHistoryEntries(entries: MCPHistoryEntry[]) {
+  mcpHistoryStore.dispatch({
+    dispatcher: "setEntries",
+    payload: { entries },
+  })
+}
+
+export function addMCPHistoryEntry(entry: MCPHistoryEntry) {
+  mcpHistoryStore.dispatch({
+    dispatcher: "addEntry",
+    payload: { entry },
+  })
+}
+
+export function deleteMCPHistoryEntry(entry: MCPHistoryEntry) {
+  mcpHistoryStore.dispatch({
+    dispatcher: "deleteEntry",
+    payload: { entry },
+  })
+}
+
+export function clearMCPHistory() {
+  mcpHistoryStore.dispatch({
+    dispatcher: "clearHistory",
+    payload: {},
+  })
+}
+
+export function toggleMCPHistoryEntryStar(entry: MCPHistoryEntry) {
+  mcpHistoryStore.dispatch({
+    dispatcher: "toggleStar",
+    payload: { entry },
+  })
+}
+
+export function removeDuplicateMCPHistoryEntry(id: string) {
+  mcpHistoryStore.dispatch({
     dispatcher: "removeDuplicateEntry",
     payload: { id },
   })

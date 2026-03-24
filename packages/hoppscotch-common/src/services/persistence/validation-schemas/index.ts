@@ -1,6 +1,8 @@
 import {
   Environment,
   GQLHeader,
+  HoppMCPCollection,
+  HoppMCPRequest,
   HoppGQLAuth,
   HoppGQLRequest,
   HoppRESTAuth,
@@ -92,6 +94,8 @@ const HoppRESTRequestSchema = entityReference(HoppRESTRequest)
 
 const HoppGQLRequestSchema = entityReference(HoppGQLRequest)
 
+const HoppMCPRequestSchema = entityReference(HoppMCPRequest)
+
 const HoppRESTCollectionSchema = entityReference(HoppCollection)
 
 const HoppGQLCollectionSchema = entityReference(HoppCollection)
@@ -155,9 +159,22 @@ export const GQL_HISTORY_ENTRY_SCHEMA = z
   })
   .strict()
 
+export const MCP_HISTORY_ENTRY_SCHEMA = z
+  .object({
+    v: z.number(),
+    request: HoppMCPRequestSchema,
+    response: z.string(),
+    star: z.boolean(),
+    id: z.optional(z.string()),
+    updatedOn: z.optional(z.union([z.date(), z.string()])),
+  })
+  .strict()
+
 export const REST_COLLECTION_SCHEMA = HoppRESTCollectionSchema
 
 export const GQL_COLLECTION_SCHEMA = HoppGQLCollectionSchema
+
+export const MCP_COLLECTION_SCHEMA = HoppMCPCollection
 
 export const ENVIRONMENTS_SCHEMA = z.array(entityReference(Environment))
 
@@ -228,6 +245,8 @@ export const MQTT_REQUEST_SCHEMA = z.nullable(
     })
     .strict()
 )
+
+export const MCP_REQUEST_SCHEMA = z.nullable(HoppMCPRequestSchema)
 
 const EnvironmentVariablesSchema = z.union([
   z.object({

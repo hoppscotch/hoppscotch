@@ -8,7 +8,7 @@ export type HoppRequestEvent =
       platform: "graphql-query" | "graphql-schema"
       strategy: string
     }
-  | { platform: "wss" | "sse" | "socketio" | "mqtt" }
+  | { platform: "wss" | "sse" | "socketio" | "mqtt" | "mcp-http" | "mcp-stdio" }
 
 export type HoppSpotlightSessionEventData = {
   action?: "success" | "close"

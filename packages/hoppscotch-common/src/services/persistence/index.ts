@@ -9,6 +9,7 @@ import { assign, clone, isEmpty, cloneDeep } from "lodash-es"
 
 import {
   GlobalEnvironmentVariable,
+  translateToMCPCollection,
   translateToNewGQLCollection,
   translateToNewRESTCollection,
 } from "@hoppscotch/data"
@@ -27,7 +28,9 @@ import { useToast } from "~/composables/toast"
 
 import {
   graphqlCollectionStore,
+  mcpCollectionStore,
   restCollectionStore,
+  setMCPCollections,
   setGraphqlCollections,
   setRESTCollections,
 } from "../../newstore/collections"
@@ -44,10 +47,13 @@ import {
 
 import {
   graphqlHistoryStore,
+  mcpHistoryStore,
   restHistoryStore,
+  setMCPHistoryEntries,
   setGraphqlHistoryEntries,
   setRESTHistoryEntries,
   translateToNewGQLHistory,
+  translateToNewMCPHistory,
   translateToNewRESTHistory,
 } from "../../newstore/history"
 
@@ -64,6 +70,7 @@ import {
 } from "../../newstore/settings"
 
 import { MQTTRequest$, setMQTTRequest } from "../../newstore/MQTTSession"
+import { MCPRequest$, setMCPRequest } from "../../newstore/MCPSession"
 import { SSERequest$, setSSERequest } from "../../newstore/SSESession"
 import { SIORequest$, setSIORequest } from "../../newstore/SocketIOSession"
 import { WSRequest$, setWSRequest } from "../../newstore/WebSocketSession"
@@ -75,6 +82,9 @@ import {
   GLOBAL_ENVIRONMENT_SCHEMA,
   GQL_COLLECTION_SCHEMA,
   GQL_HISTORY_ENTRY_SCHEMA,
+  MCP_COLLECTION_SCHEMA,
+  MCP_HISTORY_ENTRY_SCHEMA,
+  MCP_REQUEST_SCHEMA,
   GQL_TAB_STATE_SCHEMA,
   LOCAL_STATE_SCHEMA,
   MQTT_REQUEST_SCHEMA,
@@ -113,14 +123,17 @@ export const STORE_KEYS = {
   LOCAL_STATE: "localState",
   REST_HISTORY: "restHistory",
   GQL_HISTORY: "gqlHistory",
+  MCP_HISTORY: "mcpHistory",
   REST_COLLECTIONS: "restCollections",
   GQL_COLLECTIONS: "gqlCollections",
+  MCP_COLLECTIONS: "mcpCollections",
   ENVIRONMENTS: "environments",
   SELECTED_ENV: "selectedEnv",
   WEBSOCKET: "websocket",
   SOCKETIO: "socketio",
   SSE: "sse",
   MQTT: "mqtt",
+  MCP: "mcp",
   GLOBAL_ENV: "globalEnv",
   REST_TABS: "restTabs",
   GQL_TABS: "gqlTabs",
@@ -459,6 +472,38 @@ export class PersistenceService extends Service {
     })
   }
 
+  private async setupMCPHistoryPersistence() {
+    const mcpLoadResult = await Store.get<any>(
+      STORE_NAMESPACE,
+      STORE_KEYS.MCP_HISTORY
+    )
+
+    try {
+      if (E.isRight(mcpLoadResult)) {
+        const data = mcpLoadResult.right ?? []
+        const result = z.array(MCP_HISTORY_ENTRY_SCHEMA).safeParse(data)
+
+        if (result.success) {
+          const translatedData = result.data.map(translateToNewMCPHistory)
+          setMCPHistoryEntries(translatedData)
+        } else {
+          this.showErrorToast(STORE_KEYS.MCP_HISTORY)
+          await Store.set(
+            STORE_NAMESPACE,
+            `${STORE_KEYS.MCP_HISTORY}-backup`,
+            data
+          )
+        }
+      }
+    } catch (_e) {
+      console.error(`Failed parsing persisted MCP_HISTORY:`, mcpLoadResult)
+    }
+
+    mcpHistoryStore.subject$.subscribe(async ({ state }) => {
+      await Store.set(STORE_NAMESPACE, STORE_KEYS.MCP_HISTORY, state)
+    })
+  }
+
   private async setupRESTCollectionsPersistence() {
     const restLoadResult = await Store.get<any>(
       STORE_NAMESPACE,
@@ -529,6 +574,38 @@ export class PersistenceService extends Service {
 
     graphqlCollectionStore.subject$.subscribe(async ({ state }) => {
       await Store.set(STORE_NAMESPACE, STORE_KEYS.GQL_COLLECTIONS, state)
+    })
+  }
+
+  private async setupMCPCollectionsPersistence() {
+    const mcpLoadResult = await Store.get<any>(
+      STORE_NAMESPACE,
+      STORE_KEYS.MCP_COLLECTIONS
+    )
+
+    try {
+      if (E.isRight(mcpLoadResult)) {
+        const data = mcpLoadResult.right ?? []
+        const result = z.array(MCP_COLLECTION_SCHEMA).safeParse(data)
+
+        if (result.success) {
+          const translatedData = result.data.map(translateToMCPCollection)
+          setMCPCollections(translatedData)
+        } else {
+          this.showErrorToast(STORE_KEYS.MCP_COLLECTIONS)
+          await Store.set(
+            STORE_NAMESPACE,
+            `${STORE_KEYS.MCP_COLLECTIONS}-backup`,
+            data
+          )
+        }
+      }
+    } catch (_e) {
+      console.error(`Failed parsing persisted MCP_COLLECTIONS:`, mcpLoadResult)
+    }
+
+    mcpCollectionStore.subject$.subscribe(async ({ state }) => {
+      await Store.set(STORE_NAMESPACE, STORE_KEYS.MCP_COLLECTIONS, state)
     })
   }
 
@@ -886,6 +963,34 @@ export class PersistenceService extends Service {
     })
   }
 
+  private async setupMCPPersistence() {
+    const loadResult = await Store.get<any>(STORE_NAMESPACE, STORE_KEYS.MCP)
+
+    try {
+      if (E.isRight(loadResult)) {
+        const data = loadResult.right ?? null
+        const result = MCP_REQUEST_SCHEMA.safeParse(data)
+
+        if (result.success) {
+          if (result.data !== null) {
+            setMCPRequest(result.data)
+          } else {
+            setMCPRequest(undefined)
+          }
+        } else {
+          this.showErrorToast(STORE_KEYS.MCP)
+          await Store.set(STORE_NAMESPACE, `${STORE_KEYS.MCP}-backup`, data)
+        }
+      }
+    } catch (_e) {
+      console.error(`Failed parsing persisted MCP:`, loadResult)
+    }
+
+    MCPRequest$.subscribe(async (req) => {
+      await Store.set(STORE_NAMESPACE, STORE_KEYS.MCP, req)
+    })
+  }
+
   private async setupGlobalEnvsPersistence() {
     const loadResult = await Store.get<any>(
       STORE_NAMESPACE,
@@ -1024,8 +1129,10 @@ export class PersistenceService extends Service {
       this.setupSettingsPersistence(),
       this.setupRESTHistoryPersistence(),
       this.setupGQLHistoryPersistence(),
+      this.setupMCPHistoryPersistence(),
       this.setupRESTCollectionsPersistence(),
       this.setupGQLCollectionsPersistence(),
+      this.setupMCPCollectionsPersistence(),
 
       this.setupEnvironmentsPersistence(),
       this.setupGlobalEnvsPersistence(),
@@ -1035,6 +1142,7 @@ export class PersistenceService extends Service {
       this.setupSocketIOPersistence(),
       this.setupSSEPersistence(),
       this.setupMQTTPersistence(),
+      this.setupMCPPersistence(),
       this.setupRESTTabsPersistence(),
       this.setupGQLTabsPersistence(),
 

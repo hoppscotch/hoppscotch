@@ -236,9 +236,7 @@ export class MCPSTDIOConnection extends MCPConnection {
       )
     }
 
-    const typedWindow = window as WindowWithMCPProcessAPI
-    const processAPI =
-      typedWindow.__HOPPSCOTCH_AGENT__ ?? typedWindow.__TAURI_IPC__
+    const processAPI = typedWindow.__HOPPSCOTCH_AGENT__
 
     if (!processAPI) {
       throw new Error(

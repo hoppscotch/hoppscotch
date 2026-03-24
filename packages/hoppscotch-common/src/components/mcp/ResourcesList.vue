@@ -10,7 +10,7 @@
         v-tippy="{ theme: 'tooltip' }"
         :title="t('action.search')"
         :icon="IconSearch"
-        @click="searchActive = !searchActive"
+        @click="searchActive = !searchActive; if (!searchActive) searchQuery = ''"
       />
     </div>
 

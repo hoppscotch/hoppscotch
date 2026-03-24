@@ -16,14 +16,15 @@ import {
   isLiveVersion,
   CURRENT_VERSION_TAG,
 } from "../documentation.service"
-import {
-  getUserPublishedDocs,
-  getTeamPublishedDocs,
-} from "~/helpers/backend/queries/PublishedDocs"
+import { platform } from "~/platform"
 
-vi.mock("~/helpers/backend/queries/PublishedDocs", () => ({
-  getUserPublishedDocs: vi.fn(),
-  getTeamPublishedDocs: vi.fn(),
+vi.mock("~/platform", () => ({
+  platform: {
+    backend: {
+      getUserPublishedDocs: vi.fn(),
+      getTeamPublishedDocs: vi.fn(),
+    },
+  },
 }))
 
 describe("DocumentationService", () => {
@@ -479,7 +480,7 @@ describe("DocumentationService", () => {
         },
       ]
 
-      vi.mocked(getUserPublishedDocs).mockReturnValue(() =>
+      vi.mocked(platform.backend.getUserPublishedDocs).mockReturnValue(() =>
         Promise.resolve(E.right(mockDocs as any))
       )
 
@@ -514,7 +515,7 @@ describe("DocumentationService", () => {
         },
       ]
 
-      vi.mocked(getTeamPublishedDocs).mockReturnValue(() =>
+      vi.mocked(platform.backend.getTeamPublishedDocs).mockReturnValue(() =>
         Promise.resolve(E.right(mockDocs as any))
       )
 
@@ -538,7 +539,7 @@ describe("DocumentationService", () => {
 
     it("should handle error when fetching user published docs", async () => {
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-      vi.mocked(getUserPublishedDocs).mockReturnValue(() =>
+      vi.mocked(platform.backend.getUserPublishedDocs).mockReturnValue(() =>
         Promise.resolve(E.left("user/not_authenticated"))
       )
 
@@ -553,7 +554,7 @@ describe("DocumentationService", () => {
 
     it("should handle error when fetching team published docs", async () => {
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-      vi.mocked(getTeamPublishedDocs).mockReturnValue(() =>
+      vi.mocked(platform.backend.getTeamPublishedDocs).mockReturnValue(() =>
         Promise.resolve(E.left("team/not_required" as any))
       )
 
@@ -635,7 +636,7 @@ describe("DocumentationService", () => {
       })
 
       // Mock the first call to be slow
-      vi.mocked(getUserPublishedDocs)
+      vi.mocked(platform.backend.getUserPublishedDocs)
         .mockReturnValueOnce(() => slowPromise as any)
         .mockReturnValueOnce(() => Promise.resolve(E.right(fastDocs as any)))
 

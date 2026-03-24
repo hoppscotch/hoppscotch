@@ -272,9 +272,8 @@ export class MCPSTDIOConnection extends MCPConnection {
       }
 
       pendingRequest.resolve(response.result)
-    } catch (error) {
-      const normalizedError = this.normalizeError(error)
-      this.reportError(normalizedError)
+    } catch (_error) {
+      // Ignore non-JSON output (e.g., startup banners, log lines)
     }
   }
 

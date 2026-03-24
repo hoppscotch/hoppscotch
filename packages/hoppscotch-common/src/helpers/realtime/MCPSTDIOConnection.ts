@@ -94,7 +94,7 @@ export class MCPSTDIOConnection extends MCPConnection {
         args: this.config.args,
         env: this.config.env,
         onMessage: (message) => this.handleMessage(message),
-        onError: (error) => this.handleError(new Error(error)),
+      onError: (error) => this.reportError(new Error(error)),
       })
 
       await this.sendRequest("initialize", {

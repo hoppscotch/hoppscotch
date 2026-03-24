@@ -2,7 +2,7 @@
 # This stage is used to build both Caddy and the webapp server,
 # preventing vulnerable packages on the dependency chain
 FROM alpine:3.23.3 AS go_builder
-RUN apk add --no-cache curl git
+RUN apk add --no-cache curl git openssh-client
 
 ARG TARGETARCH
 ENV GOLANG_VERSION=1.26.1
@@ -68,7 +68,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o webapp-server .
 FROM alpine:3.23.3 AS node_base
 # Install dependencies
 RUN apk upgrade --no-cache && \
-  apk add --no-cache nodejs curl bash tini ca-certificates
+  apk add --no-cache nodejs curl bash tini ca-certificates git openssh-client
 # Set working directory for NPM installation
 RUN mkdir -p /tmp/npm-install
 WORKDIR /tmp/npm-install

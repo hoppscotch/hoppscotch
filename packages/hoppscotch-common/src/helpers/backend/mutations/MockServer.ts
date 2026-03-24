@@ -26,12 +26,12 @@ export type MockServer = {
   updatedOn: Date
   creator?: {
     uid: string
-  }
+  } | null
   collection?: {
     id: string
     title: string
     requests?: any[]
-  }
+  } | null
   // Legacy fields for backward compatibility
   userUid?: string
   collectionID?: string

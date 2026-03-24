@@ -4,12 +4,23 @@ import * as E from "fp-ts/lib/Either"
 
 import { GQLError } from "~/helpers/backend/GQLClient"
 import {
+  CreatePublishedDocMutation,
+  CreatePublishedDocsArgs,
   CreateShortcodeMutation,
+  DeletePublishedDocMutation,
   GetInviteDetailsQuery,
   GetInviteDetailsQueryVariables,
+  GetMockServerLogsQuery,
+  GetMyMockServersQuery,
   GetMyTeamsQuery,
+  GetTeamMockServersQuery,
   GetUserShortcodesQuery,
   TeamAccessRole,
+  TeamPublishedDocsListQuery,
+  UpdatePublishedDocMutation,
+  UpdatePublishedDocsArgs,
+  UserPublishedDocsListQuery,
+  WorkspaceType,
 } from "~/helpers/backend/graphql"
 
 import { useGQLQuery } from "~/composables/graphql"
@@ -20,6 +31,7 @@ import {
   CreateTeamInvitationMutation,
   CreateTeamMutation,
 } from "../helpers/backend/graphql"
+import type { MockServer } from "~/helpers/backend/mutations/MockServer"
 
 export type BackendPlatformDef = {
   // Read actions via GQL queries
@@ -69,4 +81,95 @@ export type BackendPlatformDef = {
     request: HoppRESTRequest,
     properties?: string
   ) => TE.TaskEither<GQLError<string>, CreateShortcodeMutation>
+
+  // Mock server operations
+  createMockServer: (
+    name: string,
+    workspaceType?: WorkspaceType,
+    workspaceID?: string,
+    delayInMs?: number,
+    isPublic?: boolean,
+    collectionID?: string,
+    autoCreateCollection?: boolean,
+    autoCreateRequestExample?: boolean
+  ) => TE.TaskEither<string, MockServer>
+
+  updateMockServer: (
+    id: string,
+    input: {
+      name?: string
+      isActive?: boolean
+      delayInMs?: number
+      isPublic?: boolean
+    }
+  ) => TE.TaskEither<string, MockServer>
+
+  deleteMockServer: (id: string) => TE.TaskEither<string, boolean>
+
+  getMyMockServers: (
+    skip?: number,
+    take?: number
+  ) => TE.TaskEither<
+    string,
+    Array<
+      GetMyMockServersQuery["myMockServers"][number] & {
+        userUid: string
+        collectionID: string
+      }
+    >
+  >
+
+  getTeamMockServers: (
+    teamID: string,
+    skip?: number,
+    take?: number
+  ) => TE.TaskEither<
+    string,
+    Array<
+      GetTeamMockServersQuery["teamMockServers"][number] & {
+        userUid: string
+        collectionID: string
+      }
+    >
+  >
+
+  getMockServerLogs: (
+    mockServerID: string,
+    skip?: number,
+    take?: number
+  ) => TE.TaskEither<string, GetMockServerLogsQuery["mockServerLogs"]>
+
+  deleteMockServerLog: (logID: string) => TE.TaskEither<string, boolean>
+
+  // Published docs operations
+  createPublishedDoc: (
+    doc: CreatePublishedDocsArgs
+  ) => TE.TaskEither<GQLError<string>, CreatePublishedDocMutation>
+
+  updatePublishedDoc: (
+    id: string,
+    doc: UpdatePublishedDocsArgs
+  ) => TE.TaskEither<GQLError<string>, UpdatePublishedDocMutation>
+
+  deletePublishedDoc: (
+    id: string
+  ) => TE.TaskEither<GQLError<string>, DeletePublishedDocMutation>
+
+  getUserPublishedDocs: (
+    skip?: number,
+    take?: number
+  ) => TE.TaskEither<
+    string,
+    UserPublishedDocsListQuery["userPublishedDocsList"]
+  >
+
+  getTeamPublishedDocs: (
+    teamID: string,
+    collectionID?: string,
+    skip?: number,
+    take?: number
+  ) => TE.TaskEither<
+    string,
+    TeamPublishedDocsListQuery["teamPublishedDocsList"]
+  >
 }

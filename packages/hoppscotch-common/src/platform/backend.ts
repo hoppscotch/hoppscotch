@@ -14,9 +14,7 @@ import {
   GetInviteDetailsQuery,
   GetInviteDetailsQueryVariables,
   GetMockServerLogsQuery,
-  GetMyMockServersQuery,
   GetMyTeamsQuery,
-  GetTeamMockServersQuery,
   GetUserShortcodesQuery,
   TeamAccessRole,
   TeamPublishedDocsListQuery,
@@ -107,29 +105,13 @@ export type BackendPlatformDef = {
   getMyMockServers: (
     skip?: number,
     take?: number
-  ) => TE.TaskEither<
-    string,
-    Array<
-      GetMyMockServersQuery["myMockServers"][number] & {
-        userUid: string
-        collectionID: string
-      }
-    >
-  >
+  ) => TE.TaskEither<string, MockServer[]>
 
   getTeamMockServers: (
     teamID: string,
     skip?: number,
     take?: number
-  ) => TE.TaskEither<
-    string,
-    Array<
-      GetTeamMockServersQuery["teamMockServers"][number] & {
-        userUid: string
-        collectionID: string
-      }
-    >
-  >
+  ) => TE.TaskEither<string, MockServer[]>
 
   getMockServerLogs: (
     mockServerID: string,

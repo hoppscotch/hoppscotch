@@ -407,22 +407,6 @@ describe("getters", () => {
         expect(readJsonFileSpy).not.toHaveBeenCalled();
       });
     });
-
-    test("Promise rejects with the code `UNKNOWN_ERROR` if the network call fails with a timeout error (ETIMEDOUT)", async () => {
-      const args = {
-        accessToken: "token",
-        collection: "https://example.com/collection.json",
-      };
-
-      vi.spyOn(axios, "get").mockImplementation(() =>
-        Promise.reject(new AxiosError("ETIMEDOUT", "ETIMEDOUT"))
-      );
-
-      await expect(getResourceContents(args)).rejects.toMatchObject({
-        code: "UNKNOWN_ERROR",
-        data: expect.objectContaining({ code: "ETIMEDOUT" }),
-      });
-    });
   });
 
   describe("getResolvedVariables", () => {

@@ -568,12 +568,6 @@ describe("getters", () => {
           secret: false,
         },
         {
-          key: "SHARED_KEY_II",
-          currentValue: "environment-variable-shared-value-II",
-          initialValue: "environment-variable-shared-value-II",
-          secret: false,
-        },
-        {
           key: "ENV_VAR_III",
           currentValue: "collection-variable-value-III",
           initialValue: "collection-variable-value-III",
@@ -583,6 +577,12 @@ describe("getters", () => {
           key: "COLL_VAR_VI",
           currentValue: "collection-variable-value-VI",
           initialValue: "collection-variable-value-VI",
+          secret: false,
+        },
+        {
+          key: "SHARED_KEY_II",
+          currentValue: "environment-variable-shared-value-II",
+          initialValue: "environment-variable-shared-value-II",
           secret: false,
         },
         {

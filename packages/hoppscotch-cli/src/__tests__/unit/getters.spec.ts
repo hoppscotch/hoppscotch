@@ -253,7 +253,7 @@ describe("getters", () => {
           )
         );
 
-        await expect(getResourceContents(args)).rejects.toMatchObject(expected);
+        await expect(getResourceContents(args)).rejects.toEqual(expected);
       });
 
       test("Promise rejects with the code `INVALID_SERVER_URL` if the network call succeeds and the received response content type is not `application/json`", async () => {
@@ -269,7 +269,7 @@ describe("getters", () => {
           })
         );
 
-        await expect(getResourceContents(args)).rejects.toMatchObject(expected);
+        await expect(getResourceContents(args)).rejects.toEqual(expected);
       });
 
       test("Promise rejects with the code `UNKNOWN_ERROR` while encountering an error that is not an instance of `AxiosError`", async () => {
@@ -282,7 +282,7 @@ describe("getters", () => {
           Promise.reject(new Error("UNKNOWN_ERROR"))
         );
 
-        await expect(getResourceContents(args)).rejects.toMatchObject(expected);
+        await expect(getResourceContents(args)).rejects.toEqual(expected);
       });
     });
 
@@ -405,6 +405,38 @@ describe("getters", () => {
           workspaceAccessHelpers.transformWorkspaceCollections
         ).toBeCalled();
         expect(readJsonFileSpy).not.toHaveBeenCalled();
+      });
+    });
+
+    test("Promise rejects with the code  if the network call fails with a timeout error (ETIMEDOUT)", async () => {
+      const args = {
+        accessToken: "token",
+        collection: "https://example.com/collection.json",
+      };
+
+      vi.spyOn(axios, "get").mockImplementation(() =>
+        Promise.reject(new AxiosError("ETIMEDOUT", "ETIMEDOUT"))
+      );
+
+      await expect(getResourceContents(args)).rejects.toMatchObject({
+        code: "UNKNOWN_ERROR",
+        data: expect.objectContaining({ code: "ETIMEDOUT" }),
+      });
+    });
+
+    test("Promise rejects with the code `UNKNOWN_ERROR` if the network call fails with a timeout error (ETIMEDOUT)", async () => {
+      const args = {
+        accessToken: "token",
+        collection: "https://example.com/collection.json",
+      };
+
+      vi.spyOn(axios, "get").mockImplementation(() =>
+        Promise.reject(new AxiosError("ETIMEDOUT", "ETIMEDOUT"))
+      );
+
+      await expect(getResourceContents(args)).rejects.toMatchObject({
+        code: "UNKNOWN_ERROR",
+        data: expect.objectContaining({ code: "ETIMEDOUT" }),
       });
     });
   });

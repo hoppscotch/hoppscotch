@@ -793,7 +793,7 @@ const restCollectionDispatchers = defineDispatchers({
       requestIndex: requestIndex,
     })
 
-    if (tab) {
+    if (tab && tab.value.document.type !== "test-runner") {
       tab.value.document.saveContext = undefined
       tab.value.document.isDirty = true
     }
@@ -852,7 +852,7 @@ const restCollectionDispatchers = defineDispatchers({
       requestIndex,
     })
 
-    if (possibleTab) {
+    if (possibleTab && possibleTab.value.document.type !== "test-runner") {
       possibleTab.value.document.saveContext = {
         originLocation: "user-collection",
         folderPath: destinationPath,
@@ -1588,7 +1588,7 @@ export function removeDuplicateRESTCollectionOrFolder(
 export function editRESTRequest(
   path: string,
   requestIndex: number,
-  requestNew: HoppRESTRequest
+  requestNew: HoppRESTRequest | HoppGQLRequest
 ) {
   const indexPaths = path.split("/").map((x) => parseInt(x))
   if (
@@ -1606,7 +1606,10 @@ export function editRESTRequest(
   })
 }
 
-export function saveRESTRequestAs(path: string, request: HoppRESTRequest) {
+export function saveRESTRequestAs(
+  path: string,
+  request: HoppRESTRequest | HoppGQLRequest
+) {
   // For calculating the insertion request index
   const targetLocation = navigateToFolderWithIndexPath(
     restCollectionStore.value.state,

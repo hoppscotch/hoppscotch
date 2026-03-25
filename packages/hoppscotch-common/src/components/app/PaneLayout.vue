@@ -32,11 +32,7 @@
           :size="PANE_MAIN_BOTTOM_SIZE"
           class="flex min-h-0 flex-1 overflow-hidden"
           :class="isStackedLayout ? 'flex-col' : 'flex-row'"
-          :min-size="
-            isResponseCollapsed
-              ? RESPONSE_COLLAPSED_SIZE
-              : RESPONSE_EXPANDED_MIN_SIZE
-          "
+          :min-size="RESPONSE_COLLAPSED_SIZE"
         >
           <div
             class="group z-[1] flex cursor-pointer items-center bg-primary"
@@ -223,17 +219,16 @@ async function setPaneEvent(
  * RESPONSE_EXPANDED_MIN_SIZE.
  */
 function clampBottomSize(size: number): number {
-  if (size <= RESPONSE_COLLAPSED_SIZE + 0.1) return RESPONSE_COLLAPSED_SIZE
-  return Math.max(size, RESPONSE_EXPANDED_MIN_SIZE)
+  return size <= RESPONSE_COLLAPSED_SIZE + 0.1 ? RESPONSE_COLLAPSED_SIZE : size
 }
 
 /**
  * Apply a horizontal pane event array to the reactive size refs.
  *
  * @param event  - Two-element array from Splitpanes [top, bottom].
- * @param clamp  - When true the bottom size is clamped to either the collapsed
- *                 sentinel or RESPONSE_EXPANDED_MIN_SIZE, and the top size is
- *                 recalculated to fill the remainder.  Pass `true` on drag-end
+ * @param clamp  - When true the bottom size is snapped to the collapsed sentinel
+ *                 if at or below RESPONSE_COLLAPSED_SIZE, and the top size is
+ *                 recalculated to fill the remainder. Pass `true` on drag-end
  *                 and on hydration from storage; pass `false` during live drag
  *                 so the user sees smooth feedback.
  */
@@ -251,25 +246,22 @@ function syncHorizontalPaneSizes(
 
   PANE_MAIN_BOTTOM_SIZE.value = bottom
 
-  const topSize = topPane?.size
-  if (clamp || topSize === null || topSize === undefined) {
-    PANE_MAIN_TOP_SIZE.value = Math.max(100 - bottom, 0)
-  } else {
-    PANE_MAIN_TOP_SIZE.value = topSize
-  }
+  PANE_MAIN_TOP_SIZE.value =
+    clamp || topPane?.size === null || topPane?.size === undefined
+      ? Math.max(100 - bottom, 0)
+      : topPane.size
 }
 
 function onHorizontalPaneResize(event: PaneEvent[]): void {
   syncHorizontalPaneSizes(event, false)
-}
-
-async function onHorizontalPaneResized(event: PaneEvent[]): Promise<void> {
-  syncHorizontalPaneSizes(event, true)
-
   if (PANE_MAIN_BOTTOM_SIZE.value > RESPONSE_COLLAPSED_SIZE + 0.1) {
     lastExpandedBottomSize.value = PANE_MAIN_BOTTOM_SIZE.value
   }
+}
 
+async function onHorizontalPaneResized(event: PaneEvent[]): Promise<void> {
+  // Snap to collapsed sentinel on release if the user dragged to the threshold.
+  syncHorizontalPaneSizes(event, true)
   await persistCurrentHorizontalLayout()
 }
 
@@ -290,12 +282,10 @@ async function populatePaneEvent(): Promise<void> {
   const verticalPaneData = await getPaneData("vertical")
   if (Array.isArray(verticalPaneData) && verticalPaneData.length >= 2) {
     const [mainPane, sidebarPane] = verticalPaneData
-    if (mainPane?.size !== null && mainPane?.size !== undefined) {
+    if (mainPane?.size !== null && mainPane?.size !== undefined)
       PANE_MAIN_SIZE.value = mainPane.size
-    }
-    if (sidebarPane?.size !== null && sidebarPane?.size !== undefined) {
+    if (sidebarPane?.size !== null && sidebarPane?.size !== undefined)
       PANE_SIDEBAR_SIZE.value = sidebarPane.size
-    }
   }
 
   const horizontalPaneData = await getPaneData("horizontal")

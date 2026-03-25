@@ -181,8 +181,8 @@ const PANE_MAIN_SIZE = ref(70)
 const PANE_SIDEBAR_SIZE = ref(30)
 
 // Default top/bottom split depends on layout direction
-const PANE_MAIN_TOP_SIZE = ref(COLUMN_LAYOUT.value ? 35 : 50)
-const PANE_MAIN_BOTTOM_SIZE = ref(COLUMN_LAYOUT.value ? 65 : 50)
+const PANE_MAIN_TOP_SIZE = ref(isStackedLayout.value ? 35 : 50)
+const PANE_MAIN_BOTTOM_SIZE = ref(isStackedLayout.value ? 65 : 50)
 
 /** Last known expanded size – used to restore after a collapse toggle */
 const lastExpandedBottomSize = ref(PANE_MAIN_BOTTOM_SIZE.value)
@@ -198,7 +198,11 @@ async function getPaneData(
   const storageKey = `${props.layoutId}-pane-config-${type}`
   const raw = await persistenceService.getLocalConfig(storageKey)
   if (!raw) return null
-  return JSON.parse(raw)
+  try {
+    return JSON.parse(raw)
+  } catch {
+    return null
+  }
 }
 
 async function setPaneEvent(
@@ -210,6 +214,14 @@ async function setPaneEvent(
   await persistenceService.setLocalConfig(storageKey, JSON.stringify(event))
 }
 
+/**
+ * Clamp a bottom-pane size so it is never in the ambiguous zone between
+ * collapsed and the enforced expanded minimum.
+ *
+ * If the stored/dragged value is clearly collapsed (≤ RESPONSE_COLLAPSED_SIZE)
+ * we leave it alone.  Otherwise we push it up to at least
+ * RESPONSE_EXPANDED_MIN_SIZE.
+ */
 function clampBottomSize(size: number): number {
   if (size <= RESPONSE_COLLAPSED_SIZE + 0.1) return RESPONSE_COLLAPSED_SIZE
   return Math.max(size, RESPONSE_EXPANDED_MIN_SIZE)
@@ -239,10 +251,12 @@ function syncHorizontalPaneSizes(
 
   PANE_MAIN_BOTTOM_SIZE.value = bottom
 
-  PANE_MAIN_TOP_SIZE.value =
-    clamp || topPane?.size === null || topPane?.size === undefined
-      ? Math.max(100 - bottom, 0)
-      : topPane.size
+  const topSize = topPane?.size
+  if (clamp || topSize === null || topSize === undefined) {
+    PANE_MAIN_TOP_SIZE.value = Math.max(100 - bottom, 0)
+  } else {
+    PANE_MAIN_TOP_SIZE.value = topSize
+  }
 }
 
 function onHorizontalPaneResize(event: PaneEvent[]): void {
@@ -276,10 +290,12 @@ async function populatePaneEvent(): Promise<void> {
   const verticalPaneData = await getPaneData("vertical")
   if (Array.isArray(verticalPaneData) && verticalPaneData.length >= 2) {
     const [mainPane, sidebarPane] = verticalPaneData
-    if (mainPane?.size !== null && mainPane?.size !== undefined)
+    if (mainPane?.size !== null && mainPane?.size !== undefined) {
       PANE_MAIN_SIZE.value = mainPane.size
-    if (sidebarPane?.size !== null && sidebarPane?.size !== undefined)
+    }
+    if (sidebarPane?.size !== null && sidebarPane?.size !== undefined) {
       PANE_SIDEBAR_SIZE.value = sidebarPane.size
+    }
   }
 
   const horizontalPaneData = await getPaneData("horizontal")

@@ -165,10 +165,18 @@ export class TeamResolver {
       nullable: true,
     })
     cursor?: string,
+    @Args({
+      name: 'take',
+      type: () => Int,
+      description: 'Number of teams to return per page',
+      nullable: true,
+      defaultValue: 10,
+    })
+    take?: number,
   ): Promise<Team[]> {
     const user = await this.userService.findUserById(userUid);
     if (O.isNone(user)) throwErr(USER_NOT_FOUND);
-    return this.teamService.getTeamsOfUser(userUid, cursor ?? null);
+    return this.teamService.getTeamsOfUser(userUid, cursor ?? null, take);
   }
 
   // Mutation

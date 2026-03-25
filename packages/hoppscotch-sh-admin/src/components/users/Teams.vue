@@ -79,7 +79,7 @@ const {
   TeamsOfUserByAdminDocument,
   (x) => x.teamsOfUserByAdmin,
   teamsPerPage,
-  { userUid: props.userUid, cursor: undefined },
+  { userUid: props.userUid, cursor: undefined, take: teamsPerPage },
   (x) => x.id,
 );
 

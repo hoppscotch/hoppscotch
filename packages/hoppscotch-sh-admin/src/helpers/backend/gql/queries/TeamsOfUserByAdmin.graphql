@@ -1,5 +1,5 @@
-query TeamsOfUserByAdmin($userUid: ID!, $cursor: ID) {
-  teamsOfUserByAdmin(userUid: $userUid, cursor: $cursor) {
+query TeamsOfUserByAdmin($userUid: ID!, $cursor: ID, $take: Int) {
+  teamsOfUserByAdmin(userUid: $userUid, cursor: $cursor, take: $take) {
     id
     name
     teamMembers {

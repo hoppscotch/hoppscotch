@@ -261,10 +261,14 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     return E.right(team);
   }
 
-  async getTeamsOfUser(uid: string, cursor: string | null): Promise<Team[]> {
+  async getTeamsOfUser(
+    uid: string,
+    cursor: string | null,
+    take = 10,
+  ): Promise<Team[]> {
     if (!cursor) {
       const entries = await this.prisma.teamMember.findMany({
-        take: 10,
+        take,
         where: {
           userUid: uid,
         },
@@ -276,7 +280,7 @@ export class TeamService implements UserDataHandler, OnModuleInit {
       return entries.map((entry) => entry.team);
     } else {
       const entries = await this.prisma.teamMember.findMany({
-        take: 10,
+        take,
         skip: 1,
         cursor: {
           teamID_userUid: {

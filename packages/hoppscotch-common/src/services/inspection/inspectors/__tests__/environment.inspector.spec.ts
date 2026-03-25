@@ -413,9 +413,7 @@ describe("EnvironmentInspectorService", () => {
       const req = ref({
         ...getDefaultGQLRequest(),
         url: "https://example.com/graphql",
-        headers: [
-          { key: "<<UNDEFINED_ENV_VAR>>", value: "val", active: true },
-        ],
+        headers: [{ key: "<<UNDEFINED_ENV_VAR>>", value: "val", active: true }],
       })
 
       const result = envInspector.getInspections(req)
@@ -440,7 +438,11 @@ describe("EnvironmentInspectorService", () => {
         ...getDefaultGQLRequest(),
         url: "https://example.com/graphql",
         headers: [
-          { key: "Authorization", value: "<<UNDEFINED_ENV_VAR>>", active: true },
+          {
+            key: "Authorization",
+            value: "<<UNDEFINED_ENV_VAR>>",
+            active: true,
+          },
         ],
       })
 

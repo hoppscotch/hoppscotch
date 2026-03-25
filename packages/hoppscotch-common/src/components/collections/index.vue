@@ -297,10 +297,12 @@ import {
   generateUniqueRefId,
   getDefaultRESTRequest,
   HoppCollection,
+  HoppGQLRequest,
   HoppRESTAuth,
   HoppRESTHeaders,
   HoppRESTRequest,
   HoppRESTRequestResponse,
+  isGQLRequest,
   makeCollection,
   makeHoppRESTResponseOriginalRequest,
 } from "@hoppscotch/data"
@@ -447,7 +449,7 @@ const editingFolder = ref<HoppCollection | TeamCollection | null>(null)
 const editingFolderName = ref<string | null>(null)
 const editingFolderPath = ref<string | null>(null)
 
-const editingRequest = ref<HoppRESTRequest | null>(null)
+const editingRequest = ref<HoppRESTRequest | HoppGQLRequest | null>(null)
 const editingRequestName = ref("")
 const editingResponseName = ref("")
 const editingResponseOldName = ref("")
@@ -688,15 +690,16 @@ const filteredCollections = computed(() => {
 
   const isMatch = (text: string) => text.toLowerCase().includes(filterText)
 
-  const isRequestMatch = (request: HoppRESTRequest) =>
-    isMatch(request.name) || isMatch(request.endpoint)
+  const isRequestMatch = (request: HoppRESTRequest | HoppGQLRequest) =>
+    isMatch(request.name) ||
+    (!isGQLRequest(request) && isMatch(request.endpoint)) ||
+    (isGQLRequest(request) && isMatch(request.url))
 
   for (const collection of collections) {
     const filteredRequests = []
     const filteredFolders = []
     for (const request of collection.requests) {
-      if (isRequestMatch(request as HoppRESTRequest))
-        filteredRequests.push(request)
+      if (isRequestMatch(request)) filteredRequests.push(request)
     }
     for (const folder of collection.folders) {
       if (isMatch(folder.name)) filteredFolders.push(folder)
@@ -1295,7 +1298,7 @@ const duplicateCollection = async ({
 const editRequest = (payload: {
   folderPath: string | undefined
   requestIndex: string
-  request: HoppRESTRequest
+  request: HoppRESTRequest | HoppGQLRequest
 }) => {
   const { folderPath, requestIndex, request } = payload
   editingRequest.value = request
@@ -1336,7 +1339,8 @@ const updateEditingRequest = async (newName: string) => {
 
     if (
       possibleActiveTab &&
-      possibleActiveTab.value.document.type === "request"
+      (possibleActiveTab.value.document.type === "request" ||
+        possibleActiveTab.value.document.type === "gql-request")
     ) {
       possibleActiveTab.value.document.request.name = requestUpdated.name
       nextTick(() => {
@@ -1418,6 +1422,8 @@ const editResponse = (payload: ResponseConfigPayload) => {
 const updateEditingResponse = (newName: string) => {
   const request = cloneDeep(editingRequest.value)
   if (!request) return
+  // Responses only exist on REST requests
+  if (isGQLRequest(request)) return
 
   const responseOldName = editingResponseOldName.value
 
@@ -1559,17 +1565,18 @@ const updateEditingResponse = (newName: string) => {
 
 const duplicateRequest = async (payload: {
   folderPath: string
-  request: HoppRESTRequest
+  request: HoppRESTRequest | HoppGQLRequest
 }) => {
   const { folderPath, request } = payload
   if (!folderPath) return
 
   const { id: _, ...requestWithoutID } = request
+  const cloned = cloneDeep(requestWithoutID)
   const newRequest = {
-    ...cloneDeep(requestWithoutID),
+    ...cloned,
     _ref_id: generateUniqueRefId("req"),
     name: `${request.name} - ${t("action.duplicate")}`,
-  }
+  } as HoppRESTRequest | HoppGQLRequest
 
   if (collectionsType.value.type === "my-collections") {
     const isValidToken = await handleTokenValidation()
@@ -1741,6 +1748,9 @@ const onAddExample = async () => {
     toast.error(t("error.invalid_request"))
     return
   }
+
+  // Examples are only supported for REST requests
+  if (isGQLRequest(request)) return
 
   // Check if example name already exists
   if (request.responses && request.responses[exampleName]) {
@@ -2242,6 +2252,8 @@ const onRemoveResponse = async () => {
   const request = cloneDeep(editingRequest.value)
 
   if (!request) return
+  // Responses are only supported for REST requests
+  if (isGQLRequest(request)) return
 
   const responseName = editingResponseName.value
   const responseID = editingResponseID.value
@@ -2395,7 +2407,7 @@ const selectPicked = (payload: Picked | null) => {
  * @param selectedRequest The request that the user clicked on emitted from the collection tree
  */
 const selectRequest = (selectedRequest: {
-  request: HoppRESTRequest
+  request: HoppRESTRequest | HoppGQLRequest
   folderPath: string
   requestIndex: string
   isActive: boolean
@@ -2442,6 +2454,8 @@ const selectRequest = (selectedRequest: {
       })
     }
   } else {
+    const isGql = isGQLRequest(request)
+
     possibleTab = tabs.getTabRefWithSaveContext({
       originLocation: "user-collection",
       requestIndex: parseInt(requestIndex),
@@ -2451,11 +2465,27 @@ const selectRequest = (selectedRequest: {
 
     if (possibleTab) {
       tabs.setActiveTab(possibleTab.value.id)
+    } else if (isGql) {
+      tabs.createNewTab({
+        type: "gql-request",
+        request: cloneDeep(request) as HoppGQLRequest,
+        isDirty: false,
+        cursorPosition: 0,
+        saveContext: {
+          originLocation: "user-collection",
+          folderPath: folderPath!,
+          requestIndex: parseInt(requestIndex),
+          requestRefID: request._ref_id ?? request.id,
+        },
+        inheritedProperties: cascadeParentCollectionForProperties(
+          folderPath,
+          "rest"
+        ),
+      })
     } else {
-      // If not, open the request in a new tab
       tabs.createNewTab({
         type: "request",
-        request: cloneDeep(request),
+        request: cloneDeep(request) as HoppRESTRequest,
         isDirty: false,
         saveContext: {
           originLocation: "user-collection",

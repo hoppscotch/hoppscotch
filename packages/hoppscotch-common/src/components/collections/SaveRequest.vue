@@ -123,6 +123,8 @@ import {
   HoppGQLRequest,
   HoppRESTRequest,
   isHoppRESTRequest,
+  isGQLRequest,
+  generateUniqueRefId,
 } from "@hoppscotch/data"
 import { computedWithControl } from "@vueuse/core"
 import { useService } from "dioc/vue"
@@ -201,10 +203,12 @@ const gqlRequestName = computedWithControl(
 
 const restRequestName = computedWithControl(
   () => RESTTabs.currentActiveTab.value,
-  () =>
-    RESTTabs.currentActiveTab.value.document.type === "request"
-      ? RESTTabs.currentActiveTab.value.document.request.name
-      : ""
+  () => {
+    const doc = RESTTabs.currentActiveTab.value.document
+    if (doc.type === "request" || doc.type === "gql-request")
+      return doc.request.name
+    return ""
+  }
 )
 
 const reqName = computed(() => {
@@ -221,11 +225,11 @@ const requestContext = computed(() => {
     return props.request
   }
 
-  if (
-    props.mode === "rest" &&
-    RESTTabs.currentActiveTab.value.document.type === "request"
-  ) {
-    return RESTTabs.currentActiveTab.value.document.request
+  if (props.mode === "rest") {
+    const doc = RESTTabs.currentActiveTab.value.document
+    if (doc.type === "request" || doc.type === "gql-request") {
+      return doc.request
+    }
   }
 
   return GQLTabs.currentActiveTab.value.document.request
@@ -256,12 +260,11 @@ const { submitFeedback, isSubmitFeedbackPending } = useSubmitFeedback()
 watch(
   () => [RESTTabs.currentActiveTab.value, GQLTabs.currentActiveTab.value],
   () => {
-    if (
-      props.mode === "rest" &&
-      RESTTabs.currentActiveTab.value.document.type === "request"
-    ) {
-      requestName.value =
-        RESTTabs.currentActiveTab.value?.document.request.name ?? ""
+    if (props.mode === "rest") {
+      const doc = RESTTabs.currentActiveTab.value.document
+      if (doc.type === "request" || doc.type === "gql-request") {
+        requestName.value = doc.request.name ?? ""
+      }
     } else {
       requestName.value =
         GQLTabs.currentActiveTab.value?.document.request.name ?? ""
@@ -325,48 +328,71 @@ const saveRequestAs = async () => {
     return
   }
 
-  const requestUpdated =
-    props.mode === "rest"
-      ? cloneDeep(
-          RESTTabs.currentActiveTab.value.document.type === "request"
-            ? RESTTabs.currentActiveTab.value.document.request
-            : null
-        )
-      : cloneDeep(GQLTabs.currentActiveTab.value.document.request)
+  const requestUpdated = (() => {
+    if (props.mode === "rest") {
+      const doc = RESTTabs.currentActiveTab.value.document
+      if (doc.type === "request" || doc.type === "gql-request") {
+        return cloneDeep(doc.request)
+      }
+      return null
+    }
+    return cloneDeep(GQLTabs.currentActiveTab.value.document.request)
+  })()
 
   if (!requestUpdated) return
 
   requestUpdated.name = requestName.value
 
-  if (picked.value.pickedType === "my-collection") {
-    if (!isHoppRESTRequest(requestUpdated))
-      throw new Error("requestUpdated is not a REST Request")
+  // Ensure _ref_id is always set before saving
+  if (!requestUpdated._ref_id) {
+    requestUpdated._ref_id = generateUniqueRefId("req")
+  }
 
+  if (picked.value.pickedType === "my-collection") {
     const insertionIndex = saveRESTRequestAs(
       `${picked.value.collectionIndex}`,
       requestUpdated
     )
 
-    if (RESTTabs.currentActiveTab.value.document.type !== "request") return
+    const folderPath = `${picked.value.collectionIndex}`
 
-    RESTTabs.currentActiveTab.value.document = {
-      request: requestUpdated,
-      isDirty: false,
-      type: "request",
-      saveContext: {
-        originLocation: "user-collection",
-        folderPath: `${picked.value.collectionIndex}`,
-        requestIndex: insertionIndex,
-        exampleID: undefined,
-        requestRefID: requestUpdated._ref_id,
-      },
+    if (isGQLRequest(requestUpdated)) {
+      RESTTabs.currentActiveTab.value.document = {
+        type: "gql-request",
+        request: requestUpdated as HoppGQLRequest,
+        isDirty: false,
+        cursorPosition: 0,
+        saveContext: {
+          originLocation: "user-collection",
+          folderPath,
+          requestIndex: insertionIndex,
+          requestRefID: requestUpdated._ref_id ?? requestUpdated.id,
+          exampleID: undefined,
+        },
+        inheritedProperties: cascadeParentCollectionForProperties(
+          folderPath,
+          "rest"
+        ),
+      }
+    } else {
+      if (RESTTabs.currentActiveTab.value.document.type !== "request") return
+
+      RESTTabs.currentActiveTab.value.document = {
+        request: requestUpdated as HoppRESTRequest,
+        isDirty: false,
+        type: "request",
+        saveContext: {
+          originLocation: "user-collection",
+          folderPath,
+          requestIndex: insertionIndex,
+          requestRefID: requestUpdated._ref_id ?? requestUpdated.id,
+          exampleID: undefined,
+        },
+      }
+
+      RESTTabs.currentActiveTab.value.document.inheritedProperties =
+        cascadeParentCollectionForProperties(folderPath, "rest")
     }
-
-    RESTTabs.currentActiveTab.value.document.inheritedProperties =
-      cascadeParentCollectionForProperties(
-        `${picked.value.collectionIndex}`,
-        "rest"
-      )
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
@@ -377,28 +403,44 @@ const saveRequestAs = async () => {
 
     requestSaved()
   } else if (picked.value.pickedType === "my-folder") {
-    if (!isHoppRESTRequest(requestUpdated))
-      throw new Error("requestUpdated is not a REST Request")
-
     const insertionIndex = saveRESTRequestAs(
       picked.value.folderPath,
       requestUpdated
     )
 
-    RESTTabs.currentActiveTab.value.document = {
-      request: requestUpdated,
-      isDirty: false,
-      type: "request",
-      saveContext: {
-        originLocation: "user-collection",
-        folderPath: picked.value.folderPath,
-        requestIndex: insertionIndex,
-        requestRefID: requestUpdated._ref_id,
-      },
-    }
+    if (isGQLRequest(requestUpdated)) {
+      RESTTabs.currentActiveTab.value.document = {
+        type: "gql-request",
+        request: requestUpdated as HoppGQLRequest,
+        isDirty: false,
+        cursorPosition: 0,
+        saveContext: {
+          originLocation: "user-collection",
+          folderPath: picked.value.folderPath,
+          requestIndex: insertionIndex,
+          requestRefID: requestUpdated._ref_id ?? requestUpdated.id,
+        },
+        inheritedProperties: cascadeParentCollectionForProperties(
+          picked.value.folderPath,
+          "rest"
+        ),
+      }
+    } else {
+      RESTTabs.currentActiveTab.value.document = {
+        request: requestUpdated as HoppRESTRequest,
+        isDirty: false,
+        type: "request",
+        saveContext: {
+          originLocation: "user-collection",
+          folderPath: picked.value.folderPath,
+          requestIndex: insertionIndex,
+          requestRefID: requestUpdated._ref_id ?? requestUpdated.id,
+        },
+      }
 
-    RESTTabs.currentActiveTab.value.document.inheritedProperties =
-      cascadeParentCollectionForProperties(picked.value.folderPath, "rest")
+      RESTTabs.currentActiveTab.value.document.inheritedProperties =
+        cascadeParentCollectionForProperties(picked.value.folderPath, "rest")
+    }
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
@@ -409,28 +451,45 @@ const saveRequestAs = async () => {
 
     requestSaved()
   } else if (picked.value.pickedType === "my-request") {
-    if (!isHoppRESTRequest(requestUpdated))
-      throw new Error("requestUpdated is not a REST Request")
-
     editRESTRequest(
       picked.value.folderPath,
       picked.value.requestIndex,
       requestUpdated
     )
 
-    RESTTabs.currentActiveTab.value.document = {
-      request: requestUpdated,
-      isDirty: false,
-      type: "request",
-      saveContext: {
-        originLocation: "user-collection",
-        folderPath: picked.value.folderPath,
-        requestIndex: picked.value.requestIndex,
-      },
-    }
+    if (isGQLRequest(requestUpdated)) {
+      RESTTabs.currentActiveTab.value.document = {
+        type: "gql-request",
+        request: requestUpdated as HoppGQLRequest,
+        isDirty: false,
+        cursorPosition: 0,
+        saveContext: {
+          originLocation: "user-collection",
+          folderPath: picked.value.folderPath,
+          requestIndex: picked.value.requestIndex,
+          requestRefID: requestUpdated._ref_id ?? requestUpdated.id,
+        },
+        inheritedProperties: cascadeParentCollectionForProperties(
+          picked.value.folderPath,
+          "rest"
+        ),
+      }
+    } else {
+      RESTTabs.currentActiveTab.value.document = {
+        request: requestUpdated as HoppRESTRequest,
+        isDirty: false,
+        type: "request",
+        saveContext: {
+          originLocation: "user-collection",
+          folderPath: picked.value.folderPath,
+          requestIndex: picked.value.requestIndex,
+          requestRefID: requestUpdated._ref_id ?? requestUpdated.id,
+        },
+      }
 
-    RESTTabs.currentActiveTab.value.document.inheritedProperties =
-      cascadeParentCollectionForProperties(picked.value.folderPath, "rest")
+      RESTTabs.currentActiveTab.value.document.inheritedProperties =
+        cascadeParentCollectionForProperties(picked.value.folderPath, "rest")
+    }
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",

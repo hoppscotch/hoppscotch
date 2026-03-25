@@ -17,7 +17,9 @@ export { CollectionVariable } from "./v/10"
 
 import { z } from "zod"
 import { translateToNewRequest } from "../rest"
+import { HoppRESTRequest } from "../rest"
 import { translateToGQLRequest } from "../graphql"
+import { HoppGQLRequest } from "../graphql"
 import { generateUniqueRefId } from "../utils/collection"
 
 const versionedObject = z.object({
@@ -78,11 +80,19 @@ export function makeCollection(x: Omit<HoppCollection, "v">): HoppCollection {
  * @param x The collection object to load
  * @returns The proper new collection format
  */
-export function translateToNewRESTCollection(x: any): HoppCollection {
+export function translateToNewCollection(x: any): HoppCollection {
   // Legacy
   const name = x.name ?? "Untitled"
-  const folders = (x.folders ?? []).map(translateToNewRESTCollection)
-  const requests = (x.requests ?? []).map(translateToNewRequest)
+  const folders = (x.folders ?? []).map(translateToNewCollection)
+  const requests = (x.requests ?? []).map(
+    (req: any): HoppRESTRequest | HoppGQLRequest => {
+      // Detect GQL requests and translate them through the GQL path
+      if (req && "query" in req && "url" in req && !("endpoint" in req)) {
+        return translateToGQLRequest(req)
+      }
+      return translateToNewRequest(req)
+    }
+  )
 
   const auth = x.auth ?? { authType: "inherit", authActive: true }
   const headers = x.headers ?? []
@@ -114,41 +124,25 @@ export function translateToNewRESTCollection(x: any): HoppCollection {
 }
 
 /**
- * Translates an old collection to a new collection
- * @param x The collection object to load
- * @returns The proper new collection format
+ * Checks if a request object is a GraphQL request.
+ * GQL requests have `query` and `url` fields but no `endpoint` field.
+ * @param req The request object to check
+ * @returns Whether the request is a HoppGQLRequest
  */
-export function translateToNewGQLCollection(x: any): HoppCollection {
-  // Legacy
-  const name = x.name ?? "Untitled"
-  const folders = (x.folders ?? []).map(translateToNewGQLCollection)
-  const requests = (x.requests ?? []).map(translateToGQLRequest)
+export function isGQLRequest(
+  req: HoppRESTRequest | HoppGQLRequest
+): req is HoppGQLRequest {
+  return "query" in req && "url" in req && !("endpoint" in req)
+}
 
-  const auth = x.auth ?? { authType: "inherit", authActive: true }
-  const headers = x.headers ?? []
-  const variables = x.variables ?? []
-
-  const description = x.description ?? null
-
-  const preRequestScript = x.preRequestScript ?? ""
-  const testScript = x.testScript ?? ""
-
-  const obj = makeCollection({
-    name,
-    folders,
-    requests,
-    auth,
-    headers,
-    variables,
-    description,
-    preRequestScript,
-    testScript,
-  })
-
-  if (x.id) obj.id = x.id
-  if (x._ref_id) {
-    obj._ref_id = x._ref_id
-  }
-
-  return obj
+/**
+ * Checks if a request object is a REST request.
+ * REST requests have `endpoint` and `method` fields.
+ * @param req The request object to check
+ * @returns Whether the request is a HoppRESTRequest
+ */
+export function isRESTRequest(
+  req: HoppRESTRequest | HoppGQLRequest
+): req is HoppRESTRequest {
+  return "endpoint" in req && "method" in req
 }

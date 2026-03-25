@@ -39,16 +39,16 @@
             class="svg-icons text-secondaryLight flex-shrink-0 mt-0.5"
           />
           <div>
-            <p class="text-secondaryDark text-xs ">
+            <p class="text-secondaryDark text-xs">
               {{ t('configs.mock_server.subpath_content_type_notice_prefix') }}
-              <code
-                class="font-mono font-semibold text-xs  text-yellow-500 "
-              >
+              <code class="font-mono font-semibold text-xs text-yellow-500">
                 {{ t('configs.mock_server.subpath_content_type_text_plain') }}
               </code>
               {{ t('configs.mock_server.subpath_content_type_notice_suffix') }}
             </p>
-            <p class="font-mono text-xs text-secondaryLight leading-relaxed mt-1">
+            <p
+              class="font-mono text-xs text-secondaryLight leading-relaxed mt-1"
+            >
               {{ sanitizedContentTypes.join(', ') }}
             </p>
           </div>
@@ -65,7 +65,6 @@ import { useI18n } from '~/composables/i18n';
 import { ServerConfigs } from '~/helpers/configs';
 
 const t = useI18n();
-
 
 const props = defineProps<{
   config: ServerConfigs;
@@ -95,14 +94,14 @@ const mockFields = computed({
   },
 });
 
-
 // Content types that are served as text/plain when using subpath-based mock URLs (instead of wildcard subdomains) to prevent XSS.
-// This list should be kept in sync with the backend guard in packages/hoppscotch-backend/src/mock-server/mock-server.controller.ts
+// This list should be kept in sync with the backend sanitization logic in
+// packages/hoppscotch-backend/src/mock-server/mock-server.controller.ts
 const sanitizedContentTypes = [
   'application/javascript',
   'application/xhtml+xml',
   'application/xml',
-  'application/*+xml (all +xml subtypes)',
+  '*+xml (other +xml subtypes)',
   'image/svg+xml',
   'text/html',
   'text/javascript',

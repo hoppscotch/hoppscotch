@@ -39,12 +39,12 @@
             :class="
               isStackedLayout
                 ? 'sticky top-0 flex-row border-b border-dividerLight px-1 py-2'
-                : 'sticky left-0 top-0 min-h-0 w-10 shrink-0 flex-col justify-center gap-1 self-stretch border-r border-dividerLight px-1 py-2'
+                : 'sticky left-0 top-0 min-h-0 w-10 shrink-0 flex-col justify-center gap-1 self-stretch border-dividerLight px-1 py-2'
             "
             role="button"
             tabindex="0"
             :aria-expanded="!isResponseCollapsed"
-            aria-controls="response-pane-content"
+            :aria-controls="`${props.layoutId ?? 'default'}-response-pane-content`"
             :title="
               isResponseCollapsed
                 ? t('response.expand_response_pane')
@@ -92,7 +92,6 @@
               </div>
             </div>
           </div>
-          <div
           <div
             :id="`${props.layoutId ?? 'default'}-response-pane-content`"
             v-show="!isResponseCollapsed"
@@ -212,7 +211,7 @@ function syncHorizontalPaneSizesFromEvent(event: PaneEvent[]) {
     PANE_MAIN_BOTTOM_SIZE.value = mainBottomPane.size
 }
 
-async function onHorizontalPaneResize(event: PaneEvent[]) {
+function onHorizontalPaneResize(event: PaneEvent[]) {
   syncHorizontalPaneSizesFromEvent(event)
 }
 
@@ -244,6 +243,9 @@ async function populatePaneEvent() {
     const [mainTopPane, mainBottomPane] = horizontalPaneData
     PANE_MAIN_TOP_SIZE.value = mainTopPane?.size
     PANE_MAIN_BOTTOM_SIZE.value = mainBottomPane?.size
+    if (mainBottomPane?.size > RESPONSE_COLLAPSED_SIZE + 0.1) {
+      lastExpandedBottomSize.value = getExpandedBottomSize(mainBottomPane.size)
+    }
   }
 }
 

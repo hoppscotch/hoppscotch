@@ -93,7 +93,8 @@
             </div>
           </div>
           <div
-            id="response-pane-content"
+          <div
+            :id="`${props.layoutId ?? 'default'}-response-pane-content`"
             v-show="!isResponseCollapsed"
             class="flex min-h-0 min-w-0 flex-1 flex-col overflow-auto"
           >

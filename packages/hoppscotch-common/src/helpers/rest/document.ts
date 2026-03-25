@@ -1,9 +1,12 @@
 import {
   HoppCollection,
+  HoppGQLRequest,
   HoppRESTRequest,
   HoppRESTRequestResponse,
 } from "@hoppscotch/data"
 import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
+import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
+import { type GQLResponseEvent } from "~/services/gql-tab-connection.service"
 import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
 import { HoppRESTResponse } from "../types/HoppRESTResponse"
 import { HoppTestResult } from "../types/HoppTestResult"
@@ -275,6 +278,57 @@ export type HoppSavedExampleDocument = {
   inheritedProperties?: HoppInheritedProperty
 }
 
+export type HoppGQLRequestDocument = {
+  /**
+   * The document type
+   */
+  type: "gql-request"
+
+  /**
+   * The GQL request as it is in the document
+   */
+  request: HoppGQLRequest
+
+  /**
+   * Whether the request has any unsaved changes
+   * (atleast as far as we can say)
+   */
+  isDirty: boolean
+
+  /**
+   * The cursor position in the query editor
+   */
+  cursorPosition?: number
+
+  /**
+   * Info about where this request should be saved.
+   * This contains where the request is originated from basically.
+   */
+  saveContext?: HoppRESTSaveContext
+
+  /**
+   * The response as it is in the document
+   * (if any)
+   */
+  response?: GQLResponseEvent[] | null
+
+  /**
+   * Response tab preference for the current tab's document
+   */
+  responseTabPreference?: string
+
+  /**
+   * Options tab preference for the current tab's document
+   */
+  optionTabPreference?: GQLOptionTabs
+
+  /**
+   * The inherited properties from the parent collection
+   * (if any)
+   */
+  inheritedProperties?: HoppInheritedProperty
+}
+
 /**
  * Defines a live 'document' (something that is open and being edited) in the app
  */
@@ -282,3 +336,4 @@ export type HoppTabDocument =
   | HoppSavedExampleDocument
   | HoppRequestDocument
   | HoppTestRunnerDocument
+  | HoppGQLRequestDocument

@@ -1,5 +1,6 @@
 import { InferredEntity, createVersionedEntity } from "verzod"
 import { z } from "zod"
+import { generateUniqueRefId } from "../utils/collection"
 import V1_VERSION from "./v/1"
 import V2_VERSION from "./v/2"
 import V3_VERSION from "./v/3"
@@ -9,6 +10,7 @@ import V6_VERSION from "./v/6"
 import V7_VERSION from "./v/7"
 import V8_VERSION from "./v/8"
 import V9_VERSION from "./v/9"
+import V10_VERSION from "./v/10"
 
 export {
   HoppGQLAuthBasic,
@@ -22,14 +24,14 @@ export { HoppGQLAuthAPIKey } from "./v/4"
 export { GQLHeader, HoppGQLAuthAWSSignature } from "./v/6"
 export { HoppGQLAuth, HoppGQLAuthOAuth2 } from "./v/9"
 
-export const GQL_REQ_SCHEMA_VERSION = 9
+export const GQL_REQ_SCHEMA_VERSION = 10
 
 const versionedObject = z.object({
   v: z.number(),
 })
 
 export const HoppGQLRequest = createVersionedEntity({
-  latestVersion: 9,
+  latestVersion: 10,
   versionMap: {
     1: V1_VERSION,
     2: V2_VERSION,
@@ -40,6 +42,7 @@ export const HoppGQLRequest = createVersionedEntity({
     7: V7_VERSION,
     8: V8_VERSION,
     9: V9_VERSION,
+    10: V10_VERSION,
   },
   getVersion(x) {
     const result = versionedObject.safeParse(x)
@@ -75,6 +78,7 @@ export function getDefaultGQLRequest(): HoppGQLRequest {
       authType: "inherit",
       authActive: true,
     },
+    _ref_id: generateUniqueRefId("req"),
   }
 }
 

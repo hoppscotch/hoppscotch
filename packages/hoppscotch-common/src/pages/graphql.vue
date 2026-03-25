@@ -87,9 +87,13 @@
 import { usePageHead } from "@composables/head"
 import { useI18n } from "@composables/i18n"
 import { useService } from "dioc/vue"
-import { computed, onBeforeUnmount, ref } from "vue"
+import { computed, onBeforeUnmount, ref, watch } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
-import { connection, disconnect } from "~/helpers/graphql/connection"
+import {
+  connection,
+  currentGQLTabID,
+  disconnect,
+} from "~/helpers/graphql/connection"
 import { getDefaultGQLRequest } from "~/helpers/graphql/default"
 import { HoppGQLDocument } from "~/helpers/graphql/document"
 import { useExplorer } from "~/helpers/graphql/explorer"
@@ -102,6 +106,15 @@ const tabs = useService(GQLTabService)
 const { reset } = useExplorer()
 
 const currentTabID = computed(() => tabs.currentTabID.value)
+
+// Keep the global GQL tab ID in sync for connection module
+watch(
+  currentTabID,
+  (id) => {
+    currentGQLTabID.value = id
+  },
+  { immediate: true }
+)
 
 const inspectionService = useService(InspectionService)
 

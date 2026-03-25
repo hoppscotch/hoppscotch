@@ -588,6 +588,10 @@ const saveRequest = async () => {
         showSaveRequestModal.value = true
         return
       }
+      // Ensure requestRefID is set in save context for active indicator
+      if (!saveCtx.requestRefID && req._ref_id) {
+        saveCtx.requestRefID = req._ref_id
+      }
       editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, req)
 
       tab.value.document.isDirty = false

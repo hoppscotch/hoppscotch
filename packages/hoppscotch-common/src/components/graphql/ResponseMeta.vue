@@ -107,6 +107,7 @@ const tabs = useService(GQLTabService)
 const props = defineProps<{
   response: GQLResponseEvent[] | null | undefined
   isEmbed?: boolean
+  tabId?: string
 }>()
 
 const isLoading = computed(() => {
@@ -156,8 +157,10 @@ const statusCategory = computed(() => {
 
 const inspectionService = useService(InspectionService)
 
+const effectiveTabId = props.tabId ?? tabs.currentTabID.value
+
 const tabResults = inspectionService.getResultViewFor(
-  tabs.currentTabID.value,
+  effectiveTabId,
   (result) => result.locations.type === "response"
 )
 </script>

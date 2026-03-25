@@ -88,6 +88,7 @@
       "ignore_tls": "SMTP Ignore TLS",
       "tls_reject_unauthorized": "TLS Reject Unauthorized",
       "title": "SMTP Configurations",
+      "smtp_auth_incomplete": "SMTP username and password must both be provided or both left empty",
       "toggle_failure": "Failed to toggle smtp!!",
       "update_failure": "Failed to update smtp configurations!!",
       "user": "SMTP User"

@@ -275,7 +275,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       if (section.name === 'email') {
         const { mailer_use_custom_configs, ...otherFields } = section.fields;
 
-        // SMTP user and password are fully optional (can be blank individually or both)
+        // SMTP user and password are optional as a pair (both or neither)
         const optionalMailerKeys = ['mailer_smtp_user', 'mailer_smtp_password'];
         const excludeKeys = mailer_use_custom_configs
           ? ['mailer_smtp_url', ...optionalMailerKeys]
@@ -315,6 +315,18 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     });
 
     return hasSectionWithEmptyFields;
+  };
+
+  const hasPartialSmtpCredentials = (config: ServerConfigs): boolean => {
+    if (!config.mailConfigs.enabled) return false;
+
+    const fields = config.mailConfigs.fields;
+    if (!fields.mailer_use_custom_configs) return false;
+
+    const hasUser = fields.mailer_smtp_user.trim() !== '';
+    const hasPass = fields.mailer_smtp_password.trim() !== '';
+
+    return hasUser !== hasPass;
   };
 
   // Extract the mail config fields (excluding the custom mail config fields)
@@ -664,5 +676,6 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     infraConfigsError,
     allowedAuthProvidersError,
     AreAnyConfigFieldsEmpty,
+    hasPartialSmtpCredentials,
   };
 }

@@ -24,13 +24,17 @@ export function getTransportOption(env): TransportType {
     const smtpUser = env.INFRA.MAILER_SMTP_USER?.trim() || undefined;
     const smtpPass = env.INFRA.MAILER_SMTP_PASSWORD?.trim() || undefined;
 
+    // Both credentials must be provided together or both omitted
+    const hasUser = !!smtpUser;
+    const hasPass = !!smtpPass;
+    if (hasUser !== hasPass) {
+      throw new Error(
+        'SMTP auth requires both MAILER_SMTP_USER and MAILER_SMTP_PASSWORD. Provide both or leave both empty for unauthenticated relay.',
+      );
+    }
+
     const auth =
-      smtpUser || smtpPass
-        ? {
-            ...(smtpUser && { user: smtpUser }),
-            ...(smtpPass && { pass: smtpPass }),
-          }
-        : undefined;
+      smtpUser && smtpPass ? { user: smtpUser, pass: smtpPass } : undefined;
 
     return {
       host: env.INFRA.MAILER_SMTP_HOST,

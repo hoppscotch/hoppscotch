@@ -240,6 +240,10 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
     const isValidate = this.validateEnvValues(infraConfigs);
     if (E.isLeft(isValidate)) return E.left(isValidate.left);
 
+    // Validate SMTP credentials pair against effective post-update state
+    const smtpPairCheck = await this.validateSmtpCredentialPair(infraConfigs);
+    if (E.isLeft(smtpPairCheck)) return E.left(smtpPairCheck.left);
+
     try {
       const dbInfraConfig = await this.prisma.infraConfig.findMany({
         select: { name: true, isEncrypted: true },
@@ -652,6 +656,58 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
     } catch (e) {
       return E.left(INFRA_CONFIG_RESET_FAILED);
     }
+  }
+
+  /**
+   * Validate that SMTP user and password are both provided or both empty,
+   * checking the effective post-update state (incoming merged with DB).
+   */
+  private async validateSmtpCredentialPair(
+    infraConfigs: { name: InfraConfigEnum; value: string }[],
+  ) {
+    const incoming = new Map(infraConfigs.map((c) => [c.name, c.value]));
+    const smtpKeys = [
+      InfraConfigEnum.MAILER_SMTP_USER,
+      InfraConfigEnum.MAILER_SMTP_PASSWORD,
+    ];
+
+    if (!smtpKeys.some((key) => incoming.has(key))) {
+      return E.right(true);
+    }
+
+    const missingKeys = smtpKeys.filter((key) => !incoming.has(key));
+
+    const dbRows =
+      missingKeys.length === 0
+        ? []
+        : await this.prisma.infraConfig.findMany({
+            where: { name: { in: missingKeys } },
+            select: { name: true, value: true, isEncrypted: true },
+          });
+
+    const dbValues = new Map(
+      dbRows.map((row) => [
+        row.name,
+        row.value ? (row.isEncrypted ? decrypt(row.value) : row.value) : '',
+      ]),
+    );
+
+    const smtpUser =
+      incoming.get(InfraConfigEnum.MAILER_SMTP_USER) ??
+      dbValues.get(InfraConfigEnum.MAILER_SMTP_USER) ??
+      '';
+
+    const smtpPass =
+      incoming.get(InfraConfigEnum.MAILER_SMTP_PASSWORD) ??
+      dbValues.get(InfraConfigEnum.MAILER_SMTP_PASSWORD) ??
+      '';
+
+    const hasUser = smtpUser.trim() !== '';
+    const hasPass = smtpPass.trim() !== '';
+
+    return hasUser !== hasPass
+      ? E.left(INFRA_CONFIG_INVALID_INPUT)
+      : E.right(true);
   }
 
   /**

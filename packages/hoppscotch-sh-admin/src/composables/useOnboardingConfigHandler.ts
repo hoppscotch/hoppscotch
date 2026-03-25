@@ -280,6 +280,21 @@ export function useOnboardingConfigHandler() {
       return;
     }
 
+    // SMTP credentials must be provided together or both left empty.
+    // Only enforce when custom SMTP mode is active (not simple URL mode).
+    if (
+      enabledConfigs.value.includes('MAILER') &&
+      configs['MAILER_USE_CUSTOM_CONFIGS'] === 'true'
+    ) {
+      const smtpUser = configs['MAILER_SMTP_USER']?.trim();
+      const smtpPass = configs['MAILER_SMTP_PASSWORD']?.trim();
+
+      if (!!smtpUser !== !!smtpPass) {
+        toast.error(t('configs.mail_configs.smtp_auth_incomplete'));
+        return;
+      }
+    }
+
     // Allow empty strings through for optional SMTP keys so the backend
     // receives an explicit clear rather than silently retaining old values
     return Object.fromEntries(

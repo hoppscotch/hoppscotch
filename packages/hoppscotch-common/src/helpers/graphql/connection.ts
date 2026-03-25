@@ -26,7 +26,6 @@ import { getI18n } from "~/modules/i18n"
 import { addGraphqlHistoryEntry, makeGQLHistoryEntry } from "~/newstore/history"
 
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
-import { GQLTabService } from "~/services/tab/graphql"
 
 import { MediaType, content, Method, RelayRequest } from "@hoppscotch/kernel"
 import { GQLRequest } from "~/helpers/kernel/gql/request"
@@ -112,8 +111,11 @@ type Connection = {
   } | null
 }
 
-const tabs = getService(GQLTabService)
-const currentTabID = computed(() => tabs.currentTabID.value)
+/**
+ * Writable ref for the current GQL tab ID.
+ * Set by the GQL page or REST page GQL tab components to track the active tab.
+ */
+export const currentGQLTabID = ref<string>("")
 
 export const connection = reactive<Connection>({
   state: "DISCONNECTED",
@@ -125,7 +127,7 @@ export const connection = reactive<Connection>({
 
 export const schema = computed(() => connection.schema)
 export const subscriptionState = computed(() =>
-  connection.subscriptionState.get(currentTabID.value)
+  connection.subscriptionState.get(currentGQLTabID.value)
 )
 
 export const gqlMessageEvent = ref<GQLResponseEvent | "reset">()
@@ -330,7 +332,9 @@ const getSchema = async (options: ConnectionRequestOptions) => {
     connection.error = null
   } catch (e: any) {
     console.error(e)
-    disconnect()
+    if (connection.state === "CONNECTED") {
+      disconnect()
+    }
   }
 }
 
@@ -577,7 +581,7 @@ export const runSubscription = (
   const { url, query, operationName } = options
   const wsUrl = url.replace(/^http/, "ws")
 
-  connection.subscriptionState.set(currentTabID.value, "SUBSCRIBING")
+  connection.subscriptionState.set(currentGQLTabID.value, "SUBSCRIBING")
 
   connection.socket = new WebSocket(wsUrl, "graphql-ws")
 
@@ -606,7 +610,7 @@ export const runSubscription = (
     const data = JSON.parse(event.data)
     switch (data.type) {
       case GQL.CONNECTION_ACK: {
-        connection.subscriptionState.set(currentTabID.value, "SUBSCRIBED")
+        connection.subscriptionState.set(currentGQLTabID.value, "SUBSCRIBED")
         break
       }
       case GQL.CONNECTION_ERROR: {
@@ -635,7 +639,7 @@ export const runSubscription = (
 
   connection.socket.onclose = (event) => {
     console.log("WebSocket is closed now.", event)
-    connection.subscriptionState.set(currentTabID.value, "UNSUBSCRIBED")
+    connection.subscriptionState.set(currentGQLTabID.value, "UNSUBSCRIBED")
   }
 
   addQueryToHistory(options, "")

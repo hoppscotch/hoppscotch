@@ -213,7 +213,6 @@ function syncHorizontalPaneSizesFromEvent(event: PaneEvent[]) {
 
 async function onHorizontalPaneResize(event: PaneEvent[]) {
   syncHorizontalPaneSizesFromEvent(event)
-  await setPaneEvent(event, "horizontal")
 }
 
 function getExpandedBottomSize(size: number) {

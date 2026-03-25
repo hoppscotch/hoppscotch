@@ -141,10 +141,18 @@ const tabState = computed(() => {
       request: props.tab.document.request,
     }
   }
+  if (props.tab.document.type === "example-response") {
+    return {
+      name: props.tab.document.response.name,
+      method: props.tab.document.response.originalRequest.method,
+      request: props.tab.document.response.originalRequest,
+    }
+  }
+  // Fallback for transient states (e.g., during protocol switch)
   return {
-    name: props.tab.document.response.name,
-    method: props.tab.document.response.originalRequest.method,
-    request: props.tab.document.response.originalRequest,
+    name: "Untitled",
+    method: "GET",
+    request: null,
   }
 })
 

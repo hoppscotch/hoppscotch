@@ -35,14 +35,16 @@
           :min-size="RESPONSE_COLLAPSED_SIZE"
         >
           <div
-            class="group z-[1] flex cursor-pointer items-center border-0 border-dividerLight bg-primary"
+            class="group z-[1] flex cursor-pointer items-center bg-primary"
             :class="
               isStackedLayout
-                ? 'sticky top-0 flex-row border-0 border-dividerLight px-1 py-2'
-                : 'sticky left-0 top-0 min-h-0 w-10 shrink-0 flex-col justify-center gap-1 self-stretch border-0 border-dividerLight px-1 py-2'
+                ? 'sticky top-0 flex-row border-b border-dividerLight px-1 py-2'
+                : 'sticky left-0 top-0 min-h-0 w-10 shrink-0 flex-col justify-center gap-1 self-stretch border-r border-dividerLight px-1 py-2'
             "
             role="button"
             tabindex="0"
+            :aria-expanded="!isResponseCollapsed"
+            aria-controls="response-pane-content"
             :title="
               isResponseCollapsed
                 ? t('response.expand_response_pane')
@@ -79,7 +81,7 @@
                 <IconChevronsLeft v-else class="h-3.5 w-3.5" />
               </span>
               <div
-                class="font-semibold font-size-lg font-weight-600 text-color"
+                class="font-semibold text-secondaryDark"
                 :class="
                   isStackedLayout
                     ? 'truncate text-center'
@@ -91,7 +93,8 @@
             </div>
           </div>
           <div
-            v-if="!isResponseCollapsed"
+            id="response-pane-content"
+            v-show="!isResponseCollapsed"
             class="flex min-h-0 min-w-0 flex-1 flex-col overflow-auto"
           >
             <slot name="secondary" />

@@ -262,7 +262,7 @@
             :is-active="
               isActiveRequest(
                 node.data.data.parentIndex,
-                node.data.data.data._ref_id ?? node.data.data.data.id
+                node.data.data.data._ref_id ?? node.data.data.data.id ?? ''
               )
             "
             :is-selected="
@@ -365,7 +365,7 @@
                 folderPath: node.data.data.parentIndex,
                 requestIndex: node.id,
                 requestRefID:
-                  node.data.data.data._ref_id ?? node.data.data.data.id,
+                  node.data.data.data._ref_id ?? node.data.data.data.id ?? '',
               })
             "
             @update-request-order="
@@ -459,7 +459,11 @@ import IconPlus from "~icons/lucide/plus"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconImport from "~icons/lucide/folder-down"
 import IconArrowUpDown from "~icons/lucide/arrow-up-down"
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import {
+  HoppCollection,
+  HoppRESTRequest,
+  HoppGQLRequest,
+} from "@hoppscotch/data"
 import { computed, PropType, ref, Ref, toRef } from "vue"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { ChildrenResult, SmartTreeAdapter } from "@hoppscotch/ui/helpers"
@@ -496,7 +500,7 @@ type Requests = {
   isLastItem: boolean
   data: {
     parentIndex: string
-    data: HoppRESTRequest
+    data: HoppRESTRequest | HoppGQLRequest
   }
 }
 
@@ -543,7 +547,7 @@ const props = defineProps({
 type ResponsePayload = {
   folderPath: string
   requestIndex: string
-  request: HoppRESTRequest
+  request: HoppRESTRequest | HoppGQLRequest
   responseName: string
   responseID: string
 }
@@ -606,7 +610,7 @@ const emit = defineEmits<{
       folderPath: string
       requestIndex: string
       requestRefID: string
-      request: HoppRESTRequest
+      request: HoppRESTRequest | HoppGQLRequest
     }
   ): void
   (
@@ -621,7 +625,7 @@ const emit = defineEmits<{
     payload: {
       folderPath: string
       requestIndex: string
-      request: HoppRESTRequest
+      request: HoppRESTRequest | HoppGQLRequest
     }
   ): void
   (event: "edit-response", payload: ResponsePayload): void
@@ -629,7 +633,7 @@ const emit = defineEmits<{
     event: "duplicate-request",
     payload: {
       folderPath: string
-      request: HoppRESTRequest
+      request: HoppRESTRequest | HoppGQLRequest
     }
   ): void
   (event: "duplicate-response", payload: ResponsePayload): void
@@ -647,7 +651,7 @@ const emit = defineEmits<{
   (
     event: "select-request",
     payload: {
-      request: HoppRESTRequest
+      request: HoppRESTRequest | HoppGQLRequest
       folderPath: string
       requestIndex: string
       isActive: boolean
@@ -664,14 +668,14 @@ const emit = defineEmits<{
   (
     event: "share-request",
     payload: {
-      request: HoppRESTRequest
+      request: HoppRESTRequest | HoppGQLRequest
     }
   ): void
   (
     event: "add-example",
     payload: {
       folderPath: string
-      request: HoppRESTRequest
+      request: HoppRESTRequest | HoppGQLRequest
       requestIndex: number
     }
   ): void
@@ -789,7 +793,7 @@ const isActiveRequest = (folderPath: string, requestRefID: string) => {
 }
 
 const selectRequest = (data: {
-  request: HoppRESTRequest
+  request: HoppRESTRequest | HoppGQLRequest
   folderPath: string
   requestIndex: string
 }) => {

@@ -74,6 +74,10 @@
           :entity-id="header.id"
           :entity-active="header.active"
           :is-active="header.hasOwnProperty('active')"
+          :inspection-key-result="getInspectorResult(headerKeyResults, index)"
+          :inspection-value-result="
+            getInspectorResult(headerValueResults, index)
+          "
           :key-auto-complete-source="commonHeaders"
           @update-entity="updateHeader($event.index, $event.payload)"
           @delete-entity="deleteHeader($event)"
@@ -270,6 +274,9 @@ import IconPlus from "~icons/lucide/plus"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconWrapText from "~icons/lucide/wrap-text"
 import { GQLOptionTabs } from "./RequestOptions.vue"
+import { InspectionService, InspectorResult } from "~/services/inspection"
+import { useService } from "dioc/vue"
+import { RESTTabService } from "~/services/tab/rest"
 
 const colorMode = useColorMode()
 const t = useI18n()
@@ -699,4 +706,32 @@ const mask = (header: any) => {
 }
 
 const changeTab = () => emit("change-tab", "authorization")
+
+// Inspection results for header key/value
+const inspectionService = useService(InspectionService)
+const tabs = useService(RESTTabService)
+
+const headerKeyResults = inspectionService.getResultViewFor(
+  tabs.currentTabID.value,
+  (result) =>
+    result.locations.type === "header" && result.locations.position === "key"
+)
+
+const headerValueResults = inspectionService.getResultViewFor(
+  tabs.currentTabID.value,
+  (result) =>
+    result.locations.type === "header" && result.locations.position === "value"
+)
+
+const getInspectorResult = (results: InspectorResult[], index: number) => {
+  return results.filter((result) => {
+    if (
+      result.locations.type === "url" ||
+      result.locations.type === "response" ||
+      result.locations.type === "body-content-type-header"
+    )
+      return
+    return result.locations.index === index
+  })
+}
 </script>

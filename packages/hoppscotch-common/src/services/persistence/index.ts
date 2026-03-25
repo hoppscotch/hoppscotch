@@ -9,8 +9,7 @@ import { assign, clone, isEmpty, cloneDeep } from "lodash-es"
 
 import {
   GlobalEnvironmentVariable,
-  translateToNewGQLCollection,
-  translateToNewRESTCollection,
+  translateToNewCollection,
 } from "@hoppscotch/data"
 
 import { StoreError } from "@hoppscotch/kernel"
@@ -617,7 +616,7 @@ export class PersistenceService extends Service {
         const result = z.array(REST_COLLECTION_SCHEMA).safeParse(data)
 
         if (result.success) {
-          const translatedData = result.data.map(translateToNewRESTCollection)
+          const translatedData = result.data.map(translateToNewCollection)
           diag(
             "persistence",
             "REST collections translated, count:",
@@ -660,7 +659,7 @@ export class PersistenceService extends Service {
         const result = z.array(GQL_COLLECTION_SCHEMA).safeParse(data)
 
         if (result.success) {
-          const translatedData = result.data.map(translateToNewGQLCollection)
+          const translatedData = result.data.map(translateToNewCollection)
           setGraphqlCollections(translatedData)
         } else {
           this.showErrorToast(STORE_KEYS.GQL_COLLECTIONS)

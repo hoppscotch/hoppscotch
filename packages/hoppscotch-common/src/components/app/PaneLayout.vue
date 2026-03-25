@@ -32,7 +32,11 @@
           :size="PANE_MAIN_BOTTOM_SIZE"
           class="flex min-h-0 flex-1 overflow-hidden"
           :class="isStackedLayout ? 'flex-col' : 'flex-row'"
-          :min-size="RESPONSE_COLLAPSED_SIZE"
+          :min-size="
+            isResponseCollapsed
+              ? RESPONSE_COLLAPSED_SIZE
+              : RESPONSE_EXPANDED_MIN_SIZE
+          "
         >
           <div
             class="group z-[1] flex cursor-pointer items-center bg-primary"
@@ -142,7 +146,6 @@ const breakpoints = useBreakpoints(breakpointsTailwind)
 const mdAndLarger = breakpoints.greater("md")
 
 const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
-
 const SIDEBAR = useSetting("SIDEBAR")
 
 const slots = useSlots()
@@ -172,26 +175,30 @@ const isStackedLayout = computed(
   () => COLUMN_LAYOUT.value || props.forceColumnLayout
 )
 
-const PANE_MAIN_SIZE = ref(70)
-const PANE_SIDEBAR_SIZE = ref(30)
-const PANE_MAIN_TOP_SIZE = ref(35)
-const PANE_MAIN_BOTTOM_SIZE = ref(65)
 const RESPONSE_COLLAPSED_SIZE = 5
 const RESPONSE_EXPANDED_MIN_SIZE = 25
+const PANE_MAIN_SIZE = ref(70)
+const PANE_SIDEBAR_SIZE = ref(30)
+
+// Default top/bottom split depends on layout direction
+const PANE_MAIN_TOP_SIZE = ref(COLUMN_LAYOUT.value ? 35 : 50)
+const PANE_MAIN_BOTTOM_SIZE = ref(COLUMN_LAYOUT.value ? 65 : 50)
+
+/** Last known expanded size – used to restore after a collapse toggle */
 const lastExpandedBottomSize = ref(PANE_MAIN_BOTTOM_SIZE.value)
 
-if (!COLUMN_LAYOUT.value) {
-  PANE_MAIN_TOP_SIZE.value = 50
-  PANE_MAIN_BOTTOM_SIZE.value = 50
-}
+const isResponseCollapsed = computed(
+  () => PANE_MAIN_BOTTOM_SIZE.value <= RESPONSE_COLLAPSED_SIZE + 0.1
+)
 
 async function getPaneData(
   type: "vertical" | "horizontal"
 ): Promise<PaneEvent[] | null> {
+  if (!props.layoutId) return null
   const storageKey = `${props.layoutId}-pane-config-${type}`
-  const paneEvent = await persistenceService.getLocalConfig(storageKey)
-  if (!paneEvent) return null
-  return JSON.parse(paneEvent)
+  const raw = await persistenceService.getLocalConfig(storageKey)
+  if (!raw) return null
+  return JSON.parse(raw)
 }
 
 async function setPaneEvent(
@@ -203,51 +210,57 @@ async function setPaneEvent(
   await persistenceService.setLocalConfig(storageKey, JSON.stringify(event))
 }
 
-function syncHorizontalPaneSizesFromEvent(
-  event: PaneEvent[],
-  options?: { clampExpanded?: boolean }
-) {
-  const clampExpanded = options?.clampExpanded ?? false
-  if (event.length < 2) return
-  const [mainTopPane, mainBottomPane] = event
-  if (mainBottomPane?.size === undefined || mainBottomPane?.size === null) {
-    return
-  }
-
-  const bottom = mainBottomPane.size
-  if (bottom > RESPONSE_COLLAPSED_SIZE + 0.1) {
-    if (clampExpanded) {
-      const clampedBottom = getExpandedBottomSize(bottom)
-      PANE_MAIN_BOTTOM_SIZE.value = clampedBottom
-      PANE_MAIN_TOP_SIZE.value = Math.max(100 - clampedBottom, 0)
-    } else {
-      if (mainTopPane?.size !== null) {
-        PANE_MAIN_TOP_SIZE.value = mainTopPane.size
-      }
-      PANE_MAIN_BOTTOM_SIZE.value = bottom
-    }
-    return
-  }
-  if (mainTopPane?.size !== null) PANE_MAIN_TOP_SIZE.value = mainTopPane.size
-  PANE_MAIN_BOTTOM_SIZE.value = bottom
-}
-
-function onHorizontalPaneResize(event: PaneEvent[]) {
-  syncHorizontalPaneSizesFromEvent(event)
-}
-
-function getExpandedBottomSize(size: number) {
+function clampBottomSize(size: number): number {
+  if (size <= RESPONSE_COLLAPSED_SIZE + 0.1) return RESPONSE_COLLAPSED_SIZE
   return Math.max(size, RESPONSE_EXPANDED_MIN_SIZE)
 }
 
-async function onHorizontalPaneResized(event: PaneEvent[]) {
-  syncHorizontalPaneSizesFromEvent(event, {
-    clampExpanded: true,
-  })
-  const mainBottomPane = event[1]
-  if (mainBottomPane && mainBottomPane.size > RESPONSE_COLLAPSED_SIZE + 0.1) {
-    lastExpandedBottomSize.value = getExpandedBottomSize(mainBottomPane.size)
+/**
+ * Apply a horizontal pane event array to the reactive size refs.
+ *
+ * @param event  - Two-element array from Splitpanes [top, bottom].
+ * @param clamp  - When true the bottom size is clamped to either the collapsed
+ *                 sentinel or RESPONSE_EXPANDED_MIN_SIZE, and the top size is
+ *                 recalculated to fill the remainder.  Pass `true` on drag-end
+ *                 and on hydration from storage; pass `false` during live drag
+ *                 so the user sees smooth feedback.
+ */
+function syncHorizontalPaneSizes(
+  event: PaneEvent[],
+  clamp: boolean = false
+): void {
+  if (event.length < 2) return
+
+  const [topPane, bottomPane] = event
+
+  if (bottomPane?.size === null || bottomPane?.size === undefined) return
+
+  const bottom = clamp ? clampBottomSize(bottomPane.size) : bottomPane.size
+
+  PANE_MAIN_BOTTOM_SIZE.value = bottom
+
+  PANE_MAIN_TOP_SIZE.value =
+    clamp || topPane?.size === null || topPane?.size === undefined
+      ? Math.max(100 - bottom, 0)
+      : topPane.size
+}
+
+function onHorizontalPaneResize(event: PaneEvent[]): void {
+  syncHorizontalPaneSizes(event, false)
+}
+
+async function onHorizontalPaneResized(event: PaneEvent[]): Promise<void> {
+  syncHorizontalPaneSizes(event, true)
+
+  if (PANE_MAIN_BOTTOM_SIZE.value > RESPONSE_COLLAPSED_SIZE + 0.1) {
+    lastExpandedBottomSize.value = PANE_MAIN_BOTTOM_SIZE.value
   }
+
+  await persistCurrentHorizontalLayout()
+}
+
+async function persistCurrentHorizontalLayout(): Promise<void> {
+  if (!props.layoutId || !hasSecondary.value) return
   await setPaneEvent(
     [
       { max: 100, min: 0, size: PANE_MAIN_TOP_SIZE.value },
@@ -257,24 +270,24 @@ async function onHorizontalPaneResized(event: PaneEvent[]) {
   )
 }
 
-async function populatePaneEvent() {
+async function populatePaneEvent(): Promise<void> {
   if (!props.layoutId) return
 
   const verticalPaneData = await getPaneData("vertical")
-  if (verticalPaneData && Array.isArray(verticalPaneData)) {
+  if (Array.isArray(verticalPaneData) && verticalPaneData.length >= 2) {
     const [mainPane, sidebarPane] = verticalPaneData
-    PANE_MAIN_SIZE.value = mainPane?.size
-    PANE_SIDEBAR_SIZE.value = sidebarPane?.size
+    if (mainPane?.size !== null && mainPane?.size !== undefined)
+      PANE_MAIN_SIZE.value = mainPane.size
+    if (sidebarPane?.size !== null && sidebarPane?.size !== undefined)
+      PANE_SIDEBAR_SIZE.value = sidebarPane.size
   }
 
   const horizontalPaneData = await getPaneData("horizontal")
-  if (horizontalPaneData && Array.isArray(horizontalPaneData)) {
-    syncHorizontalPaneSizesFromEvent(horizontalPaneData, {
-      clampExpanded: true,
-    })
-    const mainBottomPane = horizontalPaneData[1]
-    if (mainBottomPane?.size > RESPONSE_COLLAPSED_SIZE + 0.1) {
-      lastExpandedBottomSize.value = getExpandedBottomSize(mainBottomPane.size)
+  if (Array.isArray(horizontalPaneData) && horizontalPaneData.length >= 2) {
+    syncHorizontalPaneSizes(horizontalPaneData, true)
+
+    if (PANE_MAIN_BOTTOM_SIZE.value > RESPONSE_COLLAPSED_SIZE + 0.1) {
+      lastExpandedBottomSize.value = PANE_MAIN_BOTTOM_SIZE.value
     }
   }
 }
@@ -283,38 +296,23 @@ onMounted(async () => {
   await populatePaneEvent()
 })
 
-const isResponseCollapsed = computed(
-  () => PANE_MAIN_BOTTOM_SIZE.value <= RESPONSE_COLLAPSED_SIZE + 0.1
-)
+async function toggleResponsePane(): Promise<void> {
+  const primaryMinSize = props.isEmbed ? 12 : 25
+  const maxBottomSize = 100 - primaryMinSize
 
-async function persistHorizontalLayout() {
-  if (!props.layoutId || !hasSecondary.value) return
-  const storageKey = `${props.layoutId}-pane-config-horizontal`
-  const paneEvent = [
-    { max: 100, min: 0, size: PANE_MAIN_TOP_SIZE.value },
-    { max: 100, min: 0, size: PANE_MAIN_BOTTOM_SIZE.value },
-  ]
-  await persistenceService.setLocalConfig(storageKey, JSON.stringify(paneEvent))
-}
-
-async function toggleResponsePane() {
   if (isResponseCollapsed.value) {
-    const primaryMinSize = props.isEmbed ? 12 : 25
-    const maxBottomSize = 100 - primaryMinSize
     const expandedBottom = Math.min(
-      getExpandedBottomSize(lastExpandedBottomSize.value),
+      Math.max(lastExpandedBottomSize.value, RESPONSE_EXPANDED_MIN_SIZE),
       maxBottomSize
     )
     PANE_MAIN_BOTTOM_SIZE.value = expandedBottom
     PANE_MAIN_TOP_SIZE.value = 100 - expandedBottom
   } else {
-    lastExpandedBottomSize.value = getExpandedBottomSize(
-      PANE_MAIN_BOTTOM_SIZE.value
-    )
+    lastExpandedBottomSize.value = PANE_MAIN_BOTTOM_SIZE.value
     PANE_MAIN_BOTTOM_SIZE.value = RESPONSE_COLLAPSED_SIZE
     PANE_MAIN_TOP_SIZE.value = Math.max(100 - RESPONSE_COLLAPSED_SIZE, 0)
   }
 
-  await persistHorizontalLayout()
+  await persistCurrentHorizontalLayout()
 }
 </script>

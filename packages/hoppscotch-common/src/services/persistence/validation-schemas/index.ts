@@ -618,6 +618,19 @@ export const REST_TAB_STATE_SCHEMA = z
             isDirty: z.boolean(),
             inheritedProperties: z.optional(HoppInheritedPropertySchema),
           }),
+          z.object({
+            type: z.literal("gql-request").catch("gql-request"),
+            request: entityReference(HoppGQLRequest),
+            isDirty: z.boolean(),
+            cursorPosition: z.optional(z.number()),
+            saveContext: z.optional(HoppRESTSaveContextSchema),
+            response: z.optional(z.nullable(z.array(z.any()))),
+            responseTabPreference: z.optional(z.string()),
+            optionTabPreference: z.optional(
+              z.enum(["query", "headers", "variables", "authorization"])
+            ),
+            inheritedProperties: z.optional(HoppInheritedPropertySchema),
+          }),
         ]),
       })
     ),

@@ -52,6 +52,13 @@ export class RESTTabService extends TabService<HoppTabDocument> {
         }
       }
 
+      if (tab.document.type === "gql-request") {
+        return {
+          tabID: tab.id,
+          doc: { ...tab.document, response: null },
+        }
+      }
+
       return {
         tabID: tab.id,
         doc: {

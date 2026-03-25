@@ -63,7 +63,7 @@
               "
             >
               <span
-                class="pointer-events-none inline-flex h-6 w-6 shrink-0 items-center justify-center rounded opacity-0 transition group-hover:opacity-100"
+                class="pointer-events-none inline-flex h-6 w-6 shrink-0 items-center justify-center rounded opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100"
                 aria-hidden="true"
               >
                 <IconChevronsDown
@@ -93,8 +93,8 @@
             </div>
           </div>
           <div
-            :id="`${props.layoutId ?? 'default'}-response-pane-content`"
             v-show="!isResponseCollapsed"
+            :id="`${props.layoutId ?? 'default'}-response-pane-content`"
             class="flex min-h-0 min-w-0 flex-1 flex-col overflow-auto"
           >
             <slot name="secondary" />
@@ -203,12 +203,33 @@ async function setPaneEvent(
   await persistenceService.setLocalConfig(storageKey, JSON.stringify(event))
 }
 
-function syncHorizontalPaneSizesFromEvent(event: PaneEvent[]) {
+function syncHorizontalPaneSizesFromEvent(
+  event: PaneEvent[],
+  options?: { clampExpanded?: boolean }
+) {
+  const clampExpanded = options?.clampExpanded ?? false
   if (event.length < 2) return
   const [mainTopPane, mainBottomPane] = event
+  if (mainBottomPane?.size === undefined || mainBottomPane?.size === null) {
+    return
+  }
+
+  const bottom = mainBottomPane.size
+  if (bottom > RESPONSE_COLLAPSED_SIZE + 0.1) {
+    if (clampExpanded) {
+      const clampedBottom = getExpandedBottomSize(bottom)
+      PANE_MAIN_BOTTOM_SIZE.value = clampedBottom
+      PANE_MAIN_TOP_SIZE.value = Math.max(100 - clampedBottom, 0)
+    } else {
+      if (mainTopPane?.size !== null) {
+        PANE_MAIN_TOP_SIZE.value = mainTopPane.size
+      }
+      PANE_MAIN_BOTTOM_SIZE.value = bottom
+    }
+    return
+  }
   if (mainTopPane?.size !== null) PANE_MAIN_TOP_SIZE.value = mainTopPane.size
-  if (mainBottomPane?.size !== null)
-    PANE_MAIN_BOTTOM_SIZE.value = mainBottomPane.size
+  PANE_MAIN_BOTTOM_SIZE.value = bottom
 }
 
 function onHorizontalPaneResize(event: PaneEvent[]) {
@@ -220,12 +241,20 @@ function getExpandedBottomSize(size: number) {
 }
 
 async function onHorizontalPaneResized(event: PaneEvent[]) {
-  syncHorizontalPaneSizesFromEvent(event)
+  syncHorizontalPaneSizesFromEvent(event, {
+    clampExpanded: true,
+  })
   const mainBottomPane = event[1]
   if (mainBottomPane && mainBottomPane.size > RESPONSE_COLLAPSED_SIZE + 0.1) {
     lastExpandedBottomSize.value = getExpandedBottomSize(mainBottomPane.size)
   }
-  await setPaneEvent(event, "horizontal")
+  await setPaneEvent(
+    [
+      { max: 100, min: 0, size: PANE_MAIN_TOP_SIZE.value },
+      { max: 100, min: 0, size: PANE_MAIN_BOTTOM_SIZE.value },
+    ],
+    "horizontal"
+  )
 }
 
 async function populatePaneEvent() {
@@ -240,9 +269,10 @@ async function populatePaneEvent() {
 
   const horizontalPaneData = await getPaneData("horizontal")
   if (horizontalPaneData && Array.isArray(horizontalPaneData)) {
-    const [mainTopPane, mainBottomPane] = horizontalPaneData
-    PANE_MAIN_TOP_SIZE.value = mainTopPane?.size
-    PANE_MAIN_BOTTOM_SIZE.value = mainBottomPane?.size
+    syncHorizontalPaneSizesFromEvent(horizontalPaneData, {
+      clampExpanded: true,
+    })
+    const mainBottomPane = horizontalPaneData[1]
     if (mainBottomPane?.size > RESPONSE_COLLAPSED_SIZE + 0.1) {
       lastExpandedBottomSize.value = getExpandedBottomSize(mainBottomPane.size)
     }
@@ -269,9 +299,14 @@ async function persistHorizontalLayout() {
 
 async function toggleResponsePane() {
   if (isResponseCollapsed.value) {
-    const expandedBottom = getExpandedBottomSize(lastExpandedBottomSize.value)
+    const primaryMinSize = props.isEmbed ? 12 : 25
+    const maxBottomSize = 100 - primaryMinSize
+    const expandedBottom = Math.min(
+      getExpandedBottomSize(lastExpandedBottomSize.value),
+      maxBottomSize
+    )
     PANE_MAIN_BOTTOM_SIZE.value = expandedBottom
-    PANE_MAIN_TOP_SIZE.value = Math.max(100 - expandedBottom, 0)
+    PANE_MAIN_TOP_SIZE.value = 100 - expandedBottom
   } else {
     lastExpandedBottomSize.value = getExpandedBottomSize(
       PANE_MAIN_BOTTOM_SIZE.value

@@ -114,29 +114,26 @@ const buildHarPostData = (req: HoppRESTRequest): Har.PostData | undefined => {
     }
   }
 
-  // For binary file uploads (application/octet-stream), req.body.body is a
-  // File/Blob object, NOT a string. Casting it to string would produce
-  // "[object File]" which causes HTTPSnippet to throw and code generation to
-  // fail entirely.
+  // application/octet-stream bodies are File | null; emit @filename for file uploads
   if (req.body.contentType === "application/octet-stream") {
-    const body = req.body.body
+    const file = req.body.body
 
-    // Preserve string if it ever exists
-    if (typeof body === "string") {
+    if (!file) {
       return {
         mimeType: req.body.contentType,
-        text: body,
+        text: "",
       }
     }
 
-    const pathOrName =
-      typeof File !== "undefined" && body instanceof File
-        ? (body as any).path || body.name || "<binary-file>"
-        : "<binary-file>"
+    // `path` exists in some desktop runtimes; `name` is the standard File field.
+    const filename =
+      "path" in file && typeof file.path === "string" && file.path
+        ? file.path
+        : file.name || "<binary-file>"
 
     return {
       mimeType: req.body.contentType,
-      text: `@${pathOrName}`,
+      text: `@${filename}`,
     }
   }
 

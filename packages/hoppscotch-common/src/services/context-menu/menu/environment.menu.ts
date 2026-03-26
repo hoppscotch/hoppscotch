@@ -42,7 +42,9 @@ export class EnvironmentMenuService extends Service implements ContextMenu {
 
     const currentTab = this.restTabs.currentActiveTab.value
     const saveContext =
-      currentTab?.document.type === "request"
+      currentTab &&
+      (currentTab.document.type === "request" ||
+        currentTab.document.type === "example-response")
         ? currentTab.document.saveContext
         : null
 

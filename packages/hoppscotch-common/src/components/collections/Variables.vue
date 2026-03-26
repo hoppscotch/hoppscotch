@@ -296,7 +296,20 @@ const liveEnvs = computed(() => {
     transformInheritedCollectionVariablesToAggregateEnv(
       props.inheritedProperties?.variables ?? []
     )
-  return [...currentEnvs, ...aggregateEnvs.value, ...parentInheritedVariables]
+
+  const nonGlobalAggregateEnvs = aggregateEnvs.value.filter(
+    (env) => env.sourceEnv !== "GlobalEnvironment"
+  )
+  const globalAggregateEnvs = aggregateEnvs.value.filter(
+    (env) => env.sourceEnv === "GlobalEnvironment"
+  )
+
+  return [
+    ...nonGlobalAggregateEnvs,
+    ...currentEnvs,
+    ...parentInheritedVariables,
+    ...globalAggregateEnvs,
+  ]
 })
 
 const addEnvironmentVariable = () => {

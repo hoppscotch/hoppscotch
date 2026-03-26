@@ -95,6 +95,7 @@ class TauriLogManager {
     if (!invoke || this.pendingWrites.length === 0) return
 
     const batch = this.pendingWrites.join("\n") + "\n"
+    const snapshot = this.pendingWrites
     this.pendingWrites = []
 
     try {
@@ -103,6 +104,9 @@ class TauriLogManager {
         content: batch,
       })
     } catch (err) {
+      // re-queue failed entries (prepend before any new writes that
+      // accumulated during the await) so they're retried on next flush
+      this.pendingWrites = snapshot.concat(this.pendingWrites)
       console.warn("[kernel-log] Failed to flush logs to disk:", err)
     }
   }
@@ -134,15 +138,10 @@ class TauriLogManager {
     const line = `[${ts}] [${level.toUpperCase()}] [${tag}] ${message}${dataPart}`
 
     // 1. console (same as web)
-    const method =
-      level === "debug"
-        ? "debug"
-        : level === "warn"
-          ? "warn"
-          : level === "error"
-            ? "error"
-            : "log"
-    console[method](line)
+    if (level === "debug") console.debug(line)
+    else if (level === "warn") console.warn(line)
+    else if (level === "error") console.error(line)
+    else console.log(line)
 
     // 2. in-memory buffer
     buffer.push(line)
@@ -174,7 +173,7 @@ export const implementation: VersionedAPI<LogV1> = {
       }
     },
 
-    async log(logPath, level, tag, message, data) {
+    async log(logPath: string, level: string, tag: string, message: string, data?: unknown) {
       const manager = TauriLogManager.new(logPath)
       manager.log(level, tag, message, data)
     },

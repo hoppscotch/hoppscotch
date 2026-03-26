@@ -44,6 +44,7 @@ const getLogPath = (): string => LOG_FILE_NAME
 // hasn't been initialized yet (normal during module evaluation, since
 // `diag()` is called at top level in store.ts before `initKernel()`)
 const tryModule = () => {
+  if (typeof window === "undefined") return null
   const kernel = window.__KERNEL__
   return kernel?.log ?? null
 }
@@ -88,15 +89,10 @@ const logAtLevel = async (
     // kernel not ready yet (module eval time). write to console and
     // buffer directly so nothing is lost
     const line = formatLine(level, tag, ...args)
-    const method =
-      level === "debug"
-        ? "debug"
-        : level === "warn"
-          ? "warn"
-          : level === "error"
-            ? "error"
-            : "log"
-    console[method](line)
+    if (level === "debug") console.debug(line)
+    else if (level === "warn") console.warn(line)
+    else if (level === "error") console.error(line)
+    else console.log(line)
     earlyBuffer.push(line)
     if (earlyBuffer.length > 5000)
       earlyBuffer.splice(0, earlyBuffer.length - 5000)
@@ -123,6 +119,7 @@ export const Log = {
       for (const line of earlyBuffer) {
         await mod.log(logPath, "info", "early", line)
       }
+      earlyBuffer.length = 0
     }
 
     return result
@@ -139,5 +136,5 @@ export const Log = {
 // import path, not the function name
 export function diag(tag: string, ...args: unknown[]): void {
   // fire-and-forget: diag should never block the caller
-  logAtLevel("info", tag, ...args)
+  logAtLevel("info", tag, ...args).catch(() => {})
 }

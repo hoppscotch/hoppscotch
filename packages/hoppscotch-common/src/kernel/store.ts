@@ -174,15 +174,15 @@ export const Store = (() => {
       const result = await module().get<T>(storePath, namespace, key)
       if (E.isRight(result)) {
         const val = result.right
-        const preview =
+        const shape =
           val === undefined
-            ? "(undefined)"
-            : typeof val === "object"
-              ? `{keys: ${Object.keys(val as any)
-                  .slice(0, 5)
-                  .join(",")}}`
-              : String(val).slice(0, 100)
-        diag("store", `Store.get(${namespace}, ${key}) => Right:`, preview)
+            ? "undefined"
+            : val === null
+              ? "null"
+              : typeof val === "object"
+                ? `object(${Object.keys(val as Record<string, unknown>).length} keys)`
+                : typeof val
+        diag("store", `Store.get(${namespace}, ${key}) => Right(${shape})`)
       } else {
         diag("store", `Store.get(${namespace}, ${key}) => Left:`, result.left)
       }

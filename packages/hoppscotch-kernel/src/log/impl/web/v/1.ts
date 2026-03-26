@@ -60,15 +60,10 @@ class BrowserLogManager {
     const line = this.format(level, tag, message, data)
 
     // write to appropriate console method
-    const method =
-      level === "debug"
-        ? "debug"
-        : level === "warn"
-          ? "warn"
-          : level === "error"
-            ? "error"
-            : "log"
-    console[method](line)
+    if (level === "debug") console.debug(line)
+    else if (level === "warn") console.warn(line)
+    else if (level === "error") console.error(line)
+    else console.log(line)
 
     // push to in-memory buffer
     buffer.push(line)
@@ -84,18 +79,10 @@ export const implementation: VersionedAPI<LogV1> = {
 
     // web doesn't need file init, but the API is consistent
     async init(_logPath: string) {
-      try {
-        return E.right(undefined)
-      } catch (e) {
-        return E.left({
-          kind: "init",
-          message: e instanceof Error ? e.message : "Unknown error",
-          cause: e,
-        })
-      }
+      return E.right(undefined)
     },
 
-    async log(_logPath, level, tag, message, data) {
+    async log(_logPath: string, level: string, tag: string, message: string, data?: unknown) {
       const manager = BrowserLogManager.new()
       manager.log(level, tag, message, data)
     },

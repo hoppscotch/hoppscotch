@@ -47,7 +47,18 @@ export default <HoppModule>{
       routes,
     })
 
+    // preserve the ?org= query param across navigations. on desktop,
+    // org webviews use a shared app:// origin and pass the org context
+    // via query param. without this guard, vue-router would strip it
+    // on internal navigations. on web this is a no-op (no ?org= present)
+    const initialOrgParam =
+      new URLSearchParams(window.location.search).get("org")
+
     router.beforeEach(async (to, from) => {
+      if (initialOrgParam && !to.query.org) {
+        return { ...to, query: { ...to.query, org: initialOrgParam } }
+      }
+
       _isLoadingInitialRoute.value = isInitialRoute(from)
 
       const onBeforeRouteChangePromises: Promise<any>[] = []

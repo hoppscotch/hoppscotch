@@ -529,6 +529,7 @@ import IconArrowUpDown from "~icons/lucide/arrow-up-down"
 import {
   computed,
   defineComponent,
+  onBeforeUnmount,
   PropType,
   ref,
   Ref,
@@ -1190,19 +1191,25 @@ const TreeNodeRegistrar = defineComponent({
       { immediate: true }
     )
 
+    onBeforeUnmount(() => {
+      nodeTogglers.delete(props.id)
+    })
+
     return () => null
   },
 })
 
 const openNode = async (id: string) => {
+  let toggleIssued = false
+
   for (let attempt = 0; attempt < 40; attempt++) {
     const entry = nodeTogglers.get(id)
     if (entry) {
-      if (!entry.isOpen) entry.toggleChildren()
-      await nextTick()
-
-      const updatedEntry = nodeTogglers.get(id)
-      if (updatedEntry?.isOpen) return
+      if (entry.isOpen) return
+      if (!toggleIssued) {
+        entry.toggleChildren()
+        toggleIssued = true
+      }
     }
 
     // Let the adapter emit/resolve async loads and re-render.
@@ -1220,7 +1227,7 @@ const scrollToNode = async (folderPath: string, requestID: string) => {
   for (let attempt = 0; attempt < 30; attempt++) {
     const el = selectors
       .map((selector) => document.querySelector(selector))
-      .find((node) => node != null)
+      .find((node) => node !== null)
 
     if (el && "scrollIntoView" in el) {
       ;(el as HTMLElement).scrollIntoView({

@@ -658,6 +658,15 @@ const revealInCollectionsSidebar = async (): Promise<void> => {
   if (ctx.originLocation === "team-collection") {
     if (!ctx.collectionID) return
 
+    // Ensure team context is valid before switching collections pane state.
+    if (!collectionsType.value.selectedTeam) {
+      if (workspace.value.type === "team") {
+        updateSelectedTeam(workspace.value)
+      } else {
+        return
+      }
+    }
+
     collectionsType.value.type = "team-collections"
 
     sidebarPicked.value = {

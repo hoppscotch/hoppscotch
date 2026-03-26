@@ -479,6 +479,7 @@ import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import {
   computed,
   defineComponent,
+  onBeforeUnmount,
   PropType,
   ref,
   Ref,
@@ -1084,22 +1085,30 @@ const TreeNodeRegistrar = defineComponent({
       { immediate: true }
     )
 
+    onBeforeUnmount(() => {
+      nodeTogglers.delete(props.id)
+    })
+
     return () => null
   },
 })
 
 const openNode = async (id: string) => {
+  let toggleIssued = false
+
   for (let attempt = 0; attempt < 20; attempt++) {
     const entry = nodeTogglers.get(id)
     if (entry) {
-      if (!entry.isOpen) entry.toggleChildren()
-      await nextTick()
-
-      const updatedEntry = nodeTogglers.get(id)
-      if (updatedEntry?.isOpen) return
+      if (entry.isOpen) return
+      if (!toggleIssued) {
+        entry.toggleChildren()
+        toggleIssued = true
+      }
     } else {
       await nextTick()
     }
+
+    await nextTick()
   }
 }
 

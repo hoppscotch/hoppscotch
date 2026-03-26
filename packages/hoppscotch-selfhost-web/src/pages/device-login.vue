@@ -96,6 +96,16 @@ const DeviceTokenResponse = z.object({
   refresh_token: z.string(),
 })
 
+function isLoopbackUri(uri: string): boolean {
+  try {
+    const url = new URL(uri)
+    const loopbackHosts = ["localhost", "127.0.0.1", "[::1]"]
+    return url.protocol === "http:" && loopbackHosts.includes(url.hostname)
+  } catch {
+    return false
+  }
+}
+
 async function proceedLogin() {
   loginConfirmState.value = "loading"
 
@@ -105,6 +115,10 @@ async function proceedLogin() {
 
     if (!redirect_uri) {
       throw new Error("Redirect URI not found")
+    }
+
+    if (!isLoopbackUri(redirect_uri)) {
+      throw new Error("Invalid redirect URI: must be a loopback address")
     }
 
     const res = await axios.get(
@@ -121,8 +135,6 @@ async function proceedLogin() {
     }
 
     const tokens = parseResult.data
-
-    console.info("tokens", tokens)
 
     await axios.get(
       `${redirect_uri}?access_token=${tokens.access_token}&refresh_token=${tokens.refresh_token}`

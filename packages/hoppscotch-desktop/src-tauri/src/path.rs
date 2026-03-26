@@ -112,6 +112,20 @@ pub fn get_appload_registry() -> Result<String, String> {
     std::fs::read_to_string(&registry_path).map_err(|err| err.to_string())
 }
 
+// reads the contents of a log file inside `logs_dir()`. same scope
+// bypass as `append_log` in logger.rs
+#[tauri::command]
+pub fn read_log(filename: String) -> Result<String, String> {
+    let dir = logs_dir().map_err(|e| e.to_string())?;
+    let path = dir.join(&filename);
+
+    if path.parent() != Some(&dir) {
+        return Err("invalid log filename".to_string());
+    }
+
+    std::fs::read_to_string(&path).map_err(|e| e.to_string())
+}
+
 pub fn log_file_path() -> PathBuf {
     platform_logs_dir().join(format!("{}.log", APP_ID))
 }

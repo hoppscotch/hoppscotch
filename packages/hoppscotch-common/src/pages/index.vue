@@ -133,7 +133,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, computed } from "vue"
+import { ref, onMounted, computed, watch } from "vue"
 import { generateUniqueRefId, safelyExtractRESTRequest } from "@hoppscotch/data"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import { useRoute } from "vue-router"
@@ -195,6 +195,19 @@ const contextMenu = ref<PopupDetails>({
 })
 
 const activeTabs = tabs.getActiveTabs()
+
+watch(
+  () => currentTabID.value,
+  () => {
+    const doc = tabs.currentActiveTab.value.document
+    if (doc.type !== "request") return
+    if (!doc.saveContext) return
+
+    // Auto-reveal only for saved-in-collection requests
+    invokeAction("rest.sidebar.show_collections", {})
+    invokeAction("collections.reveal_in_collection", {})
+  }
+)
 
 function bindRequestToURLParams() {
   const route = useRoute()

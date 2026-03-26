@@ -63,15 +63,26 @@
     <div class="flex flex-col overflow-hidden">
       <HoppSmartTree :adapter="teamAdapter">
         <template
-          #content="{ node, toggleChildren, isOpen, highlightChildren }"
+          #content="{
+            node,
+            toggleChildren: nodeToggleChildren,
+            isOpen: nodeIsOpen,
+            highlightChildren,
+          }"
         >
+          <TreeNodeRegistrar
+            v-if="node && node.id"
+            :id="node.id"
+            :toggle-children="nodeToggleChildren"
+            :is-open="nodeIsOpen"
+          />
           <CollectionsCollection
             v-if="node.data.type === 'collections'"
             :id="node.data.data.data.id"
             :parent-i-d="node.data.data.parentIndex"
             :data="node.data.data.data"
             :collections-type="collectionsType.type"
-            :is-open="isOpen"
+            :is-open="nodeIsOpen"
             :team-loading-collections="teamLoadingCollections"
             :export-loading="exportLoading"
             :has-no-team-access="hasNoTeamAccess || isShowingSearchResults"
@@ -164,7 +175,7 @@
                     pickedType: 'teams-collection',
                     collectionID: node.id,
                   }),
-                  toggleChildren())
+                  nodeToggleChildren())
               }
             "
             @run-collection="
@@ -177,7 +188,7 @@
               () => {
                 handleCollectionClick({
                   collectionID: node.id,
-                  isOpen,
+                  isOpen: nodeIsOpen,
                 })
               }
             "
@@ -188,7 +199,7 @@
             :parent-i-d="node.data.data.parentIndex"
             :data="node.data.data.data"
             :collections-type="collectionsType.type"
-            :is-open="isOpen"
+            :is-open="nodeIsOpen"
             :export-loading="exportLoading"
             :team-loading-collections="teamLoadingCollections"
             :has-no-team-access="hasNoTeamAccess || isShowingSearchResults"
@@ -277,7 +288,7 @@
             "
             @toggle-children="
               () => {
-                ;(toggleChildren(),
+                ;(nodeToggleChildren(),
                   saveRequest &&
                     emit('select', {
                       pickedType: 'teams-folder',
@@ -297,7 +308,7 @@
                   handleCollectionClick({
                     // for the folders, we get a path, so we need to get the last part of the path which is the folder id
                     collectionID: node.id.split('/').pop() as string,
-                    isOpen,
+                    isOpen: nodeIsOpen,
                   })
               }
             "
@@ -515,7 +526,16 @@ import IconHelpCircle from "~icons/lucide/help-circle"
 import IconImport from "~icons/lucide/folder-down"
 import IconArrowUpDown from "~icons/lucide/arrow-up-down"
 
-import { computed, PropType, ref, Ref, toRef } from "vue"
+import {
+  computed,
+  defineComponent,
+  PropType,
+  ref,
+  Ref,
+  toRef,
+  nextTick,
+  watch,
+} from "vue"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
@@ -1130,4 +1150,107 @@ class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
 
 const teamAdapter: SmartTreeAdapter<TeamCollectionNode> =
   new TeamCollectionsAdapter(teamCollectionsList)
+
+type NodeToggleState = {
+  toggleChildren: () => void
+  isOpen: boolean
+}
+
+const nodeTogglers = new Map<string, NodeToggleState>()
+
+const registerNodeToggler = (id: string, state: NodeToggleState) => {
+  nodeTogglers.set(id, state)
+}
+
+const TreeNodeRegistrar = defineComponent({
+  name: "TreeNodeRegistrar",
+  props: {
+    id: {
+      type: String,
+      required: true,
+    },
+    toggleChildren: {
+      type: Function as PropType<() => void>,
+      required: true,
+    },
+    isOpen: {
+      type: Boolean,
+      required: true,
+    },
+  },
+  setup(props) {
+    watch(
+      () => props.isOpen,
+      (isOpen) => {
+        registerNodeToggler(props.id, {
+          toggleChildren: props.toggleChildren,
+          isOpen,
+        })
+      },
+      { immediate: true }
+    )
+
+    return () => null
+  },
+})
+
+const openNode = async (id: string) => {
+  for (let attempt = 0; attempt < 40; attempt++) {
+    const entry = nodeTogglers.get(id)
+    if (entry) {
+      if (!entry.isOpen) entry.toggleChildren()
+      await nextTick()
+
+      const updatedEntry = nodeTogglers.get(id)
+      if (updatedEntry?.isOpen) return
+    }
+
+    // Let the adapter emit/resolve async loads and re-render.
+    await nextTick()
+  }
+}
+
+const scrollToNode = async (folderPath: string, requestID: string) => {
+  // Request nodes in team tree use `requestID`, while reveal has `folderPath/requestID`.
+  const selectors = [
+    `[data-collections-node-id="team:${CSS.escape(`${folderPath}/${requestID}`)}"]`,
+    `[data-collections-node-id="team:${CSS.escape(requestID)}"]`,
+  ]
+
+  for (let attempt = 0; attempt < 30; attempt++) {
+    const el = selectors
+      .map((selector) => document.querySelector(selector))
+      .find((node) => node != null)
+
+    if (el && "scrollIntoView" in el) {
+      ;(el as HTMLElement).scrollIntoView({
+        block: "center",
+        behavior: "smooth",
+      })
+      return
+    }
+    await nextTick()
+  }
+}
+
+const reveal = async (target: {
+  originLocation: "team-collection"
+  folderPath: string
+  requestID: string
+}) => {
+  const folderPath = target.folderPath
+  const parts = folderPath.split("/").filter((p) => p.length > 0)
+
+  // Expand each ancestor path, e.g. a/b/c
+  for (let i = 0; i < parts.length; i++) {
+    await openNode(parts.slice(0, i + 1).join("/"))
+  }
+
+  await nextTick()
+  await scrollToNode(folderPath, target.requestID)
+}
+
+defineExpose({
+  reveal,
+})
 </script>

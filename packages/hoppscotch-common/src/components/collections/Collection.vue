@@ -12,7 +12,11 @@
       @dragleave="ordering = false"
       @dragend="resetDragState"
     ></div>
-    <div class="relative flex flex-col">
+    <div
+      class="relative flex flex-col"
+      :data-collections-node-id="dataNodeId"
+      data-collections-node-type="collection"
+    >
       <div
         class="z-[1] pointer-events-none absolute inset-0 bg-accent opacity-0 transition"
         :class="{
@@ -485,6 +489,11 @@ const collectionRefID = computed(() => {
   return props.collectionsType === "my-collections"
     ? (props.data as HoppCollection)._ref_id
     : props.id
+})
+
+const dataNodeId = computed(() => {
+  const prefix = props.collectionsType === "team-collections" ? "team:" : "my:"
+  return `${prefix}${props.id}`
 })
 
 const currentSortOrder = ref<"asc" | "desc">(

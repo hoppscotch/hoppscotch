@@ -79,6 +79,7 @@ import { useI18n } from "@composables/i18n"
 import MockServerDashboard from "~/components/mockServer/MockServerDashboard.vue"
 import { useMockServerWorkspaceSync } from "~/composables/mockServerWorkspace"
 import { useMockServerVisibility } from "~/composables/mockServerVisibility"
+import { defineActionHandler } from "~/helpers/actions"
 
 const t = useI18n()
 
@@ -96,4 +97,8 @@ const selectedNavigationTab = ref<RequestOptionTabs>("collections")
 
 // Ensure mock servers are kept in sync with workspace changes globally
 useMockServerWorkspaceSync()
+
+defineActionHandler("rest.sidebar.show_collections", () => {
+  selectedNavigationTab.value = "collections"
+})
 </script>

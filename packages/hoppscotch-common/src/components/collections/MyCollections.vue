@@ -42,15 +42,26 @@
     <div class="flex flex-1 flex-col">
       <HoppSmartTree :adapter="myAdapter">
         <template
-          #content="{ node, toggleChildren, isOpen, highlightChildren }"
+          #content="{
+            node,
+            toggleChildren: nodeToggleChildren,
+            isOpen: nodeIsOpen,
+            highlightChildren,
+          }"
         >
+          <TreeNodeRegistrar
+            v-if="node && node.id"
+            :id="node.id"
+            :toggle-children="nodeToggleChildren"
+            :is-open="nodeIsOpen"
+          />
           <CollectionsCollection
             v-if="node.data.type === 'collections'"
             :id="node.id"
             :parent-i-d="node.data.data.parentIndex"
             :data="node.data.data.data"
             :collections-type="collectionsType.type"
-            :is-open="isOpen"
+            :is-open="nodeIsOpen"
             :is-last-item="node.data.isLastItem"
             :is-selected="
               isSelected({
@@ -140,7 +151,7 @@
             "
             @toggle-children="
               () => {
-                ;(toggleChildren(),
+                ;(nodeToggleChildren(),
                   saveRequest &&
                     emit('select', {
                       pickedType: 'my-collection',
@@ -155,7 +166,7 @@
             :parent-i-d="node.data.data.parentIndex"
             :data="node.data.data.data"
             :collections-type="collectionsType.type"
-            :is-open="isOpen"
+            :is-open="nodeIsOpen"
             :is-last-item="node.data.isLastItem"
             :is-selected="
               isSelected({
@@ -242,7 +253,7 @@
             "
             @toggle-children="
               () => {
-                ;(toggleChildren(),
+                ;(nodeToggleChildren(),
                   saveRequest &&
                     emit('select', {
                       pickedType: 'my-folder',
@@ -262,7 +273,12 @@
             :is-active="
               isActiveRequest(
                 node.data.data.parentIndex,
-                node.data.data.data._ref_id ?? node.data.data.data.id
+                getStableRequestRefID({
+                  request: node.data.data.data,
+                  folderPath: node.data.data.parentIndex,
+                  requestIndex: pathToIndex(node.id),
+                }),
+                parseInt(pathToIndex(node.id))
               )
             "
             :is-selected="
@@ -460,7 +476,16 @@ import IconHelpCircle from "~icons/lucide/help-circle"
 import IconImport from "~icons/lucide/folder-down"
 import IconArrowUpDown from "~icons/lucide/arrow-up-down"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
-import { computed, PropType, ref, Ref, toRef } from "vue"
+import {
+  computed,
+  defineComponent,
+  PropType,
+  ref,
+  Ref,
+  toRef,
+  nextTick,
+  watch,
+} from "vue"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { ChildrenResult, SmartTreeAdapter } from "@hoppscotch/ui/helpers"
 import { useI18n } from "@composables/i18n"
@@ -771,7 +796,11 @@ const active = computed(
     tabs.currentActiveTab.value.document.saveContext
 )
 
-const isActiveRequest = (folderPath: string, requestRefID: string) => {
+const isActiveRequest = (
+  folderPath: string,
+  requestRefID: string,
+  requestIndex: number
+) => {
   if (active.value === null || !active.value) return false
 
   return pipe(
@@ -781,10 +810,25 @@ const isActiveRequest = (folderPath: string, requestRefID: string) => {
       (active) =>
         active.originLocation === "user-collection" &&
         active.folderPath === folderPath &&
-        active.requestRefID === requestRefID &&
+        (active.requestRefID && requestRefID
+          ? active.requestRefID === requestRefID
+          : active.requestIndex === requestIndex) &&
         active.exampleID === undefined
     ),
     O.isSome
+  )
+}
+
+const getStableRequestRefID = (args: {
+  folderPath: string
+  requestIndex: string
+  request: HoppRESTRequest
+}) => {
+  return (
+    args.request._ref_id ??
+    args.request.id ??
+    // Always non-empty and unique within personal collections tree
+    `${args.folderPath}/${args.requestIndex}`
   )
 }
 
@@ -802,13 +846,19 @@ const selectRequest = (data: {
       requestIndex: parseInt(requestIndex),
     })
   } else {
+    const stableRequestRefID = getStableRequestRefID({
+      request,
+      folderPath,
+      requestIndex,
+    })
     emit("select-request", {
       request,
       folderPath,
       requestIndex,
       isActive: isActiveRequest(
         folderPath,
-        request._ref_id ?? request.id ?? ""
+        stableRequestRefID,
+        parseInt(requestIndex)
       ),
     })
   }
@@ -993,4 +1043,104 @@ class MyCollectionsAdapter implements SmartTreeAdapter<MyCollectionNode> {
 const myAdapter: SmartTreeAdapter<MyCollectionNode> = new MyCollectionsAdapter(
   refFilterCollection
 )
+
+type NodeToggleState = {
+  toggleChildren: () => void
+  isOpen: boolean
+}
+
+const nodeTogglers = new Map<string, NodeToggleState>()
+
+const registerNodeToggler = (id: string, state: NodeToggleState) => {
+  nodeTogglers.set(id, state)
+}
+
+const TreeNodeRegistrar = defineComponent({
+  name: "TreeNodeRegistrar",
+  props: {
+    id: {
+      type: String,
+      required: true,
+    },
+    toggleChildren: {
+      type: Function as PropType<() => void>,
+      required: true,
+    },
+    isOpen: {
+      type: Boolean,
+      required: true,
+    },
+  },
+  setup(props) {
+    // Keep map updated as isOpen changes across renders.
+    watch(
+      () => props.isOpen,
+      (isOpen) => {
+        registerNodeToggler(props.id, {
+          toggleChildren: props.toggleChildren,
+          isOpen,
+        })
+      },
+      { immediate: true }
+    )
+
+    return () => null
+  },
+})
+
+const openNode = async (id: string) => {
+  for (let attempt = 0; attempt < 20; attempt++) {
+    const entry = nodeTogglers.get(id)
+    if (entry) {
+      if (!entry.isOpen) entry.toggleChildren()
+      await nextTick()
+
+      const updatedEntry = nodeTogglers.get(id)
+      if (updatedEntry?.isOpen) return
+    } else {
+      await nextTick()
+    }
+  }
+}
+
+const scrollToNode = async (id: string) => {
+  // Retry because nodes can mount after async expansion/render.
+  for (let attempt = 0; attempt < 20; attempt++) {
+    const el = document.querySelector(
+      `[data-collections-node-id="my:${CSS.escape(id)}"]`
+    )
+    if (el && "scrollIntoView" in el) {
+      ;(el as HTMLElement).scrollIntoView({
+        block: "center",
+        behavior: "smooth",
+      })
+      return
+    }
+    await nextTick()
+  }
+}
+
+const reveal = async (target: {
+  originLocation: "user-collection"
+  folderPath: string
+  requestIndex: number
+}) => {
+  const folderPath = target.folderPath
+  const ancestors: string[] = []
+  const parts = folderPath.split("/").filter((p) => p.length > 0)
+  for (let i = 0; i < parts.length; i++) {
+    ancestors.push(parts.slice(0, i + 1).join("/"))
+  }
+
+  for (const id of ancestors) {
+    await openNode(id)
+  }
+
+  await nextTick()
+  await scrollToNode(`${folderPath}/${target.requestIndex}`)
+}
+
+defineExpose({
+  reveal,
+})
 </script>

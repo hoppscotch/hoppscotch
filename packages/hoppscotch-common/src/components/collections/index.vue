@@ -28,11 +28,12 @@
     </div>
     <CollectionsMyCollections
       v-if="collectionsType.type === 'my-collections'"
+      ref="myCollectionsRef"
       :collections-type="collectionsType"
       :filtered-collections="filteredCollections"
       :filter-text="filterTexts"
       :save-request="saveRequest"
-      :picked="picked"
+      :picked="resolvedPicked"
       @run-collection="
         runCollectionHandler({
           type: 'my-collections',
@@ -76,6 +77,7 @@
 
     <CollectionsTeamCollections
       v-else
+      ref="teamCollectionsRef"
       :collections-type="collectionsType"
       :team-collection-list="
         filterTexts.length > 0 ? teamsSearchResults : teamCollections
@@ -90,7 +92,7 @@
       :duplicate-request-loading="duplicateRequestLoading"
       :duplicate-collection-loading="duplicateCollectionLoading"
       :save-request="saveRequest"
-      :picked="picked"
+      :picked="resolvedPicked"
       :collection-move-loading="collectionMoveLoading"
       :request-move-loading="requestMoveLoading"
       @add-request="addRequest"
@@ -435,6 +437,32 @@ const collectionsType = ref<CollectionType>({
   selectedTeam: undefined,
 })
 
+type RevealTarget =
+  | {
+      originLocation: "user-collection"
+      folderPath: string
+      requestIndex: number
+    }
+  | {
+      originLocation: "team-collection"
+      folderPath: string
+      requestID: string
+    }
+
+const sidebarPicked = ref<Picked | null>(null)
+
+const resolvedPicked = computed(() => {
+  return props.saveRequest ? props.picked : sidebarPicked.value
+})
+
+const myCollectionsRef = ref<{
+  reveal: (target: RevealTarget) => Promise<void>
+} | null>(null)
+
+const teamCollectionsRef = ref<{
+  reveal: (target: RevealTarget) => Promise<void>
+} | null>(null)
+
 // Collection Data
 const editingCollection = ref<HoppCollection | TeamCollection | null>(null)
 const editingCollectionIsTeam = ref<boolean>(false)
@@ -594,6 +622,56 @@ onMounted(async () => {
 const switchToMyCollections = () => {
   collectionsType.value.type = "my-collections"
   collectionsType.value.selectedTeam = undefined
+}
+
+const revealInCollectionsSidebar = async (): Promise<void> => {
+  const doc = tabs.currentActiveTab.value.document
+  if (doc.type !== "request") return
+
+  const ctx = doc.saveContext
+  if (!ctx) return
+
+  // Ensure reveal works from a stable, unfiltered tree state.
+  filterTexts.value = ""
+
+  if (ctx.originLocation === "user-collection") {
+    if (!("folderPath" in ctx) || ctx.folderPath === null) return
+    if (ctx.requestIndex === null) return
+
+    switchToMyCollections()
+
+    sidebarPicked.value = {
+      pickedType: "my-request",
+      folderPath: ctx.folderPath,
+      requestIndex: ctx.requestIndex,
+    }
+
+    await nextTick()
+    await myCollectionsRef.value?.reveal({
+      originLocation: "user-collection",
+      folderPath: ctx.folderPath,
+      requestIndex: ctx.requestIndex,
+    })
+    return
+  }
+
+  if (ctx.originLocation === "team-collection") {
+    if (!ctx.collectionID) return
+
+    collectionsType.value.type = "team-collections"
+
+    sidebarPicked.value = {
+      pickedType: "teams-request",
+      requestID: ctx.requestID,
+    }
+
+    await nextTick()
+    await teamCollectionsRef.value?.reveal({
+      originLocation: "team-collection",
+      folderPath: ctx.collectionID,
+      requestID: ctx.requestID,
+    })
+  }
 }
 
 /**
@@ -2442,11 +2520,14 @@ const selectRequest = (selectedRequest: {
       })
     }
   } else {
+    const stableRequestRefID =
+      request._ref_id ?? request.id ?? `${folderPath}/${requestIndex}`
+
     possibleTab = tabs.getTabRefWithSaveContext({
       originLocation: "user-collection",
       requestIndex: parseInt(requestIndex),
       folderPath: folderPath!,
-      requestRefID: request._ref_id ?? request.id,
+      requestRefID: stableRequestRefID,
     })
 
     if (possibleTab) {
@@ -2461,7 +2542,7 @@ const selectRequest = (selectedRequest: {
           originLocation: "user-collection",
           folderPath: folderPath!,
           requestIndex: parseInt(requestIndex),
-          requestRefID: request._ref_id ?? request.id,
+          requestRefID: stableRequestRefID,
         },
         inheritedProperties: cascadeParentCollectionForProperties(
           folderPath,
@@ -3655,5 +3736,9 @@ defineActionHandler("collection.new", () => {
 })
 defineActionHandler("modals.collection.import", () => {
   displayModalImportExport(true)
+})
+
+defineActionHandler("collections.reveal_in_collection", () => {
+  void revealInCollectionsSidebar()
 })
 </script>

@@ -1,5 +1,9 @@
 <template>
-  <div class="flex flex-col">
+  <div
+    class="flex flex-col"
+    :data-collections-node-id="dataNodeId"
+    data-collections-node-type="request"
+  >
     <div
       class="h-1 w-full transition"
       :class="[
@@ -38,13 +42,7 @@
           class="pointer-events-none flex w-8 items-center justify-start truncate px-0.5"
           :style="{ color: getMethodLabelColorClassOf(request.method) }"
         >
-          <component
-            :is="IconCheckCircle"
-            v-if="isSelected"
-            class="svg-icons"
-            :class="{ 'text-accent': isSelected }"
-          />
-          <HoppSmartSpinner v-else-if="isRequestLoading" />
+          <HoppSmartSpinner v-if="isRequestLoading" />
           <span v-else class="truncate text-tiny font-semibold">
             {{ request.method }}
           </span>
@@ -234,7 +232,6 @@
 </template>
 
 <script setup lang="ts">
-import IconCheckCircle from "~icons/lucide/check-circle"
 import IconMoreVertical from "~icons/lucide/more-vertical"
 import IconEdit from "~icons/lucide/edit"
 import IconCopy from "~icons/lucide/copy"
@@ -319,6 +316,11 @@ const props = defineProps({
     default: false,
     required: false,
   },
+})
+
+const dataNodeId = computed(() => {
+  const prefix = props.collectionsType === "team-collections" ? "team:" : "my:"
+  return `${prefix}${props.requestID}`
 })
 
 type ResponsePayload = {

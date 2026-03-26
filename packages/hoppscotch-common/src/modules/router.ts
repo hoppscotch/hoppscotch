@@ -64,7 +64,12 @@ export default <HoppModule>{
       // /orgs/login-required and then calling window.location.reload()
       // would lose the org context.
       if (initialOrgParam && !to.query.org) {
-        return { ...to, query: { ...to.query, org: initialOrgParam } }
+        return {
+          path: to.path,
+          hash: to.hash,
+          params: to.params,
+          query: { ...to.query, org: initialOrgParam },
+        }
       }
 
       _isLoadingInitialRoute.value = isInitialRoute(from)

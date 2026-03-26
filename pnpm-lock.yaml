@@ -1067,8 +1067,8 @@ importers:
         specifier: workspace:^
         version: link:../hoppscotch-kernel
       '@hoppscotch/plugin-appload':
-        specifier: github:CuriousCorrelation/tauri-plugin-appload#168ff9533258a56de184fb69ad32f8a7f61bae0d
-        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/168ff9533258a56de184fb69ad32f8a7f61bae0d'
+        specifier: github:CuriousCorrelation/tauri-plugin-appload#0d58d53be2bc75aeb5916bd0d77794fd209426af
+        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/0d58d53be2bc75aeb5916bd0d77794fd209426af'
       '@hoppscotch/ui':
         specifier: 0.2.5
         version: 0.2.5(eslint@9.39.2(jiti@2.6.1))(terser@5.44.1)(typescript@5.9.3)(vite@7.3.1(@types/node@25.5.0)(jiti@2.6.1)(sass@1.98.0)(terser@5.44.1)(yaml@2.8.2))(vue@3.5.30(typescript@5.9.3))
@@ -1406,8 +1406,8 @@ importers:
         specifier: workspace:^
         version: link:../hoppscotch-kernel
       '@hoppscotch/plugin-appload':
-        specifier: github:CuriousCorrelation/tauri-plugin-appload#168ff9533258a56de184fb69ad32f8a7f61bae0d
-        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/168ff9533258a56de184fb69ad32f8a7f61bae0d'
+        specifier: github:CuriousCorrelation/tauri-plugin-appload#0d58d53be2bc75aeb5916bd0d77794fd209426af
+        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/0d58d53be2bc75aeb5916bd0d77794fd209426af'
       '@hoppscotch/ui':
         specifier: 0.2.5
         version: 0.2.5(eslint@9.39.2(jiti@2.6.1))(terser@5.44.1)(typescript@5.9.3)(vite@7.3.1(@types/node@25.5.0)(jiti@2.6.1)(sass@1.98.0)(terser@5.44.1)(yaml@2.8.2))(vue@3.5.30(typescript@5.9.3))
@@ -1780,6 +1780,10 @@ packages:
     peerDependenciesMeta:
       graphql:
         optional: true
+
+  '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/0d58d53be2bc75aeb5916bd0d77794fd209426af':
+    resolution: {tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/0d58d53be2bc75aeb5916bd0d77794fd209426af}
+    version: 0.1.0
 
   '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/168ff9533258a56de184fb69ad32f8a7f61bae0d':
     resolution: {tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/168ff9533258a56de184fb69ad32f8a7f61bae0d}
@@ -13033,6 +13037,10 @@ snapshots:
   '@0no-co/graphql.web@1.2.0(graphql@16.13.1)':
     optionalDependencies:
       graphql: 16.13.1
+
+  '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/0d58d53be2bc75aeb5916bd0d77794fd209426af':
+    dependencies:
+      '@tauri-apps/api': 2.9.1
 
   '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/168ff9533258a56de184fb69ad32f8a7f61bae0d':
     dependencies:

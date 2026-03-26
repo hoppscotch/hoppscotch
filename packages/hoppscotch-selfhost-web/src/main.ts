@@ -342,7 +342,8 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           e.altKey &&
-          e.code === "Digit9"
+          (e.code === "Digit9" ||
+            (e.code === "Numpad9" && e.getModifierState("NumLock")))
         ) {
           // Ctrl/Cmd + Alt + 9 - First Tab
           e.preventDefault()
@@ -353,7 +354,8 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           e.altKey &&
-          e.code === "Digit0"
+          (e.code === "Digit0" ||
+            (e.code === "Numpad0" && e.getModifierState("NumLock")))
         ) {
           // Ctrl/Cmd + Alt + 0 - Last Tab
           e.preventDefault()

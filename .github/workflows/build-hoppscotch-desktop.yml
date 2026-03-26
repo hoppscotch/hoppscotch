@@ -65,10 +65,10 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4
         with:
           version: 10.18.3
-      - uses: actions-rs/toolchain@v1
+      - uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # v1
         with:
           toolchain: nightly
           override: true
@@ -107,8 +107,8 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - name: Setup environment
         run: |
-          if [ ! -z "${{ secrets.ENV_FILE_CONTENT }}" ]; then
-            echo "${{ secrets.ENV_FILE_CONTENT }}" > ${{ env.WORKSPACE_PATH }}/.env
+          if [ ! -z "${ENV_FILE_CONTENT}" ]; then
+            echo "${ENV_FILE_CONTENT}" > ${{ env.WORKSPACE_PATH }}/.env
             echo "Created .env file from repository secret"
           elif [ -f "${{ env.WORKSPACE_PATH }}/.env" ]; then
             echo "Using existing .env file found in repository"
@@ -117,6 +117,8 @@ jobs:
             echo "No .env found, copied from .env.example template"
           fi
           pnpm install --dir ${{ env.DESKTOP_PATH }}
+        env:
+          ENV_FILE_CONTENT: ${{ secrets.ENV_FILE_CONTENT }}
       - name: Build web app
         run: |
           pnpm install --dir ${{ env.WEB_PATH }}
@@ -171,10 +173,10 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4
         with:
           version: 10.18.3
-      - uses: actions-rs/toolchain@v1
+      - uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # v1
         with:
           toolchain: nightly
           override: true
@@ -204,8 +206,8 @@ jobs:
       - name: Setup environment
         shell: pwsh
         run: |
-          if ("${{ secrets.ENV_FILE_CONTENT }}" -ne "") {
-            "${{ secrets.ENV_FILE_CONTENT }}" | Out-File -FilePath ${{ env.WORKSPACE_PATH }}\.env -Encoding utf8
+          if ("${ENV_FILE_CONTENT}" -ne "") {
+            "${ENV_FILE_CONTENT}" | Out-File -FilePath ${{ env.WORKSPACE_PATH }}\.env -Encoding utf8
             Write-Host "Created .env file from repository secret"
           } elseif (Test-Path -Path "${{ env.WORKSPACE_PATH }}\.env") {
             Write-Host "Using existing .env file found in repository"
@@ -216,6 +218,8 @@ jobs:
           pnpm install -f --shamefully-hoist --ignore-scripts
           pnpm --filter hoppscotch-backend exec prisma generate
           pnpm install -f --shamefully-hoist --dir ${{ env.DESKTOP_PATH }}
+        env:
+          ENV_FILE_CONTENT: ${{ secrets.ENV_FILE_CONTENT }}
       - name: Build web app
         shell: pwsh
         run: |
@@ -274,10 +278,10 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4
         with:
           version: 10.18.3
-      - uses: actions-rs/toolchain@v1
+      - uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # v1
         with:
           toolchain: nightly
           override: true
@@ -291,7 +295,7 @@ jobs:
           unzip cargo-tauri-x86_64-apple-darwin.zip
           chmod +x cargo-tauri
           sudo mv cargo-tauri /usr/local/bin/tauri
-      - uses: apple-actions/import-codesign-certs@v3
+      - uses: apple-actions/import-codesign-certs@63fff01cd422d4b7b855d40ca1e9d34d2de9427d # v3
         if: ${{ inputs.disable_signing != true }}
         with:
           p12-file-base64: ${{ secrets.HOPPSCOTCH_APPLE_CERTIFICATE }}
@@ -306,8 +310,8 @@ jobs:
           key: ${{ runner.os }}-cargo-x86_64-${{ hashFiles('**/Cargo.lock') }}
       - name: Setup environment
         run: |
-          if [ ! -z "${{ secrets.ENV_FILE_CONTENT }}" ]; then
-            echo "${{ secrets.ENV_FILE_CONTENT }}" > ${{ env.WORKSPACE_PATH }}/.env
+          if [ ! -z "${ENV_FILE_CONTENT}" ]; then
+            echo "${ENV_FILE_CONTENT}" > ${{ env.WORKSPACE_PATH }}/.env
             echo "Created .env file from repository secret"
           elif [ -f "${{ env.WORKSPACE_PATH }}/.env" ]; then
             echo "Using existing .env file found in repository"
@@ -316,6 +320,8 @@ jobs:
             echo "No .env found, copied from .env.example template"
           fi
           pnpm install --dir ${{ env.DESKTOP_PATH }}
+        env:
+          ENV_FILE_CONTENT: ${{ secrets.ENV_FILE_CONTENT }}
       - name: Build web app
         run: |
           pnpm install --dir ${{ env.WEB_PATH }}
@@ -371,10 +377,10 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4
         with:
           version: 10.18.3
-      - uses: actions-rs/toolchain@v1
+      - uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # v1
         with:
           toolchain: nightly
           override: true
@@ -388,7 +394,7 @@ jobs:
           unzip cargo-tauri-aarch64-apple-darwin.zip
           chmod +x cargo-tauri
           sudo mv cargo-tauri /usr/local/bin/tauri
-      - uses: apple-actions/import-codesign-certs@v3
+      - uses: apple-actions/import-codesign-certs@63fff01cd422d4b7b855d40ca1e9d34d2de9427d # v3
         if: ${{ inputs.disable_signing != true }}
         with:
           p12-file-base64: ${{ secrets.HOPPSCOTCH_APPLE_CERTIFICATE }}
@@ -403,8 +409,8 @@ jobs:
           key: ${{ runner.os }}-cargo-aarch64-${{ hashFiles('**/Cargo.lock') }}
       - name: Setup environment
         run: |
-          if [ ! -z "${{ secrets.ENV_FILE_CONTENT }}" ]; then
-            echo "${{ secrets.ENV_FILE_CONTENT }}" > ${{ env.WORKSPACE_PATH }}/.env
+          if [ ! -z "${ENV_FILE_CONTENT}" ]; then
+            echo "${ENV_FILE_CONTENT}" > ${{ env.WORKSPACE_PATH }}/.env
             echo "Created .env file from repository secret"
           elif [ -f "${{ env.WORKSPACE_PATH }}/.env" ]; then
             echo "Using existing .env file found in repository"
@@ -413,6 +419,8 @@ jobs:
             echo "No .env found, copied from .env.example template"
           fi
           pnpm install --dir ${{ env.DESKTOP_PATH }}
+        env:
+          ENV_FILE_CONTENT: ${{ secrets.ENV_FILE_CONTENT }}
       - name: Build web app
         run: |
           pnpm install --dir ${{ env.WEB_PATH }}

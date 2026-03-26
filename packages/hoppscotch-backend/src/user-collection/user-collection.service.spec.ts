@@ -2314,3 +2314,69 @@ describe('updateUserCollection', () => {
     );
   });
 });
+
+describe('exportUserCollectionToJSONObject', () => {
+  test('should use DB row id and title over conflicting values in stored request payload', async () => {
+    const dbRowId = 'db-row-cuid-001';
+    const dbRowTitle = 'My Request';
+    const payloadId = 'stale-payload-id-from-original';
+    const payloadName = 'stale-payload-name-from-original';
+
+    mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce({
+      ...rootRESTUserCollection,
+    });
+    mockPrisma.userCollection.findMany.mockResolvedValueOnce([]);
+    mockPrisma.userRequest.findMany.mockResolvedValueOnce([
+      {
+        id: dbRowId,
+        title: dbRowTitle,
+        collectionID: rootRESTUserCollection.id,
+        userUid: user.uid,
+        type: ReqType.REST,
+        orderIndex: 1,
+        createdOn: currentTime,
+        updatedOn: currentTime,
+        mockExamples: null,
+        request: {
+          id: payloadId,
+          name: payloadName,
+          v: '12',
+          endpoint: 'https://example.com',
+          method: 'GET',
+          params: [],
+          headers: [],
+          preRequestScript: '',
+          testScript: '',
+          auth: { authType: 'none', authActive: false },
+          body: { contentType: null, body: null },
+          requestVariables: [],
+          responses: {},
+        },
+      },
+    ]);
+
+    const result = await userCollectionService.exportUserCollectionToJSONObject(
+      user.uid,
+      rootRESTUserCollection.id,
+    );
+
+    expect(result).toEqualRight(
+      expect.objectContaining({
+        requests: [expect.objectContaining({ id: dbRowId, name: dbRowTitle })],
+      }),
+    );
+  });
+
+  test('should throw USER_COLL_NOT_FOUND when collectionID is invalid', async () => {
+    mockPrisma.userCollection.findUniqueOrThrow.mockRejectedValueOnce(
+      new Error('NotFoundError'),
+    );
+
+    const result = await userCollectionService.exportUserCollectionToJSONObject(
+      user.uid,
+      'non-existent-id',
+    );
+
+    expect(result).toEqualLeft(USER_COLL_NOT_FOUND);
+  });
+});

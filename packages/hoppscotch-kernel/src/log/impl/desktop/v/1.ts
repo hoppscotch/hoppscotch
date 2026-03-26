@@ -1,7 +1,7 @@
 import * as E from "fp-ts/Either"
 
 import type { VersionedAPI } from "@type/versioning"
-import type { LogV1 } from "@log/v/1"
+import type { LogV1, LogLevel } from "@log/v/1"
 
 // in-memory buffer backing the "buffer" capability (same as web impl).
 // see impl/web/v/1.ts for the full rationale. on desktop the buffer
@@ -86,6 +86,11 @@ class TauriLogManager {
       })
 
       this.initialized = true
+
+      // flush any writes that accumulated before init completed
+      if (this.pendingWrites.length > 0) {
+        this.scheduleFlush()
+      }
     } catch (err) {
       console.warn("[kernel-log] Failed to initialize file logger:", err)
     }
@@ -108,6 +113,7 @@ class TauriLogManager {
       // accumulated during the await) so they're retried on next flush
       this.pendingWrites = snapshot.concat(this.pendingWrites)
       console.warn("[kernel-log] Failed to flush logs to disk:", err)
+      this.scheduleFlush()
     }
   }
 
@@ -173,7 +179,7 @@ export const implementation: VersionedAPI<LogV1> = {
       }
     },
 
-    async log(logPath: string, level: string, tag: string, message: string, data?: unknown) {
+    async log(logPath: string, level: LogLevel, tag: string, message: string, data?: unknown) {
       const manager = TauriLogManager.new(logPath)
       manager.log(level, tag, message, data)
     },

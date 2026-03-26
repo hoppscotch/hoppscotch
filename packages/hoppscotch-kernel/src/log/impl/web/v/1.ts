@@ -1,7 +1,7 @@
 import * as E from "fp-ts/Either"
 
 import type { VersionedAPI } from "@type/versioning"
-import type { LogV1 } from "@log/v/1"
+import type { LogV1, LogLevel } from "@log/v/1"
 
 // in-memory buffer backing the "buffer" capability (see LogCapability).
 // console.log is fire-and-forget with no retrieval path (no console.getAll()),
@@ -82,7 +82,7 @@ export const implementation: VersionedAPI<LogV1> = {
       return E.right(undefined)
     },
 
-    async log(_logPath: string, level: string, tag: string, message: string, data?: unknown) {
+    async log(_logPath: string, level: LogLevel, tag: string, message: string, data?: unknown) {
       const manager = BrowserLogManager.new()
       manager.log(level, tag, message, data)
     },

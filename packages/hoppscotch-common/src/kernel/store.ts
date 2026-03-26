@@ -30,12 +30,7 @@ const STORE_PATH = orgParam
   : `${window.location.host}.hoppscotch.store`
 
 diag("store", "--- COMMON store.ts module evaluated ---")
-diag(
-  "store",
-  "query ?org:",
-  new URLSearchParams(window.location.search).get("org") ?? "(none)"
-)
-diag("store", "orgParam:", orgParam ?? "(null)")
+diag("store", "orgParam:", orgParam ?? "(none)")
 diag("store", "STORE_PATH:", STORE_PATH)
 diag("store", "window.location.host:", window.location.host)
 diag("store", "window.location.href:", window.location.href)
@@ -149,8 +144,8 @@ export const Store = (() => {
     init: async () => {
       const storePath = await getStorePath()
       diag("store", "Store.init() called with path:", storePath)
-      const result = module().init(storePath)
-      diag("store", "Store.init() returned for path:", storePath)
+      const result = await module().init(storePath)
+      diag("store", "Store.init() completed for path:", storePath)
       return result
     },
 

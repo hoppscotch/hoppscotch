@@ -179,7 +179,13 @@ export const implementation: VersionedAPI<LogV1> = {
       }
     },
 
-    async log(logPath: string, level: LogLevel, tag: string, message: string, data?: unknown) {
+    async log(
+      logPath: string,
+      level: LogLevel,
+      tag: string,
+      message: string,
+      data?: unknown
+    ) {
       const manager = TauriLogManager.new(logPath)
       manager.log(level, tag, message, data)
     },

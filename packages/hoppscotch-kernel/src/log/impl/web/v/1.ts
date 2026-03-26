@@ -82,7 +82,13 @@ export const implementation: VersionedAPI<LogV1> = {
       return E.right(undefined)
     },
 
-    async log(_logPath: string, level: LogLevel, tag: string, message: string, data?: unknown) {
+    async log(
+      _logPath: string,
+      level: LogLevel,
+      tag: string,
+      message: string,
+      data?: unknown
+    ) {
       const manager = BrowserLogManager.new()
       manager.log(level, tag, message, data)
     },

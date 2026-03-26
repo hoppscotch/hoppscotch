@@ -17,6 +17,29 @@ use crate::{
     ui, RemoveOptions, RemoveResponse, Result,
 };
 
+/// Writes a line to appload.diag.log for debugging window lifecycle events.
+/// This runs at the Rust level so it captures events even when JS logging
+/// fails (e.g. webview destroyed before JS can write). Best-effort: silently
+/// ignores any IO errors.
+///
+/// The log directory comes from `Config::log_dir`, set by the host app during
+/// plugin initialization. If no log_dir was configured, this is a no-op.
+fn diag_log(msg: &str) {
+    let Some(dir) = crate::DIAG_LOG_DIR.get() else {
+        return;
+    };
+    let _ = std::fs::create_dir_all(dir);
+    let path = dir.join("appload.diag.log");
+    let _ = std::fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(&path)
+        .and_then(|mut f| {
+            use std::io::Write;
+            writeln!(f, "[{}] [RUST] {}", chrono::Utc::now().to_rfc3339(), msg)
+        });
+}
+
 /// Maximum length for window labels/hosts
 const MAX_HOST_LENGTH: usize = 255;
 
@@ -88,53 +111,92 @@ pub async fn load<R: Runtime>(app: AppHandle<R>, options: LoadOptions) -> Result
     let current_label = format!("{}-curr", base_label);
     let alternate_label = format!("{}-next", base_label);
 
-    let label = if app.get_webview_window(&current_label).is_some() {
-        alternate_label
+    let has_curr = app.get_webview_window(&current_label).is_some();
+    let has_next = app.get_webview_window(&alternate_label).is_some();
+    let label = if has_curr {
+        alternate_label.clone()
     } else {
-        current_label
+        current_label.clone()
     };
 
-    // Determine the webview host:
-    // - If `host` is provided, use it (for cloud-for-orgs support)
-    // - Otherwise, use the bundle name
-    let window_host = options
-        .host
-        .clone()
-        .unwrap_or_else(|| options.bundle_name.clone());
-    let sanitized_host = sanitize_window_label(&window_host)?;
+    // All webviews use the bundle name as the URL host so they share the same
+    // origin (app://{bundle_name}/). This is critical because Tauri v2's IPC
+    // validates the webview origin at runtime and rejects origins it doesn't
+    // recognize. Using different hosts per org (e.g. app://test_org_hoppscotch_io)
+    // would break all IPC communication in the org webview.
+    //
+    // For cloud-for-orgs, the org host is passed as a query parameter instead.
+    // The JS side reads window.location.search to get the org context, and the
+    // kernel store uses the query param to maintain per-org file isolation.
+    let sanitized_bundle = sanitize_window_label(&options.bundle_name)?;
+
+    let url = match &options.host {
+        Some(host) => {
+            // pass the original host value as-is in the query param so the JS
+            // side can extract the org domain without reversing sanitization.
+            // URL query values don't need the same restrictions as hostnames
+            format!(
+                "app://{}/?org={}",
+                sanitized_bundle.to_lowercase(),
+                host.to_lowercase()
+            )
+        }
+        None => format!("app://{}/", sanitized_bundle.to_lowercase()),
+    };
+
+    // list all existing webview windows so the diag log shows the full picture
+    let existing_windows: Vec<String> = app
+        .webview_windows()
+        .keys()
+        .cloned()
+        .collect();
+
+    diag_log(&format!(
+        "LOAD called: bundle={}, host={:?}, title={}, url={}, label={}, has_curr={}, has_next={}, existing_windows={:?}",
+        options.bundle_name,
+        options.host,
+        options.window.title,
+        url,
+        label,
+        has_curr,
+        has_next,
+        existing_windows
+    ));
 
     tracing::info!(
         ?options,
         bundle = %options.bundle_name,
-        host = %sanitized_host,
+        %url,
         window_label = %label,
         "Loading bundle"
     );
-
-    let url = format!("app://{}/", sanitized_host.to_lowercase());
     tracing::debug!(%url, "Generated app URL");
 
     let host_mapper = app.state::<Arc<HostMapper>>();
     host_mapper.register(
-        &sanitized_host.to_lowercase(),
+        &sanitized_bundle.to_lowercase(),
         &options.bundle_name.to_lowercase(),
     );
     tracing::debug!(
-        host = %sanitized_host.to_lowercase(),
+        host = %sanitized_bundle.to_lowercase(),
         bundle = %options.bundle_name.to_lowercase(),
         "Registered host mapping"
     );
 
     let sanitized_title = sanitize_window_label(&options.window.title)?;
 
-    let window =
-        match WebviewWindowBuilder::new(&app, &label, WebviewUrl::App(url.parse().unwrap()))
+    // Build the webview with the kernel init script. Org context is carried
+    // via the ?org= query param in the URL (set above) and preserved across
+    // Vue Router navigations by a beforeEach guard in modules/router.ts.
+    let builder =
+        WebviewWindowBuilder::new(&app, &label, WebviewUrl::App(url.parse().unwrap()))
             .initialization_script(crate::KERNEL_JS)
             .title(sanitized_title)
             .inner_size(options.window.width, options.window.height)
             .resizable(options.window.resizable)
-            .disable_drag_drop_handler()
-            .build()
+            .disable_drag_drop_handler();
+
+    let window = match builder.build()
         {
             Ok(window) => window,
             Err(e) => {
@@ -143,7 +205,7 @@ pub async fn load<R: Runtime>(app: AppHandle<R>, options: LoadOptions) -> Result
                     ?label,
                     "Failed to create window, cleaning up host mapping"
                 );
-                host_mapper.unregister(&sanitized_host.to_lowercase());
+                host_mapper.unregister(&sanitized_bundle.to_lowercase());
                 return Err(e.into());
             }
         };
@@ -164,10 +226,16 @@ pub async fn load<R: Runtime>(app: AppHandle<R>, options: LoadOptions) -> Result
         })?;
     }
 
+    let is_visible = window.is_visible().unwrap_or(false);
     let response = LoadResponse {
-        success: window.is_visible().unwrap_or(false),
-        window_label: label,
+        success: is_visible,
+        window_label: label.clone(),
     };
+
+    diag_log(&format!(
+        "LOAD complete: label={}, visible={}, success={}",
+        label, is_visible, response.success
+    ));
 
     tracing::info!(?response, "Bundle loaded successfully");
     Ok(response)
@@ -177,15 +245,47 @@ pub async fn load<R: Runtime>(app: AppHandle<R>, options: LoadOptions) -> Result
 pub async fn close<R: Runtime>(app: AppHandle<R>, options: CloseOptions) -> Result<CloseResponse> {
     tracing::info!(?options, "Starting window close process");
 
+    let existing_windows: Vec<String> = app
+        .webview_windows()
+        .keys()
+        .cloned()
+        .collect();
+
+    diag_log(&format!(
+        "CLOSE called: window_label={}, existing_windows={:?}",
+        options.window_label,
+        existing_windows
+    ));
+
     let Some(window) = app.get_webview_window(&options.window_label) else {
+        diag_log(&format!(
+            "CLOSE: window {} not found or already closed",
+            options.window_label
+        ));
         tracing::info!(window_label = %options.window_label, "Window not found or already closed");
         return Ok(CloseResponse { success: true });
     };
 
     window.close().map_err(|e| {
+        diag_log(&format!(
+            "CLOSE: failed to close window {}: {:?}",
+            options.window_label, e
+        ));
         tracing::error!(?e, window_label = %options.window_label, "Failed to close window");
         e
     })?;
+
+    let remaining_windows: Vec<String> = app
+        .webview_windows()
+        .keys()
+        .cloned()
+        .collect();
+
+    diag_log(&format!(
+        "CLOSE complete: closed={}, remaining_windows={:?}",
+        options.window_label,
+        remaining_windows
+    ));
 
     let response = CloseResponse { success: true };
 

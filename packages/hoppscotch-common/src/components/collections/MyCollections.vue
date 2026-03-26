@@ -1104,8 +1104,6 @@ const openNode = async (id: string) => {
         entry.toggleChildren()
         toggleIssued = true
       }
-    } else {
-      await nextTick()
     }
 
     await nextTick()

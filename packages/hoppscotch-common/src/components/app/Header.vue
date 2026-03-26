@@ -41,7 +41,7 @@
               >
                 <component
                   :is="
-                    platform.organization.customOrganizationSwitcherComponent
+                    platform.organization?.customOrganizationSwitcherComponent
                   "
                   v-if="
                     platform.organization?.customOrganizationSwitcherComponent
@@ -401,6 +401,7 @@ const t = useI18n()
 const toast = useToast()
 const kernelMode = getKernelMode()
 
+const headerRef = ref<HTMLElement | null>(null)
 const downloadableLinksRef =
   kernelMode === "web" ? ref<any | null>(null) : ref(null)
 const switcherRef = ref<HTMLElement | null>(null)

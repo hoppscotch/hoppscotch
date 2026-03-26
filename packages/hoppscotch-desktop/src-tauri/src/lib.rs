@@ -260,6 +260,8 @@ pub fn run() {
             path::get_store_dir,
             path::get_backup_dir,
             path::get_logs_dir,
+            logger::append_log,
+            path::get_appload_registry,
         ])
         .run(tauri::generate_context!());
 

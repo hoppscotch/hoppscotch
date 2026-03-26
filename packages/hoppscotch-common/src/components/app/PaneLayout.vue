@@ -259,6 +259,15 @@ async function persistResponseCollapseMode(
 
 // ─── Pane-size persistence ───
 
+/**
+ * Returns the legacy per-type key used before the consolidated store was
+ * introduced (e.g. "rest-primary-pane-config-horizontal"). Used only as a
+ * one-time migration fallback in populatePaneEvent.
+ */
+function legacyPaneConfigKey(type: "vertical" | "horizontal"): string | null {
+  return props.layoutId ? `${props.layoutId}-pane-config-${type}` : null
+}
+
 async function getPaneData(
   type: "vertical" | "horizontal"
 ): Promise<PaneEvent[] | null> {
@@ -266,6 +275,25 @@ async function getPaneData(
   if (!key) return null
   const store = await readJsonConfig<Partial<PaneConfigStore>>(key)
   return store?.[type]?.[contextId()] ?? null
+}
+
+/**
+ * Reads pane data from the legacy per-type key format. Returns the parsed
+ * PaneEvent array if found, or null if the key never existed.
+ */
+async function getLegacyPaneData(
+  type: "vertical" | "horizontal"
+): Promise<PaneEvent[] | null> {
+  const key = legacyPaneConfigKey(type)
+  if (!key) return null
+  const raw = await persistenceService.getLocalConfig(key)
+  if (!raw) return null
+  try {
+    const parsed: unknown = JSON.parse(raw)
+    return Array.isArray(parsed) ? (parsed as PaneEvent[]) : null
+  } catch {
+    return null
+  }
 }
 
 async function setPaneEvent(
@@ -353,14 +381,28 @@ async function onHorizontalPaneResized(event: PaneEvent[]): Promise<void> {
 async function populatePaneEvent(): Promise<void> {
   if (!props.layoutId) return
 
-  const verticalData = await getPaneData("vertical")
+  // For each axis, try the new consolidated key first. If absent, fall back to
+  // the legacy per-type key and immediately write the value into the new store
+  // so the migration only runs once.
+  async function resolveData(
+    type: "vertical" | "horizontal"
+  ): Promise<PaneEvent[] | null> {
+    const fresh = await getPaneData(type)
+    if (fresh) return fresh
+
+    const legacy = await getLegacyPaneData(type)
+    if (legacy) await setPaneEvent(legacy, type)
+    return legacy
+  }
+
+  const verticalData = await resolveData("vertical")
   if (Array.isArray(verticalData) && verticalData.length >= 2) {
     const [main, sidebar] = verticalData
     if (main?.size != null) PANE_MAIN_SIZE.value = main.size
     if (sidebar?.size != null) PANE_SIDEBAR_SIZE.value = sidebar.size
   }
 
-  const horizontalData = await getPaneData("horizontal")
+  const horizontalData = await resolveData("horizontal")
   if (!Array.isArray(horizontalData) || horizontalData.length < 2) return
 
   syncHorizontalPaneSizes(horizontalData, true)
@@ -383,6 +425,7 @@ async function populatePaneEvent(): Promise<void> {
 onMounted(populatePaneEvent)
 
 // ─── Toggle ───
+
 async function toggleResponsePane(): Promise<void> {
   if (isResponseCollapsed.value) {
     const expanded =

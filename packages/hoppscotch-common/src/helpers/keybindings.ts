@@ -325,6 +325,12 @@ function getPressedKey(ev: KeyboardEvent): Key | null {
     return code[3].toLowerCase() as Key
   }
 
+  // ev.code can be empty in synthetic events or older environments. Fall back
+  // to ev.key for ASCII letters so shortcuts don't silently stop working.
+  // This reintroduces layout-dependence for that edge case, but that's better
+  // than dropping the shortcut entirely.
+  if (!code && key.length === 1 && key >= "a" && key <= "z") return key as Key
+
   // Arrow keys (ArrowUp → up, etc)
   if (key.startsWith("arrow")) {
     return key.slice(5) as Key
@@ -333,6 +339,9 @@ function getPressedKey(ev: KeyboardEvent): Key | null {
   if (key === "tab") return "tab"
   if (key === "delete") return "delete"
   if (key === "backspace") return "backspace"
+
+  // Shift+/ produces "?" on most layouts but the shortcut is registered as "/"
+  if (key === "?") return "/"
 
   // Punctuation and special keys checked before digit codes because some
   // layouts produce these characters from physical digit keys (e.g. AZERTY

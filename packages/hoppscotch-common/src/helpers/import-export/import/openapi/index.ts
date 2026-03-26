@@ -120,16 +120,18 @@ type OpenAPIOperationType =
   | OpenAPIV3.OperationObject
   | OpenAPIV31.OperationObject
 
-// Resolves request name from OpenAPI operation: operationId > summary > title > fallback
-// NOTE: Unlike the previous `??`-based implementation, empty and whitespace-only strings
-// are now skipped (e.g. operationId = " " will fall through to the next candidate).
+// Resolve request name: operationId > summary > title > "Untitled Request"
 const getOpenAPIOperationName = (info: OpenAPIOperationType): string => {
   const title =
     objectHasProperty(info, "title") && typeof info.title === "string"
       ? info.title
       : undefined
 
-  const candidates: Array<string | undefined> = [info.operationId, info.summary, title]
+  const candidates: Array<string | undefined> = [
+    info.operationId,
+    info.summary,
+    title,
+  ]
 
   for (const candidate of candidates) {
     if (typeof candidate === "string") {

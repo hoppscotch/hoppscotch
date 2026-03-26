@@ -277,12 +277,7 @@ async function initApp() {
         const isCtrlOrCmd = e.ctrlKey || e.metaKey
         let shortcutEvent: string | null = null
 
-        if (
-          isCtrlOrCmd &&
-          !e.shiftKey &&
-          !e.altKey &&
-          e.code === "KeyQ"
-        ) {
+        if (isCtrlOrCmd && !e.shiftKey && !e.altKey && e.code === "KeyQ") {
           // Ctrl/Cmd + Q - Quit Application
           e.preventDefault()
           e.stopPropagation()

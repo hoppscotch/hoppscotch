@@ -177,6 +177,24 @@ const replaceWithVariable = ref(false)
 const editingName = ref(props.name)
 const editingValue = ref(props.value)
 
+const maybeReplaceActiveRESTEndpointWithVariable = () => {
+  if (!replaceWithVariable.value) return
+
+  const activeTab = tabs.currentActiveTab.value
+  if (!activeTab) return
+
+  // Modal can be opened even when the active tab is `example-response` or `test-runner`.
+  // Guard against those documents to avoid runtime errors.
+  if (activeTab.document.type !== "request") return
+
+  const variableName = `<<${editingName.value}>>`
+  activeTab.document.request.endpoint =
+    activeTab.document.request.endpoint.replace(
+      editingValue.value,
+      variableName
+    )
+}
+
 const addEnvironment = async () => {
   if (!editingName.value) {
     toast.error(`${t("environment.invalid_name")}`)
@@ -212,14 +230,7 @@ const addEnvironment = async () => {
 
       toast.success(`${t("environment.updated")}`)
 
-      if (replaceWithVariable.value && tabs.currentActiveTab.value) {
-        const variableName = `<<${editingName.value}>>`
-        tabs.currentActiveTab.value.document.request.endpoint =
-          tabs.currentActiveTab.value.document.request.endpoint.replace(
-            editingValue.value,
-            variableName
-          )
-      }
+      maybeReplaceActiveRESTEndpointWithVariable()
 
       hideModal()
     } else {
@@ -274,14 +285,7 @@ const addEnvironment = async () => {
             updateInheritedPropertiesForAffectedRequests(collectionID, "rest")
             toast.success(`${t("environment.updated")}`)
 
-            if (replaceWithVariable.value && tabs.currentActiveTab.value) {
-              const variableName = `<<${editingName.value}>>`
-              tabs.currentActiveTab.value.document.request.endpoint =
-                tabs.currentActiveTab.value.document.request.endpoint.replace(
-                  editingValue.value,
-                  variableName
-                )
-            }
+            maybeReplaceActiveRESTEndpointWithVariable()
 
             hideModal()
           }
@@ -313,14 +317,7 @@ const addEnvironment = async () => {
     })
     toast.success(`${t("environment.updated")}`)
 
-    if (replaceWithVariable.value && tabs.currentActiveTab.value) {
-      const variableName = `<<${editingName.value}>>`
-      tabs.currentActiveTab.value.document.request.endpoint =
-        tabs.currentActiveTab.value.document.request.endpoint.replace(
-          editingValue.value,
-          variableName
-        )
-    }
+    maybeReplaceActiveRESTEndpointWithVariable()
 
     hideModal()
   } else if (scope.value.type === "my-environment") {
@@ -351,14 +348,7 @@ const addEnvironment = async () => {
     )
     toast.success(`${t("environment.updated")}`)
 
-    if (replaceWithVariable.value && tabs.currentActiveTab.value) {
-      const variableName = `<<${editingName.value}>>`
-      tabs.currentActiveTab.value.document.request.endpoint =
-        tabs.currentActiveTab.value.document.request.endpoint.replace(
-          editingValue.value,
-          variableName
-        )
-    }
+    maybeReplaceActiveRESTEndpointWithVariable()
 
     hideModal()
   } else {
@@ -397,14 +387,7 @@ const addEnvironment = async () => {
             )
           }
 
-          if (replaceWithVariable.value && tabs.currentActiveTab.value) {
-            const variableName = `<<${editingName.value}>>`
-            tabs.currentActiveTab.value.document.request.endpoint =
-              tabs.currentActiveTab.value.document.request.endpoint.replace(
-                editingValue.value,
-                variableName
-              )
-          }
+          maybeReplaceActiveRESTEndpointWithVariable()
 
           hideModal()
           toast.success(`${t("environment.updated")}`)

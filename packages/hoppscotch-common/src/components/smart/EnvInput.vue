@@ -102,6 +102,7 @@ import { RESTTabService } from "~/services/tab/rest"
 import { syntaxTree } from "@codemirror/language"
 import { uniqueID } from "~/helpers/utils/uniqueID"
 import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
+import { temporaryVariables } from "~/helpers/runner/temp_envs"
 
 const t = useI18n()
 
@@ -437,15 +438,26 @@ const envVars = computed(() => {
       secret: false,
     }))
 
-  // Priority: request → selected env → collection → global (matches combineEnvVariables)
-  const nonGlobalEnvs = aggregateEnvs.value.filter(
+  const tempVariables = temporaryVariables.value
+    .filter((v) => Boolean(v.key))
+    .map((v) => ({
+      key: v.key,
+      currentValue: v.secret ? "" : (v.currentValue ?? ""),
+      initialValue: v.secret ? "" : (v.initialValue ?? ""),
+      sourceEnv: "Temporary",
+      secret: v.secret ?? false,
+    }))
+
+  // Priority: request → temporary → collection → selected env → global
+  const selectedEnvs = aggregateEnvs.value.filter(
     (e) => e.sourceEnv !== "Global"
   )
   const globalEnvs = aggregateEnvs.value.filter((e) => e.sourceEnv === "Global")
   return [
     ...requestVariables,
-    ...nonGlobalEnvs,
+    ...tempVariables,
     ...collectionVariables,
+    ...selectedEnvs,
     ...globalEnvs,
   ]
 })

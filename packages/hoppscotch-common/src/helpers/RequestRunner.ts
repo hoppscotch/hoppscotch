@@ -181,8 +181,8 @@ export const getTestableBody = (
  * The priority is as follows:
  * 1. Request variables
  * 2. Temporary variables (if any)
- * 3. Selected environment variables
- * 4. Collection variables
+ * 3. Collection variables
+ * 4. Selected environment variables
  * 5. Global environment variables
  * @param variables The environment variables to combine
  * @returns The combined environment variables
@@ -198,8 +198,8 @@ export const combineEnvVariables = (variables: {
 }) => [
   ...variables.requestVariables,
   ...(variables.environments.temp ?? []),
-  ...variables.environments.selected,
   ...variables.collectionVariables,
+  ...variables.environments.selected,
   ...variables.environments.global,
 ]
 

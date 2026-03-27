@@ -1,7 +1,9 @@
 // Only true loopback addresses are safe for native app redirects
 const LOOPBACK_HOSTS = ['localhost', '127.0.0.1', '[::1]'];
 
-export function isValidLocalhostRedirectUri(uri: string | undefined | null): boolean {
+export function isValidLocalhostRedirectUri(
+  uri: string | undefined | null,
+): boolean {
   if (!uri) return false;
 
   let url: URL;

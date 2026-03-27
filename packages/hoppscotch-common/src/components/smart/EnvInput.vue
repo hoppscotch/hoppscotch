@@ -442,8 +442,8 @@ const envVars = computed(() => {
     .filter((v) => Boolean(v.key))
     .map((v) => ({
       key: v.key,
-      currentValue: v.secret ? "" : (v.currentValue ?? ""),
-      initialValue: v.secret ? "" : (v.initialValue ?? ""),
+      currentValue: v.secret ? "******" : (v.currentValue ?? ""),
+      initialValue: v.secret ? "******" : (v.initialValue ?? ""),
       sourceEnv: "Temporary",
       secret: v.secret ?? false,
     }))

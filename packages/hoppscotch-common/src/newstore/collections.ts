@@ -332,29 +332,39 @@ const restCollectionDispatchers = defineDispatchers({
       value: string
     }
   ) {
-    let targetCollection: HoppCollection | null = null
-    for (const collection of state) {
-      const found = findCollection(collection, collectionRefID)
-      if (found) {
-        targetCollection = found
-        break
-      }
+    const variable = {
+      key,
+      initialValue: value,
+      currentValue: value,
+      secret: false,
     }
 
-    if (!targetCollection) return {}
+    const patchCollection = (collection: HoppCollection): HoppCollection => {
+      if (collection._ref_id === collectionRefID) {
+        return {
+          ...collection,
+          variables: [...(collection.variables ?? []), variable],
+        }
+      }
 
-    const targetVariables = targetCollection.variables ?? []
-    targetCollection.variables = [
-      ...targetVariables,
-      {
-        key,
-        initialValue: value,
-        currentValue: value,
-        secret: false,
-      },
-    ]
+      let didChange = false
+      const patchedFolders = collection.folders.map((folder) => {
+        const patchedFolder = patchCollection(folder)
+        if (patchedFolder !== folder) didChange = true
+        return patchedFolder
+      })
 
-    return { state: [...state] }
+      return didChange ? { ...collection, folders: patchedFolders } : collection
+    }
+
+    let didUpdate = false
+    const newState = state.map((collection) => {
+      const patched = patchCollection(collection)
+      if (patched !== collection) didUpdate = true
+      return patched
+    })
+
+    return didUpdate ? { state: newState } : {}
   },
 
   sortRESTCollection(

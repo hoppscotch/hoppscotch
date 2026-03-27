@@ -406,8 +406,8 @@ const getTemporaryVariables = (): AggregateEnvironment[] =>
     .filter((v) => Boolean(v.key))
     .map((v) => ({
       key: v.key,
-      currentValue: v.secret ? "" : (v.currentValue ?? ""),
-      initialValue: v.secret ? "" : (v.initialValue ?? ""),
+      currentValue: v.secret ? "******" : (v.currentValue ?? ""),
+      initialValue: v.secret ? "******" : (v.initialValue ?? ""),
       secret: v.secret ?? false,
       sourceEnv: "Temporary",
     }))
@@ -517,6 +517,7 @@ export class HoppEnvironmentPlugin {
       () => temporaryVariables.value,
       () => {
         const currentTab = restTabs.currentActiveTab.value
+        if (!currentTab) return
 
         const request =
           currentTab.document.type === "example-response"

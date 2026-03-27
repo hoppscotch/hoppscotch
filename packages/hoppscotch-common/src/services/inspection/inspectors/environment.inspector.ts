@@ -107,8 +107,8 @@ export class EnvironmentInspectorService extends Service implements Inspector {
       .filter((v) => Boolean(v.key))
       .map((v) => ({
         key: v.key,
-        currentValue: v.secret ? "" : (v.currentValue ?? ""),
-        initialValue: v.secret ? "" : (v.initialValue ?? ""),
+        currentValue: v.secret ? "******" : (v.currentValue ?? ""),
+        initialValue: v.secret ? "******" : (v.initialValue ?? ""),
         sourceEnv: "Temporary",
         secret: v.secret ?? false,
       }))
@@ -262,8 +262,8 @@ export class EnvironmentInspectorService extends Service implements Inspector {
           .filter((v) => Boolean(v.key))
           .map((v) => ({
             key: v.key,
-            currentValue: v.secret ? "" : (v.currentValue ?? ""),
-            initialValue: v.secret ? "" : (v.initialValue ?? ""),
+            currentValue: v.secret ? "******" : (v.currentValue ?? ""),
+            initialValue: v.secret ? "******" : (v.initialValue ?? ""),
             sourceEnv: "Temporary",
             secret: v.secret ?? false,
           }))
@@ -366,7 +366,9 @@ export class EnvironmentInspectorService extends Service implements Inspector {
                     })
                   }
                 },
-                showAction: env.sourceEnv !== "CollectionVariable", // skip collection vars for now
+                showAction:
+                  env.sourceEnv !== "CollectionVariable" &&
+                  env.sourceEnv !== "Temporary", // skip collection + temporary vars for now
               },
               severity: 2,
               isApplicable: true,

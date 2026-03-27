@@ -1922,7 +1922,7 @@ export function removeGraphqlRequest(
       graphqlCollectionStore.value.state,
       path.split("/").map((index) => parseInt(index))
     )?.requests[requestIndex]
-    requestID = request?.id || (request as any)?._ref_id
+    requestID = request?.id || `${path}/${requestIndex}`
   }
   graphqlCollectionStore.dispatch({
     dispatcher: "removeRequest",

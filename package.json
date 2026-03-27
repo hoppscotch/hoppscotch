@@ -40,6 +40,7 @@
       "apiconnect-wsdl": "2.0.36",
       "body-parser": "2.2.1",
       "cross-spawn": "7.0.6",
+      "effect@3.18.4": "3.20.0",
       "execa@<2.0.0": "2.0.0",
       "flatted@>=3.0.0 <3.4.2": "3.4.2",
       "form-data": "4.0.4",
@@ -57,7 +58,7 @@
       "serialize-javascript@>=7.0.0 <7.0.3": "7.0.3",
       "subscriptions-transport-ws>ws": "7.5.10",
       "svgo@4.0.0": "4.0.1",
-      "vue": "3.5.30",
+      "vue": "3.5.31",
       "ws": "8.17.1"
     },
     "onlyBuiltDependencies": [

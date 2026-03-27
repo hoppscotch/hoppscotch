@@ -70,6 +70,6 @@
     "semver": "7.7.4",
     "tsup": "8.5.1",
     "typescript": "5.9.3",
-    "vitest": "4.1.0"
+    "vitest": "4.1.2"
   }
 }

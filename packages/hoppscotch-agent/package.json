@@ -24,15 +24,15 @@
     "axios": "1.13.6",
     "fp-ts": "2.16.11",
     "lodash-es": "4.17.23",
-    "vue": "3.5.30"
+    "vue": "3.5.31"
   },
   "devDependencies": {
-    "@iconify-json/lucide": "1.2.98",
+    "@iconify-json/lucide": "1.2.99",
     "@tauri-apps/cli": "2.9.3",
     "@types/lodash-es": "4.17.12",
     "@types/node": "24.10.1",
-    "@typescript-eslint/eslint-plugin": "8.57.1",
-    "@typescript-eslint/parser": "8.57.1",
+    "@typescript-eslint/eslint-plugin": "8.57.2",
+    "@typescript-eslint/parser": "8.57.2",
     "@vitejs/plugin-vue": "6.0.5",
     "@vue/eslint-config-typescript": "14.7.0",
     "autoprefixer": "10.4.27",

@@ -1636,7 +1636,7 @@ export function removeRESTRequest(
       restCollectionStore.value.state,
       path.split("/").map((index) => parseInt(index))
     )?.requests[requestIndex]
-    requestID = request?.id || (request as any)?._ref_id
+    requestID = request?.id || (request as HoppRESTRequest)?._ref_id
   }
   restCollectionStore.dispatch({
     dispatcher: "removeRequest",

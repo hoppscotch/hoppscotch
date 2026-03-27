@@ -40,6 +40,7 @@
       "apiconnect-wsdl": "2.0.36",
       "body-parser": "2.2.1",
       "cross-spawn": "7.0.6",
+      "effect@3.18.4": "3.20.0",
       "execa@<2.0.0": "2.0.0",
       "flatted@>=3.0.0 <3.4.2": "3.4.2",
       "form-data": "4.0.4",

@@ -68,7 +68,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o webapp-server .
 FROM alpine:3.23.3 AS node_base
 # Install dependencies
 RUN apk upgrade --no-cache && \
-  apk add --no-cache nodejs curl bash tini ca-certificates git openssh-client
+  apk add --no-cache nodejs curl bash tini ca-certificates
 # Set working directory for NPM installation
 RUN mkdir -p /tmp/npm-install
 WORKDIR /tmp/npm-install
@@ -104,11 +104,21 @@ RUN mkdir -p /tmp/serialize-fix && \
   cp -r node_modules/serialize-javascript /usr/lib/node_modules/@import-meta-env/cli/node_modules/ && \
   rm -rf /tmp/serialize-fix
 
+# Fix CVE: upgrade picomatch in npm and pnpm (ships 4.0.3, fix requires >=4.0.4)
+RUN mkdir -p /tmp/picomatch-fix && \
+  cd /tmp/picomatch-fix && \
+  npm install picomatch@4.0.4 && \
+  rm -rf /usr/lib/node_modules/npm/node_modules/tinyglobby/node_modules/picomatch && \
+  cp -r node_modules/picomatch /usr/lib/node_modules/npm/node_modules/tinyglobby/node_modules/ && \
+  rm -rf /usr/lib/node_modules/pnpm/dist/node_modules/picomatch && \
+  cp -r node_modules/picomatch /usr/lib/node_modules/pnpm/dist/node_modules/ && \
+  rm -rf /tmp/picomatch-fix
+
 
 
 FROM node_base AS base_builder
 # Required by @hoppscotch/js-sandbox to build `isolated-vm`
-RUN apk add --no-cache python3 make g++ zlib-dev brotli-dev c-ares-dev nghttp2-dev openssl-dev icu-dev ada-dev simdjson-dev simdutf-dev sqlite-dev zstd-dev
+RUN apk add --no-cache python3 make g++ git openssh-client zlib-dev brotli-dev c-ares-dev nghttp2-dev openssl-dev icu-dev ada-dev simdjson-dev simdutf-dev sqlite-dev zstd-dev
 
 WORKDIR /usr/src/app
 ENV HOPP_ALLOW_RUNTIME_ENV=true

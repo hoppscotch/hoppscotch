@@ -2,7 +2,7 @@
   <HoppSmartSlideOver
     :show="show"
     :title="t('response.data_schema')"
-    class="!max-w-[1000px]"
+    class="data-schema-drawer"
     @close="close()"
   >
     <template #content>
@@ -281,3 +281,9 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
   t("filename.response_interface")
 )
 </script>
+
+<style scoped>
+.data-schema-drawer :deep(aside) {
+  @apply !w-[36rem] !max-w-[100vw];
+}
+</style>

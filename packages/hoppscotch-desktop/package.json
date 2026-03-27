@@ -37,7 +37,7 @@
     "@tauri-apps/plugin-updater": "2.9.0",
     "fp-ts": "2.16.11",
     "rxjs": "7.8.2",
-    "vue": "3.5.30",
+    "vue": "3.5.31",
     "vue-router": "4.6.4",
     "vue-tippy": "6.7.1",
     "zod": "3.25.32"
@@ -45,11 +45,11 @@
   "devDependencies": {
     "@eslint/eslintrc": "3.3.5",
     "@eslint/js": "9.39.2",
-    "@iconify-json/lucide": "1.2.98",
+    "@iconify-json/lucide": "1.2.99",
     "@rushstack/eslint-patch": "1.16.1",
     "@tauri-apps/cli": "2.9.3",
-    "@typescript-eslint/eslint-plugin": "8.57.1",
-    "@typescript-eslint/parser": "8.57.1",
+    "@typescript-eslint/eslint-plugin": "8.57.2",
+    "@typescript-eslint/parser": "8.57.2",
     "@vitejs/plugin-vue": "6.0.5",
     "@vue/eslint-config-typescript": "14.7.0",
     "autoprefixer": "10.4.27",

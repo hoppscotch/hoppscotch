@@ -177,10 +177,7 @@ export class MockServerController {
       // Security headers to prevent XSS via mock responses
       res.setHeader('X-Content-Type-Options', 'nosniff');
       if (!isSubdomainAccess) {
-        res.setHeader(
-          'Content-Security-Policy',
-          "default-src 'none'; sandbox",
-        );
+        res.setHeader('Content-Security-Policy', "default-src 'none'; sandbox");
         res.setHeader('X-Frame-Options', 'DENY');
       }
 

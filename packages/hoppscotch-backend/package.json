@@ -31,7 +31,7 @@
     "do-test": "pnpm run test"
   },
   "dependencies": {
-    "@apollo/server": "5.4.0",
+    "@apollo/server": "5.5.0",
     "@as-integrations/express5": "1.1.2",
     "@nestjs-modules/mailer": "2.0.2",
     "@nestjs/apollo": "13.2.4",
@@ -62,10 +62,10 @@
     "graphql-query-complexity": "1.1.0",
     "graphql-redis-subscriptions": "2.7.0",
     "graphql-subscriptions": "3.0.0",
-    "handlebars": "4.7.8",
+    "handlebars": "4.7.9",
     "io-ts": "2.2.22",
     "morgan": "1.10.1",
-    "nodemailer": "8.0.3",
+    "nodemailer": "8.0.4",
     "passport": "0.7.0",
     "passport-github2": "0.1.12",
     "passport-google-oauth20": "2.0.0",

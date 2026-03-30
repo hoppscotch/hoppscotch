@@ -24,12 +24,13 @@ const buildHarHeaders = (req: HoppRESTRequest): Har.Header[] => {
       value: header.value,
     }))
 
-  // check if User-Agent already exists
-  const hasUserAgent = activeHeaders.some(
-    (header) => header.name.toLowerCase() === "user-agent"
+  // check if User-Agent exists in ALL headers (including inactive)
+  const hasUserAgent = req.headers.some(
+    (header) => header.key.toLowerCase() === "user-agent"
   )
 
-  // if not present, add a default one
+  // Note: User-Agent is added for consistency across generators.
+  // Browsers may ignore this header as it is restricted.
   if (!hasUserAgent) {
     activeHeaders.push({
       name: "User-Agent",

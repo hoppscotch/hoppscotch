@@ -193,35 +193,31 @@ function setupUserHistoryUpdatedSubscription() {
 
   userHistoryUpdated$.subscribe((res) => {
     if (E.isRight(res)) {
-      const { id, reqType } = res.right.userHistoryUpdated
+      const { id, reqType, isStarred } = res.right.userHistoryUpdated
 
       if (reqType == ReqType.Rest) {
-        const updatedRestEntryIndex = restHistoryStore.value.state.findIndex(
+        const existingEntry = restHistoryStore.value.state.find(
           (entry) => entry.id == id
         )
 
-        // Reuse the existing store entry instead of re-parsing the request from the subscription payload.
-        // toggleStar uses deep equality (isEqual) to match entries, and re-parsing could produce
-        // a different object (e.g. migration adding _ref_id or description defaults), causing the match to fail.
-        if (updatedRestEntryIndex != -1) {
+        // Only toggle if the store entry's star doesn't match the server state.
+        // Without this guard, the subscription echo from the same client's own
+        // toggle would cause a second toggle and revert the star.
+        if (existingEntry && existingEntry.star !== isStarred) {
           runDispatchWithOutSyncing(() => {
-            toggleRESTHistoryEntryStar(
-              restHistoryStore.value.state[updatedRestEntryIndex]
-            )
+            toggleRESTHistoryEntryStar(existingEntry)
           })
         }
       }
 
       if (reqType == ReqType.Gql) {
-        const updatedGQLEntryIndex = graphqlHistoryStore.value.state.findIndex(
+        const existingEntry = graphqlHistoryStore.value.state.find(
           (entry) => entry.id == id
         )
 
-        if (updatedGQLEntryIndex != -1) {
+        if (existingEntry && existingEntry.star !== isStarred) {
           runDispatchWithOutSyncing(() => {
-            toggleGraphqlHistoryEntryStar(
-              graphqlHistoryStore.value.state[updatedGQLEntryIndex]
-            )
+            toggleGraphqlHistoryEntryStar(existingEntry)
           })
         }
       }

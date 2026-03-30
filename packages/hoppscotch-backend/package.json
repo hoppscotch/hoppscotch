@@ -1,6 +1,6 @@
 {
   "name": "hoppscotch-backend",
-  "version": "2026.2.0",
+  "version": "2026.2.1",
   "description": "",
   "author": "",
   "private": true,
@@ -46,8 +46,8 @@
     "@nestjs/swagger": "11.2.6",
     "@nestjs/terminus": "11.0.0",
     "@nestjs/throttler": "6.5.0",
-    "@prisma/adapter-pg": "7.4.0",
-    "@prisma/client": "7.4.0",
+    "@prisma/adapter-pg": "7.4.2",
+    "@prisma/client": "7.4.2",
     "argon2": "0.44.0",
     "bcrypt": "6.0.0",
     "class-transformer": "0.5.1",
@@ -74,7 +74,7 @@
     "passport-microsoft": "2.1.0",
     "pg": "8.18.0",
     "posthog-node": "5.24.15",
-    "prisma": "7.4.0",
+    "prisma": "7.4.2",
     "reflect-metadata": "0.2.2",
     "rimraf": "6.1.3",
     "rxjs": "7.8.2"

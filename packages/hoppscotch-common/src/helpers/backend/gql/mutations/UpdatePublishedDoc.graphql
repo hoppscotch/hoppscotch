@@ -5,6 +5,7 @@ mutation UpdatePublishedDoc($id: ID!, $args: UpdatePublishedDocsArgs!) {
     version
     autoSync
     url
+    environmentName
     createdOn
     updatedOn
   }

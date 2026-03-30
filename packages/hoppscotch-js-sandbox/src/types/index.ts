@@ -162,7 +162,9 @@ export type TestResult = {
 export type GlobalEnvItem = TestResult["envs"]["global"][number]
 export type SelectedEnvItem = TestResult["envs"]["selected"][number]
 
-export type SandboxTestResult = TestResult & { tests: TestDescriptor } & {
+export type SandboxTestResult = {
+  tests: TestDescriptor
+  envs: TestResult["envs"]
   consoleEntries?: ConsoleEntry[]
   updatedCookies: Cookie[] | null
 }

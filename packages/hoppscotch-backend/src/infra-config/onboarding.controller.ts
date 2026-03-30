@@ -11,6 +11,7 @@ import { InfraConfigService } from './infra-config.service';
 import { RESTError } from 'src/types/RESTError';
 import { throwHTTPErr } from 'src/utils';
 import * as E from 'fp-ts/Either';
+import { ONBOARDING_CANNOT_BE_RERUN } from 'src/errors';
 import {
   GetOnboardingConfigResponse,
   GetOnboardingStatusResponse,
@@ -60,6 +61,24 @@ export class OnboardingController {
     type: SaveOnboardingConfigResponse,
   })
   async updateOnboardingConfig(@Body() dto: SaveOnboardingConfigRequest) {
+    const onboardingStatus =
+      await this.infraConfigService.getOnboardingStatus();
+
+    if (E.isLeft(onboardingStatus))
+      throwHTTPErr(<RESTError>{
+        message: onboardingStatus.left,
+        statusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+      });
+
+    if (
+      onboardingStatus.right.onboardingCompleted &&
+      !onboardingStatus.right.canReRunOnboarding
+    )
+      throwHTTPErr(<RESTError>{
+        message: ONBOARDING_CANNOT_BE_RERUN,
+        statusCode: HttpStatus.BAD_REQUEST,
+      });
+
     const updateConfigResult =
       await this.infraConfigService.updateOnboardingConfig(dto);
 

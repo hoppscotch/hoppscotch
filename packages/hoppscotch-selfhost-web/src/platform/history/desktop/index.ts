@@ -15,6 +15,7 @@ import {
   deleteGraphqlHistoryEntry,
   clearGraphqlHistory,
 } from "@hoppscotch/common/newstore/history"
+import { translateToNewRequest, translateToGQLRequest } from "@hoppscotch/data"
 import { HistoryPlatformDef } from "@hoppscotch/common/platform/history"
 import {
   getUserHistoryEntries,
@@ -98,7 +99,7 @@ async function loadHistoryEntries() {
 
     const restHistoryEntries: RESTHistoryEntry[] = restEntries.map((entry) => ({
       v: 1,
-      request: JSON.parse(entry.request),
+      request: translateToNewRequest(JSON.parse(entry.request)),
       responseMeta: JSON.parse(entry.responseMetadata),
       star: entry.isStarred,
       updatedOn: new Date(entry.executedOn),
@@ -107,7 +108,7 @@ async function loadHistoryEntries() {
 
     const gqlHistoryEntries: GQLHistoryEntry[] = gqlEntries.map((entry) => ({
       v: 1,
-      request: JSON.parse(entry.request),
+      request: translateToGQLRequest(JSON.parse(entry.request)),
       response: JSON.parse(entry.responseMetadata),
       star: entry.isStarred,
       updatedOn: new Date(entry.executedOn),
@@ -165,7 +166,7 @@ function setupUserHistoryCreatedSubscription() {
             ? addRESTHistoryEntry({
                 v: 1,
                 id,
-                request: JSON.parse(request),
+                request: translateToNewRequest(JSON.parse(request)),
                 responseMeta: JSON.parse(responseMetadata),
                 star: isStarred,
                 updatedOn: new Date(executedOn),
@@ -173,7 +174,7 @@ function setupUserHistoryCreatedSubscription() {
             : addGraphqlHistoryEntry({
                 v: 1,
                 id,
-                request: JSON.parse(request),
+                request: translateToGQLRequest(JSON.parse(request)),
                 response: JSON.parse(responseMetadata),
                 star: isStarred,
                 updatedOn: new Date(executedOn),
@@ -205,7 +206,7 @@ function setupUserHistoryUpdatedSubscription() {
             toggleRESTHistoryEntryStar({
               v: 1,
               id,
-              request: JSON.parse(request),
+              request: translateToNewRequest(JSON.parse(request)),
               responseMeta: JSON.parse(responseMetadata),
               // because the star will be toggled in the store, we need to pass the opposite value
               star: !isStarred,
@@ -225,7 +226,7 @@ function setupUserHistoryUpdatedSubscription() {
             toggleGraphqlHistoryEntryStar({
               v: 1,
               id,
-              request: JSON.parse(request),
+              request: translateToGQLRequest(JSON.parse(request)),
               response: JSON.parse(responseMetadata),
               // because the star will be toggled in the store, we need to pass the opposite value
               star: !isStarred,

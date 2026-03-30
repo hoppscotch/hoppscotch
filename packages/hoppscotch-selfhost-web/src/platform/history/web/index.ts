@@ -196,25 +196,21 @@ function setupUserHistoryUpdatedSubscription() {
 
   userHistoryUpdated$.subscribe((res) => {
     if (E.isRight(res)) {
-      const { id, executedOn, isStarred, request, responseMetadata, reqType } =
-        res.right.userHistoryUpdated
+      const { id, reqType } = res.right.userHistoryUpdated
 
       if (reqType == ReqType.Rest) {
         const updatedRestEntryIndex = restHistoryStore.value.state.findIndex(
           (entry) => entry.id == id
         )
 
+        // Reuse the existing store entry instead of re-parsing the request from the subscription payload.
+        // toggleStar uses deep equality (isEqual) to match entries, and re-parsing could produce
+        // a different object (e.g. migration adding _ref_id or description defaults), causing the match to fail.
         if (updatedRestEntryIndex != -1) {
           runDispatchWithOutSyncing(() => {
-            toggleRESTHistoryEntryStar({
-              v: 1,
-              id,
-              request: translateToNewRequest(JSON.parse(request)),
-              responseMeta: JSON.parse(responseMetadata),
-              // because the star will be toggled in the store, we need to pass the opposite value
-              star: !isStarred,
-              updatedOn: new Date(executedOn),
-            })
+            toggleRESTHistoryEntryStar(
+              restHistoryStore.value.state[updatedRestEntryIndex]
+            )
           })
         }
       }
@@ -226,15 +222,9 @@ function setupUserHistoryUpdatedSubscription() {
 
         if (updatedGQLEntryIndex != -1) {
           runDispatchWithOutSyncing(() => {
-            toggleGraphqlHistoryEntryStar({
-              v: 1,
-              id,
-              request: translateToGQLRequest(JSON.parse(request)),
-              response: JSON.parse(responseMetadata),
-              // because the star will be toggled in the store, we need to pass the opposite value
-              star: !isStarred,
-              updatedOn: new Date(executedOn),
-            })
+            toggleGraphqlHistoryEntryStar(
+              graphqlHistoryStore.value.state[updatedGQLEntryIndex]
+            )
           })
         }
       }

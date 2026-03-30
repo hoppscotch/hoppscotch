@@ -356,6 +356,7 @@ executedResponses$.subscribe((res) => {
         requestVariables: res.req.requestVariables,
         v: res.req.v,
         responses: res.req.responses,
+        description: res.req.description,
       },
       responseMeta: {
         duration: res.meta.responseDuration,

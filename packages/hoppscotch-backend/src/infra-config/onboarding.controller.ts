@@ -88,6 +88,7 @@ export class OnboardingController {
         statusCode: HttpStatus.BAD_REQUEST,
       });
 
+
     return plainToInstance(
       SaveOnboardingConfigResponse,
       updateConfigResult.right,

@@ -338,6 +338,19 @@ describe('getRequestsInCollection', () => {
 
     expect(response).resolves.toEqual([teamRequests[1]]);
   });
+
+  test('resolves with an empty array when cursor is provided but cursor item is not found', async () => {
+    mockPrisma.teamRequest.findFirst.mockResolvedValueOnce(null);
+
+    const result = await teamRequestService.getRequestsInCollection(
+      'testcoll',
+      'nonexistent-cursor',
+      10,
+    );
+
+    expect(result).toEqual([]);
+    expect(mockPrisma.teamRequest.findMany).not.toHaveBeenCalled();
+  });
 });
 
 describe('getRequest', () => {

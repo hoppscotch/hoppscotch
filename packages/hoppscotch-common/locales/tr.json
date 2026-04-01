@@ -1163,7 +1163,7 @@
     "roles_description": "Roller, paylaşılan koleksiyonlara erişimi kontrol etmek için kullanılır.",
     "updated": "Profil güncellendi",
     "viewer": "Misafir",
-    "viewer_description": "Misafirler sadece istekleri görünteleyebilir ve kullanabilir.",
+    "viewer_description": "Misafirler sadece istekleri görüntüleyebilir ve kullanabilir.",
     "verified_email_sent": "E-posta adresinize bir doğrulama e-postası gönderildi. Lütfen e-postanızı doğruladıktan sonra sayfayı yenileyin. Bu e-posta başka bir hesapla ilişkili değilse bir e-posta alacaksınız."
   },
   "remove": {

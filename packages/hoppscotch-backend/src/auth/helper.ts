@@ -58,13 +58,13 @@ export const authCookieHandler = (
     httpOnly: true,
     secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',
     sameSite: 'lax',
-    maxAge: Date.now() + accessTokenValidityInMs,
+    maxAge: accessTokenValidityInMs,
   });
   res.cookie(AuthTokenType.REFRESH_TOKEN, authTokens.refresh_token, {
     httpOnly: true,
     secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',
     sameSite: 'lax',
-    maxAge: Date.now() + refreshTokenValidityInMs,
+    maxAge: refreshTokenValidityInMs,
   });
 
   if (!redirect) {

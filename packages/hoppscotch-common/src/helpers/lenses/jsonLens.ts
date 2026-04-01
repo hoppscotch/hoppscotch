@@ -22,7 +22,7 @@ export function isValidJSONResponse(contents: string | ArrayBuffer): boolean {
   try {
     JSON.parse(resolvedStr)
     return true
-  } catch (e) {
+  } catch (_e) {
     return false
   }
 }

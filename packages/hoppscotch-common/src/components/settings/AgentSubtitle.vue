@@ -126,7 +126,7 @@ const register = async () => {
     await updateMaskedAuthKey()
     toast.success(t("settings.agent_registration_successful"))
     store.registrationOTP.value = ""
-  } catch (e) {
+  } catch (_e) {
   } finally {
     store.isRegistering.value = false
   }
@@ -146,7 +146,7 @@ const updateMaskedAuthKey = async () => {
   try {
     const registration = await store.fetchRegistrationInfo()
     store.maskedAuthKey.value = registration.auth_key_hash
-  } catch (e) {}
+  } catch (_e) {}
 }
 
 onMounted(async () => {

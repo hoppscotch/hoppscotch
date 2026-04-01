@@ -23,6 +23,7 @@ import * as T from 'fp-ts/Task';
 import * as A from 'fp-ts/Array';
 import { isValidLength, throwErr } from 'src/utils';
 import { AuthUser } from '../types/AuthUser';
+import { OffsetPaginationArgs } from 'src/types/input-types.args';
 
 @Injectable()
 export class TeamService implements UserDataHandler, OnModuleInit {
@@ -260,38 +261,25 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     return E.right(team);
   }
 
-  async getTeamsOfUser(uid: string, cursor: string | null): Promise<Team[]> {
-    if (!cursor) {
-      const entries = await this.prisma.teamMember.findMany({
-        take: 10,
-        where: {
-          userUid: uid,
-        },
-        include: {
-          team: true,
-        },
-      });
-
-      return entries.map((entry) => entry.team);
-    } else {
-      const entries = await this.prisma.teamMember.findMany({
-        take: 10,
-        skip: 1,
-        cursor: {
-          teamID_userUid: {
-            teamID: cursor,
+  async getTeamsOfUser(
+    uid: string,
+    cursor: string | null,
+    take = 10,
+  ): Promise<Team[]> {
+    const teams = await this.prisma.team.findMany({
+      take,
+      skip: cursor ? 1 : 0,
+      cursor: cursor ? { id: cursor } : undefined,
+      where: {
+        members: {
+          some: {
             userUid: uid,
           },
         },
-        where: {
-          userUid: uid,
-        },
-        include: {
-          team: true,
-        },
-      });
-      return entries.map((entry) => entry.team);
-    }
+      },
+    });
+
+    return teams;
   }
 
   async getTeamWithID(teamID: string): Promise<Team | null> {
@@ -522,6 +510,7 @@ export class TeamService implements UserDataHandler, OnModuleInit {
    * @param cursorID string of teamID or undefined
    * @param take number of items to query
    * @returns an array of `Team` object
+   * @deprecated use fetchAllTeamsV2 instead
    */
   async fetchAllTeams(cursorID: string, take: number) {
     const options = {
@@ -531,6 +520,32 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     };
 
     const fetchedTeams = await this.prisma.team.findMany(options);
+    return fetchedTeams;
+  }
+
+  /**
+   * Fetch all the teams in the `Team` table with offset pagination and search
+   * @param searchString search on team name or ID
+   * @param paginationOption pagination options
+   * @returns an array of `Team` object
+   */
+  async fetchAllTeamsV2(
+    searchString: string,
+    paginationOption: OffsetPaginationArgs,
+  ) {
+    const fetchedTeams = await this.prisma.team.findMany({
+      skip: paginationOption.skip,
+      take: paginationOption.take,
+      where: searchString
+        ? {
+            OR: [
+              { name: { contains: searchString, mode: 'insensitive' } },
+              { id: { contains: searchString, mode: 'insensitive' } },
+            ],
+          }
+        : undefined,
+      orderBy: [{ name: 'asc' }, { id: 'asc' }],
+    });
     return fetchedTeams;
   }
 

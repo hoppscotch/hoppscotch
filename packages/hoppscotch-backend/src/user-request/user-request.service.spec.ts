@@ -849,6 +849,7 @@ describe('UserRequestService', () => {
         destCollID,
         userRequests[0],
         userRequests[1],
+        user,
       );
 
       expect(result).resolves.toEqualRight(true);

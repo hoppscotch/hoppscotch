@@ -14,33 +14,44 @@
         }"
       >
         <div class="flex">
-          <!-- Instance Switcher (Desktop/On-prem) -->
+          <!-- Unified Switcher (orgs + instances in one dropdown) -->
           <tippy
-            v-if="platform.instance?.instanceSwitchingEnabled"
+            v-if="
+              platform.organization?.customOrganizationSwitcherComponent ||
+              platform.instance?.instanceSwitchingEnabled
+            "
             interactive
             trigger="click"
             theme="popover"
-            :on-shown="() => instanceSwitcherRef.focus()"
+            :on-shown="() => switcherRef?.focus()"
+            :on-create="onSwitcherCreate"
           >
-            <div class="flex items-center cursor-pointer">
-              <span
-                class="!font-bold uppercase tracking-wide !text-secondaryDark pr-1"
-              >
-                {{
-                  platform.instance.getCurrentInstance?.()?.displayName ||
-                  "Hoppscotch"
-                }}
-              </span>
-              <IconChevronDown class="h-4 w-4 text-secondaryDark" />
-            </div>
+            <HoppButtonSecondary
+              class="!font-bold uppercase tracking-wide !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark"
+              :label="t('app.name')"
+              :icon="IconChevronDown"
+              reverse
+            />
             <template #content="{ hide }">
               <div
-                ref="instanceSwitcherRef"
-                class="flex flex-col focus:outline-none min-w-64"
+                ref="switcherRef"
+                class="flex flex-col focus:outline-none min-w-72"
                 tabindex="0"
                 @keyup.escape="hide()"
               >
-                <InstanceSwitcher @close-dropdown="hide()" />
+                <component
+                  :is="
+                    platform.organization?.customOrganizationSwitcherComponent
+                  "
+                  v-if="
+                    platform.organization?.customOrganizationSwitcherComponent
+                  "
+                  @close-dropdown="hide()"
+                />
+                <InstanceSwitcher
+                  v-if="platform.instance?.instanceSwitchingEnabled"
+                  @close-dropdown="hide()"
+                />
               </div>
             </template>
           </tippy>
@@ -76,6 +87,8 @@
             :on-shown="() => downloadableLinksRef.focus()"
           >
             <HoppButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('app.downloads')"
               :icon="IconDownload"
               class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
             />
@@ -360,7 +373,9 @@ import { breakpointsTailwind, useBreakpoints, useNetwork } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
+import type { Instance } from "tippy.js"
 import { computed, onMounted, reactive, ref, watch } from "vue"
+
 import { useToast } from "~/composables/toast"
 import { GetMyTeamsQuery, TeamAccessRole } from "~/helpers/backend/graphql"
 import { deleteTeam as backendDeleteTeam } from "~/helpers/backend/mutations/Team"
@@ -386,10 +401,19 @@ const t = useI18n()
 const toast = useToast()
 const kernelMode = getKernelMode()
 
+const headerRef = ref<HTMLElement | null>(null)
 const downloadableLinksRef =
   kernelMode === "web" ? ref<any | null>(null) : ref(null)
-const instanceSwitcherRef =
-  kernelMode === "desktop" ? ref<any | null>(null) : ref(null)
+const switcherRef = ref<HTMLElement | null>(null)
+
+// Reserve scrollbar gutter so content width doesn't shift when the list
+// grows long enough to scroll inside the popover's `max-h-[45vh]` container.
+const onSwitcherCreate = (instance: Instance) => {
+  const content = instance.popper?.querySelector(".tippy-content")
+  if (content instanceof HTMLElement) {
+    content.style.scrollbarGutter = "stable"
+  }
+}
 
 const isUserAdmin = ref(false)
 

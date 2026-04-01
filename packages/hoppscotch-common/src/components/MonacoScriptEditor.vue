@@ -141,6 +141,8 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  editorModel.value?.dispose()
+
   // Clean up context-specific type definitions for this editor instance
   contextTypeDefRef.value?.dispose()
 

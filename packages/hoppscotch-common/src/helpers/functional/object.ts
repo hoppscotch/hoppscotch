@@ -45,7 +45,7 @@ type TypeFromPrimitiveArray<P extends JSPrimitive | undefined> =
               : P extends "symbol"
                 ? symbol[]
                 : P extends "function"
-                  ? Function[] // eslint-disable-line @typescript-eslint/ban-types
+                  ? Function[]
                   : unknown[]
 
 // The ban-types silence is because in this case,

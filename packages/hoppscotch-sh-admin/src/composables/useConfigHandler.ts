@@ -137,6 +137,8 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
           ),
           mailer_smtp_secure:
             getFieldValue(InfraConfigEnum.MailerSmtpSecure) === 'true',
+          mailer_smtp_ignore_tls:
+            getFieldValue(InfraConfigEnum.MailerSmtpIgnoreTls) === 'true',
           mailer_tls_reject_unauthorized:
             getFieldValue(InfraConfigEnum.MailerTlsRejectUnauthorized) ===
             'true',
@@ -273,8 +275,10 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       if (section.name === 'email') {
         const { mailer_use_custom_configs, ...otherFields } = section.fields;
 
+        // SMTP user and password are optional as a pair (both or neither)
+        const optionalMailerKeys = ['mailer_smtp_user', 'mailer_smtp_password'];
         const excludeKeys = mailer_use_custom_configs
-          ? ['mailer_smtp_url']
+          ? ['mailer_smtp_url', ...optionalMailerKeys]
           : [
               'mailer_smtp_host',
               'mailer_smtp_port',
@@ -285,7 +289,8 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
         return (
           section.enabled &&
           Object.entries(otherFields).some(
-            ([key, value]) => isFieldEmpty(value) && !excludeKeys.includes(key)
+            ([key, value]) =>
+              isFieldEmpty(value) && !excludeKeys.includes(key)
           )
         );
       }
@@ -310,6 +315,18 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     });
 
     return hasSectionWithEmptyFields;
+  };
+
+  const hasPartialSmtpCredentials = (config: ServerConfigs): boolean => {
+    if (!config.mailConfigs.enabled) return false;
+
+    const fields = config.mailConfigs.fields;
+    if (!fields.mailer_use_custom_configs) return false;
+
+    const hasUser = fields.mailer_smtp_user.trim() !== '';
+    const hasPass = fields.mailer_smtp_password.trim() !== '';
+
+    return hasUser !== hasPass;
   };
 
   // Extract the mail config fields (excluding the custom mail config fields)
@@ -659,5 +676,6 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     infraConfigsError,
     allowedAuthProvidersError,
     AreAnyConfigFieldsEmpty,
+    hasPartialSmtpCredentials,
   };
 }

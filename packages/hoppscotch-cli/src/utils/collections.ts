@@ -149,11 +149,11 @@ const processCollection = async (
   for (const folder of collection.folders) {
     const updatedFolder: HoppCollection = { ...folder };
 
-    if (updatedFolder.auth?.authType === "inherit") {
+    if (updatedFolder.auth.authType === "inherit") {
       updatedFolder.auth = collection.auth;
     }
 
-    if (collection.headers?.length) {
+    if (collection.headers.length) {
       // Filter out header entries present in the parent collection under the same name
       // This ensures the folder headers take precedence over the collection headers
       const filteredHeaders = collection.headers.filter(
@@ -167,9 +167,9 @@ const processCollection = async (
       updatedFolder.headers.push(...filteredHeaders);
     }
 
-    if (updatedFolder.variables?.length) {
-      // Filter out variable entries present in the parent collection under the same name
-      // This ensures the folder variables take precedence over the collection variables
+    // Inherit collection variables into folder, with folder variables taking precedence
+    if (collection.variables.length) {
+      // Filter out collection variables with same key as folder variables
       const filteredVariables = collection.variables.filter(
         (collectionVariableEntries) => {
           return !updatedFolder.variables.some(
@@ -178,6 +178,7 @@ const processCollection = async (
           );
         }
       );
+
       updatedFolder.variables.push(...filteredVariables);
     }
 

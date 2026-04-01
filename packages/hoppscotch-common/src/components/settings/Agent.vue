@@ -668,7 +668,7 @@ async function updateMaskedAuthKey() {
   try {
     const registration = await store.fetchRegistrationInfo()
     maskedAuthKey.value = registration.auth_key_hash
-  } catch (e) {
+  } catch (_e) {
     toast.error(t("settings.agent_registration_fetch_failed"))
   }
 }

@@ -185,7 +185,7 @@ const initAuthCodeOauthFlow = async ({
 
   try {
     url = new URL(authEndpoint)
-  } catch (e) {
+  } catch (_e) {
     return E.left("INVALID_AUTH_ENDPOINT")
   }
 

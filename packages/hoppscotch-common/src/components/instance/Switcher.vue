@@ -11,6 +11,15 @@
     v-else-if="isInstanceSwitchingEnabled"
     class="flex flex-col space-y-1 w-full"
   >
+    <!-- Section header -->
+    <div
+      class="flex items-center justify-between border-b border-dividerLight px-4 py-2"
+    >
+      <span class="text-xs text-secondary">
+        {{ t("instances.self_hosted") || "Self-hosted instances" }}
+      </span>
+    </div>
+
     <div
       v-if="connectedInstance"
       class="flex items-center justify-between px-4 py-3 bg-accent text-accentContrast rounded-md"
@@ -242,6 +251,7 @@ import type {
 
 import IconLucideGlobe from "~icons/lucide/globe"
 import IconLucideCheck from "~icons/lucide/check"
+import IconLucideLock from "~icons/lucide/lock"
 import IconLucideServer from "~icons/lucide/server"
 import IconLucideTrash from "~icons/lucide/trash"
 import IconLucideTrash2 from "~icons/lucide/trash-2"
@@ -281,13 +291,34 @@ const isInstanceSwitchingEnabled = computed(() => {
   return platform.instance?.instanceSwitchingEnabled ?? false
 })
 
+// Whether the org switcher is handling the default instance entry. When it is,
+// the vendored instance should not appear here since the "Hoppscotch Cloud"
+// entry in the org section already covers switching back to the default state.
+// Showing both "Hoppscotch Cloud" (org section) and "Hoppscotch Desktop"
+// (instance section) is confusing because they represent the same thing from
+// the user's perspective.
+const orgSwitcherHandlesDefault = computed(
+  () => !!platform.organization?.customOrganizationSwitcherComponent
+)
+
 const connectedInstance = computed(() => {
-  return isConnectedState(connectionState.value) ? currentInstance.value : null
+  if (!isConnectedState(connectionState.value)) return null
+  const instance = currentInstance.value
+  // cloud and cloud-org instances belong in the org section, not here
+  if (instance?.kind === "cloud" || instance?.kind === "cloud-org") return null
+  if (instance?.kind === "vendored" && orgSwitcherHandlesDefault.value)
+    return null
+  return instance
 })
 
 const recentInstances = computed(() => {
   return recentInstancesList.value.filter(
-    (instance) => instance.serverUrl !== currentInstance.value?.serverUrl
+    (instance) =>
+      instance.serverUrl !== currentInstance.value?.serverUrl &&
+      // cloud and cloud-org instances are accessed via the dedicated cloud entry
+      instance.kind !== "cloud" &&
+      instance.kind !== "cloud-org" &&
+      !(instance.kind === "vendored" && orgSwitcherHandlesDefault.value)
   )
 })
 

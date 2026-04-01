@@ -120,19 +120,25 @@ export class TeamRequestService {
       await this.prisma.$transaction(async (tx) => {
         try {
           // lock the rows
-          await this.prisma.lockTableExclusive(tx, 'TeamRequest');
+          await this.prisma.lockTeamRequestByCollections(tx, dbTeamReq.teamID, [
+            dbTeamReq.collectionID,
+          ]);
 
-          await tx.teamRequest.updateMany({
-            where: {
-              collectionID: dbTeamReq.collectionID,
-              orderIndex: { gte: dbTeamReq.orderIndex },
-            },
-            data: { orderIndex: { decrement: 1 } },
-          });
-
-          await tx.teamRequest.delete({
+          const deletedTeamRequest = await tx.teamRequest.delete({
             where: { id: requestID },
           });
+
+          // if request is deleted, update orderIndexes of siblings
+          // if request was deleted before the transaction started (race condition), do not update siblings orderIndexes
+          if (deletedTeamRequest) {
+            await tx.teamRequest.updateMany({
+              where: {
+                collectionID: dbTeamReq.collectionID,
+                orderIndex: { gte: dbTeamReq.orderIndex },
+              },
+              data: { orderIndex: { decrement: 1 } },
+            });
+          }
         } catch (error) {
           throw new ConflictException(error);
         }
@@ -177,7 +183,9 @@ export class TeamRequestService {
       dbTeamRequest = await this.prisma.$transaction(async (tx) => {
         try {
           // lock the rows
-          await this.prisma.lockTableExclusive(tx, 'TeamRequest');
+          await this.prisma.lockTeamRequestByCollections(tx, teamID, [
+            collectionID,
+          ]);
 
           // fetch last team request
           const lastTeamRequest = await tx.teamRequest.findFirst({
@@ -372,6 +380,18 @@ export class TeamRequestService {
       ) {
         return E.left(TEAM_REQ_INVALID_TARGET_COLL_ID);
       }
+    } else {
+      // When nextRequestID is null, validate that the destination collection
+      // belongs to the same team as the request to prevent cross-team moves
+      const destCollection = await this.prisma.teamCollection.findUnique({
+        where: { id: destCollID },
+        select: { teamID: true },
+      });
+      if (!destCollection) return E.left(TEAM_INVALID_COLL_ID);
+
+      if (destCollection.teamID !== request.teamID) {
+        return E.left(TEAM_REQ_INVALID_TARGET_COLL_ID);
+      }
     }
 
     return E.right({ request, nextRequest });
@@ -381,8 +401,11 @@ export class TeamRequestService {
    * A helper function to get the number of requests in a collection
    * @param collectionID Collection ID to fetch
    */
-  private async getRequestsCountInCollection(collectionID: string) {
-    return this.prisma.teamRequest.count({
+  private async getRequestsCountInCollection(
+    collectionID: string,
+    tx: Prisma.TransactionClient | null = null,
+  ) {
+    return (tx || this.prisma).teamRequest.count({
       where: { collectionID },
     });
   }
@@ -405,7 +428,7 @@ export class TeamRequestService {
         E.Left<string> | E.Right<DbTeamRequest>
       >(async (tx) => {
         // lock the rows
-        await this.prisma.acquireLocks(tx, 'TeamRequest', null, null, [
+        await this.prisma.lockTeamRequestByCollections(tx, request.teamID, [
           srcCollID,
           destCollID,
         ]);
@@ -419,64 +442,71 @@ export class TeamRequestService {
             })
           : null;
 
-        const isSameCollection = srcCollID === destCollID;
-        const isMovingUp = nextRequest?.orderIndex < request.orderIndex; // false, if nextRequest is null
+        // if request is found in transaction, update orderIndexes of siblings
+        // if request was deleted before the transaction started (race condition), do not update siblings orderIndexes
+        if (request) {
+          const isSameCollection = srcCollID === destCollID;
+          const isMovingUp = nextRequest?.orderIndex < request.orderIndex; // false, if nextRequest is null
 
-        const nextReqOrderIndex = nextRequest?.orderIndex;
-        const reqCountInDestColl = nextRequest
-          ? undefined
-          : await this.getRequestsCountInCollection(destCollID);
+          const nextReqOrderIndex = nextRequest?.orderIndex;
+          const reqCountInDestColl = nextRequest
+            ? undefined
+            : await this.getRequestsCountInCollection(destCollID, tx);
 
-        // Updating order indexes of other requests in collection(s)
-        if (isSameCollection) {
-          const updateFrom = isMovingUp
-            ? nextReqOrderIndex
-            : request.orderIndex + 1;
-          const updateTo = isMovingUp ? request.orderIndex : nextReqOrderIndex;
+          // Updating order indexes of other requests in collection(s)
+          if (isSameCollection) {
+            const updateFrom = isMovingUp
+              ? nextReqOrderIndex
+              : request.orderIndex + 1;
+            const updateTo = isMovingUp
+              ? request.orderIndex
+              : nextReqOrderIndex;
 
-          await tx.teamRequest.updateMany({
-            where: {
-              collectionID: srcCollID,
-              orderIndex: { gte: updateFrom, lt: updateTo },
-            },
-            data: {
-              orderIndex: isMovingUp ? { increment: 1 } : { decrement: 1 },
-            },
-          });
-        } else {
-          await tx.teamRequest.updateMany({
-            where: {
-              collectionID: srcCollID,
-              orderIndex: { gte: request.orderIndex },
-            },
-            data: { orderIndex: { decrement: 1 } },
-          });
-
-          if (nextRequest) {
             await tx.teamRequest.updateMany({
               where: {
-                collectionID: destCollID,
-                orderIndex: { gte: nextReqOrderIndex },
+                collectionID: srcCollID,
+                orderIndex: { gte: updateFrom, lt: updateTo },
               },
-              data: { orderIndex: { increment: 1 } },
+              data: {
+                orderIndex: isMovingUp ? { increment: 1 } : { decrement: 1 },
+              },
             });
+          } else {
+            await tx.teamRequest.updateMany({
+              where: {
+                collectionID: srcCollID,
+                orderIndex: { gte: request.orderIndex },
+              },
+              data: { orderIndex: { decrement: 1 } },
+            });
+
+            if (nextRequest) {
+              await tx.teamRequest.updateMany({
+                where: {
+                  collectionID: destCollID,
+                  orderIndex: { gte: nextReqOrderIndex },
+                },
+                data: { orderIndex: { increment: 1 } },
+              });
+            }
           }
+
+          // Updating order index of the request
+          let adjust: number;
+          if (isSameCollection)
+            adjust = nextRequest ? (isMovingUp ? 0 : -1) : 0;
+          else adjust = nextRequest ? 0 : 1;
+
+          const newOrderIndex =
+            (nextReqOrderIndex ?? reqCountInDestColl) + adjust;
+
+          const updatedRequest = await tx.teamRequest.update({
+            where: { id: request.id },
+            data: { orderIndex: newOrderIndex, collectionID: destCollID },
+          });
+
+          return E.right(updatedRequest);
         }
-
-        // Updating order index of the request
-        let adjust: number;
-        if (isSameCollection) adjust = nextRequest ? (isMovingUp ? 0 : -1) : 0;
-        else adjust = nextRequest ? 0 : 1;
-
-        const newOrderIndex =
-          (nextReqOrderIndex ?? reqCountInDestColl) + adjust;
-
-        const updatedRequest = await tx.teamRequest.update({
-          where: { id: request.id },
-          data: { orderIndex: newOrderIndex, collectionID: destCollID },
-        });
-
-        return E.right(updatedRequest);
       });
     } catch (err) {
       return E.left(TEAM_REQ_REORDERING_FAILED);
@@ -534,7 +564,7 @@ export class TeamRequestService {
     try {
       await this.prisma.$transaction(async (tx) => {
         // lock the rows
-        await this.prisma.acquireLocks(tx, 'TeamRequest', null, null, [
+        await this.prisma.lockTeamRequestByCollections(tx, teamID, [
           collectionID,
         ]);
         const teamRequests = await tx.teamRequest.findMany({

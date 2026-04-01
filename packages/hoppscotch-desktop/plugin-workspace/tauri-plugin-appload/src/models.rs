@@ -147,6 +147,18 @@ pub struct DownloadResponse {
 #[serde(rename_all = "camelCase")]
 pub struct LoadOptions {
     pub bundle_name: String,
+    /// Optional host override for the webview URL.
+    ///
+    /// When provided, the webview will be loaded with `app://{host}/` instead of
+    /// `app://{bundle_name}/`. This enables cloud-for-orgs support where the same
+    /// bundle serves multiple organization subdomains.
+    ///
+    /// Example: `host: "acme.hoppscotch.io"` will:
+    /// - Sanitize to "acme_hoppscotch_io"
+    /// - Create webview at `app://acme_hoppscotch_io/`
+    /// - Register mapping so file requests resolve to the correct bundle
+    #[serde(default)]
+    pub host: Option<String>,
     #[serde(default)]
     pub inline: bool,
     #[serde(default)]

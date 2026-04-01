@@ -600,7 +600,7 @@ const saveRequest = async () => {
       })
 
       toast.success(`${t("request.saved")}`)
-    } catch (e) {
+    } catch (_e) {
       tab.value.document.saveContext = undefined
       saveRequest()
     }

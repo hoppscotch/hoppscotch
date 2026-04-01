@@ -168,7 +168,7 @@ const retryWithProxy = async () => {
     } else {
       toast.error(t("import.failed"))
     }
-  } catch (error) {
+  } catch (_error) {
     toast.error(t("import.failed"))
   } finally {
     isFetchingUrl.value = false

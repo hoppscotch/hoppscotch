@@ -41,6 +41,13 @@
         </HoppSmartCheckbox>
 
         <HoppSmartCheckbox
+          :on="smtp.SMTP_IGNORE_TLS.enabled"
+          @change="toggleConfig('SMTP_IGNORE_TLS')"
+        >
+          {{ smtp.SMTP_IGNORE_TLS.text }}
+        </HoppSmartCheckbox>
+
+        <HoppSmartCheckbox
           :on="smtp.TLS_REJECT_UNAUTHORIZED.enabled"
           @change="toggleConfig('TLS_REJECT_UNAUTHORIZED')"
         >
@@ -101,55 +108,61 @@ const smtp = computed<MailerConfig>(() => {
   return {
     SMTP_URL: {
       id: 'MAILER_SMTP_URL',
-      text: 'SMTP URL',
+      text: t('configs.mail_configs.smtp_url'),
       value: cfg.MAILER_SMTP_URL,
       enabled: !isCustom,
     },
     ADDRESS_FROM: {
       id: 'MAILER_ADDRESS_FROM',
-      text: 'Address From',
+      text: t('configs.mail_configs.address_from'),
       value: cfg.MAILER_ADDRESS_FROM,
       enabled: true,
     },
     USE_CUSTOM_CONFIGS: {
       id: 'MAILER_USE_CUSTOM_CONFIGS',
-      text: 'Use Custom Configs',
+      text: t('configs.mail_configs.custom_smtp_configs'),
       value: cfg.MAILER_USE_CUSTOM_CONFIGS,
       enabled: isCustom,
     },
     SMTP_SECURE: {
       id: 'MAILER_SMTP_SECURE',
-      text: 'SMTP Secure',
+      text: t('configs.mail_configs.secure'),
       value: cfg.MAILER_SMTP_SECURE,
       enabled: isCustom && cfg.MAILER_SMTP_SECURE === 'true',
     },
+    SMTP_IGNORE_TLS: {
+      id: 'MAILER_SMTP_IGNORE_TLS',
+      text: t('configs.mail_configs.ignore_tls'),
+      value: cfg.MAILER_SMTP_IGNORE_TLS,
+      enabled: isCustom && cfg.MAILER_SMTP_IGNORE_TLS === 'true',
+    },
     TLS_REJECT_UNAUTHORIZED: {
       id: 'MAILER_TLS_REJECT_UNAUTHORIZED',
-      text: 'TLS Reject Unauthorized',
+      text: t('configs.mail_configs.tls_reject_unauthorized'),
       value: cfg.MAILER_TLS_REJECT_UNAUTHORIZED,
       enabled: isCustom && cfg.MAILER_TLS_REJECT_UNAUTHORIZED === 'true',
     },
     SMTP_USER: {
       id: 'MAILER_SMTP_USER',
-      text: 'SMTP User',
+      text: t('configs.mail_configs.user'),
       value: cfg.MAILER_SMTP_USER,
       enabled: isCustom,
     },
     SMTP_PASSWORD: {
       id: 'MAILER_SMTP_PASSWORD',
-      text: 'SMTP Password',
+      text: t('configs.mail_configs.password'),
       value: cfg.MAILER_SMTP_PASSWORD,
       enabled: isCustom,
     },
     SMTP_HOST: {
       id: 'MAILER_SMTP_HOST',
-      text: 'SMTP Host',
+      text: t('configs.mail_configs.host'),
       value: cfg.MAILER_SMTP_HOST,
       enabled: isCustom,
     },
     SMTP_PORT: {
       id: 'MAILER_SMTP_PORT',
-      text: 'SMTP Port',
+      text: t('configs.mail_configs.port'),
       value: cfg.MAILER_SMTP_PORT,
       enabled: isCustom,
     },

@@ -1564,8 +1564,9 @@ const duplicateRequest = async (payload: {
   const { folderPath, request } = payload
   if (!folderPath) return
 
+  const { id: _, ...requestWithoutID } = request
   const newRequest = {
-    ...cloneDeep(request),
+    ...cloneDeep(requestWithoutID),
     _ref_id: generateUniqueRefId("req"),
     name: `${request.name} - ${t("action.duplicate")}`,
   }

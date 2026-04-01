@@ -48,7 +48,7 @@ model TeamCollection {
   createdOn  DateTime         @default(now()) @db.Timestamptz(3)
   updatedOn  DateTime         @updatedAt @db.Timestamptz(3)
   data       Json?
-  parent     TeamCollection?  @relation("TeamCollectionChildParent", fields: [parentID], references: [id])
+  parent     TeamCollection?  @relation("TeamCollectionChildParent", fields: [parentID], references: [id], onDelete: Cascade)
   children   TeamCollection[] @relation("TeamCollectionChildParent")
   team       Team             @relation(fields: [teamID], references: [id], onDelete: Cascade)
   requests   TeamRequest[]
@@ -188,7 +188,7 @@ model UserRequest {
   orderIndex     Int
   createdOn      DateTime       @default(now()) @db.Timestamptz(3)
   updatedOn      DateTime       @updatedAt @db.Timestamptz(3)
-  userCollection UserCollection @relation(fields: [collectionID], references: [id])
+  userCollection UserCollection @relation(fields: [collectionID], references: [id], onDelete: Cascade)
   user           User           @relation(fields: [userUid], references: [uid], onDelete: Cascade)
 
   @@unique([userUid, collectionID, orderIndex])
@@ -297,18 +297,25 @@ model MockServerActivity {
 }
 
 model PublishedDocs {
-  id            String        @id @default(cuid())
-  title         String
-  collectionID  String
-  creatorUid    String
-  version       String
-  autoSync      Boolean
-  documentTree  Json? // Optional if autoSync is true
-  workspaceType WorkspaceType
-  workspaceID   String
-  metadata      Json?
-  createdOn     DateTime      @default(now()) @db.Timestamptz(3)
-  updatedOn     DateTime      @updatedAt @db.Timestamptz(3)
+  id                   String        @id @default(cuid())
+  slug                 String
+  title                String
+  collectionID         String
+  creatorUid           String
+  version              String
+  autoSync             Boolean
+  documentTree         Json? // Optional if autoSync is true
+  workspaceType        WorkspaceType
+  workspaceID          String
+  environmentID        String?
+  environmentName      String?
+  environmentVariables Json?
+  metadata             Json?
+  createdOn            DateTime      @default(now()) @db.Timestamptz(3)
+  updatedOn            DateTime      @updatedAt @db.Timestamptz(3)
+
+  @@unique([slug, version])
+  @@index([collectionID])
 }
 
 enum WorkspaceType {

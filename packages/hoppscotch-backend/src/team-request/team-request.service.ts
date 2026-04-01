@@ -239,7 +239,10 @@ export class TeamRequestService {
 
     if (cursor) {
       const cursorItem = await this.prisma.teamRequest.findFirst({
-        where: { id: cursor },
+      const cursorItem = await this.prisma.teamRequest.findFirst({
+        where: { id: cursor, collectionID },
+        select: { orderIndex: true },
+      });
         select: { orderIndex: true },
       });
 

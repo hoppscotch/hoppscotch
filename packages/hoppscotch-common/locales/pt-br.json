@@ -767,7 +767,6 @@
     "delete_account": "Excluir conta",
     "delete_account_description": "Ao deletar sua conta, todos os seus dados serão permanentemente excluídos. Esta ação não pode ser desfeita.",
     "desktop_section_description": "Opções específicas do aplicativo desktop.",
-    "desktop_section_placeholder": "Definições exclusivas do desktop podem ser adicionadas aqui.",
     "desktop_section_title": "Desktop",
     "disable_check_for_updates": "Desativar verificação automática de atualizações",
     "disable_encode_mode_tooltip": "Nunca codificar os parâmetros na requisição",

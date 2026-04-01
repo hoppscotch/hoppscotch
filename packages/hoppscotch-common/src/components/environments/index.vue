@@ -27,6 +27,7 @@
       :loading="loading"
       :adapter-error="adapterError"
       @select-environment="handleEnvironmentChange"
+      @refetch-environments="refetchTeamEnvironments"
     />
     <EnvironmentsMyDetails
       :show="showModalDetails"
@@ -136,6 +137,12 @@ const selectedEnvironmentIndex = useStream(
 const loading = computed(
   () => adapterLoading.value && teamEnvironmentList.value.length === 0
 )
+
+const refetchTeamEnvironments = () => {
+  if (environmentType.value.selectedTeam?.teamID) {
+    adapter.fetchList().catch((e) => console.error(e))
+  }
+}
 
 const switchToMyEnvironments = () => {
   environmentType.value.selectedTeam = undefined
@@ -277,6 +284,7 @@ const duplicateGlobalEnvironment = async () => {
         },
         () => {
           toast.success(t("environment.duplicated"))
+          refetchTeamEnvironments()
         }
       )
     )()
@@ -312,6 +320,7 @@ const removeSelectedEnvironment = () => {
         },
         () => {
           toast.success(`${t("team_environment.deleted")}`)
+          refetchTeamEnvironments()
         }
       )
     )()

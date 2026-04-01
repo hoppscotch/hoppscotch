@@ -127,6 +127,7 @@
         @show-environment-properties="
           showEnvironmentProperties(env.environment.id)
         "
+        @refetch-environments="emit('refetch-environments')"
       />
     </div>
 
@@ -139,6 +140,7 @@
       :is-secret-option-selected="secretOptionSelected"
       :is-viewer="team?.role === 'VIEWER'"
       @hide-modal="displayModalEdit(false)"
+      @refetch-environments="emit('refetch-environments')"
     />
     <EnvironmentsImportExport
       v-if="showModalImportExport"
@@ -146,6 +148,7 @@
       :team-id="team?.teamID"
       environment-type="TEAM_ENV"
       @hide-modal="displayModalImportExport(false)"
+      @refetch-environments="emit('refetch-environments')"
     />
     <EnvironmentsProperties
       v-if="showEnvironmentsPropertiesModal"
@@ -187,6 +190,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "select-environment", data: HandleEnvChangeProp): void
+  (e: "refetch-environments"): void
 }>()
 
 const filterText = ref("")

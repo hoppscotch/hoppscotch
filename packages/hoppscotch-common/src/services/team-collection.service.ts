@@ -294,7 +294,7 @@ export class TeamCollectionsService extends Service<void> {
     // Add to entity ids set
     this.entityIDs.add(`collection-${collection.id}`)
 
-    this.collections.value = tree
+    this.collections.value = [...tree]
   }
 
   /**
@@ -386,7 +386,7 @@ export class TeamCollectionsService extends Service<void> {
 
     updateCollInTree(tree, collectionUpdate)
 
-    this.collections.value = tree
+    this.collections.value = [...tree]
   }
 
   /**
@@ -401,7 +401,7 @@ export class TeamCollectionsService extends Service<void> {
 
     this.entityIDs.delete(`collection-${collectionID}`)
 
-    this.collections.value = tree
+    this.collections.value = [...tree]
   }
 
   /**
@@ -428,7 +428,7 @@ export class TeamCollectionsService extends Service<void> {
     // Update the Entity IDs list
     this.entityIDs.add(`request-${request.id}`)
 
-    this.collections.value = tree
+    this.collections.value = [...tree]
   }
 
   /**
@@ -447,7 +447,7 @@ export class TeamCollectionsService extends Service<void> {
 
     Object.assign(req, requestUpdate)
 
-    this.collections.value = tree
+    this.collections.value = [...tree]
   }
 
   /**
@@ -469,7 +469,7 @@ export class TeamCollectionsService extends Service<void> {
     this.entityIDs.delete(`request-${requestID}`)
 
     // Publish new tree
-    this.collections.value = tree
+    this.collections.value = [...tree]
   }
 
   /**
@@ -588,7 +588,7 @@ export class TeamCollectionsService extends Service<void> {
       this.reorderItems(collection.requests, requestIndex, destinationIndex)
     }
 
-    this.collections.value = tree
+    this.collections.value = [...tree]
   }
 
   public updateCollectionOrder = (
@@ -653,7 +653,7 @@ export class TeamCollectionsService extends Service<void> {
       }
     }
 
-    this.collections.value = tree
+    this.collections.value = [...tree]
   }
 
   private registerSubscriptions() {

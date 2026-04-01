@@ -139,8 +139,7 @@ mod tests {
         assert_eq!(serialized["access_token"], "token_value");
         assert_eq!(serialized["refresh_token"], "refresh_value");
 
-        let deserialized: AuthTokensQuery =
-            serde_json::from_value(serialized).unwrap();
+        let deserialized: AuthTokensQuery = serde_json::from_value(serialized).unwrap();
         assert_eq!(deserialized.access_token, original.access_token);
         assert_eq!(deserialized.refresh_token, original.refresh_token);
     }

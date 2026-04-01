@@ -1282,7 +1282,6 @@
     "delete_account": "Delete account",
     "delete_account_description": "Once you delete your account, all your data will be permanently deleted. This action cannot be undone.",
     "desktop_section_description": "Options specific to the desktop application.",
-    "desktop_section_placeholder": "Desktop-only settings can be added here.",
     "desktop_section_title": "Desktop",
     "disable_check_for_updates": "Disable automatic update checks",
     "disable_encode_mode_tooltip": "Never encode the parameters in the request",

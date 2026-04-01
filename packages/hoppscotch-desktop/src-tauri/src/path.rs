@@ -90,6 +90,42 @@ pub fn get_logs_dir() -> Result<String, String> {
         .map_err(|err| err.to_string())
 }
 
+// exposes the appload storage registry so the JS side can match the current
+// webview's hostname back to the original server URL. this is needed because
+// the app:// URL encoding is lossy (generate_bundle_name in appload replaces
+// both dots and hyphens with underscores, so "test-org" and "test_org" would
+// produce the same bundle name). returns an empty registry on fresh installs.
+//
+// FE-1140: the lossy encoding means two distinct org domains that differ only
+// by hyphens vs underscores would collide at the bundle name level. DNS rules
+// make this unlikely in practice but the encoding should be hardened later
+#[tauri::command]
+pub fn get_appload_registry() -> Result<String, String> {
+    let registry_path = config_dir()
+        .map_err(|err| err.to_string())?
+        .join("registry.json");
+
+    if !registry_path.exists() {
+        return Ok(r#"{"version":1,"servers":{}}"#.to_string());
+    }
+
+    std::fs::read_to_string(&registry_path).map_err(|err| err.to_string())
+}
+
+// reads the contents of a log file inside `logs_dir()`. same scope
+// bypass as `append_log` in logger.rs
+#[tauri::command]
+pub fn read_log(filename: String) -> Result<String, String> {
+    let dir = logs_dir().map_err(|e| e.to_string())?;
+    let path = dir.join(&filename);
+
+    if path.parent() != Some(&dir) {
+        return Err("invalid log filename".to_string());
+    }
+
+    std::fs::read_to_string(&path).map_err(|e| e.to_string())
+}
+
 pub fn log_file_path() -> PathBuf {
     platform_logs_dir().join(format!("{}.log", APP_ID))
 }

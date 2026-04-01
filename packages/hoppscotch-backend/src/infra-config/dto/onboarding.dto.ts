@@ -110,6 +110,10 @@ export class SaveOnboardingConfigRequest {
   @IsOptional()
   @IsString()
   [InfraConfigEnum.MAILER_TLS_REJECT_UNAUTHORIZED]: string;
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  [InfraConfigEnum.MAILER_SMTP_IGNORE_TLS]: string;
 }
 
 export class SaveOnboardingConfigResponse {
@@ -197,4 +201,7 @@ export class GetOnboardingConfigResponse {
   @ApiProperty()
   @Expose()
   [InfraConfigEnum.MAILER_TLS_REJECT_UNAUTHORIZED]: string;
+  @ApiProperty()
+  @Expose()
+  [InfraConfigEnum.MAILER_SMTP_IGNORE_TLS]: string;
 }

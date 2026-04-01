@@ -11,6 +11,8 @@ let
   ];
 
   linuxPackages = with pkgs; [
+    nodePackages.prisma
+    prisma-engines
     libsoup_3
     webkitgtk_4_1
     librsvg
@@ -31,8 +33,6 @@ in {
     nodejs_22
     nodePackages.typescript-language-server
     nodePackages."@volar/vue-language-server"
-    nodePackages.prisma
-    prisma-engines
     cargo-edit
     cargo-tauri
   ] ++ lib.optionals pkgs.stdenv.isDarwin darwinPackages
@@ -169,7 +169,7 @@ in {
     };
     go = {
       enable = true;
-      package = pkgs.go_1_24;
+      package = pkgs.go_1_25;
     };
     rust = {
       enable = true;

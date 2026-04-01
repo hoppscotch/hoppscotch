@@ -300,11 +300,7 @@ import {
   CreatePublishedDocsArgs,
   UpdatePublishedDocsArgs,
 } from "~/helpers/backend/graphql"
-import {
-  createPublishedDoc,
-  deletePublishedDoc,
-  updatePublishedDoc,
-} from "~/helpers/backend/mutations/PublishedDocs"
+import { platform } from "~/platform"
 
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
@@ -976,7 +972,7 @@ const handlePublish = async (
   }
 
   await pipe(
-    createPublishedDoc(doc),
+    platform.backend.createPublishedDoc(doc),
     TE.match(
       (error) => {
         console.error("Error publishing documentation:", error)
@@ -1032,7 +1028,7 @@ const handleUpdate = async (
   }
 
   await pipe(
-    updatePublishedDoc(id, doc),
+    platform.backend.updatePublishedDoc(id, doc),
     TE.match(
       (error) => {
         console.error("Error updating documentation:", error)
@@ -1077,7 +1073,7 @@ const handleDelete = async () => {
 
   isProcessingPublish.value = true
   await pipe(
-    deletePublishedDoc(publishedDocId.value),
+    platform.backend.deletePublishedDoc(publishedDocId.value),
     TE.match(
       (error) => {
         console.error("Error deleting documentation:", error)

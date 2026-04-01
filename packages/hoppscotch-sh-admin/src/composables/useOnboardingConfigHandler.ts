@@ -30,6 +30,7 @@ export type MailerConfigKeys =
   | 'SMTP_SECURE'
   | 'SMTP_USER'
   | 'SMTP_PASSWORD'
+  | 'SMTP_IGNORE_TLS'
   | 'TLS_REJECT_UNAUTHORIZED';
 
 export type Configs = {
@@ -89,6 +90,7 @@ function mapMailerConfigs(
     MAILER_SMTP_SECURE: configs.MAILER_SMTP_SECURE || 'false',
     MAILER_SMTP_USER: configs.MAILER_SMTP_USER ?? '',
     MAILER_SMTP_PASSWORD: configs.MAILER_SMTP_PASSWORD ?? '',
+    MAILER_SMTP_IGNORE_TLS: configs.MAILER_SMTP_IGNORE_TLS || 'false',
     MAILER_TLS_REJECT_UNAUTHORIZED:
       configs.MAILER_TLS_REJECT_UNAUTHORIZED || 'false',
   };
@@ -229,6 +231,7 @@ export function useOnboardingConfigHandler() {
         'MAILER_ADDRESS_FROM',
         'MAILER_USE_CUSTOM_CONFIGS',
         'MAILER_SMTP_SECURE',
+        'MAILER_SMTP_IGNORE_TLS',
         'MAILER_TLS_REJECT_UNAUTHORIZED',
         'MAILER_SMTP_ENABLE',
       ].includes(key);
@@ -253,11 +256,21 @@ export function useOnboardingConfigHandler() {
     );
 
     const neededKeys = filterNeededConfigs(relevantKeys);
-    const allFilled = neededKeys.every((key) => configs[key]);
+    // SMTP auth is optional (both blank = no-auth SMTP server).
+    // These keys are excluded from mandatory "filled" checks, but are still
+    // included in the returned payload even when empty so the backend can
+    // explicitly clear previously stored credentials on re-visits.
+    const optionalSmtpKeys = new Set([
+      'MAILER_SMTP_USER',
+      'MAILER_SMTP_PASSWORD',
+    ]);
+    const allFilled = neededKeys.every(
+      (key) => configs[key] || optionalSmtpKeys.has(key)
+    );
 
     if (!allFilled) {
       neededKeys.forEach((key) => {
-        if (!configs[key])
+        if (!configs[key] && !optionalSmtpKeys.has(key))
           toast.error(
             t('onboarding.please_fill_configurations', {
               fieldName: makeReadableKey(key),
@@ -267,11 +280,28 @@ export function useOnboardingConfigHandler() {
       return;
     }
 
+    // SMTP credentials must be provided together or both left empty.
+    // Only enforce when custom SMTP mode is active (not simple URL mode).
+    if (
+      enabledConfigs.value.includes('MAILER') &&
+      configs['MAILER_USE_CUSTOM_CONFIGS'] === 'true'
+    ) {
+      const smtpUser = configs['MAILER_SMTP_USER']?.trim();
+      const smtpPass = configs['MAILER_SMTP_PASSWORD']?.trim();
+
+      if (!!smtpUser !== !!smtpPass) {
+        toast.error(t('configs.mail_configs.smtp_auth_incomplete'));
+        return;
+      }
+    }
+
+    // Allow empty strings through for optional SMTP keys so the backend
+    // receives an explicit clear rather than silently retaining old values
     return Object.fromEntries(
       Object.entries(configs).filter(
         ([key, val]) =>
           enabledConfigs.value.includes(key.split('_')[0] as EnabledConfig) &&
-          val
+          (val || optionalSmtpKeys.has(key))
       )
     );
   };

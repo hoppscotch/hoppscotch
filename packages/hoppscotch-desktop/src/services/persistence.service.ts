@@ -2,7 +2,7 @@ import * as E from "fp-ts/Either"
 import { z } from "zod"
 import { StoreError } from "@hoppscotch/kernel"
 import { Store } from "~/kernel/store"
-import { UpdateState, PortableSettings } from "~/types"
+import { UpdateState, PortableSettings, DesktopSettings } from "~/types"
 
 export const STORE_NAMESPACE = "hoppscotch-desktop.v1"
 
@@ -12,6 +12,7 @@ export const STORE_KEYS = {
   RECENT_INSTANCES: "recentInstances",
   SCHEMA_VERSION: "schema_version",
   PORTABLE_SETTINGS: "portableSettings",
+  DESKTOP_SETTINGS: "desktopSettings",
 } as const
 
 export const UPDATE_STATE_SCHEMA = z.object({
@@ -257,6 +258,39 @@ export class DesktopPersistenceService {
     }
 
     console.log("No portable settings found, using defaults:", defaultSettings)
+    return defaultSettings
+  }
+
+  async setDesktopSettings(settings: DesktopSettings): Promise<void> {
+    console.log("Setting desktop settings:", settings)
+    const result = await Store.set(
+      STORE_NAMESPACE,
+      STORE_KEYS.DESKTOP_SETTINGS,
+      settings
+    )
+    if (E.isLeft(result)) {
+      console.error("Failed to save desktop settings:", result.left)
+      throw new Error(`Failed to save desktop settings: ${result.left}`)
+    } else {
+      console.log("Successfully saved desktop settings")
+    }
+  }
+
+  async getDesktopSettings(): Promise<DesktopSettings> {
+    const result = await Store.get<DesktopSettings>(
+      STORE_NAMESPACE,
+      STORE_KEYS.DESKTOP_SETTINGS
+    )
+
+    const defaultSettings: DesktopSettings = {
+      disableCheckForUpdates: false,
+    }
+
+    if (E.isRight(result) && result.right) {
+      console.log("Loaded desktop settings from store:", result.right)
+      return result.right
+    }
+
     return defaultSettings
   }
 }

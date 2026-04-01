@@ -233,13 +233,27 @@ export class TeamRequestService {
     cursor: string,
     take = 10,
   ) {
+    // Using orderIndex-based pagination instead of cursor pagination
+    // to avoid inconsistencies when orderIndex changes (e.g., during reordering)
+    let whereClause: Prisma.TeamRequestWhereInput = { collectionID };
+
+    if (cursor) {
+      const cursorItem = await this.prisma.teamRequest.findFirst({
+        where: { id: cursor },
+        select: { orderIndex: true },
+      });
+
+      if (cursorItem) {
+        whereClause = {
+          collectionID,
+          orderIndex: { gt: cursorItem.orderIndex },
+        };
+      }
+    }
+    
     const dbTeamRequests = await this.prisma.teamRequest.findMany({
-      cursor: cursor ? { id: cursor } : undefined,
-      take: take,
-      skip: cursor ? 1 : 0,
-      where: {
-        collectionID: collectionID,
-      },
+      take,
+      where: whereClause,
       orderBy: {
         orderIndex: 'asc',
       },

@@ -32,6 +32,7 @@ import { Store } from "@app/kernel/store"
 
 defineOptions({ name: "DesktopCustomSettings" })
 
+export const id = "desktop-custom-settings"
 const t = useI18n()
 
 interface DesktopSettings {

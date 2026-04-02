@@ -1,12 +1,18 @@
 import { HoppModule } from "."
 import { platform } from "~/platform"
 import { AuthEvent } from "~/platform/auth"
-import { settingsStore } from "~/newstore/settings"
+
+/**
+ * Whether authentication is required to access the app.
+ * Configured via VITE_REQUIRE_AUTH environment variable (server-side).
+ * This cannot be bypassed by users as it's baked into the build.
+ */
+const REQUIRE_AUTH = import.meta.env.VITE_REQUIRE_AUTH === "true"
 
 /**
  * Route path prefixes that are accessible without authentication.
  * Every other route requires the user to be logged in
- * (when REQUIRE_AUTH_FOR_APP setting is enabled).
+ * (when VITE_REQUIRE_AUTH is enabled).
  *
  *   /enter   – magic-link / email sign-in landing
  *   /oauth   – per-request OAuth callback (not user auth)
@@ -24,7 +30,7 @@ export default <HoppModule>{
     // ─── Navigation guard ───────────────────────────────────────────────
     router.beforeEach(async (to) => {
       // If the feature is disabled, allow all navigations freely.
-      if (!settingsStore.value.REQUIRE_AUTH_FOR_APP) return true
+      if (!REQUIRE_AUTH) return true
 
       // Wait for the probable-login confirmation so we never flash-redirect
       // a logged-in user to /enter on a hard reload.
@@ -51,7 +57,9 @@ export default <HoppModule>{
     // ─── Post-login redirect ─────────────────────────────────────────────
     // When the user completes login while sitting on /enter, push them to
     // the originally requested page (preserved in ?redirect=) or home.
-    platform.auth.getAuthEventsStream().subscribe((event: AuthEvent) => {
+    // Note: Subscription lives for the app's lifetime; stored for idiomatic RxJS.
+    const _loginSub = platform.auth.getAuthEventsStream().subscribe((event: AuthEvent) => {
+      if (!REQUIRE_AUTH) return
       if (event.event !== "login") return
 
       const currentRoute = router.currentRoute.value

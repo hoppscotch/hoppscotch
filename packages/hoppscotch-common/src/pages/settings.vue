@@ -182,17 +182,6 @@
                   {{ t("settings.enable_experimental_documentation") }}
                 </HoppSmartToggle>
               </div>
-              <div class="flex flex-col">
-                <HoppSmartToggle
-                  :on="REQUIRE_AUTH_FOR_APP"
-                  @change="toggleSetting('REQUIRE_AUTH_FOR_APP')"
-                >
-                  {{ t("settings.require_auth_for_app") }}
-                </HoppSmartToggle>
-                <p class="ml-9 mt-0.5 text-xs text-secondaryLight">
-                  {{ t("settings.require_auth_for_app_description") }}
-                </p>
-              </div>
             </div>
           </section>
         </div>
@@ -345,7 +334,6 @@ const ENABLE_EXPERIMENTAL_MOCK_SERVERS = useSetting(
 const ENABLE_EXPERIMENTAL_DOCUMENTATION = useSetting(
   "ENABLE_EXPERIMENTAL_DOCUMENTATION"
 )
-const REQUIRE_AUTH_FOR_APP = useSetting("REQUIRE_AUTH_FOR_APP")
 
 const supportedNamingStyles = [
   {

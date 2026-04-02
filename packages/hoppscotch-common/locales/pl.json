@@ -679,6 +679,8 @@
     "short_codes_description": "Short codes which were created by you.",
     "sidebar_on_left": "Sidebar on left",
     "sync": "Synchronizuj",
+    "require_auth_for_app": "Wymagaj logowania do korzystania z aplikacji",
+    "require_auth_for_app_description": "Po włączeniu nieuwierzytelnieni użytkownicy są przekierowywani na stronę logowania",
     "sync_collections": "Kolekcje",
     "sync_description": "Te ustawienia są synchronizowane z chmurą.",
     "sync_environments": "Środowiska",

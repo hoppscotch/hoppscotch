@@ -1298,6 +1298,8 @@
     "experimental_scripting_sandbox": "Experimentální skriptovací sandbox",
     "enable_experimental_mock_servers": "Povolit mock servery",
     "enable_experimental_documentation": "Povolit dokumentaci",
+    "require_auth_for_app": "Vyžadovat přihlášení pro používání aplikace",
+    "require_auth_for_app_description": "Pokud je povoleno, neověření uživatelé jsou přesměrováni na přihlašovací stránku",
     "sync": "Synchronizovat",
     "sync_collections": "Kolekce",
     "sync_description": "Tato nastavení jsou synchronizována s cloudem.",

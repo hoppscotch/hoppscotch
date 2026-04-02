@@ -679,6 +679,8 @@
     "short_codes_description": "Short codes which were created by you.",
     "sidebar_on_left": "Sidebar on left",
     "sync": "Synkronoida",
+    "require_auth_for_app": "Vaadi kirjautuminen sovelluksen käyttöön",
+    "require_auth_for_app_description": "Kun käytössä, todentamattomat käyttäjät ohjataan kirjautumissivulle",
     "sync_collections": "Kokoelmat",
     "sync_description": "Nämä asetukset synkronoidaan pilveen.",
     "sync_environments": "Ympäristöt",

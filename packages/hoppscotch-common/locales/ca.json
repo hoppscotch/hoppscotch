@@ -679,6 +679,8 @@
     "short_codes_description": "Short codes que ha creat.",
     "sidebar_on_left": "Barra lateral a l'esquerra",
     "sync": "Sincronitzar",
+    "require_auth_for_app": "Requereix inici de sessió per usar l'aplicació",
+    "require_auth_for_app_description": "Quan s'activa, els usuaris no autenticats es redirigeixen a la pàgina d'inici de sessió",
     "sync_collections": "Col·leccions",
     "sync_description": "Aquesta configuració es sincronitza amb el núvol.",
     "sync_environments": "Entorns",

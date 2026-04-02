@@ -11,6 +11,19 @@ import type {
 } from "@hoppscotch/common/platform/instance"
 import { VENDORED_INSTANCE_CONFIG } from "@hoppscotch/common/platform/instance"
 
+// simple diag logger for the main window (runs before kernel log module is available)
+function mainDiag(msg: string) {
+  const line = `[${new Date().toISOString()}] [MAIN] ${msg}\n`
+  if ((window as any).__TAURI_INTERNALS__) {
+    ;(window as any).__TAURI_INTERNALS__
+      .invoke("append_log", {
+        filename: "io.hoppscotch.desktop.diag.log",
+        content: line,
+      })
+      .catch(() => {})
+  }
+}
+
 export enum AppState {
   LOADING = "loading",
   UPDATE_AVAILABLE = "update_available",
@@ -60,17 +73,23 @@ export function useAppInitialization() {
         instance: VENDORED_INSTANCE_CONFIG,
       })
 
+      mainDiag("loadVendoredInstance: calling load(bundleName=Hoppscotch)")
       console.log("Loading vendored app...")
+
       const loadResp = await load({
         bundleName: VENDORED_INSTANCE_CONFIG.bundleName!,
         window: { title: "Hoppscotch" },
       })
 
+      mainDiag(
+        `loadVendoredInstance: load result success=${loadResp.success}, label=${loadResp.windowLabel}`
+      )
       if (!loadResp.success) {
         throw new Error("Failed to load Hoppscotch Vendored")
       }
 
       console.log("Vendored app loaded successfully")
+      mainDiag("loadVendoredInstance: closing main window")
       close({ windowLabel: "main" })
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err)
@@ -88,12 +107,27 @@ export function useAppInitialization() {
   }
 
   const loadVendoredIfMatches = async (instance: Instance) => {
-    if (
-      instance.kind === "vendored" ||
-      instance.bundleName === VENDORED_INSTANCE_CONFIG.bundleName
-    ) {
+    mainDiag(
+      `loadVendoredIfMatches: kind=${instance.kind}, displayName=${instance.displayName}, bundleName=${instance.bundleName}`
+    )
+
+    // cloud-org instances share the same bundleName as vendored ("Hoppscotch")
+    // because they use the same app bundle, just loaded with a different org
+    // context via the host parameter. we must check kind, not bundleName, to
+    // distinguish them. without this, restarting the app after connecting to an
+    // org would incorrectly load vendored (no host param = no org context).
+    // "cloud" (default cloud, e.g. hoppscotch.io) also uses the vendored bundle
+    // and doesn't need a download step.
+    if (instance.kind === "vendored" || instance.kind === "cloud") {
+      mainDiag(
+        "loadVendoredIfMatches: matched vendored, calling loadVendoredInstance"
+      )
       await loadVendoredInstance()
-    } else {
+    } else if (instance.kind === "cloud-org") {
+      // cloud-org: uses the vendored bundle but needs the host parameter so the
+      // webview gets the org context (?org= query param). skip the download
+      // step since cloud-org shares the vendored bundle which is already
+      // available locally.
       try {
         statusMessage.value = `Loading ${instance.displayName}...`
 
@@ -102,20 +136,18 @@ export function useAppInitialization() {
           target: instance.serverUrl,
         })
 
-        await download({ serverUrl: instance.serverUrl })
-
-        // cloud-org instances pass serverUrl as host so window.location.hostname reflects the
-        // org subdomain (like acme.hoppscotch.io). This becomes the source of truth for org
-        // context throughout the app instead of needing to pass state through multiple layers.
-        const host =
-          instance.kind === "cloud-org" ? instance.serverUrl : undefined
-
+        mainDiag(
+          `loadVendoredIfMatches: loading cloud-org instance, bundle=${instance.bundleName}, host=${instance.serverUrl}`
+        )
         const loadResp = await load({
           bundleName: instance.bundleName!,
-          host,
+          host: instance.serverUrl,
           window: { title: "Hoppscotch" },
         })
 
+        mainDiag(
+          `loadVendoredIfMatches: load result success=${loadResp.success}, label=${loadResp.windowLabel}`
+        )
         if (!loadResp.success) {
           throw new Error(`Failed to load ${instance.displayName}`)
         }
@@ -126,6 +158,62 @@ export function useAppInitialization() {
         })
 
         console.log(`Successfully loaded instance: ${instance.displayName}`)
+        mainDiag("loadVendoredIfMatches: closing main window")
+        close({ windowLabel: "main" })
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : String(err)
+        console.error(
+          `Failed to load cloud-org instance ${instance.displayName}:`,
+          errorMessage
+        )
+
+        await saveConnectionState({
+          status: "error",
+          target: instance.serverUrl,
+          message: errorMessage,
+        })
+
+        mainDiag(
+          `loadVendoredIfMatches: FAILED to load cloud-org ${instance.displayName}, falling back to vendored. error=${errorMessage}`
+        )
+        console.log("Falling back to vendored instance")
+        await loadVendoredInstance()
+      }
+    } else {
+      // self-hosted or other non-vendored instances: need to download the
+      // bundle from the server before loading
+      try {
+        statusMessage.value = `Loading ${instance.displayName}...`
+
+        await saveConnectionState({
+          status: "connecting",
+          target: instance.serverUrl,
+        })
+
+        await download({ serverUrl: instance.serverUrl })
+
+        mainDiag(
+          `loadVendoredIfMatches: loading non-vendored instance, bundle=${instance.bundleName}`
+        )
+        const loadResp = await load({
+          bundleName: instance.bundleName!,
+          window: { title: "Hoppscotch" },
+        })
+
+        mainDiag(
+          `loadVendoredIfMatches: load result success=${loadResp.success}, label=${loadResp.windowLabel}`
+        )
+        if (!loadResp.success) {
+          throw new Error(`Failed to load ${instance.displayName}`)
+        }
+
+        await saveConnectionState({
+          status: "connected",
+          instance: instance,
+        })
+
+        console.log(`Successfully loaded instance: ${instance.displayName}`)
+        mainDiag("loadVendoredIfMatches: closing main window")
         close({ windowLabel: "main" })
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : String(err)
@@ -140,6 +228,9 @@ export function useAppInitialization() {
           message: errorMessage,
         })
 
+        mainDiag(
+          `loadVendoredIfMatches: FAILED to load ${instance.displayName}, falling back to vendored. error=${errorMessage}`
+        )
         console.log("Falling back to vendored instance")
         await loadVendoredInstance()
       }
@@ -150,9 +241,19 @@ export function useAppInitialization() {
     try {
       statusMessage.value = "Loading application..."
 
+      // Both the main window and the vendored webview's InstanceService
+      // share hoppscotch-unified.store for connection state and recent
+      // instances. The InstanceService's detectCurrentInstanceFromHostname
+      // persists the detected instance (including cloud-org) to this store,
+      // so on restart the main window can resume the correct instance.
       const connectionState = await persistence.getConnectionState()
       const recentInstances = await persistence.getRecentInstances()
 
+      mainDiag(`loadRecent: connectionState=${JSON.stringify(connectionState)}`)
+      mainDiag(
+        `loadRecent: connectionState.status=${connectionState?.status ?? "(null)"}, instance.kind=${connectionState?.status === "connected" ? connectionState.instance?.kind : "(n/a)"}, instance.displayName=${connectionState?.status === "connected" ? connectionState.instance?.displayName : "(n/a)"}, recentInstances.length=${recentInstances.length}`
+      )
+      mainDiag(`loadRecent: recentInstances=${JSON.stringify(recentInstances)}`)
       console.log("Current connection state:", connectionState)
       console.log("Recent instances:", recentInstances)
 
@@ -160,6 +261,9 @@ export function useAppInitialization() {
         switch (connectionState.status) {
           case "connected":
             if (connectionState.instance) {
+              mainDiag(
+                `loadRecent: resuming connected instance: kind=${connectionState.instance.kind}, displayName=${connectionState.instance.displayName}`
+              )
               statusMessage.value = `Connecting to ${connectionState.instance.displayName}...`
               try {
                 await loadVendoredIfMatches(connectionState.instance)

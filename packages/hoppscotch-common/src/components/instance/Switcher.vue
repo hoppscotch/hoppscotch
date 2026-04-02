@@ -291,11 +291,23 @@ const isInstanceSwitchingEnabled = computed(() => {
   return platform.instance?.instanceSwitchingEnabled ?? false
 })
 
+// Whether the org switcher is handling the default instance entry. When it is,
+// the vendored instance should not appear here since the "Hoppscotch Cloud"
+// entry in the org section already covers switching back to the default state.
+// Showing both "Hoppscotch Cloud" (org section) and "Hoppscotch Desktop"
+// (instance section) is confusing because they represent the same thing from
+// the user's perspective.
+const orgSwitcherHandlesDefault = computed(
+  () => !!platform.organization?.customOrganizationSwitcherComponent
+)
+
 const connectedInstance = computed(() => {
   if (!isConnectedState(connectionState.value)) return null
   const instance = currentInstance.value
   // cloud and cloud-org instances belong in the org section, not here
   if (instance?.kind === "cloud" || instance?.kind === "cloud-org") return null
+  if (instance?.kind === "vendored" && orgSwitcherHandlesDefault.value)
+    return null
   return instance
 })
 
@@ -305,7 +317,8 @@ const recentInstances = computed(() => {
       instance.serverUrl !== currentInstance.value?.serverUrl &&
       // cloud and cloud-org instances are accessed via the dedicated cloud entry
       instance.kind !== "cloud" &&
-      instance.kind !== "cloud-org"
+      instance.kind !== "cloud-org" &&
+      !(instance.kind === "vendored" && orgSwitcherHandlesDefault.value)
   )
 })
 

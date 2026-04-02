@@ -60,15 +60,15 @@
   },
   "devDependencies": {
     "@digitak/esrun": "3.2.26",
-    "@eslint/eslintrc": "3.3.3",
+    "@eslint/eslintrc": "3.3.5",
     "@eslint/js": "9.39.2",
     "@relmify/jest-fp-ts": "2.1.1",
     "@types/chai": "5.2.3",
     "@types/jest": "30.0.0",
-    "@types/lodash": "4.17.23",
+    "@types/lodash": "4.17.24",
     "@types/node": "24.10.1",
-    "@typescript-eslint/eslint-plugin": "8.56.0",
-    "@typescript-eslint/parser": "8.56.0",
+    "@typescript-eslint/eslint-plugin": "8.57.2",
+    "@typescript-eslint/parser": "8.57.2",
     "eslint": "9.39.2",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.5",
@@ -77,10 +77,10 @@
     "prettier": "3.8.1",
     "typescript": "5.9.3",
     "vite": "7.3.1",
-    "vitest": "4.0.18"
+    "vitest": "4.1.2"
   },
   "peerDependencies": {
-    "isolated-vm": "6.0.2"
+    "isolated-vm": "6.1.2"
   },
   "peerDependenciesMeta": {
     "isolated-vm": {

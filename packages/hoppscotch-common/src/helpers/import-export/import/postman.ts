@@ -586,8 +586,9 @@ const getHoppRequest = (
   item: Item,
   importScripts: boolean
 ): HoppRESTRequest => {
+  const start = performance.now();
   const { preRequestScript, testScript } = getHoppScripts(item, importScripts)
-  return makeRESTRequest({
+  const result = makeRESTRequest({
     name: item.name,
     endpoint: getHoppReqURL(item.request.url),
     method: item.request.method.toUpperCase(),
@@ -604,13 +605,17 @@ const getHoppRequest = (
     testScript,
     description: getRequestDescription(item.request.description),
   })
+  const end = performance.now();
+  console.log(`[Perf]   📄 请求 "${item.name}": ${(end - start).toFixed(2)} ms`)
+  return result;
 }
 
 const getHoppFolder = (
   ig: ItemGroup<Item>,
   importScripts: boolean
-): HoppCollection =>
-  makeCollection({
+): HoppCollection =>{
+  const start = performance.now();
+  const result = makeCollection({
     name: ig.name,
     folders: pipe(
       ig.items.all(),
@@ -627,14 +632,22 @@ const getHoppFolder = (
     variables: getHoppCollVariables(ig),
     description: getCollectionDescription(ig.description),
   })
+  const end = performance.now();
+  console.log(`getHoppFolder time: ${(end - start).toFixed(2)} ms , 请求数: ${result.requests.length}`);
+  return result;
+}
 
-export const getHoppCollections = (
+export const getHoppCollections = (//总入口
   collections: PMCollection[],
   importScripts: boolean
 ) => {
-  return collections.map((collection) =>
+  const start = performance.now();
+  const result = collections.map((collection) =>
     getHoppFolder(collection, importScripts)
   )
+  const end = performance.now();
+  console.log(`getHoppCollections time: ${(end - start).toFixed(2)} ms , 文件夹数: ${result.length}`);
+  return result;
 }
 
 export const hoppPostmanImporter = (

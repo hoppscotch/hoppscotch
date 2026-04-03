@@ -1066,6 +1066,53 @@ data2: {"type":"test2","typeId":"123"}`,
       responses: {},
     }),
   },
+  {
+    command: `curl https://example.com -H 'X-Debug: keep -s and --verbose' --silent`,
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled",
+      endpoint: "https://example.com/",
+      auth: { authType: "inherit", authActive: true },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      headers: [
+        {
+          active: true,
+          key: "X-Debug",
+          value: "keep -s and --verbose",
+          description: "",
+        },
+      ],
+      params: [],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+    }),
+  },
+  {
+    command: `curl https://example.com -d '{"mode":"-s --verbose"}' -sS`,
+    response: makeRESTRequest({
+      method: "POST",
+      name: "Untitled",
+      endpoint: "https://example.com/",
+      auth: { authType: "inherit", authActive: true },
+      body: {
+        contentType: "application/json",
+        body: `{
+  "mode": "-s --verbose"
+}`,
+      },
+      headers: [],
+      params: [],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+    }),
+  },
 ]
 
 describe("Parse curl command to Hopp REST Request", () => {

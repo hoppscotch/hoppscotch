@@ -1028,6 +1028,44 @@ data2: {"type":"test2","typeId":"123"}`,
       responses: {},
     }),
   },
+  {
+    command: `curl -sS https://example.com`,
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled",
+      endpoint: "https://example.com/",
+      auth: { authType: "inherit", authActive: true },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      headers: [],
+      params: [],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+    }),
+  },
+  {
+    command: `curl -s -S -v https://example.com`,
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled",
+      endpoint: "https://example.com/",
+      auth: { authType: "inherit", authActive: true },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      headers: [],
+      params: [],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+    }),
+  },
 ]
 
 describe("Parse curl command to Hopp REST Request", () => {

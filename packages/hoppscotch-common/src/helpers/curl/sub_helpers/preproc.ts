@@ -56,6 +56,16 @@ const prescreenXArgs = flow(
   S.trim
 )
 
+// Drop cURL flags that only change terminal output and should not affect request import.
+const stripOutputOnlyFlags = flow(
+  S.replace(
+    /(^|\s)(?:-(?:[sSvV]+)|--silent|--show-error|--verbose|--no-progress-meter)(?=\s|$)/g,
+    "$1"
+  ),
+  S.replace(/\s{2,}/g, " "),
+  S.trim
+)
+
 /**
  * Sanitizes and makes curl string processable
  * @param curlCommand Raw curl command string
@@ -65,6 +75,8 @@ export const preProcessCurlCommand = (curlCommand: string) =>
   pipe(
     curlCommand,
     O.fromPredicate((curlCmd) => curlCmd.length > 0),
-    O.map(flow(paperCuts, replaceLongOptions, prescreenXArgs)),
+    O.map(
+      flow(paperCuts, replaceLongOptions, stripOutputOnlyFlags, prescreenXArgs)
+    ),
     O.getOrElse(() => "")
   )

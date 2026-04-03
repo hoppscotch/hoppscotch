@@ -102,7 +102,9 @@ class IndexedDBStoreManager {
       const request = store.getAllKeys()
       request.onsuccess = () => {
         const keys = request.result as string[]
-        const filteredKeys = keys.filter((key) => key.startsWith(`${namespace}:`))
+        const filteredKeys = keys.filter((key) =>
+          key.startsWith(`${namespace}:`)
+        )
         const mappedKeys = filteredKeys.map((key) =>
           key.replace(`${namespace}:`, "")
         )

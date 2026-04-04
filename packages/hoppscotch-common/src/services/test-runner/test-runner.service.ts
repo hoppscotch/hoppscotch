@@ -100,10 +100,11 @@ export class TestRunnerService extends Service {
   ) {
     try {
       // Compute inherited auth and headers for this collection
-      const inheritedAuth =
+      const inheritedAuth = (
         collection.auth?.authType === "inherit" && collection.auth.authActive
           ? parentAuth || { authType: "none", authActive: false }
           : collection.auth || { authType: "none", authActive: false }
+      ) as HoppRESTRequest["auth"]
 
       const inheritedHeaders: HoppRESTHeaders = [
         ...(parentHeaders || []),

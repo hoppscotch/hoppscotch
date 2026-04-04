@@ -212,6 +212,10 @@ export class KernelInterceptorAgentStore extends Service {
     return this.authKey.value !== null
   }
 
+  public isEncryptionReady(): boolean {
+    return this.authKey.value !== null && this.sharedSecretB16.value !== null
+  }
+
   public async initiateRegistration() {
     const otp = Math.floor(100000 + Math.random() * 900000).toString()
 
@@ -286,13 +290,9 @@ export class KernelInterceptorAgentStore extends Service {
     }
   }
 
-  public async encryptRequest(
-    request: PluginRequest,
-    reqID: number
+  private async _aesGcmEncrypt(
+    plaintext: Uint8Array
   ): Promise<[string, ArrayBuffer]> {
-    const fullRequest = { ...request, id: reqID }
-    const reqJSON = JSON.stringify(fullRequest)
-    const reqJSONBytes = new TextEncoder().encode(reqJSON)
     const nonce = window.crypto.getRandomValues(new Uint8Array(12))
     const nonceB16 = base16.encode(nonce).toLowerCase()
 
@@ -307,19 +307,19 @@ export class KernelInterceptorAgentStore extends Service {
       ["encrypt", "decrypt"]
     )
 
-    const encryptedReq = await window.crypto.subtle.encrypt(
+    const encrypted = await window.crypto.subtle.encrypt(
       { name: "AES-GCM", iv: nonce },
       sharedSecretKey,
-      reqJSONBytes
+      plaintext
     )
 
-    return [nonceB16, encryptedReq]
+    return [nonceB16, encrypted]
   }
 
-  public async decryptResponse(
+  private async _aesGcmDecrypt(
     nonceB16: string,
-    encryptedResponse: ArrayBuffer
-  ): Promise<PluginResponse> {
+    ciphertext: ArrayBuffer
+  ): Promise<Uint8Array> {
     const nonce = new Uint8Array(base16.decode(nonceB16.toUpperCase()))
     const sharedSecretKeyBytes = new Uint8Array(
       base16.decode(this.sharedSecretB16.value!.toUpperCase())
@@ -332,13 +332,130 @@ export class KernelInterceptorAgentStore extends Service {
       ["encrypt", "decrypt"]
     )
 
-    const decryptedBytes = await window.crypto.subtle.decrypt(
+    const decrypted = await window.crypto.subtle.decrypt(
       { name: "AES-GCM", iv: nonce },
       sharedSecretKey,
-      encryptedResponse
+      ciphertext
     )
 
-    return JSON.parse(new TextDecoder().decode(decryptedBytes))
+    return new Uint8Array(decrypted)
+  }
+
+  public async encryptRequest(
+    request: PluginRequest,
+    reqID: number
+  ): Promise<[string, ArrayBuffer]> {
+    const fullRequest = { ...request, id: reqID }
+    const plaintext = new TextEncoder().encode(JSON.stringify(fullRequest))
+    return this._aesGcmEncrypt(plaintext)
+  }
+
+  public async decryptResponse(
+    nonceB16: string,
+    encryptedResponse: ArrayBuffer
+  ): Promise<PluginResponse> {
+    const decrypted = await this._aesGcmDecrypt(nonceB16, encryptedResponse)
+    return JSON.parse(new TextDecoder().decode(decrypted))
+  }
+
+  private async encryptPayload(data: unknown): Promise<[string, ArrayBuffer]> {
+    const plaintext = new TextEncoder().encode(JSON.stringify(data))
+    return this._aesGcmEncrypt(plaintext)
+  }
+
+  private async decryptPayload<T>(
+    nonceB16: string,
+    encryptedData: ArrayBuffer
+  ): Promise<T> {
+    const decrypted = await this._aesGcmDecrypt(nonceB16, encryptedData)
+    return JSON.parse(new TextDecoder().decode(decrypted)) as T
+  }
+
+  public async listAwsProfiles(): Promise<string[]> {
+    if (!this.authKey.value || !this.sharedSecretB16.value) {
+      return []
+    }
+
+    try {
+      const response = await axios.get("http://localhost:9119/aws/profiles", {
+        headers: {
+          Authorization: `Bearer ${this.authKey.value}`,
+        },
+        responseType: "arraybuffer",
+      })
+
+      const responseNonceB16: string | undefined =
+        response.headers["x-hopp-nonce"]
+      if (!responseNonceB16) {
+        return []
+      }
+      const parsed = await this.decryptPayload<{ profiles: string[] }>(
+        responseNonceB16,
+        response.data
+      )
+
+      return parsed.profiles
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        this.authKey.value = null
+        this.sharedSecretB16.value = null
+        await this.persistStore()
+      }
+      throw error
+    }
+  }
+
+  public async resolveAwsCredentials(
+    profileName: string,
+    region?: string
+  ): Promise<{
+    access_key_id: string
+    secret_access_key: string
+    session_token: string | null
+    expiration: string | null
+  }> {
+    if (!this.authKey.value || !this.sharedSecretB16.value) {
+      throw new Error("Agent not registered")
+    }
+
+    try {
+      const [nonceB16, encryptedPayload] = await this.encryptPayload({
+        profile_name: profileName,
+        region: region || null,
+      })
+
+      const response = await axios.post(
+        "http://localhost:9119/aws/resolve-credentials",
+        encryptedPayload,
+        {
+          headers: {
+            Authorization: `Bearer ${this.authKey.value}`,
+            "X-Hopp-Nonce": nonceB16,
+            "Content-Type": "application/octet-stream",
+          },
+          responseType: "arraybuffer",
+        }
+      )
+
+      const responseNonceB16: string | undefined =
+        response.headers["x-hopp-nonce"]
+      if (!responseNonceB16) {
+        throw new Error("Agent response is missing the x-hopp-nonce header")
+      }
+      return await this.decryptPayload<{
+        access_key_id: string
+        secret_access_key: string
+        session_token: string | null
+        expiration: string | null
+      }>(responseNonceB16, response.data)
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        this.authKey.value = null
+        this.sharedSecretB16.value = null
+        await this.persistStore()
+      }
+      throw error
+    }
   }
 
   public async cancelRequest(reqId: number): Promise<void> {

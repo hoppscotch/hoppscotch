@@ -195,7 +195,7 @@ impl AppState {
         auth_key: &str,
         nonce: &str,
         data: &Bytes,
-    ) -> Option<T>
+    ) -> Option<(T, Registration)>
     where
         T: DeserializeOwned,
     {
@@ -243,10 +243,12 @@ impl AppState {
             }
         };
 
+        let reg_clone = registration.clone();
+
         match serde_json::from_reader(plain_data.as_slice()) {
             Ok(result) => {
                 tracing::info!(auth_key, "Data successfully decrypted and parsed");
-                Some(result)
+                Some((result, reg_clone))
             }
             Err(e) => {
                 tracing::error!(auth_key, error = ?e, "Failed to parse decrypted data");

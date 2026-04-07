@@ -49,8 +49,8 @@
           />
         </div>
         <HoppSmartItem
-          v-for="(team, index) in myTeams"
-          :key="`team-${String(index)}`"
+          v-for="team in myTeams"
+          :key="`team-${team.id}`"
           :icon="IconUsers"
           :label="team.name"
           :info-icon="isActiveWorkspace(team.id) ? IconDone : undefined"

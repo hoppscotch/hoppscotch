@@ -88,7 +88,9 @@ export class RESTTabService extends TabService<HoppTabDocument> {
         tab.document.saveContext.folderPath === ctx?.folderPath &&
         tab.document.saveContext.requestIndex === ctx?.requestIndex &&
         tab.document.saveContext.exampleID === ctx?.exampleID &&
-        tab.document.saveContext.requestRefID === ctx?.requestRefID
+        (ctx?.requestRefID != null
+          ? tab.document.saveContext.requestRefID === ctx.requestRefID
+          : true)
       ) {
         return this.getTabRef(tab.id)
       }

@@ -42,17 +42,17 @@
   "private": false,
   "dependencies": {
     "aws4fetch": "1.0.20",
-    "axios": "1.13.5",
+    "axios": "1.13.6",
     "axios-cookiejar-support": "6.0.5",
     "chalk": "5.6.2",
     "commander": "14.0.3",
-    "isolated-vm": "6.0.2",
+    "isolated-vm": "6.1.2",
     "js-md5": "0.8.3",
     "jsonc-parser": "3.3.1",
     "lodash-es": "4.17.23",
     "papaparse": "5.5.3",
     "qs": "6.15.0",
-    "tough-cookie": "6.0.0",
+    "tough-cookie": "6.0.1",
     "verzod": "0.4.0",
     "xmlbuilder2": "4.0.3",
     "zod": "3.25.32"
@@ -63,13 +63,13 @@
     "@relmify/jest-fp-ts": "2.1.1",
     "@types/lodash-es": "4.17.12",
     "@types/papaparse": "5.5.2",
-    "@types/qs": "6.14.0",
+    "@types/qs": "6.15.0",
     "fp-ts": "2.16.11",
     "prettier": "3.8.1",
     "qs": "6.11.2",
     "semver": "7.7.4",
     "tsup": "8.5.1",
     "typescript": "5.9.3",
-    "vitest": "4.0.18"
+    "vitest": "4.1.2"
   }
 }

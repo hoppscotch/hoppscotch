@@ -7,11 +7,30 @@ import * as crypto from 'crypto';
 const FALLBACK_SECRET = crypto.randomBytes(32).toString('hex');
 
 /**
+ * Maximum serialized payload size in bytes.
+ * Prevents oversized state parameters that could break provider redirects
+ * or exceed URL length limits.
+ */
+const MAX_PAYLOAD_BYTES = 2048;
+
+/**
+ * Default cookie name used to bind the OAuth state to a specific browser session.
+ * Prevents login CSRF by ensuring the callback can only be completed
+ * by the same browser that initiated the OAuth flow.
+ */
+const DEFAULT_COOKIE_NAME = '__oauth_nonce';
+
+/**
  * A stateless OAuth state store for passport strategies.
  *
  * Instead of storing state in express-session (MemoryStore), this encodes
  * the state as a signed, time-limited token passed through the OAuth `state`
  * query parameter. The token format is: `base64url(payload).base64url(hmac)`.
+ *
+ * CSRF protection: A random nonce is generated per OAuth flow, stored in a
+ * SameSite=Lax HttpOnly cookie, and mixed into the HMAC signature. On
+ * callback, the nonce from the cookie is used to verify the signature,
+ * ensuring the same browser that started the flow completes it.
  *
  * This eliminates all server-side session state from the OAuth flow, making
  * it fully compatible with horizontal scaling (multiple backend instances
@@ -26,10 +45,16 @@ const FALLBACK_SECRET = crypto.randomBytes(32).toString('hex');
 export class StatelessStateStore {
   private readonly secret: string;
   private readonly maxAgeMs: number;
+  private readonly cookieName: string;
 
-  constructor(secret?: string, maxAgeMs: number = 600_000) {
+  constructor(
+    secret?: string,
+    maxAgeMs: number = 600_000,
+    cookieName?: string,
+  ) {
     this.secret = secret || FALLBACK_SECRET;
     this.maxAgeMs = maxAgeMs;
+    this.cookieName = cookieName || DEFAULT_COOKIE_NAME;
   }
 
   /**
@@ -82,15 +107,39 @@ export class StatelessStateStore {
     }
 
     try {
+      // Generate a browser-bound nonce for CSRF protection
+      const nonce = crypto.randomBytes(16).toString('hex');
+
       const payload: any = {
         state: state,
         exp: Date.now() + this.maxAgeMs,
+        nonce: nonce,
       };
       // Store ctx only if defined (OIDC context or PKCE verifier)
       if (ctx !== undefined && ctx !== null) {
         payload.ctx = ctx;
       }
+
+      const serialized = JSON.stringify(payload);
+      if (Buffer.byteLength(serialized) > MAX_PAYLOAD_BYTES) {
+        return callback(
+          new Error('OAuth state payload exceeds maximum allowed size'),
+        );
+      }
+
       const encoded = this.encode(payload);
+
+      // Set the nonce as a SameSite cookie to bind the OAuth flow to this browser
+      if (req.res) {
+        req.res.cookie(this.cookieName, nonce, {
+          httpOnly: true,
+          sameSite: 'lax',
+          secure: req.secure || req.protocol === 'https',
+          maxAge: this.maxAgeMs,
+          path: '/',
+        });
+      }
+
       callback(null, encoded);
     } catch (err) {
       callback(err);
@@ -121,7 +170,19 @@ export class StatelessStateStore {
    */
   verify(req: any, providedState: string, cb: Function): void {
     try {
-      const payload = this.decode(providedState);
+      // Read the browser-bound nonce from the cookie
+      const cookieNonce = req.cookies?.[this.cookieName];
+
+      // Clear the nonce cookie regardless of outcome
+      if (req.res) {
+        req.res.clearCookie(this.cookieName, { path: '/' });
+      }
+
+      if (!cookieNonce) {
+        return cb(null, false, { message: 'Missing OAuth nonce cookie' });
+      }
+
+      const payload = this.decode(providedState, cookieNonce);
       if (!payload) {
         return cb(null, false, { message: 'Invalid state signature' });
       }
@@ -144,42 +205,48 @@ export class StatelessStateStore {
    * Decode and verify a signed state token.
    * Returns null if the token is missing, malformed, or the signature is invalid.
    */
-  decode(token: string): any | null {
-    if (!token) return null;
+  private decode(token: string, nonce?: string): any | null {
+    try {
+      if (!token) return null;
 
-    const dotIndex = token.indexOf('.');
-    if (dotIndex === -1) return null;
+      const dotIndex = token.indexOf('.');
+      if (dotIndex === -1) return null;
 
-    const payloadStr = token.substring(0, dotIndex);
-    const signature = token.substring(dotIndex + 1);
+      const payloadStr = token.substring(0, dotIndex);
+      const signature = token.substring(dotIndex + 1);
 
-    const expectedSignature = this.sign(payloadStr);
+      const expectedSignature = this.sign(payloadStr, nonce);
 
-    if (
-      signature.length !== expectedSignature.length ||
-      !crypto.timingSafeEqual(
-        Buffer.from(signature),
-        Buffer.from(expectedSignature),
-      )
-    ) {
+      if (
+        signature.length !== expectedSignature.length ||
+        !crypto.timingSafeEqual(
+          Buffer.from(signature),
+          Buffer.from(expectedSignature),
+        )
+      ) {
+        return null;
+      }
+
+      return JSON.parse(Buffer.from(payloadStr, 'base64url').toString());
+    } catch {
       return null;
     }
-
-    return JSON.parse(Buffer.from(payloadStr, 'base64url').toString());
   }
 
   private encode(payload: any): string {
     const payloadStr = Buffer.from(JSON.stringify(payload)).toString(
       'base64url',
     );
-    const signature = this.sign(payloadStr);
+    const signature = this.sign(payloadStr, payload.nonce);
     return `${payloadStr}.${signature}`;
   }
 
-  private sign(data: string): string {
-    return crypto
-      .createHmac('sha256', this.secret)
-      .update(data)
-      .digest('base64url');
+  private sign(data: string, nonce?: string): string {
+    const hmac = crypto.createHmac('sha256', this.secret);
+    hmac.update(data);
+    if (nonce) {
+      hmac.update(nonce);
+    }
+    return hmac.digest('base64url');
   }
 }

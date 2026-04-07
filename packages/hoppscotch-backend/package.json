@@ -56,7 +56,6 @@
     "cookie-parser": "1.4.7",
     "dotenv": "17.3.1",
     "express": "5.2.1",
-    "express-session": "1.19.0",
     "fp-ts": "2.16.11",
     "graphql": "16.13.1",
     "graphql-query-complexity": "1.1.0",

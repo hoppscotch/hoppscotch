@@ -24,6 +24,8 @@ export class GithubStrategy extends PassportStrategy(Strategy) {
       scope: [configService.get<string>('INFRA.GITHUB_SCOPE')],
       store: new StatelessStateStore(
         configService.get<string>('INFRA.SESSION_SECRET'),
+        undefined,
+        configService.get<string>('INFRA.SESSION_COOKIE_NAME'),
       ),
     });
   }

@@ -25,6 +25,8 @@ export class MicrosoftStrategy extends PassportStrategy(Strategy) {
       tenant: configService.get<string>('INFRA.MICROSOFT_TENANT'),
       store: new StatelessStateStore(
         configService.get<string>('INFRA.SESSION_SECRET'),
+        undefined,
+        configService.get<string>('INFRA.SESSION_COOKIE_NAME'),
       ),
     });
   }

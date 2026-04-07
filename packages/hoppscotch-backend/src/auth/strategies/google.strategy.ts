@@ -26,6 +26,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
       passReqToCallback: true,
       store: new StatelessStateStore(
         configService.get<string>('INFRA.SESSION_SECRET'),
+        undefined,
+        configService.get<string>('INFRA.SESSION_COOKIE_NAME'),
       ),
     });
   }

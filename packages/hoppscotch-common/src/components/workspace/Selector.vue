@@ -108,7 +108,10 @@ const currentUser = useReadonlyStream(
 
 const workspaceService = useService(WorkspaceService)
 const teamListadapter = workspaceService.acquireTeamListAdapter(null)
-const myTeams = useReadonlyStream(teamListadapter.teamList$, [])
+const unsortedTeams = useReadonlyStream(teamListadapter.teamList$, [])
+const myTeams = computed(() =>
+  [...unsortedTeams.value].sort((a, b) => a.name.localeCompare(b.name))
+)
 const isTeamListLoading = useReadonlyStream(teamListadapter.loading$, false)
 const teamListAdapterError = useReadonlyStream(teamListadapter.error$, null)
 const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")

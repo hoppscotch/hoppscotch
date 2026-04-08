@@ -84,7 +84,7 @@ Starts only the AIO container. Use this when you have an external PostgreSQL dat
 > [!NOTE]
 > This profile does **not** run `hoppscotch-migrate` automatically. Run migrations manually before starting:
 > ```bash
-> docker compose run --rm hoppscotch-migrate
+> docker compose run --rm --no-deps hoppscotch-migrate
 > ```
 
 ### Individual Services

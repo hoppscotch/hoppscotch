@@ -338,6 +338,11 @@ export async function getDefaultInfraConfigs(): Promise<DefaultInfraConfig[]> {
       value: null,
       isEncrypted: false,
     },
+    {
+      name: InfraConfigEnum.REQUIRE_AUTH_FOR_ACCESS,
+      value: 'false',
+      isEncrypted: false,
+    },
   ];
 
   return infraConfigDefaultObjs;

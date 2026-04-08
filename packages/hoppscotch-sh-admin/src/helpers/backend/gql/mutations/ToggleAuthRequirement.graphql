@@ -1,0 +1,3 @@
+mutation ToggleAuthRequirement($status: ServiceStatus!) {
+  toggleAuthRequirement(status: $status)
+}

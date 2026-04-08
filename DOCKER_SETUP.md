@@ -81,18 +81,24 @@ docker compose --profile default-no-db up -d
 
 Starts only the AIO container. Use this when you have an external PostgreSQL database. Update `DATABASE_URL` in your `.env` file to point to your external database.
 
+> [!NOTE]
+> This profile does **not** run `hoppscotch-migrate` automatically. Run migrations manually before starting:
+> ```bash
+> docker compose run --rm hoppscotch-migrate
+> ```
+
 ### Individual Services
 
 Run specific components separately:
 
 ```bash
-# Backend API only
+# Backend API + database + migrations
 docker compose --profile backend up -d
 
-# Main app and webapp server
+# Main app, webapp server, backend, database + migrations
 docker compose --profile app up -d
 
-# Admin dashboard only
+# Admin dashboard, backend, database + migrations
 docker compose --profile admin up -d
 
 # Database only
@@ -105,7 +111,7 @@ docker compose --profile database up -d
 docker compose --profile just-backend up -d
 ```
 
-Starts all services except the webapp frontend. Useful when developing the frontend locally.
+Starts the backend API, database, and migrations. Useful when developing the frontend and admin dashboard locally.
 
 > [!NOTE]
 > The `default` and `default-no-db` profiles should not be mixed with individual service profiles, as they will conflict on ports.
@@ -115,11 +121,12 @@ Starts all services except the webapp frontend. Useful when developing the front
 | Port | Service |
 |------|---------|
 | 3000 | Main Hoppscotch App |
-| 3080 | Caddy HTTP (web server) |
+| 3080 | Caddy HTTP (web server / AIO) |
 | 3100 | Admin Dashboard |
 | 3170 | Backend API |
 | 3180 | Backend Caddy HTTP |
 | 3200 | Bundle/Webapp Server |
+| 3280 | Admin Dashboard Caddy HTTP |
 | 5432 | PostgreSQL Database |
 
 ## Common Operations
@@ -149,7 +156,7 @@ docker compose --profile default up -d --build
 ### Running Database Migrations Manually
 
 ```bash
-docker compose run --rm hoppscotch-migrate sh -c "pnpm exec prisma migrate deploy"
+docker compose --profile default run --rm hoppscotch-migrate
 ```
 
 ## Subpath-Based Access
@@ -160,7 +167,9 @@ To serve all services under subpaths from a single port (instead of multiple por
 ENABLE_SUBPATH_BASED_ACCESS=true
 ```
 
-This uses the `aio-subpath-access.Caddyfile` configuration instead of the default multiport setup.
+With this setting enabled, access Hoppscotch through the single Caddy endpoint at `http://localhost:3080`. Caddy listens on port 80 inside the container, mapped to host port `3080` in `docker-compose.yml`.
+
+This differs from the default multiport setup where services are exposed on separate ports (3000, 3100, 3170). This uses the `aio-subpath-access.Caddyfile` configuration.
 
 ## Troubleshooting
 

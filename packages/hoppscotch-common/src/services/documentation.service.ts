@@ -1,11 +1,8 @@
 import { Service } from "dioc"
 import { reactive, computed, ref } from "vue"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
-import {
-  getUserPublishedDocs,
-  getTeamPublishedDocs,
-} from "~/helpers/backend/queries/PublishedDocs"
 import * as E from "fp-ts/Either"
+import { platform } from "~/platform"
 
 // Types for documentation
 export type DocumentationType = "collection" | "request"
@@ -284,7 +281,7 @@ export class DocumentationService extends Service {
     const requestId = ++this.fetchRequestId
 
     try {
-      const result = await getUserPublishedDocs()()
+      const result = await platform.backend.getUserPublishedDocs()()
 
       // If a newer request has started, ignore this result
       if (requestId !== this.fetchRequestId) return
@@ -330,7 +327,7 @@ export class DocumentationService extends Service {
 
     try {
       // Fetch all published docs for the team (collectionID is optional now)
-      const result = await getTeamPublishedDocs(teamID)()
+      const result = await platform.backend.getTeamPublishedDocs(teamID)()
 
       // If a newer request has started, ignore this result
       if (requestId !== this.fetchRequestId) return

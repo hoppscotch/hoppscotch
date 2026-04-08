@@ -15,6 +15,7 @@ import {
   deleteGraphqlHistoryEntry,
   clearGraphqlHistory,
 } from "@hoppscotch/common/newstore/history"
+import { translateToNewRequest, translateToGQLRequest } from "@hoppscotch/data"
 import { HistoryPlatformDef } from "@hoppscotch/common/platform/history"
 import {
   getUserHistoryEntries,
@@ -98,7 +99,7 @@ async function loadHistoryEntries() {
 
     const restHistoryEntries: RESTHistoryEntry[] = restEntries.map((entry) => ({
       v: 1,
-      request: JSON.parse(entry.request),
+      request: translateToNewRequest(JSON.parse(entry.request)),
       responseMeta: JSON.parse(entry.responseMetadata),
       star: entry.isStarred,
       updatedOn: new Date(entry.executedOn),
@@ -107,7 +108,7 @@ async function loadHistoryEntries() {
 
     const gqlHistoryEntries: GQLHistoryEntry[] = gqlEntries.map((entry) => ({
       v: 1,
-      request: JSON.parse(entry.request),
+      request: translateToGQLRequest(JSON.parse(entry.request)),
       response: JSON.parse(entry.responseMetadata),
       star: entry.isStarred,
       updatedOn: new Date(entry.executedOn),
@@ -165,7 +166,7 @@ function setupUserHistoryCreatedSubscription() {
             ? addRESTHistoryEntry({
                 v: 1,
                 id,
-                request: JSON.parse(request),
+                request: translateToNewRequest(JSON.parse(request)),
                 responseMeta: JSON.parse(responseMetadata),
                 star: isStarred,
                 updatedOn: new Date(executedOn),
@@ -173,7 +174,7 @@ function setupUserHistoryCreatedSubscription() {
             : addGraphqlHistoryEntry({
                 v: 1,
                 id,
-                request: JSON.parse(request),
+                request: translateToGQLRequest(JSON.parse(request)),
                 response: JSON.parse(responseMetadata),
                 star: isStarred,
                 updatedOn: new Date(executedOn),
@@ -192,45 +193,31 @@ function setupUserHistoryUpdatedSubscription() {
 
   userHistoryUpdated$.subscribe((res) => {
     if (E.isRight(res)) {
-      const { id, executedOn, isStarred, request, responseMetadata, reqType } =
-        res.right.userHistoryUpdated
+      const { id, reqType, isStarred } = res.right.userHistoryUpdated
 
       if (reqType == ReqType.Rest) {
-        const updatedRestEntryIndex = restHistoryStore.value.state.findIndex(
+        const existingEntry = restHistoryStore.value.state.find(
           (entry) => entry.id == id
         )
 
-        if (updatedRestEntryIndex != -1) {
+        // Only toggle if the store entry's star doesn't match the server state.
+        // Without this guard, the subscription echo from the same client's own
+        // toggle would cause a second toggle and revert the star.
+        if (existingEntry && existingEntry.star !== isStarred) {
           runDispatchWithOutSyncing(() => {
-            toggleRESTHistoryEntryStar({
-              v: 1,
-              id,
-              request: JSON.parse(request),
-              responseMeta: JSON.parse(responseMetadata),
-              // because the star will be toggled in the store, we need to pass the opposite value
-              star: !isStarred,
-              updatedOn: new Date(executedOn),
-            })
+            toggleRESTHistoryEntryStar(existingEntry)
           })
         }
       }
 
       if (reqType == ReqType.Gql) {
-        const updatedGQLEntryIndex = graphqlHistoryStore.value.state.findIndex(
+        const existingEntry = graphqlHistoryStore.value.state.find(
           (entry) => entry.id == id
         )
 
-        if (updatedGQLEntryIndex != -1) {
+        if (existingEntry && existingEntry.star !== isStarred) {
           runDispatchWithOutSyncing(() => {
-            toggleGraphqlHistoryEntryStar({
-              v: 1,
-              id,
-              request: JSON.parse(request),
-              response: JSON.parse(responseMetadata),
-              // because the star will be toggled in the store, we need to pass the opposite value
-              star: !isStarred,
-              updatedOn: new Date(executedOn),
-            })
+            toggleGraphqlHistoryEntryStar(existingEntry)
           })
         }
       }

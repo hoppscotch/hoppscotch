@@ -59,6 +59,9 @@ impl HoppApploadConfig {
                 bundle_path: self.bundle_path.clone(),
                 manifest_path: self.manifest_path.clone(),
             })
+            .log_dir(
+                path::logs_dir().unwrap_or_else(|_| std::env::temp_dir()),
+            )
             .build()
     }
 }

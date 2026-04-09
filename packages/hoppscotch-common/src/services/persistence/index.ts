@@ -16,6 +16,7 @@ import {
 import { StoreError } from "@hoppscotch/kernel"
 
 import { Store } from "~/kernel/store"
+import { diag } from "~/kernel/log"
 import { GQLTabService } from "~/services/tab/graphql"
 import { RESTTabService } from "~/services/tab/rest"
 import {
@@ -128,6 +129,8 @@ export const STORE_KEYS = {
   CURRENT_ENVIRONMENT_VALUE: "currentEnvironmentValue",
   CURRENT_SORT_VALUES: "currentSortValues",
   SCHEMA_VERSION: "schema_version",
+  LOGIN_STATE: "login_state",
+  EMAIL_FOR_SIGN_IN: "emailForSignIn",
 } as const
 
 interface Migration {
@@ -204,14 +207,24 @@ export class PersistenceService extends Service {
   }
 
   async init(): Promise<E.Either<StoreError, void>> {
+    diag(
+      "persistence",
+      "PersistenceService.init() called, about to Store.init()"
+    )
     const initResult = await Store.init()
     if (E.isLeft(initResult)) {
+      diag(
+        "persistence",
+        "PersistenceService Store.init() FAILED:",
+        initResult.left
+      )
       console.error(
         "[PersistenceService] Failed to initialize store:",
         initResult.left
       )
       return initResult
     }
+    diag("persistence", "PersistenceService Store.init() succeeded")
     return initResult
   }
 
@@ -364,6 +377,10 @@ export class PersistenceService extends Service {
   }
 
   private async setupSettingsPersistence() {
+    diag(
+      "persistence",
+      "setupSettingsPersistence() loading settings from store"
+    )
     const loadResult = await Store.get<any>(
       STORE_NAMESPACE,
       STORE_KEYS.SETTINGS
@@ -372,12 +389,37 @@ export class PersistenceService extends Service {
     try {
       if (E.isRight(loadResult)) {
         const data = loadResult.right ?? getDefaultSettings()
+        diag(
+          "persistence",
+          "settings loaded, BG_COLOR:",
+          data?.BG_COLOR,
+          "THEME_COLOR:",
+          data?.THEME_COLOR
+        )
+        diag(
+          "persistence",
+          "settings keys:",
+          data ? Object.keys(data).join(", ") : "(null/default)"
+        )
         const result = SETTINGS_SCHEMA.safeParse(data)
 
         if (result.success) {
           const migratedSettings = performSettingsDataMigrations(result.data)
+          diag(
+            "persistence",
+            "settings migrated, BG_COLOR:",
+            migratedSettings?.BG_COLOR,
+            "THEME_COLOR:",
+            migratedSettings?.THEME_COLOR
+          )
           bulkApplySettings(migratedSettings)
+          diag("persistence", "settings applied via bulkApplySettings")
         } else {
+          diag(
+            "persistence",
+            "settings schema validation FAILED:",
+            result.error?.message
+          )
           this.showErrorToast(STORE_KEYS.SETTINGS)
           await Store.set(
             STORE_NAMESPACE,
@@ -385,8 +427,15 @@ export class PersistenceService extends Service {
             data
           )
         }
+      } else {
+        diag(
+          "persistence",
+          "settings load returned Left (error):",
+          loadResult.left
+        )
       }
     } catch (_e) {
+      diag("persistence", "settings parse error:", String(_e))
       console.error(`Failed parsing persisted SETTINGS:`, loadResult)
     }
 
@@ -460,6 +509,10 @@ export class PersistenceService extends Service {
   }
 
   private async setupRESTCollectionsPersistence() {
+    diag(
+      "persistence",
+      "setupRESTCollectionsPersistence() loading REST collections"
+    )
     const restLoadResult = await Store.get<any>(
       STORE_NAMESPACE,
       STORE_KEYS.REST_COLLECTIONS
@@ -468,11 +521,22 @@ export class PersistenceService extends Service {
     try {
       if (E.isRight(restLoadResult)) {
         const data = restLoadResult.right ?? []
+        diag(
+          "persistence",
+          "REST collections loaded, count:",
+          Array.isArray(data) ? data.length : "(not array)",
+          "first name:",
+          Array.isArray(data) && data[0]?.name ? data[0].name : "(none)"
+        )
         const result = z.array(REST_COLLECTION_SCHEMA).safeParse(data)
 
         if (result.success) {
           const translatedData = result.data.map(translateToNewRESTCollection)
-
+          diag(
+            "persistence",
+            "REST collections translated, count:",
+            translatedData.length
+          )
           setRESTCollections(translatedData)
         } else {
           console.error(`Failed with `, result.error, data)
@@ -1012,12 +1076,16 @@ export class PersistenceService extends Service {
   }
 
   public async setupFirst() {
+    diag("persistence", "setupFirst() start")
     await this.init()
+    diag("persistence", "setupFirst() init done, running migrations")
     await this.runMigrations()
     await this.checkAndMigrateOldSettings()
+    diag("persistence", "setupFirst() complete")
   }
 
   public async setupLater() {
+    diag("persistence", "setupLater() start - loading all persisted data")
     await Promise.all([
       this.setupLocalStatePersistence(),
 

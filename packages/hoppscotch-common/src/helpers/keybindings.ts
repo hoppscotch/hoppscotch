@@ -307,36 +307,64 @@ function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
 }
 
 function getPressedKey(ev: KeyboardEvent): Key | null {
-  // Sometimes the property code is not available on the KeyboardEvent object
   const key = (ev.key ?? "").toLowerCase()
+  const code = ev.code ?? ""
 
-  // Check arrow keys
+  // Use event.code for letters and digits so shortcuts work regardless of
+  // the active keyboard layout (Cyrillic, CJK, Dvorak, etc). event.key
+  // returns the character produced by the layout, event.code returns the
+  // physical key position.
+  //
+  // TODO: Several component-level keydown handlers still use event.key
+  //       (spotlight, EnvInput, SchemaSearch, AI modals). Those need the
+  //       same migration but are lower priority since they only check
+  //       arrow/Enter/Escape which are layout-stable.
+
+  // Letter keys (KeyA–KeyZ)
+  if (code.startsWith("Key") && code.length === 4) {
+    return code[3].toLowerCase() as Key
+  }
+
+  // ev.code can be empty in synthetic events or older environments. Fall back
+  // to ev.key for ASCII letters so shortcuts don't silently stop working.
+  // This reintroduces layout-dependence for that edge case, but that's better
+  // than dropping the shortcut entirely.
+  if (!code && key.length === 1 && key >= "a" && key <= "z") return key as Key
+
+  // Arrow keys (ArrowUp → up, etc)
   if (key.startsWith("arrow")) {
     return key.slice(5) as Key
   }
 
-  // Check for Tab key
   if (key === "tab") return "tab"
-
-  // Check for Delete key
   if (key === "delete") return "delete"
-
   if (key === "backspace") return "backspace"
 
-  // Check letter keys
-  const isLetter = key.length === 1 && key >= "a" && key <= "z"
-  if (isLetter) return key as Key
+  // Shift+/ produces "?" on most layouts but the shortcut is registered as "/"
+  if (key === "?") return "/"
 
-  // Check if number keys
-  const isDigit = key.length === 1 && key >= "0" && key <= "9"
-  if (isDigit) return key as Key
-
-  // Check if slash, period or enter
+  // Punctuation and special keys checked before digit codes because some
+  // layouts produce these characters from physical digit keys (e.g. AZERTY
+  // produces [ via AltGr+5 which has code "Digit5").
   if (key === "/" || key === "." || key === "enter") return key
-
   if (key === "[" || key === "]") return key
 
-  // If no other cases match, this is not a valid key
+  // Digit keys (Digit0–Digit9)
+  if (code.startsWith("Digit") && code.length === 6) {
+    return code[5] as Key
+  }
+
+  // Numpad digits (Numpad0–Numpad9), only when NumLock is on.
+  // When NumLock is off the physical keys act as navigation (Home, End, etc)
+  // but event.code still returns Numpad0-Numpad9.
+  if (
+    code.startsWith("Numpad") &&
+    code.length === 7 &&
+    ev.getModifierState("NumLock")
+  ) {
+    return code.slice(6) as Key
+  }
+
   return null
 }
 

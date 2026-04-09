@@ -12,6 +12,7 @@ import { defineComponent } from "vue"
 import { useRoute } from "vue-router"
 import { initializeApp } from "~/helpers/app"
 import { platform } from "~/platform"
+import { getSafeRedirectUrl } from "./enter-redirect"
 
 export default defineComponent({
   setup() {
@@ -32,15 +33,30 @@ export default defineComponent({
   async mounted() {
     const { redirect, ...queryParams } = this.route.query
 
-    if (redirect && Object.keys(queryParams).length) {
-      const url = new URL(("https://" + redirect) as string)
+    // Org subdomain magic-link flow: redirect back to the originating subdomain
+    if (
+      platform.organization &&
+      !platform.organization.isDefaultCloudInstance &&
+      typeof redirect === "string"
+    ) {
+      const redirectTarget = getSafeRedirectUrl(
+        redirect,
+        platform.organization.getRootDomain()
+      )
 
-      Object.entries(queryParams).forEach(([key, value]) => {
-        url.searchParams.set(key, value as string)
-      })
+      if (
+        redirectTarget &&
+        platform.auth.isSignInWithEmailLink(window.location.href)
+      ) {
+        Object.entries(queryParams).forEach(([key, value]) => {
+          if (typeof value === "string") {
+            redirectTarget.searchParams.set(key, value)
+          }
+        })
 
-      window.location.href = url.href
-      return
+        window.location.href = redirectTarget.href
+        return
+      }
     }
 
     this.signingInWithEmail = true

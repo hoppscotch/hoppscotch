@@ -411,7 +411,7 @@
     "message": "{count} mensaje(s)",
     "parameter": "{count} parámetro(s)",
     "protocol": "{count} protocolo(s)",
-    "value": "{cuenta} valor(es)",
+    "value": "Valor {count}",
     "variable": "{count} variable(es)"
   },
   "documentation": {
@@ -903,8 +903,8 @@
     "postman_environment": "Entorno de Postman",
     "postman_environment_description": "Importar entorno de Postman desde un archivo JSON",
     "title": "Importar",
-    "file_size_limit_exceeded_warning_multiple_files": "Los archivos seleccionados exceden el límite recomendado de 10MB. Sólo se importarán los primeros {files} seleccionados.",
-    "file_size_limit_exceeded_warning_single_file": "El archivo seleccionado supera el límite recomendado de 10 MB. Por favor, selecciona otro archivo.",
+    "file_size_limit_exceeded_warning_multiple_files": "Los archivos seleccionados exceden el límite recomendado de {sizeLimit}MB. Sólo se importarán los primeros {files} seleccionados.",
+    "file_size_limit_exceeded_warning_single_file": "El archivo seleccionado supera el límite recomendado de {sizeLimit}MB. Por favor, selecciona otro archivo.",
     "success": "Importado con éxito",
     "import_summary_collections_title": "Colecciones",
     "import_summary_requests_title": "Solicitudes",

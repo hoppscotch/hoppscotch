@@ -242,9 +242,6 @@
     :workspace-i-d="isTeamCollection ? teamID || '' : ''"
     :mode="publishModalMode"
     :is-first-publish="!isCollectionPublished && !isCreatingNewVersion"
-    :is-auto-sync-locked="
-      !!selectedVersionDoc && isLiveVersion(selectedVersionDoc)
-    "
     :published-doc-id="publishedDocId"
     :existing-data="existingPublishedData"
     :loading="isProcessingPublish"

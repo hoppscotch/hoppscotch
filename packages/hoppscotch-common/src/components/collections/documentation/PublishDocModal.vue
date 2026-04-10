@@ -35,8 +35,6 @@
         v-model:auto-sync="autoSync"
         v-model:selected-environment-i-d="selectedEnvironmentID"
         :published-url="publishedUrl"
-        :is-first-publish="isFirstPublish ?? false"
-        :is-auto-sync-locked="isAutoSyncLocked ?? false"
         :is-valid-version="isValidVersion"
         :workspace-type="workspaceType"
         :workspace-i-d="workspaceID"
@@ -123,7 +121,6 @@ const props = defineProps<{
   workspaceID: string
   mode?: "create" | "update" | "view"
   isFirstPublish?: boolean
-  isAutoSyncLocked?: boolean
   publishedDocId?: string
   existingData?: {
     title: string

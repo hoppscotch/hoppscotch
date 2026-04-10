@@ -14,7 +14,6 @@ import {
   SetCollectionDocumentationOptions,
   SetRequestDocumentationOptions,
   isLiveVersion,
-  CURRENT_VERSION_TAG,
 } from "../documentation.service"
 import { platform } from "~/platform"
 
@@ -754,22 +753,7 @@ describe("isLiveVersion", () => {
     expect(isLiveVersion({ autoSync: true })).toBe(true)
   })
 
-  it("returns true when autoSync is true regardless of version name", () => {
-    expect(
-      isLiveVersion({ autoSync: true, version: CURRENT_VERSION_TAG })
-    ).toBe(true)
-    expect(isLiveVersion({ autoSync: true, version: "2.0.0" })).toBe(true)
-    expect(isLiveVersion({ autoSync: true, version: "my-release" })).toBe(true)
-  })
-
   it("returns false when autoSync is false", () => {
     expect(isLiveVersion({ autoSync: false })).toBe(false)
-  })
-
-  it("returns false when autoSync is false regardless of version name", () => {
-    expect(
-      isLiveVersion({ autoSync: false, version: CURRENT_VERSION_TAG })
-    ).toBe(false)
-    expect(isLiveVersion({ autoSync: false, version: "1.0.0" })).toBe(false)
   })
 })

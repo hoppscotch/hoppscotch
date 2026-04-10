@@ -120,7 +120,6 @@ const props = defineProps<{
   autoSync: boolean
   selectedEnvironmentID: string | null
   publishedUrl: string | null
-  isFirstPublish: boolean
   isValidVersion: boolean
   workspaceType: WorkspaceType
   workspaceID: string

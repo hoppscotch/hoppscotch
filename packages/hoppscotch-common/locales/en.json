@@ -555,6 +555,8 @@
       "snapshot_empty": "No requests or folders in this snapshot",
       "snapshot_item_count": "{count} items",
       "auto_sync_live_notice": "This version auto-syncs with the live collection",
+      "snapshot_promote_warning": "Enabling auto-sync will replace this frozen snapshot with the live collection tree. This cannot be undone.",
+      "live_freeze_notice": "Auto-sync will be turned off and this version will be frozen at the current collection state.",
       "untitled_project": "Untitled Project",
       "environment": "Environment",
       "no_environment": "No environment",

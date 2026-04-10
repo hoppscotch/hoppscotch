@@ -96,9 +96,9 @@
         </div>
       </div>
 
-      <!-- Status notice -->
+      <!-- Status notice: version is already live -->
       <div
-        v-if="existingData && autoSyncModel"
+        v-if="existingData && existingData.autoSync && autoSyncModel"
         class="flex items-start space-x-2 px-3 py-2.5 rounded-md bg-green-500/5 border border-green-500/15"
       >
         <icon-lucide-refresh-cw
@@ -106,6 +106,19 @@
         />
         <span class="text-xs text-green-600 leading-relaxed">
           {{ t("documentation.publish.auto_sync_live_notice") }}
+        </span>
+      </div>
+
+      <!-- Destructive warning: promoting a snapshot to live will overwrite the frozen tree -->
+      <div
+        v-else-if="existingData && !existingData.autoSync && autoSyncModel"
+        class="flex items-start space-x-2 px-3 py-2.5 rounded-md bg-yellow-500/5 border border-yellow-500/20"
+      >
+        <icon-lucide-alert-triangle
+          class="w-3.5 h-3.5 text-yellow-600 flex-shrink-0 mt-0.5"
+        />
+        <span class="text-xs text-yellow-600 leading-relaxed">
+          {{ t("documentation.publish.snapshot_promote_warning") }}
         </span>
       </div>
     </div>

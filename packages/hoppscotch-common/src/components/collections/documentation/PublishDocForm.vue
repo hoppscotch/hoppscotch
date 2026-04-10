@@ -1,33 +1,29 @@
 <template>
   <div class="flex flex-col space-y-6">
-    <div>
-      <HoppSmartInput
-        v-model="titleModel"
-        :label="t('documentation.publish.doc_title')"
-        type="text"
-        input-styles="floating-input"
-      />
-    </div>
+    <HoppSmartInput
+      v-model="titleModel"
+      :label="t('documentation.publish.doc_title')"
+      type="text"
+      input-styles="floating-input"
+    />
 
     <!-- Version Input -->
-    <div>
-      <HoppSmartInput
-        v-model="versionModel"
-        :label="t('documentation.publish.doc_version')"
-        :input-styles="[
-          'floating-input',
-          !isValidVersion && versionModel.length > 0
-            ? '!border-red-500 !focus:border-red-500'
-            : '',
-        ]"
-      />
-      <span
-        v-if="!isValidVersion && versionModel.length > 0"
-        class="text-xs text-red-500 mt-1 block"
-      >
-        {{ t("documentation.publish.invalid_version") }}
-      </span>
-    </div>
+    <HoppSmartInput
+      v-model="versionModel"
+      :label="t('documentation.publish.doc_version')"
+      :input-styles="[
+        'floating-input',
+        !isValidVersion && versionModel.length > 0
+          ? '!border-red-500 !focus:border-red-500'
+          : '',
+      ]"
+    />
+    <span
+      v-if="!isValidVersion && versionModel.length > 0"
+      class="text-xs text-red-500 mt-1 block"
+    >
+      {{ t("documentation.publish.invalid_version") }}
+    </span>
 
     <!-- Auto-sync Toggle -->
     <div class="flex items-start">

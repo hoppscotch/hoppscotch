@@ -172,6 +172,17 @@ export class TeamCollectionsService extends Service<void> {
   private teamRootCollectionSortedSub: WSubscription | null = null
   private teamChildCollectionSortedSub: WSubscription | null = null
 
+  /**
+   * Tracks the latest initialize call so stale initializations do not tear down
+   * subscriptions created by a newer team switch.
+   */
+  private initializationToken = 0
+  /**
+   * Tracks the latest root collection load and ignores stale paginated responses
+   * from older in-flight loads when a newer load has already completed.
+   */
+  private rootLoadToken = 0
+
   override onServiceInit() {
     this.collectionLoadingWatcher()
   }
@@ -211,7 +222,7 @@ export class TeamCollectionsService extends Service<void> {
 
     this.unsubscribeSubscriptions()
 
-    if (this.teamID) this.initialize()
+    if (this.teamID) this.initialize(++this.initializationToken)
   }
 
   /**
@@ -257,9 +268,20 @@ export class TeamCollectionsService extends Service<void> {
     this.teamChildCollectionSortedSub?.unsubscribe()
   }
 
-  private async initialize() {
-    await this.loadRootCollections()
+  private clearRootLoadingFlag() {
+    this.loadingCollections.value = this.loadingCollections.value.filter(
+      (x) => x !== "root"
+    )
+  }
+
+  private async initialize(token: number) {
     this.registerSubscriptions()
+    try {
+      await this.loadRootCollections()
+    } catch (e) {
+      if (this.initializationToken === token) this.unsubscribeSubscriptions()
+      throw e
+    }
   }
 
   /**
@@ -305,6 +327,7 @@ export class TeamCollectionsService extends Service<void> {
   private async loadRootCollections(replace = false) {
     if (this.teamID === null) throw new Error("Team ID is null")
 
+    const loadToken = ++this.rootLoadToken
     this.loadingCollections.value.push("root")
 
     const totalCollections: TeamCollection[] = []
@@ -331,47 +354,41 @@ export class TeamCollectionsService extends Service<void> {
         )
       }
 
-      if (replace) {
-        this.collections.value = []
-        this.entityIDs.clear()
-
-        totalCollections.push(
-          ...result.right.rootCollectionsOfTeam.map(
-            (x: any) =>
-              <TeamCollection>{
-                ...x,
-                children: null,
-                requests: null,
-              }
-          )
+      totalCollections.push(
+        ...result.right.rootCollectionsOfTeam.map(
+          (x: any) =>
+            <TeamCollection>{
+              ...x,
+              children: null,
+              requests: null,
+            }
         )
-      } else {
-        totalCollections.push(
-          ...result.right.rootCollectionsOfTeam.map(
-            (x: any) =>
-              <TeamCollection>{
-                ...x,
-                children: null,
-                requests: null,
-              }
-          )
-        )
-      }
+      )
 
       if (result.right.rootCollectionsOfTeam.length !== TEAMS_BACKEND_PAGE_SIZE)
         break
     }
 
-    this.loadingCollections.value = this.loadingCollections.value.filter(
-      (x) => x !== "root"
+    this.clearRootLoadingFlag()
+
+    if (this.rootLoadToken !== loadToken) return
+
+    if (replace) {
+      this.collections.value = []
+      this.entityIDs.clear()
+    }
+
+    const collectionEntityPrefix = "collection-"
+    const newCollections = totalCollections.filter(
+      (coll) => !this.entityIDs.has(`${collectionEntityPrefix}${coll.id}`)
     )
 
     // Add all the collections to the entity ids list
-    totalCollections.forEach((coll) =>
-      this.entityIDs.add(`collection-${coll.id}`)
+    newCollections.forEach((coll) =>
+      this.entityIDs.add(`${collectionEntityPrefix}${coll.id}`)
     )
 
-    this.collections.value.push(...totalCollections)
+    this.collections.value.push(...newCollections)
   }
 
   /**

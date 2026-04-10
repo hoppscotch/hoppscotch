@@ -625,6 +625,7 @@ const handleVersionSelect = (
     return
   }
   selectedVersionDoc.value = doc
+  hideDropdown()
 }
 
 const createNewVersion = () => {

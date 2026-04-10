@@ -3,15 +3,26 @@
     v-if="show"
     dialog
     :title="modalTitle"
-    :styles="mode === 'view' ? 'sm:max-w-6xl' : 'sm:max-w-2xl'"
+    :styles="
+      mode === 'view'
+        ? 'sm:max-w-6xl xl:max-w-7xl 2xl:max-w-[80vw]'
+        : 'sm:max-w-2xl'
+    "
     @close="hideModal"
   >
     <template #body>
       <CollectionsDocumentationPublishDocSnapshotPreview
         v-if="mode === 'view'"
+        v-model:publish-title="publishTitle"
+        v-model:publish-version="publishVersion"
+        v-model:auto-sync="autoSync"
+        v-model:selected-environment-i-d="selectedEnvironmentID"
         :existing-data="existingData"
         :published-url="publishedUrl"
         :show="show && mode === 'view'"
+        :is-valid-version="isValidVersion"
+        :workspace-type="workspaceType"
+        :workspace-i-d="workspaceID"
         @copy-url="copyUrl"
         @view-published="viewPublished"
       />
@@ -46,7 +57,7 @@
             @click="handlePublish"
           />
           <HoppButtonPrimary
-            v-else-if="mode === 'update'"
+            v-else-if="mode === 'update' || mode === 'view'"
             :label="t('documentation.publish.update_button')"
             :disabled="!canPublish || loading || !hasChanges"
             :loading="loading"

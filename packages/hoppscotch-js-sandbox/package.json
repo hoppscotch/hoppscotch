@@ -55,7 +55,7 @@
     "chai": "6.2.2",
     "faraday-cage": "0.1.0",
     "fp-ts": "2.16.11",
-    "lodash": "4.17.23",
+    "lodash": "4.18.1",
     "lodash-es": "4.17.23"
   },
   "devDependencies": {
@@ -76,7 +76,7 @@
     "io-ts": "2.2.22",
     "prettier": "3.8.1",
     "typescript": "5.9.3",
-    "vite": "7.3.1",
+    "vite": "6.4.2",
     "vitest": "4.1.2"
   },
   "peerDependencies": {

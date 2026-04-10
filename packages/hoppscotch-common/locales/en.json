@@ -538,7 +538,6 @@
       "versions": "Versions",
       "create_new_version": "Create New Version",
       "invalid_version": "Version must only contain alphanumeric characters, dots, and hyphens",
-      "snapshot_description": "This will snapshot the current documentation as this version",
       "live": "Live",
       "snapshot": "Snapshot",
       "version_immutable": "Published versions are read-only snapshots",
@@ -557,7 +556,6 @@
       "snapshot_item_count": "{count} items",
       "auto_sync_live_notice": "This version auto-syncs with the live collection",
       "untitled_project": "Untitled Project",
-      "first_publish_hint": "Your documentation will be published as a live version that automatically stays in sync with your collection",
       "environment": "Environment",
       "no_environment": "No environment",
       "environment_description": "Attach an environment to resolve variables in the published documentation"

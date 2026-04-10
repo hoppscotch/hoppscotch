@@ -9,24 +9,11 @@
       />
     </div>
 
-    <div
-      v-if="isFirstPublish"
-      class="flex items-start space-x-2 px-3 py-2.5 rounded-md bg-green-500/5 border border-green-500/15"
-    >
-      <icon-lucide-info
-        class="w-3.5 h-3.5 text-green-600 flex-shrink-0 mt-0.5"
-      />
-      <span class="text-xs text-green-600 leading-relaxed">
-        {{ t("documentation.publish.first_publish_hint") }}
-      </span>
-    </div>
-
-    <!-- Version Input (hidden for first publish) -->
-    <div v-if="!isFirstPublish">
+    <!-- Version Input -->
+    <div>
       <HoppSmartInput
         v-model="versionModel"
         :label="t('documentation.publish.doc_version')"
-        :disabled="mode === 'update'"
         :input-styles="[
           'floating-input',
           !isValidVersion && versionModel.length > 0
@@ -40,16 +27,10 @@
       >
         {{ t("documentation.publish.invalid_version") }}
       </span>
-      <span
-        v-if="mode === 'create' && isValidVersion"
-        class="text-xs text-secondaryLight mt-1 block"
-      >
-        {{ t("documentation.publish.snapshot_description") }}
-      </span>
     </div>
 
-    <!-- Auto-sync Toggle (hidden for first publish and for live versions) -->
-    <div v-if="!isFirstPublish && !isAutoSyncLocked" class="flex items-start">
+    <!-- Auto-sync Toggle -->
+    <div class="flex items-start">
       <HoppSmartCheckbox
         :on="autoSyncModel"
         @change="autoSyncModel = !autoSyncModel"
@@ -131,7 +112,6 @@ const props = defineProps<{
   selectedEnvironmentID: string | null
   publishedUrl: string | null
   isFirstPublish: boolean
-  isAutoSyncLocked: boolean
   isValidVersion: boolean
   workspaceType: WorkspaceType
   workspaceID: string

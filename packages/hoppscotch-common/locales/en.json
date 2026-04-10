@@ -642,7 +642,7 @@
     "my_environments": "Personal Environments",
     "name": "Name",
     "nested_overflow": "Nested environment variables are limited to 10 levels",
-    "new": "New Environment",
+    "new": "New environment",
     "no_active_environment": "No active environment",
     "no_environment": "No environment",
     "no_environment_description": "No environments were selected. Choose what to do with the following variables.",

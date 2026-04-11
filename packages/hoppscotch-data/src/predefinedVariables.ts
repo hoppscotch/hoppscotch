@@ -48,6 +48,10 @@ export const HOPP_SUPPORTED_PREDEFINED_VARIABLES: PredefinedVariable[] = [
       for (let i = 0; i < 36; i++) {
         if (i === 8 || i === 13 || i === 18 || i === 23) {
           uuid += "-"
+        } else if (i === 14) {
+          uuid += "4"
+        } else if (i === 19) {
+          uuid += characters.charAt(8 + Math.floor(Math.random() * 4))
         } else {
           uuid += characters.charAt(
             Math.floor(Math.random() * characters.length)
@@ -140,7 +144,7 @@ export const HOPP_SUPPORTED_PREDEFINED_VARIABLES: PredefinedVariable[] = [
     description: "A random IPv6 address.",
     getValue: () => {
       const ip = Array.from({ length: 8 }, () =>
-        Math.floor(Math.random() * 65536).toString(16)
+        Math.floor(Math.random() * 65536).toString(16).padStart(4, "0")
       )
       return ip.join(":")
     },
@@ -151,7 +155,7 @@ export const HOPP_SUPPORTED_PREDEFINED_VARIABLES: PredefinedVariable[] = [
     description: "A random MAC address.",
     getValue: () => {
       const mac = Array.from({ length: 6 }, () =>
-        Math.floor(Math.random() * 256).toString(16)
+        Math.floor(Math.random() * 256).toString(16).padStart(2, "0")
       )
       return mac.join(":")
     },

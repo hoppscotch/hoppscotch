@@ -130,7 +130,15 @@
                     v-for="({ id, env }, index) in tab.variables"
                     :key="`${tab.id}-${id}-${index}`"
                     class="flex divide-x divide-dividerLight"
-                  >
+>
+                    <div class="flex items-center px-2">
+                      <input
+                        type="checkbox"
+                        :checked="env.enabled !== false"
+                        class="cursor-pointer"
+                        @change="env.enabled = ($event.target as HTMLInputElement).checked"
+                      />
+                    </div>
                     <input
                       v-model="env.key"
                       v-focus
@@ -510,6 +518,7 @@ const addEnvironmentVariable = () => {
       currentValue: "",
       initialValue: "",
       secret: selectedEnvOption.value === "secret",
+      enabled: true,
     },
   })
 }
@@ -533,14 +542,14 @@ const saveEnvironment = () => {
   }
 
   const filteredVariables = pipe(
-    vars.value,
-    A.filterMap(
-      flow(
-        O.fromPredicate((e) => e.env.key !== ""),
-        O.map((e) => e.env)
-      )
+  vars.value,
+  A.filterMap(
+    flow(
+      O.fromPredicate((e) => e.env.key !== "" && e.env.enabled !== false),
+      O.map((e) => e.env)
     )
   )
+)
 
   const secretVariables = pipe(
     filteredVariables,

@@ -369,7 +369,7 @@ export const processRequest =
 
       // Updating report with current tests, result and duration.
       report.tests = testsReport;
-      report.result = report.result && _hasFailedTestCases;
+      report.result = report.result && !_hasFailedTestCases;
       report.duration.test = duration;
 
       // Updating resulting envs from test-runner.

@@ -245,5 +245,5 @@ export const getFailedExpectedResults = (expectResults: ExpectResult[]) =>
 export const hasFailedTestCases = (testsReport: TestReport[]) =>
   pipe(
     testsReport,
-    A.every(({ failed }) => failed === 0)
+    A.some(({ failed }) => failed > 0)
   );

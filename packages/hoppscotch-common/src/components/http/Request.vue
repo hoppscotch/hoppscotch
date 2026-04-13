@@ -245,12 +245,8 @@ import { watchDebounced } from "@vueuse/core"
 import * as E from "fp-ts/Either"
 import { computed, ref, onUnmounted, watch } from "vue"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
-import { runMutation } from "~/helpers/backend/GQLClient"
-import { UpdateRequestDocument } from "~/helpers/backend/graphql"
-import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { runRESTRequest$ } from "~/helpers/RequestRunner"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
-import { editRESTRequest } from "~/newstore/collections"
 import IconChevronDown from "~icons/lucide/chevron-down"
 import IconCode2 from "~icons/lucide/code-2"
 import IconFileCode from "~icons/lucide/file-code"
@@ -270,8 +266,7 @@ import { RESTTabService } from "~/services/tab/rest"
 import { getMethodLabelColor } from "~/helpers/rest/labelColoring"
 import { WorkspaceService } from "~/services/workspace.service"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
-import { isValidUser } from "~/helpers/isValidUser"
-import { handleTokenValidation } from "~/helpers/handleTokenValidation"
+import { AutoSaveService } from "~/services/auto-save.service"
 
 const t = useI18n()
 const interceptorService = useService(KernelInterceptorService)
@@ -330,6 +325,7 @@ const userHistories = computed(() =>
 const inspectionService = useService(InspectionService)
 const tabs = useService(RESTTabService)
 const workspaceService = useService(WorkspaceService)
+const autoSaveService = useService(AutoSaveService)
 
 const newSendRequest = async () => {
   if (newEndpoint.value === "" || /^\s+$/.test(newEndpoint.value)) {
@@ -473,10 +469,7 @@ onUnmounted(() => {
     .value.some((t) => t.id === currentTabID)
   if (isCurrentTabRemoved) cancelRequest()
   // Clear any pending retry timer to avoid callbacks firing on stale refs
-  if (retryTimer !== null) {
-    clearTimeout(retryTimer)
-    retryTimer = null
-  }
+  autoSaveService.clearRetryTimer(currentTabID)
 })
 
 const cancelRequest = () => {
@@ -543,212 +536,16 @@ const cycleDownMethod = () => {
   else updateMethod(methods[currentIndex + 1])
 }
 
-// Tracks whether a team-collection async mutation is currently in-flight.
-// Blocks ALL concurrent saves (both silent and manual) to prevent
-// out-of-order mutations that could overwrite newer content with older snapshots.
-const saveInProgress = ref(false)
-
 // Separate ref for the "Save As" modal request
 const saveAsRequest = ref<HoppRESTRequest | null>(null)
 
-// Retry state for failed saves where content hasn't changed.
-// Uses exponential backoff: 2s → 4s → 8s, max 3 attempts.
-// Reset on any successful save or when new user edits arrive (debounce watcher).
-const MAX_RETRY_ATTEMPTS = 3
-const BASE_RETRY_DELAY_MS = 2000
-let retryCount = 0
-let retryTimer: ReturnType<typeof setTimeout> | null = null
-
-const scheduleRetry = (tabSnapshot: HoppTab<HoppRequestDocument>) => {
-  if (retryCount >= MAX_RETRY_ATTEMPTS) return
-  if (retryTimer !== null) clearTimeout(retryTimer)
-  const delay = BASE_RETRY_DELAY_MS * Math.pow(2, retryCount)
-  retryCount++
-  retryTimer = setTimeout(() => {
-    retryTimer = null
-    // Guard against retries for tabs that have been removed from the service.
-    const stillExists = tabs
-      .getActiveTabs()
-      .value.some((t) => t.id === tabSnapshot.id)
-    if (
-      !stillExists ||
-      !tabSnapshot.document.isDirty ||
-      !tabSnapshot.document.saveContext
-    ) {
-      return
-    }
-
-    saveRequest({ silent: true })
-  }, delay)
-}
-
-const saveRequest = async (options?: { silent?: boolean }) => {
-  const silent = options?.silent === true
-
-  // Block ALL concurrent saves — both silent and manual — while a mutation
-  // is in-flight. This prevents out-of-order updates where a manual save
-  // races an auto-save and overwrites newer content with an older snapshot.
-  if (saveInProgress.value) {
-    if (!silent) {
-      // For a manual save blocked by an in-flight mutation, poll until
-      // the in-flight save completes then re-invoke so the user's intent
-      // is never silently dropped.
-      const waitAndRetry = () => {
-        if (saveInProgress.value) setTimeout(waitAndRetry, 100)
-        else saveRequest({ silent: false })
-      }
-      setTimeout(waitAndRetry, 100)
-    }
-    return
-  }
-
-  // For manual saves, only proceed if this is the active tab.
-  // invokeAction fires all registered handlers — guard against non-active instances.
-  if (!silent && tabs.currentActiveTab.value.id !== tab.value.id) return
-
-  // Capture saveCtx before any await so we can verify it hasn't changed afterward
-  const saveCtx = tab.value.document.saveContext
-
-  if (!saveCtx) {
-    if (!silent) showSaveRequestModal.value = true
-    return
-  }
-
-  if (saveCtx.originLocation === "user-collection") {
-    const req = tab.value.document.request
-    try {
-      if (saveCtx.requestIndex === undefined) {
-        if (!silent) showSaveRequestModal.value = true
-        return
-      }
-      editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, req)
-      tab.value.document.isDirty = false
-      retryCount = 0
-      if (!silent) {
-        platform.analytics?.logEvent({
-          type: "HOPP_SAVE_REQUEST",
-          platform: "rest",
-          createdNow: false,
-          workspaceType: "personal",
-        })
-        toast.success(`${t("request.saved")}`)
-      }
-    } catch (_e) {
-      // saveContext is stale — clear it and re-prompt the user on next manual save
-      tab.value.document.saveContext = undefined
-      if (!silent) await saveRequest()
-    }
-  } else if (saveCtx.originLocation === "team-collection") {
-    // Capture a direct reference BEFORE any await. This ref remains valid even
-    // if the tab is closed while the network call is in-flight — unlike tab.value
-    // which throws "Invalid tab id" after the tab is removed from the service.
-    const tabSnapshot = tab.value
-
-    // Set saveInProgress BEFORE the first await to close the race window
-    // where a second debounced auto-save could slip through the guard above.
-    saveInProgress.value = true
-
-    // Hoisted above try so it's in scope for finally.
-    // Empty string signals the mutation was never attempted (early return / auth fail).
-    let requestSnapshot = ""
-
-    try {
-      // Auth pre-flight — avoids a wasted network round-trip when the session
-      // is expired. Silent saves use a lightweight token check; manual saves
-      // run the full token-validation flow.
-      const tokenCheck = silent
-        ? (await isValidUser()).valid
-        : await handleTokenValidation()
-
-      if (!tokenCheck) return
-
-      // Re-verify saveContext after the async auth gap.
-      // If a "Save As" ran during the auth check, the context points to a
-      // different request — abort to avoid overwriting the wrong backend record.
-      if (tabSnapshot.document.saveContext !== saveCtx) return
-
-      if (!silent) {
-        platform.analytics?.logEvent({
-          type: "HOPP_SAVE_REQUEST",
-          platform: "rest",
-          createdNow: false,
-          workspaceType: "team",
-        })
-      }
-
-      // Snapshot the request before the mutation so we can detect edits
-      // that arrive while the network call is in-flight.
-      requestSnapshot = JSON.stringify(tabSnapshot.document.request)
-
-      const result = await runMutation(UpdateRequestDocument, {
-        requestID: saveCtx.requestID,
-        data: {
-          title: tabSnapshot.document.request.name,
-          request: requestSnapshot,
-        },
-      })()
-
-      if (E.isLeft(result)) {
-        if (!silent) toast.error(`${t("profile.no_permission")}`)
-        // Mutation reached the server but was rejected — only schedule a
-        // backoff retry when the request snapshot hasn't diverged. If the
-        // user edited during the in-flight mutation, the follow-up path in
-        // finally will handle saving the newer content.
-        if (
-          requestSnapshot &&
-          JSON.stringify(tabSnapshot.document.request) === requestSnapshot
-        ) {
-          scheduleRetry(tabSnapshot)
-        }
-      } else {
-        // Only clear isDirty if no new edits arrived during the mutation.
-        if (JSON.stringify(tabSnapshot.document.request) === requestSnapshot) {
-          tabSnapshot.document.isDirty = false
-          retryCount = 0
-        }
-        if (!silent) toast.success(`${t("request.saved")}`)
-      }
-    } catch (error) {
-      if (!silent) {
-        showSaveRequestModal.value = true
-        toast.error(`${t("error.something_went_wrong")}`)
-      }
-      console.error(error)
-      // Network or unexpected error — only schedule a backoff retry when
-      // the request snapshot hasn't diverged. If edits arrived during the
-      // failed mutation, the finally block will pick up and save the new
-      // content instead of retrying the stale snapshot.
-      if (
-        requestSnapshot &&
-        JSON.stringify(tabSnapshot.document.request) === requestSnapshot
-      ) {
-        scheduleRetry(tabSnapshot)
-      }
-    } finally {
-      saveInProgress.value = false
-      // Only trigger an immediate follow-up save if new content arrived
-      // *during* the in-flight mutation (snapshot diverged).
-      // requestSnapshot === "" means the mutation was never attempted —
-      // no retry needed in that case.
-      // Failure-driven retries are handled by scheduleRetry with backoff,
-      // so we never hammer the endpoint on persistent errors.
-      const newSnapshot = JSON.stringify(tabSnapshot.document.request)
-      if (
-        requestSnapshot &&
-        tabSnapshot.document.isDirty &&
-        tabSnapshot.document.saveContext &&
-        newSnapshot !== requestSnapshot
-      ) {
-        const stillExists = tabs
-          .getActiveTabs()
-          .value.some((t) => t.id === tabSnapshot.id)
-        if (stillExists) {
-          saveRequest({ silent: true })
-        }
-      }
-    }
-  }
-}
+const saveRequest = (options?: { silent?: boolean }) =>
+  autoSaveService.saveRequest(tab.value, {
+    ...options,
+    onTriggerModal: () => {
+      showSaveRequestModal.value = true
+    },
+  })
 
 defineActionHandler("request.send-cancel", () => {
   if (!loading.value) newSendRequest()
@@ -790,19 +587,13 @@ const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
 const AUTO_SAVE_REQUESTS = useSetting("AUTO_SAVE_REQUESTS")
 const AUTO_SAVE_DELAY_MS = useSetting("AUTO_SAVE_DELAY_MS")
 
-// Stop the watcher on unmount to prevent debounce callbacks firing on a
-// stale/destroyed component instance.
 const stopAutoSave = watchDebounced(
   () => tab.value.document.request,
   () => {
     try {
       // New user edit arrived — reset retry state so the fresh content gets a
       // full retry budget rather than inheriting an exhausted counter.
-      retryCount = 0
-      if (retryTimer !== null) {
-        clearTimeout(retryTimer)
-        retryTimer = null
-      }
+      autoSaveService.resetRetryCount(tab.value.id)
 
       const isDirty = tab.value.document.isDirty
       const saveCtx = tab.value.document.saveContext
@@ -812,7 +603,7 @@ const stopAutoSave = watchDebounced(
         !autoSaveEnabled ||
         !isDirty ||
         !saveCtx ||
-        saveInProgress.value ||
+        autoSaveService.saveInProgress.value ||
         tab.value.document.type !== "request"
       ) {
         return

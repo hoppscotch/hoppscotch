@@ -105,6 +105,15 @@ const parseDescription = (descField?: string | DescriptionDefinition) => {
   return descField.content
 }
 
+const normalizePMHeaderValue = (value: unknown): string =>
+  Array.isArray(value)
+    ? pipe(
+        value,
+        A.map((entry) => String(entry ?? "")),
+        stringArrayJoin(", ")
+      )
+    : String(value ?? "")
+
 const getHoppCollVariables = (
   ig: ItemGroup<Item>
 ): HoppCollectionVariable[] => {
@@ -142,7 +151,7 @@ const getHoppReqHeaders = (
 
       return <HoppRESTHeader>{
         key: replacePMVarTemplating(header.key),
-        value: replacePMVarTemplating(header.value),
+        value: replacePMVarTemplating(normalizePMHeaderValue(header.value)),
         active: !header.disabled,
         description,
       }

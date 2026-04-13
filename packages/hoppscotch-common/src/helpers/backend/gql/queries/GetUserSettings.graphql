@@ -1,0 +1,8 @@
+query GetUserSettings {
+  me {
+    settings {
+      id
+      properties
+    }
+  }
+}

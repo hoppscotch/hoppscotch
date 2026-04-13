@@ -1,0 +1,5 @@
+mutation CreateUserSettings($properties: String!) {
+  createUserSettings(properties: $properties) {
+    id
+  }
+}

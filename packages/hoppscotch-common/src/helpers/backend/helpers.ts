@@ -291,14 +291,14 @@ export const getTeamCollectionJSON = async (teamID: string) => {
 }
 
 /**
- * Get the JSON string of a single collection of the specified team
+ * Fetch a single team collection and return it as a HoppCollection.
  * @param teamID - ID of the team
  * @param collectionID - ID of the collection
  */
-export const getSingleTeamCollectionJSON = async (
+export const getTeamCollectionObject = async (
   teamID: string,
   collectionID: string
-) => {
+): Promise<E.Either<GQLError<string> | string, HoppCollection>> => {
   const data = await runGQLQuery({
     query: ExportCollectionToJsonDocument,
     variables: {
@@ -308,17 +308,38 @@ export const getSingleTeamCollectionJSON = async (
   })
 
   if (E.isLeft(data)) {
-    return E.left(data.left.error.toString())
+    return E.left(data.left)
   }
 
-  const collection = JSON.parse(data.right.exportCollectionToJSON)
+  try {
+    const collection = JSON.parse(data.right.exportCollectionToJSON)
+    if (!collection) {
+      return E.left("Collection not found")
+    }
+    return E.right(teamCollectionJSONToHoppRESTColl(collection))
+  } catch {
+    return E.left("Failed to parse collection data")
+  }
+}
 
-  if (!collection) {
-    const t = getI18n()
+/**
+ * Get the JSON string of a single collection of the specified team
+ * @param teamID - ID of the team
+ * @param collectionID - ID of the collection
+ */
+export const getSingleTeamCollectionJSON = async (
+  teamID: string,
+  collectionID: string
+) => {
+  const result = await getTeamCollectionObject(teamID, collectionID)
 
-    return E.left(t("error.no_collections_to_export"))
+  if (E.isLeft(result)) {
+    const errorMsg =
+      typeof result.left === "string"
+        ? result.left
+        : result.left.error.toString()
+    return E.left(errorMsg)
   }
 
-  const hoppCollection = teamCollectionJSONToHoppRESTColl(collection)
-  return E.right(JSON.stringify(hoppCollection, null, 2))
+  return E.right(JSON.stringify(result.right, null, 2))
 }

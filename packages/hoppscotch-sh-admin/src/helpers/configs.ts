@@ -53,6 +53,7 @@ export type ServerConfigs = {
       mailer_smtp_user: string;
       mailer_smtp_password: string;
       mailer_smtp_secure: boolean;
+      mailer_smtp_ignore_tls: boolean;
       mailer_tls_reject_unauthorized: boolean;
       mailer_use_custom_configs: boolean;
     };
@@ -220,6 +221,10 @@ export const CUSTOM_MAIL_CONFIGS: Config[] = [
   {
     name: InfraConfigEnum.MailerSmtpSecure,
     key: 'mailer_smtp_secure',
+  },
+  {
+    name: InfraConfigEnum.MailerSmtpIgnoreTls,
+    key: 'mailer_smtp_ignore_tls',
   },
   {
     name: InfraConfigEnum.MailerTlsRejectUnauthorized,

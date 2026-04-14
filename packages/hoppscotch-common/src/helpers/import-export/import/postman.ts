@@ -140,9 +140,16 @@ const getHoppReqHeaders = (
     A.map((header) => {
       const description = parseDescription(header.description)
 
+      // Postman allows header values to be arrays (multiple values for
+      // the same header). Normalize to a comma-separated string per
+      // RFC 7230 §3.2.6 before processing. See #6132.
+      const rawValue = Array.isArray(header.value)
+        ? header.value.join(", ")
+        : (header.value ?? "")
+
       return <HoppRESTHeader>{
         key: replacePMVarTemplating(header.key),
-        value: replacePMVarTemplating(header.value),
+        value: replacePMVarTemplating(rawValue),
         active: !header.disabled,
         description,
       }

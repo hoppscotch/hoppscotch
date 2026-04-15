@@ -15,8 +15,8 @@ import {
 import { runDispatchWithOutSyncing } from "@app/lib/sync"
 import { getService } from "@hoppscotch/common/modules/dioc"
 import { KernelInterceptorProxyStore } from "@hoppscotch/common/platform/std/kernel-interceptors/proxy/store"
-import { PersistenceService } from "@hoppscotch/common/services/persistence"
-import axios from "axios"
+import { NativeKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/native"
+import { parseBodyAsJSON } from "@hoppscotch/common/helpers/functional/json"
 
 function initSettingsSync() {
   const currentUser$ = platformAuth.getCurrentUserStream()
@@ -31,7 +31,9 @@ function initSettingsSync() {
     if (user) {
       // load the settings
       loadUserSettings()
-      loadProxyConfig()
+      if (user.accessToken) {
+        loadProxyConfig(user.accessToken)
+      }
     }
   })
 
@@ -48,20 +50,53 @@ function initSettingsSync() {
   })
 }
 
-async function loadProxyConfig() {
+async function loadProxyConfig(accessToken: string) {
   try {
-    const persistence = getService(PersistenceService)
-    const accessToken = await persistence.getLocalConfig("access_token")
     if (!accessToken) return
 
-    const res = await axios.get<{
-      proxyUrl?: string | null
-      accessToken: string
-    }>(`${import.meta.env.VITE_BACKEND_API_URL}/site/proxy-config`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
+    const interceptorService = getService(NativeKernelInterceptorService)
+    const { response } = interceptorService.execute({
+      id: Date.now(),
+      url: `${import.meta.env.VITE_BACKEND_API_URL}/site/proxy-config`,
+      method: "GET",
+      version: "HTTP/1.1",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
     })
 
-    const { proxyUrl, accessToken: proxyToken } = res.data
+    const responseResult = await response
+
+    if (E.isLeft(responseResult)) {
+      console.warn("[proxy-config] Native request failed:", responseResult.left)
+      return
+    }
+
+    if (responseResult.right.status !== 200) {
+      console.warn(
+        "[proxy-config] Unexpected response status while loading proxy config:",
+        responseResult.right.status
+      )
+      return
+    }
+
+    const parsed = parseBodyAsJSON<{
+      proxyUrl?: string | null
+      accessToken: string
+    }>(responseResult.right.body)
+
+    if (parsed._tag !== "Some") {
+      console.warn("[proxy-config] Failed to parse response body")
+      return
+    }
+
+    const { proxyUrl, accessToken: proxyToken } = parsed.value
+
+    if (typeof proxyToken !== "string" || !proxyToken) {
+      console.warn("[proxy-config] Invalid or missing accessToken in response")
+      return
+    }
+
     const proxyStore = getService(KernelInterceptorProxyStore)
 
     const updatedSettings: { proxyUrl?: string; accessToken: string } = {
@@ -73,8 +108,8 @@ async function loadProxyConfig() {
     }
 
     await proxyStore.updateSettings(updatedSettings)
-  } catch {
-    // Proxy config is optional — silently ignore if endpoint is unavailable
+  } catch (err) {
+    console.debug("[proxy-config] Error loading proxy config:", err)
   }
 }
 

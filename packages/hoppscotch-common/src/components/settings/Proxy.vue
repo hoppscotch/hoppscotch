@@ -33,18 +33,15 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue"
 import { refAutoReset } from "@vueuse/core"
-
 import { useService } from "dioc/vue"
 
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 import { useReadonlyStream } from "~/composables/stream"
-import { getDefaultProxyUrl } from "~/helpers/proxyUrl"
 import { platform } from "~/platform"
 
 import { KernelInterceptorProxyStore } from "~/platform/std/kernel-interceptors/proxy/store"
 import { ProxyKernelInterceptorService } from "~/platform/std/kernel-interceptors/proxy/index"
-
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 
 import IconRotateCCW from "~icons/lucide/rotate-ccw"
@@ -65,10 +62,10 @@ const proxyUrl = ref(store.settings$.value.proxyUrl)
 // but only if the user hasn't actively edited it to something different.
 watch(
   () => store.settings$.value.proxyUrl,
-  (storeUrl) => {
+  (storeUrl, prevStoreUrl) => {
     // Don't overwrite user edits, only sync when local still matches
     // the previous store value (i.e. user hasn't typed anything new)
-    if (proxyUrl.value === "" || proxyUrl.value === storeUrl) {
+    if (proxyUrl.value === "" || proxyUrl.value === prevStoreUrl) {
       proxyUrl.value = storeUrl
     }
   },
@@ -80,10 +77,14 @@ const currentUser = useReadonlyStream(
   platform.auth.getCurrentUser()
 )
 
-// Reset proxy URL to default when user logs out
+// Reset proxy settings to platform defaults when user logs out.
+// Force-sync the local ref after reset — the settings$ watch has a guard
+// that skips sync when the user has unsaved local edits, but logout should
+// unconditionally reset the input.
 watch(currentUser, async (user) => {
   if (!user) {
-    proxyUrl.value = await getDefaultProxyUrl()
+    await store.resetSettings()
+    proxyUrl.value = store.settings$.value.proxyUrl
   }
 })
 
@@ -103,7 +104,7 @@ async function updateProxyUrl() {
 
 async function resetSettings() {
   await store.resetSettings()
-  // Store is reactive, settings$ already updated, just sync local ref
+  // Store is reactive — settings$ already updated, just sync local ref
   proxyUrl.value = store.settings$.value.proxyUrl
   clearIcon.value = IconCheck
   toast.success(t("state.cleared"))

@@ -1,4 +1,4 @@
-import { ref, readonly, type Ref, type DeepReadonly } from "vue"
+import { ref, readonly, toRaw, type Ref, type DeepReadonly } from "vue"
 import { Service } from "dioc"
 import { Store } from "~/kernel/store"
 import { getDefaultProxyUrl, DEFAULT_HOPP_PROXY_URL } from "~/helpers/proxyUrl"
@@ -68,7 +68,14 @@ export class KernelInterceptorProxyStore extends Service {
     watcher.on("change", async ({ value }) => {
       if (value) {
         const storedData = value as StoredData
-        this._settings.value = storedData.settings
+        this._settings.value = {
+          ...this._settings.value,
+          // Only sync user-configurable fields from external changes.
+          // Fallback to current value if persisted data is missing the field
+          // (e.g. older schema). accessToken stays env-derived.
+          proxyUrl:
+            storedData.settings?.proxyUrl ?? this._settings.value.proxyUrl,
+        }
       }
     })
   }
@@ -85,7 +92,10 @@ export class KernelInterceptorProxyStore extends Service {
       const storedData = loadResult.right
       this._settings.value = {
         ...defaults,
-        ...storedData.settings,
+        // Only restore user-configurable fields from storage.
+        // accessToken is env-derived (VITE_PROXYSCOTCH_ACCESS_TOKEN) and
+        // must always reflect the current deployment, not a stale persisted value.
+        proxyUrl: storedData.settings?.proxyUrl ?? defaults.proxyUrl,
       }
     } else {
       this._settings.value = { ...defaults }
@@ -94,9 +104,11 @@ export class KernelInterceptorProxyStore extends Service {
   }
 
   private async persistSettings(): Promise<void> {
+    const rawSettings = toRaw(this._settings.value)
+
     const storedData: StoredData = {
       version: "v1",
-      settings: this._settings.value,
+      settings: { ...rawSettings },
       lastUpdated: new Date().toISOString(),
     }
 
@@ -111,10 +123,17 @@ export class KernelInterceptorProxyStore extends Service {
     }
   }
 
-  public async updateSettings(patch: Partial<ProxySettings>): Promise<void> {
+  /**
+   * Update user-configurable proxy settings.
+   * Only `proxyUrl` is user-configurable, `accessToken` and `version` are
+   * derived at runtime and cannot be overwritten by callers.
+   */
+  public async updateSettings(
+    patch: Pick<ProxySettings, "proxyUrl">
+  ): Promise<void> {
     this._settings.value = {
       ...this._settings.value,
-      ...patch,
+      proxyUrl: patch.proxyUrl,
     }
     await this.persistSettings()
   }

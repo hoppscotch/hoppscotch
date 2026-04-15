@@ -27,7 +27,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
       store: new StatelessStateStore(
         configService.get<string>('INFRA.SESSION_SECRET'),
         undefined,
-        configService.get<string>('INFRA.SESSION_COOKIE_NAME'),
+        (configService.get<string>('INFRA.SESSION_COOKIE_NAME') ||
+          '__oauth_nonce') + '_google',
       ),
     });
   }

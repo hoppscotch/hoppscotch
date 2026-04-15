@@ -52,6 +52,16 @@ export class StatelessStateStore {
     maxAgeMs: number = 600_000,
     cookieName?: string,
   ) {
+    if (!secret) {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error(
+          'StatelessStateStore: INFRA.SESSION_SECRET must be set in production. Without a shared secret, OAuth callbacks will fail across load-balanced instances.',
+        );
+      }
+      console.warn(
+        '[StatelessStateStore] INFRA.SESSION_SECRET not set; using ephemeral fallback. OAuth will fail in any multi-instance deployment.',
+      );
+    }
     this.secret = secret || FALLBACK_SECRET;
     this.maxAgeMs = maxAgeMs;
     this.cookieName = cookieName || DEFAULT_COOKIE_NAME;

@@ -913,6 +913,13 @@ declare namespace pm {
   }>
 
   /**
+   * Backward-compatible alias for `pm.execution.setNextRequest()`.
+   * Unsupported in Hoppscotch (Collection Runner feature).
+   * @param requestNameOrId - Name or ID of the next request
+   */
+  function setNextRequest(requestNameOrId: string | null): never
+
+  /**
    * Execution control
    */
   const execution: Readonly<{

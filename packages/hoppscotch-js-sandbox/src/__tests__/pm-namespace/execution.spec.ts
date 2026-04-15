@@ -70,4 +70,36 @@ describe("pm.execution namespace", () => {
       })
     )
   })
+
+  test("pm.setNextRequest alias throws unsupported error in pre-request script", () => {
+    return expect(
+      runPreRequest(
+        `
+          pm.setNextRequest("next-request")
+        `,
+        {
+          global: [],
+          selected: [],
+        }
+      )()
+    ).resolves.toEqualLeft(
+      expect.stringContaining("pm.execution.setNextRequest() is not supported")
+    )
+  })
+
+  test("pm.setNextRequest alias throws unsupported error in test script", () => {
+    return expect(
+      runTest(
+        `
+          pm.setNextRequest("next-request")
+        `,
+        {
+          global: [],
+          selected: [],
+        }
+      )()
+    ).resolves.toEqualLeft(
+      expect.stringContaining("pm.execution.setNextRequest() is not supported")
+    )
+  })
 })

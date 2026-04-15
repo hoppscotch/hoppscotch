@@ -21,9 +21,10 @@ import {
 import { ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { ThrottlerBehindProxyGuard } from 'src/guards/throttler-behind-proxy.guard';
+import { OnboardingSetupGuard } from '../guards/onboarding-setup.guard';
 
 @Controller({ path: 'onboarding', version: '1' })
-@UseGuards(ThrottlerBehindProxyGuard)
+@UseGuards(ThrottlerBehindProxyGuard, OnboardingSetupGuard)
 export class OnboardingController {
   constructor(private infraConfigService: InfraConfigService) {}
 

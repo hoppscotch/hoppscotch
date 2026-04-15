@@ -535,9 +535,29 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
   async updateOnboardingConfig(dto: SaveOnboardingConfigRequest) {
     const onboardingRecoveryToken = crypto.randomUUID();
 
+    const ONBOARDING_ALLOWED_KEYS = new Set([
+      InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
+      InfraConfigEnum.GOOGLE_CLIENT_ID,
+      InfraConfigEnum.GOOGLE_CLIENT_SECRET,
+      InfraConfigEnum.GOOGLE_CALLBACK_URL,
+      InfraConfigEnum.GITHUB_CLIENT_ID,
+      InfraConfigEnum.GITHUB_CLIENT_SECRET,
+      InfraConfigEnum.GITHUB_CALLBACK_URL,
+      InfraConfigEnum.MICROSOFT_CLIENT_ID,
+      InfraConfigEnum.MICROSOFT_CLIENT_SECRET,
+      InfraConfigEnum.MICROSOFT_CALLBACK_URL,
+      InfraConfigEnum.MAILER_SMTP_ENABLE,
+      InfraConfigEnum.MAILER_SMTP_URL,
+      InfraConfigEnum.MAILER_ADDRESS_FROM,
+    ]);
+
     const configEntries: InfraConfigArgs[] = [
       ...Object.entries(dto)
-        .filter(([_, value]) => value !== undefined)
+        .filter(
+          ([key, value]) =>
+            value !== undefined &&
+            ONBOARDING_ALLOWED_KEYS.has(key as InfraConfigEnum),
+        )
         .map(([key, value]) => ({
           name: key as InfraConfigEnum,
           value,
@@ -803,6 +823,16 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
           if (value && !/^[A-Za-z0-9_-]+$/.test(value)) return fail();
           break;
 
+        case InfraConfigEnum.JWT_SECRET:
+        case InfraConfigEnum.SESSION_SECRET:
+        case InfraConfigEnum.TOKEN_SALT_COMPLEXITY:
+        case InfraConfigEnum.SESSION_COOKIE_NAME:
+        case InfraConfigEnum.ALLOW_SECURE_COOKIES:
+        case InfraConfigEnum.RATE_LIMIT_TTL:
+        case InfraConfigEnum.RATE_LIMIT_MAX:
+          throw new Error(
+            `${name} cannot be set via the onboarding endpoint`,
+          );
         default:
           break;
       }

@@ -63,10 +63,10 @@ const getCollectionSchema = (jsonStr: string): string | null => {
   }
 }
 
-export const replacePMVarTemplating = flow(
-  S.replace(/{{\s*/g, "<<"),
-  S.replace(/\s*}}/g, ">>")
-)
+export const replacePMVarTemplating = (value: unknown): string => {
+  const str = typeof value === "string" ? value : String(value ?? "")
+  return pipe(str, S.replace(/{{\s*/g, "<<"), S.replace(/\s*}}/g, ">>"))
+}
 
 const PMRawLanguageOptionsToContentTypeMap: Record<
   PMRawLanguage,

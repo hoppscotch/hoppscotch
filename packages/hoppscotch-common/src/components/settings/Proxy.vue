@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from "vue"
+import { ref, computed, watch } from "vue"
 import { refAutoReset } from "@vueuse/core"
 
 import { useService } from "dioc/vue"
@@ -57,26 +57,35 @@ const store = useService(KernelInterceptorProxyStore)
 const interceptorService = useService(KernelInterceptorService)
 const proxyInterceptorService = useService(ProxyKernelInterceptorService)
 
-const proxyUrl = ref("")
+// Local editable copy, synced from the reactive store
+const proxyUrl = ref(store.settings$.value.proxyUrl)
+
+// When the store's settings change (e.g. async init resolves, or external
+// tab updates via the Store watcher), keep the local input in sync —
+// but only if the user hasn't actively edited it to something different.
+watch(
+  () => store.settings$.value.proxyUrl,
+  (storeUrl) => {
+    // Don't overwrite user edits, only sync when local still matches
+    // the previous store value (i.e. user hasn't typed anything new)
+    if (proxyUrl.value === "" || proxyUrl.value === storeUrl) {
+      proxyUrl.value = storeUrl
+    }
+  },
+  { immediate: true }
+)
 
 const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),
   platform.auth.getCurrentUser()
 )
 
-async function updateProxyUrl() {
-  await store.updateSettings({ proxyUrl: proxyUrl.value })
-  toast.success(t("state.saved"))
-}
-
-watch(
-  () => currentUser.value,
-  async () => {
-    if (!currentUser.value) {
-      proxyUrl.value = await getDefaultProxyUrl()
-    }
+// Reset proxy URL to default when user logs out
+watch(currentUser, async (user) => {
+  if (!user) {
+    proxyUrl.value = await getDefaultProxyUrl()
   }
-)
+})
 
 const enabled = computed(
   () => interceptorService.getCurrentId() === proxyInterceptorService.id
@@ -87,16 +96,16 @@ const clearIcon = refAutoReset<typeof IconRotateCCW | typeof IconCheck>(
   1000
 )
 
+async function updateProxyUrl() {
+  await store.updateSettings({ proxyUrl: proxyUrl.value })
+  toast.success(t("state.saved"))
+}
+
 async function resetSettings() {
   await store.resetSettings()
-  const settings = store.getSettings()
-  proxyUrl.value = settings.proxyUrl
+  // Store is reactive, settings$ already updated, just sync local ref
+  proxyUrl.value = store.settings$.value.proxyUrl
   clearIcon.value = IconCheck
   toast.success(t("state.cleared"))
 }
-
-onMounted(async () => {
-  const settings = store.getSettings()
-  proxyUrl.value = settings.proxyUrl
-})
 </script>

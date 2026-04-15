@@ -738,7 +738,10 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
           break;
 
         case InfraConfigEnum.MAILER_SMTP_AUTH_TYPE:
-          if (!Object.values(SmtpAuthType).includes(value as SmtpAuthType))
+          if (
+            value &&
+            !Object.values(SmtpAuthType).includes(value as SmtpAuthType)
+          )
             return fail();
           break;
 

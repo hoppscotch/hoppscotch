@@ -504,7 +504,7 @@ const getHoppReqURL = (url: Item["request"]["url"] | null): string => {
     // Postman SDK's toString() URL-encodes path segments, which turns
     // variable syntax {{var}} into %7B%7Bvar%7D%7D. Decode first so
     // replacePMVarTemplating can match the original double-brace pattern.
-    (s) => decodeURIComponent(s),
+    (s) => { try { return decodeURIComponent(s) } catch { return s } },
     S.replace(/\?.+/g, ""),
     replacePMVarTemplating
   )

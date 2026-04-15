@@ -28,6 +28,7 @@ export class MicrosoftStrategy extends PassportStrategy(Strategy) {
         undefined,
         (configService.get<string>('INFRA.SESSION_COOKIE_NAME') ||
           '__oauth_nonce') + '_microsoft',
+        configService.get<string>('INFRA.ALLOW_SECURE_COOKIES') === 'true',
       ),
     });
   }

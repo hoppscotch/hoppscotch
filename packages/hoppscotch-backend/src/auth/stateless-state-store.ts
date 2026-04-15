@@ -46,11 +46,13 @@ export class StatelessStateStore {
   private readonly secret: string;
   private readonly maxAgeMs: number;
   private readonly cookieName: string;
+  private readonly secureCookies: boolean;
 
   constructor(
     secret?: string,
     maxAgeMs: number = 600_000,
     cookieName?: string,
+    secureCookies?: boolean,
   ) {
     if (!secret) {
       if (process.env.NODE_ENV === 'production') {
@@ -65,6 +67,7 @@ export class StatelessStateStore {
     this.secret = secret || FALLBACK_SECRET;
     this.maxAgeMs = maxAgeMs;
     this.cookieName = cookieName || DEFAULT_COOKIE_NAME;
+    this.secureCookies = secureCookies ?? false;
   }
 
   /**
@@ -144,7 +147,7 @@ export class StatelessStateStore {
         req.res.cookie(this.cookieName, nonce, {
           httpOnly: true,
           sameSite: 'lax',
-          secure: req.secure || req.protocol === 'https',
+          secure: this.secureCookies,
           maxAge: this.maxAgeMs,
           path: '/',
         });

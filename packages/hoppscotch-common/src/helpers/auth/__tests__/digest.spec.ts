@@ -76,4 +76,22 @@ describe("fetchInitialDigestAuthInfo", () => {
       algorithm: "MD5-sess",
     })
   })
+
+  it("ignores preceding schemes with quoted Digest text and keyless tokens", async () => {
+    mockExecute.mockResolvedValue(
+      createDigestChallenge(
+        'Bearer realm="Digest realm required", Digest stale, realm="Protected Area", nonce="nonce123==", qop=auth-conf,auth, algorithm=MD5'
+      )
+    )
+
+    await expect(
+      fetchInitialDigestAuthInfo("https://api.example.com/data", "GET")
+    ).resolves.toEqual({
+      realm: "Protected Area",
+      nonce: "nonce123==",
+      qop: "auth",
+      opaque: undefined,
+      algorithm: "MD5",
+    })
+  })
 })

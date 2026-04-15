@@ -80,6 +80,45 @@ export interface DigestAuthInfo {
 
 type DigestAuthHeaderParams = Record<string, string>
 
+function extractDigestChallenge(header: string) {
+  let index = 0
+
+  while (index < header.length) {
+    while (index < header.length && /[\s,]/.test(header[index])) {
+      index++
+    }
+
+    if (
+      header.slice(index, index + 6).toLowerCase() === "digest" &&
+      /\s/.test(header[index + 6] ?? "")
+    ) {
+      return header.slice(index + 6).trim()
+    }
+
+    let inQuotes = false
+
+    while (index < header.length) {
+      const char = header[index]
+
+      if (char === "\\" && inQuotes) {
+        index += 2
+        continue
+      }
+
+      if (char === '"') {
+        inQuotes = !inQuotes
+      } else if (!inQuotes && char === ",") {
+        index++
+        break
+      }
+
+      index++
+    }
+  }
+
+  return header.trim()
+}
+
 export async function fetchInitialDigestAuthInfo(
   url: string,
   method: string
@@ -151,7 +190,7 @@ export async function fetchInitialDigestAuthInfo(
 
 // Utility function to parse Digest auth header values
 function parseDigestAuthHeader(header: string): DigestAuthHeaderParams | null {
-  const digestHeader = header.replace(/^.*?\bDigest\s+/i, "").trim()
+  const digestHeader = extractDigestChallenge(header)
 
   if (!digestHeader) return null
 
@@ -177,7 +216,7 @@ function parseDigestAuthHeader(header: string): DigestAuthHeaderParams | null {
 
     const key = digestHeader.slice(keyStart, index).trim().toLowerCase()
 
-    if (!key || digestHeader[index] !== "=") break
+    if (!key || digestHeader[index] !== "=") continue
 
     index++
 
@@ -215,7 +254,18 @@ function parseDigestAuthHeader(header: string): DigestAuthHeaderParams | null {
     } else {
       const valueStart = index
 
-      while (index < digestHeader.length && digestHeader[index] !== ",") {
+      while (index < digestHeader.length) {
+        if (digestHeader[index] !== ",") {
+          index++
+          continue
+        }
+
+        if (key !== "qop") break
+
+        const rest = digestHeader.slice(index + 1)
+
+        if (/^\s*[a-z0-9_-]+\s*=/i.test(rest)) break
+
         index++
       }
 

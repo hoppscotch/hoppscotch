@@ -74,22 +74,24 @@
     },
     "load_error": "Unable to load server configurations",
     "mail_configs": {
-      "address_from": "MAILER FROM ADDRESS",
+      "address_from": "Mailer From Address",
       "custom_smtp_configs": "Use Custom SMTP Configurations",
       "description": " Configure the smtp configurations",
       "enable_email_auth": "Enable Email based authentication",
       "enable_smtp": "Enable SMTP",
-      "host": "MAILER HOST",
+      "host": "SMTP Host",
       "input_validation": "SMTP URL should start with smtp(s)://",
-      "password": "MAILER PASSWORD",
-      "port": "MAILER PORT",
-      "secure": "MAILER SECURE",
-      "smtp_url": "MAILER SMTP URL",
-      "tls_reject_unauthorized": "TLS REJECT UNAUTHORIZED",
+      "password": "SMTP Password",
+      "port": "SMTP Port",
+      "secure": "SMTP Secure",
+      "smtp_url": "SMTP URL",
+      "ignore_tls": "SMTP Ignore TLS",
+      "tls_reject_unauthorized": "TLS Reject Unauthorized",
       "title": "SMTP Configurations",
+      "smtp_auth_incomplete": "SMTP username and password must both be provided or both left empty",
       "toggle_failure": "Failed to toggle smtp!!",
       "update_failure": "Failed to update smtp configurations!!",
-      "user": "MAILER USER"
+      "user": "SMTP User"
     },
     "history_configs": {
       "description": "Disable or enable tracking history of sent requests from the Hoppscotch app",
@@ -137,7 +139,10 @@
       "description": "Configure mock server settings used to host example responses.",
       "wildcard_domain": "Wildcard Domain",
       "wildcard_domain_description": "This field requires a full wildcard domain format. The input must start with an asterisk (*) followed by a dot (.) and then the domain name.",
-      "wildcard_domain_example": "Example: *.mock.domain.com"
+      "wildcard_domain_example": "Example: *.mock.domain.com",
+      "subpath_content_type_notice_prefix": "If you are not using a wildcard domain for the mock server (i.e., using a subpath instead), responses with the following content types are automatically served as",
+      "subpath_content_type_text_plain": "text/plain",
+      "subpath_content_type_notice_suffix": "to help prevent XSS attacks:"
     },
     "update_failure": "Failed to update server configurations"
   },
@@ -426,6 +431,16 @@
     "viewer_description": "Viewers can only view and use requests",
     "valid_name": "Please enter a valid workspace name",
     "valid_owner_email": "Please enter a valid owner email"
+  },
+  "user_teams": {
+    "load_error": "Unable to load workspace memberships",
+    "no_teams": "This user does not belong to any workspaces",
+    "role": "Role",
+    "role_unknown": "Unknown",
+    "show_more": "Show more",
+    "title": "Workspaces",
+    "workspace_id": "Workspace ID",
+    "workspace_name": "Workspace Name"
   },
   "users": {
     "add_user": "Add User",

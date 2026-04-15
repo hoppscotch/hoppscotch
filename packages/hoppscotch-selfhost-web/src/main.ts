@@ -277,12 +277,7 @@ async function initApp() {
         const isCtrlOrCmd = e.ctrlKey || e.metaKey
         let shortcutEvent: string | null = null
 
-        if (
-          isCtrlOrCmd &&
-          !e.shiftKey &&
-          !e.altKey &&
-          e.key.toLowerCase() === "q"
-        ) {
+        if (isCtrlOrCmd && !e.shiftKey && !e.altKey && e.code === "KeyQ") {
           // Ctrl/Cmd + Q - Quit Application
           e.preventDefault()
           e.stopPropagation()
@@ -292,7 +287,7 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           !e.altKey &&
-          e.key.toLowerCase() === "t"
+          e.code === "KeyT"
         ) {
           // Ctrl/Cmd + T - New Tab
           e.preventDefault()
@@ -303,7 +298,7 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           !e.altKey &&
-          e.key.toLowerCase() === "w"
+          e.code === "KeyW"
         ) {
           // Ctrl/Cmd + W - Close Tab
           e.preventDefault()
@@ -314,7 +309,7 @@ async function initApp() {
           isCtrlOrCmd &&
           e.shiftKey &&
           !e.altKey &&
-          e.key.toLowerCase() === "t"
+          e.code === "KeyT"
         ) {
           // Ctrl/Cmd + Shift + T - Reopen Tab
           e.preventDefault()
@@ -347,7 +342,8 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           e.altKey &&
-          (e.key === "9" || e.code === "Digit9")
+          (e.code === "Digit9" ||
+            (e.code === "Numpad9" && e.getModifierState("NumLock")))
         ) {
           // Ctrl/Cmd + Alt + 9 - First Tab
           e.preventDefault()
@@ -358,7 +354,8 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           e.altKey &&
-          (e.key === "0" || e.code === "Digit0")
+          (e.code === "Digit0" ||
+            (e.code === "Numpad0" && e.getModifierState("NumLock")))
         ) {
           // Ctrl/Cmd + Alt + 0 - Last Tab
           e.preventDefault()

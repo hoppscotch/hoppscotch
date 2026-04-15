@@ -8,6 +8,7 @@ import {
   type TeamPublishedDocsListQuery,
   PublishedDocDocument,
   PublishedDocs,
+  type PublishedDocQuery as GqlPublishedDocQuery,
 } from "../graphql"
 import {
   HoppCollection,
@@ -241,7 +242,7 @@ export const getPublishedDocByID = (id: string) =>
         throw result.left
       }
 
-      const data = result.right as PublishedDocQuery
+      const data = result.right as GqlPublishedDocQuery
       return data.publishedDoc
     },
     (error) => {

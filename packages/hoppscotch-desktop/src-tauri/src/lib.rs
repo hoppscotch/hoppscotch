@@ -164,6 +164,43 @@ pub fn run() {
 
     let app = tauri::Builder::default()
         .setup(|app| {
+            // Set up native Edit menu to enable standard clipboard shortcuts (copy, paste, etc.)
+            // Required on Linux where webkit2gtk does not handle these without menu items
+            #[cfg(target_os = "linux")]
+            {
+                use tauri::menu::{Menu, PredefinedMenuItem, Submenu};
+
+                let result = (|| -> Result<(), Box<dyn std::error::Error>> {
+                    let handle = app.handle();
+                    let edit_menu = Submenu::with_items(
+                        handle,
+                        "Edit",
+                        true,
+                        &[
+                            &PredefinedMenuItem::undo(handle, None)?,
+                            &PredefinedMenuItem::redo(handle, None)?,
+                            &PredefinedMenuItem::separator(handle)?,
+                            &PredefinedMenuItem::cut(handle, None)?,
+                            &PredefinedMenuItem::copy(handle, None)?,
+                            &PredefinedMenuItem::paste(handle, None)?,
+                            &PredefinedMenuItem::separator(handle)?,
+                            &PredefinedMenuItem::select_all(handle, None)?,
+                        ],
+                    )?;
+                    // NOTE: This menu bar will be visible on Linux. Removing it or hiding it
+                    // also removes the accelerator registrations and breaks clipboard shortcuts
+                    // (webkit2gtk requires native menu items to recognise Ctrl+C/V/X etc.).
+                    // See https://github.com/tauri-apps/tauri/issues/2397
+                    let menu = Menu::with_items(handle, &[&edit_menu])?;
+                    app.set_menu(menu)?;
+                    Ok(())
+                })();
+
+                if let Err(e) = result {
+                    tracing::warn!(error = %e, "Failed to set up native Edit menu; clipboard shortcuts may not work");
+                }
+            }
+
             tauri::async_runtime::block_on(async {
                 if let Err(e) = setup_version_backup(app).await {
                     tracing::error!(error = %e, "Failed to setup version backup");
@@ -223,6 +260,9 @@ pub fn run() {
             path::get_store_dir,
             path::get_backup_dir,
             path::get_logs_dir,
+            logger::append_log,
+            path::read_log,
+            path::get_appload_registry,
         ])
         .run(tauri::generate_context!());
 

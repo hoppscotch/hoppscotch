@@ -28,7 +28,7 @@ export function getTransportOption(env): TransportType {
 
     const authType = env.INFRA.MAILER_SMTP_AUTH_TYPE?.trim();
 
-    let auth: Record<string, string> | undefined;
+    let auth: Record<string, string | undefined> | undefined;
 
     if (authType === SmtpAuthType.OAUTH2) {
       const oauth2User = env.INFRA.MAILER_SMTP_OAUTH2_USER?.trim() || undefined;

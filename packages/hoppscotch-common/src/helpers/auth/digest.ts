@@ -78,6 +78,8 @@ export interface DigestAuthInfo {
   algorithm: string
 }
 
+type DigestAuthHeaderParams = Record<string, string>
+
 export async function fetchInitialDigestAuthInfo(
   url: string,
   method: string
@@ -127,7 +129,7 @@ export async function fetchInitialDigestAuthInfo(
             nonce: authParams.nonce,
             qop: authParams.qop,
             opaque: authParams.opaque,
-            algorithm: authParams.algorithm,
+            algorithm: authParams.algorithm ?? "MD5",
           }
         }
       }
@@ -148,17 +150,123 @@ export async function fetchInitialDigestAuthInfo(
 }
 
 // Utility function to parse Digest auth header values
-function parseDigestAuthHeader(
-  header: string
-): { [key: string]: string } | null {
-  const matches = header.match(/([a-z0-9]+)="([^"]+)"/gi)
-  if (!matches) return null
+function parseDigestAuthHeader(header: string): DigestAuthHeaderParams | null {
+  const digestHeader = header.replace(/^.*?\bDigest\s+/i, "").trim()
 
-  const authParams: { [key: string]: string } = {}
-  matches.forEach((match) => {
-    const parts = match.split("=")
-    authParams[parts[0]] = parts[1].replace(/"/g, "")
-  })
+  if (!digestHeader) return null
 
-  return authParams
+  const authParams: DigestAuthHeaderParams = {}
+  let index = 0
+
+  while (index < digestHeader.length) {
+    while (index < digestHeader.length && /[\s,]/.test(digestHeader[index])) {
+      index++
+    }
+
+    if (index >= digestHeader.length) break
+
+    const keyStart = index
+
+    while (
+      index < digestHeader.length &&
+      digestHeader[index] !== "=" &&
+      digestHeader[index] !== ","
+    ) {
+      index++
+    }
+
+    const key = digestHeader.slice(keyStart, index).trim().toLowerCase()
+
+    if (!key || digestHeader[index] !== "=") break
+
+    index++
+
+    while (index < digestHeader.length && /\s/.test(digestHeader[index])) {
+      index++
+    }
+
+    let value = ""
+
+    if (digestHeader[index] === '"') {
+      index++
+
+      while (index < digestHeader.length) {
+        const char = digestHeader[index]
+
+        if (char === "\\") {
+          index++
+
+          if (index < digestHeader.length) {
+            value += digestHeader[index]
+            index++
+          }
+
+          continue
+        }
+
+        if (char === '"') {
+          index++
+          break
+        }
+
+        value += char
+        index++
+      }
+    } else {
+      const valueStart = index
+
+      while (index < digestHeader.length && digestHeader[index] !== ",") {
+        index++
+      }
+
+      value = digestHeader.slice(valueStart, index).trim()
+    }
+
+    authParams[key] = normalizeDigestAuthValue(key, value)
+  }
+
+  return Object.keys(authParams).length > 0 ? authParams : null
+}
+
+function normalizeDigestAuthValue(key: string, value: string) {
+  if (key === "qop") {
+    return selectDigestQop(value)
+  }
+
+  if (key === "algorithm") {
+    return normalizeDigestAlgorithm(value)
+  }
+
+  return value
+}
+
+function selectDigestQop(value: string) {
+  const qopOptions = value
+    .split(",")
+    .map((option) => option.trim().toLowerCase())
+    .filter(Boolean)
+
+  if (qopOptions.includes("auth")) {
+    return "auth"
+  }
+
+  if (qopOptions.includes("auth-int")) {
+    return "auth-int"
+  }
+
+  return value
+}
+
+function normalizeDigestAlgorithm(value: string) {
+  const normalizedAlgorithm = value.trim().toLowerCase()
+
+  if (normalizedAlgorithm === "md5-sess") {
+    return "MD5-sess"
+  }
+
+  if (normalizedAlgorithm === "md5") {
+    return "MD5"
+  }
+
+  return value
 }

@@ -16,7 +16,7 @@ import {
   HoppCollectionVariable,
 } from "@hoppscotch/data"
 import * as A from "fp-ts/Array"
-import { flow, pipe } from "fp-ts/function"
+import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as S from "fp-ts/string"
 import * as TE from "fp-ts/TaskEither"

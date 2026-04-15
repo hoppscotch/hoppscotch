@@ -63,7 +63,8 @@ func main() {
 	addr := fmt.Sprintf(":%d", cfg.Port)
 
 	// NOTE: timeouts default to conservative values but can be overridden
-	// via WEBAPP_SERVER_READ_TIMEOUT, WEBAPP_SERVER_WRITE_TIMEOUT, WEBAPP_SERVER_IDLE_TIMEOUT (seconds)
+	// via WEBAPP_SERVER_READ_TIMEOUT, WEBAPP_SERVER_WRITE_TIMEOUT, WEBAPP_SERVER_IDLE_TIMEOUT
+	// (Go duration strings, e.g. "30s", "2m", "0" to disable)
 	httpServer := &http.Server{
 		Addr:         addr,
 		Handler:      mux,

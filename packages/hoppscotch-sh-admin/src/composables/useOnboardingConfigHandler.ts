@@ -31,7 +31,13 @@ export type MailerConfigKeys =
   | 'SMTP_USER'
   | 'SMTP_PASSWORD'
   | 'SMTP_IGNORE_TLS'
-  | 'TLS_REJECT_UNAUTHORIZED';
+  | 'TLS_REJECT_UNAUTHORIZED'
+  | 'SMTP_AUTH_TYPE'
+  | 'SMTP_OAUTH2_USER'
+  | 'SMTP_OAUTH2_CLIENT_ID'
+  | 'SMTP_OAUTH2_CLIENT_SECRET'
+  | 'SMTP_OAUTH2_REFRESH_TOKEN'
+  | 'SMTP_OAUTH2_ACCESS_URL';
 
 export type Configs = {
   oAuthProviders: {
@@ -93,6 +99,14 @@ function mapMailerConfigs(
     MAILER_SMTP_IGNORE_TLS: configs.MAILER_SMTP_IGNORE_TLS || 'false',
     MAILER_TLS_REJECT_UNAUTHORIZED:
       configs.MAILER_TLS_REJECT_UNAUTHORIZED || 'false',
+    MAILER_SMTP_AUTH_TYPE: configs.MAILER_SMTP_AUTH_TYPE || 'login',
+    MAILER_SMTP_OAUTH2_USER: configs.MAILER_SMTP_OAUTH2_USER ?? '',
+    MAILER_SMTP_OAUTH2_CLIENT_ID: configs.MAILER_SMTP_OAUTH2_CLIENT_ID ?? '',
+    MAILER_SMTP_OAUTH2_CLIENT_SECRET:
+      configs.MAILER_SMTP_OAUTH2_CLIENT_SECRET ?? '',
+    MAILER_SMTP_OAUTH2_REFRESH_TOKEN:
+      configs.MAILER_SMTP_OAUTH2_REFRESH_TOKEN ?? '',
+    MAILER_SMTP_OAUTH2_ACCESS_URL: configs.MAILER_SMTP_OAUTH2_ACCESS_URL ?? '',
   };
 }
 
@@ -234,6 +248,12 @@ export function useOnboardingConfigHandler() {
         'MAILER_SMTP_IGNORE_TLS',
         'MAILER_TLS_REJECT_UNAUTHORIZED',
         'MAILER_SMTP_ENABLE',
+        'MAILER_SMTP_AUTH_TYPE',
+        'MAILER_SMTP_OAUTH2_USER',
+        'MAILER_SMTP_OAUTH2_CLIENT_ID',
+        'MAILER_SMTP_OAUTH2_CLIENT_SECRET',
+        'MAILER_SMTP_OAUTH2_REFRESH_TOKEN',
+        'MAILER_SMTP_OAUTH2_ACCESS_URL',
       ].includes(key);
     });
   };
@@ -263,6 +283,11 @@ export function useOnboardingConfigHandler() {
     const optionalSmtpKeys = new Set([
       'MAILER_SMTP_USER',
       'MAILER_SMTP_PASSWORD',
+      'MAILER_SMTP_OAUTH2_USER',
+      'MAILER_SMTP_OAUTH2_CLIENT_ID',
+      'MAILER_SMTP_OAUTH2_CLIENT_SECRET',
+      'MAILER_SMTP_OAUTH2_REFRESH_TOKEN',
+      'MAILER_SMTP_OAUTH2_ACCESS_URL',
     ]);
     const allFilled = neededKeys.every(
       (key) => configs[key] || optionalSmtpKeys.has(key)

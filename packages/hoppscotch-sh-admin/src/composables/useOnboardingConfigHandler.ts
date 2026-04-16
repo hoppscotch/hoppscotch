@@ -306,10 +306,12 @@ export function useOnboardingConfigHandler() {
     }
 
     // SMTP credentials must be provided together or both left empty.
-    // Only enforce when custom SMTP mode is active (not simple URL mode).
+    // Only enforce for login auth in custom mode — OAuth2 tab uses its own
+    // credentials, and `render-inactive-tabs` keeps stale login values mounted.
     if (
       enabledConfigs.value.includes('MAILER') &&
-      configs['MAILER_USE_CUSTOM_CONFIGS'] === 'true'
+      configs['MAILER_USE_CUSTOM_CONFIGS'] === 'true' &&
+      configs['MAILER_SMTP_AUTH_TYPE'] !== 'oauth2'
     ) {
       const smtpUser = configs['MAILER_SMTP_USER']?.trim();
       const smtpPass = configs['MAILER_SMTP_PASSWORD']?.trim();

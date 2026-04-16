@@ -368,8 +368,6 @@ export function useOnboardingConfigHandler() {
         filteredEnabledConfigs.join(','),
     };
 
-    console.log('Submitting onboarding configs', configWithAuth);
-
     try {
       const res = await auth.addOnBoardingConfigs(configWithAuth);
       if (res?.token) {

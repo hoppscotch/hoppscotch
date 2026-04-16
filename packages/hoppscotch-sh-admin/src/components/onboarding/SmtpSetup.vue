@@ -279,19 +279,17 @@ const toggleConfig = (key: AllMailerConfigKeys) => {
     current === 'true' ? 'false' : 'true';
 };
 
-const LOGIN_KEYS = ['MAILER_SMTP_USER', 'MAILER_SMTP_PASSWORD'] as const;
-const OAUTH2_KEYS = [
+const LOGIN_KEYS: ConfigKey[] = ['MAILER_SMTP_USER', 'MAILER_SMTP_PASSWORD'];
+const OAUTH2_KEYS: ConfigKey[] = [
   'MAILER_SMTP_OAUTH2_USER',
   'MAILER_SMTP_OAUTH2_CLIENT_ID',
   'MAILER_SMTP_OAUTH2_CLIENT_SECRET',
   'MAILER_SMTP_OAUTH2_REFRESH_TOKEN',
   'MAILER_SMTP_OAUTH2_ACCESS_URL',
-] as const;
-
-type AuthKey = (typeof LOGIN_KEYS)[number] | (typeof OAUTH2_KEYS)[number];
+];
 
 const { authType, showAuthSwitchModal, confirmAuthSwitch, cancelAuthSwitch } =
-  useSmtpAuthTypeSwitch<AuthKey | 'MAILER_SMTP_AUTH_TYPE'>(
+  useSmtpAuthTypeSwitch<ConfigKey>(
     () => currentConfigs.value.mailerConfigs,
     'MAILER_SMTP_AUTH_TYPE',
     LOGIN_KEYS,

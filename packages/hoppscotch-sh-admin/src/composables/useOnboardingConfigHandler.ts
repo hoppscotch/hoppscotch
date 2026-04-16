@@ -58,7 +58,7 @@ export type OnBoardingSummary = {
 };
 
 function mapOAuthProviders(
-  configs: Partial<Record<InfraConfigEnum, string>>
+  configs: Partial<Record<InfraConfigEnum, string>>,
 ): Configs['oAuthProviders'] {
   return {
     GOOGLE: {
@@ -84,7 +84,7 @@ function mapOAuthProviders(
 }
 
 function mapMailerConfigs(
-  configs: Partial<Record<InfraConfigEnum, string>>
+  configs: Partial<Record<InfraConfigEnum, string>>,
 ): Configs['mailerConfigs'] {
   return {
     MAILER_SMTP_ENABLE: configs.MAILER_SMTP_ENABLE ?? '',
@@ -146,7 +146,7 @@ export function useOnboardingConfigHandler() {
   const toggleConfig = (key: EnabledConfig | 'OAUTH' | 'EMAIL') => {
     if (key === 'OAUTH') {
       enabledConfigs.value = enabledConfigs.value.filter(
-        (c) => !['GOOGLE', 'GITHUB', 'MICROSOFT'].includes(c)
+        (c) => !['GOOGLE', 'GITHUB', 'MICROSOFT'].includes(c),
       );
     }
 
@@ -154,7 +154,7 @@ export function useOnboardingConfigHandler() {
       const hasEmail = enabledConfigs.value.includes('EMAIL');
       const hasMailer = enabledConfigs.value.includes('MAILER');
       enabledConfigs.value = enabledConfigs.value.filter(
-        (c) => c !== 'EMAIL' && c !== 'MAILER'
+        (c) => c !== 'EMAIL' && c !== 'MAILER',
       );
       if (!hasEmail || !hasMailer) {
         enabledConfigs.value.push('EMAIL', 'MAILER');
@@ -272,7 +272,7 @@ export function useOnboardingConfigHandler() {
     }
 
     const relevantKeys = Object.keys(configs).filter((key) =>
-      enabledConfigs.value.includes(key.split('_')[0] as EnabledConfig)
+      enabledConfigs.value.includes(key.split('_')[0] as EnabledConfig),
     );
 
     const neededKeys = filterNeededConfigs(relevantKeys);
@@ -290,7 +290,7 @@ export function useOnboardingConfigHandler() {
       'MAILER_SMTP_OAUTH2_ACCESS_URL',
     ]);
     const allFilled = neededKeys.every(
-      (key) => configs[key] || optionalSmtpKeys.has(key)
+      (key) => configs[key] || optionalSmtpKeys.has(key),
     );
 
     if (!allFilled) {
@@ -299,19 +299,20 @@ export function useOnboardingConfigHandler() {
           toast.error(
             t('onboarding.please_fill_configurations', {
               fieldName: makeReadableKey(key),
-            })
+            }),
           );
       });
       return;
     }
 
     // SMTP credentials must be provided together or both left empty.
-    // Only enforce for login auth in custom mode — OAuth2 tab uses its own
-    // credentials, and `render-inactive-tabs` keeps stale login values mounted.
+    // Enforced regardless of auth_type: the backend validates the pair on
+    // every save, so stale login values left behind after switching to the
+    // OAuth2 tab would still be rejected. Surface this in the FE toast so
+    // users know to clear those fields before saving.
     if (
       enabledConfigs.value.includes('MAILER') &&
-      configs['MAILER_USE_CUSTOM_CONFIGS'] === 'true' &&
-      configs['MAILER_SMTP_AUTH_TYPE'] !== 'oauth2'
+      configs['MAILER_USE_CUSTOM_CONFIGS'] === 'true'
     ) {
       const smtpUser = configs['MAILER_SMTP_USER']?.trim();
       const smtpPass = configs['MAILER_SMTP_PASSWORD']?.trim();
@@ -328,8 +329,8 @@ export function useOnboardingConfigHandler() {
       Object.entries(configs).filter(
         ([key, val]) =>
           enabledConfigs.value.includes(key.split('_')[0] as EnabledConfig) &&
-          (val || optionalSmtpKeys.has(key))
-      )
+          (val || optionalSmtpKeys.has(key)),
+      ),
     );
   };
 
@@ -358,7 +359,7 @@ export function useOnboardingConfigHandler() {
     }
 
     const filteredEnabledConfigs = enabledConfigs.value.filter(
-      (config) => config !== 'OAUTH' && config !== 'MAILER'
+      (config) => config !== 'OAUTH' && config !== 'MAILER',
     );
 
     const configWithAuth = {
@@ -366,6 +367,8 @@ export function useOnboardingConfigHandler() {
       [InfraConfigEnum.ViteAllowedAuthProviders]:
         filteredEnabledConfigs.join(','),
     };
+
+    console.log('Submitting onboarding configs', configWithAuth);
 
     try {
       const res = await auth.addOnBoardingConfigs(configWithAuth);
@@ -398,7 +401,22 @@ export function useOnboardingConfigHandler() {
 
       const allowed = configs[InfraConfigEnum.ViteAllowedAuthProviders];
       if (allowed) {
-        enabledConfigs.value = allowed.split(',') as EnabledConfig[];
+        // Trim each entry so whitespace variations ("GOOGLE, EMAIL") don't
+        // cause provider-name mismatches in downstream `.includes()` checks.
+        const parsed = allowed
+          .split(',')
+          .map((p) => p.trim())
+          .filter(Boolean) as EnabledConfig[];
+
+        // The backend persists only 'EMAIL' in VITE_ALLOWED_AUTH_PROVIDERS,
+        // but internally we also track 'MAILER' as the signal that MAILER_*
+        // keys should be kept on save. toggleConfig('EMAIL') pairs them, so
+        // mirror that invariant on load to keep the two flags in sync.
+        if (parsed.includes('EMAIL') && !parsed.includes('MAILER')) {
+          parsed.push('MAILER');
+        }
+
+        enabledConfigs.value = parsed;
       }
 
       currentConfigs.value = {
@@ -431,7 +449,7 @@ export function useOnboardingConfigHandler() {
         enableConfig('EMAIL');
       }
     },
-    { deep: true, immediate: true }
+    { deep: true, immediate: true },
   );
 
   return {

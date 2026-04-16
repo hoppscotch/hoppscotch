@@ -48,10 +48,7 @@
     <!-- Auth & Security -->
     <div v-if="smtp.USE_CUSTOM_CONFIGS.enabled" class="flex flex-col space-y-2">
       <!-- Auth Type Tabs + Auth Credentials -->
-      <HoppSmartTabs
-        v-model="currentConfigs.mailerConfigs.MAILER_SMTP_AUTH_TYPE"
-        render-inactive-tabs
-      >
+      <HoppSmartTabs v-model="authType" render-inactive-tabs>
         <HoppSmartTab
           id="login"
           :icon="IconLock"
@@ -113,6 +110,13 @@
         </HoppSmartCheckbox>
       </div>
     </div>
+
+    <HoppSmartConfirmModal
+      :show="showAuthSwitchModal"
+      :title="t('configs.mail_configs.auth_switch_description')"
+      @hide-modal="cancelAuthSwitch"
+      @resolve="confirmAuthSwitch"
+    />
   </div>
 </template>
 
@@ -124,6 +128,7 @@ import {
   EnabledConfig,
   MailerConfigKeys,
 } from '~/composables/useOnboardingConfigHandler';
+import { useSmtpAuthTypeSwitch } from '~/composables/useSmtpAuthTypeSwitch';
 import { useI18n } from '~/composables/i18n';
 import IconLock from '~icons/lucide/lock';
 import IconShield from '~icons/lucide/shield';
@@ -273,4 +278,23 @@ const toggleConfig = (key: AllMailerConfigKeys) => {
   currentConfigs.value.mailerConfigs[id] =
     current === 'true' ? 'false' : 'true';
 };
+
+const LOGIN_KEYS = ['MAILER_SMTP_USER', 'MAILER_SMTP_PASSWORD'] as const;
+const OAUTH2_KEYS = [
+  'MAILER_SMTP_OAUTH2_USER',
+  'MAILER_SMTP_OAUTH2_CLIENT_ID',
+  'MAILER_SMTP_OAUTH2_CLIENT_SECRET',
+  'MAILER_SMTP_OAUTH2_REFRESH_TOKEN',
+  'MAILER_SMTP_OAUTH2_ACCESS_URL',
+] as const;
+
+type AuthKey = (typeof LOGIN_KEYS)[number] | (typeof OAUTH2_KEYS)[number];
+
+const { authType, showAuthSwitchModal, confirmAuthSwitch, cancelAuthSwitch } =
+  useSmtpAuthTypeSwitch<AuthKey | 'MAILER_SMTP_AUTH_TYPE'>(
+    () => currentConfigs.value.mailerConfigs,
+    'MAILER_SMTP_AUTH_TYPE',
+    LOGIN_KEYS,
+    OAUTH2_KEYS,
+  );
 </script>

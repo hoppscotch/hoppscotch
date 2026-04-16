@@ -350,9 +350,10 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     const fields = config.mailConfigs.fields;
     if (!fields.mailer_use_custom_configs) return false;
 
-    // User/pass pair validation only applies to login auth type
-    if (fields.mailer_smtp_auth_type === 'oauth2') return false;
-
+    // Enforced regardless of auth_type: the backend validates the pair
+    // on every save, so stale login values left behind after switching
+    // to the OAuth2 tab would still be rejected. Surface this in the FE
+    // toast so users know to clear those fields before saving.
     const hasUser = fields.mailer_smtp_user.trim() !== '';
     const hasPass = fields.mailer_smtp_password.trim() !== '';
 

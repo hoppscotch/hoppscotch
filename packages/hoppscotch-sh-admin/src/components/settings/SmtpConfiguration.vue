@@ -141,10 +141,7 @@
             <template v-if="smtpConfigs.fields.mailer_use_custom_configs">
               <!-- Auth Type Tabs + Auth Credentials -->
               <div class="mt-5 ml-12 max-w-lg">
-                <HoppSmartTabs
-                  v-model="smtpConfigs.fields.mailer_smtp_auth_type"
-                  render-inactive-tabs
-                >
+                <HoppSmartTabs v-model="authType" render-inactive-tabs>
                   <HoppSmartTab
                     id="login"
                     :icon="IconLock"
@@ -227,6 +224,13 @@
         </div>
       </section>
     </div>
+
+    <HoppSmartConfirmModal
+      :show="showAuthSwitchModal"
+      :title="t('configs.mail_configs.auth_switch_description')"
+      @hide-modal="cancelAuthSwitch"
+      @resolve="confirmAuthSwitch"
+    />
   </div>
 </template>
 
@@ -234,6 +238,7 @@
 import { useVModel } from '@vueuse/core';
 import { computed, reactive, watch } from 'vue';
 import { useI18n } from '~/composables/i18n';
+import { useSmtpAuthTypeSwitch } from '~/composables/useSmtpAuthTypeSwitch';
 import { hasInputValidationFailed, ServerConfigs } from '~/helpers/configs';
 import IconEye from '~icons/lucide/eye';
 import IconEyeOff from '~icons/lucide/eye-off';
@@ -390,4 +395,24 @@ const getFieldError = (fieldKey: StringFieldKey) => fieldErrors.value[fieldKey];
 watch(fieldErrors, (errors) => {
   hasInputValidationFailed.value = Object.values(errors).some(Boolean);
 });
+
+const LOGIN_KEYS: StringFieldKey[] = [
+  'mailer_smtp_user',
+  'mailer_smtp_password',
+];
+const OAUTH2_KEYS: StringFieldKey[] = [
+  'mailer_smtp_oauth2_user',
+  'mailer_smtp_oauth2_client_id',
+  'mailer_smtp_oauth2_client_secret',
+  'mailer_smtp_oauth2_refresh_token',
+  'mailer_smtp_oauth2_access_url',
+];
+
+const { authType, showAuthSwitchModal, confirmAuthSwitch, cancelAuthSwitch } =
+  useSmtpAuthTypeSwitch<StringFieldKey>(
+    () => stringFields.value,
+    'mailer_smtp_auth_type',
+    LOGIN_KEYS,
+    OAUTH2_KEYS,
+  );
 </script>

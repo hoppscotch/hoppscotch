@@ -235,7 +235,11 @@ watch(
 const isSelected = (option: SelectedOption) =>
   selectedOptions.value.includes(option as any);
 
-const isSmtpEnabled = computed(() => enabledConfigs.value.includes('MAILER'));
+const isSmtpEnabled = computed(
+  () =>
+    enabledConfigs.value.includes('MAILER') ||
+    enabledConfigs.value.includes('EMAIL'),
+);
 
 const updateOAuthEnabled = () => {
   isOAuthEnabled.value = OAuthProviders.some((provider) =>
@@ -243,18 +247,23 @@ const updateOAuthEnabled = () => {
   );
 };
 
+// Card clicks reconcile enabled state to match the card's selection, rather
+// than blindly flipping. When the backend pre-populated enabledConfigs
+// (e.g. a prior partial onboarding), a plain toggle would wipe the existing
+// EMAIL/GOOGLE entries the moment the user clicks the card to "select" them.
 const toggleSelectedOption = (option: SelectedOption) => {
-  if (selectedOptions.value.includes(option as any)) {
-    selectedOptions.value = selectedOptions.value.filter(
-      (opt) => opt !== option,
-    );
-  } else {
-    selectedOptions.value.push(option as any);
-  }
+  const willBeSelected = !selectedOptions.value.includes(option);
+
+  selectedOptions.value = willBeSelected
+    ? [...selectedOptions.value, option]
+    : selectedOptions.value.filter((opt) => opt !== option);
+
   if (option === 'SMTP') {
-    toggleConfig('EMAIL');
-    toggleSmtpConfig();
-  } else {
+    if (willBeSelected !== isSmtpEnabled.value) {
+      toggleConfig('EMAIL');
+      toggleSmtpConfig();
+    }
+  } else if (willBeSelected !== isOAuthEnabled.value) {
     toggleConfig(option);
   }
 };

@@ -2123,6 +2123,7 @@
       get: (key) => inputs.envGet(key),
       getResolve: (key) => inputs.envGetResolve(key),
       set: (key, value) => inputs.envSet(key, value),
+      setSecret: (key, value) => inputs.envSetSecret(key, value),
       unset: (key) => inputs.envUnset(key),
       resolve: (key) => inputs.envResolve(key),
     },
@@ -2286,6 +2287,7 @@
         return convertMarkerToValue(value)
       },
       set: (key, value) => inputs.envSet(key, value),
+      setSecret: (key, value) => inputs.envSetSecret(key, value),
       delete: (key) => inputs.envUnset(key),
       reset: (key) => inputs.envReset(key),
       getInitialRaw: (key) => {
@@ -2310,6 +2312,7 @@
           return convertMarkerToValue(value)
         },
         set: (key, value) => inputs.envSet(key, value, { source: "active" }),
+        setSecret: (key, value) => inputs.envSetSecret(key, value, { source: "active" }),
         delete: (key) => inputs.envUnset(key, { source: "active" }),
         reset: (key) => inputs.envReset(key, { source: "active" }),
         getInitialRaw: (key) => {
@@ -2336,6 +2339,7 @@
           return convertMarkerToValue(value)
         },
         set: (key, value) => inputs.envSet(key, value, { source: "global" }),
+        setSecret: (key, value) => inputs.envSetSecret(key, value, { source: "global" }),
         delete: (key) => inputs.envUnset(key, { source: "global" }),
         reset: (key) => inputs.envReset(key, { source: "global" }),
         getInitialRaw: (key) => {

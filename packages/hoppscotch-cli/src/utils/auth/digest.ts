@@ -27,6 +27,7 @@ export interface DigestAuthInfo {
 }
 
 type DigestAuthHeaderParams = Record<string, string>;
+const DIGEST_DIRECTIVE_NAME_PATTERN = /^[a-z0-9_-]+$/i;
 
 const extractDigestChallenge = (header: string) => {
   let index = 0;
@@ -97,8 +98,14 @@ const parseDigestAuthHeader = (
 
     const key = digestHeader.slice(keyStart, index).trim().toLowerCase();
 
-    if (!key || digestHeader[index] !== "=") {
+    const hasAssignment = digestHeader[index] === "=";
+    const isValidDirectiveName = DIGEST_DIRECTIVE_NAME_PATTERN.test(key);
+
+    if (!key || !hasAssignment || !isValidDirectiveName) {
       if (index === keyStart) index++;
+      else if (hasAssignment) {
+        index = skipDigestDirectiveValue(digestHeader, index + 1);
+      }
       continue;
     }
 
@@ -156,7 +163,13 @@ const parseDigestAuthHeader = (
       value = digestHeader.slice(valueStart, index).trim();
     }
 
-    authParams[key] = normalizeDigestAuthValue(key, value);
+    const normalizedValue = normalizeDigestAuthValue(key, value);
+
+    if (!normalizedValue && (key === "qop" || key === "algorithm")) {
+      return null;
+    }
+
+    authParams[key] = normalizedValue;
   }
 
   return Object.keys(authParams).length > 0 ? authParams : null;
@@ -188,7 +201,7 @@ const selectDigestQop = (value: string) => {
     return "auth-int";
   }
 
-  return value;
+  return "";
 };
 
 const normalizeDigestAlgorithm = (value: string) => {
@@ -202,7 +215,40 @@ const normalizeDigestAlgorithm = (value: string) => {
     return "MD5";
   }
 
-  return value;
+  return "";
+};
+
+const skipDigestDirectiveValue = (header: string, index: number) => {
+  while (index < header.length && /\s/.test(header[index])) {
+    index++;
+  }
+
+  if (header[index] === '"') {
+    index++;
+
+    while (index < header.length) {
+      const char = header[index];
+
+      if (char === "\\") {
+        index += 2;
+        continue;
+      }
+
+      index++;
+
+      if (char === '"') {
+        break;
+      }
+    }
+
+    return index;
+  }
+
+  while (index < header.length && header[index] !== ",") {
+    index++;
+  }
+
+  return index;
 };
 
 // Function to generate Digest Auth Header

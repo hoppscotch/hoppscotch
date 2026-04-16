@@ -112,4 +112,50 @@ describe("fetchInitialDigestAuthInfo", () => {
       algorithm: "MD5",
     })
   })
+
+  it("ignores trailing non-digest schemes after valid digest params", async () => {
+    mockExecute.mockResolvedValue(
+      createDigestChallenge(
+        'Digest realm="Protected Area", nonce="nonce123==", qop="auth", algorithm=MD5, Basic realm="fallback"'
+      )
+    )
+
+    await expect(
+      fetchInitialDigestAuthInfo("https://api.example.com/data", "GET")
+    ).resolves.toEqual({
+      realm: "Protected Area",
+      nonce: "nonce123==",
+      qop: "auth",
+      opaque: undefined,
+      algorithm: "MD5",
+    })
+  })
+
+  it("rejects digest challenges with unsupported qop values", async () => {
+    mockExecute.mockResolvedValue(
+      createDigestChallenge(
+        'Digest realm="Protected Area", nonce="nonce123==", qop="auth-conf", algorithm=MD5'
+      )
+    )
+
+    await expect(
+      fetchInitialDigestAuthInfo("https://api.example.com/data", "GET")
+    ).rejects.toThrow(
+      "Failed to parse authentication parameters from WWW-Authenticate header"
+    )
+  })
+
+  it("rejects digest challenges with unsupported algorithms", async () => {
+    mockExecute.mockResolvedValue(
+      createDigestChallenge(
+        'Digest realm="Protected Area", nonce="nonce123==", qop="auth", algorithm=SHA-256'
+      )
+    )
+
+    await expect(
+      fetchInitialDigestAuthInfo("https://api.example.com/data", "GET")
+    ).rejects.toThrow(
+      "Failed to parse authentication parameters from WWW-Authenticate header"
+    )
+  })
 })

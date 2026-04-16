@@ -216,7 +216,10 @@ function parseDigestAuthHeader(header: string): DigestAuthHeaderParams | null {
 
     const key = digestHeader.slice(keyStart, index).trim().toLowerCase()
 
-    if (!key || digestHeader[index] !== "=") continue
+    if (!key || digestHeader[index] !== "=") {
+      if (index === keyStart) index++
+      continue
+    }
 
     index++
 

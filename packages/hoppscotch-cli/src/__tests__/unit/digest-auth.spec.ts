@@ -76,4 +76,24 @@ describe("fetchInitialDigestAuthInfo", () => {
       algorithm: "MD5",
     });
   });
+
+  it("skips malformed =value directives without hanging or losing later params", async () => {
+    mockRequest.mockResolvedValue({
+      status: 401,
+      headers: {
+        "WWW-Authenticate":
+          'Digest realm="Protected Area", =badvalue, nonce="nonce123==", qop=auth-conf,auth',
+      },
+    });
+
+    await expect(
+      fetchInitialDigestAuthInfo("https://api.example.com/data", "GET", false)
+    ).resolves.toEqual({
+      realm: "Protected Area",
+      nonce: "nonce123==",
+      qop: "auth",
+      opaque: undefined,
+      algorithm: "MD5",
+    });
+  });
 });

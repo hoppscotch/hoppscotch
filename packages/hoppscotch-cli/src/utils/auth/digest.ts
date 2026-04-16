@@ -97,7 +97,10 @@ const parseDigestAuthHeader = (
 
     const key = digestHeader.slice(keyStart, index).trim().toLowerCase();
 
-    if (!key || digestHeader[index] !== "=") continue;
+    if (!key || digestHeader[index] !== "=") {
+      if (index === keyStart) index++;
+      continue;
+    }
 
     index++;
 

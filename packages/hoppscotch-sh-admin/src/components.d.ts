@@ -46,7 +46,9 @@ declare module 'vue' {
     IconLucideHelpCircle: typeof import('~icons/lucide/help-circle')['default']
     IconLucideInbox: typeof import('~icons/lucide/inbox')['default']
     IconLucideInfo: typeof import('~icons/lucide/info')['default']
+    IconLucideLock: typeof import('~icons/lucide/lock')['default']
     IconLucideSearch: typeof import('~icons/lucide/search')['default']
+    IconLucideShield: typeof import('~icons/lucide/shield')['default']
     IconLucideUser: typeof import('~icons/lucide/user')['default']
     OnboardingAuthProviderCard: typeof import('./components/onboarding/AuthProviderCard.vue')['default']
     OnboardingAuthSetup: typeof import('./components/onboarding/AuthSetup.vue')['default']
@@ -81,5 +83,6 @@ declare module 'vue' {
     UsersInviteModal: typeof import('./components/users/InviteModal.vue')['default']
     UsersSharedRequests: typeof import('./components/users/SharedRequests.vue')['default']
     UsersSuccessInviteModal: typeof import('./components/users/SuccessInviteModal.vue')['default']
+    UsersTeams: typeof import('./components/users/Teams.vue')['default']
   }
 }

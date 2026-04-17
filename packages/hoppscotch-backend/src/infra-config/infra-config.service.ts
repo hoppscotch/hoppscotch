@@ -4,7 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { InfraConfig as DBInfraConfig } from 'src/generated/prisma/client';
 import * as E from 'fp-ts/Either';
 import { InfraConfigEnum } from 'src/types/InfraConfig';
-import { SmtpAuthType } from 'src/mailer/helper';
+import { SMTPAuthType } from 'src/mailer/helper';
 import {
   AUTH_PROVIDER_NOT_SPECIFIED,
   DATABASE_TABLE_NOT_EXIST,
@@ -740,7 +740,7 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
         case InfraConfigEnum.MAILER_SMTP_AUTH_TYPE:
           if (
             value &&
-            !Object.values(SmtpAuthType).includes(value as SmtpAuthType)
+            !Object.values(SMTPAuthType).includes(value as SMTPAuthType)
           )
             return fail();
           break;

@@ -1,8 +1,9 @@
 import { TransportType } from '@nestjs-modules/mailer/dist/interfaces/mailer-options.interface';
+import SMTPConnection from 'nodemailer/lib/smtp-connection';
 import { MAILER_SMTP_URL_UNDEFINED } from 'src/errors';
 import { throwErr } from 'src/utils';
 
-export enum SmtpAuthType {
+export enum SMTPAuthType {
   LOGIN = 'login',
   OAUTH2 = 'oauth2',
 }
@@ -28,9 +29,9 @@ export function getTransportOption(env): TransportType {
 
     const authType = env.INFRA.MAILER_SMTP_AUTH_TYPE?.trim();
 
-    let auth: Record<string, string | undefined> | undefined;
+    let auth: SMTPConnection.AuthenticationType | undefined;
 
-    if (authType === SmtpAuthType.OAUTH2) {
+    if (authType === SMTPAuthType.OAUTH2) {
       const oauth2User = env.INFRA.MAILER_SMTP_OAUTH2_USER?.trim() || undefined;
       const oauth2ClientId =
         env.INFRA.MAILER_SMTP_OAUTH2_CLIENT_ID?.trim() || undefined;
@@ -42,7 +43,7 @@ export function getTransportOption(env): TransportType {
         env.INFRA.MAILER_SMTP_OAUTH2_ACCESS_URL?.trim() || undefined;
 
       auth = {
-        type: 'OAuth2',
+        type: SMTPAuthType.OAUTH2,
         user: oauth2User,
         clientId: oauth2ClientId,
         clientSecret: oauth2ClientSecret,
@@ -62,7 +63,9 @@ export function getTransportOption(env): TransportType {
       }
 
       auth =
-        smtpUser && smtpPass ? { user: smtpUser, pass: smtpPass } : undefined;
+        smtpUser && smtpPass
+          ? { type: SMTPAuthType.LOGIN, user: smtpUser, pass: smtpPass }
+          : undefined;
     }
 
     return {

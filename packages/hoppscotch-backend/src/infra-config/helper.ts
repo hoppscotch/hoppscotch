@@ -2,7 +2,7 @@ import { AuthProvider } from 'src/auth/helper';
 import { ENV_INVALID_DATA_ENCRYPTION_KEY } from 'src/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { InfraConfigEnum } from 'src/types/InfraConfig';
-import { SmtpAuthType } from 'src/mailer/helper';
+import { SMTPAuthType } from 'src/mailer/helper';
 import { decrypt, encrypt } from 'src/utils';
 import { randomBytes } from 'crypto';
 
@@ -246,7 +246,7 @@ export async function getDefaultInfraConfigs(): Promise<DefaultInfraConfig[]> {
     },
     {
       name: InfraConfigEnum.MAILER_SMTP_AUTH_TYPE,
-      value: SmtpAuthType.LOGIN,
+      value: SMTPAuthType.LOGIN,
       isEncrypted: false,
     },
     {

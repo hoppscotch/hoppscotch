@@ -93,7 +93,7 @@
       "auth_type": "Authentication Type",
       "auth_type_login": "Basic Auth (Login)",
       "auth_type_oauth2": "OAuth 2.0",
-      "oauth2_user": "OAuth2 User Email",
+      "oauth2_user": "OAuth2 User",
       "oauth2_client_id": "OAuth2 Client ID",
       "oauth2_client_secret": "OAuth2 Client Secret",
       "oauth2_refresh_token": "OAuth2 Refresh Token",

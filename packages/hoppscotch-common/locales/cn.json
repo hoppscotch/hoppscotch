@@ -109,10 +109,10 @@
     "processing": "正在处理您的请求...",
     "not_running_title": "未检测到Agent",
     "registration_title": "注册Agent",
-    "verify_ssl_certs": "验证SSL证书",
+    "verify_ssl_certs": "验证 SSL 证书",
     "ca_certs": "CA 证书",
     "client_certs": "客户端证书",
-    "use_http_proxy": "使用HTTP代理",
+    "use_http_proxy": "使用 HTTP 代理",
     "proxy_capabilities": "Hoppscotch Agent 支持 HTTP/HTTPS/SOCKS 代理，以及 NTLM 和 Basic 认证。请在代理 URL 中包含用于认证的用户名和密码。",
     "add_cert_file": "添加证书文件",
     "add_client_cert": "添加客户端证书",
@@ -132,6 +132,7 @@
       "web_app": "Web App",
       "cli": "CLI"
     },
+    "downloads": "下载",
     "chat_with_us": "与我们交谈",
     "contact_us": "联系我们",
     "cookies": "Cookies",
@@ -624,11 +625,11 @@
   "environment": {
     "heading": "环境",
     "add_to_global": "添加到全局环境",
-    "added": "环境已添加",
+    "added": "环境变量已添加",
     "create_new": "创建新环境",
     "created": "环境已创建",
     "current_value": "当前值",
-    "deleted": "环境已删除",
+    "deleted": "环境变量已删除",
     "duplicated": "环境已复制",
     "edit": "编辑环境",
     "empty_variables": "没有变量",
@@ -902,8 +903,8 @@
     "postman_environment": "Postman 环境",
     "postman_environment_description": "从一个 JSON 文件中导入 Postman 环境",
     "title": "导入",
-    "file_size_limit_exceeded_warning_multiple_files": "当前选择的文件大小超过了推荐的 10MB，只导入第一个被选择的 {files}。",
-    "file_size_limit_exceeded_warning_single_file": "当前选择的文件大小超过了推荐的 10MB，请选择其他文件",
+    "file_size_limit_exceeded_warning_multiple_files": "当前选择的文件大小超过了推荐的 {sizeLimit}MB，只导入第一个被选择的 {files}。",
+    "file_size_limit_exceeded_warning_single_file": "当前选择的文件大小超过了推荐的 {sizeLimit}MB，请选择其他文件",
     "success": "成功导入",
     "import_summary_collections_title": "集合",
     "import_summary_requests_title": "请求",
@@ -992,29 +993,29 @@
       "pre_request": "预请求脚本",
       "post_request": "请求后脚本",
       "both_scripts": "预请求和请求后脚本",
-      "unsupported_interceptor": "您的 {scriptType} 使用了 {apiUsed}。为确保脚本可靠执行，请切换到代理拦截器（网页应用）或原生拦截器（桌面应用）。{interceptor} 拦截器对脚本化请求的支持有限，可能无法按预期工作。",
-      "same_origin_csrf_warning": "安全警告：您的 {scriptType} 使用 {apiUsed} 进行了同源请求。由于本平台使用基于 Cookie 的身份验证，这些请求会自动包含您的会话 Cookie，可能导致恶意脚本执行未授权操作。请使用代理拦截器处理同源请求，或仅运行您信任的脚本。"
+      "unsupported_interceptor": "您的 {scriptType} 使用了 {apiUsed}。为确保脚本可靠执行，请切换到代理程序拦截器（网页应用）或原生拦截器（桌面应用）。{interceptor} 拦截器对脚本化请求的支持有限，可能无法按预期工作。",
+      "same_origin_csrf_warning": "安全警告：您的 {scriptType} 使用 {apiUsed} 进行了同源请求。由于本平台使用基于 Cookie 的身份验证，这些请求会自动包含您的会话 Cookie，可能导致恶意脚本执行未授权操作。请使用代理程序拦截器处理同源请求，或仅运行您信任的脚本。"
     }
   },
   "interceptor": {
     "native": {
-      "name": "原生",
+      "name": "原生(Native)",
       "settings_title": "原生"
     },
     "agent": {
-      "name": "代理程序",
-      "settings_title": "代理程序(Agent)"
+      "name": "代理程序(Agent)",
+      "settings_title": "代理程序"
     },
     "proxy": {
-      "name": "网络代理",
-      "settings_title": "网络代理(Proxy)"
+      "name": "网络代理(Proxy)",
+      "settings_title": "网络代理"
     },
     "browser": {
-      "name": "浏览器",
+      "name": "浏览器(Browser)",
       "settings_title": "浏览器"
     },
     "extension": {
-      "name": "扩展",
+      "name": "扩展(Extension)",
       "settings_title": "扩展"
     }
   },
@@ -1088,9 +1089,9 @@
     "start_server": "启动服务",
     "stop_server": "停止服务",
     "mock_server_created": "Mock 服务创建成功",
-    "mock_server_started": "mock启动成功",
-    "mock_server_stopped": "mock停止成功",
-    "active": "Mock正在运行",
+    "mock_server_started": "Mock 服务启动成功",
+    "mock_server_stopped": "Mock 服务停止成功",
+    "active": "Mock 服务正在运行",
     "inactive": "Mock 服务未运行",
     "edit_mock_server": "编辑 Mock 服务",
     "path_based_url": "基于路径的 URL",
@@ -2248,7 +2249,7 @@
   "organization_sidebar": {
     "hoppscotch_cloud": "Hoppscotch 云",
     "cloud_locked": "默认实例无法移除",
-    "admin": "管理",
+    "admin": "管理员",
     "error_loading": "加载组织失败",
     "inactive_orgs": "未激活的组织",
     "no_orgs_found": "未找到组织",

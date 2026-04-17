@@ -9,6 +9,9 @@ import {
 import { CurrentValueService } from "~/services/current-environment-value.service"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 
+/** Maximum file size for file-based environment variables (5 MB). */
+export const MAX_FILE_SIZE = 5 * 1024 * 1024
+
 const secretEnvironmentService = getService(SecretEnvironmentService)
 const currentEnvironmentValueService = getService(CurrentValueService)
 

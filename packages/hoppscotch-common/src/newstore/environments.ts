@@ -26,14 +26,14 @@ export type SelectedEnvironmentIndex =
     }
 
 const defaultGlobalEnvironmentState: GlobalEnvironment = {
-  v: 2,
+  v: 3,
   variables: [],
 }
 
 const defaultEnvironmentsState = {
   environments: [
     {
-      v: 2,
+      v: 3,
       id: uniqueID(),
       name: "My Environment Variables",
       variables: [],
@@ -104,12 +104,12 @@ const dispatchers = defineDispatchers({
         envID
           ? {
               id: envID,
-              v: 2,
+              v: 3 as const,
               name,
               variables,
             }
           : {
-              v: 2,
+              v: 3 as const,
               id: uniqueID(),
               name,
               variables,
@@ -401,7 +401,7 @@ export const currentEnvironment$: Observable<Environment | undefined> =
       if (selectedEnvironmentIndex.type === "NO_ENV_SELECTED") {
         const env: Environment = {
           name: "No environment",
-          v: 2,
+          v: 3,
           id: "",
           variables: [],
         }
@@ -704,7 +704,7 @@ export function getCurrentEnvironment(): Environment {
     environmentsStore.value.selectedEnvironmentIndex.type === "NO_ENV_SELECTED"
   ) {
     return {
-      v: 2,
+      v: 3,
       id: "",
       name: "No environment",
       variables: [],

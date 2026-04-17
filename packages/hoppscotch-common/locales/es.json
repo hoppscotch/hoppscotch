@@ -226,7 +226,7 @@
       "token_generation_oidc_discovery_failed": "Fallo en la generación del token: Error en el descubrimiento de OpenID Connect",
       "grant_type": "Tipo de autorización",
       "grant_type_auth_code": "Código de autorización",
-      "token_fetched_successfully": "Token recuperado correctamente",
+      "token_fetched_successfully": "Token recuperado exitosamente",
       "token_fetch_failed": "Fallo al recuperar el token",
       "validation_failed": "Fallo de validación, comprueba los campos del formulario",
       "no_refresh_token_present": "No hay Refresh Token presente. Por favor ejecuta el flujo de generación de token nuevamente",
@@ -522,7 +522,7 @@
       "metadata": "Metadatos (JSON)",
       "open_published_doc": "Abrir documentación publicada en una nueva pestaña",
       "publish_error": "Error al publicar la documentación",
-      "publish_success": "¡Documentación publicada correctamente!",
+      "publish_success": "¡Documentación publicada exitosamente!",
       "published": "Publicada",
       "published_url": "URL publicada",
       "title": "Publicar documentación",
@@ -756,7 +756,7 @@
     "generate_access_token": "Algo ha ido mal al generar el token de acceso",
     "delete_access_token": "Algo ha ido mal al borrar el token de acceso",
     "extension_not_found": "Extensión no encontrada",
-    "invalid_request": "Datos de solicitud inválidos"
+    "invalid_request": "Datos de solicitud no válidos"
   },
   "export": {
     "as_json": "Exportar como JSON",
@@ -1587,7 +1587,7 @@
       "edit": "Editar el espacio de trabajo actual",
       "invite": "Invitar al espacio de trabajo",
       "new": "Crear un nuevo espacio de trabajo",
-      "switch_to_personal": "Cambia a tu espacio de trabajo personal",
+      "switch_to_personal": "Cambiar a tu espacio de trabajo personal",
       "title": "Espacio de trabajo"
     },
     "phrases": {

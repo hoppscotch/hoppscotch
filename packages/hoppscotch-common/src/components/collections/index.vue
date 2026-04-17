@@ -42,6 +42,7 @@
       "
       @add-folder="addFolder"
       @add-request="addRequest"
+      @add-gql-request="addGqlRequest"
       @edit-request="editRequest"
       @edit-collection="editCollection"
       @edit-folder="editFolder"
@@ -94,6 +95,7 @@
       :collection-move-loading="collectionMoveLoading"
       :request-move-loading="requestMoveLoading"
       @add-request="addRequest"
+      @add-gql-request="addGqlRequest"
       @add-folder="addFolder"
       @collection-click="handleCollectionClick"
       @duplicate-collection="duplicateCollection"
@@ -306,6 +308,8 @@ import {
   makeCollection,
   makeHoppRESTResponseOriginalRequest,
 } from "@hoppscotch/data"
+import { getDefaultGQLRequest } from "~/helpers/graphql/default"
+import { GQLTabService } from "~/services/tab/graphql"
 import { useService } from "dioc/vue"
 import { MODULE_PREFIX_REGEX_JSON_SERIALIZED } from "~/helpers/scripting"
 
@@ -405,6 +409,7 @@ import { CurrentSortValuesService } from "~/services/current-sort.service"
 const t = useI18n()
 const toast = useToast()
 const tabs = useService(RESTTabService)
+const gqlTabs = useService(GQLTabService)
 
 const props = defineProps({
   saveRequest: {
@@ -448,6 +453,7 @@ const editingCollectionPath = ref<string | null>(null)
 const editingFolder = ref<HoppCollection | TeamCollection | null>(null)
 const editingFolderName = ref<string | null>(null)
 const editingFolderPath = ref<string | null>(null)
+const requestTypeToAdd = ref<"rest" | "gql">("rest")
 
 const editingRequest = ref<HoppRESTRequest | HoppGQLRequest | null>(null)
 const editingRequestName = ref("")
@@ -958,14 +964,27 @@ const addRequest = (payload: {
   const { path, folder } = payload
   editingFolder.value = folder
   editingFolderPath.value = path
+  requestTypeToAdd.value = "rest"
+  displayModalAddRequest(true)
+}
+
+const addGqlRequest = (payload: {
+  path: string
+  folder: HoppCollection | TeamCollection
+}) => {
+  const { path, folder } = payload
+  editingFolder.value = folder
+  editingFolderPath.value = path
+  requestTypeToAdd.value = "gql"
   displayModalAddRequest(true)
 }
 
 const onAddRequest = async (requestName: string) => {
-  const newRequest = {
-    ...getDefaultRESTRequest(),
-    name: requestName,
-  }
+  const isGqlRequest = requestTypeToAdd.value === "gql"
+
+  const newRequest = isGqlRequest
+    ? { ...getDefaultGQLRequest(), name: requestName }
+    : { ...getDefaultRESTRequest(), name: requestName }
 
   const path = editingFolderPath.value
   if (!path) return
@@ -975,24 +994,40 @@ const onAddRequest = async (requestName: string) => {
 
     const insertionIndex = saveRESTRequestAs(path, newRequest)
 
-    tabs.createNewTab({
-      type: "request",
-      request: newRequest,
-      isDirty: false,
-      saveContext: {
-        originLocation: "user-collection",
-        folderPath: path,
-        requestIndex: insertionIndex,
-        requestRefID: newRequest._ref_id,
-      },
-      inheritedProperties: cascadeParentCollectionForProperties(path, "rest"),
-    })
+    if (isGqlRequest) {
+      gqlTabs.createNewTab({
+        request: newRequest as HoppGQLRequest,
+        isDirty: false,
+        saveContext: {
+          originLocation: "user-collection",
+          folderPath: path,
+          requestIndex: insertionIndex,
+        },
+        inheritedProperties: cascadeParentCollectionForProperties(
+          path,
+          "graphql"
+        ),
+      })
+    } else {
+      tabs.createNewTab({
+        type: "request",
+        request: newRequest as HoppRESTRequest,
+        isDirty: false,
+        saveContext: {
+          originLocation: "user-collection",
+          folderPath: path,
+          requestIndex: insertionIndex,
+          requestRefID: (newRequest as HoppRESTRequest)._ref_id,
+        },
+        inheritedProperties: cascadeParentCollectionForProperties(path, "rest"),
+      })
+    }
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
       workspaceType: "personal",
       createdNow: true,
-      platform: "rest",
+      platform: isGqlRequest ? "gql" : "rest",
     })
 
     displayModalAddRequest(false)
@@ -1013,7 +1048,7 @@ const onAddRequest = async (requestName: string) => {
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
       workspaceType: "team",
-      platform: "rest",
+      platform: isGqlRequest ? "gql" : "rest",
       createdNow: true,
     })
 
@@ -1027,20 +1062,33 @@ const onAddRequest = async (requestName: string) => {
         (result) => {
           const { createRequestInCollection } = result
 
-          tabs.createNewTab({
-            type: "request",
-            request: newRequest,
-            isDirty: false,
-            saveContext: {
-              originLocation: "team-collection",
-              requestID: createRequestInCollection.id,
-              collectionID: path,
-              teamID: createRequestInCollection.collection.team.id,
-              requestRefID: newRequest._ref_id,
-            },
-            inheritedProperties:
-              teamCollectionService.cascadeParentCollectionForProperties(path),
-          })
+          if (isGqlRequest) {
+            gqlTabs.createNewTab({
+              request: newRequest as HoppGQLRequest,
+              isDirty: false,
+              saveContext: {
+                originLocation: "team-collection",
+                requestID: createRequestInCollection.id,
+              },
+            })
+          } else {
+            tabs.createNewTab({
+              type: "request",
+              request: newRequest as HoppRESTRequest,
+              isDirty: false,
+              saveContext: {
+                originLocation: "team-collection",
+                requestID: createRequestInCollection.id,
+                collectionID: path,
+                teamID: createRequestInCollection.collection.team.id,
+                requestRefID: (newRequest as HoppRESTRequest)._ref_id,
+              },
+              inheritedProperties:
+                teamCollectionService.cascadeParentCollectionForProperties(
+                  path
+                ),
+            })
+          }
 
           modalLoadingState.value = false
           displayModalAddRequest(false)

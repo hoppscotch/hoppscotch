@@ -169,6 +169,12 @@
     "name": "Svenska"
   },
   {
+    "code": "tl",
+    "file": "tl.json",
+    "iso": "tl-PH",
+    "name": "Tagalog"
+  },
+  {
     "code": "tr",
     "file": "tr.json",
     "iso": "tr-TR",

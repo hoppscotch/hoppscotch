@@ -484,8 +484,8 @@
     "generate": "Generar documentación",
     "generate_message": "Importar cualquier colección de Hoppscotch para generar documentación de la API sobre la marcha.",
     "headers": {
-      "no_headers": "No se definieron headers",
-      "title": "Headers"
+      "no_headers": "No se definieron encabezados",
+      "title": "Encabezados"
     },
     "hide_all_documentation": "Ocultar toda la documentación",
     "inherited_from": "Heredado de {name}",
@@ -568,7 +568,7 @@
       "copy": "Copiar respuesta",
       "example_copied": "¡Ejemplo de respuesta copiado al portapapeles!",
       "example_copy_failed": "Error al copiar el ejemplo de respuesta",
-      "headers": "Headers de la respuesta",
+      "headers": "Encabezados de la respuesta",
       "no_examples": "No hay ejemplos de respuesta disponibles",
       "title": "Ejemplos de respuesta"
     },
@@ -1667,7 +1667,7 @@
     "confirm_logout": "Confirmar cierre de sesión",
     "created_on": "Fecha de creación",
     "continue_email": "Continuar con correo electrónico",
-    "continue_github": "Continuar con Github",
+    "continue_github": "Continuar con GitHub",
     "continue_google": "Continuar con Google",
     "continue_microsoft": "Continuar con Microsoft",
     "create_team_failure": "No se pudo crear el espacio de trabajo.",
@@ -1698,7 +1698,7 @@
     "error": "Algo salió mal",
     "error_auth_providers": "No se pudieron cargar los proveedores de autenticación",
     "generate_infra_token_failure": "Algo salió mal al generar el token de infraestructura",
-    "github_signin_failure": "No se pudo iniciar sesión con Github",
+    "github_signin_failure": "No se pudo iniciar sesión con GitHub",
     "google_signin_failure": "No se pudo iniciar sesión con Google",
     "infra_token_label_short": "La etiqueta del token de infraestructura es demasiado corta.",
     "invalid_email": "Por favor, ingresa una dirección de correo electrónico válida",
@@ -1761,7 +1761,7 @@
     "community": "Haz preguntas y ayuda a los demás",
     "documentation": "Leer más sobre Hoppscotch",
     "forum": "Haz preguntas y obtén respuestas",
-    "github": "Síguenos en Github",
+    "github": "Síguenos en GitHub",
     "shortcuts": "Navega por la aplicación más rápido",
     "title": "Ayuda",
     "twitter": "Síguenos en Twitter"

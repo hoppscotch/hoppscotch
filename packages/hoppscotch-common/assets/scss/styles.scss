@@ -568,6 +568,8 @@ details[open] summary .indicator {
  * gaps between the trigger text and the tooltip box.
  */
 .hopp-tooltip-interactive-wrapper {
+  @apply relative;
+
   &::before {
     content: "";
     @apply absolute;

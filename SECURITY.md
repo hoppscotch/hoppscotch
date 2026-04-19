@@ -36,7 +36,7 @@ Hoppscotch is a client-side API development and testing tool. The threat model d
 
 **Local data storage is by design.** In standalone mode, the Desktop app persists collections, environments, request history, and credentials (including tokens, API keys, and other secrets) in local storage. This data is protected by OS-level access controls and, where enabled, full-disk encryption (FileVault, BitLocker, LUKS). When connected to a self-hosted or cloud backend, data syncs to the server while a local copy is retained (see the [self-hosted section](#self-hosted-instances)).
 
-**Secret environment variables are stored locally in the Desktop app only.** Environment variables marked as secret are kept in the Desktop app's local store and are never synced to the server. They follow the same local-data security posture as other credentials. This local-only guarantee applies to the Desktop app; the web client does not have a separate local store for secrets.
+**Secret environment variables are stored locally and never synced to the server.** Environment variables marked as secret are kept in the client's local store (the Desktop app's data store or the browser's local storage, depending on platform) and are excluded from server sync. They follow the same local-data security posture as other credentials on that platform.
 
 **The relay sends HTTP requests to arbitrary URLs provided by the user.** This includes localhost, private IP ranges, and cloud metadata endpoints. The relay runs on the user's machine, and the user controls what URLs it reaches. The relay also handles WebSocket, SSE, Socket.IO, and MQTT connections to user-specified endpoints, with the same trust model: the user initiates and controls the connection.
 

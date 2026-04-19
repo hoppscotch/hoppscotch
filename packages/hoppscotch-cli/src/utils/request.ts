@@ -40,14 +40,27 @@ import { getTestScriptParams, hasFailedTestCases, testRunner } from "./test";
  */
 const processVariables = (variable: Environment["variables"][number]) => {
   if (variable.secret) {
+    let value =
+      "currentValue" in variable &&
+      typeof variable.currentValue === "string" &&
+      variable.currentValue.trim() !== ""
+        ? variable.currentValue.trim()
+        : process.env[variable.key] ?? variable.initialValue ?? "";
+
+    if (typeof value === "string") {
+      value = value.trim();
+    }
+
+    if (value === "") {
+      value = (variable.initialValue ?? "").trim();
+    }
+
     return {
       ...variable,
-      currentValue:
-        "currentValue" in variable && variable.currentValue !== ""
-          ? variable.currentValue
-          : process.env[variable.key] || variable.initialValue,
+      currentValue: value,
     };
   }
+
   return variable;
 };
 
@@ -87,18 +100,13 @@ export const createRequest = (req: EffectiveHoppRESTRequest): RequestConfig => {
   config.method = req.method as Method;
   config.params = getMetaDataPairs(reqParams);
   config.headers = getMetaDataPairs(reqHeaders);
-
   config.data = finalBody(req);
 
   return config;
 };
 
 /**
- * Performs http request using axios with given requestConfig axios
- * parameters.
- * @param requestConfig The axios request config.
- * @returns If successfully ran, we get runner-response including HTTP response data.
- * Else, HoppCLIError with appropriate error code & data.
+ * Performs http request using axios
  */
 export const requestRunner =
   (
@@ -108,89 +116,76 @@ export const requestRunner =
     const start = hrtime();
 
     try {
-      // NOTE: Temporary parsing check for request endpoint.
-      requestConfig.url = new URL(requestConfig.url ?? "").toString();
+      const rawUrl = requestConfig.url ?? "";
+      const url = rawUrl.trim();
 
-      const baseResponse = await axios(requestConfig);
+      // Normalize URL safely:
+      // - trims whitespace
+      // - preserves relative paths (e.g. /api/v1)
+      // - adds protocol only for plain hostnames (e.g. google.com)
+      // - avoids malformed URLs
+
+      let finalUrl = url;
+
+      try {
+        if (url === "") {
+          finalUrl = "";
+        } else if (/^https?:\/\//i.test(url)) {
+          finalUrl = new URL(url).toString();
+        } else if (/^[^\s]+$/.test(url) && !url.startsWith("/")) {
+          finalUrl = new URL(`http://${url}`).toString();
+        }
+      } catch {
+        finalUrl = url;
+      }
+
+      requestConfig.url = finalUrl;
+
+      // 🔹 REQUEST
+      const baseResponse = await axios({
+        ...requestConfig,
+        validateStatus: () => true,
+      });
+
       const { config } = baseResponse;
 
       const end = hrtime(start);
       const duration = getDurationInSeconds(end);
-      const responseTime = duration * 1000; // Convert seconds to milliseconds
+      const responseTime = duration * 1000;
 
-      // Transform axios headers to required format
       const transformedHeaders: { key: string; value: string }[] = [];
+
       if (baseResponse.headers) {
         for (const [key, value] of Object.entries(baseResponse.headers)) {
           if (value !== undefined) {
             transformedHeaders.push({
               key,
-              value: Array.isArray(value) ? value.join(", ") : String(value),
+              value: Array.isArray(value)
+                ? value.join(", ")
+                : String(value),
             });
           }
         }
       }
 
-      const runnerResponse: RequestRunnerResponse = {
+      return E.right({
         endpoint: getRequest.endpoint(config.url),
         method: getRequest.method(config.method),
         body: baseResponse.data,
-        responseTime,
-        duration: duration,
         status: baseResponse.status,
         statusText: baseResponse.statusText,
         headers: transformedHeaders,
-      };
+        duration,
+        responseTime,
+      });
 
-      return E.right(runnerResponse);
     } catch (e) {
-      const runnerResponse: RequestRunnerResponse = {
-        endpoint: "",
-        method: "GET",
-        body: {},
-        statusText: responseErrors[400],
-        status: 400,
-        headers: [],
-        duration: 0,
-        responseTime: 0,
-      };
-
-      if (axios.isAxiosError(e)) {
-        runnerResponse.endpoint = e.config?.url ?? "";
-
-        if (e.response) {
-          const { data, status, statusText, headers } = e.response;
-          runnerResponse.body = data;
-          runnerResponse.statusText = statusText;
-          runnerResponse.status = status;
-
-          // Transform axios headers to required format
-          const transformedHeaders: { key: string; value: string }[] = [];
-          if (headers) {
-            for (const [key, value] of Object.entries(headers)) {
-              if (value !== undefined) {
-                transformedHeaders.push({
-                  key,
-                  value: Array.isArray(value)
-                    ? value.join(", ")
-                    : String(value),
-                });
-              }
-            }
-          }
-          runnerResponse.headers = transformedHeaders;
-        } else if (e.request) {
-          return E.left(error({ code: "REQUEST_ERROR", data: E.toError(e) }));
-        }
-
-        const end = hrtime(start);
-        const duration = getDurationInSeconds(end);
-        runnerResponse.duration = duration;
-
-        return E.right(runnerResponse);
-      }
-
-      return E.left(error({ code: "REQUEST_ERROR", data: E.toError(e) }));
+      return E.left(
+        error({
+          code: "REQUEST_ERROR",
+          data: E.toError(e),
+        })
+      );
     }
   };
 

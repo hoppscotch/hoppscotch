@@ -142,29 +142,31 @@ export const generateJUnitReportExport = ({
     .att("failures", totalFailedTestCases.toString())
     .att("errors", totalErroredTestCases.toString())
     .att("time", testDuration.toString());
+};
 
+export const exportJUnitReport = (
+  xmlRoot: any,
+  reporterJUnitExportPath: string
+)=> {
   // Convert the XML structure to a string
-  const xmlDocString = rootEl.end({ prettyPrint: true });
+  const xmlDocString = xmlRoot.end({ prettyPrint: true });
 
-  // Write the XML string to the specified path
   try {
-    const resolvedExportPath = path.resolve(reporterJUnitExportPath);
+    const exportPath = path.resolve(reporterJUnitExportPath);
 
-    if (fs.existsSync(resolvedExportPath)) {
-      info(
-        INFO(`\nOverwriting the pre-existing path: ${reporterJUnitExportPath}.`)
-      );
+    if (fs.existsSync(exportPath)) {
+      info(`Overwriting the pre-existing path: ${exportPath}`);
     }
 
-    fs.mkdirSync(path.dirname(resolvedExportPath), {
+    fs.mkdirSync(path.dirname(exportPath), {
       recursive: true,
     });
 
-    fs.writeFileSync(resolvedExportPath, xmlDocString);
+    fs.writeFileSync(exportPath, xmlDocString);
 
     log(
       SUCCESS(
-        `\nSuccessfully exported the JUnit report to: ${reporterJUnitExportPath}.`
+        `\nSuccessfully exported the JUnit report to: ${exportPath}.`
       )
     );
   } catch (err) {

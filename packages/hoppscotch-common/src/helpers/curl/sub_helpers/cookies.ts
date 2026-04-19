@@ -58,7 +58,11 @@ const parseCookieString = (cookieString: string): Record<string, string> => {
     .map((pair) => pair.trim())
     .filter(Boolean)
     .reduce((acc, pair) => {
-      const [key, value] = pair.split("=", 2)
+      const separatorIndex = pair.indexOf("=")
+      const key =
+        separatorIndex === -1 ? pair : pair.slice(0, separatorIndex)
+      const value =
+        separatorIndex === -1 ? "" : pair.slice(separatorIndex + 1)
       return { ...acc, [key]: value || "" }
     }, {})
 }

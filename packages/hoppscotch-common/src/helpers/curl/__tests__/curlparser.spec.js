@@ -1028,6 +1028,35 @@ data2: {"type":"test2","typeId":"123"}`,
       responses: {},
     }),
   },
+  {
+    command: `curl 'https://www.example.com/v1' -b 'cookie1="subprop1=val1"'`,
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled",
+      endpoint: "https://www.example.com/v1",
+      auth: {
+        authType: "inherit",
+        authActive: true,
+      },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      params: [],
+      headers: [
+        {
+          active: true,
+          key: "Cookie",
+          value: 'cookie1="subprop1=val1"',
+          description: "",
+        },
+      ],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+    }),
+  },
 ]
 
 describe("Parse curl command to Hopp REST Request", () => {

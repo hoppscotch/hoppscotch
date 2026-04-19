@@ -213,6 +213,7 @@ const dispatchers = defineDispatchers({
       initialValue: string
       currentValue: string
       secret: boolean
+      isFile?: boolean
     }
   ) {
     return {
@@ -222,7 +223,7 @@ const dispatchers = defineDispatchers({
               ...env,
               variables: [
                 ...env.variables,
-                { key, initialValue, currentValue, secret },
+                { key, initialValue, currentValue, secret, isFile: false },
               ],
             }
           : env
@@ -258,6 +259,7 @@ const dispatchers = defineDispatchers({
         initialValue: string
         currentValue: string
         secret: boolean
+        isFile?: boolean
       }[]
     }
   ) {
@@ -300,6 +302,7 @@ const dispatchers = defineDispatchers({
                       initialValue: updatedInitialValue,
                       currentValue: updatedCurrentValue,
                       secret: v.secret,
+                      isFile: v.isFile ?? false,
                     }
                   : v
               ),
@@ -901,6 +904,7 @@ export function setEnvironmentVariables(
     currentValue: string
     initialValue: string
     secret: boolean
+    isFile?: boolean
   }[]
 ) {
   environmentsStore.dispatch({

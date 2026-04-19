@@ -923,11 +923,13 @@ export function addEnvironmentVariable(
     currentValue,
     initialValue,
     secret,
+    isFile,
   }: {
     key: string
     currentValue: string
     initialValue: string
     secret: boolean
+    isFile?: boolean
   }
 ) {
   environmentsStore.dispatch({
@@ -938,6 +940,7 @@ export function addEnvironmentVariable(
       currentValue,
       initialValue,
       secret,
+      isFile,
     },
   })
 }

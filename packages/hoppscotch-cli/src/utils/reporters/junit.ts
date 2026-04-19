@@ -29,8 +29,8 @@ type GenerateJUnitReportExportArgs = {
 const { INFO, SUCCESS } = exceptionColors;
 
 // Create the root XML element
-const rootEl = create({ version: "1.0", encoding: "UTF-8" }).ele("testsuites");
-
+export const createJUnitRoot = () =>
+  create({ version: "1.0", encoding: "UTF-8" }).ele("testsuites");
 /**
  * Builds a JUnit report based on the provided request report.
  * Creates a test suite at the request level populating the XML document structure.
@@ -42,28 +42,31 @@ const rootEl = create({ version: "1.0", encoding: "UTF-8" }).ele("testsuites");
  * @param {number} options.duration - Time taken to execute the test suite.
  * @returns {BuildJUnitReportResult} An object containing the number of failed and errored test cases.
  */
-export const buildJUnitReport = ({
-  path,
-  tests: testSuites,
-  errors: requestTestSuiteErrors,
-  duration: testSuiteDuration,
-}: BuildJUnitReportArgs): BuildJUnitReportResult => {
+export const buildJUnitReport = (
+  xmlRoot: XMLBuilder,   
+  {
+    path,
+    tests,
+    errors,
+    duration,
+  }: BuildJUnitReportArgs
+): BuildJUnitReportResult => {
   let requestTestSuiteError: XMLBuilder | null = null;
 
   // Create a test suite at the request level
-  const requestTestSuite = rootEl.ele("testsuite", {
+  const requestTestSuite = xmlRoot.ele("testsuite", {
     name: path,
-    time: testSuiteDuration,
+    time: duration,
     timestamp: new Date().toISOString(),
   });
 
-  if (requestTestSuiteErrors.length > 0) {
+  if (errors.length > 0) {
     requestTestSuiteError = requestTestSuite.ele("system-err");
   }
 
   let systemErrContent = "";
 
-  requestTestSuiteErrors.forEach((error) => {
+  errors.forEach((error) => {
     let compiledError = error.code;
 
     if ("data" in error) {
@@ -84,7 +87,7 @@ export const buildJUnitReport = ({
   let failedRequestTestCases = 0;
 
   // Test suites correspond to `pw.test()` invocations
-  testSuites.forEach(({ descriptor, expectResults }) => {
+  tests.forEach(({ descriptor, expectResults }) => {
     requestTestCases += expectResults.length;
 
     expectResults.forEach(({ status, message }) => {
@@ -130,14 +133,16 @@ export const buildJUnitReport = ({
  * @param {string} options.reporterJUnitExportPath - The path to export the JUnit report.
  * @returns {void}
  */
-export const generateJUnitReportExport = ({
-  totalTestCases,
-  totalFailedTestCases,
-  totalErroredTestCases,
-  testDuration,
-  reporterJUnitExportPath,
-}: GenerateJUnitReportExportArgs) => {
-  rootEl
+export const generateJUnitReportExport = (
+  xmlRoot: XMLBuilder, 
+  {
+    totalTestCases,
+    totalFailedTestCases,
+    totalErroredTestCases,
+    testDuration,
+  }: GenerateJUnitReportExportArgs
+) => {
+  xmlRoot
     .att("tests", totalTestCases.toString())
     .att("failures", totalFailedTestCases.toString())
     .att("errors", totalErroredTestCases.toString())
@@ -145,28 +150,42 @@ export const generateJUnitReportExport = ({
 };
 
 export const exportJUnitReport = (
-  xmlRoot: any,
+  xmlRoot: XMLBuilder,
   reporterJUnitExportPath: string
 )=> {
-  // Convert the XML structure to a string
+  
+  // Serialize XML document to string before writing to file
+
   const xmlDocString = xmlRoot.end({ prettyPrint: true });
 
   try {
     const exportPath = path.resolve(reporterJUnitExportPath);
 
     if (fs.existsSync(exportPath)) {
-      info(`Overwriting the pre-existing path: ${exportPath}`);
+      info(`Overwriting the pre-existing path: ${reporterJUnitExportPath}`);
     }
 
-    fs.mkdirSync(path.dirname(exportPath), {
-      recursive: true,
-    });
+    if (!reporterJUnitExportPath) {
+      throw error({
+        code: "REPORT_EXPORT_FAILED",
+        data: "Invalid export path",
+        path: reporterJUnitExportPath,
+      });
+    }
 
-    fs.writeFileSync(exportPath, xmlDocString);
+    if (!fs.existsSync(path.dirname(exportPath))) {
+      fs.mkdirSync(path.dirname(exportPath), { recursive: true });
+    }
+
+    fs.writeFileSync(exportPath, xmlDocString, { encoding: "utf8" });
+
+    fs.closeSync(fs.openSync(exportPath, "r"));
 
     log(
       SUCCESS(
-        `\nSuccessfully exported the JUnit report to: ${exportPath}.`
+        SUCCESS(
+          `\nSuccessfully exported the JUnit report to: ${reporterJUnitExportPath}.`
+        )
       )
     );
   } catch (err) {

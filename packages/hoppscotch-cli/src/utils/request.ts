@@ -119,11 +119,8 @@ export const requestRunner =
       const rawUrl = requestConfig.url ?? "";
       const url = rawUrl.trim();
 
-      // Normalize URL safely:
-      // - trims whitespace
-      // - preserves relative paths (e.g. /api/v1)
-      // - adds protocol only for plain hostnames (e.g. google.com)
-      // - avoids malformed URLs
+// Normalize URL while preserving relative paths
+// and safely handling missing protocols.
 
       let finalUrl = url;
 
@@ -141,7 +138,7 @@ export const requestRunner =
 
       requestConfig.url = finalUrl;
 
-      // 🔹 REQUEST
+      // REQUEST
       const baseResponse = await axios({
         ...requestConfig,
         validateStatus: () => true,

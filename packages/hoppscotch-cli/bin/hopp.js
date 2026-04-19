@@ -9,6 +9,10 @@ import { cloneDeep } from "lodash-es";
 import semver from "semver";
 import { fileURLToPath } from "url";
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+process.removeAllListeners("warning");
+process.emitWarning = () => {};  
+
 const highlightVersion = (version) => chalk.black.bgYellow(`v${version}`);
 
 const packageJsonPath = fileURLToPath(

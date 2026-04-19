@@ -207,6 +207,7 @@ const dispatchers = defineDispatchers({
       initialValue,
       currentValue,
       secret,
+      isFile,
     }: {
       envIndex: number
       key: string
@@ -223,7 +224,7 @@ const dispatchers = defineDispatchers({
               ...env,
               variables: [
                 ...env.variables,
-                { key, initialValue, currentValue, secret, isFile: false },
+                { key, initialValue, currentValue, secret, isFile: isFile ?? false },
               ],
             }
           : env
@@ -268,7 +269,7 @@ const dispatchers = defineDispatchers({
         index === envIndex
           ? {
               ...env,
-              variables: vars,
+              variables: vars.map((v) => ({ ...v, isFile: v.isFile ?? false })),
             }
           : env
       ),

@@ -914,10 +914,9 @@ declare namespace pm {
 
   /**
    * Backward-compatible alias for `pm.execution.setNextRequest()`.
-   * Unsupported in Hoppscotch (Collection Runner feature).
    * @param requestNameOrId - Name or ID of the next request
    */
-  function setNextRequest(requestNameOrId: string | null): never
+  function setNextRequest(requestNameOrId: string | null): void
 
   /**
    * Execution control
@@ -931,10 +930,11 @@ declare namespace pm {
       readonly current: string
     }
     /**
-     * Set next request to execute (unsupported - Collection Runner feature)
+     * Set the next request to execute in the collection runner.
+     * Pass `null` to stop after the current request.
      * @param requestNameOrId - Name or ID of the next request
      */
-    setNextRequest(requestNameOrId: string | null): never
+    setNextRequest(requestNameOrId: string | null): void
     /**
      * Skip current request execution (unsupported - Collection Runner feature)
      */

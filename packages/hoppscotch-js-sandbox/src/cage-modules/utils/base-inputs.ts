@@ -23,6 +23,8 @@ type BaseInputsConfig = {
   request: HoppRESTRequest
   cookies: Cookie[] | null
   getUpdatedRequest?: () => HoppRESTRequest
+  getNextRequest?: () => string | null | undefined
+  setNextRequest?: (requestNameOrId: string | null) => void
 }
 
 /**
@@ -32,6 +34,8 @@ export const createBaseInputs = (
   ctx: CageModuleCtx,
   config: BaseInputsConfig
 ): BaseInputs => {
+  let nextRequest = config.getNextRequest ? config.getNextRequest() : undefined
+
   // Get environment methods - Applicable to both hopp and pw namespaces
   const {
     methods: envMethods,
@@ -105,7 +109,13 @@ export const createBaseInputs = (
   // Combine all namespace methods
   const pwMethods = createPwNamespaceMethods(ctx, envMethods, requestProps)
   const hoppMethods = createHoppNamespaceMethods(ctx, envMethods, requestProps)
-  const pmMethods = createPmNamespaceMethods(ctx, config)
+  const pmMethods = createPmNamespaceMethods(ctx, {
+    request: config.request,
+    setNextRequest: (requestNameOrId) => {
+      nextRequest = requestNameOrId
+      config.setNextRequest?.(requestNameOrId)
+    },
+  })
 
   // PM namespace-specific setter that accepts any type (for type preservation)
   const pmEnvSetAny = defineSandboxFn(
@@ -174,5 +184,6 @@ export const createBaseInputs = (
       }
     },
     getUpdatedCookies,
+    getNextRequest: () => nextRequest,
   }
 }

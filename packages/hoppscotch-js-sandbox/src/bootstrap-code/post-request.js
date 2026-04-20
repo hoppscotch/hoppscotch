@@ -4094,10 +4094,8 @@
         Object.freeze(location)
         return location
       })(),
-      setNextRequest: () => {
-        throw new Error(
-          "pm.execution.setNextRequest() is not supported in Hoppscotch (Collection Runner feature)"
-        )
+      setNextRequest: (requestNameOrId) => {
+        return inputs.pmSetNextRequest(requestNameOrId)
       },
       skipRequest: () => {
         throw new Error(

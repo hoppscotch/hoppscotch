@@ -6,6 +6,8 @@ import {
   Post,
   Query,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { InfraConfigService } from './infra-config.service';
 import { RESTError } from 'src/types/RESTError';
@@ -24,7 +26,13 @@ import { ThrottlerBehindProxyGuard } from 'src/guards/throttler-behind-proxy.gua
 import { OnboardingSetupGuard } from '../guards/onboarding-setup.guard';
 
 @Controller({ path: 'onboarding', version: '1' })
-@UseGuards(ThrottlerBehindProxyGuard, OnboardingSetupGuard)
+@UseGuards(ThrottlerBehindProxyGuard)
+@UsePipes(
+  new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true,
+  }),
+)
 export class OnboardingController {
   constructor(private infraConfigService: InfraConfigService) {}
 
@@ -57,6 +65,7 @@ export class OnboardingController {
   }
 
   @Post('config')
+  @UseGuards(OnboardingSetupGuard)
   @ApiCreatedResponse({
     description: 'Onboarding configuration updated successfully',
     type: SaveOnboardingConfigResponse,

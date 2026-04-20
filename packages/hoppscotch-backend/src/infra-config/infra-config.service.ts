@@ -536,19 +536,43 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
     const onboardingRecoveryToken = crypto.randomUUID();
 
     const ONBOARDING_ALLOWED_KEYS = new Set([
-      InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
       InfraConfigEnum.GOOGLE_CLIENT_ID,
+
       InfraConfigEnum.GOOGLE_CLIENT_SECRET,
+
       InfraConfigEnum.GOOGLE_CALLBACK_URL,
+
+      InfraConfigEnum.GOOGLE_SCOPE,
+
       InfraConfigEnum.GITHUB_CLIENT_ID,
+
       InfraConfigEnum.GITHUB_CLIENT_SECRET,
+
       InfraConfigEnum.GITHUB_CALLBACK_URL,
+
+      InfraConfigEnum.GITHUB_SCOPE,
+
       InfraConfigEnum.MICROSOFT_CLIENT_ID,
+
       InfraConfigEnum.MICROSOFT_CLIENT_SECRET,
+
       InfraConfigEnum.MICROSOFT_CALLBACK_URL,
+
+      InfraConfigEnum.MICROSOFT_SCOPE,
+
+      InfraConfigEnum.MAILER_USE_CUSTOM_CONFIGS,
+
       InfraConfigEnum.MAILER_SMTP_ENABLE,
+
       InfraConfigEnum.MAILER_SMTP_URL,
-      InfraConfigEnum.MAILER_ADDRESS_FROM,
+
+      InfraConfigEnum.MAILER_SMTP_HOST,
+
+      InfraConfigEnum.MAILER_SMTP_PORT,
+
+      InfraConfigEnum.MAILER_SMTP_USER,
+
+      InfraConfigEnum.MAILER_SMTP_PASSWORD,
     ]);
 
     const configEntries: InfraConfigArgs[] = [
@@ -824,15 +848,11 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
           break;
 
         case InfraConfigEnum.JWT_SECRET:
+
         case InfraConfigEnum.SESSION_SECRET:
-        case InfraConfigEnum.TOKEN_SALT_COMPLEXITY:
-        case InfraConfigEnum.SESSION_COOKIE_NAME:
+
         case InfraConfigEnum.ALLOW_SECURE_COOKIES:
-        case InfraConfigEnum.RATE_LIMIT_TTL:
-        case InfraConfigEnum.RATE_LIMIT_MAX:
-          throw new Error(
-            `${name} cannot be set via the onboarding endpoint`,
-          );
+          return E.left(INFRA_CONFIG_OPERATION_NOT_ALLOWED);
         default:
           break;
       }

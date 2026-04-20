@@ -536,6 +536,8 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
     const onboardingRecoveryToken = crypto.randomUUID();
 
     const ONBOARDING_ALLOWED_KEYS = new Set([
+      InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
+
       InfraConfigEnum.GOOGLE_CLIENT_ID,
 
       InfraConfigEnum.GOOGLE_CLIENT_SECRET,
@@ -573,6 +575,7 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
       InfraConfigEnum.MAILER_SMTP_USER,
 
       InfraConfigEnum.MAILER_SMTP_PASSWORD,
+      InfraConfigEnum.MAILER_ADDRESS_FROM,
     ]);
 
     const configEntries: InfraConfigArgs[] = [

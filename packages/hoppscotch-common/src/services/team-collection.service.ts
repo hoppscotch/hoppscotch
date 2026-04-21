@@ -211,6 +211,10 @@ export class TeamCollectionsService extends Service<void> {
     this.teamID = newTeamID
     this.collections.value = []
     this.entityIDs.clear()
+    // Hydrated ancestors are team-scoped — a switch to a different team
+    // must not leak cached ancestry from the previous team into the
+    // new team's cascade resolution.
+    this.hydratedAncestors.clear()
 
     this.loadingCollections.value = []
 
@@ -742,10 +746,13 @@ export class TeamCollectionsService extends Service<void> {
           `Team Collection Removed Error: ${JSON.stringify(result.left)}`
         )
 
-      this.removeCollection(result.right.teamCollectionRemoved)
+      const removedID = result.right.teamCollectionRemoved
+      this.removeCollection(removedID)
 
-      // Evict any cached hydrated entry for the removed collection.
-      this.hydratedAncestors.delete(result.right.teamCollectionRemoved)
+      // Backend deletion cascades over the subtree, but the subscription
+      // emits only the root ID. Evict the removed ID AND any cached
+      // descendant whose parentID chain passes through the removed node.
+      this.evictHydratedAncestorSubtree(removedID)
     })
 
     const [teamReqAdded$, teamReqAddedSub] = runGQLSubscription({
@@ -1187,6 +1194,33 @@ export class TeamCollectionsService extends Service<void> {
    * chain in root → leaf order.
    */
   public hydratedAncestors = new Map<string, TeamCollection>()
+
+  /**
+   * Evict a cached node and every cached descendant whose parentID chain
+   * passes through it. Backend collection deletion cascades the subtree
+   * but publishes only the root `teamCollectionRemoved` id, so the cache
+   * must mirror that cascade itself.
+   */
+  private evictHydratedAncestorSubtree(rootID: string): void {
+    const doomed = new Set<string>([rootID])
+    // Iterate until no new IDs are added; cheap because the cache is
+    // usually small (hydration is per-collaborator-move ancestry).
+    let grew = true
+    while (grew) {
+      grew = false
+      for (const [id, entry] of this.hydratedAncestors) {
+        const parentID = (entry as TeamCollection & { parentID?: string | null })
+          .parentID
+        if (parentID && doomed.has(parentID) && !doomed.has(id)) {
+          doomed.add(id)
+          grew = true
+        }
+      }
+    }
+    for (const id of doomed) {
+      this.hydratedAncestors.delete(id)
+    }
+  }
 
   private async buildDestinationAncestorChain(
     leafID: string

@@ -289,6 +289,38 @@ export class TeamCollectionsService extends Service<void> {
   }
 
   /**
+   * Snapshot the current team generation so callers running async work
+   * can later detect whether the team switched while their awaited
+   * operation was in flight.
+   */
+  public getTeamGeneration(): number {
+    return this.teamGeneration
+  }
+
+  /**
+   * True if the supplied generation still matches the current team. Async
+   * callers should query this before writing back any team-scoped state
+   * (loading flags, pending paths, cache entries).
+   */
+  public isCurrentTeamGeneration(generation: number): boolean {
+    return generation === this.teamGeneration
+  }
+
+  /**
+   * Set `pendingTeamCollectionPath` from outside the service without
+   * letting a completion from a previous team leak a stale path into
+   * the current team's watcher. `generation` must be the value captured
+   * at the start of the caller's async work.
+   */
+  public setPendingTeamCollectionPathForGeneration(
+    generation: number,
+    path: string | null
+  ): void {
+    if (generation !== this.teamGeneration) return
+    this.pendingTeamCollectionPath.value = path
+  }
+
+  /**
    * Performs addition of a collection to the tree
    *
    * @param {TeamCollection} collection - The collection to add to the tree
@@ -866,6 +898,12 @@ export class TeamCollectionsService extends Service<void> {
 
         this.moveRequest(request)
 
+        // Capture generation before any await — a team switch that lands
+        // mid-fetch must not cause `buildDestinationAncestorChain` to
+        // hydrate cache / tabs against the previous team after the
+        // reset.
+        const generation = this.teamGeneration
+
         // Legacy `team-collection` tabs store a slash-delimited chain of
         // ancestor IDs in their saveContext.collectionID. On a collaborator
         // move, rewrite that chain to the full destination ancestry — the
@@ -873,8 +911,11 @@ export class TeamCollectionsService extends Service<void> {
         // fall through to a backend walk when the local tree doesn't
         // know the ancestors.
         const destinationChain = await this.buildDestinationAncestorChain(
-          requestMoved.collectionID
+          requestMoved.collectionID,
+          generation
         )
+
+        if (generation !== this.teamGeneration) return
 
         const restTabService = getService(RESTTabService)
         const legacyTab = restTabService.getTabRefWithSaveContext({
@@ -1282,7 +1323,8 @@ export class TeamCollectionsService extends Service<void> {
   }
 
   private async buildDestinationAncestorChain(
-    leafID: string
+    leafID: string,
+    generation: number = this.teamGeneration
   ): Promise<string> {
     const chain: string[] = []
     const visited = new Set<string>()
@@ -1321,6 +1363,9 @@ export class TeamCollectionsService extends Service<void> {
       // Fetch and cache without mutating the live tree or `entityIDs`.
       try {
         const remote = await getSingleCollection(currentID)
+        // A team switch landing mid-fetch must not hydrate the previous
+        // team's ancestors into the new team's cache.
+        if (generation !== this.teamGeneration) return ""
         if (E.isLeft(remote)) break
         const remoteColl = (
           remote.right as {

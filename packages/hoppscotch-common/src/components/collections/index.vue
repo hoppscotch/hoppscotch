@@ -3457,6 +3457,11 @@ const setCollectionProperties = (newCollection: {
       teamCollectionService.loadingCollections.value.push(collectionId)
     }
 
+    // Snapshot the team generation before dispatching the mutation so a
+    // team switch landing mid-flight can't leak this path into the new
+    // team's loading watcher when the callback resolves.
+    const generation = teamCollectionService.getTeamGeneration()
+
     pipe(
       updateTeamCollection(collectionId, data, undefined),
       TE.match(
@@ -3466,8 +3471,12 @@ const setCollectionProperties = (newCollection: {
         () => {
           toast.success(t("collection.properties_updated"))
 
-          // The team collection service needs to know the path of the collection that was updated
-          teamCollectionService.pendingTeamCollectionPath.value = path
+          // Routed through the service so the write is dropped if the
+          // team switched between dispatch and completion.
+          teamCollectionService.setPendingTeamCollectionPathForGeneration(
+            generation,
+            path
+          )
         }
       )
     )()

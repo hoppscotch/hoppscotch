@@ -1087,6 +1087,11 @@ export class TeamCollectionsService extends Service<void> {
       collections.forEach((coll) => this.entityIDs.add(`collection-${coll.id}`))
       requests.forEach((req) => this.entityIDs.add(`request-${req.id}`))
 
+      // Evict any hydrated-ancestor cache entries that just became
+      // available in the live tree, so the cascade reads authoritative
+      // data going forward.
+      collections.forEach((coll) => this.hydratedAncestors.delete(coll.id))
+
       this.collections.value = [...tree]
     } catch (error) {
       console.error(`Error expanding collection ${collectionID}:`, error)
@@ -1143,15 +1148,18 @@ export class TeamCollectionsService extends Service<void> {
    */
   /**
    * Build the full ancestor ID chain for a team collection on a collaborator
-   * move AND ensure every ancestor is present in `this.collections.value`
-   * (hydrated from backend `getSingleCollection` when needed). The
-   * subsequent cascade helper walks the chain via
-   * `findCollInTree(collections, pathSegment)` — if any segment is
-   * missing, the cascade bails and the tab's inherited properties are
-   * lost. Hydrating before returning keeps the cascade correct even for
-   * unexpanded destination subtrees. Returns a slash-delimited chain in
-   * root → leaf order.
+   * move. Walks the post-move local tree first; when a parent link is
+   * missing locally (destination subtree unexpanded), falls back to
+   * backend `getSingleCollection` lookups via the parallel
+   * `hydratedAncestors` map. The cascade helper reads data through
+   * `findCollInCollectionsOrCache`, which consults both the live tree
+   * and the hydrated cache — so we avoid mutating `this.collections.value`
+   * (which would either render synthetic root nodes or break the
+   * `children === null` expansion sentinel). Returns a slash-delimited
+   * chain in root → leaf order.
    */
+  public hydratedAncestors = new Map<string, TeamCollection>()
+
   private async buildDestinationAncestorChain(
     leafID: string
   ): Promise<string> {
@@ -1160,7 +1168,6 @@ export class TeamCollectionsService extends Service<void> {
     let currentID: string | null = leafID
     let guard = 0
 
-    // Walk leaf → root, gathering IDs and hydrating missing nodes.
     while (currentID && guard < 64) {
       if (visited.has(currentID)) break
       visited.add(currentID)
@@ -1177,8 +1184,20 @@ export class TeamCollectionsService extends Service<void> {
         continue
       }
 
-      // Node isn't in local tree — hydrate it from backend and continue
-      // walking via the backend parent link.
+      // Not in the live tree — try the hydrated cache before a fetch.
+      const cached = this.hydratedAncestors.get(currentID)
+      if (cached) {
+        // Cached entries carry a `parent.id` hint we encode in `data`
+        // via the JSON we stash. Simpler: re-fetch only if the cache
+        // lacks the parent link. We store the parent link on the node
+        // itself via a sidecar key (see hydrate path below).
+        currentID = (cached as TeamCollection & { parentID?: string | null })
+          .parentID ?? null
+        guard += 1
+        continue
+      }
+
+      // Fetch and cache without mutating the live tree or `entityIDs`.
       try {
         const remote = await getSingleCollection(currentID)
         if (E.isLeft(remote)) break
@@ -1194,53 +1213,16 @@ export class TeamCollectionsService extends Service<void> {
         ).collection
         if (!remoteColl?.id) break
 
-        // Insert the hydrated node into `this.collections.value` so the
-        // later cascade's `findCollInTree` can locate it. Attach as a
-        // child of its parent when the parent is loaded; otherwise
-        // defer to root — the cascade walks ID lookups, not structural
-        // nesting, so placement only needs to make `findCollInTree`
-        // succeed.
-        const hydratedNode: TeamCollection = {
+        const hydratedNode: TeamCollection & { parentID?: string | null } = {
           id: remoteColl.id,
           title: remoteColl.title ?? "",
           data: remoteColl.data ?? null,
           children: null,
           requests: null,
+          parentID: remoteColl.parent?.id ?? null,
         }
-        const parentID = remoteColl.parent?.id ?? null
-        const parentInTree = parentID
-          ? findCollInTree(this.collections.value, parentID)
-          : null
-        // Important: `children === null` is the "not expanded yet"
-        // sentinel used by `expandCollection`. Attaching into a null
-        // children array would flip that sentinel to `[...]` and make
-        // `expandCollection` skip its real-children fetch later.
-        // Only attach when the parent's children array is already
-        // loaded; otherwise fall back to root-level insertion so the
-        // cascade can still resolve the ID via `findCollInTree`
-        // recursion without perturbing expansion state.
-        if (parentInTree && Array.isArray(parentInTree.children)) {
-          if (
-            !parentInTree.children.some(
-              (child) => child.id === hydratedNode.id
-            )
-          ) {
-            parentInTree.children.push(hydratedNode)
-          }
-        } else {
-          // Parent unexpanded or unknown — insert at root. `findCollInTree`
-          // walks recursively, so ID resolution still works, and the
-          // parent's `children === null` sentinel is preserved.
-          if (
-            !this.collections.value.some(
-              (coll) => coll.id === hydratedNode.id
-            )
-          ) {
-            this.collections.value.push(hydratedNode)
-          }
-        }
-
-        currentID = parentID
+        this.hydratedAncestors.set(remoteColl.id, hydratedNode)
+        currentID = hydratedNode.parentID ?? null
       } catch {
         break
       }
@@ -1275,7 +1257,14 @@ export class TeamCollectionsService extends Service<void> {
 
     // Loop through the path and get the last parent folder with authType other than 'inherit'
     for (let i = 0; i < path.length; i++) {
-      const parentFolder = findCollInTree(this.collections.value, path[i])
+      // Try the live tree first, then the hydrated-ancestors cache
+      // populated by `buildDestinationAncestorChain` on collaborator
+      // moves into unexpanded subtrees. This keeps cascade resolution
+      // correct without mutating `this.collections.value` (which would
+      // render synthetic root entries or break lazy-load sentinels).
+      const parentFolder =
+        findCollInTree(this.collections.value, path[i]) ??
+        this.hydratedAncestors.get(path[i])
 
       // Check if parentFolder is undefined or null
       if (!parentFolder) {

@@ -815,6 +815,15 @@ export class TeamCollectionsService extends Service<void> {
       }
 
       this.moveRequest(request)
+
+      // Refresh inherited auth/headers on any open tabs (both legacy
+      // `team-collection` and new `workspace-user-collection` save
+      // contexts) whose request was moved by a collaborator. The helper
+      // branches on originLocation and cascades from the updated tree.
+      updateInheritedPropertiesForAffectedRequests(
+        requestMoved.collectionID,
+        "rest"
+      )
     })
 
     const [teamCollectionMoved$, teamCollectionMovedSub] = runGQLSubscription({

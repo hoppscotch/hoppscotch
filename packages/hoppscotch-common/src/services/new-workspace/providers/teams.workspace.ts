@@ -374,6 +374,7 @@ export class TeamsWorkspaceProviderService
       },
       headers: [],
       parentCollectionID: null,
+      rawData: null,
     })
 
     const createdCollectionHandle = await this.getRESTCollectionHandle(
@@ -459,6 +460,7 @@ export class TeamsWorkspaceProviderService
         authActive: true,
       },
       headers: [],
+      rawData: null,
     })
 
     const createdCollectionHandle = await this.getRESTCollectionHandle(
@@ -2165,7 +2167,25 @@ export class TeamsWorkspaceProviderService
       )
 
       if (collectionExists) {
-        // it already exists, no need to add it again
+        // Backfill auth/headers/rawData from the authoritative subscription
+        // payload onto the optimistic row. Without this, a row created via
+        // `createRESTRootCollection` / `createRESTChildCollection` keeps
+        // `rawData: null` after the backend echo arrives, and subsequent
+        // partial updates can't preserve variables/description.
+        const inheritedData = result.right.teamCollectionAdded.data
+        const { auth, headers } = parseInheritedData(
+          inheritedData ?? undefined
+        )
+        this.collections.value = this.collections.value.map((collection) =>
+          collection.collectionID === result.right.teamCollectionAdded.id
+            ? {
+                ...collection,
+                auth,
+                headers,
+                rawData: inheritedData ?? collection.rawData ?? null,
+              }
+            : collection
+        )
         return
       }
 
@@ -2214,8 +2234,10 @@ export class TeamsWorkspaceProviderService
 
       this.collections.value = this.collections.value.map((collection) => {
         if (collection.collectionID === result.right.teamCollectionUpdated.id) {
+          const updatedRawData =
+            result.right.teamCollectionUpdated.data ?? null
           const { auth, headers } = parseInheritedData(
-            result.right.teamCollectionUpdated.data ?? undefined
+            updatedRawData ?? undefined
           )
 
           return {
@@ -2223,6 +2245,9 @@ export class TeamsWorkspaceProviderService
             name: result.right.teamCollectionUpdated.title,
             auth,
             headers,
+            // Refresh rawData so subsequent partial updates (e.g. rename-only)
+            // can preserve the latest backend-stored variables/description.
+            rawData: updatedRawData,
           }
         }
 

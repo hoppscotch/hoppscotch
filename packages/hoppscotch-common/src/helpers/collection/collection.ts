@@ -2,6 +2,7 @@ import { HoppCollection } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 
 import { getService } from "~/modules/dioc"
+import { NewWorkspaceService } from "~/services/new-workspace"
 import { GQLTabService } from "~/services/tab/graphql"
 import { RESTTabService } from "~/services/tab/rest"
 import { TeamCollectionsService } from "~/services/team-collection.service"
@@ -307,6 +308,58 @@ export function updateInheritedPropertiesForAffectedRequests(
           tab.value.document.saveContext.folderPath,
           type
         )
+    }
+
+    if (
+      tab.value.document.saveContext?.originLocation ===
+        "workspace-user-collection" &&
+      tab.value.document.inheritedProperties &&
+      type === "rest"
+    ) {
+      // Recompute inherited auth/headers via the workspace provider so team
+      // collection moves keep open request tabs in sync. The workspace
+      // service handles both personal and teams providers; personal has
+      // already been refreshed via the `user-collection` branch above for
+      // legacy saveContext shapes, this branch is the new-tree equivalent.
+      const requestHandleRef =
+        tab.value.document.saveContext.requestHandle?.get()
+      if (!requestHandleRef || requestHandleRef.value.type === "invalid") {
+        return
+      }
+      const workspaceService = getService(NewWorkspaceService)
+      const collectionID = requestHandleRef.value.data.collectionID
+      const activeWorkspaceHandle =
+        workspaceService.activeWorkspaceHandle.value
+      if (!activeWorkspaceHandle) return
+
+      // Fire-and-forget: fetch the collection handle for the request's
+      // current collection and pull the cascading auth/headers view. The
+      // tab updates on completion via the reactive assignment.
+      void (async () => {
+        const collectionHandleResult =
+          await workspaceService.getRESTCollectionHandle(
+            activeWorkspaceHandle,
+            collectionID
+          )
+        if (E.isLeft(collectionHandleResult)) return
+        const cascadingHandleResult =
+          await workspaceService.getRESTCollectionLevelAuthHeadersView(
+            collectionHandleResult.right
+          )
+        if (E.isLeft(cascadingHandleResult)) return
+        const cascadingHandleRef = cascadingHandleResult.right.get()
+        if (cascadingHandleRef.value.type === "invalid") return
+        if (
+          tab.value.document.saveContext?.originLocation ===
+            "workspace-user-collection" &&
+          tab.value.document.inheritedProperties
+        ) {
+          tab.value.document.inheritedProperties = {
+            auth: cascadingHandleRef.value.data.auth,
+            headers: cascadingHandleRef.value.data.headers,
+          }
+        }
+      })()
     }
   })
 }

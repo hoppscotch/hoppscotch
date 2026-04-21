@@ -632,6 +632,22 @@ onMounted(() => {
   }
 
   if (context?.type === "collection-properties") {
+    // If the active workspace is a team workspace, the Properties modal
+    // is disabled in phase 1 (see `editCollectionProperties`). Clear any
+    // stale persisted state and surface a toast rather than reopening
+    // the modal into an unsupported round-trip.
+    const workspaceHandleRef = props.workspaceHandle.get()
+    const isTeamsWorkspace =
+      workspaceHandleRef.value.type === "ok" &&
+      workspaceHandleRef.value.data.providerID === "TEAMS_WORKSPACE_PROVIDER"
+
+    if (isTeamsWorkspace) {
+      persistenceService.removeLocalConfig("oauth_temp_config")
+      persistenceService.removeLocalConfig("unsaved_collection_properties")
+      toast.error(t("workspace.team_collection_properties_unavailable"))
+      return
+    }
+
     // load the unsaved editing properties
     const unsavedCollectionPropertiesString = persistenceService.getLocalConfig(
       "unsaved_collection_properties"
@@ -1552,6 +1568,21 @@ const editCollectionProperties = async (collectionIndexPath: string) => {
 const setCollectionProperties = async (
   updatedCollectionProps: UpdatedCollectionProps
 ) => {
+  // Defense-in-depth: the entry point `editCollectionProperties` already
+  // guards team workspaces, but make sure no alternate code path (e.g.
+  // OAuth resume with stale persisted state) can drive a Properties save
+  // against a team workspace — the teams provider has no editable view
+  // backing the modal and a save here would write with defaults that the
+  // backend mutation would persist.
+  const workspaceHandleRef = props.workspaceHandle.get()
+  if (
+    workspaceHandleRef.value.type === "ok" &&
+    workspaceHandleRef.value.data.providerID === "TEAMS_WORKSPACE_PROVIDER"
+  ) {
+    toast.error(t("workspace.team_collection_properties_unavailable"))
+    return
+  }
+
   const { collection, path } = updatedCollectionProps
 
   if (!collection) {
@@ -1747,10 +1778,16 @@ const dropToRoot = async ({ dataTransfer }: DragEvent) => {
     return
   }
 
-  // Inherited-property refresh for teams is driven by subscription events
-  // on the teams provider; skip the path-based bookkeeping (which reads
-  // personal store) here.
   if (isTeamsWorkspace) {
+    // For teams the destination index is the dragged collection's own
+    // UUID (it just landed at root). Use that as the `path` so the
+    // helper's prefix filter picks up this collection and its descendants
+    // and re-cascades inherited props for any open workspace-user-collection
+    // tabs.
+    updateInheritedPropertiesForAffectedRequests(
+      draggedCollectionIndex,
+      "rest"
+    )
     draggingToRoot.value = false
     toast.success(`${t("collection.moved")}`)
     return
@@ -2004,10 +2041,15 @@ const dropCollection = async (payload: {
     return
   }
 
-  // For teams the subscription stream drives inherited-property refresh;
-  // skip the post-move bookkeeping fetches that only make sense for
-  // personal index-path semantics.
   if (isTeamsWorkspace) {
+    // Recompute inherited props for any tabs under the dragged team
+    // collection (the move changed its parent, so cascading auth/headers
+    // may differ). The helper looks up provider state via the workspace
+    // service, not via personal-store path walking.
+    updateInheritedPropertiesForAffectedRequests(
+      draggedCollectionIndex,
+      "rest"
+    )
     draggingToRoot.value = false
     toast.success(`${t("collection.moved")}`)
     return

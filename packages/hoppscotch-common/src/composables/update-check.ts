@@ -3,15 +3,15 @@ import * as E from "fp-ts/Either"
 import { invoke } from "@tauri-apps/api/core"
 import { listen, type UnlistenFn } from "@tauri-apps/api/event"
 
-import { Store } from "@app/kernel/store"
+import { Store } from "~/kernel/store"
 import {
   UPDATE_STATE_SCHEMA,
   UPDATE_STATE_STORE_KEY,
   UPDATE_STATE_STORE_NAMESPACE,
   type DownloadProgress as WireDownloadProgress,
   type UpdateState as PersistedUpdateState,
-} from "@hoppscotch/common/platform/update-state"
-import { Log } from "@hoppscotch/common/kernel/log"
+} from "~/platform/update-state"
+import { Log } from "~/kernel/log"
 
 const LOG_TAG = "useUpdateCheck"
 

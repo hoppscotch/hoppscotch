@@ -78,7 +78,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch, type Component } from "vue"
 import { HoppButtonSecondary, HoppSmartToggle } from "@hoppscotch/ui"
-import { useI18n } from "@hoppscotch/common/composables/i18n"
+import { useI18n } from "~/composables/i18n"
 
 import IconLucideDownload from "~icons/lucide/download"
 import IconLucideRefreshCw from "~icons/lucide/refresh-cw"
@@ -86,16 +86,16 @@ import IconLucideLoader from "~icons/lucide/loader"
 import IconLucideCheckCircle from "~icons/lucide/check-circle"
 import IconLucideAlertCircle from "~icons/lucide/alert-circle"
 
-import { useDesktopSettings } from "@app/composables/useDesktopSettings"
-import { useUpdateCheck } from "@app/composables/useUpdateCheck"
+import { useDesktopSettings } from "~/composables/desktop-settings"
+import { useUpdateCheck } from "~/composables/update-check"
 
-// `settings.vue` in `hoppscotch-common` iterates
-// `additionalSettingsSections` with `:key="item.id"`. Without an
-// explicit `id` on the component options, Vue would use `undefined`
-// as the key, which causes keyed-list warnings at runtime and means
-// the renderer loses its cross-update identity for this node (so a
-// re-registration by any consumer would force a full remount instead
-// of a reconcile). Registering a stable `id` closes that.
+// The shared settings page iterates `additionalSettingsSections`
+// with `:key="item.id"`. Without an explicit `id` on the component
+// options, Vue would use `undefined` as the key, which causes
+// keyed-list warnings at runtime and means the renderer loses its
+// cross-update identity for this node (so a re-registration by any
+// consumer would force a full remount instead of a reconcile).
+// Registering a stable `id` closes that.
 defineOptions({
   name: "DesktopSettingsSection",
   id: "desktop-settings",

@@ -27,7 +27,7 @@ import { InfraPlatform } from "@app/platform/infra/infra.platform"
 import { kernelIO } from "@hoppscotch/common/platform/std/kernel-io"
 import { HeaderDownloadableLinksService } from "@app/services/headerDownloadableLinks.service"
 
-import DesktopSettingsSection from "@app/components/DesktopSettingsSection.vue"
+import DesktopSettingsSection from "@hoppscotch/common/components/settings/Desktop.vue"
 
 // Std interceptors
 import { NativeKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/native"
@@ -144,9 +144,10 @@ async function initApp() {
     ui: {
       additionalFooterMenuItems: config.menuItems,
       additionalSupportOptionsMenuItems: config.supportItems,
-      // Desktop-only. Renders the "Desktop" block in the shared settings page.
-      // The component is a no-op on web builds because this platform branch
-      // never registers it there.
+      // Desktop-only. Renders the "Desktop" block in the shared settings
+      // page. The component lives in common so every shell that builds a
+      // Tauri desktop target can register it the same way. Web builds pass
+      // `undefined` here and the settings page renders without the block.
       additionalSettingsSections:
         platform === "desktop" ? [DesktopSettingsSection] : undefined,
       appHeader: {

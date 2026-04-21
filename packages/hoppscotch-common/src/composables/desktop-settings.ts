@@ -2,15 +2,15 @@ import { reactive, ref, readonly } from "vue"
 import * as E from "fp-ts/Either"
 import { invoke } from "@tauri-apps/api/core"
 
-import { Store } from "@app/kernel/store"
+import { Store } from "~/kernel/store"
 import {
   DESKTOP_SETTINGS_SCHEMA,
   DESKTOP_SETTINGS_STORE_KEY,
   DESKTOP_SETTINGS_STORE_NAMESPACE,
   parseDesktopSettings,
   type DesktopSettings,
-} from "@hoppscotch/common/platform/desktop-settings"
-import { Log } from "@hoppscotch/common/kernel/log"
+} from "~/platform/desktop-settings"
+import { Log } from "~/kernel/log"
 
 const LOG_TAG = "useDesktopSettings"
 

@@ -34,6 +34,8 @@ import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { ref, watch } from "vue"
 import { Service } from "dioc"
 import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
+import { getService } from "~/modules/dioc"
+import { RESTTabService } from "~/services/tab/rest"
 
 export const TEAMS_BACKEND_PAGE_SIZE = 10
 
@@ -816,10 +818,31 @@ export class TeamCollectionsService extends Service<void> {
 
       this.moveRequest(request)
 
+      // Legacy `team-collection` tabs store the pre-move collection ID in
+      // their saveContext. On a collaborator move we must rewrite that
+      // field to the new destination first, otherwise the refresh helper
+      // would recompute inherited properties from the old ancestry (and
+      // the legacy tab would keep pointing at a stale collection path
+      // for future saves). Locate the tab by requestID and rewrite
+      // collectionID before invoking the refresh helper. The new
+      // `workspace-user-collection` tabs resolve their collection via
+      // the live request handle (whose `collectionID` is kept in sync by
+      // the new-workspace subscription path), so they need no rewrite.
+      const restTabService = getService(RESTTabService)
+      const legacyTab = restTabService.getTabRefWithSaveContext({
+        originLocation: "team-collection",
+        requestID: requestMoved.id,
+      })
+      if (legacyTab && legacyTab.value.document.saveContext) {
+        legacyTab.value.document.saveContext.collectionID =
+          requestMoved.collectionID
+      }
+
       // Refresh inherited auth/headers on any open tabs (both legacy
       // `team-collection` and new `workspace-user-collection` save
       // contexts) whose request was moved by a collaborator. The helper
-      // branches on originLocation and cascades from the updated tree.
+      // branches on originLocation and cascades from the (now-updated)
+      // destination collection.
       updateInheritedPropertiesForAffectedRequests(
         requestMoved.collectionID,
         "rest"

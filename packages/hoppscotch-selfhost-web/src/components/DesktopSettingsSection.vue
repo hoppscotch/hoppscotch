@@ -89,6 +89,18 @@ import IconLucideAlertCircle from "~icons/lucide/alert-circle"
 import { useDesktopSettings } from "@app/composables/useDesktopSettings"
 import { useUpdateCheck } from "@app/composables/useUpdateCheck"
 
+// `settings.vue` in `hoppscotch-common` iterates
+// `additionalSettingsSections` with `:key="item.id"`. Without an
+// explicit `id` on the component options, Vue would use `undefined`
+// as the key, which causes keyed-list warnings at runtime and means
+// the renderer loses its cross-update identity for this node (so a
+// re-registration by any consumer would force a full remount instead
+// of a reconcile). Registering a stable `id` closes that.
+defineOptions({
+  name: "DesktopSettingsSection",
+  id: "desktop-settings",
+})
+
 const t = useI18n()
 
 const desktopSettings = useDesktopSettings()

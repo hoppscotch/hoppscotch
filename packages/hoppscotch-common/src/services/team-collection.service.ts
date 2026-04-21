@@ -149,6 +149,13 @@ export class TeamCollectionsService extends Service<void> {
   public loadingCollections = ref<string[]>([])
   public pendingTeamCollectionPath = ref<string | null>(null)
 
+  // Monotonic session token bumped on every team switch / reset. Async
+  // loads (`initialize`, `loadRootCollections`, `expandCollection`)
+  // capture the current value at dispatch and bail on completion if it
+  // no longer matches, so in-flight results from the previous team can't
+  // repopulate state after a fast switch.
+  private teamGeneration = 0
+
   private entityIDs: Set<string> = new Set()
 
   private teamCollectionAdded$: Subscription | null = null
@@ -209,12 +216,17 @@ export class TeamCollectionsService extends Service<void> {
    */
   public changeTeamID(newTeamID: string | null) {
     this.teamID = newTeamID
+    this.teamGeneration += 1
     this.collections.value = []
     this.entityIDs.clear()
     // Hydrated ancestors are team-scoped — a switch to a different team
     // must not leak cached ancestry from the previous team into the
     // new team's cascade resolution.
     this.hydratedAncestors.clear()
+    // Pending path is team-scoped too; an in-flight cascade scheduled
+    // against the previous team must not replay once the new team
+    // finishes loading.
+    this.pendingTeamCollectionPath.value = null
 
     this.loadingCollections.value = []
 
@@ -227,10 +239,12 @@ export class TeamCollectionsService extends Service<void> {
    * Clears all collections and resets the service state
    */
   public clearCollections() {
+    this.teamGeneration += 1
     this.collections.value = []
     this.entityIDs.clear()
     this.loadingCollections.value = []
     this.hydratedAncestors.clear()
+    this.pendingTeamCollectionPath.value = null
     this.unsubscribeSubscriptions()
     this.teamID = null
   }
@@ -268,7 +282,9 @@ export class TeamCollectionsService extends Service<void> {
   }
 
   private async initialize() {
+    const generation = this.teamGeneration
     await this.loadRootCollections()
+    if (generation !== this.teamGeneration) return
     this.registerSubscriptions()
   }
 
@@ -315,6 +331,8 @@ export class TeamCollectionsService extends Service<void> {
   private async loadRootCollections(replace = false) {
     if (this.teamID === null) throw new Error("Team ID is null")
 
+    const generation = this.teamGeneration
+
     this.loadingCollections.value.push("root")
 
     const totalCollections: TeamCollection[] = []
@@ -330,6 +348,8 @@ export class TeamCollectionsService extends Service<void> {
               : undefined,
         },
       })
+
+      if (generation !== this.teamGeneration) return
 
       if (E.isLeft(result)) {
         this.loadingCollections.value = this.loadingCollections.value.filter(
@@ -747,12 +767,14 @@ export class TeamCollectionsService extends Service<void> {
         )
 
       const removedID = result.right.teamCollectionRemoved
-      this.removeCollection(removedID)
 
       // Backend deletion cascades over the subtree, but the subscription
       // emits only the root ID. Evict the removed ID AND any cached
-      // descendant whose parentID chain passes through the removed node.
+      // descendant before `removeCollection` detaches the live subtree —
+      // the eviction seed depends on walking live children from `rootID`.
       this.evictHydratedAncestorSubtree(removedID)
+
+      this.removeCollection(removedID)
     })
 
     const [teamReqAdded$, teamReqAddedSub] = runGQLSubscription({
@@ -1107,6 +1129,8 @@ export class TeamCollectionsService extends Service<void> {
 
     if (collection.children !== null && !reFetch) return
 
+    const generation = this.teamGeneration
+
     this.loadingCollections.value.push(collectionID)
 
     try {
@@ -1114,6 +1138,8 @@ export class TeamCollectionsService extends Service<void> {
         this.getCollectionChildren(collection),
         this.getCollectionRequests(collection),
       ])
+
+      if (generation !== this.teamGeneration) return
 
       collection.children = collections
       collection.requests = requests
@@ -1129,6 +1155,8 @@ export class TeamCollectionsService extends Service<void> {
 
       this.collections.value = [...tree]
     } catch (error) {
+      if (generation !== this.teamGeneration) return
+
       console.error(`Error expanding collection ${collectionID}:`, error)
 
       // Set empty arrays instead of leaving as null to prevent future expansion attempts
@@ -1138,9 +1166,11 @@ export class TeamCollectionsService extends Service<void> {
 
       this.collections.value = [...tree]
     } finally {
-      this.loadingCollections.value = this.loadingCollections.value.filter(
-        (x) => x !== collectionID
-      )
+      if (generation === this.teamGeneration) {
+        this.loadingCollections.value = this.loadingCollections.value.filter(
+          (x) => x !== collectionID
+        )
+      }
     }
   }
 
@@ -1196,13 +1226,42 @@ export class TeamCollectionsService extends Service<void> {
   public hydratedAncestors = new Map<string, TeamCollection>()
 
   /**
+   * Collect every collection ID in a live subtree rooted at `node`,
+   * including the root itself. Used as an eviction seed so cached
+   * descendants sitting behind an already-expanded live ancestor are
+   * still reachable when the subtree gets deleted.
+   */
+  private collectLiveSubtreeIDs(
+    node: TeamCollection,
+    into: Set<string>
+  ): void {
+    into.add(node.id)
+    if (Array.isArray(node.children)) {
+      for (const child of node.children) this.collectLiveSubtreeIDs(child, into)
+    }
+  }
+
+  /**
    * Evict a cached node and every cached descendant whose parentID chain
    * passes through it. Backend collection deletion cascades the subtree
    * but publishes only the root `teamCollectionRemoved` id, so the cache
    * must mirror that cascade itself.
+   *
+   * The starting set is seeded from both the cache and the live tree —
+   * once an intermediate ancestor has been expanded, `expandCollection`
+   * evicts it from the cache, so a walk that only follows cache edges
+   * can't reach deeper cached descendants behind the live ancestor.
+   * Seeding from the live subtree closes that mixed-state gap.
    */
   private evictHydratedAncestorSubtree(rootID: string): void {
     const doomed = new Set<string>([rootID])
+
+    // Seed the eviction set with every ID inside the live subtree that
+    // was just deleted, so cache entries whose parentID points into the
+    // live tree (not the cache) are still reached by the walk below.
+    const liveRoot = findCollInTree(this.collections.value, rootID)
+    if (liveRoot) this.collectLiveSubtreeIDs(liveRoot, doomed)
+
     // Iterate until no new IDs are added; cheap because the cache is
     // usually small (hydration is per-collaborator-move ancestry).
     let grew = true

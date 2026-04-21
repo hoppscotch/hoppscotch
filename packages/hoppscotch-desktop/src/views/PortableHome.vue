@@ -194,14 +194,14 @@ const handlePortableWelcomeContinue = async () => {
     // Read-modify-write against the full `DesktopSettings` object so
     // unrelated fields like timeout or zoom, potentially written by the
     // webview-side settings page in the same session, are preserved.
-    const current = await persistence.getDesktopSettings()
+    const current = await persistence.desktopSettings.get()
     const updated = {
       ...current,
       disableUpdateNotifications: portableSettings.disableUpdateNotifications,
       autoSkipWelcome: portableSettings.autoSkipWelcome,
     }
 
-    await persistence.setDesktopSettings(updated)
+    await persistence.desktopSettings.set(updated)
 
     showPortableWelcome.value = false
     await loadRecent()
@@ -252,7 +252,7 @@ const initializePortableMode = async () => {
     currentDirectory.value = "."
   }
 
-  const settings = await persistence.getDesktopSettings()
+  const settings = await persistence.desktopSettings.get()
   console.log("Loaded desktop settings:", settings)
 
   portableSettings.disableUpdateNotifications =

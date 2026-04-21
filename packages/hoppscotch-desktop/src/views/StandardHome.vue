@@ -152,7 +152,7 @@ const initializeStandardMode = async () => {
   // skip the 5-second timeout retry on every launch. They can still trigger
   // a check on demand from the settings page whenever they want.
   const persistence = DesktopPersistenceService.getInstance()
-  const settings = await persistence.getDesktopSettings()
+  const settings = await persistence.desktopSettings.get()
 
   if (!settings.disableUpdateChecks) {
     const hasUpdates = await checkForUpdates()

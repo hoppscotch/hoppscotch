@@ -4,62 +4,52 @@ import { invoke } from "@tauri-apps/api/core"
 import { listen, type UnlistenFn } from "@tauri-apps/api/event"
 
 import { Store } from "@app/kernel/store"
+import {
+  UPDATE_STATE_SCHEMA,
+  UPDATE_STATE_STORE_KEY,
+  UPDATE_STATE_STORE_NAMESPACE,
+  type DownloadProgress as WireDownloadProgress,
+  type UpdateState as PersistedUpdateState,
+} from "@hoppscotch/common/platform/update-state"
 
 /**
  * Webview-side accessor for the desktop updater.
  *
- * Wraps the existing Tauri updater commands (`check_for_updates`,
+ * Wraps the Tauri updater commands (`check_for_updates`,
  * `download_and_install_update`, `restart_application`, `cancel_update`)
- * and the Rust-emitted `updater-event` channel into a single reactive
- * accessor that a settings-page button can bind to.
+ * and the `updater-event` Tauri channel into a single reactive accessor.
  *
- * State synchronization happens on two channels. On mount the composable
- * reads the persisted `UpdateState` from the store so a user who lands on
- * the settings page after a startup auto-check already ran sees the right
- * state. After mount it listens on the Tauri `updater-event` channel and
- * updates reactive state per event variant, so a download started from
- * any consumer (the startup flow, the portable welcome screen, this
- * button) is reflected in every mounted consumer.
+ * State is modelled as a discriminated union where each variant carries
+ * exactly the fields that variant needs (the `available` variant carries
+ * `latestVersion`, the `downloading` variant carries `progress`, and so
+ * on). Impossible combinations ("available without a version", "not
+ * downloading but progress is set") are unrepresentable by construction,
+ * and callers narrow through `state.kind`.
  *
- * Module-level singleton: every caller gets the same reactive refs so the
- * settings button stays in sync with any other consumer that binds to
- * update state in the future.
+ * State transitions are owned by a single pure `applyEvent` function
+ * driven by the `updater-event` channel. Action wrappers (`check`,
+ * `download`, `restart`, `cancel`) await initialization before invoking
+ * so the listener is guaranteed to be subscribed before any command
+ * fires, and rely on the event stream for the transitions rather than
+ * mutating state themselves. This removes the "fast path + event" drift
+ * that made two paths responsible for updating the same refs.
+ *
+ * Module-level singleton: every caller gets the same reactive state so
+ * any consumer (settings page, portable welcome, startup flow) sees the
+ * same value.
  */
 
-// Store coordinates for the persisted `UpdateState`. Must match the
-// values written by
-// `hoppscotch-desktop/src/services/persistence.service.ts`. The
-// definitions here duplicate the ones in that file for the same reason
-// the settings schema lives in common, which is that selfhost-web and
-// hoppscotch-desktop do not depend on each other directly.
-const UPDATE_STATE_STORE_NAMESPACE = "hoppscotch-desktop.v1"
-const UPDATE_STATE_STORE_KEY = "updateState"
-
-/**
- * Local copy of the update status enum used by the Tauri shell. String
- * values must match `UpdateStatus` in
- * `hoppscotch-desktop/src/types/index.ts`, since they cross the store
- * boundary as plain strings.
- */
-export const UpdateStatus = {
-  IDLE: "idle",
-  CHECKING: "checking",
-  AVAILABLE: "available",
-  NOT_AVAILABLE: "not_available",
-  DOWNLOADING: "downloading",
-  INSTALLING: "installing",
-  READY_TO_RESTART: "ready_to_restart",
-  ERROR: "error",
-} as const
-
-export type UpdateStatus = (typeof UpdateStatus)[keyof typeof UpdateStatus]
-
-export interface DownloadProgress {
-  downloaded: number
-  total?: number
+// Download progress with a derived `percentage`. The wire form from
+// Rust and the persisted form only carry `downloaded` and optional
+// `total`. The `percentage` is computed on top so the UI has a
+// ready-to-bind field.
+export interface DownloadProgress extends WireDownloadProgress {
   percentage: number
 }
 
+// Response from the `check_for_updates` Tauri command. Used only to
+// invoke the command. Actual state transitions arrive on the event
+// channel.
 interface UpdateInfo {
   available: boolean
   currentVersion: string
@@ -67,17 +57,12 @@ interface UpdateInfo {
   releaseNotes?: string
 }
 
-// Persisted `UpdateState` definition. Matches the Zod schema in the
-// Tauri shell's `persistence.service.ts`.
-interface PersistedUpdateState {
-  status: UpdateStatus
-  version?: string
-  message?: string
-  progress?: { downloaded: number; total?: number }
-}
-
 // Tauri event payload variants. Must match the `UpdateEvent` tagged union in
-// `hoppscotch-desktop/src/services/updater.client.ts`.
+// `hoppscotch-desktop/src/services/updater.client.ts`. Centralizing this
+// type into common would remove the duplication, but the event channel is
+// a Rust-to-webview wire contract that currently lives in the shell, so
+// keeping the mirror here scoped to this composable is acceptable until
+// that contract gets its own shared module.
 type UpdateEvent =
   | { type: "CheckStarted" }
   | { type: "CheckCompleted"; info: UpdateInfo }
@@ -91,97 +76,176 @@ type UpdateEvent =
   | { type: "UpdateCancelled" }
   | { type: "Error"; message: string }
 
-// Singleton state. Initialized on first `useUpdateCheck()` call.
-const status = ref<UpdateStatus>(UpdateStatus.IDLE)
-const latestVersion = ref<string | undefined>(undefined)
-const currentVersion = ref<string | undefined>(undefined)
-const progress = ref<DownloadProgress | undefined>(undefined)
-const errorMessage = ref<string | undefined>(undefined)
+// The composable's internal state. Each variant carries exactly the
+// fields that variant needs. `currentVersion` rides along with any
+// post-check variant so the UI can display "currently on vX" context
+// regardless of whether an update was found.
+export type UpdateState =
+  | { kind: "idle" }
+  | { kind: "checking" }
+  | {
+      kind: "available"
+      currentVersion: string
+      latestVersion: string
+    }
+  | { kind: "not_available"; currentVersion: string }
+  | { kind: "downloading"; progress: DownloadProgress }
+  | { kind: "installing" }
+  | { kind: "ready_to_restart" }
+  | { kind: "error"; message: string }
+
+// String-literal helper for consumers that want to compare without
+// destructuring `state.kind` directly. `UpdateState["kind"]` gives the
+// same union at the type level.
+export const UpdateKind = {
+  IDLE: "idle",
+  CHECKING: "checking",
+  AVAILABLE: "available",
+  NOT_AVAILABLE: "not_available",
+  DOWNLOADING: "downloading",
+  INSTALLING: "installing",
+  READY_TO_RESTART: "ready_to_restart",
+  ERROR: "error",
+} as const satisfies Record<string, UpdateState["kind"]>
+
+// Singleton state.
+const state = ref<UpdateState>({ kind: "idle" })
 let initPromise: Promise<void> | undefined
 let unlistenFn: UnlistenFn | undefined
 
+function percentageOf(downloaded: number, total: number | undefined): number {
+  if (!total || total <= 0) return 0
+  return (downloaded / total) * 100
+}
+
+/**
+ * Derives the composable's internal `UpdateState` from the flat
+ * persisted form. The persisted form is a wire contract with Rust and
+ * older shell code, and translating on read keeps that contract
+ * unchanged while the composable gets the richer internal type.
+ */
+function fromPersisted(
+  persisted: PersistedUpdateState | null | undefined
+): UpdateState {
+  if (!persisted) return { kind: "idle" }
+
+  switch (persisted.status) {
+    case "idle":
+      return { kind: "idle" }
+    case "checking":
+      return { kind: "checking" }
+    case "available":
+      // The persisted form is optional on `version`. If the writer
+      // omitted it, fall back to idle rather than fabricating a version.
+      return persisted.version
+        ? {
+            kind: "available",
+            currentVersion: "",
+            latestVersion: persisted.version,
+          }
+        : { kind: "idle" }
+    case "not_available":
+      return { kind: "not_available", currentVersion: "" }
+    case "downloading": {
+      const downloaded = persisted.progress?.downloaded ?? 0
+      const total = persisted.progress?.total
+      return {
+        kind: "downloading",
+        progress: {
+          downloaded,
+          total,
+          percentage: percentageOf(downloaded, total),
+        },
+      }
+    }
+    case "installing":
+      return { kind: "installing" }
+    case "ready_to_restart":
+      return { kind: "ready_to_restart" }
+    case "error":
+      return { kind: "error", message: persisted.message ?? "Unknown error" }
+  }
+}
+
+/**
+ * Pure reducer from current state + incoming event to next state. Kept
+ * pure (no ref access, no side effects) so it can be exercised in
+ * isolation and so the full transition table is readable at a glance.
+ */
+function nextState(current: UpdateState, event: UpdateEvent): UpdateState {
+  switch (event.type) {
+    case "CheckStarted":
+      return { kind: "checking" }
+
+    case "CheckCompleted":
+      if (event.info.available && event.info.latestVersion) {
+        return {
+          kind: "available",
+          currentVersion: event.info.currentVersion,
+          latestVersion: event.info.latestVersion,
+        }
+      }
+      return {
+        kind: "not_available",
+        currentVersion: event.info.currentVersion,
+      }
+
+    case "CheckFailed":
+      return { kind: "error", message: event.error }
+
+    case "DownloadStarted":
+      return {
+        kind: "downloading",
+        progress: {
+          downloaded: 0,
+          total: event.totalBytes,
+          percentage: 0,
+        },
+      }
+
+    case "DownloadProgress":
+      return { kind: "downloading", progress: event.progress }
+
+    case "DownloadCompleted":
+      return { kind: "installing" }
+
+    case "InstallStarted":
+      return { kind: "installing" }
+
+    case "InstallCompleted":
+      // Install is a short step that transitions straight into awaiting a
+      // restart. The `RestartRequired` event follows and flips the state,
+      // so keep the current state here rather than double-transitioning.
+      return current
+
+    case "RestartRequired":
+      return { kind: "ready_to_restart" }
+
+    case "UpdateCancelled":
+      return { kind: "idle" }
+
+    case "Error":
+      return { kind: "error", message: event.message }
+  }
+}
+
 async function loadPersistedState(): Promise<void> {
-  const result = await Store.get<PersistedUpdateState>(
+  const result = await Store.get<PersistedUpdateState | null>(
     UPDATE_STATE_STORE_NAMESPACE,
     UPDATE_STATE_STORE_KEY
   )
   if (E.isRight(result) && result.right) {
-    const persisted = result.right
-    status.value = persisted.status
-    if (persisted.version) {
-      latestVersion.value = persisted.version
+    const parsed = UPDATE_STATE_SCHEMA.safeParse(result.right)
+    if (parsed.success) {
+      state.value = fromPersisted(parsed.data)
     }
-    if (persisted.progress && persisted.progress.total) {
-      progress.value = {
-        downloaded: persisted.progress.downloaded,
-        total: persisted.progress.total,
-        percentage:
-          (persisted.progress.downloaded / persisted.progress.total) * 100,
-      }
-    }
-  }
-}
-
-function applyEvent(event: UpdateEvent): void {
-  switch (event.type) {
-    case "CheckStarted":
-      status.value = UpdateStatus.CHECKING
-      errorMessage.value = undefined
-      break
-    case "CheckCompleted":
-      status.value = event.info.available
-        ? UpdateStatus.AVAILABLE
-        : UpdateStatus.NOT_AVAILABLE
-      currentVersion.value = event.info.currentVersion
-      latestVersion.value = event.info.latestVersion
-      break
-    case "CheckFailed":
-      status.value = UpdateStatus.ERROR
-      errorMessage.value = event.error
-      break
-    case "DownloadStarted":
-      status.value = UpdateStatus.DOWNLOADING
-      progress.value = {
-        downloaded: 0,
-        total: event.totalBytes,
-        percentage: 0,
-      }
-      break
-    case "DownloadProgress":
-      status.value = UpdateStatus.DOWNLOADING
-      progress.value = event.progress
-      break
-    case "DownloadCompleted":
-      status.value = UpdateStatus.INSTALLING
-      break
-    case "InstallStarted":
-      status.value = UpdateStatus.INSTALLING
-      break
-    case "InstallCompleted":
-      // Install is a short step that transitions straight into awaiting
-      // a restart. The `RestartRequired` event follows and flips the
-      // state, so no transition here.
-      break
-    case "RestartRequired":
-      status.value = UpdateStatus.READY_TO_RESTART
-      break
-    case "UpdateCancelled":
-      status.value = UpdateStatus.IDLE
-      progress.value = undefined
-      break
-    case "Error":
-      status.value = UpdateStatus.ERROR
-      errorMessage.value = event.message
-      break
   }
 }
 
 async function subscribeToEvents(): Promise<void> {
-  if (unlistenFn) {
-    return
-  }
+  if (unlistenFn) return
   unlistenFn = await listen<UpdateEvent>("updater-event", (event) => {
-    applyEvent(event.payload)
+    state.value = nextState(state.value, event.payload)
   })
 }
 
@@ -199,80 +263,77 @@ async function ensureInitialized(): Promise<void> {
   await initPromise
 }
 
+// Action wrappers. Each awaits initialization so the event listener is
+// guaranteed subscribed before the Tauri command runs, then invokes the
+// command. State transitions arrive via the event channel, so the
+// wrappers do not mutate `state` on success. On `invoke` failure they
+// feed a synthetic "failed" event through the same reducer so the
+// transition path stays uniform.
 async function check(): Promise<void> {
+  await ensureInitialized()
   try {
-    status.value = UpdateStatus.CHECKING
-    errorMessage.value = undefined
-    const info = await invoke<UpdateInfo>("check_for_updates", {
-      showNativeDialog: false,
-    })
-    // The Rust side also emits a `CheckCompleted` event which lands via the
-    // listener. The direct invoke return value is used here as a fast path
-    // in case the event listener registers after this call resolves.
-    currentVersion.value = info.currentVersion
-    latestVersion.value = info.latestVersion
-    status.value = info.available
-      ? UpdateStatus.AVAILABLE
-      : UpdateStatus.NOT_AVAILABLE
+    await invoke<UpdateInfo>("check_for_updates", { showNativeDialog: false })
   } catch (err) {
-    status.value = UpdateStatus.ERROR
-    errorMessage.value = err instanceof Error ? err.message : String(err)
+    state.value = nextState(state.value, {
+      type: "CheckFailed",
+      error: err instanceof Error ? err.message : String(err),
+    })
   }
 }
 
 async function download(): Promise<void> {
+  await ensureInitialized()
   try {
-    errorMessage.value = undefined
-    status.value = UpdateStatus.DOWNLOADING
     await invoke("download_and_install_update")
   } catch (err) {
-    status.value = UpdateStatus.ERROR
-    errorMessage.value = err instanceof Error ? err.message : String(err)
+    state.value = nextState(state.value, {
+      type: "Error",
+      message: err instanceof Error ? err.message : String(err),
+    })
   }
 }
 
 async function restart(): Promise<void> {
+  await ensureInitialized()
   try {
     await invoke("restart_application")
   } catch (err) {
-    status.value = UpdateStatus.ERROR
-    errorMessage.value = err instanceof Error ? err.message : String(err)
+    state.value = nextState(state.value, {
+      type: "Error",
+      message: err instanceof Error ? err.message : String(err),
+    })
   }
 }
 
 async function cancel(): Promise<void> {
+  await ensureInitialized()
   try {
     await invoke("cancel_update")
-    status.value = UpdateStatus.IDLE
-    progress.value = undefined
+    state.value = nextState(state.value, { type: "UpdateCancelled" })
   } catch (err) {
-    errorMessage.value = err instanceof Error ? err.message : String(err)
+    state.value = nextState(state.value, {
+      type: "Error",
+      message: err instanceof Error ? err.message : String(err),
+    })
   }
 }
 
 export function useUpdateCheck(): {
-  status: Readonly<Ref<UpdateStatus>>
-  latestVersion: Readonly<Ref<string | undefined>>
-  currentVersion: Readonly<Ref<string | undefined>>
-  progress: Readonly<Ref<DownloadProgress | undefined>>
-  errorMessage: Readonly<Ref<string | undefined>>
+  state: Readonly<Ref<UpdateState>>
   check: () => Promise<void>
   download: () => Promise<void>
   restart: () => Promise<void>
   cancel: () => Promise<void>
 } {
   // Fire-and-forget initialization so the composable returns synchronously.
-  // The refs start at sensible defaults, so a consumer that binds before
-  // `ensureInitialized` resolves just sees `IDLE` until the persisted read
-  // lands, which is correct for a fresh mount.
+  // Actions await initialization internally before invoking commands, so
+  // race-with-subscription is not possible through the action path. A
+  // consumer that reads `state.value` immediately sees `idle`, which is
+  // the correct default for a fresh mount.
   void ensureInitialized()
 
   return {
-    status: readonly(status),
-    latestVersion: readonly(latestVersion),
-    currentVersion: readonly(currentVersion),
-    progress: readonly(progress),
-    errorMessage: readonly(errorMessage),
+    state: readonly(state),
     check,
     download,
     restart,

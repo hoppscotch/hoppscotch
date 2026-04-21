@@ -14,15 +14,28 @@ import {
 /**
  * Webview-side accessor for the desktop-app user settings.
  *
- * Reads and writes through `tauri-plugin-store` under the same namespace/key
- * that the Tauri shell's `DesktopPersistenceService` uses. After every write,
- * also pushes the settings to Rust via the `set_desktop_config` command so
- * live Rust consumers (e.g. the appload client's connection timeout) stay in
- * sync without a restart.
+ * Reads and writes through `tauri-plugin-store` under the same namespace
+ * and key as the Tauri shell's persistence service, and mirrors every
+ * webview-originated write into the Rust-side `DESKTOP_CONFIG` mailbox
+ * via the `set_desktop_config` Tauri command.
  *
- * Module-level singleton: every caller gets the same reactive object so the
- * settings section and any future status badges in the app chrome stay
- * coherent.
+ * Why the webview handles its own Rust sync rather than relying on the
+ * shell's watch-based sync: the shell window closes once `appload` loads
+ * this webview bundle, which tears down the shell's persistence service
+ * and its watch subscription. Writes made after that point have no shell
+ * listener to forward them, so the webview owns the sync for its own
+ * lifetime. The shell's sync handles initial prime at app startup plus
+ * any shell-originated writes (the portable welcome screen) during its
+ * short pre-webview life.
+ *
+ * `update(key, value)` is transactional: the reactive object is mutated
+ * first so callers see an optimistic update, but a persist failure rolls
+ * the reactive back to its previous value and rethrows, so in-memory
+ * state never drifts from what's in the store.
+ *
+ * Module-level singleton: every caller shares the same reactive object
+ * so the settings section and any other consumer bound to these values
+ * stay coherent.
  */
 
 type UpdateFn = <K extends keyof DesktopSettings>(
@@ -44,8 +57,8 @@ async function loadInitial(): Promise<void> {
   Object.assign(settings, parseDesktopSettings(raw))
   loaded.value = true
 
-  // Subscribe to external writes, for example the Tauri shell's portable
-  // welcome screen, so the reactive object stays current. One subscription
+  // Subscribe to external writes (for example the Tauri shell's portable
+  // welcome screen) so the reactive object stays current. One subscription
   // per process is enough because the reactive object is a module-level
   // singleton.
   try {
@@ -78,8 +91,10 @@ async function persist(): Promise<void> {
     throw new Error(`Failed to write desktopSettings: ${writeResult.left}`)
   }
 
-  // Keep the Rust-side mirror in sync for live consumers. Non-fatal on
-  // failure, Rust falls back to compile-time defaults in that case.
+  // Mirror to Rust. Non-fatal on failure because Rust falls back to
+  // its compile-time defaults when the mailbox is empty, so a missed
+  // sync degrades to "Rust reads an older value" rather than rejecting
+  // the write the user already committed to.
   try {
     await invoke("set_desktop_config", { config: validated })
   } catch (err) {
@@ -95,7 +110,7 @@ export function useDesktopSettings(): {
   settings: Readonly<DesktopSettings>
   /** True once the initial store read has completed. */
   loaded: Readonly<typeof loaded>
-  /** Updates a single setting and persists immediately. */
+  /** Updates a single setting and persists immediately, rolling back on failure. */
   update: UpdateFn
 } {
   if (!initPromise) {
@@ -108,8 +123,17 @@ export function useDesktopSettings(): {
   }
 
   const update: UpdateFn = async (key, value) => {
+    const previous = settings[key]
     settings[key] = value
-    await persist()
+    try {
+      await persist()
+    } catch (err) {
+      // Restore the reactive state so the in-memory view reflects what's
+      // actually in the store. Without this, a failed persist leaves the
+      // settings object holding a value the next app start will not find.
+      settings[key] = previous
+      throw err
+    }
   }
 
   return {

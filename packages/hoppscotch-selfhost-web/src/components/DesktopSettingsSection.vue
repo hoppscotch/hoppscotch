@@ -17,29 +17,26 @@
           {{ t("settings.desktop_updates") }}
         </h4>
 
-        <!-- Manual update check control. Button has a fixed `min-width`
-             wide enough for the longest label ("Restart to apply update")
-             so label changes across states never resize the control.
-             Progress percentage lives inside the button label during
-             downloads, so the separate progress-bar element can be dropped
-             and the whole control keeps a stable height. The helper text
-             area below has `min-h` reserved so the toggle underneath never
-             shifts vertically between states. Transient status feedback
-             ("Up to date", error messages) fades back to the baseline
-             description after a linger so the description stays visible
-             most of the time. -->
+        <!-- Manual update check control. The button's label, icon,
+             disabled-ness, and click behavior all come from one view
+             descriptor computed from the update state, so adding or
+             renaming a state means touching one `case` instead of five
+             parallel switches. A fixed `min-width` holds the button
+             size stable across label changes. Download progress rides
+             inline in the label rather than in a separate progress bar,
+             so the control stays the same size across every state. -->
         <div class="mt-4">
           <div class="flex items-center space-x-3">
             <HoppButtonSecondary
               class="!min-w-[15rem] !justify-start"
-              :icon="buttonIcon"
-              :label="buttonLabel"
-              :disabled="buttonDisabled"
+              :icon="view.icon"
+              :label="view.label"
+              :disabled="view.disabled"
               outline
-              @click="handleButtonClick"
+              @click="view.action"
             />
             <HoppButtonSecondary
-              v-if="showCancelButton"
+              v-if="view.showCancel"
               :label="t('action.cancel')"
               outline
               @click="updateCheck.cancel()"
@@ -79,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from "vue"
+import { computed, onBeforeUnmount, ref, watch, type Component } from "vue"
 import { HoppButtonSecondary, HoppSmartToggle } from "@hoppscotch/ui"
 import { useI18n } from "@hoppscotch/common/composables/i18n"
 
@@ -90,85 +87,115 @@ import IconLucideCheckCircle from "~icons/lucide/check-circle"
 import IconLucideAlertCircle from "~icons/lucide/alert-circle"
 
 import { useDesktopSettings } from "@app/composables/useDesktopSettings"
-import { useUpdateCheck, UpdateStatus } from "@app/composables/useUpdateCheck"
+import { useUpdateCheck } from "@app/composables/useUpdateCheck"
 
 const t = useI18n()
 
 const desktopSettings = useDesktopSettings()
 const updateCheck = useUpdateCheck()
 
-// Button label, disabled state, icon, and click handler are all driven
-// from the single `UpdateStatus` value. Every status renders
-// deterministically so a reader of this file can see the full state
-// machine at a glance. The `DOWNLOADING` label interpolates the progress
-// percentage so the button itself communicates progress, no separate
-// progress-bar element needed.
-const buttonLabel = computed(() => {
-  switch (updateCheck.status.value) {
-    case UpdateStatus.CHECKING:
-      return t("settings.update_checking")
-    case UpdateStatus.AVAILABLE:
-      return t("settings.update_download_version", {
-        version: updateCheck.latestVersion.value ?? "",
-      })
-    case UpdateStatus.DOWNLOADING:
-      return t("settings.update_downloading_percent", {
-        percent: Math.round(updateCheck.progress.value?.percentage ?? 0),
-      })
-    case UpdateStatus.INSTALLING:
-      return t("settings.update_installing")
-    case UpdateStatus.READY_TO_RESTART:
-      return t("settings.update_restart_now")
-    case UpdateStatus.IDLE:
-    case UpdateStatus.NOT_AVAILABLE:
-    case UpdateStatus.ERROR:
-    default:
-      return t("settings.update_check_now")
+// Composed view descriptor for the manual-check button. Every field the
+// template binds comes from the same function so adding, renaming, or
+// deleting an update state is a single-case edit. The alternative of
+// parallel computeds for `label`, `icon`, `disabled`, and click handler
+// spreads the behavior for each state across four functions and leaves
+// no single place to read what state X renders as.
+type ButtonView = {
+  label: string
+  icon: Component
+  disabled: boolean
+  showCancel: boolean
+  action: () => Promise<void> | void
+}
+
+const noop = (): void => undefined
+
+const view = computed<ButtonView>(() => {
+  const s = updateCheck.state.value
+  switch (s.kind) {
+    case "idle":
+      return {
+        label: t("settings.update_check_now"),
+        icon: IconLucideRefreshCw,
+        disabled: false,
+        showCancel: false,
+        action: updateCheck.check,
+      }
+    case "checking":
+      return {
+        label: t("settings.update_checking"),
+        icon: IconLucideLoader,
+        disabled: true,
+        showCancel: false,
+        action: noop,
+      }
+    case "available":
+      return {
+        label: t("settings.update_download_version", {
+          version: s.latestVersion,
+        }),
+        icon: IconLucideDownload,
+        disabled: false,
+        showCancel: false,
+        action: updateCheck.download,
+      }
+    case "not_available":
+      return {
+        label: t("settings.update_check_now"),
+        icon: IconLucideCheckCircle,
+        disabled: false,
+        showCancel: false,
+        action: updateCheck.check,
+      }
+    case "downloading":
+      return {
+        label: t("settings.update_downloading_percent", {
+          percent: Math.round(s.progress.percentage),
+        }),
+        icon: IconLucideLoader,
+        disabled: true,
+        showCancel: true,
+        action: noop,
+      }
+    case "installing":
+      return {
+        label: t("settings.update_installing"),
+        icon: IconLucideLoader,
+        disabled: true,
+        showCancel: true,
+        action: noop,
+      }
+    case "ready_to_restart":
+      return {
+        label: t("settings.update_restart_now"),
+        icon: IconLucideRefreshCw,
+        disabled: false,
+        showCancel: false,
+        action: updateCheck.restart,
+      }
+    case "error":
+      return {
+        label: t("settings.update_check_now"),
+        icon: IconLucideAlertCircle,
+        disabled: false,
+        showCancel: false,
+        action: updateCheck.check,
+      }
+    default: {
+      // Exhaustiveness check. TypeScript narrows `s` to `never` here if
+      // every variant of `UpdateState["kind"]` is handled above, so
+      // adding a new variant without a matching `case` fails to compile.
+      // The throw also satisfies eslint's `vue/return-in-computed-property`,
+      // which does not do TS-level exhaustiveness analysis.
+      const unreachable: never = s
+      throw new Error(`Unhandled update state: ${JSON.stringify(unreachable)}`)
+    }
   }
 })
-
-const buttonDisabled = computed(() => {
-  switch (updateCheck.status.value) {
-    case UpdateStatus.CHECKING:
-    case UpdateStatus.DOWNLOADING:
-    case UpdateStatus.INSTALLING:
-      return true
-    default:
-      return false
-  }
-})
-
-// Icon per state. Uses the same lucide set as `UpdateFlow.vue` so the
-// iconography stays consistent between the startup flow and this page.
-const buttonIcon = computed(() => {
-  switch (updateCheck.status.value) {
-    case UpdateStatus.CHECKING:
-    case UpdateStatus.DOWNLOADING:
-    case UpdateStatus.INSTALLING:
-      return IconLucideLoader
-    case UpdateStatus.AVAILABLE:
-      return IconLucideDownload
-    case UpdateStatus.READY_TO_RESTART:
-      return IconLucideRefreshCw
-    case UpdateStatus.NOT_AVAILABLE:
-      return IconLucideCheckCircle
-    case UpdateStatus.ERROR:
-      return IconLucideAlertCircle
-    case UpdateStatus.IDLE:
-    default:
-      return IconLucideRefreshCw
-  }
-})
-
-const showCancelButton = computed(
-  () =>
-    updateCheck.status.value === UpdateStatus.DOWNLOADING ||
-    updateCheck.status.value === UpdateStatus.INSTALLING
-)
 
 // Helper text below the button shows the baseline description by default.
 // Transient status feedback ("Up to date", error message) appears on entry
-// into `NOT_AVAILABLE` or `ERROR` and fades back to the description after
+// into `not_available` or `error` and fades back to the description after
 // a linger, so the description stays visible most of the time and the
 // status feedback reads as transient confirmation rather than permanent
 // replacement. The `<Transition>` wrapping the `<p>` fades between
@@ -182,14 +209,9 @@ const showTransientFeedback = ref(false)
 let feedbackTimer: ReturnType<typeof setTimeout> | undefined
 
 watch(
-  () => updateCheck.status.value,
-  (newStatus) => {
-    if (
-      newStatus !== UpdateStatus.NOT_AVAILABLE &&
-      newStatus !== UpdateStatus.ERROR
-    ) {
-      return
-    }
+  () => updateCheck.state.value.kind,
+  (kind) => {
+    if (kind !== "not_available" && kind !== "error") return
 
     showTransientFeedback.value = true
     if (feedbackTimer) clearTimeout(feedbackTimer)
@@ -197,7 +219,7 @@ watch(
       () => {
         showTransientFeedback.value = false
       },
-      newStatus === UpdateStatus.ERROR
+      kind === "error"
         ? TRANSIENT_FEEDBACK_MS.error
         : TRANSIENT_FEEDBACK_MS.notAvailable
     )
@@ -210,13 +232,11 @@ onBeforeUnmount(() => {
 
 const helperText = computed(() => {
   if (showTransientFeedback.value) {
-    if (
-      updateCheck.status.value === UpdateStatus.ERROR &&
-      updateCheck.errorMessage.value
-    ) {
-      return updateCheck.errorMessage.value
+    const s = updateCheck.state.value
+    if (s.kind === "error") {
+      return s.message
     }
-    if (updateCheck.status.value === UpdateStatus.NOT_AVAILABLE) {
+    if (s.kind === "not_available") {
       return t("settings.update_up_to_date")
     }
   }
@@ -225,28 +245,10 @@ const helperText = computed(() => {
 
 const helperTextClasses = computed(() => {
   const base = "text-xs"
-  return showTransientFeedback.value &&
-    updateCheck.status.value === UpdateStatus.ERROR
+  return showTransientFeedback.value && updateCheck.state.value.kind === "error"
     ? `${base} text-red-500`
     : `${base} text-secondaryLight`
 })
-
-async function handleButtonClick(): Promise<void> {
-  switch (updateCheck.status.value) {
-    case UpdateStatus.AVAILABLE:
-      await updateCheck.download()
-      break
-    case UpdateStatus.READY_TO_RESTART:
-      await updateCheck.restart()
-      break
-    case UpdateStatus.IDLE:
-    case UpdateStatus.NOT_AVAILABLE:
-    case UpdateStatus.ERROR:
-    default:
-      await updateCheck.check()
-      break
-  }
-}
 
 async function toggleDisableUpdateChecks(): Promise<void> {
   await desktopSettings.update(

@@ -44,7 +44,7 @@ export function useAppInitialization() {
 
   const saveConnectionState = async (state: ConnectionState) => {
     try {
-      await persistence.setConnectionState(state)
+      await persistence.connectionState.set(state)
     } catch (err) {
       console.error("Failed to save connection state:", err)
     }
@@ -246,8 +246,8 @@ export function useAppInitialization() {
       // instances. The InstanceService's detectCurrentInstanceFromHostname
       // persists the detected instance (including cloud-org) to this store,
       // so on restart the main window can resume the correct instance.
-      const connectionState = await persistence.getConnectionState()
-      const recentInstances = await persistence.getRecentInstances()
+      const connectionState = await persistence.connectionState.get()
+      const recentInstances = await persistence.recentInstances.get()
 
       mainDiag(`loadRecent: connectionState=${JSON.stringify(connectionState)}`)
       mainDiag(

@@ -1143,10 +1143,14 @@ export class TeamCollectionsService extends Service<void> {
    */
   /**
    * Build the full ancestor ID chain for a team collection on a collaborator
-   * move. Walks the post-move local tree first; if a parent is missing
-   * (unexpanded destination subtree), falls back to backend
-   * `getSingleCollection` lookups to resolve the parent link. Returns a
-   * slash-delimited chain in root → leaf order.
+   * move AND ensure every ancestor is present in `this.collections.value`
+   * (hydrated from backend `getSingleCollection` when needed). The
+   * subsequent cascade helper walks the chain via
+   * `findCollInTree(collections, pathSegment)` — if any segment is
+   * missing, the cascade bails and the tab's inherited properties are
+   * lost. Hydrating before returning keeps the cascade correct even for
+   * unexpanded destination subtrees. Returns a slash-delimited chain in
+   * root → leaf order.
    */
   private async buildDestinationAncestorChain(
     leafID: string
@@ -1156,28 +1160,80 @@ export class TeamCollectionsService extends Service<void> {
     let currentID: string | null = leafID
     let guard = 0
 
+    // Walk leaf → root, gathering IDs and hydrating missing nodes.
     while (currentID && guard < 64) {
       if (visited.has(currentID)) break
       visited.add(currentID)
       chain.unshift(currentID)
 
-      const localParent = findParentOfColl(this.collections.value, currentID)
-      if (localParent) {
-        currentID = localParent.id
+      const localNode = findCollInTree(this.collections.value, currentID)
+      if (localNode) {
+        const localParent = findParentOfColl(
+          this.collections.value,
+          currentID
+        )
+        currentID = localParent?.id ?? null
         guard += 1
         continue
       }
 
-      // Local tree doesn't know the parent — either this node is root
-      // or its subtree isn't expanded. Ask the backend.
+      // Node isn't in local tree — hydrate it from backend and continue
+      // walking via the backend parent link.
       try {
         const remote = await getSingleCollection(currentID)
         if (E.isLeft(remote)) break
-        const remoteParentID =
-          (remote.right as { collection?: { parent?: { id?: string } } })
-            .collection?.parent?.id ?? null
-        if (!remoteParentID) break
-        currentID = remoteParentID
+        const remoteColl = (
+          remote.right as {
+            collection?: {
+              id?: string
+              title?: string
+              data?: string | null
+              parent?: { id?: string } | null
+            }
+          }
+        ).collection
+        if (!remoteColl?.id) break
+
+        // Insert the hydrated node into `this.collections.value` so the
+        // later cascade's `findCollInTree` can locate it. Attach as a
+        // child of its parent when the parent is loaded; otherwise
+        // defer to root — the cascade walks ID lookups, not structural
+        // nesting, so placement only needs to make `findCollInTree`
+        // succeed.
+        const hydratedNode: TeamCollection = {
+          id: remoteColl.id,
+          title: remoteColl.title ?? "",
+          data: remoteColl.data ?? null,
+          children: null,
+          requests: null,
+        }
+        const parentID = remoteColl.parent?.id ?? null
+        const parentInTree = parentID
+          ? findCollInTree(this.collections.value, parentID)
+          : null
+        if (parentInTree) {
+          parentInTree.children = parentInTree.children ?? []
+          if (
+            !parentInTree.children.some(
+              (child) => child.id === hydratedNode.id
+            )
+          ) {
+            parentInTree.children.push(hydratedNode)
+          }
+        } else {
+          // Parent not loaded yet; put the node at the root. The cascade
+          // only uses `findCollInTree` which walks children recursively,
+          // so root-level insertion is sufficient for ID resolution.
+          if (
+            !this.collections.value.some(
+              (coll) => coll.id === hydratedNode.id
+            )
+          ) {
+            this.collections.value.push(hydratedNode)
+          }
+        }
+
+        currentID = parentID
       } catch {
         break
       }

@@ -328,28 +328,31 @@ export function updateInheritedPropertiesForAffectedRequests(
       type === "rest"
     ) {
       // Recompute inherited auth/headers via the workspace provider so team
-      // collection moves keep open request tabs in sync. The workspace
-      // service handles both personal and teams providers; personal has
-      // already been refreshed via the `user-collection` branch above for
-      // legacy saveContext shapes, this branch is the new-tree equivalent.
+      // collection moves keep open request tabs in sync. Resolve the
+      // workspace handle from the tab's own request handle rather than
+      // `activeWorkspaceHandle` — a tab from a non-active workspace can
+      // still be open, and its refresh must target that tab's workspace.
       const requestHandleRef =
         tab.value.document.saveContext.requestHandle?.get()
       if (!requestHandleRef || requestHandleRef.value.type === "invalid") {
         return
       }
       const workspaceService = getService(NewWorkspaceService)
-      const collectionID = requestHandleRef.value.data.collectionID
-      const activeWorkspaceHandle =
-        workspaceService.activeWorkspaceHandle.value
-      if (!activeWorkspaceHandle) return
+      const { providerID, workspaceID, collectionID } =
+        requestHandleRef.value.data
 
-      // Fire-and-forget: fetch the collection handle for the request's
-      // current collection and pull the cascading auth/headers view. The
-      // tab updates on completion via the reactive assignment.
+      // Fire-and-forget: resolve the tab's workspace, fetch its collection
+      // handle and cascading auth/headers view, then update the tab's
+      // inheritedProperties reactively.
       void (async () => {
+        const workspaceHandleResult = await workspaceService.getWorkspaceHandle(
+          providerID,
+          workspaceID
+        )
+        if (E.isLeft(workspaceHandleResult)) return
         const collectionHandleResult =
           await workspaceService.getRESTCollectionHandle(
-            activeWorkspaceHandle,
+            workspaceHandleResult.right,
             collectionID
           )
         if (E.isLeft(collectionHandleResult)) return

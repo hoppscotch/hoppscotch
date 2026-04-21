@@ -2475,6 +2475,16 @@ export class TeamsWorkspaceProviderService
       }
 
       this.requests.value = localMoveRES.right
+
+      // Refresh inherited auth/headers on any open workspace-user-collection
+      // tab whose request was moved elsewhere (collaborator or remote move).
+      // The helper resolves per-tab workspace + collection to recompute
+      // cascading properties; the second arg is a prefix hint that the
+      // widened workspace-user-collection branch ignores.
+      updateInheritedPropertiesForAffectedRequests(
+        result.right.requestMoved.id,
+        "rest"
+      )
     })
   }
 

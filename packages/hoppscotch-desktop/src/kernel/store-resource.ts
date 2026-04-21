@@ -1,7 +1,11 @@
 import * as E from "fp-ts/Either"
 import type { z } from "zod"
 
+import { Log } from "@hoppscotch/common/kernel/log"
+
 import { Store } from "~/kernel/store"
+
+const LOG_TAG = "store-resource"
 
 /**
  * A single schema-validated, namespaced, persistent value in the shared
@@ -67,8 +71,9 @@ export function createStoreResource<T>(
       }
       const parsed = schema.safeParse(result.right)
       if (!parsed.success) {
-        console.warn(
-          `[StoreResource] ${namespace}/${key} failed schema validation, falling back to defaults:`,
+        Log.warn(
+          LOG_TAG,
+          `${namespace}/${key} failed schema validation, falling back to defaults`,
           parsed.error
         )
         return defaults()
@@ -80,7 +85,14 @@ export function createStoreResource<T>(
       const validated = schema.parse(value)
       const result = await Store.set(namespace, key, validated)
       if (E.isLeft(result)) {
-        throw new Error(`Failed to persist ${namespace}/${key}: ${result.left}`)
+        // `StoreError` is a tagged union with `kind` and `message`.
+        // Interpolating the object directly stringifies to
+        // `[object Object]`, which is useless in logs and throws, so
+        // format it explicitly here.
+        const err = result.left
+        throw new Error(
+          `Failed to persist ${namespace}/${key}: ${err.kind}: ${err.message}`
+        )
       }
     },
 
@@ -91,7 +103,17 @@ export function createStoreResource<T>(
         const parsed = schema.safeParse(value)
         if (parsed.success) {
           handler(parsed.data)
+          return
         }
+        // Mirrors the parse-failure log in `get()`. Without this, an
+        // external writer with a schema mismatch (for example a shell
+        // and webview temporarily out of sync after a migration) would
+        // stop delivering updates with no observable signal.
+        Log.warn(
+          LOG_TAG,
+          `${namespace}/${key} watch received invalid value, skipping`,
+          parsed.error
+        )
       })
     },
   }

@@ -14,8 +14,11 @@ import {
   UPDATE_STATE_STORE_KEY,
 } from "@hoppscotch/common/platform/update-state"
 import type { Instance } from "@hoppscotch/common/platform/instance"
+import { Log } from "@hoppscotch/common/kernel/log"
 
 import { Store } from "~/kernel/store"
+
+const LOG_TAG = "persistence"
 import {
   createStoreResource,
   type StoreResource,
@@ -114,10 +117,19 @@ const migrations: Migration[] = [
           ? legacyResult.right
           : undefined
 
-      const migrated = DESKTOP_SETTINGS_SCHEMA.parse({
+      // Use `safeParse` with a defaults fallback. `Store.get` returns
+      // the raw JSON value cast to the generic without validation, so
+      // a corrupted legacy entry (for example a stringified boolean
+      // left behind by an older build) would throw from `.parse` and
+      // abort the full persistence init. Falling back to a fresh
+      // defaults parse keeps the migration progressing on bad data.
+      const parsed = DESKTOP_SETTINGS_SCHEMA.safeParse({
         disableUpdateNotifications: legacy?.disableUpdateNotifications,
         autoSkipWelcome: legacy?.autoSkipWelcome,
       })
+      const migrated = parsed.success
+        ? parsed.data
+        : DESKTOP_SETTINGS_SCHEMA.parse({})
 
       const writeResult = await Store.set(
         STORE_NAMESPACE,
@@ -125,9 +137,17 @@ const migrations: Migration[] = [
         migrated
       )
       if (E.isLeft(writeResult)) {
-        console.error(
-          "[PersistenceService] v2 migration failed to write desktopSettings:",
+        // Rethrow so `runMigrations` aborts before recording the new
+        // `SCHEMA_VERSION`. Swallowing here would let the loop bump
+        // the version despite the failed write, and the next launch
+        // would treat the data as already migrated and never retry.
+        Log.error(
+          LOG_TAG,
+          "v2 migration failed to write desktopSettings",
           writeResult.left
+        )
+        throw new Error(
+          `v2 migration failed: ${writeResult.left.kind}: ${writeResult.left.message}`
         )
       }
     },
@@ -193,10 +213,7 @@ export class DesktopPersistenceService {
   async init(): Promise<E.Either<StoreError, void>> {
     const initResult = await Store.init()
     if (E.isLeft(initResult)) {
-      console.error(
-        "[PersistenceService] Failed to initialize store:",
-        initResult.left
-      )
+      Log.error(LOG_TAG, "Failed to initialize store", initResult.left)
       return initResult
     }
     await this.runMigrations()
@@ -224,24 +241,19 @@ export class DesktopPersistenceService {
       const initial = await this.desktopSettings.get()
       await invoke("set_desktop_config", { config: initial })
     } catch (err) {
-      console.warn(
-        "[PersistenceService] Initial DesktopSettings sync to Rust failed:",
-        err
-      )
+      Log.warn(LOG_TAG, "Initial DesktopSettings sync to Rust failed", err)
     }
 
     try {
       await this.desktopSettings.watch((settings) => {
         invoke("set_desktop_config", { config: settings }).catch((err) => {
-          console.warn(
-            "[PersistenceService] DesktopSettings sync to Rust failed:",
-            err
-          )
+          Log.warn(LOG_TAG, "DesktopSettings sync to Rust failed", err)
         })
       })
     } catch (err) {
-      console.warn(
-        "[PersistenceService] Failed to subscribe to DesktopSettings for Rust sync:",
+      Log.warn(
+        LOG_TAG,
+        "Failed to subscribe to DesktopSettings for Rust sync",
         err
       )
     }
@@ -263,7 +275,24 @@ export class DesktopPersistenceService {
         }
       }
 
-      await Store.set(STORE_NAMESPACE, STORE_KEYS.SCHEMA_VERSION, targetVersion)
+      // Record the new version only when the write succeeds. A silent
+      // failure here would leave the stored version stale, and the next
+      // launch would re-run every migration on already-migrated data.
+      const versionWrite = await Store.set(
+        STORE_NAMESPACE,
+        STORE_KEYS.SCHEMA_VERSION,
+        targetVersion
+      )
+      if (E.isLeft(versionWrite)) {
+        Log.error(
+          LOG_TAG,
+          "Failed to persist schema version after migrations",
+          versionWrite.left
+        )
+        throw new Error(
+          `Failed to persist schema version: ${versionWrite.left.kind}: ${versionWrite.left.message}`
+        )
+      }
     }
   }
 }

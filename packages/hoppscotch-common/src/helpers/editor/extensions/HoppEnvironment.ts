@@ -42,6 +42,7 @@ import {
   HOPP_ENVIRONMENT_REGEX,
 } from "~/helpers/environment-regex"
 import {
+  stabilizeTooltipHover,
   constrainTooltipToViewport,
   createTooltipValueRow,
 } from "~/helpers/utils/tooltip"
@@ -312,6 +313,9 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
 
           // Apply viewport-aware overflow constraints to the tooltip
           constrainTooltipToViewport(dom, tooltipContainer)
+
+          // Apply an interactive bridge to stabilize hover transitions
+          stabilizeTooltipHover(dom)
 
           return { dom }
         },

@@ -1211,8 +1211,15 @@ export class TeamCollectionsService extends Service<void> {
         const parentInTree = parentID
           ? findCollInTree(this.collections.value, parentID)
           : null
-        if (parentInTree) {
-          parentInTree.children = parentInTree.children ?? []
+        // Important: `children === null` is the "not expanded yet"
+        // sentinel used by `expandCollection`. Attaching into a null
+        // children array would flip that sentinel to `[...]` and make
+        // `expandCollection` skip its real-children fetch later.
+        // Only attach when the parent's children array is already
+        // loaded; otherwise fall back to root-level insertion so the
+        // cascade can still resolve the ID via `findCollInTree`
+        // recursion without perturbing expansion state.
+        if (parentInTree && Array.isArray(parentInTree.children)) {
           if (
             !parentInTree.children.some(
               (child) => child.id === hydratedNode.id
@@ -1221,9 +1228,9 @@ export class TeamCollectionsService extends Service<void> {
             parentInTree.children.push(hydratedNode)
           }
         } else {
-          // Parent not loaded yet; put the node at the root. The cascade
-          // only uses `findCollInTree` which walks children recursively,
-          // so root-level insertion is sufficient for ID resolution.
+          // Parent unexpanded or unknown — insert at root. `findCollInTree`
+          // walks recursively, so ID resolution still works, and the
+          // parent's `children === null` sentinel is preserved.
           if (
             !this.collections.value.some(
               (coll) => coll.id === hydratedNode.id

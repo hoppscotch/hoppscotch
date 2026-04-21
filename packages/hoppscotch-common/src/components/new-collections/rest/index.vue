@@ -2004,6 +2004,15 @@ const dropCollection = async (payload: {
     return
   }
 
+  // For teams the subscription stream drives inherited-property refresh;
+  // skip the post-move bookkeeping fetches that only make sense for
+  // personal index-path semantics.
+  if (isTeamsWorkspace) {
+    draggingToRoot.value = false
+    toast.success(`${t("collection.moved")}`)
+    return
+  }
+
   const destinationCollectionHandleResult =
     await workspaceService.getRESTCollectionHandle(
       props.workspaceHandle,
@@ -2042,15 +2051,10 @@ const dropCollection = async (payload: {
     return
   }
 
-  // For teams, skip the path-based inherited-property bookkeeping; the
-  // teams provider's subscription stream drives the update. For personal,
-  // recompute inheritance on the newly-landed sibling position.
-  if (!isTeamsWorkspace) {
-    updateInheritedPropertiesForAffectedRequests(
-      `${destinationCollectionIndex}/${totalChildCollectionsInDestinationCollection}`,
-      "rest"
-    )
-  }
+  updateInheritedPropertiesForAffectedRequests(
+    `${destinationCollectionIndex}/${totalChildCollectionsInDestinationCollection}`,
+    "rest"
+  )
 
   draggingToRoot.value = false
   toast.success(`${t("collection.moved")}`)

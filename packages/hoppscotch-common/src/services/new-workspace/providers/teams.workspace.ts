@@ -115,6 +115,9 @@ type TeamsWorkspaceCollection = WorkspaceCollection & {
   order: string
   auth: HoppRESTAuth
   headers: HoppRESTHeader[]
+  // Raw backend `data` JSON string — kept so partial updates can preserve
+  // variables/description fields the provider does not parse individually.
+  rawData: string | null
 }
 
 type TeamsWorkspaceRequest = WorkspaceRequest & {
@@ -303,6 +306,7 @@ export class TeamsWorkspaceProviderService
         auth,
         headers,
         parentCollectionID: null,
+        rawData: collection.data ?? null,
       }
     })
 
@@ -487,22 +491,26 @@ export class TeamsWorkspaceProviderService
     const name = updatedCollection.name ?? existingCollection.name
     const headers = updatedCollection.headers ?? existingCollection.headers
     const auth = updatedCollection.auth ?? existingCollection.auth
-    // The teams provider does not cache variables/description locally
-    // (TeamsWorkspaceCollection only tracks auth/headers). Callers must
-    // supply the full state on update — falling back to [] / null would
-    // silently wipe backend-stored values on partial updates.
-    const variables = updatedCollection.variables ?? []
+
+    // The backend mutation writes the full `data` JSON blob, so a partial
+    // update (e.g. rename-only) must preserve fields the caller did not
+    // supply. Parse variables/description out of the last-known raw data
+    // blob cached from the subscription stream when the caller omits them.
+    const existingRawFields = parseRawCollectionData(existingCollection.rawData)
+    const variables = updatedCollection.variables ?? existingRawFields.variables
     const description =
-      (updatedCollection as { description?: string | null }).description ?? null
+      updatedCollection.description ?? existingRawFields.description
+
+    const nextDataPayload = {
+      headers,
+      auth,
+      variables,
+      description,
+    }
 
     const res = await updateTeamCollection(
       collectionHandleRef.value.data.collectionID,
-      {
-        headers,
-        auth,
-        variables,
-        description,
-      },
+      nextDataPayload,
       name
     )()
 
@@ -511,6 +519,7 @@ export class TeamsWorkspaceProviderService
     }
 
     // update the existing collection
+    const nextRawData = JSON.stringify(nextDataPayload)
     this.collections.value = this.collections.value.map((collection) => {
       if (
         collection.collectionID === collectionHandleRef.value.data.collectionID
@@ -520,6 +529,7 @@ export class TeamsWorkspaceProviderService
           name,
           headers,
           auth,
+          rawData: nextRawData,
         }
       }
 
@@ -869,6 +879,7 @@ export class TeamsWorkspaceProviderService
                 order,
                 auth: auth,
                 headers: headers,
+                rawData: collection.data ?? null,
               }
             })
           )
@@ -1063,6 +1074,7 @@ export class TeamsWorkspaceProviderService
                 auth: auth,
                 headers: headers,
                 parentCollectionID: null,
+                rawData: collection.data ?? null,
               }
             })
           )
@@ -2181,6 +2193,7 @@ export class TeamsWorkspaceProviderService
         order,
         auth: auth,
         headers: headers,
+        rawData: inheritedData ?? null,
       }
 
       this.collections.value.push(collection)
@@ -2945,6 +2958,32 @@ const parseInheritedData = (inheritedData?: string) => {
   return {
     auth,
     headers,
+  }
+}
+
+// Extracts variables/description from the backend-stored `data` blob.
+// Returns safe defaults if the blob is missing or malformed. Used by
+// `updateRESTCollection` to preserve backend-stored fields the caller
+// did not supply on partial updates.
+const parseRawCollectionData = (
+  rawData: string | null
+): { variables: unknown[]; description: string | null } => {
+  if (!rawData) {
+    return { variables: [], description: null }
+  }
+
+  try {
+    const parsed = JSON.parse(rawData) as {
+      variables?: unknown[]
+      description?: string | null
+    }
+    return {
+      variables: Array.isArray(parsed.variables) ? parsed.variables : [],
+      description:
+        typeof parsed.description === "string" ? parsed.description : null,
+    }
+  } catch {
+    return { variables: [], description: null }
   }
 }
 

@@ -1,17 +1,27 @@
 import * as E from "fp-ts/Either"
+import { invoke } from "@tauri-apps/api/core"
 import { z } from "zod"
 import { StoreError } from "@hoppscotch/kernel"
+import {
+  DESKTOP_SETTINGS_SCHEMA,
+  DESKTOP_SETTINGS_STORE_KEY,
+  DESKTOP_SETTINGS_STORE_NAMESPACE,
+  type DesktopSettings,
+} from "@hoppscotch/common/platform/desktop-settings"
 import { Store } from "~/kernel/store"
 import { UpdateState, PortableSettings } from "~/types"
 
-export const STORE_NAMESPACE = "hoppscotch-desktop.v1"
+export const STORE_NAMESPACE = DESKTOP_SETTINGS_STORE_NAMESPACE
 
 export const STORE_KEYS = {
   UPDATE_STATE: "updateState",
   CONNECTION_STATE: "connectionState",
   RECENT_INSTANCES: "recentInstances",
   SCHEMA_VERSION: "schema_version",
+  // Legacy key. Written by portable builds in schema v1. Read only by the
+  // v1 to v2 migration. All other code uses `DESKTOP_SETTINGS`.
   PORTABLE_SETTINGS: "portableSettings",
+  DESKTOP_SETTINGS: DESKTOP_SETTINGS_STORE_KEY,
 } as const
 
 export const UPDATE_STATE_SCHEMA = z.object({
@@ -51,14 +61,12 @@ export const CONNECTION_STATE_SCHEMA = z.object({
   message: z.string().optional(),
 })
 
-export const PORTABLE_SETTINGS_SCHEMA = z.object({
-  disableUpdateNotifications: z.boolean(),
-  autoSkipWelcome: z.boolean(),
-})
-
 export type InstanceKind = z.infer<typeof INSTANCE_SCHEMA>["kind"]
 export type Instance = z.infer<typeof INSTANCE_SCHEMA>
 export type ConnectionState = z.infer<typeof CONNECTION_STATE_SCHEMA>
+// Re-export for callers that import from this service. The canonical type
+// lives in `@hoppscotch/common/platform/desktop-settings`.
+export type { DesktopSettings }
 
 interface Migration {
   version: number
@@ -69,6 +77,44 @@ const migrations: Migration[] = [
   {
     version: 1,
     migrate: async () => {},
+  },
+  {
+    // v1 to v2. Introduces `DesktopSettings` as the single source of truth
+    // for all desktop builds. Portable users had `portableSettings` with two
+    // fields, standard-build users had nothing. Both land in `desktopSettings`
+    // with full defaults for any field not carried over.
+    //
+    // Legacy `portableSettings` is intentionally left in place. The key is
+    // cheap to keep, it preserves a rollback path, and a later migration can
+    // prune it once the v2 definition has stabilized.
+    version: 2,
+    migrate: async () => {
+      const legacyResult = await Store.get<Partial<PortableSettings>>(
+        STORE_NAMESPACE,
+        STORE_KEYS.PORTABLE_SETTINGS
+      )
+      const legacy =
+        E.isRight(legacyResult) && legacyResult.right
+          ? legacyResult.right
+          : undefined
+
+      const migrated = DESKTOP_SETTINGS_SCHEMA.parse({
+        disableUpdateNotifications: legacy?.disableUpdateNotifications,
+        autoSkipWelcome: legacy?.autoSkipWelcome,
+      })
+
+      const writeResult = await Store.set(
+        STORE_NAMESPACE,
+        STORE_KEYS.DESKTOP_SETTINGS,
+        migrated
+      )
+      if (E.isLeft(writeResult)) {
+        console.error(
+          "[PersistenceService] v2 migration failed to write desktopSettings:",
+          writeResult.left
+        )
+      }
+    },
   },
 ]
 
@@ -94,7 +140,31 @@ export class DesktopPersistenceService {
       return initResult
     }
     await this.runMigrations()
+    await this.syncDesktopSettingsToRust()
     return initResult
+  }
+
+  /**
+   * Push the current `DesktopSettings` to the Rust-side `DESKTOP_CONFIG`
+   * mutex via the `set_desktop_config` Tauri command.
+   *
+   * Rust services that need a live settings value (for example an appload
+   * HTTP client's connection timeout, once that consumer lands) lock
+   * `DESKTOP_CONFIG` on each read. If this push fails, Rust falls back to
+   * compile-time defaults, so failures here are non-fatal.
+   *
+   * Also called from the webview-side settings UI on every user change.
+   */
+  private async syncDesktopSettingsToRust(): Promise<void> {
+    try {
+      const settings = await this.getDesktopSettings()
+      await invoke("set_desktop_config", { config: settings })
+    } catch (err) {
+      console.warn(
+        "[PersistenceService] Failed to sync DesktopSettings to Rust:",
+        err
+      )
+    }
   }
 
   private async runMigrations() {
@@ -104,7 +174,7 @@ export class DesktopPersistenceService {
     )
     const perhapsVersion = E.isRight(versionResult) ? versionResult.right : "1"
     const currentVersion = perhapsVersion ?? "1"
-    const targetVersion = "1"
+    const targetVersion = "2"
 
     if (currentVersion !== targetVersion) {
       for (const migration of migrations) {
@@ -225,38 +295,44 @@ export class DesktopPersistenceService {
     await this.setRecentInstances(filtered)
   }
 
-  async setPortableSettings(settings: PortableSettings): Promise<void> {
-    console.log("Setting portable settings:", settings)
+  async setDesktopSettings(settings: DesktopSettings): Promise<void> {
+    // Parse through the schema on write so any caller passing a loosely-typed
+    // object still lands in the store as a fully-validated form.
+    const validated = DESKTOP_SETTINGS_SCHEMA.parse(settings)
     const result = await Store.set(
       STORE_NAMESPACE,
-      STORE_KEYS.PORTABLE_SETTINGS,
-      settings
+      STORE_KEYS.DESKTOP_SETTINGS,
+      validated
     )
     if (E.isLeft(result)) {
-      console.error("Failed to save portable settings:", result.left)
-      throw new Error(`Failed to save portable settings: ${result.left}`)
-    } else {
-      console.log("Successfully saved portable settings")
+      console.error("Failed to save desktop settings:", result.left)
+      throw new Error(`Failed to save desktop settings: ${result.left}`)
     }
+    // Keep the Rust-side copy in sync for any live consumers.
+    await this.syncDesktopSettingsToRust()
   }
 
-  async getPortableSettings(): Promise<PortableSettings> {
-    const result = await Store.get<PortableSettings>(
+  async getDesktopSettings(): Promise<DesktopSettings> {
+    const result = await Store.get<unknown>(
       STORE_NAMESPACE,
-      STORE_KEYS.PORTABLE_SETTINGS
+      STORE_KEYS.DESKTOP_SETTINGS
     )
 
-    const defaultSettings = {
-      disableUpdateNotifications: false,
-      autoSkipWelcome: false,
+    // On any read failure, parse error, or missing key: fall back to the
+    // full-defaults object. Every field in the schema has a `.default()`, so
+    // parsing `{}` yields a valid settings object with current behavior.
+    if (E.isLeft(result) || !result.right) {
+      return DESKTOP_SETTINGS_SCHEMA.parse({})
     }
 
-    if (E.isRight(result) && result.right) {
-      console.log("Loaded portable settings from store:", result.right)
-      return result.right
+    const parsed = DESKTOP_SETTINGS_SCHEMA.safeParse(result.right)
+    if (!parsed.success) {
+      console.warn(
+        "[PersistenceService] desktopSettings in store failed schema validation, falling back to defaults:",
+        parsed.error
+      )
+      return DESKTOP_SETTINGS_SCHEMA.parse({})
     }
-
-    console.log("No portable settings found, using defaults:", defaultSettings)
-    return defaultSettings
+    return parsed.data
   }
 }

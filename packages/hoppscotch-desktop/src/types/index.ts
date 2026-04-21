@@ -33,6 +33,10 @@ export interface UpdateState {
   message?: string
 }
 
+// Legacy `PortableSettings` interface. Kept around so the v1 to v2
+// migration in `persistence.service.ts` can read pre-v2 store entries
+// written by portable builds. New code uses `DesktopSettings` from
+// `@hoppscotch/common/platform/desktop-settings` instead.
 export interface PortableSettings {
   disableUpdateNotifications: boolean
   autoSkipWelcome: boolean

@@ -6,6 +6,7 @@ import {
   Post,
   Query,
   UseGuards,
+  ValidationPipe,
 } from '@nestjs/common';
 import { InfraConfigService } from './infra-config.service';
 import { RESTError } from 'src/types/RESTError';
@@ -60,7 +61,19 @@ export class OnboardingController {
     description: 'Onboarding configuration updated successfully',
     type: SaveOnboardingConfigResponse,
   })
-  async updateOnboardingConfig(@Body() dto: SaveOnboardingConfigRequest) {
+  async updateOnboardingConfig(
+    // Defense-in-depth alongside the global ValidationPipe (`whitelist: true`
+    // in `main.ts`): additionally reject requests whose body contains keys
+    // not declared on `SaveOnboardingConfigRequest`. This blocks the mass
+    // assignment vector described in GHSA-j542-4rch-8hwf.
+    @Body(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+      }),
+    )
+    dto: SaveOnboardingConfigRequest,
+  ) {
     const onboardingStatus =
       await this.infraConfigService.getOnboardingStatus();
 

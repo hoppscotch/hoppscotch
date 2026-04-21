@@ -27,7 +27,10 @@ import {
 } from "~/helpers/backend/graphql"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { CurrentValueService } from "~/services/current-environment-value.service"
-import { TeamCollection } from "~/helpers/teams/TeamCollection"
+import {
+  TeamCollection,
+  getSingleCollection,
+} from "~/helpers/teams/TeamCollection"
 import { TeamRequest } from "~/helpers/teams/TeamRequest"
 import { runGQLQuery, runGQLSubscription } from "~/helpers/backend/GQLClient"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
@@ -801,62 +804,49 @@ export class TeamCollectionsService extends Service<void> {
     })
 
     this.teamRequestMovedSub = teamRequestMovedSub
-    this.teamRequestMoved$ = teamRequestMoved$.subscribe((result: any) => {
-      if (E.isLeft(result))
-        throw new Error(
-          `Team Request Move Error ${JSON.stringify(result.left)}`
+    this.teamRequestMoved$ = teamRequestMoved$.subscribe(
+      async (result: any) => {
+        if (E.isLeft(result))
+          throw new Error(
+            `Team Request Move Error ${JSON.stringify(result.left)}`
+          )
+
+        const { requestMoved } = result.right
+
+        const request = {
+          id: requestMoved.id,
+          collectionID: requestMoved.collectionID,
+          title: requestMoved.title,
+          request: JSON.parse(requestMoved.request),
+        }
+
+        this.moveRequest(request)
+
+        // Legacy `team-collection` tabs store a slash-delimited chain of
+        // ancestor IDs in their saveContext.collectionID. On a collaborator
+        // move, rewrite that chain to the full destination ancestry — the
+        // local tree may not have the destination subtree expanded, so
+        // fall through to a backend walk when the local tree doesn't
+        // know the ancestors.
+        const destinationChain = await this.buildDestinationAncestorChain(
+          requestMoved.collectionID
         )
 
-      const { requestMoved } = result.right
-
-      const request = {
-        id: requestMoved.id,
-        collectionID: requestMoved.collectionID,
-        title: requestMoved.title,
-        request: JSON.parse(requestMoved.request),
-      }
-
-      this.moveRequest(request)
-
-      // Legacy `team-collection` tabs store a slash-delimited chain of
-      // ancestor IDs in their saveContext.collectionID, and the cascade
-      // helper walks that chain to merge auth/headers. On a collaborator
-      // move, we must rewrite that chain to the full destination ancestry
-      // (not just the leaf UUID) — otherwise a move into a nested team
-      // folder would drop ancestor auth/headers. Build the chain from
-      // leaf → root against the post-move `collections.value` tree, then
-      // join in root-first order.
-      const buildAncestorChain = (leafID: string): string => {
-        const chain: string[] = []
-        let currentID: string | null = leafID
-        let guard = 0
-        while (currentID && guard < 64) {
-          chain.unshift(currentID)
-          const parent = findParentOfColl(this.collections.value, currentID)
-          currentID = parent?.id ?? null
-          guard += 1
+        const restTabService = getService(RESTTabService)
+        const legacyTab = restTabService.getTabRefWithSaveContext({
+          originLocation: "team-collection",
+          requestID: requestMoved.id,
+        })
+        if (legacyTab && legacyTab.value.document.saveContext) {
+          legacyTab.value.document.saveContext.collectionID = destinationChain
         }
-        return chain.join("/")
-      }
-      const destinationChain = buildAncestorChain(requestMoved.collectionID)
 
-      const restTabService = getService(RESTTabService)
-      const legacyTab = restTabService.getTabRefWithSaveContext({
-        originLocation: "team-collection",
-        requestID: requestMoved.id,
-      })
-      if (legacyTab && legacyTab.value.document.saveContext) {
-        legacyTab.value.document.saveContext.collectionID = destinationChain
+        // Refresh inherited auth/headers on any open tabs (both legacy
+        // `team-collection` and new `workspace-user-collection` save
+        // contexts) whose request was moved by a collaborator.
+        updateInheritedPropertiesForAffectedRequests(destinationChain, "rest")
       }
-
-      // Refresh inherited auth/headers on any open tabs (both legacy
-      // `team-collection` and new `workspace-user-collection` save
-      // contexts) whose request was moved by a collaborator. For the
-      // legacy branch the helper cascades from the full chain above;
-      // for the new branch the widened workspace-user-collection filter
-      // picks up tabs regardless of the path arg.
-      updateInheritedPropertiesForAffectedRequests(destinationChain, "rest")
-    })
+    )
 
     const [teamCollectionMoved$, teamCollectionMovedSub] = runGQLSubscription({
       query: TeamCollectionMovedDocument,
@@ -1151,6 +1141,52 @@ export class TeamCollectionsService extends Service<void> {
    * @param folderPath the path of the folder to cascade the auth from
    * @returns the inherited auth and headers for the given folder path
    */
+  /**
+   * Build the full ancestor ID chain for a team collection on a collaborator
+   * move. Walks the post-move local tree first; if a parent is missing
+   * (unexpanded destination subtree), falls back to backend
+   * `getSingleCollection` lookups to resolve the parent link. Returns a
+   * slash-delimited chain in root → leaf order.
+   */
+  private async buildDestinationAncestorChain(
+    leafID: string
+  ): Promise<string> {
+    const chain: string[] = []
+    const visited = new Set<string>()
+    let currentID: string | null = leafID
+    let guard = 0
+
+    while (currentID && guard < 64) {
+      if (visited.has(currentID)) break
+      visited.add(currentID)
+      chain.unshift(currentID)
+
+      const localParent = findParentOfColl(this.collections.value, currentID)
+      if (localParent) {
+        currentID = localParent.id
+        guard += 1
+        continue
+      }
+
+      // Local tree doesn't know the parent — either this node is root
+      // or its subtree isn't expanded. Ask the backend.
+      try {
+        const remote = await getSingleCollection(currentID)
+        if (E.isLeft(remote)) break
+        const remoteParentID =
+          (remote.right as { collection?: { parent?: { id?: string } } })
+            .collection?.parent?.id ?? null
+        if (!remoteParentID) break
+        currentID = remoteParentID
+      } catch {
+        break
+      }
+      guard += 1
+    }
+
+    return chain.join("/")
+  }
+
   public cascadeParentCollectionForProperties(folderPath: string) {
     let auth: HoppInheritedProperty["auth"] = {
       parentID: folderPath ?? "",

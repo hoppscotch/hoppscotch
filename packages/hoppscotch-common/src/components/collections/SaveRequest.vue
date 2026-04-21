@@ -346,6 +346,25 @@ const saveRequestAs = async () => {
     return
   }
 
+  // Team save-as through the new tree is not wired to the teams provider
+  // in phase 1 (the new tree emits `my-*` picks regardless of workspace,
+  // and the teams provider resolves handles by UUID). Surface a toast
+  // instead of letting the save silently no-op via a handle lookup that
+  // rejects the personal-style index path.
+  const activeWorkspaceHandleRef =
+    workspaceService.activeWorkspaceHandle.value.get()
+  if (
+    activeWorkspaceHandleRef.value.type === "ok" &&
+    activeWorkspaceHandleRef.value.data.providerID ===
+      "TEAMS_WORKSPACE_PROVIDER" &&
+    (picked.value.pickedType === "my-collection" ||
+      picked.value.pickedType === "my-folder" ||
+      picked.value.pickedType === "my-request")
+  ) {
+    toast.error(`${t("workspace.team_save_as_unavailable")}`)
+    return
+  }
+
   if (
     picked.value.pickedType === "my-collection" ||
     picked.value.pickedType === "my-folder"

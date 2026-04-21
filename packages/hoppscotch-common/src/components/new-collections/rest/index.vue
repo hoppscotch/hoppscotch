@@ -61,7 +61,16 @@
       </div>
 
       <div class="flex flex-1 flex-col">
-        <HoppSmartTree v-if="searchText" :adapter="searchTreeAdapter">
+        <HoppSmartPlaceholder
+          v-if="searchText && isTeamsWorkspaceActive"
+          :src="`/images/states/${colorMode.value}/time.svg`"
+          :alt="t('workspace.team_search_actions_unavailable')"
+          :text="t('workspace.team_search_actions_unavailable')"
+        />
+        <HoppSmartTree
+          v-else-if="searchText"
+          :adapter="searchTreeAdapter"
+        >
           <template
             #content="{ highlightChildren, isOpen, node, toggleChildren }"
           >
@@ -97,11 +106,9 @@
                   toggleChildren(),
                     saveRequest &&
                       onSelectPick({
-                        pickedType: isAlreadyInRoot(
-                          node.data.value.collectionID
-                        )
-                          ? 'my-collection'
-                          : 'my-folder',
+                        pickedType: node.data.value.parentCollectionID
+                          ? 'my-folder'
+                          : 'my-collection',
                         ...getCollectionIndexPathArgs(
                           node.data.value.collectionID
                         ),
@@ -207,7 +214,7 @@
 
             <template v-else-if="node.data.type === 'collection'">
               <HoppSmartPlaceholder
-                v-if="isAlreadyInRoot(node.data.value.collectionID)"
+                v-if="!node.data.value.parentCollectionID"
                 :src="`/images/states/${colorMode.value}/pack.svg`"
                 :alt="t('empty.collection')"
                 :text="t('empty.collection')"
@@ -268,11 +275,9 @@
                   toggleChildren(),
                     saveRequest &&
                       onSelectPick({
-                        pickedType: isAlreadyInRoot(
-                          node.data.value.collectionID
-                        )
-                          ? 'my-collection'
-                          : 'my-folder',
+                        pickedType: node.data.value.parentCollectionID
+                          ? 'my-folder'
+                          : 'my-collection',
                         ...getCollectionIndexPathArgs(
                           node.data.value.collectionID
                         ),
@@ -378,7 +383,7 @@
 
             <template v-else-if="node.data.type === 'collection'">
               <HoppSmartPlaceholder
-                v-if="isAlreadyInRoot(node.data.value.collectionID)"
+                v-if="!node.data.value.parentCollectionID"
                 :src="`/images/states/${colorMode.value}/pack.svg`"
                 :alt="t('empty.collection')"
                 :text="t('empty.collection')"
@@ -486,6 +491,7 @@ import { useService } from "dioc/vue"
 import * as E from "fp-ts/lib/Either"
 import { cloneDeep, isEqual } from "lodash-es"
 import {
+  computed,
   handleError,
   markRaw,
   nextTick,
@@ -564,6 +570,18 @@ const emit = defineEmits<{
 
 const draggingToRoot = ref(false)
 const searchText = ref("")
+
+// Search-mode actions (click-to-open, right-click edit/delete/duplicate,
+// drag reorder) flow synthetic index-path IDs from the search adapter into
+// handlers that resolve team handles by UUID. Phase 1 guards the search
+// tree for team workspaces until the adapter carries real provider IDs.
+const isTeamsWorkspaceActive = computed(() => {
+  const handleRef = props.workspaceHandle.get()
+  return (
+    handleRef.value.type === "ok" &&
+    handleRef.value.data.providerID === "TEAMS_WORKSPACE_PROVIDER"
+  )
+})
 
 const modalLoadingState = ref(false)
 
@@ -1432,6 +1450,21 @@ const onEditRequest = async (newRequestName: string) => {
 }
 
 const editCollectionProperties = async (collectionIndexPath: string) => {
+  // Team-workspace Properties editing is not supported in phase 1.
+  // The sourcing path (`restCollectionState` + `navigateToFolderWithIndexPath`)
+  // is personal-store only, and the teams provider does not expose enough
+  // editable state for a safe round-trip (variables / description would be
+  // silently wiped). Guard the action until the provider surface grows a
+  // dedicated editable-collection view.
+  const workspaceHandleRef = props.workspaceHandle.get()
+  if (
+    workspaceHandleRef.value.type === "ok" &&
+    workspaceHandleRef.value.data.providerID === "TEAMS_WORKSPACE_PROVIDER"
+  ) {
+    toast.error(t("workspace.team_collection_properties_unavailable"))
+    return
+  }
+
   const parentCollectionID = collectionIndexPath
     .split("/")
     .slice(0, -1)
@@ -1576,14 +1609,7 @@ const setCollectionProperties = async (
     cascadingAuthHeadersHandle.value.data
 
   nextTick(() => {
-    updateInheritedPropertiesForAffectedRequests(
-      path,
-      {
-        auth: cascadedAuth,
-        headers: cascadedHeaders,
-      },
-      "rest"
-    )
+    updateInheritedPropertiesForAffectedRequests(path, "rest")
   })
 
   toast.success(t("collection.properties_updated"))
@@ -1677,8 +1703,15 @@ const dropToRoot = async ({ dataTransfer }: DragEvent) => {
     return
   }
 
-  // check if the collection is already in the root
-  if (isAlreadyInRoot(draggedCollectionIndex)) {
+  const workspaceHandleRef = props.workspaceHandle.get()
+  const isTeamsWorkspace =
+    workspaceHandleRef.value.type === "ok" &&
+    workspaceHandleRef.value.data.providerID === "TEAMS_WORKSPACE_PROVIDER"
+
+  // For personal workspace the collection ID is an index path and length
+  // === 1 means root. For teams the ID is a UUID — use the view node's
+  // parent signal instead by looking up in the current handle's parent.
+  if (!isTeamsWorkspace && isAlreadyInRoot(draggedCollectionIndex)) {
     toast.error(`${t("collection.invalid_root_move")}`)
     draggingToRoot.value = false
     return
@@ -1711,6 +1744,15 @@ const dropToRoot = async ({ dataTransfer }: DragEvent) => {
 
   if (E.isLeft(result)) {
     // INVALID_COLLECTION_HANDLE
+    return
+  }
+
+  // Inherited-property refresh for teams is driven by subscription events
+  // on the teams provider; skip the path-based bookkeeping (which reads
+  // personal store) here.
+  if (isTeamsWorkspace) {
+    draggingToRoot.value = false
+    toast.success(`${t("collection.moved")}`)
     return
   }
 
@@ -1758,16 +1800,8 @@ const dropToRoot = async ({ dataTransfer }: DragEvent) => {
     return
   }
 
-  const { auth, headers } = cascadingAuthHeadersHandle.value.data
-
-  const inheritedProperty = {
-    auth,
-    headers,
-  }
-
   updateInheritedPropertiesForAffectedRequests(
     destinationRootCollectionIndex,
-    inheritedProperty,
     "rest"
   )
 
@@ -1794,6 +1828,11 @@ const dropRequest = async (payload: {
   ) {
     return
   }
+
+  const workspaceHandleRef = props.workspaceHandle.get()
+  const isTeamsWorkspace =
+    workspaceHandleRef.value.type === "ok" &&
+    workspaceHandleRef.value.data.providerID === "TEAMS_WORKSPACE_PROVIDER"
 
   const requestHandleResult = await workspaceService.getRESTRequestHandle(
     props.workspaceHandle,
@@ -1852,13 +1891,19 @@ const dropRequest = async (payload: {
   const requestHandleRef = requestHandle.get()
 
   if (requestHandleRef.value.type === "ok") {
-    const newRequestIndexPos = (
-      getRequestsByPath(restCollectionState.value, destinationCollectionIndex)
-        .length - 1
-    ).toString()
+    // Only the personal provider encodes collection/request location as a
+    // slash-delimited index path; for teams the subscription stream
+    // refreshes the handle's data itself. Avoid overwriting team IDs with
+    // personal-shaped synthetic paths.
+    if (!isTeamsWorkspace) {
+      const newRequestIndexPos = (
+        getRequestsByPath(restCollectionState.value, destinationCollectionIndex)
+          .length - 1
+      ).toString()
 
-    requestHandleRef.value.data.collectionID = destinationCollectionIndex
-    requestHandleRef.value.data.requestID = `${destinationCollectionIndex}/${newRequestIndexPos}`
+      requestHandleRef.value.data.collectionID = destinationCollectionIndex
+      requestHandleRef.value.data.requestID = `${destinationCollectionIndex}/${newRequestIndexPos}`
+    }
 
     const possibleTab = tabs.getTabRefWithSaveContext({
       originLocation: "workspace-user-collection",
@@ -1892,21 +1937,30 @@ const dropCollection = async (payload: {
     return
   }
 
-  if (
-    checkIfCollectionIsAParentOfTheChildren(
-      draggedCollectionIndex,
-      destinationCollectionIndex
-    )
-  ) {
-    toast.error(`${t("team.parent_coll_move")}`)
-    return
-  }
+  const workspaceHandleRef = props.workspaceHandle.get()
+  const isTeamsWorkspace =
+    workspaceHandleRef.value.type === "ok" &&
+    workspaceHandleRef.value.data.providerID === "TEAMS_WORKSPACE_PROVIDER"
 
-  // Check if the collection is being moved to its own parent
-  if (
-    isMoveToSameLocation(draggedCollectionIndex, destinationCollectionIndex)
-  ) {
-    return
+  // `checkIfCollectionIsAParentOfTheChildren` and `isMoveToSameLocation` rely
+  // on personal index-path semantics and don't apply to team UUIDs. For teams,
+  // the backend enforces the analogous invariants on the mutation.
+  if (!isTeamsWorkspace) {
+    if (
+      checkIfCollectionIsAParentOfTheChildren(
+        draggedCollectionIndex,
+        destinationCollectionIndex
+      )
+    ) {
+      toast.error(`${t("team.parent_coll_move")}`)
+      return
+    }
+
+    if (
+      isMoveToSameLocation(draggedCollectionIndex, destinationCollectionIndex)
+    ) {
+      return
+    }
   }
 
   const draggedParentCollectionIndex = draggedCollectionIndex
@@ -1914,10 +1968,11 @@ const dropCollection = async (payload: {
     .slice(0, -1)
     .join("/") // Remove the last child-collection index to get the parent collection index
 
-  const totalChildCollectionsInDestinationCollection =
-    getFoldersByPath(restCollectionState.value, destinationCollectionIndex)
-      .length -
-    (draggedParentCollectionIndex === destinationCollectionIndex ? 1 : 0)
+  const totalChildCollectionsInDestinationCollection = isTeamsWorkspace
+    ? 0
+    : getFoldersByPath(restCollectionState.value, destinationCollectionIndex)
+        .length -
+      (draggedParentCollectionIndex === destinationCollectionIndex ? 1 : 0)
 
   const draggedCollectionHandleResult =
     await workspaceService.getRESTCollectionHandle(
@@ -1987,18 +2042,15 @@ const dropCollection = async (payload: {
     return
   }
 
-  const { auth, headers } = cascadingAuthHeadersHandle.value.data
-
-  const inheritedProperty = {
-    auth,
-    headers,
+  // For teams, skip the path-based inherited-property bookkeeping; the
+  // teams provider's subscription stream drives the update. For personal,
+  // recompute inheritance on the newly-landed sibling position.
+  if (!isTeamsWorkspace) {
+    updateInheritedPropertiesForAffectedRequests(
+      `${destinationCollectionIndex}/${totalChildCollectionsInDestinationCollection}`,
+      "rest"
+    )
   }
-
-  updateInheritedPropertiesForAffectedRequests(
-    `${destinationCollectionIndex}/${totalChildCollectionsInDestinationCollection}`,
-    inheritedProperty,
-    "rest"
-  )
 
   draggingToRoot.value = false
   toast.success(`${t("collection.moved")}`)

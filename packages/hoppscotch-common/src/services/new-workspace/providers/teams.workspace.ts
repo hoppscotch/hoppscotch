@@ -487,14 +487,21 @@ export class TeamsWorkspaceProviderService
     const name = updatedCollection.name ?? existingCollection.name
     const headers = updatedCollection.headers ?? existingCollection.headers
     const auth = updatedCollection.auth ?? existingCollection.auth
+    // The teams provider does not cache variables/description locally
+    // (TeamsWorkspaceCollection only tracks auth/headers). Callers must
+    // supply the full state on update — falling back to [] / null would
+    // silently wipe backend-stored values on partial updates.
+    const variables = updatedCollection.variables ?? []
+    const description =
+      (updatedCollection as { description?: string | null }).description ?? null
 
     const res = await updateTeamCollection(
       collectionHandleRef.value.data.collectionID,
       {
         headers,
         auth,
-        variables: [],
-        description: null,
+        variables,
+        description,
       },
       name
     )()

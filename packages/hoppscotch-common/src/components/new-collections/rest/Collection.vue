@@ -340,15 +340,21 @@ const addRequest = () => {
 }
 
 const editCollection = () => {
-  const { collectionID: collectionIndexPath, name: collectionName } =
-    props.collectionView
+  const {
+    collectionID: collectionIndexPath,
+    name: collectionName,
+    parentCollectionID,
+  } = props.collectionView
 
   const data = {
     collectionIndexPath,
     collectionName,
   }
 
-  collectionIndexPath.split("/").length > 1
+  // Use the provider-supplied `parentCollectionID` (null for root) rather
+  // than splitting the ID by "/" — team collections are identified by
+  // UUID with no hierarchy encoded in the string.
+  parentCollectionID
     ? emit("edit-child-collection", data)
     : emit("edit-root-collection", data)
 }
@@ -435,9 +441,9 @@ const notSameDestination = computed(() => {
 })
 
 const removeCollection = () => {
-  const { collectionID } = props.collectionView
+  const { collectionID, parentCollectionID } = props.collectionView
 
-  collectionID.split("/").length > 1
+  parentCollectionID
     ? emit("remove-child-collection", collectionID)
     : emit("remove-root-collection", collectionID)
 }

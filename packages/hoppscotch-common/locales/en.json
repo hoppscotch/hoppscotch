@@ -1902,7 +1902,10 @@
     "team": "Workspace",
     "title": "Workspaces",
     "no_workspace": "No Workspace",
-    "no_workspace_selected": "No workspace selected."
+    "no_workspace_selected": "No workspace selected.",
+    "team_collection_properties_unavailable": "Editing team collection properties is not available yet.",
+    "team_save_as_unavailable": "Saving into team collections is not available yet. Switch to a personal workspace or save the request to disk.",
+    "team_search_actions_unavailable": "Actions on team search results are not available yet. Clear the search to use the full collection tree."
   },
   "site_protection": {
     "login_to_continue": "Login to continue",

@@ -10,6 +10,9 @@ import {
   parseDesktopSettings,
   type DesktopSettings,
 } from "@hoppscotch/common/platform/desktop-settings"
+import { Log } from "@hoppscotch/common/kernel/log"
+
+const LOG_TAG = "useDesktopSettings"
 
 /**
  * Webview-side accessor for the desktop-app user settings.
@@ -72,7 +75,7 @@ async function loadInitial(): Promise<void> {
       }
     })
   } catch (err) {
-    console.warn("[useDesktopSettings] Failed to subscribe to store:", err)
+    Log.warn(LOG_TAG, "Failed to subscribe to store", err)
   }
 }
 
@@ -84,11 +87,15 @@ async function persist(): Promise<void> {
     validated
   )
   if (E.isLeft(writeResult)) {
-    console.error(
-      "[useDesktopSettings] Failed to write desktopSettings:",
-      writeResult.left
+    // `StoreError` is a tagged union. Formatting `kind` and `message`
+    // explicitly keeps the thrown error readable. A plain
+    // `${writeResult.left}` interpolation stringifies to
+    // `[object Object]` and hides the actual cause from stack traces.
+    const err = writeResult.left
+    Log.error(LOG_TAG, "Failed to write desktopSettings", err)
+    throw new Error(
+      `Failed to write desktopSettings: ${err.kind}: ${err.message}`
     )
-    throw new Error(`Failed to write desktopSettings: ${writeResult.left}`)
   }
 
   // Mirror to Rust. Non-fatal on failure because Rust falls back to
@@ -98,10 +105,7 @@ async function persist(): Promise<void> {
   try {
     await invoke("set_desktop_config", { config: validated })
   } catch (err) {
-    console.warn(
-      "[useDesktopSettings] Failed to push DesktopSettings to Rust:",
-      err
-    )
+    Log.warn(LOG_TAG, "Failed to push DesktopSettings to Rust", err)
   }
 }
 
@@ -115,7 +119,7 @@ export function useDesktopSettings(): {
 } {
   if (!initPromise) {
     initPromise = loadInitial().catch((err) => {
-      console.error("[useDesktopSettings] Initial load failed:", err)
+      Log.error(LOG_TAG, "Initial load failed", err)
       // Swallow so repeat calls retry on next `update()`.
       initPromise = undefined
       throw err
@@ -123,6 +127,22 @@ export function useDesktopSettings(): {
   }
 
   const update: UpdateFn = async (key, value) => {
+    // Wait for the initial load before mutating. Without this, a
+    // user clicking a toggle immediately after mount could interleave
+    // with `loadInitial()`: the optimistic mutation and persist would
+    // land first, and then `loadInitial()` would resolve and call
+    // `Object.assign(settings, ...)` with the old on-disk value,
+    // overwriting the user's change in memory.
+    if (initPromise) {
+      try {
+        await initPromise
+      } catch {
+        // Load failed. The caller's `update` will still attempt a
+        // persist below, which is the right behaviour: the user
+        // wants their change saved even if the initial read failed.
+      }
+    }
+
     const previous = settings[key]
     settings[key] = value
     try {

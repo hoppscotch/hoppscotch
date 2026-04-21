@@ -11,6 +11,9 @@ import {
   type DownloadProgress as WireDownloadProgress,
   type UpdateState as PersistedUpdateState,
 } from "@hoppscotch/common/platform/update-state"
+import { Log } from "@hoppscotch/common/kernel/log"
+
+const LOG_TAG = "useUpdateCheck"
 
 /**
  * Webview-side accessor for the desktop updater.
@@ -255,7 +258,7 @@ async function ensureInitialized(): Promise<void> {
       await loadPersistedState()
       await subscribeToEvents()
     })().catch((err) => {
-      console.error("[useUpdateCheck] Initialization failed:", err)
+      Log.error(LOG_TAG, "Initialization failed", err)
       initPromise = undefined
       throw err
     })
@@ -309,7 +312,12 @@ async function cancel(): Promise<void> {
   await ensureInitialized()
   try {
     await invoke("cancel_update")
-    state.value = nextState(state.value, { type: "UpdateCancelled" })
+    // State advances to `idle` via the `updater-event` channel. The
+    // Rust updater emits `UpdateCancelled` on success, so the
+    // subscribed listener applies the transition. Applying it here
+    // as well would produce two `idle` transitions per cancel, which
+    // is harmless today but would double-fire any future side effect
+    // added to the `UpdateCancelled` case in `nextState`.
   } catch (err) {
     state.value = nextState(state.value, {
       type: "Error",

@@ -226,6 +226,7 @@ export class TeamCollectionsService extends Service<void> {
     this.collections.value = []
     this.entityIDs.clear()
     this.loadingCollections.value = []
+    this.hydratedAncestors.clear()
     this.unsubscribeSubscriptions()
     this.teamID = null
   }
@@ -711,6 +712,17 @@ export class TeamCollectionsService extends Service<void> {
         data: result.right.teamCollectionUpdated.data,
       })
 
+      // Keep the hydrated-ancestors side cache coherent with the backend
+      // on remote updates; if the cached entry still exists and the node
+      // hasn't been loaded into the live tree yet, refresh its title/data.
+      const cached = this.hydratedAncestors.get(
+        result.right.teamCollectionUpdated.id
+      )
+      if (cached) {
+        cached.title = result.right.teamCollectionUpdated.title ?? cached.title
+        cached.data = result.right.teamCollectionUpdated.data ?? cached.data
+      }
+
       this.loadingCollections.value = this.loadingCollections.value.filter(
         (x) => x !== result.right.teamCollectionUpdated.id
       )
@@ -731,6 +743,9 @@ export class TeamCollectionsService extends Service<void> {
         )
 
       this.removeCollection(result.right.teamCollectionRemoved)
+
+      // Evict any cached hydrated entry for the removed collection.
+      this.hydratedAncestors.delete(result.right.teamCollectionRemoved)
     })
 
     const [teamReqAdded$, teamReqAddedSub] = runGQLSubscription({
@@ -869,6 +884,19 @@ export class TeamCollectionsService extends Service<void> {
         const parentID = parent?.id ?? null
 
         this.moveCollection(id, parentID, title, data)
+
+        // Keep the hydrated-ancestors side cache coherent with the remote
+        // move: refresh cached parentID/title/data if this node is still
+        // in the cache (unexpanded ancestor that participated in the
+        // earlier destination chain build).
+        const cached = this.hydratedAncestors.get(id) as
+          | (TeamCollection & { parentID?: string | null })
+          | undefined
+        if (cached) {
+          cached.parentID = parentID
+          if (typeof title === "string") cached.title = title
+          if (data !== undefined) cached.data = data
+        }
       }
     )
 

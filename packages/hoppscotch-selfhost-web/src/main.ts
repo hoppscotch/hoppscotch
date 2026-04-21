@@ -27,6 +27,8 @@ import { InfraPlatform } from "@app/platform/infra/infra.platform"
 import { kernelIO } from "@hoppscotch/common/platform/std/kernel-io"
 import { HeaderDownloadableLinksService } from "@app/services/headerDownloadableLinks.service"
 
+import DesktopSettingsSection from "@app/components/DesktopSettingsSection.vue"
+
 // Std interceptors
 import { NativeKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/native"
 import { AgentKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/agent"
@@ -142,6 +144,11 @@ async function initApp() {
     ui: {
       additionalFooterMenuItems: config.menuItems,
       additionalSupportOptionsMenuItems: config.supportItems,
+      // Desktop-only. Renders the "Desktop" block in the shared settings page.
+      // The component is a no-op on web builds because this platform branch
+      // never registers it there.
+      additionalSettingsSections:
+        platform === "desktop" ? [DesktopSettingsSection] : undefined,
       appHeader: {
         paddingLeft: headerPaddingLeft,
         paddingTop: headerPaddingTop,

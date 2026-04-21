@@ -573,8 +573,7 @@ details[open] summary .indicator {
   &::before {
     content: "";
     @apply absolute;
-    @apply -inset-3;
-    @apply z-[-1];
+    @apply -inset-2;
     @apply pointer-events-auto;
   }
 }

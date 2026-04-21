@@ -42,6 +42,7 @@ import {
 } from "~/helpers/backend/mutations/TeamRequest"
 import { createTeam } from "~/helpers/backend/mutations/Team"
 import { TeamName } from "~/helpers/backend/types/TeamName"
+import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
 import { Ref, computed, effectScope, markRaw, ref, watch } from "vue"
 import {
   RESTCollectionChildrenView,
@@ -2323,6 +2324,16 @@ export class TeamsWorkspaceProviderService
       }
 
       this.collections.value = localMoveRES.right
+
+      // Refresh inherited auth/headers on any open workspace-user-collection
+      // tabs so remote/collaborative team moves don't leave open tabs with
+      // stale inheritance. Helper widens the filter for the
+      // `workspace-user-collection` shape, so the `path` arg is just a
+      // prefix hint and does not need to be an ancestor path here.
+      updateInheritedPropertiesForAffectedRequests(
+        result.right.teamCollectionMoved.id,
+        "rest"
+      )
     })
   }
 

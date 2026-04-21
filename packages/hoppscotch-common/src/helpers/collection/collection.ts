@@ -277,6 +277,17 @@ export function updateInheritedPropertiesForAffectedRequests(
       return false
     const saveContext = tab.document.saveContext
 
+    // `workspace-user-collection` tabs in team workspaces carry raw
+    // collection UUIDs that don't encode ancestry, so a `startsWith(path)`
+    // filter only catches tabs directly in the moved collection, not
+    // descendants. The per-tab refresh below asks the provider to
+    // recompute cascading auth/headers from the current collection handle,
+    // which is cheap and always correct — widen the filter so every
+    // workspace-user-collection tab gets re-evaluated on collection moves.
+    if (saveContext?.originLocation === "workspace-user-collection") {
+      return true
+    }
+
     const collectionID = getSaveContextCollectionID(saveContext)
     return collectionID?.startsWith(path) ?? false
   })

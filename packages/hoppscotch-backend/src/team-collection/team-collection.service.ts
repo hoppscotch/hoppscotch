@@ -575,7 +575,7 @@ export class TeamCollectionService {
               });
             } catch (deleteError) {
               // P2025: Record not found — already deleted by a concurrent transaction
-              if (deleteError?.code === 'P2025') return;
+              if (deleteError?.code === PrismaError.RECORD_NOT_FOUND) return;
               throw deleteError;
             }
 
@@ -750,6 +750,7 @@ export class TeamCollectionService {
         // Get collection details of collectionID
         const collection = await this.getCollection(collectionID, tx);
         if (E.isLeft(collection)) return E.left(collection.left);
+
         // destCollectionID == null i.e move collection to root
         if (!destCollectionID) {
           if (!collection.right.parentID) {

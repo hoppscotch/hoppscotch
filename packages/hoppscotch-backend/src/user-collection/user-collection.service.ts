@@ -526,7 +526,7 @@ export class UserCollectionService {
               });
             } catch (deleteError) {
               // P2025: Record not found — already deleted by a concurrent transaction
-              if (deleteError?.code === 'P2025') return;
+              if (deleteError?.code === PrismaError.RECORD_NOT_FOUND) return;
               throw deleteError;
             }
 

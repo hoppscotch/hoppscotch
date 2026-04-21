@@ -20,6 +20,7 @@ import {
   TeamRequest as DbTeamRequest,
 } from 'src/generated/prisma/client';
 import { SortOptions } from 'src/types/SortOptions';
+import { PrismaError } from 'src/prisma/prisma-error-codes';
 
 @Injectable()
 export class TeamRequestService {
@@ -130,7 +131,7 @@ export class TeamRequestService {
             });
           } catch (deleteError) {
             // P2025: Record not found — already deleted by a concurrent transaction
-            if (deleteError?.code === 'P2025') return;
+            if (deleteError?.code === PrismaError.RECORD_NOT_FOUND) return;
             throw deleteError;
           }
 

@@ -98,7 +98,7 @@
 
       <!-- Status notice: version is already live -->
       <div
-        v-if="existingData && existingData.autoSync && autoSyncModel"
+        v-if="existingData?.autoSync && autoSyncModel"
         class="flex items-start space-x-2 px-3 py-2.5 rounded-md bg-green-500/5 border border-green-500/15"
       >
         <icon-lucide-refresh-cw
@@ -109,9 +109,22 @@
         </span>
       </div>
 
+      <!-- Info notice: turning off auto-sync on a live version will freeze it -->
+      <div
+        v-else-if="existingData?.autoSync && !autoSyncModel"
+        class="flex items-start space-x-2 px-3 py-2.5 rounded-md bg-blue-500/5 border border-blue-500/20"
+      >
+        <icon-lucide-info
+          class="w-3.5 h-3.5 text-blue-600 flex-shrink-0 mt-0.5"
+        />
+        <span class="text-xs text-blue-600 leading-relaxed">
+          {{ t("documentation.publish.live_freeze_notice") }}
+        </span>
+      </div>
+
       <!-- Destructive warning: promoting a snapshot to live will overwrite the frozen tree -->
       <div
-        v-else-if="existingData && !existingData.autoSync && autoSyncModel"
+        v-else-if="existingData?.autoSync === false && autoSyncModel"
         class="flex items-start space-x-2 px-3 py-2.5 rounded-md bg-yellow-500/5 border border-yellow-500/20"
       >
         <icon-lucide-alert-triangle

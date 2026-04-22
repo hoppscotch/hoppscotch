@@ -190,6 +190,18 @@ export const TEAM_FB_COLL_PATH_RESOLVE_FAIL = 'team/fb_coll_path_resolve_fail';
 export const TEAM_COLL_NOT_FOUND = 'team_coll/collection_not_found';
 
 /**
+ * The collection type does not match the expected type
+ * (TeamCollectionService)
+ */
+export const TEAM_COLL_TYPE_MISMATCH = 'team_coll/collection_type_mismatch';
+
+/**
+ * The collection does not have the same parent as the expected parentw
+ * (TeamCollectionService)
+ */
+export const TEAM_COLL_NOT_SAME_PARENT = 'team_coll/not_same_parent';
+
+/**
  * Could not find the team in the database
  * (TeamCollectionService)
  */

@@ -89,7 +89,7 @@
       "tls_reject_unauthorized": "TLS Reject Unauthorized",
       "title": "SMTP Configurations",
       "smtp_auth_incomplete": "SMTP username and password must both be provided or both left empty",
-      "auth_switch_description": "Switching will clear the credentials entered in the other authentication type and any unsaved data will be lost. This cannot be undone.",
+      "auth_switch_description": "Switching will clear the credentials entered in the current authentication type. Any unsaved data will be lost and cannot be undone.",
       "auth_type": "Authentication Type",
       "auth_type_login": "Basic Auth (Login)",
       "auth_type_oauth2": "OAuth 2.0",

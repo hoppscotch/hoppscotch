@@ -47,7 +47,7 @@
     "eslint-plugin-prettier": "5.5.5",
     "globals": "16.5.0",
     "typescript": "5.9.3",
-    "vite": "7.3.1"
+    "vite": "7.3.2"
   },
   "peerDependencies": {
     "@tauri-apps/api": "2.1.1"
@@ -64,7 +64,7 @@
     "@tauri-apps/plugin-shell": "2.3.3",
     "@tauri-apps/plugin-store": "2.4.1",
     "aws4fetch": "1.0.20",
-    "axios": "1.13.6",
+    "axios": "1.15.0",
     "fp-ts": "2.16.11",
     "superjson": "2.2.6",
     "zod": "3.25.32"

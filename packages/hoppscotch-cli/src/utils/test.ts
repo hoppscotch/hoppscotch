@@ -237,12 +237,11 @@ export const getFailedExpectedResults = (expectResults: ExpectResult[]) =>
   );
 
 /**
- * Checks if any of the tests-report have failed test-cases.
+ * Checks whether every test report has zero failed test cases.
  * @param testsReport Provides "failed" test-cases data.
- * @returns True, if one or more failed test-cases found.
- * False, if all test-cases passed.
+ * @returns True, if all test-cases passed. False, otherwise.
  */
-export const hasFailedTestCases = (testsReport: TestReport[]) =>
+export const hasAllTestsPassed = (testsReport: TestReport[]) =>
   pipe(
     testsReport,
     A.every(({ failed }) => failed === 0)

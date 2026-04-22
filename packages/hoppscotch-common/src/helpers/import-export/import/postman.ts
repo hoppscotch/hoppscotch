@@ -16,7 +16,7 @@ import {
   HoppCollectionVariable,
 } from "@hoppscotch/data"
 import * as A from "fp-ts/Array"
-import { flow, pipe } from "fp-ts/function"
+import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as S from "fp-ts/string"
 import * as TE from "fp-ts/TaskEither"
@@ -63,10 +63,10 @@ const getCollectionSchema = (jsonStr: string): string | null => {
   }
 }
 
-export const replacePMVarTemplating = flow(
-  S.replace(/{{\s*/g, "<<"),
-  S.replace(/\s*}}/g, ">>")
-)
+export const replacePMVarTemplating = (value: unknown): string => {
+  const str = typeof value === "string" ? value : String(value ?? "")
+  return pipe(str, S.replace(/{{\s*/g, "<<"), S.replace(/\s*}}/g, ">>"))
+}
 
 const PMRawLanguageOptionsToContentTypeMap: Record<
   PMRawLanguage,

@@ -437,6 +437,7 @@ const existingPublishedData = computed(() => {
   if (isCreatingNewVersion.value) return undefined
   if (!activeModalDoc.value) return undefined
   return {
+    id: activeModalDoc.value.id,
     title: activeModalDoc.value.title,
     version: activeModalDoc.value.version,
     autoSync: activeModalDoc.value.autoSync,

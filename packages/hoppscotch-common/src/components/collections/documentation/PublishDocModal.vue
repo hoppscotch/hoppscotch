@@ -123,6 +123,7 @@ const props = defineProps<{
   isFirstPublish?: boolean
   publishedDocId?: string
   existingData?: {
+    id: string
     title: string
     version: string
     autoSync: boolean
@@ -176,15 +177,28 @@ const initializeFormData = () => {
   }
 }
 
-// Watch for modal open/close
 watch(
-  [() => props.existingData, () => props.show],
-  ([, isOpen]) => {
-    if (isOpen) {
-      initializeFormData()
-    }
+  () => props.show,
+  (isOpen) => {
+    if (isOpen) initializeFormData()
   },
   { immediate: true }
+)
+
+// Reinitialize only on doc switches (snapshot ↔ live) — same-doc refreshes must not clobber in-flight edits.
+watch(
+  () => props.existingData?.id,
+  (newId, oldId) => {
+    if (props.show && newId && newId !== oldId) initializeFormData()
+  }
+)
+
+// Same-doc URL can change when the backend rebuilds it (version rename). Sync display only.
+watch(
+  () => props.existingData?.url,
+  (newUrl) => {
+    if (props.show && newUrl) publishedUrl.value = newUrl
+  }
 )
 
 const modalTitle = computed(() => {

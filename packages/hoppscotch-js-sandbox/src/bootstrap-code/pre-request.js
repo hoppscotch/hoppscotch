@@ -1498,42 +1498,23 @@
       return globalThis.pm.execution.setNextRequest(requestNameOrId)
     },
 
-    // Collection variables (unsupported)
+    // Collection variables — delegated to pm.environment (active scope)
+    // Postman's collectionVariables scope maps to the active environment in Hoppscotch.
+    // Data written here is visible in pm.environment and vice-versa (same store).
     collectionVariables: {
-      get: () => {
-        throw new Error(
-          "pm.collectionVariables.get() is not supported in Hoppscotch (use environment or request variables instead)"
-        )
-      },
-      set: () => {
-        throw new Error(
-          "pm.collectionVariables.set() is not supported in Hoppscotch (use environment or request variables instead)"
-        )
-      },
-      unset: () => {
-        throw new Error(
-          "pm.collectionVariables.unset() is not supported in Hoppscotch (use environment or request variables instead)"
-        )
-      },
-      has: () => {
-        throw new Error(
-          "pm.collectionVariables.has() is not supported in Hoppscotch (use environment or request variables instead)"
-        )
-      },
-      clear: () => {
-        throw new Error(
-          "pm.collectionVariables.clear() is not supported in Hoppscotch (use environment or request variables instead)"
-        )
-      },
-      toObject: () => {
-        throw new Error(
-          "pm.collectionVariables.toObject() is not supported in Hoppscotch (use environment or request variables instead)"
-        )
-      },
-      replaceIn: () => {
-        throw new Error(
-          "pm.collectionVariables.replaceIn() is not supported in Hoppscotch (use environment or request variables instead)"
-        )
+      get: (key) => globalThis.pm.environment.get(key),
+      set: (key, value) => globalThis.pm.environment.set(key, value),
+      unset: (key) => globalThis.pm.environment.unset(key),
+      has: (key) => globalThis.pm.environment.has(key),
+      clear: () => globalThis.pm.environment.clear(),
+      toObject: () => globalThis.pm.environment.toObject(),
+      replaceIn: (template) => {
+        // Inline replaceIn: resolve {{varName}} against the active environment
+        if (typeof template !== "string") return template
+        return template.replace(/\{\{([^}]+)\}\}/g, (match, key) => {
+          const value = globalThis.hopp.env.active.get(key.trim())
+          return value !== null ? value : match
+        })
       },
     },
 

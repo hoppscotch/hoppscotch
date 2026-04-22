@@ -849,17 +849,18 @@ declare namespace pm {
   ): never
 
   /**
-   * Collection variables (unsupported - Workspace feature)
-   * Collection variables are not supported in Hoppscotch as they are a Postman Workspace feature
+   * Collection variables — delegated to the active environment scope.
+   * Accepts any value type (string, number, boolean, object, array).
+   * Data written here is shared with pm.environment (same store).
    */
   const collectionVariables: Readonly<{
-    get(key: string): never
-    set(key: string, value: string): never
-    unset(key: string): never
-    has(key: string): never
-    clear(): never
-    toObject(): never
-    replaceIn(template: string): never
+    get(key: string): any
+    set(key: string, value: any): void
+    unset(key: string): void
+    has(key: string): boolean
+    clear(): void
+    toObject(): Record<string, any>
+    replaceIn(template: string): string
   }>
 
   /**

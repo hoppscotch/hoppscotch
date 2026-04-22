@@ -16,48 +16,6 @@ const unsupportedApis = [
       "pm.info.iterationCount is not supported in Hoppscotch (Collection Runner feature)",
   },
   {
-    api: "pm.collectionVariables.get()",
-    script: 'pm.collectionVariables.get("test")',
-    errorMessage:
-      "pm.collectionVariables.get() is not supported in Hoppscotch (use environment or request variables instead)",
-  },
-  {
-    api: "pm.collectionVariables.set()",
-    script: 'pm.collectionVariables.set("key", "value")',
-    errorMessage:
-      "pm.collectionVariables.set() is not supported in Hoppscotch (use environment or request variables instead)",
-  },
-  {
-    api: "pm.collectionVariables.unset()",
-    script: 'pm.collectionVariables.unset("key")',
-    errorMessage:
-      "pm.collectionVariables.unset() is not supported in Hoppscotch (use environment or request variables instead)",
-  },
-  {
-    api: "pm.collectionVariables.has()",
-    script: 'pm.collectionVariables.has("key")',
-    errorMessage:
-      "pm.collectionVariables.has() is not supported in Hoppscotch (use environment or request variables instead)",
-  },
-  {
-    api: "pm.collectionVariables.clear()",
-    script: "pm.collectionVariables.clear()",
-    errorMessage:
-      "pm.collectionVariables.clear() is not supported in Hoppscotch (use environment or request variables instead)",
-  },
-  {
-    api: "pm.collectionVariables.toObject()",
-    script: "pm.collectionVariables.toObject()",
-    errorMessage:
-      "pm.collectionVariables.toObject() is not supported in Hoppscotch (use environment or request variables instead)",
-  },
-  {
-    api: "pm.collectionVariables.replaceIn()",
-    script: 'pm.collectionVariables.replaceIn("{{var}}")',
-    errorMessage:
-      "pm.collectionVariables.replaceIn() is not supported in Hoppscotch (use environment or request variables instead)",
-  },
-  {
     api: "pm.vault.get()",
     script: 'pm.vault.get("test")',
     errorMessage:
@@ -175,16 +133,6 @@ describe("pm namespace - unsupported features", () => {
     }
   )
 
-  test("pm.collectionVariables.get() throws error", async () => {
-    await expect(
-      runTest(`pm.collectionVariables.get("test")`, {
-        global: [],
-        selected: [],
-      })()
-    ).resolves.toEqualLeft(
-      expect.stringContaining("pm.collectionVariables.get() is not supported")
-    )
-  })
 
   test("pm.vault.get() throws error", async () => {
     await expect(

@@ -625,7 +625,12 @@ export const runSubscription = (
   const { url, query, operationName } = options
   const wsUrl = url.replace(/^http/, "ws")
 
-  connection.subscriptionState.set(currentTabID.value, "SUBSCRIBING")
+  // Capture the tab that started this subscription so state transitions
+  // fired from async callbacks (onmessage / onclose) always update the
+  // originating tab, even if the user has since switched tabs.
+  const subscriptionTabID = currentTabID.value
+
+  connection.subscriptionState.set(subscriptionTabID, "SUBSCRIBING")
 
   connection.socket = new WebSocket(wsUrl, "graphql-ws")
 
@@ -665,7 +670,7 @@ export const runSubscription = (
     const data = decoded.frame
     switch (data.type) {
       case GQL.CONNECTION_ACK: {
-        connection.subscriptionState.set(currentTabID.value, "SUBSCRIBED")
+        connection.subscriptionState.set(subscriptionTabID, "SUBSCRIBED")
         break
       }
       case GQL.CONNECTION_ERROR:
@@ -686,10 +691,7 @@ export const runSubscription = (
         // transition so the UI does not keep presenting the subscription
         // as live.
         if (data.type === GQL.ERROR) {
-          connection.subscriptionState.set(
-            currentTabID.value,
-            "UNSUBSCRIBED"
-          )
+          connection.subscriptionState.set(subscriptionTabID, "UNSUBSCRIBED")
         }
         break
       }
@@ -715,7 +717,7 @@ export const runSubscription = (
 
   connection.socket.onclose = (event) => {
     console.log("WebSocket is closed now.", event)
-    connection.subscriptionState.set(currentTabID.value, "UNSUBSCRIBED")
+    connection.subscriptionState.set(subscriptionTabID, "UNSUBSCRIBED")
   }
 
   addQueryToHistory(options, "")

@@ -41,6 +41,8 @@ export const handleError = <T extends HoppErrorCode>(error: HoppError<T>) => {
   let ERROR_MSG;
 
   switch (error.code) {
+    case "INVALID_ITERATION_DATA":
+      return console.error(error.data);
     case "FILE_NOT_FOUND":
       ERROR_MSG = `File doesn't exist: ${error.path}`;
       break;

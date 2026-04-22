@@ -45,7 +45,7 @@ export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
       ? await parseEnvsData(options as TestCmdEnvironmentOptions)
       : <HoppEnvs>{ global: [], selected: [] };
 
-    let parsedIterationData: unknown[] | null = null;
+    let parsedIterationData: Record<string, unknown>[] | null = null;
     let transformedIterationData: IterationDataItem[][] | undefined;
 
     const collections = await parseCollectionData(pathOrId, options);
@@ -56,7 +56,7 @@ export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
         throw error({ code: "FILE_NOT_FOUND", path: iterationData });
       }
 
-      // Check the file extension
+      // Check file extension
       if (path.extname(iterationData) !== ".csv") {
         throw error({
           code: "INVALID_DATA_FILE_TYPE",
@@ -64,19 +64,50 @@ export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
         });
       }
 
+      // Read & parse CSV
       const csvData = fs.readFileSync(iterationData, "utf8");
-      parsedIterationData = Papa.parse(csvData, { header: true }).data;
+      const parsed = Papa.parse(csvData, { header: true });
+
+      // Fail if CSV is empty
+      if (!parsed.data || parsed.data.length === 0) {
+        throw error({
+          code: "INVALID_ITERATION_DATA",
+          data: "CSV file is empty",
+        });
+      }
+
+      // Filter out rows that contain only empty or whitespace values
+      parsedIterationData = (parsed.data as Record<string, unknown>[]).filter(
+        (row) =>
+          Object.values(row).some(
+            (val) =>
+              val !== null && val !== undefined && String(val).trim() !== ""
+          )
+      );
+
+      // Fail if all rows are empty
+      if (parsedIterationData.length === 0) {
+        throw error({
+          code: "INVALID_ITERATION_DATA",
+          data: "CSV contains only empty rows",
+        });
+      }
 
       // Transform data into the desired format
       transformedIterationData = parsedIterationData
         .map((item) => {
-          const iterationDataItem = item as Record<string, unknown>;
+          const iterationDataItem = item;
           const keys = Object.keys(iterationDataItem);
 
           return (
             keys
               // Ignore keys with empty string values
-              .filter((key) => iterationDataItem[key] !== "")
+              .filter((key) => {
+                const val = iterationDataItem[key];
+                return (
+                  val !== null && val !== undefined && String(val).trim() !== ""
+                );
+              })
               .map(
                 (key) =>
                   <IterationDataItem>{

@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { InfraConfigService } from './infra-config.service';
 import { InfraConfigEnum } from 'src/types/InfraConfig';
 import {
+  INFRA_CONFIG_INVALID_INPUT,
   INFRA_CONFIG_NOT_FOUND,
   INFRA_CONFIG_OPERATION_NOT_ALLOWED,
   INFRA_CONFIG_UPDATE_FAILED,
@@ -290,6 +291,60 @@ describe('InfraConfigService', () => {
       expect(await infraConfigService.isUserHistoryEnabled()).toEqualRight(
         response,
       );
+    });
+  });
+
+  describe('validateEnvValues', () => {
+    describe('MAILER_SMTP_AUTH_TYPE', () => {
+      it('should accept an empty value (defaults to login at runtime)', () => {
+        const result = infraConfigService.validateEnvValues([
+          { name: InfraConfigEnum.MAILER_SMTP_AUTH_TYPE, value: '' },
+        ]);
+        expect(result).toEqualRight(true);
+      });
+
+      it('should accept a known auth type', () => {
+        const result = infraConfigService.validateEnvValues([
+          { name: InfraConfigEnum.MAILER_SMTP_AUTH_TYPE, value: 'oauth2' },
+        ]);
+        expect(result).toEqualRight(true);
+      });
+
+      it('should reject an unknown auth type', () => {
+        const result = infraConfigService.validateEnvValues([
+          { name: InfraConfigEnum.MAILER_SMTP_AUTH_TYPE, value: 'kerberos' },
+        ]);
+        expect(result).toEqualLeft(INFRA_CONFIG_INVALID_INPUT);
+      });
+    });
+
+    describe('MAILER_SMTP_OAUTH2_ACCESS_URL', () => {
+      it('should accept an empty value', () => {
+        const result = infraConfigService.validateEnvValues([
+          { name: InfraConfigEnum.MAILER_SMTP_OAUTH2_ACCESS_URL, value: '' },
+        ]);
+        expect(result).toEqualRight(true);
+      });
+
+      it('should accept a valid HTTPS URL', () => {
+        const result = infraConfigService.validateEnvValues([
+          {
+            name: InfraConfigEnum.MAILER_SMTP_OAUTH2_ACCESS_URL,
+            value: 'https://oauth2.googleapis.com/token',
+          },
+        ]);
+        expect(result).toEqualRight(true);
+      });
+
+      it('should reject a malformed URL', () => {
+        const result = infraConfigService.validateEnvValues([
+          {
+            name: InfraConfigEnum.MAILER_SMTP_OAUTH2_ACCESS_URL,
+            value: 'not-a-url',
+          },
+        ]);
+        expect(result).toEqualLeft(INFRA_CONFIG_INVALID_INPUT);
+      });
     });
   });
 });

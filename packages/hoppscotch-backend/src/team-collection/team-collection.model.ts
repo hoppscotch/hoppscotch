@@ -1,4 +1,5 @@
 import { ObjectType, Field, ID } from '@nestjs/graphql';
+import { ReqType } from 'src/types/RequestTypes';
 
 @ObjectType()
 export class TeamCollection {
@@ -23,19 +24,26 @@ export class TeamCollection {
     nullable: true,
   })
   parentID: string;
+
+  @Field(() => ReqType, {
+    description: 'Type of the user collection',
+  })
+  type: ReqType;
 }
 
 @ObjectType()
 export class CollectionReorderData {
-  @Field({
+  @Field(() => TeamCollection, {
     description: 'Team Collection being moved',
   })
   collection: TeamCollection;
 
-  @Field({
+  @Field(() => TeamCollection, {
     description:
       'Team Collection succeeding the collection being moved in its new position',
     nullable: true,
   })
   nextCollection?: TeamCollection;
 }
+
+

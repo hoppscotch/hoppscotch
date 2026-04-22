@@ -4,10 +4,12 @@ import {
   PUBLISHED_DOCS_CREATION_FAILED,
   PUBLISHED_DOCS_DELETION_FAILED,
   PUBLISHED_DOCS_INVALID_COLLECTION,
-  PUBLISHED_DOCS_INVALID_ENVIRONMENT,
+  PUBLISHED_DOCS_FORBIDDEN_ENVIRONMENT_ACCESS,
   PUBLISHED_DOCS_NOT_FOUND,
   PUBLISHED_DOCS_UPDATE_FAILED,
+  TEAM_ENVIRONMENT_NOT_FOUND,
   TEAM_INVALID_ID,
+  USER_ENVIRONMENT_NOT_FOUND,
 } from 'src/errors';
 import * as E from 'fp-ts/Either';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -1575,7 +1577,7 @@ describe('createPublishedDoc - environment support', () => {
       user,
     );
 
-    expect(result).toEqualLeft(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
+    expect(result).toEqualLeft(USER_ENVIRONMENT_NOT_FOUND);
   });
 
   test('should return error when team environment ID is invalid', async () => {
@@ -1600,7 +1602,7 @@ describe('createPublishedDoc - environment support', () => {
       user,
     );
 
-    expect(result).toEqualLeft(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
+    expect(result).toEqualLeft(TEAM_ENVIRONMENT_NOT_FOUND);
   });
 
   test('should create published doc without environment when environmentID is not provided', async () => {
@@ -1709,7 +1711,7 @@ describe('updatePublishedDoc - environment support', () => {
       user,
     );
 
-    expect(result).toEqualLeft(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
+    expect(result).toEqualLeft(USER_ENVIRONMENT_NOT_FOUND);
   });
 
   test('should not change environment when environmentID is not provided in update args', async () => {
@@ -1901,7 +1903,7 @@ describe('getPublishedDocBySlugPublic - environment support', () => {
       '1.0.0',
     );
 
-    expect(result).toEqualLeft(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
+    expect(result).toEqualLeft(USER_ENVIRONMENT_NOT_FOUND);
   });
 
   test('should return null environment fields when no environment is associated', async () => {

@@ -13,12 +13,14 @@ import {
   PUBLISHED_DOCS_CREATION_FAILED,
   PUBLISHED_DOCS_DELETION_FAILED,
   PUBLISHED_DOCS_INVALID_COLLECTION,
-  PUBLISHED_DOCS_INVALID_ENVIRONMENT,
+  PUBLISHED_DOCS_FORBIDDEN_ENVIRONMENT_ACCESS,
   PUBLISHED_DOCS_NOT_FOUND,
   PUBLISHED_DOCS_UPDATE_FAILED,
+  TEAM_ENVIRONMENT_NOT_FOUND,
   TEAM_INVALID_COLL_ID,
   TEAM_INVALID_ID,
   USER_COLL_NOT_FOUND,
+  USER_ENVIRONMENT_NOT_FOUND,
 } from 'src/errors';
 import * as E from 'fp-ts/Either';
 import { PublishedDocs, PublishedDocsVersion } from './published-docs.model';
@@ -106,11 +108,11 @@ export class PublishedDocsService {
       const env = await this.prisma.teamEnvironment.findUnique({
         where: { id: environmentID },
       });
+      if (!env) return E.left(TEAM_ENVIRONMENT_NOT_FOUND);
 
       // Validate environment exists and belongs to the correct team
-      if (!env || env.teamID !== workspaceID) {
-        return E.left(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
-      }
+      if (env.teamID !== workspaceID)
+        return E.left(PUBLISHED_DOCS_FORBIDDEN_ENVIRONMENT_ACCESS);
 
       return E.right({
         name: env.name,
@@ -123,10 +125,11 @@ export class PublishedDocsService {
       const env = await this.prisma.userEnvironment.findUnique({
         where: { id: environmentID },
       });
+      if (!env) return E.left(USER_ENVIRONMENT_NOT_FOUND);
 
       // Validate environment exists and belongs to the correct user
-      if (!env || env.userUid !== workspaceID) {
-        return E.left(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
+      if (env.userUid !== workspaceID) {
+        return E.left(PUBLISHED_DOCS_FORBIDDEN_ENVIRONMENT_ACCESS);
       }
 
       return E.right({
@@ -135,7 +138,7 @@ export class PublishedDocsService {
       });
     }
 
-    return E.left(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
+    return E.left(PUBLISHED_DOCS_FORBIDDEN_ENVIRONMENT_ACCESS);
   }
 
   /**

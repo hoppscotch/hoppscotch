@@ -1,5 +1,5 @@
 import { TransportType } from '@nestjs-modules/mailer/dist/interfaces/mailer-options.interface';
-import SMTPConnection from 'nodemailer/lib/smtp-connection';
+import type SMTPConnection from 'nodemailer/lib/smtp-connection';
 import { MAILER_SMTP_URL_UNDEFINED } from 'src/errors';
 import { throwErr } from 'src/utils';
 

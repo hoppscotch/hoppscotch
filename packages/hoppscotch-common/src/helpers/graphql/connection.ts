@@ -122,8 +122,11 @@ export function decodeSubscriptionFrame(
     if (
       parsed === null ||
       typeof parsed !== "object" ||
-      typeof (parsed as { type?: unknown }).type !== "string"
+      Array.isArray(parsed)
     ) {
+      return { ok: false, reason: "Subscription frame is not a valid object" }
+    }
+    if (typeof (parsed as { type?: unknown }).type !== "string") {
       return { ok: false, reason: "Subscription frame is missing a type field" }
     }
     return { ok: true, frame: parsed as SubscriptionFrame }
@@ -676,6 +679,17 @@ export const runSubscription = (
                 : "subscription_error",
             message: stringifySubscriptionErrorPayload(data.payload),
           },
+        }
+        // GQL.ERROR terminates this subscription per the
+        // subscriptions-transport-ws protocol — the server will not send
+        // further `data` frames for this id. Mirror `onclose`'s state
+        // transition so the UI does not keep presenting the subscription
+        // as live.
+        if (data.type === GQL.ERROR) {
+          connection.subscriptionState.set(
+            currentTabID.value,
+            "UNSUBSCRIBED"
+          )
         }
         break
       }

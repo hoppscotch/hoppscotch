@@ -30,24 +30,40 @@ describe("decodeSubscriptionFrame", () => {
     }
   })
 
-  test("rejects JSON that is not an object", () => {
+  test("rejects bare-string JSON with a non-object reason", () => {
     const result = decodeSubscriptionFrame('"a bare string"')
     expect(result).toEqual({
       ok: false,
-      reason: "Subscription frame is missing a type field",
+      reason: "Subscription frame is not a valid object",
     })
   })
 
-  test("rejects null JSON frames", () => {
+  test("rejects null JSON frames with a non-object reason", () => {
     const result = decodeSubscriptionFrame("null")
     expect(result).toEqual({
       ok: false,
-      reason: "Subscription frame is missing a type field",
+      reason: "Subscription frame is not a valid object",
+    })
+  })
+
+  test("rejects JSON arrays with a non-object reason", () => {
+    const result = decodeSubscriptionFrame("[1,2,3]")
+    expect(result).toEqual({
+      ok: false,
+      reason: "Subscription frame is not a valid object",
     })
   })
 
   test("rejects frames without a type field", () => {
     const result = decodeSubscriptionFrame(JSON.stringify({ id: "1" }))
+    expect(result).toEqual({
+      ok: false,
+      reason: "Subscription frame is missing a type field",
+    })
+  })
+
+  test("rejects frames where type is a non-string", () => {
+    const result = decodeSubscriptionFrame(JSON.stringify({ type: 42 }))
     expect(result).toEqual({
       ok: false,
       reason: "Subscription frame is missing a type field",

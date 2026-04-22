@@ -152,7 +152,7 @@ export function getFArgumentMultipartData(
     O.chain(
       flow(
         A.map(splitFArgOnFirstEquals),
-        // can only have a key and no value
+        // guard: the list of -F arguments must be non-empty
         O.fromPredicate((fArgs) => fArgs.length > 0),
         O.map(
           flow(

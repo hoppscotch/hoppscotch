@@ -115,6 +115,22 @@ describe("parseContentDisposition", () => {
     expect(parseContentDisposition(header).filename).toBe("fallback.txt")
   })
 
+  test("falls back to filename when ISO-8859-1 filename* has malformed percent-encoding", () => {
+    // The Latin-1 branch used to silently pass malformed input through via
+    // String.prototype.replace, so a broken filename* would override the
+    // legacy filename. Explicitly reject bare `%` (followed by non-hex) and
+    // truncated `%X` so the fallback kicks in for both charsets.
+    const truncated =
+      "attachment; filename=\"fallback.txt\"; filename*=iso-8859-1''%A"
+    const nonHex =
+      "attachment; filename=\"fallback.txt\"; filename*=iso-8859-1''%ZZ"
+    const barePercent =
+      "attachment; filename=\"fallback.txt\"; filename*=iso-8859-1''abc%"
+    expect(parseContentDisposition(truncated).filename).toBe("fallback.txt")
+    expect(parseContentDisposition(nonHex).filename).toBe("fallback.txt")
+    expect(parseContentDisposition(barePercent).filename).toBe("fallback.txt")
+  })
+
   test("tolerates extra whitespace around parameters", () => {
     expect(
       parseContentDisposition("attachment ;   filename = report.pdf  ").filename
@@ -160,14 +176,26 @@ describe("filenameFromResponseHeaders", () => {
     ).toBeNull()
   })
 
-  test("returns the filename for the first Content-Disposition header only", () => {
-    // Duplicate headers are unusual but legal — stick with the first hit so
-    // behaviour is deterministic.
+  test("returns the filename from the first Content-Disposition header that carries one", () => {
+    // Duplicate headers are unusual but legal. When the first header has a
+    // filename we stop there so behaviour is deterministic...
     expect(
       filenameFromResponseHeaders([
         { key: "Content-Disposition", value: "attachment; filename=a.pdf" },
         { key: "Content-Disposition", value: "attachment; filename=b.pdf" },
       ])
     ).toBe("a.pdf")
+  })
+
+  test("skips Content-Disposition headers that carry no filename", () => {
+    // ...but if the first header is a bare `attachment` with no filename,
+    // we keep scanning so a later header with a real filename isn't
+    // silently dropped.
+    expect(
+      filenameFromResponseHeaders([
+        { key: "Content-Disposition", value: "attachment" },
+        { key: "Content-Disposition", value: "attachment; filename=b.pdf" },
+      ])
+    ).toBe("b.pdf")
   })
 })

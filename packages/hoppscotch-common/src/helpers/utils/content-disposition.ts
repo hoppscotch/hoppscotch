@@ -25,6 +25,13 @@ const decodeRfc5987 = (value: string): string | null => {
   const encoded = value.slice(secondQuote + 1)
   if (!RFC5987_CHARSET_RE.test(charset)) return null
 
+  // Any `%` not followed by two hex digits means the encoding is malformed.
+  // The UTF-8 branch gets this check for free via `decodeURIComponent`, but
+  // the ISO-8859-1 branch uses `String.prototype.replace` which would
+  // silently pass bad input through, letting a broken `filename*` override
+  // an otherwise-valid `filename` fallback.
+  if (/%(?![0-9A-Fa-f]{2})/.test(encoded)) return null
+
   try {
     if (charset.toLowerCase() === "iso-8859-1") {
       // Latin-1: percent-decode bytes then map each to its Unicode codepoint
@@ -119,8 +126,14 @@ export const parseContentDisposition = (
 }
 
 /**
- * Finds the `Content-Disposition` response header and returns the filename
- * declared in its `filename*` or `filename` parameter, if any.
+ * Finds the first `Content-Disposition` response header that declares a
+ * filename (via `filename*` or `filename`) and returns it, or `null` if
+ * no such header is present.
+ *
+ * Multiple `Content-Disposition` headers on the same response are unusual
+ * but legal — we skip any that carry only a disposition type (e.g. bare
+ * `attachment`) and keep searching, so a valid filename in a later header
+ * is not silently discarded by an earlier one.
  */
 export const filenameFromResponseHeaders = (
   headers: ReadonlyArray<HoppRESTResponseHeader> | undefined | null
@@ -129,7 +142,8 @@ export const filenameFromResponseHeaders = (
 
   for (const h of headers) {
     if (h.key.toLowerCase() === "content-disposition") {
-      return parseContentDisposition(h.value).filename
+      const filename = parseContentDisposition(h.value).filename
+      if (filename !== null) return filename
     }
   }
   return null

@@ -292,32 +292,32 @@ type CheckboxField = {
 // A typed view of `fields` that only exposes string-valued keys,
 // so that `v-model="stringFields[field.key]"` resolves to `string`.
 const stringFields = computed(
-  () => smtpConfigs.value.fields as unknown as Record<StringFieldKey, string>,
+  () => smtpConfigs.value.fields as Pick<MailFields, StringFieldKey>,
 );
 
 // Basic mode: just the SMTP URL
-const basicFields = reactive<Field[]>([
+const basicFields: Field[] = [
   {
     name: t('configs.mail_configs.smtp_url'),
     key: 'mailer_smtp_url',
     error: t('configs.mail_configs.input_validation'),
   },
-]);
+];
 
 // Connection
-const connectionFields = reactive<Field[]>([
+const connectionFields: Field[] = [
   { name: t('configs.mail_configs.host'), key: 'mailer_smtp_host' },
   { name: t('configs.mail_configs.port'), key: 'mailer_smtp_port' },
-]);
+];
 
 // Login auth credentials
-const loginAuthFields = reactive<Field[]>([
+const loginAuthFields: Field[] = [
   { name: t('configs.mail_configs.user'), key: 'mailer_smtp_user' },
   { name: t('configs.mail_configs.password'), key: 'mailer_smtp_password' },
-]);
+];
 
 // OAuth2 auth credentials
-const oauth2Fields = reactive<Field[]>([
+const oauth2Fields: Field[] = [
   {
     name: t('configs.mail_configs.oauth2_user'),
     key: 'mailer_smtp_oauth2_user',
@@ -338,10 +338,10 @@ const oauth2Fields = reactive<Field[]>([
     name: t('configs.mail_configs.oauth2_access_url'),
     key: 'mailer_smtp_oauth2_access_url',
   },
-]);
+];
 
 // Security checkboxes
-const securityFields = reactive<CheckboxField[]>([
+const securityFields: CheckboxField[] = [
   { name: t('configs.mail_configs.secure'), key: 'mailer_smtp_secure' },
   {
     name: t('configs.mail_configs.ignore_tls'),
@@ -351,7 +351,7 @@ const securityFields = reactive<CheckboxField[]>([
     name: t('configs.mail_configs.tls_reject_unauthorized'),
     key: 'mailer_tls_reject_unauthorized',
   },
-]);
+];
 
 const maskState = reactive<Record<string, boolean>>({
   mailer_smtp_url: true,

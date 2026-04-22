@@ -1491,7 +1491,7 @@ describe('createPublishedDoc - environment support', () => {
       userUid: user.uid,
     } as any);
     mockPrisma.publishedDocs.findFirst.mockResolvedValueOnce(null);
-    mockPrisma.userEnvironment.findFirst.mockResolvedValueOnce(envData as any);
+    mockPrisma.userEnvironment.findUnique.mockResolvedValueOnce(envData as any);
     mockPrisma.publishedDocs.create.mockResolvedValueOnce({
       ...userPublishedDoc,
       environmentID: 'env_1',
@@ -1537,7 +1537,7 @@ describe('createPublishedDoc - environment support', () => {
       teamID: 'team_1',
     } as any);
     mockPrisma.publishedDocs.findFirst.mockResolvedValueOnce(null);
-    mockPrisma.teamEnvironment.findFirst.mockResolvedValueOnce(envData as any);
+    mockPrisma.teamEnvironment.findUnique.mockResolvedValueOnce(envData as any);
     mockPrisma.publishedDocs.create.mockResolvedValueOnce({
       ...teamPublishedDoc,
       environmentID: 'team_env_1',
@@ -1568,7 +1568,7 @@ describe('createPublishedDoc - environment support', () => {
       userUid: user.uid,
     } as any);
     mockPrisma.publishedDocs.findFirst.mockResolvedValueOnce(null);
-    mockPrisma.userEnvironment.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.userEnvironment.findUnique.mockResolvedValueOnce(null);
 
     const result = await publishedDocsService.createPublishedDoc(
       { ...createArgs, environmentID: 'invalid_env' },
@@ -1593,7 +1593,7 @@ describe('createPublishedDoc - environment support', () => {
       teamID: 'team_1',
     } as any);
     mockPrisma.publishedDocs.findFirst.mockResolvedValueOnce(null);
-    mockPrisma.teamEnvironment.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.teamEnvironment.findUnique.mockResolvedValueOnce(null);
 
     const result = await publishedDocsService.createPublishedDoc(
       teamArgs,
@@ -1640,7 +1640,7 @@ describe('updatePublishedDoc - environment support', () => {
     };
 
     mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(userPublishedDoc);
-    mockPrisma.userEnvironment.findFirst.mockResolvedValueOnce(envData as any);
+    mockPrisma.userEnvironment.findUnique.mockResolvedValueOnce(envData as any);
     mockPrisma.publishedDocs.update.mockResolvedValueOnce({
       ...userPublishedDoc,
       environmentID: 'env_2',
@@ -1701,7 +1701,7 @@ describe('updatePublishedDoc - environment support', () => {
 
   test('should return error when updating with invalid environment ID', async () => {
     mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(userPublishedDoc);
-    mockPrisma.userEnvironment.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.userEnvironment.findUnique.mockResolvedValueOnce(null);
 
     const result = await publishedDocsService.updatePublishedDoc(
       userPublishedDoc.id,
@@ -1743,7 +1743,7 @@ describe('updatePublishedDoc - environment support', () => {
 
     mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(teamPublishedDoc);
     mockPrisma.team.findFirst.mockResolvedValueOnce({ id: 'team_1' } as any);
-    mockPrisma.teamEnvironment.findFirst.mockResolvedValueOnce(envData as any);
+    mockPrisma.teamEnvironment.findUnique.mockResolvedValueOnce(envData as any);
     mockPrisma.publishedDocs.update.mockResolvedValueOnce({
       ...teamPublishedDoc,
       environmentID: 'team_env_1',
@@ -1796,7 +1796,7 @@ describe('getPublishedDocBySlugPublic - environment support', () => {
     mockUserCollectionService.exportUserCollectionToJSONObject.mockResolvedValueOnce(
       E.right(collectionData as any),
     );
-    mockPrisma.userEnvironment.findFirst.mockResolvedValueOnce(envData as any);
+    mockPrisma.userEnvironment.findUnique.mockResolvedValueOnce(envData as any);
 
     const result = await publishedDocsService.getPublishedDocBySlugPublic(
       'slug-collection-1',
@@ -1894,7 +1894,7 @@ describe('getPublishedDocBySlugPublic - environment support', () => {
       E.right(collectionData as any),
     );
     // Environment not found — fetchEnvironment returns Left
-    mockPrisma.userEnvironment.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.userEnvironment.findUnique.mockResolvedValueOnce(null);
 
     const result = await publishedDocsService.getPublishedDocBySlugPublic(
       'slug-collection-1',

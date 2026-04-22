@@ -96,48 +96,47 @@ export class PublishedDocsService {
    * Fetch environment by ID based on workspace type
    * Returns the environment name and variables, or an error if not found
    */
- private async fetchEnvironment(
-  environmentID: string,
-  workspaceType: WorkspaceType,
-  workspaceID: string,
-): Promise<E.Either<string, { name: string; variables: JsonValue }>> {
+  private async fetchEnvironment(
+    environmentID: string,
+    workspaceType: WorkspaceType,
+    workspaceID: string,
+  ): Promise<E.Either<string, { name: string; variables: JsonValue }>> {
+    // TEAM workspace environment
+    if (workspaceType === WorkspaceType.TEAM) {
+      const env = await this.prisma.teamEnvironment.findUnique({
+        where: { id: environmentID },
+      });
 
-  // TEAM workspace environment
-  if (workspaceType === WorkspaceType.TEAM) {
-    const env = await this.prisma.teamEnvironment.findUnique({
-      where: { id: environmentID },
-    });
+      // Validate environment exists and belongs to the correct team
+      if (!env || env.teamID !== workspaceID) {
+        return E.left(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
+      }
 
-    // Validate environment exists and belongs to the correct team
-    if (!env || env.teamID !== workspaceID) {
-      return E.left(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
+      return E.right({
+        name: env.name,
+        variables: env.variables,
+      });
     }
 
-    return E.right({
-      name: env.name,
-      variables: env.variables,
-    });
-  }
+    // USER workspace environment
+    if (workspaceType === WorkspaceType.USER) {
+      const env = await this.prisma.userEnvironment.findUnique({
+        where: { id: environmentID },
+      });
 
-  // USER workspace environment
-  if (workspaceType === WorkspaceType.USER) {
-    const env = await this.prisma.userEnvironment.findUnique({
-      where: { id: environmentID },
-    });
+      // Validate environment exists and belongs to the correct user
+      if (!env || env.userUid !== workspaceID) {
+        return E.left(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
+      }
 
-    // Validate environment exists and belongs to the correct user
-    if (!env || env.userUid !== workspaceID) {
-      return E.left(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
+      return E.right({
+        name: env.name ?? '',
+        variables: env.variables,
+      });
     }
 
-    return E.right({
-      name: env.name ?? '',
-      variables: env.variables,
-    });
+    return E.left(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
   }
-
-  return E.left(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
-}
 
   /**
    * Check if user has access to a team with specific roles
@@ -389,10 +388,8 @@ export class PublishedDocsService {
         );
         if (E.isLeft(envResult)) return E.left(envResult.left);
 
-        if (E.isRight(envResult) && envResult.right) {
-          environmentName = envResult.right.name;
-          environmentVariables = envResult.right.variables;
-        }
+        environmentName = envResult.right.name;
+        environmentVariables = envResult.right.variables;
       }
 
       docToReturn = {
@@ -598,10 +595,9 @@ export class PublishedDocsService {
           workspaceID,
         );
         if (E.isLeft(envResult)) return E.left(envResult.left);
-        if (envResult.right) {
-          environmentName = envResult.right.name;
-          environmentVariables = envResult.right.variables;
-        }
+
+        environmentName = envResult.right.name;
+        environmentVariables = envResult.right.variables;
       }
 
       // Attempt to create the published document
@@ -718,11 +714,10 @@ export class PublishedDocsService {
             publishedDocs.workspaceID,
           );
           if (E.isLeft(envResult)) return E.left(envResult.left);
-          if (envResult.right) {
-            environmentID = args.environmentID;
-            environmentName = envResult.right.name;
-            environmentVariables = envResult.right.variables;
-          }
+
+          environmentID = args.environmentID;
+          environmentName = envResult.right.name;
+          environmentVariables = envResult.right.variables;
         }
       }
 

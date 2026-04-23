@@ -6,7 +6,7 @@ import { computed } from "vue"
 import { Container } from "dioc"
 import { getService } from "~/modules/dioc"
 import { PersistenceService, STORE_KEYS } from "../persistence"
-import { PersistableTabState } from "."
+import { HoppTab, PersistableTabState } from "."
 
 export class GQLTabService extends TabService<HoppGQLDocument> {
   public static readonly ID = "GQL_TAB_SERVICE"
@@ -16,7 +16,14 @@ export class GQLTabService extends TabService<HoppGQLDocument> {
   constructor(c: Container) {
     super(c)
 
-    this.tabMap.set("test", {
+    const defaultTab = this.createDefaultTab()
+    this.tabMap.set(defaultTab.id, defaultTab)
+
+    this.watchCurrentTabID()
+  }
+
+  protected createDefaultTab(): HoppTab<HoppGQLDocument> {
+    return {
       id: "test",
       document: {
         request: getDefaultGQLRequest(),
@@ -24,9 +31,7 @@ export class GQLTabService extends TabService<HoppGQLDocument> {
         optionTabPreference: "query",
         cursorPosition: 0,
       },
-    })
-
-    this.watchCurrentTabID()
+    }
   }
 
   // override persistableTabState to remove response from the document
@@ -46,9 +51,9 @@ export class GQLTabService extends TabService<HoppGQLDocument> {
 
   protected async loadPersistedState(): Promise<PersistableTabState<HoppGQLDocument> | null> {
     const persistenceService = getService(PersistenceService)
-    const savedState = await persistenceService.getNullable<
+    const savedState = await persistenceService.getScopedNullable<
       PersistableTabState<HoppGQLDocument>
-    >(STORE_KEYS.GQL_TABS)
+    >(STORE_KEYS.GQL_TABS, this.currentScopeKey.value)
     return savedState
   }
 

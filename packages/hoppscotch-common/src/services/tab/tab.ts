@@ -28,6 +28,10 @@ export abstract class TabService<Doc>
   protected recentlyClosedTabs: Array<{ tab: HoppTab<Doc>; index: number }> = []
   protected readonly MAX_CLOSED_TABS_HISTORY = 10
 
+  // Identifies the currently-active workspace scope for tab persistence.
+  // Defaults to "personal"; updated to "team:<teamID>" when switching to a team workspace.
+  public currentScopeKey = ref<string>("personal")
+
   // MRU (Most Recently Used) tracking
   // mruOrder[0] is the most recently used tab, mruOrder[n-1] is the least recently used
   protected mruOrder: string[] = ["test"]
@@ -75,6 +79,22 @@ export abstract class TabService<Doc>
   }
 
   protected abstract loadPersistedState(): Promise<PersistableTabState<Doc> | null>
+
+  protected abstract createDefaultTab(): HoppTab<Doc>
+
+  public resetToDefault(): void {
+    this.tabMap.clear()
+    this.tabOrdering.value = []
+    this.mruOrder = []
+    this.mruNavigationIndex = -1
+    this.recentlyClosedTabs = []
+
+    const defaultTab = this.createDefaultTab()
+    this.tabMap.set(defaultTab.id, defaultTab)
+    this.tabOrdering.value.push(defaultTab.id)
+    this.currentTabID.value = defaultTab.id
+    this.mruOrder.push(defaultTab.id)
+  }
 
   public createNewTab(document: Doc, switchToIt = true): HoppTab<Doc> {
     const id = this.generateNewTabID()
@@ -124,6 +144,9 @@ export abstract class TabService<Doc>
       this.tabOrdering.value = []
       this.mruOrder = []
       this.mruNavigationIndex = -1
+      // Clear recently-closed history so "Reopen Closed Tab" cannot revive
+      // tabs from a previous workspace after a scope switch.
+      this.recentlyClosedTabs = []
 
       for (const doc of data.orderedDocs) {
         this.tabMap.set(doc.tabID, {

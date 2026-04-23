@@ -8,6 +8,7 @@ import { min } from "lodash-es"
 import { TeamAccessRole } from "~/helpers/backend/graphql"
 import { TeamCollectionsService } from "./team-collection.service"
 import { DocumentationService } from "./documentation.service"
+import { PersistenceService } from "./persistence"
 
 /**
  * Defines a workspace and its information
@@ -25,6 +26,19 @@ export type TeamWorkspace = {
 }
 
 export type Workspace = PersonalWorkspace | TeamWorkspace
+
+/**
+ * Derives a stable key that identifies a workspace for per-workspace
+ * persistence (e.g., tab state). Personal workspaces share a single key;
+ * team workspaces are keyed by team ID.
+ */
+export function scopeKeyForWorkspace(workspace: Workspace): string {
+  // Treat an empty teamID as personal so it can't produce a degenerate
+  // `team:` scope key (matches the empty-teamID fallback in setupWorkspaceSync).
+  return workspace.type === "team" && workspace.teamID
+    ? `team:${workspace.teamID}`
+    : "personal"
+}
 
 export type WorkspaceServiceEvent = {
   type: "managed-team-list-adapter-polled"
@@ -49,6 +63,7 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
 
   private teamCollectionService = this.bind(TeamCollectionsService)
   private documentationService = this.bind(DocumentationService)
+  private persistenceService = this.bind(PersistenceService)
 
   private currentUser = useStreamStatic(
     platform.auth.getCurrentUserStream(),
@@ -130,6 +145,20 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
           user?.uid === oldUser?.uid
         ) {
           return
+        }
+
+        // Scope tab state to the new workspace first — independent of auth
+        // and network. Keeping this outside the doc-fetch try/catch ensures
+        // tab state always stays consistent with the displayed workspace
+        // even if auth wait or doc fetches fail.
+        if (!this.areWorkspacesEqual(newWorkspace, oldWorkspace)) {
+          try {
+            await this.persistenceService.switchTabsScope(
+              scopeKeyForWorkspace(newWorkspace)
+            )
+          } catch (error) {
+            console.error("Failed to switch tab scope:", error)
+          }
         }
 
         try {

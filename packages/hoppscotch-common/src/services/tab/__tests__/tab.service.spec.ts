@@ -24,6 +24,17 @@ class MockTabService extends TabService<{ request: string }> {
     this.watchCurrentTabID()
   }
 
+  protected createDefaultTab() {
+    return {
+      id: "test",
+      document: { request: "test request" },
+    }
+  }
+
+  protected async loadPersistedState() {
+    return null
+  }
+
   public getMRUOrder(): string[] {
     return [...this.mruOrder]
   }

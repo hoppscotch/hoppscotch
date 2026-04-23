@@ -147,6 +147,20 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
           return
         }
 
+        // Scope tab state to the new workspace first — independent of auth
+        // and network. Keeping this outside the doc-fetch try/catch ensures
+        // tab state always stays consistent with the displayed workspace
+        // even if auth wait or doc fetches fail.
+        if (!this.areWorkspacesEqual(newWorkspace, oldWorkspace)) {
+          try {
+            await this.persistenceService.switchTabsScope(
+              scopeKeyForWorkspace(newWorkspace)
+            )
+          } catch (error) {
+            console.error("Failed to switch tab scope:", error)
+          }
+        }
+
         try {
           // Ensure authentication is ready before fetching docs
           if (user) {
@@ -167,14 +181,6 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
             if (user) {
               await this.documentationService.fetchUserPublishedDocs()
             }
-          }
-
-          // Scope tab state to the new workspace so tabs from one workspace
-          // don't leak into another.
-          if (!this.areWorkspacesEqual(newWorkspace, oldWorkspace)) {
-            await this.persistenceService.switchTabsScope(
-              scopeKeyForWorkspace(newWorkspace)
-            )
           }
         } catch (error) {
           console.error("Failed to sync workspace data:", error)

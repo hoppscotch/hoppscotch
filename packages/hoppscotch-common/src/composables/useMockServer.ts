@@ -40,8 +40,9 @@ import { WorkspaceService } from "~/services/workspace.service"
  * (`serverUrlDomainBased`) when it's available and fall back to the
  * path-based URL (`serverUrlPathBased`) otherwise. The backend only
  * returns `serverUrlDomainBased` when a wildcard domain is configured,
- * so the path-based URL is the universal fallback.
- * And in cloud intance only `serverUrlDomainBased` is returned, so it will be used in that case.
+ * so the path-based URL is the universal fallback. On the cloud
+ * instance only `serverUrlDomainBased` is returned, so that URL is
+ * used there.
  */
 function pickMockUrl(
   server: Pick<MockServer, "serverUrlPathBased" | "serverUrlDomainBased">
@@ -121,7 +122,7 @@ export function useMockServer() {
       // (`initialValue`, goes to the store / backend) and a local half
       // (`currentValue`, stored only in CurrentValueService). The persisted
       // payload must always carry `currentValue: ""`; the real value is
-      // registered via `currentValueService`. This mirrors the pattern in
+      // registered separately via `currentValueService`.
       const selectedEnvIndex = getSelectedEnvironmentIndex()
 
       if (selectedEnvIndex.type === "MY_ENV") {
@@ -245,10 +246,21 @@ export function useMockServer() {
         } else {
           // Variable exists, bump its initialValue; keep currentValue
           // empty on persist and refresh the service entry below.
+          //
+          // We rebuild the v2 shape explicitly rather than spreading
+          // the existing variable — a legacy `{ key, value }` row
+          // would otherwise leak its `value` field alongside
+          // `initialValue` / `currentValue` and produce a mixed-
+          // schema payload.
           mockUrlVarIndex = existingVariableIndex
           updatedVariables = existingEnv.environment.variables.map((v, idx) =>
             idx === existingVariableIndex
-              ? { ...v, initialValue: mockUrl, currentValue: "" }
+              ? {
+                  key: "mockUrl",
+                  initialValue: mockUrl,
+                  currentValue: "",
+                  secret: false,
+                }
               : v
           )
           successMessage = t("mock_server.environment_variable_updated")

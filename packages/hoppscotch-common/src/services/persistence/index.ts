@@ -5,6 +5,7 @@ import { z } from "zod"
 
 import { Service } from "dioc"
 import { StorageLike, watchDebounced } from "@vueuse/core"
+import { computed } from "vue"
 import { assign, clone, isEmpty, cloneDeep } from "lodash-es"
 
 import {
@@ -184,22 +185,33 @@ const migrations: Migration[] = [
       const tabKeys = [STORE_KEYS.REST_TABS, STORE_KEYS.GQL_TABS]
       for (const baseKey of tabKeys) {
         const legacy = await Store.get<any>(STORE_NAMESPACE, baseKey)
-        if (E.isRight(legacy) && legacy.right) {
-          const setResult = await Store.set(
-            STORE_NAMESPACE,
-            `${baseKey}:personal`,
-            legacy.right
+        if (!E.isRight(legacy) || !legacy.right) continue
+
+        const scopedKey = `${baseKey}:personal`
+
+        // Don't clobber an existing scoped payload. A pre-release/partial
+        // rollout could have already written `restTabs:personal`; overwriting
+        // it with the legacy unscoped blob would lose the user's data.
+        const existingScoped = await Store.get<any>(STORE_NAMESPACE, scopedKey)
+        if (E.isRight(existingScoped) && existingScoped.right) {
+          await Store.remove(STORE_NAMESPACE, baseKey)
+          continue
+        }
+
+        const setResult = await Store.set(
+          STORE_NAMESPACE,
+          scopedKey,
+          legacy.right
+        )
+        // Only remove the legacy key after the scoped write succeeds;
+        // otherwise an interrupted migration would lose the user's tabs.
+        if (E.isRight(setResult)) {
+          await Store.remove(STORE_NAMESPACE, baseKey)
+        } else {
+          console.error(
+            `Migration v2 failed to write ${scopedKey}; keeping legacy key`,
+            setResult.left
           )
-          // Only remove the legacy key after the scoped write succeeds;
-          // otherwise an interrupted migration would lose the user's tabs.
-          if (E.isRight(setResult)) {
-            await Store.remove(STORE_NAMESPACE, baseKey)
-          } else {
-            console.error(
-              `Migration v2 failed to write ${baseKey}:personal; keeping legacy key`,
-              setResult.left
-            )
-          }
         }
       }
     },
@@ -1013,12 +1025,19 @@ export class PersistenceService extends Service {
     return `${baseKey}:${scopeKey}`
   }
 
+  private scopedBackupKey(baseKey: string, scopeKey: string): string {
+    return `${baseKey}:${scopeKey}-backup`
+  }
+
   // Schema-validate raw REST tab state and apply it to the tab service.
-  // On validation failure, shows a toast, writes a `-backup` key, and falls
-  // back to loading the raw state to match legacy behavior. Returns true if
-  // any state was applied (even via the legacy fallback), false if the data
-  // was unparseable.
-  private async applyRESTTabsPersistedState(raw: any): Promise<boolean> {
+  // On validation failure, shows a toast, writes a scoped `-backup` key, and
+  // falls back to loading the raw state to match legacy behavior. Returns
+  // true if any state was applied (even via the legacy fallback), false if
+  // the data was unparseable.
+  private async applyRESTTabsPersistedState(
+    raw: any,
+    scopeKey: string
+  ): Promise<boolean> {
     try {
       const orderedDocs = fixBrokenRequestVersion(
         cloneDeep(raw.orderedDocs) ?? []
@@ -1032,7 +1051,11 @@ export class PersistenceService extends Service {
         return true
       }
       this.showErrorToast(STORE_KEYS.REST_TABS)
-      await Store.set(STORE_NAMESPACE, `${STORE_KEYS.REST_TABS}-backup`, raw)
+      await Store.set(
+        STORE_NAMESPACE,
+        this.scopedBackupKey(STORE_KEYS.REST_TABS, scopeKey),
+        raw
+      )
       console.error(`Failed parsing persisted REST_TABS:`, JSON.stringify(raw))
       // NOTE: Still loading data to match legacy behavior
       this.restTabService.loadTabsFromPersistedState(raw)
@@ -1043,7 +1066,10 @@ export class PersistenceService extends Service {
     }
   }
 
-  private async applyGQLTabsPersistedState(raw: any): Promise<boolean> {
+  private async applyGQLTabsPersistedState(
+    raw: any,
+    scopeKey: string
+  ): Promise<boolean> {
     try {
       const result = GQL_TAB_STATE_SCHEMA.safeParse(raw)
       if (result.success) {
@@ -1053,7 +1079,11 @@ export class PersistenceService extends Service {
         return true
       }
       this.showErrorToast(STORE_KEYS.GQL_TABS)
-      await Store.set(STORE_NAMESPACE, `${STORE_KEYS.GQL_TABS}-backup`, raw)
+      await Store.set(
+        STORE_NAMESPACE,
+        this.scopedBackupKey(STORE_KEYS.GQL_TABS, scopeKey),
+        raw
+      )
       console.error(`Failed parsing persisted GQL_TABS:`, JSON.stringify(raw))
       // NOTE: Still loading data to match legacy behavior
       this.gqlTabService.loadTabsFromPersistedState(raw)
@@ -1072,19 +1102,23 @@ export class PersistenceService extends Service {
     )
 
     if (E.isRight(loadResult) && loadResult.right) {
-      await this.applyRESTTabsPersistedState(loadResult.right)
+      await this.applyRESTTabsPersistedState(loadResult.right, scopeKey)
     }
 
+    // Pair the scope key with the state so the scope captured at change time
+    // wins, not the scope at flush time. Otherwise a workspace switch during
+    // the debounce window writes the old scope's state under the new scope's
+    // key, reintroducing cross-workspace tab leakage.
     watchDebounced(
-      this.restTabService.persistableTabState,
-      async (newData) => {
+      computed(() => ({
+        scopeKey: this.restTabService.currentScopeKey.value,
+        state: this.restTabService.persistableTabState.value,
+      })),
+      async ({ scopeKey, state }) => {
         await Store.set(
           STORE_NAMESPACE,
-          this.scopedStoreKey(
-            STORE_KEYS.REST_TABS,
-            this.restTabService.currentScopeKey.value
-          ),
-          newData
+          this.scopedStoreKey(STORE_KEYS.REST_TABS, scopeKey),
+          state
         )
       },
       { debounce: 500, deep: true }
@@ -1099,19 +1133,19 @@ export class PersistenceService extends Service {
     )
 
     if (E.isRight(loadResult) && loadResult.right) {
-      await this.applyGQLTabsPersistedState(loadResult.right)
+      await this.applyGQLTabsPersistedState(loadResult.right, scopeKey)
     }
 
     watchDebounced(
-      this.gqlTabService.persistableTabState,
-      async (newData) => {
+      computed(() => ({
+        scopeKey: this.gqlTabService.currentScopeKey.value,
+        state: this.gqlTabService.persistableTabState.value,
+      })),
+      async ({ scopeKey, state }) => {
         await Store.set(
           STORE_NAMESPACE,
-          this.scopedStoreKey(
-            STORE_KEYS.GQL_TABS,
-            this.gqlTabService.currentScopeKey.value
-          ),
-          newData
+          this.scopedStoreKey(STORE_KEYS.GQL_TABS, scopeKey),
+          state
         )
       },
       { debounce: 500, deep: true }
@@ -1149,7 +1183,10 @@ export class PersistenceService extends Service {
     )
 
     if (E.isRight(loadResult) && loadResult.right) {
-      const applied = await this.applyRESTTabsPersistedState(loadResult.right)
+      const applied = await this.applyRESTTabsPersistedState(
+        loadResult.right,
+        newScopeKey
+      )
       if (applied) return
     }
 
@@ -1174,7 +1211,10 @@ export class PersistenceService extends Service {
     )
 
     if (E.isRight(loadResult) && loadResult.right) {
-      const applied = await this.applyGQLTabsPersistedState(loadResult.right)
+      const applied = await this.applyGQLTabsPersistedState(
+        loadResult.right,
+        newScopeKey
+      )
       if (applied) return
     }
 

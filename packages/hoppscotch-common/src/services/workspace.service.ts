@@ -33,7 +33,11 @@ export type Workspace = PersonalWorkspace | TeamWorkspace
  * team workspaces are keyed by team ID.
  */
 export function scopeKeyForWorkspace(workspace: Workspace): string {
-  return workspace.type === "team" ? `team:${workspace.teamID}` : "personal"
+  // Treat an empty teamID as personal so it can't produce a degenerate
+  // `team:` scope key (matches the empty-teamID fallback in setupWorkspaceSync).
+  return workspace.type === "team" && workspace.teamID
+    ? `team:${workspace.teamID}`
+    : "personal"
 }
 
 export type WorkspaceServiceEvent = {

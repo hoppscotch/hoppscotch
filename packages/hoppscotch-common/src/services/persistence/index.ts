@@ -176,6 +176,21 @@ const migrations: Migration[] = [
       }
     },
   },
+  {
+    // Moves legacy unscoped tab state (shared across workspaces) into the
+    // personal workspace scope so each workspace can own its own tab set.
+    version: 2,
+    migrate: async () => {
+      const tabKeys = [STORE_KEYS.REST_TABS, STORE_KEYS.GQL_TABS]
+      for (const baseKey of tabKeys) {
+        const legacy = await Store.get<any>(STORE_NAMESPACE, baseKey)
+        if (E.isRight(legacy) && legacy.right) {
+          await Store.set(STORE_NAMESPACE, `${baseKey}:personal`, legacy.right)
+          await Store.remove(STORE_NAMESPACE, baseKey)
+        }
+      }
+    },
+  },
 ]
 
 /**
@@ -235,7 +250,7 @@ export class PersistenceService extends Service {
     )
     const perhapsVersion = E.isRight(versionResult) ? versionResult.right : "0"
     const currentVersion = perhapsVersion ?? "0"
-    const targetVersion = "1"
+    const targetVersion = "2"
 
     if (currentVersion !== targetVersion) {
       for (const migration of migrations) {
@@ -981,10 +996,15 @@ export class PersistenceService extends Service {
     })
   }
 
+  private scopedStoreKey(baseKey: string, scopeKey: string): string {
+    return `${baseKey}:${scopeKey}`
+  }
+
   private async setupRESTTabsPersistence() {
+    const scopeKey = this.restTabService.currentScopeKey.value
     const loadResult = await Store.get<any>(
       STORE_NAMESPACE,
-      STORE_KEYS.REST_TABS
+      this.scopedStoreKey(STORE_KEYS.REST_TABS, scopeKey)
     )
 
     try {
@@ -1026,16 +1046,24 @@ export class PersistenceService extends Service {
     watchDebounced(
       this.restTabService.persistableTabState,
       async (newData) => {
-        await Store.set(STORE_NAMESPACE, STORE_KEYS.REST_TABS, newData)
+        await Store.set(
+          STORE_NAMESPACE,
+          this.scopedStoreKey(
+            STORE_KEYS.REST_TABS,
+            this.restTabService.currentScopeKey.value
+          ),
+          newData
+        )
       },
       { debounce: 500, deep: true }
     )
   }
 
   private async setupGQLTabsPersistence() {
+    const scopeKey = this.gqlTabService.currentScopeKey.value
     const loadResult = await Store.get<any>(
       STORE_NAMESPACE,
-      STORE_KEYS.GQL_TABS
+      this.scopedStoreKey(STORE_KEYS.GQL_TABS, scopeKey)
     )
 
     try {
@@ -1069,10 +1097,113 @@ export class PersistenceService extends Service {
     watchDebounced(
       this.gqlTabService.persistableTabState,
       async (newData) => {
-        await Store.set(STORE_NAMESPACE, STORE_KEYS.GQL_TABS, newData)
+        await Store.set(
+          STORE_NAMESPACE,
+          this.scopedStoreKey(
+            STORE_KEYS.GQL_TABS,
+            this.gqlTabService.currentScopeKey.value
+          ),
+          newData
+        )
       },
       { debounce: 500, deep: true }
     )
+  }
+
+  /**
+   * Switches REST + GraphQL tab persistence to the given workspace scope.
+   * Flushes the current in-memory state to the old scope's key, then loads the
+   * new scope's state (or resets to a default tab if the new scope is empty).
+   */
+  public async switchTabsScope(newScopeKey: string): Promise<void> {
+    await Promise.all([
+      this.switchRESTTabsScope(newScopeKey),
+      this.switchGQLTabsScope(newScopeKey),
+    ])
+  }
+
+  private async switchRESTTabsScope(newScopeKey: string): Promise<void> {
+    const oldScopeKey = this.restTabService.currentScopeKey.value
+    if (oldScopeKey === newScopeKey) return
+
+    // Flush current state to the old scope
+    await Store.set(
+      STORE_NAMESPACE,
+      this.scopedStoreKey(STORE_KEYS.REST_TABS, oldScopeKey),
+      this.restTabService.persistableTabState.value
+    )
+
+    this.restTabService.currentScopeKey.value = newScopeKey
+
+    const loadResult = await Store.get<any>(
+      STORE_NAMESPACE,
+      this.scopedStoreKey(STORE_KEYS.REST_TABS, newScopeKey)
+    )
+
+    if (E.isRight(loadResult) && loadResult.right) {
+      try {
+        const orderedDocs = fixBrokenRequestVersion(
+          cloneDeep(loadResult.right.orderedDocs) ?? []
+        )
+        const transformedTabs = { ...loadResult.right, orderedDocs }
+        const result = REST_TAB_STATE_SCHEMA.safeParse(transformedTabs)
+        if (result.success) {
+          this.restTabService.loadTabsFromPersistedState(
+            result.data as PersistableTabState<HoppTabDocument>
+          )
+          return
+        }
+        // NOTE: Fallback to legacy behavior on schema mismatch
+        this.restTabService.loadTabsFromPersistedState(loadResult.right)
+        return
+      } catch (_e) {
+        console.error(
+          `Failed parsing persisted REST_TABS for scope ${newScopeKey}:`,
+          loadResult
+        )
+      }
+    }
+
+    this.restTabService.resetToDefault()
+  }
+
+  private async switchGQLTabsScope(newScopeKey: string): Promise<void> {
+    const oldScopeKey = this.gqlTabService.currentScopeKey.value
+    if (oldScopeKey === newScopeKey) return
+
+    await Store.set(
+      STORE_NAMESPACE,
+      this.scopedStoreKey(STORE_KEYS.GQL_TABS, oldScopeKey),
+      this.gqlTabService.persistableTabState.value
+    )
+
+    this.gqlTabService.currentScopeKey.value = newScopeKey
+
+    const loadResult = await Store.get<any>(
+      STORE_NAMESPACE,
+      this.scopedStoreKey(STORE_KEYS.GQL_TABS, newScopeKey)
+    )
+
+    if (E.isRight(loadResult) && loadResult.right) {
+      try {
+        const result = GQL_TAB_STATE_SCHEMA.safeParse(loadResult.right)
+        if (result.success) {
+          this.gqlTabService.loadTabsFromPersistedState(
+            result.data as PersistableTabState<HoppGQLDocument>
+          )
+          return
+        }
+        this.gqlTabService.loadTabsFromPersistedState(loadResult.right)
+        return
+      } catch (_e) {
+        console.error(
+          `Failed parsing persisted GQL_TABS for scope ${newScopeKey}:`,
+          loadResult
+        )
+      }
+    }
+
+    this.gqlTabService.resetToDefault()
   }
 
   public async setupFirst() {
@@ -1136,6 +1267,20 @@ export class PersistenceService extends Service {
     key: (typeof STORE_KEYS)[keyof typeof STORE_KEYS]
   ): Promise<T | null> {
     const r = await Store.get<T>(STORE_NAMESPACE, key)
+
+    if (E.isLeft(r)) return null
+
+    return r.right ?? null
+  }
+
+  /**
+   * Like getNullable, but reads from a workspace-scoped key composed of `baseKey:scopeKey`.
+   */
+  public async getScopedNullable<T>(
+    baseKey: (typeof STORE_KEYS)[keyof typeof STORE_KEYS],
+    scopeKey: string
+  ): Promise<T | null> {
+    const r = await Store.get<T>(STORE_NAMESPACE, `${baseKey}:${scopeKey}`)
 
     if (E.isLeft(r)) return null
 

@@ -5,7 +5,7 @@ import { HoppRESTSaveContext, HoppTabDocument } from "~/helpers/rest/document"
 import { getService } from "~/modules/dioc"
 import { PersistenceService, STORE_KEYS } from "../persistence"
 import { TabService } from "./tab"
-import { PersistableTabState } from "."
+import { HoppTab, PersistableTabState } from "."
 
 export class RESTTabService extends TabService<HoppTabDocument> {
   public static readonly ID = "REST_TAB_SERVICE"
@@ -15,7 +15,14 @@ export class RESTTabService extends TabService<HoppTabDocument> {
   constructor(c: Container) {
     super(c)
 
-    this.tabMap.set("test", {
+    const defaultTab = this.createDefaultTab()
+    this.tabMap.set(defaultTab.id, defaultTab)
+
+    this.watchCurrentTabID()
+  }
+
+  protected createDefaultTab(): HoppTab<HoppTabDocument> {
+    return {
       id: "test",
       document: {
         type: "request",
@@ -23,9 +30,7 @@ export class RESTTabService extends TabService<HoppTabDocument> {
         isDirty: false,
         optionTabPreference: "params",
       },
-    })
-
-    this.watchCurrentTabID()
+    }
   }
 
   // override persistableTabState to remove response from the document
@@ -64,9 +69,9 @@ export class RESTTabService extends TabService<HoppTabDocument> {
 
   protected async loadPersistedState(): Promise<PersistableTabState<HoppTabDocument> | null> {
     const persistenceService = getService(PersistenceService)
-    const savedState = await persistenceService.getNullable<
+    const savedState = await persistenceService.getScopedNullable<
       PersistableTabState<HoppTabDocument>
-    >(STORE_KEYS.REST_TABS)
+    >(STORE_KEYS.REST_TABS, this.currentScopeKey.value)
     return savedState
   }
 

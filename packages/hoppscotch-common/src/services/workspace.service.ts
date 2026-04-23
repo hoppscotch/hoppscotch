@@ -8,6 +8,7 @@ import { min } from "lodash-es"
 import { TeamAccessRole } from "~/helpers/backend/graphql"
 import { TeamCollectionsService } from "./team-collection.service"
 import { DocumentationService } from "./documentation.service"
+import { PersistenceService } from "./persistence"
 
 /**
  * Defines a workspace and its information
@@ -25,6 +26,15 @@ export type TeamWorkspace = {
 }
 
 export type Workspace = PersonalWorkspace | TeamWorkspace
+
+/**
+ * Derives a stable key that identifies a workspace for per-workspace
+ * persistence (e.g., tab state). Personal workspaces share a single key;
+ * team workspaces are keyed by team ID.
+ */
+export function scopeKeyForWorkspace(workspace: Workspace): string {
+  return workspace.type === "team" ? `team:${workspace.teamID}` : "personal"
+}
 
 export type WorkspaceServiceEvent = {
   type: "managed-team-list-adapter-polled"
@@ -49,6 +59,7 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
 
   private teamCollectionService = this.bind(TeamCollectionsService)
   private documentationService = this.bind(DocumentationService)
+  private persistenceService = this.bind(PersistenceService)
 
   private currentUser = useStreamStatic(
     platform.auth.getCurrentUserStream(),
@@ -152,6 +163,14 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
             if (user) {
               await this.documentationService.fetchUserPublishedDocs()
             }
+          }
+
+          // Scope tab state to the new workspace so tabs from one workspace
+          // don't leak into another.
+          if (!this.areWorkspacesEqual(newWorkspace, oldWorkspace)) {
+            await this.persistenceService.switchTabsScope(
+              scopeKeyForWorkspace(newWorkspace)
+            )
           }
         } catch (error) {
           console.error("Failed to sync workspace data:", error)

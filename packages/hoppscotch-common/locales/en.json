@@ -756,7 +756,9 @@
     "generate_access_token": "Something went wrong while generating the access token",
     "delete_access_token": "Something went wrong while deleting the access token",
     "extension_not_found": "Extension not found",
-    "invalid_request": "Invalid request data"
+    "invalid_request": "Invalid request data",
+    "profile_name_too_long": "Profile name cannot be more than 30 characters",
+    "profile_name_no_emojis": "Profile name cannot contain emojis"
   },
   "export": {
     "as_json": "Export as JSON",

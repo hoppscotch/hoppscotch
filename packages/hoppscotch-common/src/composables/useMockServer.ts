@@ -13,6 +13,7 @@ import {
   updateTeamEnvironment,
 } from "~/helpers/backend/mutations/TeamEnvironment"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
+import { uniqueID } from "~/helpers/utils/uniqueID"
 import { restCollections$ } from "~/newstore/collections"
 import {
   addEnvironmentVariable,
@@ -27,14 +28,35 @@ import {
   updateMockServer as updateMockServerInStore,
   loadMockServers,
 } from "~/newstore/mockServers"
+import { CurrentValueService } from "~/services/current-environment-value.service"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { WorkspaceService } from "~/services/workspace.service"
+
+/**
+ * Picks which mock-server URL should be stored as the `mockUrl`
+ * environment variable.
+ *
+ * Policy: always prefer the subdomain-based URL
+ * (`serverUrlDomainBased`) when it's available and fall back to the
+ * path-based URL (`serverUrlPathBased`) otherwise. The backend only
+ * returns `serverUrlDomainBased` when a wildcard domain is configured,
+ * so the path-based URL is the universal fallback.
+ * And in cloud intance only `serverUrlDomainBased` is returned, so it will be used in that case.
+ */
+function pickMockUrl(
+  server: Pick<MockServer, "serverUrlPathBased" | "serverUrlDomainBased">
+): string {
+  const path = server.serverUrlPathBased ?? ""
+  const subdomain = server.serverUrlDomainBased ?? ""
+  return subdomain || path
+}
 
 export function useMockServer() {
   const t = useI18n()
   const toast = useToast()
   const workspaceService = useService(WorkspaceService)
   const teamCollectionsService = useService(TeamCollectionsService)
+  const currentValueService = useService(CurrentValueService)
 
   const mockServers = useReadonlyStream(mockServers$, [])
   const collections = useReadonlyStream(restCollections$, [])
@@ -93,7 +115,13 @@ export function useMockServer() {
     const workspaceType = currentWorkspace.value.type
 
     if (workspaceType === "personal") {
-      // For personal workspace, add to selected environment or create new one
+      // For personal workspace, add to selected environment or create new one.
+      //
+      // Architectural note: env variables are split into a persisted half
+      // (`initialValue`, goes to the store / backend) and a local half
+      // (`currentValue`, stored only in CurrentValueService). The persisted
+      // payload must always carry `currentValue: ""`; the real value is
+      // registered via `currentValueService`. This mirrors the pattern in
       const selectedEnvIndex = getSelectedEnvironmentIndex()
 
       if (selectedEnvIndex.type === "MY_ENV") {
@@ -104,36 +132,72 @@ export function useMockServer() {
         )
 
         if (existingVariableIndex === -1) {
-          // Add to existing selected environment
+          // Add to existing selected environment. The new variable will be
+          // appended at `env.variables.length` once the dispatch lands.
+          const newVarIndex = env.variables.length
           addEnvironmentVariable(selectedEnvIndex.index, {
             key: "mockUrl",
             initialValue: mockUrl,
-            currentValue: mockUrl,
+            currentValue: "",
             secret: false,
+          })
+          currentValueService.addEnvironmentVariable(env.id, {
+            key: "mockUrl",
+            currentValue: mockUrl,
+            varIndex: newVarIndex,
+            isSecret: false,
           })
           toast.success(t("mock_server.environment_variable_added"))
         } else {
-          // Update existing mockUrl variable with new value using the store dispatcher
+          // Update existing mockUrl variable with new value using the
+          // store dispatcher. Persist initial only; update the current
+          // value separately via the service (remove + add, since there
+          // is no explicit update API on the service).
           updateEnvironmentVariable(
             selectedEnvIndex.index,
             existingVariableIndex,
             {
               key: "mockUrl",
               initialValue: mockUrl,
-              currentValue: mockUrl,
+              currentValue: "",
             }
           )
+          currentValueService.removeEnvironmentVariable(
+            env.id,
+            existingVariableIndex
+          )
+          currentValueService.addEnvironmentVariable(env.id, {
+            key: "mockUrl",
+            currentValue: mockUrl,
+            varIndex: existingVariableIndex,
+            isSecret: false,
+          })
           toast.success(t("mock_server.environment_variable_updated"))
         }
       } else {
-        // Create a new environment with the mock URL
+        // Create a new environment with the mock URL.
+        // We generate the env ID up front so we can register the current
+        // value against the same ID without racing the dispatch.
         const envName = `${collectionName} Environment`
-        createEnvironment(envName, [
+        const envID = uniqueID()
+        createEnvironment(
+          envName,
+          [
+            {
+              key: "mockUrl",
+              initialValue: mockUrl,
+              currentValue: "",
+              secret: false,
+            },
+          ],
+          envID
+        )
+        currentValueService.addEnvironment(envID, [
           {
             key: "mockUrl",
-            initialValue: mockUrl,
             currentValue: mockUrl,
-            secret: false,
+            varIndex: 0,
+            isSecret: false,
           },
         ])
         toast.success(t("mock_server.environment_created_with_variable"))
@@ -158,17 +222,34 @@ export function useMockServer() {
         let updatedVariables
         let successMessage
 
+        // Track the varIndex that will hold mockUrl after the update
+        // so we can register the current value against the right slot.
+        let mockUrlVarIndex: number
+
         if (existingVariableIndex === -1) {
-          // Variable doesn't exist, add it
+          // Variable doesn't exist, append it. Team env variables follow
+          // the v2 schema ({ key, initialValue, currentValue, secret }).
+          // `currentValue` must be empty on persist — the real value is
+          // stored locally via CurrentValueService.
+          mockUrlVarIndex = existingEnv.environment.variables.length
           updatedVariables = [
             ...existingEnv.environment.variables,
-            { key: "mockUrl", value: mockUrl },
+            {
+              key: "mockUrl",
+              initialValue: mockUrl,
+              currentValue: "",
+              secret: false,
+            },
           ]
           successMessage = t("mock_server.environment_variable_added")
         } else {
-          // Variable exists, update its value
+          // Variable exists, bump its initialValue; keep currentValue
+          // empty on persist and refresh the service entry below.
+          mockUrlVarIndex = existingVariableIndex
           updatedVariables = existingEnv.environment.variables.map((v, idx) =>
-            idx === existingVariableIndex ? { ...v, value: mockUrl } : v
+            idx === existingVariableIndex
+              ? { ...v, initialValue: mockUrl, currentValue: "" }
+              : v
           )
           successMessage = t("mock_server.environment_variable_updated")
         }
@@ -185,14 +266,36 @@ export function useMockServer() {
               toast.error(t("error.something_went_wrong"))
             },
             () => {
+              // Persist succeeded — now register the real current value
+              // against the team env's ID. Remove any stale entry at the
+              // same slot first (no explicit update API on the service).
+              currentValueService.removeEnvironmentVariable(
+                existingEnv.id,
+                mockUrlVarIndex
+              )
+              currentValueService.addEnvironmentVariable(existingEnv.id, {
+                key: "mockUrl",
+                currentValue: mockUrl,
+                varIndex: mockUrlVarIndex,
+                isSecret: false,
+              })
               toast.success(successMessage)
             }
           )
         )()
       } else {
-        // Create new team environment
+        // Create new team environment. Variables go out with an empty
+        // currentValue; the real value is registered locally against
+        // the server-assigned env ID once the mutation returns.
         const envName = `${collectionName} Environment`
-        const variables = [{ key: "mockUrl", value: mockUrl }]
+        const variables = [
+          {
+            key: "mockUrl",
+            initialValue: mockUrl,
+            currentValue: "",
+            secret: false,
+          },
+        ]
 
         await pipe(
           createTeamEnvironment(JSON.stringify(variables), teamID, envName),
@@ -201,7 +304,18 @@ export function useMockServer() {
               console.error("Failed to create team environment:", error)
               toast.error(t("error.something_went_wrong"))
             },
-            () => {
+            (result) => {
+              const newEnvID = result.createTeamEnvironment.id
+              if (newEnvID) {
+                currentValueService.addEnvironment(newEnvID, [
+                  {
+                    key: "mockUrl",
+                    currentValue: mockUrl,
+                    varIndex: 0,
+                    isSecret: false,
+                  },
+                ])
+              }
               toast.success(t("mock_server.environment_created_with_variable"))
             }
           )
@@ -284,10 +398,12 @@ export function useMockServer() {
       return { success: false, server: null }
     }
 
-    // Add mock URL to environment if enabled
+    // Add mock URL to environment if enabled.
+    // Always prefer `serverUrlDomainBased`; fall back to
+    // `serverUrlPathBased` when the backend has no wildcard domain
+    // configured and the subdomain URL comes back null.
     if (setInEnvironment) {
-      const mockUrl =
-        result.serverUrlPathBased || result.serverUrlDomainBased || ""
+      const mockUrl = pickMockUrl(result)
       if (mockUrl) {
         await addMockUrlToEnvironment(mockUrl, collectionName)
       }

@@ -1327,6 +1327,8 @@
     "experimental_scripting_sandbox": "实验性脚本沙盒",
     "enable_experimental_mock_servers": "启用 Mock 服务",
     "enable_experimental_documentation": "启用文档",
+    "require_auth_for_app": "使用应用程序需要登录",
+    "require_auth_for_app_description": "启用后，未经身份验证的用户将被重定向到登录页面",
     "sync": "同步",
     "sync_collections": "集合",
     "sync_description": "这些设置会同步到云。",

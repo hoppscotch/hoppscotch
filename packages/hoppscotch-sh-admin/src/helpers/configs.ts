@@ -95,6 +95,11 @@ export type ServerConfigs = {
       mock_server_wildcard_domain: string;
     };
   };
+
+  authRestrictionConfig: {
+    name: string;
+    enabled: boolean;
+  };
 };
 
 export type UpdatedConfigs = {
@@ -295,6 +300,13 @@ export const MOCK_SERVER_CONFIGS: Config[] = [
   },
 ];
 
+export const AUTH_RESTRICTION_CONFIG: Config[] = [
+  {
+    name: InfraConfigEnum.RequireAuthForAccess,
+    key: 'require_auth_for_access',
+  },
+];
+
 export const ALL_CONFIGS = [
   GOOGLE_CONFIGS,
   MICROSOFT_CONFIGS,
@@ -306,4 +318,5 @@ export const ALL_CONFIGS = [
   RATE_LIMIT_CONFIGS,
   TOKEN_VALIDATION_CONFIGS,
   MOCK_SERVER_CONFIGS,
+  AUTH_RESTRICTION_CONFIG,
 ];

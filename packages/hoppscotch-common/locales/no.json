@@ -679,6 +679,8 @@
     "short_codes_description": "Short codes which were created by you.",
     "sidebar_on_left": "Sidebar on left",
     "sync": "Synkroniser",
+    "require_auth_for_app": "Krev innlogging for å bruke appen",
+    "require_auth_for_app_description": "Når aktivert, omdirigeres ikke-autentiserte brukere til innloggingssiden",
     "sync_collections": "Samlinger",
     "sync_description": "Disse innstillingene er synkronisert med skyen.",
     "sync_environments": "Miljøer",

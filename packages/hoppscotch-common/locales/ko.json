@@ -679,6 +679,8 @@
     "short_codes_description": "Short codes which were created by you.",
     "sidebar_on_left": "사이드바를 왼쪽에 위치",
     "sync": "동기화",
+    "require_auth_for_app": "앱 사용 시 로그인 필요",
+    "require_auth_for_app_description": "활성화하면 인증되지 않은 사용자가 로그인 페이지로 리디렉션됩니다",
     "sync_collections": "모음집",
     "sync_description": "설정을 클라우드에 동기화합니다.",
     "sync_environments": "환경",

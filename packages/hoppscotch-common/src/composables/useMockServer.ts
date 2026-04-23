@@ -4,6 +4,7 @@ import { useToast } from "@composables/toast"
 import { useService } from "dioc/vue"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
+import { translateToNewEnvironmentVariables } from "@hoppscotch/data"
 import { computed } from "vue"
 import { WorkspaceType } from "~/helpers/backend/graphql"
 import type { MockServer } from "~/helpers/backend/types/MockServer"
@@ -266,9 +267,21 @@ export function useMockServer() {
           successMessage = t("mock_server.environment_variable_updated")
         }
 
+        // Normalize every entry before persisting. Other variables
+        // in this list may still be legacy `{ key, value }` rows
+        // because `TeamEnvironmentAdapter` subscribes via raw
+        // `JSON.parse` without running the translator — if we just
+        // stringified `updatedVariables` as-is we could send a
+        // mixed-schema payload back to the backend. Running each
+        // row through `translateToNewEnvironmentVariables` guarantees
+        // all entries are in the v2 shape.
+        const normalizedVariables = updatedVariables.map(
+          translateToNewEnvironmentVariables
+        )
+
         await pipe(
           updateTeamEnvironment(
-            JSON.stringify(updatedVariables),
+            JSON.stringify(normalizedVariables),
             existingEnv.id,
             existingEnv.environment.name
           ),

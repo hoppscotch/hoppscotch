@@ -185,8 +185,21 @@ const migrations: Migration[] = [
       for (const baseKey of tabKeys) {
         const legacy = await Store.get<any>(STORE_NAMESPACE, baseKey)
         if (E.isRight(legacy) && legacy.right) {
-          await Store.set(STORE_NAMESPACE, `${baseKey}:personal`, legacy.right)
-          await Store.remove(STORE_NAMESPACE, baseKey)
+          const setResult = await Store.set(
+            STORE_NAMESPACE,
+            `${baseKey}:personal`,
+            legacy.right
+          )
+          // Only remove the legacy key after the scoped write succeeds;
+          // otherwise an interrupted migration would lose the user's tabs.
+          if (E.isRight(setResult)) {
+            await Store.remove(STORE_NAMESPACE, baseKey)
+          } else {
+            console.error(
+              `Migration v2 failed to write ${baseKey}:personal; keeping legacy key`,
+              setResult.left
+            )
+          }
         }
       }
     },
@@ -1000,6 +1013,57 @@ export class PersistenceService extends Service {
     return `${baseKey}:${scopeKey}`
   }
 
+  // Schema-validate raw REST tab state and apply it to the tab service.
+  // On validation failure, shows a toast, writes a `-backup` key, and falls
+  // back to loading the raw state to match legacy behavior. Returns true if
+  // any state was applied (even via the legacy fallback), false if the data
+  // was unparseable.
+  private async applyRESTTabsPersistedState(raw: any): Promise<boolean> {
+    try {
+      const orderedDocs = fixBrokenRequestVersion(
+        cloneDeep(raw.orderedDocs) ?? []
+      )
+      const transformedTabs = { ...raw, orderedDocs }
+      const result = REST_TAB_STATE_SCHEMA.safeParse(transformedTabs)
+      if (result.success) {
+        this.restTabService.loadTabsFromPersistedState(
+          result.data as PersistableTabState<HoppTabDocument>
+        )
+        return true
+      }
+      this.showErrorToast(STORE_KEYS.REST_TABS)
+      await Store.set(STORE_NAMESPACE, `${STORE_KEYS.REST_TABS}-backup`, raw)
+      console.error(`Failed parsing persisted REST_TABS:`, JSON.stringify(raw))
+      // NOTE: Still loading data to match legacy behavior
+      this.restTabService.loadTabsFromPersistedState(raw)
+      return true
+    } catch (_e) {
+      console.error(`Failed parsing persisted REST_TABS:`, raw)
+      return false
+    }
+  }
+
+  private async applyGQLTabsPersistedState(raw: any): Promise<boolean> {
+    try {
+      const result = GQL_TAB_STATE_SCHEMA.safeParse(raw)
+      if (result.success) {
+        this.gqlTabService.loadTabsFromPersistedState(
+          result.data as PersistableTabState<HoppGQLDocument>
+        )
+        return true
+      }
+      this.showErrorToast(STORE_KEYS.GQL_TABS)
+      await Store.set(STORE_NAMESPACE, `${STORE_KEYS.GQL_TABS}-backup`, raw)
+      console.error(`Failed parsing persisted GQL_TABS:`, JSON.stringify(raw))
+      // NOTE: Still loading data to match legacy behavior
+      this.gqlTabService.loadTabsFromPersistedState(raw)
+      return true
+    } catch (_e) {
+      console.error(`Failed parsing persisted GQL_TABS:`, raw)
+      return false
+    }
+  }
+
   private async setupRESTTabsPersistence() {
     const scopeKey = this.restTabService.currentScopeKey.value
     const loadResult = await Store.get<any>(
@@ -1007,40 +1071,8 @@ export class PersistenceService extends Service {
       this.scopedStoreKey(STORE_KEYS.REST_TABS, scopeKey)
     )
 
-    try {
-      if (E.isRight(loadResult) && loadResult.right) {
-        // Correcting the request schema for broken data
-        const orderedDocs = fixBrokenRequestVersion(
-          cloneDeep(loadResult.right.orderedDocs) ?? []
-        )
-
-        const transformedTabs = {
-          ...loadResult.right,
-          orderedDocs,
-        }
-        const result = REST_TAB_STATE_SCHEMA.safeParse(transformedTabs)
-        if (result.success) {
-          // SAFETY: We know the schema matches
-          this.restTabService.loadTabsFromPersistedState(
-            result.data as PersistableTabState<HoppTabDocument>
-          )
-        } else {
-          this.showErrorToast(STORE_KEYS.REST_TABS)
-          await Store.set(
-            STORE_NAMESPACE,
-            `${STORE_KEYS.REST_TABS}-backup`,
-            loadResult.right
-          )
-          console.error(
-            `Failed parsing persisted REST_TABS:`,
-            JSON.stringify(loadResult.right)
-          )
-          // NOTE: Still loading data to match legacy behavior
-          this.restTabService.loadTabsFromPersistedState(loadResult.right)
-        }
-      }
-    } catch (_e) {
-      console.error(`Failed parsing persisted REST_TABS:`, loadResult)
+    if (E.isRight(loadResult) && loadResult.right) {
+      await this.applyRESTTabsPersistedState(loadResult.right)
     }
 
     watchDebounced(
@@ -1066,32 +1098,8 @@ export class PersistenceService extends Service {
       this.scopedStoreKey(STORE_KEYS.GQL_TABS, scopeKey)
     )
 
-    try {
-      if (E.isRight(loadResult) && loadResult.right) {
-        const result = GQL_TAB_STATE_SCHEMA.safeParse(loadResult.right)
-
-        if (result.success) {
-          // SAFETY: We know the schema matches
-          this.gqlTabService.loadTabsFromPersistedState(
-            result.data as PersistableTabState<HoppGQLDocument>
-          )
-        } else {
-          this.showErrorToast(STORE_KEYS.GQL_TABS)
-          await Store.set(
-            STORE_NAMESPACE,
-            `${STORE_KEYS.GQL_TABS}-backup`,
-            loadResult.right
-          )
-          console.error(
-            `Failed parsing persisted GQL_TABS:`,
-            JSON.stringify(loadResult.right)
-          )
-          // NOTE: Still loading data to match legacy behavior
-          this.gqlTabService.loadTabsFromPersistedState(loadResult.right)
-        }
-      }
-    } catch (_e) {
-      console.error(`Failed parsing persisted GQL_TABS:`, loadResult)
+    if (E.isRight(loadResult) && loadResult.right) {
+      await this.applyGQLTabsPersistedState(loadResult.right)
     }
 
     watchDebounced(
@@ -1141,27 +1149,8 @@ export class PersistenceService extends Service {
     )
 
     if (E.isRight(loadResult) && loadResult.right) {
-      try {
-        const orderedDocs = fixBrokenRequestVersion(
-          cloneDeep(loadResult.right.orderedDocs) ?? []
-        )
-        const transformedTabs = { ...loadResult.right, orderedDocs }
-        const result = REST_TAB_STATE_SCHEMA.safeParse(transformedTabs)
-        if (result.success) {
-          this.restTabService.loadTabsFromPersistedState(
-            result.data as PersistableTabState<HoppTabDocument>
-          )
-          return
-        }
-        // NOTE: Fallback to legacy behavior on schema mismatch
-        this.restTabService.loadTabsFromPersistedState(loadResult.right)
-        return
-      } catch (_e) {
-        console.error(
-          `Failed parsing persisted REST_TABS for scope ${newScopeKey}:`,
-          loadResult
-        )
-      }
+      const applied = await this.applyRESTTabsPersistedState(loadResult.right)
+      if (applied) return
     }
 
     this.restTabService.resetToDefault()
@@ -1185,22 +1174,8 @@ export class PersistenceService extends Service {
     )
 
     if (E.isRight(loadResult) && loadResult.right) {
-      try {
-        const result = GQL_TAB_STATE_SCHEMA.safeParse(loadResult.right)
-        if (result.success) {
-          this.gqlTabService.loadTabsFromPersistedState(
-            result.data as PersistableTabState<HoppGQLDocument>
-          )
-          return
-        }
-        this.gqlTabService.loadTabsFromPersistedState(loadResult.right)
-        return
-      } catch (_e) {
-        console.error(
-          `Failed parsing persisted GQL_TABS for scope ${newScopeKey}:`,
-          loadResult
-        )
-      }
+      const applied = await this.applyGQLTabsPersistedState(loadResult.right)
+      if (applied) return
     }
 
     this.gqlTabService.resetToDefault()
@@ -1280,7 +1255,10 @@ export class PersistenceService extends Service {
     baseKey: (typeof STORE_KEYS)[keyof typeof STORE_KEYS],
     scopeKey: string
   ): Promise<T | null> {
-    const r = await Store.get<T>(STORE_NAMESPACE, `${baseKey}:${scopeKey}`)
+    const r = await Store.get<T>(
+      STORE_NAMESPACE,
+      this.scopedStoreKey(baseKey, scopeKey)
+    )
 
     if (E.isLeft(r)) return null
 

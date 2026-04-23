@@ -144,6 +144,9 @@ export abstract class TabService<Doc>
       this.tabOrdering.value = []
       this.mruOrder = []
       this.mruNavigationIndex = -1
+      // Clear recently-closed history so "Reopen Closed Tab" cannot revive
+      // tabs from a previous workspace after a scope switch.
+      this.recentlyClosedTabs = []
 
       for (const doc of data.orderedDocs) {
         this.tabMap.set(doc.tabID, {

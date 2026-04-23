@@ -81,6 +81,7 @@ export type HoppAction =
   | "modals.support.toggle" // Shows the support modal
   | "modals.share.toggle" // Shows the share modal
   | "modals.environment.add" // Show add environment modal via context menu
+  | "modals.collection.edit-variables" // Open collection properties modal on variables tab
   | "modals.environment.new" // Add new environment
   | "modals.environment.delete-selected" // Delete Selected Environment
   | "modals.my.environment.edit" // Edit current personal environment
@@ -193,7 +194,29 @@ type HoppActionArgsMap = {
   "modals.environment.add": {
     envName: string
     variableName: string
+    scope?: "global" | "my-environment" | "team-environment" | "collection"
+    collection?:
+      | {
+          originLocation: "user-collection"
+          collectionRefID: string
+          collectionPath: string
+          collectionName: string
+        }
+      | {
+          originLocation: "team-collection"
+          collectionID: string
+          collectionName: string
+        }
   }
+  "modals.collection.edit-variables":
+    | {
+        originLocation: "user-collection"
+        collectionPath: string
+      }
+    | {
+        originLocation: "team-collection"
+        collectionID: string
+      }
 }
 
 type KeysWithValueUndefined<T> = {

@@ -37,6 +37,7 @@ import IconLibrary from "~icons/lucide/library?raw"
 import { isComment } from "./helpers"
 import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { temporaryVariables } from "~/helpers/runner/temp_envs"
 import {
   ENV_VAR_NAME_REGEX,
   HOPP_ENVIRONMENT_REGEX,
@@ -133,16 +134,19 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
 
       // If the environment is not a request variable or collection variable, get the current value from the current environment service
       // For collection variables and request variables, use the value directly from tooltipEnv
-      let envCurrentValue =
+      const shouldUseCurrentEnvironmentValueService =
         tooltipEnv?.sourceEnv !== "RequestVariable" &&
-        tooltipEnv?.sourceEnv !== "CollectionVariable"
-          ? currentEnvironmentValueService.getEnvironmentByKey(
-              tooltipEnv?.sourceEnv !== "Global"
-                ? currentSelectedEnvironment.id
-                : "Global",
-              tooltipEnv?.key ?? ""
-            )?.currentValue || tooltipEnv?.currentValue
-          : tooltipEnv?.currentValue
+        tooltipEnv?.sourceEnv !== "CollectionVariable" &&
+        tooltipEnv?.sourceEnv !== "Temporary"
+
+      let envCurrentValue = shouldUseCurrentEnvironmentValueService
+        ? currentEnvironmentValueService.getEnvironmentByKey(
+            tooltipEnv?.sourceEnv !== "Global"
+              ? currentSelectedEnvironment.id
+              : "Global",
+            tooltipEnv?.key ?? ""
+          )?.currentValue || tooltipEnv?.currentValue
+        : tooltipEnv?.currentValue
 
       const isSecret = tooltipEnv?.secret === true
       const hasSource = Boolean(tooltipEnv?.sourceEnv)
@@ -166,7 +170,10 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
 
       // Display secret values as "******" when stored; if no secret is saved, show "Empty" placeholders instead
       if (isSecret) {
-        if (hasSecretValueStored && hasSecretInitialValueStored) {
+        if (tooltipEnv?.sourceEnv === "Temporary") {
+          envInitialValue = "******"
+          envCurrentValue = "******"
+        } else if (hasSecretValueStored && hasSecretInitialValueStored) {
           envInitialValue = "******"
           envCurrentValue = "******"
         } else if (!hasSecretValueStored && hasSecretInitialValueStored) {
@@ -391,8 +398,19 @@ const getRequestAndCollectionVariables = (
     false
   )
 
-  return [...reqVars, ...collVars]
+  return { reqVars, collVars }
 }
+
+const getTemporaryVariables = (): AggregateEnvironment[] =>
+  temporaryVariables.value
+    .filter((v) => Boolean(v.key))
+    .map((v) => ({
+      key: v.key,
+      currentValue: v.secret ? "******" : (v.currentValue ?? ""),
+      initialValue: v.secret ? "******" : (v.initialValue ?? ""),
+      secret: v.secret ?? false,
+      sourceEnv: "Temporary",
+    }))
 
 export class HoppEnvironmentPlugin {
   private compartment = new Compartment()
@@ -425,13 +443,27 @@ export class HoppEnvironmentPlugin {
             ? request.requestVariables
             : []
 
-        const requestAndCollVars = getRequestAndCollectionVariables(
+        const { reqVars, collVars } = getRequestAndCollectionVariables(
           requestVariables,
           collectionVariables
         )
 
+        const tempVars = getTemporaryVariables()
         const currentAggregateEnvs = getAggregateEnvsWithCurrentValue()
-        this.envs = [...requestAndCollVars, ...currentAggregateEnvs]
+        const selectedEnvs = currentAggregateEnvs.filter(
+          (e) => e.sourceEnv !== "Global"
+        )
+        const globalEnvs = currentAggregateEnvs.filter(
+          (e) => e.sourceEnv === "Global"
+        )
+        // Priority: request → temporary → collection → selected env → global
+        this.envs = [
+          ...reqVars,
+          ...tempVars,
+          ...collVars,
+          ...selectedEnvs,
+          ...globalEnvs,
+        ]
 
         this.editorView.value?.dispatch({
           effects: this.compartment.reconfigure([
@@ -456,12 +488,22 @@ export class HoppEnvironmentPlugin {
       const requestVariables =
         request && "requestVariables" in request ? request.requestVariables : []
 
-      const freshRequestAndCollVars = getRequestAndCollectionVariables(
+      const { reqVars, collVars } = getRequestAndCollectionVariables(
         requestVariables,
         inheritedProperties?.variables ?? []
       )
 
-      this.envs = [...freshRequestAndCollVars, ...envs]
+      const tempVars = getTemporaryVariables()
+      const selectedEnvs = envs.filter((e) => e.sourceEnv !== "Global")
+      const globalEnvs = envs.filter((e) => e.sourceEnv === "Global")
+      // Priority: request → temporary → collection → selected env → global
+      this.envs = [
+        ...reqVars,
+        ...tempVars,
+        ...collVars,
+        ...selectedEnvs,
+        ...globalEnvs,
+      ]
 
       this.editorView.value?.dispatch({
         effects: this.compartment.reconfigure([
@@ -470,6 +512,56 @@ export class HoppEnvironmentPlugin {
         ]),
       })
     })
+
+    watch(
+      () => temporaryVariables.value,
+      () => {
+        const currentTab = restTabs.currentActiveTab.value
+        if (!currentTab) return
+
+        const request =
+          currentTab.document.type === "example-response"
+            ? currentTab.document.response.originalRequest
+            : currentTab.document.request
+
+        const inheritedProperties = currentTab.document.inheritedProperties
+        const requestVariables =
+          request && "requestVariables" in request
+            ? request.requestVariables
+            : []
+
+        const { reqVars, collVars } = getRequestAndCollectionVariables(
+          requestVariables,
+          inheritedProperties?.variables ?? []
+        )
+
+        const currentAggregateEnvs = getAggregateEnvsWithCurrentValue()
+        const selectedEnvs = currentAggregateEnvs.filter(
+          (e) => e.sourceEnv !== "Global"
+        )
+        const globalEnvs = currentAggregateEnvs.filter(
+          (e) => e.sourceEnv === "Global"
+        )
+
+        const tempVars = getTemporaryVariables()
+        // Priority: request → temporary → collection → selected env → global
+        this.envs = [
+          ...reqVars,
+          ...tempVars,
+          ...collVars,
+          ...selectedEnvs,
+          ...globalEnvs,
+        ]
+
+        this.editorView.value?.dispatch({
+          effects: this.compartment.reconfigure([
+            cursorTooltipField(this.envs),
+            environmentHighlightStyle(this.envs),
+          ]),
+        })
+      },
+      { deep: true }
+    )
   }
 
   get extension() {

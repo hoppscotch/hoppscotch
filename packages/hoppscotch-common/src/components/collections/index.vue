@@ -636,7 +636,7 @@ const revealInCollectionsSidebar = async (): Promise<void> => {
 
   if (ctx.originLocation === "user-collection") {
     if (!("folderPath" in ctx) || ctx.folderPath === null) return
-    if (ctx.requestIndex === null) return
+    if (ctx.requestIndex === null || ctx.requestIndex === undefined) return
 
     switchToMyCollections()
 

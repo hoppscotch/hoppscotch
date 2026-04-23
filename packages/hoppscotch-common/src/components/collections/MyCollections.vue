@@ -1073,10 +1073,10 @@ const TreeNodeRegistrar = defineComponent({
     },
   },
   setup(props) {
-    // Keep map updated as isOpen changes across renders.
+    // Keep map updated as slot-provided state/functions change across renders.
     watch(
-      () => props.isOpen,
-      (isOpen) => {
+      () => [props.isOpen, props.toggleChildren] as const,
+      ([isOpen]) => {
         registerNodeToggler(props.id, {
           toggleChildren: props.toggleChildren,
           isOpen,

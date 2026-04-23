@@ -1102,7 +1102,11 @@ export class PersistenceService extends Service {
     )
 
     if (E.isRight(loadResult) && loadResult.right) {
-      await this.applyRESTTabsPersistedState(loadResult.right, scopeKey)
+      const applied = await this.applyRESTTabsPersistedState(
+        loadResult.right,
+        scopeKey
+      )
+      if (!applied) this.restTabService.resetToDefault()
     }
 
     // Pair the scope key with the state so the scope captured at change time
@@ -1133,7 +1137,11 @@ export class PersistenceService extends Service {
     )
 
     if (E.isRight(loadResult) && loadResult.right) {
-      await this.applyGQLTabsPersistedState(loadResult.right, scopeKey)
+      const applied = await this.applyGQLTabsPersistedState(
+        loadResult.right,
+        scopeKey
+      )
+      if (!applied) this.gqlTabService.resetToDefault()
     }
 
     watchDebounced(

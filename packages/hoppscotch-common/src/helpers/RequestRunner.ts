@@ -225,23 +225,44 @@ const updateEnvironments = (
   const updatedSecretEnvironments: SecretVariable[] = []
   const nonSecretVariables: Variable[] = []
 
+  // Build a lookup from the pre-script store state (which is known to be correct)
+  // rather than trusting the sandbox to echo isFile back through postMessage.
+  // Use key-based lookup so isFile survives variable reordering by test scripts.
+  // Note: test-script updates to file variable values are intentionally discarded
+  // in the store — file content is session-only and must be re-selected on reload.
+  const initialEnvVariables =
+    type === "selected"
+      ? (initialEnvID
+          ? environmentsStore.value.environments.find((e) => e.id === initialEnvID)?.variables
+          : getCurrentEnvironment().variables) ?? []
+      : getGlobalVariables()
+
+  const initialEnvMap = new Map(
+    initialEnvVariables.map((v) => [v.key, v.isFile ?? false] as const)
+  )
+
   const updatedEnv = pipe(
     envs,
     A.mapWithIndex((index, e) => {
+      const isFile = initialEnvMap.get(e.key) ?? (e.isFile ?? false)
+
       if (e.secret) {
         updatedSecretEnvironments.push({
           key: e.key,
-          value: e.currentValue ?? "",
+          value: isFile ? "" : (e.currentValue ?? ""),
           varIndex: index,
-          initialValue: e.initialValue ?? "",
+          initialValue: isFile ? "" : (e.initialValue ?? ""),
         })
 
         // For secret variables, keep the initialValue but clear currentValue for storage
+        // Zero out initialValue for file variables to prevent file content from
+        // being persisted to localStorage or leaked to the team server
         return {
           key: e.key,
           secret: e.secret,
-          initialValue: e.initialValue ?? "",
+          initialValue: isFile ? "" : (e.initialValue ?? ""),
           currentValue: "",
+          isFile,
         }
       }
 
@@ -250,14 +271,18 @@ const updateEnvironments = (
         isSecret: e.secret ?? false,
         varIndex: index,
         currentValue: e.currentValue ?? "",
+        isFile,
       })
 
       // For non-secret variables, preserve both initialValue and currentValue
+      // Zero out currentValue for file variables to prevent file content from
+      // being persisted to localStorage or leaked to the team server
       return {
         key: e.key,
         secret: e.secret ?? false,
-        initialValue: e.initialValue ?? "",
-        currentValue: e.currentValue ?? "",
+        initialValue: isFile ? "" : (e.initialValue ?? ""),
+        currentValue: isFile ? "" : (e.currentValue ?? ""),
+        isFile,
       }
     })
   )
@@ -518,6 +543,7 @@ export function runRESTRequest$(
               initialValue: v.value,
               currentValue: v.value,
               secret: false,
+              isFile: false as const,
             }
           }
           return []
@@ -532,6 +558,7 @@ export function runRESTRequest$(
         initialValue,
         currentValue,
         secret,
+        isFile: false as const,
       }))
 
     const finalRequest = applyScriptRequestUpdates(
@@ -554,7 +581,7 @@ export function runRESTRequest$(
 
     const effectiveRequest = await getEffectiveRESTRequest(finalRequest, {
       id: "env-id",
-      v: 2,
+      v: 3,
       name: "Env",
       variables: finalEnvsWithNonEmptyValues,
     })
@@ -685,7 +712,7 @@ function updateEnvsAfterTestScript(
   )
 
   setGlobalEnvVariables({
-    v: 2,
+    v: 3,
     variables: globalEnvVariables,
   })
 
@@ -702,7 +729,7 @@ function updateEnvsAfterTestScript(
     })
     updateEnvironment(initialEnvironmentIndex.index, {
       name: env.name,
-      v: 2,
+      v: 3,
       id: "id" in env ? env.id : "",
       variables: selectedEnvVariables,
     })
@@ -839,6 +866,7 @@ export async function runTestRunnerRequest(
         initialValue: value,
         currentValue: value,
         secret: false,
+        isFile: false as const,
       }))
     )
 
@@ -850,7 +878,7 @@ export async function runTestRunnerRequest(
 
     const effectiveRequest = await getEffectiveRESTRequest(finalRequest, {
       id: "env-id",
-      v: 2,
+      v: 3,
       name: "Env",
       variables: filterNonEmptyEnvironmentVariables(
         combineEnvVariables({
@@ -859,7 +887,10 @@ export async function runTestRunnerRequest(
             temp: !persistEnv ? getTemporaryVariables() : [],
           },
           requestVariables: finalRequestVariables,
-          collectionVariables: inheritedVariables,
+          collectionVariables: inheritedVariables.map((v) => ({
+            ...v,
+            isFile: false as const,
+          })),
         })
       ),
     })

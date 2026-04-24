@@ -121,8 +121,16 @@ export class TeamResolver {
       nullable: true,
     })
     cursor?: string,
+    @Args({
+      name: 'take',
+      type: () => Int,
+      description: 'Number of teams to return per page',
+      nullable: true,
+      defaultValue: 10,
+    })
+    take?: number,
   ): Promise<Team[]> {
-    return this.teamService.getTeamsOfUser(user.uid, cursor ?? null);
+    return this.teamService.getTeamsOfUser(user.uid, cursor ?? null, take);
   }
 
   @Query(() => Team, {

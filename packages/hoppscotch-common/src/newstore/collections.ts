@@ -1396,18 +1396,26 @@ export function getRESTCollection(collectionIndex: number) {
   return restCollectionStore.value.state[collectionIndex]
 }
 
+export type RESTCollectionInheritedProps = {
+  auth: HoppRESTAuth
+  headers: HoppRESTHeaders
+  variables: HoppCollectionVariable[]
+  // Ancestor scripts for partial-scope runs (root → target's parent).
+  // Empty when running from the topmost collection.
+  ancestorPreRequestScripts: string[]
+  ancestorTestScripts: string[]
+}
+
 function computeCollectionInheritedProps(
   collection: HoppCollection,
   ref_id: string,
   type: "my-collections" | "team-collections" = "my-collections",
   parentAuth: HoppRESTAuth | null = null,
   parentHeaders: HoppRESTHeaders | null = null,
-  parentVariables: HoppCollectionVariable[] | null = null
-): {
-  auth: HoppRESTAuth
-  headers: HoppRESTHeaders
-  variables: HoppCollectionVariable[]
-} | null {
+  parentVariables: HoppCollectionVariable[] | null = null,
+  parentPreRequestScripts: string[] = [],
+  parentTestScripts: string[] = []
+): RESTCollectionInheritedProps | null {
   // Determine the inherited authentication and headers
   const inheritedAuth =
     collection.auth?.authType === "inherit" && collection.auth.authActive
@@ -1435,8 +1443,18 @@ function computeCollectionInheritedProps(
       auth: inheritedAuth,
       headers: inheritedHeaders,
       variables: inheritedVariables,
+      ancestorPreRequestScripts: parentPreRequestScripts,
+      ancestorTestScripts: parentTestScripts,
     }
   }
+
+  // Append this collection's scripts before descending so children see them.
+  const nextPreRequestScripts = hasActualScript(collection.preRequestScript)
+    ? [...parentPreRequestScripts, collection.preRequestScript]
+    : parentPreRequestScripts
+  const nextTestScripts = hasActualScript(collection.testScript)
+    ? [...parentTestScripts, collection.testScript]
+    : parentTestScripts
 
   // Recursively search in folders
   for (const folder of collection.folders) {
@@ -1446,7 +1464,9 @@ function computeCollectionInheritedProps(
       type,
       inheritedAuth,
       inheritedHeaders,
-      inheritedVariables
+      inheritedVariables,
+      nextPreRequestScripts,
+      nextTestScripts
     )
     if (result) return result // Return as soon as a match is found
   }
@@ -1458,11 +1478,7 @@ export function getRESTCollectionInheritedProps(
   collectionID: string,
   collections: HoppCollection[] = restCollectionStore.value.state,
   type: "my-collections" | "team-collections" = "my-collections"
-): {
-  auth: HoppRESTAuth
-  headers: HoppRESTHeaders
-  variables: HoppCollectionVariable[]
-} | null {
+): RESTCollectionInheritedProps | null {
   for (const collection of collections) {
     const result = computeCollectionInheritedProps(
       collection,

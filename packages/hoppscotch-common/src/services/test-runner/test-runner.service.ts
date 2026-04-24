@@ -53,7 +53,9 @@ export class TestRunnerService extends Service {
   public runTests(
     tab: Ref<HoppTab<HoppTestRunnerDocument>>,
     collection: HoppCollection,
-    options: TestRunnerOptions
+    options: TestRunnerOptions,
+    ancestorPreRequestScripts: string[] = [],
+    ancestorTestScripts: string[] = []
   ) {
     // Reset the result collection
     tab.value.document.status = "running"
@@ -71,7 +73,18 @@ export class TestRunnerService extends Service {
       testScript: collection.testScript ?? "",
     }
 
-    this.runTestCollection(tab, collection, options)
+    this.runTestCollection(
+      tab,
+      collection,
+      options,
+      [],
+      undefined,
+      undefined,
+      [],
+      undefined,
+      ancestorPreRequestScripts,
+      ancestorTestScripts
+    )
       .then(() => {
         tab.value.document.status = "stopped"
       })

@@ -169,4 +169,48 @@ describe("preRequestScriptRunner - inheritance", () => {
       );
     }
   });
+
+  // Regression: in the legacy (isolated-vm) sandbox, inherited scripts must
+  // execute sequentially in order. Pre-fix combineScriptsWithIIFE emitted an
+  // outer detached Promise that script.run did not await; sequential ordering
+  // was undefined.
+  //
+  // Note: the unit test exercises the sequential-ordering path. The
+  // post-`await` drop only surfaces with macrotask awaits (setTimeout) or
+  // cross-isolate Reference calls returning Promises — neither is exposed
+  // through the synchronous `pw.*` surface in node/legacy.ts, so it is not
+  // currently user-reachable in the CLI. The web worker path is where the
+  // post-`await` drop is user-reachable; covered by the smoke fixture in
+  // packages/hoppscotch-cli/src/__tests__/e2e/.
+  test("Legacy sandbox executes inherited scripts in order", async () => {
+    const rootScript = `pw.env.set("ORDER", "root");`;
+    const parentScript = `
+      const prev = pw.env.get("ORDER");
+      pw.env.set("ORDER", prev + ",parent");
+    `;
+    const request = makeRESTRequest({
+      ...SAMPLE_REQUEST,
+      preRequestScript: `
+        const prev = pw.env.get("ORDER");
+        pw.env.set("ORDER", prev + ",request");
+      `,
+    });
+
+    const result = await preRequestScriptRunner(
+      request,
+      SAMPLE_ENVS,
+      true,
+      undefined,
+      [rootScript, parentScript]
+    )();
+
+    expect(result).toBeRight();
+
+    if (E.isRight(result)) {
+      const orderVar = result.right.updatedEnvs.selected.find(
+        (v) => v.key === "ORDER"
+      );
+      expect(orderVar?.currentValue).toBe("root,parent,request");
+    }
+  });
 });

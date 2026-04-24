@@ -18,7 +18,6 @@ import { HoppEnvs } from "../types/request";
 import { ExpectResult, TestMetrics, TestRunnerRes } from "../types/response";
 import { getDurationInSeconds } from "./getters";
 import { createHoppFetchHook } from "./hopp-fetch";
-import { stripModulePrefix } from "./mutators";
 import { combineScriptsWithIIFE, filterValidScripts } from "./scripting";
 
 /**
@@ -62,17 +61,16 @@ export const testRunner = (
             const experimentalScriptingSandbox = !legacySandbox;
             const hoppFetchHook = createHoppFetchHook();
 
-            // Combine request test script with inherited test scripts (from child to root collection)
-            // Order: Request → Child folder → Parent folder → Root collection
-            // Each script is wrapped in an IIFE for scope isolation (consistent with pre-request scripts)
+            // Test order: request → root (reverse of pre-request).
             const combinedScript = combineScriptsWithIIFE(
               filterValidScripts([
                 request.testScript,
                 ...inheritedTestScripts.slice().reverse(),
-              ])
+              ]),
+              experimentalScriptingSandbox ? "experimental" : "legacy"
             );
 
-            return runTestScript(stripModulePrefix(combinedScript), {
+            return runTestScript(combinedScript, {
               envs,
               request,
               response: effectiveResponse,

@@ -19,56 +19,47 @@ export const stripModulePrefix = (script: string): string => {
 }
 
 /**
- * Regex for stripping the JSON-serialized module prefix from scripts during
- * collection exports. Anchored after `"` to only match at the start of a
- * JSON string value, preventing corruption of `export {};` used as actual
- * code mid-script. The `(?<=:\s*")` lookbehind anchors to JSON value-opening
- * delimiters (e.g. `"key": "export {};..."`), which cannot appear after an
- * escaped inner quote (`\"`). Matches both `export {};\\n` (with newline)
- * and `export {};` (without newline, common in JSON exports).
- * Note: `\\n` matches the literal backslash-n, not an actual newline character.
+ * Anchored to JSON value-opening delimiters so it only matches inside JSON
+ * string values during collection export, not inside script source. Matches
+ * both `export {};\\n` and `export {};` (`\\n` is the literal backslash-n
+ * pair, not a newline).
  */
 export const MODULE_PREFIX_REGEX_JSON_SERIALIZED =
   /(?<=:\s*")export \{\};(?:\\n)?/g
 
-/**
- * Wraps a script body in an async function expression (without invoking it).
- * Used by {@link combineScriptsWithIIFE} to build a sequential await chain.
- *
- * @param script - The script to wrap
- * @returns An async function expression string, or empty string if script is empty/whitespace
- */
-const wrapInAsyncFn = (script: string): string => {
-  const trimmed = script?.trim()
-  if (!trimmed) return ""
-  const stripped = stripModulePrefix(trimmed)
+export type CombineScriptsTarget = "experimental" | "legacy"
+
+const wrapScript = (script: string, target: CombineScriptsTarget): string => {
+  const stripped = stripModulePrefix(script.trim())
   if (!stripped) return ""
-  return `async function() {\n${stripped}\n}`
+  const asyncKeyword = target === "experimental" ? "async " : ""
+  return `${asyncKeyword}function() {\n${stripped}\n}`
 }
 
 /**
- * Combines multiple scripts into a single sequentially executed async IIFE.
- * Each script is wrapped in its own async function for scope isolation, and
- * they are awaited in order so each script fully completes before the next
- * starts. This preserves execution order for scripts using async/await
- * (e.g., auth token refresh) while isolating local variable declarations.
+ * Combines inherited scripts into a sequential chain. Each script runs in
+ * its own function for scope isolation.
  *
- * @param scripts - Array of scripts to combine
- * @returns Combined script that executes each part sequentially
+ * - `experimental`: `await (async function(){...})();` lines, evaluated in
+ *   an async host context so each `await` settles before the next runs.
+ * - `legacy`: sync `(function(){...}).call(this);` lines. Top-level `await`
+ *   is rejected at parse time.
  */
-export const combineScriptsWithIIFE = (scripts: string[]): string => {
-  const fns = scripts.map(wrapInAsyncFn).filter((s) => s)
-
+export const combineScriptsWithIIFE = (
+  scripts: string[],
+  target: CombineScriptsTarget = "experimental"
+): string => {
+  const fns = scripts.map((s) => wrapScript(s, target)).filter((s) => s)
   if (fns.length === 0) return ""
-
-  const awaited = fns.map((fn) => `  await (${fn})();`).join("\n")
-  return `(async () => {\n${awaited}\n})();`
+  if (target === "experimental") {
+    return fns.map((fn) => `await (${fn})();`).join("\n")
+  }
+  // Leading `;` guards against ASI: a prior `})` on the host line would
+  // otherwise be read as a call against our IIFE expression.
+  return fns.map((fn) => `;(${fn}).call(this);`).join("\n")
 }
 
-/**
- * Returns true if a script contains actual code beyond the module prefix.
- * Monaco adds `export {};\n` to empty scripts, so we strip it before checking.
- */
+// Monaco prepends "export {};\n" to empty scripts — strip before checking.
 export const hasActualScript = (script: string | undefined | null): boolean => {
   if (!script) return false
   return stripModulePrefix(script.trim()).length > 0

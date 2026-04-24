@@ -35,7 +35,7 @@ import { isHoppCLIError } from "./checks";
 import { arrayFlatMap, arraySort, tupleToRecord } from "./functions/array";
 import { getEffectiveFinalMetaData, getResolvedVariables } from "./getters";
 import { stripComments } from "./jsonc";
-import { stripModulePrefix, toFormData } from "./mutators";
+import { toFormData } from "./mutators";
 import { combineScriptsWithIIFE, filterValidScripts } from "./scripting";
 
 /**
@@ -62,20 +62,19 @@ export const preRequestScriptRunner = (
   const experimentalScriptingSandbox = !legacySandbox;
   const hoppFetchHook = createHoppFetchHook();
 
-  // Combine inherited pre-request scripts with the request's script
-  // Order: Root collection → Parent folder → Child folder → Request
-  // Each script is wrapped in an IIFE to isolate local variable scope and prevent clashes
+  // Pre-request order: root → request.
   const combinedScript = combineScriptsWithIIFE(
     filterValidScripts([
       ...inheritedPreRequestScripts,
       request.preRequestScript,
-    ])
+    ]),
+    experimentalScriptingSandbox ? "experimental" : "legacy"
   );
 
   return pipe(
     TE.of(request),
     TE.chain(() =>
-      runPreRequestScript(stripModulePrefix(combinedScript), {
+      runPreRequestScript(combinedScript, {
         envs,
         experimentalScriptingSandbox,
         request,

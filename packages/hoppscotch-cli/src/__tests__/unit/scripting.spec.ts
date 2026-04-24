@@ -119,20 +119,36 @@ describe("scripting", () => {
       expect(result).toContain("const x = 1;");
     });
 
-    test("generates sequential await chain for multiple scripts", () => {
-      const result = combineScriptsWithIIFE([
-        "const a = 1;",
-        "const b = 2;",
-        "const c = 3;",
-      ]);
+    test("experimental target generates sequential await chain", () => {
+      const result = combineScriptsWithIIFE(
+        ["const a = 1;", "const b = 2;", "const c = 3;"],
+        "experimental"
+      );
 
-      // Should be wrapped in an outer async IIFE
-      expect(result).toMatch(/^\(async \(\) => \{/);
-      expect(result).toMatch(/\}\)\(\);$/);
-
-      // Each script should be awaited
+      expect(result).toMatch(/^await \(async function\(\) \{/);
       const awaitCount = (result.match(/await/g) || []).length;
       expect(awaitCount).toBe(3);
+    });
+
+    test("legacy target generates sync IIFE chain with no await", () => {
+      const result = combineScriptsWithIIFE(
+        ["const a = 1;", "const b = 2;", "const c = 3;"],
+        "legacy"
+      );
+
+      // No `async` keyword, no `await` — legacy sandbox is sync-only.
+      expect(result).not.toContain("async");
+      expect(result).not.toContain("await");
+      // Leading `;` guards against ASI on the host script.
+      expect(result).toMatch(/^;\(function\(\) \{/);
+      // Each script wrapped in its own IIFE
+      const iifeCount = (result.match(/\.call\(this\);/g) || []).length;
+      expect(iifeCount).toBe(3);
+    });
+
+    test("default target is experimental", () => {
+      const result = combineScriptsWithIIFE(["const x = 1;"]);
+      expect(result).toMatch(/^await \(async function\(\) \{/);
     });
   });
 });

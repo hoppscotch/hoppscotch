@@ -30,7 +30,6 @@ import { getService } from "~/modules/dioc"
 import {
   combineScriptsWithIIFE,
   hasActualScript,
-  stripModulePrefix,
 } from "~/helpers/scripting"
 import { createHoppFetchHook } from "~/helpers/hopp-fetch"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
@@ -372,19 +371,17 @@ const delegatePreRequestScriptRunner = (
   inheritedPreRequestScripts: string[] = []
 ): Promise<E.Either<string, SandboxPreRequestResult>> => {
   const { preRequestScript } = request
+  const experimentalScriptingSandbox = EXPERIMENTAL_SCRIPTING_SANDBOX.value
+  const target = experimentalScriptingSandbox ? "experimental" : "legacy"
 
-  // Combine inherited pre-request scripts (from root to child collection) with the request's script
-  // Order: Root collection → Parent folder → Child folder → Request
-  // Each script is wrapped in an IIFE to isolate local variable scope and prevent clashes
-  const combinedScript = combineScriptsWithIIFE([
-    ...inheritedPreRequestScripts,
-    preRequestScript,
-  ])
-
-  const cleanScript = stripModulePrefix(combinedScript)
+  // Pre-request order: root → request.
+  const combinedScript = combineScriptsWithIIFE(
+    [...inheritedPreRequestScripts, preRequestScript],
+    target
+  )
 
   // Short-circuit empty scripts to avoid unnecessary WASM initialization
-  if (cleanScript.trim().length === 0) {
+  if (combinedScript.length === 0) {
     return Promise.resolve(
       E.right({
         updatedEnvs: envs,
@@ -393,19 +390,16 @@ const delegatePreRequestScriptRunner = (
     )
   }
 
-  if (!EXPERIMENTAL_SCRIPTING_SANDBOX.value) {
-    // Strip `export {};\n` before executing in legacy sandbox to prevent syntax errors
-
-    return runPreRequestScript(cleanScript, {
+  if (!experimentalScriptingSandbox) {
+    return runPreRequestScript(combinedScript, {
       envs,
       experimentalScriptingSandbox: false,
     })
   }
 
-  // Experimental sandbox enabled - use faraday-cage with hook
   const hoppFetchHook = createHoppFetchHook(kernelInterceptorService)
 
-  return runPreRequestScript(cleanScript, {
+  return runPreRequestScript(combinedScript, {
     envs,
     request,
     cookies,
@@ -422,19 +416,17 @@ const runPostRequestScript = (
   inheritedTestScripts: string[] = []
 ): Promise<E.Either<string, SandboxTestResult>> => {
   const { testScript } = request
+  const experimentalScriptingSandbox = EXPERIMENTAL_SCRIPTING_SANDBOX.value
+  const target = experimentalScriptingSandbox ? "experimental" : "legacy"
 
-  // Combine request test script with inherited test scripts (from child to root collection)
-  // Order: Request → Child folder → Parent folder → Root collection
-  // Each script is wrapped in an IIFE to isolate local variable scope and prevent clashes
-  const combinedScript = combineScriptsWithIIFE([
-    testScript,
-    ...inheritedTestScripts.slice().reverse(),
-  ])
-
-  const cleanScript = stripModulePrefix(combinedScript)
+  // Test order: request → root (reverse of pre-request).
+  const combinedScript = combineScriptsWithIIFE(
+    [testScript, ...inheritedTestScripts.slice().reverse()],
+    target
+  )
 
   // Short-circuit empty scripts to avoid unnecessary WASM initialization
-  if (cleanScript.trim().length === 0) {
+  if (combinedScript.length === 0) {
     return Promise.resolve(
       E.right({
         tests: { descriptor: "root", expectResults: [], children: [] },
@@ -445,20 +437,17 @@ const runPostRequestScript = (
     )
   }
 
-  if (!EXPERIMENTAL_SCRIPTING_SANDBOX.value) {
-    // Strip `export {};\n` before executing in legacy sandbox to prevent syntax errors
-
-    return runTestScript(cleanScript, {
+  if (!experimentalScriptingSandbox) {
+    return runTestScript(combinedScript, {
       envs,
       response,
       experimentalScriptingSandbox: false,
     })
   }
 
-  // Experimental sandbox enabled - use faraday-cage with hook
   const hoppFetchHook = createHoppFetchHook(kernelInterceptorService)
 
-  return runTestScript(cleanScript, {
+  return runTestScript(combinedScript, {
     envs,
     request,
     response,

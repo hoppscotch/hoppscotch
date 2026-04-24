@@ -1,0 +1,54 @@
+{
+  "v": 12,
+  "name": "collection-level-scripts-coll",
+  "variables": [],
+  "description": null,
+  "folders": [
+    {
+      "v": 12,
+      "name": "child-folder",
+      "variables": [],
+      "description": null,
+      "folders": [],
+      "requests": [
+        {
+          "v": "17",
+          "id": "cl-script-req-1",
+          "name": "inherited-scripts-test",
+          "method": "GET",
+          "endpoint": "https://echo.hoppscotch.io",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "pw.env.set(\"REQ_RAN\", \"yes\");",
+          "testScript": "pw.test(\"root + folder + request env vars all present\", () => {\n  pw.expect(pw.env.get(\"ROOT_RAN\")).toBe(\"yes\");\n  pw.expect(pw.env.get(\"FOLDER_RAN\")).toBe(\"yes\");\n  pw.expect(pw.env.get(\"REQ_RAN\")).toBe(\"yes\");\n});",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        }
+      ],
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "headers": [],
+      "preRequestScript": "pw.env.set(\"FOLDER_RAN\", \"yes\");",
+      "testScript": ""
+    }
+  ],
+  "requests": [],
+  "auth": {
+    "authType": "inherit",
+    "authActive": true
+  },
+  "headers": [],
+  "preRequestScript": "pw.env.set(\"ROOT_RAN\", \"yes\");",
+  "testScript": ""
+}

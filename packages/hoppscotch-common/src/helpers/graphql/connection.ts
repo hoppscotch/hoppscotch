@@ -100,6 +100,54 @@ const GQL = {
   COMPLETE: "complete",
 }
 
+type SubscriptionFrame = {
+  type: string
+  id?: string
+  payload?: unknown
+}
+
+export type SubscriptionFrameDecodeResult =
+  | { ok: true; frame: SubscriptionFrame }
+  | { ok: false; reason: string }
+
+export function decodeSubscriptionFrame(
+  raw: unknown
+): SubscriptionFrameDecodeResult {
+  if (typeof raw !== "string" || raw.length === 0) {
+    return { ok: false, reason: "Received an empty or non-string frame" }
+  }
+
+  try {
+    const parsed = JSON.parse(raw)
+    if (
+      parsed === null ||
+      typeof parsed !== "object" ||
+      Array.isArray(parsed)
+    ) {
+      return { ok: false, reason: "Subscription frame is not a valid object" }
+    }
+    if (typeof (parsed as { type?: unknown }).type !== "string") {
+      return { ok: false, reason: "Subscription frame is missing a type field" }
+    }
+    return { ok: true, frame: parsed as SubscriptionFrame }
+  } catch (e) {
+    return {
+      ok: false,
+      reason: (e as Error)?.message ?? "Failed to parse subscription frame",
+    }
+  }
+}
+
+export function stringifySubscriptionErrorPayload(payload: unknown): string {
+  if (typeof payload === "string") return payload
+  if (payload === null || payload === undefined) return "Unknown error"
+  try {
+    return JSON.stringify(payload)
+  } catch {
+    return "Unknown error"
+  }
+}
+
 type Connection = {
   state: ConnectionState
   subscriptionState: Map<string, SubscriptionState>
@@ -577,7 +625,12 @@ export const runSubscription = (
   const { url, query, operationName } = options
   const wsUrl = url.replace(/^http/, "ws")
 
-  connection.subscriptionState.set(currentTabID.value, "SUBSCRIBING")
+  // Capture the tab that started this subscription so state transitions
+  // fired from async callbacks (onmessage / onclose) always update the
+  // originating tab, even if the user has since switched tabs.
+  const subscriptionTabID = currentTabID.value
+
+  connection.subscriptionState.set(subscriptionTabID, "SUBSCRIBING")
 
   connection.socket = new WebSocket(wsUrl, "graphql-ws")
 
@@ -603,14 +656,43 @@ export const runSubscription = (
   gqlMessageEvent.value = "reset"
 
   connection.socket.onmessage = (event) => {
-    const data = JSON.parse(event.data)
+    const decoded = decodeSubscriptionFrame(event.data)
+    if (!decoded.ok) {
+      gqlMessageEvent.value = {
+        type: "error",
+        error: {
+          type: "malformed_frame",
+          message: decoded.reason,
+        },
+      }
+      return
+    }
+    const data = decoded.frame
     switch (data.type) {
       case GQL.CONNECTION_ACK: {
-        connection.subscriptionState.set(currentTabID.value, "SUBSCRIBED")
+        connection.subscriptionState.set(subscriptionTabID, "SUBSCRIBED")
         break
       }
-      case GQL.CONNECTION_ERROR: {
-        console.error(data.payload)
+      case GQL.CONNECTION_ERROR:
+      case GQL.ERROR: {
+        gqlMessageEvent.value = {
+          type: "error",
+          error: {
+            type:
+              data.type === GQL.CONNECTION_ERROR
+                ? "connection_error"
+                : "subscription_error",
+            message: stringifySubscriptionErrorPayload(data.payload),
+          },
+        }
+        // GQL.ERROR terminates this subscription per the
+        // subscriptions-transport-ws protocol — the server will not send
+        // further `data` frames for this id. Mirror `onclose`'s state
+        // transition so the UI does not keep presenting the subscription
+        // as live.
+        if (data.type === GQL.ERROR) {
+          connection.subscriptionState.set(subscriptionTabID, "UNSUBSCRIBED")
+        }
         break
       }
       case GQL.CONNECTION_KEEP_ALIVE: {
@@ -635,7 +717,7 @@ export const runSubscription = (
 
   connection.socket.onclose = (event) => {
     console.log("WebSocket is closed now.", event)
-    connection.subscriptionState.set(currentTabID.value, "UNSUBSCRIBED")
+    connection.subscriptionState.set(subscriptionTabID, "UNSUBSCRIBED")
   }
 
   addQueryToHistory(options, "")

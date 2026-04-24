@@ -119,15 +119,26 @@ describe("scripting", () => {
       expect(result).toContain("const x = 1;");
     });
 
-    test("experimental target generates sequential await chain", () => {
+    test("experimental target generates sequential await chain wrapped in try/catch", () => {
       const result = combineScriptsWithIIFE(
         ["const a = 1;", "const b = 2;", "const c = 3;"],
         "experimental"
       );
 
-      expect(result).toMatch(/^await \(async function\(\) \{/);
-      const awaitCount = (result.match(/await/g) || []).length;
+      // Outer wrapper captures the reporter lexically so user code that
+      // deletes the globalThis property cannot suppress error reporting.
+      expect(result).toMatch(
+        /^const __hoppReporter = globalThis\.__hoppReportScriptExecutionError;\s*try \{/
+      );
+      expect(result).toContain("await (async function() {");
+      // Each script contributes one `await` in the body.
+      const awaitCount = (result.match(/\bawait\b/g) || []).length;
       expect(awaitCount).toBe(3);
+      // Catch hands the error to the lexically captured reporter.
+      expect(result).toContain(
+        "} catch (__hoppScriptExecutionError) {"
+      );
+      expect(result).toContain("__hoppReporter(__hoppScriptExecutionError);");
     });
 
     test("legacy target generates sync IIFE chain with no await", () => {
@@ -146,9 +157,12 @@ describe("scripting", () => {
       expect(iifeCount).toBe(3);
     });
 
-    test("default target is experimental", () => {
+    test("default target is experimental (wrapped in try/catch)", () => {
       const result = combineScriptsWithIIFE(["const x = 1;"]);
-      expect(result).toMatch(/^await \(async function\(\) \{/);
+      expect(result).toMatch(
+        /^const __hoppReporter = globalThis\.__hoppReportScriptExecutionError;\s*try \{/
+      );
+      expect(result).toContain("await (async function() {");
     });
   });
 });

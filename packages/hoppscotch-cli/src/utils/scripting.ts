@@ -43,7 +43,18 @@ export const combineScriptsWithIIFE = (
   const fns = scripts.map((s) => wrapScript(s, target)).filter((s) => s);
   if (fns.length === 0) return "";
   if (target === "experimental") {
-    return fns.map((fn) => `await (${fn})();`).join("\n");
+    // Wrap the awaited chain in try/catch so top-level throws / rejected
+    // awaits reach the host reporter; faraday-cage otherwise swallows
+    // async-boundary errors via its keepAlive loop.
+    const body = fns.map((fn) => `await (${fn})();`).join("\n");
+    return [
+      "const __hoppReporter = globalThis.__hoppReportScriptExecutionError;",
+      "try {",
+      body,
+      "} catch (__hoppScriptExecutionError) {",
+      "  __hoppReporter(__hoppScriptExecutionError);",
+      "}",
+    ].join("\n");
   }
   // Leading `;` guards against ASI: a prior `})` on the host line would
   // otherwise be read as a call against our IIFE expression.

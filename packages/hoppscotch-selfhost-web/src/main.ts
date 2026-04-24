@@ -26,6 +26,7 @@ import { stdSupportOptionItems } from "@hoppscotch/common/platform/std/ui/suppor
 import { InfraPlatform } from "@app/platform/infra/infra.platform"
 import { kernelIO } from "@hoppscotch/common/platform/std/kernel-io"
 import { HeaderDownloadableLinksService } from "@app/services/headerDownloadableLinks.service"
+import DesktopCustomSettings from "@app/components/desktop/DesktopCustomSettings.vue"
 
 // Std interceptors
 import { NativeKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/native"
@@ -146,6 +147,9 @@ async function initApp() {
         paddingLeft: headerPaddingLeft,
         paddingTop: headerPaddingTop,
       },
+      ...(platform === "desktop"
+        ? { additionalSettingsSections: [DesktopCustomSettings] }
+        : {}),
     },
 
     auth: config.auth,

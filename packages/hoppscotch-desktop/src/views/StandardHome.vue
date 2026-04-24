@@ -50,6 +50,7 @@ import {
   type UpdateEvent,
   type DownloadProgress,
 } from "~/services/updater.client"
+import { DesktopPersistenceService } from "~/services/persistence.service"
 
 import AppHeader from "./shared/AppHeader.vue"
 import LoadingState from "./shared/LoadingState.vue"
@@ -145,6 +146,14 @@ const checkForUpdates = async () => {
 }
 
 const initializeStandardMode = async () => {
+  const persistence = DesktopPersistenceService.getInstance()
+  const settings = await persistence.getDesktopSettings()
+
+  if (settings.disableCheckForUpdates) {
+    await loadRecent()
+    return
+  }
+
   const hasUpdates = await checkForUpdates()
   if (!hasUpdates) {
     await loadRecent()

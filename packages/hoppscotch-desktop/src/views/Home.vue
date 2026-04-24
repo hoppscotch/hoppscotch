@@ -136,6 +136,7 @@ import { getVersion } from "@tauri-apps/api/app"
 
 import { UpdateStatus, CheckResult, UpdateState } from "~/types"
 import { UpdaterService } from "~/utils/updater"
+import { DesktopPersistenceService } from "~/services/persistence.service"
 
 import IconLucideAlertCircle from "~icons/lucide/alert-circle"
 import IconLucideRefreshCw from "~icons/lucide/refresh-cw"
@@ -379,15 +380,21 @@ const initialize = async () => {
     await appStore.init()
     await updaterService.initialize()
 
+    const persistence = DesktopPersistenceService.getInstance()
+    await persistence.init()
+    const settings = await persistence.getDesktopSettings()
+
     await setupUpdateStateWatcher()
 
-    statusMessage.value = "Checking for updates..."
-    const checkResult = await updaterService.checkForUpdates()
+    if (!settings.disableCheckForUpdates) {
+      statusMessage.value = "Checking for updates..."
+      const checkResult = await updaterService.checkForUpdates()
 
-    if (checkResult === CheckResult.AVAILABLE) {
-      console.log("Updates available, prompting for install")
-      appState.value = AppState.UPDATE_AVAILABLE
-      return
+      if (checkResult === CheckResult.AVAILABLE) {
+        console.log("Updates available, prompting for install")
+        appState.value = AppState.UPDATE_AVAILABLE
+        return
+      }
     }
 
     await loadVendored()

@@ -131,6 +131,7 @@ export const STORE_KEYS = {
   SCHEMA_VERSION: "schema_version",
   LOGIN_STATE: "login_state",
   EMAIL_FOR_SIGN_IN: "emailForSignIn",
+  DESKTOP_SETTINGS: "desktopSettings",
 } as const
 
 interface Migration {

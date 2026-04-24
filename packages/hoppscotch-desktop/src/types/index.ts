@@ -37,3 +37,7 @@ export interface PortableSettings {
   disableUpdateNotifications: boolean
   autoSkipWelcome: boolean
 }
+
+export interface DesktopSettings {
+  disableCheckForUpdates: boolean
+}

@@ -255,6 +255,7 @@ _Add-ons are developed and maintained under **[Hoppscotch Organization](https://
 
 - Web : [hoppscotch.io](https://hoppscotch.io)
 - Windows/Linux/macOS : [Desktop Apps](https://docs.hoppscotch.io/documentation/clients/desktop#download-hoppscotch-desktop-app)
+  - **Offline / air-gapped use:** In the desktop app, open **Settings → Desktop** and enable **Disable automatic update checks** if startup is slow when the device cannot reach the update service.
 
 ## Usage
 

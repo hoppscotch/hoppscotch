@@ -266,10 +266,14 @@ export const processRequest =
       effectiveFinalParams: [],
       effectiveFinalURL: "",
     };
-    let updatedEnvs = <HoppEnvs>{};
 
     // Fetch values for secret environment variables from system environment
     const processedEnvs = processEnvs(envs);
+
+    // Default envs to the pre-script state so downstream consumers
+    // (test-runner, effectiveRequest builder) receive a well-shaped
+    // HoppEnvs even if the pre-request script fails.
+    let updatedEnvs: HoppEnvs = processedEnvs;
 
     const preRequestRes = await preRequestScriptRunner(
       request,

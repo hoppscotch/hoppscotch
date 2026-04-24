@@ -2,10 +2,7 @@
 
 import * as E from "fp-ts/Either"
 
-import {
-  translateToNewGQLCollection,
-  translateToNewRESTCollection,
-} from "@hoppscotch/data"
+import { translateToNewCollection } from "@hoppscotch/data"
 import { watchDebounced } from "@vueuse/core"
 import { TestContainer } from "dioc/testing"
 import { cloneDeep } from "lodash-es"
@@ -881,10 +878,7 @@ describe("PersistenceService", () => {
 
           return {
             ...actualModule,
-            translateToNewGQLCollection: vi
-              .fn()
-              .mockImplementation((data: any) => data),
-            translateToNewRESTCollection: vi
+            translateToNewCollection: vi
               .fn()
               .mockImplementation((data: any) => data),
           }
@@ -931,8 +925,7 @@ describe("PersistenceService", () => {
           expect.stringContaining('"schemaVersion":1')
         )
 
-        expect(translateToNewGQLCollection).toHaveBeenCalled()
-        expect(translateToNewRESTCollection).toHaveBeenCalled()
+        expect(translateToNewCollection).toHaveBeenCalled()
 
         expect(setRESTCollections).toHaveBeenCalledWith(restCollections)
         expect(setGraphqlCollections).toHaveBeenCalledWith(gqlCollections)

@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-1 flex-col overflow-auto whitespace-nowrap">
-    <GraphqlResponseMeta :response="response" />
+    <GraphqlResponseMeta :response="response" :tab-id="tabId" />
     <div
       v-if="
         response && response.length === 1 && response[0].type === 'response'
@@ -114,9 +114,11 @@ const t = useI18n()
 const props = withDefaults(
   defineProps<{
     response: GQLResponseEvent[] | null
+    tabId?: string
   }>(),
   {
     response: null,
+    tabId: undefined,
   }
 )
 

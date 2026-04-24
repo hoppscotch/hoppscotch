@@ -1,10 +1,16 @@
 import { ArgsType, Field, ID } from '@nestjs/graphql';
 import { PaginationArgs } from 'src/types/input-types.args';
+import { ReqType } from 'src/types/RequestTypes';
 
 @ArgsType()
 export class GetRootTeamCollectionsArgs extends PaginationArgs {
   @Field(() => ID, { name: 'teamID', description: 'ID of the team' })
   teamID: string;
+
+  @Field(() => ReqType, {
+    description: 'Type of the user collection',
+  })
+  type: ReqType;
 }
 
 @ArgsType()
@@ -21,6 +27,11 @@ export class CreateRootTeamCollectionArgs {
     nullable: true,
   })
   data: string;
+
+  @Field(() => ReqType, {
+    description: 'Type of the user collection',
+  })
+  type: ReqType;
 }
 
 @ArgsType()
@@ -40,6 +51,11 @@ export class CreateChildTeamCollectionArgs {
     nullable: true,
   })
   data: string;
+
+  @Field(() => ReqType, {
+    description: 'Type of the user collection',
+  })
+  type: ReqType;
 }
 
 @ArgsType()

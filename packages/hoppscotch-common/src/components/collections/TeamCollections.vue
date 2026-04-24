@@ -91,6 +91,13 @@
                 folder: node.data.data.data,
               })
             "
+            @add-gql-request="
+              node.data.type === 'collections' &&
+              emit('add-gql-request', {
+                path: node.id,
+                folder: node.data.data.data,
+              })
+            "
             @add-folder="
               node.data.type === 'collections' &&
               emit('add-folder', {
@@ -204,6 +211,13 @@
             @add-request="
               node.data.type === 'folders' &&
               emit('add-request', {
+                path: node.id,
+                folder: node.data.data.data,
+              })
+            "
+            @add-gql-request="
+              node.data.type === 'folders' &&
+              emit('add-gql-request', {
                 path: node.id,
                 folder: node.data.data.data,
               })
@@ -614,6 +628,13 @@ type ResponsePayload = {
 const emit = defineEmits<{
   (
     event: "add-request",
+    payload: {
+      path: string
+      folder: TeamCollection
+    }
+  ): void
+  (
+    event: "add-gql-request",
     payload: {
       path: string
       folder: TeamCollection

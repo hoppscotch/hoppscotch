@@ -89,13 +89,15 @@ export class ParameterMenuService extends Service implements ContextMenu {
 
     const tabService = getService(RESTTabService)
 
-    if (tabService.currentActiveTab.value.document.type === "test-runner")
-      return
+    const docType = tabService.currentActiveTab.value.document.type
+    if (docType === "test-runner" || docType === "gql-request") return
 
     const currentActiveRequest =
-      tabService.currentActiveTab.value.document.type === "request"
+      docType === "request"
         ? tabService.currentActiveTab.value.document.request
-        : tabService.currentActiveTab.value.document.response.originalRequest
+        : tabService.currentActiveTab.value.document.response?.originalRequest
+
+    if (!currentActiveRequest) return
 
     // add the parameters to the current request parameters
     currentActiveRequest.params = [

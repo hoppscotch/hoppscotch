@@ -17,6 +17,22 @@ type SignOptions = {
   signQuery?: boolean
 }
 
+type AgentStore = InstanceType<
+  typeof import("~/platform/std/kernel-interceptors/agent/store").KernelInterceptorAgentStore
+>
+
+let cachedAgentService: AgentStore | null = null
+
+async function getAgentService(): Promise<AgentStore> {
+  if (!cachedAgentService) {
+    const { getService } = await import("~/modules/dioc")
+    const { KernelInterceptorAgentStore } =
+      await import("~/platform/std/kernel-interceptors/agent/store")
+    cachedAgentService = getService(KernelInterceptorAgentStore)
+  }
+  return cachedAgentService
+}
+
 function processQueryParameters(
   params: HoppRESTParams,
   envVars: Environment["variables"],
@@ -56,13 +72,31 @@ async function signAWSRequest({
     baseUrl
   )
 
-  const accessKeyId = parseTemplateString(auth.accessKey, envVars)
-  const secretAccessKey = parseTemplateString(auth.secretKey, envVars)
-  const region = parseTemplateString(auth.region, envVars) ?? "us-east-1"
+  let accessKeyId: string
+  let secretAccessKey: string
+  let sessionToken: string | undefined
+  const rawRegion = parseTemplateString(auth.region, envVars)
+  const region = rawRegion || "us-east-1"
   const service = parseTemplateString(auth.serviceName, envVars)
-  const sessionToken = auth.serviceToken
-    ? parseTemplateString(auth.serviceToken, envVars)
-    : undefined
+
+  const profileName = parseTemplateString(auth.profileName, envVars)
+
+  if (auth.credentialMode === "profile" && profileName) {
+    const agentService = await getAgentService()
+    const creds = await agentService.resolveAwsCredentials(
+      profileName,
+      rawRegion || undefined
+    )
+    accessKeyId = creds.access_key_id
+    secretAccessKey = creds.secret_access_key
+    sessionToken = creds.session_token ?? undefined
+  } else {
+    accessKeyId = parseTemplateString(auth.accessKey, envVars)
+    secretAccessKey = parseTemplateString(auth.secretKey, envVars)
+    sessionToken = auth.serviceToken
+      ? parseTemplateString(auth.serviceToken, envVars)
+      : undefined
+  }
 
   const signerConfig: ConstructorParameters<typeof AwsV4Signer>[0] = {
     method: request.method,

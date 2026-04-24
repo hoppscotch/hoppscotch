@@ -263,6 +263,65 @@ const samples = [
     }),
   },
   {
+    command: `curl -F 'payload=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.signature==' bing.com`,
+    response: makeRESTRequest({
+      method: "POST",
+      name: "Untitled",
+      endpoint: "https://bing.com/",
+      auth: { authType: "inherit", authActive: true },
+      body: {
+        contentType: "multipart/form-data",
+        body: [
+          {
+            active: true,
+            isFile: false,
+            key: "payload",
+            value:
+              "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.signature==",
+          },
+        ],
+      },
+      headers: [],
+      params: [],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+    }),
+  },
+  {
+    command: `curl -F 'encoded=a=b&c=d' -F 'flag' bing.com`,
+    response: makeRESTRequest({
+      method: "POST",
+      name: "Untitled",
+      endpoint: "https://bing.com/",
+      auth: { authType: "inherit", authActive: true },
+      body: {
+        contentType: "multipart/form-data",
+        body: [
+          {
+            active: true,
+            isFile: false,
+            key: "encoded",
+            value: "a=b&c=d",
+          },
+          {
+            active: true,
+            isFile: false,
+            key: "flag",
+            value: "",
+          },
+        ],
+      },
+      headers: [],
+      params: [],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+    }),
+  },
+  {
     command:
       "curl -X GET localhost -H 'Accept: application/json' --user root:toor",
     response: makeRESTRequest({

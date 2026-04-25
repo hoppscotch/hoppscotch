@@ -550,7 +550,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       if (defaultResult === null) return;
       expect(defaultResult.error).toBeNull();
 
-      const legacyResult = await runCLIWithNetworkRetry(`${args} --legacy-scripting`);
+      const legacyResult = await runCLIWithNetworkRetry(`${args} --legacy-sandbox`);
       if (legacyResult === null) return;
       expect(legacyResult.error).toBeNull();
     });

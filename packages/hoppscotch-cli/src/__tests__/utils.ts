@@ -65,6 +65,7 @@ export const runCLIWithNetworkRetry = async (
 ) => {
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     const result = await runCLI(args, options);
+    
     const combinedOutput = `${result.stdout}\n${result.stderr}`;
 
     // Only detect low-level TCP/DNS errors - these are always transient

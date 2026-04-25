@@ -310,235 +310,243 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
      * - Validates JUnit XML completeness (60+ test suites) before accepting success
      * - Auto-skips on network failures to prevent blocking PRs
      */
-    test("Supports the new scripting API method additions under the `hopp` and `pm` namespaces and validates JUnit report structure", async () => {
-      // First, run without JUnit report to ensure basic functionality works
-      const basicArgs = `test ${getTestJsonFilePath(
-        "scripting-revamp-coll.json",
-        "collection"
-      )}`;
-      const basicResult = await runCLIWithNetworkRetry(basicArgs);
-      if (basicResult === null) return;
-      expect(basicResult.error).toBeNull();
+    test(
+      "Supports the new scripting API method additions under the `hopp` and `pm` namespaces and validates JUnit report structure",
+      { timeout: 300000 },
+      async () => {
+        // First, run without JUnit report to ensure basic functionality works
+        const basicArgs = `test ${getTestJsonFilePath(
+          "scripting-revamp-coll.json",
+          "collection"
+        )}`;
+        const basicResult = await runCLIWithNetworkRetry(basicArgs);
+        if (basicResult === null) return;
+        expect(basicResult.error).toBeNull();
 
-      // Then, run with JUnit report and validate structure
-      const junitPath = path.join(
-        __dirname,
-        "scripting-revamp-snapshot-junit.xml"
-      );
+        // Then, run with JUnit report and validate structure
+        const junitPath = path.join(
+          __dirname,
+          "scripting-revamp-snapshot-junit.xml"
+        );
 
-      if (fs.existsSync(junitPath)) {
-        fs.unlinkSync(junitPath);
-      }
+        if (fs.existsSync(junitPath)) {
+          fs.unlinkSync(junitPath);
+        }
 
-      const junitArgs = `test ${getTestJsonFilePath(
-        "scripting-revamp-coll.json",
-        "collection"
-      )} --reporter-junit ${junitPath}`;
+        const junitArgs = `test ${getTestJsonFilePath(
+          "scripting-revamp-coll.json",
+          "collection"
+        )} --reporter-junit ${junitPath}`;
 
-      // Enhanced retry for JUnit run - also validate output completeness
-      const runWithValidation = async () => {
-        const minExpectedTestSuites = 60; // Should have 67+ test suites
-        const maxAttempts = 2; // Only retry once (2 total attempts)
+        // Enhanced retry for JUnit run - also validate output completeness
+        const runWithValidation = async () => {
+          const minExpectedTestSuites = 60; // Should have 67+ test suites
+          const maxAttempts = 2; // Only retry once (2 total attempts)
 
-        const extractNetworkError = (output: string): string => {
-          const econnresetMatch = output.match(/ECONNRESET/i);
-          const eaiAgainMatch = output.match(/EAI_AGAIN/i);
-          const enotfoundMatch = output.match(/ENOTFOUND/i);
-          const etimedoutMatch = output.match(/ETIMEDOUT/i);
-          const econnrefusedMatch = output.match(/ECONNREFUSED/i);
+          const extractNetworkError = (output: string): string => {
+            const econnresetMatch = output.match(/ECONNRESET/i);
+            const eaiAgainMatch = output.match(/EAI_AGAIN/i);
+            const enotfoundMatch = output.match(/ENOTFOUND/i);
+            const etimedoutMatch = output.match(/ETIMEDOUT/i);
+            const econnrefusedMatch = output.match(/ECONNREFUSED/i);
 
-          if (econnresetMatch) return "ECONNRESET (connection reset by peer)";
-          if (eaiAgainMatch) return "EAI_AGAIN (DNS lookup timeout)";
-          if (enotfoundMatch) return "ENOTFOUND (DNS lookup failed)";
-          if (etimedoutMatch) return "ETIMEDOUT (connection timeout)";
-          if (econnrefusedMatch) return "ECONNREFUSED (connection refused)";
-          return "Unknown network error";
-        };
+            if (econnresetMatch) return "ECONNRESET (connection reset by peer)";
+            if (eaiAgainMatch) return "EAI_AGAIN (DNS lookup timeout)";
+            if (enotfoundMatch) return "ENOTFOUND (DNS lookup failed)";
+            if (etimedoutMatch) return "ETIMEDOUT (connection timeout)";
+            if (econnrefusedMatch) return "ECONNREFUSED (connection refused)";
+            return "Unknown network error";
+          };
 
-        for (let attempt = 0; attempt < maxAttempts; attempt++) {
-          if (fs.existsSync(junitPath)) {
-            fs.unlinkSync(junitPath);
-          }
+          for (let attempt = 0; attempt < maxAttempts; attempt++) {
+            if (fs.existsSync(junitPath)) {
+              fs.unlinkSync(junitPath);
+            }
 
-          const result = await runCLI(junitArgs);
+            const result = await runCLI(junitArgs);
 
-          // Check for transient errors in output (network or httpbin 5xx)
-          const output = `${result.stdout}\n${result.stderr}`;
-          const hasNetworkError =
-            /ECONNRESET|EAI_AGAIN|ENOTFOUND|ETIMEDOUT|ECONNREFUSED|REQUEST_ERROR/i.test(
-              output
-            );
-          const hasHttpbin5xx =
-            /httpbin\.org is down \(5xx\)|httpbin\.org is down \(503\)/i.test(
-              output
-            );
+            // Check for transient errors in output (network or httpbin 5xx)
+            const output = `${result.stdout}\n${result.stderr}`;
+            const hasNetworkError =
+              /ECONNRESET|EAI_AGAIN|ENOTFOUND|ETIMEDOUT|ECONNREFUSED|REQUEST_ERROR/i.test(
+                output
+              );
+            const hasHttpbin5xx =
+              /httpbin\.org is down \(5xx\)|httpbin\.org is down \(503\)/i.test(
+                output
+              );
 
-          // If successful and JUnit file exists, validate completeness
-          if (!result.error && fs.existsSync(junitPath)) {
-            const xml = fs.readFileSync(junitPath, "utf-8");
-            const testsuiteCount = (xml.match(/<testsuite /g) || []).length;
+            // If successful and JUnit file exists, validate completeness
+            if (!result.error && fs.existsSync(junitPath)) {
+              const xml = fs.readFileSync(junitPath, "utf-8");
+              const testsuiteCount = (xml.match(/<testsuite /g) || []).length;
 
-            // If we have the expected number of test suites and no httpbin issues, we're good
-            if (testsuiteCount >= minExpectedTestSuites && !hasHttpbin5xx) {
+              // If we have the expected number of test suites and no httpbin issues, we're good
+              if (testsuiteCount >= minExpectedTestSuites && !hasHttpbin5xx) {
+                return result;
+              }
+            }
+
+            const isTransientError = hasNetworkError || hasHttpbin5xx;
+
+            // Non-transient error - fail fast
+            if (result.error && !isTransientError) {
               return result;
             }
 
-            // Incomplete output or httpbin issues - retry once if transient
-            if (
-              (hasNetworkError || hasHttpbin5xx) &&
-              attempt < maxAttempts - 1
-            ) {
+            // Transient error - retry once
+            if (isTransientError && attempt < maxAttempts - 1) {
               const errorDetail = hasHttpbin5xx
                 ? "httpbin.org 5xx response"
-                : `incomplete output (${testsuiteCount}/${minExpectedTestSuites} test suites) with ${extractNetworkError(output)}`;
+                : extractNetworkError(output);
               console.log(
                 `⚠️  Transient error detected: ${errorDetail}. Retrying once...`
               );
               await new Promise((r) => setTimeout(r, 2000));
               continue;
             }
-          }
 
-          // Non-transient error - fail fast
-          if (result.error && !hasNetworkError && !hasHttpbin5xx) {
+            // Last attempt exhausted due to transient issues - skip test to avoid blocking PR
+            if (isTransientError) {
+              const errorDetail = hasHttpbin5xx
+                ? "httpbin.org service degradation (5xx)"
+                : extractNetworkError(output);
+              console.warn(
+                `⚠️  Skipping test: Retry exhausted due to ${errorDetail}. External services may be unavailable.`
+              );
+              return null; // Signal to skip test
+            }
+
             return result;
-          }
+          } // closes for loop
 
-          // Transient error - retry once
-          const isLastAttempt = attempt === maxAttempts - 1;
-          if (!isLastAttempt) {
-            const errorDetail = hasHttpbin5xx
-              ? "httpbin.org 5xx response"
-              : extractNetworkError(output);
-            console.log(
-              `⚠️  Transient error detected: ${errorDetail}. Retrying once...`
+          return null;
+        }; // closes runWithValidation
+
+        const junitResult = await runWithValidation();
+        if (junitResult === null) return;
+
+        if (!fs.existsSync(junitPath)) {
+          if (junitResult === null) {
+            console.warn(
+              "Skipping test: JUnit report not generated due to transient failure"
             );
-            await new Promise((r) => setTimeout(r, 2000));
-            continue;
+            return;
           }
 
-          // Last attempt exhausted due to transient issues - skip test to avoid blocking PR
-          const errorDetail = hasHttpbin5xx
-            ? "httpbin.org service degradation (5xx)"
-            : extractNetworkError(output);
-          console.warn(
-            `⚠️  Skipping test: Retry exhausted due to ${errorDetail}. External services may be unavailable.`
-          );
-          return null; // Signal to skip test
+          throw new Error("JUnit report not generated despite successful execution");
         }
 
-        // Should never reach here - all paths above should return
-        throw new Error("Unexpected: retry loop completed without returning");
-      };
+        expect(junitResult.error).toBeNull();
 
-      const junitResult = await runWithValidation();
-      if (junitResult === null) return;
-      expect(junitResult.error).toBeNull();
+        const junitXml = fs.readFileSync(junitPath, "utf-8");
 
-      const junitXml = fs.readFileSync(junitPath, "utf-8");
+        // Validate structural invariants using regex parsing.
+        // Validate no testcases have "root" as name (would indicate assertions at root level).
+        const testcaseRootPattern = /<testcase [^>]*name="root"/;
+        expect(junitXml).not.toMatch(testcaseRootPattern);
 
-      // Validate structural invariants using regex parsing.
-      // Validate no testcases have "root" as name (would indicate assertions at root level).
-      const testcaseRootPattern = /<testcase [^>]*name="root"/;
-      expect(junitXml).not.toMatch(testcaseRootPattern);
+        // Validate test structure: testcases should have meaningful names from test blocks
+        const testcasePattern = /<testcase name="([^"]+)"/g;
+        const testcaseNames = Array.from(
+          junitXml.matchAll(testcasePattern),
+          (m) => m[1]
+        );
 
-      // Validate test structure: testcases should have meaningful names from test blocks
-      const testcasePattern = /<testcase name="([^"]+)"/g;
-      const testcaseNames = Array.from(
-        junitXml.matchAll(testcasePattern),
-        (m) => m[1]
-      );
+        // Ensure we have testcases
+        expect(testcaseNames.length).toBeGreaterThan(0);
 
-      // Ensure we have testcases
-      expect(testcaseNames.length).toBeGreaterThan(0);
+        // Ensure no empty testcase names
+        for (const name of testcaseNames) {
+          expect(name.length).toBeGreaterThan(0);
+          expect(name).not.toBe("root");
+        }
 
-      // Ensure no empty testcase names
-      for (const name of testcaseNames) {
-        expect(name.length).toBeGreaterThan(0);
-        expect(name).not.toBe("root");
+        // Validate presence of key test groups instead of snapshot comparison
+        // This is more reliable for CI as network responses can vary
+
+        // 1. Correct number of test suites
+        const testsuitePattern = /<testsuite /g;
+        const testsuiteCount = (junitXml.match(testsuitePattern) || []).length;
+        expect(testsuiteCount).toBeGreaterThan(60); // Should have 67+ test suites with comprehensive additions
+
+        // 2. Async pattern tests executed (from newly added requests)
+        expect(junitXml).toContain('name="Pre-request top-level await works');
+        expect(junitXml).toContain('name="Pre-request .then() chain works');
+        expect(junitXml).toContain('name="Test script top-level await works');
+        expect(junitXml).toContain('name="Await inside test callback works');
+        expect(junitXml).toContain('name=".then() inside test callback works');
+        expect(junitXml).toContain('name="Promise.all in test callback works');
+        expect(junitXml).toContain('name="Sequential requests work');
+        expect(junitXml).toContain('name="Parallel requests work');
+        expect(junitXml).toContain('name="Auth workflow works');
+        expect(junitXml).toContain('name="Complex workflow in test works');
+        expect(junitXml).toContain('name="Error handling works');
+        expect(junitXml).toContain('name="Large JSON payload works');
+
+        // 3. Query parameter and URL construction tests
+        expect(junitXml).toContain('name="Query parameters work');
+        expect(junitXml).toContain('name="URL object works');
+        expect(junitXml).toContain('name="Dynamic URL construction works');
+
+        // 4. POST body variation tests
+        expect(junitXml).toContain('name="POST JSON body works');
+        expect(junitXml).toContain('name="POST URL-encoded body works');
+        expect(junitXml).toContain('name="Binary POST works');
+
+        // 5. HTTP method tests
+        expect(junitXml).toContain('name="PUT method works');
+        expect(junitXml).toContain('name="PATCH method works');
+        expect(junitXml).toContain('name="DELETE method works');
+
+        // 6. Response parsing tests
+        expect(junitXml).toContain('name="Response headers accessible');
+        expect(junitXml).toContain('name="response.text() works');
+        expect(junitXml).toContain(
+          'name="Async response parsing in test works'
+        );
+
+        // 7. Chai and BDD assertions
+        expect(junitXml).toContain('name="Chai equality');
+        expect(junitXml).toContain('name="pm.expect');
+        expect(junitXml).toContain('name="hopp.expect');
+
+        // 8. hopp.fetch() and pm.sendRequest() tests
+        expect(junitXml).toContain(
+          'name="hopp.fetch() should make successful GET request'
+        );
+        expect(junitXml).toContain(
+          'name="pm.sendRequest() should work with string URL'
+        );
+        expect(junitXml).toContain(
+          'name="hopp.fetch() should handle binary responses'
+        );
+
+        // 9. Validate test count is reasonable (comprehensive collection)
+        const testsMatch = junitXml.match(/<testsuites tests="(\d+)"/);
+        if (testsMatch) {
+          const testCount = parseInt(testsMatch[1], 10);
+          expect(testCount).toBeGreaterThan(800); // Should have 850+ tests with all comprehensive async additions
+        }
+
+        // 10. Validate no failures OR only network-related skips (not test failures)
+        // This is flexible to handle transient network issues logged in console
+        // Check that there are no actual test assertion failures
+        const failuresMatch = junitXml.match(
+          /<testsuites tests="\d+" failures="(\d+)"/
+        );
+        if (failuresMatch) {
+          const failureCount = parseInt(failuresMatch[1], 10);
+          // Allow the test to pass even if some tests were skipped due to network issues
+          // The important thing is that actual test logic doesn't fail
+          expect(failureCount).toBeLessThan(10); // Tolerate a few network-related skips
+        }
+
+        if (fs.existsSync(junitPath)) {
+          fs.unlinkSync(junitPath);
+        }
       }
-
-      // Validate presence of key test groups instead of snapshot comparison
-      // This is more reliable for CI as network responses can vary
-
-      // 1. Correct number of test suites
-      const testsuitePattern = /<testsuite /g;
-      const testsuiteCount = (junitXml.match(testsuitePattern) || []).length;
-      expect(testsuiteCount).toBeGreaterThan(60); // Should have 67+ test suites with comprehensive additions
-
-      // 2. Async pattern tests executed (from newly added requests)
-      expect(junitXml).toContain('name="Pre-request top-level await works');
-      expect(junitXml).toContain('name="Pre-request .then() chain works');
-      expect(junitXml).toContain('name="Test script top-level await works');
-      expect(junitXml).toContain('name="Await inside test callback works');
-      expect(junitXml).toContain('name=".then() inside test callback works');
-      expect(junitXml).toContain('name="Promise.all in test callback works');
-      expect(junitXml).toContain('name="Sequential requests work');
-      expect(junitXml).toContain('name="Parallel requests work');
-      expect(junitXml).toContain('name="Auth workflow works');
-      expect(junitXml).toContain('name="Complex workflow in test works');
-      expect(junitXml).toContain('name="Error handling works');
-      expect(junitXml).toContain('name="Large JSON payload works');
-
-      // 3. Query parameter and URL construction tests
-      expect(junitXml).toContain('name="Query parameters work');
-      expect(junitXml).toContain('name="URL object works');
-      expect(junitXml).toContain('name="Dynamic URL construction works');
-
-      // 4. POST body variation tests
-      expect(junitXml).toContain('name="POST JSON body works');
-      expect(junitXml).toContain('name="POST URL-encoded body works');
-      expect(junitXml).toContain('name="Binary POST works');
-
-      // 5. HTTP method tests
-      expect(junitXml).toContain('name="PUT method works');
-      expect(junitXml).toContain('name="PATCH method works');
-      expect(junitXml).toContain('name="DELETE method works');
-
-      // 6. Response parsing tests
-      expect(junitXml).toContain('name="Response headers accessible');
-      expect(junitXml).toContain('name="response.text() works');
-      expect(junitXml).toContain('name="Async response parsing in test works');
-
-      // 7. Chai and BDD assertions
-      expect(junitXml).toContain('name="Chai equality');
-      expect(junitXml).toContain('name="pm.expect');
-      expect(junitXml).toContain('name="hopp.expect');
-
-      // 8. hopp.fetch() and pm.sendRequest() tests
-      expect(junitXml).toContain(
-        'name="hopp.fetch() should make successful GET request'
-      );
-      expect(junitXml).toContain(
-        'name="pm.sendRequest() should work with string URL'
-      );
-      expect(junitXml).toContain(
-        'name="hopp.fetch() should handle binary responses'
-      );
-
-      // 9. Validate test count is reasonable (comprehensive collection)
-      const testsMatch = junitXml.match(/<testsuites tests="(\d+)"/);
-      if (testsMatch) {
-        const testCount = parseInt(testsMatch[1], 10);
-        expect(testCount).toBeGreaterThan(800); // Should have 850+ tests with all comprehensive async additions
-      }
-
-      // 10. Validate no failures OR only network-related skips (not test failures)
-      // This is flexible to handle transient network issues logged in console
-      // Check that there are no actual test assertion failures
-      const failuresMatch = junitXml.match(
-        /<testsuites tests="\d+" failures="(\d+)"/
-      );
-      if (failuresMatch) {
-        const failureCount = parseInt(failuresMatch[1], 10);
-        // Allow the test to pass even if some tests were skipped due to network issues
-        // The important thing is that actual test logic doesn't fail
-        expect(failureCount).toBeLessThan(10); // Tolerate a few network-related skips
-      }
-
-      // Clean up
-      fs.unlinkSync(junitPath);
-    }, 600000); // 600 second (10 minute) timeout
+    );
   });
 
   describe("Test `hopp test <file_path_or_id> --env <file_path_or_id>` command:", () => {
@@ -1392,6 +1400,44 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
   describe("Test `hopp test <file> --iteration-data <file_path>` command:", () => {
     describe("Supplied data export file validations", () => {
       const VALID_TEST_ARGS = `test ${getTestJsonFilePath("passes-coll.json", "collection")}`;
+
+      test("Errors with the code `INVALID_ITERATION_DATA` if CSV file is empty", async () => {
+        const EMPTY_CSV_PATH = path.join(__dirname, "empty.csv");
+
+        // Create a CSV with headers but no meaningful values (all rows empty)
+        fs.writeFileSync(EMPTY_CSV_PATH, "");
+
+        try {
+          const args = `${VALID_TEST_ARGS} --iteration-data ${EMPTY_CSV_PATH}`;
+          const { stderr } = await runCLI(args);
+
+          // Expect CLI to reject empty CSV input
+          const out = getErrorCode(stderr);
+          expect(out).toBe<HoppErrorCode>("INVALID_ITERATION_DATA");
+        } finally {
+          // Clean up the temporary file after test execution
+          fs.unlinkSync(EMPTY_CSV_PATH);
+        }
+      });
+
+      test("Errors with the code `INVALID_ITERATION_DATA` if CSV contains only empty rows", async () => {
+        const EMPTY_ROWS_PATH = path.join(__dirname, "empty-rows.csv");
+
+        // Create a CSV with headers but no meaningful values (all rows empty)
+        fs.writeFileSync(EMPTY_ROWS_PATH, "name,age\n,\n,\n");
+
+        try {
+          const args = `${VALID_TEST_ARGS} --iteration-data ${EMPTY_ROWS_PATH}`;
+          const { stderr } = await runCLI(args);
+
+          // Expect CLI to reject CSV where all rows are empty after filtering
+          const out = getErrorCode(stderr);
+          expect(out).toBe<HoppErrorCode>("INVALID_ITERATION_DATA");
+        } finally {
+          // Remove temporary file to avoid side effects on other tests
+          fs.unlinkSync(EMPTY_ROWS_PATH);
+        }
+      });
 
       test("Errors with the code `INVALID_ARGUMENT` if no file is supplied", async () => {
         const args = `${VALID_TEST_ARGS} --iteration-data`;

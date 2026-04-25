@@ -50,13 +50,19 @@ export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
 
     const collections = await parseCollectionData(pathOrId, options);
 
+    // Handle CSV-based iteration data:
+    // - Validates file existence and extension
+    // - Parses CSV into structured data
+    // - Filters out empty or whitespace-only rows
+    // - Ensures at least one valid row is present
+    // - Transforms rows into iteration data format for execution
     if (iterationData) {
-      // Check file existence
+      // Ensure the iteration data file exists before processing
       if (!fs.existsSync(iterationData)) {
         throw error({ code: "FILE_NOT_FOUND", path: iterationData });
       }
 
-      // Check file extension
+      // Allow only CSV files for iteration data
       if (path.extname(iterationData) !== ".csv") {
         throw error({
           code: "INVALID_DATA_FILE_TYPE",
@@ -64,11 +70,24 @@ export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
         });
       }
 
-      // Read & parse CSV
+      // Read CSV content and parse it into objects using header keys
       const csvData = fs.readFileSync(iterationData, "utf8");
-      const parsed = Papa.parse(csvData, { header: true });
+      if (!csvData.trim()) {
+        throw error({
+          code: "INVALID_ITERATION_DATA",
+          data: "CSV file is empty",
+        });
+      }
 
-      // Fail if CSV is empty
+      const parsed = Papa.parse(csvData, { header: true });
+      if (parsed.errors && parsed.errors.some((e) => e.code !== "TooFewFields")) {
+        throw error({
+          code: "INVALID_ITERATION_DATA",
+          data: parsed.errors[0]?.message ?? "CSV parsing failed",
+        });
+      }
+
+      // Reject if the CSV file contains no rows
       if (!parsed.data || parsed.data.length === 0) {
         throw error({
           code: "INVALID_ITERATION_DATA",
@@ -76,7 +95,7 @@ export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
         });
       }
 
-      // Filter out rows that contain only empty or whitespace values
+      // Remove rows that contain only null, undefined, or whitespace values
       parsedIterationData = (parsed.data as Record<string, unknown>[]).filter(
         (row) =>
           Object.values(row).some(
@@ -85,7 +104,7 @@ export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
           )
       );
 
-      // Fail if all rows are empty
+      // Reject if all rows are empty after filtering
       if (parsedIterationData.length === 0) {
         throw error({
           code: "INVALID_ITERATION_DATA",
@@ -101,7 +120,7 @@ export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
 
           return (
             keys
-              // Ignore keys with empty string values
+              // Exclude keys with empty or whitespace-only values
               .filter((key) => {
                 const val = iterationDataItem[key];
                 return (

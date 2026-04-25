@@ -20,15 +20,20 @@ const parseErrorData = (e: unknown) => {
     } else if (hasProperty(e, "data") && S.isString(e.data)) {
       parsedMsg = e.data;
     } else {
-      parsedMsg = JSON.stringify(e);
+      parsedMsg = e ? JSON.stringify(e) : "";
     }
   } else if (S.isString(e)) {
     parsedMsg = e;
   } else {
-    parsedMsg = JSON.stringify(e);
+    parsedMsg = e ? JSON.stringify(e) : "";
   }
 
   return parsedMsg;
+};
+
+const formatErrorMessage = (code: string, data?: unknown) => {
+  const parsed = parseErrorData(data);
+  return parsed ? `${code}: ${parsed}` : code;
 };
 
 /**
@@ -42,7 +47,8 @@ export const handleError = <T extends HoppErrorCode>(error: HoppError<T>) => {
 
   switch (error.code) {
     case "INVALID_ITERATION_DATA":
-      return console.error(error.data);
+      ERROR_MSG = formatErrorMessage(error.code, error.data);
+      break;
     case "FILE_NOT_FOUND":
       ERROR_MSG = `File doesn't exist: ${error.path}`;
       break;

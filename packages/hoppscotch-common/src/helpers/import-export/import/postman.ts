@@ -10,6 +10,7 @@ import {
   knownContentTypes,
   makeCollection,
   makeRESTRequest,
+  rawKeyValueEntriesToString,
   ValidContentTypes,
   HoppRESTRequestResponses,
   makeHoppRESTResponseOriginalRequest,
@@ -31,7 +32,6 @@ import {
   VariableDefinition,
   VariableList,
 } from "postman-collection"
-import { stringArrayJoin } from "~/helpers/functional/array"
 import { PMRawLanguage } from "~/types/pm-coll-exts"
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
 
@@ -409,13 +409,12 @@ const getHoppReqBody = ({
       contentType: "application/x-www-form-urlencoded",
       body: pipe(
         body.urlencoded?.all() ?? [],
-        A.map(
-          (param) =>
-            `${replacePMVarTemplating(
-              param.key ?? ""
-            )}: ${replacePMVarTemplating(String(param.value ?? ""))}`
-        ),
-        stringArrayJoin("\n")
+        A.map((param) => ({
+          active: !param.disabled,
+          key: replacePMVarTemplating(param.key ?? ""),
+          value: replacePMVarTemplating(String(param.value ?? "")),
+        })),
+        rawKeyValueEntriesToString
       ),
     }
   } else if (body.mode === "raw") {

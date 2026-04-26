@@ -8,7 +8,6 @@
     "urls": ["https://*"]
   },
   "permissions": [
-    "core:default",
     "core:event:default",
     "core:path:default",
     "store:default",

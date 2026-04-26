@@ -28,7 +28,7 @@ const processParams = (params: [string, string][]): [string, string][] => {
   const encodeMode = useSetting("ENCODE_MODE").value
 
   const needsEncoding = (v: string) =>
-    /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(v)
+    /[!@#$%^&*()_+\-=\[\]{};':"\\|.<>\/?]+/.test(v)
 
   return params.map(([key, value]) => {
     const isEncodingRequired =

@@ -75,8 +75,13 @@ const editMode = ref<boolean>(false)
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
 const textareaHeight = ref<number>(200)
 
+// Normalize line endings to \n to prevent issues on desktop (Tauri/WKWebView)
+// where \r\n or \r may appear due to clipboard or IPC serialization differences.
+const normalizeLineEndings = (value: string): string =>
+  value.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
+
 // Internal content that syncs with modelValue
-const internalContent = ref<string>(props.modelValue)
+const internalContent = ref<string>(normalizeLineEndings(props.modelValue))
 
 // Check if the content is empty
 const isEmpty = computed(
@@ -88,7 +93,7 @@ watch(
   () => props.modelValue,
   (newValue) => {
     if (!editMode.value) {
-      internalContent.value = newValue
+      internalContent.value = normalizeLineEndings(newValue)
     }
   },
   { immediate: true }
@@ -143,7 +148,11 @@ const enableEditMode = () => {
 
 // Handle blur event - save changes and exit edit mode
 const handleBlur = () => {
-  emit("update:modelValue", internalContent.value)
+  // Normalize line endings before emitting so \r\n from the desktop WebView
+  // textarea is stored as \n consistently across platforms.
+  const normalized = normalizeLineEndings(internalContent.value)
+  internalContent.value = normalized
+  emit("update:modelValue", normalized)
   emit("blur")
   editMode.value = false
 }

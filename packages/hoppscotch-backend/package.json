@@ -124,6 +124,9 @@
       "../jest.setup.js"
     ],
     "preset": "ts-jest",
+    "transform": {
+      "^.+\\.(t|j)s$": ["ts-jest", { "diagnostics": false }]
+    },
     "clearMocks": true,
     "collectCoverage": true,
     "coverageDirectory": "coverage",

@@ -1,0 +1,20 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "remote-https",
+  "description": "Capability for self-hosted CE instances loaded from HTTPS origins. Grants only the minimum required plugins, without filesystem access.",
+  "windows": ["*"],
+  "webviews": ["*"],
+  "remote": {
+    "urls": ["https://*"]
+  },
+  "permissions": [
+    "core:default",
+    "core:event:default",
+    "core:path:default",
+    "store:default",
+    "relay:default",
+    "appload:default",
+    "deep-link:default",
+    "shell:allow-open"
+  ]
+}

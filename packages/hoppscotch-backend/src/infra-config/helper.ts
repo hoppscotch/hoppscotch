@@ -494,6 +494,81 @@ export function determineAllowSecureCookies(appBaseUrl: string) {
 }
 
 /**
+ * ENV-sourced infra config fields whose values in the DB must be kept in sync
+ * with the corresponding process.env variable whenever a non-empty value is set.
+ *
+ * These are the fields that users typically provide via their container/compose
+ * .env file (e.g. MICROSOFT_CLIENT_SECRET, GOOGLE_CLIENT_SECRET) and expect to
+ * take effect on the next restart — even after the initial onboarding has been
+ * completed and the DB already contains a (now-stale) value.
+ */
+const ENV_OVERRIDE_FIELDS: { name: InfraConfigEnum; isEncrypted: boolean }[] =
+  [
+    { name: InfraConfigEnum.GOOGLE_CLIENT_ID, isEncrypted: true },
+    { name: InfraConfigEnum.GOOGLE_CLIENT_SECRET, isEncrypted: true },
+    { name: InfraConfigEnum.GOOGLE_CALLBACK_URL, isEncrypted: false },
+    { name: InfraConfigEnum.GOOGLE_SCOPE, isEncrypted: false },
+    { name: InfraConfigEnum.GITHUB_CLIENT_ID, isEncrypted: true },
+    { name: InfraConfigEnum.GITHUB_CLIENT_SECRET, isEncrypted: true },
+    { name: InfraConfigEnum.GITHUB_CALLBACK_URL, isEncrypted: false },
+    { name: InfraConfigEnum.GITHUB_SCOPE, isEncrypted: false },
+    { name: InfraConfigEnum.MICROSOFT_CLIENT_ID, isEncrypted: true },
+    { name: InfraConfigEnum.MICROSOFT_CLIENT_SECRET, isEncrypted: true },
+    { name: InfraConfigEnum.MICROSOFT_CALLBACK_URL, isEncrypted: false },
+    { name: InfraConfigEnum.MICROSOFT_SCOPE, isEncrypted: false },
+    { name: InfraConfigEnum.MICROSOFT_TENANT, isEncrypted: false },
+    { name: InfraConfigEnum.MAILER_SMTP_URL, isEncrypted: true },
+    { name: InfraConfigEnum.MAILER_ADDRESS_FROM, isEncrypted: false },
+    { name: InfraConfigEnum.MAILER_SMTP_HOST, isEncrypted: false },
+    { name: InfraConfigEnum.MAILER_SMTP_PORT, isEncrypted: false },
+    { name: InfraConfigEnum.MAILER_SMTP_USER, isEncrypted: false },
+    { name: InfraConfigEnum.MAILER_SMTP_PASSWORD, isEncrypted: true },
+  ];
+
+/**
+ * Returns DB update operations for infra config entries whose process.env value
+ * differs from what is currently stored in the database.
+ *
+ * This allows operators to rotate secrets (e.g. MICROSOFT_CLIENT_SECRET) via
+ * their container .env file and have the change take effect on the next restart,
+ * even when the DB already contains a value from a previous deployment.
+ */
+export async function getEnvOverrideInfraConfigEntries(): Promise<
+  { name: InfraConfigEnum; value: string; isEncrypted: boolean }[]
+> {
+  const prisma = getSharedPrismaInstance();
+  const dbInfraConfigs = await prisma.infraConfig.findMany({
+    where: { name: { in: ENV_OVERRIDE_FIELDS.map((f) => f.name) } },
+  });
+
+  const updates: { name: InfraConfigEnum; value: string; isEncrypted: boolean }[] =
+    [];
+
+  for (const field of ENV_OVERRIDE_FIELDS) {
+    const envValue = process.env[field.name];
+    if (!envValue) continue; // ENV not set — leave DB value as-is
+
+    const dbEntry = dbInfraConfigs.find((r) => r.name === field.name);
+    const currentDbPlainValue = dbEntry
+      ? dbEntry.isEncrypted
+        ? decrypt(dbEntry.value)
+        : dbEntry.value
+      : null;
+
+    if (currentDbPlainValue !== envValue) {
+      const storedValue = field.isEncrypted ? encrypt(envValue) : envValue;
+      updates.push({
+        name: field.name,
+        value: storedValue,
+        isEncrypted: field.isEncrypted,
+      });
+    }
+  }
+
+  return updates;
+}
+
+/**
  * Builds a map of environment variables that are derived from other configuration values
  * @returns Record<string, string>
  */

@@ -30,6 +30,7 @@ import {
   disconnectSharedPrismaInstance,
   getDefaultInfraConfigs,
   getEncryptionRequiredInfraConfigEntries,
+  getEnvOverrideInfraConfigEntries,
   getMissingInfraConfigEntries,
   stopApp,
 } from './helper';
@@ -109,6 +110,22 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
         await Promise.allSettled(dbOperations);
       }
 
+      // Sync ENV-sourced credential fields (e.g. MICROSOFT_CLIENT_SECRET) to the
+      // DB so that rotated secrets take effect on the next container restart without
+      // requiring a manual Admin Dashboard update.
+      const envOverrideEntries = await getEnvOverrideInfraConfigEntries();
+
+      if (envOverrideEntries.length > 0) {
+        const dbOperations = envOverrideEntries.map((entry) => {
+          return this.prisma.infraConfig.update({
+            where: { name: entry.name },
+            data: { value: entry.value, isEncrypted: entry.isEncrypted },
+          });
+        });
+
+        await Promise.allSettled(dbOperations);
+      }
+
       // Derive env variables programmatically if they don't exist or need to be updated
       const derivedEnv = await buildDerivedEnv();
 
@@ -126,6 +143,7 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
       if (
         propsToInsert.length > 0 ||
         encryptionRequiredEntries.length > 0 ||
+        envOverrideEntries.length > 0 ||
         Object.keys(derivedEnv).length > 0
       ) {
         stopApp();

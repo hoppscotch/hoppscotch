@@ -172,24 +172,27 @@ export function cascadeParentCollectionForProperties(
     const parentFolderVariables =
       parentFolder.variables as HoppCollectionVariable[]
 
-    // check if the parent folder has authType 'inherit' and if it is the root folder
-    if (
-      parentFolderAuth?.authType === "inherit" &&
-      [...path.slice(0, i + 1)].length === 1
-    ) {
+    // check if the parent folder has authType 'inherit'
+    if (parentFolderAuth?.authType === "inherit") {
+      // Folder defers to its parent — keep auth.inheritedAuth unchanged.
+      // Only update the parentID/parentName metadata so the UI shows the
+      // correct "inherited from" label.
       auth = {
         parentID: [...path.slice(0, i + 1)].join("/"),
         parentName: parentFolder.name,
         inheritedAuth: auth.inheritedAuth,
       }
-    }
-    if (parentFolderAuth?.authType !== "inherit") {
+    } else if (parentFolderAuth) {
+      // Folder has an explicit auth type (not inherit and not undefined).
+      // This becomes the new effective auth for child requests.
       auth = {
         parentID: [...path.slice(0, i + 1)].join("/"),
         parentName: parentFolder.name,
         inheritedAuth: parentFolderAuth,
       }
     }
+    // If parentFolderAuth is undefined (legacy collection without auth field),
+    // leave auth unchanged — treat it as if auth were set to "none".
 
     // Update headers, overwriting duplicates by key
     if (parentFolderHeaders) {

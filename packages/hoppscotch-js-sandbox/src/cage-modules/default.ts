@@ -42,7 +42,11 @@ export const defaultModules = (config?: DefaultModulesConfig) => {
         console.timeLog(...args)
       },
       onGroup(label, collapsed) {
-        console.group(label)
+        if (collapsed) {
+          console.groupCollapsed(label)
+        } else {
+          console.group(label)
+        }
         if (config?.handleConsoleEntry) {
           config.handleConsoleEntry({
             type: collapsed ? "groupCollapsed" : "group",

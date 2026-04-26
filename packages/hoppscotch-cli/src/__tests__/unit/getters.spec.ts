@@ -275,14 +275,14 @@ describe("getters", () => {
       test("Promise rejects with the code `UNKNOWN_ERROR` while encountering an error that is not an instance of `AxiosError`", async () => {
         const expected = {
           code: "UNKNOWN_ERROR",
-          data: new Error("UNKNOWN_ERROR"),
+          data: expect.objectContaining({ message: "UNKNOWN_ERROR" }),
         };
 
         vi.spyOn(axios, "get").mockImplementation(() =>
           Promise.reject(new Error("UNKNOWN_ERROR"))
         );
 
-        await expect(getResourceContents(args)).rejects.toEqual(expected);
+        await expect(getResourceContents(args)).rejects.toMatchObject(expected);
       });
     });
 

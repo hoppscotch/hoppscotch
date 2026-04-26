@@ -48,10 +48,13 @@ const SettingsDefSchema = z.object({
   BG_COLOR: BgColorSchema,
   ENCODE_MODE: EncodeMode.catch("enable"),
   TELEMETRY_ENABLED: z.boolean(),
-  EXPAND_NAVIGATION: z.boolean(),
-  SIDEBAR: z.boolean(),
-  SIDEBAR_ON_LEFT: z.boolean(),
-  COLUMN_LAYOUT: z.boolean(),
+  // Use .catch() so that settings saved by older versions of the app that
+  // do not include these layout keys still parse successfully instead of
+  // failing schema validation entirely and reverting to defaults. Fixes #6112.
+  EXPAND_NAVIGATION: z.boolean().catch(false),
+  SIDEBAR: z.boolean().catch(true),
+  SIDEBAR_ON_LEFT: z.boolean().catch(false),
+  COLUMN_LAYOUT: z.boolean().catch(true),
 
   WRAP_LINES: z.optional(
     z.object({

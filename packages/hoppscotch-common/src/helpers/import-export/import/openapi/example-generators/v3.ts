@@ -74,10 +74,27 @@ const generateArrayRequestBodyExample = (
 const generateRequestBodyExampleFromSchemaObject = (
   schemaObject: OpenAPIV3.SchemaObject
 ): RequestBodyExample => {
-  // TODO: Handle schema objects with allof
   if (schemaObject.example) return schemaObject.example as RequestBodyExample
 
-  // If request body can be oneof or allof several schema, choose the first schema to generate an example
+  // Merge all allOf sub-schemas into a single object example
+  if (schemaObject.allOf) {
+    const merged: Record<string, RequestBodyExample> = {}
+    for (const subSchema of schemaObject.allOf) {
+      const example = generateRequestBodyExampleFromSchemaObject(
+        subSchema as OpenAPIV3.SchemaObject
+      )
+      if (
+        typeof example === "object" &&
+        example !== null &&
+        !Array.isArray(example)
+      ) {
+        Object.assign(merged, example)
+      }
+    }
+    return merged
+  }
+
+  // If request body can be oneOf or anyOf several schemas, choose the first schema to generate an example
   if (schemaObject.oneOf)
     return generateRequestBodyExampleFromSchemaObject(
       schemaObject.oneOf[0] as OpenAPIV3.SchemaObject

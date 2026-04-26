@@ -317,10 +317,14 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
         },
       }
     },
-    // HACK: This is a hack to fix hover tooltip not coming half of the time
-    // https://github.com/codemirror/tooltip/blob/765c463fc1d5afcc3ec93cee47d72606bed27e1d/src/tooltip.ts#L622
-    // Still doesn't fix the not showing up some of the time issue, but this is atleast more consistent
-    { hoverTime: 1 } as any
+    // HACK: hoverTime:1 is a workaround for CodeMirror tooltip not showing
+    // consistently (see codemirror/tooltip#622). hideDelay gives the user a
+    // grace period to move the mouse from the variable span to the floating
+    // tooltip popup without it disappearing. Without this delay the tooltip
+    // vanishes as soon as the cursor leaves the decorated range, which makes
+    // it impossible to click the edit icon when there is trailing text after
+    // the variable (e.g. `<<var>>text`). Fixes #6154.
+    { hoverTime: 1, hideDelay: 300 } as any
   )
 
 function checkEnv(env: string, aggregateEnvs: AggregateEnvironment[]) {

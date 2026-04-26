@@ -122,11 +122,11 @@ const HoppRESTRequestEq = Eq.struct<HoppRESTRequest>({
   body: lodashIsEqualEq,
   endpoint: S.Eq,
   headers: mapThenEq(
-    (arr) => arr.filter((h: any) => h.key !== "" && h.value !== ""),
+    (arr) => arr.filter((h: any) => h.key !== ""),
     lodashIsEqualEq
   ),
   params: mapThenEq(
-    (arr) => arr.filter((p: any) => p.key !== "" && p.value !== ""),
+    (arr) => arr.filter((p: any) => p.key !== ""),
     lodashIsEqualEq
   ),
   method: S.Eq,
@@ -134,7 +134,7 @@ const HoppRESTRequestEq = Eq.struct<HoppRESTRequest>({
   preRequestScript: S.Eq,
   testScript: S.Eq,
   requestVariables: mapThenEq(
-    (arr) => arr.filter((v: any) => v.key !== "" && v.value !== ""),
+    (arr) => arr.filter((v: any) => v.key !== ""),
     lodashIsEqualEq
   ),
   responses: lodashIsEqualEq,

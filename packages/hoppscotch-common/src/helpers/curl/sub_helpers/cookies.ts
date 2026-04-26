@@ -58,7 +58,14 @@ const parseCookieString = (cookieString: string): Record<string, string> => {
     .map((pair) => pair.trim())
     .filter(Boolean)
     .reduce((acc, pair) => {
-      const [key, value] = pair.split("=", 2)
-      return { ...acc, [key]: value || "" }
+      // Split only on the first "=" to preserve values that contain "=" signs
+      const eqIndex = pair.indexOf("=")
+      const key = eqIndex === -1 ? pair : pair.slice(0, eqIndex).trim()
+      let value = eqIndex === -1 ? "" : pair.slice(eqIndex + 1)
+      // Strip surrounding double-quotes from the value (e.g. "subprop1=val1" -> subprop1=val1)
+      if (value.startsWith('"') && value.endsWith('"')) {
+        value = value.slice(1, -1)
+      }
+      return { ...acc, [key]: value }
     }, {})
 }

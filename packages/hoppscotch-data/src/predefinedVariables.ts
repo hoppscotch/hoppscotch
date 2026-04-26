@@ -41,13 +41,17 @@ export const HOPP_SUPPORTED_PREDEFINED_VARIABLES: PredefinedVariable[] = [
   },
   {
     key: "$randomUUID",
-    description: "A random 36-character UUID.",
+    description: "A random RFC 4122 v4 UUID.",
     getValue: () => {
       const characters = "0123456789abcdef"
       let uuid = ""
       for (let i = 0; i < 36; i++) {
         if (i === 8 || i === 13 || i === 18 || i === 23) {
           uuid += "-"
+        } else if (i === 14) {
+          uuid += "4"
+        } else if (i === 19) {
+          uuid += characters.charAt(8 + Math.floor(Math.random() * 4))
         } else {
           uuid += characters.charAt(
             Math.floor(Math.random() * characters.length)

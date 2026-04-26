@@ -1,11 +1,15 @@
 <template>
-  <div class="console-entry-wrapper group" :class="[color, hoverClass]">
+  <div
+    class="console-entry-wrapper group"
+    :class="[color, hoverClass]"
+    :style="indent > 0 ? { paddingLeft: `${indent * 16 + 16}px` } : {}"
+  >
     <component :is="icon" class="mr-2 shrink-0 svg-icons" />
 
     <div class="flex flex-col space-y-2 text-xs flex-1 min-w-0">
       <div class="text-secondary">{{ formattedTimestamp }}</div>
 
-      <div class="flex flex-col space-y-1">
+      <div v-if="entry.type !== 'groupEnd'" class="flex flex-col space-y-1">
         <ConsoleValue
           v-for="(arg, idx) in sanitizedArgs"
           :key="idx"
@@ -37,8 +41,12 @@ import IconInfo from "~icons/lucide/info"
 import IconTerminal from "~icons/lucide/terminal"
 import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
+import IconChevronRight from "~icons/lucide/chevron-right"
+import IconChevronDown from "~icons/lucide/chevron-down"
+import IconTable from "~icons/lucide/table"
+import IconCode from "~icons/lucide/code"
 
-import { ConsoleEntry, ConsoleLogLevel } from "./Panel.vue"
+import { ConsoleEntry, ConsoleEntryType } from "./Panel.vue"
 import { useI18n } from "@composables/i18n"
 import { copyToClipboard } from "@helpers/utils/clipboard"
 import { useToast } from "@composables/toast"
@@ -47,30 +55,36 @@ type LogLevelsWithBgColor = "info" | "warn" | "error"
 
 const props = defineProps<{
   entry: ConsoleEntry
+  indent?: number
 }>()
 
 const t = useI18n()
 const toast = useToast()
 const copyIcon = refAutoReset(IconCopy, 1000)
 
-const bgColors: Pick<Record<ConsoleLogLevel, string>, LogLevelsWithBgColor> = {
+const bgColors: Partial<Record<ConsoleEntryType, string>> = {
   info: "bg-bannerInfo",
   warn: "bg-bannerWarning",
   error: "bg-bannerError",
 }
 
-const icons: Record<ConsoleLogLevel, unknown> = {
+const icons: Partial<Record<ConsoleEntryType, unknown>> = {
   info: IconInfo,
   warn: IconAlertCircle,
   error: IconAlertTriangle,
   log: IconTerminal,
   debug: IconBug,
+  group: IconChevronDown,
+  groupCollapsed: IconChevronRight,
+  groupEnd: IconChevronRight,
+  table: IconTable,
+  dir: IconCode,
 }
 
-const color = computed(() => bgColors[props.entry.type as LogLevelsWithBgColor])
-const icon = computed(() => icons[props.entry.type])
+const color = computed(() => bgColors[props.entry.type] ?? "")
+const icon = computed(() => icons[props.entry.type] ?? IconTerminal)
 
-// Only apply hover background for entries without semantic backgrounds (log, debug)
+// Only apply hover background for entries without semantic backgrounds
 const hoverClass = computed(() =>
   props.entry.type in bgColors ? "" : "hover:bg-primaryLight"
 )

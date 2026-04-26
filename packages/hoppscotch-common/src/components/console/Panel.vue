@@ -18,7 +18,8 @@
       <ConsoleItem
         v-for="(entry, index) in renderedMessages"
         :key="index"
-        :entry="entry"
+        :entry="entry.entry"
+        :indent="entry.indent"
       />
     </div>
   </div>
@@ -31,8 +32,22 @@ import { useColorMode } from "~/composables/theming"
 
 export type ConsoleLogLevel = "log" | "warn" | "info" | "error" | "debug"
 
+export type ConsoleEntryType =
+  | ConsoleLogLevel
+  | "group"
+  | "groupCollapsed"
+  | "groupEnd"
+  | "table"
+  | "dir"
+  | "count"
+  | "time"
+  | "timeEnd"
+  | "timeLog"
+  | "assert"
+  | "clear"
+
 export type ConsoleEntry = {
-  type: ConsoleLogLevel
+  type: ConsoleEntryType
   args: unknown[]
   timestamp: number
 }
@@ -44,11 +59,20 @@ const props = defineProps<{
 const colorMode = useColorMode()
 const t = useI18n()
 
-// Filter out "clear" and compute final list to show (simulate console.clear)
+// Compute rendered messages with indentation levels derived from group/groupEnd entries
 const renderedMessages = computed(() => {
-  const output: ConsoleEntry[] = []
+  const output: { entry: ConsoleEntry; indent: number }[] = []
+  let depth = 0
   for (const entry of props.messages) {
-    output.push(entry)
+    if (entry.type === "groupEnd") {
+      depth = Math.max(0, depth - 1)
+      output.push({ entry, indent: depth })
+    } else if (entry.type === "group" || entry.type === "groupCollapsed") {
+      output.push({ entry, indent: depth })
+      depth++
+    } else {
+      output.push({ entry, indent: depth })
+    }
   }
   return output
 })

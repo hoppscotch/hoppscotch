@@ -169,7 +169,18 @@ const consoleEntries = computed(() => {
   }
 
   return doc.value.testResults?.consoleEntries.filter(({ type }) =>
-    ["log", "warn", "debug", "error", "info"].includes(type)
+    [
+      "log",
+      "warn",
+      "debug",
+      "error",
+      "info",
+      "group",
+      "groupCollapsed",
+      "groupEnd",
+      "table",
+      "dir",
+    ].includes(type)
   ) as ConsoleEntry[]
 })
 

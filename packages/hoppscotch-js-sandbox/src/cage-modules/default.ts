@@ -41,11 +41,25 @@ export const defaultModules = (config?: DefaultModulesConfig) => {
       onTimeLog(...args) {
         console.timeLog(...args)
       },
-      onGroup(...args) {
-        console.group(...args)
+      onGroup(label, collapsed) {
+        console.group(label)
+        if (config?.handleConsoleEntry) {
+          config.handleConsoleEntry({
+            type: collapsed ? "groupCollapsed" : "group",
+            args: label !== undefined ? [label] : [],
+            timestamp: Date.now(),
+          } as any)
+        }
       },
-      onGroupEnd(...args) {
-        console.groupEnd(...args)
+      onGroupEnd() {
+        console.groupEnd()
+        if (config?.handleConsoleEntry) {
+          config.handleConsoleEntry({
+            type: "groupEnd",
+            args: [],
+            timestamp: Date.now(),
+          } as any)
+        }
       },
       onClear(...args) {
         console.clear(...args)
@@ -53,11 +67,26 @@ export const defaultModules = (config?: DefaultModulesConfig) => {
       onAssert(...args) {
         console.assert(...args)
       },
-      onDir(...args) {
-        console.dir(...args)
+      onDir(obj, options) {
+        console.dir(obj, options)
+        if (config?.handleConsoleEntry) {
+          config.handleConsoleEntry({
+            type: "dir",
+            args: options !== undefined ? [obj, options] : [obj],
+            timestamp: Date.now(),
+          } as any)
+        }
       },
-      onTable(...args) {
-        console.table(...args)
+      onTable(tabularData, properties) {
+        console.table(tabularData, properties)
+        if (config?.handleConsoleEntry) {
+          config.handleConsoleEntry({
+            type: "table",
+            args:
+              properties !== undefined ? [tabularData, properties] : [tabularData],
+            timestamp: Date.now(),
+          } as any)
+        }
       },
     }),
     customCryptoModule({

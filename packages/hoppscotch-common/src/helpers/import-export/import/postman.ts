@@ -224,10 +224,22 @@ const getHoppResponses = (
   return Object.fromEntries(
     pipe(
       responses.all(),
+      A.filter((response) => !!response.name),
       A.map((response) => {
+        // Postman responses may omit `status` (e.g. saved examples without a
+        // recorded HTTP status text) and `code`. Both fields are required by
+        // HoppRESTRequestResponse schema: `status` must be a string, and
+        // `code` must be a known numeric status code or null. Providing safe
+        // fallbacks here prevents `translateToNewRequest` from discarding the
+        // entire request (and its name) when the stored JSON is later
+        // re-parsed, which previously caused requests to display as "Untitled".
+        const resolvedStatus =
+          response.status ||
+          (response.code ? String(response.code) : "")
+
         const res = {
           name: response.name,
-          status: response.status,
+          status: resolvedStatus,
           body: getHoppResponseBody(response.body),
           headers: getHoppReqHeaders(response.headers),
           code: response.code,
@@ -244,10 +256,10 @@ const getHoppResponses = (
             method: response.originalRequest?.method ?? "",
             name: response.originalRequest?.name ?? response.name,
             params: getHoppReqParams(
-              response.originalRequest?.url.query ?? null
+              response.originalRequest?.url?.query ?? null
             ),
             requestVariables: getHoppReqVariables(
-              response.originalRequest?.url.variables ?? null
+              response.originalRequest?.url?.variables ?? null
             ),
           }),
         }

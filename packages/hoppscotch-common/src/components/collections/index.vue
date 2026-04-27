@@ -382,6 +382,7 @@ import {
   sortRESTCollection,
   sortRESTFolder,
 } from "~/newstore/collections"
+import { resolveCollectionPath } from "~/helpers/collection/resolveCollectionPath"
 
 import { useLocalState } from "~/newstore/localstate"
 import { currentReorderingStatus$ } from "~/newstore/reordering"
@@ -3673,71 +3674,28 @@ defineActionHandler(
     let collectionPath = sourceEnvID
 
     // Recursive search in personal collections to find the node and its index path
-    const findInPersonal = (
-      collections: HoppCollection[] | undefined,
-      currentPath: number[] = []
-    ): { collection: HoppCollection; path: string } | undefined => {
-      if (!collections) return undefined
-      for (let i = 0; i < collections.length; i++) {
-        const coll = collections[i]
-        const path = [...currentPath, i]
-        const strPath = path.join("/")
 
-        if (
-          coll._ref_id === sourceEnvID ||
-          coll.id === sourceEnvID ||
-          strPath === sourceEnvID
-        ) {
-          return { collection: coll, path: strPath }
-        }
-        if (coll.folders && coll.folders.length > 0) {
-          const found = findInPersonal(coll.folders, path)
-          if (found) return found
-        }
-      }
-      return undefined
-    }
-
-    const personalMatch = findInPersonal(restCollectionStore.value.state)
+    const personalMatch = resolveCollectionPath(
+      restCollectionStore.value.state,
+      sourceEnvID
+    )
 
     if (personalMatch) {
-      foundCollection = personalMatch.collection
+      foundCollection = personalMatch.node
       collectionPath = personalMatch.path
 
-      // Switch to personal collections if not already there
       if (collectionsType.value.type !== "my-collections") {
         switchToMyCollections()
       }
     } else {
       // Recursive search in team collections to find the node and its ID path
-      const findInTeam = (
-        collections: TeamCollection[],
-        currentPath: string = ""
-      ): { collection: TeamCollection; path: string } | undefined => {
-        for (const coll of collections) {
-          const path = currentPath ? `${currentPath}/${coll.id}` : coll.id
-          if (coll.id === sourceEnvID) {
-            return { collection: coll, path }
-          }
-          if (coll.folders && coll.folders.length > 0) {
-            const found = findInTeam(coll.folders, path)
-            if (found) return found
-          }
-          // Note: TeamCollection has .children sometimes instead of .folders depending on how it's fetched,
-          // but teamCollectionService.collections suelen tener .children o .folders.
-          // Checking .children as well just in case.
-          if ((coll as any).children && (coll as any).children.length > 0) {
-            const found = findInTeam((coll as any).children, path)
-            if (found) return found
-          }
-        }
-        return undefined
-      }
-
-      const teamMatch = findInTeam(teamCollectionService.collections.value)
+      const teamMatch = resolveCollectionPath(
+        teamCollectionService.collections.value,
+        sourceEnvID
+      )
 
       if (teamMatch) {
-        foundCollection = teamMatch.collection
+        foundCollection = teamMatch.node
         collectionPath = teamMatch.path
 
         // Switch to team collections if not already there

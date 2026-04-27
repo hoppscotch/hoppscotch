@@ -58,10 +58,17 @@ export async function generateDigestAuthHeader(params: DigestAuthParams) {
       : md5(`${method}:${uri}`)
 
   // Step 3: Compute the response hash
-  const response = md5(`${ha1}:${nonce}:${nc}:${generatedCnonce}:${qop}:${ha2}`)
+  // RFC 2617: when qop is present use the full KD formula; when absent use the legacy formula.
+  const response = qop
+    ? md5(`${ha1}:${nonce}:${nc}:${generatedCnonce}:${qop}:${ha2}`)
+    : md5(`${ha1}:${nonce}:${ha2}`)
 
   // Build the Digest header
-  let authHeader = `Digest username="${username}", realm="${realm}", nonce="${nonce}", uri="${uri}", algorithm="${algorithm}", response="${response}", qop=${qop}, nc=${nc}, cnonce="${generatedCnonce}"`
+  // Only include qop, nc, and cnonce when qop was actually negotiated (RFC 2617 §3.2.2)
+  let authHeader = `Digest username="${username}", realm="${realm}", nonce="${nonce}", uri="${uri}", algorithm="${algorithm}", response="${response}"`
+  if (qop) {
+    authHeader += `, qop=${qop}, nc=${nc}, cnonce="${generatedCnonce}"`
+  }
 
   if (opaque) {
     authHeader += `, opaque="${opaque}"`
@@ -116,18 +123,14 @@ export async function fetchInitialDigestAuthInfo(
 
       if (authHeader) {
         const authParams = parseDigestAuthHeader(authHeader)
-        if (
-          authParams &&
-          authParams.realm &&
-          authParams.nonce &&
-          authParams.qop
-        ) {
+        // qop is optional per RFC 2617 §3.2.1; only realm and nonce are mandatory
+        if (authParams && authParams.realm && authParams.nonce) {
           return {
             realm: authParams.realm,
             nonce: authParams.nonce,
-            qop: authParams.qop,
+            qop: authParams.qop ?? "",
             opaque: authParams.opaque,
-            algorithm: authParams.algorithm,
+            algorithm: authParams.algorithm ?? "MD5",
           }
         }
       }

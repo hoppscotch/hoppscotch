@@ -42,6 +42,7 @@
           @click="copyQuery(entry.payload)"
         />
         <HoppButtonSecondary
+          :aria-label="minimized ? t('state.show') : t('state.hide')"
           :icon="IconChevronDown"
           class="transform"
           :class="{ 'rotate-180': !minimized }"

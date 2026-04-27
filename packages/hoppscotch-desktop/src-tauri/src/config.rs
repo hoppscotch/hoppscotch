@@ -190,8 +190,13 @@ mod tests {
         assert!(!config.config_dir.as_os_str().is_empty());
     }
 
-    // Single combined test because `DESKTOP_CONFIG` is process-wide shared
-    // state. Splitting it would race under cargo's parallel test runner.
+    // The roundtrip and overwrite assertions stay in one test because
+    // `DESKTOP_CONFIG` is process-wide shared state and cargo runs tests
+    // in parallel by default. Splitting them into two `#[test]` functions
+    // would race for the global mutex and produce flaky assertions
+    // depending on schedule. The other tests in this module exercise
+    // `DesktopConfig` deserialization in isolation and never touch
+    // `DESKTOP_CONFIG`, so they are safe to run alongside this one.
     #[test]
     fn set_desktop_config_roundtrip_and_overwrite() {
         let result = set_desktop_config(DesktopConfig {

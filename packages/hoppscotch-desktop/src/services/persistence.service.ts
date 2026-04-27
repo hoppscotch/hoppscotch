@@ -17,13 +17,13 @@ import type { Instance } from "@hoppscotch/common/platform/instance"
 import { Log } from "@hoppscotch/common/kernel/log"
 
 import { Store } from "~/kernel/store"
-
-const LOG_TAG = "persistence"
 import {
   createStoreResource,
   type StoreResource,
 } from "~/kernel/store-resource"
-import { UpdateState } from "~/types"
+import type { UpdateState } from "~/types"
+
+const LOG_TAG = "persistence"
 
 // Shared namespace for every desktop-local store resource. Individual keys
 // live in `STORE_KEYS` below. Exported for the small handful of callers
@@ -89,13 +89,16 @@ interface LegacyPortableSettings {
 
 interface Migration {
   version: number
-  migrate: () => Promise<void>
+  // Each migration returns its result as an `Either` so the surrounding
+  // `runMigrations` loop, and in turn `init`, can propagate the
+  // `StoreError` contract without falling back to throws.
+  migrate: () => Promise<E.Either<StoreError, void>>
 }
 
 const migrations: Migration[] = [
   {
     version: 1,
-    migrate: async () => {},
+    migrate: async () => E.right(undefined),
   },
   {
     // v1 to v2. Introduces `DesktopSettings` as the single source of truth
@@ -137,19 +140,19 @@ const migrations: Migration[] = [
         migrated
       )
       if (E.isLeft(writeResult)) {
-        // Rethrow so `runMigrations` aborts before recording the new
-        // `SCHEMA_VERSION`. Swallowing here would let the loop bump
-        // the version despite the failed write, and the next launch
-        // would treat the data as already migrated and never retry.
+        // Return Left so `runMigrations` aborts before recording the
+        // new `SCHEMA_VERSION`. Swallowing here would let the loop
+        // bump the version despite the failed write, and the next
+        // launch would treat the data as already migrated and never
+        // retry.
         Log.error(
           LOG_TAG,
           "v2 migration failed to write desktopSettings",
           writeResult.left
         )
-        throw new Error(
-          `v2 migration failed: ${writeResult.left.kind}: ${writeResult.left.message}`
-        )
+        return writeResult
       }
+      return E.right(undefined)
     },
   },
 ]
@@ -216,9 +219,12 @@ export class DesktopPersistenceService {
       Log.error(LOG_TAG, "Failed to initialize store", initResult.left)
       return initResult
     }
-    await this.runMigrations()
+    const migrationResult = await this.runMigrations()
+    if (E.isLeft(migrationResult)) {
+      return migrationResult
+    }
     await this.setupRustSync()
-    return initResult
+    return E.right(undefined)
   }
 
   /**
@@ -259,7 +265,7 @@ export class DesktopPersistenceService {
     }
   }
 
-  private async runMigrations() {
+  private async runMigrations(): Promise<E.Either<StoreError, void>> {
     const versionResult = await Store.get<string>(
       STORE_NAMESPACE,
       STORE_KEYS.SCHEMA_VERSION
@@ -268,32 +274,36 @@ export class DesktopPersistenceService {
     const currentVersion = perhapsVersion ?? "1"
     const targetVersion = "2"
 
-    if (currentVersion !== targetVersion) {
-      for (const migration of migrations) {
-        if (migration.version > parseInt(currentVersion)) {
-          await migration.migrate()
+    if (currentVersion === targetVersion) {
+      return E.right(undefined)
+    }
+
+    for (const migration of migrations) {
+      if (migration.version > parseInt(currentVersion)) {
+        const result = await migration.migrate()
+        if (E.isLeft(result)) {
+          return result
         }
       }
-
-      // Record the new version only when the write succeeds. A silent
-      // failure here would leave the stored version stale, and the next
-      // launch would re-run every migration on already-migrated data.
-      const versionWrite = await Store.set(
-        STORE_NAMESPACE,
-        STORE_KEYS.SCHEMA_VERSION,
-        targetVersion
-      )
-      if (E.isLeft(versionWrite)) {
-        Log.error(
-          LOG_TAG,
-          "Failed to persist schema version after migrations",
-          versionWrite.left
-        )
-        throw new Error(
-          `Failed to persist schema version: ${versionWrite.left.kind}: ${versionWrite.left.message}`
-        )
-      }
     }
+
+    // Record the new version only when the write succeeds. A silent
+    // failure here would leave the stored version stale, and the next
+    // launch would re-run every migration on already-migrated data.
+    const versionWrite = await Store.set(
+      STORE_NAMESPACE,
+      STORE_KEYS.SCHEMA_VERSION,
+      targetVersion
+    )
+    if (E.isLeft(versionWrite)) {
+      Log.error(
+        LOG_TAG,
+        "Failed to persist schema version after migrations",
+        versionWrite.left
+      )
+      return versionWrite
+    }
+    return E.right(undefined)
   }
 }
 

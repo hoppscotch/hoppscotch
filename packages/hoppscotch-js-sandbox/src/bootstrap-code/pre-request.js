@@ -447,6 +447,13 @@
             return showPort ? `${host}:${parsed.port}` : host
           },
 
+          // Category D3 — pm.request.url.getOAuth1BaseUrl() (PM312)
+          // Returns URL with path only, no query string — used for OAuth1 signature base string
+          getOAuth1BaseUrl: () => {
+            const urlString = globalThis.hopp.request.url || ""
+            return urlString.split("?")[0]
+          },
+
           update: (urlString) => {
             if (typeof urlString === "string") {
               globalThis.hopp.request.setUrl(urlString)
@@ -980,6 +987,15 @@
             return globalThis.hopp.request.headers[index] || null
           },
 
+          // Category D1 — pm.request.headers.one(key) alias (PM310)
+          one: (name) => {
+            const headers = globalThis.hopp.request.headers
+            const header = headers.find(
+              (h) => h.key.toLowerCase() === name.toLowerCase()
+            )
+            return header ? header.value : null
+          },
+
           // Advanced PropertyList methods
           find: (rule, context) => {
             const headers = globalThis.hopp.request.headers
@@ -1104,6 +1120,15 @@
         return {
           // Spread current body properties
           ...currentBody,
+
+          // Category D2 — pm.request.body.isEmpty() (PM311)
+          isEmpty: () => {
+            if (!currentBody) return true
+            if (currentBody.mode === "raw") return !currentBody.raw || currentBody.raw.trim() === ""
+            if (currentBody.mode === "urlencoded") return !currentBody.urlencoded || currentBody.urlencoded.length === 0
+            if (currentBody.mode === "formdata") return !currentBody.formdata || currentBody.formdata.length === 0
+            return false
+          },
 
           // Postman-compatible update() method
           update: (bodySpec) => {

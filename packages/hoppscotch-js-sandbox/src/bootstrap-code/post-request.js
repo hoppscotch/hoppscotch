@@ -2869,6 +2869,13 @@
           return showPort ? `${host}:${parsed.port}` : host
         }
 
+        // Category D3 — pm.request.url.getOAuth1BaseUrl() (PM312)
+        // Returns the URL with path but without query string — used for OAuth1 base string
+        urlObj.getOAuth1BaseUrl = () => {
+          const urlString = globalThis.hopp.request.url || ""
+          return urlString.split("?")[0]
+        }
+
         // hostname property (string alias for host array)
         Object.defineProperty(urlObj, "hostname", {
           get: () => urlObj._parseUrl().host.join("."),
@@ -3057,6 +3064,15 @@
             return globalThis.hopp.request.headers[index] || null
           },
 
+          // Category D1 — pm.request.headers.one(key) alias (PM310)
+          one: (name) => {
+            const headers = globalThis.hopp.request.headers
+            const header = headers.find(
+              (h) => h.key.toLowerCase() === name.toLowerCase()
+            )
+            return header ? header.value : null
+          },
+
           // Advanced PropertyList methods (read-only)
           find: (rule, context) => {
             const headers = globalThis.hopp.request.headers
@@ -3094,7 +3110,18 @@
       },
 
       get body() {
-        return globalThis.hopp.request.body
+        const rawBody = globalThis.hopp.request.body
+        if (rawBody && typeof rawBody === "object") {
+          // Category D2 — pm.request.body.isEmpty() (PM311)
+          rawBody.isEmpty = () => {
+            if (!rawBody) return true
+            if (rawBody.mode === "raw") return !rawBody.raw || rawBody.raw.trim() === ""
+            if (rawBody.mode === "urlencoded") return !rawBody.urlencoded || rawBody.urlencoded.length === 0
+            if (rawBody.mode === "formdata") return !rawBody.formdata || rawBody.formdata.length === 0
+            return false
+          }
+        }
+        return rawBody
       },
 
       get auth() {
@@ -3297,6 +3324,21 @@
       get stream() {
         return globalThis.hopp.response.body.bytes()
       },
+      // Category E — Missing response body helpers (PM313, PM314)
+      blob: () => {
+        // PM313 — QuickJS has no native Blob; return raw bytes if available, else body text
+        return globalThis.hopp.response.body.bytes() || globalThis.hopp.response.body.asText()
+      },
+      toJSON: () => {
+        // PM314 — return a plain serialisable snapshot of the response
+        return {
+          code:         globalThis.hopp.response.statusCode,
+          status:       globalThis.hopp.response.statusText,
+          responseTime: globalThis.hopp.response.responseTime,
+          headers:      globalThis.hopp.response.headers,
+          body:         globalThis.hopp.response.body.asText(),
+        }
+      },
       reason: inputs.responseReason,
       dataURI: inputs.responseDataURI,
       jsonp: (callbackName) => inputs.responseJsonp(callbackName),
@@ -3319,6 +3361,31 @@
             result[header.key] = header.value
           })
           return result
+        },
+        // Category B — Missing response headers helpers (PM305–PM308)
+        toObject: () => {
+          // PM305 — build { [key]: value } from headers array (keys lowercased)
+          const obj = {}
+          globalThis.hopp.response.headers.forEach((h) => {
+            obj[h.key.toLowerCase()] = h.value
+          })
+          return obj
+        },
+        each: (fn) => {
+          // PM306 — iterate all response headers
+          globalThis.hopp.response.headers.forEach(fn)
+        },
+        one: (name) => {
+          // PM307 — alias for get(name)
+          const headers = globalThis.hopp.response.headers
+          const header = headers.find(
+            (h) => h.key.toLowerCase() === name.toLowerCase()
+          )
+          return header ? header.value : undefined
+        },
+        count: () => {
+          // PM308 — number of response headers
+          return globalThis.hopp.response.headers.length
         },
       },
       cookies: {
@@ -3373,6 +3440,12 @@
             cookies[name.trim()] = value
           }
           return cookies
+        },
+        // Category C — Missing response cookies helper (PM309)
+        each: (fn) => {
+          // PM309 — iterate all response cookies as { key, value } objects
+          const obj = globalThis.pm.response.cookies.toObject()
+          Object.entries(obj).forEach(([key, value]) => fn({ key, value }))
         },
       },
 
@@ -3614,6 +3687,27 @@
             const code = globalThis.hopp.response.statusCode
             globalThis.hopp.expect(code >= 500 && code < 600).to.be.true
           },
+          // Category A — Missing BDD status range shortcuts (PM301–PM304)
+          info: () => {
+            // PM301 — 1xx Informational
+            const code = globalThis.hopp.response.statusCode
+            globalThis.hopp.expect(code >= 100 && code < 200).to.be.true
+          },
+          redirection: () => {
+            // PM302 — 3xx Redirection
+            const code = globalThis.hopp.response.statusCode
+            globalThis.hopp.expect(code >= 300 && code < 400).to.be.true
+          },
+          error: () => {
+            // PM303 — 4xx or 5xx Error
+            const code = globalThis.hopp.response.statusCode
+            globalThis.hopp.expect(code >= 400).to.be.true
+          },
+          withBody: () => {
+            // PM304 — response has a non-empty body
+            const body = globalThis.hopp.response.body.asText()
+            globalThis.hopp.expect(body).to.not.equal("")
+          },
           // Content type checks
           json: () => {
             const headers = globalThis.hopp.response.headers
@@ -3672,7 +3766,17 @@
       },
     },
 
-    test: (name, fn) => globalThis.hopp.test(name, fn),
+    test: Object.assign(
+      (name, fn) => globalThis.hopp.test(name, fn),
+      {
+        // Category F — pm.test.index() (PM315)
+        // Returns the sequential index of the current test within this script execution
+        index: (() => {
+          let __testIndex = 0
+          return () => __testIndex++
+        })(),
+      }
+    ),
     expect: Object.assign(
       (value, message) => globalThis.hopp.expect(value, message),
       {

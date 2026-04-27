@@ -271,7 +271,18 @@ export class DesktopPersistenceService {
       STORE_KEYS.SCHEMA_VERSION
     )
     const perhapsVersion = E.isRight(versionResult) ? versionResult.right : "1"
-    const currentVersion = perhapsVersion ?? "1"
+    const rawVersion = perhapsVersion ?? "1"
+    // Coerce a corrupted or non-numeric stored value to the lowest known
+    // version. Without this, `parseInt("v2")` or `parseInt("")` would
+    // return NaN, every `migration.version > NaN` check below would
+    // evaluate to false, the loop would skip every migration, and the
+    // code would still write `SCHEMA_VERSION = "2"` at the end. That
+    // would mark migrations complete without ever running them.
+    // Falling back to "1" instead reruns every migration from scratch,
+    // which is safe because each migration is idempotent on a fresh
+    // store and a real fresh install lands here through the same path.
+    const parsedVersion = parseInt(rawVersion, 10)
+    const currentVersion = Number.isNaN(parsedVersion) ? "1" : rawVersion
     const targetVersion = "2"
 
     if (currentVersion === targetVersion) {
@@ -279,7 +290,7 @@ export class DesktopPersistenceService {
     }
 
     for (const migration of migrations) {
-      if (migration.version > parseInt(currentVersion)) {
+      if (migration.version > parseInt(currentVersion, 10)) {
         const result = await migration.migrate()
         if (E.isLeft(result)) {
           return result

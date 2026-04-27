@@ -10,9 +10,10 @@ import {
   TEAM_ENVIRONMENT_NOT_FOUND,
   TEAM_ENVIRONMENT_SHORT_NAME,
   TEAM_MEMBER_NOT_FOUND,
+  JSON_INVALID,
 } from 'src/errors';
 import * as E from 'fp-ts/Either';
-import { isValidLength } from 'src/utils';
+import { isValidLength, stringToJson } from 'src/utils';
 import { TeamService } from 'src/team/team.service';
 @Injectable()
 export class TeamEnvironmentsService {
@@ -75,11 +76,14 @@ export class TeamEnvironmentsService {
     const isTitleValid = isValidLength(name, this.TITLE_LENGTH);
     if (!isTitleValid) return E.left(TEAM_ENVIRONMENT_SHORT_NAME);
 
+    const parsedVariables = stringToJson(variables);
+    if (E.isLeft(parsedVariables)) return E.left(JSON_INVALID);
+
     const result = await this.prisma.teamEnvironment.create({
       data: {
         name,
         teamID,
-        variables: JSON.parse(variables),
+        variables: parsedVariables.right,
       },
     });
 
@@ -129,15 +133,18 @@ export class TeamEnvironmentsService {
    * @returns Either of a TeamEnvironment or error message
    */
   async updateTeamEnvironment(id: string, name: string, variables: string) {
-    try {
-      const isTitleValid = isValidLength(name, this.TITLE_LENGTH);
-      if (!isTitleValid) return E.left(TEAM_ENVIRONMENT_SHORT_NAME);
+    const isTitleValid = isValidLength(name, this.TITLE_LENGTH);
+    if (!isTitleValid) return E.left(TEAM_ENVIRONMENT_SHORT_NAME);
 
+    const parsedVariables = stringToJson(variables);
+    if (E.isLeft(parsedVariables)) return E.left(JSON_INVALID);
+
+    try {
       const result = await this.prisma.teamEnvironment.update({
         where: { id },
         data: {
           name,
-          variables: JSON.parse(variables),
+          variables: parsedVariables.right,
         },
       });
 

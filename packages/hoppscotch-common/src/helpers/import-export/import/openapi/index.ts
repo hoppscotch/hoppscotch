@@ -1031,6 +1031,25 @@ const parseOpenAPIUrl = (
   return "<<baseUrl>>"
 }
 
+/**
+ * Merges path-level and operation-level OpenAPI parameters, with operation-level
+ * parameters taking precedence over path-level ones that share the same name and location.
+ * Per the OpenAPI spec, parameters defined at the path level apply to all operations
+ * in that path and can be overridden at the operation level.
+ */
+const mergeOpenAPIParameters = (
+  pathLevelParams: OpenAPIParamsType[],
+  operationLevelParams: OpenAPIParamsType[]
+): OpenAPIParamsType[] => {
+  const opParamKeys = new Set(
+    operationLevelParams.map((p) => `${p.in}:${p.name}`)
+  )
+  const filteredPathParams = pathLevelParams.filter(
+    (p) => !opParamKeys.has(`${p.in}:${p.name}`)
+  )
+  return [...filteredPathParams, ...operationLevelParams]
+}
+
 const convertPathToHoppReqs = (
   doc: OpenAPI.Document,
   pathName: string,
@@ -1057,6 +1076,13 @@ const convertPathToHoppReqs = (
           ? openAPIUrl + openAPIPath.slice(1)
           : openAPIUrl + openAPIPath
 
+      // Merge path-level and operation-level parameters per OpenAPI spec:
+      // path-level params apply to all operations and are overridden by operation-level params.
+      const mergedParameters = mergeOpenAPIParameters(
+        (pathObj.parameters as OpenAPIParamsType[] | undefined) ?? [],
+        (info.parameters as OpenAPIParamsType[] | undefined) ?? []
+      )
+
       const res: {
         request: HoppRESTRequest
         metadata: {
@@ -1070,12 +1096,8 @@ const convertPathToHoppReqs = (
           endpoint,
 
           // We don't need to worry about reference types as the Dereferencing pass should remove them
-          params: parseOpenAPIParams(
-            (info.parameters as OpenAPIParamsType[] | undefined) ?? []
-          ),
-          headers: parseOpenAPIHeaders(
-            (info.parameters as OpenAPIParamsType[] | undefined) ?? []
-          ),
+          params: parseOpenAPIParams(mergedParameters),
+          headers: parseOpenAPIHeaders(mergedParameters),
 
           auth: parseOpenAPIAuth(doc, info),
 
@@ -1084,9 +1106,7 @@ const convertPathToHoppReqs = (
           preRequestScript: "",
           testScript: "",
 
-          requestVariables: parseOpenAPIVariables(
-            (info.parameters as OpenAPIParamsType[] | undefined) ?? []
-          ),
+          requestVariables: parseOpenAPIVariables(mergedParameters),
 
           responses: parseOpenAPIResponses(
             doc,
@@ -1097,16 +1117,10 @@ const convertPathToHoppReqs = (
               body: parseOpenAPIBody(doc, info),
               endpoint,
               // We don't need to worry about reference types as the Dereferencing pass should remove them
-              params: parseOpenAPIParams(
-                (info.parameters as OpenAPIParamsType[] | undefined) ?? []
-              ),
-              headers: parseOpenAPIHeaders(
-                (info.parameters as OpenAPIParamsType[] | undefined) ?? []
-              ),
+              params: parseOpenAPIParams(mergedParameters),
+              headers: parseOpenAPIHeaders(mergedParameters),
               method: method.toUpperCase(),
-              requestVariables: parseOpenAPIVariables(
-                (info.parameters as OpenAPIParamsType[] | undefined) ?? []
-              ),
+              requestVariables: parseOpenAPIVariables(mergedParameters),
             })
           ),
         }),

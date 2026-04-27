@@ -1,5 +1,6 @@
 import { TestResponse } from "@hoppscotch/js-sandbox";
 import { Method } from "axios";
+import { CookieJar } from "tough-cookie";
 import { ExpectResult } from "../types/response";
 import { HoppEnvs } from "../types/request";
 import { HoppRESTRequest } from "@hoppscotch/data";
@@ -45,6 +46,7 @@ export interface TestScriptParams {
   response: TestResponse;
   envs: HoppEnvs;
   legacySandbox: boolean;
+  cookieJar?: CookieJar;
 }
 
 /**

@@ -66,6 +66,14 @@ export class BrowserKernelInterceptorService
               heading: (t: ReturnType<typeof getI18n>) => {
                 switch (error.kind) {
                   case "network":
+                    if (
+                      error.message === "Failed to fetch" &&
+                      navigator.onLine &&
+                      new URL(processedRequest.url).origin !==
+                        window.location.origin
+                    ) {
+                      return t("error.network.cors_heading")
+                    }
                     return t("error.network.heading")
                   case "timeout":
                     return t("error.timeout.heading")
@@ -88,6 +96,14 @@ export class BrowserKernelInterceptorService
               description: (t: ReturnType<typeof getI18n>) => {
                 switch (error.kind) {
                   case "network":
+                    if (
+                      error.message === "Failed to fetch" &&
+                      navigator.onLine &&
+                      new URL(processedRequest.url).origin !==
+                        window.location.origin
+                    ) {
+                      return t("error.network.cors_description")
+                    }
                     return t("error.network.description", {
                       message: error.message,
                       cause: error.cause ?? t("error.unknown.cause"),

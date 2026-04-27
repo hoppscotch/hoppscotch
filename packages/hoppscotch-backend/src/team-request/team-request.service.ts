@@ -254,14 +254,11 @@ export class TeamRequestService {
    * @param reqID Request ID to fetch
    */
   async getRequest(reqID: string) {
-    try {
-      const teamRequest = await this.prisma.teamRequest.findUnique({
-        where: { id: reqID },
-      });
-      return O.some(this.cast(teamRequest));
-    } catch (e) {
-      return O.none;
-    }
+    const teamRequest = await this.prisma.teamRequest.findUnique({
+      where: { id: reqID },
+    });
+    if (!teamRequest) return O.none;
+    return O.some(this.cast(teamRequest));
   }
 
   /**

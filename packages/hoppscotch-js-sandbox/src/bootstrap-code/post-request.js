@@ -4009,37 +4009,30 @@
       },
     },
 
-    // Iteration data (unsupported)
+    // Iteration data — delegated to pm.variables / pm.environment (PM002)
+    // Strategy: the runner injects each dataset row's keys into the active environment before
+    // the request runs, so iterationData reads resolve against pm.variables (which merges all scopes).
+    // For toObject()/toJSON() the runner is expected to also store the full row as a JSON string
+    // under the "row" environment variable: pm.environment.set("row", JSON.stringify(datasetRow)).
     iterationData: {
-      get: () => {
-        throw new Error(
-          "pm.iterationData.get() is not supported in Hoppscotch (Collection Runner feature)"
-        )
-      },
-      set: () => {
-        throw new Error(
-          "pm.iterationData.set() is not supported in Hoppscotch (Collection Runner feature)"
-        )
-      },
-      unset: () => {
-        throw new Error(
-          "pm.iterationData.unset() is not supported in Hoppscotch (Collection Runner feature)"
-        )
-      },
-      has: () => {
-        throw new Error(
-          "pm.iterationData.has() is not supported in Hoppscotch (Collection Runner feature)"
-        )
-      },
+      get: (key) => globalThis.pm.variables.get(key),
+      has: (key) => globalThis.pm.variables.has(key),
       toObject: () => {
-        throw new Error(
-          "pm.iterationData.toObject() is not supported in Hoppscotch (Collection Runner feature)"
-        )
+        // Prefer the pre-loaded "row" env variable (runner sets it as a serialised JSON object).
+        // Fall back to an empty object when the runner has not injected it.
+        const rowJson = globalThis.pm.environment.get("row")
+        if (rowJson !== undefined && rowJson !== null) {
+          try { return JSON.parse(rowJson) } catch (_) {}
+        }
+        return {}
       },
       toJSON: () => {
-        throw new Error(
-          "pm.iterationData.toJSON() is not supported in Hoppscotch (Collection Runner feature)"
-        )
+        // Same strategy as toObject()
+        const rowJson = globalThis.pm.environment.get("row")
+        if (rowJson !== undefined && rowJson !== null) {
+          try { return JSON.parse(rowJson) } catch (_) {}
+        }
+        return {}
       },
     },
 

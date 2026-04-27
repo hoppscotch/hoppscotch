@@ -40,7 +40,6 @@ export type SupportedShortcutKey =
   | "left"
   | "right"
   | "/"
-  | "?"
   | "."
   | "enter"
   | "tab"

@@ -85,6 +85,9 @@ export type SettingsDef = {
   EXPERIMENTAL_SCRIPTING_SANDBOX: boolean
   ENABLE_EXPERIMENTAL_MOCK_SERVERS: boolean
   ENABLE_EXPERIMENTAL_DOCUMENTATION: boolean
+
+  AUTO_SAVE_REQUESTS: boolean
+  AUTO_SAVE_DELAY_MS: number
 }
 
 let defaultProxyURL = DEFAULT_HOPP_PROXY_URL
@@ -148,6 +151,9 @@ export const getDefaultSettings = (): SettingsDef => {
     EXPERIMENTAL_SCRIPTING_SANDBOX: true,
     ENABLE_EXPERIMENTAL_MOCK_SERVERS: true,
     ENABLE_EXPERIMENTAL_DOCUMENTATION: true,
+
+    AUTO_SAVE_REQUESTS: false,
+    AUTO_SAVE_DELAY_MS: 2000,
   }
 }
 

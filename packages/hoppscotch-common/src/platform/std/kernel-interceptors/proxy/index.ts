@@ -6,6 +6,7 @@ import type {
   Version,
 } from "@hoppscotch/kernel"
 import { MediaType } from "@hoppscotch/kernel"
+import { getKernelMode } from "@hoppscotch/kernel"
 import { Service } from "dioc"
 import { Relay } from "~/kernel/relay"
 import SettingsProxy from "~/components/settings/Proxy.vue"
@@ -263,6 +264,9 @@ export class ProxyKernelInterceptorService
       version: "HTTP/1.1" as Version,
       headers: {
         "content-type": content.mediaType,
+        ...(getKernelMode() === "desktop" && {
+          Origin: window.location.origin,
+        }),
         ...(content.kind === "multipart"
           ? {
               "multipart-part-key": multipartKey,

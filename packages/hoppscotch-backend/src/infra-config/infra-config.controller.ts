@@ -1,4 +1,4 @@
-import { Controller, Get, HttpStatus, Put, UseGuards } from '@nestjs/common';
+import { Controller, Get, Header, HttpStatus, Put, UseGuards } from '@nestjs/common';
 import { ThrottlerBehindProxyGuard } from 'src/guards/throttler-behind-proxy.guard';
 import { InfraConfigService } from './infra-config.service';
 import * as E from 'fp-ts/Either';
@@ -12,6 +12,16 @@ import { throwHTTPErr } from 'src/utils';
 @Controller({ path: 'site', version: '1' })
 export class SiteController {
   constructor(private infraConfigService: InfraConfigService) {}
+
+  @Get('proxy-config')
+  @UseGuards(JwtAuthGuard)
+  @Header('Cache-Control', 'no-store')
+  getProxyConfig() {
+    return {
+      proxyUrl: process.env.VITE_PROXY_URL || null,
+      accessToken: process.env.PROXYSCOTCH_ACCESS_TOKEN ?? '',
+    };
+  }
 
   @Get('setup')
   @UseGuards(JwtAuthGuard, RESTAdminGuard)

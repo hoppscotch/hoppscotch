@@ -1008,6 +1008,28 @@ export class DesktopInstanceService
       : TE.left(`Failed to close window ${windowLabel || "current"}`)
   }
 
+  private updateInstanceVersionTE(
+    instance: Instance,
+    newVersion: string
+  ): TE.TaskEither<string, void> {
+    if (instance.version === newVersion) return TE.right(undefined)
+
+    console.log(
+      `[InstanceService] Updating version for ${instance.displayName}: ${instance.version} → ${newVersion}`
+    )
+
+    instance.version = newVersion
+
+    return pipe(
+      this.recentInstances$.value,
+      A.map((i) =>
+        i.serverUrl === instance.serverUrl ? { ...i, version: newVersion } : i
+      ),
+      (updated) => this.setRecentInstances(updated),
+      TE.map(() => undefined)
+    )
+  }
+
   private loadInstanceTE(
     instance: Instance,
     options?: Partial<LoadOptions>
@@ -1020,11 +1042,16 @@ export class DesktopInstanceService
               console.log(
                 `[InstanceService] Ensuring bundle is available for: ${instance.displayName}`
               )
-              await download({ serverUrl: instance.serverUrl })
-              return undefined
+              const response = await download({ serverUrl: instance.serverUrl })
+              return response
             },
             (error) => `Failed to ensure bundle is available: ${error}`
           ),
+      TE.chainFirst((response) =>
+        response?.version
+          ? this.updateInstanceVersionTE(instance, response.version)
+          : TE.right(undefined)
+      ),
       TE.chain(() => this.getBundleNameTE(instance)),
       TE.map(() => this.buildLoadOptions(instance, options)),
       TE.chain((loadOptions) => this.performLoadTE(loadOptions)),

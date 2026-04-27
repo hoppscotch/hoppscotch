@@ -151,11 +151,22 @@ import { CurrentValueService } from "~/services/current-environment-value.servic
 import { getCurrentEnvironment } from "../../newstore/environments"
 import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
 import { filterNonEmptyEnvironmentVariables } from "~/helpers/RequestRunner"
+import { HOPP_SUPPORTED_PREDEFINED_VARIABLES } from "@hoppscotch/data"
 
 const t = useI18n()
 
 const tabs = useService(RESTTabService)
 const currentEnvironmentValueService = useService(CurrentValueService)
+
+/**
+ * Snapshot of predefined variable values captured once when the codegen panel
+ * is opened. Predefined variables like $guid and $randomUUID generate a new
+ * random value on every call to getValue(), so without this snapshot the
+ * generated code would show a different value each time the panel re-renders
+ * (e.g. when the user switches between response tabs), causing the value shown
+ * in "Generate Code" to never match what actually gets sent. Fixes #5827.
+ */
+const snapshotPredefinedVars = ref<Record<string, string>>({})
 
 // Get the current active request if the current active tab is a request else get the original request from the response tab
 const currentActiveRequest = computed(() => {
@@ -237,10 +248,24 @@ const getFinalURL = (input: string): string => {
 }
 
 /**
- * Combines all environment variables into a single environment object
+ * Combines all environment variables into a single environment object.
+ * Predefined variable values (e.g. $guid) are taken from the snapshot
+ * captured at mount time so that the generated code stays stable across
+ * re-renders triggered by tab switches or other reactive changes.
  */
 const buildFinalEnvironment = (): Environment => {
-  const aggregateEnvs = getAggregateEnvsWithCurrentValue()
+  // getAggregateEnvsWithCurrentValue calls getValue() for every predefined
+  // variable on each invocation. We replace the predefined-variable entries
+  // with the stable snapshot so the generated code doesn't show a different
+  // GUID every time the panel re-renders.
+  const aggregateEnvs = getAggregateEnvsWithCurrentValue().map((env) => {
+    const snapshotValue = snapshotPredefinedVars.value[env.key]
+    if (snapshotValue !== undefined) {
+      return { ...env, currentValue: snapshotValue, initialValue: snapshotValue }
+    }
+    return env
+  })
+
   const inheritedVariables =
     currentActiveTabDocument.value.inheritedProperties?.variables || []
 
@@ -412,6 +437,15 @@ onMounted(() => {
   platform.analytics?.logEvent({
     type: "HOPP_REST_CODEGEN_OPENED",
   })
+
+  // Snapshot predefined variable values once so that variables like $guid
+  // and $randomUUID remain stable for the lifetime of this codegen panel
+  // instead of regenerating on every reactive re-render. (#5827)
+  const snapshot: Record<string, string> = {}
+  HOPP_SUPPORTED_PREDEFINED_VARIABLES.forEach(({ key, getValue }) => {
+    snapshot[key] = getValue()
+  })
+  snapshotPredefinedVars.value = snapshot
 })
 
 const searchQuery = ref("")

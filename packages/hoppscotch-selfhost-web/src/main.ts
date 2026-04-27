@@ -276,6 +276,7 @@ async function initApp() {
         }
 
         const isCtrlOrCmd = e.ctrlKey || e.metaKey
+        const isAltGraph = e.getModifierState("AltGraph")
         let shortcutEvent: string | null = null
         const shortcutKey = getPressedShortcutKey(e)
 
@@ -322,6 +323,7 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           e.altKey &&
+          !isAltGraph &&
           e.key === "ArrowRight"
         ) {
           // Ctrl/Cmd + Alt + Right - Next Tab
@@ -333,6 +335,7 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           e.altKey &&
+          !isAltGraph &&
           e.key === "ArrowLeft"
         ) {
           // Ctrl/Cmd + Alt + Left - Previous Tab
@@ -344,6 +347,7 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           e.altKey &&
+          !isAltGraph &&
           shortcutKey === "9"
         ) {
           // Ctrl/Cmd + Alt + 9 - First Tab
@@ -355,6 +359,7 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           e.altKey &&
+          !isAltGraph &&
           shortcutKey === "0"
         ) {
           // Ctrl/Cmd + Alt + 0 - Last Tab
@@ -366,6 +371,7 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           e.altKey &&
+          !isAltGraph &&
           shortcutKey === "u"
         ) {
           // Ctrl/Cmd + Alt + U - Focus URL Bar
@@ -377,6 +383,7 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           e.altKey &&
+          !isAltGraph &&
           shortcutKey === "]"
         ) {
           // Ctrl/Cmd + Alt + ] - MRU Tab Switch
@@ -388,6 +395,7 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           e.altKey &&
+          !isAltGraph &&
           shortcutKey === "["
         ) {
           // Ctrl/Cmd + Alt + [ - MRU Tab Switch (Reverse)

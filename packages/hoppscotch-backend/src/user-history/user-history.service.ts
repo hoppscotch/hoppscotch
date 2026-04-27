@@ -139,6 +139,11 @@ export class UserHistoryService {
    */
   async removeRequestFromHistory(uid: string, id: string) {
     try {
+      const existing = await this.prisma.userHistory.findFirst({
+        where: { id, userUid: uid },
+      });
+      if (!existing) return E.left(USER_HISTORY_NOT_FOUND);
+
       const delUserHistory = await this.prisma.userHistory.delete({
         where: {
           id: id,

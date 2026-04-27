@@ -142,6 +142,7 @@ export class InfraTokenService {
     const infraToken = await this.prisma.infraToken.findUnique({
       where: { token },
     });
+    if (!infraToken) return E.left(INFRA_TOKEN_NOT_FOUND);
 
     const tokenCreator = await this.prisma.user.findUnique({
       where: { uid: infraToken.creatorUid },

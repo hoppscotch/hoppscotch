@@ -3656,4 +3656,123 @@ defineActionHandler("collection.new", () => {
 defineActionHandler("modals.collection.import", () => {
   displayModalImportExport(true)
 })
+
+defineActionHandler(
+  "modals.collection.properties.open",
+  async ({ sourceEnvID, variableName }) => {
+    console.log(
+      `[modals.collection.properties.open] Action triggered. sourceEnvID=${sourceEnvID}, variableName=${variableName}`
+    )
+
+    let foundCollection: HoppCollection | TeamCollection | undefined
+    let collectionPath = sourceEnvID
+
+    // Recursive search in personal collections to find the node and its index path
+    const findInPersonal = (
+      collections: HoppCollection[] | undefined,
+      currentPath: number[] = []
+    ): { collection: HoppCollection; path: string } | undefined => {
+      if (!collections) return undefined
+      for (let i = 0; i < collections.length; i++) {
+        const coll = collections[i]
+        const path = [...currentPath, i]
+        const strPath = path.join("/")
+
+        if (
+          coll._ref_id === sourceEnvID ||
+          coll.id === sourceEnvID ||
+          strPath === sourceEnvID
+        ) {
+          return { collection: coll, path: strPath }
+        }
+        if (coll.folders && coll.folders.length > 0) {
+          const found = findInPersonal(coll.folders, path)
+          if (found) return found
+        }
+      }
+      return undefined
+    }
+
+    const personalMatch = findInPersonal(restCollectionStore.value.state)
+
+    if (personalMatch) {
+      foundCollection = personalMatch.collection
+      collectionPath = personalMatch.path
+
+      // Switch to personal collections if not already there
+      if (collectionsType.value.type !== "my-collections") {
+        switchToMyCollections()
+      }
+    } else {
+      // Recursive search in team collections to find the node and its ID path
+      const findInTeam = (
+        collections: TeamCollection[],
+        currentPath: string = ""
+      ): { collection: TeamCollection; path: string } | undefined => {
+        for (const coll of collections) {
+          const path = currentPath ? `${currentPath}/${coll.id}` : coll.id
+          if (coll.id === sourceEnvID) {
+            return { collection: coll, path }
+          }
+          if (coll.folders && coll.folders.length > 0) {
+            const found = findInTeam(coll.folders, path)
+            if (found) return found
+          }
+          // Note: TeamCollection has .children sometimes instead of .folders depending on how it's fetched,
+          // but teamCollectionService.collections suelen tener .children o .folders.
+          // Checking .children as well just in case.
+          if ((coll as any).children && (coll as any).children.length > 0) {
+            const found = findInTeam((coll as any).children, path)
+            if (found) return found
+          }
+        }
+        return undefined
+      }
+
+      const teamMatch = findInTeam(teamCollectionService.collections.value)
+
+      if (teamMatch) {
+        foundCollection = teamMatch.collection
+        collectionPath = teamMatch.path
+
+        // Switch to team collections if not already there
+        if (collectionsType.value.type !== "team-collections") {
+          const teamID =
+            workspaceService.currentWorkspace.value.type === "team"
+              ? workspaceService.currentWorkspace.value.teamID
+              : null
+
+          if (teamID) {
+            collectionsType.value = {
+              type: "team-collections",
+              selectedTeam: {
+                teamID,
+                // We don't have the full team object here easily, but selectedTeam is often used for teamID
+              } as any,
+            }
+          }
+        }
+      }
+    }
+
+    if (foundCollection) {
+      console.log(
+        `[modals.collection.properties.open] Resolved path: ${collectionPath}. Calling editProperties.`
+      )
+
+      await editProperties({
+        collection: foundCollection,
+        collectionIndex: collectionPath,
+      })
+
+      // Force to variables tab
+      collectionPropertiesModalActiveTab.value = "variables"
+    } else {
+      console.error(
+        `[modals.collection.properties.open] Could not resolve collection for ID: ${sourceEnvID}`
+      )
+      toast.error(t("collection.not_found"))
+    }
+  }
+)
 </script>

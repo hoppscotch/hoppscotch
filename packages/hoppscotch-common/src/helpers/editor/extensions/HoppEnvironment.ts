@@ -242,6 +242,11 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           ) {
             restTabs.currentActiveTab.value.document.optionTabPreference =
               "requestVariables"
+          } else if (tooltipEnv?.sourceEnvID) {
+            invokeAction("modals.collection.properties.open", {
+              sourceEnvID: tooltipEnv.sourceEnvID,
+              variableName: parsedEnvKey,
+            })
           } else {
             invokeAction(invokeActionType, {
               envName: tooltipEnv?.sourceEnv === "Global" ? "Global" : envName,
@@ -251,8 +256,7 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           }
         })
         editIcon.innerHTML = `<span class="inline-flex items-center justify-center my-1">${IconEdit}</span>`
-        if (tooltipEnv?.sourceEnv !== "CollectionVariable")
-          tooltip.appendChild(editIcon)
+        tooltip.appendChild(editIcon)
       }
 
       return {

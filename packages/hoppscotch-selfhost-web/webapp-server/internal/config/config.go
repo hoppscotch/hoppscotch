@@ -4,17 +4,43 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 )
 
 const (
 	DefaultPort         = 3200
 	DefaultFrontendPath = "/site/selfhost-web"
 	DevFrontendPath     = "../dist"
+
+	DefaultReadTimeout  = 15 * time.Second
+	DefaultWriteTimeout = 15 * time.Second
+	DefaultIdleTimeout  = 60 * time.Second
 )
 
 type Config struct {
 	Port         int
 	FrontendPath string
+	ReadTimeout  time.Duration
+	WriteTimeout time.Duration
+	IdleTimeout  time.Duration
+}
+
+// parseDuration reads a Go duration string from an env var (e.g. "30s", "2m", "0").
+// A value of "0" is valid and disables the timeout (net/http semantics).
+// If the variable is unset or invalid, it logs a warning and returns the fallback.
+func parseDuration(envKey string, fallback time.Duration) time.Duration {
+	if s := os.Getenv(envKey); s != "" {
+		if d, err := time.ParseDuration(s); err == nil && d >= 0 {
+			if d == 0 {
+				log.Printf("Using %s from environment: %s (timeout disabled)", envKey, s)
+			} else {
+				log.Printf("Using %s from environment: %s", envKey, s)
+			}
+			return d
+		}
+		log.Printf("Warning: Invalid %s value '%s', using default %v", envKey, s, fallback)
+	}
+	return fallback
 }
 
 // Load reads config from env vars with sensible defaults
@@ -45,6 +71,10 @@ func Load() *Config {
 		cfg.FrontendPath = DefaultFrontendPath
 		log.Println("Running in production mode, using frontend path: /site/selfhost-web")
 	}
+
+	cfg.ReadTimeout = parseDuration("WEBAPP_SERVER_READ_TIMEOUT", DefaultReadTimeout)
+	cfg.WriteTimeout = parseDuration("WEBAPP_SERVER_WRITE_TIMEOUT", DefaultWriteTimeout)
+	cfg.IdleTimeout = parseDuration("WEBAPP_SERVER_IDLE_TIMEOUT", DefaultIdleTimeout)
 
 	return cfg
 }

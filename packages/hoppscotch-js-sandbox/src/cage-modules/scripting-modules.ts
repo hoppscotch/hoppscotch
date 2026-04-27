@@ -481,24 +481,20 @@ const createScriptingModule = (
     // calls cross the QuickJS boundary before the script returns, so the
     // host sees the error without relying on faraday-cage's loop behaviour.
     ;(inputsObj as Record<string, unknown>).setScriptExecutionError =
-      defineSandboxFn(
-        ctx,
-        "setScriptExecutionError",
-        (error: unknown) => {
-          if (!captureHook || captureHook.scriptExecutionError) return
-          const err = (error ?? {}) as {
-            name?: unknown
-            message?: unknown
-            stack?: unknown
-          }
-          captureHook.scriptExecutionError = {
-            name: typeof err.name === "string" ? err.name : "",
-            message:
-              typeof err.message === "string" ? err.message : String(error),
-            stack: typeof err.stack === "string" ? err.stack : "",
-          }
+      defineSandboxFn(ctx, "setScriptExecutionError", (error: unknown) => {
+        if (!captureHook || captureHook.scriptExecutionError) return
+        const err = (error ?? {}) as {
+          name?: unknown
+          message?: unknown
+          stack?: unknown
         }
-      )
+        captureHook.scriptExecutionError = {
+          name: typeof err.name === "string" ? err.name : "",
+          message:
+            typeof err.message === "string" ? err.message : String(error),
+          stack: typeof err.stack === "string" ? err.stack : "",
+        }
+      })
 
     const sandboxInputsObj = defineSandboxObject(ctx, inputsObj)
 

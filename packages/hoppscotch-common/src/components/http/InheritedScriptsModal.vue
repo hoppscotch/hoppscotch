@@ -46,10 +46,7 @@
             class="!absolute right-2 top-2 z-10"
             @click="copyScriptContent(displayedScript)"
           />
-          <div
-            ref="scriptEditor"
-            class="flex-1 overflow-auto"
-          ></div>
+          <div ref="scriptEditor" class="flex-1 overflow-auto"></div>
         </div>
       </div>
     </template>

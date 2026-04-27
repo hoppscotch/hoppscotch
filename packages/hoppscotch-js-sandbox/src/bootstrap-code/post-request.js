@@ -3995,17 +3995,17 @@
       },
     },
 
-    // Postman Visualizer (unsupported)
+    // Postman Visualizer — graceful degradation (PM003)
+    // Hoppscotch has no visual template renderer. Instead of throwing:
+    //   - set(template, data): discard the HTML template, log the data payload to the console
+    //   - clear(): no-op (nothing to clear)
     visualizer: {
-      set: () => {
-        throw new Error(
-          "pm.visualizer.set() is not supported in Hoppscotch (Postman Visualizer feature)"
-        )
+      set: (_template, data) => {
+        // Keep any data extraction value; redirect visualizer output to console (PM003)
+        console.log("[pm.visualizer] data:", data)
       },
       clear: () => {
-        throw new Error(
-          "pm.visualizer.clear() is not supported in Hoppscotch (Postman Visualizer feature)"
-        )
+        // No-op — visualizer is not supported; silently ignore (PM003)
       },
     },
 

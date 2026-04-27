@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest"
 import { runTest, runPreRequest } from "~/utils/test-helpers"
 
-// Unified test data for unsupported APIs
+// Unified test data for APIs that must still throw (Groups 6, 7 and pm.info runner fields)
 const unsupportedApis = [
   {
     api: "pm.info.iteration",
@@ -34,42 +34,6 @@ const unsupportedApis = [
       "pm.vault.unset() is not supported in Hoppscotch (Postman Vault feature)",
   },
   {
-    api: "pm.iterationData.get()",
-    script: 'pm.iterationData.get("test")',
-    errorMessage:
-      "pm.iterationData.get() is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
-    api: "pm.iterationData.set()",
-    script: 'pm.iterationData.set("key", "value")',
-    errorMessage:
-      "pm.iterationData.set() is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
-    api: "pm.iterationData.unset()",
-    script: 'pm.iterationData.unset("key")',
-    errorMessage:
-      "pm.iterationData.unset() is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
-    api: "pm.iterationData.has()",
-    script: 'pm.iterationData.has("key")',
-    errorMessage:
-      "pm.iterationData.has() is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
-    api: "pm.iterationData.toObject()",
-    script: "pm.iterationData.toObject()",
-    errorMessage:
-      "pm.iterationData.toObject() is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
-    api: "pm.iterationData.toJSON()",
-    script: "pm.iterationData.toJSON()",
-    errorMessage:
-      "pm.iterationData.toJSON() is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
     api: "pm.execution.skipRequest()",
     script: "pm.execution.skipRequest()",
     errorMessage:
@@ -80,18 +44,6 @@ const unsupportedApis = [
     script: 'pm.execution.runRequest("request-id")',
     errorMessage:
       "pm.execution.runRequest() is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
-    api: "pm.visualizer.set()",
-    script: 'pm.visualizer.set("<h1>Test</h1>")',
-    errorMessage:
-      "pm.visualizer.set() is not supported in Hoppscotch (Postman Visualizer feature)",
-  },
-  {
-    api: "pm.visualizer.clear()",
-    script: "pm.visualizer.clear()",
-    errorMessage:
-      "pm.visualizer.clear() is not supported in Hoppscotch (Postman Visualizer feature)",
   },
   {
     api: "pm.require()",
@@ -133,7 +85,6 @@ describe("pm namespace - unsupported features", () => {
     }
   )
 
-
   test("pm.vault.get() throws error", async () => {
     await expect(
       runTest(`pm.vault.get("test")`, {
@@ -144,37 +95,80 @@ describe("pm namespace - unsupported features", () => {
       expect.stringContaining("pm.vault.get() is not supported")
     )
   })
+})
 
-  test("pm.iterationData.get() throws error", async () => {
-    await expect(
-      runTest(`pm.iterationData.get("test")`, {
-        global: [],
-        selected: [],
-      })()
-    ).resolves.toEqualLeft(
-      expect.stringContaining("pm.iterationData.get() is not supported")
-    )
+// Group 2 — pm.iterationData.* regression tests (PM002)
+// These APIs were migrated and must now SUCCEED (not throw).
+// They delegate to pm.variables / pm.environment after runner injects the dataset row.
+describe("pm.iterationData — graceful delegation regression (PM002)", () => {
+  test("pm.iterationData.get() does not throw", async () => {
+    const result = await runTest(`pm.iterationData.get("test")`, {
+      global: [],
+      selected: [],
+    })()
+    expect(result).not.toEqualLeft(expect.anything())
   })
 
-  test("pm.visualizer.set() throws error", async () => {
-    await expect(
-      runTest(`pm.visualizer.set("<h1>Test</h1>")`, {
-        global: [],
-        selected: [],
-      })()
-    ).resolves.toEqualLeft(
-      expect.stringContaining("pm.visualizer.set() is not supported")
-    )
+  test("pm.iterationData.has() does not throw", async () => {
+    const result = await runTest(`pm.iterationData.has("test")`, {
+      global: [],
+      selected: [],
+    })()
+    expect(result).not.toEqualLeft(expect.anything())
   })
 
-  test("pm.visualizer.clear() throws error", async () => {
-    await expect(
-      runTest(`pm.visualizer.clear()`, {
+  test("pm.iterationData.toObject() does not throw", async () => {
+    const result = await runTest(`pm.iterationData.toObject()`, {
+      global: [],
+      selected: [],
+    })()
+    expect(result).not.toEqualLeft(expect.anything())
+  })
+
+  test("pm.iterationData.toJSON() does not throw", async () => {
+    const result = await runTest(`pm.iterationData.toJSON()`, {
+      global: [],
+      selected: [],
+    })()
+    expect(result).not.toEqualLeft(expect.anything())
+  })
+})
+
+// Group 4 — pm.visualizer.* graceful degradation (PM003)
+// pm.visualizer.set() must NOT throw — it logs data to console and discards the template.
+// pm.visualizer.clear() must NOT throw — it is a silent no-op.
+describe("pm.visualizer — graceful degradation (PM003)", () => {
+  test("pm.visualizer.set() does not throw in test script", async () => {
+    const result = await runTest(
+      `pm.visualizer.set("<h1>{{title}}</h1>", { title: "Hello" })`,
+      { global: [], selected: [] }
+    )()
+    expect(result).not.toEqualLeft(expect.anything())
+  })
+
+  test("pm.visualizer.set() does not throw in pre-request script", () => {
+    return expect(
+      runPreRequest(`pm.visualizer.set("<h1>Test</h1>", { key: "value" })`, {
         global: [],
         selected: [],
       })()
-    ).resolves.toEqualLeft(
-      expect.stringContaining("pm.visualizer.clear() is not supported")
-    )
+    ).resolves.not.toEqualLeft(expect.anything())
+  })
+
+  test("pm.visualizer.clear() does not throw in test script", async () => {
+    const result = await runTest(`pm.visualizer.clear()`, {
+      global: [],
+      selected: [],
+    })()
+    expect(result).not.toEqualLeft(expect.anything())
+  })
+
+  test("pm.visualizer.clear() does not throw in pre-request script", () => {
+    return expect(
+      runPreRequest(`pm.visualizer.clear()`, {
+        global: [],
+        selected: [],
+      })()
+    ).resolves.not.toEqualLeft(expect.anything())
   })
 })

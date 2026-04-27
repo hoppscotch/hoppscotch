@@ -128,7 +128,7 @@ const convertPostDataToHoppBody = (
     } else if (postData.params) {
       bodyContent = postData.params
         .map((param) => {
-          return `${param.name}:${param.value}`
+          return `${param.name}: ${param.value}`
         })
         .join("\n")
     }
@@ -181,7 +181,7 @@ const formatXWWWFormUrlencodedForHoppscotch = (text: string) => {
   const result = []
 
   for (const [key, value] of params) {
-    result.push(`${key}:${value}`)
+    result.push(`${key}: ${value}`)
   }
 
   return result.join("\n")

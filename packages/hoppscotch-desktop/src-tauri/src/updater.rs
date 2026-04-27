@@ -277,10 +277,35 @@ pub async fn get_download_progress() -> Result<DownloadProgress, String> {
     Ok(download_state.clone())
 }
 
-/// Check if we're running in portable mode (for frontend convenience)
+/// Returns true when the in-app updater should only notify about new versions
+/// rather than download and install them automatically.
+///
+/// This is the case for:
+/// - Portable builds (compiled with the `portable` feature flag)
+/// - Linux .deb / RPM package-manager installations: these bundles do not
+///   ship an AppImage self-updater, so attempting to install via the in-app
+///   mechanism fails with "invalid updater binary format". We detect this by
+///   checking for the `APPIMAGE` environment variable which the AppImage
+///   runtime always injects when the app is running from an AppImage file. If
+///   the variable is absent on Linux and the portable flag is not set, the app
+///   was almost certainly installed via a system package manager (.deb, RPM,
+///   etc.) and should use notify-only mode.
 #[tauri::command]
 pub fn is_portable_mode() -> bool {
-    cfg!(feature = "portable")
+    if cfg!(feature = "portable") {
+        return true;
+    }
+
+    // On Linux, only AppImage bundles can self-update.  If the APPIMAGE env
+    // var is not set we are running as a system package (.deb / RPM) and
+    // must not try to download/install an update from within the app.
+    #[cfg(target_os = "linux")]
+    {
+        return std::env::var("APPIMAGE").is_err();
+    }
+
+    #[cfg(not(target_os = "linux"))]
+    false
 }
 
 /// Helper function to handle portable mode update dialog

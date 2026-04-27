@@ -151,7 +151,9 @@ export const extractCookieAsKeyValuesFromHeaders = (
     .map((cookie) => cookie.trim())
     .reduce(
       (acc, curr) => {
-        const [key, value] = curr.split('=');
+        const eqIdx = curr.indexOf('=');
+        const key = eqIdx !== -1 ? curr.slice(0, eqIdx) : curr;
+        const value = eqIdx !== -1 ? curr.slice(eqIdx + 1) : '';
         acc[key] = value;
         return acc;
       },

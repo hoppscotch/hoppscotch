@@ -16,6 +16,31 @@ const replaceables: { [key: string]: string } = {
   "--get": "-G",
 }
 
+/**
+ * Long-form cURL flags that only affect terminal output and have no effect on
+ * the HTTP request itself. Stripping them before parsing prevents yargs-parser
+ * from treating them as unknown flags that shift positional argument indices,
+ * which would cause the URL to not be detected correctly.
+ */
+const OUTPUT_ONLY_LONG_FLAGS =
+  /\s(?:--silent|--show-error|--verbose|--progress-bar|--fail|--fail-with-body|--include|--no-progress-meter|--no-styled-output|--stderr\s+\S+)\b/g
+
+/**
+ * Short-form cURL flags that only affect terminal output. These may appear as
+ * individual flags or in combination (e.g. -sS, -sSv).
+ * The replacement unpacks combined flags so that output-only letters can be
+ * removed without discarding meaningful flags (e.g. -sSX POST → -X POST).
+ */
+const stripOutputOnlyShortFlags = (curlCmd: string): string =>
+  // Remove standalone or combined short flags that contain only output-control
+  // letters: s (silent), S (show-error), v (verbose), # (progress-bar),
+  // f (fail), i (include response headers).
+  curlCmd.replace(/(?<=\s)-([sS#fvi]+)\b/g, (match, flags) => {
+    // Filter out only the output-control letters; keep any remaining meaningful ones.
+    const meaningful = flags.replace(/[sS#fvi]/g, "")
+    return meaningful.length > 0 ? `-${meaningful}` : ""
+  })
+
 const paperCuts = flow(
   // remove '\' and newlines
   S.replace(/ ?\\ ?$/gm, " "),
@@ -65,6 +90,16 @@ export const preProcessCurlCommand = (curlCommand: string) =>
   pipe(
     curlCommand,
     O.fromPredicate((curlCmd) => curlCmd.length > 0),
-    O.map(flow(paperCuts, replaceLongOptions, prescreenXArgs)),
+    O.map(
+      flow(
+        paperCuts,
+        // Strip long-form output-only flags before yargs-parser sees them
+        (s) => s.replace(OUTPUT_ONLY_LONG_FLAGS, ""),
+        // Strip short-form output-only flags (e.g. -s, -S, -sS, -sSv)
+        stripOutputOnlyShortFlags,
+        replaceLongOptions,
+        prescreenXArgs
+      )
+    ),
     O.getOrElse(() => "")
   )

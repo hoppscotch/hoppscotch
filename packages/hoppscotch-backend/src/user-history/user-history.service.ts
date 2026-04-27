@@ -99,8 +99,10 @@ export class UserHistoryService {
    * @returns an Either of updated `UserHistory` or Error
    */
   async toggleHistoryStarStatus(uid: string, id: string) {
-    const userHistory = await this.fetchUserHistoryByID(id);
-    if (O.isNone(userHistory)) {
+    const userHistory = await this.prisma.userHistory.findFirst({
+      where: { id, userUid: uid },
+    });
+    if (!userHistory) {
       return E.left(USER_HISTORY_NOT_FOUND);
     }
 
@@ -110,7 +112,7 @@ export class UserHistoryService {
           id: id,
         },
         data: {
-          isStarred: !userHistory.value.isStarred,
+          isStarred: !userHistory.isStarred,
         },
       });
 

@@ -296,6 +296,29 @@ function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
       return null
     }
 
+    // On non-QWERTY keyboard layouts (e.g. QWERTZ, AZERTY), pressing AltGr is
+    // reported by the browser as Ctrl+Alt. Characters like [ and ] are commonly
+    // produced via AltGr on those layouts (e.g. AltGr+8 = "[" on German QWERTZ).
+    //
+    // If the Ctrl+Alt modifier combination is active but the physical key that was
+    // pressed is NOT the actual bracket key (BracketLeft / BracketRight), it means
+    // the user is using AltGr to compose a printable bracket character from a
+    // different physical key. In that case we must not steal the event from the
+    // focused input field — otherwise typing "[ ]" in a text input becomes
+    // impossible on those layouts.
+    if (
+      modifierKey === "ctrl-alt" &&
+      (key === "[" || key === "]") &&
+      ev.code !== "BracketLeft" &&
+      ev.code !== "BracketRight" &&
+      isDOMElement(target) &&
+      (isTypableElement(target) ||
+        isCodeMirrorEditor(target) ||
+        isMonacoEditor(target))
+    ) {
+      return null
+    }
+
     return `${modifierKey}-${key}`
   }
 

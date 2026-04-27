@@ -44,12 +44,12 @@
             :title="t('action.copy')"
             :icon="copyIcon"
             class="!absolute right-2 top-2 z-10"
-            @click="copyScriptContent(getScriptContent(selectedScript))"
+            @click="copyScriptContent(displayedScript)"
           />
-          <pre
-            v-if="selectedScript"
-            class="flex-1 overflow-auto bg-primaryLight p-4 pr-12 font-mono text-xs leading-relaxed text-secondaryLight"
-          ><code>{{ stripModulePrefix(getScriptContent(selectedScript)) }}</code></pre>
+          <div
+            ref="scriptEditor"
+            class="flex-1 overflow-auto"
+          ></div>
         </div>
       </div>
     </template>
@@ -57,9 +57,11 @@
 </template>
 
 <script setup lang="ts">
+import { useCodemirror } from "@composables/codemirror"
 import { useI18n } from "@composables/i18n"
+import { useNestedSetting } from "~/composables/settings"
 import { refAutoReset } from "@vueuse/core"
-import { computed, ref, watch } from "vue"
+import { computed, reactive, ref, watch } from "vue"
 import { stripModulePrefix } from "~/helpers/scripting"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import IconCheck from "~icons/lucide/check"
@@ -107,7 +109,32 @@ const selectedScript = computed(
     null
 )
 
-const getScriptContent = (script: InheritedScript) => script[props.scriptType]
+const displayedScript = computed(() =>
+  selectedScript.value
+    ? stripModulePrefix(selectedScript.value[props.scriptType])
+    : ""
+)
+
+const scriptEditor = ref<any | null>(null)
+const WRAP_LINES = useNestedSetting(
+  "WRAP_LINES",
+  props.scriptType === "preRequestScript" ? "httpPreRequest" : "httpTest"
+)
+
+useCodemirror(
+  scriptEditor,
+  displayedScript,
+  reactive({
+    extendedEditorConfig: {
+      mode: "application/javascript",
+      readOnly: true,
+      lineWrapping: WRAP_LINES,
+    },
+    linter: null,
+    completer: null,
+    environmentHighlights: false,
+  })
+)
 
 const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
   IconCopy,
@@ -115,7 +142,7 @@ const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
 )
 
 const copyScriptContent = (script: string) => {
-  copyToClipboard(stripModulePrefix(script))
+  copyToClipboard(script)
   copyIcon.value = IconCheck
 }
 </script>

@@ -192,7 +192,7 @@ const toggleSSEConnection = () => {
     return sse.value.start(server.value, eventType.value)
   }
   // Otherwise, it's disconnecting.
-  sse.value.stop()
+  sse.value.disconnect()
 }
 
 onUnmounted(() => {

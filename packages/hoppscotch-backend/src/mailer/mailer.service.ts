@@ -48,6 +48,14 @@ export class MailerService {
   ) {
     if (this.configService.get('INFRA.MAILER_SMTP_ENABLE') !== 'true') return;
 
+    if (!this.nestMailerService) {
+      console.error(
+        'sendEmail: MAILER_SMTP_ENABLE is true but the mailer module is not ' +
+          'configured. Ensure MAILER_SMTP_HOST and related variables are set.',
+      );
+      return throwErr(EMAIL_FAILED);
+    }
+
     try {
       await this.nestMailerService.sendMail({
         to,
@@ -72,6 +80,14 @@ export class MailerService {
     mailDesc: AdminUserInvitationMailDescription,
   ) {
     if (this.configService.get('INFRA.MAILER_SMTP_ENABLE') !== 'true') return;
+
+    if (!this.nestMailerService) {
+      console.error(
+        'sendUserInvitationEmail: MAILER_SMTP_ENABLE is true but the mailer ' +
+          'module is not configured. Ensure MAILER_SMTP_HOST and related variables are set.',
+      );
+      return throwErr(EMAIL_FAILED);
+    }
 
     try {
       const res = await this.nestMailerService.sendMail({

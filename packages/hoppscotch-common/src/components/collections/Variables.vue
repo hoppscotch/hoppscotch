@@ -116,11 +116,7 @@
               >
                 <input
                   v-model="env.key"
-                  v-focus="
-                    variableToFocus?.name === env.key &&
-                    !!variableToFocus?.isSecret === !!env.secret &&
-                    !variableToFocus?.isSecret
-                  "
+                  v-focus="false"
                   class="flex flex-1 bg-transparent px-4 py-2 text-secondaryDark"
                   :placeholder="`${t('count.variable', {
                     count: index + 1,
@@ -166,7 +162,7 @@
                       variableToFocus?.name === env.key &&
                       !!variableToFocus?.isSecret === !!env.secret
                     "
-                    :select-text-on-mount="variableToFocus?.name === env.key"
+                    :cursor-at-end-on-mount="variableToFocus?.name === env.key"
                   />
                   <HoppButtonSecondary
                     v-tippy="{ theme: 'tooltip' }"
@@ -208,7 +204,7 @@ import IconTrash2 from "~icons/lucide/trash-2"
 import IconCopyRight from "~icons/lucide/clipboard-paste"
 import IconCopyLeft from "~icons/lucide/clipboard-copy"
 import IconMoreVertical from "~icons/lucide/more-vertical"
-import { computed, ComputedRef, Ref, ref, watch, nextTick } from "vue"
+import { computed, ComputedRef, Ref, ref, watch } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 import { useColorMode } from "~/composables/theming"
@@ -340,18 +336,6 @@ watch(
       } else {
         selectedEnvOption.value = "variables"
       }
-
-      nextTick(() => {
-        const index = vars.value.findIndex(
-          (v) => v.key === focusInfo.name && !!v.secret === !!focusInfo.isSecret
-        )
-        if (index !== -1) {
-          const el = document.getElementsByName("variable" + index)[0]
-          if (el instanceof HTMLInputElement) {
-            el.focus()
-          }
-        }
-      })
     }
   },
   { immediate: true }

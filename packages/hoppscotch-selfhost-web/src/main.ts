@@ -2,6 +2,7 @@ import { nextTick, ref, watch } from "vue"
 import { emit, listen } from "@tauri-apps/api/event"
 import { createHoppApp } from "@hoppscotch/common"
 import { useSettingStatic } from "@hoppscotch/common/composables/settings"
+import { getPressedShortcutKey } from "@hoppscotch/common/helpers/keybinding-utils"
 import { getKernelMode } from "@hoppscotch/kernel"
 
 import { def as stdBackendDef } from "@hoppscotch/common/platform/std/backend"
@@ -275,9 +276,11 @@ async function initApp() {
         }
 
         const isCtrlOrCmd = e.ctrlKey || e.metaKey
+        const isAltGraph = e.getModifierState("AltGraph")
         let shortcutEvent: string | null = null
+        const shortcutKey = getPressedShortcutKey(e)
 
-        if (isCtrlOrCmd && !e.shiftKey && !e.altKey && e.code === "KeyQ") {
+        if (isCtrlOrCmd && !e.shiftKey && !e.altKey && shortcutKey === "q") {
           // Ctrl/Cmd + Q - Quit Application
           e.preventDefault()
           e.stopPropagation()
@@ -287,7 +290,7 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           !e.altKey &&
-          e.code === "KeyT"
+          shortcutKey === "t"
         ) {
           // Ctrl/Cmd + T - New Tab
           e.preventDefault()
@@ -298,7 +301,7 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           !e.altKey &&
-          e.code === "KeyW"
+          shortcutKey === "w"
         ) {
           // Ctrl/Cmd + W - Close Tab
           e.preventDefault()
@@ -309,7 +312,7 @@ async function initApp() {
           isCtrlOrCmd &&
           e.shiftKey &&
           !e.altKey &&
-          e.code === "KeyT"
+          shortcutKey === "t"
         ) {
           // Ctrl/Cmd + Shift + T - Reopen Tab
           e.preventDefault()
@@ -320,6 +323,7 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           e.altKey &&
+          !isAltGraph &&
           e.key === "ArrowRight"
         ) {
           // Ctrl/Cmd + Alt + Right - Next Tab
@@ -331,6 +335,7 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           e.altKey &&
+          !isAltGraph &&
           e.key === "ArrowLeft"
         ) {
           // Ctrl/Cmd + Alt + Left - Previous Tab
@@ -342,8 +347,8 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           e.altKey &&
-          (e.code === "Digit9" ||
-            (e.code === "Numpad9" && e.getModifierState("NumLock")))
+          !isAltGraph &&
+          shortcutKey === "9"
         ) {
           // Ctrl/Cmd + Alt + 9 - First Tab
           e.preventDefault()
@@ -354,8 +359,8 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           e.altKey &&
-          (e.code === "Digit0" ||
-            (e.code === "Numpad0" && e.getModifierState("NumLock")))
+          !isAltGraph &&
+          shortcutKey === "0"
         ) {
           // Ctrl/Cmd + Alt + 0 - Last Tab
           e.preventDefault()
@@ -366,7 +371,8 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           e.altKey &&
-          e.code === "KeyU"
+          !isAltGraph &&
+          shortcutKey === "u"
         ) {
           // Ctrl/Cmd + Alt + U - Focus URL Bar
           e.preventDefault()
@@ -377,7 +383,8 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           e.altKey &&
-          e.code === "BracketRight"
+          !isAltGraph &&
+          shortcutKey === "]"
         ) {
           // Ctrl/Cmd + Alt + ] - MRU Tab Switch
           e.preventDefault()
@@ -388,7 +395,8 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           e.altKey &&
-          e.code === "BracketLeft"
+          !isAltGraph &&
+          shortcutKey === "["
         ) {
           // Ctrl/Cmd + Alt + [ - MRU Tab Switch (Reverse)
           e.preventDefault()

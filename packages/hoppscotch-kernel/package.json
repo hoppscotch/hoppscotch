@@ -64,7 +64,7 @@
     "@tauri-apps/plugin-shell": "2.3.3",
     "@tauri-apps/plugin-store": "2.4.1",
     "aws4fetch": "1.0.20",
-    "axios": "1.15.0",
+    "axios": "1.15.2",
     "fp-ts": "2.16.11",
     "superjson": "2.2.6",
     "zod": "3.25.32"

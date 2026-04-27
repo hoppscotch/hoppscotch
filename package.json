@@ -60,7 +60,7 @@
       "serialize-javascript@>=7.0.0 <7.0.3": "7.0.3",
       "subscriptions-transport-ws>ws": "7.5.10",
       "svgo@4.0.0": "4.0.1",
-      "vue": "3.5.31",
+      "vue": "3.5.33",
       "ws": "8.17.1"
     },
     "onlyBuiltDependencies": [

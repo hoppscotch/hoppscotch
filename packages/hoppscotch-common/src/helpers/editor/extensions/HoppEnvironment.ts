@@ -209,10 +209,10 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           ? IconGlobe
           : tooltipEnv?.sourceEnv === "RequestVariable"
             ? IconVariable
-            : selectedEnvType === "TEAM_ENV"
-              ? IconUsers
-              : tooltipEnv?.sourceEnv === "CollectionVariable"
-                ? IconLibrary
+            : tooltipEnv?.sourceEnvID
+              ? IconLibrary
+              : selectedEnvType === "TEAM_ENV"
+                ? IconUsers
                 : IconUser
       }</span>`
 

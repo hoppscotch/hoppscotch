@@ -232,8 +232,16 @@ export const processRequest =
     params: ProcessRequestParams
   ): T.Task<{ envs: HoppEnvs; report: RequestReport }> =>
   async () => {
-    const { envs, path, request, delay, legacySandbox, collectionVariables } =
-      params;
+    const {
+      envs,
+      path,
+      request,
+      delay,
+      legacySandbox,
+      collectionVariables,
+      inheritedPreRequestScripts = [],
+      inheritedTestScripts = [],
+    } = params;
 
     // Initialising updatedEnvs with given parameter envs, will eventually get updated.
     const result = {
@@ -258,17 +266,21 @@ export const processRequest =
       effectiveFinalParams: [],
       effectiveFinalURL: "",
     };
-    let updatedEnvs = <HoppEnvs>{};
 
     // Fetch values for secret environment variables from system environment
     const processedEnvs = processEnvs(envs);
 
-    // Executing pre-request-script
+    // Default envs to the pre-script state so downstream consumers
+    // (test-runner, effectiveRequest builder) receive a well-shaped
+    // HoppEnvs even if the pre-request script fails.
+    let updatedEnvs: HoppEnvs = processedEnvs;
+
     const preRequestRes = await preRequestScriptRunner(
       request,
       processedEnvs,
       legacySandbox ?? false,
-      collectionVariables
+      collectionVariables,
+      inheritedPreRequestScripts
     )();
     if (E.isLeft(preRequestRes)) {
       printPreRequestRunner.fail();
@@ -317,12 +329,12 @@ export const processRequest =
       printRequestRunner.success(_requestRunnerRes);
     }
 
-    // Extracting test-script-runner parameters.
     const testScriptParams = getTestScriptParams(
       _requestRunnerRes,
       effectiveRequest,
       updatedEnvs,
-      legacySandbox ?? false
+      legacySandbox ?? false,
+      inheritedTestScripts
     );
 
     // Executing test-runner.

@@ -1,12 +1,9 @@
 import * as E from "fp-ts/Either"
 import { BehaviorSubject, Subscription } from "rxjs"
-import {
-  HoppCollectionVariable,
-  HoppRESTAuth,
-  HoppRESTHeader,
-  translateToNewRequest,
-} from "@hoppscotch/data"
+import { HoppCollectionVariable, translateToNewRequest } from "@hoppscotch/data"
 import { pull, remove } from "lodash-es"
+import { hasActualScript } from "~/helpers/scripting"
+import { CollectionDataProps } from "~/helpers/backend/helpers"
 import { Subscription as WSubscription } from "wonka"
 import { runGQLQuery, runGQLSubscription } from "../backend/GQLClient"
 import { TeamCollection } from "./TeamCollection"
@@ -1093,14 +1090,16 @@ export default class NewTeamCollectionAdapter {
 
     const variables: HoppInheritedProperty["variables"] = []
 
-    if (!folderPath) return { auth, headers, variables }
+    const scripts: HoppInheritedProperty["scripts"] = []
+
+    if (!folderPath) return { auth, headers, variables, scripts }
 
     const path = folderPath.split("/")
 
     // Check if the path is empty or invalid
     if (!path || path.length === 0) {
       console.error("Invalid path:", folderPath)
-      return { auth, headers, variables }
+      return { auth, headers, variables, scripts }
     }
 
     // Loop through the path and get the last parent folder with authType other than 'inherit'
@@ -1110,20 +1109,12 @@ export default class NewTeamCollectionAdapter {
       // Check if parentFolder is undefined or null
       if (!parentFolder) {
         console.error("Parent folder not found for path:", path)
-        return { auth, headers, variables }
+        return { auth, headers, variables, scripts }
       }
 
-      const data: {
-        auth: HoppRESTAuth
-        headers: HoppRESTHeader[]
-        variables: HoppCollectionVariable[]
-      } = parentFolder.data
+      const data: Partial<CollectionDataProps> = parentFolder.data
         ? JSON.parse(parentFolder.data)
-        : {
-            auth: null,
-            headers: null,
-            variables: null,
-          }
+        : {}
 
       if (!data.auth) {
         data.auth = {
@@ -1141,6 +1132,8 @@ export default class NewTeamCollectionAdapter {
       const parentFolderAuth = data.auth
       const parentFolderHeaders = data.headers
       const parentFolderVariables = data.variables
+      const parentFolderPreRequestScript = data.preRequestScript ?? ""
+      const parentFolderTestScript = data.testScript ?? ""
 
       if (
         parentFolderAuth?.authType === "inherit" &&
@@ -1200,8 +1193,23 @@ export default class NewTeamCollectionAdapter {
           ),
         })
       }
+
+      // Update scripts
+      if (
+        hasActualScript(parentFolderPreRequestScript) ||
+        hasActualScript(parentFolderTestScript)
+      ) {
+        const currentPath = [...path.slice(0, i + 1)].join("/")
+
+        scripts.push({
+          parentID: parentFolder.id ?? currentPath,
+          parentName: parentFolder.title,
+          preRequestScript: parentFolderPreRequestScript,
+          testScript: parentFolderTestScript,
+        })
+      }
     }
 
-    return { auth, headers, variables }
+    return { auth, headers, variables, scripts }
   }
 }

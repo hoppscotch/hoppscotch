@@ -249,6 +249,11 @@ const runTests = async () => {
   )
 
   let resolvedCollection: HoppCollection = collection.value
+  // Scripts declared on ancestors above the selected run-start node — must be
+  // seeded into the runner so partial-scope runs still honor the documented
+  // Root → Parent → Child → Request inheritance chain.
+  let ancestorPreRequestScripts: string[] = []
+  let ancestorTestScripts: string[] = []
 
   if (!isPersonalWorkspace) {
     const requestAuth = tab.value.document.inheritedProperties?.auth
@@ -270,6 +275,19 @@ const runTests = async () => {
       tab.value.document.inheritedProperties?.variables ?? []
     )
 
+    // Team cascade includes the selected node itself in its scripts array;
+    // drop it here because runTestCollection will cascade that node's scripts
+    // as part of the normal tree walk, and we must not double-run them.
+    const inheritedScripts = (
+      tab.value.document.inheritedProperties?.scripts ?? []
+    ).filter((s) => s.parentID !== collectionID)
+    ancestorPreRequestScripts = inheritedScripts
+      .map((s) => s.preRequestScript)
+      .filter((s) => s && s.trim().length > 0)
+    ancestorTestScripts = inheritedScripts
+      .map((s) => s.testScript)
+      .filter((s) => s && s.trim().length > 0)
+
     resolvedCollection = {
       ...collection.value,
       auth: requestAuth,
@@ -277,11 +295,22 @@ const runTests = async () => {
       variables: parentVariables,
     }
   } else {
-    const { auth, headers, variables } = collectionInheritedProps ?? {
+    const {
+      auth,
+      headers,
+      variables,
+      ancestorPreRequestScripts: preAncestors,
+      ancestorTestScripts: testAncestors,
+    } = collectionInheritedProps ?? {
       auth: { authActive: true, authType: "none" },
       headers: [],
       variables: [],
+      ancestorPreRequestScripts: [],
+      ancestorTestScripts: [],
     }
+
+    ancestorPreRequestScripts = preAncestors
+    ancestorTestScripts = testAncestors
 
     resolvedCollection = {
       ...collection.value,
@@ -292,10 +321,16 @@ const runTests = async () => {
   }
 
   testRunnerStopRef.value = false // when testRunnerStopRef is false, the test runner will start running
-  testRunnerService.runTests(tab, resolvedCollection, {
-    ...testRunnerConfig.value,
-    stopRef: testRunnerStopRef,
-  })
+  testRunnerService.runTests(
+    tab,
+    resolvedCollection,
+    {
+      ...testRunnerConfig.value,
+      stopRef: testRunnerStopRef,
+    },
+    ancestorPreRequestScripts,
+    ancestorTestScripts
+  )
 }
 
 const stopTests = () => {

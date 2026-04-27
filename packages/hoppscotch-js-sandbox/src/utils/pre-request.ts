@@ -77,7 +77,9 @@ export const getRequestSetterMethods = (request: HoppRESTRequest) => {
   }
 
   const removeParam = (key: string) => {
-    updatedRequest.params = updatedRequest.params.filter((h) => h.key !== key)
+    updatedRequest.params = updatedRequest.params.filter(
+      (h) => h.key.toLowerCase() !== key.toLowerCase()
+    )
   }
 
   const setBody = (newBody: Partial<HoppRESTReqBody>) => {

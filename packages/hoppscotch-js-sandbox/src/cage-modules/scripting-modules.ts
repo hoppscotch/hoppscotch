@@ -92,7 +92,7 @@ function registerAfterScriptExecutionHook(
   type: "pre",
   config: PreRequestModuleConfig,
   baseInputs: ReturnType<typeof createBaseInputs>,
-  additionalResults: HookRegistrationAdditionalResults
+  additionalResults: HookRegistrationAdditionalResults,
 ): void
 
 /**
@@ -102,7 +102,7 @@ function registerAfterScriptExecutionHook(
   ctx: CageModuleCtx,
   type: "post",
   config: PostRequestModuleConfig,
-  baseInputs: ReturnType<typeof createBaseInputs>
+  baseInputs: ReturnType<typeof createBaseInputs>,
 ): void
 
 /**
@@ -115,7 +115,7 @@ function registerAfterScriptExecutionHook(
   _type: ModuleType,
   _config: ModuleConfig,
   _baseInputs: ReturnType<typeof createBaseInputs>,
-  _additionalResults?: HookRegistrationAdditionalResults
+  _additionalResults?: HookRegistrationAdditionalResults,
 ) {
   // No-op: result capture happens after cage.runCode() completes.
 }
@@ -128,19 +128,19 @@ function createScriptingInputsObj(
   ctx: CageModuleCtx,
   type: "pre",
   config: PreRequestModuleConfig,
-  captureGetUpdatedRequest?: (fn: () => HoppRESTRequest) => void
+  captureGetUpdatedRequest?: (fn: () => HoppRESTRequest) => void,
 ): PreRequestInputs
 function createScriptingInputsObj(
   ctx: CageModuleCtx,
   type: "post",
   config: PostRequestModuleConfig,
-  captureGetUpdatedRequest?: (fn: () => HoppRESTRequest) => void
+  captureGetUpdatedRequest?: (fn: () => HoppRESTRequest) => void,
 ): PostRequestInputs
 function createScriptingInputsObj(
   ctx: CageModuleCtx,
   type: ModuleType,
   config: ModuleConfig,
-  captureGetUpdatedRequest?: (fn: () => HoppRESTRequest) => void
+  captureGetUpdatedRequest?: (fn: () => HoppRESTRequest) => void,
 ): PreRequestInputs | PostRequestInputs {
   if (type === "pre") {
     const preConfig = config as PreRequestModuleConfig
@@ -194,14 +194,14 @@ function createScriptingInputsObj(
     const expectationMethods = createExpectationMethods(
       ctx,
       postConfig.testRunStack,
-      getCurrentTestContext // Pass getter for current test context
+      getCurrentTestContext, // Pass getter for current test context
     )
 
     // Create Chai methods
     const chaiMethods = createChaiMethods(
       ctx,
       postConfig.testRunStack,
-      getCurrentTestContext // Pass getter for current test context
+      getCurrentTestContext, // Pass getter for current test context
     )
 
     return {
@@ -227,7 +227,7 @@ function createScriptingInputsObj(
 
           // Return the test descriptor so it can be set as context
           return testDescriptor
-        }
+        },
       ),
       postTest: defineSandboxFn(ctx, "postTest", function postTest() {
         // Test cleanup handled by clearCurrentTest() in bootstrap.
@@ -239,17 +239,17 @@ function createScriptingInputsObj(
           // Find the test descriptor in the testRunStack by descriptor name
           // This ensures we use the ACTUAL object, not a serialized copy
           const found = postConfig.testRunStack[0].children.find(
-            (test) => test.descriptor === descriptorName
+            (test) => test.descriptor === descriptorName,
           )
           currentExecutingTest = found || null
-        }
+        },
       ),
       clearCurrentTest: defineSandboxFn(
         ctx,
         "clearCurrentTest",
         function clearCurrentTest() {
           currentExecutingTest = null
-        }
+        },
       ),
       getCurrentTest: defineSandboxFn(
         ctx,
@@ -258,7 +258,7 @@ function createScriptingInputsObj(
           // Return the descriptor NAME (string) instead of the object
           // This allows QuickJS code to store and pass it back to setCurrentTest()
           return currentExecutingTest ? currentExecutingTest.descriptor : null
-        }
+        },
       ),
       // Helper to push expectation results directly to the current test
       pushExpectResult: defineSandboxFn(
@@ -271,7 +271,7 @@ function createScriptingInputsObj(
               message: message as string,
             })
           }
-        }
+        },
       ),
       // Allow bootstrap code to notify when test promises are created
       onTestPromise: postConfig.onTestPromise
@@ -282,7 +282,7 @@ function createScriptingInputsObj(
               if (postConfig.onTestPromise) {
                 postConfig.onTestPromise(promise as Promise<void>)
               }
-            }
+            },
           )
         : undefined,
       getResponse: defineSandboxFn(ctx, "getResponse", function getResponse() {
@@ -294,7 +294,7 @@ function createScriptingInputsObj(
         "responseReason",
         function responseReason() {
           return getStatusReason(postConfig.response.status)
-        }
+        },
       ),
       responseDataURI: defineSandboxFn(
         ctx,
@@ -304,7 +304,7 @@ function createScriptingInputsObj(
             const body = postConfig.response.body
             const contentType =
               postConfig.response.headers.find(
-                (h) => h.key.toLowerCase() === "content-type"
+                (h) => h.key.toLowerCase() === "content-type",
               )?.value || "application/octet-stream"
 
             // Convert body to base64 (browser and Node.js compatible)
@@ -317,7 +317,7 @@ function createScriptingInputsObj(
               // btoa requires binary string, so we need to handle UTF-8 properly
               const utf8Bytes = new TextEncoder().encode(bodyString)
               const binaryString = Array.from(utf8Bytes, (byte) =>
-                String.fromCharCode(byte)
+                String.fromCharCode(byte),
               ).join("")
               base64Body = btoa(binaryString)
             } else if (typeof Buffer !== "undefined") {
@@ -331,7 +331,7 @@ function createScriptingInputsObj(
           } catch (error) {
             throw new Error(`Failed to convert response to data URI: ${error}`)
           }
-        }
+        },
       ),
       responseJsonp: defineSandboxFn(
         ctx,
@@ -345,10 +345,10 @@ function createScriptingInputsObj(
             // Escape special regex characters in callback name
             const escapedName = callbackName.replace(
               /[.*+?^${}()|[\]\\]/g,
-              "\\$&"
+              "\\$&",
             )
             const regex = new RegExp(
-              `^\\s*${escapedName}\\s*\\(([\\s\\S]*)\\)\\s*;?\\s*$`
+              `^\\s*${escapedName}\\s*\\(([\\s\\S]*)\\)\\s*;?\\s*$`,
             )
             const match = text.match(regex)
             if (match && match[1]) {
@@ -358,7 +358,7 @@ function createScriptingInputsObj(
 
           // Auto-detect callback wrapper
           const autoDetect = text.match(
-            /^\s*([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(([\s\S]*)\)\s*;?\s*$/
+            /^\s*([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(([\s\S]*)\)\s*;?\s*$/,
           )
           if (autoDetect && autoDetect[2]) {
             try {
@@ -370,7 +370,7 @@ function createScriptingInputsObj(
 
           // No JSONP wrapper found, parse as plain JSON
           return JSON.parse(text)
-        }
+        },
       ),
     } as PostRequestInputs
   }
@@ -390,7 +390,7 @@ const createScriptingModule = (
     capture?: () => void
     bootstrapError?: unknown
     scriptExecutionError?: { name: string; message: string; stack: string }
-  }
+  },
 ) => {
   return defineCageModule((ctx) => {
     // Track test promises for keepAlive (only for post-request scripts)
@@ -430,7 +430,7 @@ const createScriptingModule = (
       config as PreRequestModuleConfig,
       (fn) => {
         getUpdatedRequest = fn
-      }
+      },
     ) as PreRequestInputs | PostRequestInputs
 
     // Set up capture function to capture results after runCode() completes.
@@ -501,7 +501,7 @@ const createScriptingModule = (
     const bootstrapResult = ctx.vm.callFunction(
       funcHandle,
       ctx.vm.undefined,
-      sandboxInputsObj
+      sandboxInputsObj,
     )
 
     // Track bootstrap state for error detection
@@ -527,7 +527,7 @@ const createScriptingModule = (
           // If we have a test execution chain, await it
           if (testExecutionChainPromise) {
             const resolvedPromise = ctx.vm.resolvePromise(
-              testExecutionChainPromise
+              testExecutionChainPromise,
             )
             testExecutionChainPromise.dispose()
 
@@ -539,7 +539,7 @@ const createScriptingModule = (
               const error = new Error(
                 typeof errorDump === "string"
                   ? errorDump
-                  : JSON.stringify(errorDump)
+                  : JSON.stringify(errorDump),
               )
               rejectKeepAlive?.(error)
               return
@@ -556,7 +556,7 @@ const createScriptingModule = (
           resolveKeepAlive?.()
         } catch (error) {
           rejectKeepAlive?.(
-            error instanceof Error ? error : new Error(String(error))
+            error instanceof Error ? error : new Error(String(error)),
           )
         }
       })
@@ -566,11 +566,11 @@ const createScriptingModule = (
 
 export const preRequestModule = (
   config: PreRequestModuleConfig,
-  captureHook?: { capture?: () => void; bootstrapError?: unknown }
+  captureHook?: { capture?: () => void; bootstrapError?: unknown },
 ) => createScriptingModule("pre", preRequestBootstrapCode, config, captureHook)
 
 export const postRequestModule = (
   config: PostRequestModuleConfig,
-  captureHook?: { capture?: () => void; bootstrapError?: unknown }
+  captureHook?: { capture?: () => void; bootstrapError?: unknown },
 ) =>
   createScriptingModule("post", postRequestBootstrapCode, config, captureHook)

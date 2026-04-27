@@ -238,6 +238,9 @@ const getPointerX = (event: MouseEvent | TouchEvent) =>
 
 const onResizeMove = (event: MouseEvent | TouchEvent) => {
   if (!isResizing.value) return
+  // The touchmove listener uses { passive: false } so we can suppress the
+  // browser's native scroll while a touch drag is in progress.
+  if ("touches" in event) event.preventDefault()
   // Drawer is anchored to the right edge, so dragging the left handle to the
   // left (decreasing clientX) increases width.
   const delta = resizeStartX - getPointerX(event)
@@ -251,6 +254,7 @@ const stopResize = () => {
   window.removeEventListener("mouseup", stopResize)
   window.removeEventListener("touchmove", onResizeMove)
   window.removeEventListener("touchend", stopResize)
+  window.removeEventListener("touchcancel", stopResize)
   void persistenceService.setLocalConfig(
     DRAWER_WIDTH_KEY,
     String(drawerWidth.value)
@@ -265,6 +269,9 @@ const startResize = (event: MouseEvent | TouchEvent) => {
   window.addEventListener("mouseup", stopResize)
   window.addEventListener("touchmove", onResizeMove, { passive: false })
   window.addEventListener("touchend", stopResize)
+  // touchcancel fires when the OS interrupts the gesture (system alert,
+  // multi-touch, etc.) — without it, the resize state can get stuck.
+  window.addEventListener("touchcancel", stopResize)
 }
 
 function getCurrentPageCategory(): "graphql" | "rest" | "other" {
@@ -337,15 +344,29 @@ const onKeydown = (event: KeyboardEvent) => {
   if (event.key === "Escape" && props.show) close()
 }
 
-// Body scroll lock + persisted width hydration mirror the original
-// HoppSmartSlideOver lifecycle so this drawer keeps the same UX guarantees.
+// Snapshot the prior body overflow so closing/unmounting this drawer cannot
+// clobber a scroll lock owned by a different stacked modal.
+let prevBodyOverflow: string | null = null
+const lockBodyScroll = () => {
+  if (typeof document === "undefined" || prevBodyOverflow !== null) return
+  prevBodyOverflow = document.body.style.getPropertyValue("overflow")
+  document.body.style.setProperty("overflow", "hidden")
+}
+const restoreBodyScroll = () => {
+  if (typeof document === "undefined" || prevBodyOverflow === null) return
+  if (prevBodyOverflow)
+    document.body.style.setProperty("overflow", prevBodyOverflow)
+  else document.body.style.removeProperty("overflow")
+  prevBodyOverflow = null
+}
+
 watch(
   () => props.show,
   (visible) => {
-    if (typeof document === "undefined") return
-    if (visible) document.body.style.setProperty("overflow", "hidden")
-    else document.body.style.removeProperty("overflow")
-  }
+    if (visible) lockBodyScroll()
+    else restoreBodyScroll()
+  },
+  { immediate: true }
 )
 
 onMounted(async () => {
@@ -358,8 +379,7 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   document.removeEventListener("keydown", onKeydown)
   stopResize()
-  if (typeof document !== "undefined")
-    document.body.style.removeProperty("overflow")
+  restoreBodyScroll()
 })
 
 // Template refs

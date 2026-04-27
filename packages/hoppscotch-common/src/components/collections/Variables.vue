@@ -116,7 +116,11 @@
               >
                 <input
                   v-model="env.key"
-                  v-focus
+                  v-focus="
+                    variableToFocus?.name === env.key &&
+                    !!variableToFocus?.isSecret === !!env.secret &&
+                    !variableToFocus?.isSecret
+                  "
                   class="flex flex-1 bg-transparent px-4 py-2 text-secondaryDark"
                   :placeholder="`${t('count.variable', {
                     count: index + 1,
@@ -158,6 +162,11 @@
                     :auto-complete-env="true"
                     :name="'currentValue' + index"
                     :secret="tab.isSecret"
+                    :focus="
+                      variableToFocus?.name === env.key &&
+                      !!variableToFocus?.isSecret === !!env.secret
+                    "
+                    :select-text-on-mount="variableToFocus?.name === env.key"
                   />
                   <HoppButtonSecondary
                     v-tippy="{ theme: 'tooltip' }"
@@ -199,7 +208,7 @@ import IconTrash2 from "~icons/lucide/trash-2"
 import IconCopyRight from "~icons/lucide/clipboard-paste"
 import IconCopyLeft from "~icons/lucide/clipboard-copy"
 import IconMoreVertical from "~icons/lucide/more-vertical"
-import { computed, ComputedRef, Ref, ref } from "vue"
+import { computed, ComputedRef, Ref, ref, watch, nextTick } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 import { useColorMode } from "~/composables/theming"
@@ -223,6 +232,7 @@ const props = defineProps<{
   modelValue: HoppCollectionVariable[]
   inheritedProperties?: HoppInheritedProperty
   hasTeamWriteAccess: boolean
+  variableToFocus?: { name: string; isSecret: boolean } | null
 }>()
 
 type SelectedEnv = "variables" | "secret"
@@ -320,4 +330,30 @@ const clearContent = () => {
 const removeEnvironmentVariable = (index: number) => {
   vars.value.splice(index, 1)
 }
+
+watch(
+  () => props.variableToFocus,
+  (focusInfo) => {
+    if (focusInfo) {
+      if (focusInfo.isSecret) {
+        selectedEnvOption.value = "secret"
+      } else {
+        selectedEnvOption.value = "variables"
+      }
+
+      nextTick(() => {
+        const index = vars.value.findIndex(
+          (v) => v.key === focusInfo.name && !!v.secret === !!focusInfo.isSecret
+        )
+        if (index !== -1) {
+          const el = document.getElementsByName("variable" + index)[0]
+          if (el instanceof HTMLInputElement) {
+            el.focus()
+          }
+        }
+      })
+    }
+  },
+  { immediate: true }
+)
 </script>

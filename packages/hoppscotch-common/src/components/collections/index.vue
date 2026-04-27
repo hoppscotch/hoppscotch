@@ -247,6 +247,7 @@
       v-model="collectionPropertiesModalActiveTab"
       :show="showModalEditProperties"
       :editing-properties="editingProperties"
+      :variable-to-focus="variableToFocus"
       :show-details="
         collectionsType.type === 'team-collections' && hasTeamWriteAccess
       "
@@ -544,6 +545,7 @@ watch(
 const persistenceService = useService(PersistenceService)
 
 const collectionPropertiesModalActiveTab = ref<RESTOptionTabs>("headers")
+const variableToFocus = ref<{ name: string; isSecret: boolean } | null>(null)
 
 onMounted(async () => {
   const localOAuthTempConfig =
@@ -859,7 +861,10 @@ const displayModalImportExport = async (
 const displayModalEditProperties = (show: boolean) => {
   showModalEditProperties.value = show
 
-  if (!show) resetSelectedData()
+  if (!show) {
+    resetSelectedData()
+    variableToFocus.value = null
+  }
 }
 
 const displayConfirmModal = (show: boolean) => {
@@ -3659,7 +3664,7 @@ defineActionHandler("modals.collection.import", () => {
 
 defineActionHandler(
   "modals.collection.properties.open",
-  async ({ sourceEnvID, variableName }) => {
+  async ({ sourceEnvID, variableName, isSecret }) => {
     console.log(
       `[modals.collection.properties.open] Action triggered. sourceEnvID=${sourceEnvID}, variableName=${variableName}`
     )
@@ -3759,6 +3764,8 @@ defineActionHandler(
       console.log(
         `[modals.collection.properties.open] Resolved path: ${collectionPath}. Calling editProperties.`
       )
+
+      variableToFocus.value = { name: variableName, isSecret: !!isSecret }
 
       await editProperties({
         collection: foundCollection,

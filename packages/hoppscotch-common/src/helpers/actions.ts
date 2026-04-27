@@ -198,6 +198,7 @@ type HoppActionArgsMap = {
   "modals.collection.properties.open": {
     sourceEnvID: string
     variableName: string
+    isSecret?: boolean
   }
 }
 

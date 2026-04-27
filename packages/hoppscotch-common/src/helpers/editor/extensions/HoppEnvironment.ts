@@ -246,6 +246,7 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
             invokeAction("modals.collection.properties.open", {
               sourceEnvID: tooltipEnv.sourceEnvID,
               variableName: parsedEnvKey,
+              isSecret: tooltipEnv.secret,
             })
           } else {
             invokeAction(invokeActionType, {

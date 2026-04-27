@@ -83,6 +83,8 @@ export function getPressedShortcutKey(
   }
 
   if (key === "[" || key === "]") return key as SupportedShortcutKey
+  if (code === "BracketLeft") return "["
+  if (code === "BracketRight") return "]"
 
   // Digit keys: prefer event.key when it is already a digit. On layouts
   // like AZERTY the digit row produces symbols by default (e.g. "&", "é"),

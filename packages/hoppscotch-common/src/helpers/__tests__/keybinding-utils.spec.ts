@@ -36,6 +36,20 @@ describe("getPressedShortcutKey", () => {
     ).toBe("[")
   })
 
+  test("falls back to physical bracket codes when key differs by layout", () => {
+    expect(
+      getPressedShortcutKey(
+        createKeyboardEventLike({ key: "^", code: "BracketLeft" })
+      )
+    ).toBe("[")
+
+    expect(
+      getPressedShortcutKey(
+        createKeyboardEventLike({ key: "$", code: "BracketRight" })
+      )
+    ).toBe("]")
+  })
+
   test("supports digits from the main row and numpad", () => {
     expect(
       getPressedShortcutKey(

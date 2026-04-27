@@ -71,7 +71,10 @@ type UpdateEvent =
   | { type: "CheckCompleted"; info: UpdateInfo }
   | { type: "CheckFailed"; error: string }
   | { type: "DownloadStarted"; totalBytes?: number }
-  | { type: "DownloadProgress"; progress: DownloadProgress }
+  // The Rust-emitted payload only carries `downloaded` and optional
+  // `total`. The reducer derives `percentage` and the persisted
+  // `DownloadProgress` form below extends with that derived field.
+  | { type: "DownloadProgress"; progress: WireDownloadProgress }
   | { type: "DownloadCompleted" }
   | { type: "InstallStarted" }
   | { type: "InstallCompleted" }
@@ -207,7 +210,22 @@ function nextState(current: UpdateState, event: UpdateEvent): UpdateState {
       }
 
     case "DownloadProgress":
-      return { kind: "downloading", progress: event.progress }
+      // The wire form has no `percentage`. Without computing it
+      // here, `Math.round(progress.percentage)` in the view runs on
+      // `undefined` and the button label renders "Downloading NaN%"
+      // for every progress tick. `DownloadStarted` above takes the
+      // same approach.
+      return {
+        kind: "downloading",
+        progress: {
+          downloaded: event.progress.downloaded,
+          total: event.progress.total,
+          percentage: percentageOf(
+            event.progress.downloaded,
+            event.progress.total
+          ),
+        },
+      }
 
     case "DownloadCompleted":
       return { kind: "installing" }

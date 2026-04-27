@@ -11,7 +11,7 @@
           </p>
         </div>
         <div class="space-y-8 p-8 md:col-span-2">
-          <section>
+          <section class="settings-section">
             <h4 class="font-semibold text-secondaryDark">
               {{ t("settings.language") }}
             </h4>
@@ -20,7 +20,7 @@
             </div>
           </section>
 
-          <section>
+          <section class="settings-section">
             <h4 class="font-semibold text-secondaryDark">
               {{ t("settings.query_parameters_encoding") }}
             </h4>
@@ -32,7 +32,7 @@
             </div>
           </section>
 
-          <section>
+          <section class="settings-section">
             <h4 class="font-semibold text-secondaryDark">
               {{ t("settings.experiments") }}
             </h4>
@@ -197,7 +197,7 @@
           </p>
         </div>
         <div class="space-y-8 p-8 md:col-span-2">
-          <section>
+          <section class="settings-section">
             <h4 class="font-semibold text-secondaryDark">
               {{ t("settings.background") }}
             </h4>
@@ -211,7 +211,7 @@
               <SmartColorModePicker />
             </div>
           </section>
-          <section>
+          <section class="settings-section">
             <h4 class="font-semibold text-secondaryDark">
               {{ t("settings.accent_color") }}
             </h4>
@@ -235,7 +235,7 @@
           </p>
         </div>
         <div class="space-y-8 p-8 md:col-span-2">
-          <section class="flex flex-col space-y-2">
+          <section class="settings-section flex flex-col space-y-2">
             <h4 class="font-semibold text-secondaryDark">
               {{ t("settings.kernel_interceptor") }}
             </h4>
@@ -244,6 +244,7 @@
           <section
             v-for="[id, settings] in kernelInterceptorsWithSettings"
             :key="id"
+            class="settings-section"
           >
             <h4 class="font-semibold text-secondaryDark">
               {{ settings.title(t) }}

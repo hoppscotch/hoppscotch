@@ -3,6 +3,8 @@
 * If styles are sharable across all package then write into hoppscotch-ui/assets/scss/styles.scss file.
 */
 
+@import "./settings";
+
 * {
   backface-visibility: hidden;
   -moz-backface-visibility: hidden;

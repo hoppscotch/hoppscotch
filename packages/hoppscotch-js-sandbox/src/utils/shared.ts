@@ -891,6 +891,63 @@ export const createExpectation = (
     return undefined
   }
 
+  /**
+   * Asserts that the value is an object containing the given property.
+   * When `expectedValue` is provided, also asserts that the property value
+   * deep-equals the expected value. Mirrors Jest's `expect(x).toHaveProperty()`.
+   *
+   * Usage:
+   *   pw.expect(obj).toHaveProperty("key")
+   *   pw.expect(obj).toHaveProperty("key", expectedValue)
+   *   pw.expect(obj).not.toHaveProperty("key")
+   */
+  const toHavePropertyFn = (
+    property: SandboxValue,
+    expectedValue?: SandboxValue
+  ) => {
+    const hasValue = expectedValue !== undefined
+
+    if (
+      typeof resolvedExpectVal !== "object" ||
+      resolvedExpectVal === null
+    ) {
+      const message =
+        "Expected toHaveProperty to be called on an object"
+      const targetTest = getCurrentTest()
+      if (!targetTest) return undefined
+      targetTest.expectResults.push({ status: "error", message })
+      return undefined
+    }
+
+    const propStr = String(property)
+    const hasProp = Object.prototype.hasOwnProperty.call(
+      resolvedExpectVal,
+      propStr
+    )
+    const propValue = (resolvedExpectVal as Record<string, unknown>)[propStr]
+
+    let assertion: boolean
+    if (hasValue) {
+      // Check both existence and deep equality of the value
+      assertion = hasProp && JSON.stringify(propValue) === JSON.stringify(expectedValue)
+    } else {
+      assertion = hasProp
+    }
+
+    if (negated) assertion = !assertion
+
+    const expectValPretty = JSON.stringify(resolvedExpectVal)
+    const status = assertion ? "pass" : "fail"
+    const message = hasValue
+      ? `Expected ${expectValPretty} to${negated ? " not" : ""} have property '${propStr}' with value ${JSON.stringify(expectedValue)}`
+      : `Expected ${expectValPretty} to${negated ? " not" : ""} have property '${propStr}'`
+
+    const targetTest = getCurrentTest()
+    if (!targetTest) return undefined
+    targetTest.expectResults.push({ status, message })
+    return undefined
+  }
+
   const result = {
     toBe: toBeFn,
     toBeLevel2xx: toBeLevel2xxFn,
@@ -900,6 +957,7 @@ export const createExpectation = (
     toBeType: toBeTypeFn,
     toHaveLength: toHaveLengthFn,
     toInclude: toIncludeFn,
+    toHaveProperty: toHavePropertyFn,
   } as Expectation
 
   Object.defineProperties(result, {

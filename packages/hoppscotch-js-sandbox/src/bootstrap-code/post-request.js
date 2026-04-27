@@ -1891,6 +1891,11 @@
           ? inputs.expectNotToInclude(expectVal, needle)
           : inputs.expectToInclude(expectVal, needle)
 
+      proxy.toHaveProperty = (property, expectedValue) =>
+        isNegated
+          ? inputs.expectNotToHaveProperty(expectVal, property, expectedValue)
+          : inputs.expectToHaveProperty(expectVal, property, expectedValue)
+
       return proxy
     }
   }
@@ -2141,6 +2146,8 @@
         toHaveLength: (expectedLength) =>
           inputs.expectToHaveLength(expectVal, expectedLength),
         toInclude: (needle) => inputs.expectToInclude(expectVal, needle),
+        toHaveProperty: (property, expectedValue) =>
+          inputs.expectToHaveProperty(expectVal, property, expectedValue),
       }
 
       Object.defineProperty(expectation, "not", {
@@ -2155,6 +2162,8 @@
           toHaveLength: (expectedLength) =>
             inputs.expectNotToHaveLength(expectVal, expectedLength),
           toInclude: (needle) => inputs.expectNotToInclude(expectVal, needle),
+          toHaveProperty: (property, expectedValue) =>
+            inputs.expectNotToHaveProperty(expectVal, property, expectedValue),
         }),
       })
 
@@ -2380,6 +2389,8 @@
           toHaveLength: (expectedLength) =>
             inputs.expectToHaveLength(expectVal, expectedLength),
           toInclude: (needle) => inputs.expectToInclude(expectVal, needle),
+          toHaveProperty: (property, expectedValue) =>
+            inputs.expectToHaveProperty(expectVal, property, expectedValue),
         }
 
         Object.defineProperty(expectation, "not", {
@@ -2394,6 +2405,12 @@
             toHaveLength: (expectedLength) =>
               inputs.expectNotToHaveLength(expectVal, expectedLength),
             toInclude: (needle) => inputs.expectNotToInclude(expectVal, needle),
+            toHaveProperty: (property, expectedValue) =>
+              inputs.expectNotToHaveProperty(
+                expectVal,
+                property,
+                expectedValue
+              ),
           }),
         })
 

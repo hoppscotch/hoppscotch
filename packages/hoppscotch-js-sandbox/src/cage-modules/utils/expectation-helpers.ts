@@ -79,6 +79,17 @@ export const createExpectationMethods = (
         return createExpect(expectVal).toInclude(needle)
       }
     ),
+    expectToHaveProperty: defineSandboxFn(
+      ctx,
+      "expectToHaveProperty",
+      (
+        expectVal: SandboxValue,
+        property: SandboxValue,
+        expectedValue?: SandboxValue
+      ) => {
+        return createExpect(expectVal).toHaveProperty(property, expectedValue)
+      }
+    ),
 
     // Negative expectations
     expectNotToBe: defineSandboxFn(
@@ -143,6 +154,17 @@ export const createExpectationMethods = (
       "expectNotToInclude",
       (expectVal: SandboxValue, needle: SandboxValue) => {
         return createExpect(expectVal).not.toInclude(needle)
+      }
+    ),
+    expectNotToHaveProperty: defineSandboxFn(
+      ctx,
+      "expectNotToHaveProperty",
+      (
+        expectVal: SandboxValue,
+        property: SandboxValue,
+        expectedValue?: SandboxValue
+      ) => {
+        return createExpect(expectVal).not.toHaveProperty(property, expectedValue)
       }
     ),
   }

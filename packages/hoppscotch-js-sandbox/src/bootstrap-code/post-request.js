@@ -4049,7 +4049,7 @@
       replaceIn: (template) => globalThis.pm.environment.replaceIn(template),
     },
 
-    // Execution control
+    // Execution control — graceful degradation (PM005, PM006)
     execution: {
       location: (() => {
         const location = ["Hoppscotch"]
@@ -4064,15 +4064,14 @@
       setNextRequest: (requestNameOrId) => {
         return inputs.pmSetNextRequest(requestNameOrId)
       },
+      // PM005: skipRequest() — redirect to setNextRequest(null) which aborts the current request
       skipRequest: () => {
-        throw new Error(
-          "pm.execution.skipRequest() is not supported in Hoppscotch (Collection Runner feature)"
-        )
+        console.warn("[pm.execution] pm.execution.skipRequest() is not supported. Redirecting to pm.execution.setNextRequest(null) to abort flow. Redesign runner order using setNextRequest() for full control.")
+        return inputs.pmSetNextRequest(null)
       },
-      runRequest: () => {
-        throw new Error(
-          "pm.execution.runRequest() is not supported in Hoppscotch (Collection Runner feature)"
-        )
+      // PM006: runRequest(id) — cannot invoke runner-level request by ID; log guidance and no-op
+      runRequest: (id) => {
+        console.warn(`[pm.execution] pm.execution.runRequest('${id}') is not supported. Use pm.sendRequest({...}, callback) for extra HTTP calls, or redesign collection runner order using setNextRequest().`)
       },
     },
 

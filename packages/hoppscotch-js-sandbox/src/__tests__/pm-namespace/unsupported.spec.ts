@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest"
 import { runTest, runPreRequest } from "~/utils/test-helpers"
 
-// Unified test data for APIs that must still throw (Groups 6, 7 and pm.info runner fields)
+// APIs that still throw — Group 7 (pm.vault, pm.require) not yet implemented this sprint
 const unsupportedApis = [
   {
     api: "pm.info.iteration",
@@ -34,18 +34,6 @@ const unsupportedApis = [
       "pm.vault.unset() is not supported in Hoppscotch (Postman Vault feature)",
   },
   {
-    api: "pm.execution.skipRequest()",
-    script: "pm.execution.skipRequest()",
-    errorMessage:
-      "pm.execution.skipRequest() is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
-    api: "pm.execution.runRequest()",
-    script: 'pm.execution.runRequest("request-id")',
-    errorMessage:
-      "pm.execution.runRequest() is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
     api: "pm.require()",
     script: 'pm.require("@team/package")',
     errorMessage:
@@ -54,15 +42,11 @@ const unsupportedApis = [
 ]
 
 describe("pm namespace - unsupported features", () => {
-  // Test unsupported APIs in both pre-request and test scripts
   test.each(unsupportedApis)(
     "$api throws error in pre-request script",
     ({ script, errorMessage }) => {
       return expect(
-        runPreRequest(script, {
-          global: [],
-          selected: [],
-        })()
+        runPreRequest(script, { global: [], selected: [] })()
       ).resolves.toEqualLeft(`Script execution failed: Error: ${errorMessage}`)
     }
   )
@@ -70,13 +54,7 @@ describe("pm namespace - unsupported features", () => {
   test.each(unsupportedApis)(
     "$api throws error in test script",
     async ({ script, errorMessage }) => {
-      const result = await runTest(script, {
-        global: [],
-        selected: [],
-      })()
-
-      // Check that the error message contains the expected error text
-      // We use toEqualLeft with stringContaining because QuickJS may append GC disposal errors
+      const result = await runTest(script, { global: [], selected: [] })()
       expect(result).toEqualLeft(
         expect.stringContaining(
           `Script execution failed: Error: ${errorMessage}`
@@ -84,91 +62,52 @@ describe("pm namespace - unsupported features", () => {
       )
     }
   )
-
-  test("pm.vault.get() throws error", async () => {
-    await expect(
-      runTest(`pm.vault.get("test")`, {
-        global: [],
-        selected: [],
-      })()
-    ).resolves.toEqualLeft(
-      expect.stringContaining("pm.vault.get() is not supported")
-    )
-  })
 })
 
 // Group 2 — pm.iterationData.* regression tests (PM002)
-// These APIs were migrated and must now SUCCEED (not throw).
-// They delegate to pm.variables / pm.environment after runner injects the dataset row.
 describe("pm.iterationData — graceful delegation regression (PM002)", () => {
   test("pm.iterationData.get() does not throw", async () => {
-    const result = await runTest(`pm.iterationData.get("test")`, {
-      global: [],
-      selected: [],
-    })()
-    expect(result).not.toEqualLeft(expect.anything())
+    expect(await runTest(`pm.iterationData.get("test")`, { global: [], selected: [] })()).not.toEqualLeft(expect.anything())
   })
-
   test("pm.iterationData.has() does not throw", async () => {
-    const result = await runTest(`pm.iterationData.has("test")`, {
-      global: [],
-      selected: [],
-    })()
-    expect(result).not.toEqualLeft(expect.anything())
+    expect(await runTest(`pm.iterationData.has("test")`, { global: [], selected: [] })()).not.toEqualLeft(expect.anything())
   })
-
   test("pm.iterationData.toObject() does not throw", async () => {
-    const result = await runTest(`pm.iterationData.toObject()`, {
-      global: [],
-      selected: [],
-    })()
-    expect(result).not.toEqualLeft(expect.anything())
+    expect(await runTest(`pm.iterationData.toObject()`, { global: [], selected: [] })()).not.toEqualLeft(expect.anything())
   })
-
   test("pm.iterationData.toJSON() does not throw", async () => {
-    const result = await runTest(`pm.iterationData.toJSON()`, {
-      global: [],
-      selected: [],
-    })()
-    expect(result).not.toEqualLeft(expect.anything())
+    expect(await runTest(`pm.iterationData.toJSON()`, { global: [], selected: [] })()).not.toEqualLeft(expect.anything())
   })
 })
 
 // Group 4 — pm.visualizer.* graceful degradation (PM003)
-// pm.visualizer.set() must NOT throw — it logs data to console and discards the template.
-// pm.visualizer.clear() must NOT throw — it is a silent no-op.
 describe("pm.visualizer — graceful degradation (PM003)", () => {
   test("pm.visualizer.set() does not throw in test script", async () => {
-    const result = await runTest(
-      `pm.visualizer.set("<h1>{{title}}</h1>", { title: "Hello" })`,
-      { global: [], selected: [] }
-    )()
-    expect(result).not.toEqualLeft(expect.anything())
+    expect(await runTest(`pm.visualizer.set("<h1>{{title}}</h1>", { title: "Hello" })`, { global: [], selected: [] })()).not.toEqualLeft(expect.anything())
   })
-
   test("pm.visualizer.set() does not throw in pre-request script", () => {
-    return expect(
-      runPreRequest(`pm.visualizer.set("<h1>Test</h1>", { key: "value" })`, {
-        global: [],
-        selected: [],
-      })()
-    ).resolves.not.toEqualLeft(expect.anything())
+    return expect(runPreRequest(`pm.visualizer.set("<h1>Test</h1>", { key: "value" })`, { global: [], selected: [] })()).resolves.not.toEqualLeft(expect.anything())
   })
-
   test("pm.visualizer.clear() does not throw in test script", async () => {
-    const result = await runTest(`pm.visualizer.clear()`, {
-      global: [],
-      selected: [],
-    })()
-    expect(result).not.toEqualLeft(expect.anything())
+    expect(await runTest(`pm.visualizer.clear()`, { global: [], selected: [] })()).not.toEqualLeft(expect.anything())
   })
-
   test("pm.visualizer.clear() does not throw in pre-request script", () => {
-    return expect(
-      runPreRequest(`pm.visualizer.clear()`, {
-        global: [],
-        selected: [],
-      })()
-    ).resolves.not.toEqualLeft(expect.anything())
+    return expect(runPreRequest(`pm.visualizer.clear()`, { global: [], selected: [] })()).resolves.not.toEqualLeft(expect.anything())
+  })
+})
+
+// Group 6 — Execution Control graceful degradation (PM005, PM006)
+describe("pm.execution — graceful degradation (PM005, PM006)", () => {
+  test("pm.execution.skipRequest() does not throw in test script", async () => {
+    expect(await runTest(`pm.execution.skipRequest()`, { global: [], selected: [] })()).not.toEqualLeft(expect.anything())
+  })
+  test("pm.execution.skipRequest() does not throw in pre-request script", () => {
+    return expect(runPreRequest(`pm.execution.skipRequest()`, { global: [], selected: [] })()).resolves.not.toEqualLeft(expect.anything())
+  })
+  test("pm.execution.runRequest() does not throw in test script", async () => {
+    expect(await runTest(`pm.execution.runRequest("some-request-id")`, { global: [], selected: [] })()).not.toEqualLeft(expect.anything())
+  })
+  test("pm.execution.runRequest() does not throw in pre-request script", () => {
+    return expect(runPreRequest(`pm.execution.runRequest("some-request-id")`, { global: [], selected: [] })()).resolves.not.toEqualLeft(expect.anything())
   })
 })

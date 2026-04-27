@@ -98,6 +98,7 @@ export class TeamRequestService {
         teamID: teamID,
         title: {
           contains: searchTerm,
+          mode: 'insensitive',
         },
       },
     });

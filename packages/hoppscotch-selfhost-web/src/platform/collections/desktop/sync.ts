@@ -36,6 +36,37 @@ import {
 import * as E from "fp-ts/Either"
 import { ReqType, SortOptions } from "@app/api/generated/graphql"
 
+/**
+ * Strips the OAuth 2.0 access token from a request's auth config before the
+ * request is serialized and persisted to the team backend.
+ *
+ * OAuth tokens are personal credentials. Saving them as part of the shared
+ * collection means every team member receives another user's token when they
+ * open the collection — a privacy and security concern (see #5949).
+ *
+ * Only the OAuth 2.0 configuration (endpoints, client ID, scopes, grant type,
+ * etc.) should be shared; the token itself must remain local to each user.
+ */
+const stripOAuthToken = (request: HoppRESTRequest): HoppRESTRequest => {
+  const auth = request.auth
+  if (auth && auth.authType === "oauth-2") {
+    const grantTypeInfo = auth.grantTypeInfo
+    if (grantTypeInfo && "token" in grantTypeInfo && grantTypeInfo.token) {
+      return {
+        ...request,
+        auth: {
+          ...auth,
+          grantTypeInfo: {
+            ...grantTypeInfo,
+            token: "",
+          },
+        },
+      }
+    }
+  }
+  return request
+}
+
 // restCollectionsMapper uses the collectionPath as the local identifier
 // Helper function to transform HoppCollection to backend format
 const transformCollectionForBackend = (collection: HoppCollection): any => {
@@ -169,7 +200,7 @@ const recursivelySyncCollections = async (
     collection.requests.forEach(async (request) => {
       const res = await createRESTUserRequest(
         request.name,
-        JSON.stringify(request),
+        JSON.stringify(stripOAuthToken(request as HoppRESTRequest)),
         parentCollectionID
       )
 
@@ -403,7 +434,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       editUserRequest(
         requestBackendID,
         (requestNew as HoppRESTRequest).name,
-        JSON.stringify(requestNew)
+        JSON.stringify(stripOAuthToken(requestNew as HoppRESTRequest))
       )
     }
   },
@@ -418,7 +449,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     if (parentCollectionBackendID) {
       const res = await createRESTUserRequest(
         (request as HoppRESTRequest).name,
-        JSON.stringify(request),
+        JSON.stringify(stripOAuthToken(request as HoppRESTRequest)),
         parentCollectionBackendID
       )
 

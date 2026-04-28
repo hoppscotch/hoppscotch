@@ -188,7 +188,12 @@ export class StatelessStateStore {
 
       // Clear the nonce cookie regardless of outcome
       if (req.res) {
-        req.res.clearCookie(this.cookieName, { path: '/' });
+        req.res.clearCookie(this.cookieName, {
+          path: '/',
+          httpOnly: true,
+          sameSite: 'lax',
+          secure: this.secureCookies,
+        });
       }
 
       if (!cookieNonce) {

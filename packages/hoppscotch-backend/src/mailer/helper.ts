@@ -1,7 +1,9 @@
-import { TransportType } from '@nestjs-modules/mailer/dist/interfaces/mailer-options.interface';
+import type { MailerOptions } from '@nestjs-modules/mailer';
 import type SMTPConnection from 'nodemailer/lib/smtp-connection';
 import { MAILER_SMTP_URL_UNDEFINED } from 'src/errors';
 import { throwErr } from 'src/utils';
+
+type TransportType = NonNullable<MailerOptions['transport']>;
 
 export enum SMTPAuthType {
   LOGIN = 'login',
@@ -72,7 +74,7 @@ export function getTransportOption(env): TransportType {
       host: env.INFRA.MAILER_SMTP_HOST,
       port: +env.INFRA.MAILER_SMTP_PORT,
       secure: env.INFRA.MAILER_SMTP_SECURE === 'true',
-      auth,
+      ...(auth && { auth }),
       ignoreTLS: env.INFRA.MAILER_SMTP_IGNORE_TLS === 'true',
       tls: {
         rejectUnauthorized: env.INFRA.MAILER_TLS_REJECT_UNAUTHORIZED === 'true',

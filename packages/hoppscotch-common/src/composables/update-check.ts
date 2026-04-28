@@ -3,7 +3,12 @@ import * as E from "fp-ts/Either"
 import { invoke } from "@tauri-apps/api/core"
 import { listen, type UnlistenFn } from "@tauri-apps/api/event"
 
-import { Store } from "~/kernel/store"
+// Bind to the unified, process-wide store rather than the org-scoped
+// default `Store`. Persisted `UpdateState` is machine-level, not
+// per-org, and the Tauri shell reads the same physical file through
+// its own `kernel/store.ts` wrapper. Going through the org-scoped
+// store would route writes to a file the shell never reads.
+import { UnifiedStore as Store } from "~/kernel/store"
 import {
   UPDATE_STATE_SCHEMA,
   UPDATE_STATE_STORE_KEY,
@@ -251,6 +256,16 @@ function nextState(current: UpdateState, event: UpdateEvent): UpdateState {
 }
 
 async function loadPersistedState(): Promise<void> {
+  // Open the unified store before reading. The shell already opens
+  // this path through `DesktopPersistenceService.init`, but the
+  // webview runs in a separate window with its own process state, so
+  // the underlying Tauri store still needs to be opened here. Repeat
+  // calls land on the same on-disk file and are harmless.
+  const initResult = await Store.init()
+  if (E.isLeft(initResult)) {
+    Log.warn(LOG_TAG, "Failed to init unified store", initResult.left)
+  }
+
   const result = await Store.get<PersistedUpdateState | null>(
     UPDATE_STATE_STORE_NAMESPACE,
     UPDATE_STATE_STORE_KEY

@@ -2,7 +2,13 @@ import { reactive, ref, readonly } from "vue"
 import * as E from "fp-ts/Either"
 import { invoke } from "@tauri-apps/api/core"
 
-import { Store } from "~/kernel/store"
+// Bind to the unified, process-wide store rather than the org-scoped
+// default `Store`. Desktop settings are machine-level configuration
+// (for example the "disable update checks" toggle), and the Tauri
+// shell reads them through its own `kernel/store.ts` wrapper at the
+// same physical path. Going through the org-scoped store would route
+// writes to a different file and the shell would never see them.
+import { UnifiedStore as Store } from "~/kernel/store"
 import {
   DESKTOP_SETTINGS_SCHEMA,
   DESKTOP_SETTINGS_STORE_KEY,
@@ -52,6 +58,16 @@ const loaded = ref(false)
 let initPromise: Promise<void> | undefined
 
 async function loadInitial(): Promise<void> {
+  // Open the unified store before reading. The shell already inits this
+  // path through its own `DesktopPersistenceService.init`, but the
+  // webview runs in a separate window with its own process state, so
+  // the underlying Tauri store still needs to be opened here. Repeat
+  // calls land on the same on-disk file and are harmless.
+  const initResult = await Store.init()
+  if (E.isLeft(initResult)) {
+    Log.warn(LOG_TAG, "Failed to init unified store", initResult.left)
+  }
+
   const result = await Store.get<unknown>(
     DESKTOP_SETTINGS_STORE_NAMESPACE,
     DESKTOP_SETTINGS_STORE_KEY

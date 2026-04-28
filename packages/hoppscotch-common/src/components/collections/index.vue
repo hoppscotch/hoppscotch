@@ -3700,18 +3700,12 @@ defineActionHandler(
 
         // Switch to team collections if not already there
         if (collectionsType.value.type !== "team-collections") {
-          const teamID =
-            workspaceService.currentWorkspace.value.type === "team"
-              ? workspaceService.currentWorkspace.value.teamID
-              : null
+          const currentWorkspace = workspaceService.currentWorkspace.value
 
-          if (teamID) {
+          if (currentWorkspace.type === "team") {
             collectionsType.value = {
               type: "team-collections",
-              selectedTeam: {
-                teamID,
-                // We don't have the full team object here easily, but selectedTeam is often used for teamID
-              } as any,
+              selectedTeam: currentWorkspace,
             }
           }
         }

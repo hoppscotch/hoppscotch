@@ -176,6 +176,76 @@ const migrations: Migration[] = [
       }
     },
   },
+  {
+    // Coerce gqlHistory entries with non-string `response` to string,
+    // backing up originals at `${GQL_HISTORY}-pre-v2-backup`.
+    version: 2,
+    migrate: async () => {
+      const result = await Store.get<unknown>(
+        STORE_NAMESPACE,
+        STORE_KEYS.GQL_HISTORY
+      )
+
+      if (!E.isRight(result) || !Array.isArray(result.right)) return
+
+      const entries = result.right
+      // Only target entries with own `response` field that's non-string;
+      // unrelated schema mismatches still go through the Zod-fail backup.
+      const needsRepair = entries.some(
+        (entry) =>
+          typeof entry === "object" &&
+          entry !== null &&
+          Object.prototype.hasOwnProperty.call(entry, "response") &&
+          typeof (entry as { response?: unknown }).response !== "string"
+      )
+
+      if (!needsRepair) return
+
+      // Throw on backup or repair write failure so `runMigrations` can
+      // skip the schema_version bump and retry on the next launch. The
+      // alternative — log-and-continue — would mark the migration done
+      // while leaving poisoned data in place, with no future retry path.
+      const backupResult = await Store.set(
+        STORE_NAMESPACE,
+        `${STORE_KEYS.GQL_HISTORY}-pre-v2-backup`,
+        entries
+      )
+      if (E.isLeft(backupResult)) {
+        throw new Error(
+          `[v2 migration] failed to write pre-v2 backup: ${backupResult.left.kind}: ${backupResult.left.message}`
+        )
+      }
+
+      const repaired = entries.map((entry) => {
+        if (typeof entry !== "object" || entry === null) return entry
+        const e = entry as Record<string, unknown>
+        if (
+          !Object.prototype.hasOwnProperty.call(e, "response") ||
+          typeof e.response === "string"
+        ) {
+          return e
+        }
+        // Use JSON.stringify(e.response) directly so a `null` payload
+        // serializes to the string `"null"` rather than `'""'`. Either
+        // form satisfies the `response: z.string()` schema, but `"null"`
+        // preserves the original semantic of an empty payload (e.g. a
+        // subscription that produced no data) and avoids re-stringifying
+        // on the next sync write.
+        return { ...e, response: JSON.stringify(e.response) }
+      })
+
+      const repairResult = await Store.set(
+        STORE_NAMESPACE,
+        STORE_KEYS.GQL_HISTORY,
+        repaired
+      )
+      if (E.isLeft(repairResult)) {
+        throw new Error(
+          `[v2 migration] failed to write repaired ${STORE_KEYS.GQL_HISTORY}: ${repairResult.left.kind}: ${repairResult.left.message}`
+        )
+      }
+    },
+  },
 ]
 
 /**
@@ -235,13 +305,25 @@ export class PersistenceService extends Service {
     )
     const perhapsVersion = E.isRight(versionResult) ? versionResult.right : "0"
     const currentVersion = perhapsVersion ?? "0"
-    const targetVersion = "1"
+    const targetVersion = "2"
 
     if (currentVersion !== targetVersion) {
-      for (const migration of migrations) {
-        if (migration.version > parseInt(currentVersion)) {
-          await migration.migrate()
+      try {
+        for (const migration of migrations) {
+          if (migration.version > parseInt(currentVersion)) {
+            await migration.migrate()
+          }
         }
+      } catch (err) {
+        // A migration that throws (e.g. v2 repair on a degraded store)
+        // aborts the schema_version bump so the next launch retries
+        // from the same currentVersion rather than recording an
+        // incomplete migration as done.
+        console.error(
+          "[persistence] migration failed; schema_version not advanced:",
+          err
+        )
+        return
       }
 
       await Store.set(STORE_NAMESPACE, STORE_KEYS.SCHEMA_VERSION, targetVersion)

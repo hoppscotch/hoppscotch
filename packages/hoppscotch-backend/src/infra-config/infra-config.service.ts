@@ -611,7 +611,7 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
 
     const tokenIsValid =
       typeof token === 'string' &&
-      token?.trim().length > 0 &&
+      token.trim().length > 0 &&
       token === recoveryToken;
 
     const onboardingConfig = configs.right.reduce((acc, config) => {

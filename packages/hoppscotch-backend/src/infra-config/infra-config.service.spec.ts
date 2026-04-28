@@ -7,7 +7,6 @@ import {
   INFRA_CONFIG_NOT_FOUND,
   INFRA_CONFIG_OPERATION_NOT_ALLOWED,
   INFRA_CONFIG_UPDATE_FAILED,
-  ONBOARDING_CANNOT_BE_RERUN,
 } from 'src/errors';
 import { ConfigService } from '@nestjs/config';
 import * as helper from './helper';
@@ -428,9 +427,7 @@ describe('InfraConfigService', () => {
         .spyOn(infraConfigService, 'getMany')
         .mockResolvedValueOnce(E.right(mockConfigs));
 
-      const result = await infraConfigService.getOnboardingConfig(
-        null as unknown as string,
-      );
+      const result = await infraConfigService.getOnboardingConfig(null);
 
       expect(E.isRight(result)).toBe(true);
       if (E.isRight(result)) {
@@ -443,9 +440,7 @@ describe('InfraConfigService', () => {
         .spyOn(infraConfigService, 'getMany')
         .mockResolvedValueOnce(E.right(mockConfigs));
 
-      const result = await infraConfigService.getOnboardingConfig(
-        undefined as unknown as string,
-      );
+      const result = await infraConfigService.getOnboardingConfig(undefined);
 
       expect(E.isRight(result)).toBe(true);
       if (E.isRight(result)) {
@@ -458,9 +453,8 @@ describe('InfraConfigService', () => {
         .spyOn(infraConfigService, 'getMany')
         .mockResolvedValueOnce(E.right(mockConfigs));
 
-      const result = await infraConfigService.getOnboardingConfig(
-        [] as unknown as string,
-      );
+      // @ts-expect-error Testing invalid input
+      const result = await infraConfigService.getOnboardingConfig([]);
 
       expect(E.isRight(result)).toBe(true);
       if (E.isRight(result)) {
@@ -473,9 +467,8 @@ describe('InfraConfigService', () => {
         .spyOn(infraConfigService, 'getMany')
         .mockResolvedValueOnce(E.right(mockConfigs));
 
-      const result = await infraConfigService.getOnboardingConfig(
-        42 as unknown as string,
-      );
+      // @ts-expect-error Testing invalid input
+      const result = await infraConfigService.getOnboardingConfig(42);
 
       expect(E.isRight(result)).toBe(true);
       if (E.isRight(result)) {

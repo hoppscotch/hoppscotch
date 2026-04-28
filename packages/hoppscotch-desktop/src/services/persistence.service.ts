@@ -111,25 +111,44 @@ const migrations: Migration[] = [
     // migration can prune it once the v2 definition has stabilized.
     version: 2,
     migrate: async () => {
-      // Skip if `desktopSettings` already exists. Two paths can re-run
-      // this migration after it succeeded once. A user downgrades to a
-      // pre-v2 build, which resets `SCHEMA_VERSION` to "1" because the
-      // older code does not recognize "2" and rolls it back. A
-      // re-upgrade then sees v1 again and tries to migrate. The other
-      // path is a corrupted `SCHEMA_VERSION` value, which the
-      // `runMigrations` parse-defense coerces to "1" so every
-      // migration reruns from scratch. In both cases, falling through
-      // to the legacy carry-forward below would overwrite any user-set
-      // v2 fields with `disableUpdateNotifications` plus schema
-      // defaults, undoing the user's work. Treating presence of the
-      // `desktopSettings` key as the canonical "v2 happened" signal
-      // makes the migration truly idempotent without depending on
-      // `SCHEMA_VERSION` being trustworthy.
+      // Decide whether to skip based on the existing `desktopSettings`
+      // payload. Two paths can re-run this migration after it succeeded
+      // once. A user downgrades to a pre-v2 build, which resets
+      // `SCHEMA_VERSION` to "1" because the older code does not
+      // recognize "2" and rolls it back. A re-upgrade then sees v1
+      // again and tries to migrate. The other path is a corrupted
+      // `SCHEMA_VERSION` value, which the `runMigrations` parse-defense
+      // coerces to "1" so every migration reruns from scratch. In both
+      // cases, blindly running the legacy carry-forward would
+      // overwrite any user-set v2 fields with
+      // `disableUpdateNotifications` plus schema defaults, undoing the
+      // user's work.
+      //
+      // Three reachable cases here, each handled explicitly. A `Left`
+      // from `Store.get` means the store is degraded (file I/O
+      // failure, or not yet open) and there is no way to tell whether
+      // v2 already ran. Propagating the `Left` aborts the migration
+      // before `runMigrations` bumps `SCHEMA_VERSION`, so the next
+      // launch retries on a hopefully-recovered store. A `Right` with
+      // a present and schema-valid payload is the canonical "v2
+      // already happened" signal, since the migration itself is what
+      // writes a valid payload, so a stored value implies the
+      // migration ran successfully at least once. A `Right` with
+      // either no payload (fresh install) or a malformed payload
+      // (partial object, wrong field types) falls through to the
+      // legacy carry-forward, which writes a fresh schema-defaults
+      // `desktopSettings` and self-heals the corruption.
       const existingResult = await Store.get<unknown>(
         STORE_NAMESPACE,
         STORE_KEYS.DESKTOP_SETTINGS
       )
-      if (E.isRight(existingResult) && existingResult.right !== undefined) {
+      if (E.isLeft(existingResult)) {
+        return existingResult
+      }
+      if (
+        existingResult.right !== undefined &&
+        DESKTOP_SETTINGS_SCHEMA.safeParse(existingResult.right).success
+      ) {
         return E.right(undefined)
       }
 

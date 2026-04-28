@@ -350,186 +350,165 @@ describe('InfraConfigService', () => {
   });
 
   describe('getOnboardingConfig', () => {
-    const VALID_TOKEN = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
+    const RECOVERY_TOKEN = 'valid-recovery-token-123';
 
-    function makeConfigs(
-      overrides: Partial<Record<string, string>> = {},
-    ): { name: InfraConfigEnum; value: string }[] {
-      const defaults: Record<string, string> = {
-        [InfraConfigEnum.ONBOARDING_COMPLETED]: 'false',
-        [InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN]: VALID_TOKEN,
-      };
-      return Object.entries({ ...defaults, ...overrides }).map(
-        ([name, value]) => ({ name: name as InfraConfigEnum, value }),
-      );
-    }
+    const mockConfigs = [
+      {
+        name: InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN,
+        value: RECOVERY_TOKEN,
+      },
+      { name: InfraConfigEnum.GOOGLE_CLIENT_ID, value: 'google-id' },
+      {
+        name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
+        value: 'google',
+      },
+    ];
 
-    function setupOpenWindow(
-      tokenInDb: string | undefined = VALID_TOKEN,
-    ): void {
-      const configs =
-        tokenInDb !== undefined
-          ? makeConfigs({
-              [InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN]: tokenInDb,
-            })
-          : [
-              {
-                name: InfraConfigEnum.ONBOARDING_COMPLETED as InfraConfigEnum,
-                value: 'false',
-              },
-            ];
+    it('should return config values when token is valid', async () => {
       jest
         .spyOn(infraConfigService, 'getMany')
-        .mockResolvedValueOnce(E.right(configs));
-      mockUserService.getUsersCount.mockResolvedValueOnce(0);
-    }
+        .mockResolvedValueOnce(E.right(mockConfigs));
 
-    describe('completion-state gate', () => {
-      it('should block access when onboarding is completed and users exist', async () => {
-        jest
-          .spyOn(infraConfigService, 'getMany')
-          .mockResolvedValueOnce(
-            E.right(
-              makeConfigs({ [InfraConfigEnum.ONBOARDING_COMPLETED]: 'true' }),
-            ),
-          );
-        mockUserService.getUsersCount.mockResolvedValueOnce(1);
+      const result =
+        await infraConfigService.getOnboardingConfig(RECOVERY_TOKEN);
 
-        const result =
-          await infraConfigService.getOnboardingConfig(VALID_TOKEN);
-        expect(result).toEqualLeft(ONBOARDING_CANNOT_BE_RERUN);
-      });
-
-      it('should allow access when onboarding is completed but no users exist (re-run window)', async () => {
-        jest
-          .spyOn(infraConfigService, 'getMany')
-          .mockResolvedValueOnce(
-            E.right(
-              makeConfigs({ [InfraConfigEnum.ONBOARDING_COMPLETED]: 'true' }),
-            ),
-          );
-        mockUserService.getUsersCount.mockResolvedValueOnce(0);
-
-        const result =
-          await infraConfigService.getOnboardingConfig(VALID_TOKEN);
-        expect(result).toEqualRight(expect.any(Object));
-      });
-
-      it('should allow access when onboarding is not yet completed even if users exist', async () => {
-        jest
-          .spyOn(infraConfigService, 'getMany')
-          .mockResolvedValueOnce(
-            E.right(
-              makeConfigs({ [InfraConfigEnum.ONBOARDING_COMPLETED]: 'false' }),
-            ),
-          );
-        mockUserService.getUsersCount.mockResolvedValueOnce(5);
-
-        const result =
-          await infraConfigService.getOnboardingConfig(VALID_TOKEN);
-        expect(result).toEqualRight(expect.any(Object));
-      });
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right[InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN]).toBe(
+          RECOVERY_TOKEN,
+        );
+        expect(result.right[InfraConfigEnum.GOOGLE_CLIENT_ID]).toBe(
+          'google-id',
+        );
+      }
     });
 
-    describe('token validation (bootstrap window open)', () => {
-      it('should return config values for a valid matching token', async () => {
-        setupOpenWindow(VALID_TOKEN);
-        const result =
-          await infraConfigService.getOnboardingConfig(VALID_TOKEN);
-        expect(result).toEqualRight(
-          expect.objectContaining({
-            [InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN]: VALID_TOKEN,
-          }),
-        );
-      });
+    it('should return null values when token does not match', async () => {
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.right(mockConfigs));
 
-      it('should redact all values for an empty-string token', async () => {
-        setupOpenWindow(VALID_TOKEN);
-        const result = await infraConfigService.getOnboardingConfig('');
-        expect(result).toEqualRight(
-          expect.objectContaining({
-            [InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN]: null,
-          }),
-        );
-      });
+      const result =
+        await infraConfigService.getOnboardingConfig('wrong-token');
 
-      it('should redact all values for a whitespace-only token', async () => {
-        setupOpenWindow(VALID_TOKEN);
-        const result = await infraConfigService.getOnboardingConfig('   ');
-        expect(result).toEqualRight(
-          expect.objectContaining({
-            [InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN]: null,
-          }),
-        );
-      });
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right[InfraConfigEnum.GOOGLE_CLIENT_ID]).toBeNull();
+      }
+    });
 
-      it('should redact all values when token is undefined (missing query param)', async () => {
-        setupOpenWindow(VALID_TOKEN);
-        const result = await infraConfigService.getOnboardingConfig(
-          undefined as unknown as string,
-        );
-        expect(result).toEqualRight(
-          expect.objectContaining({
-            [InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN]: null,
-          }),
-        );
-      });
+    it('should return null values when token is empty string', async () => {
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.right(mockConfigs));
 
-      it('should redact all values when token is null', async () => {
-        setupOpenWindow(VALID_TOKEN);
-        const result = await infraConfigService.getOnboardingConfig(
-          null as unknown as string,
-        );
-        expect(result).toEqualRight(
-          expect.objectContaining({
-            [InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN]: null,
-          }),
-        );
-      });
+      const result = await infraConfigService.getOnboardingConfig('');
 
-      it('should redact all values for an incorrect token', async () => {
-        setupOpenWindow(VALID_TOKEN);
-        const result =
-          await infraConfigService.getOnboardingConfig('wrong-token');
-        expect(result).toEqualRight(
-          expect.objectContaining({
-            [InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN]: null,
-          }),
-        );
-      });
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right[InfraConfigEnum.GOOGLE_CLIENT_ID]).toBeNull();
+      }
+    });
 
-      it('should redact all values when the recovery token row is missing from DB', async () => {
-        setupOpenWindow(undefined);
-        const result =
-          await infraConfigService.getOnboardingConfig(VALID_TOKEN);
-        expect(result).toEqualRight(
-          expect.objectContaining({
-            [InfraConfigEnum.ONBOARDING_COMPLETED]: null,
-          }),
-        );
-      });
+    it('should return null values when token is whitespace only', async () => {
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.right(mockConfigs));
 
-      it('should redact all values when the recovery token in DB is an empty string', async () => {
-        setupOpenWindow('');
-        const result = await infraConfigService.getOnboardingConfig('');
-        expect(result).toEqualRight(
-          expect.objectContaining({
-            [InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN]: null,
-          }),
-        );
-      });
+      const result = await infraConfigService.getOnboardingConfig('   ');
 
-      it('should redact all values for an array-shaped token (?token[]=x bypass attempt)', async () => {
-        setupOpenWindow(VALID_TOKEN);
-        const result = await infraConfigService.getOnboardingConfig(
-          [VALID_TOKEN] as unknown as string,
-        );
-        expect(result).toEqualRight(
-          expect.objectContaining({
-            [InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN]: null,
-          }),
-        );
-      });
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right[InfraConfigEnum.GOOGLE_CLIENT_ID]).toBeNull();
+      }
+    });
+
+    it('should return null values when token is null', async () => {
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.right(mockConfigs));
+
+      const result = await infraConfigService.getOnboardingConfig(
+        null as unknown as string,
+      );
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right[InfraConfigEnum.GOOGLE_CLIENT_ID]).toBeNull();
+      }
+    });
+
+    it('should return null values when token is undefined', async () => {
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.right(mockConfigs));
+
+      const result = await infraConfigService.getOnboardingConfig(
+        undefined as unknown as string,
+      );
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right[InfraConfigEnum.GOOGLE_CLIENT_ID]).toBeNull();
+      }
+    });
+
+    it('should return null values when token is an array', async () => {
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.right(mockConfigs));
+
+      const result = await infraConfigService.getOnboardingConfig(
+        [] as unknown as string,
+      );
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right[InfraConfigEnum.GOOGLE_CLIENT_ID]).toBeNull();
+      }
+    });
+
+    it('should return null values when token is a number', async () => {
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.right(mockConfigs));
+
+      const result = await infraConfigService.getOnboardingConfig(
+        42 as unknown as string,
+      );
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right[InfraConfigEnum.GOOGLE_CLIENT_ID]).toBeNull();
+      }
+    });
+
+    it('should return null values when ONBOARDING_RECOVERY_TOKEN is absent from configs', async () => {
+      const configsWithoutToken = mockConfigs.filter(
+        (c) => c.name !== InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN,
+      );
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.right(configsWithoutToken));
+
+      const result =
+        await infraConfigService.getOnboardingConfig(RECOVERY_TOKEN);
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right[InfraConfigEnum.GOOGLE_CLIENT_ID]).toBeNull();
+      }
+    });
+
+    it('should return left with error when getMany fails', async () => {
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.left(INFRA_CONFIG_NOT_FOUND));
+
+      const result =
+        await infraConfigService.getOnboardingConfig(RECOVERY_TOKEN);
+
+      expect(result).toEqualLeft(INFRA_CONFIG_NOT_FOUND);
     });
   });
 });

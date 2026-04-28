@@ -347,4 +347,161 @@ describe('InfraConfigService', () => {
       });
     });
   });
+
+  describe('getOnboardingConfig', () => {
+    const RECOVERY_TOKEN = 'valid-recovery-token-123';
+
+    const mockConfigs = [
+      {
+        name: InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN,
+        value: RECOVERY_TOKEN,
+      },
+      { name: InfraConfigEnum.GOOGLE_CLIENT_ID, value: 'google-id' },
+      {
+        name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
+        value: 'google',
+      },
+    ];
+
+    it('should return config values when token is valid', async () => {
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.right(mockConfigs));
+
+      const result =
+        await infraConfigService.getOnboardingConfig(RECOVERY_TOKEN);
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right[InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN]).toBe(
+          RECOVERY_TOKEN,
+        );
+        expect(result.right[InfraConfigEnum.GOOGLE_CLIENT_ID]).toBe(
+          'google-id',
+        );
+      }
+    });
+
+    it('should return null values when token does not match', async () => {
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.right(mockConfigs));
+
+      const result =
+        await infraConfigService.getOnboardingConfig('wrong-token');
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right[InfraConfigEnum.GOOGLE_CLIENT_ID]).toBeNull();
+      }
+    });
+
+    it('should return null values when token is empty string', async () => {
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.right(mockConfigs));
+
+      const result = await infraConfigService.getOnboardingConfig('');
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right[InfraConfigEnum.GOOGLE_CLIENT_ID]).toBeNull();
+      }
+    });
+
+    it('should return null values when token is whitespace only', async () => {
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.right(mockConfigs));
+
+      const result = await infraConfigService.getOnboardingConfig('   ');
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right[InfraConfigEnum.GOOGLE_CLIENT_ID]).toBeNull();
+      }
+    });
+
+    it('should return null values when token is null', async () => {
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.right(mockConfigs));
+
+      const result = await infraConfigService.getOnboardingConfig(null);
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right[InfraConfigEnum.GOOGLE_CLIENT_ID]).toBeNull();
+      }
+    });
+
+    it('should return null values when token is undefined', async () => {
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.right(mockConfigs));
+
+      const result = await infraConfigService.getOnboardingConfig(undefined);
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right[InfraConfigEnum.GOOGLE_CLIENT_ID]).toBeNull();
+      }
+    });
+
+    it('should return null values when token is an array', async () => {
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.right(mockConfigs));
+
+      // @ts-expect-error Testing invalid input
+      const result = await infraConfigService.getOnboardingConfig([]);
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right[InfraConfigEnum.GOOGLE_CLIENT_ID]).toBeNull();
+      }
+    });
+
+    it('should return null values when token is a number', async () => {
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.right(mockConfigs));
+
+      // @ts-expect-error Testing invalid input
+      const result = await infraConfigService.getOnboardingConfig(42);
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right[InfraConfigEnum.GOOGLE_CLIENT_ID]).toBeNull();
+      }
+    });
+
+    it('should return null values when ONBOARDING_RECOVERY_TOKEN is absent from configs', async () => {
+      const configsWithoutToken = mockConfigs.filter(
+        (c) => c.name !== InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN,
+      );
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.right(configsWithoutToken));
+
+      const result =
+        await infraConfigService.getOnboardingConfig(RECOVERY_TOKEN);
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right[InfraConfigEnum.GOOGLE_CLIENT_ID]).toBeNull();
+      }
+    });
+
+    it('should return left with error when getMany fails', async () => {
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.left(INFRA_CONFIG_NOT_FOUND));
+
+      const result =
+        await infraConfigService.getOnboardingConfig(RECOVERY_TOKEN);
+
+      expect(result).toEqualLeft(INFRA_CONFIG_NOT_FOUND);
+    });
+  });
 });

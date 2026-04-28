@@ -17,5 +17,11 @@ Closes # <!-- Issue # here -->
 - [x] Completed
 -->
 
+### Checklist
+<!-- Please ensure you have completed the following before submitting this PR -->
+- [ ] I have ensured any install or build dependencies are removed before the end of the layer when doing a build.
+- [ ] I have updated the README.md with details of changes to the interface (if applicable).
+- [ ] I have made sure I do not expose environment variables or other sensitive information in my PR.
+
 ### Notes to reviewers
 <!-- Any information you feel the reviewer should know about when reviewing your PR -->

@@ -151,7 +151,7 @@ export const generateJUnitReportExport = ({
     const resolvedExportPath = path.resolve(reporterJUnitExportPath);
 
     if (fs.existsSync(resolvedExportPath)) {
-      info(
+      log(
         INFO(`\nOverwriting the pre-existing path: ${reporterJUnitExportPath}.`)
       );
     }

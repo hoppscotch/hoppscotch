@@ -111,6 +111,28 @@ const migrations: Migration[] = [
     // migration can prune it once the v2 definition has stabilized.
     version: 2,
     migrate: async () => {
+      // Skip if `desktopSettings` already exists. Two paths can re-run
+      // this migration after it succeeded once. A user downgrades to a
+      // pre-v2 build, which resets `SCHEMA_VERSION` to "1" because the
+      // older code does not recognize "2" and rolls it back. A
+      // re-upgrade then sees v1 again and tries to migrate. The other
+      // path is a corrupted `SCHEMA_VERSION` value, which the
+      // `runMigrations` parse-defense coerces to "1" so every
+      // migration reruns from scratch. In both cases, falling through
+      // to the legacy carry-forward below would overwrite any user-set
+      // v2 fields with `disableUpdateNotifications` plus schema
+      // defaults, undoing the user's work. Treating presence of the
+      // `desktopSettings` key as the canonical "v2 happened" signal
+      // makes the migration truly idempotent without depending on
+      // `SCHEMA_VERSION` being trustworthy.
+      const existingResult = await Store.get<unknown>(
+        STORE_NAMESPACE,
+        STORE_KEYS.DESKTOP_SETTINGS
+      )
+      if (E.isRight(existingResult) && existingResult.right !== undefined) {
+        return E.right(undefined)
+      }
+
       const legacyResult = await Store.get<Partial<LegacyPortableSettings>>(
         STORE_NAMESPACE,
         STORE_KEYS.PORTABLE_SETTINGS

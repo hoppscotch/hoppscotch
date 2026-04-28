@@ -609,7 +609,10 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
       (config) => config.name === InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN,
     )?.value;
 
-    const tokenIsValid = token?.trim().length > 0 && token === recoveryToken;
+    const tokenIsValid =
+      typeof token === 'string' &&
+      token?.trim().length > 0 &&
+      token === recoveryToken;
 
     const onboardingConfig = configs.right.reduce((acc, config) => {
       acc[config.name] = tokenIsValid ? config.value : null;

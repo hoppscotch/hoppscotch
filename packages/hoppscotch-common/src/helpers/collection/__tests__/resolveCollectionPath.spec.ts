@@ -7,18 +7,37 @@ describe("resolveCollectionPath", () => {
   describe("Personal Collections (index-based)", () => {
     const mockCollections: HoppCollection[] = [
       {
+        v: 1,
         name: "Coll 0",
         folders: [
-          { name: "Folder 0/0", folders: [], requests: [] },
           {
+            v: 1,
+            name: "Folder 0/0",
+            folders: [],
+            requests: [],
+          },
+          {
+            v: 1,
             name: "Folder 0/1",
-            folders: [{ name: "Subfolder 0/1/0", folders: [], requests: [] }],
+            folders: [
+              {
+                v: 1,
+                name: "Subfolder 0/1/0",
+                folders: [],
+                requests: [],
+              },
+            ],
             requests: [],
           },
         ],
         requests: [],
       } as any,
-      { name: "Coll 1", folders: [], requests: [] } as any,
+      {
+        v: 1,
+        name: "Coll 1",
+        folders: [],
+        requests: [],
+      } as any,
     ]
 
     it("resolves root collection by index", () => {
@@ -51,11 +70,21 @@ describe("resolveCollectionPath", () => {
         id: "team-1",
         title: "Team Coll 1",
         children: [
-          { id: "folder-a", title: "Folder A", children: [] },
+          {
+            id: "folder-a",
+            title: "Folder A",
+            children: [],
+          },
           {
             id: "folder-b",
             title: "Folder B",
-            children: [{ id: "sub-x", title: "Sub X", children: [] }],
+            children: [
+              {
+                id: "sub-x",
+                title: "Sub X",
+                children: [],
+              },
+            ],
           },
         ],
       } as any,
@@ -81,8 +110,16 @@ describe("resolveCollectionPath", () => {
   describe("Integration with Action Handler (Modal Logic)", () => {
     const mockCollections: HoppCollection[] = [
       {
+        v: 1,
         name: "Coll 0",
-        folders: [{ name: "Folder 0/0", folders: [], requests: [] }],
+        folders: [
+          {
+            v: 1,
+            name: "Folder 0/0",
+            folders: [],
+            requests: [],
+          },
+        ],
         requests: [],
       } as any,
     ]

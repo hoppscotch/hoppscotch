@@ -18,20 +18,21 @@ export function resolveCollectionPath(
   for (let i = 0; i < collections.length; i++) {
     const coll = collections[i]
     // For Personal: path is index. For Team: path is ID.
-    const collID = "id" in coll ? (coll as any).id : i.toString()
-    const collRefID = (coll as any)._ref_id
+    const isPersonal = "v" in coll
+    const collID = isPersonal ? i.toString() : coll.id
+    const collRefID = isPersonal ? coll._ref_id : undefined
     const collPath = currentPath ? `${currentPath}/${collID}` : collID
 
     if (
       collID === targetID ||
-      collRefID === targetID ||
+      (collRefID && collRefID === targetID) ||
       collPath === targetID
     ) {
       return { path: collPath, node: coll }
     }
 
-    // Recursively check folders/sub-collections
-    const children = "folders" in coll ? coll.folders : coll.children
+    // Recursively check sub-nodes (Team collections use .children, Personal collections use .folders)
+    const children = isPersonal ? coll.folders : coll.children
     if (children && children.length > 0) {
       const found = resolveCollectionPath(children, targetID, collPath)
       if (found) return found

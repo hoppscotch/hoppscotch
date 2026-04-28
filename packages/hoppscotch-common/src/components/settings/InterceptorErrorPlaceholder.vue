@@ -6,6 +6,16 @@
   >
     <template #body>
       <div class="my-1 flex flex-col items-center text-secondaryLight">
+        <div
+          class="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-left text-sm"
+        >
+          <p class="font-semibold text-amber-600 dark:text-amber-400">
+            {{ t("error.cors_likely_cause") }}
+          </p>
+          <p class="mt-1 text-secondaryLight">
+            {{ t("error.cors_explanation") }}
+          </p>
+        </div>
         <span>
           {{ t("error.please_install_extension") }}
         </span>

@@ -160,9 +160,20 @@
                     :secret="tab.isSecret"
                     :focus="
                       variableToFocus?.name === env.key &&
-                      !!variableToFocus?.isSecret === !!env.secret
+                      !!variableToFocus?.isSecret === !!env.secret &&
+                      index ===
+                        tab.variables.findIndex(
+                          (v) => v.key === variableToFocus?.name
+                        )
                     "
-                    :cursor-at-end-on-mount="variableToFocus?.name === env.key"
+                    :cursor-at-end-on-mount="
+                      variableToFocus?.name === env.key &&
+                      !!variableToFocus?.isSecret === !!env.secret &&
+                      index ===
+                        tab.variables.findIndex(
+                          (v) => v.key === variableToFocus?.name
+                        )
+                    "
                   />
                   <HoppButtonSecondary
                     v-tippy="{ theme: 'tooltip' }"

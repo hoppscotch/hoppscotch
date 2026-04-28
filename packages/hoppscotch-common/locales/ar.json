@@ -679,6 +679,8 @@
     "short_codes_description": "الرموز القصيرة التي أنشأتها.",
     "sidebar_on_left": "الشريط الجانبي على اليسار",
     "sync": "تزامن",
+    "require_auth_for_app": "يتطلب تسجيل الدخول لاستخدام التطبيق",
+    "require_auth_for_app_description": "عند التفعيل، يتم إعادة توجيه المستخدمين غير المصادق عليهم إلى صفحة تسجيل الدخول",
     "sync_collections": "المجموعات",
     "sync_description": "تتم مزامنة هذه الإعدادات مع السحابة.",
     "sync_environments": "البيئات",

@@ -681,6 +681,8 @@
     "short_codes_description": "Shortcodes creados por ti.",
     "sidebar_on_left": "Barra lateral a la izquierda",
     "sync": "Sincronizar",
+    "require_auth_for_app": "Requerir inicio de sesión para usar la aplicación",
+    "require_auth_for_app_description": "Cuando está habilitado, los usuarios no autenticados son redirigidos a la página de inicio de sesión",
     "sync_collections": "Colecciones",
     "sync_description": "Esta configuración se sincroniza con la nube.",
     "sync_environments": "Entornos",

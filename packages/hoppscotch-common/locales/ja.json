@@ -679,6 +679,8 @@
     "short_codes_description": "あなたが作成したショートコードです。",
     "sidebar_on_left": "サイドバーを左側に表示",
     "sync": "同期する",
+    "require_auth_for_app": "アプリの使用にログインを必須にする",
+    "require_auth_for_app_description": "有効にすると、未認証ユーザーはログインページにリダイレクトされます",
     "sync_collections": "コレクション",
     "sync_description": "これらの設定はクラウドに同期されます。",
     "sync_environments": "環境変数",

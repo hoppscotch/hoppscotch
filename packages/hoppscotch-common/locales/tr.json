@@ -674,6 +674,8 @@
     "short_codes_description": "Sizin oluşturduğunuz kısa kodlar.",
     "sidebar_on_left": "Soldaki kenar çubuğu",
     "sync": "Senkronize et",
+    "require_auth_for_app": "Uygulamayı kullanmak için giriş yapılması gereksin",
+    "require_auth_for_app_description": "Etkinleştirildiğinde, kimliği doğrulanmamış kullanıcılar giriş sayfasına yönlendirilir",
     "sync_collections": "Koleksiyonlar",
     "sync_description": "Bu ayarlar bulutla senkronize edilir.",
     "sync_environments": "Ortamlar",

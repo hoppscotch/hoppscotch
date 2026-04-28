@@ -3666,10 +3666,6 @@ defineActionHandler("modals.collection.import", () => {
 defineActionHandler(
   "modals.collection.properties.open",
   async ({ sourceEnvID, variableName, isSecret }) => {
-    console.log(
-      `[modals.collection.properties.open] Action triggered. sourceEnvID=${sourceEnvID}, variableName=${variableName}`
-    )
-
     let foundCollection: HoppCollection | TeamCollection | undefined
     let collectionPath = sourceEnvID
 
@@ -3713,10 +3709,6 @@ defineActionHandler(
     }
 
     if (foundCollection) {
-      console.log(
-        `[modals.collection.properties.open] Resolved path: ${collectionPath}. Calling editProperties.`
-      )
-
       variableToFocus.value = { name: variableName, isSecret: !!isSecret }
 
       await editProperties({
@@ -3727,9 +3719,6 @@ defineActionHandler(
       // Force to variables tab
       collectionPropertiesModalActiveTab.value = "variables"
     } else {
-      console.error(
-        `[modals.collection.properties.open] Could not resolve collection for ID: ${sourceEnvID}`
-      )
       toast.error(t("collection.not_found"))
     }
   }

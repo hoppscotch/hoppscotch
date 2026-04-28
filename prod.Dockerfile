@@ -115,16 +115,6 @@ RUN mkdir -p /tmp/serialize-fix && \
   cp -r node_modules/serialize-javascript /usr/lib/node_modules/@import-meta-env/cli/node_modules/ && \
   rm -rf /tmp/serialize-fix
 
-# Fix CVE: upgrade picomatch in npm and pnpm (ships 4.0.3, fix requires >=4.0.4)
-RUN mkdir -p /tmp/picomatch-fix && \
-  cd /tmp/picomatch-fix && \
-  npm install picomatch@4.0.4 && \
-  rm -rf /usr/lib/node_modules/npm/node_modules/tinyglobby/node_modules/picomatch && \
-  cp -r node_modules/picomatch /usr/lib/node_modules/npm/node_modules/tinyglobby/node_modules/ && \
-  rm -rf /usr/lib/node_modules/pnpm/dist/node_modules/picomatch && \
-  cp -r node_modules/picomatch /usr/lib/node_modules/pnpm/dist/node_modules/ && \
-  rm -rf /tmp/picomatch-fix
-
 
 
 FROM node_base AS base_builder

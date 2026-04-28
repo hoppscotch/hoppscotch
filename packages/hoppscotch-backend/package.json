@@ -43,7 +43,7 @@
     "@nestjs/passport": "11.0.0",
     "@nestjs/platform-express": "11.1.19",
     "@nestjs/schedule": "6.1.3",
-    "@nestjs/swagger": "11.4.1",
+    "@nestjs/swagger": "11.4.2",
     "@nestjs/terminus": "11.1.1",
     "@nestjs/throttler": "6.5.0",
     "@prisma/adapter-pg": "7.8.0",
@@ -64,7 +64,7 @@
     "handlebars": "4.7.9",
     "io-ts": "2.2.22",
     "morgan": "1.10.1",
-    "nodemailer": "8.0.6",
+    "nodemailer": "8.0.7",
     "passport": "0.7.0",
     "passport-github2": "0.1.12",
     "passport-google-oauth20": "2.0.0",
@@ -72,7 +72,7 @@
     "passport-local": "1.0.0",
     "passport-microsoft": "2.1.0",
     "pg": "8.20.0",
-    "posthog-node": "5.30.3",
+    "posthog-node": "5.30.6",
     "prisma": "7.8.0",
     "reflect-metadata": "0.2.2",
     "rimraf": "6.1.3",
@@ -96,8 +96,8 @@
     "@types/passport-jwt": "4.0.1",
     "@types/passport-microsoft": "2.1.1",
     "@types/supertest": "7.2.0",
-    "@typescript-eslint/eslint-plugin": "8.59.0",
-    "@typescript-eslint/parser": "8.59.0",
+    "@typescript-eslint/eslint-plugin": "8.59.1",
+    "@typescript-eslint/parser": "8.59.1",
     "cross-env": "10.1.0",
     "eslint": "10.2.1",
     "eslint-config-prettier": "10.1.8",
@@ -125,7 +125,12 @@
     ],
     "preset": "ts-jest",
     "transform": {
-      "^.+\\.(t|j)s$": ["ts-jest", { "diagnostics": false }]
+      "^.+\\.(t|j)s$": [
+        "ts-jest",
+        {
+          "diagnostics": false
+        }
+      ]
     },
     "clearMocks": true,
     "collectCoverage": true,

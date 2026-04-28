@@ -127,7 +127,10 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
         (env) => env.key === parsedEnvKey
       )
       const currentSelectedEnvironment = getCurrentEnvironment()
-      const envName = tooltipEnv?.sourceEnv ?? "Choose an Environment"
+      const envName =
+        tooltipEnv?.sourceEnvName ??
+        tooltipEnv?.sourceEnv ??
+        "Choose an Environment"
 
       let envInitialValue = tooltipEnv?.initialValue
 

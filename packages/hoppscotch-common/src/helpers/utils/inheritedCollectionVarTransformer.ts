@@ -49,9 +49,10 @@ export const transformInheritedCollectionVariablesToAggregateEnv = (
             getCurrentValue(secret, index, parentID, showSecret) ??
             currentValue,
           initialValue,
-          sourceEnv: parentName || "CollectionVariable",
+          sourceEnv: "CollectionVariable",
           secret,
           sourceEnvID: parentID,
+          sourceEnvName: parentName,
         })
       )
   )

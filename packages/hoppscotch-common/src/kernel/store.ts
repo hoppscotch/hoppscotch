@@ -169,11 +169,7 @@ function createScopedStore(staticPath: string) {
       const storePath = await getStorePath()
       diag("store", `Store.init(${staticPath}) called with path:`, storePath)
       const result = await module().init(storePath)
-      diag(
-        "store",
-        `Store.init(${staticPath}) completed for path:`,
-        storePath
-      )
+      diag("store", `Store.init(${staticPath}) completed for path:`, storePath)
       return result
     },
 

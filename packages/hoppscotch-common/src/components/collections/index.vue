@@ -247,6 +247,7 @@
       v-model="collectionPropertiesModalActiveTab"
       :show="showModalEditProperties"
       :editing-properties="editingProperties"
+      :variable-to-focus="variableToFocus"
       :show-details="
         collectionsType.type === 'team-collections' && hasTeamWriteAccess
       "
@@ -381,6 +382,7 @@ import {
   sortRESTCollection,
   sortRESTFolder,
 } from "~/newstore/collections"
+import { resolveCollectionPath } from "~/helpers/collection/resolveCollectionPath"
 
 import { useLocalState } from "~/newstore/localstate"
 import { currentReorderingStatus$ } from "~/newstore/reordering"
@@ -544,6 +546,7 @@ watch(
 const persistenceService = useService(PersistenceService)
 
 const collectionPropertiesModalActiveTab = ref<RESTOptionTabs>("headers")
+const variableToFocus = ref<{ name: string; isSecret: boolean } | null>(null)
 
 onMounted(async () => {
   const localOAuthTempConfig =
@@ -859,7 +862,10 @@ const displayModalImportExport = async (
 const displayModalEditProperties = (show: boolean) => {
   showModalEditProperties.value = show
 
-  if (!show) resetSelectedData()
+  if (!show) {
+    resetSelectedData()
+    variableToFocus.value = null
+  }
 }
 
 const displayConfirmModal = (show: boolean) => {
@@ -3656,4 +3662,65 @@ defineActionHandler("collection.new", () => {
 defineActionHandler("modals.collection.import", () => {
   displayModalImportExport(true)
 })
+
+defineActionHandler(
+  "modals.collection.properties.open",
+  async ({ sourceEnvID, variableName, isSecret }) => {
+    let foundCollection: HoppCollection | TeamCollection | undefined
+    let collectionPath = sourceEnvID
+
+    // Recursive search in personal collections to find the node and its index path
+
+    const personalMatch = resolveCollectionPath(
+      restCollectionStore.value.state,
+      sourceEnvID
+    )
+
+    if (personalMatch) {
+      foundCollection = personalMatch.node
+      collectionPath = personalMatch.path
+
+      if (collectionsType.value.type !== "my-collections") {
+        switchToMyCollections()
+      }
+    } else {
+      // Recursive search in team collections to find the node and its ID path
+      const teamMatch = resolveCollectionPath(
+        teamCollectionService.collections.value,
+        sourceEnvID
+      )
+
+      if (teamMatch) {
+        foundCollection = teamMatch.node
+        collectionPath = teamMatch.path
+
+        // Switch to team collections if not already there
+        if (collectionsType.value.type !== "team-collections") {
+          const currentWorkspace = workspaceService.currentWorkspace.value
+
+          if (currentWorkspace.type === "team") {
+            collectionsType.value = {
+              type: "team-collections",
+              selectedTeam: currentWorkspace,
+            }
+          }
+        }
+      }
+    }
+
+    if (foundCollection) {
+      variableToFocus.value = { name: variableName, isSecret: !!isSecret }
+
+      await editProperties({
+        collection: foundCollection,
+        collectionIndex: collectionPath,
+      })
+
+      // Force to variables tab
+      collectionPropertiesModalActiveTab.value = "variables"
+    } else {
+      toast.error(t("collection.not_found"))
+    }
+  }
+)
 </script>

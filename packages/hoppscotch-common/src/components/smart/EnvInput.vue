@@ -122,6 +122,7 @@ const props = withDefaults(
     secret?: boolean
     autoCompleteEnv?: boolean
     autoCompleteEnvSource?: AggregateEnvironment[] | null
+    cursorAtEndOnMount?: boolean
   }>(),
   {
     modelValue: "",
@@ -139,6 +140,7 @@ const props = withDefaults(
     secret: false,
     autoCompleteEnv: false,
     autoCompleteEnvSource: null,
+    cursorAtEndOnMount: false,
   }
 )
 
@@ -659,6 +661,16 @@ const triggerTextSelection = () => {
   })
 }
 
+const triggerCursorAtEnd = () => {
+  nextTick(() => {
+    view.value?.focus()
+    const pos = view.value?.state.doc.length ?? 0
+    view.value?.dispatch({
+      selection: EditorSelection.create([EditorSelection.range(pos, pos)]),
+    })
+  })
+}
+
 /**
  * Focuses the input editor
  */
@@ -674,6 +686,7 @@ onMounted(() => {
   if (editor.value) {
     if (!view.value) initView(editor.value)
     if (props.selectTextOnMount) triggerTextSelection()
+    if (props.cursorAtEndOnMount) triggerCursorAtEnd()
     if (props.focus) view.value?.focus()
     platform.ui?.onCodemirrorInstanceMount?.(editor.value)
   }
@@ -683,6 +696,7 @@ watch(editor, () => {
   if (editor.value) {
     if (!view.value) initView(editor.value)
     if (props.selectTextOnMount) triggerTextSelection()
+    if (props.cursorAtEndOnMount) triggerCursorAtEnd()
   } else {
     view.value?.destroy()
     view.value = undefined

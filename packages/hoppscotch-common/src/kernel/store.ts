@@ -25,21 +25,29 @@ import { diag } from "./log"
 // a beforeEach guard in modules/router.ts, and survives full-page reloads
 // because Tauri sets it on the initial webview URL
 const orgParam = new URLSearchParams(window.location.search).get("org")
-const STORE_PATH = orgParam
+const HOST_SCOPED_STORE_PATH = orgParam
   ? `${orgParam.replace(/[^a-zA-Z0-9]/g, "_")}.hoppscotch.store`
   : `${window.location.host}.hoppscotch.store`
 
+// process-wide store file shared across orgs. holds machine-level state
+// (desktop settings, recent-instances list, update state) that should
+// not vary per organization. file name matches the path each shell's
+// own `kernel/store.ts` wrapper writes to and the path
+// `DesktopPersistenceService` uses on the Tauri side, so common
+// composables that bind here read/write the same physical file the
+// shell does.
+const UNIFIED_STORE_PATH = "hoppscotch-unified.store"
+
 diag("store", "--- COMMON store.ts module evaluated ---")
 diag("store", "orgParam:", orgParam ?? "(none)")
-diag("store", "STORE_PATH:", STORE_PATH)
+diag("store", "HOST_SCOPED_STORE_PATH:", HOST_SCOPED_STORE_PATH)
+diag("store", "UNIFIED_STORE_PATH:", UNIFIED_STORE_PATH)
 diag("store", "window.location.host:", window.location.host)
 diag("store", "window.location.href:", window.location.href)
 
-let cachedStorePath: string | undefined
-
-// These are only defined functions if in desktop mode.
-// For more context, take a look at how `hoppscotch-kernel/.../store/v1/` works
-// and how the `web` mode store kernel ignores the first file directory input.
+// Lazy-loaded Tauri APIs. Module-scoped so every scoped store shares
+// the init step and the loaded modules. Web mode never resolves these
+// because `isInitd` returns early outside desktop.
 let invoke:
   | (<T>(cmd: string, args?: Record<string, unknown>) => Promise<T>)
   | undefined
@@ -102,40 +110,56 @@ export const getLogsDir = async (): Promise<string> => {
   return await invoke<string>("get_logs_dir")
 }
 
-const getStorePath = async (): Promise<string> => {
-  if (cachedStorePath) {
-    diag("store", "getStorePath: returning cached:", cachedStorePath)
+// Factory for a Store wrapper bound to a specific store file. Each
+// instance keeps its own resolved-path cache so two scoped stores
+// never alias their absolute paths. Tauri-API loading and kernel
+// module access are module-scoped above, so the factory only
+// handles the per-store concerns.
+function createScopedStore(staticPath: string) {
+  let cachedStorePath: string | undefined
+
+  const getStorePath = async (): Promise<string> => {
+    if (cachedStorePath) {
+      diag(
+        "store",
+        `getStorePath(${staticPath}): returning cached:`,
+        cachedStorePath
+      )
+      return cachedStorePath
+    }
+
+    if (getKernelMode() === "desktop") {
+      await isInitd()
+      if (join) {
+        try {
+          const storeDir = await getStoreDir()
+          cachedStorePath = await join(storeDir, staticPath)
+          diag(
+            "store",
+            `getStorePath(${staticPath}): resolved desktop path:`,
+            cachedStorePath
+          )
+          return cachedStorePath
+        } catch (error) {
+          diag(
+            "store",
+            `getStorePath(${staticPath}): failed to get store dir:`,
+            String(error)
+          )
+          console.error("Failed to get store directory:", error)
+        }
+      }
+    }
+
+    cachedStorePath = staticPath
+    diag(
+      "store",
+      `getStorePath(${staticPath}): using fallback path:`,
+      cachedStorePath
+    )
     return cachedStorePath
   }
 
-  if (getKernelMode() === "desktop") {
-    await isInitd()
-    if (join) {
-      try {
-        const storeDir = await getStoreDir()
-        cachedStorePath = await join(storeDir, STORE_PATH)
-        diag(
-          "store",
-          "getStorePath: resolved desktop path:",
-          cachedStorePath,
-          "(STORE_PATH:",
-          STORE_PATH,
-          ")"
-        )
-        return cachedStorePath
-      } catch (error) {
-        diag("store", "getStorePath: failed to get store dir:", String(error))
-        console.error("Failed to get store directory:", error)
-      }
-    }
-  }
-
-  cachedStorePath = STORE_PATH
-  diag("store", "getStorePath: using fallback STORE_PATH:", cachedStorePath)
-  return cachedStorePath
-}
-
-export const Store = (() => {
   const module = () => getModule("store")
 
   return {
@@ -143,9 +167,9 @@ export const Store = (() => {
 
     init: async () => {
       const storePath = await getStorePath()
-      diag("store", "Store.init() called with path:", storePath)
+      diag("store", `Store.init(${staticPath}) called with path:`, storePath)
       const result = await module().init(storePath)
-      diag("store", "Store.init() completed for path:", storePath)
+      diag("store", `Store.init(${staticPath}) completed for path:`, storePath)
       return result
     },
 
@@ -156,7 +180,11 @@ export const Store = (() => {
       options?: StorageOptions
     ): Promise<E.Either<StoreError, void>> => {
       const storePath = await getStorePath()
-      diag("store", `Store.set(${namespace}, ${key}) on path:`, storePath)
+      diag(
+        "store",
+        `Store.set(${namespace}, ${key}) on ${staticPath}:`,
+        storePath
+      )
       return module().set(storePath, namespace, key, value, options)
     },
 
@@ -165,7 +193,11 @@ export const Store = (() => {
       key: string
     ): Promise<E.Either<StoreError, T | undefined>> => {
       const storePath = await getStorePath()
-      diag("store", `Store.get(${namespace}, ${key}) on path:`, storePath)
+      diag(
+        "store",
+        `Store.get(${namespace}, ${key}) on ${staticPath}:`,
+        storePath
+      )
       const result = await module().get<T>(storePath, namespace, key)
       if (E.isRight(result)) {
         const val = result.right
@@ -177,9 +209,16 @@ export const Store = (() => {
               : typeof val === "object"
                 ? `object(${Object.keys(val as Record<string, unknown>).length} keys)`
                 : typeof val
-        diag("store", `Store.get(${namespace}, ${key}) => Right(${shape})`)
+        diag(
+          "store",
+          `Store.get(${namespace}, ${key}) on ${staticPath} => Right(${shape})`
+        )
       } else {
-        diag("store", `Store.get(${namespace}, ${key}) => Left:`, result.left)
+        diag(
+          "store",
+          `Store.get(${namespace}, ${key}) on ${staticPath} => Left:`,
+          result.left
+        )
       }
       return result
     },
@@ -230,4 +269,16 @@ export const Store = (() => {
       return extendStore(module(), storePath, namespace)
     },
   } as const
-})()
+}
+
+// Org-scoped store. Holds per-org state (auth tokens, collections,
+// environments, settings that vary by organization). Default Store
+// for almost every consumer in common.
+export const Store = createScopedStore(HOST_SCOPED_STORE_PATH)
+
+// Process-wide store shared across orgs. Holds machine-level state
+// like desktop settings, the recent-instances list, and update state.
+// Use this for anything that should persist regardless of which org
+// the user is viewing, and for state that the desktop shell also
+// reads or writes through its own kernel/store wrapper.
+export const UnifiedStore = createScopedStore(UNIFIED_STORE_PATH)

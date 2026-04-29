@@ -785,6 +785,7 @@
                 // Update or add each item from source
                 sourceArray.forEach((item) => {
                   if (!item || !item.key) return
+                  if (item.key === "__proto__" || item.key === "constructor" || item.key === "prototype") return
                   const idx = currentParsed.queryParams.findIndex(
                     (p) => p.key === item.key
                   )
@@ -1053,6 +1054,7 @@
             // Update or add each item from source
             sourceArray.forEach((item) => {
               if (!item || !item.key) return
+              if (item.key === "__proto__" || item.key === "constructor" || item.key === "prototype") return
               // Remove existing (case-insensitive)
               globalThis.hopp.request.removeHeader(item.key)
               // Add new/updated

@@ -46,8 +46,14 @@ describe("resolveCollectionPath", () => {
       expect((result?.node as any).name).toBe("Coll 0")
     })
 
-    it("resolves nested folder by index path", () => {
+    it("resolves root collection 1 when targetID is '1'", () => {
       const result = resolveCollectionPath(mockCollections, "1")
+      expect(result?.path).toBe("1")
+      expect((result?.node as any).name).toBe("Coll 1")
+    })
+
+    it("resolves nested folder by full index path", () => {
+      const result = resolveCollectionPath(mockCollections, "0/1")
       expect(result?.path).toBe("0/1")
       expect((result?.node as any).name).toBe("Folder 0/1")
     })

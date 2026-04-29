@@ -20,14 +20,10 @@ export function resolveCollectionPath(
     // For Personal: path is index. For Team: path is ID.
     const isPersonal = "v" in coll
     const collID = isPersonal ? i.toString() : coll.id
-    const collRefID = isPersonal ? coll._ref_id : undefined
+    const collRefID = isPersonal ? coll._ref_id : coll.id
     const collPath = currentPath ? `${currentPath}/${collID}` : collID
 
-    if (
-      collID === targetID ||
-      (collRefID && collRefID === targetID) ||
-      collPath === targetID
-    ) {
+    if ((collRefID && collRefID === targetID) || collPath === targetID) {
       return { path: collPath, node: coll }
     }
 

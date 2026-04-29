@@ -3694,14 +3694,32 @@ defineActionHandler(
         foundCollection = teamMatch.node
         collectionPath = teamMatch.path
 
-        // Switch to team collections if not already there
-        if (collectionsType.value.type !== "team-collections") {
+        // Switch to team collections and workspace if not already there
+        const activeTeamID = teamCollectionService.activeTeamID
+        if (activeTeamID) {
           const currentWorkspace = workspaceService.currentWorkspace.value
+          const isCorrectTeamWorkspace =
+            currentWorkspace.type === "team" &&
+            currentWorkspace.teamID === activeTeamID
 
-          if (currentWorkspace.type === "team") {
-            collectionsType.value = {
-              type: "team-collections",
-              selectedTeam: currentWorkspace,
+          if (isCorrectTeamWorkspace) {
+            if (collectionsType.value.type !== "team-collections") {
+              collectionsType.value = {
+                type: "team-collections",
+                selectedTeam: currentWorkspace,
+              }
+            }
+          } else {
+            const teamWorkspace =
+              workspaceService.managedTeamListAdapter.teamList.value.find(
+                (t) => t.teamID === activeTeamID
+              )
+            if (teamWorkspace) {
+              workspaceService.changeWorkspace(teamWorkspace)
+              collectionsType.value = {
+                type: "team-collections",
+                selectedTeam: teamWorkspace,
+              }
             }
           }
         }

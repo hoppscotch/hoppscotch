@@ -78,18 +78,17 @@ const removeCurlOutputFlags = (curlCmd: string): string => {
         continue
       }
       const sMatch = rest.match(/^\s+-s(?=\s)/)
-      if (sMatch) { out.push(" "); i += sMatch[0].length; continue }
-
-      const SMatch = rest.match(/^\s+-S(?=\s)/)
-      if (SMatch) { out.push(" "); i += SMatch[0].length; continue }
-
-      const vMatch = rest.match(/^\s+-v(?=\s)/)
-      if (vMatch) { out.push(" "); i += vMatch[0].length; continue }
-
-      const iMatch = rest.match(/^\s+-i(?=\s)/)
-      if (iMatch) { out.push(" "); i += iMatch[0].length; continue }
-      const long = rest.match(/^\s+--(silent|show-error|verbose|include|progress-bar|no-progress-meter)(?=\s)/)
-      if (long) { out.push(" "); i += long[0].length; continue }
+      const combined = rest.match(/^\s+-([sSv]+)(?=\s|$)/)
+      if (combined && /^[sSv]+$/.test(combined[1])) {
+        out.push(" ")
+        i += combined[0].length
+        continue
+      }
+      if (/^\s+-s(?=\s|$)/.test(rest)) { out.push(" "); i += 4; continue }
+      if (/^\s+-S(?=\s|$)/.test(rest)) { out.push(" "); i += 4; continue }
+      if (/^\s+-v(?=\s|$)/.test(rest)) { out.push(" "); i += 4; continue }
+      if (/^\s+-i(?=\s|$)/.test(rest)) { out.push(" "); i += 4; continue }
+      const long = rest.match(/^\s+--(silent|show-error|verbose|include|progress-bar|no-progress-meter)(?=\s|$)/)
       if (rest[0] === "'" || rest[0] === '"') {
         inQuote = rest[0]
         out.push(rest[0])

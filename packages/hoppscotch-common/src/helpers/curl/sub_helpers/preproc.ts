@@ -71,8 +71,8 @@ const removeCurlOutputFlags = (curlCmd: string): string => {
 
     if (inQuote === null) {
       // Outside quotes: strip output flags only
-      const combined = rest.match(/^\s+-([sSv]+)(?=\s)/)
-      if (combined && /^[sSv]+$/.test(combined[1])) {
+      const combined = rest.match(/^\s+-([sSvi]+)(?=\s|$)/)
+      if (combined && /^[sSvi]+$/.test(combined[1])) {
         out.push(" ")
         i += combined[0].length
         continue

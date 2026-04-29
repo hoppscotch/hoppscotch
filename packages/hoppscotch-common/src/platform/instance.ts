@@ -18,7 +18,7 @@ export const VENDORED_INSTANCE_CONFIG: Instance = {
   kind: "vendored" as const,
   serverUrl: "app://hoppscotch",
   displayName: "Hoppscotch Desktop",
-  version: "26.3.0",
+  version: "26.3.1",
   lastUsed: new Date().toISOString(),
   bundleName: "Hoppscotch",
 }

@@ -202,6 +202,7 @@ const handleImportInActiveTab = () => {
       id: reqID,
       name: reqName,
     }
+    tabs.currentActiveTab.value.document.isDirty = true
   } catch (e) {
     console.error(e)
     toast.error(`${t("error.curl_invalid_format")}`)

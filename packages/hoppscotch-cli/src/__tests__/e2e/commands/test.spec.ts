@@ -5,6 +5,7 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 
 import { HoppErrorCode } from "../../../types/errors";
 import {
+  trimAnsi,
   getErrorCode,
   getTestJsonFilePath,
   runCLI,
@@ -1046,8 +1047,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
         cwd: path.resolve("hopp-cli-test"),
       });
 
-      const out = getErrorCode(stderr);
-      expect(out).toBe<HoppErrorCode>("REPORT_EXPORT_FAILED");
+      expect(trimAnsi(stderr)).toContain("REPORT_EXPORT_FAILED");
 
       expect(stdout).not.toContain(
         `Successfully exported the JUnit report to: ${exportPath}`

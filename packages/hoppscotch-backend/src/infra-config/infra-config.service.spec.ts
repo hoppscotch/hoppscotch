@@ -274,6 +274,121 @@ describe('InfraConfigService', () => {
     });
   });
 
+  describe('validateEnvValues', () => {
+    it.each([
+      InfraConfigEnum.JWT_SECRET,
+      InfraConfigEnum.SESSION_SECRET,
+      InfraConfigEnum.ALLOW_SECURE_COOKIES,
+    ])('should reject sensitive key %s with OPERATION_NOT_ALLOWED', (name) => {
+      const result = infraConfigService.validateEnvValues([
+        { name, value: 'any-value' },
+      ]);
+      expect(result).toEqualLeft(INFRA_CONFIG_OPERATION_NOT_ALLOWED);
+    });
+
+    it('should reject when a sensitive key is mixed with allowed keys', () => {
+      const result = infraConfigService.validateEnvValues([
+        {
+          name: InfraConfigEnum.GOOGLE_CLIENT_ID,
+          value: 'client-id',
+        },
+        {
+          name: InfraConfigEnum.JWT_SECRET,
+          value: 'attacker-controlled',
+        },
+      ]);
+      expect(result).toEqualLeft(INFRA_CONFIG_OPERATION_NOT_ALLOWED);
+    });
+
+    it('should accept valid values for allowed keys', () => {
+      const result = infraConfigService.validateEnvValues([
+        { name: InfraConfigEnum.GOOGLE_CLIENT_ID, value: 'client-id' },
+      ]);
+      expect(result).toEqualRight(true);
+    });
+  });
+
+  describe('update (sensitive keys)', () => {
+    it.each([
+      InfraConfigEnum.JWT_SECRET,
+      InfraConfigEnum.SESSION_SECRET,
+      InfraConfigEnum.ALLOW_SECURE_COOKIES,
+    ])(
+      'should refuse to update sensitive key %s and not hit the DB',
+      async (name) => {
+        const result = await infraConfigService.update(name, 'x');
+        expect(result).toEqualLeft(INFRA_CONFIG_OPERATION_NOT_ALLOWED);
+        expect(mockPrisma.infraConfig.update).not.toHaveBeenCalled();
+      },
+    );
+  });
+
+  describe('updateMany (sensitive keys)', () => {
+    it.each([
+      InfraConfigEnum.JWT_SECRET,
+      InfraConfigEnum.SESSION_SECRET,
+      InfraConfigEnum.ALLOW_SECURE_COOKIES,
+    ])(
+      'should refuse to updateMany when %s is included (checkDisallowedKeys=false)',
+      async (name) => {
+        // checkDisallowedKeys=false bypasses the EXCLUDE_FROM_UPDATE_CONFIGS
+        // guard; validateEnvValues must still reject the sensitive key.
+        const result = await infraConfigService.updateMany(
+          [{ name, value: 'x' }],
+          false,
+        );
+        expect(result).toEqualLeft(INFRA_CONFIG_OPERATION_NOT_ALLOWED);
+        expect(mockPrisma.$transaction).not.toHaveBeenCalled();
+      },
+    );
+  });
+
+  describe('updateOnboardingConfig (allowlist filtering)', () => {
+    it('should drop keys outside ONBOARDING_ALLOWED_KEYS before persisting', async () => {
+      // Pretend the DTO has extra disallowed keys (mimicking a bypass of the
+      // ValidationPipe, e.g. an internal caller). The service must still not
+      // persist keys like JWT_SECRET / SESSION_SECRET / ALLOW_SECURE_COOKIES.
+      const dto = {
+        [InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS]: 'GOOGLE',
+        [InfraConfigEnum.GOOGLE_CLIENT_ID]: 'gid',
+        [InfraConfigEnum.GOOGLE_CLIENT_SECRET]: 'gsecret',
+        [InfraConfigEnum.GOOGLE_CALLBACK_URL]: 'https://example.com/cb',
+        [InfraConfigEnum.GOOGLE_SCOPE]: 'email',
+        [InfraConfigEnum.JWT_SECRET]: 'ATTACKER',
+        [InfraConfigEnum.SESSION_SECRET]: 'ATTACKER',
+        [InfraConfigEnum.ALLOW_SECURE_COOKIES]: 'true',
+      } as any;
+
+      const updateManySpy = jest
+        .spyOn(infraConfigService, 'updateMany')
+        .mockResolvedValueOnce(E.right([] as any));
+
+      await infraConfigService.updateOnboardingConfig(dto);
+
+      expect(updateManySpy).toHaveBeenCalledTimes(1);
+      const [persistedEntries] = updateManySpy.mock.calls[0];
+      const persistedNames = persistedEntries.map((e) => e.name);
+
+      // Disallowed / sensitive keys must be dropped
+      expect(persistedNames).not.toContain(InfraConfigEnum.JWT_SECRET);
+      expect(persistedNames).not.toContain(InfraConfigEnum.SESSION_SECRET);
+      expect(persistedNames).not.toContain(
+        InfraConfigEnum.ALLOW_SECURE_COOKIES,
+      );
+      // Allowed keys plus the onboarding bookkeeping keys should remain
+      expect(persistedNames).toEqual(
+        expect.arrayContaining([
+          InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
+          InfraConfigEnum.GOOGLE_CLIENT_ID,
+          InfraConfigEnum.ONBOARDING_COMPLETED,
+          InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN,
+        ]),
+      );
+
+      updateManySpy.mockRestore();
+    });
+  });
+
   describe('isUserHistoryEnabled', () => {
     it('should return true if the user history is enabled', async () => {
       const response = {

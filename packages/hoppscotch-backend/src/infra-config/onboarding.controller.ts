@@ -60,7 +60,12 @@ export class OnboardingController {
     description: 'Onboarding configuration updated successfully',
     type: SaveOnboardingConfigResponse,
   })
-  async updateOnboardingConfig(@Body() dto: SaveOnboardingConfigRequest) {
+  async updateOnboardingConfig(
+    // Unknown properties are rejected by the global ValidationPipe
+    // (`whitelist: true` + `forbidNonWhitelisted: true` in `main.ts`), which
+    // blocks the mass-assignment vector described in GHSA-j542-4rch-8hwf.
+    @Body() dto: SaveOnboardingConfigRequest,
+  ) {
     const onboardingStatus =
       await this.infraConfigService.getOnboardingStatus();
 

@@ -76,6 +76,13 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
+      // Strip request properties that are not declared on the DTO class and
+      // reject requests that include any such unknown properties with a 400.
+      // This prevents mass-assignment style attacks where extra keys in the
+      // request body bleed through to service layers that iterate the DTO
+      // (e.g. onboarding config) -- see GHSA-j542-4rch-8hwf.
+      whitelist: true,
+      forbidNonWhitelisted: true,
     }),
   );
 

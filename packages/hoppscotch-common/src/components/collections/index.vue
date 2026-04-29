@@ -1051,6 +1051,13 @@ const addFolder = (payload: {
   path: string
   folder: HoppCollection | TeamCollection
 }) => {
+  if (
+    collectionsType.value.type === "team-collections" &&
+    !hasTeamWriteAccess.value
+  ) {
+    return
+  }
+
   const { path, folder } = payload
   editingFolder.value = folder
   editingFolderPath.value = path

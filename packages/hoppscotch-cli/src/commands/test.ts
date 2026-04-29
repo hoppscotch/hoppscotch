@@ -45,18 +45,24 @@ export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
       ? await parseEnvsData(options as TestCmdEnvironmentOptions)
       : <HoppEnvs>{ global: [], selected: [] };
 
-    let parsedIterationData: unknown[] | null = null;
+    let parsedIterationData: Record<string, unknown>[] | null = null;
     let transformedIterationData: IterationDataItem[][] | undefined;
 
     const collections = await parseCollectionData(pathOrId, options);
 
+    // Handle CSV-based iteration data:
+    // - Validates file existence and extension
+    // - Parses CSV into structured data
+    // - Filters out empty or whitespace-only rows
+    // - Ensures at least one valid row is present
+    // - Transforms rows into iteration data format for execution
     if (iterationData) {
-      // Check file existence
+      // Ensure the iteration data file exists before processing
       if (!fs.existsSync(iterationData)) {
         throw error({ code: "FILE_NOT_FOUND", path: iterationData });
       }
 
-      // Check the file extension
+      // Allow only CSV files for iteration data
       if (path.extname(iterationData) !== ".csv") {
         throw error({
           code: "INVALID_DATA_FILE_TYPE",
@@ -64,19 +70,67 @@ export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
         });
       }
 
+      // Read CSV content and parse it into objects using header keys
       const csvData = fs.readFileSync(iterationData, "utf8");
-      parsedIterationData = Papa.parse(csvData, { header: true }).data;
+      if (!csvData.trim()) {
+        throw error({
+          code: "INVALID_ITERATION_DATA",
+          data: "CSV file is empty",
+        });
+      }
+
+      const parsed = Papa.parse(csvData, { header: true });
+      const criticalErrors = parsed.errors?.filter(
+        (e) => e.code !== "TooFewFields"
+      );
+
+      if (criticalErrors && criticalErrors.length > 0) {
+        throw error({
+          code: "INVALID_ITERATION_DATA",
+          data: criticalErrors[0]?.message ?? "CSV parsing failed",
+        });
+      }
+      
+      // Reject if the CSV file contains no rows
+      if (!parsed.data || parsed.data.length === 0) {
+        throw error({
+          code: "INVALID_ITERATION_DATA",
+          data: "CSV file is empty",
+        });
+      }
+
+      // Remove rows that contain only null, undefined, or whitespace values
+      parsedIterationData = (parsed.data as Record<string, unknown>[]).filter(
+        (row) =>
+          Object.values(row).some(
+            (val) =>
+              val !== null && val !== undefined && String(val).trim() !== ""
+          )
+      );
+
+      // Reject if all rows are empty after filtering
+      if (parsedIterationData.length === 0) {
+        throw error({
+          code: "INVALID_ITERATION_DATA",
+          data: "CSV contains only empty rows",
+        });
+      }
 
       // Transform data into the desired format
       transformedIterationData = parsedIterationData
         .map((item) => {
-          const iterationDataItem = item as Record<string, unknown>;
+          const iterationDataItem = item;
           const keys = Object.keys(iterationDataItem);
 
           return (
             keys
-              // Ignore keys with empty string values
-              .filter((key) => iterationDataItem[key] !== "")
+              // Exclude keys with empty or whitespace-only values
+              .filter((key) => {
+                const val = iterationDataItem[key];
+                return (
+                  val !== null && val !== undefined && String(val).trim() !== ""
+                );
+              })
               .map(
                 (key) =>
                   <IterationDataItem>{

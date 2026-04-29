@@ -11,6 +11,7 @@ type HoppErrorData = {
 };
 
 type HoppErrors = {
+  INVALID_ITERATION_DATA: HoppErrorData;
   UNKNOWN_ERROR: HoppErrorData;
   FILE_NOT_FOUND: HoppErrorPath;
   UNKNOWN_COMMAND: HoppErrorCmd;

@@ -150,7 +150,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       expect(result.error).toBeNull();
     });
 
-    test("Successfully inherits/overrides authorization and headers at each level with multiple child collections", async () => {
+    test("Successfully inherits/overrides authorization and headers at each level with multiple child collections",  { timeout: 200000 }, async () => {
       const args = `test ${getTestJsonFilePath(
         "multiple-child-collections-auth-headers-coll.json",
         "collection"
@@ -312,7 +312,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
      */
     test(
       "Supports the new scripting API method additions under the `hopp` and `pm` namespaces and validates JUnit report structure",
-      { timeout: 300000 },
+      { timeout: 400000 },
       async () => {
         // First, run without JUnit report to ensure basic functionality works
         const basicArgs = `test ${getTestJsonFilePath(

@@ -80,13 +80,17 @@ export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
       }
 
       const parsed = Papa.parse(csvData, { header: true });
-      if (parsed.errors && parsed.errors.some((e) => e.code !== "TooFewFields")) {
+      const criticalErrors = parsed.errors?.filter(
+        (e) => e.code !== "TooFewFields"
+      );
+
+      if (criticalErrors && criticalErrors.length > 0) {
         throw error({
           code: "INVALID_ITERATION_DATA",
-          data: parsed.errors[0]?.message ?? "CSV parsing failed",
+          data: criticalErrors[0]?.message ?? "CSV parsing failed",
         });
       }
-
+      
       // Reject if the CSV file contains no rows
       if (!parsed.data || parsed.data.length === 0) {
         throw error({

@@ -58,7 +58,14 @@ const normalizeEnvironmentVariable = (variable: HoppEnvPair): HoppEnvPair => {
     "initialValue" in variable &&
     "currentValue" in variable
   ) {
-    return variable;
+    // If currentValue is null/undefined/empty, fall back to initialValue
+    // Use || for empty string fallback (needed for workspace loading)
+    const currentValue = variable.currentValue || variable.initialValue;
+
+    return {
+      ...variable,
+      currentValue,
+    };
   }
 
   const envPair = variable as Partial<HoppEnvPair> & {
@@ -104,32 +111,32 @@ const transformAuth = (auth: HoppRESTAuth): HoppRESTAuth => {
     const oldGrantTypeInfo = auth.grantTypeInfo;
     let newGrantTypeInfo = oldGrantTypeInfo;
 
-    // Add clientAuthentication for CLIENT_CREDENTIALS
+    // Add clientAuthentication for CLIENT_CREDENTIALS (preserve existing value if present)
     if (oldGrantTypeInfo.grantType === "CLIENT_CREDENTIALS") {
       newGrantTypeInfo = {
         ...oldGrantTypeInfo,
-        clientAuthentication: "IN_BODY",
-        tokenRequestParams: [],
-        refreshRequestParams: [],
+        clientAuthentication: oldGrantTypeInfo.clientAuthentication ?? "IN_BODY",
+        tokenRequestParams: oldGrantTypeInfo.tokenRequestParams ?? [],
+        refreshRequestParams: oldGrantTypeInfo.refreshRequestParams ?? [],
       };
     } else if (oldGrantTypeInfo.grantType === "AUTHORIZATION_CODE") {
       newGrantTypeInfo = {
         ...oldGrantTypeInfo,
-        authRequestParams: [],
-        tokenRequestParams: [],
-        refreshRequestParams: [],
+        authRequestParams: oldGrantTypeInfo.authRequestParams ?? [],
+        tokenRequestParams: oldGrantTypeInfo.tokenRequestParams ?? [],
+        refreshRequestParams: oldGrantTypeInfo.refreshRequestParams ?? [],
       };
     } else if (oldGrantTypeInfo.grantType === "PASSWORD") {
       newGrantTypeInfo = {
         ...oldGrantTypeInfo,
-        tokenRequestParams: [],
-        refreshRequestParams: [],
+        tokenRequestParams: oldGrantTypeInfo.tokenRequestParams ?? [],
+        refreshRequestParams: oldGrantTypeInfo.refreshRequestParams ?? [],
       };
     } else if (oldGrantTypeInfo.grantType === "IMPLICIT") {
       newGrantTypeInfo = {
         ...oldGrantTypeInfo,
-        authRequestParams: [],
-        refreshRequestParams: [],
+        authRequestParams: oldGrantTypeInfo.authRequestParams ?? [],
+        refreshRequestParams: oldGrantTypeInfo.refreshRequestParams ?? [],
       };
     }
 

@@ -865,6 +865,7 @@ const displayModalEditProperties = (show: boolean) => {
   if (!show) {
     resetSelectedData()
     variableToFocus.value = null
+    collectionPropertiesModalActiveTab.value = "headers"
   }
 }
 

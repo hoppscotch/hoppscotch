@@ -2375,6 +2375,127 @@
       getAll: (domain) => inputs.cookieGetAll(domain),
       delete: (domain, name) => inputs.cookieDelete(domain, name),
       clear: (domain) => inputs.cookieClear(domain),
+      /**
+       * hopp.cookies.jar() — Postman-compatible cookie jar API
+       * Returns a jar object backed by hopp.cookies (domain-based).
+       * URL inputs are normalized to hostname via URL parsing.
+       * Callbacks are Node.js-style (err, result) => void — called synchronously.
+       * Platform guard: warns + returns no-op jar on Web/CLI where cookies are unsupported.
+       */
+      jar: () => {
+        // Helper: extract hostname from a full URL string
+        const extractDomain = (url) => {
+          try {
+            return new URL(url).hostname
+          } catch (_) {
+            return url
+          }
+        }
+
+        // Platform guard — cookies only supported on Desktop App
+        const cookiesAvailable = (() => {
+          try {
+            inputs.cookieGet("__probe__", "__probe__")
+            return true
+          } catch (e) {
+            return !String(e).includes("not supported in the current platform")
+          }
+        })()
+
+        if (!cookiesAvailable) {
+          console.warn(
+            "[hopp.cookies.jar] Cookie jar is not supported on this platform. " +
+            "Cookie operations are exclusive to the Desktop App."
+          )
+          const noop = (_a, _b, cb) => { if (typeof cb === "function") cb(null) }
+          return { set: noop, get: noop, getAll: noop, unset: noop, clear: noop }
+        }
+
+        return {
+          /**
+           * jar.set(url, nameOrCookieObj, valueOrCallback, [callback])
+           * Supports both:
+           *   jar.set(url, "name", "value", cb)
+           *   jar.set(url, { name, value, ... }, cb)
+           */
+          set: (url, nameOrCookie, valueOrCallback, maybeCallback) => {
+            const domain = extractDomain(url)
+            let cookieObj
+            let cb
+
+            if (typeof nameOrCookie === "string") {
+              cookieObj = { name: nameOrCookie, value: valueOrCallback, domain, path: "/" }
+              cb = maybeCallback
+            } else {
+              cookieObj = { domain, path: "/", ...nameOrCookie }
+              cb = valueOrCallback
+            }
+
+            try {
+              inputs.cookieSet(domain, cookieObj)
+              if (typeof cb === "function") cb(null)
+            } catch (err) {
+              if (typeof cb === "function") cb(err)
+            }
+          },
+
+          /**
+           * jar.get(url, name, callback)
+           * Returns the cookie VALUE string (Postman compat), not the full cookie object.
+           */
+          get: (url, name, cb) => {
+            const domain = extractDomain(url)
+            try {
+              const cookie = inputs.cookieGet(domain, name)
+              if (typeof cb === "function") cb(null, cookie ? cookie.value : undefined)
+            } catch (err) {
+              if (typeof cb === "function") cb(err, undefined)
+            }
+          },
+
+          /**
+           * jar.getAll(url, callback)
+           * Returns all Cookie objects for the domain.
+           */
+          getAll: (url, cb) => {
+            const domain = extractDomain(url)
+            try {
+              const cookies = inputs.cookieGetAll(domain)
+              if (typeof cb === "function") cb(null, cookies || [])
+            } catch (err) {
+              if (typeof cb === "function") cb(err, [])
+            }
+          },
+
+          /**
+           * jar.unset(url, name, callback)
+           * Deletes a single named cookie for the URL's domain.
+           */
+          unset: (url, name, cb) => {
+            const domain = extractDomain(url)
+            try {
+              inputs.cookieDelete(domain, name)
+              if (typeof cb === "function") cb(null)
+            } catch (err) {
+              if (typeof cb === "function") cb(err)
+            }
+          },
+
+          /**
+           * jar.clear(url, callback)
+           * Clears ALL cookies for the URL's domain.
+           */
+          clear: (url, cb) => {
+            const domain = extractDomain(url)
+            try {
+              inputs.cookieClear(domain)
+              if (typeof cb === "function") cb(null)
+            } catch (err) {
+              if (typeof cb === "function") cb(err)
+            }
+          },
+        }
+      },
     },
     // Expose fetch as hopp.fetch() - save reference before we override global
     fetch: typeof fetch !== "undefined" ? fetch : undefined,
@@ -3750,20 +3871,61 @@
       },
     },
 
+    // Cookie Jar — Postman-compatible pm.cookies API (PM004)
+    // pm.cookies delegates to hopp.cookies (domain-based) under the hood.
+    // pm.cookies.jar() mirrors the Postman CookieJar interface with async callbacks.
     cookies: {
-      get: (_name) => {
-        throw new Error(
-          "pm.cookies.get() needs domain information - use hopp.cookies instead"
-        )
+      /**
+       * pm.cookies.get(name) — get cookie value for current response URL
+       */
+      get: (name) => {
+        try {
+          const domain = (() => { try { return new URL(globalThis.hopp.request.url).hostname } catch (_) { return globalThis.hopp.request.url } })()
+          const cookie = inputs.cookieGet(domain, name)
+          return cookie ? cookie.value : undefined
+        } catch (_) {
+          return undefined
+        }
       },
-      set: (_name, _value, _options) => {
-        throw new Error(
-          "pm.cookies.set() needs domain information - use hopp.cookies instead"
-        )
+      /**
+       * pm.cookies.has(name) — check if cookie exists for current response URL
+       */
+      has: (name) => {
+        try {
+          const domain = (() => { try { return new URL(globalThis.hopp.request.url).hostname } catch (_) { return globalThis.hopp.request.url } })()
+          return inputs.cookieHas(domain, name)
+        } catch (_) {
+          return false
+        }
       },
-      jar: () => {
-        throw new Error("pm.cookies.jar() not yet implemented")
+      /**
+       * pm.cookies.getAll() — get all cookies for current response URL
+       */
+      getAll: () => {
+        try {
+          const domain = (() => { try { return new URL(globalThis.hopp.request.url).hostname } catch (_) { return globalThis.hopp.request.url } })()
+          return inputs.cookieGetAll(domain) || []
+        } catch (_) {
+          return []
+        }
       },
+      /**
+       * pm.cookies.toObject() — all cookies as key:value object for current response URL
+       */
+      toObject: () => {
+        try {
+          const domain = (() => { try { return new URL(globalThis.hopp.request.url).hostname } catch (_) { return globalThis.hopp.request.url } })()
+          const cookies = inputs.cookieGetAll(domain) || []
+          return cookies.reduce((obj, c) => { obj[c.name] = c.value; return obj }, {})
+        } catch (_) {
+          return {}
+        }
+      },
+      /**
+       * pm.cookies.jar() — returns a Postman-compatible CookieJar object.
+       * Delegates to hopp.cookies.jar() which is the shared implementation.
+       */
+      jar: () => globalThis.hopp.cookies.jar(),
     },
 
     test: Object.assign(

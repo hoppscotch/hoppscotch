@@ -25,12 +25,16 @@ export function isValidRedirectUri(uri?: string): boolean {
   try {
     const url = new URL(uri);
 
-    const ALLOWED_PROTOCOLS = ['http:', 'https:'];
+    const LOOPBACK_HOSTS = ['localhost', '127.0.0.1', '[::1]'];
 
-    // ❗ block credential injection
+    // Block credentials
     if (url.username || url.password) return false;
 
-    return ALLOWED_PROTOCOLS.includes(url.protocol);
+    // Only allow loopback hosts
+    if (!LOOPBACK_HOSTS.includes(url.hostname)) return false;
+
+    // Only allow http (desktop apps don't use TLS on loopback)
+    return url.protocol === 'http:';
   } catch {
     return false;
   }

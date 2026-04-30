@@ -59,6 +59,7 @@
       @duplicate-response="duplicateResponse"
       @edit-properties="editProperties"
       @create-mock-server="createMockServer"
+      @share-as-mcp="shareAsMcp"
       @export-data="exportData"
       @remove-collection="removeCollection"
       @remove-folder="removeFolder"
@@ -111,6 +112,7 @@
       @open-documentation="openDocumentation"
       @open-request-documentation="openRequestDocumentation"
       @create-mock-server="createTeamMockServer"
+      @share-as-mcp="shareTeamAsMcp"
       @export-data="exportData"
       @expand-team-collection="expandTeamCollection"
       @remove-collection="removeCollection"
@@ -287,6 +289,14 @@
     />
 
     <MockServerConfigureMockServerModal />
+
+    <CollectionsMcpShare
+      v-if="mcpShareModal.show"
+      :show="mcpShareModal.show"
+      :collection-i-d="mcpShareModal.collectionID"
+      :workspace-type="mcpShareModal.workspaceType"
+      @hide-modal="mcpShareModal.show = false"
+    />
   </div>
 </template>
 
@@ -1214,6 +1224,43 @@ const createTeamMockServer = (payload: {
       collectionName: payload.collection.title,
     })
   })
+}
+
+// MCP Share modal state
+const mcpShareModal = ref<{
+  show: boolean
+  collectionID: string
+  workspaceType: "USER" | "TEAM"
+}>({
+  show: false,
+  collectionID: "",
+  workspaceType: "USER",
+})
+
+const shareAsMcp = (payload: {
+  collectionIndex: string
+  collection: HoppCollection
+}) => {
+  let collectionID = payload.collection.id ?? payload.collection._ref_id
+  if (payload.collectionIndex.includes("/")) {
+    const rootIndex = payload.collectionIndex.split("/")[0]
+    const rootCollection = myCollections.value[parseInt(rootIndex)]
+    if (rootCollection) {
+      collectionID = rootCollection.id ?? rootCollection._ref_id
+    }
+  }
+  mcpShareModal.value = { show: true, collectionID, workspaceType: "USER" }
+}
+
+const shareTeamAsMcp = (payload: {
+  collectionID: string
+  collection: TeamCollection
+}) => {
+  mcpShareModal.value = {
+    show: true,
+    collectionID: payload.collectionID,
+    workspaceType: "TEAM",
+  }
 }
 
 const editFolder = (payload: {

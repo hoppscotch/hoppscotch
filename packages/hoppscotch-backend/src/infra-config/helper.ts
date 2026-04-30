@@ -16,6 +16,29 @@ type DefaultInfraConfig = {
   isEncrypted: boolean;
 };
 
+// Singleton PrismaService instance for infra config operations
+let sharedPrismaInstance: PrismaService | null = null;
+
+/**
+ * Get or create a shared PrismaService instance for infra config operations
+ */
+function getSharedPrismaInstance(): PrismaService {
+  if (!sharedPrismaInstance) {
+    sharedPrismaInstance = new PrismaService();
+  }
+  return sharedPrismaInstance;
+}
+
+/**
+ * Disconnect the shared Prisma instance during application shutdown
+ */
+export async function disconnectSharedPrismaInstance(): Promise<void> {
+  if (sharedPrismaInstance) {
+    await sharedPrismaInstance.onModuleDestroy();
+    sharedPrismaInstance = null;
+  }
+}
+
 /**
  * Returns a mapping of authentication providers to their required configuration keys based on the current environment configuration.
  */
@@ -48,8 +71,6 @@ export function getAuthProviderRequiredKeys(
             InfraConfigEnum.MAILER_SMTP_HOST,
             InfraConfigEnum.MAILER_SMTP_PORT,
             InfraConfigEnum.MAILER_SMTP_SECURE,
-            InfraConfigEnum.MAILER_SMTP_USER,
-            InfraConfigEnum.MAILER_SMTP_PASSWORD,
             InfraConfigEnum.MAILER_TLS_REJECT_UNAUTHORIZED,
             InfraConfigEnum.MAILER_ADDRESS_FROM,
           ]
@@ -67,8 +88,8 @@ export function getAuthProviderRequiredKeys(
  * (ConfigModule will set the environment variables in the process)
  */
 export async function loadInfraConfiguration() {
+  const prisma = getSharedPrismaInstance();
   try {
-    const prisma = new PrismaService();
     const infraConfigs = await prisma.infraConfig.findMany();
 
     const environmentObject: Record<string, string> = {};
@@ -97,7 +118,7 @@ export async function loadInfraConfiguration() {
  * @returns Array of default infra configs
  */
 export async function getDefaultInfraConfigs(): Promise<DefaultInfraConfig[]> {
-  const prisma = new PrismaService();
+  const prisma = getSharedPrismaInstance();
 
   // Prepare rows for 'infra_config' table with default values (from .env) for each 'name'
   const onboardingCompleteStatus = await isOnboardingCompleted();
@@ -218,6 +239,11 @@ export async function getDefaultInfraConfigs(): Promise<DefaultInfraConfig[]> {
       isEncrypted: false,
     },
     {
+      name: InfraConfigEnum.MAILER_SMTP_IGNORE_TLS,
+      value: 'false',
+      isEncrypted: false,
+    },
+    {
       name: InfraConfigEnum.GOOGLE_CLIENT_ID,
       value: null,
       isEncrypted: true,
@@ -324,7 +350,7 @@ export async function getDefaultInfraConfigs(): Promise<DefaultInfraConfig[]> {
 export async function getMissingInfraConfigEntries(
   infraConfigDefaultObjs: DefaultInfraConfig[],
 ) {
-  const prisma = new PrismaService();
+  const prisma = getSharedPrismaInstance();
   const dbInfraConfigs = await prisma.infraConfig.findMany();
 
   const missingEntries = infraConfigDefaultObjs.filter(
@@ -342,7 +368,7 @@ export async function getMissingInfraConfigEntries(
 export async function getEncryptionRequiredInfraConfigEntries(
   infraConfigDefaultObjs: DefaultInfraConfig[],
 ) {
-  const prisma = new PrismaService();
+  const prisma = getSharedPrismaInstance();
   const dbInfraConfigs = await prisma.infraConfig.findMany();
 
   const requiredEncryption = dbInfraConfigs.filter((dbConfig) => {
@@ -400,7 +426,7 @@ export function stopApp() {
  * @returns Array of configured SSO providers
  */
 export async function getConfiguredSSOProvidersFromInfraConfig() {
-  const prisma = new PrismaService();
+  const prisma = getSharedPrismaInstance();
   const env = await loadInfraConfiguration();
   const providerConfigKeys = getAuthProviderRequiredKeys(env);
 
@@ -437,7 +463,7 @@ export async function getConfiguredSSOProvidersFromInfraConfig() {
  * @returns boolean
  */
 export async function isOnboardingCompleted(): Promise<boolean> {
-  const prisma = new PrismaService();
+  const prisma = getSharedPrismaInstance();
   const allowedProviders = await prisma.infraConfig.findUnique({
     where: { name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS },
     select: { value: true },

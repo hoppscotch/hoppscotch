@@ -104,10 +104,12 @@ const generateExampleArrayFromOpenAPIV2ItemsObject = (
   )
 }
 
-const generateRequestBodyExampleFromOpenAPIV2BodySchema = (
+export const generateRequestBodyExampleFromOpenAPIV2BodySchema = (
   schema: OpenAPIV2.SchemaObject
 ): RequestBodyExample => {
-  if (schema.example) return schema.example as RequestBodyExample
+  if (!schema) return ""
+
+  if (schema.example !== undefined) return schema.example as RequestBodyExample
 
   const primitiveTypeExample = pipe(
     schema,

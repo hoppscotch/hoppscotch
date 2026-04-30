@@ -212,7 +212,7 @@ function isJsonResponse(example: ResponseExample): boolean {
   try {
     JSON.parse(example.body || "")
     return true
-  } catch (e) {
+  } catch (_e) {
     return false
   }
 }
@@ -226,7 +226,7 @@ function formatJSON(jsonString: string): string {
   try {
     const parsed = JSON.parse(jsonString || "{}")
     return JSON.stringify(parsed, null, 2)
-  } catch (e) {
+  } catch (_e) {
     return jsonString || ""
   }
 }

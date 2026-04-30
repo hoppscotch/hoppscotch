@@ -341,22 +341,14 @@ export function removeDuplicateGraphqlHistoryEntry(id: string) {
 
 // Listen to completed responses to add to history
 executedResponses$.subscribe((res) => {
+  // Spread to auto-capture any future fields, but omit _ref_id and id
+  // since history entries are snapshots and shouldn't carry collection/firestore references
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { _ref_id, id, ...request } = res.req
+
   addRESTHistoryEntry(
     makeRESTHistoryEntry({
-      request: {
-        auth: res.req.auth,
-        body: res.req.body,
-        endpoint: res.req.endpoint,
-        headers: res.req.headers,
-        method: res.req.method,
-        name: res.req.name,
-        params: res.req.params,
-        preRequestScript: res.req.preRequestScript,
-        testScript: res.req.testScript,
-        requestVariables: res.req.requestVariables,
-        v: res.req.v,
-        responses: res.req.responses,
-      },
+      request,
       responseMeta: {
         duration: res.meta.responseDuration,
         statusCode: res.statusCode,

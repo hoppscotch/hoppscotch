@@ -14,6 +14,7 @@ import {
   USER_ENVIRONMENT_INVALID_ENVIRONMENT_NAME,
 } from '../errors';
 import { stringToJson } from '../utils';
+import { User } from '../user/user.model';
 
 @Injectable()
 export class UserEnvironmentsService {
@@ -128,14 +129,20 @@ export class UserEnvironmentsService {
    * @param id environment id
    * @param name environments name
    * @param variables environment variables
+   * @param user User object for authorization
    * @returns an Either of `UserEnvironment` or error
    */
-  async updateUserEnvironment(id: string, name: string, variables: string) {
+  async updateUserEnvironment(
+    id: string,
+    name: string,
+    variables: string,
+    user: User,
+  ) {
     const envVariables = stringToJson(variables);
     if (E.isLeft(envVariables)) return E.left(envVariables.left);
     try {
       const updatedEnvironment = await this.prisma.userEnvironment.update({
-        where: { id: id },
+        where: { id: id, userUid: user.uid },
         data: {
           name: name,
           variables: envVariables.right,
@@ -179,6 +186,7 @@ export class UserEnvironmentsService {
       const deletedEnvironment = await this.prisma.userEnvironment.delete({
         where: {
           id: id,
+          userUid: uid,
         },
       });
 
@@ -238,7 +246,7 @@ export class UserEnvironmentsService {
     if (env.id === id) {
       try {
         const updatedEnvironment = await this.prisma.userEnvironment.update({
-          where: { id: id },
+          where: { id: id, userUid: uid },
           data: {
             variables: [],
           },

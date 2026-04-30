@@ -45,7 +45,7 @@
           ],
           "headers": [],
           "preRequestScript": "",
-          "testScript": "export {};\npw.test('Correctly inherits collection variables from the parent collection and folder', () =>\n{\n\n    pw.expect([\n        \"collection-var-1-initial-value\",\n        \"collection-var-1-current-value\"\n    ]).toInclude(pw.response.body.args[\"collection-var-1\"])\n\n    pw.expect([\n        \"collection-var-2-initial-value\",\n        \"collection-var-2-current-value\"\n    ]).toInclude(pw.response.body.args[\"collection-var-2\"])\n\n    pw.expect([\n        \"folder-variable-1-initial-value\",\n        \"folder-variable-1-current-value\"\n    ]).toInclude(pw.response.body.args[\"folder-var-1\"])\n\n    pw.expect([\n        \"folder-variable-2-initial-value\",\n        \"folder-variable-2-current-value\"\n    ]).toInclude(pw.response.body.args[\"folder-var-2\"])\n\n});",
+          "testScript": "pw.test('Correctly inherits collection variables from the parent collection and folder', () => {\n    pw.expect([\n        \"collection-var-1-initial-value\",\n        \"collection-var-1-current-value\"\n    ]).toInclude(pw.response.body.args[\"collection-var-1\"]);\n\n    pw.expect([\n        \"collection-var-2-initial-value\",\n        \"collection-var-2-current-value\"\n    ]).toInclude(pw.response.body.args[\"collection-var-2\"]);\n\n    pw.expect([\n        \"folder-variable-1-initial-value\",\n        \"folder-variable-1-current-value\"\n    ]).toInclude(pw.response.body.args[\"folder-var-1\"]);\n\n    pw.expect([\n        \"folder-variable-2-initial-value\",\n        \"folder-variable-2-current-value\"\n    ]).toInclude(pw.response.body.args[\"folder-var-2\"]);\n});",
           "auth": {
             "authType": "inherit",
             "authActive": true
@@ -77,9 +77,233 @@
           "initialValue": "folder-variable-2-initial-value"
         }
       ]
+    },
+    {
+      "id": "empty_folder_test",
+      "_ref_id": "coll_empty_folder",
+      "v": 10,
+      "name": "folder-without-variables",
+      "folders": [
+        {
+          "id": "nested_folder_test",
+          "_ref_id": "coll_nested_folder",
+          "v": 10,
+          "name": "nested-folder",
+          "folders": [],
+          "requests": [
+            {
+              "v": "15",
+              "id": "nested_request",
+              "name": "deeply-nested-request",
+              "method": "GET",
+              "endpoint": "https://echo.hoppscotch.io",
+              "params": [
+                {
+                  "key": "nested-var-1",
+                  "value": "<<collection-variable-1>>",
+                  "active": true,
+                  "description": ""
+                },
+                {
+                  "key": "nested-var-2",
+                  "value": "<<collection-variable-2>>",
+                  "active": true,
+                  "description": ""
+                }
+              ],
+              "headers": [],
+              "preRequestScript": "",
+              "testScript": "pw.test('Nested folder should inherit variables from root collection through parent', () => {\n    pw.expect([\n        \"collection-var-1-initial-value\",\n        \"collection-var-1-current-value\"\n    ]).toInclude(pw.response.body.args[\"nested-var-1\"]);\n\n    pw.expect([\n        \"collection-var-2-initial-value\",\n        \"collection-var-2-current-value\"\n    ]).toInclude(pw.response.body.args[\"nested-var-2\"]);\n});",
+              "auth": {
+                "authType": "inherit",
+                "authActive": true
+              },
+              "body": {
+                "contentType": null,
+                "body": null
+              },
+              "requestVariables": [],
+              "responses": {}
+            }
+          ],
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "headers": [],
+          "variables": []
+        }
+      ],
+      "requests": [
+        {
+          "v": "15",
+          "id": "request_in_empty_folder",
+          "name": "request-inheriting-collection-vars",
+          "method": "GET",
+          "endpoint": "https://echo.hoppscotch.io",
+          "params": [
+            {
+              "key": "inherited-var-1",
+              "value": "<<collection-variable-1>>",
+              "active": true,
+              "description": ""
+            },
+            {
+              "key": "inherited-var-2",
+              "value": "<<collection-variable-2>>",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "pw.test('Folder without variables should inherit from parent collection', () => {\n    pw.expect([\n        \"collection-var-1-initial-value\",\n        \"collection-var-1-current-value\"\n    ]).toInclude(pw.response.body.args[\"inherited-var-1\"]);\n\n    pw.expect([\n        \"collection-var-2-initial-value\",\n        \"collection-var-2-current-value\"\n    ]).toInclude(pw.response.body.args[\"inherited-var-2\"]);\n});",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
+        }
+      ],
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "headers": [],
+      "variables": []
+    },
+    {
+      "id": "precedence_test_folder",
+      "_ref_id": "coll_precedence_folder",
+      "v": 10,
+      "name": "folder-with-override",
+      "folders": [],
+      "requests": [
+        {
+          "v": "15",
+          "id": "request_with_override",
+          "name": "request-with-folder-override",
+          "method": "GET",
+          "endpoint": "https://echo.hoppscotch.io",
+          "params": [
+            {
+              "key": "overridden-var",
+              "value": "<<collection-variable-1>>",
+              "active": true,
+              "description": ""
+            },
+            {
+              "key": "non-overridden-var",
+              "value": "<<collection-variable-2>>",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "pw.test('Folder variable should take precedence over collection variable with same key', () => {\n    // collection-variable-1 is overridden by folder, should be 'folder-override-value'\n    pw.expect(pw.response.body.args[\"overridden-var\"]).toBe(\"folder-override-value\");\n\n    // collection-variable-2 is NOT overridden, should be from collection\n    pw.expect([\n        \"collection-var-2-initial-value\",\n        \"collection-var-2-current-value\"\n    ]).toInclude(pw.response.body.args[\"non-overridden-var\"]);\n});",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
+        }
+      ],
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "headers": [],
+      "variables": [
+        {
+          "key": "collection-variable-1",
+          "secret": false,
+          "currentValue": "",
+          "initialValue": "folder-override-value"
+        }
+      ]
     }
   ],
-  "requests": [],
+  "requests": [
+    {
+      "v": "15",
+      "id": "root_level_request",
+      "name": "root-level-request",
+      "method": "GET",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [
+        {
+          "key": "root-var-1",
+          "value": "<<collection-variable-1>>",
+          "active": true,
+          "description": ""
+        },
+        {
+          "key": "root-var-2",
+          "value": "<<collection-variable-2>>",
+          "active": true,
+          "description": ""
+        }
+      ],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "pw.test('Root-level request should access collection variables directly', () => {\n    pw.expect([\n        \"collection-var-1-initial-value\",\n        \"collection-var-1-current-value\"\n    ]).toInclude(pw.response.body.args[\"root-var-1\"]);\n\n    pw.expect([\n        \"collection-var-2-initial-value\",\n        \"collection-var-2-current-value\"\n    ]).toInclude(pw.response.body.args[\"root-var-2\"]);\n});",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "root_level_request_with_precedence",
+      "name": "root-request-variable-precedence",
+      "method": "GET",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [
+        {
+          "key": "precedence-test",
+          "value": "<<collection-variable-1>>",
+          "active": true,
+          "description": ""
+        }
+      ],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "pw.test('Request variable takes precedence over collection variable with same key', () => {\n    // collection-variable-1 exists at collection level with value \"collection-var-1-initial-value\"\n    // but request variable overrides it with \"request-wins\"\n    pw.expect(pw.response.body.args[\"precedence-test\"]).toBe(\"request-wins\");\n});",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [
+        {
+          "key": "collection-variable-1",
+          "value": "request-wins",
+          "active": true
+        }
+      ],
+      "responses": {}
+    }
+  ],
   "auth": {
     "authType": "none",
     "authActive": true

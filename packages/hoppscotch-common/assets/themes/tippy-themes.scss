@@ -16,6 +16,25 @@
       @apply flex-col;
     }
 
+    // Constrained tooltip styles to prevent overflow beyond the viewport
+    // when environment variable values are very long (fixes #5876)
+    .env-tooltip-constrained {
+      @apply flex-col;
+      @apply w-full;
+      @apply box-border;
+      @apply overflow-hidden;
+
+      .env-tooltip-value {
+        @apply break-words;
+        @apply break-all;
+        @apply whitespace-pre-wrap;
+        @apply overflow-hidden;
+        @apply inline-block;
+        @apply max-w-full;
+        @apply align-top;
+      }
+    }
+
     .tippy-content {
       @apply flex;
       @apply text-tiny;
@@ -42,6 +61,15 @@
         @apply inline-flex;
         @apply items-center;
       }
+    }
+  }
+
+  // Override truncation for multiline member-list tooltips
+  .tippy-box[data-theme~="member-list"] {
+    .tippy-content {
+      @apply whitespace-pre-line;
+      @apply block;
+      @apply overflow-auto;
     }
   }
 
@@ -145,7 +173,7 @@
 
   .tippy-box[data-theme~="tooltip"] {
     @apply bg-primaryDark;
-    @apply border-solid;
+    @apply border-solid border-divider;
     @apply shadow-lg;
 
     .tippy-content {
@@ -159,7 +187,7 @@
 
     .tippy-svg-arrow {
       svg:first-child {
-        @apply fill-primaryDark;
+        @apply fill-divider;
       }
 
       svg:last-child {
@@ -192,7 +220,7 @@
 
   .tippy-box[data-theme~="tooltip"] {
     @apply bg-primaryLight;
-    @apply border-solid border-[#33363d];
+    @apply border-solid border-divider;
     @apply shadow-lg;
 
     .tippy-content {
@@ -206,7 +234,7 @@
 
     .tippy-svg-arrow {
       svg:first-child {
-        @apply fill-primaryLight;
+        @apply fill-divider;
       }
 
       svg:last-child {

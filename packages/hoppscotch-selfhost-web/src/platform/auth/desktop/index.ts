@@ -139,7 +139,7 @@ async function getInitialUserDetails(): Promise<
       }
     }
     return { error: "auth/cookies_not_found" }
-  } catch (error) {
+  } catch (_error) {
     return { error: "auth/cookies_not_found" }
   }
 }
@@ -222,7 +222,7 @@ async function refreshToken() {
   try {
     const refreshToken =
       await persistenceService.getLocalConfig("refresh_token")
-    if (!refreshToken) return null
+    if (!refreshToken) return false
 
     const { response } = interceptorService.execute({
       id: Date.now(),
@@ -254,7 +254,7 @@ async function refreshToken() {
     }
 
     return isSuccessful
-  } catch (err) {
+  } catch (_err) {
     return false
   }
 }
@@ -523,7 +523,7 @@ export const def: AuthPlatformDef = {
 
   async refreshAuthToken() {
     const refreshed = await refreshToken()
-    return refreshed ?? false
+    return refreshed
   },
 
   /**
@@ -553,6 +553,6 @@ export const def: AuthPlatformDef = {
     }
 
     const refreshed = await refreshToken()
-    return refreshed ?? false
+    return refreshed
   },
 }

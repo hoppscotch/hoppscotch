@@ -1,16 +1,19 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Capability for the main window",
-  "windows": [
-    "main",
-    "Hoppscotch-curr",
-    "Hoppscotch-next"
-  ],
+  "description": "Capability for the main window and all app:// origins",
+  "windows": ["*"],
+  "webviews": ["*"],
+  "remote": {
+    "urls": ["app://*"]
+  },
   "permissions": [
     "core:default",
     "core:window:default",
     "core:window:allow-start-dragging",
+    "core:event:default",
+    "core:path:default",
+    "core:webview:default",
     "shell:allow-open",
     "store:default",
     "dialog:default",

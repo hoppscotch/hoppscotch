@@ -1,4 +1,4 @@
-import type { VersionedAPI } from '@type/versioning'
+import type { VersionedAPI } from "@type/versioning"
 
 export interface Event<T> {
   event: string
@@ -42,20 +42,11 @@ export interface IoV1 {
     opts: OpenExternalLinkOptions
   ) => Promise<OpenExternalLinkResponse>
 
-  listen: <T>(
-    event: string,
-    handler: EventCallback<T>
-  ) => Promise<UnlistenFn>
+  listen: <T>(event: string, handler: EventCallback<T>) => Promise<UnlistenFn>
 
-  once: <T>(
-    event: string,
-    handler: EventCallback<T>
-  ) => Promise<UnlistenFn>
+  once: <T>(event: string, handler: EventCallback<T>) => Promise<UnlistenFn>
 
-  emit: (
-    event: string,
-    payload?: unknown
-  ) => Promise<void>
+  emit: (event: string, payload?: unknown) => Promise<void>
 }
 
 export const v1: VersionedAPI<IoV1> = {
@@ -66,5 +57,5 @@ export const v1: VersionedAPI<IoV1> = {
     listen: async () => () => {},
     once: async () => () => {},
     emit: async () => {},
-  }
+  },
 }

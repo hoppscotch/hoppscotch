@@ -21,8 +21,9 @@ import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 import { pipe, constVoid, flow } from "fp-ts/function"
 import { subscribe, pipe as wonkaPipe } from "wonka"
-import { filter, map, Subject } from "rxjs"
+import { filter, map, Subject, Subscription } from "rxjs"
 import { platform } from "~/platform"
+import { createAuthRetryGuard } from "~/helpers/retryAuthGuard"
 
 // TODO: Implement caching
 
@@ -64,6 +65,8 @@ const createSubscriptionClient = () => {
     },
   })
 }
+
+const authRetryGuard = createAuthRetryGuard(() => platform.auth.signOutUser())
 
 const createHoppClient = () => {
   const exchanges = [
@@ -107,9 +110,9 @@ const createHoppClient = () => {
         },
         async refreshAuth() {
           const refresh = platform.auth.refreshAuthToken
-          // should we logout if refreshAuthToken is not defined?
           if (!refresh) return
-          await refresh()
+
+          await authRetryGuard.execute(() => refresh.call(platform.auth))
         },
       }
     }),
@@ -146,10 +149,22 @@ const createHoppClient = () => {
 }
 
 let subscriptionClient: SubscriptionClient | null
+let authEventSubscription: Subscription | null = null
 export const client = ref<Client>()
 
 export function initBackendGQLClient() {
   client.value = createHoppClient()
+
+  // Reset the retry guard only on successful login, not on every
+  // client recreation (which also fires on logout/token_refresh).
+  authEventSubscription?.unsubscribe()
+  authEventSubscription = platform.auth
+    .getAuthEventsStream()
+    .subscribe((event) => {
+      if (event.event === "login") {
+        authRetryGuard.reset()
+      }
+    })
 
   platform.auth.onBackendGQLClientShouldReconnect(() => {
     const currentUser = platform.auth.getCurrentUser()

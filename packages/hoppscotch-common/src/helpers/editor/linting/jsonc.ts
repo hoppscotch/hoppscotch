@@ -33,8 +33,7 @@ class InvalidJSONCNodeError extends Error {
 // NOTE: If we choose to export this function, do refactor it to return a result discriminated union instead of throwing
 /**
  * @throws {InvalidJSONCNodeError} if the node is in an invalid configuration
- * @returns The JSON string without comments and trailing commas or null
- * if the conversion failed
+ * @returns The JSON string without comments and trailing commas
  */
 function convertNodeToJSON(node: Node): string {
   switch (node.type) {
@@ -69,8 +68,11 @@ function convertNodeToJSON(node: Node): string {
 
       const [keyNode, valueNode] = node.children
 
+      // Use keyNode.value instead of keyNode to avoid circular references.
+      // Attempting to JSON.stringify(keyNode) directly would throw
+      // "Converting circular structure to JSON" error.
       // If the valueNode configuration is wrong, this will return an error, which will propagate up
-      return `${JSON.stringify(keyNode)}:${convertNodeToJSON(valueNode)}`
+      return `${JSON.stringify(keyNode.value)}:${convertNodeToJSON(valueNode)}`
   }
 }
 
@@ -100,7 +102,7 @@ function stripCommentsAndCommas(text: string): string {
  */
 
 export function stripComments(jsonString: string) {
-  return stripCommentsAndCommas(stripComments_(jsonString))
+  return stripCommentsAndCommas(stripComments_(jsonString) ?? jsonString)
 }
 
 export default linter

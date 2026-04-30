@@ -5,11 +5,9 @@ import { useService } from "dioc/vue"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 import { computed } from "vue"
-import { MockServer, WorkspaceType } from "~/helpers/backend/graphql"
-import {
-  createMockServer as createMockServerMutation,
-  updateMockServer,
-} from "~/helpers/backend/mutations/MockServer"
+import { WorkspaceType } from "~/helpers/backend/graphql"
+import type { MockServer } from "~/helpers/backend/types/MockServer"
+import { platform } from "~/platform"
 import {
   createTeamEnvironment,
   updateTeamEnvironment,
@@ -31,7 +29,6 @@ import {
 } from "~/newstore/mockServers"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { WorkspaceService } from "~/services/workspace.service"
-import { platform } from "~/platform"
 
 export function useMockServer() {
   const t = useI18n()
@@ -259,7 +256,7 @@ export function useMockServer() {
         : undefined
 
     const result = await pipe(
-      createMockServerMutation(
+      platform.backend.createMockServer(
         mockServerName.trim(),
         workspaceType,
         workspaceID,
@@ -307,7 +304,9 @@ export function useMockServer() {
     const newActiveState = !mockServer.isActive
 
     return await pipe(
-      updateMockServer(mockServer.id, { isActive: newActiveState }),
+      platform.backend.updateMockServer(mockServer.id, {
+        isActive: newActiveState,
+      }),
       TE.match(
         () => {
           toast.error(t("error.something_went_wrong"))

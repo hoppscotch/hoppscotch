@@ -49,5 +49,25 @@ describe("Basic Auth", () => {
 
       expect(headers[0].value).toBe(`Basic ${btoa(":")}`)
     })
+
+    test("resolves secret environment variables before base64 encoding even when `showKeyIfSecret` is `true`", async () => {
+      const auth: HoppRESTAuth & { authType: "basic" } = {
+        authActive: true,
+        authType: "basic",
+        username: "<<USERNAME>>",
+        password: "<<PASSWORD>>",
+      }
+
+      // `showKeyIfSecret = true` should NOT affect base64 encoding
+      // Previously, this would encode "testuser:<<PASSWORD>>" instead of "testuser:testpass"
+      // See: https://github.com/hoppscotch/hoppscotch/issues/5863
+      const headers = await generateBasicAuthHeaders(
+        auth,
+        mockEnvVars,
+        true // showKeyIfSecret
+      )
+
+      expect(headers[0].value).toBe(`Basic ${btoa("testuser:testpass")}`)
+    })
   })
 })

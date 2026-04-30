@@ -623,7 +623,7 @@
   "response": {
     "audio": "Audio",
     "body": "גוף תגובה",
-    "filter_response_body": "Filter JSON response body (uses JSONPath syntax)",
+    "filter_response_body": "Filter JSON response body (uses jq syntax)",
     "headers": "כותרות",
     "html": "HTML",
     "image": "תמונה",

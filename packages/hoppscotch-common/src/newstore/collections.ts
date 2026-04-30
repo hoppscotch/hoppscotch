@@ -1351,6 +1351,9 @@ export function removeRESTCollection(
   collectionIndex: number,
   collectionID?: string
 ) {
+  if (!collectionID) {
+    collectionID = restCollectionStore.value.state[collectionIndex]?._ref_id
+  }
   restCollectionStore.dispatch({
     dispatcher: "removeCollection",
     payload: {
@@ -1518,6 +1521,13 @@ export function editRESTFolder(path: string, folder: Partial<HoppCollection>) {
 }
 
 export function removeRESTFolder(path: string, folderID?: string) {
+  if (!folderID) {
+    const folder = navigateToFolderWithIndexPath(
+      restCollectionStore.value.state,
+      path.split("/").map((index) => parseInt(index))
+    )
+    folderID = folder?._ref_id
+  }
   restCollectionStore.dispatch({
     dispatcher: "removeFolder",
     payload: {
@@ -1621,6 +1631,13 @@ export function removeRESTRequest(
   requestIndex: number,
   requestID?: string
 ) {
+  if (!requestID) {
+    const request = navigateToFolderWithIndexPath(
+      restCollectionStore.value.state,
+      path.split("/").map((index) => parseInt(index))
+    )?.requests[requestIndex]
+    requestID = request?.id || (request as HoppRESTRequest)?._ref_id
+  }
   restCollectionStore.dispatch({
     dispatcher: "removeRequest",
     payload: {
@@ -1705,6 +1722,9 @@ export function removeGraphqlCollection(
   collectionIndex: number,
   collectionID?: string
 ) {
+  if (!collectionID) {
+    collectionID = graphqlCollectionStore.value.state[collectionIndex]?._ref_id
+  }
   graphqlCollectionStore.dispatch({
     dispatcher: "removeCollection",
     payload: {
@@ -1751,6 +1771,13 @@ export function editGraphqlFolder(
 }
 
 export function removeGraphqlFolder(path: string, folderID?: string) {
+  if (!folderID) {
+    const folder = navigateToFolderWithIndexPath(
+      graphqlCollectionStore.value.state,
+      path.split("/").map((index) => parseInt(index))
+    )
+    folderID = folder?._ref_id
+  }
   graphqlCollectionStore.dispatch({
     dispatcher: "removeFolder",
     payload: {
@@ -1828,6 +1855,13 @@ export function removeGraphqlRequest(
   requestIndex: number,
   requestID?: string
 ) {
+  if (!requestID) {
+    const request = navigateToFolderWithIndexPath(
+      graphqlCollectionStore.value.state,
+      path.split("/").map((index) => parseInt(index))
+    )?.requests[requestIndex]
+    requestID = request?.id || `${path}/${requestIndex}`
+  }
   graphqlCollectionStore.dispatch({
     dispatcher: "removeRequest",
     payload: {

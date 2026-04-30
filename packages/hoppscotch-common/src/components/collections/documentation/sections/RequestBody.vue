@@ -81,7 +81,7 @@ function formatJSON(jsonString: string): string {
   try {
     const parsed = JSON.parse(jsonString || "{}")
     return JSON.stringify(parsed, null, 2)
-  } catch (e) {
+  } catch (_e) {
     return jsonString || ""
   }
 }
@@ -94,7 +94,7 @@ function formatJSON(jsonString: string): string {
 function parseFormData(formData: string): { key: string; value: string }[] {
   try {
     return typeof formData === "string" ? parseRawKeyValueEntries(formData) : []
-  } catch (e) {
+  } catch (_e) {
     return []
   }
 }

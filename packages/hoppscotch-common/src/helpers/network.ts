@@ -71,7 +71,7 @@ export function createRESTNetworkRequestStream(
       try {
         const result = await execResult
         if (result) await result.cancel()
-      } catch (error) {
+      } catch (_error) {
         // Ignore cancel errors - request may have already completed
         // This is expected behavior and not an actual error
       }

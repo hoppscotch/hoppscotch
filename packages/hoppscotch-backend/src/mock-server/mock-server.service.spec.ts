@@ -1453,4 +1453,437 @@ describe('MockServerService', () => {
       expect(hasAccess).toBe(false);
     });
   });
+
+  describe('parseExample (private method)', () => {
+    const requestId = 'req123';
+
+    test('should parse basic example with path only', () => {
+      const exampleData = {
+        key: 'example1',
+        name: 'Get Users',
+        method: 'GET',
+        endpoint: 'http://api.example.com/users',
+        statusCode: 200,
+        statusText: 'OK',
+        responseBody: '{"success": true}',
+        responseHeaders: [{ key: 'content-type', value: 'application/json' }],
+        headers: [],
+      };
+
+      const result = mockServerService['parseExample'](exampleData, requestId);
+
+      expect(result).not.toBeNull();
+      expect(result.id).toBe('example1');
+      expect(result.name).toBe('Get Users');
+      expect(result.method).toBe('GET');
+      expect(result.endpoint).toBe('http://api.example.com/users');
+      expect(result.path).toBe('/users');
+      expect(result.queryParams).toEqual({});
+      expect(result.statusCode).toBe(200);
+      expect(result.statusText).toBe('OK');
+      expect(result.responseBody).toBe('{"success": true}');
+      expect(result.responseHeaders).toHaveLength(1);
+      expect(result.requestHeaders).toHaveLength(0);
+    });
+
+    test('should parse example with query parameters', () => {
+      const exampleData = {
+        key: 'example2',
+        name: 'Search Users',
+        method: 'GET',
+        endpoint: 'http://api.example.com/users?page=1&limit=10&sort=name',
+        statusCode: 200,
+        statusText: 'OK',
+        responseBody: '[]',
+        responseHeaders: [],
+        headers: [],
+      };
+
+      const result = mockServerService['parseExample'](exampleData, requestId);
+
+      expect(result).not.toBeNull();
+      expect(result.path).toBe('/users');
+      expect(result.queryParams).toEqual({
+        page: '1',
+        limit: '10',
+        sort: 'name',
+      });
+    });
+
+    test('should parse example with path variables', () => {
+      const exampleData = {
+        key: 'example3',
+        name: 'Get User By ID',
+        method: 'GET',
+        endpoint: 'http://api.example.com/users/<<userId>>',
+        statusCode: 200,
+        statusText: 'OK',
+        responseBody: '{"id": "123"}',
+        responseHeaders: [],
+        headers: [],
+      };
+
+      const result = mockServerService['parseExample'](exampleData, requestId);
+
+      expect(result).not.toBeNull();
+      expect(result.path).toBe('/users/<<userId>>');
+      expect(result.queryParams).toEqual({});
+    });
+
+    test('should parse example with path variables and query params', () => {
+      const exampleData = {
+        key: 'example4',
+        name: 'Update User',
+        method: 'PUT',
+        endpoint: 'http://api.example.com/users/<<userId>>?notify=true',
+        statusCode: 200,
+        statusText: 'OK',
+        responseBody: '{"updated": true}',
+        responseHeaders: [],
+        headers: [],
+      };
+
+      const result = mockServerService['parseExample'](exampleData, requestId);
+
+      expect(result).not.toBeNull();
+      expect(result.path).toBe('/users/<<userId>>');
+      expect(result.queryParams).toEqual({ notify: 'true' });
+    });
+
+    test('should handle endpoint starting with <<', () => {
+      const exampleData = {
+        key: 'example5',
+        name: 'Dynamic Base',
+        method: 'GET',
+        endpoint: '<<baseUrl>>/api/users',
+        statusCode: 200,
+        statusText: 'OK',
+        responseBody: '[]',
+        responseHeaders: [],
+        headers: [],
+      };
+
+      const result = mockServerService['parseExample'](exampleData, requestId);
+
+      expect(result).not.toBeNull();
+      expect(result.path).toBe('/api/users');
+    });
+
+    test('should handle endpoint without domain', () => {
+      const exampleData = {
+        key: 'example6',
+        name: 'Relative Path',
+        method: 'POST',
+        endpoint: '/api/users',
+        statusCode: 201,
+        statusText: 'Created',
+        responseBody: '{"id": "new"}',
+        responseHeaders: [],
+        headers: [],
+      };
+
+      const result = mockServerService['parseExample'](exampleData, requestId);
+
+      expect(result).not.toBeNull();
+      expect(result.path).toBe('/api/users');
+    });
+
+    test('should remove domain from endpoint', () => {
+      const exampleData = {
+        key: 'example7',
+        name: 'Full URL',
+        method: 'GET',
+        endpoint: 'https://subdomain.example.com/api/v1/users',
+        statusCode: 200,
+        statusText: 'OK',
+        responseBody: '[]',
+        responseHeaders: [],
+        headers: [],
+      };
+
+      const result = mockServerService['parseExample'](exampleData, requestId);
+
+      expect(result).not.toBeNull();
+      expect(result.path).toBe('/api/v1/users');
+    });
+
+    test('should use default values when fields are missing', () => {
+      const exampleData = {
+        endpoint: '/users',
+        responseBody: '{}',
+      };
+
+      const result = mockServerService['parseExample'](exampleData, requestId);
+
+      expect(result).not.toBeNull();
+      expect(result.id).toBe(`${requestId}-undefined`);
+      expect(result.method).toBe('GET');
+      expect(result.statusCode).toBe(200);
+      expect(result.statusText).toBe('OK');
+      expect(result.responseHeaders).toEqual([]);
+      expect(result.requestHeaders).toEqual([]);
+    });
+
+    test('should generate ID from requestId and name when key is missing', () => {
+      const exampleData = {
+        name: 'Test Example',
+        endpoint: '/test',
+        responseBody: '{}',
+      };
+
+      const result = mockServerService['parseExample'](exampleData, requestId);
+
+      expect(result).not.toBeNull();
+      expect(result.id).toBe(`${requestId}-Test Example`);
+    });
+
+    test('should handle complex path with multiple segments', () => {
+      const exampleData = {
+        key: 'example8',
+        name: 'Nested Resource',
+        method: 'GET',
+        endpoint:
+          'http://api.example.com/organizations/<<orgId>>/teams/<<teamId>>/members',
+        statusCode: 200,
+        statusText: 'OK',
+        responseBody: '[]',
+        responseHeaders: [],
+        headers: [],
+      };
+
+      const result = mockServerService['parseExample'](exampleData, requestId);
+
+      expect(result).not.toBeNull();
+      expect(result.path).toBe(
+        '/organizations/<<orgId>>/teams/<<teamId>>/members',
+      );
+    });
+
+    test('should preserve special characters in query parameters', () => {
+      const exampleData = {
+        key: 'example9',
+        name: 'Special Chars',
+        method: 'GET',
+        endpoint:
+          'http://api.example.com/search?q=hello+world&filter=name:john',
+        statusCode: 200,
+        statusText: 'OK',
+        responseBody: '[]',
+        responseHeaders: [],
+        headers: [],
+      };
+
+      const result = mockServerService['parseExample'](exampleData, requestId);
+
+      expect(result).not.toBeNull();
+      expect(result.queryParams.q).toBe('hello world');
+      expect(result.queryParams.filter).toBe('name:john');
+    });
+
+    test('should handle root path', () => {
+      const exampleData = {
+        key: 'example10',
+        name: 'Root',
+        method: 'GET',
+        endpoint: 'http://api.example.com/',
+        statusCode: 200,
+        statusText: 'OK',
+        responseBody: '{"status": "ok"}',
+        responseHeaders: [],
+        headers: [],
+      };
+
+      const result = mockServerService['parseExample'](exampleData, requestId);
+
+      expect(result).not.toBeNull();
+      expect(result.path).toBe('/');
+    });
+
+    test('should handle empty endpoint gracefully', () => {
+      const exampleData = {
+        key: 'example11',
+        name: 'Empty Endpoint',
+        method: 'GET',
+        endpoint: '',
+        statusCode: 200,
+        statusText: 'OK',
+        responseBody: '{}',
+        responseHeaders: [],
+        headers: [],
+      };
+
+      const result = mockServerService['parseExample'](exampleData, requestId);
+
+      expect(result).not.toBeNull();
+      expect(result.path).toBe('/');
+    });
+
+    test('should handle encoded characters in path', () => {
+      const exampleData = {
+        key: 'example12',
+        name: 'Encoded Path',
+        method: 'GET',
+        endpoint: 'http://api.example.com/users/%3C%3CuserId%3E%3E',
+        statusCode: 200,
+        statusText: 'OK',
+        responseBody: '{}',
+        responseHeaders: [],
+        headers: [],
+      };
+
+      const result = mockServerService['parseExample'](exampleData, requestId);
+
+      expect(result).not.toBeNull();
+      expect(result.path).toBe('/users/<<userId>>');
+    });
+
+    test('should handle multiple query parameters with same key', () => {
+      const exampleData = {
+        key: 'example13',
+        name: 'Multiple Query Values',
+        method: 'GET',
+        endpoint: 'http://api.example.com/users?id=1&id=2&id=3',
+        statusCode: 200,
+        statusText: 'OK',
+        responseBody: '[]',
+        responseHeaders: [],
+        headers: [],
+      };
+
+      const result = mockServerService['parseExample'](exampleData, requestId);
+
+      expect(result).not.toBeNull();
+      // URLSearchParams keeps last value when keys duplicate
+      expect(result.queryParams.id).toBe('3');
+    });
+
+    test('should handle POST method with request body', () => {
+      const exampleData = {
+        key: 'example14',
+        name: 'Create User',
+        method: 'POST',
+        endpoint: 'http://api.example.com/users',
+        statusCode: 201,
+        statusText: 'Created',
+        responseBody: '{"id": "123", "name": "John"}',
+        responseHeaders: [{ key: 'location', value: '/users/123' }],
+        headers: [{ key: 'content-type', value: 'application/json' }],
+      };
+
+      const result = mockServerService['parseExample'](exampleData, requestId);
+
+      expect(result).not.toBeNull();
+      expect(result.method).toBe('POST');
+      expect(result.statusCode).toBe(201);
+      expect(result.requestHeaders).toHaveLength(1);
+      expect(result.responseHeaders).toHaveLength(1);
+    });
+
+    test('should return null on parsing error', () => {
+      // Create an object that will cause URL parsing to fail
+      const exampleData = {
+        key: 'bad-example',
+        name: 'Invalid',
+        endpoint: 'http://a bc.com', // This should cause an error
+        responseBody: '{}',
+      };
+
+      const result = mockServerService['parseExample'](exampleData, requestId);
+
+      expect(result).toBeNull();
+    });
+
+    test('should handle endpoint with port number', () => {
+      const exampleData = {
+        key: 'example15',
+        name: 'With Port',
+        method: 'GET',
+        endpoint: 'http://api.example.com:8080/users',
+        statusCode: 200,
+        statusText: 'OK',
+        responseBody: '[]',
+        responseHeaders: [],
+        headers: [],
+      };
+
+      const result = mockServerService['parseExample'](exampleData, requestId);
+
+      expect(result).not.toBeNull();
+      expect(result.path).toBe('/users');
+    });
+
+    test('should handle different HTTP methods', () => {
+      const methods = [
+        'GET',
+        'POST',
+        'PUT',
+        'PATCH',
+        'DELETE',
+        'HEAD',
+        'OPTIONS',
+      ];
+
+      methods.forEach((method) => {
+        const exampleData = {
+          key: `example-${method}`,
+          name: `Test ${method}`,
+          method: method,
+          endpoint: 'http://api.example.com/test',
+          statusCode: 200,
+          statusText: 'OK',
+          responseBody: '{}',
+          responseHeaders: [],
+          headers: [],
+        };
+
+        const result = mockServerService['parseExample'](
+          exampleData,
+          requestId,
+        );
+
+        expect(result).not.toBeNull();
+        expect(result.method).toBe(method);
+      });
+    });
+
+    test('should preserve endpoint in result', () => {
+      const endpoint = 'http://api.example.com/users/<<id>>?page=1';
+      const exampleData = {
+        key: 'example16',
+        name: 'Preserve Endpoint',
+        method: 'GET',
+        endpoint: endpoint,
+        statusCode: 200,
+        statusText: 'OK',
+        responseBody: '{}',
+        responseHeaders: [],
+        headers: [],
+      };
+
+      const result = mockServerService['parseExample'](exampleData, requestId);
+
+      expect(result).not.toBeNull();
+      expect(result.endpoint).toBe(endpoint);
+    });
+
+    test('should handle empty query string', () => {
+      const exampleData = {
+        key: 'example17',
+        name: 'Empty Query',
+        method: 'GET',
+        endpoint: 'http://api.example.com/users?',
+        statusCode: 200,
+        statusText: 'OK',
+        responseBody: '[]',
+        responseHeaders: [],
+        headers: [],
+      };
+
+      const result = mockServerService['parseExample'](exampleData, requestId);
+
+      expect(result).not.toBeNull();
+      expect(result.path).toBe('/users');
+      expect(result.queryParams).toEqual({});
+    });
+  });
 });

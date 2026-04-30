@@ -296,6 +296,12 @@ const stripModulePrefixForDisplay = (value?: string): string | undefined => {
     : value
 }
 
+/**
+ * Maximum selection size in characters for context menu display.
+ * Selections larger than this will not trigger the context menu to prevent performance issues.
+ */
+const MAX_CONTEXT_MENU_CHAR_COUNT = 100_000
+
 export function useCodemirror(
   el: Ref<any | null>,
   value: Ref<string | undefined>,
@@ -357,6 +363,15 @@ export function useCodemirror(
         return
       }
 
+      // Skip context menu for very large selections (> 100,000 characters)
+      const selectionSize = to - from
+
+      if (selectionSize > MAX_CONTEXT_MENU_CHAR_COUNT) {
+        closeContextMenu()
+        return
+      }
+
+      // Only extract text if selection is reasonably sized
       const text = view.value?.state.doc.sliceString(from, to)
       const coords = view.value?.coordsAtPos(to)
       const top = coords?.top ?? 0
@@ -375,11 +390,10 @@ export function useCodemirror(
     }
   }
 
-  // Debounce to prevent double click from selecting the word
-  const debouncedTextSelection = (time: number) =>
-    useDebounceFn(() => {
-      handleTextSelection()
-    }, time)
+  // Debounce text selection to prevent rapid-fire calls from double clicks and key repeats
+  const debouncedTextSelection = useDebounceFn(() => {
+    handleTextSelection()
+  }, 140)
 
   const initView = (el: any) => {
     if (el) platform.ui?.onCodemirrorInstanceMount?.(el)
@@ -391,13 +405,15 @@ export function useCodemirror(
 
       ViewPlugin.fromClass(
         class {
-          update(update: ViewUpdate) {
+          constructor() {
             // Only add event listeners if context menu is enabled in the editor
             if (options.contextMenuEnabled) {
-              el.addEventListener("mouseup", debouncedTextSelection(140))
-              el.addEventListener("keyup", debouncedTextSelection(140))
+              el.addEventListener("mouseup", debouncedTextSelection)
+              el.addEventListener("keyup", debouncedTextSelection)
             }
+          }
 
+          update(update: ViewUpdate) {
             if (options.onUpdate) {
               options.onUpdate(update)
             }
@@ -429,6 +445,13 @@ export function useCodemirror(
                   options.onChange(cachedValue.value)
                 }
               }
+            }
+          }
+
+          destroy() {
+            if (options.contextMenuEnabled) {
+              el.removeEventListener("mouseup", debouncedTextSelection)
+              el.removeEventListener("keyup", debouncedTextSelection)
             }
           }
         }

@@ -97,7 +97,7 @@ const fetchAccessTokens = async () => {
     if (tokensListFetchErrored.value) {
       tokensListFetchErrored.value = false
     }
-  } catch (err) {
+  } catch (_err) {
     toast.error(t("error.fetching_access_tokens_list"))
     tokensListFetchErrored.value = true
   } finally {
@@ -136,7 +136,7 @@ const generateAccessToken = async ({
     if (tokensListFetchErrored.value) {
       tokensListFetchErrored.value = false
     }
-  } catch (err) {
+  } catch (_err) {
     toast.error(t("error.generate_access_token"))
     showAccessTokensGenerateModal.value = false
   } finally {
@@ -175,7 +175,7 @@ const deleteAccessToken = async () => {
     if (tokensListFetchErrored.value) {
       tokensListFetchErrored.value = false
     }
-  } catch (err) {
+  } catch (_err) {
     toast.error(t("error.delete_access_token"))
   } finally {
     tokenDeleteActionLoading.value = false

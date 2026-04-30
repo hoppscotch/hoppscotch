@@ -123,7 +123,6 @@ export type HoppAction =
   | "share.request" // Share REST request
   | "tab.duplicate-tab" // Duplicate REST request
   | "gql.request.open" // Open GraphQL request
-  | "agent.open-registration-modal" // Open Hoppscotch Agent registration modal
   | "app.quit" // Quit app
 
 /**

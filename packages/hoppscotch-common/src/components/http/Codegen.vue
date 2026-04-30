@@ -131,7 +131,10 @@ import {
   getEffectiveRESTRequest,
   resolvesEnvsInBody,
 } from "~/helpers/utils/EffectiveURL"
-import { AggregateEnvironment, getAggregateEnvs } from "~/newstore/environments"
+import {
+  AggregateEnvironment,
+  getAggregateEnvsWithCurrentValue,
+} from "~/newstore/environments"
 
 import { useService } from "dioc/vue"
 import cloneDeep from "lodash-es/cloneDeep"
@@ -237,7 +240,7 @@ const getFinalURL = (input: string): string => {
  * Combines all environment variables into a single environment object
  */
 const buildFinalEnvironment = (): Environment => {
-  const aggregateEnvs = getAggregateEnvs()
+  const aggregateEnvs = getAggregateEnvsWithCurrentValue()
   const inheritedVariables =
     currentActiveTabDocument.value.inheritedProperties?.variables || []
 

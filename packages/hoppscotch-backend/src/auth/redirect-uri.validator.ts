@@ -27,7 +27,8 @@ export function isValidRedirectUri(uri?: string): boolean {
 
     const ALLOWED_PROTOCOLS = ['http:', 'https:'];
 
-    if (url.hostname === 'localhost') return true;
+    // ❗ block credential injection
+    if (url.username || url.password) return false;
 
     return ALLOWED_PROTOCOLS.includes(url.protocol);
   } catch {

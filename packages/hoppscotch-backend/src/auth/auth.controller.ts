@@ -30,24 +30,8 @@ import { AUTH_PROVIDER_NOT_SPECIFIED } from 'src/errors';
 import { ConfigService } from '@nestjs/config';
 import { throwHTTPErr } from 'src/utils';
 import { UserLastLoginInterceptor } from 'src/interceptors/user-last-login.interceptor';
+import { isValidRedirectUri } from './redirect-uri.validator';
 
-// Validates redirect_uri for OAuth desktop flow
-// Allows localhost and http/https URLs while blocking unsafe protocols
-export function isValidRedirectUri(uri?: string): boolean {
-  if (!uri) return false;
-
-  try {
-    const url = new URL(uri);
-
-    const ALLOWED_PROTOCOLS = ['http:', 'https:'];
-
-    if (url.hostname === 'localhost') return true;
-
-    return ALLOWED_PROTOCOLS.includes(url.protocol);
-  } catch {
-    return false;
-  }
-}
 
 @UseGuards(ThrottlerBehindProxyGuard)
 @Controller({ path: 'auth', version: '1' })

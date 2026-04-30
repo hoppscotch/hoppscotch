@@ -1,4 +1,7 @@
-import { isValidLocalhostRedirectUri, isValidRedirectUri } from './redirect-uri.validator';
+import {
+  isValidLocalhostRedirectUri,
+  isValidRedirectUri,
+} from './redirect-uri.validator';
 
 describe('isValidLocalhostRedirectUri', () => {
   describe('valid loopback URIs', () => {
@@ -137,5 +140,13 @@ describe('isValidRedirectUri', () => {
 
   test('should reject undefined', () => {
     expect(isValidRedirectUri(undefined)).toBe(false);
+  });
+
+  test('should reject URLs with credentials', () => {
+    expect(isValidRedirectUri('http://user:pass@example.com')).toBe(false);
+  });
+
+  test('should reject ftp protocol even on localhost', () => {
+    expect(isValidRedirectUri('ftp://localhost:3000')).toBe(false);
   });
 });

@@ -1,3 +1,4 @@
+<template>
   <div
     ref="scrollContainer"
     class="relative flex flex-1 flex-col overflow-auto scroll-smooth"
@@ -84,8 +85,11 @@ const scrollToTop = () => {
   scrollContainer.value?.scrollTo({ top: 0, behavior: "smooth" })
 }
 
-const hasResponse = computed(() => {
-
+const hasResponse = computed(
+  () =>
+    doc.value.response?.type === "success" ||
+    doc.value.response?.type === "fail"
+)
 const responseName = ref("")
 const showSaveResponseName = ref(false)
 

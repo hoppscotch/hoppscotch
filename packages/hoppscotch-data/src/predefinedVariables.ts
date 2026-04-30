@@ -43,18 +43,14 @@ export const HOPP_SUPPORTED_PREDEFINED_VARIABLES: PredefinedVariable[] = [
     key: "$randomUUID",
     description: "A random 36-character UUID.",
     getValue: () => {
-      const characters = "0123456789abcdef"
-      let uuid = ""
-      for (let i = 0; i < 36; i++) {
-        if (i === 8 || i === 13 || i === 18 || i === 23) {
-          uuid += "-"
-        } else {
-          uuid += characters.charAt(
-            Math.floor(Math.random() * characters.length)
-          )
-        }
-      }
-      return uuid
+      return (
+        globalThis.crypto?.randomUUID?.() ??
+        "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+          const r = (Math.random() * 16) | 0
+          const v = c === "x" ? r : (r & 0x3) | 0x8
+          return v.toString(16)
+        })
+      )
     },
   },
 

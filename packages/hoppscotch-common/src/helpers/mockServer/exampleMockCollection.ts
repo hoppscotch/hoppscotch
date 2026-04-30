@@ -328,6 +328,9 @@ export async function createMockCollectionForPersonal(
     auth: data.auth,
     headers: data.headers,
     variables: data.variables,
+    description: null,
+    preRequestScript: "",
+    testScript: "",
   })
 
   // Add the backend ID to the collection

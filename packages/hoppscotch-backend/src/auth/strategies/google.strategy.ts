@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 import { validateEmail } from 'src/utils';
 import { AUTH_EMAIL_NOT_PROVIDED_BY_OAUTH } from 'src/errors';
+import { StatelessStateStore } from '../stateless-state-store';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy) {
@@ -23,7 +24,13 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
       callbackURL: configService.get<string>('INFRA.GOOGLE_CALLBACK_URL'),
       scope: configService.get<string>('INFRA.GOOGLE_SCOPE').split(','),
       passReqToCallback: true,
-      store: true,
+      store: new StatelessStateStore(
+        configService.get<string>('INFRA.SESSION_SECRET'),
+        undefined,
+        (configService.get<string>('INFRA.SESSION_COOKIE_NAME') ||
+          '__oauth_nonce') + '_google',
+        configService.get<string>('INFRA.ALLOW_SECURE_COOKIES') === 'true',
+      ),
     });
   }
 

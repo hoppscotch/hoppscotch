@@ -386,7 +386,11 @@ const createScriptingModule = (
   type: ModuleType,
   bootstrapCode: string,
   config: ModuleConfig,
-  captureHook?: { capture?: () => void; bootstrapError?: unknown }
+  captureHook?: {
+    capture?: () => void
+    bootstrapError?: unknown
+    scriptExecutionError?: { name: string; message: string; stack: string }
+  }
 ) => {
   return defineCageModule((ctx) => {
     // Track test promises for keepAlive (only for post-request scripts)
@@ -470,6 +474,27 @@ const createScriptingModule = (
         })
       }
     }
+
+    // Reporter invoked from the generated `catch` block that wraps the
+    // experimental IIFE chain. This is a synchronous host callback — unlike
+    // rejected keepAlive promises or async afterScriptExecutionHooks, these
+    // calls cross the QuickJS boundary before the script returns, so the
+    // host sees the error without relying on faraday-cage's loop behaviour.
+    ;(inputsObj as Record<string, unknown>).setScriptExecutionError =
+      defineSandboxFn(ctx, "setScriptExecutionError", (error: unknown) => {
+        if (!captureHook || captureHook.scriptExecutionError) return
+        const err = (error ?? {}) as {
+          name?: unknown
+          message?: unknown
+          stack?: unknown
+        }
+        captureHook.scriptExecutionError = {
+          name: typeof err.name === "string" ? err.name : "",
+          message:
+            typeof err.message === "string" ? err.message : String(error),
+          stack: typeof err.stack === "string" ? err.stack : "",
+        }
+      })
 
     const sandboxInputsObj = defineSandboxObject(ctx, inputsObj)
 

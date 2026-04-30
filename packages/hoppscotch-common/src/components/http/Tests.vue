@@ -3,9 +3,26 @@
     <div
       class="sticky top-upperMobileSecondaryStickyFold z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4 sm:top-upperSecondaryStickyFold"
     >
-      <label class="truncate font-semibold text-secondaryLight">
-        {{ t("test.javascript_code") }}
-      </label>
+      <div class="flex items-center gap-2">
+        <label class="truncate font-semibold text-secondaryLight">
+          {{ t("test.javascript_code") }}
+        </label>
+        <HoppButtonSecondary
+          v-if="inheritedScripts.length > 0"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('script.view_inherited')"
+          :label="
+            t('script.inheriting_from_count', {
+              count: inheritedScripts.length,
+            })
+          "
+          :icon="IconFileSymlink"
+          class="!px-1 !py-0.5 text-yellow-500 hover:text-yellow-500"
+          filled
+          outline
+          @click="showInheritedModal = true"
+        />
+      </div>
       <div class="flex">
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -76,6 +93,12 @@
         </div>
       </div>
     </div>
+    <HttpInheritedScriptsModal
+      :show="showInheritedModal"
+      :scripts="inheritedScripts"
+      script-type="testScript"
+      @close="showInheritedModal = false"
+    />
     <AiexperimentsModifyTestScriptModal
       v-if="isModifyTestScriptModalOpen && currentRequest"
       :current-script="testScript"
@@ -99,10 +122,13 @@ import { useReadonlyStream } from "~/composables/stream"
 import { invokeAction } from "~/helpers/actions"
 import completer from "~/helpers/editor/completion/testScript"
 import linter from "~/helpers/editor/linting/testScript"
+import { hasActualScript } from "~/helpers/scripting"
 import testSnippets from "~/helpers/testSnippets"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { platform } from "~/platform"
 import { RESTTabService } from "~/services/tab/rest"
+import IconFileSymlink from "~icons/lucide/file-symlink"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconSparkles from "~icons/lucide/sparkles"
 import IconTrash2 from "~icons/lucide/trash-2"
@@ -113,9 +139,22 @@ const t = useI18n()
 const props = defineProps<{
   modelValue: string
   isActive?: boolean
+  inheritedProperties?: HoppInheritedProperty
 }>()
+
 const emit = defineEmits(["update:modelValue"])
 const testScript = useVModel(props, "modelValue", emit)
+
+const showInheritedModal = ref(false)
+
+const inheritedScripts = computed(() => {
+  return (
+    props.inheritedProperties?.scripts?.filter((script) =>
+      hasActualScript(script.testScript)
+    ) ?? []
+  )
+})
+
 const testScriptEditor = ref<any | null>(null)
 const WRAP_LINES = useNestedSetting("WRAP_LINES", "httpTest")
 

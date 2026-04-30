@@ -31,7 +31,13 @@ export type MailerConfigKeys =
   | 'SMTP_USER'
   | 'SMTP_PASSWORD'
   | 'SMTP_IGNORE_TLS'
-  | 'TLS_REJECT_UNAUTHORIZED';
+  | 'TLS_REJECT_UNAUTHORIZED'
+  | 'SMTP_AUTH_TYPE'
+  | 'SMTP_OAUTH2_USER'
+  | 'SMTP_OAUTH2_CLIENT_ID'
+  | 'SMTP_OAUTH2_CLIENT_SECRET'
+  | 'SMTP_OAUTH2_REFRESH_TOKEN'
+  | 'SMTP_OAUTH2_ACCESS_URL';
 
 export type Configs = {
   oAuthProviders: {
@@ -52,7 +58,7 @@ export type OnBoardingSummary = {
 };
 
 function mapOAuthProviders(
-  configs: Partial<Record<InfraConfigEnum, string>>
+  configs: Partial<Record<InfraConfigEnum, string>>,
 ): Configs['oAuthProviders'] {
   return {
     GOOGLE: {
@@ -78,7 +84,7 @@ function mapOAuthProviders(
 }
 
 function mapMailerConfigs(
-  configs: Partial<Record<InfraConfigEnum, string>>
+  configs: Partial<Record<InfraConfigEnum, string>>,
 ): Configs['mailerConfigs'] {
   return {
     MAILER_SMTP_ENABLE: configs.MAILER_SMTP_ENABLE ?? '',
@@ -93,6 +99,14 @@ function mapMailerConfigs(
     MAILER_SMTP_IGNORE_TLS: configs.MAILER_SMTP_IGNORE_TLS || 'false',
     MAILER_TLS_REJECT_UNAUTHORIZED:
       configs.MAILER_TLS_REJECT_UNAUTHORIZED || 'false',
+    MAILER_SMTP_AUTH_TYPE: configs.MAILER_SMTP_AUTH_TYPE || 'login',
+    MAILER_SMTP_OAUTH2_USER: configs.MAILER_SMTP_OAUTH2_USER ?? '',
+    MAILER_SMTP_OAUTH2_CLIENT_ID: configs.MAILER_SMTP_OAUTH2_CLIENT_ID ?? '',
+    MAILER_SMTP_OAUTH2_CLIENT_SECRET:
+      configs.MAILER_SMTP_OAUTH2_CLIENT_SECRET ?? '',
+    MAILER_SMTP_OAUTH2_REFRESH_TOKEN:
+      configs.MAILER_SMTP_OAUTH2_REFRESH_TOKEN ?? '',
+    MAILER_SMTP_OAUTH2_ACCESS_URL: configs.MAILER_SMTP_OAUTH2_ACCESS_URL ?? '',
   };
 }
 
@@ -132,7 +146,7 @@ export function useOnboardingConfigHandler() {
   const toggleConfig = (key: EnabledConfig | 'OAUTH' | 'EMAIL') => {
     if (key === 'OAUTH') {
       enabledConfigs.value = enabledConfigs.value.filter(
-        (c) => !['GOOGLE', 'GITHUB', 'MICROSOFT'].includes(c)
+        (c) => !['GOOGLE', 'GITHUB', 'MICROSOFT'].includes(c),
       );
     }
 
@@ -140,7 +154,7 @@ export function useOnboardingConfigHandler() {
       const hasEmail = enabledConfigs.value.includes('EMAIL');
       const hasMailer = enabledConfigs.value.includes('MAILER');
       enabledConfigs.value = enabledConfigs.value.filter(
-        (c) => c !== 'EMAIL' && c !== 'MAILER'
+        (c) => c !== 'EMAIL' && c !== 'MAILER',
       );
       if (!hasEmail || !hasMailer) {
         enabledConfigs.value.push('EMAIL', 'MAILER');
@@ -234,6 +248,12 @@ export function useOnboardingConfigHandler() {
         'MAILER_SMTP_IGNORE_TLS',
         'MAILER_TLS_REJECT_UNAUTHORIZED',
         'MAILER_SMTP_ENABLE',
+        'MAILER_SMTP_AUTH_TYPE',
+        'MAILER_SMTP_OAUTH2_USER',
+        'MAILER_SMTP_OAUTH2_CLIENT_ID',
+        'MAILER_SMTP_OAUTH2_CLIENT_SECRET',
+        'MAILER_SMTP_OAUTH2_REFRESH_TOKEN',
+        'MAILER_SMTP_OAUTH2_ACCESS_URL',
       ].includes(key);
     });
   };
@@ -252,7 +272,7 @@ export function useOnboardingConfigHandler() {
     }
 
     const relevantKeys = Object.keys(configs).filter((key) =>
-      enabledConfigs.value.includes(key.split('_')[0] as EnabledConfig)
+      enabledConfigs.value.includes(key.split('_')[0] as EnabledConfig),
     );
 
     const neededKeys = filterNeededConfigs(relevantKeys);
@@ -263,9 +283,14 @@ export function useOnboardingConfigHandler() {
     const optionalSmtpKeys = new Set([
       'MAILER_SMTP_USER',
       'MAILER_SMTP_PASSWORD',
+      'MAILER_SMTP_OAUTH2_USER',
+      'MAILER_SMTP_OAUTH2_CLIENT_ID',
+      'MAILER_SMTP_OAUTH2_CLIENT_SECRET',
+      'MAILER_SMTP_OAUTH2_REFRESH_TOKEN',
+      'MAILER_SMTP_OAUTH2_ACCESS_URL',
     ]);
     const allFilled = neededKeys.every(
-      (key) => configs[key] || optionalSmtpKeys.has(key)
+      (key) => configs[key] || optionalSmtpKeys.has(key),
     );
 
     if (!allFilled) {
@@ -274,14 +299,17 @@ export function useOnboardingConfigHandler() {
           toast.error(
             t('onboarding.please_fill_configurations', {
               fieldName: makeReadableKey(key),
-            })
+            }),
           );
       });
       return;
     }
 
     // SMTP credentials must be provided together or both left empty.
-    // Only enforce when custom SMTP mode is active (not simple URL mode).
+    // Enforced regardless of auth_type: the backend validates the pair on
+    // every save, so stale login values left behind after switching to the
+    // OAuth2 tab would still be rejected. Surface this in the FE toast so
+    // users know to clear those fields before saving.
     if (
       enabledConfigs.value.includes('MAILER') &&
       configs['MAILER_USE_CUSTOM_CONFIGS'] === 'true'
@@ -301,8 +329,8 @@ export function useOnboardingConfigHandler() {
       Object.entries(configs).filter(
         ([key, val]) =>
           enabledConfigs.value.includes(key.split('_')[0] as EnabledConfig) &&
-          (val || optionalSmtpKeys.has(key))
-      )
+          (val || optionalSmtpKeys.has(key)),
+      ),
     );
   };
 
@@ -331,7 +359,7 @@ export function useOnboardingConfigHandler() {
     }
 
     const filteredEnabledConfigs = enabledConfigs.value.filter(
-      (config) => config !== 'OAUTH' && config !== 'MAILER'
+      (config) => config !== 'OAUTH' && config !== 'MAILER',
     );
 
     const configWithAuth = {
@@ -371,7 +399,22 @@ export function useOnboardingConfigHandler() {
 
       const allowed = configs[InfraConfigEnum.ViteAllowedAuthProviders];
       if (allowed) {
-        enabledConfigs.value = allowed.split(',') as EnabledConfig[];
+        // Trim each entry so whitespace variations ("GOOGLE, EMAIL") don't
+        // cause provider-name mismatches in downstream `.includes()` checks.
+        const parsed = allowed
+          .split(',')
+          .map((p) => p.trim())
+          .filter(Boolean) as EnabledConfig[];
+
+        // The backend persists only 'EMAIL' in VITE_ALLOWED_AUTH_PROVIDERS,
+        // but internally we also track 'MAILER' as the signal that MAILER_*
+        // keys should be kept on save. toggleConfig('EMAIL') pairs them, so
+        // mirror that invariant on load to keep the two flags in sync.
+        if (parsed.includes('EMAIL') && !parsed.includes('MAILER')) {
+          parsed.push('MAILER');
+        }
+
+        enabledConfigs.value = parsed;
       }
 
       currentConfigs.value = {
@@ -404,7 +447,7 @@ export function useOnboardingConfigHandler() {
         enableConfig('EMAIL');
       }
     },
-    { deep: true, immediate: true }
+    { deep: true, immediate: true },
   );
 
   return {

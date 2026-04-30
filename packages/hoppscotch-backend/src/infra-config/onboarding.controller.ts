@@ -104,6 +104,24 @@ export class OnboardingController {
     type: GetOnboardingConfigResponse,
   })
   async getOnboardingConfig(@Query('token') token: string) {
+    const onboardingStatus =
+      await this.infraConfigService.getOnboardingStatus();
+
+    if (E.isLeft(onboardingStatus))
+      throwHTTPErr(<RESTError>{
+        message: onboardingStatus.left,
+        statusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+      });
+
+    if (
+      onboardingStatus.right.onboardingCompleted &&
+      !onboardingStatus.right.canReRunOnboarding
+    )
+      throwHTTPErr(<RESTError>{
+        message: ONBOARDING_CANNOT_BE_RERUN,
+        statusCode: HttpStatus.BAD_REQUEST,
+      });
+
     const onboardingConfig =
       await this.infraConfigService.getOnboardingConfig(token);
 

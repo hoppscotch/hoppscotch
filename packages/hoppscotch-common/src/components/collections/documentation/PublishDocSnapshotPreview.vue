@@ -1,37 +1,67 @@
 <template>
   <div class="flex flex-col lg:flex-row gap-4 flex-1">
     <!-- Left Metadata Panel -->
-    <div class="lg:w-72 flex-shrink-0 flex flex-col space-y-3">
-      <!-- Title & version header -->
-      <div class="space-y-2">
-        <h3 class="text-sm font-semibold text-secondaryDark truncate">
-          {{ existingData?.title }}
-        </h3>
-        <div class="flex items-center space-x-2">
+    <div
+      class="lg:w-96 flex-shrink-0 flex flex-col divide-y divide-divider space-y-4"
+    >
+      <div class="space-y-4">
+        <HoppSmartInput
+          v-model="titleModel"
+          :label="t('documentation.publish.doc_title')"
+          type="text"
+          input-styles="floating-input"
+        />
+
+        <div>
+          <HoppSmartInput
+            v-model="versionModel"
+            :label="t('documentation.publish.doc_version')"
+            :input-styles="[
+              'floating-input',
+              !isValidVersion && versionModel.length > 0
+                ? '!border-red-500 !focus:border-red-500'
+                : '',
+            ]"
+          />
           <span
-            class="text-xs text-secondaryLight rounded border border-dividerDark px-2 py-0.5"
+            v-if="!isValidVersion && versionModel.length > 0"
+            class="text-xs text-red-500 mt-1 block"
           >
-            {{ existingData?.version }}
+            {{ t("documentation.publish.invalid_version") }}
           </span>
         </div>
-        <!-- Environment badge -->
-        <div
-          v-if="existingData?.environmentName"
-          class="flex items-center space-x-1.5"
-        >
-          <icon-lucide-layers
-            class="w-3 h-3 text-secondaryLight flex-shrink-0"
-          />
-          <span class="text-xs text-secondaryLight">
-            {{ existingData.environmentName }}
+
+        <div class="flex items-start">
+          <HoppSmartCheckbox
+            :on="autoSyncModel"
+            @change="autoSyncModel = !autoSyncModel"
+          >
+            <div>
+              <span class="text-sm text-secondaryDark">
+                {{ t("documentation.publish.auto_sync") }}
+              </span>
+            </div>
+          </HoppSmartCheckbox>
+        </div>
+
+        <!-- Environment Selector -->
+        <div class="space-y-2">
+          <span class="block text-sm font-medium text-secondaryDark">
+            {{ t("documentation.publish.environment") }}
           </span>
+          <p class="text-xs text-secondaryLight">
+            {{ t("documentation.publish.environment_description") }}
+          </p>
+          <CollectionsDocumentationEnvironmentPicker
+            v-model="environmentModel"
+            :workspace-type="workspaceType"
+            :workspace-i-d="workspaceID"
+          />
         </div>
       </div>
 
-      <hr class="border-divider" />
-
       <!-- Published URL -->
-      <div class="space-y-3">
+      <div class="space-y-3 py-4">
         <div v-if="publishedUrl" class="space-y-1">
           <label
             class="text-[10px] font-semibold uppercase tracking-wider text-secondaryLight"
@@ -66,20 +96,9 @@
         </div>
       </div>
 
-      <!-- Status notice -->
+      <!-- Status notice: version is already live -->
       <div
-        v-if="existingData && !isLive"
-        class="flex items-start space-x-2 px-3 py-2.5 rounded-md bg-primaryLight border border-divider"
-      >
-        <icon-lucide-lock
-          class="w-3.5 h-3.5 text-secondaryLight flex-shrink-0 mt-0.5"
-        />
-        <span class="text-xs text-secondaryLight leading-relaxed">
-          {{ t("documentation.publish.version_immutable") }}
-        </span>
-      </div>
-      <div
-        v-else-if="existingData && isLive"
+        v-if="existingData?.autoSync && autoSyncModel"
         class="flex items-start space-x-2 px-3 py-2.5 rounded-md bg-green-500/5 border border-green-500/15"
       >
         <icon-lucide-refresh-cw
@@ -87,6 +106,32 @@
         />
         <span class="text-xs text-green-600 leading-relaxed">
           {{ t("documentation.publish.auto_sync_live_notice") }}
+        </span>
+      </div>
+
+      <!-- Info notice: turning off auto-sync on a live version will freeze it -->
+      <div
+        v-else-if="existingData?.autoSync && !autoSyncModel"
+        class="flex items-start space-x-2 px-3 py-2.5 rounded-md bg-blue-500/5 border border-blue-500/20"
+      >
+        <icon-lucide-info
+          class="w-3.5 h-3.5 text-blue-600 flex-shrink-0 mt-0.5"
+        />
+        <span class="text-xs text-blue-600 leading-relaxed">
+          {{ t("documentation.publish.live_freeze_notice") }}
+        </span>
+      </div>
+
+      <!-- Destructive warning: promoting a snapshot to live will overwrite the frozen tree -->
+      <div
+        v-else-if="existingData?.autoSync === false && autoSyncModel"
+        class="flex items-start space-x-2 px-3 py-2.5 rounded-md bg-yellow-500/5 border border-yellow-500/20"
+      >
+        <icon-lucide-alert-triangle
+          class="w-3.5 h-3.5 text-yellow-600 flex-shrink-0 mt-0.5"
+        />
+        <span class="text-xs text-yellow-600 leading-relaxed">
+          {{ t("documentation.publish.snapshot_promote_warning") }}
         </span>
       </div>
     </div>
@@ -141,7 +186,10 @@
       </div>
 
       <!-- Snapshot content -->
-      <div v-else-if="snapshotCollectionData" class="h-[60vh] flex flex-col">
+      <div
+        v-else-if="snapshotCollectionData"
+        class="flex-1 flex flex-col overflow-hidden max-h-[55vh]"
+      >
         <DocumentationContent
           :collection-data="snapshotCollectionData"
           :all-items="snapshotItems"
@@ -176,7 +224,7 @@ import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
 import IconExternalLink from "~icons/lucide/external-link"
 import IconRefreshCw from "~icons/lucide/refresh-cw"
-import { isLiveVersion } from "~/services/documentation.service"
+import { WorkspaceType } from "~/helpers/backend/graphql"
 
 const t = useI18n()
 
@@ -193,12 +241,43 @@ const props = defineProps<{
   existingData?: ExistingData
   publishedUrl: string | null
   show: boolean
+  publishTitle: string
+  publishVersion: string
+  autoSync: boolean
+  selectedEnvironmentID: string | null
+  isValidVersion: boolean
+  workspaceType: WorkspaceType
+  workspaceID: string
 }>()
 
 const emit = defineEmits<{
   (e: "copyUrl"): void
   (e: "viewPublished"): void
+  (e: "update:publishTitle", value: string): void
+  (e: "update:publishVersion", value: string): void
+  (e: "update:autoSync", value: boolean): void
+  (e: "update:selectedEnvironmentID", value: string | null): void
 }>()
+
+const titleModel = computed({
+  get: () => props.publishTitle,
+  set: (v) => emit("update:publishTitle", v),
+})
+
+const versionModel = computed({
+  get: () => props.publishVersion,
+  set: (v) => emit("update:publishVersion", v),
+})
+
+const autoSyncModel = computed({
+  get: () => props.autoSync,
+  set: (v) => emit("update:autoSync", v),
+})
+
+const environmentModel = computed({
+  get: () => props.selectedEnvironmentID,
+  set: (v) => emit("update:selectedEnvironmentID", v),
+})
 
 const copyIcon = refAutoReset(markRaw(IconCopy), 3000)
 
@@ -220,14 +299,6 @@ const snapshotError = ref(false)
 const snapshotCollectionData = ref<HoppCollection | null>(null)
 const snapshotItems = ref<SnapshotDocumentationItem[]>([])
 const snapshotEnvironmentVariables = ref<Environment["variables"]>([])
-
-/**
- * Checks whether the currently displayed published doc is the live (current) version.
- */
-const isLive = computed(() => {
-  if (!props.existingData) return true
-  return isLiveVersion(props.existingData)
-})
 
 /**
  * Extracts slug and version from a published doc URL

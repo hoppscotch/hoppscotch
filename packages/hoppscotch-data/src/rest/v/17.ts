@@ -10,11 +10,11 @@ export const V17_SCHEMA = V16_SCHEMA.extend({
 const V17_VERSION = defineVersion({
   schema: V17_SCHEMA,
   initial: false,
-  up(old: z.infer<typeof V17_SCHEMA>) {
+  up(old: z.infer<typeof V16_SCHEMA>) {
     return {
       ...old,
       v: "17" as const,
-      description: old.description ?? null,
+      description: null,
     }
   },
 })

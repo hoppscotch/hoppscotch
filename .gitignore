@@ -188,3 +188,6 @@ devenv.local.nix
 .cursor/
 .aider*
 .windsurfrules
+
+# Zapro-local seed collections — contain real tokens/cookies, never commit
+seed/

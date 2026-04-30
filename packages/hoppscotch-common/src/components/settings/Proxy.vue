@@ -3,7 +3,7 @@
     {{ `${t("settings.official_proxy_hosting")} ${t("settings.read_the")}` }}
     <HoppSmartAnchor
       class="link"
-      to="https://docs.hoppscotch.io/support/privacy"
+      to="https://zapro.ai/privacy"
       blank
       :label="t('app.proxy_privacy_policy')"
     />.

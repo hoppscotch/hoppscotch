@@ -82,12 +82,12 @@ const currentState =
       )
     : ref({
         status: "disconnected" as const,
-        instance: { displayName: "Hoppscotch" },
+        instance: { displayName: "Zapro" },
       })
 
 const instanceDisplayName = computed(() => {
   if (currentState.value.status !== "connected") {
-    return "Hoppscotch"
+    return "Zapro"
   }
   return currentState.value.instance.displayName
 })
@@ -286,39 +286,33 @@ watch(
 )
 
 usePageHead({
-  title: computed(
-    () => publishedDoc.value?.title || "Hoppscotch Documentation"
-  ),
+  title: computed(() => publishedDoc.value?.title || "Zapro Documentation"),
   meta: [
     {
       name: "description",
       content: computed(
-        () =>
-          collectionData.value?.description ||
-          "Hoppscotch API Documentation - Open source API development ecosystem"
+        () => collectionData.value?.description || "Zapro API Documentation"
       ),
     },
     {
       property: "og:title",
       content: computed(
-        () => publishedDoc.value?.title || "Hoppscotch Documentation"
+        () => publishedDoc.value?.title || "Zapro Documentation"
       ),
     },
     {
       property: "og:description",
       content: computed(
-        () =>
-          collectionData.value?.description ||
-          "Hoppscotch API Documentation - Open source API development ecosystem"
+        () => collectionData.value?.description || "Zapro API Documentation"
       ),
     },
     {
       property: "og:site_name",
-      content: "Hoppscotch",
+      content: "Zapro",
     },
     {
       property: "og:image",
-      content: "https://hoppscotch.io/banner.png",
+      content: "https://zapro.ai/banner.png",
     },
     {
       name: "twitter:card",
@@ -326,29 +320,27 @@ usePageHead({
     },
     {
       name: "twitter:site",
-      content: "@hoppscotch_io",
+      content: "@zapro_ai",
     },
     {
       name: "twitter:creator",
-      content: "@hoppscotch_io",
+      content: "@zapro_ai",
     },
     {
       name: "twitter:title",
       content: computed(
-        () => publishedDoc.value?.title || "Hoppscotch Documentation"
+        () => publishedDoc.value?.title || "Zapro Documentation"
       ),
     },
     {
       name: "twitter:description",
       content: computed(
-        () =>
-          collectionData.value?.description ||
-          "Hoppscotch API Documentation - Open source API development ecosystem"
+        () => collectionData.value?.description || "Zapro API Documentation"
       ),
     },
     {
       name: "twitter:image",
-      content: "https://hoppscotch.io/banner.png",
+      content: "https://zapro.ai/banner.png",
     },
   ],
 })

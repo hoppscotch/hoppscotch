@@ -43,7 +43,7 @@ export class GeneralSpotlightSearcherService extends StaticSpotlightSearcherServ
   private documents: Record<string, Doc> = reactive({
     open_help: {
       text: this.t("spotlight.general.help_menu"),
-      alternates: ["help", "hoppscotch"],
+      alternates: ["help", "zapro"],
       icon: markRaw(IconLifeBuoy),
       action() {
         invokeAction("modals.support.toggle")
@@ -51,9 +51,9 @@ export class GeneralSpotlightSearcherService extends StaticSpotlightSearcherServ
     },
     open_docs: {
       text: this.t("spotlight.general.open_docs"),
-      alternates: ["docs", "documentation", "hoppscotch"],
+      alternates: ["docs", "documentation", "zapro"],
       icon: markRaw(IconBook),
-      action: () => this.openURL("https://docs.hoppscotch.io"),
+      action: () => this.openURL("https://zapro.ai/docs"),
     },
     open_keybindings: {
       text: this.t("spotlight.general.open_keybindings"),
@@ -65,28 +65,27 @@ export class GeneralSpotlightSearcherService extends StaticSpotlightSearcherServ
     },
     open_github: {
       text: this.t("spotlight.general.open_github"),
-      alternates: ["repository", "github", "documentation", "hoppscotch"],
+      alternates: ["repository", "github", "documentation", "zapro"],
       icon: markRaw(IconGitHub),
-      action: () => this.openURL("https://hoppscotch.io/github"),
+      action: () => this.openURL("https://github.com/Zapro-ai"),
     },
     link_twitter: {
       text: [this.t("spotlight.general.social"), "Twitter"],
       alternates: ["social", "twitter", "link"],
       icon: markRaw(IconTwitter),
-      action: () => this.openURL("https://x.com/hoppscotch_io"),
+      action: () => this.openURL("https://x.com/zapro_ai"),
     },
     link_discord: {
       text: [this.t("spotlight.general.social"), "Discord"],
       alternates: ["social", "discord", "link"],
       icon: markRaw(IconDiscord),
-      action: () => this.openURL("https://hoppscotch.io/discord"),
+      action: () => this.openURL("https://zapro.ai/discord"),
     },
     link_linkedin: {
       text: [this.t("spotlight.general.social"), "LinkedIn"],
       alternates: ["social", "linkedin", "link"],
       icon: markRaw(IconLinkedIn),
-      action: () =>
-        this.openURL("https://www.linkedin.com/company/hoppscotch/"),
+      action: () => this.openURL("https://www.linkedin.com/company/zapro-ai/"),
     },
   })
 

@@ -12,7 +12,7 @@ import * as E from "fp-ts/Either"
 import { join } from "@tauri-apps/api/path"
 import { exists, copyFile, remove, readDir, mkdir } from "@tauri-apps/plugin-fs"
 
-const STORE_NAMESPACE = "hoppscotch-desktop.v1"
+const STORE_NAMESPACE = "zapro-desktop.v1"
 const MIGRATION_NAMESPACE = "migration.v1"
 const CURRENT_STORE_VERSION = 1
 

@@ -48,7 +48,7 @@
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="t('app.wiki')"
-        to="https://docs.hoppscotch.io/documentation/features/graphql-api-testing"
+        to="https://zapro.ai/docs/features/graphql-api-testing"
         blank
         :icon="IconHelpCircle"
       />

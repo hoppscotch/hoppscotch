@@ -1,8 +1,12 @@
 import { platform } from "~/platform"
 import * as E from "fp-ts/Either"
 
-// Default proxy URL
-export const DEFAULT_HOPP_PROXY_URL = "https://proxy.hoppscotch.io/"
+// Default proxy URL — overridable at container boot via the runtime env-var
+// rewrite (see aio_run.mjs / @import-meta-env). Falls back to a local
+// proxyscotch sidecar so self-hosted / branded deployments work without a
+// browser extension or reliance on the public Hoppscotch proxy.
+export const DEFAULT_HOPP_PROXY_URL =
+  import.meta.env.VITE_APP_PROXY_URL || "http://localhost:9159/"
 
 // Get default proxy URL from platform or return default
 export const getDefaultProxyUrl = async () => {

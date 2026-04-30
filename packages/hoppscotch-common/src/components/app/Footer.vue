@@ -53,7 +53,7 @@
                 ref="documentation"
                 :icon="IconBook"
                 :label="`${t('app.documentation')}`"
-                to="https://docs.hoppscotch.io"
+                to="https://zapro.ai/docs"
                 blank
                 :shortcut="['D']"
                 @click="hide()"
@@ -107,7 +107,7 @@
               <HoppSmartItem
                 :icon="IconTwitter"
                 :label="`${t('app.twitter')}`"
-                to="https://hoppscotch.io/twitter"
+                to="https://x.com/zapro_ai"
                 blank
                 @click="hide()"
               />
@@ -124,7 +124,7 @@
               <HoppSmartItem
                 :icon="IconLock"
                 :label="`${t('app.terms_and_privacy')}`"
-                to="https://docs.hoppscotch.io/support/privacy"
+                to="https://zapro.ai/privacy"
                 blank
                 @click="hide()"
               />
@@ -239,9 +239,9 @@ const nativeShare = () => {
   if (navigator.share) {
     navigator
       .share({
-        title: "Hoppscotch",
-        text: "Hoppscotch • Open source API development ecosystem - Helps you create requests faster, saving precious time on development.",
-        url: "https://hoppscotch.io",
+        title: "Zapro",
+        text: "Zapro • API development platform - Helps you create requests faster, saving precious time on development.",
+        url: "https://zapro.ai",
       })
       .catch(console.error)
   } else {

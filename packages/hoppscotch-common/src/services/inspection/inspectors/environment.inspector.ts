@@ -153,7 +153,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
             locations: itemLocation,
             doc: {
               text: this.t("action.learn_more"),
-              link: "https://docs.hoppscotch.io/documentation/features/inspections",
+              link: "https://zapro.ai/docs/features/inspections",
             },
           })
         }
@@ -335,7 +335,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
               locations: itemLocation,
               doc: {
                 text: this.t("action.learn_more"),
-                link: "https://docs.hoppscotch.io/documentation/features/inspections",
+                link: "https://zapro.ai/docs/features/inspections",
               },
             })
           }

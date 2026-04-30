@@ -133,9 +133,7 @@ onMounted(async () => {
           onClick: async (_, toastObject) => {
             await persistenceService.setLocalConfig("cookiesAllowed", "yes")
             toastObject.goAway(0)
-            window
-              .open("https://docs.hoppscotch.io/support/privacy", "_blank")
-              ?.focus()
+            window.open("https://zapro.ai/privacy", "_blank")?.focus()
           },
         },
         {

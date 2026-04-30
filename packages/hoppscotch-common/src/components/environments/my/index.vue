@@ -19,7 +19,7 @@
       <div class="flex">
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          to="https://docs.hoppscotch.io/documentation/features/environments"
+          to="https://zapro.ai/docs/features/environments"
           blank
           :title="t('app.wiki')"
           :icon="IconHelpCircle"

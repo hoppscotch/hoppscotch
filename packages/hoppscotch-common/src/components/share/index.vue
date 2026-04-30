@@ -19,7 +19,7 @@
       />
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
-        to="https://docs.hoppscotch.io/documentation/features/widgets"
+        to="https://zapro.ai/docs/features/widgets"
         blank
         :title="t('app.wiki')"
         :icon="IconHelpCircle"

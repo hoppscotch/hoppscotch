@@ -72,7 +72,7 @@ export class RequestInspectorService extends Service implements Inspector {
         locations: { type: "url" },
         doc: {
           text: this.t("action.learn_more"),
-          link: "https://docs.hoppscotch.io/documentation/features/inspections",
+          link: "https://zapro.ai/docs/features/inspections",
         },
       }),
     },
@@ -88,7 +88,7 @@ export class RequestInspectorService extends Service implements Inspector {
         locations: { type: "url" },
         doc: {
           text: this.t("action.learn_more"),
-          link: "https://docs.hoppscotch.io/documentation/features/inspections",
+          link: "https://zapro.ai/docs/features/inspections",
         },
       }),
     },
@@ -113,7 +113,7 @@ export class RequestInspectorService extends Service implements Inspector {
         },
         doc: {
           text: this.t("action.learn_more"),
-          link: "https://hoppscotch.com/download",
+          link: "https://zapro.ai/download",
         },
       }),
     },
@@ -130,7 +130,7 @@ export class RequestInspectorService extends Service implements Inspector {
         locations: { type: "body-content-type-header" },
         doc: {
           text: this.t("action.learn_more"),
-          link: "https://docs.hoppscotch.io/documentation/features/inspections",
+          link: "https://zapro.ai/docs/features/inspections",
         },
       }),
     },

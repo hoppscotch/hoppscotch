@@ -107,7 +107,7 @@ async fn install() -> Result<(), WebViewError> {
     const DEFAULT_FILENAME: &str = "MicrosoftEdgeWebview2Setup.exe";
 
     let client = reqwest::Client::builder()
-        .user_agent("Hoppscotch Agent")
+        .user_agent("Zapro Agent")
         .gzip(true)
         .build()?;
 

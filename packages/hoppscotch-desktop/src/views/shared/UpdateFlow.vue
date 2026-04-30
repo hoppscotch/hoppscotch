@@ -4,7 +4,7 @@
     <div class="text-center">
       <h2 class="text-xl font-semibold text-secondaryDark">Update Available</h2>
       <p class="text-secondary mt-1">
-        {{ message || "A new version of Hoppscotch is available" }}
+        {{ message || "A new version of Zapro is available" }}
       </p>
     </div>
 

@@ -20,7 +20,7 @@
         </div>
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          to="https://docs.hoppscotch.io/documentation/getting-started/rest/uploading-data"
+          to="https://zapro.ai/docs/getting-started/rest/uploading-data"
           blank
           :title="t('app.wiki')"
           :icon="IconHelpCircle"

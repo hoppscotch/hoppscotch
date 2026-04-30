@@ -7,7 +7,7 @@
         <HoppButtonSecondary
           class="!font-bold uppercase tracking-wide !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark"
           :label="t('app.name')"
-          to="https://hoppscotch.io"
+          to="https://zapro.ai"
           blank
         />
         <div class="flex">

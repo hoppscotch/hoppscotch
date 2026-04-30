@@ -17,7 +17,7 @@
       <p class="mb-4 text-lg text-secondaryDark">{{ message }}</p>
       <p class="mt-4 space-x-2">
         <HoppButtonSecondary
-          to="https://docs.hoppscotch.io/documentation"
+          to="https://zapro.ai/docs"
           :icon="IconTextSearch"
           filled
           blank

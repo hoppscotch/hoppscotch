@@ -30,7 +30,7 @@
         </HoppSmartToggle>
         <HoppSmartAnchor
           blank
-          to="https://docs.hoppscotch.io/documentation/self-host/community-edition/telemetry"
+          to="https://zapro.ai/docs/self-host/community-edition/telemetry"
           :label="t('data_sharing.see_shared')"
           class="underline"
         />
@@ -58,7 +58,7 @@
         />
         <HoppSmartAnchor
           blank
-          to="https://docs.hoppscotch.io"
+          to="https://zapro.ai/docs"
           :icon="IconBookOpenText"
           :label="t('app.read_documentation')"
         />

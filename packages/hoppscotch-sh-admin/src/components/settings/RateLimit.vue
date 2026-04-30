@@ -16,7 +16,7 @@
           <HoppButtonSecondary
             blank
             v-tippy="{ theme: 'tooltip', allowHTML: true }"
-            to="https://docs.hoppscotch.io/documentation/self-host/community-edition/prerequisites#email-delivery"
+            to="https://zapro.ai/docs/self-host/community-edition/prerequisites#email-delivery"
             :title="t('support.documentation')"
             :icon="IconHelpCircle"
             class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"

@@ -3,7 +3,7 @@ use std::path::PathBuf;
 
 /// App identifier (identical to `tauri.conf.json`)
 /// used for various directories and configurations
-pub const APP_ID: &str = "io.hoppscotch.desktop";
+pub const APP_ID: &str = "ai.zapro.desktop";
 
 pub fn config_dir() -> io::Result<PathBuf> {
     let path = platform_config_dir();
@@ -156,7 +156,7 @@ fn platform_config_dir() -> PathBuf {
     if cfg!(feature = "portable") {
         return std::env::current_dir()
             .unwrap_or_else(|_| std::env::temp_dir())
-            .join("hoppscotch-desktop-data");
+            .join("zapro-desktop-data");
     }
 
     #[cfg(target_os = "macos")]
@@ -218,13 +218,13 @@ mod tests {
 
     #[test]
     fn test_app_id_constant() {
-        assert_eq!(APP_ID, "io.hoppscotch.desktop");
+        assert_eq!(APP_ID, "ai.zapro.desktop");
     }
 
     #[test]
     fn test_log_file_path() {
         let path = log_file_path();
-        assert!(path.to_string_lossy().contains("io.hoppscotch.desktop.log"));
+        assert!(path.to_string_lossy().contains("ai.zapro.desktop.log"));
     }
 
     #[test]
@@ -241,7 +241,7 @@ mod tests {
         {
             assert!(config_dir
                 .to_string_lossy()
-                .contains("hoppscotch-desktop-data"));
+                .contains("zapro-desktop-data"));
         }
 
         #[cfg(not(feature = "portable"))]
@@ -306,7 +306,7 @@ mod portable_tests {
         let config_dir = platform_config_dir();
         assert!(config_dir
             .to_string_lossy()
-            .contains("hoppscotch-desktop-data"));
+            .contains("zapro-desktop-data"));
     }
 }
 

@@ -15,7 +15,7 @@ export const exportTestResults = async (testResults: HoppTestResult) => {
     suggestedFilename: `${fileName}.json`,
     filters: [
       {
-        name: "Hoppscotch Test Results JSON file",
+        name: "Zapro Test Results JSON file",
         extensions: ["json"],
       },
     ],

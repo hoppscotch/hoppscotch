@@ -15,6 +15,7 @@ import type {
   ExecutionResult,
   KernelInterceptorError,
 } from "~/services/kernel-interceptor.service"
+import { CookieJarService } from "~/services/cookie-jar.service"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
@@ -54,6 +55,7 @@ export class ProxyKernelInterceptorService
 {
   public static readonly ID = "KERNEL_PROXY_INTERCEPTOR_SERVICE"
   private readonly store = this.bind(KernelInterceptorProxyStore)
+  private readonly cookieJar = this.bind(CookieJarService)
 
   public readonly id = "proxy"
   public readonly name = (t: ReturnType<typeof getI18n>) =>
@@ -74,7 +76,7 @@ export class ProxyKernelInterceptorService
     auth: new Set(["basic"]),
     security: new Set([]),
     proxy: new Set([]),
-    advanced: new Set([]),
+    advanced: new Set(["cookies"]),
   } as const
   public readonly settingsEntry = markRaw({
     title: (t: ReturnType<typeof getI18n>) =>
@@ -210,6 +212,27 @@ export class ProxyKernelInterceptorService
     const proxyUrl = settings.proxyUrl
 
     const processedRequest = preProcessRelayRequest(request)
+
+    // Inject jar cookies into the outbound request so proxyscotch forwards them
+    // upstream. Honour an existing user-set Cookie header (case-insensitive) so we
+    // don't clobber a request the user explicitly authored.
+    try {
+      const targetUrl = new URL(processedRequest.url)
+      const hasUserCookieHeader = Object.keys(
+        processedRequest.headers ?? {}
+      ).some((h) => h.toLowerCase() === "cookie")
+      if (!hasUserCookieHeader) {
+        const cookieHeader = this.cookieJar.buildCookieHeader(targetUrl)
+        if (cookieHeader) {
+          processedRequest.headers = {
+            ...(processedRequest.headers ?? {}),
+            Cookie: cookieHeader,
+          }
+        }
+      }
+    } catch {
+      // Malformed URL — let the relay surface the error normally.
+    }
 
     let content: ContentType
     const multipartKey = `proxyRequestData-${v4()}`
@@ -380,6 +403,20 @@ export class ProxyKernelInterceptorService
                   message: "Proxy request failed",
                 },
               })
+            }
+
+            // Persist any Set-Cookie headers from the proxied response into the
+            // jar so they are auto-attached on the next request to the same host.
+            const setCookieHeader = parsedProxyResponse.headers?.["set-cookie"]
+            if (setCookieHeader) {
+              try {
+                this.cookieJar.captureSetCookieHeader(
+                  setCookieHeader,
+                  new URL(processedRequest.url)
+                )
+              } catch {
+                // Bad URL — skip persistence rather than failing the response.
+              }
             }
 
             // NOTE: This should be conditional but seems to be hit always,

@@ -23,7 +23,7 @@
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip', allowHTML: true }"
             blank
-            to="https://docs.hoppscotch.io/documentation/self-host/community-edition/telemetry"
+            to="https://zapro.ai/docs/self-host/community-edition/telemetry"
             :title="t('support.documentation')"
             :icon="IconHelpCircle"
             class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
@@ -36,7 +36,7 @@
         filled
         :icon="IconShieldQuestion"
         :label="t('configs.data_sharing.see_shared')"
-        to="https://docs.hoppscotch.io/documentation/self-host/community-edition/telemetry"
+        to="https://zapro.ai/docs/self-host/community-edition/telemetry"
         blank
         class="w-min my-2"
       />

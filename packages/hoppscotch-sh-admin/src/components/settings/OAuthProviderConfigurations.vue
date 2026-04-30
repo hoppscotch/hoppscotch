@@ -26,7 +26,7 @@
             </HoppSmartToggle>
             <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip', allowHTML: true }"
-              to="https://docs.hoppscotch.io/documentation/self-host/community-edition/prerequisites#oauth"
+              to="https://zapro.ai/docs/self-host/community-edition/prerequisites#oauth"
               blank
               :title="t('support.documentation')"
               :icon="IconCircleHelp"

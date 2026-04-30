@@ -19,7 +19,7 @@ const macOS: Link = {
   icon: markRaw(IconApple),
   action: {
     type: "link",
-    href: "https://hoppscotch.com/download?platform=macOS",
+    href: "https://zapro.ai/download?platform=macOS",
   },
 }
 
@@ -29,7 +29,7 @@ const windows: Link = {
   icon: markRaw(IconWindows),
   action: {
     type: "link",
-    href: "https://hoppscotch.com/download?platform=windows",
+    href: "https://zapro.ai/download?platform=windows",
   },
 }
 
@@ -39,7 +39,7 @@ const linux: Link = {
   icon: markRaw(IconLinux),
   action: {
     type: "link",
-    href: "https://hoppscotch.com/download?platform=linux",
+    href: "https://zapro.ai/download?platform=linux",
   },
 }
 
@@ -62,7 +62,7 @@ const cli: Link = {
   icon: IconCLI,
   action: {
     type: "link",
-    href: "https://docs.hoppscotch.io/documentation/clients/cli/overview",
+    href: "https://zapro.ai/docs/clients/cli/overview",
   },
 }
 

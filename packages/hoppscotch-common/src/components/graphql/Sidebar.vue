@@ -23,7 +23,7 @@
         <div class="flex">
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
-            to="https://docs.hoppscotch.io/documentation/protocols/graphql"
+            to="https://zapro.ai/docs/protocols/graphql"
             blank
             :title="t('app.wiki')"
             :icon="IconHelpCircle"

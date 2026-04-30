@@ -13,21 +13,21 @@ import { diag } from "./log"
 
 // on desktop, org webviews share the same app:// origin as the main webview
 // (to keep Tauri IPC working). the org context is passed as a query param
-// (?org=test-org.hoppscotch.io) instead. we include it in the store path so
+// (?org=test-org.zapro.ai) instead. we include it in the store path so
 // each org gets its own store file on disk, preserving per-org isolation for
 // auth tokens, settings, collections, etc.
 //
-// the org param is the raw host (e.g. "test-org.hoppscotch.io") so we
+// the org param is the raw host (e.g. "test-org.zapro.ai") so we
 // sanitize it the same way Tauri sanitizes window labels: replace all
 // non-alphanumeric chars with underscores. this produces the same filename
-// as the old per-hostname approach (test_org_hoppscotch_io.hoppscotch.store)
+// as the old per-hostname approach (test_org_zapro_ai.zapro.store)
 // the ?org= query param is preserved across Vue Router navigations by
 // a beforeEach guard in modules/router.ts, and survives full-page reloads
 // because Tauri sets it on the initial webview URL
 const orgParam = new URLSearchParams(window.location.search).get("org")
 const STORE_PATH = orgParam
-  ? `${orgParam.replace(/[^a-zA-Z0-9]/g, "_")}.hoppscotch.store`
-  : `${window.location.host}.hoppscotch.store`
+  ? `${orgParam.replace(/[^a-zA-Z0-9]/g, "_")}.zapro.store`
+  : `${window.location.host}.zapro.store`
 
 diag("store", "--- COMMON store.ts module evaluated ---")
 diag("store", "orgParam:", orgParam ?? "(none)")

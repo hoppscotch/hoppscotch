@@ -16,9 +16,9 @@
   >
     <div class="w-full">
       <div class="flex items-center px-4 my-4">
-        <img src="/logo.svg" alt="Hoppscotch" class="h-7 w-7" />
+        <img src="/logo.svg" alt="Zapro" class="h-7 w-7" />
         <span v-if="expanded" class="ml-4 font-semibold text-accentContrast"
-          >HOPPSCOTCH</span
+          >ZAPRO</span
         >
       </div>
 

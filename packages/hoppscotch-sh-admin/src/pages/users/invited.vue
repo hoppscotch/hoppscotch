@@ -17,7 +17,7 @@
           </p>
           <HoppSmartAnchor
             blank
-            to="https://docs.hoppscotch.io/documentation/self-host/community-edition/admin-dashboard#pending-invites"
+            to="https://zapro.ai/docs/self-host/community-edition/admin-dashboard#pending-invites"
             :label="t('support.more_info')"
             class="underline ml-1"
           />

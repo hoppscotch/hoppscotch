@@ -7,7 +7,7 @@
     <div v-if="response == null && isEmbed">
       <HoppButtonSecondary
         :label="`${t('app.documentation')}`"
-        to="https://docs.hoppscotch.io/documentation/features/rest-api-testing#response"
+        to="https://zapro.ai/docs/features/rest-api-testing#response"
         :icon="IconExternalLink"
         blank
         outline

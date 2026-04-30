@@ -75,7 +75,7 @@
         <p class="text-secondaryLight text-tiny mt-2">
           {{ t('onboarding.onboarding_fail_help') }}
           <a
-            href="https://docs.hoppscotch.io/documentation/self-host/community-edition"
+            href="https://zapro.ai/docs/self-host/community-edition"
             target="_blank"
             class="text-secondaryLight underline"
             >documentation</a

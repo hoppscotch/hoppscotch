@@ -17,7 +17,7 @@ function mainDiag(msg: string) {
   if ((window as any).__TAURI_INTERNALS__) {
     ;(window as any).__TAURI_INTERNALS__
       .invoke("append_log", {
-        filename: "io.hoppscotch.desktop.diag.log",
+        filename: "ai.zapro.desktop.diag.log",
         content: line,
       })
       .catch(() => {})
@@ -66,26 +66,26 @@ export function useAppInitialization() {
 
   const loadVendoredInstance = async () => {
     try {
-      statusMessage.value = "Loading Hoppscotch Desktop..."
+      statusMessage.value = "Loading Zapro Desktop..."
 
       await saveConnectionState({
         status: "connected",
         instance: VENDORED_INSTANCE_CONFIG,
       })
 
-      mainDiag("loadVendoredInstance: calling load(bundleName=Hoppscotch)")
+      mainDiag("loadVendoredInstance: calling load(bundleName=Zapro)")
       console.log("Loading vendored app...")
 
       const loadResp = await load({
         bundleName: VENDORED_INSTANCE_CONFIG.bundleName!,
-        window: { title: "Hoppscotch" },
+        window: { title: "Zapro" },
       })
 
       mainDiag(
         `loadVendoredInstance: load result success=${loadResp.success}, label=${loadResp.windowLabel}`
       )
       if (!loadResp.success) {
-        throw new Error("Failed to load Hoppscotch Vendored")
+        throw new Error("Failed to load Zapro Vendored")
       }
 
       console.log("Vendored app loaded successfully")
@@ -111,12 +111,12 @@ export function useAppInitialization() {
       `loadVendoredIfMatches: kind=${instance.kind}, displayName=${instance.displayName}, bundleName=${instance.bundleName}`
     )
 
-    // cloud-org instances share the same bundleName as vendored ("Hoppscotch")
+    // cloud-org instances share the same bundleName as vendored ("Zapro")
     // because they use the same app bundle, just loaded with a different org
     // context via the host parameter. we must check kind, not bundleName, to
     // distinguish them. without this, restarting the app after connecting to an
     // org would incorrectly load vendored (no host param = no org context).
-    // "cloud" (default cloud, e.g. hoppscotch.io) also uses the vendored bundle
+    // "cloud" (default cloud) also uses the vendored bundle
     // and doesn't need a download step.
     if (instance.kind === "vendored" || instance.kind === "cloud") {
       mainDiag(
@@ -142,7 +142,7 @@ export function useAppInitialization() {
         const loadResp = await load({
           bundleName: instance.bundleName!,
           host: instance.serverUrl,
-          window: { title: "Hoppscotch" },
+          window: { title: "Zapro" },
         })
 
         mainDiag(
@@ -197,7 +197,7 @@ export function useAppInitialization() {
         )
         const loadResp = await load({
           bundleName: instance.bundleName!,
-          window: { title: "Hoppscotch" },
+          window: { title: "Zapro" },
         })
 
         mainDiag(
@@ -242,7 +242,7 @@ export function useAppInitialization() {
       statusMessage.value = "Loading application..."
 
       // Both the main window and the vendored webview's InstanceService
-      // share hoppscotch-unified.store for connection state and recent
+      // share zapro-unified.store for connection state and recent
       // instances. The InstanceService's detectCurrentInstanceFromHostname
       // persists the detected instance (including cloud-org) to this store,
       // so on restart the main window can resume the correct instance.

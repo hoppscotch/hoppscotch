@@ -20,7 +20,7 @@ const DEFAULT_QUERY = print(
 export const getDefaultGQLRequest = (): HoppGQLRequest => ({
   v: GQL_REQ_SCHEMA_VERSION,
   name: "Untitled",
-  url: "https://echo.hoppscotch.io/graphql",
+  url: "https://echo.hoppscotch.io/graphql", // Public echo service — no Zapro-branded equivalent yet
   headers: [],
   variables: `{
   "id": "1"

@@ -23,7 +23,7 @@ export type HoppWSSession = {
 }
 
 const defaultWSRequest: HoppWSRequest = {
-  endpoint: "wss://echo-websocket.hoppscotch.io",
+  endpoint: "wss://echo-websocket.hoppscotch.io", // Public echo service
   protocols: [],
 }
 

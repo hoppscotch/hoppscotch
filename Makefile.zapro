@@ -1,0 +1,28 @@
+# Zapro local stack — convenience targets.
+# Usage: `make -f Makefile.zapro up`
+COMPOSE := docker compose -f docker-compose.zapro.yml
+
+.PHONY: up down build logs reset ps wait
+
+up:
+	DOCKER_BUILDKIT=1 $(COMPOSE) up -d --build
+
+down:
+	$(COMPOSE) down
+
+build:
+	DOCKER_BUILDKIT=1 $(COMPOSE) build
+
+logs:
+	$(COMPOSE) logs -f --tail=200
+
+ps:
+	$(COMPOSE) ps
+
+reset:
+	$(COMPOSE) down -v
+
+wait:
+	@echo "Waiting for backend ping at http://localhost:3170/ping ..."
+	@until curl -fsS http://localhost:3170/ping >/dev/null 2>&1; do sleep 2; done
+	@echo "Backend is healthy. Web: http://localhost:3000  Admin: http://localhost:3100"

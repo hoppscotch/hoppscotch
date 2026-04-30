@@ -63,7 +63,7 @@ export async function useWhatsNewDialog() {
 async function getReleaseNotes(v: string): Promise<string | undefined> {
   try {
     const { release_notes } = await fetch(
-      `https://releases.hoppscotch.com/releases/${v}.json`
+      `https://releases.zapro.ai/releases/${v}.json`
     ).then((res) => res.json())
 
     return release_notes

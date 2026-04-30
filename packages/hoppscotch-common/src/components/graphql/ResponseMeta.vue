@@ -7,7 +7,7 @@
     <div v-if="response == null && isEmbed">
       <HoppButtonSecondary
         :label="`${t('app.documentation')}`"
-        to="https://docs.hoppscotch.io/documentation/features/graphql-api-testing"
+        to="https://zapro.ai/docs/features/graphql-api-testing"
         :icon="IconExternalLink"
         blank
         outline

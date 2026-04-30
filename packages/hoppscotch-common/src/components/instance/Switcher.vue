@@ -125,7 +125,7 @@
             <HoppSmartInput
               v-model="newInstanceUrl"
               :disabled="isConnecting"
-              placeholder="hoppscotch.company.com"
+              placeholder="api.company.com"
               :error="!!connectionError"
               type="text"
               autofocus
@@ -292,9 +292,9 @@ const isInstanceSwitchingEnabled = computed(() => {
 })
 
 // Whether the org switcher is handling the default instance entry. When it is,
-// the vendored instance should not appear here since the "Hoppscotch Cloud"
+// the vendored instance should not appear here since the "Zapro Cloud"
 // entry in the org section already covers switching back to the default state.
-// Showing both "Hoppscotch Cloud" (org section) and "Hoppscotch Desktop"
+// Showing both "Zapro Cloud" (org section) and "Zapro Desktop"
 // (instance section) is confusing because they represent the same thing from
 // the user's perspective.
 const orgSwitcherHandlesDefault = computed(

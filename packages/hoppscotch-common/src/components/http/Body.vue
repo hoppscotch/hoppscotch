@@ -124,7 +124,7 @@
         <HoppButtonSecondary
           outline
           :label="`${t('app.documentation')}`"
-          to="https://docs.hoppscotch.io/documentation/getting-started/rest/uploading-data"
+          to="https://zapro.ai/docs/getting-started/rest/uploading-data"
           blank
           :icon="IconExternalLink"
           reverse

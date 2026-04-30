@@ -8,8 +8,10 @@ import { settingsStore, applySetting } from "~/newstore/settings"
 export function performMigrations(): void {
   // Migrate old default proxy URL to the new proxy URL (if not set / overridden)
   if (
-    settingsStore.value.PROXY_URL === "https://hoppscotch.apollosoftware.xyz/"
+    settingsStore.value.PROXY_URL ===
+      "https://hoppscotch.apollosoftware.xyz/" ||
+    settingsStore.value.PROXY_URL === "https://proxy.hoppscotch.io/"
   ) {
-    applySetting("PROXY_URL", "https://proxy.hoppscotch.io/")
+    applySetting("PROXY_URL", "http://localhost:9159/")
   }
 }

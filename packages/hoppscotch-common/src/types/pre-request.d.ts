@@ -480,7 +480,7 @@ declare namespace pm {
     /**
      * Client certificate used for mutual TLS authentication
      * In Postman, certificates are configured at the app/collection level, not programmatically in scripts
-     * Returns undefined in Hoppscotch as certificate configuration is handled at the application level
+     * Returns undefined in Zapro as certificate configuration is handled at the application level
      * @see https://learning.postman.com/docs/sending-requests/certificates/
      */
     readonly certificate:
@@ -496,7 +496,7 @@ declare namespace pm {
     /**
      * Proxy configuration for the request
      * In Postman, proxy is configured at the app level, not programmatically in scripts
-     * Returns undefined in Hoppscotch as proxy configuration is handled at the application level
+     * Returns undefined in Zapro as proxy configuration is handled at the application level
      * @see https://learning.postman.com/docs/sending-requests/capturing-request-data/proxy/
      */
     readonly proxy:
@@ -841,7 +841,7 @@ declare namespace pm {
 
   /**
    * Send an HTTP request (unsupported)
-   * @throws Error - sendRequest is not supported in Hoppscotch
+   * @throws Error - sendRequest is not supported in Zapro
    */
   function sendRequest(
     request: string | { url: string; method?: string; [key: string]: any },
@@ -850,7 +850,7 @@ declare namespace pm {
 
   /**
    * Collection variables (unsupported - Workspace feature)
-   * Collection variables are not supported in Hoppscotch as they are a Postman Workspace feature
+   * Collection variables are not supported in Zapro as they are a Postman Workspace feature
    */
   const collectionVariables: Readonly<{
     get(key: string): never
@@ -864,7 +864,7 @@ declare namespace pm {
 
   /**
    * Postman Vault (unsupported)
-   * Vault is not supported in Hoppscotch as it is a Postman-specific feature
+   * Vault is not supported in Zapro as it is a Postman-specific feature
    */
   const vault: Readonly<{
     get(key: string): never
@@ -874,7 +874,7 @@ declare namespace pm {
 
   /**
    * Iteration data (unsupported - Collection Runner feature)
-   * Iteration data is not supported in Hoppscotch as it requires Collection Runner
+   * Iteration data is not supported in Zapro as it requires Collection Runner
    */
   const iterationData: Readonly<{
     get(key: string): never
@@ -888,7 +888,7 @@ declare namespace pm {
   /**
    * Visualizer API (unsupported)
    * The Postman Visualizer allows you to present response data as HTML templates with styling.
-   * This feature is not supported in Hoppscotch as it requires a browser-based visualization UI.
+   * This feature is not supported in Zapro as it requires a browser-based visualization UI.
    * @see https://learning.postman.com/docs/sending-requests/response-data/visualizer/
    */
   const visualizer: Readonly<{
@@ -897,7 +897,7 @@ declare namespace pm {
      * @param layout - HTML template string with Handlebars syntax
      * @param data - Data object to pass to the template
      * @param options - Optional configuration object
-     * @throws Error - Visualizer is not supported in Hoppscotch
+     * @throws Error - Visualizer is not supported in Zapro
      */
     set(
       layout: string,
@@ -907,7 +907,7 @@ declare namespace pm {
 
     /**
      * Clear the current visualization (unsupported)
-     * @throws Error - Visualizer is not supported in Hoppscotch
+     * @throws Error - Visualizer is not supported in Zapro
      */
     clear(): never
   }>
@@ -918,7 +918,7 @@ declare namespace pm {
   const execution: Readonly<{
     /**
      * Execution location identifier
-     * Always returns ["Hoppscotch"] with current = "Hoppscotch"
+     * Always returns ["Zapro"] with current = "Zapro"
      */
     readonly location: readonly string[] & {
       readonly current: string
@@ -943,7 +943,7 @@ declare namespace pm {
    * Import packages from Package Library (unsupported)
    * @param packageName - Name of the package to import (e.g., '@team-domain/package-name' or 'npm:package-name@version')
    * @returns The imported package module
-   * @throws Error - Package imports are not supported in Hoppscotch
+   * @throws Error - Package imports are not supported in Zapro
    */
   function require(packageName: string): never
 }

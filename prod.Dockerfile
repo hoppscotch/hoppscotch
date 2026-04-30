@@ -162,7 +162,7 @@ EXPOSE 3170
 
 FROM base_builder AS fe_builder
 WORKDIR /usr/src/app/packages/hoppscotch-selfhost-web
-RUN pnpm run generate
+RUN NODE_OPTIONS="--max-old-space-size=4096" pnpm run generate
 
 
 
@@ -190,8 +190,8 @@ EXPOSE 3200
 FROM base_builder AS sh_admin_builder
 WORKDIR /usr/src/app/packages/hoppscotch-sh-admin
 # Generate two builds for `sh-admin`, one based on subpath-access and the regular build
-RUN pnpm run build --outDir dist-multiport-setup
-RUN pnpm run build --outDir dist-subpath-access --base /admin/
+RUN NODE_OPTIONS="--max-old-space-size=4096" pnpm run build --outDir dist-multiport-setup
+RUN NODE_OPTIONS="--max-old-space-size=4096" pnpm run build --outDir dist-subpath-access --base /admin/
 
 
 FROM node_base AS sh_admin

@@ -91,7 +91,7 @@ const hasSameNameInspectionResult: ComputedRef<InspectorResult[]> = computed(
         },
         doc: {
           text: t("action.learn_more"),
-          link: "https://docs.hoppscotch.io/documentation/getting-started/rest/response-handling#save-a-response-as-an-example",
+          link: "https://zapro.ai/docs/getting-started/rest/response-handling#save-a-response-as-an-example",
         },
         locations: {
           type: "url",

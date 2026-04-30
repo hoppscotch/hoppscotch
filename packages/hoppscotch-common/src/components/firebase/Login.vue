@@ -68,9 +68,7 @@
           <p>{{ t("state.require_auth_provider") }}</p>
           <p>{{ t("state.configure_auth") }}</p>
           <div class="mt-5">
-            <a
-              href="https://docs.hoppscotch.io/documentation/self-host/getting-started"
-            >
+            <a href="https://zapro.ai/docs/self-host/getting-started">
               <HoppButtonSecondary
                 outline
                 filled

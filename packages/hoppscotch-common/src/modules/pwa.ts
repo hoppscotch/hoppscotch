@@ -29,10 +29,10 @@ export const installPWA = async () => {
     ).userChoice
 
     if (outcome === "accepted") {
-      console.info("Hoppscotch was installed successfully.")
+      console.info("Zapro was installed successfully.")
     } else {
       console.info(
-        "Hoppscotch could not be installed. (Installation rejected by user.)"
+        "Zapro could not be installed. (Installation rejected by user.)"
       )
     }
 

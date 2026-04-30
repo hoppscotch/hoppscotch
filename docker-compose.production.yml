@@ -1,0 +1,95 @@
+# Zapro production stack — deploy behind a reverse proxy (nginx/Caddy/Traefik).
+#
+# Usage:
+#   1. Copy .env.production to .env and fill in real values
+#   2. docker compose -f docker-compose.production.yml up -d --build
+#   3. Point your reverse proxy at the exposed ports
+#
+# Architecture:
+#   [Internet] → [Reverse Proxy (nginx/Caddy)] → zapro-aio (3000/3100/3170)
+#                                               → zapro-proxyscotch (9159)
+
+name: zapro-prod
+
+services:
+  hoppscotch-db:
+    image: postgres:15
+    container_name: zapro-db
+    restart: unless-stopped
+    user: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+      POSTGRES_DB: zapro
+    volumes:
+      - zapro-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d zapro"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - zapro-internal
+
+  hoppscotch-migrate:
+    build:
+      dockerfile: prod.Dockerfile
+      context: .
+      target: backend
+    container_name: zapro-migrate
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    depends_on:
+      hoppscotch-db:
+        condition: service_healthy
+    command: sh -c "pnpm exec prisma migrate deploy"
+    restart: "no"
+    networks:
+      - zapro-internal
+
+  proxyscotch:
+    image: hoppscotch/proxyscotch:latest
+    container_name: zapro-proxyscotch
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:9159:9159"
+    volumes:
+      - zapro-proxyscotch-data:/data
+    networks:
+      - zapro-internal
+
+  hoppscotch-aio:
+    build:
+      dockerfile: prod.Dockerfile
+      context: .
+      target: aio
+    container_name: zapro-aio
+    restart: unless-stopped
+    depends_on:
+      hoppscotch-db:
+        condition: service_healthy
+      hoppscotch-migrate:
+        condition: service_completed_successfully
+      proxyscotch:
+        condition: service_started
+    env_file:
+      - .env.production
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      DATA_ENCRYPTION_KEY: ${DATA_ENCRYPTION_KEY}
+    ports:
+      # Bind to 127.0.0.1 — expose publicly via reverse proxy only
+      - "127.0.0.1:3000:3000"   # web
+      - "127.0.0.1:3100:3100"   # admin
+      - "127.0.0.1:3170:3170"   # backend API + GraphQL
+      - "127.0.0.1:3200:3200"   # webapp-server (desktop bundles)
+    networks:
+      - zapro-internal
+
+volumes:
+  zapro-db-data:
+  zapro-proxyscotch-data:
+
+networks:
+  zapro-internal:
+    driver: bridge

@@ -9,7 +9,7 @@ import { getModule } from "."
 import { invoke } from "@tauri-apps/api/core"
 import { join } from "@tauri-apps/api/path"
 
-const STORE_PATH = "hoppscotch-unified.store"
+const STORE_PATH = "zapro-unified.store"
 
 export const getConfigDir = async (): Promise<string> => {
   return invoke<string>("get_config_dir")
@@ -37,7 +37,7 @@ const getStorePath = async (): Promise<string> => {
     return join(storeDir, STORE_PATH)
   } catch (error) {
     console.error("Failed to get store directory:", error)
-    return "hoppscotch-unified.store"
+    return "zapro-unified.store"
   }
 }
 

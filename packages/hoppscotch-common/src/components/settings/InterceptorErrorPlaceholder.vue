@@ -13,7 +13,7 @@
           {{ t("error.check_how_to_add_origin") }}
           <HoppSmartLink
             blank
-            to="https://docs.hoppscotch.io/documentation/features/interceptor#browser-extension"
+            to="https://zapro.ai/docs/features/interceptor#browser-extension"
             class="text-accent hover:text-accentDark"
           >
             here

@@ -4,9 +4,9 @@
   >
     <div class="flex flex-col items-center space-y-6 max-w-md text-center">
       <div class="flex items-center space-x-4">
-        <img src="/logo.svg" alt="Hoppscotch" class="h-7 w-7" />
+        <img src="/logo.svg" alt="Zapro" class="h-7 w-7" />
         <div class="flex flex-col items-start">
-          <h1 class="text-2xl font-semibold text-secondaryDark">Hoppscotch</h1>
+          <h1 class="text-2xl font-semibold text-secondaryDark">Zapro</h1>
           <p class="text-secondary text-sm">Desktop</p>
         </div>
       </div>
@@ -35,7 +35,7 @@
           <p class="text-secondary mt-1">
             {{
               updateMessage ||
-              "A new version of Hoppscotch is available, downloading..."
+              "A new version of Zapro is available, downloading..."
             }}
           </p>
         </div>
@@ -141,7 +141,7 @@ import IconLucideAlertCircle from "~icons/lucide/alert-circle"
 import IconLucideRefreshCw from "~icons/lucide/refresh-cw"
 import IconLucideDownload from "~icons/lucide/download"
 
-const APP_STORE_PATH = "hoppscotch-desktop.store"
+const APP_STORE_PATH = "zapro-desktop.store"
 
 // `InstanceSwitcherService` store path.
 // NOTE: This should be removed eventually,
@@ -298,7 +298,7 @@ const loadVendored = async () => {
     // right now this is part 1/5 of HFE-864
     const vendoredInstance: VendoredInstance = {
       type: "vendored",
-      displayName: "Hoppscotch",
+      displayName: "Zapro",
       version: "26.3.1",
     }
 
@@ -332,12 +332,12 @@ const loadVendored = async () => {
 
     console.log("Loading vendored app...")
     const loadResp = await load({
-      bundleName: "Hoppscotch",
-      window: { title: "Hoppscotch" },
+      bundleName: "Zapro",
+      window: { title: "Zapro" },
     })
 
     if (!loadResp.success) {
-      throw new Error("Failed to load Hoppscotch Vendored")
+      throw new Error("Failed to load Zapro Vendored")
     }
 
     console.log("Vendored app loaded successfully")

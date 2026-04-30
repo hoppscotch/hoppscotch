@@ -43,15 +43,15 @@ const PLATFORM_CONFIG = {
     history: webHistory,
     instance: webInstance,
     interceptors: [
-      BrowserKernelInterceptorService,
       ProxyKernelInterceptorService,
+      BrowserKernelInterceptorService,
       AgentKernelInterceptorService,
       ExtensionKernelInterceptorService,
     ],
-    defaultInterceptor: "browser",
+    defaultInterceptor: "proxy",
     menuItems: stdFooterItems,
     supportItems: stdSupportOptionItems,
-    cookiesEnabled: false,
+    cookiesEnabled: true,
   },
 
   desktop: {

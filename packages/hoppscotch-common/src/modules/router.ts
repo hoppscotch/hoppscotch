@@ -48,7 +48,7 @@ export default <HoppModule>{
     })
 
     // on desktop, org webviews carry their context as ?org= in the URL
-    // (e.g. app://hoppscotch/?org=test-org.hoppscotch.io). Vue Router
+    // (e.g. app://zapro/?org=test-org.zapro.ai). Vue Router
     // strips query params during internal navigation, so we capture the
     // initial ?org= value and re-inject it into every subsequent route.
     // this is the single source of truth for org context on desktop,

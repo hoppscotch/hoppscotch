@@ -113,7 +113,7 @@ async fn setup_version_backup(app: &tauri::App) -> Result<(), HoppError> {
     }
 }
 
-/// Gracefully quit the Hoppscotch Desktop
+/// Gracefully quit the Zapro Desktop
 ///
 /// This command is invoked from the frontend when the user triggers
 /// the quit action (typically via Cmd+Q/Ctrl+Q keyboard shortcut).
@@ -139,7 +139,7 @@ pub fn run() {
     } else {
         "standard"
     };
-    tracing::info!(mode = mode, "Hoppscotch Desktop running in {} mode", mode);
+    tracing::info!(mode = mode, "Zapro Desktop running in {} mode", mode);
 
     #[cfg(all(feature = "portable", windows))]
     {
@@ -217,7 +217,7 @@ pub fn run() {
                     return Err(e.into());
                 }
 
-                tracing::info!("Starting Hoppscotch Desktop v{}", env!("CARGO_PKG_VERSION"));
+                tracing::info!("Starting Zapro Desktop v{}", env!("CARGO_PKG_VERSION"));
                 Ok(())
             })
         })
@@ -267,6 +267,6 @@ pub fn run() {
         .run(tauri::generate_context!());
 
     if let Err(e) = app {
-        tracing::error!(error = %e, "Error while running Hoppscotch Desktop");
+        tracing::error!(error = %e, "Error while running Zapro Desktop");
     }
 }

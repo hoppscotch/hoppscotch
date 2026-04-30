@@ -25,7 +25,7 @@ type HoppSIOSession = {
 }
 
 const defaultSIORequest: HoppSIORequest = {
-  endpoint: "wss://echo-socketio.hoppscotch.io",
+  endpoint: "wss://echo-socketio.hoppscotch.io", // Public echo service
   path: "/socket.io",
   version: "v4",
 }

@@ -288,9 +288,9 @@ async fn handle_portable_update_dialog(
     _app: &AppHandle,
     latest_version: &str,
 ) -> Result<(), String> {
-    let download_url = "https://hoppscotch.com/download";
+    let download_url = "https://zapro.ai/download";
     let message = format!(
-        "An update (version {}) is available for Hoppscotch Desktop (Portable).\n\nWould you like to download it now?\n\n• Yes = Download now\n• No = Remind me later",
+        "An update (version {}) is available for Zapro Desktop (Portable).\n\nWould you like to download it now?\n\n• Yes = Download now\n• No = Remind me later",
         latest_version
     );
 

@@ -15,7 +15,7 @@ export const documentation: HoppSupportOptionsMenuItem = {
   icon: IconBook,
   action: {
     type: "link",
-    href: "https://docs.hoppscotch.io",
+    href: "https://zapro.ai/docs",
   },
 }
 
@@ -39,7 +39,7 @@ export const changelog: HoppSupportOptionsMenuItem = {
   icon: IconGift,
   action: {
     type: "link",
-    href: "https://docs.hoppscotch.io/documentation/changelog",
+    href: "https://zapro.ai/docs/changelog",
   },
 }
 
@@ -50,7 +50,7 @@ export const github: HoppSupportOptionsMenuItem = {
   icon: IconGitHub,
   action: {
     type: "link",
-    href: "https://hoppscotch.io/github",
+    href: "https://github.com/Zapro-ai",
   },
 }
 
@@ -61,18 +61,18 @@ export const discord: HoppSupportOptionsMenuItem = {
   icon: IconDiscord,
   action: {
     type: "link",
-    href: "https://hoppscotch.io/discord",
+    href: "https://zapro.ai/discord",
   },
 }
 
 export const twitter: HoppSupportOptionsMenuItem = {
-  id: "discord",
+  id: "twitter",
   text: (t) => t("app.twitter"),
   subtitle: (t) => t("support.twitter"),
   icon: IconTwitter,
   action: {
     type: "link",
-    href: "https://hoppscotch.io/twitter",
+    href: "https://x.com/zapro_ai",
   },
 }
 

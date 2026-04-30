@@ -424,9 +424,9 @@ const copyToClipboard = async (text: string | undefined) => {
 const openInNewTab = () => {
   if (props.request) {
     // If in read-only mode (published documentation), open external link
-    // for now open hoppscotch.io, we can pass the request to be opened in the future
+    // for now open zapro.ai, we can pass the request to be opened in the future
     if (props.readOnly) {
-      platform.kernelIO.openExternalLink({ url: "https://hoppscotch.io" })
+      platform.kernelIO.openExternalLink({ url: "https://zapro.ai" })
       return
     }
 

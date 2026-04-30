@@ -169,7 +169,7 @@ const onAutoSkipChange = () => {
 
 const openDataMigrationDocs = () => {
   Io.openExternalLink({
-    url: "https://docs.hoppscotch.io/documentation/clients/desktop",
+    url: "https://zapro.ai/docs/clients/desktop",
   })
 }
 

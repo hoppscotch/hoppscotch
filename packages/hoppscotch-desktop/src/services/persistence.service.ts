@@ -4,7 +4,7 @@ import { StoreError } from "@hoppscotch/kernel"
 import { Store } from "~/kernel/store"
 import { UpdateState, PortableSettings } from "~/types"
 
-export const STORE_NAMESPACE = "hoppscotch-desktop.v1"
+export const STORE_NAMESPACE = "zapro-desktop.v1"
 
 export const STORE_KEYS = {
   UPDATE_STATE: "updateState",

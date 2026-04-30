@@ -20,7 +20,7 @@ const restApi = axios.create({
 const listmonkApi = axios.create({
   ...baseConfig,
   withCredentials: false,
-  baseURL: 'https://listmonk.hoppscotch.com/api/public',
+  baseURL: 'https://listmonk.zapro.ai/api/public',
 });
 
 export { gqlApi, restApi, listmonkApi };

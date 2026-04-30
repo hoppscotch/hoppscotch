@@ -30,7 +30,7 @@ type HoppMQTTSession = {
 
 const defaultMQTTRequest: HoppMQTTRequest = {
   endpoint: "wss://test.mosquitto.org:8081",
-  clientID: "hoppscotch",
+  clientID: "zapro",
 }
 
 const defaultTab: MQTTTab = {

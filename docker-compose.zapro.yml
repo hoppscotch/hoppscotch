@@ -1,0 +1,110 @@
+# Zapro local stack — branded Hoppscotch AIO + proxyscotch sidecar + Postgres.
+#
+# Usage:
+#   docker compose -f docker-compose.zapro.yml up -d --build
+#   open http://localhost:3000
+#
+# Notes:
+#   - Inline env values are local-dev only. Rotate DATA_ENCRYPTION_KEY before any
+#     non-local deploy.
+#   - VITE_APP_PROXY_URL points at the host-mapped port of the proxyscotch
+#     sidecar because the URL is reached from the user's browser, not from
+#     inside the docker network.
+#   - Volumes persist the Postgres data dir and the proxyscotch state across
+#     `down` / `up`. `make reset` removes them.
+
+name: zapro
+
+services:
+  hoppscotch-db:
+    image: postgres:15
+    container_name: zapro-db
+    restart: unless-stopped
+    user: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: zapro_local_pw
+      POSTGRES_DB: zapro
+    ports:
+      - "5432:5432"
+    volumes:
+      - zapro-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "sh -c 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}'",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  hoppscotch-migrate:
+    build:
+      dockerfile: prod.Dockerfile
+      context: .
+      target: backend
+    container_name: zapro-migrate
+    environment:
+      DATABASE_URL: postgresql://postgres:zapro_local_pw@hoppscotch-db:5432/zapro
+    depends_on:
+      hoppscotch-db:
+        condition: service_healthy
+    command: sh -c "pnpm exec prisma migrate deploy"
+    restart: "no"
+
+  proxyscotch:
+    image: hoppscotch/proxyscotch:latest
+    container_name: zapro-proxyscotch
+    restart: unless-stopped
+    ports:
+      - "9159:9159"
+    volumes:
+      - zapro-proxyscotch-data:/data
+
+  hoppscotch-aio:
+    build:
+      dockerfile: prod.Dockerfile
+      context: .
+      target: aio
+    container_name: zapro-aio
+    restart: unless-stopped
+    depends_on:
+      hoppscotch-db:
+        condition: service_healthy
+      hoppscotch-migrate:
+        condition: service_completed_successfully
+      proxyscotch:
+        condition: service_started
+    environment:
+      # ── Backend ────────────────────────────────────────────────────────────
+      DATABASE_URL: postgresql://postgres:zapro_local_pw@hoppscotch-db:5432/zapro
+      # 32 chars — local only, rotate before shipping anywhere
+      DATA_ENCRYPTION_KEY: zaproZAPROzapro1234567890ABCDEFG
+      WHITELISTED_ORIGINS: http://localhost:3170,http://localhost:3000,http://localhost:3100,app://localhost_3200,app://zapro
+      TRUST_PROXY: "false"
+      # ── Frontend base URLs (runtime-injected by aio_run.mjs) ───────────────
+      VITE_BASE_URL: http://localhost:3000
+      VITE_SHORTCODE_BASE_URL: http://localhost:3000
+      VITE_ADMIN_URL: http://localhost:3100
+      VITE_BACKEND_GQL_URL: http://localhost:3170/graphql
+      VITE_BACKEND_WS_URL: ws://localhost:3170/graphql
+      VITE_BACKEND_API_URL: http://localhost:3170/v1
+      VITE_APP_TOS_LINK: ""
+      VITE_APP_PRIVACY_POLICY_LINK: ""
+      # ── Proxy interceptor → proxyscotch sidecar ───────────────────────────
+      # Browser-side URL; matches the host port mapping of proxyscotch above.
+      VITE_APP_PROXY_URL: http://localhost:9159/
+      VITE_PROXYSCOTCH_ACCESS_TOKEN: ""
+      # ── Routing ───────────────────────────────────────────────────────────
+      ENABLE_SUBPATH_BASED_ACCESS: "false"
+    ports:
+      - "3000:3000"   # web
+      - "3100:3100"   # admin
+      - "3170:3170"   # backend (REST + GraphQL)
+      - "3200:3200"   # webapp-server (desktop bundle host)
+      - "3080:80"     # subpath access (unused when ENABLE_SUBPATH_BASED_ACCESS=false)
+
+volumes:
+  zapro-db-data:
+  zapro-proxyscotch-data:

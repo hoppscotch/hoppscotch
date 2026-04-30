@@ -11,7 +11,7 @@
         </p>
         <HoppSmartAnchor
           blank
-          to="https://docs.hoppscotch.io/documentation/self-host/community-edition/admin-dashboard#infratokens"
+          to="https://zapro.ai/docs/self-host/community-edition/admin-dashboard#infratokens"
           :label="t('support.more_info')"
           class="underline ml-1"
         />

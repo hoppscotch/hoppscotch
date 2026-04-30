@@ -78,7 +78,7 @@
                   <HoppButtonSecondary
                     v-tippy="{ theme: 'tooltip' }"
                     class="!py-0 pl-2"
-                    to="https://docs.hoppscotch.io/documentation/features/inspections"
+                    to="https://zapro.ai/docs/features/inspections"
                     blank
                     :title="t('app.wiki')"
                     :icon="IconHelpCircle"
@@ -234,8 +234,8 @@ const currentEnv = ref<CurrentEnv>(null)
 
 const runnerLink = computed(() => {
   return activeTab.value === "gui"
-    ? "https://docs.hoppscotch.io/documentation/features/runner#runner"
-    : "https://docs.hoppscotch.io/documentation/clients/cli/overview#running-collections-present-on-the-api-client"
+    ? "https://zapro.ai/docs/features/runner#runner"
+    : "https://zapro.ai/docs/clients/cli/overview#running-collections-present-on-the-api-client"
 })
 
 function setCurrentEnv(payload: CurrentEnv) {
@@ -348,7 +348,7 @@ const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
   1000
 )
 
-const isCloudInstance = window.location.hostname === "hoppscotch.io"
+const isCloudInstance = window.location.hostname === "zapro.ai"
 
 const cliCommandGenerationDescription = computed(() => {
   if (isCloudInstance) {

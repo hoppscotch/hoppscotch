@@ -1,7 +1,22 @@
 import { Service } from "dioc"
-import { ref } from "vue"
+import { ref, watch } from "vue"
 import { parseString as setCookieParse } from "set-cookie-parser-es"
 import { Cookie } from "@hoppscotch/data"
+import {
+  cookieHeaderForURL,
+  deserializeJar,
+  mergeCookiesIntoJar,
+  parseSetCookieHeaders,
+  pruneExpiredCookies,
+  serializeJar,
+} from "~/helpers/cookie/cookie-utils"
+import { PersistenceService } from "./persistence"
+import { getService } from "~/modules/dioc"
+
+const STORAGE_KEY = "zapro.cookieJar.v1"
+const PERSIST_DEBOUNCE_MS = 75
+
+const persistenceService = getService(PersistenceService)
 
 export class CookieJarService extends Service {
   public static readonly ID = "COOKIE_JAR_SERVICE"
@@ -13,15 +28,29 @@ export class CookieJarService extends Service {
    */
   public cookieJar = ref(new Map<string, Cookie[]>())
 
+  private persistTimer: ReturnType<typeof setTimeout> | null = null
+  private persistenceReady = false
+
+  override onServiceInit(): void {
+    // Set up the watcher first; schedulePersist no-ops until persistenceReady flips
+    // so changes triggered by hydration itself won't write back partial state.
+    watch(this.cookieJar, () => this.schedulePersist(), { deep: true })
+    void this.hydrateFromStorage().finally(() => {
+      this.persistenceReady = true
+    })
+  }
+
   public parseSetCookieString(setCookieString: string) {
     return setCookieParse(setCookieString)
   }
 
   public bulkApplyCookiesToDomain(cookies: Cookie[], domain: string) {
     const existingDomainEntries = this.cookieJar.value.get(domain) ?? []
-    existingDomainEntries.push(...cookies)
-
-    this.cookieJar.value.set(domain, existingDomainEntries)
+    // Replace the Map with a new instance so Vue's reactivity is triggered
+    // for downstream consumers (the cookies modal, request runner, persistence watcher).
+    const next = new Map(this.cookieJar.value)
+    next.set(domain, [...existingDomainEntries, ...cookies])
+    this.cookieJar.value = next
   }
 
   public getCookiesForURL(url: URL) {
@@ -54,5 +83,52 @@ export class CookieJarService extends Service {
 
         return passesPathCheck && passesExpiresCheck && passesSecureCheck
       })
+  }
+
+  /**
+   * Captures `Set-Cookie` headers received from a proxied (or otherwise non-native)
+   * response and merges them into the jar. Multiple cookies in a single header
+   * value are expected to be newline-separated (matching the proxyscotch wire
+   * format).
+   */
+  public captureSetCookieHeader(rawSetCookie: string, requestUrl: URL): void {
+    if (!rawSetCookie) return
+    const parsed = parseSetCookieHeaders(rawSetCookie, requestUrl.hostname)
+    if (parsed.length === 0) return
+    this.cookieJar.value = mergeCookiesIntoJar(this.cookieJar.value, parsed)
+  }
+
+  /**
+   * Returns a value suitable for the `Cookie` request header for the given URL,
+   * derived directly from stored cookie objects (no re-parse).
+   */
+  public buildCookieHeader(url: URL): string | null {
+    return cookieHeaderForURL(this.cookieJar.value, url)
+  }
+
+  private async hydrateFromStorage(): Promise<void> {
+    try {
+      const raw = await persistenceService.getLocalConfig(STORAGE_KEY)
+      if (!raw) return
+      const restored = pruneExpiredCookies(deserializeJar(raw))
+      if (restored.size > 0) {
+        this.cookieJar.value = restored
+      }
+    } catch (err) {
+      console.warn("[CookieJarService] failed to hydrate from storage", err)
+    }
+  }
+
+  private schedulePersist(): void {
+    if (!this.persistenceReady) return
+    if (this.persistTimer) clearTimeout(this.persistTimer)
+    this.persistTimer = setTimeout(() => {
+      this.persistTimer = null
+      void persistenceService
+        .setLocalConfig(STORAGE_KEY, serializeJar(this.cookieJar.value))
+        .catch((err) => {
+          console.warn("[CookieJarService] failed to persist", err)
+        })
+    }, PERSIST_DEBOUNCE_MS)
   }
 }

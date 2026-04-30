@@ -199,7 +199,7 @@
         <HoppButtonSecondary
           outline
           :label="`${t('action.learn_more')}`"
-          to="https://docs.hoppscotch.io/documentation/getting-started/rest/tests"
+          to="https://zapro.ai/docs/getting-started/rest/tests"
           blank
           :icon="IconExternalLink"
           reverse

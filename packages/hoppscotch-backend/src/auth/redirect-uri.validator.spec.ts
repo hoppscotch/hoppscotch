@@ -1,4 +1,4 @@
-import { isValidLocalhostRedirectUri } from './redirect-uri.validator';
+import { isValidLocalhostRedirectUri, isValidRedirectUri } from './redirect-uri.validator';
 
 describe('isValidLocalhostRedirectUri', () => {
   describe('valid loopback URIs', () => {
@@ -115,5 +115,27 @@ describe('isValidLocalhostRedirectUri', () => {
     test('Should return false for a relative path', () => {
       expect(isValidLocalhostRedirectUri('/device-token')).toBe(false);
     });
+  });
+});
+
+describe('isValidRedirectUri', () => {
+  test('should allow localhost URLs', () => {
+    expect(isValidRedirectUri('http://localhost:3000')).toBe(true);
+  });
+
+  test('should allow https URLs', () => {
+    expect(isValidRedirectUri('https://example.com')).toBe(true);
+  });
+
+  test('should reject javascript protocol', () => {
+    expect(isValidRedirectUri('javascript:alert(1)')).toBe(false);
+  });
+
+  test('should reject invalid URL', () => {
+    expect(isValidRedirectUri('abc')).toBe(false);
+  });
+
+  test('should reject undefined', () => {
+    expect(isValidRedirectUri(undefined)).toBe(false);
   });
 });

@@ -36,7 +36,18 @@ export const replaceTemplateStringsInObjectValues = <
       !requestVariables.some(({ key: reqVarKey }) => reqVarKey === key)
   )
 
-  const envVars = [...selectedEnvVars, ...globalEnvVars, ...requestVariables]
+  // Fall back to initialValue when currentValue is empty so OAuth2 token
+  // generation (the only caller of this helper) resolves variables
+  // consistently with the generic request-run path. Mirrors the
+  // `getTransformedEnvs` transform in RequestRunner.ts from #5162.
+  const envVars = [
+    ...selectedEnvVars,
+    ...globalEnvVars,
+    ...requestVariables,
+  ].map((v) => ({
+    ...v,
+    currentValue: v.currentValue || v.initialValue,
+  }))
 
   const newObj: Partial<T> = {}
 

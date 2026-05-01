@@ -128,7 +128,10 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
         (env) => env.key === parsedEnvKey
       )
       const currentSelectedEnvironment = getCurrentEnvironment()
-      const envName = tooltipEnv?.sourceEnv ?? "Choose an Environment"
+      const envName =
+        tooltipEnv?.sourceEnvName ??
+        tooltipEnv?.sourceEnv ??
+        "Choose an Environment"
 
       let envInitialValue = tooltipEnv?.initialValue
 
@@ -210,10 +213,10 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           ? IconGlobe
           : tooltipEnv?.sourceEnv === "RequestVariable"
             ? IconVariable
-            : selectedEnvType === "TEAM_ENV"
-              ? IconUsers
-              : tooltipEnv?.sourceEnv === "CollectionVariable"
-                ? IconLibrary
+            : tooltipEnv?.sourceEnvID
+              ? IconLibrary
+              : selectedEnvType === "TEAM_ENV"
+                ? IconUsers
                 : IconUser
       }</span>`
 
@@ -243,6 +246,12 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           ) {
             restTabs.currentActiveTab.value.document.optionTabPreference =
               "requestVariables"
+          } else if (tooltipEnv?.sourceEnvID) {
+            invokeAction("modals.collection.properties.open", {
+              sourceEnvID: tooltipEnv.sourceEnvID,
+              variableName: parsedEnvKey,
+              isSecret: tooltipEnv.secret,
+            })
           } else {
             invokeAction(invokeActionType, {
               envName: tooltipEnv?.sourceEnv === "Global" ? "Global" : envName,
@@ -252,8 +261,7 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           }
         })
         editIcon.innerHTML = `<span class="inline-flex items-center justify-center my-1">${IconEdit}</span>`
-        if (tooltipEnv?.sourceEnv !== "CollectionVariable")
-          tooltip.appendChild(editIcon)
+        tooltip.appendChild(editIcon)
       }
 
       return {

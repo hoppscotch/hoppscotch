@@ -60,7 +60,6 @@
       @edit-properties="editProperties"
       @create-mock-server="createMockServer"
       @export-data="exportData"
-      @export-openapi="exportOpenAPI"
       @remove-collection="removeCollection"
       @remove-folder="removeFolder"
       @remove-request="removeRequest"
@@ -113,7 +112,6 @@
       @open-request-documentation="openRequestDocumentation"
       @create-mock-server="createTeamMockServer"
       @export-data="exportData"
-      @export-openapi="exportOpenAPI"
       @expand-team-collection="expandTeamCollection"
       @remove-collection="removeCollection"
       @remove-folder="removeFolder"
@@ -227,33 +225,13 @@
         </span>
       </template>
     </HoppSmartModal>
-    <HoppSmartModal
-      v-if="showOpenAPIFormatModal"
-      dialog
-      :title="t('export.choose_format')"
-      @close="displayModalOpenAPIFormat(false)"
-    >
-      <template #body>
-        <div class="flex gap-2">
-          <HoppButtonSecondary
-            :label="'JSON'"
-            outline
-            class="flex-1"
-            :loading="exportLoading"
-            :disabled="exportLoading"
-            @click="doExportOpenAPI('json')"
-          />
-          <HoppButtonSecondary
-            :label="'YAML'"
-            outline
-            class="flex-1"
-            :loading="exportLoading"
-            :disabled="exportLoading"
-            @click="doExportOpenAPI('yaml')"
-          />
-        </div>
-      </template>
-    </HoppSmartModal>
+    <CollectionsExportFormatModal
+      :show="showExportModal"
+      :loading="exportLoading"
+      @close="closeExportModal"
+      @export-hoppscotch="onExportHopp"
+      @export-openapi="onExportOpenAPI"
+    />
     <HoppSmartConfirmModal
       :show="showConfirmModal"
       :title="confirmModalTitle"
@@ -337,6 +315,7 @@ import { useService } from "dioc/vue"
 import { MODULE_PREFIX_REGEX_JSON_SERIALIZED } from "~/helpers/scripting"
 
 import * as TE from "fp-ts/TaskEither"
+import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
@@ -351,8 +330,7 @@ import { GQLError, runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
 import {
   CollectionDataProps,
-  getCompleteCollectionTree,
-  teamCollToHoppRESTColl,
+  getTeamCollectionObject,
 } from "~/helpers/backend/helpers"
 import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 import {
@@ -487,10 +465,12 @@ const editingRequestID = ref<string | null>(null)
 
 const editingResponseID = ref<string | null>(null)
 const showAddExampleModal = ref(false)
-const showOpenAPIFormatModal = ref(false)
-const openAPIExportCollection = ref<HoppCollection | TeamCollection | null>(
-  null
-)
+// Visibility for the format-chooser modal (which internally manages the
+// transition to the OpenAPI sub-format chooser). The collection currently
+// queued for export is held here so async export work can read it after the
+// modal closes.
+const showExportModal = ref(false)
+const exportTargetCollection = ref<HoppCollection | TeamCollection | null>(null)
 
 const editingProperties = ref<EditingProperties>({
   collection: null,
@@ -923,13 +903,31 @@ const displayModalAddExample = (show: boolean) => {
 
 let exportGeneration = 0
 
-const displayModalOpenAPIFormat = (show: boolean) => {
-  showOpenAPIFormatModal.value = show
+const closeExportModal = () => {
+  showExportModal.value = false
+  exportTargetCollection.value = null
+  exportLoading.value = false
+}
 
-  if (!show) {
-    openAPIExportCollection.value = null
-    exportLoading.value = false
+const onExportHopp = async () => {
+  const collection = exportTargetCollection.value
+  if (!collection) return
+  // Keep the modal open during the export. For team collections the GraphQL
+  // tree fetch can take seconds; closing early hides that latency from the
+  // user. doExportHoppCollection clears its own loading state when finished;
+  // we close here when control returns.
+  exportLoading.value = true
+  try {
+    await doExportHoppCollection(collection)
+  } finally {
+    closeExportModal()
   }
+}
+
+const onExportOpenAPI = (format: "json" | "yaml") => {
+  // The modal stays open through the export so the user sees the loading
+  // state on the picked button. doExportOpenAPI closes it when finished.
+  doExportOpenAPI(format)
 }
 
 const addNewRootCollection = async (name: string) => {
@@ -3191,6 +3189,11 @@ const initializeDownloadCollection = async (
 
   if (result.type === "unknown" || result.type === "saved") {
     toast.success(t("state.download_started").toString())
+    platform.analytics?.logEvent({
+      type: "HOPP_EXPORT_COLLECTION",
+      exporter: "json",
+      platform: "rest",
+    })
   }
 }
 
@@ -3199,63 +3202,65 @@ const initializeDownloadCollection = async (
  * Triggered by the export button in the tippy menu
  * @param collection - Collection or folder to be exported
  */
-const exportData = async (collection: HoppCollection | TeamCollection) => {
-  if (collectionsType.value.type === "my-collections") {
-    const collectionJSON = JSON.stringify(collection, stripRefIdReplacer, 2)
+/**
+ * Entry point from the collection context menu. Opens the format-chooser
+ * modal so the user can pick between Hoppscotch JSON and OpenAPI 3.1.
+ */
+const exportData = (collection: HoppCollection | TeamCollection) => {
+  console.log("Exporting collection", collection)
+  exportTargetCollection.value = collection
+  showExportModal.value = true
+}
 
-    // Strip `export {};\n` from `testScript` and `preRequestScript` fields
-    const cleanedCollectionJSON = collectionJSON.replace(
+/**
+ * Native Hoppscotch JSON export (the original behavior of `exportData`).
+ */
+const doExportHoppCollection = async (
+  collection: HoppCollection | TeamCollection
+) => {
+  // Strip `export {};\n` from `testScript` and `preRequestScript` fields
+  const stringifyForExport = (coll: HoppCollection): string =>
+    JSON.stringify(coll, stripRefIdReplacer, 2).replace(
       MODULE_PREFIX_REGEX_JSON_SERIALIZED,
       ""
     )
 
-    const name = (collection as HoppCollection).name
-
-    initializeDownloadCollection(cleanedCollectionJSON, name)
-  } else {
-    if (!collection.id) return
-    exportLoading.value = true
-
-    pipe(
-      getCompleteCollectionTree(collection.id),
-      TE.match(
-        (err: GQLError<string>) => {
-          toast.error(`${getErrorMessage(err)}`)
-          exportLoading.value = false
-          return
-        },
-        async (coll) => {
-          const hoppColl = teamCollToHoppRESTColl(coll)
-          const collectionJSONString = JSON.stringify(
-            hoppColl,
-            stripRefIdReplacer,
-            2
-          )
-
-          // Strip `export {};\n` from `testScript` and `preRequestScript` fields
-          const cleanedCollectionJSON = collectionJSONString.replace(
-            MODULE_PREFIX_REGEX_JSON_SERIALIZED,
-            ""
-          )
-
-          await initializeDownloadCollection(
-            cleanedCollectionJSON,
-            hoppColl.name
-          )
-          exportLoading.value = false
-        }
+  exportLoading.value = true
+  try {
+    if (collectionsType.value.type === "my-collections") {
+      const hoppColl = collection as HoppCollection
+      await initializeDownloadCollection(
+        stringifyForExport(hoppColl),
+        hoppColl.name
       )
-    )()
+      return
+    }
+
+    if (!collection.id) return
+    const teamID = collectionsType.value.selectedTeam?.teamID
+    if (!teamID) return
+
+    const result = await getTeamCollectionObject(teamID, collection.id)
+    if (E.isLeft(result)) {
+      const errMsg =
+        typeof result.left === "string"
+          ? result.left
+          : getErrorMessage(result.left)
+      toast.error(`${errMsg}`)
+      return
+    }
+    const hoppColl = result.right
+    await initializeDownloadCollection(
+      stringifyForExport(hoppColl),
+      hoppColl.name
+    )
+  } finally {
+    exportLoading.value = false
   }
 }
 
-const exportOpenAPI = (collection: HoppCollection | TeamCollection) => {
-  openAPIExportCollection.value = collection
-  displayModalOpenAPIFormat(true)
-}
-
 const doExportOpenAPI = async (format: "json" | "yaml") => {
-  const collection = openAPIExportCollection.value
+  const collection = exportTargetCollection.value
   if (!collection) return
 
   const thisGeneration = ++exportGeneration
@@ -3277,20 +3282,28 @@ const doExportOpenAPI = async (format: "json" | "yaml") => {
     const contentType = isYaml ? "application/x-yaml" : "application/json"
     const extension = isYaml ? "yaml" : "json"
 
-    try {
-      await platform.kernelIO.saveFileWithDialog({
-        data,
-        contentType,
-        suggestedFilename: `${name}-openapi.${extension}`,
-        filters: [
-          {
-            name: `OpenAPI ${extension.toUpperCase()} file`,
-            extensions: [extension],
-          },
-        ],
+    // `saveFileWithDialog` returns a discriminated SaveFileResponse and does
+    // not throw — checking `result.type` is the only correct way to know if
+    // the user actually saved or cancelled.
+    const result = await platform.kernelIO.saveFileWithDialog({
+      data,
+      contentType,
+      suggestedFilename: `${name}-openapi.${extension}`,
+      filters: [
+        {
+          name: `OpenAPI ${extension.toUpperCase()} file`,
+          extensions: [extension],
+        },
+      ],
+    })
+
+    if (result.type === "saved" || result.type === "unknown") {
+      toast.success(t("state.download_started").toString())
+      platform.analytics?.logEvent({
+        type: "HOPP_EXPORT_COLLECTION",
+        exporter: "openapi",
+        platform: "rest",
       })
-    } catch {
-      toast.error(t("error.something_went_wrong"))
     }
   }
 
@@ -3298,54 +3311,48 @@ const doExportOpenAPI = async (format: "json" | "yaml") => {
 
   if (collectionsType.value.type === "my-collections") {
     try {
-      const { doc: openAPIDoc, warnings } = hoppCollectionToOpenAPI(
+      // The chooser modal already shows the full list of OpenAPI lossiness
+      // categories upfront, so the converter's post-export warnings would be
+      // redundant — drop them.
+      const { doc: openAPIDoc } = hoppCollectionToOpenAPI(
         collection as HoppCollection
       )
-      for (const warning of warnings) {
-        toast.info(t(warning))
-      }
       const name = (collection as HoppCollection).name
       await saveOpenAPIDoc(openAPIDoc, name)
     } catch {
       toast.error(t("error.something_went_wrong"))
     } finally {
-      if (thisGeneration === exportGeneration) displayModalOpenAPIFormat(false)
+      if (thisGeneration === exportGeneration) closeExportModal()
     }
   } else {
     if (!collection.id) {
-      exportLoading.value = false
-      displayModalOpenAPIFormat(false)
+      closeExportModal()
+      return
+    }
+    const teamID = collectionsType.value.selectedTeam?.teamID
+    if (!teamID) {
+      closeExportModal()
       return
     }
 
-    await pipe(
-      getCompleteCollectionTree(collection.id),
-      TE.match(
-        (err: GQLError<string>) => {
-          toast.error(`${getErrorMessage(err)}`)
-          if (thisGeneration === exportGeneration) {
-            displayModalOpenAPIFormat(false)
-          }
-        },
-        async (coll) => {
-          try {
-            const hoppColl = teamCollToHoppRESTColl(coll)
-            const { doc: openAPIDoc, warnings } =
-              hoppCollectionToOpenAPI(hoppColl)
-            for (const warning of warnings) {
-              toast.info(t(warning))
-            }
-            await saveOpenAPIDoc(openAPIDoc, hoppColl.name)
-          } catch {
-            toast.error(t("error.something_went_wrong"))
-          } finally {
-            if (thisGeneration === exportGeneration) {
-              displayModalOpenAPIFormat(false)
-            }
-          }
-        }
-      )
-    )()
+    try {
+      const result = await getTeamCollectionObject(teamID, collection.id)
+      if (E.isLeft(result)) {
+        const errMsg =
+          typeof result.left === "string"
+            ? result.left
+            : getErrorMessage(result.left)
+        toast.error(`${errMsg}`)
+        return
+      }
+      const hoppColl = result.right
+      const { doc: openAPIDoc } = hoppCollectionToOpenAPI(hoppColl)
+      await saveOpenAPIDoc(openAPIDoc, hoppColl.name)
+    } catch {
+      toast.error(t("error.something_went_wrong"))
+    } finally {
+      if (thisGeneration === exportGeneration) closeExportModal()
+    }
   }
 }
 

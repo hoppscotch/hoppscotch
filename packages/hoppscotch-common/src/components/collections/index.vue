@@ -1733,6 +1733,9 @@ const addExample = (payload: {
     editingRequestIndex.value = parseInt(requestIndex.toString())
   } else {
     editingRequestID.value = requestIndex.toString()
+    // Capture the parent collection path so the new example-response tab can
+    // resolve its `saveContext.collectionID` and inherited properties.
+    editingFolderPath.value = folderPath
   }
   displayModalAddExample(true)
 }
@@ -1871,8 +1874,11 @@ const onAddExample = async () => {
         },
         () => {
           // Capture IDs before closing the modal — `displayModalAddExample(false)`
-          // calls `resetSelectedData()` which nulls `editingRequestID` /
-          // `editingFolderPath`, making downstream tab sync silently no-op.
+          // calls `resetSelectedData()`, which nulls `editingRequestID` and
+          // would make `if (!requestID) return` short-circuit the request-tab
+          // sync below. `editingFolderPath` is captured here too so the new
+          // example-response tab's `saveContext.collectionID` and inherited
+          // properties resolve correctly.
           const requestID = editingRequestID.value
           const collectionID = editingFolderPath.value
 

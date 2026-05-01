@@ -149,7 +149,6 @@
                     isMockServerVisible && mockServerAction?.$el.click()
                   "
                   @keyup.i="documentationAction?.$el.click()"
-                  @keyup.o="exportOpenAPIAction?.$el.click()"
                   @keyup.escape="hide()"
                 >
                   <HoppSmartItem
@@ -261,34 +260,18 @@
                     "
                   />
                   <HoppSmartItem
-                    v-if="!hasNoTeamAccess"
                     ref="exportAction"
                     :icon="IconDownload"
-                    :label="t('export.title')"
+                    :label="t('export.collection')"
                     :shortcut="['X']"
                     :loading="exportLoading"
                     @click="
                       () => {
-                        ;(emit('export-data'),
-                          collectionsType === 'my-collections' ? hide() : null)
-                      }
-                    "
-                  />
-                  <HoppSmartItem
-                    v-if="!hasNoTeamAccess"
-                    ref="exportOpenAPIAction"
-                    :icon="IconFileCode"
-                    :label="t('export.as_openapi')"
-                    :shortcut="['O']"
-                    :loading="exportLoading"
-                    @click="
-                      () => {
-                        emit('export-openapi')
+                        emit('export-data')
                         hide()
                       }
                     "
                   />
-
                   <HoppSmartItem
                     ref="propertiesAction"
                     :icon="IconSettings2"
@@ -354,7 +337,6 @@ import {
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCopy from "~icons/lucide/copy"
 import IconDownload from "~icons/lucide/download"
-import IconFileCode from "~icons/lucide/file-code"
 import IconEdit from "~icons/lucide/edit"
 import IconFilePlus from "~icons/lucide/file-plus"
 import IconFolder from "~icons/lucide/folder"
@@ -427,7 +409,6 @@ const emit = defineEmits<{
   (event: "duplicate-collection"): void
   (event: "open-documentation"): void
   (event: "export-data"): void
-  (event: "export-openapi"): void
   (event: "remove-collection"): void
   (event: "create-mock-server"): void
   (event: "drop-event", payload: DataTransfer): void
@@ -453,7 +434,6 @@ const edit = ref<HTMLButtonElement | null>(null)
 const duplicateAction = ref<HTMLButtonElement | null>(null)
 const deleteAction = ref<HTMLButtonElement | null>(null)
 const exportAction = ref<HTMLButtonElement | null>(null)
-const exportOpenAPIAction = ref<HTMLButtonElement | null>(null)
 const mockServerAction = ref<HTMLButtonElement | null>(null)
 const options = ref<TippyComponent | null>(null)
 const propertiesAction = ref<HTMLButtonElement | null>(null)

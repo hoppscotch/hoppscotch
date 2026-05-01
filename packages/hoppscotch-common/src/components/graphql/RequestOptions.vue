@@ -59,10 +59,11 @@ import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { HoppGQLAuth, HoppGQLRequest } from "@hoppscotch/data"
 import { computedWithControl, useVModel } from "@vueuse/core"
+import { watchDebounced } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import * as gql from "graphql"
 import { clone } from "lodash-es"
-import { computed, ref, watch } from "vue"
+import { computed, ref, watch, onUnmounted } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
 import {
   connection,
@@ -72,10 +73,11 @@ import {
 } from "~/helpers/graphql/connection"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { completePageProgress, startPageProgress } from "~/modules/loadingbar"
-import { editGraphqlRequest } from "~/newstore/collections"
+import { useSetting } from "@composables/settings"
 import { platform } from "~/platform"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { GQLTabService } from "~/services/tab/graphql"
+import { AutoSaveService } from "~/services/auto-save.service"
 
 const _VALID_GQL_OPERATIONS = [
   "query",
@@ -92,8 +94,8 @@ const t = useI18n()
 const toast = useToast()
 
 const tabs = useService(GQLTabService)
+const autoSaveService = useService(AutoSaveService)
 
-// v-model integration with props and emit
 const props = withDefaults(
   defineProps<{
     modelValue: HoppGQLRequest
@@ -114,12 +116,14 @@ const emit = defineEmits<{
 }>()
 
 const selectedOptionTab = useVModel(props, "optionTab", emit)
-
 const request = useVModel(props, "modelValue", emit)
 
+// Scoped to this component's tab — never reads currentActiveTab
+const tab = tabs.getTabRef(props.tabId)
+
 const url = computedWithControl(
-  () => tabs.currentActiveTab.value,
-  () => tabs.currentActiveTab.value.document.request.url
+  () => tab.value,
+  () => tab.value?.document.request.url ?? ""
 )
 
 const activeGQLHeadersCount = computed(
@@ -128,7 +132,9 @@ const activeGQLHeadersCount = computed(
       (x) => x.active && (x.key !== "" || x.value !== "")
     ).length
 )
+
 const showSaveRequestModal = ref(false)
+
 const runQuery = async (
   definition: gql.OperationDefinitionNode | null = null
 ) => {
@@ -140,7 +146,7 @@ const runQuery = async (
     const runVariables = clone(request.value.variables)
 
     const inheritedHeaders =
-      tabs.currentActiveTab.value.document.inheritedProperties?.headers.map(
+      tab.value?.document.inheritedProperties?.headers.map(
         (header) => header.inheritedHeader
       ) ?? []
 
@@ -149,8 +155,8 @@ const runQuery = async (
       url: runURL,
       request: request.value,
       inheritedHeaders,
-      inheritedAuth: tabs.currentActiveTab.value.document.inheritedProperties
-        ?.auth.inheritedAuth as HoppGQLAuth | undefined,
+      inheritedAuth: tab.value?.document.inheritedProperties?.auth
+        .inheritedAuth as HoppGQLAuth | undefined,
       query: runQuery,
       variables: runVariables,
       operationName: definition?.name?.value,
@@ -180,18 +186,14 @@ watch(
       emit("update:response", [])
       return
     }
-
     try {
       if (
         event?.type === "response" &&
         event?.operationType !== "subscription"
       ) {
-        // response.value = [event]
         emit("update:response", [event])
       } else {
         emit("update:response", [...(props.response ?? []), event])
-
-        // TODO: subscription indicator??
       }
     } catch (error) {
       console.log(error)
@@ -224,29 +226,27 @@ watch(
 )
 
 const updateCursorPos = (pos: number) => {
-  tabs.currentActiveTab.value.document.cursorPosition = pos
+  if (tab.value) tab.value.document.cursorPosition = pos
 }
 
 const hideRequestModal = () => {
   showSaveRequestModal.value = false
 }
-const saveRequest = () => {
-  if (
-    tabs.currentActiveTab.value.document.saveContext &&
-    tabs.currentActiveTab.value.document.saveContext.originLocation ===
-      "user-collection"
-  ) {
-    editGraphqlRequest(
-      tabs.currentActiveTab.value.document.saveContext.folderPath,
-      tabs.currentActiveTab.value.document.saveContext.requestIndex,
-      tabs.currentActiveTab.value.document.request
-    )
 
-    tabs.currentActiveTab.value.document.isDirty = false
-  } else {
-    showSaveRequestModal.value = true
-  }
-}
+// Tracks the polling timer used to honor a user's manual save request that
+// arrives while a mutation is already in-flight. Ensures we never have more
+// than one outstanding poll and that pending polls are cancelled on unmount.
+let manualSavePollTimer: ReturnType<typeof setTimeout> | null = null
+
+// Declared as async to match REST and allow callers to await completion.
+const saveRequest = (options?: { silent?: boolean }) =>
+  autoSaveService.saveRequest(tab.value, {
+    ...options,
+    onTriggerModal: () => {
+      showSaveRequestModal.value = true
+    },
+  })
+
 const clearGQLQuery = () => {
   request.value.query = ""
 }
@@ -261,9 +261,61 @@ defineActionHandler("request.save-as", () => {
   showSaveRequestModal.value = true
 })
 defineActionHandler("request.reset", clearGQLQuery)
-
 defineActionHandler("request.open-tab", ({ tab }) => {
   selectedOptionTab.value = tab as GQLOptionTabs
+})
+
+const AUTO_SAVE_REQUESTS = useSetting("AUTO_SAVE_REQUESTS")
+const AUTO_SAVE_DELAY_MS = useSetting("AUTO_SAVE_DELAY_MS")
+
+// Stop the watcher on unmount to prevent debounce callbacks firing on a
+// stale/destroyed component instance.
+const stopAutoSave = watchDebounced(
+  request,
+  () => {
+    try {
+      // New user edit arrived — reset retry state so the fresh content gets a
+      // full retry budget rather than inheriting an exhausted counter.
+      if (tab.value) autoSaveService.resetRetryCount(tab.value.id)
+
+      const tabToSave = tab.value
+      if (!tabToSave) return
+
+      const isDirty = tabToSave.document.isDirty
+      const saveCtx = tabToSave.document.saveContext
+      const autoSaveEnabled = AUTO_SAVE_REQUESTS.value
+
+      if (
+        !autoSaveEnabled ||
+        !isDirty ||
+        !saveCtx ||
+        autoSaveService.saveInProgress.value
+      ) {
+        return
+      }
+
+      saveRequest({ silent: true })
+    } catch {
+      // Tab was removed between the watcher firing and execution — safe to ignore.
+    }
+  },
+  {
+    deep: true,
+    // Clamp delay between 500 ms and 10 000 ms, default 2 000 ms
+    debounce: computed(() =>
+      Math.min(10000, Math.max(500, Number(AUTO_SAVE_DELAY_MS.value) || 2000))
+    ),
+  }
+)
+
+onUnmounted(() => {
+  // Cancel any pending debounced auto-save and retry timers
+  stopAutoSave()
+  if (tab.value) autoSaveService.clearRetryTimer(tab.value.id)
+  if (manualSavePollTimer !== null) {
+    clearTimeout(manualSavePollTimer)
+    manualSavePollTimer = null
+  }
 })
 </script>
 

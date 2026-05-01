@@ -326,7 +326,7 @@ export async function getEffectiveRESTRequest(
           ? parseTemplateString(request.auth.realm, resolvedVariables)
           : authInfo.realm,
         nonce: request.auth.nonce
-          ? parseTemplateString(authInfo.nonce, resolvedVariables)
+          ? parseTemplateString(request.auth.nonce, resolvedVariables)
           : authInfo.nonce,
         endpoint: parseTemplateString(endpoint, resolvedVariables),
         method,

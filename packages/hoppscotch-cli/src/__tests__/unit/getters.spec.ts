@@ -14,6 +14,9 @@ import {
   getEffectiveFinalMetaData,
   getResolvedVariables,
   getResourceContents,
+  getColorStatusCode,
+  getMetaDataPairs,
+  roundDuration,
 } from "../../utils/getters";
 import * as mutators from "../../utils/mutators";
 
@@ -502,6 +505,125 @@ describe("getters", () => {
       expect(
         getResolvedVariables(requestVariables, environmentVariables)
       ).toEqual(expected);
+    });
+  });describe("getColorStatusCode", () => {
+    test("returns green-colored string for 2xx status codes", () => {
+      const result = getColorStatusCode(200, "OK");
+      expect(result).toContain("200 : OK");
+    });
+
+    test("returns green-colored string for 201 Created", () => {
+      const result = getColorStatusCode(201, "Created");
+      expect(result).toContain("201 : Created");
+    });
+
+    test("returns yellow-colored string for 3xx status codes", () => {
+      const result = getColorStatusCode(301, "Moved Permanently");
+      expect(result).toContain("301 : Moved Permanently");
+    });
+
+    test("returns yellow-colored string for 304 Not Modified", () => {
+      const result = getColorStatusCode(304, "Not Modified");
+      expect(result).toContain("304 : Not Modified");
+    });
+
+    test("returns red-colored string for 4xx status codes", () => {
+      const result = getColorStatusCode(404, "Not Found");
+      expect(result).toContain("404 : Not Found");
+    });
+
+    test("returns red-colored string for 5xx status codes", () => {
+      const result = getColorStatusCode(500, "Internal Server Error");
+      expect(result).toContain("500 : Internal Server Error");
+    });
+
+    test("replaces status 0 with the word 'Error'", () => {
+      const result = getColorStatusCode(0, "Network Error");
+      expect(result).toContain("Error : Network Error");
+    });
+
+    test("accepts status as a string and handles 2xx correctly", () => {
+      const result = getColorStatusCode("200", "OK");
+      expect(result).toContain("200 : OK");
+    });
+
+    test("accepts status as a string and handles 4xx correctly", () => {
+      const result = getColorStatusCode("401", "Unauthorized");
+      expect(result).toContain("401 : Unauthorized");
+    });
+  });
+
+  describe("getMetaDataPairs", () => {
+    test("returns empty object for empty meta-data array", () => {
+      expect(getMetaDataPairs([])).toEqual({});
+    });
+
+    test("returns key-value pairs for active meta-data", () => {
+      const metaData = [
+        { active: true, key: "Content-Type", value: "application/json", description: "" },
+        { active: true, key: "Authorization", value: "Bearer token123", description: "" },
+      ];
+      expect(getMetaDataPairs(metaData)).toEqual({
+        "Content-Type": "application/json",
+        Authorization: "Bearer token123",
+      });
+    });
+
+    test("excludes inactive meta-data entries", () => {
+      const metaData = [
+        { active: true, key: "X-Active", value: "yes", description: "" },
+        { active: false, key: "X-Inactive", value: "no", description: "" },
+      ];
+      expect(getMetaDataPairs(metaData)).toEqual({ "X-Active": "yes" });
+    });
+
+    test("excludes entries with empty keys", () => {
+      const metaData = [
+        { active: true, key: "", value: "ghost", description: "" },
+        { active: true, key: "X-Real", value: "value", description: "" },
+      ];
+      expect(getMetaDataPairs(metaData)).toEqual({ "X-Real": "value" });
+    });
+
+    test("last value wins when duplicate keys exist", () => {
+      const metaData = [
+        { active: true, key: "X-Dup", value: "first", description: "" },
+        { active: true, key: "X-Dup", value: "second", description: "" },
+      ];
+      expect(getMetaDataPairs(metaData)).toEqual({ "X-Dup": "second" });
+    });
+
+    test("excludes entries that are both inactive and have empty keys", () => {
+      const metaData = [
+        { active: false, key: "", value: "nothing", description: "" },
+      ];
+      expect(getMetaDataPairs(metaData)).toEqual({});
+    });
+  });
+
+  describe("roundDuration", () => {
+    test("rounds to default precision of 3 decimal places", () => {
+      expect(roundDuration(3.555555)).toBe(3.556);
+    });
+
+    test("rounds to 1 decimal place when precision is 1", () => {
+      expect(roundDuration(2.678, 1)).toBe(2.7);
+    });
+
+    test("rounds to 2 decimal places when precision is 2", () => {
+      expect(roundDuration(1.234, 2)).toBe(1.23);
+    });
+
+    test("rounds to 4 decimal places when precision is 4", () => {
+      expect(roundDuration(4.77777, 4)).toBe(4.7778);
+    });
+
+    test("returns 0 when duration is 0", () => {
+      expect(roundDuration(0)).toBe(0);
+    });
+
+    test("handles already-rounded values without changing them", () => {
+      expect(roundDuration(1.5, 2)).toBe(1.5);
     });
   });
 });

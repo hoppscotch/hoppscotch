@@ -1068,6 +1068,58 @@ data2: {"type":"test2","typeId":"123"}`,
       responses: {},
     }),
   },
+  {
+    // Coverage for unreserved/sub-delim characters and Hoppscotch env
+    // template braces in cURL URL query values.
+    command: `curl 'https://api.example.com/v1/items?ids=[1,2,3]&template={{userId}}&filter=name~john&price=$100&flag=!yes'`,
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled",
+      endpoint: "https://api.example.com/v1/items",
+      auth: { authType: "inherit", authActive: true },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      headers: [],
+      params: [
+        {
+          active: true,
+          key: "ids",
+          value: "[1,2,3]",
+          description: "",
+        },
+        {
+          active: true,
+          key: "template",
+          value: "{{userId}}",
+          description: "",
+        },
+        {
+          active: true,
+          key: "filter",
+          value: "name~john",
+          description: "",
+        },
+        {
+          active: true,
+          key: "price",
+          value: "$100",
+          description: "",
+        },
+        {
+          active: true,
+          key: "flag",
+          value: "!yes",
+          description: "",
+        },
+      ],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+    }),
+  },
 ]
 
 describe("Parse curl command to Hopp REST Request", () => {

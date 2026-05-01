@@ -282,6 +282,7 @@ import { isDragDropAllowed, DragDropEvent } from "~/helpers/dragDropValidation"
 import {
   AggregateEnvironment,
   aggregateEnvs$,
+  currentEnvironment$,
   getAggregateEnvs,
   getCurrentEnvironment,
 } from "~/newstore/environments"
@@ -572,9 +573,12 @@ const inheritedProperty = ref<
   }[]
 >([])
 
-const currentSelectedEnvironment = getCurrentEnvironment()
+const currentSelectedEnvironment = useReadonlyStream(
+  currentEnvironment$,
+  getCurrentEnvironment()
+)
 
-watch([props.modelValue, aggregateEnvs], async () => {
+watch([props.modelValue, aggregateEnvs, currentSelectedEnvironment], async () => {
   const resolvedEnvs = aggregateEnvs.value.map((env) => {
     return {
       ...env,
@@ -583,7 +587,7 @@ watch([props.modelValue, aggregateEnvs], async () => {
           ? env.currentValue
           : (currentEnvironmentValueService.getEnvironmentByKey(
               env?.sourceEnv !== "Global"
-                ? currentSelectedEnvironment.id
+                ? currentSelectedEnvironment.value?.id ?? ""
                 : "Global",
               env?.key ?? ""
             )?.currentValue ?? ""),

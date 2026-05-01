@@ -39,16 +39,38 @@ import { getTestScriptParams, hasAllTestsPassed, testRunner } from "./test";
  * @returns Updated variable with value from system environment
  */
 const processVariables = (variable: Environment["variables"][number]) => {
-  if (variable.secret) {
-    return {
-      ...variable,
-      currentValue:
-        "currentValue" in variable && variable.currentValue !== ""
-          ? variable.currentValue
-          : process.env[variable.key] || variable.initialValue,
-    };
+  const trimIfString = (val: unknown) =>
+    typeof val === "string" ? val.trim() : val;
+
+  // Only process secret variables to avoid changing existing behavior
+  if (!variable.secret) {
+    return variable; 
   }
-  return variable;
+
+  const envValue = trimIfString(process.env[variable.key]);
+
+  const current = trimIfString(
+    "currentValue" in variable ? variable.currentValue : undefined
+  );
+
+  const initial = trimIfString(variable.initialValue);
+
+  let resolvedValue: unknown;
+
+  if (typeof current === "string" && current.length > 0) {
+    resolvedValue = current;
+  } else if (typeof envValue === "string" && envValue.length > 0) {
+    resolvedValue = envValue;
+  } else if (typeof initial === "string" && initial.length > 0) {
+    resolvedValue = initial;
+  } else {
+    resolvedValue = "";
+  }
+
+  return {
+    ...variable,
+    currentValue: resolvedValue,
+  };
 };
 
 /**

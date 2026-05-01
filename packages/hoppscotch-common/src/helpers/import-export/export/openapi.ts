@@ -1,5 +1,43 @@
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import {
+  HoppCollection,
+  HoppRESTRequest,
+  makeCollection,
+} from "@hoppscotch/data"
 import { OpenAPIV3_1 } from "openapi-types"
+
+type AuthLike = HoppRESTRequest["auth"]
+
+/**
+ * OpenAPI 3.1 PathItem permits only this fixed set of HTTP method keys.
+ * Anything else makes the document invalid and must be skipped.
+ */
+const OPENAPI_METHODS = new Set([
+  "get",
+  "put",
+  "post",
+  "delete",
+  "options",
+  "head",
+  "patch",
+  "trace",
+])
+
+/**
+ * OpenAPI 3.1 §4.8.14: Content-Type, Accept, and Authorization
+ * are expressed via requestBody/responses/security, not header parameters.
+ */
+const SKIP_HEADER_NAMES = new Set(["content-type", "accept", "authorization"])
+
+/**
+ * Auth types whose details cannot be fully expressed in OpenAPI's standard
+ * security schemes; the export will be lossy.
+ */
+const LOSSY_AUTH_TYPES = new Set([
+  "digest",
+  "hawk",
+  "akamai-eg",
+  "aws-signature",
+])
 
 /**
  * Convert Hoppscotch template variables `<<var>>` to OpenAPI path parameters `{var}`
@@ -9,32 +47,127 @@ function convertTemplateVars(path: string): string {
 }
 
 /**
- * Extract base URL and path from a full endpoint URL.
- * Returns { server, path } where path starts with `/`.
+ * Extract base URL, path, and any URL-embedded query params from an endpoint.
+ *
+ * Template variables (`<<var>>`) are converted to OpenAPI `{var}` *before*
+ * URL parsing — so the WHATWG parser only has to encode ASCII braces (which
+ * it turns into `%7B`/`%7D`). Afterwards we decode only those brace pairs,
+ * deliberately preserving any other percent-encoding the user intentionally
+ * placed in the URL (e.g. `%2F` to keep a slash inside a single path segment).
  */
-function parseEndpoint(endpoint: string): { server: string; path: string } {
-  const converted = convertTemplateVars(endpoint)
+function parseEndpoint(endpoint: string): {
+  server: string
+  path: string
+  queryParams: Array<{ key: string; value: string }>
+} {
+  let converted = convertTemplateVars(endpoint)
+
+  // Protocol-relative URL (`//host/path`) — `new URL` would reject it.
+  // Default to https so it still emits a valid server + path pair.
+  if (converted.startsWith("//") && !converted.startsWith("///")) {
+    converted = `https:${converted}`
+  }
 
   try {
     const url = new URL(converted)
     const server = `${url.protocol}//${url.host}`
-    let path: string
-    // Skip decoding if pathname contains encoded braces (%7B/%7D)
-    // to avoid creating spurious path parameters
-    const hasEncodedBraces = /%7[Bb]|%7[Dd]/.test(url.pathname)
-    try {
-      path = hasEncodedBraces
-        ? url.pathname || "/"
-        : decodeURIComponent(url.pathname) || "/"
-    } catch {
-      path = url.pathname || "/"
+    // `new URL` already strips the fragment from `pathname`, so no extra work
+    // is needed for absolute URLs.
+    const path = url.pathname.replace(/%7B/gi, "{").replace(/%7D/gi, "}") || "/"
+    const queryParams: Array<{ key: string; value: string }> = []
+    for (const [key, value] of url.searchParams) {
+      queryParams.push({ key, value })
     }
-    return { server, path }
+    return { server, path, queryParams }
   } catch {
-    // Not a valid URL — treat the whole thing as a path
-    const path = converted.startsWith("/") ? converted : `/${converted}`
-    return { server: "", path }
+    // Not a valid absolute URL — strip any fragment and query string so they
+    // don't end up inside the OpenAPI path key.
+    let raw = converted
+    const fragIdx = raw.indexOf("#")
+    if (fragIdx >= 0) raw = raw.slice(0, fragIdx)
+
+    const queryParams: Array<{ key: string; value: string }> = []
+    const queryIdx = raw.indexOf("?")
+    if (queryIdx >= 0) {
+      const queryStr = raw.slice(queryIdx + 1)
+      raw = raw.slice(0, queryIdx)
+      try {
+        for (const [key, value] of new URLSearchParams(queryStr)) {
+          queryParams.push({ key, value })
+        }
+      } catch {
+        // ignore malformed query string
+      }
+    }
+
+    // A Hoppscotch endpoint that starts with a template variable like
+    // `<<baseUrl>>/pets` is the convention for "use the env-provided host."
+    // After convertTemplateVars that leading variable is `{baseUrl}`. Split
+    // it off as the server (in original `<<var>>` syntax for round-trip
+    // through the importer) so it doesn't end up inside the OpenAPI path key,
+    // which would cause `<<baseUrl>>/<<baseUrl>>/pets` doubling on reimport.
+    const leadingVarMatch = /^\{([a-zA-Z0-9_.-]+)\}(.*)$/.exec(raw)
+    if (leadingVarMatch) {
+      const varName = leadingVarMatch[1]
+      const rest = leadingVarMatch[2] || ""
+      const pathPart = rest.startsWith("/") ? rest : rest ? `/${rest}` : "/"
+      return { server: `<<${varName}>>`, path: pathPart, queryParams }
+    }
+
+    const pathRaw = raw.startsWith("/") ? raw : `/${raw}`
+    return { server: "", path: pathRaw, queryParams }
   }
+}
+
+/**
+ * Resolve effective auth by walking parent inheritance: a request/folder with
+ * `authType: "inherit"` adopts its nearest non-inherit ancestor; an explicit
+ * `none/basic/...` overrides regardless of what the ancestor specifies.
+ */
+function resolveEffectiveAuth(
+  ownAuth: AuthLike,
+  inheritedAuth: AuthLike | null
+): AuthLike | null {
+  if (ownAuth.authType === "inherit") return inheritedAuth
+  return ownAuth
+}
+
+/**
+ * Compare two auths for OpenAPI export equivalence — i.e. would they emit the
+ * same security scheme? Used so the exporter can skip per-operation security
+ * when it would just duplicate the doc-level default. Credential VALUES are
+ * not compared (they're never emitted to the spec anyway).
+ */
+function authsMatchForOpenAPI(a: AuthLike | null, b: AuthLike | null): boolean {
+  const aActive = a?.authActive === true
+  const bActive = b?.authActive === true
+  if (!aActive && !bActive) return true
+  if (aActive !== bActive) return false
+  // Both active here.
+  if (a!.authType === "none" && b!.authType === "none") return true
+  if (a!.authType !== b!.authType) return false
+  // Same type — for OpenAPI emission what matters is the resulting scheme
+  // identity AND the requested scopes (OAuth2 ops with different scopes
+  // are distinct security requirements even when sharing a scheme).
+  const aResult = convertAuth(a as HoppRESTRequest["auth"])
+  const bResult = convertAuth(b as HoppRESTRequest["auth"])
+  if (aResult?.schemeName !== bResult?.schemeName) return false
+  const aScopes = [...(aResult?.scopes ?? [])].sort().join(" ")
+  const bScopes = [...(bResult?.scopes ?? [])].sort().join(" ")
+  return aScopes === bScopes
+}
+
+/**
+ * `export {};\n` is the module-prefix sentinel that scripting prepends to
+ * empty scripts; treat anything that strips down to whitespace as no-script.
+ */
+function stripModulePrefix(s: string): string {
+  return s.startsWith("export {};\n") ? s.slice("export {};\n".length) : s
+}
+
+function hasNonEmptyScript(s: string | undefined): boolean {
+  if (!s) return false
+  return stripModulePrefix(s).trim().length > 0
 }
 
 /**
@@ -79,6 +212,11 @@ function convertBody(
         : { type: "string", example: entry.value }
     }
 
+    // Skip emission when there are no active entries — an empty `properties`
+    // object produces an OpenAPI media object that some validators reject and
+    // misleads importers into creating an empty multipart body.
+    if (Object.keys(properties).length === 0) return undefined
+
     return {
       content: {
         "multipart/form-data": {
@@ -116,14 +254,21 @@ function convertBody(
   }
 
   if (body.contentType === "application/octet-stream") {
+    const mediaTypeObj: OpenAPIV3_1.MediaTypeObject = {
+      schema: {
+        type: "string",
+        format: "binary",
+      },
+    }
+    // Hopp's schema permits octet-stream body to be `File | null`, but users
+    // occasionally save a string snapshot. Surface it as an example rather
+    // than silently discarding the data.
+    if (typeof body.body === "string" && body.body.length > 0) {
+      mediaTypeObj.example = body.body
+    }
     return {
       content: {
-        "application/octet-stream": {
-          schema: {
-            type: "string",
-            format: "binary",
-          },
-        },
+        "application/octet-stream": mediaTypeObj,
       },
     }
   }
@@ -239,36 +384,53 @@ function convertAuth(auth: HoppRESTRequest["auth"]): {
     case "oauth-2": {
       const flows: OpenAPIV3_1.OAuthFlowsObject = {}
       const grantInfo = auth.grantTypeInfo
+      const scopes = parseScopes(grantInfo.scopes)
 
+      // OpenAPI 3.1 §4.8.30 requires `tokenUrl`/`authorizationUrl` to be
+      // non-empty URLs for the corresponding flow object. Skip flows whose
+      // endpoint(s) are missing rather than emit invalid (empty-URL) flows.
       switch (grantInfo.grantType) {
         case "AUTHORIZATION_CODE":
-          flows.authorizationCode = {
-            authorizationUrl: grantInfo.authEndpoint || "",
-            tokenUrl: grantInfo.tokenEndpoint || "",
-            scopes: parseScopes(grantInfo.scopes),
+          if (grantInfo.authEndpoint && grantInfo.tokenEndpoint) {
+            flows.authorizationCode = {
+              authorizationUrl: grantInfo.authEndpoint,
+              tokenUrl: grantInfo.tokenEndpoint,
+              scopes,
+            }
           }
           break
         case "CLIENT_CREDENTIALS":
-          flows.clientCredentials = {
-            tokenUrl: grantInfo.authEndpoint || "",
-            scopes: parseScopes(grantInfo.scopes),
+          if (grantInfo.authEndpoint) {
+            flows.clientCredentials = {
+              tokenUrl: grantInfo.authEndpoint,
+              scopes,
+            }
           }
           break
         case "PASSWORD":
-          flows.password = {
-            tokenUrl: grantInfo.authEndpoint || "",
-            scopes: parseScopes(grantInfo.scopes),
+          if (grantInfo.authEndpoint) {
+            flows.password = {
+              tokenUrl: grantInfo.authEndpoint,
+              scopes,
+            }
           }
           break
         case "IMPLICIT":
-          flows.implicit = {
-            authorizationUrl: grantInfo.authEndpoint || "",
-            scopes: parseScopes(grantInfo.scopes),
+          if (grantInfo.authEndpoint) {
+            flows.implicit = {
+              authorizationUrl: grantInfo.authEndpoint,
+              scopes,
+            }
           }
           break
       }
 
-      const scopeKeys = Object.keys(parseScopes(grantInfo.scopes))
+      // If no flow could be emitted, the resulting securityScheme would be
+      // `{ type: "oauth2", flows: {} }` — invalid per spec. Return null and
+      // let the caller flag it as unsupported (lossy).
+      if (Object.keys(flows).length === 0) return null
+
+      const scopeKeys = Object.keys(scopes)
       return {
         schemeName: "oauth2",
         scheme: { type: "oauth2", flows },
@@ -281,56 +443,85 @@ function convertAuth(auth: HoppRESTRequest["auth"]): {
 }
 
 /**
- * Register a security scheme in the schemes map.
+ * Register a security scheme in the schemes map and return the name it was
+ * registered under (which may be suffixed if a non-OAuth2 collision occurred).
  *
  * For OAuth2 schemes with the same name (all OAuth2 auth reuses "oauth2"),
  * flows are merged by grant type, and scopes are unioned within a matching
  * flow type so per-operation `security` references remain valid.
  *
- * Returns true if a URL conflict was detected within a matching flow type —
- * the caller should flag the export as lossy since the earlier endpoint is
- * silently retained.
+ * For non-OAuth2 schemes, identical schemes reuse the existing name; differing
+ * schemes are registered under a numeric suffix to avoid silent overwrite.
+ *
+ * `oauth2UrlConflict` is true if a URL conflict was detected within a matching
+ * OAuth2 flow type — the caller should flag the export as lossy since the
+ * earlier endpoint is silently retained.
  */
 function registerSecurityScheme(
   securitySchemes: Record<string, OpenAPIV3_1.SecuritySchemeObject>,
   schemeName: string,
   scheme: OpenAPIV3_1.SecuritySchemeObject
-): boolean {
+): { name: string; oauth2UrlConflict: boolean } {
   const existing = securitySchemes[schemeName]
-  if (!existing || existing.type !== "oauth2" || scheme.type !== "oauth2") {
+
+  if (!existing) {
     securitySchemes[schemeName] = scheme
-    return false
+    return { name: schemeName, oauth2UrlConflict: false }
   }
 
-  type MergeableFlow = {
-    authorizationUrl?: string
-    tokenUrl?: string
-    refreshUrl?: string
-    scopes: Record<string, string>
-  }
-  let urlConflict = false
-  const existingFlows = existing.flows as Record<string, MergeableFlow>
-  const newFlows = scheme.flows as Record<string, MergeableFlow>
+  if (existing.type === "oauth2" && scheme.type === "oauth2") {
+    type MergeableFlow = {
+      authorizationUrl?: string
+      tokenUrl?: string
+      refreshUrl?: string
+      scopes: Record<string, string>
+    }
+    let urlConflict = false
+    const existingFlows = existing.flows as Record<string, MergeableFlow>
+    const newFlows = scheme.flows as Record<string, MergeableFlow>
 
-  for (const [flowType, newFlow] of Object.entries(newFlows)) {
-    const existingFlow = existingFlows[flowType]
-    if (!existingFlow) {
-      existingFlows[flowType] = newFlow
-      continue
+    for (const [flowType, newFlow] of Object.entries(newFlows)) {
+      const existingFlow = existingFlows[flowType]
+      if (!existingFlow) {
+        existingFlows[flowType] = newFlow
+        continue
+      }
+
+      const urlsDiffer =
+        (existingFlow.authorizationUrl ?? "") !==
+          (newFlow.authorizationUrl ?? "") ||
+        (existingFlow.tokenUrl ?? "") !== (newFlow.tokenUrl ?? "") ||
+        (existingFlow.refreshUrl ?? "") !== (newFlow.refreshUrl ?? "")
+      if (urlsDiffer) {
+        urlConflict = true
+      }
+      existingFlow.scopes = { ...existingFlow.scopes, ...newFlow.scopes }
     }
 
-    const urlsDiffer =
-      (existingFlow.authorizationUrl ?? "") !==
-        (newFlow.authorizationUrl ?? "") ||
-      (existingFlow.tokenUrl ?? "") !== (newFlow.tokenUrl ?? "") ||
-      (existingFlow.refreshUrl ?? "") !== (newFlow.refreshUrl ?? "")
-    if (urlsDiffer) {
-      urlConflict = true
-    }
-    existingFlow.scopes = { ...existingFlow.scopes, ...newFlow.scopes }
+    return { name: schemeName, oauth2UrlConflict: urlConflict }
   }
 
-  return urlConflict
+  // Non-OAuth2: identical schemes share a name; differing schemes get suffixed.
+  const equalSchemes = (a: unknown, b: unknown) =>
+    JSON.stringify(a) === JSON.stringify(b)
+
+  if (equalSchemes(existing, scheme)) {
+    return { name: schemeName, oauth2UrlConflict: false }
+  }
+
+  let counter = 2
+  for (;;) {
+    const candidate = `${schemeName}_${counter}`
+    const candidateExisting = securitySchemes[candidate]
+    if (!candidateExisting) {
+      securitySchemes[candidate] = scheme
+      return { name: candidate, oauth2UrlConflict: false }
+    }
+    if (equalSchemes(candidateExisting, scheme)) {
+      return { name: candidate, oauth2UrlConflict: false }
+    }
+    counter++
+  }
 }
 
 /**
@@ -351,10 +542,17 @@ function convertResponses(responses: HoppRESTRequest["responses"]): {
   let hasDuplicates = false
 
   for (const [, response] of Object.entries(responses)) {
-    const statusCode = response.code?.toString() ?? "200"
+    // OpenAPI's `responses` map is keyed by HTTP status code; a saved response
+    // without a code can't be addressed and is ambiguous, so flag it as a
+    // duplicate-equivalent loss and skip emission.
+    if (response.code == null) {
+      hasDuplicates = true
+      continue
+    }
+    const statusCode = response.code.toString()
 
     const responseObj: OpenAPIV3_1.ResponseObject = {
-      description: response.name || `${statusCode} response`,
+      description: response.name?.trim() || `${statusCode} response`,
     }
 
     if (response.headers && response.headers.length > 0) {
@@ -418,76 +616,231 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
   const securitySchemes: Record<string, OpenAPIV3_1.SecuritySchemeObject> = {}
   const servers = new Set<string>()
   const usedOperationIds = new Set<string>()
-  const lossyAuthTypes = new Set([
-    "digest",
-    "hawk",
-    "akamai-eg",
-    "aws-signature",
-  ])
   let hasScripts = false
   let hasLossyAuth = false
   let hasDuplicatePaths = false
   let hasDuplicateResponseCodes = false
+  let hasUnsupportedMethod = false
+  let hasUnsupportedAuth = false
+
+  // Track lossy-auth on a resolved (effective) auth, including inheritance.
+  function noteLossyAuth(auth: AuthLike | null) {
+    if (!auth || !auth.authActive) return
+    if (LOSSY_AUTH_TYPES.has(auth.authType)) hasLossyAuth = true
+  }
+
+  // Track when an active auth type doesn't map to any OpenAPI security scheme
+  // (e.g. a future Hopp auth type not yet covered by `convertAuth`).
+  function noteUnsupportedAuth(auth: AuthLike | null) {
+    if (!auth || !auth.authActive) return
+    if (auth.authType === "none" || auth.authType === "inherit") return
+    if (convertAuth(auth as HoppRESTRequest["auth"]) === null) {
+      hasUnsupportedAuth = true
+    }
+  }
+
+  /**
+   * Resolve a `<<varName>>` server placeholder to the variable's actual value
+   * if one is in scope. Defensive: skips variables flagged `secret` so we
+   * don't leak credentials into an exported spec.
+   */
+  const resolveServerPlaceholder = (
+    server: string,
+    variableValues: Map<string, string>
+  ): string => {
+    const match = /^<<([a-zA-Z0-9_.-]+)>>$/.exec(server)
+    if (!match) return server
+    const value = variableValues.get(match[1])
+    return value && value.length > 0 ? value : server
+  }
+
+  /**
+   * Build the effective variable map for the current scope by walking ancestor
+   * variable arrays from root → leaf, with deeper levels overriding shallower.
+   * Secret variables are excluded so resolveServerPlaceholder never substitutes
+   * them into the doc.
+   */
+  const buildVariableValues = (
+    variableLayers: ReadonlyArray<HoppCollection["variables"]>
+  ): Map<string, string> => {
+    const result = new Map<string, string>()
+    for (const layer of variableLayers) {
+      for (const v of layer) {
+        if ((v as { secret?: boolean }).secret) continue
+        const value =
+          (v as { currentValue?: string }).currentValue ||
+          (v as { initialValue?: string }).initialValue ||
+          ""
+        if (value) result.set(v.key, value)
+      }
+    }
+    return result
+  }
+
+  /** Collect the keys of every secret variable in scope (any layer). */
+  const collectSecretKeys = (
+    variableLayers: ReadonlyArray<HoppCollection["variables"]>
+  ): Set<string> => {
+    const result = new Set<string>()
+    for (const layer of variableLayers) {
+      for (const v of layer) {
+        if ((v as { secret?: boolean }).secret) result.add(v.key)
+      }
+    }
+    return result
+  }
+
+  /**
+   * Substitute `<<var>>` tokens in a value with their resolved (non-secret)
+   * values. Returns `undefined` if any secret variable appears in the string —
+   * the param's `example` field should be omitted entirely rather than leak
+   * a credential placeholder into the exported spec.
+   */
+  const resolveExampleValue = (
+    value: string | undefined,
+    variableValues: Map<string, string>,
+    secretKeys: Set<string>
+  ): string | undefined => {
+    if (!value) return undefined
+    let containsSecret = false
+    const out = value.replace(/<<([a-zA-Z0-9_.-]+)>>/g, (_match, name) => {
+      if (secretKeys.has(name)) {
+        containsSecret = true
+        return ""
+      }
+      return variableValues.get(name) ?? `<<${name}>>`
+    })
+    if (containsSecret) return undefined
+    return out
+  }
 
   function processRequests(
     requests: HoppRESTRequest[],
     tagPath: string | null,
-    inheritedHeaders: HoppCollection["headers"][]
+    inheritedHeaders: HoppCollection["headers"][],
+    inheritedAuth: AuthLike | null,
+    inheritedVariables: ReadonlyArray<HoppCollection["variables"]>,
+    docLevelAuth: AuthLike | null
   ) {
+    const variableValues = buildVariableValues(inheritedVariables)
+    const secretKeys = collectSecretKeys(inheritedVariables)
     for (const request of requests) {
-      const { server, path } = parseEndpoint(request.endpoint)
-      if (server) servers.add(server)
-
+      const {
+        server,
+        path: rawPath,
+        queryParams: urlQueryParams,
+      } = parseEndpoint(request.endpoint)
       const method = request.method.toLowerCase()
 
-      const parameters: OpenAPIV3_1.ParameterObject[] = []
+      // Substitute non-secret runtime variables that landed inside the path
+      // (e.g. `<<env>>/api/<<region>>/users` -> `/prod/api/us-east-1/users`).
+      // True path templates — vars listed in `requestVariables` — are kept
+      // as `{name}` so they round-trip and remain consumer-supplied. Secret
+      // vars are also kept as templates rather than substituted to avoid
+      // leaking credentials into the spec.
+      const requestVarKeys = new Set(
+        request.requestVariables
+          .filter((v) => v.active && v.key)
+          .map((v) => v.key)
+      )
+      const path = rawPath.replace(
+        /\{([a-zA-Z0-9_.-]+)\}/g,
+        (token, name: string) => {
+          if (requestVarKeys.has(name)) return token
+          if (secretKeys.has(name)) return token
+          const resolved = variableValues.get(name)
+          return resolved !== undefined ? resolved : token
+        }
+      )
 
-      // Query params
+      // Skip methods OpenAPI 3.1 doesn't recognize as PathItem keys —
+      // emitting them would produce an invalid document.
+      if (!OPENAPI_METHODS.has(method)) {
+        hasUnsupportedMethod = true
+        continue
+      }
+
+      // Skip duplicate (path, method) — OpenAPI cannot represent two operations
+      // with the same key. Keep the first seen; warn for the rest.
+      const pathItem = (paths[path] = (paths[path] ??
+        {}) as OpenAPIV3_1.PathItemObject) as Record<
+        string,
+        OpenAPIV3_1.OperationObject
+      >
+      if (pathItem[method]) {
+        hasDuplicatePaths = true
+        continue
+      }
+
+      if (server) servers.add(resolveServerPlaceholder(server, variableValues))
+
+      const parameters: OpenAPIV3_1.ParameterObject[] = []
+      // OpenAPI requires unique (name, in) per operation — dedupe as we go,
+      // first-write wins (mirrors the existing "child-overrides-parent" rule
+      // for inherited headers).
+      const seenParamKeys = new Set<string>()
+      const pushParam = (param: OpenAPIV3_1.ParameterObject) => {
+        const key = `${param.in}::${param.name.toLowerCase()}`
+        if (seenParamKeys.has(key)) return
+        seenParamKeys.add(key)
+        parameters.push(param)
+      }
+
+      // Explicit request-level query params first (so they take precedence
+      // over duplicates encoded in the URL itself).
       for (const param of request.params) {
         if (!param.active || !param.key) continue
-        parameters.push({
+        pushParam({
           name: param.key,
           in: "query",
           schema: { type: "string" },
-          example: param.value || undefined,
+          example: resolveExampleValue(param.value, variableValues, secretKeys),
           description: param.description || undefined,
         })
       }
 
-      // Headers (request-level)
-      // OpenAPI 3.1 §4.8.14: Content-Type, Accept, and Authorization
-      // are expressed via requestBody/responses/security, not header parameters
-      const SKIP_HEADER_NAMES = new Set([
-        "content-type",
-        "accept",
-        "authorization",
-      ])
-      const requestHeaderKeys = new Set<string>()
+      // Query params embedded in the endpoint URL itself.
+      for (const { key, value } of urlQueryParams) {
+        if (!key) continue
+        pushParam({
+          name: key,
+          in: "query",
+          schema: { type: "string" },
+          example: resolveExampleValue(value, variableValues, secretKeys),
+        })
+      }
+
+      // Request-level headers
       for (const header of request.headers) {
         if (!header.active || !header.key) continue
         if (SKIP_HEADER_NAMES.has(header.key.toLowerCase())) continue
-        requestHeaderKeys.add(header.key.toLowerCase())
-        parameters.push({
+        pushParam({
           name: header.key,
           in: "header",
           schema: { type: "string" },
-          example: header.value || undefined,
+          example: resolveExampleValue(
+            header.value,
+            variableValues,
+            secretKeys
+          ),
           description: header.description || undefined,
         })
       }
 
-      // Inherited headers (nearest ancestor first, skip if already defined)
+      // Inherited headers (nearest ancestor first; first-write-wins via dedup)
       for (const headers of inheritedHeaders) {
         for (const header of headers) {
           if (!header.active || !header.key) continue
           if (SKIP_HEADER_NAMES.has(header.key.toLowerCase())) continue
-          if (requestHeaderKeys.has(header.key.toLowerCase())) continue
-          requestHeaderKeys.add(header.key.toLowerCase())
-          parameters.push({
+          pushParam({
             name: header.key,
             in: "header",
             schema: { type: "string" },
-            example: header.value || undefined,
+            example: resolveExampleValue(
+              header.value,
+              variableValues,
+              secretKeys
+            ),
             description: header.description || undefined,
           })
         }
@@ -498,12 +851,16 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
       for (const variable of request.requestVariables) {
         if (!variable.active || !variable.key) continue
         definedPathParams.add(variable.key)
-        parameters.push({
+        pushParam({
           name: variable.key,
           in: "path",
           required: true,
           schema: { type: "string" },
-          example: variable.value || undefined,
+          example: resolveExampleValue(
+            variable.value,
+            variableValues,
+            secretKeys
+          ),
         })
       }
 
@@ -511,14 +868,14 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
       const pathParamMatches = path.matchAll(/\{([a-zA-Z0-9_.-]+)\}/g)
       for (const match of pathParamMatches) {
         const paramName = match[1]
-        if (!definedPathParams.has(paramName)) {
-          parameters.push({
-            name: paramName,
-            in: "path",
-            required: true,
-            schema: { type: "string" },
-          })
-        }
+        if (definedPathParams.has(paramName)) continue
+        definedPathParams.add(paramName)
+        pushParam({
+          name: paramName,
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        })
       }
 
       const convertedResponses = convertResponses(request.responses)
@@ -559,83 +916,162 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
         operation.requestBody = requestBody
       }
 
-      // Auth
-      const authResult = convertAuth(request.auth)
-      if (authResult) {
-        if (
-          registerSecurityScheme(
-            securitySchemes,
-            authResult.schemeName,
-            authResult.scheme
-          )
-        ) {
-          hasLossyAuth = true
+      // Effective auth = nearest non-inherit ancestor (or own auth if explicit).
+      // Folder/collection auth is now respected via inheritedAuth.
+      const effectiveAuth = resolveEffectiveAuth(request.auth, inheritedAuth)
+      // Only emit `operation.security` when the request's effective auth
+      // *differs* from the doc-level auth. If they match, OpenAPI's natural
+      // inheritance from `doc.security` covers it — and skipping the emit
+      // is what makes round-tripping `request.auth = inherit` come back as
+      // `inherit` rather than as a duplicated copy on every request.
+      if (
+        effectiveAuth?.authActive &&
+        !authsMatchForOpenAPI(effectiveAuth, docLevelAuth)
+      ) {
+        if (effectiveAuth.authType === "none") {
+          operation.security = []
+        } else {
+          const authResult = convertAuth(effectiveAuth)
+          if (authResult) {
+            const { name, oauth2UrlConflict } = registerSecurityScheme(
+              securitySchemes,
+              authResult.schemeName,
+              authResult.scheme
+            )
+            if (oauth2UrlConflict) hasLossyAuth = true
+            operation.security = [{ [name]: authResult.scopes }]
+          }
         }
-        operation.security = [{ [authResult.schemeName]: authResult.scopes }]
-      } else if (request.auth.authActive && request.auth.authType === "none") {
+      } else if (
+        // Special case: collection has auth but this request explicitly opts
+        // out (`authActive: false` on a non-inherit type). Emit `[]` so the
+        // operation is exempted from doc.security at runtime.
+        docLevelAuth?.authActive &&
+        request.auth.authType !== "inherit" &&
+        !request.auth.authActive
+      ) {
         operation.security = []
       }
 
-      // Track warnings
-      const stripModulePrefix = (s: string) =>
-        s.startsWith("export {};\n") ? s.slice("export {};\n".length) : s
+      noteLossyAuth(effectiveAuth)
+      noteUnsupportedAuth(effectiveAuth)
+
       if (
-        stripModulePrefix(request.preRequestScript).trim() ||
-        stripModulePrefix(request.testScript).trim()
+        hasNonEmptyScript(request.preRequestScript) ||
+        hasNonEmptyScript(request.testScript)
       ) {
         hasScripts = true
       }
-      if (
-        request.auth.authActive &&
-        lossyAuthTypes.has(request.auth.authType)
-      ) {
-        hasLossyAuth = true
-      }
 
-      if (!paths[path]) {
-        paths[path] = {}
-      }
-
-      if (
-        (paths[path] as Record<string, OpenAPIV3_1.OperationObject>)[method]
-      ) {
-        hasDuplicatePaths = true
-      }
-      ;(paths[path] as Record<string, OpenAPIV3_1.OperationObject>)[method] =
-        operation
+      pathItem[method] = operation
     }
   }
 
   function processFolders(
     folders: HoppCollection[],
     parentPath: string | null,
-    inheritedHeaders: HoppCollection["headers"][]
+    inheritedHeaders: HoppCollection["headers"][],
+    inheritedAuth: AuthLike | null,
+    inheritedVariables: ReadonlyArray<HoppCollection["variables"]>,
+    docLevelAuth: AuthLike | null
   ) {
     for (const folder of folders) {
       const tagPath = parentPath ? `${parentPath}/${folder.name}` : folder.name
       const folderHeaders = [folder.headers, ...inheritedHeaders]
+      const folderAuth = resolveEffectiveAuth(
+        folder.auth as AuthLike,
+        inheritedAuth
+      )
+      const folderVariables = [...inheritedVariables, folder.variables]
 
       if (!usedTagNames.has(tagPath)) {
         usedTagNames.add(tagPath)
-        tags.push({ name: tagPath })
+        const tag: OpenAPIV3_1.TagObject = { name: tagPath }
+        if (folder.description) tag.description = folder.description
+        tags.push(tag)
       }
+
+      // Folder-level scripts are also lossy if they hold real content
+      const folderPreScript = (folder as { preRequestScript?: string })
+        .preRequestScript
+      const folderTestScript = (folder as { testScript?: string }).testScript
+      if (
+        hasNonEmptyScript(folderPreScript) ||
+        hasNonEmptyScript(folderTestScript)
+      ) {
+        hasScripts = true
+      }
+
+      // Folder-level lossy auth (e.g. digest set on a folder, inherited by
+      // child requests) should also surface the auth-detail warning.
+      noteLossyAuth(folderAuth)
+      noteUnsupportedAuth(folderAuth)
 
       processRequests(
         folder.requests as HoppRESTRequest[],
         tagPath,
-        folderHeaders
+        folderHeaders,
+        folderAuth,
+        folderVariables,
+        docLevelAuth
       )
-      processFolders(folder.folders, tagPath, folderHeaders)
+      processFolders(
+        folder.folders,
+        tagPath,
+        folderHeaders,
+        folderAuth,
+        folderVariables,
+        docLevelAuth
+      )
     }
   }
 
   const rootHeaders = [collection.headers]
+  const collectionAuthAsRequest = collection.auth as AuthLike
+  // Root inheritance: a top-level "inherit" has no parent, so treat as no auth.
+  const rootInheritedAuth: AuthLike | null =
+    collectionAuthAsRequest.authType === "inherit"
+      ? null
+      : collectionAuthAsRequest
 
-  // Process root-level requests (no tag)
-  processRequests(collection.requests as HoppRESTRequest[], null, rootHeaders)
+  // Collection-level scripts are also lossy if non-empty
+  const collectionPreScript = (collection as { preRequestScript?: string })
+    .preRequestScript
+  const collectionTestScript = (collection as { testScript?: string })
+    .testScript
+  if (
+    hasNonEmptyScript(collectionPreScript) ||
+    hasNonEmptyScript(collectionTestScript)
+  ) {
+    hasScripts = true
+  }
 
-  // Process folders recursively
-  processFolders(collection.folders, null, rootHeaders)
+  const rootVariables: ReadonlyArray<HoppCollection["variables"]> = [
+    collection.variables,
+  ]
+  // The "doc-level auth" is what the importer will set as collection.auth,
+  // mirrored from `doc.security`. Operations whose effective auth matches it
+  // can omit `operation.security` and let OpenAPI's inheritance kick in.
+  const docLevelAuth: AuthLike | null = rootInheritedAuth?.authActive
+    ? rootInheritedAuth
+    : null
+
+  processRequests(
+    collection.requests as HoppRESTRequest[],
+    null,
+    rootHeaders,
+    rootInheritedAuth,
+    rootVariables,
+    docLevelAuth
+  )
+  processFolders(
+    collection.folders,
+    null,
+    rootHeaders,
+    rootInheritedAuth,
+    rootVariables,
+    docLevelAuth
+  )
 
   const doc: OpenAPIV3_1.Document = {
     openapi: "3.1.0",
@@ -653,28 +1089,29 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
 
   if (tags.length > 0) {
     doc.tags = tags
+    // Mark the document so the importer knows tag names use slash-as-folder
+    // separator. Round-trip stays exact even when there's only a single
+    // nested folder (which the heuristic alone couldn't detect).
+    ;(doc as Record<string, unknown>)["x-hoppscotch-folder-tags"] = "slash"
   }
 
-  // Collection-level auth → global security
-  const collectionAuth = convertAuth(collection.auth as HoppRESTRequest["auth"])
-  if (collectionAuth) {
-    if (
-      registerSecurityScheme(
-        securitySchemes,
-        collectionAuth.schemeName,
-        collectionAuth.scheme
-      )
-    ) {
-      hasLossyAuth = true
+  // Collection-level auth → global security (only when explicit and non-none)
+  if (rootInheritedAuth?.authActive) {
+    if (rootInheritedAuth.authType !== "none") {
+      const collectionAuth = convertAuth(rootInheritedAuth)
+      if (collectionAuth) {
+        const { name, oauth2UrlConflict } = registerSecurityScheme(
+          securitySchemes,
+          collectionAuth.schemeName,
+          collectionAuth.scheme
+        )
+        if (oauth2UrlConflict) hasLossyAuth = true
+        doc.security = [{ [name]: collectionAuth.scopes }]
+      }
     }
-    doc.security = [{ [collectionAuth.schemeName]: collectionAuth.scopes }]
   }
-  if (
-    collection.auth.authActive &&
-    lossyAuthTypes.has(collection.auth.authType)
-  ) {
-    hasLossyAuth = true
-  }
+  noteLossyAuth(rootInheritedAuth)
+  noteUnsupportedAuth(rootInheritedAuth)
 
   if (Object.keys(securitySchemes).length > 0) {
     doc.components = { securitySchemes }
@@ -687,12 +1124,82 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
   if (hasLossyAuth) {
     warnings.push("export.openapi_auth_limited_detail")
   }
+  if (hasUnsupportedAuth) {
+    warnings.push("export.openapi_unsupported_auth_type")
+  }
   if (hasDuplicatePaths) {
     warnings.push("export.openapi_duplicate_paths")
   }
   if (hasDuplicateResponseCodes) {
     warnings.push("export.openapi_duplicate_response_codes")
   }
+  if (hasUnsupportedMethod) {
+    warnings.push("export.openapi_unsupported_methods")
+  }
 
   return { doc, warnings }
+}
+
+/**
+ * Walk a collection (and descendants) and record every (method, path-key)
+ * tuple that would land in the OpenAPI doc. Used to detect cross-collection
+ * conflicts before they're silently flattened by the per-doc dedup.
+ */
+function collectPathMethodKeys(coll: HoppCollection, out: Set<string>): void {
+  for (const req of (coll.requests ?? []) as HoppRESTRequest[]) {
+    if (!req.method || !req.endpoint) continue
+    try {
+      const { path } = parseEndpoint(req.endpoint)
+      out.add(`${req.method.toUpperCase()} ${path}`)
+    } catch {
+      // Endpoints that fail to parse won't be emitted; ignore.
+    }
+  }
+  for (const folder of coll.folders ?? []) {
+    collectPathMethodKeys(folder, out)
+  }
+}
+
+/**
+ * Wrap multiple top-level collections into a single OpenAPI 3.1 document.
+ * Each collection becomes a top-level folder of a synthetic root with the
+ * given workspace name, so the resulting tag tree mirrors the workspace
+ * structure and the document remains round-trippable through the importer.
+ *
+ * If two collections share the same (method, path) tuple, OpenAPI's single
+ * `paths` map can only represent one operation per pair — the rest are
+ * silently dropped by `hoppCollectionToOpenAPI`. Surface a dedicated
+ * cross-collection warning so the user knows to split the export.
+ */
+export function hoppCollectionsToOpenAPI(
+  workspaceName: string,
+  collections: HoppCollection[]
+): { doc: OpenAPIV3_1.Document; warnings: string[] } {
+  const seen = new Set<string>()
+  const conflictKeys = new Set<string>()
+  for (const coll of collections) {
+    const collKeys = new Set<string>()
+    collectPathMethodKeys(coll, collKeys)
+    for (const key of collKeys) {
+      if (seen.has(key)) conflictKeys.add(key)
+      else seen.add(key)
+    }
+  }
+
+  const root = makeCollection({
+    name: workspaceName,
+    folders: collections,
+    requests: [],
+    auth: { authType: "inherit", authActive: true },
+    headers: [],
+    variables: [],
+    description: null,
+    preRequestScript: "",
+    testScript: "",
+  })
+  const result = hoppCollectionToOpenAPI(root)
+  if (conflictKeys.size > 0) {
+    result.warnings.push("export.openapi_cross_collection_path_conflict")
+  }
+  return result
 }

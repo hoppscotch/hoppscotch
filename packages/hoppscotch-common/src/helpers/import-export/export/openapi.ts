@@ -29,17 +29,6 @@ const OPENAPI_METHODS = new Set([
 const SKIP_HEADER_NAMES = new Set(["content-type", "accept", "authorization"])
 
 /**
- * Auth types whose details cannot be fully expressed in OpenAPI's standard
- * security schemes; the export will be lossy.
- */
-const LOSSY_AUTH_TYPES = new Set([
-  "digest",
-  "hawk",
-  "akamai-eg",
-  "aws-signature",
-])
-
-/**
  * Convert Hoppscotch template variables `<<var>>` to OpenAPI path parameters `{var}`
  */
 function convertTemplateVars(path: string): string {
@@ -155,19 +144,6 @@ function authsMatchForOpenAPI(a: AuthLike | null, b: AuthLike | null): boolean {
   const aScopes = [...(aResult?.scopes ?? [])].sort().join(" ")
   const bScopes = [...(bResult?.scopes ?? [])].sort().join(" ")
   return aScopes === bScopes
-}
-
-/**
- * `export {};\n` is the module-prefix sentinel that scripting prepends to
- * empty scripts; treat anything that strips down to whitespace as no-script.
- */
-function stripModulePrefix(s: string): string {
-  return s.startsWith("export {};\n") ? s.slice("export {};\n".length) : s
-}
-
-function hasNonEmptyScript(s: string | undefined): boolean {
-  if (!s) return false
-  return stripModulePrefix(s).trim().length > 0
 }
 
 /**
@@ -452,21 +428,17 @@ function convertAuth(auth: HoppRESTRequest["auth"]): {
  *
  * For non-OAuth2 schemes, identical schemes reuse the existing name; differing
  * schemes are registered under a numeric suffix to avoid silent overwrite.
- *
- * `oauth2UrlConflict` is true if a URL conflict was detected within a matching
- * OAuth2 flow type — the caller should flag the export as lossy since the
- * earlier endpoint is silently retained.
  */
 function registerSecurityScheme(
   securitySchemes: Record<string, OpenAPIV3_1.SecuritySchemeObject>,
   schemeName: string,
   scheme: OpenAPIV3_1.SecuritySchemeObject
-): { name: string; oauth2UrlConflict: boolean } {
+): string {
   const existing = securitySchemes[schemeName]
 
   if (!existing) {
     securitySchemes[schemeName] = scheme
-    return { name: schemeName, oauth2UrlConflict: false }
+    return schemeName
   }
 
   if (existing.type === "oauth2" && scheme.type === "oauth2") {
@@ -476,7 +448,6 @@ function registerSecurityScheme(
       refreshUrl?: string
       scopes: Record<string, string>
     }
-    let urlConflict = false
     const existingFlows = existing.flows as Record<string, MergeableFlow>
     const newFlows = scheme.flows as Record<string, MergeableFlow>
 
@@ -486,19 +457,10 @@ function registerSecurityScheme(
         existingFlows[flowType] = newFlow
         continue
       }
-
-      const urlsDiffer =
-        (existingFlow.authorizationUrl ?? "") !==
-          (newFlow.authorizationUrl ?? "") ||
-        (existingFlow.tokenUrl ?? "") !== (newFlow.tokenUrl ?? "") ||
-        (existingFlow.refreshUrl ?? "") !== (newFlow.refreshUrl ?? "")
-      if (urlsDiffer) {
-        urlConflict = true
-      }
       existingFlow.scopes = { ...existingFlow.scopes, ...newFlow.scopes }
     }
 
-    return { name: schemeName, oauth2UrlConflict: urlConflict }
+    return schemeName
   }
 
   // Non-OAuth2: identical schemes share a name; differing schemes get suffixed.
@@ -506,7 +468,7 @@ function registerSecurityScheme(
     JSON.stringify(a) === JSON.stringify(b)
 
   if (equalSchemes(existing, scheme)) {
-    return { name: schemeName, oauth2UrlConflict: false }
+    return schemeName
   }
 
   let counter = 2
@@ -515,10 +477,10 @@ function registerSecurityScheme(
     const candidateExisting = securitySchemes[candidate]
     if (!candidateExisting) {
       securitySchemes[candidate] = scheme
-      return { name: candidate, oauth2UrlConflict: false }
+      return candidate
     }
     if (equalSchemes(candidateExisting, scheme)) {
-      return { name: candidate, oauth2UrlConflict: false }
+      return candidate
     }
     counter++
   }
@@ -527,28 +489,19 @@ function registerSecurityScheme(
 /**
  * Convert saved responses from a request to OpenAPI response objects
  */
-function convertResponses(responses: HoppRESTRequest["responses"]): {
-  responses: OpenAPIV3_1.ResponsesObject
-  hasDuplicates: boolean
-} {
+function convertResponses(
+  responses: HoppRESTRequest["responses"]
+): OpenAPIV3_1.ResponsesObject {
   if (!responses || Object.keys(responses).length === 0) {
-    return {
-      responses: { "200": { description: "Successful response" } },
-      hasDuplicates: false,
-    }
+    return { "200": { description: "Successful response" } }
   }
 
   const result: OpenAPIV3_1.ResponsesObject = {}
-  let hasDuplicates = false
 
   for (const [, response] of Object.entries(responses)) {
-    // OpenAPI's `responses` map is keyed by HTTP status code; a saved response
-    // without a code can't be addressed and is ambiguous, so flag it as a
-    // duplicate-equivalent loss and skip emission.
-    if (response.code == null) {
-      hasDuplicates = true
-      continue
-    }
+    // OpenAPI's `responses` map is keyed by HTTP status code; a saved
+    // response without a code can't be addressed and is ambiguous, skip it.
+    if (response.code == null) continue
     const statusCode = response.code.toString()
 
     const responseObj: OpenAPIV3_1.ResponseObject = {
@@ -593,22 +546,17 @@ function convertResponses(responses: HoppRESTRequest["responses"]): {
       responseObj.content = { [contentType]: mediaType }
     }
 
-    if (result[statusCode]) {
-      hasDuplicates = true
-    }
     result[statusCode] = responseObj
   }
 
-  return { responses: result, hasDuplicates }
+  return result
 }
 
 /**
  * Convert a HoppCollection to an OpenAPI 3.1.0 document.
- * Returns the document along with any data-loss warnings.
  */
 export function hoppCollectionToOpenAPI(collection: HoppCollection): {
   doc: OpenAPIV3_1.Document
-  warnings: string[]
 } {
   const paths: OpenAPIV3_1.PathsObject = {}
   const tags: OpenAPIV3_1.TagObject[] = []
@@ -616,28 +564,6 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
   const securitySchemes: Record<string, OpenAPIV3_1.SecuritySchemeObject> = {}
   const servers = new Set<string>()
   const usedOperationIds = new Set<string>()
-  let hasScripts = false
-  let hasLossyAuth = false
-  let hasDuplicatePaths = false
-  let hasDuplicateResponseCodes = false
-  let hasUnsupportedMethod = false
-  let hasUnsupportedAuth = false
-
-  // Track lossy-auth on a resolved (effective) auth, including inheritance.
-  function noteLossyAuth(auth: AuthLike | null) {
-    if (!auth || !auth.authActive) return
-    if (LOSSY_AUTH_TYPES.has(auth.authType)) hasLossyAuth = true
-  }
-
-  // Track when an active auth type doesn't map to any OpenAPI security scheme
-  // (e.g. a future Hopp auth type not yet covered by `convertAuth`).
-  function noteUnsupportedAuth(auth: AuthLike | null) {
-    if (!auth || !auth.authActive) return
-    if (auth.authType === "none" || auth.authType === "inherit") return
-    if (convertAuth(auth as HoppRESTRequest["auth"]) === null) {
-      hasUnsupportedAuth = true
-    }
-  }
 
   /**
    * Resolve a `<<varName>>` server placeholder to the variable's actual value
@@ -755,22 +681,16 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
 
       // Skip methods OpenAPI 3.1 doesn't recognize as PathItem keys —
       // emitting them would produce an invalid document.
-      if (!OPENAPI_METHODS.has(method)) {
-        hasUnsupportedMethod = true
-        continue
-      }
+      if (!OPENAPI_METHODS.has(method)) continue
 
-      // Skip duplicate (path, method) — OpenAPI cannot represent two operations
-      // with the same key. Keep the first seen; warn for the rest.
+      // Skip duplicate (path, method) — OpenAPI cannot represent two
+      // operations with the same key. Keep the first seen; drop the rest.
       const pathItem = (paths[path] = (paths[path] ??
         {}) as OpenAPIV3_1.PathItemObject) as Record<
         string,
         OpenAPIV3_1.OperationObject
       >
-      if (pathItem[method]) {
-        hasDuplicatePaths = true
-        continue
-      }
+      if (pathItem[method]) continue
 
       if (server) servers.add(resolveServerPlaceholder(server, variableValues))
 
@@ -878,12 +798,9 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
         })
       }
 
-      const convertedResponses = convertResponses(request.responses)
-      if (convertedResponses.hasDuplicates) hasDuplicateResponseCodes = true
-
       const operation: OpenAPIV3_1.OperationObject = {
         summary: request.name,
-        responses: convertedResponses.responses,
+        responses: convertResponses(request.responses),
       }
 
       if (request.description) {
@@ -933,12 +850,11 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
         } else {
           const authResult = convertAuth(effectiveAuth)
           if (authResult) {
-            const { name, oauth2UrlConflict } = registerSecurityScheme(
+            const name = registerSecurityScheme(
               securitySchemes,
               authResult.schemeName,
               authResult.scheme
             )
-            if (oauth2UrlConflict) hasLossyAuth = true
             operation.security = [{ [name]: authResult.scopes }]
           }
         }
@@ -951,16 +867,6 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
         !request.auth.authActive
       ) {
         operation.security = []
-      }
-
-      noteLossyAuth(effectiveAuth)
-      noteUnsupportedAuth(effectiveAuth)
-
-      if (
-        hasNonEmptyScript(request.preRequestScript) ||
-        hasNonEmptyScript(request.testScript)
-      ) {
-        hasScripts = true
       }
 
       pathItem[method] = operation
@@ -991,22 +897,6 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
         tags.push(tag)
       }
 
-      // Folder-level scripts are also lossy if they hold real content
-      const folderPreScript = (folder as { preRequestScript?: string })
-        .preRequestScript
-      const folderTestScript = (folder as { testScript?: string }).testScript
-      if (
-        hasNonEmptyScript(folderPreScript) ||
-        hasNonEmptyScript(folderTestScript)
-      ) {
-        hasScripts = true
-      }
-
-      // Folder-level lossy auth (e.g. digest set on a folder, inherited by
-      // child requests) should also surface the auth-detail warning.
-      noteLossyAuth(folderAuth)
-      noteUnsupportedAuth(folderAuth)
-
       processRequests(
         folder.requests as HoppRESTRequest[],
         tagPath,
@@ -1033,18 +923,6 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
     collectionAuthAsRequest.authType === "inherit"
       ? null
       : collectionAuthAsRequest
-
-  // Collection-level scripts are also lossy if non-empty
-  const collectionPreScript = (collection as { preRequestScript?: string })
-    .preRequestScript
-  const collectionTestScript = (collection as { testScript?: string })
-    .testScript
-  if (
-    hasNonEmptyScript(collectionPreScript) ||
-    hasNonEmptyScript(collectionTestScript)
-  ) {
-    hasScripts = true
-  }
 
   const rootVariables: ReadonlyArray<HoppCollection["variables"]> = [
     collection.variables,
@@ -1100,64 +978,21 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
     if (rootInheritedAuth.authType !== "none") {
       const collectionAuth = convertAuth(rootInheritedAuth)
       if (collectionAuth) {
-        const { name, oauth2UrlConflict } = registerSecurityScheme(
+        const name = registerSecurityScheme(
           securitySchemes,
           collectionAuth.schemeName,
           collectionAuth.scheme
         )
-        if (oauth2UrlConflict) hasLossyAuth = true
         doc.security = [{ [name]: collectionAuth.scopes }]
       }
     }
   }
-  noteLossyAuth(rootInheritedAuth)
-  noteUnsupportedAuth(rootInheritedAuth)
 
   if (Object.keys(securitySchemes).length > 0) {
     doc.components = { securitySchemes }
   }
 
-  const warnings: string[] = []
-  if (hasScripts) {
-    warnings.push("export.openapi_scripts_not_included")
-  }
-  if (hasLossyAuth) {
-    warnings.push("export.openapi_auth_limited_detail")
-  }
-  if (hasUnsupportedAuth) {
-    warnings.push("export.openapi_unsupported_auth_type")
-  }
-  if (hasDuplicatePaths) {
-    warnings.push("export.openapi_duplicate_paths")
-  }
-  if (hasDuplicateResponseCodes) {
-    warnings.push("export.openapi_duplicate_response_codes")
-  }
-  if (hasUnsupportedMethod) {
-    warnings.push("export.openapi_unsupported_methods")
-  }
-
-  return { doc, warnings }
-}
-
-/**
- * Walk a collection (and descendants) and record every (method, path-key)
- * tuple that would land in the OpenAPI doc. Used to detect cross-collection
- * conflicts before they're silently flattened by the per-doc dedup.
- */
-function collectPathMethodKeys(coll: HoppCollection, out: Set<string>): void {
-  for (const req of (coll.requests ?? []) as HoppRESTRequest[]) {
-    if (!req.method || !req.endpoint) continue
-    try {
-      const { path } = parseEndpoint(req.endpoint)
-      out.add(`${req.method.toUpperCase()} ${path}`)
-    } catch {
-      // Endpoints that fail to parse won't be emitted; ignore.
-    }
-  }
-  for (const folder of coll.folders ?? []) {
-    collectPathMethodKeys(folder, out)
-  }
+  return { doc }
 }
 
 /**
@@ -1168,24 +1003,13 @@ function collectPathMethodKeys(coll: HoppCollection, out: Set<string>): void {
  *
  * If two collections share the same (method, path) tuple, OpenAPI's single
  * `paths` map can only represent one operation per pair — the rest are
- * silently dropped by `hoppCollectionToOpenAPI`. Surface a dedicated
- * cross-collection warning so the user knows to split the export.
+ * silently dropped by `hoppCollectionToOpenAPI`. The chooser modal already
+ * surfaces this lossiness category upfront, so no per-export toast is needed.
  */
 export function hoppCollectionsToOpenAPI(
   workspaceName: string,
   collections: HoppCollection[]
-): { doc: OpenAPIV3_1.Document; warnings: string[] } {
-  const seen = new Set<string>()
-  const conflictKeys = new Set<string>()
-  for (const coll of collections) {
-    const collKeys = new Set<string>()
-    collectPathMethodKeys(coll, collKeys)
-    for (const key of collKeys) {
-      if (seen.has(key)) conflictKeys.add(key)
-      else seen.add(key)
-    }
-  }
-
+): { doc: OpenAPIV3_1.Document } {
   const root = makeCollection({
     name: workspaceName,
     folders: collections,
@@ -1197,9 +1021,5 @@ export function hoppCollectionsToOpenAPI(
     preRequestScript: "",
     testScript: "",
   })
-  const result = hoppCollectionToOpenAPI(root)
-  if (conflictKeys.size > 0) {
-    result.warnings.push("export.openapi_cross_collection_path_conflict")
-  }
-  return result
+  return hoppCollectionToOpenAPI(root)
 }

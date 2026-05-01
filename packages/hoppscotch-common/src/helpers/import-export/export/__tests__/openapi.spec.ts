@@ -731,7 +731,7 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const { doc, warnings } = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
       const scheme = doc.components!.securitySchemes!.oauth2 as any
 
       expect(scheme.flows.authorizationCode).toEqual({
@@ -745,7 +745,6 @@ describe("hoppCollectionToOpenAPI", () => {
       })
       expect(doc.paths!["/a"]!.get!.security).toEqual([{ oauth2: ["read"] }])
       expect(doc.paths!["/b"]!.get!.security).toEqual([{ oauth2: ["admin"] }])
-      expect(warnings).not.toContain("export.openapi_auth_limited_detail")
     })
 
     it("unions OAuth2 scopes across requests sharing a grant type and endpoints", () => {
@@ -783,7 +782,7 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const { doc, warnings } = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
       const scheme = doc.components!.securitySchemes!.oauth2 as any
 
       expect(scheme.flows.authorizationCode.scopes).toEqual({
@@ -796,7 +795,6 @@ describe("hoppCollectionToOpenAPI", () => {
       expect(doc.paths!["/write"]!.get!.security).toEqual([
         { oauth2: ["write:users"] },
       ])
-      expect(warnings).not.toContain("export.openapi_auth_limited_detail")
     })
 
     it("flags OAuth2 endpoint conflicts within a shared grant type as lossy", () => {
@@ -844,17 +842,16 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const { doc, warnings } = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
       const scheme = doc.components!.securitySchemes!.oauth2 as any
 
-      // Earlier endpoints win; later conflicting endpoints drop but get flagged.
+      // Earlier endpoints win; later conflicting endpoints drop silently.
       expect(scheme.flows.authorizationCode.authorizationUrl).toBe(
         "https://a.example.com/authorize"
       )
       expect(scheme.flows.authorizationCode.tokenUrl).toBe(
         "https://a.example.com/token"
       )
-      expect(warnings).toContain("export.openapi_auth_limited_detail")
     })
 
     it("converts API key auth in header", () => {
@@ -1323,80 +1320,8 @@ describe("hoppCollectionToOpenAPI", () => {
     })
   })
 
-  describe("warnings", () => {
-    it("warns when requests have scripts", () => {
-      const collection = buildCollection({
-        requests: [
-          buildRequest({
-            name: "Test",
-            endpoint: "https://api.example.com/test",
-            preRequestScript: "console.log('hi')",
-          }),
-        ],
-      })
-      const { warnings } = hoppCollectionToOpenAPI(collection)
-
-      expect(warnings).toContain("export.openapi_scripts_not_included")
-    })
-
-    it("warns when lossy auth types are used", () => {
-      const collection = buildCollection({
-        requests: [
-          buildRequest({
-            name: "Test",
-            endpoint: "https://api.example.com/test",
-            auth: {
-              authType: "digest",
-              authActive: true,
-              username: "user",
-              password: "pass",
-              realm: "",
-              nonce: "",
-              algorithm: "MD5",
-              qop: "auth",
-              nc: "",
-              cnonce: "",
-              opaque: "",
-            } as any,
-          }),
-        ],
-      })
-      const { warnings } = hoppCollectionToOpenAPI(collection)
-
-      expect(warnings).toContain("export.openapi_auth_limited_detail")
-    })
-
-    it("does not warn for empty scripts with module prefix", () => {
-      const collection = buildCollection({
-        requests: [
-          buildRequest({
-            name: "Test",
-            endpoint: "https://api.example.com/test",
-            preRequestScript: "export {};\n",
-            testScript: "export {};\n",
-          }),
-        ],
-      })
-      const { warnings } = hoppCollectionToOpenAPI(collection)
-
-      expect(warnings).not.toContain("export.openapi_scripts_not_included")
-    })
-
-    it("returns no warnings for a clean collection", () => {
-      const collection = buildCollection({
-        requests: [
-          buildRequest({
-            name: "Test",
-            endpoint: "https://api.example.com/test",
-          }),
-        ],
-      })
-      const { warnings } = hoppCollectionToOpenAPI(collection)
-
-      expect(warnings).toHaveLength(0)
-    })
-
-    it("warns when requests share the same path and method", () => {
+  describe("dropped output", () => {
+    it("drops duplicate (path, method) operations — first wins", () => {
       const collection = buildCollection({
         requests: [
           buildRequest({
@@ -1411,14 +1336,12 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const { doc, warnings } = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
 
-      // First wins; second is dropped
       expect(doc.paths!["/users"]!.get!.summary).toBe("First")
-      expect(warnings).toContain("export.openapi_duplicate_paths")
     })
 
-    it("warns and skips operations with HTTP methods OpenAPI does not support", () => {
+    it("skips operations with HTTP methods OpenAPI does not support", () => {
       const collection = buildCollection({
         requests: [
           buildRequest({
@@ -1433,46 +1356,10 @@ describe("hoppCollectionToOpenAPI", () => {
           }),
         ],
       })
-      const { doc, warnings } = hoppCollectionToOpenAPI(collection)
+      const { doc } = hoppCollectionToOpenAPI(collection)
 
       expect(doc.paths!["/tunnel"]).toBeUndefined()
       expect(doc.paths!["/users"]).toBeDefined()
-      expect(warnings).toContain("export.openapi_unsupported_methods")
-    })
-
-    it("warns when collection-level scripts are present", () => {
-      const collection = buildCollection({
-        preRequestScript: "console.log('coll')",
-        requests: [
-          buildRequest({
-            name: "Test",
-            endpoint: "https://api.example.com/test",
-          }),
-        ],
-      })
-      const { warnings } = hoppCollectionToOpenAPI(collection)
-
-      expect(warnings).toContain("export.openapi_scripts_not_included")
-    })
-
-    it("warns when folder-level scripts are present", () => {
-      const collection = buildCollection({
-        folders: [
-          buildCollection({
-            name: "Folder",
-            testScript: "console.log('folder')",
-            requests: [
-              buildRequest({
-                name: "Test",
-                endpoint: "https://api.example.com/test",
-              }),
-            ],
-          }),
-        ],
-      })
-      const { warnings } = hoppCollectionToOpenAPI(collection)
-
-      expect(warnings).toContain("export.openapi_scripts_not_included")
     })
   })
 
@@ -2103,7 +1990,10 @@ describe("round-trip — endpoint variants", () => {
     )
     expect(firstReq(out)?.endpoint).toBe("<<baseUrl>>/pets/9704")
     expect(out.variables[0]?.key).toBe("baseUrl")
-    expect(out.variables[0]?.currentValue).toBe("https://api.example.com")
+    expect(out.variables[0]?.initialValue).toBe("https://api.example.com")
+    // Importer leaves currentValue empty; runtime values live in
+    // CurrentValueService and are not synced server-side.
+    expect(out.variables[0]?.currentValue).toBe("")
   })
 
   it("preserves leading <<var>> when collection has no value for it", async () => {
@@ -2133,7 +2023,8 @@ describe("round-trip — endpoint variants", () => {
     )
     expect(firstReq(out)?.endpoint).toBe("<<baseUrl>>/pets")
     expect(out.variables[0]?.key).toBe("baseUrl")
-    expect(out.variables[0]?.currentValue).toBe("https://api.petstore.com")
+    expect(out.variables[0]?.initialValue).toBe("https://api.petstore.com")
+    expect(out.variables[0]?.currentValue).toBe("")
   })
 
   it("preserves path template variables (under <<baseUrl>>)", async () => {
@@ -2922,7 +2813,8 @@ describe("round-trip — kitchen sink (combined features)", () => {
     expect(petsFolder?.description).toBe("Pet endpoints")
 
     expect(out.variables[0]?.key).toBe("baseUrl")
-    expect(out.variables[0]?.currentValue).toBe("https://api.petstore.com")
+    expect(out.variables[0]?.initialValue).toBe("https://api.petstore.com")
+    expect(out.variables[0]?.currentValue).toBe("")
 
     const getReq = restRequestsOf(petsFolder).find(
       (r) => r.name === "Get pet by ID"
@@ -3141,7 +3033,7 @@ describe("convertOpenApiDocsToHopp — folder hierarchy", () => {
       {
         key: "baseUrl",
         initialValue: "https://api.petstore.com",
-        currentValue: "https://api.petstore.com",
+        currentValue: "",
         secret: false,
       },
     ])
@@ -3347,7 +3239,8 @@ describe("OpenAPI 3.0.x compatibility", () => {
     }
     const c = await importDoc(doc)
     expect(c.variables[0]?.key).toBe("baseUrl")
-    expect(c.variables[0]?.currentValue).toBe("https://api.petstore.com")
+    expect(c.variables[0]?.initialValue).toBe("https://api.petstore.com")
+    expect(c.variables[0]?.currentValue).toBe("")
     expect(c.auth.authType).toBe("basic")
     const req = c.folders[0]?.requests[0] ?? c.requests[0]
     expect(req?.auth.authType).toBe("inherit")
@@ -3404,8 +3297,9 @@ describe("Swagger 2.0 compatibility", () => {
     expect(c.variables[0]?.key).toBe("baseUrl")
     // Should be a fully-qualified URL — without the scheme, the variable
     // value isn't a usable URL at runtime.
-    expect(c.variables[0]?.currentValue).toBe("https://api.petstore.com/v2")
-    expect(c.requests[0]?.endpoint).toBe("<<baseUrl>>/pets")
+    expect(c.variables[0]?.initialValue).toBe("https://api.petstore.com/v2")
+    expect(c.variables[0]?.currentValue).toBe("")
+    expect(restRequestsOf(c)[0]?.endpoint).toBe("<<baseUrl>>/pets")
   })
 
   it("falls back to https when schemes is missing", async () => {
@@ -3424,7 +3318,8 @@ describe("Swagger 2.0 compatibility", () => {
       },
     }
     const c = await importDoc(doc)
-    expect(c.variables[0]?.currentValue).toBe("https://api.example.com/v1")
+    expect(c.variables[0]?.initialValue).toBe("https://api.example.com/v1")
+    expect(c.variables[0]?.currentValue).toBe("")
   })
 
   it("imports query param with default value", async () => {

@@ -1231,10 +1231,13 @@
   "response": {
     "audio": "Audio",
     "body": "Response Body",
+    "collapse_response_pane": "Collapse response pane",
     "duplicated": "Response duplicated",
     "duplicate_name_error": "Same name response already exists",
+    "expand_response_pane": "Expand response pane",
     "filter_response_body": "Filter JSON response body (uses jq syntax)",
     "headers": "Headers",
+    "response_pane": "Response",
     "request_headers": "Request Headers",
     "html": "HTML",
     "image": "Image",

@@ -1028,6 +1028,46 @@ data2: {"type":"test2","typeId":"123"}`,
       responses: {},
     }),
   },
+  {
+    // Regression test for https://github.com/hoppscotch/hoppscotch/issues/6249
+    // Asterisk in query value must not be stripped during URL preprocessing.
+    command: `curl -X POST 'https://x.x.cn/x/x/x?bi=%5B%221440*2976%22%5D&bik=25&pageId=xxx' -H 'content-type: application/json; charset=UTF-8' -d '{"country":"xxx"}'`,
+    response: makeRESTRequest({
+      method: "POST",
+      name: "Untitled",
+      endpoint: "https://x.x.cn/x/x/x",
+      auth: { authType: "inherit", authActive: true },
+      body: {
+        contentType: "application/json",
+        body: `{\n  "country": "xxx"\n}`,
+      },
+      headers: [],
+      params: [
+        {
+          active: true,
+          key: "bi",
+          value: `["1440*2976"]`,
+          description: "",
+        },
+        {
+          active: true,
+          key: "bik",
+          value: "25",
+          description: "",
+        },
+        {
+          active: true,
+          key: "pageId",
+          value: "xxx",
+          description: "",
+        },
+      ],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+    }),
+  },
 ]
 
 describe("Parse curl command to Hopp REST Request", () => {

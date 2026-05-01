@@ -772,7 +772,7 @@
     "openapi_lossy_scripts": "Pre-request and test scripts aren't included",
     "openapi_lossy_auth": "Auth credentials (tokens, secrets, passwords) aren't included in the spec",
     "openapi_lossy_inactive": "Inactive query params and headers are dropped",
-    "openapi_lossy_duplicates": "Duplicate paths and unsupported HTTP methods are dropped",
+    "openapi_lossy_duplicates": "Duplicate paths and unsupported HTTP methods are dropped. OAuth2 flows sharing a grant type are merged; conflicting token/auth endpoints are dropped.",
     "create_secret_gist": "Create secret Gist",
     "create_secret_gist_tooltip_text": "Export as secret Gist",
     "failed": "Something went wrong while exporting",

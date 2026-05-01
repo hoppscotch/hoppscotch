@@ -5,7 +5,8 @@ import { ExecResponse } from "./types";
 
 export const runCLI = (args: string, options = {}): Promise<ExecResponse> => {
   const CLI_PATH = resolve(__dirname, "../../bin/hopp.js");
-  const command = `node ${CLI_PATH} ${args}`;
+  // Avoid the CLI's self-respawn path so exec() captures stdout/stderr reliably.
+  const command = `node --no-node-snapshot ${CLI_PATH} ${args}`;
 
   return new Promise((resolve) =>
     exec(command, options, (error, stdout, stderr) =>

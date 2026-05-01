@@ -67,6 +67,9 @@ export class BrowserKernelInterceptorService
                 switch (error.kind) {
                   case "network":
                     if (
+                      // "Failed to fetch" is a common error message for CORS issues in Chromium.
+                      // Note: This heuristic can produce false positives on DNS failures or mixed-content blocks.
+                      // We guard it with an online check and origin comparison to reduce false positives.
                       error.message === "Failed to fetch" &&
                       navigator.onLine &&
                       new URL(processedRequest.url).origin !==
@@ -97,6 +100,9 @@ export class BrowserKernelInterceptorService
                 switch (error.kind) {
                   case "network":
                     if (
+                      // "Failed to fetch" is a common error message for CORS issues in Chromium.
+                      // Note: This heuristic can produce false positives on DNS failures or mixed-content blocks.
+                      // We guard it with an online check and origin comparison to reduce false positives.
                       error.message === "Failed to fetch" &&
                       navigator.onLine &&
                       new URL(processedRequest.url).origin !==

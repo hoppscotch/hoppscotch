@@ -6,7 +6,8 @@ The Settings page allows you to customize your Hoppscotch experience and configu
 
 Configure general application behavior, theme, and language.
 
-![General Settings Placeholder](/docs/assets/settings-general.png)
+> [!NOTE]
+> Screenshots for this section will be added soon.
 
 ## Interceptors
 
@@ -15,16 +16,19 @@ Interceptors are used to bypass browser limitations like CORS. You can choose be
 - **Proxy**: Uses a proxy server to relay requests.
 - **Extension**: Uses the Hoppscotch Browser Extension for enhanced capabilities.
 
-![Interceptors Settings Placeholder](/docs/assets/settings-interceptors.png)
+> [!NOTE]
+> Screenshots for this section will be added soon.
 
 ## Proxy Settings
 
 If you are using the Proxy interceptor, you can configure the proxy URL here.
 
-![Proxy Settings Placeholder](/docs/assets/settings-proxy.png)
+> [!NOTE]
+> Screenshots for this section will be added soon.
 
 ## Theme
 
 Choose between Light, Dark, and System themes.
 
-![Theme Settings Placeholder](/docs/assets/settings-theme.png)
+> [!NOTE]
+> Screenshots for this section will be added soon.

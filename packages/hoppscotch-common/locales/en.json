@@ -673,7 +673,7 @@
     "network": {
       "heading": "Network Error",
       "description": "Network connection failed. {message}: {cause}",
-      "cors_heading": "Security Policy Warning (CORS)",
+      "cors_heading": "Possible CORS Error",
       "cors_description": "The browser blocked this request because of its Security Policy (CORS). You can bypass this by using the Hoppscotch Browser Extension or the Proxy interceptor."
     },
     "timeout": {

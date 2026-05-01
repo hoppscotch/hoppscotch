@@ -127,9 +127,13 @@ const addToCollectionAction = ref<HTMLButtonElement | null>(null)
 const t = useI18n()
 const toast = useToast()
 
-const copyUrl = () => {
-  copyToClipboard(props.entry.request.endpoint)
-  toast.success(`${t("state.copied_to_clipboard")}`)
+const copyUrl = async () => {
+  const success = await copyToClipboard(props.entry.request.endpoint)
+  if (success) {
+    toast.success(`${t("state.copied_to_clipboard")}`)
+  } else {
+    toast.error(`${t("error.something_went_wrong")}`)
+  }
 }
 
 const duration = computed(() => {

@@ -33,6 +33,8 @@ export type GQLHistoryEntry = {
 
   response: string
 
+  headers?: Record<string, string>
+
   star: boolean
 
   id?: string // For when Firestore ID is set

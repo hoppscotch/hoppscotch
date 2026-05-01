@@ -3207,7 +3207,6 @@ const initializeDownloadCollection = async (
  * modal so the user can pick between Hoppscotch JSON and OpenAPI 3.1.
  */
 const exportData = (collection: HoppCollection | TeamCollection) => {
-  console.log("Exporting collection", collection)
   exportTargetCollection.value = collection
   showExportModal.value = true
 }

@@ -178,8 +178,20 @@ const readParamExampleAsString = (param: unknown): string => {
     default?: unknown
     schema?: { default?: unknown }
   }
-  const stringify = (v: unknown): string =>
-    typeof v === "string" ? v : String(v)
+  // Strings pass through; objects/arrays are JSON-encoded so callers see the
+  // structured shape rather than `[object Object]`. Numbers/booleans use
+  // `String(...)` for their natural literal form.
+  const stringify = (v: unknown): string => {
+    if (typeof v === "string") return v
+    if (typeof v === "object" && v !== null) {
+      try {
+        return JSON.stringify(v)
+      } catch {
+        return String(v)
+      }
+    }
+    return String(v)
+  }
 
   if (p.example !== undefined && p.example !== null) return stringify(p.example)
 
@@ -1167,11 +1179,22 @@ const parseOpenAPIUrl = (
     const host = doc.host?.trim() ?? ""
     const basePath = doc.basePath?.trim() ?? ""
     if (!host && !basePath) return { prefix, baseUrlValue: null }
+    if (!host) {
+      // `basePath` alone isn't a URL — fabricating `https://<basePath>`
+      // would produce a host like `https://v2`. Skip seeding a variable;
+      // instead append the basePath to the placeholder prefix so endpoints
+      // resolve as `<<baseUrl>>/<basePath>/...` once the user fills in the
+      // host themselves.
+      const normalisedBase = basePath.startsWith("/")
+        ? basePath
+        : `/${basePath}`
+      return { prefix: `${prefix}${normalisedBase}`, baseUrlValue: null }
+    }
     const scheme = doc.schemes?.[0] ?? "https"
-    const baseUrl = host
-      ? `${scheme}://${host}${basePath}`
-      : `${scheme}://${basePath.replace(/^\//, "")}`
-    return { prefix, baseUrlValue: baseUrl }
+    return {
+      prefix,
+      baseUrlValue: `${scheme}://${host}${basePath}`,
+    }
   }
 
   // OpenAPI V3 — first entry of `servers`.
@@ -1316,7 +1339,11 @@ export const hasSharedTagPathPrefix = (allTagNames: string[]): boolean => {
   const splits = allTagNames.map(splitTagSegments).filter((s) => s.length > 0)
   if (splits.length < 2) return false
 
-  const sep = " "
+  // NUL byte as the path-join separator — it cannot appear inside an
+  // OpenAPI tag segment, so two normalised paths only collide when their
+  // segment lists are identical. Written as the explicit "\u0000" escape
+  // so the source stays reviewable rather than carrying a raw NUL byte.
+  const sep = "\u0000"
   const fullPaths = new Set(splits.map((segs) => segs.join(sep)))
 
   // (a) any tag has another tag as a strict ancestor
@@ -1501,13 +1528,18 @@ export const convertOpenApiDocsToHopp = (
     // Seed a `baseUrl` collection variable from the doc's resolved server URL
     // so users have one place to switch hosts (staging/prod/local) instead of
     // every endpoint hardcoding a literal URL.
+    //
+    // `currentValue` is left empty to match the convention used by the other
+    // importers (postman, insomnia): runtime current values live in
+    // `CurrentValueService` and are local-only; only `initialValue` is
+    // persisted server-side.
     const variables =
       baseUrlValue !== null
         ? [
             {
               key: "baseUrl",
               initialValue: baseUrlValue,
-              currentValue: baseUrlValue,
+              currentValue: "",
               secret: false,
             },
           ]

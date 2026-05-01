@@ -1,7 +1,7 @@
 import { defineConfig, loadEnv, normalizePath } from "vite"
 import { APP_INFO, META_TAGS } from "./meta"
 import { viteStaticCopy as StaticCopy } from "vite-plugin-static-copy"
-import generateSitemap from "vite-plugin-pages-sitemap"
+//import generateSitemap from "vite-plugin-pages-sitemap"
 import HtmlConfig from "vite-plugin-html-config"
 import Vue from "@vitejs/plugin-vue"
 import VueI18n from "@intlify/unplugin-vue-i18n/vite"
@@ -30,6 +30,7 @@ export default defineConfig({
     "process.platform": '"browser"',
   },
   server: {
+  hmr: { overlay: false },
     port: 3000,
   },
   preview: {
@@ -109,23 +110,10 @@ export default defineConfig({
       routeStyle: "nuxt",
       dirs: ["../hoppscotch-common/src/pages", "./src/pages"],
       importMode: "async",
-      onRoutesGenerated(routes) {
-        generateSitemap({
-          routes,
-          nuxtStyle: true,
-          allowRobots: true,
-          dest: ".sitemap-gen",
-          hostname: ENV.VITE_BASE_URL,
-        })
-      },
+      onRoutesGenerated(routes) {},
     }),
     StaticCopy({
-      targets: [
-        {
-          src: normalizePath(path.resolve(__dirname, "./.sitemap-gen/*")),
-          dest: normalizePath(path.resolve(__dirname, "./dist")),
-        },
-      ],
+      targets: [],
     }),
     Layouts({
       layoutsDirs: "../hoppscotch-common/src/layouts",
@@ -232,7 +220,7 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 15728640, // 15 MB
         navigateFallbackDenylist: [
           /robots.txt/,
-          /sitemap.xml/,
+          ///sitemap.xml/,
           /discord/,
           /telegram/,
           /beta/,

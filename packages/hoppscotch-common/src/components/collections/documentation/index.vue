@@ -8,7 +8,7 @@
     @close="hideModal"
   >
     <template #body>
-      <div class="w-full h-[80vh] overflow-hidden">
+      <div class="w-full h-full overflow-auto">
         <div class="flex h-full">
           <div class="flex-1 flex">
             <CollectionsDocumentationPreview

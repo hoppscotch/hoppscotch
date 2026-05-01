@@ -2,6 +2,7 @@ import {
   HoppCollection,
   HoppRESTRequest,
   makeCollection,
+  parseRawKeyValueEntries,
 } from "@hoppscotch/data"
 import { OpenAPIV3_1 } from "openapi-types"
 
@@ -206,16 +207,18 @@ function convertBody(
   }
 
   if (body.contentType === "application/x-www-form-urlencoded") {
+    // Hoppscotch persists urlencoded bodies in RawKeyValue format (`key:
+    // value` per line, possibly JSON-quoted), not in querystring form, so
+    // parse with the same helper the runtime uses in getFinalBodyFromRequest.
     const bodyStr = typeof body.body === "string" ? body.body : ""
     const properties: Record<string, OpenAPIV3_1.SchemaObject> = {}
 
-    if (bodyStr) {
-      for (const [key, value] of new URLSearchParams(bodyStr)) {
-        if (key) {
-          properties[key] = { type: "string", example: value ?? "" }
-        }
-      }
+    for (const entry of parseRawKeyValueEntries(bodyStr)) {
+      if (!entry.active || !entry.key) continue
+      properties[entry.key] = { type: "string", example: entry.value }
     }
+
+    if (Object.keys(properties).length === 0) return undefined
 
     return {
       content: {

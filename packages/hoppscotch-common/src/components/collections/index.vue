@@ -912,11 +912,10 @@ const closeExportModal = () => {
 const onExportHopp = async () => {
   const collection = exportTargetCollection.value
   if (!collection) return
-  // Keep the modal open during the export. For team collections the GraphQL
-  // tree fetch can take seconds; closing early hides that latency from the
-  // user. doExportHoppCollection clears its own loading state when finished;
-  // we close here when control returns.
-  exportLoading.value = true
+  // `doExportHoppCollection` owns the `exportLoading` lifecycle (sets true
+  // on entry, resets to false in its own `finally`). Don't pre-flip it
+  // here — that just duplicates the state and creates a window where the
+  // format buttons briefly re-enable before the modal closes.
   try {
     await doExportHoppCollection(collection)
   } finally {

@@ -456,7 +456,9 @@ describe("hoppCollectionToOpenAPI", () => {
             endpoint: "https://api.example.com/login",
             body: {
               contentType: "application/x-www-form-urlencoded",
-              body: "username=admin&password=secret",
+              // Hoppscotch persists urlencoded bodies as RawKeyValue
+              // (`key: value` per line) — match the on-disk format.
+              body: "username: admin\npassword: secret",
             },
           }),
         ],
@@ -2326,6 +2328,9 @@ describe("round-trip — body", () => {
   })
 
   it("urlencoded body keys round-trip", async () => {
+    // Hoppscotch persists urlencoded bodies in RawKeyValue (`key: value`
+    // per line) format, not querystring form — fixture matches on-disk
+    // representation produced by the URL-encoded body editor.
     const out = await roundTrip(
       buildColl({
         requests: [
@@ -2333,7 +2338,7 @@ describe("round-trip — body", () => {
             method: "POST",
             body: {
               contentType: "application/x-www-form-urlencoded",
-              body: "user=alice&pass=secret",
+              body: "user: alice\npass: secret",
             },
           }),
         ],

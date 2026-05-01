@@ -27,6 +27,7 @@ import {
   hoppPostmanImporter,
   hoppRESTImporter,
   toTeamsImporter,
+  hoppYaakImporter,
 } from "~/helpers/import-export/import/importers"
 
 import { defineStep } from "~/composables/step-components"
@@ -68,6 +69,7 @@ const isRESTImporterInProgress = ref(false)
 const isAllCollectionImporterInProgress = ref(false)
 const isHarImporterInProgress = ref(false)
 const isGistImporterInProgress = ref(false)
+const isYaakImporterInProgress = ref(false)
 
 const t = useI18n()
 const toast = useToast()
@@ -751,6 +753,49 @@ const HARImporter: ImporterOrExporter = {
   }),
 }
 
+const HoppYaakImporter: ImporterOrExporter = {
+  metadata: {
+    id: "hopp_yaak",
+    name: "import.from_yaak",
+    title: "import.from_yaak_description",
+    icon: IconFile,
+    disabled: false,
+    applicableTo: ["personal-workspace", "team-workspace"],
+    format: "yaak",
+  },
+
+  importSummary: currentImportSummary,
+
+  component: FileSource({
+    caption: "import.from_file",
+    acceptedFileTypes: ".json",
+    description: "import.from_yaak_import_summary",
+
+    onImportFromFile: async (content: string[]) => {
+      isYaakImporterInProgress.value = true
+
+      const res = await hoppYaakImporter(content)()
+
+      if (E.isRight(res)) {
+        await handleImportToStore(res.right)
+
+        setCurrentImportSummary(res.right)
+
+        platform.analytics?.logEvent({
+          platform: "rest",
+          type: "HOPP_IMPORT_COLLECTION",
+          importer: "import.from_yaak",
+          workspaceType: isTeamWorkspace.value ? "team" : "personal",
+        })
+      } else {
+        showImportFailedError()
+        unsetCurrentImportSummary()
+      }
+      isYaakImporterInProgress.value = false
+    },
+    isLoading: isYaakImporterInProgress,
+  }),
+}
 const importerModules = computed(() => {
   const enabledImporters = [
     HoppRESTImporter,
@@ -760,6 +805,7 @@ const importerModules = computed(() => {
     HoppInsomniaImporter,
     HoppGistImporter,
     HARImporter,
+    HoppYaakImporter,
   ]
 
   const isTeams = props.collectionsType.type === "team-collections"

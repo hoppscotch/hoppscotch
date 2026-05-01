@@ -181,6 +181,7 @@ const emit = defineEmits<{
   (e: "edit-environment"): void
   (e: "show-environment-properties"): void
   (e: "select-environment"): void
+  (e: "environments-changed"): void
 }>()
 
 const secretEnvironmentService = useService(SecretEnvironmentService)
@@ -217,6 +218,7 @@ const removeEnvironment = () => {
         toast.success(`${t("team_environment.deleted")}`)
         secretEnvironmentService.deleteSecretEnvironment(props.environment.id)
         currentEnvironmentValueService.deleteEnvironment(props.environment.id)
+        emit("environments-changed")
       }
     )
   )()
@@ -234,6 +236,7 @@ const duplicateEnvironment = async () => {
       },
       () => {
         toast.success(`${t("environment.duplicated")}`)
+        emit("environments-changed")
       }
     )
   )()

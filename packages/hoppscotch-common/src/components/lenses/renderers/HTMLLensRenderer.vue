@@ -181,10 +181,14 @@ const { responseBodyText } = useResponseBody(props.response)
 const filename = t("filename.lens", {
   request_name: responseName.value,
 })
+const htmlResponseHeaders = computed(() =>
+  "headers" in props.response ? props.response.headers : undefined
+)
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "text/html",
   responseBodyText,
-  `${filename}.html`
+  `${filename}.html`,
+  htmlResponseHeaders
 )
 
 const defaultPreview = computedAsync(

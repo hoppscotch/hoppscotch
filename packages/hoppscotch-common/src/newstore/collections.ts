@@ -281,6 +281,7 @@ function createComparator<T>(
     return 0
   }
 }
+
 const restCollectionDispatchers = defineDispatchers({
   setCollections(
     _: RESTCollectionStoreType,
@@ -342,6 +343,53 @@ const restCollectionDispatchers = defineDispatchers({
           : col
       ),
     }
+  },
+
+  addCollectionVariable(
+    { state }: RESTCollectionStoreType,
+    {
+      collectionRefID,
+      key,
+      value,
+    }: {
+      collectionRefID: string
+      key: string
+      value: string
+    }
+  ) {
+    const variable = {
+      key,
+      initialValue: value,
+      currentValue: value,
+      secret: false,
+    }
+
+    const patchCollection = (collection: HoppCollection): HoppCollection => {
+      if (collection._ref_id === collectionRefID) {
+        return {
+          ...collection,
+          variables: [...(collection.variables ?? []), variable],
+        }
+      }
+
+      let didChange = false
+      const patchedFolders = collection.folders.map((folder) => {
+        const patchedFolder = patchCollection(folder)
+        if (patchedFolder !== folder) didChange = true
+        return patchedFolder
+      })
+
+      return didChange ? { ...collection, folders: patchedFolders } : collection
+    }
+
+    let didUpdate = false
+    const newState = state.map((collection) => {
+      const patched = patchCollection(collection)
+      if (patched !== collection) didUpdate = true
+      return patched
+    })
+
+    return didUpdate ? { state: newState } : {}
   },
 
   sortRESTCollection(
@@ -1528,6 +1576,21 @@ export function editRESTCollection(
     payload: {
       collectionIndex,
       partialCollection: partialCollection,
+    },
+  })
+}
+
+export function addCollectionVariable(
+  collectionRefID: string,
+  key: string,
+  value: string
+) {
+  restCollectionStore.dispatch({
+    dispatcher: "addCollectionVariable",
+    payload: {
+      collectionRefID,
+      key,
+      value,
     },
   })
 }

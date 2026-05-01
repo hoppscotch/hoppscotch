@@ -42,7 +42,12 @@ export const parseCurlCommand = (curlCommand: string) => {
 
   curlCommand = preProcessCurlCommand(curlCommand)
 
-  const args: parser.Arguments = parser(curlCommand)
+  // Declare known boolean curl flags so yargs-parser doesn't consume the
+  // following positional (e.g. the URL) as the flag's value.
+  const args: parser.Arguments = parser(curlCommand, {
+    boolean: ["globoff"],
+    alias: { globoff: ["g"] },
+  })
 
   const parsedArguments = pipe(
     args,

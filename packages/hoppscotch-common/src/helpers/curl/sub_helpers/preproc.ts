@@ -14,7 +14,6 @@ const replaceables: { [key: string]: string } = {
   "--data-binary": "-d",
   "--user": "-u",
   "--get": "-G",
-  "--globoff": "",
 }
 
 const paperCuts = flow(

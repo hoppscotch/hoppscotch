@@ -1069,9 +1069,11 @@ data2: {"type":"test2","typeId":"123"}`,
     }),
   },
   {
-    // Coverage for unreserved/sub-delim characters and Hoppscotch env
-    // template braces in cURL URL query values.
-    command: `curl 'https://api.example.com/v1/items?ids=[1,2,3]&template={{userId}}&filter=name~john&price=$100&flag=!yes'`,
+    // Coverage for unreserved/sub-delim characters and literal braces
+    // (Postman-style template placeholders) in cURL URL query values.
+    // `--globoff` is required because curl would otherwise treat `[...]`
+    // and `{...}` as URL globbing patterns.
+    command: `curl --globoff 'https://api.example.com/v1/items?ids=[1,2,3]&template={{userId}}&filter=name~john&price=$100&flag=!yes'`,
     response: makeRESTRequest({
       method: "GET",
       name: "Untitled",

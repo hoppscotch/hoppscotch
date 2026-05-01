@@ -29,25 +29,9 @@
       role="alert"
     >
       <IconAlertCircle class="flex-shrink-0 svg-icons text-yellow-500" />
-      <div class="flex-1 space-y-1.5">
-        <p class="font-semibold text-secondary">
-          {{ t("export.openapi_lossy_title") }}
-        </p>
-        <ul class="space-y-1 text-secondaryLight text-tiny">
-          <li class="leading-relaxed">
-            {{ t("export.openapi_lossy_auth") }}
-          </li>
-          <li class="leading-relaxed">
-            {{ t("export.openapi_lossy_scripts") }}
-          </li>
-          <li class="leading-relaxed">
-            {{ t("export.openapi_lossy_inactive") }}
-          </li>
-          <li class="leading-relaxed">
-            {{ t("export.openapi_lossy_duplicates") }}
-          </li>
-        </ul>
-      </div>
+      <p class="flex-1 text-secondary text-tiny leading-relaxed">
+        {{ t("export.openapi_lossy_summary") }}
+      </p>
     </div>
   </div>
 </template>

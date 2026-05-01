@@ -1870,12 +1870,15 @@ const onAddExample = async () => {
           modalLoadingState.value = false
         },
         () => {
+          // Capture IDs before closing the modal — `displayModalAddExample(false)`
+          // calls `resetSelectedData()` which nulls `editingRequestID` /
+          // `editingFolderPath`, making downstream tab sync silently no-op.
+          const requestID = editingRequestID.value
+          const collectionID = editingFolderPath.value
+
           modalLoadingState.value = false
           toast.success(t("response.saved"))
           displayModalAddExample(false)
-
-          const requestID = editingRequestID.value
-          const collectionID = editingFolderPath.value
 
           if (!requestID) return
 

@@ -52,6 +52,7 @@
     "lodash-es": "4.18.1",
     "papaparse": "5.5.3",
     "qs": "6.15.1",
+    "semver": "7.7.4",
     "tough-cookie": "6.0.1",
     "verzod": "0.4.0",
     "xmlbuilder2": "4.0.3",
@@ -66,7 +67,6 @@
     "@types/qs": "6.15.0",
     "fp-ts": "2.16.11",
     "prettier": "3.8.3",
-    "semver": "7.7.4",
     "tsup": "8.5.1",
     "typescript": "5.9.3",
     "vitest": "4.1.5"

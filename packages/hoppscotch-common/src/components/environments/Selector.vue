@@ -11,6 +11,7 @@
         :title="`${t('environment.select')}`"
       >
         <HoppButtonSecondary
+          id="select-environment"
           :icon="IconLayers"
           :label="
             mdAndLarger
@@ -19,6 +20,7 @@
                 : `${t('environment.select')}`
               : ''
           "
+          :aria-label="t('environment.select')"
           class="flex-1 !justify-start rounded-none pr-8"
         />
       </HoppSmartSelectWrapper>
@@ -202,8 +204,10 @@
         :on-shown="() => envQuickPeekActions!.focus()"
       >
         <HoppButtonSecondary
+          id="environment-quick-peek"
           v-tippy="{ theme: 'tooltip' }"
           :title="`${t('environment.quick_peek')}`"
+          :aria-label="t('environment.quick_peek')"
           :icon="IconEye"
           class="!px-4"
         />
@@ -220,8 +224,10 @@
             >
               {{ t("environment.global_variables") }}
               <HoppButtonSecondary
+                id="edit-global-environment"
                 v-tippy="{ theme: 'tooltip' }"
                 :title="t('action.edit')"
+                :aria-label="t('action.edit')"
                 :icon="IconEdit"
                 @click="
                   () => {
@@ -282,9 +288,11 @@
             >
               {{ t("environment.list") }}
               <HoppButtonSecondary
+                id="edit-environment"
                 v-tippy="{ theme: 'tooltip' }"
                 :disabled="!selectedEnv.variables"
                 :title="t('action.edit')"
+                :aria-label="t('action.edit')"
                 :icon="IconEdit"
                 @click="
                   () => {

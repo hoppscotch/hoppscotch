@@ -42,6 +42,7 @@
             v-tippy="{ theme: 'tooltip' }"
             :icon="IconPlus"
             :title="`${t('team.create_new')}`"
+            :aria-label="t('team.create_new')"
             outline
             filled
             class="ml-8 rounded !p-0.75"

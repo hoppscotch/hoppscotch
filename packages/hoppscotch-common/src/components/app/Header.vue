@@ -89,6 +89,7 @@
             <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('app.downloads')"
+              :aria-label="t('app.downloads')"
               :icon="IconDownload"
               class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
             />
@@ -123,6 +124,7 @@
             :title="`${
               mdAndLarger ? t('support.title') : t('app.options')
             } <kbd>?</kbd>`"
+            :aria-label="t('support.title')"
             :icon="IconLifeBuoy"
             class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
             @click="invokeAction('modals.support.toggle')"
@@ -148,6 +150,7 @@
             />
             <HoppButtonPrimary
               :label="t('header.login')"
+              :aria-label="t('header.login')"
               class="h-8"
               @click="invokeAction('modals.login.toggle')"
             />
@@ -174,6 +177,7 @@
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="t('team.invite_tooltip')"
+                :aria-label="t('team.invite_tooltip')"
                 :icon="IconUserPlus"
                 class="!focus-visible:text-emerald-600 !hover:text-emerald-600 !text-emerald-500"
                 @click="handleInvite()"
@@ -187,6 +191,7 @@
                 "
                 v-tippy="{ theme: 'tooltip' }"
                 :title="t('team.edit')"
+                :aria-label="t('team.edit')"
                 :icon="IconSettings"
                 class="!focus-visible:text-emerald-600 !hover:text-emerald-600 !text-emerald-500"
                 @click="handleTeamEdit()"
@@ -204,6 +209,7 @@
                 <HoppButtonSecondary
                   v-tippy="{ theme: 'tooltip' }"
                   :title="t('workspace.change')"
+                  :aria-label="t('workspace.change')"
                   :label="mdAndLarger ? workspaceName : ``"
                   :icon="workspace.type === 'personal' ? IconUser : IconUsers"
                   class="!focus-visible:text-blue-600 !hover:text-blue-600 h-8 rounded border border-blue-600/25 bg-blue-500/10 pr-8 !text-blue-500 hover:border-blue-600/20 hover:bg-blue-600/20 focus-visible:border-blue-600/20 focus-visible:bg-blue-600/20"

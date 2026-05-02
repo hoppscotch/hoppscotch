@@ -61,7 +61,7 @@ export const DESKTOP_SETTINGS_SCHEMA = z.object({
   // Ctrl+A regardless of physical position) and falls back to event.code
   // for non-Latin layouts (Cyrillic, CJK). The `key` and `code` strategies
   // are escape valves for users on layouts where the hybrid heuristic
-  // guesses wrong. User-facing radio control is future scope.
+  // guesses wrong.
   keyboardLayoutStrategy: z.enum(["key", "code", "hybrid"]).default("hybrid"),
 })
 

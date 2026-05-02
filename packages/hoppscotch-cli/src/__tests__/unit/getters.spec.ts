@@ -516,7 +516,10 @@ describe("getters", () => {
         getResolvedVariables(requestVariables, environmentVariables)
       ).toEqual(expected);
     });
-  });describe("getColorStatusCode", () => {
+    });
+  });
+
+  describe("getColorStatusCode", () => {
     test("returns green-colored string for 2xx status codes", () => {
       const result = getColorStatusCode(200, "OK");
       expect(result).toContain("200 : OK");

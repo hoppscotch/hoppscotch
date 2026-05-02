@@ -1028,6 +1028,38 @@ data2: {"type":"test2","typeId":"123"}`,
       responses: {},
     }),
   },
+  {
+    command: `curl 'https://api.example.com/search?q=test*&wildcard=*value*'`,
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled",
+      endpoint: "https://api.example.com/search",
+      auth: { authType: "inherit", authActive: true },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      params: [
+        {
+          active: true,
+          key: "q",
+          value: "test*",
+          description: "",
+        },
+        {
+          active: true,
+          key: "wildcard",
+          value: "*value*",
+          description: "",
+        },
+      ],
+      headers: [],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+    }),
+  },
 ]
 
 describe("Parse curl command to Hopp REST Request", () => {

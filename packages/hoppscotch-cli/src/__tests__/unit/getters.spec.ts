@@ -37,7 +37,7 @@ describe("getters", () => {
 
     test.each(testDurations)(
       "($end.0 s + $end.1 ns) rounded-off to $expected",
-      ({ end, precision, expected }) => {
+      ({ end, precision, expected }: { end: number[]; precision: number; expected: number }) => {
         expect(getDurationInSeconds(end as [number, number], precision)).toBe(
           expected
         );
@@ -228,7 +228,17 @@ describe("getters", () => {
         },
       ];
 
-      test.each(cases)("$description", ({ args, axiosMock, expected }) => {
+      test.each(cases)(
+        "$description",
+        ({
+          args,
+          axiosMock,
+          expected,
+        }: {
+          args: { serverUrl: string; accessToken: string; pathOrId: string; resourceType?: "collection" | "environment" };
+          axiosMock: { code?: string; response?: { status?: number; data?: { reason?: string } } };
+          expected: { code: string; data: string };
+        }) => {
         const { code, response } = axiosMock;
         const axiosErrMessage = code ?? response?.data?.reason;
 

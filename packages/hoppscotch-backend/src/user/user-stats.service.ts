@@ -1,0 +1,39 @@
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
+import * as E from 'fp-ts/Either';
+
+export type UserStats = {
+  collectionsCount: number;
+  environmentsCount: number;
+  requestsCount: number;
+};
+
+@Injectable()
+export class UserStatsService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async getUserStats(userUID: string): Promise<E.Either<string, UserStats>> {
+    try {
+      const [collectionsCount, environmentsCount, requestsCount] =
+        await Promise.all([
+          this.prisma.collection.count({
+            where: { userUID },
+          }),
+          this.prisma.userEnvironment.count({
+            where: { userUID },
+          }),
+          this.prisma.userRequest.count({
+            where: { userUID },
+          }),
+        ]);
+
+      return E.right({
+        collectionsCount,
+        environmentsCount,
+        requestsCount,
+      });
+    } catch (e) {
+      return E.left('USER_STATS_FETCH_FAILED');
+    }
+  }
+}

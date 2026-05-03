@@ -183,6 +183,16 @@ function handleKeyDown(ev: KeyboardEvent) {
 
   // Special handling for Ctrl+D (tab close for web browsers)
   if (binding === "ctrl-d" && boundAction) {
+    const target = ev.target
+    if (
+      isDOMElement(target) &&
+      (isCodeMirrorEditor(target) ||
+        isMonacoEditor(target) ||
+        isTypableElement(target))
+    ) {
+      return
+    }
+
     ev.preventDefault()
     ev.stopPropagation()
     ev.stopImmediatePropagation()

@@ -201,6 +201,7 @@ declare module 'vue' {
     HttpExampleResponseTab: typeof import('./components/http/example/ResponseTab.vue')['default']
     HttpHeaders: typeof import('./components/http/Headers.vue')['default']
     HttpImportCurl: typeof import('./components/http/ImportCurl.vue')['default']
+    HttpInheritedScriptsModal: typeof import('./components/http/InheritedScriptsModal.vue')['default']
     HttpKeyValue: typeof import('./components/http/KeyValue.vue')['default']
     HttpParameters: typeof import('./components/http/Parameters.vue')['default']
     HttpPreRequestScript: typeof import('./components/http/PreRequestScript.vue')['default']

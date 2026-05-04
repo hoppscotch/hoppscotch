@@ -5,7 +5,10 @@ import {
 } from "@hoppscotch/common/newstore/collections"
 import { generateUniqueRefId, HoppCollection } from "@hoppscotch/data"
 import {
+  ensureRefIds,
+  populateLocalStoresFromCollectionTree,
   populateLocalStoresFromVariables,
+  stripCollectionTreeForStore,
   stripSecretVariableValuesForWire,
 } from "@hoppscotch/common/helpers/secretVariables"
 import * as E from "fp-ts/Either"
@@ -24,8 +27,17 @@ export const importToPersonalWorkspace = async (
   collections: HoppCollection[],
   reqType: ReqType
 ) => {
+  // Stamp every node with a stable `_ref_id` and populate local stores
+  // BEFORE the wire-strip runs. This way the secret values are
+  // addressable by ref-id whether we end up taking the backend-success
+  // path or the local-fallback path below — the orphaned-secrets bug
+  // (local store keyed under temp ref-ids that the fallback's
+  // collections didn't carry) is impossible by construction.
+  const collectionsWithRefIds = collections.map(ensureRefIds)
+  collectionsWithRefIds.forEach(populateLocalStoresFromCollectionTree)
+
   try {
-    const transformedCollection = collections.map((collection) =>
+    const transformedCollection = collectionsWithRefIds.map((collection) =>
       translateToPersonalCollectionFormat(collection)
     )
 
@@ -42,16 +54,16 @@ export const importToPersonalWorkspace = async (
           : "GQL"
       )
 
-      // Defensive re-populate: pair the post-load collections (which carry
-      // the backend-assigned IDs and whatever `_ref_id` survived the
-      // round-trip) with the originals (which retain raw secret values),
-      // walked in parallel by index. If `data._ref_id` round-tripped
-      // cleanly the keys match the translate-time populate (idempotent
-      // replace); if for any reason the round-trip dropped or rewrote
-      // `_ref_id`, this re-keys the local secret store under the loaded
-      // collection's actual `_ref_id` so the read path finds it.
+      // Defensive re-populate: pair the post-load collections (which
+      // carry the backend-assigned IDs and whatever `_ref_id` survived
+      // the round-trip) with the originals (which retain raw secret
+      // values), walked in parallel by index. If `data._ref_id`
+      // round-tripped cleanly the keys match the pre-walk populate
+      // (idempotent replace); if for any reason the round-trip dropped
+      // or rewrote `_ref_id`, this re-keys the local secret store
+      // under the loaded collection's actual `_ref_id`.
       loaded.forEach((loadedColl, i) => {
-        const original = collections[i]
+        const original = collectionsWithRefIds[i]
         if (original) {
           repopulateLoadedCollectionTree(loadedColl, original)
         }
@@ -59,11 +71,19 @@ export const importToPersonalWorkspace = async (
 
       return E.right({ success: true })
     }
-    // Backend import failed, fall back to local storage
-    return appendCollectionsToStore(collections, reqType)
+    // Backend import failed — append a stripped tree to newstore so raw
+    // secret values don't sit in the store / localStorage / future sync
+    // payloads. Raw values remain in the local secret + currentValue
+    // stores, keyed by the same `_ref_id`s populated above.
+    return appendCollectionsToStore(
+      collectionsWithRefIds.map(stripCollectionTreeForStore),
+      reqType
+    )
   } catch {
-    // On any error, fall back to local storage
-    return appendCollectionsToStore(collections, reqType)
+    return appendCollectionsToStore(
+      collectionsWithRefIds.map(stripCollectionTreeForStore),
+      reqType
+    )
   }
 }
 

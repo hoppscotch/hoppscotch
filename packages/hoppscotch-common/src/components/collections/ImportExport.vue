@@ -35,7 +35,11 @@ import AllCollectionImport from "~/components/importExport/ImportExportSteps/All
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 import { appendRESTCollections, restCollections$ } from "~/newstore/collections"
-import { populateLocalStoresFromCollectionTree } from "~/helpers/secretVariables"
+import {
+  ensureRefIds,
+  populateLocalStoresFromCollectionTree,
+  stripCollectionTreeForStore,
+} from "~/helpers/secretVariables"
 
 import IconInsomnia from "~icons/hopp/insomnia"
 import IconPostman from "~icons/hopp/postman"
@@ -122,7 +126,9 @@ const handleImportToStore = async (collections: HoppCollection[]) => {
  */
 const importToPersonalWorkspace = (collections: HoppCollection[]) => {
   // Remove old id from the imported collection and folders and transform it to new collection format
-  const sanitizedCollections = collections.map(sanitizeCollection)
+  const sanitizedCollections = collections
+    .map(sanitizeCollection)
+    .map(ensureRefIds)
 
   // Persist any user-supplied secret + currentValue inputs to the local stores
   // BEFORE the wire strip runs (whether via the platform sync path or directly
@@ -142,7 +148,11 @@ const importToPersonalWorkspace = (collections: HoppCollection[]) => {
     )
   }
 
-  appendRESTCollections(sanitizedCollections)
+  // Logged-out / no-platform-sync path: strip raw secret values from the
+  // tree before appending — newstore + localStorage stay clean, the local
+  // secret + currentValue stores (populated above) hold the raw values
+  // keyed by the same `_ref_id`s for UI rehydrate.
+  appendRESTCollections(sanitizedCollections.map(stripCollectionTreeForStore))
   return E.right({ success: true })
 }
 

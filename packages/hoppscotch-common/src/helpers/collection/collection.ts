@@ -8,6 +8,7 @@ import { RESTTabService } from "~/services/tab/rest"
 import { GQLTabService } from "~/services/tab/graphql"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { cascadeParentCollectionForProperties } from "~/newstore/collections"
+import { stripSecretVariableValuesForWire } from "../secretVariables"
 import { CollectionDataProps } from "../backend/helpers"
 import { CollectionFolder } from "../backend/queries/PublishedDocs"
 
@@ -309,7 +310,7 @@ export function transformCollectionForImport(
   const data: CollectionDataProps = {
     auth: collection.auth,
     headers: collection.headers,
-    variables: collection.variables,
+    variables: stripSecretVariableValuesForWire(collection.variables ?? []),
     description: collection.description,
     preRequestScript: collection.preRequestScript ?? "",
     testScript: collection.testScript ?? "",

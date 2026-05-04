@@ -57,6 +57,7 @@
 <script setup lang="ts">
 import { useReadonlyStream, useStream } from "@composables/stream"
 import { Environment, GlobalEnvironment } from "@hoppscotch/data"
+import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
 import { useService } from "dioc/vue"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
@@ -265,7 +266,9 @@ const duplicateGlobalEnvironment = async () => {
 
     await pipe(
       createTeamEnvironment(
-        JSON.stringify(globalEnvironment.value.variables),
+        JSON.stringify(
+          stripSecretVariableValuesForWire(globalEnvironment.value.variables)
+        ),
         workspace.value.teamID,
         `Global - ${t("action.duplicate")}`
       ),
@@ -276,6 +279,9 @@ const duplicateGlobalEnvironment = async () => {
           toast.error(t(getEnvActionErrorMessage(err)))
         },
         () => {
+          // Secret variable values are intentionally NOT copied to the
+          // duplicated environment — duplicates start fresh on secrets per
+          // the per-entity secret model.
           toast.success(t("environment.duplicated"))
         }
       )

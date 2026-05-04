@@ -10,6 +10,10 @@
 
 <script setup lang="ts">
 import { Environment, NonSecretEnvironment } from "@hoppscotch/data"
+import {
+  populateLocalStoresFromVariables,
+  stripSecretVariableValuesForWire,
+} from "~/helpers/secretVariables"
 import * as E from "fp-ts/Either"
 import { ref } from "vue"
 
@@ -382,7 +386,7 @@ const importToTeams = async (content: Environment[]) => {
 
   for (const [, env] of content.entries()) {
     const res = createTeamEnvironment(
-      JSON.stringify(env.variables),
+      JSON.stringify(stripSecretVariableValuesForWire(env.variables)),
       props.teamId as string,
       env.name
     )()
@@ -391,6 +395,20 @@ const importToTeams = async (content: Environment[]) => {
   }
 
   const res = await Promise.all(envImportPromises)
+
+  // Persist the imported secret + currentValue inputs to the local stores,
+  // re-keyed to each new backend env ID. Pairs with the wire-strip above:
+  // the team's DB row stays clean while this device retains the values the
+  // user just imported. Non-conforming clients elsewhere on the team see
+  // empty values, matching the per-user-per-device security model.
+  res.forEach((entry, index) => {
+    if (E.isRight(entry)) {
+      populateLocalStoresFromVariables(
+        entry.right.createTeamEnvironment.id,
+        content[index].variables
+      )
+    }
+  })
 
   const failedImports = res.some((r) => E.isLeft(r))
 

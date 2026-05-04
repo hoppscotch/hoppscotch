@@ -125,7 +125,11 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   updateEnvironment({ envIndex, updatedEnv }) {
     const backendId = environmentsStore.value.environments[envIndex].id
     if (backendId) {
-      updateUserEnvironment(backendId, updatedEnv)()
+      updateUserEnvironment(
+        backendId,
+        updatedEnv.name,
+        JSON.stringify(updatedEnv.variables)
+      )()
     }
   },
   async deleteEnvironment({ envID }) {
@@ -136,16 +140,22 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   setGlobalVariables({ entries }) {
     const backendId = getGlobalVariableID()
     if (backendId) {
-      // The global env shares the `UpdateUserEnvironment` mutation with
-      // regular envs — store it as the same `Environment` shape with an
-      // empty name. `loadGlobalEnvironments` re-wraps the bare-array
-      // payload into a `GlobalEnvironment` for the local store.
-      updateUserEnvironment(backendId, {
-        name: "",
-        variables: stripSecretVariableValuesForWire(entries.variables ?? []),
-        id: "",
-        v: 2,
-      })()
+      // Send the full `GlobalEnvironment` wrapper (`{ v, variables }`)
+      // on the wire, not a bare array. Pre-this-PR clients stored globals
+      // as the wrapper and their load path expects it back; sending a
+      // bare array here would cause those older clients to fall through
+      // verzod's parse, dump the raw array into `globals`, and crash on
+      // downstream `globalEnv.variables.map`. We can't guarantee
+      // synchronous client upgrades on a self-hosted deployment, so the
+      // wire shape stays compatible with both old and new readers.
+      updateUserEnvironment(
+        backendId,
+        "",
+        JSON.stringify({
+          v: 2,
+          variables: stripSecretVariableValuesForWire(entries.variables ?? []),
+        })
+      )()
     }
   },
   clearGlobalVariables() {

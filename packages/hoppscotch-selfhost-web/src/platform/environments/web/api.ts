@@ -29,8 +29,6 @@ import {
   UserEnvironmentDeletedDocument,
 } from "@app/api/generated/graphql"
 
-import { Environment } from "@hoppscotch/data"
-
 export const createUserEnvironment = (name: string, variables: string) =>
   runMutation<
     CreateUserEnvironmentMutation,
@@ -41,9 +39,15 @@ export const createUserEnvironment = (name: string, variables: string) =>
     variables,
   })()
 
+// `variables` is the pre-stringified JSON payload — callers decide which
+// shape to serialise (a bare `Environment.variables` array for regular
+// envs, a `GlobalEnvironment` wrapper `{ v, variables }` for the global
+// env). Mirrors `createUserEnvironment` and lets the global-env caller
+// preserve the wrapper shape on the wire without a union type / cast.
 export const updateUserEnvironment = (
   id: string,
-  { name, variables }: Environment
+  name: string,
+  variables: string
 ) =>
   runMutation<
     UpdateUserEnvironmentMutation,
@@ -52,7 +56,7 @@ export const updateUserEnvironment = (
   >(UpdateUserEnvironmentDocument, {
     id,
     name,
-    variables: JSON.stringify(variables),
+    variables,
   })
 
 export const deleteUserEnvironment = (id: string) =>

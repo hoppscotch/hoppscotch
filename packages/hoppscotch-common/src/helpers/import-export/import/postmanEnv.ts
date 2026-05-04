@@ -15,6 +15,10 @@ const postmanEnvSchema = z.object({
       key: z.string(),
       value: z.string(),
       type: z.string(),
+      // Postman 12+ moved the secret flag onto a separate boolean field while
+      // leaving `type` as `"default"`. Older exports use `type: "secret"`.
+      // Accept both shapes so both formats import correctly.
+      secret: z.boolean().optional(),
     })
   ),
 })
@@ -49,17 +53,19 @@ export const postmanEnvImporter = (contents: string[]) => {
     return TE.left(IMPORTER_INVALID_FILE_FORMAT)
   }
 
-  // Convert `values` to `variables` to match the format expected by the system
+  // Convert `values` to `variables` to match the format expected by the system.
+  // A variable is treated as secret when EITHER the legacy `type: "secret"` or
+  // the Postman 12+ top-level `secret: true` flag is set.
   const environments: Environment[] = validationResult.data.map(
     ({ name, values }) => ({
       id: uniqueID(),
       v: EnvironmentSchemaVersion,
       name,
-      variables: values.map(({ key, value, type }) => ({
+      variables: values.map(({ key, value, type, secret }) => ({
         key,
         initialValue: replacePMVarTemplating(value),
         currentValue: replacePMVarTemplating(value),
-        secret: type === "secret",
+        secret: type === "secret" || secret === true,
       })),
     })
   )

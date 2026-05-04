@@ -35,6 +35,7 @@ import AllCollectionImport from "~/components/importExport/ImportExportSteps/All
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 import { appendRESTCollections, restCollections$ } from "~/newstore/collections"
+import { populateLocalStoresFromCollectionTree } from "~/helpers/secretVariables"
 
 import IconInsomnia from "~icons/hopp/insomnia"
 import IconPostman from "~icons/hopp/postman"
@@ -122,6 +123,13 @@ const handleImportToStore = async (collections: HoppCollection[]) => {
 const importToPersonalWorkspace = (collections: HoppCollection[]) => {
   // Remove old id from the imported collection and folders and transform it to new collection format
   const sanitizedCollections = collections.map(sanitizeCollection)
+
+  // Persist any user-supplied secret + currentValue inputs to the local stores
+  // BEFORE the wire strip runs (whether via the platform sync path or directly
+  // via `appendRESTCollections` for logged-out / no-sync workspaces). Without
+  // this, a logged-out import that the user later syncs on login would lose
+  // the secrets when the sync layer strips them on the wire.
+  sanitizedCollections.forEach(populateLocalStoresFromCollectionTree)
 
   if (
     platform.sync.collections.importToPersonalWorkspace &&

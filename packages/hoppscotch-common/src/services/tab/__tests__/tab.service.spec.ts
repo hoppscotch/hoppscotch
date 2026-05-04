@@ -6,6 +6,15 @@ import { reactive } from "vue"
 class MockTabService extends TabService<{ request: string }> {
   public static readonly ID = "MOCK_TAB_SERVICE"
 
+  protected createFallbackTab() {
+    return {
+      id: "__empty_mock_tab__",
+      document: {
+        request: "",
+      },
+    }
+  }
+
   override onServiceInit() {
     this.tabMap = reactive(
       new Map([
@@ -139,6 +148,17 @@ describe("TabService", () => {
     service.closeTab("test")
 
     expect(service.getActiveTabs().value.length).toEqual(1)
+  })
+
+  it("allows closing the last tab", () => {
+    const container = new TestContainer()
+
+    const service = container.bind(MockTabService)
+
+    service.closeTab("test")
+
+    expect(service.getActiveTabs().value.length).toEqual(0)
+    expect(service.getActiveTab()).toBeNull()
   })
 
   describe("Tab Navigation", () => {

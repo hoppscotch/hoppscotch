@@ -37,6 +37,10 @@ export abstract class TabService<Doc>
 
   public currentTabID = refWithControl("test", {
     onBeforeChange: (newTabID) => {
+      if (newTabID === "") {
+        return true
+      }
+
       if (!newTabID || !this.tabMap.has(newTabID)) {
         console.warn(
           `Tried to set current tab id to an invalid value. (value: ${newTabID})`
@@ -49,18 +53,22 @@ export abstract class TabService<Doc>
   })
 
   public currentActiveTab = computed(
-    () => this.tabMap.get(this.currentTabID.value)!
-  ) // Guaranteed to not be undefined
+    () => this.tabMap.get(this.currentTabID.value) ?? this.createFallbackTab()
+  )
+
+  protected abstract createFallbackTab(): HoppTab<Doc>
 
   protected watchCurrentTabID() {
     watch(
       this.tabOrdering,
       (newOrdering) => {
-        if (
-          !this.currentTabID.value ||
-          !newOrdering.includes(this.currentTabID.value)
-        ) {
-          this.setActiveTab(newOrdering[newOrdering.length - 1]) // newOrdering should always be non-empty
+        if (newOrdering.length === 0) {
+          this.currentTabID.value = ""
+          return
+        }
+
+        if (!newOrdering.includes(this.currentTabID.value)) {
+          this.setActiveTab(newOrdering[newOrdering.length - 1])
         }
       },
       { deep: true }
@@ -69,7 +77,7 @@ export abstract class TabService<Doc>
 
   public async init() {
     const persistedState = await this.loadPersistedState()
-    if (persistedState) {
+    if (persistedState && persistedState.orderedDocs.length > 0) {
       this.loadTabsFromPersistedState(persistedState)
     }
   }
@@ -135,7 +143,16 @@ export abstract class TabService<Doc>
         this.mruOrder.push(doc.tabID)
       }
 
-      this.setActiveTab(data.lastActiveTabID)
+      if (this.tabOrdering.value.length === 0) {
+        this.currentTabID.value = ""
+        return
+      }
+
+      const nextActiveTabID = this.tabMap.has(data.lastActiveTabID)
+        ? data.lastActiveTabID
+        : this.tabOrdering.value[this.tabOrdering.value.length - 1]
+
+      this.setActiveTab(nextActiveTabID)
     }
   }
 
@@ -188,13 +205,6 @@ export abstract class TabService<Doc>
       return
     }
 
-    if (this.tabOrdering.value.length === 1) {
-      console.warn(
-        `Tried to close the only tab open, which is not allowed. (tab id: ${tabID})`
-      )
-      return
-    }
-
     const tabIndex = this.tabOrdering.value.indexOf(tabID)
     const tab = this.tabMap.get(tabID)!
 
@@ -235,6 +245,8 @@ export abstract class TabService<Doc>
   }
 
   public goToNextTab(): void {
+    if (this.tabOrdering.value.length === 0) return
+
     const currentIndex = this.tabOrdering.value.indexOf(this.currentTabID.value)
     const nextIndex = (currentIndex + 1) % this.tabOrdering.value.length
     const nextTabID = this.tabOrdering.value[nextIndex]
@@ -242,6 +254,8 @@ export abstract class TabService<Doc>
   }
 
   public goToPreviousTab(): void {
+    if (this.tabOrdering.value.length === 0) return
+
     const currentIndex = this.tabOrdering.value.indexOf(this.currentTabID.value)
     const prevIndex =
       currentIndex === 0 ? this.tabOrdering.value.length - 1 : currentIndex - 1
@@ -251,6 +265,8 @@ export abstract class TabService<Doc>
 
   // NOTE: Currently inert, plumbing is done, some platform issues around shortcuts, WIP for future.
   public goToTabByIndex(index: number): void {
+    if (this.tabOrdering.value.length === 0) return
+
     if (index >= 1 && index <= this.tabOrdering.value.length) {
       const tabID = this.tabOrdering.value[index - 1]
       this.setActiveTab(tabID)
@@ -258,11 +274,15 @@ export abstract class TabService<Doc>
   }
 
   public goToFirstTab(): void {
+    if (this.tabOrdering.value.length === 0) return
+
     const firstTabID = this.tabOrdering.value[0]
     this.setActiveTab(firstTabID)
   }
 
   public goToLastTab(): void {
+    if (this.tabOrdering.value.length === 0) return
+
     const lastTabID = this.tabOrdering.value[this.tabOrdering.value.length - 1]
     this.setActiveTab(lastTabID)
   }

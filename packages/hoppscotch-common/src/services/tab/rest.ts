@@ -5,10 +5,22 @@ import { HoppRESTSaveContext, HoppTabDocument } from "~/helpers/rest/document"
 import { getService } from "~/modules/dioc"
 import { PersistenceService, STORE_KEYS } from "../persistence"
 import { TabService } from "./tab"
-import { PersistableTabState } from "."
+import { HoppTab, PersistableTabState } from "."
 
 export class RESTTabService extends TabService<HoppTabDocument> {
   public static readonly ID = "REST_TAB_SERVICE"
+
+  protected createFallbackTab(): HoppTab<HoppTabDocument> {
+    return {
+      id: "__empty_rest_tab__",
+      document: {
+        type: "request",
+        request: getDefaultRESTRequest(),
+        isDirty: false,
+        optionTabPreference: "params",
+      },
+    }
+  }
 
   // TODO: Moving this to `onServiceInit` breaks `persistableTabState`
   // Figure out how to fix this

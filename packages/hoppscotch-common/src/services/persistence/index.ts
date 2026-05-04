@@ -1082,10 +1082,11 @@ export class PersistenceService extends Service {
         }
         const result = REST_TAB_STATE_SCHEMA.safeParse(transformedTabs)
         if (result.success) {
-          // SAFETY: We know the schema matches
-          this.restTabService.loadTabsFromPersistedState(
-            result.data as PersistableTabState<HoppTabDocument>
-          )
+          if (result.data.orderedDocs.length !== 0) {
+            this.restTabService.loadTabsFromPersistedState(
+              result.data as PersistableTabState<HoppTabDocument>
+            )
+          }
         } else {
           this.showErrorToast(STORE_KEYS.REST_TABS)
           await Store.set(
@@ -1125,10 +1126,11 @@ export class PersistenceService extends Service {
         const result = GQL_TAB_STATE_SCHEMA.safeParse(loadResult.right)
 
         if (result.success) {
-          // SAFETY: We know the schema matches
-          this.gqlTabService.loadTabsFromPersistedState(
-            result.data as PersistableTabState<HoppGQLDocument>
-          )
+          if (result.data.orderedDocs.length !== 0) {
+            this.gqlTabService.loadTabsFromPersistedState(
+              result.data as PersistableTabState<HoppGQLDocument>
+            )
+          }
         } else {
           this.showErrorToast(STORE_KEYS.GQL_TABS)
           await Store.set(

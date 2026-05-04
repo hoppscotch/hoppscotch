@@ -192,7 +192,7 @@ onMounted(() => {
 
 /* Paragraph and text styles */
 .markdown-content :deep(p) {
-  @apply text-sm my-2 leading-relaxed text-secondary;
+  @apply text-sm my-2 leading-relaxed text-secondary whitespace-pre-line;
 }
 
 .markdown-content :deep(strong) {

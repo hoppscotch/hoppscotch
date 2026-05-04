@@ -236,11 +236,14 @@ const updateEnvironments = (
           initialValue: e.initialValue ?? "",
         })
 
-        // For secret variables, keep the initialValue but clear currentValue for storage
+        // Secret values stay client-side only (they were saved into the
+        // local secret service above). Both `initialValue` and
+        // `currentValue` are cleared on the wire payload so the secret
+        // never leaves the device.
         return {
           key: e.key,
           secret: e.secret,
-          initialValue: e.initialValue ?? "",
+          initialValue: "",
           currentValue: "",
         }
       }

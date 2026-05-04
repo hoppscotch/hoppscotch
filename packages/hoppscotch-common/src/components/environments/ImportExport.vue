@@ -364,15 +364,38 @@ const handleImportToStore = async (
   environments: Environment[],
   globalEnvs: NonSecretEnvironment[] = []
 ) => {
-  // Add global envs to the store
+  // Pre-populate local stores with imported secret + currentValue inputs
+  // BEFORE anything (raw or sync) reaches the newstore. This way, even if
+  // the user is offline, sync is disabled, or the app quits before sync
+  // completes, the secret values survive — they're keyed locally and the
+  // newstore is never written with raw secrets.
   globalEnvs.forEach(({ variables }) => {
-    variables.forEach(({ key, initialValue, currentValue, secret }) => {
-      addGlobalEnvVariable({ key, initialValue, currentValue, secret })
-    })
+    populateLocalStoresFromVariables("Global", variables)
+  })
+  environments.forEach((env) => {
+    populateLocalStoresFromVariables(env.id, env.variables)
+  })
+
+  // Add global envs to the store with values stripped — the secret + per-
+  // user `currentValue` inputs we just persisted locally re-hydrate via
+  // `getCurrentValue` / `getInitialValue` in the env Details modal.
+  globalEnvs.forEach(({ variables }) => {
+    stripSecretVariableValuesForWire(variables).forEach(
+      ({ key, initialValue, currentValue, secret }) => {
+        addGlobalEnvVariable({ key, initialValue, currentValue, secret })
+      }
+    )
   })
 
   if (props.environmentType === "MY_ENV") {
-    appendEnvironments(environments)
+    // Strip wire payload before adding to newstore so raw secret values
+    // never sit in newstore / localStorage where a later subscription or
+    // sync could persist them. UI re-hydrates from the local stores above.
+    const strippedEnvironments = environments.map((env) => ({
+      ...env,
+      variables: stripSecretVariableValuesForWire(env.variables),
+    }))
+    appendEnvironments(strippedEnvironments)
     toast.success(t("state.file_imported"))
   } else {
     await importToTeams(environments)

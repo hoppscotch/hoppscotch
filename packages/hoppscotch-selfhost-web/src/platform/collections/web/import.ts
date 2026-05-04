@@ -35,12 +35,28 @@ export const importToPersonalWorkspace = async (
     )
 
     if (E.isRight(res)) {
-      await loadImportedUserCollections(
+      const loaded = await loadImportedUserCollections(
         res.right.importUserCollectionsFromJSON.exportedCollection,
         res.right.importUserCollectionsFromJSON.collectionType === "REST"
           ? "REST"
           : "GQL"
       )
+
+      // Defensive re-populate: pair the post-load collections (which carry
+      // the backend-assigned IDs and whatever `_ref_id` survived the
+      // round-trip) with the originals (which retain raw secret values),
+      // walked in parallel by index. If `data._ref_id` round-tripped
+      // cleanly the keys match the translate-time populate (idempotent
+      // replace); if for any reason the round-trip dropped or rewrote
+      // `_ref_id`, this re-keys the local secret store under the loaded
+      // collection's actual `_ref_id` so the read path finds it.
+      loaded.forEach((loadedColl, i) => {
+        const original = collections[i]
+        if (original) {
+          repopulateLoadedCollectionTree(loadedColl, original)
+        }
+      })
+
       return E.right({ success: true })
     }
     // Backend import failed, fall back to local storage
@@ -49,6 +65,21 @@ export const importToPersonalWorkspace = async (
     // On any error, fall back to local storage
     return appendCollectionsToStore(collections, reqType)
   }
+}
+
+const repopulateLoadedCollectionTree = (
+  loaded: HoppCollection,
+  original: HoppCollection
+) => {
+  if (loaded._ref_id) {
+    populateLocalStoresFromVariables(loaded._ref_id, original.variables ?? [])
+  }
+  ;(loaded.folders ?? []).forEach((loadedFolder, i) => {
+    const originalFolder = original.folders?.[i]
+    if (originalFolder) {
+      repopulateLoadedCollectionTree(loadedFolder, originalFolder)
+    }
+  })
 }
 
 export const appendCollectionsToStore = (
@@ -104,31 +135,28 @@ export function translateToPersonalCollectionFormat(x: HoppCollection) {
 export async function loadImportedUserCollections(
   collectionsJSONString: string,
   collectionType: "REST" | "GQL"
-) {
+): Promise<HoppCollection[]> {
   const importedCollections = (
     JSON.parse(collectionsJSONString) as Array<
       ExportedUserCollectionGQL | ExportedUserCollectionREST
     >
   ).map((collection) => ({ v: 1, ...collection }))
+
+  const hoppCollections = importedCollections.map(
+    (collection) =>
+      exportedCollectionToHoppCollection(
+        collection,
+        collectionType
+      ) as HoppCollection
+  )
+
   runDispatchWithOutSyncing(() => {
-    collectionType === "REST"
-      ? appendRESTCollections(
-          importedCollections.map(
-            (collection) =>
-              exportedCollectionToHoppCollection(
-                collection,
-                "REST"
-              ) as HoppCollection
-          )
-        )
-      : appendGraphqlCollections(
-          importedCollections.map(
-            (collection) =>
-              exportedCollectionToHoppCollection(
-                collection,
-                "GQL"
-              ) as HoppCollection
-          )
-        )
+    if (collectionType === "REST") {
+      appendRESTCollections(hoppCollections)
+    } else {
+      appendGraphqlCollections(hoppCollections)
+    }
   })
+
+  return hoppCollections
 }

@@ -74,15 +74,45 @@ const generateArrayRequestBodyExample = (
 const generateRequestBodyExampleFromSchemaObject = (
   schemaObject: OpenAPIV3.SchemaObject
 ): RequestBodyExample => {
-  // TODO: Handle schema objects with allof
   if (schemaObject.example) return schemaObject.example as RequestBodyExample
 
-  // If request body can be oneof or allof several schema, choose the first schema to generate an example
-  if (schemaObject.oneOf)
+  // Merge all sub-schemas for allOf (used for inheritance / composition).
+  // Constraint-only sub-schemas (e.g. those that only set "required")
+  // produce "" because they have no type — skip them to avoid replacing
+  // already-merged properties.
+  if (schemaObject.allOf) {
+    return schemaObject.allOf.reduce<RequestBodyExample>(
+      (merged, subSchema) => {
+        const sub = generateRequestBodyExampleFromSchemaObject(
+          subSchema as OpenAPIV3.SchemaObject
+        )
+        const isMergedObject =
+          typeof merged === "object" &&
+          merged !== null &&
+          !Array.isArray(merged)
+        const isSubObject =
+          typeof sub === "object" && sub !== null && !Array.isArray(sub)
+
+        if (isMergedObject && isSubObject) {
+          return { ...merged, ...sub }
+        }
+        // Keep the accumulated object if the sub-schema produced
+        // a non-object value (e.g. "" from a constraint-only schema)
+        if (isMergedObject && !isSubObject) {
+          return merged
+        }
+        return sub
+      },
+      {}
+    )
+  }
+
+  // For oneOf / anyOf, pick the first schema to generate an example
+  if (schemaObject.oneOf && schemaObject.oneOf.length > 0)
     return generateRequestBodyExampleFromSchemaObject(
       schemaObject.oneOf[0] as OpenAPIV3.SchemaObject
     )
-  if (schemaObject.anyOf)
+  if (schemaObject.anyOf && schemaObject.anyOf.length > 0)
     return generateRequestBodyExampleFromSchemaObject(
       schemaObject.anyOf[0] as OpenAPIV3.SchemaObject
     )

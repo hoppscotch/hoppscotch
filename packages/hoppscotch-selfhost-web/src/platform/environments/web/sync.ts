@@ -24,7 +24,6 @@ import { stripSecretVariableValuesForWire } from "@hoppscotch/common/helpers/sec
 import { SecretEnvironmentService } from "@hoppscotch/common/services/secret-environment.service"
 import { getService } from "@hoppscotch/common/modules/dioc"
 import { CurrentValueService } from "@hoppscotch/common/services/current-environment-value.service"
-import type { Environment, GlobalEnvironment } from "@hoppscotch/data"
 
 export const environmentsMapper = createMapper<number, string>()
 export const globalEnvironmentMapper = createMapper<number, string>()
@@ -136,19 +135,13 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   setGlobalVariables({ entries }) {
     const backendId = getGlobalVariableID()
     if (backendId) {
-      // The backend stores `Environment.variables` JSON-stringified, and
-      // `loadGlobalEnvironments` parses that string via verzod's
-      // `GlobalEnvironment` entity reference — which expects the wrapped
-      // `{ v, variables }` shape, not a bare array. Send the wrapper (with
-      // secrets stripped from its variables) so the round-trip stays
-      // compatible with existing rows.
-      const stripped: GlobalEnvironment = {
-        ...entries,
-        variables: stripSecretVariableValuesForWire(entries.variables ?? []),
-      }
+      // The global env shares the `UpdateUserEnvironment` mutation with
+      // regular envs — store it as the same `Environment` shape with an
+      // empty name. `loadGlobalEnvironments` re-wraps the bare-array
+      // payload into a `GlobalEnvironment` for the local store.
       updateUserEnvironment(backendId, {
         name: "",
-        variables: stripped as unknown as Environment["variables"],
+        variables: stripSecretVariableValuesForWire(entries.variables ?? []),
         id: "",
         v: 2,
       })()

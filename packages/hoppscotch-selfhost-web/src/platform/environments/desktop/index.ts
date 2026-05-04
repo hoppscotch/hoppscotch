@@ -119,15 +119,36 @@ async function loadGlobalEnvironments() {
     const globalEnv = res.right.me.globalEnvironments
 
     if (globalEnv) {
-      const globalEnvVariableEntries = JSON.parse(globalEnv.variables)
+      const parsed = JSON.parse(globalEnv.variables)
 
-      const result = entityReference(GlobalEnvironment).safeParse(
-        globalEnvVariableEntries
-      )
+      // Try parsing as-is first — handles legitimate v0 bare arrays
+      // (`{key, value, secret?}` items, which verzod migrates to v2) and
+      // v1+/v2 wrappers cleanly.
+      let result = entityReference(GlobalEnvironment).safeParse(parsed)
+
+      // Fallback: a bare array with the v2 variable shape
+      // (`{key, initialValue, currentValue, secret}`) is a remnant from
+      // the broken intermediate state where `setGlobalVariables` wrote the
+      // bare array instead of the wrapper. Wrap and reparse.
+      if (!result.success && Array.isArray(parsed)) {
+        result = entityReference(GlobalEnvironment).safeParse({
+          v: 2,
+          variables: parsed,
+        })
+      }
 
       runDispatchWithOutSyncing(() => {
+        // Final fallback when parsing failed both ways: keep the wrapper
+        // shape contract that downstream consumers (`globalEnv.variables.map`)
+        // depend on. If the raw value was a bare array, wrap it; otherwise
+        // surface an empty v2 envelope rather than push a non-wrapper into
+        // the store.
         setGlobalEnvVariables(
-          result.success ? result.data : globalEnvVariableEntries
+          result.success
+            ? result.data
+            : Array.isArray(parsed)
+              ? { v: 2, variables: parsed }
+              : { v: 2, variables: [] }
         )
         setGlobalEnvID(globalEnv.id)
       })
@@ -181,7 +202,26 @@ function setupUserEnvironmentUpdatedSubscription() {
       // handle the case for global environments
       if (isGlobal) {
         runDispatchWithOutSyncing(() => {
-          setGlobalEnvVariables(JSON.parse(variables))
+          const parsed = JSON.parse(variables)
+
+          // Mirror the load path: try as-is first (so v0 bare arrays still
+          // migrate via verzod), only wrap a bare array as a v2 envelope
+          // when the as-is parse fails (the broken-intermediate-state case).
+          let result = entityReference(GlobalEnvironment).safeParse(parsed)
+          if (!result.success && Array.isArray(parsed)) {
+            result = entityReference(GlobalEnvironment).safeParse({
+              v: 2,
+              variables: parsed,
+            })
+          }
+
+          setGlobalEnvVariables(
+            result.success
+              ? result.data
+              : Array.isArray(parsed)
+                ? { v: 2, variables: parsed }
+                : { v: 2, variables: [] }
+          )
         })
       } else {
         // handle the case for normal environments

@@ -20,13 +20,11 @@ import {
   deleteUserEnvironment,
   updateUserEnvironment,
 } from "./api"
-import {
-  populateLocalStoresFromVariables,
-  stripSecretVariableValuesForWire,
-} from "@hoppscotch/common/helpers/secretVariables"
+import { stripSecretVariableValuesForWire } from "@hoppscotch/common/helpers/secretVariables"
 import { SecretEnvironmentService } from "@hoppscotch/common/services/secret-environment.service"
 import { getService } from "@hoppscotch/common/modules/dioc"
 import { CurrentValueService } from "@hoppscotch/common/services/current-environment-value.service"
+import type { Environment, GlobalEnvironment } from "@hoppscotch/data"
 
 export const environmentsMapper = createMapper<number, string>()
 export const globalEnvironmentMapper = createMapper<number, string>()
@@ -70,6 +68,14 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       const envId = ++appendStart
 
       ;(async function () {
+        // Snapshot the temp local id BEFORE the backend create overwrites
+        // it. The local secret + currentValue stores were already populated
+        // under this temp id at import time (`handleImportToStore`), so we
+        // remap rather than re-populate — the sync handler's `env.variables`
+        // is already stripped (newstore was pre-stripped at import time)
+        // and would otherwise overwrite the raw values with empty ones.
+        const tempId = environmentsStore.value.environments[envId].id
+
         const res = await createUserEnvironment(
           env.name,
           JSON.stringify(stripSecretVariableValuesForWire(env.variables))
@@ -77,14 +83,11 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
 
         if (E.isRight(res)) {
           const id = res.right.createUserEnvironment.id
+
+          secretEnvironmentService.updateSecretEnvironmentID(tempId, id)
+          currentEnvironmentValueService.updateEnvironmentID(tempId, id)
+
           environmentsStore.value.environments[envId].id = id
-
-          // Persist the imported secret + currentValue inputs to the local
-          // stores keyed by the new backend ID. Without this, the next
-          // `replaceEnvironments` (run on app load from the now-stripped
-          // backend row) wipes them and the user loses their imported data.
-          populateLocalStoresFromVariables(id, env.variables)
-
           removeDuplicateEntry(id)
         }
       })()
@@ -133,9 +136,19 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   setGlobalVariables({ entries }) {
     const backendId = getGlobalVariableID()
     if (backendId) {
+      // The backend stores `Environment.variables` JSON-stringified, and
+      // `loadGlobalEnvironments` parses that string via verzod's
+      // `GlobalEnvironment` entity reference — which expects the wrapped
+      // `{ v, variables }` shape, not a bare array. Send the wrapper (with
+      // secrets stripped from its variables) so the round-trip stays
+      // compatible with existing rows.
+      const stripped: GlobalEnvironment = {
+        ...entries,
+        variables: stripSecretVariableValuesForWire(entries.variables ?? []),
+      }
       updateUserEnvironment(backendId, {
         name: "",
-        variables: stripSecretVariableValuesForWire(entries),
+        variables: stripped as unknown as Environment["variables"],
         id: "",
         v: 2,
       })()

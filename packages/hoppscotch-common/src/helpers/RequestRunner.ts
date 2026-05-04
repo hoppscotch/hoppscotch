@@ -255,12 +255,16 @@ const updateEnvironments = (
         currentValue: e.currentValue ?? "",
       })
 
-      // For non-secret variables, preserve both initialValue and currentValue
+      // `currentValue` is per-user/per-session by Hoppscotch convention and
+      // is never persisted server-side. The actual value lives in the local
+      // `currentEnvironmentValueService` (populated above); the wire payload
+      // gets it cleared so test-script env updates can't leak per-user state
+      // into the team backend.
       return {
         key: e.key,
         secret: e.secret ?? false,
         initialValue: e.initialValue ?? "",
-        currentValue: e.currentValue ?? "",
+        currentValue: "",
       }
     })
   )
@@ -637,6 +641,7 @@ export function runRESTRequest$(
                 combinedResult,
                 initialEnvironmentIndex,
                 initialEnvName,
+                initialEnvsForComparison,
                 initialEnvID
               )
             }
@@ -699,97 +704,82 @@ function updateEnvsAfterTestScript(
   runResult: E.Right<SandboxTestResult>,
   initialEnvironmentIndex: SelectedEnvironmentIndex,
   initialEnvName: string,
+  initialEnvsForComparison: TestResult["envs"],
   initialEnvID?: string
 ) {
-  const globalEnvVariables = updateEnvironments(
-    runResult.right.envs.global,
-    "global"
+  // Gate each writeback on whether its own scope actually changed. The outer
+  // `hasEnvironmentChanges` guard is an OR across both scopes, so without
+  // these per-scope checks a script that touched only the selected env would
+  // still trigger an `updateUserEnvironment` round-trip for the unchanged
+  // globals (and the same happens the other way for TEAM_ENV).
+  const globalChanged = hasScopeChanges(
+    initialEnvsForComparison.global,
+    runResult.right.envs.global
+  )
+  const selectedChanged = hasScopeChanges(
+    initialEnvsForComparison.selected,
+    runResult.right.envs.selected
   )
 
-  setGlobalEnvVariables({
-    v: 2,
-    variables: globalEnvVariables,
-  })
+  if (globalChanged) {
+    const globalEnvVariables = updateEnvironments(
+      runResult.right.envs.global,
+      "global"
+    )
 
-  const selectedEnvVariables = updateEnvironments(
-    cloneDeep(runResult.right.envs.selected),
-    "selected",
-    initialEnvID
-  )
-
-  if (initialEnvironmentIndex.type === "MY_ENV") {
-    const env = getEnvironment({
-      type: "MY_ENV",
-      index: initialEnvironmentIndex.index,
-    })
-    updateEnvironment(initialEnvironmentIndex.index, {
-      name: env.name,
+    setGlobalEnvVariables({
       v: 2,
-      id: "id" in env ? env.id : "",
-      variables: selectedEnvVariables,
+      variables: globalEnvVariables,
     })
-  } else if (initialEnvironmentIndex.type === "TEAM_ENV") {
-    // Use the initial environment name to avoid issues when environment changes during request execution
-    // adding a fallback to current environment name just in case so it's not null
-    const envName = initialEnvName ?? getCurrentEnvironment().name
-    pipe(
-      updateTeamEnvironment(
-        JSON.stringify(selectedEnvVariables),
-        initialEnvironmentIndex.teamEnvID,
-        envName
-      )
-    )()
+  }
+
+  if (selectedChanged) {
+    const selectedEnvVariables = updateEnvironments(
+      cloneDeep(runResult.right.envs.selected),
+      "selected",
+      initialEnvID
+    )
+
+    if (initialEnvironmentIndex.type === "MY_ENV") {
+      const env = getEnvironment({
+        type: "MY_ENV",
+        index: initialEnvironmentIndex.index,
+      })
+      updateEnvironment(initialEnvironmentIndex.index, {
+        name: env.name,
+        v: 2,
+        id: "id" in env ? env.id : "",
+        variables: selectedEnvVariables,
+      })
+    } else if (initialEnvironmentIndex.type === "TEAM_ENV") {
+      // Use the initial environment name to avoid issues when environment changes during request execution
+      // adding a fallback to current environment name just in case so it's not null
+      const envName = initialEnvName ?? getCurrentEnvironment().name
+      pipe(
+        updateTeamEnvironment(
+          JSON.stringify(selectedEnvVariables),
+          initialEnvironmentIndex.teamEnvID,
+          envName
+        )
+      )()
+    }
   }
 }
 
-/**
- * Checks if there are any changes between two environment states by comparing
- * the initial environment state with the final environment state.
- * @param initialEnvs The environment state at the start
- * @param finalEnvs The environment state after changes
- * @returns true if there are any environment changes, false otherwise
- */
+const hasScopeChanges = (
+  initial: Environment["variables"],
+  final: Environment["variables"]
+): boolean =>
+  getAddedEnvVariables(initial, final).length > 0 ||
+  getRemovedEnvVariables(initial, final).length > 0 ||
+  getUpdatedEnvVariables(initial, final).length > 0
+
 const hasEnvironmentChanges = (
   initialEnvs: TestResult["envs"],
   finalEnvs: TestResult["envs"]
-): boolean => {
-  // Check global environment changes
-  const globalAdditions = getAddedEnvVariables(
-    initialEnvs.global,
-    finalEnvs.global
-  )
-  const globalDeletions = getRemovedEnvVariables(
-    initialEnvs.global,
-    finalEnvs.global
-  )
-  const globalUpdations = getUpdatedEnvVariables(
-    initialEnvs.global,
-    finalEnvs.global
-  )
-
-  // Check selected environment changes
-  const selectedAdditions = getAddedEnvVariables(
-    initialEnvs.selected,
-    finalEnvs.selected
-  )
-  const selectedDeletions = getRemovedEnvVariables(
-    initialEnvs.selected,
-    finalEnvs.selected
-  )
-  const selectedUpdations = getUpdatedEnvVariables(
-    initialEnvs.selected,
-    finalEnvs.selected
-  )
-
-  return (
-    globalAdditions.length > 0 ||
-    globalDeletions.length > 0 ||
-    globalUpdations.length > 0 ||
-    selectedAdditions.length > 0 ||
-    selectedDeletions.length > 0 ||
-    selectedUpdations.length > 0
-  )
-}
+): boolean =>
+  hasScopeChanges(initialEnvs.global, finalEnvs.global) ||
+  hasScopeChanges(initialEnvs.selected, finalEnvs.selected)
 
 const getCookieJarEntries = () => {
   // Exclusive to the Desktop App
@@ -940,6 +930,7 @@ export async function runTestRunnerRequest(
                   postRequestScriptResult,
                   initialEnvironmentIndex,
                   initialEnvName,
+                  initialEnvsForComparison,
                   initialEnvID
                 )
               }

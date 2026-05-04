@@ -20,6 +20,10 @@ import {
   deleteUserEnvironment,
   updateUserEnvironment,
 } from "./api"
+import {
+  populateLocalStoresFromVariables,
+  stripSecretVariableValuesForWire,
+} from "@hoppscotch/common/helpers/secretVariables"
 import { SecretEnvironmentService } from "@hoppscotch/common/services/secret-environment.service"
 import { getService } from "@hoppscotch/common/modules/dioc"
 import { CurrentValueService } from "@hoppscotch/common/services/current-environment-value.service"
@@ -36,7 +40,10 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   async createEnvironment({ name, variables }) {
     const lastCreatedEnvIndex = environmentsStore.value.environments.length - 1
 
-    const res = await createUserEnvironment(name, JSON.stringify(variables))
+    const res = await createUserEnvironment(
+      name,
+      JSON.stringify(stripSecretVariableValuesForWire(variables))
+    )
 
     if (E.isRight(res)) {
       const id = res.right.createUserEnvironment.id
@@ -65,12 +72,18 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       ;(async function () {
         const res = await createUserEnvironment(
           env.name,
-          JSON.stringify(env.variables)
+          JSON.stringify(stripSecretVariableValuesForWire(env.variables))
         )
 
         if (E.isRight(res)) {
           const id = res.right.createUserEnvironment.id
           environmentsStore.value.environments[envId].id = id
+
+          // Persist the imported secret + currentValue inputs to the local
+          // stores keyed by the new backend ID. Without this, the next
+          // `replaceEnvironments` (run on app load from the now-stripped
+          // backend row) wipes them and the user loses their imported data.
+          populateLocalStoresFromVariables(id, env.variables)
 
           removeDuplicateEntry(id)
         }
@@ -87,12 +100,20 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     if (environmentToDuplicate) {
       const res = await createUserEnvironment(
         `${environmentToDuplicate?.name} - Duplicate`,
-        JSON.stringify(environmentToDuplicate?.variables)
+        JSON.stringify(
+          stripSecretVariableValuesForWire(
+            environmentToDuplicate?.variables ?? []
+          )
+        )
       )
 
       if (E.isRight(res)) {
         const id = res.right.createUserEnvironment.id
         environmentsStore.value.environments[lastCreatedEnvIndex].id = id
+
+        // Secret variable values are intentionally NOT copied to the
+        // duplicated environment — duplicates start fresh on secrets per the
+        // per-entity secret model. The user must re-enter them on this device.
 
         removeDuplicateEntry(id)
       }
@@ -114,7 +135,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     if (backendId) {
       updateUserEnvironment(backendId, {
         name: "",
-        variables: entries,
+        variables: stripSecretVariableValuesForWire(entries),
         id: "",
         v: 2,
       })()

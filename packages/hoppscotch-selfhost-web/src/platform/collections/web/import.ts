@@ -3,8 +3,11 @@ import {
   appendGraphqlCollections,
   appendRESTCollections,
 } from "@hoppscotch/common/newstore/collections"
-import { CollectionDataProps } from "@hoppscotch/common/helpers/backend/helpers"
 import { HoppCollection } from "@hoppscotch/data"
+import {
+  populateLocalStoresFromVariables,
+  stripSecretVariableValuesForWire,
+} from "@hoppscotch/common/helpers/secretVariables"
 import * as E from "fp-ts/Either"
 import {
   exportedCollectionToHoppCollection,
@@ -61,14 +64,23 @@ export const appendCollectionsToStore = (
 }
 
 export function translateToPersonalCollectionFormat(x: HoppCollection) {
+  // Save the user's secret + currentValue inputs into the local stores BEFORE
+  // they're stripped from the wire payload. Without this, the user loses
+  // their imported secrets on the next backend round-trip (the synced row
+  // overwrites local newstore via `setRESTCollections`).
+  if (x._ref_id) {
+    populateLocalStoresFromVariables(x._ref_id, x.variables ?? [])
+  }
+
   const folders: HoppCollection[] = (x.folders ?? []).map(
     translateToPersonalCollectionFormat
   )
 
-  const data: CollectionDataProps = {
+  const data = {
     auth: x.auth,
     headers: x.headers,
-    variables: x.variables,
+    variables: stripSecretVariableValuesForWire(x.variables ?? []),
+    _ref_id: x._ref_id,
     description: x.description,
     preRequestScript: x.preRequestScript ?? "",
     testScript: x.testScript ?? "",

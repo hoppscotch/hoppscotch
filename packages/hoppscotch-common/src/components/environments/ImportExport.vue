@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { Environment, NonSecretEnvironment } from "@hoppscotch/data"
+import { Environment } from "@hoppscotch/data"
 import {
   populateLocalStoresFromVariables,
   stripSecretVariableValuesForWire,
@@ -28,8 +28,12 @@ import {
   addGlobalEnvVariable,
   appendEnvironments,
   environments$,
+  getGlobalVariables,
 } from "~/newstore/environments"
 
+import { useService } from "dioc/vue"
+import { CurrentValueService } from "~/services/current-environment-value.service"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { CreateTeamEnvironmentMutation } from "~/helpers/backend/graphql"
 import { createTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
@@ -59,6 +63,9 @@ const props = defineProps<{
 }>()
 
 const myEnvironments = useReadonlyStream(environments$, [])
+
+const currentEnvironmentValueService = useService(CurrentValueService)
+const secretEnvironmentService = useService(SecretEnvironmentService)
 
 const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),
@@ -362,30 +369,72 @@ const showImportFailedError = () => {
 
 const handleImportToStore = async (
   environments: Environment[],
-  globalEnvs: NonSecretEnvironment[] = []
+  globalEnvs: Environment[] = []
 ) => {
   // Pre-populate local stores with imported secret + currentValue inputs
   // BEFORE anything (raw or sync) reaches the newstore. This way, even if
   // the user is offline, sync is disabled, or the app quits before sync
   // completes, the secret values survive — they're keyed locally and the
   // newstore is never written with raw secrets.
-  globalEnvs.forEach(({ variables }) => {
-    populateLocalStoresFromVariables("Global", variables)
-  })
+  //
+  // Non-global envs are keyed by their own backend id (one map entry per
+  // env), so a per-env replace is safe.
   environments.forEach((env) => {
     populateLocalStoresFromVariables(env.id, env.variables)
   })
 
-  // Add global envs to the store with values stripped — the secret + per-
-  // user `currentValue` inputs we just persisted locally re-hydrate via
-  // `getCurrentValue` / `getInitialValue` in the env Details modal.
-  globalEnvs.forEach(({ variables }) => {
-    stripSecretVariableValuesForWire(variables).forEach(
+  // Globals all share the single `"Global"` key in the local stores, so we
+  // must MERGE the imported entries with whatever's already there. A naive
+  // `populateLocalStoresFromVariables("Global", ...)` per base env would
+  // (a) wipe pre-existing entries on each call (Map.set replace), and
+  // (b) misalign `varIndex` against the newstore when more than one base
+  // env is imported (only the last call's indices would match).
+  //
+  // Hydrate the existing globals from the local stores (where the raw
+  // secret + currentValue values live), concat the imported tail, then
+  // call the helper once on the full array — its index-based replace then
+  // matches the newstore order exactly.
+  if (globalEnvs.length > 0) {
+    const importedGlobals = globalEnvs.flatMap(({ variables }) => variables)
+
+    const existingHydrated: Environment["variables"] = getGlobalVariables().map(
+      (v, i) => {
+        if (v.secret) {
+          const stored = secretEnvironmentService.getSecretEnvironmentVariable(
+            "Global",
+            i
+          )
+          return {
+            ...v,
+            initialValue: stored?.initialValue ?? "",
+            currentValue: stored?.value ?? "",
+          }
+        }
+        const stored = currentEnvironmentValueService.getEnvironmentVariable(
+          "Global",
+          i
+        )
+        return {
+          ...v,
+          currentValue: stored?.currentValue ?? v.currentValue,
+        }
+      }
+    )
+
+    populateLocalStoresFromVariables("Global", [
+      ...existingHydrated,
+      ...importedGlobals,
+    ])
+
+    // Append the stripped imported globals to the newstore. Order matches
+    // the hydrated existing entries above so the local-store `varIndex`
+    // aligns with the newstore array position.
+    stripSecretVariableValuesForWire(importedGlobals).forEach(
       ({ key, initialValue, currentValue, secret }) => {
         addGlobalEnvVariable({ key, initialValue, currentValue, secret })
       }
     )
-  })
+  }
 
   if (props.environmentType === "MY_ENV") {
     // Strip wire payload before adding to newstore so raw secret values

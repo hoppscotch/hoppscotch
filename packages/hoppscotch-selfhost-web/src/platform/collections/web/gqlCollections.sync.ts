@@ -270,7 +270,10 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const lastCreatedCollectionIndex =
       graphqlCollectionStore.value.state.length - 1
 
-    recursivelySyncCollections(collection, `${lastCreatedCollectionIndex}`)
+    await recursivelySyncCollections(
+      collection,
+      `${lastCreatedCollectionIndex}`
+    )
   },
   async removeCollection({ collectionID }) {
     if (collectionID) {

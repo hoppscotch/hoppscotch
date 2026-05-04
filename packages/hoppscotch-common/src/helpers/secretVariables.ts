@@ -1,3 +1,5 @@
+import type { HoppCollection } from "@hoppscotch/data"
+
 import { getService } from "../modules/dioc"
 import { CurrentValueService } from "../services/current-environment-value.service"
 import { SecretEnvironmentService } from "../services/secret-environment.service"
@@ -50,13 +52,15 @@ export const stripSecretVariableValuesForWire = <
  * through the backend, so without this hook the user loses them on next
  * `setRESTCollections` / `replaceEnvironments` from a backend fetch.
  *
- * No-ops for empty inputs so callers can apply it unconditionally.
+ * Always writes to both stores when the entityId is non-empty (even when one
+ * side has zero entries) so a re-import or re-save with fewer/no secrets
+ * clears any stale entries from a previous version of the same entity.
  */
 export const populateLocalStoresFromVariables = (
   entityId: string,
   variables: readonly SecretCapableVariable[]
 ) => {
-  if (!entityId || variables.length === 0) return
+  if (!entityId) return
 
   const secretEnvironmentService = getService(SecretEnvironmentService)
   const currentEnvironmentValueService = getService(CurrentValueService)
@@ -87,10 +91,30 @@ export const populateLocalStoresFromVariables = (
       : []
   )
 
-  if (secrets.length > 0) {
-    secretEnvironmentService.addSecretEnvironment(entityId, secrets)
+  secretEnvironmentService.addSecretEnvironment(entityId, secrets)
+  currentEnvironmentValueService.addEnvironment(entityId, nonSecrets)
+}
+
+/**
+ * Recursive variant of `populateLocalStoresFromVariables` for a HoppCollection
+ * tree (collection + nested folders). Walks the tree and populates the local
+ * stores for every node that has a `_ref_id`.
+ *
+ * Used at import-time entry points BEFORE the wire strip runs, so that even
+ * the logged-out / no-platform-sync branch (which skips
+ * `translateToPersonalCollectionFormat`) preserves user-supplied secret +
+ * currentValue inputs in the local stores. On subsequent login + sync, the
+ * wire payload is stripped but the secret store still has the values keyed
+ * by the same `_ref_id` that round-trips through the backend `data` blob.
+ */
+export const populateLocalStoresFromCollectionTree = (
+  collection: HoppCollection
+) => {
+  if (collection._ref_id) {
+    populateLocalStoresFromVariables(
+      collection._ref_id,
+      collection.variables ?? []
+    )
   }
-  if (nonSecrets.length > 0) {
-    currentEnvironmentValueService.addEnvironment(entityId, nonSecrets)
-  }
+  ;(collection.folders ?? []).forEach(populateLocalStoresFromCollectionTree)
 }

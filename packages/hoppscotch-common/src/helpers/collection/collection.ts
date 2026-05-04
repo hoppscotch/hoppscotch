@@ -299,6 +299,7 @@ export function getFoldersByPath(
 /**
  * Transforms a collection to the format expected by team or personal collections.
  * BE expects CollectionFolder format with a data field containing auth, headers, variables, and description.
+ *
  * @param collection The collection to transform
  * @returns The transformed collection
  */

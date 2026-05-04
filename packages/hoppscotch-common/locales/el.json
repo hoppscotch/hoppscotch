@@ -679,6 +679,8 @@
     "short_codes_description": "Short codes πυ δημιουργήσατε.",
     "sidebar_on_left": "Sidebar στα αριστερά",
     "sync": "Συγχρονίζω",
+    "require_auth_for_app": "Απαιτείται σύνδεση για χρήση της εφαρμογής",
+    "require_auth_for_app_description": "Όταν είναι ενεργοποιημένο, οι μη αυθεντικοποιημένοι χρήστες ανακατευθύνονται στη σελίδα σύνδεσης",
     "sync_collections": "Συλλογές",
     "sync_description": "Αυτές οι ρυθμίσεις συγχρονίζονται με το cloud.",
     "sync_environments": "Περιβάλλοντα",

@@ -677,6 +677,8 @@
     "sidebar_on_left": "Sidebjælke til venstre",
     "ai_experiments": "AI-eksperimenter",
     "sync": "Synkroniser",
+    "require_auth_for_app": "Kræv login for at bruge appen",
+    "require_auth_for_app_description": "Når aktiveret, omdirigeres ikke-autentificerede brugere til loginsiden",
     "sync_collections": "Samlinger",
     "sync_description": "Disse indstillinger synkroniseres til skyen.",
     "sync_environments": "Miljøer",

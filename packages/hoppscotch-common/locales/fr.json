@@ -1023,6 +1023,8 @@
     "ai_request_naming_style_custom": "Personnalisé",
     "ai_request_naming_style_custom_placeholder": "Entrer votre propre style de nommage...",
     "experimental_scripting_sandbox": "Bac à sable de scripting expérimental",
+    "require_auth_for_app": "Connexion requise pour utiliser l'application",
+    "require_auth_for_app_description": "Lorsqu'activé, les utilisateurs non authentifiés sont redirigés vers la page de connexion",
     "sync": "Synchroniser",
     "sync_collections": "Collections",
     "sync_description": "Ces paramètres sont synchronisés dans le cloud.",

@@ -679,6 +679,8 @@
     "short_codes_description": "Korte codes die door u zijn aangemaakt.",
     "sidebar_on_left": "Zijbalk aan de linkerkant",
     "sync": "Synchroniseren",
+    "require_auth_for_app": "Vereist aanmelding om de app te gebruiken",
+    "require_auth_for_app_description": "Wanneer ingeschakeld, worden niet-geverifieerde gebruikers doorgestuurd naar de aanmeldpagina",
     "sync_collections": "Collecties",
     "sync_description": "Deze instellingen worden gesynchroniseerd met de cloud.",
     "sync_environments": "Omgevingen",

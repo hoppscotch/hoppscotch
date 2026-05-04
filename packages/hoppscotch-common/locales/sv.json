@@ -679,6 +679,8 @@
     "short_codes_description": "Short codes which were created by you.",
     "sidebar_on_left": "Sidebar on left",
     "sync": "Synkronisera",
+    "require_auth_for_app": "Kräv inloggning för att använda appen",
+    "require_auth_for_app_description": "När aktiverat omdirigeras oautentiserade användare till inloggningssidan",
     "sync_collections": "Samlingar",
     "sync_description": "Dessa inställningar synkroniseras till moln.",
     "sync_environments": "Miljöer",

@@ -140,6 +140,54 @@ async function initApp() {
     setupDesktopUI()
   }
 
+  // Check if authentication is required for access (all platforms)
+  const pathname = window.location.pathname
+  // Pages that don't require auth check (login pages, magic link pages)
+  const publicPages = ["/login", "/enter", "/device-login", "/oauth"]
+  const isPublicPage = publicPages.some(
+    (page) => pathname === page || pathname.startsWith(page + "/")
+  )
+
+  // Skip auth check on public pages
+  if (!isPublicPage) {
+    try {
+      const backendUrl =
+        import.meta.env.VITE_BACKEND_API_URL || "http://localhost:3170/v1"
+      const gqlUrl =
+        import.meta.env.VITE_BACKEND_GQL_URL ||
+        "http://localhost:3170/graphql"
+
+      // Check if auth is required
+      const authStatusRes = await fetch(`${backendUrl}/site/auth-status`)
+      const authStatus = await authStatusRes.json()
+
+      if (authStatus?.requireAuth === true) {
+        // Check if user is authenticated
+        const userRes = await fetch(gqlUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            query: `query Me { me { uid } }`,
+          }),
+        })
+        const userData = await userRes.json()
+        const isAuthenticated = !!userData?.data?.me?.uid
+
+        if (!isAuthenticated) {
+          // Redirect to login page with current URL as redirect parameter
+          const currentUrl = encodeURIComponent(
+            window.location.pathname + window.location.search
+          )
+          window.location.href = `/login?redirect=${currentUrl}`
+          return
+        }
+      }
+    } catch (error) {
+      console.warn("Auth restriction check failed:", error)
+    }
+  }
+
   await createHoppApp("#app", {
     ui: {
       additionalFooterMenuItems: config.menuItems,

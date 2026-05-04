@@ -415,4 +415,24 @@ export class InfraResolver {
     if (E.isLeft(isUpdated)) throwErr(isUpdated.left);
     return true;
   }
+
+  @Mutation(() => Boolean, {
+    description: 'Enable or Disable authentication requirement for accessing the app',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async toggleAuthRequirement(
+    @Args({
+      name: 'status',
+      type: () => ServiceStatus,
+      description: 'Toggle authentication requirement',
+    })
+    status: ServiceStatus,
+  ) {
+    const isUpdated = await this.infraConfigService.toggleServiceStatus(
+      InfraConfigEnum.REQUIRE_AUTH_FOR_ACCESS,
+      status,
+    );
+    if (E.isLeft(isUpdated)) throwErr(isUpdated.left);
+    return true;
+  }
 }

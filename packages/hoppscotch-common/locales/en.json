@@ -1340,6 +1340,8 @@
     "experimental_scripting_sandbox": "Experimental scripting sandbox",
     "enable_experimental_mock_servers": "Enable Mock Servers",
     "enable_experimental_documentation": "Enable Documentation",
+    "require_auth_for_app": "Require login to use the app",
+    "require_auth_for_app_description": "When enabled, unauthenticated users are redirected to the login page",
     "sync": "Synchronise",
     "sync_collections": "Collections",
     "sync_description": "These settings are synced to cloud.",

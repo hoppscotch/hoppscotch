@@ -138,17 +138,13 @@ async function loadGlobalEnvironments() {
       }
 
       runDispatchWithOutSyncing(() => {
-        // Final fallback when parsing failed both ways: keep the wrapper
-        // shape contract that downstream consumers (`globalEnv.variables.map`)
-        // depend on. If the raw value was a bare array, wrap it; otherwise
-        // surface an empty v2 envelope rather than push a non-wrapper into
-        // the store.
+        // Final fallback: both parses failed, meaning the stored shape is
+        // unrecognized. Surface an empty v2 envelope rather than wrap a
+        // raw array of unknown items — pushing items that don't conform to
+        // the v2 variable schema lets `undefined` initialValue/currentValue
+        // leak into downstream `.variables.map` consumers.
         setGlobalEnvVariables(
-          result.success
-            ? result.data
-            : Array.isArray(parsed)
-              ? { v: 2, variables: parsed }
-              : { v: 2, variables: [] }
+          result.success ? result.data : { v: 2, variables: [] }
         )
         setGlobalEnvID(globalEnv.id)
       })
@@ -216,11 +212,7 @@ function setupUserEnvironmentUpdatedSubscription() {
           }
 
           setGlobalEnvVariables(
-            result.success
-              ? result.data
-              : Array.isArray(parsed)
-                ? { v: 2, variables: parsed }
-                : { v: 2, variables: [] }
+            result.success ? result.data : { v: 2, variables: [] }
           )
         })
       } else {

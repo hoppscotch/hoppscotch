@@ -4339,6 +4339,10 @@
       runRequest: (id) => {
         console.warn(`[pm.execution] pm.execution.runRequest('${id}') is not supported. Use pm.sendRequest({...}, callback) for extra HTTP calls, or redesign collection runner order using setNextRequest().`)
       },
+      // iterationCount — returns 1 in single-execution environments (Hoppscotch does not support Collection Runner iterations)
+      get iterationCount() {
+        return 1
+      },
     },
 
     // Package imports (unsupported)

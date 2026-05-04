@@ -874,16 +874,23 @@ declare namespace pm {
   }>
 
   /**
-   * Iteration data (unsupported - Collection Runner feature)
-   * Iteration data is not supported in Hoppscotch as it requires Collection Runner
+   * Iteration data (Collection Runner feature)
+   * In Hoppscotch, iteration data is read from the active environment.
+   * The runner injects each dataset row's keys before the request runs.
    */
   const iterationData: Readonly<{
-    get(key: string): never
+    /** Get a value from the current iteration's data row. */
+    get(key: string): any
+    /** Set a value (delegates to pm.variables). */
     set(key: string, value: string): never
+    /** Unset a value (delegates to pm.variables). */
     unset(key: string): never
-    has(key: string): never
-    toObject(): never
-    toJSON(): never
+    /** Check if a key exists in the current iteration data. */
+    has(key: string): boolean
+    /** Get all data for the current iteration as a plain object. */
+    toObject(): Record<string, any>
+    /** Same as toObject() — alias for JSON serialization. */
+    toJSON(): Record<string, any>
   }>
 
   /**
@@ -945,6 +952,12 @@ declare namespace pm {
      * @param requestNameOrId - Name or ID of the request to run
      */
     runRequest(requestNameOrId: string): never
+    /**
+     * The total number of iterations scheduled for this run.
+     * Returns 1 in Hoppscotch (single-execution environment).
+     * In Postman Collection Runner this reflects the configured iteration count.
+     */
+    readonly iterationCount: number
   }>
 
   /**

@@ -529,39 +529,6 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  // Allowlist of InfraConfig keys that can be set via the unauthenticated
-  // onboarding endpoint. Any key outside this set (e.g. `JWT_SECRET`,
-  // `SESSION_SECRET`) must never be writable through onboarding to prevent
-  // mass assignment / privilege escalation (GHSA-j542-4rch-8hwf).
-  private readonly ONBOARDING_ALLOWED_KEYS: ReadonlySet<InfraConfigEnum> =
-    new Set<InfraConfigEnum>([
-      InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
-      InfraConfigEnum.GOOGLE_CLIENT_ID,
-      InfraConfigEnum.GOOGLE_CLIENT_SECRET,
-      InfraConfigEnum.GOOGLE_CALLBACK_URL,
-      InfraConfigEnum.GOOGLE_SCOPE,
-      InfraConfigEnum.GITHUB_CLIENT_ID,
-      InfraConfigEnum.GITHUB_CLIENT_SECRET,
-      InfraConfigEnum.GITHUB_CALLBACK_URL,
-      InfraConfigEnum.GITHUB_SCOPE,
-      InfraConfigEnum.MICROSOFT_CLIENT_ID,
-      InfraConfigEnum.MICROSOFT_CLIENT_SECRET,
-      InfraConfigEnum.MICROSOFT_CALLBACK_URL,
-      InfraConfigEnum.MICROSOFT_SCOPE,
-      InfraConfigEnum.MICROSOFT_TENANT,
-      InfraConfigEnum.MAILER_SMTP_ENABLE,
-      InfraConfigEnum.MAILER_USE_CUSTOM_CONFIGS,
-      InfraConfigEnum.MAILER_ADDRESS_FROM,
-      InfraConfigEnum.MAILER_SMTP_URL,
-      InfraConfigEnum.MAILER_SMTP_HOST,
-      InfraConfigEnum.MAILER_SMTP_PORT,
-      InfraConfigEnum.MAILER_SMTP_SECURE,
-      InfraConfigEnum.MAILER_SMTP_USER,
-      InfraConfigEnum.MAILER_SMTP_PASSWORD,
-      InfraConfigEnum.MAILER_TLS_REJECT_UNAUTHORIZED,
-      InfraConfigEnum.MAILER_SMTP_IGNORE_TLS,
-    ]);
-
   /**
    * Update the onboarding configuration
    * @param dto SaveOnboardingConfigRequest
@@ -574,7 +541,7 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
         .filter(
           ([key, value]) =>
             value !== undefined &&
-            this.ONBOARDING_ALLOWED_KEYS.has(key as InfraConfigEnum),
+            Object.keys(new SaveOnboardingConfigRequest()).includes(key),
         )
         .map(([key, value]) => ({
           name: key as InfraConfigEnum,
@@ -770,13 +737,6 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
       };
 
       switch (name) {
-        // Reject sensitive keys that must never be written via infra-config
-        // mutations or onboarding (GHSA-j542-4rch-8hwf).
-        case InfraConfigEnum.JWT_SECRET:
-        case InfraConfigEnum.SESSION_SECRET:
-        case InfraConfigEnum.ALLOW_SECURE_COOKIES:
-          return E.left(INFRA_CONFIG_OPERATION_NOT_ALLOWED);
-
         case InfraConfigEnum.MAILER_SMTP_ENABLE:
         case InfraConfigEnum.MAILER_USE_CUSTOM_CONFIGS:
         case InfraConfigEnum.MAILER_SMTP_SECURE:

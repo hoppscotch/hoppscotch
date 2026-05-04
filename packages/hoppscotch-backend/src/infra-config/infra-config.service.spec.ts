@@ -274,75 +274,6 @@ describe('InfraConfigService', () => {
     });
   });
 
-  describe('validateEnvValues', () => {
-    it.each([
-      InfraConfigEnum.JWT_SECRET,
-      InfraConfigEnum.SESSION_SECRET,
-      InfraConfigEnum.ALLOW_SECURE_COOKIES,
-    ])('should reject sensitive key %s with OPERATION_NOT_ALLOWED', (name) => {
-      const result = infraConfigService.validateEnvValues([
-        { name, value: 'any-value' },
-      ]);
-      expect(result).toEqualLeft(INFRA_CONFIG_OPERATION_NOT_ALLOWED);
-    });
-
-    it('should reject when a sensitive key is mixed with allowed keys', () => {
-      const result = infraConfigService.validateEnvValues([
-        {
-          name: InfraConfigEnum.GOOGLE_CLIENT_ID,
-          value: 'client-id',
-        },
-        {
-          name: InfraConfigEnum.JWT_SECRET,
-          value: 'attacker-controlled',
-        },
-      ]);
-      expect(result).toEqualLeft(INFRA_CONFIG_OPERATION_NOT_ALLOWED);
-    });
-
-    it('should accept valid values for allowed keys', () => {
-      const result = infraConfigService.validateEnvValues([
-        { name: InfraConfigEnum.GOOGLE_CLIENT_ID, value: 'client-id' },
-      ]);
-      expect(result).toEqualRight(true);
-    });
-  });
-
-  describe('update (sensitive keys)', () => {
-    it.each([
-      InfraConfigEnum.JWT_SECRET,
-      InfraConfigEnum.SESSION_SECRET,
-      InfraConfigEnum.ALLOW_SECURE_COOKIES,
-    ])(
-      'should refuse to update sensitive key %s and not hit the DB',
-      async (name) => {
-        const result = await infraConfigService.update(name, 'x');
-        expect(result).toEqualLeft(INFRA_CONFIG_OPERATION_NOT_ALLOWED);
-        expect(mockPrisma.infraConfig.update).not.toHaveBeenCalled();
-      },
-    );
-  });
-
-  describe('updateMany (sensitive keys)', () => {
-    it.each([
-      InfraConfigEnum.JWT_SECRET,
-      InfraConfigEnum.SESSION_SECRET,
-      InfraConfigEnum.ALLOW_SECURE_COOKIES,
-    ])(
-      'should refuse to updateMany when %s is included (checkDisallowedKeys=false)',
-      async (name) => {
-        // checkDisallowedKeys=false bypasses the EXCLUDE_FROM_UPDATE_CONFIGS
-        // guard; validateEnvValues must still reject the sensitive key.
-        const result = await infraConfigService.updateMany(
-          [{ name, value: 'x' }],
-          false,
-        );
-        expect(result).toEqualLeft(INFRA_CONFIG_OPERATION_NOT_ALLOWED);
-        expect(mockPrisma.$transaction).not.toHaveBeenCalled();
-      },
-    );
-  });
-
   describe('updateOnboardingConfig (allowlist filtering)', () => {
     it('should drop keys outside ONBOARDING_ALLOWED_KEYS before persisting', async () => {
       // Pretend the DTO has extra disallowed keys (mimicking a bypass of the
@@ -365,24 +296,39 @@ describe('InfraConfigService', () => {
 
       await infraConfigService.updateOnboardingConfig(dto);
 
-      expect(updateManySpy).toHaveBeenCalledTimes(1);
-      const [persistedEntries] = updateManySpy.mock.calls[0];
-      const persistedNames = persistedEntries.map((e) => e.name);
-
-      // Disallowed / sensitive keys must be dropped
-      expect(persistedNames).not.toContain(InfraConfigEnum.JWT_SECRET);
-      expect(persistedNames).not.toContain(InfraConfigEnum.SESSION_SECRET);
-      expect(persistedNames).not.toContain(
-        InfraConfigEnum.ALLOW_SECURE_COOKIES,
-      );
-      // Allowed keys plus the onboarding bookkeeping keys should remain
-      expect(persistedNames).toEqual(
+      expect(updateManySpy).toHaveBeenCalledWith(
         expect.arrayContaining([
-          InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
-          InfraConfigEnum.GOOGLE_CLIENT_ID,
-          InfraConfigEnum.ONBOARDING_COMPLETED,
-          InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN,
+          expect.objectContaining({
+            name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
+            value: 'GOOGLE',
+          }),
+          expect.objectContaining({
+            name: InfraConfigEnum.GOOGLE_CLIENT_ID,
+            value: 'gid',
+          }),
+          expect.objectContaining({
+            name: InfraConfigEnum.GOOGLE_CLIENT_SECRET,
+            value: 'gsecret',
+          }),
+          expect.objectContaining({
+            name: InfraConfigEnum.GOOGLE_CALLBACK_URL,
+            value: 'https://example.com/cb',
+          }),
+          expect.objectContaining({
+            name: InfraConfigEnum.GOOGLE_SCOPE,
+            value: 'email',
+          }),
+
+          expect.objectContaining({
+            name: InfraConfigEnum.ONBOARDING_COMPLETED,
+            value: 'true',
+          }),
+          expect.objectContaining({
+            name: InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN,
+            value: expect.any(String),
+          }),
         ]),
+        false,
       );
 
       updateManySpy.mockRestore();

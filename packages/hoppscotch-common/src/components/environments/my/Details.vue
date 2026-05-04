@@ -241,6 +241,7 @@ import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import { flow, pipe } from "fp-ts/function"
 import { ComputedRef, computed, ref, watch } from "vue"
+import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
 import { uniqueID } from "~/helpers/utils/uniqueID"
 import {
   createEnvironment,
@@ -594,15 +595,7 @@ const saveEnvironment = () => {
     }
   }
 
-  const variables = pipe(
-    filteredVariables,
-    A.map((e) => ({
-      key: e.key,
-      secret: e.secret,
-      initialValue: e.secret ? "" : e.initialValue,
-      currentValue: "",
-    }))
-  )
+  const variables = stripSecretVariableValuesForWire(filteredVariables)
 
   const environmentUpdated: Environment = {
     v: 2,

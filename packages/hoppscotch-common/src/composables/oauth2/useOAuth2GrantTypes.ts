@@ -612,6 +612,33 @@ export const useOAuth2GrantTypes = (
           }
         )
 
+        const clientAuthentication = refWithCallbackOnChange(
+          grantTypeInfo.clientAuthentication
+            ? grantTypeInfo.clientAuthentication === "AS_BASIC_AUTH_HEADERS"
+              ? {
+                  id: "AS_BASIC_AUTH_HEADERS" as const,
+                  label: t("authorization.oauth.label_send_as_basic_auth"),
+                }
+              : {
+                  id: "IN_BODY" as const,
+                  label: t("authorization.oauth.label_send_in_body"),
+                }
+            : {
+                id: "IN_BODY" as const,
+                label: t("authorization.oauth.label_send_in_body"),
+              },
+          (value) => {
+            if (auth.value.grantTypeInfo.grantType !== "PASSWORD") {
+              return
+            }
+
+            auth.value.grantTypeInfo = {
+              ...auth.value.grantTypeInfo,
+              clientAuthentication: value.id,
+            }
+          }
+        )
+
         const runAction = async () => {
           const values: PasswordFlowParams =
             replaceTemplateStringsInObjectValues({
@@ -621,6 +648,7 @@ export const useOAuth2GrantTypes = (
               scopes: scopes.value,
               username: username.value,
               password: password.value,
+              clientAuthentication: clientAuthentication.value.id,
               tokenRequestParams: preparedTokenRequestParams.value,
               refreshRequestParams: preparedRefreshRequestParams.value,
             })
@@ -681,6 +709,24 @@ export const useOAuth2GrantTypes = (
               label: t("authorization.oauth.label_scopes"),
               type: "text" as const,
               ref: scopes,
+            },
+            {
+              id: "clientAuthentication",
+              label: t("authorization.oauth.label_send_as"),
+              type: "dropdown" as const,
+              ref: clientAuthentication,
+              tippyRefName: "clientAuthenticationTippyActions",
+              tippyRef: clientAuthenticationTippyActions,
+              options: [
+                {
+                  id: "IN_BODY" as const,
+                  label: t("authorization.oauth.label_send_in_body"),
+                },
+                {
+                  id: "AS_BASIC_AUTH_HEADERS" as const,
+                  label: t("authorization.oauth.label_send_as_basic_auth"),
+                },
+              ],
             },
           ]
         })

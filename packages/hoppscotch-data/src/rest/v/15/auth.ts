@@ -48,6 +48,10 @@ export const ClientCredentialsGrantTypeParams =
 export const PasswordGrantTypeParams = PasswordGrantTypeParamsOld.extend({
   tokenRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
   refreshRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
+  clientAuthentication: z
+    .enum(["AS_BASIC_AUTH_HEADERS", "IN_BODY"])
+    .optional()
+    .default("IN_BODY"),
 })
 
 export const ImplicitOauthFlowParams = ImplicitOauthFlowParamsOld.extend({

@@ -16,8 +16,8 @@ export class UserStatsService {
     try {
       const [collectionsCount, environmentsCount, requestsCount] =
         await Promise.all([
-          this.prisma.collection.count({
-            where: { userUID },
+          this.prisma.userCollection.count({
+            where: { userUid: userUID },
           }),
           this.prisma.userEnvironment.count({
             where: { userUID },

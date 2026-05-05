@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { InfraConfigService } from './infra-config.service';
 import { InfraConfigEnum } from 'src/types/InfraConfig';
 import {
+  INFRA_CONFIG_INVALID_INPUT,
   INFRA_CONFIG_NOT_FOUND,
   INFRA_CONFIG_OPERATION_NOT_ALLOWED,
   INFRA_CONFIG_UPDATE_FAILED,
@@ -290,6 +291,217 @@ describe('InfraConfigService', () => {
       expect(await infraConfigService.isUserHistoryEnabled()).toEqualRight(
         response,
       );
+    });
+  });
+
+  describe('validateEnvValues', () => {
+    describe('MAILER_SMTP_AUTH_TYPE', () => {
+      it('should accept an empty value (defaults to login at runtime)', () => {
+        const result = infraConfigService.validateEnvValues([
+          { name: InfraConfigEnum.MAILER_SMTP_AUTH_TYPE, value: '' },
+        ]);
+        expect(result).toEqualRight(true);
+      });
+
+      it('should accept a known auth type', () => {
+        const result = infraConfigService.validateEnvValues([
+          { name: InfraConfigEnum.MAILER_SMTP_AUTH_TYPE, value: 'oauth2' },
+        ]);
+        expect(result).toEqualRight(true);
+      });
+
+      it('should reject an unknown auth type', () => {
+        const result = infraConfigService.validateEnvValues([
+          { name: InfraConfigEnum.MAILER_SMTP_AUTH_TYPE, value: 'kerberos' },
+        ]);
+        expect(result).toEqualLeft(INFRA_CONFIG_INVALID_INPUT);
+      });
+    });
+
+    describe('MAILER_SMTP_OAUTH2_ACCESS_URL', () => {
+      it('should accept an empty value', () => {
+        const result = infraConfigService.validateEnvValues([
+          { name: InfraConfigEnum.MAILER_SMTP_OAUTH2_ACCESS_URL, value: '' },
+        ]);
+        expect(result).toEqualRight(true);
+      });
+
+      it('should accept a valid HTTPS URL', () => {
+        const result = infraConfigService.validateEnvValues([
+          {
+            name: InfraConfigEnum.MAILER_SMTP_OAUTH2_ACCESS_URL,
+            value: 'https://oauth2.googleapis.com/token',
+          },
+        ]);
+        expect(result).toEqualRight(true);
+      });
+
+      it('should reject a malformed URL', () => {
+        const result = infraConfigService.validateEnvValues([
+          {
+            name: InfraConfigEnum.MAILER_SMTP_OAUTH2_ACCESS_URL,
+            value: 'not-a-url',
+          },
+        ]);
+        expect(result).toEqualLeft(INFRA_CONFIG_INVALID_INPUT);
+      });
+    });
+  });
+
+  describe('getOnboardingConfig', () => {
+    const RECOVERY_TOKEN = 'valid-recovery-token-123';
+
+    const mockConfigs = [
+      {
+        name: InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN,
+        value: RECOVERY_TOKEN,
+      },
+      { name: InfraConfigEnum.GOOGLE_CLIENT_ID, value: 'google-id' },
+      {
+        name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
+        value: 'google',
+      },
+    ];
+
+    it('should return config values when token is valid', async () => {
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.right(mockConfigs));
+
+      const result =
+        await infraConfigService.getOnboardingConfig(RECOVERY_TOKEN);
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right[InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN]).toBe(
+          RECOVERY_TOKEN,
+        );
+        expect(result.right[InfraConfigEnum.GOOGLE_CLIENT_ID]).toBe(
+          'google-id',
+        );
+      }
+    });
+
+    it('should return null values when token does not match', async () => {
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.right(mockConfigs));
+
+      const result =
+        await infraConfigService.getOnboardingConfig('wrong-token');
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right[InfraConfigEnum.GOOGLE_CLIENT_ID]).toBeNull();
+      }
+    });
+
+    it('should return null values when token is empty string', async () => {
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.right(mockConfigs));
+
+      const result = await infraConfigService.getOnboardingConfig('');
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right[InfraConfigEnum.GOOGLE_CLIENT_ID]).toBeNull();
+      }
+    });
+
+    it('should return null values when token is whitespace only', async () => {
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.right(mockConfigs));
+
+      const result = await infraConfigService.getOnboardingConfig('   ');
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right[InfraConfigEnum.GOOGLE_CLIENT_ID]).toBeNull();
+      }
+    });
+
+    it('should return null values when token is null', async () => {
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.right(mockConfigs));
+
+      const result = await infraConfigService.getOnboardingConfig(null);
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right[InfraConfigEnum.GOOGLE_CLIENT_ID]).toBeNull();
+      }
+    });
+
+    it('should return null values when token is undefined', async () => {
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.right(mockConfigs));
+
+      const result = await infraConfigService.getOnboardingConfig(undefined);
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right[InfraConfigEnum.GOOGLE_CLIENT_ID]).toBeNull();
+      }
+    });
+
+    it('should return null values when token is an array', async () => {
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.right(mockConfigs));
+
+      // @ts-expect-error Testing invalid input
+      const result = await infraConfigService.getOnboardingConfig([]);
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right[InfraConfigEnum.GOOGLE_CLIENT_ID]).toBeNull();
+      }
+    });
+
+    it('should return null values when token is a number', async () => {
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.right(mockConfigs));
+
+      // @ts-expect-error Testing invalid input
+      const result = await infraConfigService.getOnboardingConfig(42);
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right[InfraConfigEnum.GOOGLE_CLIENT_ID]).toBeNull();
+      }
+    });
+
+    it('should return null values when ONBOARDING_RECOVERY_TOKEN is absent from configs', async () => {
+      const configsWithoutToken = mockConfigs.filter(
+        (c) => c.name !== InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN,
+      );
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.right(configsWithoutToken));
+
+      const result =
+        await infraConfigService.getOnboardingConfig(RECOVERY_TOKEN);
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right[InfraConfigEnum.GOOGLE_CLIENT_ID]).toBeNull();
+      }
+    });
+
+    it('should return left with error when getMany fails', async () => {
+      jest
+        .spyOn(infraConfigService, 'getMany')
+        .mockResolvedValueOnce(E.left(INFRA_CONFIG_NOT_FOUND));
+
+      const result =
+        await infraConfigService.getOnboardingConfig(RECOVERY_TOKEN);
+
+      expect(result).toEqualLeft(INFRA_CONFIG_NOT_FOUND);
     });
   });
 });

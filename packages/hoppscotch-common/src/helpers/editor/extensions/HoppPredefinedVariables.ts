@@ -10,6 +10,7 @@ import { HOPP_SUPPORTED_PREDEFINED_VARIABLES } from "@hoppscotch/data"
 import IconSquareAsterisk from "~icons/lucide/square-asterisk?raw"
 import { isComment } from "./helpers"
 import {
+  stabilizeTooltipHover,
   constrainTooltipToViewport,
   truncateText,
 } from "~/helpers/utils/tooltip"
@@ -145,6 +146,9 @@ const cursorTooltipField = () =>
 
           // Apply viewport-aware overflow constraints
           constrainTooltipToViewport(dom, tooltipContainer)
+
+          // Apply an interactive bridge to stabilize hover transitions
+          stabilizeTooltipHover(dom)
 
           return { dom }
         },

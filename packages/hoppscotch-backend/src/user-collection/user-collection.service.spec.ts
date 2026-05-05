@@ -2380,3 +2380,165 @@ describe('exportUserCollectionToJSONObject', () => {
     expect(result).toEqualLeft(USER_COLL_NOT_FOUND);
   });
 });
+
+describe('importCollectionsFromJSON — collection-level script fields', () => {
+  // The backend treats `data` as an opaque JSON blob, so the script fields
+  // ride through transparently. The test asserts on both ends: the create
+  // call payload must carry script fields (proving import wrote them), and
+  // the export payload must surface them unchanged. Guards against any
+  // future refactor that destructures `data` and drops scripts on either
+  // side.
+  test('preRequestScript and testScript on root and folder survive import → export round-trip', async () => {
+    const importJSON = JSON.stringify([
+      {
+        name: 'root-with-scripts',
+        folders: [
+          {
+            name: 'child-folder',
+            folders: [],
+            requests: [],
+            data: JSON.stringify({
+              auth: { authType: 'inherit', authActive: true },
+              headers: [],
+              variables: [],
+              preRequestScript: 'pw.env.set("FOLDER_RAN", "yes");',
+              testScript: 'pw.test("folder", () => {});',
+            }),
+          },
+        ],
+        requests: [],
+        data: JSON.stringify({
+          auth: { authType: 'none', authActive: false },
+          headers: [],
+          variables: [],
+          preRequestScript: 'pw.env.set("ROOT_RAN", "yes");',
+          testScript: 'pw.test("root", () => {});',
+        }),
+      },
+    ]);
+
+    const rootRowId = 'imported-root-id';
+    const folderRowId = 'imported-folder-id';
+
+    // Capture what generatePrismaQueryObj writes into Prisma so the export
+    // path sees the same blob shape the import wrote.
+    const rootDataAtCreate = {
+      auth: { authType: 'none', authActive: false },
+      headers: [],
+      variables: [],
+      preRequestScript: 'pw.env.set("ROOT_RAN", "yes");',
+      testScript: 'pw.test("root", () => {});',
+    };
+    const folderDataAtCreate = {
+      auth: { authType: 'inherit', authActive: true },
+      headers: [],
+      variables: [],
+      preRequestScript: 'pw.env.set("FOLDER_RAN", "yes");',
+      testScript: 'pw.test("folder", () => {});',
+    };
+
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockUserCollectionByParent.mockResolvedValue(undefined);
+    mockPrisma.userCollection.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.userCollection.create.mockResolvedValueOnce({
+      id: rootRowId,
+      orderIndex: 1,
+      parentID: null,
+      title: 'root-with-scripts',
+      userUid: user.uid,
+      type: ReqType.REST,
+      createdOn: currentTime,
+      updatedOn: currentTime,
+      data: rootDataAtCreate,
+    });
+
+    // Export-side mocks: root resolves once, then its child folder resolves.
+    mockPrisma.userCollection.findUniqueOrThrow
+      .mockResolvedValueOnce({
+        id: rootRowId,
+        orderIndex: 1,
+        parentID: null,
+        title: 'root-with-scripts',
+        userUid: user.uid,
+        type: ReqType.REST,
+        createdOn: currentTime,
+        updatedOn: currentTime,
+        data: rootDataAtCreate,
+      })
+      .mockResolvedValueOnce({
+        id: folderRowId,
+        orderIndex: 1,
+        parentID: rootRowId,
+        title: 'child-folder',
+        userUid: user.uid,
+        type: ReqType.REST,
+        createdOn: currentTime,
+        updatedOn: currentTime,
+        data: folderDataAtCreate,
+      });
+
+    mockPrisma.userCollection.findMany
+      .mockResolvedValueOnce([
+        {
+          id: folderRowId,
+          orderIndex: 1,
+          parentID: rootRowId,
+          title: 'child-folder',
+          userUid: user.uid,
+          type: ReqType.REST,
+          createdOn: currentTime,
+          updatedOn: currentTime,
+          data: folderDataAtCreate,
+        },
+      ])
+      .mockResolvedValueOnce([]);
+
+    mockPrisma.userRequest.findMany
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
+
+    const result = await userCollectionService.importCollectionsFromJSON(
+      importJSON,
+      user.uid,
+      null,
+      ReqType.REST,
+    );
+
+    expect(E.isRight(result)).toBe(true);
+
+    // Import side: `userCollection.create` must receive script fields inside
+    // its `data` payload (root) and inside `children.create[0].data` (folder).
+    // Asserting against the create call args proves import preserved scripts;
+    // export-side mocks alone would only round-trip the values we pre-loaded.
+    const createCallArg = mockPrisma.userCollection.create.mock.calls[0][0]
+      .data as any;
+    expect(createCallArg.data.preRequestScript).toBe(
+      'pw.env.set("ROOT_RAN", "yes");',
+    );
+    expect(createCallArg.data.testScript).toBe(
+      'pw.test("root", () => {});',
+    );
+    const childCreateArg = createCallArg.children.create[0];
+    expect(childCreateArg.data.preRequestScript).toBe(
+      'pw.env.set("FOLDER_RAN", "yes");',
+    );
+    expect(childCreateArg.data.testScript).toBe(
+      'pw.test("folder", () => {});',
+    );
+
+    if (E.isRight(result)) {
+      const exported = JSON.parse(result.right.exportedCollection);
+      // `data` is JSON-stringified by transformCollectionData on export.
+      const rootData = JSON.parse(exported[0].data);
+      const folderData = JSON.parse(exported[0].folders[0].data);
+      expect(rootData.preRequestScript).toBe(
+        'pw.env.set("ROOT_RAN", "yes");',
+      );
+      expect(rootData.testScript).toBe('pw.test("root", () => {});');
+      expect(folderData.preRequestScript).toBe(
+        'pw.env.set("FOLDER_RAN", "yes");',
+      );
+      expect(folderData.testScript).toBe('pw.test("folder", () => {});');
+    }
+  });
+});

@@ -1,11 +1,6 @@
 import * as E from "fp-ts/Either"
 import { Subscription } from "rxjs"
-import {
-  HoppCollectionVariable,
-  HoppRESTAuth,
-  HoppRESTHeader,
-  translateToNewRequest,
-} from "@hoppscotch/data"
+import { HoppCollectionVariable, translateToNewRequest } from "@hoppscotch/data"
 import { pull, remove } from "lodash-es"
 import { Subscription as WSubscription } from "wonka"
 import {
@@ -34,6 +29,8 @@ import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { ref, watch } from "vue"
 import { Service } from "dioc"
 import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
+import { hasActualScript } from "~/helpers/scripting"
+import { CollectionDataProps } from "~/helpers/backend/helpers"
 
 export const TEAMS_BACKEND_PAGE_SIZE = 10
 
@@ -294,7 +291,7 @@ export class TeamCollectionsService extends Service<void> {
     // Add to entity ids set
     this.entityIDs.add(`collection-${collection.id}`)
 
-    this.collections.value = tree
+    this.collections.value = [...tree]
   }
 
   /**
@@ -386,7 +383,7 @@ export class TeamCollectionsService extends Service<void> {
 
     updateCollInTree(tree, collectionUpdate)
 
-    this.collections.value = tree
+    this.collections.value = [...tree]
   }
 
   /**
@@ -401,7 +398,7 @@ export class TeamCollectionsService extends Service<void> {
 
     this.entityIDs.delete(`collection-${collectionID}`)
 
-    this.collections.value = tree
+    this.collections.value = [...tree]
   }
 
   /**
@@ -428,7 +425,7 @@ export class TeamCollectionsService extends Service<void> {
     // Update the Entity IDs list
     this.entityIDs.add(`request-${request.id}`)
 
-    this.collections.value = tree
+    this.collections.value = [...tree]
   }
 
   /**
@@ -447,7 +444,7 @@ export class TeamCollectionsService extends Service<void> {
 
     Object.assign(req, requestUpdate)
 
-    this.collections.value = tree
+    this.collections.value = [...tree]
   }
 
   /**
@@ -469,7 +466,7 @@ export class TeamCollectionsService extends Service<void> {
     this.entityIDs.delete(`request-${requestID}`)
 
     // Publish new tree
-    this.collections.value = tree
+    this.collections.value = [...tree]
   }
 
   /**
@@ -588,7 +585,7 @@ export class TeamCollectionsService extends Service<void> {
       this.reorderItems(collection.requests, requestIndex, destinationIndex)
     }
 
-    this.collections.value = tree
+    this.collections.value = [...tree]
   }
 
   public updateCollectionOrder = (
@@ -653,7 +650,7 @@ export class TeamCollectionsService extends Service<void> {
       }
     }
 
-    this.collections.value = tree
+    this.collections.value = [...tree]
   }
 
   private registerSubscriptions() {
@@ -1123,14 +1120,16 @@ export class TeamCollectionsService extends Service<void> {
 
     const variables: HoppInheritedProperty["variables"] = []
 
-    if (!folderPath) return { auth, headers, variables }
+    const scripts: HoppInheritedProperty["scripts"] = []
+
+    if (!folderPath) return { auth, headers, variables, scripts }
 
     const path = folderPath.split("/")
 
     // Check if the path is empty or invalid
     if (!path || path.length === 0) {
       console.error("Invalid path:", folderPath)
-      return { auth, headers, variables }
+      return { auth, headers, variables, scripts }
     }
 
     // Loop through the path and get the last parent folder with authType other than 'inherit'
@@ -1140,20 +1139,12 @@ export class TeamCollectionsService extends Service<void> {
       // Check if parentFolder is undefined or null
       if (!parentFolder) {
         console.error("Parent folder not found for path:", path)
-        return { auth, headers, variables }
+        return { auth, headers, variables, scripts }
       }
 
-      const data: {
-        auth?: HoppRESTAuth
-        headers?: HoppRESTHeader[]
-        variables?: HoppCollectionVariable[]
-      } = parentFolder.data
+      const data: Partial<CollectionDataProps> = parentFolder.data
         ? JSON.parse(parentFolder.data)
-        : {
-            auth: null,
-            headers: null,
-            variables: null,
-          }
+        : {}
 
       if (!data.auth) {
         data.auth = {
@@ -1230,9 +1221,27 @@ export class TeamCollectionsService extends Service<void> {
           ),
         })
       }
+
+      // Collect scripts from the collection hierarchy (root to child order)
+      const parentPreRequestScript = data.preRequestScript ?? ""
+      const parentTestScript = data.testScript ?? ""
+
+      if (
+        hasActualScript(parentPreRequestScript) ||
+        hasActualScript(parentTestScript)
+      ) {
+        const currentPath = path.slice(0, i + 1).join("/")
+
+        scripts.push({
+          parentID: parentFolder.id ?? currentPath,
+          parentName: parentFolder.title,
+          preRequestScript: parentPreRequestScript,
+          testScript: parentTestScript,
+        })
+      }
     }
 
-    return { auth, headers, variables }
+    return { auth, headers, variables, scripts }
   }
 
   private async waitForCollectionLoading(collectionID: string) {
@@ -1260,6 +1269,7 @@ export class TeamCollectionsService extends Service<void> {
         },
         headers: [],
         variables: [],
+        scripts: [],
       }
 
     const path = folderPath.split("/")
@@ -1278,6 +1288,7 @@ export class TeamCollectionsService extends Service<void> {
         },
         headers: [],
         variables: [],
+        scripts: [],
       }
     }
 

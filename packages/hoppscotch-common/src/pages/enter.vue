@@ -12,6 +12,7 @@ import { defineComponent } from "vue"
 import { useRoute } from "vue-router"
 import { initializeApp } from "~/helpers/app"
 import { platform } from "~/platform"
+import { getSafeRedirectUrl } from "./enter-redirect"
 
 export default defineComponent({
   setup() {
@@ -32,15 +33,31 @@ export default defineComponent({
   async mounted() {
     const { redirect, ...queryParams } = this.route.query
 
-    if (redirect && Object.keys(queryParams).length) {
-      const url = new URL(("https://" + redirect) as string)
+    // Firebase delivers magic links to the default cloud instance
+    // (e.g. hoppscotch.io) `/enter` route because `continueUrl` must
+    // point there for trust-domain verification. Org-subdomain
+    // (e.g. subdomain.hoppscotch.io) logins redirect back to the
+    // originating subdomain; `getSafeRedirectUrl()` restricts the
+    // target to the default cloud instance domain and its subdomains.
+    if (platform.organization && typeof redirect === "string") {
+      const redirectTarget = getSafeRedirectUrl(
+        redirect,
+        platform.organization.getRootDomain()
+      )
 
-      Object.entries(queryParams).forEach(([key, value]) => {
-        url.searchParams.set(key, value as string)
-      })
+      if (
+        redirectTarget &&
+        platform.auth.isSignInWithEmailLink(window.location.href)
+      ) {
+        Object.entries(queryParams).forEach(([key, value]) => {
+          if (typeof value === "string") {
+            redirectTarget.searchParams.set(key, value)
+          }
+        })
 
-      window.location.href = url.href
-      return
+        window.location.href = redirectTarget.href
+        return
+      }
     }
 
     this.signingInWithEmail = true

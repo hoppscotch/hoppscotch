@@ -22,8 +22,11 @@ let _isRunningDispatchWithoutSyncing = true
 
 export function runDispatchWithOutSyncing(func: () => void) {
   _isRunningDispatchWithoutSyncing = false
-  func()
-  _isRunningDispatchWithoutSyncing = true
+  try {
+    func()
+  } finally {
+    _isRunningDispatchWithoutSyncing = true
+  }
 }
 
 export const getSyncInitFunction = <T extends DispatchingStore<any, any>>(

@@ -1,11 +1,8 @@
 import { Service } from "dioc"
 import { reactive, computed, ref } from "vue"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
-import {
-  getUserPublishedDocs,
-  getTeamPublishedDocs,
-} from "~/helpers/backend/queries/PublishedDocs"
 import * as E from "fp-ts/Either"
+import { platform } from "~/platform"
 
 // Types for documentation
 export type DocumentationType = "collection" | "request"
@@ -103,16 +100,11 @@ export const CURRENT_VERSION_TAG = "CURRENT"
 
 /**
  * Checks whether a published doc version is the live (current) version.
- * A live version is auto-synced, has the CURRENT version identifier,
- * or has version 1.0.0 (used in older versions of the project).
- * This version is in sync with the particular collection and will update if the collection is updated.
+ * A live version is one that has auto-sync enabled — it stays in sync with
+ * the collection and will update whenever the collection is updated.
  */
-export const isLiveVersion = (doc: {
-  autoSync: boolean
-  version: string
-}): boolean =>
-  doc.autoSync &&
-  (doc.version.toUpperCase() === CURRENT_VERSION_TAG || doc.version === "1.0.0")
+export const isLiveVersion = (doc: { autoSync: boolean }): boolean =>
+  doc.autoSync
 
 /**
  * This service manages edited documentation for collections and requests.
@@ -284,7 +276,7 @@ export class DocumentationService extends Service {
     const requestId = ++this.fetchRequestId
 
     try {
-      const result = await getUserPublishedDocs()()
+      const result = await platform.backend.getUserPublishedDocs()()
 
       // If a newer request has started, ignore this result
       if (requestId !== this.fetchRequestId) return
@@ -330,7 +322,7 @@ export class DocumentationService extends Service {
 
     try {
       // Fetch all published docs for the team (collectionID is optional now)
-      const result = await getTeamPublishedDocs(teamID)()
+      const result = await platform.backend.getTeamPublishedDocs(teamID)()
 
       // If a newer request has started, ignore this result
       if (requestId !== this.fetchRequestId) return

@@ -13,6 +13,7 @@ import { NativeKernelInterceptorService } from "~/platform/std/kernel-intercepto
 import { performMigrations } from "~/helpers/migrations"
 import { initBackendGQLClient } from "~/helpers/backend/GQLClient"
 import { getKernelMode } from "@hoppscotch/kernel"
+import { diag } from "~/kernel/log"
 
 type InitEvent =
   | { type: "STORE_READY" }
@@ -146,25 +147,37 @@ export class InitializationService extends Service<InitEvent> {
   }
 
   public async initPre() {
+    diag("init", "initPre() start")
     await this.initStore()
+    diag("init", "initPre() store done")
     await this.initPersistenceFirst()
+    diag("init", "initPre() persistenceFirst done")
 
     if (getKernelMode() === "desktop") {
       await this.initNativeKernelNetworking()
+      diag("init", "initPre() nativeKernelNetworking done")
     }
 
     await this.initBackendClient()
+    diag("init", "initPre() backendClient done")
     await this.initTabs()
+    diag("init", "initPre() tabs done, initPre complete")
   }
 
   public async initAuthAndSync() {
+    diag("init", "initAuthAndSync() start")
     await this.initAuth()
+    diag("init", "initAuthAndSync() auth done")
     await this.initSync()
+    diag("init", "initAuthAndSync() sync done, initAuthAndSync complete")
   }
 
   public async initPost() {
+    diag("init", "initPost() start")
     await this.initPersistenceLater()
+    diag("init", "initPost() persistenceLater done")
     performMigrations()
+    diag("init", "initPost() migrations done, initPost complete")
   }
 
   public isInitialized() {

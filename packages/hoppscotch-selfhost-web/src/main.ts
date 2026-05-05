@@ -27,6 +27,8 @@ import { InfraPlatform } from "@app/platform/infra/infra.platform"
 import { kernelIO } from "@hoppscotch/common/platform/std/kernel-io"
 import { HeaderDownloadableLinksService } from "@app/services/headerDownloadableLinks.service"
 
+import DesktopSettingsSection from "@hoppscotch/common/components/settings/Desktop.vue"
+
 // Std interceptors
 import { NativeKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/native"
 import { AgentKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/agent"
@@ -142,6 +144,12 @@ async function initApp() {
     ui: {
       additionalFooterMenuItems: config.menuItems,
       additionalSupportOptionsMenuItems: config.supportItems,
+      // Desktop-only. Renders the "Desktop" block in the shared settings
+      // page. The component lives in common so every shell that builds a
+      // Tauri desktop target can register it the same way. Web builds pass
+      // `undefined` here and the settings page renders without the block.
+      additionalSettingsSections:
+        platform === "desktop" ? [DesktopSettingsSection] : undefined,
       appHeader: {
         paddingLeft: headerPaddingLeft,
         paddingTop: headerPaddingTop,
@@ -277,12 +285,7 @@ async function initApp() {
         const isCtrlOrCmd = e.ctrlKey || e.metaKey
         let shortcutEvent: string | null = null
 
-        if (
-          isCtrlOrCmd &&
-          !e.shiftKey &&
-          !e.altKey &&
-          e.key.toLowerCase() === "q"
-        ) {
+        if (isCtrlOrCmd && !e.shiftKey && !e.altKey && e.code === "KeyQ") {
           // Ctrl/Cmd + Q - Quit Application
           e.preventDefault()
           e.stopPropagation()
@@ -292,7 +295,7 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           !e.altKey &&
-          e.key.toLowerCase() === "t"
+          e.code === "KeyT"
         ) {
           // Ctrl/Cmd + T - New Tab
           e.preventDefault()
@@ -303,7 +306,7 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           !e.altKey &&
-          e.key.toLowerCase() === "w"
+          e.code === "KeyW"
         ) {
           // Ctrl/Cmd + W - Close Tab
           e.preventDefault()
@@ -314,7 +317,7 @@ async function initApp() {
           isCtrlOrCmd &&
           e.shiftKey &&
           !e.altKey &&
-          e.key.toLowerCase() === "t"
+          e.code === "KeyT"
         ) {
           // Ctrl/Cmd + Shift + T - Reopen Tab
           e.preventDefault()
@@ -347,7 +350,8 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           e.altKey &&
-          (e.key === "9" || e.code === "Digit9")
+          (e.code === "Digit9" ||
+            (e.code === "Numpad9" && e.getModifierState("NumLock")))
         ) {
           // Ctrl/Cmd + Alt + 9 - First Tab
           e.preventDefault()
@@ -358,7 +362,8 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           e.altKey &&
-          (e.key === "0" || e.code === "Digit0")
+          (e.code === "Digit0" ||
+            (e.code === "Numpad0" && e.getModifierState("NumLock")))
         ) {
           // Ctrl/Cmd + Alt + 0 - Last Tab
           e.preventDefault()

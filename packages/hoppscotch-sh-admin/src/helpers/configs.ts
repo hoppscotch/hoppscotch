@@ -53,8 +53,15 @@ export type ServerConfigs = {
       mailer_smtp_user: string;
       mailer_smtp_password: string;
       mailer_smtp_secure: boolean;
+      mailer_smtp_ignore_tls: boolean;
       mailer_tls_reject_unauthorized: boolean;
       mailer_use_custom_configs: boolean;
+      mailer_smtp_auth_type: string;
+      mailer_smtp_oauth2_user: string;
+      mailer_smtp_oauth2_client_id: string;
+      mailer_smtp_oauth2_client_secret: string;
+      mailer_smtp_oauth2_refresh_token: string;
+      mailer_smtp_oauth2_access_url: string;
     };
   };
 
@@ -222,8 +229,36 @@ export const CUSTOM_MAIL_CONFIGS: Config[] = [
     key: 'mailer_smtp_secure',
   },
   {
+    name: InfraConfigEnum.MailerSmtpIgnoreTls,
+    key: 'mailer_smtp_ignore_tls',
+  },
+  {
     name: InfraConfigEnum.MailerTlsRejectUnauthorized,
     key: 'mailer_tls_reject_unauthorized',
+  },
+  {
+    name: InfraConfigEnum.MailerSmtpAuthType,
+    key: 'mailer_smtp_auth_type',
+  },
+  {
+    name: InfraConfigEnum.MailerSmtpOauth2User,
+    key: 'mailer_smtp_oauth2_user',
+  },
+  {
+    name: InfraConfigEnum.MailerSmtpOauth2ClientId,
+    key: 'mailer_smtp_oauth2_client_id',
+  },
+  {
+    name: InfraConfigEnum.MailerSmtpOauth2ClientSecret,
+    key: 'mailer_smtp_oauth2_client_secret',
+  },
+  {
+    name: InfraConfigEnum.MailerSmtpOauth2RefreshToken,
+    key: 'mailer_smtp_oauth2_refresh_token',
+  },
+  {
+    name: InfraConfigEnum.MailerSmtpOauth2AccessUrl,
+    key: 'mailer_smtp_oauth2_access_url',
   },
 ];
 

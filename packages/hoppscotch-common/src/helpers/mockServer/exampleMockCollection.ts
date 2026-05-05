@@ -4,6 +4,7 @@ import * as E from "fp-ts/Either"
 import {
   HoppRESTRequest,
   RESTReqSchemaVersion,
+  generateUniqueRefId,
   makeCollection,
 } from "@hoppscotch/data"
 import { createNewRootCollection } from "~/helpers/backend/mutations/TeamCollection"
@@ -72,6 +73,7 @@ export function getExampleMockRequests(): HoppRESTRequest[] {
       auth: oauthAuth,
       requestVariables: [],
       responses: {},
+      description: "",
     },
     // updatePet request
     {
@@ -90,6 +92,7 @@ export function getExampleMockRequests(): HoppRESTRequest[] {
       auth: oauthAuth,
       requestVariables: [],
       responses: {},
+      description: "",
     },
     // findByStatus request
     {
@@ -115,6 +118,7 @@ export function getExampleMockRequests(): HoppRESTRequest[] {
       auth: oauthAuth,
       requestVariables: [],
       responses: {},
+      description: "",
     },
     // getPetById request
     {
@@ -139,6 +143,7 @@ export function getExampleMockRequests(): HoppRESTRequest[] {
       },
       requestVariables: [],
       responses: {},
+      description: "",
     },
     // updatePetWithForm request
     {
@@ -157,6 +162,7 @@ export function getExampleMockRequests(): HoppRESTRequest[] {
       auth: oauthAuth,
       requestVariables: [],
       responses: {},
+      description: "",
     },
     // deletePet request
     {
@@ -182,6 +188,7 @@ export function getExampleMockRequests(): HoppRESTRequest[] {
       auth: oauthAuth,
       requestVariables: [],
       responses: {},
+      description: "",
     },
   ]
 
@@ -249,7 +256,9 @@ export async function createMockCollectionForTeam(
 export async function createMockCollectionForPersonal(
   collectionName: string
 ): Promise<E.Either<string, { id: string; name: string }>> {
-  // Prepare collection data
+  // Prepare collection data. Stamp a `_ref_id` so the collection has a
+  // stable client-side key once round-tripped through the backend `data`
+  // blob — matches every other personal-collection writer in the codebase.
   const data = {
     auth: {
       authType: "inherit" as const,
@@ -257,6 +266,10 @@ export async function createMockCollectionForPersonal(
     },
     headers: [],
     variables: [],
+    _ref_id: generateUniqueRefId("coll"),
+    description: null,
+    preRequestScript: "",
+    testScript: "",
   }
 
   // Create the root collection using GraphQL mutation

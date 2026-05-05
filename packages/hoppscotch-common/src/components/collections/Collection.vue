@@ -492,8 +492,11 @@ const collectionRefID = computed(() => {
 })
 
 const dataNodeId = computed(() => {
-  const prefix = props.collectionsType === "team-collections" ? "team:" : "my:"
-  return `${prefix}${props.id}`
+  if (props.collectionsType === "team-collections") {
+    return `team:${props.id}`
+  }
+
+  return `my:collection:${props.id}`
 })
 
 const currentSortOrder = ref<"asc" | "desc">(

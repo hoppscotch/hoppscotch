@@ -1114,7 +1114,7 @@ const scrollToNode = async (id: string) => {
   // Retry because nodes can mount after async expansion/render.
   for (let attempt = 0; attempt < 20; attempt++) {
     const el = document.querySelector(
-      `[data-collections-node-id="my:${CSS.escape(id)}"]`
+      `[data-collections-node-id="my:request:${CSS.escape(id)}"]`
     )
     if (el && "scrollIntoView" in el) {
       ;(el as HTMLElement).scrollIntoView({

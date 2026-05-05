@@ -1185,8 +1185,8 @@ const TreeNodeRegistrar = defineComponent({
   },
   setup(props) {
     watch(
-      () => props.isOpen,
-      (isOpen) => {
+      () => [props.isOpen, props.toggleChildren] as const,
+      ([isOpen]) => {
         registerNodeToggler(props.id, {
           toggleChildren: props.toggleChildren,
           isOpen,

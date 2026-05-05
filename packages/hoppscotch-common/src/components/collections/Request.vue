@@ -319,8 +319,11 @@ const props = defineProps({
 })
 
 const dataNodeId = computed(() => {
-  const prefix = props.collectionsType === "team-collections" ? "team:" : "my:"
-  return `${prefix}${props.requestID}`
+  if (props.collectionsType === "team-collections") {
+    return `team:${props.requestID}`
+  }
+
+  return `my:request:${props.requestID}`
 })
 
 type ResponsePayload = {

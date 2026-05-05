@@ -45,6 +45,7 @@ function getCodeMirrorView(element: Element): EditorView | null {
 
 export type HoppAction =
   | "contextmenu.open" // Send/Cancel a Hoppscotch Request
+  | "rest.sidebar.show-collections" // Switch REST sidebar to collections
   | "request.send-cancel" // Send/Cancel a Hoppscotch Request
   | "request.reset" // Clear request data
   | "request.share-request" // Share Request

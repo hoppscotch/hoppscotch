@@ -236,20 +236,33 @@ export class TeamRequestService {
     cursor: string,
     take = 10,
   ) {
+    let whereClause: Prisma.TeamRequestWhereInput = { collectionID };
+  
+    if (cursor) {
+      const cursorItem = await this.prisma.teamRequest.findFirst({
+        where: { id: cursor, collectionID },
+        select: { orderIndex: true },
+      });
+  
+      if (!cursorItem) {
+        return [];
+      }
+  
+      whereClause = {
+        collectionID,
+        orderIndex: { gt: cursorItem.orderIndex },
+      };
+    }
+  
     const dbTeamRequests = await this.prisma.teamRequest.findMany({
-      cursor: cursor ? { id: cursor } : undefined,
-      take: take,
-      skip: cursor ? 1 : 0,
-      where: {
-        collectionID: collectionID,
-      },
+      take,
+      where: whereClause,
       orderBy: {
         orderIndex: 'asc',
       },
     });
-
-    const teamRequests = dbTeamRequests.map((tr) => this.cast(tr));
-    return teamRequests;
+  
+    return dbTeamRequests.map((tr) => this.cast(tr));
   }
 
   /**

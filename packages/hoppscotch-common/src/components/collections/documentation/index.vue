@@ -270,6 +270,7 @@ import {
 
 import { updateTeamCollection } from "~/helpers/backend/mutations/TeamCollection"
 import { updateTeamRequest } from "~/helpers/backend/mutations/TeamRequest"
+import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
 import {
   CollectionDataProps,
   getSingleTeamCollectionJSON,
@@ -735,7 +736,11 @@ const saveCollectionDocumentation = async () => {
     const data: CollectionDataProps = {
       auth: collection.auth || { authType: "inherit", authActive: true },
       headers: collection.headers || [],
-      variables: collection.variables || [],
+      // Strip secrets at the wire boundary — `collection.variables` here
+      // is read off the in-memory team collection, which is normally
+      // already stripped (loaded from backend), but defense-in-depth
+      // guarantees we never leak raw secret values through this path.
+      variables: stripSecretVariableValuesForWire(collection.variables || []),
       description: documentationDescription.value,
       preRequestScript: collection.preRequestScript || "",
       testScript: collection.testScript || "",
@@ -831,7 +836,11 @@ const saveCollectionDocumentationById = async (
       const data: CollectionDataProps = {
         auth: collectionData.auth || { authType: "inherit", authActive: true },
         headers: collectionData.headers || [],
-        variables: collectionData.variables || [],
+        // Strip at the wire boundary — same defense-in-depth rationale
+        // as the `saveCollectionDocumentation` path above.
+        variables: stripSecretVariableValuesForWire(
+          collectionData.variables || []
+        ),
         description: documentation,
         preRequestScript: collectionData.preRequestScript || "",
         testScript: collectionData.testScript || "",

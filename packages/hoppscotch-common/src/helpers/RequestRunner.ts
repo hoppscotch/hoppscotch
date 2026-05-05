@@ -54,6 +54,7 @@ import {
 } from "~/services/secret-environment.service"
 import { HoppTab } from "~/services/tab"
 import { updateTeamEnvironment } from "./backend/mutations/TeamEnvironment"
+import { stripSecretVariableValuesForWire } from "./secretVariables"
 import { createRESTNetworkRequestStream } from "./network"
 import { HoppRequestDocument } from "./rest/document"
 import {
@@ -760,7 +761,13 @@ function updateEnvsAfterTestScript(
       const envName = initialEnvName ?? getCurrentEnvironment().name
       pipe(
         updateTeamEnvironment(
-          JSON.stringify(selectedEnvVariables),
+          // Strip at the wire boundary — `selectedEnvVariables` already
+          // comes back stripped from `updateEnvironments` above, but
+          // every other team-env mutation in this codebase strips here
+          // too. Keeps the wire-boundary contract uniform.
+          JSON.stringify(
+            stripSecretVariableValuesForWire(selectedEnvVariables)
+          ),
           initialEnvironmentIndex.teamEnvID,
           envName
         )

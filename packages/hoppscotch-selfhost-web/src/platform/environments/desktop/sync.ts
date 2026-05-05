@@ -125,10 +125,18 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   updateEnvironment({ envIndex, updatedEnv }) {
     const backendId = environmentsStore.value.environments[envIndex].id
     if (backendId) {
+      // Strip at the wire boundary defensively — `Details.vue` and the
+      // `RequestRunner` post-test path already pre-strip before
+      // dispatching, but every other handler in this file (`create`,
+      // `append`, `duplicate`, `setGlobal`) strips here as the last
+      // line of defense, so a future caller that forgets to pre-strip
+      // can't leak secret values to the backend through this path.
       updateUserEnvironment(
         backendId,
         updatedEnv.name,
-        JSON.stringify(updatedEnv.variables)
+        JSON.stringify(
+          stripSecretVariableValuesForWire(updatedEnv.variables ?? [])
+        )
       )()
     }
   },

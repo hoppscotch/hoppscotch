@@ -204,7 +204,7 @@ watch(
     if (!doc.saveContext) return
 
     // Auto-reveal only for saved-in-collection requests
-    invokeAction("rest.sidebar.show_collections", {})
+    invokeAction("rest.sidebar.show-collections", {})
     invokeAction("collections.reveal_in_collection", {})
   }
 )

@@ -98,7 +98,7 @@ const selectedNavigationTab = ref<RequestOptionTabs>("collections")
 // Ensure mock servers are kept in sync with workspace changes globally
 useMockServerWorkspaceSync()
 
-defineActionHandler("rest.sidebar.show_collections", () => {
+defineActionHandler("rest.sidebar.show-collections", () => {
   selectedNavigationTab.value = "collections"
 })
 </script>

@@ -50,7 +50,7 @@
           }"
         >
           <TreeNodeRegistrar
-            v-if="node && node.id"
+            v-if="node && node.id && node.data.type !== 'requests'"
             :id="node.id"
             :toggle-children="nodeToggleChildren"
             :is-open="nodeIsOpen"

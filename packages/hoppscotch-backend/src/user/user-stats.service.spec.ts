@@ -4,7 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import * as E from 'fp-ts/Either';
 
 const mockPrismaService = {
-  collection: { count: jest.fn() },
+  userCollection: { count: jest.fn() },
   userEnvironment: { count: jest.fn() },
   userRequest: { count: jest.fn() },
 };

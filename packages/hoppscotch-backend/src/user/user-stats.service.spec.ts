@@ -27,11 +27,22 @@ describe('UserStatsService', () => {
 
   describe('getUserStats', () => {
     it('should return stats for a valid user', async () => {
-      mockPrismaService.collection.count.mockResolvedValue(5);
+      mockPrismaService.userCollection.count.mockResolvedValue(5);
       mockPrismaService.userEnvironment.count.mockResolvedValue(3);
       mockPrismaService.userRequest.count.mockResolvedValue(12);
 
       const result = await service.getUserStats('user-uid-123');
+
+      // ✅ Verify each query is scoped to the correct user
+      expect(mockPrismaService.userCollection.count).toHaveBeenCalledWith({
+        where: { userUid: 'user-uid-123' },
+      });
+      expect(mockPrismaService.userEnvironment.count).toHaveBeenCalledWith({
+        where: { userUid: 'user-uid-123' },
+      });
+      expect(mockPrismaService.userRequest.count).toHaveBeenCalledWith({
+        where: { userUid: 'user-uid-123' },
+      });
 
       expect(E.isRight(result)).toBe(true);
       if (E.isRight(result)) {
@@ -44,7 +55,7 @@ describe('UserStatsService', () => {
     });
 
     it('should return Left error when Prisma throws', async () => {
-      mockPrismaService.collection.count.mockRejectedValue(
+      mockPrismaService.userCollection.count.mockRejectedValue(
         new Error('DB error'),
       );
 

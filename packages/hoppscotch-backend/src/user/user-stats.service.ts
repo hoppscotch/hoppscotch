@@ -14,16 +14,16 @@ export class UserStatsService {
 
   async getUserStats(userUID: string): Promise<E.Either<string, UserStats>> {
     try {
-      const [collectionsCount, environmentsCount, requestsCount] =
+        const [collectionsCount, environmentsCount, requestsCount] =
         await Promise.all([
           this.prisma.userCollection.count({
             where: { userUid: userUID },
           }),
           this.prisma.userEnvironment.count({
-            where: { userUID },
+            where: { userUid: userUID },
           }),
           this.prisma.userRequest.count({
-            where: { userUID },
+            where: { userUid: userUID },
           }),
         ]);
 

@@ -1,6 +1,31 @@
 import { Field, ID, ArgsType } from '@nestjs/graphql';
 import { TeamAccessRole } from '../team/team.model';
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { OffsetPaginationArgs } from 'src/types/input-types.args';
+
+@ArgsType()
+export class FetchAllUsersV2Args extends OffsetPaginationArgs {
+  @Field({
+    name: 'searchString',
+    nullable: true,
+    description: 'Search on users displayName or email',
+  })
+  @IsString()
+  @IsOptional()
+  searchString: string;
+}
+
+@ArgsType()
+export class FetchAllTeamsV2Args extends OffsetPaginationArgs {
+  @Field({
+    name: 'searchString',
+    nullable: true,
+    description: 'Search on team name or ID',
+  })
+  @IsString()
+  @IsOptional()
+  searchString: string;
+}
 
 @ArgsType()
 export class ChangeUserRoleInTeamArgs {

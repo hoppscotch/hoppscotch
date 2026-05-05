@@ -6,7 +6,7 @@ import { UserStatsService } from './user-stats.service';
 
 @Module({
   providers: [UserResolver, UserService, UserStatsService],
-  exports: [UserService, UserStatsService],
+  exports: [UserService],
   controllers: [UserStatsController]
 })
 export class UserModule {}

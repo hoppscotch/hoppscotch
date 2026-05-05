@@ -106,6 +106,18 @@ export function translateToNewGQLHistory(x: any): GQLHistoryEntry {
   return obj
 }
 
+// Decodes a JSON-stringified wire value back to a string. Returns the
+// raw value if parsing yields a non-string (object, array, etc.) so
+// callers always receive a string per the GQLHistoryEntry contract.
+export const decodeGQLHistoryResponse = (value: string): string => {
+  try {
+    const parsed = JSON.parse(value)
+    return typeof parsed === "string" ? parsed : value
+  } catch {
+    return value
+  }
+}
+
 export const defaultRESTHistoryState = {
   state: [] as RESTHistoryEntry[],
 }

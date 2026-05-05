@@ -144,6 +144,23 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
             'true',
           mailer_use_custom_configs:
             getFieldValue(InfraConfigEnum.MailerUseCustomConfigs) === 'true',
+          mailer_smtp_auth_type:
+            getFieldValue(InfraConfigEnum.MailerSmtpAuthType) || 'login',
+          mailer_smtp_oauth2_user: getFieldValue(
+            InfraConfigEnum.MailerSmtpOauth2User
+          ),
+          mailer_smtp_oauth2_client_id: getFieldValue(
+            InfraConfigEnum.MailerSmtpOauth2ClientId
+          ),
+          mailer_smtp_oauth2_client_secret: getFieldValue(
+            InfraConfigEnum.MailerSmtpOauth2ClientSecret
+          ),
+          mailer_smtp_oauth2_refresh_token: getFieldValue(
+            InfraConfigEnum.MailerSmtpOauth2RefreshToken
+          ),
+          mailer_smtp_oauth2_access_url: getFieldValue(
+            InfraConfigEnum.MailerSmtpOauth2AccessUrl
+          ),
         },
       },
       tokenConfigs: {
@@ -277,13 +294,23 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
 
         // SMTP user and password are optional as a pair (both or neither)
         const optionalMailerKeys = ['mailer_smtp_user', 'mailer_smtp_password'];
+        // OAuth2 fields are always optional and auth_type has a default
+        const oauth2Keys = [
+          'mailer_smtp_auth_type',
+          'mailer_smtp_oauth2_user',
+          'mailer_smtp_oauth2_client_id',
+          'mailer_smtp_oauth2_client_secret',
+          'mailer_smtp_oauth2_refresh_token',
+          'mailer_smtp_oauth2_access_url',
+        ];
         const excludeKeys = mailer_use_custom_configs
-          ? ['mailer_smtp_url', ...optionalMailerKeys]
+          ? ['mailer_smtp_url', ...optionalMailerKeys, ...oauth2Keys]
           : [
               'mailer_smtp_host',
               'mailer_smtp_port',
               'mailer_smtp_user',
               'mailer_smtp_password',
+              ...oauth2Keys,
             ];
 
         return (
@@ -323,6 +350,10 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     const fields = config.mailConfigs.fields;
     if (!fields.mailer_use_custom_configs) return false;
 
+    // Enforced regardless of auth_type: the backend validates the pair
+    // on every save, so stale login values left behind after switching
+    // to the OAuth2 tab would still be rejected. Surface this in the FE
+    // toast so users know to clear those fields before saving.
     const hasUser = fields.mailer_smtp_user.trim() !== '';
     const hasPass = fields.mailer_smtp_password.trim() !== '';
 

@@ -39,6 +39,8 @@ export const harImporter = (
       headers: [],
       description: null,
       variables: [],
+      preRequestScript: "",
+      testScript: "",
     })
 
     return E.right([collection])

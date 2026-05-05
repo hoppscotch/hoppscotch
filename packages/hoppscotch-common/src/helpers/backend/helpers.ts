@@ -40,6 +40,8 @@ export type CollectionDataProps = {
   headers: HoppRESTHeaders
   variables: HoppCollectionVariable[]
   description: string | null
+  preRequestScript: string
+  testScript: string
 }
 
 export const BACKEND_PAGE_SIZE = 10
@@ -121,6 +123,8 @@ const parseCollectionData = (
     headers: [],
     variables: [],
     description: null,
+    preRequestScript: "",
+    testScript: "",
   }
 
   if (!data) {
@@ -159,11 +163,23 @@ const parseCollectionData = (
       ? parsedData.description
       : defaultDataProps.description
 
+  const preRequestScript =
+    typeof parsedData?.preRequestScript === "string"
+      ? parsedData.preRequestScript
+      : defaultDataProps.preRequestScript
+
+  const testScript =
+    typeof parsedData?.testScript === "string"
+      ? parsedData.testScript
+      : defaultDataProps.testScript
+
   return {
     auth,
     headers,
     variables,
     description,
+    preRequestScript,
+    testScript,
   }
 }
 
@@ -171,9 +187,14 @@ const parseCollectionData = (
 export const teamCollectionJSONToHoppRESTColl = (
   coll: TeamCollectionJSON
 ): HoppCollection => {
-  const { auth, headers, variables, description } = parseCollectionData(
-    coll.data
-  )
+  const {
+    auth,
+    headers,
+    variables,
+    description,
+    preRequestScript,
+    testScript,
+  } = parseCollectionData(coll.data)
 
   return makeCollection({
     id: coll.id,
@@ -184,6 +205,8 @@ export const teamCollectionJSONToHoppRESTColl = (
     headers,
     variables,
     description,
+    preRequestScript,
+    testScript,
   })
 }
 
@@ -247,7 +270,14 @@ export const teamCollToHoppRESTColl = (
           description: null,
         }
 
-  const { auth, headers, variables, description } = parseCollectionData(data)
+  const {
+    auth,
+    headers,
+    variables,
+    description,
+    preRequestScript,
+    testScript,
+  } = parseCollectionData(data)
 
   return makeCollection({
     id: coll.id,
@@ -258,6 +288,8 @@ export const teamCollToHoppRESTColl = (
     headers: headers ?? [],
     variables: variables ?? [],
     description: description ?? null,
+    preRequestScript: preRequestScript ?? "",
+    testScript: testScript ?? "",
   })
 }
 

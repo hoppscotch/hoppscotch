@@ -18,6 +18,7 @@ import { GqlAuthGuard } from 'src/guards/gql-auth.guard';
 import { GqlUser } from 'src/decorators/gql-user.decorator';
 import {
   CreatePublishedDocsArgs,
+  FetchPublishedDocsArgs,
   UpdatePublishedDocsArgs,
 } from './input-type.args';
 import { User } from 'src/user/user.model';
@@ -124,25 +125,13 @@ export class PublishedDocsResolver {
     TeamAccessRole.OWNER,
   )
   async teamPublishedDocsList(
-    @Args({
-      name: 'teamID',
-      type: () => ID,
-      description: 'Id of the team to add to',
-    })
-    teamID: string,
-    @Args({
-      name: 'collectionID',
-      type: () => ID,
-      description: 'Id of the collection to add to',
-      nullable: true,
-    })
-    collectionID: string | undefined,
-    @Args() args: OffsetPaginationArgs,
+    @Args()
+    args: FetchPublishedDocsArgs,
   ) {
     const docs = await this.publishedDocsService.getAllTeamPublishedDocs(
-      teamID,
-      collectionID,
-      args,
+      args.teamID,
+      args.collectionID,
+      { skip: args.skip, take: args.take },
     );
     return docs;
   }

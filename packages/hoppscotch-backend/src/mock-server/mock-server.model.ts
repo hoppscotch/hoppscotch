@@ -7,6 +7,9 @@ import {
   registerEnumType,
 } from '@nestjs/graphql';
 import {
+  IsBoolean,
+  IsEnum,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
@@ -15,6 +18,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { OffsetPaginationArgs } from 'src/types/input-types.args';
 import { WorkspaceType } from 'src/types/WorkspaceTypes';
 
 // Regex pattern for mock server name validation
@@ -117,6 +121,8 @@ export class CreateMockServerInput {
   })
   name: string;
 
+  @IsString()
+  @IsOptional()
   @Field({
     nullable: true,
     description:
@@ -124,6 +130,8 @@ export class CreateMockServerInput {
   })
   collectionID?: string;
 
+  @IsBoolean()
+  @IsOptional()
   @Field({
     nullable: true,
     description:
@@ -131,6 +139,8 @@ export class CreateMockServerInput {
   })
   autoCreateCollection?: boolean;
 
+  @IsBoolean()
+  @IsOptional()
   @Field({
     nullable: true,
     description:
@@ -138,11 +148,14 @@ export class CreateMockServerInput {
   })
   autoCreateRequestExample?: boolean;
 
+  @IsEnum(WorkspaceType)
   @Field(() => WorkspaceType, {
     description: 'Type of workspace: USER or TEAM',
   })
   workspaceType: WorkspaceType;
 
+  @IsOptional()
+  @IsString()
   @Field({
     nullable: true,
     description:
@@ -150,16 +163,18 @@ export class CreateMockServerInput {
   })
   workspaceID?: string;
 
+  @IsNumber()
+  @IsOptional()
+  @Max(60000)
   @Field({
     nullable: true,
     defaultValue: 0,
     description: 'Delay in milliseconds before responding',
   })
-  @IsOptional()
-  @IsNumber()
-  @Max(60000)
   delayInMs?: number;
 
+  @IsBoolean()
+  @IsOptional()
   @Field({
     nullable: true,
     defaultValue: true,
@@ -196,12 +211,16 @@ export class UpdateMockServerInput {
     nullable: true,
     description: 'Whether the mock server is active',
   })
+  @IsOptional()
+  @IsBoolean()
   isActive?: boolean;
 
   @Field({
     nullable: true,
     description: 'Whether the mock server is publicly accessible',
   })
+  @IsOptional()
+  @IsBoolean()
   isPublic?: boolean;
 }
 
@@ -236,7 +255,20 @@ export class MockServerMutationArgs {
   @Field(() => ID, {
     description: 'ID of the mock server',
   })
+  @IsString()
+  @IsNotEmpty()
   id: string;
+}
+
+@ArgsType()
+export class FetchTeamMockServersArgs extends OffsetPaginationArgs {
+  @Field(() => ID, {
+    name: 'teamID',
+    description: 'Id of the team to add to',
+  })
+  @IsString()
+  @IsNotEmpty()
+  teamID: string;
 }
 
 @ObjectType()

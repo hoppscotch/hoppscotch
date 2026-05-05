@@ -741,6 +741,9 @@ const saveCollectionDocumentation = async () => {
       // already stripped (loaded from backend), but defense-in-depth
       // guarantees we never leak raw secret values through this path.
       variables: stripSecretVariableValuesForWire(collection.variables || []),
+      // Preserve `_ref_id` through the backend round-trip so the local
+      // secret store key survives reload — see `CollectionDataProps`.
+      _ref_id: collection._ref_id,
       description: documentationDescription.value,
       preRequestScript: collection.preRequestScript || "",
       testScript: collection.testScript || "",
@@ -841,6 +844,9 @@ const saveCollectionDocumentationById = async (
         variables: stripSecretVariableValuesForWire(
           collectionData.variables || []
         ),
+        // Preserve `_ref_id` through the backend round-trip so the local
+        // secret store key survives reload — see `CollectionDataProps`.
+        _ref_id: collectionData._ref_id,
         description: documentation,
         preRequestScript: collectionData.preRequestScript || "",
         testScript: collectionData.testScript || "",

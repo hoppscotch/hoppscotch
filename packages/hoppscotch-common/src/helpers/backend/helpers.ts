@@ -42,6 +42,11 @@ export type CollectionDataProps = {
   description: string | null
   preRequestScript: string
   testScript: string
+  // Stable client-side ref for local secret/currentValue stores. Lives
+  // inside `data` so it survives the backend round-trip — the wire's
+  // top-level `_ref_id` is dropped, only `data._ref_id` is echoed back.
+  // Optional because legacy / non-synced rows may not carry one.
+  _ref_id?: string
 }
 
 export const BACKEND_PAGE_SIZE = 10

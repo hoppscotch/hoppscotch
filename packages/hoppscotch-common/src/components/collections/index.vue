@@ -3480,7 +3480,7 @@ const setCollectionProperties = (newCollection: {
     })
     toast.success(t("collection.properties_updated"))
   } else if (hasTeamWriteAccess.value && collectionId) {
-    const data = {
+    const data: CollectionDataProps = {
       auth: collection.auth ?? {
         authType: "inherit",
         authActive: true,
@@ -3492,6 +3492,10 @@ const setCollectionProperties = (newCollection: {
       // every wire-boundary call to `updateTeamCollection` is uniformly
       // safe.
       variables: stripSecretVariableValuesForWire(collection.variables ?? []),
+      // Round-trip `_ref_id` through the backend `data` blob so the local
+      // secret store key stays stable across reloads — same rationale as
+      // the personal-collection writers in `platform/collections/.../sync.ts`.
+      _ref_id: collection._ref_id,
       description: collection.description ?? null,
       preRequestScript: collection.preRequestScript ?? "",
       testScript: collection.testScript ?? "",

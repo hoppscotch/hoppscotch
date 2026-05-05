@@ -309,8 +309,20 @@ const dispatchers = defineDispatchers({
     }
   },
   setGlobalVariables(_, { entries }: { entries: GlobalEnvironment }) {
+    // Defensive normalization at the wire-into-store boundary. The
+    // dispatcher payload type says `GlobalEnvironment` (`{ v, variables }`)
+    // but TS dispatchers are erased to `any` at runtime, and a malformed
+    // value from a backend schema change, persistence-layer corruption, or
+    // a future caller would otherwise corrupt `state.globals` and crash
+    // every consumer of `globalEnv.variables.map(...)` downstream. Coerce
+    // to a valid v2 wrapper here so the store invariant always holds.
+    const safeEntries: GlobalEnvironment = Array.isArray(entries)
+      ? { v: 2, variables: entries }
+      : entries && Array.isArray(entries.variables)
+        ? entries
+        : { v: 2, variables: [] }
     return {
-      globals: entries,
+      globals: safeEntries,
     }
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -469,8 +481,7 @@ export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
         })
       }
     })
-
-    globalEnv.variables.forEach((variable) => {
+    ;(globalEnv?.variables ?? []).forEach((variable) => {
       const { key, secret } = variable
       const currentValue =
         "currentValue" in variable ? variable.currentValue : ""
@@ -663,8 +674,7 @@ export const aggregateEnvsWithCurrentValue$: Observable<
           sourceEnv: selectedEnv.name,
         })
       })
-
-      globalEnv.variables.map((x, index) => {
+      ;(globalEnv?.variables ?? []).map((x, index) => {
         let currentValue = x.currentValue
         let initialValue = x.initialValue
         if (x.secret) {
@@ -749,7 +759,11 @@ export function getLegacyGlobalEnvironment(): Environment | null {
 }
 
 export function getGlobalVariables(): GlobalEnvironmentVariable[] {
-  return environmentsStore.value.globals.variables.map(
+  // Defensive `?? []` — the dispatcher normalizes `state.globals` to a
+  // valid wrapper, but if state somehow ended up corrupt (e.g. before
+  // a normalization fix shipped), we'd rather return an empty list than
+  // crash every consumer of this function.
+  return (environmentsStore.value.globals?.variables ?? []).map(
     (env: GlobalEnvironmentVariable) => {
       if (env.key && "currentValue" in env && !("secret" in env)) {
         return {

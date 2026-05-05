@@ -3486,7 +3486,12 @@ const setCollectionProperties = (newCollection: {
         authActive: true,
       },
       headers: collection.headers ?? [],
-      variables: collection.variables ?? [],
+      // `collection.variables` is set by the strip a few lines up when
+      // `collection.variables` was non-empty, but the early-return for
+      // the empty case bypasses that — strip again here defensively so
+      // every wire-boundary call to `updateTeamCollection` is uniformly
+      // safe.
+      variables: stripSecretVariableValuesForWire(collection.variables ?? []),
       description: collection.description ?? null,
       preRequestScript: collection.preRequestScript ?? "",
       testScript: collection.testScript ?? "",

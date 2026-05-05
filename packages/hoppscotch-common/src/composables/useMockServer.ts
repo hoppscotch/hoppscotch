@@ -30,6 +30,7 @@ import {
   loadMockServers,
 } from "~/newstore/mockServers"
 import { CurrentValueService } from "~/services/current-environment-value.service"
+import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { WorkspaceService } from "~/services/workspace.service"
 
@@ -281,7 +282,13 @@ export function useMockServer() {
 
         await pipe(
           updateTeamEnvironment(
-            JSON.stringify(normalizedVariables),
+            // Strip at the wire boundary — `normalizedVariables` carries
+            // through whatever the team env already had plus a non-secret
+            // mockUrl override; defense-in-depth protects against any
+            // upstream change that could let a raw secret slip through.
+            JSON.stringify(
+              stripSecretVariableValuesForWire(normalizedVariables)
+            ),
             existingEnv.id,
             existingEnv.environment.name
           ),
@@ -323,7 +330,15 @@ export function useMockServer() {
         ]
 
         await pipe(
-          createTeamEnvironment(JSON.stringify(variables), teamID, envName),
+          createTeamEnvironment(
+            // Strip at the wire boundary — `variables` is a hardcoded
+            // single non-secret entry today, but every other call to
+            // `createTeamEnvironment` strips here, so this stays
+            // uniform with the rest of the codebase.
+            JSON.stringify(stripSecretVariableValuesForWire(variables)),
+            teamID,
+            envName
+          ),
           TE.match(
             (error) => {
               console.error("Failed to create team environment:", error)

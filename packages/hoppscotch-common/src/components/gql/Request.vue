@@ -97,8 +97,10 @@
 import { platform } from "~/platform"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
+import { useToast } from "@composables/toast"
 import { computed, ref, watch } from "vue"
 import { useVModel } from "@vueuse/core"
+import * as E from "fp-ts/Either"
 import { GQLTabConnectionService } from "~/services/gql-tab-connection.service"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { InspectionService } from "~/services/inspection"
@@ -109,6 +111,7 @@ import { HoppTab } from "~/services/tab"
 import { HoppGQLRequestDocument } from "~/helpers/rest/document"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { editRESTRequest } from "~/newstore/collections"
+import { updateTeamRequest } from "~/helpers/backend/mutations/TeamRequest"
 import IconSave from "~icons/lucide/save"
 import IconChevronDown from "~icons/lucide/chevron-down"
 import IconFolderPlus from "~icons/lucide/folder-plus"
@@ -116,6 +119,7 @@ import IconShare2 from "~icons/lucide/share-2"
 import { useSetting } from "~/composables/settings"
 
 const t = useI18n()
+const toast = useToast()
 
 const interceptorService = useService(KernelInterceptorService)
 const gqlTabConn = useService(GQLTabConnectionService)
@@ -192,6 +196,27 @@ const saveRequest = () => {
       platform: "graphql",
       createdNow: false,
       workspaceType: "personal",
+    })
+  } else if (saveCtx.originLocation === "team-collection") {
+    const req = tab.value.document.request
+
+    platform.analytics?.logEvent({
+      type: "HOPP_SAVE_REQUEST",
+      platform: "graphql",
+      createdNow: false,
+      workspaceType: "team",
+    })
+
+    updateTeamRequest(saveCtx.requestID, {
+      request: JSON.stringify(req),
+      title: req.name,
+    })().then((result) => {
+      if (E.isLeft(result)) {
+        toast.error(`${t("profile.no_permission")}`)
+      } else {
+        tab.value.document.isDirty = false
+        toast.success(`${t("request.saved")}`)
+      }
     })
   } else {
     showSaveRequestModal.value = true

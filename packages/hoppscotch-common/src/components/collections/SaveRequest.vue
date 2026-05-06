@@ -122,7 +122,6 @@ import { useToast } from "@composables/toast"
 import {
   HoppGQLRequest,
   HoppRESTRequest,
-  isHoppRESTRequest,
   isGQLRequest,
   generateUniqueRefId,
 } from "@hoppscotch/data"
@@ -151,7 +150,7 @@ import {
 } from "~/newstore/collections"
 import { platform } from "~/platform"
 import { GQLTabService } from "~/services/tab/graphql"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { TeamWorkspace } from "~/services/workspace.service"
 import IconSparkle from "~icons/lucide/sparkles"
 import IconThumbsDown from "~icons/lucide/thumbs-down"
@@ -161,7 +160,7 @@ import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 const t = useI18n()
 const toast = useToast()
 
-const RESTTabs = useService(RESTTabService)
+const RESTTabs = useService(WorkspaceTabsService)
 const GQLTabs = useService(GQLTabService)
 
 type CollectionType =
@@ -500,33 +499,24 @@ const saveRequestAs = async () => {
 
     requestSaved()
   } else if (picked.value.pickedType === "teams-collection") {
-    if (!isHoppRESTRequest(requestUpdated))
-      throw new Error("requestUpdated is not a REST Request")
-
     updateTeamCollectionOrFolder(picked.value.collectionID, requestUpdated)
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
       createdNow: true,
-      platform: "rest",
+      platform: isGQLRequest(requestUpdated) ? "gql" : "rest",
       workspaceType: "team",
     })
   } else if (picked.value.pickedType === "teams-folder") {
-    if (!isHoppRESTRequest(requestUpdated))
-      throw new Error("requestUpdated is not a REST Request")
-
     updateTeamCollectionOrFolder(picked.value.folderID, requestUpdated)
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
       createdNow: true,
-      platform: "rest",
+      platform: isGQLRequest(requestUpdated) ? "gql" : "rest",
       workspaceType: "team",
     })
   } else if (picked.value.pickedType === "teams-request") {
-    if (!isHoppRESTRequest(requestUpdated))
-      throw new Error("requestUpdated is not a REST Request")
-
     if (
       collectionsType.value.type !== "team-collections" ||
       !collectionsType.value.selectedTeam
@@ -543,7 +533,7 @@ const saveRequestAs = async () => {
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
       createdNow: false,
-      platform: "rest",
+      platform: isGQLRequest(requestUpdated) ? "gql" : "rest",
       workspaceType: "team",
     })
 
@@ -658,7 +648,7 @@ const saveRequestAs = async () => {
  */
 const updateTeamCollectionOrFolder = (
   collectionID: string,
-  requestUpdated: HoppRESTRequest
+  requestUpdated: HoppRESTRequest | HoppGQLRequest
 ) => {
   if (
     collectionsType.value.type !== "team-collections" ||
@@ -683,16 +673,28 @@ const updateTeamCollectionOrFolder = (
       (result) => {
         const { createRequestInCollection } = result
 
-        RESTTabs.currentActiveTab.value.document = {
-          request: requestUpdated,
-          isDirty: false,
-          type: "request",
-          saveContext: {
-            originLocation: "team-collection",
-            requestID: createRequestInCollection.id,
-            collectionID: createRequestInCollection.collection.id,
-            teamID: createRequestInCollection.collection.team.id,
-          },
+        const saveContext = {
+          originLocation: "team-collection" as const,
+          requestID: createRequestInCollection.id,
+          collectionID: createRequestInCollection.collection.id,
+          teamID: createRequestInCollection.collection.team.id,
+        }
+
+        if (isGQLRequest(requestUpdated)) {
+          RESTTabs.currentActiveTab.value.document = {
+            type: "gql-request",
+            request: requestUpdated as HoppGQLRequest,
+            isDirty: false,
+            cursorPosition: 0,
+            saveContext,
+          }
+        } else {
+          RESTTabs.currentActiveTab.value.document = {
+            type: "request",
+            request: requestUpdated as HoppRESTRequest,
+            isDirty: false,
+            saveContext,
+          }
         }
 
         modalLoadingState.value = false

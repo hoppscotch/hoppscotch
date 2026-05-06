@@ -3,7 +3,7 @@ import { Inspector, InspectionService, InspectorResult } from "../"
 import { TestContainer } from "dioc/testing"
 import { computed, ref } from "vue"
 import { refWithControl } from "@vueuse/core"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 
 vi.mock("~/modules/i18n", () => ({
   __esModule: true,
@@ -48,7 +48,7 @@ describe("InspectionService", () => {
     it("should register a REST inspector", () => {
       const container = new TestContainer()
 
-      container.bindMock(RESTTabService, {
+      container.bindMock(WorkspaceTabsService, {
         currentActiveTab: computed(() => mockRESTTab),
         tabMap: new Map([["test", mockRESTTab]]),
         tabOrdering: ref(["test"]),
@@ -67,7 +67,7 @@ describe("InspectionService", () => {
     it("should delete a tab's inspector results", () => {
       const container = new TestContainer()
 
-      container.bindMock(RESTTabService, {
+      container.bindMock(WorkspaceTabsService, {
         currentActiveTab: computed(() => mockRESTTab),
         tabMap: new Map([["test", mockRESTTab]]),
         tabOrdering: ref(["test"]),

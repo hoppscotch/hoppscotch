@@ -544,7 +544,7 @@ import { HoppRESTRequest } from "@hoppscotch/data"
 import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import { Picked } from "~/helpers/types/HoppPicked.js"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { useService } from "dioc/vue"
 import { TeamWorkspace } from "~/services/workspace.service"
 import { useDebounceFn } from "@vueuse/core"
@@ -552,7 +552,7 @@ import { CurrentSortValuesService } from "~/services/current-sort.service"
 
 const t = useI18n()
 const colorMode = useColorMode()
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 
 type CollectionType =
   | {

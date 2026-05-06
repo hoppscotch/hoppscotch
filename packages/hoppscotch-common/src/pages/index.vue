@@ -174,7 +174,7 @@ import { EnvironmentInspectorService } from "~/services/inspection/inspectors/en
 import { ResponseInspectorService } from "~/services/inspection/inspectors/response.inspector"
 import { ScriptingInterceptorInspectorService } from "~/services/inspection/inspectors/scripting-interceptor.inspector"
 import { cloneDeep } from "lodash-es"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { HoppTab } from "~/services/tab"
 import { HoppTabDocument } from "~/helpers/rest/document"
 import { ScrollService } from "~/services/scroll.service"
@@ -194,7 +194,7 @@ const renameTabID = ref<string | null>(null)
 
 const t = useI18n()
 
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 
 const currentTabID = tabs.currentTabID
 

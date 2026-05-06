@@ -83,7 +83,7 @@
 import { computed, ref } from "vue"
 import { useService } from "dioc/vue"
 import { useReadonlyStream } from "@composables/stream"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import {
   convertRESTToGQL,
   convertGQLToREST,
@@ -98,7 +98,7 @@ import IconChevronDown from "~icons/lucide/chevron-down"
 import IconGlobe from "~icons/lucide/globe"
 import IconGraphql from "~icons/hopp/graphql"
 
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 
 const protocolTippyActions = ref<HTMLDivElement | null>(null)
 
@@ -181,7 +181,18 @@ const switchToGQL = () => {
   const tab = tabs.currentActiveTab.value
   if (!tab || tab.document.type !== "request") return
 
-  const gqlDoc = convertRESTToGQL(tab.document as HoppRequestDocument)
+  // Snapshot the current REST request as the REST draft so a later switch back
+  // restores edits the user made before this protocol switch.
+  tabs.setProtocolDraft(tab.id, "rest", tab.document.request)
+
+  // If the user previously had GQL data on this tab, restore it verbatim.
+  // Otherwise let the converter seed a fresh GQL request from the REST one.
+  const gqlDraft = tabs.getProtocolDraft(tab.id)?.gql
+
+  const gqlDoc = convertRESTToGQL(
+    tab.document as HoppRequestDocument,
+    gqlDraft
+  )
   tab.document = gqlDoc
   tabs.updateTab(tab)
 }
@@ -191,7 +202,16 @@ const switchToREST = () => {
   const tab = tabs.currentActiveTab.value
   if (!tab || tab.document.type !== "gql-request") return
 
-  const restDoc = convertGQLToREST(tab.document as HoppGQLRequestDocument)
+  // Snapshot the current GQL request as the GQL draft for round-trip preservation.
+  tabs.setProtocolDraft(tab.id, "gql", tab.document.request)
+
+  // Restore the previously-snapshotted REST request if any; else seed from GQL.
+  const restDraft = tabs.getProtocolDraft(tab.id)?.rest
+
+  const restDoc = convertGQLToREST(
+    tab.document as HoppGQLRequestDocument,
+    restDraft
+  )
   tab.document = restDoc
   tabs.updateTab(tab)
 }

@@ -4,6 +4,7 @@ import {
   ArrayMinSize,
   IsArray,
   IsBoolean,
+  IsEmail,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -14,9 +15,9 @@ import { OffsetPaginationArgs } from 'src/types/input-types.args';
 
 // POST v1/infra/user-invitations
 export class CreateUserInvitationRequest {
-  @Type(() => String)
-  @IsNotEmpty()
+  @IsEmail()
   @ApiProperty()
+  @Type(() => String)
   inviteeEmail: string;
 }
 export class CreateUserInvitationResponse {
@@ -40,8 +41,8 @@ export class GetUserInvitationResponse {
 export class DeleteUserInvitationRequest {
   @IsArray()
   @ArrayMinSize(1)
+  @IsEmail({}, { each: true })
   @Type(() => String)
-  @IsNotEmpty()
   @ApiProperty()
   inviteeEmails: string[];
 }
@@ -53,8 +54,8 @@ export class DeleteUserInvitationResponse {
 
 // POST v1/infra/users
 export class GetUsersRequestQuery extends OffsetPaginationArgs {
-  @IsOptional()
   @IsString()
+  @IsOptional()
   @MinLength(1)
   @ApiPropertyOptional()
   searchString: string;
@@ -101,7 +102,6 @@ export class UpdateUserRequest {
 // PATCH v1/infra/users/:uid/admin-status
 export class UpdateUserAdminStatusRequest {
   @IsBoolean()
-  @IsNotEmpty()
   @ApiProperty()
   isAdmin: boolean;
 }

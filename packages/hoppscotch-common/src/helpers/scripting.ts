@@ -21,13 +21,13 @@ export const stripModulePrefix = (script: string): string => {
 }
 
 /**
- * Anchored to JSON value-opening delimiters so it only matches inside JSON
- * string values during collection export, not inside script source. Matches
- * both `export {};\\n` and `export {};` (`\\n` is the literal backslash-n
- * pair, not a newline).
+ * Strips the JSON-serialized `export {};` prefix (with optional `\\n` literal)
+ * from the start of any JSON string value during collection export.
+ * Capture-and-reinsert is used in place of a lookbehind so the regex parses
+ * on WebKit < 16.4 (Tauri's macOS WKWebView before Ventura 13.3).
  */
-export const MODULE_PREFIX_REGEX_JSON_SERIALIZED =
-  /(?<=:\s*")export \{\};(?:\\n)?/g
+export const stripJsonSerializedModulePrefix = (json: string): string =>
+  json.replace(/(:\s*")export \{\};(?:\\n)?/g, "$1")
 
 export type CombineScriptsTarget = "experimental" | "legacy"
 

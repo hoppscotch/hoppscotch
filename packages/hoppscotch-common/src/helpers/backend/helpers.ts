@@ -6,7 +6,6 @@ import {
   HoppRESTHeaders,
   HoppRESTRequest,
   makeCollection,
-  translateToNewRequest,
 } from "@hoppscotch/data"
 import * as A from "fp-ts/Array"
 import * as E from "fp-ts/Either"
@@ -16,7 +15,7 @@ import { z } from "zod"
 
 import { getI18n } from "~/modules/i18n"
 import { TeamCollection } from "../teams/TeamCollection"
-import { TeamRequest } from "../teams/TeamRequest"
+import { TeamRequest, normalizeTeamRequestBody } from "../teams/TeamRequest"
 import { GQLError, runGQLQuery } from "./GQLClient"
 import {
   ExportAsJsonDocument,
@@ -95,7 +94,7 @@ const getCollectionRequests = async (collID: string) => {
         (x) =>
           <TeamRequest>{
             id: x.id,
-            request: translateToNewRequest(JSON.parse(x.request)),
+            request: normalizeTeamRequestBody(x.request),
             collectionID: collID,
             title: x.title,
           }

@@ -64,6 +64,7 @@ import {
   HoppRESTHeaders,
   HoppRESTParam,
   HoppRESTRequest,
+  isGQLRequest,
 } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import { gqlCollectionsSyncer } from "./gqlCollections.sync"
@@ -160,6 +161,15 @@ export function exportedCollectionToHoppCollection(
           return requestParsedResult.value
         }
 
+        // Unified collection: a GQL request can live inside a REST collection.
+        // Parse it as GQL and pass through as-is.
+        if (isGQLRequest(request as HoppRESTRequest | HoppGQLRequest)) {
+          const gqlParsed = HoppGQLRequest.safeParse(request)
+          return gqlParsed.type === "ok"
+            ? gqlParsed.value
+            : (request as unknown as HoppGQLRequest)
+        }
+
         const {
           v,
           id,
@@ -232,6 +242,15 @@ export function exportedCollectionToHoppCollection(
         const requestParsedResult = HoppGQLRequest.safeParse(request)
         if (requestParsedResult.type === "ok") {
           return requestParsedResult.value
+        }
+
+        // Unified collection: a REST request can live inside a GQL collection.
+        // Parse it as REST and pass through as-is.
+        if (!isGQLRequest(request as HoppRESTRequest | HoppGQLRequest)) {
+          const restParsed = HoppRESTRequest.safeParse(request)
+          return restParsed.type === "ok"
+            ? restParsed.value
+            : (request as unknown as HoppRESTRequest)
         }
 
         const { v, auth, headers, name, id, query, url, variables } = request

@@ -119,7 +119,7 @@ const request = useVModel(props, "modelValue", emit)
 
 const url = computedWithControl(
   () => tabs.currentActiveTab.value,
-  () => tabs.currentActiveTab.value.document.request.url
+  () => tabs.currentActiveTab.value?.document.request.url ?? ""
 )
 
 const activeGQLHeadersCount = computed(
@@ -139,8 +139,9 @@ const runQuery = async (
     const runQuery = clone(request.value.query)
     const runVariables = clone(request.value.variables)
 
+    const activeTab = tabs.currentActiveTab.value
     const inheritedHeaders =
-      tabs.currentActiveTab.value.document.inheritedProperties?.headers.map(
+      activeTab?.document.inheritedProperties?.headers.map(
         (header) => header.inheritedHeader
       ) ?? []
 
@@ -149,8 +150,8 @@ const runQuery = async (
       url: runURL,
       request: request.value,
       inheritedHeaders,
-      inheritedAuth: tabs.currentActiveTab.value.document.inheritedProperties
-        ?.auth.inheritedAuth as HoppGQLAuth | undefined,
+      inheritedAuth: activeTab?.document.inheritedProperties?.auth
+        .inheritedAuth as HoppGQLAuth | undefined,
       query: runQuery,
       variables: runVariables,
       operationName: definition?.name?.value,
@@ -224,25 +225,28 @@ watch(
 )
 
 const updateCursorPos = (pos: number) => {
-  tabs.currentActiveTab.value.document.cursorPosition = pos
+  const activeTab = tabs.currentActiveTab.value
+  if (activeTab) activeTab.document.cursorPosition = pos
 }
 
 const hideRequestModal = () => {
   showSaveRequestModal.value = false
 }
 const saveRequest = () => {
+  const activeTab = tabs.currentActiveTab.value
+  if (!activeTab) return
+
   if (
-    tabs.currentActiveTab.value.document.saveContext &&
-    tabs.currentActiveTab.value.document.saveContext.originLocation ===
-      "user-collection"
+    activeTab.document.saveContext &&
+    activeTab.document.saveContext.originLocation === "user-collection"
   ) {
     editGraphqlRequest(
-      tabs.currentActiveTab.value.document.saveContext.folderPath,
-      tabs.currentActiveTab.value.document.saveContext.requestIndex,
-      tabs.currentActiveTab.value.document.request
+      activeTab.document.saveContext.folderPath,
+      activeTab.document.saveContext.requestIndex,
+      activeTab.document.request
     )
 
-    tabs.currentActiveTab.value.document.isDirty = false
+    activeTab.document.isDirty = false
   } else {
     showSaveRequestModal.value = true
   }

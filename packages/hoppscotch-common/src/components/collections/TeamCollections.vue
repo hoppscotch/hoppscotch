@@ -861,11 +861,13 @@ const isSelected = ({
   )
 }
 
-const active = computed(
-  () =>
-    tabs.currentActiveTab.value.document.type !== "test-runner" &&
-    tabs.currentActiveTab.value.document.saveContext
-)
+const active = computed(() => {
+  const activeTab = tabs.currentActiveTab.value
+  return (
+    activeTab?.document.type !== "test-runner" &&
+    activeTab?.document.saveContext
+  )
+})
 
 const isActiveRequest = (requestID: string) => {
   if (!active.value) return false

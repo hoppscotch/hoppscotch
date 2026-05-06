@@ -260,7 +260,9 @@ const isCustomMethod = computed(() => {
   )
 })
 
-const tabResults = inspectionService.getResultViewFor(tabs.currentTabID.value)
+const tabResults = inspectionService.getResultViewFor(
+  tabs.currentTabID.value ?? ""
+)
 
 defineActionHandler("request-response.save", saveExample)
 </script>

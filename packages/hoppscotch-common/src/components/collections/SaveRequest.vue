@@ -196,15 +196,17 @@ const emit = defineEmits<{
 
 const gqlRequestName = computedWithControl(
   () => GQLTabs.currentActiveTab.value,
-  () => GQLTabs.currentActiveTab.value.document.request.name
+  () => GQLTabs.currentActiveTab.value?.document.request.name ?? ""
 )
 
 const restRequestName = computedWithControl(
   () => RESTTabs.currentActiveTab.value,
-  () =>
-    RESTTabs.currentActiveTab.value.document.type === "request"
-      ? RESTTabs.currentActiveTab.value.document.request.name
+  () => {
+    const activeTab = RESTTabs.currentActiveTab.value
+    return activeTab?.document.type === "request"
+      ? activeTab.document.request.name
       : ""
+  }
 )
 
 const reqName = computed(() => {
@@ -223,12 +225,12 @@ const requestContext = computed(() => {
 
   if (
     props.mode === "rest" &&
-    RESTTabs.currentActiveTab.value.document.type === "request"
+    RESTTabs.currentActiveTab.value?.document.type === "request"
   ) {
-    return RESTTabs.currentActiveTab.value.document.request
+    return RESTTabs.currentActiveTab.value?.document.request ?? null
   }
 
-  return GQLTabs.currentActiveTab.value.document.request
+  return GQLTabs.currentActiveTab.value?.document.request ?? null
 })
 
 const requestName = ref(reqName.value)
@@ -258,7 +260,7 @@ watch(
   () => {
     if (
       props.mode === "rest" &&
-      RESTTabs.currentActiveTab.value.document.type === "request"
+      RESTTabs.currentActiveTab.value?.document.type === "request"
     ) {
       requestName.value =
         RESTTabs.currentActiveTab.value?.document.request.name ?? ""
@@ -328,11 +330,11 @@ const saveRequestAs = async () => {
   const requestUpdated =
     props.mode === "rest"
       ? cloneDeep(
-          RESTTabs.currentActiveTab.value.document.type === "request"
-            ? RESTTabs.currentActiveTab.value.document.request
+          RESTTabs.currentActiveTab.value?.document.type === "request"
+            ? RESTTabs.currentActiveTab.value?.document.request
             : null
         )
-      : cloneDeep(GQLTabs.currentActiveTab.value.document.request)
+      : cloneDeep(GQLTabs.currentActiveTab.value?.document.request ?? null)
 
   if (!requestUpdated) return
 
@@ -347,9 +349,10 @@ const saveRequestAs = async () => {
       requestUpdated
     )
 
-    if (RESTTabs.currentActiveTab.value.document.type !== "request") return
+    const activeRESTTab = RESTTabs.currentActiveTab.value
+    if (activeRESTTab?.document.type !== "request") return
 
-    RESTTabs.currentActiveTab.value.document = {
+    activeRESTTab.document = {
       request: requestUpdated,
       isDirty: false,
       type: "request",
@@ -362,7 +365,7 @@ const saveRequestAs = async () => {
       },
     }
 
-    RESTTabs.currentActiveTab.value.document.inheritedProperties =
+    activeRESTTab.document.inheritedProperties =
       cascadeParentCollectionForProperties(
         `${picked.value.collectionIndex}`,
         "rest"
@@ -385,7 +388,10 @@ const saveRequestAs = async () => {
       requestUpdated
     )
 
-    RESTTabs.currentActiveTab.value.document = {
+    const activeRESTTab = RESTTabs.currentActiveTab.value
+    if (!activeRESTTab) return
+
+    activeRESTTab.document = {
       request: requestUpdated,
       isDirty: false,
       type: "request",
@@ -397,7 +403,7 @@ const saveRequestAs = async () => {
       },
     }
 
-    RESTTabs.currentActiveTab.value.document.inheritedProperties =
+    activeRESTTab.document.inheritedProperties =
       cascadeParentCollectionForProperties(picked.value.folderPath, "rest")
 
     platform.analytics?.logEvent({
@@ -418,7 +424,10 @@ const saveRequestAs = async () => {
       requestUpdated
     )
 
-    RESTTabs.currentActiveTab.value.document = {
+    const activeRESTTab = RESTTabs.currentActiveTab.value
+    if (!activeRESTTab) return
+
+    activeRESTTab.document = {
       request: requestUpdated,
       isDirty: false,
       type: "request",
@@ -429,7 +438,7 @@ const saveRequestAs = async () => {
       },
     }
 
-    RESTTabs.currentActiveTab.value.document.inheritedProperties =
+    activeRESTTab.document.inheritedProperties =
       cascadeParentCollectionForProperties(picked.value.folderPath, "rest")
 
     platform.analytics?.logEvent({
@@ -503,13 +512,16 @@ const saveRequestAs = async () => {
     )()
   } else if (picked.value.pickedType === "gql-my-request") {
     // TODO: Check for GQL request ?
+    const activeGQLTab = GQLTabs.currentActiveTab.value
+    if (!activeGQLTab) return
+
     editGraphqlRequest(
       picked.value.folderPath,
       picked.value.requestIndex,
       requestUpdated as HoppGQLRequest
     )
 
-    GQLTabs.currentActiveTab.value.document = {
+    activeGQLTab.document = {
       request: requestUpdated as HoppGQLRequest,
       isDirty: false,
       saveContext: {
@@ -526,18 +538,21 @@ const saveRequestAs = async () => {
       workspaceType: "team",
     })
 
-    GQLTabs.currentActiveTab.value.document.inheritedProperties =
+    activeGQLTab.document.inheritedProperties =
       cascadeParentCollectionForProperties(picked.value.folderPath, "graphql")
 
     requestSaved("GQL")
   } else if (picked.value.pickedType === "gql-my-folder") {
     // TODO: Check for GQL request ?
+    const activeGQLTab = GQLTabs.currentActiveTab.value
+    if (!activeGQLTab) return
+
     const insertionIndex = saveGraphqlRequestAs(
       picked.value.folderPath,
       requestUpdated as HoppGQLRequest
     )
 
-    GQLTabs.currentActiveTab.value.document = {
+    activeGQLTab.document = {
       request: requestUpdated as HoppGQLRequest,
       isDirty: false,
       saveContext: {
@@ -554,18 +569,21 @@ const saveRequestAs = async () => {
       workspaceType: "team",
     })
 
-    GQLTabs.currentActiveTab.value.document.inheritedProperties =
+    activeGQLTab.document.inheritedProperties =
       cascadeParentCollectionForProperties(picked.value.folderPath, "graphql")
 
     requestSaved("GQL")
   } else if (picked.value.pickedType === "gql-my-collection") {
     // TODO: Check for GQL request ?
+    const activeGQLTab = GQLTabs.currentActiveTab.value
+    if (!activeGQLTab) return
+
     const insertionIndex = saveGraphqlRequestAs(
       `${picked.value.collectionIndex}`,
       requestUpdated as HoppGQLRequest
     )
 
-    GQLTabs.currentActiveTab.value.document = {
+    activeGQLTab.document = {
       request: requestUpdated as HoppGQLRequest,
       isDirty: false,
       saveContext: {
@@ -582,7 +600,7 @@ const saveRequestAs = async () => {
       workspaceType: "team",
     })
 
-    GQLTabs.currentActiveTab.value.document.inheritedProperties =
+    activeGQLTab.document.inheritedProperties =
       cascadeParentCollectionForProperties(
         `${picked.value.collectionIndex}`,
         "graphql"
@@ -623,8 +641,13 @@ const updateTeamCollectionOrFolder = (
       },
       (result) => {
         const { createRequestInCollection } = result
+        const activeRESTTab = RESTTabs.currentActiveTab.value
+        if (!activeRESTTab) {
+          modalLoadingState.value = false
+          return
+        }
 
-        RESTTabs.currentActiveTab.value.document = {
+        activeRESTTab.document = {
           request: requestUpdated,
           isDirty: false,
           type: "request",
@@ -646,11 +669,12 @@ const updateTeamCollectionOrFolder = (
 const requestSaved = (tab: "REST" | "GQL" = "REST") => {
   toast.success(`${t("request.added")}`)
   nextTick(() => {
-    if (tab === "REST") {
-      RESTTabs.currentActiveTab.value.document.isDirty = false
-    } else {
-      GQLTabs.currentActiveTab.value.document.isDirty = false
-    }
+    const activeTab =
+      tab === "REST"
+        ? RESTTabs.currentActiveTab.value
+        : GQLTabs.currentActiveTab.value
+
+    if (activeTab) activeTab.document.isDirty = false
   })
   hideModal()
 }

@@ -147,13 +147,14 @@ const handleImport = () => {
       type: "HOPP_REST_IMPORT_CURL",
     })
 
-    if (tabs.currentActiveTab.value.document.type === "example-response") return
+    const activeTab = tabs.currentActiveTab.value
+    if (!activeTab || activeTab.document.type === "example-response") return
 
     // Preserve the existing request name when importing cURL
-    const currentRequest = tabs.currentActiveTab.value.document.request
+    const currentRequest = activeTab.document.request
     const reqName = currentRequest?.name ?? req.name
 
-    tabs.currentActiveTab.value.document.request = { ...req, name: reqName }
+    activeTab.document.request = { ...req, name: reqName }
   } catch (e) {
     console.error(e)
     toast.error(`${t("error.curl_invalid_format")}`)

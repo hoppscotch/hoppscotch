@@ -160,15 +160,17 @@ const currentEnvironmentValueService = useService(CurrentValueService)
 // Get the current active request if the current active tab is a request else get the original request from the response tab
 const currentActiveRequest = computed(() => {
   let effectiveRequest = null
+  const activeDocument = currentActiveTabDocument.value
+  if (!activeDocument) return getDefaultRESTRequest()
 
-  if (currentActiveTabDocument.value.type === "request") {
-    effectiveRequest = currentActiveTabDocument.value.request
+  if (activeDocument.type === "request") {
+    effectiveRequest = activeDocument.request
   }
 
-  if (currentActiveTabDocument.value.type === "example-response") {
+  if (activeDocument.type === "example-response") {
     effectiveRequest = makeRESTRequest({
       ...getDefaultRESTRequest(),
-      ...currentActiveTabDocument.value.response.originalRequest,
+      ...activeDocument.response.originalRequest,
     })
   }
 
@@ -177,7 +179,7 @@ const currentActiveRequest = computed(() => {
 
 // Retrieve the document
 const currentActiveTabDocument = computed(() =>
-  cloneDeep(tabs.currentActiveTab.value.document)
+  cloneDeep(tabs.currentActiveTab.value?.document ?? null)
 )
 
 const codegenType = ref<CodegenName>("shell-curl")
@@ -242,7 +244,7 @@ const getFinalURL = (input: string): string => {
 const buildFinalEnvironment = (): Environment => {
   const aggregateEnvs = getAggregateEnvsWithCurrentValue()
   const inheritedVariables =
-    currentActiveTabDocument.value.inheritedProperties?.variables || []
+    currentActiveTabDocument.value?.inheritedProperties?.variables || []
 
   const requestVariables = (currentActiveRequest.value?.requestVariables || [])
     .filter((variable) => variable.active)
@@ -291,7 +293,8 @@ const buildFinalEnvironment = (): Environment => {
  */
 const resolveRequestAuthAndHeaders = () => {
   const { auth, headers } = currentActiveRequest.value
-  const { inheritedProperties } = currentActiveTabDocument.value
+  const inheritedProperties =
+    currentActiveTabDocument.value?.inheritedProperties
 
   const resolvedAuth: HoppRESTAuth =
     auth.authType === "inherit" && auth.authActive
@@ -327,7 +330,7 @@ const buildFinalRequest = (auth: HoppRESTAuth, headers: HoppRESTHeaders) => {
  */
 const requestCode = asyncComputed(async (): Promise<string> => {
   try {
-    if (currentActiveTabDocument.value.type !== "request") {
+    if (currentActiveTabDocument.value?.type !== "request") {
       errorState.value = true
       return ""
     }

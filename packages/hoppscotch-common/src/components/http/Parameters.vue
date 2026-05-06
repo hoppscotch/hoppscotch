@@ -370,13 +370,13 @@ const clearContent = () => {
 const inspectionService = useService(InspectionService)
 
 const parameterKeyResults = inspectionService.getResultViewFor(
-  tabs.currentTabID.value,
+  tabs.currentTabID.value ?? "",
   (result) =>
     result.locations.type === "parameter" && result.locations.position === "key"
 )
 
 const parameterValueResults = inspectionService.getResultViewFor(
-  tabs.currentTabID.value,
+  tabs.currentTabID.value ?? "",
   (result) =>
     result.locations.type === "parameter" &&
     result.locations.position === "value"

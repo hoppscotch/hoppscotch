@@ -86,7 +86,8 @@ const connected = computed(() => connection.state === "CONNECTED")
 const url = computed({
   get: () => tabs.currentActiveTab.value?.document.request.url ?? "",
   set: (value) => {
-    tabs.currentActiveTab.value!.document.request.url = value
+    const activeTab = tabs.currentActiveTab.value
+    if (activeTab) activeTab.document.request.url = value
   },
 })
 
@@ -99,22 +100,24 @@ const onConnectClick = () => {
 }
 
 const gqlConnect = () => {
-  const inheritedHeaders =
-    tabs.currentActiveTab.value.document.inheritedProperties?.headers.map(
-      (header) => {
-        if (header.inheritedHeader) {
-          return header.inheritedHeader
-        }
-        return []
+  const activeTab = tabs.currentActiveTab.value
+  if (!activeTab) return
+
+  const inheritedHeaders = activeTab.document.inheritedProperties?.headers.map(
+    (header) => {
+      if (header.inheritedHeader) {
+        return header.inheritedHeader
       }
-    ) as HoppGQLRequest["headers"]
+      return []
+    }
+  ) as HoppGQLRequest["headers"]
 
   connect({
     url: url.value,
-    request: tabs.currentActiveTab.value.document.request,
+    request: activeTab.document.request,
     inheritedHeaders,
-    inheritedAuth: tabs.currentActiveTab.value.document.inheritedProperties
-      ?.auth.inheritedAuth as HoppGQLAuth,
+    inheritedAuth: activeTab.document.inheritedProperties?.auth
+      .inheritedAuth as HoppGQLAuth,
   })
 
   platform.analytics?.logEvent({

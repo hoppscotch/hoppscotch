@@ -189,10 +189,7 @@ const switchToGQL = () => {
   // Otherwise let the converter seed a fresh GQL request from the REST one.
   const gqlDraft = tabs.getProtocolDraft(tab.id)?.gql
 
-  const gqlDoc = convertRESTToGQL(
-    tab.document as HoppRequestDocument,
-    gqlDraft
-  )
+  const gqlDoc = convertRESTToGQL(tab.document as HoppRequestDocument, gqlDraft)
   tab.document = gqlDoc
   tabs.updateTab(tab)
 }

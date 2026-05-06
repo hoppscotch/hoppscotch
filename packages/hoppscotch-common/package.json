@@ -57,6 +57,7 @@
     "@urql/devtools": "2.0.3",
     "@urql/exchange-auth": "3.0.0",
     "@vueuse/core": "14.2.1",
+    "acorn": "8.16.0",
     "acorn-walk": "8.3.5",
     "aws4fetch": "1.0.20",
     "axios": "1.15.2",

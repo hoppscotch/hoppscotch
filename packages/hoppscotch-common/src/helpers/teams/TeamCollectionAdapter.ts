@@ -9,6 +9,7 @@ import { runGQLQuery, runGQLSubscription } from "../backend/GQLClient"
 import { TeamCollection } from "./TeamCollection"
 import { TeamRequest } from "./TeamRequest"
 import {
+  ReqType,
   RootCollectionsOfTeamDocument,
   TeamCollectionAddedDocument,
   TeamCollectionUpdatedDocument,
@@ -361,6 +362,7 @@ export default class NewTeamCollectionAdapter {
             totalCollections.length > 0
               ? totalCollections[totalCollections.length - 1].id
               : undefined,
+          type: ReqType.Rest,
         },
       })
 

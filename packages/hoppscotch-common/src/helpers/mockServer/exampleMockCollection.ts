@@ -16,6 +16,7 @@ import {
   CreateRestUserRequestDocument,
   CreateRestUserRequestMutation,
   CreateRestUserRequestMutationVariables,
+  ReqType,
 } from "~/helpers/backend/graphql"
 import { addRESTCollection } from "~/newstore/collections"
 
@@ -72,6 +73,7 @@ export function getExampleMockRequests(): HoppRESTRequest[] {
       auth: oauthAuth,
       requestVariables: [],
       responses: {},
+      description: "",
     },
     // updatePet request
     {
@@ -90,6 +92,7 @@ export function getExampleMockRequests(): HoppRESTRequest[] {
       auth: oauthAuth,
       requestVariables: [],
       responses: {},
+      description: "",
     },
     // findByStatus request
     {
@@ -115,6 +118,7 @@ export function getExampleMockRequests(): HoppRESTRequest[] {
       auth: oauthAuth,
       requestVariables: [],
       responses: {},
+      description: "",
     },
     // getPetById request
     {
@@ -139,6 +143,7 @@ export function getExampleMockRequests(): HoppRESTRequest[] {
       },
       requestVariables: [],
       responses: {},
+      description: "",
     },
     // updatePetWithForm request
     {
@@ -157,6 +162,7 @@ export function getExampleMockRequests(): HoppRESTRequest[] {
       auth: oauthAuth,
       requestVariables: [],
       responses: {},
+      description: "",
     },
     // deletePet request
     {
@@ -182,6 +188,7 @@ export function getExampleMockRequests(): HoppRESTRequest[] {
       auth: oauthAuth,
       requestVariables: [],
       responses: {},
+      description: "",
     },
   ]
 
@@ -197,7 +204,7 @@ export async function createMockCollectionForTeam(
 ): Promise<E.Either<string, { id: string; name: string }>> {
   // Create the root collection
   const collectionResult = await pipe(
-    createNewRootCollection(collectionName, teamID),
+    createNewRootCollection(collectionName, teamID, ReqType.Rest),
     TE.match(
       (error) => E.left(`Failed to create collection: ${error}`),
       (collection) => E.right(collection)

@@ -1,5 +1,5 @@
-query RootCollectionsOfTeam($teamID: ID!, $cursor: ID) {
-  rootCollectionsOfTeam(teamID: $teamID, cursor: $cursor) {
+query RootCollectionsOfTeam($teamID: ID!, $cursor: ID, $type: ReqType!) {
+  rootCollectionsOfTeam(teamID: $teamID, cursor: $cursor, type: $type) {
     id
     title
     data

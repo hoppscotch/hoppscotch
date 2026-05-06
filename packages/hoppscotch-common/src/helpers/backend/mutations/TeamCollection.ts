@@ -21,6 +21,7 @@ import {
   RenameCollectionDocument,
   RenameCollectionMutation,
   RenameCollectionMutationVariables,
+  ReqType,
   SortOptions,
   SortTeamCollectionsDocument,
   SortTeamCollectionsMutation,
@@ -54,7 +55,11 @@ type UpdateCollectionOrderError =
   | "team/collection_and_next_collection_are_same"
   | "team/team_collections_have_different_parents"
 
-export const createNewRootCollection = (title: string, teamID: string) =>
+export const createNewRootCollection = (
+  title: string,
+  teamID: string,
+  type: ReqType
+) =>
   runMutation<
     CreateNewRootCollectionMutation,
     CreateNewRootCollectionMutationVariables,
@@ -62,11 +67,13 @@ export const createNewRootCollection = (title: string, teamID: string) =>
   >(CreateNewRootCollectionDocument, {
     title,
     teamID,
+    type,
   })
 
 export const createChildCollection = (
   childTitle: string,
-  collectionID: string
+  collectionID: string,
+  type: ReqType
 ) =>
   runMutation<
     CreateChildCollectionMutation,
@@ -75,6 +82,7 @@ export const createChildCollection = (
   >(CreateChildCollectionDocument, {
     childTitle,
     collectionID,
+    type,
   })
 
 /** Can be used to rename both collection and folder (considered same in BE) */
@@ -125,12 +133,17 @@ export const updateOrderRESTTeamCollection = (
     destCollID,
   })
 
-export const importJSONToTeam = (collectionJSON: string, teamID: string) =>
+export const importJSONToTeam = (
+  collectionJSON: string,
+  teamID: string,
+  type: ReqType
+) =>
   runMutation<ImportFromJsonMutation, ImportFromJsonMutationVariables, "">(
     ImportFromJsonDocument,
     {
       jsonString: collectionJSON,
       teamID,
+      type,
     }
   )
 
@@ -149,13 +162,17 @@ export const updateTeamCollection = (
     newTitle,
   })
 
-export const duplicateTeamCollection = (collectionID: string) =>
+export const duplicateTeamCollection = (
+  collectionID: string,
+  reqType: ReqType
+) =>
   runMutation<
     DuplicateTeamCollectionMutation,
     DuplicateTeamCollectionMutationVariables,
     ""
   >(DuplicateTeamCollectionDocument, {
     collectionID,
+    reqType,
   })
 
 export const sortTeamCollections = (

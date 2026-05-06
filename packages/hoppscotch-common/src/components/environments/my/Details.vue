@@ -139,6 +139,7 @@
                         count: index + 1,
                       })}`"
                       :name="'variable' + index"
+                      @focus="originalKeys.set(id, env.key)"
                       @change="handleVariableRename(id, env.key)"
                     />
                     <div class="flex items-center flex-1">
@@ -300,7 +301,7 @@ const emit = defineEmits<{
 }>()
 
 const idTicker = ref(0)
-
+const originalKeys = new Map<number, string>()
 const tabsData: ComputedRef<
   {
     id: string
@@ -515,10 +516,7 @@ const addEnvironmentVariable = () => {
   })
 }
 const handleVariableRename = (id: number, newKey: string) => {
-  const variable = vars.value.find((e) => e.id === id)
-  if (!variable) return
-
-  const oldKey = variable.env.key
+  const oldKey = originalKeys.get(id)
   if (oldKey === newKey || !oldKey) return
 
   // Replace all <<oldKey>> references with <<newKey>> in all variables
@@ -532,6 +530,7 @@ const handleVariableRename = (id: number, newKey: string) => {
       `<<${newKey}>>`
     )
   })
+  originalKeys.delete(id)
 }
 
 const removeEnvironmentVariable = (id: number) => {

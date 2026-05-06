@@ -210,7 +210,7 @@ import IconHome from "~icons/lucide/home"
 import IconRefreshCW from "~icons/lucide/refresh-cw"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { platform } from "~/platform"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { useService } from "dioc/vue"
 import { invokeAction } from "~/helpers/actions"
 import { useColorMode } from "~/composables/theming"
@@ -222,7 +222,7 @@ const router = useRouter()
 
 const t = useI18n()
 
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 
 const invalidLink = ref(false)
 const sharedRequestID = ref("")

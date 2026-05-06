@@ -18,8 +18,12 @@
             :is-removable="activeTabs.length > 1"
             :close-visibility="'hover'"
           >
-            <template v-if="tab.document.type === 'request'" #tabhead>
+            <template #tabhead>
               <HttpTabHead
+                v-if="
+                  tab.document.type === 'request' ||
+                  tab.document.type === 'example-response'
+                "
                 :tab="tab"
                 :is-removable="activeTabs.length > 1"
                 @open-rename-modal="openReqRenameModal(tab.id)"
@@ -27,6 +31,15 @@
                 @close-other-tabs="closeOtherTabsAction(tab.id)"
                 @duplicate-tab="duplicateTab(tab.id)"
                 @share-tab-request="shareTabRequest(tab.id)"
+              />
+              <GqlTabHead
+                v-else-if="tab.document.type === 'gql-request'"
+                :tab="tab"
+                :is-removable="activeTabs.length > 1"
+                @open-rename-modal="openReqRenameModal(tab.id)"
+                @close-tab="removeTab(tab.id)"
+                @close-other-tabs="closeOtherTabsAction(tab.id)"
+                @duplicate-tab="duplicateTab(tab.id)"
               />
             </template>
             <template #suffix>
@@ -44,6 +57,12 @@
                 </svg>
               </span>
             </template>
+            <HttpProtocolSwitcher
+              v-if="
+                tab.document.type === 'request' ||
+                tab.document.type === 'gql-request'
+              "
+            />
             <HttpExampleResponseTab
               v-if="tab.document.type === 'example-response'"
               :model-value="tab"
@@ -58,6 +77,12 @@
             <!-- When document.type === 'request' the tab type is HoppTab<HoppRequestDocument>-->
             <HttpRequestTab
               v-if="tab.document.type === 'request'"
+              :model-value="tab"
+              @update:model-value="onTabUpdate"
+            />
+            <!-- When document.type === 'gql-request' render GQL tab -->
+            <GqlRequestTab
+              v-if="tab.document.type === 'gql-request'"
               :model-value="tab"
               @update:model-value="onTabUpdate"
             />
@@ -118,7 +143,7 @@
     </HoppSmartModal>
     <CollectionsSaveRequest
       v-if="savingRequest"
-      mode="rest"
+      :mode="saveRequestMode"
       :show="savingRequest"
       @hide-modal="onSaveModalClose"
     />
@@ -149,12 +174,14 @@ import { EnvironmentInspectorService } from "~/services/inspection/inspectors/en
 import { ResponseInspectorService } from "~/services/inspection/inspectors/response.inspector"
 import { ScriptingInterceptorInspectorService } from "~/services/inspection/inspectors/scripting-interceptor.inspector"
 import { cloneDeep } from "lodash-es"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { HoppTab } from "~/services/tab"
-import { HoppRequestDocument, HoppTabDocument } from "~/helpers/rest/document"
+import { HoppTabDocument } from "~/helpers/rest/document"
 import { ScrollService } from "~/services/scroll.service"
+import { GQLTabConnectionService } from "~/services/gql-tab-connection.service"
 
 const scrollService = useService(ScrollService)
+const gqlTabConn = useService(GQLTabConnectionService)
 
 const savingRequest = ref(false)
 const confirmingCloseForTabID = ref<string | null>(null)
@@ -167,7 +194,7 @@ const renameTabID = ref<string | null>(null)
 
 const t = useI18n()
 
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 
 const currentTabID = tabs.currentTabID
 
@@ -216,9 +243,12 @@ function bindRequestToURLParams() {
   })
 }
 
-const onTabUpdate = (tab: HoppTab<HoppRequestDocument>) => {
+const onTabUpdate = (tab: HoppTab<HoppTabDocument>) => {
   tabs.updateTab(tab)
 }
+
+// Always "rest" — on the unified REST page, all saves go to restCollectionStore
+const saveRequestMode = computed(() => "rest" as const)
 
 const addNewTab = () => {
   const tab = tabs.createNewTab({
@@ -235,6 +265,8 @@ const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
 
 const getTabName = (tab: HoppTab<HoppTabDocument>) => {
   if (tab.document.type === "request") {
+    return tab.document.request.name
+  } else if (tab.document.type === "gql-request") {
     return tab.document.request.name
   } else if (tab.document.type === "test-runner") {
     return tab.document.collection.name
@@ -254,6 +286,9 @@ const removeTab = (tabID: string) => {
     confirmingCloseForTabID.value = tabID
   } else {
     scrollService.cleanupScrollForTab(tabState.id)
+    if (tabState.document.type === "gql-request") {
+      gqlTabConn.cleanupTab(tabState.id)
+    }
     tabs.closeTab(tabState.id)
     inspectionService.deleteTabInspectorResult(tabState.id)
   }
@@ -288,6 +323,15 @@ const duplicateTab = (tabID: string) => {
       isDirty: true,
     })
     tabs.setActiveTab(newTab.id)
+  } else if (tab.value && tab.value.document.type === "gql-request") {
+    const doc = tab.value.document
+    const newTab = tabs.createNewTab({
+      type: "gql-request",
+      request: cloneDeep(doc.request),
+      isDirty: true,
+      cursorPosition: doc.cursorPosition ?? 0,
+    })
+    tabs.setActiveTab(newTab.id)
   }
 }
 
@@ -303,23 +347,27 @@ const requestToRename = computed(() => {
   if (!renameTabID.value) return null
   const tab = tabs.getTabRef(renameTabID.value)
 
-  return tab.value.document.type === "request"
-    ? tab.value.document.request
-    : null
+  if (tab.value.document.type === "request") {
+    return tab.value.document.request
+  } else if (tab.value.document.type === "gql-request") {
+    return tab.value.document.request
+  }
+  return null
 })
 
 const openReqRenameModal = (tabID?: string) => {
   if (tabID) {
     const tab = tabs.getTabRef(tabID)
+    const docType = tab.value.document.type
 
-    if (tab.value.document.type !== "request") return
+    if (docType !== "request" && docType !== "gql-request") return
 
     reqName.value = tab.value.document.request.name
     renameTabID.value = tabID
   } else {
     const { id, document } = tabs.currentActiveTab.value
 
-    if (document.type !== "request") return
+    if (document.type !== "request" && document.type !== "gql-request") return
 
     reqName.value = document.request.name
     renameTabID.value = id
@@ -329,7 +377,11 @@ const openReqRenameModal = (tabID?: string) => {
 
 const renameReqName = () => {
   const tab = tabs.getTabRef(renameTabID.value ?? currentTabID.value)
-  if (tab.value && tab.value.document.type === "request") {
+  if (
+    tab.value &&
+    (tab.value.document.type === "request" ||
+      tab.value.document.type === "gql-request")
+  ) {
     tab.value.document.request.name = reqName.value
     tabs.updateTab(tab.value)
   }
@@ -341,6 +393,10 @@ const renameReqName = () => {
  */
 const onCloseConfirmSaveTab = () => {
   if (!savingRequest.value && confirmingCloseForTabID.value) {
+    const tabState = tabs.getTabRef(confirmingCloseForTabID.value).value
+    if (tabState?.document.type === "gql-request") {
+      gqlTabConn.cleanupTab(confirmingCloseForTabID.value)
+    }
     tabs.closeTab(confirmingCloseForTabID.value)
     inspectionService.deleteTabInspectorResult(confirmingCloseForTabID.value)
     confirmingCloseForTabID.value = null
@@ -355,6 +411,10 @@ const onResolveConfirmSaveTab = () => {
     invokeAction("request-response.save")
 
     if (confirmingCloseForTabID.value) {
+      const tabState = tabs.getTabRef(confirmingCloseForTabID.value).value
+      if (tabState?.document.type === "gql-request") {
+        gqlTabConn.cleanupTab(confirmingCloseForTabID.value)
+      }
       tabs.closeTab(confirmingCloseForTabID.value)
       confirmingCloseForTabID.value = null
     }
@@ -369,6 +429,10 @@ const onResolveConfirmSaveTab = () => {
 const onSaveModalClose = () => {
   savingRequest.value = false
   if (confirmingCloseForTabID.value) {
+    const tabState = tabs.getTabRef(confirmingCloseForTabID.value).value
+    if (tabState?.document.type === "gql-request") {
+      gqlTabConn.cleanupTab(confirmingCloseForTabID.value)
+    }
     tabs.closeTab(confirmingCloseForTabID.value)
     confirmingCloseForTabID.value = null
   }
@@ -409,8 +473,13 @@ defineActionHandler("rest.request.open", ({ doc }) => {
   tabs.createNewTab(doc)
 })
 
+defineActionHandler("rest.gql-request.open", ({ doc }) => {
+  tabs.createNewTab(doc)
+})
+
 defineActionHandler("request.rename", () => {
-  if (tabs.currentActiveTab.value.document.type === "request")
+  const docType = tabs.currentActiveTab.value.document.type
+  if (docType === "request" || docType === "gql-request")
     openReqRenameModal(tabs.currentActiveTab.value.id)
 })
 

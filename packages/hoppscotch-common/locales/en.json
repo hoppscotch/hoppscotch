@@ -1198,6 +1198,7 @@
     "moved": "Request moved",
     "name": "Request name",
     "new": "New Request",
+    "new_gql": "New GraphQL Request",
     "order_changed": "Request Order Updated",
     "override": "Override",
     "override_help": "Set <kbd>Content-Type</kbd> in Headers",

@@ -17,7 +17,7 @@ import { resolveSaveContextOnRequestReorder } from "~/helpers/collection/request
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { getService } from "~/modules/dioc"
 import { getI18n } from "~/modules/i18n"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { CurrentValueService } from "~/services/current-environment-value.service"
@@ -812,7 +812,7 @@ const restCollectionDispatchers = defineDispatchers({
     // Deal with situations where a tab with the given thing is deleted
     // We are just going to dissociate the save context of the tab and mark it dirty
 
-    const tabService = getService(RESTTabService)
+    const tabService = getService(WorkspaceTabsService)
 
     const tab = tabService.getTabRefWithSaveContext({
       originLocation: "user-collection",
@@ -820,7 +820,7 @@ const restCollectionDispatchers = defineDispatchers({
       requestIndex: requestIndex,
     })
 
-    if (tab) {
+    if (tab && tab.value.document.type !== "test-runner") {
       tab.value.document.saveContext = undefined
       tab.value.document.isDirty = true
     }
@@ -872,14 +872,14 @@ const restCollectionDispatchers = defineDispatchers({
     destLocation.requests.push(req)
     targetLocation.requests.splice(requestIndex, 1)
 
-    const tabService = getService(RESTTabService)
+    const tabService = getService(WorkspaceTabsService)
     const possibleTab = tabService.getTabRefWithSaveContext({
       originLocation: "user-collection",
       folderPath: path,
       requestIndex,
     })
 
-    if (possibleTab) {
+    if (possibleTab && possibleTab.value.document.type !== "test-runner") {
       possibleTab.value.document.saveContext = {
         originLocation: "user-collection",
         folderPath: destinationPath,
@@ -1633,7 +1633,7 @@ export function removeDuplicateRESTCollectionOrFolder(
 export function editRESTRequest(
   path: string,
   requestIndex: number,
-  requestNew: HoppRESTRequest
+  requestNew: HoppRESTRequest | HoppGQLRequest
 ) {
   const indexPaths = path.split("/").map((x) => parseInt(x))
   if (
@@ -1651,7 +1651,10 @@ export function editRESTRequest(
   })
 }
 
-export function saveRESTRequestAs(path: string, request: HoppRESTRequest) {
+export function saveRESTRequestAs(
+  path: string,
+  request: HoppRESTRequest | HoppGQLRequest
+) {
   // For calculating the insertion request index
   const targetLocation = navigateToFolderWithIndexPath(
     restCollectionStore.value.state,

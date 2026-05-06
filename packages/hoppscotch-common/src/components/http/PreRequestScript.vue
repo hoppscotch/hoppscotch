@@ -128,7 +128,7 @@ import { hasActualScript } from "~/helpers/scripting"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { platform } from "~/platform"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import IconFileSymlink from "~icons/lucide/file-symlink"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconSparkles from "~icons/lucide/sparkles"
@@ -188,7 +188,7 @@ const useSnippet = (script: string) => {
 const clearContent = () => {
   preRequestScript.value = ""
 }
-const tabService = useService(RESTTabService)
+const tabService = useService(WorkspaceTabsService)
 
 const currentRequest = computed(() =>
   tabService.currentActiveTab.value?.document.type === "request"

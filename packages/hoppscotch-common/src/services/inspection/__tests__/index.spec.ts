@@ -1,8 +1,9 @@
 import { describe, it, expect, vi } from "vitest"
 import { Inspector, InspectionService, InspectorResult } from "../"
 import { TestContainer } from "dioc/testing"
-import { ref } from "vue"
-import { RESTTabService } from "~/services/tab/rest"
+import { computed, ref } from "vue"
+import { refWithControl } from "@vueuse/core"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 
 vi.mock("~/modules/i18n", () => ({
   __esModule: true,
@@ -31,38 +32,27 @@ const testInspector: Inspector = {
   getInspections: () => ref(inspectorResultMock),
 }
 
+const mockRESTTab = {
+  id: "test",
+  document: {
+    type: "request" as const,
+    request: {},
+    response: null,
+    isDirty: false,
+    optionTabPreference: "params" as const,
+  },
+}
+
 describe("InspectionService", () => {
   describe("registerInspector", () => {
-    it("should register an inspector", () => {
+    it("should register a REST inspector", () => {
       const container = new TestContainer()
 
-      container.bindMock(RESTTabService, {
-        currentActiveTab: ref({
-          id: "test",
-          document: {
-            type: "request",
-            request: {},
-            response: null,
-            isDirty: false,
-            optionTabPreference: "params",
-          },
-        }),
-        tabMap: new Map([
-          [
-            "test",
-            {
-              id: "test",
-              document: {
-                type: "request",
-                request: {},
-                isDirty: false,
-                optionTabPreference: "params",
-              },
-            },
-          ],
-        ]),
+      container.bindMock(WorkspaceTabsService, {
+        currentActiveTab: computed(() => mockRESTTab),
+        tabMap: new Map([["test", mockRESTTab]]),
         tabOrdering: ref(["test"]),
-        currentTabID: ref("test"),
+        currentTabID: refWithControl("test"),
       })
 
       const service = container.bind(InspectionService)
@@ -77,33 +67,11 @@ describe("InspectionService", () => {
     it("should delete a tab's inspector results", () => {
       const container = new TestContainer()
 
-      container.bindMock(RESTTabService, {
-        currentActiveTab: ref({
-          id: "test",
-          document: {
-            type: "request",
-            request: {},
-            response: null,
-            isDirty: false,
-            optionTabPreference: "params",
-          },
-        }),
-        tabMap: new Map([
-          [
-            "test",
-            {
-              id: "test",
-              document: {
-                type: "request",
-                request: {},
-                isDirty: false,
-                optionTabPreference: "params",
-              },
-            },
-          ],
-        ]),
+      container.bindMock(WorkspaceTabsService, {
+        currentActiveTab: computed(() => mockRESTTab),
+        tabMap: new Map([["test", mockRESTTab]]),
         tabOrdering: ref(["test"]),
-        currentTabID: ref("test"),
+        currentTabID: refWithControl("test"),
       })
 
       const service = container.bind(InspectionService)

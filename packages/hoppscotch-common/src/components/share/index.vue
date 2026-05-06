@@ -131,7 +131,7 @@ import { ref } from "vue"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import * as E from "fp-ts/Either"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { useService } from "dioc/vue"
 import { watch } from "vue"
 
@@ -219,7 +219,7 @@ watch(
   { deep: true }
 )
 
-const restTab = useService(RESTTabService)
+const restTab = useService(WorkspaceTabsService)
 
 const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),

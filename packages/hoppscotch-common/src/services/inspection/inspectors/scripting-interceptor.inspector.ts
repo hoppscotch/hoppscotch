@@ -2,13 +2,11 @@ import { Service } from "dioc"
 import {
   InspectionService,
   Inspector,
+  InspectorRequest,
   InspectorResult,
 } from "~/services/inspection"
 import { computed, markRaw, Ref } from "vue"
-import {
-  HoppRESTRequest,
-  HoppRESTResponseOriginalRequest,
-} from "@hoppscotch/data"
+import { HoppRESTRequest } from "@hoppscotch/data"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import IconAlertTriangle from "~icons/lucide/alert-triangle"
 import { getI18n } from "~/modules/i18n"
@@ -146,7 +144,7 @@ export class ScriptingInterceptorInspectorService
   }
 
   getInspections(
-    req: Readonly<Ref<HoppRESTRequest | HoppRESTResponseOriginalRequest>>,
+    req: Readonly<Ref<InspectorRequest>>,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _res: Readonly<Ref<HoppRESTResponse | null | undefined>>
   ): Ref<InspectorResult[]> {

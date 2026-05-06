@@ -25,7 +25,11 @@
       <div class="ms-1 w-3 flex items-center justify-end">
         <component
           :is="isResponseVisible ? IconArrowDown : IconArrowRight"
-          v-if="request.responses && Object.keys(request.responses).length > 0"
+          v-if="
+            !isGQL &&
+            request.responses &&
+            Object.keys(request.responses).length > 0
+          "
           class="svg-icons w-3 cursor-pointer hover:bg-primaryDark transition rounded"
           @click="toggleRequestResponse()"
         />
@@ -36,7 +40,11 @@
       >
         <span
           class="pointer-events-none flex w-8 items-center justify-start truncate px-0.5"
-          :style="{ color: getMethodLabelColorClassOf(request.method) }"
+          :style="{
+            color: isGQL
+              ? undefined
+              : getMethodLabelColorClassOf((request as HoppRESTRequest).method),
+          }"
         >
           <component
             :is="IconCheckCircle"
@@ -45,8 +53,13 @@
             :class="{ 'text-accent': isSelected }"
           />
           <HoppSmartSpinner v-else-if="isRequestLoading" />
+          <component
+            :is="IconGraphql"
+            v-else-if="isGQL"
+            class="svg-icons h-3.5 w-3.5 text-accent"
+          />
           <span v-else class="truncate text-tiny font-semibold">
-            {{ request.method }}
+            {{ (request as HoppRESTRequest).method }}
           </span>
         </span>
         <span
@@ -133,7 +146,7 @@
                   "
                 />
                 <HoppSmartItem
-                  v-if="!hasNoTeamAccess"
+                  v-if="!hasNoTeamAccess && !isGQL"
                   ref="addExampleAction"
                   :icon="IconPlusCircle"
                   :label="t('action.add_example')"
@@ -159,7 +172,7 @@
                   "
                 />
                 <HoppSmartItem
-                  v-if="!hasNoTeamAccess"
+                  v-if="!hasNoTeamAccess && !isGQL"
                   ref="shareAction"
                   :icon="IconShare2"
                   :label="t('action.share')"
@@ -204,14 +217,14 @@
       @dragend="resetDragState"
     ></div>
 
-    <div v-if="isResponseVisible" class="flex">
+    <div v-if="isResponseVisible && !isGQL" class="flex">
       <div
         class="ml-[1.35rem] flex w-0.5 transform cursor-nsResize bg-dividerLight transition hover:scale-x-125 hover:bg-dividerDark"
       ></div>
       <div class="flex flex-col w-full pl-3">
         <CollectionsExampleResponse
           v-for="[index, [key, value]] of Object.entries(
-            Object.entries(request.responses)
+            Object.entries((request as HoppRESTRequest).responses)
           )"
           :key="key"
           :response-name="key"
@@ -246,7 +259,9 @@ import IconArrowDown from "~icons/lucide/chevron-down"
 import IconBook from "~icons/lucide/book"
 import IconPlusCircle from "~icons/lucide/plus-circle"
 import { ref, PropType, watch, computed } from "vue"
-import { HoppRESTRequest } from "@hoppscotch/data"
+import { HoppRESTRequest, HoppGQLRequest } from "@hoppscotch/data"
+import { isGQLRequest } from "@hoppscotch/data"
+import IconGraphql from "~icons/hopp/graphql"
 import { useI18n } from "@composables/i18n"
 import { useDocumentationVisibility } from "~/composables/documentationVisibility"
 import { TippyComponent } from "vue-tippy"
@@ -265,7 +280,7 @@ const t = useI18n()
 
 const props = defineProps({
   request: {
-    type: Object as PropType<HoppRESTRequest>,
+    type: Object as PropType<HoppRESTRequest | HoppGQLRequest>,
     default: () => ({}),
     required: true,
   },
@@ -354,6 +369,8 @@ const documentationAction = ref<HTMLButtonElement | null>(null)
 const addExampleAction = ref<HTMLButtonElement | null>(null)
 
 const { isDocumentationVisible } = useDocumentationVisibility()
+
+const isGQL = computed(() => isGQLRequest(props.request))
 
 const dragging = ref(false)
 const ordering = ref(false)

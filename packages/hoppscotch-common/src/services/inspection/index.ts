@@ -1,4 +1,5 @@
 import {
+  HoppGQLRequest,
   HoppRESTRequest,
   HoppRESTResponseOriginalRequest,
 } from "@hoppscotch/data"
@@ -16,7 +17,7 @@ import {
   EffectScope,
 } from "vue"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
-import { RESTTabService } from "../tab/rest"
+import { WorkspaceTabsService } from "../tab/workspace-tabs"
 /**
  * Defines how to render the text in an Inspector Result
  */
@@ -88,8 +89,19 @@ export type InspectorState = {
 }
 
 /**
- * Defines an inspector that can be registered with the inspector service
- * Inspectors are used to perform checks on a request and return the results
+ * The full union of request types an inspector may receive.
+ * REST tabs send HoppRESTRequest or HoppRESTResponseOriginalRequest;
+ * GQL tabs send HoppGQLRequest.
+ */
+export type InspectorRequest =
+  | HoppRESTRequest
+  | HoppRESTResponseOriginalRequest
+  | HoppGQLRequest
+
+/**
+ * Defines an inspector that can be registered with the inspection service.
+ * Inspectors receive the active request (REST or GQL) and may return results
+ * for either protocol — or none if the request type is not applicable.
  */
 export interface Inspector {
   /**
@@ -98,13 +110,16 @@ export interface Inspector {
   inspectorID: string
   /**
    * Returns the inspector results for the request.
-   * NOTE: The refs passed down are readonly and are debounced to avoid performance issues
+   * NOTE: The refs passed down are readonly and are debounced to avoid performance issues.
+   * For GQL tabs, `req` will be a HoppGQLRequest. For REST tabs it will be
+   * HoppRESTRequest or HoppRESTResponseOriginalRequest. `res` is only populated
+   * for REST tabs.
    * @param req The ref to the request to inspect
-   * @param res The ref to the response to inspect
+   * @param res The ref to the response to inspect (null for GQL tabs)
    * @returns The ref to the inspector results
    */
   getInspections: (
-    req: Readonly<Ref<HoppRESTRequest | HoppRESTResponseOriginalRequest>>,
+    req: Readonly<Ref<InspectorRequest>>,
     res: Readonly<Ref<HoppRESTResponse | null | undefined>>
   ) => Ref<InspectorResult[]>
 }
@@ -116,11 +131,11 @@ export interface Inspector {
 export class InspectionService extends Service {
   public static readonly ID = "INSPECTION_SERVICE"
 
-  private inspectors: Map<string, Inspector> = reactive(new Map())
+  public inspectors: Map<string, Inspector> = reactive(new Map())
 
-  private tabs: Ref<Map<string, InspectorResult[]>> = ref(new Map())
+  public tabs: Ref<Map<string, InspectorResult[]>> = ref(new Map())
 
-  private readonly restTab = this.bind(RESTTabService)
+  private readonly restTab = this.bind(WorkspaceTabsService)
 
   private watcherStopHandle: (() => void) | null = null
   private effectScope: EffectScope | null = null
@@ -140,7 +155,8 @@ export class InspectionService extends Service {
   }
 
   /**
-   * Registers a inspector with the inspection service
+   * Registers an inspector with the inspection service.
+   * The inspector will be called for both REST and GQL tabs.
    * @param inspector The inspector instance to register
    */
   public registerInspector(inspector: Inspector) {
@@ -157,19 +173,24 @@ export class InspectionService extends Service {
     this.effectScope = effectScope()
 
     this.effectScope.run(() => {
-      const currentTabRequest = computed(() => {
-        if (this.restTab.currentActiveTab.value.document.type === "test-runner")
-          return null
+      // Resolves the active request for both REST and GQL tabs.
+      // Returns null for tab types that are not inspectable (e.g. test-runner).
+      const currentTabRequest = computed((): InspectorRequest | null => {
+        const doc = this.restTab.currentActiveTab.value.document
 
-        return this.restTab.currentActiveTab.value.document.type === "request"
-          ? this.restTab.currentActiveTab.value.document.request
-          : this.restTab.currentActiveTab.value.document.response
-              .originalRequest
+        if (doc.type === "test-runner") return null
+
+        if (doc.type === "gql-request") return doc.request
+
+        return doc.type === "request"
+          ? doc.request
+          : doc.response.originalRequest
       })
 
       const currentTabResponse = computed(() => {
-        if (this.restTab.currentActiveTab.value.document.type === "request") {
-          return this.restTab.currentActiveTab.value.document.response
+        const doc = this.restTab.currentActiveTab.value.document
+        if (doc.type === "request") {
+          return doc.response
         }
         return null
       })
@@ -186,9 +207,7 @@ export class InspectionService extends Service {
 
         return Array.from(this.inspectors.values()).map((inspector) =>
           inspector.getInspections(
-            debouncedReq as Readonly<
-              Ref<HoppRESTRequest | HoppRESTResponseOriginalRequest>
-            >,
+            debouncedReq as Readonly<Ref<InspectorRequest>>,
             debouncedRes
           )
         )
@@ -212,7 +231,6 @@ export class InspectionService extends Service {
   }
 
   public deleteTabInspectorResult(tabID: string) {
-    // TODO: Move Tabs into a service and implement this with an event instead
     this.tabs.value.delete(tabID)
   }
 

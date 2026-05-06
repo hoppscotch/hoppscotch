@@ -3,9 +3,8 @@ import {
   HoppRESTRequest,
   getDefaultGQLRequest,
   getDefaultRESTRequest,
-  translateToNewRESTCollection,
+  translateToNewCollection,
   HoppGQLRequest,
-  translateToNewGQLCollection,
 } from "@hoppscotch/data"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
@@ -55,7 +54,7 @@ const validateCollection = (collection: unknown) => {
     })
   }
 
-  return O.some(translateToNewRESTCollection(collection))
+  return O.some(translateToNewCollection(collection))
 }
 
 /**
@@ -103,5 +102,5 @@ export const validateGQLCollection = (collection: unknown) => {
     })
   }
 
-  return O.some(translateToNewGQLCollection(collection))
+  return O.some(translateToNewCollection(collection))
 }

@@ -31,6 +31,7 @@ import * as E from 'fp-ts/Either';
 import { throwErr } from 'src/utils';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { SkipThrottle } from '@nestjs/throttler';
+import { ReqType } from 'src/types/RequestTypes';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => TeamCollection)
@@ -144,6 +145,7 @@ export class TeamCollectionResolver {
       args.teamID,
       args.cursor,
       args.take,
+      args.type,
     );
   }
 
@@ -176,6 +178,7 @@ export class TeamCollectionResolver {
       data: !teamCollections.right.data
         ? null
         : JSON.stringify(teamCollections.right.data),
+      type: teamCollections.right.type,
     };
   }
 
@@ -191,6 +194,7 @@ export class TeamCollectionResolver {
       args.teamID,
       args.title,
       args.data,
+      args.type,
       null,
     );
 
@@ -216,6 +220,12 @@ export class TeamCollectionResolver {
     })
     jsonString: string,
     @Args({
+      name: 'type',
+      description: 'Type of the user collection',
+      type: () => ReqType,
+    })
+    type: ReqType,
+    @Args({
       name: 'parentCollectionID',
       type: () => ID,
       description:
@@ -229,6 +239,7 @@ export class TeamCollectionResolver {
         jsonString,
         teamID,
         parentCollectionID ?? null,
+        type,
       );
     if (E.isLeft(importedCollection)) throwErr(importedCollection.left);
     return true;
@@ -249,6 +260,7 @@ export class TeamCollectionResolver {
       team.right.id,
       args.childTitle,
       args.data,
+      args.type,
       args.collectionID,
     );
 
@@ -350,9 +362,18 @@ export class TeamCollectionResolver {
       description: 'ID of the collection',
     })
     collectionID: string,
+    @Args({
+      name: 'reqType',
+      description: 'Type of UserCollection',
+      type: () => ReqType,
+    })
+    reqType: ReqType,
   ) {
     const duplicatedTeamCollection =
-      await this.teamCollectionService.duplicateTeamCollection(collectionID);
+      await this.teamCollectionService.duplicateTeamCollection(
+        collectionID,
+        reqType,
+      );
 
     if (E.isLeft(duplicatedTeamCollection))
       throwErr(duplicatedTeamCollection.left);

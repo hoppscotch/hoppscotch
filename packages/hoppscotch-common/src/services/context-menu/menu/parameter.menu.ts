@@ -8,7 +8,7 @@ import {
 import { markRaw, ref } from "vue"
 import IconArrowDownRight from "~icons/lucide/arrow-down-right"
 import { getI18n } from "~/modules/i18n"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { getService } from "~/modules/dioc"
 
 //regex containing both url and parameter
@@ -87,15 +87,17 @@ export class ParameterMenuService extends Service implements ContextMenu {
       queryParams.push({ key, value, active: true })
     }
 
-    const tabService = getService(RESTTabService)
+    const tabService = getService(WorkspaceTabsService)
 
-    if (tabService.currentActiveTab.value.document.type === "test-runner")
-      return
+    const docType = tabService.currentActiveTab.value.document.type
+    if (docType === "test-runner" || docType === "gql-request") return
 
     const currentActiveRequest =
-      tabService.currentActiveTab.value.document.type === "request"
+      docType === "request"
         ? tabService.currentActiveTab.value.document.request
-        : tabService.currentActiveTab.value.document.response.originalRequest
+        : tabService.currentActiveTab.value.document.response?.originalRequest
+
+    if (!currentActiveRequest) return
 
     // add the parameters to the current request parameters
     currentActiveRequest.params = [

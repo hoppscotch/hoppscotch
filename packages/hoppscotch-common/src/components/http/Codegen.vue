@@ -142,7 +142,7 @@ import { onMounted } from "vue"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { platform } from "~/platform"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import IconCheck from "~icons/lucide/check"
 import IconWrapText from "~icons/lucide/wrap-text"
 import { asyncComputed } from "@vueuse/core"
@@ -154,7 +154,7 @@ import { filterNonEmptyEnvironmentVariables } from "~/helpers/RequestRunner"
 
 const t = useI18n()
 
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 const currentEnvironmentValueService = useService(CurrentValueService)
 
 // Get the current active request if the current active tab is a request else get the original request from the response tab

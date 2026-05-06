@@ -128,7 +128,7 @@ import { ref, PropType, computed } from "vue"
 import { useI18n } from "@composables/i18n"
 import { TippyComponent } from "vue-tippy"
 import { useService } from "dioc/vue"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { HoppRESTRequestResponse } from "@hoppscotch/data"
 import { HoppRESTSaveContext } from "~/helpers/rest/document"
 import findStatusGroup from "@helpers/findStatusGroup"
@@ -184,7 +184,7 @@ const emit = defineEmits<{
   (event: "select-response", payload: ResponsePayload): void
 }>()
 
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 
 const pathToIndex = (path: string) => {
   const pathArr = path.split("/")

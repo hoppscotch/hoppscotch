@@ -161,7 +161,9 @@ export function updateInheritedPropertiesForAffectedRequests(
   type: "rest" | "graphql"
 ) {
   const tabService =
-    type === "rest" ? getService(WorkspaceTabsService) : getService(GQLTabService)
+    type === "rest"
+      ? getService(WorkspaceTabsService)
+      : getService(GQLTabService)
   const teamCollectionService = getService(TeamCollectionsService)
 
   const effectedTabs = tabService.getTabsRefTo((tab) => {

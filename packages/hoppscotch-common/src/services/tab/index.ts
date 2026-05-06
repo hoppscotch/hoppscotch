@@ -1,4 +1,17 @@
 import { ComputedRef, WritableComputedRef } from "vue"
+import type { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
+import type { Workspace } from "../workspace.service"
+
+/**
+ * Per-tab shadow drafts of the other protocol's request, used by the
+ * REST/GraphQL protocol switcher to preserve in-flight edits across switches.
+ * Lives on the tab object so it automatically survives close → reopen and is
+ * garbage-collected when the tab is permanently destroyed.
+ */
+export type ProtocolDrafts = {
+  rest?: HoppRESTRequest
+  gql?: HoppGQLRequest
+}
 
 /**
  * Represents a tab in HoppScotch.
@@ -9,6 +22,17 @@ export type HoppTab<Doc> = {
   id: string
   /** The document associated with the tab. */
   document: Doc
+  /**
+   * The workspace this tab is attached to, captured at creation/restore.
+   * Set automatically by `WorkspaceTabsService`; standalone tab services
+   * (e.g., `GQLTabService` for the legacy `/graphql` page) leave this undefined.
+   */
+  workspaceHandle?: Workspace
+  /**
+   * Shadow drafts of the opposite-protocol request for round-trip preservation
+   * across `ProtocolSwitcher` swaps. Populated by `WorkspaceTabsService` only.
+   */
+  protocolDrafts?: ProtocolDrafts
 }
 
 export type PersistableTabState<Doc> = {

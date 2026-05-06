@@ -563,7 +563,7 @@ import {
 import * as E from "fp-ts/Either"
 import { PersistenceService } from "~/services/persistence"
 import { GQLTabService } from "~/services/tab/graphql"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import IconChevronDown from "~icons/lucide/chevron-down"
 import IconChevronUp from "~icons/lucide/chevron-up"
 import IconCircle from "~icons/lucide/circle"
@@ -670,7 +670,7 @@ const passBy = computed(() => {
 })
 
 const gqlTabsService = useService(GQLTabService)
-const restTabsService = useService(RESTTabService)
+const restTabsService = useService(WorkspaceTabsService)
 const persistenceService = useService(PersistenceService)
 
 const setAccessTokenInActiveContext = (

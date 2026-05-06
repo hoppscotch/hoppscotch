@@ -1,5 +1,5 @@
 import { getService } from "~/modules/dioc"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { parseTemplateStringE } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import { getCombinedEnvVariables } from "../utils/environments"
@@ -11,7 +11,7 @@ export const replaceTemplateStringsInObjectValues = <
   source: "REST" | "GQL" = "REST"
 ) => {
   const envs = getCombinedEnvVariables()
-  const restTabsService = getService(RESTTabService)
+  const restTabsService = getService(WorkspaceTabsService)
 
   const requestVariables =
     source === "REST" &&

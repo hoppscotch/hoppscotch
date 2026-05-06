@@ -3,7 +3,7 @@ import * as E from "fp-ts/Either"
 import { getService } from "~/modules/dioc"
 
 import { PersistenceService } from "~/services/persistence"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { GQLTabService } from "~/services/tab/graphql"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 
@@ -72,7 +72,7 @@ export class InitializationService extends Service<InitEvent> {
       throw new Error("Cannot initialize tabs before persistence")
     }
 
-    const restTabService = getService(RESTTabService)
+    const restTabService = getService(WorkspaceTabsService)
     const gqlTabService = getService(GQLTabService)
 
     await Promise.all([restTabService.init(), gqlTabService.init()])

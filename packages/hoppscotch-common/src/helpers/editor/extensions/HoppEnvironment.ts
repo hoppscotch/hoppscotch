@@ -24,7 +24,7 @@ import {
   getSelectedEnvironmentType,
 } from "~/newstore/environments"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 
 import IconEdit from "~icons/lucide/edit?raw"
@@ -59,7 +59,7 @@ const TOOLTIP_ENV_CONTAINER_Z_INDEX_CLASS = "!z-[1002]"
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
 const currentEnvironmentValueService = getService(CurrentValueService)
-const restTabs = getService(RESTTabService)
+const restTabs = getService(WorkspaceTabsService)
 
 /**
  * Transforms the environment list to a list with unique keys with value

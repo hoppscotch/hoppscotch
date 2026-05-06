@@ -19,7 +19,7 @@ import IconPlay from "~icons/lucide/play"
 import IconRotateCCW from "~icons/lucide/rotate-ccw"
 import IconSave from "~icons/lucide/save"
 import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { Container } from "dioc"
 
 type Doc = {
@@ -44,7 +44,7 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
   public searcherSectionTitle = this.t("shortcut.request.title")
 
   private readonly spotlight = this.bind(SpotlightService)
-  private readonly restTab = this.bind(RESTTabService)
+  private readonly restTab = this.bind(WorkspaceTabsService)
 
   private route = useRoute()
   private isRESTPage = computed(

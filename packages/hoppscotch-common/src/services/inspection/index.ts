@@ -17,7 +17,7 @@ import {
   EffectScope,
 } from "vue"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
-import { RESTTabService } from "../tab/rest"
+import { WorkspaceTabsService } from "../tab/workspace-tabs"
 /**
  * Defines how to render the text in an Inspector Result
  */
@@ -135,7 +135,7 @@ export class InspectionService extends Service {
 
   public tabs: Ref<Map<string, InspectorResult[]>> = ref(new Map())
 
-  private readonly restTab = this.bind(RESTTabService)
+  private readonly restTab = this.bind(WorkspaceTabsService)
 
   private watcherStopHandle: (() => void) | null = null
   private effectScope: EffectScope | null = null

@@ -7,7 +7,7 @@ import { GQLHistoryEntry, RESTHistoryEntry } from "~/newstore/history"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { HoppAction, HoppActionWithArgs } from "~/helpers/actions"
 import { getDefaultGQLRequest } from "~/helpers/graphql/default"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { PlatformDef, setPlatformDef } from "~/platform"
 
 async function flushPromises() {
@@ -69,7 +69,7 @@ describe("HistorySpotlightSearcherService", () => {
 
     const createNewTabFn = vi.fn()
 
-    container.bindMock(RESTTabService, {
+    container.bindMock(WorkspaceTabsService, {
       createNewTab: createNewTabFn,
     })
 

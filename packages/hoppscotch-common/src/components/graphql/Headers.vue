@@ -276,7 +276,7 @@ import IconWrapText from "~icons/lucide/wrap-text"
 import { GQLOptionTabs } from "./RequestOptions.vue"
 import { InspectionService, InspectorResult } from "~/services/inspection"
 import { useService } from "dioc/vue"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 
 const colorMode = useColorMode()
 const t = useI18n()
@@ -709,7 +709,7 @@ const changeTab = () => emit("change-tab", "authorization")
 
 // Inspection results for header key/value
 const inspectionService = useService(InspectionService)
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 
 const headerKeyResults = inspectionService.getResultViewFor(
   tabs.currentTabID.value,

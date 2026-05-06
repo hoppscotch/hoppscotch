@@ -161,13 +161,13 @@ import { useMockServerVisibility } from "~/composables/mockServerVisibility"
 import { GQLTabConnectionService } from "~/services/gql-tab-connection.service"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { platform } from "~/platform"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 
 const t = useI18n()
 const colorMode = useColorMode()
 const toast = useToast()
 
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 const gqlTabConn = useService(GQLTabConnectionService)
 
 const schemaString = gqlTabConn.activeTabSchemaString

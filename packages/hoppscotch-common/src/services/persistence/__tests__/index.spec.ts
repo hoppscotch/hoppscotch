@@ -47,7 +47,7 @@ import {
 } from "~/newstore/settings"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { GQLTabService } from "~/services/tab/graphql"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import {
   PersistenceService,
   STORE_KEYS,
@@ -159,12 +159,12 @@ const setStoreItem = async <T>(key: string, value: T) => {
 
 const bindPersistenceService = ({
   mockGQLTabService = false,
-  mockRESTTabService = false,
+  mockWorkspaceTabsService = false,
   mockSecretEnvironmentsService = false,
   mock = {},
 }: {
   mockGQLTabService?: boolean
-  mockRESTTabService?: boolean
+  mockWorkspaceTabsService?: boolean
   mockSecretEnvironmentsService?: boolean
   mock?: Record<string, unknown>
 } = {}) => {
@@ -174,8 +174,8 @@ const bindPersistenceService = ({
     container.bindMock(GQLTabService, mock)
   }
 
-  if (mockRESTTabService) {
-    container.bindMock(RESTTabService, mock)
+  if (mockWorkspaceTabsService) {
+    container.bindMock(WorkspaceTabsService, mock)
   }
 
   if (mockSecretEnvironmentsService) {
@@ -1819,7 +1819,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        await invokeSetupLocalPersistence({ mockRESTTabService: true, mock })
+        await invokeSetupLocalPersistence({ mockWorkspaceTabsService: true, mock })
 
         expect(getItemSpy).toHaveBeenCalledWith(restTabStateKey)
 
@@ -1841,7 +1841,7 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        await invokeSetupLocalPersistence({ mockRESTTabService: true, mock })
+        await invokeSetupLocalPersistence({ mockWorkspaceTabsService: true, mock })
 
         expect(getItemSpy).toHaveBeenCalledWith(restTabStateKey)
 

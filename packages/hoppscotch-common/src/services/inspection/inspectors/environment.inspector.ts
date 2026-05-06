@@ -19,7 +19,7 @@ import {
 import { invokeAction } from "~/helpers/actions"
 import { useStreamStatic } from "~/composables/stream"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
 import { HOPP_ENVIRONMENT_REGEX } from "~/helpers/environment-regex"
@@ -43,7 +43,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
   private readonly inspection = this.bind(InspectionService)
   private readonly secretEnvs = this.bind(SecretEnvironmentService)
   private readonly currentEnvs = this.bind(CurrentValueService)
-  private readonly restTabs = this.bind(RESTTabService)
+  private readonly restTabs = this.bind(WorkspaceTabsService)
 
   private aggregateEnvsWithValue = useStreamStatic(
     aggregateEnvsWithCurrentValue$,

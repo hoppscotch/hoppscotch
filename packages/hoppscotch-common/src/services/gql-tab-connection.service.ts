@@ -22,7 +22,7 @@ import { getI18n } from "~/modules/i18n"
 import { addGraphqlHistoryEntry, makeGQLHistoryEntry } from "~/newstore/history"
 
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 
 import { MediaType, content, Method, RelayRequest } from "@hoppscotch/kernel"
 import { GQLRequest } from "~/helpers/kernel/gql/request"
@@ -125,7 +125,7 @@ export class GQLTabConnectionService extends Service {
   public static readonly ID = "GQL_TAB_CONNECTION_SERVICE"
 
   private readonly interceptorService = this.bind(KernelInterceptorService)
-  private readonly restTabService = this.bind(RESTTabService)
+  private readonly restTabService = this.bind(WorkspaceTabsService)
 
   // Active GQL tab ID — tracks which GQL tab is currently focused
   private _activeGQLTabId = ref<string>("")

@@ -189,6 +189,31 @@ const dispatchers = defineDispatchers({
       ),
     }
   },
+  renameEnvironmentVariable(
+    { environments }: EnvironmentStore,
+    {
+      envIndex,
+      variableIndex,
+      newKey,
+    }: {
+      envIndex: number
+      variableIndex: number
+      newKey: string
+    }
+  ) {
+    return {
+      environments: environments.map((env, index) =>
+        index === envIndex
+          ? {
+              ...env,
+              variables: env.variables.map((v, vIndex) =>
+                vIndex === variableIndex ? { ...v, key: newKey } : v
+              ),
+            }
+          : env
+      ),
+    }
+  },
   updateEnvironment(
     { environments }: EnvironmentStore,
     { envIndex, updatedEnv }: { envIndex: number; updatedEnv: Environment }
@@ -880,6 +905,21 @@ export function renameEnvironment(envIndex: number, newName: string) {
     payload: {
       envIndex,
       newName,
+    },
+  })
+}
+
+export function renameEnvironmentVariable(
+  envIndex: number,
+  variableIndex: number,
+  newKey: string
+) {
+  environmentsStore.dispatch({
+    dispatcher: "renameEnvironmentVariable",
+    payload: {
+      envIndex,
+      variableIndex,
+      newKey,
     },
   })
 }

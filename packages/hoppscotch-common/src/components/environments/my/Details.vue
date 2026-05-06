@@ -139,6 +139,7 @@
                         count: index + 1,
                       })}`"
                       :name="'variable' + index"
+                      @change="handleVariableRename(id, env.key)"
                     />
                     <div class="flex items-center flex-1">
                       <SmartEnvInput
@@ -511,6 +512,25 @@ const addEnvironmentVariable = () => {
       initialValue: "",
       secret: selectedEnvOption.value === "secret",
     },
+  })
+}
+const handleVariableRename = (id: number, newKey: string) => {
+  const variable = vars.value.find((e) => e.id === id)
+  if (!variable) return
+
+  const oldKey = variable.env.key
+  if (oldKey === newKey || !oldKey) return
+
+  // Replace all <<oldKey>> references with <<newKey>> in all variables
+  vars.value.forEach((v) => {
+    v.env.initialValue = v.env.initialValue.replaceAll(
+      `<<${oldKey}>>`,
+      `<<${newKey}>>`
+    )
+    v.env.currentValue = v.env.currentValue.replaceAll(
+      `<<${oldKey}>>`,
+      `<<${newKey}>>`
+    )
   })
 }
 

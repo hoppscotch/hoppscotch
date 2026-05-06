@@ -330,7 +330,12 @@ const buildFinalRequest = (auth: HoppRESTAuth, headers: HoppRESTHeaders) => {
  */
 const requestCode = asyncComputed(async (): Promise<string> => {
   try {
-    if (currentActiveTabDocument.value?.type !== "request") {
+    if (!currentActiveTabDocument.value) {
+      errorState.value = false
+      return ""
+    }
+
+    if (currentActiveTabDocument.value.type !== "request") {
       errorState.value = true
       return ""
     }

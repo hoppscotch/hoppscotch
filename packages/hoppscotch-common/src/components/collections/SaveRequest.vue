@@ -223,11 +223,11 @@ const requestContext = computed(() => {
     return props.request
   }
 
-  if (
-    props.mode === "rest" &&
-    RESTTabs.currentActiveTab.value?.document.type === "request"
-  ) {
-    return RESTTabs.currentActiveTab.value?.document.request ?? null
+  if (props.mode === "rest") {
+    const activeRESTTab = RESTTabs.currentActiveTab.value
+    return activeRESTTab?.document.type === "request"
+      ? activeRESTTab.document.request
+      : null
   }
 
   return GQLTabs.currentActiveTab.value?.document.request ?? null
@@ -642,21 +642,19 @@ const updateTeamCollectionOrFolder = (
       (result) => {
         const { createRequestInCollection } = result
         const activeRESTTab = RESTTabs.currentActiveTab.value
-        if (!activeRESTTab) {
-          modalLoadingState.value = false
-          return
-        }
 
-        activeRESTTab.document = {
-          request: requestUpdated,
-          isDirty: false,
-          type: "request",
-          saveContext: {
-            originLocation: "team-collection",
-            requestID: createRequestInCollection.id,
-            collectionID: createRequestInCollection.collection.id,
-            teamID: createRequestInCollection.collection.team.id,
-          },
+        if (activeRESTTab) {
+          activeRESTTab.document = {
+            request: requestUpdated,
+            isDirty: false,
+            type: "request",
+            saveContext: {
+              originLocation: "team-collection",
+              requestID: createRequestInCollection.id,
+              collectionID: createRequestInCollection.collection.id,
+              teamID: createRequestInCollection.collection.team.id,
+            },
+          }
         }
 
         modalLoadingState.value = false

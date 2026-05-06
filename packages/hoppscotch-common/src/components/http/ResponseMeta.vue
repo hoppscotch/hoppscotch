@@ -207,7 +207,7 @@ const statusCategory = computed(() => {
 const inspectionService = useService(InspectionService)
 
 const tabResults = inspectionService.getResultViewFor(
-  tabs.currentTabID.value ?? "",
+  tabs.currentTabID.value,
   (result) => result.locations.type === "response"
 )
 </script>

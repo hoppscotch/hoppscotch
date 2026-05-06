@@ -226,9 +226,11 @@ export class InspectionService extends Service {
    * @returns The ref into the inspector results, if the tab doesn't exist, a ref into an empty array is returned
    */
   public getResultViewFor(
-    tabID: string,
+    tabID: string | null,
     filter: (x: InspectorResult) => boolean = () => true
   ) {
+    if (!tabID) return computed<InspectorResult[]>(() => [])
+
     return computed(() => this.tabs.value.get(tabID)?.filter(filter) ?? [])
   }
 }

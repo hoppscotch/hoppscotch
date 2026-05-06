@@ -238,13 +238,13 @@ const addEnvironment = async () => {
     const variableName = `<<${editingName.value}>>`
     //replace the currenttab endpoint containing the value in the text with variablename
     const activeTab = tabs.currentActiveTab.value
-    if (!activeTab) return
-
-    activeTab.document.request.endpoint =
-      activeTab.document.request.endpoint.replace(
-        editingValue.value,
-        variableName
-      )
+    if (activeTab) {
+      activeTab.document.request.endpoint =
+        activeTab.document.request.endpoint.replace(
+          editingValue.value,
+          variableName
+        )
+    }
   }
 
   hideModal()

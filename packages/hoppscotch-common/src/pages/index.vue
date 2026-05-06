@@ -139,7 +139,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, computed } from "vue"
+import { ref, onMounted, computed, nextTick } from "vue"
 import { generateUniqueRefId, safelyExtractRESTRequest } from "@hoppscotch/data"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import { useRoute } from "vue-router"
@@ -214,8 +214,7 @@ function bindRequestToURLParams() {
 
     let activeTab = tabs.currentActiveTab.value
     if (!activeTab) {
-      addNewTab()
-      activeTab = tabs.currentActiveTab.value
+      activeTab = addNewTab()
     }
 
     if (!activeTab || activeTab.document.type !== "request") return
@@ -241,6 +240,8 @@ const addNewTab = () => {
   })
 
   tabs.setActiveTab(tab.id)
+
+  return tab
 }
 const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
   tabs.updateTabOrdering(e.oldIndex, e.newIndex)
@@ -369,18 +370,22 @@ const onCloseConfirmSaveTab = () => {
 /**
  * Called when the user confirms they want to save the tab
  */
-const onResolveConfirmSaveTab = () => {
-  const tab = confirmingCloseForTabID.value
-    ? tabs.getTabRef(confirmingCloseForTabID.value).value
-    : tabs.currentActiveTab.value
+const onResolveConfirmSaveTab = async () => {
+  const tabID = confirmingCloseForTabID.value
+  const tab = tabID ? tabs.getTabRef(tabID).value : tabs.currentActiveTab.value
 
   if (!tab) return
+
+  if (tabID && currentTabID.value !== tabID) {
+    tabs.setActiveTab(tabID)
+    await nextTick()
+  }
 
   if (tab.document.saveContext) {
     invokeAction("request-response.save")
 
-    if (confirmingCloseForTabID.value) {
-      tabs.closeTab(confirmingCloseForTabID.value)
+    if (tabID) {
+      tabs.closeTab(tabID)
       confirmingCloseForTabID.value = null
     }
   } else {

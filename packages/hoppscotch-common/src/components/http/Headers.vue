@@ -675,13 +675,13 @@ const changeTab = (tab: ComputedHeader["source"]) => {
 const inspectionService = useService(InspectionService)
 
 const headerKeyResults = inspectionService.getResultViewFor(
-  tabs.currentTabID.value ?? "",
+  tabs.currentTabID.value,
   (result) =>
     result.locations.type === "header" && result.locations.position === "key"
 )
 
 const headerValueResults = inspectionService.getResultViewFor(
-  tabs.currentTabID.value ?? "",
+  tabs.currentTabID.value,
   (result) =>
     result.locations.type === "header" && result.locations.position === "value"
 )

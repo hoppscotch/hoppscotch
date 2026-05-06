@@ -179,7 +179,7 @@ import { useService } from "dioc/vue"
 import { useToast } from "~/composables/toast"
 import { TestRunnerConfig } from "~/helpers/rest/document"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import IconCheck from "~icons/lucide/check"
 import IconCopy from "~icons/lucide/copy"
 import IconHelpCircle from "~icons/lucide/help-circle"
@@ -199,7 +199,7 @@ import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
 const t = useI18n()
 const toast = useToast()
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 
 const loadingCollection = ref(false)
 

@@ -100,7 +100,7 @@ import IconCopy from "~icons/lucide/copy"
 import IconExternalLink from "~icons/lucide/external-link"
 import { useToast } from "~/composables/toast"
 import { useService } from "dioc/vue"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { DocumentationService } from "~/services/documentation.service"
 import { cascadeParentCollectionForProperties } from "~/newstore/collections"
@@ -152,7 +152,7 @@ const emit = defineEmits<{
   (event: "close-modal"): void
 }>()
 
-const restTabs = useService(RESTTabService)
+const restTabs = useService(WorkspaceTabsService)
 const teamCollectionsService = useService(TeamCollectionsService)
 const documentationService = useService(DocumentationService)
 

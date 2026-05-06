@@ -5,7 +5,7 @@ import {
   RESTReqSchemaVersion,
 } from "@hoppscotch/data"
 import { getAffectedIndexes } from "./affectedIndex"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { getService } from "~/modules/dioc"
 
 /**
@@ -38,7 +38,7 @@ export function resolveSaveContextOnRequestReorder(payload: {
   // if (newIndex === -1) remove it from the map because it will be deleted
   if (newIndex === -1) affectedIndexes.delete(lastIndex)
 
-  const tabService = getService(RESTTabService)
+  const tabService = getService(WorkspaceTabsService)
   const tabs = tabService.getTabsRefTo((tab) => {
     return (
       tab.document.saveContext?.originLocation === "user-collection" &&

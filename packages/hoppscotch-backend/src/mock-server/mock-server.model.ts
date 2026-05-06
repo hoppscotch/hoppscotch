@@ -16,6 +16,7 @@ import {
   Matches,
   Max,
   MaxLength,
+  Min,
   MinLength,
 } from 'class-validator';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
@@ -165,6 +166,7 @@ export class CreateMockServerInput {
 
   @IsNumber()
   @IsOptional()
+  @Min(0)
   @Max(60000)
   @Field({
     nullable: true,
@@ -204,6 +206,7 @@ export class UpdateMockServerInput {
   })
   @IsOptional()
   @IsNumber()
+  @Min(0)
   @Max(60000)
   delayInMs?: number;
 

@@ -24,7 +24,7 @@ export class PaginationArgs {
   @Min(1)
   @IsOptional()
   @Type(() => Number)
-  take: number;
+  take: number = 10;
 }
 
 @ArgsType()

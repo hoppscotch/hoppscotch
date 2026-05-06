@@ -1819,7 +1819,10 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        await invokeSetupLocalPersistence({ mockWorkspaceTabsService: true, mock })
+        await invokeSetupLocalPersistence({
+          mockWorkspaceTabsService: true,
+          mock,
+        })
 
         expect(getItemSpy).toHaveBeenCalledWith(restTabStateKey)
 
@@ -1841,7 +1844,10 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        await invokeSetupLocalPersistence({ mockWorkspaceTabsService: true, mock })
+        await invokeSetupLocalPersistence({
+          mockWorkspaceTabsService: true,
+          mock,
+        })
 
         expect(getItemSpy).toHaveBeenCalledWith(restTabStateKey)
 

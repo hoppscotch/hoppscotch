@@ -14,11 +14,16 @@ import {
 
 /**
  * Converts a REST request document to a GQL request document.
- * Preserves: name, URL (endpoint→url), headers, auth where compatible.
- * Creates default GQL query.
+ *
+ * If `gqlDraft` is provided (e.g. a previously-snapshotted GQL request kept by
+ * the protocol switcher for round-trip preservation), it is restored verbatim
+ * as the new request. Otherwise the GQL request is freshly seeded from the
+ * REST request: name, endpoint→url, headers, auth (where compatible) are
+ * preserved; query/variables fall back to defaults.
  */
 export function convertRESTToGQL(
-  doc: HoppRequestDocument
+  doc: HoppRequestDocument,
+  gqlDraft?: HoppGQLRequest
 ): HoppGQLRequestDocument {
   const restReq = doc.request
 
@@ -39,7 +44,7 @@ export function convertRESTToGQL(
 
   const defaultGQL = getDefaultGQLRequest()
 
-  const gqlRequest: HoppGQLRequest = {
+  const gqlRequest: HoppGQLRequest = gqlDraft ?? {
     v: GQL_REQ_SCHEMA_VERSION,
     _ref_id: restReq._ref_id ?? generateUniqueRefId("req"),
     name: restReq.name,
@@ -69,19 +74,24 @@ export function convertRESTToGQL(
 
 /**
  * Converts a GQL request document to a REST request document.
- * Preserves: name, URL (url→endpoint), headers, auth where compatible.
- * Sets method to POST (standard for GraphQL over HTTP).
+ *
+ * If `restDraft` is provided (e.g. a previously-snapshotted REST request kept
+ * by the protocol switcher for round-trip preservation), it is restored
+ * verbatim as the new request. Otherwise the REST request is freshly seeded
+ * from the GQL request: name, url→endpoint, headers, auth (where compatible)
+ * are preserved; method/body/params fall back to defaults.
  */
 export function convertGQLToREST(
-  doc: HoppGQLRequestDocument
+  doc: HoppGQLRequestDocument,
+  restDraft?: HoppRESTRequest
 ): HoppRequestDocument {
   const gqlReq = doc.request
 
   const defaultREST = getDefaultRESTRequest()
 
-  const restRequest: HoppRESTRequest = {
+  const restRequest: HoppRESTRequest = restDraft ?? {
     v: RESTReqSchemaVersion,
-    _ref_id: generateUniqueRefId("req"),
+    _ref_id: gqlReq._ref_id ?? generateUniqueRefId("req"),
     name: gqlReq.name,
     endpoint: defaultREST.endpoint,
     method: "GET",

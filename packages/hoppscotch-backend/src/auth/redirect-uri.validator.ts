@@ -19,6 +19,6 @@ export function isValidLocalhostRedirectUri(
   return LOOPBACK_HOSTS.includes(url.hostname);
 }
 
-export function isValidRedirectUri(uri?: string): boolean {
+export function isValidRedirectUri(uri: string | undefined | null): boolean {
   return isValidLocalhostRedirectUri(uri);
 }

@@ -14,6 +14,7 @@ import {
   graphqlHistoryStore,
   deleteGraphqlHistoryEntry,
   clearGraphqlHistory,
+  decodeGQLHistoryResponse,
 } from "@hoppscotch/common/newstore/history"
 import { translateToNewRequest, translateToGQLRequest } from "@hoppscotch/data"
 import { HistoryPlatformDef } from "@hoppscotch/common/platform/history"
@@ -112,7 +113,7 @@ async function loadHistoryEntries() {
     const gqlHistoryEntries: GQLHistoryEntry[] = gqlEntries.map((entry) => ({
       v: 1,
       request: translateToGQLRequest(JSON.parse(entry.request)),
-      response: JSON.parse(entry.responseMetadata),
+      response: decodeGQLHistoryResponse(entry.responseMetadata),
       star: entry.isStarred,
       updatedOn: new Date(entry.executedOn),
       id: entry.id,
@@ -178,7 +179,7 @@ function setupUserHistoryCreatedSubscription() {
                 v: 1,
                 id,
                 request: translateToGQLRequest(JSON.parse(request)),
-                response: JSON.parse(responseMetadata),
+                response: decodeGQLHistoryResponse(responseMetadata),
                 star: isStarred,
                 updatedOn: new Date(executedOn),
               })

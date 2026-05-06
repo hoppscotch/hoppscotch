@@ -1,9 +1,15 @@
-use std::{fs, path::PathBuf, time::Duration};
+use std::{fs, path::PathBuf, sync::Mutex, time::Duration};
 
+use serde::Deserialize;
 use tauri_plugin_appload::{ApiConfig, CacheConfig, Config, StorageConfig, VendorConfig};
 
 use crate::{error::HoppError, path};
 
+// Appload plugin configuration. These constants are baked into the plugin
+// config at startup via `HoppApploadConfig::build()`, before the webview
+// exists, so they cannot be overridden by runtime user settings. A future
+// user-facing connection timeout override will need a separate mechanism,
+// either a startup-time store file read or a deferred appload init.
 const API_SERVER_URL: &str = "http://localhost:3200";
 const API_TIMEOUT_SECS: u64 = 30;
 const CACHE_MAX_SIZE_MB: usize = 1000;
@@ -66,6 +72,72 @@ impl HoppApploadConfig {
     }
 }
 
+// Webview-pushed runtime settings bridge.
+//
+// The webview persists user settings (timeout, zoom, auto-reconnect, and so
+// on) via `tauri-plugin-store`. The Tauri shell needs live access to some
+// of those values, for example `connectionTimeoutMs` for the appload HTTP
+// client. Rather than having Rust read the store file directly, which would
+// couple this code to the plugin's on-disk format, the webview pushes the
+// current settings to Rust via `set_desktop_config` at init and on change.
+//
+// The IPC plumbing is wired end-to-end but no Rust code reads
+// `DESKTOP_CONFIG` yet. Consumers such as the appload connection timeout
+// are future scope.
+//
+// The struct deliberately only deserializes fields Rust actually consumes.
+// TS sends the full `DESKTOP_SETTINGS_SCHEMA` payload and serde drops the
+// rest. Adding a new Rust consumer means adding a field here, not changing
+// the IPC contract.
+
+/// Subset of the webview-side `DesktopSettings` that Rust services consume.
+///
+/// Field names are snake_case with `rename_all = "camelCase"` so they line
+/// up with what the TS store produces from `DESKTOP_SETTINGS_SCHEMA`.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DesktopConfig {
+    /// Timeout (ms) for outbound HTTP requests in the appload client and
+    /// related connection paths. Mirrors `API_TIMEOUT_SECS` when the value
+    /// is 30_000.
+    pub connection_timeout_ms: u64,
+}
+
+/// Live copy of the most recent settings pushed from the webview.
+///
+/// `None` means the webview has not called `set_desktop_config` yet, which
+/// is the case during the early Tauri startup path before the window loads
+/// and for the whole of the pre-webview `PortableHome` and `StandardHome`
+/// flow. Consumers must treat `None` as "no override, use the compile-time
+/// default".
+static DESKTOP_CONFIG: Mutex<Option<DesktopConfig>> = Mutex::new(None);
+
+/// Returns a clone of the most recent settings pushed from the webview, or
+/// `None` if nothing has been pushed yet.
+///
+/// Cloning keeps the lock scope short, which is cheap because
+/// `DesktopConfig` is a small POD struct.
+#[allow(dead_code)] // no Rust consumers yet, see module doc above.
+pub fn current_desktop_config() -> Option<DesktopConfig> {
+    DESKTOP_CONFIG
+        .lock()
+        .ok()
+        .and_then(|guard| guard.clone())
+}
+
+/// Tauri command invoked by the webview on init and whenever settings
+/// change. Overwrites any previously-pushed config and is idempotent on
+/// identical input.
+#[tauri::command]
+pub fn set_desktop_config(config: DesktopConfig) -> Result<(), String> {
+    tracing::debug!(?config, "Received desktop config from webview");
+    let mut guard = DESKTOP_CONFIG
+        .lock()
+        .map_err(|e| format!("DESKTOP_CONFIG mutex poisoned: {}", e))?;
+    *guard = Some(config);
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -116,5 +188,52 @@ mod tests {
         );
 
         assert!(!config.config_dir.as_os_str().is_empty());
+    }
+
+    // The roundtrip and overwrite assertions stay in one test because
+    // `DESKTOP_CONFIG` is process-wide shared state and cargo runs tests
+    // in parallel by default. Splitting them into two `#[test]` functions
+    // would race for the global mutex and produce flaky assertions
+    // depending on schedule. The other tests in this module exercise
+    // `DesktopConfig` deserialization in isolation and never touch
+    // `DESKTOP_CONFIG`, so they are safe to run alongside this one.
+    #[test]
+    fn set_desktop_config_roundtrip_and_overwrite() {
+        let result = set_desktop_config(DesktopConfig {
+            connection_timeout_ms: 45_000,
+        });
+        assert!(result.is_ok());
+        assert_eq!(
+            current_desktop_config().unwrap().connection_timeout_ms,
+            45_000
+        );
+
+        set_desktop_config(DesktopConfig {
+            connection_timeout_ms: 90_000,
+        })
+        .unwrap();
+        assert_eq!(
+            current_desktop_config().unwrap().connection_timeout_ms,
+            90_000
+        );
+    }
+
+    #[test]
+    fn desktop_config_deserializes_from_camel_case() {
+        let json = r#"{"connectionTimeoutMs": 60000}"#;
+        let cfg: DesktopConfig = serde_json::from_str(json).unwrap();
+        assert_eq!(cfg.connection_timeout_ms, 60_000);
+    }
+
+    #[test]
+    fn desktop_config_deserialize_ignores_extra_fields() {
+        // TS pushes the full `DESKTOP_SETTINGS_SCHEMA` so extras must drop.
+        let json = r#"{
+            "connectionTimeoutMs": 30000,
+            "disableUpdateNotifications": true,
+            "zoomLevel": 1.25
+        }"#;
+        let cfg: DesktopConfig = serde_json::from_str(json).unwrap();
+        assert_eq!(cfg.connection_timeout_ms, 30_000);
     }
 }

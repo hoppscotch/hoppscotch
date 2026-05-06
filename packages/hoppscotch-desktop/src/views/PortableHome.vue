@@ -116,7 +116,6 @@ import { close } from "@hoppscotch/plugin-appload"
 import { invoke } from "@tauri-apps/api/core"
 
 import { Io } from "~/kernel"
-import type { PortableSettings } from "~/types"
 import {
   useAppInitialization,
   AppState,
@@ -143,9 +142,18 @@ const updaterClient = new UpdaterClient()
 const showPortableWelcome = ref(false)
 const currentDirectory = ref(".")
 
-const portableSettings = reactive<PortableSettings>({
+// Fields mirrored locally for the portable welcome screen's UI and the
+// startup update gate. The welcome screen only lets the user toggle
+// `disableUpdateNotifications` and `autoSkipWelcome`, but the update gate
+// also reads `disableUpdateChecks` so a user who set that via the settings
+// page on a prior session sees the gate respected on next startup. The full
+// desktop settings object is loaded and merged in
+// `handlePortableWelcomeContinue` so other fields like timeout or zoom,
+// written elsewhere, survive intact.
+const portableSettings = reactive({
   disableUpdateNotifications: false,
   autoSkipWelcome: false,
+  disableUpdateChecks: false,
 })
 
 watch(
@@ -183,26 +191,22 @@ const closeApp = async () => {
 
 const handlePortableWelcomeContinue = async () => {
   try {
-    console.log(
-      "About to save portable settings:",
-      JSON.stringify(portableSettings)
-    )
-
-    const settingsToSave: PortableSettings = {
+    // Read-modify-write against the full `DesktopSettings` object so
+    // unrelated fields like timeout or zoom, potentially written by the
+    // webview-side settings page in the same session, are preserved.
+    const current = await persistence.desktopSettings.get()
+    const updated = {
+      ...current,
       disableUpdateNotifications: portableSettings.disableUpdateNotifications,
       autoSkipWelcome: portableSettings.autoSkipWelcome,
     }
 
-    console.log("Saving portable settings:", settingsToSave)
-    await persistence.setPortableSettings(settingsToSave)
-
-    const savedSettings = await persistence.getPortableSettings()
-    console.log("Verified saved settings:", savedSettings)
+    await persistence.desktopSettings.set(updated)
 
     showPortableWelcome.value = false
     await loadRecent()
   } catch (error) {
-    console.error("Failed to save portable settings:", error)
+    console.error("Failed to save desktop settings:", error)
     showPortableWelcome.value = false
     await loadRecent()
   }
@@ -211,8 +215,18 @@ const handlePortableWelcomeContinue = async () => {
 const checkForUpdatesPortable = async () => {
   console.log("Checking portable updates, current settings:", portableSettings)
 
-  if (portableSettings.disableUpdateNotifications) {
-    console.log("Update notifications disabled for portable mode")
+  // Two disable flags land in this gate for backwards compatibility. The
+  // legacy `disableUpdateNotifications` was originally documented as
+  // controlling only notifications but was wired up to skip the whole check
+  // in portable mode. The new `disableUpdateChecks` is the explicit
+  // opt-out that matches the settings-page toggle. Either flag being true
+  // skips the startup check, so users upgrading from a prior version keep
+  // their original behavior and users who set the new flag see it honored.
+  if (
+    portableSettings.disableUpdateNotifications ||
+    portableSettings.disableUpdateChecks
+  ) {
+    console.log("Automatic update check disabled for portable mode")
     return
   }
 
@@ -238,14 +252,13 @@ const initializePortableMode = async () => {
     currentDirectory.value = "."
   }
 
-  const settings = await persistence.getPortableSettings()
-  console.log("Loaded portable settings:", settings)
+  const settings = await persistence.desktopSettings.get()
+  console.log("Loaded desktop settings:", settings)
 
   portableSettings.disableUpdateNotifications =
     settings.disableUpdateNotifications
   portableSettings.autoSkipWelcome = settings.autoSkipWelcome
-
-  console.log("Updated reactive portableSettings:", portableSettings)
+  portableSettings.disableUpdateChecks = settings.disableUpdateChecks
 
   await checkForUpdatesPortable()
 

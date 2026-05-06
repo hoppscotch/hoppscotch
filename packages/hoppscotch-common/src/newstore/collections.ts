@@ -11,6 +11,7 @@ import {
   GQLHeader,
 } from "@hoppscotch/data"
 import { cloneDeep } from "lodash-es"
+import { hasActualScript } from "~/helpers/scripting"
 import { pluck } from "rxjs/operators"
 import { resolveSaveContextOnRequestReorder } from "~/helpers/collection/request"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
@@ -38,6 +39,8 @@ const defaultRESTCollectionState = {
       headers: [],
       variables: [],
       description: null,
+      preRequestScript: "",
+      testScript: "",
     }),
   ],
 }
@@ -55,6 +58,8 @@ const defaultGraphqlCollectionState = {
       headers: [],
       variables: [],
       description: null,
+      preRequestScript: "",
+      testScript: "",
     }),
   ],
 }
@@ -142,14 +147,16 @@ export function cascadeParentCollectionForProperties(
 
   const variables: HoppInheritedProperty["variables"] = []
 
-  if (!folderPath) return { auth, headers, variables }
+  const scripts: HoppInheritedProperty["scripts"] = []
+
+  if (!folderPath) return { auth, headers, variables, scripts }
 
   const path = folderPath.split("/").map((i) => parseInt(i))
 
   // Check if the path is empty or invalid
   if (!path || path.length === 0) {
     console.error("Invalid path:", folderPath)
-    return { auth, headers, variables }
+    return { auth, headers, variables, scripts }
   }
 
   // Loop through the path and get the last parent folder with authType other than 'inherit'
@@ -162,7 +169,7 @@ export function cascadeParentCollectionForProperties(
     // Check if parentFolder is undefined or null
     if (!parentFolder) {
       console.error("Parent folder not found for path:", path)
-      return { auth, headers, variables }
+      return { auth, headers, variables, scripts }
     }
 
     const parentFolderAuth = parentFolder.auth as HoppRESTAuth | HoppGQLAuth
@@ -223,9 +230,27 @@ export function cascadeParentCollectionForProperties(
         ),
       })
     }
+
+    // Collect scripts from the collection hierarchy (root to child order)
+    const parentPreRequestScript = parentFolder.preRequestScript ?? ""
+    const parentTestScript = parentFolder.testScript ?? ""
+
+    if (
+      hasActualScript(parentPreRequestScript) ||
+      hasActualScript(parentTestScript)
+    ) {
+      const currentPath = [...path.slice(0, i + 1)].join("/")
+
+      scripts.push({
+        parentID: parentFolder._ref_id ?? parentFolder.id ?? currentPath,
+        parentName: parentFolder.name,
+        preRequestScript: parentPreRequestScript,
+        testScript: parentTestScript,
+      })
+    }
   }
 
-  return { auth, headers, variables }
+  return { auth, headers, variables, scripts }
 }
 
 function reorderItems(array: unknown[], from: number, to: number) {
@@ -365,6 +390,8 @@ const restCollectionDispatchers = defineDispatchers({
       headers: [],
       variables: [],
       description: null,
+      preRequestScript: "",
+      testScript: "",
     })
 
     const newState = state
@@ -1026,6 +1053,8 @@ const gqlCollectionDispatchers = defineDispatchers({
       headers: [],
       variables: [],
       description: null,
+      preRequestScript: "",
+      testScript: "",
     })
     const newState = state
     const indexPaths = path.split("/").map((x) => parseInt(x))
@@ -1367,18 +1396,26 @@ export function getRESTCollection(collectionIndex: number) {
   return restCollectionStore.value.state[collectionIndex]
 }
 
+export type RESTCollectionInheritedProps = {
+  auth: HoppRESTAuth
+  headers: HoppRESTHeaders
+  variables: HoppCollectionVariable[]
+  // Ancestor scripts for partial-scope runs (root → target's parent).
+  // Empty when running from the topmost collection.
+  ancestorPreRequestScripts: string[]
+  ancestorTestScripts: string[]
+}
+
 function computeCollectionInheritedProps(
   collection: HoppCollection,
   ref_id: string,
   type: "my-collections" | "team-collections" = "my-collections",
   parentAuth: HoppRESTAuth | null = null,
   parentHeaders: HoppRESTHeaders | null = null,
-  parentVariables: HoppCollectionVariable[] | null = null
-): {
-  auth: HoppRESTAuth
-  headers: HoppRESTHeaders
-  variables: HoppCollectionVariable[]
-} | null {
+  parentVariables: HoppCollectionVariable[] | null = null,
+  parentPreRequestScripts: string[] = [],
+  parentTestScripts: string[] = []
+): RESTCollectionInheritedProps | null {
   // Determine the inherited authentication and headers
   const inheritedAuth =
     collection.auth?.authType === "inherit" && collection.auth.authActive
@@ -1406,8 +1443,18 @@ function computeCollectionInheritedProps(
       auth: inheritedAuth,
       headers: inheritedHeaders,
       variables: inheritedVariables,
+      ancestorPreRequestScripts: parentPreRequestScripts,
+      ancestorTestScripts: parentTestScripts,
     }
   }
+
+  // Append this collection's scripts before descending so children see them.
+  const nextPreRequestScripts = hasActualScript(collection.preRequestScript)
+    ? [...parentPreRequestScripts, collection.preRequestScript]
+    : parentPreRequestScripts
+  const nextTestScripts = hasActualScript(collection.testScript)
+    ? [...parentTestScripts, collection.testScript]
+    : parentTestScripts
 
   // Recursively search in folders
   for (const folder of collection.folders) {
@@ -1417,7 +1464,9 @@ function computeCollectionInheritedProps(
       type,
       inheritedAuth,
       inheritedHeaders,
-      inheritedVariables
+      inheritedVariables,
+      nextPreRequestScripts,
+      nextTestScripts
     )
     if (result) return result // Return as soon as a match is found
   }
@@ -1429,11 +1478,7 @@ export function getRESTCollectionInheritedProps(
   collectionID: string,
   collections: HoppCollection[] = restCollectionStore.value.state,
   type: "my-collections" | "team-collections" = "my-collections"
-): {
-  auth: HoppRESTAuth
-  headers: HoppRESTHeaders
-  variables: HoppCollectionVariable[]
-} | null {
+): RESTCollectionInheritedProps | null {
   for (const collection of collections) {
     const result = computeCollectionInheritedProps(
       collection,

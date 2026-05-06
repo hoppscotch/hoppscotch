@@ -539,6 +539,21 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       // Clean up
       fs.unlinkSync(junitPath);
     }, 600000); // 600 second (10 minute) timeout
+
+    test("Inherited collection-level scripts run in order across both sandboxes", async () => {
+      const args = `test ${getTestJsonFilePath(
+        "collection-level-scripts-coll.json",
+        "collection"
+      )}`;
+
+      const defaultResult = await runCLIWithNetworkRetry(args);
+      if (defaultResult === null) return;
+      expect(defaultResult.error).toBeNull();
+
+      const legacyResult = await runCLIWithNetworkRetry(`${args} --legacy-sandbox`);
+      if (legacyResult === null) return;
+      expect(legacyResult.error).toBeNull();
+    });
   });
 
   describe("Test `hopp test <file_path_or_id> --env <file_path_or_id>` command:", () => {

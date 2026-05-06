@@ -18,11 +18,13 @@
       "@app/platform/*": ["./src/platform/*"],
       "@app/services/*": ["./src/services/*"],
       "@app/components/*": ["./src/components/*"],
+      "@app/composables/*": ["./src/composables/*"],
       "@app/helpers/*": ["./src/helpers/*"],
       "@app/api/*": ["./src/api/*"],
       "@app/lib/*": ["./src/lib/*"],
       "@app/kernel/*": ["./src/kernel/*"]
-    }
+    },
+    "types": ["vite/client", "unplugin-icons/types/vue"]
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
   "references": [{ "path": "./tsconfig.node.json" }]

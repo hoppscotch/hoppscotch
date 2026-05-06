@@ -20,7 +20,6 @@ import { GqlUser } from 'src/decorators/gql-user.decorator';
 import { AuthUser } from 'src/types/AuthUser';
 import { RTCookie } from 'src/decorators/rt-cookie.decorator';
 import { AuthProvider, authCookieHandler, authProviderCheck } from './helper';
-import { isValidLocalhostRedirectUri } from './redirect-uri.validator';
 import { GoogleSSOGuard } from './guards/google-sso.guard';
 import { GithubSSOGuard } from './guards/github-sso.guard';
 import { MicrosoftSSOGuard } from './guards/microsoft-sso.guard';
@@ -30,6 +29,8 @@ import { AUTH_PROVIDER_NOT_SPECIFIED } from 'src/errors';
 import { ConfigService } from '@nestjs/config';
 import { throwHTTPErr } from 'src/utils';
 import { UserLastLoginInterceptor } from 'src/interceptors/user-last-login.interceptor';
+import { isValidRedirectUri } from './redirect-uri.validator';
+
 
 @UseGuards(ThrottlerBehindProxyGuard)
 @Controller({ path: 'auth', version: '1' })
@@ -203,11 +204,11 @@ export class AuthController {
   @UseInterceptors(UserLastLoginInterceptor)
   async desktopAuthCallback(
     @GqlUser() user: AuthUser,
-    @Query('redirect_uri') redirectUri: string,
+    @Query('redirect_uri') redirectUri?: string,
   ) {
-    if (!isValidLocalhostRedirectUri(redirectUri)) {
+    if (!isValidRedirectUri(redirectUri)) {
       throwHTTPErr({
-        message: 'Invalid desktop callback URL',
+        message: 'Invalid redirect_uri provided',
         statusCode: 400,
       });
     }

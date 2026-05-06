@@ -1,4 +1,7 @@
-import { isValidLocalhostRedirectUri } from './redirect-uri.validator';
+import {
+  isValidLocalhostRedirectUri,
+  isValidRedirectUri,
+} from './redirect-uri.validator';
 
 describe('isValidLocalhostRedirectUri', () => {
   describe('valid loopback URIs', () => {
@@ -115,5 +118,51 @@ describe('isValidLocalhostRedirectUri', () => {
     test('Should return false for a relative path', () => {
       expect(isValidLocalhostRedirectUri('/device-token')).toBe(false);
     });
+  });
+});
+
+describe('isValidRedirectUri', () => {
+  test('Should allow localhost URLs', () => {
+    expect(isValidRedirectUri('http://localhost:3000')).toBe(true);
+  });
+
+  test('Should reject https external URLs', () => {
+    expect(isValidRedirectUri('https://example.com')).toBe(false);
+  });
+
+  test('Should reject javascript protocol', () => {
+    expect(isValidRedirectUri('javascript:alert(1)')).toBe(false);
+  });
+
+  test('Should reject invalid URL', () => {
+    expect(isValidRedirectUri('abc')).toBe(false);
+  });
+
+  test('Should reject undefined', () => {
+    expect(isValidRedirectUri(undefined)).toBe(false);
+  });
+
+  test('Should reject URLs with credentials', () => {
+    expect(isValidRedirectUri('http://user:pass@example.com')).toBe(false);
+  });
+
+  test('Should reject ftp protocol even on localhost', () => {
+    expect(isValidRedirectUri('ftp://localhost:3000')).toBe(false);
+  });
+
+  test('Should allow 127.0.0.1', () => {
+    expect(isValidRedirectUri('http://127.0.0.1:3000')).toBe(true);
+  });
+
+  test('Should allow IPv6 loopback', () => {
+    expect(isValidRedirectUri('http://[::1]:3000')).toBe(true);
+  });
+
+  test('Should reject empty string', () => {
+    expect(isValidRedirectUri('')).toBe(false);
+  });
+
+  test('Should reject https localhost', () => {
+    expect(isValidRedirectUri('https://localhost:3000')).toBe(false);
   });
 });

@@ -408,7 +408,8 @@ export function useQuery() {
   }
 
   const isArgumentInOperation = (item: ExplorerFieldDef): boolean => {
-    const { cursorPosition } = tabs.currentActiveTab.value?.document
+    const cursorPosition =
+      tabs.currentActiveTab.value?.document.cursorPosition ?? 0
     const operation = getOperation(cursorPosition)
     if (!operation) return false
 

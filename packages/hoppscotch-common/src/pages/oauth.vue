@@ -5,6 +5,7 @@
 </template>
 
 <script setup lang="ts">
+import type { HoppGQLAuth, HoppRESTAuth } from "@hoppscotch/data"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 
@@ -19,6 +20,8 @@ import {
   PersistedOAuthConfig,
   routeOAuthRedirect,
 } from "~/services/oauth/oauth.service"
+import { getDefaultGQLRequest } from "~/helpers/graphql/default"
+import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { PersistenceService } from "~/services/persistence"
 import { GQLTabService } from "~/services/tab/graphql"
 
@@ -65,6 +68,85 @@ function translateOAuthRedirectError(error: string) {
     default:
       return t("authorization.oauth.something_went_wrong_on_oauth_redirect")
   }
+}
+
+const buildOAuthAuth = (
+  config: PersistedOAuthConfig,
+  accessToken: string,
+  refreshToken?: string
+): HoppRESTAuth | null => {
+  if (
+    !config.fields ||
+    (config.grant_type !== "AUTHORIZATION_CODE" &&
+      config.grant_type !== "IMPLICIT")
+  ) {
+    return null
+  }
+
+  const {
+    state: _state,
+    codeVerifier: _codeVerifier,
+    codeChallenge: _codeChallenge,
+    ...grantTypeFields
+  } = config.fields as Record<string, unknown>
+
+  return {
+    authType: "oauth-2",
+    authActive: true,
+    addTo: "HEADERS",
+    grantTypeInfo: {
+      ...grantTypeFields,
+      grantType: config.grant_type,
+      token: accessToken,
+      ...(config.grant_type === "AUTHORIZATION_CODE" && refreshToken
+        ? { refreshToken }
+        : {}),
+    },
+  } as HoppRESTAuth
+}
+
+const createRESTTabWithOAuthToken = (
+  config: PersistedOAuthConfig,
+  accessToken: string,
+  refreshToken?: string
+) => {
+  const auth = buildOAuthAuth(config, accessToken, refreshToken)
+  if (!auth) return null
+
+  const tab = restTabs.createNewTab({
+    type: "request",
+    request: {
+      ...getDefaultRESTRequest(),
+      auth,
+    },
+    isDirty: false,
+  })
+
+  restTabs.setActiveTab(tab.id)
+
+  return tab
+}
+
+const createGQLTabWithOAuthToken = (
+  config: PersistedOAuthConfig,
+  accessToken: string,
+  refreshToken?: string
+) => {
+  const auth = buildOAuthAuth(config, accessToken, refreshToken)
+  if (!auth) return null
+
+  const tab = gqlTabs.createNewTab({
+    request: {
+      ...getDefaultGQLRequest(),
+      auth: auth as HoppGQLAuth,
+    },
+    isDirty: false,
+    cursorPosition: 0,
+  })
+
+  gqlTabs.setActiveTab(tab.id)
+
+  return tab
 }
 
 onMounted(async () => {
@@ -114,21 +196,39 @@ onMounted(async () => {
   }
 
   const routeToRedirect = source === "GraphQL" ? "/graphql" : "/"
-  const tabService = source === "GraphQL" ? gqlTabs : restTabs
+  const accessToken = tokenInfo.right.access_token
+  const refreshToken = tokenInfo.right.refresh_token
 
-  if (
-    tabService.currentActiveTab.value.document.request.auth.authType ===
-    "oauth-2"
-  ) {
-    tabService.currentActiveTab.value.document.request.auth.grantTypeInfo.token =
-      tokenInfo.right.access_token
+  const activeTab =
+    source === "GraphQL"
+      ? (gqlTabs.currentActiveTab.value ??
+        createGQLTabWithOAuthToken(
+          persistedOAuthConfig,
+          accessToken,
+          refreshToken
+        ))
+      : (restTabs.currentActiveTab.value ??
+        createRESTTabWithOAuthToken(
+          persistedOAuthConfig,
+          accessToken,
+          refreshToken
+        ))
+
+  const activeDocument =
+    activeTab && "type" in activeTab.document
+      ? activeTab.document.type === "request"
+        ? activeTab.document
+        : null
+      : activeTab?.document
+
+  if (activeDocument?.request.auth.authType === "oauth-2") {
+    activeDocument.request.auth.grantTypeInfo.token = accessToken
 
     if (
-      tabService.currentActiveTab.value.document.request.auth.grantTypeInfo
-        .grantType === "AUTHORIZATION_CODE"
+      activeDocument.request.auth.grantTypeInfo.grantType ===
+      "AUTHORIZATION_CODE"
     ) {
-      tabService.currentActiveTab.value.document.request.auth.grantTypeInfo.refreshToken =
-        tokenInfo.right.refresh_token
+      activeDocument.request.auth.grantTypeInfo.refreshToken = refreshToken
     }
 
     toast.success(t("authorization.oauth.token_fetched_successfully"))

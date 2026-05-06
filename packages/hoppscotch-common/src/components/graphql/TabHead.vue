@@ -66,7 +66,7 @@
             "
           />
           <HoppSmartItem
-            v-if="isRemovable"
+            v-if="canCloseOthers"
             ref="closeOthersAction"
             :icon="IconXSquare"
             :label="t('tab.close_others')"
@@ -100,6 +100,7 @@ const t = useI18n()
 defineProps<{
   tab: HoppTab<HoppGQLDocument>
   isRemovable: boolean
+  canCloseOthers?: boolean
 }>()
 
 const emit = defineEmits<{

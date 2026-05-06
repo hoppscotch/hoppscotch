@@ -3,7 +3,7 @@
     <AppPaneLayout layout-id="http">
       <template #primary>
         <HoppSmartWindows
-          v-if="currentTabID"
+          v-if="activeTabs.length > 0"
           :id="'rest_windows'"
           v-model="currentTabID"
           @remove-tab="removeTab"
@@ -15,13 +15,14 @@
             :id="tab.id"
             :key="tab.id"
             :label="getTabName(tab)"
-            :is-removable="activeTabs.length > 1"
+            :is-removable="true"
             :close-visibility="'hover'"
           >
             <template v-if="tab.document.type === 'request'" #tabhead>
               <HttpTabHead
                 :tab="tab"
-                :is-removable="activeTabs.length > 1"
+                :is-removable="true"
+                :can-close-others="activeTabs.length > 1"
                 @open-rename-modal="openReqRenameModal(tab.id)"
                 @close-tab="removeTab(tab.id)"
                 @close-other-tabs="closeOtherTabsAction(tab.id)"
@@ -67,6 +68,11 @@
             <EnvironmentsSelector class="h-full" />
           </template>
         </HoppSmartWindows>
+        <AppEmptyTabs
+          v-else
+          @new-request="addNewTab"
+          @import-collection="invokeAction('modals.collection.import')"
+        />
       </template>
       <template #sidebar>
         <HttpSidebar />
@@ -133,7 +139,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, computed } from "vue"
+import { ref, onMounted, computed, nextTick } from "vue"
 import { generateUniqueRefId, safelyExtractRESTRequest } from "@hoppscotch/data"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import { useRoute } from "vue-router"
@@ -142,6 +148,7 @@ import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { platform } from "~/platform"
 import { useReadonlyStream } from "~/composables/stream"
+import AppEmptyTabs from "~/components/app/EmptyTabs.vue"
 import { useService } from "dioc/vue"
 import { InspectionService } from "~/services/inspection"
 import { RequestInspectorService } from "~/services/inspection/inspectors/request.inspector"
@@ -205,11 +212,16 @@ function bindRequestToURLParams() {
     // We skip URL params parsing
     if (Object.keys(query).length === 0 || query.code || query.error) return
 
-    if (tabs.currentActiveTab.value.document.type !== "request") return
+    let activeTab = tabs.currentActiveTab.value
+    if (!activeTab) {
+      activeTab = addNewTab()
+    }
 
-    const request = tabs.currentActiveTab.value.document.request
+    if (!activeTab || activeTab.document.type !== "request") return
 
-    tabs.currentActiveTab.value.document.request = safelyExtractRESTRequest(
+    const request = activeTab.document.request
+
+    activeTab.document.request = safelyExtractRESTRequest(
       translateExtURLParams(query, request),
       getDefaultRESTRequest()
     )
@@ -228,6 +240,8 @@ const addNewTab = () => {
   })
 
   tabs.setActiveTab(tab.id)
+
+  return tab
 }
 const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
   tabs.updateTabOrdering(e.oldIndex, e.newIndex)
@@ -317,7 +331,10 @@ const openReqRenameModal = (tabID?: string) => {
     reqName.value = tab.value.document.request.name
     renameTabID.value = tabID
   } else {
-    const { id, document } = tabs.currentActiveTab.value
+    const activeTab = tabs.currentActiveTab.value
+    if (!activeTab) return
+
+    const { id, document } = activeTab
 
     if (document.type !== "request") return
 
@@ -328,7 +345,10 @@ const openReqRenameModal = (tabID?: string) => {
 }
 
 const renameReqName = () => {
-  const tab = tabs.getTabRef(renameTabID.value ?? currentTabID.value)
+  const tabID = renameTabID.value ?? currentTabID.value
+  if (!tabID) return
+
+  const tab = tabs.getTabRef(tabID)
   if (tab.value && tab.value.document.type === "request") {
     tab.value.document.request.name = reqName.value
     tabs.updateTab(tab.value)
@@ -350,12 +370,22 @@ const onCloseConfirmSaveTab = () => {
 /**
  * Called when the user confirms they want to save the tab
  */
-const onResolveConfirmSaveTab = () => {
-  if (tabs.currentActiveTab.value.document.saveContext) {
+const onResolveConfirmSaveTab = async () => {
+  const tabID = confirmingCloseForTabID.value
+  const tab = tabID ? tabs.getTabRef(tabID).value : tabs.currentActiveTab.value
+
+  if (!tab) return
+
+  if (tabID && currentTabID.value !== tabID) {
+    tabs.setActiveTab(tabID)
+    await nextTick()
+  }
+
+  if (tab.document.saveContext) {
     invokeAction("request-response.save")
 
-    if (confirmingCloseForTabID.value) {
-      tabs.closeTab(confirmingCloseForTabID.value)
+    if (tabID) {
+      tabs.closeTab(tabID)
       confirmingCloseForTabID.value = null
     }
   } else {
@@ -410,20 +440,21 @@ defineActionHandler("rest.request.open", ({ doc }) => {
 })
 
 defineActionHandler("request.rename", () => {
-  if (tabs.currentActiveTab.value.document.type === "request")
-    openReqRenameModal(tabs.currentActiveTab.value.id)
+  const activeTab = tabs.currentActiveTab.value
+  if (activeTab?.document.type === "request") openReqRenameModal(activeTab.id)
 })
 
 defineActionHandler("tab.duplicate-tab", ({ tabID }) => {
-  duplicateTab(tabID ?? currentTabID.value)
+  const targetTabID = tabID ?? currentTabID.value
+  if (targetTabID) duplicateTab(targetTabID)
 })
 
 defineActionHandler("tab.close-current", () => {
-  removeTab(currentTabID.value)
+  if (currentTabID.value) removeTab(currentTabID.value)
 })
 
 defineActionHandler("tab.close-other", () => {
-  tabs.closeOtherTabs(currentTabID.value)
+  if (currentTabID.value) tabs.closeOtherTabs(currentTabID.value)
 })
 
 defineActionHandler("tab.open-new", addNewTab)

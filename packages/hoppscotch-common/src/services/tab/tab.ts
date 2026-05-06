@@ -35,9 +35,11 @@ export abstract class TabService<Doc>
   // -1 means not currently navigating, 0+ means current position in mruOrder
   protected mruNavigationIndex: number = -1
 
-  public currentTabID = refWithControl("test", {
+  public currentTabID = refWithControl<string | null>("test", {
     onBeforeChange: (newTabID) => {
-      if (!newTabID || !this.tabMap.has(newTabID)) {
+      if (newTabID === null) return true
+
+      if (!this.tabMap.has(newTabID)) {
         console.warn(
           `Tried to set current tab id to an invalid value. (value: ${newTabID})`
         )
@@ -48,19 +50,26 @@ export abstract class TabService<Doc>
     },
   })
 
-  public currentActiveTab = computed(
-    () => this.tabMap.get(this.currentTabID.value)!
-  ) // Guaranteed to not be undefined
+  public currentActiveTab = computed(() =>
+    this.currentTabID.value
+      ? (this.tabMap.get(this.currentTabID.value) ?? null)
+      : null
+  )
 
   protected watchCurrentTabID() {
     watch(
       this.tabOrdering,
       (newOrdering) => {
+        if (newOrdering.length === 0) {
+          this.currentTabID.value = null
+          return
+        }
+
         if (
           !this.currentTabID.value ||
           !newOrdering.includes(this.currentTabID.value)
         ) {
-          this.setActiveTab(newOrdering[newOrdering.length - 1]) // newOrdering should always be non-empty
+          this.setActiveTab(newOrdering[newOrdering.length - 1])
         }
       },
       { deep: true }
@@ -98,7 +107,9 @@ export abstract class TabService<Doc>
   }
 
   public getActiveTab(): HoppTab<Doc> | null {
-    return this.tabMap.get(this.currentTabID.value) ?? null
+    return this.currentTabID.value
+      ? (this.tabMap.get(this.currentTabID.value) ?? null)
+      : null
   }
 
   public setActiveTab(tabID: string): void {
@@ -135,7 +146,18 @@ export abstract class TabService<Doc>
         this.mruOrder.push(doc.tabID)
       }
 
-      this.setActiveTab(data.lastActiveTabID)
+      if (data.orderedDocs.length === 0) {
+        this.currentTabID.value = null
+      } else if (
+        data.lastActiveTabID &&
+        this.tabMap.has(data.lastActiveTabID)
+      ) {
+        this.setActiveTab(data.lastActiveTabID)
+      } else {
+        this.setActiveTab(
+          this.tabOrdering.value[this.tabOrdering.value.length - 1]
+        )
+      }
     }
   }
 
@@ -188,14 +210,14 @@ export abstract class TabService<Doc>
       return
     }
 
-    if (this.tabOrdering.value.length === 1) {
+    const tabIndex = this.tabOrdering.value.indexOf(tabID)
+    if (tabIndex === -1) {
       console.warn(
-        `Tried to close the only tab open, which is not allowed. (tab id: ${tabID})`
+        `Tried to close a tab which is missing from tab ordering (tab id: ${tabID})`
       )
       return
     }
 
-    const tabIndex = this.tabOrdering.value.indexOf(tabID)
     const tab = this.tabMap.get(tabID)!
 
     this.addToRecentlyClosedTabs(tab, tabIndex)
@@ -209,6 +231,19 @@ export abstract class TabService<Doc>
     this.mruNavigationIndex = -1
 
     this.tabOrdering.value.splice(tabIndex, 1)
+
+    if (this.currentTabID.value === tabID) {
+      const nextActiveTabID =
+        this.tabOrdering.value[tabIndex] ??
+        this.tabOrdering.value[tabIndex - 1] ??
+        null
+
+      if (nextActiveTabID) {
+        this.setActiveTab(nextActiveTabID)
+      } else {
+        this.currentTabID.value = null
+      }
+    }
 
     nextTick(() => {
       this.tabMap.delete(tabID)
@@ -235,14 +270,22 @@ export abstract class TabService<Doc>
   }
 
   public goToNextTab(): void {
+    if (this.tabOrdering.value.length === 0 || !this.currentTabID.value) return
+
     const currentIndex = this.tabOrdering.value.indexOf(this.currentTabID.value)
+    if (currentIndex === -1) return
+
     const nextIndex = (currentIndex + 1) % this.tabOrdering.value.length
     const nextTabID = this.tabOrdering.value[nextIndex]
     this.setActiveTab(nextTabID)
   }
 
   public goToPreviousTab(): void {
+    if (this.tabOrdering.value.length === 0 || !this.currentTabID.value) return
+
     const currentIndex = this.tabOrdering.value.indexOf(this.currentTabID.value)
+    if (currentIndex === -1) return
+
     const prevIndex =
       currentIndex === 0 ? this.tabOrdering.value.length - 1 : currentIndex - 1
     const prevTabID = this.tabOrdering.value[prevIndex]
@@ -258,11 +301,15 @@ export abstract class TabService<Doc>
   }
 
   public goToFirstTab(): void {
+    if (this.tabOrdering.value.length === 0) return
+
     const firstTabID = this.tabOrdering.value[0]
     this.setActiveTab(firstTabID)
   }
 
   public goToLastTab(): void {
+    if (this.tabOrdering.value.length === 0) return
+
     const lastTabID = this.tabOrdering.value[this.tabOrdering.value.length - 1]
     this.setActiveTab(lastTabID)
   }

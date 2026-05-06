@@ -279,7 +279,7 @@ import {
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { getErrorMessage } from "~/helpers/backend/mutations/MockServer"
 import { HoppRESTSaveContext } from "~/helpers/rest/document"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 
 import {
   DocumentationService,
@@ -344,7 +344,7 @@ const props = withDefaults(
 )
 
 const documentationService = useService(DocumentationService)
-const restTabs = useService(RESTTabService)
+const restTabs = useService(WorkspaceTabsService)
 
 /**
  * Mirrors a saved documentation description onto any open tabs of the request —

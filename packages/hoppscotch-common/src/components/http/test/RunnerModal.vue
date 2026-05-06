@@ -470,7 +470,7 @@ import { TestRunnerConfig } from "~/helpers/rest/document"
 import { parseDatasetFile } from "~/helpers/runner/dataset"
 import { collectRequestIDs } from "~/helpers/runner/selection"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import IconCheck from "~icons/lucide/check"
 import IconCopy from "~icons/lucide/copy"
 import IconEye from "~icons/lucide/eye"
@@ -493,7 +493,7 @@ import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
 const t = useI18n()
 const toast = useToast()
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 
 const loadingCollection = ref(false)
 

@@ -8,6 +8,7 @@ import { min } from "lodash-es"
 import { TeamAccessRole } from "~/helpers/backend/graphql"
 import { TeamCollectionsService } from "./team-collection.service"
 import { DocumentationService } from "./documentation.service"
+import { WorkspaceTabsService } from "./tab/workspace-tabs"
 
 /**
  * Defines a workspace and its information
@@ -49,6 +50,7 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
 
   private teamCollectionService = this.bind(TeamCollectionsService)
   private documentationService = this.bind(DocumentationService)
+  private workspaceTabsService = this.bind(WorkspaceTabsService)
 
   private currentUser = useStreamStatic(
     platform.auth.getCurrentUserStream(),
@@ -131,6 +133,10 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
         ) {
           return
         }
+
+        // Keep the unified tab service aware of which workspace its tabs belong to.
+        // Today this is purely informational; future tab features may scope by workspace.
+        this.workspaceTabsService.attachToWorkspace(newWorkspace)
 
         try {
           // Ensure authentication is ready before fetching docs

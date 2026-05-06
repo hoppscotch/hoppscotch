@@ -638,7 +638,7 @@ export const TestRunnerResultCollectionSchema = z.intersection(
   TestRunnerResultOverlaySchema
 )
 
-export const REST_TAB_STATE_SCHEMA = z
+export const WORKSPACE_TABS_STATE_SCHEMA = z
   .object({
     lastActiveTabID: z.string(),
     orderedDocs: z.array(

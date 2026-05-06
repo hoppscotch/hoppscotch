@@ -16,7 +16,7 @@ import IconArrowRight from "~icons/lucide/arrow-right"
 import IconChevronsLeft from "~icons/lucide/chevrons-left"
 import IconChevronsRight from "~icons/lucide/chevrons-right"
 import { invokeAction } from "~/helpers/actions"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { GQLTabService } from "~/services/tab/graphql"
 import { Container } from "dioc"
 import { getKernelMode } from "@hoppscotch/kernel"
@@ -49,7 +49,7 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
     () => this.route.name === "index" || this.route.name === "graphql"
   )
 
-  private readonly restTab = this.bind(RESTTabService)
+  private readonly restTab = this.bind(WorkspaceTabsService)
   private readonly gqlTab = this.bind(GQLTabService)
 
   private isOnlyTab = computed(() =>

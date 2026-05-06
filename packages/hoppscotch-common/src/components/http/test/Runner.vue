@@ -252,7 +252,7 @@ import {
   getSelectedEnvironmentType,
 } from "~/newstore/environments"
 import { HoppTab } from "~/services/tab"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import {
   TestRunnerRequest,
@@ -281,7 +281,7 @@ const emit = defineEmits<{
   (e: "update:modelValue", val: HoppTab<HoppTestRunnerDocument>): void
 }>()
 
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 const tab = useVModel(props, "modelValue", emit)
 
 // The sticky run header spans two rows of variable-height content (long

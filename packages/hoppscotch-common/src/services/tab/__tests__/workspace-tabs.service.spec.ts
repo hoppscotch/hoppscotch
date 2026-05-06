@@ -3,7 +3,7 @@ import { TestContainer } from "dioc/testing"
 
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { HoppRESTSaveContext } from "~/helpers/rest/document"
-import { RESTTabService } from "../rest"
+import { WorkspaceTabsService } from "../workspace-tabs"
 
 // The persistence import drags in stores with top-level side effects that
 // can't run in this bare container; matching never touches it (hoisted mock)
@@ -14,11 +14,11 @@ vi.mock("../../persistence", () => ({
 
 const makeService = () => {
   const container = new TestContainer()
-  return container.bind(RESTTabService)
+  return container.bind(WorkspaceTabsService)
 }
 
 const openRequestTab = (
-  service: RESTTabService,
+  service: WorkspaceTabsService,
   saveContext: HoppRESTSaveContext,
   requestFields?: { _ref_id?: string; id?: string }
 ) =>
@@ -29,7 +29,7 @@ const openRequestTab = (
     saveContext,
   })
 
-describe("RESTTabService", () => {
+describe("WorkspaceTabsService", () => {
   describe("getTabRefWithSaveContext", () => {
     it("matches positionally when neither side has a requestRefID", () => {
       const service = makeService()

@@ -151,7 +151,7 @@ import IconRefreshCW from "~icons/lucide/refresh-cw"
 import { RESTOptionTabs } from "./RequestOptions.vue"
 import { AggregateEnvironment } from "~/newstore/environments"
 import { useService } from "dioc/vue"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { InspectionService } from "~/services/inspection"
 
 const colorMode = useColorMode()
@@ -205,7 +205,7 @@ const isContentTypeAlreadyExist = () => {
 // Template refs
 const tippyActions = ref<any | null>(null)
 
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 const inspectionService = useService(InspectionService)
 
 const tabResults = inspectionService.getResultViewFor(

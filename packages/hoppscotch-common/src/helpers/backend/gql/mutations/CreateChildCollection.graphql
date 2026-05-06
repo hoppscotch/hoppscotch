@@ -1,10 +1,12 @@
 mutation CreateChildCollection(
   $childTitle: String!
   $collectionID: ID!
+  $type: ReqType!
 ) {
   createChildCollection(
     childTitle: $childTitle
     collectionID: $collectionID
+    type: $type
   ) {
     id
   }

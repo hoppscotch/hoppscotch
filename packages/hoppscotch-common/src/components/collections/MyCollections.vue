@@ -476,17 +476,7 @@ import IconHelpCircle from "~icons/lucide/help-circle"
 import IconImport from "~icons/lucide/folder-down"
 import IconArrowUpDown from "~icons/lucide/arrow-up-down"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
-import {
-  computed,
-  defineComponent,
-  onBeforeUnmount,
-  PropType,
-  ref,
-  Ref,
-  toRef,
-  nextTick,
-  watch,
-} from "vue"
+import { computed, PropType, ref, Ref, toRef } from "vue"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { ChildrenResult, SmartTreeAdapter } from "@hoppscotch/ui/helpers"
 import { useI18n } from "@composables/i18n"
@@ -498,6 +488,7 @@ import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
 import { useDebounceFn } from "@vueuse/core"
 import { CurrentSortValuesService } from "~/services/current-sort.service"
+import { useCollectionNodeReveal } from "~/composables/useCollectionNodeReveal"
 
 export type Collection = {
   type: "collections"
@@ -1045,106 +1036,22 @@ const myAdapter: SmartTreeAdapter<MyCollectionNode> = new MyCollectionsAdapter(
   refFilterCollection
 )
 
-type NodeToggleState = {
-  toggleChildren: () => void
-  isOpen: boolean
-}
-
-const nodeTogglers = new Map<string, NodeToggleState>()
-
-const registerNodeToggler = (id: string, state: NodeToggleState) => {
-  nodeTogglers.set(id, state)
-}
-
-const TreeNodeRegistrar = defineComponent({
-  name: "TreeNodeRegistrar",
-  props: {
-    id: {
-      type: String,
-      required: true,
-    },
-    toggleChildren: {
-      type: Function as PropType<() => void>,
-      required: true,
-    },
-    isOpen: {
-      type: Boolean,
-      required: true,
-    },
-  },
-  setup(props) {
-    // Keep map updated as slot-provided state/functions change across renders.
-    watch(
-      () => [props.isOpen, props.toggleChildren] as const,
-      ([isOpen]) => {
-        registerNodeToggler(props.id, {
-          toggleChildren: props.toggleChildren,
-          isOpen,
-        })
-      },
-      { immediate: true }
-    )
-
-    onBeforeUnmount(() => {
-      nodeTogglers.delete(props.id)
-    })
-
-    return () => null
-  },
-})
-
-const openNode = async (id: string) => {
-  let toggleIssued = false
-
-  for (let attempt = 0; attempt < 20; attempt++) {
-    const entry = nodeTogglers.get(id)
-    if (entry) {
-      if (entry.isOpen) return
-      if (!toggleIssued) {
-        entry.toggleChildren()
-        toggleIssued = true
-      }
-    }
-
-    await nextTick()
-  }
-}
-
-const scrollToNode = async (id: string) => {
-  // Retry because nodes can mount after async expansion/render.
-  for (let attempt = 0; attempt < 20; attempt++) {
-    const el = document.querySelector(
-      `[data-collections-node-id="my:request:${CSS.escape(id)}"]`
-    )
-    if (el && "scrollIntoView" in el) {
-      ;(el as HTMLElement).scrollIntoView({
-        block: "center",
-        behavior: "smooth",
-      })
-      return
-    }
-    await nextTick()
-  }
-}
+const { TreeNodeRegistrar, expandAncestors, scrollToNode } =
+  useCollectionNodeReveal({
+    openNodeRetries: 20,
+    scrollRetries: 20,
+    buildScrollSelectors: (targetId) => [
+      `[data-collections-node-id="my:request:${CSS.escape(targetId)}"]`,
+    ],
+  })
 
 const reveal = async (target: {
   originLocation: "user-collection"
   folderPath: string
   requestIndex: number
 }) => {
-  const folderPath = target.folderPath
-  const ancestors: string[] = []
-  const parts = folderPath.split("/").filter((p) => p.length > 0)
-  for (let i = 0; i < parts.length; i++) {
-    ancestors.push(parts.slice(0, i + 1).join("/"))
-  }
-
-  for (const id of ancestors) {
-    await openNode(id)
-  }
-
-  await nextTick()
-  await scrollToNode(`${folderPath}/${target.requestIndex}`)
+  await expandAncestors(target.folderPath)
+  await scrollToNode(`${target.folderPath}/${target.requestIndex}`)
 }
 
 defineExpose({

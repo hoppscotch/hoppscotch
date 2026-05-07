@@ -3764,7 +3764,7 @@ defineActionHandler("modals.collection.import", () => {
   displayModalImportExport(true)
 })
 
-defineActionHandler("collections.reveal_in_collection", () => {
+defineActionHandler("collections.reveal-in-collection", () => {
   void revealInCollectionsSidebar()
 })
 </script>

@@ -530,17 +530,7 @@ import IconHelpCircle from "~icons/lucide/help-circle"
 import IconImport from "~icons/lucide/folder-down"
 import IconArrowUpDown from "~icons/lucide/arrow-up-down"
 
-import {
-  computed,
-  defineComponent,
-  onBeforeUnmount,
-  PropType,
-  ref,
-  Ref,
-  toRef,
-  nextTick,
-  watch,
-} from "vue"
+import { computed, PropType, ref, Ref, toRef } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
@@ -556,6 +546,7 @@ import { useService } from "dioc/vue"
 import { TeamWorkspace } from "~/services/workspace.service"
 import { useDebounceFn } from "@vueuse/core"
 import { CurrentSortValuesService } from "~/services/current-sort.service"
+import { useCollectionNodeReveal } from "~/composables/useCollectionNodeReveal"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -1156,109 +1147,23 @@ class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
 const teamAdapter: SmartTreeAdapter<TeamCollectionNode> =
   new TeamCollectionsAdapter(teamCollectionsList)
 
-type NodeToggleState = {
-  toggleChildren: () => void
-  isOpen: boolean
-}
-
-const nodeTogglers = new Map<string, NodeToggleState>()
-
-const registerNodeToggler = (id: string, state: NodeToggleState) => {
-  nodeTogglers.set(id, state)
-}
-
-const TreeNodeRegistrar = defineComponent({
-  name: "TreeNodeRegistrar",
-  props: {
-    id: {
-      type: String,
-      required: true,
-    },
-    toggleChildren: {
-      type: Function as PropType<() => void>,
-      required: true,
-    },
-    isOpen: {
-      type: Boolean,
-      required: true,
-    },
-  },
-  setup(props) {
-    watch(
-      () => [props.isOpen, props.toggleChildren] as const,
-      ([isOpen]) => {
-        registerNodeToggler(props.id, {
-          toggleChildren: props.toggleChildren,
-          isOpen,
-        })
-      },
-      { immediate: true }
-    )
-
-    onBeforeUnmount(() => {
-      nodeTogglers.delete(props.id)
-    })
-
-    return () => null
-  },
-})
-
-const openNode = async (id: string) => {
-  let toggleIssued = false
-
-  for (let attempt = 0; attempt < 40; attempt++) {
-    const entry = nodeTogglers.get(id)
-    if (entry) {
-      if (entry.isOpen) return
-      if (!toggleIssued) {
-        entry.toggleChildren()
-        toggleIssued = true
-      }
-    }
-
-    // Let the adapter emit/resolve async loads and re-render.
-    await nextTick()
-  }
-}
-
-const scrollToNode = async (folderPath: string, requestID: string) => {
-  // Request nodes in team tree use `requestID`, while reveal has `folderPath/requestID`.
-  const selectors = [
-    `[data-collections-node-id="team:${CSS.escape(`${folderPath}/${requestID}`)}"]`,
-    `[data-collections-node-id="team:${CSS.escape(requestID)}"]`,
-  ]
-
-  for (let attempt = 0; attempt < 30; attempt++) {
-    const el = selectors
-      .map((selector) => document.querySelector(selector))
-      .find((node) => node !== null)
-
-    if (el && "scrollIntoView" in el) {
-      ;(el as HTMLElement).scrollIntoView({
-        block: "center",
-        behavior: "smooth",
-      })
-      return
-    }
-    await nextTick()
-  }
-}
+const { TreeNodeRegistrar, expandAncestors, scrollToNode } =
+  useCollectionNodeReveal({
+    openNodeRetries: 40,
+    scrollRetries: 30,
+    buildScrollSelectors: (targetId) => [
+      `[data-collections-node-id="team:${CSS.escape(targetId)}"]`,
+      `[data-collections-node-id="team:${CSS.escape(targetId.split("/").pop() ?? targetId)}"]`,
+    ],
+  })
 
 const reveal = async (target: {
   originLocation: "team-collection"
   folderPath: string
   requestID: string
 }) => {
-  const folderPath = target.folderPath
-  const parts = folderPath.split("/").filter((p) => p.length > 0)
-
-  // Expand each ancestor path, e.g. a/b/c
-  for (let i = 0; i < parts.length; i++) {
-    await openNode(parts.slice(0, i + 1).join("/"))
-  }
-
-  await nextTick()
-  await scrollToNode(folderPath, target.requestID)
+  await expandAncestors(target.folderPath)
+  await scrollToNode(`${target.folderPath}/${target.requestID}`)
 }
 
 defineExpose({

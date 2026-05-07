@@ -18,6 +18,7 @@ import { getI18n } from "~/modules/i18n"
 import { TeamCollection } from "../teams/TeamCollection"
 import { TeamRequest } from "../teams/TeamRequest"
 import { GQLError, runGQLQuery } from "./GQLClient"
+import { stripCollectionTreeForStore } from "~/helpers/secretVariables"
 import {
   ExportAsJsonDocument,
   ExportCollectionToJsonDocument,
@@ -323,7 +324,10 @@ export const getTeamCollectionJSON = async (teamID: string) => {
     return E.left(t("error.no_collections_to_export"))
   }
 
-  const hoppCollections = collections.map(teamCollectionJSONToHoppRESTColl)
+  // Strip secret variable values before stringify.
+  const hoppCollections = collections
+    .map(teamCollectionJSONToHoppRESTColl)
+    .map(stripCollectionTreeForStore)
   return E.right(JSON.stringify(hoppCollections, stripRefIdReplacer, 2))
 }
 
@@ -378,5 +382,9 @@ export const getSingleTeamCollectionJSON = async (
     return E.left(errorMsg)
   }
 
-  return E.right(JSON.stringify(result.right, null, 2))
+  // Strip secret variable values before stringify — same reasoning as
+  // `getTeamCollectionJSON` above. The exported JSON is user-shareable.
+  return E.right(
+    JSON.stringify(stripCollectionTreeForStore(result.right), null, 2)
+  )
 }

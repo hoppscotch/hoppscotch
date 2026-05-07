@@ -849,7 +849,12 @@ const getCollectionJSON = async () => {
   }
 
   if (props.collectionsType.type === "my-collections") {
-    return E.right(JSON.stringify(myCollections.value, null, 2))
+    // Strip secret variable values before stringify — this output is sent
+    // to GitHub gists (third-party storage). Raw secrets must not leave
+    // the device through the export channel. Local secret stores retain
+    // values keyed by `_ref_id` so the user's own session is unaffected.
+    const stripped = myCollections.value.map(stripCollectionTreeForStore)
+    return E.right(JSON.stringify(stripped, null, 2))
   }
 
   return E.left("INVALID_SELECTED_TEAM_OR_INVALID_COLLECTION_TYPE")

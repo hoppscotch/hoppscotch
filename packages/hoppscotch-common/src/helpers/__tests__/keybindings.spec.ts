@@ -129,8 +129,37 @@ describe("resolvePressedKey: layout-stable keys", () => {
       test("[ resolves to [", () => {
         expect(resolvePressedKey(ev("[", "BracketLeft"), strategy)).toBe("[")
       })
+
+      test("Cyrillic physical [ key (typed 'х') falls back to [", () => {
+        // On Russian Cyrillic the physical KeyBracketLeft position
+        // types "х"; the resolver falls back to the bracket code so
+        // the shortcut still fires.
+        expect(resolvePressedKey(ev("х", "BracketLeft"), strategy)).toBe("[")
+      })
+
+      test("Cyrillic physical ] key (typed 'ъ') falls back to ]", () => {
+        expect(resolvePressedKey(ev("ъ", "BracketRight"), strategy)).toBe("]")
+      })
     })
   }
+})
+
+describe("resolvePressedKey: synthetic-event fallback", () => {
+  // Synthetic events (programmatic dispatch, certain older environments)
+  // can arrive without `event.code` set. The resolver falls back to
+  // `event.key` for ASCII letters under every strategy so the shortcut
+  // still resolves rather than being silently dropped.
+  test("'code' strategy falls back to event.key when code is empty", () => {
+    expect(resolvePressedKey(ev("a", ""), "code")).toBe("a")
+  })
+
+  test("'key' strategy resolves Latin letter without needing code", () => {
+    expect(resolvePressedKey(ev("a", ""), "key")).toBe("a")
+  })
+
+  test("'hybrid' strategy resolves Latin letter without needing code", () => {
+    expect(resolvePressedKey(ev("a", ""), "hybrid")).toBe("a")
+  })
 })
 
 describe("resolvePressedKey: edge cases", () => {

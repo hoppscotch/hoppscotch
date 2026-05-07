@@ -329,7 +329,7 @@ function getPressedKey(ev: KeyboardEvent): Key | null {
 // Minimal subset of `KeyboardEvent` so unit tests can construct fixtures
 // without a JSDOM event. `getModifierState` is optional because the only
 // call site (numpad detection) tolerates its absence.
-type KeyboardEventLike = Pick<KeyboardEvent, "key" | "code"> & {
+export type KeyboardEventLike = Pick<KeyboardEvent, "key" | "code"> & {
   getModifierState?: KeyboardEvent["getModifierState"]
 }
 
@@ -349,8 +349,9 @@ type KeyboardEventLike = Pick<KeyboardEvent, "key" | "code"> & {
  * `"hybrid"` prefers `event.key` when it produces a Latin glyph and
  * falls back to `event.code` otherwise, covering both populations.
  *
- * Exported for tests. Production callers should use `getPressedKey`,
- * which reads the strategy from the shared holder.
+ * Both `getPressedKey` (the in-page handler entry) and the capture-phase
+ * listener in `selfhost-web/main.ts` call this with the active strategy
+ * from `getKeyboardLayoutStrategy`.
  */
 export function resolvePressedKey(
   ev: KeyboardEventLike,
@@ -366,11 +367,15 @@ export function resolvePressedKey(
     code.startsWith("Key") && code.length === 4
       ? (code[3].toLowerCase() as Key)
       : null
+  // The "code" branch falls back to event.key when event.code is empty
+  // (synthetic events, certain older environments) so a Latin-letter
+  // shortcut still resolves rather than silently dropping. Matches the
+  // pre-strategy resolver's contract.
   const letter =
     strategy === "key"
       ? letterFromKey
       : strategy === "code"
-        ? letterFromCode
+        ? (letterFromCode ?? (!code ? letterFromKey : null))
         : (letterFromKey ?? letterFromCode)
   if (letter) return letter
 
@@ -391,6 +396,13 @@ export function resolvePressedKey(
   // via AltGr+5 which has code "Digit5").
   if (key === "/" || key === "." || key === "enter") return key
   if (key === "[" || key === "]") return key
+
+  // Bracket fallback for non-Latin layouts where the physical bracket
+  // keys don't type [/] (e.g. Russian Cyrillic where KeyBracketLeft
+  // types "х"). The shortcut is registered as ctrl-alt-[ so users
+  // pressing the keycap labelled [ still fire it regardless of layout.
+  if (code === "BracketLeft") return "["
+  if (code === "BracketRight") return "]"
 
   // Digits
   const digitFromKey =

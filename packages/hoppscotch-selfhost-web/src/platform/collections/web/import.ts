@@ -6,7 +6,8 @@ import {
 import { generateUniqueRefId, HoppCollection } from "@hoppscotch/data"
 import {
   ensureRefIds,
-  populateLocalStoresFromVariables,
+  indexCollectionsByRefId,
+  repopulateLoadedCollectionTree,
   stripCollectionTreeForStore,
   stripSecretVariableValuesForWire,
 } from "@hoppscotch/common/helpers/secretVariables"
@@ -88,34 +89,6 @@ export const importToPersonalWorkspace = async (
       reqType
     )
   }
-}
-
-// Builds a `_ref_id → original collection` index across the whole tree
-// so the post-load re-populate can pair by stable ref-id instead of by
-// array position (the backend can reorder).
-const indexCollectionsByRefId = (
-  collections: HoppCollection[],
-  out: Map<string, HoppCollection>
-) => {
-  collections.forEach((c) => {
-    if (c._ref_id) out.set(c._ref_id, c)
-    if (c.folders?.length) indexCollectionsByRefId(c.folders, out)
-  })
-}
-
-const repopulateLoadedCollectionTree = (
-  loaded: HoppCollection,
-  originalsByRefId: Map<string, HoppCollection>
-) => {
-  if (loaded._ref_id) {
-    const original = originalsByRefId.get(loaded._ref_id)
-    if (original) {
-      populateLocalStoresFromVariables(loaded._ref_id, original.variables ?? [])
-    }
-  }
-  ;(loaded.folders ?? []).forEach((loadedFolder) => {
-    repopulateLoadedCollectionTree(loadedFolder, originalsByRefId)
-  })
 }
 
 export const appendCollectionsToStore = (

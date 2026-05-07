@@ -5,8 +5,10 @@ import { getService } from "~/modules/dioc"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import {
+  indexCollectionsByRefId,
   populateLocalStoresFromCollectionTree,
   populateLocalStoresFromVariables,
+  repopulateLoadedCollectionTree,
   stripSecretVariableValuesForWire,
 } from "../secretVariables"
 
@@ -344,5 +346,140 @@ describe("populateLocalStoresFromCollectionTree", () => {
 
     expect(secretService.getSecretEnvironment("child-1")).toBeDefined()
     expect(secretService.getSecretEnvironment("placeholder")).toBeUndefined()
+  })
+})
+
+describe("indexCollectionsByRefId + repopulateLoadedCollectionTree", () => {
+  let secretService: SecretEnvironmentService
+  let currentValueService: CurrentValueService
+
+  beforeEach(() => {
+    secretService = getService(SecretEnvironmentService)
+    currentValueService = getService(CurrentValueService)
+    secretService.secretEnvironments.clear()
+    currentValueService.environments.clear()
+  })
+
+  const buildCollection = (
+    refId: string,
+    variables: HoppCollection["variables"],
+    folders: HoppCollection[] = []
+  ): HoppCollection => ({
+    v: 12,
+    name: `coll-${refId}`,
+    _ref_id: refId,
+    folders,
+    requests: [],
+    auth: { authType: "inherit", authActive: true },
+    headers: [],
+    variables,
+    description: null,
+    preRequestScript: "",
+    testScript: "",
+  })
+
+  // The key invariant: if the backend reorders the loaded tree, the
+  // repopulate logic must still pair each loaded node with its original
+  // by `_ref_id` rather than by array index. Otherwise secrets would
+  // re-key onto the wrong collection.
+  it("re-keys secrets by ref-id when the loaded tree is reordered", () => {
+    const originalA = buildCollection("ref-a", [
+      { key: "a-tok", initialValue: "ai", currentValue: "ac", secret: true },
+    ])
+    const originalB = buildCollection("ref-b", [
+      { key: "b-tok", initialValue: "bi", currentValue: "bc", secret: true },
+    ])
+
+    const originalsByRefId = new Map<string, HoppCollection>()
+    indexCollectionsByRefId([originalA, originalB], originalsByRefId)
+
+    // Backend round-trip: same ref-ids preserved via `data._ref_id`,
+    // but order is reversed. Variables on the loaded tree are stripped
+    // (initialValue: "" for secrets, currentValue: "" everywhere).
+    const stripped = (refId: string, key: string) =>
+      buildCollection(refId, [
+        { key, initialValue: "", currentValue: "", secret: true },
+      ])
+    const loadedReordered = [
+      stripped("ref-b", "b-tok"),
+      stripped("ref-a", "a-tok"),
+    ]
+
+    loadedReordered.forEach((c) =>
+      repopulateLoadedCollectionTree(c, originalsByRefId)
+    )
+
+    expect(secretService.getSecretEnvironment("ref-a")).toEqual([
+      { key: "a-tok", value: "ac", initialValue: "ai", varIndex: 0 },
+    ])
+    expect(secretService.getSecretEnvironment("ref-b")).toEqual([
+      { key: "b-tok", value: "bc", initialValue: "bi", varIndex: 0 },
+    ])
+  })
+
+  it("indexes nested folders into the same flat map", () => {
+    const grandchild = buildCollection("gc", [])
+    const child = buildCollection("child", [], [grandchild])
+    const root = buildCollection("root", [], [child])
+
+    const map = new Map<string, HoppCollection>()
+    indexCollectionsByRefId([root], map)
+
+    expect([...map.keys()].sort()).toEqual(["child", "gc", "root"])
+    expect(map.get("gc")).toBe(grandchild)
+  })
+
+  it("skips loaded nodes whose ref-id is absent from the original index", () => {
+    const original = buildCollection("ref-a", [
+      { key: "a-tok", initialValue: "ai", currentValue: "ac", secret: true },
+    ])
+    const map = new Map<string, HoppCollection>()
+    indexCollectionsByRefId([original], map)
+
+    // Backend dropped the ref-id round-trip on this node — the loaded
+    // tree carries a fresh ref-id that the original index doesn't know.
+    const orphanLoaded = buildCollection("ref-a-fresh", [
+      { key: "a-tok", initialValue: "", currentValue: "", secret: true },
+    ])
+
+    repopulateLoadedCollectionTree(orphanLoaded, map)
+
+    // Nothing was populated for the unknown ref-id, and the original's
+    // ref-id is also untouched (no spurious cross-population).
+    expect(secretService.getSecretEnvironment("ref-a-fresh")).toBeUndefined()
+    expect(secretService.getSecretEnvironment("ref-a")).toBeUndefined()
+  })
+
+  it("recurses through nested folders and re-keys each by its own ref-id", () => {
+    const childOriginal = buildCollection("child", [
+      { key: "ck", initialValue: "ci", currentValue: "cc", secret: true },
+    ])
+    const rootOriginal = buildCollection(
+      "root",
+      [{ key: "rk", initialValue: "ri", currentValue: "rc", secret: true }],
+      [childOriginal]
+    )
+
+    const map = new Map<string, HoppCollection>()
+    indexCollectionsByRefId([rootOriginal], map)
+
+    // Loaded tree from backend: same ref-ids, stripped variables.
+    const childLoaded = buildCollection("child", [
+      { key: "ck", initialValue: "", currentValue: "", secret: true },
+    ])
+    const rootLoaded = buildCollection(
+      "root",
+      [{ key: "rk", initialValue: "", currentValue: "", secret: true }],
+      [childLoaded]
+    )
+
+    repopulateLoadedCollectionTree(rootLoaded, map)
+
+    expect(secretService.getSecretEnvironment("root")).toEqual([
+      { key: "rk", value: "rc", initialValue: "ri", varIndex: 0 },
+    ])
+    expect(secretService.getSecretEnvironment("child")).toEqual([
+      { key: "ck", value: "cc", initialValue: "ci", varIndex: 0 },
+    ])
   })
 })

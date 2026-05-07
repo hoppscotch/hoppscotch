@@ -161,3 +161,49 @@ export const stripCollectionTreeForStore = (
   variables: stripSecretVariableValuesForWire(collection.variables ?? []),
   folders: (collection.folders ?? []).map(stripCollectionTreeForStore),
 })
+
+/**
+ * Build a flat `_ref_id → collection` index across an entire collection
+ * tree (root + nested folders). Used post-import to pair backend-returned
+ * collections with their pre-walked originals by stable ref-id rather
+ * than by array position, since the backend is free to reorder.
+ *
+ * Mutates `out` in place (avoids allocating an intermediate per call,
+ * since the caller typically wants a single map for the whole tree).
+ */
+export const indexCollectionsByRefId = (
+  collections: HoppCollection[],
+  out: Map<string, HoppCollection>
+) => {
+  collections.forEach((c) => {
+    if (c._ref_id) out.set(c._ref_id, c)
+    if (c.folders?.length) indexCollectionsByRefId(c.folders, out)
+  })
+}
+
+/**
+ * Walk a backend-loaded collection tree and re-populate the local secret +
+ * currentValue stores from the matching original (pre-walked) tree. Pairs
+ * each loaded node to its original by `_ref_id` (looked up in the flat map
+ * built by `indexCollectionsByRefId`). Skips nodes without a `_ref_id`
+ * (matches the prior index-based path's behavior for missing keys).
+ *
+ * Why ref-id, not array index: the backend may reorder collections during
+ * a bulk import. An index-based pairing would re-key secrets onto the
+ * wrong collection. `_ref_id` round-trips through `data._ref_id` so the
+ * lookup is stable.
+ */
+export const repopulateLoadedCollectionTree = (
+  loaded: HoppCollection,
+  originalsByRefId: Map<string, HoppCollection>
+) => {
+  if (loaded._ref_id) {
+    const original = originalsByRefId.get(loaded._ref_id)
+    if (original) {
+      populateLocalStoresFromVariables(loaded._ref_id, original.variables ?? [])
+    }
+  }
+  ;(loaded.folders ?? []).forEach((loadedFolder) => {
+    repopulateLoadedCollectionTree(loadedFolder, originalsByRefId)
+  })
+}

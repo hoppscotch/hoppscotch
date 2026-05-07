@@ -14,6 +14,7 @@ import DispatchingStore, {
 } from "~/newstore/DispatchingStore"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
+import { coerceGlobalEnvironment } from "~/helpers/globalEnvShape"
 
 export type SelectedEnvironmentIndex =
   | { type: "NO_ENV_SELECTED" }
@@ -309,20 +310,13 @@ const dispatchers = defineDispatchers({
     }
   },
   setGlobalVariables(_, { entries }: { entries: GlobalEnvironment }) {
-    // Defensive normalization at the wire-into-store boundary. The
-    // dispatcher payload type says `GlobalEnvironment` (`{ v, variables }`)
-    // but TS dispatchers are erased to `any` at runtime, and a malformed
-    // value from a backend schema change, persistence-layer corruption, or
-    // a future caller would otherwise corrupt `state.globals` and crash
-    // every consumer of `globalEnv.variables.map(...)` downstream. Coerce
-    // to a valid v2 wrapper here so the store invariant always holds.
-    const safeEntries: GlobalEnvironment = Array.isArray(entries)
-      ? { v: 2, variables: entries }
-      : entries && Array.isArray(entries.variables)
-        ? entries
-        : { v: 2, variables: [] }
+    // Defensive normalization at the wire-into-store boundary. TS
+    // dispatchers are erased to `any` at runtime, and a malformed value
+    // from a backend schema change, persistence-layer corruption, or a
+    // future caller would otherwise corrupt `state.globals` and crash
+    // every consumer of `globalEnv.variables.map(...)` downstream.
     return {
-      globals: safeEntries,
+      globals: coerceGlobalEnvironment(entries),
     }
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -589,7 +583,12 @@ export function getAggregateEnvsWithCurrentValue() {
             currentEnv.id,
             index
           ) ?? currentValue,
-        initialValue: x.initialValue ?? initialValue,
+        // For stripped secret vars `x.initialValue` is `""` (non-nullish),
+        // so `x.initialValue ?? initialValue` would pin the empty string
+        // and bypass the secret-store hydration above. The local
+        // `initialValue` already encodes both branches: secret-store value
+        // for secrets, raw `x.initialValue` for non-secrets.
+        initialValue,
         secret: x.secret,
         sourceEnv: currentEnv.name,
       }
@@ -617,7 +616,7 @@ export function getAggregateEnvsWithCurrentValue() {
             "Global",
             index
           ) ?? currentValue,
-        initialValue: x.initialValue ?? initialValue,
+        initialValue,
         secret: x.secret,
         sourceEnv: "Global",
       }
@@ -669,7 +668,10 @@ export const aggregateEnvsWithCurrentValue$: Observable<
               selectedEnv.id,
               index
             ) ?? currentValue,
-          initialValue: x.initialValue ?? initialValue,
+          // See note on `aggregateEnvs$` above — `x.initialValue` is `""`
+          // for stripped secrets so `??` would discard the secret-store
+          // hydration. The local `initialValue` is already correct.
+          initialValue,
           secret: x.secret,
           sourceEnv: selectedEnv.name,
         })
@@ -697,7 +699,7 @@ export const aggregateEnvsWithCurrentValue$: Observable<
               "Global",
               index
             ) ?? currentValue,
-          initialValue: x.initialValue ?? initialValue,
+          initialValue,
           secret: x.secret,
           sourceEnv: "Global",
         })

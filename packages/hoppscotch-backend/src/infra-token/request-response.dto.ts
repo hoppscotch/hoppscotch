@@ -5,7 +5,6 @@ import {
   IsArray,
   IsBoolean,
   IsEmail,
-  IsNotEmpty,
   IsOptional,
   IsString,
   MinLength,

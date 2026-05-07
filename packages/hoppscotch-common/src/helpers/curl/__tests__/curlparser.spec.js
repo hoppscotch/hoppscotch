@@ -947,6 +947,35 @@ const samples = [
     }),
   },
   {
+    command: `curl 'https://example.com/search?filter=*'`,
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled",
+      endpoint: "https://example.com/search",
+      auth: {
+        authType: "inherit",
+        authActive: true,
+      },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      params: [
+        {
+          active: true,
+          key: "filter",
+          value: "*",
+          description: "",
+        },
+      ],
+      headers: [],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+    }),
+  },
+  {
     command: `curl --location 'https://api.example.net/id/1164/requests' \
     --header 'Accept: application/vnd.test-data.v2.1+json' \
     --header 'Content-Type: application/x-www-form-urlencoded' \

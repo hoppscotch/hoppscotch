@@ -22,22 +22,15 @@ import { importUserCollectionsFromJSON } from "./api"
 import { runDispatchWithOutSyncing } from "@app/lib/sync"
 
 /**
- * Platform-specific import function for selfhost-web that uses the correct nested collection queries
+ * Platform-specific import for selfhost-web. Caller (`components/collections/
+ * ImportExport.vue`) must have run `ensureRefIds` + `populateLocalStoresFromCollectionTree`
+ * upstream — we re-stamp ref-ids defensively but do NOT re-populate (raw values
+ * aren't on the variables array by the time the strip runs).
  */
 export const importToPersonalWorkspace = async (
   collections: HoppCollection[],
   reqType: ReqType
 ) => {
-  // CONTRACT: the caller (`components/collections/ImportExport.vue`) is
-  // expected to have already run `ensureRefIds` + `populateLocalStores
-  // FromCollectionTree` over the input. We re-stamp ref-ids here as a
-  // defensive idempotent backstop, but we DO NOT re-populate — the
-  // raw secret/currentValue values aren't on the input variables array
-  // at any later point in this function (the strip runs inside
-  // `translateToPersonalCollectionFormat`), so a populate here would
-  // either duplicate work or, if a future callsite forgets to populate
-  // upstream, silently lose the values. Keeping the populate at exactly
-  // one well-defined point avoids the implicit-ordering trap.
   const collectionsWithRefIds = collections.map(ensureRefIds)
 
   try {
@@ -58,15 +51,9 @@ export const importToPersonalWorkspace = async (
           : "GQL"
       )
 
-      // Defensive re-populate: pair post-load collections with their
-      // originals by `_ref_id` (not array index). The backend may
-      // reorder collections during bulk import; matching by index
-      // would re-key the wrong secret-store entry to the wrong
-      // collection's variables. Pre-walk stamps `_ref_id` and the
-      // `data._ref_id` blob round-trips it, so the pairing is stable
-      // by ref-id. If a node's `_ref_id` is missing (backend dropped
-      // it) the lookup returns no original and populate is skipped —
-      // matching the prior behavior of the index-based path.
+      // Backstop populate: pair loaded → original by `_ref_id` (round-tripped
+      // via `data._ref_id`), not by index — backend may reorder. Canonical
+      // populate already ran upstream; missing ref-ids are skipped.
       const originalsByRefId = new Map<string, HoppCollection>()
       indexCollectionsByRefId(collectionsWithRefIds, originalsByRefId)
       loaded.forEach((loadedColl) => {
@@ -75,10 +62,9 @@ export const importToPersonalWorkspace = async (
 
       return E.right({ success: true })
     }
-    // Backend import failed — append a stripped tree to newstore so raw
-    // secret values don't sit in the store / localStorage / future sync
-    // payloads. Raw values remain in the local secret + currentValue
-    // stores, keyed by the same `_ref_id`s populated above.
+    // Backend import failed — strip before appending so raw secrets don't
+    // sit in newstore. Raw values remain in the local secret stores keyed
+    // by `_ref_id`.
     return appendCollectionsToStore(
       collectionsWithRefIds.map(stripCollectionTreeForStore),
       reqType
@@ -103,19 +89,13 @@ export const appendCollectionsToStore = (
   return E.right({ success: true })
 }
 
+/**
+ * Strip + reshape for the personal-workspace import wire payload.
+ *
+ * Does NOT populate local stores — the caller is responsible (see
+ * `importToPersonalWorkspace`'s contract).
+ */
 export function translateToPersonalCollectionFormat(x: HoppCollection) {
-  // Generate a `_ref_id` if missing — collections from local/non-synced
-  // workspaces may arrive without one, and we need a stable key for the
-  // local secret store both before and after the backend round-trip.
-  //
-  // CONTRACT: this function does NOT populate the local secret /
-  // currentValue stores. The caller MUST do that upstream before
-  // invoking translate (see `components/collections/ImportExport.vue:
-  // importToPersonalWorkspace` which calls
-  // `populateLocalStoresFromCollectionTree` over the pre-walked tree).
-  // Doing it here would duplicate the populate that the caller already
-  // ran — and invite "implicit-ordering" hazards if the caller's data
-  // ever differs from `x.variables` after the strip below.
   const refId = x._ref_id ?? generateUniqueRefId("coll")
 
   const folders: HoppCollection[] = (x.folders ?? []).map(
@@ -127,24 +107,18 @@ export function translateToPersonalCollectionFormat(x: HoppCollection) {
     headers: x.headers,
     variables: stripSecretVariableValuesForWire(x.variables ?? []),
     // Lives inside `data` so it round-trips the backend — the top-level
-    // `_ref_id` on the wire is dropped, only `data._ref_id` is echoed
-    // back. Without it, the local secret store keys orphan on next load.
+    // `_ref_id` on the wire is dropped, only `data._ref_id` is echoed back.
     _ref_id: refId,
     description: x.description ?? null,
     preRequestScript: x.preRequestScript ?? "",
     testScript: x.testScript ?? "",
   }
 
-  // `_ref_id` lives inside `data` (which the backend persists and echoes
-  // back); the top-level field on the wire is ignored, so we don't write it
-  // here.
-  const obj = {
+  return {
     ...x,
     folders,
     data,
   }
-
-  return obj
 }
 
 export async function loadImportedUserCollections(

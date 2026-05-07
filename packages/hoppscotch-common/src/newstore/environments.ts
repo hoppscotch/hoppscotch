@@ -645,7 +645,7 @@ export const aggregateEnvsWithCurrentValue$: Observable<
         })
       })
 
-      selectedEnv?.variables.map((x, index) => {
+      selectedEnv?.variables.forEach((x, index) => {
         let currentValue = x.currentValue
         let initialValue = x.initialValue
         if (x.secret) {
@@ -676,7 +676,7 @@ export const aggregateEnvsWithCurrentValue$: Observable<
           sourceEnv: selectedEnv.name,
         })
       })
-      ;(globalEnv?.variables ?? []).map((x, index) => {
+      ;(globalEnv?.variables ?? []).forEach((x, index) => {
         let currentValue = x.currentValue
         let initialValue = x.initialValue
         if (x.secret) {

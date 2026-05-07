@@ -155,12 +155,27 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       // downstream `globalEnv.variables.map`. We can't guarantee
       // synchronous client upgrades on a self-hosted deployment, so the
       // wire shape stays compatible with both old and new readers.
+      const variables = entries?.variables
+      if (!Array.isArray(variables)) {
+        // Guard against a schema mismatch reaching this write path —
+        // do NOT silently send `[]`. The dispatcher's
+        // `coerceGlobalEnvironment` should have already normalised this,
+        // but if a future schema migration or upstream regression
+        // delivers a malformed `entries`, sending an empty wrapper here
+        // would clear the user's globals on the backend irreversibly.
+        // Bail and surface the unexpected shape instead.
+        console.error(
+          "[setGlobalVariables] unexpected variables shape, skipping sync",
+          entries
+        )
+        return
+      }
       updateUserEnvironment(
         backendId,
         "",
         JSON.stringify({
           v: 2,
-          variables: stripSecretVariableValuesForWire(entries.variables ?? []),
+          variables: stripSecretVariableValuesForWire(variables),
         })
       )()
     }

@@ -131,10 +131,21 @@ export const populateLocalStoresFromCollectionTree = (
 
 /**
  * Walk a collection tree assigning a fresh `_ref_id` to any node that lacks
- * one. Returns a deep-cloned tree (input is not mutated). Used at every
- * import entry point before the wire strip / local-store populate runs, so
- * the secret values are addressable by ref-id no matter which downstream
- * branch (backend success, backend failure, logged-out append) executes.
+ * one. Returns a new tree with fresh node objects and new `folders` arrays
+ * at every level — but `variables`, `requests`, `auth`, `headers`, etc.
+ * still reference the original input arrays/objects (NOT a deep clone).
+ *
+ * This shallow-per-node behavior is enough for the import pipeline: the
+ * downstream `stripSecretVariableValuesForWire` reallocates each node's
+ * `variables` array, and `populateLocalStoresFromCollectionTree` is
+ * read-only. Callers that intend to mutate non-folder fields after
+ * stamping ref-ids must clone those fields themselves; this helper does
+ * not protect against shared aliasing into the original graph.
+ *
+ * Used at every import entry point before the wire strip / local-store
+ * populate runs, so secret values are addressable by ref-id no matter
+ * which downstream branch (backend success, backend failure, logged-out
+ * append) executes.
  */
 export const ensureRefIds = (collection: HoppCollection): HoppCollection => ({
   ...collection,
@@ -144,14 +155,22 @@ export const ensureRefIds = (collection: HoppCollection): HoppCollection => ({
 
 /**
  * Recursive variant of `stripSecretVariableValuesForWire` for a collection
- * tree. Returns a deep-cloned tree with every node's `variables` array
- * stripped (secret values blanked, non-secret `currentValue` cleared).
+ * tree. Returns a new tree with fresh node objects, fresh `variables`
+ * arrays (every variable replaced via the strip), and fresh `folders`
+ * arrays at every level — but `requests`, `auth`, `headers`, and the
+ * script/description fields still reference the original input objects
+ * (NOT a deep clone).
+ *
+ * This is sufficient for the strip's purpose (no raw secret values
+ * land in newstore / localStorage / future sync payloads, since secrets
+ * live only inside `variables` and that's the field we reallocate).
+ * Callers that intend to mutate non-`variables` fields on the returned
+ * tree must clone those fields themselves.
  *
  * Used wherever an imported tree is appended directly to newstore (the
  * logged-out / no-platform-sync branch and the platform fallback when the
- * backend bulk-import fails) so raw secrets don't sit in newstore /
- * localStorage / future sync payloads. The local secret + currentValue
- * stores must already be populated (via `populateLocalStoresFromCollectionTree`
+ * backend bulk-import fails). The local secret + currentValue stores
+ * must already be populated (via `populateLocalStoresFromCollectionTree`
  * keyed by the same `_ref_id`s) so the UI can rehydrate values on read.
  */
 export const stripCollectionTreeForStore = (

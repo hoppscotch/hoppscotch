@@ -3,6 +3,7 @@ import * as E from "fp-ts/Either"
 import { cloneDeep } from "lodash-es"
 
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
+import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
 import { initializeDownloadFile } from "."
 
 const getEnvironmentJSON = (
@@ -27,7 +28,14 @@ const getEnvironmentJSON = (
     : undefined
 }
 
-// Apply necessary transformations prior to environment exports
+// Apply necessary transformations prior to environment exports.
+//
+// Strips `initialValue` for `secret: true` variables AND clears
+// `currentValue` for all variables. Matches the wire-strip convention
+// used at every backend mutation boundary — the exported JSON is a
+// shareable file (downloaded, committed, gisted) and must not carry
+// plaintext secrets. Users must re-enter secrets on each device per the
+// "secrets never leave the source device" security posture.
 export const transformEnvironmentVariables = ({
   id,
   v,
@@ -38,18 +46,7 @@ export const transformEnvironmentVariables = ({
     id,
     v,
     name,
-    variables: variables.map((variable) => {
-      const { key, secret, initialValue } = variable
-
-      // Eliminate `currentValue` field for secret environment variables and currentValue
-
-      return {
-        key,
-        secret,
-        initialValue,
-        currentValue: variable.secret ? "" : (variable.currentValue ?? ""),
-      }
-    }),
+    variables: stripSecretVariableValuesForWire(variables),
   }
 }
 

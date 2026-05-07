@@ -9,7 +9,11 @@
 </template>
 
 <script setup lang="ts">
-import { Environment, NonSecretEnvironment } from "@hoppscotch/data"
+import { Environment } from "@hoppscotch/data"
+import {
+  populateLocalStoresFromVariables,
+  stripSecretVariableValuesForWire,
+} from "~/helpers/secretVariables"
 import * as E from "fp-ts/Either"
 import { ref } from "vue"
 
@@ -24,8 +28,12 @@ import {
   addGlobalEnvVariable,
   appendEnvironments,
   environments$,
+  getGlobalVariables,
 } from "~/newstore/environments"
 
+import { useService } from "dioc/vue"
+import { CurrentValueService } from "~/services/current-environment-value.service"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { CreateTeamEnvironmentMutation } from "~/helpers/backend/graphql"
 import { createTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
@@ -55,6 +63,9 @@ const props = defineProps<{
 }>()
 
 const myEnvironments = useReadonlyStream(environments$, [])
+
+const currentEnvironmentValueService = useService(CurrentValueService)
+const secretEnvironmentService = useService(SecretEnvironmentService)
 
 const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),
@@ -358,17 +369,89 @@ const showImportFailedError = () => {
 
 const handleImportToStore = async (
   environments: Environment[],
-  globalEnvs: NonSecretEnvironment[] = []
+  globalEnvs: Environment[] = []
 ) => {
-  // Add global envs to the store
-  globalEnvs.forEach(({ variables }) => {
-    variables.forEach(({ key, initialValue, currentValue, secret }) => {
-      addGlobalEnvVariable({ key, initialValue, currentValue, secret })
-    })
-  })
+  // Per-env pre-populate is intentionally NOT done here for every env.
+  // It happens inside the MY_ENV branch below, where the temp UUID assigned
+  // at import time has a defined remap path via `updateSecretEnvironmentID`
+  // / `updateEnvironmentID` in the sync handler once the backend create
+  // resolves. The TEAMS branch goes through `importToTeams`, which
+  // populates per-env with the real backend ID returned from
+  // `createTeamEnvironment` — pre-populating under the throwaway temp
+  // UUID would orphan a map entry that nothing later reaps.
+
+  // Globals all share the single `"Global"` key in the local stores, so we
+  // must MERGE the imported entries with whatever's already there. A naive
+  // `populateLocalStoresFromVariables("Global", ...)` per base env would
+  // (a) wipe pre-existing entries on each call (Map.set replace), and
+  // (b) misalign `varIndex` against the newstore when more than one base
+  // env is imported (only the last call's indices would match).
+  //
+  // Hydrate the existing globals from the local stores (where the raw
+  // secret + currentValue values live), concat the imported tail, then
+  // call the helper once on the full array — its index-based replace then
+  // matches the newstore order exactly.
+  if (globalEnvs.length > 0) {
+    const importedGlobals = globalEnvs.flatMap(({ variables }) => variables)
+
+    const existingHydrated: Environment["variables"] = getGlobalVariables().map(
+      (v, i) => {
+        if (v.secret) {
+          const stored = secretEnvironmentService.getSecretEnvironmentVariable(
+            "Global",
+            i
+          )
+          return {
+            ...v,
+            initialValue: stored?.initialValue ?? "",
+            currentValue: stored?.value ?? "",
+          }
+        }
+        const stored = currentEnvironmentValueService.getEnvironmentVariable(
+          "Global",
+          i
+        )
+        return {
+          ...v,
+          currentValue: stored?.currentValue ?? v.currentValue,
+        }
+      }
+    )
+
+    populateLocalStoresFromVariables("Global", [
+      ...existingHydrated,
+      ...importedGlobals,
+    ])
+
+    // Append the stripped imported globals to the newstore. Order matches
+    // the hydrated existing entries above so the local-store `varIndex`
+    // aligns with the newstore array position.
+    stripSecretVariableValuesForWire(importedGlobals).forEach(
+      ({ key, initialValue, currentValue, secret }) => {
+        addGlobalEnvVariable({ key, initialValue, currentValue, secret })
+      }
+    )
+  }
 
   if (props.environmentType === "MY_ENV") {
-    appendEnvironments(environments)
+    // Pre-populate local stores under the temp UUID assigned at import
+    // time. The sync handler (`appendEnvironments` in
+    // `selfhost-web/.../environments/web/sync.ts`) remaps each entry to
+    // the real backend ID via `updateSecretEnvironmentID` /
+    // `updateEnvironmentID` once `createUserEnvironment` resolves, so the
+    // raw values survive the wire-strip and end up keyed correctly.
+    environments.forEach((env) => {
+      populateLocalStoresFromVariables(env.id, env.variables)
+    })
+
+    // Strip wire payload before adding to newstore so raw secret values
+    // never sit in newstore / localStorage where a later subscription or
+    // sync could persist them. UI re-hydrates from the local stores above.
+    const strippedEnvironments = environments.map((env) => ({
+      ...env,
+      variables: stripSecretVariableValuesForWire(env.variables),
+    }))
+    appendEnvironments(strippedEnvironments)
     toast.success(t("state.file_imported"))
   } else {
     await importToTeams(environments)
@@ -382,7 +465,7 @@ const importToTeams = async (content: Environment[]) => {
 
   for (const [, env] of content.entries()) {
     const res = createTeamEnvironment(
-      JSON.stringify(env.variables),
+      JSON.stringify(stripSecretVariableValuesForWire(env.variables)),
       props.teamId as string,
       env.name
     )()
@@ -391,6 +474,20 @@ const importToTeams = async (content: Environment[]) => {
   }
 
   const res = await Promise.all(envImportPromises)
+
+  // Persist the imported secret + currentValue inputs to the local stores,
+  // re-keyed to each new backend env ID. Pairs with the wire-strip above:
+  // the team's DB row stays clean while this device retains the values the
+  // user just imported. Non-conforming clients elsewhere on the team see
+  // empty values, matching the per-user-per-device security model.
+  res.forEach((entry, index) => {
+    if (E.isRight(entry)) {
+      populateLocalStoresFromVariables(
+        entry.right.createTeamEnvironment.id,
+        content[index].variables
+      )
+    }
+  })
 
   const failedImports = res.some((r) => E.isLeft(r))
 

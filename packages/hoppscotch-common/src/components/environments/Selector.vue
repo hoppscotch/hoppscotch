@@ -694,7 +694,11 @@ const envQuickPeekActions = ref<TippyComponent | null>(null)
 const globalVals = useReadonlyStream(globalEnv$, {} as GlobalEnvironment)
 
 const globalEnvs = computed(() => {
-  return globalVals.value.variables.map((variable, index) => ({
+  // The default value passed to `useReadonlyStream` here is `{}`, so
+  // `globalVals.value.variables` is legitimately undefined for the brief
+  // window before the stream emits. It can also be undefined if the
+  // backend schema returned a non-wrapper shape; defend against both.
+  return (globalVals.value?.variables ?? []).map((variable, index) => ({
     ...variable,
     currentValue:
       currentEnvironmentValueService.getEnvironmentVariableValue(

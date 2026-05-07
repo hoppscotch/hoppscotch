@@ -399,6 +399,7 @@ import { CurrentValueService } from "~/services/current-environment-value.servic
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { SortOptions } from "~/helpers/backend/graphql"
 import { CurrentSortValuesService } from "~/services/current-sort.service"
+import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
 
 const t = useI18n()
 const toast = useToast()
@@ -3239,6 +3240,26 @@ const getCurrentValue = (
   )?.currentValue
 }
 
+/**
+ * Restore both `initialValue` and `currentValue` for a secret variable from
+ * the local secret store. Both fields are blanked at the wire boundary
+ * before the variable is sent to the backend, so when the user reopens the
+ * Properties modal we re-populate from `secretEnvironmentService`.
+ * Returns null for non-secret variables (callers fall back to existing
+ * current-value lookup) or when the slot has no entry in the secret store.
+ */
+const getSecretValues = (
+  isSecret: boolean,
+  varIndex: number,
+  collectionID: string
+): { value: string; initialValue: string } | null => {
+  if (!isSecret) return null
+  return secretEnvironmentService.getSecretEnvironmentVariableValue(
+    collectionID,
+    varIndex
+  )
+}
+
 const editProperties = async (payload: {
   collectionIndex: string
   collection: HoppCollection | TeamCollection
@@ -3276,14 +3297,15 @@ const editProperties = async (payload: {
     const collectionVariables = pipe(
       (collection as HoppCollection).variables ?? [],
       A.mapWithIndex((index, e) => {
+        const storeID = (collection as HoppCollection)._ref_id ?? collectionId!
+        const stored = getSecretValues(e.secret, index, storeID)
         return {
           ...e,
           currentValue:
-            getCurrentValue(
-              e.secret,
-              index,
-              (collection as HoppCollection)._ref_id ?? collectionId!
-            ) ?? e.currentValue,
+            stored?.value ??
+            getCurrentValue(e.secret, index, storeID) ??
+            e.currentValue,
+          initialValue: stored?.initialValue ?? e.initialValue,
         }
       })
     )
@@ -3337,10 +3359,14 @@ const editProperties = async (payload: {
       const collectionVariables = pipe(
         (data.variables ?? []) as HoppCollectionVariable[],
         A.mapWithIndex((index, e) => {
+          const stored = getSecretValues(e.secret, index, collectionId!)
           return {
             ...e,
             currentValue:
-              getCurrentValue(e.secret, index, collectionId!) ?? e.currentValue,
+              stored?.value ??
+              getCurrentValue(e.secret, index, collectionId!) ??
+              e.currentValue,
+            initialValue: stored?.initialValue ?? e.initialValue,
           }
         })
       )
@@ -3403,6 +3429,7 @@ const setCollectionProperties = (newCollection: {
           ? O.some({
               key: e.key,
               value: e.currentValue,
+              initialValue: e.initialValue,
               varIndex: i,
             })
           : O.none
@@ -3433,14 +3460,12 @@ const setCollectionProperties = (newCollection: {
       nonSecretVariables
     )
 
-    //set current value and secret values to empty string
-    collection.variables = pipe(
-      filteredVariables,
-      A.map((e) => ({
-        ...e,
-        currentValue: "",
-      }))
-    )
+    // Strip values that must not leave the client: secret variables get
+    // both `initialValue` and `currentValue` cleared (the secrets are
+    // already saved into `secretEnvironmentService` above), and non-secret
+    // variables keep their `initialValue` but have `currentValue` cleared
+    // because `currentValue` is per-user/per-session state.
+    collection.variables = stripSecretVariableValuesForWire(filteredVariables)
   }
 
   if (collectionsType.value.type === "my-collections") {
@@ -3455,13 +3480,22 @@ const setCollectionProperties = (newCollection: {
     })
     toast.success(t("collection.properties_updated"))
   } else if (hasTeamWriteAccess.value && collectionId) {
-    const data = {
+    const data: CollectionDataProps = {
       auth: collection.auth ?? {
         authType: "inherit",
         authActive: true,
       },
       headers: collection.headers ?? [],
-      variables: collection.variables ?? [],
+      // `collection.variables` is set by the strip a few lines up when
+      // `collection.variables` was non-empty, but the early-return for
+      // the empty case bypasses that — strip again here defensively so
+      // every wire-boundary call to `updateTeamCollection` is uniformly
+      // safe.
+      variables: stripSecretVariableValuesForWire(collection.variables ?? []),
+      // Round-trip `_ref_id` through the backend `data` blob so the local
+      // secret store key stays stable across reloads — same rationale as
+      // the personal-collection writers in `platform/collections/.../sync.ts`.
+      _ref_id: collection._ref_id,
       description: collection.description ?? null,
       preRequestScript: collection.preRequestScript ?? "",
       testScript: collection.testScript ?? "",

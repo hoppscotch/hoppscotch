@@ -1,0 +1,228 @@
+import { generateUniqueRefId, type HoppCollection } from "@hoppscotch/data"
+
+import { getService } from "../modules/dioc"
+import { CurrentValueService } from "../services/current-environment-value.service"
+import { SecretEnvironmentService } from "../services/secret-environment.service"
+
+/**
+ * Structural shape shared by Hoppscotch's collection variables and
+ * environment variables. Both carry a `secret` flag; both are persisted
+ * server-side via JSON blobs.
+ */
+type SecretCapableVariable = {
+  key: string
+  initialValue: string
+  currentValue: string
+  secret: boolean
+}
+
+/**
+ * Strip the values of secret variables before sending them to the backend.
+ * Used at the wire boundary for both collection variables and environment
+ * variables. The user's actual secret values stay in the local secret store
+ * (see `secretEnvironmentService`); only the slot — `key` and `secret: true`
+ * — survives onto the wire so the UI can still render it.
+ *
+ * `currentValue` is also cleared on all (non-secret) variables to match the
+ * existing Hoppscotch convention that `currentValue` is per-user/per-session
+ * state and never persisted server-side.
+ *
+ */
+export const stripSecretVariableValuesForWire = <
+  T extends SecretCapableVariable,
+>(
+  variables: T[]
+): T[] =>
+  variables.map((v) => ({
+    ...v,
+    initialValue: v.secret ? "" : v.initialValue,
+    currentValue: "",
+  }))
+
+/**
+ * Populate the local secret store and current-value store from a variables
+ * array, keyed by the entity's local ID. Mirrors what `setCollectionProperties`
+ * and `saveEnvironment` do on UI-edit save: extract `secret: true` entries to
+ * `secretEnvironmentService`, extract `currentValue` for non-secret entries to
+ * `currentEnvironmentValueService`.
+ *
+ * Required for any code path that ingests user-authored variables WITHOUT
+ * going through the UI save flow — imports, duplicates, restore-from-file —
+ * because the wire-strip removes the values from the payload that round-trips
+ * through the backend, so without this hook the user loses them on next
+ * `setRESTCollections` / `replaceEnvironments` from a backend fetch.
+ *
+ * Always writes to both stores when the entityId is non-empty (even when one
+ * side has zero entries) so a re-import or re-save with fewer/no secrets
+ * clears any stale entries from a previous version of the same entity.
+ *
+ * IMPORTANT — pre-stripped inputs: if `variables` already comes from a
+ * stripped source (a Hoppscotch JSON export, or a backend row reload), each
+ * `secret: true` entry will have `currentValue: ""` and `initialValue: ""`.
+ * Calling this with such inputs persists `""` as the secret value, and the
+ * UI shows blank fields after re-import. That matches the security posture
+ * (secrets never leave the source device, so reimporting can't recover
+ * them — users must re-enter them on each new device), but callers that
+ * expect values to survive re-import are misusing this helper. Pass the
+ * RAW user-authored variables here, before any wire-strip runs.
+ */
+export const populateLocalStoresFromVariables = (
+  entityId: string,
+  variables: readonly SecretCapableVariable[]
+) => {
+  if (!entityId) return
+
+  const secretEnvironmentService = getService(SecretEnvironmentService)
+  const currentEnvironmentValueService = getService(CurrentValueService)
+
+  const secrets = variables.flatMap((v, index) =>
+    v.secret
+      ? [
+          {
+            key: v.key,
+            value: v.currentValue ?? "",
+            initialValue: v.initialValue ?? "",
+            varIndex: index,
+          },
+        ]
+      : []
+  )
+
+  const nonSecrets = variables.flatMap((v, index) =>
+    !v.secret
+      ? [
+          {
+            key: v.key,
+            currentValue: v.currentValue ?? "",
+            varIndex: index,
+            isSecret: false as const,
+          },
+        ]
+      : []
+  )
+
+  secretEnvironmentService.addSecretEnvironment(entityId, secrets)
+  currentEnvironmentValueService.addEnvironment(entityId, nonSecrets)
+}
+
+/**
+ * Recursive variant of `populateLocalStoresFromVariables` for a HoppCollection
+ * tree (collection + nested folders). Walks the tree and populates the local
+ * stores for every node that has a `_ref_id`.
+ *
+ * Used at import-time entry points BEFORE the wire strip runs, so that even
+ * the logged-out / no-platform-sync branch (which skips
+ * `translateToPersonalCollectionFormat`) preserves user-supplied secret +
+ * currentValue inputs in the local stores. On subsequent login + sync, the
+ * wire payload is stripped but the secret store still has the values keyed
+ * by the same `_ref_id` that round-trips through the backend `data` blob.
+ */
+export const populateLocalStoresFromCollectionTree = (
+  collection: HoppCollection
+) => {
+  if (collection._ref_id) {
+    populateLocalStoresFromVariables(
+      collection._ref_id,
+      collection.variables ?? []
+    )
+  }
+  ;(collection.folders ?? []).forEach(populateLocalStoresFromCollectionTree)
+}
+
+/**
+ * Walk a collection tree assigning a fresh `_ref_id` to any node that lacks
+ * one. Returns a new tree with fresh node objects and new `folders` arrays
+ * at every level — but `variables`, `requests`, `auth`, `headers`, etc.
+ * still reference the original input arrays/objects (NOT a deep clone).
+ *
+ * This shallow-per-node behavior is enough for the import pipeline: the
+ * downstream `stripSecretVariableValuesForWire` reallocates each node's
+ * `variables` array, and `populateLocalStoresFromCollectionTree` is
+ * read-only. Callers that intend to mutate non-folder fields after
+ * stamping ref-ids must clone those fields themselves; this helper does
+ * not protect against shared aliasing into the original graph.
+ *
+ * Used at every import entry point before the wire strip / local-store
+ * populate runs, so secret values are addressable by ref-id no matter
+ * which downstream branch (backend success, backend failure, logged-out
+ * append) executes.
+ */
+export const ensureRefIds = (collection: HoppCollection): HoppCollection => ({
+  ...collection,
+  _ref_id: collection._ref_id ?? generateUniqueRefId("coll"),
+  folders: (collection.folders ?? []).map(ensureRefIds),
+})
+
+/**
+ * Recursive variant of `stripSecretVariableValuesForWire` for a collection
+ * tree. Returns a new tree with fresh node objects, fresh `variables`
+ * arrays (every variable replaced via the strip), and fresh `folders`
+ * arrays at every level — but `requests`, `auth`, `headers`, and the
+ * script/description fields still reference the original input objects
+ * (NOT a deep clone).
+ *
+ * This is sufficient for the strip's purpose (no raw secret values
+ * land in newstore / localStorage / future sync payloads, since secrets
+ * live only inside `variables` and that's the field we reallocate).
+ * Callers that intend to mutate non-`variables` fields on the returned
+ * tree must clone those fields themselves.
+ *
+ * Used wherever an imported tree is appended directly to newstore (the
+ * logged-out / no-platform-sync branch and the platform fallback when the
+ * backend bulk-import fails). The local secret + currentValue stores
+ * must already be populated (via `populateLocalStoresFromCollectionTree`
+ * keyed by the same `_ref_id`s) so the UI can rehydrate values on read.
+ */
+export const stripCollectionTreeForStore = (
+  collection: HoppCollection
+): HoppCollection => ({
+  ...collection,
+  variables: stripSecretVariableValuesForWire(collection.variables ?? []),
+  folders: (collection.folders ?? []).map(stripCollectionTreeForStore),
+})
+
+/**
+ * Build a flat `_ref_id → collection` index across an entire collection
+ * tree (root + nested folders). Used post-import to pair backend-returned
+ * collections with their pre-walked originals by stable ref-id rather
+ * than by array position, since the backend is free to reorder.
+ *
+ * Mutates `out` in place (avoids allocating an intermediate per call,
+ * since the caller typically wants a single map for the whole tree).
+ */
+export const indexCollectionsByRefId = (
+  collections: HoppCollection[],
+  out: Map<string, HoppCollection>
+) => {
+  collections.forEach((c) => {
+    if (c._ref_id) out.set(c._ref_id, c)
+    if (c.folders?.length) indexCollectionsByRefId(c.folders, out)
+  })
+}
+
+/**
+ * Walk a backend-loaded collection tree and re-populate the local secret +
+ * currentValue stores from the matching original (pre-walked) tree. Pairs
+ * each loaded node to its original by `_ref_id` (looked up in the flat map
+ * built by `indexCollectionsByRefId`). Skips nodes without a `_ref_id`
+ * (matches the prior index-based path's behavior for missing keys).
+ *
+ * Why ref-id, not array index: the backend may reorder collections during
+ * a bulk import. An index-based pairing would re-key secrets onto the
+ * wrong collection. `_ref_id` round-trips through `data._ref_id` so the
+ * lookup is stable.
+ */
+export const repopulateLoadedCollectionTree = (
+  loaded: HoppCollection,
+  originalsByRefId: Map<string, HoppCollection>
+) => {
+  if (loaded._ref_id) {
+    const original = originalsByRefId.get(loaded._ref_id)
+    if (original) {
+      populateLocalStoresFromVariables(loaded._ref_id, original.variables ?? [])
+    }
+  }
+  ;(loaded.folders ?? []).forEach((loadedFolder) => {
+    repopulateLoadedCollectionTree(loadedFolder, originalsByRefId)
+  })
+}

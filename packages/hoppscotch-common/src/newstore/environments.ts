@@ -14,6 +14,7 @@ import DispatchingStore, {
 } from "~/newstore/DispatchingStore"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
+import { coerceGlobalEnvironment } from "~/helpers/globalEnvShape"
 
 export type SelectedEnvironmentIndex =
   | { type: "NO_ENV_SELECTED" }
@@ -309,8 +310,13 @@ const dispatchers = defineDispatchers({
     }
   },
   setGlobalVariables(_, { entries }: { entries: GlobalEnvironment }) {
+    // Defensive normalization at the wire-into-store boundary. TS
+    // dispatchers are erased to `any` at runtime, and a malformed value
+    // from a backend schema change, persistence-layer corruption, or a
+    // future caller would otherwise corrupt `state.globals` and crash
+    // every consumer of `globalEnv.variables.map(...)` downstream.
     return {
-      globals: entries,
+      globals: coerceGlobalEnvironment(entries),
     }
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -469,8 +475,7 @@ export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
         })
       }
     })
-
-    globalEnv.variables.forEach((variable) => {
+    ;(globalEnv?.variables ?? []).forEach((variable) => {
       const { key, secret } = variable
       const currentValue =
         "currentValue" in variable ? variable.currentValue : ""
@@ -578,7 +583,12 @@ export function getAggregateEnvsWithCurrentValue() {
             currentEnv.id,
             index
           ) ?? currentValue,
-        initialValue: x.initialValue ?? initialValue,
+        // For stripped secret vars `x.initialValue` is `""` (non-nullish),
+        // so `x.initialValue ?? initialValue` would pin the empty string
+        // and bypass the secret-store hydration above. The local
+        // `initialValue` already encodes both branches: secret-store value
+        // for secrets, raw `x.initialValue` for non-secrets.
+        initialValue,
         secret: x.secret,
         sourceEnv: currentEnv.name,
       }
@@ -606,7 +616,7 @@ export function getAggregateEnvsWithCurrentValue() {
             "Global",
             index
           ) ?? currentValue,
-        initialValue: x.initialValue ?? initialValue,
+        initialValue,
         secret: x.secret,
         sourceEnv: "Global",
       }
@@ -658,13 +668,15 @@ export const aggregateEnvsWithCurrentValue$: Observable<
               selectedEnv.id,
               index
             ) ?? currentValue,
-          initialValue: x.initialValue ?? initialValue,
+          // See note on `aggregateEnvs$` above — `x.initialValue` is `""`
+          // for stripped secrets so `??` would discard the secret-store
+          // hydration. The local `initialValue` is already correct.
+          initialValue,
           secret: x.secret,
           sourceEnv: selectedEnv.name,
         })
       })
-
-      globalEnv.variables.map((x, index) => {
+      ;(globalEnv?.variables ?? []).map((x, index) => {
         let currentValue = x.currentValue
         let initialValue = x.initialValue
         if (x.secret) {
@@ -687,7 +699,7 @@ export const aggregateEnvsWithCurrentValue$: Observable<
               "Global",
               index
             ) ?? currentValue,
-          initialValue: x.initialValue ?? initialValue,
+          initialValue,
           secret: x.secret,
           sourceEnv: "Global",
         })
@@ -749,7 +761,11 @@ export function getLegacyGlobalEnvironment(): Environment | null {
 }
 
 export function getGlobalVariables(): GlobalEnvironmentVariable[] {
-  return environmentsStore.value.globals.variables.map(
+  // Defensive `?? []` — the dispatcher normalizes `state.globals` to a
+  // valid wrapper, but if state somehow ended up corrupt (e.g. before
+  // a normalization fix shipped), we'd rather return an empty list than
+  // crash every consumer of this function.
+  return (environmentsStore.value.globals?.variables ?? []).map(
     (env: GlobalEnvironmentVariable) => {
       if (env.key && "currentValue" in env && !("secret" in env)) {
         return {

@@ -128,10 +128,17 @@ export class CurrentValueService extends Service {
    * Used while syncing with the server.
    * @param oldID old ID of the environment
    * @param newID new ID of the environment
+   *
+   * Skip the `set` when there's nothing to migrate — otherwise an empty
+   * array would be written under `newID` and silently clobber any entry
+   * a prior operation already keyed there. The `delete(oldID)` still
+   * runs unconditionally to clean up regardless.
    */
   public updateEnvironmentID(oldID: string, newID: string) {
     const vars = this.getEnvironment(oldID)
-    this.environments.set(newID, vars || [])
+    if (vars !== undefined) {
+      this.environments.set(newID, vars)
+    }
     this.environments.delete(oldID)
   }
 

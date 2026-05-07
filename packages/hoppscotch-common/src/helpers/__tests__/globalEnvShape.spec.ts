@@ -42,6 +42,30 @@ describe("coerceGlobalEnvironment", () => {
     expect(coerceGlobalEnvironment({ v: 2 })).toEqual({ v: 2, variables: [] })
   })
 
+  it("rebuilds with v:2 when an object has a variables array but missing v", () => {
+    const variables = [
+      { key: "k", initialValue: "i", currentValue: "c", secret: false },
+    ]
+    expect(coerceGlobalEnvironment({ variables })).toEqual({
+      v: 2,
+      variables,
+    })
+  })
+
+  it("rebuilds with v:2 when an object has a variables array but a non-2 v", () => {
+    const variables = [
+      { key: "k", initialValue: "i", currentValue: "c", secret: false },
+    ]
+    expect(coerceGlobalEnvironment({ v: 1, variables })).toEqual({
+      v: 2,
+      variables,
+    })
+    expect(coerceGlobalEnvironment({ v: "2", variables })).toEqual({
+      v: 2,
+      variables,
+    })
+  })
+
   it("returns an empty wrapper for a primitive", () => {
     expect(coerceGlobalEnvironment("string")).toEqual({
       v: 2,

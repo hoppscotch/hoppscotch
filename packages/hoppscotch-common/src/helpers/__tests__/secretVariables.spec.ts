@@ -127,6 +127,54 @@ describe("populateLocalStoresFromVariables", () => {
     ])
   })
 
+  it("falls back to initialValue when non-secret currentValue is empty (re-import of own JSON export)", () => {
+    // Hoppscotch's env JSON export blanks `currentValue` for ALL variables.
+    // On re-import, a non-secret variable's currentValue should fall back
+    // to the persisted `initialValue` so the user's runtime UI doesn't
+    // show blank fields after re-importing their own export.
+    populateLocalStoresFromVariables(ENTITY_ID, [
+      {
+        key: "host",
+        initialValue: "https://api.example.com",
+        currentValue: "",
+        secret: false,
+      },
+    ])
+
+    expect(currentValueService.getEnvironment(ENTITY_ID)).toEqual([
+      {
+        key: "host",
+        currentValue: "https://api.example.com",
+        varIndex: 0,
+        isSecret: false,
+      },
+    ])
+  })
+
+  it("does NOT fall back to initialValue for secrets (security posture)", () => {
+    // Stripped secret payloads have both fields empty, but a JSON export
+    // can carry `initialValue` even when `currentValue` is empty. We
+    // intentionally do NOT recover the secret value from `initialValue`
+    // for `secret: true` entries — secrets must be re-entered per device.
+    populateLocalStoresFromVariables(ENTITY_ID, [
+      {
+        key: "token",
+        initialValue: "leaked-from-export",
+        currentValue: "",
+        secret: true,
+      },
+    ])
+
+    expect(secretService.getSecretEnvironment(ENTITY_ID)).toEqual([
+      {
+        key: "token",
+        value: "",
+        initialValue: "leaked-from-export",
+        varIndex: 0,
+      },
+    ])
+  })
+
   it("preserves the variable index for mixed secret + non-secret entries", () => {
     populateLocalStoresFromVariables(ENTITY_ID, [
       {

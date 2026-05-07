@@ -93,7 +93,14 @@ export const populateLocalStoresFromVariables = (
       ? [
           {
             key: v.key,
-            currentValue: v.currentValue ?? "",
+            // Fall back to `initialValue` when `currentValue` is empty.
+            // Hoppscotch's own JSON export blanks `currentValue` for ALL
+            // variables (per the runtime/persisted split), so without this
+            // a re-import of the user's own export would show blank
+            // current-value fields. Limited to non-secrets — secrets stay
+            // strict so the "can't recover from re-import" security claim
+            // in the JSDoc above continues to hold for `secret: true`.
+            currentValue: v.currentValue || v.initialValue || "",
             varIndex: index,
             isSecret: false as const,
           },

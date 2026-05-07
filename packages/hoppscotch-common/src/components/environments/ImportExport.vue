@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { Environment } from "@hoppscotch/data"
+import { Environment, generateUniqueRefId } from "@hoppscotch/data"
 import {
   populateLocalStoresFromVariables,
   stripSecretVariableValuesForWire,
@@ -434,20 +434,25 @@ const handleImportToStore = async (
   }
 
   if (props.environmentType === "MY_ENV") {
-    // Pre-populate local stores under the temp UUID assigned at import
-    // time. The sync handler (`appendEnvironments` in
-    // `selfhost-web/.../environments/web/sync.ts`) remaps each entry to
-    // the real backend ID via `updateSecretEnvironmentID` /
-    // `updateEnvironmentID` once `createUserEnvironment` resolves, so the
-    // raw values survive the wire-strip and end up keyed correctly.
-    environments.forEach((env) => {
+    // Stamp a temp id onto envs that arrive without one (locally-created,
+    // never-synced envs export with `id: ""`). `populateLocalStoresFromVariables`
+    // early-returns on empty entityId, so without this every secret would
+    // silently drop. The same id flows into `strippedEnvironments` so the
+    // sync handler's `tempId = environments[envId].id` capture finds the
+    // local-store entry and remaps it to the real backend id.
+    const envsWithIds = environments.map((env) => ({
+      ...env,
+      id: env.id || generateUniqueRefId("env"),
+    }))
+
+    envsWithIds.forEach((env) => {
       populateLocalStoresFromVariables(env.id, env.variables)
     })
 
     // Strip wire payload before adding to newstore so raw secret values
     // never sit in newstore / localStorage where a later subscription or
     // sync could persist them. UI re-hydrates from the local stores above.
-    const strippedEnvironments = environments.map((env) => ({
+    const strippedEnvironments = envsWithIds.map((env) => ({
       ...env,
       variables: stripSecretVariableValuesForWire(env.variables),
     }))

@@ -1337,6 +1337,7 @@
     "ai_request_naming_style_pascal_case": "Pascal Case ( PascalCase )",
     "ai_request_naming_style_custom": "Custom",
     "ai_request_naming_style_custom_placeholder": "Enter your custom naming style template...",
+    "reveal_request_on_tab_activate": "Reveal request in sidebar on tab switch",
     "experimental_scripting_sandbox": "Experimental scripting sandbox",
     "enable_experimental_mock_servers": "Enable Mock Servers",
     "enable_experimental_documentation": "Enable Documentation",

@@ -71,6 +71,14 @@
                   {{ t("settings.sidebar_on_left") }}
                 </HoppSmartToggle>
               </div>
+              <div class="flex items-center">
+                <HoppSmartToggle
+                  :on="REVEAL_REQUEST_ON_TAB_ACTIVATE"
+                  @change="toggleSetting('REVEAL_REQUEST_ON_TAB_ACTIVATE')"
+                >
+                  {{ t("settings.reveal_request_on_tab_activate") }}
+                </HoppSmartToggle>
+              </div>
               <div v-if="hasAIExperimentsSupport" class="flex items-center">
                 <HoppSmartToggle
                   :on="ENABLE_AI_EXPERIMENTS"
@@ -325,6 +333,9 @@ const ENABLE_AI_EXPERIMENTS = useSetting("ENABLE_AI_EXPERIMENTS")
 const AI_REQUEST_NAMING_STYLE = useSetting("AI_REQUEST_NAMING_STYLE")
 const CUSTOM_NAMING_STYLE = useSetting("CUSTOM_NAMING_STYLE")
 
+const REVEAL_REQUEST_ON_TAB_ACTIVATE = useSetting(
+  "REVEAL_REQUEST_ON_TAB_ACTIVATE"
+)
 const EXPERIMENTAL_SCRIPTING_SANDBOX = useSetting(
   "EXPERIMENTAL_SCRIPTING_SANDBOX"
 )

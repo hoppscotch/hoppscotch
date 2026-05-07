@@ -119,10 +119,17 @@ export class SecretEnvironmentService extends Service {
    * Used while syncing with the server.
    * @param oldID old ID of the environment
    * @param newID new ID of the environment
+   *
+   * Skip the `set` when there's nothing to migrate — otherwise an empty
+   * array would be written under `newID` and silently clobber any entry
+   * a prior operation already keyed there. The `delete(oldID)` still
+   * runs unconditionally to clean up regardless.
    */
   public updateSecretEnvironmentID(oldID: string, newID: string) {
     const secretVars = this.getSecretEnvironment(oldID)
-    this.secretEnvironments.set(newID, secretVars || [])
+    if (secretVars !== undefined) {
+      this.secretEnvironments.set(newID, secretVars)
+    }
     this.secretEnvironments.delete(oldID)
   }
 

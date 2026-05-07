@@ -371,17 +371,14 @@ const handleImportToStore = async (
   environments: Environment[],
   globalEnvs: Environment[] = []
 ) => {
-  // Pre-populate local stores with imported secret + currentValue inputs
-  // BEFORE anything (raw or sync) reaches the newstore. This way, even if
-  // the user is offline, sync is disabled, or the app quits before sync
-  // completes, the secret values survive — they're keyed locally and the
-  // newstore is never written with raw secrets.
-  //
-  // Non-global envs are keyed by their own backend id (one map entry per
-  // env), so a per-env replace is safe.
-  environments.forEach((env) => {
-    populateLocalStoresFromVariables(env.id, env.variables)
-  })
+  // Per-env pre-populate is intentionally NOT done here for every env.
+  // It happens inside the MY_ENV branch below, where the temp UUID assigned
+  // at import time has a defined remap path via `updateSecretEnvironmentID`
+  // / `updateEnvironmentID` in the sync handler once the backend create
+  // resolves. The TEAMS branch goes through `importToTeams`, which
+  // populates per-env with the real backend ID returned from
+  // `createTeamEnvironment` — pre-populating under the throwaway temp
+  // UUID would orphan a map entry that nothing later reaps.
 
   // Globals all share the single `"Global"` key in the local stores, so we
   // must MERGE the imported entries with whatever's already there. A naive
@@ -437,6 +434,16 @@ const handleImportToStore = async (
   }
 
   if (props.environmentType === "MY_ENV") {
+    // Pre-populate local stores under the temp UUID assigned at import
+    // time. The sync handler (`appendEnvironments` in
+    // `selfhost-web/.../environments/web/sync.ts`) remaps each entry to
+    // the real backend ID via `updateSecretEnvironmentID` /
+    // `updateEnvironmentID` once `createUserEnvironment` resolves, so the
+    // raw values survive the wire-strip and end up keyed correctly.
+    environments.forEach((env) => {
+      populateLocalStoresFromVariables(env.id, env.variables)
+    })
+
     // Strip wire payload before adding to newstore so raw secret values
     // never sit in newstore / localStorage where a later subscription or
     // sync could persist them. UI re-hydrates from the local stores above.

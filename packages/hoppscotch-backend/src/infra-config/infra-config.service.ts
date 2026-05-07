@@ -538,7 +538,11 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
 
     const configEntries: InfraConfigArgs[] = [
       ...Object.entries(dto)
-        .filter(([_, value]) => value !== undefined)
+        .filter(
+          ([key, value]) =>
+            value !== undefined &&
+            Object.keys(new SaveOnboardingConfigRequest()).includes(key),
+        )
         .map(([key, value]) => ({
           name: key as InfraConfigEnum,
           value,

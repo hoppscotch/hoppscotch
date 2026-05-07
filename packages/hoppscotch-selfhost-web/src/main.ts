@@ -2,6 +2,7 @@ import { nextTick, ref, watch } from "vue"
 import { emit, listen } from "@tauri-apps/api/event"
 import { createHoppApp } from "@hoppscotch/common"
 import { useSettingStatic } from "@hoppscotch/common/composables/settings"
+import { useDesktopSettings } from "@hoppscotch/common/composables/desktop-settings"
 import { resolvePressedKey } from "@hoppscotch/common/helpers/keybindings"
 import { getKeyboardLayoutStrategy } from "@hoppscotch/common/helpers/keyboard-strategy"
 import { getKernelMode } from "@hoppscotch/kernel"
@@ -80,6 +81,15 @@ const headerPaddingLeft = ref("0px")
 const headerPaddingTop = ref("0px")
 
 function setupDesktopUI() {
+  // Hydrate the keyboard-layout-strategy holder at desktop bootstrap.
+  // The composable's first call triggers loadInitial, which reads the
+  // persisted strategy from tauri-plugin-store and writes it into the
+  // shared holder. Without this call the holder stays at its module-
+  // level default ("hybrid") until Desktop.vue mounts, so a persisted
+  // "key" or "code" choice would be dormant on every restart until the
+  // user opened the settings page.
+  useDesktopSettings()
+
   headerPaddingTop.value = "0px"
   headerPaddingLeft.value = "80px"
 

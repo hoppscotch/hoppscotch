@@ -3,6 +3,7 @@ import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 
 import { RunPostRequestScriptOptions, TestResponse, TestResult } from "~/types"
+import { parseScriptForSyntax } from "~/utils/scripting"
 import { preventCyclicObjects } from "~/utils/shared"
 import { runPostRequestScriptWithFaradayCage } from "./experimental"
 
@@ -12,20 +13,6 @@ export const runTestScript = (
   testScript: string,
   options: RunPostRequestScriptOptions
 ): TE.TaskEither<string, TestResult> => {
-  // Pre-parse the script to catch syntax errors before execution
-  // Use AsyncFunction to support top-level await (required for hopp.fetch, etc.)
-  try {
-    // eslint-disable-next-line no-new-func
-    const AsyncFunction = Object.getPrototypeOf(
-      async function () {}
-    ).constructor
-    new (AsyncFunction as any)(testScript)
-  } catch (e) {
-    const err = e as Error
-    const reason = `${"name" in err ? (err as any).name : "SyntaxError"}: ${err.message}`
-    return TE.left(`Script execution failed: ${reason}`)
-  }
-
   const responseObjHandle = preventCyclicObjects<TestResponse>(options.response)
 
   if (E.isLeft(responseObjHandle)) {
@@ -34,6 +21,26 @@ export const runTestScript = (
 
   const resolvedResponse = responseObjHandle.right
   const { envs, experimentalScriptingSandbox = true } = options
+
+  // Pre-parse before sandbox spin-up so syntax errors surface as a friendly
+  // host-side message. The experimental path uses module-mode parsing so
+  // top-level `import` declarations reach faraday-cage's esmModuleLoader;
+  // the legacy path stays sloppy-mode-compatible via `AsyncFunction`.
+  try {
+    if (experimentalScriptingSandbox) {
+      parseScriptForSyntax(testScript)
+    } else {
+      // eslint-disable-next-line no-new-func
+      const AsyncFunction = Object.getPrototypeOf(
+        async function () {}
+      ).constructor
+      new (AsyncFunction as any)(testScript)
+    }
+  } catch (e) {
+    const err = e as Error
+    const reason = `${"name" in err ? (err as any).name : "SyntaxError"}: ${err.message}`
+    return TE.left(`Script execution failed: ${reason}`)
+  }
 
   if (experimentalScriptingSandbox) {
     const { request, hoppFetchHook } = options as Extract<

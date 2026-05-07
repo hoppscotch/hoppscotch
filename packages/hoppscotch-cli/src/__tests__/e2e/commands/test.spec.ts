@@ -564,6 +564,20 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       if (legacyResult === null) return;
       expect(legacyResult.error).toBeNull();
     });
+
+    test("Surfaces a SyntaxError when the same import binding appears in multiple scripts in a request's cascade", async () => {
+      const args = `test ${getTestJsonFilePath(
+        "collection-level-scripts-duplicate-import-coll.json",
+        "collection"
+      )}`;
+      const { error, stderr } = await runCLI(args);
+
+      expect(error).not.toBeNull();
+      expect(stderr).toContain("PRE_REQUEST_SCRIPT_ERROR");
+      expect(stderr).toContain(
+        "'dup' is imported by multiple scripts in this request's chain"
+      );
+    });
   });
 
   describe("Test `hopp test <file_path_or_id> --env <file_path_or_id>` command:", () => {

@@ -52,6 +52,7 @@
   "dependencies": {
     "@hoppscotch/data": "workspace:^",
     "@types/lodash-es": "4.17.12",
+    "acorn": "8.16.0",
     "chai": "6.2.2",
     "faraday-cage": "0.1.0",
     "fp-ts": "2.16.11",

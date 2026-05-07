@@ -12,6 +12,7 @@ import {
   TestResult,
 } from "~/types"
 import { acquireCage, resetCage, isInfraError } from "~/utils/cage"
+import { parseScriptForSyntax } from "~/utils/scripting"
 import { preventCyclicObjects } from "~/utils/shared"
 
 import { Cookie, HoppRESTRequest } from "@hoppscotch/data"
@@ -209,20 +210,6 @@ export const runTestScript = async (
   testScript: string,
   options: RunPostRequestScriptOptions
 ): Promise<E.Either<string, SandboxTestResult>> => {
-  // Pre-parse the script to catch syntax errors before execution
-  // Use AsyncFunction to support top-level await (required for hopp.fetch, etc.)
-  try {
-    // eslint-disable-next-line no-new-func
-    const AsyncFunction = Object.getPrototypeOf(
-      async function () {}
-    ).constructor
-    new (AsyncFunction as any)(testScript)
-  } catch (e) {
-    const err = e as Error
-    const reason = `${"name" in err ? (err as any).name : "SyntaxError"}: ${err.message}`
-    return E.left(`Script execution failed: ${reason}`)
-  }
-
   const responseObjHandle = preventCyclicObjects<TestResponse>(options.response)
 
   if (E.isLeft(responseObjHandle)) {
@@ -232,6 +219,26 @@ export const runTestScript = async (
   const resolvedResponse = responseObjHandle.right
 
   const { envs, experimentalScriptingSandbox = true } = options
+
+  // Pre-parse before sandbox spin-up so syntax errors surface as a friendly
+  // host-side message. The experimental path uses module-mode parsing so
+  // top-level `import` declarations reach faraday-cage's esmModuleLoader;
+  // the legacy path stays sloppy-mode-compatible via `AsyncFunction`.
+  try {
+    if (experimentalScriptingSandbox) {
+      parseScriptForSyntax(testScript)
+    } else {
+      // eslint-disable-next-line no-new-func
+      const AsyncFunction = Object.getPrototypeOf(
+        async function () {}
+      ).constructor
+      new (AsyncFunction as any)(testScript)
+    }
+  } catch (e) {
+    const err = e as Error
+    const reason = `${"name" in err ? (err as any).name : "SyntaxError"}: ${err.message}`
+    return E.left(`Script execution failed: ${reason}`)
+  }
 
   if (experimentalScriptingSandbox) {
     const { request, cookies, hoppFetchHook } = options as Extract<

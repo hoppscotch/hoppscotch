@@ -16,6 +16,7 @@ import {
   parseDesktopSettings,
   type DesktopSettings,
 } from "~/platform/desktop-settings"
+import { setKeyboardLayoutStrategy } from "~/helpers/keyboard-strategy"
 import { Log } from "~/kernel/log"
 
 const LOG_TAG = "useDesktopSettings"
@@ -74,6 +75,7 @@ async function loadInitial(): Promise<void> {
   )
   const raw = E.isRight(result) ? result.right : undefined
   Object.assign(settings, parseDesktopSettings(raw))
+  setKeyboardLayoutStrategy(settings.keyboardLayoutStrategy)
   loaded.value = true
 
   // Subscribe to external writes (for example the Tauri shell's portable
@@ -88,6 +90,7 @@ async function loadInitial(): Promise<void> {
     emitter.on("change", ({ value }: { value?: unknown }) => {
       if (value !== undefined) {
         Object.assign(settings, parseDesktopSettings(value))
+        setKeyboardLayoutStrategy(settings.keyboardLayoutStrategy)
       }
     })
   } catch (err) {
@@ -161,6 +164,15 @@ export function useDesktopSettings(): {
 
     const previous = settings[key]
     settings[key] = value
+    // Mirror the change into the keyboard-strategy holder eagerly so the
+    // next keypress respects the new strategy without waiting for the
+    // store-watch callback to round-trip. The watch fires later with the
+    // same value, and the redundant write is cheap.
+    if (key === "keyboardLayoutStrategy") {
+      setKeyboardLayoutStrategy(
+        value as DesktopSettings["keyboardLayoutStrategy"]
+      )
+    }
     try {
       await persist()
     } catch (err) {
@@ -168,6 +180,11 @@ export function useDesktopSettings(): {
       // actually in the store. Without this, a failed persist leaves the
       // settings object holding a value the next app start will not find.
       settings[key] = previous
+      if (key === "keyboardLayoutStrategy") {
+        setKeyboardLayoutStrategy(
+          previous as DesktopSettings["keyboardLayoutStrategy"]
+        )
+      }
       throw err
     }
   }

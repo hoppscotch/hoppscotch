@@ -55,6 +55,14 @@ export const DESKTOP_SETTINGS_SCHEMA = z.object({
 
   // Display and UX. User-facing zoom control is future scope.
   zoomLevel: z.number().positive().default(1.0),
+
+  // Keyboard shortcut dispatch strategy. The hybrid strategy prefers
+  // event.key when it produces a Latin glyph (so AZERTY's "A" key fires
+  // Ctrl+A regardless of physical position) and falls back to event.code
+  // for non-Latin layouts (Cyrillic, CJK). The `key` and `code` strategies
+  // are escape valves for users on layouts where the hybrid heuristic
+  // guesses wrong.
+  keyboardLayoutStrategy: z.enum(["key", "code", "hybrid"]).default("hybrid"),
 })
 
 export type DesktopSettings = z.infer<typeof DESKTOP_SETTINGS_SCHEMA>

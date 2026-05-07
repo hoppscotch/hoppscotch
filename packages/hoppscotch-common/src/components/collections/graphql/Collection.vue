@@ -250,6 +250,7 @@ import { useService } from "dioc/vue"
 import { computed, ref } from "vue"
 import { Picked } from "~/helpers/types/HoppPicked"
 import { removeGraphqlCollection } from "~/newstore/collections"
+import { flushLocalStoresForCollectionTree } from "~/helpers/secretVariables"
 import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 import { GQLTabService } from "~/services/tab/graphql"
 import IconCheckCircle from "~icons/lucide/check-circle"
@@ -381,6 +382,10 @@ const removeCollection = async () => {
     tab.value.document.saveContext = undefined
     tab.value.document.isDirty = true
   }
+
+  // Cascade-flush local stores for the removed collection and its
+  // descendants. Symmetric to the REST path in `collections/index.vue`.
+  flushLocalStoresForCollectionTree(props.collection)
 
   removeGraphqlCollection(props.collectionIndex, props.collection.id)
   toast.success(`${t("state.deleted")}`)

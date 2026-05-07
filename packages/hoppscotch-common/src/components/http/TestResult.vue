@@ -314,7 +314,13 @@ const selectedEnvironmentIndex = useStream(
   setSelectedEnvironmentIndex
 )
 
-const globalEnvVars = useReadonlyStream(globalEnv$, {} as GlobalEnvironment)
+// Initialize with a structurally complete empty wrapper, not `{}`. Casting
+// `{}` to `GlobalEnvironment` would lie about presence of `variables` and
+// crash any downstream `.map` / `.findIndex` access before the stream emits.
+const globalEnvVars = useReadonlyStream(globalEnv$, {
+  v: 2,
+  variables: [],
+} as GlobalEnvironment)
 
 const noEnvSelected = computed(
   () => selectedEnvironmentIndex.value.type === "NO_ENV_SELECTED"

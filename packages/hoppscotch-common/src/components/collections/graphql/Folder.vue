@@ -235,6 +235,7 @@ import { computed, ref } from "vue"
 import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 import { Picked } from "~/helpers/types/HoppPicked"
 import { removeGraphqlFolder } from "~/newstore/collections"
+import { flushLocalStoresForCollectionTree } from "~/helpers/secretVariables"
 import { GQLTabService } from "~/services/tab/graphql"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCopy from "~icons/lucide/copy"
@@ -344,6 +345,10 @@ const removeFolder = async () => {
     tab.value.document.saveContext = undefined
     tab.value.document.isDirty = true
   }
+
+  // Cascade-flush local stores for the removed folder and its descendants.
+  // Symmetric to the REST path in `collections/index.vue`.
+  flushLocalStoresForCollectionTree(props.folder)
 
   removeGraphqlFolder(props.folderPath, props.folder.id)
   toast.success(t("state.deleted"))

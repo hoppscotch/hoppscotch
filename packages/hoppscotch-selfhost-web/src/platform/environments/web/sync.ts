@@ -186,6 +186,13 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     if (backendId) {
       clearGlobalEnvironmentVariables(backendId)
     }
+
+    // Flush local stores keyed to "Global" — without this, a later
+    // `addGlobalEnvVariable` would land at `varIndex 0` against a stale
+    // entry from the previously-cleared variable and the UI would show
+    // the prior secret value in a fresh field.
+    secretEnvironmentService.addSecretEnvironment("Global", [])
+    currentEnvironmentValueService.addEnvironment("Global", [])
   },
 }
 

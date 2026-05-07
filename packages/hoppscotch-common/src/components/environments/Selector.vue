@@ -691,13 +691,15 @@ onMounted(() => {
 const envSelectorActions = ref<TippyComponent | null>(null)
 const envQuickPeekActions = ref<TippyComponent | null>(null)
 
-const globalVals = useReadonlyStream(globalEnv$, {} as GlobalEnvironment)
+// Initialize with a structurally complete empty wrapper, not `{}`. Casting
+// `{}` to `GlobalEnvironment` would lie about presence of `variables` and
+// crash any downstream `.map` access before the stream emits.
+const globalVals = useReadonlyStream(globalEnv$, {
+  v: 2,
+  variables: [],
+} as GlobalEnvironment)
 
 const globalEnvs = computed(() => {
-  // The default value passed to `useReadonlyStream` here is `{}`, so
-  // `globalVals.value.variables` is legitimately undefined for the brief
-  // window before the stream emits. It can also be undefined if the
-  // backend schema returned a non-wrapper shape; defend against both.
   return (globalVals.value?.variables ?? []).map((variable, index) => ({
     ...variable,
     currentValue:

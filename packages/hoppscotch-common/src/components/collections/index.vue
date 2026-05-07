@@ -399,7 +399,10 @@ import { CurrentValueService } from "~/services/current-environment-value.servic
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { SortOptions } from "~/helpers/backend/graphql"
 import { CurrentSortValuesService } from "~/services/current-sort.service"
-import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
+import {
+  flushLocalStoresForCollectionTree,
+  stripSecretVariableValuesForWire,
+} from "~/helpers/secretVariables"
 
 const t = useI18n()
 const toast = useToast()
@@ -1993,15 +1996,11 @@ const onRemoveCollection = async () => {
     toast.success(t("state.deleted"))
     displayConfirmModal(false)
 
-    // delete the secret collection variables
-    // and current collection variables value if the collection is removed
+    // Cascade-flush local stores for the removed collection and ALL its
+    // descendant folders. A single-level delete would orphan child-folder
+    // entries keyed by their own `_ref_id`s.
     if (collectionToRemove) {
-      secretEnvironmentService.deleteSecretEnvironment(
-        collectionToRemove._ref_id ?? `${collectionIndex}`
-      )
-      currentEnvironmentValueService.deleteEnvironment(
-        collectionToRemove._ref_id ?? `${collectionIndex}`
-      )
+      flushLocalStoresForCollectionTree(collectionToRemove)
     }
   } else if (hasTeamWriteAccess.value) {
     const collectionID = editingCollectionID.value
@@ -2019,8 +2018,12 @@ const onRemoveCollection = async () => {
     removeTeamCollectionOrFolder(collectionID).then(() => {
       resetTeamRequestsContext()
 
-      // delete the secret collection variables
-      // and current collection variables value if the collection is removed
+      // Single-level flush is sufficient here: team collection IDs are
+      // globally-unique backend UUIDs, so descendant entries that survive
+      // a parent delete won't be re-aliased by a future entity. They do
+      // accumulate as a slow leak; a cascade walk would need the team
+      // subtree snapshotted before delete, which `team-collection.service`
+      // doesn't expose today. Worth a follow-up; not a security gap.
       if (collectionID) {
         secretEnvironmentService.deleteSecretEnvironment(collectionID)
         currentEnvironmentValueService.deleteEnvironment(collectionID)
@@ -2054,8 +2057,6 @@ const onRemoveFolder = async () => {
       emit("select", null)
     }
 
-    const folderIndex = pathToLastIndex(folderPath)
-
     const folderToRemove = folderPath
       ? navigateToFolderWithIndexPath(
           restCollectionStore.value.state,
@@ -2076,15 +2077,12 @@ const onRemoveFolder = async () => {
     toast.success(t("state.deleted"))
     displayConfirmModal(false)
 
-    // delete the secret collection variables
-    // and current collection variables value if the collection is removed
+    // Cascade-flush local stores for the removed folder and ALL its
+    // descendant folders. The personal-workspace local store is keyed by
+    // `_ref_id`, so a single-level flush by `folderToRemove.id` would
+    // both miss descendants and likely use the wrong key.
     if (folderToRemove) {
-      secretEnvironmentService.deleteSecretEnvironment(
-        folderToRemove.id ?? `${folderIndex}`
-      )
-      currentEnvironmentValueService.deleteEnvironment(
-        folderToRemove.id ?? `${folderIndex}`
-      )
+      flushLocalStoresForCollectionTree(folderToRemove)
     }
   } else if (hasTeamWriteAccess.value) {
     const collectionID = editingCollectionID.value
@@ -2102,8 +2100,8 @@ const onRemoveFolder = async () => {
     removeTeamCollectionOrFolder(collectionID).then(() => {
       resetTeamRequestsContext()
 
-      // delete the secret collection variables
-      // and current collection variables value if the collection is removed
+      // Single-level flush — see note in `onRemoveCollection` for why
+      // descendants aren't cascaded for team workspaces today.
       if (collectionID) {
         secretEnvironmentService.deleteSecretEnvironment(collectionID)
         currentEnvironmentValueService.deleteEnvironment(collectionID)

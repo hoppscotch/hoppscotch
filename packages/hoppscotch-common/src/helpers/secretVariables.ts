@@ -233,3 +233,35 @@ export const repopulateLoadedCollectionTree = (
     repopulateLoadedCollectionTree(loadedFolder, originalsByRefId)
   })
 }
+
+/**
+ * Walk a collection tree and flush every node's entries from both local
+ * stores. Called when a collection or folder is deleted — without this,
+ * descendant secret + currentValue entries (keyed by each node's `_ref_id`
+ * for personal workspaces, `id` for team workspaces) orphan in memory and
+ * a future entity that happens to land on the same key would surface
+ * stale data.
+ *
+ * Flushes by BOTH `_ref_id` and `id` when present — services no-op on
+ * missing keys, so this safely covers personal (keyed by `_ref_id`) and
+ * team (keyed by backend `id`) workspaces with one helper.
+ */
+export const flushLocalStoresForCollectionTree = (
+  collection: HoppCollection
+) => {
+  const secretEnvironmentService = getService(SecretEnvironmentService)
+  const currentEnvironmentValueService = getService(CurrentValueService)
+
+  const walk = (node: HoppCollection) => {
+    if (node._ref_id) {
+      secretEnvironmentService.deleteSecretEnvironment(node._ref_id)
+      currentEnvironmentValueService.deleteEnvironment(node._ref_id)
+    }
+    if (node.id) {
+      secretEnvironmentService.deleteSecretEnvironment(node.id)
+      currentEnvironmentValueService.deleteEnvironment(node.id)
+    }
+    ;(node.folders ?? []).forEach(walk)
+  }
+  walk(collection)
+}

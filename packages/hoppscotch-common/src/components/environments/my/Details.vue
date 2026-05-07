@@ -362,7 +362,13 @@ const clearIcon = refAutoReset<typeof IconTrash2 | typeof IconDone>(
   1000
 )
 
-const globalEnv = useReadonlyStream(globalEnv$, {} as GlobalEnvironment)
+// Initialize with a structurally complete empty wrapper, not `{}`. Casting
+// `{}` to `GlobalEnvironment` would lie about presence of `variables` and
+// crash any downstream `.map` / `.findIndex` access before the stream emits.
+const globalEnv = useReadonlyStream(globalEnv$, {
+  v: 2,
+  variables: [],
+} as GlobalEnvironment)
 
 type SelectedEnv = "variables" | "secret"
 

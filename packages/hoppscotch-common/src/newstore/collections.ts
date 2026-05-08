@@ -281,6 +281,36 @@ function createComparator<T>(
     return 0
   }
 }
+/**
+ * Recursively clears backend IDs and generates new ref IDs for a duplicated
+ * collection and all its nested folders/requests, preventing edits to the
+ * duplicate from targeting the original's backend resources.
+ */
+function recursiveChangeIdsToAvoidConflicts(
+  collection: HoppCollection,
+  isRoot = false
+): HoppCollection {
+  const newCollection = {
+    ...collection,
+    _ref_id: generateUniqueRefId("coll"),
+    // Clear backend id for nested folders so edits won't target the original
+    // Root of the duplicated subtree keeps its id; any suffix is applied by the caller
+    ...(!isRoot ? { id: undefined } : {}),
+  }
+
+  newCollection.folders = newCollection.folders.map((folder) =>
+    recursiveChangeIdsToAvoidConflicts(folder)
+  )
+
+  newCollection.requests = newCollection.requests.map((request) => ({
+    ...request,
+    _ref_id: generateUniqueRefId("req"),
+    id: undefined,
+  }))
+
+  return newCollection
+}
+
 const restCollectionDispatchers = defineDispatchers({
   setCollections(
     _: RESTCollectionStoreType,
@@ -687,41 +717,26 @@ const restCollectionDispatchers = defineDispatchers({
     if (collection) {
       const name = `${collection.name} - ${t("action.duplicate")}`
 
-      function recursiveChangeRefIdToAvoidConflicts(
-        collection: HoppCollection
-      ): HoppCollection {
-        const newCollection = {
-          ...collection,
-          _ref_id: generateUniqueRefId("coll"),
-        }
-
-        newCollection.folders = newCollection.folders.map((folder) =>
-          recursiveChangeRefIdToAvoidConflicts(folder)
-        )
-
-        return newCollection
-      }
-
-      const duplicatedCollection = {
-        ...cloneDeep(collection),
-        name,
-        ...(collection.id
-          ? { id: `${collection.id}-duplicate-collection` }
-          : {}),
-      }
-
-      const duplicatedCollectionWithNewRefId =
-        recursiveChangeRefIdToAvoidConflicts(duplicatedCollection)
+      const duplicatedCollection = recursiveChangeIdsToAvoidConflicts(
+        {
+          ...cloneDeep(collection),
+          name,
+          ...(collection.id
+            ? { id: `${collection.id}-duplicate-collection` }
+            : {}),
+        },
+        true
+      )
 
       if (isRootCollection) {
-        newState.push(duplicatedCollectionWithNewRefId)
+        newState.push(duplicatedCollection)
       } else {
         const parentCollectionIndexPath = indexPaths.slice(0, -1)
 
         const parentCollection = navigateToFolderWithIndexPath(state, [
           ...parentCollectionIndexPath,
         ])
-        parentCollection?.folders.push(duplicatedCollectionWithNewRefId)
+        parentCollection?.folders.push(duplicatedCollection)
       }
     }
 
@@ -751,9 +766,10 @@ const restCollectionDispatchers = defineDispatchers({
       return {}
     }
 
-    targetLocation.requests = targetLocation.requests.map((req, index) =>
-      index !== requestIndex ? req : requestNew
-    )
+    targetLocation.requests = targetLocation.requests.map((req, index) => {
+      if (index !== requestIndex) return req
+      return { ...req, ...requestNew, id: requestNew.id ?? req.id }
+    })
 
     return {
       state: newState,
@@ -1155,13 +1171,16 @@ const gqlCollectionDispatchers = defineDispatchers({
     if (collection) {
       const name = `${collection.name} - ${t("action.duplicate")}`
 
-      const duplicatedCollection = {
-        ...cloneDeep(collection),
-        name,
-        ...(collection.id
-          ? { id: `${collection.id}-duplicate-collection` }
-          : {}),
-      }
+      const duplicatedCollection = recursiveChangeIdsToAvoidConflicts(
+        {
+          ...cloneDeep(collection),
+          name,
+          ...(collection.id
+            ? { id: `${collection.id}-duplicate-collection` }
+            : {}),
+        },
+        true
+      )
 
       if (isRootCollection) {
         newState.push(duplicatedCollection)
@@ -1202,7 +1221,9 @@ const gqlCollectionDispatchers = defineDispatchers({
     }
 
     targetLocation.requests = targetLocation.requests.map((req, index) =>
-      index !== requestIndex ? req : requestNew
+      index !== requestIndex
+        ? req
+        : { ...req, ...requestNew, id: requestNew.id ?? req.id }
     )
 
     return {

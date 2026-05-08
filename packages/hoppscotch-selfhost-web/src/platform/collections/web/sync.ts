@@ -410,7 +410,14 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   },
   async duplicateCollection({ collectionSyncID }) {
     if (collectionSyncID) {
-      await duplicateUserCollection(collectionSyncID, ReqType.Rest)
+      const res = await duplicateUserCollection(collectionSyncID, ReqType.Rest)
+      if (E.isRight(res)) {
+        // Reload all collections from backend to get proper IDs for the duplicate
+        const { loadUserCollections } = (await import("./index")).def
+        await loadUserCollections(ReqType.Rest)
+      } else {
+        console.error("Failed to duplicate REST collection", res.left)
+      }
     }
   },
   editRequest({ path, requestIndex, requestNew }) {

@@ -3,6 +3,7 @@ import {
   HoppCollection,
   makeCollection,
   generateUniqueRefId,
+  getDefaultRESTRequest,
 } from "@hoppscotch/data"
 
 // Mock the i18n module used by the duplicateCollection dispatcher
@@ -55,27 +56,15 @@ import {
 
 function makeRequest(overrides: Record<string, any> = {}) {
   return {
-    v: "8" as const,
+    ...getDefaultRESTRequest(),
     id: undefined,
     name: "Test Request",
-    method: "GET",
-    endpoint: "https://example.com",
-    params: [],
-    headers: [],
-    preRequestScript: "",
-    testScript: "",
-    body: { contentType: null, body: null },
-    auth: { authType: "none", authActive: true },
-    requestVariables: [],
-    responses: {},
-    _ref_id: generateUniqueRefId("req"),
-    description: null,
     ...overrides,
   }
 }
 
 function makeTestCollection(
-  overrides: Partial<HoppCollection> & Record<string, any> = {}
+  overrides: Partial<HoppCollection> = {}
 ): HoppCollection {
   return makeCollection({
     name: "Test Collection",
@@ -83,6 +72,10 @@ function makeTestCollection(
     requests: [],
     auth: { authType: "inherit", authActive: true },
     headers: [],
+    variables: [],
+    description: null,
+    preRequestScript: "",
+    testScript: "",
     ...overrides,
   })
 }

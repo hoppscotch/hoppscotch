@@ -411,11 +411,14 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   async duplicateCollection({ collectionSyncID }) {
     if (collectionSyncID) {
       const res = await duplicateUserCollection(collectionSyncID, ReqType.Rest)
+      const { loadUserCollections } = (await import("./index")).def
       if (E.isRight(res)) {
         // Reload all collections from backend to get proper IDs for the duplicate
-        const { loadUserCollections } = (await import("./index")).def
         await loadUserCollections(ReqType.Rest)
       } else {
+        // Roll back the optimistic local duplicate so a phantom collection
+        // is not left in the store when the backend duplication fails
+        await loadUserCollections(ReqType.Rest)
         console.error("Failed to duplicate REST collection", res.left)
       }
     }

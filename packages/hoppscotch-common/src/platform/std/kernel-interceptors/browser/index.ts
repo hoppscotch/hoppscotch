@@ -62,11 +62,22 @@ export class BrowserKernelInterceptorService
         pipe(
           either,
           E.mapLeft((error): KernelInterceptorError => {
+            const isCorsLikelyError = (() => {
+              if (error.kind !== "network" || error.message !== "Failed to fetch" || !navigator.onLine) {
+                return false
+              }
+              try {
+                return new URL(processedRequest.url).origin !== window.location.origin
+              } catch {
+                return false
+              }
+            })()
+
             const humanMessage = {
               heading: (t: ReturnType<typeof getI18n>) => {
                 switch (error.kind) {
                   case "network":
-                    return t("error.network.heading")
+                    return isCorsLikelyError ? t("error.network.cors_heading") : t("error.network.heading")
                   case "timeout":
                     return t("error.timeout.heading")
                   case "certificate":
@@ -88,6 +99,9 @@ export class BrowserKernelInterceptorService
               description: (t: ReturnType<typeof getI18n>) => {
                 switch (error.kind) {
                   case "network":
+                    if (isCorsLikelyError) {
+                      return t("error.network.cors_description")
+                    }
                     return t("error.network.description", {
                       message: error.message,
                       cause: error.cause ?? t("error.unknown.cause"),

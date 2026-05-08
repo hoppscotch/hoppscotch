@@ -2,7 +2,6 @@ import { describe, expect, it, vi } from "vitest"
 import {
   HoppCollection,
   makeCollection,
-  generateUniqueRefId,
   getDefaultRESTRequest,
 } from "@hoppscotch/data"
 

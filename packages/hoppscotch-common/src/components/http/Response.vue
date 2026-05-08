@@ -1,5 +1,9 @@
 <template>
-  <div class="relative flex flex-1 flex-col overflow-auto">
+  <div
+    ref="scrollContainer"
+    class="relative flex flex-1 flex-col overflow-auto scroll-smooth"
+    @scroll="handleScroll"
+  >
     <HttpResponseMeta
       :response="doc.response"
       :is-embed="isEmbed"
@@ -12,6 +16,18 @@
       :tab-id="tabId"
       @save-as-example="saveAsExample"
     />
+    <Transition name="fade">
+      <div v-if="showScrollTop" class="absolute bottom-4 right-4 z-20">
+        <HoppButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('action.scroll_to_top')"
+          :icon="IconArrowUp"
+          filled
+          class="!rounded-full shadow-lg"
+          @click="scrollToTop"
+        />
+      </div>
+    </Transition>
   </div>
   <HttpSaveResponseName
     v-model:response-name="responseName"
@@ -23,6 +39,7 @@
 </template>
 
 <script setup lang="ts">
+import IconArrowUp from "~icons/lucide/arrow-up"
 import { useVModel } from "@vueuse/core"
 import { computed, ref } from "vue"
 import { HoppRequestDocument } from "~/helpers/rest/document"
@@ -54,6 +71,18 @@ const emit = defineEmits<{
 }>()
 
 const doc = useVModel(props, "document", emit)
+
+const scrollContainer = ref<HTMLElement | null>(null)
+const showScrollTop = ref(false)
+
+const handleScroll = (e: Event) => {
+  const target = e.target as HTMLElement
+  showScrollTop.value = target.scrollTop > 300
+}
+
+const scrollToTop = () => {
+  scrollContainer.value?.scrollTo({ top: 0, behavior: "smooth" })
+}
 
 const hasResponse = computed(
   () =>

@@ -43,6 +43,7 @@
         />
         <HoppButtonSecondary
           :icon="IconChevronDown"
+          :aria-label="minimized ? t('state.show') : t('state.hide')"
           class="transform"
           :class="{ 'rotate-180': !minimized }"
           @click="toggleExpandPayload()"

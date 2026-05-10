@@ -1,11 +1,8 @@
 import { RelayRequest, content } from "@hoppscotch/kernel"
+import type { z } from "zod"
+import type { OAuth2ParamSchema } from "./utils"
 
-export type OAuth2RequestParam = {
-  key: string
-  value: string
-  active: boolean
-  sendIn?: "headers" | "url" | "body"
-}
+export type OAuth2RequestParam = z.infer<typeof OAuth2ParamSchema>
 
 type BuildAuthCodeTokenRequestParams = {
   tokenEndpoint: string
@@ -66,12 +63,26 @@ const buildTokenEndpointUrl = (
     return tokenEndpoint
   }
 
-  const url = new URL(tokenEndpoint)
+  const hashIndex = tokenEndpoint.indexOf("#")
+  const endpointWithoutHash =
+    hashIndex === -1 ? tokenEndpoint : tokenEndpoint.slice(0, hashIndex)
+  const hash = hashIndex === -1 ? "" : tokenEndpoint.slice(hashIndex)
+  const queryIndex = endpointWithoutHash.indexOf("?")
+  const endpointWithoutQuery =
+    queryIndex === -1
+      ? endpointWithoutHash
+      : endpointWithoutHash.slice(0, queryIndex)
+  const query = new URLSearchParams(
+    queryIndex === -1 ? "" : endpointWithoutHash.slice(queryIndex + 1)
+  )
+
   urlParamEntries.forEach(([key, value]) => {
-    url.searchParams.set(key, value)
+    query.set(key, value)
   })
 
-  return url.toString()
+  const queryString = query.toString()
+
+  return `${endpointWithoutQuery}${queryString ? `?${queryString}` : ""}${hash}`
 }
 
 export const buildAuthCodeTokenRequest = ({

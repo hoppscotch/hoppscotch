@@ -10,12 +10,12 @@ import { z } from "zod"
 import { getService } from "~/modules/dioc"
 import * as E from "fp-ts/Either"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
-import { content } from "@hoppscotch/kernel"
 import { refreshToken, OAuth2ParamSchema } from "../utils"
 import {
   AuthCodeGrantTypeParams,
   OAuth2AuthRequestParam,
 } from "@hoppscotch/data"
+import { buildAuthCodeTokenRequest } from "../tokenRequest"
 
 const persistenceService = getService(PersistenceService)
 const interceptorService = getService(KernelInterceptorService)
@@ -239,6 +239,7 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
     clientID: z.string(),
     codeVerifier: z.string().optional(),
     codeChallenge: z.string().optional(),
+    tokenRequestParams: z.array(OAuth2ParamSchema).optional().default([]),
   })
 
   const decodedLocalConfig = expectedSchema.safeParse(
@@ -255,26 +256,17 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
   }
 
   // exchange the code for a token
-  const { response } = interceptorService.execute({
-    id: Date.now(),
-    url: decodedLocalConfig.data.tokenEndpoint,
-    method: "POST",
-    version: "HTTP/1.1",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Accept: "application/json",
-    },
-    content: content.urlencoded({
+  const { response } = interceptorService.execute(
+    buildAuthCodeTokenRequest({
+      tokenEndpoint: decodedLocalConfig.data.tokenEndpoint,
       code,
-      grant_type: "authorization_code",
-      client_id: decodedLocalConfig.data.clientID,
-      client_secret: decodedLocalConfig.data.clientSecret,
-      redirect_uri: OauthAuthService.redirectURI,
-      ...(decodedLocalConfig.data.codeVerifier && {
-        code_verifier: decodedLocalConfig.data.codeVerifier,
-      }),
-    }),
-  })
+      clientID: decodedLocalConfig.data.clientID,
+      clientSecret: decodedLocalConfig.data.clientSecret,
+      redirectURI: OauthAuthService.redirectURI,
+      codeVerifier: decodedLocalConfig.data.codeVerifier,
+      tokenRequestParams: decodedLocalConfig.data.tokenRequestParams,
+    })
+  )
 
   const res = await response
 

@@ -34,6 +34,7 @@ describe("replaceTemplateString (OAuth2 env var resolution)", () => {
         },
       ],
       global: [],
+      temp: [],
     })
 
     expect(replaceTemplateString("<<CLIENT_ID>>")).toBe("real-id")
@@ -50,6 +51,7 @@ describe("replaceTemplateString (OAuth2 env var resolution)", () => {
         },
       ],
       global: [],
+      temp: [],
     })
 
     expect(replaceTemplateString("<<CLIENT_ID>>")).toBe("fallback-id")
@@ -66,6 +68,7 @@ describe("replaceTemplateString (OAuth2 env var resolution)", () => {
         },
       ],
       global: [],
+      temp: [],
     })
 
     expect(replaceTemplateString("<<CLIENT_SECRET>>")).toBe("fallback-secret")
@@ -82,6 +85,7 @@ describe("replaceTemplateString (OAuth2 env var resolution)", () => {
         },
       ],
       global: [],
+      temp: [],
     })
 
     expect(replaceTemplateString("<<MISSING>>")).toBe("")
@@ -98,6 +102,7 @@ describe("replaceTemplateString (OAuth2 env var resolution)", () => {
           currentValue: "",
         },
       ],
+      temp: [],
     })
 
     expect(replaceTemplateString("<<TOKEN_URL>>")).toBe(
@@ -130,6 +135,7 @@ describe("replaceTemplateStringsInObjectValues (OAuth2 params)", () => {
         },
       ],
       global: [],
+      temp: [],
     })
 
     const result = replaceTemplateStringsInObjectValues({

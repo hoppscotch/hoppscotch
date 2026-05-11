@@ -1,6 +1,6 @@
 {
   "v": 12,
-  "name": "collection-level-scripts-coll",
+  "name": "collection-level-scripts-legacy-coll",
   "variables": [],
   "description": null,
   "folders": [
@@ -54,28 +54,6 @@
           "requestVariables": [],
           "responses": {},
           "description": null
-        },
-        {
-          "v": "17",
-          "id": "cl-script-req-with-import",
-          "name": "request-with-top-level-import",
-          "method": "GET",
-          "endpoint": "https://echo.hoppscotch.io",
-          "params": [],
-          "headers": [],
-          "preRequestScript": "import { value } from \"data:text/javascript,export const value = 'esm-import-ok'\";\npw.env.set(\"IMPORTED_VALUE\", value);\npw.env.set(\"PRE_ORDER\", pw.env.get(\"PRE_ORDER\") + \"->req-with-import\");",
-          "testScript": "pw.env.set(\"TEST_ORDER\", \"req-with-import\");\npw.test(\"top-level ESM import in pre-request script resolved\", () => {\n  pw.expect(pw.env.get(\"IMPORTED_VALUE\")).toBe(\"esm-import-ok\");\n});\npw.test(\"cascade order preserved with import-using request\", () => {\n  pw.expect(pw.env.get(\"PRE_ORDER\")).toBe(\"root->target-folder->req-with-import\");\n});",
-          "auth": {
-            "authType": "inherit",
-            "authActive": true
-          },
-          "body": {
-            "contentType": null,
-            "body": null
-          },
-          "requestVariables": [],
-          "responses": {},
-          "description": null
         }
       ],
       "auth": {
@@ -102,7 +80,7 @@
           "params": [],
           "headers": [],
           "preRequestScript": "pw.env.set(\"PRE_ORDER\", pw.env.get(\"PRE_ORDER\") + \"->sibling-req-in-sibling\");",
-          "testScript": "pw.env.set(\"TEST_ORDER\", \"sibling-req-in-sibling\");\npw.test(\"sibling-folder cascade is root->sibling-folder->this-request (no target-folder leak)\", () => {\n  pw.expect(pw.env.get(\"PRE_ORDER\")).toBe(\"root->sibling-folder->sibling-req-in-sibling\");\n});\npw.test(\"target-folder pre-script ran exactly thrice (one per request in target-folder)\", () => {\n  pw.expect(pw.env.get(\"TARGET_FOLDER_RUN_COUNT\")).toBe(\"3\");\n});",
+          "testScript": "pw.env.set(\"TEST_ORDER\", \"sibling-req-in-sibling\");\npw.test(\"sibling-folder cascade is root->sibling-folder->this-request (no target-folder leak)\", () => {\n  pw.expect(pw.env.get(\"PRE_ORDER\")).toBe(\"root->sibling-folder->sibling-req-in-sibling\");\n});\npw.test(\"target-folder pre-script ran exactly twice (one per request in target-folder)\", () => {\n  pw.expect(pw.env.get(\"TARGET_FOLDER_RUN_COUNT\")).toBe(\"2\");\n});",
           "auth": {
             "authType": "inherit",
             "authActive": true
@@ -132,5 +110,5 @@
   },
   "headers": [],
   "preRequestScript": "pw.env.set(\"ROOT_RAN\", \"yes\");\npw.env.set(\"PRE_ORDER\", \"root\");",
-  "testScript": "pw.env.set(\"TEST_ORDER\", pw.env.get(\"TEST_ORDER\") + \"->root\");\npw.test(\"test-script cascade ran in request->folder->root order for every request\", () => {\n  pw.expect([\"target-req->target-folder->root\", \"sibling-req-in-target->target-folder->root\", \"req-with-import->target-folder->root\", \"sibling-req-in-sibling->sibling-folder->root\"].includes(pw.env.get(\"TEST_ORDER\"))).toBe(true);\n});"
+  "testScript": "pw.env.set(\"TEST_ORDER\", pw.env.get(\"TEST_ORDER\") + \"->root\");\npw.test(\"test-script cascade ran in request->folder->root order for every request\", () => {\n  pw.expect([\"target-req->target-folder->root\", \"sibling-req-in-target->target-folder->root\", \"sibling-req-in-sibling->sibling-folder->root\"].includes(pw.env.get(\"TEST_ORDER\"))).toBe(true);\n});"
 }

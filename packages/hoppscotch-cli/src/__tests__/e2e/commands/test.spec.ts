@@ -540,7 +540,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       fs.unlinkSync(junitPath);
     }, 600000); // 600 second (10 minute) timeout
 
-    test("Inherited collection-level scripts run in order across both sandboxes", async () => {
+    test("Inherited collection-level scripts run in order on the experimental sandbox (default)", async () => {
       const args = `test ${getTestJsonFilePath(
         "collection-level-scripts-coll.json",
         "collection"
@@ -549,8 +549,18 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       const defaultResult = await runCLIWithNetworkRetry(args);
       if (defaultResult === null) return;
       expect(defaultResult.error).toBeNull();
+    });
 
-      const legacyResult = await runCLIWithNetworkRetry(`${args} --legacy-sandbox`);
+    // The legacy sandbox uses a non-module evaluator that rejects top-level
+    // ESM imports at parse time, so it runs against a pruned fixture that
+    // omits the import-using request.
+    test("Inherited collection-level scripts run in order on the legacy sandbox", async () => {
+      const args = `test ${getTestJsonFilePath(
+        "collection-level-scripts-legacy-coll.json",
+        "collection"
+      )} --legacy-sandbox`;
+
+      const legacyResult = await runCLIWithNetworkRetry(args);
       if (legacyResult === null) return;
       expect(legacyResult.error).toBeNull();
     });

@@ -1,3 +1,5 @@
+import { ImportDeclaration, Parser, Program } from "acorn"
+
 /**
  * Module prefix added by Monaco editor for TypeScript module mode.
  * Enables IntelliSense and isolates variables across editor instances.
@@ -29,6 +31,54 @@ export const MODULE_PREFIX_REGEX_JSON_SERIALIZED =
 
 export type CombineScriptsTarget = "experimental" | "legacy"
 
+type ExtractedImports = {
+  importSource: string
+  body: string
+  bindings: string[]
+}
+
+/**
+ * Lifts top-level `import` declarations out of a script body so they can be
+ * hoisted to module scope. The IIFE wrapper would otherwise turn them into
+ * `SyntaxError` since `import` is only legal at module top-level.
+ */
+const extractTopLevelImports = (script: string): ExtractedImports => {
+  const empty = { importSource: "", body: script, bindings: [] }
+  if (!script.trim()) return empty
+
+  let ast: Program
+  try {
+    ast = Parser.parse(script, {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      allowReturnOutsideFunction: true,
+    })
+  } catch {
+    return empty
+  }
+
+  const importNodes = ast.body.filter(
+    (n): n is ImportDeclaration => n.type === "ImportDeclaration"
+  )
+  if (importNodes.length === 0) return empty
+
+  let body = ""
+  let cursor = 0
+  for (const node of importNodes) {
+    body += script.slice(cursor, node.start)
+    cursor = node.end
+  }
+  body += script.slice(cursor)
+
+  return {
+    importSource: importNodes
+      .map((n) => script.slice(n.start, n.end))
+      .join("\n"),
+    body,
+    bindings: importNodes.flatMap((n) => n.specifiers.map((s) => s.local.name)),
+  }
+}
+
 const wrapScript = (script: string, target: CombineScriptsTarget): string => {
   const stripped = stripModulePrefix(script.trim())
   if (!stripped) return ""
@@ -42,6 +92,8 @@ const wrapScript = (script: string, target: CombineScriptsTarget): string => {
  *
  * - `experimental`: `await (async function(){...})();` lines, evaluated in
  *   an async host context so each `await` settles before the next runs.
+ *   Top-level `import` declarations are hoisted out of the IIFEs so module
+ *   resolution (e.g. faraday-cage's esmModuleLoader) can see them.
  * - `legacy`: sync `(function(){...}).call(this);` lines. Top-level `await`
  *   is rejected at parse time.
  */
@@ -49,33 +101,65 @@ export const combineScriptsWithIIFE = (
   scripts: string[],
   target: CombineScriptsTarget = "experimental"
 ): string => {
-  const fns = scripts.map((s) => wrapScript(s, target)).filter((s) => s)
-  if (fns.length === 0) return ""
-  if (target === "experimental") {
-    // Wrap the entire awaited chain in try/catch so a top-level throw (or a
-    // rejected await) surfaces synchronously via the host reporter.
-    // faraday-cage swallows rejected keepAlive promises and does not await
-    // afterScriptExecutionHooks, so this is the only reliable channel for
-    // async-boundary errors to reach the host caller.
-    //
-    // The reporter is captured in a const before the try so a user script
-    // that tampers with `globalThis.__hoppReportScriptExecutionError`
-    // inside the try body cannot suppress the report. Bootstrap installs
-    // the property as non-writable and non-configurable for defense in
-    // depth; the lexical capture makes that redundant but explicit.
-    const body = fns.map((fn) => `await (${fn})();`).join("\n")
+  if (target === "legacy") {
+    const fns = scripts.map((s) => wrapScript(s, target)).filter((s) => s)
+    if (fns.length === 0) return ""
+    // Leading `;` guards against ASI: a prior `})` on the host line would
+    // otherwise be read as a call against our IIFE expression.
+    return fns.map((fn) => `;(${fn}).call(this);`).join("\n")
+  }
+
+  const extracted = scripts.map((s) =>
+    extractTopLevelImports(stripModulePrefix(s.trim()))
+  )
+
+  const fns = extracted
+    .map(({ body }) =>
+      body.trim() ? `async function() {\n${body.trim()}\n}` : ""
+    )
+    .filter((s) => s)
+
+  const allImports = extracted.flatMap((e) => e.importSource).filter(Boolean)
+  const allBindings = extracted.flatMap((e) => e.bindings)
+
+  if (fns.length === 0 && allImports.length === 0) return ""
+
+  const seen = new Set<string>()
+  const duplicates = allBindings.filter((name) => {
+    if (seen.has(name)) return true
+    seen.add(name)
+    return false
+  })
+
+  // Wrap the awaited chain in try/catch so top-level throws / rejected
+  // awaits reach the host reporter; faraday-cage otherwise swallows
+  // async-boundary errors via its keepAlive loop.
+  const body = fns.map((fn) => `await (${fn})();`).join("\n")
+  const tryBlock = [
+    "const __hoppReporter = globalThis.__hoppReportScriptExecutionError;",
+    "try {",
+    body,
+    "} catch (__hoppScriptExecutionError) {",
+    "  __hoppReporter(__hoppScriptExecutionError);",
+    "}",
+  ].join("\n")
+
+  if (duplicates.length > 0) {
+    const name = duplicates[0]
+    const escaped = name.replace(/'/g, "\\'")
     return [
       "const __hoppReporter = globalThis.__hoppReportScriptExecutionError;",
       "try {",
-      body,
+      `  throw new SyntaxError("[Hoppscotch] '${escaped}' is imported by multiple scripts in this request's chain. Please keep the import in a single script, or rename one import to resolve the conflict.");`,
       "} catch (__hoppScriptExecutionError) {",
       "  __hoppReporter(__hoppScriptExecutionError);",
       "}",
     ].join("\n")
   }
-  // Leading `;` guards against ASI: a prior `})` on the host line would
-  // otherwise be read as a call against our IIFE expression.
-  return fns.map((fn) => `;(${fn}).call(this);`).join("\n")
+
+  if (allImports.length === 0) return tryBlock
+
+  return [allImports.join("\n"), tryBlock].join("\n")
 }
 
 // Monaco prepends "export {};\n" to empty scripts — strip before checking.

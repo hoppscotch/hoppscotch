@@ -414,6 +414,9 @@ importers:
 
   packages/hoppscotch-cli:
     dependencies:
+      acorn:
+        specifier: 8.16.0
+        version: 8.16.0
       aws4fetch:
         specifier: 1.0.20
         version: 1.0.20
@@ -607,6 +610,9 @@ importers:
       '@vueuse/core':
         specifier: 14.2.1
         version: 14.2.1(vue@3.5.33(typescript@5.9.3))
+      acorn:
+        specifier: 8.16.0
+        version: 8.16.0
       acorn-walk:
         specifier: 8.3.5
         version: 8.3.5

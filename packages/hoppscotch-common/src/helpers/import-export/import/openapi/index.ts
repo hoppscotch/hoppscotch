@@ -127,9 +127,14 @@ const getOpenAPIOperationName = (info: OpenAPIOperationType): string => {
       ? info.title
       : undefined
 
+  // OpenAPI semantics: `summary` is the short human-readable name shown in
+  // tools like Swagger UI; `operationId` is a machine identifier (no spaces,
+  // typically code-gen-friendly). Prefer the human-readable one for the
+  // Hoppscotch request name; fall back to operationId only if summary is
+  // missing. Otherwise round-tripping turns "Get Pet" into "Get_Pet".
   const candidates: Array<string | undefined> = [
-    info.operationId,
     info.summary,
+    info.operationId,
     title,
   ]
 
@@ -151,6 +156,66 @@ const replaceOpenApiPathTemplating = flow(
   S.replace(/}/g, ">>")
 )
 
+/**
+ * Read an example/default value off an OpenAPI param-like object and return
+ * it as a string. Used by query/header/path parsers so values round-trip.
+ *
+ * Sources tried, in order:
+ *   - `example` (OpenAPI 3.x — what our exporter writes)
+ *   - first entry of `examples` (OpenAPI 3.x alternative)
+ *   - `x-example` (common Swagger 2.0 extension)
+ *   - `default` (Swagger 2.0 — `default` carries the example value, while
+ *     OpenAPI 3.x reserves it for schema defaults; v2 docs in the wild
+ *     overwhelmingly use `default` for both)
+ *   - `schema.default` (OpenAPI 3.x schema-level default)
+ */
+const readParamExampleAsString = (param: unknown): string => {
+  if (typeof param !== "object" || param === null) return ""
+  const p = param as {
+    example?: unknown
+    examples?: unknown
+    "x-example"?: unknown
+    default?: unknown
+    schema?: { default?: unknown }
+  }
+  // Strings pass through; objects/arrays are JSON-encoded so callers see the
+  // structured shape rather than `[object Object]`. Numbers/booleans use
+  // `String(...)` for their natural literal form.
+  const stringify = (v: unknown): string => {
+    if (typeof v === "string") return v
+    if (typeof v === "object" && v !== null) {
+      try {
+        return JSON.stringify(v)
+      } catch {
+        return String(v)
+      }
+    }
+    return String(v)
+  }
+
+  if (p.example !== undefined && p.example !== null) return stringify(p.example)
+
+  if (p.examples && typeof p.examples === "object") {
+    const first = Object.values(p.examples as Record<string, unknown>)[0]
+    if (first && typeof first === "object") {
+      const v = (first as { value?: unknown }).value
+      if (v !== undefined && v !== null) return stringify(v)
+    }
+  }
+
+  if (p["x-example"] !== undefined && p["x-example"] !== null) {
+    return stringify(p["x-example"])
+  }
+
+  if (p.default !== undefined && p.default !== null) return stringify(p.default)
+
+  if (p.schema?.default !== undefined && p.schema?.default !== null) {
+    return stringify(p.schema.default)
+  }
+
+  return ""
+}
+
 const parseOpenAPIParams = (params: OpenAPIParamsType[]): HoppRESTParam[] =>
   pipe(
     params,
@@ -162,7 +227,7 @@ const parseOpenAPIParams = (params: OpenAPIParamsType[]): HoppRESTParam[] =>
           (param) =>
             <HoppRESTParam>{
               key: param.name,
-              value: "", // TODO: Can we do anything more ? (parse default values maybe)
+              value: readParamExampleAsString(param),
               active: true,
               description: param.description ?? "",
             }
@@ -184,7 +249,7 @@ const parseOpenAPIVariables = (
           (param) =>
             <HoppRESTRequestVariable>{
               key: param.name,
-              value: "", // TODO: Can we do anything more ? (parse default values maybe)
+              value: readParamExampleAsString(param),
               active: true,
             }
         )
@@ -412,7 +477,7 @@ const parseOpenAPIHeaders = (params: OpenAPIParamsType[]): HoppRESTHeader[] =>
         O.map((header) => {
           return <HoppRESTParam>{
             key: header.name,
-            value: "", // TODO: Can we do anything more ? (parse default values maybe)
+            value: readParamExampleAsString(header),
             active: true,
             description: header.description ?? "",
           }
@@ -439,15 +504,21 @@ const parseOpenAPIV2Body = (op: OpenAPIV2.OperationObject): HoppRESTReqBody => {
       A.filterMap(
         flow(
           O.fromPredicate((param) => param.in === "formData"),
-          O.map(
-            (param) =>
-              <FormDataKeyValue>{
-                key: param.name,
-                isFile: param.type === "file",
-                value: "",
-                active: true,
-              }
-          )
+          O.map((param) => {
+            const isFile = param.type === "file"
+            // Files don't carry a default text value; for non-file fields,
+            // pull `default`/`example`/`x-example` so values round-trip.
+            // FormDataKeyValue's discriminated union requires `Blob[]` when
+            // `isFile: true` and `string` when `false`.
+            return <FormDataKeyValue>(isFile
+              ? { key: param.name, isFile: true, value: [], active: true }
+              : {
+                  key: param.name,
+                  isFile: false,
+                  value: readParamExampleAsString(param),
+                  active: true,
+                })
+          })
         )
       )
     )
@@ -455,7 +526,9 @@ const parseOpenAPIV2Body = (op: OpenAPIV2.OperationObject): HoppRESTReqBody => {
     return obj === "application/x-www-form-urlencoded"
       ? {
           contentType: obj,
-          body: formDataValues.map(({ key }) => `${key}: `).join("\n"),
+          body: formDataValues
+            .map(({ key, value }) => `${key}: ${value ?? ""}`)
+            .join("\n"),
         }
       : { contentType: obj, body: formDataValues }
   }
@@ -494,19 +567,44 @@ const parseOpenAPIV3BodyFormData = (
       : { contentType, body: [] }
   }
 
-  const keys = Object.keys(schema.properties ?? {})
+  const properties = (schema.properties ?? {}) as Record<
+    string,
+    { format?: string; example?: unknown }
+  >
+  const keys = Object.keys(properties)
 
   if (contentType === "application/x-www-form-urlencoded") {
     return {
       contentType,
-      body: keys.map((key) => `${key}: `).join("\n"),
+      body: keys
+        .map((key) => {
+          const example = properties[key]?.example
+          const value =
+            example !== undefined && example !== null ? String(example) : ""
+          return `${key}: ${value}`
+        })
+        .join("\n"),
     }
   }
   return {
     contentType,
-    body: keys.map(
-      (key) => <FormDataKeyValue>{ key, value: "", isFile: false, active: true }
-    ),
+    body: keys.map((key) => {
+      const prop = properties[key]
+      const isFile = prop?.format === "binary"
+      // FormDataKeyValue requires `Blob[]` for files and `string` for others.
+      if (isFile) {
+        return <FormDataKeyValue>{ key, isFile: true, value: [], active: true }
+      }
+      const example = prop?.example
+      const value =
+        example !== undefined && example !== null ? String(example) : ""
+      return <FormDataKeyValue>{
+        key,
+        isFile: false,
+        value,
+        active: true,
+      }
+    }),
   }
 }
 
@@ -540,6 +638,11 @@ const parseOpenAPIV3Body = (
     contentType === "application/x-www-form-urlencoded"
   )
     return parseOpenAPIV3BodyFormData(contentType, media)
+
+  // Binary uploads have no string body; the schema requires `File | null`.
+  if (contentType === "application/octet-stream") {
+    return { contentType, body: null } as HoppRESTReqBody
+  }
 
   // For other content types (JSON, XML, etc.), try to generate sample from schema
   if (media.schema) {
@@ -664,7 +767,7 @@ const resolveOpenAPIV3SecurityObj = (
         authType: "api-key",
         authActive: true,
         addTo: "QUERY_PARAMS",
-        key: scheme.in,
+        key: scheme.name,
         value: "",
       }
     }
@@ -817,18 +920,49 @@ const resolveOpenAPIV3Security = (
   return resolveOpenAPIV3SecurityScheme(doc, schemeName, schemeData)
 }
 
+/**
+ * Per-operation auth resolution.
+ *
+ * Returns ONLY the override for a single operation:
+ *   - `op.security` undefined         → `inherit` (defer to collection-level)
+ *   - `op.security = []`              → `none, active` (explicit opt-out per
+ *                                       OpenAPI 3.1 §4.8.10: "an empty array
+ *                                       can be used [to remove] a top-level
+ *                                       security declaration")
+ *   - `op.security = [{schemeA: …}]`  → resolve `schemeA`
+ *
+ * The doc-level fallback used to live here. It now lives in
+ * `parseCollectionLevelAuthV3` so the collection-vs-request distinction
+ * round-trips correctly.
+ */
 const parseOpenAPIV3Auth = (
   doc: OpenAPIV3.Document | OpenAPIV31.Document,
   op: OpenAPIV3.OperationObject | OpenAPIV31.OperationObject
 ): HoppRESTAuth => {
-  const rootAuth = doc.security
-    ? resolveOpenAPIV3Security(doc, doc.security)
-    : undefined
-  const opAuth = op.security
-    ? resolveOpenAPIV3Security(doc, op.security)
-    : undefined
+  if (op.security === undefined) {
+    return { authType: "inherit", authActive: true }
+  }
+  if (op.security.length === 0) {
+    return { authType: "none", authActive: true }
+  }
+  return resolveOpenAPIV3Security(doc, op.security)
+}
 
-  return opAuth ?? rootAuth ?? { authType: "none", authActive: true }
+/**
+ * Doc-level auth resolution. Mirrors the per-op logic but reads `doc.security`
+ * — gives the collection a single source of truth that all `inherit`-typed
+ * requests can defer to.
+ */
+const parseCollectionLevelAuthV3 = (
+  doc: OpenAPIV3.Document | OpenAPIV31.Document
+): HoppRESTAuth => {
+  if (doc.security === undefined) {
+    return { authType: "inherit", authActive: true }
+  }
+  if (doc.security.length === 0) {
+    return { authType: "none", authActive: true }
+  }
+  return resolveOpenAPIV3Security(doc, doc.security)
 }
 
 const resolveOpenAPIV2SecurityScheme = (
@@ -981,14 +1115,36 @@ const parseOpenAPIV2Auth = (
   doc: OpenAPIV2.Document,
   op: OpenAPIV2.OperationObject
 ): HoppRESTAuth => {
-  const rootAuth = doc.security
-    ? resolveOpenAPIV2Security(doc, doc.security)
-    : undefined
-  const opAuth = op.security
-    ? resolveOpenAPIV2Security(doc, op.security)
-    : undefined
+  if (op.security === undefined) {
+    return { authType: "inherit", authActive: true }
+  }
+  if (op.security.length === 0) {
+    return { authType: "none", authActive: true }
+  }
+  return resolveOpenAPIV2Security(doc, op.security)
+}
 
-  return opAuth ?? rootAuth ?? { authType: "none", authActive: true }
+const parseCollectionLevelAuthV2 = (doc: OpenAPIV2.Document): HoppRESTAuth => {
+  if (doc.security === undefined) {
+    return { authType: "inherit", authActive: true }
+  }
+  if (doc.security.length === 0) {
+    return { authType: "none", authActive: true }
+  }
+  return resolveOpenAPIV2Security(doc, doc.security)
+}
+
+/**
+ * Resolves the doc-level (collection-level) auth from any supported OpenAPI
+ * version. Used once per imported document.
+ */
+const parseCollectionLevelAuth = (doc: OpenAPI.Document): HoppRESTAuth => {
+  if (objectHasProperty(doc, "swagger")) {
+    return parseCollectionLevelAuthV2(doc as OpenAPIV2.Document)
+  }
+  return parseCollectionLevelAuthV3(
+    doc as OpenAPIV3.Document | OpenAPIV31.Document
+  )
 }
 
 const parseOpenAPIAuth = (
@@ -999,36 +1155,65 @@ const parseOpenAPIAuth = (
     ? parseOpenAPIV3Auth(doc as OpenAPIV3.Document | OpenAPIV31.Document, op)
     : parseOpenAPIV2Auth(doc as OpenAPIV2.Document, op)
 
+/**
+ * Resolve a doc-level base URL.
+ *
+ * Returns:
+ * - `prefix`: the string each endpoint is prefixed with. Always
+ *   `<<baseUrl>>` (Hoppscotch's collection-variable convention) so users get
+ *   a single place to edit the host instead of a hardcoded URL repeated
+ *   across every request.
+ * - `baseUrlValue`: the resolved real URL if the doc declared one (so the
+ *   importer can seed a `baseUrl` collection variable with it), or `null`
+ *   if the doc had no `servers`/`host` to learn from.
+ */
 const parseOpenAPIUrl = (
   doc: OpenAPI.Document | OpenAPIV2.Document | OpenAPIV3.Document
-): string => {
-  /**
-   * OpenAPI V2 has version as a string in the document's swagger property.
-   * And host and basePath are in the document's host and basePath properties.
-   * Relevant v2 reference: https://swagger.io/specification/v2/#:~:text=to%20be%20obscured.-,Schema,-Swagger%20Object
-   **/
+): { prefix: string; baseUrlValue: string | null } => {
+  const prefix = "<<baseUrl>>"
 
+  // OpenAPI V2 — host + basePath at the doc root, with `schemes` providing
+  // the protocol(s). Without a scheme prefix the value isn't a usable URL,
+  // so default to `https` (common practice for public APIs) when missing.
   if (objectHasProperty(doc, "swagger")) {
-    // TODO: dynamically add doc.host, doc.basePath value as variables in the environment if available. or notify user to add it.
-    // add base url variable to each request
-    const host = doc.host?.trim() || "<<baseUrl>>"
-    const basePath = doc.basePath?.trim() || ""
-    return `${host}${basePath}`
+    const host = doc.host?.trim() ?? ""
+    const basePath = doc.basePath?.trim() ?? ""
+    if (!host && !basePath) return { prefix, baseUrlValue: null }
+    if (!host) {
+      // `basePath` alone isn't a URL — fabricating `https://<basePath>`
+      // would produce a host like `https://v2`. Skip seeding a variable;
+      // instead append the basePath to the placeholder prefix so endpoints
+      // resolve as `<<baseUrl>>/<basePath>/...` once the user fills in the
+      // host themselves.
+      const normalisedBase = basePath.startsWith("/")
+        ? basePath
+        : `/${basePath}`
+      return { prefix: `${prefix}${normalisedBase}`, baseUrlValue: null }
+    }
+    const scheme = doc.schemes?.[0] ?? "https"
+    return {
+      prefix,
+      baseUrlValue: `${scheme}://${host}${basePath}`,
+    }
   }
 
-  /**
-   * OpenAPI V3 has version as a string in the document's openapi property.
-   * And host and basePath are in the document's servers property.
-   * Relevant v3 reference: https://swagger.io/specification/#server-object
-   **/
+  // OpenAPI V3 — first entry of `servers`.
   if (objectHasProperty(doc, "servers")) {
-    // TODO: dynamically add server URL value as variable in the environment if available, or notify user to add it.
     const serverUrl = doc.servers?.[0]?.url
-    return !serverUrl || serverUrl === "./" ? "<<baseUrl>>" : serverUrl
+    if (!serverUrl || serverUrl === "./") {
+      return { prefix, baseUrlValue: null }
+    }
+    // Don't seed a `baseUrl` variable whose value is itself a Hoppscotch
+    // placeholder (`<<X>>`). That would create a variable referencing another
+    // variable, which is confusing and round-trips badly. The placeholder will
+    // simply pass through to the endpoint.
+    if (/^<<[a-zA-Z0-9_.-]+>>$/.test(serverUrl)) {
+      return { prefix: serverUrl, baseUrlValue: null }
+    }
+    return { prefix, baseUrlValue: serverUrl }
   }
 
-  // If the document is neither v2 nor v3 or missing required fields
-  return "<<baseUrl>>"
+  return { prefix, baseUrlValue: null }
 }
 
 const convertPathToHoppReqs = (
@@ -1049,7 +1234,7 @@ const convertPathToHoppReqs = (
 
     // Construct request object
     RA.map(({ method, info }) => {
-      const openAPIUrl = parseOpenAPIUrl(doc)
+      const { prefix: openAPIUrl } = parseOpenAPIUrl(doc)
       const openAPIPath = replaceOpenApiPathTemplating(pathName)
 
       const endpoint =
@@ -1122,7 +1307,163 @@ const convertPathToHoppReqs = (
     RA.toArray
   )
 
-const convertOpenApiDocsToHopp = (
+/**
+ * Hoppscotch's OpenAPI export encodes nested folders as `/`-separated tag paths
+ * (`API/Users` = folder `Users` inside folder `API`). On import we want to
+ * reverse that — but slash-as-nesting is a convention, not a spec feature, so
+ * we only split when the tag set actually looks hierarchical or the document
+ * was produced by Hoppscotch (carrying our explicit marker).
+ *
+ * Heuristic: split iff at least one pair of tags has a strict segment-prefix
+ * relationship (e.g. `API` and `API/Users`, or `API/Users` and `API/Posts`
+ * which both share `API`). Single tags with literal slashes like `OAuth/PKCE`
+ * are kept flat to avoid mis-importing third-party docs.
+ */
+const HOPP_FOLDER_TAGS_MARKER = "x-hoppscotch-folder-tags"
+
+export const splitTagSegments = (tag: string): string[] =>
+  tag
+    .split("/")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0)
+
+const tagNameToFolderSegments = (
+  tagName: string,
+  shouldSplit: boolean
+): string[] => {
+  if (shouldSplit) return splitTagSegments(tagName)
+  return tagName.length > 0 ? [tagName] : []
+}
+
+export const hasSharedTagPathPrefix = (allTagNames: string[]): boolean => {
+  const splits = allTagNames.map(splitTagSegments).filter((s) => s.length > 0)
+  if (splits.length < 2) return false
+
+  // NUL byte as the path-join separator — it cannot appear inside an
+  // OpenAPI tag segment, so two normalised paths only collide when their
+  // segment lists are identical. Written as the explicit "\u0000" escape
+  // so the source stays reviewable rather than carrying a raw NUL byte.
+  const sep = "\u0000"
+  const fullPaths = new Set(splits.map((segs) => segs.join(sep)))
+
+  // (a) any tag has another tag as a strict ancestor
+  for (const segs of splits) {
+    for (let i = 1; i < segs.length; i++) {
+      if (fullPaths.has(segs.slice(0, i).join(sep))) return true
+    }
+  }
+
+  // (b) two tags share a non-empty segment prefix
+  const seenPrefixes = new Set<string>()
+  for (const segs of splits) {
+    for (let i = 1; i < segs.length; i++) {
+      const prefix = segs.slice(0, i).join(sep)
+      if (seenPrefixes.has(prefix)) return true
+      seenPrefixes.add(prefix)
+    }
+  }
+
+  return false
+}
+
+const docHasFolderTagsMarker = (doc: unknown): boolean =>
+  typeof doc === "object" &&
+  doc !== null &&
+  (doc as Record<string, unknown>)[HOPP_FOLDER_TAGS_MARKER] === "slash"
+
+/**
+ * Among the operation's tags, pick the single canonical placement:
+ * the deepest (longest) split-segments list, ties broken by first occurrence.
+ * Avoids placing a request in `API` when it's also tagged `API/Users`.
+ */
+export const pickRequestFolderSegments = (
+  tags: string[],
+  shouldSplit: boolean
+): string[] => {
+  const segLists = tags
+    .map((t) => tagNameToFolderSegments(t, shouldSplit))
+    .filter((s) => s.length > 0)
+  if (segLists.length === 0) return []
+  return segLists.reduce((best, cur) => (cur.length > best.length ? cur : best))
+}
+
+type FolderTreeNode = {
+  name: string
+  description: string | null
+  requests: HoppRESTRequest[]
+  children: Map<string, FolderTreeNode>
+}
+
+const createFolderTreeNode = (name: string): FolderTreeNode => ({
+  name,
+  description: null,
+  requests: [],
+  children: new Map(),
+})
+
+const getOrCreateFolderNode = (
+  root: FolderTreeNode,
+  segments: string[]
+): FolderTreeNode => {
+  let node = root
+  for (const seg of segments) {
+    let child = node.children.get(seg)
+    if (!child) {
+      child = createFolderTreeNode(seg)
+      node.children.set(seg, child)
+    }
+    node = child
+  }
+  return node
+}
+
+const folderTreeNodeToCollection = (node: FolderTreeNode): HoppCollection =>
+  makeCollection({
+    name: node.name,
+    description: node.description,
+    requests: node.requests,
+    folders: [...node.children.values()].map(folderTreeNodeToCollection),
+    auth: { authType: "inherit", authActive: true },
+    headers: [],
+    variables: [],
+    preRequestScript: "",
+    testScript: "",
+  })
+
+const collectOpenApiTagNames = (
+  doc: OpenAPI.Document,
+  paths: Array<{ metadata: { tags: string[] } }>
+): Set<string> => {
+  const names = new Set<string>()
+  for (const { metadata } of paths) {
+    for (const t of metadata.tags) names.add(t)
+  }
+  if ("tags" in doc && Array.isArray(doc.tags)) {
+    for (const t of doc.tags) {
+      if (t && typeof t.name === "string") names.add(t.name)
+    }
+  }
+  return names
+}
+
+const extractTagDescriptions = (
+  doc: OpenAPI.Document
+): Record<string, string> => {
+  const result: Record<string, string> = {}
+  if ("tags" in doc && Array.isArray(doc.tags)) {
+    for (const tag of doc.tags as Array<{
+      name?: unknown
+      description?: unknown
+    }>) {
+      if (typeof tag.name === "string" && typeof tag.description === "string") {
+        result[tag.name] = tag.description
+      }
+    }
+  }
+  return result
+}
+
+export const convertOpenApiDocsToHopp = (
   docs: OpenAPI.Document[]
 ): TE.TaskEither<string, HoppCollection[]> => {
   // checking for unresolved references before conversion
@@ -1136,65 +1477,86 @@ const convertOpenApiDocsToHopp = (
   }
 
   const collections = docs.map((doc) => {
-    const name = doc.info.title
-    const description = doc.info.description ?? null
+    const paths = Object.entries(doc.paths ?? {}).flatMap(
+      ([pathName, pathObj]) => convertPathToHoppReqs(doc, pathName, pathObj)
+    )
+    const allTagNames = collectOpenApiTagNames(doc, paths)
+    const tagDescriptions = extractTagDescriptions(doc)
+    const { baseUrlValue } = parseOpenAPIUrl(doc)
 
-    // Extract tag descriptions from OpenAPI spec
-    const tagDescriptions: Record<string, string> = {}
-    if ("tags" in doc && Array.isArray(doc.tags)) {
-      doc.tags.forEach((tag: any) => {
-        if (tag.name && tag.description) {
-          tagDescriptions[tag.name] = tag.description
-        }
-      })
+    // Decide whether to interpret `/` as folder nesting: either an explicit
+    // marker from a Hoppscotch export, or the tag set has clear hierarchical
+    // structure.
+    const shouldSplitTags =
+      docHasFolderTagsMarker(doc) || hasSharedTagPathPrefix([...allTagNames])
+
+    const root = createFolderTreeNode("")
+    const requestsWithoutTags: HoppRESTRequest[] = []
+
+    // Apply tag descriptions at their (possibly nested) folder level.
+    for (const tagName of allTagNames) {
+      const desc = tagDescriptions[tagName]
+      if (!desc) continue
+      const segs = tagNameToFolderSegments(tagName, shouldSplitTags)
+      if (segs.length === 0) continue
+      const node = getOrCreateFolderNode(root, segs)
+      // First description wins if multiple tags collapse to the same path
+      // (e.g. `API//Users` and `API/Users` after normalization).
+      if (node.description === null) node.description = desc
     }
 
-    const paths = Object.entries(doc.paths ?? {})
-      .map(([pathName, pathObj]) =>
-        convertPathToHoppReqs(doc, pathName, pathObj)
-      )
-      .flat()
-
-    const requestsByTags: Record<string, Array<HoppRESTRequest>> = {}
-    const requestsWithoutTags: Array<HoppRESTRequest> = []
-
-    paths.forEach(({ metadata, request }) => {
-      const tags = metadata.tags
-
-      if (tags.length === 0) {
+    // Place each operation at its canonical folder. Multi-tag operations land
+    // at one location only (deepest tag); duplicating across folders would
+    // break edit semantics on subsequent re-export.
+    for (const { metadata, request } of paths) {
+      if (metadata.tags.length === 0) {
         requestsWithoutTags.push(request)
-        return
+        continue
       }
-
-      for (const tag of tags) {
-        if (!requestsByTags[tag]) {
-          requestsByTags[tag] = []
-        }
-
-        requestsByTags[tag].push(cloneDeep(request))
+      const targetSegs = pickRequestFolderSegments(
+        metadata.tags,
+        shouldSplitTags
+      )
+      if (targetSegs.length === 0) {
+        requestsWithoutTags.push(request)
+        continue
       }
-    })
+      const node = getOrCreateFolderNode(root, targetSegs)
+      node.requests.push(cloneDeep(request))
+    }
+
+    // Seed a `baseUrl` collection variable from the doc's resolved server URL
+    // so users have one place to switch hosts (staging/prod/local) instead of
+    // every endpoint hardcoding a literal URL.
+    //
+    // `currentValue` is left empty to match the convention used by the other
+    // importers (postman, insomnia): runtime current values live in
+    // `CurrentValueService` and are local-only; only `initialValue` is
+    // persisted server-side.
+    const variables =
+      baseUrlValue !== null
+        ? [
+            {
+              key: "baseUrl",
+              initialValue: baseUrlValue,
+              currentValue: "",
+              secret: false,
+            },
+          ]
+        : []
 
     return makeCollection({
-      name,
-      folders: Object.entries(requestsByTags).map(([name, paths]) =>
-        makeCollection({
-          name,
-          description: tagDescriptions[name] ?? null,
-          requests: paths,
-          folders: [],
-          auth: { authType: "inherit", authActive: true },
-          headers: [],
-          variables: [],
-          preRequestScript: "",
-          testScript: "",
-        })
-      ),
+      name: doc.info.title,
+      description: doc.info.description ?? null,
+      folders: [...root.children.values()].map(folderTreeNodeToCollection),
       requests: requestsWithoutTags,
-      auth: { authType: "inherit", authActive: true },
+      // Read doc-level security ONCE here so the collection-vs-request
+      // structure mirrors the OpenAPI two-layer model. Per-operation reads
+      // (in parseOpenAPIV3Auth / parseOpenAPIV2Auth) only return overrides;
+      // requests with no override get `inherit` and defer to this value.
+      auth: parseCollectionLevelAuth(doc),
       headers: [],
-      variables: [],
-      description,
+      variables,
       preRequestScript: "",
       testScript: "",
     })

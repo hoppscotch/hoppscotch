@@ -67,7 +67,8 @@ export class CreateUserRequestArgs {
   @IsNotEmpty()
   request: string;
 
-  type: ReqType;
+  @IsOptional()
+  type?: ReqType;
 }
 
 @ArgsType()

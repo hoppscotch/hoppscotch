@@ -67,7 +67,6 @@ export class CreatePublishedDocsArgs {
   workspaceType: WorkspaceType;
 
   @IsString()
-  @IsNotEmpty()
   @Field({
     name: 'workspaceID',
     description: 'ID of the workspace',

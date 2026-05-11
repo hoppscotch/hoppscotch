@@ -2,7 +2,7 @@ import { Field, InputType } from '@nestjs/graphql';
 import { InfraConfigEnum } from 'src/types/InfraConfig';
 import { ServiceStatus } from './helper';
 import { AuthProvider } from 'src/auth/helper';
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { IsEnum, IsString } from 'class-validator';
 
 @InputType()
 export class InfraConfigArgs {

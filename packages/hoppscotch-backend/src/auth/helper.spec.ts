@@ -130,8 +130,9 @@ describe('extractCookieAsKeyValuesFromHeaders', () => {
     });
 
     it('stores a bare flag cookie with an empty value', () => {
-      // Cookies like `HttpOnly` occasionally appear without an `=value`.
-      // Treat them as present-but-empty so downstream code can detect them.
+      // Bare cookie names (no `=value`) occasionally appear in `Cookie`
+      // request headers — treat them as present-but-empty so downstream
+      // code can detect them.
       expect(
         extractCookieAsKeyValuesFromHeaders(asHeaders('flag; a=1')),
       ).toEqual({ flag: '', a: '1' });

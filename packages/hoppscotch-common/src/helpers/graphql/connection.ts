@@ -665,6 +665,14 @@ export const runSubscription = (
           message: decoded.reason,
         },
       }
+      // A frame we can't decode means the wire format is broken for
+      // this socket; further frames are likely to fail the same way.
+      // Halt message processing by transitioning the originating tab
+      // to UNSUBSCRIBED (mirrors `onclose`) and closing the socket so
+      // the UI doesn't stay stuck in SUBSCRIBING/SUBSCRIBED while a
+      // tight loop of `malformed_frame` errors is emitted.
+      connection.subscriptionState.set(subscriptionTabID, "UNSUBSCRIBED")
+      connection.socket?.close()
       return
     }
     const data = decoded.frame
@@ -685,14 +693,16 @@ export const runSubscription = (
             message: stringifySubscriptionErrorPayload(data.payload),
           },
         }
-        // GQL.ERROR terminates this subscription per the
-        // subscriptions-transport-ws protocol — the server will not send
-        // further `data` frames for this id. Mirror `onclose`'s state
-        // transition so the UI does not keep presenting the subscription
-        // as live.
-        if (data.type === GQL.ERROR) {
-          connection.subscriptionState.set(subscriptionTabID, "UNSUBSCRIBED")
-        }
+        // Both connection-level and subscription-level error frames
+        // are terminal for this active subscription. GQL.ERROR ends
+        // this single subscription per the subscriptions-transport-ws
+        // protocol; GQL.CONNECTION_ERROR ends the whole transport and
+        // the server may take a while to actually close the socket
+        // (or never close it cleanly). Mirror `onclose`'s state
+        // transition immediately in both cases so the UI does not
+        // keep presenting the subscription as live while we wait on
+        // the server.
+        connection.subscriptionState.set(subscriptionTabID, "UNSUBSCRIBED")
         break
       }
       case GQL.CONNECTION_KEEP_ALIVE: {

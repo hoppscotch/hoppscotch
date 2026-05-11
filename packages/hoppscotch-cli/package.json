@@ -41,7 +41,6 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
-    "acorn": "8.16.0",
     "aws4fetch": "1.0.20",
     "axios": "1.15.2",
     "axios-cookiejar-support": "6.0.5",

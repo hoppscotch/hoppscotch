@@ -237,7 +237,7 @@ import {
   HoppRESTHeaders,
   GQLHeader,
 } from "@hoppscotch/data"
-import { hasActualScript } from "~/helpers/scripting"
+import { hasActualScript } from "@hoppscotch/js-sandbox/scripting"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { PersistenceService } from "~/services/persistence"
 

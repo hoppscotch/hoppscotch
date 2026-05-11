@@ -1,6 +1,9 @@
 import { describe, expect, test } from "vitest"
 
-import { hasActualScript, stripJsonSerializedModulePrefix } from "../scripting"
+import {
+  hasActualScript,
+  stripJsonSerializedModulePrefix,
+} from "@hoppscotch/js-sandbox/scripting"
 
 describe("hasActualScript", () => {
   test("returns false for null, undefined, or empty input", () => {

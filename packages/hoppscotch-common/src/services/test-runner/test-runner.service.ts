@@ -5,7 +5,7 @@ import {
   HoppRESTRequest,
 } from "@hoppscotch/data"
 import { Service } from "dioc"
-import { hasActualScript } from "~/helpers/scripting"
+import { hasActualScript } from "@hoppscotch/js-sandbox/scripting"
 import * as E from "fp-ts/Either"
 import { cloneDeep } from "lodash-es"
 import { nextTick, Ref } from "vue"

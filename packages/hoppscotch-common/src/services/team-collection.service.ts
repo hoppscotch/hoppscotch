@@ -29,7 +29,7 @@ import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { ref, watch } from "vue"
 import { Service } from "dioc"
 import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
-import { hasActualScript } from "~/helpers/scripting"
+import { hasActualScript } from "@hoppscotch/js-sandbox/scripting"
 import { CollectionDataProps } from "~/helpers/backend/helpers"
 
 export const TEAMS_BACKEND_PAGE_SIZE = 10

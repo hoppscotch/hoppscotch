@@ -305,7 +305,7 @@ import {
   makeHoppRESTResponseOriginalRequest,
 } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
-import { stripJsonSerializedModulePrefix } from "~/helpers/scripting"
+import { stripJsonSerializedModulePrefix } from "@hoppscotch/js-sandbox/scripting"
 
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"

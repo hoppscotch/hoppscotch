@@ -4,7 +4,7 @@ import {
   combineScriptsWithIIFE,
   stripModulePrefix,
   MODULE_PREFIX,
-} from "../../utils/scripting";
+} from "@hoppscotch/js-sandbox/scripting";
 
 describe("scripting", () => {
   describe("stripModulePrefix", () => {
@@ -192,13 +192,23 @@ describe("scripting", () => {
       expect(result.indexOf("import { reqVal }")).toBeLessThan(tryIdx);
     });
 
-    test("emits a synthetic SyntaxError when imports collide across scripts", () => {
+    test("dedupes identical imports across scripts to a single emit", () => {
       const folder = `import lodash from "data:text/javascript,export default {}";`;
       const request = `import lodash from "data:text/javascript,export default {}";`;
       const result = combineScriptsWithIIFE([folder, request]);
 
+      const importMatches = result.match(/^import lodash from /gm) ?? [];
+      expect(importMatches).toHaveLength(1);
+      expect(result).not.toContain("imported from different sources");
+    });
+
+    test("emits a synthetic SyntaxError when same name imports clash across sources", () => {
+      const folder = `import lodash from "data:text/javascript,export default 'A'";`;
+      const request = `import lodash from "data:text/javascript,export default 'B'";`;
+      const result = combineScriptsWithIIFE([folder, request]);
+
       expect(result).toContain(
-        "'lodash' is imported by multiple scripts in this request's chain"
+        "'lodash' is imported from different sources across scripts in this request's chain"
       );
       expect(result).not.toContain("import lodash");
     });

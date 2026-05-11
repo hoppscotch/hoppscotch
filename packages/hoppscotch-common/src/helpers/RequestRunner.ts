@@ -27,7 +27,7 @@ import { map } from "fp-ts/Either"
 import { runPreRequestScript, runTestScript } from "@hoppscotch/js-sandbox/web"
 import { useSetting } from "~/composables/settings"
 import { getService } from "~/modules/dioc"
-import { stripModulePrefix } from "~/helpers/scripting"
+import { combineScriptsWithIIFE, hasActualScript } from "~/helpers/scripting"
 import { createHoppFetchHook } from "~/helpers/hopp-fetch"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import {
@@ -364,14 +364,21 @@ const delegatePreRequestScriptRunner = (
     selected: Environment["variables"]
     temp: Environment["variables"]
   },
-  cookies: Cookie[] | null
+  cookies: Cookie[] | null,
+  inheritedPreRequestScripts: string[] = []
 ): Promise<E.Either<string, SandboxPreRequestResult>> => {
   const { preRequestScript } = request
+  const experimentalScriptingSandbox = EXPERIMENTAL_SCRIPTING_SANDBOX.value
+  const target = experimentalScriptingSandbox ? "experimental" : "legacy"
 
-  const cleanScript = stripModulePrefix(preRequestScript)
+  // Pre-request order: root → request.
+  const combinedScript = combineScriptsWithIIFE(
+    [...inheritedPreRequestScripts, preRequestScript],
+    target
+  )
 
   // Short-circuit empty scripts to avoid unnecessary WASM initialization
-  if (cleanScript.trim().length === 0) {
+  if (combinedScript.length === 0) {
     return Promise.resolve(
       E.right({
         updatedEnvs: envs,
@@ -380,19 +387,16 @@ const delegatePreRequestScriptRunner = (
     )
   }
 
-  if (!EXPERIMENTAL_SCRIPTING_SANDBOX.value) {
-    // Strip `export {};\n` before executing in legacy sandbox to prevent syntax errors
-
-    return runPreRequestScript(cleanScript, {
+  if (!experimentalScriptingSandbox) {
+    return runPreRequestScript(combinedScript, {
       envs,
       experimentalScriptingSandbox: false,
     })
   }
 
-  // Experimental sandbox enabled - use faraday-cage with hook
   const hoppFetchHook = createHoppFetchHook(kernelInterceptorService)
 
-  return runPreRequestScript(cleanScript, {
+  return runPreRequestScript(combinedScript, {
     envs,
     request,
     cookies,
@@ -405,14 +409,21 @@ const runPostRequestScript = (
   envs: TestResult["envs"],
   request: HoppRESTRequest,
   response: HoppRESTResponse,
-  cookies: Cookie[] | null
+  cookies: Cookie[] | null,
+  inheritedTestScripts: string[] = []
 ): Promise<E.Either<string, SandboxTestResult>> => {
   const { testScript } = request
+  const experimentalScriptingSandbox = EXPERIMENTAL_SCRIPTING_SANDBOX.value
+  const target = experimentalScriptingSandbox ? "experimental" : "legacy"
 
-  const cleanScript = stripModulePrefix(testScript)
+  // Test order: request → root (reverse of pre-request).
+  const combinedScript = combineScriptsWithIIFE(
+    [testScript, ...inheritedTestScripts.slice().reverse()],
+    target
+  )
 
   // Short-circuit empty scripts to avoid unnecessary WASM initialization
-  if (cleanScript.trim().length === 0) {
+  if (combinedScript.length === 0) {
     return Promise.resolve(
       E.right({
         tests: { descriptor: "root", expectResults: [], children: [] },
@@ -423,20 +434,17 @@ const runPostRequestScript = (
     )
   }
 
-  if (!EXPERIMENTAL_SCRIPTING_SANDBOX.value) {
-    // Strip `export {};\n` before executing in legacy sandbox to prevent syntax errors
-
-    return runTestScript(cleanScript, {
+  if (!experimentalScriptingSandbox) {
+    return runTestScript(combinedScript, {
       envs,
       response,
       experimentalScriptingSandbox: false,
     })
   }
 
-  // Experimental sandbox enabled - use faraday-cage with hook
   const hoppFetchHook = createHoppFetchHook(kernelInterceptorService)
 
-  return runTestScript(cleanScript, {
+  return runTestScript(combinedScript, {
     envs,
     request,
     response,
@@ -497,10 +505,20 @@ export function runRESTRequest$(
     initialEnvsForComparison,
   } = captureInitialEnvironmentState()
 
+  // Extract inherited scripts from collection hierarchy, filtering out empty/module-prefix-only scripts
+  const inheritedScripts = inheritedProperties?.scripts ?? []
+  const inheritedPreRequestScripts = inheritedScripts
+    .map((s) => s.preRequestScript)
+    .filter(hasActualScript)
+  const inheritedTestScripts = inheritedScripts
+    .map((s) => s.testScript)
+    .filter(hasActualScript)
+
   const res = delegatePreRequestScriptRunner(
     resolvedRequest,
     initialEnvs,
-    cookieJarEntries
+    cookieJarEntries,
+    inheritedPreRequestScripts
   ).then(async (preRequestScriptResult) => {
     if (cancelCalled) return E.left("cancellation" as const)
 
@@ -579,7 +597,8 @@ export function runRESTRequest$(
               statusText: res.statusText,
               responseTime: res.meta.responseDuration,
             },
-            preRequestScriptResult.right.updatedCookies ?? null
+            preRequestScriptResult.right.updatedCookies ?? null,
+            inheritedTestScripts
           )
 
           if (E.isRight(postRequestScriptResult)) {
@@ -795,7 +814,9 @@ export async function runTestRunnerRequest(
   request: HoppRESTRequest,
   persistEnv = true,
   inheritedVariables: HoppCollectionVariable[] = [],
-  initialEnvironmentState: InitialEnvironmentState
+  initialEnvironmentState: InitialEnvironmentState,
+  inheritedPreRequestScripts: string[] = [],
+  inheritedTestScripts: string[] = []
 ): Promise<
   | E.Left<"script_fail">
   | E.Right<{
@@ -824,7 +845,8 @@ export async function runTestRunnerRequest(
   return delegatePreRequestScriptRunner(
     request,
     initialEnvs,
-    cookieJarEntries
+    cookieJarEntries,
+    inheritedPreRequestScripts
   ).then(async (preRequestScriptResult) => {
     if (E.isLeft(preRequestScriptResult)) {
       console.error("[Pre-Request Script Error]", preRequestScriptResult.left)
@@ -883,7 +905,8 @@ export async function runTestRunnerRequest(
               statusText: res.statusText,
               responseTime: res.meta.responseDuration,
             },
-            preRequestScriptResult.right.updatedCookies ?? null
+            preRequestScriptResult.right.updatedCookies ?? null,
+            inheritedTestScripts
           )
 
           if (E.isRight(postRequestScriptResult)) {

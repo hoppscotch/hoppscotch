@@ -100,16 +100,11 @@ export const CURRENT_VERSION_TAG = "CURRENT"
 
 /**
  * Checks whether a published doc version is the live (current) version.
- * A live version is auto-synced, has the CURRENT version identifier,
- * or has version 1.0.0 (used in older versions of the project).
- * This version is in sync with the particular collection and will update if the collection is updated.
+ * A live version is one that has auto-sync enabled — it stays in sync with
+ * the collection and will update whenever the collection is updated.
  */
-export const isLiveVersion = (doc: {
-  autoSync: boolean
-  version: string
-}): boolean =>
-  doc.autoSync &&
-  (doc.version.toUpperCase() === CURRENT_VERSION_TAG || doc.version === "1.0.0")
+export const isLiveVersion = (doc: { autoSync: boolean }): boolean =>
+  doc.autoSync
 
 /**
  * This service manages edited documentation for collections and requests.

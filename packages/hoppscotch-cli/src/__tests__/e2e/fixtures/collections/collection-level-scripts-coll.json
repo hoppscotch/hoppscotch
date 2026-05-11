@@ -1,0 +1,114 @@
+{
+  "v": 12,
+  "name": "collection-level-scripts-coll",
+  "variables": [],
+  "description": null,
+  "folders": [
+    {
+      "v": 12,
+      "name": "target-folder",
+      "variables": [],
+      "description": null,
+      "folders": [],
+      "requests": [
+        {
+          "v": "17",
+          "id": "cl-script-req-1",
+          "name": "target-request",
+          "method": "GET",
+          "endpoint": "https://echo.hoppscotch.io",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "pw.env.set(\"REQ_RAN\", \"yes\");\npw.env.set(\"PRE_ORDER\", pw.env.get(\"PRE_ORDER\") + \"->target-req\");",
+          "testScript": "pw.env.set(\"TEST_ORDER\", \"target-req\");\npw.env.set(\"ORDER_AT_REQ\", pw.env.get(\"TEST_ORDER\"));\npw.test(\"pre-script cascade ran in root->target-folder->target-req order\", () => {\n  pw.expect(pw.env.get(\"PRE_ORDER\")).toBe(\"root->target-folder->target-req\");\n});\npw.test(\"all cascade pre-scripts committed env vars\", () => {\n  pw.expect(pw.env.get(\"ROOT_RAN\")).toBe(\"yes\");\n  pw.expect(pw.env.get(\"TARGET_FOLDER_RAN\")).toBe(\"yes\");\n  pw.expect(pw.env.get(\"REQ_RAN\")).toBe(\"yes\");\n});\npw.test(\"request-level test observed request position in test-cascade\", () => {\n  pw.expect(pw.env.get(\"ORDER_AT_REQ\")).toBe(\"target-req\");\n});",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "cl-script-req-2",
+          "name": "sibling-request-in-target-folder",
+          "method": "GET",
+          "endpoint": "https://echo.hoppscotch.io",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "pw.env.set(\"PRE_ORDER\", pw.env.get(\"PRE_ORDER\") + \"->sibling-req-in-target\");",
+          "testScript": "pw.env.set(\"TEST_ORDER\", \"sibling-req-in-target\");\npw.test(\"sibling request cascade is root->target-folder->this-request\", () => {\n  pw.expect(pw.env.get(\"PRE_ORDER\")).toBe(\"root->target-folder->sibling-req-in-target\");\n});",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        }
+      ],
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "headers": [],
+      "preRequestScript": "pw.env.set(\"TARGET_FOLDER_RAN\", \"yes\");\npw.env.set(\"TARGET_FOLDER_RUN_COUNT\", String((parseInt(pw.env.get(\"TARGET_FOLDER_RUN_COUNT\") || \"0\", 10)) + 1));\npw.env.set(\"PRE_ORDER\", pw.env.get(\"PRE_ORDER\") + \"->target-folder\");",
+      "testScript": "pw.env.set(\"TEST_ORDER\", pw.env.get(\"TEST_ORDER\") + \"->target-folder\");\npw.env.set(\"ORDER_AT_TARGET_FOLDER\", pw.env.get(\"TEST_ORDER\"));"
+    },
+    {
+      "v": 12,
+      "name": "sibling-folder",
+      "variables": [],
+      "description": null,
+      "folders": [],
+      "requests": [
+        {
+          "v": "17",
+          "id": "cl-script-req-3",
+          "name": "sibling-request-in-sibling-folder",
+          "method": "GET",
+          "endpoint": "https://echo.hoppscotch.io",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "pw.env.set(\"PRE_ORDER\", pw.env.get(\"PRE_ORDER\") + \"->sibling-req-in-sibling\");",
+          "testScript": "pw.env.set(\"TEST_ORDER\", \"sibling-req-in-sibling\");\npw.test(\"sibling-folder cascade is root->sibling-folder->this-request (no target-folder leak)\", () => {\n  pw.expect(pw.env.get(\"PRE_ORDER\")).toBe(\"root->sibling-folder->sibling-req-in-sibling\");\n});\npw.test(\"target-folder pre-script ran exactly twice (one per request in target-folder)\", () => {\n  pw.expect(pw.env.get(\"TARGET_FOLDER_RUN_COUNT\")).toBe(\"2\");\n});",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        }
+      ],
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "headers": [],
+      "preRequestScript": "pw.env.set(\"SIBLING_FOLDER_RAN\", \"yes\");\npw.env.set(\"PRE_ORDER\", pw.env.get(\"PRE_ORDER\") + \"->sibling-folder\");",
+      "testScript": "pw.env.set(\"TEST_ORDER\", pw.env.get(\"TEST_ORDER\") + \"->sibling-folder\");"
+    }
+  ],
+  "requests": [],
+  "auth": {
+    "authType": "inherit",
+    "authActive": true
+  },
+  "headers": [],
+  "preRequestScript": "pw.env.set(\"ROOT_RAN\", \"yes\");\npw.env.set(\"PRE_ORDER\", \"root\");",
+  "testScript": "pw.env.set(\"TEST_ORDER\", pw.env.get(\"TEST_ORDER\") + \"->root\");\npw.test(\"test-script cascade ran in request->folder->root order for every request\", () => {\n  pw.expect([\"target-req->target-folder->root\", \"sibling-req-in-target->target-folder->root\", \"sibling-req-in-sibling->sibling-folder->root\"].includes(pw.env.get(\"TEST_ORDER\"))).toBe(true);\n});"
+}

@@ -4,6 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { InfraConfig as DBInfraConfig } from 'src/generated/prisma/client';
 import * as E from 'fp-ts/Either';
 import { InfraConfigEnum } from 'src/types/InfraConfig';
+import { SMTPAuthType } from 'src/mailer/helper';
 import {
   AUTH_PROVIDER_NOT_SPECIFIED,
   DATABASE_TABLE_NOT_EXIST,
@@ -607,7 +608,11 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
     const recoveryToken = configs.right.find(
       (config) => config.name === InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN,
     )?.value;
-    const tokenIsValid = token === recoveryToken;
+
+    const tokenIsValid =
+      typeof token === 'string' &&
+      token.trim().length > 0 &&
+      token === recoveryToken;
 
     const onboardingConfig = configs.right.reduce((acc, config) => {
       acc[config.name] = tokenIsValid ? config.value : null;
@@ -734,6 +739,18 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
         case InfraConfigEnum.MAILER_TLS_REJECT_UNAUTHORIZED:
         case InfraConfigEnum.MAILER_SMTP_IGNORE_TLS:
           if (value !== 'true' && value !== 'false') return fail();
+          break;
+
+        case InfraConfigEnum.MAILER_SMTP_AUTH_TYPE:
+          if (
+            value &&
+            !Object.values(SMTPAuthType).includes(value as SMTPAuthType)
+          )
+            return fail();
+          break;
+
+        case InfraConfigEnum.MAILER_SMTP_OAUTH2_ACCESS_URL:
+          if (value && !validateUrl(value)) return fail();
           break;
 
         case InfraConfigEnum.MAILER_SMTP_URL:

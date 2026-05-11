@@ -189,7 +189,6 @@ const initAuthCodeOauthFlow = async ({
     return E.left("INVALID_AUTH_ENDPOINT")
   }
 
-  url.searchParams.set("grant_type", "authorization_code")
   url.searchParams.set("client_id", clientID)
   url.searchParams.set("state", state)
   url.searchParams.set("response_type", "code")
@@ -289,18 +288,31 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
     return E.left("AUTH_TOKEN_REQUEST_FAILED" as const)
   }
 
-  const withAccessTokenSchema = z.object({
-    access_token: z.string(),
-    refresh_token: z.string().optional(),
-  })
+  const withAccessTokenSchema = z
+    .object({
+      access_token: z.string().optional(),
+      id_token: z.string().optional(),
+      refresh_token: z.string().optional(),
+    })
+    .refine((data) => data.access_token || data.id_token, {
+      message: "Either access_token or id_token must be present",
+    })
 
   const parsedTokenResponse = withAccessTokenSchema.safeParse(
     responsePayload.right
   )
 
-  return parsedTokenResponse.success
-    ? E.right(parsedTokenResponse.data)
-    : E.left("AUTH_TOKEN_REQUEST_INVALID_RESPONSE" as const)
+  if (!parsedTokenResponse.success) {
+    return E.left("AUTH_TOKEN_REQUEST_INVALID_RESPONSE" as const)
+  }
+
+  return E.right({
+    access_token:
+      parsedTokenResponse.data.access_token ||
+      parsedTokenResponse.data.id_token ||
+      "",
+    refresh_token: parsedTokenResponse.data.refresh_token,
+  })
 }
 
 const generateCodeVerifier = () => {

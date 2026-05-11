@@ -70,6 +70,9 @@ const addNewCollection = () => {
       },
       headers: [],
       variables: [],
+      description: "",
+      preRequestScript: "",
+      testScript: "",
     })
   )
 

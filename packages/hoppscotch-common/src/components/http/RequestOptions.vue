@@ -54,17 +54,16 @@
       :id="'preRequestScript'"
       :label="`${t('tab.pre_request_script')}`"
       :indicator="
-        'preRequestScript' in request &&
-        request.preRequestScript &&
-        request.preRequestScript.length > 0
-          ? true
-          : false
+        ('preRequestScript' in request &&
+          hasActualScript(request.preRequestScript)) ||
+        hasInheritedPreRequestScripts
       "
     >
       <HttpPreRequestScript
         v-if="'preRequestScript' in request"
         v-model="request.preRequestScript"
         :is-active="selectedOptionTab === 'preRequestScript'"
+        :inherited-properties="inheritedProperties"
       />
     </HoppSmartTab>
     <HoppSmartTab
@@ -72,17 +71,15 @@
       :id="'tests'"
       :label="`${t('tab.post_request_script')}`"
       :indicator="
-        'testScript' in request &&
-        request.testScript &&
-        request.testScript.length > 0
-          ? true
-          : false
+        ('testScript' in request && hasActualScript(request.testScript)) ||
+        hasInheritedTestScripts
       "
     >
       <HttpTests
         v-if="'testScript' in request"
         v-model="request.testScript"
         :is-active="selectedOptionTab === 'tests'"
+        :inherited-properties="inheritedProperties"
       />
     </HoppSmartTab>
     <HoppSmartTab
@@ -107,6 +104,7 @@ import { useVModel } from "@vueuse/core"
 import { computed } from "vue"
 
 import { defineActionHandler } from "~/helpers/actions"
+import { hasActualScript } from "~/helpers/scripting"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { AggregateEnvironment } from "~/newstore/environments"
 
@@ -186,6 +184,22 @@ const newActiveRequestVariablesCount = computed(() => {
 
 const isBodyFilled = computed(() => {
   return Boolean(request.value.body.body && request.value.body.body.length > 0)
+})
+
+const hasInheritedPreRequestScripts = computed(() => {
+  return (
+    props.inheritedProperties?.scripts?.some((script) =>
+      hasActualScript(script.preRequestScript)
+    ) ?? false
+  )
+})
+
+const hasInheritedTestScripts = computed(() => {
+  return (
+    props.inheritedProperties?.scripts?.some((script) =>
+      hasActualScript(script.testScript)
+    ) ?? false
+  )
 })
 
 defineActionHandler("request.open-tab", ({ tab }) => {

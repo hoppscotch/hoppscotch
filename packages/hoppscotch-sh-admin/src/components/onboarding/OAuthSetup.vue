@@ -2,7 +2,8 @@
   <div class="space-y-2 flex flex-col my-4">
     <UiAccordion
       v-for="[provider, value] in Object.entries(currentConfigs.oAuthProviders)"
-      :initial-open="enabledConfigs.includes(provider as EnabledConfig)"
+      :key="provider"
+      :initial-open="shouldOpenProvider(provider as OAuthProvider)"
     >
       <template v-slot:header="{ isOpen, toggleAccordion }">
         <div class="flex items-center justify-between flex-1">
@@ -87,6 +88,21 @@ const emit = defineEmits<{
 }>();
 
 const currentConfigs = useVModel(props, 'currentConfigs');
+
+// A provider accordion should auto-expand if it's in enabledConfigs OR if the
+// backend has returned a saved CLIENT_ID for it. Checking CLIENT_ID is a
+// direct, reliable signal independent of enabledConfigs propagation timing —
+// if the backend has data for the provider, it was configured before.
+const shouldOpenProvider = (provider: OAuthProvider): boolean => {
+  if (props.enabledConfigs.includes(provider)) return true;
+  // Each provider's config object has a `${provider}_CLIENT_ID` key, but
+  // TS cannot narrow the union literal here — cast is intentional.
+  const providerConfig = props.currentConfigs.oAuthProviders[provider] as Record<
+    string,
+    string
+  >;
+  return !!providerConfig[`${provider}_CLIENT_ID`];
+};
 
 // check if the key is a callback URL
 const isCallbackUrl = (key: string): boolean => {

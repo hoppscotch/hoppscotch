@@ -1,7 +1,5 @@
-// Lightweight subpath export — string helpers only. Consumers reaching for
-// `combineScriptsWithIIFE` / `hasActualScript` etc. can import from here
-// without pulling in the runner modules' Vite-specific worker imports.
-// Relative path so the emitted `.d.ts` stays portable (no `~/` alias leak).
+// Subpath barrel for string helpers; lets consumers skip the runner-module
+// Vite worker imports. Relative path keeps the emitted `.d.ts` portable.
 export {
   MODULE_PREFIX,
   combineScriptsWithIIFE,

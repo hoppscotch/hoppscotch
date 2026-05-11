@@ -68,7 +68,16 @@ type ExtractedImports = {
   importStatements: string[]
   body: string
   bindings: ImportBinding[]
+  // Set when Acorn rejects the script, so the wrapper surfaces the original
+  // parse error instead of a downstream "import declarations may only appear
+  // at top level" from re-evaluating the unmodified body inside an IIFE.
+  parseError?: string
 }
+
+// Wrapper-declared module-scope names + `globalThis` (which the wrapper
+// reads for the reporter). User imports binding these would duplicate-
+// declare or shadow them post-hoist, so we reject pre-cage.
+const RESERVED_WRAPPER_NAMES = new Set(["__hoppReporter", "globalThis"])
 
 // Top-level node shapes that resolve a module URL and therefore must reach
 // module scope outside the IIFE wrapper: `import` declarations, plus
@@ -102,8 +111,11 @@ const extractTopLevelImports = (script: string): ExtractedImports => {
   let ast: Program
   try {
     ast = Parser.parse(script, PARSE_OPTIONS.experimental)
-  } catch {
-    return empty
+  } catch (err) {
+    return {
+      ...empty,
+      parseError: err instanceof Error ? err.message : String(err),
+    }
   }
 
   const moduleNodes = ast.body.filter(isModuleResolvingDeclaration)
@@ -151,10 +163,15 @@ const wrapLegacyScript = (script: string): string => {
  *   Top-level `import` and `export … from` declarations are hoisted out of
  *   the IIFEs so module resolution (e.g. faraday-cage's esmModuleLoader)
  *   can see them. Identical import statements across scripts are deduped;
- *   same-name imports from different sources surface a friendly
- *   `SyntaxError` pre-cage.
+ *   same-name imports from different sources, parse failures, and bindings
+ *   that collide with wrapper internals all surface a friendly `SyntaxError`
+ *   pre-cage.
  * - `legacy`: sync `(function(){...}).call(this);` lines. Top-level `await`
  *   is rejected at parse time.
+ *
+ * Side-effect imports run at module-evaluation time, before any cascade
+ * body. The body-order guarantee (root → folder → request) does not extend
+ * to top-level effects in imported modules. Value imports are unaffected.
  */
 export const combineScriptsWithIIFE = (
   scripts: string[],
@@ -185,6 +202,8 @@ export const combineScriptsWithIIFE = (
     ...new Set(extracted.flatMap((e) => e.importStatements)),
   ].filter(Boolean)
 
+  const parseError = extracted.find((e) => e.parseError)?.parseError
+
   const sourcesByName = new Map<string, Set<string>>()
   for (const { name, source } of extracted.flatMap((e) => e.bindings)) {
     if (!sourcesByName.has(name)) sourcesByName.set(name, new Set())
@@ -194,37 +213,59 @@ export const combineScriptsWithIIFE = (
     ([, sources]) => sources.size > 1
   )?.[0]
 
-  if (fns.length === 0 && allImports.length === 0) return ""
+  const allBindingNames = new Set(
+    extracted.flatMap((e) => e.bindings.map((b) => b.name))
+  )
+  const reservedConflict = [...RESERVED_WRAPPER_NAMES].find((n) =>
+    allBindingNames.has(n)
+  )
+
+  if (fns.length === 0 && allImports.length === 0 && !parseError) return ""
+
+  // Errors short-circuit before synthesis; reserved-name check sits before
+  // the import-only return so reserved bindings still surface.
+  if (parseError !== undefined) {
+    return synthesizeReporterWrapper(
+      `throw new SyntaxError(${JSON.stringify(`[Hoppscotch] Script failed to parse: ${parseError}`)});`
+    )
+  }
+
+  if (conflictingName !== undefined) {
+    return synthesizeReporterWrapper(
+      `throw new SyntaxError(${JSON.stringify(`[Hoppscotch] '${conflictingName}' is imported from different sources across scripts in this request's chain. Please import it from a single source, or rename one of the imports to resolve the conflict.`)});`
+    )
+  }
+
+  if (reservedConflict !== undefined) {
+    return synthesizeReporterWrapper(
+      `throw new SyntaxError(${JSON.stringify(`[Hoppscotch] '${reservedConflict}' is reserved by Hoppscotch's script wrapper and cannot be used as an import binding. Please rename the import.`)});`
+    )
+  }
+
+  // Import-only cascade: skip the try/catch — no awaited bodies to route
+  // errors from. Module-evaluation errors propagate via faraday-cage.
+  if (fns.length === 0) return allImports.join("\n")
 
   // Wrap the awaited chain in try/catch so top-level throws / rejected
   // awaits reach the host reporter; faraday-cage otherwise swallows
   // async-boundary errors via its keepAlive loop.
   const body = fns.map((fn) => `await (${fn})();`).join("\n")
-  const tryBlock = [
-    "const __hoppReporter = globalThis.__hoppReportScriptExecutionError;",
-    "try {",
-    body,
-    "} catch (__hoppScriptExecutionError) {",
-    "  __hoppReporter(__hoppScriptExecutionError);",
-    "}",
-  ].join("\n")
-
-  if (conflictingName !== undefined) {
-    const escaped = conflictingName.replace(/'/g, "\\'")
-    return [
-      "const __hoppReporter = globalThis.__hoppReportScriptExecutionError;",
-      "try {",
-      `  throw new SyntaxError("[Hoppscotch] '${escaped}' is imported from different sources across scripts in this request's chain. Please import it from a single source, or rename one of the imports to resolve the conflict.");`,
-      "} catch (__hoppScriptExecutionError) {",
-      "  __hoppReporter(__hoppScriptExecutionError);",
-      "}",
-    ].join("\n")
-  }
+  const tryBlock = synthesizeReporterWrapper(body)
 
   if (allImports.length === 0) return tryBlock
 
   return [allImports.join("\n"), tryBlock].join("\n")
 }
+
+const synthesizeReporterWrapper = (bodyLines: string): string =>
+  [
+    "const __hoppReporter = globalThis.__hoppReportScriptExecutionError;",
+    "try {",
+    bodyLines,
+    "} catch (__hoppScriptExecutionError) {",
+    "  __hoppReporter(__hoppScriptExecutionError);",
+    "}",
+  ].join("\n")
 
 // Monaco prepends "export {};\n" to empty scripts — strip before checking.
 export const hasActualScript = (script: string | undefined | null): boolean => {

@@ -146,6 +146,87 @@ describe("script ESM imports — pre-request scripts", () => {
     }
   })
 
+  test("parse failure surfaces the original Acorn message, not a misleading wrapper error", async () => {
+    // Pre-fix: wrapper would re-evaluate the raw script inside an IIFE
+    // and surface a misleading "import declarations may only appear at
+    // top level" error instead of the actual syntax error.
+    const script = combineScriptsWithIIFE([
+      `import { foo } from "data:text/javascript,export const foo = 1";\nconst x = ;`,
+    ])
+
+    const result = await runPreRequest(script, envs)()
+
+    expect(result).toBeLeft()
+    if (E.isLeft(result)) {
+      expect(result.left).toMatch(/\[Hoppscotch\] Script failed to parse/)
+      expect(result.left).not.toMatch(
+        /import declarations may only appear at top level/
+      )
+    }
+  })
+
+  test("import-only cascade emits clean output without an empty try/catch", () => {
+    // Import-only cascade: no awaited bodies → no try/catch needed.
+    const script = combineScriptsWithIIFE([
+      `import "data:text/javascript,globalThis.__a = 1";`,
+      `import "data:text/javascript,globalThis.__b = 2";`,
+    ])
+
+    expect(script).not.toContain("try {")
+    expect(script).not.toContain("__hoppReporter")
+    expect(script).toContain('import "data:text/javascript,globalThis.__a = 1"')
+    expect(script).toContain('import "data:text/javascript,globalThis.__b = 2"')
+  })
+
+  test("import-only cascade with cross-source clash still surfaces the friendly conflict error", async () => {
+    // The import-only short-circuit must not bypass conflict detection.
+    const script = combineScriptsWithIIFE([
+      `import dup from "data:text/javascript,export default 1";`,
+      `import dup from "data:text/javascript,export default 2";`,
+    ])
+
+    const result = await runPreRequest(script, envs)()
+
+    expect(result).toBeLeft()
+    if (E.isLeft(result)) {
+      expect(result.left).toMatch(
+        /'dup' is imported from different sources across scripts in this request's chain/
+      )
+    }
+  })
+
+  test("user import binding to a wrapper-reserved name surfaces a friendly error", async () => {
+    const script = combineScriptsWithIIFE([
+      `import __hoppReporter from "data:text/javascript,export default {}";\npw.env.set("SHOULD_NOT_RUN", "yes");`,
+    ])
+
+    const result = await runPreRequest(script, envs)()
+
+    expect(result).toBeLeft()
+    if (E.isLeft(result)) {
+      expect(result.left).toMatch(
+        /'__hoppReporter' is reserved by Hoppscotch's script wrapper/
+      )
+    }
+  })
+
+  test("user import binding 'globalThis' is also reserved", async () => {
+    // Wrapper reads `globalThis.__hoppReportScriptExecutionError`; a user
+    // import shadowing `globalThis` would silently break error reporting.
+    const script = combineScriptsWithIIFE([
+      `import globalThis from "data:text/javascript,export default {}";`,
+    ])
+
+    const result = await runPreRequest(script, envs)()
+
+    expect(result).toBeLeft()
+    if (E.isLeft(result)) {
+      expect(result.left).toMatch(
+        /'globalThis' is reserved by Hoppscotch's script wrapper/
+      )
+    }
+  })
+
   test("named re-export-from declarations are hoisted alongside imports", async () => {
     const script = combineScriptsWithIIFE([
       `export { value } from "data:text/javascript,export const value = 're-export-ok'";\nimport { value as v } from "data:text/javascript,export const value = 're-export-ok'";\npw.env.set("RE_EXPORT", v);`,

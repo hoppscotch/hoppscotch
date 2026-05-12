@@ -78,6 +78,8 @@ export const authCookieHandler = (
     // if it is not redirect by default to App
     redirectUrl = configService.get('VITE_BASE_URL');
 
+  console.log({ whitelistedOrigins, redirectUrl });
+
   return res.status(HttpStatus.OK).redirect(redirectUrl);
 };
 

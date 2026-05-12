@@ -84,7 +84,7 @@
         </h4>
 
         <div class="mt-4">
-          <p class="text-secondaryDark">
+          <p class="text-secondaryLight">
             {{ t("settings.desktop_keyboard_strategy_label") }}
           </p>
           <p class="mt-1 text-xs text-secondaryLight">

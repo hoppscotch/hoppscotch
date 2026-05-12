@@ -537,7 +537,7 @@ const { cursor } = useCodemirror(
           const urlMatch = line.text.match(/https?:\/\/[^\s"]+/)
 
           if (urlMatch) {
-            window.open(urlMatch[0], "_blank")
+            window.open(urlMatch[0], "_blank", "noopener,noreferrer")
           }
 
           return false

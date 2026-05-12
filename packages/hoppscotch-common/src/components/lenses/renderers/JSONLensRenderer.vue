@@ -294,6 +294,7 @@ import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { HoppRESTRequestResponse } from "@hoppscotch/data"
 import { useScrollerRef } from "~/composables/useScrollerRef"
+import { EditorView } from "@codemirror/view"
 
 const t = useI18n()
 
@@ -522,6 +523,27 @@ const { cursor } = useCodemirror(
       readOnly: !props.isEditable,
       lineWrapping: WRAP_LINES,
     },
+    additionalExts: [
+      EditorView.domEventHandlers({
+        click(event, view) {
+          const pos = view.posAtCoords({
+            x: event.clientX,
+            y: event.clientY,
+          })
+
+          if (pos === null) return false
+
+          const line = view.state.doc.lineAt(pos)
+          const urlMatch = line.text.match(/https?:\/\/[^\s"]+/)
+
+          if (urlMatch) {
+            window.open(urlMatch[0], "_blank")
+          }
+
+          return false
+        },
+      }),
+    ],
     linter: null,
     completer: null,
     environmentHighlights: true,

@@ -297,3 +297,6 @@ This project owes its existence to the collective efforts of all those who contr
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT) — see the [`LICENSE`](LICENSE) file for details.
 
 [^EE]: Enterprise edition feature. [Learn more](https://docs.hoppscotch.io/documentation/self-host/getting-started).
+
+
+<!-- Formatting update -->

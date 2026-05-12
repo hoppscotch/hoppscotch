@@ -117,6 +117,12 @@ export class AuthController {
   async googleAuthRedirect(@Request() req, @Res() res) {
     const authTokens = await this.authService.generateAuthTokens(req.user.uid);
     if (E.isLeft(authTokens)) throwHTTPErr(authTokens.left);
+
+    console.log(
+      'req.authInfo.state.redirect_uri',
+      req.authInfo.state.redirect_uri,
+    );
+
     authCookieHandler(
       res,
       authTokens.right,

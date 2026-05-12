@@ -29,6 +29,8 @@ export class GoogleSSOGuard extends AuthGuard('google') implements CanActivate {
 
   getAuthenticateOptions(context: ExecutionContext) {
     const req = context.switchToHttp().getRequest();
+    console.log('req.query.redirect_uri', req.query.redirect_uri);
+    
 
     return {
       state: {

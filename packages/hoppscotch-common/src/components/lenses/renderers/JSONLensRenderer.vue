@@ -538,6 +538,7 @@ const { cursor } = useCodemirror(
 
           if (urlMatch) {
             window.open(urlMatch[0], "_blank", "noopener,noreferrer")
+            return true
           }
 
           return false

@@ -102,9 +102,6 @@ const environmentType = ref<EnvironmentsChooseType>({
   selectedTeam: undefined,
 })
 
-// Initialize with a structurally complete empty wrapper so every consumer
-// of `globalEnv` (and the `globalEnvironment` computed below) sees a valid
-// `variables` array unconditionally — `{}` would lie about the type.
 const globalEnv = useReadonlyStream(globalEnv$, {
   v: 2,
   variables: [],

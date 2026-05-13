@@ -383,8 +383,6 @@ const removeCollection = async () => {
     tab.value.document.isDirty = true
   }
 
-  // Cascade-flush local stores for the removed collection and its
-  // descendants. Symmetric to the REST path in `collections/index.vue`.
   flushLocalStoresForCollectionTree(props.collection)
 
   removeGraphqlCollection(props.collectionIndex, props.collection.id)

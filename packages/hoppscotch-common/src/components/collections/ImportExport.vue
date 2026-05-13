@@ -130,11 +130,6 @@ const importToPersonalWorkspace = (collections: HoppCollection[]) => {
     .map(sanitizeCollection)
     .map(ensureRefIds)
 
-  // Persist any user-supplied secret + currentValue inputs to the local stores
-  // BEFORE the wire strip runs (whether via the platform sync path or directly
-  // via `appendRESTCollections` for logged-out / no-sync workspaces). Without
-  // this, a logged-out import that the user later syncs on login would lose
-  // the secrets when the sync layer strips them on the wire.
   sanitizedCollections.forEach(populateLocalStoresFromCollectionTree)
 
   if (
@@ -148,10 +143,6 @@ const importToPersonalWorkspace = (collections: HoppCollection[]) => {
     )
   }
 
-  // Logged-out / no-platform-sync path: strip raw secret values from the
-  // tree before appending — newstore + localStorage stay clean, the local
-  // secret + currentValue stores (populated above) hold the raw values
-  // keyed by the same `_ref_id`s for UI rehydrate.
   appendRESTCollections(sanitizedCollections.map(stripCollectionTreeForStore))
   return E.right({ success: true })
 }
@@ -849,10 +840,6 @@ const getCollectionJSON = async () => {
   }
 
   if (props.collectionsType.type === "my-collections") {
-    // Strip secret variable values before stringify — this output is sent
-    // to GitHub gists (third-party storage). Raw secrets must not leave
-    // the device through the export channel. Local secret stores retain
-    // values keyed by `_ref_id` so the user's own session is unaffected.
     const stripped = myCollections.value.map(stripCollectionTreeForStore)
     return E.right(JSON.stringify(stripped, null, 2))
   }

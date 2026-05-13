@@ -238,11 +238,6 @@ const showImportFailedError = () => {
 }
 
 const handleImportToStore = (gqlCollections: HoppCollection[]) => {
-  // Stamp every node with a stable `_ref_id` and persist any user-supplied
-  // secret + currentValue inputs to the local stores BEFORE the wire strip
-  // runs. Same rationale as the REST import: a logged-out import that the
-  // user later syncs on login would otherwise lose secrets when the sync
-  // layer strips them on the wire.
   const collectionsWithRefIds = gqlCollections.map(ensureRefIds)
   collectionsWithRefIds.forEach(populateLocalStoresFromCollectionTree)
 
@@ -256,10 +251,6 @@ const handleImportToStore = (gqlCollections: HoppCollection[]) => {
     )
   }
 
-  // Logged-out / no-platform-sync path: strip raw secret values from the
-  // tree before appending — newstore + localStorage stay clean, the local
-  // secret + currentValue stores (populated above) hold the raw values
-  // keyed by the same `_ref_id`s for UI rehydrate.
   appendGraphqlCollections(
     collectionsWithRefIds.map(stripCollectionTreeForStore)
   )

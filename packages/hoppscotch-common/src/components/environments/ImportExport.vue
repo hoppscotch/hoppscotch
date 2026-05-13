@@ -371,26 +371,9 @@ const handleImportToStore = async (
   environments: Environment[],
   globalEnvs: Environment[] = []
 ) => {
-  // Per-env pre-populate is intentionally NOT done here for every env.
-  // It happens inside the MY_ENV branch below, where the temp UUID assigned
-  // at import time has a defined remap path via `updateSecretEnvironmentID`
-  // / `updateEnvironmentID` in the sync handler once the backend create
-  // resolves. The TEAMS branch goes through `importToTeams`, which
-  // populates per-env with the real backend ID returned from
-  // `createTeamEnvironment` — pre-populating under the throwaway temp
-  // UUID would orphan a map entry that nothing later reaps.
-
-  // Globals all share the single `"Global"` key in the local stores, so we
-  // must MERGE the imported entries with whatever's already there. A naive
-  // `populateLocalStoresFromVariables("Global", ...)` per base env would
-  // (a) wipe pre-existing entries on each call (Map.set replace), and
-  // (b) misalign `varIndex` against the newstore when more than one base
-  // env is imported (only the last call's indices would match).
-  //
-  // Hydrate the existing globals from the local stores (where the raw
-  // secret + currentValue values live), concat the imported tail, then
-  // call the helper once on the full array — its index-based replace then
-  // matches the newstore order exactly.
+  // Per-env populate happens inside MY_ENV / TEAMS branches below, each
+  // keyed appropriately. Globals share the single `"Global"` key and must
+  // merge with existing entries — hydrate, concat, populate once.
   if (globalEnvs.length > 0) {
     const importedGlobals = globalEnvs.flatMap(({ variables }) => variables)
 
@@ -423,9 +406,7 @@ const handleImportToStore = async (
       ...importedGlobals,
     ])
 
-    // Append the stripped imported globals to the newstore. Order matches
-    // the hydrated existing entries above so the local-store `varIndex`
-    // aligns with the newstore array position.
+    // Append stripped imports; varIndex aligns with the hydrated entries.
     stripSecretVariableValuesForWire(importedGlobals).forEach(
       ({ key, initialValue, currentValue, secret }) => {
         addGlobalEnvVariable({ key, initialValue, currentValue, secret })
@@ -434,12 +415,9 @@ const handleImportToStore = async (
   }
 
   if (props.environmentType === "MY_ENV") {
-    // Stamp a temp id onto envs that arrive without one (locally-created,
-    // never-synced envs export with `id: ""`). `populateLocalStoresFromVariables`
-    // early-returns on empty entityId, so without this every secret would
-    // silently drop. The same id flows into `strippedEnvironments` so the
-    // sync handler's `tempId = environments[envId].id` capture finds the
-    // local-store entry and remaps it to the real backend id.
+    // Stamp a temp id when missing — `populateLocalStoresFromVariables`
+    // early-returns on empty. The id flows into `strippedEnvironments`
+    // so the sync handler can remap it to the real backend id.
     const envsWithIds = environments.map((env) => ({
       ...env,
       id: env.id || generateUniqueRefId("env"),
@@ -449,9 +427,6 @@ const handleImportToStore = async (
       populateLocalStoresFromVariables(env.id, env.variables)
     })
 
-    // Strip wire payload before adding to newstore so raw secret values
-    // never sit in newstore / localStorage where a later subscription or
-    // sync could persist them. UI re-hydrates from the local stores above.
     const strippedEnvironments = envsWithIds.map((env) => ({
       ...env,
       variables: stripSecretVariableValuesForWire(env.variables),
@@ -480,11 +455,8 @@ const importToTeams = async (content: Environment[]) => {
 
   const res = await Promise.all(envImportPromises)
 
-  // Persist the imported secret + currentValue inputs to the local stores,
-  // re-keyed to each new backend env ID. Pairs with the wire-strip above:
-  // the team's DB row stays clean while this device retains the values the
-  // user just imported. Non-conforming clients elsewhere on the team see
-  // empty values, matching the per-user-per-device security model.
+  // Populate local stores keyed by the new backend env ID — this device
+  // retains the raw values; the team DB row stays clean.
   res.forEach((entry, index) => {
     if (E.isRight(entry)) {
       populateLocalStoresFromVariables(

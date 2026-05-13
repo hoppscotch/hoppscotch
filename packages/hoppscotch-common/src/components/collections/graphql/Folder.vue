@@ -346,8 +346,6 @@ const removeFolder = async () => {
     tab.value.document.isDirty = true
   }
 
-  // Cascade-flush local stores for the removed folder and its descendants.
-  // Symmetric to the REST path in `collections/index.vue`.
   flushLocalStoresForCollectionTree(props.folder)
 
   removeGraphqlFolder(props.folderPath, props.folder.id)

@@ -29,13 +29,8 @@ const getEnvironmentJSON = (
 }
 
 // Apply necessary transformations prior to environment exports.
-//
 // Strips `initialValue` for `secret: true` variables AND clears
-// `currentValue` for all variables. Matches the wire-strip convention
-// used at every backend mutation boundary — the exported JSON is a
-// shareable file (downloaded, committed, gisted) and must not carry
-// plaintext secrets. Users must re-enter secrets on each device per the
-// "secrets never leave the source device" security posture.
+// `currentValue` for all variables.
 export const transformEnvironmentVariables = ({
   id,
   v,

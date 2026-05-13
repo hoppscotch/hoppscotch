@@ -121,15 +121,9 @@ async function loadGlobalEnvironments() {
     if (globalEnv) {
       const parsed = JSON.parse(globalEnv.variables)
 
-      // Try parsing as-is first — handles legitimate v0 bare arrays
-      // (`{key, value, secret?}` items, which verzod migrates to v2) and
-      // v1+/v2 wrappers cleanly.
+      // Parse ladder: wrapper → wrap-bare-array → empty wrapper.
       let result = entityReference(GlobalEnvironment).safeParse(parsed)
 
-      // Fallback: a bare array with the v2 variable shape
-      // (`{key, initialValue, currentValue, secret}`) is a remnant from
-      // the broken intermediate state where `setGlobalVariables` wrote the
-      // bare array instead of the wrapper. Wrap and reparse.
       if (!result.success && Array.isArray(parsed)) {
         result = entityReference(GlobalEnvironment).safeParse({
           v: 2,
@@ -138,11 +132,6 @@ async function loadGlobalEnvironments() {
       }
 
       runDispatchWithOutSyncing(() => {
-        // Final fallback: both parses failed, meaning the stored shape is
-        // unrecognized. Surface an empty v2 envelope rather than wrap a
-        // raw array of unknown items — pushing items that don't conform to
-        // the v2 variable schema lets `undefined` initialValue/currentValue
-        // leak into downstream `.variables.map` consumers.
         setGlobalEnvVariables(
           result.success ? result.data : { v: 2, variables: [] }
         )

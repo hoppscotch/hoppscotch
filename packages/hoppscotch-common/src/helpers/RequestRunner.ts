@@ -135,16 +135,9 @@ export const captureInitialEnvironmentState = (): InitialEnvironmentState => {
   // Capture the initial environment name
   const initialEnvName = getCurrentEnvironment().name
 
-  // Capture the initial script environment state (the environment passed to scripts).
-  //
-  // INVARIANT: `getCombinedEnvVariables()` hydrates secret variables from
-  // `SecretEnvironmentService` into their resolved values, and the sandbox
-  // receives the same fully-resolved values. Both sides of the post-script
-  // `hasScopeChanges` comparison therefore use the same representation —
-  // a script that merely *reads* a secret variable doesn't appear changed.
-  // If a future change desyncs these two sources (e.g. comparing stripped
-  // vs hydrated values), `hasScopeChanges` would emit false positives and
-  // trigger spurious `updateUserEnvironment` writes.
+  // Snapshot for the post-script diff. Both this and the sandbox receive
+  // secret-hydrated values from `getCombinedEnvVariables`, so reading a
+  // secret doesn't show up as a change in `hasScopeChanges`.
   const initialEnvs = getCombinedEnvVariables()
   const initialEnvsForComparison: TestResult["envs"] = {
     global: initialEnvs.global,
@@ -770,10 +763,6 @@ function updateEnvsAfterTestScript(
       const envName = initialEnvName ?? getCurrentEnvironment().name
       pipe(
         updateTeamEnvironment(
-          // Strip at the wire boundary — `selectedEnvVariables` already
-          // comes back stripped from `updateEnvironments` above, but
-          // every other team-env mutation in this codebase strips here
-          // too. Keeps the wire-boundary contract uniform.
           JSON.stringify(
             stripSecretVariableValuesForWire(selectedEnvVariables)
           ),

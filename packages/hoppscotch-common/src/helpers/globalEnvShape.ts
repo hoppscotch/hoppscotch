@@ -4,25 +4,11 @@ import {
 } from "@hoppscotch/data"
 
 /**
- * Coerce any incoming value to a valid latest-version `GlobalEnvironment`
- * wrapper (`{ v: GLOBAL_ENV_LATEST_VERSION, variables: [...] }`).
- *
- * Three shapes can reach the store dispatcher in the wild:
- *   - the wrapper itself (current FE schema)
- *   - a bare variables array (older backends, or schema drift between
- *     instances on a self-hosted deployment)
- *   - a malformed / nullish value (corrupt persistence, race, future bug)
- *
- * Backend changes can't be guaranteed across self-hosted instances, so
- * the FE must absorb all three. This helper keeps that coercion pure
- * and unit-testable, separate from the dispatcher's side effects.
- *
- * Version handling: when the input has a recognized current `v` we pass
- * the wrapper through unchanged so downstream identity checks
- * (`distinctUntilChanged`) stay stable. When `v` is missing, wrong, or
- * non-numeric we rebuild with the latest version — schema migration
- * across versions is verzod's responsibility on the load path, not
- * this dispatcher boundary.
+ * Coerce any value to a valid latest-version `GlobalEnvironment` wrapper.
+ * Accepts the wrapper itself, a bare variables array (legacy/older
+ * backends), or malformed input. Passes the wrapper through identity-
+ * preserving when `v` already matches; schema migration is verzod's job
+ * on the load path, not this dispatcher boundary.
  */
 export const coerceGlobalEnvironment = (
   entries: unknown

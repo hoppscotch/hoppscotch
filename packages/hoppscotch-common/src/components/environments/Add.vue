@@ -206,11 +206,6 @@ const addEnvironment = async () => {
 
     await pipe(
       updateTeamEnvironment(
-        // Strip at the wire boundary — `newVariables` is built from the
-        // existing in-memory team env (already stripped on load) plus a
-        // freshly-added non-secret entry, but the strip here makes the
-        // wire-boundary safety independent of how `newVariables` is
-        // constructed upstream.
         JSON.stringify(stripSecretVariableValuesForWire(newVariables)),
         scope.value.environment.id,
         scope.value.environment.environment.name

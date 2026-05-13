@@ -121,10 +121,8 @@ const getHoppCollVariables = (
         variable.key.length > 0
     ),
     A.map((variable) => {
-      // Postman 12+ flags secret variables via a top-level `secret: true`
-      // boolean while keeping `type` as `"default"`. Older exports used
-      // `type: "secret"`. Honor both — the postman-collection SDK doesn't
-      // surface the new flag in its types, so read it off the raw object.
+      // Postman 12+ uses `secret: true`; older exports use `type: "secret"`.
+      // The SDK's types don't surface the new flag, so read it off raw.
       const isSecret =
         variable.type === "secret" ||
         (variable as { secret?: boolean }).secret === true

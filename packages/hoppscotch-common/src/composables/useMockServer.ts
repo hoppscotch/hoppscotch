@@ -282,10 +282,6 @@ export function useMockServer() {
 
         await pipe(
           updateTeamEnvironment(
-            // Strip at the wire boundary — `normalizedVariables` carries
-            // through whatever the team env already had plus a non-secret
-            // mockUrl override; defense-in-depth protects against any
-            // upstream change that could let a raw secret slip through.
             JSON.stringify(
               stripSecretVariableValuesForWire(normalizedVariables)
             ),
@@ -331,10 +327,6 @@ export function useMockServer() {
 
         await pipe(
           createTeamEnvironment(
-            // Strip at the wire boundary — `variables` is a hardcoded
-            // single non-secret entry today, but every other call to
-            // `createTeamEnvironment` strips here, so this stays
-            // uniform with the rest of the codebase.
             JSON.stringify(stripSecretVariableValuesForWire(variables)),
             teamID,
             envName

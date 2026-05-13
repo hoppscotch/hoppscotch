@@ -274,6 +274,8 @@ export const teamCollToHoppRESTColl = (
           headers: [],
           variables: [],
           description: null,
+          preRequestScript: "",
+          testScript: "",
         }
 
   const {
@@ -324,7 +326,6 @@ export const getTeamCollectionJSON = async (teamID: string) => {
     return E.left(t("error.no_collections_to_export"))
   }
 
-  // Strip secret variable values before stringify.
   const hoppCollections = collections
     .map(teamCollectionJSONToHoppRESTColl)
     .map(stripCollectionTreeForStore)
@@ -382,8 +383,6 @@ export const getSingleTeamCollectionJSON = async (
     return E.left(errorMsg)
   }
 
-  // Strip secret variable values before stringify — same reasoning as
-  // `getTeamCollectionJSON` above. The exported JSON is user-shareable.
   return E.right(
     JSON.stringify(stripCollectionTreeForStore(result.right), null, 2)
   )

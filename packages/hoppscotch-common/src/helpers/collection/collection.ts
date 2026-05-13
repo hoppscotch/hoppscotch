@@ -312,8 +312,6 @@ export function transformCollectionForImport(
     auth: collection.auth,
     headers: collection.headers,
     variables: stripSecretVariableValuesForWire(collection.variables ?? []),
-    // Preserve `_ref_id` through the backend round-trip so the local
-    // secret store key survives reload — see `CollectionDataProps`.
     _ref_id: collection._ref_id,
     description: collection.description,
     preRequestScript: collection.preRequestScript ?? "",

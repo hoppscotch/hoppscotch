@@ -310,11 +310,8 @@ const dispatchers = defineDispatchers({
     }
   },
   setGlobalVariables(_, { entries }: { entries: GlobalEnvironment }) {
-    // Defensive normalization at the wire-into-store boundary. TS
-    // dispatchers are erased to `any` at runtime, and a malformed value
-    // from a backend schema change, persistence-layer corruption, or a
-    // future caller would otherwise corrupt `state.globals` and crash
-    // every consumer of `globalEnv.variables.map(...)` downstream.
+    // Coerce at the wire-into-store boundary — TS dispatchers are erased
+    // at runtime; a malformed value would corrupt `state.globals`.
     return {
       globals: coerceGlobalEnvironment(entries),
     }
@@ -583,11 +580,8 @@ export function getAggregateEnvsWithCurrentValue() {
             currentEnv.id,
             index
           ) ?? currentValue,
-        // For stripped secret vars `x.initialValue` is `""` (non-nullish),
-        // so `x.initialValue ?? initialValue` would pin the empty string
-        // and bypass the secret-store hydration above. The local
-        // `initialValue` already encodes both branches: secret-store value
-        // for secrets, raw `x.initialValue` for non-secrets.
+        // Use the local resolved value — `x.initialValue ?? initialValue`
+        // would pin `""` for stripped secrets and skip the store hydration.
         initialValue,
         secret: x.secret,
         sourceEnv: currentEnv.name,
@@ -668,9 +662,7 @@ export const aggregateEnvsWithCurrentValue$: Observable<
               selectedEnv.id,
               index
             ) ?? currentValue,
-          // See note on `aggregateEnvs$` above — `x.initialValue` is `""`
-          // for stripped secrets so `??` would discard the secret-store
-          // hydration. The local `initialValue` is already correct.
+          // Use the local resolved value — see note on `aggregateEnvs$`.
           initialValue,
           secret: x.secret,
           sourceEnv: selectedEnv.name,

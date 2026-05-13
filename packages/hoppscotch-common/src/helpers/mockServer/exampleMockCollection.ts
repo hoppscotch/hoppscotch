@@ -256,9 +256,6 @@ export async function createMockCollectionForTeam(
 export async function createMockCollectionForPersonal(
   collectionName: string
 ): Promise<E.Either<string, { id: string; name: string }>> {
-  // Prepare collection data. Stamp a `_ref_id` so the collection has a
-  // stable client-side key once round-tripped through the backend `data`
-  // blob — matches every other personal-collection writer in the codebase.
   const data = {
     auth: {
       authType: "inherit" as const,

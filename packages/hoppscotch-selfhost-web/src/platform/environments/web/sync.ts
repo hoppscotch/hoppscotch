@@ -67,12 +67,8 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       const envId = ++appendStart
 
       ;(async function () {
-        // Snapshot the temp local id BEFORE the backend create overwrites
-        // it. The local secret + currentValue stores were already populated
-        // under this temp id at import time (`handleImportToStore`), so we
-        // remap rather than re-populate — the sync handler's `env.variables`
-        // is already stripped (newstore was pre-stripped at import time)
-        // and would otherwise overwrite the raw values with empty ones.
+        // Capture temp id before backend overwrites it — local stores were
+        // populated under this id at import time; we remap, not re-populate.
         const tempId = environmentsStore.value.environments[envId].id
 
         const res = await createUserEnvironment(
@@ -113,10 +109,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
         const id = res.right.createUserEnvironment.id
         environmentsStore.value.environments[lastCreatedEnvIndex].id = id
 
-        // Secret variable values are intentionally NOT copied to the
-        // duplicated environment — duplicates start fresh on secrets per the
-        // per-entity secret model. The user must re-enter them on this device.
-
+        // Duplicates start fresh on secrets per the per-entity model.
         removeDuplicateEntry(id)
       }
     }
@@ -124,12 +117,6 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   updateEnvironment({ envIndex, updatedEnv }) {
     const backendId = environmentsStore.value.environments[envIndex].id
     if (backendId) {
-      // Strip at the wire boundary defensively — `Details.vue` and the
-      // `RequestRunner` post-test path already pre-strip before
-      // dispatching, but every other handler in this file (`create`,
-      // `append`, `duplicate`, `setGlobal`) strips here as the last
-      // line of defense, so a future caller that forgets to pre-strip
-      // can't leak secret values to the backend through this path.
       updateUserEnvironment(
         backendId,
         updatedEnv.name,
@@ -147,23 +134,14 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   setGlobalVariables({ entries }) {
     const backendId = getGlobalVariableID()
     if (backendId) {
-      // Send the full `GlobalEnvironment` wrapper (`{ v, variables }`)
-      // on the wire, not a bare array. Pre-this-PR clients stored globals
-      // as the wrapper and their load path expects it back; sending a
-      // bare array here would cause those older clients to fall through
-      // verzod's parse, dump the raw array into `globals`, and crash on
-      // downstream `globalEnv.variables.map`. We can't guarantee
-      // synchronous client upgrades on a self-hosted deployment, so the
-      // wire shape stays compatible with both old and new readers.
+      // Send the `{ v, variables }` wrapper, not a bare array — older
+      // clients expect the wrapper and crash on `globalEnv.variables.map`
+      // otherwise. SH deployments can't be guaranteed in-sync, so the
+      // wire shape stays compatible with both.
       const variables = entries?.variables
       if (!Array.isArray(variables)) {
-        // Guard against a schema mismatch reaching this write path —
-        // do NOT silently send `[]`. The dispatcher's
-        // `coerceGlobalEnvironment` should have already normalised this,
-        // but if a future schema migration or upstream regression
-        // delivers a malformed `entries`, sending an empty wrapper here
-        // would clear the user's globals on the backend irreversibly.
-        // Bail and surface the unexpected shape instead.
+        // Bail on malformed input — an empty wrapper would clear globals
+        // on the backend irreversibly.
         console.error(
           "[setGlobalVariables] unexpected variables shape, skipping sync",
           entries
@@ -187,10 +165,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       clearGlobalEnvironmentVariables(backendId)
     }
 
-    // Flush local stores keyed to "Global" — without this, a later
-    // `addGlobalEnvVariable` would land at `varIndex 0` against a stale
-    // entry from the previously-cleared variable and the UI would show
-    // the prior secret value in a fresh field.
+    // Flush "Global" entries so a later add doesn't alias stale `varIndex`.
     secretEnvironmentService.addSecretEnvironment("Global", [])
     currentEnvironmentValueService.addEnvironment("Global", [])
   },

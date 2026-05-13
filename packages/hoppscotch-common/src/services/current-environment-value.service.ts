@@ -124,15 +124,8 @@ export class CurrentValueService extends Service {
   }
 
   /**
-   * Used to update the ID of a environment.
-   * Used while syncing with the server.
-   * @param oldID old ID of the environment
-   * @param newID new ID of the environment
-   *
-   * Skip the `set` when there's nothing to migrate — otherwise an empty
-   * array would be written under `newID` and silently clobber any entry
-   * a prior operation already keyed there. The `delete(oldID)` still
-   * runs unconditionally to clean up regardless.
+   * Migrate entries from `oldID` to `newID`. Skips the `set` when nothing
+   * exists under `oldID` so a no-op migrate doesn't clobber `newID`.
    */
   public updateEnvironmentID(oldID: string, newID: string) {
     const vars = this.getEnvironment(oldID)

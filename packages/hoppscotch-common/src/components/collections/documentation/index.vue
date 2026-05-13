@@ -736,13 +736,7 @@ const saveCollectionDocumentation = async () => {
     const data: CollectionDataProps = {
       auth: collection.auth || { authType: "inherit", authActive: true },
       headers: collection.headers || [],
-      // Strip secrets at the wire boundary — `collection.variables` here
-      // is read off the in-memory team collection, which is normally
-      // already stripped (loaded from backend), but defense-in-depth
-      // guarantees we never leak raw secret values through this path.
       variables: stripSecretVariableValuesForWire(collection.variables || []),
-      // Preserve `_ref_id` through the backend round-trip so the local
-      // secret store key survives reload — see `CollectionDataProps`.
       _ref_id: collection._ref_id,
       description: documentationDescription.value,
       preRequestScript: collection.preRequestScript || "",
@@ -839,13 +833,9 @@ const saveCollectionDocumentationById = async (
       const data: CollectionDataProps = {
         auth: collectionData.auth || { authType: "inherit", authActive: true },
         headers: collectionData.headers || [],
-        // Strip at the wire boundary — same defense-in-depth rationale
-        // as the `saveCollectionDocumentation` path above.
         variables: stripSecretVariableValuesForWire(
           collectionData.variables || []
         ),
-        // Preserve `_ref_id` through the backend round-trip so the local
-        // secret store key survives reload — see `CollectionDataProps`.
         _ref_id: collectionData._ref_id,
         description: documentation,
         preRequestScript: collectionData.preRequestScript || "",

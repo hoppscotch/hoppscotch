@@ -691,9 +691,6 @@ onMounted(() => {
 const envSelectorActions = ref<TippyComponent | null>(null)
 const envQuickPeekActions = ref<TippyComponent | null>(null)
 
-// Initialize with a structurally complete empty wrapper, not `{}`. Casting
-// `{}` to `GlobalEnvironment` would lie about presence of `variables` and
-// crash any downstream `.map` access before the stream emits.
 const globalVals = useReadonlyStream(globalEnv$, {
   v: 2,
   variables: [],

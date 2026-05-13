@@ -1996,9 +1996,6 @@ const onRemoveCollection = async () => {
     toast.success(t("state.deleted"))
     displayConfirmModal(false)
 
-    // Cascade-flush local stores for the removed collection and ALL its
-    // descendant folders. A single-level delete would orphan child-folder
-    // entries keyed by their own `_ref_id`s.
     if (collectionToRemove) {
       flushLocalStoresForCollectionTree(collectionToRemove)
     }
@@ -2018,12 +2015,7 @@ const onRemoveCollection = async () => {
     removeTeamCollectionOrFolder(collectionID).then(() => {
       resetTeamRequestsContext()
 
-      // Single-level flush is sufficient here: team collection IDs are
-      // globally-unique backend UUIDs, so descendant entries that survive
-      // a parent delete won't be re-aliased by a future entity. They do
-      // accumulate as a slow leak; a cascade walk would need the team
-      // subtree snapshotted before delete, which `team-collection.service`
-      // doesn't expose today. Worth a follow-up; not a security gap.
+      // Single-level flush — team UUIDs are globally unique, no aliasing.
       if (collectionID) {
         secretEnvironmentService.deleteSecretEnvironment(collectionID)
         currentEnvironmentValueService.deleteEnvironment(collectionID)
@@ -2077,10 +2069,6 @@ const onRemoveFolder = async () => {
     toast.success(t("state.deleted"))
     displayConfirmModal(false)
 
-    // Cascade-flush local stores for the removed folder and ALL its
-    // descendant folders. The personal-workspace local store is keyed by
-    // `_ref_id`, so a single-level flush by `folderToRemove.id` would
-    // both miss descendants and likely use the wrong key.
     if (folderToRemove) {
       flushLocalStoresForCollectionTree(folderToRemove)
     }
@@ -2100,8 +2088,6 @@ const onRemoveFolder = async () => {
     removeTeamCollectionOrFolder(collectionID).then(() => {
       resetTeamRequestsContext()
 
-      // Single-level flush — see note in `onRemoveCollection` for why
-      // descendants aren't cascaded for team workspaces today.
       if (collectionID) {
         secretEnvironmentService.deleteSecretEnvironment(collectionID)
         currentEnvironmentValueService.deleteEnvironment(collectionID)
@@ -3454,11 +3440,6 @@ const setCollectionProperties = (newCollection: {
       nonSecretVariables
     )
 
-    // Strip values that must not leave the client: secret variables get
-    // both `initialValue` and `currentValue` cleared (the secrets are
-    // already saved into `secretEnvironmentService` above), and non-secret
-    // variables keep their `initialValue` but have `currentValue` cleared
-    // because `currentValue` is per-user/per-session state.
     collection.variables = stripSecretVariableValuesForWire(filteredVariables)
   }
 
@@ -3480,15 +3461,7 @@ const setCollectionProperties = (newCollection: {
         authActive: true,
       },
       headers: collection.headers ?? [],
-      // `collection.variables` is set by the strip a few lines up when
-      // `collection.variables` was non-empty, but the early-return for
-      // the empty case bypasses that — strip again here defensively so
-      // every wire-boundary call to `updateTeamCollection` is uniformly
-      // safe.
       variables: stripSecretVariableValuesForWire(collection.variables ?? []),
-      // Round-trip `_ref_id` through the backend `data` blob so the local
-      // secret store key stays stable across reloads — same rationale as
-      // the personal-collection writers in `platform/collections/.../sync.ts`.
       _ref_id: collection._ref_id,
       description: collection.description ?? null,
       preRequestScript: collection.preRequestScript ?? "",

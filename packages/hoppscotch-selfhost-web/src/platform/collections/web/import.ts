@@ -62,9 +62,7 @@ export const importToPersonalWorkspace = async (
 
       return E.right({ success: true })
     }
-    // Backend import failed — strip before appending so raw secrets don't
-    // sit in newstore. Raw values remain in the local secret stores keyed
-    // by `_ref_id`.
+    // Backend failed — raw values still live in local stores by `_ref_id`.
     return appendCollectionsToStore(
       collectionsWithRefIds.map(stripCollectionTreeForStore),
       reqType

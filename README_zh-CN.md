@@ -63,7 +63,7 @@ _我们强烈建议您查阅 [**Hoppscotch 文档**](https://docs.hoppscotch.io)
 - `CONNECT` - 建立到由目标资源标识的服务器的隧道
 - `OPTIONS` - 描述目标资源的通信选项
 - `TRACE` - 沿着通往目标资源的路径执行消息回环测试
-- `<自定义>` - 一些 API 使用自定义请求方法，如 `LIST`。输入您的自定义方法。
+- `<custom>` - 一些 API 使用自定义请求方法，如 `LIST`。输入您的自定义方法。
 
 🌈 **主题：** 可自定义的背景、前景和强调色组合 — [立即自定义](https://hoppscotch.io/settings)。
 

@@ -58,6 +58,17 @@ export const importToPersonalWorkspace = async (
       // populate already ran upstream; missing ref-ids are skipped.
       const originalsByRefId = new Map<string, HoppCollection>()
       indexCollectionsByRefId(collectionsWithRefIds, originalsByRefId)
+
+      // Warn once per import if any loaded root lacks `_ref_id` — likely a
+      // backend that dropped `data._ref_id` from the blob round-trip.
+      // Secret values for those nodes silently won't surface after reload.
+      if (loaded.some((c) => !c._ref_id)) {
+        console.warn(
+          "[importToPersonalWorkspace] loaded collection(s) missing `_ref_id`; " +
+            "imported secret values may not persist across reload"
+        )
+      }
+
       loaded.forEach((loadedColl) => {
         repopulateLoadedCollectionTree(loadedColl, originalsByRefId)
       })

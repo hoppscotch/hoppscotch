@@ -134,14 +134,12 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   setGlobalVariables({ entries }) {
     const backendId = getGlobalVariableID()
     if (backendId) {
-      // Send the `{ v, variables }` wrapper, not a bare array — older
-      // clients expect the wrapper and crash on `globalEnv.variables.map`
-      // otherwise. SH deployments can't be guaranteed in-sync, so the
-      // wire shape stays compatible with both.
+      // Bail on malformed input — syncing the dispatcher-coerced `[]`
+      // would clear backend globals irreversibly. Leaving FE/BE desynced
+      // is recoverable (reload re-hydrates from backend), data loss is
+      // not. The dispatcher's coerce only protects FE state.
       const variables = entries?.variables
       if (!Array.isArray(variables)) {
-        // Bail on malformed input — an empty wrapper would clear globals
-        // on the backend irreversibly.
         console.error(
           "[setGlobalVariables] unexpected variables shape, skipping sync"
         )

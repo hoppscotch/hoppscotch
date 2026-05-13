@@ -172,15 +172,16 @@ describe("populateLocalStoresFromVariables", () => {
     ])
   })
 
-  it("does NOT fall back to initialValue for secrets (security posture)", () => {
-    // Stripped secret payloads have both fields empty, but a JSON export
-    // can carry `initialValue` even when `currentValue` is empty. We
-    // intentionally do NOT recover the secret value from `initialValue`
-    // for `secret: true` entries — secrets must be re-entered per device.
+  it("falls back to initialValue for secrets when currentValue is empty", () => {
+    // A JSON export preserves the secret's `initialValue` (export blanks
+    // only `currentValue`). On re-import the live `value` falls back to
+    // `initialValue` so the secret surfaces in the UI without manual
+    // re-entry. Both fields are empty for a fully-stripped wire payload,
+    // so this fallback is safe for legitimate stripped paths too.
     populateLocalStoresFromVariables(ENTITY_ID, [
       {
         key: "token",
-        initialValue: "leaked-from-export",
+        initialValue: "exported-secret",
         currentValue: "",
         secret: true,
       },
@@ -189,8 +190,8 @@ describe("populateLocalStoresFromVariables", () => {
     expect(secretService.getSecretEnvironment(ENTITY_ID)).toEqual([
       {
         key: "token",
-        value: "",
-        initialValue: "leaked-from-export",
+        value: "exported-secret",
+        initialValue: "exported-secret",
         varIndex: 0,
       },
     ])

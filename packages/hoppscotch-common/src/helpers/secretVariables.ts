@@ -47,7 +47,12 @@ export const populateLocalStoresFromVariables = (
       ? [
           {
             key: v.key,
-            value: v.currentValue ?? "",
+            // Fall back to `initialValue` when `currentValue` is empty —
+            // a fresh JSON-import carries the secret in `initialValue`
+            // with `currentValue` blanked by the wire/export strip.
+            // Without the fallback the UI would render blank immediately
+            // after import even though the value was in the file.
+            value: v.currentValue || v.initialValue || "",
             initialValue: v.initialValue ?? "",
             varIndex: index,
           },

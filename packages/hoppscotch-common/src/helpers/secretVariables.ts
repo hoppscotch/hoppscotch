@@ -60,9 +60,10 @@ export const populateLocalStoresFromVariables = (
       ? [
           {
             key: v.key,
-            // Fall back to `initialValue` — Hoppscotch's own JSON export
-            // blanks `currentValue` on every variable. Secrets stay strict.
-            currentValue: v.currentValue || v.initialValue || "",
+            // Fall back to `initialValue` ONLY when `currentValue` is
+            // absent — `""` is a meaningful "user cleared this" value
+            // and must be preserved.
+            currentValue: v.currentValue ?? v.initialValue ?? "",
             varIndex: index,
             isSecret: false as const,
           },

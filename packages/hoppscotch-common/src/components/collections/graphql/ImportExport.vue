@@ -196,10 +196,8 @@ const GqlCollectionsGistExporter: ImporterOrExporter = {
     const accessToken = currentUser.value?.accessToken
 
     if (accessToken) {
-      const res = await gistExporter(
-        JSON.stringify(gqlCollections.value),
-        accessToken
-      )
+      const stripped = gqlCollections.value.map(stripCollectionTreeForStore)
+      const res = await gistExporter(JSON.stringify(stripped), accessToken)
 
       if (E.isLeft(res)) {
         toast.error(t("export.failed"))

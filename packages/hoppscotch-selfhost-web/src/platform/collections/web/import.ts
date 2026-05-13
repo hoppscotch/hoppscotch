@@ -24,8 +24,10 @@ import { runDispatchWithOutSyncing } from "@app/lib/sync"
 /**
  * Platform-specific import for selfhost-web. Caller (`components/collections/
  * ImportExport.vue`) must have run `ensureRefIds` + `populateLocalStoresFromCollectionTree`
- * upstream — we re-stamp ref-ids defensively but do NOT re-populate (raw values
- * aren't on the variables array by the time the strip runs).
+ * upstream — we re-stamp ref-ids defensively. We never populate from the
+ * stripped wire payload (raw values are gone by then), but on backend
+ * success we re-seed local stores from the original (pre-strip) tree
+ * paired to the loaded tree by `_ref_id` via `repopulateLoadedCollectionTree`.
  */
 export const importToPersonalWorkspace = async (
   collections: HoppCollection[],

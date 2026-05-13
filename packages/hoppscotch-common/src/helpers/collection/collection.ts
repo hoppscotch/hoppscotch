@@ -312,7 +312,6 @@ export function transformCollectionForImport(
     auth: collection.auth,
     headers: collection.headers,
     variables: stripSecretVariableValuesForWire(collection.variables ?? []),
-    _ref_id: collection._ref_id,
     description: collection.description,
     preRequestScript: collection.preRequestScript ?? "",
     testScript: collection.testScript ?? "",

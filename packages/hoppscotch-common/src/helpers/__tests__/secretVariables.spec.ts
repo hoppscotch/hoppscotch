@@ -127,16 +127,37 @@ describe("populateLocalStoresFromVariables", () => {
     ])
   })
 
-  it("falls back to initialValue when non-secret currentValue is empty (re-import of own JSON export)", () => {
-    // Hoppscotch's env JSON export blanks `currentValue` for ALL variables.
-    // On re-import, a non-secret variable's currentValue should fall back
-    // to the persisted `initialValue` so the user's runtime UI doesn't
-    // show blank fields after re-importing their own export.
+  it("preserves an explicit empty currentValue for non-secrets", () => {
+    // `""` is a meaningful "user cleared this" value — must NOT fall
+    // through to `initialValue`. Only nullish (missing) currentValue
+    // triggers the fallback.
     populateLocalStoresFromVariables(ENTITY_ID, [
       {
         key: "host",
         initialValue: "https://api.example.com",
         currentValue: "",
+        secret: false,
+      },
+    ])
+
+    expect(currentValueService.getEnvironment(ENTITY_ID)).toEqual([
+      {
+        key: "host",
+        currentValue: "",
+        varIndex: 0,
+        isSecret: false,
+      },
+    ])
+  })
+
+  it("falls back to initialValue when non-secret currentValue is absent", () => {
+    // Missing (undefined) currentValue — not an explicit clear — falls
+    // through to `initialValue`.
+    populateLocalStoresFromVariables(ENTITY_ID, [
+      {
+        key: "host",
+        initialValue: "https://api.example.com",
+        currentValue: undefined as unknown as string,
         secret: false,
       },
     ])

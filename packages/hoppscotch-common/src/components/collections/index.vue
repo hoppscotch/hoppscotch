@@ -401,6 +401,7 @@ import { SortOptions } from "~/helpers/backend/graphql"
 import { CurrentSortValuesService } from "~/services/current-sort.service"
 import {
   flushLocalStoresForCollectionTree,
+  stripCollectionTreeForStore,
   stripSecretVariableValuesForWire,
 } from "~/helpers/secretVariables"
 
@@ -3140,7 +3141,11 @@ const initializeDownloadCollection = async (
  */
 const exportData = async (collection: HoppCollection | TeamCollection) => {
   if (collectionsType.value.type === "my-collections") {
-    const collectionJSON = JSON.stringify(collection, stripRefIdReplacer, 2)
+    const collectionJSON = JSON.stringify(
+      stripCollectionTreeForStore(collection as HoppCollection),
+      stripRefIdReplacer,
+      2
+    )
 
     // Strip `export {};\n` from `testScript` and `preRequestScript` fields
     const cleanedCollectionJSON =
@@ -3164,7 +3169,7 @@ const exportData = async (collection: HoppCollection | TeamCollection) => {
         async (coll) => {
           const hoppColl = teamCollToHoppRESTColl(coll)
           const collectionJSONString = JSON.stringify(
-            hoppColl,
+            stripCollectionTreeForStore(hoppColl),
             stripRefIdReplacer,
             2
           )
@@ -3461,8 +3466,7 @@ const setCollectionProperties = (newCollection: {
         authActive: true,
       },
       headers: collection.headers ?? [],
-      variables: stripSecretVariableValuesForWire(collection.variables ?? []),
-      _ref_id: collection._ref_id,
+      variables: collection.variables ?? [],
       description: collection.description ?? null,
       preRequestScript: collection.preRequestScript ?? "",
       testScript: collection.testScript ?? "",

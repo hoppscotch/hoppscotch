@@ -737,7 +737,6 @@ const saveCollectionDocumentation = async () => {
       auth: collection.auth || { authType: "inherit", authActive: true },
       headers: collection.headers || [],
       variables: stripSecretVariableValuesForWire(collection.variables || []),
-      _ref_id: collection._ref_id,
       description: documentationDescription.value,
       preRequestScript: collection.preRequestScript || "",
       testScript: collection.testScript || "",
@@ -836,7 +835,6 @@ const saveCollectionDocumentationById = async (
         variables: stripSecretVariableValuesForWire(
           collectionData.variables || []
         ),
-        _ref_id: collectionData._ref_id,
         description: documentation,
         preRequestScript: collectionData.preRequestScript || "",
         testScript: collectionData.testScript || "",

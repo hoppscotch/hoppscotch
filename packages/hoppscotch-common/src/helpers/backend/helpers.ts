@@ -43,10 +43,8 @@ export type CollectionDataProps = {
   description: string | null
   preRequestScript: string
   testScript: string
-  // Stable client-side ref for local secret/currentValue stores. Lives
-  // inside `data` so it survives the backend round-trip — the wire's
-  // top-level `_ref_id` is dropped, only `data._ref_id` is echoed back.
-  // Optional because legacy / non-synced rows may not carry one.
+  // Personal-collection writers only: stable local-store key,
+  // round-tripped via `data._ref_id`. Team paths don't use it.
   _ref_id?: string
 }
 
@@ -384,6 +382,10 @@ export const getSingleTeamCollectionJSON = async (
   }
 
   return E.right(
-    JSON.stringify(stripCollectionTreeForStore(result.right), null, 2)
+    JSON.stringify(
+      stripCollectionTreeForStore(result.right),
+      stripRefIdReplacer,
+      2
+    )
   )
 }

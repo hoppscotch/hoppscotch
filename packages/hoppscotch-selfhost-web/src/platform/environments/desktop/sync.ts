@@ -145,8 +145,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
         // Bail on malformed input — an empty wrapper would clear globals
         // on the backend irreversibly.
         console.error(
-          "[setGlobalVariables] unexpected variables shape, skipping sync",
-          entries
+          "[setGlobalVariables] unexpected variables shape, skipping sync"
         )
         return
       }

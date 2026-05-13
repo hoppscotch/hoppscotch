@@ -526,6 +526,7 @@ const { cursor } = useCodemirror(
     additionalExts: [
       EditorView.domEventHandlers({
         click(event, view) {
+         if (props.isEditable) return false
           const pos = view.posAtCoords({
             x: event.clientX,
             y: event.clientY,

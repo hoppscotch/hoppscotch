@@ -32,6 +32,22 @@ export const stripSecretVariableValuesForWire = <
  *
  * IMPORTANT: pass RAW (pre-strip) inputs. A stripped variable has empty
  * `initialValue` / `currentValue` and will persist as blank.
+ *
+ * ─── `??` vs `||` — read before "fixing" this ───
+ * Both branches below use `??` so an explicit `""` is preserved. This is
+ * the correct semantic for the REHYDRATION path (`""` means "user
+ * deliberately cleared" — must not be resurrected from `initialValue`).
+ *
+ * For the IMPORT path, `""` means "stripped on wire" and the real value
+ * lives in `initialValue`. That gap is bridged at the import-site
+ * boundary by `promoteInitialValueForImport` (called from
+ * `populateLocalStoresFromCollectionTree`, `repopulateLoadedCollectionTree`,
+ * and the env-import callers in `environments/ImportExport.vue`).
+ *
+ * Do not switch these to `||` — that re-introduces the rehydration
+ * regression for both secrets and non-secrets. If a new import path
+ * silently stores blanks, the fix is to route it through
+ * `promoteInitialValueForImport` upstream, not to change this function.
  */
 export const populateLocalStoresFromVariables = (
   entityId: string,
@@ -47,14 +63,6 @@ export const populateLocalStoresFromVariables = (
       ? [
           {
             key: v.key,
-            // `??` (not `||`) so an explicit `""` is preserved across
-            // both calling contexts: in rehydration it means "user
-            // deliberately cleared"; in import it means "importer didn't
-            // supply a value." Fallback to `initialValue` only fires for
-            // nullish `currentValue` (legacy `hoppEnv` shape).
-            // Postman/Insomnia collection imports promote
-            // `initialValue` → `currentValue` upstream via
-            // `promoteSecretInitialValueForImport`.
             value: v.currentValue ?? v.initialValue ?? "",
             initialValue: v.initialValue ?? "",
             varIndex: index,
@@ -68,9 +76,6 @@ export const populateLocalStoresFromVariables = (
       ? [
           {
             key: v.key,
-            // Fall back to `initialValue` ONLY when `currentValue` is
-            // absent — `""` is a meaningful "user cleared this" value
-            // and must be preserved.
             currentValue: v.currentValue ?? v.initialValue ?? "",
             varIndex: index,
             isSecret: false as const,
@@ -84,19 +89,22 @@ export const populateLocalStoresFromVariables = (
 }
 
 /**
- * Foreign-import convention normalizer: `postman.ts`,
- * `insomnia/insomniaColl.ts`, and legacy Hoppscotch env exports put the
- * secret in `initialValue` with `currentValue: ""` (so the wire payload
- * stays clean). Promote so the secret service stores the imported value.
+ * Foreign-import convention normalizer for BOTH secret and non-secret
+ * variables. The wire strip blanks `currentValue` for everything and (for
+ * secrets) `initialValue`; non-secret `initialValue` is preserved. So a
+ * Hoppscotch / Postman / Insomnia exported file lands with
+ * `currentValue: ""` and (for non-secrets) `initialValue: "value"`. Promote
+ * so the local stores see the imported value.
+ *
  * The global-env rehydration path bypasses this step intentionally — there
  * `""` means "user deliberately cleared," not "value lives in initialValue."
  * Idempotent — promoted entries are unchanged on a second pass.
  */
-export const promoteSecretInitialValueForImport = (
+export const promoteInitialValueForImport = (
   variables: readonly SecretCapableVariable[]
 ): SecretCapableVariable[] =>
   variables.map((v) =>
-    v.secret && !v.currentValue && v.initialValue
+    !v.currentValue && v.initialValue
       ? { ...v, currentValue: v.initialValue }
       : v
   )
@@ -107,7 +115,7 @@ export const populateLocalStoresFromCollectionTree = (
   if (collection._ref_id) {
     populateLocalStoresFromVariables(
       collection._ref_id,
-      promoteSecretInitialValueForImport(collection.variables ?? [])
+      promoteInitialValueForImport(collection.variables ?? [])
     )
   } else {
     // All current callers run `ensureRefIds` upstream so this should be
@@ -166,7 +174,7 @@ export const repopulateLoadedCollectionTree = (
       // still carries the secret in `initialValue` with `currentValue: ""`.
       populateLocalStoresFromVariables(
         loaded._ref_id,
-        promoteSecretInitialValueForImport(original.variables ?? [])
+        promoteInitialValueForImport(original.variables ?? [])
       )
     }
   }

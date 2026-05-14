@@ -54,7 +54,6 @@ import {
 } from "~/services/secret-environment.service"
 import { HoppTab } from "~/services/tab"
 import { updateTeamEnvironment } from "./backend/mutations/TeamEnvironment"
-import { stripSecretVariableValuesForWire } from "./secretVariables"
 import { createRESTNetworkRequestStream } from "./network"
 import { HoppRequestDocument } from "./rest/document"
 import {
@@ -761,11 +760,10 @@ function updateEnvsAfterTestScript(
       // Use the initial environment name to avoid issues when environment changes during request execution
       // adding a fallback to current environment name just in case so it's not null
       const envName = initialEnvName ?? getCurrentEnvironment().name
+      // `updateEnvironments` above already returns wire-shaped variables
       pipe(
         updateTeamEnvironment(
-          JSON.stringify(
-            stripSecretVariableValuesForWire(selectedEnvVariables)
-          ),
+          JSON.stringify(selectedEnvVariables),
           initialEnvironmentIndex.teamEnvID,
           envName
         )

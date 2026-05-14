@@ -12,7 +12,7 @@
 import { Environment, generateUniqueRefId } from "@hoppscotch/data"
 import {
   populateLocalStoresFromVariables,
-  promoteSecretInitialValueForImport,
+  promoteInitialValueForImport,
   stripSecretVariableValuesForWire,
 } from "~/helpers/secretVariables"
 import * as E from "fp-ts/Either"
@@ -414,7 +414,7 @@ const handleImportToStore = async (
     // cleared per the rehydration semantic.
     populateLocalStoresFromVariables("Global", [
       ...existingHydrated,
-      ...promoteSecretInitialValueForImport(importedGlobals),
+      ...promoteInitialValueForImport(importedGlobals),
     ])
 
     // Append stripped imports; varIndex aligns with the hydrated entries.
@@ -440,7 +440,7 @@ const handleImportToStore = async (
     envsWithIds.forEach((env) => {
       populateLocalStoresFromVariables(
         env.id,
-        promoteSecretInitialValueForImport(env.variables)
+        promoteInitialValueForImport(env.variables)
       )
     })
 
@@ -478,7 +478,7 @@ const importToTeams = async (content: Environment[]) => {
     if (E.isRight(entry)) {
       populateLocalStoresFromVariables(
         entry.right.createTeamEnvironment.id,
-        promoteSecretInitialValueForImport(content[index].variables)
+        promoteInitialValueForImport(content[index].variables)
       )
     }
   })

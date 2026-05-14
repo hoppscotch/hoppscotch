@@ -53,7 +53,7 @@ import {
   translateToNewEnvironmentVariables,
 } from "@hoppscotch/data"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
-import { hasActualScript } from "~/helpers/scripting"
+import { hasActualScript } from "@hoppscotch/js-sandbox/scripting"
 import {
   PublishedDocREST,
   PublishedDocsVersion,

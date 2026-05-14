@@ -27,7 +27,10 @@ import { map } from "fp-ts/Either"
 import { runPreRequestScript, runTestScript } from "@hoppscotch/js-sandbox/web"
 import { useSetting } from "~/composables/settings"
 import { getService } from "~/modules/dioc"
-import { combineScriptsWithIIFE, hasActualScript } from "~/helpers/scripting"
+import {
+  combineScriptsWithIIFE,
+  hasActualScript,
+} from "@hoppscotch/js-sandbox/scripting"
 import { createHoppFetchHook } from "~/helpers/hopp-fetch"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import {

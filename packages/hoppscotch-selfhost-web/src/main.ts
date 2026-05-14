@@ -2,6 +2,9 @@ import { nextTick, ref, watch } from "vue"
 import { emit, listen } from "@tauri-apps/api/event"
 import { createHoppApp } from "@hoppscotch/common"
 import { useSettingStatic } from "@hoppscotch/common/composables/settings"
+import { useDesktopSettings } from "@hoppscotch/common/composables/desktop-settings"
+import { resolvePressedKey } from "@hoppscotch/common/helpers/keybindings"
+import { getKeyboardLayoutStrategy } from "@hoppscotch/common/helpers/keyboard-strategy"
 import { getKernelMode } from "@hoppscotch/kernel"
 
 import { def as stdBackendDef } from "@hoppscotch/common/platform/std/backend"
@@ -78,6 +81,15 @@ const headerPaddingLeft = ref("0px")
 const headerPaddingTop = ref("0px")
 
 function setupDesktopUI() {
+  // Hydrate the keyboard-layout-strategy holder at desktop bootstrap.
+  // The composable's first call triggers loadInitial, which reads the
+  // persisted strategy from tauri-plugin-store and writes it into the
+  // shared holder. Without this call the holder stays at its module-
+  // level default ("hybrid") until Desktop.vue mounts, so a persisted
+  // "key" or "code" choice would be dormant on every restart until the
+  // user opened the settings page.
+  useDesktopSettings()
+
   headerPaddingTop.value = "0px"
   headerPaddingLeft.value = "80px"
 
@@ -282,130 +294,72 @@ async function initApp() {
           return
         }
 
+        // Skip during IME composition (CJK input). Modern browsers report
+        // `isComposing`. Older ones use the sentinel `keyCode === 229`.
+        if (e.isComposing || e.keyCode === 229) return
+
+        // Skip when AltGr is the modifier. Browsers report AltGr as
+        // Ctrl+Alt on Windows, so QWERTZ users typing `[` via AltGr+8
+        // would otherwise match Ctrl+Alt+[ and get hijacked into the
+        // MRU tab shortcut. `getModifierState("AltGraph")` is true only
+        // for AltGr, not for genuine Ctrl+Alt.
+        if (e.getModifierState("AltGraph")) return
+
         const isCtrlOrCmd = e.ctrlKey || e.metaKey
+        if (!isCtrlOrCmd) return
+
+        // Resolve the pressed key through the active layout strategy so
+        // AZERTY's "A" keycap (physical KeyQ position) fires Ctrl+A,
+        // not Ctrl+Q. The in-page handler uses the same resolver, so
+        // routing the capture phase through it keeps both paths
+        // consistent and lets the user's strategy choice take effect
+        // everywhere, including for the desktop-shell shortcuts the
+        // capture phase pre-empts.
+        const key = resolvePressedKey(e, getKeyboardLayoutStrategy())
+        if (!key) return
+
         let shortcutEvent: string | null = null
 
-        if (isCtrlOrCmd && !e.shiftKey && !e.altKey && e.code === "KeyQ") {
+        if (!e.shiftKey && !e.altKey && key === "q") {
           // Ctrl/Cmd + Q - Quit Application
-          e.preventDefault()
-          e.stopPropagation()
-          e.stopImmediatePropagation()
           shortcutEvent = "ctrl-q"
-        } else if (
-          isCtrlOrCmd &&
-          !e.shiftKey &&
-          !e.altKey &&
-          e.code === "KeyT"
-        ) {
+        } else if (!e.shiftKey && !e.altKey && key === "t") {
           // Ctrl/Cmd + T - New Tab
-          e.preventDefault()
-          e.stopPropagation()
-          e.stopImmediatePropagation()
           shortcutEvent = "ctrl-t"
-        } else if (
-          isCtrlOrCmd &&
-          !e.shiftKey &&
-          !e.altKey &&
-          e.code === "KeyW"
-        ) {
+        } else if (!e.shiftKey && !e.altKey && key === "w") {
           // Ctrl/Cmd + W - Close Tab
-          e.preventDefault()
-          e.stopPropagation()
-          e.stopImmediatePropagation()
           shortcutEvent = "ctrl-w"
-        } else if (
-          isCtrlOrCmd &&
-          e.shiftKey &&
-          !e.altKey &&
-          e.code === "KeyT"
-        ) {
+        } else if (e.shiftKey && !e.altKey && key === "t") {
           // Ctrl/Cmd + Shift + T - Reopen Tab
-          e.preventDefault()
-          e.stopPropagation()
-          e.stopImmediatePropagation()
           shortcutEvent = "ctrl-shift-t"
-        } else if (
-          isCtrlOrCmd &&
-          !e.shiftKey &&
-          e.altKey &&
-          e.key === "ArrowRight"
-        ) {
+        } else if (!e.shiftKey && e.altKey && key === "right") {
           // Ctrl/Cmd + Alt + Right - Next Tab
-          e.preventDefault()
-          e.stopPropagation()
-          e.stopImmediatePropagation()
           shortcutEvent = "ctrl-alt-right"
-        } else if (
-          isCtrlOrCmd &&
-          !e.shiftKey &&
-          e.altKey &&
-          e.key === "ArrowLeft"
-        ) {
+        } else if (!e.shiftKey && e.altKey && key === "left") {
           // Ctrl/Cmd + Alt + Left - Previous Tab
-          e.preventDefault()
-          e.stopPropagation()
-          e.stopImmediatePropagation()
           shortcutEvent = "ctrl-alt-left"
-        } else if (
-          isCtrlOrCmd &&
-          !e.shiftKey &&
-          e.altKey &&
-          (e.code === "Digit9" ||
-            (e.code === "Numpad9" && e.getModifierState("NumLock")))
-        ) {
+        } else if (!e.shiftKey && e.altKey && key === "9") {
           // Ctrl/Cmd + Alt + 9 - First Tab
-          e.preventDefault()
-          e.stopPropagation()
-          e.stopImmediatePropagation()
           shortcutEvent = "ctrl-alt-9"
-        } else if (
-          isCtrlOrCmd &&
-          !e.shiftKey &&
-          e.altKey &&
-          (e.code === "Digit0" ||
-            (e.code === "Numpad0" && e.getModifierState("NumLock")))
-        ) {
+        } else if (!e.shiftKey && e.altKey && key === "0") {
           // Ctrl/Cmd + Alt + 0 - Last Tab
-          e.preventDefault()
-          e.stopPropagation()
-          e.stopImmediatePropagation()
           shortcutEvent = "ctrl-alt-0"
-        } else if (
-          isCtrlOrCmd &&
-          !e.shiftKey &&
-          e.altKey &&
-          e.code === "KeyU"
-        ) {
+        } else if (!e.shiftKey && e.altKey && key === "u") {
           // Ctrl/Cmd + Alt + U - Focus URL Bar
-          e.preventDefault()
-          e.stopPropagation()
-          e.stopImmediatePropagation()
           shortcutEvent = "ctrl-alt-u"
-        } else if (
-          isCtrlOrCmd &&
-          !e.shiftKey &&
-          e.altKey &&
-          e.code === "BracketRight"
-        ) {
+        } else if (!e.shiftKey && e.altKey && key === "]") {
           // Ctrl/Cmd + Alt + ] - MRU Tab Switch
-          e.preventDefault()
-          e.stopPropagation()
-          e.stopImmediatePropagation()
           shortcutEvent = "ctrl-alt-]"
-        } else if (
-          isCtrlOrCmd &&
-          !e.shiftKey &&
-          e.altKey &&
-          e.code === "BracketLeft"
-        ) {
+        } else if (!e.shiftKey && e.altKey && key === "[") {
           // Ctrl/Cmd + Alt + [ - MRU Tab Switch (Reverse)
-          e.preventDefault()
-          e.stopPropagation()
-          e.stopImmediatePropagation()
           shortcutEvent = "ctrl-alt-["
         }
 
         if (shortcutEvent) {
+          e.preventDefault()
+          e.stopPropagation()
+          e.stopImmediatePropagation()
+
           setTimeout(() => {
             emit("hoppscotch_desktop_shortcut", shortcutEvent).catch(
               (error) => {

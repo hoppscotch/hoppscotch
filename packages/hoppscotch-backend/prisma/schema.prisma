@@ -155,6 +155,7 @@ model UserHistory {
   reqType          ReqType
   request          Json
   responseMetadata Json
+  responseHeaders  Json?
   isStarred        Boolean
   executedOn       DateTime @default(now()) @db.Timestamptz(3)
   user             User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)

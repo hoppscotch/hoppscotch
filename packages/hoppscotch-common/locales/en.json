@@ -672,7 +672,9 @@
   "error": {
     "network": {
       "heading": "Network Error",
-      "description": "Network connection failed. {message}: {cause}"
+      "description": "Network connection failed. {message}: {cause}",
+      "cors_heading": "CORS Error",
+      "cors_description": "Cross-Origin Resource Sharing error: Check your CORS configuration or use the proxy."
     },
     "timeout": {
       "heading": "Timeout Error",

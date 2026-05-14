@@ -302,6 +302,34 @@ const stripModulePrefixForDisplay = (value?: string): string | undefined => {
  */
 const MAX_CONTEXT_MENU_CHAR_COUNT = 100_000
 
+const duplicateLineOrSelection = (target: EditorView) => {
+  const { state } = target
+  const changes = state.changeByRange((range) => {
+    if (range.empty) {
+      const line = state.doc.lineAt(range.head)
+      return {
+        changes: { from: line.from, insert: line.text + state.lineBreak },
+        range: EditorSelection.cursor(
+          range.head + line.text.length + state.lineBreak.length
+        ),
+      }
+    } else {
+      const text = state.sliceDoc(range.from, range.to)
+      return {
+        changes: { from: range.to, insert: text },
+        range: EditorSelection.range(range.to, range.to + text.length),
+      }
+    }
+  })
+
+  target.dispatch({
+    ...changes,
+    scrollIntoView: true,
+    userEvent: "input.duplicate",
+  })
+  return true
+}
+
 export function useCodemirror(
   el: Ref<any | null>,
   value: Ref<string | undefined>,
@@ -502,6 +530,12 @@ export function useCodemirror(
           key: "Shift-Tab",
           preventDefault: true,
           run: indentLess,
+        },
+        {
+          key: "Ctrl-d",
+          mac: "Cmd-d",
+          preventDefault: true,
+          run: duplicateLineOrSelection,
         },
       ]),
       Prec.highest(

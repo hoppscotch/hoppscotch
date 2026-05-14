@@ -15,6 +15,7 @@ import {
   knownContentTypes,
   makeRESTRequest,
   HoppCollection,
+  HoppCollectionVariable,
   makeCollection,
   HoppRESTRequestVariable,
   HoppRESTRequest,
@@ -999,7 +1000,59 @@ const parseOpenAPIAuth = (
     ? parseOpenAPIV3Auth(doc as OpenAPIV3.Document | OpenAPIV31.Document, op)
     : parseOpenAPIV2Auth(doc as OpenAPIV2.Document, op)
 
-const parseOpenAPIUrl = (
+/**
+ * Extracts server variables from an OpenAPI document and returns them as
+ * collection variables with their default values.
+ *
+ * For OpenAPI V3: parses `servers[0].variables` and creates a variable for each entry.
+ * For OpenAPI V2: creates `baseUrl` variable from `host` + `basePath` if present.
+ */
+export const extractServerVariables = (
+  doc: OpenAPI.Document | OpenAPIV2.Document | OpenAPIV3.Document
+): HoppCollectionVariable[] => {
+  if (objectHasProperty(doc, "swagger")) {
+    const v2Doc = doc as OpenAPIV2.Document
+    const host = v2Doc.host?.trim()
+    const basePath = (v2Doc.basePath?.trim() ?? "").replace(/\/$/, "")
+    const scheme = v2Doc.schemes?.[0] ?? "https"
+
+    if (host) {
+      const value = `${scheme}://${host}${basePath}`
+      return [
+        {
+          key: "baseUrl",
+          initialValue: value,
+          currentValue: value,
+          secret: false,
+        },
+      ]
+    }
+    return []
+  }
+
+  if (objectHasProperty(doc, "servers")) {
+    const v3Doc = doc as OpenAPIV3.Document | OpenAPIV31.Document
+    const server = v3Doc.servers?.[0]
+    if (!server?.url || server.url === "./") return []
+
+    const variables = server.variables
+    if (!variables || Object.keys(variables).length === 0) return []
+
+    return Object.entries(variables)
+      .filter(([key]) => server.url.includes(`{${key}}`))
+      .map(([key, variable]) => ({
+        key,
+        initialValue: String(variable.default ?? ""),
+        currentValue: String(variable.default ?? ""),
+        secret: false,
+      }))
+  }
+
+  return []
+}
+
+/** @internal Exported for testing only */
+export const parseOpenAPIUrl = (
   doc: OpenAPI.Document | OpenAPIV2.Document | OpenAPIV3.Document
 ): string => {
   /**
@@ -1007,13 +1060,16 @@ const parseOpenAPIUrl = (
    * And host and basePath are in the document's host and basePath properties.
    * Relevant v2 reference: https://swagger.io/specification/v2/#:~:text=to%20be%20obscured.-,Schema,-Swagger%20Object
    **/
-
   if (objectHasProperty(doc, "swagger")) {
-    // TODO: dynamically add doc.host, doc.basePath value as variables in the environment if available. or notify user to add it.
-    // add base url variable to each request
-    const host = doc.host?.trim() || "<<baseUrl>>"
-    const basePath = doc.basePath?.trim() || ""
-    return `${host}${basePath}`
+    const v2Doc = doc as OpenAPIV2.Document
+    const hasHost = !!v2Doc.host?.trim()
+    const basePath = (v2Doc.basePath?.trim() ?? "").replace(/\/$/, "")
+
+    // When host is present, <<baseUrl>> resolves via collection variable from
+    // extractServerVariables (which includes scheme + host + basePath).
+    // When host is absent, <<baseUrl>> is a user-defined placeholder and
+    // basePath is appended directly.
+    return hasHost ? "<<baseUrl>>" : `<<baseUrl>>${basePath}`
   }
 
   /**
@@ -1022,9 +1078,11 @@ const parseOpenAPIUrl = (
    * Relevant v3 reference: https://swagger.io/specification/#server-object
    **/
   if (objectHasProperty(doc, "servers")) {
-    // TODO: dynamically add server URL value as variable in the environment if available, or notify user to add it.
     const serverUrl = doc.servers?.[0]?.url
-    return !serverUrl || serverUrl === "./" ? "<<baseUrl>>" : serverUrl
+    if (!serverUrl || serverUrl === "./") return "<<baseUrl>>"
+
+    // Replace server variable placeholders {varName} with Hoppscotch variable syntax <<varName>>
+    return replaceOpenApiPathTemplating(serverUrl)
   }
 
   // If the document is neither v2 nor v3 or missing required fields
@@ -1175,6 +1233,10 @@ const convertOpenApiDocsToHopp = (
       }
     })
 
+    // serverVariables are set only at root level; sub-folders inherit them
+    // through Hoppscotch's collection-variable inheritance mechanism
+    const serverVariables = extractServerVariables(doc)
+
     return makeCollection({
       name,
       folders: Object.entries(requestsByTags).map(([name, paths]) =>
@@ -1193,7 +1255,7 @@ const convertOpenApiDocsToHopp = (
       requests: requestsWithoutTags,
       auth: { authType: "inherit", authActive: true },
       headers: [],
-      variables: [],
+      variables: serverVariables,
       description,
       preRequestScript: "",
       testScript: "",

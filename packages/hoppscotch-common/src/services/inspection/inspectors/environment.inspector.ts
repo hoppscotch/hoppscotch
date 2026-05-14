@@ -72,6 +72,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
   ) => {
     const newErrors: InspectorResult[] = []
     const currentTab = this.restTabs.currentActiveTab.value
+    if (!currentTab) return newErrors
 
     // Get the current request or example-response request
     const currentTabRequest =
@@ -208,6 +209,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
         const formattedExEnv = exEnv.slice(2, -2)
         const currentSelectedEnvironment = getCurrentEnvironment()
         const currentTab = this.restTabs.currentActiveTab.value
+        if (!currentTab) return
 
         // Get current request or example
         const currentTabRequest =

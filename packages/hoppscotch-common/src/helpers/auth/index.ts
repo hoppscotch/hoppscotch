@@ -12,11 +12,11 @@ export const replaceTemplateStringsInObjectValues = <
 ) => {
   const envs = getCombinedEnvVariables()
   const restTabsService = getService(RESTTabService)
+  const activeRESTTab = restTabsService.currentActiveTab.value
 
   const requestVariables =
-    source === "REST" &&
-    restTabsService.currentActiveTab.value.document.type === "request"
-      ? restTabsService.currentActiveTab.value.document.request.requestVariables.map(
+    source === "REST" && activeRESTTab?.document.type === "request"
+      ? activeRESTTab.document.request.requestVariables.map(
           ({ key, value }) => ({
             key,
             initialValue: value,

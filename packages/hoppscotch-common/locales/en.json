@@ -614,6 +614,8 @@
     "secret_environments": "Secrets are not synced to Hoppscotch",
     "shared_requests": "Shared requests are empty",
     "shared_requests_logout": "Login to view your shared requests or create a new one",
+    "start_request": "Start a request",
+    "start_request_description": "Create a request or import a collection to get started.",
     "subscription": "Subscriptions are empty",
     "team_name": "Workspace name empty",
     "teams": "You don't belong to any workspaces",

@@ -209,7 +209,7 @@ const getSaveContext = (): HoppRESTSaveContext => {
   }
 }
 
-const active = computed(() => tabs.currentActiveTab.value.document.saveContext)
+const active = computed(() => tabs.currentActiveTab.value?.document.saveContext)
 
 const isActiveExample = computed(() => {
   const saveCtx = getSaveContext()

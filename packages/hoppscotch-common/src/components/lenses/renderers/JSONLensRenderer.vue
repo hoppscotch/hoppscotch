@@ -499,12 +499,17 @@ const eraseResponse = () => {
   if (!props.isEditable && !props.isTestRunner) emit("update:response", null)
 }
 
+const jsonResponseHeaders = computed(() =>
+  "headers" in props.response ? props.response.headers : undefined
+)
+
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "application/json",
   jsonBodyText,
   t("filename.lens", {
     request_name: responseName.value,
-  })
+  }),
+  jsonResponseHeaders
 )
 
 // Template refs

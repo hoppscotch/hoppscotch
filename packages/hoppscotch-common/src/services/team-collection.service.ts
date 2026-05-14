@@ -310,6 +310,10 @@ export class TeamCollectionsService extends Service<void> {
     this.collections.value = [...tree]
   }
 
+  // Relies on the backend preserving `data._ref_id` at every level —
+  // each nested folder's `teamCollectionAdded` event must carry its own
+  // `data._ref_id` for migration to fire. A backend that drops nested
+  // `data` would leave per-folder entries orphaned under `_ref_id`.
   private migrateImportedSecretEntries(collection: TeamCollection) {
     if (!collection.data) return
     try {

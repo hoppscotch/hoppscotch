@@ -119,6 +119,10 @@ export class SecretEnvironmentService extends Service {
    * exists under `oldID` so a no-op migrate doesn't clobber `newID`.
    */
   public updateSecretEnvironmentID(oldID: string, newID: string) {
+    // No-op when keys match — otherwise the get→set→delete sequence would
+    // erase the just-written entry. Also short-circuits the spurious
+    // `delete` call when nothing exists under `oldID`.
+    if (oldID === newID) return
     const secretVars = this.getSecretEnvironment(oldID)
     if (secretVars !== undefined) {
       this.secretEnvironments.set(newID, secretVars)

@@ -128,6 +128,9 @@ export class CurrentValueService extends Service {
    * exists under `oldID` so a no-op migrate doesn't clobber `newID`.
    */
   public updateEnvironmentID(oldID: string, newID: string) {
+    // No-op when keys match — otherwise the get→set→delete sequence would
+    // erase the just-written entry.
+    if (oldID === newID) return
     const vars = this.getEnvironment(oldID)
     if (vars !== undefined) {
       this.environments.set(newID, vars)

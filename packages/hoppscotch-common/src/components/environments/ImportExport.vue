@@ -401,6 +401,11 @@ const handleImportToStore = async (
       }
     )
 
+    // `populateLocalStoresFromVariables` is a full replace for `"Global"`.
+    // Relies on the sync path above (`getGlobalVariables()` → hydrate →
+    // concat) running with no awaits in between — a future refactor that
+    // introduces one between the snapshot and this call would silently
+    // drop any global added meanwhile.
     populateLocalStoresFromVariables("Global", [
       ...existingHydrated,
       ...importedGlobals,

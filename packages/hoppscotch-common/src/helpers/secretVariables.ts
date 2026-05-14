@@ -47,14 +47,14 @@ export const populateLocalStoresFromVariables = (
       ? [
           {
             key: v.key,
-            // Symmetric with non-secrets below: `??` (not `||`) so an
-            // explicit `""` currentValue is preserved — a deliberate
-            // user clear must not be resurrected from `initialValue` on
-            // rehydration. Fallback only kicks in when `currentValue` is
-            // nullish (e.g. legacy `hoppEnv` import without the field).
-            // Confirmed importers (Postman/Insomnia/hopp v2 migration)
-            // already set both fields, so the fallback never fires for
-            // them anyway.
+            // `??` (not `||`) so an explicit `""` is preserved across
+            // both calling contexts: in rehydration it means "user
+            // deliberately cleared"; in import it means "importer didn't
+            // supply a value." Fallback to `initialValue` only fires for
+            // nullish `currentValue` (legacy `hoppEnv` shape).
+            // Postman/Insomnia collection imports promote
+            // `initialValue` → `currentValue` upstream via
+            // `promoteSecretInitialValueForCollection`.
             value: v.currentValue ?? v.initialValue ?? "",
             initialValue: v.initialValue ?? "",
             varIndex: index,
@@ -151,6 +151,8 @@ export const indexCollectionsByRefId = (
 /**
  * Re-seed local stores after bulk-import using `_ref_id` (round-tripped
  * via `data._ref_id`) instead of array index — backend may reorder.
+ * Assumes the backend preserves `data._ref_id` at EVERY level (root +
+ * nested folders); unpaired nodes fall through to `flushUnmatchedRefIdsFromTree`.
  */
 export const repopulateLoadedCollectionTree = (
   loaded: HoppCollection,

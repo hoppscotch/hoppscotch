@@ -156,6 +156,11 @@ export function translateToPersonalCollectionFormat(x: HoppCollection) {
 
   return {
     ...x,
+    // Override the spread's top-level `variables` with the stripped copy
+    // — without this, the raw secret values would still travel in the
+    // HTTP body even though the backend only reads `data.variables`.
+    // Reuses `data.variables` so we don't strip twice.
+    variables: data.variables,
     folders,
     data,
   }

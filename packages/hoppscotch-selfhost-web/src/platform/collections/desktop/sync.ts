@@ -23,7 +23,7 @@ import {
   createRESTUserRequest,
   deleteUserCollection,
   deleteUserRequest,
-  duplicateUserCollection,
+  duplicateAndReloadCollection,
   editUserRequest,
   importUserCollectionsFromJSON,
   moveUserCollection,
@@ -407,7 +407,12 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   },
   async duplicateCollection({ collectionSyncID }) {
     if (collectionSyncID) {
-      await duplicateUserCollection(collectionSyncID, ReqType.Rest)
+      const { loadUserCollections } = (await import("./index")).def
+      await duplicateAndReloadCollection(
+        collectionSyncID,
+        ReqType.Rest,
+        loadUserCollections
+      )
     }
   },
   editRequest({ path, requestIndex, requestNew }) {

@@ -77,6 +77,8 @@ import {
   runMutation,
 } from "@hoppscotch/common/helpers/backend/GQLClient"
 
+import * as E from "fp-ts/Either"
+
 export const createRESTRootUserCollection = (title: string, data?: string) =>
   runMutation<
     CreateRestRootUserCollectionMutation,
@@ -212,6 +214,23 @@ export const duplicateUserCollection = (
     collectionID,
     reqType,
   })()
+
+export const duplicateAndReloadCollection = async (
+  collectionSyncID: string,
+  reqType: ReqType,
+  loadUserCollections: (type: "REST" | "GQL") => Promise<void>
+) => {
+  const res = await duplicateUserCollection(collectionSyncID, reqType)
+  if (E.isRight(res)) {
+    // Reload all collections from backend to get proper IDs for the duplicate
+    await loadUserCollections(reqType)
+  } else {
+    // Roll back the optimistic local duplicate so a phantom collection
+    // is not left in the store when the backend duplication fails
+    await loadUserCollections(reqType)
+    console.error(`Failed to duplicate ${reqType} collection`, res.left)
+  }
+}
 
 export const sortUserCollections = (
   parentCollectionID: string | null,

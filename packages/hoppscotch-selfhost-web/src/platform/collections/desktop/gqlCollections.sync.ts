@@ -24,7 +24,7 @@ import {
   createGQLUserRequest,
   deleteUserCollection,
   deleteUserRequest,
-  duplicateUserCollection,
+  duplicateAndReloadCollection,
   editGQLUserRequest,
   importUserCollectionsFromJSON,
   updateUserCollection,
@@ -354,7 +354,12 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   },
   async duplicateCollection({ collectionSyncID }) {
     if (collectionSyncID) {
-      await duplicateUserCollection(collectionSyncID, ReqType.Gql)
+      const { loadUserCollections } = (await import("./index")).def
+      await duplicateAndReloadCollection(
+        collectionSyncID,
+        ReqType.Gql,
+        loadUserCollections
+      )
     }
   },
   editRequest({ path, requestIndex, requestNew }) {

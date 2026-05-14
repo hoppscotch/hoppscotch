@@ -7,6 +7,7 @@ import { generateUniqueRefId, HoppCollection } from "@hoppscotch/data"
 import {
   ensureRefIds,
   indexCollectionsByRefId,
+  populateLocalStoresFromCollectionTree,
   repopulateLoadedCollectionTree,
   stripCollectionTreeForStore,
   stripSecretVariableValuesForWire,
@@ -59,13 +60,17 @@ export const importToPersonalWorkspace = async (
       const originalsByRefId = new Map<string, HoppCollection>()
       indexCollectionsByRefId(collectionsWithRefIds, originalsByRefId)
 
-      // Warn once per import if any loaded root lacks `_ref_id` — likely a
-      // backend that dropped `data._ref_id` from the blob round-trip.
-      // Secret values for those nodes silently won't surface after reload.
-      if (loaded.some((c) => !c._ref_id)) {
+      // Warn once per import if any loaded root's `_ref_id` doesn't match
+      // an original — `exportedCollectionToHoppCollection` backfills
+      // missing ref-ids with fresh UUIDs, so we can't detect the
+      // round-trip failure via a null check. The miss-against-originals
+      // check catches both "backend dropped `data._ref_id`" and "backend
+      // returned a value we never sent."
+      if (loaded.some((c) => !c._ref_id || !originalsByRefId.has(c._ref_id))) {
         console.warn(
-          "[importToPersonalWorkspace] loaded collection(s) missing `_ref_id`; " +
-            "imported secret values may not persist across reload"
+          "[importToPersonalWorkspace] loaded collection(s) don't pair to " +
+            "originals by `_ref_id`; imported secret values may not persist " +
+            "across reload"
         )
       }
 
@@ -75,12 +80,19 @@ export const importToPersonalWorkspace = async (
 
       return E.right({ success: true })
     }
-    // Backend failed — raw values still live in local stores by `_ref_id`.
+    // Backend failed — defensively populate local stores from the raw
+    // (pre-strip) tree before appending the stripped tree to newstore.
+    // The canonical caller already populated upstream, so this is
+    // idempotent in the normal flow; it exists so a future caller that
+    // forgets the upstream populate doesn't silently lose secrets on
+    // backend failure.
+    collectionsWithRefIds.forEach(populateLocalStoresFromCollectionTree)
     return appendCollectionsToStore(
       collectionsWithRefIds.map(stripCollectionTreeForStore),
       reqType
     )
   } catch {
+    collectionsWithRefIds.forEach(populateLocalStoresFromCollectionTree)
     return appendCollectionsToStore(
       collectionsWithRefIds.map(stripCollectionTreeForStore),
       reqType

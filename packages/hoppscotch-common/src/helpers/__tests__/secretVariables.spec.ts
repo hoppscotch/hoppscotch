@@ -173,11 +173,13 @@ describe("populateLocalStoresFromVariables", () => {
   })
 
   it("falls back to initialValue for secrets when currentValue is empty", () => {
-    // A JSON export preserves the secret's `initialValue` (export blanks
-    // only `currentValue`). On re-import the live `value` falls back to
-    // `initialValue` so the secret surfaces in the UI without manual
-    // re-entry. Both fields are empty for a fully-stripped wire payload,
-    // so this fallback is safe for legitimate stripped paths too.
+    // Hoppscotch JSON exports strip **both** `initialValue` and `currentValue`
+    // for secrets, so a fully-stripped wire payload lands with both as `""`.
+    // The fallback to `initialValue` is primarily useful for Postman imports
+    // (which carry the secret in `value`/`initialValue`) and for any legacy
+    // export format that only blanked `currentValue`. When both are empty the
+    // fallback is a no-op — the secret stays blank, which is intentional for
+    // round-tripping a stripped export.
     populateLocalStoresFromVariables(ENTITY_ID, [
       {
         key: "token",

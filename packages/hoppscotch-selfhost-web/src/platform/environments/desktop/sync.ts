@@ -72,22 +72,38 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
         // populated under this id at import time; we remap, not re-populate.
         const tempId = environmentsStore.value.environments[envId].id
 
-        // Strip at the wire-write boundary even though the import caller
-        // pre-strips — `appendEnvironments` is a public store API; the
-        // invariant can't rely on callers.
-        const res = await createUserEnvironment(
-          env.name,
-          JSON.stringify(stripSecretVariableValuesForWire(env.variables ?? []))
-        )
+        try {
+          // Strip at the wire-write boundary even though the import caller
+          // pre-strips — `appendEnvironments` is a public store API; the
+          // invariant can't rely on callers.
+          const res = await createUserEnvironment(
+            env.name,
+            JSON.stringify(
+              stripSecretVariableValuesForWire(env.variables ?? [])
+            )
+          )
 
-        if (E.isRight(res)) {
-          const id = res.right.createUserEnvironment.id
+          if (E.isRight(res)) {
+            const id = res.right.createUserEnvironment.id
 
-          secretEnvironmentService.updateSecretEnvironmentID(tempId, id)
-          currentEnvironmentValueService.updateEnvironmentID(tempId, id)
+            secretEnvironmentService.updateSecretEnvironmentID(tempId, id)
+            currentEnvironmentValueService.updateEnvironmentID(tempId, id)
 
-          environmentsStore.value.environments[envId].id = id
-          removeDuplicateEntry(id)
+            environmentsStore.value.environments[envId].id = id
+            removeDuplicateEntry(id)
+          } else {
+            // Backend rejected — flush the upstream-populated entries so
+            // they don't linger under a `tempId` no env will ever reference.
+            secretEnvironmentService.deleteSecretEnvironment(tempId)
+            currentEnvironmentValueService.deleteEnvironment(tempId)
+          }
+        } catch (_) {
+          // Network/unexpected throw — same cleanup as backend rejection.
+          // Without this, the fire-and-forget IIFE swallows the rejection
+          // and leaves `tempId` entries orphaned in localStorage.
+          secretEnvironmentService.deleteSecretEnvironment(tempId)
+          currentEnvironmentValueService.deleteEnvironment(tempId)
+          console.error("[appendEnvironments] backend create failed")
         }
       })()
     })

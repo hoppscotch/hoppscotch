@@ -36,7 +36,7 @@ import { arrayFlatMap, arraySort, tupleToRecord } from "./functions/array";
 import { getEffectiveFinalMetaData, getResolvedVariables } from "./getters";
 import { stripComments } from "./jsonc";
 import { toFormData } from "./mutators";
-import { combineScriptsWithIIFE, filterValidScripts } from "./scripting";
+import { combineScriptsWithIIFE, filterValidScripts } from "@hoppscotch/js-sandbox/scripting";
 
 /**
  * Runs pre-request-script runner over given request which extracts set ENVs and

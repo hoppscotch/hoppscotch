@@ -71,14 +71,58 @@
           </p>
         </div>
       </section>
+
+      <!-- Keyboard layout strategy. Three radios, each with a one-line
+           description so the user can pick without trial and error.
+           Selection writes to `keyboardLayoutStrategy` through the
+           desktop settings composable, which mirrors it into the
+           keyboard-strategy holder so the next keypress respects the
+           change. -->
+      <section>
+        <h4 class="font-semibold text-secondaryDark">
+          {{ t("settings.desktop_keyboard") }}
+        </h4>
+
+        <div class="mt-4">
+          <p class="text-secondaryLight">
+            {{ t("settings.desktop_keyboard_strategy_label") }}
+          </p>
+          <p class="mt-1 text-xs text-secondaryLight">
+            {{ t("settings.desktop_keyboard_strategy_description") }}
+          </p>
+
+          <div class="mt-4 space-y-4">
+            <div v-for="option in keyboardStrategyOptions" :key="option.value">
+              <HoppSmartRadio
+                :value="option.value"
+                :label="option.label"
+                :selected="
+                  desktopSettings.settings.keyboardLayoutStrategy ===
+                  option.value
+                "
+                class="!px-0 hover:bg-transparent"
+                @change="setKeyboardStrategy(option.value)"
+              />
+              <p class="ml-8 mt-1 text-xs text-secondaryLight">
+                {{ option.description }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch, type Component } from "vue"
-import { HoppButtonSecondary, HoppSmartToggle } from "@hoppscotch/ui"
+import {
+  HoppButtonSecondary,
+  HoppSmartRadio,
+  HoppSmartToggle,
+} from "@hoppscotch/ui"
 import { useI18n } from "~/composables/i18n"
+import type { DesktopSettings } from "~/platform/desktop-settings"
 
 import IconLucideDownload from "~icons/lucide/download"
 import IconLucideRefreshCw from "~icons/lucide/refresh-cw"
@@ -267,6 +311,36 @@ async function toggleDisableUpdateChecks(): Promise<void> {
     "disableUpdateChecks",
     !desktopSettings.settings.disableUpdateChecks
   )
+}
+
+// Keyboard layout strategy radios. Order is recommended-first so users
+// without a preference get the smart default. Labels and descriptions
+// are i18n keys, rebuilt as a `computed` so a locale change updates
+// the rendered text.
+type KeyboardStrategy = DesktopSettings["keyboardLayoutStrategy"]
+
+const keyboardStrategyOptions = computed<
+  Array<{ value: KeyboardStrategy; label: string; description: string }>
+>(() => [
+  {
+    value: "hybrid",
+    label: t("settings.desktop_keyboard_strategy_hybrid"),
+    description: t("settings.desktop_keyboard_strategy_hybrid_description"),
+  },
+  {
+    value: "key",
+    label: t("settings.desktop_keyboard_strategy_key"),
+    description: t("settings.desktop_keyboard_strategy_key_description"),
+  },
+  {
+    value: "code",
+    label: t("settings.desktop_keyboard_strategy_code"),
+    description: t("settings.desktop_keyboard_strategy_code_description"),
+  },
+])
+
+async function setKeyboardStrategy(value: KeyboardStrategy): Promise<void> {
+  await desktopSettings.update("keyboardLayoutStrategy", value)
 }
 </script>
 

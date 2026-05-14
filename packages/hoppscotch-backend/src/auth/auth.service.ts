@@ -80,11 +80,12 @@ export class AuthService {
    */
   private async validatePasswordlessTokens(magicLinkTokens: VerifyMagicDto) {
     try {
+      const  {deviceIdentifier,token}= magicLinkTokens
       const tokens = await this.prisma.verificationToken.findUniqueOrThrow({
         where: {
           passwordless_deviceIdentifier_tokens: {
-            deviceIdentifier: magicLinkTokens.deviceIdentifier,
-            token: magicLinkTokens.token,
+            deviceIdentifier,
+            token
           },
         },
       });
@@ -160,12 +161,13 @@ export class AuthService {
     passwordlessTokens: VerificationToken,
   ) {
     try {
+      const {deviceIdentifier,token} = passwordlessTokens
       const deletedPasswordlessToken =
         await this.prisma.verificationToken.delete({
           where: {
             passwordless_deviceIdentifier_tokens: {
-              deviceIdentifier: passwordlessTokens.deviceIdentifier,
-              token: passwordlessTokens.token,
+              deviceIdentifier,
+              token
             },
           },
         });
@@ -306,11 +308,15 @@ export class AuthService {
     const tokens = await this.generateAuthTokens(
       passwordlessTokens.value.userUid,
     );
-    if (E.isLeft(tokens))
-      return E.left({
-        message: tokens.left.message,
-        statusCode: tokens.left.statusCode,
+    
+    if (E.isLeft(tokens)){
+      const {message,statusCode}= tokens.left
+       return E.left({
+        message,
+        statusCode
       });
+    }
+     
 
     const deletedPasswordlessToken =
       await this.deleteMagicLinkVerificationTokens(passwordlessTokens.value);
@@ -353,11 +359,15 @@ export class AuthService {
 
     // if tokens match, generate new pair of auth tokens
     const generatedAuthTokens = await this.generateAuthTokens(user.uid);
-    if (E.isLeft(generatedAuthTokens))
+    
+    if (E.isLeft(generatedAuthTokens)){
+      const {message,statusCode} =generatedAuthTokens.left 
       return E.left({
-        message: generatedAuthTokens.left.message,
-        statusCode: generatedAuthTokens.left.statusCode,
+        message,
+        statusCode
       });
+    }
+      
 
     return E.right(generatedAuthTokens.right);
   }

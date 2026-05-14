@@ -92,18 +92,18 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
             environmentsStore.value.environments[envId].id = id
             removeDuplicateEntry(id)
           } else {
-            // Backend rejected — flush the upstream-populated entries so
-            // they don't linger under a `tempId` no env will ever reference.
-            secretEnvironmentService.deleteSecretEnvironment(tempId)
-            currentEnvironmentValueService.deleteEnvironment(tempId)
+            // Backend rejected — leave local-store entries intact under
+            // `tempId` so the env in newstore (which still references
+            // `tempId`) continues to render secrets for this session.
+            // Reload will drop the env from newstore; the orphaned
+            // entries persist but are bounded (one per failed import).
+            console.error("[appendEnvironments] backend rejected create")
           }
-        } catch (_) {
-          // Network/unexpected throw — same cleanup as backend rejection.
-          // Without this, the fire-and-forget IIFE swallows the rejection
-          // and leaves `tempId` entries orphaned in localStorage.
-          secretEnvironmentService.deleteSecretEnvironment(tempId)
-          currentEnvironmentValueService.deleteEnvironment(tempId)
-          console.error("[appendEnvironments] backend create failed")
+        } catch (e) {
+          // Caught here so the fire-and-forget IIFE doesn't surface an
+          // "unhandled promise rejection." Same in-session preservation
+          // as the `E.isLeft` branch.
+          console.error("[appendEnvironments] backend create threw", e)
         }
       })()
     })

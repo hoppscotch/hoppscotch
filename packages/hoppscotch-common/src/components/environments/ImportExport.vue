@@ -12,6 +12,7 @@
 import { Environment, generateUniqueRefId } from "@hoppscotch/data"
 import {
   populateLocalStoresFromVariables,
+  promoteSecretInitialValueForImport,
   stripSecretVariableValuesForWire,
 } from "~/helpers/secretVariables"
 import * as E from "fp-ts/Either"
@@ -406,9 +407,14 @@ const handleImportToStore = async (
     // concat) running with no awaits in between — a future refactor that
     // introduces one between the snapshot and this call would silently
     // drop any global added meanwhile.
+    //
+    // Promote on the IMPORTED slice only (not `existingHydrated`) so a
+    // legacy export shape (`initialValue` set, `currentValue: ""`) lands
+    // its secrets correctly, while user-cleared existing globals stay
+    // cleared per the rehydration semantic.
     populateLocalStoresFromVariables("Global", [
       ...existingHydrated,
-      ...importedGlobals,
+      ...promoteSecretInitialValueForImport(importedGlobals),
     ])
 
     // Append stripped imports; varIndex aligns with the hydrated entries.
@@ -432,7 +438,10 @@ const handleImportToStore = async (
     }))
 
     envsWithIds.forEach((env) => {
-      populateLocalStoresFromVariables(env.id, env.variables)
+      populateLocalStoresFromVariables(
+        env.id,
+        promoteSecretInitialValueForImport(env.variables)
+      )
     })
 
     const strippedEnvironments = envsWithIds.map((env) => ({
@@ -469,7 +478,7 @@ const importToTeams = async (content: Environment[]) => {
     if (E.isRight(entry)) {
       populateLocalStoresFromVariables(
         entry.right.createTeamEnvironment.id,
-        content[index].variables
+        promoteSecretInitialValueForImport(content[index].variables)
       )
     }
   })

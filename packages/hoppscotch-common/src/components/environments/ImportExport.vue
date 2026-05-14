@@ -415,12 +415,15 @@ const handleImportToStore = async (
   }
 
   if (props.environmentType === "MY_ENV") {
-    // Stamp a temp id when missing — `populateLocalStoresFromVariables`
-    // early-returns on empty. The id flows into `strippedEnvironments`
-    // so the sync handler can remap it to the real backend id.
+    // Always stamp a fresh temp id, even if the export carried one —
+    // re-using the exported `id` would land the populate on a store
+    // entry already owned by the original environment (then the sync
+    // remap would migrate that entry away, blanking the original's
+    // secrets). A fresh id guarantees no collision with anything in
+    // the store before the sync handler creates the new backend row.
     const envsWithIds = environments.map((env) => ({
       ...env,
-      id: env.id || generateUniqueRefId("env"),
+      id: generateUniqueRefId("env"),
     }))
 
     envsWithIds.forEach((env) => {

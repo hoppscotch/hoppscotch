@@ -501,7 +501,13 @@ const getHoppReqURL = (url: Item["request"]["url"] | null): string => {
   if (!url) return ""
   return pipe(
     url.toString(false),
+    // Strip query string before decoding to avoid decoded %3F in path
+    // segments being erroneously removed by the query-strip regex.
     S.replace(/\?.+/g, ""),
+    // Postman SDK's toString() URL-encodes path segments, which turns
+    // variable syntax {{var}} into %7B%7Bvar%7D%7D. Decode after query
+    // removal so replacePMVarTemplating can match double-brace patterns.
+    (s) => { try { return decodeURI(s) } catch { return s } },
     replacePMVarTemplating
   )
 }

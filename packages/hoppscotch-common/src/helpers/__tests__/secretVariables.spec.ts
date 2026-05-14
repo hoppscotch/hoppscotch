@@ -172,18 +172,15 @@ describe("populateLocalStoresFromVariables", () => {
     ])
   })
 
-  it("falls back to initialValue for secrets when currentValue is empty", () => {
-    // Hoppscotch JSON exports strip **both** `initialValue` and `currentValue`
-    // for secrets, so a fully-stripped wire payload lands with both as `""`.
-    // The fallback to `initialValue` is primarily useful for Postman imports
-    // (which carry the secret in `value`/`initialValue`) and for any legacy
-    // export format that only blanked `currentValue`. When both are empty the
-    // fallback is a no-op — the secret stays blank, which is intentional for
-    // round-tripping a stripped export.
+  it("preserves an explicit empty currentValue for secrets", () => {
+    // An explicit `""` is a deliberate clear and must not be resurrected
+    // from `initialValue` — otherwise rehydrating an existing global where
+    // the user cleared `currentValue` while keeping `initialValue` would
+    // silently restore the old secret on the next import/merge.
     populateLocalStoresFromVariables(ENTITY_ID, [
       {
         key: "token",
-        initialValue: "exported-secret",
+        initialValue: "old-secret",
         currentValue: "",
         secret: true,
       },
@@ -192,8 +189,31 @@ describe("populateLocalStoresFromVariables", () => {
     expect(secretService.getSecretEnvironment(ENTITY_ID)).toEqual([
       {
         key: "token",
-        value: "exported-secret",
-        initialValue: "exported-secret",
+        value: "",
+        initialValue: "old-secret",
+        varIndex: 0,
+      },
+    ])
+  })
+
+  it("falls back to initialValue for secrets when currentValue is absent", () => {
+    // Nullish (missing) `currentValue` — distinct from an explicit clear —
+    // falls through to `initialValue`. Covers the legacy `hoppEnv` import
+    // shape where only `initialValue` is present on the entry.
+    populateLocalStoresFromVariables(ENTITY_ID, [
+      {
+        key: "token",
+        initialValue: "imported-secret",
+        currentValue: undefined as unknown as string,
+        secret: true,
+      },
+    ])
+
+    expect(secretService.getSecretEnvironment(ENTITY_ID)).toEqual([
+      {
+        key: "token",
+        value: "imported-secret",
+        initialValue: "imported-secret",
         varIndex: 0,
       },
     ])
@@ -418,6 +438,31 @@ describe("populateLocalStoresFromCollectionTree", () => {
 
     expect(secretService.getSecretEnvironment("child-1")).toBeDefined()
     expect(secretService.getSecretEnvironment("placeholder")).toBeUndefined()
+  })
+
+  it("promotes initialValue to value for foreign-import secrets (Postman/Insomnia)", () => {
+    // `postman.ts` and `insomnia/insomniaColl.ts` set `currentValue: ""` while
+    // putting the secret in `initialValue`. The collection-tree populate must
+    // promote so the imported secret survives in the secret service.
+    populateLocalStoresFromCollectionTree(
+      buildCollection("postman-style", [
+        {
+          key: "api_key",
+          initialValue: "pm-secret",
+          currentValue: "",
+          secret: true,
+        },
+      ])
+    )
+
+    expect(secretService.getSecretEnvironment("postman-style")).toEqual([
+      {
+        key: "api_key",
+        value: "pm-secret",
+        initialValue: "pm-secret",
+        varIndex: 0,
+      },
+    ])
   })
 })
 

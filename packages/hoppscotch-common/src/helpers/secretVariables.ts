@@ -47,12 +47,15 @@ export const populateLocalStoresFromVariables = (
       ? [
           {
             key: v.key,
-            // `||` is intentional: an explicit `""` currentValue means
-            // the secret was stripped on export; fall through to
-            // `initialValue` so a Postman/JSON import where the value
-            // lives there isn't silently blank. Non-secrets use `??`
-            // below to preserve deliberate clears.
-            value: v.currentValue || v.initialValue || "",
+            // Symmetric with non-secrets below: `??` (not `||`) so an
+            // explicit `""` currentValue is preserved — a deliberate
+            // user clear must not be resurrected from `initialValue` on
+            // rehydration. Fallback only kicks in when `currentValue` is
+            // nullish (e.g. legacy `hoppEnv` import without the field).
+            // Confirmed importers (Postman/Insomnia/hopp v2 migration)
+            // already set both fields, so the fallback never fires for
+            // them anyway.
+            value: v.currentValue ?? v.initialValue ?? "",
             initialValue: v.initialValue ?? "",
             varIndex: index,
           },
@@ -84,10 +87,20 @@ export const populateLocalStoresFromCollectionTree = (
   collection: HoppCollection
 ) => {
   if (collection._ref_id) {
-    populateLocalStoresFromVariables(
-      collection._ref_id,
-      collection.variables ?? []
+    // Foreign-collection-import convention: `postman.ts` and
+    // `insomnia/insomniaColl.ts` put the secret in `initialValue` with
+    // `currentValue: ""` (so the wire payload stays clean). Promote here so
+    // the secret service stores the imported value. Env importers
+    // (`postmanEnv`, `insomniaEnv`) set both fields and call
+    // `populateLocalStoresFromVariables` directly, so they bypass this step
+    // — and the global-env rehydration path (which must preserve user-clears)
+    // does too.
+    const normalized = (collection.variables ?? []).map((v) =>
+      v.secret && !v.currentValue && v.initialValue
+        ? { ...v, currentValue: v.initialValue }
+        : v
     )
+    populateLocalStoresFromVariables(collection._ref_id, normalized)
   }
   ;(collection.folders ?? []).forEach(populateLocalStoresFromCollectionTree)
 }

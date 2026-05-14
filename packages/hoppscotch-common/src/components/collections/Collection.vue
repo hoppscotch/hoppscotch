@@ -220,6 +220,18 @@
                     "
                   />
                   <HoppSmartItem
+                    v-if="isMcpShareVisible && isRootCollection"
+                    :icon="IconShare2"
+                    :label="t('mcp.share_as_mcp')"
+                    :shortcut="['A']"
+                    @click="
+                      () => {
+                        emit('share-as-mcp')
+                        hide()
+                      }
+                    "
+                  />
+                  <HoppSmartItem
                     v-if="!hasNoTeamAccess"
                     ref="edit"
                     :icon="IconEdit"
@@ -347,6 +359,7 @@ import IconFolderPlus from "~icons/lucide/folder-plus"
 import IconMoreVertical from "~icons/lucide/more-vertical"
 import IconPlaySquare from "~icons/lucide/play-square"
 import IconServer from "~icons/lucide/server"
+import IconShare2 from "~icons/lucide/share-2"
 import IconSettings2 from "~icons/lucide/settings-2"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconArrowUpDown from "~icons/lucide/arrow-up-down"
@@ -355,6 +368,7 @@ import { CurrentSortValuesService } from "~/services/current-sort.service"
 import { useService } from "dioc/vue"
 import { useMockServerStatus } from "~/composables/mockServer"
 import { useMockServerVisibility } from "~/composables/mockServerVisibility"
+import { useMcpShareVisibility } from "~/composables/mcpShareVisibility"
 import { platform } from "~/platform"
 import { invokeAction } from "~/helpers/actions"
 import { DocumentationService } from "~/services/documentation.service"
@@ -413,6 +427,7 @@ const emit = defineEmits<{
   (event: "export-data"): void
   (event: "remove-collection"): void
   (event: "create-mock-server"): void
+  (event: "share-as-mcp"): void
   (event: "drop-event", payload: DataTransfer): void
   (event: "drag-event", payload: DataTransfer): void
   (event: "dragging", payload: boolean): void
@@ -497,6 +512,7 @@ const isCollectionLoading = computed(() => {
 
 // Mock Server Status
 const { isMockServerVisible } = useMockServerVisibility()
+const { isMcpShareVisible } = useMcpShareVisibility()
 const { getMockServerStatus } = useMockServerStatus()
 
 const mockServerStatus = computed(() => {

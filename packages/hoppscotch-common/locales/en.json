@@ -1145,6 +1145,20 @@
     "existing_collection": "Existing Collection",
     "new_collection": "New Collection"
   },
+  "mcp": {
+    "share_as_mcp": "Share as MCP",
+    "modal_title": "Share as MCP Tools",
+    "url_label": "MCP Server URL",
+    "copy_url": "Copy URL",
+    "copied": "Copied",
+    "revoke": "Revoke access",
+    "revoked": "Access revoked",
+    "generate": "Generate MCP link",
+    "setup_hint": "Paste this URL into your AI client's MCP configuration",
+    "setup_claude": "Claude Desktop",
+    "setup_cursor": "Cursor",
+    "setup_windsurf": "Windsurf"
+  },
   "preRequest": {
     "javascript_code": "JavaScript Code",
     "learn": "Read documentation",

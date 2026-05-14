@@ -25,6 +25,7 @@ import { Container, Service } from "dioc"
 import * as E from "fp-ts/Either"
 import MiniSearch from "minisearch"
 import IconCheckCircle from "~/components/app/spotlight/entry/IconSelected.vue"
+import { BACKEND_PAGE_SIZE } from "~/helpers/backend/helpers"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { platform } from "~/platform"
 import { WorkspaceService } from "~/services/workspace.service"
@@ -179,12 +180,19 @@ export class SwitchWorkspaceSpotlightSearcherService
 
       const results: GetMyTeamsQuery["myTeams"] = []
 
-      const cursor =
-        results.length > 0 ? results[results.length - 1].id : undefined
+      while (true) {
+        const cursor =
+          results.length > 0 ? results[results.length - 1].id : undefined
 
-      const result = await platform.backend.getUserTeams(cursor)
+        const result = await platform.backend.getUserTeams(cursor)
 
-      if (E.isRight(result)) results.push(...result.right.myTeams)
+        if (E.isLeft(result)) break
+
+        results.push(...result.right.myTeams)
+
+        if (result.right.myTeams.length !== BACKEND_PAGE_SIZE) break
+      }
+
       resolve(results)
     })
   }

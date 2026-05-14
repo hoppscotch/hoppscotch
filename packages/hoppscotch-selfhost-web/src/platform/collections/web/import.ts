@@ -23,12 +23,13 @@ import { importUserCollectionsFromJSON } from "./api"
 import { runDispatchWithOutSyncing } from "@app/lib/sync"
 
 /**
- * Platform-specific import for selfhost-web. Caller (`components/collections/
- * ImportExport.vue`) must have run `ensureRefIds` + `populateLocalStoresFromCollectionTree`
- * upstream — we re-stamp ref-ids defensively. We never populate from the
- * stripped wire payload (raw values are gone by then), but on backend
- * success we re-seed local stores from the original (pre-strip) tree
- * paired to the loaded tree by `_ref_id` via `repopulateLoadedCollectionTree`.
+ * Platform-specific import for selfhost-web. Self-contained — re-stamps
+ * ref-ids and repopulates local stores on both backend success (via
+ * `repopulateLoadedCollectionTree`, paired by `_ref_id`) and failure;
+ * never from the stripped wire payload (raw values are gone by then).
+ * The Vue caller normally pre-runs `ensureRefIds` +
+ * `populateLocalStoresFromCollectionTree` upstream too; the overlap is
+ * intentional defense-in-depth, not a caller contract.
  */
 export const importToPersonalWorkspace = async (
   collections: HoppCollection[],

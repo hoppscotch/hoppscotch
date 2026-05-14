@@ -55,7 +55,10 @@ import { getTeamCollectionJSON } from "~/helpers/backend/helpers"
 
 import { platform } from "~/platform"
 
-import { initializeDownloadFile } from "~/helpers/import-export/export"
+import {
+  initializeDownloadFile,
+  stripRefIdReplacer,
+} from "~/helpers/import-export/export"
 import { gistExporter } from "~/helpers/import-export/export/gist"
 import { myCollectionsExporter } from "~/helpers/import-export/export/myCollections"
 import { teamCollectionsExporter } from "~/helpers/import-export/export/teamCollections"
@@ -841,7 +844,7 @@ const getCollectionJSON = async () => {
 
   if (props.collectionsType.type === "my-collections") {
     const stripped = myCollections.value.map(stripCollectionTreeForStore)
-    return E.right(JSON.stringify(stripped, null, 2))
+    return E.right(JSON.stringify(stripped, stripRefIdReplacer, 2))
   }
 
   return E.left("INVALID_SELECTED_TEAM_OR_INVALID_COLLECTION_TYPE")

@@ -72,9 +72,12 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
         // populated under this id at import time; we remap, not re-populate.
         const tempId = environmentsStore.value.environments[envId].id
 
+        // Strip at the wire-write boundary even though the import caller
+        // pre-strips — `appendEnvironments` is a public store API; the
+        // invariant can't rely on callers.
         const res = await createUserEnvironment(
           env.name,
-          JSON.stringify(stripSecretVariableValuesForWire(env.variables))
+          JSON.stringify(stripSecretVariableValuesForWire(env.variables ?? []))
         )
 
         if (E.isRight(res)) {

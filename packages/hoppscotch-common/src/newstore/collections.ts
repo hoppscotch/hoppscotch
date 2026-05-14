@@ -695,7 +695,7 @@ const restCollectionDispatchers = defineDispatchers({
           _ref_id: generateUniqueRefId("coll"),
         }
 
-        newCollection.folders = newCollection.folders.map((folder) =>
+        newCollection.folders = (newCollection.folders ?? []).map((folder) =>
           recursiveChangeRefIdToAvoidConflicts(folder)
         )
 
@@ -1166,7 +1166,9 @@ const gqlCollectionDispatchers = defineDispatchers({
           ...coll,
           _ref_id: generateUniqueRefId("coll"),
         }
-        next.folders = next.folders.map(recursiveChangeRefIdToAvoidConflicts)
+        next.folders = (next.folders ?? []).map(
+          recursiveChangeRefIdToAvoidConflicts
+        )
         return next
       }
 

@@ -156,6 +156,12 @@ export function translateToPersonalCollectionFormat(x: HoppCollection) {
 
   return {
     ...x,
+    // Carry the resolved `refId` at top level too (not just inside `data`)
+    // so the post-translation object is internally consistent even when
+    // `x._ref_id` was missing on the input. Wire-irrelevant — backend
+    // only reads `data._ref_id` — but matches the invariant other code
+    // expects of a `HoppCollection`.
+    _ref_id: refId,
     // Override the spread's top-level `variables` with the stripped copy
     // — without this, the raw secret values would still travel in the
     // HTTP body even though the backend only reads `data.variables`.

@@ -90,6 +90,7 @@ import { useI18n } from "@composables/i18n"
 import { useService } from "dioc/vue"
 import { isEqual } from "lodash-es"
 import { computed, ref, watch } from "vue"
+import { debounce } from "lodash-es"
 import { platform } from "~/platform"
 import { HoppSpotlightSessionEventData } from "~/platform/analytics"
 import {
@@ -153,6 +154,16 @@ platform.spotlight?.additionalSearchers?.forEach((searcher) =>
 
 const search = ref("")
 
+const debouncedSearch = ref("")
+
+const updateSearch = debounce((val: string) => {
+  debouncedSearch.value = val
+}, 400)
+
+watch(search, (val) => {
+  updateSearch(val)
+})
+
 const searchSession = ref<SpotlightSearchState>()
 const stopSearchSession = ref<() => void>()
 
@@ -171,7 +182,7 @@ watch(
 
     if (show) {
       const [session, onSessionEnd] =
-        spotlightService.createSearchSession(search)
+        spotlightService.createSearchSession(debouncedSearch)
 
       searchSession.value = session.value
       stopSearchSession.value = onSessionEnd
@@ -209,7 +220,7 @@ const onMouseOver = (
 function newUseArrowKeysForNavigation() {
   const selectedEntry = ref<[number, number]>([0, 0]) // [sectionIndex, entryIndex]
 
-  watch(search, () => {
+  watch(debouncedSearch, () => {
     selectedEntry.value = [0, 0]
   })
 

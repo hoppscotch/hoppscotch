@@ -6,6 +6,7 @@ import {
 import { generateUniqueRefId, HoppCollection } from "@hoppscotch/data"
 import {
   ensureRefIds,
+  flushUnmatchedRefIdsFromTree,
   indexCollectionsByRefId,
   populateLocalStoresFromCollectionTree,
   repopulateLoadedCollectionTree,
@@ -78,6 +79,21 @@ export const importToPersonalWorkspace = async (
       loaded.forEach((loadedColl) => {
         repopulateLoadedCollectionTree(loadedColl, originalsByRefId)
       })
+
+      // Flush orphans left under originals' refIds when the backend dropped
+      // `data._ref_id` for some nodes — their entries would otherwise
+      // accumulate in localStorage unreachable from the loaded tree. Runs
+      // AFTER `repopulateLoadedCollectionTree` so paired entries (re-seeded
+      // under their refIds) aren't deleted.
+      const loadedRefIds = new Set<string>()
+      const collectRefIds = (cs: HoppCollection[]) => {
+        cs.forEach((c) => {
+          if (c._ref_id) loadedRefIds.add(c._ref_id)
+          collectRefIds(c.folders ?? [])
+        })
+      }
+      collectRefIds(loaded)
+      flushUnmatchedRefIdsFromTree(collectionsWithRefIds, loadedRefIds)
 
       return E.right({ success: true })
     }

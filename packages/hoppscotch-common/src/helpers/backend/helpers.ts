@@ -43,8 +43,11 @@ export type CollectionDataProps = {
   description: string | null
   preRequestScript: string
   testScript: string
-  // Personal-collection writers only: stable local-store key,
-  // round-tripped via `data._ref_id`. Team paths don't use it.
+  // Stable local-store key, round-tripped via `data._ref_id`. The wire
+  // payload is opaque to the backend, which just echoes it back; the FE
+  // uses it to pair populated secret-store entries to the backend `id`
+  // (personal) or to migrate from `_ref_id` to backend `id` (team
+  // collection import).
   _ref_id?: string
 }
 

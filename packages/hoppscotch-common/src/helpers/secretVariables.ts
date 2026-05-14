@@ -83,24 +83,32 @@ export const populateLocalStoresFromVariables = (
   currentEnvironmentValueService.addEnvironment(entityId, nonSecrets)
 }
 
+/**
+ * Foreign-collection-import convention: `postman.ts` and
+ * `insomnia/insomniaColl.ts` put the secret in `initialValue` with
+ * `currentValue: ""` (so the wire payload stays clean). Promote so the secret
+ * service stores the imported value. Env importers set both fields and call
+ * `populateLocalStoresFromVariables` directly — they bypass this step, as
+ * does the global-env rehydration path (which must preserve user clears).
+ * Idempotent — promoted entries are unchanged on a second pass.
+ */
+const promoteSecretInitialValueForCollection = (
+  variables: readonly SecretCapableVariable[]
+): SecretCapableVariable[] =>
+  variables.map((v) =>
+    v.secret && !v.currentValue && v.initialValue
+      ? { ...v, currentValue: v.initialValue }
+      : v
+  )
+
 export const populateLocalStoresFromCollectionTree = (
   collection: HoppCollection
 ) => {
   if (collection._ref_id) {
-    // Foreign-collection-import convention: `postman.ts` and
-    // `insomnia/insomniaColl.ts` put the secret in `initialValue` with
-    // `currentValue: ""` (so the wire payload stays clean). Promote here so
-    // the secret service stores the imported value. Env importers
-    // (`postmanEnv`, `insomniaEnv`) set both fields and call
-    // `populateLocalStoresFromVariables` directly, so they bypass this step
-    // — and the global-env rehydration path (which must preserve user-clears)
-    // does too.
-    const normalized = (collection.variables ?? []).map((v) =>
-      v.secret && !v.currentValue && v.initialValue
-        ? { ...v, currentValue: v.initialValue }
-        : v
+    populateLocalStoresFromVariables(
+      collection._ref_id,
+      promoteSecretInitialValueForCollection(collection.variables ?? [])
     )
-    populateLocalStoresFromVariables(collection._ref_id, normalized)
   }
   ;(collection.folders ?? []).forEach(populateLocalStoresFromCollectionTree)
 }
@@ -143,7 +151,13 @@ export const repopulateLoadedCollectionTree = (
   if (loaded._ref_id) {
     const original = originalsByRefId.get(loaded._ref_id)
     if (original) {
-      populateLocalStoresFromVariables(loaded._ref_id, original.variables ?? [])
+      // Same promote as `populateLocalStoresFromCollectionTree` — `original`
+      // is the pre-strip input tree, which for Postman/Insomnia imports
+      // still carries the secret in `initialValue` with `currentValue: ""`.
+      populateLocalStoresFromVariables(
+        loaded._ref_id,
+        promoteSecretInitialValueForCollection(original.variables ?? [])
+      )
     }
   }
   ;(loaded.folders ?? []).forEach((loadedFolder) => {
@@ -171,6 +185,59 @@ export const flushLocalStoresForCollectionTree = (
       currentEnvironmentValueService.deleteEnvironment(node.id)
     }
     ;(node.folders ?? []).forEach(walk)
+  }
+  walk(collection)
+}
+
+/**
+ * Flush local-store entries keyed by `_ref_id`s in `tree` that aren't
+ * present in `keptRefIds`. Used after `repopulateLoadedCollectionTree`
+ * to clean up orphans on old SH backends that drop the `data._ref_id`
+ * round-trip — upstream populate seeded entries under originals' refIds
+ * that the loaded tree (with fresh UUIDs) can't reach.
+ */
+export const flushUnmatchedRefIdsFromTree = (
+  tree: HoppCollection[],
+  keptRefIds: ReadonlySet<string>
+) => {
+  const secretEnvironmentService = getService(SecretEnvironmentService)
+  const currentEnvironmentValueService = getService(CurrentValueService)
+
+  const walk = (nodes: HoppCollection[]) => {
+    nodes.forEach((node) => {
+      if (node._ref_id && !keptRefIds.has(node._ref_id)) {
+        secretEnvironmentService.deleteSecretEnvironment(node._ref_id)
+        currentEnvironmentValueService.deleteEnvironment(node._ref_id)
+      }
+      walk(node.folders ?? [])
+    })
+  }
+  walk(tree)
+}
+
+/**
+ * Recursive flush for a team-collection subtree. Walks `children` (not
+ * `folders` — different shape from `HoppCollection`) and deletes each
+ * descendant's secret/current entries by backend `id`. Without this,
+ * deleting a team collection leaves nested folders' secrets orphaned in
+ * the secret service.
+ */
+export const flushLocalStoresForTeamCollectionTree = (collection: {
+  id: string
+  children: { id: string; children: unknown }[] | null | undefined
+}) => {
+  const secretEnvironmentService = getService(SecretEnvironmentService)
+  const currentEnvironmentValueService = getService(CurrentValueService)
+
+  const walk = (node: {
+    id: string
+    children: { id: string; children: unknown }[] | null | undefined
+  }) => {
+    secretEnvironmentService.deleteSecretEnvironment(node.id)
+    currentEnvironmentValueService.deleteEnvironment(node.id)
+    ;(node.children ?? []).forEach(
+      walk as (n: { id: string; children: unknown }) => void
+    )
   }
   walk(collection)
 }

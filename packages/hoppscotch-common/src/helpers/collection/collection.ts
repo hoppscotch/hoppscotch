@@ -312,6 +312,10 @@ export function transformCollectionForImport(
     auth: collection.auth,
     headers: collection.headers,
     variables: stripSecretVariableValuesForWire(collection.variables ?? []),
+    // Round-trip the local-store key so the team-collection-added handler
+    // (`TeamCollectionsService.addCollection`) can migrate the importer's
+    // secret entries from this `_ref_id` to the backend-assigned `id`.
+    _ref_id: collection._ref_id,
     description: collection.description,
     preRequestScript: collection.preRequestScript ?? "",
     testScript: collection.testScript ?? "",

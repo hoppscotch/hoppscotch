@@ -401,6 +401,7 @@ import { SortOptions } from "~/helpers/backend/graphql"
 import { CurrentSortValuesService } from "~/services/current-sort.service"
 import {
   flushLocalStoresForCollectionTree,
+  flushLocalStoresForTeamCollectionTree,
   stripCollectionTreeForStore,
   stripSecretVariableValuesForWire,
 } from "~/helpers/secretVariables"
@@ -2013,11 +2014,20 @@ const onRemoveCollection = async () => {
       emit("select", null)
     }
 
+    // Capture the subtree BEFORE the mutation so the
+    // team-collection-removed subscription can't drop it from FE state
+    // before we flush nested entries.
+    const subtreeSnapshot =
+      teamCollectionService.findCollectionByID(collectionID)
+
     removeTeamCollectionOrFolder(collectionID).then(() => {
       resetTeamRequestsContext()
 
-      // Single-level flush — team UUIDs are globally unique, no aliasing.
-      if (collectionID) {
+      if (subtreeSnapshot) {
+        flushLocalStoresForTeamCollectionTree(subtreeSnapshot)
+      } else if (collectionID) {
+        // Snapshot miss (already removed from tree). Flush at least the
+        // top-level id so the secret service doesn't leak this entry.
         secretEnvironmentService.deleteSecretEnvironment(collectionID)
         currentEnvironmentValueService.deleteEnvironment(collectionID)
       }
@@ -2086,10 +2096,15 @@ const onRemoveFolder = async () => {
       emit("select", null)
     }
 
+    const subtreeSnapshot =
+      teamCollectionService.findCollectionByID(collectionID)
+
     removeTeamCollectionOrFolder(collectionID).then(() => {
       resetTeamRequestsContext()
 
-      if (collectionID) {
+      if (subtreeSnapshot) {
+        flushLocalStoresForTeamCollectionTree(subtreeSnapshot)
+      } else if (collectionID) {
         secretEnvironmentService.deleteSecretEnvironment(collectionID)
         currentEnvironmentValueService.deleteEnvironment(collectionID)
       }

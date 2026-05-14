@@ -77,12 +77,16 @@ import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import {
   createEnvironment,
   deleteEnvironment,
+  environmentsStore,
   getGlobalVariables,
   getSelectedEnvironmentIndex,
   globalEnv$,
   selectedEnvironmentIndex$,
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
+import { getService } from "~/modules/dioc"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
+import { CurrentValueService } from "~/services/current-environment-value.service"
 import { useLocalState } from "~/newstore/localstate"
 import { platform } from "~/platform"
 import { TeamWorkspace, WorkspaceService } from "~/services/workspace.service"
@@ -303,23 +307,40 @@ const duplicateGlobalEnvironment = async () => {
   toast.success(`${t("environment.duplicated")}`)
 }
 
+const secretEnvironmentService = getService(SecretEnvironmentService)
+const currentEnvironmentValueService = getService(CurrentValueService)
+
 const removeSelectedEnvironment = () => {
   const selectedEnvIndex = getSelectedEnvironmentIndex()
   if (selectedEnvIndex?.type === "NO_ENV_SELECTED") return
 
   if (selectedEnvIndex?.type === "MY_ENV") {
-    deleteEnvironment(selectedEnvIndex.index)
+    // Pass the env id — selfhost sync handler bails on `envID === undefined`
+    // and the backend row would otherwise leak. Also flush local stores so
+    // the secret service doesn't accumulate orphans.
+    const envID =
+      environmentsStore.value.environments[selectedEnvIndex.index]?.id
+    deleteEnvironment(selectedEnvIndex.index, envID)
+    if (envID) {
+      secretEnvironmentService.deleteSecretEnvironment(envID)
+      currentEnvironmentValueService.deleteEnvironment(envID)
+    }
     toast.success(`${t("state.deleted")}`)
   }
 
   if (selectedEnvIndex?.type === "TEAM_ENV") {
+    const teamEnvID = selectedEnvIndex.teamEnvID
     pipe(
-      deleteTeamEnvironment(selectedEnvIndex.teamEnvID),
+      deleteTeamEnvironment(teamEnvID),
       TE.match(
         (err: GQLError<string>) => {
           console.error(err)
         },
         () => {
+          // Same lifecycle hygiene as MY_ENV — flush after backend
+          // success so the secret service doesn't retain the entry.
+          secretEnvironmentService.deleteSecretEnvironment(teamEnvID)
+          currentEnvironmentValueService.deleteEnvironment(teamEnvID)
           toast.success(`${t("team_environment.deleted")}`)
         }
       )

@@ -37,6 +37,7 @@ import { useToast } from "~/composables/toast"
 import { appendRESTCollections, restCollections$ } from "~/newstore/collections"
 import {
   ensureRefIds,
+  flushLocalStoresForCollectionTree,
   populateLocalStoresFromCollectionTree,
   stripCollectionTreeForStore,
 } from "~/helpers/secretVariables"
@@ -151,9 +152,12 @@ const importToPersonalWorkspace = (collections: HoppCollection[]) => {
 }
 
 /**
- * Import collections to teams workspace
- * No need to sanitize the collections before importing to teams workspace because the BE handles this and add the new id to the collection and folders
- * @param collections Collections to import
+ * Import collections to teams workspace. Stamps `_ref_id` and seeds the
+ * device-local secret stores under it; on the team-collection-added
+ * subscription, `TeamCollectionsService.addCollection` migrates entries
+ * from `_ref_id` to the backend-assigned `id`. Wire payload is stripped
+ * of secrets via `transformCollectionForImport`; secrets stay
+ * device-local per the team-isolation model.
  */
 const importToTeamsWorkspace = async (collections: HoppCollection[]) => {
   if (!hasTeamWriteAccess.value || !selectedTeamID.value) {
@@ -162,7 +166,10 @@ const importToTeamsWorkspace = async (collections: HoppCollection[]) => {
     })
   }
 
-  const transformedCollection = collections.map((collection) =>
+  const collectionsWithRefIds = collections.map(ensureRefIds)
+  collectionsWithRefIds.forEach(populateLocalStoresFromCollectionTree)
+
+  const transformedCollection = collectionsWithRefIds.map((collection) =>
     transformCollectionForImport(collection)
   )
 
@@ -171,11 +178,15 @@ const importToTeamsWorkspace = async (collections: HoppCollection[]) => {
     selectedTeamID.value
   )()
 
-  return E.isRight(res)
-    ? E.right({ success: true })
-    : E.left({
-        success: false,
-      })
+  if (E.isLeft(res)) {
+    // Backend rejected the import — flush the just-seeded entries so
+    // they don't linger under `_ref_id`s no team collection will ever
+    // reference. (Success path migrates them via
+    // `TeamCollectionsService.addCollection`.)
+    collectionsWithRefIds.forEach(flushLocalStoresForCollectionTree)
+    return E.left({ success: false })
+  }
+  return E.right({ success: true })
 }
 
 const emit = defineEmits<{

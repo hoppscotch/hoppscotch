@@ -5,6 +5,8 @@ import { getService } from "~/modules/dioc"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import {
+  flushLocalStoresForTeamCollectionTree,
+  flushUnmatchedRefIdsFromTree,
   indexCollectionsByRefId,
   populateLocalStoresFromCollectionTree,
   populateLocalStoresFromVariables,
@@ -598,5 +600,174 @@ describe("indexCollectionsByRefId + repopulateLoadedCollectionTree", () => {
     expect(secretService.getSecretEnvironment("child")).toEqual([
       { key: "ck", value: "cc", initialValue: "ci", varIndex: 0 },
     ])
+  })
+
+  it("promotes foreign-import secrets when re-seeding after backend round-trip", () => {
+    // Selfhost-web personal-workspace flow: user imports a Postman collection,
+    // backend round-trip succeeds, then `repopulateLoadedCollectionTree` re-seeds
+    // local stores from the pre-strip original. The original still carries the
+    // Postman convention (`currentValue: ""` + `initialValue: "X"` for secrets),
+    // so the re-seed must promote — otherwise the round-trip would overwrite
+    // the secret service entry that the earlier collection-tree populate set.
+    const original = buildCollection("ref-pm", [
+      {
+        key: "api_key",
+        initialValue: "pm-secret",
+        currentValue: "",
+        secret: true,
+      },
+    ])
+
+    const map = new Map<string, HoppCollection>()
+    indexCollectionsByRefId([original], map)
+
+    const loaded = buildCollection("ref-pm", [
+      { key: "api_key", initialValue: "", currentValue: "", secret: true },
+    ])
+
+    repopulateLoadedCollectionTree(loaded, map)
+
+    expect(secretService.getSecretEnvironment("ref-pm")).toEqual([
+      {
+        key: "api_key",
+        value: "pm-secret",
+        initialValue: "pm-secret",
+        varIndex: 0,
+      },
+    ])
+  })
+})
+
+describe("flushUnmatchedRefIdsFromTree", () => {
+  let secretService: SecretEnvironmentService
+  let currentValueService: CurrentValueService
+
+  beforeEach(() => {
+    secretService = getService(SecretEnvironmentService)
+    currentValueService = getService(CurrentValueService)
+    secretService.secretEnvironments.clear()
+    currentValueService.environments.clear()
+  })
+
+  const buildCollection = (
+    refId: string,
+    variables: HoppCollection["variables"],
+    folders: HoppCollection[] = []
+  ): HoppCollection => ({
+    v: 12,
+    name: `coll-${refId}`,
+    _ref_id: refId,
+    folders,
+    requests: [],
+    auth: { authType: "inherit", authActive: true },
+    headers: [],
+    variables,
+    description: null,
+    preRequestScript: "",
+    testScript: "",
+  })
+
+  it("deletes entries whose `_ref_id` is not in the kept set", () => {
+    secretService.addSecretEnvironment("ref-orphan", [
+      { key: "k", value: "v", initialValue: "v", varIndex: 0 },
+    ])
+    currentValueService.addEnvironment("ref-orphan", [
+      { key: "k", currentValue: "v", varIndex: 0, isSecret: false },
+    ])
+
+    flushUnmatchedRefIdsFromTree([buildCollection("ref-orphan", [])], new Set())
+
+    expect(secretService.getSecretEnvironment("ref-orphan")).toBeUndefined()
+    expect(currentValueService.getEnvironment("ref-orphan")).toBeUndefined()
+  })
+
+  it("keeps entries whose `_ref_id` is in the kept set", () => {
+    secretService.addSecretEnvironment("ref-kept", [
+      { key: "k", value: "v", initialValue: "v", varIndex: 0 },
+    ])
+
+    flushUnmatchedRefIdsFromTree(
+      [buildCollection("ref-kept", [])],
+      new Set(["ref-kept"])
+    )
+
+    expect(secretService.getSecretEnvironment("ref-kept")).toBeDefined()
+  })
+
+  it("recurses into folders, flushing each unmatched descendant", () => {
+    secretService.addSecretEnvironment("ref-root", [
+      { key: "k", value: "v", initialValue: "v", varIndex: 0 },
+    ])
+    secretService.addSecretEnvironment("ref-child", [
+      { key: "k", value: "v", initialValue: "v", varIndex: 0 },
+    ])
+    secretService.addSecretEnvironment("ref-kept", [
+      { key: "k", value: "v", initialValue: "v", varIndex: 0 },
+    ])
+
+    const child = buildCollection("ref-child", [])
+    const root = buildCollection("ref-root", [], [child])
+    const kept = buildCollection("ref-kept", [])
+
+    flushUnmatchedRefIdsFromTree([root, kept], new Set(["ref-kept"]))
+
+    expect(secretService.getSecretEnvironment("ref-root")).toBeUndefined()
+    expect(secretService.getSecretEnvironment("ref-child")).toBeUndefined()
+    expect(secretService.getSecretEnvironment("ref-kept")).toBeDefined()
+  })
+})
+
+describe("flushLocalStoresForTeamCollectionTree", () => {
+  let secretService: SecretEnvironmentService
+  let currentValueService: CurrentValueService
+
+  beforeEach(() => {
+    secretService = getService(SecretEnvironmentService)
+    currentValueService = getService(CurrentValueService)
+    secretService.secretEnvironments.clear()
+    currentValueService.environments.clear()
+  })
+
+  it("deletes the top-level entry by team backend `id`", () => {
+    secretService.addSecretEnvironment("team-coll-1", [
+      { key: "k", value: "v", initialValue: "v", varIndex: 0 },
+    ])
+    currentValueService.addEnvironment("team-coll-1", [
+      { key: "k", currentValue: "v", varIndex: 0, isSecret: false },
+    ])
+
+    flushLocalStoresForTeamCollectionTree({
+      id: "team-coll-1",
+      children: null,
+    })
+
+    expect(secretService.getSecretEnvironment("team-coll-1")).toBeUndefined()
+    expect(currentValueService.getEnvironment("team-coll-1")).toBeUndefined()
+  })
+
+  it("recurses into `children` and flushes every descendant", () => {
+    secretService.addSecretEnvironment("root", [
+      { key: "k", value: "v", initialValue: "v", varIndex: 0 },
+    ])
+    secretService.addSecretEnvironment("child-1", [
+      { key: "k", value: "v", initialValue: "v", varIndex: 0 },
+    ])
+    secretService.addSecretEnvironment("grandchild", [
+      { key: "k", value: "v", initialValue: "v", varIndex: 0 },
+    ])
+
+    flushLocalStoresForTeamCollectionTree({
+      id: "root",
+      children: [
+        {
+          id: "child-1",
+          children: [{ id: "grandchild", children: null }],
+        },
+      ],
+    })
+
+    expect(secretService.getSecretEnvironment("root")).toBeUndefined()
+    expect(secretService.getSecretEnvironment("child-1")).toBeUndefined()
+    expect(secretService.getSecretEnvironment("grandchild")).toBeUndefined()
   })
 })

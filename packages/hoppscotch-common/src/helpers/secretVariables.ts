@@ -109,6 +109,14 @@ export const populateLocalStoresFromCollectionTree = (
       collection._ref_id,
       promoteSecretInitialValueForCollection(collection.variables ?? [])
     )
+  } else {
+    // All current callers run `ensureRefIds` upstream so this should be
+    // unreachable; the warn exists so a future caller that skips it is
+    // debuggable instead of silently dropping secret values.
+    console.warn(
+      "[populateLocalStoresFromCollectionTree] collection has no `_ref_id`; secret values will not be persisted locally",
+      collection.name
+    )
   }
   ;(collection.folders ?? []).forEach(populateLocalStoresFromCollectionTree)
 }
@@ -222,22 +230,21 @@ export const flushUnmatchedRefIdsFromTree = (
  * deleting a team collection leaves nested folders' secrets orphaned in
  * the secret service.
  */
-export const flushLocalStoresForTeamCollectionTree = (collection: {
+type TeamCollectionNode = {
   id: string
-  children: { id: string; children: unknown }[] | null | undefined
-}) => {
+  children: TeamCollectionNode[] | null | undefined
+}
+
+export const flushLocalStoresForTeamCollectionTree = (
+  collection: TeamCollectionNode
+) => {
   const secretEnvironmentService = getService(SecretEnvironmentService)
   const currentEnvironmentValueService = getService(CurrentValueService)
 
-  const walk = (node: {
-    id: string
-    children: { id: string; children: unknown }[] | null | undefined
-  }) => {
+  const walk = (node: TeamCollectionNode) => {
     secretEnvironmentService.deleteSecretEnvironment(node.id)
     currentEnvironmentValueService.deleteEnvironment(node.id)
-    ;(node.children ?? []).forEach(
-      walk as (n: { id: string; children: unknown }) => void
-    )
+    ;(node.children ?? []).forEach(walk)
   }
   walk(collection)
 }

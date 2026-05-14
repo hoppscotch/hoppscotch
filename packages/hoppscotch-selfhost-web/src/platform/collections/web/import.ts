@@ -171,6 +171,10 @@ export async function loadImportedUserCollections(
     >
   ).map((collection) => ({ v: 1, ...collection }))
 
+  // NOTE: backend-returned objects whose variables have already been stripped
+  // (initialValue/currentValue cleared for secrets). Returned so callers can
+  // pair them back to originals by `_ref_id` for repopulation — do NOT pass
+  // these as the source of secret values.
   const hoppCollections = importedCollections.map(
     (collection) =>
       exportedCollectionToHoppCollection(

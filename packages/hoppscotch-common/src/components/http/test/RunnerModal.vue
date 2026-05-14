@@ -16,6 +16,20 @@
                 {{ t("collection_runner.run_config") }}
               </h4>
               <div class="mt-4">
+                <HoppSmartInput
+                  v-model="config.iterations as any"
+                  type="number"
+                  :label="t('collection_runner.iterations')"
+                  class="mb-4"
+                  :class="{ 'border-red-500': config.iterations < 1 }"
+                  input-styles="floating-input"
+                />
+                <p
+                  v-if="config.iterations < 1"
+                  class="text-xs text-red-500 mb-4"
+                >
+                  {{ t("collection_runner.negative_iterations") }}
+                </p>
                 <!-- TODO: fix input component types. so that it accepts number -->
                 <HoppSmartInput
                   v-model="config.delay as any"
@@ -36,6 +50,52 @@
                 <p v-if="config.delay < 0" class="text-xs text-red-500 mt-1">
                   {{ t("collection_runner.negative_delay") }}
                 </p>
+              </div>
+            </section>
+
+            <section class="mt-6">
+              <span class="text-xs text-secondaryLight">
+                {{ t("collection_runner.iteration_data") }}
+              </span>
+
+              <div class="flex flex-col gap-2 mt-4">
+                <input
+                  ref="iterationDataInput"
+                  class="hidden"
+                  type="file"
+                  accept=".csv,.json,text/csv,application/json"
+                  @change="loadIterationData"
+                />
+                <div class="flex items-center gap-2">
+                  <HoppButtonSecondary
+                    :label="t('collection_runner.select_data_file')"
+                    :icon="IconUpload"
+                    outline
+                    @click="iterationDataInput?.click()"
+                  />
+                  <HoppButtonSecondary
+                    v-if="config.iterationData"
+                    v-tippy="{ theme: 'tooltip' }"
+                    :title="t('action.clear')"
+                    :icon="IconX"
+                    outline
+                    @click="clearIterationData"
+                  />
+                </div>
+                <span
+                  v-if="config.iterationData"
+                  class="text-xs text-secondaryLight"
+                >
+                  {{
+                    t("collection_runner.data_file_loaded", {
+                      file: config.iterationDataFileName,
+                      count: config.iterationData.length,
+                    })
+                  }}
+                </span>
+                <span v-else class="text-xs text-secondaryLight">
+                  {{ t("collection_runner.data_file_hint") }}
+                </span>
               </div>
             </section>
 
@@ -145,7 +205,7 @@
         <HoppButtonPrimary
           v-if="activeTab === 'gui'"
           :label="`${t('test.run')}`"
-          :disabled="config.delay < 0"
+          :disabled="config.delay < 0 || config.iterations < 1"
           :loading="loadingCollection"
           :icon="IconPlay"
           outline
@@ -184,6 +244,8 @@ import IconCheck from "~icons/lucide/check"
 import IconCopy from "~icons/lucide/copy"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconPlay from "~icons/lucide/play"
+import IconUpload from "~icons/lucide/upload"
+import IconX from "~icons/lucide/x"
 import { CurrentEnv } from "./Env.vue"
 import { pipe } from "fp-ts/lib/function"
 import {
@@ -196,6 +258,7 @@ import { cloneDeep } from "lodash-es"
 import { getErrorMessage } from "~/helpers/runner/collection-tree"
 import { getRESTCollectionByRefId } from "~/newstore/collections"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { parseIterationDataFile } from "~/helpers/runner/iteration-data"
 
 const t = useI18n()
 const toast = useToast()
@@ -228,6 +291,7 @@ const emit = defineEmits<{
 
 const includeEnvironmentID = ref(false)
 const activeTab = ref<"gui" | "cli">("gui")
+const iterationDataInput = ref<HTMLInputElement | null>(null)
 
 const environmentID = ref("")
 const currentEnv = ref<CurrentEnv>(null)
@@ -252,6 +316,39 @@ const config = ref<TestRunnerConfig>({
   persistResponses: true,
   keepVariableValues: true,
 })
+
+const loadIterationData = async (event: Event) => {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+
+  if (!file) return
+
+  try {
+    const content = await file.text()
+    const iterationData = parseIterationDataFile(content, file.name)
+
+    if (iterationData.length === 0) {
+      throw new Error("No iteration rows found")
+    }
+
+    config.value.iterationData = iterationData
+    config.value.iterationDataFileName = file.name
+    config.value.iterations = iterationData.length
+  } catch (error) {
+    toast.error(
+      error instanceof Error
+        ? error.message
+        : t("collection_runner.data_file_parse_failed")
+    )
+  } finally {
+    input.value = ""
+  }
+}
+
+const clearIterationData = () => {
+  config.value.iterationData = undefined
+  config.value.iterationDataFileName = undefined
+}
 
 onMounted(() => {
   if (props.prevConfig) {

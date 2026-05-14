@@ -819,7 +819,8 @@ export async function runTestRunnerRequest(
   inheritedVariables: HoppCollectionVariable[] = [],
   initialEnvironmentState: InitialEnvironmentState,
   inheritedPreRequestScripts: string[] = [],
-  inheritedTestScripts: string[] = []
+  inheritedTestScripts: string[] = [],
+  iterationVariables: Environment["variables"] = []
 ): Promise<
   | E.Left<"script_fail">
   | E.Right<{
@@ -884,7 +885,7 @@ export async function runTestRunnerRequest(
             temp: !persistEnv ? getTemporaryVariables() : [],
           },
           requestVariables: finalRequestVariables,
-          collectionVariables: inheritedVariables,
+          collectionVariables: [...iterationVariables, ...inheritedVariables],
         })
       ),
     })

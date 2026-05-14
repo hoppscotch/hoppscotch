@@ -21,6 +21,7 @@ import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { HoppTestData, HoppTestResult } from "~/helpers/types/HoppTestResult"
 import { HoppTab } from "../tab"
 import { populateValuesInInheritedCollectionVars } from "~/helpers/utils/inheritedCollectionVarTransformer"
+import type { IterationDataRow } from "~/helpers/runner/iteration-data"
 
 export type TestRunnerOptions = {
   stopRef: Ref<boolean>
@@ -59,6 +60,10 @@ export class TestRunnerService extends Service {
   ) {
     // Reset the result collection
     tab.value.document.status = "running"
+    const iterationCount = options.iterationData?.length
+      ? Math.max(options.iterations, options.iterationData.length)
+      : Math.max(1, options.iterations)
+    const useIterationFolders = iterationCount > 1
     tab.value.document.resultCollection = {
       v: collection.v,
       id: collection.id,
@@ -72,19 +77,37 @@ export class TestRunnerService extends Service {
       preRequestScript: collection.preRequestScript ?? "",
       testScript: collection.testScript ?? "",
     }
+    ;(async () => {
+      for (let index = 0; index < iterationCount; index++) {
+        if (options.stopRef?.value) {
+          tab.value.document.status = "stopped"
+          throw new Error("Test execution stopped")
+        }
 
-    this.runTestCollection(
-      tab,
-      collection,
-      options,
-      [],
-      undefined,
-      undefined,
-      [],
-      undefined,
-      ancestorPreRequestScripts,
-      ancestorTestScripts
-    )
+        const targetCollection = useIterationFolders
+          ? {
+              ...cloneDeep(collection),
+              name: `Iteration ${index + 1}`,
+            }
+          : collection
+
+        await this.runTestCollection(
+          tab,
+          targetCollection,
+          options,
+          useIterationFolders ? [index] : [],
+          undefined,
+          undefined,
+          [],
+          undefined,
+          ancestorPreRequestScripts,
+          ancestorTestScripts,
+          options.iterationData?.[
+            Math.min(index, options.iterationData.length - 1)
+          ] ?? []
+        )
+      }
+    })()
       .then(() => {
         tab.value.document.status = "stopped"
       })
@@ -114,7 +137,8 @@ export class TestRunnerService extends Service {
     parentVariables: HoppCollection["variables"] = [],
     parentID?: string,
     parentPreRequestScripts: string[] = [],
-    parentTestScripts: string[] = []
+    parentTestScripts: string[] = [],
+    iterationVariables: IterationDataRow = []
   ) {
     try {
       // Compute inherited auth and headers for this collection
@@ -152,6 +176,14 @@ export class TestRunnerService extends Service {
           : []),
       ]
 
+      if (parentPath.length === 1 && collection.name.startsWith("Iteration ")) {
+        this.addFolderToPath(tab.value.document.resultCollection!, parentPath, {
+          ...cloneDeep(collection),
+          folders: [],
+          requests: [],
+        })
+      }
+
       // Process folders progressively
       for (let i = 0; i < collection.folders.length; i++) {
         if (options.stopRef?.value) {
@@ -183,7 +215,8 @@ export class TestRunnerService extends Service {
           inheritedVariables,
           collection._ref_id || collection.id,
           inheritedPreRequestScripts,
-          inheritedTestScripts
+          inheritedTestScripts,
+          iterationVariables
         )
       }
 
@@ -222,7 +255,8 @@ export class TestRunnerService extends Service {
           currentPath,
           inheritedVariables,
           inheritedPreRequestScripts,
-          inheritedTestScripts
+          inheritedTestScripts,
+          iterationVariables
         )
 
         if (options.delay && options.delay > 0) {
@@ -315,7 +349,8 @@ export class TestRunnerService extends Service {
     path: number[],
     inheritedVariables: HoppCollectionVariable[] = [],
     inheritedPreRequestScripts: string[] = [],
-    inheritedTestScripts: string[] = []
+    inheritedTestScripts: string[] = [],
+    iterationVariables: IterationDataRow = []
   ) {
     if (options.stopRef?.value) {
       throw new Error("Test execution stopped")
@@ -343,7 +378,8 @@ export class TestRunnerService extends Service {
         inheritedVariables,
         initialEnvironmentState,
         inheritedPreRequestScripts,
-        inheritedTestScripts
+        inheritedTestScripts,
+        iterationVariables
       )
 
       if (options.stopRef?.value) {

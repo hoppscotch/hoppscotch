@@ -8,6 +8,7 @@ import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
 import { HoppRESTResponse } from "../types/HoppRESTResponse"
 import { HoppTestResult } from "../types/HoppTestResult"
 import { TestRunnerRequest } from "~/services/test-runner/test-runner.service"
+import type { IterationDataRow } from "../runner/iteration-data"
 
 export type HoppRESTSaveContext =
   | {
@@ -101,6 +102,8 @@ export type TestRunnerConfig = {
   stopOnError: boolean
   persistResponses: boolean
   keepVariableValues: boolean
+  iterationData?: IterationDataRow[]
+  iterationDataFileName?: string
 }
 
 export type HoppTestRunnerDocument = {

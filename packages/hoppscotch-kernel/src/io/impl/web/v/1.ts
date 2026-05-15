@@ -22,7 +22,10 @@ export const implementation: VersionedAPI<IoV1> = {
           : opts.data instanceof Uint8Array
             ? opts.data
             : new Uint8Array(opts.data as ArrayBuffer)
-      const file = new Blob([blobData as any], { type: opts.contentType })
+      const blobPart: BlobPart =
+        typeof blobData === "string" ? blobData : new Uint8Array(blobData)
+
+      const file = new Blob([blobPart], { type: opts.contentType })
       const a = document.createElement("a")
       const url = URL.createObjectURL(file)
 

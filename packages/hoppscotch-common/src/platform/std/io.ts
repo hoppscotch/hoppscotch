@@ -15,7 +15,7 @@ export const browserIODef: IOPlatformDef = {
         : opts.data instanceof Uint8Array
           ? opts.data
           : new Uint8Array(opts.data as ArrayBuffer)
-    const file = new Blob([blobData as any], { type: opts.contentType })
+    const file = new Blob([blobData], { type: opts.contentType })
     const a = document.createElement("a")
     const url = URL.createObjectURL(file)
 

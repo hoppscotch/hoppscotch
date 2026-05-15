@@ -33,12 +33,13 @@ export default defineComponent({
   async mounted() {
     const { redirect, ...queryParams } = this.route.query
 
-    // Org subdomain magic-link flow: redirect back to the originating subdomain
-    if (
-      platform.organization &&
-      !platform.organization.isDefaultCloudInstance &&
-      typeof redirect === "string"
-    ) {
+    // Firebase delivers magic links to the default cloud instance
+    // (e.g. hoppscotch.io) `/enter` route because `continueUrl` must
+    // point there for trust-domain verification. Org-subdomain
+    // (e.g. subdomain.hoppscotch.io) logins redirect back to the
+    // originating subdomain; `getSafeRedirectUrl()` restricts the
+    // target to the default cloud instance domain and its subdomains.
+    if (platform.organization && typeof redirect === "string") {
       const redirectTarget = getSafeRedirectUrl(
         redirect,
         platform.organization.getRootDomain()

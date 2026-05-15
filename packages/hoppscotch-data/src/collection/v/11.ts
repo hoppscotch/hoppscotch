@@ -2,7 +2,7 @@ import { defineVersion, entityRefUptoVersion } from "verzod"
 import { z } from "zod"
 
 import { HoppCollection } from ".."
-import { v10_baseCollectionSchema } from "./10"
+import { v10_baseCollectionSchema, V10_SCHEMA } from "./10"
 
 export const v11_baseCollectionSchema = v10_baseCollectionSchema.extend({
   v: z.literal(11),
@@ -24,11 +24,11 @@ export const V11_SCHEMA = v11_baseCollectionSchema.extend({
 export default defineVersion({
   initial: false,
   schema: V11_SCHEMA,
-  up(old: z.infer<typeof V11_SCHEMA>) {
+  up(old: z.infer<typeof V10_SCHEMA>) {
     const result: z.infer<typeof V11_SCHEMA> = {
       ...old,
       v: 11 as const,
-      description: old.description ?? null,
+      description: null,
       folders: old.folders.map((folder) => {
         const result = HoppCollection.safeParseUpToVersion(folder, 11)
 

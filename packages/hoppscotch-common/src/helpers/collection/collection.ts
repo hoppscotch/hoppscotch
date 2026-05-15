@@ -311,6 +311,8 @@ export function transformCollectionForImport(
     headers: collection.headers,
     variables: collection.variables,
     description: collection.description,
+    preRequestScript: collection.preRequestScript ?? "",
+    testScript: collection.testScript ?? "",
   }
 
   const obj: CollectionFolder = {

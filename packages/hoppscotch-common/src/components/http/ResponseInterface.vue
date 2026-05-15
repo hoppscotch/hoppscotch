@@ -264,6 +264,12 @@ const stopResize = () => {
 const startResize = (event: MouseEvent | TouchEvent) => {
   isResizing.value = true
   resizeStartX = getPointerX(event)
+  // The window may have been resized since drawerWidth was last set,
+  // leaving the stored logical width larger than what is actually
+  // rendered (clampWidth caps at innerWidth - padding). Re-clamp here so
+  // the drag starts from the width the user actually sees; otherwise the
+  // handle feels unresponsive until the stale gap is dragged through.
+  drawerWidth.value = clampWidth(drawerWidth.value)
   resizeStartWidth = drawerWidth.value
   window.addEventListener("mousemove", onResizeMove)
   window.addEventListener("mouseup", stopResize)

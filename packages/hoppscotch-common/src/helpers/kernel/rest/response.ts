@@ -87,7 +87,7 @@ export const RESTResponse = {
     return {
       type: "success",
       headers: processHeaders(response.headers),
-      body: response.body.body.buffer,
+      body: new Uint8Array(response.body.body).buffer,
       statusCode: response.status,
       statusText: response.statusText ?? "",
       meta: {

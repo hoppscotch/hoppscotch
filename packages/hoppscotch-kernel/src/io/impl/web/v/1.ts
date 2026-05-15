@@ -13,14 +13,16 @@ export const implementation: VersionedAPI<IoV1> = {
   version: { major: 1, minor: 0, patch: 0 },
   api: {
     async saveFileWithDialog(opts: SaveFileWithDialogOptions) {
-      // TODO: Revisit this because perhaps a better approach is
-      // ```ts
-      // const data: BlobPart = typeof opts.data === 'string'
-      //     ? opts.data
-      //     : new Uint8Array(opts.data);
-      // const file = new Blob([data], { type: opts.contentType })
-      // ```
-      const file = new Blob([opts.data as BlobPart], { type: opts.contentType })
+      // Handle both string and binary data explicitly.
+      // ArrayBuffer may arrive at runtime due to type mismatches at the
+      // platform/kernel boundary, so we defensively handle it as well.
+      const blobData =
+        typeof opts.data === "string"
+          ? opts.data
+          : opts.data instanceof Uint8Array
+            ? opts.data
+            : new Uint8Array(opts.data as ArrayBuffer)
+      const file = new Blob([blobData as any], { type: opts.contentType })
       const a = document.createElement("a")
       const url = URL.createObjectURL(file)
 

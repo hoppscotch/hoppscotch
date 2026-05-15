@@ -656,7 +656,7 @@ export class TestRunnerService extends Service {
               console.warn(
                 `[TestRunner] pm.setNextRequest loop limit (${MAX_JUMPS}) reached — stopping run to prevent infinite loop.`
               )
-              return false
+return true
             }
             jumpCount++
             orderIndex = nextIndex

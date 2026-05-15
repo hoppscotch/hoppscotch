@@ -50,6 +50,15 @@ const parseCookieStrings = (cookies: string[]): Record<string, string> => {
 }
 
 /**
+ * Splits a cookie pair on the first `=` only, so that values containing `=`
+ * (base64 padding, JWT-shaped tokens, double-quoted values) are preserved.
+ */
+const splitCookiePairOnFirstEquals = (pair: string): [string, string] => {
+  const idx = pair.indexOf("=")
+  return idx === -1 ? [pair, ""] : [pair.slice(0, idx), pair.slice(idx + 1)]
+}
+
+/**
  * Parse a single cookie string into a record
  */
 const parseCookieString = (cookieString: string): Record<string, string> => {
@@ -58,7 +67,7 @@ const parseCookieString = (cookieString: string): Record<string, string> => {
     .map((pair) => pair.trim())
     .filter(Boolean)
     .reduce((acc, pair) => {
-      const [key, value] = pair.split("=", 2)
-      return { ...acc, [key]: value || "" }
+      const [key, value] = splitCookiePairOnFirstEquals(pair)
+      return { ...acc, [key]: value }
     }, {})
 }

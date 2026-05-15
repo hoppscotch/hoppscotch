@@ -3191,7 +3191,7 @@
             const header = headers.find(
               (h) => h.key.toLowerCase() === name.toLowerCase()
             )
-            return header ? header.value : null
+            return header ? header.value : undefined
           },
 
           // Advanced PropertyList methods (read-only)
@@ -4285,7 +4285,20 @@
     // For toObject()/toJSON() the runner is expected to also store the full row as a JSON string
     // under the "row" environment variable: pm.environment.set("row", JSON.stringify(datasetRow)).
     iterationData: {
-      get: (key) => globalThis.pm.variables.get(key),
+      // get() reads exclusively from the current dataset row injected by the runner.
+      // Delegating to pm.variables.get() would fall through to environment/global scopes
+      // and return wrong values for keys absent from the dataset — violating Postman semantics
+      // where iterationData.get() returns undefined for missing dataset keys.
+      get: (key) => {
+        const rowJson = globalThis.pm.variables.get("__hopp_row__")
+        if (rowJson !== undefined && rowJson !== null) {
+          try {
+            const row = JSON.parse(rowJson)
+            if (Object.prototype.hasOwnProperty.call(row, key)) return row[key]
+          } catch (_) {}
+        }
+        return undefined
+      },
       // has() must only check the current dataset row, not all variable scopes.
       // Delegating to pm.variables.has() would return true for environment/global
       // vars with the same name even when the dataset has no such column.
@@ -4323,12 +4336,18 @@
     // Collection variables — delegated to pm.environment (active scope)
     // Postman's collectionVariables scope maps to the active environment in Hoppscotch.
     // Data written here is visible in pm.environment and vice-versa (same store).
+    // IMPORTANT: clear() is intentionally a no-op. Delegating to pm.environment.clear()
+    // would wipe the entire active environment (API keys, tokens, base URLs, etc.).
+    // Postman keeps collection and environment scopes separate; Hoppscotch does not,
+    // so clearing "collection variables only" cannot be safely implemented here.
     collectionVariables: {
       get: (key) => globalThis.pm.environment.get(key),
       set: (key, value) => globalThis.pm.environment.set(key, value),
       unset: (key) => globalThis.pm.environment.unset(key),
       has: (key) => globalThis.pm.environment.has(key),
-      clear: () => globalThis.pm.environment.clear(),
+      clear: () => {
+        console.warn("[pm.collectionVariables] clear() is a no-op in Hoppscotch: collection variables share the active environment scope, so clearing them would destructively wipe all environment variables. Remove this call or use pm.collectionVariables.unset() for individual keys.")
+      },
       toObject: () => globalThis.pm.environment.toObject(),
       replaceIn: (template) => globalThis.pm.environment.replaceIn(template),
     },

@@ -656,7 +656,7 @@ export class TestRunnerService extends Service {
               console.warn(
                 `[TestRunner] pm.setNextRequest loop limit (${MAX_JUMPS}) reached — stopping run to prevent infinite loop.`
               )
-return true
+              return false
             }
             jumpCount++
             orderIndex = nextIndex
@@ -694,13 +694,10 @@ return true
   ): string[] {
     const requestOrder: string[] = []
 
-    // Process requests first so same-level requests execute before diving into sub-folders.
-    // This matches the natural top-to-bottom reading order of the sidebar when requests
-    // appear above (or alongside) folders at the same level.
-    collection.requests.forEach((_, requestIndex) => {
-      requestOrder.push(this.buildRequestPath(parentPath, requestIndex))
-    })
-
+    // Folders first (depth-first), then same-level requests — restores the original
+    // runTestCollection traversal order. Reversing this (requests-first) breaks any
+    // collection that relies on folder pre-request scripts running before root requests,
+    // or that uses setNextRequest to target a specific cross-folder sequence.
     collection.folders.forEach((folder, folderIndex) => {
       requestOrder.push(
         ...this.collectRequestOrder(folder as HoppCollection, [
@@ -710,6 +707,9 @@ return true
       )
     })
 
+    collection.requests.forEach((_, requestIndex) => {
+      requestOrder.push(this.buildRequestPath(parentPath, requestIndex))
+    })
 
     return requestOrder
   }

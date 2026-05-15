@@ -4,17 +4,15 @@ import { runPreRequest, runTest } from "~/utils/test-helpers"
 /**
  * pm.iterationData tests (PM002)
  *
- * pm.iterationData is implemented as a read-only delegation layer over pm.variables /
- * pm.environment (active scope).
+ * pm.iterationData reads exclusively from the "__hopp_row__" sentinel key injected
+ * by the runner into the selected env scope as a JSON-serialised dataset row.
  *
- * Migration strategy (Group 2):
- *   - get(key)    → pm.variables.get(key)
- *   - has(key)    → pm.variables.has(key)
- *   - toObject()  → JSON.parse(pm.environment.get("row")) or {}
+ *   - get(key)    → reads key from JSON.parse(__hopp_row__); returns undefined if absent
+ *   - has(key)    → checks own-property existence on JSON.parse(__hopp_row__)
+ *   - toObject()  → JSON.parse(__hopp_row__) or {}
  *   - toJSON()    → same as toObject()
  *
- * The runner is responsible for injecting dataset row keys into the active environment
- * before the request runs, and optionally serialising the whole row under the "row" key.
+ * None of these methods fall through to other variable scopes (environment, global).
  */
 
 // ---------------------------------------------------------------------------
@@ -24,12 +22,11 @@ import { runPreRequest, runTest } from "~/utils/test-helpers"
 describe("pm.iterationData — test script (post-request)", () => {
   // --- get() ----------------------------------------------------------------
 
-  test("get() returns a value that was injected into the active environment", () => {
+  test("get() returns a string value from the dataset row", () => {
     return expect(
       runTest(
         `
-          // Simulate runner injecting dataset row into the environment
-          pm.environment.set("userId", "42")
+          pm.environment.set("__hopp_row__", JSON.stringify({ userId: "42" }))
           const val = pm.iterationData.get("userId")
           pw.expect(val).toBe("42")
         `,
@@ -42,11 +39,11 @@ describe("pm.iterationData — test script (post-request)", () => {
     ])
   })
 
-  test("get() returns a numeric value correctly", () => {
+  test("get() preserves numeric type from the dataset row", () => {
     return expect(
       runTest(
         `
-          pm.environment.set("count", 7)
+          pm.environment.set("__hopp_row__", JSON.stringify({ count: 7 }))
           const val = pm.iterationData.get("count")
           pw.expect(val).toBe(7)
         `,
@@ -59,11 +56,45 @@ describe("pm.iterationData — test script (post-request)", () => {
     ])
   })
 
-  test("get() returns undefined for a key that was never injected", () => {
+  test("get() preserves boolean type from the dataset row", () => {
     return expect(
       runTest(
         `
+          pm.environment.set("__hopp_row__", JSON.stringify({ active: true }))
+          const val = pm.iterationData.get("active")
+          pw.expect(val).toBe(true)
+        `,
+        { global: [], selected: [] }
+      )()
+    ).resolves.toEqualRight([
+      expect.objectContaining({
+        expectResults: [{ status: "pass", message: "Expected 'true' to be 'true'" }],
+      }),
+    ])
+  })
+
+  test("get() returns undefined for a key not in the dataset row", () => {
+    return expect(
+      runTest(
+        `
+          pm.environment.set("__hopp_row__", JSON.stringify({ other: "x" }))
           const val = pm.iterationData.get("nonexistent_iter_key")
+          pw.expect(val).toBe(undefined)
+        `,
+        { global: [], selected: [] }
+      )()
+    ).resolves.toEqualRight([
+      expect.objectContaining({
+        expectResults: [{ status: "pass", message: "Expected 'undefined' to be 'undefined'" }],
+      }),
+    ])
+  })
+
+  test("get() returns undefined when no dataset row has been injected", () => {
+    return expect(
+      runTest(
+        `
+          const val = pm.iterationData.get("any_key")
           pw.expect(val).toBe(undefined)
         `,
         { global: [], selected: [] }
@@ -77,11 +108,11 @@ describe("pm.iterationData — test script (post-request)", () => {
 
   // --- has() ----------------------------------------------------------------
 
-  test("has() returns true when the key is in the active environment", () => {
+  test("has() returns true when the key is in the dataset row", () => {
     return expect(
       runTest(
         `
-          pm.environment.set("iter_flag", "yes")
+          pm.environment.set("__hopp_row__", JSON.stringify({ iter_flag: "yes" }))
           pw.expect(pm.iterationData.has("iter_flag")).toBe(true)
         `,
         { global: [], selected: [] }
@@ -93,11 +124,45 @@ describe("pm.iterationData — test script (post-request)", () => {
     ])
   })
 
-  test("has() returns false for a key that was never injected", () => {
+  test("has() returns false for a key not in the dataset row", () => {
     return expect(
       runTest(
         `
+          pm.environment.set("__hopp_row__", JSON.stringify({ other: "x" }))
           pw.expect(pm.iterationData.has("iter_missing")).toBe(false)
+        `,
+        { global: [], selected: [] }
+      )()
+    ).resolves.toEqualRight([
+      expect.objectContaining({
+        expectResults: [{ status: "pass", message: "Expected 'false' to be 'false'" }],
+      }),
+    ])
+  })
+
+  test("has() returns false when no dataset row has been injected", () => {
+    return expect(
+      runTest(
+        `
+          pw.expect(pm.iterationData.has("any")).toBe(false)
+        `,
+        { global: [], selected: [] }
+      )()
+    ).resolves.toEqualRight([
+      expect.objectContaining({
+        expectResults: [{ status: "pass", message: "Expected 'false' to be 'false'" }],
+      }),
+    ])
+  })
+
+  test("has() does NOT leak into environment scope — key in env but not in dataset returns false", () => {
+    return expect(
+      runTest(
+        `
+          // Key exists in env, but NOT in the __hopp_row__ dataset sentinel
+          pm.environment.set("env_only_key", "present")
+          pm.environment.set("__hopp_row__", JSON.stringify({ other: "x" }))
+          pw.expect(pm.iterationData.has("env_only_key")).toBe(false)
         `,
         { global: [], selected: [] }
       )()
@@ -110,12 +175,11 @@ describe("pm.iterationData — test script (post-request)", () => {
 
   // --- toObject() -----------------------------------------------------------
 
-  test("toObject() returns the parsed 'row' env variable when the runner has pre-loaded it", () => {
+  test("toObject() returns the parsed dataset row when runner has pre-loaded __hopp_row__", () => {
     return expect(
       runTest(
         `
-          // Simulate runner pre-loading the full dataset row as serialised JSON
-          pm.environment.set("row", JSON.stringify({ name: "Alice", age: 30 }))
+          pm.environment.set("__hopp_row__", JSON.stringify({ name: "Alice", age: 30 }))
           const obj = pm.iterationData.toObject()
           pw.expect(obj.name).toBe("Alice")
           pw.expect(obj.age).toBe(30)
@@ -132,7 +196,7 @@ describe("pm.iterationData — test script (post-request)", () => {
     ])
   })
 
-  test("toObject() returns an empty object when no 'row' variable has been set", () => {
+  test("toObject() returns an empty object when no dataset row has been injected", () => {
     return expect(
       runTest(
         `
@@ -158,7 +222,7 @@ describe("pm.iterationData — test script (post-request)", () => {
     return expect(
       runTest(
         `
-          pm.environment.set("row", JSON.stringify({ city: "Paris", code: "FR" }))
+          pm.environment.set("__hopp_row__", JSON.stringify({ city: "Paris", code: "FR" }))
           const fromToObject = pm.iterationData.toObject()
           const fromToJSON   = pm.iterationData.toJSON()
           pw.expect(fromToJSON.city).toBe(fromToObject.city)
@@ -176,7 +240,7 @@ describe("pm.iterationData — test script (post-request)", () => {
     ])
   })
 
-  test("toJSON() returns an empty object when no 'row' variable has been set", () => {
+  test("toJSON() returns an empty object when no dataset row has been injected", () => {
     return expect(
       runTest(
         `
@@ -196,21 +260,26 @@ describe("pm.iterationData — test script (post-request)", () => {
     ])
   })
 
-  // --- cross-namespace consistency -----------------------------------------
+  // --- scope isolation -------------------------------------------------------
 
-  test("value injected via pm.environment is readable via pm.iterationData.get()", () => {
+  test("get() does NOT leak into environment scope — env-only key returns undefined", () => {
     return expect(
       runTest(
         `
-          pm.environment.set("shared", "shared_val")
-          pw.expect(pm.iterationData.get("shared")).toBe("shared_val")
+          pm.environment.set("env_only", "env_val")
+          pm.environment.set("__hopp_row__", JSON.stringify({ dataset_key: "dataset_val" }))
+          // env_only exists in env but is NOT in the dataset row
+          pw.expect(pm.iterationData.get("env_only")).toBe(undefined)
+          // dataset_key is in the dataset row
+          pw.expect(pm.iterationData.get("dataset_key")).toBe("dataset_val")
         `,
         { global: [], selected: [] }
       )()
     ).resolves.toEqualRight([
       expect.objectContaining({
         expectResults: [
-          { status: "pass", message: "Expected 'shared_val' to be 'shared_val'" },
+          { status: "pass", message: "Expected 'undefined' to be 'undefined'" },
+          { status: "pass", message: "Expected 'dataset_val' to be 'dataset_val'" },
         ],
       }),
     ])
@@ -222,13 +291,28 @@ describe("pm.iterationData — test script (post-request)", () => {
 // ---------------------------------------------------------------------------
 
 describe("pm.iterationData — pre-request script", () => {
-  test("get() works in pre-request when key is in active env", () => {
+  test("get() returns typed value from dataset row in pre-request", () => {
     return expect(
       runPreRequest(
         `
-          pm.environment.set("iter_pre", "pre_val")
+          pm.environment.set("__hopp_row__", JSON.stringify({ iter_pre: "pre_val", count: 5 }))
           const val = pm.iterationData.get("iter_pre")
           if (val !== "pre_val") throw new Error("Expected pre_val, got " + val)
+          const num = pm.iterationData.get("count")
+          if (num !== 5) throw new Error("Expected 5, got " + num)
+        `,
+        { global: [], selected: [] }
+      )()
+    ).resolves.toBeRight()
+  })
+
+  test("get() returns undefined for key not in dataset in pre-request", () => {
+    return expect(
+      runPreRequest(
+        `
+          pm.environment.set("__hopp_row__", JSON.stringify({ other: "x" }))
+          const val = pm.iterationData.get("missing_key")
+          if (val !== undefined) throw new Error("Expected undefined, got " + val)
         `,
         { global: [], selected: [] }
       )()
@@ -239,7 +323,7 @@ describe("pm.iterationData — pre-request script", () => {
     return expect(
       runPreRequest(
         `
-          pm.environment.set("iter_pre_has", "exists")
+          pm.environment.set("__hopp_row__", JSON.stringify({ iter_pre_has: "exists" }))
           if (!pm.iterationData.has("iter_pre_has")) throw new Error("has() returned false for existing key")
           if (pm.iterationData.has("iter_pre_missing")) throw new Error("has() returned true for missing key")
         `,
@@ -248,11 +332,11 @@ describe("pm.iterationData — pre-request script", () => {
     ).resolves.toBeRight()
   })
 
-  test("toObject() works in pre-request when 'row' env is set", () => {
+  test("toObject() works in pre-request when __hopp_row__ is set", () => {
     return expect(
       runPreRequest(
         `
-          pm.environment.set("row", JSON.stringify({ a: 1, b: 2 }))
+          pm.environment.set("__hopp_row__", JSON.stringify({ a: 1, b: 2 }))
           const obj = pm.iterationData.toObject()
           if (obj.a !== 1) throw new Error("Expected obj.a=1, got " + obj.a)
           if (obj.b !== 2) throw new Error("Expected obj.b=2, got " + obj.b)
@@ -262,11 +346,11 @@ describe("pm.iterationData — pre-request script", () => {
     ).resolves.toBeRight()
   })
 
-  test("toJSON() works in pre-request when 'row' env is set", () => {
+  test("toJSON() works in pre-request when __hopp_row__ is set", () => {
     return expect(
       runPreRequest(
         `
-          pm.environment.set("row", JSON.stringify({ x: "hello" }))
+          pm.environment.set("__hopp_row__", JSON.stringify({ x: "hello" }))
           const obj = pm.iterationData.toJSON()
           if (obj.x !== "hello") throw new Error("Expected obj.x='hello', got " + obj.x)
         `,
@@ -275,7 +359,7 @@ describe("pm.iterationData — pre-request script", () => {
     ).resolves.toBeRight()
   })
 
-  test("toObject() returns an empty object in pre-request when 'row' is not set", () => {
+  test("toObject() returns an empty object in pre-request when no dataset row is set", () => {
     return expect(
       runPreRequest(
         `

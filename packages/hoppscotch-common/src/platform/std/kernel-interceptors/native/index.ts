@@ -192,7 +192,7 @@ export class NativeKernelInterceptorService
       if (relevantCookies.length > 0) {
         effectiveRequest.headers!["Cookie"] = relevantCookies
           .map((cookie) => `${cookie.name!}=${cookie.value!}`)
-          .join(";")
+          .join("; ")
       }
 
       const existingUserAgentHeader = Object.keys(
@@ -219,7 +219,43 @@ export class NativeKernelInterceptorService
 
       setRelayExecution(relayExecution)
 
-      return await relayExecution.response
+      const result = await relayExecution.response
+
+      if (E.isRight(result)) {
+        const response = result.right
+        const requestUrl = new URL(effectiveRequest.url!)
+
+        if (response.cookies && response.cookies.length > 0) {
+          const setCookieStrings = response.cookies.map((c) => {
+            let str = `${c.name}=${c.value}`
+            if (c.domain) str += `; Domain=${c.domain}`
+            if (c.path) str += `; Path=${c.path}`
+            if (c.expires) {
+              const expiresDate =
+                c.expires instanceof Date ? c.expires : new Date(c.expires)
+              str += `; Expires=${expiresDate.toUTCString()}`
+            }
+            if (c.secure) str += `; Secure`
+            if (c.httpOnly) str += `; HttpOnly`
+            if (c.sameSite) str += `; SameSite=${c.sameSite}`
+            return str
+          })
+          this.cookieJar.applySetCookieHeaders(setCookieStrings, requestUrl)
+        } else if (response.headers) {
+          const setCookieHeader = Object.entries(response.headers).find(
+            ([key]) => key.toLowerCase() === "set-cookie"
+          )
+          if (setCookieHeader) {
+            const cookieStrings = (setCookieHeader[1] as string)
+              .split(/\r?\n/)
+              .map((s: string) => s.trim())
+              .filter(Boolean)
+            this.cookieJar.applySetCookieHeaders(cookieStrings, requestUrl)
+          }
+        }
+      }
+
+      return result
     } catch (e) {
       return E.left(e)
     }

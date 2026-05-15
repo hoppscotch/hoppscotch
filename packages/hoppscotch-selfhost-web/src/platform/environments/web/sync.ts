@@ -31,31 +31,45 @@ export const globalEnvironmentMapper = createMapper<number, string>()
 const secretEnvironmentService = getService(SecretEnvironmentService)
 const currentEnvironmentValueService = getService(CurrentValueService)
 
+// Tracks env ids that are still client-side temporary (`uniqueID()`) while
+// the backend create is in flight. `deleteEnvironment` skips the backend
+// call when the id is in this set — preventing a spurious 404 (and the
+// associated backend-create-then-orphan race) during the create window.
+// Real backend ids are never added here, so deleting an already-synced env
+// always fires the backend mutation.
+const pendingTempEnvIds = new Set<string>()
+
 export const storeSyncDefinition: StoreSyncDefinitionOf<
   typeof environmentsStore
 > = {
   async createEnvironment({ name, variables }) {
     const lastCreatedEnvIndex = environmentsStore.value.environments.length - 1
+    const tempId = environmentsStore.value.environments[lastCreatedEnvIndex]?.id
+    if (tempId) pendingTempEnvIds.add(tempId)
 
-    const res = await createUserEnvironment(
-      name,
-      JSON.stringify(stripSecretVariableValuesForWire(variables))
-    )
-
-    if (E.isRight(res)) {
-      const id = res.right.createUserEnvironment.id
-
-      secretEnvironmentService.updateSecretEnvironmentID(
-        environmentsStore.value.environments[lastCreatedEnvIndex].id,
-        id
-      )
-      currentEnvironmentValueService.updateEnvironmentID(
-        environmentsStore.value.environments[lastCreatedEnvIndex].id,
-        id
+    try {
+      const res = await createUserEnvironment(
+        name,
+        JSON.stringify(stripSecretVariableValuesForWire(variables))
       )
 
-      environmentsStore.value.environments[lastCreatedEnvIndex].id = id
-      removeDuplicateEntry(id)
+      if (E.isRight(res)) {
+        const id = res.right.createUserEnvironment.id
+
+        secretEnvironmentService.updateSecretEnvironmentID(
+          environmentsStore.value.environments[lastCreatedEnvIndex].id,
+          id
+        )
+        currentEnvironmentValueService.updateEnvironmentID(
+          environmentsStore.value.environments[lastCreatedEnvIndex].id,
+          id
+        )
+
+        environmentsStore.value.environments[lastCreatedEnvIndex].id = id
+        removeDuplicateEntry(id)
+      }
+    } finally {
+      if (tempId) pendingTempEnvIds.delete(tempId)
     }
   },
   async appendEnvironments({ envs }) {
@@ -146,7 +160,12 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     }
   },
   async deleteEnvironment({ envID }) {
-    if (envID) {
+    // Skip when the id belongs to an env whose backend create is still in
+    // flight — sending the temp `uniqueID()` would 404 and the backend
+    // create would still complete, orphaning a row. Already-synced envs
+    // are never in `pendingTempEnvIds`, so this only filters the race
+    // window; normal deletes fire the backend mutation.
+    if (envID && !pendingTempEnvIds.has(envID)) {
       await deleteUserEnvironment(envID)()
     }
   },

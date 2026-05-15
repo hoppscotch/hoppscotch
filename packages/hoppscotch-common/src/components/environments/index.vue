@@ -315,19 +315,13 @@ const removeSelectedEnvironment = () => {
   if (selectedEnvIndex?.type === "NO_ENV_SELECTED") return
 
   if (selectedEnvIndex?.type === "MY_ENV") {
-    // Local-store flush only — DON'T pass `envID` to the dispatcher.
-    // The store entry's `id` is the temp `uniqueID()` during the ~100-500ms
-    // window between `createEnvironment` dispatch and the backend create
-    // resolving. Passing it would make the sync handler call
-    // `deleteUserEnvironment(tempId)` → 404 → meanwhile the create
-    // resolves and the backend row persists as an orphan. Letting the
-    // sync handler bail on `envID === undefined` keeps the backend row
-    // (pre-existing debt; recoverable manually) and avoids the spurious
-    // bad request. The secret-store flush below still works because
-    // entries are keyed by whatever `id` the env had at write time.
+    // Pass envID so the selfhost sync handler can call the backend delete
+    // for already-synced envs. The handler internally guards against the
+    // create-window race (`pendingTempEnvIds` set in `sync.ts`) so a temp
+    // `uniqueID()` here won't 404; only real backend ids reach the wire.
     const envID =
       environmentsStore.value.environments[selectedEnvIndex.index]?.id
-    deleteEnvironment(selectedEnvIndex.index)
+    deleteEnvironment(selectedEnvIndex.index, envID)
     if (envID) {
       secretEnvironmentService.deleteSecretEnvironment(envID)
       currentEnvironmentValueService.deleteEnvironment(envID)

@@ -133,7 +133,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, computed } from "vue"
+import { ref, onMounted, computed, watch } from "vue"
 import { generateUniqueRefId, safelyExtractRESTRequest } from "@hoppscotch/data"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import { useRoute } from "vue-router"
@@ -153,6 +153,7 @@ import { RESTTabService } from "~/services/tab/rest"
 import { HoppTab } from "~/services/tab"
 import { HoppRequestDocument, HoppTabDocument } from "~/helpers/rest/document"
 import { ScrollService } from "~/services/scroll.service"
+import { useSetting } from "~/composables/settings"
 
 const scrollService = useService(ScrollService)
 
@@ -195,6 +196,22 @@ const contextMenu = ref<PopupDetails>({
 })
 
 const activeTabs = tabs.getActiveTabs()
+
+const revealOnTabActivate = useSetting("REVEAL_REQUEST_ON_TAB_ACTIVATE")
+
+watch(
+  () => currentTabID.value,
+  () => {
+    if (!revealOnTabActivate.value) return
+
+    const doc = tabs.currentActiveTab.value.document
+    if (doc.type !== "request") return
+    if (!doc.saveContext) return
+
+    invokeAction("rest.sidebar.show-collections")
+    invokeAction("collections.reveal-in-collection")
+  }
+)
 
 function bindRequestToURLParams() {
   const route = useRoute()

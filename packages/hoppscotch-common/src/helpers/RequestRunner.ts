@@ -852,9 +852,44 @@ export async function runTestRunnerRequest(
   // Adds ~32ms latency but ensures immediate visual feedback
   await waitForBrowserPaint()
 
+  // Build a "row" variable that serialises the full iteration dataset so
+  // pm.iterationData.toObject() / toJSON() can reconstruct the object.
+  // Individual iteration keys are also injected so pm.iterationData.get(key)
+  // works in both pre- and post-request scripts.
+  const iterationDataEntries = iterationData
+    ? Object.entries(iterationData).map(([key, value]) => ({
+        key,
+        initialValue: String(value ?? ""),
+        currentValue: String(value ?? ""),
+        secret: false,
+      }))
+    : []
+
+  const iterationRowVar = iterationData
+    ? {
+        key: "row",
+        initialValue: JSON.stringify(iterationData),
+        currentValue: JSON.stringify(iterationData),
+        secret: false,
+      }
+    : null
+
+  // Inject iteration data into the pre-request sandbox via the temp scope so that
+  // pm.iterationData.get(key) and pm.iterationData.toObject() both resolve correctly.
+  const enrichedInitialEnvs = iterationRowVar
+    ? {
+        ...initialEnvs,
+        temp: [
+          ...initialEnvs.temp,
+          ...iterationDataEntries,
+          iterationRowVar,
+        ],
+      }
+    : initialEnvs
+
   return delegatePreRequestScriptRunner(
     request,
-    initialEnvs,
+    enrichedInitialEnvs,
     cookieJarEntries,
     inheritedPreRequestScripts
   ).then(async (preRequestScriptResult) => {
@@ -917,8 +952,31 @@ export async function runTestRunnerRequest(
         if (res?.type === "success" || res?.type === "fail") {
           executedResponses$.next(res)
 
+          // Inject "row" into the post-request selected env so pm.iterationData.toObject()
+          // / toJSON() can resolve correctly. Individual keys are also added so
+          // pm.iterationData.get(key) works inside post-request scripts.
+          const postRequestEnvs: typeof preRequestScriptResult.right.updatedEnvs =
+            iterationRowVar
+              ? {
+                  ...preRequestScriptResult.right.updatedEnvs,
+                  selected: [
+                    // Remove any pre-existing "row" key first to avoid duplicates
+                    ...preRequestScriptResult.right.updatedEnvs.selected.filter(
+                      (v) => v.key !== "row"
+                    ),
+                    ...iterationDataEntries.filter(
+                      (v) =>
+                        !preRequestScriptResult.right.updatedEnvs.selected.some(
+                          (s) => s.key === v.key
+                        )
+                    ),
+                    iterationRowVar,
+                  ],
+                }
+              : preRequestScriptResult.right.updatedEnvs
+
           const postRequestScriptResult = await runPostRequestScript(
-            preRequestScriptResult.right.updatedEnvs,
+            postRequestEnvs,
             res.req,
             {
               status: res.statusCode,
@@ -945,9 +1003,33 @@ export async function runTestRunnerRequest(
                 ? postRequestResultWithNext.nextRequest
                 : preRequestResultWithNext.nextRequest
 
+            // Strip iteration-data keys (including "row") from the post-request envs
+            // so they don't appear as user-visible environment changes/additions.
+            const iterationInjectedKeys = new Set<string>(
+              iterationRowVar
+                ? [...iterationDataEntries.map((e) => e.key), "row"]
+                : []
+            )
+            const stripIterationKeys = (
+              vars: TestResult["envs"]["selected"]
+            ) =>
+              iterationInjectedKeys.size > 0
+                ? vars.filter((v) => !iterationInjectedKeys.has(v.key))
+                : vars
+
+            const cleanedPostEnvs: TestResult["envs"] = {
+              global: stripIterationKeys(
+                postRequestScriptResult.right.envs.global
+              ),
+              selected: stripIterationKeys(
+                postRequestScriptResult.right.envs.selected
+              ),
+            }
+
             // Combine console entries from pre and post request scripts
             const combinedResult = {
               ...postRequestScriptResult.right,
+              envs: cleanedPostEnvs,
               consoleEntries: [
                 ...(preRequestScriptResult.right.consoleEntries ?? []),
                 ...(postRequestScriptResult.right.consoleEntries ?? []),
@@ -965,11 +1047,18 @@ export async function runTestRunnerRequest(
               if (
                 hasEnvironmentChanges(
                   initialEnvsForComparison, // Initial script environment when requests started
-                  postRequestScriptResult.right.envs // Final script environment after test script execution
+                  cleanedPostEnvs // Final script environment after test script execution
                 )
               ) {
+                const cleanedRight: E.Right<SandboxTestResult> = {
+                  _tag: "Right",
+                  right: {
+                    ...postRequestScriptResult.right,
+                    envs: cleanedPostEnvs,
+                  },
+                }
                 updateEnvsAfterTestScript(
-                  postRequestScriptResult,
+                  cleanedRight,
                   initialEnvironmentIndex,
                   initialEnvName,
                   initialEnvID
@@ -978,8 +1067,8 @@ export async function runTestRunnerRequest(
             } else {
               // Combine global and selected environment changes
               const allChanges = [
-                ...postRequestScriptResult.right.envs.global,
-                ...postRequestScriptResult.right.envs.selected,
+                ...cleanedPostEnvs.global,
+                ...cleanedPostEnvs.selected,
               ]
 
               setTemporaryVariables(allChanges)

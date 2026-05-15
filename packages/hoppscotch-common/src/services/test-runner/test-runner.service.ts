@@ -615,6 +615,12 @@ export class TestRunnerService extends Service {
         return
       }
 
+      // pm.execution.skipRequest() sentinel — advance to the next request without stopping
+      if (nextRequest === "__HOPP_SKIP_REQUEST__") {
+        orderIndex++
+        continue
+      }
+
       if (typeof nextRequest === "string") {
         // Issue 4 fix: guard against infinite loops
         if (jumpCount >= MAX_JUMPS) {
@@ -650,6 +656,13 @@ export class TestRunnerService extends Service {
   ): string[] {
     const requestOrder: string[] = []
 
+    // Process requests first so same-level requests execute before diving into sub-folders.
+    // This matches the natural top-to-bottom reading order of the sidebar when requests
+    // appear above (or alongside) folders at the same level.
+    collection.requests.forEach((_, requestIndex) => {
+      requestOrder.push(this.buildRequestPath(parentPath, requestIndex))
+    })
+
     collection.folders.forEach((folder, folderIndex) => {
       requestOrder.push(
         ...this.collectRequestOrder(folder as HoppCollection, [
@@ -659,9 +672,6 @@ export class TestRunnerService extends Service {
       )
     })
 
-    collection.requests.forEach((_, requestIndex) => {
-      requestOrder.push(this.buildRequestPath(parentPath, requestIndex))
-    })
 
     return requestOrder
   }

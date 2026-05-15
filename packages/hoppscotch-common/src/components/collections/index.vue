@@ -305,7 +305,7 @@ import {
   makeHoppRESTResponseOriginalRequest,
 } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
-import { MODULE_PREFIX_REGEX_JSON_SERIALIZED } from "~/helpers/scripting"
+import { stripJsonSerializedModulePrefix } from "@hoppscotch/js-sandbox/scripting"
 
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
@@ -906,6 +906,8 @@ const addNewRootCollection = async (name: string) => {
         },
         variables: [],
         description: "",
+        preRequestScript: "",
+        testScript: "",
       })
     )
 
@@ -1049,6 +1051,13 @@ const addFolder = (payload: {
   path: string
   folder: HoppCollection | TeamCollection
 }) => {
+  if (
+    collectionsType.value.type === "team-collections" &&
+    !hasTeamWriteAccess.value
+  ) {
+    return
+  }
+
   const { path, folder } = payload
   editingFolder.value = folder
   editingFolderPath.value = path
@@ -3149,10 +3158,8 @@ const exportData = async (collection: HoppCollection | TeamCollection) => {
     const collectionJSON = JSON.stringify(collection, stripRefIdReplacer, 2)
 
     // Strip `export {};\n` from `testScript` and `preRequestScript` fields
-    const cleanedCollectionJSON = collectionJSON.replace(
-      MODULE_PREFIX_REGEX_JSON_SERIALIZED,
-      ""
-    )
+    const cleanedCollectionJSON =
+      stripJsonSerializedModulePrefix(collectionJSON)
 
     const name = (collection as HoppCollection).name
 
@@ -3178,10 +3185,8 @@ const exportData = async (collection: HoppCollection | TeamCollection) => {
           )
 
           // Strip `export {};\n` from `testScript` and `preRequestScript` fields
-          const cleanedCollectionJSON = collectionJSONString.replace(
-            MODULE_PREFIX_REGEX_JSON_SERIALIZED,
-            ""
-          )
+          const cleanedCollectionJSON =
+            stripJsonSerializedModulePrefix(collectionJSONString)
 
           await initializeDownloadCollection(
             cleanedCollectionJSON,
@@ -3254,6 +3259,7 @@ const editProperties = async (payload: {
       },
       headers: [],
       variables: [],
+      scripts: [],
     }
 
     if (parentIndex) {
@@ -3307,16 +3313,19 @@ const editProperties = async (payload: {
       description: null as string | null,
       folders: null,
       requests: null,
+      preRequestScript: "",
+      testScript: "",
     }
 
     if (parentIndex) {
-      const { auth, headers, variables } =
+      const { auth, headers, variables, scripts } =
         teamCollectionService.cascadeParentCollectionForProperties(parentIndex)
 
       inheritedProperties = {
         auth,
         headers,
         variables,
+        scripts,
       }
     }
 
@@ -3337,6 +3346,8 @@ const editProperties = async (payload: {
         headers: data.headers,
         variables: collectionVariables,
         description: data.description,
+        preRequestScript: data.preRequestScript ?? "",
+        testScript: data.testScript ?? "",
       }
 
       coll = {
@@ -3448,6 +3459,8 @@ const setCollectionProperties = (newCollection: {
       headers: collection.headers ?? [],
       variables: collection.variables ?? [],
       description: collection.description ?? null,
+      preRequestScript: collection.preRequestScript ?? "",
+      testScript: collection.testScript ?? "",
     }
 
     // Mark as loading BEFORE triggering async update to avoid race conditions and push the collectionId to the loading array

@@ -50,6 +50,7 @@ import {
   type UpdateEvent,
   type DownloadProgress,
 } from "~/services/updater.client"
+import { DesktopPersistenceService } from "~/services/persistence.service"
 
 import AppHeader from "./shared/AppHeader.vue"
 import LoadingState from "./shared/LoadingState.vue"
@@ -145,10 +146,22 @@ const checkForUpdates = async () => {
 }
 
 const initializeStandardMode = async () => {
-  const hasUpdates = await checkForUpdates()
-  if (!hasUpdates) {
-    await loadRecent()
+  // The settings page's `disableUpdateChecks` toggle governs the automatic
+  // startup check, not the manual "Check for updates" button in settings.
+  // Reading the setting here lets air-gapped and enterprise-network users
+  // skip the 5-second timeout retry on every launch. They can still trigger
+  // a check on demand from the settings page whenever they want.
+  const persistence = DesktopPersistenceService.getInstance()
+  const settings = await persistence.desktopSettings.get()
+
+  if (!settings.disableUpdateChecks) {
+    const hasUpdates = await checkForUpdates()
+    if (hasUpdates) {
+      return
+    }
   }
+
+  await loadRecent()
 }
 
 onMounted(async () => {

@@ -248,6 +248,7 @@ pub fn run() {
             hopp_auth_port,
             quit_app,
             backup::check_and_backup_on_version_change,
+            config::set_desktop_config,
             updater::check_for_updates,
             updater::download_and_install_update,
             updater::restart_application,

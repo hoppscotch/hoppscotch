@@ -69,6 +69,7 @@
     "@eslint/eslintrc": "3.3.5",
     "@eslint/js": "9.39.2",
     "@relmify/jest-fp-ts": "2.1.1",
+    "@types/acorn": "6.0.4",
     "@types/chai": "5.2.3",
     "@types/jest": "30.0.0",
     "@types/lodash": "4.17.24",

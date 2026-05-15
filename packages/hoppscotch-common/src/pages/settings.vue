@@ -34,6 +34,52 @@
 
           <section>
             <h4 class="font-semibold text-secondaryDark">
+              {{ t("settings.auto_save_requests") }}
+            </h4>
+            <div class="my-1 text-secondaryLight">
+              {{ t("settings.auto_save_requests_description") }}
+            </div>
+            <div class="space-y-4 py-4">
+              <div class="flex items-center">
+                <HoppSmartToggle
+                  :on="AUTO_SAVE_REQUESTS"
+                  @change="toggleSetting('AUTO_SAVE_REQUESTS')"
+                >
+                  {{ t("settings.auto_save_requests") }}
+                </HoppSmartToggle>
+              </div>
+              <div
+                v-if="AUTO_SAVE_REQUESTS"
+                class="flex flex-col space-y-2 w-full max-w-xs"
+              >
+                <label class="text-secondaryLight">
+                  {{ t("settings.auto_save_delay_ms") }}
+                </label>
+                <!--
+                  Intentionally using :value (one-way) + @change only.
+                  v-model.number.lazy is avoided because it would write the raw
+                  unclamped value to the store before onAutoSaveDelayChange clamps it.
+                  The handler reads event.target.value, clamps it, and calls applySetting
+                  so no invalid value ever reaches the store.
+                -->
+                <input
+                  :value="AUTO_SAVE_DELAY_MS"
+                  type="number"
+                  min="500"
+                  max="10000"
+                  step="500"
+                  class="bg-primaryLight px-4 py-2 rounded border border-dividerLight focus:border-divider transition"
+                  @change="onAutoSaveDelayChange"
+                />
+                <span class="text-tiny text-secondaryLight">
+                  {{ t("settings.auto_save_delay_ms_hint") }}
+                </span>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <h4 class="font-semibold text-secondaryDark">
               {{ t("settings.experiments") }}
             </h4>
             <div class="my-1 text-secondaryLight">
@@ -280,7 +326,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue"
-import { toggleSetting } from "~/newstore/settings"
+import { toggleSetting, applySetting } from "~/newstore/settings"
 import { useSetting } from "@composables/settings"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
@@ -335,6 +381,9 @@ const ENABLE_EXPERIMENTAL_DOCUMENTATION = useSetting(
   "ENABLE_EXPERIMENTAL_DOCUMENTATION"
 )
 
+const AUTO_SAVE_REQUESTS = useSetting("AUTO_SAVE_REQUESTS")
+const AUTO_SAVE_DELAY_MS = useSetting("AUTO_SAVE_DELAY_MS")
+
 const supportedNamingStyles = [
   {
     id: "DESCRIPTIVE_WITH_SPACES" as const,
@@ -374,6 +423,18 @@ const hasAIExperimentsSupport =
 const showConfirmModal = () => {
   if (TELEMETRY_ENABLED.value) confirmRemove.value = true
   else toggleSetting("TELEMETRY_ENABLED")
+}
+
+const onAutoSaveDelayChange = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const raw = target.value.trim()
+  const val = raw === "" ? NaN : Number(raw)
+  // Treat empty, non-numeric, zero, or negative as "restore default"
+  const clamped =
+    Number.isFinite(val) && val > 0 ? Math.min(10000, Math.max(500, val)) : 2000
+  applySetting("AUTO_SAVE_DELAY_MS", clamped)
+  // Reflect the clamped value back so the input always shows what was saved
+  target.value = String(clamped)
 }
 
 const getColorModeName = (colorMode: string) => {

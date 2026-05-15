@@ -33,10 +33,9 @@ const currentEnvironmentValueService = getService(CurrentValueService)
 
 // Tracks env ids that are still client-side temporary (`uniqueID()`) while
 // the backend create is in flight. `deleteEnvironment` skips the backend
-// call when the id is in this set — preventing a spurious 404 (and the
-// associated backend-create-then-orphan race) during the create window.
-// Real backend ids are never added here, so deleting an already-synced env
-// always fires the backend mutation.
+// call when the id is in this set — preventing a spurious 404 during the
+// create-then-delete race window. Real backend ids are never added here,
+// so deleting an already-synced env always fires the backend mutation.
 const pendingTempEnvIds = new Set<string>()
 
 export const storeSyncDefinition: StoreSyncDefinitionOf<
@@ -45,7 +44,8 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   async createEnvironment({ name, variables }) {
     const lastCreatedEnvIndex = environmentsStore.value.environments.length - 1
     const tempId = environmentsStore.value.environments[lastCreatedEnvIndex]?.id
-    if (tempId) pendingTempEnvIds.add(tempId)
+    if (!tempId) return
+    pendingTempEnvIds.add(tempId)
 
     try {
       const res = await createUserEnvironment(
@@ -70,7 +70,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
         removeDuplicateEntry(id)
       }
     } finally {
-      if (tempId) pendingTempEnvIds.delete(tempId)
+      pendingTempEnvIds.delete(tempId)
     }
   },
   async appendEnvironments({ envs }) {
@@ -84,7 +84,9 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       ;(async function () {
         // Capture temp id before backend overwrites it — local stores were
         // populated under this id at import time; we remap, not re-populate.
-        const tempId = environmentsStore.value.environments[envId].id
+        const tempId = environmentsStore.value.environments[envId]?.id
+        if (!tempId) return
+        pendingTempEnvIds.add(tempId)
 
         try {
           // Strip at the wire-write boundary even though the import caller
@@ -118,6 +120,8 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
           // "unhandled promise rejection." Same in-session preservation
           // as the `E.isLeft` branch.
           console.error("[appendEnvironments] backend create threw", e)
+        } finally {
+          pendingTempEnvIds.delete(tempId)
         }
       })()
     })
@@ -126,15 +130,19 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const environmentToDuplicate = environmentsStore.value.environments.find(
       (_, index) => index === envIndex
     )
+    if (!environmentToDuplicate) return
 
     const lastCreatedEnvIndex = environmentsStore.value.environments.length - 1
+    const tempId = environmentsStore.value.environments[lastCreatedEnvIndex]?.id
+    if (!tempId) return
+    pendingTempEnvIds.add(tempId)
 
-    if (environmentToDuplicate) {
+    try {
       const res = await createUserEnvironment(
-        `${environmentToDuplicate?.name} - Duplicate`,
+        `${environmentToDuplicate.name} - Duplicate`,
         JSON.stringify(
           stripSecretVariableValuesForWire(
-            environmentToDuplicate?.variables ?? []
+            environmentToDuplicate.variables ?? []
           )
         )
       )
@@ -144,9 +152,10 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
         environmentsStore.value.environments[lastCreatedEnvIndex].id = id
 
         // Duplicates start fresh on secrets per the per-entity model.
-
         removeDuplicateEntry(id)
       }
+    } finally {
+      pendingTempEnvIds.delete(tempId)
     }
   },
   updateEnvironment({ envIndex, updatedEnv }) {

@@ -118,9 +118,15 @@ export const populateLocalStoresFromCollectionTree = (
       promoteInitialValueForImport(collection.variables ?? [])
     )
   } else {
-    // All current callers run `ensureRefIds` upstream so this should be
-    // unreachable; the warn exists so a future caller that skips it is
-    // debuggable instead of silently dropping secret values.
+    // All current callers of THIS function run `ensureRefIds` upstream
+    // so this should be unreachable; the warn exists so a future caller
+    // that skips it is debuggable instead of silently dropping secrets.
+    // Scope note: the equivalent "missing ref-id" case on the
+    // backstop-repopulate path is NOT covered here —
+    // `repopulateLoadedCollectionTree` calls `populateLocalStoresFromVariables`
+    // directly and bypasses this branch. That gap is covered by the
+    // `unpairedCount` warning in
+    // `selfhost-web/.../web/import.ts:importToPersonalWorkspace`.
     console.warn(
       "[populateLocalStoresFromCollectionTree] collection has no `_ref_id`; secret values will not be persisted locally",
       collection.name

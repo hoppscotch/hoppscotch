@@ -608,26 +608,24 @@ const saveEnvironment = async () => {
       return
     }
 
-    if (editingID.value) {
-      secretEnvironmentService.addSecretEnvironment(
-        editingID.value,
-        secretVariables
-      )
-
-      currentEnvironmentValueService.addEnvironment(
-        editingID.value,
-        nonSecretVariables
-      )
-
-      // If the user is a viewer, we don't need to update the environment in BE
-      // just update the secret environment and current environment in the local storage
-      if (props.isViewer) {
-        hideModal()
-        toast.success(`${t("environment.updated")}`)
+    // Viewers don't sync to backend — update local stores immediately
+    // and exit. For non-viewers, defer the store writes to the backend
+    // success callback (mirrors the "new" branch above) so local state
+    // stays in sync with the persisted payload if the mutation fails.
+    if (props.isViewer) {
+      if (editingID.value) {
+        secretEnvironmentService.addSecretEnvironment(
+          editingID.value,
+          secretVariables
+        )
+        currentEnvironmentValueService.addEnvironment(
+          editingID.value,
+          nonSecretVariables
+        )
       }
-    }
-
-    if (!props.isViewer) {
+      hideModal()
+      toast.success(`${t("environment.updated")}`)
+    } else {
       await pipe(
         updateTeamEnvironment(
           JSON.stringify(environmentUpdated.variables),
@@ -641,6 +639,16 @@ const saveEnvironment = async () => {
             isLoading.value = false
           },
           () => {
+            if (editingID.value) {
+              secretEnvironmentService.addSecretEnvironment(
+                editingID.value,
+                secretVariables
+              )
+              currentEnvironmentValueService.addEnvironment(
+                editingID.value,
+                nonSecretVariables
+              )
+            }
             hideModal()
             toast.success(`${t("environment.updated")}`)
 

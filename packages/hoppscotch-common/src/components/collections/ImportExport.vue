@@ -179,13 +179,11 @@ const importToTeamsWorkspace = async (collections: HoppCollection[]) => {
   )()
 
   if (E.isLeft(res)) {
-    // Backend rejected the import — flush ONLY the `_ref_id`-keyed
-    // entries we just seeded. `flushLocalStoresForCollectionTree`
-    // would also delete by `node.id`, which could be a live backend
-    // `id` from a same-workspace re-import (e.g., the imported file
-    // carries the original team-collection ids) and would wipe the
-    // existing collection's in-memory secrets. Empty `keptRefIds` ⇒
-    // every `_ref_id` in the tree is flushed.
+    // Backend rejected — flush ONLY `_ref_id`-keyed entries we just
+    // seeded. `flushLocalStoresForCollectionTree` would also delete by
+    // `node.id`, which could be a live backend id from a same-workspace
+    // re-import and would wipe existing collections' in-memory secrets.
+    // Empty `keptRefIds` ⇒ every `_ref_id` in the tree is flushed.
     flushUnmatchedRefIdsFromTree(collectionsWithRefIds, new Set())
     return E.left({ success: false })
   }

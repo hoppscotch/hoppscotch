@@ -474,8 +474,10 @@ onUnmounted(() => {
     .getActiveTabs()
     .value.some((t) => t.id === currentTabID)
   if (isCurrentTabRemoved) cancelRequest()
-  // Clear any pending retry timer to avoid callbacks firing on stale refs
-  autoSaveService.clearRetryTimer(currentTabID)
+  // Clear any pending retry timer to avoid callbacks firing on stale refs.
+  // Use tab.value.id (this component's own tab from props), NOT currentTabID
+  // which is a snapshot of the globally active tab at mount time.
+  autoSaveService.clearRetryTimer(tab.value.id)
 })
 
 const cancelRequest = () => {

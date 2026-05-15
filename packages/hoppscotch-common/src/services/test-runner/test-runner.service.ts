@@ -621,14 +621,8 @@ export class TestRunnerService extends Service {
         return
       }
 
-      // pm.execution.skipRequest() sentinel — advance to the next request without stopping
-      if (nextRequest === "__HOPP_SKIP_REQUEST__") {
-        orderIndex++
-        continue
-      }
-
       if (typeof nextRequest === "string") {
-        // Issue 4 fix: guard against infinite loops
+        // Guard against infinite loops from circular setNextRequest chains.
         if (jumpCount >= MAX_JUMPS) {
           console.warn(
             `[TestRunner] pm.setNextRequest loop limit (${MAX_JUMPS}) reached — stopping run to prevent infinite loop.`
@@ -649,6 +643,15 @@ export class TestRunnerService extends Service {
             orderIndex = nextIndex
             continue
           }
+        }
+
+        // No real request matched the name. If the value is the skip sentinel
+        // (set by pm.execution.skipRequest()), advance to the next request.
+        // Checking AFTER the name-lookup means a request literally named
+        // "__HOPP_SKIP_REQUEST__" can still be jumped to via setNextRequest().
+        if (nextRequest === "__HOPP_SKIP_REQUEST__") {
+          orderIndex++
+          continue
         }
       }
 

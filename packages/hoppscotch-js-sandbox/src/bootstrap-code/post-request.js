@@ -3234,12 +3234,16 @@
         const rawBody = globalThis.hopp.request.body
         if (rawBody && typeof rawBody === "object") {
           // Category D2 — pm.request.body.isEmpty() (PM311)
-          rawBody.isEmpty = () => {
-            if (!rawBody) return true
-            if (rawBody.mode === "raw") return !rawBody.raw || rawBody.raw.trim() === ""
-            if (rawBody.mode === "urlencoded") return !rawBody.urlencoded || rawBody.urlencoded.length === 0
-            if (rawBody.mode === "formdata") return !rawBody.formdata || rawBody.formdata.length === 0
-            return false
+          // Return a new object (spread) to avoid mutating the shared hopp.request.body reference.
+          return {
+            ...rawBody,
+            isEmpty: () => {
+              if (!rawBody) return true
+              if (rawBody.mode === "raw") return !rawBody.raw || rawBody.raw.trim() === ""
+              if (rawBody.mode === "urlencoded") return !rawBody.urlencoded || rawBody.urlencoded.length === 0
+              if (rawBody.mode === "formdata") return !rawBody.formdata || rawBody.formdata.length === 0
+              return false
+            },
           }
         }
         return rawBody

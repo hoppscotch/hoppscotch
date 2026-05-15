@@ -875,10 +875,15 @@ export async function runTestRunnerRequest(
       }
     : null
 
-  // Inject iteration data into the pre-request sandbox via the temp scope so that
-  // pm.iterationData.get(key) and pm.iterationData.toObject() both resolve correctly.
-  // Also inject __hopp_iteration_count__ so pm.execution.iterationCount reflects the
-  // actual total number of iterations for this run.
+  // Inject iteration data into the pre-request sandbox via the SELECTED scope.
+  // The cage sandbox's getSharedEnvMethods only reads `global` and `selected` —
+  // anything placed in `temp` is silently dropped by the sandbox. Using `selected`
+  // ensures pm.iterationData.get(key), pm.variables.get(key), and
+  // pm.iterationData.toObject()/toJSON() all work inside pre-request scripts,
+  // consistent with the post-request injection path.
+  // Private sentinel keys (__hopp_row__, __hopp_iteration_count__) are included here
+  // and will be stripped from the result envs before persisting to avoid polluting
+  // the user's environment (same cleanup that runs on the post-request result).
   const iterationCountVar = {
     key: "__hopp_iteration_count__",
     initialValue: String(totalIterations),
@@ -886,20 +891,23 @@ export async function runTestRunnerRequest(
     secret: false,
   }
 
-  const enrichedInitialEnvs = iterationRowVar
-    ? {
-        ...initialEnvs,
-        temp: [
-          ...initialEnvs.temp,
-          ...iterationDataEntries,
-          iterationRowVar,
-          iterationCountVar,
-        ],
-      }
-    : {
-        ...initialEnvs,
-        temp: [...initialEnvs.temp, iterationCountVar],
-      }
+  const preRequestSelected = [
+    // Drop any iteration keys that are already in selected to avoid duplicates.
+    ...initialEnvs.selected.filter(
+      (v) =>
+        v.key !== "__hopp_row__" &&
+        v.key !== "__hopp_iteration_count__" &&
+        !iterationDataEntries.some((e) => e.key === v.key)
+    ),
+    ...iterationDataEntries,
+    ...(iterationRowVar ? [iterationRowVar] : []),
+    iterationCountVar,
+  ]
+
+  const enrichedInitialEnvs = {
+    ...initialEnvs,
+    selected: preRequestSelected,
+  }
 
   return delegatePreRequestScriptRunner(
     request,

@@ -114,6 +114,31 @@ export class SaveOnboardingConfigRequest {
   @IsOptional()
   @IsString()
   [InfraConfigEnum.MAILER_SMTP_IGNORE_TLS]: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  [InfraConfigEnum.MAILER_SMTP_AUTH_TYPE]: string;
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  [InfraConfigEnum.MAILER_SMTP_OAUTH2_USER]: string;
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  [InfraConfigEnum.MAILER_SMTP_OAUTH2_CLIENT_ID]: string;
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  [InfraConfigEnum.MAILER_SMTP_OAUTH2_CLIENT_SECRET]: string;
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  [InfraConfigEnum.MAILER_SMTP_OAUTH2_REFRESH_TOKEN]: string;
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  [InfraConfigEnum.MAILER_SMTP_OAUTH2_ACCESS_URL]: string;
 }
 
 export class SaveOnboardingConfigResponse {
@@ -204,4 +229,23 @@ export class GetOnboardingConfigResponse {
   @ApiProperty()
   @Expose()
   [InfraConfigEnum.MAILER_SMTP_IGNORE_TLS]: string;
+
+  @ApiProperty()
+  @Expose()
+  [InfraConfigEnum.MAILER_SMTP_AUTH_TYPE]: string;
+  @ApiProperty()
+  @Expose()
+  [InfraConfigEnum.MAILER_SMTP_OAUTH2_USER]: string;
+  @ApiProperty()
+  @Expose()
+  [InfraConfigEnum.MAILER_SMTP_OAUTH2_CLIENT_ID]: string;
+  @ApiProperty()
+  @Expose()
+  [InfraConfigEnum.MAILER_SMTP_OAUTH2_CLIENT_SECRET]: string;
+  @ApiProperty()
+  @Expose()
+  [InfraConfigEnum.MAILER_SMTP_OAUTH2_REFRESH_TOKEN]: string;
+  @ApiProperty()
+  @Expose()
+  [InfraConfigEnum.MAILER_SMTP_OAUTH2_ACCESS_URL]: string;
 }

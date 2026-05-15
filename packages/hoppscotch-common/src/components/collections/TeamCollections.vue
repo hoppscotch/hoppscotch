@@ -486,12 +486,16 @@
                 :label="t('add.new')"
                 filled
                 outline
+                :disabled="hasNoTeamAccess"
+                :title="hasNoTeamAccess ? t('team.no_access') : ''"
                 @click="
-                  node.data.type === 'collections' &&
-                  emit('add-folder', {
-                    path: node.id,
-                    folder: node.data.data.data,
-                  })
+                  hasNoTeamAccess
+                    ? null
+                    : node.data.type === 'collections' &&
+                      emit('add-folder', {
+                        path: node.id,
+                        folder: node.data.data.data,
+                      })
                 "
               />
             </template>

@@ -30,7 +30,7 @@ import {
 } from "./display";
 import { getDurationInSeconds, getMetaDataPairs } from "./getters";
 import { preRequestScriptRunner } from "./pre-request";
-import { getTestScriptParams, hasFailedTestCases, testRunner } from "./test";
+import { getTestScriptParams, hasAllTestsPassed, testRunner } from "./test";
 
 /**
  * Processes given variable, which includes checking for secret variables
@@ -232,8 +232,16 @@ export const processRequest =
     params: ProcessRequestParams
   ): T.Task<{ envs: HoppEnvs; report: RequestReport }> =>
   async () => {
-    const { envs, path, request, delay, legacySandbox, collectionVariables } =
-      params;
+    const {
+      envs,
+      path,
+      request,
+      delay,
+      legacySandbox,
+      collectionVariables,
+      inheritedPreRequestScripts = [],
+      inheritedTestScripts = [],
+    } = params;
 
     // Initialising updatedEnvs with given parameter envs, will eventually get updated.
     const result = {
@@ -258,17 +266,21 @@ export const processRequest =
       effectiveFinalParams: [],
       effectiveFinalURL: "",
     };
-    let updatedEnvs = <HoppEnvs>{};
 
     // Fetch values for secret environment variables from system environment
     const processedEnvs = processEnvs(envs);
 
-    // Executing pre-request-script
+    // Default envs to the pre-script state so downstream consumers
+    // (test-runner, effectiveRequest builder) receive a well-shaped
+    // HoppEnvs even if the pre-request script fails.
+    let updatedEnvs: HoppEnvs = processedEnvs;
+
     const preRequestRes = await preRequestScriptRunner(
       request,
       processedEnvs,
       legacySandbox ?? false,
-      collectionVariables
+      collectionVariables,
+      inheritedPreRequestScripts
     )();
     if (E.isLeft(preRequestRes)) {
       printPreRequestRunner.fail();
@@ -317,12 +329,12 @@ export const processRequest =
       printRequestRunner.success(_requestRunnerRes);
     }
 
-    // Extracting test-script-runner parameters.
     const testScriptParams = getTestScriptParams(
       _requestRunnerRes,
       effectiveRequest,
       updatedEnvs,
-      legacySandbox ?? false
+      legacySandbox ?? false,
+      inheritedTestScripts
     );
 
     // Executing test-runner.
@@ -337,7 +349,7 @@ export const processRequest =
       report.result = false;
     } else {
       const { envs, testsReport, duration } = testRunnerRes.right;
-      const _hasFailedTestCases = hasFailedTestCases(testsReport);
+      const _allTestsPassed = hasAllTestsPassed(testsReport);
 
       // Check if any tests have uncaught runtime errors (e.g., ReferenceError, TypeError)
       // Don't include validation errors (they're reported as individual testcases)
@@ -369,7 +381,7 @@ export const processRequest =
 
       // Updating report with current tests, result and duration.
       report.tests = testsReport;
-      report.result = report.result && _hasFailedTestCases;
+      report.result = report.result && _allTestsPassed;
       report.duration.test = duration;
 
       // Updating resulting envs from test-runner.

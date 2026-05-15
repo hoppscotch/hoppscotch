@@ -2,6 +2,7 @@ import { AuthProvider } from 'src/auth/helper';
 import { ENV_INVALID_DATA_ENCRYPTION_KEY } from 'src/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { InfraConfigEnum } from 'src/types/InfraConfig';
+import { SMTPAuthType } from 'src/mailer/helper';
 import { decrypt, encrypt } from 'src/utils';
 import { randomBytes } from 'crypto';
 
@@ -241,6 +242,36 @@ export async function getDefaultInfraConfigs(): Promise<DefaultInfraConfig[]> {
     {
       name: InfraConfigEnum.MAILER_SMTP_IGNORE_TLS,
       value: 'false',
+      isEncrypted: false,
+    },
+    {
+      name: InfraConfigEnum.MAILER_SMTP_AUTH_TYPE,
+      value: SMTPAuthType.LOGIN,
+      isEncrypted: false,
+    },
+    {
+      name: InfraConfigEnum.MAILER_SMTP_OAUTH2_USER,
+      value: null,
+      isEncrypted: false,
+    },
+    {
+      name: InfraConfigEnum.MAILER_SMTP_OAUTH2_CLIENT_ID,
+      value: null,
+      isEncrypted: true,
+    },
+    {
+      name: InfraConfigEnum.MAILER_SMTP_OAUTH2_CLIENT_SECRET,
+      value: null,
+      isEncrypted: true,
+    },
+    {
+      name: InfraConfigEnum.MAILER_SMTP_OAUTH2_REFRESH_TOKEN,
+      value: null,
+      isEncrypted: true,
+    },
+    {
+      name: InfraConfigEnum.MAILER_SMTP_OAUTH2_ACCESS_URL,
+      value: null,
       isEncrypted: false,
     },
     {

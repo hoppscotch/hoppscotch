@@ -88,6 +88,7 @@ interface Props {
 
 withDefaults(defineProps<Props>(), {
   message: "",
+  progress: undefined,
   showProgress: true,
   showCancel: false,
 })

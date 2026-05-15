@@ -70,6 +70,8 @@ export function translateToPersonalCollectionFormat(x: HoppCollection) {
     headers: x.headers,
     variables: x.variables,
     description: x.description,
+    preRequestScript: x.preRequestScript ?? "",
+    testScript: x.testScript ?? "",
   }
 
   const obj = {

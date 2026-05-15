@@ -1,4 +1,5 @@
 import { ref } from "vue"
+import * as E from "fp-ts/Either"
 import { load, download, close } from "@hoppscotch/plugin-appload"
 import { getVersion } from "@tauri-apps/api/app"
 import { invoke } from "@tauri-apps/api/core"
@@ -44,7 +45,7 @@ export function useAppInitialization() {
 
   const saveConnectionState = async (state: ConnectionState) => {
     try {
-      await persistence.setConnectionState(state)
+      await persistence.connectionState.set(state)
     } catch (err) {
       console.error("Failed to save connection state:", err)
     }
@@ -246,8 +247,8 @@ export function useAppInitialization() {
       // instances. The InstanceService's detectCurrentInstanceFromHostname
       // persists the detected instance (including cloud-org) to this store,
       // so on restart the main window can resume the correct instance.
-      const connectionState = await persistence.getConnectionState()
-      const recentInstances = await persistence.getRecentInstances()
+      const connectionState = await persistence.connectionState.get()
+      const recentInstances = await persistence.recentInstances.get()
 
       mainDiag(`loadRecent: connectionState=${JSON.stringify(connectionState)}`)
       mainDiag(
@@ -354,7 +355,18 @@ export function useAppInitialization() {
     }
 
     statusMessage.value = "Initializing stores..."
-    await persistence.init()
+    // `init` returns `Either<StoreError, void>` so callers can decide
+    // how to surface a failure. Branching to a thrown Error here lets
+    // the surrounding `initialize()` try/catch route the failure into
+    // `error.value` for the UI, the same way every other startup
+    // failure is reported, instead of letting init silently complete
+    // and leave the app running on defaults with no Rust sync.
+    const initResult = await persistence.init()
+    if (E.isLeft(initResult)) {
+      throw new Error(
+        `Persistence init failed: ${initResult.left.kind}: ${initResult.left.message}`
+      )
+    }
   }
 
   const initialize = async (customLogic?: () => Promise<void>) => {

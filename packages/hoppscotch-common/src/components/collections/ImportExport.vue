@@ -37,7 +37,7 @@ import { useToast } from "~/composables/toast"
 import { appendRESTCollections, restCollections$ } from "~/newstore/collections"
 import {
   ensureRefIds,
-  flushLocalStoresForCollectionTree,
+  flushUnmatchedRefIdsFromTree,
   populateLocalStoresFromCollectionTree,
   stripCollectionTreeForStore,
 } from "~/helpers/secretVariables"
@@ -179,11 +179,14 @@ const importToTeamsWorkspace = async (collections: HoppCollection[]) => {
   )()
 
   if (E.isLeft(res)) {
-    // Backend rejected the import — flush the just-seeded entries so
-    // they don't linger under `_ref_id`s no team collection will ever
-    // reference. (Success path migrates them via
-    // `TeamCollectionsService.addCollection`.)
-    collectionsWithRefIds.forEach(flushLocalStoresForCollectionTree)
+    // Backend rejected the import — flush ONLY the `_ref_id`-keyed
+    // entries we just seeded. `flushLocalStoresForCollectionTree`
+    // would also delete by `node.id`, which could be a live backend
+    // `id` from a same-workspace re-import (e.g., the imported file
+    // carries the original team-collection ids) and would wipe the
+    // existing collection's in-memory secrets. Empty `keptRefIds` ⇒
+    // every `_ref_id` in the tree is flushed.
+    flushUnmatchedRefIdsFromTree(collectionsWithRefIds, new Set())
     return E.left({ success: false })
   }
   return E.right({ success: true })

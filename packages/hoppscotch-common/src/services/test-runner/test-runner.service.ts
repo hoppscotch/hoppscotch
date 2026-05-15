@@ -143,7 +143,7 @@ export class TestRunnerService extends Service {
           ? options.requestOrder
           : this.collectRequestOrder(collection)
 
-      await this.runTestsInCustomOrder(
+      const collectionStopped = await this.runTestsInCustomOrder(
         tab,
         collection,
         options,
@@ -153,6 +153,9 @@ export class TestRunnerService extends Service {
         ancestorPreRequestScripts,
         ancestorTestScripts
       )
+
+      // pm.setNextRequest(null) was called — stop all remaining iterations immediately
+      if (collectionStopped) return
 
       // Add delay between iterations (except after the last one)
       if (iteration < iterations - 1 && options.delay && options.delay > 0) {
@@ -503,6 +506,8 @@ export class TestRunnerService extends Service {
   /**
    * Executes requests in the user-defined flat order stored in options.requestOrder.
    * Auth/header inheritance is resolved for each request individually.
+   * Returns `true` if the run was stopped by `pm.setNextRequest(null)`,
+   * signalling the caller to skip any remaining iterations.
    */
   private async runTestsInCustomOrder(
     tab: Ref<HoppTab<HoppTestRunnerDocument>>,
@@ -513,7 +518,7 @@ export class TestRunnerService extends Service {
     iterationData?: Record<string, unknown>,
     ancestorPreRequestScripts: string[] = [],
     ancestorTestScripts: string[] = []
-  ) {
+  ): Promise<boolean> {
     // On the first iteration, pre-populate the folder tree in the result collection
     // so that appendRequestToPath can navigate into sub-folders safely.
     if (shouldResetFoldersAndRequests) {
@@ -617,20 +622,26 @@ export class TestRunnerService extends Service {
       }
 
       if (nextRequest === null) {
-        // pm.setNextRequest(null) — stop the run
-        return
+        // pm.setNextRequest(null) — stop the entire collection run (all iterations)
+        return true
       }
 
       if (typeof nextRequest === "string") {
-        // Guard against infinite loops from circular setNextRequest chains.
-        if (jumpCount >= MAX_JUMPS) {
-          console.warn(
-            `[TestRunner] pm.setNextRequest loop limit (${MAX_JUMPS}) reached — stopping run to prevent infinite loop.`
-          )
-          return
-        }
-        jumpCount++
-
+        // Handle the skip sentinel BEFORE touching jumpCount.
+        // skipRequest() is not a loop-forming operation, so it must not consume
+        // any of the MAX_JUMPS budget — the guard is only for circular setNextRequest chains.
+        // Checked before resolveNextRequestPath so a request literally named
+        // "__HOPP_SKIP_REQUEST__" can still be jumped to via setNextRequest()
+        // because in that case resolveNextRequestPath would have already matched it above;
+        // the resolution happens first, and only an unresolved name falls through here.
+        //
+        // Implementation note: the skip path is entered only when no real request
+        // matched the name (resolveNextRequestPath returns null), so the order is:
+        //   1. Is it the skip sentinel AND no real request has this name? → advance
+        //   2. Otherwise count the jump and attempt resolution.
+        //
+        // To keep the name-wins guarantee from the previous fix, we attempt resolution
+        // first and skip the jumpCount increment only when the sentinel matches.
         const nextRequestPath = this.resolveNextRequestPath(
           collection,
           nextRequest
@@ -640,23 +651,41 @@ export class TestRunnerService extends Service {
           const nextIndex = executionOrder.indexOf(nextRequestPath)
 
           if (nextIndex !== -1) {
+            // Real setNextRequest jump — guard against infinite loops.
+            if (jumpCount >= MAX_JUMPS) {
+              console.warn(
+                `[TestRunner] pm.setNextRequest loop limit (${MAX_JUMPS}) reached — stopping run to prevent infinite loop.`
+              )
+              return false
+            }
+            jumpCount++
             orderIndex = nextIndex
             continue
           }
         }
 
-        // No real request matched the name. If the value is the skip sentinel
-        // (set by pm.execution.skipRequest()), advance to the next request.
-        // Checking AFTER the name-lookup means a request literally named
-        // "__HOPP_SKIP_REQUEST__" can still be jumped to via setNextRequest().
+        // No real request matched the name.
+        // If this is the skip sentinel (pm.execution.skipRequest()), simply advance
+        // without counting it as a jump — skips cannot cause infinite loops.
         if (nextRequest === "__HOPP_SKIP_REQUEST__") {
           orderIndex++
           continue
         }
+
+        // Unknown setNextRequest target that didn't resolve — count it so a
+        // script repeatedly calling setNextRequest("nonexistent") still terminates.
+        if (jumpCount >= MAX_JUMPS) {
+          console.warn(
+            `[TestRunner] pm.setNextRequest loop limit (${MAX_JUMPS}) reached — stopping run to prevent infinite loop.`
+          )
+          return false
+        }
+        jumpCount++
       }
 
       orderIndex++
     }
+    return false // completed all requests without a forced stop
   }
 
   private collectRequestOrder(

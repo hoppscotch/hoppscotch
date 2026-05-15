@@ -4286,7 +4286,19 @@
     // under the "row" environment variable: pm.environment.set("row", JSON.stringify(datasetRow)).
     iterationData: {
       get: (key) => globalThis.pm.variables.get(key),
-      has: (key) => globalThis.pm.variables.has(key),
+      // has() must only check the current dataset row, not all variable scopes.
+      // Delegating to pm.variables.has() would return true for environment/global
+      // vars with the same name even when the dataset has no such column.
+      has: (key) => {
+        const rowJson = globalThis.pm.variables.get("__hopp_row__")
+        if (rowJson !== undefined && rowJson !== null) {
+          try {
+            const row = JSON.parse(rowJson)
+            return Object.prototype.hasOwnProperty.call(row, key)
+          } catch (_) {}
+        }
+        return false
+      },
       toObject: () => {
         // Read the private sentinel key "__hopp_row__" injected by the runner.
         // Using pm.variables (not pm.environment) searches all scopes including temp,

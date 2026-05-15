@@ -189,6 +189,7 @@ const dispatchers = defineDispatchers({
       ),
     }
   },
+
   updateEnvironment(
     { environments }: EnvironmentStore,
     { envIndex, updatedEnv }: { envIndex: number; updatedEnv: Environment }

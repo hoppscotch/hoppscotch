@@ -671,8 +671,13 @@ export const runSubscription = (
       // to UNSUBSCRIBED (mirrors `onclose`) and closing the socket so
       // the UI doesn't stay stuck in SUBSCRIBING/SUBSCRIBED while a
       // tight loop of `malformed_frame` errors is emitted.
+      //
+      // Close the socket that emitted this frame, not
+      // `connection.socket`: the shared reference may already have
+      // been replaced by a newer subscription, and a stale callback
+      // firing here must not disconnect the active one.
       connection.subscriptionState.set(subscriptionTabID, "UNSUBSCRIBED")
-      connection.socket?.close()
+      ;(event.currentTarget as WebSocket | null)?.close()
       return
     }
     const data = decoded.frame

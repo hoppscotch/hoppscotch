@@ -62,17 +62,35 @@ export const importToPersonalWorkspace = async (
       const originalsByRefId = new Map<string, HoppCollection>()
       indexCollectionsByRefId(collectionsWithRefIds, originalsByRefId)
 
-      // Warn once per import if any loaded root's `_ref_id` doesn't match
-      // an original — `exportedCollectionToHoppCollection` backfills
-      // missing ref-ids with fresh UUIDs, so we can't detect the
-      // round-trip failure via a null check. The miss-against-originals
-      // check catches both "backend dropped `data._ref_id`" and "backend
-      // returned a value we never sent."
-      if (loaded.some((c) => !c._ref_id || !originalsByRefId.has(c._ref_id))) {
+      // Collect ALL loaded ref-ids (root + nested folders) so the warning
+      // and the flush both detect nested-level round-trip failures —
+      // `exportedCollectionToHoppCollection` backfills missing
+      // `data._ref_id` with fresh UUIDs, so a root-only check would miss
+      // a buggy backend that dropped `_ref_id` for nested folders.
+      const loadedRefIds = new Set<string>()
+      const collectRefIds = (cs: HoppCollection[]) => {
+        cs.forEach((c) => {
+          if (c._ref_id) loadedRefIds.add(c._ref_id)
+          collectRefIds(c.folders ?? [])
+        })
+      }
+      collectRefIds(loaded)
+
+      let unpairedCount = 0
+      const countUnpaired = (cs: HoppCollection[]) => {
+        cs.forEach((c) => {
+          if (c._ref_id && !loadedRefIds.has(c._ref_id)) unpairedCount++
+          countUnpaired(c.folders ?? [])
+        })
+      }
+      countUnpaired(collectionsWithRefIds)
+
+      if (unpairedCount > 0) {
         console.warn(
-          "[importToPersonalWorkspace] loaded collection(s) don't pair to " +
-            "originals by `_ref_id`; imported secret values may not persist " +
-            "across reload"
+          `[importToPersonalWorkspace] ${unpairedCount} collection node(s) ` +
+            `did not pair to originals by \`_ref_id\` (backend likely dropped ` +
+            `\`data._ref_id\` at those levels); imported secret values for ` +
+            `those nodes will not persist and need to be re-entered.`
         )
       }
 
@@ -85,14 +103,6 @@ export const importToPersonalWorkspace = async (
       // accumulate in localStorage unreachable from the loaded tree. Runs
       // AFTER `repopulateLoadedCollectionTree` so paired entries (re-seeded
       // under their refIds) aren't deleted.
-      const loadedRefIds = new Set<string>()
-      const collectRefIds = (cs: HoppCollection[]) => {
-        cs.forEach((c) => {
-          if (c._ref_id) loadedRefIds.add(c._ref_id)
-          collectRefIds(c.folders ?? [])
-        })
-      }
-      collectRefIds(loaded)
       flushUnmatchedRefIdsFromTree(collectionsWithRefIds, loadedRefIds)
 
       return E.right({ success: true })

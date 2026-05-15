@@ -27,12 +27,39 @@ export class AutoSaveService extends Service {
   private restTabs = this.bind(RESTTabService)
   private gqlTabs = this.bind(GQLTabService)
 
+  // FIX (P1): Per-tab save-in-progress tracking instead of a single global flag.
+  // A global ref(false) would block saves on ALL tabs while any one tab's
+  // team-collection mutation is in-flight.
+  private saveInProgressMap = new Map<string, boolean>()
+
+  // Keep a public reactive ref for backwards-compatible watcher guards in
+  // components. It reflects whether *any* tab save is in progress.
   public saveInProgress = ref(false)
 
   private retryData = new Map<
     string,
     { count: number; timer: ReturnType<typeof setTimeout> | null }
   >()
+
+  // FIX (P1): Per-tab poll timers for manual saves that arrive while a
+  // mutation is in-flight. Ensures at most one outstanding poll per tab and
+  // allows cancellation on unmount via clearRetryTimer.
+  private manualSavePollTimers = new Map<
+    string,
+    ReturnType<typeof setTimeout>
+  >()
+
+  private isSaveInProgress(tabId: string): boolean {
+    return this.saveInProgressMap.get(tabId) ?? false
+  }
+
+  private setSaveInProgress(tabId: string, value: boolean) {
+    this.saveInProgressMap.set(tabId, value)
+    // Keep the global reactive ref in sync for watcher guards in components
+    this.saveInProgress.value = [...this.saveInProgressMap.values()].some(
+      Boolean
+    )
+  }
 
   private getTabService(doc: TabDocument) {
     if ("type" in doc && doc.type === "request") {
@@ -49,23 +76,27 @@ export class AutoSaveService extends Service {
     const t = getI18n()
     const toast = useToast()
 
-    // Block ALL concurrent saves — both silent and manual — while a mutation
-    // is in-flight. This prevents out-of-order updates where a manual save
-    // races an auto-save and overwrites newer content with an older snapshot.
-    if (this.saveInProgress.value) {
+    // Block concurrent saves for THIS tab only. Saves on other tabs are
+    // unaffected (fixes the global-flag cross-tab blocking bug).
+    if (this.isSaveInProgress(tab.id)) {
       if (!silent) {
-        // For a manual save blocked by an in-flight mutation, poll until
-        // the in-flight save completes then re-invoke so the user's intent
-        // is never silently dropped.
+        // FIX (P1): Track the poll timer per-tab so we can cancel it on
+        // unmount and guarantee at most one outstanding poll per tab.
+        const existingTimer = this.manualSavePollTimers.get(tab.id)
+        if (existingTimer) clearTimeout(existingTimer)
+
         const waitAndRetry = () => {
-          if (this.saveInProgress.value) setTimeout(waitAndRetry, 100)
-          else
+          if (this.isSaveInProgress(tab.id)) {
+            this.manualSavePollTimers.set(tab.id, setTimeout(waitAndRetry, 100))
+          } else {
+            this.manualSavePollTimers.delete(tab.id)
             this.saveRequest(tab, {
               silent: false,
               onTriggerModal: options?.onTriggerModal,
             })
+          }
         }
-        setTimeout(waitAndRetry, 100)
+        this.manualSavePollTimers.set(tab.id, setTimeout(waitAndRetry, 100))
       }
       return
     }
@@ -122,7 +153,7 @@ export class AutoSaveService extends Service {
           })
       }
     } else if (saveCtx.originLocation === "team-collection") {
-      this.saveInProgress.value = true
+      this.setSaveInProgress(tab.id, true)
 
       let requestSnapshot = ""
 
@@ -166,8 +197,38 @@ export class AutoSaveService extends Service {
         )()
 
         if (E.isLeft(result)) {
-          if (!silent) toast.error(`${t("profile.no_permission")}`)
+          // FIX: Distinguish transient network errors from permanent permission
+          // errors so the user sees an appropriate message and we only retry
+          // on errors that are likely to recover.
+          const leftError = result.left as any
+          const isNetworkError = leftError?.type === "network_error"
+          const gqlMessage: string =
+            leftError?.type === "gql_error"
+              ? typeof leftError.error === "string"
+                ? leftError.error
+                : ((leftError.error?.message as string | undefined) ?? "")
+              : ""
+          const isPermissionError =
+            !isNetworkError &&
+            /permission|unauthorized|forbidden|access denied|not allowed/i.test(
+              gqlMessage
+            )
+
+          if (!silent) {
+            toast.error(
+              `${t(
+                isPermissionError
+                  ? "profile.no_permission"
+                  : "error.something_went_wrong"
+              )}`
+            )
+          }
+
+          // FIX: Only schedule retries for transient (network) errors.
+          // Permanent errors like insufficient permissions will never recover
+          // and retrying them would generate unnecessary background traffic.
           if (
+            isNetworkError &&
             requestSnapshot &&
             JSON.stringify(tab.document.request) === requestSnapshot
           ) {
@@ -185,7 +246,9 @@ export class AutoSaveService extends Service {
           options?.onTriggerModal?.()
           toast.error(`${t("error.something_went_wrong")}`)
         }
-        console.error(error)
+        // FIX: Only log errors for manual saves; silent auto-save failures
+        // should not spam the console on every retry attempt.
+        if (!silent) console.error(error)
         if (
           requestSnapshot &&
           JSON.stringify(tab.document.request) === requestSnapshot
@@ -193,7 +256,7 @@ export class AutoSaveService extends Service {
           this.scheduleRetry(tab)
         }
       } finally {
-        this.saveInProgress.value = false
+        this.setSaveInProgress(tab.id, false)
         const newSnapshot = JSON.stringify(tab.document.request)
         if (
           requestSnapshot &&
@@ -260,7 +323,16 @@ export class AutoSaveService extends Service {
     const tabRetryData = this.retryData.get(tabId)
     if (tabRetryData?.timer) {
       clearTimeout(tabRetryData.timer)
-      tabRetryData.timer = null
+    }
+    // Remove the entry entirely to prevent tombstone accumulation over long
+    // sessions. scheduleRetry re-creates it on demand.
+    this.retryData.delete(tabId)
+
+    // Also cancel any outstanding manual-save poll timer for this tab
+    const pollTimer = this.manualSavePollTimers.get(tabId)
+    if (pollTimer !== undefined) {
+      clearTimeout(pollTimer)
+      this.manualSavePollTimers.delete(tabId)
     }
   }
 }

@@ -56,7 +56,6 @@
 
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
-import { useToast } from "@composables/toast"
 import { HoppGQLAuth, HoppGQLRequest } from "@hoppscotch/data"
 import { computedWithControl, useVModel } from "@vueuse/core"
 import { watchDebounced } from "@vueuse/core"
@@ -91,7 +90,6 @@ export type GQLOptionTabs = (typeof _VALID_GQL_OPERATIONS)[number]
 const interceptorService = useService(KernelInterceptorService)
 
 const t = useI18n()
-const toast = useToast()
 
 const tabs = useService(GQLTabService)
 const autoSaveService = useService(AutoSaveService)
@@ -187,6 +185,7 @@ watch(
       return
     }
     try {
+      if (!event) return
       if (
         event?.type === "response" &&
         event?.operationType !== "subscription"
@@ -211,7 +210,7 @@ watch(
     ) {
       const response = [
         {
-          type: "error",
+          type: "error" as const,
           error: {
             message: newVal.error.message(t),
             type: newVal.error.type,
@@ -232,11 +231,6 @@ const updateCursorPos = (pos: number) => {
 const hideRequestModal = () => {
   showSaveRequestModal.value = false
 }
-
-// Tracks the polling timer used to honor a user's manual save request that
-// arrives while a mutation is already in-flight. Ensures we never have more
-// than one outstanding poll and that pending polls are cancelled on unmount.
-let manualSavePollTimer: ReturnType<typeof setTimeout> | null = null
 
 // Declared as async to match REST and allow callers to await completion.
 const saveRequest = (options?: { silent?: boolean }) =>
@@ -285,12 +279,7 @@ const stopAutoSave = watchDebounced(
       const saveCtx = tabToSave.document.saveContext
       const autoSaveEnabled = AUTO_SAVE_REQUESTS.value
 
-      if (
-        !autoSaveEnabled ||
-        !isDirty ||
-        !saveCtx ||
-        autoSaveService.saveInProgress.value
-      ) {
+      if (!autoSaveEnabled || !isDirty || !saveCtx) {
         return
       }
 
@@ -309,13 +298,9 @@ const stopAutoSave = watchDebounced(
 )
 
 onUnmounted(() => {
-  // Cancel any pending debounced auto-save and retry timers
+  // Cancel any pending debounced auto-save and retry/poll timers
   stopAutoSave()
-  if (tab.value) autoSaveService.clearRetryTimer(tab.value.id)
-  if (manualSavePollTimer !== null) {
-    clearTimeout(manualSavePollTimer)
-    manualSavePollTimer = null
-  }
+  autoSaveService.clearRetryTimer(props.tabId)
 })
 </script>
 

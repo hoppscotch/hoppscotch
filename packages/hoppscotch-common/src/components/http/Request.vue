@@ -186,7 +186,7 @@
                   @keyup.enter="hide()"
                 />
                 <HoppSmartItem
-                  ref="saveRequestAction"
+                  ref="_saveRequestAction"
                   :label="`${t('request.save_as')}`"
                   :icon="IconFolderPlus"
                   @click="
@@ -198,7 +198,7 @@
                 />
                 <hr />
                 <HoppSmartItem
-                  ref="copyRequestAction"
+                  ref="_copyRequestAction"
                   :label="t('request.share_request')"
                   :icon="IconShare2"
                   :loading="fetchingShareLink"
@@ -230,7 +230,12 @@
       mode="rest"
       :show="showSaveRequestModal"
       :request="saveAsRequest"
-      @hide-modal="showSaveRequestModal = false"
+      @hide-modal="
+        () => {
+          showSaveRequestModal = false
+          saveAsRequest = null
+        }
+      "
     />
   </div>
 </template>
@@ -255,6 +260,7 @@ import IconRotateCCW from "~icons/lucide/rotate-ccw"
 import IconSave from "~icons/lucide/save"
 import IconShare2 from "~icons/lucide/share-2"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
+import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { RESTHistoryEntry, restHistory$ } from "~/newstore/history"
 import { platform } from "~/platform"
 import { HoppRESTRequest } from "@hoppscotch/data"
@@ -312,8 +318,8 @@ const saveTippyActions = ref<any | null>(null)
 const curl = ref<any | null>(null)
 const show = ref<any | null>(null)
 const clearAll = ref<any | null>(null)
-const copyRequestAction = ref<any | null>(null)
-const saveRequestAction = ref<any | null>(null)
+const _copyRequestAction = ref<any | null>(null)
+const _saveRequestAction = ref<any | null>(null)
 const urlInput = ref<{ focus: () => void } | null>(null)
 
 const history = useReadonlyStream<RESTHistoryEntry[]>(restHistory$, [])
@@ -603,7 +609,6 @@ const stopAutoSave = watchDebounced(
         !autoSaveEnabled ||
         !isDirty ||
         !saveCtx ||
-        autoSaveService.saveInProgress.value ||
         tab.value.document.type !== "request"
       ) {
         return

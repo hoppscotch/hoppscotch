@@ -4284,9 +4284,11 @@
       get: (key) => globalThis.pm.variables.get(key),
       has: (key) => globalThis.pm.variables.has(key),
       toObject: () => {
-        // Prefer the pre-loaded "row" env variable (runner sets it as a serialised JSON object).
-        // Fall back to an empty object when the runner has not injected it.
-        const rowJson = globalThis.pm.environment.get("row")
+        // Read the private sentinel key "__hopp_row__" injected by the runner.
+        // Using pm.variables (not pm.environment) searches all scopes including temp,
+        // so it works for both pre- and post-request contexts.
+        // A user dataset column named "row" does NOT collide with this sentinel.
+        const rowJson = globalThis.pm.variables.get("__hopp_row__")
         if (rowJson !== undefined && rowJson !== null) {
           try { return JSON.parse(rowJson) } catch (_) {}
         }
@@ -4294,7 +4296,7 @@
       },
       toJSON: () => {
         // Same strategy as toObject()
-        const rowJson = globalThis.pm.environment.get("row")
+        const rowJson = globalThis.pm.variables.get("__hopp_row__")
         if (rowJson !== undefined && rowJson !== null) {
           try { return JSON.parse(rowJson) } catch (_) {}
         }
@@ -4340,9 +4342,12 @@
       runRequest: (id) => {
         console.warn(`[pm.execution] pm.execution.runRequest('${id}') is not supported. Use pm.sendRequest({...}, callback) for extra HTTP calls, or redesign collection runner order using setNextRequest().`)
       },
-      // iterationCount — returns 1 in single-execution environments (Hoppscotch does not support Collection Runner iterations)
+      // iterationCount — reads the total iteration count injected by the runner via the
+      // "__hopp_iteration_count__" temp variable; falls back to 1 for single-request runs.
       get iterationCount() {
-        return 1
+        const raw = globalThis.pm.variables.get("__hopp_iteration_count__")
+        const parsed = raw !== undefined && raw !== null ? parseInt(raw, 10) : NaN
+        return Number.isFinite(parsed) && parsed >= 1 ? parsed : 1
       },
     },
 

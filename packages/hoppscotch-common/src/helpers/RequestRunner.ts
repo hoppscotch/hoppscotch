@@ -825,7 +825,8 @@ export async function runTestRunnerRequest(
   initialEnvironmentState: InitialEnvironmentState,
   inheritedPreRequestScripts: string[] = [],
   inheritedTestScripts: string[] = [],
-  iterationData?: Record<string, unknown>
+  iterationData?: Record<string, unknown>,
+  totalIterations: number = 1
 ): Promise<
   | E.Left<"script_fail">
   | E.Right<{
@@ -852,10 +853,10 @@ export async function runTestRunnerRequest(
   // Adds ~32ms latency but ensures immediate visual feedback
   await waitForBrowserPaint()
 
-  // Build a "row" variable that serialises the full iteration dataset so
+  // Build a sentinel variable that serialises the full iteration dataset so
   // pm.iterationData.toObject() / toJSON() can reconstruct the object.
-  // Individual iteration keys are also injected so pm.iterationData.get(key)
-  // works in both pre- and post-request scripts.
+  // Uses a private key "__hopp_row__" (instead of "row") to avoid colliding with
+  // any user dataset column that is also named "row".
   const iterationDataEntries = iterationData
     ? Object.entries(iterationData).map(([key, value]) => ({
         key,
@@ -867,7 +868,7 @@ export async function runTestRunnerRequest(
 
   const iterationRowVar = iterationData
     ? {
-        key: "row",
+        key: "__hopp_row__",
         initialValue: JSON.stringify(iterationData),
         currentValue: JSON.stringify(iterationData),
         secret: false,
@@ -876,6 +877,15 @@ export async function runTestRunnerRequest(
 
   // Inject iteration data into the pre-request sandbox via the temp scope so that
   // pm.iterationData.get(key) and pm.iterationData.toObject() both resolve correctly.
+  // Also inject __hopp_iteration_count__ so pm.execution.iterationCount reflects the
+  // actual total number of iterations for this run.
+  const iterationCountVar = {
+    key: "__hopp_iteration_count__",
+    initialValue: String(totalIterations),
+    currentValue: String(totalIterations),
+    secret: false,
+  }
+
   const enrichedInitialEnvs = iterationRowVar
     ? {
         ...initialEnvs,
@@ -883,9 +893,13 @@ export async function runTestRunnerRequest(
           ...initialEnvs.temp,
           ...iterationDataEntries,
           iterationRowVar,
+          iterationCountVar,
         ],
       }
-    : initialEnvs
+    : {
+        ...initialEnvs,
+        temp: [...initialEnvs.temp, iterationCountVar],
+      }
 
   return delegatePreRequestScriptRunner(
     request,
@@ -952,28 +966,33 @@ export async function runTestRunnerRequest(
         if (res?.type === "success" || res?.type === "fail") {
           executedResponses$.next(res)
 
-          // Inject "row" into the post-request selected env so pm.iterationData.toObject()
-          // / toJSON() can resolve correctly. Individual keys are also added so
-          // pm.iterationData.get(key) works inside post-request scripts.
+          // Inject "__hopp_row__" and "__hopp_iteration_count__" into the post-request
+          // selected env so pm.iterationData.toObject()/toJSON() and
+          // pm.execution.iterationCount both resolve correctly inside post-request scripts.
           const postRequestEnvs: typeof preRequestScriptResult.right.updatedEnvs =
-            iterationRowVar
-              ? {
-                  ...preRequestScriptResult.right.updatedEnvs,
-                  selected: [
-                    // Remove any pre-existing "row" key first to avoid duplicates
-                    ...preRequestScriptResult.right.updatedEnvs.selected.filter(
-                      (v) => v.key !== "row"
-                    ),
-                    ...iterationDataEntries.filter(
-                      (v) =>
-                        !preRequestScriptResult.right.updatedEnvs.selected.some(
-                          (s) => s.key === v.key
-                        )
-                    ),
-                    iterationRowVar,
-                  ],
-                }
-              : preRequestScriptResult.right.updatedEnvs
+            {
+              ...preRequestScriptResult.right.updatedEnvs,
+              selected: [
+                // Remove any pre-existing sentinel keys first to avoid duplicates
+                ...preRequestScriptResult.right.updatedEnvs.selected.filter(
+                  (v) =>
+                    v.key !== "__hopp_row__" &&
+                    v.key !== "__hopp_iteration_count__"
+                ),
+                ...(iterationRowVar
+                  ? [
+                      ...iterationDataEntries.filter(
+                        (v) =>
+                          !preRequestScriptResult.right.updatedEnvs.selected.some(
+                            (s) => s.key === v.key
+                          )
+                      ),
+                      iterationRowVar,
+                    ]
+                  : []),
+                iterationCountVar,
+              ],
+            }
 
           const postRequestScriptResult = await runPostRequestScript(
             postRequestEnvs,
@@ -1007,8 +1026,8 @@ export async function runTestRunnerRequest(
             // so they don't appear as user-visible environment changes/additions.
             const iterationInjectedKeys = new Set<string>(
               iterationRowVar
-                ? [...iterationDataEntries.map((e) => e.key), "row"]
-                : []
+                ? [...iterationDataEntries.map((e) => e.key), "__hopp_row__", "__hopp_iteration_count__"]
+                : ["__hopp_iteration_count__"]
             )
             const stripIterationKeys = (
               vars: TestResult["envs"]["selected"]

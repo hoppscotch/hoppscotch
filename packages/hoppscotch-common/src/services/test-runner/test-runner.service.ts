@@ -97,7 +97,12 @@ export class TestRunnerService extends Service {
         }
       })
       .finally(() => {
-        tab.value.document.status = "stopped"
+        // Only reset to "stopped" when the run ended normally or via a user-stop.
+        // Preserve "error" status set in the catch() branch so callers and the UI
+        // can distinguish unexpected failures from intentional stops.
+        if (tab.value.document.status !== "error") {
+          tab.value.document.status = "stopped"
+        }
       })
   }
 
@@ -259,7 +264,8 @@ export class TestRunnerService extends Service {
         initialEnvironmentState,
         inheritedPreRequestScripts,
         inheritedTestScripts,
-        iterationData
+        iterationData,
+        options.iterations ?? 1
       )
 
       if (options.stopRef?.value) {

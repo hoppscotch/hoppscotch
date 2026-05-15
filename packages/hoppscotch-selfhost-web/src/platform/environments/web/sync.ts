@@ -56,14 +56,11 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       if (E.isRight(res)) {
         const id = res.right.createUserEnvironment.id
 
-        secretEnvironmentService.updateSecretEnvironmentID(
-          environmentsStore.value.environments[lastCreatedEnvIndex].id,
-          id
-        )
-        currentEnvironmentValueService.updateEnvironmentID(
-          environmentsStore.value.environments[lastCreatedEnvIndex].id,
-          id
-        )
+        // Use the captured `tempId` (not a re-read of the array) so the
+        // migration still works if the env list shifted during the await.
+        // Matches the pattern in `appendEnvironments` below.
+        secretEnvironmentService.updateSecretEnvironmentID(tempId, id)
+        currentEnvironmentValueService.updateEnvironmentID(tempId, id)
 
         environmentsStore.value.environments[lastCreatedEnvIndex].id = id
         removeDuplicateEntry(id)

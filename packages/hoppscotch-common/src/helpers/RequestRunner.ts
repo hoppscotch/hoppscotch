@@ -824,7 +824,8 @@ export async function runTestRunnerRequest(
   inheritedVariables: HoppCollectionVariable[] = [],
   initialEnvironmentState: InitialEnvironmentState,
   inheritedPreRequestScripts: string[] = [],
-  inheritedTestScripts: string[] = []
+  inheritedTestScripts: string[] = [],
+  iterationData?: Record<string, unknown>
 ): Promise<
   | E.Left<"script_fail">
   | E.Right<{
@@ -843,6 +844,7 @@ export async function runTestRunnerRequest(
     initialSelectedEnvs,
     initialEnvironmentIndex,
     initialEnvName,
+    initialEnvs,
     initialEnvsForComparison,
   } = initialEnvironmentState
 
@@ -886,7 +888,19 @@ export async function runTestRunnerRequest(
         combineEnvVariables({
           environments: {
             ...preRequestScriptResult.right.updatedEnvs,
-            temp: !persistEnv ? getTemporaryVariables() : [],
+            // Inject iteration data as temp vars so pm.iterationData.get() and
+            // pm.variables.get() can both resolve dataset keys.
+            temp: [
+              ...(!persistEnv ? getTemporaryVariables() : []),
+              ...(iterationData
+                ? Object.entries(iterationData).map(([key, value]) => ({
+                    key,
+                    initialValue: String(value ?? ""),
+                    currentValue: String(value ?? ""),
+                    secret: false,
+                  }))
+                : []),
+            ],
           },
           requestVariables: finalRequestVariables,
           collectionVariables: inheritedVariables,

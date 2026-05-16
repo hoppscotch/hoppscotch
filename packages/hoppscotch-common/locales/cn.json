@@ -1256,6 +1256,12 @@
     "saved": "响应已保存",
     "invalid_name": "请为响应提供名称"
   },
+  "script": {
+    "inheriting": "继承脚本自",
+    "inheriting_from_count": "从 {count} 个集合继承 | 从 {count} 个集合继承",
+    "inherited_scripts": "继承的脚本",
+    "view_inherited": "查看继承的脚本"
+  },
   "settings": {
     "accent_color": "强调色",
     "account": "帐户",

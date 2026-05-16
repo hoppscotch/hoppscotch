@@ -1782,6 +1782,7 @@
     "parameters": "参数",
     "post_request_script": "请求后脚本",
     "pre_request_script": "预请求脚本",
+    "scripts": "脚本",
     "queries": "查询",
     "query": "查询",
     "schema": "模式",
@@ -1797,8 +1798,7 @@
     "websocket": "WebSocket",
     "all_tests": "所有",
     "passed": "通过",
-    "failed": "失败",
-    "scripts": "脚本"
+    "failed": "失败"
   },
   "team": {
     "activity_logs": "活动日志",

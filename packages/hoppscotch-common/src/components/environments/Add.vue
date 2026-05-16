@@ -149,11 +149,12 @@ const addEnvironment = async () => {
         initialValue: editingValue.value,
         currentValue: "",
         secret: false,
+        isFile: false,
       },
     ]
 
     const newEnv: GlobalEnvironment = {
-      v: 2,
+      v: 3,
       variables: newVariables,
     }
 
@@ -173,6 +174,7 @@ const addEnvironment = async () => {
         initialValue: editingValue.value,
         currentValue: "",
         secret: false,
+        isFile: false,
       },
     ]
 
@@ -200,6 +202,7 @@ const addEnvironment = async () => {
         initialValue: editingValue.value,
         currentValue: "",
         secret: false,
+        isFile: false,
       },
     ]
 

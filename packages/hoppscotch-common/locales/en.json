@@ -667,7 +667,16 @@
     "variables": "Variables",
     "variable_list": "Variable List",
     "properties": "Environment Properties",
-    "details": "Details"
+    "details": "Details",
+    "switch_to_text": "Switch to text variable",
+    "switch_to_file": "Switch to file variable",
+    "choose_file": "Choose File",
+    "no_file_selected": "No file selected",
+    "file_content_preview": "File content will appear here",
+    "file_too_large": "File is too large. Maximum size is 5MB.",
+    "file_read_error": "Failed to read the file. Please try again.",
+    "file_loaded_reselect": "File loaded — re-select to refresh",
+    "file_required_reselect": "File required — please select a file"
   },
   "error": {
     "network": {

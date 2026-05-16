@@ -10,6 +10,7 @@ export type Variable = {
   currentValue: string
   varIndex: number
   isSecret: boolean
+  isFile?: boolean
 }
 
 /**
@@ -159,9 +160,19 @@ export class CurrentValueService extends Service {
    * Used to update the value of a environment variable.
    */
   public persistableEnvironments = computed(() => {
-    const environments: Record<string, Variable[]> = {}
+    const environments: Record<string, Omit<Variable, "isFile">[]> = {}
     this.environments.forEach((vars, id) => {
+      // Filter out file variables to prevent file content (up to 5 MB) from
+      // being serialized to localStorage. Strip isFile from remaining vars
+      // to match the persistence Zod schema (.strict()).
       environments[id] = vars
+        .filter((v) => !v.isFile)
+        .map(({ key, currentValue, varIndex, isSecret }) => ({
+          key,
+          currentValue,
+          varIndex,
+          isSecret,
+        }))
     })
     return environments
   })

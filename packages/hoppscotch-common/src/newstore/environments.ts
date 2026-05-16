@@ -26,14 +26,14 @@ export type SelectedEnvironmentIndex =
     }
 
 const defaultGlobalEnvironmentState: GlobalEnvironment = {
-  v: 2,
+  v: 3,
   variables: [],
 }
 
 const defaultEnvironmentsState = {
   environments: [
     {
-      v: 2,
+      v: 3,
       id: uniqueID(),
       name: "My Environment Variables",
       variables: [],
@@ -104,12 +104,12 @@ const dispatchers = defineDispatchers({
         envID
           ? {
               id: envID,
-              v: 2,
+              v: 3 as const,
               name,
               variables,
             }
           : {
-              v: 2,
+              v: 3 as const,
               id: uniqueID(),
               name,
               variables,
@@ -207,12 +207,14 @@ const dispatchers = defineDispatchers({
       initialValue,
       currentValue,
       secret,
+      isFile,
     }: {
       envIndex: number
       key: string
       initialValue: string
       currentValue: string
       secret: boolean
+      isFile?: boolean
     }
   ) {
     return {
@@ -222,7 +224,7 @@ const dispatchers = defineDispatchers({
               ...env,
               variables: [
                 ...env.variables,
-                { key, initialValue, currentValue, secret },
+                { key, initialValue, currentValue, secret, isFile: isFile ?? false },
               ],
             }
           : env
@@ -258,6 +260,7 @@ const dispatchers = defineDispatchers({
         initialValue: string
         currentValue: string
         secret: boolean
+        isFile?: boolean
       }[]
     }
   ) {
@@ -266,7 +269,7 @@ const dispatchers = defineDispatchers({
         index === envIndex
           ? {
               ...env,
-              variables: vars,
+              variables: vars.map((v) => ({ ...v, isFile: v.isFile ?? false })),
             }
           : env
       ),
@@ -300,6 +303,7 @@ const dispatchers = defineDispatchers({
                       initialValue: updatedInitialValue,
                       currentValue: updatedCurrentValue,
                       secret: v.secret,
+                      isFile: v.isFile ?? false,
                     }
                   : v
               ),
@@ -401,7 +405,7 @@ export const currentEnvironment$: Observable<Environment | undefined> =
       if (selectedEnvironmentIndex.type === "NO_ENV_SELECTED") {
         const env: Environment = {
           name: "No environment",
-          v: 2,
+          v: 3,
           id: "",
           variables: [],
         }
@@ -704,7 +708,7 @@ export function getCurrentEnvironment(): Environment {
     environmentsStore.value.selectedEnvironmentIndex.type === "NO_ENV_SELECTED"
   ) {
     return {
-      v: 2,
+      v: 3,
       id: "",
       name: "No environment",
       variables: [],
@@ -901,6 +905,7 @@ export function setEnvironmentVariables(
     currentValue: string
     initialValue: string
     secret: boolean
+    isFile?: boolean
   }[]
 ) {
   environmentsStore.dispatch({
@@ -919,11 +924,13 @@ export function addEnvironmentVariable(
     currentValue,
     initialValue,
     secret,
+    isFile,
   }: {
     key: string
     currentValue: string
     initialValue: string
     secret: boolean
+    isFile?: boolean
   }
 ) {
   environmentsStore.dispatch({
@@ -934,6 +941,7 @@ export function addEnvironmentVariable(
       currentValue,
       initialValue,
       secret,
+      isFile,
     },
   })
 }

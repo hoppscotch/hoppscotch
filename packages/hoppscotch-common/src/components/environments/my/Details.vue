@@ -131,6 +131,17 @@
                     :key="`${tab.id}-${id}-${index}`"
                     class="flex divide-x divide-dividerLight"
                   >
+                    <div class="flex items-center">
+                      <HoppButtonSecondary
+                        v-tippy="{ theme: 'tooltip' }"
+                        :title="env.isFile ? t('environment.switch_to_text') : t('environment.switch_to_file')"
+                        :icon="env.isFile ? IconFile : IconType"
+                        class="self-center m-1 rounded"
+                        :class="env.isFile ? 'text-accent' : ''"
+                        :disabled="tab.isSecret"
+                        @click="toggleVariableType(env, id)"
+                      />
+                    </div>
                     <input
                       v-model="env.key"
                       v-focus
@@ -140,53 +151,96 @@
                       })}`"
                       :name="'variable' + index"
                     />
-                    <div class="flex items-center flex-1">
-                      <SmartEnvInput
-                        v-model="env.initialValue"
-                        :placeholder="`${t('count.initialValue', { count: index + 1 })}`"
-                        :envs="liveEnvs"
-                        :name="'initialValue' + index"
-                        :secret="tab.isSecret"
-                        :select-text-on-mount="
-                          env.key ? env.key === editingVariableName : false
-                        "
-                        :auto-complete-env="true"
-                      />
-                      <HoppButtonSecondary
-                        v-tippy="{ theme: 'tooltip' }"
-                        :title="t('environment.replace_initial_with_current')"
-                        :icon="IconCopyLeft"
-                        @click="
-                          () => {
-                            env.initialValue = env.currentValue
-                          }
-                        "
-                      />
-                    </div>
 
-                    <div class="flex items-center flex-1">
-                      <SmartEnvInput
-                        v-model="env.currentValue"
-                        :placeholder="`${t('count.currentValue', { count: index + 1 })}`"
-                        :envs="liveEnvs"
-                        :name="'currentValue' + index"
-                        :secret="tab.isSecret"
-                        :select-text-on-mount="
-                          env.key ? env.key === editingVariableName : false
-                        "
-                        :auto-complete-env="true"
-                      />
-                      <HoppButtonSecondary
-                        v-tippy="{ theme: 'tooltip' }"
-                        :title="t('environment.replace_current_with_initial')"
-                        :icon="IconCopyRight"
-                        @click="
-                          () => {
-                            env.currentValue = env.initialValue
-                          }
-                        "
-                      />
-                    </div>
+                    <template v-if="!env.isFile || tab.isSecret">
+                      <div class="flex items-center flex-1">
+                        <SmartEnvInput
+                          v-model="env.initialValue"
+                          :placeholder="`${t('count.initialValue', { count: index + 1 })}`"
+                          :envs="liveEnvs"
+                          :name="'initialValue' + index"
+                          :secret="tab.isSecret"
+                          :select-text-on-mount="
+                            env.key ? env.key === editingVariableName : false
+                          "
+                          :auto-complete-env="true"
+                        />
+                        <HoppButtonSecondary
+                          v-tippy="{ theme: 'tooltip' }"
+                          :title="t('environment.replace_initial_with_current')"
+                          :icon="IconCopyLeft"
+                          @click="
+                            () => {
+                              env.initialValue = env.currentValue
+                            }
+                          "
+                        />
+                      </div>
+
+                      <div class="flex items-center flex-1">
+                        <SmartEnvInput
+                          v-model="env.currentValue"
+                          :placeholder="`${t('count.currentValue', { count: index + 1 })}`"
+                          :envs="liveEnvs"
+                          :name="'currentValue' + index"
+                          :secret="tab.isSecret"
+                          :select-text-on-mount="
+                            env.key ? env.key === editingVariableName : false
+                          "
+                          :auto-complete-env="true"
+                        />
+                        <HoppButtonSecondary
+                          v-tippy="{ theme: 'tooltip' }"
+                          :title="t('environment.replace_current_with_initial')"
+                          :icon="IconCopyRight"
+                          @click="
+                            () => {
+                              env.currentValue = env.initialValue
+                            }
+                          "
+                        />
+                      </div>
+                    </template>
+
+                    <template v-else>
+                      <div class="flex items-center flex-1 px-4 py-2 gap-2">
+                        <input
+                          :id="`file-input-${id}`"
+                          type="file"
+                          accept=".txt,.env,.json,.csv,.xml,.yaml,.yml,.pem,.key,.cfg,.conf,.ini,.toml,.properties"
+                          class="hidden"
+                          @change="(e) => handleFileSelect(e, env, id)"
+                        />
+                        <HoppButtonSecondary
+                          :icon="IconUpload"
+                          :label="t('environment.choose_file')"
+                          filled
+                          outline
+                          @click="triggerFilePicker(id)"
+                        />
+                        <span
+                          v-if="fileNames.has(id)"
+                          class="text-secondaryLight text-sm truncate max-w-[200px]"
+                          :title="fileNames.get(id)"
+                        >
+                          {{ fileNames.get(id) }}
+                        </span>
+                        <span v-else class="text-secondaryLight text-sm italic">
+                          {{ env.key ? t('environment.file_required_reselect') : t('environment.no_file_selected') }}
+                        </span>
+                      </div>
+                      <div class="flex items-center flex-1 px-4 py-2">
+                        <span
+                          v-if="fileNames.has(id)"
+                          class="text-secondaryLight text-sm truncate"
+                        >
+                          {{ `${(env.currentValue.match(/\n/g)?.length ?? 0) + 1} lines, ${env.currentValue.length} bytes` }}
+                        </span>
+                        <span v-else class="text-secondaryLight text-sm italic">
+                          {{ t('environment.file_content_preview') }}
+                        </span>
+                      </div>
+                    </template>
 
                     <div class="flex">
                       <HoppButtonSecondary
@@ -240,8 +294,9 @@ import * as A from "fp-ts/Array"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import { flow, pipe } from "fp-ts/function"
-import { ComputedRef, computed, ref, watch } from "vue"
+import { ComputedRef, computed, reactive, ref, watch } from "vue"
 import { uniqueID } from "~/helpers/utils/uniqueID"
+import { MAX_FILE_SIZE } from "~/helpers/utils/environments"
 import {
   createEnvironment,
   environments$,
@@ -264,6 +319,9 @@ import IconTrash2 from "~icons/lucide/trash-2"
 import IconCopyRight from "~icons/lucide/clipboard-paste"
 import IconCopyLeft from "~icons/lucide/clipboard-copy"
 import IconMoreVertical from "~icons/lucide/more-vertical"
+import IconFile from "~icons/lucide/file"
+import IconType from "~icons/lucide/type"
+import IconUpload from "~icons/lucide/upload"
 import { TippyComponent } from "vue-tippy"
 
 type EnvironmentVariable = {
@@ -335,9 +393,12 @@ const editingID = ref<string>("")
 const vars = ref<EnvironmentVariable[]>([
   {
     id: idTicker.value++,
-    env: { key: "", currentValue: "", initialValue: "", secret: false },
+    env: { key: "", currentValue: "", initialValue: "", secret: false, isFile: false },
   },
 ])
+
+const fileNames = reactive(new Map<number, string>())
+
 
 const secretEnvironmentService = useService(SecretEnvironmentService)
 const currentEnvironmentValueService = useService(CurrentValueService)
@@ -486,14 +547,30 @@ watch(
                 index
               ) ?? e.initialValue,
             secret: e.secret,
+            isFile: e.isFile ?? false,
           },
         }))
       )
+
+      // Clear stale entries before restoring to prevent orphaned IDs accumulating
+      fileNames.clear()
+      // Restore fileNames for file variables that still have content loaded
+      vars.value.forEach(({ id, env }) => {
+        if (env.isFile && env.currentValue) {
+          fileNames.set(id, t("environment.file_loaded_reselect"))
+        }
+      })
     }
   }
 )
 
 const clearContent = () => {
+  // Remove fileNames entries for variables being cleared
+  const removedVars = vars.value.filter((e) =>
+    selectedEnvOption.value === "secret" ? e.env.secret : !e.env.secret
+  )
+  removedVars.forEach(({ id }) => fileNames.delete(id))
+
   vars.value = vars.value.filter((e) =>
     selectedEnvOption.value === "secret" ? !e.env.secret : e.env.secret
   )
@@ -510,14 +587,70 @@ const addEnvironmentVariable = () => {
       currentValue: "",
       initialValue: "",
       secret: selectedEnvOption.value === "secret",
+      isFile: false,
     },
   })
+}
+
+const toggleVariableType = (env: Environment["variables"][number], id: number) => {
+  if (env.isFile) {
+    // Switching to text: clear file state
+    env.initialValue = ""
+    env.currentValue = ""
+    fileNames.delete(id)
+  } else {
+    // Switching to file: clear text values
+    env.initialValue = ""
+    env.currentValue = ""
+  }
+  env.isFile = !env.isFile
+}
+
+const triggerFilePicker = (id: number) => {
+  const input = document.getElementById(`file-input-${id}`) as HTMLInputElement | null
+  if (input) {
+    input.click()
+  }
+}
+
+const handleFileSelect = (event: Event, env: Environment["variables"][number], varId: number) => {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  if (file.size > MAX_FILE_SIZE) {
+    toast.error(t('environment.file_too_large'))
+    input.value = ""
+    return
+  }
+
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    const result = e.target?.result
+
+    if (typeof result !== "string") {
+      toast.error(t('environment.file_read_error'))
+      input.value = ""
+      return
+    }
+
+    fileNames.set(varId, file.name)
+    env.currentValue = result
+    env.initialValue = ""
+    input.value = ""
+  }
+  reader.onerror = () => {
+    toast.error(t('environment.file_read_error'))
+    input.value = ""
+  }
+  reader.readAsText(file)
 }
 
 const removeEnvironmentVariable = (id: number) => {
   const index = vars.value.findIndex((e) => e.id === id)
   if (index !== -1) {
     vars.value.splice(index, 1)
+    fileNames.delete(id)
   }
 }
 
@@ -548,9 +681,10 @@ const saveEnvironment = () => {
       e.secret
         ? O.some({
             key: e.key,
-            value: e.currentValue,
+            value: e.isFile ? "" : e.currentValue,
             varIndex: i,
-            initialValue: e.initialValue,
+            initialValue: e.isFile ? "" : e.initialValue,
+            isFile: e.isFile ?? false,
           })
         : O.none
     )
@@ -565,50 +699,53 @@ const saveEnvironment = () => {
             currentValue: e.currentValue,
             varIndex: i,
             isSecret: e.secret ?? false,
+            isFile: e.isFile ?? false,
           })
         : O.none
     )
   )
-
-  if (secretVariables.length > 0) {
-    if (editingID.value) {
-      secretEnvironmentService.addSecretEnvironment(
-        editingID.value,
-        secretVariables
-      )
-    } else if (props.editingEnvironmentIndex === "Global") {
-      secretEnvironmentService.addSecretEnvironment("Global", secretVariables)
-    }
-  }
-  if (nonSecretVariables.length > 0) {
-    if (editingID.value) {
-      currentEnvironmentValueService.addEnvironment(
-        editingID.value,
-        nonSecretVariables
-      )
-    } else if (props.editingEnvironmentIndex === "Global") {
-      currentEnvironmentValueService.addEnvironment(
-        "Global",
-        nonSecretVariables
-      )
-    }
-  }
 
   const variables = pipe(
     filteredVariables,
     A.map((e) => ({
       key: e.key,
       secret: e.secret,
-      initialValue: e.secret ? "" : e.initialValue,
+      initialValue: e.secret ? "" : (e.isFile ? "" : e.initialValue),
       currentValue: "",
+      isFile: e.isFile ?? false,
     }))
   )
 
   const environmentUpdated: Environment = {
-    v: 2,
-    id: uniqueID(),
+    v: 3,
+    id: editingID.value || uniqueID(),
     name: editingName.value,
     variables,
+  }
+
+  if (secretVariables.length > 0) {
+    if (props.editingEnvironmentIndex === "Global") {
+      secretEnvironmentService.addSecretEnvironment("Global", secretVariables)
+    } else {
+      secretEnvironmentService.addSecretEnvironment(
+        environmentUpdated.id,
+        secretVariables
+      )
+    }
+  }
+
+  if (nonSecretVariables.length > 0) {
+    if (props.editingEnvironmentIndex === "Global") {
+      currentEnvironmentValueService.addEnvironment(
+        "Global",
+        nonSecretVariables
+      )
+    } else {
+      currentEnvironmentValueService.addEnvironment(
+        environmentUpdated.id,
+        nonSecretVariables
+      )
+    }
   }
 
   if (props.action === "new") {
@@ -616,7 +753,7 @@ const saveEnvironment = () => {
     createEnvironment(
       editingName.value,
       environmentUpdated.variables,
-      editingID.value
+      environmentUpdated.id
     )
     setSelectedEnvironmentIndex({
       type: "MY_ENV",
@@ -657,6 +794,7 @@ const saveEnvironment = () => {
 const hideModal = () => {
   editingName.value = null
   selectedEnvOption.value = "variables"
+  fileNames.clear()
   emit("hide-modal")
 }
 </script>

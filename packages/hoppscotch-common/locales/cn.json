@@ -841,6 +841,7 @@
     "authorization": "授权头将会在您发送请求时自动生成。",
     "collection_properties_authorization": "这个授权将被应用在当前集合下的所有请求。",
     "collection_properties_header": "这个请求头将被应用在当前集合下的所有请求。",
+    "collection_properties_scripts": "这些脚本将在该集合中的每个请求中运行。预请求脚本在请求之前运行，测试脚本在响应之后运行。",
     "generate_documentation_first": "请先生成文档",
     "network_fail": "无法到达 API 端点。请检查网络连接并重试。",
     "offline": "您似乎处于离线状态，该工作区中的数据可能不是最新。",
@@ -1796,7 +1797,8 @@
     "websocket": "WebSocket",
     "all_tests": "所有",
     "passed": "通过",
-    "failed": "失败"
+    "failed": "失败",
+    "scripts": "脚本"
   },
   "team": {
     "activity_logs": "活动日志",
@@ -2326,5 +2328,11 @@
       "delete_success": "Mock 服务删除成功",
       "delete_error": "删除 Mock 服务失败"
     }
+  },
+  "script": {
+    "inherited_scripts": "继承的脚本",
+    "inheriting": "继承脚本自",
+    "inheriting_from_count": "从 {count} 个集合继承 | 从 {count} 个集合继承",
+    "view_inherited": "查看继承的脚本"
   }
 }

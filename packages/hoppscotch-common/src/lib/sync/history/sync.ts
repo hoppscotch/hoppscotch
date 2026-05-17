@@ -3,13 +3,10 @@ import {
   removeDuplicateRestHistoryEntry,
   removeDuplicateGraphqlHistoryEntry,
   restHistoryStore,
-} from "@hoppscotch/common/newstore/history"
-import {
-  getSettingSubject,
-  settingsStore,
-} from "@hoppscotch/common/newstore/settings"
+} from "~/newstore/history"
+import { getSettingSubject, settingsStore } from "~/newstore/settings"
 
-import { getSyncInitFunction, type StoreSyncDefinitionOf } from "@app/lib/sync"
+import { getSyncInitFunction, type StoreSyncDefinitionOf } from ".."
 
 import * as E from "fp-ts/Either"
 
@@ -19,7 +16,7 @@ import {
   removeRequestFromHistory,
   toggleHistoryStarStatus,
 } from "./api"
-import { ReqType } from "@app/api/generated/graphql"
+import { ReqType } from "~/helpers/backend/graphql"
 
 import { isHistoryStoreEnabled } from "."
 

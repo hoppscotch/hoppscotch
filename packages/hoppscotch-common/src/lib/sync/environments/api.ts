@@ -2,7 +2,7 @@ import {
   runMutation,
   runGQLQuery,
   runGQLSubscription,
-} from "@helpers/backend/GQLClient"
+} from "~/helpers/backend/GQLClient"
 
 import {
   CreateUserEnvironmentDocument,
@@ -27,7 +27,7 @@ import {
   UserEnvironmentCreatedDocument,
   UserEnvironmentUpdatedDocument,
   UserEnvironmentDeletedDocument,
-} from "@app/api/generated/graphql"
+} from "~/helpers/backend/graphql"
 
 export const createUserEnvironment = (name: string, variables: string) =>
   runMutation<

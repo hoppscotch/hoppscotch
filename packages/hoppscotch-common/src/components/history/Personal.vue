@@ -192,7 +192,7 @@ import HistoryGraphqlCard from "./graphql/Card.vue"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
-import { platform } from "~/platform"
+import { sync } from "~/lib/sync/defs"
 
 type HistoryEntry = GQLHistoryEntry | RESTHistoryEntry
 
@@ -218,14 +218,11 @@ const history = useReadonlyStream<RESTHistoryEntry[] | GQLHistoryEntry[]>(
   []
 )
 
-const { isHistoryStoreEnabled, isFetchingHistoryStoreStatus } =
-  "requestHistoryStore" in platform.sync.history &&
-  platform.sync.history.requestHistoryStore
-    ? platform.sync.history.requestHistoryStore
-    : {
-        isHistoryStoreEnabled: ref(true),
-        isFetchingHistoryStoreStatus: ref(false),
-      }
+const { isHistoryStoreEnabled, isFetchingHistoryStoreStatus } = sync.history
+  .requestHistoryStore ?? {
+  isHistoryStoreEnabled: ref(true),
+  isFetchingHistoryStoreStatus: ref(false),
+}
 
 const deepCheckForRegex = (value: unknown, regExp: RegExp): boolean => {
   if (value === null || value === undefined) return false

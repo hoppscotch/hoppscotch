@@ -49,6 +49,7 @@ import IconUser from "~icons/lucide/user"
 import { getTeamCollectionJSON } from "~/helpers/backend/helpers"
 
 import { platform } from "~/platform"
+import { sync } from "~/lib/sync/defs"
 
 import { initializeDownloadFile } from "~/helpers/import-export/export"
 import { gistExporter } from "~/helpers/import-export/export/gist"
@@ -123,12 +124,9 @@ const importToPersonalWorkspace = (collections: HoppCollection[]) => {
   // Remove old id from the imported collection and folders and transform it to new collection format
   const sanitizedCollections = collections.map(sanitizeCollection)
 
-  if (
-    platform.sync.collections.importToPersonalWorkspace &&
-    currentUser.value
-  ) {
+  if (sync.collections.importToPersonalWorkspace && currentUser.value) {
     // The SH adds the id to the collection and folders but for safety we remove it by sanitizeCollection
-    return platform.sync.collections.importToPersonalWorkspace(
+    return sync.collections.importToPersonalWorkspace(
       sanitizedCollections,
       ReqType.Rest
     )

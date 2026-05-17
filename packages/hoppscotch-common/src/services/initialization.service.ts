@@ -14,6 +14,7 @@ import { performMigrations } from "~/helpers/migrations"
 import { initBackendGQLClient } from "~/helpers/backend/GQLClient"
 import { getKernelMode } from "@hoppscotch/kernel"
 import { diag } from "~/kernel/log"
+import { sync } from "~/lib/sync/defs"
 
 type InitEvent =
   | { type: "STORE_READY" }
@@ -136,10 +137,10 @@ export class InitializationService extends Service<InitEvent> {
     }
 
     await Promise.all([
-      platform.sync.settings.initSettingsSync(),
-      platform.sync.collections.initCollectionsSync(),
-      platform.sync.history.initHistorySync(),
-      platform.sync.environments.initEnvironmentsSync(),
+      sync.settings.initSettingsSync(),
+      sync.collections.initCollectionsSync(),
+      sync.history.initHistorySync(),
+      sync.environments.initEnvironmentsSync(),
       platform.analytics?.initAnalytics(),
     ])
 

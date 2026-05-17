@@ -2,17 +2,17 @@ import {
   environmentsStore,
   getGlobalVariableID,
   removeDuplicateEntry,
-} from "@hoppscotch/common/newstore/environments"
+} from "~/newstore/environments"
 import {
   getSettingSubject,
   settingsStore,
-} from "@hoppscotch/common/newstore/settings"
+} from "~/newstore/settings"
 
-import { getSyncInitFunction, type StoreSyncDefinitionOf } from "@app/lib/sync"
+import { getSyncInitFunction, type StoreSyncDefinitionOf } from ".."
 
 import * as E from "fp-ts/Either"
 
-import { createMapper } from "@app/lib/sync/mapper"
+import { createMapper } from "../mapper"
 
 import {
   clearGlobalEnvironmentVariables,
@@ -20,9 +20,9 @@ import {
   deleteUserEnvironment,
   updateUserEnvironment,
 } from "./api"
-import { SecretEnvironmentService } from "@hoppscotch/common/services/secret-environment.service"
-import { getService } from "@hoppscotch/common/modules/dioc"
-import { CurrentValueService } from "@hoppscotch/common/services/current-environment-value.service"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
+import { getService } from "~/modules/dioc"
+import { CurrentValueService } from "~/services/current-environment-value.service"
 
 export const environmentsMapper = createMapper<number, string>()
 export const globalEnvironmentMapper = createMapper<number, string>()

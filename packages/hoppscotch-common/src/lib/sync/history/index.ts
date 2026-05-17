@@ -1,129 +1,327 @@
 import {
-  graphqlHistoryStore,
-  removeDuplicateGraphqlHistoryEntry,
-  removeDuplicateRestHistoryEntry,
   restHistoryStore,
+  RESTHistoryEntry,
+  setRESTHistoryEntries,
+  addRESTHistoryEntry,
+  toggleRESTHistoryEntryStar,
+  deleteRESTHistoryEntry,
+  clearRESTHistory,
+  setGraphqlHistoryEntries,
+  GQLHistoryEntry,
+  addGraphqlHistoryEntry,
+  toggleGraphqlHistoryEntryStar,
+  graphqlHistoryStore,
+  deleteGraphqlHistoryEntry,
+  clearGraphqlHistory,
+  decodeGQLHistoryResponse,
 } from "~/newstore/history"
-import { getSyncInitFunction, StoreSyncDefinitionOf } from "../index"
+import { translateToNewRequest, translateToGQLRequest } from "@hoppscotch/data"
+import { HistoryPlatformDef } from "~/platform/history"
+import {
+  getUserHistoryEntries,
+  getUserHistoryStore,
+  runUserHistoryAllDeletedSubscription,
+  runUserHistoryCreatedSubscription,
+  runUserHistoryDeletedManySubscription,
+  runUserHistoryDeletedSubscription,
+  runUserHistoryStoreStatusChangedSubscription,
+  runUserHistoryUpdatedSubscription,
+} from "./api"
 
 import * as E from "fp-ts/Either"
-import { getSettingSubject, settingsStore } from "~/newstore/settings"
+import { restHistorySyncer, gqlHistorySyncer } from "./sync"
+import { runGQLSubscription } from "~/helpers/backend/GQLClient"
+import { runDispatchWithOutSyncing } from ".."
+import { ReqType, ServiceStatus } from "~/helpers/backend/graphql"
+import { ref } from "vue"
+import { platform } from "~/platform"
 
-// History Sync Types
-export interface HistoryAPI {
-  createUserHistory: (
-    request: string,
-    responseMetadata: string,
-    reqType: any
-  ) => Promise<any>
-  removeRequestFromHistory: (requestID: string) => void
-  toggleHistoryStarStatus: (requestID: string) => void
-  deleteAllUserHistory: (reqType: any) => void
+function initHistorySync() {
+  const authEvents$ = platform.auth.getAuthEventsStream()
+  const currentUser$ = platform.auth.getCurrentUserStream()
+
+  restHistorySyncer.startStoreSync()
+  restHistorySyncer.setupSubscriptions(setupSubscriptions)
+
+  gqlHistorySyncer.startStoreSync()
+
+  getUserHistoryStatus()
+  loadHistoryEntries()
+
+  currentUser$.subscribe(async (user) => {
+    getUserHistoryStatus()
+
+    if (user) {
+      await loadHistoryEntries()
+    }
+  })
+
+  authEvents$.subscribe((event) => {
+    if (event.event == "login" || event.event == "token_refresh") {
+      restHistorySyncer.startListeningToSubscriptions()
+    }
+
+    if (event.event == "logout") {
+      restHistorySyncer.stopListeningToSubscriptions()
+    }
+  })
 }
 
-export interface HistorySyncOptions {
-  getSyncInitFunction: typeof getSyncInitFunction
-  removeDuplicateRestHistoryEntry: typeof removeDuplicateRestHistoryEntry
-  removeDuplicateGraphqlHistoryEntry: typeof removeDuplicateGraphqlHistoryEntry
-  isHistoryStoreEnabled: { value: boolean }
-  reqType: {
-    Rest: any
-    Gql: any
+function setupSubscriptions() {
+  let subs: ReturnType<typeof runGQLSubscription>[1][] = []
+
+  const userHistoryCreatedSub = setupUserHistoryCreatedSubscription()
+  const userHistoryUpdatedSub = setupUserHistoryUpdatedSubscription()
+  const userHistoryDeletedSub = setupUserHistoryDeletedSubscription()
+  const userHistoryDeletedManySub = setupUserHistoryDeletedManySubscription()
+  const userHistoryStoreStatusChangedSub =
+    setupUserHistoryStoreStatusChangedSubscription()
+  const userHistoryAllDeletedSub = setupUserHistoryAllDeletedSubscription()
+
+  subs = [
+    userHistoryCreatedSub,
+    userHistoryUpdatedSub,
+    userHistoryDeletedSub,
+    userHistoryDeletedManySub,
+    userHistoryStoreStatusChangedSub,
+    userHistoryAllDeletedSub,
+  ]
+
+  return () => {
+    subs.forEach((sub) => sub.unsubscribe())
   }
 }
 
-export function createHistorySync(
-  api: HistoryAPI,
-  options: HistorySyncOptions
-) {
-  const restHistoryStoreSyncDefinition: StoreSyncDefinitionOf<
-    typeof restHistoryStore
-  > = {
-    async addEntry({ entry }) {
-      if (!options.isHistoryStoreEnabled.value) {
-        return
-      }
+async function loadHistoryEntries() {
+  const res = await getUserHistoryEntries()
 
-      const res = await api.createUserHistory(
-        JSON.stringify(entry.request),
-        JSON.stringify(entry.responseMeta),
-        options.reqType.Rest
-      )
+  if (E.isRight(res)) {
+    const restEntries = res.right.me.RESTHistory
+    const gqlEntries = res.right.me.GQLHistory
 
-      if (E.isRight(res)) {
-        entry.id = res.right.createUserHistory.id
+    const restHistoryEntries: RESTHistoryEntry[] = restEntries.map((entry) => ({
+      v: 1,
+      request: translateToNewRequest(JSON.parse(entry.request)),
+      responseMeta: JSON.parse(entry.responseMetadata),
+      star: entry.isStarred,
+      updatedOn: new Date(entry.executedOn),
+      id: entry.id,
+    }))
 
-        // preventing double insertion from here and subscription
-        options.removeDuplicateRestHistoryEntry(entry.id)
-      }
-    },
-    deleteEntry({ entry }) {
-      if (entry.id) {
-        api.removeRequestFromHistory(entry.id)
-      }
-    },
-    toggleStar({ entry }) {
-      if (entry.id) {
-        api.toggleHistoryStarStatus(entry.id)
-      }
-    },
-    clearHistory() {
-      api.deleteAllUserHistory(options.reqType.Rest)
-    },
+    const gqlHistoryEntries: GQLHistoryEntry[] = gqlEntries.map((entry) => ({
+      v: 1,
+      request: translateToGQLRequest(JSON.parse(entry.request)),
+      response: decodeGQLHistoryResponse(entry.responseMetadata),
+      star: entry.isStarred,
+      updatedOn: new Date(entry.executedOn),
+      id: entry.id,
+    }))
+
+    runDispatchWithOutSyncing(() => {
+      setRESTHistoryEntries(restHistoryEntries)
+      setGraphqlHistoryEntries(gqlHistoryEntries)
+    })
+  }
+}
+
+async function getUserHistoryStatus() {
+  const currentUser = platform.auth.getCurrentUser()
+
+  if (!currentUser) {
+    isHistoryStoreEnabled.value = true
+    return
   }
 
-  const gqlHistoryStoreSyncDefinition: StoreSyncDefinitionOf<
-    typeof graphqlHistoryStore
-  > = {
-    async addEntry({ entry }) {
-      if (!options.isHistoryStoreEnabled.value) {
-        return
-      }
+  isFetchingHistoryStoreStatus.value = true
 
-      const res = await api.createUserHistory(
-        JSON.stringify(entry.request),
-        JSON.stringify(entry.response),
-        options.reqType.Gql
-      )
+  const res = await getUserHistoryStore()
 
-      if (E.isRight(res)) {
-        entry.id = res.right.createUserHistory.id
-
-        // preventing double insertion from here and subscription
-        options.removeDuplicateGraphqlHistoryEntry(entry.id)
-      }
-    },
-    deleteEntry({ entry }) {
-      if (entry.id) {
-        api.removeRequestFromHistory(entry.id)
-      }
-    },
-    toggleStar({ entry }) {
-      if (entry.id) {
-        api.toggleHistoryStarStatus(entry.id)
-      }
-    },
-    clearHistory() {
-      api.deleteAllUserHistory(options.reqType.Gql)
-    },
+  if (E.isLeft(res)) {
+    hasErrorFetchingHistoryStoreStatus.value = true
+    isFetchingHistoryStoreStatus.value = false
+    return
   }
 
-  const restHistorySyncer = options.getSyncInitFunction(
-    restHistoryStore,
-    restHistoryStoreSyncDefinition,
-    () => settingsStore.value.syncHistory,
-    getSettingSubject("syncHistory")
-  )
+  isHistoryStoreEnabled.value =
+    res.right.isUserHistoryEnabled.value === ServiceStatus.Enable
 
-  const gqlHistorySyncer = options.getSyncInitFunction(
-    graphqlHistoryStore,
-    gqlHistoryStoreSyncDefinition,
-    () => settingsStore.value.syncHistory,
-    getSettingSubject("syncHistory")
-  )
+  isFetchingHistoryStoreStatus.value = false
+}
 
-  return {
-    restHistorySyncer,
-    gqlHistorySyncer,
-  }
+function setupUserHistoryCreatedSubscription() {
+  const [userHistoryCreated$, userHistoryCreatedSub] =
+    runUserHistoryCreatedSubscription()
+
+  userHistoryCreated$.subscribe((res) => {
+    if (E.isRight(res)) {
+      const { id, reqType, request, responseMetadata, isStarred, executedOn } =
+        res.right.userHistoryCreated
+
+      const hasAlreadyBeenAdded =
+        reqType == ReqType.Rest
+          ? restHistoryStore.value.state.some((entry) => entry.id == id)
+          : graphqlHistoryStore.value.state.some((entry) => entry.id == id)
+
+      !hasAlreadyBeenAdded &&
+        runDispatchWithOutSyncing(() => {
+          reqType == ReqType.Rest
+            ? addRESTHistoryEntry({
+                v: 1,
+                id,
+                request: translateToNewRequest(JSON.parse(request)),
+                responseMeta: JSON.parse(responseMetadata),
+                star: isStarred,
+                updatedOn: new Date(executedOn),
+              })
+            : addGraphqlHistoryEntry({
+                v: 1,
+                id,
+                request: translateToGQLRequest(JSON.parse(request)),
+                response: decodeGQLHistoryResponse(responseMetadata),
+                star: isStarred,
+                updatedOn: new Date(executedOn),
+              })
+        })
+    }
+  })
+
+  return userHistoryCreatedSub
+}
+
+// currently the updates are only for toggling the star
+function setupUserHistoryUpdatedSubscription() {
+  const [userHistoryUpdated$, userHistoryUpdatedSub] =
+    runUserHistoryUpdatedSubscription()
+
+  userHistoryUpdated$.subscribe((res) => {
+    if (E.isRight(res)) {
+      const { id, reqType, isStarred } = res.right.userHistoryUpdated
+
+      if (reqType == ReqType.Rest) {
+        const existingEntry = restHistoryStore.value.state.find(
+          (entry) => entry.id == id
+        )
+
+        // Only toggle if the store entry's star doesn't match the server state.
+        // Without this guard, the subscription echo from the same client's own
+        // toggle would cause a second toggle and revert the star.
+        if (existingEntry && existingEntry.star !== isStarred) {
+          runDispatchWithOutSyncing(() => {
+            toggleRESTHistoryEntryStar(existingEntry)
+          })
+        }
+      }
+
+      if (reqType == ReqType.Gql) {
+        const existingEntry = graphqlHistoryStore.value.state.find(
+          (entry) => entry.id == id
+        )
+
+        if (existingEntry && existingEntry.star !== isStarred) {
+          runDispatchWithOutSyncing(() => {
+            toggleGraphqlHistoryEntryStar(existingEntry)
+          })
+        }
+      }
+    }
+  })
+
+  return userHistoryUpdatedSub
+}
+
+function setupUserHistoryDeletedSubscription() {
+  const [userHistoryDeleted$, userHistoryDeletedSub] =
+    runUserHistoryDeletedSubscription()
+
+  userHistoryDeleted$.subscribe((res) => {
+    if (E.isRight(res)) {
+      const { id, reqType } = res.right.userHistoryDeleted
+
+      if (reqType == ReqType.Gql) {
+        const deletedEntry = graphqlHistoryStore.value.state.find(
+          (entry) => entry.id == id
+        )
+
+        deletedEntry &&
+          runDispatchWithOutSyncing(() => {
+            deleteGraphqlHistoryEntry(deletedEntry)
+          })
+      }
+
+      if (reqType == ReqType.Rest) {
+        const deletedEntry = restHistoryStore.value.state.find(
+          (entry) => entry.id == id
+        )
+
+        deletedEntry &&
+          runDispatchWithOutSyncing(() => {
+            deleteRESTHistoryEntry(deletedEntry)
+          })
+      }
+    }
+  })
+
+  return userHistoryDeletedSub
+}
+
+function setupUserHistoryDeletedManySubscription() {
+  const [userHistoryDeletedMany$, userHistoryDeletedManySub] =
+    runUserHistoryDeletedManySubscription()
+
+  userHistoryDeletedMany$.subscribe((res) => {
+    if (E.isRight(res)) {
+      const { reqType } = res.right.userHistoryDeletedMany
+
+      runDispatchWithOutSyncing(() => {
+        reqType == ReqType.Rest ? clearRESTHistory() : clearGraphqlHistory()
+      })
+    }
+  })
+
+  return userHistoryDeletedManySub
+}
+
+function setupUserHistoryStoreStatusChangedSubscription() {
+  const [userHistoryStoreStatusChanged$, userHistoryStoreStatusChangedSub] =
+    runUserHistoryStoreStatusChangedSubscription()
+
+  userHistoryStoreStatusChanged$.subscribe((res) => {
+    if (E.isRight(res)) {
+      const status =
+        res.right.infraConfigUpdate == ServiceStatus.Enable ? true : false
+
+      isHistoryStoreEnabled.value = status
+    }
+  })
+
+  return userHistoryStoreStatusChangedSub
+}
+
+function setupUserHistoryAllDeletedSubscription() {
+  const [userHistoryAllDeleted$, userHistoryAllDeletedSub] =
+    runUserHistoryAllDeletedSubscription()
+
+  userHistoryAllDeleted$.subscribe((res) => {
+    if (E.isRight(res)) {
+      runDispatchWithOutSyncing(() => {
+        clearRESTHistory()
+        clearGraphqlHistory()
+      })
+    }
+  })
+
+  return userHistoryAllDeletedSub
+}
+
+export const isHistoryStoreEnabled = ref(false)
+const isFetchingHistoryStoreStatus = ref(false)
+const hasErrorFetchingHistoryStoreStatus = ref(false)
+
+export const def: HistoryPlatformDef = {
+  initHistorySync,
+  requestHistoryStore: {
+    isHistoryStoreEnabled,
+    isFetchingHistoryStoreStatus,
+    hasErrorFetchingHistoryStoreStatus,
+  },
 }

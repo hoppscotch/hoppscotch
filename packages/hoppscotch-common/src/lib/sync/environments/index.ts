@@ -1,153 +1,242 @@
-import {
-  environmentsStore,
-  getGlobalVariableID,
-  removeDuplicateEntry,
-} from "~/newstore/environments"
-import { getSyncInitFunction, StoreSyncDefinitionOf } from "../index"
-import { createMapper } from "../mapper"
-
 import * as E from "fp-ts/Either"
-import { getSettingSubject, settingsStore } from "~/newstore/settings"
+import { entityReference } from "verzod"
 
-// Environments Sync Types
-export interface EnvironmentsAPI {
-  createUserEnvironment: (name: string, variables: string) => Promise<any>
-  deleteUserEnvironment: (envID: string) => () => Promise<any>
-  updateUserEnvironment: (envID: string, updatedEnv: any) => () => Promise<any>
-  clearGlobalEnvironmentVariables: (envID: string) => void
+import {
+  createEnvironment,
+  deleteEnvironment,
+  environmentsStore,
+  getLocalIndexByEnvironmentID,
+  replaceEnvironments,
+  setGlobalEnvID,
+  setGlobalEnvVariables,
+  updateEnvironment,
+} from "~/newstore/environments"
+
+import { runGQLSubscription } from "~/helpers/backend/GQLClient"
+import { EnvironmentsPlatformDef } from "~/platform/environments"
+
+import { environnmentsSyncer } from "./sync"
+
+import {
+  Environment,
+  EnvironmentSchemaVersion,
+  GlobalEnvironment,
+} from "@hoppscotch/data"
+import { runDispatchWithOutSyncing } from ".."
+import {
+  createUserGlobalEnvironment,
+  getGlobalEnvironments,
+  getUserEnvironments,
+  runUserEnvironmentCreatedSubscription,
+  runUserEnvironmentDeletedSubscription,
+  runUserEnvironmentUpdatedSubscription,
+} from "./api"
+import { platform } from "~/platform"
+
+function initEnvironmentsSync() {
+  const authEvents$ = platform.auth.getAuthEventsStream()
+  const currentUser$ = platform.auth.getCurrentUserStream()
+
+  environnmentsSyncer.startStoreSync()
+  environnmentsSyncer.setupSubscriptions(setupSubscriptions)
+
+  currentUser$.subscribe(async (user) => {
+    if (user) {
+      await loadAllEnvironments()
+    }
+  })
+
+  authEvents$.subscribe((event) => {
+    if (event.event == "login" || event.event == "token_refresh") {
+      environnmentsSyncer.startListeningToSubscriptions()
+    }
+
+    if (event.event == "logout") {
+      environnmentsSyncer.stopListeningToSubscriptions()
+    }
+  })
 }
 
-export interface EnvironmentsSyncOptions {
-  getSyncInitFunction: typeof getSyncInitFunction
-  removeDuplicateEntry: typeof removeDuplicateEntry
-  secretEnvironmentService: {
-    updateSecretEnvironmentID: (oldID: string, newID: string) => void
-  }
-  currentEnvironmentValueService: {
-    updateEnvironmentID: (oldID: string, newID: string) => void
+export const def: EnvironmentsPlatformDef = {
+  initEnvironmentsSync,
+}
+
+function setupSubscriptions() {
+  let subs: ReturnType<typeof runGQLSubscription>[1][] = []
+
+  const userEnvironmentCreatedSub = setupUserEnvironmentCreatedSubscription()
+  const userEnvironmentUpdatedSub = setupUserEnvironmentUpdatedSubscription()
+  const userEnvironmentDeletedSub = setupUserEnvironmentDeletedSubscription()
+
+  subs = [
+    userEnvironmentCreatedSub,
+    userEnvironmentUpdatedSub,
+    userEnvironmentDeletedSub,
+  ]
+
+  return () => {
+    subs.forEach((sub) => sub.unsubscribe())
   }
 }
 
-export function createEnvironmentsSync(
-  api: EnvironmentsAPI,
-  options: EnvironmentsSyncOptions
-) {
-  const environmentsMapper = createMapper<number, string>()
-  const globalEnvironmentMapper = createMapper<number, string>()
+async function loadUserEnvironments() {
+  const res = await getUserEnvironments()
 
-  const storeSyncDefinition: StoreSyncDefinitionOf<typeof environmentsStore> = {
-    async createEnvironment({ name, variables }) {
-      const lastCreatedEnvIndex =
-        environmentsStore.value.environments.length - 1
+  if (E.isRight(res)) {
+    const environments = res.right.me.environments
 
-      const res = await api.createUserEnvironment(
-        name,
-        JSON.stringify(variables)
-      )
-
-      if (E.isRight(res)) {
-        const id = res.right.createUserEnvironment.id
-
-        options.secretEnvironmentService.updateSecretEnvironmentID(
-          environmentsStore.value.environments[lastCreatedEnvIndex].id,
-          id
+    if (environments.length > 0) {
+      runDispatchWithOutSyncing(() => {
+        const formatedEnvironments = environments.map(
+          (env) =>
+            <Environment>{
+              id: env.id,
+              name: env.name,
+              variables: JSON.parse(env.variables),
+            }
         )
 
-        options.currentEnvironmentValueService.updateEnvironmentID(
-          environmentsStore.value.environments[lastCreatedEnvIndex].id,
-          id
+        replaceEnvironments(
+          formatedEnvironments.map((environment) => {
+            const parsedEnv = Environment.safeParse(environment)
+
+            return parsedEnv.type === "ok"
+              ? parsedEnv.value
+              : {
+                  ...environment,
+                  v: EnvironmentSchemaVersion,
+                }
+          })
         )
-
-        environmentsStore.value.environments[lastCreatedEnvIndex].id = id
-        options.removeDuplicateEntry(id)
-      }
-    },
-    async appendEnvironments({ envs }) {
-      const appendListLength = envs.length
-      let appendStart =
-        environmentsStore.value.environments.length - appendListLength - 1
-
-      envs.forEach((env) => {
-        const envId = ++appendStart
-
-        ;(async function () {
-          const res = await api.createUserEnvironment(
-            env.name,
-            JSON.stringify(env.variables)
-          )
-
-          if (E.isRight(res)) {
-            const id = res.right.createUserEnvironment.id
-            environmentsStore.value.environments[envId].id = id
-
-            options.removeDuplicateEntry(id)
-          }
-        })()
       })
-    },
-    async duplicateEnvironment({ envIndex }) {
-      const environmentToDuplicate = environmentsStore.value.environments.find(
-        (_, index) => index === envIndex
+    }
+  }
+}
+
+async function loadGlobalEnvironments() {
+  const res = await getGlobalEnvironments()
+
+  if (E.isRight(res)) {
+    const globalEnv = res.right.me.globalEnvironments
+
+    if (globalEnv) {
+      const globalEnvVariableEntries = JSON.parse(globalEnv.variables)
+
+      const result = entityReference(GlobalEnvironment).safeParse(
+        globalEnvVariableEntries
       )
 
-      const lastCreatedEnvIndex =
-        environmentsStore.value.environments.length - 1
+      runDispatchWithOutSyncing(() => {
+        setGlobalEnvVariables(
+          result.success ? result.data : globalEnvVariableEntries
+        )
+        setGlobalEnvID(globalEnv.id)
+      })
+    }
+  } else if (res.left.error == "user_environment/user_env_does_not_exists") {
+    const res = await createUserGlobalEnvironment(JSON.stringify([]))
 
-      if (environmentToDuplicate) {
-        const res = await api.createUserEnvironment(
-          `${environmentToDuplicate?.name} - Duplicate`,
-          JSON.stringify(environmentToDuplicate?.variables)
+    if (E.isRight(res)) {
+      const backendId = res.right.createUserGlobalEnvironment.id
+      setGlobalEnvID(backendId)
+    }
+  }
+}
+
+async function loadAllEnvironments() {
+  await loadUserEnvironments()
+  await loadGlobalEnvironments()
+}
+
+function setupUserEnvironmentCreatedSubscription() {
+  const [userEnvironmentCreated$, userEnvironmentCreatedSub] =
+    runUserEnvironmentCreatedSubscription()
+
+  userEnvironmentCreated$.subscribe((res) => {
+    if (E.isRight(res)) {
+      const { name, variables, id } = res.right.userEnvironmentCreated
+
+      const isAlreadyExisting = environmentsStore.value.environments.some(
+        (env) => env.id == id
+      )
+
+      if (name && !isAlreadyExisting) {
+        runDispatchWithOutSyncing(() => {
+          createEnvironment(name, JSON.parse(variables), id)
+        })
+      }
+    }
+  })
+
+  return userEnvironmentCreatedSub
+}
+
+function setupUserEnvironmentUpdatedSubscription() {
+  const [userEnvironmentUpdated$, userEnvironmentUpdatedSub] =
+    runUserEnvironmentUpdatedSubscription()
+
+  userEnvironmentUpdated$.subscribe((res) => {
+    if (E.isRight(res)) {
+      const { name, variables, id, isGlobal } = res.right.userEnvironmentUpdated
+
+      // handle the case for global environments
+      if (isGlobal) {
+        runDispatchWithOutSyncing(() => {
+          setGlobalEnvVariables(JSON.parse(variables))
+        })
+      } else {
+        // handle the case for normal environments
+
+        const localIndex = environmentsStore.value.environments.findIndex(
+          (env) => env.id == id
         )
 
-        if (E.isRight(res)) {
-          const id = res.right.createUserEnvironment.id
-          environmentsStore.value.environments[lastCreatedEnvIndex].id = id
+        if ((localIndex || localIndex == 0) && name) {
+          const environment = {
+            id,
+            name,
+            variables: JSON.parse(variables),
+          }
 
-          options.removeDuplicateEntry(id)
+          const parsedEnvResult = Environment.safeParse(environment)
+
+          const parsedEnv: Environment =
+            parsedEnvResult.type === "ok"
+              ? parsedEnvResult.value
+              : {
+                  ...environment,
+                  v: EnvironmentSchemaVersion,
+                }
+
+          runDispatchWithOutSyncing(() => {
+            updateEnvironment(localIndex, parsedEnv)
+          })
         }
       }
-    },
-    updateEnvironment({ envIndex, updatedEnv }) {
-      const backendId = environmentsStore.value.environments[envIndex].id
-      if (backendId) {
-        api.updateUserEnvironment(backendId, updatedEnv)()
-      }
-    },
-    async deleteEnvironment({ envID }) {
-      if (envID) {
-        await api.deleteUserEnvironment(envID)()
-      }
-    },
-    setGlobalVariables({ entries }) {
-      const backendId = getGlobalVariableID()
-      if (backendId) {
-        api.updateUserEnvironment(backendId, {
-          name: "",
-          variables: entries,
-          id: "",
-          v: 2,
-        })()
-      }
-    },
-    clearGlobalVariables() {
-      const backendId = getGlobalVariableID()
+    }
+  })
 
-      if (backendId) {
-        api.clearGlobalEnvironmentVariables(backendId)
+  return userEnvironmentUpdatedSub
+}
+
+function setupUserEnvironmentDeletedSubscription() {
+  const [userEnvironmentDeleted$, userEnvironmentDeletedSub] =
+    runUserEnvironmentDeletedSubscription()
+
+  userEnvironmentDeleted$.subscribe((res) => {
+    if (E.isRight(res)) {
+      const { id } = res.right.userEnvironmentDeleted
+
+      // TODO: move getLocalIndexByID to a getter in the environmentsStore
+      const localIndex = getLocalIndexByEnvironmentID(id)
+
+      if (localIndex || localIndex === 0) {
+        runDispatchWithOutSyncing(() => {
+          deleteEnvironment(localIndex)
+        })
       }
-    },
-  }
+    }
+  })
 
-  const environnmentsSyncer = options.getSyncInitFunction(
-    environmentsStore,
-    storeSyncDefinition,
-    () => settingsStore.value.syncEnvironments,
-    getSettingSubject("syncEnvironments")
-  )
-
-  return {
-    environnmentsSyncer,
-    environmentsMapper,
-    globalEnvironmentMapper,
-  }
+  return userEnvironmentDeletedSub
 }

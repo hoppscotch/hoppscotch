@@ -3,15 +3,11 @@ import { Ref } from "vue"
 import { HoppModule } from "~/modules"
 import { AnalyticsPlatformDef } from "./analytics"
 import { AuthPlatformDef } from "./auth"
-import { CollectionsPlatformDef } from "./collections"
-import { EnvironmentsPlatformDef } from "./environments"
 import { ExperimentsPlatformDef } from "./experiments"
-import { HistoryPlatformDef } from "./history"
 import { InfraPlatformDef } from "./infra"
 import { InspectorsPlatformDef } from "./inspectors"
 import { KernelInterceptorsPlatformDef } from "./kernel-interceptors"
 import { LimitsPlatformDef } from "./limits"
-import { SettingsPlatformDef } from "./settings"
 import { SpotlightPlatformDef } from "./spotlight"
 import { UIPlatformDef } from "./ui"
 import { BackendPlatformDef } from "./backend"
@@ -28,12 +24,6 @@ export type PlatformDef = {
   analytics?: AnalyticsPlatformDef
   kernelIO: KernelIO
   instance: InstancePlatformDef
-  sync: {
-    environments: EnvironmentsPlatformDef
-    collections: CollectionsPlatformDef
-    settings: SettingsPlatformDef
-    history: HistoryPlatformDef
-  }
   kernelInterceptors: KernelInterceptorsPlatformDef
   additionalInspectors?: InspectorsPlatformDef
   spotlight?: SpotlightPlatformDef

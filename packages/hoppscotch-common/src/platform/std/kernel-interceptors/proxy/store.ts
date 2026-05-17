@@ -48,6 +48,14 @@ export class KernelInterceptorProxyStore extends Service {
     accessToken: import.meta.env.VITE_PROXYSCOTCH_ACCESS_TOKEN ?? "",
   })
 
+  private _resolveReady!: () => void
+  // Resolves once persisted settings have been loaded into `_settings`.
+  // Callers that read `proxyUrl` on initial page load (e.g. the OAuth redirect
+  // handler) must await this to avoid using the in-memory default URL.
+  private readonly _ready: Promise<void> = new Promise((resolve) => {
+    this._resolveReady = resolve
+  })
+
   /**
    * Reactive, read-only view of the current proxy settings.
    */
@@ -59,10 +67,12 @@ export class KernelInterceptorProxyStore extends Service {
     const initResult = await Store.init()
     if (E.isLeft(initResult)) {
       console.error("[ProxyStore] Failed to initialize store:", initResult.left)
+      this._resolveReady()
       return
     }
 
     await this.loadSettings()
+    this._resolveReady()
 
     const watcher = await Store.watch(STORE_NAMESPACE, SETTINGS_KEY)
     watcher.on("change", async ({ value }) => {
@@ -78,6 +88,10 @@ export class KernelInterceptorProxyStore extends Service {
         }
       }
     })
+  }
+
+  public whenReady(): Promise<void> {
+    return this._ready
   }
 
   private async loadSettings(): Promise<void> {

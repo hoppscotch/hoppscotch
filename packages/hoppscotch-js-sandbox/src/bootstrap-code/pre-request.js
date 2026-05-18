@@ -356,10 +356,13 @@
         })
       },
       toObject: () => {
-        // Get all active environment variables as an object
+        // Get all active environment variables as an object.
+        // Exclude private sentinel keys so they never appear in user-visible output.
+        const SENTINEL_KEYS = new Set(["__hopp_row__", "__hopp_iteration_count__"])
         const envVars = inputs.getAllSelectedEnvs()
         const result = {}
         envVars.forEach((envVar) => {
+          if (SENTINEL_KEYS.has(envVar.key)) return
           const value = globalThis.hopp.env.active.get(envVar.key)
           if (value !== null) {
             result[envVar.key] = value

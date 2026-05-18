@@ -2708,16 +2708,16 @@
         }
       },
       toObject: () => {
-        // Return all environment variables as an object
-        // Read from getAllSelectedEnvs but verify each key still exists in the Map
-        // (to respect deletions made via unset() or clear())
+        // Return all environment variables as an object.
+        // Exclude private sentinel keys so they never appear in user-visible output.
+        const SENTINEL_KEYS = new Set(["__hopp_row__", "__hopp_iteration_count__"])
         const result = {}
 
         if (typeof inputs !== "undefined" && inputs.getAllSelectedEnvs) {
           const selectedEnvs = inputs.getAllSelectedEnvs()
           if (Array.isArray(selectedEnvs)) {
             selectedEnvs.forEach((envVar) => {
-              if (envVar && envVar.key) {
+              if (envVar && envVar.key && !SENTINEL_KEYS.has(envVar.key)) {
                 // Check if this key still exists in the active environment
                 // (it might have been deleted via unset() or clear())
                 const currentValue = globalThis.hopp.env.active.get(envVar.key)
@@ -2853,8 +2853,9 @@
         })
       },
       toObject: () => {
-        // Variables scope includes both environment and global with precedence
-        // Read from arrays but verify keys still exist in Maps (respect deletions)
+        // Variables scope includes both environment and global with precedence.
+        // Exclude private sentinel keys so they never appear in user-visible output.
+        const SENTINEL_KEYS = new Set(["__hopp_row__", "__hopp_iteration_count__"])
         const result = {}
 
         // Add global variables first
@@ -2862,7 +2863,7 @@
           const globalEnvs = inputs.getAllGlobalEnvs()
           if (Array.isArray(globalEnvs)) {
             globalEnvs.forEach((envVar) => {
-              if (envVar && envVar.key) {
+              if (envVar && envVar.key && !SENTINEL_KEYS.has(envVar.key)) {
                 const currentValue = globalThis.hopp.env.global.get(envVar.key)
                 if (currentValue !== null) {
                   result[envVar.key] = currentValue
@@ -2877,7 +2878,7 @@
           const selectedEnvs = inputs.getAllSelectedEnvs()
           if (Array.isArray(selectedEnvs)) {
             selectedEnvs.forEach((envVar) => {
-              if (envVar && envVar.key) {
+              if (envVar && envVar.key && !SENTINEL_KEYS.has(envVar.key)) {
                 const currentValue = globalThis.hopp.env.active.get(envVar.key)
                 if (currentValue !== null) {
                   result[envVar.key] = currentValue

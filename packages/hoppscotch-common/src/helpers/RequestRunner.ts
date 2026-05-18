@@ -1053,25 +1053,34 @@ export async function runTestRunnerRequest(
             const iterationColumnInjectedValues = new Map<string, string>(
               iterationDataEntries.map((e) => [e.key, e.currentValue])
             )
-            const stripIterationKeys = (vars: TestResult["envs"]["selected"]) =>
+            // Dataset columns are only injected into the `selected` scope, never into
+            // `global`. Applying column-key stripping to `global` would silently discard
+            // legitimate pm.globals.set() writes whose value happens to equal a dataset
+            // column value. For the global scope only remove the private sentinels.
+            const stripGlobalIterationKeys = (
+              vars: TestResult["envs"]["global"]
+            ) => vars.filter((v) => !iterationPrivateSentinels.has(v.key))
+
+            // For the selected scope: strip private sentinels AND unmodified dataset
+            // column copies (i.e. the runner-injected value was never overwritten).
+            const stripSelectedIterationKeys = (
+              vars: TestResult["envs"]["selected"]
+            ) =>
               vars.filter((v) => {
-                // Always remove private sentinels
                 if (iterationPrivateSentinels.has(v.key)) return false
-                // For dataset column keys: keep if the user changed the value
                 if (iterationColumnInjectedValues.has(v.key)) {
                   return (
                     v.currentValue !== iterationColumnInjectedValues.get(v.key)
                   )
                 }
-                // Any other key: keep as-is
                 return true
               })
 
             const cleanedPostEnvs: TestResult["envs"] = {
-              global: stripIterationKeys(
+              global: stripGlobalIterationKeys(
                 postRequestScriptResult.right.envs.global
               ),
-              selected: stripIterationKeys(
+              selected: stripSelectedIterationKeys(
                 postRequestScriptResult.right.envs.selected
               ),
             }

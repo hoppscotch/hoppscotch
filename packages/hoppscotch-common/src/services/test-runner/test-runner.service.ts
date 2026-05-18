@@ -130,12 +130,16 @@ export class TestRunnerService extends Service {
       // This allows us to accumulate results across iterations
       const shouldResetCollection = iteration === 0
 
-      // Get current iteration data if dataset is enabled
-      // If iteration exceeds dataset length, reuse the last dataset row
+      // Get current iteration data if dataset is enabled.
+      // Postman semantics: iterations beyond the dataset length run with empty
+      // iterationData (pm.iterationData.get() returns undefined for all keys).
       let iterationData: any = undefined
       if (hasDataset && dataset.data) {
-        const dataIndex = Math.min(iteration, dataset.data.length - 1)
-        iterationData = dataset.data[dataIndex]
+        if (iteration < dataset.data.length) {
+          iterationData = dataset.data[iteration]
+        }
+        // If iteration >= dataset.data.length, iterationData stays undefined —
+        // matching Postman's empty-row behaviour for extra iterations.
       }
 
       const executionOrder =

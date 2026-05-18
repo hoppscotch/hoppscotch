@@ -195,15 +195,18 @@
           }
         }
 
-        // Platform guard — cookies only supported on Desktop App
-        const cookiesAvailable = (() => {
+        // Platform guard — cookies only supported on Desktop App.
+        // Cached on globalThis so the probe runs at most once per script execution,
+        // avoiding a spurious cookie-store read on every jar() call.
+        if (globalThis.__hoppCookiesAvailable === undefined) {
           try {
             inputs.cookieGet("__probe__", "__probe__")
-            return true
+            globalThis.__hoppCookiesAvailable = true
           } catch (e) {
-            return !String(e).includes("not supported in the current platform")
+            globalThis.__hoppCookiesAvailable = !String(e).includes("not supported in the current platform")
           }
-        })()
+        }
+        const cookiesAvailable = globalThis.__hoppCookiesAvailable
 
         if (!cookiesAvailable) {
           console.warn(
@@ -1673,7 +1676,11 @@
       get: (key) => globalThis.pm.environment.get(key),
       set: (key, value) => globalThis.pm.environment.set(key, value),
       unset: (key) => globalThis.pm.environment.unset(key),
-      has: (key) => globalThis.pm.environment.has(key),
+      has: (key) => {
+        const SENTINEL_KEYS = new Set(["__hopp_row__", "__hopp_iteration_count__"])
+        if (SENTINEL_KEYS.has(key)) return false
+        return globalThis.pm.environment.has(key)
+      },
       clear: () => {
         console.warn("[pm.collectionVariables] clear() is a no-op in Hoppscotch: collection variables share the active environment scope, so clearing them would destructively wipe all environment variables. Remove this call or use pm.collectionVariables.unset() for individual keys.")
       },

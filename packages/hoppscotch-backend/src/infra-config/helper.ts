@@ -5,7 +5,7 @@ import { InfraConfigEnum } from 'src/types/InfraConfig';
 import { SMTPAuthType } from 'src/mailer/helper';
 import { decrypt, encrypt } from 'src/utils';
 import { randomBytes } from 'crypto';
-import { InfraConfig } from './infra-config.model';
+import { InfraConfig } from 'src/generated/prisma/client';
 
 export enum ServiceStatus {
   ENABLE = 'ENABLE',

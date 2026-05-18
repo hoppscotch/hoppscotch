@@ -1028,6 +1028,30 @@ data2: {"type":"test2","typeId":"123"}`,
       responses: {},
     }),
   },
+  {
+    command: `curl -sS "https://api.example.com/users" --user "demo_user:demo_pass_12345"`,
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled",
+      endpoint: "https://api.example.com/users",
+      auth: {
+        authType: "basic",
+        authActive: true,
+        username: "demo_user",
+        password: "demo_pass_12345",
+      },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      headers: [],
+      params: [],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+    }),
+  },
 ]
 
 describe("Parse curl command to Hopp REST Request", () => {

@@ -2407,8 +2407,21 @@
             "[hopp.cookies.jar] Cookie jar is not supported on this platform. " +
             "Cookie operations are exclusive to the Desktop App."
           )
-          const noop = (_a, _b, cb) => { if (typeof cb === "function") cb(null) }
-          return { set: noop, get: noop, getAll: noop, unset: noop, clear: noop }
+          // Per-method noops: each places the callback at the correct positional arg
+          // set(url, name, value, cb)  OR  set(url, cookieObj, cb)
+          const noopSet = (_u, _b, _c, _d) => {
+            const cb = typeof _d === "function" ? _d : typeof _c === "function" ? _c : null
+            if (cb) cb(null)
+          }
+          // get(url, name, cb)
+          const noopGet = (_u, _n, cb) => { if (typeof cb === "function") cb(null, null) }
+          // getAll(url, cb)  — callback is 2nd arg
+          const noopGetAll = (_u, cb) => { if (typeof cb === "function") cb(null, []) }
+          // unset(url, name, cb)
+          const noopUnset = (_u, _n, cb) => { if (typeof cb === "function") cb(null) }
+          // clear(url, cb)  — callback is 2nd arg
+          const noopClear = (_u, cb) => { if (typeof cb === "function") cb(null) }
+          return { set: noopSet, get: noopGet, getAll: noopGetAll, unset: noopUnset, clear: noopClear }
         }
 
         return {

@@ -5,11 +5,14 @@ import { InfraConfigEnum } from 'src/types/InfraConfig';
 import { SMTPAuthType } from 'src/mailer/helper';
 import { decrypt, encrypt } from 'src/utils';
 import { randomBytes } from 'crypto';
+import { InfraConfig } from './infra-config.model';
 
 export enum ServiceStatus {
   ENABLE = 'ENABLE',
   DISABLE = 'DISABLE',
 }
+
+const SYNC_ONLY_VARIABLES = [InfraConfigEnum.PROXY_APP_URL];
 
 type DefaultInfraConfig = {
   name: InfraConfigEnum;
@@ -345,6 +348,11 @@ export async function getDefaultInfraConfigs(): Promise<DefaultInfraConfig[]> {
       isEncrypted: false,
     },
     {
+      name: InfraConfigEnum.PROXY_APP_URL,
+      value: 'https://proxy.hoppscotch.io',
+      isEncrypted: false,
+    },
+    {
       name: InfraConfigEnum.ALLOW_ANALYTICS_COLLECTION,
       value: false.toString(),
       isEncrypted: false,
@@ -411,6 +419,52 @@ export async function getEncryptionRequiredInfraConfigEntries(
   });
 
   return requiredEncryption;
+}
+
+/**
+ * Sync the 'infra_config' table with .env file
+ * @returns Array of InfraConfig
+ */
+export async function syncInfraConfigWithEnvFile() {
+  const prisma = getSharedPrismaInstance();
+  const dbInfraConfigs = await prisma.infraConfig.findMany();
+
+  const updateRequiredObjs: (Partial<InfraConfig> & { id: string })[] = [];
+
+  for (const dbConfig of dbInfraConfigs) {
+    // Only sync if the variable is in the SYNC_ONLY_VARIABLES list. Otherwise, skip it
+    if (!SYNC_ONLY_VARIABLES.includes(dbConfig.name as InfraConfigEnum))
+      continue;
+
+    const envValue = process.env[dbConfig.name];
+
+    // lastSyncedEnvFileValue null check for backward compatibility from 2024.10.2 and below
+    if (!dbConfig.lastSyncedEnvFileValue && envValue) {
+      const configValue = dbConfig.isEncrypted ? encrypt(envValue) : envValue;
+      updateRequiredObjs.push({
+        id: dbConfig.id,
+        value: dbConfig.value === null ? configValue : undefined,
+        lastSyncedEnvFileValue: configValue,
+      });
+      continue;
+    }
+
+    // If the value in the database is different from the value in the .env file, means the value in the .env file has been updated
+    const rawLastSyncedEnvFileValue = dbConfig.isEncrypted
+      ? decrypt(dbConfig.lastSyncedEnvFileValue)
+      : dbConfig.lastSyncedEnvFileValue;
+
+    if (rawLastSyncedEnvFileValue != envValue) {
+      const configValue = dbConfig.isEncrypted ? encrypt(envValue) : envValue;
+      updateRequiredObjs.push({
+        id: dbConfig.id,
+        value: configValue ?? null,
+        lastSyncedEnvFileValue: configValue ?? null,
+      });
+    }
+  }
+
+  return updateRequiredObjs;
 }
 
 /**

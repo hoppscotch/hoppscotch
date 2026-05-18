@@ -33,6 +33,7 @@ import {
   getEncryptionRequiredInfraConfigEntries,
   getMissingInfraConfigEntries,
   stopApp,
+  syncInfraConfigWithEnvFile,
 } from './helper';
 import { EnableAndDisableSSOArgs, InfraConfigArgs } from './input-args';
 import { AuthProvider } from 'src/auth/helper';
@@ -123,11 +124,25 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
         await Promise.allSettled(dbOperations);
       }
 
+      // Sync the InfraConfigs with the .env file, if .env file updates later on
+      const envFileChangesRequired = await syncInfraConfigWithEnvFile();
+      if (envFileChangesRequired.length > 0) {
+        const dbOperations = envFileChangesRequired.map((dbConfig) => {
+          const { id, ...dataObj } = dbConfig;
+          return this.prisma.infraConfig.update({
+            where: { id: dbConfig.id },
+            data: dataObj,
+          });
+        });
+        await Promise.allSettled(dbOperations);
+      }
+
       // Restart the app if needed
       if (
         propsToInsert.length > 0 ||
         encryptionRequiredEntries.length > 0 ||
-        Object.keys(derivedEnv).length > 0
+        Object.keys(derivedEnv).length > 0 ||
+        envFileChangesRequired.length > 0
       ) {
         stopApp();
       }
@@ -794,6 +809,7 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
         case InfraConfigEnum.GOOGLE_CALLBACK_URL:
         case InfraConfigEnum.GITHUB_CALLBACK_URL:
         case InfraConfigEnum.MICROSOFT_CALLBACK_URL:
+        case InfraConfigEnum.PROXY_APP_URL:
           if (!validateUrl(value)) return fail();
           break;
 

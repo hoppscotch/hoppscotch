@@ -1028,6 +1028,100 @@ data2: {"type":"test2","typeId":"123"}`,
       responses: {},
     }),
   },
+  {
+    // Regression test for https://github.com/hoppscotch/hoppscotch/issues/6249
+    // Asterisk in query value must not be stripped during URL preprocessing.
+    command: `curl -X POST 'https://x.x.cn/x/x/x?bi=%5B%221440*2976%22%5D&bik=25&pageId=xxx' -H 'content-type: application/json; charset=UTF-8' -d '{"country":"xxx"}'`,
+    response: makeRESTRequest({
+      method: "POST",
+      name: "Untitled",
+      endpoint: "https://x.x.cn/x/x/x",
+      auth: { authType: "inherit", authActive: true },
+      body: {
+        contentType: "application/json",
+        body: `{\n  "country": "xxx"\n}`,
+      },
+      headers: [],
+      params: [
+        {
+          active: true,
+          key: "bi",
+          value: `["1440*2976"]`,
+          description: "",
+        },
+        {
+          active: true,
+          key: "bik",
+          value: "25",
+          description: "",
+        },
+        {
+          active: true,
+          key: "pageId",
+          value: "xxx",
+          description: "",
+        },
+      ],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+    }),
+  },
+  {
+    // Coverage for unreserved/sub-delim characters and literal braces
+    // (Postman-style template placeholders) in cURL URL query values.
+    // `--globoff` is required because curl would otherwise treat `[...]`
+    // and `{...}` as URL globbing patterns.
+    command: `curl --globoff 'https://api.example.com/v1/items?ids=[1,2,3]&template={{userId}}&filter=name~john&price=$100&flag=!yes'`,
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled",
+      endpoint: "https://api.example.com/v1/items",
+      auth: { authType: "inherit", authActive: true },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      headers: [],
+      params: [
+        {
+          active: true,
+          key: "ids",
+          value: "[1,2,3]",
+          description: "",
+        },
+        {
+          active: true,
+          key: "template",
+          value: "{{userId}}",
+          description: "",
+        },
+        {
+          active: true,
+          key: "filter",
+          value: "name~john",
+          description: "",
+        },
+        {
+          active: true,
+          key: "price",
+          value: "$100",
+          description: "",
+        },
+        {
+          active: true,
+          key: "flag",
+          value: "!yes",
+          description: "",
+        },
+      ],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+    }),
+  },
 ]
 
 describe("Parse curl command to Hopp REST Request", () => {

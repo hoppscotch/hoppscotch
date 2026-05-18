@@ -1053,15 +1053,15 @@ export async function runTestRunnerRequest(
             const iterationColumnInjectedValues = new Map<string, string>(
               iterationDataEntries.map((e) => [e.key, e.currentValue])
             )
-            const stripIterationKeys = (
-              vars: TestResult["envs"]["selected"]
-            ) =>
+            const stripIterationKeys = (vars: TestResult["envs"]["selected"]) =>
               vars.filter((v) => {
                 // Always remove private sentinels
                 if (iterationPrivateSentinels.has(v.key)) return false
                 // For dataset column keys: keep if the user changed the value
                 if (iterationColumnInjectedValues.has(v.key)) {
-                  return v.currentValue !== iterationColumnInjectedValues.get(v.key)
+                  return (
+                    v.currentValue !== iterationColumnInjectedValues.get(v.key)
+                  )
                 }
                 // Any other key: keep as-is
                 return true

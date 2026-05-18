@@ -3247,13 +3247,17 @@
 
       get body() {
         const rawBody = globalThis.hopp.request.body
-        if (rawBody && typeof rawBody === "object") {
+        // Bodyless requests (GET, HEAD, etc.) — rawBody is null/undefined.
+        // Return a stub so pm.request.body.isEmpty() doesn't throw TypeError.
+        if (!rawBody) {
+          return { isEmpty: () => true }
+        }
+        if (typeof rawBody === "object") {
           // Category D2 — pm.request.body.isEmpty() (PM311)
           // Return a new object (spread) to avoid mutating the shared hopp.request.body reference.
           return {
             ...rawBody,
             isEmpty: () => {
-              if (!rawBody) return true
               if (rawBody.mode === "raw") return !rawBody.raw || rawBody.raw.trim() === ""
               if (rawBody.mode === "urlencoded") return !rawBody.urlencoded || rawBody.urlencoded.length === 0
               if (rawBody.mode === "formdata") return !rawBody.formdata || rawBody.formdata.length === 0
@@ -3584,9 +3588,11 @@
         },
         // Category C — Missing response cookies helper (PM309)
         each: (fn) => {
-          // PM309 — iterate all response cookies as { key, value } objects
+          // PM309 — iterate all response cookies as Postman Cookie-like objects.
+          // Postman's PropertyList uses `name` as the primary identifier; `key`
+          // is also included for compatibility with {key,value} destructuring.
           const obj = globalThis.pm.response.cookies.toObject()
-          Object.entries(obj).forEach(([key, value]) => fn({ key, value }))
+          Object.entries(obj).forEach(([key, value]) => fn({ name: key, key, value }))
         },
       },
 
@@ -3785,72 +3791,74 @@
           },
         },
         be: {
-          // Status code convenience methods
-          ok: () => {
+          // Status code convenience methods — implemented as property getters so
+          // Postman scripts that access them without () (e.g. pm.response.to.be.ok)
+          // trigger the assertion immediately on property access, matching Postman behaviour.
+          get ok() {
             const code = globalThis.hopp.response.statusCode
             globalThis.hopp.expect(code >= 200 && code < 300).to.be.true
           },
-          success: () => {
+          get success() {
             // Alias for ok - validates 2xx status codes
             const code = globalThis.hopp.response.statusCode
             globalThis.hopp.expect(code >= 200 && code < 300).to.be.true
           },
-          accepted: () => {
+          get accepted() {
             const code = globalThis.hopp.response.statusCode
             globalThis.hopp.expect(code).to.equal(202)
           },
-          badRequest: () => {
+          get badRequest() {
             const code = globalThis.hopp.response.statusCode
             globalThis.hopp.expect(code).to.equal(400)
           },
-          unauthorized: () => {
+          get unauthorized() {
             const code = globalThis.hopp.response.statusCode
             globalThis.hopp.expect(code).to.equal(401)
           },
-          forbidden: () => {
+          get forbidden() {
             const code = globalThis.hopp.response.statusCode
             globalThis.hopp.expect(code).to.equal(403)
           },
-          notFound: () => {
+          get notFound() {
             const code = globalThis.hopp.response.statusCode
             globalThis.hopp.expect(code).to.equal(404)
           },
-          rateLimited: () => {
+          get rateLimited() {
             const code = globalThis.hopp.response.statusCode
             globalThis.hopp.expect(code).to.equal(429)
           },
-          clientError: () => {
+          get clientError() {
             // Validates 4xx status codes
             const code = globalThis.hopp.response.statusCode
             globalThis.hopp.expect(code >= 400 && code < 500).to.be.true
           },
-          serverError: () => {
+          get serverError() {
             const code = globalThis.hopp.response.statusCode
             globalThis.hopp.expect(code >= 500 && code < 600).to.be.true
           },
           // Category A — Missing BDD status range shortcuts (PM301–PM304)
-          info: () => {
+          get info() {
             // PM301 — 1xx Informational
             const code = globalThis.hopp.response.statusCode
             globalThis.hopp.expect(code >= 100 && code < 200).to.be.true
           },
-          redirection: () => {
+          get redirection() {
             // PM302 — 3xx Redirection
             const code = globalThis.hopp.response.statusCode
             globalThis.hopp.expect(code >= 300 && code < 400).to.be.true
           },
-          error: () => {
+          get error() {
             // PM303 — 4xx or 5xx Error
             const code = globalThis.hopp.response.statusCode
             globalThis.hopp.expect(code >= 400).to.be.true
           },
-          withBody: () => {
+          get withBody() {
             // PM304 — response has a non-empty body
             const body = globalThis.hopp.response.body.asText()
             globalThis.hopp.expect(body).to.not.equal("")
           },
           // Content type checks
-          json: () => {
+          get json() {
             const headers = globalThis.hopp.response.headers
             const contentType = headers.find(
               (h) => h.key.toLowerCase() === "content-type"
@@ -3859,7 +3867,7 @@
               .expect(contentType ? contentType.value : "")
               .to.include("application/json")
           },
-          html: () => {
+          get html() {
             const headers = globalThis.hopp.response.headers
             const contentType = headers.find(
               (h) => h.key.toLowerCase() === "content-type"
@@ -3868,7 +3876,7 @@
               .expect(contentType ? contentType.value : "")
               .to.include("text/html")
           },
-          xml: () => {
+          get xml() {
             const headers = globalThis.hopp.response.headers
             const contentType = headers.find(
               (h) => h.key.toLowerCase() === "content-type"
@@ -3878,7 +3886,7 @@
               ct.includes("application/xml") || ct.includes("text/xml")
             ).to.be.true
           },
-          text: () => {
+          get text() {
             const headers = globalThis.hopp.response.headers
             const contentType = headers.find(
               (h) => h.key.toLowerCase() === "content-type"

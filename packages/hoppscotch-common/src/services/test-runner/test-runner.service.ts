@@ -412,7 +412,9 @@ export class TestRunnerService extends Service {
     ]
     let inheritedTestScripts: string[] = [
       ...ancestorTestScripts,
-      ...(hasActualScript(collection.testScript) ? [collection.testScript] : []),
+      ...(hasActualScript(collection.testScript)
+        ? [collection.testScript]
+        : []),
     ]
 
     for (let i = 0; i < parts.length; i++) {
@@ -526,6 +528,20 @@ export class TestRunnerService extends Service {
     }
 
     const folderRequestCounters = new Map<string, number>()
+
+    // On iterations 2+, seed counters from the existing result collection so that
+    // addRequestToPath appends at the correct indices instead of overwriting the
+    // results already stored by the previous iteration.
+    if (!shouldResetFoldersAndRequests && tab.value.document.resultCollection) {
+      const seedCounters = (folder: HoppCollection, path: number[]) => {
+        const key = path.join("/")
+        folderRequestCounters.set(key, folder.requests.length)
+        folder.folders.forEach((sub, i) =>
+          seedCounters(sub as HoppCollection, [...path, i])
+        )
+      }
+      seedCounters(tab.value.document.resultCollection, [])
+    }
 
     let orderIndex = 0
     // Cycle detection: track how many setNextRequest jumps have occurred.

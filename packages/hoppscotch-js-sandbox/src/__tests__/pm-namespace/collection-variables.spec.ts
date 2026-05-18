@@ -170,16 +170,19 @@ describe("pm.collectionVariables — test script (post-request)", () => {
     ])
   })
 
-  test("clear() removes all previously set collection variables", () => {
+  test("clear() is a no-op in Hoppscotch (collection and environment share the same scope)", () => {
     return expect(
       runTest(
         `
           pm.collectionVariables.set("cv_x", "x")
           pm.collectionVariables.set("cv_y", "y")
           pw.expect(pm.collectionVariables.has("cv_x")).toBe(true)
+          // clear() is intentionally a no-op: collectionVariables shares the active
+          // environment scope, so clearing would destructively wipe environment variables.
           pm.collectionVariables.clear()
-          pw.expect(pm.collectionVariables.has("cv_x")).toBe(false)
-          pw.expect(pm.collectionVariables.has("cv_y")).toBe(false)
+          // Variables must still be present — clear() does not remove them.
+          pw.expect(pm.collectionVariables.has("cv_x")).toBe(true)
+          pw.expect(pm.collectionVariables.has("cv_y")).toBe(true)
         `,
         { global: [], selected: [] }
       )()
@@ -187,8 +190,8 @@ describe("pm.collectionVariables — test script (post-request)", () => {
       expect.objectContaining({
         expectResults: [
           { status: "pass", message: "Expected 'true' to be 'true'" },
-          { status: "pass", message: "Expected 'false' to be 'false'" },
-          { status: "pass", message: "Expected 'false' to be 'false'" },
+          { status: "pass", message: "Expected 'true' to be 'true'" },
+          { status: "pass", message: "Expected 'true' to be 'true'" },
         ],
       }),
     ])
@@ -299,13 +302,14 @@ describe("pm.collectionVariables — pre-request script", () => {
     ).resolves.toBeRight()
   })
 
-  test("clear() works in pre-request", () => {
+  test("clear() is a no-op in pre-request (variables still present after call)", () => {
     return expect(
       runPreRequest(
         `
           pm.collectionVariables.set("cv_pre_clr", "clear_me")
+          // clear() is intentionally a no-op — must not throw and must not remove keys.
           pm.collectionVariables.clear()
-          if (pm.collectionVariables.has("cv_pre_clr")) throw new Error("clear() did not remove key")
+          if (!pm.collectionVariables.has("cv_pre_clr")) throw new Error("clear() unexpectedly removed a key")
         `,
         { global: [], selected: [] }
       )()

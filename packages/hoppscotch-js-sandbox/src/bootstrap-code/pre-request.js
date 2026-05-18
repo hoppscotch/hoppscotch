@@ -1112,12 +1112,14 @@
           },
 
           // Category D1 — pm.request.headers.one(key) alias (PM310)
+          // Returns null (not undefined) for missing headers, matching get() behaviour
+          // and the documented alias contract (`pm.expect(val).to.be.null`).
           one: (name) => {
             const headers = globalThis.hopp.request.headers
             const header = headers.find(
               (h) => h.key.toLowerCase() === name.toLowerCase()
             )
-            return header ? header.value : undefined
+            return header ? header.value : null
           },
 
           // Advanced PropertyList methods

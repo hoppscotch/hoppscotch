@@ -1030,19 +1030,42 @@ export async function runTestRunnerRequest(
                 ? postRequestResultWithNext.nextRequest
                 : preRequestResultWithNext.nextRequest
 
-            // Strip iteration-data keys (including "row") from the post-request envs
-            // so they don't appear as user-visible environment changes/additions.
-            const iterationInjectedKeys = new Set<string>(
-              iterationRowVar
-                ? [...iterationDataEntries.map((e) => e.key), "__hopp_row__", "__hopp_iteration_count__"]
-                : ["__hopp_iteration_count__"]
+            // Strip runner-injected sentinel keys from the post-request envs so they
+            // don't appear as user-visible environment changes/additions.
+            //
+            // Private sentinel keys (__hopp_row__, __hopp_iteration_count__) are
+            // ALWAYS stripped — the user never writes to these directly.
+            //
+            // Individual dataset column keys are stripped ONLY when the entry's
+            // currentValue still matches the value the runner originally injected
+            // (meaning the user's script never called pm.environment.set() for that
+            // key, or called it with the identical value).  If the user deliberately
+            // wrote a different value via pm.environment.set("city", "Paris"), the
+            // entry's currentValue will differ from the injected copy and it will be
+            // preserved, enabling the common Postman pattern of reading a dataset
+            // column, transforming it, and storing the result back to the environment.
+            const iterationPrivateSentinels = new Set<string>([
+              "__hopp_row__",
+              "__hopp_iteration_count__",
+            ])
+            // Map from column key → the string value the runner injected so we can
+            // detect unmodified copies.
+            const iterationColumnInjectedValues = new Map<string, string>(
+              iterationDataEntries.map((e) => [e.key, e.currentValue])
             )
             const stripIterationKeys = (
               vars: TestResult["envs"]["selected"]
             ) =>
-              iterationInjectedKeys.size > 0
-                ? vars.filter((v) => !iterationInjectedKeys.has(v.key))
-                : vars
+              vars.filter((v) => {
+                // Always remove private sentinels
+                if (iterationPrivateSentinels.has(v.key)) return false
+                // For dataset column keys: keep if the user changed the value
+                if (iterationColumnInjectedValues.has(v.key)) {
+                  return v.currentValue !== iterationColumnInjectedValues.get(v.key)
+                }
+                // Any other key: keep as-is
+                return true
+              })
 
             const cleanedPostEnvs: TestResult["envs"] = {
               global: stripIterationKeys(

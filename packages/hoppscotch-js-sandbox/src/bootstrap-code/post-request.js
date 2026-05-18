@@ -3186,12 +3186,14 @@
           },
 
           // Category D1 — pm.request.headers.one(key) alias (PM310)
+          // Returns null (not undefined) for missing headers, matching get() and
+          // the documented alias contract (`pm.expect(val).to.be.null`).
           one: (name) => {
             const headers = globalThis.hopp.request.headers
             const header = headers.find(
               (h) => h.key.toLowerCase() === name.toLowerCase()
             )
-            return header ? header.value : undefined
+            return header ? header.value : null
           },
 
           // Advanced PropertyList methods (read-only)
@@ -3500,13 +3502,14 @@
           // PM306 — iterate all response headers
           globalThis.hopp.response.headers.forEach(fn)
         },
+        // PM307 — alias for get(name); returns null (not undefined) for missing
+        // headers so pm.expect(val).to.be.null assertions work correctly.
         one: (name) => {
-          // PM307 — alias for get(name)
           const headers = globalThis.hopp.response.headers
           const header = headers.find(
             (h) => h.key.toLowerCase() === name.toLowerCase()
           )
-          return header ? header.value : undefined
+          return header ? header.value : null
         },
         count: () => {
           // PM308 — number of response headers

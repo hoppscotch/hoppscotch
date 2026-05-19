@@ -89,6 +89,14 @@
                       :value="`${entry.name} => ${entry.value}`"
                       readonly
                     />
+                    <span
+                      v-if="entry.httpOnly"
+                      v-tippy="{ theme: 'tooltip' }"
+                      :title="t('cookies.modal.http_only_info')"
+                      class="px-2 text-tiny font-semibold text-secondaryLight"
+                    >
+                      {{ t("cookies.modal.http_only") }}
+                    </span>
                     <HoppButtonSecondary
                       v-tippy="{ theme: 'tooltip' }"
                       :title="t('action.copy')"

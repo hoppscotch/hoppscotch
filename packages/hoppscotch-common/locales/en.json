@@ -394,6 +394,8 @@
       "empty_domain": "Domain is empty",
       "empty_domains": "Domain list is empty",
       "enter_cookie_string": "Enter cookie string",
+      "http_only": "HttpOnly",
+      "http_only_info": "Not exposed to page scripts. Still sent on matching requests.",
       "interceptor_no_support": "Your currently selected interceptor does not support cookies. Select a different Interceptor and try again.",
       "managed_tab": "Managed",
       "new_domain_name": "New domain name",

@@ -933,7 +933,16 @@ export async function runTestRunnerRequest(
       const skipColumnInjectedValues = new Map<string, string>(
         iterationDataEntries.map((e) => [e.key, e.currentValue])
       )
-      const stripSkipKeys = (
+      // Dataset columns are only injected into `selected`, never into `global`.
+      // For `global`: only strip private sentinels — column-key stripping would
+      // silently discard a legitimate pm.globals.set() whose value happens to
+      // equal a dataset column value.
+      const stripSkipGlobalKeys = (
+        vars: (typeof preRequestScriptResult.right.updatedEnvs)["global"]
+      ) => vars.filter((v) => !skipPrivateSentinels.has(v.key))
+      // For `selected`: strip private sentinels AND unmodified dataset column
+      // copies (runner-injected value was never overwritten by the script).
+      const stripSkipSelectedKeys = (
         vars: (typeof preRequestScriptResult.right.updatedEnvs)["selected"]
       ) =>
         vars.filter((v) => {
@@ -943,10 +952,10 @@ export async function runTestRunnerRequest(
           }
           return true
         })
-      const skipCleanedGlobal = stripSkipKeys(
+      const skipCleanedGlobal = stripSkipGlobalKeys(
         preRequestScriptResult.right.updatedEnvs.global
       )
-      const skipCleanedSelected = stripSkipKeys(
+      const skipCleanedSelected = stripSkipSelectedKeys(
         preRequestScriptResult.right.updatedEnvs.selected
       )
       const skipCleanedEnvs = {

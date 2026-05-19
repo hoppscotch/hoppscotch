@@ -3967,8 +3967,9 @@
         return globalThis.hopp.test(name, fn)
       }
       // index() returns the 0-based index of the most-recently registered test.
-      // Tied to pm.test() calls, not to index() calls — matches Postman semantics.
-      testFn.index = () => (__testIndex <= 0 ? 0 : __testIndex - 1)
+      // Returns -1 when no test has been registered yet — matches Postman semantics.
+      // Tied to pm.test() calls, not to index() calls.
+      testFn.index = () => (__testIndex <= 0 ? -1 : __testIndex - 1)
       return testFn
     })(),
     expect: Object.assign(

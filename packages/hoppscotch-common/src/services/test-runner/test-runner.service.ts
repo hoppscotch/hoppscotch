@@ -239,7 +239,6 @@ export class TestRunnerService extends Service {
   private async runTestRequest(
     tab: Ref<HoppTab<HoppTestRunnerDocument>>,
     request: TestRunnerRequest,
-    collection: HoppCollection,
     options: TestRunnerOptions,
     path: number[],
     inheritedVariables: HoppCollectionVariable[] = [],
@@ -624,7 +623,6 @@ export class TestRunnerService extends Service {
       const nextRequest = await this.runTestRequest(
         tab,
         finalRequest,
-        collection,
         options,
         fullPath,
         inheritedVariables,

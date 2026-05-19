@@ -332,6 +332,32 @@
   }
 
   // PM Namespace - Postman Compatibility Layer
+
+  // Initialize null-tracking Sets so pm.variables.get() can distinguish
+  // "key was explicitly set to null" from "key is absent" — mirrors post-request.js.
+  if (!globalThis.__pmEnvKeys) {
+    globalThis.__pmEnvKeys = new Set()
+  }
+  if (!globalThis.__pmGlobalKeys) {
+    globalThis.__pmGlobalKeys = new Set()
+  }
+  if (inputs && inputs.envs) {
+    if (inputs.envs.selected && Array.isArray(inputs.envs.selected)) {
+      inputs.envs.selected.forEach((envVar) => {
+        if (envVar && envVar.key && envVar.currentValue !== undefined) {
+          globalThis.__pmEnvKeys.add(envVar.key)
+        }
+      })
+    }
+    if (inputs.envs.global && Array.isArray(inputs.envs.global)) {
+      inputs.envs.global.forEach((envVar) => {
+        if (envVar && envVar.key && envVar.currentValue !== undefined) {
+          globalThis.__pmGlobalKeys.add(envVar.key)
+        }
+      })
+    }
+  }
+
   globalThis.pm = {
     environment: {
       get: (key) => {
@@ -340,6 +366,9 @@
         return value === null ? undefined : value
       },
       set: (key, value) => {
+        // Track the key so pm.variables.get() can distinguish explicit null from absent
+        if (!globalThis.__pmEnvKeys) globalThis.__pmEnvKeys = new Set()
+        globalThis.__pmEnvKeys.add(key)
         // PM namespace preserves all types - use pmEnvSetAny directly
         if (typeof value === "undefined") {
           return inputs.pmEnvSetAny(key, UNDEFINED_MARKER, { source: "active" })
@@ -349,7 +378,10 @@
           return inputs.pmEnvSetAny(key, value, { source: "active" })
         }
       },
-      unset: (key) => globalThis.hopp.env.active.delete(key),
+      unset: (key) => {
+        if (globalThis.__pmEnvKeys) globalThis.__pmEnvKeys.delete(key)
+        return globalThis.hopp.env.active.delete(key)
+      },
       has: (key) => globalThis.hopp.env.active.get(key) !== null,
       clear: () => {
         // Get all active environment variables and delete them
@@ -382,6 +414,9 @@
         return value === null ? undefined : value
       },
       set: (key, value) => {
+        // Track the key so pm.variables.get() can distinguish explicit null from absent
+        if (!globalThis.__pmGlobalKeys) globalThis.__pmGlobalKeys = new Set()
+        globalThis.__pmGlobalKeys.add(key)
         // PM namespace preserves all types - use pmEnvSetAny directly
         if (typeof value === "undefined") {
           return inputs.pmEnvSetAny(key, UNDEFINED_MARKER, { source: "global" })
@@ -391,7 +426,10 @@
           return inputs.pmEnvSetAny(key, value, { source: "global" })
         }
       },
-      unset: (key) => globalThis.hopp.env.global.delete(key),
+      unset: (key) => {
+        if (globalThis.__pmGlobalKeys) globalThis.__pmGlobalKeys.delete(key)
+        return globalThis.hopp.env.global.delete(key)
+      },
       has: (key) => globalThis.hopp.env.global.get(key) !== null,
       clear: () => {
         // Get all global environment variables and delete them
@@ -416,15 +454,25 @@
 
     variables: {
       get: (key) => {
-        // Use getRaw (no template resolution) — mirrors post-request.js behaviour.
-        // Search active scope first, then global, returning undefined if absent.
+        // Use getRaw (no template resolution) and tracking sets to distinguish
+        // "key explicitly set to null" (NULL_MARKER → JS null) from "key absent"
+        // (getRaw returns null when key is not found) — mirrors post-request.js.
         const activeRaw = globalThis.hopp.env.active.getRaw(key)
-        if (activeRaw !== null) return activeRaw
+        const isTrackedActive =
+          globalThis.__pmEnvKeys && globalThis.__pmEnvKeys.has(key)
+        if (activeRaw !== null || isTrackedActive) return activeRaw
+
         const globalRaw = globalThis.hopp.env.global.getRaw(key)
-        if (globalRaw !== null) return globalRaw
+        const isTrackedGlobal =
+          globalThis.__pmGlobalKeys && globalThis.__pmGlobalKeys.has(key)
+        if (globalRaw !== null || isTrackedGlobal) return globalRaw
+
         return undefined
       },
       set: (key, value) => {
+        // Track the key so get() can distinguish explicit null from absent
+        if (!globalThis.__pmEnvKeys) globalThis.__pmEnvKeys = new Set()
+        globalThis.__pmEnvKeys.add(key)
         // PM namespace preserves all types - use pmEnvSetAny directly
         // variables.set uses active scope
         if (typeof value === "undefined") {

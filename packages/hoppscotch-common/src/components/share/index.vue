@@ -95,6 +95,7 @@
     @resolve="resolveConfirmModal"
   />
   <ShareModal
+    v-if="showShareRequestModal && requestToShare"
     v-model="selectedWidget"
     v-model:embed-options="embedOptions"
     :step="step"

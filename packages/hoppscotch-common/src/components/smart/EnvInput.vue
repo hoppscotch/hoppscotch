@@ -409,10 +409,11 @@ const envVars = computed(() => {
   const { document } = currentTab
   const isRequest = document.type === "request"
   const isExample = document.type === "example-response"
+  const isGQLRequest = document.type === "gql-request"
 
-  // variables inherited from the collection if we're in a request or example
+  // variables inherited from the collection if we're in a request, GQL request, or example
   const collectionVariables =
-    isRequest || isExample
+    isRequest || isExample || isGQLRequest
       ? transformInheritedCollectionVariablesToAggregateEnv(
           document.inheritedProperties?.variables ?? [],
           false

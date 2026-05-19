@@ -13,7 +13,6 @@ import {
   getIntrospectionQuery,
   printSchema,
 } from "graphql"
-import { clone } from "lodash-es"
 import { Service } from "dioc"
 import { Component, Ref, computed, ref, shallowReactive, watch } from "vue"
 import { useToast } from "~/composables/toast"
@@ -29,6 +28,12 @@ import { GQLRequest } from "~/helpers/kernel/gql/request"
 import { GQLResponse } from "~/helpers/kernel/gql/response"
 
 import { useExplorer } from "~/helpers/graphql/explorer"
+
+import { getEffectiveHoppGQLRequest } from "~/helpers/utils/EffectiveURL"
+import { getAggregateEnvsWithCurrentValue } from "~/newstore/environments"
+import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
+import type { Environment } from "@hoppscotch/data"
+import type { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
 // --- Types (defined locally so new-flow consumers don't depend on connection.ts) ---
 
@@ -87,6 +92,13 @@ export type ConnectionRequestOptions = {
   request: HoppGQLRequest
   inheritedHeaders: HoppGQLRequest["headers"]
   inheritedAuth?: HoppGQLAuth
+  /**
+   * Inherited collection-level variables cascaded from parent folders
+   * (typically `tab.document.inheritedProperties.variables`). When present,
+   * these are merged into the env list used to template URL/headers/auth/etc.
+   * — `<<myCollectionVar>>` defined on a team folder resolves here.
+   */
+  inheritedVariables?: HoppInheritedProperty["variables"]
 }
 
 export type RunQueryOptions = {
@@ -95,6 +107,12 @@ export type RunQueryOptions = {
   request: HoppGQLRequest
   inheritedHeaders: HoppGQLRequest["headers"]
   inheritedAuth?: HoppGQLAuth
+  /**
+   * Inherited collection-level variables cascaded from parent folders
+   * (typically `tab.document.inheritedProperties.variables`). When present,
+   * these are merged into the env list used to template the GraphQL request.
+   */
+  inheritedVariables?: HoppInheritedProperty["variables"]
   query: string
   variables: string
   operationName: string | undefined
@@ -271,6 +289,11 @@ export class GQLTabConnectionService extends Service {
         const currentCtx = this.getOrCreateContext(tabId)
         // Stop polling if disconnected while fetch was in-flight
         if (currentCtx.state === "DISCONNECTED") return
+        // Only promote to CONNECTED when we actually have a schema in hand.
+        // Without this guard, a silently-failed introspection would leave the
+        // UI showing "Disconnect" while the docs/schema panel sees `null` and
+        // renders the empty placeholder.
+        if (!currentCtx.schema) return
         if (currentCtx.state !== "CONNECTED") currentCtx.state = "CONNECTED"
 
         const timer = setTimeout(() => {
@@ -332,44 +355,52 @@ export class GQLTabConnectionService extends Service {
     const ctx = this.getOrCreateContext(tabId)
 
     try {
-      const { url, request, inheritedHeaders, inheritedAuth } = options
+      const {
+        url,
+        request,
+        inheritedHeaders,
+        inheritedAuth,
+        inheritedVariables,
+      } = options
 
-      const headers = request?.headers || []
-
-      const auth =
-        request?.auth.authType === "inherit" && request.auth.authActive
-          ? clone(inheritedAuth)
-          : clone(request.auth)
-
-      let runHeaders: HoppGQLRequest["headers"] = []
-
-      if (inheritedHeaders) {
-        runHeaders = [
-          ...inheritedHeaders,
-          ...clone(request.headers),
-        ] as HoppRESTHeaders
-      } else {
-        runHeaders = clone(request.headers)
-      }
+      // Template env vars before introspection — URL, headers, auth.
+      // Merge inherited collection variables (cascaded from parent team/personal
+      // folders) at the head of the env list so they outrank selected/global
+      // env vars when keys collide (matches REST precedence).
+      const inheritedVarsEnv = inheritedVariables
+        ? transformInheritedCollectionVariablesToAggregateEnv(
+            inheritedVariables
+          )
+        : []
+      const envVars = [
+        ...inheritedVarsEnv,
+        ...getAggregateEnvsWithCurrentValue(),
+      ] as Environment["variables"]
+      const effective = getEffectiveHoppGQLRequest(request, envVars, {
+        inheritedHeaders,
+        inheritedAuth,
+        url,
+      })
 
       const finalHeaders: Record<string, string> = {}
 
-      const { authHeaders } = await this.generateAuthHeader(url, auth)
+      const { authHeaders } = await this.generateAuthHeader(
+        effective.effectiveFinalURL,
+        effective.effectiveFinalAuth
+      )
 
-      runHeaders.forEach((header) => {
-        if (header.active && header.key !== "") {
-          finalHeaders[header.key] = header.value
-        }
+      // Precedence (matches the original behavior): request > auth > inherited.
+      effective.effectiveFinalHeaders.forEach((header) => {
+        finalHeaders[header.key] = header.value
       })
       Object.assign(finalHeaders, authHeaders)
-
-      headers
-        .filter((item) => item.active && item.key !== "")
-        .forEach(({ key, value }) => (finalHeaders[key] = value))
+      effective.effectiveFinalRequestHeaders.forEach((header) => {
+        finalHeaders[header.key] = header.value
+      })
 
       const kernelRequest: RelayRequest = {
         id: Date.now(),
-        url: options.url,
+        url: effective.effectiveFinalURL,
         method: "POST" as Method,
         version: "HTTP/1.1",
         headers: {
@@ -423,9 +454,18 @@ export class GQLTabConnectionService extends Service {
       ctx.error = null
     } catch (e: any) {
       console.error(e)
+      // Mid-poll failure on an already-connected tab: drop the connection.
+      // The disconnect resets state to DISCONNECTED so poll()'s post-await
+      // guard short-circuits and stops scheduling further polls.
       if (ctx.state === "CONNECTED") {
         this.disconnectTab(tabId)
       }
+      // Re-throw so the initial-connect path in poll() catches this and
+      // surfaces the error. Without this, poll() would treat the failed
+      // introspection as a success and force ctx.state to CONNECTED even
+      // though ctx.schema is still null — leaving the UI "connected" but
+      // with no schema for the docs explorer to render.
+      throw e
     }
   }
 
@@ -448,6 +488,7 @@ export class GQLTabConnectionService extends Service {
           request: options.request,
           inheritedHeaders: options.inheritedHeaders,
           inheritedAuth: options.inheritedAuth,
+          inheritedVariables: options.inheritedVariables,
         },
         true
       )
@@ -461,50 +502,55 @@ export class GQLTabConnectionService extends Service {
       operationName,
       inheritedHeaders,
       inheritedAuth,
+      inheritedVariables,
       operationType,
     } = options
 
-    const headers = request?.headers || []
-
-    const auth =
-      request?.auth.authType === "inherit" && request.auth.authActive
-        ? clone(inheritedAuth)
-        : clone(request.auth)
-
-    let runHeaders: HoppGQLRequest["headers"] = []
-
-    if (inheritedHeaders) {
-      runHeaders = [
-        ...inheritedHeaders,
-        ...clone(request.headers),
-      ] as HoppRESTHeaders
-    } else {
-      runHeaders = clone(request.headers)
-    }
+    // Resolve env variables in URL / headers / auth / query / variables before
+    // anything reaches the wire. Mirrors REST's `getEffectiveRESTRequest` flow.
+    // Inherited collection variables (cascaded from parent team/personal folders)
+    // sit at the head of the list so they outrank selected/global env vars.
+    const inheritedVarsEnv = inheritedVariables
+      ? transformInheritedCollectionVariablesToAggregateEnv(inheritedVariables)
+      : []
+    const envVars = [
+      ...inheritedVarsEnv,
+      ...getAggregateEnvsWithCurrentValue(),
+    ] as Environment["variables"]
+    const effective = getEffectiveHoppGQLRequest(request, envVars, {
+      inheritedHeaders,
+      inheritedAuth,
+      url,
+      query,
+      variables,
+    })
 
     const finalHeaders: Record<string, string> = {}
 
-    const { authHeaders, authParams } = await this.generateAuthHeader(url, auth)
+    const { authHeaders, authParams } = await this.generateAuthHeader(
+      effective.effectiveFinalURL,
+      effective.effectiveFinalAuth
+    )
 
-    let finalUrl = url
+    let finalUrl = effective.effectiveFinalURL
     if (Object.keys(authParams).length > 0) {
-      const urlObj = new URL(url)
+      const urlObj = new URL(finalUrl)
       for (const [key, value] of Object.entries(authParams)) {
         urlObj.searchParams.append(key, value)
       }
       finalUrl = urlObj.toString()
     }
 
-    runHeaders.forEach((header) => {
-      if (header.active && header.key !== "") {
-        finalHeaders[header.key] = header.value
-      }
+    // Precedence (matches the original behavior): request > auth > inherited.
+    // Apply inherited+request first, then auth (overrides), then request again
+    // so user-supplied headers always beat computed auth headers.
+    effective.effectiveFinalHeaders.forEach((header) => {
+      finalHeaders[header.key] = header.value
     })
     Object.assign(finalHeaders, authHeaders)
-
-    headers
-      .filter((item) => item.active && item.key !== "")
-      .forEach(({ key, value }) => (finalHeaders[key] = value))
+    effective.effectiveFinalRequestHeaders.forEach((header) => {
+      finalHeaders[header.key] = header.value
+    })
 
     const finalHoppHeaders: HoppRESTHeaders = Object.entries(finalHeaders).map(
       ([key, value]) => ({
@@ -520,13 +566,23 @@ export class GQLTabConnectionService extends Service {
       name: options.name || "Untitled Request",
       url: finalUrl,
       headers: finalHoppHeaders,
-      query,
-      variables,
-      auth: auth ?? request.auth,
+      query: effective.effectiveFinalQuery,
+      variables: effective.effectiveFinalVariables,
+      auth: effective.effectiveFinalAuth,
     }
 
     if (operationType === "subscription") {
-      return this.runTabSubscription(tabId, options, finalHeaders)
+      // Hand the subscription path templated URL + query so the WS payload
+      // resolves the same way the HTTP path does.
+      return this.runTabSubscription(
+        tabId,
+        {
+          ...options,
+          url: finalUrl,
+          query: effective.effectiveFinalQuery,
+        },
+        finalHeaders
+      )
     }
 
     try {

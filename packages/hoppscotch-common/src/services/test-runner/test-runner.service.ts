@@ -88,8 +88,11 @@ export class TestRunnerService extends Service {
       .catch((error) => {
         if (
           error instanceof Error &&
-          error.message === "Test execution stopped"
+          (error.message === "Test execution stopped" ||
+            error.message === "Test execution stopped due to error")
         ) {
+          // Both a user-triggered stop and a stopOnError halt are clean stops —
+          // surface them as "stopped", not as an unexpected runner failure.
           tab.value.document.status = "stopped"
         } else {
           tab.value.document.status = "error"

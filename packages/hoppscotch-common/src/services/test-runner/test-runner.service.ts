@@ -157,6 +157,7 @@ export class TestRunnerService extends Service {
         shouldResetCollection,
         executionOrder,
         iterationData,
+        iteration,
         ancestorPreRequestScripts,
         ancestorTestScripts
       )
@@ -244,7 +245,8 @@ export class TestRunnerService extends Service {
     inheritedVariables: HoppCollectionVariable[] = [],
     inheritedPreRequestScripts: string[] = [],
     inheritedTestScripts: string[] = [],
-    iterationData?: Record<string, unknown>
+    iterationData?: Record<string, unknown>,
+    currentIteration: number = 0
   ): Promise<string | null | undefined> {
     if (options.stopRef?.value) {
       throw new Error("Test execution stopped")
@@ -274,7 +276,8 @@ export class TestRunnerService extends Service {
         inheritedPreRequestScripts,
         inheritedTestScripts,
         iterationData,
-        options.iterations ?? 1
+        options.iterations ?? 1,
+        currentIteration
       )
 
       if (options.stopRef?.value) {
@@ -524,6 +527,7 @@ export class TestRunnerService extends Service {
     shouldResetFoldersAndRequests: boolean,
     executionOrder: string[],
     iterationData?: Record<string, unknown>,
+    currentIteration: number = 0,
     ancestorPreRequestScripts: string[] = [],
     ancestorTestScripts: string[] = []
   ): Promise<boolean> {
@@ -628,7 +632,8 @@ export class TestRunnerService extends Service {
         inheritedVariables,
         inheritedPreRequestScripts,
         inheritedTestScripts,
-        iterationData
+        iterationData,
+        currentIteration
       )
 
       if (options.delay && options.delay > 0) {

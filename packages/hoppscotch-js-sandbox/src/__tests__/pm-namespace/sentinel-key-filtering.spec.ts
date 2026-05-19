@@ -16,7 +16,7 @@ import { runTest, runPreRequest } from "~/utils/test-helpers"
 
 // ─── Sentinel keys ────────────────────────────────────────────────────────────
 
-const SENTINELS = ["__hopp_row__", "__hopp_iteration_count__"]
+const SENTINELS = ["__hopp_row__", "__hopp_iteration_count__", "__hopp_current_iteration__"]
 
 // ─── Post-request (test script) ───────────────────────────────────────────────
 

@@ -826,7 +826,8 @@ export async function runTestRunnerRequest(
   inheritedPreRequestScripts: string[] = [],
   inheritedTestScripts: string[] = [],
   iterationData?: Record<string, unknown>,
-  totalIterations: number = 1
+  totalIterations: number = 1,
+  currentIteration: number = 0
 ): Promise<
   | E.Left<"script_fail">
   | E.Right<{
@@ -891,17 +892,27 @@ export async function runTestRunnerRequest(
     secret: false,
   }
 
+  // 0-based index of the current iteration (pm.execution.iteration / pm.info.iteration)
+  const iterationIndexVar = {
+    key: "__hopp_current_iteration__",
+    initialValue: String(currentIteration),
+    currentValue: String(currentIteration),
+    secret: false,
+  }
+
   const preRequestSelected = [
     // Drop any iteration keys that are already in selected to avoid duplicates.
     ...initialEnvs.selected.filter(
       (v) =>
         v.key !== "__hopp_row__" &&
         v.key !== "__hopp_iteration_count__" &&
+        v.key !== "__hopp_current_iteration__" &&
         !iterationDataEntries.some((e) => e.key === v.key)
     ),
     ...iterationDataEntries,
     ...(iterationRowVar ? [iterationRowVar] : []),
     iterationCountVar,
+    iterationIndexVar,
   ]
 
   const enrichedInitialEnvs = {
@@ -929,6 +940,7 @@ export async function runTestRunnerRequest(
       const skipPrivateSentinels = new Set([
         "__hopp_row__",
         "__hopp_iteration_count__",
+        "__hopp_current_iteration__",
       ])
       const skipColumnInjectedValues = new Map<string, string>(
         iterationDataEntries.map((e) => [e.key, e.currentValue])
@@ -1075,7 +1087,8 @@ export async function runTestRunnerRequest(
                 ...preRequestScriptResult.right.updatedEnvs.selected.filter(
                   (v) =>
                     v.key !== "__hopp_row__" &&
-                    v.key !== "__hopp_iteration_count__"
+                    v.key !== "__hopp_iteration_count__" &&
+                    v.key !== "__hopp_current_iteration__"
                 ),
                 ...(iterationRowVar
                   ? [
@@ -1089,6 +1102,7 @@ export async function runTestRunnerRequest(
                     ]
                   : []),
                 iterationCountVar,
+                iterationIndexVar,
               ],
             }
 
@@ -1137,6 +1151,7 @@ export async function runTestRunnerRequest(
             const iterationPrivateSentinels = new Set<string>([
               "__hopp_row__",
               "__hopp_iteration_count__",
+              "__hopp_current_iteration__",
             ])
             // Map from column key → the string value the runner injected so we can
             // detect unmodified copies.

@@ -2713,7 +2713,7 @@
       toObject: () => {
         // Return all environment variables as an object.
         // Exclude private sentinel keys so they never appear in user-visible output.
-        const SENTINEL_KEYS = new Set(["__hopp_row__", "__hopp_iteration_count__"])
+        const SENTINEL_KEYS = new Set(["__hopp_row__", "__hopp_iteration_count__", "__hopp_current_iteration__"])
         const result = {}
 
         if (typeof inputs !== "undefined" && inputs.getAllSelectedEnvs) {
@@ -2858,7 +2858,7 @@
       toObject: () => {
         // Variables scope includes both environment and global with precedence.
         // Exclude private sentinel keys so they never appear in user-visible output.
-        const SENTINEL_KEYS = new Set(["__hopp_row__", "__hopp_iteration_count__"])
+        const SENTINEL_KEYS = new Set(["__hopp_row__", "__hopp_iteration_count__", "__hopp_current_iteration__"])
         const result = {}
 
         // Add global variables first
@@ -3521,7 +3521,10 @@
         },
         each: (fn) => {
           // PM306 — iterate all response headers
-          globalThis.hopp.response.headers.forEach(fn)
+          // Postman Header objects expose the name under both `key` and `name`.
+          globalThis.hopp.response.headers.forEach((h) =>
+            fn({ name: h.key, key: h.key, value: h.value })
+          )
         },
         // PM307 — alias for get(name); returns a Header object { key, value } or null
         // (matching PropertyList.one() contract; null for missing headers).
@@ -3990,10 +3993,12 @@
         return inputs.pmInfoRequestId()
       },
       // Unsupported Collection Runner features
+      // iteration — 0-based index of the current iteration, backed by the
+      // "__hopp_current_iteration__" sentinel injected by the runner.
       get iteration() {
-        throw new Error(
-          "pm.info.iteration is not supported in Hoppscotch (Collection Runner feature)"
-        )
+        const raw = globalThis.pm.variables.get("__hopp_current_iteration__")
+        const parsed = raw !== undefined && raw !== null ? parseInt(raw, 10) : NaN
+        return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0
       },
       get iterationCount() {
         throw new Error(
@@ -4374,7 +4379,7 @@
       set: (key, value) => globalThis.pm.environment.set(key, value),
       unset: (key) => globalThis.pm.environment.unset(key),
       has: (key) => {
-        const SENTINEL_KEYS = new Set(["__hopp_row__", "__hopp_iteration_count__"])
+        const SENTINEL_KEYS = new Set(["__hopp_row__", "__hopp_iteration_count__", "__hopp_current_iteration__"])
         if (SENTINEL_KEYS.has(key)) return false
         return globalThis.pm.environment.has(key)
       },
@@ -4416,6 +4421,13 @@
         const raw = globalThis.pm.variables.get("__hopp_iteration_count__")
         const parsed = raw !== undefined && raw !== null ? parseInt(raw, 10) : NaN
         return Number.isFinite(parsed) && parsed >= 1 ? parsed : 1
+      },
+      // iteration — 0-based index of the current iteration, backed by the
+      // "__hopp_current_iteration__" sentinel injected by the runner.
+      get iteration() {
+        const raw = globalThis.pm.variables.get("__hopp_current_iteration__")
+        const parsed = raw !== undefined && raw !== null ? parseInt(raw, 10) : NaN
+        return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0
       },
     },
 

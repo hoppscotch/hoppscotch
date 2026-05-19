@@ -191,21 +191,45 @@ describe("pm.response.toJSON() — PM314", () => {
 
 // ─── F1: pm.test.index() (PM315) ───────────────────────────────────────────
 describe("pm.test.index() — PM315", () => {
-  test("returns incrementing index for each call", () => {
+  test("returns -1 before any test has been registered", () => {
     return expect(
       runTest(`
-        pm.test("index check", () => {
-          const i0 = pm.test.index()
-          const i1 = pm.test.index()
-          pm.expect(typeof i0).to.equal("number")
-          pm.expect(i1).to.be.greaterThan(i0)
+        pm.test("first test", () => {
+          // pm.test.index() INSIDE the first registration should be 0 (this test = index 0)
+          pm.expect(pm.test.index()).to.equal(0)
         })
       `, { global: [], selected: [] }, baseResponse)()
     ).resolves.toEqualRight([expect.objectContaining({
       children: [expect.objectContaining({ expectResults: [
         { status: "pass", message: expect.any(String) },
-        { status: "pass", message: expect.any(String) },
       ] })],
+    })])
+  })
+
+  test("returns incrementing 0-based index tied to pm.test() registrations", () => {
+    return expect(
+      runTest(`
+        pm.test("test 0", () => {
+          pm.expect(pm.test.index()).to.equal(0)
+        })
+        pm.test("test 1", () => {
+          pm.expect(pm.test.index()).to.equal(1)
+        })
+        pm.test("index grows", () => {
+          const i = pm.test.index()
+          pm.expect(typeof i).to.equal("number")
+          pm.expect(i).to.be.greaterThan(0)
+        })
+      `, { global: [], selected: [] }, baseResponse)()
+    ).resolves.toEqualRight([expect.objectContaining({
+      children: [
+        expect.objectContaining({ expectResults: [{ status: "pass", message: expect.any(String) }] }),
+        expect.objectContaining({ expectResults: [{ status: "pass", message: expect.any(String) }] }),
+        expect.objectContaining({ expectResults: [
+          { status: "pass", message: expect.any(String) },
+          { status: "pass", message: expect.any(String) },
+        ] }),
+      ],
     })])
   })
 })

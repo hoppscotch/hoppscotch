@@ -121,3 +121,89 @@ describe("pm.execution namespace", () => {
     ).resolves.toEqualRight("second-request")
   })
 })
+
+describe("pm.execution.iteration", () => {
+  test("returns 0 when no sentinel is injected (single-request fallback)", () => {
+    return expect(
+      runTest(
+        `
+          pm.test("iteration default", () => {
+            pm.expect(pm.execution.iteration).to.equal(0)
+          })
+        `,
+        { global: [], selected: [] }
+      )()
+    ).resolves.toEqualRight([
+      expect.objectContaining({
+        children: [
+          expect.objectContaining({
+            expectResults: [{ status: "pass", message: expect.any(String) }],
+          }),
+        ],
+      }),
+    ])
+  })
+
+  test("returns the injected current iteration index from __hopp_current_iteration__", () => {
+    return expect(
+      runTest(
+        `
+          pm.environment.set("__hopp_current_iteration__", "2")
+          pm.test("iteration from sentinel", () => {
+            pm.expect(pm.execution.iteration).to.equal(2)
+          })
+        `,
+        { global: [], selected: [] }
+      )()
+    ).resolves.toEqualRight([
+      expect.objectContaining({
+        children: [
+          expect.objectContaining({
+            expectResults: [{ status: "pass", message: expect.any(String) }],
+          }),
+        ],
+      }),
+    ])
+  })
+
+  test("pm.info.iteration reads the same sentinel as pm.execution.iteration", () => {
+    return expect(
+      runTest(
+        `
+          pm.environment.set("__hopp_current_iteration__", "3")
+          pm.test("info.iteration equals execution.iteration", () => {
+            pm.expect(pm.info.iteration).to.equal(pm.execution.iteration)
+            pm.expect(pm.info.iteration).to.equal(3)
+          })
+        `,
+        { global: [], selected: [] }
+      )()
+    ).resolves.toEqualRight([
+      expect.objectContaining({
+        children: [
+          expect.objectContaining({
+            expectResults: [
+              { status: "pass", message: expect.any(String) },
+              { status: "pass", message: expect.any(String) },
+            ],
+          }),
+        ],
+      }),
+    ])
+  })
+
+  test("pm.execution.iteration is accessible in pre-request script", () => {
+    return expect(
+      runPreRequest(
+        `
+          // Without injection, defaults to 0
+          if (pm.execution.iteration !== 0) {
+            throw new Error("Expected 0, got " + pm.execution.iteration)
+          }
+        `,
+        { global: [], selected: [] }
+      )()
+    ).resolves.toBeRight()
+  })
+})
+

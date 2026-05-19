@@ -3523,14 +3523,14 @@
           // PM306 — iterate all response headers
           globalThis.hopp.response.headers.forEach(fn)
         },
-        // PM307 — alias for get(name); returns null (not undefined) for missing
-        // headers so pm.expect(val).to.be.null assertions work correctly.
+        // PM307 — alias for get(name); returns a Header object { key, value } or null
+        // (matching PropertyList.one() contract; null for missing headers).
         one: (name) => {
           const headers = globalThis.hopp.response.headers
           const header = headers.find(
             (h) => h.key.toLowerCase() === name.toLowerCase()
           )
-          return header ? header.value : null
+          return header ? { key: header.key, value: header.value } : null
         },
         count: () => {
           // PM308 — number of response headers

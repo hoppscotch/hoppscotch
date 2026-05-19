@@ -920,6 +920,87 @@ export async function runTestRunnerRequest(
       return E.left("script_fail" as const)
     }
 
+    // If the pre-request script called pm.execution.skipRequest(), abort the HTTP call.
+    // Postman does NOT roll back env mutations made before skipRequest() fires — persist them.
+    const preReqNext = (
+      preRequestScriptResult.right as SandboxPreRequestResult & SandboxNextRequest
+    ).nextRequest
+    if (preReqNext === "__HOPP_SKIP_REQUEST__") {
+      const skipPrivateSentinels = new Set([
+        "__hopp_row__",
+        "__hopp_iteration_count__",
+      ])
+      const skipColumnInjectedValues = new Map<string, string>(
+        iterationDataEntries.map((e) => [e.key, e.currentValue])
+      )
+      const stripSkipKeys = (
+        vars: (typeof preRequestScriptResult.right.updatedEnvs)["selected"]
+      ) =>
+        vars.filter((v) => {
+          if (skipPrivateSentinels.has(v.key)) return false
+          if (skipColumnInjectedValues.has(v.key)) {
+            return v.currentValue !== skipColumnInjectedValues.get(v.key)
+          }
+          return true
+        })
+      const skipCleanedGlobal = stripSkipKeys(
+        preRequestScriptResult.right.updatedEnvs.global
+      )
+      const skipCleanedSelected = stripSkipKeys(
+        preRequestScriptResult.right.updatedEnvs.selected
+      )
+      const skipCleanedEnvs = {
+        global: skipCleanedGlobal,
+        selected: skipCleanedSelected,
+      }
+      if (persistEnv) {
+        if (hasEnvironmentChanges(initialEnvsForComparison, skipCleanedEnvs)) {
+          updateEnvsAfterTestScript(
+            {
+              _tag: "Right",
+              right: {
+                ...preRequestScriptResult.right,
+                envs: skipCleanedEnvs,
+              } as unknown as SandboxTestResult,
+            },
+            initialEnvironmentIndex,
+            initialEnvName,
+            initialEnvID
+          )
+        }
+      } else {
+        setTemporaryVariables([...skipCleanedGlobal, ...skipCleanedSelected])
+      }
+      return E.right({
+        response: {
+          type: "network_fail" as const,
+          error: "Request skipped via pm.execution.skipRequest()",
+          req: request,
+        },
+        testResult: {
+          description: "",
+          expectResults: [],
+          tests: [],
+          scriptError: false,
+          envDiff: {
+            global: {
+              additions: getAddedEnvVariables(initialGlobalEnvs, skipCleanedGlobal),
+              updations: getUpdatedEnvVariables(initialGlobalEnvs, skipCleanedGlobal),
+              deletions: getRemovedEnvVariables(initialGlobalEnvs, skipCleanedGlobal),
+            },
+            selected: {
+              additions: getAddedEnvVariables(initialSelectedEnvs, skipCleanedSelected),
+              updations: getUpdatedEnvVariables(initialSelectedEnvs, skipCleanedSelected),
+              deletions: getRemovedEnvVariables(initialSelectedEnvs, skipCleanedSelected),
+            },
+          },
+          consoleEntries: preRequestScriptResult.right.consoleEntries ?? [],
+        },
+        updatedRequest: request,
+        nextRequest: "__HOPP_SKIP_REQUEST__" as string,
+      })
+    }
+
     const finalRequestVariables = pipe(
       request.requestVariables,
       A.filter(({ active }) => active),

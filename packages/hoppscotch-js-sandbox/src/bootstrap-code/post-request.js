@@ -4310,8 +4310,8 @@
     // Iteration data — delegated to pm.variables / pm.environment (PM002)
     // Strategy: the runner injects each dataset row's keys into the active environment before
     // the request runs, so iterationData reads resolve against pm.variables (which merges all scopes).
-    // For toObject()/toJSON() the runner is expected to also store the full row as a JSON string
-    // under the "row" environment variable: pm.environment.set("row", JSON.stringify(datasetRow)).
+    // For toObject()/toJSON() the runner stores the full row as a JSON string under the private
+    // sentinel key "__hopp_row__" (injected into the selected scope by runTestRunnerRequest).
     iterationData: {
       // get() reads exclusively from the current dataset row injected by the runner.
       // Delegating to pm.variables.get() would fall through to environment/global scopes

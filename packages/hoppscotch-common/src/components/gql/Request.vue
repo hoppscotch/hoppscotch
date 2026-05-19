@@ -254,6 +254,7 @@ const gqlConnect = () => {
     inheritedHeaders,
     inheritedAuth: tab.value.document.inheritedProperties?.auth
       .inheritedAuth as HoppGQLAuth,
+    inheritedVariables: tab.value.document.inheritedProperties?.variables,
   })
 
   platform.analytics?.logEvent({

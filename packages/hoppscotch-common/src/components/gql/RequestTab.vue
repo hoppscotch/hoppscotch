@@ -13,7 +13,7 @@
       />
     </template>
     <template #secondary>
-      <GraphqlResponse :response="tab.document.response" :tab-id="tab.id" />
+      <GqlResponse :response="tab.document.response" :tab-id="tab.id" />
     </template>
   </AppPaneLayout>
 </template>

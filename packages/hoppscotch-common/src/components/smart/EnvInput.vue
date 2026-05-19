@@ -419,6 +419,7 @@ const envVars = computed(() => {
   const { document } = currentTab
   const isRequest = document.type === "request"
   const isExample = document.type === "example-response"
+  const isGQLRequest = document.type === "gql-request"
 
   const requestVariables = isRequest
     ? document.request.requestVariables
@@ -427,7 +428,9 @@ const envVars = computed(() => {
       : []
 
   const inheritedVariables =
-    isRequest || isExample ? document.inheritedProperties?.variables : []
+    isRequest || isExample || isGQLRequest
+      ? document.inheritedProperties?.variables
+      : []
 
   // Merge in precedence order (request → collection → environment).
   // Collection secrets stay masked here (showSecretCollectionValues = false).

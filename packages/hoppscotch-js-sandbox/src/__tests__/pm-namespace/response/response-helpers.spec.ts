@@ -61,25 +61,32 @@ describe("pm.response.headers.each(fn) — PM306", () => {
 
 // ─── B3: pm.response.headers.one(key) (PM307) ──────────────────────────────
 describe("pm.response.headers.one(key) — PM307", () => {
-  test("returns header value for existing key", () => {
+  test("returns a Header object { key, value } for existing key", () => {
     return expect(
       runTest(`
-        pm.test("one", () => {
+        pm.test("one — object shape", () => {
           const val = pm.response.headers.one("Content-Type")
-          pm.expect(val).to.equal("application/json")
+          // one() must return a Header object { key, value }, not a plain string
+          pm.expect(val).to.be.an("object")
+          pm.expect(val.key).to.equal("Content-Type")
+          pm.expect(val.value).to.equal("application/json")
         })
       `, { global: [], selected: [] }, baseResponse)()
     ).resolves.toEqualRight([expect.objectContaining({
-      children: [expect.objectContaining({ expectResults: [{ status: "pass", message: expect.any(String) }] })],
+      children: [expect.objectContaining({ expectResults: [
+        { status: "pass", message: expect.any(String) },
+        { status: "pass", message: expect.any(String) },
+        { status: "pass", message: expect.any(String) },
+      ] })],
     })])
   })
 
-  test("returns undefined for missing key", () => {
+  test("returns null for missing key", () => {
     return expect(
       runTest(`
         pm.test("one missing", () => {
           const val = pm.response.headers.one("X-Does-Not-Exist")
-          pm.expect(val).to.be.undefined
+          pm.expect(val).to.be.null
         })
       `, { global: [], selected: [] }, baseResponse)()
     ).resolves.toEqualRight([expect.objectContaining({

@@ -36,12 +36,32 @@ const mockRequest = (overrides: Partial<HoppRESTRequest> = {}): HoppRESTRequest 
 
 // ─── D1: pm.request.headers.one(key) (PM310) ───────────────────────────────
 describe("pm.request.headers.one(key) — PM310", () => {
-  test("returns value for existing header in test script", () => {
+  test("returns a Header object { key, value } for existing header in test script", () => {
     return expect(
       runTest(`
-        pm.test("headers one", () => {
+        pm.test("headers one — object shape", () => {
           const val = pm.request.headers.one("Authorization")
-          pm.expect(val).to.equal("Bearer token123")
+          // one() must return a Header object, not a plain string
+          pm.expect(val).to.be.an("object")
+          pm.expect(val.key).to.equal("Authorization")
+          pm.expect(val.value).to.equal("Bearer token123")
+        })
+      `, { global: [], selected: [] }, mockResponse, mockRequest())()
+    ).resolves.toEqualRight([expect.objectContaining({
+      children: [expect.objectContaining({ expectResults: [
+        { status: "pass", message: expect.any(String) },
+        { status: "pass", message: expect.any(String) },
+        { status: "pass", message: expect.any(String) },
+      ] })],
+    })])
+  })
+
+  test("value property of returned object equals the header value", () => {
+    return expect(
+      runTest(`
+        pm.test("headers one — .value accessor", () => {
+          const val = pm.request.headers.one("Content-Type")
+          pm.expect(val.value).to.equal("application/json")
         })
       `, { global: [], selected: [] }, mockResponse, mockRequest())()
     ).resolves.toEqualRight([expect.objectContaining({
@@ -62,14 +82,30 @@ describe("pm.request.headers.one(key) — PM310", () => {
     })])
   })
 
-  test("returns value for existing header in pre-request script", () => {
+  test("returns a Header object { key, value } for existing header in pre-request script", () => {
     return expect(
       runPreRequest(`
         const val = pm.request.headers.one("Content-Type")
-        pm.environment.set("ct", val || "missing")
+        // val is { key, value } — store the .value string for assertion
+        pm.environment.set("ct", val ? val.value : "missing")
       `, { global: [], selected: [] }, mockRequest())()
     ).resolves.toEqualRight(expect.objectContaining({
       selected: [expect.objectContaining({ key: "ct", currentValue: "application/json" })],
+    }))
+  })
+
+  test("returned object has both key and value properties in pre-request script", () => {
+    return expect(
+      runPreRequest(`
+        const val = pm.request.headers.one("Authorization")
+        pm.environment.set("hKey", val ? val.key : "missing")
+        pm.environment.set("hVal", val ? val.value : "missing")
+      `, { global: [], selected: [] }, mockRequest())()
+    ).resolves.toEqualRight(expect.objectContaining({
+      selected: expect.arrayContaining([
+        expect.objectContaining({ key: "hKey", currentValue: "Authorization" }),
+        expect.objectContaining({ key: "hVal", currentValue: "Bearer token123" }),
+      ]),
     }))
   })
 })

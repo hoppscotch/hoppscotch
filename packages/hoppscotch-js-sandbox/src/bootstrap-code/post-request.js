@@ -2375,6 +2375,143 @@
       getAll: (domain) => inputs.cookieGetAll(domain),
       delete: (domain, name) => inputs.cookieDelete(domain, name),
       clear: (domain) => inputs.cookieClear(domain),
+      /**
+       * hopp.cookies.jar() — Postman-compatible cookie jar API
+       * Returns a jar object backed by hopp.cookies (domain-based).
+       * URL inputs are normalized to hostname via URL parsing.
+       * Callbacks are Node.js-style (err, result) => void — called synchronously.
+       * Platform guard: warns + returns no-op jar on Web/CLI where cookies are unsupported.
+       */
+      jar: () => {
+        // Helper: extract hostname from a full URL string
+        const extractDomain = (url) => {
+          try {
+            return new URL(url).hostname
+          } catch (_) {
+            return url
+          }
+        }
+
+        // Platform guard — cookies only supported on Desktop App.
+        // Cached on globalThis so the probe runs at most once per script execution,
+        // avoiding a spurious cookie-store read on every jar() call.
+        if (globalThis.__hoppCookiesAvailable === undefined) {
+          try {
+            inputs.cookieGet("__probe__", "__probe__")
+            globalThis.__hoppCookiesAvailable = true
+          } catch (e) {
+            globalThis.__hoppCookiesAvailable = !String(e).includes("not supported in the current platform")
+          }
+        }
+        const cookiesAvailable = globalThis.__hoppCookiesAvailable
+
+        if (!cookiesAvailable) {
+          console.warn(
+            "[hopp.cookies.jar] Cookie jar is not supported on this platform. " +
+            "Cookie operations are exclusive to the Desktop App."
+          )
+          // Per-method noops: each places the callback at the correct positional arg
+          // set(url, name, value, cb)  OR  set(url, cookieObj, cb)
+          const noopSet = (_u, _b, _c, _d) => {
+            const cb = typeof _d === "function" ? _d : typeof _c === "function" ? _c : null
+            if (cb) cb(null)
+          }
+          // get(url, name, cb)
+          const noopGet = (_u, _n, cb) => { if (typeof cb === "function") cb(null, null) }
+          // getAll(url, cb)  — callback is 2nd arg
+          const noopGetAll = (_u, cb) => { if (typeof cb === "function") cb(null, []) }
+          // unset(url, name, cb)
+          const noopUnset = (_u, _n, cb) => { if (typeof cb === "function") cb(null) }
+          // clear(url, cb)  — callback is 2nd arg
+          const noopClear = (_u, cb) => { if (typeof cb === "function") cb(null) }
+          return { set: noopSet, get: noopGet, getAll: noopGetAll, unset: noopUnset, clear: noopClear }
+        }
+
+        return {
+          /**
+           * jar.set(url, nameOrCookieObj, valueOrCallback, [callback])
+           * Supports both:
+           *   jar.set(url, "name", "value", cb)
+           *   jar.set(url, { name, value, ... }, cb)
+           */
+          set: (url, nameOrCookie, valueOrCallback, maybeCallback) => {
+            const domain = extractDomain(url)
+            let cookieObj
+            let cb
+
+            if (typeof nameOrCookie === "string") {
+              cookieObj = { name: nameOrCookie, value: valueOrCallback, domain, path: "/" }
+              cb = maybeCallback
+            } else {
+              cookieObj = { domain, path: "/", ...nameOrCookie }
+              cb = valueOrCallback
+            }
+
+            try {
+              inputs.cookieSet(domain, cookieObj)
+              if (typeof cb === "function") cb(null)
+            } catch (err) {
+              if (typeof cb === "function") cb(err)
+            }
+          },
+
+          /**
+           * jar.get(url, name, callback)
+           * Returns the cookie VALUE string (Postman compat), not the full cookie object.
+           */
+          get: (url, name, cb) => {
+            const domain = extractDomain(url)
+            try {
+              const cookie = inputs.cookieGet(domain, name)
+              if (typeof cb === "function") cb(null, cookie ? cookie.value : undefined)
+            } catch (err) {
+              if (typeof cb === "function") cb(err, undefined)
+            }
+          },
+
+          /**
+           * jar.getAll(url, callback)
+           * Returns all Cookie objects for the domain.
+           */
+          getAll: (url, cb) => {
+            const domain = extractDomain(url)
+            try {
+              const cookies = inputs.cookieGetAll(domain)
+              if (typeof cb === "function") cb(null, cookies || [])
+            } catch (err) {
+              if (typeof cb === "function") cb(err, [])
+            }
+          },
+
+          /**
+           * jar.unset(url, name, callback)
+           * Deletes a single named cookie for the URL's domain.
+           */
+          unset: (url, name, cb) => {
+            const domain = extractDomain(url)
+            try {
+              inputs.cookieDelete(domain, name)
+              if (typeof cb === "function") cb(null)
+            } catch (err) {
+              if (typeof cb === "function") cb(err)
+            }
+          },
+
+          /**
+           * jar.clear(url, callback)
+           * Clears ALL cookies for the URL's domain.
+           */
+          clear: (url, cb) => {
+            const domain = extractDomain(url)
+            try {
+              inputs.cookieClear(domain)
+              if (typeof cb === "function") cb(null)
+            } catch (err) {
+              if (typeof cb === "function") cb(err)
+            }
+          },
+        }
+      },
     },
     // Expose fetch as hopp.fetch() - save reference before we override global
     fetch: typeof fetch !== "undefined" ? fetch : undefined,
@@ -2574,16 +2711,16 @@
         }
       },
       toObject: () => {
-        // Return all environment variables as an object
-        // Read from getAllSelectedEnvs but verify each key still exists in the Map
-        // (to respect deletions made via unset() or clear())
+        // Return all environment variables as an object.
+        // Exclude private sentinel keys so they never appear in user-visible output.
+        const SENTINEL_KEYS = new Set(["__hopp_row__", "__hopp_iteration_count__", "__hopp_current_iteration__"])
         const result = {}
 
         if (typeof inputs !== "undefined" && inputs.getAllSelectedEnvs) {
           const selectedEnvs = inputs.getAllSelectedEnvs()
           if (Array.isArray(selectedEnvs)) {
             selectedEnvs.forEach((envVar) => {
-              if (envVar && envVar.key) {
+              if (envVar && envVar.key && !SENTINEL_KEYS.has(envVar.key)) {
                 // Check if this key still exists in the active environment
                 // (it might have been deleted via unset() or clear())
                 const currentValue = globalThis.hopp.env.active.get(envVar.key)
@@ -2719,8 +2856,9 @@
         })
       },
       toObject: () => {
-        // Variables scope includes both environment and global with precedence
-        // Read from arrays but verify keys still exist in Maps (respect deletions)
+        // Variables scope includes both environment and global with precedence.
+        // Exclude private sentinel keys so they never appear in user-visible output.
+        const SENTINEL_KEYS = new Set(["__hopp_row__", "__hopp_iteration_count__", "__hopp_current_iteration__"])
         const result = {}
 
         // Add global variables first
@@ -2728,7 +2866,7 @@
           const globalEnvs = inputs.getAllGlobalEnvs()
           if (Array.isArray(globalEnvs)) {
             globalEnvs.forEach((envVar) => {
-              if (envVar && envVar.key) {
+              if (envVar && envVar.key && !SENTINEL_KEYS.has(envVar.key)) {
                 const currentValue = globalThis.hopp.env.global.get(envVar.key)
                 if (currentValue !== null) {
                   result[envVar.key] = currentValue
@@ -2743,7 +2881,7 @@
           const selectedEnvs = inputs.getAllSelectedEnvs()
           if (Array.isArray(selectedEnvs)) {
             selectedEnvs.forEach((envVar) => {
-              if (envVar && envVar.key) {
+              if (envVar && envVar.key && !SENTINEL_KEYS.has(envVar.key)) {
                 const currentValue = globalThis.hopp.env.active.get(envVar.key)
                 if (currentValue !== null) {
                   result[envVar.key] = currentValue
@@ -2867,6 +3005,13 @@
           const showPort =
             forcePort || (parsed.port !== "443" && parsed.port !== "80")
           return showPort ? `${host}:${parsed.port}` : host
+        }
+
+        // Category D3 — pm.request.url.getOAuth1BaseUrl() (PM312)
+        // Returns the URL with path but without query string — used for OAuth1 base string
+        urlObj.getOAuth1BaseUrl = () => {
+          const urlString = globalThis.hopp.request.url || ""
+          return urlString.split("?")[0]
         }
 
         // hostname property (string alias for host array)
@@ -3057,6 +3202,17 @@
             return globalThis.hopp.request.headers[index] || null
           },
 
+          // Category D1 — pm.request.headers.one(key) alias (PM310)
+          // Returns a Header object { key, value } (matching PropertyList.one() contract),
+          // or null for missing headers.
+          one: (name) => {
+            const headers = globalThis.hopp.request.headers
+            const header = headers.find(
+              (h) => h.key.toLowerCase() === name.toLowerCase()
+            )
+            return header ? { key: header.key, value: header.value } : null
+          },
+
           // Advanced PropertyList methods (read-only)
           find: (rule, context) => {
             const headers = globalThis.hopp.request.headers
@@ -3094,7 +3250,26 @@
       },
 
       get body() {
-        return globalThis.hopp.request.body
+        const rawBody = globalThis.hopp.request.body
+        // Bodyless requests (GET, HEAD, etc.) — rawBody is null/undefined.
+        // Return a stub so pm.request.body.isEmpty() doesn't throw TypeError.
+        if (!rawBody) {
+          return { isEmpty: () => true }
+        }
+        if (typeof rawBody === "object") {
+          // Category D2 — pm.request.body.isEmpty() (PM311)
+          // Return a new object (spread) to avoid mutating the shared hopp.request.body reference.
+          return {
+            ...rawBody,
+            isEmpty: () => {
+              if (rawBody.mode === "raw") return !rawBody.raw || rawBody.raw.trim() === ""
+              if (rawBody.mode === "urlencoded") return !rawBody.urlencoded || rawBody.urlencoded.length === 0
+              if (rawBody.mode === "formdata") return !rawBody.formdata || rawBody.formdata.length === 0
+              return false
+            },
+          }
+        }
+        return rawBody
       },
 
       get auth() {
@@ -3297,6 +3472,21 @@
       get stream() {
         return globalThis.hopp.response.body.bytes()
       },
+      // Category E — Missing response body helpers (PM313, PM314)
+      blob: () => {
+        // PM313 — QuickJS has no native Blob; return raw bytes if available, else body text
+        return globalThis.hopp.response.body.bytes() || globalThis.hopp.response.body.asText()
+      },
+      toJSON: () => {
+        // PM314 — return a plain serialisable snapshot of the response
+        return {
+          code:         globalThis.hopp.response.statusCode,
+          status:       globalThis.hopp.response.statusText,
+          responseTime: globalThis.hopp.response.responseTime,
+          headers:      globalThis.hopp.response.headers,
+          body:         globalThis.hopp.response.body.asText(),
+        }
+      },
       reason: inputs.responseReason,
       dataURI: inputs.responseDataURI,
       jsonp: (callbackName) => inputs.responseJsonp(callbackName),
@@ -3319,6 +3509,35 @@
             result[header.key] = header.value
           })
           return result
+        },
+        // Category B — Missing response headers helpers (PM305–PM308)
+        toObject: () => {
+          // PM305 — build { [key]: value } from headers array (keys lowercased)
+          const obj = {}
+          globalThis.hopp.response.headers.forEach((h) => {
+            obj[h.key.toLowerCase()] = h.value
+          })
+          return obj
+        },
+        each: (fn) => {
+          // PM306 — iterate all response headers
+          // Postman Header objects expose the name under both `key` and `name`.
+          globalThis.hopp.response.headers.forEach((h) =>
+            fn({ name: h.key, key: h.key, value: h.value })
+          )
+        },
+        // PM307 — alias for get(name); returns a Header object { key, value } or null
+        // (matching PropertyList.one() contract; null for missing headers).
+        one: (name) => {
+          const headers = globalThis.hopp.response.headers
+          const header = headers.find(
+            (h) => h.key.toLowerCase() === name.toLowerCase()
+          )
+          return header ? { key: header.key, value: header.value } : null
+        },
+        count: () => {
+          // PM308 — number of response headers
+          return globalThis.hopp.response.headers.length
         },
       },
       cookies: {
@@ -3373,6 +3592,14 @@
             cookies[name.trim()] = value
           }
           return cookies
+        },
+        // Category C — Missing response cookies helper (PM309)
+        each: (fn) => {
+          // PM309 — iterate all response cookies as Postman Cookie-like objects.
+          // Postman's PropertyList uses `name` as the primary identifier; `key`
+          // is also included for compatibility with {key,value} destructuring.
+          const obj = globalThis.pm.response.cookies.toObject()
+          Object.entries(obj).forEach(([key, value]) => fn({ name: key, key, value }))
         },
       },
 
@@ -3571,51 +3798,74 @@
           },
         },
         be: {
-          // Status code convenience methods
-          ok: () => {
+          // Status code convenience methods — implemented as property getters so
+          // Postman scripts that access them without () (e.g. pm.response.to.be.ok)
+          // trigger the assertion immediately on property access, matching Postman behaviour.
+          get ok() {
             const code = globalThis.hopp.response.statusCode
             globalThis.hopp.expect(code >= 200 && code < 300).to.be.true
           },
-          success: () => {
+          get success() {
             // Alias for ok - validates 2xx status codes
             const code = globalThis.hopp.response.statusCode
             globalThis.hopp.expect(code >= 200 && code < 300).to.be.true
           },
-          accepted: () => {
+          get accepted() {
             const code = globalThis.hopp.response.statusCode
             globalThis.hopp.expect(code).to.equal(202)
           },
-          badRequest: () => {
+          get badRequest() {
             const code = globalThis.hopp.response.statusCode
             globalThis.hopp.expect(code).to.equal(400)
           },
-          unauthorized: () => {
+          get unauthorized() {
             const code = globalThis.hopp.response.statusCode
             globalThis.hopp.expect(code).to.equal(401)
           },
-          forbidden: () => {
+          get forbidden() {
             const code = globalThis.hopp.response.statusCode
             globalThis.hopp.expect(code).to.equal(403)
           },
-          notFound: () => {
+          get notFound() {
             const code = globalThis.hopp.response.statusCode
             globalThis.hopp.expect(code).to.equal(404)
           },
-          rateLimited: () => {
+          get rateLimited() {
             const code = globalThis.hopp.response.statusCode
             globalThis.hopp.expect(code).to.equal(429)
           },
-          clientError: () => {
+          get clientError() {
             // Validates 4xx status codes
             const code = globalThis.hopp.response.statusCode
             globalThis.hopp.expect(code >= 400 && code < 500).to.be.true
           },
-          serverError: () => {
+          get serverError() {
             const code = globalThis.hopp.response.statusCode
             globalThis.hopp.expect(code >= 500 && code < 600).to.be.true
           },
+          // Category A — Missing BDD status range shortcuts (PM301–PM304)
+          get info() {
+            // PM301 — 1xx Informational
+            const code = globalThis.hopp.response.statusCode
+            globalThis.hopp.expect(code >= 100 && code < 200).to.be.true
+          },
+          get redirection() {
+            // PM302 — 3xx Redirection
+            const code = globalThis.hopp.response.statusCode
+            globalThis.hopp.expect(code >= 300 && code < 400).to.be.true
+          },
+          get error() {
+            // PM303 — 4xx or 5xx Error
+            const code = globalThis.hopp.response.statusCode
+            globalThis.hopp.expect(code >= 400).to.be.true
+          },
+          get withBody() {
+            // PM304 — response has a non-empty body
+            const body = globalThis.hopp.response.body.asText()
+            globalThis.hopp.expect(body).to.not.equal("")
+          },
           // Content type checks
-          json: () => {
+          get json() {
             const headers = globalThis.hopp.response.headers
             const contentType = headers.find(
               (h) => h.key.toLowerCase() === "content-type"
@@ -3624,7 +3874,7 @@
               .expect(contentType ? contentType.value : "")
               .to.include("application/json")
           },
-          html: () => {
+          get html() {
             const headers = globalThis.hopp.response.headers
             const contentType = headers.find(
               (h) => h.key.toLowerCase() === "content-type"
@@ -3633,7 +3883,7 @@
               .expect(contentType ? contentType.value : "")
               .to.include("text/html")
           },
-          xml: () => {
+          get xml() {
             const headers = globalThis.hopp.response.headers
             const contentType = headers.find(
               (h) => h.key.toLowerCase() === "content-type"
@@ -3643,7 +3893,7 @@
               ct.includes("application/xml") || ct.includes("text/xml")
             ).to.be.true
           },
-          text: () => {
+          get text() {
             const headers = globalThis.hopp.response.headers
             const contentType = headers.find(
               (h) => h.key.toLowerCase() === "content-type"
@@ -3656,23 +3906,75 @@
       },
     },
 
+    // Cookie Jar — Postman-compatible pm.cookies API (PM004)
+    // pm.cookies delegates to hopp.cookies (domain-based) under the hood.
+    // pm.cookies.jar() mirrors the Postman CookieJar interface with async callbacks.
     cookies: {
-      get: (_name) => {
-        throw new Error(
-          "pm.cookies.get() needs domain information - use hopp.cookies instead"
-        )
+      /**
+       * pm.cookies.get(name) — get cookie value for current response URL
+       */
+      get: (name) => {
+        try {
+          const domain = (() => { try { return new URL(globalThis.hopp.request.url).hostname } catch (_) { return globalThis.hopp.request.url } })()
+          const cookie = inputs.cookieGet(domain, name)
+          return cookie ? cookie.value : undefined
+        } catch (_) {
+          return undefined
+        }
       },
-      set: (_name, _value, _options) => {
-        throw new Error(
-          "pm.cookies.set() needs domain information - use hopp.cookies instead"
-        )
+      /**
+       * pm.cookies.has(name) — check if cookie exists for current response URL
+       */
+      has: (name) => {
+        try {
+          const domain = (() => { try { return new URL(globalThis.hopp.request.url).hostname } catch (_) { return globalThis.hopp.request.url } })()
+          return inputs.cookieHas(domain, name)
+        } catch (_) {
+          return false
+        }
       },
-      jar: () => {
-        throw new Error("pm.cookies.jar() not yet implemented")
+      /**
+       * pm.cookies.getAll() — get all cookies for current response URL
+       */
+      getAll: () => {
+        try {
+          const domain = (() => { try { return new URL(globalThis.hopp.request.url).hostname } catch (_) { return globalThis.hopp.request.url } })()
+          return inputs.cookieGetAll(domain) || []
+        } catch (_) {
+          return []
+        }
       },
+      /**
+       * pm.cookies.toObject() — all cookies as key:value object for current response URL
+       */
+      toObject: () => {
+        try {
+          const domain = (() => { try { return new URL(globalThis.hopp.request.url).hostname } catch (_) { return globalThis.hopp.request.url } })()
+          const cookies = inputs.cookieGetAll(domain) || []
+          return cookies.reduce((obj, c) => { obj[c.name] = c.value; return obj }, {})
+        } catch (_) {
+          return {}
+        }
+      },
+      /**
+       * pm.cookies.jar() — returns a Postman-compatible CookieJar object.
+       * Delegates to hopp.cookies.jar() which is the shared implementation.
+       */
+      jar: () => globalThis.hopp.cookies.jar(),
     },
 
-    test: (name, fn) => globalThis.hopp.test(name, fn),
+    test: (() => {
+      let __testIndex = 0
+      const testFn = (name, fn) => {
+        __testIndex++
+        return globalThis.hopp.test(name, fn)
+      }
+      // index() returns the 0-based index of the most-recently registered test.
+      // Returns -1 when no test has been registered yet — matches Postman semantics.
+      // Tied to pm.test() calls, not to index() calls.
+      testFn.index = () => (__testIndex <= 0 ? -1 : __testIndex - 1)
+      return testFn
+    })(),
     expect: Object.assign(
       (value, message) => globalThis.hopp.expect(value, message),
       {
@@ -3691,10 +3993,12 @@
         return inputs.pmInfoRequestId()
       },
       // Unsupported Collection Runner features
+      // iteration — 0-based index of the current iteration, backed by the
+      // "__hopp_current_iteration__" sentinel injected by the runner.
       get iteration() {
-        throw new Error(
-          "pm.info.iteration is not supported in Hoppscotch (Collection Runner feature)"
-        )
+        const raw = globalThis.pm.variables.get("__hopp_current_iteration__")
+        const parsed = raw !== undefined && raw !== null ? parseInt(raw, 10) : NaN
+        return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0
       },
       get iterationCount() {
         throw new Error(
@@ -3971,6 +4275,11 @@
       }
     },
 
+    // Backward-compatible alias for Postman flows
+    setNextRequest: (requestNameOrId) => {
+      return globalThis.pm.execution.setNextRequest(requestNameOrId)
+    },
+
     // Postman Vault (unsupported)
     vault: {
       get: () => {
@@ -3990,94 +4299,98 @@
       },
     },
 
-    // Postman Visualizer (unsupported)
+    // Postman Visualizer — graceful degradation (PM003)
+    // Hoppscotch has no visual template renderer. Instead of throwing:
+    //   - set(template, data): discard the HTML template, log the data payload to the console
+    //   - clear(): no-op (nothing to clear)
     visualizer: {
-      set: () => {
-        throw new Error(
-          "pm.visualizer.set() is not supported in Hoppscotch (Postman Visualizer feature)"
-        )
+      set: (_template, data) => {
+        // Keep any data extraction value; redirect visualizer output to console (PM003)
+        console.log("[pm.visualizer] data:", data)
       },
       clear: () => {
-        throw new Error(
-          "pm.visualizer.clear() is not supported in Hoppscotch (Postman Visualizer feature)"
-        )
+        // No-op — visualizer is not supported; silently ignore (PM003)
       },
     },
 
-    // Iteration data (unsupported)
+    // Iteration data — delegated to pm.variables / pm.environment (PM002)
+    // Strategy: the runner injects each dataset row's keys into the active environment before
+    // the request runs, so iterationData reads resolve against pm.variables (which merges all scopes).
+    // For toObject()/toJSON() the runner stores the full row as a JSON string under the private
+    // sentinel key "__hopp_row__" (injected into the selected scope by runTestRunnerRequest).
     iterationData: {
-      get: () => {
-        throw new Error(
-          "pm.iterationData.get() is not supported in Hoppscotch (Collection Runner feature)"
-        )
+      // get() reads exclusively from the current dataset row injected by the runner.
+      // Delegating to pm.variables.get() would fall through to environment/global scopes
+      // and return wrong values for keys absent from the dataset — violating Postman semantics
+      // where iterationData.get() returns undefined for missing dataset keys.
+      get: (key) => {
+        const rowJson = globalThis.pm.variables.get("__hopp_row__")
+        if (rowJson !== undefined && rowJson !== null) {
+          try {
+            const row = JSON.parse(rowJson)
+            if (Object.prototype.hasOwnProperty.call(row, key)) return row[key]
+          } catch (_) {}
+        }
+        return undefined
       },
-      set: () => {
-        throw new Error(
-          "pm.iterationData.set() is not supported in Hoppscotch (Collection Runner feature)"
-        )
-      },
-      unset: () => {
-        throw new Error(
-          "pm.iterationData.unset() is not supported in Hoppscotch (Collection Runner feature)"
-        )
-      },
-      has: () => {
-        throw new Error(
-          "pm.iterationData.has() is not supported in Hoppscotch (Collection Runner feature)"
-        )
+      // has() must only check the current dataset row, not all variable scopes.
+      // Delegating to pm.variables.has() would return true for environment/global
+      // vars with the same name even when the dataset has no such column.
+      has: (key) => {
+        const rowJson = globalThis.pm.variables.get("__hopp_row__")
+        if (rowJson !== undefined && rowJson !== null) {
+          try {
+            const row = JSON.parse(rowJson)
+            return Object.prototype.hasOwnProperty.call(row, key)
+          } catch (_) {}
+        }
+        return false
       },
       toObject: () => {
-        throw new Error(
-          "pm.iterationData.toObject() is not supported in Hoppscotch (Collection Runner feature)"
-        )
+        // Read the private sentinel key "__hopp_row__" injected by the runner.
+        // Using pm.variables (not pm.environment) searches all scopes including temp,
+        // so it works for both pre- and post-request contexts.
+        // A user dataset column named "row" does NOT collide with this sentinel.
+        const rowJson = globalThis.pm.variables.get("__hopp_row__")
+        if (rowJson !== undefined && rowJson !== null) {
+          try { return JSON.parse(rowJson) } catch (_) {}
+        }
+        return {}
       },
       toJSON: () => {
-        throw new Error(
-          "pm.iterationData.toJSON() is not supported in Hoppscotch (Collection Runner feature)"
-        )
+        // Same strategy as toObject()
+        const rowJson = globalThis.pm.variables.get("__hopp_row__")
+        if (rowJson !== undefined && rowJson !== null) {
+          try { return JSON.parse(rowJson) } catch (_) {}
+        }
+        return {}
       },
     },
 
-    // Collection variables (unsupported)
+    // Collection variables — delegated to pm.environment (active scope)
+    // Postman's collectionVariables scope maps to the active environment in Hoppscotch.
+    // Data written here is visible in pm.environment and vice-versa (same store).
+    // IMPORTANT: clear() is intentionally a no-op. Delegating to pm.environment.clear()
+    // would wipe the entire active environment (API keys, tokens, base URLs, etc.).
+    // Postman keeps collection and environment scopes separate; Hoppscotch does not,
+    // so clearing "collection variables only" cannot be safely implemented here.
     collectionVariables: {
-      get: () => {
-        throw new Error(
-          "pm.collectionVariables.get() is not supported in Hoppscotch (use environment or request variables instead)"
-        )
-      },
-      set: () => {
-        throw new Error(
-          "pm.collectionVariables.set() is not supported in Hoppscotch (use environment or request variables instead)"
-        )
-      },
-      unset: () => {
-        throw new Error(
-          "pm.collectionVariables.unset() is not supported in Hoppscotch (use environment or request variables instead)"
-        )
-      },
-      has: () => {
-        throw new Error(
-          "pm.collectionVariables.has() is not supported in Hoppscotch (use environment or request variables instead)"
-        )
+      get: (key) => globalThis.pm.environment.get(key),
+      set: (key, value) => globalThis.pm.environment.set(key, value),
+      unset: (key) => globalThis.pm.environment.unset(key),
+      has: (key) => {
+        const SENTINEL_KEYS = new Set(["__hopp_row__", "__hopp_iteration_count__", "__hopp_current_iteration__"])
+        if (SENTINEL_KEYS.has(key)) return false
+        return globalThis.pm.environment.has(key)
       },
       clear: () => {
-        throw new Error(
-          "pm.collectionVariables.clear() is not supported in Hoppscotch (use environment or request variables instead)"
-        )
+        console.warn("[pm.collectionVariables] clear() is a no-op in Hoppscotch: collection variables share the active environment scope, so clearing them would destructively wipe all environment variables. Remove this call or use pm.collectionVariables.unset() for individual keys.")
       },
-      toObject: () => {
-        throw new Error(
-          "pm.collectionVariables.toObject() is not supported in Hoppscotch (use environment or request variables instead)"
-        )
-      },
-      replaceIn: () => {
-        throw new Error(
-          "pm.collectionVariables.replaceIn() is not supported in Hoppscotch (use environment or request variables instead)"
-        )
-      },
+      toObject: () => globalThis.pm.environment.toObject(),
+      replaceIn: (template) => globalThis.pm.environment.replaceIn(template),
     },
 
-    // Execution control
+    // Execution control — graceful degradation (PM005, PM006)
     execution: {
       location: (() => {
         const location = ["Hoppscotch"]
@@ -4089,20 +4402,32 @@
         Object.freeze(location)
         return location
       })(),
-      setNextRequest: () => {
-        throw new Error(
-          "pm.execution.setNextRequest() is not supported in Hoppscotch (Collection Runner feature)"
-        )
+      setNextRequest: (requestNameOrId) => {
+        return inputs.pmSetNextRequest(requestNameOrId)
       },
+      // PM005: skipRequest() — advance to the next request in the collection (does NOT stop the run).
+      // Uses a sentinel value so the runner increments orderIndex rather than halting.
       skipRequest: () => {
-        throw new Error(
-          "pm.execution.skipRequest() is not supported in Hoppscotch (Collection Runner feature)"
-        )
+        console.info("[pm.execution] pm.execution.skipRequest() called — advancing to the next request.")
+        return inputs.pmSetNextRequest("__HOPP_SKIP_REQUEST__")
       },
-      runRequest: () => {
-        throw new Error(
-          "pm.execution.runRequest() is not supported in Hoppscotch (Collection Runner feature)"
-        )
+      // PM006: runRequest(id) — cannot invoke runner-level request by ID; log guidance and no-op
+      runRequest: (id) => {
+        console.warn(`[pm.execution] pm.execution.runRequest('${id}') is not supported. Use pm.sendRequest({...}, callback) for extra HTTP calls, or redesign collection runner order using setNextRequest().`)
+      },
+      // iterationCount — reads the total iteration count injected by the runner via the
+      // "__hopp_iteration_count__" temp variable; falls back to 1 for single-request runs.
+      get iterationCount() {
+        const raw = globalThis.pm.variables.get("__hopp_iteration_count__")
+        const parsed = raw !== undefined && raw !== null ? parseInt(raw, 10) : NaN
+        return Number.isFinite(parsed) && parsed >= 1 ? parsed : 1
+      },
+      // iteration — 0-based index of the current iteration, backed by the
+      // "__hopp_current_iteration__" sentinel injected by the runner.
+      get iteration() {
+        const raw = globalThis.pm.variables.get("__hopp_current_iteration__")
+        const parsed = raw !== undefined && raw !== null ? parseInt(raw, 10) : NaN
+        return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0
       },
     },
 

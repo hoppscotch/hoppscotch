@@ -73,15 +73,12 @@ export class TestRunnerService extends Service {
       testScript: collection.testScript ?? "",
     }
 
-    this.runTestCollection(
+    // Route through runTestsWithIterations so pm.setNextRequest, pm.iterationData,
+    // and iteration dataset support are all reachable from the public entry point.
+    this.runTestsWithIterations(
       tab,
       collection,
       options,
-      [],
-      undefined,
-      undefined,
-      [],
-      undefined,
       ancestorPreRequestScripts,
       ancestorTestScripts
     )
@@ -91,8 +88,11 @@ export class TestRunnerService extends Service {
       .catch((error) => {
         if (
           error instanceof Error &&
-          error.message === "Test execution stopped"
+          (error.message === "Test execution stopped" ||
+            error.message === "Test execution stopped due to error")
         ) {
+          // Both a user-triggered stop and a stopOnError halt are clean stops —
+          // surface them as "stopped", not as an unexpected runner failure.
           tab.value.document.status = "stopped"
         } else {
           tab.value.document.status = "error"
@@ -100,152 +100,82 @@ export class TestRunnerService extends Service {
         }
       })
       .finally(() => {
-        tab.value.document.status = "stopped"
+        // Only reset to "stopped" when the run ended normally or via a user-stop.
+        // Preserve "error" status set in the catch() branch so callers and the UI
+        // can distinguish unexpected failures from intentional stops.
+        if (tab.value.document.status !== "error") {
+          tab.value.document.status = "stopped"
+        }
       })
   }
 
-  private async runTestCollection(
+  private async runTestsWithIterations(
     tab: Ref<HoppTab<HoppTestRunnerDocument>>,
     collection: HoppCollection,
     options: TestRunnerOptions,
-    parentPath: number[] = [],
-    parentHeaders?: HoppRESTHeaders,
-    parentAuth?: HoppRESTRequest["auth"],
-    parentVariables: HoppCollection["variables"] = [],
-    parentID?: string,
-    parentPreRequestScripts: string[] = [],
-    parentTestScripts: string[] = []
+    ancestorPreRequestScripts: string[] = [],
+    ancestorTestScripts: string[] = []
   ) {
-    try {
-      // Compute inherited auth and headers for this collection
-      const inheritedAuth =
-        collection.auth?.authType === "inherit" && collection.auth.authActive
-          ? parentAuth || { authType: "none", authActive: false }
-          : collection.auth || { authType: "none", authActive: false }
+    const dataset = options.dataset
+    const hasDataset =
+      dataset?.enabled && dataset.data && dataset.data.length > 0
 
-      const inheritedHeaders: HoppRESTHeaders = [
-        ...(parentHeaders || []),
-        ...collection.headers,
-      ]
+    // Always use the user's iteration value
+    const iterations = options.iterations || 1
 
-      const inheritedVariables = [
-        ...(populateValuesInInheritedCollectionVars(
-          parentVariables,
-          parentID || collection._ref_id || collection.id
-        ) || []),
-        ...(populateValuesInInheritedCollectionVars(
-          collection.variables,
-          collection._ref_id || collection.id
-        ) || []),
-      ]
-
-      const inheritedPreRequestScripts = [
-        ...parentPreRequestScripts,
-        ...(hasActualScript(collection.preRequestScript)
-          ? [collection.preRequestScript]
-          : []),
-      ]
-      const inheritedTestScripts = [
-        ...parentTestScripts,
-        ...(hasActualScript(collection.testScript)
-          ? [collection.testScript]
-          : []),
-      ]
-
-      // Process folders progressively
-      for (let i = 0; i < collection.folders.length; i++) {
-        if (options.stopRef?.value) {
-          tab.value.document.status = "stopped"
-          throw new Error("Test execution stopped")
-        }
-
-        const folder = collection.folders[i]
-        const currentPath = [...parentPath, i]
-
-        // Add folder to the result collection
-        this.addFolderToPath(
-          tab.value.document.resultCollection!,
-          currentPath,
-          {
-            ...cloneDeep(folder),
-            folders: [],
-            requests: [],
-          }
-        )
-
-        await this.runTestCollection(
-          tab,
-          folder,
-          options,
-          currentPath,
-          inheritedHeaders,
-          inheritedAuth,
-          inheritedVariables,
-          collection._ref_id || collection.id,
-          inheritedPreRequestScripts,
-          inheritedTestScripts
-        )
+    for (let iteration = 0; iteration < iterations; iteration++) {
+      if (options.stopRef?.value) {
+        tab.value.document.status = "stopped"
+        throw new Error("Test execution stopped")
       }
 
-      // Process requests progressively
-      for (let i = 0; i < collection.requests.length; i++) {
-        if (options.stopRef?.value) {
-          tab.value.document.status = "stopped"
-          throw new Error("Test execution stopped")
+      // For iterations after the first, we don't reset the result collection
+      // This allows us to accumulate results across iterations
+      const shouldResetCollection = iteration === 0
+
+      // Get current iteration data if dataset is enabled.
+      // Postman semantics: iterations beyond the dataset length run with empty
+      // iterationData (pm.iterationData.get() returns undefined for all keys).
+      let iterationData: any = undefined
+      if (hasDataset && dataset.data) {
+        if (iteration < dataset.data.length) {
+          iterationData = dataset.data[iteration]
         }
+        // If iteration >= dataset.data.length, iterationData stays undefined —
+        // matching Postman's empty-row behaviour for extra iterations.
+      }
 
-        const request = collection.requests[i] as TestRunnerRequest
-        const currentPath = [...parentPath, i]
+      const executionOrder =
+        options.requestOrder && options.requestOrder.length > 0
+          ? options.requestOrder
+          : this.collectRequestOrder(collection)
 
-        // Add request to the result collection before execution
-        this.addRequestToPath(
-          tab.value.document.resultCollection!,
-          currentPath,
-          cloneDeep(request)
-        )
+      const collectionStopped = await this.runTestsInCustomOrder(
+        tab,
+        collection,
+        options,
+        shouldResetCollection,
+        executionOrder,
+        iterationData,
+        iteration,
+        ancestorPreRequestScripts,
+        ancestorTestScripts
+      )
 
-        // Update the request with inherited headers and auth before execution
-        const finalRequest = {
-          ...request,
-          auth:
-            request.auth.authType === "inherit" && request.auth.authActive
-              ? inheritedAuth
-              : request.auth,
-          headers: [...inheritedHeaders, ...request.headers],
-        }
+      // pm.setNextRequest(null) was called — stop all remaining iterations immediately
+      if (collectionStopped) return
 
-        await this.runTestRequest(
-          tab,
-          finalRequest,
-          collection,
-          options,
-          currentPath,
-          inheritedVariables,
-          inheritedPreRequestScripts,
-          inheritedTestScripts
-        )
-
-        if (options.delay && options.delay > 0) {
-          try {
-            await delay(options.delay)
-          } catch (_error) {
-            if (options.stopRef?.value) {
-              tab.value.document.status = "stopped"
-              throw new Error("Test execution stopped")
-            }
+      // Add delay between iterations (except after the last one)
+      if (iteration < iterations - 1 && options.delay && options.delay > 0) {
+        try {
+          await delay(options.delay)
+        } catch (_error) {
+          if (options.stopRef?.value) {
+            tab.value.document.status = "stopped"
+            throw new Error("Test execution stopped")
           }
         }
       }
-    } catch (error) {
-      if (
-        error instanceof Error &&
-        error.message === "Test execution stopped"
-      ) {
-        throw error
-      }
-      tab.value.document.status = "error"
-      console.error("Collection execution failed:", error)
-      throw error
     }
   }
 
@@ -310,13 +240,14 @@ export class TestRunnerService extends Service {
   private async runTestRequest(
     tab: Ref<HoppTab<HoppTestRunnerDocument>>,
     request: TestRunnerRequest,
-    collection: HoppCollection,
     options: TestRunnerOptions,
     path: number[],
     inheritedVariables: HoppCollectionVariable[] = [],
     inheritedPreRequestScripts: string[] = [],
-    inheritedTestScripts: string[] = []
-  ) {
+    inheritedTestScripts: string[] = [],
+    iterationData?: Record<string, unknown>,
+    currentIteration: number = 0
+  ): Promise<string | null | undefined> {
     if (options.stopRef?.value) {
       throw new Error("Test execution stopped")
     }
@@ -343,7 +274,10 @@ export class TestRunnerService extends Service {
         inheritedVariables,
         initialEnvironmentState,
         inheritedPreRequestScripts,
-        inheritedTestScripts
+        inheritedTestScripts,
+        iterationData,
+        options.iterations ?? 1,
+        currentIteration
       )
 
       if (options.stopRef?.value) {
@@ -351,7 +285,8 @@ export class TestRunnerService extends Service {
       }
 
       if (results && E.isRight(results)) {
-        const { response, testResult, updatedRequest } = results.right
+        const { response, testResult, updatedRequest, nextRequest } =
+          results.right
         const { passed, failed } = this.getTestResultInfo(testResult)
 
         tab.value.document.testRunnerMeta.totalTests += passed + failed
@@ -371,25 +306,28 @@ export class TestRunnerService extends Service {
             response.meta.responseDuration
           tab.value.document.testRunnerMeta.completedRequests += 1
         }
-      } else {
-        const errorMsg = "Request execution failed"
 
-        // Update request with error in the result collection
-        this.updateRequestAtPath(tab.value.document.resultCollection!, path, {
-          error: errorMsg,
-          isLoading: false,
-          response: {
-            type: "network_fail",
-            error: "Unknown",
-            req: request,
-          },
-        })
-
-        if (options.stopOnError) {
-          tab.value.document.status = "stopped"
-          throw new Error("Test execution stopped due to error")
-        }
+        return nextRequest
       }
+      const errorMsg = "Request execution failed"
+
+      // Update request with error in the result collection
+      this.updateRequestAtPath(tab.value.document.resultCollection!, path, {
+        error: errorMsg,
+        isLoading: false,
+        response: {
+          type: "network_fail",
+          error: "Unknown",
+          req: request,
+        },
+      })
+
+      if (options.stopOnError) {
+        tab.value.document.status = "stopped"
+        throw new Error("Test execution stopped due to error")
+      }
+
+      return undefined
     } catch (error) {
       if (
         error instanceof Error &&
@@ -411,6 +349,8 @@ export class TestRunnerService extends Service {
         tab.value.document.status = "stopped"
         throw new Error("Test execution stopped due to error")
       }
+
+      return undefined
     }
   }
 
@@ -433,5 +373,439 @@ export class TestRunnerService extends Service {
     }
 
     return { passed, failed }
+  }
+
+  /**
+   * Resolves a string path (e.g. "folder_0/folder_1/request_2") to the actual
+   * request plus its inherited auth, headers, and parent path array.
+   */
+  private resolveRequestContext(
+    collection: HoppCollection,
+    pathStr: string,
+    ancestorPreRequestScripts: string[] = [],
+    ancestorTestScripts: string[] = []
+  ): {
+    request: TestRunnerRequest
+    parentPath: number[]
+    requestIndex: number
+    inheritedAuth: HoppRESTRequest["auth"]
+    inheritedHeaders: HoppRESTHeaders
+    inheritedVariables: HoppCollectionVariable[]
+    inheritedPreRequestScripts: string[]
+    inheritedTestScripts: string[]
+  } | null {
+    const parts = pathStr.split("/")
+    let current: HoppCollection = collection
+    const parentPath: number[] = []
+
+    // Start with root-level auth/headers
+    let inheritedAuth: HoppRESTRequest["auth"] =
+      collection.auth?.authType === "inherit"
+        ? { authType: "none", authActive: false }
+        : collection.auth || { authType: "none", authActive: false }
+
+    let inheritedHeaders: HoppRESTHeaders = [...(collection.headers || [])]
+    let inheritedVariables: HoppCollectionVariable[] = [
+      ...(populateValuesInInheritedCollectionVars(
+        collection.variables,
+        collection._ref_id || collection.id
+      ) || []),
+    ]
+
+    // Accumulate scripts from the collection root — prepend ancestor scripts first
+    let inheritedPreRequestScripts: string[] = [
+      ...ancestorPreRequestScripts,
+      ...(hasActualScript(collection.preRequestScript)
+        ? [collection.preRequestScript]
+        : []),
+    ]
+    let inheritedTestScripts: string[] = [
+      ...ancestorTestScripts,
+      ...(hasActualScript(collection.testScript)
+        ? [collection.testScript]
+        : []),
+    ]
+
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i]
+      const isLast = i === parts.length - 1
+
+      if (part.startsWith("folder_")) {
+        const folderIdx = parseInt(part.replace("folder_", ""), 10)
+        if (isLast) return null // path ends in folder, not a request
+
+        const folder = current.folders[folderIdx]
+        if (!folder) return null
+
+        // Accumulate auth/headers from this folder
+        inheritedAuth =
+          folder.auth?.authType === "inherit" && folder.auth?.authActive
+            ? inheritedAuth
+            : folder.auth || { authType: "none", authActive: false }
+
+        inheritedHeaders = [...inheritedHeaders, ...(folder.headers || [])]
+        inheritedVariables = [
+          ...inheritedVariables,
+          ...(populateValuesInInheritedCollectionVars(
+            folder.variables,
+            folder._ref_id || folder.id
+          ) || []),
+        ]
+
+        // Accumulate scripts from this folder
+        inheritedPreRequestScripts = [
+          ...inheritedPreRequestScripts,
+          ...(hasActualScript(folder.preRequestScript)
+            ? [folder.preRequestScript]
+            : []),
+        ]
+        inheritedTestScripts = [
+          ...inheritedTestScripts,
+          ...(hasActualScript(folder.testScript) ? [folder.testScript] : []),
+        ]
+
+        parentPath.push(folderIdx)
+        current = folder as HoppCollection
+      } else if (part.startsWith("request_")) {
+        const reqIdx = parseInt(part.replace("request_", ""), 10)
+        const request = current.requests[reqIdx]
+        if (!request) return null
+
+        return {
+          request: request as TestRunnerRequest,
+          parentPath,
+          requestIndex: reqIdx,
+          inheritedAuth,
+          inheritedHeaders,
+          inheritedVariables,
+          inheritedPreRequestScripts,
+          inheritedTestScripts,
+        }
+      } else {
+        return null // unknown segment
+      }
+    }
+
+    return null
+  }
+
+  /**
+   * Pre-populates all folder nodes in the result collection from the source
+   * collection. This is required before custom-order execution so that
+   * appendRequestToPath / updateRequestAtPath can navigate into sub-folders.
+   */
+  private buildFolderSkeleton(
+    resultCollection: HoppCollection,
+    sourceCollection: HoppCollection,
+    path: number[] = []
+  ): void {
+    sourceCollection.folders.forEach((folder, i) => {
+      const folderPath = [...path, i]
+      this.addFolderToPath(resultCollection, folderPath, {
+        ...cloneDeep(folder),
+        folders: [],
+        requests: [],
+      })
+      this.buildFolderSkeleton(
+        resultCollection,
+        folder as HoppCollection,
+        folderPath
+      )
+    })
+  }
+
+  /**
+   * Executes requests in the user-defined flat order stored in options.requestOrder.
+   * Auth/header inheritance is resolved for each request individually.
+   * Returns `true` if the run was stopped by `pm.setNextRequest(null)`,
+   * signalling the caller to skip any remaining iterations.
+   */
+  private async runTestsInCustomOrder(
+    tab: Ref<HoppTab<HoppTestRunnerDocument>>,
+    collection: HoppCollection,
+    options: TestRunnerOptions,
+    shouldResetFoldersAndRequests: boolean,
+    executionOrder: string[],
+    iterationData?: Record<string, unknown>,
+    currentIteration: number = 0,
+    ancestorPreRequestScripts: string[] = [],
+    ancestorTestScripts: string[] = []
+  ): Promise<boolean> {
+    // On the first iteration, pre-populate the folder tree in the result collection
+    // so that appendRequestToPath can navigate into sub-folders safely.
+    if (shouldResetFoldersAndRequests) {
+      this.buildFolderSkeleton(tab.value.document.resultCollection!, collection)
+    }
+
+    const folderRequestCounters = new Map<string, number>()
+
+    // On iterations 2+, seed counters from the existing result collection so that
+    // addRequestToPath appends at the correct indices instead of overwriting the
+    // results already stored by the previous iteration.
+    if (!shouldResetFoldersAndRequests && tab.value.document.resultCollection) {
+      const seedCounters = (folder: HoppCollection, path: number[]) => {
+        const key = path.join("/")
+        folderRequestCounters.set(key, folder.requests.length)
+        folder.folders.forEach((sub, i) =>
+          seedCounters(sub as HoppCollection, [...path, i])
+        )
+      }
+      seedCounters(tab.value.document.resultCollection, [])
+    }
+
+    let orderIndex = 0
+    // Cycle detection: track how many setNextRequest jumps have occurred.
+    // Prevents infinite loops when scripts create circular jump chains.
+    const MAX_JUMPS = 100
+    let jumpCount = 0
+
+    while (orderIndex < executionOrder.length) {
+      const requestPath = executionOrder[orderIndex]
+
+      if (options.stopRef?.value) {
+        tab.value.document.status = "stopped"
+        throw new Error("Test execution stopped")
+      }
+
+      // Honour selection: skip deselected requests
+      const shouldExecute = this.shouldExecuteRequest(
+        requestPath,
+        options.requestSelection
+      )
+      if (!shouldExecute) {
+        orderIndex++
+        continue
+      }
+
+      // Resolve the request and its inherited context (auth, headers, variables, scripts)
+      const ctx = this.resolveRequestContext(
+        collection,
+        requestPath,
+        ancestorPreRequestScripts,
+        ancestorTestScripts
+      )
+      if (!ctx) {
+        orderIndex++
+        continue
+      }
+
+      const {
+        request,
+        parentPath,
+        inheritedAuth,
+        inheritedHeaders,
+        inheritedVariables,
+        inheritedPreRequestScripts,
+        inheritedTestScripts,
+      } = ctx
+
+      // Use a sequential per-folder counter as the insertion index.
+      const folderKey = parentPath.join("/")
+      const seqIndex = folderRequestCounters.get(folderKey) ?? 0
+      folderRequestCounters.set(folderKey, seqIndex + 1)
+
+      const fullPath = [...parentPath, seqIndex]
+
+      // Issue 1 fix: use addRequestToPath (appendRequestToPath does not exist)
+      this.addRequestToPath(
+        tab.value.document.resultCollection!,
+        fullPath,
+        cloneDeep(request)
+      )
+
+      // Apply inherited auth and headers
+      const finalRequest: TestRunnerRequest = {
+        ...request,
+        auth:
+          request.auth.authType === "inherit" && request.auth.authActive
+            ? inheritedAuth
+            : request.auth,
+        headers: [...inheritedHeaders, ...request.headers],
+      }
+
+      // Issue 3 fix: pass inheritedPreRequestScripts and inheritedTestScripts correctly
+      const nextRequest = await this.runTestRequest(
+        tab,
+        finalRequest,
+        options,
+        fullPath,
+        inheritedVariables,
+        inheritedPreRequestScripts,
+        inheritedTestScripts,
+        iterationData,
+        currentIteration
+      )
+
+      if (options.delay && options.delay > 0) {
+        try {
+          await delay(options.delay)
+        } catch (_error) {
+          if (options.stopRef?.value) {
+            tab.value.document.status = "stopped"
+            throw new Error("Test execution stopped")
+          }
+        }
+      }
+
+      if (nextRequest === null) {
+        // pm.setNextRequest(null) — stop the entire collection run (all iterations)
+        return true
+      }
+
+      if (typeof nextRequest === "string") {
+        // Handle the skip sentinel BEFORE touching jumpCount.
+        // skipRequest() is not a loop-forming operation, so it must not consume
+        // any of the MAX_JUMPS budget — the guard is only for circular setNextRequest chains.
+        // Checked before resolveNextRequestPath so a request literally named
+        // "__HOPP_SKIP_REQUEST__" can still be jumped to via setNextRequest()
+        // because in that case resolveNextRequestPath would have already matched it above;
+        // the resolution happens first, and only an unresolved name falls through here.
+        //
+        // Implementation note: the skip path is entered only when no real request
+        // matched the name (resolveNextRequestPath returns null), so the order is:
+        //   1. Is it the skip sentinel AND no real request has this name? → advance
+        //   2. Otherwise count the jump and attempt resolution.
+        //
+        // To keep the name-wins guarantee from the previous fix, we attempt resolution
+        // first and skip the jumpCount increment only when the sentinel matches.
+        const nextRequestPath = this.resolveNextRequestPath(
+          collection,
+          nextRequest
+        )
+
+        if (nextRequestPath) {
+          const nextIndex = executionOrder.indexOf(nextRequestPath)
+
+          if (nextIndex !== -1) {
+            // Real setNextRequest jump — guard against infinite loops.
+            if (jumpCount >= MAX_JUMPS) {
+              console.warn(
+                `[TestRunner] pm.setNextRequest loop limit (${MAX_JUMPS}) reached — stopping run to prevent infinite loop.`
+              )
+              return false
+            }
+            jumpCount++
+            orderIndex = nextIndex
+            continue
+          }
+        }
+
+        // No real request matched the name.
+        // If this is the skip sentinel (pm.execution.skipRequest()), simply advance
+        // without counting it as a jump — skips cannot cause infinite loops.
+        if (nextRequest === "__HOPP_SKIP_REQUEST__") {
+          orderIndex++
+          continue
+        }
+
+        // Unknown setNextRequest target that didn't resolve — count it so a
+        // script repeatedly calling setNextRequest("nonexistent") still terminates.
+        if (jumpCount >= MAX_JUMPS) {
+          console.warn(
+            `[TestRunner] pm.setNextRequest loop limit (${MAX_JUMPS}) reached — stopping run to prevent infinite loop.`
+          )
+          return false
+        }
+        jumpCount++
+      }
+
+      orderIndex++
+    }
+    return false // completed all requests without a forced stop
+  }
+
+  private collectRequestOrder(
+    collection: HoppCollection,
+    parentPath: number[] = []
+  ): string[] {
+    const requestOrder: string[] = []
+
+    // Folders first (depth-first), then same-level requests — restores the original
+    // runTestCollection traversal order. Reversing this (requests-first) breaks any
+    // collection that relies on folder pre-request scripts running before root requests,
+    // or that uses setNextRequest to target a specific cross-folder sequence.
+    collection.folders.forEach((folder, folderIndex) => {
+      requestOrder.push(
+        ...this.collectRequestOrder(folder as HoppCollection, [
+          ...parentPath,
+          folderIndex,
+        ])
+      )
+    })
+
+    collection.requests.forEach((_, requestIndex) => {
+      requestOrder.push(this.buildRequestPath(parentPath, requestIndex))
+    })
+
+    return requestOrder
+  }
+
+  private resolveNextRequestPath(
+    collection: HoppCollection,
+    target: string,
+    parentPath: number[] = []
+  ): string | null {
+    for (
+      let requestIndex = 0;
+      requestIndex < collection.requests.length;
+      requestIndex++
+    ) {
+      const request = collection.requests[requestIndex]
+
+      const requestRefId =
+        "_ref_id" in request && typeof request._ref_id === "string"
+          ? request._ref_id
+          : undefined
+
+      if (
+        request.name === target ||
+        request.id === target ||
+        requestRefId === target
+      ) {
+        return this.buildRequestPath(parentPath, requestIndex)
+      }
+    }
+
+    for (
+      let folderIndex = 0;
+      folderIndex < collection.folders.length;
+      folderIndex++
+    ) {
+      const resolvedPath = this.resolveNextRequestPath(
+        collection.folders[folderIndex] as HoppCollection,
+        target,
+        [...parentPath, folderIndex]
+      )
+
+      if (resolvedPath) {
+        return resolvedPath
+      }
+    }
+
+    return null
+  }
+
+  /**
+   * Builds a request path string from a path array
+   * Example: [0, 1, 2] -> "folder_0/folder_1/request_2"
+   */
+  private buildRequestPath(parentPath: number[], requestIndex: number): string {
+    const folderPath = parentPath.map((idx) => `folder_${idx}`).join("/")
+    const requestPath = `request_${requestIndex}`
+    return folderPath ? `${folderPath}/${requestPath}` : requestPath
+  }
+
+  /**
+   * Checks if a request should be executed based on selection state
+   * If no selection state is provided, all requests are executed
+   */
+  private shouldExecuteRequest(
+    requestPath: string,
+    selectionState?: Record<string, boolean>
+  ): boolean {
+    if (!selectionState || Object.keys(selectionState).length === 0) {
+      return true // Execute all if no selection state
+    }
+    return selectionState[requestPath] ?? false
   }
 }

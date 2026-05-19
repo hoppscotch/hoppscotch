@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest"
 import { runTest, runPreRequest } from "~/utils/test-helpers"
 
-// Unified test data for unsupported APIs
+// APIs that still throw — Group 7 (pm.vault, pm.require) not yet implemented this sprint
 const unsupportedApis = [
   {
     api: "pm.info.iteration",
@@ -14,48 +14,6 @@ const unsupportedApis = [
     script: "const iterationCount = pm.info.iterationCount",
     errorMessage:
       "pm.info.iterationCount is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
-    api: "pm.collectionVariables.get()",
-    script: 'pm.collectionVariables.get("test")',
-    errorMessage:
-      "pm.collectionVariables.get() is not supported in Hoppscotch (use environment or request variables instead)",
-  },
-  {
-    api: "pm.collectionVariables.set()",
-    script: 'pm.collectionVariables.set("key", "value")',
-    errorMessage:
-      "pm.collectionVariables.set() is not supported in Hoppscotch (use environment or request variables instead)",
-  },
-  {
-    api: "pm.collectionVariables.unset()",
-    script: 'pm.collectionVariables.unset("key")',
-    errorMessage:
-      "pm.collectionVariables.unset() is not supported in Hoppscotch (use environment or request variables instead)",
-  },
-  {
-    api: "pm.collectionVariables.has()",
-    script: 'pm.collectionVariables.has("key")',
-    errorMessage:
-      "pm.collectionVariables.has() is not supported in Hoppscotch (use environment or request variables instead)",
-  },
-  {
-    api: "pm.collectionVariables.clear()",
-    script: "pm.collectionVariables.clear()",
-    errorMessage:
-      "pm.collectionVariables.clear() is not supported in Hoppscotch (use environment or request variables instead)",
-  },
-  {
-    api: "pm.collectionVariables.toObject()",
-    script: "pm.collectionVariables.toObject()",
-    errorMessage:
-      "pm.collectionVariables.toObject() is not supported in Hoppscotch (use environment or request variables instead)",
-  },
-  {
-    api: "pm.collectionVariables.replaceIn()",
-    script: 'pm.collectionVariables.replaceIn("{{var}}")',
-    errorMessage:
-      "pm.collectionVariables.replaceIn() is not supported in Hoppscotch (use environment or request variables instead)",
   },
   {
     api: "pm.vault.get()",
@@ -76,72 +34,6 @@ const unsupportedApis = [
       "pm.vault.unset() is not supported in Hoppscotch (Postman Vault feature)",
   },
   {
-    api: "pm.iterationData.get()",
-    script: 'pm.iterationData.get("test")',
-    errorMessage:
-      "pm.iterationData.get() is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
-    api: "pm.iterationData.set()",
-    script: 'pm.iterationData.set("key", "value")',
-    errorMessage:
-      "pm.iterationData.set() is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
-    api: "pm.iterationData.unset()",
-    script: 'pm.iterationData.unset("key")',
-    errorMessage:
-      "pm.iterationData.unset() is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
-    api: "pm.iterationData.has()",
-    script: 'pm.iterationData.has("key")',
-    errorMessage:
-      "pm.iterationData.has() is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
-    api: "pm.iterationData.toObject()",
-    script: "pm.iterationData.toObject()",
-    errorMessage:
-      "pm.iterationData.toObject() is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
-    api: "pm.iterationData.toJSON()",
-    script: "pm.iterationData.toJSON()",
-    errorMessage:
-      "pm.iterationData.toJSON() is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
-    api: "pm.execution.setNextRequest()",
-    script: 'pm.execution.setNextRequest("next-request")',
-    errorMessage:
-      "pm.execution.setNextRequest() is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
-    api: "pm.execution.skipRequest()",
-    script: "pm.execution.skipRequest()",
-    errorMessage:
-      "pm.execution.skipRequest() is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
-    api: "pm.execution.runRequest()",
-    script: 'pm.execution.runRequest("request-id")',
-    errorMessage:
-      "pm.execution.runRequest() is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
-    api: "pm.visualizer.set()",
-    script: 'pm.visualizer.set("<h1>Test</h1>")',
-    errorMessage:
-      "pm.visualizer.set() is not supported in Hoppscotch (Postman Visualizer feature)",
-  },
-  {
-    api: "pm.visualizer.clear()",
-    script: "pm.visualizer.clear()",
-    errorMessage:
-      "pm.visualizer.clear() is not supported in Hoppscotch (Postman Visualizer feature)",
-  },
-  {
     api: "pm.require()",
     script: 'pm.require("@team/package")',
     errorMessage:
@@ -150,15 +42,11 @@ const unsupportedApis = [
 ]
 
 describe("pm namespace - unsupported features", () => {
-  // Test unsupported APIs in both pre-request and test scripts
   test.each(unsupportedApis)(
     "$api throws error in pre-request script",
     ({ script, errorMessage }) => {
       return expect(
-        runPreRequest(script, {
-          global: [],
-          selected: [],
-        })()
+        runPreRequest(script, { global: [], selected: [] })()
       ).resolves.toEqualLeft(`Script execution failed: Error: ${errorMessage}`)
     }
   )
@@ -166,13 +54,7 @@ describe("pm namespace - unsupported features", () => {
   test.each(unsupportedApis)(
     "$api throws error in test script",
     async ({ script, errorMessage }) => {
-      const result = await runTest(script, {
-        global: [],
-        selected: [],
-      })()
-
-      // Check that the error message contains the expected error text
-      // We use toEqualLeft with stringContaining because QuickJS may append GC disposal errors
+      const result = await runTest(script, { global: [], selected: [] })()
       expect(result).toEqualLeft(
         expect.stringContaining(
           `Script execution failed: Error: ${errorMessage}`
@@ -180,70 +62,52 @@ describe("pm namespace - unsupported features", () => {
       )
     }
   )
+})
 
-  test("pm.collectionVariables.get() throws error", async () => {
-    await expect(
-      runTest(`pm.collectionVariables.get("test")`, {
-        global: [],
-        selected: [],
-      })()
-    ).resolves.toEqualLeft(
-      expect.stringContaining("pm.collectionVariables.get() is not supported")
-    )
+// Group 2 — pm.iterationData.* regression tests (PM002)
+describe("pm.iterationData — graceful delegation regression (PM002)", () => {
+  test("pm.iterationData.get() does not throw", async () => {
+    expect(await runTest(`pm.iterationData.get("test")`, { global: [], selected: [] })()).not.toEqualLeft(expect.anything())
   })
-
-  test("pm.vault.get() throws error", async () => {
-    await expect(
-      runTest(`pm.vault.get("test")`, {
-        global: [],
-        selected: [],
-      })()
-    ).resolves.toEqualLeft(
-      expect.stringContaining("pm.vault.get() is not supported")
-    )
+  test("pm.iterationData.has() does not throw", async () => {
+    expect(await runTest(`pm.iterationData.has("test")`, { global: [], selected: [] })()).not.toEqualLeft(expect.anything())
   })
-
-  test("pm.iterationData.get() throws error", async () => {
-    await expect(
-      runTest(`pm.iterationData.get("test")`, {
-        global: [],
-        selected: [],
-      })()
-    ).resolves.toEqualLeft(
-      expect.stringContaining("pm.iterationData.get() is not supported")
-    )
+  test("pm.iterationData.toObject() does not throw", async () => {
+    expect(await runTest(`pm.iterationData.toObject()`, { global: [], selected: [] })()).not.toEqualLeft(expect.anything())
   })
-
-  test("pm.execution.setNextRequest() throws error", async () => {
-    await expect(
-      runTest(`pm.execution.setNextRequest("next-request")`, {
-        global: [],
-        selected: [],
-      })()
-    ).resolves.toEqualLeft(
-      expect.stringContaining("pm.execution.setNextRequest() is not supported")
-    )
+  test("pm.iterationData.toJSON() does not throw", async () => {
+    expect(await runTest(`pm.iterationData.toJSON()`, { global: [], selected: [] })()).not.toEqualLeft(expect.anything())
   })
+})
 
-  test("pm.visualizer.set() throws error", async () => {
-    await expect(
-      runTest(`pm.visualizer.set("<h1>Test</h1>")`, {
-        global: [],
-        selected: [],
-      })()
-    ).resolves.toEqualLeft(
-      expect.stringContaining("pm.visualizer.set() is not supported")
-    )
+// Group 4 — pm.visualizer.* graceful degradation (PM003)
+describe("pm.visualizer — graceful degradation (PM003)", () => {
+  test("pm.visualizer.set() does not throw in test script", async () => {
+    expect(await runTest(`pm.visualizer.set("<h1>{{title}}</h1>", { title: "Hello" })`, { global: [], selected: [] })()).not.toEqualLeft(expect.anything())
   })
+  test("pm.visualizer.set() does not throw in pre-request script", () => {
+    return expect(runPreRequest(`pm.visualizer.set("<h1>Test</h1>", { key: "value" })`, { global: [], selected: [] })()).resolves.not.toEqualLeft(expect.anything())
+  })
+  test("pm.visualizer.clear() does not throw in test script", async () => {
+    expect(await runTest(`pm.visualizer.clear()`, { global: [], selected: [] })()).not.toEqualLeft(expect.anything())
+  })
+  test("pm.visualizer.clear() does not throw in pre-request script", () => {
+    return expect(runPreRequest(`pm.visualizer.clear()`, { global: [], selected: [] })()).resolves.not.toEqualLeft(expect.anything())
+  })
+})
 
-  test("pm.visualizer.clear() throws error", async () => {
-    await expect(
-      runTest(`pm.visualizer.clear()`, {
-        global: [],
-        selected: [],
-      })()
-    ).resolves.toEqualLeft(
-      expect.stringContaining("pm.visualizer.clear() is not supported")
-    )
+// Group 6 — Execution Control graceful degradation (PM005, PM006)
+describe("pm.execution — graceful degradation (PM005, PM006)", () => {
+  test("pm.execution.skipRequest() does not throw in test script", async () => {
+    expect(await runTest(`pm.execution.skipRequest()`, { global: [], selected: [] })()).not.toEqualLeft(expect.anything())
+  })
+  test("pm.execution.skipRequest() does not throw in pre-request script", () => {
+    return expect(runPreRequest(`pm.execution.skipRequest()`, { global: [], selected: [] })()).resolves.not.toEqualLeft(expect.anything())
+  })
+  test("pm.execution.runRequest() does not throw in test script", async () => {
+    expect(await runTest(`pm.execution.runRequest("some-request-id")`, { global: [], selected: [] })()).not.toEqualLeft(expect.anything())
+  })
+  test("pm.execution.runRequest() does not throw in pre-request script", () => {
+    return expect(runPreRequest(`pm.execution.runRequest("some-request-id")`, { global: [], selected: [] })()).resolves.not.toEqualLeft(expect.anything())
   })
 })

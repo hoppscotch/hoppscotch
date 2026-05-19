@@ -9,7 +9,7 @@
       :label="`${t('tab.query')}`"
       :indicator="request.query && request.query.length > 0 ? true : false"
     >
-      <GraphqlQuery
+      <GqlQuery
         v-model="request.query"
         @run-query="runQuery"
         @save-request="() => invokeAction('request-response.save')"
@@ -23,7 +23,7 @@
         request.variables && request.variables.length > 0 ? true : false
       "
     >
-      <GraphqlVariable
+      <GqlVariable
         v-model="request.variables"
         @run-query="runQuery"
         @save-request="() => invokeAction('request-response.save')"
@@ -34,14 +34,14 @@
       :label="`${t('tab.headers')}`"
       :info="activeGQLHeadersCount === 0 ? null : `${activeGQLHeadersCount}`"
     >
-      <GraphqlHeaders
+      <GqlHeaders
         v-model="request"
         :inherited-properties="inheritedProperties"
         @change-tab="changeOptionTab"
       />
     </HoppSmartTab>
     <HoppSmartTab :id="'authorization'" :label="`${t('tab.authorization')}`">
-      <GraphqlAuthorization
+      <GqlAuthorization
         v-model="request.auth"
         :inherited-properties="inheritedProperties"
       />
@@ -130,6 +130,7 @@ const runQuery = async (
       inheritedAuth: props.inheritedProperties?.auth.inheritedAuth as
         | HoppGQLAuth
         | undefined,
+      inheritedVariables: props.inheritedProperties?.variables,
       query: runQueryStr,
       variables: runVariables,
       operationName: definition?.name?.value,

@@ -216,7 +216,7 @@ watch(
 const showEditModalFor = ref<EditCookieConfig | null>(null)
 
 function saveCookieChanges() {
-  cookieJarService.cookieJar.value = workingCookieJar.value
+  cookieJarService.replaceAll(workingCookieJar.value)
   hideModal()
 }
 

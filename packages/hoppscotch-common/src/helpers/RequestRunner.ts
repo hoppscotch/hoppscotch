@@ -654,19 +654,10 @@ export function runRESTRequest$(
             const updatedCookies = postRequestScriptResult.right.updatedCookies
 
             if (updatedCookies) {
-              const newCookieMap = new Map<string, Cookie[]>()
-
-              for (const cookie of updatedCookies) {
-                const domain = cookie.domain
-
-                if (!newCookieMap.has(domain)) {
-                  newCookieMap.set(domain, [])
-                }
-
-                newCookieMap.get(domain)!.push(cookie)
-              }
-
-              cookieJarService.cookieJar.value = newCookieMap
+              // Merge the script's cookies in rather than replacing the
+              // whole jar, so cookies captured from the response during
+              // this request are not clobbered.
+              cookieJarService.upsertCookies(updatedCookies)
             }
           } else {
             console.error(

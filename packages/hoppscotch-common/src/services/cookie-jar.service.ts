@@ -2,6 +2,42 @@ import { Service } from "dioc"
 import { ref } from "vue"
 import { parseString as setCookieParse } from "set-cookie-parser-es"
 import { Cookie } from "@hoppscotch/data"
+import * as E from "fp-ts/Either"
+import { Store } from "~/kernel/store"
+
+// Cookies are per-organization state, so they persist through the
+// org-scoped `Store` (`~/kernel/store`), which resolves to
+// `{org}.hoppscotch.store` on desktop. localStorage and `UnifiedStore`
+// would merge one organization's session cookies into another because
+// every org webview shares the same `app://{bundle}/` origin.
+const STORE_NAMESPACE = "cookies.v1"
+
+const STORE_KEYS = {
+  JAR: "jar",
+} as const
+
+interface StoredCookieJar {
+  version: string
+  domains: Record<string, Cookie[]>
+  lastUpdated: string
+}
+
+// Mirror of one entry in the kernel relay response's `cookies` array
+// (`RelayResponse["cookies"]`). Typed here instead of imported so the
+// service does not depend on the kernel re-exporting the type. The
+// relay leaves domain/path optional and gives a `Date` expiry, the
+// `@hoppscotch/data` schema needs a concrete domain, path, the
+// booleans, and an ISO string expiry, so capture normalizes it.
+type ResponseCookie = {
+  name: string
+  value: string
+  domain?: string
+  path?: string
+  expires?: Date
+  secure?: boolean
+  httpOnly?: boolean
+  sameSite?: "Strict" | "Lax" | "None"
+}
 
 export class CookieJarService extends Service {
   public static readonly ID = "COOKIE_JAR_SERVICE"
@@ -9,22 +45,167 @@ export class CookieJarService extends Service {
   /**
    * The cookie jar that stores all relevant cookie info.
    * The keys correspond to the domain of the cookie.
-   * The cookie strings are stored as an array of strings corresponding to the domain
    */
   public cookieJar = ref(new Map<string, Cookie[]>())
+
+  async onServiceInit(): Promise<void> {
+    const initResult = await Store.init()
+    if (E.isLeft(initResult)) {
+      console.error(
+        "[CookieJar] Failed to initialize store:",
+        initResult.left
+      )
+      return
+    }
+
+    await this.loadJar()
+    await this.setupWatcher()
+  }
+
+  private async loadJar(): Promise<void> {
+    const loadResult = await Store.get<StoredCookieJar>(
+      STORE_NAMESPACE,
+      STORE_KEYS.JAR
+    )
+
+    if (E.isRight(loadResult) && loadResult.right) {
+      this.cookieJar.value = new Map(
+        Object.entries(loadResult.right.domains)
+      )
+      this.pruneExpired()
+    }
+  }
+
+  // Cross-process reload, another webview in the same org writes the
+  // jar and this picks it up. Matches `KernelInterceptorNativeStore`,
+  // the reload is idempotent so there is no echo guard.
+  private async setupWatcher(): Promise<void> {
+    const watcher = await Store.watch(STORE_NAMESPACE, STORE_KEYS.JAR)
+    watcher.on("change", ({ value }) => {
+      if (value) {
+        const stored = value as StoredCookieJar
+        this.cookieJar.value = new Map(Object.entries(stored.domains))
+      }
+    })
+  }
+
+  private async persistJar(): Promise<void> {
+    const stored: StoredCookieJar = {
+      version: "v1",
+      domains: Object.fromEntries(this.cookieJar.value),
+      lastUpdated: new Date().toISOString(),
+    }
+
+    const saveResult = await Store.set(
+      STORE_NAMESPACE,
+      STORE_KEYS.JAR,
+      stored
+    )
+    if (E.isLeft(saveResult)) {
+      console.error("[CookieJar] Failed to persist jar:", saveResult.left)
+    }
+  }
 
   public parseSetCookieString(setCookieString: string) {
     return setCookieParse(setCookieString)
   }
 
-  public bulkApplyCookiesToDomain(cookies: Cookie[], domain: string) {
-    const existingDomainEntries = this.cookieJar.value.get(domain) ?? []
-    existingDomainEntries.push(...cookies)
+  // The single merge path. Response capture and the post-request
+  // script both route here so they reconcile by (domain, name, path)
+  // instead of one wholesale-replacing the other. The in-memory
+  // update is synchronous so callers in the request flow do not block
+  // on disk, the write-through runs after.
+  public upsertCookies(cookies: Cookie[]): void {
+    for (const cookie of cookies) {
+      const domain = cookie.domain
+      const existing = this.cookieJar.value.get(domain) ?? []
 
-    this.cookieJar.value.set(domain, existingDomainEntries)
+      const idx = existing.findIndex(
+        (c) => c.name === cookie.name && c.path === cookie.path
+      )
+      if (idx === -1) {
+        existing.push(cookie)
+      } else {
+        existing[idx] = cookie
+      }
+
+      this.cookieJar.value.set(domain, existing)
+    }
+
+    void this.persistJar()
+  }
+
+  // Kept for existing callers, now reconciles instead of blind-pushing
+  // duplicates.
+  public bulkApplyCookiesToDomain(cookies: Cookie[], domain: string): void {
+    this.upsertCookies(cookies.map((c) => ({ ...c, domain })))
+  }
+
+  // Normalizes the kernel relay response cookies into the
+  // `@hoppscotch/data` shape and merges them. Domain falls back to the
+  // request host (host-only cookie), path to "/", the flags default
+  // off, and SameSite to "Lax" matching the browser default.
+  public extractFromResponse(
+    cookies: ResponseCookie[] | undefined,
+    requestURL: URL
+  ): void {
+    if (!cookies || cookies.length === 0) {
+      return
+    }
+
+    const normalized: Cookie[] = cookies.map((c) => ({
+      name: c.name,
+      value: c.value,
+      domain: c.domain ?? requestURL.hostname,
+      path: c.path ?? "/",
+      httpOnly: c.httpOnly ?? false,
+      secure: c.secure ?? false,
+      sameSite: c.sameSite ?? "Lax",
+      ...(c.expires
+        ? { expires: new Date(c.expires).toISOString() }
+        : {}),
+    }))
+
+    this.upsertCookies(normalized)
+  }
+
+  // Replaces the entire jar, used by the manual cookie editor. Routed
+  // through the service so the edit persists.
+  public replaceAll(jar: Map<string, Cookie[]>): void {
+    this.cookieJar.value = jar
+    void this.persistJar()
+  }
+
+  // Drops expired cookies from the jar. Called on load and before
+  // every read so a stale cookie never gets forwarded. Persists only
+  // when something was actually removed.
+  public pruneExpired(): void {
+    const now = Date.now()
+    let changed = false
+
+    for (const [domain, cookies] of this.cookieJar.value.entries()) {
+      const live = cookies.filter(
+        (c) => !c.expires || new Date(c.expires).getTime() >= now
+      )
+      if (live.length === cookies.length) {
+        continue
+      }
+      changed = true
+      if (live.length === 0) {
+        this.cookieJar.value.delete(domain)
+      } else {
+        this.cookieJar.value.set(domain, live)
+      }
+    }
+
+    if (changed) {
+      void this.persistJar()
+    }
   }
 
   public getCookiesForURL(url: URL) {
+    this.pruneExpired()
+
     const relevantDomains = Array.from(this.cookieJar.value.keys()).filter(
       (domain) => url.hostname.endsWith(domain)
     )

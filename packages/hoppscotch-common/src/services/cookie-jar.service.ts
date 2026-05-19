@@ -203,37 +203,93 @@ export class CookieJarService extends Service {
     }
   }
 
-  public getCookiesForURL(url: URL) {
+  // RFC 6265 5.1.3 domain matching. The host matches a stored domain
+  // when it is the domain or a subdomain of it. The old code used a
+  // bare `hostname.endsWith(domain)`, which let `evil-example.com`
+  // match `example.com` because there was no label boundary.
+  private domainMatches(host: string, domain: string): boolean {
+    return host === domain || host.endsWith(`.${domain}`)
+  }
+
+  // RFC 6265 5.1.4 path matching. The request path matches the cookie
+  // path when they are equal, or the cookie path is a prefix that ends
+  // at a "/" boundary.
+  private pathMatches(reqPath: string, cookiePath: string): boolean {
+    if (reqPath === cookiePath) {
+      return true
+    }
+    if (!reqPath.startsWith(cookiePath)) {
+      return false
+    }
+    return cookiePath.endsWith("/") || reqPath[cookiePath.length] === "/"
+  }
+
+  public getCookiesForURL(url: URL): Cookie[] {
     this.pruneExpired()
 
-    const relevantDomains = Array.from(this.cookieJar.value.keys()).filter(
-      (domain) => url.hostname.endsWith(domain)
-    )
+    const result: Cookie[] = []
 
-    return relevantDomains
-      .flatMap((domain) => {
-        // Assemble the list of cookie entries from all the relevant domains
+    for (const [domain, cookies] of this.cookieJar.value.entries()) {
+      if (!this.domainMatches(url.hostname, domain)) {
+        continue
+      }
 
-        const cookieStrings = this.cookieJar.value.get(domain)! // We know not nullable from how we filter above
+      for (const cookie of cookies) {
+        const passesPath = this.pathMatches(url.pathname, cookie.path || "/")
 
-        return cookieStrings.map((cookieString) =>
-          this.parseSetCookieString(cookieString.value)
-        )
-      })
-      .filter((cookie) => {
-        // Perform the required checks on the cookies
+        const passesExpires =
+          !cookie.expires ||
+          new Date(cookie.expires).getTime() >= Date.now()
 
-        const passesPathCheck = url.pathname.startsWith(cookie.path ?? "/")
+        const passesSecure = !cookie.secure || url.protocol === "https:"
 
-        const passesExpiresCheck = !cookie.expires
-          ? true
-          : cookie.expires.getTime() >= new Date().getTime()
+        if (passesPath && passesExpires && passesSecure) {
+          result.push(cookie)
+        }
+      }
+    }
 
-        const passesSecureCheck = !cookie.secure
-          ? true
-          : url.protocol === "https:"
+    return result
+  }
 
-        return passesPathCheck && passesExpiresCheck && passesSecureCheck
-      })
+  // RFC 6265 5.4 Cookie header serialization, `name=value` pairs
+  // joined by "; ".
+  public serializeCookieHeader(cookies: Cookie[]): string {
+    return cookies.map((c) => `${c.name}=${c.value}`).join("; ")
+  }
+
+  // The one shared send path. Native, agent, and proxy all call this
+  // so a request gets the same Cookie header regardless of which
+  // interceptor runs it, replacing the three slightly different inline
+  // blocks they used to carry.
+  public applyCookiesToRequest(request: {
+    url?: string
+    headers?: Record<string, string>
+  }): void {
+    if (!request.url) {
+      return
+    }
+
+    const cookies = this.getCookiesForURL(new URL(request.url))
+    if (cookies.length === 0) {
+      return
+    }
+
+    if (!request.headers) {
+      request.headers = {}
+    }
+    request.headers["Cookie"] = this.serializeCookieHeader(cookies)
+  }
+
+  // The one shared receive path. Captures structured cookies the
+  // relay parsed out of the response into the jar.
+  public captureResponseCookies(
+    response: { cookies?: ResponseCookie[] },
+    requestUrl: string | undefined
+  ): void {
+    if (!requestUrl) {
+      return
+    }
+    this.extractFromResponse(response.cookies, new URL(requestUrl))
   }
 }

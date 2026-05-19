@@ -12,6 +12,7 @@ import { Service } from "dioc"
 import { Relay } from "~/kernel/relay"
 import SettingsProxy from "~/components/settings/Proxy.vue"
 import { KernelInterceptorProxyStore } from "./store"
+import { CookieJarService } from "~/services/cookie-jar.service"
 import type {
   KernelInterceptor,
   ExecutionResult,
@@ -56,6 +57,7 @@ export class ProxyKernelInterceptorService
 {
   public static readonly ID = "KERNEL_PROXY_INTERCEPTOR_SERVICE"
   private readonly store = this.bind(KernelInterceptorProxyStore)
+  private readonly cookieJar = this.bind(CookieJarService)
 
   public readonly id = "proxy"
   public readonly name = (t: ReturnType<typeof getI18n>) =>
@@ -236,6 +238,11 @@ export class ProxyKernelInterceptorService
       const proxyUrl = settings.proxyUrl
 
       const processedRequest = preProcessRelayRequest(request)
+
+      // Same shared send path as native and agent. proxyscotch returns
+      // Set-Cookie as a header string rather than structured cookies, so
+      // receive-side capture for the proxy path is a separate follow-up.
+      this.cookieJar.applyCookiesToRequest(processedRequest)
 
       let content: ContentType
       const multipartKey = `proxyRequestData-${v4()}`

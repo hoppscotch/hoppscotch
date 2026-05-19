@@ -51,10 +51,7 @@ export class CookieJarService extends Service {
   async onServiceInit(): Promise<void> {
     const initResult = await Store.init()
     if (E.isLeft(initResult)) {
-      console.error(
-        "[CookieJar] Failed to initialize store:",
-        initResult.left
-      )
+      console.error("[CookieJar] Failed to initialize store:", initResult.left)
       return
     }
 
@@ -69,9 +66,7 @@ export class CookieJarService extends Service {
     )
 
     if (E.isRight(loadResult) && loadResult.right) {
-      this.cookieJar.value = new Map(
-        Object.entries(loadResult.right.domains)
-      )
+      this.cookieJar.value = new Map(Object.entries(loadResult.right.domains))
       this.pruneExpired()
     }
   }
@@ -81,7 +76,7 @@ export class CookieJarService extends Service {
   // the reload is idempotent so there is no echo guard.
   private async setupWatcher(): Promise<void> {
     const watcher = await Store.watch(STORE_NAMESPACE, STORE_KEYS.JAR)
-    watcher.on("change", ({ value }) => {
+    watcher.on("change", ({ value }: { value?: unknown }) => {
       if (value) {
         const stored = value as StoredCookieJar
         this.cookieJar.value = new Map(Object.entries(stored.domains))
@@ -96,11 +91,7 @@ export class CookieJarService extends Service {
       lastUpdated: new Date().toISOString(),
     }
 
-    const saveResult = await Store.set(
-      STORE_NAMESPACE,
-      STORE_KEYS.JAR,
-      stored
-    )
+    const saveResult = await Store.set(STORE_NAMESPACE, STORE_KEYS.JAR, stored)
     if (E.isLeft(saveResult)) {
       console.error("[CookieJar] Failed to persist jar:", saveResult.left)
     }
@@ -161,9 +152,7 @@ export class CookieJarService extends Service {
       httpOnly: c.httpOnly ?? false,
       secure: c.secure ?? false,
       sameSite: c.sameSite ?? "Lax",
-      ...(c.expires
-        ? { expires: new Date(c.expires).toISOString() }
-        : {}),
+      ...(c.expires ? { expires: new Date(c.expires).toISOString() } : {}),
     }))
 
     this.upsertCookies(normalized)
@@ -238,8 +227,7 @@ export class CookieJarService extends Service {
         const passesPath = this.pathMatches(url.pathname, cookie.path || "/")
 
         const passesExpires =
-          !cookie.expires ||
-          new Date(cookie.expires).getTime() >= Date.now()
+          !cookie.expires || new Date(cookie.expires).getTime() >= Date.now()
 
         const passesSecure = !cookie.secure || url.protocol === "https:"
 

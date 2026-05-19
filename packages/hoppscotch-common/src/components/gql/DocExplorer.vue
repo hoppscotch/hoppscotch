@@ -2,45 +2,56 @@
   <section
     v-if="schema"
     :key="activeTabId"
-    class="hopp-doc-explorer"
+    class="hopp-doc-explorer flex flex-col h-full"
     aria-label="Documentation Explorer"
   >
-    <div class="sticky top-0 z-10 border-b border-dividerLight bg-primary">
+    <div class="sticky top-0 z-10 bg-primary border-b border-dividerLight">
       <GqlSchemaSearch />
-      <div
-        class="flex items-center overflow-x-auto whitespace-nowrap px-3 py-2 text-tiny text-secondaryLight"
+      <nav
+        v-if="navStack.length > 1"
+        class="flex items-center gap-1 overflow-x-auto whitespace-nowrap px-4 py-2 text-tiny"
+        aria-label="Schema explorer breadcrumb"
       >
         <template v-for="(item, index) in navStack" :key="index">
-          <span
-            class="cursor-pointer hover:text-secondary"
+          <button
+            v-if="index < navStack.length - 1"
+            type="button"
+            class="rounded px-1.5 py-0.5 text-secondaryLight transition hover:bg-primaryLight hover:text-secondaryDark"
             @click="navigateToIndex(index)"
           >
             {{ item.name }}
+          </button>
+          <span v-else class="rounded px-1.5 py-0.5 font-semibold text-accent">
+            {{ item.name }}
           </span>
-          <span>
-            <icon-lucide-chevron-right
-              v-if="index < navStack.length - 1"
-              class="mx-1"
-            />
-          </span>
+          <icon-lucide-chevron-right
+            v-if="index < navStack.length - 1"
+            class="svg-icons text-secondaryLight flex-shrink-0"
+          />
         </template>
-      </div>
+      </nav>
     </div>
-    <div class="hopp-doc-explorer-content">
+
+    <div class="hopp-doc-explorer-content flex flex-col flex-1 overflow-y-auto">
       <template v-if="navStack.length === 1">
-        <GraphqlSchemaDocumentation :schema="schema" />
+        <GqlSchemaDocumentation :schema="schema" />
       </template>
       <template v-else-if="isType(currentNavItem.def)">
-        <div class="hopp-doc-explorer-title text-xl font-bold break-words p-4">
-          {{ currentNavItem.name }}
+        <div class="px-4 py-3 bg-primary sticky top-0 z-[6]">
+          <h2
+            class="text-lg font-semibold text-secondaryDark break-words flex items-center gap-2"
+          >
+            <icon-lucide-box class="svg-icons text-accent flex-shrink-0" />
+            {{ currentNavItem.name }}
+          </h2>
         </div>
-        <GraphqlTypeDocumentation
+        <GqlTypeDocumentation
           :type="currentNavItem.def"
           :readonly="currentNavItem.readonly"
         />
       </template>
       <template v-else-if="currentNavItem.def">
-        <GraphqlFieldDocumentation
+        <GqlFieldDocumentation
           :field="currentNavItem.def"
           :readonly="currentNavItem.readonly"
         />
@@ -70,7 +81,6 @@ const t = useI18n()
 
 const gqlTabConn = useService(GQLTabConnectionService)
 
-// Read schema directly from the per-tab connection service
 const schema = gqlTabConn.activeTabSchema
 
 // Key the section on the active tab ID so the entire subtree
@@ -86,32 +96,15 @@ const { navStack, currentNavItem, navigateToIndex } = useExplorer()
 .hopp-doc-explorer-field-name {
   color: var(--editor-name-color);
 }
-.hopp-doc-explorer-root-type {
-  color: var(--editor-name-color);
-}
 .hopp-doc-explorer-type-name {
-  cursor: pointer;
   color: var(--editor-type-color);
-  @apply text-sm font-normal;
+  @apply text-sm font-normal transition hover:text-accent;
 }
-
 .hopp-doc-explorer-argument-name {
   color: var(--editor-keyword-color);
 }
-
-.hopp-doc-explorer-argument-multiple {
-  margin-left: 0.5rem;
-}
-
-.hopp-doc-explorer-deprecated {
-  // use color from above comment
-  color: var(--status-critical-error-color);
-}
-
-.hopp-doc-explorer-argument-deprecation {
-  margin-top: 0.5rem;
-  padding: 0.5rem;
-  background-color: var(--status-critical-error-color);
-  border-radius: 0.25rem;
+.hopp-doc-explorer-default-value {
+  color: var(--editor-string-color);
+  @apply text-sm;
 }
 </style>

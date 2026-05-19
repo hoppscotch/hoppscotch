@@ -416,9 +416,13 @@
 
     variables: {
       get: (key) => {
-        const value = globalThis.hopp.env.get(key)
-        // Postman returns undefined for missing keys, not null
-        return value === null ? undefined : value
+        // Use getRaw (no template resolution) — mirrors post-request.js behaviour.
+        // Search active scope first, then global, returning undefined if absent.
+        const activeRaw = globalThis.hopp.env.active.getRaw(key)
+        if (activeRaw !== null) return activeRaw
+        const globalRaw = globalThis.hopp.env.global.getRaw(key)
+        if (globalRaw !== null) return globalRaw
+        return undefined
       },
       set: (key, value) => {
         // PM namespace preserves all types - use pmEnvSetAny directly
@@ -1797,8 +1801,12 @@
       // and return wrong values for keys absent from the dataset — violating Postman semantics
       // where iterationData.get() returns undefined for missing dataset keys.
       get: (key) => {
-        const rowJson = globalThis.pm.variables.get("__hopp_row__")
-        if (rowJson !== undefined && rowJson !== null) {
+        // Read via getRaw to avoid {{...}} template resolution of the JSON blob.
+        // pm.variables.get() goes through envGetResolve which would interpolate
+        // template strings inside dataset values before JSON.parse runs — diverging
+        // from post-request.js which reads via getRaw.
+        const rowJson = globalThis.hopp.env.active.getRaw("__hopp_row__")
+        if (rowJson !== null) {
           try {
             const row = JSON.parse(rowJson)
             if (Object.prototype.hasOwnProperty.call(row, key)) return row[key]
@@ -1810,8 +1818,8 @@
       // Delegating to pm.variables.has() would return true for environment/global
       // vars with the same name even when the dataset has no such column.
       has: (key) => {
-        const rowJson = globalThis.pm.variables.get("__hopp_row__")
-        if (rowJson !== undefined && rowJson !== null) {
+        const rowJson = globalThis.hopp.env.active.getRaw("__hopp_row__")
+        if (rowJson !== null) {
           try {
             const row = JSON.parse(rowJson)
             return Object.prototype.hasOwnProperty.call(row, key)
@@ -1820,18 +1828,17 @@
         return false
       },
       toObject: () => {
-        // Read the private sentinel key "__hopp_row__" injected by the runner.
-        // Using pm.variables (not pm.environment) searches all scopes including temp.
-        const rowJson = globalThis.pm.variables.get("__hopp_row__")
-        if (rowJson !== undefined && rowJson !== null) {
+        // Read via getRaw — prevents template resolution of the JSON blob.
+        const rowJson = globalThis.hopp.env.active.getRaw("__hopp_row__")
+        if (rowJson !== null) {
           try { return JSON.parse(rowJson) } catch (_) {}
         }
         return {}
       },
       toJSON: () => {
         // Same strategy as toObject()
-        const rowJson = globalThis.pm.variables.get("__hopp_row__")
-        if (rowJson !== undefined && rowJson !== null) {
+        const rowJson = globalThis.hopp.env.active.getRaw("__hopp_row__")
+        if (rowJson !== null) {
           try { return JSON.parse(rowJson) } catch (_) {}
         }
         return {}

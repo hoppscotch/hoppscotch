@@ -1,0 +1,3 @@
+mutation DeleteUserEnvironment($id: ID!) {
+  deleteUserEnvironment(id: $id)
+}

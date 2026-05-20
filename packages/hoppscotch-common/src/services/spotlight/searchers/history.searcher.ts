@@ -20,7 +20,7 @@ import { useStreamStatic } from "~/composables/stream"
 import { activeActions$, invokeAction } from "~/helpers/actions"
 import { map } from "rxjs/operators"
 import { HoppRequestDocument } from "~/helpers/rest/document"
-import { sync } from "~/lib/sync/defs"
+import { def as historySync } from "~/lib/sync/history"
 
 /**
  * This searcher is responsible for searching through the history.
@@ -49,10 +49,10 @@ export class HistorySpotlightSearcherService
     }
   )[0]
 
-  private hasHistoryPlatformDef = !!sync.history.requestHistoryStore
+  private hasHistoryPlatformDef = !!historySync.requestHistoryStore
 
   private isHistoryEnabledPlatformRef =
-    sync.history.requestHistoryStore?.isHistoryStoreEnabled
+    historySync.requestHistoryStore?.isHistoryStoreEnabled
 
   private clearHistoryActionEnabledCombined = computed(() => {
     // if the platform has not defined the history store, by default we consider history is enabled

@@ -342,8 +342,17 @@ const saveRequestAs = async () => {
 
   requestUpdated.name = requestName.value
 
-  // Ensure _ref_id is always set before saving
-  if (!requestUpdated._ref_id) {
+  // New entries need a fresh `_ref_id` and no `id`; otherwise sync would edit the original row instead of creating a new one.
+  const isNewCollectionEntry =
+    picked.value.pickedType === "my-collection" ||
+    picked.value.pickedType === "my-folder" ||
+    picked.value.pickedType === "teams-collection" ||
+    picked.value.pickedType === "teams-folder"
+
+  if (isNewCollectionEntry) {
+    requestUpdated._ref_id = generateUniqueRefId("req")
+    delete requestUpdated.id
+  } else if (!requestUpdated._ref_id) {
     requestUpdated._ref_id = generateUniqueRefId("req")
   }
 

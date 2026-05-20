@@ -47,6 +47,13 @@ export function convertRESTToGQL(
   const gqlRequest: HoppGQLRequest = gqlDraft ?? {
     v: GQL_REQ_SCHEMA_VERSION,
     _ref_id: restReq._ref_id ?? generateUniqueRefId("req"),
+    // Preserve the backend id from the REST request so the personal-workspace
+    // sync layer can issue an `editUserRequest` mutation against the existing
+    // backend row instead of treating the protocol-switched request as
+    // brand-new (which would short-circuit sync — `editRequest` reads
+    // `request.id` to find the backend row, so dropping it silently disables
+    // the network call).
+    ...(restReq.id ? { id: restReq.id } : {}),
     name: restReq.name,
     url: defaultGQL.url,
     headers: restReq.headers.map((h) => ({
@@ -63,7 +70,11 @@ export function convertRESTToGQL(
   return {
     type: "gql-request",
     request: gqlRequest,
-    isDirty: doc.isDirty,
+    // Protocol conversion changes the persisted shape (REST ↔ GQL is not a
+    // no-op against a saved collection entry), so always mark dirty on switch.
+    // Without this, the user can switch, hit refresh, and the collection still
+    // holds the pre-switch shape — silently losing their conversion.
+    isDirty: true,
     cursorPosition: 0,
     saveContext: doc.saveContext,
     response: null,
@@ -92,6 +103,10 @@ export function convertGQLToREST(
   const restRequest: HoppRESTRequest = restDraft ?? {
     v: RESTReqSchemaVersion,
     _ref_id: gqlReq._ref_id ?? generateUniqueRefId("req"),
+    // See the mirror block in `convertRESTToGQL` — preserve the backend id so
+    // sync can re-target the existing backend row instead of treating this as
+    // a fresh request (which would skip the network call entirely).
+    ...(gqlReq.id ? { id: gqlReq.id } : {}),
     name: gqlReq.name,
     endpoint: defaultREST.endpoint,
     method: "GET",
@@ -117,7 +132,9 @@ export function convertGQLToREST(
   return {
     type: "request",
     request: restRequest,
-    isDirty: doc.isDirty,
+    // Mark dirty for the same reason as `convertRESTToGQL`: until the user
+    // saves, the collection still holds the pre-switch GQL shape.
+    isDirty: true,
     saveContext: doc.saveContext,
     response: null,
     optionTabPreference: "params",

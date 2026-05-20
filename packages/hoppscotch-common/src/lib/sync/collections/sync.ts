@@ -31,6 +31,7 @@ import {
 import { getSettingSubject, settingsStore } from "~/newstore/settings"
 import { getSyncInitFunction, StoreSyncDefinitionOf } from ".."
 import { createMapper } from "../mapper"
+import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
 
 // restCollectionsMapper uses the collectionPath as the local identifier
 // Helper function to transform HoppCollection to backend format
@@ -41,7 +42,7 @@ const transformCollectionForBackend = (collection: HoppCollection): any => {
       authActive: true,
     },
     headers: collection.headers ?? [],
-    variables: collection.variables ?? [],
+    variables: stripSecretVariableValuesForWire(collection.variables ?? []),
     _ref_id: collection._ref_id,
     description: collection.description ?? null,
   }
@@ -76,7 +77,7 @@ const recursivelySyncCollections = async (
         authActive: true,
       },
       headers: collection.headers ?? [],
-      variables: collection.variables ?? [],
+      variables: stripSecretVariableValuesForWire(collection.variables ?? []),
       _ref_id: collection._ref_id,
       description: collection.description ?? null,
     }
@@ -121,7 +122,7 @@ const recursivelySyncCollections = async (
         authActive: true,
       },
       headers: collection.headers ?? [],
-      variables: collection.variables ?? [],
+      variables: stripSecretVariableValuesForWire(collection.variables ?? []),
       _ref_id: collection._ref_id,
       description: collection.description ?? null,
     }
@@ -264,7 +265,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const data = {
       auth: collection.auth,
       headers: collection.headers,
-      variables: collection.variables,
+      variables: stripSecretVariableValuesForWire(collection.variables),
       _ref_id: collection._ref_id,
       description: collection.description ?? null,
     }
@@ -348,7 +349,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const data = {
       auth: folder.auth,
       headers: folder.headers,
-      variables: folder.variables,
+      variables: stripSecretVariableValuesForWire(folder.variables),
       _ref_id: folder._ref_id,
       description: folder.description,
     }

@@ -11,9 +11,8 @@ import {
 } from "./api"
 import { settingsSyncer } from "./sync"
 
-const authEvents$ = platform.auth.getAuthEventsStream()
-
 function initSettingsSync() {
+  const authEvents$ = platform.auth.getAuthEventsStream()
   const currentUser$ = platform.auth.getCurrentUserStream()
   settingsSyncer.startStoreSync()
   settingsSyncer.setupSubscriptions(setupSubscriptions)

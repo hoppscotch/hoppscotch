@@ -166,19 +166,19 @@ export class TeamCollectionResolver {
       type: () => ID,
     })
     collectionID: string,
-  ) {
+  ): Promise<TeamCollection> {
     const teamCollections =
       await this.teamCollectionService.getCollection(collectionID);
 
     if (E.isLeft(teamCollections)) throwErr(teamCollections.left);
-    return <TeamCollection>{
+    return {
       id: teamCollections.right.id,
       title: teamCollections.right.title,
       parentID: teamCollections.right.parentID,
       data: !teamCollections.right.data
         ? null
         : JSON.stringify(teamCollections.right.data),
-      type: teamCollections.right.type,
+      type: teamCollections.right.type as ReqType,
     };
   }
 

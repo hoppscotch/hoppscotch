@@ -27,6 +27,11 @@ export class TeamRequest {
     description: 'Displayed title of the request',
   })
   title: string;
+
+  @Field(() => ReqType, {
+    description: 'Type of the request',
+  })
+  type: ReqType;
 }
 
 @ObjectType()

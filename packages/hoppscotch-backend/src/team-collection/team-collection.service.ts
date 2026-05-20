@@ -293,11 +293,12 @@ export class TeamCollectionService {
   private cast(teamCollection: DBTeamCollection): TeamCollection {
     const data = transformCollectionData(teamCollection.data);
 
-    return <TeamCollection>{
+    return {
       id: teamCollection.id,
       title: teamCollection.title,
       parentID: teamCollection.parentID,
       data,
+      type: teamCollection.type as ReqType,
     };
   }
 

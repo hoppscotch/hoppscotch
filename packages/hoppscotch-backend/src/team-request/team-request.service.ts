@@ -21,6 +21,7 @@ import {
 } from 'src/generated/prisma/client';
 import { SortOptions } from 'src/types/SortOptions';
 import { PrismaError } from 'src/prisma/prisma-error-codes';
+import { ReqType } from 'src/types/RequestTypes';
 
 @Injectable()
 export class TeamRequestService {
@@ -35,13 +36,14 @@ export class TeamRequestService {
    * A helper function to cast the Prisma TeamRequest model to the TeamRequest model
    * @param tr TeamRequest model from Prisma
    */
-  private cast(tr: DbTeamRequest) {
+  private cast(tr: DbTeamRequest): TeamRequest {
     return {
       id: tr.id,
       collectionID: tr.collectionID,
       teamID: tr.teamID,
       title: tr.title,
       request: JSON.stringify(tr.request),
+      type: tr.type as ReqType,
     };
   }
 

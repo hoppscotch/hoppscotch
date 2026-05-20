@@ -307,6 +307,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   (e: "hide-modal"): void
+  (e: "refetch-environments"): void
 }>()
 
 const idTicker = ref(0)
@@ -601,6 +602,7 @@ const saveEnvironment = async () => {
             }
             hideModal()
             toast.success(`${t("environment.created")}`)
+            emit("refetch-environments")
             isLoading.value = false
           }
         )
@@ -647,7 +649,7 @@ const saveEnvironment = async () => {
           () => {
             hideModal()
             toast.success(`${t("environment.updated")}`)
-
+            emit("refetch-environments")
             isLoading.value = false
           }
         )

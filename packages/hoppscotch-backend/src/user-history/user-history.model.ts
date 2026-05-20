@@ -51,5 +51,3 @@ export class UserHistoryDeletedManyData {
   })
   reqType: ReqType;
 }
-
-

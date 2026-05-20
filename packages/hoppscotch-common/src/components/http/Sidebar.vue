@@ -1,6 +1,5 @@
 <template>
   <HoppSmartTabs
-    :key="isGQLTab ? 'gql' : 'rest'"
     v-model="selectedNavigationTab"
     styles="sticky overflow-x-auto flex-shrink-0 bg-primary z-10 top-0"
     vertical

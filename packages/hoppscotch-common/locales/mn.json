@@ -81,22 +81,22 @@
   },
   "activity_logs": {
     "ACTIVITY_LOG_DELETE": "Үйл ажиллагааны бүртгэлийг устгасан",
-    "WORKSPACE_CREATE": "Шинэ ажлын талбар үүсгэсэн{name}",
-    "WORKSPACE_RENAME": "Ажлын талбарын нэрийг{old_name}-с{new_name}болгон өөрчилсөн",
-    "WORKSPACE_USER_ADD": "{user}-г ажлын талбарт{role}гэж нэмсэн",
-    "WORKSPACE_USER_INVITE": "{user}-г{inviteeEmail}{role}гэж урьсан.",
-    "WORKSPACE_USER_INVITE_REVOKE": "{inviteeEmail}урилгыг{inviteeRole}гэж цуцалсан",
-    "WORKSPACE_USER_INVITE_ACCEPT": "{inviteeEmail}урилгыг{inviteeRole}гэж хүлээн авлаа",
+    "WORKSPACE_CREATE": "Шинэ ажлын талбар үүсгэсэн {name}",
+    "WORKSPACE_RENAME": "Ажлын талбарын нэрийг {old_name}-с {new_name} болгон өөрчилсөн",
+    "WORKSPACE_USER_ADD": "{user}-г ажлын талбарт {role} гэж нэмсэн",
+    "WORKSPACE_USER_INVITE": "{user}-г {inviteeEmail}{role} гэж урьсан.",
+    "WORKSPACE_USER_INVITE_REVOKE": "{inviteeEmail} урилгыг {inviteeRole} гэж цуцалсан",
+    "WORKSPACE_USER_INVITE_ACCEPT": "{inviteeEmail} урилгыг {inviteeRole} гэж хүлээн авлаа",
     "WORKSPACE_USER_REMOVE": "{user}-г ажлын талбараас хассан",
-    "WORKSPACE_USER_ROLE_UPDATE": "{user}-ийн үүрэг{old_role}-с{new_role}болж шинэчлэгдсэн",
-    "COLLECTION_CREATE": "Шинэ цуглуулга үүсгэсэн{title}",
-    "COLLECTION_RENAME": "Цуглуулгын нэрийг{old_title}-с{new_title}болгон өөрчилсөн",
-    "COLLECTION_IMPORT": "Импортолсон{count}цуглуулга",
-    "COLLECTION_DELETE": "Устгасан цуглуулга{title}",
-    "COLLECTION_DUPLICATE": "Давхардсан цуглуулга{parentTitle}",
-    "REQUEST_CREATE": "Шинэ хүсэлт үүсгэсэн{title}",
-    "REQUEST_RENAME": "{old_title}-с{new_title}болгон нэрийг нь өөрчилсөн хүсэлт",
-    "REQUEST_DELETE": "Устгасан хүсэлт{title}"
+    "WORKSPACE_USER_ROLE_UPDATE": "{user}-ийн үүрэг {old_role}-с {new_role} болж шинэчлэгдсэн",
+    "COLLECTION_CREATE": "Шинэ цуглуулга үүсгэсэн {title}",
+    "COLLECTION_RENAME": "Цуглуулгын нэрийг {old_title}-с {new_title} болгон өөрчилсөн",
+    "COLLECTION_IMPORT": "Импортолсон {count} цуглуулга",
+    "COLLECTION_DELETE": "Устгасан цуглуулга {title}",
+    "COLLECTION_DUPLICATE": "Давхардсан цуглуулга {parentTitle}",
+    "REQUEST_CREATE": "Шинэ хүсэлт үүсгэсэн {title}",
+    "REQUEST_RENAME": "{old_title}-с {new_title} болгон нэрийг нь өөрчилсөн хүсэлт",
+    "REQUEST_DELETE": "Устгасан хүсэлт {title}"
   },
   "add": {
     "new": "Шинэ нэмэх",
@@ -202,14 +202,14 @@
     "send_magic_link": "Шидэт холбоос илгээнэ үү",
     "sync": "Синк хийх",
     "we_sent_magic_link": "Бид танд ид шидийн холбоос илгээсэн!",
-    "we_sent_magic_link_description": "Ирсэн имэйлээ шалгана уу - бид{email}руу имэйл илгээсэн. Энэ нь таныг нэвтрэх шидэт холбоосыг агуулдаг."
+    "we_sent_magic_link_description": "Ирсэн имэйлээ шалгана уу - бид {email} руу имэйл илгээсэн. Энэ нь таныг нэвтрэх шидэт холбоосыг агуулдаг."
   },
   "authorization": {
     "generate_token": "Токен үүсгэх",
     "refresh_token": "Токеныг шинэчлэх",
     "graphql_headers": "Зөвшөөрлийн толгойг холболтын_init рүү ачааллын нэг хэсэг болгон илгээдэг",
     "include_in_url": "URL-д оруулна уу",
-    "inherited_from": "Эцэг эхийн цуглуулгаас{collection}өвлөн авсан{auth}",
+    "inherited_from": "Эцэг эхийн цуглуулгаас {collection} өвлөн авсан {auth}",
     "learn": "Хэрхэн гэдгийг мэдэж аваарай",
     "oauth": {
       "redirect_auth_server_returned_error": "Auth сервер алдааны төлөвийг буцаасан",
@@ -358,7 +358,7 @@
   },
   "confirm": {
     "close_unsaved_tab": "Та энэ табыг хаахдаа итгэлтэй байна уу?",
-    "close_unsaved_tabs": "Та бүх табыг хаахдаа итгэлтэй байна уу?{count}хадгалагдаагүй табууд устах болно.",
+    "close_unsaved_tabs": "Та бүх табыг хаахдаа итгэлтэй байна уу?{count} хадгалагдаагүй табууд устах болно.",
     "delete_all_activity_logs": "Та бүх үйл ажиллагааны бүртгэлийг устгахдаа итгэлтэй байна уу?",
     "exit_team": "Та энэ ажлын талбараас гарахдаа итгэлтэй байна уу?",
     "logout": "Та гарахдаа итгэлтэй байна уу?",
@@ -374,7 +374,7 @@
     "request_change": "Та одоогийн хүсэлтийг цуцлахдаа итгэлтэй байна уу, хадгалаагүй өөрчлөлтүүд устах болно.",
     "save_unsaved_tab": "Та энэ таб дээр хийсэн өөрчлөлтийг хадгалахыг хүсэж байна уу?",
     "sync": "Та ажлын талбараа үүлнээс сэргээхийг хүсч байна уу? Энэ нь таны орон нутгийн ахиц дэвшлийг устгах болно.",
-    "delete_access_token": "Та{tokenLabel}хандалтын токеныг устгахдаа итгэлтэй байна уу?",
+    "delete_access_token": "Та {tokenLabel} хандалтын токеныг устгахдаа итгэлтэй байна уу?",
     "delete_mock_server": "Та энэ хуурамч серверийг устгахдаа итгэлтэй байна уу?"
   },
   "context_menu": {
@@ -403,16 +403,16 @@
     }
   },
   "count": {
-    "currentValue": "Одоогийн утга{count}",
-    "description": "Тодорхойлолт{count}",
-    "header": "Гарчиг{count}",
-    "initialValue": "Анхны утга{count}",
-    "key": "Түлхүүр{count}",
-    "message": "Зурвас{count}",
-    "parameter": "Параметр{count}",
-    "protocol": "Протокол{count}",
-    "value": "Утга{count}",
-    "variable": "Хувьсагч{count}"
+    "currentValue": "Одоогийн утга {count}",
+    "description": "Тодорхойлолт {count}",
+    "header": "Гарчиг {count}",
+    "initialValue": "Анхны утга {count}",
+    "key": "Түлхүүр {count}",
+    "message": "Зурвас {count}",
+    "parameter": "Параметр {count}",
+    "protocol": "Протокол {count}",
+    "value": "Утга {count}",
+    "variable": "Хувьсагч {count}"
   },
   "documentation": {
     "add_description": "Энэ цуглуулгын тайлбарыг энд нэмнэ үү...",
@@ -489,7 +489,7 @@
     },
     "hide_all_documentation": "Бүх баримт бичгийг нуух",
     "inherited_from": "{name}-аас өвлөн авсан",
-    "inherited_with_type": "{type}-г{name}-аас өвлөн авсан",
+    "inherited_with_type": "{type}-г {name}-аас өвлөн авсан",
     "key": "Түлхүүр",
     "loading": "Ачааж байна...",
     "loading_collection_data": "Цуглуулгын өгөгдлийг ачаалж байна...",
@@ -553,7 +553,7 @@
       "snapshot_preview": "Хормын хувилбарыг урьдчилан харах",
       "snapshot_load_error": "Хормын хувилбарыг урьдчилан үзэхийг ачаалж чадсангүй",
       "snapshot_empty": "Энэ хормын хувилбарт хүсэлт эсвэл хавтас алга",
-      "snapshot_item_count": "{count}зүйл",
+      "snapshot_item_count": "{count} зүйл",
       "auto_sync_live_notice": "Энэ хувилбар нь шууд цуглуулгатай автоматаар синк хийдэг",
       "snapshot_promote_warning": "Автомат синкийг идэвхжүүлснээр энэ царцаасан агшин агшныг шууд цуглуулгын модоор солих болно. Үүнийг буцаах боломжгүй.",
       "live_freeze_notice": "Автомат синкийг унтрааж, энэ хувилбарыг одоогийн цуглуулгын төлөвт царцаах болно.",
@@ -574,11 +574,11 @@
     },
     "save_error": "Баримт бичгийг хадгалахад алдаа гарлаа",
     "save_success": "Баримт бичгийг амжилттай хадгаллаа",
-    "saved_items_status": "{success}зүйлийг хадгалсан.{failure}зүйлийг хадгалж чадсангүй.",
+    "saved_items_status": "{success} зүйлийг хадгалсан.{failure} зүйлийг хадгалж чадсангүй.",
     "show_all_documentation": "Бүх баримт бичгийг харуулах",
     "source": "Эх сурвалж",
     "title": "Баримт бичиг",
-    "unsaved_changes": "Танд хадгалагдаагүй{count}өөрчлөлт байна. Хаахаасаа өмнө хадгална уу.",
+    "unsaved_changes": "Танд хадгалагдаагүй {count} өөрчлөлт байна. Хаахаасаа өмнө хадгална уу.",
     "untitled_collection": "Гарчиггүй цуглуулга",
     "untitled_request": "Гарчиггүй хүсэлт",
     "value": "Үнэ цэнэ",
@@ -676,7 +676,7 @@
     },
     "timeout": {
       "heading": "Хугацаа хэтэрсэн алдаа",
-      "description": "{phase}үед хүсэлтийн хугацаа дууссан.{message}"
+      "description": "{phase} үед хүсэлтийн хугацаа дууссан.{message}"
     },
     "certificate": {
       "heading": "Сертификатын алдаа",
@@ -904,15 +904,15 @@
     "postman_environment": "Шуудангийн орчин",
     "postman_environment_description": "JSON файлаас шуудангийн орчныг импортлох",
     "title": "Импорт",
-    "file_size_limit_exceeded_warning_multiple_files": "Сонгосон файлууд нь санал болгож буй{sizeLimit}MB хязгаараас хэтэрсэн байна. Зөвхөн эхний сонгосон{files}-г импортлох болно",
-    "file_size_limit_exceeded_warning_single_file": "Одоогоор сонгосон файл нь санал болгож буй{sizeLimit}MB хязгаараас хэтэрсэн байна. Өөр файл сонгоно уу.",
+    "file_size_limit_exceeded_warning_multiple_files": "Сонгосон файлууд нь санал болгож буй {sizeLimit}MB хязгаараас хэтэрсэн байна. Зөвхөн эхний сонгосон {files}-г импортлох болно",
+    "file_size_limit_exceeded_warning_single_file": "Одоогоор сонгосон файл нь санал болгож буй {sizeLimit}MB хязгаараас хэтэрсэн байна. Өөр файл сонгоно уу.",
     "success": "Амжилттай оруулж ирлээ",
     "import_summary_collections_title": "Цуглуулга",
     "import_summary_requests_title": "Хүсэлтүүд",
     "import_summary_responses_title": "Хариултууд",
     "import_summary_pre_request_scripts_title": "Скриптүүдийг урьдчилан хүсэх",
     "import_summary_post_request_scripts_title": "Хүсэлтийн скриптүүдийг нийтлэх",
-    "import_summary_not_supported_by_hoppscotch_import": "Бид яг одоо энэ эх сурвалжаас{featureLabel}импортлохыг дэмжихгүй байна.",
+    "import_summary_not_supported_by_hoppscotch_import": "Бид яг одоо энэ эх сурвалжаас {featureLabel} импортлохыг дэмжихгүй байна.",
     "import_summary_script_found": "скрипт олдсон боловч импортлоогүй",
     "import_summary_scripts_found": "скриптүүд олдсон боловч импортлогдоогүй",
     "import_summary_enable_experimental_sandbox": "Postman скриптүүдийг импортлохын тулд тохиргооноос \"Туршилтын скриптийн хамгаалагдсан хязгаарлагдмал орчин\"-г идэвхжүүлнэ үү. Тайлбар: Энэ функц нь туршилтын шинж чанартай.",
@@ -994,8 +994,8 @@
       "pre_request": "урьдчилсан хүсэлтийн скрипт",
       "post_request": "хүсэлтийн дараах скрипт",
       "both_scripts": "хүсэлтийн өмнөх болон дараах скриптүүд",
-      "unsupported_interceptor": "Таны{scriptType}нь{apiUsed}ашигладаг. Скриптийг найдвартай гүйцэтгэхийн тулд Agent interceptor (вэб програм) эсвэл Native interceptor (Desktop app) руу шилжинэ үү.{interceptor}саатуулагч нь скрипт бичих хүсэлтийг хязгаарлагдмал дэмждэг бөгөөд санаснаар ажиллахгүй байж магадгүй.",
-      "same_origin_csrf_warning": "Аюулгүй байдлын сэрэмжлүүлэг: Таны{scriptType}нь{apiUsed}ашиглан ижил төрлийн хүсэлт гаргадаг. Энэхүү платформ нь күүки дээр суурилсан баталгаажуулалтыг ашигладаг тул эдгээр хүсэлтүүд нь таны сесс күүкиг автоматаар агуулж, хортой скриптүүдэд зөвшөөрөлгүй үйлдэл хийхийг зөвшөөрдөг. Ижил гарал үүслийн хүсэлтүүдэд Agent interceptor-г ашиглах эсвэл зөвхөн итгэдэг скриптүүдээ ажиллуул."
+      "unsupported_interceptor": "Таны {scriptType} нь {apiUsed} ашигладаг. Скриптийг найдвартай гүйцэтгэхийн тулд Agent interceptor (вэб програм) эсвэл Native interceptor (Desktop app) руу шилжинэ үү.{interceptor} саатуулагч нь скрипт бичих хүсэлтийг хязгаарлагдмал дэмждэг бөгөөд санаснаар ажиллахгүй байж магадгүй.",
+      "same_origin_csrf_warning": "Аюулгүй байдлын сэрэмжлүүлэг: Таны {scriptType} нь {apiUsed} ашиглан ижил төрлийн хүсэлт гаргадаг. Энэхүү платформ нь күүки дээр суурилсан баталгаажуулалтыг ашигладаг тул эдгээр хүсэлтүүд нь таны сесс күүкиг автоматаар агуулж, хортой скриптүүдэд зөвшөөрөлгүй үйлдэл хийхийг зөвшөөрдөг. Ижил гарал үүслийн хүсэлтүүдэд Agent interceptor-г ашиглах эсвэл зөвхөн итгэдэг скриптүүдээ ажиллуул."
     }
   },
   "interceptor": {
@@ -1259,7 +1259,7 @@
   },
   "script": {
     "inheriting": "-аас скриптүүдийг өвлөн авч байна",
-    "inheriting_from_count": "{count}цуглуулгаас өвлөн авч байна |{count}цуглуулгаас өвлөн авч байна",
+    "inheriting_from_count": "{count} цуглуулгаас өвлөн авч байна |{count} цуглуулгаас өвлөн авч байна",
     "inherited_scripts": "Өвлөгдсөн скриптүүд",
     "view_inherited": "Өвлөгдсөн скриптүүдийг үзэх"
   },
@@ -1363,9 +1363,9 @@
     "update_check_description": "Гараар шинэ хувилбар байгаа эсэхийг шалгаад суулгана уу. Доорх шилжүүлэгчээс үл хамааран ажиллана.",
     "update_check_now": "Шинэчлэлт байгаа эсэхийг шалгана уу",
     "update_checking": "Шалгаж байна...",
-    "update_download_version": "v{version}татаж авах",
+    "update_download_version": "v{version} татаж авах",
     "update_downloading": "Татаж авч байна…",
-    "update_downloading_percent": "Татаж авч байна{percent}%",
+    "update_downloading_percent": "Татаж авч байна {percent}%",
     "update_installing": "Суулгаж байна...",
     "update_restart_now": "Шинэчлэлтийг хэрэгжүүлэхийн тулд дахин эхлүүлнэ үү",
     "update_up_to_date": "Шинэчлэгдсэн",
@@ -1643,7 +1643,7 @@
     "connection_error": "Холбож чадсангүй",
     "connection_failed": "Холболт амжилтгүй боллоо",
     "connection_lost": "Холболт тасарсан",
-    "copied_interface_to_clipboard": "{language}интерфэйсийн төрлийг санах ой руу хуулсан",
+    "copied_interface_to_clipboard": "{language} интерфэйсийн төрлийг санах ой руу хуулсан",
     "copied_to_clipboard": "Түр санах ой руу хуулсан",
     "deleted": "Устгасан",
     "deprecated": "ХОЦРОГДСОН",
@@ -1656,18 +1656,18 @@
     "enabled": "Идэвхжүүлсэн",
     "experimental": "Туршилтын",
     "file_imported": "Импортолсон файл",
-    "finished_in": "{duration}мс-д дууссан",
+    "finished_in": "{duration} мс-д дууссан",
     "hide": "Нуух",
     "history_deleted": "Түүхийг устгасан",
     "linewrap": "Мөрүүдийг боох",
     "loading": "Ачааж байна...",
-    "message_received": "Зурвас:{message}сэдэв дээр ирсэн:{topic}",
+    "message_received": "Зурвас:{message} сэдэв дээр ирсэн:{topic}",
     "mqtt_subscription_failed": "Сэдвийг захиалах явцад алдаа гарлаа:{topic}",
     "no_content_found": "Агуулга олдсонгүй",
     "none": "Байхгүй",
     "nothing_found": "Юу ч олдсонгүй",
-    "published_error": "{topic}сэдэв рүү мессеж нийтлэх явцад алдаа гарлаа:{message}",
-    "published_message": "Нийтэлсэн зурвас:{message}сэдэв:{topic}",
+    "published_error": "{topic} сэдэв рүү мессеж нийтлэх явцад алдаа гарлаа:{message}",
+    "published_message": "Нийтэлсэн зурвас:{message} сэдэв:{topic}",
     "reconnection_error": "Дахин холбогдож чадсангүй",
     "saved": "Хадгалсан",
     "show": "Үзүүлэх",
@@ -1686,7 +1686,7 @@
     "configure_auth": "Баталгаажуулах үйлчилгээ үзүүлэгчийг админ тохиргооноос тохируулна уу эсвэл баримт бичгийг шалгана уу.",
     "confirm_admin_to_user": "Та энэ хэрэглэгчээс админ статусыг устгахыг хүсэж байна уу?",
     "confirm_admins_to_users": "Та сонгосон хэрэглэгчдээс админ статусыг устгахыг хүсэж байна уу?",
-    "confirm_delete_infra_token": "Та{tokenLabel}infra жетоныг устгахдаа итгэлтэй байна уу?",
+    "confirm_delete_infra_token": "Та {tokenLabel}infra жетоныг устгахдаа итгэлтэй байна уу?",
     "confirm_delete_invite": "Та сонгосон урилгыг хүчингүй болгохыг хүсэж байна уу?",
     "confirm_delete_invites": "Та сонгосон урилгыг цуцлахыг хүсэж байна уу?",
     "confirm_user_deletion": "Хэрэглэгчийн устгалыг баталгаажуулах уу?",
@@ -1768,7 +1768,7 @@
     "require_auth_provider": "Нэвтрэхийн тулд та дор хаяж нэг баталгаажуулалтын үйлчилгээ үзүүлэгч тохируулах шаардлагатай.",
     "role_update_failed": "Дүрүүдийн шинэчлэл амжилтгүй боллоо!!",
     "role_update_success": "Дүрүүдийг амжилттай шинэчилсэн!!",
-    "selected": "{count}сонгосон",
+    "selected": "{count} сонгосон",
     "self_host_docs": "Өөрөө хостын баримт бичиг",
     "send_magic_link": "Шидэт холбоос илгээх",
     "setup_failure": "Тохиргоо амжилтгүй боллоо!!",
@@ -1854,10 +1854,10 @@
     "invite": "Урих",
     "invite_more": "Илүү ихийг урих",
     "invite_tooltip": "Хүмүүсийг энэ ажлын талбарт урь",
-    "invited_to_team": "{owner}таныг{workspace}-д нэгдэхийг урьсан.",
+    "invited_to_team": "{owner} таныг {workspace}-д нэгдэхийг урьсан.",
     "join": "Урилгыг хүлээн авлаа",
     "join_team": "{workspace}-д нэгдэх",
-    "joined_team": "Та{workspace}-д нэгдсэн",
+    "joined_team": "Та {workspace}-д нэгдсэн",
     "joined_team_description": "Та одоо энэ ажлын талбарын гишүүн боллоо",
     "left": "Та ажлын талбараас гарлаа",
     "login_to_continue": "Үргэлжлүүлэхийн тулд нэвтэрнэ үү",
@@ -1868,7 +1868,7 @@
     "member_removed": "Хэрэглэгчийг устгасан",
     "member_role_updated": "Хэрэглэгчийн үүрэг шинэчлэгдсэн",
     "members": "Гишүүд",
-    "more_members": "+{count}өөр",
+    "more_members": "+{count} өөр",
     "name_length_insufficient": "Ажлын талбарын нэр хоосон байж болохгүй",
     "name_updated": "Ажлын талбарын нэрийг шинэчилсэн",
     "new": "Шинэ ажлын талбар",
@@ -1959,7 +1959,7 @@
     "token_expires_on": "Энэ токены хугацаа дуусах болно",
     "generate_new_token": "Шинэ токен үүсгэх",
     "generate_modal_title": "Шинэ хувийн хандалтын токен",
-    "deletion_success": "Хандалтын токен{label}устгагдсан"
+    "deletion_success": "Хандалтын токен {label} устгагдсан"
   },
   "collection_runner": {
     "collection_id": "Цуглуулгын ID",
@@ -2057,7 +2057,7 @@
       "info": "Серверийн тохиргоог дахин тохируулах"
     },
     "restart": {
-      "description": "Энэ хуудсыг автоматаар дахин ачаалахад{duration}секунд үлдлээ",
+      "description": "Энэ хуудсыг автоматаар дахин ачаалахад {duration} секунд үлдлээ",
       "initiate": "Серверийг дахин эхлүүлэхийг эхлүүлж байна...",
       "title": "Сервер дахин эхэлж байна"
     },
@@ -2120,7 +2120,7 @@
   },
   "infra_tokens": {
     "copy_token_warning": "Инфра токеноо яг одоо хуулж байгаарай. Та үүнийг дахиж харах боломжгүй болно!",
-    "deletion_success": "Инфра токен{label}устгагдсан",
+    "deletion_success": "Инфра токен {label} устгагдсан",
     "empty": "Инфра жетон хоосон байна",
     "expired": "Хугацаа дууссан",
     "expiration_label": "Хугацаа дуусах",
@@ -2291,8 +2291,8 @@
   },
   "billing": {
     "confirm": {
-      "update_seat_count": "Та суудлын тоог{newSeatCount}болгож шинэчлэхдээ итгэлтэй байна уу?",
-      "update_billing_cycle": "Та төлбөрийн мөчлөгийг{newBillingCycle}болгон шинэчлэхдээ итгэлтэй байна уу?"
+      "update_seat_count": "Та суудлын тоог {newSeatCount} болгож шинэчлэхдээ итгэлтэй байна уу?",
+      "update_billing_cycle": "Та төлбөрийн мөчлөгийг {newBillingCycle} болгон шинэчлэхдээ итгэлтэй байна уу?"
     },
     "cancel_subscription": "Захиалга цуцлах"
   },

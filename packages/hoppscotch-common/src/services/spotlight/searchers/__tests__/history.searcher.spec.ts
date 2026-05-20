@@ -65,6 +65,11 @@ describe("HistorySpotlightSearcherService", () => {
       y = historyMock.restEntries.pop()
     }
 
+    let z = historyMock.gqlEntries.pop()
+    while (z) {
+      z = historyMock.gqlEntries.pop()
+    }
+
     const container = new TestContainer()
 
     const createNewTabFn = vi.fn()

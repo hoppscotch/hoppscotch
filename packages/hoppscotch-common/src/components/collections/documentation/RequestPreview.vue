@@ -5,6 +5,13 @@
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-3">
             <span
+              v-if="isGqlRequest"
+              class="px-2 py-1 text-xs font-mono rounded bg-purple-500/20 text-purple-500"
+            >
+              GQL
+            </span>
+            <span
+              v-else
               class="px-2 py-1 text-xs font-mono rounded"
               :class="getMethodClass(requestMethod)"
             >
@@ -24,12 +31,12 @@
           class="text-secondaryLight text-sm break-all bg-primaryLight py-1 pl-2 rounded-md flex justify-between items-center"
         >
           <span>
-            {{ getFullEndpoint }}
+            {{ requestUrl }}
           </span>
           <span>
             <HoppSmartItem
               :icon="IconCopy"
-              @click="copyToClipboard(getFullEndpoint)"
+              @click="copyToClipboard(requestUrl)"
             />
           </span>
         </div>
@@ -44,40 +51,64 @@
         />
       </div>
 
-      <CollectionsDocumentationSectionsCurlView
-        :request="request"
-        :collection-i-d="collectionID"
-        :collection-path="collectionPath"
-        :folder-path="folderPath"
-        :request-index="requestIndex"
-        :team-i-d="teamID"
-        :inherited-properties="inheritedProperties"
-        :environment-variables="environmentVariables"
-      />
+      <template v-if="isGqlRequest">
+        <CollectionsDocumentationSectionsQuery
+          :query="(request as HoppGQLRequest).query"
+        />
 
-      <CollectionsDocumentationSectionsAuth
-        :auth="request?.auth"
-        :inherited-auth="inheritedProperties?.auth"
-      />
+        <CollectionsDocumentationSectionsAuth
+          :auth="request?.auth"
+          :inherited-auth="inheritedProperties?.auth"
+        />
 
-      <CollectionsDocumentationSectionsHeaders
-        :headers="request?.headers || []"
-        :inherited-headers="inheritedProperties?.headers"
-      />
+        <CollectionsDocumentationSectionsHeaders
+          :headers="(request as HoppGQLRequest)?.headers || []"
+          :inherited-headers="inheritedProperties?.headers"
+        />
 
-      <CollectionsDocumentationSectionsParameters
-        :params="request?.params || []"
-      />
+        <CollectionsDocumentationSectionsGqlVariables
+          :variables="(request as HoppGQLRequest).variables"
+        />
+      </template>
 
-      <CollectionsDocumentationSectionsVariables
-        :variables="request?.requestVariables || []"
-      />
+      <template v-else>
+        <CollectionsDocumentationSectionsCurlView
+          :request="request as HoppRESTRequest"
+          :collection-i-d="collectionID"
+          :collection-path="collectionPath"
+          :folder-path="folderPath"
+          :request-index="requestIndex"
+          :team-i-d="teamID"
+          :inherited-properties="inheritedProperties"
+          :environment-variables="environmentVariables"
+        />
 
-      <CollectionsDocumentationSectionsRequestBody :body="request?.body" />
+        <CollectionsDocumentationSectionsAuth
+          :auth="request?.auth"
+          :inherited-auth="inheritedProperties?.auth"
+        />
 
-      <CollectionsDocumentationSectionsResponse
-        :response-examples="getResponseExamples()"
-      />
+        <CollectionsDocumentationSectionsHeaders
+          :headers="(request as HoppRESTRequest)?.headers || []"
+          :inherited-headers="inheritedProperties?.headers"
+        />
+
+        <CollectionsDocumentationSectionsParameters
+          :params="(request as HoppRESTRequest)?.params || []"
+        />
+
+        <CollectionsDocumentationSectionsVariables
+          :variables="(request as HoppRESTRequest)?.requestVariables || []"
+        />
+
+        <CollectionsDocumentationSectionsRequestBody
+          :body="(request as HoppRESTRequest)?.body"
+        />
+
+        <CollectionsDocumentationSectionsResponse
+          :response-examples="getResponseExamples()"
+        />
+      </template>
     </div>
 
     <div v-else class="text-center py-8 text-secondaryLight">
@@ -91,7 +122,9 @@
 import {
   Environment,
   HoppCollectionVariable,
+  HoppGQLRequest,
   HoppRESTRequest,
+  isGQLRequest,
   makeRESTRequest,
 } from "@hoppscotch/data"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
@@ -121,7 +154,7 @@ const toast = useToast()
 const props = withDefaults(
   defineProps<{
     documentationDescription?: string
-    request?: HoppRESTRequest | null
+    request?: HoppRESTRequest | HoppGQLRequest | null
     collectionID?: string
     collectionPath?: string | null
     folderPath?: string | null
@@ -156,13 +189,18 @@ const restTabs = useService(WorkspaceTabsService)
 const teamCollectionsService = useService(TeamCollectionsService)
 const documentationService = useService(DocumentationService)
 
+const isGqlRequest = computed<boolean>(() =>
+  props.request ? isGQLRequest(props.request) : false
+)
+
 const requestName = computed<string>(() => {
   if (!props.request) return ""
   return props.request.name || t("documentation.untitled_request")
 })
 
 const requestMethod = computed<string>(() => {
-  return props.request?.method || "GET"
+  if (!props.request || isGqlRequest.value) return "GET"
+  return (props.request as HoppRESTRequest).method || "GET"
 })
 
 const requestId = computed<string>(() => {
@@ -205,8 +243,9 @@ const inheritedProperties = computed(() => {
 })
 
 const getEffectiveRequest = async () => {
-  if (!props.request) return null
+  if (!props.request || isGqlRequest.value) return null
 
+  const restReq = props.request as HoppRESTRequest
   let collectionVariables: HoppCollectionVariable[] = []
 
   if (inheritedProperties.value) {
@@ -215,7 +254,7 @@ const getEffectiveRequest = async () => {
     )
   }
 
-  const requestVariables = (props.request.requestVariables || []).map(
+  const requestVariables = (restReq.requestVariables || []).map(
     (requestVariable) => {
       if (requestVariable.active)
         return {
@@ -249,7 +288,7 @@ const getEffectiveRequest = async () => {
 
   const effectiveReq = await getEffectiveRESTRequest(
     makeRESTRequest({
-      ...props.request,
+      ...restReq,
     }),
     env,
     true,
@@ -270,15 +309,14 @@ watch(
 )
 
 function getResponseExamples() {
-  if (!props.request) return null
+  if (!props.request || isGqlRequest.value) return null
 
-  if (
-    props.request.responses &&
-    Object.keys(props.request.responses).length > 0
-  ) {
+  const restReq = props.request as HoppRESTRequest
+
+  if (restReq.responses && Object.keys(restReq.responses).length > 0) {
     const examples = []
 
-    for (const [name, response] of Object.entries(props.request.responses)) {
+    for (const [name, response] of Object.entries(restReq.responses)) {
       if (response && typeof response === "object") {
         const example = {
           name: name || "Response Example",
@@ -363,6 +401,12 @@ function getMethodClass(method: string): string {
 
 const getFullEndpoint = ref("")
 
+const requestUrl = computed<string>(() => {
+  if (!props.request) return ""
+  if (isGqlRequest.value) return (props.request as HoppGQLRequest).url || ""
+  return getFullEndpoint.value
+})
+
 const updateFullEndpoint = async () => {
   const res = await getEffectiveRequest()
 
@@ -446,10 +490,22 @@ const openInNewTab = () => {
 
       if (possibleTeamTab) {
         restTabs.setActiveTab(possibleTeamTab.value.id)
+      } else if (isGqlRequest.value) {
+        restTabs.createNewTab({
+          type: "gql-request",
+          request: cloneDeep(props.request) as HoppGQLRequest,
+          isDirty: false,
+          cursorPosition: 0,
+          saveContext,
+          inheritedProperties:
+            teamCollectionsService.cascadeParentCollectionForProperties(
+              props.folderPath!
+            ),
+        })
       } else {
         restTabs.createNewTab({
           type: "request",
-          request: cloneDeep(props.request),
+          request: cloneDeep(props.request) as HoppRESTRequest,
           isDirty: false,
           saveContext,
           inheritedProperties:
@@ -470,10 +526,22 @@ const openInNewTab = () => {
 
       if (possibleUserTab) {
         restTabs.setActiveTab(possibleUserTab.value.id)
+      } else if (isGqlRequest.value) {
+        restTabs.createNewTab({
+          type: "gql-request",
+          request: cloneDeep(props.request) as HoppGQLRequest,
+          isDirty: false,
+          cursorPosition: 0,
+          saveContext,
+          inheritedProperties: cascadeParentCollectionForProperties(
+            props.folderPath,
+            "rest"
+          ),
+        })
       } else {
         restTabs.createNewTab({
           type: "request",
-          request: cloneDeep(props.request),
+          request: cloneDeep(props.request) as HoppRESTRequest,
           isDirty: false,
           saveContext,
           inheritedProperties: cascadeParentCollectionForProperties(
@@ -483,17 +551,28 @@ const openInNewTab = () => {
         })
       }
     } else {
-      // Fallback: create a new tab without save context
+      // Fallback when collection-type can't be determined from props.
       console.warn(
         "Unable to determine collection type, creating tab without save context"
       )
-      restTabs.createNewTab({
-        type: "request",
-        request: cloneDeep(props.request),
-        isDirty: false,
-        saveContext: undefined,
-        inheritedProperties: undefined,
-      })
+      if (isGqlRequest.value) {
+        restTabs.createNewTab({
+          type: "gql-request",
+          request: cloneDeep(props.request) as HoppGQLRequest,
+          isDirty: false,
+          cursorPosition: 0,
+          saveContext: undefined,
+          inheritedProperties: undefined,
+        })
+      } else {
+        restTabs.createNewTab({
+          type: "request",
+          request: cloneDeep(props.request) as HoppRESTRequest,
+          isDirty: false,
+          saveContext: undefined,
+          inheritedProperties: undefined,
+        })
+      }
     }
 
     emit("close-modal")

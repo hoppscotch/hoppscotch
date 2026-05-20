@@ -1,4 +1,8 @@
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import {
+  HoppCollection,
+  HoppGQLRequest,
+  HoppRESTRequest,
+} from "@hoppscotch/data"
 import { DocumentationItem } from "~/composables/useDocumentationWorker"
 
 interface GatherDocumentationMessage {
@@ -147,7 +151,7 @@ async function gatherAllItems(
 
             items.push({
               type: "request",
-              item: request as HoppRESTRequest,
+              item: request as HoppRESTRequest | HoppGQLRequest,
               parentPath: parentPath
                 ? `${parentPath} / ${folder.name}`
                 : folder.name,

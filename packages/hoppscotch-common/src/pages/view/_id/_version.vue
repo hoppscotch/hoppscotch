@@ -49,6 +49,7 @@ import IconAlertCircle from "~icons/lucide/alert-circle"
 import {
   Environment,
   HoppCollection,
+  HoppGQLRequest,
   HoppRESTRequest,
   translateToNewEnvironmentVariables,
 } from "@hoppscotch/data"
@@ -108,7 +109,7 @@ const environmentEnabled = ref(true)
 type DocumentationItem = {
   id: string
   type: "folder" | "request"
-  item: HoppCollection | HoppRESTRequest
+  item: HoppCollection | HoppRESTRequest | HoppGQLRequest
   inheritedProperties: HoppInheritedProperty
 }
 
@@ -185,14 +186,17 @@ const flattenCollection = (
 
   // collectionFolderToHoppCollection ensures all requests are converted to the latest version
   if (collection.requests && collection.requests.length > 0) {
-    ;(collection.requests as HoppRESTRequest[]).forEach((request) => {
-      items.push({
-        id: request.id || (request as any)._ref_id || `request-${request.name}`,
-        type: "request",
-        item: request,
-        inheritedProperties: currentInheritedProps,
-      })
-    })
+    ;(collection.requests as (HoppRESTRequest | HoppGQLRequest)[]).forEach(
+      (request) => {
+        items.push({
+          id:
+            request.id || (request as any)._ref_id || `request-${request.name}`,
+          type: "request",
+          item: request,
+          inheritedProperties: currentInheritedProps,
+        })
+      }
+    )
   }
 
   return items

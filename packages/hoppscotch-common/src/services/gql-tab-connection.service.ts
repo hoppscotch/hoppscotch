@@ -563,13 +563,14 @@ export class GQLTabConnectionService extends Service {
     )
 
     const gqlRequest: HoppGQLRequest = {
-      v: 10,
+      v: 11,
       name: options.name || "Untitled Request",
       url: finalUrl,
       headers: finalHoppHeaders,
       query: effective.effectiveFinalQuery,
       variables: effective.effectiveFinalVariables,
       auth: effective.effectiveFinalAuth,
+      description: null,
     }
 
     if (operationType === "subscription") {
@@ -876,6 +877,7 @@ export class GQLTabConnectionService extends Service {
           headers: request.headers,
           variables,
           auth: request.auth as HoppGQLAuth,
+          description: request.description ?? null,
         }),
         response,
         star: false,

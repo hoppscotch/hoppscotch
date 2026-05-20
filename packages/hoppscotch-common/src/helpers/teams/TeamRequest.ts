@@ -2,6 +2,7 @@ import {
   HoppGQLRequest,
   HoppRESTRequest,
   isGQLRequest,
+  translateToGQLRequest,
   translateToNewRequest,
 } from "@hoppscotch/data"
 import { runGQLQuery } from "../backend/GQLClient"
@@ -24,8 +25,9 @@ export interface TeamRequest {
 
 /**
  * Normalize the JSON `request` string from a team request row into the
- * canonical REST or GQL shape. GQL requests are returned verbatim; everything
- * else falls through `translateToNewRequest` for legacy REST schema migration.
+ * canonical REST or GQL shape. Both branches go through their respective
+ * `translateTo*` migrators so legacy schema versions get carried up to the
+ * latest (e.g. v10 GQL rows pick up the `description` field added in v11).
  *
  * Defensive against:
  * - Malformed JSON (parse error → default REST request, doesn't throw).
@@ -47,7 +49,7 @@ export function normalizeTeamRequestBody(
     typeof parsed === "object" &&
     isGQLRequest(parsed as HoppRESTRequest | HoppGQLRequest)
   ) {
-    return parsed as HoppGQLRequest
+    return translateToGQLRequest(parsed)
   }
   return translateToNewRequest(parsed)
 }

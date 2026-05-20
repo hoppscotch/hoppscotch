@@ -183,6 +183,8 @@ function normalizeCollectionRequest(
     query: g.query,
     url: g.url,
     variables: g.variables,
+    description: g.description ?? null,
+    _ref_id: g._ref_id,
   }
 }
 

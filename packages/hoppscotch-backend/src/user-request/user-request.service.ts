@@ -351,12 +351,12 @@ export class UserRequestService {
     const destColl = collections[1];
     if (E.isLeft(destColl)) return E.left(destColl.left);
 
-    if (
-      srcColl.right.type !== destColl.right.type ||
-      (nextRequest && request.type !== nextRequest.type)
-    ) {
-      return E.left(USER_REQUEST_INVALID_TYPE);
-    }
+    // if (
+    //   srcColl.right.type !== destColl.right.type ||
+    //   (nextRequest && request.type !== nextRequest.type)
+    // ) {
+    //   return E.left(USER_REQUEST_INVALID_TYPE);
+    // }
 
     return E.right(true);
   }

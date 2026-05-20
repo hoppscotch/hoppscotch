@@ -421,6 +421,7 @@ export type AggregateEnvironment = {
   secret: boolean
   sourceEnv: string
   sourceEnvID?: string
+  sourceEnvName?: string
 }
 
 /**

@@ -344,17 +344,17 @@ const saveRequestAs = async () => {
 
   requestUpdated.name = requestName.value
 
-  // A copy is a new entry and needs its own `_ref_id` — equal ref ids are
-  // treated as the same request, which would bind the copy's tab to the source
-  if (
+  // New entries need a fresh `_ref_id` and no `id`; otherwise sync would edit the original row instead of creating a new one.
+  const isNewCollectionEntry =
     picked.value.pickedType === "my-collection" ||
     picked.value.pickedType === "my-folder" ||
     picked.value.pickedType === "teams-collection" ||
     picked.value.pickedType === "teams-folder"
-  ) {
+
+  if (isNewCollectionEntry) {
     requestUpdated._ref_id = generateUniqueRefId("req")
+    delete requestUpdated.id
   } else if (!requestUpdated._ref_id) {
-    // Ensure _ref_id is always set before saving
     requestUpdated._ref_id = generateUniqueRefId("req")
   }
 

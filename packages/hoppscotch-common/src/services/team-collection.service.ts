@@ -790,7 +790,7 @@ export class TeamCollectionsService extends Service<void> {
         id: result.right.teamRequestAdded.id,
         collectionID: result.right.teamRequestAdded.collectionID,
         request: normalizeTeamRequestBody(
-          JSON.parse(result.right.teamRequestAdded.request)
+          result.right.teamRequestAdded.request
         ),
         title: result.right.teamRequestAdded.title,
       })
@@ -814,7 +814,7 @@ export class TeamCollectionsService extends Service<void> {
         id: result.right.teamRequestUpdated.id,
         collectionID: result.right.teamRequestUpdated.collectionID,
         request: normalizeTeamRequestBody(
-          JSON.parse(result.right.teamRequestUpdated.request)
+          result.right.teamRequestUpdated.request
         ),
         title: result.right.teamRequestUpdated.title,
       })

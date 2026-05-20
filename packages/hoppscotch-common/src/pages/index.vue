@@ -327,7 +327,10 @@ const duplicateTab = (tabID: string) => {
     const doc = tab.value.document
     const newTab = tabs.createNewTab({
       type: "gql-request",
-      request: cloneDeep(doc.request),
+      request: {
+        ...cloneDeep(doc.request),
+        _ref_id: generateUniqueRefId("req"),
+      },
       isDirty: true,
       cursorPosition: doc.cursorPosition ?? 0,
     })

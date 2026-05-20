@@ -12,7 +12,7 @@
       :icon="IconBookOpen"
       :label="`${t('tab.documentation')}`"
     >
-      <GqlDocExplorer />
+      <GqlDocExplorer :key="activeGQLTabId" />
     </HoppSmartTab>
     <HoppSmartTab
       v-if="isGQLTab"
@@ -56,7 +56,11 @@
           />
         </div>
       </div>
-      <div v-if="schemaString" class="h-full relative w-full">
+      <div
+        v-if="schemaString"
+        :key="activeGQLTabId"
+        class="h-full relative w-full"
+      >
         <div ref="schemaEditor" class="absolute inset-0"></div>
       </div>
       <HoppSmartPlaceholder
@@ -171,6 +175,7 @@ const tabs = useService(WorkspaceTabsService)
 const gqlTabConn = useService(GQLTabConnectionService)
 
 const schemaString = gqlTabConn.activeTabSchemaString
+const activeGQLTabId = gqlTabConn.activeGQLTabId
 
 const { isMockServerVisible } = useMockServerVisibility()
 

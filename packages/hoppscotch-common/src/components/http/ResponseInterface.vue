@@ -2,10 +2,14 @@
   <HoppSmartSlideOver
     :show="show"
     :title="t('response.data_schema')"
+    class="data-schema-drawer"
     @close="close()"
   >
     <template #content>
-      <div v-if="response" class="flex flex-col px-4 flex-1 overflow-y-auto">
+      <div
+        v-if="response"
+        class="flex flex-col px-4 flex-1 overflow-y-auto max-w-none"
+      >
         <div class="flex flex-col">
           <tippy
             interactive
@@ -104,7 +108,7 @@
             </div>
           </div>
           <div
-            class="h-full relative w-full flex flex-col flex-1 rounded-b border-t border-dividerLight"
+            class="h-full relative w-full flex flex-col flex-1 rounded-b border-t border-dividerLight max-w-none"
           >
             <div ref="generatedCode" class="absolute inset-0"></div>
           </div>
@@ -277,3 +281,9 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
   t("filename.response_interface")
 )
 </script>
+
+<style scoped>
+.data-schema-drawer :deep(aside) {
+  @apply !w-[36rem] !max-w-[100vw];
+}
+</style>

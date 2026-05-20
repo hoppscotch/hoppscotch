@@ -1006,6 +1006,7 @@ const onAddRequest = async (requestName: string) => {
           originLocation: "user-collection",
           folderPath: path,
           requestIndex: insertionIndex,
+          requestRefID: (newRequest as HoppGQLRequest)._ref_id,
         },
         inheritedProperties: cascadeParentCollectionForProperties(path, "rest"),
       })
@@ -1074,6 +1075,7 @@ const onAddRequest = async (requestName: string) => {
                 requestID: createRequestInCollection.id,
                 collectionID: path,
                 teamID: createRequestInCollection.collection.team.id,
+                requestRefID: (newRequest as HoppGQLRequest)._ref_id,
               },
               inheritedProperties:
                 teamCollectionService.cascadeParentCollectionForProperties(

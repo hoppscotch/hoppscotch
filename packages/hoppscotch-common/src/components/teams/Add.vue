@@ -66,10 +66,16 @@ const addNewTeam = async () => {
   if (isLoading.value) {
     return
   }
+  const trimmedName = editingName.value?.trim() ?? ""
+
+  if (!trimmedName) {
+    toast.error(`${t("empty.team_name")}`)
+    return
+  }
 
   isLoading.value = true
   await pipe(
-    TeamNameCodec.decode(editingName.value),
+    TeamNameCodec.decode(trimmedName),
     TE.fromEither,
     TE.mapLeft(() => "invalid_name" as const),
     TE.chainW(createTeam),

@@ -259,7 +259,11 @@ import { useToast } from "~/composables/toast"
 import { useDocumentationWorker } from "~/composables/useDocumentationWorker"
 import { useService } from "dioc/vue"
 
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import {
+  HoppCollection,
+  HoppGQLRequest,
+  HoppRESTRequest,
+} from "@hoppscotch/data"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
 
 import {
@@ -322,7 +326,7 @@ const props = withDefaults(
     folderPath?: string | null
     requestIndex?: number | null
     requestID?: string | null
-    request?: HoppRESTRequest | null
+    request?: HoppRESTRequest | HoppGQLRequest | null
     teamID?: string
     isTeamCollection?: boolean
   }>(),

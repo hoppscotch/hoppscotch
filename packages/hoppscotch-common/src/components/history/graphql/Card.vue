@@ -103,6 +103,7 @@ const useEntry = () => {
       query: props.entry.request.query,
       variables: props.entry.request.variables,
       auth: props.entry.request.auth,
+      description: props.entry.request.description ?? null,
     }),
     isDirty: false,
   })

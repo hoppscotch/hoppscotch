@@ -473,6 +473,7 @@
       "title": "Body"
     },
     "copied_to_clipboard": "Copied to clipboard!",
+    "copy_to_clipboard": "Copy to clipboard",
     "curl": {
       "click_to_load": "Click to load cURL command",
       "copied": "cURL command copied to clipboard!",
@@ -585,6 +586,9 @@
     "untitled_collection": "Untitled Collection",
     "untitled_request": "Untitled Request",
     "value": "Value",
+    "query": {
+      "title": "Query"
+    },
     "variables": {
       "no_vars": "No variables defined",
       "title": "Variables"

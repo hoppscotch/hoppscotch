@@ -43,4 +43,3 @@ export class RequestReorderData {
   })
   nextRequest?: TeamRequest;
 }
-

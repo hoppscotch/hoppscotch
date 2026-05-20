@@ -99,7 +99,7 @@ const shortcodesWithUserEmail = [
     creatorUid: user.uid,
     createdOn: new Date(),
     updatedOn: createdOn,
-    User: user,
+    user: user,
   },
   {
     id: 'blablabla1',
@@ -112,7 +112,7 @@ const shortcodesWithUserEmail = [
     creatorUid: user.uid,
     createdOn: new Date(),
     updatedOn: createdOn,
-    User: user,
+    user: user,
   },
 ];
 

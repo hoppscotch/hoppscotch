@@ -45,5 +45,3 @@ export class CollectionReorderData {
   })
   nextCollection?: TeamCollection;
 }
-
-

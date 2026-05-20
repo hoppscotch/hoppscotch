@@ -12,6 +12,7 @@ import {
 import {
   generateUniqueRefId,
   HoppCollection,
+  HoppGQLRequest,
   HoppRESTRequest,
 } from "@hoppscotch/data"
 
@@ -419,11 +420,9 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const requestBackendID = request?.id
 
     if (requestBackendID) {
-      editUserRequest(
-        requestBackendID,
-        (requestNew as HoppRESTRequest).name,
-        JSON.stringify(requestNew)
-      )
+      // Unified workspace: REST mutation handles both kinds — backend stores the request as opaque JSON in a REST row.
+      const typed = requestNew as HoppRESTRequest | HoppGQLRequest
+      editUserRequest(requestBackendID, typed.name, JSON.stringify(typed))
     }
   },
   async saveRequestAs({ path, request }) {
@@ -435,9 +434,11 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const parentCollectionBackendID = folder?.id
 
     if (parentCollectionBackendID) {
+      // See `editRequest` above — REST mutation handles both kinds.
+      const typed = request as HoppRESTRequest | HoppGQLRequest
       const res = await createRESTUserRequest(
-        (request as HoppRESTRequest).name,
-        JSON.stringify(request),
+        typed.name,
+        JSON.stringify(typed),
         parentCollectionBackendID
       )
 
@@ -587,8 +588,8 @@ export async function moveOrReorderRequests(
 
   let nextRequestBackendID: string | undefined
 
-  // we only need this for reordering requests, not for moving requests
-  if (nextRequestIndex) {
+  // `!== undefined` (not truthy) so position-0 drops still take the reorder path.
+  if (nextRequestIndex !== undefined) {
     // reordering
     const [newRequestIndex, newDestinationIndex] = getIndexesAfterReorder(
       requestIndex,

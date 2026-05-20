@@ -166,27 +166,28 @@ export class GQLTabConnectionService extends Service {
   }
 
   /**
-   * Track the active REST tab. When the user switches to a GQL tab,
-   * update the active tab ID. Reset doc explorer navigation on tab switch
-   * so stale type references don't persist.
+   * Track the active GQL tab. Empty when the active tab is not a GQL request.
+   *
+   * Source must depend on BOTH the tab reference AND `document.type` so an
+   * in-place protocol flip (REST → GQL on the same tab, via ProtocolSwitcher)
+   * is detected — that path reassigns `tab.document` but keeps the same tab
+   * object, so watching `currentActiveTab.value` alone would never fire.
    */
   private setupActiveTabTracking() {
     const { reset: resetExplorer } = useExplorer()
 
+    const computedActiveGQLTabId = computed(() => {
+      const tab = this.restTabService.currentActiveTab.value
+      return tab?.document.type === "gql-request" ? tab.id : ""
+    })
+
     watch(
-      () => this.restTabService.currentActiveTab.value,
-      (activeTab, oldTab) => {
-        if (activeTab?.document.type === "gql-request") {
-          if (oldTab && oldTab.id !== activeTab.id) {
-            resetExplorer()
-          }
-          this._activeGQLTabId.value = activeTab.id
-        } else {
-          if (oldTab?.document.type === "gql-request") {
-            resetExplorer()
-          }
-          this._activeGQLTabId.value = ""
+      computedActiveGQLTabId,
+      (newId, oldId) => {
+        if (newId !== oldId) {
+          resetExplorer()
         }
+        this._activeGQLTabId.value = newId
       },
       { immediate: true }
     )
@@ -598,6 +599,7 @@ export class GQLTabConnectionService extends Service {
 
       const { response } = this.interceptorService.execute(kernelRequest)
 
+      const timeStart = Date.now()
       const result = await response
 
       if (E.isLeft(result)) {
@@ -638,7 +640,6 @@ export class GQLTabConnectionService extends Service {
         throw new Error(parsedResponse.error.message)
       }
 
-      const timeStart = Date.now()
       const timeEnd = Date.now()
 
       // Route response to the captured tab's message event

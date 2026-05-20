@@ -4,6 +4,13 @@
     @click.stop="$emit('request-select', actualRequest)"
   >
     <span
+      v-if="isGql"
+      class="text-tiny px-1 rounded-sm bg-purple-500/10 text-purple-500"
+    >
+      GQL
+    </span>
+    <span
+      v-else
       class="text-tiny px-1 rounded-sm"
       :class="getMethodClass(requestMethod)"
     >
@@ -18,10 +25,10 @@
 </template>
 
 <script lang="ts" setup>
-import { HoppRESTRequest } from "@hoppscotch/data"
+import { HoppGQLRequest, HoppRESTRequest, isGQLRequest } from "@hoppscotch/data"
 import { computed } from "vue"
 
-type HoppRequest = HoppRESTRequest
+type HoppRequest = HoppRESTRequest | HoppGQLRequest
 
 const props = defineProps<{
   request: HoppRequest
@@ -29,19 +36,22 @@ const props = defineProps<{
 }>()
 
 defineEmits<{
-  (e: "request-select", request: HoppRESTRequest): void
+  (e: "request-select", request: HoppRequest): void
 }>()
 
-const actualRequest = computed<HoppRESTRequest>(() => {
+const actualRequest = computed<HoppRequest>(() => {
   return props.request
 })
+
+const isGql = computed<boolean>(() => isGQLRequest(props.request))
 
 const requestName = computed<string>(() => {
   return props.request.name || "Untitled Request"
 })
 
 const requestMethod = computed<string>(() => {
-  return props.request.method
+  if (isGql.value) return ""
+  return (props.request as HoppRESTRequest).method
 })
 
 /**

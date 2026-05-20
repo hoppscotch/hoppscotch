@@ -51,7 +51,7 @@
         <CollectionsDocumentationRequestItem
           v-for="(request, requestIndex) in collectionRequests"
           :key="getRequestId(request, requestIndex)"
-          :request="request as HoppRESTRequest"
+          :request="request"
           :depth="0"
           @request-select="onRequestSelect"
         />
@@ -108,7 +108,7 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  (e: "request-select", request: HoppRESTRequest): void
+  (e: "request-select", request: HoppRequest): void
   (e: "folder-select", folder: HoppCollection): void
   (e: "scroll-to-top"): void
 }>()
@@ -198,7 +198,7 @@ const toggleAllFolders = () => {
   }
 }
 
-const onRequestSelect = (request: HoppRESTRequest) => {
+const onRequestSelect = (request: HoppRequest) => {
   emit("request-select", request)
 }
 

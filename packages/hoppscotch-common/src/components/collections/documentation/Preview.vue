@@ -107,9 +107,9 @@
                 <div class="p-0">
                   <CollectionsDocumentationRequestPreview
                     v-if="item.type === 'request'"
-                    :request="item.item as HoppRESTRequest"
+                    :request="item.item as DocRequest"
                     :documentation-description="
-                      (item.item as HoppRESTRequest).description || ''
+                      getRequestDescription(item.item as DocRequest)
                     "
                     :collection-i-d="collectionID"
                     :collection-path="collectionPath"
@@ -120,7 +120,7 @@
                     :read-only="!hasTeamWriteAccess"
                     @update:documentation-description="
                       (value) =>
-                        ((item.item as HoppRESTRequest).description = value)
+                        setRequestDescription(item.item as DocRequest, value)
                     "
                     @close-modal="closeModal"
                   />
@@ -177,13 +177,25 @@
 import { ref, watch, nextTick, computed } from "vue"
 import { useVModel, useIntersectionObserver } from "@vueuse/core"
 import { useService } from "dioc/vue"
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import {
+  HoppCollection,
+  HoppGQLRequest,
+  HoppRESTRequest,
+} from "@hoppscotch/data"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { DocumentationItem } from "~/composables/useDocumentationWorker"
 import LazyDocumentationItem from "./LazyDocumentationItem.vue"
 import { useI18n } from "~/composables/i18n"
 
 const t = useI18n()
+
+type DocRequest = HoppRESTRequest | HoppGQLRequest
+
+const getRequestDescription = (req: DocRequest): string => req.description || ""
+
+const setRequestDescription = (req: DocRequest, value: string) => {
+  req.description = value
+}
 
 type CollectionType = HoppCollection | null
 
@@ -240,7 +252,7 @@ const collectionDescription = useVModel(
   { passive: true }
 )
 
-const selectedRequest = ref<HoppRESTRequest | null>(null)
+const selectedRequest = ref<HoppRESTRequest | HoppGQLRequest | null>(null)
 const selectedFolder = ref<HoppCollection | null>(null)
 const selectedItemId = ref<string | null>(null)
 
@@ -385,7 +397,7 @@ const scrollToItemByNameAndType = (
 /**
  * Handles a request being selected from the collection structure
  */
-const handleRequestSelect = (request: HoppRESTRequest) => {
+const handleRequestSelect = (request: HoppRESTRequest | HoppGQLRequest) => {
   selectedRequest.value = request
   selectedFolder.value = null
   selectedItemId.value = request.id || null

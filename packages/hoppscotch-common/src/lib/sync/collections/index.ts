@@ -1177,7 +1177,6 @@ function setupUserRequestMovedSubscription() {
         // `!== undefined` (not truthy) so cross-tab reorders to position 0
         // still dispatch; `!== -1` guards a getRequestIndex findIndex miss.
         nextRequestIndex !== undefined &&
-          nextRequestIndex !== -1 &&
           nextCollectionPath &&
           sourceRequestPath &&
           runDispatchWithOutSyncing(() => {

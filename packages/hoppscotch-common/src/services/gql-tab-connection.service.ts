@@ -308,6 +308,11 @@ export class GQLTabConnectionService extends Service {
    * previous tab's schema. Runs in a detached scope (see `onServiceInit`);
    * per-tab teardown stays caller-driven — every close path calls
    * {@link cleanupTab} explicitly rather than relying on a watcher.
+   *
+   * The source must depend on BOTH the tab reference AND `document.type` so an
+   * in-place protocol flip (REST → GQL on the same tab, via ProtocolSwitcher)
+   * is detected — that path reassigns `tab.document` but keeps the same tab
+   * object, so watching `currentActiveTab.value` alone would never fire.
    */
   private setupActiveTabTracking() {
     const { reset: resetExplorer } = useExplorer()

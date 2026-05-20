@@ -5,16 +5,15 @@ import {
 } from "~/newstore/environments"
 import { getSettingSubject, settingsStore } from "~/newstore/settings"
 
-import { getSyncInitFunction, type StoreSyncDefinitionOf } from ".."
-
 import * as E from "fp-ts/Either"
 
-import { createMapper } from "../mapper"
-
+import { Environment } from "@hoppscotch/data"
 import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
 import { getService } from "~/modules/dioc"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
+import { getSyncInitFunction, StoreSyncDefinitionOf } from ".."
+import { createMapper } from "../mapper"
 import {
   clearGlobalEnvironmentVariables,
   createUserEnvironment,
@@ -71,7 +70,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     let appendStart =
       environmentsStore.value.environments.length - appendListLength - 1
 
-    envs.forEach((env) => {
+    envs.forEach((env: Environment) => {
       const envId = ++appendStart
 
       ;(async function () {

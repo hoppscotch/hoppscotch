@@ -27,6 +27,7 @@ import { getSyncInitFunction, StoreSyncDefinitionOf } from ".."
 import { createMapper } from "../mapper"
 import { moveOrReorderRequests } from "./sync"
 import { ReqType } from "~/helpers/backend/graphql"
+import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
 
 // gqlCollectionsMapper uses the collectionPath as the local identifier
 // Helper function to transform HoppCollection to backend format
@@ -37,7 +38,7 @@ const transformCollectionForBackend = (collection: HoppCollection): any => {
       authActive: true,
     },
     headers: collection.headers ?? [],
-    variables: collection.variables ?? [],
+    variables: stripSecretVariableValuesForWire(collection.variables ?? []),
     _ref_id: collection._ref_id,
   }
 
@@ -71,7 +72,7 @@ const recursivelySyncCollections = async (
         authActive: true,
       },
       headers: collection.headers ?? [],
-      variables: collection.variables ?? [],
+      variables: stripSecretVariableValuesForWire(collection.variables ?? []),
       _ref_id: collection._ref_id,
     }
     const res = await createGQLRootUserCollection(
@@ -117,7 +118,7 @@ const recursivelySyncCollections = async (
         authActive: true,
       },
       headers: collection.headers ?? [],
-      variables: collection.variables ?? [],
+      variables: stripSecretVariableValuesForWire(collection.variables ?? []),
       _ref_id: collection._ref_id,
     }
 
@@ -261,7 +262,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const data = {
       auth: collection.auth,
       headers: collection.headers,
-      variables: collection.variables,
+      variables: stripSecretVariableValuesForWire(collection.variables),
       _ref_id: collection._ref_id,
     }
 
@@ -307,7 +308,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const data = {
       auth: folder.auth,
       headers: folder.headers,
-      variables: folder.variables,
+      variables: stripSecretVariableValuesForWire(folder.variables),
       _ref_id: folder._ref_id,
     }
 

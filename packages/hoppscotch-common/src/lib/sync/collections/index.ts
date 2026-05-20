@@ -69,9 +69,8 @@ import { runDispatchWithOutSyncing } from ".."
 import { gqlCollectionsSyncer } from "./gqlCollections.sync"
 import { importToPersonalWorkspace } from "./import"
 
-const authEvents$ = platform.auth.getAuthEventsStream()
-
 function initCollectionsSync() {
+  const authEvents$ = platform.auth.getAuthEventsStream()
   const currentUser$ = platform.auth.getCurrentUserStream()
   collectionsSyncer.startStoreSync()
   collectionsSyncer.setupSubscriptions(setupSubscriptions)

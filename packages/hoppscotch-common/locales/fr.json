@@ -749,8 +749,8 @@
     "url": {
       "extension_not_installed": "Extension non installée.",
       "extension_unknown_origin": "Assurez-vous d'avoir ajouté l'origine du point de terminaison API dans la liste de l'extension web Hoppscotch.",
-      "extention_enable_action": "Activer l'extension web",
-      "extention_not_enabled": "Extension désactivée.",
+      "extension_enable_action": "Activer l'extension web",
+      "extension_not_enabled": "Extension désactivée.",
       "localaccess_unsupported": "L'intercepteur actuel ne gère pas l'accès local, veuillez considérer l'utilisation d'Agent, des extensions des intercepteurs ou l'application de bureau Hoppscotch"
     },
     "auth": {

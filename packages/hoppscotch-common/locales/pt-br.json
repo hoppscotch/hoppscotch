@@ -577,8 +577,8 @@
     "url": {
       "extension_not_installed": "Extensão não instalada",
       "extension_unknown_origin": "Verifique se você adicionou a origem do endpoint da API à lista da extensão de navegador do Hoppscotch.",
-      "extention_enable_action": "Habilitar Extensão do Navegador",
-      "extention_not_enabled": "Extensão não habilitada."
+      "extension_enable_action": "Habilitar Extensão do Navegador",
+      "extension_not_enabled": "Extensão não habilitada."
     },
     "requestBody": {
       "active_interceptor_doesnt_support_binary_body": "O interceptor selecionado ainda não possui suporte para envio de dados binários."

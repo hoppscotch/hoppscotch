@@ -978,8 +978,8 @@
     "url": {
       "extension_not_installed": "Eklenti yüklenmemiş.",
       "extension_unknown_origin": "API uç noktasının kaynağını Hoppscotch Tarayıcı Eklentisi listesine eklediğinizden emin olun.",
-      "extention_enable_action": "Tarayıcı Eklentisini Etkinleştir",
-      "extention_not_enabled": "Eklenti etkin değil.",
+      "extension_enable_action": "Tarayıcı Eklentisini Etkinleştir",
+      "extension_not_enabled": "Eklenti etkin değil.",
       "localaccess_unsupported": "Mevcut interceptor yerel erişimi desteklemiyor, lütfen Agent, Extension interceptor veya Masaüstü Uygulamasını kullanmayı düşünün"
     },
     "auth": {

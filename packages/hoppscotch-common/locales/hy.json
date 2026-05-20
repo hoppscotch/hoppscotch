@@ -948,8 +948,8 @@
         "url": {
             "extension_not_installed": "Ընդլայնումը տեղադրված չէ:",
             "extension_unknown_origin": "Համոզվեք, որ ավելացրել եք API վերջնակետի ծագման աղբյուրը (origin) Hoppscotch դիտարկիչի ընդլայնման ցանկում:",
-            "extention_enable_action": "Միացնել դիտարկիչի ընդլայնումը",
-            "extention_not_enabled": "Ընդլայնումը միացված չէ:",
+            "extension_enable_action": "Միացնել դիտարկիչի ընդլայնումը",
+            "extension_not_enabled": "Ընդլայնումը միացված չէ:",
             "localaccess_unsupported": "Ընթացիկ որսիչը չի աջակցում տեղական հասանելիություն, խնդրում ենք օգտագործել Agent, Extension որսիչներ կամ Desktop հավելվածը"
         },
         "auth": {

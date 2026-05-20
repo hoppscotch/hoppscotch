@@ -978,8 +978,8 @@
     "url": {
       "extension_not_installed": "Extensión no instalada.",
       "extension_unknown_origin": "Asegúrate de haber agregado el origen del punto final de la API a la lista de Extensiones del Navegador Hoppscotch.",
-      "extention_enable_action": "Activar la extensión del navegador",
-      "extention_not_enabled": "Extensión no habilitada.",
+      "extension_enable_action": "Activar la extensión del navegador",
+      "extension_not_enabled": "Extensión no habilitada.",
       "localaccess_unsupported": "El interceptor actual no soporta acceso local, considera usar los interceptores Agent, Extension o la aplicación de escritorio"
     },
     "auth": {

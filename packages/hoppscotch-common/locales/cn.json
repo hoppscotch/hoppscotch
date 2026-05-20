@@ -978,8 +978,8 @@
     "url": {
       "extension_not_installed": "未安装扩展。",
       "extension_unknown_origin": "确保您已将 API 端点的源添加到 Hoppscotch 浏览器扩展列表中。",
-      "extention_enable_action": "启用浏览器扩展",
-      "extention_not_enabled": "扩展未启用。",
+      "extension_enable_action": "启用浏览器扩展",
+      "extension_not_enabled": "扩展未启用。",
       "localaccess_unsupported": "当前拦截器不支持本地访问，请考虑使用代理程序(Agent)、扩展拦截器或桌面应用程序"
     },
     "auth": {

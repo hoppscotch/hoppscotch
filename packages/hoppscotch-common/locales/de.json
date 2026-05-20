@@ -582,8 +582,8 @@
     "url": {
       "extension_not_installed": "Erweiterung nicht installiert.",
       "extension_unknown_origin": "Stelle sicher, dass du die Quelle für den API-Endpunkt zur Liste in der Hoppscotch Browsererweiterungen hinzugefügt hast.",
-      "extention_enable_action": "Browsererweiterung aktivieren",
-      "extention_not_enabled": "Browsererweiterungen nicht aktiviert."
+      "extension_enable_action": "Browsererweiterung aktivieren",
+      "extension_not_enabled": "Browsererweiterungen nicht aktiviert."
     }
   },
   "layout": {

@@ -484,8 +484,8 @@
     "url": {
       "extension_not_installed": "Bővítmény nincs telepítve.",
       "extension_unknown_origin": "Ellenőrizze, hogy hozzáadta az API végpont forrását Hoppscotch Browser bővítmény listájához.",
-      "extention_enable_action": "Bővítmény engedélyezése",
-      "extention_not_enabled": "Bővítmény nincs engedélyezve."
+      "extension_enable_action": "Bővítmény engedélyezése",
+      "extension_not_enabled": "Bővítmény nincs engedélyezve."
     }
   },
   "layout": {

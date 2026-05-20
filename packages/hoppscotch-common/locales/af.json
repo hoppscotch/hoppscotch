@@ -484,8 +484,8 @@
     "url": {
       "extension_not_installed": "Extension not installed.",
       "extension_unknown_origin": "Make sure you've added the API endpoint's origin to the Hoppscotch Browser Extension list.",
-      "extention_enable_action": "Enable Browser Extension",
-      "extention_not_enabled": "Extension not enabled."
+      "extension_enable_action": "Enable Browser Extension",
+      "extension_not_enabled": "Extension not enabled."
     }
   },
   "layout": {

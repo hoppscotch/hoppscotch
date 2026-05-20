@@ -500,8 +500,8 @@
     "url": {
       "extension_not_installed": "未安裝擴充套件。",
       "extension_unknown_origin": "請確認您是否已將 API 端點的來源加入 Hoppscotch 擴充套件的清單。",
-      "extention_enable_action": "啟用瀏覽器擴充套件",
-      "extention_not_enabled": "未啟用擴充套件。"
+      "extension_enable_action": "啟用瀏覽器擴充套件",
+      "extension_not_enabled": "未啟用擴充套件。"
     }
   },
   "layout": {

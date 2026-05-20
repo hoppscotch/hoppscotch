@@ -480,8 +480,8 @@
     "url": {
       "extension_not_installed": "Расширение не установлено",
       "extension_unknown_origin": "Убедитесь, что текущий домен добавлен в список доверенных ресурсов в расширении браузера",
-      "extention_enable_action": "Подключить расширение",
-      "extention_not_enabled": "Расширение в браузере не подключено"
+      "extension_enable_action": "Подключить расширение",
+      "extension_not_enabled": "Расширение в браузере не подключено"
     }
   },
   "layout": {

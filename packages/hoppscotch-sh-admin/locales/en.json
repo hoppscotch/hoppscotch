@@ -63,6 +63,13 @@
     "invalid_number": "Please enter a valid number for the field",
     "input_empty": "Please fill all the fields before updating the configurations",
     "input_validation_error": "Some fields have invalid values. Please correct them before updating the configurations",
+    "auth_restriction": {
+      "title": "Authentication Restriction",
+      "description": "Require users to be authenticated before accessing the application",
+      "toggle_description": "Require authentication for access",
+      "warning": "When enabled, unauthenticated users will be redirected to the login page.",
+      "toggle_failure": "Failed to toggle authentication restriction!!"
+    },
     "data_sharing": {
       "title": "Data Sharing",
       "description": "Help improve Hoppscotch by sharing anonymous data",

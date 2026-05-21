@@ -13,6 +13,7 @@ import {
   ResetInfraConfigsMutation,
   ServiceStatus,
   ToggleAnalyticsCollectionMutation,
+  ToggleAuthRequirementMutation,
   ToggleSmtpMutation,
   ToggleUserHistoryStoreMutation,
   UpdateInfraConfigsMutation,
@@ -211,6 +212,11 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
             InfraConfigEnum.MockServerWildcardDomain
           ),
         },
+      },
+      authRestrictionConfig: {
+        name: 'auth_restriction',
+        enabled:
+          getFieldValue(InfraConfigEnum.RequireAuthForAccess) === 'true',
       },
     };
 
@@ -567,6 +573,20 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       'configs.user_history_store.toggle_failure'
     );
 
+  // Toggle Auth Requirement
+  const toggleAuthRequirement = (
+    toggleAuthRequirementMutation: UseMutationResponse<ToggleAuthRequirementMutation>
+  ) =>
+    executeMutation(
+      toggleAuthRequirementMutation,
+      {
+        status: updatedConfigs?.authRestrictionConfig?.enabled
+          ? ServiceStatus.Enable
+          : ServiceStatus.Disable,
+      },
+      'configs.auth_restriction.toggle_failure'
+    );
+
   const updateRateLimitConfigs = (
     updateRateLimitMutation: UseMutationResponse<UpdateInfraConfigsMutation>
   ) => {
@@ -698,6 +718,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     updateDataSharingConfigs,
     toggleSMTPConfigs,
     toggleUserHistoryStore,
+    toggleAuthRequirement,
     updateRateLimitConfigs,
     updateAuthTokenConfigs,
     updateInfraConfigs,

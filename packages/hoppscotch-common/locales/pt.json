@@ -679,6 +679,8 @@
     "short_codes_description": "Short codes which were created by you.",
     "sidebar_on_left": "Sidebar on left",
     "sync": "Sincronizar",
+    "require_auth_for_app": "Requer início de sessão para usar a aplicação",
+    "require_auth_for_app_description": "Quando ativado, utilizadores não autenticados são redirecionados para a página de início de sessão",
     "sync_collections": "Coleções",
     "sync_description": "Essas configurações são sincronizadas com a nuvem.",
     "sync_environments": "Ambientes",

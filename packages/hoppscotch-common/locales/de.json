@@ -790,6 +790,8 @@
     "sidebar_on_left": "Seitenleiste links",
     "ai_experiments": "KI-Experimente",
     "sync": "Synchronisieren",
+    "require_auth_for_app": "Anmeldung zur App-Nutzung erforderlich",
+    "require_auth_for_app_description": "Wenn aktiviert, werden nicht authentifizierte Benutzer zur Anmeldeseite weitergeleitet",
     "sync_collections": "Sammlungen",
     "sync_description": "Diese Einstellungen werden mit der Cloud synchronisiert.",
     "sync_environments": "Umgebungen",

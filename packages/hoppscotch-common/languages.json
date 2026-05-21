@@ -187,6 +187,12 @@
     "name": "Українська"
   },
   {
+    "code": "uz",
+    "file": "uz.json",
+    "iso": "uz-UZ",
+    "name": "O'zbek"
+  },
+  {
     "code": "vi",
     "file": "vi.json",
     "iso": "vi-VI",

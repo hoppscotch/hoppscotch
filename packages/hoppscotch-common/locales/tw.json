@@ -695,6 +695,8 @@
     "short_codes_description": "您建立的快捷碼。",
     "sidebar_on_left": "左側邊欄",
     "sync": "同步",
+    "require_auth_for_app": "使用應用程式需要登入",
+    "require_auth_for_app_description": "啟用後，未經驗證的使用者將被重新導向至登入頁面",
     "sync_collections": "集合",
     "sync_description": "這些設定會同步到雲端。",
     "sync_environments": "環境",

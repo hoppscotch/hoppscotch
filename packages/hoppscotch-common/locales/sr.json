@@ -679,6 +679,8 @@
     "short_codes_description": "Short codes which were created by you.",
     "sidebar_on_left": "Sidebar on left",
     "sync": "Синхронизујте",
+    "require_auth_for_app": "Захтевај пријаву за коришћење апликације",
+    "require_auth_for_app_description": "Када је омогућено, непријављени корисници бивају преусмерени на страницу за пријаву",
     "sync_collections": "Збирке",
     "sync_description": "Ова подешавања се синхронизују са облаком.",
     "sync_environments": "Енвиронментс",

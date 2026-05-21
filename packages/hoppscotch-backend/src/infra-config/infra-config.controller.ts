@@ -44,4 +44,22 @@ export class SiteController {
       });
     return res.right;
   }
+
+  /**
+   * Public endpoint to check if authentication is required to access the app
+   * This endpoint does not require authentication
+   */
+  @Get('auth-status')
+  async getAuthRequirementStatus() {
+    const status = await this.infraConfigService.get(
+      InfraConfigEnum.REQUIRE_AUTH_FOR_ACCESS,
+    );
+
+    if (E.isLeft(status)) {
+      // Default to false if config not found
+      return { requireAuth: false };
+    }
+
+    return { requireAuth: status.right.value === 'true' };
+  }
 }

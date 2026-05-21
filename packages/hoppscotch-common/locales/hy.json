@@ -1298,6 +1298,8 @@
         "experimental_scripting_sandbox": "Փորձարարական սկրիպտավորման ավազարկղ",
         "enable_experimental_mock_servers": "Միացնել Մոք Սերվերները",
         "enable_experimental_documentation": "Միացնել Փաստաթղթավորումը",
+    "require_auth_for_app": "Պահանջել մուտք հավելված օգտագործելու համար",
+    "require_auth_for_app_description": "Երբ ակտիվ է, չնույնականացված օգտատերերը վերահղվում են մուտքի էջ",
         "sync": "Սինքրոնացնել",
         "sync_collections": "Հավաքածուներ",
         "sync_description": "Այս կարգավորումները սինքրոնացվում են ամպի հետ:",

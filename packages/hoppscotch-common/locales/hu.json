@@ -679,6 +679,8 @@
     "short_codes_description": "Az Ön által létrehozott rövid kódok.",
     "sidebar_on_left": "Oldalsáv a bal oldalon",
     "sync": "Szinkronizálás",
+    "require_auth_for_app": "Bejelentkezés szükséges az alkalmazás használatához",
+    "require_auth_for_app_description": "Ha engedélyezve van, a nem hitelesített felhasználók a bejelentkezési oldalra kerülnek átirányításra",
     "sync_collections": "Gyűjtemények",
     "sync_description": "Ezek a beállítások szinkronizálva vannak a felhővel.",
     "sync_environments": "Környezetek",

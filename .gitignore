@@ -188,3 +188,4 @@ devenv.local.nix
 .cursor/
 .aider*
 .windsurfrules
+.omc/

@@ -594,7 +594,7 @@
     "order_changed": "Request Order Updated",
     "override": "덮어쓰기",
     "override_help": "헤더에 <kbd>Content-Type</kbd>를 설정해주세요.",
-    "overriden": "Overridden",
+    "overridden": "Overridden",
     "parameter_list": "쿼리 파라미터 목록",
     "parameters": "파라미터",
     "path": "경로",

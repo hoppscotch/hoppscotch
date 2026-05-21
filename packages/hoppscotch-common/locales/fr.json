@@ -898,7 +898,7 @@
     "order_changed": "Ordre de requête mis à jour",
     "override": "Outrepasser",
     "override_help": "Définir l'en-tête <kbd>Content-Type</kbd>",
-    "overriden": "Outrepassé",
+    "overridden": "Outrepassé",
     "parameter_list": "Paramètres de la requête",
     "parameters": "Paramètres",
     "path": "Chemin (Path)",

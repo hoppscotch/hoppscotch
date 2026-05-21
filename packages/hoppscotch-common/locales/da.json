@@ -591,7 +591,7 @@
     "order_changed": "Anmodningsrækkefølge opdateret",
     "override": "Tilsidesæt",
     "override_help": "Indstil <kbd>Content-Type</kbd> i Headers",
-    "overriden": "Tilsidesat",
+    "overridden": "Tilsidesat",
     "parameter_list": "Forespørgselsparametre",
     "parameters": "Parametre",
     "path": "Sti",

@@ -594,7 +594,7 @@
     "order_changed": "Kérés sorrendje frissítve",
     "override": "Felülbírálás",
     "override_help": "<kbd>Content-Type</kbd> beállítása a fejlécekben",
-    "overriden": "Felülbírálva",
+    "overridden": "Felülbírálva",
     "parameter_list": "Lekérdezési paraméterek",
     "parameters": "Paraméterek",
     "path": "Útvonal",

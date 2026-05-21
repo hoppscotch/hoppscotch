@@ -87,7 +87,7 @@
         },
         {
           "key": "secretKey",
-          "value": "test-secret-key-overriden",
+          "value": "test-secret-key-overridden",
           "active": true
         }
       ]

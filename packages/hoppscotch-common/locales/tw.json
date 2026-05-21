@@ -610,7 +610,7 @@
     "order_changed": "已更新請求順序",
     "override": "覆寫",
     "override_help": "在標頭設置 <kbd>Content-Type</kbd>",
-    "overriden": "已覆寫",
+    "overridden": "已覆寫",
     "parameter_list": "查詢參數",
     "parameters": "參數",
     "path": "路徑",

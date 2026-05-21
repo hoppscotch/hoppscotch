@@ -695,7 +695,7 @@
     "order_changed": "Ordem de Requisições Atualizada",
     "override": "Substituir",
     "override_help": "Substituir <kbd>Content-Type</kbd> em Headers",
-    "overriden": "Substituído",
+    "overridden": "Substituído",
     "parameter_list": "Parâmetros da requisição",
     "parameters": "Parâmetros",
     "path": "Caminho",

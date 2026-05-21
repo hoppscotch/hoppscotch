@@ -8,11 +8,11 @@
     },
     {
       "key": "BODY_KEY",
-      "value": "overriden-body-key-at-environment"
+      "value": "overridden-body-key-at-environment"
     },
     {
       "key": "BODY_VALUE",
-      "value": "overriden-body-value-at-environment"
+      "value": "overridden-body-value-at-environment"
     }
   ]
 }

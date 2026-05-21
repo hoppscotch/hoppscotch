@@ -1200,7 +1200,7 @@
     "order_changed": "Orden de solicitudes actualizadas",
     "override": "Anular",
     "override_help": "Establecer <kbd>Content-Type</kbd> en las cabeceras",
-    "overriden": "Anulado",
+    "overridden": "Anulado",
     "parameter_list": "Parámetros de consulta",
     "parameters": "Parámetros",
     "path": "Ruta",

@@ -136,7 +136,7 @@ describe("GraphQL Response Transformation", () => {
 
 describe("GraphQL Request Transformation", () => {
   const baseRequest: HoppGQLRequest = {
-    v: 11,
+    v: 10,
     name: "Test Query",
     url: "https://api.example.com/graphql",
     headers: [],

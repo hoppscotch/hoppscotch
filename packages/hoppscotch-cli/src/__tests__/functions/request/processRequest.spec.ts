@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
 import { HoppRESTRequest } from "@hoppscotch/data";
 import axios, { AxiosResponse } from "axios";
 import { processRequest } from "../../../utils/request";
@@ -5,7 +6,19 @@ import { HoppEnvs } from "../../../types/request";
 
 import "@relmify/jest-fp-ts";
 
-jest.mock("axios");
+vi.mock("axios", () => {
+  const mockAxios: any = vi.fn();
+  mockAxios.create = vi.fn(() => mockAxios);
+  mockAxios.interceptors = {
+    request: { use: vi.fn(), eject: vi.fn(), handlers: [] },
+    response: { use: vi.fn(), eject: vi.fn(), handlers: [] },
+  };
+  mockAxios.isAxiosError = vi.fn();
+  return {
+    default: mockAxios,
+    isAxiosError: mockAxios.isAxiosError,
+  };
+});
 
 const DEFAULT_REQUEST = <HoppRESTRequest>{
   v: "1",
@@ -47,7 +60,7 @@ describe("processRequest", () => {
   let SAMPLE_REQUEST = DEFAULT_REQUEST;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
@@ -55,7 +68,7 @@ describe("processRequest", () => {
   });
 
   test("With empty envs for 'true' result.", () => {
-    (axios as unknown as jest.Mock).mockResolvedValue(DEFAULT_RESPONSE);
+    vi.mocked(axios).mockResolvedValue(DEFAULT_RESPONSE);
 
     return expect(
       processRequest({
@@ -81,7 +94,7 @@ describe("processRequest", () => {
 			});
 		`;
 
-    (axios as unknown as jest.Mock).mockResolvedValue(DEFAULT_RESPONSE);
+    vi.mocked(axios).mockResolvedValue(DEFAULT_RESPONSE);
 
     return expect(
       processRequest({
@@ -92,7 +105,7 @@ describe("processRequest", () => {
       })()
     ).resolves.toMatchObject({
       envs: {
-        selected: [{ key: "ENDPOINT", value: "https://example.com" }],
+        selected: [{ key: "ENDPOINT", currentValue: "https://example.com" }],
       },
       report: {
         result: true,
@@ -103,7 +116,7 @@ describe("processRequest", () => {
   test("With invalid-pre-request-script.", () => {
     SAMPLE_REQUEST.preRequestScript = `invalid`;
 
-    (axios as unknown as jest.Mock).mockResolvedValue(DEFAULT_RESPONSE);
+    vi.mocked(axios).mockResolvedValue(DEFAULT_RESPONSE);
 
     return expect(
       processRequest({

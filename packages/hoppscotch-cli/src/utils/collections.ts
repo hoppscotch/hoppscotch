@@ -126,11 +126,11 @@ const processCollection = async (
   ]);
 
   // Process each request in the collection
-  for (const request of collection.requests) {
+  for (const request of collection.requests || []) {
     const _request = preProcessRequest(request as HoppRESTRequest, collection);
     const requestPath = `${path}/${_request.name}`;
 
-    const collectionVariables = collection.variables.filter(
+    const collectionVariables = (collection.variables || []).filter(
       (variable) => variable.key && variable.key.trim() !== ""
     );
 
@@ -162,14 +162,19 @@ const processCollection = async (
   }
 
   // Process each folder in the collection
-  for (const folder of collection.folders) {
-    const updatedFolder: HoppCollection = { ...folder };
+  for (const folder of collection.folders || []) {
+    const updatedFolder: HoppCollection = {
+      ...folder,
+      auth: folder.auth ?? { authActive: false, authType: "none" },
+      headers: folder.headers ?? [],
+      variables: folder.variables ?? [],
+    };
 
-    if (updatedFolder.auth.authType === "inherit") {
-      updatedFolder.auth = collection.auth;
+    if (updatedFolder.auth && updatedFolder.auth.authType === "inherit") {
+      updatedFolder.auth = collection.auth ?? { authActive: false, authType: "none" };
     }
 
-    if (collection.headers.length) {
+    if (collection.headers && collection.headers.length) {
       // Filter out header entries present in the parent collection under the same name
       // This ensures the folder headers take precedence over the collection headers
       const filteredHeaders = collection.headers.filter(
@@ -184,7 +189,7 @@ const processCollection = async (
     }
 
     // Inherit collection variables into folder, with folder variables taking precedence
-    if (collection.variables.length) {
+    if (collection.variables && collection.variables.length) {
       // Filter out collection variables with same key as folder variables
       const filteredVariables = collection.variables.filter(
         (collectionVariableEntries) => {

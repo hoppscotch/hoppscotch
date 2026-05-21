@@ -274,12 +274,12 @@ export const getResourceContents = async (
  * @returns {EnvironmentVariable[]} The resolved list of variables that conforms to the shape of environment variables.
  */
 export const getResolvedVariables = (
-  requestVariables: HoppRESTRequestVariables,
+  requestVariables: HoppRESTRequestVariables | undefined,
   environmentVariables: EnvironmentVariable[],
   collectionVariables: HoppCollectionVariable[] = []
 ): EnvironmentVariable[] => {
   // Transforming request variables to the shape of environment variables
-  const activeRequestVariables = requestVariables
+  const activeRequestVariables = (requestVariables || [])
     .filter(({ active, value }) => active && value)
     .map(({ key, value }) => ({
       key,

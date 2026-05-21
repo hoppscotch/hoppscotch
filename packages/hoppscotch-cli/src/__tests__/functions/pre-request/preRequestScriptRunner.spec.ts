@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeAll } from "vitest";
 import { HoppRESTRequest } from "@hoppscotch/data";
 import { HoppEnvs } from "../../../types/request";
 import * as E from "fp-ts/Either";
@@ -29,37 +30,40 @@ const SAMPLE_REQUEST: HoppRESTRequest = {
     contentType: null,
     body: null,
   },
+  requestVariables: [],
 };
 
 describe("preRequestScriptRunner", () => {
   let SUCCESS_PRE_REQUEST_RUNNER: E.Either<
       HoppCLIError,
-      EffectiveHoppRESTRequest
+      { effectiveRequest: EffectiveHoppRESTRequest; updatedEnvs: HoppEnvs }
     >,
     FAILURE_PRE_REQUEST_RUNNER: E.Either<
       HoppCLIError,
-      EffectiveHoppRESTRequest
+      { effectiveRequest: EffectiveHoppRESTRequest; updatedEnvs: HoppEnvs }
     >;
 
   beforeAll(async () => {
     SAMPLE_REQUEST.preRequestScript = VALID_PRE_REQUEST_SCRIPT;
     SUCCESS_PRE_REQUEST_RUNNER = await preRequestScriptRunner(
       SAMPLE_REQUEST,
-      SAMPLE_ENVS
+      SAMPLE_ENVS,
+      false
     )();
 
     SAMPLE_REQUEST.preRequestScript = INVALID_PRE_REQUEST_SCRIPT;
     FAILURE_PRE_REQUEST_RUNNER = await preRequestScriptRunner(
       SAMPLE_REQUEST,
-      SAMPLE_ENVS
+      SAMPLE_ENVS,
+      false
     )();
   });
 
   test("Parsing of request endpoint with set ENV.", () => {
-    expect(SUCCESS_PRE_REQUEST_RUNNER).toSubsetEqualRight(<
-      EffectiveHoppRESTRequest
-    >{
-      effectiveFinalURL: "https://example.com",
+    expect(SUCCESS_PRE_REQUEST_RUNNER).toSubsetEqualRight({
+      effectiveRequest: {
+        effectiveFinalURL: "https://example.com",
+      },
     });
   });
 

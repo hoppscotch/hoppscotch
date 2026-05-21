@@ -179,6 +179,9 @@ export const requestRunner =
             }
           }
           runnerResponse.headers = transformedHeaders;
+        } else if ((e.config as RequestConfig)?.supported === false && !e.request) {
+          runnerResponse.status = 501;
+          runnerResponse.statusText = responseErrors[501];
         } else if (e.request) {
           return E.left(error({ code: "REQUEST_ERROR", data: E.toError(e) }));
         }

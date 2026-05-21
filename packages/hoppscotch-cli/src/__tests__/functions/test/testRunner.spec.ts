@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeAll } from "vitest";
 import { TestResponse } from "@hoppscotch/js-sandbox";
 import * as E from "fp-ts/Either";
 import { TestRunnerRes } from "../../../types/response";
@@ -28,7 +29,15 @@ describe("testRunner", () => {
 
   beforeAll(async () => {
     SUCCESS_TEST_RUNNER_RES = await testRunner({
-      testScript: `
+      request: {
+        v: "1",
+        name: "name",
+        method: "GET",
+        endpoint: "https://example.com",
+        params: [],
+        headers: [],
+        preRequestScript: "",
+        testScript: `
 			// Check status code is 200
 			pw.test("Status code is 200", ()=> {
 					pw.expect(pw.response.status).toBe(200);
@@ -40,14 +49,42 @@ describe("testRunner", () => {
 					pw.expect(pw.response.body).toBe("body");
 			});
 			`,
+        auth: {
+          authActive: false,
+          authType: "none",
+        },
+        body: {
+          contentType: null,
+          body: null,
+        },
+      },
       envs: SAMPLE_ENVS,
       response: SAMPLE_RESPONSE,
+      legacySandbox: false,
     })();
 
     FAILURE_TEST_RUNNER_RES = await testRunner({
-      testScript: "a",
+      request: {
+        v: "1",
+        name: "name",
+        method: "GET",
+        endpoint: "https://example.com",
+        params: [],
+        headers: [],
+        preRequestScript: "",
+        testScript: "a",
+        auth: {
+          authActive: false,
+          authType: "none",
+        },
+        body: {
+          contentType: null,
+          body: null,
+        },
+      },
       envs: SAMPLE_ENVS,
       response: SAMPLE_RESPONSE,
+      legacySandbox: false,
     })();
   });
 

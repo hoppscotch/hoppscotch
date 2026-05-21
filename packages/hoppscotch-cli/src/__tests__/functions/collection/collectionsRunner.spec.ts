@@ -1,10 +1,23 @@
+import { describe, test, expect, beforeEach, afterAll, vi } from "vitest";
 import { collectionsRunner } from "../../../utils/collections";
 import { HoppRESTRequest } from "@hoppscotch/data";
 import axios, { AxiosResponse } from "axios";
 
 import "@relmify/jest-fp-ts";
 
-jest.mock("axios");
+vi.mock("axios", () => {
+  const mockAxios: any = vi.fn();
+  mockAxios.create = vi.fn(() => mockAxios);
+  mockAxios.interceptors = {
+    request: { use: vi.fn(), eject: vi.fn(), handlers: [] },
+    response: { use: vi.fn(), eject: vi.fn(), handlers: [] },
+  };
+  mockAxios.isAxiosError = vi.fn();
+  return {
+    default: mockAxios,
+    isAxiosError: mockAxios.isAxiosError,
+  };
+});
 
 const SAMPLE_HOPP_REQUEST = <HoppRESTRequest>{
   v: "1",
@@ -41,11 +54,11 @@ const SAMPLE_ENVS = { global: [], selected: [] };
 
 describe("collectionsRunner", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterAll(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test("Empty HoppCollection.", () => {
@@ -71,7 +84,7 @@ describe("collectionsRunner", () => {
   });
 
   test("Non-empty requests in collection.", () => {
-    (axios as unknown as jest.Mock).mockResolvedValue(SAMPLE_RESOLVED_RESPONSE);
+    vi.mocked(axios).mockResolvedValue(SAMPLE_RESOLVED_RESPONSE);
 
     return expect(
       collectionsRunner({
@@ -96,7 +109,7 @@ describe("collectionsRunner", () => {
   });
 
   test("Non-empty folders in collection.", () => {
-    (axios as unknown as jest.Mock).mockResolvedValue(SAMPLE_RESOLVED_RESPONSE);
+    vi.mocked(axios).mockResolvedValue(SAMPLE_RESOLVED_RESPONSE);
 
     return expect(
       collectionsRunner({

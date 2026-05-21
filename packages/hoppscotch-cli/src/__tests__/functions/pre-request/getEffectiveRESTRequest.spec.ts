@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach } from "vitest";
 import { Environment, HoppRESTRequest } from "@hoppscotch/data";
 import { EffectiveHoppRESTRequest } from "../../../interfaces/request";
 import { HoppCLIError } from "../../../types/errors";
@@ -10,12 +11,14 @@ const DEFAULT_ENV = <Environment>{
   variables: [
     {
       key: "HEADER",
-      value: "parsed_header",
+      initialValue: "parsed_header",
+      currentValue: "parsed_header",
+      secret: false,
     },
-    { key: "PARAM", value: "parsed_param" },
-    { key: "TOKEN", value: "parsed_token" },
-    { key: "BODY_PROP", value: "parsed_body_prop" },
-    { key: "ENDPOINT", value: "https://parsed-endpoint.com" },
+    { key: "PARAM", initialValue: "parsed_param", currentValue: "parsed_param", secret: false },
+    { key: "TOKEN", initialValue: "parsed_token", currentValue: "parsed_token", secret: false },
+    { key: "BODY_PROP", initialValue: "parsed_body_prop", currentValue: "parsed_body_prop", secret: false },
+    { key: "ENDPOINT", initialValue: "https://parsed-endpoint.com", currentValue: "https://parsed-endpoint.com", secret: false },
   ],
 };
 
@@ -36,6 +39,7 @@ const DEFAULT_REQUEST = <HoppRESTRequest>{
     contentType: null,
     body: null,
   },
+  requestVariables: [],
 };
 
 describe("getEffectiveRESTRequest", () => {
@@ -45,7 +49,7 @@ describe("getEffectiveRESTRequest", () => {
     SAMPLE_REQUEST = Object.assign({}, DEFAULT_REQUEST);
   });
 
-  test("Endpoint, headers and params with unavailable ENV.", () => {
+  test("Endpoint, headers and params with unavailable ENV.", async () => {
     SAMPLE_REQUEST.headers = [
       {
         key: "HEADER",
@@ -62,45 +66,46 @@ describe("getEffectiveRESTRequest", () => {
     ];
     SAMPLE_REQUEST.endpoint = "<<UNKNOWN>>";
 
-    expect(
-      getEffectiveRESTRequest(SAMPLE_REQUEST, DEFAULT_ENV)
-    ).toSubsetEqualRight(<EffectiveHoppRESTRequest>{
-      effectiveFinalHeaders: [{ active: true, key: "HEADER", value: "" }],
-      effectiveFinalParams: [{ active: true, key: "PARAM", value: "" }],
-      effectiveFinalURL: "",
+    const result = await getEffectiveRESTRequest(SAMPLE_REQUEST, DEFAULT_ENV);
+    expect(result).toSubsetEqualRight({
+      effectiveRequest: {
+        effectiveFinalHeaders: [{ active: true, key: "HEADER", value: "" }],
+        effectiveFinalParams: [{ active: true, key: "PARAM", value: "" }],
+        effectiveFinalURL: "",
+      },
     });
   });
 
-  test("Auth with unavailable ENV.", () => {
+  test("Auth with unavailable ENV.", async () => {
     SAMPLE_REQUEST.auth = {
       authActive: true,
       authType: "bearer",
       token: "<<UNKNOWN>>",
     };
 
-    expect(
-      getEffectiveRESTRequest(SAMPLE_REQUEST, DEFAULT_ENV)
-    ).toSubsetEqualRight(<EffectiveHoppRESTRequest>{
-      effectiveFinalHeaders: [
-        { active: true, key: "Authorization", value: "Bearer " },
-      ],
+    const result = await getEffectiveRESTRequest(SAMPLE_REQUEST, DEFAULT_ENV);
+    expect(result).toSubsetEqualRight({
+      effectiveRequest: {
+        effectiveFinalHeaders: [
+          { active: true, key: "Authorization", value: "Bearer " },
+        ],
+      },
     });
   });
 
-  test("Body with unavailable ENV.", () => {
+  test("Body with unavailable ENV.", async () => {
     SAMPLE_REQUEST.body = {
       contentType: "text/plain",
       body: "<<UNKNOWN>>",
     };
 
-    expect(
-      getEffectiveRESTRequest(SAMPLE_REQUEST, DEFAULT_ENV)
-    ).toSubsetEqualLeft(<HoppCLIError>{
+    const result = await getEffectiveRESTRequest(SAMPLE_REQUEST, DEFAULT_ENV);
+    expect(result).toSubsetEqualLeft(<HoppCLIError>{
       code: "PARSING_ERROR",
     });
   });
 
-  test("Request meta-data with available ENVs.", () => {
+  test("Request meta-data with available ENVs.", async () => {
     SAMPLE_REQUEST.headers = [
       {
         key: "HEADER",
@@ -128,23 +133,24 @@ describe("getEffectiveRESTRequest", () => {
 
     const vars = DEFAULT_ENV.variables;
 
-    expect(
-      getEffectiveRESTRequest(SAMPLE_REQUEST, DEFAULT_ENV)
-    ).toSubsetEqualRight(<EffectiveHoppRESTRequest>{
-      effectiveFinalHeaders: [
-        { active: true, key: "HEADER", value: vars[0].value },
-        {
-          active: true,
-          key: "Authorization",
-          value: `Bearer ${vars[2].value}`,
-        },
-        { active: true, key: "content-type", value: "text/plain" },
-      ],
-      effectiveFinalParams: [
-        { active: true, key: "PARAM", value: vars[1].value },
-      ],
-      effectiveFinalURL: vars[4].value,
-      effectiveFinalBody: vars[3].value,
+    const result = await getEffectiveRESTRequest(SAMPLE_REQUEST, DEFAULT_ENV);
+    expect(result).toSubsetEqualRight({
+      effectiveRequest: {
+        effectiveFinalHeaders: [
+          { active: true, key: "HEADER", value: vars[0].currentValue },
+          {
+            active: true,
+            key: "Authorization",
+            value: `Bearer ${vars[2].currentValue}`,
+          },
+          { active: true, key: "Content-Type", value: "text/plain" },
+        ],
+        effectiveFinalParams: [
+          { active: true, key: "PARAM", value: vars[1].currentValue },
+        ],
+        effectiveFinalURL: vars[4].currentValue,
+        effectiveFinalBody: vars[3].currentValue,
+      },
     });
   });
 });

@@ -132,7 +132,7 @@ export async function readJsonFile(
  */
 export async function parseCollectionData(
   pathOrId: string,
-  options: TestCmdCollectionOptions
+  options: TestCmdCollectionOptions = {}
 ): Promise<HoppCollection[]> {
   const { token: accessToken, server: serverUrl } = options;
 

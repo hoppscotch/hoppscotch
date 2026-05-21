@@ -3450,15 +3450,15 @@ const setCollectionProperties = (newCollection: {
       )
     )
 
-    secretEnvironmentService.addSecretEnvironment(
-      collection._ref_id ?? collectionId!,
-      secretVariables
-    )
+    // Mirror the read-side keying in `editProperties`.
+    const storeKey =
+      collectionsType.value.type === "team-collections"
+        ? collectionId!
+        : (collection._ref_id ?? collectionId!)
 
-    currentEnvironmentValueService.addEnvironment(
-      collection._ref_id ?? collectionId!,
-      nonSecretVariables
-    )
+    secretEnvironmentService.addSecretEnvironment(storeKey, secretVariables)
+
+    currentEnvironmentValueService.addEnvironment(storeKey, nonSecretVariables)
 
     collection.variables = stripSecretVariableValuesForWire(filteredVariables)
   }

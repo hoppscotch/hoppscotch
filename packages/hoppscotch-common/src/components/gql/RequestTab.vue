@@ -13,7 +13,11 @@
       />
     </template>
     <template #secondary>
-      <GqlResponse :response="tab.document.response" :tab-id="tab.id" />
+      <GqlResponse
+        v-model:document="tab.document"
+        :response="tab.document.response"
+        :tab-id="tab.id"
+      />
     </template>
   </AppPaneLayout>
 </template>

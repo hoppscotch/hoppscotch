@@ -437,14 +437,14 @@
       "client_secret": "Үйлчлүүлэгчийн нууц",
       "client_token": "Үйлчлүүлэгчийн токен",
       "delegation": "Төлөөлөгч",
-      "digest_auth": "Digest Aut",
+      "digest_auth": "Digest Auth",
       "extra_data": "Нэмэлт өгөгдөл",
       "grant_type": "Тэтгэлгийн төрөл",
-      "hawk_auth": "HAWK Aut",
+      "hawk_auth": "HAWK Auth",
       "headers_to_sign": "Гарын үсэг зурах",
       "host": "Хөтлөгч",
       "include_payload_hash": "Ачааны хэшийг оруулна уу",
-      "jwt_auth": "JWT Aut",
+      "jwt_auth": "JWT Auth",
       "max_body_size": "Хамгийн их биеийн хэмжээ",
       "no_auth": "Баталгаажуулалт байхгүй",
       "nonce": "Үгүй ээ",
@@ -672,35 +672,35 @@
   "error": {
     "network": {
       "heading": "Сүлжээний алдаа",
-      "description": "Сүлжээний холболт амжилтгүй боллоо.{message}:{cause}"
+      "description": "Сүлжээний холболт амжилтгүй боллоо. {message}: {cause}"
     },
     "timeout": {
       "heading": "Хугацаа хэтэрсэн алдаа",
-      "description": "{phase} үед хүсэлтийн хугацаа дууссан.{message}"
+      "description": "{phase} үед хүсэлтийн хугацаа дууссан. {message}"
     },
     "certificate": {
       "heading": "Сертификатын алдаа",
-      "description": "Хүчингүй гэрчилгээ.{message}:{cause}"
+      "description": "Хүчингүй гэрчилгээ. {message}: {cause}"
     },
     "auth": {
       "heading": "Баталгаажуулалтын алдаа",
-      "description": "Хандалтыг хориглосон.{message}:{cause}"
+      "description": "Хандалтыг хориглосон. {message}: {cause}"
     },
     "proxy": {
       "heading": "Прокси алдаа",
-      "description": "Прокси холболт амжилтгүй боллоо.{message}:{cause}"
+      "description": "Прокси холболт амжилтгүй боллоо. {message}: {cause}"
     },
     "parse": {
       "heading": "Шинжилгээний алдаа",
-      "description": "Хариултыг задлан шинжилж чадсангүй.{message}:{cause}"
+      "description": "Хариултыг задлан шинжилж чадсангүй. {message}: {cause}"
     },
     "version": {
       "heading": "Хувилбарын алдаа",
-      "description": "Тохиромжгүй хувилбарууд.{message}:{cause}"
+      "description": "Тохиромжгүй хувилбарууд. {message}: {cause}"
     },
     "abort": {
       "heading": "Хүсэлтийг цуцалсан",
-      "description": "Үйл ажиллагааг цуцалсан.{message}:{cause}"
+      "description": "Үйл ажиллагааг цуцалсан. {message}: {cause}"
     },
     "unknown": {
       "heading": "Үл мэдэгдэх алдаа",

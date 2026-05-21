@@ -175,7 +175,10 @@ export class WorkspaceTabsService extends TabService<HoppTabDocument> {
     orderedDocs: this.tabOrdering.value.map((tabID) => {
       const tab = this.tabMap.get(tabID)! // tab ordering is guaranteed to have value for this key
 
-      if (tab.document.type === "example-response") {
+      if (
+        tab.document.type === "example-response" ||
+        tab.document.type === "gql-example-response"
+      ) {
         return {
           tabID: tab.id,
           doc: tab.document,

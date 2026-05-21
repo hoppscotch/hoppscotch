@@ -7,7 +7,7 @@
     </label>
     <div class="flex">
       <HoppButtonSecondary
-        v-if="subscriptionState === 'SUBSCRIBED'"
+        v-if="showRunActions && subscriptionState === 'SUBSCRIBED'"
         v-tippy="{
           theme: 'tooltip',
           delay: [500, 20],
@@ -20,7 +20,11 @@
         @click="unsubscribe()"
       />
       <HoppButtonSecondary
-        v-if="selectedOperation && subscriptionState !== 'SUBSCRIBED'"
+        v-if="
+          showRunActions &&
+          selectedOperation &&
+          subscriptionState !== 'SUBSCRIBED'
+        "
         v-tippy="{
           theme: 'tooltip',
           delay: [500, 20],
@@ -101,9 +105,13 @@ import { toggleNestedSetting } from "~/newstore/settings"
 const t = useI18n()
 const toast = useToast()
 
-const props = defineProps<{
-  modelValue: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    modelValue: string
+    showRunActions?: boolean
+  }>(),
+  { showRunActions: true }
+)
 
 const emit = defineEmits<{
   (e: "save-request"): void

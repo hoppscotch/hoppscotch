@@ -69,6 +69,10 @@
         <CollectionsDocumentationSectionsGqlVariables
           :variables="(request as HoppGQLRequest).variables"
         />
+
+        <CollectionsDocumentationSectionsResponse
+          :response-examples="getResponseExamples()"
+        />
       </template>
 
       <template v-else>
@@ -309,14 +313,17 @@ watch(
 )
 
 function getResponseExamples() {
-  if (!props.request || isGqlRequest.value) return null
+  if (!props.request) return null
 
-  const restReq = props.request as HoppRESTRequest
+  // Both REST and GQL requests now carry a `responses` map of the same shape;
+  // the documentation section consumes a generic `{name,statusCode,headers,body}`.
+  const responses = (props.request as HoppRESTRequest | HoppGQLRequest)
+    .responses
 
-  if (restReq.responses && Object.keys(restReq.responses).length > 0) {
+  if (responses && Object.keys(responses).length > 0) {
     const examples = []
 
-    for (const [name, response] of Object.entries(restReq.responses)) {
+    for (const [name, response] of Object.entries(responses)) {
       if (response && typeof response === "object") {
         const example = {
           name: name || "Response Example",

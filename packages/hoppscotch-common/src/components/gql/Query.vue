@@ -7,7 +7,7 @@
     </label>
     <div class="flex">
       <HoppButtonSecondary
-        v-if="subscriptionState === 'SUBSCRIBED'"
+        v-if="showRunActions && subscriptionState === 'SUBSCRIBED'"
         v-tippy="{
           theme: 'tooltip',
           delay: [500, 20],
@@ -21,7 +21,11 @@
       />
 
       <HoppButtonSecondary
-        v-if="selectedOperation && subscriptionState !== 'SUBSCRIBED'"
+        v-if="
+          showRunActions &&
+          selectedOperation &&
+          subscriptionState !== 'SUBSCRIBED'
+        "
         v-tippy="{
           theme: 'tooltip',
           delay: [500, 20],
@@ -123,9 +127,13 @@ const queryEditor = ref<any | null>(null)
 const t = useI18n()
 const toast = useToast()
 
-const props = defineProps<{
-  modelValue: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    modelValue: string
+    showRunActions?: boolean
+  }>(),
+  { showRunActions: true }
+)
 
 const emit = defineEmits<{
   (e: "save-request"): void

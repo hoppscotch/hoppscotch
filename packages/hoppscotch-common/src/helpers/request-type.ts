@@ -1,25 +1,31 @@
 import {
   HoppGQLRequest,
+  HoppGQLResponseOriginalRequest,
   HoppRESTRequest,
   HoppRESTResponseOriginalRequest,
 } from "@hoppscotch/data"
 
+type AnyRequest =
+  | HoppRESTRequest
+  | HoppRESTResponseOriginalRequest
+  | HoppGQLRequest
+  | HoppGQLResponseOriginalRequest
+
 /**
- * Type guard to check if a request object is a GraphQL request.
- * GQL requests have `url` but not `endpoint`; REST requests have `endpoint`.
+ * Type guard to check if a request object is GraphQL-shaped.
+ * GQL requests / saved example original-requests have `url` but not `endpoint`.
  */
 export function isGQLRequest(
-  req: HoppRESTRequest | HoppRESTResponseOriginalRequest | HoppGQLRequest
-): req is HoppGQLRequest {
+  req: AnyRequest
+): req is HoppGQLRequest | HoppGQLResponseOriginalRequest {
   return "url" in req && !("endpoint" in req)
 }
 
 /**
- * Type guard to check if a request object is a REST request.
- * REST requests have `endpoint`.
+ * Type guard to check if a request object is REST-shaped.
  */
 export function isRESTRequest(
-  req: HoppRESTRequest | HoppRESTResponseOriginalRequest | HoppGQLRequest
+  req: AnyRequest
 ): req is HoppRESTRequest | HoppRESTResponseOriginalRequest {
   return "endpoint" in req
 }

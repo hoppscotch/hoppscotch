@@ -408,7 +408,9 @@ const envVars = computed(() => {
   const currentTab = tabs.currentActiveTab.value
   const { document } = currentTab
   const isRequest = document.type === "request"
-  const isExample = document.type === "example-response"
+  const isRESTExample = document.type === "example-response"
+  const isGQLExample = document.type === "gql-example-response"
+  const isExample = isRESTExample || isGQLExample
   const isGQLRequest = document.type === "gql-request"
 
   // variables inherited from the collection if we're in a request, GQL request, or example
@@ -420,10 +422,12 @@ const envVars = computed(() => {
         )
       : []
 
-  // request-level variables
+  // request-level variables. Only REST carries a `requestVariables` key/value
+  // array — GQL has a JSON `variables` blob which is a different concept (it's
+  // GraphQL operation variables, not env-style overrides).
   const rawRequestVars = isRequest
     ? document.request.requestVariables
-    : isExample
+    : isRESTExample
       ? document.response.originalRequest.requestVariables
       : []
 

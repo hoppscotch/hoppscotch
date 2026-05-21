@@ -184,6 +184,7 @@ function normalizeCollectionRequest(
     variables: g.variables,
     description: g.description ?? null,
     _ref_id: g._ref_id,
+    responses: g.responses ?? {},
   }
 }
 

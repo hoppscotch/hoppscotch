@@ -1,13 +1,20 @@
 <template>
   <div
     v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
-    :title="tab.document.request.name"
+    :title="tabName"
     class="flex items-center truncate px-2"
     @dblclick="emit('open-rename-modal')"
     @contextmenu.prevent="options?.tippy?.show()"
     @click.middle="emit('close-tab')"
   >
-    <component :is="IconGraphql" class="mr-2 h-4 w-4 text-accent" />
+    <component
+      :is="IconGraphql"
+      class="mr-2 h-4 w-4 text-accent"
+      :class="{
+        'border border-dashed border-primaryDark grayscale p-0.5 rounded-sm':
+          isResponseExample,
+      }"
+    />
     <tippy
       ref="options"
       trigger="manual"
@@ -16,7 +23,7 @@
       :on-shown="() => tippyActions!.focus()"
     >
       <span class="truncate">
-        {{ tab.document.request.name }}
+        {{ tabName }}
       </span>
       <template #content="{ hide }">
         <div
@@ -30,6 +37,7 @@
           @keyup.escape="hide()"
         >
           <HoppSmartItem
+            v-if="!isResponseExample"
             ref="renameAction"
             :icon="IconFileEdit"
             :label="t('request.rename')"
@@ -42,6 +50,7 @@
             "
           />
           <HoppSmartItem
+            v-if="!isResponseExample"
             ref="duplicateAction"
             :icon="IconCopy"
             :label="t('tab.duplicate')"
@@ -86,7 +95,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
+import { computed, ref } from "vue"
 import { TippyComponent } from "vue-tippy"
 import { useI18n } from "~/composables/i18n"
 import IconGraphql from "~icons/hopp/graphql"
@@ -95,14 +104,31 @@ import IconXSquare from "~icons/lucide/x-square"
 import IconFileEdit from "~icons/lucide/file-edit"
 import IconCopy from "~icons/lucide/copy"
 import { HoppTab } from "~/services/tab"
-import { HoppGQLRequestDocument } from "~/helpers/rest/document"
+import {
+  HoppGQLRequestDocument,
+  HoppSavedGQLExampleDocument,
+} from "~/helpers/rest/document"
 
 const t = useI18n()
 
-defineProps<{
-  tab: HoppTab<HoppGQLRequestDocument>
+const props = defineProps<{
+  tab: HoppTab<HoppGQLRequestDocument | HoppSavedGQLExampleDocument>
   isRemovable: boolean
 }>()
+
+const isResponseExample = computed(
+  () => props.tab.document.type === "gql-example-response"
+)
+
+const tabName = computed(() => {
+  if (props.tab.document.type === "gql-example-response") {
+    return props.tab.document.response?.name ?? "Untitled"
+  }
+  if (props.tab.document.type === "gql-request") {
+    return props.tab.document.request?.name ?? "Untitled"
+  }
+  return "Untitled"
+})
 
 const emit = defineEmits<{
   (event: "open-rename-modal"): void

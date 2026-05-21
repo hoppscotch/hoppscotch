@@ -1260,6 +1260,7 @@
     "generate_data_schema": "Generate Data Schema",
     "data_schema": "Data Schema",
     "saved": "Response saved",
+    "save_as_example": "Save as example",
     "invalid_name": "Please provide a name for the response"
   },
   "script": {

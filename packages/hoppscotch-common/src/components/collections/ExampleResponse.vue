@@ -129,7 +129,10 @@ import { useI18n } from "@composables/i18n"
 import { TippyComponent } from "vue-tippy"
 import { useService } from "dioc/vue"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
-import { HoppRESTRequestResponse } from "@hoppscotch/data"
+import {
+  HoppGQLRequestResponse,
+  HoppRESTRequestResponse,
+} from "@hoppscotch/data"
 import { HoppRESTSaveContext } from "~/helpers/rest/document"
 import findStatusGroup from "@helpers/findStatusGroup"
 
@@ -147,7 +150,7 @@ type SaveContext = {
 
 const props = defineProps({
   response: {
-    type: Object as PropType<HoppRESTRequestResponse>,
+    type: Object as PropType<HoppRESTRequestResponse | HoppGQLRequestResponse>,
     default: null,
     required: true,
   },

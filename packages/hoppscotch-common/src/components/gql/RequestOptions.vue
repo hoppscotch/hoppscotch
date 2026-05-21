@@ -11,6 +11,7 @@
     >
       <GqlQuery
         v-model="request.query"
+        :show-run-actions="showRunActions"
         @run-query="runQuery"
         @save-request="() => invokeAction('request-response.save')"
         @cursor-position="updateCursorPos"
@@ -25,6 +26,7 @@
     >
       <GqlVariable
         v-model="request.variables"
+        :show-run-actions="showRunActions"
         @run-query="runQuery"
         @save-request="() => invokeAction('request-response.save')"
       />
@@ -52,7 +54,11 @@
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { HoppGQLAuth, HoppGQLRequest } from "@hoppscotch/data"
+import {
+  HoppGQLAuth,
+  HoppGQLRequest,
+  HoppGQLResponseOriginalRequest,
+} from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
 import * as gql from "graphql"
 import { clone } from "lodash-es"
@@ -69,6 +75,8 @@ import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { useService } from "dioc/vue"
 import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
 
+type GqlRequestOptionsModel = HoppGQLRequest | HoppGQLResponseOriginalRequest
+
 const interceptorService = useService(KernelInterceptorService)
 const gqlTabConn = useService(GQLTabConnectionService)
 
@@ -77,21 +85,25 @@ const toast = useToast()
 
 const props = withDefaults(
   defineProps<{
-    modelValue: HoppGQLRequest
+    modelValue: GqlRequestOptionsModel
     response?: GQLResponseEvent[] | null
     optionTab?: GQLOptionTabs
-    tabId: string
-    url: string
+    tabId?: string
+    url?: string
     inheritedProperties?: HoppInheritedProperty
+    showRunActions?: boolean
   }>(),
   {
     response: null,
     optionTab: "query",
+    tabId: "",
+    url: "",
+    showRunActions: true,
   }
 )
 
 const emit = defineEmits<{
-  (e: "update:modelValue", value: HoppGQLRequest): void
+  (e: "update:modelValue", value: GqlRequestOptionsModel): void
   (e: "update:optionTab", value: GQLOptionTabs): void
   (e: "update:response", value: GQLResponseEvent[]): void
   (e: "cursor-position", pos: number): void
@@ -110,6 +122,7 @@ const activeGQLHeadersCount = computed(
 const runQuery = async (
   definition: gql.OperationDefinitionNode | null = null
 ) => {
+  if (!props.tabId) return
   const startTime = Date.now()
   startPageProgress()
   try {
@@ -125,7 +138,7 @@ const runQuery = async (
     await gqlTabConn.runTabGQLOperation(props.tabId, {
       name: request.value.name,
       url: runURL,
-      request: request.value,
+      request: request.value as HoppGQLRequest,
       inheritedHeaders,
       inheritedAuth: props.inheritedProperties?.auth.inheritedAuth as
         | HoppGQLAuth
@@ -153,58 +166,58 @@ const runQuery = async (
   })
 }
 
-// Watch per-tab message event for responses routed to this specific tab
-const tabMessageEvent = gqlTabConn.getTabMessageEvent(props.tabId)
-watch(
-  () => tabMessageEvent.value,
-  (event) => {
-    if (event === "reset") {
-      emit("update:response", [])
-      return
-    }
-
-    try {
-      if (
-        event?.type === "response" &&
-        event?.operationType !== "subscription"
-      ) {
-        emit("update:response", [event])
-      } else {
-        emit("update:response", [...(props.response ?? []), event])
+if (props.tabId) {
+  const tabMessageEvent = gqlTabConn.getTabMessageEvent(props.tabId)
+  watch(
+    () => tabMessageEvent.value,
+    (event) => {
+      if (event === "reset") {
+        emit("update:response", [])
+        return
       }
-    } catch (error) {
-      console.log(error)
-    }
-  },
-  { deep: true }
-)
 
-// Watch per-tab connection state for errors
-watch(
-  () => {
-    const ctx = gqlTabConn.getTabConnectionState(props.tabId)
-    return { error: ctx.error, state: ctx.state }
-  },
-  (newVal) => {
-    if (
-      newVal.error &&
-      (newVal.state === "DISCONNECTED" || newVal.state === "ERROR")
-    ) {
-      const response = [
-        {
-          type: "error",
-          error: {
-            message: newVal.error.message(t),
-            type: newVal.error.type,
-            component: newVal.error.component,
+      try {
+        if (
+          event?.type === "response" &&
+          event?.operationType !== "subscription"
+        ) {
+          emit("update:response", [event])
+        } else {
+          emit("update:response", [...(props.response ?? []), event])
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    { deep: true }
+  )
+
+  watch(
+    () => {
+      const ctx = gqlTabConn.getTabConnectionState(props.tabId)
+      return { error: ctx.error, state: ctx.state }
+    },
+    (newVal) => {
+      if (
+        newVal.error &&
+        (newVal.state === "DISCONNECTED" || newVal.state === "ERROR")
+      ) {
+        const response = [
+          {
+            type: "error",
+            error: {
+              message: newVal.error.message(t),
+              type: newVal.error.type,
+              component: newVal.error.component,
+            },
           },
-        },
-      ]
-      emit("update:response", response)
-    }
-  },
-  { deep: true }
-)
+        ]
+        emit("update:response", response)
+      }
+    },
+    { deep: true }
+  )
+}
 
 const updateCursorPos = (pos: number) => {
   emit("cursor-position", pos)
@@ -218,8 +231,9 @@ const changeOptionTab = (e: GQLOptionTabs) => {
   selectedOptionTab.value = e
 }
 
-defineActionHandler("request.send-cancel", runQuery)
-defineActionHandler("request.reset", clearGQLQuery)
+const runActionsActive = computed(() => props.showRunActions)
+defineActionHandler("request.send-cancel", runQuery, runActionsActive)
+defineActionHandler("request.reset", clearGQLQuery, runActionsActive)
 
 defineActionHandler("request.open-tab", ({ tab }) => {
   selectedOptionTab.value = tab as GQLOptionTabs

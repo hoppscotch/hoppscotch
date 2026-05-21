@@ -1,6 +1,7 @@
 import {
   HoppCollection,
   HoppGQLRequest,
+  HoppGQLRequestResponse,
   HoppRESTRequest,
   HoppRESTRequestResponse,
 } from "@hoppscotch/data"
@@ -278,6 +279,38 @@ export type HoppSavedExampleDocument = {
   inheritedProperties?: HoppInheritedProperty
 }
 
+export type HoppSavedGQLExampleDocument = {
+  /**
+   * The type of the document
+   */
+  type: "gql-example-response"
+
+  /**
+   * The response as it is in the document.
+   * Carries the GQL example shape (with a GQL `originalRequest` snapshot) so
+   * the renderer can reuse the GQL request/response surfaces.
+   */
+  response: HoppGQLRequestResponse
+
+  /**
+   * Info about where this response should be saved.
+   * This contains where the response is originated from basically.
+   */
+  saveContext?: HoppRESTSaveContext
+
+  /**
+   * Whether the response has any unsaved changes
+   * (atleast as far as we can say)
+   */
+  isDirty: boolean
+
+  /**
+   * The inherited properties from the parent collection
+   * (if any)
+   */
+  inheritedProperties?: HoppInheritedProperty
+}
+
 export type HoppGQLRequestDocument = {
   /**
    * The document type
@@ -334,6 +367,7 @@ export type HoppGQLRequestDocument = {
  */
 export type HoppTabDocument =
   | HoppSavedExampleDocument
+  | HoppSavedGQLExampleDocument
   | HoppRequestDocument
   | HoppTestRunnerDocument
   | HoppGQLRequestDocument

@@ -571,6 +571,7 @@ export class GQLTabConnectionService extends Service {
       variables: effective.effectiveFinalVariables,
       auth: effective.effectiveFinalAuth,
       description: null,
+      responses: {},
     }
 
     if (operationType === "subscription") {
@@ -878,6 +879,7 @@ export class GQLTabConnectionService extends Service {
           variables,
           auth: request.auth as HoppGQLAuth,
           description: request.description ?? null,
+          responses: {},
         }),
         response,
         star: false,

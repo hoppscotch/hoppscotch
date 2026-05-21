@@ -1,5 +1,6 @@
 import {
   HoppGQLRequest,
+  HoppGQLResponseOriginalRequest,
   HoppRESTRequest,
   HoppRESTResponseOriginalRequest,
 } from "@hoppscotch/data"
@@ -91,12 +92,14 @@ export type InspectorState = {
 /**
  * The full union of request types an inspector may receive.
  * REST tabs send HoppRESTRequest or HoppRESTResponseOriginalRequest;
- * GQL tabs send HoppGQLRequest.
+ * GQL tabs send HoppGQLRequest or HoppGQLResponseOriginalRequest (when
+ * the active document is a `gql-example-response`).
  */
 export type InspectorRequest =
   | HoppRESTRequest
   | HoppRESTResponseOriginalRequest
   | HoppGQLRequest
+  | HoppGQLResponseOriginalRequest
 
 /**
  * Defines an inspector that can be registered with the inspection service.
@@ -174,17 +177,22 @@ export class InspectionService extends Service {
 
     this.effectScope.run(() => {
       // Resolves the active request for both REST and GQL tabs.
-      // Returns null for tab types that are not inspectable (e.g. test-runner).
+      // Returns null for tab types that are not inspectable (e.g. test-runner)
+      // or when an example tab has a missing/broken `response` payload (e.g.
+      // stale persisted data) — never throw on a null-deref.
       const currentTabRequest = computed((): InspectorRequest | null => {
         const doc = this.restTab.currentActiveTab.value.document
 
         if (doc.type === "test-runner") return null
-
+        if (doc.type === "request") return doc.request
         if (doc.type === "gql-request") return doc.request
-
-        return doc.type === "request"
-          ? doc.request
-          : doc.response.originalRequest
+        if (doc.type === "example-response") {
+          return doc.response?.originalRequest ?? null
+        }
+        if (doc.type === "gql-example-response") {
+          return doc.response?.originalRequest ?? null
+        }
+        return null
       })
 
       const currentTabResponse = computed(() => {

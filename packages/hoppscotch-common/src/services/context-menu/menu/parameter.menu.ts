@@ -89,13 +89,13 @@ export class ParameterMenuService extends Service implements ContextMenu {
 
     const tabService = getService(WorkspaceTabsService)
 
-    const docType = tabService.currentActiveTab.value.document.type
-    if (docType === "test-runner" || docType === "gql-request") return
-
+    const doc = tabService.currentActiveTab.value.document
     const currentActiveRequest =
-      docType === "request"
-        ? tabService.currentActiveTab.value.document.request
-        : tabService.currentActiveTab.value.document.response?.originalRequest
+      doc.type === "request"
+        ? doc.request
+        : doc.type === "example-response"
+          ? doc.response?.originalRequest
+          : null
 
     if (!currentActiveRequest) return
 

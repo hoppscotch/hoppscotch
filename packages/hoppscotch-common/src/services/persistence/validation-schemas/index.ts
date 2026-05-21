@@ -3,6 +3,7 @@ import {
   GQLHeader,
   HoppGQLAuth,
   HoppGQLRequest,
+  HoppGQLRequestResponse,
   HoppRESTAuth,
   HoppRESTRequest,
   HoppRESTHeaders,
@@ -629,6 +630,15 @@ export const WORKSPACE_TABS_STATE_SCHEMA = z
             optionTabPreference: z.optional(
               z.enum(["query", "headers", "variables", "authorization"])
             ),
+            inheritedProperties: z.optional(HoppInheritedPropertySchema),
+          }),
+          z.object({
+            type: z
+              .literal("gql-example-response")
+              .catch("gql-example-response"),
+            response: z.nullable(entityReference(HoppGQLRequestResponse)),
+            saveContext: z.optional(HoppRESTSaveContextSchema),
+            isDirty: z.boolean(),
             inheritedProperties: z.optional(HoppInheritedPropertySchema),
           }),
         ]),

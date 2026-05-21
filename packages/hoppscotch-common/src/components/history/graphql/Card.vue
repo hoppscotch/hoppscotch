@@ -104,6 +104,7 @@ const useEntry = () => {
       variables: props.entry.request.variables,
       auth: props.entry.request.auth,
       description: props.entry.request.description ?? null,
+      responses: {},
     }),
     isDirty: false,
   })

@@ -418,12 +418,14 @@ const envVars = computed(() => {
   const currentTab = tabs.currentActiveTab.value
   const { document } = currentTab
   const isRequest = document.type === "request"
-  const isExample = document.type === "example-response"
+  const isRESTExample = document.type === "example-response"
+  const isGQLExample = document.type === "gql-example-response"
+  const isExample = isRESTExample || isGQLExample
   const isGQLRequest = document.type === "gql-request"
 
   const requestVariables = isRequest
     ? document.request.requestVariables
-    : isExample
+    : isRESTExample
       ? document.response.originalRequest.requestVariables
       : []
 

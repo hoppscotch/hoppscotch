@@ -422,6 +422,7 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
     variables,
     auth: auth ?? request.auth,
     description: null,
+    responses: {},
   }
 
   if (operationType === "subscription") {
@@ -664,6 +665,7 @@ const addQueryToHistory = (options: RunQueryOptions, response: string) => {
         variables,
         auth: request.auth as HoppGQLAuth,
         description: null,
+        responses: {},
       }),
       response,
       star: false,

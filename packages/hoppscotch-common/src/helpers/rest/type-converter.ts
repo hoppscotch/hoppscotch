@@ -66,6 +66,7 @@ export function convertRESTToGQL(
     variables: defaultGQL.variables,
     auth,
     description: restReq.description ?? null,
+    responses: {},
   }
 
   return {

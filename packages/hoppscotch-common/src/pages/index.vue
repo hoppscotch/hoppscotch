@@ -33,7 +33,10 @@
                 @share-tab-request="shareTabRequest(tab.id)"
               />
               <GqlTabHead
-                v-else-if="tab.document.type === 'gql-request'"
+                v-else-if="
+                  tab.document.type === 'gql-request' ||
+                  tab.document.type === 'gql-example-response'
+                "
                 :tab="tab"
                 :is-removable="activeTabs.length > 1"
                 @open-rename-modal="openReqRenameModal(tab.id)"
@@ -64,7 +67,18 @@
               "
             />
             <HttpExampleResponseTab
-              v-if="tab.document.type === 'example-response'"
+              v-if="
+                tab.document.type === 'example-response' &&
+                tab.document.response
+              "
+              :model-value="tab"
+              @update:model-value="onTabUpdate"
+            />
+            <GqlExampleResponseTab
+              v-if="
+                tab.document.type === 'gql-example-response' &&
+                tab.document.response
+              "
               :model-value="tab"
               @update:model-value="onTabUpdate"
             />
@@ -265,13 +279,15 @@ const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
 
 const getTabName = (tab: HoppTab<HoppTabDocument>) => {
   if (tab.document.type === "request") {
-    return tab.document.request.name
+    return tab.document.request?.name ?? "Untitled"
   } else if (tab.document.type === "gql-request") {
-    return tab.document.request.name
+    return tab.document.request?.name ?? "Untitled"
   } else if (tab.document.type === "test-runner") {
-    return tab.document.collection.name
+    return tab.document.collection?.name ?? "Untitled"
   } else if (tab.document.type === "example-response") {
-    return tab.document.response.name
+    return tab.document.response?.name ?? "Untitled"
+  } else if (tab.document.type === "gql-example-response") {
+    return tab.document.response?.name ?? "Untitled"
   }
 
   return "Unnamed tab"

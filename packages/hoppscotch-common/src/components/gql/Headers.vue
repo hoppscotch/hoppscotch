@@ -277,13 +277,17 @@ const colorMode = useColorMode()
 const t = useI18n()
 const toast = useToast()
 
+type GqlHeadersModel =
+  | HoppGQLRequest
+  | { headers: GQLHeader[]; auth: HoppGQLAuth }
+
 const props = defineProps<{
-  modelValue: HoppGQLRequest
+  modelValue: GqlHeadersModel
   inheritedProperties?: HoppInheritedProperty
 }>()
 
 const emit = defineEmits<{
-  (e: "update:modelValue", value: HoppGQLRequest): void
+  (e: "update:modelValue", value: GqlHeadersModel): void
   (e: "change-tab", value: GQLOptionTabs): void
 }>()
 
@@ -523,8 +527,8 @@ const clearContent = () => {
 }
 
 const getComputedAuthHeaders = async (
-  req?: HoppGQLRequest,
-  auth?: HoppGQLRequest["auth"]
+  req?: GqlHeadersModel,
+  auth?: HoppGQLAuth
 ) => {
   const request = auth ? { auth: auth ?? { authActive: false } } : req
   if (req && req.headers.find((h) => h.key.toLowerCase() === "authorization"))
@@ -605,7 +609,7 @@ const getComputedAuthHeaders = async (
   return headers
 }
 
-const getComputedHeaders = async (req: HoppGQLRequest) => {
+const getComputedHeaders = async (req: GqlHeadersModel) => {
   return [
     ...(await getComputedAuthHeaders(req)).map((header) => ({
       source: "auth" as const,

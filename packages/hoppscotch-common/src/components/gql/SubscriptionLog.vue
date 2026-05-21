@@ -14,21 +14,18 @@
           @click="emit('delete')"
         />
         <HoppButtonSecondary
-          id="bottompage"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.scroll_to_top')"
           :icon="IconArrowUp"
           @click="scrollTo('top')"
         />
         <HoppButtonSecondary
-          id="bottompage"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.scroll_to_bottom')"
           :icon="IconArrowDown"
           @click="scrollTo('bottom')"
         />
         <HoppButtonSecondary
-          id="bottompage"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.autoscroll')"
           :icon="IconChevronsDown"
@@ -40,7 +37,7 @@
     <div
       v-if="log.length !== 0"
       ref="logs"
-      class="overflow-y-auto border-b border-dividerLight"
+      class="flex-1 min-h-0 overflow-y-auto border-b border-dividerLight"
     >
       <div
         class="flex h-auto h-full flex-col divide-y divide-dividerLight border-r border-dividerLight"
@@ -48,7 +45,6 @@
         <RealtimeLogEntry
           v-for="(entry, index) in log"
           :key="`entry-${index}`"
-          :is-open="log.length - 1 === index"
           :entry="{
             ts: entry.type === 'response' ? entry.time : undefined,
             source: 'info',

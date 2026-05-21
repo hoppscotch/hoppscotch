@@ -135,7 +135,7 @@ describe('UserEnvironmentsService', () => {
       });
     });
 
-    test('Should resolve left and return an error if global env it doesn't exists', async () => {
+    test('Should resolve left and return an error if global env it doesn't exist', async () => {
       mockPrisma.userEnvironment.findFirst.mockResolvedValueOnce(null);
 
       expect(

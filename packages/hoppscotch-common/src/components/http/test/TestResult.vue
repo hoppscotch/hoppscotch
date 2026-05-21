@@ -276,7 +276,10 @@ const selectedEnvironmentIndex = useStream(
   setSelectedEnvironmentIndex
 )
 
-const globalEnvVars = useReadonlyStream(globalEnv$, {} as GlobalEnvironment)
+const globalEnvVars = useReadonlyStream(globalEnv$, {
+  v: 2,
+  variables: [],
+} as GlobalEnvironment)
 
 const noEnvSelected = computed(
   () => selectedEnvironmentIndex.value.type === "NO_ENV_SELECTED"

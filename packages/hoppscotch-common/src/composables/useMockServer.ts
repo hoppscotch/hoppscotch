@@ -30,6 +30,7 @@ import {
   loadMockServers,
 } from "~/newstore/mockServers"
 import { CurrentValueService } from "~/services/current-environment-value.service"
+import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { WorkspaceService } from "~/services/workspace.service"
 
@@ -281,7 +282,9 @@ export function useMockServer() {
 
         await pipe(
           updateTeamEnvironment(
-            JSON.stringify(normalizedVariables),
+            JSON.stringify(
+              stripSecretVariableValuesForWire(normalizedVariables)
+            ),
             existingEnv.id,
             existingEnv.environment.name
           ),
@@ -323,7 +326,11 @@ export function useMockServer() {
         ]
 
         await pipe(
-          createTeamEnvironment(JSON.stringify(variables), teamID, envName),
+          createTeamEnvironment(
+            JSON.stringify(stripSecretVariableValuesForWire(variables)),
+            teamID,
+            envName
+          ),
           TE.match(
             (error) => {
               console.error("Failed to create team environment:", error)

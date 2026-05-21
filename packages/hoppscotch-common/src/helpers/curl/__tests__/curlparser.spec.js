@@ -40,6 +40,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -151,6 +152,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -170,6 +172,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -196,6 +199,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -228,6 +232,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -260,6 +265,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -292,6 +298,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -324,6 +331,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -354,6 +362,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -387,6 +396,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -422,6 +432,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -493,6 +504,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -523,6 +535,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -588,6 +601,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -637,6 +651,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -688,6 +703,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -704,6 +720,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -730,6 +747,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -749,6 +767,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -775,6 +794,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -794,6 +814,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -820,6 +841,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -844,6 +866,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -866,6 +889,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -889,6 +913,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -911,6 +936,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -944,6 +970,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -978,6 +1005,7 @@ data2: {"type":"test2","typeId":"123"}`,
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -1026,6 +1054,7 @@ data2: {"type":"test2","typeId":"123"}`,
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
 ]

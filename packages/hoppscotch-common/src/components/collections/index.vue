@@ -399,6 +399,12 @@ import { CurrentValueService } from "~/services/current-environment-value.servic
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { SortOptions } from "~/helpers/backend/graphql"
 import { CurrentSortValuesService } from "~/services/current-sort.service"
+import {
+  flushLocalStoresForCollectionTree,
+  flushLocalStoresForTeamCollectionTree,
+  stripCollectionTreeForStore,
+  stripSecretVariableValuesForWire,
+} from "~/helpers/secretVariables"
 
 const t = useI18n()
 const toast = useToast()
@@ -1992,15 +1998,8 @@ const onRemoveCollection = async () => {
     toast.success(t("state.deleted"))
     displayConfirmModal(false)
 
-    // delete the secret collection variables
-    // and current collection variables value if the collection is removed
     if (collectionToRemove) {
-      secretEnvironmentService.deleteSecretEnvironment(
-        collectionToRemove._ref_id ?? `${collectionIndex}`
-      )
-      currentEnvironmentValueService.deleteEnvironment(
-        collectionToRemove._ref_id ?? `${collectionIndex}`
-      )
+      flushLocalStoresForCollectionTree(collectionToRemove)
     }
   } else if (hasTeamWriteAccess.value) {
     const collectionID = editingCollectionID.value
@@ -2015,12 +2014,20 @@ const onRemoveCollection = async () => {
       emit("select", null)
     }
 
+    // Capture the subtree BEFORE the mutation so the
+    // team-collection-removed subscription can't drop it from FE state
+    // before we flush nested entries.
+    const subtreeSnapshot =
+      teamCollectionService.findCollectionByID(collectionID)
+
     removeTeamCollectionOrFolder(collectionID).then(() => {
       resetTeamRequestsContext()
 
-      // delete the secret collection variables
-      // and current collection variables value if the collection is removed
-      if (collectionID) {
+      if (subtreeSnapshot) {
+        flushLocalStoresForTeamCollectionTree(subtreeSnapshot)
+      } else if (collectionID) {
+        // Snapshot miss (already removed from tree). Flush at least the
+        // top-level id so the secret service doesn't leak this entry.
         secretEnvironmentService.deleteSecretEnvironment(collectionID)
         currentEnvironmentValueService.deleteEnvironment(collectionID)
       }
@@ -2053,8 +2060,6 @@ const onRemoveFolder = async () => {
       emit("select", null)
     }
 
-    const folderIndex = pathToLastIndex(folderPath)
-
     const folderToRemove = folderPath
       ? navigateToFolderWithIndexPath(
           restCollectionStore.value.state,
@@ -2075,15 +2080,8 @@ const onRemoveFolder = async () => {
     toast.success(t("state.deleted"))
     displayConfirmModal(false)
 
-    // delete the secret collection variables
-    // and current collection variables value if the collection is removed
     if (folderToRemove) {
-      secretEnvironmentService.deleteSecretEnvironment(
-        folderToRemove.id ?? `${folderIndex}`
-      )
-      currentEnvironmentValueService.deleteEnvironment(
-        folderToRemove.id ?? `${folderIndex}`
-      )
+      flushLocalStoresForCollectionTree(folderToRemove)
     }
   } else if (hasTeamWriteAccess.value) {
     const collectionID = editingCollectionID.value
@@ -2098,12 +2096,15 @@ const onRemoveFolder = async () => {
       emit("select", null)
     }
 
+    const subtreeSnapshot =
+      teamCollectionService.findCollectionByID(collectionID)
+
     removeTeamCollectionOrFolder(collectionID).then(() => {
       resetTeamRequestsContext()
 
-      // delete the secret collection variables
-      // and current collection variables value if the collection is removed
-      if (collectionID) {
+      if (subtreeSnapshot) {
+        flushLocalStoresForTeamCollectionTree(subtreeSnapshot)
+      } else if (collectionID) {
         secretEnvironmentService.deleteSecretEnvironment(collectionID)
         currentEnvironmentValueService.deleteEnvironment(collectionID)
       }
@@ -3155,7 +3156,11 @@ const initializeDownloadCollection = async (
  */
 const exportData = async (collection: HoppCollection | TeamCollection) => {
   if (collectionsType.value.type === "my-collections") {
-    const collectionJSON = JSON.stringify(collection, stripRefIdReplacer, 2)
+    const collectionJSON = JSON.stringify(
+      stripCollectionTreeForStore(collection as HoppCollection),
+      stripRefIdReplacer,
+      2
+    )
 
     // Strip `export {};\n` from `testScript` and `preRequestScript` fields
     const cleanedCollectionJSON =
@@ -3179,7 +3184,7 @@ const exportData = async (collection: HoppCollection | TeamCollection) => {
         async (coll) => {
           const hoppColl = teamCollToHoppRESTColl(coll)
           const collectionJSONString = JSON.stringify(
-            hoppColl,
+            stripCollectionTreeForStore(hoppColl),
             stripRefIdReplacer,
             2
           )
@@ -3235,6 +3240,26 @@ const getCurrentValue = (
   )?.currentValue
 }
 
+/**
+ * Restore both `initialValue` and `currentValue` for a secret variable from
+ * the local secret store. Both fields are blanked at the wire boundary
+ * before the variable is sent to the backend, so when the user reopens the
+ * Properties modal we re-populate from `secretEnvironmentService`.
+ * Returns null for non-secret variables (callers fall back to existing
+ * current-value lookup) or when the slot has no entry in the secret store.
+ */
+const getSecretValues = (
+  isSecret: boolean,
+  varIndex: number,
+  collectionID: string
+): { value: string; initialValue: string } | null => {
+  if (!isSecret) return null
+  return secretEnvironmentService.getSecretEnvironmentVariableValue(
+    collectionID,
+    varIndex
+  )
+}
+
 const editProperties = async (payload: {
   collectionIndex: string
   collection: HoppCollection | TeamCollection
@@ -3272,14 +3297,15 @@ const editProperties = async (payload: {
     const collectionVariables = pipe(
       (collection as HoppCollection).variables ?? [],
       A.mapWithIndex((index, e) => {
+        const storeID = (collection as HoppCollection)._ref_id ?? collectionId!
+        const stored = getSecretValues(e.secret, index, storeID)
         return {
           ...e,
           currentValue:
-            getCurrentValue(
-              e.secret,
-              index,
-              (collection as HoppCollection)._ref_id ?? collectionId!
-            ) ?? e.currentValue,
+            stored?.value ??
+            getCurrentValue(e.secret, index, storeID) ??
+            e.currentValue,
+          initialValue: stored?.initialValue ?? e.initialValue,
         }
       })
     )
@@ -3333,10 +3359,14 @@ const editProperties = async (payload: {
       const collectionVariables = pipe(
         (data.variables ?? []) as HoppCollectionVariable[],
         A.mapWithIndex((index, e) => {
+          const stored = getSecretValues(e.secret, index, collectionId!)
           return {
             ...e,
             currentValue:
-              getCurrentValue(e.secret, index, collectionId!) ?? e.currentValue,
+              stored?.value ??
+              getCurrentValue(e.secret, index, collectionId!) ??
+              e.currentValue,
+            initialValue: stored?.initialValue ?? e.initialValue,
           }
         })
       )
@@ -3399,6 +3429,7 @@ const setCollectionProperties = (newCollection: {
           ? O.some({
               key: e.key,
               value: e.currentValue,
+              initialValue: e.initialValue,
               varIndex: i,
             })
           : O.none
@@ -3419,24 +3450,17 @@ const setCollectionProperties = (newCollection: {
       )
     )
 
-    secretEnvironmentService.addSecretEnvironment(
-      collection._ref_id ?? collectionId!,
-      secretVariables
-    )
+    // Mirror the read-side keying in `editProperties`.
+    const storeKey =
+      collectionsType.value.type === "team-collections"
+        ? collectionId!
+        : (collection._ref_id ?? collectionId!)
 
-    currentEnvironmentValueService.addEnvironment(
-      collection._ref_id ?? collectionId!,
-      nonSecretVariables
-    )
+    secretEnvironmentService.addSecretEnvironment(storeKey, secretVariables)
 
-    //set current value and secret values to empty string
-    collection.variables = pipe(
-      filteredVariables,
-      A.map((e) => ({
-        ...e,
-        currentValue: "",
-      }))
-    )
+    currentEnvironmentValueService.addEnvironment(storeKey, nonSecretVariables)
+
+    collection.variables = stripSecretVariableValuesForWire(filteredVariables)
   }
 
   if (collectionsType.value.type === "my-collections") {
@@ -3451,7 +3475,7 @@ const setCollectionProperties = (newCollection: {
     })
     toast.success(t("collection.properties_updated"))
   } else if (hasTeamWriteAccess.value && collectionId) {
-    const data = {
+    const data: CollectionDataProps = {
       auth: collection.auth ?? {
         authType: "inherit",
         authActive: true,

@@ -35,6 +35,12 @@ import AllCollectionImport from "~/components/importExport/ImportExportSteps/All
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 import { appendRESTCollections, restCollections$ } from "~/newstore/collections"
+import {
+  ensureRefIds,
+  flushUnmatchedRefIdsFromTree,
+  populateLocalStoresFromCollectionTree,
+  stripCollectionTreeForStore,
+} from "~/helpers/secretVariables"
 
 import IconInsomnia from "~icons/hopp/insomnia"
 import IconPostman from "~icons/hopp/postman"
@@ -50,7 +56,10 @@ import { getTeamCollectionJSON } from "~/helpers/backend/helpers"
 
 import { platform } from "~/platform"
 
-import { initializeDownloadFile } from "~/helpers/import-export/export"
+import {
+  initializeDownloadFile,
+  stripRefIdReplacer,
+} from "~/helpers/import-export/export"
 import { gistExporter } from "~/helpers/import-export/export/gist"
 import { myCollectionsExporter } from "~/helpers/import-export/export/myCollections"
 import { teamCollectionsExporter } from "~/helpers/import-export/export/teamCollections"
@@ -121,7 +130,11 @@ const handleImportToStore = async (collections: HoppCollection[]) => {
  */
 const importToPersonalWorkspace = (collections: HoppCollection[]) => {
   // Remove old id from the imported collection and folders and transform it to new collection format
-  const sanitizedCollections = collections.map(sanitizeCollection)
+  const sanitizedCollections = collections
+    .map(sanitizeCollection)
+    .map(ensureRefIds)
+
+  sanitizedCollections.forEach(populateLocalStoresFromCollectionTree)
 
   if (
     platform.sync.collections.importToPersonalWorkspace &&
@@ -134,14 +147,17 @@ const importToPersonalWorkspace = (collections: HoppCollection[]) => {
     )
   }
 
-  appendRESTCollections(sanitizedCollections)
+  appendRESTCollections(sanitizedCollections.map(stripCollectionTreeForStore))
   return E.right({ success: true })
 }
 
 /**
- * Import collections to teams workspace
- * No need to sanitize the collections before importing to teams workspace because the BE handles this and add the new id to the collection and folders
- * @param collections Collections to import
+ * Import collections to teams workspace. Stamps `_ref_id` and seeds the
+ * device-local secret stores under it; on the team-collection-added
+ * subscription, `TeamCollectionsService.addCollection` migrates entries
+ * from `_ref_id` to the backend-assigned `id`. Wire payload is stripped
+ * of secrets via `transformCollectionForImport`; secrets stay
+ * device-local per the team-isolation model.
  */
 const importToTeamsWorkspace = async (collections: HoppCollection[]) => {
   if (!hasTeamWriteAccess.value || !selectedTeamID.value) {
@@ -150,7 +166,10 @@ const importToTeamsWorkspace = async (collections: HoppCollection[]) => {
     })
   }
 
-  const transformedCollection = collections.map((collection) =>
+  const collectionsWithRefIds = collections.map(ensureRefIds)
+  collectionsWithRefIds.forEach(populateLocalStoresFromCollectionTree)
+
+  const transformedCollection = collectionsWithRefIds.map((collection) =>
     transformCollectionForImport(collection)
   )
 
@@ -159,11 +178,16 @@ const importToTeamsWorkspace = async (collections: HoppCollection[]) => {
     selectedTeamID.value
   )()
 
-  return E.isRight(res)
-    ? E.right({ success: true })
-    : E.left({
-        success: false,
-      })
+  if (E.isLeft(res)) {
+    // Backend rejected — flush ONLY `_ref_id`-keyed entries we just
+    // seeded. `flushLocalStoresForCollectionTree` would also delete by
+    // `node.id`, which could be a live backend id from a same-workspace
+    // re-import and would wipe existing collections' in-memory secrets.
+    // Empty `keptRefIds` ⇒ every `_ref_id` in the tree is flushed.
+    flushUnmatchedRefIdsFromTree(collectionsWithRefIds, new Set())
+    return E.left({ success: false })
+  }
+  return E.right({ success: true })
 }
 
 const emit = defineEmits<{
@@ -831,7 +855,8 @@ const getCollectionJSON = async () => {
   }
 
   if (props.collectionsType.type === "my-collections") {
-    return E.right(JSON.stringify(myCollections.value, null, 2))
+    const stripped = myCollections.value.map(stripCollectionTreeForStore)
+    return E.right(JSON.stringify(stripped, stripRefIdReplacer, 2))
   }
 
   return E.left("INVALID_SELECTED_TEAM_OR_INVALID_COLLECTION_TYPE")

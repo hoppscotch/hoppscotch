@@ -84,14 +84,14 @@ import {
   updateEnvironment,
 } from "~/newstore/environments"
 import { CurrentValueService } from "~/services/current-environment-value.service"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { Scope } from "./Selector.vue"
 import { GlobalEnvironment } from "@hoppscotch/data"
 
 const t = useI18n()
 const toast = useToast()
 
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 const currentEnvironmentValueService = useService(CurrentValueService)
 
 const props = defineProps<{

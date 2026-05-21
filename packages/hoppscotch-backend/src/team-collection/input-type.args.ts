@@ -1,6 +1,7 @@
 import { ArgsType, Field, ID } from '@nestjs/graphql';
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { PaginationArgs } from 'src/types/input-types.args';
+import { ReqType } from 'src/types/RequestTypes';
 
 @ArgsType()
 export class GetRootTeamCollectionsArgs extends PaginationArgs {
@@ -8,6 +9,12 @@ export class GetRootTeamCollectionsArgs extends PaginationArgs {
   @IsString()
   @IsNotEmpty()
   teamID: string;
+
+  @Field(() => ReqType, {
+    description: 'Type of the user collection',
+  })
+  @IsEnum(ReqType)
+  type: ReqType;
 }
 
 @ArgsType()
@@ -30,6 +37,12 @@ export class CreateRootTeamCollectionArgs {
   @IsString()
   @IsOptional()
   data: string;
+
+  @Field(() => ReqType, {
+    description: 'Type of the user collection',
+  })
+  @IsEnum(ReqType)
+  type: ReqType;
 }
 
 @ArgsType()
@@ -55,6 +68,12 @@ export class CreateChildTeamCollectionArgs {
   @IsString()
   @IsOptional()
   data: string;
+
+  @Field(() => ReqType, {
+    description: 'Type of the user collection',
+  })
+  @IsEnum(ReqType)
+  type: ReqType;
 }
 
 @ArgsType()

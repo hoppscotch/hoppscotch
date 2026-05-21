@@ -1,5 +1,9 @@
-mutation CreateNewRootCollection($title: String!, $teamID: ID!) {
-  createRootCollection(title: $title, teamID: $teamID) {
+mutation CreateNewRootCollection(
+  $title: String!
+  $teamID: ID!
+  $type: ReqType!
+) {
+  createRootCollection(title: $title, teamID: $teamID, type: $type) {
     id
   }
 }

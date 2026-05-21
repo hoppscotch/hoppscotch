@@ -470,6 +470,7 @@
       "title": "Body"
     },
     "copied_to_clipboard": "Copied to clipboard!",
+    "copy_to_clipboard": "Copy to clipboard",
     "curl": {
       "click_to_load": "Click to load cURL command",
       "copied": "cURL command copied to clipboard!",
@@ -582,6 +583,9 @@
     "untitled_collection": "Untitled Collection",
     "untitled_request": "Untitled Request",
     "value": "Value",
+    "query": {
+      "title": "Query"
+    },
     "variables": {
       "no_vars": "No variables defined",
       "title": "Variables"
@@ -1198,6 +1202,7 @@
     "moved": "Request moved",
     "name": "Request name",
     "new": "New Request",
+    "new_gql": "New GraphQL Request",
     "order_changed": "Request Order Updated",
     "override": "Override",
     "override_help": "Set <kbd>Content-Type</kbd> in Headers",
@@ -1255,6 +1260,7 @@
     "generate_data_schema": "Generate Data Schema",
     "data_schema": "Data Schema",
     "saved": "Response saved",
+    "save_as_example": "Save as example",
     "invalid_name": "Please provide a name for the response"
   },
   "script": {

@@ -134,7 +134,7 @@ import { objRemoveKey } from "@functional/object"
 import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { InspectionService, InspectorResult } from "~/services/inspection"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { AggregateEnvironment } from "~/newstore/environments"
@@ -143,7 +143,7 @@ const colorMode = useColorMode()
 
 const t = useI18n()
 const toast = useToast()
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 
 const idTicker = ref(0)
 

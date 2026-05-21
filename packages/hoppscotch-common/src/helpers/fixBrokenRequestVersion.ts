@@ -3,9 +3,9 @@ import {
   safelyExtractRESTRequest,
 } from "@hoppscotch/data"
 import { z } from "zod"
-import { REST_TAB_STATE_SCHEMA } from "~/services/persistence/validation-schemas"
+import { WORKSPACE_TABS_STATE_SCHEMA } from "~/services/persistence/validation-schemas"
 
-type HoppRESTab = z.infer<typeof REST_TAB_STATE_SCHEMA>
+type HoppRESTab = z.infer<typeof WORKSPACE_TABS_STATE_SCHEMA>
 
 /**
  * Fixes broken request versions in the given REST tab documents.

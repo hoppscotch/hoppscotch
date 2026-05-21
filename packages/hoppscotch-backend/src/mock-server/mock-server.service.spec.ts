@@ -589,6 +589,7 @@ describe('MockServerService', () => {
           'team123',
           autoCreateInput.name,
           null,
+          'REST',
           null,
         );
         expect(mockPrisma.mockServer.create).toHaveBeenCalledWith(

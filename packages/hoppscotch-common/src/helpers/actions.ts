@@ -4,7 +4,7 @@
 
 import { Ref, onBeforeUnmount, onMounted, reactive, watch, computed } from "vue"
 import { BehaviorSubject } from "rxjs"
-import { HoppRequestDocument } from "./rest/document"
+import { HoppGQLRequestDocument, HoppRequestDocument } from "./rest/document"
 import { Environment, HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
 import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
 import { HoppGQLSaveContext } from "./graphql/document"
@@ -123,6 +123,7 @@ export type HoppAction =
   | "share.request" // Share REST request
   | "tab.duplicate-tab" // Duplicate REST request
   | "gql.request.open" // Open GraphQL request
+  | "rest.gql-request.open" // Open GQL request in REST tab
   | "app.quit" // Quit app
 
 /**
@@ -189,6 +190,9 @@ type HoppActionArgsMap = {
   "gql.request.open": {
     request: HoppGQLRequest
     saveContext?: HoppGQLSaveContext
+  }
+  "rest.gql-request.open": {
+    doc: HoppGQLRequestDocument
   }
   "modals.environment.add": {
     envName: string

@@ -2,7 +2,7 @@ import { Service } from "dioc"
 import { markRaw, ref } from "vue"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { getI18n } from "~/modules/i18n"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import IconCopyPlus from "~icons/lucide/copy-plus"
 import IconLock from "~icons/lucide/lock"
 import IconUnlock from "~icons/lucide/unlock"
@@ -60,7 +60,7 @@ export class URLMenuService extends Service implements ContextMenu {
   public readonly menuID = "url"
 
   private readonly contextMenu = this.bind(ContextMenuService)
-  private readonly restTab = this.bind(RESTTabService)
+  private readonly restTab = this.bind(WorkspaceTabsService)
 
   override onServiceInit() {
     this.contextMenu.registerMenu(this)

@@ -1,6 +1,9 @@
 import {
   Environment,
   FormDataKeyValue,
+  GQLHeader,
+  HoppGQLAuth,
+  HoppGQLRequest,
   HoppRESTAuth,
   HoppRESTHeader,
   HoppRESTHeaders,
@@ -461,4 +464,158 @@ export function getEffectiveRESTRequestStream(
   return combineLatest([request$, environment$]).pipe(
     map(async ([request, env]) => await getEffectiveRESTRequest(request, env))
   )
+}
+
+// ---------- GraphQL ----------
+
+/**
+ * The "effective" GraphQL request — derived from a `HoppGQLRequest` by:
+ *  - merging inherited collection headers with request headers (request wins on conflicts at send time)
+ *  - resolving auth (request auth wins; if request says "inherit" and active, inherited auth is used)
+ *  - template-resolving env variables in URL, header keys/values, query, variables JSON, and every auth field
+ *
+ * Mirrors `EffectiveHoppRESTRequest` for the REST flow. Consumers (the unified
+ * `WorkspaceTabsService` GQL runner and the standalone `/graphql` page runner)
+ * use the `effectiveFinal*` fields verbatim when building the kernel request /
+ * subscription payload, so raw `<<envVar>>` strings cannot leak over the wire.
+ */
+export interface EffectiveHoppGQLRequest extends HoppGQLRequest {
+  effectiveFinalURL: string
+  /**
+   * Inherited + request headers merged (in that order, request wins on intra-list
+   * collisions), with every active key/value template-resolved.
+   */
+  effectiveFinalHeaders: GQLHeader[]
+  /**
+   * The request-level headers only (no inherited), template-resolved.
+   * Runners re-apply this AFTER computed auth headers so that a header the user
+   * sets explicitly on the Headers tab always wins over the same key produced by
+   * the Auth tab — preserves the long-standing precedence rule
+   * `request > auth > inherited`.
+   */
+  effectiveFinalRequestHeaders: GQLHeader[]
+  effectiveFinalQuery: string
+  effectiveFinalVariables: string
+  effectiveFinalAuth: HoppGQLAuth
+}
+
+/**
+ * Template-resolve env variables in every field of a `HoppGQLAuth` value that
+ * carries user-provided text. Inactive auth or unknown auth types pass through.
+ */
+export function applyTemplateToGQLAuth(
+  auth: HoppGQLAuth,
+  envVars: Environment["variables"]
+): HoppGQLAuth {
+  if (!auth.authActive) return auth
+
+  switch (auth.authType) {
+    case "basic":
+      return {
+        ...auth,
+        username: parseTemplateString(auth.username, envVars),
+        password: parseTemplateString(auth.password, envVars),
+      }
+    case "bearer":
+      return {
+        ...auth,
+        token: parseTemplateString(auth.token, envVars),
+      }
+    case "oauth-2":
+      return {
+        ...auth,
+        grantTypeInfo: {
+          ...auth.grantTypeInfo,
+          token: parseTemplateString(auth.grantTypeInfo.token, envVars),
+        },
+      }
+    case "api-key":
+      return {
+        ...auth,
+        key: parseTemplateString(auth.key, envVars),
+        value: parseTemplateString(auth.value, envVars),
+      }
+    case "aws-signature":
+      return {
+        ...auth,
+        accessKey: parseTemplateString(auth.accessKey, envVars),
+        secretKey: parseTemplateString(auth.secretKey, envVars),
+        region: auth.region
+          ? parseTemplateString(auth.region, envVars)
+          : auth.region,
+        serviceName: parseTemplateString(auth.serviceName, envVars),
+        serviceToken: auth.serviceToken
+          ? parseTemplateString(auth.serviceToken, envVars)
+          : auth.serviceToken,
+      }
+    default:
+      return auth
+  }
+}
+
+/**
+ * Produces an `EffectiveHoppGQLRequest` with envs templated through every
+ * user-provided field. Pass the per-tab inherited headers/auth via `options`;
+ * `options.query` / `options.variables` / `options.url` override the request's
+ * own fields when the caller wants to template a transient value (e.g. the
+ * editor's current unsaved text).
+ */
+export function getEffectiveHoppGQLRequest(
+  request: HoppGQLRequest,
+  envVars: Environment["variables"],
+  options?: {
+    inheritedHeaders?: GQLHeader[]
+    inheritedAuth?: HoppGQLAuth | null
+    url?: string
+    query?: string
+    variables?: string
+  }
+): EffectiveHoppGQLRequest {
+  const rawURL = options?.url ?? request.url
+  const rawQuery = options?.query ?? request.query
+  const rawVariables = options?.variables ?? request.variables
+
+  // Resolve auth: request auth wins unless it's "inherit" and active, in which
+  // case fall back to inherited auth (if any was passed).
+  const baseAuth: HoppGQLAuth =
+    request.auth.authType === "inherit" &&
+    request.auth.authActive &&
+    options?.inheritedAuth
+      ? options.inheritedAuth
+      : request.auth
+
+  const effectiveFinalAuth = applyTemplateToGQLAuth(baseAuth, envVars)
+
+  // Template inherited and request headers separately (request needs to be
+  // re-applied AFTER auth headers in the runner — see effectiveFinalRequestHeaders).
+  // Filter out inactive/empty before templating (matches REST behavior in
+  // getEffectiveRESTRequest).
+  const templateHeader = (h: GQLHeader) => ({
+    ...h,
+    key: parseTemplateString(h.key, envVars),
+    value: parseTemplateString(h.value, envVars),
+  })
+
+  const effectiveFinalRequestHeaders = request.headers
+    .filter((h) => h.active && h.key !== "")
+    .map(templateHeader)
+
+  const effectiveInheritedHeaders = (options?.inheritedHeaders ?? [])
+    .filter((h) => h.active && h.key !== "")
+    .map(templateHeader)
+
+  const effectiveFinalHeaders: GQLHeader[] = [
+    ...effectiveInheritedHeaders,
+    ...effectiveFinalRequestHeaders,
+  ]
+
+  return {
+    ...request,
+    effectiveFinalURL: parseTemplateString(rawURL, envVars),
+    effectiveFinalHeaders,
+    effectiveFinalRequestHeaders,
+    effectiveFinalQuery: parseTemplateString(rawQuery, envVars),
+    effectiveFinalVariables: parseTemplateString(rawVariables, envVars),
+    effectiveFinalAuth,
+  }
 }

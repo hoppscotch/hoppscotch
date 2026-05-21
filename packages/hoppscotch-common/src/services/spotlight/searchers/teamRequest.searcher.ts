@@ -14,7 +14,7 @@ import IconFolder from "~icons/lucide/folder"
 import IconImport from "~icons/lucide/folder-down"
 import { WorkspaceService } from "~/services/workspace.service"
 import RESTTeamRequestEntry from "~/components/app/spotlight/entry/RESTTeamRequestEntry.vue"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import MiniSearch from "minisearch"
@@ -37,7 +37,7 @@ export class TeamsSpotlightSearcherService
 
   private readonly workspaceService = this.bind(WorkspaceService)
 
-  private readonly tabs = this.bind(RESTTabService)
+  private readonly tabs = this.bind(WorkspaceTabsService)
 
   override onServiceInit() {
     this.spotlight.registerSearcher(this)

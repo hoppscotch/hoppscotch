@@ -8,7 +8,11 @@
       />
     </template>
     <template #secondary>
-      <HttpExampleResponse v-model:document="tab.document" :is-embed="false" />
+      <HttpExampleResponse
+        v-model:document="tab.document"
+        :is-embed="false"
+        :tab-id="tab.id"
+      />
     </template>
   </AppPaneLayout>
 </template>

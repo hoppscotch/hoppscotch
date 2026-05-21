@@ -348,6 +348,7 @@ export class MockServerService {
           input.workspaceID,
           input.name,
           null,
+          ReqType.REST,
           null,
         );
 
@@ -359,6 +360,7 @@ export class MockServerService {
             JSON.stringify(mockServerCollRequestExample(input.name)),
             input.workspaceID,
             null,
+            ReqType.REST,
           );
 
         if (E.isLeft(importedTeamColl)) return E.left(importedTeamColl.left);

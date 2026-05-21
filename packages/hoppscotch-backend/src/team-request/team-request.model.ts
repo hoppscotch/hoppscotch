@@ -1,4 +1,5 @@
 import { ObjectType, Field, ID } from '@nestjs/graphql';
+import { ReqType } from 'src/types/RequestTypes';
 
 @ObjectType()
 export class TeamRequest {
@@ -26,16 +27,21 @@ export class TeamRequest {
     description: 'Displayed title of the request',
   })
   title: string;
+
+  @Field(() => ReqType, {
+    description: 'Type of the request',
+  })
+  type: ReqType;
 }
 
 @ObjectType()
 export class RequestReorderData {
-  @Field({
+  @Field(() => TeamRequest, {
     description: 'Team Request being moved',
   })
   request: TeamRequest;
 
-  @Field({
+  @Field(() => TeamRequest, {
     description:
       'Team Request succeeding the request being moved in its new position',
     nullable: true,

@@ -25,7 +25,7 @@ import {
 } from "@hoppscotch/data"
 import { WorkspaceService } from "~/services/workspace.service"
 import { invokeAction } from "~/helpers/actions"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { GQLTabService } from "~/services/tab/graphql"
 
 /**
@@ -44,7 +44,7 @@ export class CollectionsSpotlightSearcherService
   public searcherID = "collections"
   public searcherSectionTitle = this.t("collection.my_collections")
 
-  private readonly restTab = this.bind(RESTTabService)
+  private readonly restTab = this.bind(WorkspaceTabsService)
   private readonly gqlTab = this.bind(GQLTabService)
 
   private readonly spotlight = this.bind(SpotlightService)

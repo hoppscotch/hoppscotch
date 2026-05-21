@@ -57,4 +57,52 @@ describe("Postman importer", () => {
       ])
     )
   })
+
+  it("preserves literal }} in request bodies while replacing {{var}}", async () => {
+    const postmanCollectionWithLiteralBraces = JSON.stringify({
+      info: {
+        name: "Literal Braces Import",
+        schema:
+          "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+      },
+      item: [
+        {
+          name: "Request with literal braces",
+          request: {
+            method: "POST",
+            header: [
+              {
+                key: "Content-Type",
+                value: "application/json",
+              },
+            ],
+            body: {
+              mode: "raw",
+              raw: '{"url": "{{host}}", "ext": {"required": ["buttonalign", "buttonstyle"]}}',
+              options: {
+                raw: {
+                  language: "json",
+                },
+              },
+            },
+            url: "https://echo.hoppscotch.io/post",
+          },
+        },
+      ],
+    })
+
+    const result = await hoppPostmanImporter([
+      postmanCollectionWithLiteralBraces,
+    ])()
+
+    expect(E.isRight(result)).toBe(true)
+
+    if (E.isLeft(result)) {
+      throw new Error("Expected Postman import to succeed")
+    }
+
+    expect(result.right[0].requests[0].body.body).toEqual(
+      '{"url": "<<host>>", "ext": {"required": ["buttonalign", "buttonstyle"]}}'
+    )
+  })
 })

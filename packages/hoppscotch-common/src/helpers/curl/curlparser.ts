@@ -42,7 +42,28 @@ export const parseCurlCommand = (curlCommand: string) => {
 
   curlCommand = preProcessCurlCommand(curlCommand)
 
-  const args: parser.Arguments = parser(curlCommand)
+  const args: parser.Arguments = parser(curlCommand, {
+    boolean: [
+      "s",
+      "silent",
+      "S",
+      "show-error",
+      "v",
+      "verbose",
+      "L",
+      "location",
+      "k",
+      "insecure",
+      "compressed",
+      "g",
+      "globoff",
+      "i",
+      "include",
+      "f",
+      "fail",
+      "path-as-is",
+    ],
+  })
 
   const parsedArguments = pipe(
     args,

@@ -83,7 +83,9 @@
       />
     </div>
   </div>
-  <div ref="queryEditor" class="flex flex-1 flex-col"></div>
+  <div class="h-full relative flex flex-col flex-1">
+    <div ref="queryEditor" class="absolute inset-0"></div>
+  </div>
 </template>
 
 <script setup lang="ts">

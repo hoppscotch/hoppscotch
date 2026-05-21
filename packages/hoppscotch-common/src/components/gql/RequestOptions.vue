@@ -1,7 +1,7 @@
 <template>
   <HoppSmartTabs
     v-model="selectedOptionTab"
-    styles="sticky bg-primary top-0 z-10 border-b-0"
+    styles="sticky bg-primary top-upperMobilePrimaryStickyFold sm:top-upperPrimaryStickyFold z-10 border-b-0"
     :render-inactive-tabs="true"
   >
     <HoppSmartTab
@@ -117,7 +117,9 @@ const selectedOptionTab = useVModel(props, "optionTab", emit)
 const request = useVModel(props, "modelValue", emit)
 
 const subscriptionState = computed(() =>
-  props.tabId ? gqlTabConn.getTabSubscriptionState(props.tabId).value : undefined
+  props.tabId
+    ? gqlTabConn.getTabSubscriptionState(props.tabId).value
+    : undefined
 )
 
 const stopQuery = () => {

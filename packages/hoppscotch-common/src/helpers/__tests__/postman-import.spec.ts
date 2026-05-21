@@ -78,7 +78,7 @@ describe("Postman importer", () => {
             ],
             body: {
               mode: "raw",
-              raw: '{"url": "{{host}}", "ext": {"required": ["buttonalign", "buttonstyle"]}}',
+              raw: '{"url": "{{host}}", "nested": "{{variable}}text}}", "ext": {"required": ["buttonalign", "buttonstyle"]}}',
               options: {
                 raw: {
                   language: "json",
@@ -102,7 +102,7 @@ describe("Postman importer", () => {
     }
 
     expect(result.right[0].requests[0].body.body).toEqual(
-      '{"url": "<<host>>", "ext": {"required": ["buttonalign", "buttonstyle"]}}'
+      '{"url": "<<host>>", "nested": "<<variable>>text}}", "ext": {"required": ["buttonalign", "buttonstyle"]}}'
     )
   })
 })

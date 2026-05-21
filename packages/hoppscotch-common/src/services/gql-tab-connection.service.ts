@@ -563,7 +563,7 @@ export class GQLTabConnectionService extends Service {
     )
 
     const gqlRequest: HoppGQLRequest = {
-      v: 11,
+      v: 10,
       name: options.name || "Untitled Request",
       url: finalUrl,
       headers: finalHoppHeaders,

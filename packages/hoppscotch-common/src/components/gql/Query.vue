@@ -17,7 +17,7 @@
         :label="`${t('request.stop')}`"
         :icon="IconStop"
         class="!hover:text-accentDark rounded-none !text-accent"
-        @click="unsubscribe()"
+        @click="stopQuery()"
       />
 
       <HoppButtonSecondary
@@ -111,15 +111,12 @@ import { selectedGQLOpHighlight } from "~/helpers/editor/gql/operation"
 import { debounce } from "lodash-es"
 import { ViewUpdate } from "@codemirror/view"
 import { defineActionHandler } from "~/helpers/actions"
-import {
-  schema,
-  socketDisconnect,
-  subscriptionState,
-} from "~/helpers/graphql/connection"
+import { schema } from "~/helpers/graphql/connection"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { useService } from "dioc/vue"
 import { GQLQueryBuilderService } from "~/services/gql-query-builder.service"
+import type { SubscriptionState } from "~/helpers/graphql/connection"
 
 // Template refs
 const queryEditor = ref<any | null>(null)
@@ -131,8 +128,9 @@ const props = withDefaults(
   defineProps<{
     modelValue: string
     showRunActions?: boolean
+    subscriptionState?: SubscriptionState
   }>(),
-  { showRunActions: true }
+  { showRunActions: true, subscriptionState: undefined }
 )
 
 const emit = defineEmits<{
@@ -140,6 +138,7 @@ const emit = defineEmits<{
   (e: "update:modelValue", val: string): void
   (e: "cursor-position", val: number): void
   (e: "run-query", definition: OperationDefinitionNode | null): void
+  (e: "stop-query"): void
 }>()
 
 const copyQueryIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
@@ -268,8 +267,8 @@ const clearGQLQuery = () => {
 const runQuery = (definition: OperationDefinitionNode | null = null) => {
   emit("run-query", definition)
 }
-const unsubscribe = () => {
-  socketDisconnect()
+const stopQuery = () => {
+  emit("stop-query")
 }
 const saveRequest = () => {
   emit("save-request")

@@ -12,7 +12,9 @@
       <GqlQuery
         v-model="request.query"
         :show-run-actions="showRunActions"
+        :subscription-state="subscriptionState"
         @run-query="runQuery"
+        @stop-query="stopQuery"
         @save-request="() => invokeAction('request-response.save')"
         @cursor-position="updateCursorPos"
       />
@@ -27,7 +29,9 @@
       <GqlVariable
         v-model="request.variables"
         :show-run-actions="showRunActions"
+        :subscription-state="subscriptionState"
         @run-query="runQuery"
+        @stop-query="stopQuery"
         @save-request="() => invokeAction('request-response.save')"
       />
     </HoppSmartTab>
@@ -111,6 +115,15 @@ const emit = defineEmits<{
 
 const selectedOptionTab = useVModel(props, "optionTab", emit)
 const request = useVModel(props, "modelValue", emit)
+
+const subscriptionState = computed(() =>
+  props.tabId ? gqlTabConn.getTabSubscriptionState(props.tabId).value : undefined
+)
+
+const stopQuery = () => {
+  if (!props.tabId) return
+  gqlTabConn.unsubscribeTab(props.tabId)
+}
 
 const activeGQLHeadersCount = computed(
   () =>

@@ -1,9 +1,16 @@
 <template>
   <div class="flex flex-1 flex-col overflow-auto whitespace-nowrap">
-    <GqlResponseMeta :response="response" :tab-id="tabId" />
+    <GqlResponseMeta
+      v-if="!isSubscriptionView"
+      :response="response"
+      :tab-id="tabId"
+    />
     <div
       v-if="
-        response && response.length === 1 && response[0].type === 'response'
+        response &&
+        response.length === 1 &&
+        response[0].type === 'response' &&
+        response[0].operationType !== 'subscription'
       "
       class="flex flex-1 flex-col"
     >
@@ -86,15 +93,30 @@
     <component
       :is="response[0].error.component"
       v-else-if="
-        response && response[0].type === 'error' && response[0].error.component
+        response &&
+        response.length > 0 &&
+        response[0].type === 'error' &&
+        response[0].error.component
       "
       class="flex-1"
     />
     <div
-      v-else-if="response && response?.length > 1"
+      v-else-if="
+        response &&
+        response.length > 0 &&
+        response[0].type === 'response' &&
+        response[0].operationType === 'subscription'
+      "
       class="flex flex-1 flex-col"
     >
-      <GqlSubscriptionLog :log="response" />
+      <GqlSubscriptionLog :log="response" @delete="clearSubscriptionLog" />
+    </div>
+    <div
+      v-else-if="subscriptionPending"
+      class="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-secondaryLight"
+    >
+      <HoppSmartSpinner />
+      <span>{{ subscriptionPendingLabel }}</span>
     </div>
   </div>
   <HttpSaveResponseName
@@ -113,6 +135,7 @@ import IconMore from "~icons/lucide/more-horizontal"
 import IconSave from "~icons/lucide/save"
 import { computed, reactive, ref } from "vue"
 import { useVModel } from "@vueuse/core"
+import { useService } from "dioc/vue"
 import {
   HoppGQLRequestResponse,
   HoppGQLResponseOriginalRequest,
@@ -123,7 +146,10 @@ import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
-import { GQLResponseEvent } from "~/services/gql-tab-connection.service"
+import {
+  GQLResponseEvent,
+  GQLTabConnectionService,
+} from "~/services/gql-tab-connection.service"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 import {
@@ -158,12 +184,56 @@ const emit = defineEmits<{
 
 const doc = useVModel(props, "document", emit)
 
+const gqlTabConn = useService(GQLTabConnectionService)
+
+// `subscriptionPending` is true when a subscription has been initiated and
+// the server hasn't pushed any data yet — covers both the SUBSCRIBING window
+// (waiting for connection_ack) and the post-ack idle window (subscribed but
+// no events yet). Used to render a loading state instead of a blank panel.
+const subscriptionPending = computed(() => {
+  if (!props.tabId) return false
+  const state = gqlTabConn.getTabSubscriptionState(props.tabId).value
+  if (state !== "SUBSCRIBING" && state !== "SUBSCRIBED") return false
+  // Already have data → let the subscription log render.
+  if (props.response && props.response.length > 0) return false
+  return true
+})
+
+const subscriptionPendingLabel = computed(() => {
+  const state = props.tabId
+    ? gqlTabConn.getTabSubscriptionState(props.tabId).value
+    : undefined
+  return state === "SUBSCRIBING"
+    ? t("graphql.subscribing")
+    : t("graphql.waiting_for_events")
+})
+
+// True whenever the response panel is in any subscription-specific state —
+// loading, waiting for events, or rendering the subscription log. Used to
+// hide the REST/query-style response meta header bar that doesn't apply.
+const isSubscriptionView = computed(() => {
+  if (subscriptionPending.value) return true
+  const first = props.response?.[0]
+  return (
+    !!first &&
+    first.type === "response" &&
+    first.operationType === "subscription"
+  )
+})
+
+const clearSubscriptionLog = () => {
+  if (!doc.value) return
+  // Empty array (not null) keeps the loading/waiting branch active when the
+  // subscription is still live — a fresh `[]` lets the post-ack idle state
+  // render "Waiting for events…" instead of dropping to a blank panel.
+  doc.value.response = []
+}
+
 const responseString = computed(() => {
   const response = props.response
-  if (response && response[0].type === "error") {
-    return ""
-  } else if (
-    response &&
+  if (!response || response.length === 0) return ""
+  if (response[0].type === "error") return ""
+  if (
     response.length === 1 &&
     response[0].type === "response" &&
     response[0].data

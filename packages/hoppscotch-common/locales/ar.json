@@ -484,8 +484,8 @@
     "url": {
       "extension_not_installed": "الاضافة غير مثبتة",
       "extension_unknown_origin": "تأكد من أنك أضفت أصل نقطة نهاية API إلى قائمة ملحق متصفح هوبسكوتش.",
-      "extention_enable_action": "تفعيل الاضافة",
-      "extention_not_enabled": "الاضافة غير مفعلة"
+      "extension_enable_action": "تفعيل الاضافة",
+      "extension_not_enabled": "الاضافة غير مفعلة"
     }
   },
   "layout": {

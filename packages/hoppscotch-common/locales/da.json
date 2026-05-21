@@ -481,8 +481,8 @@
     "url": {
       "extension_not_installed": "Udvidelse ikke installeret.",
       "extension_unknown_origin": "Sørg for, at du har tilføjet API-endepunktets oprindelse til Hoppscotch Browser Extension-listen.",
-      "extention_enable_action": "Aktivér browserudvidelse",
-      "extention_not_enabled": "Udvidelse ikke aktiveret."
+      "extension_enable_action": "Aktivér browserudvidelse",
+      "extension_not_enabled": "Udvidelse ikke aktiveret."
     }
   },
   "layout": {

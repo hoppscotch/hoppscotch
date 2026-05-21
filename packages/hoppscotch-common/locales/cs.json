@@ -948,8 +948,8 @@
     "url": {
       "extension_not_installed": "Rozšíření není nainstalováno.",
       "extension_unknown_origin": "Ujistěte se, že jste přidali origin API endpointu do seznamu povolených originů rozšíření Hoppscotch.",
-      "extention_enable_action": "Povolit rozšíření prohlížeče",
-      "extention_not_enabled": "Rozšíření není povoleno.",
+      "extension_enable_action": "Povolit rozšíření prohlížeče",
+      "extension_not_enabled": "Rozšíření není povoleno.",
       "localaccess_unsupported": "Aktuální zachycovač nepodporuje místní přístup, zvažte použití agenta, zachycovače rozšíření nebo desktopové aplikace"
     },
     "auth": {

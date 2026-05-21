@@ -484,8 +484,8 @@
     "url": {
       "extension_not_installed": "Extensie niet geïnstalleerd.",
       "extension_unknown_origin": "Zorg ervoor dat je de oorsprong van het API-eindpunt hebt toegevoegd aan de lijst met Hoppscotch-browserextensies.",
-      "extention_enable_action": "Browser-extensie inschakelen",
-      "extention_not_enabled": "Extensie niet ingeschakeld."
+      "extension_enable_action": "Browser-extensie inschakelen",
+      "extension_not_enabled": "Extensie niet ingeschakeld."
     }
   },
   "layout": {

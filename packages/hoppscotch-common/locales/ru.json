@@ -590,7 +590,7 @@
     "order_changed": "Порядок запроса изменён",
     "override": "Переопределить",
     "override_help": "Установить <kbd>Content-Type</kbd> в Заголовках",
-    "overriden": "Переопределено",
+    "overridden": "Переопределено",
     "parameter_list": "Параметры запроса",
     "parameters": "Параметры",
     "path": "Путь",

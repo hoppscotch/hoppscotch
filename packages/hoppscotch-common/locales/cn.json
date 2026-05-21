@@ -1200,7 +1200,7 @@
     "order_changed": "请求顺序更新完成",
     "override": "覆盖",
     "override_help": "设置 <kbd>Content-Type</kbd> 头",
-    "overriden": "覆盖",
+    "overridden": "覆盖",
     "parameter_list": "查询参数",
     "parameters": "参数",
     "path": "路径",

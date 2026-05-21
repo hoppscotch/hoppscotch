@@ -25,7 +25,7 @@
                       {
                         "active": true,
                         "key": "X-Test-Header",
-                        "value": "Overriden at RequestD"
+                        "value": "Overridden at RequestD"
                       }
                     ],
                     "method": "GET",
@@ -36,7 +36,7 @@
                       "password": "password"
                     },
                     "preRequestScript": "",
-                    "testScript": "pw.test(\"Overrides auth and headers set at the parent folder\", ()=> {\n    pw.expect(pw.response.body.headers[\"x-test-header\"]).toBe(\"Overriden at RequestD\");\n  pw.expect(pw.response.body.headers[\"authorization\"]).toBe(\"Basic dXNlcm5hbWU6cGFzc3dvcmQ=\");\n});",
+                    "testScript": "pw.test(\"Overrides auth and headers set at the parent folder\", ()=> {\n    pw.expect(pw.response.body.headers[\"x-test-header\"]).toBe(\"Overridden at RequestD\");\n  pw.expect(pw.response.body.headers[\"authorization\"]).toBe(\"Basic dXNlcm5hbWU6cGFzc3dvcmQ=\");\n});",
                     "body": {
                       "contentType": null,
                       "body": null
@@ -64,7 +64,7 @@
                   "authActive": true
                 },
                 "preRequestScript": "",
-                "testScript": "pw.test(\"Correctly inherits auth and headers from the parent folder\", ()=> {\n    pw.expect(pw.response.body.headers[\"x-test-header\"]).toBe(\"Overriden at FolderB\");\n  pw.expect(pw.response.body.headers[\"key\"]).toBe(\"test-key\");\n});",
+                "testScript": "pw.test(\"Correctly inherits auth and headers from the parent folder\", ()=> {\n    pw.expect(pw.response.body.headers[\"x-test-header\"]).toBe(\"Overridden at FolderB\");\n  pw.expect(pw.response.body.headers[\"key\"]).toBe(\"test-key\");\n});",
                 "body": {
                   "contentType": null,
                   "body": null
@@ -83,7 +83,7 @@
               {
                 "active": true,
                 "key": "X-Test-Header",
-                "value": "Overriden at FolderB"
+                "value": "Overridden at FolderB"
               }
             ]
           }

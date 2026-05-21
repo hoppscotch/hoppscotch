@@ -1201,7 +1201,7 @@
     "order_changed": "Request Order Updated",
     "override": "Override",
     "override_help": "Set <kbd>Content-Type</kbd> in Headers",
-    "overriden": "Overridden",
+    "overridden": "Overridden",
     "parameter_list": "Query Parameters",
     "parameters": "Parameters",
     "path": "Path",

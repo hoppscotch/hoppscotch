@@ -594,7 +594,7 @@
     "order_changed": "Cập nhật thứ tự requests",
     "override": "Ghi đè",
     "override_help": "Đặt <kbd>Content-Type</kbd> trong headers",
-    "overriden": "Đã ghi đè",
+    "overridden": "Đã ghi đè",
     "parameter_list": "Danh sách tham số truy vấn",
     "parameters": "Tham số",
     "path": "Đường dẫn",

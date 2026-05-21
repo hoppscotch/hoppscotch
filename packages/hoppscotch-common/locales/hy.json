@@ -1170,7 +1170,7 @@
         "order_changed": "Հարցման հերթականությունը թարմացվել է",
         "override": "Գերազանցել (Override)",
         "override_help": "Սահմանել <kbd>Content-Type</kbd> Վերնագրերում",
-        "overriden": "Գերազանցված է",
+        "overridden": "Գերազանցված է",
         "parameter_list": "Հարցման պարամետրեր (Query Parameters)",
         "parameters": "Պարամետրեր",
         "path": "Ուղի",

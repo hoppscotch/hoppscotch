@@ -695,7 +695,7 @@
     "order_changed": "Reihenfolge der Anfragen aktualisiert",
     "override": "Überschreiben",
     "override_help": "Setze <kbd>Content-Type</kbd> in Headers",
-    "overriden": "Überschrieben",
+    "overridden": "Überschrieben",
     "parameter_list": "Abfrageparameter",
     "parameters": "Parameter",
     "path": "Pfad",

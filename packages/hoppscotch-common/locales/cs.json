@@ -1170,7 +1170,7 @@
     "order_changed": "Pořadí požadavků aktualizováno",
     "override": "Přepsat",
     "override_help": "Nastavit <kbd>Content-Type</kbd> v hlavičkách",
-    "overriden": "Přepsáno",
+    "overridden": "Přepsáno",
     "parameter_list": "Query parametry",
     "parameters": "Parametry",
     "path": "Cesta",

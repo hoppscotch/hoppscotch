@@ -594,7 +594,7 @@
     "order_changed": "Request Order Updated",
     "override": "Sobreescriure",
     "override_help": "Estableix <kbd>Content-Type</kbd> a les capçaleres (Headers)",
-    "overriden": "Sobreescrit",
+    "overridden": "Sobreescrit",
     "parameter_list": "Paràmetres de consulta",
     "parameters": "Paràmetres",
     "path": "Ruta",

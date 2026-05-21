@@ -82,15 +82,15 @@
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="t('request.override_help')"
           :label="
-            overridenContentType
-              ? `${t('request.overriden')}: ${overridenContentType}`
+            overriddenContentType
+              ? `${t('request.overridden')}: ${overriddenContentType}`
               : t('request.override')
           "
-          :icon="overridenContentType ? IconInfo : IconRefreshCW"
+          :icon="overriddenContentType ? IconInfo : IconRefreshCW"
           :class="[
             '!px-1 !py-0.5',
             {
-              'text-yellow-500 hover:text-yellow-500': overridenContentType,
+              'text-yellow-500 hover:text-yellow-500': overriddenContentType,
             },
           ]"
           filled
@@ -172,7 +172,7 @@ const emit = defineEmits<{
 const headers = useVModel(props, "headers", emit)
 const body = useVModel(props, "body", emit)
 
-const overridenContentType = computed(() =>
+const overriddenContentType = computed(() =>
   pipe(
     headers.value,
     A.findLast((h) => h.key.toLowerCase() === "content-type" && h.active),

@@ -594,7 +594,7 @@
     "order_changed": "Urutan Request Diperbarui",
     "override": "Membatalkan",
     "override_help": "Set <kbd>Content-Type</kbd> in Headers",
-    "overriden": "Diganti",
+    "overridden": "Diganti",
     "parameter_list": "Query Parameters",
     "parameters": "Parameters",
     "path": "Path",

@@ -1200,7 +1200,7 @@
     "order_changed": "İstek Sırası Güncellendi",
     "override": "Geçersiz kıl",
     "override_help": "<kbd>Content-Type</kbd> Başlıklarda ayarlayın",
-    "overriden": "Geçersiz kılındı",
+    "overridden": "Geçersiz kılındı",
     "parameter_list": "Sorgu parametreleri",
     "parameters": "Parametreler",
     "path": "Yol",

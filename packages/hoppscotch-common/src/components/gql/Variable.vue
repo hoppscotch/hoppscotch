@@ -71,8 +71,8 @@
       />
     </div>
   </div>
-  <div class="h-full relative">
-    <div ref="variableEditor" class="flex flex-1 flex-col h-full"></div>
+  <div class="h-full relative flex flex-col flex-1">
+    <div ref="variableEditor" class="absolute inset-0"></div>
   </div>
 </template>
 

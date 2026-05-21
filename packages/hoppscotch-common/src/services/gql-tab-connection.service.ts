@@ -14,7 +14,15 @@ import {
   printSchema,
 } from "graphql"
 import { Service } from "dioc"
-import { Component, Ref, computed, ref, shallowReactive, watch } from "vue"
+import {
+  Component,
+  ComputedRef,
+  Ref,
+  computed,
+  ref,
+  shallowReactive,
+  watch,
+} from "vue"
 import { useToast } from "~/composables/toast"
 import { getI18n } from "~/modules/i18n"
 
@@ -74,19 +82,6 @@ export type GQLResponseEvent =
 
 const GQL_SCHEMA_POLL_INTERVAL = 7000
 
-const GQL = {
-  CONNECTION_INIT: "connection_init",
-  CONNECTION_ACK: "connection_ack",
-  CONNECTION_ERROR: "connection_error",
-  CONNECTION_KEEP_ALIVE: "ka",
-  START: "start",
-  STOP: "stop",
-  CONNECTION_TERMINATE: "connection_terminate",
-  DATA: "data",
-  ERROR: "error",
-  COMPLETE: "complete",
-}
-
 export type ConnectionRequestOptions = {
   url: string
   request: HoppGQLRequest
@@ -119,17 +114,79 @@ export type RunQueryOptions = {
   operationType: OperationType
 }
 
+type WSGraphQLProtocol = "graphql-transport-ws" | "graphql-ws"
+
+/**
+ * GraphQL-over-WebSocket message types. Covers both the modern
+ * `graphql-transport-ws` protocol and the legacy `subscriptions-transport-ws`
+ * (a.k.a. `graphql-ws`) one — we negotiate either at handshake time, so the
+ * same dispatcher has to handle frames from both.
+ *
+ * Modern spec: https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md
+ * Legacy spec: https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md
+ */
+const GQL_WS_MSG = {
+  // Both protocols
+  CONNECTION_INIT: "connection_init",
+  CONNECTION_ACK: "connection_ack",
+  ERROR: "error",
+  // Modern only
+  PING: "ping",
+  PONG: "pong",
+  SUBSCRIBE: "subscribe",
+  NEXT: "next",
+  COMPLETE: "complete",
+  // Legacy only
+  CONNECTION_ERROR: "connection_error",
+  CONNECTION_KEEP_ALIVE: "ka",
+  START: "start",
+  STOP: "stop",
+  DATA: "data",
+} as const
+
+type ConnectionError = {
+  type: string
+  message: (t: ReturnType<typeof getI18n>) => string
+  component?: Component
+}
+
 type TabConnectionContext = {
   state: ConnectionState
   schema: GraphQLSchema | null
-  error: {
-    type: string
-    message: (t: ReturnType<typeof getI18n>) => string
-    component?: Component
-  } | null
+  error: ConnectionError | null
   socket: WebSocket | undefined
-  subscriptionState: Map<string, SubscriptionState>
+  /**
+   * Direct reactive field (not a nested Map) so shallowReactive on the
+   * context picks up assignments. A previous design wrapped this in a Map
+   * keyed by tabId, which made `Map.set(...)` mutations invisible to Vue's
+   * reactivity since shallowReactive doesn't deep-wrap.
+   */
+  subscriptionState?: SubscriptionState
+  /** Negotiated WS subprotocol for the current subscription socket */
+  wsProtocol?: WSGraphQLProtocol
+  /** ID of the in-flight subscription on the current socket */
+  activeSubId?: string
+  /** Timer that fires if the server never sends connection_ack */
+  initAckTimer?: ReturnType<typeof setTimeout>
+  /**
+   * Promise of an in-flight `connectTab` call. Used to dedupe concurrent
+   * connect requests so we don't stack polling loops while a fetchSchema
+   * is still resolving.
+   */
+  connectingPromise?: Promise<void>
 }
+
+/**
+ * Public, read-only projection of {@link TabConnectionContext}. Consumers get
+ * exactly the fields they need to render UI state without being able to mutate
+ * the live context or hold a reference to the WebSocket / timers.
+ */
+export type TabConnectionView = Readonly<{
+  state: ConnectionState
+  schema: GraphQLSchema | null
+  error: ConnectionError | null
+  subscriptionState: SubscriptionState | undefined
+}>
 
 /**
  * DIOC service that manages independent GraphQL connections per tab.
@@ -154,6 +211,18 @@ export class GQLTabConnectionService extends Service {
 
   // Per-tab schema polling timers (non-reactive, just timeouts)
   private tabPollingTimers = new Map<string, ReturnType<typeof setTimeout>>()
+
+  // Monotonic counter for subscription IDs. graphql-transport-ws lets you
+  // multiplex multiple subscriptions on one socket; even though we run one
+  // at a time per tab today, using a fresh ID per subscribe avoids server
+  // "subscriber already exists" errors (close code 4409) if the server is
+  // slow to release the prior id after a complete/close.
+  private subIdCounter = 0
+
+  // How long to wait for connection_ack after sending connection_init.
+  // Both protocols expect ack to be prompt; the spec's de facto upper bound
+  // is single-digit seconds — we use 10s to be lenient on slow networks.
+  private static readonly CONNECTION_ACK_TIMEOUT_MS = 10_000
 
   // Per-tab response event refs
   private tabMessageEvents = new Map<
@@ -207,7 +276,7 @@ export class GQLTabConnectionService extends Service {
           schema: null,
           error: null,
           socket: undefined,
-          subscriptionState: new Map(),
+          subscriptionState: undefined,
         })
       )
     }
@@ -231,10 +300,127 @@ export class GQLTabConnectionService extends Service {
   }
 
   /**
-   * Get the reactive connection state for a specific tab.
+   * Read-only view of a tab's connection state. Returns a reactive proxy that
+   * exposes only the UI-relevant fields — consumers can't accidentally mutate
+   * the live context or hold a reference to the live WebSocket / timers.
    */
-  public getTabConnectionState(tabId: string): TabConnectionContext {
-    return this.getOrCreateContext(tabId)
+  public getTabConnectionState(tabId: string): TabConnectionView {
+    const ctx = this.getOrCreateContext(tabId)
+    // The proxy is computed-like; each property read goes through the live ctx
+    // so reactivity is preserved without exposing assignment.
+    return {
+      get state() {
+        return ctx.state
+      },
+      get schema() {
+        return ctx.schema
+      },
+      get error() {
+        return ctx.error
+      },
+      get subscriptionState() {
+        return ctx.subscriptionState
+      },
+    } as TabConnectionView
+  }
+
+  // Cache of per-tab subscription-state computeds. Without this every call to
+  // `getTabSubscriptionState(tabId)` allocates a fresh ComputedRef — wasteful
+  // when the result is read inside another computed (e.g. `subscriptionPending`
+  // in GqlResponse.vue) which re-evaluates on every change.
+  private tabSubscriptionStateRefs = new Map<
+    string,
+    ComputedRef<SubscriptionState | undefined>
+  >()
+
+  /**
+   * Reactive subscription state for a specific tab — undefined until a
+   * subscription has been initiated. Components read this to toggle
+   * Run / Stop buttons and to gate "already subscribed" actions.
+   */
+  public getTabSubscriptionState(
+    tabId: string
+  ): ComputedRef<SubscriptionState | undefined> {
+    let cached = this.tabSubscriptionStateRefs.get(tabId)
+    if (!cached) {
+      cached = computed(() => this.getOrCreateContext(tabId).subscriptionState)
+      this.tabSubscriptionStateRefs.set(tabId, cached)
+    }
+    return cached
+  }
+
+  /**
+   * Stop the active subscription for a tab. Sends a protocol-correct stop
+   * frame (`complete` for graphql-transport-ws, `stop` for graphql-ws) so
+   * the server can release resources for that operation, then closes the
+   * socket. Safe to call when there is no active subscription.
+   */
+  public unsubscribeTab(tabId: string) {
+    const ctx = this.tabContexts.get(tabId)
+    if (!ctx) return
+
+    if (
+      ctx.socket &&
+      ctx.socket.readyState === WebSocket.OPEN &&
+      ctx.activeSubId
+    ) {
+      const isModern = ctx.wsProtocol === "graphql-transport-ws"
+      try {
+        ctx.socket.send(
+          JSON.stringify({
+            type: isModern ? GQL_WS_MSG.COMPLETE : GQL_WS_MSG.STOP,
+            id: ctx.activeSubId,
+          })
+        )
+      } catch (_e) {
+        // swallow — socket may have closed between the readyState check
+        // and the send call (race window is small but possible)
+      }
+    }
+
+    this.teardownSubscriptionSocket(ctx)
+    ctx.subscriptionState = "UNSUBSCRIBED"
+  }
+
+  private teardownSubscriptionSocket(ctx: TabConnectionContext) {
+    if (ctx.initAckTimer) {
+      clearTimeout(ctx.initAckTimer)
+      ctx.initAckTimer = undefined
+    }
+    if (ctx.socket) {
+      try {
+        ctx.socket.close()
+      } catch (_e) {
+        // swallow
+      }
+      ctx.socket = undefined
+    }
+    ctx.activeSubId = undefined
+    ctx.wsProtocol = undefined
+  }
+
+  /**
+   * Maps a WebSocket close code to a human-readable reason.
+   * Values come from the `graphql-transport-ws` spec (CloseCode enum); see
+   * https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md
+   */
+  private static readonly WS_CLOSE_CODES: Readonly<Record<number, string>> = {
+    4004: "Bad response",
+    4005: "Internal client error",
+    4400: "Bad request",
+    4401: "Unauthorized (connection_init missing or rejected)",
+    4403: "Forbidden",
+    4406: "Subprotocol not acceptable",
+    4408: "Connection initialization timeout",
+    4409: "Subscriber for this ID already exists",
+    4429: "Too many initialization requests",
+    4499: "Connection terminated",
+    4500: "Internal server error",
+    4504: "Connection acknowledgement timeout",
+  }
+
+  private describeWSCloseCode(code: number): string {
+    return GQLTabConnectionService.WS_CLOSE_CODES[code] ?? "Connection closed"
   }
 
   /**
@@ -279,6 +465,14 @@ export class GQLTabConnectionService extends Service {
       return
     }
 
+    // De-dupe concurrent connectTab calls. Two near-simultaneous callers
+    // (user click + auto-connect from runTabGQLOperation) would otherwise each
+    // start their own polling loop, double-firing introspection requests and
+    // racing to write ctx.schema.
+    if (ctx.connectingPromise) {
+      return ctx.connectingPromise
+    }
+
     const toast = useToast()
     const t = getI18n()
 
@@ -308,14 +502,27 @@ export class GQLTabConnectionService extends Service {
         currentCtx.state = "ERROR"
 
         if (!isRunGQLOperation) {
-          toast.error(t("graphql.connection_error_http"))
+          // Use the underlying error message when we have one (e.g.
+          // "Introspection response was not valid JSON") so the toast tells
+          // the user the actual cause instead of a generic "network error".
+          const reason =
+            error instanceof Error && error.message
+              ? error.message
+              : t("graphql.connection_error_http")
+          toast.error(reason)
         }
-
-        console.error(error)
       }
     }
 
-    await poll()
+    const pending = poll()
+    ctx.connectingPromise = pending
+    try {
+      await pending
+    } finally {
+      if (ctx.connectingPromise === pending) {
+        ctx.connectingPromise = undefined
+      }
+    }
   }
 
   /**
@@ -445,16 +652,26 @@ export class GQLTabConnectionService extends Service {
       const data = res.right
 
       const decoder = new TextDecoder("utf-8")
-      const responseText = decoder.decode(data.body.body)
+      // Strip trailing NUL bytes — some kernel transports return a body
+      // buffer slightly oversized with `\0` padding (observed against
+      // countries.trevorblades.com via the desktop relay). JSON.parse
+      // rejects those as "non-whitespace characters after JSON".
+      const responseText = decoder.decode(data.body.body).replace(/\0+$/g, "")
 
-      const introspectResponse = JSON.parse(responseText)
+      let introspectResponse: { data?: unknown }
+      try {
+        introspectResponse = JSON.parse(responseText)
+      } catch (_parseErr) {
+        throw new Error(
+          "Introspection response was not valid JSON — the endpoint may not be a GraphQL server."
+        )
+      }
 
-      const schemaData = buildClientSchema(introspectResponse.data)
+      const schemaData = buildClientSchema(introspectResponse.data as any)
 
       ctx.schema = schemaData
       ctx.error = null
     } catch (e: any) {
-      console.error(e)
       // Mid-poll failure on an already-connected tab: drop the connection.
       // The disconnect resets state to DISCONNECTED so poll()'s post-await
       // guard short-circuits and stops scheduling further polls.
@@ -481,18 +698,39 @@ export class GQLTabConnectionService extends Service {
     const ctx = this.getOrCreateContext(tabId)
     const messageEvent = this.getTabMessageEvent(tabId)
 
+    // Tear down any prior subscription before starting a new operation. Even
+    // a query/mutation must not coexist with an open subscription socket on
+    // the same tab — leaving it open leaks the WS and confuses the UI state
+    // machine (subscriptionState stuck on "SUBSCRIBED" while the user sees a
+    // single-shot response).
+    if (ctx.socket) {
+      this.teardownSubscriptionSocket(ctx)
+      ctx.subscriptionState = "UNSUBSCRIBED"
+    }
+
     if (ctx.state !== "CONNECTED") {
-      await this.connectTab(
-        tabId,
-        {
-          url: options.url,
-          request: options.request,
-          inheritedHeaders: options.inheritedHeaders,
-          inheritedAuth: options.inheritedAuth,
-          inheritedVariables: options.inheritedVariables,
-        },
-        true
-      )
+      // Introspection failure is non-fatal — schema is for the docs explorer
+      // and autocomplete, not for executing the request. Servers that disable
+      // introspection (Hasura prod, Apollo with introspection: false) or
+      // return non-JSON for unknown ops would otherwise prevent the user
+      // from running any query/mutation/subscription at all.
+      try {
+        await this.connectTab(
+          tabId,
+          {
+            url: options.url,
+            request: options.request,
+            inheritedHeaders: options.inheritedHeaders,
+            inheritedAuth: options.inheritedAuth,
+            inheritedVariables: options.inheritedVariables,
+          },
+          true
+        )
+      } catch (_e) {
+        // Swallow — `fetchSchema` already logged the error and `disconnectTab`
+        // moved the connection state out of CONNECTING. The execution path
+        // below doesn't depend on the schema.
+      }
     }
 
     const {
@@ -684,46 +922,133 @@ export class GQLTabConnectionService extends Service {
   ) {
     const ctx = this.getOrCreateContext(tabId)
     const messageEvent = this.getTabMessageEvent(tabId)
-    const { url, query, operationName } = options
+    const { url, query, operationName, variables } = options
     const wsUrl = url.replace(/^http/, "ws")
 
-    ctx.subscriptionState.set(tabId, "SUBSCRIBING")
-    ctx.socket = new WebSocket(wsUrl, "graphql-ws")
+    // Defensive — `runTabGQLOperation` already tears down on the entry path,
+    // but `runTabSubscription` is logically self-contained.
+    if (ctx.socket) {
+      this.teardownSubscriptionSocket(ctx)
+    }
 
-    ctx.socket.onopen = (_event) => {
-      ctx.socket?.send(
-        JSON.stringify({
-          type: GQL.CONNECTION_INIT,
-          payload: headers ?? {},
-        })
+    let parsedVariables: unknown
+    if (variables) {
+      try {
+        parsedVariables = JSON.parse(variables)
+      } catch {
+        parsedVariables = undefined
+      }
+    }
+
+    // Offer both subprotocols. Server picks one via the standard WS handshake;
+    // we read `socket.protocol` after open and branch on that. Modern servers
+    // (Postman default, recent Apollo, Hasura, graphql-yoga) speak
+    // `graphql-transport-ws`; older `subscriptions-transport-ws` servers
+    // speak `graphql-ws`.
+    const socket = new WebSocket(wsUrl, ["graphql-transport-ws", "graphql-ws"])
+    const subId = `${++this.subIdCounter}`
+
+    ctx.socket = socket
+    ctx.activeSubId = subId
+    ctx.subscriptionState = "SUBSCRIBING"
+    messageEvent.value = "reset"
+
+    // Closure helpers — each subscription captures its own `socket` + `subId`,
+    // so the staleness check works for handlers that fire after a teardown or
+    // a re-subscribe. Without these, every async callback would have to repeat
+    // the same guard inline and the terminal-frame paths would diverge from
+    // the ack-timeout path.
+    const isCurrentSubscription = () =>
+      ctx.socket === socket && ctx.activeSubId === subId
+
+    const failSubscription = (message: string) => {
+      if (!isCurrentSubscription()) return
+      messageEvent.value = {
+        type: "error",
+        error: { type: "subscription_error", message },
+      }
+      this.teardownSubscriptionSocket(ctx)
+      ctx.subscriptionState = "UNSUBSCRIBED"
+    }
+
+    // Guard against servers that accept the WS handshake but never send
+    // `connection_ack` (e.g. a non-GraphQL echo endpoint that just opens a
+    // socket). Without this the UI sits in SUBSCRIBING with no feedback.
+    ctx.initAckTimer = setTimeout(() => {
+      failSubscription(
+        `GraphQL server did not acknowledge the connection within ${
+          GQLTabConnectionService.CONNECTION_ACK_TIMEOUT_MS / 1000
+        }s. The endpoint may not implement graphql-transport-ws or graphql-ws.`
       )
+    }, GQLTabConnectionService.CONNECTION_ACK_TIMEOUT_MS)
 
-      ctx.socket?.send(
+    socket.onopen = () => {
+      if (!isCurrentSubscription()) return
+
+      ctx.wsProtocol =
+        socket.protocol === "graphql-transport-ws"
+          ? "graphql-transport-ws"
+          : "graphql-ws"
+
+      // Per spec, only connection_init goes out now. The subscribe/start
+      // frame is held until the server returns connection_ack — sending it
+      // early can be rejected with close code 4401 by strict servers.
+      socket.send(
         JSON.stringify({
-          type: GQL.START,
-          id: "1",
-          payload: { query, operationName },
+          type: GQL_WS_MSG.CONNECTION_INIT,
+          payload: headers ?? {},
         })
       )
     }
 
-    messageEvent.value = "reset"
+    socket.onmessage = (event) => {
+      if (!isCurrentSubscription()) return
 
-    ctx.socket.onmessage = (event) => {
-      const data = JSON.parse(event.data)
+      let data: any
+      try {
+        data = JSON.parse(event.data)
+      } catch {
+        // Non-JSON frame on a graphql-ws socket — log and ignore so we don't
+        // crash the message dispatcher.
+        console.warn("Discarded non-JSON WS frame on GQL subscription socket")
+        return
+      }
+
       switch (data.type) {
-        case GQL.CONNECTION_ACK: {
-          ctx.subscriptionState.set(tabId, "SUBSCRIBED")
+        case GQL_WS_MSG.CONNECTION_ACK: {
+          if (ctx.initAckTimer) {
+            clearTimeout(ctx.initAckTimer)
+            ctx.initAckTimer = undefined
+          }
+          ctx.subscriptionState = "SUBSCRIBED"
+
+          const isModern = ctx.wsProtocol === "graphql-transport-ws"
+          socket.send(
+            JSON.stringify({
+              type: isModern ? GQL_WS_MSG.SUBSCRIBE : GQL_WS_MSG.START,
+              id: subId,
+              payload: { query, operationName, variables: parsedVariables },
+            })
+          )
           break
         }
-        case GQL.CONNECTION_ERROR: {
-          console.error(data.payload)
+
+        case GQL_WS_MSG.PING: {
+          // Modern protocol heartbeat — must respond with pong or the server
+          // closes the connection after its keep-alive window.
+          socket.send(JSON.stringify({ type: GQL_WS_MSG.PONG }))
           break
         }
-        case GQL.CONNECTION_KEEP_ALIVE: {
+
+        case GQL_WS_MSG.CONNECTION_KEEP_ALIVE:
+        case GQL_WS_MSG.PONG:
+          // Legacy keep-alive / modern pong response — nothing to do.
           break
-        }
-        case GQL.DATA: {
+
+        case GQL_WS_MSG.DATA: // legacy
+        case GQL_WS_MSG.NEXT: {
+          // modern
+          if (data.id && data.id !== subId) break // not our subscription
           messageEvent.value = {
             type: "response",
             time: Date.now(),
@@ -733,20 +1058,112 @@ export class GQLTabConnectionService extends Service {
           }
           break
         }
-        case GQL.COMPLETE: {
-          console.log("completed", data.id)
+
+        case GQL_WS_MSG.ERROR: {
+          if (data.id && data.id !== subId) break
+          // Terminal per spec — the subscription is dead after `error`. Route
+          // through failSubscription so we close the socket, clear timers,
+          // and flip UI back to Run instead of leaving stale "SUBSCRIBED"
+          // state hanging around.
+          failSubscription(
+            typeof data.payload === "string"
+              ? data.payload
+              : JSON.stringify(data.payload)
+          )
+          break
+        }
+
+        case GQL_WS_MSG.CONNECTION_ERROR: {
+          // Legacy protocol's protocol-level failure (e.g. auth in payload).
+          // Terminal per spec — see `error` case.
+          failSubscription(
+            typeof data.payload === "string"
+              ? data.payload
+              : JSON.stringify(data.payload ?? "Connection error")
+          )
+          break
+        }
+
+        case GQL_WS_MSG.COMPLETE: {
+          if (data.id && data.id !== subId) break
+          // Server-initiated end of stream — fully tear down so the socket,
+          // activeSubId, and wsProtocol don't outlive the subscription. Any
+          // subsequent onclose for this socket short-circuits because
+          // `ctx.socket` is already cleared.
+          this.teardownSubscriptionSocket(ctx)
+          ctx.subscriptionState = "UNSUBSCRIBED"
           break
         }
       }
     }
 
-    ctx.socket.onclose = (_event) => {
-      ctx.subscriptionState.set(tabId, "UNSUBSCRIBED")
+    socket.onclose = (event) => {
+      // Strict staleness check — if `ctx.socket` was cleared (teardown) or
+      // replaced (re-subscribe), this close event belongs to a defunct socket
+      // and must not touch shared state. Looser checks that allowed
+      // `ctx.socket === undefined` here would re-trigger error reporting for
+      // sockets we already tore down.
+      if (ctx.socket !== socket) return
+
+      if (ctx.initAckTimer) {
+        clearTimeout(ctx.initAckTimer)
+        ctx.initAckTimer = undefined
+      }
+
+      // Fully clear so the next subscription starts from a clean context.
+      ctx.socket = undefined
+      ctx.activeSubId = undefined
+      ctx.wsProtocol = undefined
+      ctx.subscriptionState = "UNSUBSCRIBED"
+
+      // Abnormal close codes from graphql-transport-ws spec carry real
+      // diagnostic info — surface them so the user can debug auth/payload
+      // issues instead of seeing a silent empty panel.
+      if (
+        event.code !== 1000 && // normal closure
+        event.code !== 1001 && // going away
+        event.code !== 1005 // no status received
+      ) {
+        const reason =
+          event.reason || this.describeWSCloseCode(event.code) || ""
+        messageEvent.value = {
+          type: "error",
+          error: {
+            type: "subscription_error",
+            message: `WebSocket closed (code ${event.code})${
+              reason ? `: ${reason}` : ""
+            }`,
+          },
+        }
+      }
+    }
+
+    socket.onerror = (_event) => {
+      // Strict staleness check — see onclose.
+      if (ctx.socket !== socket) return
+
+      if (ctx.initAckTimer) {
+        clearTimeout(ctx.initAckTimer)
+        ctx.initAckTimer = undefined
+      }
+      ctx.subscriptionState = "UNSUBSCRIBED"
+      // The browser fires `error` first then `close` — `close` carries the
+      // diagnostic code, so we only set a generic message here as a fallback
+      // for the rare case where `error` fires without a follow-up close.
+      if (!messageEvent.value || messageEvent.value === "reset") {
+        messageEvent.value = {
+          type: "error",
+          error: {
+            type: "subscription_error",
+            message: `WebSocket connection to ${wsUrl} failed. Check that the endpoint accepts GraphQL over WebSocket.`,
+          },
+        }
+      }
     }
 
     this.addQueryToHistory(options, "")
 
-    return ctx.socket
+    return socket
   }
 
   // --- Cleanup ---
@@ -761,12 +1178,13 @@ export class GQLTabConnectionService extends Service {
     this.tabPollingTimers.delete(tabId)
 
     const ctx = this.tabContexts.get(tabId)
-    if (ctx?.socket) {
-      ctx.socket.close()
+    if (ctx) {
+      this.teardownSubscriptionSocket(ctx)
     }
 
     this.tabContexts.delete(tabId)
     this.tabMessageEvents.delete(tabId)
+    this.tabSubscriptionStateRefs.delete(tabId)
   }
 
   /**
@@ -777,9 +1195,7 @@ export class GQLTabConnectionService extends Service {
       const timer = this.tabPollingTimers.get(tabId)
       if (timer) clearTimeout(timer)
 
-      if (ctx.socket) {
-        ctx.socket.close()
-      }
+      this.teardownSubscriptionSocket(ctx)
 
       ctx.state = "DISCONNECTED"
       ctx.schema = null
@@ -788,6 +1204,7 @@ export class GQLTabConnectionService extends Service {
     this.tabPollingTimers.clear()
     this.tabContexts.clear()
     this.tabMessageEvents.clear()
+    this.tabSubscriptionStateRefs.clear()
   }
 
   // --- Auth header generation ---

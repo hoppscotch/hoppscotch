@@ -17,7 +17,7 @@
         :label="`${t('request.stop')}`"
         :icon="IconStop"
         class="!hover:text-accentDark rounded-none !text-accent"
-        @click="unsubscribe()"
+        @click="stopQuery()"
       />
       <HoppButtonSecondary
         v-if="
@@ -95,10 +95,7 @@ import { useI18n } from "@composables/i18n"
 import { refAutoReset, useVModel } from "@vueuse/core"
 import { useToast } from "~/composables/toast"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
-import {
-  socketDisconnect,
-  subscriptionState,
-} from "~/helpers/graphql/connection"
+import type { SubscriptionState } from "~/helpers/graphql/connection"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 
@@ -109,14 +106,16 @@ const props = withDefaults(
   defineProps<{
     modelValue: string
     showRunActions?: boolean
+    subscriptionState?: SubscriptionState
   }>(),
-  { showRunActions: true }
+  { showRunActions: true, subscriptionState: undefined }
 )
 
 const emit = defineEmits<{
   (e: "save-request"): void
   (e: "update:modelValue", val: string): void
   (e: "run-query", definition: gql.OperationDefinitionNode | null): void
+  (e: "stop-query"): void
 }>()
 
 // Watch operations on graphql query string
@@ -179,7 +178,7 @@ const clearGQLVariables = () => {
 const runQuery = (definition: gql.OperationDefinitionNode | null = null) => {
   emit("run-query", definition)
 }
-const unsubscribe = () => {
-  socketDisconnect()
+const stopQuery = () => {
+  emit("stop-query")
 }
 </script>

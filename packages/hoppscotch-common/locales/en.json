@@ -825,9 +825,11 @@
     "show_depricated_values": "Show deprecated values",
     "subscription": "Subscription",
     "subscriptions": "Subscriptions",
+    "subscribing": "Connecting to subscription endpoint…",
     "switch_connection": "Switch connection",
     "url_placeholder": "Enter a GraphQL endpoint URL",
-    "query": "Query"
+    "query": "Query",
+    "waiting_for_events": "Subscribed. Waiting for events…"
   },
   "graphql_collections": {
     "title": "GraphQL Collections"

@@ -168,7 +168,7 @@
                   "
                 />
                 <HoppSmartItem
-                  v-if="!hasNoTeamAccess && !isGQL"
+                  v-if="!hasNoTeamAccess"
                   ref="shareAction"
                   :icon="IconShare2"
                   :label="t('action.share')"

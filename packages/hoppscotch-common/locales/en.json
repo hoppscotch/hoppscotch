@@ -1410,6 +1410,7 @@
     "proxy_auth": "You can also include username and password in the URL."
   },
   "shared_requests": {
+    "auth_warning": "This request contains authentication credentials. Anyone with the share link will be able to read them — including tokens, passwords, and API keys.",
     "button": "Button",
     "button_info": "Create a 'Run in Hoppscotch' button for your website, blog or a README.",
     "copy_html": "Copy HTML",

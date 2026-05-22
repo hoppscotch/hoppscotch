@@ -31,7 +31,7 @@
                 class="flex justify-between py-2"
               >
                 <span class="capitalize">
-                  {{ option.label }}
+                  {{ t(option.label) }}
                 </span>
                 <HoppSmartCheckbox
                   :on="option.enabled"
@@ -106,9 +106,8 @@
             >
               {{ t("shared_requests.preview") }}
             </span>
-            <ShareTemplatesEmbeds
-              :endpoint="request?.endpoint"
-              :method="request?.method"
+            <ShareTemplatesEmbedsGQL
+              :url="request?.url"
               :model-value="embedOptions"
             />
             <div class="flex items-center justify-center">
@@ -205,14 +204,14 @@ import IconMonitor from "~icons/lucide/monitor"
 import IconSun from "~icons/lucide/sun"
 import IconMoon from "~icons/lucide/moon"
 import { TippyComponent } from "vue-tippy"
-import { HoppRESTRequest } from "@hoppscotch/data"
+import { HoppGQLRequest } from "@hoppscotch/data"
 import { platform } from "~/platform"
 
 const t = useI18n()
 
 const props = defineProps({
   request: {
-    type: Object as PropType<HoppRESTRequest | null>,
+    type: Object as PropType<HoppGQLRequest | null>,
     required: true,
   },
   modelValue: {
@@ -224,28 +223,28 @@ const props = defineProps({
     default: false,
   },
   embedOptions: {
-    type: Object as PropType<EmbedOption>,
+    type: Object as PropType<GQLEmbedOption>,
     default: () => ({
-      selectedTab: "params",
+      selectedTab: "query",
       tabs: [
         {
-          value: "params",
-          label: "shared_requests.parameters",
+          value: "query",
+          label: "tab.query",
           enabled: true,
         },
         {
-          value: "body",
-          label: "shared_requests.body",
+          value: "variables",
+          label: "tab.variables",
           enabled: true,
         },
         {
           value: "headers",
-          label: "shared_requests.headers",
+          label: "tab.headers",
           enabled: true,
         },
         {
           value: "authorization",
-          label: "shared_requests.authorization",
+          label: "tab.authorization",
           enabled: false,
         },
       ],
@@ -291,17 +290,15 @@ const widgets: Widget[] = [
   },
 ]
 
-type EmbedTabs =
-  | "params"
-  | "bodyParams"
-  | "headers"
-  | "authorization"
-  | "requestVariables"
+// GraphQL surfaces the request as four panels (mirrors the live editor's
+// RequestOptions tabs). REST's `params` / `body` / `requestVariables` are
+// not applicable.
+type GQLEmbedTabs = "query" | "variables" | "headers" | "authorization"
 
-type EmbedOption = {
-  selectedTab: EmbedTabs
+type GQLEmbedOption = {
+  selectedTab: GQLEmbedTabs
   tabs: {
-    value: EmbedTabs
+    value: GQLEmbedTabs
     label: string
     enabled: boolean
   }[]
@@ -335,7 +332,7 @@ const embedThemeIcon = computed(() => {
   return IconMoon
 })
 
-const removeEmbedOption = (option: EmbedTabs) => {
+const removeEmbedOption = (option: GQLEmbedTabs) => {
   const index = embedOptions.value.tabs.findIndex((tab) => tab.value === option)
   if (index === -1) return
 
@@ -345,7 +342,8 @@ const removeEmbedOption = (option: EmbedTabs) => {
   // If we just disabled the currently selected tab, advance to the next
   // still-enabled one. If none remain enabled, fall back to the first tab
   // in the list so `selectedTab` is never out of sync with the rendered
-  // tabs — otherwise the embed-side renderer would receive an unknown id.
+  // tabs — otherwise the preview's `selectedTab` binding would dangle and
+  // the embed-side `GqlRequestOptions` would receive an unknown id.
   if (willDisable && embedOptions.value.selectedTab === option) {
     const nextEnabled = embedOptions.value.tabs.find((tab) => tab.enabled)
     embedOptions.value.selectedTab =
@@ -410,7 +408,7 @@ const shortcodeBaseURL = computed(() => {
 
 const copyEmbed = () => {
   // `sandbox` is set deliberately *without* `allow-same-origin` so the iframe
-  // can't read the host page's cookies/storage — a clickjacked Send/Run inside
+  // can't read the host page's cookies/storage — a clickjacked Run inside
   // a malicious embed can still fire HTTP/WS requests (those go to the URL in
   // the shortcode, which the share-er already controls), but can't escalate
   // into reading the embedder's session.

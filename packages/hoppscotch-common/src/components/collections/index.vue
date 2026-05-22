@@ -3544,7 +3544,11 @@ const exportData = async (collection: HoppCollection | TeamCollection) => {
   }
 }
 
-const shareRequest = ({ request }: { request: HoppRESTRequest }) => {
+const shareRequest = ({
+  request,
+}: {
+  request: HoppRESTRequest | HoppGQLRequest
+}) => {
   if (currentUser.value) {
     // opens the share request modal
     invokeAction("share.request", {

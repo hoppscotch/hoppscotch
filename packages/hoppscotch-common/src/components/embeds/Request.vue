@@ -55,7 +55,7 @@
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import IconSave from "~icons/lucide/save"
 import { Ref } from "vue"
-import { computed, useModel } from "vue"
+import { computed, onBeforeUnmount, useModel } from "vue"
 import { ref } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
@@ -188,4 +188,12 @@ const cancelRequest = () => {
 
   updateRESTResponse(null)
 }
+
+// Cancel any in-flight REST request when the embed iframe is destroyed
+// (host navigation, SPA route change). Otherwise the runner stays
+// subscribed to the response stream after the component is gone — small
+// memory leak that grows if a user clicks between several embed links.
+onBeforeUnmount(() => {
+  requestCancelFunc.value?.()
+})
 </script>

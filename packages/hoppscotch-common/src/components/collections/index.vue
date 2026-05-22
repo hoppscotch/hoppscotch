@@ -3697,7 +3697,11 @@ const doExportOpenAPI = async (format: "json" | "yaml") => {
   }
 }
 
-const shareRequest = ({ request }: { request: HoppRESTRequest }) => {
+const shareRequest = ({
+  request,
+}: {
+  request: HoppRESTRequest | HoppGQLRequest
+}) => {
   if (currentUser.value) {
     // opens the share request modal
     invokeAction("share.request", {

@@ -197,7 +197,7 @@
 import { computed, onMounted, ref, watch } from "vue"
 import { useRoute, useRouter } from "vue-router"
 import * as E from "fp-ts/Either"
-import { safelyExtractRESTRequest } from "@hoppscotch/data"
+import { makeGQLRequest, safelyExtractRESTRequest } from "@hoppscotch/data"
 import { useGQLQuery } from "@composables/graphql"
 import { useI18n } from "@composables/i18n"
 import {
@@ -216,6 +216,17 @@ import { invokeAction } from "~/helpers/actions"
 import { useColorMode } from "~/composables/theming"
 import { useReadonlyStream } from "~/composables/stream"
 import { until } from "@vueuse/core"
+
+// Shape-based discriminator — a shortcode payload that has `url` + `query`
+// and no `endpoint` is a GraphQL request. Mirrors the heuristic used by
+// `isGQLRequest` in helpers/request-type.ts (kept inline here to avoid an
+// extra dependency on a page that runs pre-login on subdomain instances).
+const isGQLShortcodePayload = (req: unknown): boolean =>
+  !!req &&
+  typeof req === "object" &&
+  "query" in req &&
+  "url" in req &&
+  !("endpoint" in req)
 
 const route = useRoute()
 const router = useRouter()
@@ -288,11 +299,37 @@ const addRequestToTab = () => {
 
     const request: unknown = JSON.parse(data.right.shortcode?.request as string)
 
-    tabs.createNewTab({
-      type: "request",
-      request: safelyExtractRESTRequest(request, getDefaultRESTRequest()),
-      isDirty: false,
-    })
+    if (isGQLShortcodePayload(request)) {
+      // GraphQL shortcode — normalize through `makeGQLRequest` so we get
+      // schema defaults (responses: {}, version, etc.) regardless of what
+      // shape the stored payload had at save time.
+      const gql = request as Record<string, unknown>
+      tabs.createNewTab({
+        type: "gql-request",
+        request: makeGQLRequest({
+          name: typeof gql.name === "string" ? gql.name : "Untitled Request",
+          url: typeof gql.url === "string" ? gql.url : "",
+          headers: Array.isArray(gql.headers) ? (gql.headers as never) : [],
+          query: typeof gql.query === "string" ? gql.query : "",
+          variables: typeof gql.variables === "string" ? gql.variables : "",
+          auth:
+            gql.auth && typeof gql.auth === "object" && "authType" in gql.auth
+              ? (gql.auth as never)
+              : { authType: "none", authActive: true },
+          description:
+            typeof gql.description === "string" ? gql.description : null,
+          responses: {},
+        }),
+        isDirty: false,
+        cursorPosition: 0,
+      })
+    } else {
+      tabs.createNewTab({
+        type: "request",
+        request: safelyExtractRESTRequest(request, getDefaultRESTRequest()),
+        isDirty: false,
+      })
+    }
 
     router.push({ path: "/" })
   }

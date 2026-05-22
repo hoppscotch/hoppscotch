@@ -98,6 +98,7 @@
     v-if="showShareRequestModal && requestToShare"
     v-model="selectedWidget"
     v-model:embed-options="embedOptions"
+    v-model:gql-embed-options="gqlEmbedOptions"
     :step="step"
     :request="requestToShare"
     :show="showShareRequestModal"
@@ -129,7 +130,9 @@ import {
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { useToast } from "~/composables/toast"
 import { ref } from "vue"
-import { HoppRESTRequest } from "@hoppscotch/data"
+import { debounce } from "lodash-es"
+import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
+import { isRESTRequest } from "~/helpers/request-type"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import * as E from "fp-ts/Either"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
@@ -149,7 +152,10 @@ const showShareRequestModal = ref(false)
 const sharedRequestID = ref("")
 const shareRequestCreatingLoading = ref(false)
 
-const requestToShare = ref<HoppRESTRequest | null>(null)
+// The shared-request modal holds either kind. Discriminated downstream via
+// the request's shape (`isRESTRequest` / `isGQLRequest`). The CustomizeModal
+// is REST-shaped today — GQL goes through its own modal (added in next step).
+const requestToShare = ref<HoppRESTRequest | HoppGQLRequest | null>(null)
 
 const embedOptions = ref<EmbedOption>({
   selectedTab: "params",
@@ -183,6 +189,37 @@ const embedOptions = ref<EmbedOption>({
   theme: "system",
 })
 
+// GraphQL shares use the same modal scaffold but a different tab set —
+// kept as a sibling ref so the REST options ref stays untouched and each
+// shape has its own translated labels. Initialised lazily; only consumed
+// when the active request is GQL.
+const gqlEmbedOptions = ref<GQLEmbedOption>({
+  selectedTab: "query",
+  tabs: [
+    {
+      value: "query",
+      label: t("tab.query"),
+      enabled: false,
+    },
+    {
+      value: "variables",
+      label: t("tab.variables"),
+      enabled: false,
+    },
+    {
+      value: "headers",
+      label: t("tab.headers"),
+      enabled: false,
+    },
+    {
+      value: "authorization",
+      label: t("tab.authorization"),
+      enabled: false,
+    },
+  ],
+  theme: "system",
+})
+
 const updateEmbedProperty = async (
   shareRequestID: string,
   properties: string
@@ -198,23 +235,54 @@ const updateEmbedProperty = async (
   }
 }
 
-watch(
-  () => embedOptions.value,
-  () => {
+// Push the current embed customize options to the backend. Called from both
+// REST and GQL watchers below; the `options` array contains protocol-specific
+// tab values (e.g. "params"/"bodyParams" for REST, "query"/"variables" for
+// GQL). The Shortcode.properties column is opaque JSON, so the backend
+// accepts either shape — the consumer (the /e/<id> renderer) discriminates
+// from the request payload's shape.
+// Debounced: the customize modal's checkboxes fire the watcher on every
+// click, and without coalescing we'd send one mutation per toggle. 400ms
+// is short enough to feel instant on save, long enough to fold a burst of
+// toggles into a single network round-trip.
+const persistEmbedProperties = debounce(
+  (options: { tabs: { enabled: boolean; value: string }[]; theme: string }) => {
     if (
       requestToShare.value &&
       requestToShare.value.id &&
-      showShareRequestModal.value
+      showShareRequestModal.value &&
+      selectedWidget.value.value === "embed"
     ) {
-      if (selectedWidget.value.value === "embed") {
-        const properties = {
-          options: embedOptions.value.tabs
-            .filter((tab) => tab.enabled)
-            .map((tab) => tab.value),
-          theme: embedOptions.value.theme,
-        }
-        updateEmbedProperty(requestToShare.value.id, JSON.stringify(properties))
+      const properties = {
+        options: options.tabs
+          .filter((tab) => tab.enabled)
+          .map((tab) => tab.value),
+        theme: options.theme,
       }
+      updateEmbedProperty(requestToShare.value.id, JSON.stringify(properties))
+    }
+  },
+  400
+)
+
+// Per-protocol watchers — guarded by the active request's shape so they
+// don't double-persist. With a single union ref this guard would be
+// unnecessary, but the union shape makes per-modal code messier.
+watch(
+  () => embedOptions.value,
+  () => {
+    if (requestToShare.value && isRESTRequest(requestToShare.value)) {
+      persistEmbedProperties(embedOptions.value)
+    }
+  },
+  { deep: true }
+)
+
+watch(
+  () => gqlEmbedOptions.value,
+  () => {
+    if (requestToShare.value && !isRESTRequest(requestToShare.value)) {
+      persistEmbedProperties(gqlEmbedOptions.value)
     }
   },
   { deep: true }
@@ -240,6 +308,20 @@ type EmbedOption = {
   selectedTab: EmbedTabs
   tabs: {
     value: EmbedTabs
+    label: string
+    enabled: boolean
+  }[]
+  theme: "light" | "dark" | "system"
+}
+
+// GraphQL embed customize tabs — kept separate from REST so each modal
+// owns a clean shape rather than a union with always-undefined fields.
+type GQLEmbedTabs = "query" | "variables" | "headers" | "authorization"
+
+type GQLEmbedOption = {
+  selectedTab: GQLEmbedTabs
+  tabs: {
+    value: GQLEmbedTabs
     label: string
     enabled: boolean
   }[]
@@ -355,111 +437,156 @@ const displayCustomizeRequestModal = (
 ) => {
   showShareRequestModal.value = show
   step.value = 2
+
+  // Discriminate by the request currently in flight. `requestToShare` is set
+  // before this function is called (by `customizeSharedRequest`), so its
+  // shape tells us which embedOptions ref to populate.
+  const isGQL = !!requestToShare.value && !isRESTRequest(requestToShare.value)
+
   if (!embedProperties) {
     selectedWidget.value = {
       value: "button",
       label: t("shared_requests.button"),
       info: t("shared_requests.button_info"),
     }
-    embedOptions.value = {
-      selectedTab: "params",
-      tabs: [
-        {
-          value: "params",
-          label: t("tab.parameters"),
-          enabled: false,
-        },
-        {
-          value: "bodyParams",
-          label: t("tab.body"),
-          enabled: false,
-        },
-        {
-          value: "headers",
-          label: t("tab.headers"),
-          enabled: false,
-        },
-        {
-          value: "authorization",
-          label: t("tab.authorization"),
-          enabled: false,
-        },
-        {
-          value: "requestVariables",
-          label: t("tab.variables"),
-          enabled: false,
-        },
-      ],
-      theme: "system",
+    if (isGQL) {
+      gqlEmbedOptions.value = {
+        selectedTab: "query",
+        tabs: [
+          { value: "query", label: t("tab.query"), enabled: false },
+          { value: "variables", label: t("tab.variables"), enabled: false },
+          { value: "headers", label: t("tab.headers"), enabled: false },
+          {
+            value: "authorization",
+            label: t("tab.authorization"),
+            enabled: false,
+          },
+        ],
+        theme: "system",
+      }
+    } else {
+      embedOptions.value = {
+        selectedTab: "params",
+        tabs: [
+          { value: "params", label: t("tab.parameters"), enabled: false },
+          { value: "bodyParams", label: t("tab.body"), enabled: false },
+          { value: "headers", label: t("tab.headers"), enabled: false },
+          {
+            value: "authorization",
+            label: t("tab.authorization"),
+            enabled: false,
+          },
+          {
+            value: "requestVariables",
+            label: t("tab.variables"),
+            enabled: false,
+          },
+        ],
+        theme: "system",
+      }
+    }
+    return
+  }
+
+  const parsedEmbedProperties = JSON.parse(embedProperties)
+  if (isGQL) {
+    gqlEmbedOptions.value = {
+      selectedTab: parsedEmbedProperties.options[0],
+      tabs: gqlEmbedOptions.value.tabs.map((tab) => ({
+        ...tab,
+        enabled: parsedEmbedProperties.options.includes(tab.value),
+      })),
+      theme: parsedEmbedProperties.theme,
     }
   } else {
-    const parsedEmbedProperties = JSON.parse(embedProperties)
     embedOptions.value = {
       selectedTab: parsedEmbedProperties.options[0],
-      tabs: embedOptions.value.tabs.map((tab) => {
-        return {
-          ...tab,
-          enabled: parsedEmbedProperties.options.includes(tab.value),
-        }
-      }),
+      tabs: embedOptions.value.tabs.map((tab) => ({
+        ...tab,
+        enabled: parsedEmbedProperties.options.includes(tab.value),
+      })),
       theme: parsedEmbedProperties.theme,
     }
   }
 }
 
-const createSharedRequest = async (request: HoppRESTRequest | null) => {
-  if (request && selectedWidget.value) {
-    const properties = {
-      options: ["parameters", "body", "headers"],
-      theme: "system",
+const createSharedRequest = async (
+  request: HoppRESTRequest | HoppGQLRequest | null
+) => {
+  if (!request || !selectedWidget.value) return
+
+  const isGQL = !isRESTRequest(request)
+
+  // Default embed tab set per protocol. The values must match the tab.value
+  // strings used by each CustomizeModal so the round-trip through
+  // `embedProperties` correctly toggles checkboxes on later loads.
+  const defaultEmbedOptions = isGQL
+    ? ["query", "variables", "headers"]
+    : ["parameters", "body", "headers"]
+
+  const properties = {
+    options: defaultEmbedOptions,
+    theme: "system",
+  }
+
+  shareRequestCreatingLoading.value = true
+  const sharedRequestResult = await createShortcode(
+    request,
+    selectedWidget.value.value === "embed"
+      ? JSON.stringify(properties)
+      : undefined
+  )()
+
+  platform.analytics?.logEvent({
+    type: "HOPP_SHORTCODE_CREATED",
+  })
+
+  if (E.isLeft(sharedRequestResult)) {
+    toast.error(`${sharedRequestResult.left.error}`)
+    toast.error(t("error.something_went_wrong"))
+    return
+  }
+
+  if (!sharedRequestResult.right.createShortcode) return
+
+  shareRequestCreatingLoading.value = false
+  requestToShare.value = {
+    ...JSON.parse(sharedRequestResult.right.createShortcode.request),
+    id: sharedRequestResult.right.createShortcode.id,
+  }
+  step.value = 2
+
+  if (!sharedRequestResult.right.createShortcode.properties) return
+
+  const parsedEmbedProperties = JSON.parse(
+    sharedRequestResult.right.createShortcode.properties
+  )
+
+  // Hydrate the matching options ref so the customize modal opens with
+  // the just-saved selections.
+  if (isGQL) {
+    gqlEmbedOptions.value = {
+      selectedTab: parsedEmbedProperties.options[0],
+      tabs: gqlEmbedOptions.value.tabs.map((tab) => ({
+        ...tab,
+        enabled: parsedEmbedProperties.options.includes(tab.value),
+      })),
+      theme: parsedEmbedProperties.theme,
     }
-    shareRequestCreatingLoading.value = true
-    const sharedRequestResult = await createShortcode(
-      request,
-      selectedWidget.value.value === "embed"
-        ? JSON.stringify(properties)
-        : undefined
-    )()
-
-    platform.analytics?.logEvent({
-      type: "HOPP_SHORTCODE_CREATED",
-    })
-
-    if (E.isLeft(sharedRequestResult)) {
-      toast.error(`${sharedRequestResult.left.error}`)
-      toast.error(t("error.something_went_wrong"))
-    } else if (E.isRight(sharedRequestResult)) {
-      if (sharedRequestResult.right.createShortcode) {
-        shareRequestCreatingLoading.value = false
-        requestToShare.value = {
-          ...JSON.parse(sharedRequestResult.right.createShortcode.request),
-          id: sharedRequestResult.right.createShortcode.id,
-        }
-        step.value = 2
-
-        if (sharedRequestResult.right.createShortcode.properties) {
-          const parsedEmbedProperties = JSON.parse(
-            sharedRequestResult.right.createShortcode.properties
-          )
-
-          embedOptions.value = {
-            selectedTab: parsedEmbedProperties.options[0],
-            tabs: embedOptions.value.tabs.map((tab) => {
-              return {
-                ...tab,
-                enabled: parsedEmbedProperties.options.includes(tab.value),
-              }
-            }),
-            theme: parsedEmbedProperties.theme,
-          }
-        }
-      }
+  } else {
+    embedOptions.value = {
+      selectedTab: parsedEmbedProperties.options[0],
+      tabs: embedOptions.value.tabs.map((tab) => ({
+        ...tab,
+        enabled: parsedEmbedProperties.options.includes(tab.value),
+      })),
+      theme: parsedEmbedProperties.theme,
     }
   }
 }
 
 const customizeSharedRequest = (
-  request: HoppRESTRequest,
+  request: HoppRESTRequest | HoppGQLRequest,
   shredRequestID: string,
   embedProperties?: string | null
 ) => {
@@ -504,11 +631,21 @@ const getErrorMessage = (err: GQLError<string>) => {
   }
 }
 
-const openRequestInNewTab = (request: HoppRESTRequest) => {
+const openRequestInNewTab = (request: HoppRESTRequest | HoppGQLRequest) => {
+  if (isRESTRequest(request)) {
+    restTab.createNewTab({
+      isDirty: false,
+      request: request as HoppRESTRequest,
+      type: "request",
+    })
+    return
+  }
+  // GraphQL shortcode — open as a gql-request tab in the unified workspace.
   restTab.createNewTab({
     isDirty: false,
-    request,
-    type: "request",
+    request: request as HoppGQLRequest,
+    type: "gql-request",
+    cursorPosition: 0,
   })
 }
 

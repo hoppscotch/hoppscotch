@@ -10,24 +10,35 @@
       @click="customizeSharedRequest()"
     >
       <span
+        v-if="parsed.protocol === 'rest'"
         class="flex items-center justify-center w-16 px-2 truncate pointer-events-none"
         :style="{ color: requestLabelColor }"
       >
         <span class="font-semibold truncate text-tiny">
-          {{ parseRequest.method }}
+          {{ parsed.request.method }}
         </span>
+      </span>
+      <span
+        v-else
+        class="flex items-center justify-center w-16 px-2 pointer-events-none text-accent"
+      >
+        <component :is="IconGraphql" class="h-4 w-4" />
       </span>
       <span
         class="flex items-center flex-1 min-w-0 pr-2 transition pointer-events-none group-hover:text-secondaryDark"
       >
         <span class="flex-1 truncate">
-          {{ parseRequest.endpoint }}
+          {{
+            parsed.protocol === "rest"
+              ? parsed.request.endpoint
+              : parsed.request.url
+          }}
         </span>
       </span>
       <span
         class="flex px-2 truncate text-secondaryLight group-hover:text-secondaryDark"
       >
-        {{ parseRequest.name }}
+        {{ parsed.request.name }}
       </span>
     </div>
     <div>
@@ -62,7 +73,7 @@
                 :shortcut="['T']"
                 @click="
                   () => {
-                    emit('open-shared-request', parseRequest)
+                    emit('open-shared-request', parsed.request)
                     hide()
                   }
                 "
@@ -100,8 +111,12 @@
 </template>
 
 <script lang="ts" setup>
-import { HoppRESTRequest, translateToNewRequest } from "@hoppscotch/data"
-import { pipe } from "fp-ts/lib/function"
+import {
+  HoppGQLRequest,
+  HoppRESTRequest,
+  translateToGQLRequest,
+  translateToNewRequest,
+} from "@hoppscotch/data"
 import { ref } from "vue"
 import { computed } from "vue"
 import { TippyComponent } from "vue-tippy"
@@ -112,6 +127,7 @@ import IconArrowUpRight from "~icons/lucide/arrow-up-right-square"
 import IconMoreVertical from "~icons/lucide/more-vertical"
 import IconCustomize from "~icons/lucide/settings-2"
 import IconTrash2 from "~icons/lucide/trash-2"
+import IconGraphql from "~icons/hopp/graphql"
 import { shortDateTime } from "~/helpers/utils/date"
 
 const t = useI18n()
@@ -123,12 +139,12 @@ const props = defineProps<{
 const emit = defineEmits<{
   (
     e: "customize-shared-request",
-    request: HoppRESTRequest,
+    request: HoppRESTRequest | HoppGQLRequest,
     id: string,
     embedProperties?: string | null
   ): void
   (e: "delete-shared-request", codeID: string): void
-  (e: "open-shared-request", request: HoppRESTRequest): void
+  (e: "open-shared-request", request: HoppRESTRequest | HoppGQLRequest): void
 }>()
 
 const tippyActions = ref<TippyComponent | null>(null)
@@ -137,19 +153,32 @@ const customizeAction = ref<HTMLButtonElement | null>(null)
 const deleteAction = ref<HTMLButtonElement | null>(null)
 const options = ref<any | null>(null)
 
-const parseRequest = computed(() =>
-  pipe(props.request.request, JSON.parse, translateToNewRequest)
-)
+// Shape-discriminated parse — GraphQL shortcodes have `query` + `url`,
+// REST shortcodes have `endpoint`. We run each through its own translator
+// so we get schema defaults regardless of how the payload was stored.
+type ParsedShortcode =
+  | { protocol: "rest"; request: HoppRESTRequest }
+  | { protocol: "gql"; request: HoppGQLRequest }
+
+const parsed = computed<ParsedShortcode>(() => {
+  const raw = JSON.parse(props.request.request) as Record<string, unknown>
+  if ("query" in raw && "url" in raw && !("endpoint" in raw)) {
+    return { protocol: "gql", request: translateToGQLRequest(raw) }
+  }
+  return { protocol: "rest", request: translateToNewRequest(raw) }
+})
 
 const requestLabelColor = computed(() =>
-  getMethodLabelColorClassOf(parseRequest.value.method)
+  parsed.value.protocol === "rest"
+    ? getMethodLabelColorClassOf(parsed.value.request.method)
+    : ""
 )
 
 const customizeSharedRequest = () => {
   const embedProperties = props.request.properties
   emit(
     "customize-shared-request",
-    parseRequest.value,
+    parsed.value.request,
     props.request.id,
     embedProperties
   )

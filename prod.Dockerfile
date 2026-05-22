@@ -30,7 +30,7 @@ ENV PATH="/usr/local/go/bin:${PATH}" \
 # Build Caddy from the Go base
 FROM go_builder AS caddy_builder
 RUN mkdir -p /tmp/caddy-build && \
-  curl -L -o /tmp/caddy-build/src.tar.gz https://github.com/caddyserver/caddy/releases/download/v2.11.3/caddy_2.11.3_src.tar.gz
+  curl -fsSL -o /tmp/caddy-build/src.tar.gz https://github.com/caddyserver/caddy/releases/download/v2.11.3/caddy_2.11.3_src.tar.gz
 # Checksum verification of caddy source
 RUN expected="ea407ab88e3d2b1fae216fbdeec98186dad09a22f0dd51c9859f398b7fc82486" && \
   actual=$(sha256sum /tmp/caddy-build/src.tar.gz | cut -d' ' -f1) && \

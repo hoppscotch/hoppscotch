@@ -6,7 +6,7 @@ import {
 import { TeamRequest } from "./TeamRequest"
 
 /**
- * Defines how a Team Collection is represented in the TeamCollectionAdapter
+ * Defines how a Team Collection is represented in the team-collection service.
  */
 export interface TeamCollection {
   id: string

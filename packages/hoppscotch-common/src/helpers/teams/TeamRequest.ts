@@ -13,7 +13,7 @@ import {
 } from "../backend/graphql"
 
 /**
- * Defines how a Teams request is represented in TeamCollectionAdapter.
+ * Defines how a Teams request is represented in the team-collection service.
  * Unified collection: a single team collection holds REST and GQL requests.
  */
 export interface TeamRequest {

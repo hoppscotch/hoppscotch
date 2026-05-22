@@ -102,7 +102,7 @@ import {
   RootCollectionsOfTeamDocument,
 } from "~/helpers/backend/graphql"
 import { getTeamCollectionObject } from "~/helpers/backend/helpers"
-import { TEAMS_BACKEND_PAGE_SIZE } from "~/helpers/teams/TeamCollectionAdapter"
+import { TEAMS_BACKEND_PAGE_SIZE } from "~/services/team-collection.service"
 import { getRESTCollection, restCollections$ } from "~/newstore/collections"
 import { WorkspaceService } from "~/services/workspace.service"
 import * as E from "fp-ts/Either"

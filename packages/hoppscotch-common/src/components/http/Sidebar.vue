@@ -92,7 +92,10 @@
       :icon="IconClock"
       :label="`${t('tab.history')}`"
     >
-      <History :page="'rest'" :selected-tab="selectedNavigationTab" />
+      <History
+        :page="'unified-workspace'"
+        :selected-tab="selectedNavigationTab"
+      />
     </HoppSmartTab>
     <HoppSmartTab
       :id="'share-request'"

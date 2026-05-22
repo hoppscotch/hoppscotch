@@ -81,10 +81,16 @@ RUN expected="bddc8ec2a698d283674cf0a798ef444ba7332497f330dd166056281fcafaca7a" 
 # Install NPM from verified tarball and global packages
 RUN tar -xzf npm.tgz && \
   cd package && \
-  node bin/npm-cli.js install -g npm@11.14.1 && \
+  node bin/npm-cli.js install -g /tmp/npm-install/npm.tgz && \
   cd / && \
   rm -rf /tmp/npm-install
-RUN npm install -g pnpm@10.33.4 @import-meta-env/cli@0.7.4
+RUN mkdir -p /tmp/pnpm-install && cd /tmp/pnpm-install && \
+  curl -fsSL https://registry.npmjs.org/pnpm/-/pnpm-10.33.4.tgz -o pnpm.tgz && \
+  curl -fsSL https://registry.npmjs.org/@import-meta-env/cli/-/cli-0.7.4.tgz -o cli.tgz && \
+  echo "8e70ddc6649b18bc3d895cf3a908c0291ea4c38039ad8722c47e018daf1e9cfc  pnpm.tgz" | sha256sum -c - && \
+  echo "9edada700b616b4224ba69ce713e68c36e22cb2548be9134dd3af00c164d8ca0  cli.tgz" | sha256sum -c - && \
+  npm install -g ./pnpm.tgz ./cli.tgz && \
+  cd / && rm -rf /tmp/pnpm-install
 
 # Fix CVE-2025-64756 by replacing vulnerable glob in @import-meta-env/cli (ships glob@11.0.2, fix requires >=11.1.0)
 RUN mkdir -p /tmp/glob-fix && \

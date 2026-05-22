@@ -695,7 +695,7 @@ const restCollectionDispatchers = defineDispatchers({
           _ref_id: generateUniqueRefId("coll"),
         }
 
-        newCollection.folders = newCollection.folders.map((folder) =>
+        newCollection.folders = (newCollection.folders ?? []).map((folder) =>
           recursiveChangeRefIdToAvoidConflicts(folder)
         )
 
@@ -1155,13 +1155,30 @@ const gqlCollectionDispatchers = defineDispatchers({
     if (collection) {
       const name = `${collection.name} - ${t("action.duplicate")}`
 
-      const duplicatedCollection = {
+      // Re-stamp `_ref_id` recursively so the duplicate doesn't alias the
+      // original's local secret-store entries — sharing a `_ref_id` would
+      // mean editing secrets on the duplicate mutates the source. Mirrors
+      // the REST `duplicateCollection` dispatcher above.
+      function recursiveChangeRefIdToAvoidConflicts(
+        coll: HoppCollection
+      ): HoppCollection {
+        const next = {
+          ...coll,
+          _ref_id: generateUniqueRefId("coll"),
+        }
+        next.folders = (next.folders ?? []).map(
+          recursiveChangeRefIdToAvoidConflicts
+        )
+        return next
+      }
+
+      const duplicatedCollection = recursiveChangeRefIdToAvoidConflicts({
         ...cloneDeep(collection),
         name,
         ...(collection.id
           ? { id: `${collection.id}-duplicate-collection` }
           : {}),
-      }
+      })
 
       if (isRootCollection) {
         newState.push(duplicatedCollection)

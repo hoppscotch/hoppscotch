@@ -37,9 +37,6 @@ const defaultRESTReq = getDefaultRESTRequest()
 const containsEnvVariables = (str: string) => HOPP_ENVIRONMENT_REGEX.test(str)
 
 export const parseCurlCommand = (curlCommand: string) => {
-  // const isDataBinary = curlCommand.includes(" --data-binary")
-  // const compressed = !!parsedArguments.compressed
-
   curlCommand = preProcessCurlCommand(curlCommand)
 
   const args: parser.Arguments = parser(curlCommand)

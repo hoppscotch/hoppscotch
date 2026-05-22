@@ -20,9 +20,8 @@ const paperCuts = flow(
   // remove '\' and newlines
   S.replace(/ ?\\ ?$/gm, " "),
   S.replace(/\n/g, " "),
-  // remove all $ symbols from start of argument values
-  S.replace(/\$'/g, "'"),
-  S.replace(/\$"/g, '"'),
+  S.replace(/(^|\s)\$'/g, "$1'"),
+  S.replace(/(^|\s)\$"/g, '$1"'),
   S.trim
 )
 

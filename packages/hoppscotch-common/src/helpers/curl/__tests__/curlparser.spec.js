@@ -1028,6 +1028,82 @@ data2: {"type":"test2","typeId":"123"}`,
       responses: {},
     }),
   },
+  {
+    command: `curl 'https://echo.hoppscotch.io/api?bi=1440*2976&nested[a]=b&tag=~hello!$'`,
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled",
+      endpoint: "https://echo.hoppscotch.io/api",
+      auth: { authType: "inherit", authActive: true },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      headers: [],
+      params: [
+        {
+          active: true,
+          key: "bi",
+          value: "1440*2976",
+          description: "",
+        },
+        {
+          active: true,
+          key: "nested[a]",
+          value: "b",
+          description: "",
+        },
+        {
+          active: true,
+          key: "tag",
+          value: "~hello!$",
+          description: "",
+        },
+      ],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+    }),
+  },
+  {
+    command: `curl -X POST 'https://x.x.cn/x/x/x?bi=%5B%221440*2976%22%5D&bik=25&~wave=1'`,
+    response: makeRESTRequest({
+      method: "POST",
+      name: "Untitled",
+      endpoint: "https://x.x.cn/x/x/x",
+      auth: { authType: "inherit", authActive: true },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      headers: [],
+      params: [
+        {
+          active: true,
+          key: "bi",
+          value: '["1440*2976"]',
+          description: "",
+        },
+        {
+          active: true,
+          key: "bik",
+          value: "25",
+          description: "",
+        },
+        {
+          active: true,
+          key: "~wave",
+          value: "1",
+          description: "",
+        },
+      ],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+    }),
+  },
 ]
 
 describe("Parse curl command to Hopp REST Request", () => {

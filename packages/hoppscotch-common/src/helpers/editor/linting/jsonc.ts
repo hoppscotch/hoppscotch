@@ -35,7 +35,7 @@ class InvalidJSONCNodeError extends Error {
  * @throws {InvalidJSONCNodeError} if the node is in an invalid configuration
  * @returns The JSON string without comments and trailing commas
  */
-function convertNodeToJSON(node: Node): string {
+function convertNodeToJSON(node: Node, text: string): string {
   switch (node.type) {
     case "string":
       return JSON.stringify(node.value)
@@ -47,10 +47,12 @@ function convertNodeToJSON(node: Node): string {
       }
 
       return `[${node.children
-        .map((child) => convertNodeToJSON(child))
+        .map((child) => convertNodeToJSON(child, text))
         .join(",")}]`
     case "number":
-      return JSON.stringify(node.value)
+      return node.offset !== undefined && node.length !== undefined
+        ? text.slice(node.offset, node.offset + node.length)
+        : JSON.stringify(node.value)
     case "boolean":
       return JSON.stringify(node.value)
     case "object":
@@ -59,7 +61,7 @@ function convertNodeToJSON(node: Node): string {
       }
 
       return `{${node.children
-        .map((child) => convertNodeToJSON(child))
+        .map((child) => convertNodeToJSON(child, text))
         .join(",")}}`
     case "property":
       if (!node.children || node.children.length !== 2) {
@@ -72,7 +74,7 @@ function convertNodeToJSON(node: Node): string {
       // Attempting to JSON.stringify(keyNode) directly would throw
       // "Converting circular structure to JSON" error.
       // If the valueNode configuration is wrong, this will return an error, which will propagate up
-      return `${JSON.stringify(keyNode.value)}:${convertNodeToJSON(valueNode)}`
+      return `${JSON.stringify(keyNode.value)}:${convertNodeToJSON(valueNode, text)}`
   }
 }
 
@@ -89,7 +91,7 @@ function stripCommentsAndCommas(text: string): string {
 
   // convertNodeToJSON can throw an error if the tree is invalid
   try {
-    return convertNodeToJSON(tree)
+    return convertNodeToJSON(tree, text)
   } catch (_) {
     return text
   }

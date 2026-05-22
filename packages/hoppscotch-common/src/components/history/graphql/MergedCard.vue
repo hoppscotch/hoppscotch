@@ -1,13 +1,22 @@
 <template>
   <div class="group flex flex-col">
-    <div class="flex items-center">
+    <div class="flex items-stretch">
+      <span
+        v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
+        class="flex w-16 cursor-pointer items-center justify-center px-2 text-accent"
+        data-testid="restore_history_entry"
+        :title="t('navigation.graphql')"
+        @click="useEntry"
+      >
+        <component :is="IconGraphql" class="h-4 w-4" />
+      </span>
       <span
         v-tippy="{
           theme: 'tooltip',
           delay: [500, 20],
           content: entry.updatedOn ? shortDateTime(entry.updatedOn) : null,
         }"
-        class="flex min-w-0 flex-1 cursor-pointer py-2 pl-4 pr-2 transition group-hover:text-secondaryDark"
+        class="flex min-w-0 flex-1 cursor-pointer py-2 pr-2 transition group-hover:text-secondaryDark"
         data-testid="restore_history_entry"
         @click="useEntry"
       >
@@ -41,11 +50,11 @@
         @click="emit('toggle-star')"
       />
     </div>
-    <div class="flex flex-col text-tiny">
+    <div class="flex flex-col pb-1 pl-16 pr-2 text-tiny">
       <span
         v-for="(line, index) in query"
         :key="`line-${index}`"
-        class="cursor-pointer truncate whitespace-pre px-4 font-mono text-secondaryLight"
+        class="cursor-pointer truncate whitespace-pre font-mono text-secondaryLight"
         data-testid="restore_history_entry"
         @click="useEntry"
         >{{ line }}</span
@@ -59,6 +68,7 @@ import { computed, ref } from "vue"
 import { GQLHistoryEntry } from "~/newstore/history"
 import { shortDateTime } from "~/helpers/utils/date"
 
+import IconGraphql from "~icons/hopp/graphql"
 import IconStar from "~icons/lucide/star"
 import IconStarOff from "~icons/hopp/star-off"
 import IconTrash from "~icons/lucide/trash"
@@ -92,9 +102,6 @@ const query = computed(() =>
 )
 
 const useEntry = () => {
-  // Tab creation is owned by the parent (HistoryPersonal) so the same card
-  // works both on the legacy /graphql page (GQLTabService) and inside the
-  // unified workspace (WorkspaceTabsService with type "gql-request").
   emit("use-entry")
 }
 </script>

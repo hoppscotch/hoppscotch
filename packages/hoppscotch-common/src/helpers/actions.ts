@@ -120,7 +120,7 @@ export type HoppAction =
   | "workspace.switch" // Switch workspace
   | "rest.request.open" // Open REST request
   | "request.open-tab" // Open REST request
-  | "share.request" // Share REST request
+  | "share.request" // Share REST or GraphQL request
   | "tab.duplicate-tab" // Duplicate REST request
   | "gql.request.open" // Open GraphQL request
   | "rest.gql-request.open" // Open GQL request in REST tab
@@ -182,7 +182,7 @@ type HoppActionArgsMap = {
     tab: RESTOptionTabs | GQLOptionTabs
   }
   "share.request": {
-    request: HoppRESTRequest
+    request: HoppRESTRequest | HoppGQLRequest
   }
   "tab.duplicate-tab": {
     tabID?: string

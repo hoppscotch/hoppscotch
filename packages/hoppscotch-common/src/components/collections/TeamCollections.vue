@@ -540,7 +540,7 @@ import { TeamCollection } from "~/helpers/teams/TeamCollection"
 import { TeamRequest } from "~/helpers/teams/TeamRequest"
 import { ChildrenResult, SmartTreeAdapter } from "@hoppscotch/ui/helpers"
 import { cloneDeep } from "lodash-es"
-import { HoppRESTRequest } from "@hoppscotch/data"
+import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
 import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import { Picked } from "~/helpers/types/HoppPicked.js"
@@ -735,7 +735,7 @@ const emit = defineEmits<{
   (
     event: "share-request",
     payload: {
-      request: HoppRESTRequest
+      request: HoppRESTRequest | HoppGQLRequest
     }
   ): void
   (

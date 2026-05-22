@@ -5,6 +5,7 @@
     :render-inactive-tabs="true"
   >
     <HoppSmartTab
+      v-if="showTab('query')"
       :id="'query'"
       :label="`${t('tab.query')}`"
       :indicator="request.query && request.query.length > 0 ? true : false"
@@ -20,6 +21,7 @@
       />
     </HoppSmartTab>
     <HoppSmartTab
+      v-if="showTab('variables')"
       :id="'variables'"
       :label="`${t('tab.variables')}`"
       :indicator="
@@ -36,6 +38,7 @@
       />
     </HoppSmartTab>
     <HoppSmartTab
+      v-if="showTab('headers')"
       :id="'headers'"
       :label="`${t('tab.headers')}`"
       :info="activeGQLHeadersCount === 0 ? null : `${activeGQLHeadersCount}`"
@@ -46,7 +49,11 @@
         @change-tab="changeOptionTab"
       />
     </HoppSmartTab>
-    <HoppSmartTab :id="'authorization'" :label="`${t('tab.authorization')}`">
+    <HoppSmartTab
+      v-if="showTab('authorization')"
+      :id="'authorization'"
+      :label="`${t('tab.authorization')}`"
+    >
       <GqlAuthorization
         v-model="request.auth"
         :inherited-properties="inheritedProperties"
@@ -96,6 +103,12 @@ const props = withDefaults(
     url?: string
     inheritedProperties?: HoppInheritedProperty
     showRunActions?: boolean
+    /**
+     * Filter which sub-tabs are visible. Used by the embed renderer to
+     * honour the share-er's customize selections. `undefined` shows all
+     * tabs (default for the live editor).
+     */
+    properties?: string[]
   }>(),
   {
     response: null,
@@ -103,6 +116,7 @@ const props = withDefaults(
     tabId: "",
     url: "",
     showRunActions: true,
+    properties: undefined,
   }
 )
 
@@ -115,6 +129,17 @@ const emit = defineEmits<{
 
 const selectedOptionTab = useVModel(props, "optionTab", emit)
 const request = useVModel(props, "modelValue", emit)
+
+// Show a tab when `properties` is absent (live editor — all four) OR the tab
+// is explicitly listed. An empty `properties` array would otherwise hide every
+// tab — `.includes(...)` returns false for all queries, and the `?? true`
+// short-circuit on the v-if only catches `undefined`/`null`. That edge case
+// happens when the share-er disables every customize toggle.
+const showTab = (id: "query" | "variables" | "headers" | "authorization") => {
+  if (props.properties === undefined) return true
+  if (props.properties.length === 0) return true
+  return props.properties.includes(id)
+}
 
 const subscriptionState = computed(() =>
   props.tabId

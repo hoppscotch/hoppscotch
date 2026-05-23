@@ -71,10 +71,10 @@ jobs:
           pnpm --version
 
       - name: Install ota from source
-        uses: ota-run/ota/.github/actions/install-ota-from-source@ec0f901e84f37a27728853c495abde575e1b24e9
+        uses: ota-run/ota/.github/actions/install-ota-from-source@9579519f9ff257971e829f1b0710769cbdc475e9
         with:
           repository: ${{ github.event.inputs.ota_repository || 'ota-run/ota' }}
-          ref: ${{ github.event.inputs.ota_ref || 'ec0f901e84f37a27728853c495abde575e1b24e9' }}
+          ref: ${{ github.event.inputs.ota_ref || '9579519f9ff257971e829f1b0710769cbdc475e9' }}
 
       - name: Validate contract
         shell: bash

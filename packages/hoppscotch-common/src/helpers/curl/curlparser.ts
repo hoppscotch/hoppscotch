@@ -67,6 +67,8 @@ export const parseCurlCommand = (curlCommand: string) => {
       "remote-header-name",
       "O",
       "remote-name",
+      "G",
+      "get",
     ],
   })
 

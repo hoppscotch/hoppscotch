@@ -74,4 +74,38 @@ describe("parseCurlCommand", () => {
     expect(req.body.contentType).toBe("application/json")
     expect(JSON.parse(req.body.body)).toEqual({ foo: "bar" })
   })
+
+  it("correctly parses curl command with -G/--get without swallowing URL", () => {
+    const curl1 = "curl -G https://example.com?q=search"
+    const req1 = parseCurlCommand(curl1)
+    expect(req1.endpoint).toBe("https://example.com/")
+    expect(req1.method).toBe("GET")
+    expect(req1.params).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          key: "q",
+          value: "search",
+        }),
+      ])
+    )
+
+    const curl2 = "curl -G -d 'foo=bar' https://example.com"
+    const req2 = parseCurlCommand(curl2)
+    expect(req2.endpoint).toBe("https://example.com/")
+    expect(req2.method).toBe("GET")
+    expect(req2.params).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          key: "foo",
+          value: "bar",
+        }),
+      ])
+    )
+  })
+
+  it("correctly handles location boolean flag without resolving to https://true", () => {
+    const curl = "curl -L https://example.com"
+    const req = parseCurlCommand(curl)
+    expect(req.endpoint).toBe("https://example.com/")
+  })
 })

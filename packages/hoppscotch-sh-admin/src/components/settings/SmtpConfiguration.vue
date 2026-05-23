@@ -393,7 +393,7 @@ const fieldErrors = computed(() => {
 const getFieldError = (fieldKey: StringFieldKey) => fieldErrors.value[fieldKey];
 
 watch(fieldErrors, (errors) => {
-  hasInputValidationFailed.value = Object.values(errors).some(Boolean);
+  hasInputValidationFailed.value.smtpUrl = Object.values(errors).some(Boolean);
 });
 
 const LOGIN_KEYS: StringFieldKey[] = [

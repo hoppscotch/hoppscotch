@@ -120,6 +120,13 @@
       "update_failure": "Failed to update rate limit configurations!!",
       "input_validation_error": "Please enter valid values for rate limit configurations"
     },
+    "proxy_url_configs": {
+      "description": "Configure proxy URL for the app",
+      "input_validation": "Proxy URL should start with http(s)://",
+      "title": "Proxy URL Configurations",
+      "update_failure": "Failed to update proxy URL configurations!!",
+      "url_placeholder": "Enter the Proxy URL"
+    },
     "reset": {
       "confirm_reset": "Hoppscotch server must restart to reflect the new changes. Confirm the reset of server configurations?",
       "description": "Default configurations will be loaded as specified in the environment file",
@@ -137,6 +144,7 @@
       "auth": "Authentication",
       "activity": "Activity",
       "infra_tokens": "Infra Tokens",
+      "proxy": "Proxy",
       "rate_limit": "Rate Limit",
       "smtp": "SMTP",
       "miscellaneous": "Miscellaneous",

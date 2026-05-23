@@ -188,3 +188,8 @@ devenv.local.nix
 .cursor/
 .aider*
 .windsurfrules
+
+# Ota local state
+.ota/state/
+.ota/receipts/
+.ota/proof/

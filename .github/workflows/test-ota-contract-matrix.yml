@@ -1,0 +1,153 @@
+name: 'Test: Ota contract matrix'
+
+on:
+  workflow_dispatch:
+    inputs:
+      ota_repository:
+        description: Ota source repository to build for this matrix run
+        required: false
+        default: ota-run/ota
+      ota_ref:
+        description: Ota branch, tag, or commit to build for this matrix run
+        required: false
+        default: ec0f901e84f37a27728853c495abde575e1b24e9
+  pull_request:
+    paths:
+      - 'ota.yaml'
+      - '.github/workflows/test-ota-contract-matrix.yml'
+  push:
+    paths:
+      - 'ota.yaml'
+      - '.github/workflows/test-ota-contract-matrix.yml'
+
+concurrency:
+  group: ota-contract-matrix-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  OTA_NO_UPDATE_CHECK: '1'
+
+jobs:
+  native:
+    name: Ota Contract Matrix (Native - ${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: ubuntu-bash
+            os: ubuntu-latest
+            docker_ready: true
+            full_proof: true
+          - name: macos-bash
+            os: macos-latest
+            docker_ready: false
+            full_proof: false
+          - name: windows-bash
+            os: windows-latest
+            docker_ready: false
+            full_proof: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.2
+          run_install: false
+
+      - name: Install ota from source
+        uses: ota-run/ota/.github/actions/install-ota-from-source@ec0f901e84f37a27728853c495abde575e1b24e9
+        with:
+          repository: ${{ github.event.inputs.ota_repository || 'ota-run/ota' }}
+          ref: ${{ github.event.inputs.ota_ref || 'ec0f901e84f37a27728853c495abde575e1b24e9' }}
+
+      - name: Validate contract
+        shell: bash
+        run: |
+          ota validate --json . > ota-validate.json
+          ota validate .
+
+      - name: List verify workflow tasks
+        shell: bash
+        run: ota tasks --workflow verify .
+
+      - name: List selfhost workflow tasks
+        shell: bash
+        run: ota tasks --workflow selfhost .
+
+      - name: List app workflow tasks
+        shell: bash
+        run: ota tasks --workflow app .
+
+      - name: List backend workflow tasks
+        shell: bash
+        run: ota tasks --workflow backend .
+
+      - name: List admin workflow tasks
+        shell: bash
+        run: ota tasks --workflow admin .
+
+      - name: Export execution topology
+        shell: bash
+        run: |
+          ota execution topology --json . > ota-execution-topology.json
+          cat ota-execution-topology.json
+
+      - name: Dry-run verify workflow
+        shell: bash
+        run: ota up --workflow verify --native --dry-run .
+
+      - name: Dry-run selfhost workflow
+        if: ${{ matrix.docker_ready }}
+        shell: bash
+        run: ota up --workflow selfhost --native --dry-run .
+
+      - name: Dry-run app workflow
+        if: ${{ matrix.docker_ready }}
+        shell: bash
+        run: ota up --workflow app --native --dry-run .
+
+      - name: Dry-run backend workflow
+        if: ${{ matrix.docker_ready }}
+        shell: bash
+        run: ota up --workflow backend --native --dry-run .
+
+      - name: Dry-run admin workflow
+        if: ${{ matrix.docker_ready }}
+        shell: bash
+        run: ota up --workflow admin --native --dry-run .
+
+      - name: Proof selfhost workflow
+        if: ${{ matrix.full_proof }}
+        timeout-minutes: 120
+        shell: bash
+        run: |
+          ota clean . || true
+          ota proof runtime --workflow selfhost --json . > ota-proof-selfhost.json
+          cat ota-proof-selfhost.json
+          ota clean . || true
+
+      - name: Upload failure artifacts
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ota-contract-matrix-${{ matrix.name }}
+          include-hidden-files: true
+          path: |
+            ota-validate.json
+            ota-execution-topology.json
+            ota-proof-selfhost.json

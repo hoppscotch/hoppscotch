@@ -1,0 +1,352 @@
+version: 1
+project:
+  name: hoppscotch
+  description: Hoppscotch readiness slice covering the documented self-host Docker stack and the root pnpm verification workflow; desktop, relay, agent, and release workflows remain out of scope
+  type: application
+execution:
+  default_context: host
+  contexts:
+    host:
+      backend: native
+    docker-host:
+      backend: native
+      requirements:
+        tools:
+          docker: "*"
+toolchains:
+  node:
+    provider: corepack
+    version: "^22.0.0"
+    package_managers:
+      pnpm: "10.33.2"
+surfaces:
+  app:
+    kind: http
+    port: 3000
+    path: /
+    readiness:
+      kind: http
+      method: GET
+      path: /
+      headers:
+        Accept: text/html
+      success:
+        status:
+          - 200
+      body:
+        contains: "<!DOCTYPE html>"
+      interval: 5s
+      timeout: 3s
+      retries: 120
+      start_period: 30s
+  admin:
+    kind: http
+    port: 3100
+    path: /
+    readiness:
+      kind: http
+      method: GET
+      path: /
+      headers:
+        Accept: text/html
+      success:
+        status:
+          - 200
+      body:
+        contains: "<!DOCTYPE html>"
+      interval: 5s
+      timeout: 3s
+      retries: 120
+      start_period: 30s
+  backend:
+    kind: http
+    port: 3170
+    path: /health
+    readiness:
+      kind: http
+      method: GET
+      path: /health
+      success:
+        status:
+          - 200
+      body:
+        contains: '"status":"ok"'
+      interval: 5s
+      timeout: 3s
+      retries: 120
+      start_period: 30s
+  bundle-server:
+    kind: http
+    port: 3200
+    path: /health
+    readiness:
+      kind: http
+      method: GET
+      path: /health
+      success:
+        status:
+          - 200
+      interval: 5s
+      timeout: 3s
+      retries: 120
+      start_period: 30s
+tasks:
+  setup:env:
+    context: host
+    description: Create the root self-host environment file from the repository template when missing
+    notes: |
+      This follows the repo's documented self-host setup path and CI shape.
+      It copies `.env.example` to `.env` only when `.env` is absent.
+    category: setup
+    action:
+      kind: copy_if_missing
+      from: .env.example
+      to: .env
+    effects:
+      writes:
+        - .env
+    safe_for_agent: true
+  install:
+    context: host
+    description: Install workspace dependencies with pnpm
+    notes: |
+      This maps directly to the root workspace install surface used by the repo CI.
+    category: setup
+    run: pnpm install
+    depends_on:
+      - setup:env
+    requirements:
+      toolchains:
+        - node
+    safe_for_agent: true
+  lint:
+    context: host
+    description: Run the root workspace lint surface
+    notes: |
+      This maps directly to `pnpm lint` at the repository root.
+    category: test
+    run: pnpm lint
+    depends_on:
+      - install
+    requirements:
+      toolchains:
+        - node
+    safe_for_agent: true
+  typecheck:
+    context: host
+    description: Run the root workspace typecheck surface
+    notes: |
+      This maps directly to `pnpm typecheck` at the repository root.
+    category: test
+    run: pnpm typecheck
+    depends_on:
+      - install
+    requirements:
+      toolchains:
+        - node
+    safe_for_agent: true
+  test:
+    context: host
+    description: Run the root workspace test surface
+    notes: |
+      This maps directly to the repo's `tests.yml` workflow after dependency installation.
+    category: test
+    run: pnpm test
+    depends_on:
+      - install
+    requirements:
+      toolchains:
+        - node
+    safe_for_agent: true
+  dev:selfhost:
+    context: docker-host
+    description: Run the recommended self-host all-in-one Docker profile
+    notes: |
+      This follows the compose file's documented default path:
+      `docker compose --profile default up`.
+      It starts the AIO application, admin dashboard, backend, bundle server, database, and migration service.
+    category: dev
+    run: docker compose --profile default up
+    depends_on:
+      - setup:env
+    runtime:
+      kind: service
+      surfaces:
+        app:
+          project:
+            host:
+              primary: true
+        admin: {}
+        backend: {}
+        bundle-server: {}
+    safe_for_agent: false
+  dev:app:
+    context: docker-host
+    description: Run the self-host app profile from the repository compose file
+    notes: |
+      This follows the compose file's documented `app` profile:
+      `docker compose --profile app up`.
+      It starts the web application, bundle server, backend, database, and migration service.
+    category: dev
+    run: docker compose --profile app up
+    depends_on:
+      - setup:env
+    runtime:
+      kind: service
+      surfaces:
+        app:
+          project:
+            host:
+              primary: true
+        backend: {}
+        bundle-server: {}
+    safe_for_agent: false
+  dev:backend:
+    context: docker-host
+    description: Run the self-host backend profile from the repository compose file
+    notes: |
+      This follows the compose file's documented `backend` profile:
+      `docker compose --profile backend up`.
+      It starts the backend, database, and migration service without the web clients.
+    category: dev
+    run: docker compose --profile backend up
+    depends_on:
+      - setup:env
+    runtime:
+      kind: service
+      surfaces:
+        backend:
+          project:
+            host:
+              primary: true
+    safe_for_agent: false
+  dev:admin:
+    context: docker-host
+    description: Run the self-host admin profile from the repository compose file
+    notes: |
+      This follows the compose file's documented `admin` profile:
+      `docker compose --profile admin up`.
+      It starts the admin dashboard, backend, database, and migration service.
+    category: dev
+    run: docker compose --profile admin up
+    depends_on:
+      - setup:env
+    runtime:
+      kind: service
+      surfaces:
+        admin:
+          project:
+            host:
+              primary: true
+        backend: {}
+    safe_for_agent: false
+workflows:
+  default: selfhost
+  verify:
+    intent: ci_verification
+    description: Root workspace verification workflow for the Hoppscotch monorepo
+    notes: |
+      Use this for the repo's root pnpm install, lint, typecheck, and test surfaces.
+      It maps directly to the root package scripts and the current `tests.yml` CI install-plus-test path.
+    prepare:
+      task: setup:env
+    setup:
+      task: install
+    run:
+      task: test
+  selfhost:
+    intent: packaged_runtime
+    description: Recommended self-host all-in-one Docker workflow
+    notes: |
+      This is the compose file's documented default path for most self-host users:
+      `docker compose --profile default up`.
+      It is the clearest repo-level runnable surface in the current docs.
+    prepare:
+      task: setup:env
+    run:
+      task: dev:selfhost
+    readiness:
+      surfaces: [app, admin, backend, bundle-server]
+    exposes:
+      - surface: app
+      - surface: admin
+      - surface: backend
+      - surface: bundle-server
+  app:
+    intent: packaged_runtime
+    description: Self-host app profile from the repository compose file
+    notes: |
+      Use this when you want the main web application and bundle server without the admin dashboard.
+    prepare:
+      task: setup:env
+    run:
+      task: dev:app
+    readiness:
+      surfaces: [app, backend, bundle-server]
+    exposes:
+      - surface: app
+      - surface: backend
+      - surface: bundle-server
+  backend:
+    intent: backend_development
+    description: Self-host backend profile from the repository compose file
+    notes: |
+      Use this when you only need the backend plus its database and migration path.
+    prepare:
+      task: setup:env
+    run:
+      task: dev:backend
+    readiness:
+      surfaces: [backend]
+    exposes:
+      - surface: backend
+  admin:
+    intent: admin_development
+    description: Self-host admin profile from the repository compose file
+    notes: |
+      Use this when you need the admin dashboard plus the backend surface.
+    prepare:
+      task: setup:env
+    run:
+      task: dev:admin
+    readiness:
+      surfaces: [admin, backend]
+    exposes:
+      - surface: admin
+      - surface: backend
+agent:
+  entrypoint: install
+  default_task: test
+  safe_tasks:
+    - setup:env
+    - install
+    - lint
+    - typecheck
+    - test
+  verify_after_changes:
+    - lint
+    - typecheck
+    - test
+  writable_paths:
+    - packages
+    - package.json
+    - pnpm-lock.yaml
+    - pnpm-workspace.yaml
+    - docker-compose.yml
+    - prod.Dockerfile
+    - .env
+    - .env.example
+    - ota.yaml
+  protected_paths:
+    - .github/workflows
+  bootstrap:
+    ota:
+      note: Install ota when missing so contributors and agents can run the declared readiness workflows in this contract.
+      sh: curl -fsSL https://dist.ota.run/install.sh | OTA_VERSION=v1.6.15 sh
+      powershell: $env:OTA_VERSION='v1.6.15'; irm https://dist.ota.run/install.ps1 | iex
+  notes: |
+    Hoppscotch's root README points contributors to the self-hosting documentation rather than a
+    single host-native development script. This contract starts from the strongest repo-owned front doors
+    already visible in the repository itself: the root pnpm verification workflow and the documented
+    Docker Compose self-host profiles. Desktop, relay, agent, and release workflows remain out of scope
+    for this first pressure slice.

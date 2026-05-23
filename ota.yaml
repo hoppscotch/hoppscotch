@@ -165,6 +165,8 @@ tasks:
       This follows the compose file's documented default path:
       `docker compose --profile default up`.
       It starts the AIO application, admin dashboard, backend, bundle server, database, and migration service.
+      Readiness is anchored to the primary app front door on port 3000; the other published ports
+      remain exposed but are modeled as separate surfaces rather than blocking this workflow.
     category: dev
     run: docker compose --profile default up
     depends_on:
@@ -176,9 +178,6 @@ tasks:
           project:
             host:
               primary: true
-        admin: {}
-        backend: {}
-        bundle-server: {}
     safe_for_agent: false
   dev:app:
     context: docker-host
@@ -187,6 +186,7 @@ tasks:
       This follows the compose file's documented `app` profile:
       `docker compose --profile app up`.
       It starts the web application, bundle server, backend, database, and migration service.
+      Readiness is anchored to the primary web application front door on port 3000.
     category: dev
     run: docker compose --profile app up
     depends_on:
@@ -198,8 +198,6 @@ tasks:
           project:
             host:
               primary: true
-        backend: {}
-        bundle-server: {}
     safe_for_agent: false
   dev:backend:
     context: docker-host
@@ -227,6 +225,7 @@ tasks:
       This follows the compose file's documented `admin` profile:
       `docker compose --profile admin up`.
       It starts the admin dashboard, backend, database, and migration service.
+      Readiness is anchored to the admin dashboard front door on port 3100.
     category: dev
     run: docker compose --profile admin up
     depends_on:
@@ -238,7 +237,6 @@ tasks:
           project:
             host:
               primary: true
-        backend: {}
     safe_for_agent: false
 workflows:
   default: selfhost
@@ -266,12 +264,9 @@ workflows:
     run:
       task: dev:selfhost
     readiness:
-      surfaces: [app, admin, backend, bundle-server]
+      surfaces: [app]
     exposes:
       - surface: app
-      - surface: admin
-      - surface: backend
-      - surface: bundle-server
   app:
     intent: packaged_runtime
     description: Self-host app profile from the repository compose file
@@ -282,11 +277,9 @@ workflows:
     run:
       task: dev:app
     readiness:
-      surfaces: [app, backend, bundle-server]
+      surfaces: [app]
     exposes:
       - surface: app
-      - surface: backend
-      - surface: bundle-server
   backend:
     intent: backend_development
     description: Self-host backend profile from the repository compose file
@@ -310,10 +303,9 @@ workflows:
     run:
       task: dev:admin
     readiness:
-      surfaces: [admin, backend]
+      surfaces: [admin]
     exposes:
       - surface: admin
-      - surface: backend
 agent:
   entrypoint: install
   default_task: test

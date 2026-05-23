@@ -75,7 +75,7 @@ surfaces:
       timeout: 3s
       retries: 120
       start_period: 30s
-  bundle-server:
+  bundle:server:
     kind: http
     port: 3200
     path: /health
@@ -105,7 +105,7 @@ tasks:
     effects:
       writes:
         - .env
-    safe_for_agent: true
+    safe_for_agent: false
   install:
     context: host
     description: Install workspace dependencies with pnpm
@@ -307,10 +307,10 @@ workflows:
     exposes:
       - surface: admin
 agent:
+  posture: readiness_strict
   entrypoint: install
   default_task: test
   safe_tasks:
-    - setup:env
     - install
     - lint
     - typecheck
@@ -322,15 +322,15 @@ agent:
   writable_paths:
     - packages
     - package.json
+  protected_paths:
+    - .github/workflows
+    - .env
+    - .env.example
     - pnpm-lock.yaml
     - pnpm-workspace.yaml
     - docker-compose.yml
     - prod.Dockerfile
-    - .env
-    - .env.example
     - ota.yaml
-  protected_paths:
-    - .github/workflows
   bootstrap:
     ota:
       note: Install ota when missing so contributors and agents can run the declared readiness workflows in this contract.

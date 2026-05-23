@@ -48,7 +48,11 @@
 import { useVModel } from '@vueuse/core';
 import { computed, watch } from 'vue';
 import { useI18n } from '~/composables/i18n';
-import { hasInputValidationFailed, ServerConfigs } from '~/helpers/configs';
+import {
+  hasInputValidationFailed,
+  isValidProxyUrl,
+  ServerConfigs,
+} from '~/helpers/configs';
 import IconHelpCircle from '~icons/lucide/help-circle';
 
 const t = useI18n();
@@ -72,17 +76,14 @@ const proxyConfigs = computed({
   },
 });
 
-// Input Validation — mirrors the backend regex at utils.ts:validateUrl so
-// trailing spaces / malformed values fail in the UI instead of bouncing off
-// the backend after the user confirms the save modal.
-const URL_REGEX = /^(http|https):\/\/[^ "]+$/;
-
+// Input Validation — uses the shared regex helper so the UI accepts exactly
+// what the backend's validateUrl will (and what the kernel store will persist).
 const fieldErrors = computed(() => {
   const errors: Record<string, boolean> = {};
 
   if (proxyConfigs.value?.fields.proxy_app_url) {
     const value = proxyConfigs.value.fields.proxy_app_url;
-    errors.proxy_app_url = !URL_REGEX.test(value);
+    errors.proxy_app_url = !isValidProxyUrl(value);
   }
 
   return errors;

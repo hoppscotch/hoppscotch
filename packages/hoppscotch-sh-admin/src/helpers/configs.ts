@@ -347,6 +347,13 @@ export const PROXY_URL_CONFIGS: Config[] = [
   },
 ];
 
+// Mirrors the backend validateUrl regex (packages/hoppscotch-backend/src/utils.ts).
+// Keep these in sync — the backend rejects PROXY_APP_URL values that don't match.
+export const PROXY_URL_REGEX = /^(http|https):\/\/[^ "]+$/;
+
+export const isValidProxyUrl = (value: string): boolean =>
+  PROXY_URL_REGEX.test(value);
+
 export const ALL_CONFIGS = [
   GOOGLE_CONFIGS,
   MICROSOFT_CONFIGS,

@@ -63,11 +63,12 @@ jobs:
         with:
           node-version: 22
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.33.2
-          run_install: false
+      - name: Enable pnpm via corepack
+        shell: bash
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.33.2 --activate
+          pnpm --version
 
       - name: Install ota from source
         uses: ota-run/ota/.github/actions/install-ota-from-source@ec0f901e84f37a27728853c495abde575e1b24e9
@@ -137,9 +138,14 @@ jobs:
         shell: bash
         run: |
           ota clean . || true
+          set +e
           ota proof runtime --workflow selfhost --json . > ota-proof-selfhost.json
+          status=$?
           cat ota-proof-selfhost.json
-          ota clean . || true
+          if [ "$status" -eq 0 ]; then
+            ota clean . || true
+          fi
+          exit "$status"
 
       - name: Upload failure artifacts
         if: ${{ failure() }}
@@ -151,3 +157,4 @@ jobs:
             ota-validate.json
             ota-execution-topology.json
             ota-proof-selfhost.json
+            .ota/proof/selfhost/

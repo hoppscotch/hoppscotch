@@ -426,9 +426,7 @@ export const def: AuthPlatformDef = {
         } finally {
           // Reset flag after a short delay to allow for legitimate re-authentication
           // while still preventing rapid duplicate requests
-          setTimeout(() => {
-            isProcessingDeepLink = false
-          }, 1000)
+          isProcessingDeepLink = false
         }
       }
     )

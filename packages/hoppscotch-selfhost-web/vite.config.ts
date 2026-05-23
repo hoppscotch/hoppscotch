@@ -110,13 +110,12 @@ export default defineConfig({
       dirs: ["../hoppscotch-common/src/pages", "./src/pages"],
       importMode: "async",
       onRoutesGenerated(routes) {
-        const validRoutes = routes.filter((r) => typeof r.path === "string")
         generateSitemap({
-          routes: validRoutes,
+          routes,
           nuxtStyle: true,
           allowRobots: true,
           dest: ".sitemap-gen",
-          hostname: ENV.VITE_BASE_URL || "https://hoppscotch.io",
+          hostname: ENV.VITE_BASE_URL,
         })
       },
     }),

@@ -78,13 +78,14 @@ const proxyConfigs = computed({
 
 // Input Validation — uses the shared regex helper so the UI accepts exactly
 // what the backend's validateUrl will (and what the kernel store will persist).
+// Empty is also flagged here so the inline error banner appears in-context,
+// matching the app-side Proxy.vue behavior. AreAnyConfigFieldsEmpty still
+// blocks save for empty, but this gives the user a visible field-level signal.
 const fieldErrors = computed(() => {
   const errors: Record<string, boolean> = {};
 
-  if (proxyConfigs.value?.fields.proxy_app_url) {
-    const value = proxyConfigs.value.fields.proxy_app_url;
-    errors.proxy_app_url = !isValidProxyUrl(value);
-  }
+  const value = proxyConfigs.value?.fields.proxy_app_url ?? '';
+  errors.proxy_app_url = !isValidProxyUrl(value);
 
   return errors;
 });

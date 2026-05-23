@@ -11,14 +11,17 @@ export const PROXY_URL_REGEX = /^(http|https):\/\/[^ "]+$/
 export const isValidProxyUrl = (value: string): boolean =>
   PROXY_URL_REGEX.test(value)
 
-// Get default proxy URL from platform or return default
+// Get default proxy URL from platform or return default.
+// Validates the server response so a legacy/empty DB row or a bad env-sync
+// can't seed buildDefaultSettings() with junk that would then bypass the
+// store-side validation in KernelInterceptorProxyStore.
 export const getDefaultProxyUrl = async () => {
   const proxyAppUrl = platform?.infra?.getProxyAppUrl
 
   if (proxyAppUrl) {
     const res = await proxyAppUrl()
 
-    if (E.isRight(res)) {
+    if (E.isRight(res) && isValidProxyUrl(res.right.value)) {
       return res.right.value
     }
 

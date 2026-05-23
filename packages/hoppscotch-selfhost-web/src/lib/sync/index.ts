@@ -82,6 +82,10 @@ export const getSyncInitFunction = <T extends DispatchingStore<any, any>>(
       )
     }
 
+    if (stopSubscriptions) {
+      stopSubscriptions()
+    }
+
     stopSubscriptions = startSubscriptions?.()
   }
 

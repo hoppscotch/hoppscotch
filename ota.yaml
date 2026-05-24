@@ -113,12 +113,13 @@ tasks:
       This maps directly to the root workspace install surface used by the repo CI.
     category: setup
     run: pnpm install
+    effects:
+      network: true
     depends_on:
       - setup:env
     requirements:
       toolchains:
         - node
-    safe_for_agent: true
   lint:
     context: host
     description: Run the root workspace lint surface
@@ -169,6 +170,9 @@ tasks:
       remain exposed but are modeled as separate surfaces rather than blocking this workflow.
     category: dev
     run: docker compose --profile default up
+    effects:
+      external_state:
+        - docker
     depends_on:
       - setup:env
     runtime:
@@ -189,6 +193,9 @@ tasks:
       Readiness is anchored to the primary web application front door on port 3000.
     category: dev
     run: docker compose --profile app up
+    effects:
+      external_state:
+        - docker
     depends_on:
       - setup:env
     runtime:
@@ -208,6 +215,9 @@ tasks:
       It starts the backend, database, and migration service without the web clients.
     category: dev
     run: docker compose --profile backend up
+    effects:
+      external_state:
+        - docker
     depends_on:
       - setup:env
     runtime:
@@ -228,6 +238,9 @@ tasks:
       Readiness is anchored to the admin dashboard front door on port 3100.
     category: dev
     run: docker compose --profile admin up
+    effects:
+      external_state:
+        - docker
     depends_on:
       - setup:env
     runtime:
@@ -311,7 +324,6 @@ agent:
   entrypoint: install
   default_task: test
   safe_tasks:
-    - install
     - lint
     - typecheck
     - test

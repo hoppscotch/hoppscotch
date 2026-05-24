@@ -212,7 +212,7 @@ function setupUserEnvironmentUpdatedSubscription() {
           (env) => env.id == id
         )
 
-        if ((localIndex || localIndex == 0) && name) {
+        if (localIndex !== -1 && name) {
           const environment = {
             id,
             name,

@@ -166,7 +166,7 @@ const recursivelySyncCollections = async (
 
   // create the requests
   if (parentCollectionID) {
-    collection.requests.forEach(async (request) => {
+    for (const request of collection.requests) {
       const res = await createRESTUserRequest(
         request.name,
         JSON.stringify(request),
@@ -178,18 +178,19 @@ const recursivelySyncCollections = async (
 
         request.id = requestId
       }
-    })
+    }
   }
 
   // create the folders aka child collections
-  if (parentCollectionID)
-    collection.folders.forEach(async (folder, index) => {
-      recursivelySyncCollections(
+  if (parentCollectionID) {
+    for (const [index, folder] of collection.folders.entries()) {
+      await recursivelySyncCollections(
         folder,
         `${collectionPath}/${index}`,
         parentCollectionID
       )
-    })
+    }
+  }
 }
 
 // TODO: generalize this

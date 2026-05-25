@@ -1331,6 +1331,7 @@
     "profile_photo": "Profile photo",
     "proxy": "Proxy",
     "proxy_url": "Proxy URL",
+    "proxy_url_invalid": "Proxy URL must start with http(s):// and contain no spaces",
     "proxy_use_toggle": "Use the proxy middleware to send requests",
     "read_the": "Read the",
     "register_agent": "Register Agent",

@@ -1,7 +1,7 @@
 import { computed } from "vue"
 import { useReadonlyStream } from "~/composables/stream"
 import { mockServers$ } from "~/newstore/mockServers"
-import type { MockServer } from "~/newstore/mockServers"
+import type { MockServer } from "~/helpers/backend/types/MockServer"
 
 /**
  * Composable to get mock server status for collections

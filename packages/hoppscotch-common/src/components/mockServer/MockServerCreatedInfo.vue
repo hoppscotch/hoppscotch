@@ -63,7 +63,7 @@
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { refAutoReset } from "@vueuse/core"
-import { MockServer } from "~/helpers/backend/graphql"
+import type { MockServer } from "~/helpers/backend/types/MockServer"
 import { copyToClipboard as copyToClipboardHelper } from "~/helpers/utils/clipboard"
 
 // Icons

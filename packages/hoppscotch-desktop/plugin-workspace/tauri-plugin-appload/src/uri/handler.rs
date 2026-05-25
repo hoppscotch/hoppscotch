@@ -53,11 +53,30 @@ impl UriHandler {
 
         tracing::debug!(host = %host, path = %path, "Handling request");
 
-        match self.fetch_content(host, path).await {
-            Ok(content) => {
+        // Try to fetch the requested path. If it fails and the path looks
+        // like a SPA route (no file extension), fall back to index.html so
+        // the client-side router can handle it.
+        let fetch_result = match self.fetch_content(host, path).await {
+            Ok(content) => Ok((content, path)),
+            Err(e) if !path.is_empty() && !path.contains('.') => {
+                tracing::info!(
+                    host = %host,
+                    path = %path,
+                    "Path not found and has no extension, falling back to index.html for SPA routing"
+                );
+                self.fetch_content(host, "")
+                    .await
+                    .map(|content| (content, ""))
+                    .map_err(|_| e)
+            }
+            Err(e) => Err(e),
+        };
+
+        match fetch_result {
+            Ok((content, resolved_path)) => {
                 tracing::info!(host = %host, path = %path, content_length = %content.len(), "Successfully retrieved file content");
 
-                let mime_type = Self::determine_mime(path);
+                let mime_type = Self::determine_mime(resolved_path);
                 let csp = match self.config.app.security.csp.as_ref() {
                     Some(csp) => {
                         tracing::debug!("Using configured CSP");

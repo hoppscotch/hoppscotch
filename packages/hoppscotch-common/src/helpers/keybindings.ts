@@ -1,5 +1,9 @@
 import { onBeforeUnmount, onMounted } from "vue"
 import { HoppActionWithOptionalArgs, invokeAction } from "./actions"
+import {
+  getKeyboardLayoutStrategy,
+  type KeyboardLayoutStrategy,
+} from "./keyboard-strategy"
 import { isAppleDevice } from "./platformutils"
 import {
   isCodeMirrorEditor,
@@ -175,6 +179,18 @@ function handleKeyDown(ev: KeyboardEvent) {
   // Do not check keybinds if the mode is disabled
   if (!keybindingsEnabled) return
 
+  // Skip during IME composition (CJK input). Modern browsers report
+  // `isComposing`. Older ones use the sentinel `keyCode === 229`.
+  // Either way the keystroke belongs to a composition, not a shortcut.
+  if (ev.isComposing || ev.keyCode === 229) return
+
+  // Skip when AltGr is the modifier. Browsers report AltGr as Ctrl+Alt
+  // on Windows, so QWERTZ users typing `[` via AltGr+8 would otherwise
+  // match Ctrl+Alt+[ (the MRU tab shortcut) and steal the keystroke.
+  // `getModifierState("AltGraph")` is true only for AltGr, not for
+  // genuine Ctrl+Alt presses.
+  if (ev.getModifierState("AltGraph")) return
+
   const binding = generateKeybindingString(ev)
   if (!binding) return
 
@@ -307,36 +323,111 @@ function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
 }
 
 function getPressedKey(ev: KeyboardEvent): Key | null {
-  // Sometimes the property code is not available on the KeyboardEvent object
-  const key = (ev.key ?? "").toLowerCase()
+  return resolvePressedKey(ev, getKeyboardLayoutStrategy())
+}
 
-  // Check arrow keys
+// Minimal subset of `KeyboardEvent` so unit tests can construct fixtures
+// without a JSDOM event. `getModifierState` is optional because the only
+// call site (numpad detection) tolerates its absence.
+export type KeyboardEventLike = Pick<KeyboardEvent, "key" | "code"> & {
+  getModifierState?: KeyboardEvent["getModifierState"]
+}
+
+/**
+ * Resolves a keyboard event into the registered shortcut key, dispatching
+ * letter and digit lookups through the active layout strategy.
+ *
+ * Strategies only affect the letter and digit branches because those are
+ * the keys whose `event.key` and `event.code` diverge across layouts.
+ * Arrow keys, Tab, Enter, brackets, and the "?" → "/" mapping are layout
+ * stable, so the same checks apply regardless of strategy.
+ *
+ * `"key"` uses `event.key` (the typed character), which suits AZERTY,
+ * QWERTZ, and Dvorak users whose keycap labels match the shortcut they
+ * want to fire. `"code"` uses `event.code` (the physical key position),
+ * which suits Cyrillic and CJK users with US-QWERTY muscle memory.
+ * `"hybrid"` prefers `event.key` when it produces a Latin glyph and
+ * falls back to `event.code` otherwise, covering both populations.
+ *
+ * Both `getPressedKey` (the in-page handler entry) and the capture-phase
+ * listener in `selfhost-web/main.ts` call this with the active strategy
+ * from `getKeyboardLayoutStrategy`.
+ */
+export function resolvePressedKey(
+  ev: KeyboardEventLike,
+  strategy: KeyboardLayoutStrategy
+): Key | null {
+  const key = (ev.key ?? "").toLowerCase()
+  const code = ev.code ?? ""
+
+  // Letters
+  const letterFromKey =
+    key.length === 1 && key >= "a" && key <= "z" ? (key as Key) : null
+  const letterFromCode =
+    code.startsWith("Key") && code.length === 4
+      ? (code[3].toLowerCase() as Key)
+      : null
+  // The "code" branch falls back to event.key when event.code is empty
+  // (synthetic events, certain older environments) so a Latin-letter
+  // shortcut still resolves rather than silently dropping. Matches the
+  // pre-strategy resolver's contract.
+  const letter =
+    strategy === "key"
+      ? letterFromKey
+      : strategy === "code"
+        ? (letterFromCode ?? (!code ? letterFromKey : null))
+        : (letterFromKey ?? letterFromCode)
+  if (letter) return letter
+
+  // Arrow keys (ArrowUp → up, etc)
   if (key.startsWith("arrow")) {
     return key.slice(5) as Key
   }
 
-  // Check for Tab key
   if (key === "tab") return "tab"
-
-  // Check for Delete key
   if (key === "delete") return "delete"
-
   if (key === "backspace") return "backspace"
 
-  // Check letter keys
-  const isLetter = key.length === 1 && key >= "a" && key <= "z"
-  if (isLetter) return key as Key
+  // Shift+/ produces "?" on most layouts but the shortcut is registered as "/"
+  if (key === "?") return "/"
 
-  // Check if number keys
-  const isDigit = key.length === 1 && key >= "0" && key <= "9"
-  if (isDigit) return key as Key
-
-  // Check if slash, period or enter
+  // Punctuation checked before digit codes because some layouts produce
+  // these characters from physical digit keys (e.g. AZERTY produces [
+  // via AltGr+5 which has code "Digit5").
   if (key === "/" || key === "." || key === "enter") return key
-
   if (key === "[" || key === "]") return key
 
-  // If no other cases match, this is not a valid key
+  // Bracket fallback for non-Latin layouts where the physical bracket
+  // keys don't type [/] (e.g. Russian Cyrillic where KeyBracketLeft
+  // types "х"). The shortcut is registered as ctrl-alt-[ so users
+  // pressing the keycap labelled [ still fire it regardless of layout.
+  if (code === "BracketLeft") return "["
+  if (code === "BracketRight") return "]"
+
+  // Digits
+  const digitFromKey =
+    key.length === 1 && key >= "0" && key <= "9" ? (key as Key) : null
+  const digitFromCode =
+    code.startsWith("Digit") && code.length === 6 ? (code[5] as Key) : null
+  const digit =
+    strategy === "key"
+      ? digitFromKey
+      : strategy === "code"
+        ? digitFromCode
+        : (digitFromKey ?? digitFromCode)
+  if (digit) return digit
+
+  // Numpad digits (Numpad0–Numpad9), only when NumLock is on.
+  // When NumLock is off the physical keys act as navigation (Home, End, etc)
+  // but event.code still returns Numpad0-Numpad9.
+  if (
+    code.startsWith("Numpad") &&
+    code.length === 7 &&
+    ev.getModifierState?.("NumLock")
+  ) {
+    return code.slice(6) as Key
+  }
+
   return null
 }
 

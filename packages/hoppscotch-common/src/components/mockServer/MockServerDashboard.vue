@@ -211,7 +211,7 @@ import { useMockServerStatus } from "~/composables/mockServer"
 import { useToast } from "~/composables/toast"
 import { useReadonlyStream } from "~/composables/stream"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
-import type { MockServer } from "~/newstore/mockServers"
+import type { MockServer } from "~/helpers/backend/types/MockServer"
 import { platform } from "~/platform"
 
 import {
@@ -223,10 +223,6 @@ import {
 
 import MockServerEditMockServer from "~/components/mockServer/EditMockServer.vue"
 import MockServerLogs from "~/components/mockServer/MockServerLogs.vue"
-import {
-  deleteMockServer as deleteMockServerMutation,
-  updateMockServer as updateMockServerMutation,
-} from "~/helpers/backend/mutations/MockServer"
 
 // Icons
 import IconCheck from "~icons/lucide/check"
@@ -275,7 +271,9 @@ const toggleMockServer = async (mockServer: MockServer) => {
   const newActiveState = !mockServer.isActive
 
   await pipe(
-    updateMockServerMutation(mockServer.id, { isActive: newActiveState }),
+    platform.backend.updateMockServer(mockServer.id, {
+      isActive: newActiveState,
+    }),
     TE.match(
       () => {
         toast.error(t("error.something_went_wrong"))
@@ -317,7 +315,7 @@ const confirmDelete = async () => {
   confirmDeleteMockServer.value = false
 
   await pipe(
-    deleteMockServerMutation(mockServer.id),
+    platform.backend.deleteMockServer(mockServer.id),
     TE.match(
       () => {
         toast.error(t("error.something_went_wrong"))

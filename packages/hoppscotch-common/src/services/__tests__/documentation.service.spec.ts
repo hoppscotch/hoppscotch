@@ -14,16 +14,16 @@ import {
   SetCollectionDocumentationOptions,
   SetRequestDocumentationOptions,
   isLiveVersion,
-  CURRENT_VERSION_TAG,
 } from "../documentation.service"
-import {
-  getUserPublishedDocs,
-  getTeamPublishedDocs,
-} from "~/helpers/backend/queries/PublishedDocs"
+import { platform } from "~/platform"
 
-vi.mock("~/helpers/backend/queries/PublishedDocs", () => ({
-  getUserPublishedDocs: vi.fn(),
-  getTeamPublishedDocs: vi.fn(),
+vi.mock("~/platform", () => ({
+  platform: {
+    backend: {
+      getUserPublishedDocs: vi.fn(),
+      getTeamPublishedDocs: vi.fn(),
+    },
+  },
 }))
 
 describe("DocumentationService", () => {
@@ -40,6 +40,8 @@ describe("DocumentationService", () => {
     variables: [],
     id: "collection-123",
     description: null,
+    preRequestScript: "",
+    testScript: "",
   })
 
   const mockRequest: HoppRESTRequest = makeRESTRequest({
@@ -88,6 +90,7 @@ describe("DocumentationService", () => {
   }
 
   beforeEach(() => {
+    vi.resetAllMocks()
     container = new TestContainer()
     service = container.bind(DocumentationService)
   })
@@ -479,7 +482,7 @@ describe("DocumentationService", () => {
         },
       ]
 
-      vi.mocked(getUserPublishedDocs).mockReturnValue(() =>
+      vi.mocked(platform.backend.getUserPublishedDocs).mockReturnValue(() =>
         Promise.resolve(E.right(mockDocs as any))
       )
 
@@ -514,7 +517,7 @@ describe("DocumentationService", () => {
         },
       ]
 
-      vi.mocked(getTeamPublishedDocs).mockReturnValue(() =>
+      vi.mocked(platform.backend.getTeamPublishedDocs).mockReturnValue(() =>
         Promise.resolve(E.right(mockDocs as any))
       )
 
@@ -538,7 +541,7 @@ describe("DocumentationService", () => {
 
     it("should handle error when fetching user published docs", async () => {
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-      vi.mocked(getUserPublishedDocs).mockReturnValue(() =>
+      vi.mocked(platform.backend.getUserPublishedDocs).mockReturnValue(() =>
         Promise.resolve(E.left("user/not_authenticated"))
       )
 
@@ -553,7 +556,7 @@ describe("DocumentationService", () => {
 
     it("should handle error when fetching team published docs", async () => {
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-      vi.mocked(getTeamPublishedDocs).mockReturnValue(() =>
+      vi.mocked(platform.backend.getTeamPublishedDocs).mockReturnValue(() =>
         Promise.resolve(E.left("team/not_required" as any))
       )
 
@@ -635,7 +638,7 @@ describe("DocumentationService", () => {
       })
 
       // Mock the first call to be slow
-      vi.mocked(getUserPublishedDocs)
+      vi.mocked(platform.backend.getUserPublishedDocs)
         .mockReturnValueOnce(() => slowPromise as any)
         .mockReturnValueOnce(() => Promise.resolve(E.right(fastDocs as any)))
 
@@ -748,33 +751,11 @@ describe("DocumentationService", () => {
 })
 
 describe("isLiveVersion", () => {
-  it("returns true when autoSync is true and version is CURRENT", () => {
-    expect(
-      isLiveVersion({ autoSync: true, version: CURRENT_VERSION_TAG })
-    ).toBe(true)
+  it("returns true when autoSync is true", () => {
+    expect(isLiveVersion({ autoSync: true })).toBe(true)
   })
 
-  it("is case-insensitive for CURRENT tag", () => {
-    expect(isLiveVersion({ autoSync: true, version: "current" })).toBe(true)
-    expect(isLiveVersion({ autoSync: true, version: "Current" })).toBe(true)
-  })
-
-  it("returns true for legacy 1.0.0 version with autoSync", () => {
-    expect(isLiveVersion({ autoSync: true, version: "1.0.0" })).toBe(true)
-  })
-
-  it("returns false when autoSync is false even if version is CURRENT", () => {
-    expect(
-      isLiveVersion({ autoSync: false, version: CURRENT_VERSION_TAG })
-    ).toBe(false)
-  })
-
-  it("returns false when autoSync is false for legacy 1.0.0", () => {
-    expect(isLiveVersion({ autoSync: false, version: "1.0.0" })).toBe(false)
-  })
-
-  it("returns false for a snapshot version string", () => {
-    expect(isLiveVersion({ autoSync: true, version: "2.0.0" })).toBe(false)
-    expect(isLiveVersion({ autoSync: false, version: "2.0.0" })).toBe(false)
+  it("returns false when autoSync is false", () => {
+    expect(isLiveVersion({ autoSync: false })).toBe(false)
   })
 })

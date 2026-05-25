@@ -358,6 +358,7 @@ const saveRequestAs = async () => {
         folderPath: `${picked.value.collectionIndex}`,
         requestIndex: insertionIndex,
         exampleID: undefined,
+        requestRefID: requestUpdated._ref_id,
       },
     }
 
@@ -392,6 +393,7 @@ const saveRequestAs = async () => {
         originLocation: "user-collection",
         folderPath: picked.value.folderPath,
         requestIndex: insertionIndex,
+        requestRefID: requestUpdated._ref_id,
       },
     }
 

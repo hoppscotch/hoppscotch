@@ -196,7 +196,10 @@ export const useOAuth2GrantTypes = (
                 }
               : null,
           (value) => {
-            if (!("codeVerifierMethod" in auth.value.grantTypeInfo) || !value) {
+            if (
+              !value ||
+              auth.value.grantTypeInfo.grantType !== "AUTHORIZATION_CODE"
+            ) {
               return
             }
 
@@ -532,7 +535,7 @@ export const useOAuth2GrantTypes = (
     },
     {
       id: "password" as const,
-      label: "Password",
+      label: t("authorization.oauth.label_password"),
       formElements: computed(() => {
         if (!(auth.value.grantTypeInfo.grantType === "PASSWORD")) {
           return

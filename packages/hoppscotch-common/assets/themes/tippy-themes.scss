@@ -64,6 +64,15 @@
     }
   }
 
+  // Override truncation for multiline member-list tooltips
+  .tippy-box[data-theme~="member-list"] {
+    .tippy-content {
+      @apply whitespace-pre-line;
+      @apply block;
+      @apply overflow-auto;
+    }
+  }
+
   .tippy-box[data-theme~="popover"] {
     @apply bg-popover;
     @apply border-solid;
@@ -164,7 +173,7 @@
 
   .tippy-box[data-theme~="tooltip"] {
     @apply bg-primaryDark;
-    @apply border-solid;
+    @apply border-solid border-divider;
     @apply shadow-lg;
 
     .tippy-content {
@@ -178,7 +187,7 @@
 
     .tippy-svg-arrow {
       svg:first-child {
-        @apply fill-primaryDark;
+        @apply fill-divider;
       }
 
       svg:last-child {
@@ -211,7 +220,7 @@
 
   .tippy-box[data-theme~="tooltip"] {
     @apply bg-primaryLight;
-    @apply border-solid border-[#33363d];
+    @apply border-solid border-divider;
     @apply shadow-lg;
 
     .tippy-content {
@@ -225,7 +234,7 @@
 
     .tippy-svg-arrow {
       svg:first-child {
-        @apply fill-primaryLight;
+        @apply fill-divider;
       }
 
       svg:last-child {

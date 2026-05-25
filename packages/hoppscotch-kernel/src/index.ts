@@ -12,6 +12,10 @@ import { VERSIONS as STORE_VERSIONS } from "./store"
 import { STORE_IMPLS as WEB_STORE_IMPLS } from "./store/impl/web"
 import { STORE_IMPLS as DESKTOP_STORE_IMPLS } from "./store/impl/desktop"
 
+import { VERSIONS as LOG_VERSIONS } from "./log"
+import { LOG_IMPLS as WEB_LOG_IMPLS } from "./log/impl/web"
+import { LOG_IMPLS as DESKTOP_LOG_IMPLS } from "./log/impl/desktop"
+
 export interface KernelInfo {
   name: string
   version: Version
@@ -23,6 +27,7 @@ export interface KernelAPI {
   io: typeof IO_VERSIONS.v1.api
   relay: typeof RELAY_VERSIONS.v1.api
   store: typeof STORE_VERSIONS.v1.api
+  log: typeof LOG_VERSIONS.v1.api
 }
 
 export type KernelMode = "web" | "desktop"
@@ -49,6 +54,7 @@ export function initKernel(mode?: KernelMode): KernelAPI {
       io: DESKTOP_IO_IMPLS.v1.api,
       relay: DESKTOP_RELAY_IMPLS.v1.api,
       store: DESKTOP_STORE_IMPLS.v1.api,
+      log: DESKTOP_LOG_IMPLS.v1.api,
     }
 
     window.__KERNEL__ = kernel
@@ -63,6 +69,7 @@ export function initKernel(mode?: KernelMode): KernelAPI {
       io: WEB_IO_IMPLS.v1.api,
       relay: WEB_RELAY_IMPLS.v1.api,
       store: WEB_STORE_IMPLS.v1.api,
+      log: WEB_LOG_IMPLS.v1.api,
     }
 
     window.__KERNEL__ = kernel
@@ -120,4 +127,9 @@ export type {
   StoredData,
   StoreEventEmitter,
   StoreV1,
+  ScopedStore,
 } from "@store/v/1"
+
+export { extend as extendStore } from "@store/v/1"
+
+export type { LogLevel, LogCapability, LogError, LogV1 } from "@log/v/1"

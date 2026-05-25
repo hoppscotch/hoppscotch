@@ -539,6 +539,45 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       // Clean up
       fs.unlinkSync(junitPath);
     }, 600000); // 600 second (10 minute) timeout
+
+    test("Inherited collection-level scripts run in order on the experimental sandbox (default)", async () => {
+      const args = `test ${getTestJsonFilePath(
+        "collection-level-scripts-coll.json",
+        "collection"
+      )}`;
+
+      const defaultResult = await runCLIWithNetworkRetry(args);
+      if (defaultResult === null) return;
+      expect(defaultResult.error).toBeNull();
+    });
+
+    // The legacy sandbox uses a non-module evaluator that rejects top-level
+    // ESM imports at parse time, so it runs against a pruned fixture that
+    // omits the import-using request.
+    test("Inherited collection-level scripts run in order on the legacy sandbox", async () => {
+      const args = `test ${getTestJsonFilePath(
+        "collection-level-scripts-legacy-coll.json",
+        "collection"
+      )} --legacy-sandbox`;
+
+      const legacyResult = await runCLIWithNetworkRetry(args);
+      if (legacyResult === null) return;
+      expect(legacyResult.error).toBeNull();
+    });
+
+    test("Surfaces a SyntaxError when the same import binding appears in multiple scripts in a request's cascade", async () => {
+      const args = `test ${getTestJsonFilePath(
+        "collection-level-scripts-duplicate-import-coll.json",
+        "collection"
+      )}`;
+      const { error, stderr } = await runCLI(args);
+
+      expect(error).not.toBeNull();
+      expect(stderr).toContain("PRE_REQUEST_SCRIPT_ERROR");
+      expect(stderr).toContain(
+        "'dup' is imported from different sources across scripts in this request's chain"
+      );
+    });
   });
 
   describe("Test `hopp test <file_path_or_id> --env <file_path_or_id>` command:", () => {

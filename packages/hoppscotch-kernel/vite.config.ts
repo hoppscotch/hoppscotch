@@ -29,6 +29,7 @@ export default defineConfig({
       '@io': resolve(__dirname, './src/io'),
       '@relay': resolve(__dirname, './src/relay'),
       '@store': resolve(__dirname, './src/store'),
+      '@log': resolve(__dirname, './src/log'),
       '@type': resolve(__dirname, './src/type'),
       '@util': resolve(__dirname, './src/util')
     }

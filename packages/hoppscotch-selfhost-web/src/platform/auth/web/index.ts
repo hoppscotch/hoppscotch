@@ -339,8 +339,6 @@ export const def: AuthPlatformDef = {
   },
 
   async signOutUser() {
-    // if (!currentUser$.value) throw new Error("No user has logged in")
-
     await logout()
 
     probableUser$.next(null)

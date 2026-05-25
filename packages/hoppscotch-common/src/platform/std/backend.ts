@@ -31,6 +31,31 @@ import {
   TeamAccessRole,
 } from "../../helpers/backend/graphql"
 
+import {
+  createMockServer,
+  updateMockServer,
+  deleteMockServer,
+} from "../../helpers/backend/mutations/MockServer"
+import {
+  getMockServer,
+  getMyMockServers,
+  getTeamMockServers,
+} from "../../helpers/backend/queries/MockServer"
+import {
+  getMockServerLogs,
+  deleteMockServerLog,
+} from "../../helpers/backend/queries/MockServerLogs"
+import {
+  createPublishedDoc,
+  updatePublishedDoc,
+  deletePublishedDoc,
+} from "../../helpers/backend/mutations/PublishedDocs"
+import {
+  getPublishedDocByID,
+  getUserPublishedDocs,
+  getTeamPublishedDocs,
+} from "../../helpers/backend/queries/PublishedDocs"
+
 const getInviteDetails = <GetInviteDetailsError extends string>(
   inviteID: string
 ) => {
@@ -129,4 +154,18 @@ export const def: BackendPlatformDef = {
   createTeamInvitation,
   acceptTeamInvitation,
   createShortcode,
+  createMockServer,
+  updateMockServer,
+  deleteMockServer,
+  getMockServer,
+  getMyMockServers,
+  getTeamMockServers,
+  getMockServerLogs,
+  deleteMockServerLog,
+  createPublishedDoc,
+  updatePublishedDoc,
+  deletePublishedDoc,
+  getPublishedDocByID,
+  getUserPublishedDocs,
+  getTeamPublishedDocs,
 }

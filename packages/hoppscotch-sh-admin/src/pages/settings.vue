@@ -95,6 +95,7 @@ const {
   fetchingAllowedAuthProviders,
   allowedAuthProvidersError,
   AreAnyConfigFieldsEmpty,
+  hasPartialSmtpCredentials,
 } = useConfigHandler();
 
 // Check if the configs have been updated
@@ -112,6 +113,10 @@ const areAnyFieldsEmpty = computed(() =>
 const triggerSaveChangesModal = () => {
   if (areAnyFieldsEmpty.value) {
     return toast.error(t('configs.input_empty'));
+  }
+
+  if (workingConfigs.value && hasPartialSmtpCredentials(workingConfigs.value)) {
+    return toast.error(t('configs.mail_configs.smtp_auth_incomplete'));
   }
 
   if (hasInputValidationFailed.value) {

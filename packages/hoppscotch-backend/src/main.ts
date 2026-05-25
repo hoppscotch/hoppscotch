@@ -3,9 +3,7 @@ import { json } from 'express';
 import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
-import session from 'express-session';
 import { emitGQLSchemaFile } from './gql-schema';
-import * as crypto from 'crypto';
 import morgan from 'morgan';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -49,21 +47,6 @@ async function bootstrap() {
 
   console.log(`Running in production: ${isProduction}`);
   console.log(`Port: ${configService.get('PORT')}`);
-
-  app.use(
-    session({
-      // Allow overriding the default cookie name 'connect.sid' (which contains a dot).
-      // Some proxies/load balancers (like older Kong versions) cannot hash cookie names with dots,
-      // so we allow setting an alternative name via the INFRA.SESSION_COOKIE_NAME configuration.
-      name:
-        configService.get<string>('INFRA.SESSION_COOKIE_NAME') || 'connect.sid',
-      secret:
-        configService.get<string>('INFRA.SESSION_SECRET') ||
-        crypto.randomBytes(16).toString('hex'),
-      resave: false,
-      saveUninitialized: false,
-    }),
-  );
 
   // Increase file upload limit to 100MB
   app.use(

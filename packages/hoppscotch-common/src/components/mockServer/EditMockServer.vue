@@ -169,9 +169,9 @@ import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 import { ref, watch } from "vue"
 import { useToast } from "~/composables/toast"
-import { updateMockServer as updateMockServerMutation } from "~/helpers/backend/mutations/MockServer"
+import { platform } from "~/platform"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
-import type { MockServer } from "~/newstore/mockServers"
+import type { MockServer } from "~/helpers/backend/types/MockServer"
 import { updateMockServer as updateMockServerInStore } from "~/newstore/mockServers"
 
 // Icons
@@ -228,7 +228,7 @@ const updateMockServer = async () => {
   }
 
   await pipe(
-    updateMockServerMutation(props.mockServer.id, payload),
+    platform.backend.updateMockServer(props.mockServer.id, payload),
     TE.match(
       () => {
         toast.error(t("error.something_went_wrong"))
@@ -259,7 +259,9 @@ const toggleMockServer = async () => {
   const newActiveState = !isActive.value
 
   await pipe(
-    updateMockServerMutation(props.mockServer.id, { isActive: newActiveState }),
+    platform.backend.updateMockServer(props.mockServer.id, {
+      isActive: newActiveState,
+    }),
     TE.match(
       () => {
         toast.error(t("error.something_went_wrong"))

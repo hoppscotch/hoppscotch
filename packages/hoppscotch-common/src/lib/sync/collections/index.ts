@@ -25,6 +25,7 @@ import {
   HoppRESTHeaders,
   HoppRESTParam,
   HoppRESTRequest,
+  makeCollection,
 } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import { runGQLSubscription } from "~/helpers/backend/GQLClient"
@@ -145,10 +146,9 @@ export function exportedCollectionToHoppCollection(
             description: null,
           }
 
-    return {
+    return makeCollection({
       id: restCollection.id,
       _ref_id: data._ref_id ?? generateUniqueRefId("coll"),
-      v: 11,
       name: restCollection.name,
       folders: restCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
@@ -202,7 +202,9 @@ export function exportedCollectionToHoppCollection(
       auth: data.auth,
       headers: addDescriptionField(data.headers),
       variables: data.variables ?? [],
-    }
+      preRequestScript: data.preRequestScript ?? "",
+      testScript: data.testScript ?? "",
+    })
   } else {
     const gqlCollection = collection as ExportedUserCollectionGQL
 
@@ -217,10 +219,9 @@ export function exportedCollectionToHoppCollection(
             description: null,
           }
 
-    return {
+    return makeCollection({
       id: gqlCollection.id,
       _ref_id: data._ref_id ?? generateUniqueRefId("coll"),
-      v: 11,
       name: gqlCollection.name,
       folders: gqlCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
@@ -250,7 +251,9 @@ export function exportedCollectionToHoppCollection(
       headers: addDescriptionField(data.headers),
       variables: data.variables ?? [],
       description: data.description ?? null,
-    }
+      preRequestScript: data.preRequestScript ?? "",
+      testScript: data.testScript ?? "",
+    })
   }
 }
 
@@ -405,28 +408,34 @@ function setupUserCollectionCreatedSubscription() {
 
         runDispatchWithOutSyncing(() => {
           collectionType == "GQL"
-            ? addGraphqlCollection({
-                name: res.right.userCollectionCreated.title,
-                folders: [],
-                requests: [],
-                v: 11,
-                _ref_id: data._ref_id,
-                auth: data.auth,
-                headers: addDescriptionField(data.headers),
-                variables: data.variables ?? [],
-                description: data.description ?? null,
-              })
-            : addRESTCollection({
-                name: res.right.userCollectionCreated.title,
-                folders: [],
-                requests: [],
-                v: 11,
-                _ref_id: data._ref_id,
-                auth: data.auth,
-                headers: addDescriptionField(data.headers),
-                variables: data.variables ?? [],
-                description: data.description ?? null,
-              })
+            ? addGraphqlCollection(
+                makeCollection({
+                  name: res.right.userCollectionCreated.title,
+                  folders: [],
+                  requests: [],
+                  _ref_id: data._ref_id,
+                  auth: data.auth,
+                  headers: addDescriptionField(data.headers),
+                  variables: data.variables ?? [],
+                  description: data.description ?? null,
+                  preRequestScript: data.preRequestScript ?? "",
+                  testScript: data.testScript ?? "",
+                })
+              )
+            : addRESTCollection(
+                makeCollection({
+                  name: res.right.userCollectionCreated.title,
+                  folders: [],
+                  requests: [],
+                  _ref_id: data._ref_id,
+                  auth: data.auth,
+                  headers: addDescriptionField(data.headers),
+                  variables: data.variables ?? [],
+                  description: data.description ?? null,
+                  preRequestScript: data.preRequestScript ?? "",
+                  testScript: data.testScript ?? "",
+                })
+              )
 
           const localIndex = collectionStore.value.state.length - 1
 
@@ -628,7 +637,14 @@ function setupUserCollectionDuplicatedSubscription() {
         )
 
       // Incoming data transformed to the respective internal representations
-      const { auth, headers, variables, description } =
+      const {
+        auth,
+        headers,
+        variables,
+        description,
+        preRequestScript,
+        testScript,
+      } =
         data && data != "null"
           ? JSON.parse(data)
           : {
@@ -636,6 +652,8 @@ function setupUserCollectionDuplicatedSubscription() {
               headers: [],
               variables: [],
               description: null,
+              preRequestScript: "",
+              testScript: "",
             }
       // Duplicated collection will have a unique ref id
       const _ref_id = generateUniqueRefId("coll")
@@ -647,18 +665,19 @@ function setupUserCollectionDuplicatedSubscription() {
       )
 
       // New collection to be added to store with the transformed data
-      const effectiveDuplicatedCollection: HoppCollection = {
+      const effectiveDuplicatedCollection: HoppCollection = makeCollection({
         id,
         name,
         folders,
         requests,
-        v: 11,
         _ref_id,
         auth,
         headers: addDescriptionField(headers),
         variables: variables ?? [],
         description: description ?? null,
-      }
+        preRequestScript: preRequestScript ?? "",
+        testScript: testScript ?? "",
+      })
 
       // only folders will have parent collection id
       if (parentCollectionID && parentCollectionPath) {
@@ -1123,7 +1142,14 @@ function transformDuplicatedCollections(
       requests: userRequests,
       title: name,
     }) => {
-      const { auth, headers, variables, description } =
+      const {
+        auth,
+        headers,
+        variables,
+        description,
+        preRequestScript,
+        testScript,
+      } =
         data && data !== "null"
           ? JSON.parse(data)
           : {
@@ -1131,6 +1157,8 @@ function transformDuplicatedCollections(
               headers: [],
               variables: [],
               description: null,
+              preRequestScript: "",
+              testScript: "",
             }
 
       const _ref_id = generateUniqueRefId("coll")
@@ -1139,18 +1167,19 @@ function transformDuplicatedCollections(
 
       const requests = transformDuplicatedCollectionRequests(userRequests)
 
-      return {
+      return makeCollection({
         id,
         name,
         folders,
         requests,
         _ref_id,
-        v: 11,
         auth,
         headers: addDescriptionField(headers),
         variables: variables ?? [],
         description: description ?? null,
-      }
+        preRequestScript: preRequestScript ?? "",
+        testScript: testScript ?? "",
+      })
     }
   )
 }

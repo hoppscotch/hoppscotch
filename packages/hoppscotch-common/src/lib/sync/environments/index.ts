@@ -251,7 +251,7 @@ function setupUserEnvironmentDeletedSubscription() {
       // TODO: move getLocalIndexByID to a getter in the environmentsStore
       const localIndex = getLocalIndexByEnvironmentID(id)
 
-      if (localIndex || localIndex === 0) {
+      if (localIndex && localIndex !== 0) {
         runDispatchWithOutSyncing(() => {
           deleteEnvironment(localIndex)
         })

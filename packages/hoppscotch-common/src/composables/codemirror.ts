@@ -49,7 +49,7 @@ import { isJSONContentType } from "@helpers/utils/contenttypes"
 import { useStreamSubscriber } from "@composables/stream"
 import { Completer } from "@helpers/editor/completion"
 import { LinterDefinition } from "@helpers/editor/linting/linter"
-import { MODULE_PREFIX } from "@helpers/scripting"
+import { MODULE_PREFIX } from "@hoppscotch/js-sandbox/scripting"
 import {
   basicSetup,
   baseTheme,

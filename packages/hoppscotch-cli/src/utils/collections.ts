@@ -34,7 +34,7 @@ import {
   processRequest,
 } from "./request";
 import { getTestMetrics } from "./test";
-import { filterValidScripts } from "./scripting";
+import { filterValidScripts } from "@hoppscotch/js-sandbox/scripting";
 
 const { WARN, FAIL, INFO } = exceptionColors;
 

@@ -8,7 +8,7 @@ import { Service } from "dioc"
 import * as E from "fp-ts/Either"
 import { Ref, ref } from "vue"
 import { getSingleCollection, TeamCollection } from "./TeamCollection"
-import { hasActualScript } from "~/helpers/scripting"
+import { hasActualScript } from "@hoppscotch/js-sandbox/scripting"
 
 import { platform } from "~/platform"
 import { HoppInheritedProperty } from "../types/HoppInheritedProperties"

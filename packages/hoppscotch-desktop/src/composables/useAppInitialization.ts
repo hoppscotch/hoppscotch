@@ -11,6 +11,7 @@ import type {
   ConnectionState,
 } from "@hoppscotch/common/platform/instance"
 import { VENDORED_INSTANCE_CONFIG } from "@hoppscotch/common/platform/instance"
+import { useDesktopSettings } from "@hoppscotch/common/composables/desktop-settings"
 
 // simple diag logger for the main window (runs before kernel log module is available)
 function mainDiag(msg: string) {
@@ -37,6 +38,16 @@ export enum AppState {
 export function useAppInitialization() {
   const persistence = DesktopPersistenceService.getInstance()
   const migration = InstanceStoreMigrationService.getInstance()
+
+  // Shared with the launcher's own zoom watcher (`useDesktopZoomEffect`).
+  // The reactive `settings` object reflects the persisted value once
+  // `loadInitial()` resolves, which happens during the launcher's mount
+  // and well before the user reaches a Connect action. Reading
+  // `settings.zoomLevel` at each `load()` call site forwards the current
+  // value to the appload window option so the bundled app paints at the
+  // right scale immediately, instead of flashing 100% before the
+  // bundle-side watcher catches up.
+  const desktopSettings = useDesktopSettings()
 
   const appState = ref<AppState>(AppState.LOADING)
   const error = ref("")
@@ -79,7 +90,10 @@ export function useAppInitialization() {
 
       const loadResp = await load({
         bundleName: VENDORED_INSTANCE_CONFIG.bundleName!,
-        window: { title: "Hoppscotch" },
+        window: {
+          title: "Hoppscotch",
+          zoomLevel: desktopSettings.settings.zoomLevel,
+        },
       })
 
       mainDiag(
@@ -143,7 +157,10 @@ export function useAppInitialization() {
         const loadResp = await load({
           bundleName: instance.bundleName!,
           host: instance.serverUrl,
-          window: { title: "Hoppscotch" },
+          window: {
+            title: "Hoppscotch",
+            zoomLevel: desktopSettings.settings.zoomLevel,
+          },
         })
 
         mainDiag(
@@ -198,7 +215,10 @@ export function useAppInitialization() {
         )
         const loadResp = await load({
           bundleName: instance.bundleName!,
-          window: { title: "Hoppscotch" },
+          window: {
+            title: "Hoppscotch",
+            zoomLevel: desktopSettings.settings.zoomLevel,
+          },
         })
 
         mainDiag(

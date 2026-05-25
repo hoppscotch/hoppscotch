@@ -133,6 +133,7 @@ import { ref, onMounted, onUnmounted } from "vue"
 import { LazyStore } from "@tauri-apps/plugin-store"
 import { load, close } from "@hoppscotch/plugin-appload"
 import { getVersion } from "@tauri-apps/api/app"
+import { useDesktopSettings } from "@hoppscotch/common/composables/desktop-settings"
 
 import { UpdateStatus, CheckResult, UpdateState } from "~/types"
 import { UpdaterService } from "~/utils/updater"
@@ -182,6 +183,12 @@ const statusMessage = ref("Initializing...")
 const appVersion = ref("...")
 
 const updaterService = new UpdaterService(appStore)
+
+// Shared singleton with the launcher's `useDesktopZoomEffect()` watcher.
+// Read at the `load()` call below so the bundled app webview opens at the
+// persisted zoom on first paint, dodging the 100% flash that an
+// after-mount setZoom would produce.
+const desktopSettings = useDesktopSettings()
 
 let progressPollingInterval: ReturnType<typeof setInterval> | undefined
 
@@ -333,7 +340,10 @@ const loadVendored = async () => {
     console.log("Loading vendored app...")
     const loadResp = await load({
       bundleName: "Hoppscotch",
-      window: { title: "Hoppscotch" },
+      window: {
+        title: "Hoppscotch",
+        zoomLevel: desktopSettings.settings.zoomLevel,
+      },
     })
 
     if (!loadResp.success) {

@@ -31,6 +31,7 @@ import { kernelIO } from "@hoppscotch/common/platform/std/kernel-io"
 import { HeaderDownloadableLinksService } from "@app/services/headerDownloadableLinks.service"
 
 import DesktopSettingsSection from "@hoppscotch/common/components/settings/Desktop.vue"
+import { useDesktopZoomEffect } from "@hoppscotch/common/composables/desktop-zoom"
 
 // Std interceptors
 import { NativeKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/native"
@@ -150,6 +151,11 @@ async function initApp() {
 
   if (platform === "desktop") {
     setupDesktopUI()
+    // Apply the persisted zoom to this window and keep it in sync with
+    // the store. The launcher window runs its own copy of this watcher
+    // from `hoppscotch-desktop/src/main.ts`, and the store is the shared
+    // source of truth between the two.
+    useDesktopZoomEffect()
   }
 
   await createHoppApp("#app", {

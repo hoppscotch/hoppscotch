@@ -8,16 +8,25 @@ import { invoke } from "@tauri-apps/api/core"
 // shell reads them through its own `kernel/store.ts` wrapper at the
 // same physical path. Going through the org-scoped store would route
 // writes to a different file and the shell would never see them.
-import { UnifiedStore as Store } from "~/kernel/store"
+//
+// Relative imports rather than the `~/` alias because this module is
+// consumed by both the selfhost-web entry (where `~` resolves to
+// common's src) and the desktop shell entry (where `~` resolves to the
+// shell's own src). The package-name alias `@hoppscotch/common/...`
+// would work under Vite dev but fails under Rollup build, which treats
+// the rewritten `@hoppscotch/common/src/...` as an unresolved package
+// specifier. Relative paths resolve identically under TS, both Vite
+// configs, and the production build.
+import { UnifiedStore as Store } from "../kernel/store"
 import {
   DESKTOP_SETTINGS_SCHEMA,
   DESKTOP_SETTINGS_STORE_KEY,
   DESKTOP_SETTINGS_STORE_NAMESPACE,
   parseDesktopSettings,
   type DesktopSettings,
-} from "~/platform/desktop-settings"
-import { setKeyboardLayoutStrategy } from "~/helpers/keyboard-strategy"
-import { Log } from "~/kernel/log"
+} from "../platform/desktop-settings"
+import { setKeyboardLayoutStrategy } from "../helpers/keyboard-strategy"
+import { Log } from "../kernel/log"
 
 const LOG_TAG = "useDesktopSettings"
 

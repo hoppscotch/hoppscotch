@@ -655,10 +655,15 @@
         }
 
         // PRE-CHECK PATTERN: Check property existence (including inherited) BEFORE serialization
-        // The 'in' operator checks for both own and inherited properties
+        // The 'in' operator checks for both own and inherited properties.
+        // Covers both objects and functions (e.g. lodash is typeof "function" with methods).
         let hasProperty = undefined
-        if (expectVal !== null && typeof expectVal === "object") {
-          hasProperty = prop in expectVal
+        if (expectVal !== null && (typeof expectVal === "object" || typeof expectVal === "function")) {
+          try {
+            hasProperty = prop in expectVal
+          } catch (_e) {
+            // 'in' can throw for non-extensible or exotic objects – leave hasProperty undefined
+          }
         }
 
         // When val is provided, assert the property value directly
@@ -682,8 +687,12 @@
         // Prototype chain is lost when objects cross sandbox boundary
         // Only pass isOwnProperty when value is an object
         let isOwnProperty = undefined
-        if (expectVal !== null && typeof expectVal === "object") {
-          isOwnProperty = Object.prototype.hasOwnProperty.call(expectVal, prop)
+        if (expectVal !== null && (typeof expectVal === "object" || typeof expectVal === "function")) {
+          try {
+            isOwnProperty = Object.prototype.hasOwnProperty.call(expectVal, prop)
+          } catch (_e) {
+            // leave isOwnProperty undefined
+          }
         }
 
         inputs.chaiOwnProperty(expectVal, prop, modifiers, isOwnProperty)
@@ -812,7 +821,17 @@
         // Support both keys('a', 'b') and keys(['a', 'b'])
         const keysArray =
           keys.length === 1 && Array.isArray(keys[0]) ? keys[0] : keys
-        inputs.chaiKeys(expectVal, keysArray, modifiers)
+        // PRE-CHECK PATTERN: Extract own enumerable keys (including function-valued ones)
+        // BEFORE serialization strips them across the sandbox boundary.
+        let actualKeys = undefined
+        try {
+          if (expectVal !== null && (typeof expectVal === "object" || typeof expectVal === "function")) {
+            actualKeys = Object.keys(expectVal)
+          }
+        } catch (_e) {
+          // leave actualKeys undefined
+        }
+        inputs.chaiKeys(expectVal, keysArray, modifiers, actualKeys)
         return withModifiers(modifiers)
       }
       proxy.key = (key) => {
@@ -2454,7 +2473,28 @@
       const testPromise = globalThis.__testExecutionChain.then(async () => {
         inputs.setCurrentTest(descriptor)
         try {
-          const testResult = testFn()
+          let testResult
+          if (typeof testFn === "function" && testFn.length > 0) {
+            // Mocha-style done() callback pattern: pm.test('name', (done) => { ... done() })
+            // Wrap in a Promise so we can await completion.
+            testResult = await new Promise((resolve, reject) => {
+              const done = (err) => {
+                if (err) reject(err instanceof Error ? err : new Error(String(err)))
+                else resolve()
+              }
+              try {
+                const maybePromise = testFn(done)
+                // Also support async fn that accepts done but returns a promise (edge case)
+                if (maybePromise && typeof maybePromise.then === "function") {
+                  maybePromise.then(resolve).catch(reject)
+                }
+              } catch (e) {
+                reject(e)
+              }
+            })
+          } else {
+            testResult = testFn()
+          }
           // If test returns a promise, await it
           if (testResult && typeof testResult.then === "function") {
             await testResult
@@ -4106,12 +4146,62 @@
       },
     },
 
-    // Package imports (unsupported)
+    // Package imports — returns pre-injected IIFE globals from the library registry
     require: (packageName) => {
-      throw new Error(
-        `pm.require('${packageName}') is not supported in Hoppscotch (Package Library feature)`
-      )
+      // Registry maps pm.require() names → globalThis accessor functions
+      const __libraryRegistry = {
+        // Phase 1 — Utilities
+        'lodash': () => globalThis._,
+        '_': () => globalThis._,             // alias
+        'uuid': () => globalThis.uuid,
+        // Phase 2 — Date & Parsing
+        'moment': () => globalThis.moment,
+        'xml2js': () => globalThis.xml2js,
+        'cheerio': () => globalThis.cheerio,
+        // Phase 3 — Crypto
+        'crypto-js': () => globalThis.CryptoJS,
+        'cryptojs': () => globalThis.CryptoJS, // alias
+        'node-forge': () => globalThis.forge,
+        'forge': () => globalThis.forge,       // alias
+        // Phase 4 — Validation
+        'tv4': () => globalThis.tv4,
+        'ajv': () => globalThis.Ajv,
+        'ajv-formats': () => globalThis.ajvFormats,
+        // Phase 5 — Full Parity
+        'chai': () => globalThis.chai,
+        'jsonpath-plus': () => globalThis.JSONPath,
+        'form-data': () => globalThis.FormDataNode,
+      }
+      const getter = __libraryRegistry[packageName]
+      if (!getter) {
+        // Filter out internal aliases from the suggestion list
+        const __aliases = ['_', 'cryptojs', 'forge']
+        const available = Object.keys(__libraryRegistry)
+          .filter((k) => !__aliases.includes(k))
+          .join(', ')
+        throw new Error(
+          `pm.require('${packageName}') is not supported. Available libraries: ${available}`
+        )
+      }
+      return getter()
     },
+
+    // Returns the bundled version of each injected library
+    libraryVersions: () => ({
+      lodash: '4.18.1',
+      uuid: '13.0.0',
+      moment: '2.30.1',
+      xml2js: '0.6.2',
+      cheerio: '1.2.0',
+      'crypto-js': '4.2.0',
+      'node-forge': '1.4.0',
+      tv4: '1.3.0',
+      ajv: '6.12.6',
+      'ajv-formats': '1.6.1',
+      chai: '6.2.2',
+      'jsonpath-plus': '10.4.0',
+      'form-data': '4.0.4',
+    }),
   }
 
   // Return the test execution chain promise so the host can await it

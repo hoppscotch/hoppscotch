@@ -10,6 +10,7 @@ import {
 import type { HoppFetchHook } from "~/types"
 import { customCryptoModule } from "./crypto"
 import { customFetchModule } from "./fetch"
+import { librariesModule } from "./libraries"
 
 type DefaultModulesConfig = {
   handleConsoleEntry?: (consoleEntries: ConsoleEntry) => void
@@ -71,5 +72,7 @@ export const defaultModules = (config?: DefaultModulesConfig) => {
     }),
     encoding(),
     timers(),
+    // Third-party library bundles (lodash, moment, CryptoJS, uuid, xml2js, cheerio, node-forge, tv4)
+    librariesModule(),
   ]
 }

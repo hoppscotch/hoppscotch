@@ -63,6 +63,7 @@
     "graphql-subscriptions": "3.0.0",
     "handlebars": "4.7.9",
     "io-ts": "2.2.22",
+    "lodash": "4.17.21",
     "morgan": "1.10.1",
     "nodemailer": "8.0.7",
     "passport": "0.7.0",

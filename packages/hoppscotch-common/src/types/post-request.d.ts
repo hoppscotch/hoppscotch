@@ -1285,10 +1285,35 @@ declare namespace pm {
   }>
 
   /**
-   * Import packages from Package Library (unsupported)
-   * @param packageName - Name of the package to import (e.g., '@team-domain/package-name' or 'npm:package-name@version')
+   * Import a bundled JavaScript library by name.
+   * Supported packages: lodash, uuid, moment, xml2js, cheerio,
+   * crypto-js, node-forge, tv4, ajv, ajv-formats, chai, jsonpath-plus, form-data
+   * @param packageName - Name of the package to import
    * @returns The imported package module
-   * @throws Error - Package imports are not supported in Hoppscotch
    */
-  function require(packageName: string): never
+  function require(packageName: string): any
+
+  /**
+   * Returns an object mapping each bundled library name to its version string.
+   * @returns Record of library name → version (e.g., { lodash: "4.18.1", ... })
+   */
+  function libraryVersions(): Record<string, string>
 }
+
+// ─── Bundled library globals ────────────────────────────────────────────────
+// These are injected into the sandbox global scope by the library loader.
+// They are also accessible via pm.require('<name>').
+
+/** lodash — also available as pm.require('lodash') */
+declare const _: any
+
+/** uuid — also available as pm.require('uuid') */
+declare const uuid: {
+  v1(): string
+  v4(): string
+  validate(uuid: string): boolean
+  version(uuid: string): number
+  [key: string]: any
+}
+
+

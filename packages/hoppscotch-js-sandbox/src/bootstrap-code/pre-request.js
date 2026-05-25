@@ -1628,11 +1628,61 @@
       },
     },
 
-    // Package imports (unsupported)
+    // Package imports — returns pre-injected IIFE globals from the library registry
     require: (packageName) => {
-      throw new Error(
-        `pm.require('${packageName}') is not supported in Hoppscotch (Package Library feature)`
-      )
+      // Registry maps pm.require() names → globalThis accessor functions
+      const __libraryRegistry = {
+        // Phase 1 — Utilities
+        'lodash': () => globalThis._,
+        '_': () => globalThis._,             // alias
+        'uuid': () => globalThis.uuid,
+        // Phase 2 — Date & Parsing
+        'moment': () => globalThis.moment,
+        'xml2js': () => globalThis.xml2js,
+        'cheerio': () => globalThis.cheerio,
+        // Phase 3 — Crypto
+        'crypto-js': () => globalThis.CryptoJS,
+        'cryptojs': () => globalThis.CryptoJS, // alias
+        'node-forge': () => globalThis.forge,
+        'forge': () => globalThis.forge,       // alias
+        // Phase 4 — Validation
+        'tv4': () => globalThis.tv4,
+        'ajv': () => globalThis.Ajv,
+        'ajv-formats': () => globalThis.ajvFormats,
+        // Phase 5 — Full Parity
+        'chai': () => globalThis.chai,
+        'jsonpath-plus': () => globalThis.JSONPath,
+        'form-data': () => globalThis.FormDataNode,
+      }
+      const getter = __libraryRegistry[packageName]
+      if (!getter) {
+        // Filter out internal aliases from the suggestion list
+        const __aliases = ['_', 'cryptojs', 'forge']
+        const available = Object.keys(__libraryRegistry)
+          .filter((k) => !__aliases.includes(k))
+          .join(', ')
+        throw new Error(
+          `pm.require('${packageName}') is not supported. Available libraries: ${available}`
+        )
+      }
+      return getter()
     },
+
+    // Returns the bundled version of each injected library
+    libraryVersions: () => ({
+      lodash: '4.18.1',
+      uuid: '13.0.0',
+      moment: '2.30.1',
+      xml2js: '0.6.2',
+      cheerio: '1.2.0',
+      'crypto-js': '4.2.0',
+      'node-forge': '1.4.0',
+      tv4: '1.3.0',
+      ajv: '6.12.6',
+      'ajv-formats': '1.6.1',
+      chai: '6.2.2',
+      'jsonpath-plus': '10.4.0',
+      'form-data': '4.0.4',
+    }),
   }
 }

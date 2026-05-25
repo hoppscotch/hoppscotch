@@ -46,6 +46,7 @@
     "axios-cookiejar-support": "6.0.5",
     "chalk": "5.6.2",
     "commander": "14.0.3",
+    "form-data": "4.0.4",
     "isolated-vm": "6.1.2",
     "js-md5": "0.8.3",
     "jsonc-parser": "3.3.1",

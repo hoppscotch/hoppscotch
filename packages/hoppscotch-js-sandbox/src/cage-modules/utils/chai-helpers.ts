@@ -967,12 +967,13 @@ export const createChaiMethods: (
       const hasValue = propertyValue !== undefined
 
       // PRE-CHECK PATTERN: Use property existence check from sandbox
-      // ONLY when checking existence (no value assertion)
+      // ONLY when checking existence (no value assertion).
+      // Trust hasProperty regardless of how `value` serialized (it may arrive as a
+      // string or empty object because functions/class-properties are stripped during
+      // QuickJS dump, but hasProperty was evaluated in the sandbox BEFORE serialization).
       if (
         !hasValue &&
-        hasProperty !== undefined &&
-        typeof value === "object" &&
-        value !== null
+        hasProperty !== undefined
       ) {
         const isNegated = String(mods).includes("not")
         const shouldPass = isNegated ? !hasProperty : hasProperty
@@ -1016,11 +1017,9 @@ export const createChaiMethods: (
       const mods = modifiers || " to"
 
       // PRE-CHECK PATTERN: Use hasOwnProperty check from sandbox
-      // When prototype chain info is available, use it directly
+      // Trust isOwnProperty regardless of serialized value type.
       if (
-        isOwnProperty !== undefined &&
-        typeof value === "object" &&
-        value !== null
+        isOwnProperty !== undefined
       ) {
         const isNegated = String(mods).includes("not")
         const shouldPass = isNegated ? !isOwnProperty : isOwnProperty
@@ -1202,15 +1201,36 @@ export const createChaiMethods: (
     chaiKeys: defineSandboxFn(
       ctx,
       "chaiKeys",
-      (value: SandboxValue, keys: SandboxValue, modifiers?: SandboxValue) => {
+      (value: SandboxValue, keys: SandboxValue, modifiers?: SandboxValue, actualKeys?: SandboxValue) => {
         const mods = modifiers || " to"
-        executeChaiAssertion(
-          () => {
-            const assertion = applyModifiers(value, mods)
-            assertion.have.keys(...keys)
-          },
-          buildMessage(value, String(mods), "keys", keys)
-        )
+        // PRE-CHECK PATTERN: When the sandbox pre-computed the actual own-enumerable keys
+        // (including function-valued ones that are stripped during serialization),
+        // use them directly instead of relying on the serialized `value` object.
+        if (actualKeys !== undefined && Array.isArray(actualKeys) && Array.isArray(keys)) {
+          const isNegated = String(mods).includes("not")
+          const hasAll = (keys as string[]).every((k: string) => (actualKeys as string[]).includes(k))
+          const shouldPass = isNegated ? !hasAll : hasAll
+
+          executeChaiAssertion(
+            () => {
+              if (!shouldPass) {
+                const keyList = (keys as string[]).map((k: string) => `'${k}'`).join(", ")
+                throw new Error(
+                  `Expected ${formatValue(value)}${String(mods)} have keys ${keyList}`
+                )
+              }
+            },
+            buildMessage(value, String(mods), "keys", keys)
+          )
+        } else {
+          executeChaiAssertion(
+            () => {
+              const assertion = applyModifiers(value, mods)
+              assertion.have.keys(...keys)
+            },
+            buildMessage(value, String(mods), "keys", keys)
+          )
+        }
       }
     ),
 

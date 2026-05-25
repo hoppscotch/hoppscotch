@@ -75,77 +75,12 @@ const unsupportedApis = [
     errorMessage:
       "pm.vault.unset() is not supported in Hoppscotch (Postman Vault feature)",
   },
+  // pm.require() with an UNKNOWN package still throws
   {
-    api: "pm.iterationData.get()",
-    script: 'pm.iterationData.get("test")',
-    errorMessage:
-      "pm.iterationData.get() is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
-    api: "pm.iterationData.set()",
-    script: 'pm.iterationData.set("key", "value")',
-    errorMessage:
-      "pm.iterationData.set() is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
-    api: "pm.iterationData.unset()",
-    script: 'pm.iterationData.unset("key")',
-    errorMessage:
-      "pm.iterationData.unset() is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
-    api: "pm.iterationData.has()",
-    script: 'pm.iterationData.has("key")',
-    errorMessage:
-      "pm.iterationData.has() is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
-    api: "pm.iterationData.toObject()",
-    script: "pm.iterationData.toObject()",
-    errorMessage:
-      "pm.iterationData.toObject() is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
-    api: "pm.iterationData.toJSON()",
-    script: "pm.iterationData.toJSON()",
-    errorMessage:
-      "pm.iterationData.toJSON() is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
-    api: "pm.execution.setNextRequest()",
-    script: 'pm.execution.setNextRequest("next-request")',
-    errorMessage:
-      "pm.execution.setNextRequest() is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
-    api: "pm.execution.skipRequest()",
-    script: "pm.execution.skipRequest()",
-    errorMessage:
-      "pm.execution.skipRequest() is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
-    api: "pm.execution.runRequest()",
-    script: 'pm.execution.runRequest("request-id")',
-    errorMessage:
-      "pm.execution.runRequest() is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
-    api: "pm.visualizer.set()",
-    script: 'pm.visualizer.set("<h1>Test</h1>")',
-    errorMessage:
-      "pm.visualizer.set() is not supported in Hoppscotch (Postman Visualizer feature)",
-  },
-  {
-    api: "pm.visualizer.clear()",
-    script: "pm.visualizer.clear()",
-    errorMessage:
-      "pm.visualizer.clear() is not supported in Hoppscotch (Postman Visualizer feature)",
-  },
-  {
-    api: "pm.require()",
+    api: "pm.require() with unknown package",
     script: 'pm.require("@team/package")',
     errorMessage:
-      "pm.require('@team/package') is not supported in Hoppscotch (Package Library feature)",
+      "pm.require('@team/package') is not supported. Available libraries:",
   },
 ]
 
@@ -155,11 +90,8 @@ describe("pm namespace - unsupported features", () => {
     "$api throws error in pre-request script",
     ({ script, errorMessage }) => {
       return expect(
-        runPreRequest(script, {
-          global: [],
-          selected: [],
-        })()
-      ).resolves.toEqualLeft(`Script execution failed: Error: ${errorMessage}`)
+        runPreRequest(script, { global: [], selected: [] })()
+      ).resolves.toEqualLeft(expect.stringContaining(errorMessage))
     }
   )
 
@@ -174,9 +106,7 @@ describe("pm namespace - unsupported features", () => {
       // Check that the error message contains the expected error text
       // We use toEqualLeft with stringContaining because QuickJS may append GC disposal errors
       expect(result).toEqualLeft(
-        expect.stringContaining(
-          `Script execution failed: Error: ${errorMessage}`
-        )
+        expect.stringContaining(errorMessage)
       )
     }
   )

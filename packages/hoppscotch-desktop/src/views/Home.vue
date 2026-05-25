@@ -185,9 +185,10 @@ const appVersion = ref("...")
 const updaterService = new UpdaterService(appStore)
 
 // Shared singleton with the launcher's `useDesktopZoomEffect()` watcher.
-// Read at the `load()` call below so the bundled app webview opens at the
-// persisted zoom on first paint, dodging the 100% flash that an
-// after-mount setZoom would produce.
+// The `load()` call below awaits `desktopSettings.ready()` before
+// reading `zoomLevel` so the appload Rust-side pre-mount apply gets
+// the persisted value rather than the schema default on a fast
+// cold-start click.
 const desktopSettings = useDesktopSettings()
 
 let progressPollingInterval: ReturnType<typeof setInterval> | undefined
@@ -338,6 +339,10 @@ const loadVendored = async () => {
     }
 
     console.log("Loading vendored app...")
+    // Wait for the store read before forwarding `zoomLevel`, so the
+    // appload Rust-side pre-mount apply gets the persisted value
+    // rather than the schema default on a fast cold-start click.
+    await desktopSettings.ready()
     const loadResp = await load({
       bundleName: "Hoppscotch",
       window: {

@@ -28,28 +28,33 @@ const LOG_TAG = "useDesktopZoomEffect"
  * watch that `useDesktopSettings()` already maintains, and each window's
  * own watcher then re-applies the zoom locally.
  *
- * `{ immediate: true }` fires once with the schema default before the
- * initial store read completes, then again with the user's persisted value
- * once `loadInitial()` resolves. The first apply is a no-op when the user
- * has no override, and a brief 100% flash otherwise. The companion
- * Rust-side pre-mount apply in `tauri-plugin-appload` closes that flash
- * for the bundled window. The launcher window has no equivalent flash
- * because it always renders the shell's own minimal UI which is small
- * enough that the apply lands before the user sees content.
+ * The watcher tracks both `loaded` and `zoomLevel` and skips the apply
+ * until `loaded` flips true. A naive `{ immediate: true }` on `zoomLevel`
+ * alone would fire synchronously with the schema default (1.0) before
+ * `loadInitial()` hydrates from disk, undoing any Rust-side pre-mount
+ * apply on the bundled window. For a user persisted at `1.5`, the
+ * sequence would be Rust paints 1.5, JS immediate apply runs setZoom(1.0)
+ * and overrides it, then `loadInitial()` resolves and the watcher fires
+ * again with 1.5, producing a 1.5 -> 1.0 -> 1.5 flash on every connect.
+ * Gating on `loaded` means the first apply uses the persisted value
+ * directly, leaving the pre-mount apply intact. Subsequent user edits
+ * flow through the same watcher as ordinary reactive changes.
  */
 export function useDesktopZoomEffect(): WatchStopHandle {
   const desktopSettings = useDesktopSettings()
 
   return watch(
-    () => desktopSettings.settings.zoomLevel,
-    async (factor) => {
+    () =>
+      [desktopSettings.loaded.value, desktopSettings.settings.zoomLevel] as const,
+    async ([isLoaded, factor]) => {
+      if (!isLoaded) return
       try {
         await getCurrentWebviewWindow().setZoom(factor)
       } catch (err) {
-        // setZoom can reject on Linux WebKitGTK when called very early in
-        // the window lifecycle, before the webview is fully attached. The
-        // next change re-applies, and a fresh launch retries via the
-        // initial fire of this same watcher.
+        // setZoom can reject on Linux WebKitGTK when called very early
+        // in the window lifecycle, before the webview is fully attached.
+        // The next change re-applies, and a fresh launch retries via the
+        // initial fire of this same watcher after `loaded` flips true.
         Log.warn(LOG_TAG, `setZoom(${factor}) failed`, err)
       }
     },

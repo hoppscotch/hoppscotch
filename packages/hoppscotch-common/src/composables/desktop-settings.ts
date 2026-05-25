@@ -144,6 +144,15 @@ export function useDesktopSettings(): {
   loaded: Readonly<typeof loaded>
   /** Updates a single setting and persists immediately, rolling back on failure. */
   update: UpdateFn
+  /**
+   * Resolves once the initial store read has completed (success or
+   * failure). Synchronous readers of `settings` that need the persisted
+   * value rather than the schema default await this first. Callers that
+   * already react to `settings` through Vue reactivity do not need it,
+   * since `Object.assign(settings, ...)` inside `loadInitial()` triggers
+   * watchers when the persisted value arrives.
+   */
+  ready: () => Promise<void>
 } {
   if (!initPromise) {
     initPromise = loadInitial().catch((err) => {
@@ -152,6 +161,17 @@ export function useDesktopSettings(): {
       initPromise = undefined
       throw err
     })
+  }
+
+  const ready: () => Promise<void> = async () => {
+    if (!initPromise) return
+    try {
+      await initPromise
+    } catch {
+      // Load failed. Caller can check `loaded.value` to decide whether
+      // to proceed against the schema defaults or retry. Swallowing
+      // matches the pattern `update()` uses below.
+    }
   }
 
   const update: UpdateFn = async (key, value) => {
@@ -202,5 +222,6 @@ export function useDesktopSettings(): {
     settings: readonly(settings) as Readonly<DesktopSettings>,
     loaded: readonly(loaded),
     update,
+    ready,
   }
 }

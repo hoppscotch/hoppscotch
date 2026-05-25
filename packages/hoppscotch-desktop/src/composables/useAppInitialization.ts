@@ -40,13 +40,13 @@ export function useAppInitialization() {
   const migration = InstanceStoreMigrationService.getInstance()
 
   // Shared with the launcher's own zoom watcher (`useDesktopZoomEffect`).
-  // The reactive `settings` object reflects the persisted value once
-  // `loadInitial()` resolves, which happens during the launcher's mount
-  // and well before the user reaches a Connect action. Reading
-  // `settings.zoomLevel` at each `load()` call site forwards the current
-  // value to the appload window option so the bundled app paints at the
-  // right scale immediately, instead of flashing 100% before the
-  // bundle-side watcher catches up.
+  // Each `load()` call below awaits `desktopSettings.ready()` before
+  // reading `zoomLevel`, so the appload Rust-side pre-mount apply gets
+  // the persisted value rather than the schema default on a fast
+  // cold-start click. Without the gate, a user who clicks Connect
+  // before the store read resolves would forward 1.0 to appload and
+  // see the bundled app paint at 100% even though their setting was
+  // 110, 125, or 150.
   const desktopSettings = useDesktopSettings()
 
   const appState = ref<AppState>(AppState.LOADING)
@@ -87,6 +87,11 @@ export function useAppInitialization() {
 
       mainDiag("loadVendoredInstance: calling load(bundleName=Hoppscotch)")
       console.log("Loading vendored app...")
+
+      // Wait for the store read before forwarding `zoomLevel`, so the
+      // appload Rust-side pre-mount apply gets the persisted value
+      // rather than the schema default on a fast cold-start click.
+      await desktopSettings.ready()
 
       const loadResp = await load({
         bundleName: VENDORED_INSTANCE_CONFIG.bundleName!,
@@ -154,6 +159,7 @@ export function useAppInitialization() {
         mainDiag(
           `loadVendoredIfMatches: loading cloud-org instance, bundle=${instance.bundleName}, host=${instance.serverUrl}`
         )
+        await desktopSettings.ready()
         const loadResp = await load({
           bundleName: instance.bundleName!,
           host: instance.serverUrl,
@@ -213,6 +219,7 @@ export function useAppInitialization() {
         mainDiag(
           `loadVendoredIfMatches: loading non-vendored instance, bundle=${instance.bundleName}`
         )
+        await desktopSettings.ready()
         const loadResp = await load({
           bundleName: instance.bundleName!,
           window: {

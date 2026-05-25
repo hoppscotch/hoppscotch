@@ -45,7 +45,10 @@ export function useDesktopZoomEffect(): WatchStopHandle {
 
   return watch(
     () =>
-      [desktopSettings.loaded.value, desktopSettings.settings.zoomLevel] as const,
+      [
+        desktopSettings.loaded.value,
+        desktopSettings.settings.zoomLevel,
+      ] as const,
     async ([isLoaded, factor]) => {
       if (!isLoaded) return
       try {

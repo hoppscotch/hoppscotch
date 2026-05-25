@@ -18,12 +18,18 @@ export type StoreSyncDefinitionOf<T extends DispatchingStore<any, any>> = {
     : never
 }
 
-let _isRunningDispatchWithoutSyncing = true
+// True while dispatches should be forwarded to the sync layer. Flipped to
+// false inside runDispatchWithOutSyncing so changes applied from incoming
+// subscription payloads don't echo back to the backend.
+let _shouldSync = true
 
 export function runDispatchWithOutSyncing(func: () => void) {
-  _isRunningDispatchWithoutSyncing = false
-  func()
-  _isRunningDispatchWithoutSyncing = true
+  _shouldSync = false
+  try {
+    func()
+  } finally {
+    _shouldSync = true
+  }
 }
 
 export const getSyncInitFunction = <T extends DispatchingStore<any, any>>(
@@ -59,7 +65,7 @@ export const getSyncInitFunction = <T extends DispatchingStore<any, any>>(
 
         if (
           operationMapperFunction &&
-          _isRunningDispatchWithoutSyncing &&
+          _shouldSync &&
           shouldSyncValue()
         ) {
           operationMapperFunction(payload)

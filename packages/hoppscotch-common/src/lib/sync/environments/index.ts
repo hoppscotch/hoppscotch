@@ -21,7 +21,9 @@ import {
   Environment,
   EnvironmentSchemaVersion,
   GlobalEnvironment,
+  GlobalEnvironmentSchemaVersion,
 } from "@hoppscotch/data"
+import { platform } from "~/platform"
 import { runDispatchWithOutSyncing } from ".."
 import {
   createUserGlobalEnvironment,
@@ -31,7 +33,6 @@ import {
   runUserEnvironmentDeletedSubscription,
   runUserEnvironmentUpdatedSubscription,
 } from "./api"
-import { platform } from "~/platform"
 
 function initEnvironmentsSync() {
   const authEvents$ = platform.auth.getAuthEventsStream()
@@ -127,14 +128,16 @@ async function loadGlobalEnvironments() {
 
       if (!result.success && Array.isArray(parsed)) {
         result = entityReference(GlobalEnvironment).safeParse({
-          v: 2,
+          v: GlobalEnvironmentSchemaVersion,
           variables: parsed,
         })
       }
 
       runDispatchWithOutSyncing(() => {
         setGlobalEnvVariables(
-          result.success ? result.data : { v: 2, variables: [] }
+          result.success
+            ? result.data
+            : { v: GlobalEnvironmentSchemaVersion, variables: [] }
         )
         setGlobalEnvID(globalEnv.id)
       })
@@ -196,7 +199,7 @@ function setupUserEnvironmentUpdatedSubscription() {
           let result = entityReference(GlobalEnvironment).safeParse(parsed)
           if (!result.success && Array.isArray(parsed)) {
             result = entityReference(GlobalEnvironment).safeParse({
-              v: 2,
+              v: GlobalEnvironmentSchemaVersion,
               variables: parsed,
             })
           }

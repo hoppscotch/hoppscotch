@@ -209,6 +209,20 @@ export class ProxyKernelInterceptorService
   ): ExecutionResult<KernelInterceptorError> {
     let innerCancel: (() => Promise<void>) | null = null
     let cancelled = false
+    let resolveCancelled:
+      | ((result: E.Either<RelayError, RelayResponse>) => void)
+      | null = null
+
+    const cancelledResult: E.Either<RelayError, RelayResponse> = E.left({
+      kind: "abort",
+      message: "cancelled",
+    })
+
+    const cancellation = new Promise<E.Either<RelayError, RelayResponse>>(
+      (resolve) => {
+        resolveCancelled = resolve
+      }
+    )
 
     // Wait for persisted proxy settings to hydrate before constructing the
     // request, otherwise the in-memory default (`proxy.hoppscotch.io`) is used
@@ -241,8 +255,6 @@ export class ProxyKernelInterceptorService
         const formData = processedRequest.content.content as FormData
         const newFormData = new FormData()
 
-        // @ts-expect-error: `formData.entries` does exist but isn't visible,
-        // see `"lib": ["ESNext", "DOM"],` in `tsconfig.json`
         for (const [key, value] of formData.entries()) {
           newFormData.append(key, value)
         }
@@ -290,18 +302,21 @@ export class ProxyKernelInterceptorService
     })
 
     const response = pipe(
-      pending.then(
-        (
-          relayExecution
-        ):
-          | Promise<E.Either<RelayError, RelayResponse>>
-          | E.Either<RelayError, RelayResponse> => {
-          if (!relayExecution) {
-            return E.left({ kind: "abort", message: "cancelled" })
+      Promise.race([
+        pending.then(
+          (
+            relayExecution
+          ):
+            | Promise<E.Either<RelayError, RelayResponse>>
+            | E.Either<RelayError, RelayResponse> => {
+            if (!relayExecution || cancelled) {
+              return cancelledResult
+            }
+            return relayExecution.response
           }
-          return relayExecution.response
-        }
-      ),
+        ),
+        cancellation,
+      ]),
       (promise) =>
         promise.then((either) =>
           pipe(
@@ -469,7 +484,9 @@ export class ProxyKernelInterceptorService
 
     return {
       cancel: async () => {
+        if (cancelled) return
         cancelled = true
+        resolveCancelled?.(cancelledResult)
         if (innerCancel) await innerCancel()
       },
       response,

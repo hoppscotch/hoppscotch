@@ -43,7 +43,6 @@
       <HoppSmartTab id="miscellaneous" :label="t('configs.tabs.miscellaneous')">
         <div class="pb-8 px-4 flex flex-col space-y-8 divide-y divide-divider">
           <SettingsDataSharing v-model:config="workingConfigs" />
-          <SettingsMockServer v-model:config="workingConfigs" />
           <SettingsReset />
         </div>
       </HoppSmartTab>
@@ -95,7 +94,9 @@ type OptionTabs =
   | 'token'
   | 'proxy'
   | 'miscellaneous'
-  | 'rate-limit';
+  | 'rate-limit'
+  | 'mock';
+
 const selectedOptionTab = ref<OptionTabs>('auth');
 
 // Obtain the current and working configs from the useConfigHandler composable
@@ -114,12 +115,12 @@ const {
 const isConfigUpdated = computed(() =>
   currentConfigs.value && workingConfigs.value
     ? !isEqual(currentConfigs.value, workingConfigs.value)
-    : false
+    : false,
 );
 
 // Check if any of the fields in workingConfigs are empty
 const areAnyFieldsEmpty = computed(() =>
-  workingConfigs.value ? AreAnyConfigFieldsEmpty(workingConfigs.value) : false
+  workingConfigs.value ? AreAnyConfigFieldsEmpty(workingConfigs.value) : false,
 );
 
 const triggerSaveChangesModal = () => {

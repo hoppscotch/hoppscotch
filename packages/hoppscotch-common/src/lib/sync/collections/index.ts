@@ -45,6 +45,8 @@ import {
   editRESTCollection,
   editRESTFolder,
   editRESTRequest,
+  graphqlCollectionStore,
+  moveGraphqlFolder,
   moveGraphqlRequest,
   moveRESTFolder,
   moveRESTRequest,
@@ -60,8 +62,11 @@ import {
   saveRESTRequestAs,
   setGraphqlCollections,
   setRESTCollections,
+  sortGraphqlCollection,
+  sortGraphqlFolder,
   sortRESTCollection,
   sortRESTFolder,
+  updateGraphqlCollectionOrder,
   updateRESTCollectionOrder,
   updateRESTRequestOrder,
 } from "~/newstore/collections"
@@ -78,11 +83,6 @@ function initCollectionsSync() {
 
   gqlCollectionsSyncer.startStoreSync()
 
-  // TODO: fix collection schema transformation on backend maybe?
-  loadUserCollections("REST")
-  loadUserCollections("GQL")
-
-  // TODO: test & make sure the auth thing is working properly
   currentUser$.subscribe(async (user) => {
     if (user) {
       loadUserCollections("REST")
@@ -205,56 +205,55 @@ export function exportedCollectionToHoppCollection(
       preRequestScript: data.preRequestScript ?? "",
       testScript: data.testScript ?? "",
     })
-  } else {
-    const gqlCollection = collection as ExportedUserCollectionGQL
-
-    const data =
-      gqlCollection.data && gqlCollection.data !== "null"
-        ? JSON.parse(gqlCollection.data)
-        : {
-            auth: { authType: "inherit", authActive: true },
-            headers: [],
-            _ref_id: generateUniqueRefId("coll"),
-            variables: [],
-            description: null,
-          }
-
-    return makeCollection({
-      id: gqlCollection.id,
-      _ref_id: data._ref_id ?? generateUniqueRefId("coll"),
-      name: gqlCollection.name,
-      folders: gqlCollection.folders.map((folder) =>
-        exportedCollectionToHoppCollection(folder, collectionType)
-      ),
-      requests: gqlCollection.requests.map((request) => {
-        const requestParsedResult = HoppGQLRequest.safeParse(request)
-        if (requestParsedResult.type === "ok") {
-          return requestParsedResult.value
-        }
-
-        const { v, auth, headers, name, id, query, url, variables } = request
-
-        const resolvedHeaders = addDescriptionField(headers)
-
-        return {
-          id,
-          v,
-          auth,
-          headers: resolvedHeaders,
-          name,
-          query,
-          url,
-          variables,
-        }
-      }),
-      auth: data.auth,
-      headers: addDescriptionField(data.headers),
-      variables: data.variables ?? [],
-      description: data.description ?? null,
-      preRequestScript: data.preRequestScript ?? "",
-      testScript: data.testScript ?? "",
-    })
   }
+  const gqlCollection = collection as ExportedUserCollectionGQL
+
+  const data =
+    gqlCollection.data && gqlCollection.data !== "null"
+      ? JSON.parse(gqlCollection.data)
+      : {
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          _ref_id: generateUniqueRefId("coll"),
+          variables: [],
+          description: null,
+        }
+
+  return makeCollection({
+    id: gqlCollection.id,
+    _ref_id: data._ref_id ?? generateUniqueRefId("coll"),
+    name: gqlCollection.name,
+    folders: gqlCollection.folders.map((folder) =>
+      exportedCollectionToHoppCollection(folder, collectionType)
+    ),
+    requests: gqlCollection.requests.map((request) => {
+      const requestParsedResult = HoppGQLRequest.safeParse(request)
+      if (requestParsedResult.type === "ok") {
+        return requestParsedResult.value
+      }
+
+      const { v, auth, headers, name, id, query, url, variables } = request
+
+      const resolvedHeaders = addDescriptionField(headers)
+
+      return {
+        id,
+        v,
+        auth,
+        headers: resolvedHeaders,
+        name,
+        query,
+        url,
+        variables,
+      }
+    }),
+    auth: data.auth,
+    headers: addDescriptionField(data.headers),
+    variables: data.variables ?? [],
+    description: data.description ?? null,
+    preRequestScript: data.preRequestScript ?? "",
+    testScript: data.testScript ?? "",
+  })
 }
 
 async function loadUserCollections(collectionType: "REST" | "GQL") {
@@ -507,10 +506,13 @@ function setupUserCollectionMovedSubscription() {
   userCollectionMoved$.subscribe((res) => {
     if (E.isRight(res)) {
       const movedMetadata = res.right.userCollectionMoved
+      const collectionType = movedMetadata.type
+
+      const { collectionStore } = getStoreByCollectionType(collectionType)
 
       const sourcePath = getCollectionPathFromCollectionID(
         movedMetadata.id,
-        restCollectionStore.value.state
+        collectionStore.value.state
       )
 
       let destinationPath: string | undefined
@@ -519,13 +521,15 @@ function setupUserCollectionMovedSubscription() {
         destinationPath =
           getCollectionPathFromCollectionID(
             movedMetadata.parent?.id,
-            restCollectionStore.value.state
+            collectionStore.value.state
           ) ?? undefined
       }
 
       sourcePath &&
         runDispatchWithOutSyncing(() => {
-          moveRESTFolder(sourcePath, destinationPath ?? null)
+          collectionType === "GQL"
+            ? moveGraphqlFolder(sourcePath, destinationPath ?? null)
+            : moveRESTFolder(sourcePath, destinationPath ?? null)
         })
     }
   })
@@ -586,9 +590,16 @@ function setupUserCollectionOrderUpdatedSubscription() {
       const sourceCollectionID = userCollection.id
       const destinationCollectionID = nextUserCollection?.id
 
+      // The OrderUpdated payload does not include a `type` field, so
+      // determine which store owns the source ID by lookup.
+      const collectionType = locateCollectionType(sourceCollectionID)
+      if (!collectionType) return
+
+      const { collectionStore } = getStoreByCollectionType(collectionType)
+
       const sourcePath = getCollectionPathFromCollectionID(
         sourceCollectionID,
-        restCollectionStore.value.state
+        collectionStore.value.state
       )
 
       let destinationPath: string | null | undefined
@@ -596,13 +607,15 @@ function setupUserCollectionOrderUpdatedSubscription() {
       if (destinationCollectionID) {
         destinationPath = getCollectionPathFromCollectionID(
           destinationCollectionID,
-          restCollectionStore.value.state
+          collectionStore.value.state
         )
       }
 
       runDispatchWithOutSyncing(() => {
         if (sourcePath) {
-          updateRESTCollectionOrder(sourcePath, destinationPath ?? null)
+          collectionType === "GQL"
+            ? updateGraphqlCollectionOrder(sourcePath, destinationPath ?? null)
+            : updateRESTCollectionOrder(sourcePath, destinationPath ?? null)
         }
       })
     }
@@ -781,7 +794,22 @@ const setupUserRootCollectionsSortedSubscription = () => {
 
           const sortOrder = sortOption === "TITLE_ASC" ? "asc" : "desc"
 
-          sortRESTCollection(null, sortOrder)
+          // TODO: UserCollectionSortData does not carry a REST/GQL type
+          // discriminator, so we can't route a root-level sort event to the
+          // correct store. Apply to whichever store is non-empty; if both
+          // are populated this will be ambiguous — needs a backend schema
+          // change to add `type` to UserCollectionSortData.
+          const restHasState = restCollectionStore.value.state.length > 0
+          const gqlHasState = graphqlCollectionStore.value.state.length > 0
+
+          if (restHasState && !gqlHasState) {
+            sortRESTCollection(null, sortOrder)
+          } else if (gqlHasState && !restHasState) {
+            sortGraphqlCollection(null, sortOrder)
+          } else {
+            // Ambiguous: default to REST to preserve previous behavior.
+            sortRESTCollection(null, sortOrder)
+          }
         }
       })
     }
@@ -804,14 +832,23 @@ const setupUserChildCollectionSortedSubscription = () => {
 
           const sortOrder = sortOption === "TITLE_ASC" ? "asc" : "desc"
 
+          // ChildCollectionSorted payload does not include a `type` field,
+          // so resolve store membership from the parent ID.
+          const collectionType = locateCollectionType(parentCollectionID)
+          if (!collectionType) return
+
+          const { collectionStore } = getStoreByCollectionType(collectionType)
+
           const sourcePath = getCollectionPathFromCollectionID(
             parentCollectionID,
-            restCollectionStore.value.state
+            collectionStore.value.state
           )
 
           if (!sourcePath) return
 
-          sortRESTFolder(sourcePath, sortOrder)
+          collectionType === "GQL"
+            ? sortGraphqlFolder(sourcePath, sortOrder)
+            : sortRESTFolder(sourcePath, sortOrder)
         }
       })
     }
@@ -1066,15 +1103,14 @@ function getCollectionPathFromCollectionID(
       return parentPath
         ? `${parentPath}/${collectionIndex}`
         : `${collectionIndex}`
-    } else {
-      const collectionPath = getCollectionPathFromCollectionID(
-        collectionID,
-        collections[collectionIndex].folders,
-        parentPath ? `${parentPath}/${collectionIndex}` : `${collectionIndex}`
-      )
-
-      if (collectionPath) return collectionPath
     }
+    const collectionPath = getCollectionPathFromCollectionID(
+      collectionID,
+      collections[collectionIndex].folders,
+      parentPath ? `${parentPath}/${collectionIndex}` : `${collectionIndex}`
+    )
+
+    if (collectionPath) return collectionPath
   }
 
   return null
@@ -1097,17 +1133,39 @@ function getRequestPathFromRequestID(
           : `${collectionIndex}`,
         requestIndex,
       }
-    } else {
-      const requestPath = getRequestPathFromRequestID(
-        requestID,
-        collections[collectionIndex].folders,
-        parentPath ? `${parentPath}/${collectionIndex}` : `${collectionIndex}`
-      )
-
-      if (requestPath) return requestPath
     }
+    const requestPath = getRequestPathFromRequestID(
+      requestID,
+      collections[collectionIndex].folders,
+      parentPath ? `${parentPath}/${collectionIndex}` : `${collectionIndex}`
+    )
+
+    if (requestPath) return requestPath
   }
 
+  return null
+}
+
+// Resolves whether a collection ID belongs to the REST or GQL store. Returns
+// null if neither store contains it (e.g. event for a workspace not loaded
+// yet). Used to disambiguate subscription payloads that don't carry a `type`.
+function locateCollectionType(collectionID: string): "REST" | "GQL" | null {
+  if (
+    getCollectionPathFromCollectionID(
+      collectionID,
+      restCollectionStore.value.state
+    )
+  ) {
+    return "REST"
+  }
+  if (
+    getCollectionPathFromCollectionID(
+      collectionID,
+      graphqlCollectionStore.value.state
+    )
+  ) {
+    return "GQL"
+  }
   return null
 }
 

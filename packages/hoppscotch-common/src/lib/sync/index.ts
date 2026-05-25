@@ -63,11 +63,7 @@ export const getSyncInitFunction = <T extends DispatchingStore<any, any>>(
 
         const operationMapperFunction = (storeSyncDefinition as any)[dispatcher]
 
-        if (
-          operationMapperFunction &&
-          _shouldSync &&
-          shouldSyncValue()
-        ) {
+        if (operationMapperFunction && _shouldSync && shouldSyncValue()) {
           operationMapperFunction(payload)
         }
       }

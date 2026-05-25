@@ -471,10 +471,8 @@ const editingRequestID = ref<string | null>(null)
 
 const editingResponseID = ref<string | null>(null)
 const showAddExampleModal = ref(false)
-// Visibility for the format-chooser modal (which internally manages the
-// transition to the OpenAPI sub-format chooser). The collection currently
-// queued for export is held here so async export work can read it after the
-// modal closes.
+// The queued collection is held here so async export work can read it after
+// the modal closes.
 const showExportModal = ref(false)
 const exportTargetCollection = ref<HoppCollection | TeamCollection | null>(null)
 
@@ -910,6 +908,9 @@ const displayModalAddExample = (show: boolean) => {
 let exportGeneration = 0
 
 const closeExportModal = () => {
+  // Bump so any in-flight export's `finally` no-ops instead of closing a
+  // freshly-opened modal after this dismissal.
+  exportGeneration++
   showExportModal.value = false
   exportTargetCollection.value = null
   exportLoading.value = false
@@ -918,20 +919,21 @@ const closeExportModal = () => {
 const onExportHopp = async () => {
   const collection = exportTargetCollection.value
   if (!collection) return
-  // `doExportHoppCollection` owns the `exportLoading` lifecycle (sets true
-  // on entry, resets to false in its own `finally`). Don't pre-flip it
-  // here — that just duplicates the state and creates a window where the
-  // format buttons briefly re-enable before the modal closes.
+  // `doExportHoppCollection` sets `exportLoading = true` on entry; the reset
+  // is owned here via the generation-guarded `closeExportModal()` so a stale
+  // in-flight export cannot re-enable buttons on a freshly-opened modal.
+  // Same `exportGeneration` pattern as `doExportOpenAPI`.
+  const thisGeneration = ++exportGeneration
   try {
     await doExportHoppCollection(collection)
   } finally {
-    closeExportModal()
+    if (thisGeneration === exportGeneration) closeExportModal()
   }
 }
 
 const onExportOpenAPI = (format: "json" | "yaml") => {
-  // The modal stays open through the export so the user sees the loading
-  // state on the picked button. doExportOpenAPI closes it when finished.
+  // Modal stays open through the export to keep the loading state visible;
+  // doExportOpenAPI closes it when finished.
   doExportOpenAPI(format)
 }
 
@@ -3249,8 +3251,8 @@ const doExportHoppCollection = async (
       stringifyForExport(hoppColl),
       hoppColl.name
     )
-  } finally {
-    exportLoading.value = false
+  } catch {
+    toast.error(t("error.something_went_wrong"))
   }
 }
 
@@ -3306,9 +3308,8 @@ const doExportOpenAPI = async (format: "json" | "yaml") => {
 
   if (collectionsType.value.type === "my-collections") {
     try {
-      // The chooser modal already shows the full list of OpenAPI lossiness
-      // categories upfront, so the converter's post-export warnings would be
-      // redundant — drop them.
+      // Chooser modal warns about lossiness upfront; per-export warnings would
+      // be redundant.
       const { doc: openAPIDoc } = hoppCollectionToOpenAPI(
         collection as HoppCollection
       )

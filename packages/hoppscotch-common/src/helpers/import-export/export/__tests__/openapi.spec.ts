@@ -1320,6 +1320,30 @@ describe("hoppCollectionToOpenAPI", () => {
         result: "ok",
       })
     })
+
+    it("falls back to default 200 when every saved response has a null code", () => {
+      const collection = buildCollection({
+        requests: [
+          buildRequest({
+            name: "Test",
+            endpoint: "https://api.example.com/test",
+            responses: {
+              resp1: {
+                name: "draft",
+                code: null,
+                status: "",
+                headers: [],
+                body: "",
+              } as any,
+            },
+          }),
+        ],
+      })
+      const { doc } = hoppCollectionToOpenAPI(collection)
+      expect(doc.paths!["/test"]!.get!.responses).toEqual({
+        "200": { description: "Successful response" },
+      })
+    })
   })
 
   describe("dropped output", () => {
@@ -2964,6 +2988,79 @@ const runImport = async (doc: OpenAPI.Document) => {
   if (result._tag === "Left") throw new Error(result.left as string)
   return result.right[0]
 }
+
+describe("convertOpenApiDocsToHopp — request body examples", () => {
+  it("imports form-urlencoded object examples as JSON strings", async () => {
+    const coll = await runImport(
+      buildOpenAPIDoc({
+        paths: {
+          "/submit": {
+            post: {
+              ...op([], "Submit"),
+              requestBody: {
+                content: {
+                  "application/x-www-form-urlencoded": {
+                    schema: {
+                      type: "object",
+                      properties: {
+                        payload: { example: { nested: true } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+    )
+
+    expect(firstReq(coll)?.body).toEqual({
+      contentType: "application/x-www-form-urlencoded",
+      body: 'payload: {"nested":true}',
+    })
+  })
+
+  it("imports multipart object examples as JSON strings for non-file fields", async () => {
+    const coll = await runImport(
+      buildOpenAPIDoc({
+        paths: {
+          "/upload": {
+            post: {
+              ...op([], "Upload"),
+              requestBody: {
+                content: {
+                  "multipart/form-data": {
+                    schema: {
+                      type: "object",
+                      properties: {
+                        file: { type: "string", format: "binary" },
+                        metadata: { example: { title: "avatar" } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+    )
+
+    expect(firstReq(coll)?.body).toEqual({
+      contentType: "multipart/form-data",
+      body: [
+        { key: "file", isFile: true, value: [], active: true },
+        {
+          key: "metadata",
+          isFile: false,
+          value: '{"title":"avatar"}',
+          active: true,
+        },
+      ],
+    })
+  })
+})
 
 describe("convertOpenApiDocsToHopp — folder hierarchy", () => {
   it("nests folders when tags use slash convention with prefix tree", async () => {

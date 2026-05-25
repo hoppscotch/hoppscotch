@@ -38,12 +38,9 @@ function convertTemplateVars(path: string): string {
 
 /**
  * Extract base URL, path, and any URL-embedded query params from an endpoint.
- *
- * Template variables (`<<var>>`) are converted to OpenAPI `{var}` *before*
- * URL parsing — so the WHATWG parser only has to encode ASCII braces (which
- * it turns into `%7B`/`%7D`). Afterwards we decode only those brace pairs,
- * deliberately preserving any other percent-encoding the user intentionally
- * placed in the URL (e.g. `%2F` to keep a slash inside a single path segment).
+ * Template vars are converted to `{var}` before parsing so the WHATWG parser
+ * only encodes ASCII braces; we decode just those pairs back, preserving any
+ * other percent-encoding the user placed intentionally (e.g. `%2F`).
  */
 function parseEndpoint(endpoint: string): {
   server: string
@@ -123,10 +120,9 @@ function resolveEffectiveAuth(
 }
 
 /**
- * Compare two auths for OpenAPI export equivalence — i.e. would they emit the
- * same security scheme? Used so the exporter can skip per-operation security
- * when it would just duplicate the doc-level default. Credential VALUES are
- * not compared (they're never emitted to the spec anyway).
+ * Compare two auths for OpenAPI export equivalence — would they emit the same
+ * security scheme? Lets the exporter skip per-operation security when it would
+ * duplicate the doc-level default. Credential values are not compared.
  */
 function authsMatchForOpenAPI(a: AuthLike | null, b: AuthLike | null): boolean {
   const aActive = a?.authActive === true
@@ -422,15 +418,10 @@ function convertAuth(auth: HoppRESTRequest["auth"]): {
 }
 
 /**
- * Register a security scheme in the schemes map and return the name it was
- * registered under (which may be suffixed if a non-OAuth2 collision occurred).
- *
- * For OAuth2 schemes with the same name (all OAuth2 auth reuses "oauth2"),
- * flows are merged by grant type, and scopes are unioned within a matching
- * flow type so per-operation `security` references remain valid.
- *
- * For non-OAuth2 schemes, identical schemes reuse the existing name; differing
- * schemes are registered under a numeric suffix to avoid silent overwrite.
+ * Register a security scheme and return the name it was registered under.
+ * OAuth2 schemes merge flows by grant type and union scopes within a matching
+ * flow. Non-OAuth2 schemes reuse the name when identical, or get a numeric
+ * suffix when differing — never silently overwritten.
  */
 function registerSecurityScheme(
   securitySchemes: Record<string, OpenAPIV3_1.SecuritySchemeObject>,
@@ -552,6 +543,11 @@ function convertResponses(
     result[statusCode] = responseObj
   }
 
+  // OpenAPI 3.1 §4.8.10.1 requires at least one entry — if every saved
+  // response was skipped (all had null codes), fall back to the default.
+  if (Object.keys(result).length === 0) {
+    return { "200": { description: "Successful response" } }
+  }
   return result
 }
 
@@ -862,12 +858,14 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
           }
         }
       } else if (
-        // Special case: collection has auth but this request explicitly opts
-        // out (`authActive: false` on a non-inherit type). Emit `[]` so the
+        // Special case: collection has auth but this request's effective auth
+        // is explicitly disabled (`authActive: false`) — either on the request
+        // itself or via a folder ancestor that opts out. Emit `[]` so the
         // operation is exempted from doc.security at runtime.
         docLevelAuth?.authActive &&
-        request.auth.authType !== "inherit" &&
-        !request.auth.authActive
+        effectiveAuth &&
+        !effectiveAuth.authActive &&
+        effectiveAuth.authType !== "inherit"
       ) {
         operation.security = []
       }
@@ -1000,14 +998,9 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
 
 /**
  * Wrap multiple top-level collections into a single OpenAPI 3.1 document.
- * Each collection becomes a top-level folder of a synthetic root with the
- * given workspace name, so the resulting tag tree mirrors the workspace
- * structure and the document remains round-trippable through the importer.
- *
- * If two collections share the same (method, path) tuple, OpenAPI's single
- * `paths` map can only represent one operation per pair — the rest are
- * silently dropped by `hoppCollectionToOpenAPI`. The chooser modal already
- * surfaces this lossiness category upfront, so no per-export toast is needed.
+ * Each becomes a top-level folder of a synthetic root, so the tag tree mirrors
+ * the workspace and remains round-trippable. (method, path) collisions across
+ * collections are dropped — already warned upfront by the chooser modal.
  */
 export function hoppCollectionsToOpenAPI(
   workspaceName: string,

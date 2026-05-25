@@ -578,9 +578,7 @@ const parseOpenAPIV3BodyFormData = (
       contentType,
       body: keys
         .map((key) => {
-          const example = properties[key]?.example
-          const value =
-            example !== undefined && example !== null ? String(example) : ""
+          const value = readParamExampleAsString(properties[key])
           return `${key}: ${value}`
         })
         .join("\n"),
@@ -595,9 +593,7 @@ const parseOpenAPIV3BodyFormData = (
       if (isFile) {
         return <FormDataKeyValue>{ key, isFile: true, value: [], active: true }
       }
-      const example = prop?.example
-      const value =
-        example !== undefined && example !== null ? String(example) : ""
+      const value = readParamExampleAsString(prop)
       return <FormDataKeyValue>{
         key,
         isFile: false,

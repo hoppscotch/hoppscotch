@@ -260,6 +260,7 @@
                     "
                   />
                   <HoppSmartItem
+                    v-if="!hasNoTeamAccess"
                     ref="exportAction"
                     :icon="IconDownload"
                     :label="t('export.collection')"

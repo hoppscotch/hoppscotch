@@ -84,6 +84,13 @@
     "star": "स्टार जोड़ें"
   },
   "app": {
+    "additional_links": {
+      "macOS": "macOS",
+      "windows": "Windows",
+      "linux": "Linux",
+      "web_app": "Web App",
+      "cli": "CLI"
+    },
     "chat_with_us": "हमसे चैट करें",
     "contact_us": "संपर्क करें",
     "cookies": "कुकीज़",
@@ -98,6 +105,7 @@
     "help": "सहायता और प्रतिक्रिया",
     "home": "होम",
     "invite": "आमंत्रित करें",
+    "invite_description": "Hoppscotch एक ओपन-सोर्स API डेवलपमेंट इकोसिस्टम है। हमने आपकी APIs बनाने और प्रबंधित करने के लिए एक सरल और सहज इंटरफ़ेस डिज़ाइन किया है। Hoppscotch एक टूल है जो आपकी APIs बनाने, टेस्ट करने, दस्तावेज़ करने और साझा करने में मदद करता है।",
     "invite_your_friends": "अपने मित्रों को आमंत्रित करें",
     "join_discord_community": "हमारे Discord समुदाय में शामिल हों",
     "keyboard_shortcuts": "कीबोर्ड शॉर्टकट",
@@ -111,6 +119,9 @@
     "search": "खोज और आदेश",
     "share": "साझा करें",
     "shortcuts": "शॉर्टकट",
+    "social_description": "नवीनतम समाचार, अपडेट और रिलीज़ से जुड़े रहने के लिए हमें सोशल मीडिया पर फ़ॉलो करें।",
+    "social_links": "सोशल लिंक",
+    "spotlight": "स्पॉटलाइट",
     "status": "स्थिति",
     "status_description": "साइट की स्थिति जांचें",
     "terms_and_privacy": "नियम और गोपनीयता",
@@ -131,9 +142,12 @@
   },
   "auth": {
     "account_deactivated": "आपका खाता निष्क्रिय कर दिया गया है। लॉग इन करने के लिए व्यवस्थापक से संपर्क करें।",
+    "account_exists": "इस खाते से अलग क्रेडेंशियल जुड़ा हुआ है - दोनों खातों को लिंक करने के लिए लॉगिन करें",
     "all_sign_in_options": "सभी साइन इन विकल्प",
+    "continue_with_auth_provider": "{provider} से जारी रखें",
     "continue_with_email": "ईमेल से जारी रखें",
     "continue_with_github": "GitHub से जारी रखें",
+    "continue_with_github_enterprise": "GitHub Enterprise से जारी रखें",
     "continue_with_google": "Google से जारी रखें",
     "continue_with_microsoft": "Microsoft से जारी रखें",
     "email": "ईमेल",

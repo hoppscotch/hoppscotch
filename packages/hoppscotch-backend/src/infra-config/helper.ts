@@ -349,7 +349,7 @@ export async function getDefaultInfraConfigs(): Promise<DefaultInfraConfig[]> {
     },
     {
       name: InfraConfigEnum.PROXY_APP_URL,
-      value: 'https://proxy.hoppscotch.io',
+      value: process.env.PROXY_APP_URL || 'https://proxy.hoppscotch.io',
       isEncrypted: false,
     },
     {

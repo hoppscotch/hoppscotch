@@ -807,8 +807,9 @@ const setupUserRootCollectionsSortedSubscription = () => {
           } else if (gqlHasState && !restHasState) {
             sortGraphqlCollection(null, sortOrder)
           } else {
-            // Ambiguous: default to REST to preserve previous behavior.
-            sortRESTCollection(null, sortOrder)
+            // Ambiguous (both or neither store has state): skip until backend
+            // includes a type discriminator in UserCollectionSortData.
+            return
           }
         }
       })

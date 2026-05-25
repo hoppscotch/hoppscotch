@@ -168,9 +168,7 @@ const consoleEntries = computed(() => {
     return []
   }
 
-  return doc.value.testResults?.consoleEntries.filter(({ type }) =>
-    ["log", "warn", "debug", "error", "info"].includes(type)
-  ) as ConsoleEntry[]
+  return doc.value.testResults?.consoleEntries as ConsoleEntry[]
 })
 
 watch(

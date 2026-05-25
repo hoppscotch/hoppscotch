@@ -1,6 +1,8 @@
 import { markRaw } from "vue"
 import type {
   RelayRequest,
+  RelayResponse,
+  RelayError,
   ContentType,
   Method,
   Version,
@@ -205,240 +207,288 @@ export class ProxyKernelInterceptorService
   public execute(
     request: RelayRequest
   ): ExecutionResult<KernelInterceptorError> {
-    const settings = this.store.getSettings()
-    const accessToken = settings.accessToken
-    const proxyUrl = settings.proxyUrl
+    let innerCancel: (() => Promise<void>) | null = null
+    let cancelled = false
+    let resolveCancelled:
+      | ((result: E.Either<RelayError, RelayResponse>) => void)
+      | null = null
 
-    const processedRequest = preProcessRelayRequest(request)
+    const cancelledResult: E.Either<RelayError, RelayResponse> = E.left({
+      kind: "abort",
+      message: "cancelled",
+    })
 
-    let content: ContentType
-    const multipartKey = `proxyRequestData-${v4()}`
+    const cancellation = new Promise<E.Either<RelayError, RelayResponse>>(
+      (resolve) => {
+        resolveCancelled = resolve
+      }
+    )
 
-    if (
-      processedRequest.content &&
-      processedRequest.content.kind === "multipart" &&
-      processedRequest.content.content instanceof FormData
-    ) {
-      const modifiedRequest = { ...processedRequest }
+    // Wait for persisted proxy settings to hydrate before constructing the
+    // request, otherwise the in-memory default (`proxy.hoppscotch.io`) is used
+    // when `execute()` is called during initial page load — e.g. the OAuth
+    // redirect handler on `/oauth`.
+    const pending = this.store.whenReady().then(() => {
+      if (cancelled) return null
 
-      const proxyRequest = this.constructProxyRequest(
-        modifiedRequest,
-        accessToken
-      )
+      const settings = this.store.getSettings()
+      const accessToken = settings.accessToken
+      const proxyUrl = settings.proxyUrl
 
-      const formData = processedRequest.content.content as FormData
-      const newFormData = new FormData()
+      const processedRequest = preProcessRelayRequest(request)
 
-      // @ts-expect-error: `formData.entries` does exist but isn't visible,
-      // see `"lib": ["ESNext", "DOM"],` in `tsconfig.json`
-      for (const [key, value] of formData.entries()) {
-        newFormData.append(key, value)
+      let content: ContentType
+      const multipartKey = `proxyRequestData-${v4()}`
+
+      if (
+        processedRequest.content &&
+        processedRequest.content.kind === "multipart" &&
+        processedRequest.content.content instanceof FormData
+      ) {
+        const modifiedRequest = { ...processedRequest }
+
+        const proxyRequest = this.constructProxyRequest(
+          modifiedRequest,
+          accessToken
+        )
+
+        const formData = processedRequest.content.content as FormData
+        const newFormData = new FormData()
+
+        for (const [key, value] of formData.entries()) {
+          newFormData.append(key, value)
+        }
+
+        const proxyRequestString = JSON.stringify(proxyRequest)
+        newFormData.append(multipartKey, proxyRequestString)
+
+        content = {
+          kind: "multipart",
+          content: newFormData,
+          mediaType: MediaType.MULTIPART_FORM_DATA,
+        }
+      } else {
+        const proxyRequest = this.constructProxyRequest(
+          processedRequest,
+          accessToken
+        )
+
+        content = {
+          kind: "json",
+          content: proxyRequest,
+          mediaType: MediaType.APPLICATION_JSON,
+        }
       }
 
-      const proxyRequestString = JSON.stringify(proxyRequest)
-      newFormData.append(multipartKey, proxyRequestString)
-
-      content = {
-        kind: "multipart",
-        content: newFormData,
-        mediaType: MediaType.MULTIPART_FORM_DATA,
+      const proxyRelayRequest: RelayRequest = {
+        id: Date.now(),
+        url: proxyUrl,
+        method: "POST" as Method,
+        version: "HTTP/1.1" as Version,
+        headers: {
+          "content-type": content.mediaType,
+          ...(content.kind === "multipart"
+            ? {
+                "multipart-part-key": multipartKey,
+              }
+            : {}),
+        },
+        content,
       }
-    } else {
-      const proxyRequest = this.constructProxyRequest(
-        processedRequest,
-        accessToken
-      )
 
-      content = {
-        kind: "json",
-        content: proxyRequest,
-        mediaType: MediaType.APPLICATION_JSON,
-      }
-    }
+      const relayExecution = Relay.execute(proxyRelayRequest)
+      innerCancel = relayExecution.cancel
+      return relayExecution
+    })
 
-    const proxyRelayRequest: RelayRequest = {
-      id: Date.now(),
-      url: proxyUrl,
-      method: "POST" as Method,
-      version: "HTTP/1.1" as Version,
-      headers: {
-        "content-type": content.mediaType,
-        ...(content.kind === "multipart"
-          ? {
-              "multipart-part-key": multipartKey,
+    const response = pipe(
+      Promise.race([
+        pending.then(
+          (
+            relayExecution
+          ):
+            | Promise<E.Either<RelayError, RelayResponse>>
+            | E.Either<RelayError, RelayResponse> => {
+            if (!relayExecution || cancelled) {
+              return cancelledResult
             }
-          : {}),
-      },
-      content,
-    }
-
-    const relayExecution = Relay.execute(proxyRelayRequest)
-
-    const response = pipe(relayExecution.response, (promise) =>
-      promise.then((either) =>
-        pipe(
-          either,
-          E.mapLeft((error): KernelInterceptorError => {
-            const humanMessage = {
-              heading: (t: ReturnType<typeof getI18n>) => {
-                switch (error.kind) {
-                  case "network":
-                    return t("error.network.heading")
-                  case "timeout":
-                    return t("error.timeout.heading")
-                  case "certificate":
-                    return t("error.certificate.heading")
-                  case "auth":
-                    return t("error.auth.heading")
-                  case "proxy":
-                    return t("error.proxy.heading")
-                  case "parse":
-                    return t("error.parse.heading")
-                  case "version":
-                    return t("error.version.heading")
-                  case "abort":
-                    return t("error.aborted.heading")
-                  default:
-                    return t("error.unknown.heading")
-                }
-              },
-              description: (t: ReturnType<typeof getI18n>) => {
-                switch (error.kind) {
-                  case "network":
-                    return t("error.network.description", {
-                      message: error.message,
-                    })
-                  case "timeout":
-                    return t("error.timeout.description", {
-                      phase: error.phase ?? t("error.unknown.phase"),
-                    })
-                  case "certificate":
-                    return t("error.certificate.description", {
-                      message: error.message,
-                    })
-                  case "auth":
-                    return t("error.auth.description", {
-                      message: error.message,
-                    })
-                  case "proxy":
-                    return t("error.proxy.description", {
-                      message: error.message,
-                    })
-                  case "parse":
-                    return t("error.parse.description", {
-                      message: error.message,
-                    })
-                  case "version":
-                    return t("error.version.description", {
-                      message: error.message,
-                    })
-                  case "abort":
-                    return t("error.aborted.description", {
-                      message: error.message,
-                    })
-                  default:
-                    return t("error.unknown.description")
-                }
-              },
-            }
-            return { humanMessage, error }
-          }),
-          E.chain((res) => {
-            const proxyResponse = parseBytesToJSON<ProxyResponse>(res.body.body)
-
-            if (O.isNone(proxyResponse)) {
-              return E.left({
-                humanMessage: {
-                  heading: (t) => t("error.network.heading"),
-                  description: (t) =>
-                    t("error.network.description", {
-                      message: "Proxy request failed",
-                      cause: "Proxy server may be unresponsive",
-                    }),
+            return relayExecution.response
+          }
+        ),
+        cancellation,
+      ]),
+      (promise) =>
+        promise.then((either) =>
+          pipe(
+            either,
+            E.mapLeft((error): KernelInterceptorError => {
+              const humanMessage = {
+                heading: (t: ReturnType<typeof getI18n>) => {
+                  switch (error.kind) {
+                    case "network":
+                      return t("error.network.heading")
+                    case "timeout":
+                      return t("error.timeout.heading")
+                    case "certificate":
+                      return t("error.certificate.heading")
+                    case "auth":
+                      return t("error.auth.heading")
+                    case "proxy":
+                      return t("error.proxy.heading")
+                    case "parse":
+                      return t("error.parse.heading")
+                    case "version":
+                      return t("error.version.heading")
+                    case "abort":
+                      return t("error.aborted.heading")
+                    default:
+                      return t("error.unknown.heading")
+                  }
                 },
-                error: {
-                  kind: "network",
-                  message: "Proxy request failed",
+                description: (t: ReturnType<typeof getI18n>) => {
+                  switch (error.kind) {
+                    case "network":
+                      return t("error.network.description", {
+                        message: error.message,
+                      })
+                    case "timeout":
+                      return t("error.timeout.description", {
+                        phase: error.phase ?? t("error.unknown.phase"),
+                      })
+                    case "certificate":
+                      return t("error.certificate.description", {
+                        message: error.message,
+                      })
+                    case "auth":
+                      return t("error.auth.description", {
+                        message: error.message,
+                      })
+                    case "proxy":
+                      return t("error.proxy.description", {
+                        message: error.message,
+                      })
+                    case "parse":
+                      return t("error.parse.description", {
+                        message: error.message,
+                      })
+                    case "version":
+                      return t("error.version.description", {
+                        message: error.message,
+                      })
+                    case "abort":
+                      return t("error.aborted.description", {
+                        message: error.message,
+                      })
+                    default:
+                      return t("error.unknown.description")
+                  }
                 },
-              })
-            }
-
-            const parsedProxyResponse = proxyResponse.value
-
-            if (!parsedProxyResponse?.success) {
-              return E.left({
-                humanMessage: {
-                  heading: (t) => t("error.network.heading"),
-                  description: (t) =>
-                    t("error.network.description", {
-                      message: "Proxy request failed",
-                      cause: "Proxy server may be unresponsive",
-                    }),
-                },
-                error: {
-                  kind: "network",
-                  message: "Proxy request failed",
-                },
-              })
-            }
-
-            // NOTE: This should be conditional but seems to be hit always,
-            // see std/interceptor/proxy.ts for more info. Also see the above similar note.
-            if (parsedProxyResponse.isBinary) {
-              const decodedData = new Uint8Array(
-                decodeB64StringToArrayBuffer(parsedProxyResponse.data)
+              }
+              return { humanMessage, error }
+            }),
+            E.chain((res) => {
+              const proxyResponse = parseBytesToJSON<ProxyResponse>(
+                res.body.body
               )
 
-              // NOTE: This is also for backwards compat,
-              // better solution would be to ask for raw bytes from proxyscotch.
-              const jsonResult = parseBytesToJSON(decodedData)
+              if (O.isNone(proxyResponse)) {
+                return E.left({
+                  humanMessage: {
+                    heading: (t) => t("error.network.heading"),
+                    description: (t) =>
+                      t("error.network.description", {
+                        message: "Proxy request failed",
+                        cause: "Proxy server may be unresponsive",
+                      }),
+                  },
+                  error: {
+                    kind: "network",
+                    message: "Proxy request failed",
+                  },
+                })
+              }
 
-              if (O.isSome(jsonResult)) {
+              const parsedProxyResponse = proxyResponse.value
+
+              if (!parsedProxyResponse?.success) {
+                return E.left({
+                  humanMessage: {
+                    heading: (t) => t("error.network.heading"),
+                    description: (t) =>
+                      t("error.network.description", {
+                        message: "Proxy request failed",
+                        cause: "Proxy server may be unresponsive",
+                      }),
+                  },
+                  error: {
+                    kind: "network",
+                    message: "Proxy request failed",
+                  },
+                })
+              }
+
+              // NOTE: This should be conditional but seems to be hit always,
+              // see std/interceptor/proxy.ts for more info. Also see the above similar note.
+              if (parsedProxyResponse.isBinary) {
+                const decodedData = new Uint8Array(
+                  decodeB64StringToArrayBuffer(parsedProxyResponse.data)
+                )
+
+                // NOTE: This is also for backwards compat,
+                // better solution would be to ask for raw bytes from proxyscotch.
+                const jsonResult = parseBytesToJSON(decodedData)
+
+                if (O.isSome(jsonResult)) {
+                  return E.right({
+                    ...res,
+                    status: parsedProxyResponse.status,
+                    statusText: parsedProxyResponse.statusText,
+                    headers: parsedProxyResponse.headers,
+                    body: {
+                      body: new TextEncoder().encode(
+                        JSON.stringify(jsonResult.value)
+                      ),
+                      mediaType: "application/json",
+                    },
+                  })
+                }
                 return E.right({
                   ...res,
                   status: parsedProxyResponse.status,
                   statusText: parsedProxyResponse.statusText,
                   headers: parsedProxyResponse.headers,
                   body: {
-                    body: new TextEncoder().encode(
-                      JSON.stringify(jsonResult.value)
-                    ),
-                    mediaType: "application/json",
+                    body: decodedData,
+                    mediaType:
+                      parsedProxyResponse.headers["content-type"] ||
+                      "application/octet-stream",
                   },
                 })
               }
+
               return E.right({
                 ...res,
                 status: parsedProxyResponse.status,
                 statusText: parsedProxyResponse.statusText,
                 headers: parsedProxyResponse.headers,
                 body: {
-                  body: decodedData,
+                  body: new TextEncoder().encode(parsedProxyResponse.data),
                   mediaType:
-                    parsedProxyResponse.headers["content-type"] ||
-                    "application/octet-stream",
+                    parsedProxyResponse.headers["content-type"] || "text/plain",
                 },
               })
-            }
-
-            return E.right({
-              ...res,
-              status: parsedProxyResponse.status,
-              statusText: parsedProxyResponse.statusText,
-              headers: parsedProxyResponse.headers,
-              body: {
-                body: new TextEncoder().encode(parsedProxyResponse.data),
-                mediaType:
-                  parsedProxyResponse.headers["content-type"] || "text/plain",
-              },
             })
-          })
+          )
         )
-      )
     )
 
     return {
-      cancel: relayExecution.cancel,
+      cancel: async () => {
+        if (cancelled) return
+        cancelled = true
+        resolveCancelled?.(cancelledResult)
+        if (innerCancel) await innerCancel()
+      },
       response,
     }
   }

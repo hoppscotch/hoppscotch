@@ -427,19 +427,21 @@ export async function getEncryptionRequiredInfraConfigEntries(
  */
 export async function syncInfraConfigWithEnvFile() {
   const prisma = getSharedPrismaInstance();
-  const dbInfraConfigs = await prisma.infraConfig.findMany();
+  const dbInfraConfigs = await prisma.infraConfig.findMany({
+    where: { name: { in: SYNC_ONLY_VARIABLES } },
+  });
 
   const updateRequiredObjs: (Partial<InfraConfig> & { id: string })[] = [];
 
   for (const dbConfig of dbInfraConfigs) {
-    // Only sync if the variable is in the SYNC_ONLY_VARIABLES list. Otherwise, skip it
-    if (!SYNC_ONLY_VARIABLES.includes(dbConfig.name as InfraConfigEnum))
-      continue;
-
     const envValue = process.env[dbConfig.name];
 
+    // If the env var is unset, leave the admin-set DB value alone. Otherwise
+    // an admin's later override would be wiped on every restart.
+    if (envValue === undefined) continue;
+
     // lastSyncedEnvFileValue null check for backward compatibility from 2024.10.2 and below
-    if (!dbConfig.lastSyncedEnvFileValue && envValue) {
+    if (!dbConfig.lastSyncedEnvFileValue) {
       const configValue = dbConfig.isEncrypted ? encrypt(envValue) : envValue;
       updateRequiredObjs.push({
         id: dbConfig.id,
@@ -454,12 +456,12 @@ export async function syncInfraConfigWithEnvFile() {
       ? decrypt(dbConfig.lastSyncedEnvFileValue)
       : dbConfig.lastSyncedEnvFileValue;
 
-    if (rawLastSyncedEnvFileValue != envValue) {
+    if (rawLastSyncedEnvFileValue !== envValue) {
       const configValue = dbConfig.isEncrypted ? encrypt(envValue) : envValue;
       updateRequiredObjs.push({
         id: dbConfig.id,
-        value: configValue ?? null,
-        lastSyncedEnvFileValue: configValue ?? null,
+        value: configValue,
+        lastSyncedEnvFileValue: configValue,
       });
     }
   }

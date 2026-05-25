@@ -137,12 +137,17 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
         await Promise.allSettled(dbOperations);
       }
 
-      // Restart the app if needed
+      // Restart the app if needed. Metadata-only sync writes (where `value`
+      // is undefined because only `lastSyncedEnvFileValue` is being persisted)
+      // don't change runtime config, so they shouldn't trigger a restart.
+      const envValueChanged = envFileChangesRequired.some(
+        (c) => c.value !== undefined,
+      );
       if (
         propsToInsert.length > 0 ||
         encryptionRequiredEntries.length > 0 ||
         Object.keys(derivedEnv).length > 0 ||
-        envFileChangesRequired.length > 0
+        envValueChanged
       ) {
         stopApp();
       }

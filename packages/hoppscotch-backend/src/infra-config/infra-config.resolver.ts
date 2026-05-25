@@ -41,6 +41,7 @@ export class InfraConfigResolver {
   @Query(() => InfraConfig, {
     description: 'Get the proxy app URL',
   })
+  // Public by design: the unauthenticated selfhost client needs this URL before login.
   async proxyAppUrl() {
     const infraConfig = await this.infraConfigService.get(
       InfraConfigEnum.PROXY_APP_URL,

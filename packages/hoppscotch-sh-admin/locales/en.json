@@ -122,7 +122,7 @@
     },
     "proxy_url_configs": {
       "description": "Configure proxy URL for the app",
-      "input_validation": "Proxy URL should start with http(s)://",
+      "input_validation": "Proxy URL must start with http(s):// and contain no spaces",
       "title": "Proxy URL Configurations",
       "update_failure": "Failed to update proxy URL configurations!!",
       "url_placeholder": "Enter the Proxy URL"

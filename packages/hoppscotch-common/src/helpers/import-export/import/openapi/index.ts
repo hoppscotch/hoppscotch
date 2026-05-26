@@ -421,17 +421,38 @@ const parseOpenAPIHeaders = (params: OpenAPIParamsType[]): HoppRESTHeader[] =>
     )
   )
 
+const getSupportedContentType = (
+  contentType: string
+): keyof typeof knownContentTypes | null => {
+  const normalized = contentType.trim().toLowerCase().split(";")[0].trim()
+
+  if (Object.hasOwn(knownContentTypes, normalized)) {
+    return normalized as keyof typeof knownContentTypes
+  }
+
+  if (/^application\/.+\+json$/.test(normalized)) {
+    return "application/json"
+  }
+
+  if (/^application\/.+\+xml$/.test(normalized)) {
+    return "application/xml"
+  }
+
+  return null
+}
+
 const parseOpenAPIV2Body = (op: OpenAPIV2.OperationObject): HoppRESTReqBody => {
   const obj = (op.consumes ?? [])[0] as string | undefined
 
-  // Not a content-type Hoppscotch supports
-  if (!obj || !(obj in knownContentTypes))
-    return { contentType: null, body: null }
+  if (!obj) return { contentType: null, body: null }
+
+  const supportedContentType = getSupportedContentType(obj)
+  if (!supportedContentType) return { contentType: null, body: null }
 
   // For form data types, extract form fields
   if (
-    obj === "multipart/form-data" ||
-    obj === "application/x-www-form-urlencoded"
+    supportedContentType === "multipart/form-data" ||
+    supportedContentType === "application/x-www-form-urlencoded"
   ) {
     const formDataValues = pipe(
       (op.parameters ?? []) as OpenAPIV2.Parameter[],
@@ -452,12 +473,12 @@ const parseOpenAPIV2Body = (op: OpenAPIV2.OperationObject): HoppRESTReqBody => {
       )
     )
 
-    return obj === "application/x-www-form-urlencoded"
+    return supportedContentType === "application/x-www-form-urlencoded"
       ? {
-          contentType: obj,
+          contentType: supportedContentType,
           body: formDataValues.map(({ key }) => `${key}: `).join("\n"),
         }
-      : { contentType: obj, body: formDataValues }
+      : { contentType: supportedContentType, body: formDataValues }
   }
 
   // For other content types (JSON, XML, etc.)
@@ -469,14 +490,14 @@ const parseOpenAPIV2Body = (op: OpenAPIV2.OperationObject): HoppRESTReqBody => {
     const result = generateRequestBodyExampleFromOpenAPIV2Body(op)
     if (result) {
       return {
-        contentType: obj as any,
+        contentType: supportedContentType as any,
         body: result,
       }
     }
   }
 
   // Fallback to empty body for textual content types
-  return { contentType: obj as any, body: "" }
+  return { contentType: supportedContentType as any, body: "" }
 }
 
 const parseOpenAPIV3BodyFormData = (
@@ -531,15 +552,15 @@ const parseOpenAPIV3Body = (
     OpenAPIV3.MediaTypeObject | OpenAPIV31.MediaTypeObject,
   ] = objs[0]
 
-  if (!(contentType in knownContentTypes))
-    return { contentType: null, body: null }
+  const supportedType = getSupportedContentType(contentType)
+  if (!supportedType) return { contentType: null, body: null }
 
   // Handle form data types
   if (
-    contentType === "multipart/form-data" ||
-    contentType === "application/x-www-form-urlencoded"
+    supportedType === "multipart/form-data" ||
+    supportedType === "application/x-www-form-urlencoded"
   )
-    return parseOpenAPIV3BodyFormData(contentType, media)
+    return parseOpenAPIV3BodyFormData(supportedType, media)
 
   // For other content types (JSON, XML, etc.), try to generate sample from schema
   if (media.schema) {
@@ -552,7 +573,7 @@ const parseOpenAPIV3Body = (
       }
 
       return {
-        contentType,
+        contentType: supportedType,
         body:
           typeof sampleBody === "string"
             ? sampleBody
@@ -562,7 +583,7 @@ const parseOpenAPIV3Body = (
       // If we can't generate a sample, check for examples
       if (media.example !== undefined) {
         return {
-          contentType,
+          contentType: supportedType,
           body:
             typeof media.example === "string"
               ? media.example
@@ -570,14 +591,14 @@ const parseOpenAPIV3Body = (
         } as HoppRESTReqBody
       }
       // Fallback to empty body
-      return { contentType, body: "" } as HoppRESTReqBody
+      return { contentType: supportedType, body: "" } as HoppRESTReqBody
     }
   }
 
   // Check for examples if no schema
   if (media.example !== undefined) {
     return {
-      contentType,
+      contentType: supportedType,
       body:
         typeof media.example === "string"
           ? media.example
@@ -593,7 +614,7 @@ const parseOpenAPIV3Body = (
     // Skip if this is an unresolved reference
     if (firstExample && "$ref" in firstExample) {
       // Reference wasn't dereferenced, return empty body
-      return { contentType, body: "" } as HoppRESTReqBody
+      return { contentType: supportedType, body: "" } as HoppRESTReqBody
     }
 
     // Handle Example Object (with value property) or direct value
@@ -601,7 +622,7 @@ const parseOpenAPIV3Body = (
       "value" in firstExample ? firstExample.value : firstExample
 
     return {
-      contentType,
+      contentType: supportedType,
       body:
         typeof exampleValue === "string"
           ? exampleValue
@@ -610,7 +631,7 @@ const parseOpenAPIV3Body = (
   }
 
   // Fallback to empty body for textual content types
-  return { contentType, body: "" } as HoppRESTReqBody
+  return { contentType: supportedType, body: "" } as HoppRESTReqBody
 }
 
 const isOpenAPIV3Operation = (
@@ -1057,6 +1078,51 @@ const convertPathToHoppReqs = (
           ? openAPIUrl + openAPIPath.slice(1)
           : openAPIUrl + openAPIPath
 
+      const body = parseOpenAPIBody(doc, info)
+      const headers = parseOpenAPIHeaders(
+        (info.parameters as OpenAPIParamsType[] | undefined) ?? []
+      )
+
+      // Preserve the original content type as an explicit header when it differs
+      // from the mapped body content type (e.g. application/vnd.custom+json mapped
+      // to application/json for editor support). The explicit header reliably
+      // overrides the body-derived Content-Type at request time.
+      const originalContentType = isOpenAPIV3Operation(doc, info)
+        ? (Object.keys((info.requestBody as any)?.content ?? {})[0] ?? null)
+        : ((info as OpenAPIV2.OperationObject).consumes?.[0] ?? null)
+
+      if (
+        originalContentType &&
+        body.contentType &&
+        originalContentType !== body.contentType
+      ) {
+        // Add or update Content-Type header:
+        // - If no Content-Type header exists, add one.
+        // - If a Content-Type header exists but is inactive or has an empty value,
+        //   update it with the original content type and activate it.
+        const existingContentTypeHeader = headers.find(
+          (h) => h.key.toLowerCase() === "content-type"
+        )
+        if (!existingContentTypeHeader) {
+          headers.push({
+            key: "Content-Type",
+            value: originalContentType,
+            description: "Original Content-Type from OpenAPI spec",
+            active: true,
+          })
+        } else if (
+          !existingContentTypeHeader.active ||
+          !existingContentTypeHeader.value
+        ) {
+          existingContentTypeHeader.value = originalContentType
+          if (!existingContentTypeHeader.description) {
+            existingContentTypeHeader.description =
+              "Original Content-Type from OpenAPI spec"
+          }
+          existingContentTypeHeader.active = true
+        }
+      }
+
       const res: {
         request: HoppRESTRequest
         metadata: {
@@ -1073,13 +1139,11 @@ const convertPathToHoppReqs = (
           params: parseOpenAPIParams(
             (info.parameters as OpenAPIParamsType[] | undefined) ?? []
           ),
-          headers: parseOpenAPIHeaders(
-            (info.parameters as OpenAPIParamsType[] | undefined) ?? []
-          ),
+          headers,
 
           auth: parseOpenAPIAuth(doc, info),
 
-          body: parseOpenAPIBody(doc, info),
+          body,
 
           preRequestScript: "",
           testScript: "",
@@ -1094,15 +1158,13 @@ const convertPathToHoppReqs = (
             makeHoppRESTResponseOriginalRequest({
               name: getOpenAPIOperationName(info),
               auth: parseOpenAPIAuth(doc, info),
-              body: parseOpenAPIBody(doc, info),
+              body: cloneDeep(body),
               endpoint,
               // We don't need to worry about reference types as the Dereferencing pass should remove them
               params: parseOpenAPIParams(
                 (info.parameters as OpenAPIParamsType[] | undefined) ?? []
               ),
-              headers: parseOpenAPIHeaders(
-                (info.parameters as OpenAPIParamsType[] | undefined) ?? []
-              ),
+              headers,
               method: method.toUpperCase(),
               requestVariables: parseOpenAPIVariables(
                 (info.parameters as OpenAPIParamsType[] | undefined) ?? []

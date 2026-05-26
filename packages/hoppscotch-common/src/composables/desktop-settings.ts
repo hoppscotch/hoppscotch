@@ -10,11 +10,11 @@ import { invoke } from "@tauri-apps/api/core"
 // writes to a different file and the shell would never see them.
 //
 // Relative imports rather than the `~/` alias because this module is
-// consumed by both the selfhost-web entry (where `~` resolves to
-// common's src) and the desktop shell entry (where `~` resolves to the
-// shell's own src). The package-name alias `@hoppscotch/common/...`
-// would work under Vite dev but fails under Rollup build, which treats
-// the rewritten `@hoppscotch/common/src/...` as an unresolved package
+// consumed by both the web entry (where `~` resolves to common's src)
+// and the desktop shell entry (where `~` resolves to the shell's own
+// src). The package-name alias `@hoppscotch/common/...` would work
+// under Vite dev but fails under Rollup build, which treats the
+// rewritten `@hoppscotch/common/src/...` as an unresolved package
 // specifier. Relative paths resolve identically under TS, both Vite
 // configs, and the production build.
 import { UnifiedStore as Store } from "../kernel/store"

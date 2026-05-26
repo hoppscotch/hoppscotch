@@ -8,6 +8,18 @@ execution:
   contexts:
     host:
       backend: native
+    app:
+      backend: container
+      lifecycle: ephemeral
+      container:
+        image: node:22-bookworm
+        engines:
+          - docker
+          - podman
+      attachments:
+        isolated_paths:
+          - node_modules
+          - .pnpm-store
     docker-host:
       backend: native
       requirements:
@@ -113,10 +125,17 @@ tasks:
       This maps directly to the root workspace install surface used by the repo CI.
     category: setup
     run: pnpm install
+    execution:
+      default_mode: native
+      modes:
+        native:
+          context: host
+          run: pnpm install
+        container:
+          context: app
+          run: pnpm install
     effects:
       network: true
-    depends_on:
-      - setup:env
     requirements:
       toolchains:
         - node
@@ -127,6 +146,15 @@ tasks:
       This maps directly to `pnpm lint` at the repository root.
     category: test
     run: pnpm lint
+    execution:
+      default_mode: native
+      modes:
+        native:
+          context: host
+          run: pnpm lint
+        container:
+          context: app
+          run: pnpm lint
     depends_on:
       - install
     requirements:
@@ -140,6 +168,15 @@ tasks:
       This maps directly to `pnpm typecheck` at the repository root.
     category: test
     run: pnpm typecheck
+    execution:
+      default_mode: native
+      modes:
+        native:
+          context: host
+          run: pnpm typecheck
+        container:
+          context: app
+          run: pnpm typecheck
     depends_on:
       - install
     requirements:
@@ -153,6 +190,15 @@ tasks:
       This maps directly to the repo's `tests.yml` workflow after dependency installation.
     category: test
     run: pnpm test
+    execution:
+      default_mode: native
+      modes:
+        native:
+          context: host
+          run: pnpm test
+        container:
+          context: app
+          run: pnpm test
     depends_on:
       - install
     requirements:
@@ -265,6 +311,16 @@ workflows:
       task: install
     run:
       task: test
+  verify:container:
+    intent: ci_verification
+    description: Root workspace verification workflow through the declared container execution context
+    notes: |
+      Use this when you want the same install/test path as `verify`, but executed with `--container`.
+      This workflow intentionally excludes `.env` preparation so the container verify path stays non-mutating for repo env files.
+    setup:
+      task: install
+    run:
+      task: test
   selfhost:
     intent: packaged_runtime
     description: Recommended self-host all-in-one Docker workflow
@@ -353,6 +409,8 @@ agent:
     Use `ota run setup:env .` before self-host workflows so `.env` is created from `.env.example`
     only when missing.
     Use `ota up --workflow verify --native .` for root workspace lint/typecheck/test validation.
+    Use `ota up --workflow verify:container --container .` for the same verification path through the
+    declared container execution context.
     Use `ota up --workflow selfhost --native .` for the documented default self-host flow.
     Use `ota up --workflow app --native .`, `ota up --workflow backend --native .`, and
     `ota up --workflow admin --native .` for profile-specific compose paths.

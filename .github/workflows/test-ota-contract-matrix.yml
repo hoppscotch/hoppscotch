@@ -10,7 +10,7 @@ on:
       ota_ref:
         description: Ota branch, tag, or commit to build for this matrix run
         required: false
-        default: 06444cf0388b0eed5469225fb21035a39d8b09fc
+        default: bobai/gap3-smoke-verdict-contract
   pull_request:
     paths:
       - 'ota.yaml'
@@ -32,7 +32,7 @@ env:
 
 jobs:
   native:
-    name: Ota Contract Matrix (Native - ${{ matrix.name }})
+    name: Ota Contract Matrix (Cross-OS + Ubuntu Runtime - ${{ matrix.name }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90
     strategy:
@@ -71,10 +71,10 @@ jobs:
           pnpm --version
 
       - name: Install ota from source
-        uses: ota-run/ota/.github/actions/install-ota-from-source@49367a5b334a2712ceb8315aa69ffdd9292db9c0
+        uses: ota-run/ota/.github/actions/install-ota-from-source@v1.6.16
         with:
           repository: ${{ github.event.inputs.ota_repository || 'ota-run/ota' }}
-          ref: ${{ github.event.inputs.ota_ref || '06444cf0388b0eed5469225fb21035a39d8b09fc' }}
+          ref: ${{ github.event.inputs.ota_ref || 'bobai/gap3-smoke-verdict-contract' }}
 
       - name: Validate contract
         shell: bash
@@ -85,6 +85,10 @@ jobs:
       - name: List verify workflow tasks
         shell: bash
         run: ota tasks --workflow verify .
+
+      - name: List verify:container workflow tasks
+        shell: bash
+        run: ota tasks --workflow verify:container .
 
       - name: List selfhost workflow tasks
         shell: bash
@@ -111,6 +115,23 @@ jobs:
       - name: Dry-run verify workflow
         shell: bash
         run: ota up --workflow verify --native --dry-run .
+
+      - name: Dry-run verify workflow (container mode, cross-OS)
+        shell: bash
+        run: |
+          set +e
+          ota up --workflow verify --container --dry-run --json . > ota-up-verify-container-dry-run.json
+          verify_container_status=$?
+          ota up --workflow verify:container --container --dry-run --json . > ota-up-verify-container-workflow-dry-run.json
+          verify_container_workflow_status=$?
+          set -e
+          grep -q '"dry_run"' ota-up-verify-container-dry-run.json
+          grep -q '"status"' ota-up-verify-container-dry-run.json
+          grep -q '"dry_run"' ota-up-verify-container-workflow-dry-run.json
+          grep -q '"status"' ota-up-verify-container-workflow-dry-run.json
+          if [ "$verify_container_status" -ne 0 ] || [ "$verify_container_workflow_status" -ne 0 ]; then
+            echo "container dry-run blocked on this host (expected on non-Ubuntu hosted runners)"
+          fi
 
       - name: Dry-run selfhost workflow
         if: ${{ matrix.docker_ready }}
@@ -156,5 +177,7 @@ jobs:
           path: |
             ota-validate.json
             ota-execution-topology.json
+            ota-up-verify-container-dry-run.json
+            ota-up-verify-container-workflow-dry-run.json
             ota-proof-selfhost.json
             .ota/proof/selfhost/

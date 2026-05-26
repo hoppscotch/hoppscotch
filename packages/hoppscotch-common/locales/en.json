@@ -672,7 +672,7 @@
   "error": {
     "network": {
       "heading": "Network Error",
-      "description": "Network connection failed. {message}: {cause}"
+      "description": "Network request failed. This may be caused by CORS restrictions, an invalid domain, internet connectivity issues, or the server not responding."
     },
     "timeout": {
       "heading": "Timeout Error",

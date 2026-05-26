@@ -54,9 +54,9 @@ describe('CLI Type Guard Utilities (checks.ts)', () => {
       expect(isHoppErrnoException(validErrno)).toBe(true)
     })
 
-    test('should return false if the error does not have a string code property', () => {
-      const invalidErrno = new Error('Standard error')
-      expect(isHoppErrnoException(invalidErrno)).toBe(false)
+    test('should return false if the object does not have a string name property', () => {
+      const noName = { message: 'no name here' }
+      expect(isHoppErrnoException(noName)).toBe(false)
     })
 
     test('should return false for null or undefined input', () => {

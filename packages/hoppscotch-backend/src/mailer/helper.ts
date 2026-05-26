@@ -1,6 +1,14 @@
-import { TransportType } from '@nestjs-modules/mailer/dist/interfaces/mailer-options.interface';
+import type { MailerOptions } from '@nestjs-modules/mailer';
+import type SMTPConnection from 'nodemailer/lib/smtp-connection';
 import { MAILER_SMTP_URL_UNDEFINED } from 'src/errors';
 import { throwErr } from 'src/utils';
+
+type TransportType = NonNullable<MailerOptions['transport']>;
+
+export enum SMTPAuthType {
+  LOGIN = 'login',
+  OAUTH2 = 'oauth2',
+}
 
 function isSMTPCustomConfigsEnabled(value) {
   return value === 'true';
@@ -21,20 +29,46 @@ export function getTransportOption(env): TransportType {
   } else {
     console.log('Using advanced mailer configuration');
 
-    const smtpUser = env.INFRA.MAILER_SMTP_USER?.trim() || undefined;
-    const smtpPass = env.INFRA.MAILER_SMTP_PASSWORD?.trim() || undefined;
+    const authType = env.INFRA.MAILER_SMTP_AUTH_TYPE?.trim();
 
-    // Both credentials must be provided together or both omitted
-    const hasUser = !!smtpUser;
-    const hasPass = !!smtpPass;
-    if (hasUser !== hasPass) {
-      throw new Error(
-        'SMTP auth requires both MAILER_SMTP_USER and MAILER_SMTP_PASSWORD. Provide both or leave both empty for unauthenticated relay.',
-      );
+    let auth: SMTPConnection.AuthenticationType | undefined;
+
+    if (authType === SMTPAuthType.OAUTH2) {
+      const oauth2User = env.INFRA.MAILER_SMTP_OAUTH2_USER?.trim() || undefined;
+      const oauth2ClientId =
+        env.INFRA.MAILER_SMTP_OAUTH2_CLIENT_ID?.trim() || undefined;
+      const oauth2ClientSecret =
+        env.INFRA.MAILER_SMTP_OAUTH2_CLIENT_SECRET?.trim() || undefined;
+      const oauth2RefreshToken =
+        env.INFRA.MAILER_SMTP_OAUTH2_REFRESH_TOKEN?.trim() || undefined;
+      const oauth2AccessUrl =
+        env.INFRA.MAILER_SMTP_OAUTH2_ACCESS_URL?.trim() || undefined;
+
+      auth = {
+        type: SMTPAuthType.OAUTH2,
+        user: oauth2User,
+        clientId: oauth2ClientId,
+        clientSecret: oauth2ClientSecret,
+        refreshToken: oauth2RefreshToken,
+        accessUrl: oauth2AccessUrl,
+      };
+    } else {
+      const smtpUser = env.INFRA.MAILER_SMTP_USER?.trim() || undefined;
+      const smtpPass = env.INFRA.MAILER_SMTP_PASSWORD?.trim() || undefined;
+
+      const hasUser = !!smtpUser;
+      const hasPass = !!smtpPass;
+      if (hasUser !== hasPass) {
+        throw new Error(
+          'SMTP auth requires both MAILER_SMTP_USER and MAILER_SMTP_PASSWORD. Provide both or leave both empty for unauthenticated relay.',
+        );
+      }
+
+      auth =
+        smtpUser && smtpPass
+          ? { type: SMTPAuthType.LOGIN, user: smtpUser, pass: smtpPass }
+          : undefined;
     }
-
-    const auth =
-      smtpUser && smtpPass ? { user: smtpUser, pass: smtpPass } : undefined;
 
     return {
       host: env.INFRA.MAILER_SMTP_HOST,

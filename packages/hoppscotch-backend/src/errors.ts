@@ -463,6 +463,12 @@ export const USER_ENVIRONMENT_UPDATE_FAILED =
   'user_environment/user_env_update_failed' as const;
 
 /**
+ * User environment not found for the user
+ * (UserEnvironmentsService)
+ */
+export const USER_ENVIRONMENT_NOT_FOUND = 'user_environment/not_found' as const;
+
+/**
  * User environment invalid environment name
  * (UserEnvironmentsService)
  */
@@ -977,8 +983,8 @@ export const PUBLISHED_DOCS_DELETION_FAILED = 'published_docs/deletion_failed';
  * Published Docs invalid environment
  * (PublishedDocsService)
  */
-export const PUBLISHED_DOCS_INVALID_ENVIRONMENT =
-  'published_docs/invalid_environment';
+export const PUBLISHED_DOCS_FORBIDDEN_ENVIRONMENT_ACCESS =
+  'published_docs/forbidden_environment_access';
 
 /**
  * Published Docs not found

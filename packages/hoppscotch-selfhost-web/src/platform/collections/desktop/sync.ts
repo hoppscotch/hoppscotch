@@ -48,6 +48,8 @@ const transformCollectionForBackend = (collection: HoppCollection): any => {
     variables: collection.variables ?? [],
     _ref_id: collection._ref_id,
     description: collection.description ?? null,
+    preRequestScript: collection.preRequestScript ?? "",
+    testScript: collection.testScript ?? "",
   }
 
   return {
@@ -83,6 +85,8 @@ const recursivelySyncCollections = async (
       variables: collection.variables ?? [],
       _ref_id: collection._ref_id,
       description: collection.description ?? null,
+      preRequestScript: collection.preRequestScript ?? "",
+      testScript: collection.testScript ?? "",
     }
     const res = await createRESTRootUserCollection(
       collection.name,
@@ -102,6 +106,8 @@ const recursivelySyncCollections = async (
             variables: [],
             _ref_id: generateUniqueRefId("coll"),
             description: null,
+            preRequestScript: "",
+            testScript: "",
           }
 
       collection.id = parentCollectionID
@@ -110,6 +116,9 @@ const recursivelySyncCollections = async (
       collection.headers = returnedData.headers
       collection.variables = returnedData.variables
       collection.description = returnedData.description ?? null
+      collection.preRequestScript = returnedData.preRequestScript ?? ""
+      collection.testScript = returnedData.testScript ?? ""
+
       removeDuplicateRESTCollectionOrFolder(parentCollectionID, collectionPath)
     } else {
       parentCollectionID = undefined
@@ -125,6 +134,8 @@ const recursivelySyncCollections = async (
       variables: collection.variables ?? [],
       _ref_id: collection._ref_id,
       description: collection.description ?? null,
+      preRequestScript: collection.preRequestScript ?? "",
+      testScript: collection.testScript ?? "",
     }
 
     const res = await createRESTChildUserCollection(
@@ -147,6 +158,8 @@ const recursivelySyncCollections = async (
             variables: [],
             _ref_id: generateUniqueRefId("coll"),
             description: null,
+            preRequestScript: "",
+            testScript: "",
           }
 
       collection.id = childCollectionId
@@ -156,6 +169,8 @@ const recursivelySyncCollections = async (
       parentCollectionID = childCollectionId
       collection.variables = returnedData.variables
       collection.description = returnedData.description ?? null
+      collection.preRequestScript = returnedData.preRequestScript ?? ""
+      collection.testScript = returnedData.testScript ?? ""
 
       removeDuplicateRESTCollectionOrFolder(
         childCollectionId,
@@ -268,6 +283,8 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       variables: collection.variables,
       _ref_id: collection._ref_id,
       description: collection.description ?? null,
+      preRequestScript: collection.preRequestScript ?? "",
+      testScript: collection.testScript ?? "",
     }
 
     if (collectionID) {
@@ -351,6 +368,8 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       variables: folder.variables,
       _ref_id: folder._ref_id,
       description: folder.description ?? null,
+      preRequestScript: folder.preRequestScript ?? "",
+      testScript: folder.testScript ?? "",
     }
     if (folderID) {
       updateUserCollection(folderID, folderName, JSON.stringify(data))

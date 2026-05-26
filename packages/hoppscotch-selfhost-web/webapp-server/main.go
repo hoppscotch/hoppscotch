@@ -62,14 +62,15 @@ func main() {
 
 	addr := fmt.Sprintf(":%d", cfg.Port)
 
-	// NOTE: these timeouts are pretty conservative
-	// bump them if you're serving huge bundles over slow connections
+	// NOTE: timeouts default to conservative values but can be overridden
+	// via WEBAPP_SERVER_READ_TIMEOUT, WEBAPP_SERVER_WRITE_TIMEOUT, WEBAPP_SERVER_IDLE_TIMEOUT
+	// (Go duration strings, e.g. "30s", "2m", "0" to disable)
 	httpServer := &http.Server{
 		Addr:         addr,
 		Handler:      mux,
-		ReadTimeout:  15 * time.Second,
-		WriteTimeout: 15 * time.Second,
-		IdleTimeout:  60 * time.Second,
+		ReadTimeout:  cfg.ReadTimeout,
+		WriteTimeout: cfg.WriteTimeout,
+		IdleTimeout:  cfg.IdleTimeout,
 	}
 
 	go func() {

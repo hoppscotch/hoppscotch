@@ -37,13 +37,13 @@
   "devDependencies": {
     "@types/lodash": "4.17.24",
     "typescript": "5.9.3",
-    "vite": "7.3.1"
+    "vite": "7.3.2"
   },
   "dependencies": {
     "fp-ts": "2.16.11",
     "io-ts": "2.2.22",
     "jose": "6.2.2",
-    "lodash": "4.17.23",
+    "lodash": "4.18.1",
     "parser-ts": "0.7.0",
     "uuid": "13.0.0",
     "verzod": "0.4.0",

@@ -38,6 +38,7 @@ export type AuthEvent =
   | { event: "probable_login"; user: HoppUser } // We have previous login state, but the app is waiting for authentication
   | { event: "login"; user: HoppUser } // We are authenticated
   | { event: "logout" } // No authentication and we have no previous state
+  | { event: "token_refresh"; user: HoppUser } // We have refreshed our tokens and have new ones now
 
 export type GithubSignInResult =
   | { type: "success"; user: HoppUser } // The authentication was a success

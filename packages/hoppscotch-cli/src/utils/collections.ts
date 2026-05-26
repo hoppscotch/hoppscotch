@@ -34,6 +34,7 @@ import {
   processRequest,
 } from "./request";
 import { getTestMetrics } from "./test";
+import { filterValidScripts } from "./scripting";
 
 const { WARN, FAIL, INFO } = exceptionColors;
 
@@ -109,8 +110,21 @@ const processCollection = async (
   envs: HoppEnvs,
   delay: number,
   requestsReport: RequestReport[],
-  legacySandbox?: boolean
+  legacySandbox?: boolean,
+  ancestorPreRequestScripts: string[] = [],
+  ancestorTestScripts: string[] = []
 ) => {
+  // Accumulate scripts from root -> current collection for inheritance
+  // filterValidScripts strips empty, whitespace-only, and module-prefix-only scripts
+  const inheritedPreRequestScripts = filterValidScripts([
+    ...ancestorPreRequestScripts,
+    collection.preRequestScript,
+  ]);
+  const inheritedTestScripts = filterValidScripts([
+    ...ancestorTestScripts,
+    collection.testScript,
+  ]);
+
   // Process each request in the collection
   for (const request of collection.requests) {
     const _request = preProcessRequest(request as HoppRESTRequest, collection);
@@ -127,6 +141,8 @@ const processCollection = async (
       delay,
       legacySandbox,
       collectionVariables,
+      inheritedPreRequestScripts,
+      inheritedTestScripts,
     };
 
     // Request processing initiated message.
@@ -188,7 +204,9 @@ const processCollection = async (
       envs,
       delay,
       requestsReport,
-      legacySandbox
+      legacySandbox,
+      inheritedPreRequestScripts,
+      inheritedTestScripts
     );
   }
 };

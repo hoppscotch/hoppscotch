@@ -18,7 +18,7 @@ import { HoppEnvs } from "../types/request";
 import { ExpectResult, TestMetrics, TestRunnerRes } from "../types/response";
 import { getDurationInSeconds } from "./getters";
 import { createHoppFetchHook } from "./hopp-fetch";
-import { stripModulePrefix } from "./mutators";
+import { combineScriptsWithIIFE, filterValidScripts } from "./scripting";
 
 /**
  * Executes test script and runs testDescriptorParser to generate test-report using
@@ -39,28 +39,46 @@ export const testRunner = (
     TE.bind("test_response", () =>
       pipe(
         TE.of(testScriptData),
-        TE.chain(({ request, response, envs, legacySandbox }) => {
-          const { status, statusText, headers, responseTime, body } = response;
-
-          const effectiveResponse = {
-            status,
-            statusText,
-            headers,
-            responseTime,
-            body,
-          };
-
-          const experimentalScriptingSandbox = !legacySandbox;
-          const hoppFetchHook = createHoppFetchHook();
-
-          return runTestScript(stripModulePrefix(request.testScript), {
-            envs,
+        TE.chain(
+          ({
             request,
-            response: effectiveResponse,
-            experimentalScriptingSandbox,
-            hoppFetchHook,
-          });
-        })
+            response,
+            envs,
+            legacySandbox,
+            inheritedTestScripts = [],
+          }) => {
+            const { status, statusText, headers, responseTime, body } =
+              response;
+
+            const effectiveResponse = {
+              status,
+              statusText,
+              headers,
+              responseTime,
+              body,
+            };
+
+            const experimentalScriptingSandbox = !legacySandbox;
+            const hoppFetchHook = createHoppFetchHook();
+
+            // Test order: request → root (reverse of pre-request).
+            const combinedScript = combineScriptsWithIIFE(
+              filterValidScripts([
+                request.testScript,
+                ...inheritedTestScripts.slice().reverse(),
+              ]),
+              experimentalScriptingSandbox ? "experimental" : "legacy"
+            );
+
+            return runTestScript(combinedScript, {
+              envs,
+              request,
+              response: effectiveResponse,
+              experimentalScriptingSandbox,
+              hoppFetchHook,
+            });
+          }
+        )
       )
     ),
 
@@ -160,7 +178,8 @@ export const getTestScriptParams = (
   reqRunnerRes: RequestRunnerResponse,
   request: HoppRESTRequest,
   envs: HoppEnvs,
-  legacySandbox: boolean
+  legacySandbox: boolean,
+  inheritedTestScripts: string[] = []
 ) => {
   const testScriptParams: TestScriptParams = {
     request,
@@ -173,6 +192,7 @@ export const getTestScriptParams = (
     },
     envs,
     legacySandbox,
+    inheritedTestScripts,
   };
   return testScriptParams;
 };
@@ -237,12 +257,11 @@ export const getFailedExpectedResults = (expectResults: ExpectResult[]) =>
   );
 
 /**
- * Checks if any of the tests-report have failed test-cases.
+ * Checks whether every test report has zero failed test cases.
  * @param testsReport Provides "failed" test-cases data.
- * @returns True, if one or more failed test-cases found.
- * False, if all test-cases passed.
+ * @returns True, if all test-cases passed. False, otherwise.
  */
-export const hasFailedTestCases = (testsReport: TestReport[]) =>
+export const hasAllTestsPassed = (testsReport: TestReport[]) =>
   pipe(
     testsReport,
     A.every(({ failed }) => failed === 0)

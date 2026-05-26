@@ -1,6 +1,6 @@
 [package]
 name = "hoppscotch-desktop"
-version = "26.3.1"
+version = "26.4.0"
 description = "Desktop App for hoppscotch.io"
 authors = ["CuriousCorrelation"]
 edition = "2021"
@@ -30,7 +30,7 @@ tauri-plugin-dialog = "2.2.0"
 tauri-plugin-fs = "2.2.0"
 tauri-plugin-deep-link = "2.2.0"
 tauri-plugin-appload = { git = "https://github.com/CuriousCorrelation/tauri-plugin-appload", rev = "0d58d53be2bc75aeb5916bd0d77794fd209426af" }
-tauri-plugin-relay = { git = "https://github.com/CuriousCorrelation/tauri-plugin-relay", rev = "7cf09c1ad31e228758738c2f4e1c8fe9cc141291" }
+tauri-plugin-relay = { git = "https://github.com/CuriousCorrelation/tauri-plugin-relay", rev = "42f449e1c5657679fecf0374b0ce5047ad03c069" }
 axum = "0.8.1"
 tower-http = { version = "0.6.2", features = ["cors"] }
 random-port = "0.1.1"

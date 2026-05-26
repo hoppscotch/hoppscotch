@@ -18,6 +18,13 @@ describe("isNumeric", () => {
     expect(isNumeric("42")).toBe(true)
     expect(isNumeric("-1")).toBe(true)
     expect(isNumeric("3.14")).toBe(true)
+    expect(isNumeric(" 42 ")).toBe(true)
+  })
+
+  test("returns true for Infinity values", () => {
+    expect(isNumeric(Infinity)).toBe(true)
+    expect(isNumeric(-Infinity)).toBe(true)
+    expect(isNumeric("Infinity")).toBe(true)
   })
 
   test("returns false for NaN", () => {

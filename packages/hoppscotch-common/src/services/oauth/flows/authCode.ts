@@ -10,6 +10,7 @@ import { z } from "zod"
 import { getService } from "~/modules/dioc"
 import * as E from "fp-ts/Either"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
+import { createPKCECodeChallenge } from "~/helpers/pkce"
 import { content } from "@hoppscotch/kernel"
 import { refreshToken, OAuth2ParamSchema } from "../utils"
 import {
@@ -332,28 +333,7 @@ const generateCodeVerifier = () => {
 const generateCodeChallenge = async (
   codeVerifier: string,
   strategy: AuthCodeOauthFlowParams["codeVerifierMethod"]
-) => {
-  if (strategy === "plain") {
-    return codeVerifier
-  }
-
-  const encoder = new TextEncoder()
-  const data = encoder.encode(codeVerifier)
-
-  const buffer = await crypto.subtle.digest("SHA-256", data)
-
-  return encodeArrayBufferAsUrlEncodedBase64(buffer)
-}
-
-const encodeArrayBufferAsUrlEncodedBase64 = (buffer: ArrayBuffer) => {
-  const hashArray = Array.from(new Uint8Array(buffer))
-  const hashBase64URL = btoa(String.fromCharCode(...hashArray))
-    .replace(/=/g, "")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-
-  return hashBase64URL
-}
+) => createPKCECodeChallenge(codeVerifier, strategy ?? "plain")
 
 export default createFlowConfig(
   "AUTHORIZATION_CODE" as const,

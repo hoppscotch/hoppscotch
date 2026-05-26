@@ -56,13 +56,14 @@
 
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
+import { useToast } from "@composables/toast"
 import { HoppGQLAuth, HoppGQLRequest } from "@hoppscotch/data"
 import { computedWithControl, useVModel } from "@vueuse/core"
-import { watchDebounced } from "@vueuse/core"
+
 import { useService } from "dioc/vue"
 import * as gql from "graphql"
 import { clone } from "lodash-es"
-import { computed, ref, watch, onUnmounted } from "vue"
+import { ref, watch } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
 import {
   connection,
@@ -72,7 +73,7 @@ import {
 } from "~/helpers/graphql/connection"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { completePageProgress, startPageProgress } from "~/modules/loadingbar"
-import { useSetting } from "@composables/settings"
+
 import { platform } from "~/platform"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { GQLTabService } from "~/services/tab/graphql"
@@ -90,7 +91,7 @@ export type GQLOptionTabs = (typeof _VALID_GQL_OPERATIONS)[number]
 const interceptorService = useService(KernelInterceptorService)
 
 const t = useI18n()
-
+const toast = useToast()
 const tabs = useService(GQLTabService)
 const autoSaveService = useService(AutoSaveService)
 
@@ -259,49 +260,6 @@ defineActionHandler("request.open-tab", ({ tab }) => {
   selectedOptionTab.value = tab as GQLOptionTabs
 })
 
-const AUTO_SAVE_REQUESTS = useSetting("AUTO_SAVE_REQUESTS")
-const AUTO_SAVE_DELAY_MS = useSetting("AUTO_SAVE_DELAY_MS")
-
-// Stop the watcher on unmount to prevent debounce callbacks firing on a
-// stale/destroyed component instance.
-const stopAutoSave = watchDebounced(
-  request,
-  () => {
-    try {
-      // New user edit arrived — reset retry state so the fresh content gets a
-      // full retry budget rather than inheriting an exhausted counter.
-      if (tab.value) autoSaveService.resetRetryCount(tab.value.id)
-
-      const tabToSave = tab.value
-      if (!tabToSave) return
-
-      const isDirty = tabToSave.document.isDirty
-      const saveCtx = tabToSave.document.saveContext
-      const autoSaveEnabled = AUTO_SAVE_REQUESTS.value
-
-      if (!autoSaveEnabled || !isDirty || !saveCtx) {
-        return
-      }
-
-      saveRequest({ silent: true })
-    } catch {
-      // Tab was removed between the watcher firing and execution — safe to ignore.
-    }
-  },
-  {
-    deep: true,
-    // Clamp delay between 500 ms and 10 000 ms, default 2 000 ms
-    debounce: computed(() =>
-      Math.min(10000, Math.max(500, Number(AUTO_SAVE_DELAY_MS.value) || 2000))
-    ),
-  }
-)
-
-onUnmounted(() => {
-  // Cancel any pending debounced auto-save and retry/poll timers
-  stopAutoSave()
-  autoSaveService.clearRetryTimer(props.tabId)
-})
 </script>
 
 <style lang="scss" scoped>

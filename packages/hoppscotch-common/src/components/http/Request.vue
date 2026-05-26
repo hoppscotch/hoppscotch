@@ -246,7 +246,7 @@ import { useSetting } from "@composables/settings"
 import { useReadonlyStream, useStreamSubscriber } from "@composables/stream"
 import { useToast } from "@composables/toast"
 import { useVModel } from "@vueuse/core"
-import { watchDebounced } from "@vueuse/core"
+
 import * as E from "fp-ts/Either"
 import { computed, ref, onUnmounted, watch } from "vue"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
@@ -592,46 +592,6 @@ const isCustomMethod = computed(
 )
 
 const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
-const AUTO_SAVE_REQUESTS = useSetting("AUTO_SAVE_REQUESTS")
-const AUTO_SAVE_DELAY_MS = useSetting("AUTO_SAVE_DELAY_MS")
-
-const stopAutoSave = watchDebounced(
-  () => tab.value.document.request,
-  () => {
-    try {
-      // New user edit arrived — reset retry state so the fresh content gets a
-      // full retry budget rather than inheriting an exhausted counter.
-      autoSaveService.resetRetryCount(tab.value.id)
-
-      const isDirty = tab.value.document.isDirty
-      const saveCtx = tab.value.document.saveContext
-      const autoSaveEnabled = AUTO_SAVE_REQUESTS.value
-
-      if (
-        !autoSaveEnabled ||
-        !isDirty ||
-        !saveCtx ||
-        tab.value.document.type !== "request"
-      ) {
-        return
-      }
-
-      saveRequest({ silent: true })
-    } catch {
-      // Tab was removed between the watcher firing and execution — safe to ignore.
-    }
-  },
-  {
-    deep: true,
-    debounce: computed(() =>
-      Math.min(10000, Math.max(500, Number(AUTO_SAVE_DELAY_MS.value) || 2000))
-    ),
-  }
-)
-
-onUnmounted(() => {
-  stopAutoSave()
-})
 
 const tabResults = inspectionService.getResultViewFor(tab.value.id)
 </script>

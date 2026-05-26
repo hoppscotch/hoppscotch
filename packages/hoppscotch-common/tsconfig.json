@@ -13,7 +13,6 @@
     "esModuleInterop": true,
     "lib": ["ESNext", "DOM"],
     "skipLibCheck": true,
-    "noEmit": true,
     "noUnusedLocals": true,
     "paths": {
       "~/*": ["./src/*"],

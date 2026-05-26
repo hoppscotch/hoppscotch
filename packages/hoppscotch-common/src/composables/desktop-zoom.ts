@@ -1,9 +1,9 @@
 import { watch, type WatchStopHandle } from "vue"
 import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow"
 // Relative imports rather than the `~/` alias because this module is
-// consumed by both the selfhost-web entry (where `~` resolves to
-// common's src) and the desktop shell entry (where `~` resolves to the
-// shell's own src). The package-name alias `@hoppscotch/common/...`
+// consumed by both the web entry (where `~` resolves to common's src)
+// and the desktop shell entry (where `~` resolves to the shell's own
+// src). The package-name alias `@hoppscotch/common/...`
 // would work under Vite dev (which honors pnpm symlinks via esbuild)
 // but fails under Rollup build, which treats the rewritten
 // `@hoppscotch/common/src/...` as an unresolved package specifier.
@@ -19,9 +19,8 @@ const LOG_TAG = "useDesktopZoomEffect"
  * and keeps it in sync with the setting.
  *
  * Each desktop entry point calls this once during startup. The launcher
- * window (`hoppscotch-desktop/src/main.ts`) and the bundled selfhost-web
- * window (`hoppscotch-selfhost-web/src/main.ts`) each get their own
- * invocation, and each watcher addresses its own window through
+ * window and the bundled web window each get their own invocation, and
+ * each watcher addresses its own window through
  * `getCurrentWebviewWindow()`, which is the only window the webview can
  * see. The settings store is the shared source of truth between the two
  * windows, so a write in one reaches the other through the unified store

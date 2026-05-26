@@ -349,8 +349,11 @@ agent:
       sh: curl -fsSL https://dist.ota.run/install.sh | OTA_VERSION=v1.6.15 sh
       powershell: $env:OTA_VERSION='v1.6.15'; irm https://dist.ota.run/install.ps1 | iex
   notes: |
-    Hoppscotch's root README points contributors to the self-hosting documentation rather than a
-    single host-native development script. This contract starts from the strongest repo-owned front doors
-    already visible in the repository itself: the root pnpm verification workflow and the documented
-    Docker Compose self-host profiles. Desktop, relay, agent, and release workflows remain out of scope
-    for this first pressure slice.
+    Use `ota tasks --use .` to list runnable tasks and review the agent-safe surface before execution.
+    Use `ota run setup:env .` before self-host workflows so `.env` is created from `.env.example`
+    only when missing.
+    Use `ota up --workflow verify --native .` for root workspace lint/typecheck/test validation.
+    Use `ota up --workflow selfhost --native .` for the documented default self-host flow.
+    Use `ota up --workflow app --native .`, `ota up --workflow backend --native .`, and
+    `ota up --workflow admin --native .` for profile-specific compose paths.
+    Desktop, relay, agent, and release workflows remain out of scope in this slice.

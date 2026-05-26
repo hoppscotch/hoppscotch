@@ -2,7 +2,8 @@ import { describe, test, expect } from 'vitest'
 import { CommanderError } from 'commander'
 import { 
   hasProperty, 
-  isHoppCLIError, 
+  isHoppCLIError,
+  isHoppErrnoException,
   isSafeCommanderError 
 } from '../../utils/checks'
 
@@ -33,6 +34,34 @@ describe('CLI Type Guard Utilities (checks.ts)', () => {
     test('should return false if the code property exists but is not a string', () => {
       const invalidErrorCode = { code: 404 } 
       expect(isHoppCLIError(invalidErrorCode)).toBe(false)
+    })
+
+    test('should return false for null or undefined input', () => {
+      expect(isHoppCLIError(null)).toBe(false)
+      expect(isHoppCLIError(undefined)).toBe(false)
+    })
+
+    test('should return false if the object is missing the code property', () => {
+      const missingCode = { name: 'SyntaxError', message: 'No code here' }
+      expect(isHoppCLIError(missingCode)).toBe(false)
+    })
+  })
+
+  describe('isHoppErrnoException', () => {
+    test('should return true for a valid NodeJS.ErrnoException', () => {
+      const validErrno = new Error('File not found') as NodeJS.ErrnoException
+      validErrno.code = 'ENOENT'
+      expect(isHoppErrnoException(validErrno)).toBe(true)
+    })
+
+    test('should return false if the error does not have a string code property', () => {
+      const invalidErrno = new Error('Standard error')
+      expect(isHoppErrnoException(invalidErrno)).toBe(false)
+    })
+
+    test('should return false for null or undefined input', () => {
+      expect(isHoppErrnoException(null)).toBe(false)
+      expect(isHoppErrnoException(undefined)).toBe(false)
     })
   })
 

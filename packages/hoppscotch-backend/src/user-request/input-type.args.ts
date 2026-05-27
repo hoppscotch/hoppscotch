@@ -73,6 +73,13 @@ export class CreateUserRequestArgs {
 
 @ArgsType()
 export class UpdateUserRequestArgs {
+  @Field(() => ID, {
+    description: 'ID of the user request',
+  })
+  @IsString()
+  @IsNotEmpty()
+  id: string;
+
   @Field({
     nullable: true,
     defaultValue: undefined,

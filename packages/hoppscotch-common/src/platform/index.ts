@@ -15,6 +15,7 @@ import { OrganizationPlatformDef } from "./organization"
 import { KernelIO } from "./kernel-io"
 import { AdditionalLinksPlatformDef } from "./additionalLinks"
 import { InstancePlatformDef } from "./instance"
+import { SyncPlatformDef } from "./sync"
 
 export type PlatformDef = {
   ui?: UIPlatformDef
@@ -65,6 +66,7 @@ export type PlatformDef = {
   backend: BackendPlatformDef
   organization?: OrganizationPlatformDef
   additionalLinks?: AdditionalLinksPlatformDef
+  sync?: SyncPlatformDef
 }
 
 export let platform: PlatformDef

@@ -14,6 +14,7 @@ import { CurrentValueService } from "~/services/current-environment-value.servic
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { getSyncInitFunction, StoreSyncDefinitionOf } from ".."
 import { createMapper } from "../mapper"
+import { platform } from "~/platform"
 import {
   clearGlobalEnvironmentVariables,
   createUserEnvironment,
@@ -186,14 +187,22 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
         )
         return
       }
-      updateUserEnvironment(
-        backendId,
-        "",
-        JSON.stringify({
-          v: 2,
-          variables: stripSecretVariableValuesForWire(variables),
-        })
-      )()
+      const payload = JSON.stringify({
+        v: 2,
+        variables: stripSecretVariableValuesForWire(variables),
+      })
+      // Feature-detect a platform-provided global-env updater. Newer
+      // backends (cloud) split the global update into a dedicated
+      // mutation and reject `updateUserEnvironment` for global ids with
+      // `user_environment/env_does_not_exist`; older / selfhost backends
+      // still accept the unified mutation with an empty `name`.
+      const platformUpdate =
+        platform.sync?.environment?.updateUserGlobalEnvironment
+      if (platformUpdate) {
+        platformUpdate(backendId, payload)
+      } else {
+        updateUserEnvironment(backendId, "", payload)()
+      }
     }
   },
   clearGlobalVariables() {

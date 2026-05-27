@@ -3,6 +3,7 @@ import {
   HoppRESTRequest,
   makeCollection,
   parseRawKeyValueEntries,
+  rawKeyValueEntriesToString,
 } from "@hoppscotch/data"
 import { OpenAPIV3_1 } from "openapi-types"
 
@@ -551,6 +552,199 @@ function convertResponses(
   return result
 }
 
+const redactOAuth2Params = <T extends { value: string }>(params: T[]): T[] =>
+  params.map((param) => ({ ...param, value: "" }))
+
+const redactOAuth2GrantToken = <T extends { token: string }>(grant: T): T => {
+  const redacted = { ...grant, token: "" } as T & { refreshToken?: string }
+  if ("refreshToken" in redacted) {
+    redacted.refreshToken = ""
+  }
+  return redacted
+}
+
+function sanitizeDroppedRequestAuth(auth: AuthLike): AuthLike {
+  switch (auth.authType) {
+    case "none":
+    case "inherit":
+      return auth
+    case "basic":
+      return { ...auth, username: "", password: "" }
+    case "bearer":
+      return { ...auth, token: "" }
+    case "api-key":
+      return { ...auth, value: "" }
+    case "oauth-2": {
+      const grantTypeInfo = auth.grantTypeInfo
+
+      switch (grantTypeInfo.grantType) {
+        case "AUTHORIZATION_CODE":
+          return {
+            ...auth,
+            grantTypeInfo: {
+              ...redactOAuth2GrantToken(grantTypeInfo),
+              clientSecret: "",
+              authRequestParams: redactOAuth2Params(
+                grantTypeInfo.authRequestParams
+              ),
+              tokenRequestParams: redactOAuth2Params(
+                grantTypeInfo.tokenRequestParams
+              ),
+              refreshRequestParams: redactOAuth2Params(
+                grantTypeInfo.refreshRequestParams
+              ),
+            },
+          }
+        case "CLIENT_CREDENTIALS":
+          return {
+            ...auth,
+            grantTypeInfo: {
+              ...redactOAuth2GrantToken(grantTypeInfo),
+              clientSecret: "",
+              tokenRequestParams: redactOAuth2Params(
+                grantTypeInfo.tokenRequestParams
+              ),
+              refreshRequestParams: redactOAuth2Params(
+                grantTypeInfo.refreshRequestParams
+              ),
+            },
+          }
+        case "PASSWORD":
+          return {
+            ...auth,
+            grantTypeInfo: {
+              ...redactOAuth2GrantToken(grantTypeInfo),
+              clientSecret: "",
+              username: "",
+              password: "",
+              tokenRequestParams: redactOAuth2Params(
+                grantTypeInfo.tokenRequestParams
+              ),
+              refreshRequestParams: redactOAuth2Params(
+                grantTypeInfo.refreshRequestParams
+              ),
+            },
+          }
+        case "IMPLICIT":
+          return {
+            ...auth,
+            grantTypeInfo: {
+              ...redactOAuth2GrantToken(grantTypeInfo),
+              authRequestParams: redactOAuth2Params(
+                grantTypeInfo.authRequestParams
+              ),
+              refreshRequestParams: redactOAuth2Params(
+                grantTypeInfo.refreshRequestParams
+              ),
+            },
+          }
+        default:
+          // Unknown grant type — fall back to inherit rather than leaking partial fields.
+          return { authType: "inherit", authActive: auth.authActive }
+      }
+    }
+    case "aws-signature":
+      return {
+        ...auth,
+        accessKey: "",
+        secretKey: "",
+        serviceToken: undefined,
+        signature: undefined,
+      }
+    case "digest":
+      return {
+        ...auth,
+        username: "",
+        password: "",
+        nonce: "",
+        cnonce: "",
+        opaque: "",
+      }
+    case "hawk":
+      return {
+        ...auth,
+        authId: "",
+        authKey: "",
+        user: undefined,
+        nonce: undefined,
+        ext: undefined,
+        app: undefined,
+        dlg: undefined,
+        timestamp: undefined,
+      }
+    case "akamai-eg":
+      return {
+        ...auth,
+        accessToken: "",
+        clientToken: "",
+        clientSecret: "",
+        nonce: undefined,
+        timestamp: undefined,
+      }
+    case "jwt":
+      return {
+        ...auth,
+        secret: "",
+        privateKey: "",
+        payload: "{}",
+        jwtHeaders: "{}",
+      }
+  }
+}
+
+function sanitizeDroppedRequestBody(
+  body: HoppRESTRequest["body"]
+): HoppRESTRequest["body"] {
+  if (!body || body.contentType === null) return body
+
+  if (body.contentType === "multipart/form-data") {
+    return {
+      ...body,
+      body: Array.isArray(body.body)
+        ? body.body
+            .filter((entry) => entry.active && entry.key)
+            .map((entry) => (entry.isFile ? { ...entry, value: "" } : entry))
+        : [],
+    }
+  }
+
+  if (body.contentType === "application/x-www-form-urlencoded") {
+    const bodyStr = typeof body.body === "string" ? body.body : ""
+    return {
+      ...body,
+      body: rawKeyValueEntriesToString(
+        parseRawKeyValueEntries(bodyStr).filter(
+          (entry) => entry.active && entry.key
+        )
+      ),
+    }
+  }
+
+  return body
+}
+
+// Keep dropped-request payloads aligned with export's no-credentials/no-scripts lossiness.
+function sanitizeRequestForDroppedExtension(
+  request: HoppRESTRequest
+): HoppRESTRequest {
+  return {
+    ...request,
+    auth: sanitizeDroppedRequestAuth(request.auth),
+    body: sanitizeDroppedRequestBody(request.body),
+    preRequestScript: "",
+    testScript: "",
+    params: request.params.filter((p) => p.active),
+    // Cookie often carries pasted auth but is not in SKIP_HEADER_NAMES.
+    headers: request.headers.filter((h) => {
+      const key = h.key.trim().toLowerCase()
+      return h.active && !SKIP_HEADER_NAMES.has(key) && key !== "cookie"
+    }),
+    requestVariables: request.requestVariables.filter((v) => v.active),
+    // Saved responses can embed original requests and raw secret payloads.
+    responses: {},
+  }
+}
+
 /**
  * Convert a HoppCollection to an OpenAPI 3.1.0 document.
  */
@@ -563,6 +757,11 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
   const securitySchemes: Record<string, OpenAPIV3_1.SecuritySchemeObject> = {}
   const servers = new Set<string>()
   const usedOperationIds = new Set<string>()
+  // OpenAPI keeps one operation per (path, method); stash later collisions for re-import.
+  const droppedRequests: Array<{
+    tagPath: string | null
+    request: HoppRESTRequest
+  }> = []
 
   /**
    * Resolve a `<<varName>>` server placeholder to the variable's actual value
@@ -682,14 +881,23 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
       // emitting them would produce an invalid document.
       if (!OPENAPI_METHODS.has(method)) continue
 
-      // Skip duplicate (path, method) — OpenAPI cannot represent two
-      // operations with the same key. Keep the first seen; drop the rest.
       const pathItem = (paths[path] = (paths[path] ??
         {}) as OpenAPIV3_1.PathItemObject) as Record<
         string,
         OpenAPIV3_1.OperationObject
       >
-      if (pathItem[method]) continue
+      if (pathItem[method]) {
+        // Snapshot effective auth so restored duplicates don't lose inherited auth on unwrap.
+        const effectiveAuth = resolveEffectiveAuth(request.auth, inheritedAuth)
+        droppedRequests.push({
+          tagPath,
+          request: sanitizeRequestForDroppedExtension({
+            ...request,
+            auth: effectiveAuth ?? request.auth,
+          }),
+        })
+        continue
+      }
 
       if (server) servers.add(resolveServerPlaceholder(server, variableValues))
 
@@ -732,7 +940,7 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
       // Request-level headers
       for (const header of request.headers) {
         if (!header.active || !header.key) continue
-        if (SKIP_HEADER_NAMES.has(header.key.toLowerCase())) continue
+        if (SKIP_HEADER_NAMES.has(header.key.trim().toLowerCase())) continue
         pushParam({
           name: header.key,
           in: "header",
@@ -750,7 +958,7 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
       for (const headers of inheritedHeaders) {
         for (const header of headers) {
           if (!header.active || !header.key) continue
-          if (SKIP_HEADER_NAMES.has(header.key.toLowerCase())) continue
+          if (SKIP_HEADER_NAMES.has(header.key.trim().toLowerCase())) continue
           pushParam({
             name: header.key,
             in: "header",
@@ -974,6 +1182,12 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
     ;(doc as Record<string, unknown>)["x-hoppscotch-folder-tags"] = "slash"
   }
 
+  if (droppedRequests.length > 0) {
+    // Hoppscotch-only x-* payload; OpenAPI consumers should ignore it.
+    ;(doc as Record<string, unknown>)["x-hoppscotch-dropped-requests"] =
+      droppedRequests
+  }
+
   // Collection-level auth → global security (only when explicit and non-none)
   if (rootInheritedAuth?.authActive) {
     if (rootInheritedAuth.authType !== "none") {
@@ -1017,5 +1231,8 @@ export function hoppCollectionsToOpenAPI(
     preRequestScript: "",
     testScript: "",
   })
-  return hoppCollectionToOpenAPI(root)
+  const { doc } = hoppCollectionToOpenAPI(root)
+  // Mark the synthetic wrapper so import can restore root collections.
+  ;(doc as Record<string, unknown>)["x-hoppscotch-workspace-root"] = true
+  return { doc }
 }

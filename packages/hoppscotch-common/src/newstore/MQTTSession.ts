@@ -1,5 +1,6 @@
 import { distinctUntilChanged, pluck } from "rxjs/operators"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
+import { getI18n } from "~/modules/i18n"
 import { MQTTConnection } from "~/helpers/realtime/MQTTConnection"
 import {
   HoppRealtimeLog,
@@ -28,6 +29,8 @@ type HoppMQTTSession = {
   currentTabId: string
 }
 
+const t = getI18n()
+
 const defaultMQTTRequest: HoppMQTTRequest = {
   endpoint: "wss://test.mosquitto.org:8081",
   clientID: "hoppscotch",
@@ -35,7 +38,7 @@ const defaultMQTTRequest: HoppMQTTRequest = {
 
 const defaultTab: MQTTTab = {
   id: "all",
-  name: "All Topics",
+  name: t("mqtt.all_topics"),
   color: "var(--accent-color)",
   removable: false,
   logs: [],

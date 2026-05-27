@@ -1061,6 +1061,7 @@
     "qos": "QoS",
     "ssl": "SSL",
     "subscribe": "订阅",
+    "all_topics": "所有主题",
     "topic": "主题",
     "topic_name": "主题名称",
     "topic_title": "发布/订阅主题",

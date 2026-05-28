@@ -43,6 +43,7 @@ export const probableUser$ = new BehaviorSubject<HoppUserWithAuthDetail | null>(
 )
 
 const isGettingInitialUser: Ref<null | boolean> = ref(null)
+let isProcessingDeepLink = false
 
 const persistenceService = getService(PersistenceService)
 const interceptorService = getService(KernelInterceptorService)
@@ -242,7 +243,7 @@ async function refreshToken() {
 
     if (isSuccessful && currentUser$.value) {
       authEvents$.next({
-        event: "login",
+        event: "token_refresh",
         user: {
           uid: currentUser$.value.uid,
           displayName: currentUser$.value.displayName,
@@ -386,23 +387,46 @@ export const def: AuthPlatformDef = {
     await listen<string>(
       "scheme-request-received",
       async (event: { payload: string }) => {
-        const deepLink = event.payload
-        const params = new URLSearchParams(deepLink.split("?")[1])
-
-        const accessToken = params.get("access_token")
-        const refreshToken = params.get("refresh_token")
-        const token = params.get("token")
-
-        if (accessToken && refreshToken) {
-          await persistenceService.setLocalConfig("access_token", accessToken)
-          await persistenceService.setLocalConfig("refresh_token", refreshToken)
+        // Prevent concurrent deep-link processing to avoid race conditions
+        // and duplicate login events during re-authentication
+        if (isProcessingDeepLink) {
+          console.warn(
+            "[Auth] Deep-link already being processed, ignoring duplicate request"
+          )
           return
         }
 
-        if (token) {
-          await persistenceService.setLocalConfig("verifyToken", token)
-          await this.signInWithEmailLink("", "")
-          await setInitialUser()
+        isProcessingDeepLink = true
+
+        try {
+          const deepLink = event.payload
+          const params = new URLSearchParams(deepLink.split("?")[1])
+
+          const accessToken = params.get("access_token")
+          const refreshToken = params.get("refresh_token")
+          const token = params.get("token")
+
+          if (accessToken && refreshToken) {
+            await persistenceService.setLocalConfig("access_token", accessToken)
+            await persistenceService.setLocalConfig(
+              "refresh_token",
+              refreshToken
+            )
+            // Call setInitialUser to update currentUser$, emit login event,
+            // and trigger sync subscriptions (matches magic-link flow pattern)
+            await setInitialUser()
+            return
+          }
+
+          if (token) {
+            await persistenceService.setLocalConfig("verifyToken", token)
+            await this.signInWithEmailLink("", "")
+            await setInitialUser()
+          }
+        } finally {
+          // Reset flag after a short delay to allow for legitimate re-authentication
+          // while still preventing rapid duplicate requests
+          isProcessingDeepLink = false
         }
       }
     )

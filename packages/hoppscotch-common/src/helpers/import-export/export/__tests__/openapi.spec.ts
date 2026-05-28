@@ -8,9 +8,10 @@ import {
   HoppRESTRequest,
   HoppRESTRequestResponse,
 } from "@hoppscotch/data"
+import * as E from "fp-ts/Either"
 import { OpenAPI } from "openapi-types"
 import SwaggerParser from "@apidevtools/swagger-parser"
-import { hoppCollectionToOpenAPI } from "../openapi"
+import { hoppCollectionToOpenAPI, hoppCollectionsToOpenAPI } from "../openapi"
 import {
   convertOpenApiDocsToHopp,
   splitTagSegments,
@@ -2701,6 +2702,75 @@ describe("exported doc validates against OpenAPI 3.1 spec", () => {
       )
     ).resolves.not.toThrow()
   })
+
+  it("a collection with path collisions validates with x-hoppscotch-dropped-requests present", async () => {
+    await expect(
+      validate(
+        buildColl({
+          requests: [
+            buildReq({
+              name: "Kept",
+              method: "GET",
+              endpoint: "https://api.example.com/items",
+            }),
+            buildReq({
+              name: "Dropped",
+              method: "GET",
+              endpoint: "https://api.example.com/items",
+            }),
+          ],
+        })
+      )
+    ).resolves.not.toThrow()
+  })
+
+  it("a multi-collection workspace doc validates with x-hoppscotch-workspace-root present", async () => {
+    const collections = [
+      buildColl({
+        name: "ColA",
+        requests: [
+          buildReq({ name: "A", endpoint: "https://api.example.com/a" }),
+        ],
+      }),
+      buildColl({
+        name: "ColB",
+        requests: [
+          buildReq({ name: "B", endpoint: "https://api.example.com/b" }),
+        ],
+      }),
+    ]
+    const { doc } = hoppCollectionsToOpenAPI("WS", collections)
+    const cloned = JSON.parse(JSON.stringify(doc))
+    await expect(SwaggerParser.validate(cloned)).resolves.not.toThrow()
+  })
+
+  it("a workspace with nested folders + path collisions validates with both markers present", async () => {
+    const collections = [
+      buildColl({
+        name: "ColA",
+        folders: [
+          buildColl({
+            name: "API",
+            requests: [
+              buildReq({
+                name: "Kept",
+                method: "GET",
+                endpoint: "https://api.example.com/items",
+              }),
+              buildReq({
+                name: "Dropped",
+                method: "GET",
+                endpoint: "https://api.example.com/items",
+              }),
+            ],
+          }),
+        ],
+      }),
+    ]
+    const { doc } = hoppCollectionsToOpenAPI("WS", collections)
+    const cloned = JSON.parse(JSON.stringify(doc))
+    await expect(SwaggerParser.validate(cloned)).resolves.not.toThrow()
+  })
 })
 
 // Active flag preservation. OpenAPI has no concept of inactive params/headers,
@@ -3512,5 +3582,939 @@ describe("Swagger 2.0 compatibility", () => {
       const avatar = body.body.find((e) => e.key === "avatar")
       expect(avatar?.isFile).toBe(true)
     }
+  })
+})
+
+describe("OpenAPI export — path-collision preservation (x-hoppscotch-dropped-requests)", () => {
+  it("end-to-end: nested-folder dropped request is restored with correct tagPath", async () => {
+    const original = buildCollection({
+      name: "API",
+      folders: [
+        buildCollection({
+          name: "Users",
+          requests: [
+            buildRequest({
+              name: "Get v1",
+              method: "GET",
+              endpoint: "https://api.example.com/users",
+            }),
+            buildRequest({
+              name: "Get v2",
+              method: "GET",
+              endpoint: "https://api.example.com/users",
+            }),
+          ],
+        }),
+        buildCollection({
+          name: "Posts",
+          requests: [
+            buildRequest({
+              name: "Posts list",
+              method: "GET",
+              endpoint: "https://api.example.com/posts",
+            }),
+          ],
+        }),
+      ],
+    })
+
+    const { doc } = hoppCollectionToOpenAPI(original)
+    const dropped = (doc as Record<string, unknown>)[
+      "x-hoppscotch-dropped-requests"
+    ] as Array<{ tagPath: string | null; request: { name: string } }>
+
+    expect(dropped).toHaveLength(1)
+    expect(dropped[0].tagPath).toBe("Users")
+    expect(dropped[0].request.name).toBe("Get v2")
+
+    const result = await convertOpenApiDocsToHopp([doc as OpenAPI.Document])()
+    if (E.isLeft(result)) throw new Error("import failed")
+
+    const usersF = result.right[0].folders.find((f) => f.name === "Users")
+    expect(usersF?.requests.map((r) => r.name).sort()).toEqual([
+      "Get v1",
+      "Get v2",
+    ])
+    // Restored requests must use the same <<baseUrl>> parameterisation as
+    // kept requests so the sidebar tree shows consistent endpoint forms.
+    expect(
+      usersF?.requests.every((r) => r.endpoint.startsWith("<<baseUrl>>"))
+    ).toBe(true)
+  })
+
+  it("does not emit the extension when there are no collisions", () => {
+    const collection = buildCollection({
+      requests: [
+        buildRequest({
+          name: "A",
+          method: "GET",
+          endpoint: "https://api.example.com/a",
+        }),
+        buildRequest({
+          name: "B",
+          method: "POST",
+          endpoint: "https://api.example.com/a",
+        }),
+      ],
+    })
+
+    const { doc } = hoppCollectionToOpenAPI(collection)
+
+    expect(
+      (doc as Record<string, unknown>)["x-hoppscotch-dropped-requests"]
+    ).toBeUndefined()
+  })
+
+  it("restores sibling-folder collisions including nested children without dropping any", async () => {
+    const original = buildCollection({
+      name: "API",
+      folders: [
+        buildCollection({
+          name: "FolderA",
+          requests: [
+            buildRequest({
+              name: "A-list",
+              method: "GET",
+              endpoint: "https://api.example.com/items",
+            }),
+          ],
+          folders: [
+            buildCollection({
+              name: "Sub",
+              requests: [
+                buildRequest({
+                  name: "A-sub-get",
+                  method: "GET",
+                  endpoint: "https://api.example.com/items",
+                }),
+              ],
+            }),
+          ],
+        }),
+        buildCollection({
+          name: "FolderB",
+          requests: [
+            buildRequest({
+              name: "B-list",
+              method: "GET",
+              endpoint: "https://api.example.com/items",
+            }),
+          ],
+        }),
+      ],
+    })
+
+    const { doc } = hoppCollectionToOpenAPI(original)
+    const result = await convertOpenApiDocsToHopp([doc as OpenAPI.Document])()
+    if (E.isLeft(result)) throw new Error("import failed")
+
+    const folderA = result.right[0].folders.find((f) => f.name === "FolderA")
+    const folderB = result.right[0].folders.find((f) => f.name === "FolderB")
+    expect(folderA?.requests.map((r) => r.name)).toContain("A-list")
+    expect(folderA?.folders[0]?.requests.map((r) => r.name)).toContain(
+      "A-sub-get"
+    )
+    expect(folderB?.requests.map((r) => r.name)).toContain("B-list")
+  })
+})
+
+describe("OpenAPI export — workspace-root unwrap (x-hoppscotch-workspace-root)", () => {
+  it("multi-collection workspace marks the doc and unwraps to N roots on re-import", async () => {
+    const { doc } = hoppCollectionsToOpenAPI("MyWorkspace", [
+      buildCollection({
+        name: "ColA",
+        folders: [
+          buildCollection({
+            name: "Sub",
+            requests: [
+              buildRequest({
+                name: "A1",
+                endpoint: "https://api.example.com/a",
+              }),
+            ],
+          }),
+        ],
+      }),
+      buildCollection({
+        name: "ColB",
+        requests: [
+          buildRequest({
+            name: "B1",
+            endpoint: "https://api.example.com/b",
+          }),
+        ],
+      }),
+    ])
+
+    expect(
+      (doc as Record<string, unknown>)["x-hoppscotch-workspace-root"]
+    ).toBe(true)
+
+    const result = await convertOpenApiDocsToHopp([doc as OpenAPI.Document])()
+    if (E.isLeft(result)) throw new Error("import failed")
+
+    expect(result.right).toHaveLength(2)
+    const colA = result.right.find((c) => c.name === "ColA")
+    const colB = result.right.find((c) => c.name === "ColB")
+    expect(colA?.folders.find((f) => f.name === "Sub")?.requests).toHaveLength(
+      1
+    )
+    expect(colB?.requests).toHaveLength(1)
+  })
+
+  it("single-collection workspace export imports as 1 root collection", async () => {
+    const { doc } = hoppCollectionsToOpenAPI("Lonely", [
+      buildCollection({
+        name: "OnlyChild",
+        requests: [
+          buildRequest({
+            name: "Solo",
+            endpoint: "https://api.example.com/solo",
+          }),
+        ],
+      }),
+    ])
+
+    const result = await convertOpenApiDocsToHopp([doc as OpenAPI.Document])()
+    if (E.isLeft(result)) throw new Error("import failed")
+
+    expect(result.right).toHaveLength(1)
+    expect(result.right[0].name).toBe("OnlyChild")
+    expect(result.right[0].requests).toHaveLength(1)
+  })
+
+  it("does not unwrap a doc without the workspace-root marker", async () => {
+    const { doc } = hoppCollectionToOpenAPI(
+      buildCollection({
+        name: "ThirdPartyAPI",
+        folders: [
+          buildCollection({
+            name: "Inner",
+            requests: [
+              buildRequest({
+                name: "Op",
+                endpoint: "https://api.example.com/op",
+              }),
+            ],
+          }),
+        ],
+      })
+    )
+
+    const result = await convertOpenApiDocsToHopp([doc as OpenAPI.Document])()
+    if (E.isLeft(result)) throw new Error("import failed")
+
+    expect(result.right).toHaveLength(1)
+    expect(result.right[0].name).toBe("ThirdPartyAPI")
+    expect(result.right[0].folders).toHaveLength(1)
+    expect(result.right[0].folders[0].name).toBe("Inner")
+  })
+
+  it("degenerate empty workspace keeps the wrapper rather than unwrapping to nothing", async () => {
+    const { doc } = hoppCollectionsToOpenAPI("EmptyWS", [])
+    const result = await convertOpenApiDocsToHopp([doc as OpenAPI.Document])()
+    if (E.isLeft(result)) throw new Error("import failed")
+
+    expect(result.right).toHaveLength(1)
+    expect(result.right[0].name).toBe("EmptyWS")
+  })
+
+  it("propagates baseUrl variable and wrapper auth onto each unwrapped collection", async () => {
+    const collections = [
+      buildCollection({
+        name: "ColA",
+        requests: [
+          buildRequest({
+            name: "GetA",
+            endpoint: "https://api.example.com/a",
+          }),
+        ],
+      }),
+      buildCollection({
+        name: "ColB",
+        requests: [
+          buildRequest({
+            name: "GetB",
+            endpoint: "https://api.example.com/b",
+          }),
+        ],
+      }),
+    ]
+
+    const { doc } = hoppCollectionsToOpenAPI("WS", collections)
+    const result = await convertOpenApiDocsToHopp([doc as OpenAPI.Document])()
+    if (E.isLeft(result)) throw new Error("import failed")
+
+    expect(result.right).toHaveLength(2)
+    for (const c of result.right) {
+      const baseUrlVar = c.variables.find((v) => v.key === "baseUrl")
+      expect(baseUrlVar?.initialValue).toBe("https://api.example.com")
+      expect(c.requests[0]?.endpoint).toMatch(/^<<baseUrl>>/)
+      // Wrapper auth (from doc.security) propagates; absent doc.security
+      // resolves to inherit, which is the workspace-level neutral default.
+      expect(c.auth.authType).toBe("inherit")
+    }
+  })
+})
+
+describe("OpenAPI export — dropped-requests sanitization", () => {
+  it("strips auth, scripts, inactive params/headers, Authorization, Cookie (case-insensitive, multiple)", () => {
+    const collection = buildCollection({
+      requests: [
+        buildRequest({
+          name: "Kept",
+          method: "POST",
+          endpoint: "https://api.example.com/login",
+        }),
+        buildRequest({
+          name: "Dropped",
+          method: "POST",
+          endpoint: "https://api.example.com/login",
+          auth: {
+            authType: "basic",
+            authActive: false,
+            username: "alice",
+            password: "s3cret",
+          },
+          preRequestScript: "pw.env.set('x', 1)",
+          testScript: "pw.test('ok', () => {})",
+          params: [
+            { key: "active-param", value: "v", active: true, description: "" },
+            { key: "stale", value: "v", active: false, description: "" },
+          ],
+          headers: [
+            {
+              key: "Authorization",
+              value: "Bearer raw-header-secret",
+              active: true,
+              description: "",
+            },
+            {
+              key: "Cookie",
+              value: "a=cookie-secret-1",
+              active: true,
+              description: "",
+            },
+            {
+              key: "cookie",
+              value: "b=cookie-secret-2",
+              active: true,
+              description: "",
+            },
+            {
+              key: "X-Active",
+              value: "1",
+              active: true,
+              description: "",
+            },
+            {
+              key: "X-Stale",
+              value: "1",
+              active: false,
+              description: "",
+            },
+          ],
+          requestVariables: [
+            { key: "active-var", value: "v", active: true, description: "" },
+            { key: "stale-var", value: "v", active: false, description: "" },
+          ],
+        }),
+      ],
+    })
+
+    const { doc } = hoppCollectionToOpenAPI(collection)
+    const dropped = (doc as Record<string, unknown>)[
+      "x-hoppscotch-dropped-requests"
+    ] as Array<{ request: HoppRESTRequest }>
+
+    expect(dropped).toHaveLength(1)
+    const r = dropped[0].request
+    expect(r.auth.authType).toBe("basic")
+    expect(r.preRequestScript).toBe("")
+    expect(r.testScript).toBe("")
+    expect(r.params.map((p) => p.key)).toEqual(["active-param"])
+    expect(r.headers.map((h) => h.key)).toEqual(["X-Active"])
+    expect(r.requestVariables.map((v) => v.key)).toEqual(["active-var"])
+
+    const serialized = JSON.stringify(dropped)
+    expect(serialized).not.toContain("s3cret")
+    expect(serialized).not.toContain("alice")
+    expect(serialized).not.toContain("raw-header-secret")
+    expect(serialized).not.toContain("cookie-secret-1")
+    expect(serialized).not.toContain("cookie-secret-2")
+  })
+
+  it("strips padded Authorization headers from both normal export and dropped extension", () => {
+    const padded = [
+      {
+        key: " Authorization ",
+        value: "Bearer padded-auth-secret",
+        active: true,
+        description: "",
+      },
+    ]
+    const collection = buildCollection({
+      requests: [
+        buildRequest({
+          name: "Normal",
+          method: "GET",
+          endpoint: "https://api.example.com/normal",
+          headers: padded,
+        }),
+        buildRequest({
+          name: "Collision Kept",
+          method: "GET",
+          endpoint: "https://api.example.com/collide",
+        }),
+        buildRequest({
+          name: "Collision Dropped",
+          method: "GET",
+          endpoint: "https://api.example.com/collide",
+          headers: padded,
+        }),
+      ],
+    })
+
+    const { doc } = hoppCollectionToOpenAPI(collection)
+    const serialized = JSON.stringify(doc)
+
+    expect(serialized).not.toContain("padded-auth-secret")
+  })
+
+  it("preserves explicit no-auth on dropped requests instead of inheriting parent auth", async () => {
+    const collection = buildCollection({
+      auth: {
+        authType: "bearer",
+        authActive: true,
+        token: "collection-token",
+      },
+      requests: [
+        buildRequest({
+          name: "Kept",
+          method: "GET",
+          endpoint: "https://api.example.com/profile",
+        }),
+        buildRequest({
+          name: "Dropped Public",
+          method: "GET",
+          endpoint: "https://api.example.com/profile",
+          auth: { authType: "none", authActive: true },
+        }),
+      ],
+    })
+
+    const { doc } = hoppCollectionToOpenAPI(collection)
+    const dropped = (doc as Record<string, unknown>)[
+      "x-hoppscotch-dropped-requests"
+    ] as Array<{ request: HoppRESTRequest }>
+
+    expect(dropped).toHaveLength(1)
+    expect(dropped[0].request.auth.authType).toBe("none")
+
+    const roundTripped = await roundTrip(collection)
+    const restored = restRequestsOf(roundTripped).find(
+      (request) => request.name === "Dropped Public"
+    )
+    expect(restored?.auth.authType).toBe("none")
+  })
+
+  it("materializes inherited collection auth into the dropped snapshot (credentials zeroed)", async () => {
+    const collection = buildCollection({
+      auth: {
+        authType: "bearer",
+        authActive: true,
+        token: "collection-token",
+      },
+      requests: [
+        buildRequest({
+          name: "Kept",
+          method: "GET",
+          endpoint: "https://api.example.com/profile",
+        }),
+        buildRequest({
+          name: "Dropped Inheriting",
+          method: "GET",
+          endpoint: "https://api.example.com/profile",
+          auth: { authType: "inherit", authActive: true },
+        }),
+      ],
+    })
+
+    const { doc } = hoppCollectionToOpenAPI(collection)
+    const dropped = (doc as Record<string, unknown>)[
+      "x-hoppscotch-dropped-requests"
+    ] as Array<{ request: HoppRESTRequest }>
+
+    expect(dropped[0].request.auth.authType).toBe("bearer")
+    if (dropped[0].request.auth.authType === "bearer") {
+      expect(dropped[0].request.auth.token).toBe("")
+    }
+    expect(JSON.stringify(dropped)).not.toContain("collection-token")
+
+    const roundTripped = await roundTrip(collection)
+    const restored = restRequestsOf(roundTripped).find(
+      (request) => request.name === "Dropped Inheriting"
+    )
+    expect(restored?.auth.authType).toBe("bearer")
+  })
+
+  it("drops inactive multipart entries from dropped requests", () => {
+    const collection = buildCollection({
+      requests: [
+        buildRequest({
+          name: "Kept",
+          method: "POST",
+          endpoint: "https://api.example.com/upload",
+        }),
+        buildRequest({
+          name: "Dropped Upload",
+          method: "POST",
+          endpoint: "https://api.example.com/upload",
+          body: {
+            contentType: "multipart/form-data",
+            body: [
+              {
+                key: "displayName",
+                value: "public-name",
+                active: true,
+                isFile: false,
+              },
+              {
+                key: "disabledSecret",
+                value: "inactive-secret",
+                active: false,
+                isFile: false,
+              },
+              {
+                key: "activeFile",
+                value: "active-file-payload",
+                active: true,
+                isFile: true,
+              },
+              {
+                key: "disabledFile",
+                value: "inactive-file-payload",
+                active: false,
+                isFile: true,
+              },
+            ],
+          },
+        }),
+      ],
+    })
+
+    const { doc } = hoppCollectionToOpenAPI(collection)
+    const dropped = (doc as Record<string, unknown>)[
+      "x-hoppscotch-dropped-requests"
+    ] as Array<{ request: HoppRESTRequest }>
+    const body = dropped[0].request.body
+
+    expect(body.contentType).toBe("multipart/form-data")
+    expect(
+      Array.isArray(body.body) ? body.body.map((entry) => entry.key) : []
+    ).toEqual(["displayName", "activeFile"])
+    expect(
+      Array.isArray(body.body)
+        ? body.body.find((entry) => entry.key === "activeFile")?.value
+        : undefined
+    ).toBe("")
+
+    const serialized = JSON.stringify(dropped)
+    expect(serialized).not.toContain("inactive-secret")
+    expect(serialized).not.toContain("active-file-payload")
+    expect(serialized).not.toContain("inactive-file-payload")
+  })
+
+  it("strips credentials embedded in saved responses' originalRequest and body", () => {
+    const dropped = buildRequest({
+      name: "With Secret Response",
+      method: "POST",
+      endpoint: "https://api.example.com/login",
+      responses: {
+        success: {
+          name: "success",
+          status: 200,
+          statusText: "OK",
+          headers: [{ key: "Set-Cookie", value: "session=top-cookie-secret" }],
+          body: '{"accessToken":"top-token-secret"}',
+          originalRequest: makeHoppRESTResponseOriginalRequest({
+            v: "10",
+            name: "OG Login",
+            endpoint: "https://api.example.com/login",
+            method: "POST",
+            params: [],
+            headers: [
+              {
+                key: "Authorization",
+                value: "Bearer top-header-secret",
+                active: true,
+                description: "",
+              },
+            ],
+            body: { contentType: null, body: null },
+            requestVariables: [],
+            auth: {
+              authType: "bearer",
+              authActive: true,
+              token: "top-original-secret",
+            },
+          }) as HoppRESTRequestResponse["originalRequest"],
+        },
+      } as HoppRESTRequestResponses,
+    })
+    const collection = buildCollection({
+      requests: [
+        buildRequest({
+          name: "Kept",
+          method: "POST",
+          endpoint: "https://api.example.com/login",
+        }),
+        dropped,
+      ],
+    })
+
+    const { doc } = hoppCollectionToOpenAPI(collection)
+    const serialized = JSON.stringify(
+      (doc as Record<string, unknown>)["x-hoppscotch-dropped-requests"]
+    )
+
+    expect(serialized).not.toContain("top-token-secret")
+    expect(serialized).not.toContain("top-cookie-secret")
+    expect(serialized).not.toContain("top-header-secret")
+    expect(serialized).not.toContain("top-original-secret")
+  })
+
+  it("falls back to inherit auth when an unknown oauth-2 grant slips through", () => {
+    const collection = buildCollection({
+      requests: [
+        buildRequest({
+          name: "Kept",
+          method: "GET",
+          endpoint: "https://api.example.com/oauth",
+        }),
+        buildRequest({
+          name: "Dropped OAuth Unknown Grant",
+          method: "GET",
+          endpoint: "https://api.example.com/oauth",
+          auth: {
+            authType: "oauth-2",
+            authActive: true,
+            addTo: "HEADERS",
+            grantTypeInfo: {
+              // Force-cast a non-existent grant to exercise the default branch.
+              grantType: "DEVICE_CODE",
+              token: "oauth-secret",
+            },
+          } as unknown as HoppRESTRequest["auth"],
+        }),
+      ],
+    })
+
+    const { doc } = hoppCollectionToOpenAPI(collection)
+    const dropped = (doc as Record<string, unknown>)[
+      "x-hoppscotch-dropped-requests"
+    ] as Array<{ request: HoppRESTRequest }>
+
+    expect(dropped[0].request.auth.authType).toBe("inherit")
+    expect(JSON.stringify(dropped)).not.toContain("oauth-secret")
+  })
+})
+
+describe("OpenAPI import — dropped-requests hardening", () => {
+  it("strips injected auth, scripts, and credential headers from imported dropped requests", async () => {
+    const injected = buildRequest({
+      name: "Injected",
+      method: "POST",
+      endpoint: "https://api.example.com/login",
+      preRequestScript: "/* attacker-pre-script */",
+      testScript: "/* attacker-test-script */",
+      auth: {
+        authType: "bearer",
+        authActive: true,
+        token: "attacker-auth-token",
+      },
+      headers: [
+        {
+          key: "Authorization",
+          value: "Bearer attacker-token",
+          active: true,
+          description: "",
+        },
+        {
+          key: "cookie",
+          value: "session=attacker-session",
+          active: true,
+          description: "",
+        },
+        {
+          key: "Content-Type",
+          value: "application/json",
+          active: true,
+          description: "",
+        },
+        {
+          key: "Accept",
+          value: "application/xml",
+          active: true,
+          description: "",
+        },
+        { key: "X-Custom", value: "kept", active: true, description: "" },
+      ],
+    })
+
+    const doc = {
+      openapi: "3.1.0",
+      info: { title: "Crafted", version: "1.0.0" },
+      paths: {
+        "/login": {
+          post: {
+            summary: "Login",
+            responses: { "200": { description: "ok" } },
+          },
+        },
+      },
+      "x-hoppscotch-dropped-requests": [{ tagPath: null, request: injected }],
+    }
+
+    const result = await convertOpenApiDocsToHopp([doc as OpenAPI.Document])()
+    if (E.isLeft(result)) throw new Error("import failed")
+
+    const restored = result.right[0].requests.find((r) => r.name === "Injected")
+    expect(restored).toBeDefined()
+    expect(restored?.auth.authType).toBe("bearer")
+    if (restored?.auth.authType === "bearer") {
+      expect(restored.auth.token).toBe("")
+    }
+    expect(restored?.preRequestScript).toBe("")
+    expect(restored?.testScript).toBe("")
+    expect(restored?.headers.map((h) => h.key.toLowerCase())).toEqual([
+      "x-custom",
+    ])
+
+    const serialized = JSON.stringify(result.right)
+    expect(serialized).not.toContain("attacker-auth-token")
+    expect(serialized).not.toContain("attacker-token")
+    expect(serialized).not.toContain("attacker-session")
+    expect(serialized).not.toContain("attacker-pre-script")
+    expect(serialized).not.toContain("attacker-test-script")
+  })
+
+  it("skips malformed dropped entries instead of restoring silent default requests", async () => {
+    const doc = {
+      openapi: "3.1.0",
+      info: { title: "Crafted", version: "1.0.0" },
+      paths: {
+        "/items": {
+          get: { responses: { "200": { description: "ok" } } },
+        },
+      },
+      "x-hoppscotch-dropped-requests": [
+        { tagPath: null, request: "not-an-object" },
+        { tagPath: null, request: { not: "a valid request" } },
+        { tagPath: null, request: null },
+      ],
+    }
+
+    const result = await convertOpenApiDocsToHopp([doc as OpenAPI.Document])()
+    if (E.isLeft(result)) throw new Error("import failed")
+
+    // Only the path-based request survives; malformed dropped entries are dropped.
+    expect(result.right[0].requests).toHaveLength(1)
+    expect(result.right[0].requests[0].endpoint).toMatch(/\/items$/)
+  })
+
+  it("isolates wrapper variables and auth per unwrapped child", async () => {
+    const collections = [
+      buildCollection({
+        name: "ColA",
+        requests: [
+          buildRequest({
+            name: "A",
+            endpoint: "https://api.example.com/a",
+          }),
+        ],
+      }),
+      buildCollection({
+        name: "ColB",
+        requests: [
+          buildRequest({
+            name: "B",
+            endpoint: "https://api.example.com/b",
+          }),
+        ],
+      }),
+    ]
+
+    const { doc } = hoppCollectionsToOpenAPI("WS", collections)
+    const result = await convertOpenApiDocsToHopp([doc as OpenAPI.Document])()
+    if (E.isLeft(result)) throw new Error("import failed")
+
+    const [colA, colB] = result.right
+    expect(colA.variables).not.toBe(colB.variables)
+    expect(colA.auth).not.toBe(colB.auth)
+
+    colA.variables.push({
+      key: "leaked",
+      initialValue: "x",
+      currentValue: "",
+      secret: false,
+    })
+    expect(colB.variables.find((v) => v.key === "leaked")).toBeUndefined()
+
+    // Entry-level mutation on A's existing baseUrl must not leak into B.
+    const aBaseUrl = colA.variables.find((v) => v.key === "baseUrl")
+    if (aBaseUrl) aBaseUrl.initialValue = "https://mutated.example.com"
+    expect(colB.variables.find((v) => v.key === "baseUrl")?.initialValue).toBe(
+      "https://api.example.com"
+    )
+  })
+
+  it("drops inactive urlencoded body entries from imported dropped requests", async () => {
+    const injected = buildRequest({
+      name: "InjectedUrlEncoded",
+      method: "POST",
+      endpoint: "https://api.example.com/form",
+      body: {
+        contentType: "application/x-www-form-urlencoded",
+        body: 'kept: "ok"\n# disabled\n# inactive-secret: "leak"',
+        showIndividualParams: false,
+      } as HoppRESTRequest["body"],
+    })
+
+    const doc = {
+      openapi: "3.1.0",
+      info: { title: "Crafted", version: "1.0.0" },
+      paths: {
+        "/form": {
+          post: { responses: { "200": { description: "ok" } } },
+        },
+      },
+      "x-hoppscotch-dropped-requests": [{ tagPath: null, request: injected }],
+    }
+
+    const result = await convertOpenApiDocsToHopp([doc as OpenAPI.Document])()
+    if (E.isLeft(result)) throw new Error("import failed")
+
+    const restored = result.right[0].requests.find(
+      (r) => r.name === "InjectedUrlEncoded"
+    )
+
+    expect(restored?.body.contentType).toBe("application/x-www-form-urlencoded")
+    expect(JSON.stringify(restored?.body)).not.toContain("inactive-secret")
+    expect(JSON.stringify(restored?.body)).not.toContain("leak")
+  })
+
+  it("strips inactive params, headers, and request variables from imported dropped requests", async () => {
+    const injected = buildRequest({
+      name: "InjectedInactive",
+      method: "GET",
+      endpoint: "https://api.example.com/items",
+      params: [
+        { key: "kept", value: "1", active: true, description: "" },
+        {
+          key: "inactive-param",
+          value: "inactive-param-secret",
+          active: false,
+          description: "",
+        },
+      ],
+      headers: [
+        { key: "X-Kept", value: "ok", active: true, description: "" },
+        {
+          key: "X-Inactive",
+          value: "inactive-header-secret",
+          active: false,
+          description: "",
+        },
+      ],
+      requestVariables: [
+        { key: "kept-var", value: "v", active: true },
+        {
+          key: "inactive-var",
+          value: "inactive-var-secret",
+          active: false,
+        },
+      ],
+    })
+
+    const doc = {
+      openapi: "3.1.0",
+      info: { title: "Crafted", version: "1.0.0" },
+      paths: {
+        "/items": {
+          get: { responses: { "200": { description: "ok" } } },
+        },
+      },
+      "x-hoppscotch-dropped-requests": [{ tagPath: null, request: injected }],
+    }
+
+    const result = await convertOpenApiDocsToHopp([doc as OpenAPI.Document])()
+    if (E.isLeft(result)) throw new Error("import failed")
+
+    const restored = result.right[0].requests.find(
+      (r) => r.name === "InjectedInactive"
+    )
+
+    expect(restored?.params.map((p) => p.key)).toEqual(["kept"])
+    expect(restored?.headers.map((h) => h.key)).toEqual(["X-Kept"])
+    expect(restored?.requestVariables.map((v) => v.key)).toEqual(["kept-var"])
+
+    const serialized = JSON.stringify(restored)
+    expect(serialized).not.toContain("inactive-param-secret")
+    expect(serialized).not.toContain("inactive-header-secret")
+    expect(serialized).not.toContain("inactive-var-secret")
+  })
+})
+
+describe("OpenAPI round-trip — workspace + collision interaction", () => {
+  it("workspace unwrap restores cross-collection (path, method) collisions at their original collection", async () => {
+    const collections = [
+      buildCollection({
+        name: "ColA",
+        requests: [
+          buildRequest({
+            name: "A-keep",
+            method: "GET",
+            endpoint: "https://api.example.com/items",
+          }),
+          buildRequest({
+            name: "A-collide",
+            method: "GET",
+            endpoint: "https://api.example.com/items",
+          }),
+        ],
+      }),
+      buildCollection({
+        name: "ColB",
+        requests: [
+          buildRequest({
+            name: "B-collide",
+            method: "GET",
+            endpoint: "https://api.example.com/items",
+          }),
+          buildRequest({
+            name: "B-other",
+            method: "POST",
+            endpoint: "https://api.example.com/items",
+          }),
+        ],
+      }),
+    ]
+
+    const { doc } = hoppCollectionsToOpenAPI("WS", collections)
+    const result = await convertOpenApiDocsToHopp([doc as OpenAPI.Document])()
+    if (E.isLeft(result)) throw new Error("import failed")
+
+    expect(result.right).toHaveLength(2)
+    const colA = result.right.find((c) => c.name === "ColA")
+    expect(colA?.requests.map((r) => r.name).sort()).toEqual([
+      "A-collide",
+      "A-keep",
+    ])
+    const colB = result.right.find((c) => c.name === "ColB")
+    expect(colB?.requests.map((r) => r.name).sort()).toEqual([
+      "B-collide",
+      "B-other",
+    ])
   })
 })

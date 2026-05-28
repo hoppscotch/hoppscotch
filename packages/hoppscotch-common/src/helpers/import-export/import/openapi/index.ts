@@ -21,6 +21,8 @@ import {
   HoppRESTRequestResponses,
   HoppRESTResponseOriginalRequest,
   makeHoppRESTResponseOriginalRequest,
+  parseRawKeyValueEntries,
+  rawKeyValueEntriesToString,
 } from "@hoppscotch/data"
 import { pipe, flow } from "fp-ts/function"
 import * as A from "fp-ts/Array"
@@ -1316,6 +1318,187 @@ const convertPathToHoppReqs = (
  * are kept flat to avoid mis-importing third-party docs.
  */
 const HOPP_FOLDER_TAGS_MARKER = "x-hoppscotch-folder-tags"
+const HOPP_DROPPED_REQUESTS_MARKER = "x-hoppscotch-dropped-requests"
+const HOPP_WORKSPACE_ROOT_MARKER = "x-hoppscotch-workspace-root"
+
+const docHasWorkspaceRootMarker = (doc: unknown): boolean =>
+  typeof doc === "object" &&
+  doc !== null &&
+  (doc as Record<string, unknown>)[HOPP_WORKSPACE_ROOT_MARKER] === true
+
+type DroppedRequestEntry = {
+  tagPath: string | null
+  request: unknown
+}
+
+type OAuth2GrantTypeInfo = Extract<
+  HoppRESTAuth,
+  { authType: "oauth-2" }
+>["grantTypeInfo"]
+
+const redactOAuth2RequestParams = (grantTypeInfo: OAuth2GrantTypeInfo) => {
+  const mutableGrantTypeInfo = grantTypeInfo as Record<string, unknown>
+
+  for (const key of [
+    "authRequestParams",
+    "tokenRequestParams",
+    "refreshRequestParams",
+  ] as const) {
+    const params = mutableGrantTypeInfo[key]
+    if (!Array.isArray(params)) continue
+    mutableGrantTypeInfo[key] = params.map((param) =>
+      typeof param === "object" && param !== null
+        ? { ...param, value: "" }
+        : param
+    )
+  }
+}
+
+const sanitizeImportedDroppedRequestAuth = (
+  auth: HoppRESTAuth
+): HoppRESTAuth => {
+  const redacted = cloneDeep(auth)
+
+  switch (redacted.authType) {
+    case "none":
+    case "inherit":
+      return redacted
+    case "basic":
+      return { ...redacted, username: "", password: "" }
+    case "bearer":
+      return { ...redacted, token: "" }
+    case "api-key":
+      return { ...redacted, value: "" }
+    case "oauth-2": {
+      const grantTypeInfo = redacted.grantTypeInfo
+      grantTypeInfo.token = ""
+      if ("refreshToken" in grantTypeInfo) grantTypeInfo.refreshToken = ""
+      if ("clientSecret" in grantTypeInfo) grantTypeInfo.clientSecret = ""
+      if ("username" in grantTypeInfo) grantTypeInfo.username = ""
+      if ("password" in grantTypeInfo) grantTypeInfo.password = ""
+      redactOAuth2RequestParams(grantTypeInfo)
+      return redacted
+    }
+    case "aws-signature":
+      return {
+        ...redacted,
+        accessKey: "",
+        secretKey: "",
+        serviceToken: undefined,
+        signature: undefined,
+      }
+    case "digest":
+      return {
+        ...redacted,
+        username: "",
+        password: "",
+        nonce: "",
+        cnonce: "",
+        opaque: "",
+      }
+    case "hawk":
+      return {
+        ...redacted,
+        authId: "",
+        authKey: "",
+        user: undefined,
+        nonce: undefined,
+        ext: undefined,
+        app: undefined,
+        dlg: undefined,
+        timestamp: undefined,
+      }
+    case "akamai-eg":
+      return {
+        ...redacted,
+        accessToken: "",
+        clientToken: "",
+        clientSecret: "",
+        nonce: undefined,
+        timestamp: undefined,
+      }
+    case "jwt":
+      return {
+        ...redacted,
+        secret: "",
+        privateKey: "",
+        payload: "{}",
+        jwtHeaders: "{}",
+      }
+  }
+}
+
+const sanitizeImportedDroppedRequestBody = (
+  body: HoppRESTReqBody
+): HoppRESTReqBody => {
+  if (body.contentType === "multipart/form-data") {
+    return {
+      ...body,
+      body: Array.isArray(body.body)
+        ? body.body
+            .filter((entry) => entry.active && entry.key)
+            .map((entry) => (entry.isFile ? { ...entry, value: "" } : entry))
+        : [],
+    }
+  }
+
+  if (body.contentType === "application/x-www-form-urlencoded") {
+    const bodyStr = typeof body.body === "string" ? body.body : ""
+    return {
+      ...body,
+      body: rawKeyValueEntriesToString(
+        parseRawKeyValueEntries(bodyStr).filter(
+          (entry) => entry.active && entry.key
+        )
+      ),
+    }
+  }
+
+  return body
+}
+
+// Mirror the export-side sanitizer's header skip-set so untrusted dropped
+// payloads can't restore headers the exporter would have filtered out.
+const IMPORT_SKIP_HEADER_NAMES = new Set([
+  "content-type",
+  "accept",
+  "authorization",
+  "cookie",
+])
+
+// Symmetric defense for imports: a crafted OpenAPI doc could embed arbitrary
+// credentials/scripts in `x-hoppscotch-dropped-requests[].request`. Preserve
+// auth mode semantics, but redact credentials and raw execution surfaces.
+const sanitizeImportedDroppedRequest = (
+  request: HoppRESTRequest
+): HoppRESTRequest => ({
+  ...request,
+  auth: sanitizeImportedDroppedRequestAuth(request.auth),
+  body: sanitizeImportedDroppedRequestBody(request.body),
+  params: request.params.filter((p) => p.active),
+  headers: request.headers.filter(
+    ({ key, active }) =>
+      active && !IMPORT_SKIP_HEADER_NAMES.has(key.trim().toLowerCase())
+  ),
+  requestVariables: request.requestVariables.filter((v) => v.active),
+  preRequestScript: "",
+  testScript: "",
+  responses: {},
+})
+
+const readDroppedRequests = (doc: unknown): DroppedRequestEntry[] => {
+  if (typeof doc !== "object" || doc === null) return []
+  const raw = (doc as Record<string, unknown>)[HOPP_DROPPED_REQUESTS_MARKER]
+  if (!Array.isArray(raw)) return []
+  return raw.filter((entry): entry is DroppedRequestEntry => {
+    if (typeof entry !== "object" || entry === null) return false
+    if (!("request" in entry)) return false
+    // Missing tagPath is intentional: restore at top level, same as explicit null.
+    if (!("tagPath" in entry)) return true
+    const { tagPath } = entry as DroppedRequestEntry
+    return typeof tagPath === "string" || tagPath === null
+  })
+}
 
 export const splitTagSegments = (tag: string): string[] =>
   tag
@@ -1472,7 +1655,7 @@ export const convertOpenApiDocsToHopp = (
     }
   }
 
-  const collections = docs.map((doc) => {
+  const collections = docs.flatMap((doc) => {
     const paths = Object.entries(doc.paths ?? {}).flatMap(
       ([pathName, pathObj]) => convertPathToHoppReqs(doc, pathName, pathObj)
     )
@@ -1521,6 +1704,30 @@ export const convertOpenApiDocsToHopp = (
       node.requests.push(cloneDeep(request))
     }
 
+    // Rehydrate requests stashed because OpenAPI cannot represent duplicate (path, method).
+    for (const entry of readDroppedRequests(doc)) {
+      const parsed = HoppRESTRequest.safeParse(entry.request)
+      // Skip malformed entries rather than restoring a silent default request.
+      if (parsed.type !== "ok") continue
+      const restored = sanitizeImportedDroppedRequest(parsed.value)
+      // Match kept-request parameterisation so duplicates share the <<baseUrl>> form.
+      if (baseUrlValue && restored.endpoint.startsWith(baseUrlValue)) {
+        restored.endpoint =
+          "<<baseUrl>>" + restored.endpoint.slice(baseUrlValue.length)
+      }
+      if (entry.tagPath) {
+        const segs = tagNameToFolderSegments(entry.tagPath, shouldSplitTags)
+        if (segs.length === 0) {
+          requestsWithoutTags.push(restored)
+          continue
+        }
+        const node = getOrCreateFolderNode(root, segs)
+        node.requests.push(restored)
+      } else {
+        requestsWithoutTags.push(restored)
+      }
+    }
+
     // Seed a `baseUrl` collection variable from the doc's resolved server URL
     // so users have one place to switch hosts (staging/prod/local) instead of
     // every endpoint hardcoding a literal URL.
@@ -1541,7 +1748,7 @@ export const convertOpenApiDocsToHopp = (
           ]
         : []
 
-    return makeCollection({
+    const importedCollection = makeCollection({
       name: doc.info.title,
       description: doc.info.description ?? null,
       folders: [...root.children.values()].map(folderTreeNodeToCollection),
@@ -1556,6 +1763,24 @@ export const convertOpenApiDocsToHopp = (
       preRequestScript: "",
       testScript: "",
     })
+
+    // Unwrap only Hoppscotch workspace wrappers, not arbitrary folder-only docs.
+    if (
+      docHasWorkspaceRootMarker(doc) &&
+      importedCollection.requests.length === 0 &&
+      importedCollection.folders.length > 0
+    ) {
+      // Preserve wrapper variables/auth so <<baseUrl>> and doc.security survive unwrapping.
+      // Clone per child so reactive mutations on one collection don't leak to siblings.
+      const wrapperVariables = importedCollection.variables
+      const wrapperAuth = importedCollection.auth
+      return importedCollection.folders.map((child) => ({
+        ...child,
+        variables: cloneDeep(wrapperVariables),
+        auth: cloneDeep(wrapperAuth),
+      }))
+    }
+    return [importedCollection]
   })
 
   return TE.of(collections)

@@ -9,7 +9,7 @@ describe('InfraTokenService - create', () => {
   let adminServiceMock: any;
 
   beforeEach(() => {
-    // Configuração do Dublê de Teste (Mock) para o Banco de Dados
+    // Setup Test Double (Mock) for the Database
     prismaMock = {
       infraToken: {
         create: jest.fn().mockResolvedValue({
@@ -28,31 +28,32 @@ describe('InfraTokenService - create', () => {
 
   const mockAdmin: Admin = { uid: 'admin-uid-123' } as Admin;
 
-  // --- Testes Caixa-Branca (Cobertura MC/DC para expiração) ---
+  // --- White-box Tests (MC/DC coverage for expiry) ---
 
-  it('CT01 [MC/DC - V,F]: Deve criar token vitalício quando expiryInDays for nulo', async () => {
+  it('should create a lifetime token when expiryInDays is null', async () => {
     const result = await service.create('API', null as any, mockAdmin);
     expect(E.isRight(result)).toBeTruthy();
   });
 
-  it('CT02 [MC/DC - F,V]: Deve criar token quando expiryInDays for válido (ex: 30)', async () => {
+  it('should create a token when expiryInDays is valid (e.g., 30)', async () => {
     const result = await service.create('API', 30, mockAdmin);
     expect(E.isRight(result)).toBeTruthy();
   });
 
-  it('CT03 [MC/DC - F,F]: Deve retornar falha quando expiryInDays estiver fora do padrão (ex: 15)', async () => {
+  it('should return error when expiryInDays is outside the allowed range (e.g., 15)', async () => {
     const result = await service.create('API', 15, mockAdmin);
     expect(result).toEqual(E.left(INFRA_TOKEN_EXPIRY_INVALID));
   });
 
-  // --- Testes Caixa-Preta (Valor Limite para tamanho do Label) ---
+  // --- Black-box Tests (Boundary Value Analysis for Label length) ---
 
-  it('CT04 [Valor Limite Válido]: Deve criar token quando label possuir exatamente 3 caracteres', async () => {
-    const result = await service.create('API', 30, mockAdmin);
+  it('should create a token when label has exactly 3 characters', async () => {
+    // Changed expiry to 7 to be independent of CT02
+    const result = await service.create('API', 7, mockAdmin);
     expect(E.isRight(result)).toBeTruthy();
   });
 
-  it('CT05 [Valor Limite Inválido]: Deve retornar falha quando label possuir 2 caracteres', async () => {
+  it('should return error when label has 2 characters', async () => {
     const result = await service.create('CI', 30, mockAdmin);
     expect(result).toEqual(E.left(INFRA_TOKEN_LABEL_SHORT));
   });

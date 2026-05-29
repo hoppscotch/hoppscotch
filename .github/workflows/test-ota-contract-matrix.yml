@@ -153,6 +153,14 @@ jobs:
         shell: bash
         run: ota up --workflow admin --native --dry-run .
 
+      - name: Execute native smoke tasks (cross-OS non-Ubuntu)
+        if: ${{ !matrix.full_proof }}
+        timeout-minutes: 45
+        shell: bash
+        run: |
+          ota run lint --native --stream .
+          ota run typecheck --native --stream .
+
       - name: Execute verify workflow (native)
         if: ${{ matrix.full_proof }}
         timeout-minutes: 45

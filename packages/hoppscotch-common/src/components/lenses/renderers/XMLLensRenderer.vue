@@ -194,10 +194,15 @@ const filename = t("filename.lens", {
   request_name: responseName.value,
 })
 
+const xmlResponseHeaders = computed(() =>
+  "headers" in props.response ? props.response.headers : undefined
+)
+
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   responseType.value,
   responseBodyText,
-  `${filename}.xml`
+  `${filename}.xml`,
+  xmlResponseHeaders
 )
 
 const { copyIcon, copyResponse } = useCopyResponse(responseBodyText)

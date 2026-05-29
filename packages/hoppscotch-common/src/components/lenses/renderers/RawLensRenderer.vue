@@ -204,12 +204,17 @@ const responseName = computed(() => {
   return props.response.name
 })
 
+const responseHeaders = computed(() =>
+  "headers" in props.response ? props.response.headers : undefined
+)
+
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   responseType.value,
   rawResponseBody,
   t("filename.lens", {
     request_name: responseName.value,
-  })
+  }),
+  responseHeaders
 )
 
 const { copyIcon, copyResponse } = useCopyResponse(responseBodyText)

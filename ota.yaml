@@ -136,6 +136,7 @@ tasks:
           run: pnpm install
     effects:
       network: true
+      network_kind: dependency_hydration
     requirements:
       toolchains:
         - node
@@ -204,6 +205,28 @@ tasks:
     requirements:
       toolchains:
         - node
+    safe_for_agent: true
+  verify:
+    context: host
+    description: Run the full root workspace verification path
+    notes: |
+      This aggregates the lint, typecheck, and test surfaces so workflow execution proves the
+      full contract claim instead of only the final test task.
+    category: test
+    run: "true"
+    execution:
+      default_mode: native
+      modes:
+        native:
+          context: host
+          run: "true"
+        container:
+          context: app
+          run: "true"
+    depends_on:
+      - lint
+      - typecheck
+      - test
     safe_for_agent: true
   dev:selfhost:
     context: docker-host
@@ -310,7 +333,7 @@ workflows:
     setup:
       task: install
     run:
-      task: test
+      task: verify
   verify:container:
     intent: ci_verification
     description: Root workspace verification workflow through the declared container execution context
@@ -320,7 +343,7 @@ workflows:
     setup:
       task: install
     run:
-      task: test
+      task: verify
   selfhost:
     intent: packaged_runtime
     description: Recommended self-host all-in-one Docker workflow
@@ -383,10 +406,9 @@ agent:
     - lint
     - typecheck
     - test
+    - verify
   verify_after_changes:
-    - lint
-    - typecheck
-    - test
+    - verify
   writable_paths:
     - packages
     - package.json

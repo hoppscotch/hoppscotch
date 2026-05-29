@@ -153,6 +153,18 @@ jobs:
         shell: bash
         run: ota up --workflow admin --native --dry-run .
 
+      - name: Execute verify workflow (native)
+        if: ${{ matrix.full_proof }}
+        timeout-minutes: 45
+        shell: bash
+        run: ota up --workflow verify --native --stream .
+
+      - name: Execute verify workflow (container)
+        if: ${{ matrix.full_proof }}
+        timeout-minutes: 45
+        shell: bash
+        run: ota up --workflow verify:container --container --stream .
+
       - name: Proof selfhost workflow
         if: ${{ matrix.full_proof }}
         timeout-minutes: 120

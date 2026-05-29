@@ -27,6 +27,9 @@
       :loading="loading"
       :adapter-error="adapterError"
       @select-environment="handleEnvironmentChange"
+      @environments-changed="
+        environmentType.selectedTeam && adapter.fetchList().catch(() => {})
+      "
     />
     <EnvironmentsMyDetails
       :show="showModalDetails"
@@ -290,6 +293,8 @@ const duplicateGlobalEnvironment = async () => {
           // duplicated environment — duplicates start fresh on secrets per
           // the per-entity secret model.
           toast.success(t("environment.duplicated"))
+          if (workspace.value.type === "team")
+            adapter.fetchList().catch(() => {})
         }
       )
     )()
@@ -343,6 +348,9 @@ const removeSelectedEnvironment = () => {
           secretEnvironmentService.deleteSecretEnvironment(teamEnvID)
           currentEnvironmentValueService.deleteEnvironment(teamEnvID)
           toast.success(`${t("team_environment.deleted")}`)
+          setSelectedEnvironmentIndex({ type: "NO_ENV_SELECTED" })
+          if (environmentType.value.type === "team-environments")
+            adapter.fetchList().catch(() => {})
         }
       )
     )()

@@ -87,7 +87,10 @@ export const RESTResponse = {
     return {
       type: "success",
       headers: processHeaders(response.headers),
-      body: response.body.body.buffer,
+      body: response.body.body.buffer.slice(
+        response.body.body.byteOffset,
+        response.body.body.byteOffset + response.body.body.byteLength
+      ),
       statusCode: response.status,
       statusText: response.statusText ?? "",
       meta: {

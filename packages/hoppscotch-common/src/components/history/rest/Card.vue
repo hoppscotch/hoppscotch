@@ -58,6 +58,16 @@
                 }
               "
             />
+            <HoppSmartItem
+              :icon="IconCopy"
+              :label="`${t('action.copy_url')}`"
+              @click="
+                () => {
+                  copyUrl()
+                  hide()
+                }
+              "
+            />
           </div>
         </template>
       </tippy>
@@ -90,10 +100,13 @@ import { useI18n } from "@composables/i18n"
 import { RESTHistoryEntry } from "~/newstore/history"
 import { shortDateTime } from "~/helpers/utils/date"
 import IconSave from "~icons/lucide/save"
+import IconCopy from "~icons/lucide/copy"
 import IconStar from "~icons/lucide/star"
 import IconStarOff from "~icons/hopp/star-off"
 import IconTrash from "~icons/lucide/trash"
 import { TippyComponent } from "vue-tippy"
+import { useToast } from "@composables/toast"
+import { copyToClipboard } from "~/helpers/utils/clipboard"
 
 const props = defineProps<{
   entry: RESTHistoryEntry
@@ -112,6 +125,12 @@ const options = ref<TippyComponent | null>(null)
 const addToCollectionAction = ref<HTMLButtonElement | null>(null)
 
 const t = useI18n()
+const toast = useToast()
+
+const copyUrl = () => {
+  copyToClipboard(props.entry.request.endpoint)
+  toast.success(`${t("state.copied_to_clipboard")}`)
+}
 
 const duration = computed(() => {
   if (props.entry.responseMeta.duration) {

@@ -122,6 +122,7 @@ const transformAuth = (auth: HoppRESTAuth): HoppRESTAuth => {
     } else if (oldGrantTypeInfo.grantType === "PASSWORD") {
       newGrantTypeInfo = {
         ...oldGrantTypeInfo,
+        clientAuthentication: "IN_BODY",
         tokenRequestParams: [],
         refreshRequestParams: [],
       };

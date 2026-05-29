@@ -9,7 +9,7 @@ import { z } from "zod"
 import { getService } from "~/modules/dioc"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { useToast } from "~/composables/toast"
-import { content } from "@hoppscotch/kernel"
+import { RelayRequest, content } from "@hoppscotch/kernel"
 import { parseBytesToJSON } from "~/helpers/functional/json"
 import { refreshToken, OAuth2ParamSchema } from "../utils"
 import { PasswordGrantTypeParams } from "@hoppscotch/data"
@@ -22,6 +22,7 @@ const PasswordFlowParamsSchema = PasswordGrantTypeParams.omit({
   token: true,
 })
   .extend({
+    clientAuthentication: z.enum(["AS_BASIC_AUTH_HEADERS", "IN_BODY"]),
     // Override optional arrays to be required for the service layer
     tokenRequestParams: z.array(OAuth2ParamSchema),
     refreshRequestParams: z.array(OAuth2ParamSchema),
@@ -50,70 +51,20 @@ export const getDefaultPasswordFlowParams = (): PasswordFlowParams => ({
   scopes: undefined,
   username: "",
   password: "",
+  clientAuthentication: "IN_BODY",
   tokenRequestParams: [],
   refreshRequestParams: [],
 })
 
-const initPasswordOauthFlow = async ({
-  password,
-  username,
-  clientID,
-  clientSecret,
-  scopes,
-  authEndpoint,
-  tokenRequestParams,
-}: PasswordFlowParams) => {
+const initPasswordOauthFlow = async (payload: PasswordFlowParams) => {
   const toast = useToast()
 
-  const headers: Record<string, string> = {
-    "Content-Type": "application/x-www-form-urlencoded",
-    Accept: "application/json",
-  }
+  const requestPayload =
+    payload.clientAuthentication === "AS_BASIC_AUTH_HEADERS"
+      ? getPasswordPayloadForBasicAuth(payload)
+      : getPasswordPayloadForBody(payload)
 
-  const bodyParams: Record<string, string> = {
-    grant_type: "password",
-    client_id: clientID,
-    username,
-    password,
-    ...(clientSecret && {
-      client_secret: clientSecret,
-    }),
-    ...(scopes && {
-      scope: scopes,
-    }),
-  }
-
-  const urlParams: Record<string, string> = {}
-
-  // Process additional token request parameters
-  if (tokenRequestParams) {
-    tokenRequestParams
-      .filter((param) => param.active && param.key && param.value)
-      .forEach((param) => {
-        if (param.sendIn === "headers") {
-          headers[param.key] = param.value
-        } else if (param.sendIn === "url") {
-          urlParams[param.key] = param.value
-        } else {
-          // Default to body
-          bodyParams[param.key] = param.value
-        }
-      })
-  }
-
-  const url = new URL(authEndpoint)
-  Object.entries(urlParams).forEach(([key, value]) => {
-    url.searchParams.set(key, value)
-  })
-
-  const { response } = interceptorService.execute({
-    id: Date.now(),
-    url: url.toString(),
-    method: "POST",
-    version: "HTTP/1.1",
-    headers,
-    content: content.urlencoded(bodyParams),
-  })
+  const { response } = interceptorService.execute(requestPayload)
 
   const res = await response
 
@@ -219,6 +170,125 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
   return parsedTokenResponse.success
     ? E.right(parsedTokenResponse.data)
     : E.left("AUTH_TOKEN_REQUEST_INVALID_RESPONSE" as const)
+}
+
+const getPasswordPayloadForBasicAuth = ({
+  clientID,
+  clientSecret,
+  username,
+  password,
+  scopes,
+  authEndpoint,
+  tokenRequestParams,
+}: PasswordFlowParams): RelayRequest => {
+  const encodedClientID = encodeBasicAuthComponent(clientID)
+  const encodedClientSecret = encodeBasicAuthComponent(clientSecret || "")
+  const basicAuthToken = btoa(`${encodedClientID}:${encodedClientSecret}`)
+
+  const headers: Record<string, string> = {
+    Authorization: `Basic ${basicAuthToken}`,
+    "Content-Type": "application/x-www-form-urlencoded",
+    Accept: "application/json",
+  }
+
+  const bodyParams: Record<string, string> = {
+    grant_type: "password",
+    username,
+    password,
+    ...(scopes && { scope: scopes }),
+  }
+
+  const urlParams: Record<string, string> = {}
+
+  if (tokenRequestParams) {
+    tokenRequestParams
+      .filter((param) => param.active && param.key && param.value)
+      .forEach((param) => {
+        if (param.sendIn === "headers") {
+          headers[param.key] = param.value
+        } else if (param.sendIn === "url") {
+          urlParams[param.key] = param.value
+        } else {
+          bodyParams[param.key] = param.value
+        }
+      })
+  }
+
+  const url = new URL(authEndpoint)
+  Object.entries(urlParams).forEach(([key, value]) => {
+    url.searchParams.set(key, value)
+  })
+
+  return {
+    id: Date.now(),
+    url: url.toString(),
+    method: "POST",
+    version: "HTTP/1.1",
+    headers,
+    content: content.urlencoded(bodyParams),
+  }
+}
+
+const getPasswordPayloadForBody = ({
+  clientID,
+  clientSecret,
+  username,
+  password,
+  scopes,
+  authEndpoint,
+  tokenRequestParams,
+}: PasswordFlowParams): RelayRequest => {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/x-www-form-urlencoded",
+    Accept: "application/json",
+  }
+
+  const bodyParams: Record<string, string> = {
+    grant_type: "password",
+    client_id: clientID,
+    username,
+    password,
+    ...(clientSecret && {
+      client_secret: clientSecret,
+    }),
+    ...(scopes && {
+      scope: scopes,
+    }),
+  }
+
+  const urlParams: Record<string, string> = {}
+
+  if (tokenRequestParams) {
+    tokenRequestParams
+      .filter((param) => param.active && param.key && param.value)
+      .forEach((param) => {
+        if (param.sendIn === "headers") {
+          headers[param.key] = param.value
+        } else if (param.sendIn === "url") {
+          urlParams[param.key] = param.value
+        } else {
+          bodyParams[param.key] = param.value
+        }
+      })
+  }
+
+  const url = new URL(authEndpoint)
+  Object.entries(urlParams).forEach(([key, value]) => {
+    url.searchParams.set(key, value)
+  })
+
+  return {
+    id: Date.now(),
+    url: url.toString(),
+    method: "POST",
+    version: "HTTP/1.1",
+    headers,
+    content: content.urlencoded(bodyParams),
+  }
+}
+
+const encodeBasicAuthComponent = (component: string): string => {
+  return encodeURIComponent(component).replace(/%20/g, "+")
 }
 
 export default createFlowConfig(

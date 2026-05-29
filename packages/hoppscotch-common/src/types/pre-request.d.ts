@@ -129,6 +129,7 @@ type OAuth2GrantTypeInfo =
       username: string
       password: string
       scopes?: string
+      clientAuthentication?: "AS_BASIC_AUTH_HEADERS" | "IN_BODY"
     }
   | {
       grantType: "IMPLICIT"

@@ -15,6 +15,8 @@ export class SSEConnection {
   connectionState$: BehaviorSubject<ConnectionState>
   event$: Subject<SSEEvent> = new Subject()
   sse: EventSource | undefined
+  private manualStop = false
+
   constructor() {
     this.connectionState$ = new BehaviorSubject<ConnectionState>("STOPPED")
   }
@@ -41,7 +43,7 @@ export class SSEConnection {
         }
         this.sse.onerror = (e) => {
           this.handleError(e)
-          this.stop()
+          this.closeConnection()
         }
         this.sse.addEventListener(eventType, ({ data }) => {
           this.addEvent({
@@ -77,13 +79,19 @@ export class SSEConnection {
     })
   }
 
-  stop() {
+  private closeConnection() {
     this.sse?.close()
     this.connectionState$.next("STOPPED")
     this.addEvent({
       type: "STOPPED",
       time: Date.now(),
-      manual: true,
+      manual: this.manualStop,
     })
+    this.manualStop = false
+  }
+
+  stop() {
+    this.manualStop = true
+    this.closeConnection()
   }
 }

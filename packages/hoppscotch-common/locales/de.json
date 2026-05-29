@@ -11,6 +11,7 @@
     "clear_all": "Alles zurücksetzen",
     "clear_cache": "Cache leeren",
     "clear_history": "Alle Verlaufsdaten löschen",
+    "clear_unpinned": "Nicht angeheftete löschen",
     "close": "Schließen",
     "confirm": "Bestätigen",
     "connect": "Verbinden",
@@ -57,6 +58,7 @@
     "send": "Senden",
     "share": "Teilen",
     "show_secret": "Geheimnis anzeigen",
+    "sort": "Sortieren",
     "start": "Starten",
     "starting": "Startet",
     "stop": "Stopp",
@@ -66,8 +68,8 @@
     "turn_off": "Ausschalten",
     "turn_on": "Einschalten",
     "undo": "Rückgängig machen",
-    "verify": "Überprüfen",
     "yes": "Ja",
+    "verify": "Überprüfen",
     "enable": "Aktivieren",
     "disable": "Deaktivieren",
     "assign": "Zuweisen"
@@ -104,6 +106,7 @@
     "not_running_title": "Agent nicht erkannt",
     "registration_title": "Agent registrierung",
     "verify_ssl_certs": "SSL-Zertifikate überprüfen",
+    "ca_certs": "CA-Zertifikate",
     "client_certs": "Client-Zertifikate",
     "use_http_proxy": "HTTP-Proxy verwenden",
     "proxy_capabilities": "Hoppscotch Agent unterstützt HTTP/HTTPS/SOCKS-Proxys sowie NTLM und Basic Auth für Proxys. Geben Sie den Benutzernamen und das Passwort für die Proxy-Authentifizierung in der URL an.",
@@ -197,7 +200,7 @@
   },
   "authorization": {
     "generate_token": "Token generieren",
-    "refresh_token": "Aktualisierungs Token",
+    "refresh_token": "Aktualisierungs-Token",
     "graphql_headers": "Autorisierungsheader werden als Teil des Payloads an connection_init gesendet",
     "include_in_url": "In URL einbinden",
     "inherited_from": "Inherited from {auth} from Parent Collection {collection} ",
@@ -236,7 +239,15 @@
       "label_password": "Passwort",
       "label_username": "Benutzername",
       "label_auth_code": "Autorisierungscode",
-      "label_client_credentials": "Client-Anmeldeinformationen"
+      "label_client_credentials": "Client-Anmeldeinformationen",
+      "label_send_as": "Client Authentifizierung",
+      "label_send_in_body": "Sende Zugangsdaten im Anfragenkörper",
+      "label_send_as_basic_auth": "Sende Zugangsdaten als Basic Auth",
+      "enter_value": "Wert eingeben",
+      "auth_request": "Auth Anfrage",
+      "token_request": "Token Anfrage",
+      "refresh_request": "Anfrage erneuern",
+      "send_in": "Send In"
     },
     "pass_key_by": "Übertragungsart",
     "pass_by_query_params_label": "Abfrageparameter",
@@ -244,8 +255,18 @@
     "password": "Passwort",
     "save_to_inherit": "Bitte speichere diese Anfrage in einer Sammlung, um die Autorisierung zu erben",
     "token": "Token",
+    "access_token": "Access Token",
+    "client_token": "Client Token",
+    "client_secret": "Client Secret",
+    "timestamp": "Timestamp",
+    "host": "Host",
     "type": "Autorisierungsverfahren",
     "username": "Nutzername",
+    "advance_config": "Advanced Configuration",
+    "advance_config_description": "Hoppscotch automatically assigns default values to certain fields if no explicit value is provided",
+    "algorithm": "Algorithm",
+    "payload": "Payload",
+    "secret": "Secret",
     "aws_signature": {
       "access_key": "Zugangs-Schlüssel",
       "secret_key": "Geheimer Schlüssel",
@@ -257,6 +278,8 @@
     }
   },
   "collection": {
+    "title": "Sammlung",
+    "run": "Sammlung starten",
     "created": "Sammlung erstellt",
     "different_parent": "Sammlung kann nicht neu geordnet werden, weil sie ein anderes übergeordnetes Element hat",
     "edit": "Sammlung bearbeiten",
@@ -278,12 +301,14 @@
     "save_to_collection": "In Sammlung speichern",
     "select": "Wähle eine Sammlung",
     "select_location": "Ort auswählen",
+    "sorted": "Sammlung sortiert",
     "details": "Details",
     "duplicated": "Sammlung dupliziert"
   },
   "confirm": {
     "close_unsaved_tab": "Bist du sicher, dass du dieses Tab schließen möchtest?",
     "close_unsaved_tabs": "Bist du sicher, dass du alle Tabs schließen möchtest? {count} nicht gespeicherte Tabs gehen verloren.",
+    "delete_all_activity_logs": "Bist du sicher, dass du alle Aktivitätsprotokolle löschen möchtest?",
     "exit_team": "Möchtest Du dieses Team wirklich verlassen?",
     "logout": "Möchtest Du Dich wirklich abmelden?",
     "remove_collection": "Möchtest Du diese Sammlung wirklich endgültig löschen?",
@@ -298,7 +323,7 @@
     "request_change": "Möchtest Du diese Anfrage verwerfen? Ungespeicherte Änderungen gehen verloren.",
     "save_unsaved_tab": "Möchtest du die Änderungen aus diesem Tab speichern?",
     "sync": "Möchtest Du diesen Arbeitsbereich wirklich synchronisieren?",
-    "delete_access_token": "Are you sure you want to delete the access token {tokenLabel}?"
+    "delete_access_token": "Bist du sicher, dass den Zugangsschlüssel {tokenLabel} löschen möchtest?"
   },
   "context_menu": {
     "add_parameters": "Zu Parametern hinzufügen",
@@ -320,15 +345,17 @@
       "new_domain_name": "Neuer Domainname",
       "no_cookies_in_domain": "Es sind keine Cookies für diese Domain gesetzt",
       "raw_tab": "Raw",
-      "set": "Ein Cookie setzen"
+      "set": "Einen Cookie setzen"
     }
   },
   "count": {
+    "currentValue": "Aktueller Wert {count}",
+    "description": "Beschreibung {count}",
     "header": "Header {count}",
+    "initialValue": "Initialer Wert {count}",
+    "key": "Schlüssel {count}",
     "message": "Nachricht {count}",
     "parameter": "Parameter {count}",
-    "key": "Schlüssel {count}",
-    "description": "Beschreibung {count}",
     "protocol": "Protokoll {count}",
     "value": "Wert {count}",
     "variable": "Variable {count}"
@@ -338,24 +365,28 @@
     "generate_message": "Importiere eine beliebige Hoppscotch-Sammlung, um unterwegs API-Dokumentation zu generieren."
   },
   "empty": {
+    "activity_logs": "Keine Aktivitätsprotokolle gefunden",
     "authorization": "Diese Anfrage verwendet keine Autorisierung",
     "body": "Diese Anfrage hat keinen Körper",
     "collection": "Sammlung ist leer",
     "collections": "Sammlungen sind leer",
     "documentation": "Verbinde Dich zu einem GraphQL-Endpunkt, um die API-Dokumentation zu sehen",
-    "endpoint": "Endpunkt kann nicht leer sein",
-    "environments": "Umgebungen sind leer",
+    "empty_schema": "Kein Schema gefunden",
+    "endpoint": "Der Endpunkt kann nicht leer sein",
+    "environments": "Die Umgebungen sind leer",
+    "collection_variables": "Die Sammlungsvariablen sind leer",
     "folder": "Der Ordner ist leer",
     "headers": "Diese Anfrage hat keinen Header",
-    "history": "Verlauf ist leer",
+    "history": "Der Verlauf ist leer",
     "invites": "Einladungsliste ist leer",
-    "members": "Team ist leer",
+    "members": "Das Team ist leer",
     "parameters": "Diese Anfrage hat keine Parameter",
     "pending_invites": "Es gibt keine ausstehenden Einladungen für dieses Team",
     "profile": "Einloggen um das Profil anzusehen",
     "protocols": "Protokolle sind leer",
     "request_variables": "Diese Anfrage hat keine Anfragevariablen",
     "schema": "Verbinden mit einem GraphQL-Endpunkt",
+    "search_environment": "No matching environment found for",
     "secret_environments": "Geheimnisse werden nicht mit dem Hoppscotch Server synchronisiert",
     "shared_requests": "Keine geteilten Abfragen",
     "shared_requests_logout": "Melde dich an, um geteilte Anfragen zu sehen oder eine neue zu erstellen",
@@ -367,10 +398,12 @@
     "response": "Keine Antwort erhalten"
   },
   "environment": {
-    "add_to_global": "Zur Globalen Umgebung hinzufügen",
+    "heading": "Umgebung",
+    "add_to_global": "Zur globalen Umgebung hinzufügen",
     "added": "Umgebung hinzugefügt",
     "create_new": "Neue Umgebung erstellen",
     "created": "Umgebung erzeugt",
+    "current_value": "Aktueller Wert",
     "deleted": "Umgebung löschen",
     "duplicated": "Umgebung dupliziert",
     "edit": "Umgebung bearbeiten",
@@ -378,6 +411,7 @@
     "global": "Global",
     "global_variables": "Globale Variablen",
     "import_or_create": "Importiere oder erstelle eine Umgebung",
+    "initial_value": "Initialer Wert",
     "invalid_name": "Bitte gib einen gültigen Namen für die Umgebung an",
     "list": "Umgebungsvariablen",
     "my_environments": "Meine Umgebungen",
@@ -388,6 +422,10 @@
     "no_environment": "Keine Umgebung",
     "no_environment_description": "Es wurden keine Umgebungen ausgewählt. Wähle aus, was mit den untenstehenden Variablen geschehen soll.",
     "quick_peek": "Kurzinfo der Umgebung",
+    "replace_all_current_with_initial": "Ersetze alle aktuellen Werte durch initiale Werte",
+    "replace_all_initial_with_current": "Ersetze alle initialen Werte durch aktuelle Werte",
+    "replace_current_with_initial": "Durch initialen Wert ersetzen",
+    "replace_initial_with_current": "Durch aktuellen Wert ersetzen",
     "replace_with_variable": "Mit Variable ersetzen",
     "scope": "Scope",
     "secrets": "Geheimnis",
@@ -407,6 +445,47 @@
     "details": "Details"
   },
   "error": {
+    "network": {
+      "heading": "Netzwerkfehler",
+      "description": "Netzwerkverbindung fehlgeschlagen. {message}: {cause}"
+    },
+    "timeout": {
+      "heading": "Zeitüberschreitungsfehler",
+      "description": "Anfrage überschritt die Zeit während {phase}. {message}"
+    },
+    "certificate": {
+      "heading": "Zertifikatsfehler",
+      "description": "Invalides Zertifikat. {message}: {cause}"
+    },
+    "auth": {
+      "heading": "Authentifizierungsfehler",
+      "description": "Zugriff verweigert. {message}: {cause}"
+    },
+    "proxy": {
+      "heading": "Proxy Fehler",
+      "description": "Proxy Verbindung fehlgeschlagen. {message}: {cause}"
+    },
+    "parse": {
+      "heading": "Parse Fehler",
+      "description": "Fehler beim Parsen der Antwort. {message}: {cause}"
+    },
+    "version": {
+      "heading": "Versionsfehler",
+      "description": "Inkompatible Versionen. {message}: {cause}"
+    },
+    "abort": {
+      "heading": "Anfrage abgebrochen",
+      "description": "Operation wurde abgebrochen. {message}: {cause}"
+    },
+    "unknown": {
+      "heading": "Unbekannter Fehler",
+      "description": "Ein unbekannter Fehler ist aufgetreten.",
+      "cause": "Unbekannte Ursache"
+    },
+    "extension": {
+      "heading": "Fehler in der Erweiterung",
+      "description": "Fehler beim Senden der Anfrage an die Erweiterung"
+    },
     "authproviders_load_error": "Auth-Provider können nicht geladen werden",
     "browser_support_sse": "Dieser Browser scheint keine Unterstützung für die vom Server gesendete Ereignisse zu haben.",
     "check_console_details": "Einzelheiten findest Du in der Browser-Konsole.",
@@ -415,13 +494,18 @@
     "danger_zone": "Gefahrenbereich",
     "delete_account": "Dein Konto ist derzeit Besitzer dieser Teams:",
     "delete_account_description": "Du musst dich entweder selbst entfernen, den Besitz übertragen oder diese Teams löschen, bevor du dein Konto löschen kannst.",
+    "delete_activity_log": "Fehler beim Löschen des Aktivitätsprotokolls",
+    "delete_all_activity_logs": "Fehler beim Löschen aller Aktivitätsprotokoll-Einträge",
+    "email_already_exists": "Die Emailadresse ist bereits mit einem anderen Account verknüpft. Bitte nutze eine andere E-Mail-Adresse.",
     "empty_email_address": "E-Mail-Adresse darf nicht leer sein.",
     "empty_profile_name": "Profilname darf nicht leer sein",
     "empty_req_name": "Leerer Anfragename",
+    "fetch_activity_logs": "Fehler beim Abruf der Aktivitätsprotokolle",
     "f12_details": "(F12 für Details)",
     "gql_prettify_invalid_query": "Eine ungültige Abfrage konnte nicht verschönert werden. Fehler in der Abfragesyntax beheben und erneut versuchen",
     "incomplete_config_urls": "Fehlende Konfigurations-URLs",
     "incorrect_email": "Falsche E-Mail Adresse",
+    "invalid_file_type": "Invalider Dateityp bei `{filename}`.",
     "invalid_link": "Falscher Link",
     "invalid_link_description": "Der verwendete Link ist entweder ungültig oder abgelaufen.",
     "invalid_embed_link": "The embed does not exist or is invalid.",
@@ -444,7 +528,8 @@
     "reading_files": "Fehler beim Lesen einer oder mehrerer Dateien.",
     "fetching_access_tokens_list": "Beim Abrufen der Liste der Tokens ist etwas schiefgegangen.",
     "generate_access_token": "Beim Generieren des Zugriffstokens ist etwas schiefgegangen.",
-    "delete_access_token": "Beim Löschen des Zugriffstokens ist etwas schiefgegangen."
+    "delete_access_token": "Beim Löschen des Zugriffstokens ist etwas schiefgegangen.",
+    "extension_not_found": "Erweiterung nicht gefunden"
   },
   "export": {
     "as_json": "Als JSON exportieren",

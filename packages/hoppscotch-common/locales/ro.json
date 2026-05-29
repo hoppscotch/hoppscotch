@@ -679,6 +679,8 @@
     "short_codes_description": "Coduri scurte create de dumneavoastră.",
     "sidebar_on_left": "Bara de navigație în partea stângă",
     "sync": "Sincronizare",
+    "require_auth_for_app": "Necesită autentificare pentru a folosi aplicația",
+    "require_auth_for_app_description": "Când este activat, utilizatorii neautentificați sunt redirecționați la pagina de autentificare",
     "sync_collections": "Colecții",
     "sync_description": "Aceste setări sunt sincronizate cu cloud.",
     "sync_environments": "Medii",

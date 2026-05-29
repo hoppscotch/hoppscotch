@@ -679,6 +679,8 @@
     "short_codes_description": "Short codes which were created by you.",
     "sidebar_on_left": "Sidebar on left",
     "sync": "לְסַנכְרֵן",
+    "require_auth_for_app": "דרוש התחברות לשימוש באפליקציה",
+    "require_auth_for_app_description": "כאשר מופעל, משתמשים לא מאומתים מופנים לדף ההתחברות",
     "sync_collections": "אוספים",
     "sync_description": "הגדרות אלה מסונכרנות עם ענן.",
     "sync_environments": "סביבות",

@@ -679,6 +679,8 @@
     "short_codes_description": "Các mã ngắn được tạo bởi bạn.",
     "sidebar_on_left": "Thanh bên trái",
     "sync": "Đồng bộ hóa",
+    "require_auth_for_app": "Yêu cầu đăng nhập để sử dụng ứng dụng",
+    "require_auth_for_app_description": "Khi được bật, người dùng chưa xác thực sẽ được chuyển hướng đến trang đăng nhập",
     "sync_collections": "Bộ sưu tập",
     "sync_description": "Các cài đặt này được đồng bộ hóa với đám mây.",
     "sync_environments": "Môi trường",

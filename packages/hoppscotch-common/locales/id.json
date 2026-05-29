@@ -679,6 +679,8 @@
     "short_codes_description": "Short codes yang Anda buat.",
     "sidebar_on_left": "Sidebar berada di kiri",
     "sync": "Synchronise",
+    "require_auth_for_app": "Wajib masuk untuk menggunakan aplikasi",
+    "require_auth_for_app_description": "Saat diaktifkan, pengguna yang tidak terautentikasi akan diarahkan ke halaman masuk",
     "sync_collections": "Koleksi",
     "sync_description": "Pengaturan ini disinkronkan ke cloud.",
     "sync_environments": "Environments",

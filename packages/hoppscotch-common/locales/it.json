@@ -679,6 +679,8 @@
     "short_codes_description": "Short codes which were created by you.",
     "sidebar_on_left": "Barra laterale a sinistra",
     "sync": "Sincronizza",
+    "require_auth_for_app": "Richiedere l'accesso per utilizzare l'app",
+    "require_auth_for_app_description": "Se abilitato, gli utenti non autenticati vengono reindirizzati alla pagina di accesso",
     "sync_collections": "Raccolte",
     "sync_description": "Queste impostazioni sono sincronizzate con il cloud.",
     "sync_environments": "Ambienti",

@@ -1329,6 +1329,8 @@
     "enable_experimental_mock_servers": "Mock Sunucuları Etkinleştir",
     "enable_experimental_documentation": "Dokümantasyonu Etkinleştir",
     "sync": "Senkronize et",
+    "require_auth_for_app": "Uygulamayı kullanmak için giriş yapılması gereksin",
+    "require_auth_for_app_description": "Etkinleştirildiğinde, kimliği doğrulanmamış kullanıcılar giriş sayfasına yönlendirilir",
     "sync_collections": "Koleksiyonlar",
     "sync_description": "Bu ayarlar bulutla senkronize edilir.",
     "sync_environments": "Ortamlar",

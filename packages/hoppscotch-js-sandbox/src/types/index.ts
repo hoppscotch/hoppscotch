@@ -240,11 +240,13 @@ export type EnvMethods = {
       options?: EnvAPIOptions
     ) => string | null | undefined
     set: (key: string, value: string, options?: EnvAPIOptions) => void
+    setSecret: (key: string, value: string, options?: EnvAPIOptions) => void
     unset: (key: string, options?: EnvAPIOptions) => void
     resolve: (key: string) => string
   }
   hopp: {
     set: (key: string, value: string, options?: EnvAPIOptions) => void
+    setSecret: (key: string, value: string, options?: EnvAPIOptions) => void
     delete: (key: string, options?: EnvAPIOptions) => void
     reset: (key: string, options?: EnvAPIOptions) => void
     getInitialRaw: (key: string, options?: EnvAPIOptions) => string | null
@@ -270,6 +272,7 @@ export interface PwNamespaceMethods {
   envGet: SandboxFunction
   envGetResolve: SandboxFunction
   envSet: SandboxFunction
+  envSetSecret: SandboxFunction
   envUnset: SandboxFunction
   envResolve: SandboxFunction
   getRequestVariable: SandboxFunction

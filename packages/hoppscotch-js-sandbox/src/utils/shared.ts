@@ -1,239 +1,297 @@
-import {
-  Cookie,
-  CookieSchema,
-  HoppRESTRequest,
-  parseTemplateStringE,
-} from "@hoppscotch/data"
-import * as E from "fp-ts/Either"
-import * as O from "fp-ts/Option"
-import { pipe } from "fp-ts/lib/function"
-import { cloneDeep } from "lodash-es"
+  import {
+    Cookie,
+    CookieSchema,
+    HoppRESTRequest,
+    parseTemplateStringE,
+  } from "@hoppscotch/data"
+  import * as E from "fp-ts/Either"
+  import * as O from "fp-ts/Option"
+  import { pipe } from "fp-ts/lib/function"
+  import { cloneDeep } from "lodash-es"
 
-import {
-  Expectation,
-  TestDescriptor,
-  TestResult,
-  SandboxValue,
-  SandboxEnvironmentVariable,
-  SandboxEnvs,
-} from "../types"
-import { UNDEFINED_MARKER, NULL_MARKER } from "~/constants/sandbox-markers"
+  import {
+    Expectation,
+    TestDescriptor,
+    TestResult,
+    SandboxValue,
+    SandboxEnvironmentVariable,
+    SandboxEnvs,
+  } from "../types"
+  import { UNDEFINED_MARKER, NULL_MARKER } from "~/constants/sandbox-markers"
 
-export type EnvSource = "active" | "global" | "all"
-export type EnvAPIOptions = {
-  fallbackToNull?: boolean
-  source: EnvSource
-}
-
-const getEnv = (
-  envName: string,
-  envs: SandboxEnvs,
-  options = { source: "all" }
-) => {
-  if (options.source === "active") {
-    return O.fromNullable(
-      envs.selected.find((x: SandboxEnvironmentVariable) => x.key === envName)
-    )
+  export type EnvSource = "active" | "global" | "all"
+  export type EnvAPIOptions = {
+    fallbackToNull?: boolean
+    source: EnvSource
   }
 
-  if (options.source === "global") {
-    return O.fromNullable(
-      envs.global.find((x: SandboxEnvironmentVariable) => x.key === envName)
-    )
-  }
-
-  return O.fromNullable(
-    envs.selected.find((x: SandboxEnvironmentVariable) => x.key === envName) ??
-      envs.global.find((x: SandboxEnvironmentVariable) => x.key === envName)
-  )
-}
-
-const findEnvIndex = (
-  envName: string,
-  envList: SandboxEnvironmentVariable[]
-): number => {
-  return envList.findIndex(
-    (envItem: SandboxEnvironmentVariable) => envItem.key === envName
-  )
-}
-
-const setEnv = (
-  envName: string,
-  envValue: SandboxValue,
-  envs: SandboxEnvs,
-  options: { setInitialValue?: boolean; source: EnvSource } = {
-    setInitialValue: false,
-    source: "all",
-  }
-): SandboxEnvs => {
-  const { global, selected } = envs
-
-  const indexInSelected = findEnvIndex(envName, selected)
-  const indexInGlobal = findEnvIndex(envName, global)
-
-  if (["all", "active"].includes(options.source) && indexInSelected >= 0) {
-    const selectedEnv = selected[indexInSelected]
-    const targetProperty = options.setInitialValue
-      ? "initialValue"
-      : "currentValue"
-
-    selectedEnv[targetProperty] = envValue
-  } else if (["all", "global"].includes(options.source) && indexInGlobal >= 0) {
-    const globalEnv = global[indexInGlobal]
-    const targetProperty = options.setInitialValue
-      ? "initialValue"
-      : "currentValue"
-
-    globalEnv[targetProperty] = envValue
-  } else if (["all", "active"].includes(options.source)) {
-    selected.push({
-      key: envName,
-      currentValue: envValue,
-      initialValue: envValue,
-      secret: false,
-    })
-  } else if (["all", "global"].includes(options.source)) {
-    global.push({
-      key: envName,
-      currentValue: envValue,
-      initialValue: envValue,
-      secret: false,
-    })
-  }
-
-  return {
-    global,
-    selected,
-  }
-}
-
-const unsetEnv = (
-  envName: string,
-  envs: SandboxEnvs,
-  options = { source: "all" }
-): SandboxEnvs => {
-  const { global, selected } = envs
-
-  const indexInSelected = findEnvIndex(envName, selected)
-  const indexInGlobal = findEnvIndex(envName, global)
-
-  if (["all", "active"].includes(options.source) && indexInSelected >= 0) {
-    selected.splice(indexInSelected, 1)
-  } else if (["all", "global"].includes(options.source) && indexInGlobal >= 0) {
-    global.splice(indexInGlobal, 1)
-  }
-
-  return {
-    global,
-    selected,
-  }
-}
-
-/**
- * Compiles shared scripting API methods (scoped to environments) for use in both pre and post request scripts
- * Experimental sandbox version - Returns methods organized by namespace (`pw` and `hopp`)
- */
-export function getSharedEnvMethods(
-  envs: TestResult["envs"],
-  isHoppNamespace: true
-): {
-  methods: {
-    pw: {
-      get: (key: string, options?: EnvAPIOptions) => string | null | undefined
-      getResolve: (
-        key: string,
-        options?: EnvAPIOptions
-      ) => string | null | undefined
-      set: (key: string, value: string, options?: EnvAPIOptions) => void
-      unset: (key: string, options?: EnvAPIOptions) => void
-      resolve: (key: string) => string
-    }
-    hopp: {
-      set: (key: string, value: string, options?: EnvAPIOptions) => void
-      delete: (key: string, options?: EnvAPIOptions) => void
-      reset: (key: string, options?: EnvAPIOptions) => void
-      getInitialRaw: (key: string, options?: EnvAPIOptions) => string | null
-      setInitial: (key: string, value: string, options?: EnvAPIOptions) => void
-    }
-  }
-  pmSetAny: (key: string, value: SandboxValue, options?: EnvAPIOptions) => void
-  updatedEnvs: SandboxEnvs
-}
-
-/**
- * Legacy sandbox version - Methods pre-wrapped in `env` for direct `pw` namespace assignment
- * (Experimental sandbox powered by `faraday-cage` handles this wrapping via bootstrap code)
- */
-export function getSharedEnvMethods(
-  envs: TestResult["envs"],
-  isHoppNamespace?: false
-): {
-  methods: {
-    env: {
-      get: (key: string, options?: EnvAPIOptions) => string | null | undefined
-      getResolve: (
-        key: string,
-        options?: EnvAPIOptions
-      ) => string | null | undefined
-      set: (key: string, value: string, options?: EnvAPIOptions) => void
-      unset: (key: string, options?: EnvAPIOptions) => void
-      resolve: (key: string) => string
-    }
-  }
-  updatedEnvs: SandboxEnvs
-}
-
-export function getSharedEnvMethods(
-  envs: TestResult["envs"],
-  isHoppNamespace = false
-): unknown {
-  /**
-   * Type assertion explanation:
-   *
-   * The `envs` parameter is typed as `TestResult["envs"]` (with string values) for external API
-   * compatibility, but at runtime it contains `SandboxValue` types during script execution.
-   *
-   * Data flow:
-   * 1. Entry: External caller passes envs with string values
-   *    { global: [{ key: "count", currentValue: "5", initialValue: "0" }], selected: [] }
-   *
-   * 2. Execution: Scripts mutate with complex types (PM namespace compatibility)
-   *    pm.environment.set("users", [{ id: 1, name: "Alice" }, { id: 2, name: "Bob" }])
-   *    pm.environment.set("config", { debug: true, maxRetries: 3 })
-   *    // Now: currentValue is an array/object, not a string!
-   *
-   * 3. Exit: getUpdatedEnvs() serializes back to strings via JSON.stringify()
-   *    { global: [{ key: "users", currentValue: "[{...}]", initialValue: "[]" }], ... }
-   *
-   * The `satisfies` check acknowledges that during execution (steps 1-3), the runtime type is
-   * SandboxEnvs, even though the declared type is TestResult["envs"] for API boundary compatibility.
-   */
-  let updatedEnvs = envs satisfies SandboxEnvs
-
-  const envGetFn = (
-    key: unknown,
-    options: EnvAPIOptions = { fallbackToNull: false, source: "all" }
+  const getEnv = (
+    envName: string,
+    envs: SandboxEnvs,
+    options = { source: "all" }
   ) => {
-    if (typeof key !== "string") {
-      throw new Error("Expected key to be a string")
+    if (options.source === "active") {
+      return O.fromNullable(
+        envs.selected.find((x: SandboxEnvironmentVariable) => x.key === envName)
+      )
     }
 
-    const result = pipe(
-      getEnv(key, updatedEnvs, options),
-      O.fold(
-        () => (options.fallbackToNull ? null : undefined),
-        (env) => {
+    if (options.source === "global") {
+      return O.fromNullable(
+        envs.global.find((x: SandboxEnvironmentVariable) => x.key === envName)
+      )
+    }
+
+    return O.fromNullable(
+      envs.selected.find((x: SandboxEnvironmentVariable) => x.key === envName) ??
+        envs.global.find((x: SandboxEnvironmentVariable) => x.key === envName)
+    )
+  }
+
+  const findEnvIndex = (
+    envName: string,
+    envList: SandboxEnvironmentVariable[]
+  ): number => {
+    return envList.findIndex(
+      (envItem: SandboxEnvironmentVariable) => envItem.key === envName
+    )
+  }
+
+  const setEnv = (
+    envName: string,
+    envValue: SandboxValue,
+    envs: SandboxEnvs,
+    options: { setInitialValue?: boolean; source: EnvSource; isSecret?: boolean } = {
+      setInitialValue: false,
+      source: "all",
+    }
+  ): SandboxEnvs => {
+    const { global, selected } = envs
+
+    const indexInSelected = findEnvIndex(envName, selected)
+    const indexInGlobal = findEnvIndex(envName, global)
+
+    if (["all", "active"].includes(options.source) && indexInSelected >= 0) {
+      const selectedEnv = selected[indexInSelected]
+      const targetProperty = options.setInitialValue
+        ? "initialValue"
+        : "currentValue"
+
+      selectedEnv[targetProperty] = envValue
+      // Ensure we update the secret status if explicitly requested
+      if (options.isSecret !== undefined) {
+        selectedEnv.secret = options.isSecret
+      }
+    } else if (["all", "global"].includes(options.source) && indexInGlobal >= 0) {
+      const globalEnv = global[indexInGlobal]
+      const targetProperty = options.setInitialValue
+        ? "initialValue"
+        : "currentValue"
+
+      globalEnv[targetProperty] = envValue
+      // Ensure we update the secret status if explicitly requested
+      if (options.isSecret !== undefined) {
+        globalEnv.secret = options.isSecret
+      }
+    } else if (["all", "active"].includes(options.source)) {
+      selected.push({
+        key: envName,
+        currentValue: envValue,
+        initialValue: envValue,
+        secret: options.isSecret ?? false,
+      })
+    } else if (["all", "global"].includes(options.source)) {
+      global.push({
+        key: envName,
+        currentValue: envValue,
+        initialValue: envValue,
+        secret: options.isSecret ?? false,
+      })
+    }
+
+    return {
+      global,
+      selected,
+    }
+  }
+
+  const unsetEnv = (
+    envName: string,
+    envs: SandboxEnvs,
+    options = { source: "all" }
+  ): SandboxEnvs => {
+    const { global, selected } = envs
+
+    const indexInSelected = findEnvIndex(envName, selected)
+    const indexInGlobal = findEnvIndex(envName, global)
+
+    if (["all", "active"].includes(options.source) && indexInSelected >= 0) {
+      selected.splice(indexInSelected, 1)
+    } else if (["all", "global"].includes(options.source) && indexInGlobal >= 0) {
+      global.splice(indexInGlobal, 1)
+    }
+
+    return {
+      global,
+      selected,
+    }
+  }
+
+  /**
+   * Compiles shared scripting API methods (scoped to environments) for use in both pre and post request scripts
+   * Experimental sandbox version - Returns methods organized by namespace (`pw` and `hopp`)
+   */
+  export function getSharedEnvMethods(
+    envs: TestResult["envs"],
+    isHoppNamespace: true
+  ): {
+    methods: {
+      pw: {
+        get: (key: string, options?: EnvAPIOptions) => string | null | undefined
+        getResolve: (
+          key: string,
+          options?: EnvAPIOptions
+        ) => string | null | undefined
+        set: (key: string, value: string, options?: EnvAPIOptions) => void
+        setSecret: (key: string, value: string, options?: EnvAPIOptions) => void
+        unset: (key: string, options?: EnvAPIOptions) => void
+        resolve: (key: string) => string
+      }
+      hopp: {
+        set: (key: string, value: string, options?: EnvAPIOptions) => void
+        setSecret: (key: string, value: string, options?: EnvAPIOptions) => void
+        delete: (key: string, options?: EnvAPIOptions) => void
+        reset: (key: string, options?: EnvAPIOptions) => void
+        getInitialRaw: (key: string, options?: EnvAPIOptions) => string | null
+        setInitial: (key: string, value: string, options?: EnvAPIOptions) => void
+      }
+    }
+    pmSetAny: (key: string, value: SandboxValue, options?: EnvAPIOptions) => void
+    updatedEnvs: SandboxEnvs
+  }
+
+  /**
+   * Legacy sandbox version - Methods pre-wrapped in `env` for direct `pw` namespace assignment
+   * (Experimental sandbox powered by `faraday-cage` handles this wrapping via bootstrap code)
+   */
+  export function getSharedEnvMethods(
+    envs: TestResult["envs"],
+    isHoppNamespace?: false
+  ): {
+    methods: {
+      env: {
+        get: (key: string, options?: EnvAPIOptions) => string | null | undefined
+        getResolve: (
+          key: string,
+          options?: EnvAPIOptions
+        ) => string | null | undefined
+        set: (key: string, value: string, options?: EnvAPIOptions) => void
+        setSecret: (key: string, value: string, options?: EnvAPIOptions) => void
+        unset: (key: string, options?: EnvAPIOptions) => void
+        resolve: (key: string) => string
+      }
+    }
+    updatedEnvs: SandboxEnvs
+  }
+
+  export function getSharedEnvMethods(
+    envs: TestResult["envs"],
+    isHoppNamespace = false
+  ): unknown {
+    /**
+     * Type assertion explanation:
+     *
+     * The `envs` parameter is typed as `TestResult["envs"]` (with string values) for external API
+     * compatibility, but at runtime it contains `SandboxValue` types during script execution.
+     *
+     * Data flow:
+     * 1. Entry: External caller passes envs with string values
+     *    { global: [{ key: "count", currentValue: "5", initialValue: "0" }], selected: [] }
+     *
+     * 2. Execution: Scripts mutate with complex types (PM namespace compatibility)
+     *    pm.environment.set("users", [{ id: 1, name: "Alice" }, { id: 2, name: "Bob" }])
+     *    pm.environment.set("config", { debug: true, maxRetries: 3 })
+     *    // Now: currentValue is an array/object, not a string!
+     *
+     * 3. Exit: getUpdatedEnvs() serializes back to strings via JSON.stringify()
+     *    { global: [{ key: "users", currentValue: "[{...}]", initialValue: "[]" }], ... }
+     *
+     * The `satisfies` check acknowledges that during execution (steps 1-3), the runtime type is
+     * SandboxEnvs, even though the declared type is TestResult["envs"] for API boundary compatibility.
+     */
+    let updatedEnvs = envs satisfies SandboxEnvs
+
+    const envGetFn = (
+      key: unknown,
+      options: EnvAPIOptions = { fallbackToNull: false, source: "all" }
+    ) => {
+      if (typeof key !== "string") {
+        throw new Error("Expected key to be a string")
+      }
+
+      const result = pipe(
+        getEnv(key, updatedEnvs, options),
+        O.fold(
+          () => (options.fallbackToNull ? null : undefined),
+          (env) => {
+            // Get the value to use (currentValue or fallback to initialValue)
+            // Treat undefined, empty string, and null as "empty" and fallback to initialValue
+            const valueToUse =
+              env.currentValue !== undefined &&
+              env.currentValue !== "" &&
+              env.currentValue !== null
+                ? env.currentValue
+                : env.initialValue
+
+            // Convert markers back to their actual types for script execution
+            // This ensures null/undefined values are properly represented in scripts
+            if (valueToUse === UNDEFINED_MARKER) {
+              return undefined
+            }
+            if (valueToUse === NULL_MARKER) {
+              return null
+            }
+
+            // Preserve complex types (arrays, objects) for PM namespace compatibility
+            return valueToUse
+          }
+        )
+      )
+
+      return result
+    }
+
+    const envGetResolveFn = (
+      key: unknown,
+      options: EnvAPIOptions = { fallbackToNull: false, source: "all" }
+    ) => {
+      if (typeof key !== "string") {
+        throw new Error("Expected key to be a string")
+      }
+
+      const shouldIncludeSelected = ["all", "active"].includes(options.source)
+      const shouldIncludeGlobal = ["all", "global"].includes(options.source)
+
+      const envVars = [
+        ...(shouldIncludeSelected ? updatedEnvs.selected : []),
+        ...(shouldIncludeGlobal ? updatedEnvs.global : []),
+      ]
+
+      const result = pipe(
+        getEnv(key, updatedEnvs, options),
+        E.fromOption(() => "INVALID_KEY" as const),
+
+        E.map((e) => {
           // Get the value to use (currentValue or fallback to initialValue)
           // Treat undefined, empty string, and null as "empty" and fallback to initialValue
           const valueToUse =
-            env.currentValue !== undefined &&
-            env.currentValue !== "" &&
-            env.currentValue !== null
-              ? env.currentValue
-              : env.initialValue
+            e.currentValue !== undefined &&
+            e.currentValue !== "" &&
+            e.currentValue !== null
+              ? e.currentValue
+              : e.initialValue
 
-          // Convert markers back to their actual types for script execution
-          // This ensures null/undefined values are properly represented in scripts
+          // Convert markers back to their actual types
           if (valueToUse === UNDEFINED_MARKER) {
             return undefined
           }
@@ -241,260 +299,235 @@ export function getSharedEnvMethods(
             return null
           }
 
-          // Preserve complex types (arrays, objects) for PM namespace compatibility
-          return valueToUse
-        }
+          // Only resolve templates for string values
+          // Non-string values (arrays, objects, etc.) are returned as-is for PM namespace compatibility
+          if (typeof valueToUse !== "string") {
+            return valueToUse
+          }
+
+          // For string values, resolve templates
+          return pipe(
+            parseTemplateStringE(valueToUse, envVars),
+            // If the recursive resolution failed, return the unresolved value
+            E.getOrElse(() => valueToUse)
+          )
+        }),
+
+        E.getOrElseW(() => (options.fallbackToNull ? null : undefined))
       )
-    )
 
-    return result
-  }
-
-  const envGetResolveFn = (
-    key: unknown,
-    options: EnvAPIOptions = { fallbackToNull: false, source: "all" }
-  ) => {
-    if (typeof key !== "string") {
-      throw new Error("Expected key to be a string")
+      return result
     }
 
-    const shouldIncludeSelected = ["all", "active"].includes(options.source)
-    const shouldIncludeGlobal = ["all", "global"].includes(options.source)
+    const envSetFn = (
+      key: unknown,
+      value: unknown,
+      options: EnvAPIOptions = { source: "all" }
+    ) => {
+      if (typeof key !== "string") {
+        throw new Error("Expected key to be a string")
+      }
 
-    const envVars = [
-      ...(shouldIncludeSelected ? updatedEnvs.selected : []),
-      ...(shouldIncludeGlobal ? updatedEnvs.global : []),
-    ]
+      if (typeof value !== "string") {
+        throw new Error("Expected value to be a string")
+      }
 
-    const result = pipe(
-      getEnv(key, updatedEnvs, options),
-      E.fromOption(() => "INVALID_KEY" as const),
+      updatedEnvs = setEnv(key, value, updatedEnvs, options)
 
-      E.map((e) => {
-        // Get the value to use (currentValue or fallback to initialValue)
-        // Treat undefined, empty string, and null as "empty" and fallback to initialValue
-        const valueToUse =
-          e.currentValue !== undefined &&
-          e.currentValue !== "" &&
-          e.currentValue !== null
-            ? e.currentValue
-            : e.initialValue
+      return undefined
+    }
 
-        // Convert markers back to their actual types
-        if (valueToUse === UNDEFINED_MARKER) {
-          return undefined
+    const envSetSecretFn = (
+      key: unknown,
+      value: unknown,
+      options: EnvAPIOptions = { source: "all" }
+    ) => {
+      if (typeof key !== "string") {
+        throw new Error("Expected key to be a string")
+      }
+
+      if (typeof value !== "string") {
+        throw new Error("Expected value to be a string")
+      }
+
+      // Pass isSecret: true to the setEnv function
+      updatedEnvs = setEnv(key, value, updatedEnvs, { ...options, isSecret: true })
+
+      return undefined
+    }
+
+    // PM namespace-specific setter that accepts any type (for Postman compatibility)
+    const envSetAnyFn = (
+      key: unknown,
+      value: SandboxValue, // Intentionally SandboxValue for PM namespace type preservation
+      options: EnvAPIOptions = { source: "all" }
+    ) => {
+      if (typeof key !== "string") {
+        throw new Error("Expected key to be a string")
+      }
+
+      // PM namespace preserves ALL types (arrays, objects, primitives, null, undefined)
+      updatedEnvs = setEnv(key, value, updatedEnvs, options)
+
+      return undefined
+    }
+
+    const envUnsetFn = (
+      key: unknown,
+      options: EnvAPIOptions = { source: "all" }
+    ) => {
+      if (typeof key !== "string") {
+        throw new Error("Expected key to be a string")
+      }
+
+      updatedEnvs = unsetEnv(key, updatedEnvs, options)
+
+      return undefined
+    }
+
+    const envResolveFn = (value: unknown) => {
+      if (typeof value !== "string") {
+        throw new Error("Expected value to be a string")
+      }
+
+      const result = pipe(
+        parseTemplateStringE(value, [
+          ...updatedEnvs.selected,
+          ...updatedEnvs.global,
+        ]),
+        E.getOrElse(() => value)
+      )
+
+      return String(result)
+    }
+
+    // Methods exclusive to the `hopp` namespace
+    const envResetFn = (
+      key: string,
+      options: EnvAPIOptions = { source: "all" }
+    ) => {
+      if (typeof key !== "string") {
+        throw new Error("Expected key to be a string")
+      }
+
+      // Always read from the live, mutated state. `updatedEnvs` is reassigned by setters,
+      // while `envs` may point to an older object (stale snapshot) even if arrays were mutated.
+      // Using `updatedEnvs` here avoids subtle drift if future changes replace arrays immutably.
+      const { global, selected } = updatedEnvs
+
+      const indexInSelected = findEnvIndex(key, selected)
+      const indexInGlobal = findEnvIndex(key, global)
+
+      if (["all", "active"].includes(options.source) && indexInSelected >= 0) {
+        const selectedEnv = selected[indexInSelected]
+
+        if ("currentValue" in selectedEnv) {
+          selectedEnv.currentValue = selectedEnv.initialValue
         }
-        if (valueToUse === NULL_MARKER) {
-          return null
+      } else if (
+        ["all", "global"].includes(options.source) &&
+        indexInGlobal >= 0
+      ) {
+        if ("currentValue" in global[indexInGlobal]) {
+          global[indexInGlobal].currentValue = global[indexInGlobal].initialValue
         }
+      }
+    }
 
-        // Only resolve templates for string values
-        // Non-string values (arrays, objects, etc.) are returned as-is for PM namespace compatibility
-        if (typeof valueToUse !== "string") {
-          return valueToUse
-        }
+    const envGetInitialRawFn = (
+      key: unknown,
+      options: EnvAPIOptions = { source: "all" }
+    ) => {
+      if (typeof key !== "string") {
+        throw new Error("Expected key to be a string")
+      }
 
-        // For string values, resolve templates
-        return pipe(
-          parseTemplateStringE(valueToUse, envVars),
-          // If the recursive resolution failed, return the unresolved value
-          E.getOrElse(() => valueToUse)
+      const result = pipe(
+        getEnv(key, updatedEnvs, options),
+        O.fold(
+          () => undefined,
+          (env) => {
+            const initialValue = env.initialValue
+
+            // Convert markers back to their actual types
+            if (initialValue === UNDEFINED_MARKER) {
+              return undefined
+            }
+            if (initialValue === NULL_MARKER) {
+              return null
+            }
+
+            return initialValue // Return as-is (PM namespace preserves types)
+          }
         )
-      }),
-
-      E.getOrElseW(() => (options.fallbackToNull ? null : undefined))
-    )
-
-    return result
-  }
-
-  const envSetFn = (
-    key: unknown,
-    value: unknown,
-    options: EnvAPIOptions = { source: "all" }
-  ) => {
-    if (typeof key !== "string") {
-      throw new Error("Expected key to be a string")
-    }
-
-    if (typeof value !== "string") {
-      throw new Error("Expected value to be a string")
-    }
-
-    updatedEnvs = setEnv(key, value, updatedEnvs, options)
-
-    return undefined
-  }
-
-  // PM namespace-specific setter that accepts any type (for Postman compatibility)
-  const envSetAnyFn = (
-    key: unknown,
-    value: SandboxValue, // Intentionally SandboxValue for PM namespace type preservation
-    options: EnvAPIOptions = { source: "all" }
-  ) => {
-    if (typeof key !== "string") {
-      throw new Error("Expected key to be a string")
-    }
-
-    // PM namespace preserves ALL types (arrays, objects, primitives, null, undefined)
-    updatedEnvs = setEnv(key, value, updatedEnvs, options)
-
-    return undefined
-  }
-
-  const envUnsetFn = (
-    key: unknown,
-    options: EnvAPIOptions = { source: "all" }
-  ) => {
-    if (typeof key !== "string") {
-      throw new Error("Expected key to be a string")
-    }
-
-    updatedEnvs = unsetEnv(key, updatedEnvs, options)
-
-    return undefined
-  }
-
-  const envResolveFn = (value: unknown) => {
-    if (typeof value !== "string") {
-      throw new Error("Expected value to be a string")
-    }
-
-    const result = pipe(
-      parseTemplateStringE(value, [
-        ...updatedEnvs.selected,
-        ...updatedEnvs.global,
-      ]),
-      E.getOrElse(() => value)
-    )
-
-    return String(result)
-  }
-
-  // Methods exclusive to the `hopp` namespace
-  const envResetFn = (
-    key: string,
-    options: EnvAPIOptions = { source: "all" }
-  ) => {
-    if (typeof key !== "string") {
-      throw new Error("Expected key to be a string")
-    }
-
-    // Always read from the live, mutated state. `updatedEnvs` is reassigned by setters,
-    // while `envs` may point to an older object (stale snapshot) even if arrays were mutated.
-    // Using `updatedEnvs` here avoids subtle drift if future changes replace arrays immutably.
-    const { global, selected } = updatedEnvs
-
-    const indexInSelected = findEnvIndex(key, selected)
-    const indexInGlobal = findEnvIndex(key, global)
-
-    if (["all", "active"].includes(options.source) && indexInSelected >= 0) {
-      const selectedEnv = selected[indexInSelected]
-
-      if ("currentValue" in selectedEnv) {
-        selectedEnv.currentValue = selectedEnv.initialValue
-      }
-    } else if (
-      ["all", "global"].includes(options.source) &&
-      indexInGlobal >= 0
-    ) {
-      if ("currentValue" in global[indexInGlobal]) {
-        global[indexInGlobal].currentValue = global[indexInGlobal].initialValue
-      }
-    }
-  }
-
-  const envGetInitialRawFn = (
-    key: unknown,
-    options: EnvAPIOptions = { source: "all" }
-  ) => {
-    if (typeof key !== "string") {
-      throw new Error("Expected key to be a string")
-    }
-
-    const result = pipe(
-      getEnv(key, updatedEnvs, options),
-      O.fold(
-        () => undefined,
-        (env) => {
-          const initialValue = env.initialValue
-
-          // Convert markers back to their actual types
-          if (initialValue === UNDEFINED_MARKER) {
-            return undefined
-          }
-          if (initialValue === NULL_MARKER) {
-            return null
-          }
-
-          return initialValue // Return as-is (PM namespace preserves types)
-        }
       )
-    )
 
-    return result ?? null
-  }
-
-  const envSetInitialFn = (
-    key: string,
-    value: string,
-    options: EnvAPIOptions = { source: "all" }
-  ) => {
-    if (typeof key !== "string") {
-      throw new Error("Expected key to be a string")
+      return result ?? null
     }
 
-    if (typeof value !== "string") {
-      throw new Error("Expected value to be a string")
+    const envSetInitialFn = (
+      key: string,
+      value: string,
+      options: EnvAPIOptions = { source: "all" }
+    ) => {
+      if (typeof key !== "string") {
+        throw new Error("Expected key to be a string")
+      }
+
+      if (typeof value !== "string") {
+        throw new Error("Expected value to be a string")
+      }
+
+      updatedEnvs = setEnv(key, value, updatedEnvs, {
+        setInitialValue: true,
+        source: options.source,
+      })
+
+      return undefined
     }
 
-    updatedEnvs = setEnv(key, value, updatedEnvs, {
-      setInitialValue: true,
-      source: options.source,
-    })
+    // Experimental scripting sandbox (Both `pw` and `hopp` namespaces)
+    if (isHoppNamespace) {
+      return {
+        methods: {
+          pw: {
+            get: envGetFn,
+            getResolve: envGetResolveFn,
+            set: envSetFn,
+            setSecret: envSetSecretFn,
+            unset: envUnsetFn,
+            resolve: envResolveFn,
+          },
+          hopp: {
+            set: envSetFn,
+            setSecret: envSetSecretFn,
+            delete: envUnsetFn,
+            reset: envResetFn,
+            getInitialRaw: envGetInitialRawFn,
+            setInitial: envSetInitialFn,
+          },
+        },
+        // Expose PM-specific setter that accepts any type
+        pmSetAny: envSetAnyFn,
+        updatedEnvs,
+      }
+    }
 
-    return undefined
-  }
-
-  // Experimental scripting sandbox (Both `pw` and `hopp` namespaces)
-  if (isHoppNamespace) {
+    // Legacy scripting sandbox (Only `pw` namespace)
     return {
       methods: {
-        pw: {
+        env: {
           get: envGetFn,
           getResolve: envGetResolveFn,
           set: envSetFn,
+          setSecret: envSetSecretFn,
           unset: envUnsetFn,
           resolve: envResolveFn,
         },
-        hopp: {
-          set: envSetFn,
-          delete: envUnsetFn,
-          reset: envResetFn,
-          getInitialRaw: envGetInitialRawFn,
-          setInitial: envSetInitialFn,
-        },
       },
-      // Expose PM-specific setter that accepts any type
-      pmSetAny: envSetAnyFn,
       updatedEnvs,
     }
   }
-
-  // Legacy scripting sandbox (Only `pw` namespace)
-  return {
-    methods: {
-      env: {
-        get: envGetFn,
-        getResolve: envGetResolveFn,
-        set: envSetFn,
-        unset: envUnsetFn,
-        resolve: envResolveFn,
-      },
-    },
-    updatedEnvs,
-  }
-}
 
 export const getSharedCookieMethods = (cookies: Cookie[] | null) => {
   // Incoming `cookies` specified as `null` indicates unsupported platform

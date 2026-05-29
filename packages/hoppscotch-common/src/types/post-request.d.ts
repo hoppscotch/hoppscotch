@@ -494,6 +494,7 @@ declare namespace pw {
   }>
   namespace env {
     function set(key: string, value: string): void
+    function setSecret(key: string, value: string): void
     function unset(key: string): void
     function get(key: string): string
     function getResolve(key: string): string
@@ -507,6 +508,7 @@ declare namespace hopp {
     getRaw(key: string): string | null
     getInitialRaw(key: string): string | null
     set(key: string, value: string): void
+    setSecret(key: string, value: string): void
     delete(key: string): void
     reset(key: string): void
     setInitial(key: string, value: string): void
@@ -515,6 +517,7 @@ declare namespace hopp {
       getRaw(key: string): string | null
       getInitialRaw(key: string): string | null
       set(key: string, value: string): void
+      setSecret(key: string, value: string): void;
       delete(key: string): void
       reset(key: string): void
       setInitial(key: string, value: string): void
@@ -524,6 +527,7 @@ declare namespace hopp {
       getRaw(key: string): string | null
       getInitialRaw(key: string): string | null
       set(key: string, value: string): void
+      setSecret(key: string, value: string): void;
       delete(key: string): void
       reset(key: string): void
       setInitial(key: string, value: string): void
@@ -638,6 +642,7 @@ declare namespace pm {
   const environment: Readonly<{
     get(key: string): string | null
     set(key: string, value: string): void
+    setSecret(key: string, value: string): void;
     unset(key: string): void
     has(key: string): boolean
     clear(): void
@@ -647,6 +652,7 @@ declare namespace pm {
   const globals: Readonly<{
     get(key: string): string | null
     set(key: string, value: string): void
+    setSecret(key: string, value: string): void;
     unset(key: string): void
     has(key: string): boolean
     clear(): void
@@ -656,6 +662,7 @@ declare namespace pm {
   const collectionVariables: Readonly<{
     get(key: string): string | null
     set(key: string, value: string): void
+    setSecret(key: string, value: string): void;
     unset(key: string): void
     has(key: string): boolean
     clear(): void
@@ -665,6 +672,7 @@ declare namespace pm {
   const variables: Readonly<{
     get(key: string): string | null
     set(key: string, value: string): void
+    setSecret(key: string, value: string): void;
     unset(key: string): void
     has(key: string): boolean
     toObject(): Record<string, string>
@@ -805,6 +813,7 @@ declare namespace pm {
   const vault: Readonly<{
     get(key: string): string | null
     set(key: string, value: string): void
+    setSecret(key: string, value: string): void;
     unset(key: string): void
   }>
 

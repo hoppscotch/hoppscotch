@@ -13,18 +13,23 @@ import {
 } from "@hoppscotch/data"
 import { entityReference } from "verzod"
 import { z } from "zod"
+import { colord } from "colord"
 import { HoppAccentColors, HoppBgColors } from "~/newstore/settings"
 
-const ThemeColorSchema = z.enum([
-  "green",
-  "teal",
-  "blue",
-  "indigo",
-  "purple",
-  "yellow",
-  "orange",
-  "red",
-  "pink",
+const ThemeColorSchema = z.union([
+  z.enum(HoppAccentColors),
+  // Accept custom colors only when they parse successfully as fully opaque values.
+  z.string().refine(
+    (s) => {
+      try {
+        const color = colord(s)
+        return color.isValid() && color.alpha() === 1
+      } catch (_e) {
+        return false
+      }
+    },
+    { message: "Invalid color format" }
+  ),
 ])
 
 const BgColorSchema = z.enum(["system", "light", "dark", "black"])
@@ -108,7 +113,7 @@ export const VUEX_SCHEMA = z.object({
   ),
 })
 
-export const THEME_COLOR_SCHEMA = z.enum(HoppAccentColors)
+export const THEME_COLOR_SCHEMA = ThemeColorSchema
 
 export const NUXT_COLOR_MODE_SCHEMA = z.enum(HoppBgColors)
 

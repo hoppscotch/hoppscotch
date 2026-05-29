@@ -63,7 +63,7 @@ export type SettingsDef = {
     bearerToken: boolean
     oauth2Token: boolean
   }
-  THEME_COLOR: HoppAccentColor
+  THEME_COLOR: HoppAccentColor | string
   BG_COLOR: HoppBgColor
   ENCODE_MODE: EncodeMode
   TELEMETRY_ENABLED: boolean

@@ -1,0 +1,1176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="646" failures="91" errors="26" time="5.341">
+  <testsuite name="scripting-revamp-coll/json-response-test" time="0" timestamp="2026-03-21T14:11:48.962Z" tests="0" failures="0" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io
+      TEST_SCRIPT_ERROR - Script execution failed: SyntaxError: unexpected token: 'undefined']]></system-err>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/html-response-test" time="0.08" timestamp="2026-03-21T14:11:48.964Z" tests="4" failures="4" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND hoppscotch.io]]></system-err>
+    <testcase name="`hopp.response.asText()` parses response body as plain text - Expected &quot;{}&quot; to include &quot;Open source API development ecosystem&quot;" classname="scripting-revamp-coll/html-response-test">
+      <failure type="AssertionFailure" message="Expected &quot;{}&quot; to include &quot;Open source API development ecosystem&quot;"/>
+    </testcase>
+    <testcase name="`pm.response.text()` parses response body as plain text - Expected &quot;{}&quot; to include &quot;Open source API development ecosystem&quot;" classname="scripting-revamp-coll/html-response-test">
+      <failure type="AssertionFailure" message="Expected &quot;{}&quot; to include &quot;Open source API development ecosystem&quot;"/>
+    </testcase>
+    <testcase name="`hopp.response.body.bytes()` parses response body as raw bytes - Expected '123' to be '60'" classname="scripting-revamp-coll/html-response-test">
+      <failure type="AssertionFailure" message="Expected '123' to be '60'"/>
+    </testcase>
+    <testcase name="`pm.response.stream` parses response body as raw bytes - Expected '123' to be '60'" classname="scripting-revamp-coll/html-response-test">
+      <failure type="AssertionFailure" message="Expected '123' to be '60'"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/environment-variables-test" time="0.081" timestamp="2026-03-21T14:11:48.965Z" tests="22" failures="0" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="`hopp.env.get()` retrieves environment variables - Expected 'test_value' to be 'test_value'" classname="scripting-revamp-coll/environment-variables-test"/>
+    <testcase name="`pm.variables.get()` retrieves environment variables - Expected 'test_value' to be 'test_value'" classname="scripting-revamp-coll/environment-variables-test"/>
+    <testcase name="`hopp.env.getRaw()` retrieves raw environment variables without resolution - Expected '&lt;&lt;test_key&gt;&gt;' to be '&lt;&lt;test_key&gt;&gt;'" classname="scripting-revamp-coll/environment-variables-test"/>
+    <testcase name="`hopp.env.get()` resolves recursive environment variables - Expected 'test_value' to be 'test_value'" classname="scripting-revamp-coll/environment-variables-test"/>
+    <testcase name="`pm.variables.replaceIn()` resolves template variables - Expected 'Value is test_value' to be 'Value is test_value'" classname="scripting-revamp-coll/environment-variables-test"/>
+    <testcase name="`hopp.env.global.get()` retrieves global environment variables - Expected 'global_value' to be 'global_value'" classname="scripting-revamp-coll/environment-variables-test"/>
+    <testcase name="`pm.globals.get()` retrieves global environment variables - Expected 'global_value' to be 'global_value'" classname="scripting-revamp-coll/environment-variables-test"/>
+    <testcase name="`hopp.env.active.get()` retrieves active environment variables - Expected 'active_value' to be 'active_value'" classname="scripting-revamp-coll/environment-variables-test"/>
+    <testcase name="`pm.environment.get()` retrieves active environment variables - Expected 'active_value' to be 'active_value'" classname="scripting-revamp-coll/environment-variables-test"/>
+    <testcase name="Environment methods return null for non-existent keys - Expected 'null' to be 'null'" classname="scripting-revamp-coll/environment-variables-test"/>
+    <testcase name="Environment methods return null for non-existent keys - Expected 'null' to be 'null'" classname="scripting-revamp-coll/environment-variables-test"/>
+    <testcase name="Environment methods return null for non-existent keys - Expected 'null' to be 'null'" classname="scripting-revamp-coll/environment-variables-test"/>
+    <testcase name="Environment methods return null for non-existent keys - Expected 'null' to be 'null'" classname="scripting-revamp-coll/environment-variables-test"/>
+    <testcase name="`pm` environment methods handle non-existent keys correctly - Expected 'undefined' to be 'undefined'" classname="scripting-revamp-coll/environment-variables-test"/>
+    <testcase name="`pm` environment methods handle non-existent keys correctly - Expected 'undefined' to be 'undefined'" classname="scripting-revamp-coll/environment-variables-test"/>
+    <testcase name="`pm` environment methods handle non-existent keys correctly - Expected 'undefined' to be 'undefined'" classname="scripting-revamp-coll/environment-variables-test"/>
+    <testcase name="`pm` environment methods handle non-existent keys correctly - Expected 'false' to be 'false'" classname="scripting-revamp-coll/environment-variables-test"/>
+    <testcase name="`pm` environment methods handle non-existent keys correctly - Expected 'false' to be 'false'" classname="scripting-revamp-coll/environment-variables-test"/>
+    <testcase name="`pm` environment methods handle non-existent keys correctly - Expected 'false' to be 'false'" classname="scripting-revamp-coll/environment-variables-test"/>
+    <testcase name="`pm` variables set in pre-request script are accessible - Expected 'pm_test_value' to be 'pm_test_value'" classname="scripting-revamp-coll/environment-variables-test"/>
+    <testcase name="`pm` variables set in pre-request script are accessible - Expected 'pm_active_value' to be 'pm_active_value'" classname="scripting-revamp-coll/environment-variables-test"/>
+    <testcase name="`pm` variables set in pre-request script are accessible - Expected 'pm_global_value' to be 'pm_global_value'" classname="scripting-revamp-coll/environment-variables-test"/>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/request-modification-test" time="0.084" timestamp="2026-03-21T14:11:48.966Z" tests="19" failures="0" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="Request URL was modified by pre-request script - Expected &quot;https://echo.hoppscotch.io/modified&quot; to include &quot;/modified&quot;" classname="scripting-revamp-coll/request-modification-test"/>
+    <testcase name="Request URL was modified by pre-request script - Expected &quot;https://echo.hoppscotch.io/modified&quot; to include &quot;/modified&quot;" classname="scripting-revamp-coll/request-modification-test"/>
+    <testcase name="Request method was modified by pre-request script - Expected 'POST' to be 'POST'" classname="scripting-revamp-coll/request-modification-test"/>
+    <testcase name="Request method was modified by pre-request script - Expected 'POST' to be 'POST'" classname="scripting-revamp-coll/request-modification-test"/>
+    <testcase name="Request headers contain both original and modified headers - Expected 'true' to be 'true'" classname="scripting-revamp-coll/request-modification-test"/>
+    <testcase name="Request headers contain both original and modified headers - Expected 'true' to be 'true'" classname="scripting-revamp-coll/request-modification-test"/>
+    <testcase name="PM request headers can be accessed and checked - Expected 'true' to be 'true'" classname="scripting-revamp-coll/request-modification-test"/>
+    <testcase name="PM request headers can be accessed and checked - Expected 'true' to be 'true'" classname="scripting-revamp-coll/request-modification-test"/>
+    <testcase name="PM request headers can be accessed and checked - Expected 'modified_value' to be 'modified_value'" classname="scripting-revamp-coll/request-modification-test"/>
+    <testcase name="Request parameters contain both original and new parameters - Expected 'true' to be 'true'" classname="scripting-revamp-coll/request-modification-test"/>
+    <testcase name="Request parameters contain both original and new parameters - Expected 'true' to be 'true'" classname="scripting-revamp-coll/request-modification-test"/>
+    <testcase name="Request body was modified by pre-request script - Expected 'application/json' to be 'application/json'" classname="scripting-revamp-coll/request-modification-test"/>
+    <testcase name="Request body was modified by pre-request script - Expected 'application/json' to be 'application/json'" classname="scripting-revamp-coll/request-modification-test"/>
+    <testcase name="Request body was modified by pre-request script - Expected 'true' to be 'true'" classname="scripting-revamp-coll/request-modification-test"/>
+    <testcase name="Request body was modified by pre-request script - Expected 'true' to be 'true'" classname="scripting-revamp-coll/request-modification-test"/>
+    <testcase name="Request auth was modified by pre-request script - Expected 'test-bearer-token' to be 'test-bearer-token'" classname="scripting-revamp-coll/request-modification-test"/>
+    <testcase name="Request auth was modified by pre-request script - Expected 'test-bearer-token' to be 'test-bearer-token'" classname="scripting-revamp-coll/request-modification-test"/>
+    <testcase name="Request auth was modified by pre-request script - Expected 'test-bearer-token' to be 'test-bearer-token'" classname="scripting-revamp-coll/request-modification-test"/>
+    <testcase name="Request auth was modified by pre-request script - Expected 'test-bearer-token' to be 'test-bearer-token'" classname="scripting-revamp-coll/request-modification-test"/>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/response-parsing-test" time="0.081" timestamp="2026-03-21T14:11:48.966Z" tests="22" failures="6" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="`hopp.response.statusCode` returns the response status code - Expected '400' to be '200'" classname="scripting-revamp-coll/response-parsing-test">
+      <failure type="AssertionFailure" message="Expected '400' to be '200'"/>
+    </testcase>
+    <testcase name="`pm.response.code` returns the response status code - Expected '400' to be '200'" classname="scripting-revamp-coll/response-parsing-test">
+      <failure type="AssertionFailure" message="Expected '400' to be '200'"/>
+    </testcase>
+    <testcase name="`hopp.response.statusText` returns the response status text - Expected '' to be type 'string'" classname="scripting-revamp-coll/response-parsing-test"/>
+    <testcase name="`pm.response.status` returns the response status text - Expected 'Bad Request' to be type 'string'" classname="scripting-revamp-coll/response-parsing-test"/>
+    <testcase name="`hopp.response.headers` contains response headers - Expected '' to be type 'object'" classname="scripting-revamp-coll/response-parsing-test"/>
+    <testcase name="`hopp.response.headers` contains response headers - Expected 'false' to be 'true'" classname="scripting-revamp-coll/response-parsing-test">
+      <failure type="AssertionFailure" message="Expected 'false' to be 'true'"/>
+    </testcase>
+    <testcase name="`pm.response.headers` contains response headers - Expected '[object Object]' to be type 'object'" classname="scripting-revamp-coll/response-parsing-test"/>
+    <testcase name="`pm.response.headers` contains response headers - Expected 'false' to be 'true'" classname="scripting-revamp-coll/response-parsing-test">
+      <failure type="AssertionFailure" message="Expected 'false' to be 'true'"/>
+    </testcase>
+    <testcase name="`hopp.response.responseTime` is a positive number - Expected '0' to be type 'number'" classname="scripting-revamp-coll/response-parsing-test"/>
+    <testcase name="`hopp.response.responseTime` is a positive number - Expected 'false' to be 'true'" classname="scripting-revamp-coll/response-parsing-test">
+      <failure type="AssertionFailure" message="Expected 'false' to be 'true'"/>
+    </testcase>
+    <testcase name="`pm.response.responseTime` is a positive number - Expected '0' to be type 'number'" classname="scripting-revamp-coll/response-parsing-test"/>
+    <testcase name="`pm.response.responseTime` is a positive number - Expected 'false' to be 'true'" classname="scripting-revamp-coll/response-parsing-test">
+      <failure type="AssertionFailure" message="Expected 'false' to be 'true'"/>
+    </testcase>
+    <testcase name="`hopp.response.text()` returns response as text - Expected '{}' to be type 'string'" classname="scripting-revamp-coll/response-parsing-test"/>
+    <testcase name="`hopp.response.text()` returns response as text - Expected 'true' to be 'true'" classname="scripting-revamp-coll/response-parsing-test"/>
+    <testcase name="`pm.response.text()` returns response as text - Expected '{}' to be type 'string'" classname="scripting-revamp-coll/response-parsing-test"/>
+    <testcase name="`pm.response.text()` returns response as text - Expected 'true' to be 'true'" classname="scripting-revamp-coll/response-parsing-test"/>
+    <testcase name="`hopp.response.json()` parses JSON response - Expected '[object Object]' to be type 'object'" classname="scripting-revamp-coll/response-parsing-test"/>
+    <testcase name="`pm.response.json()` parses JSON response - Expected '[object Object]' to be type 'object'" classname="scripting-revamp-coll/response-parsing-test"/>
+    <testcase name="`hopp.response.bytes()` returns the raw response - Expected '[object Object]' to be type 'object'" classname="scripting-revamp-coll/response-parsing-test"/>
+    <testcase name="`hopp.response.bytes()` returns the raw response - Expected 'Object' to be 'Object'" classname="scripting-revamp-coll/response-parsing-test"/>
+    <testcase name="`pm.response.stream` returns the raw response - Expected '[object Object]' to be type 'object'" classname="scripting-revamp-coll/response-parsing-test"/>
+    <testcase name="`pm.response.stream` returns the raw response - Expected 'Object' to be 'Object'" classname="scripting-revamp-coll/response-parsing-test"/>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/request-variables-test" time="0.078" timestamp="2026-03-21T14:11:48.966Z" tests="4" failures="0" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="`hopp.request.variables.get()` retrieves request variables - Expected 'dynamic_value' to be 'dynamic_value'" classname="scripting-revamp-coll/request-variables-test"/>
+    <testcase name="Request variables can store calculated values - Expected &quot;timestamp_1774102298548&quot; to include &quot;timestamp_&quot;" classname="scripting-revamp-coll/request-variables-test"/>
+    <testcase name="Request variables return null for non-existent keys - Expected 'null' to be 'null'" classname="scripting-revamp-coll/request-variables-test"/>
+    <testcase name="Pre-defined request variables are accessible - Expected 'request_variable_value' to be 'request_variable_value'" classname="scripting-revamp-coll/request-variables-test"/>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/info-context-test" time="0.076" timestamp="2026-03-21T14:11:48.966Z" tests="4" failures="0" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="`pm.info.eventName` indicates the script context - Expected 'test' to be 'test'" classname="scripting-revamp-coll/info-context-test"/>
+    <testcase name="`pm.info.requestName` returns the request name - Expected 'info-context-test' to be 'info-context-test'" classname="scripting-revamp-coll/info-context-test"/>
+    <testcase name="`pm.info.requestId` returns an optional request identifier - Expected 'cmfhzf0op0098qt0ii9fguj6e' to be type 'string'" classname="scripting-revamp-coll/info-context-test"/>
+    <testcase name="`pm.info.requestId` returns an optional request identifier - Expected 'true' to be 'true'" classname="scripting-revamp-coll/info-context-test"/>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/pm-namespace-additional-test" time="0.079" timestamp="2026-03-21T14:11:48.967Z" tests="14" failures="0" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="`pm` namespace environment operations work correctly - Expected 'true' to be 'true'" classname="scripting-revamp-coll/pm-namespace-additional-test"/>
+    <testcase name="`pm` namespace environment operations work correctly - Expected 'false' to be 'false'" classname="scripting-revamp-coll/pm-namespace-additional-test"/>
+    <testcase name="`pm` namespace environment operations work correctly - Expected 'true' to be 'true'" classname="scripting-revamp-coll/pm-namespace-additional-test"/>
+    <testcase name="`pm` namespace environment operations work correctly - Expected 'false' to be 'false'" classname="scripting-revamp-coll/pm-namespace-additional-test"/>
+    <testcase name="`pm` namespace environment operations work correctly - Expected 'true' to be 'true'" classname="scripting-revamp-coll/pm-namespace-additional-test"/>
+    <testcase name="`pm` namespace environment operations work correctly - Expected 'false' to be 'false'" classname="scripting-revamp-coll/pm-namespace-additional-test"/>
+    <testcase name="`pm` variables.replaceIn() handles template replacement - Expected &quot;Hello pm_pre_value, global: pm_global_pre_value&quot; to include &quot;pm_pre_value&quot;" classname="scripting-revamp-coll/pm-namespace-additional-test"/>
+    <testcase name="`pm` variables.replaceIn() handles template replacement - Expected &quot;Hello pm_pre_value, global: pm_global_pre_value&quot; to include &quot;pm_global_pre_value&quot;" classname="scripting-revamp-coll/pm-namespace-additional-test"/>
+    <testcase name="`pm` request object provides URL as object with toString - Expected 'https://echo.hoppscotch.io' to be type 'string'" classname="scripting-revamp-coll/pm-namespace-additional-test"/>
+    <testcase name="`pm` request object provides URL as object with toString - Expected &quot;https://echo.hoppscotch.io&quot; to include &quot;echo.hoppscotch.io&quot;" classname="scripting-revamp-coll/pm-namespace-additional-test"/>
+    <testcase name="`pm` request headers object methods work correctly - Expected '[object Object]' to be type 'object'" classname="scripting-revamp-coll/pm-namespace-additional-test"/>
+    <testcase name="`pm` request headers object methods work correctly - Expected 'false' to be 'false'" classname="scripting-revamp-coll/pm-namespace-additional-test"/>
+    <testcase name="`pm` request headers object methods work correctly - Expected 'null' to be 'null'" classname="scripting-revamp-coll/pm-namespace-additional-test"/>
+    <testcase name="`pm` response headers work correctly - Expected '[object Object]' to be type 'object'" classname="scripting-revamp-coll/pm-namespace-additional-test"/>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/expectation-methods-test" time="0.08" timestamp="2026-03-21T14:11:48.967Z" tests="30" failures="2" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="Basic equality expectations work correctly - Expected '1' to be '1'" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="Basic equality expectations work correctly - Expected 'test' to be 'test'" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="Basic equality expectations work correctly - Expected 'true' to be 'true'" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="Basic equality expectations work correctly - Expected 'null' to be 'null'" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="`pm` basic equality expectations work correctly - Expected '1' to be '1'" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="`pm` basic equality expectations work correctly - Expected 'test' to be 'test'" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="`pm` basic equality expectations work correctly - Expected 'true' to be 'true'" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="`pm` basic equality expectations work correctly - Expected 'null' to be 'null'" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="Type checking expectations work correctly - Expected '42' to be type 'number'" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="Type checking expectations work correctly - Expected 'hello' to be type 'string'" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="Type checking expectations work correctly - Expected 'true' to be type 'boolean'" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="Type checking expectations work correctly - Expected '[object Object]' to be type 'object'" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="Type checking expectations work correctly - Expected '' to be type 'object'" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="`pm` type checking expectations work correctly - Expected '42' to be type 'number'" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="`pm` type checking expectations work correctly - Expected 'hello' to be type 'string'" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="`pm` type checking expectations work correctly - Expected 'true' to be type 'boolean'" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="`pm` type checking expectations work correctly - Expected '[object Object]' to be type 'object'" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="`pm` type checking expectations work correctly - Expected '' to be type 'object'" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="String and array inclusion expectations work correctly - Expected &quot;hello world&quot; to include &quot;world&quot;" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="String and array inclusion expectations work correctly - Expected [1,2,3] to include 2" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="`pm` string and array inclusion expectations work correctly - Expected &quot;hello world&quot; to include &quot;world&quot;" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="`pm` string and array inclusion expectations work correctly - Expected [1,2,3] to include 2" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="Length expectations work correctly - Expected the array to be of length '5'" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="Length expectations work correctly - Expected the array to be of length '3'" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="`pm` length expectations work correctly - Expected the array to be of length '5'" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="`pm` length expectations work correctly - Expected the array to be of length '3'" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="Response-based expectations work correctly - Expected '[object Object]' to be type 'object'" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="Response-based expectations work correctly - Expected '400' to be '200'" classname="scripting-revamp-coll/expectation-methods-test">
+      <failure type="AssertionFailure" message="Expected '400' to be '200'"/>
+    </testcase>
+    <testcase name="`pm` response-based expectations work correctly - Expected '[object Object]' to be type 'object'" classname="scripting-revamp-coll/expectation-methods-test"/>
+    <testcase name="`pm` response-based expectations work correctly - Expected '400' to be '200'" classname="scripting-revamp-coll/expectation-methods-test">
+      <failure type="AssertionFailure" message="Expected '400' to be '200'"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/chai-assertions-hopp-extended" time="0" timestamp="2026-03-21T14:11:48.967Z" tests="0" failures="0" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io
+      TEST_SCRIPT_ERROR - Script execution failed: SyntaxError: unexpected token: 'undefined']]></system-err>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/chai-assertions-pm-parity" time="0" timestamp="2026-03-21T14:11:48.967Z" tests="0" failures="0" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io
+      TEST_SCRIPT_ERROR - Script execution failed: SyntaxError: unexpected token: 'undefined']]></system-err>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/cookie-assertions-test" time="0.081" timestamp="2026-03-21T14:11:48.967Z" tests="21" failures="1" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="pm.response.cookies API contract - all methods exist - Expected {} to be an object" classname="scripting-revamp-coll/cookie-assertions-test"/>
+    <testcase name="pm.response.cookies API contract - all methods exist - Expected function to equal function" classname="scripting-revamp-coll/cookie-assertions-test"/>
+    <testcase name="pm.response.cookies API contract - all methods exist - Expected function to equal function" classname="scripting-revamp-coll/cookie-assertions-test"/>
+    <testcase name="pm.response.cookies API contract - all methods exist - Expected function to equal function" classname="scripting-revamp-coll/cookie-assertions-test"/>
+    <testcase name="pm.response.cookies.toObject() returns proper structure - Expected {} to be an object" classname="scripting-revamp-coll/cookie-assertions-test"/>
+    <testcase name="pm.response.cookies.toObject() returns proper structure - Expected 'object' to equal 'object'" classname="scripting-revamp-coll/cookie-assertions-test"/>
+    <testcase name="pm.response.cookies.has() returns boolean for cookie checks - Expected false to be a boolean" classname="scripting-revamp-coll/cookie-assertions-test"/>
+    <testcase name="pm.response.cookies.get() returns null for non-existent cookies - Expected null to be null" classname="scripting-revamp-coll/cookie-assertions-test"/>
+    <testcase name="pm.response.cookies API integrates with response object - Expected 400 to equal 200" classname="scripting-revamp-coll/cookie-assertions-test">
+      <failure type="AssertionFailure" message="Expected 400 to equal 200"/>
+    </testcase>
+    <testcase name="pm.response.cookies API integrates with response object - Expected {code: 400, status: 'Bad Request', responseTime: 0, responseSize: 2, stream: {0: 123, 1: 125}} to have property 'cookies'" classname="scripting-revamp-coll/cookie-assertions-test"/>
+    <testcase name="pm.response.cookies API integrates with response object - Expected {} to not be null" classname="scripting-revamp-coll/cookie-assertions-test"/>
+    <testcase name="pm.response.cookies API integrates with response object - Expected {} to not be undefined" classname="scripting-revamp-coll/cookie-assertions-test"/>
+    <testcase name="Request cookies are properly sent via Cookie header - Expected 'session_id=abc123; user_token=xyz789; preferences=theme%3Ddark' to be a string" classname="scripting-revamp-coll/cookie-assertions-test"/>
+    <testcase name="Request cookies are properly sent via Cookie header - Expected 'session_id=abc123; user_token=xyz789; preferences=theme%3Ddark' to include 'session_id'" classname="scripting-revamp-coll/cookie-assertions-test"/>
+    <testcase name="Request cookies are properly sent via Cookie header - Expected 'session_id=abc123; user_token=xyz789; preferences=theme%3Ddark' to include 'user_token'" classname="scripting-revamp-coll/cookie-assertions-test"/>
+    <testcase name="pm.response.to.have.cookie() assertion method exists - Expected function to equal function" classname="scripting-revamp-coll/cookie-assertions-test"/>
+    <testcase name="hopp.cookies API contract matches pm.response.cookies - Expected 'object' to be 'object'" classname="scripting-revamp-coll/cookie-assertions-test"/>
+    <testcase name="hopp.cookies API contract matches pm.response.cookies - Expected 'function' to be 'function'" classname="scripting-revamp-coll/cookie-assertions-test"/>
+    <testcase name="hopp.cookies API contract matches pm.response.cookies - Expected 'function' to be 'function'" classname="scripting-revamp-coll/cookie-assertions-test"/>
+    <testcase name="hopp.cookies API contract matches pm.response.cookies - Expected 'function' to be 'function'" classname="scripting-revamp-coll/cookie-assertions-test"/>
+    <testcase name="hopp.cookies API contract matches pm.response.cookies - Expected 'function' to be 'function'" classname="scripting-revamp-coll/cookie-assertions-test"/>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/json-schema-validation-test" time="0" timestamp="2026-03-21T14:11:48.968Z" tests="0" failures="0" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io
+      TEST_SCRIPT_ERROR - Script execution failed: SyntaxError: unexpected token: 'undefined']]></system-err>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/charset-validation-test" time="0" timestamp="2026-03-21T14:11:48.968Z" tests="0" failures="0" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io
+      TEST_SCRIPT_ERROR - Script execution failed: TypeError: cannot read property 'length' of undefined]]></system-err>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/jsonpath-query-test" time="0" timestamp="2026-03-21T14:11:48.968Z" tests="0" failures="0" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io
+      TEST_SCRIPT_ERROR - Script execution failed: SyntaxError: unexpected token: 'undefined']]></system-err>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/environment-extensions-test" time="0.082" timestamp="2026-03-21T14:11:48.968Z" tests="12" failures="0" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="pm.environment.name returns environment identifier - Expected 'active' to be a string" classname="scripting-revamp-coll/environment-extensions-test"/>
+    <testcase name="pm.environment.name returns environment identifier - Expected 'active' to equal 'active'" classname="scripting-revamp-coll/environment-extensions-test"/>
+    <testcase name="pm.environment.replaceIn() resolves template variables - Expected 'Hello world, user 12345!' to equal 'Hello world, user 12345!'" classname="scripting-revamp-coll/environment-extensions-test"/>
+    <testcase name="pm.globals.replaceIn() resolves global template variables - Expected 'https://api.example.com/v2/users' to equal 'https://api.example.com/v2/users'" classname="scripting-revamp-coll/environment-extensions-test"/>
+    <testcase name="pm.environment.toObject() returns all environment variables - Expected {test_key: 'test_value', recursive_key: 'test_value', active_key: 'active_value', pm_test_key: 'pm_test_value', pm_active_key: 'pm_active_value'} to be an object" classname="scripting-revamp-coll/environment-extensions-test"/>
+    <testcase name="pm.environment.toObject() returns all environment variables - Expected {test_key: 'test_value', recursive_key: 'test_value', active_key: 'active_value', pm_test_key: 'pm_test_value', pm_active_key: 'pm_active_value'} to have property 'template_var', 'world'" classname="scripting-revamp-coll/environment-extensions-test"/>
+    <testcase name="pm.environment.toObject() returns all environment variables - Expected {test_key: 'test_value', recursive_key: 'test_value', active_key: 'active_value', pm_test_key: 'pm_test_value', pm_active_key: 'pm_active_value'} to have property 'user_id', '12345'" classname="scripting-revamp-coll/environment-extensions-test"/>
+    <testcase name="pm.globals.toObject() returns all global variables - Expected {global_key: 'global_value', pm_global_key: 'pm_global_value', pm_global_pre: 'pm_global_pre_value', api_base: 'https://api.example.com', version: 'v2'} to be an object" classname="scripting-revamp-coll/environment-extensions-test"/>
+    <testcase name="pm.globals.toObject() returns all global variables - Expected {global_key: 'global_value', pm_global_key: 'pm_global_value', pm_global_pre: 'pm_global_pre_value', api_base: 'https://api.example.com', version: 'v2'} to have property 'api_base'" classname="scripting-revamp-coll/environment-extensions-test"/>
+    <testcase name="pm.variables.toObject() returns combined variables with precedence - Expected {global_key: 'global_value', pm_global_key: 'pm_global_value', pm_global_pre: 'pm_global_pre_value', api_base: 'https://api.example.com', version: 'v2'} to be an object" classname="scripting-revamp-coll/environment-extensions-test"/>
+    <testcase name="pm.variables.toObject() returns combined variables with precedence - Expected {global_key: 'global_value', pm_global_key: 'pm_global_value', pm_global_pre: 'pm_global_pre_value', api_base: 'https://api.example.com', version: 'v2'} to have property 'template_var'" classname="scripting-revamp-coll/environment-extensions-test"/>
+    <testcase name="pm.environment.clear() removes all environment variables - Expected 0 to equal 0" classname="scripting-revamp-coll/environment-extensions-test"/>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/response-extensions-test" time="0.077" timestamp="2026-03-21T14:11:48.968Z" tests="4" failures="0" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="pm.response.responseSize returns response body size in bytes - Expected 2 to be a number" classname="scripting-revamp-coll/response-extensions-test"/>
+    <testcase name="pm.response.responseSize returns response body size in bytes - Expected 2 to be above 0" classname="scripting-revamp-coll/response-extensions-test"/>
+    <testcase name="pm.response.responseSize matches actual body length - Expected 2 to equal 2" classname="scripting-revamp-coll/response-extensions-test"/>
+    <testcase name="Response size is calculated correctly for JSON payload - Expected 2 to be a number" classname="scripting-revamp-coll/response-extensions-test"/>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/execution-context-test" time="0.076" timestamp="2026-03-21T14:11:48.968Z" tests="5" failures="0" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="pm.execution.location provides execution path - Expected ['Hoppscotch'] to be an array" classname="scripting-revamp-coll/execution-context-test"/>
+    <testcase name="pm.execution.location provides execution path - Expected 1 to be above 0" classname="scripting-revamp-coll/execution-context-test"/>
+    <testcase name="pm.execution.location.current returns current location - Expected 'Hoppscotch' to be a string" classname="scripting-revamp-coll/execution-context-test"/>
+    <testcase name="pm.execution.location.current returns current location - Expected 'Hoppscotch' to equal 'Hoppscotch'" classname="scripting-revamp-coll/execution-context-test"/>
+    <testcase name="pm.execution.location is immutable - Expected () =&gt; { location.push('test') } to throw" classname="scripting-revamp-coll/execution-context-test"/>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/bdd-response-assertions-test" time="0.08" timestamp="2026-03-21T14:11:48.968Z" tests="13" failures="10" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="pm.response.to.have.status() validates exact status code - Expected 400 to equal 200" classname="scripting-revamp-coll/bdd-response-assertions-test">
+      <failure type="AssertionFailure" message="Expected 400 to equal 200"/>
+    </testcase>
+    <testcase name="pm.response.to.have.status() validates exact status code - Expected 400 to equal 200" classname="scripting-revamp-coll/bdd-response-assertions-test">
+      <failure type="AssertionFailure" message="Expected 400 to equal 200"/>
+    </testcase>
+    <testcase name="pm.response.to.be.ok validates 2xx status codes - Expected false to be true" classname="scripting-revamp-coll/bdd-response-assertions-test">
+      <failure type="AssertionFailure" message="Expected false to be true"/>
+    </testcase>
+    <testcase name="pm.response.to.be.success validates 2xx status codes (alias) - Expected false to be true" classname="scripting-revamp-coll/bdd-response-assertions-test">
+      <failure type="AssertionFailure" message="Expected false to be true"/>
+    </testcase>
+    <testcase name="pm.response.to.have.header() validates response headers - Expected undefined to exist" classname="scripting-revamp-coll/bdd-response-assertions-test">
+      <failure type="AssertionFailure" message="Expected undefined to exist"/>
+    </testcase>
+    <testcase name="pm.response.to.have.header() validates response headers - Expected false to be true" classname="scripting-revamp-coll/bdd-response-assertions-test">
+      <failure type="AssertionFailure" message="Expected false to be true"/>
+    </testcase>
+    <testcase name="pm.response.to.have.jsonBody() validates JSON response - Expected {} to be an object" classname="scripting-revamp-coll/bdd-response-assertions-test"/>
+    <testcase name="pm.response.to.have.jsonBody() validates JSON response - Expected {} to have property 'data'" classname="scripting-revamp-coll/bdd-response-assertions-test">
+      <failure type="AssertionFailure" message="Expected {} to have property 'data'"/>
+    </testcase>
+    <testcase name="pm.response.to.have.jsonBody() validates JSON response - Expected {} to have property 'data'" classname="scripting-revamp-coll/bdd-response-assertions-test">
+      <failure type="AssertionFailure" message="Expected {} to have property 'data'"/>
+    </testcase>
+    <testcase name="pm.response.to.be.json validates JSON content type - Expected '' to include 'application/json'" classname="scripting-revamp-coll/bdd-response-assertions-test">
+      <failure type="AssertionFailure" message="Expected '' to include 'application/json'"/>
+    </testcase>
+    <testcase name="pm.response.to.have.responseTime assertions - Expected 0 to be below 5000" classname="scripting-revamp-coll/bdd-response-assertions-test"/>
+    <testcase name="pm.response.to.have.responseTime assertions - Expected 0 to be a number" classname="scripting-revamp-coll/bdd-response-assertions-test"/>
+    <testcase name="pm.response.to.have.responseTime assertions - Expected 0 to be above 0" classname="scripting-revamp-coll/bdd-response-assertions-test">
+      <failure type="AssertionFailure" message="Expected 0 to be above 0"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/include-contain-assertions-test" time="0.079" timestamp="2026-03-21T14:11:48.968Z" tests="14" failures="2" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="pm.expect().to.include() validates string inclusion - Expected 'hello world' to include 'world'" classname="scripting-revamp-coll/include-contain-assertions-test"/>
+    <testcase name="pm.expect().to.include() validates string inclusion - Expected 'hello world' to include 'hello'" classname="scripting-revamp-coll/include-contain-assertions-test"/>
+    <testcase name="pm.expect().to.include() validates string inclusion - Expected 'test string' to not include 'missing'" classname="scripting-revamp-coll/include-contain-assertions-test"/>
+    <testcase name="pm.expect().to.contain() validates array inclusion - Expected [1, 2, 3] to include 2" classname="scripting-revamp-coll/include-contain-assertions-test"/>
+    <testcase name="pm.expect().to.contain() validates array inclusion - Expected [1, 2, 3] to include 1" classname="scripting-revamp-coll/include-contain-assertions-test"/>
+    <testcase name="pm.expect().to.contain() validates array inclusion - Expected ['a', 'b', 'c'] to include 'b'" classname="scripting-revamp-coll/include-contain-assertions-test"/>
+    <testcase name="pm.expect().to.includes() alias works - Expected 'testing' to include 'test'" classname="scripting-revamp-coll/include-contain-assertions-test"/>
+    <testcase name="pm.expect().to.includes() alias works - Expected [10, 20, 30] to include 20" classname="scripting-revamp-coll/include-contain-assertions-test"/>
+    <testcase name="pm.expect().to.contains() alias works - Expected 'contains test' to include 'contains'" classname="scripting-revamp-coll/include-contain-assertions-test"/>
+    <testcase name="pm.expect().to.contains() alias works - Expected [true, false] to include true" classname="scripting-revamp-coll/include-contain-assertions-test"/>
+    <testcase name="include/contain with response data - Expected {} to have property 'data'" classname="scripting-revamp-coll/include-contain-assertions-test">
+      <failure type="AssertionFailure" message="Expected {} to have property 'data'"/>
+    </testcase>
+    <testcase name="include/contain with response data - Expected '{}' to include 'includeTest'" classname="scripting-revamp-coll/include-contain-assertions-test">
+      <failure type="AssertionFailure" message="Expected '{}' to include 'includeTest'"/>
+    </testcase>
+    <testcase name="hopp.expect() also supports toInclude() - Expected &quot;hopp test&quot; to include &quot;hopp&quot;" classname="scripting-revamp-coll/include-contain-assertions-test"/>
+    <testcase name="hopp.expect() also supports toInclude() - Expected [1,2] to include 1" classname="scripting-revamp-coll/include-contain-assertions-test"/>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/environment-unset-clear-test" time="0.08" timestamp="2026-03-21T14:11:48.969Z" tests="13" failures="0" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="pm.environment.unset() removes specific variables - Expected true to be true" classname="scripting-revamp-coll/environment-unset-clear-test"/>
+    <testcase name="pm.environment.unset() removes specific variables - Expected false to be false" classname="scripting-revamp-coll/environment-unset-clear-test"/>
+    <testcase name="pm.environment.unset() removes specific variables - Expected undefined to be undefined" classname="scripting-revamp-coll/environment-unset-clear-test"/>
+    <testcase name="pm.environment.unset() handles non-existent keys gracefully - Expected false to be false" classname="scripting-revamp-coll/environment-unset-clear-test"/>
+    <testcase name="pm.globals.unset() removes specific global variables - Expected false to be false" classname="scripting-revamp-coll/environment-unset-clear-test"/>
+    <testcase name="pm.environment.clear() removes ALL environment variables - Expected true to be true" classname="scripting-revamp-coll/environment-unset-clear-test"/>
+    <testcase name="pm.environment.clear() removes ALL environment variables - Expected true to be true" classname="scripting-revamp-coll/environment-unset-clear-test"/>
+    <testcase name="pm.environment.clear() removes ALL environment variables - Expected true to be true" classname="scripting-revamp-coll/environment-unset-clear-test"/>
+    <testcase name="pm.environment.clear() removes ALL environment variables - Expected 0 to equal 0" classname="scripting-revamp-coll/environment-unset-clear-test"/>
+    <testcase name="pm.environment.clear() removes ALL environment variables - Expected false to be false" classname="scripting-revamp-coll/environment-unset-clear-test"/>
+    <testcase name="pm.environment.clear() removes ALL environment variables - Expected false to be false" classname="scripting-revamp-coll/environment-unset-clear-test"/>
+    <testcase name="pm.environment.clear() removes ALL environment variables - Expected false to be false" classname="scripting-revamp-coll/environment-unset-clear-test"/>
+    <testcase name="pm.globals.clear() removes ALL global variables - Expected 0 to equal 0" classname="scripting-revamp-coll/environment-unset-clear-test"/>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/pm-request-mutation-test" time="0.081" timestamp="2026-03-21T14:11:48.969Z" tests="20" failures="0" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="pm.request.url string assignment was applied - Expected 'https://echo.hoppscotch.io/mutated-via-string' to include '/mutated-via-string'" classname="scripting-revamp-coll/pm-request-mutation-test"/>
+    <testcase name="pm.request.url string assignment was applied - Expected 'https://echo.hoppscotch.io/mutated-via-string' to not include '/original'" classname="scripting-revamp-coll/pm-request-mutation-test"/>
+    <testcase name="pm.request.method mutation was applied - Expected 'POST' to equal 'POST'" classname="scripting-revamp-coll/pm-request-mutation-test"/>
+    <testcase name="pm.request.method mutation was applied - Expected 'POST' to not equal 'GET'" classname="scripting-revamp-coll/pm-request-mutation-test"/>
+    <testcase name="pm.request.headers.add() added new header - Expected true to be true" classname="scripting-revamp-coll/pm-request-mutation-test"/>
+    <testcase name="pm.request.headers.add() added new header - Expected 'added-value' to equal 'added-value'" classname="scripting-revamp-coll/pm-request-mutation-test"/>
+    <testcase name="pm.request.headers.upsert() updated existing header - Expected true to be true" classname="scripting-revamp-coll/pm-request-mutation-test"/>
+    <testcase name="pm.request.headers.upsert() updated existing header - Expected 'mutated-value' to equal 'mutated-value'" classname="scripting-revamp-coll/pm-request-mutation-test"/>
+    <testcase name="pm.request.headers.upsert() updated existing header - Expected 'mutated-value' to not equal 'original'" classname="scripting-revamp-coll/pm-request-mutation-test"/>
+    <testcase name="pm.request.body.update() changed body content - Expected 'application/json' to equal 'application/json'" classname="scripting-revamp-coll/pm-request-mutation-test"/>
+    <testcase name="pm.request.body.update() changed body content - Expected '{&quot;pmMutated&quot;:true,&quot;timestamp&quot;:1774102301039}' to include 'pmMutated'" classname="scripting-revamp-coll/pm-request-mutation-test"/>
+    <testcase name="pm.request.body.update() changed body content - Expected true to be true" classname="scripting-revamp-coll/pm-request-mutation-test"/>
+    <testcase name="pm.request.auth mutation was applied - Expected 'bearer' to equal 'bearer'" classname="scripting-revamp-coll/pm-request-mutation-test"/>
+    <testcase name="pm.request.auth mutation was applied - Expected 'pm-bearer-token-123' to equal 'pm-bearer-token-123'" classname="scripting-revamp-coll/pm-request-mutation-test"/>
+    <testcase name="pm.request.id and pm.request.name are accessible - Expected 'cmfhzf0op00pmmutate01' to be a string" classname="scripting-revamp-coll/pm-request-mutation-test"/>
+    <testcase name="pm.request.id and pm.request.name are accessible - Expected 21 to be above 0" classname="scripting-revamp-coll/pm-request-mutation-test"/>
+    <testcase name="pm.request.id and pm.request.name are accessible - Expected 'pm-request-mutation-test' to equal 'pm-request-mutation-test'" classname="scripting-revamp-coll/pm-request-mutation-test"/>
+    <testcase name="hopp.request reflects pm namespace mutations - Expected &quot;https://echo.hoppscotch.io/mutated-via-string&quot; to include &quot;/mutated-via-string&quot;" classname="scripting-revamp-coll/pm-request-mutation-test"/>
+    <testcase name="hopp.request reflects pm namespace mutations - Expected 'POST' to be 'POST'" classname="scripting-revamp-coll/pm-request-mutation-test"/>
+    <testcase name="hopp.request reflects pm namespace mutations - Expected 'true' to be 'true'" classname="scripting-revamp-coll/pm-request-mutation-test"/>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/pm-url-property-mutations-test" time="0.076" timestamp="2026-03-21T14:11:48.969Z" tests="18" failures="0" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="URL protocol mutation works - Expected 'http' to equal 'http'" classname="scripting-revamp-coll/pm-url-property-mutations-test"/>
+    <testcase name="URL protocol mutation works - Expected 'http://echo.hoppscotch.io/v2/test?new=param' to include 'http://'" classname="scripting-revamp-coll/pm-url-property-mutations-test"/>
+    <testcase name="URL host mutation works - Expected ['echo', 'hoppscotch', 'io'] to be an array" classname="scripting-revamp-coll/pm-url-property-mutations-test"/>
+    <testcase name="URL host mutation works - Expected 'echo.hoppscotch.io' to equal 'echo.hoppscotch.io'" classname="scripting-revamp-coll/pm-url-property-mutations-test"/>
+    <testcase name="URL host mutation works - Expected 'http://echo.hoppscotch.io/v2/test?new=param' to include 'echo.hoppscotch.io'" classname="scripting-revamp-coll/pm-url-property-mutations-test"/>
+    <testcase name="URL path mutation works - Expected ['v2', 'test'] to be an array" classname="scripting-revamp-coll/pm-url-property-mutations-test"/>
+    <testcase name="URL path mutation works - Expected ['v2', 'test'] to include 'v2'" classname="scripting-revamp-coll/pm-url-property-mutations-test"/>
+    <testcase name="URL path mutation works - Expected ['v2', 'test'] to include 'test'" classname="scripting-revamp-coll/pm-url-property-mutations-test"/>
+    <testcase name="URL path mutation works - Expected 'http://echo.hoppscotch.io/v2/test?new=param' to include '/v2/test'" classname="scripting-revamp-coll/pm-url-property-mutations-test"/>
+    <testcase name="URL query.add() adds parameter - Expected {new: 'param'} to have property 'new', 'param'" classname="scripting-revamp-coll/pm-url-property-mutations-test"/>
+    <testcase name="URL query.remove() removes parameter - Expected {new: 'param'} to not have property 'old'" classname="scripting-revamp-coll/pm-url-property-mutations-test"/>
+    <testcase name="Full URL reflects all mutations - Expected 'http://echo.hoppscotch.io/v2/test?new=param' to include 'http://'" classname="scripting-revamp-coll/pm-url-property-mutations-test"/>
+    <testcase name="Full URL reflects all mutations - Expected 'http://echo.hoppscotch.io/v2/test?new=param' to include 'echo.hoppscotch.io'" classname="scripting-revamp-coll/pm-url-property-mutations-test"/>
+    <testcase name="Full URL reflects all mutations - Expected 'http://echo.hoppscotch.io/v2/test?new=param' to include '/v2/test'" classname="scripting-revamp-coll/pm-url-property-mutations-test"/>
+    <testcase name="Full URL reflects all mutations - Expected 'http://echo.hoppscotch.io/v2/test?new=param' to include 'new=param'" classname="scripting-revamp-coll/pm-url-property-mutations-test"/>
+    <testcase name="Full URL reflects all mutations - Expected 'http://echo.hoppscotch.io/v2/test?new=param' to not include 'old=value'" classname="scripting-revamp-coll/pm-url-property-mutations-test"/>
+    <testcase name="hopp.request reflects URL mutations - Expected &quot;http://echo.hoppscotch.io/v2/test?new=param&quot; to include &quot;echo.hoppscotch.io&quot;" classname="scripting-revamp-coll/pm-url-property-mutations-test"/>
+    <testcase name="hopp.request reflects URL mutations - Expected &quot;http://echo.hoppscotch.io/v2/test?new=param&quot; to include &quot;/v2/test&quot;" classname="scripting-revamp-coll/pm-url-property-mutations-test"/>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/unsupported-features-test" time="0.081" timestamp="2026-03-21T14:11:48.969Z" tests="24" failures="0" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="pm.info.iteration throws descriptive error - Expected () =&gt; { const x = pm.info.iteration } to throw /Collection Runner feature/" classname="scripting-revamp-coll/unsupported-features-test"/>
+    <testcase name="pm.info.iterationCount throws descriptive error - Expected () =&gt; { const x = pm.info.iterationCount } to throw /Collection Runner feature/" classname="scripting-revamp-coll/unsupported-features-test"/>
+    <testcase name="pm.collectionVariables.get() throws descriptive error - Expected () =&gt; pm.collectionVariables.get('test') to throw /use environment or request variables instead/" classname="scripting-revamp-coll/unsupported-features-test"/>
+    <testcase name="pm.collectionVariables.set() throws descriptive error - Expected () =&gt; pm.collectionVariables.set('key', 'value') to throw /use environment or request variables instead/" classname="scripting-revamp-coll/unsupported-features-test"/>
+    <testcase name="pm.collectionVariables.unset() throws descriptive error - Expected () =&gt; pm.collectionVariables.unset('key') to throw /use environment or request variables instead/" classname="scripting-revamp-coll/unsupported-features-test"/>
+    <testcase name="pm.collectionVariables.has() throws descriptive error - Expected () =&gt; pm.collectionVariables.has('key') to throw /use environment or request variables instead/" classname="scripting-revamp-coll/unsupported-features-test"/>
+    <testcase name="pm.collectionVariables.clear() throws descriptive error - Expected () =&gt; pm.collectionVariables.clear() to throw /use environment or request variables instead/" classname="scripting-revamp-coll/unsupported-features-test"/>
+    <testcase name="pm.collectionVariables.toObject() throws descriptive error - Expected () =&gt; pm.collectionVariables.toObject() to throw /use environment or request variables instead/" classname="scripting-revamp-coll/unsupported-features-test"/>
+    <testcase name="pm.collectionVariables.replaceIn() throws descriptive error - Expected () =&gt; pm.collectionVariables.replaceIn('{{test}}') to throw /use environment or request variables instead/" classname="scripting-revamp-coll/unsupported-features-test"/>
+    <testcase name="pm.vault.get() throws descriptive error - Expected () =&gt; pm.vault.get('test') to throw /Postman Vault feature/" classname="scripting-revamp-coll/unsupported-features-test"/>
+    <testcase name="pm.vault.set() throws descriptive error - Expected () =&gt; pm.vault.set('key', 'value') to throw /Postman Vault feature/" classname="scripting-revamp-coll/unsupported-features-test"/>
+    <testcase name="pm.vault.unset() throws descriptive error - Expected () =&gt; pm.vault.unset('key') to throw /Postman Vault feature/" classname="scripting-revamp-coll/unsupported-features-test"/>
+    <testcase name="pm.iterationData.get() throws descriptive error - Expected () =&gt; pm.iterationData.get('test') to throw /Collection Runner feature/" classname="scripting-revamp-coll/unsupported-features-test"/>
+    <testcase name="pm.iterationData.set() throws descriptive error - Expected () =&gt; pm.iterationData.set('key', 'value') to throw /Collection Runner feature/" classname="scripting-revamp-coll/unsupported-features-test"/>
+    <testcase name="pm.iterationData.unset() throws descriptive error - Expected () =&gt; pm.iterationData.unset('key') to throw /Collection Runner feature/" classname="scripting-revamp-coll/unsupported-features-test"/>
+    <testcase name="pm.iterationData.has() throws descriptive error - Expected () =&gt; pm.iterationData.has('key') to throw /Collection Runner feature/" classname="scripting-revamp-coll/unsupported-features-test"/>
+    <testcase name="pm.iterationData.toObject() throws descriptive error - Expected () =&gt; pm.iterationData.toObject() to throw /Collection Runner feature/" classname="scripting-revamp-coll/unsupported-features-test"/>
+    <testcase name="pm.iterationData.toJSON() throws descriptive error - Expected () =&gt; pm.iterationData.toJSON() to throw /Collection Runner feature/" classname="scripting-revamp-coll/unsupported-features-test"/>
+    <testcase name="pm.execution.setNextRequest() throws descriptive error - Expected () =&gt; pm.execution.setNextRequest('next') to throw /Collection Runner feature/" classname="scripting-revamp-coll/unsupported-features-test"/>
+    <testcase name="pm.execution.skipRequest() throws descriptive error - Expected () =&gt; pm.execution.skipRequest() to throw /Collection Runner feature/" classname="scripting-revamp-coll/unsupported-features-test"/>
+    <testcase name="pm.execution.runRequest() throws descriptive error - Expected () =&gt; pm.execution.runRequest() to throw /Collection Runner feature/" classname="scripting-revamp-coll/unsupported-features-test"/>
+    <testcase name="pm.visualizer.set() throws descriptive error - Expected () =&gt; pm.visualizer.set('&lt;h1&gt;Test&lt;/h1&gt;') to throw /Postman Visualizer feature/" classname="scripting-revamp-coll/unsupported-features-test"/>
+    <testcase name="pm.visualizer.clear() throws descriptive error - Expected () =&gt; pm.visualizer.clear() to throw /Postman Visualizer feature/" classname="scripting-revamp-coll/unsupported-features-test"/>
+    <testcase name="pm.require() throws descriptive error - Expected () =&gt; pm.require('lodash') to throw /not supported in Hoppscotch/" classname="scripting-revamp-coll/unsupported-features-test"/>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/url-propertylist-helpers-test" time="0.098" timestamp="2026-03-21T14:11:48.969Z" tests="67" failures="0" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="URL helper methods - getHost() returns hostname as string - Expected 'echo.hoppscotch.io' to be a string" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="URL helper methods - getHost() returns hostname as string - Expected 'echo.hoppscotch.io' to equal 'echo.hoppscotch.io'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="URL helper methods - getPath() returns path with leading slash - Expected '/updated' to be a string" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="URL helper methods - getPath() returns path with leading slash - Expected '/updated' to include '/'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="URL helper methods - getPath() returns path with leading slash - Expected '/updated' to equal '/updated'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="URL helper methods - getPathWithQuery() includes query string - Expected '/updated?page=1&amp;limit=20&amp;status=published&amp;include=metadata' to include '?'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="URL helper methods - getPathWithQuery() includes query string - Expected '/updated?page=1&amp;limit=20&amp;status=published&amp;include=metadata' to include 'page=1'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="URL helper methods - getPathWithQuery() includes query string - Expected '/updated?page=1&amp;limit=20&amp;status=published&amp;include=metadata' to include 'limit=20'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="URL helper methods - getQueryString() returns query without ? - Expected 'page=1&amp;limit=20&amp;status=published&amp;include=metadata' to be a string" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="URL helper methods - getQueryString() returns query without ? - Expected 'page=1&amp;limit=20&amp;status=published&amp;include=metadata' to not include '?'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="URL helper methods - getQueryString() returns query without ? - Expected 'page=1&amp;limit=20&amp;status=published&amp;include=metadata' to include 'page=1'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="URL helper methods - getRemote() returns host with port - Expected 'echo.hoppscotch.io' to be a string" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="URL helper methods - getRemote() returns host with port - Expected 'echo.hoppscotch.io' to equal 'echo.hoppscotch.io'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="URL helper methods - update() changes entire URL - Expected 'https://echo.hoppscotch.io/updated?page=1&amp;limit=20&amp;status=published&amp;include=metadata#results' to include 'echo.hoppscotch.io'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="URL helper methods - update() changes entire URL - Expected 'https://echo.hoppscotch.io/updated?page=1&amp;limit=20&amp;status=published&amp;include=metadata#results' to include '/updated'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="URL helper methods - addQueryParams() adds multiple params - Expected {page: '1', limit: '20', status: 'published', include: 'metadata'} to have property 'page', '1'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="URL helper methods - addQueryParams() adds multiple params - Expected {page: '1', limit: '20', status: 'published', include: 'metadata'} to have property 'limit', '20'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="URL helper methods - removeQueryParams() removes params - Expected {page: '1', limit: '20', status: 'published', include: 'metadata'} to not have property 'test'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="URL properties - hostname getter returns string - Expected 'echo.hoppscotch.io' to be a string" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="URL properties - hostname getter returns string - Expected 'echo.hoppscotch.io' to equal 'echo.hoppscotch.io'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="URL properties - hostname matches host array - Expected 'echo.hoppscotch.io' to equal 'echo.hoppscotch.io'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="URL properties - hash getter returns string - Expected 'results' to be a string" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - get() retrieves parameter value - Expected '1' to equal '1'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - has() checks parameter existence - Expected true to be true" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - has() checks parameter existence - Expected false to be false" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - upsert() adds/updates parameter - Expected true to be true" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - upsert() adds/updates parameter - Expected 'published' to equal 'published'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - count() returns parameter count - Expected 4 to be a number" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - count() returns parameter count - Expected 4 to be above 0" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - each() iterates over parameters - Expected {key: 'page', value: '1'} to have property 'key'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - each() iterates over parameters - Expected {key: 'page', value: '1'} to have property 'value'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - each() iterates over parameters - Expected {key: 'limit', value: '20'} to have property 'key'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - each() iterates over parameters - Expected {key: 'limit', value: '20'} to have property 'value'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - each() iterates over parameters - Expected {key: 'status', value: 'published'} to have property 'key'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - each() iterates over parameters - Expected {key: 'status', value: 'published'} to have property 'value'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - each() iterates over parameters - Expected {key: 'include', value: 'metadata'} to have property 'key'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - each() iterates over parameters - Expected {key: 'include', value: 'metadata'} to have property 'value'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - each() iterates over parameters - Expected 4 to be above 0" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - map() transforms parameters - Expected ['page', 'limit', 'status', 'include'] to be an array" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - map() transforms parameters - Expected ['page', 'limit', 'status', 'include'] to include 'page'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - map() transforms parameters - Expected ['page', 'limit', 'status', 'include'] to include 'limit'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - filter() filters parameters - Expected [{key: 'page', value: '1'}] to be an array" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - filter() filters parameters - Expected 1 to be above 0" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - filter() filters parameters - Expected 'page' to equal 'page'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - idx() accesses by index - Expected {key: 'page', value: '1'} to be an object" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - idx() accesses by index - Expected {key: 'page', value: '1'} to have property 'key'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - idx() accesses by index - Expected {key: 'page', value: '1'} to have property 'value'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - idx() returns null for out of bounds - Expected null to be null" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - toObject() returns object - Expected {page: '1', limit: '20', status: 'published', include: 'metadata'} to be an object" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Query PropertyList - toObject() returns object - Expected {page: '1', limit: '20', status: 'published', include: 'metadata'} to have property 'page'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Headers PropertyList - each() iterates over headers - Expected {key: 'Content-Type', value: 'application/json', active: true, description: ''} to have property 'key'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Headers PropertyList - each() iterates over headers - Expected {key: 'Content-Type', value: 'application/json', active: true, description: ''} to have property 'value'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Headers PropertyList - each() iterates over headers - Expected {key: 'Authorization', value: 'Bearer test-token', active: true, description: ''} to have property 'key'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Headers PropertyList - each() iterates over headers - Expected {key: 'Authorization', value: 'Bearer test-token', active: true, description: ''} to have property 'value'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Headers PropertyList - each() iterates over headers - Expected 2 to be above 0" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Headers PropertyList - map() transforms headers - Expected ['Content-Type', 'Authorization'] to be an array" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Headers PropertyList - map() transforms headers - Expected ['Content-Type', 'Authorization'] to include 'Content-Type'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Headers PropertyList - filter() filters headers - Expected [{key: 'Content-Type', value: 'application/json', active: true, description: ''}] to be an array" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Headers PropertyList - filter() filters headers - Expected 1 to be above 0" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Headers PropertyList - count() returns header count - Expected 2 to be a number" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Headers PropertyList - count() returns header count - Expected 2 to be above 0" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Headers PropertyList - idx() accesses by index - Expected {key: 'Content-Type', value: 'application/json', active: true, description: ''} to be an object" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Headers PropertyList - idx() accesses by index - Expected {key: 'Content-Type', value: 'application/json', active: true, description: ''} to have property 'key'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Headers PropertyList - toObject() returns object - Expected {Content-Type: 'application/json', Authorization: 'Bearer test-token'} to be an object" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="Headers PropertyList - toObject() returns object - Expected {Content-Type: 'application/json', Authorization: 'Bearer test-token'} to have property 'Content-Type'" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="hopp namespace URL methods work identically - Expected &quot;https://echo.hoppscotch.io/updated?page=1&amp;limit=20&amp;status=published&amp;include=metadata#results&quot; to include &quot;echo.hoppscotch.io&quot;" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+    <testcase name="hopp namespace URL methods work identically - Expected &quot;https://echo.hoppscotch.io/updated?page=1&amp;limit=20&amp;status=published&amp;include=metadata#results&quot; to include &quot;/updated&quot;" classname="scripting-revamp-coll/url-propertylist-helpers-test"/>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/propertylist-advanced-methods-test" time="0.089" timestamp="2026-03-21T14:11:48.970Z" tests="38" failures="0" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="query.find() - finds param by string key - Expected {key: 'limit', value: '10'} to be an object" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="query.find() - finds param by string key - Expected 'limit' to equal 'limit'" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="query.find() - finds param by predicate function - Expected {key: 'limit', value: '10'} to be an object" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="query.find() - finds param by predicate function - Expected '10' to equal '10'" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="query.find() - returns null when not found - Expected null to be null" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="query.indexOf() - returns index for existing params - Expected 0 to be a number" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="query.indexOf() - returns index for existing params - Expected 0 to be at least 0" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="query.indexOf() - returns index by object - Expected 0 to be a number" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="query.indexOf() - returns index by object - Expected 0 to be at least 0" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="query.indexOf() - returns -1 when not found - Expected -1 to equal -1" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="query.insert/append/assimilate - methods executed successfully - Expected {filter: 'active', sort: 'name', limit: '10', page: '1', offset: '0'} to be an object" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="query.insert/append/assimilate - methods executed successfully - Expected true to be true" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="query.insert/append/assimilate - methods executed successfully - Expected true to be true" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="query.append() - adds param at end - Expected 4 to be at least 0" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="query.append() - adds param at end - Expected '0' to equal '0'" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="query.assimilate() - adds/updates params - Expected true to be true" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="query.assimilate() - adds/updates params - Expected 'metadata' to equal 'metadata'" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="query.assimilate() - adds/updates params - Expected true to be true" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="query.assimilate() - adds/updates params - Expected 'active' to equal 'active'" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="headers.find() - finds header by string (case-insensitive) - Expected {key: 'Content-Type', value: 'application/json', active: true, description: ''} to be an object" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="headers.find() - finds header by string (case-insensitive) - Expected 'Content-Type' to equal 'Content-Type'" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="headers.find() - finds header by predicate function - Expected {key: 'Authorization', value: 'Bearer token123', active: true, description: ''} to be an object" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="headers.find() - finds header by predicate function - Expected 'Bearer token123' to include 'Bearer'" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="headers.find() - returns null when not found - Expected null to be null" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="headers.indexOf() - returns correct index (case-insensitive) - Expected 2 to be a number" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="headers.indexOf() - returns correct index (case-insensitive) - Expected 2 to be at least 0" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="headers.indexOf() - returns correct index by object - Expected 0 to be a number" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="headers.indexOf() - returns correct index by object - Expected 0 to be at least 0" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="headers.indexOf() - returns -1 when not found - Expected -1 to equal -1" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="headers.insert() - inserts header before specified header - Expected 1 to be below 2" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="headers.append() - adds header at end - Expected true to be true" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="headers.append() - adds header at end - Expected 'req-456' to equal 'req-456'" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="headers.assimilate() - adds/updates headers - Expected true to be true" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="headers.assimilate() - adds/updates headers - Expected 'custom-value' to equal 'custom-value'" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="query PropertyList - all methods work together - Expected {filter: 'active', sort: 'name', limit: '10', page: '1', offset: '0'} to be an object" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="query PropertyList - all methods work together - Expected 7 to be at least 4" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="headers PropertyList - all methods work together - Expected {Content-Type: 'application/json', X-API-Key: 'secret123', Authorization: 'Bearer token123', X-Request-ID: 'req-456', X-Custom-Header: 'custom-value'} to be an object" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+    <testcase name="headers PropertyList - all methods work together - Expected 5 to be at least 5" classname="scripting-revamp-coll/propertylist-advanced-methods-test"/>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/advanced-response-methods-test" time="0.082" timestamp="2026-03-21T14:11:48.970Z" tests="22" failures="2" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="pm.response.reason() returns HTTP reason phrase - Expected 'Bad Request' to be a string" classname="scripting-revamp-coll/advanced-response-methods-test"/>
+    <testcase name="pm.response.reason() returns HTTP reason phrase - Expected 'Bad Request' to equal 'OK'" classname="scripting-revamp-coll/advanced-response-methods-test">
+      <failure type="AssertionFailure" message="Expected 'Bad Request' to equal 'OK'"/>
+    </testcase>
+    <testcase name="hopp.response.reason() returns HTTP reason phrase - Expected '' to be type 'string'" classname="scripting-revamp-coll/advanced-response-methods-test"/>
+    <testcase name="hopp.response.reason() returns HTTP reason phrase - Expected '' to be 'OK'" classname="scripting-revamp-coll/advanced-response-methods-test">
+      <failure type="AssertionFailure" message="Expected '' to be 'OK'"/>
+    </testcase>
+    <testcase name="pm.response.dataURI() converts response to data URI - Expected 'data:application/octet-stream;base64,W29iamVjdCBPYmplY3Rd' to be a string" classname="scripting-revamp-coll/advanced-response-methods-test"/>
+    <testcase name="pm.response.dataURI() converts response to data URI - Expected 'data:application/octet-stream;base64,W29iamVjdCBPYmplY3Rd' to include 'data:'" classname="scripting-revamp-coll/advanced-response-methods-test"/>
+    <testcase name="pm.response.dataURI() converts response to data URI - Expected 'data:application/octet-stream;base64,W29iamVjdCBPYmplY3Rd' to include 'base64'" classname="scripting-revamp-coll/advanced-response-methods-test"/>
+    <testcase name="hopp.response.dataURI() converts response to data URI - Expected 'data:application/octet-stream;base64,e30=' to be type 'string'" classname="scripting-revamp-coll/advanced-response-methods-test"/>
+    <testcase name="hopp.response.dataURI() converts response to data URI - Expected 'true' to be 'true'" classname="scripting-revamp-coll/advanced-response-methods-test"/>
+    <testcase name="pm.expect().to.have.nested.property() accesses nested properties - Expected {a: {b: {c: 'deep value'}}} to have nested property 'a.b.c', 'deep value'" classname="scripting-revamp-coll/advanced-response-methods-test"/>
+    <testcase name="pm.expect().to.have.nested.property() accesses nested properties - Expected {a: {b: {c: 'deep value'}}} to have nested property 'a.b'" classname="scripting-revamp-coll/advanced-response-methods-test"/>
+    <testcase name="hopp.expect().to.have.nested.property() accesses nested properties - Expected {x: {y: {z: 'nested'}}} to have nested property 'x.y.z', 'nested'" classname="scripting-revamp-coll/advanced-response-methods-test"/>
+    <testcase name="hopp.expect().to.have.nested.property() accesses nested properties - Expected {x: {y: {z: 'nested'}}} to have nested property 'x.y'" classname="scripting-revamp-coll/advanced-response-methods-test"/>
+    <testcase name="pm.expect().to.have.nested.property() handles arrays - Expected {items: [{name: 'first'}, {name: 'second'}]} to have nested property 'items[0].name', 'first'" classname="scripting-revamp-coll/advanced-response-methods-test"/>
+    <testcase name="pm.expect().to.have.nested.property() handles arrays - Expected {items: [{name: 'first'}, {name: 'second'}]} to have nested property 'items[1].name', 'second'" classname="scripting-revamp-coll/advanced-response-methods-test"/>
+    <testcase name="pm.expect().to.not.have.nested.property() negation works - Expected {a: {b: 'value'}} to not have nested property 'a.c'" classname="scripting-revamp-coll/advanced-response-methods-test"/>
+    <testcase name="pm.expect().to.not.have.nested.property() negation works - Expected {a: {b: 'value'}} to not have nested property 'x.y.z'" classname="scripting-revamp-coll/advanced-response-methods-test"/>
+    <testcase name="pm.expect().to.change().by() validates exact delta - Expected [Function] to change {}.'value' by 15" classname="scripting-revamp-coll/advanced-response-methods-test"/>
+    <testcase name="hopp.expect().to.change().by() validates exact delta - Expected [Function] to change {}.'val' by 50" classname="scripting-revamp-coll/advanced-response-methods-test"/>
+    <testcase name="pm.expect().to.increase().by() validates exact increase - Expected [Function] to increase {}.'count' by 7" classname="scripting-revamp-coll/advanced-response-methods-test"/>
+    <testcase name="pm.expect().to.decrease().by() validates exact decrease - Expected [Function] to decrease {}.'score' by 30" classname="scripting-revamp-coll/advanced-response-methods-test"/>
+    <testcase name="pm.expect().to.change().by() with negative delta - Expected [Function] to change {}.'value' by -30" classname="scripting-revamp-coll/advanced-response-methods-test"/>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/advanced-chai-map-set-test" time="0.09" timestamp="2026-03-21T14:11:48.970Z" tests="49" failures="0" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="Map assertions - size property - Expected {size: 2} to have property 'size', 2" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="Map assertions - size property - Expected 2 to equal 2" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="Set assertions - size property - Expected {size: 4} to have property 'size', 4" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="Set assertions - size property - Expected 4 to equal 4" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="Map instanceOf assertion - Expected new Map() to be an instanceof Map" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="Map instanceOf assertion - Expected new Map() to be an instanceof Map" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="Set instanceOf assertion - Expected new Set() to be an instanceof Set" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="Set instanceOf assertion - Expected new Set() to be an instanceof Set" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="closeTo - validates numbers within delta - Expected 3.14159 to be closeTo 3.14, 0.01" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="closeTo - validates numbers within delta - Expected 10.5 to be closeTo 11, 1" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="closeTo - negation works - Expected 100 to not be closeTo 50, 10" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="closeTo - negation works - Expected 3.14 to not be closeTo 10, 0.1" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="approximately - alias for closeTo - Expected 2.5 to approximately 2.4, 0.2" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="approximately - alias for closeTo - Expected 99.99 to approximately 100, 0.1" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="finite - validates finite numbers - Expected 123 to be finite" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="finite - validates finite numbers - Expected 0 to be finite" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="finite - validates finite numbers - Expected -456 to be finite" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="finite - negation for Infinity - Expected Infinity to not be finite" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="finite - negation for Infinity - Expected -Infinity to not be finite" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="finite - negation for Infinity - Expected NaN to not be finite" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="satisfy - custom predicate function - Expected 10 to satisfy (num) =&gt; num &gt; 5" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="satisfy - custom predicate function - Expected 'hello' to satisfy (str) =&gt; str.length === 5" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="satisfy - complex validation - Expected {name: 'test', value: 100} to satisfy (o) =&gt; o.value &gt; 50 &amp;&amp; o.name.length &gt; 0" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="satisfy - negation works - Expected 5 to not satisfy (num) =&gt; num &gt; 10" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="satisfy - negation works - Expected 'abc' to not satisfy (str) =&gt; str.length &gt; 5" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="respondTo - validates method existence - Expected 'class TestClass {
+    testMethod() { return 'test' }
+    anotherMethod() { return 'another' }
+  }' to respondTo 'testMethod'" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="respondTo - validates method existence - Expected 'class TestClass {
+    testMethod() { return 'test' }
+    anotherMethod() { return 'another' }
+  }' to respondTo 'anotherMethod'" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="respondTo - with itself for static methods - Expected 'class MyClass {
+    static staticMethod() { return 'static' }
+    instanceMethod() { return 'instance' }
+  }' to respondTo 'staticMethod'" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="respondTo - with itself for static methods - Expected 'class MyClass {
+    static staticMethod() { return 'static' }
+    instanceMethod() { return 'instance' }
+  }' to not itself respondTo 'instanceMethod'" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="respondTo - with itself for static methods - Expected 'class MyClass {
+    static staticMethod() { return 'static' }
+    instanceMethod() { return 'instance' }
+  }' to respondTo 'instanceMethod'" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="own.property - distinguishes own vs inherited - Expected {own: true} to have own property 'own'" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="own.property - distinguishes own vs inherited - Expected {own: true} to not have own property 'inherited'" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="own.property - distinguishes own vs inherited - Expected {own: true} to have property 'inherited'" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="deep.own.property - deep check with ownership - Expected {data: {nested: 'value'}} to have deep own property 'data', {nested: 'value'}" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="deep.own.property - deep check with ownership - Expected {data: {nested: 'value'}} to not have deep own property 'shared'" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="ownProperty - alias for own.property - Expected {prop: 'value'} to have own property 'prop'" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="ownProperty - alias for own.property - Expected {prop: 'value'} to have own property 'prop'" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="hopp.expect Map/Set support - Expected '1' to be '1'" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="hopp.expect Map/Set support - Expected '2' to be '2'" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="hopp.expect closeTo support - Expected 3.14 to be closeTo 3.1, 0.1" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="hopp.expect closeTo support - Expected 10 to be closeTo 10.5, 1" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="hopp.expect finite support - Expected 42 to be finite" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="hopp.expect finite support - Expected Infinity to not be finite" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="hopp.expect satisfy support - Expected 100 to satisfy (n) =&gt; n &gt; 50" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="hopp.expect satisfy support - Expected 'test' to satisfy (s) =&gt; s.length === 4" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="hopp.expect respondTo support - Expected 'class TestClass { method() {} }' to respondTo 'method'" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="hopp.expect own.property support - Expected {own: 2} to have own property 'own'" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="hopp.expect own.property support - Expected {own: 2} to not have own property 'inherited'" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+    <testcase name="hopp.expect ordered.members support - Expected ['a', 'b', 'c'] to have ordered members ['a', 'b', 'c']" classname="scripting-revamp-coll/advanced-chai-map-set-test"/>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/type-preservation-test" time="0.088" timestamp="2026-03-21T14:11:48.971Z" tests="45" failures="0" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="string values work across scripts - Expected 'hello' to equal 'hello'" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="numbers are preserved as numbers (same script) - Expected 42 to equal 42" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="numbers are preserved as numbers (same script) - Expected 'number' to equal 'number'" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="booleans are preserved as booleans (same script) - Expected true to equal true" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="booleans are preserved as booleans (same script) - Expected false to equal false" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="booleans are preserved as booleans (same script) - Expected 'boolean' to equal 'boolean'" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="null is preserved as actual null (same script) - Expected null to equal null" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="null is preserved as actual null (same script) - Expected true to be true" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="null is preserved as actual null (same script) - Expected 'object' to equal 'object'" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="undefined is preserved as actual undefined (same script) - Expected undefined to equal undefined" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="undefined is preserved as actual undefined (same script) - Expected 'undefined' to equal 'undefined'" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="undefined is preserved as actual undefined (same script) - Expected true to be true" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="arrays are preserved with direct access - Expected true to be true" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="arrays are preserved with direct access - Expected 3 to equal 3" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="arrays are preserved with direct access - Expected 1 to equal 1" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="arrays are preserved with direct access - Expected 3 to equal 3" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="single-element arrays remain arrays - Expected true to be true" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="single-element arrays remain arrays - Expected 1 to equal 1" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="single-element arrays remain arrays - Expected 42 to equal 42" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="empty arrays are preserved - Expected true to be true" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="empty arrays are preserved - Expected 0 to equal 0" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="string arrays preserve all elements - Expected true to be true" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="string arrays preserve all elements - Expected ['a', 'b', 'c'] to deep equal ['a', 'b', 'c']" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="objects are preserved with accessible properties - Expected 'object' to equal 'object'" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="objects are preserved with accessible properties - Expected 'value' to equal 'value'" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="objects are preserved with accessible properties - Expected 123 to equal 123" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="empty objects are preserved - Expected 'object' to equal 'object'" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="empty objects are preserved - Expected 0 to equal 0" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="nested objects preserve structure - Expected 'John' to equal 'John'" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="nested objects preserve structure - Expected 1 to equal 1" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="nested objects preserve structure - Expected true to equal true" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="complex nested structures work - Expected [{id: 1, name: 'Alice', scores: [90, 85, 88]}, {id: 2, name: 'Bob', scores: [75, 80, 82]}] to be an array" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="complex nested structures work - Expected 2 to equal 2" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="complex nested structures work - Expected 'Alice' to equal 'Alice'" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="complex nested structures work - Expected 90 to equal 90" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="complex nested structures work - Expected ['active', 'verified'] to deep equal ['active', 'verified']" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="hopp.env.set rejects non-string values - Expected 6 to equal 6" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="hopp.env.set only accepts strings - Expected 'valid' to equal 'valid'" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="pm/hopp cross-namespace reading works - Expected true to be true" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="pm/hopp cross-namespace reading works - Expected 3 to equal 3" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="no JSON.parse needed for response data storage - Expected 123 to equal 123" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="no JSON.parse needed for response data storage - Expected ['read', 'write'] to include 'write'" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="no JSON.parse needed for response data storage - Expected 'dark' to equal 'dark'" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="array iteration works directly - Expected 'applebananacherry' to equal 'applebananacherry'" classname="scripting-revamp-coll/type-preservation-test"/>
+    <testcase name="array iteration works directly - Expected ['APPLE', 'BANANA', 'CHERRY'] to deep equal ['APPLE', 'BANANA', 'CHERRY']" classname="scripting-revamp-coll/type-preservation-test"/>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/type-preservation-ui-compatibility-test" time="0.088" timestamp="2026-03-21T14:11:48.971Z" tests="46" failures="0" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="PM namespace preserves array types (not String coercion) - Expected true to equal true" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace preserves array types (not String coercion) - Expected [1, 2, 3] to have lengthOf 3" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace preserves array types (not String coercion) - Expected 1 to equal 1" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace preserves array types (not String coercion) - Expected 2 to equal 2" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace preserves array types (not String coercion) - Expected 3 to equal 3" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace preserves object types (not &quot;[object Object]&quot;) - Expected 'object' to equal 'object'" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace preserves object types (not &quot;[object Object]&quot;) - Expected {foo: 'bar', num: 42} to not be null" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace preserves object types (not &quot;[object Object]&quot;) - Expected 'bar' to equal 'bar'" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace preserves object types (not &quot;[object Object]&quot;) - Expected 42 to equal 42" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace preserves null correctly - Expected null to be null" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace preserves undefined correctly - Expected undefined to be undefined" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace preserves primitives correctly - Expected 'hello' to equal 'hello'" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace preserves primitives correctly - Expected 123 to equal 123" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace preserves primitives correctly - Expected true to equal true" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace preserves nested structures - Expected {users: [{id: 1, name: 'Alice'}, {id: 2, name: 'Bob'}], meta: {count: 2, tags: ['active', 'verified']}} to be an object" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace preserves nested structures - Expected [{id: 1, name: 'Alice'}, {id: 2, name: 'Bob'}] to be an array" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace preserves nested structures - Expected [{id: 1, name: 'Alice'}, {id: 2, name: 'Bob'}] to have lengthOf 2" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace preserves nested structures - Expected 'Alice' to equal 'Alice'" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace preserves nested structures - Expected 'Bob' to equal 'Bob'" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace preserves nested structures - Expected 2 to equal 2" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace preserves nested structures - Expected ['active', 'verified'] to have members ['active', 'verified']" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace handles mixed arrays (regression test for UI crash) - Expected true to equal true" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace handles mixed arrays (regression test for UI crash) - Expected ['string', 42, true, null, null, [1, 2], {key: 'value'}] to have lengthOf 7" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace handles mixed arrays (regression test for UI crash) - Expected 'string' to equal 'string'" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace handles mixed arrays (regression test for UI crash) - Expected 42 to equal 42" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace handles mixed arrays (regression test for UI crash) - Expected true to equal true" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace handles mixed arrays (regression test for UI crash) - Expected null to be null" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace handles mixed arrays (regression test for UI crash) - Expected true to equal true" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace handles mixed arrays (regression test for UI crash) - Expected [1, 2] to have lengthOf 2" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace handles mixed arrays (regression test for UI crash) - Expected 'object' to equal 'object'" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM namespace handles mixed arrays (regression test for UI crash) - Expected 'value' to equal 'value'" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM globals preserve arrays and objects - Expected true to equal true" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM globals preserve arrays and objects - Expected [10, 20, 30] to deep equal [10, 20, 30]" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM globals preserve arrays and objects - Expected 'object' to equal 'object'" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM globals preserve arrays and objects - Expected 'prod' to equal 'prod'" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM globals preserve arrays and objects - Expected 8080 to equal 8080" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM variables preserve arrays and objects - Expected true to equal true" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM variables preserve arrays and objects - Expected [5, 10, 15] to deep equal [5, 10, 15]" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM variables preserve arrays and objects - Expected 'object' to equal 'object'" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM variables preserve arrays and objects - Expected 'active' to equal 'active'" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="PM variables preserve arrays and objects - Expected 100 to equal 100" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="Type preservation works with Postman compatibility - Expected 3 to equal 3" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="Type preservation works with Postman compatibility - Expected 'bar' to equal 'bar'" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="Type preservation works with Postman compatibility - Expected [1, 2, 3] to not equal '1,2,3'" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="Type preservation works with Postman compatibility - Expected {foo: 'bar', num: 42} to not equal '[object Object]'" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+    <testcase name="Type preservation: UI compatibility regression test - Expected 0 to equal 0" classname="scripting-revamp-coll/type-preservation-ui-compatibility-test"/>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/hopp.fetch() - GET request basic" time="0.088" timestamp="2026-03-21T14:11:48.971Z" tests="1" failures="0" errors="1">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="hopp.fetch() should make successful GET request - FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io" classname="scripting-revamp-coll/hopp.fetch() - GET request basic">
+      <error message="FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/hopp.fetch() - POST with JSON body" time="0.088" timestamp="2026-03-21T14:11:48.971Z" tests="1" failures="0" errors="1">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="hopp.fetch() should POST JSON data - FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io" classname="scripting-revamp-coll/hopp.fetch() - POST with JSON body">
+      <error message="FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/hopp.fetch() - 404 error handling" time="0.087" timestamp="2026-03-21T14:11:48.971Z" tests="1" failures="0" errors="1">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="hopp.fetch() should handle 404 errors - FetchError: Fetch failed: getaddrinfo ENOTFOUND httpbin.org" classname="scripting-revamp-coll/hopp.fetch() - 404 error handling">
+      <error message="FetchError: Fetch failed: getaddrinfo ENOTFOUND httpbin.org"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/hopp.fetch() - Custom headers" time="0.086" timestamp="2026-03-21T14:11:48.971Z" tests="1" failures="0" errors="1">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="hopp.fetch() should send custom headers - FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io" classname="scripting-revamp-coll/hopp.fetch() - Custom headers">
+      <error message="FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/hopp.fetch() - Environment variable URL" time="0.09" timestamp="2026-03-21T14:11:48.971Z" tests="2" failures="0" errors="1">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="hopp.fetch() should work with environment variable URLs - Expected 'https://echo.hoppscotch.io/status/200' to be 'https://echo.hoppscotch.io/status/200'" classname="scripting-revamp-coll/hopp.fetch() - Environment variable URL"/>
+    <testcase name="hopp.fetch() should work with environment variable URLs - FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io" classname="scripting-revamp-coll/hopp.fetch() - Environment variable URL">
+      <error message="FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/hopp.fetch() - Response text parsing" time="0.091" timestamp="2026-03-21T14:11:48.971Z" tests="1" failures="0" errors="1">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="hopp.fetch() should parse response as text - FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io" classname="scripting-revamp-coll/hopp.fetch() - Response text parsing">
+      <error message="FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/hopp.fetch() - HTTP methods (PUT, DELETE, PATCH)" time="0.09" timestamp="2026-03-21T14:11:48.971Z" tests="3" failures="0" errors="3">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="hopp.fetch() should support PUT method - FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io" classname="scripting-revamp-coll/hopp.fetch() - HTTP methods (PUT, DELETE, PATCH)">
+      <error message="FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io"/>
+    </testcase>
+    <testcase name="hopp.fetch() should support DELETE method - FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io" classname="scripting-revamp-coll/hopp.fetch() - HTTP methods (PUT, DELETE, PATCH)">
+      <error message="FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io"/>
+    </testcase>
+    <testcase name="hopp.fetch() should support PATCH method - FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io" classname="scripting-revamp-coll/hopp.fetch() - HTTP methods (PUT, DELETE, PATCH)">
+      <error message="FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/pm.sendRequest() - String URL format" time="0.091" timestamp="2026-03-21T14:11:48.972Z" tests="1" failures="1" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="pm.sendRequest() should work with string URL - Expected {name: FetchError, message: 'Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io'} to be null" classname="scripting-revamp-coll/pm.sendRequest() - String URL format">
+      <failure type="AssertionFailure" message="Expected {name: FetchError, message: 'Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io'} to be null"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/pm.sendRequest() - Request object format" time="0.091" timestamp="2026-03-21T14:11:48.972Z" tests="1" failures="1" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="pm.sendRequest() should work with request object - Expected {name: FetchError, message: 'Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io'} to be null" classname="scripting-revamp-coll/pm.sendRequest() - Request object format">
+      <failure type="AssertionFailure" message="Expected {name: FetchError, message: 'Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io'} to be null"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/pm.sendRequest() - URL-encoded body" time="0.093" timestamp="2026-03-21T14:11:48.972Z" tests="1" failures="1" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="pm.sendRequest() should handle URL-encoded body - Expected {name: FetchError, message: 'Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io'} to be null" classname="scripting-revamp-coll/pm.sendRequest() - URL-encoded body">
+      <failure type="AssertionFailure" message="Expected {name: FetchError, message: 'Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io'} to be null"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/pm.sendRequest() - Response format validation" time="0.092" timestamp="2026-03-21T14:11:48.972Z" tests="6" failures="6" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="pm.sendRequest() response should have Postman format - Expected {name: FetchError, message: 'Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io'} to be null" classname="scripting-revamp-coll/pm.sendRequest() - Response format validation">
+      <failure type="AssertionFailure" message="Expected {name: FetchError, message: 'Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io'} to be null"/>
+    </testcase>
+    <testcase name="pm.sendRequest() response should have Postman format - Expected null to have property 'code'" classname="scripting-revamp-coll/pm.sendRequest() - Response format validation">
+      <failure type="AssertionFailure" message="Expected null to have property 'code'"/>
+    </testcase>
+    <testcase name="pm.sendRequest() response should have Postman format - Expected null to have property 'status'" classname="scripting-revamp-coll/pm.sendRequest() - Response format validation">
+      <failure type="AssertionFailure" message="Expected null to have property 'status'"/>
+    </testcase>
+    <testcase name="pm.sendRequest() response should have Postman format - Expected null to have property 'headers'" classname="scripting-revamp-coll/pm.sendRequest() - Response format validation">
+      <failure type="AssertionFailure" message="Expected null to have property 'headers'"/>
+    </testcase>
+    <testcase name="pm.sendRequest() response should have Postman format - Expected null to have property 'body'" classname="scripting-revamp-coll/pm.sendRequest() - Response format validation">
+      <failure type="AssertionFailure" message="Expected null to have property 'body'"/>
+    </testcase>
+    <testcase name="pm.sendRequest() response should have Postman format - Expected null to have property 'json'" classname="scripting-revamp-coll/pm.sendRequest() - Response format validation">
+      <failure type="AssertionFailure" message="Expected null to have property 'json'"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/pm.sendRequest() - HTTP error status codes" time="0.088" timestamp="2026-03-21T14:11:48.972Z" tests="1" failures="1" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="pm.sendRequest() should handle network errors gracefully - Expected {name: FetchError, message: 'Fetch failed: getaddrinfo ENOTFOUND httpbin.org'} to be null" classname="scripting-revamp-coll/pm.sendRequest() - HTTP error status codes">
+      <failure type="AssertionFailure" message="Expected {name: FetchError, message: 'Fetch failed: getaddrinfo ENOTFOUND httpbin.org'} to be null"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/pm.sendRequest() - Environment variable integration" time="0.09" timestamp="2026-03-21T14:11:48.972Z" tests="1" failures="1" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="pm.sendRequest() should use environment variables - Expected {name: FetchError, message: 'Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io'} to be null" classname="scripting-revamp-coll/pm.sendRequest() - Environment variable integration">
+      <failure type="AssertionFailure" message="Expected {name: FetchError, message: 'Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io'} to be null"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/pm.sendRequest() - Store response in environment" time="0.09" timestamp="2026-03-21T14:11:48.972Z" tests="1" failures="1" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="pm.sendRequest() should store response data in environment - Expected {name: FetchError, message: 'Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io'} to be null" classname="scripting-revamp-coll/pm.sendRequest() - Store response in environment">
+      <failure type="AssertionFailure" message="Expected {name: FetchError, message: 'Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io'} to be null"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/pm.sendRequest() - RFC pattern with object headers" time="0.089" timestamp="2026-03-21T14:11:48.972Z" tests="1" failures="1" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="pm.sendRequest() should support RFC pattern with object headers - Expected {name: FetchError, message: 'Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io'} to be null" classname="scripting-revamp-coll/pm.sendRequest() - RFC pattern with object headers">
+      <failure type="AssertionFailure" message="Expected {name: FetchError, message: 'Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io'} to be null"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/hopp.fetch() and pm.sendRequest() - Interoperability" time="0.089" timestamp="2026-03-21T14:11:48.972Z" tests="1" failures="0" errors="1">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="hopp.fetch() should work and store results - FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io" classname="scripting-revamp-coll/hopp.fetch() and pm.sendRequest() - Interoperability">
+      <error message="FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/hopp.fetch() - JSON response parsing" time="0.09" timestamp="2026-03-21T14:11:48.972Z" tests="1" failures="0" errors="1">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="hopp.fetch() should parse JSON response - FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io" classname="scripting-revamp-coll/hopp.fetch() - JSON response parsing">
+      <error message="FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/hopp.fetch() - Response headers access" time="0.09" timestamp="2026-03-21T14:11:48.972Z" tests="1" failures="0" errors="1">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="hopp.fetch() should access response headers - FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io" classname="scripting-revamp-coll/hopp.fetch() - Response headers access">
+      <error message="FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/pm.sendRequest() - FormData body mode" time="0.086" timestamp="2026-03-21T14:11:48.972Z" tests="1" failures="1" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="pm.sendRequest() should handle FormData body - Expected {name: FetchError, message: 'Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io'} to be null" classname="scripting-revamp-coll/pm.sendRequest() - FormData body mode">
+      <failure type="AssertionFailure" message="Expected {name: FetchError, message: 'Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io'} to be null"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/pm.sendRequest() - JSON parsing method" time="0.089" timestamp="2026-03-21T14:11:48.972Z" tests="1" failures="1" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="pm.sendRequest() response.json() should parse JSON - Expected {name: FetchError, message: 'Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io'} to be null" classname="scripting-revamp-coll/pm.sendRequest() - JSON parsing method">
+      <failure type="AssertionFailure" message="Expected {name: FetchError, message: 'Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io'} to be null"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/pm.sendRequest() - Response headers extraction" time="0.09" timestamp="2026-03-21T14:11:48.972Z" tests="1" failures="1" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="pm.sendRequest() should extract specific headers - Expected {name: FetchError, message: 'Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io'} to be null" classname="scripting-revamp-coll/pm.sendRequest() - Response headers extraction">
+      <failure type="AssertionFailure" message="Expected {name: FetchError, message: 'Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io'} to be null"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/hopp.fetch() - Network error handling" time="0.091" timestamp="2026-03-21T14:11:48.972Z" tests="3" failures="0" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="hopp.fetch() should handle network errors - Expected '[object Object]' to be type 'object'" classname="scripting-revamp-coll/hopp.fetch() - Network error handling"/>
+    <testcase name="hopp.fetch() should handle network errors - Expected 'Fetch failed: getaddrinfo ENOTFOUND this-domain-definitely-does-not-exist-12345.com' to be type 'string'" classname="scripting-revamp-coll/hopp.fetch() - Network error handling"/>
+    <testcase name="hopp.fetch() should handle network errors - Expected 'true' to be 'true'" classname="scripting-revamp-coll/hopp.fetch() - Network error handling"/>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/pm.sendRequest() - Network error callback" time="0.089" timestamp="2026-03-21T14:11:48.972Z" tests="3" failures="0" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="pm.sendRequest() should trigger error callback on network failure - Expected {name: FetchError, message: 'Fetch failed: getaddrinfo ENOTFOUND this-domain-definitely-does-not-exist-12345.com'} to not be null" classname="scripting-revamp-coll/pm.sendRequest() - Network error callback"/>
+    <testcase name="pm.sendRequest() should trigger error callback on network failure - Expected 'Fetch failed: getaddrinfo ENOTFOUND this-domain-definitely-does-not-exist-12345.com' to be a string" classname="scripting-revamp-coll/pm.sendRequest() - Network error callback"/>
+    <testcase name="pm.sendRequest() should trigger error callback on network failure - Expected null to be null" classname="scripting-revamp-coll/pm.sendRequest() - Network error callback"/>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/hopp.fetch() - Sequential requests chain" time="0.093" timestamp="2026-03-21T14:11:48.972Z" tests="1" failures="0" errors="1">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="hopp.fetch() should chain multiple requests - FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io" classname="scripting-revamp-coll/hopp.fetch() - Sequential requests chain">
+      <error message="FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/pm.sendRequest() - Nested requests" time="0.09" timestamp="2026-03-21T14:11:48.972Z" tests="1" failures="1" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="pm.sendRequest() should support nested requests - Expected {name: FetchError, message: 'Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io'} to be null" classname="scripting-revamp-coll/pm.sendRequest() - Nested requests">
+      <failure type="AssertionFailure" message="Expected {name: FetchError, message: 'Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io'} to be null"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/hopp.fetch() - Binary response (arrayBuffer)" time="0.087" timestamp="2026-03-21T14:11:48.972Z" tests="1" failures="0" errors="1">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="hopp.fetch() should handle binary responses - FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io" classname="scripting-revamp-coll/hopp.fetch() - Binary response (arrayBuffer)">
+      <error message="FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/pm.sendRequest() - Empty response body (204)" time="0.09" timestamp="2026-03-21T14:11:48.973Z" tests="1" failures="1" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="pm.sendRequest() should handle responses correctly - Expected {name: FetchError, message: 'Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io'} to be null" classname="scripting-revamp-coll/pm.sendRequest() - Empty response body (204)">
+      <failure type="AssertionFailure" message="Expected {name: FetchError, message: 'Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io'} to be null"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/Async Patterns - Pre-Request" time="0.08" timestamp="2026-03-21T14:11:48.973Z" tests="8" failures="8" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="Pre-request top-level await works - Expected 'null' to be '200'" classname="scripting-revamp-coll/Async Patterns - Pre-Request">
+      <failure type="AssertionFailure" message="Expected 'null' to be '200'"/>
+    </testcase>
+    <testcase name="Pre-request top-level await works - Expected 'null' to be 'toplevel-await'" classname="scripting-revamp-coll/Async Patterns - Pre-Request">
+      <failure type="AssertionFailure" message="Expected 'null' to be 'toplevel-await'"/>
+    </testcase>
+    <testcase name="Pre-request .then() chain works - Expected 'null' to be '200'" classname="scripting-revamp-coll/Async Patterns - Pre-Request">
+      <failure type="AssertionFailure" message="Expected 'null' to be '200'"/>
+    </testcase>
+    <testcase name="Pre-request .then() chain works - Expected 'null' to be 'then-chain'" classname="scripting-revamp-coll/Async Patterns - Pre-Request">
+      <failure type="AssertionFailure" message="Expected 'null' to be 'then-chain'"/>
+    </testcase>
+    <testcase name="Pre-request mixed await/.then() works - Expected 'null' to be '200'" classname="scripting-revamp-coll/Async Patterns - Pre-Request">
+      <failure type="AssertionFailure" message="Expected 'null' to be '200'"/>
+    </testcase>
+    <testcase name="Pre-request mixed await/.then() works - Expected 'null' to be 'mixed'" classname="scripting-revamp-coll/Async Patterns - Pre-Request">
+      <failure type="AssertionFailure" message="Expected 'null' to be 'mixed'"/>
+    </testcase>
+    <testcase name="Pre-request Promise.all works - Expected 'null' to be 'parallel1'" classname="scripting-revamp-coll/Async Patterns - Pre-Request">
+      <failure type="AssertionFailure" message="Expected 'null' to be 'parallel1'"/>
+    </testcase>
+    <testcase name="Pre-request Promise.all works - Expected 'null' to be 'parallel2'" classname="scripting-revamp-coll/Async Patterns - Pre-Request">
+      <failure type="AssertionFailure" message="Expected 'null' to be 'parallel2'"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/Async Patterns - Test Script" time="0.089" timestamp="2026-03-21T14:11:48.973Z" tests="0" failures="0" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/Workflow Patterns (Sequential, Parallel, Auth)" time="0.089" timestamp="2026-03-21T14:11:48.973Z" tests="9" failures="7" errors="2">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="Sequential requests work - Expected 'null' to be '1'" classname="scripting-revamp-coll/Workflow Patterns (Sequential, Parallel, Auth)">
+      <failure type="AssertionFailure" message="Expected 'null' to be '1'"/>
+    </testcase>
+    <testcase name="Sequential requests work - Expected 'null' to be '2'" classname="scripting-revamp-coll/Workflow Patterns (Sequential, Parallel, Auth)">
+      <failure type="AssertionFailure" message="Expected 'null' to be '2'"/>
+    </testcase>
+    <testcase name="Sequential requests work - Expected 'null' to be '1'" classname="scripting-revamp-coll/Workflow Patterns (Sequential, Parallel, Auth)">
+      <failure type="AssertionFailure" message="Expected 'null' to be '1'"/>
+    </testcase>
+    <testcase name="Parallel requests work - Expected 'null' to be '1'" classname="scripting-revamp-coll/Workflow Patterns (Sequential, Parallel, Auth)">
+      <failure type="AssertionFailure" message="Expected 'null' to be '1'"/>
+    </testcase>
+    <testcase name="Parallel requests work - Expected 'null' to be '2'" classname="scripting-revamp-coll/Workflow Patterns (Sequential, Parallel, Auth)">
+      <failure type="AssertionFailure" message="Expected 'null' to be '2'"/>
+    </testcase>
+    <testcase name="Parallel requests work - Expected 'null' to be '3'" classname="scripting-revamp-coll/Workflow Patterns (Sequential, Parallel, Auth)">
+      <failure type="AssertionFailure" message="Expected 'null' to be '3'"/>
+    </testcase>
+    <testcase name="Auth workflow works - Expected toInclude to be called for an array or string" classname="scripting-revamp-coll/Workflow Patterns (Sequential, Parallel, Auth)">
+      <error message="Expected toInclude to be called for an array or string"/>
+    </testcase>
+    <testcase name="Auth workflow works - Expected 'null' to be 'Bearer null'" classname="scripting-revamp-coll/Workflow Patterns (Sequential, Parallel, Auth)">
+      <failure type="AssertionFailure" message="Expected 'null' to be 'Bearer null'"/>
+    </testcase>
+    <testcase name="Complex workflow in test works - FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io" classname="scripting-revamp-coll/Workflow Patterns (Sequential, Parallel, Auth)">
+      <error message="FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/Error Handling &amp; Edge Cases" time="0.089" timestamp="2026-03-21T14:11:48.973Z" tests="5" failures="4" errors="1">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="Error handling works - Expected 'false' to be 'true'" classname="scripting-revamp-coll/Error Handling &amp; Edge Cases">
+      <failure type="AssertionFailure" message="Expected 'false' to be 'true'"/>
+    </testcase>
+    <testcase name="Error handling works - Expected 'true' to be 'false'" classname="scripting-revamp-coll/Error Handling &amp; Edge Cases">
+      <failure type="AssertionFailure" message="Expected 'true' to be 'false'"/>
+    </testcase>
+    <testcase name="Bearer token auth works - Expected 'null' to be 'Bearer sample_bearer_token_abc123'" classname="scripting-revamp-coll/Error Handling &amp; Edge Cases">
+      <failure type="AssertionFailure" message="Expected 'null' to be 'Bearer sample_bearer_token_abc123'"/>
+    </testcase>
+    <testcase name="Content negotiation works - Expected toInclude to be called for an array or string" classname="scripting-revamp-coll/Error Handling &amp; Edge Cases">
+      <error message="Expected toInclude to be called for an array or string"/>
+    </testcase>
+    <testcase name="Error handling with .catch() works - Expected 'true' to be 'false'" classname="scripting-revamp-coll/Error Handling &amp; Edge Cases">
+      <failure type="AssertionFailure" message="Expected 'true' to be 'false'"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/Large Payload &amp; FormData" time="0.092" timestamp="2026-03-21T14:11:48.973Z" tests="5" failures="3" errors="1">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="Large JSON payload works - Expected 'null' to be '100'" classname="scripting-revamp-coll/Large Payload &amp; FormData">
+      <failure type="AssertionFailure" message="Expected 'null' to be '100'"/>
+    </testcase>
+    <testcase name="Large JSON payload works - Expected 'null' to be '0'" classname="scripting-revamp-coll/Large Payload &amp; FormData">
+      <failure type="AssertionFailure" message="Expected 'null' to be '0'"/>
+    </testcase>
+    <testcase name="Large JSON payload works - Expected 'null' to be '99'" classname="scripting-revamp-coll/Large Payload &amp; FormData">
+      <failure type="AssertionFailure" message="Expected 'null' to be '99'"/>
+    </testcase>
+    <testcase name="FormData handling works - Expected 'skipped' to be 'skipped'" classname="scripting-revamp-coll/Large Payload &amp; FormData"/>
+    <testcase name="Large payload in test script works - FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io" classname="scripting-revamp-coll/Large Payload &amp; FormData">
+      <error message="FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/GET Methods (Query, Headers, URL)" time="0.08" timestamp="2026-03-21T14:11:48.973Z" tests="9" failures="9" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="Query parameters work - Expected 'null' to be 'bar'" classname="scripting-revamp-coll/GET Methods (Query, Headers, URL)">
+      <failure type="AssertionFailure" message="Expected 'null' to be 'bar'"/>
+    </testcase>
+    <testcase name="Query parameters work - Expected 'null' to be 'qux'" classname="scripting-revamp-coll/GET Methods (Query, Headers, URL)">
+      <failure type="AssertionFailure" message="Expected 'null' to be 'qux'"/>
+    </testcase>
+    <testcase name="Query parameters work - Expected 'null' to be '123'" classname="scripting-revamp-coll/GET Methods (Query, Headers, URL)">
+      <failure type="AssertionFailure" message="Expected 'null' to be '123'"/>
+    </testcase>
+    <testcase name="Custom headers work - Expected 'null' to be 'CustomValue123'" classname="scripting-revamp-coll/GET Methods (Query, Headers, URL)">
+      <failure type="AssertionFailure" message="Expected 'null' to be 'CustomValue123'"/>
+    </testcase>
+    <testcase name="Custom headers work - Expected 'null' to be 'secret-key-456'" classname="scripting-revamp-coll/GET Methods (Query, Headers, URL)">
+      <failure type="AssertionFailure" message="Expected 'null' to be 'secret-key-456'"/>
+    </testcase>
+    <testcase name="URL object works - Expected 'null' to be 'url-object'" classname="scripting-revamp-coll/GET Methods (Query, Headers, URL)">
+      <failure type="AssertionFailure" message="Expected 'null' to be 'url-object'"/>
+    </testcase>
+    <testcase name="URL object works - Expected 'null' to be '42'" classname="scripting-revamp-coll/GET Methods (Query, Headers, URL)">
+      <failure type="AssertionFailure" message="Expected 'null' to be '42'"/>
+    </testcase>
+    <testcase name="Special characters in URL work - Expected 'null' to be 'test &amp; special = chars'" classname="scripting-revamp-coll/GET Methods (Query, Headers, URL)">
+      <failure type="AssertionFailure" message="Expected 'null' to be 'test &amp; special = chars'"/>
+    </testcase>
+    <testcase name="Special characters in URL work - Expected 'null' to be 'value'" classname="scripting-revamp-coll/GET Methods (Query, Headers, URL)">
+      <failure type="AssertionFailure" message="Expected 'null' to be 'value'"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/POST Methods (JSON, URLEncoded, Binary)" time="0.093" timestamp="2026-03-21T14:11:48.973Z" tests="8" failures="4" errors="4">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="POST JSON body works - Expected 'null' to be 'John Doe'" classname="scripting-revamp-coll/POST Methods (JSON, URLEncoded, Binary)">
+      <failure type="AssertionFailure" message="Expected 'null' to be 'John Doe'"/>
+    </testcase>
+    <testcase name="POST JSON body works - Expected 'null' to be 'john@example.com'" classname="scripting-revamp-coll/POST Methods (JSON, URLEncoded, Binary)">
+      <failure type="AssertionFailure" message="Expected 'null' to be 'john@example.com'"/>
+    </testcase>
+    <testcase name="POST URL-encoded body works - Expected toInclude to be called for an array or string" classname="scripting-revamp-coll/POST Methods (JSON, URLEncoded, Binary)">
+      <error message="Expected toInclude to be called for an array or string"/>
+    </testcase>
+    <testcase name="POST URL-encoded body works - Expected toInclude to be called for an array or string" classname="scripting-revamp-coll/POST Methods (JSON, URLEncoded, Binary)">
+      <error message="Expected toInclude to be called for an array or string"/>
+    </testcase>
+    <testcase name="Binary POST works - Expected 'null' to be 'POST'" classname="scripting-revamp-coll/POST Methods (JSON, URLEncoded, Binary)">
+      <failure type="AssertionFailure" message="Expected 'null' to be 'POST'"/>
+    </testcase>
+    <testcase name="Binary POST works - Expected toInclude to be called for an array or string" classname="scripting-revamp-coll/POST Methods (JSON, URLEncoded, Binary)">
+      <error message="Expected toInclude to be called for an array or string"/>
+    </testcase>
+    <testcase name="Empty body POST works - Expected 'null' to be 'POST'" classname="scripting-revamp-coll/POST Methods (JSON, URLEncoded, Binary)">
+      <failure type="AssertionFailure" message="Expected 'null' to be 'POST'"/>
+    </testcase>
+    <testcase name="POST in test script works - FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io" classname="scripting-revamp-coll/POST Methods (JSON, URLEncoded, Binary)">
+      <error message="FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/HTTP Methods (PUT, PATCH, DELETE)" time="0.081" timestamp="2026-03-21T14:11:48.973Z" tests="4" failures="3" errors="1">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="PUT method works - Expected 'null' to be 'PUT'" classname="scripting-revamp-coll/HTTP Methods (PUT, PATCH, DELETE)">
+      <failure type="AssertionFailure" message="Expected 'null' to be 'PUT'"/>
+    </testcase>
+    <testcase name="PATCH method works - Expected 'null' to be 'PATCH'" classname="scripting-revamp-coll/HTTP Methods (PUT, PATCH, DELETE)">
+      <failure type="AssertionFailure" message="Expected 'null' to be 'PATCH'"/>
+    </testcase>
+    <testcase name="DELETE method works - Expected 'null' to be 'DELETE'" classname="scripting-revamp-coll/HTTP Methods (PUT, PATCH, DELETE)">
+      <failure type="AssertionFailure" message="Expected 'null' to be 'DELETE'"/>
+    </testcase>
+    <testcase name="DELETE method works - Expected toInclude to be called for an array or string" classname="scripting-revamp-coll/HTTP Methods (PUT, PATCH, DELETE)">
+      <error message="Expected toInclude to be called for an array or string"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/Response Parsing (Headers, Status, Body)" time="0.095" timestamp="2026-03-21T14:11:48.974Z" tests="6" failures="5" errors="1">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="Response headers accessible - Expected 'false' to be 'true'" classname="scripting-revamp-coll/Response Parsing (Headers, Status, Body)">
+      <failure type="AssertionFailure" message="Expected 'false' to be 'true'"/>
+    </testcase>
+    <testcase name="Response status properties work - Expected 'null' to be '200'" classname="scripting-revamp-coll/Response Parsing (Headers, Status, Body)">
+      <failure type="AssertionFailure" message="Expected 'null' to be '200'"/>
+    </testcase>
+    <testcase name="Response status properties work - Expected 'null' to be 'true'" classname="scripting-revamp-coll/Response Parsing (Headers, Status, Body)">
+      <failure type="AssertionFailure" message="Expected 'null' to be 'true'"/>
+    </testcase>
+    <testcase name="response.text() works - Expected 'false' to be 'true'" classname="scripting-revamp-coll/Response Parsing (Headers, Status, Body)">
+      <failure type="AssertionFailure" message="Expected 'false' to be 'true'"/>
+    </testcase>
+    <testcase name="response.text() works - Expected 'null' to be 'true'" classname="scripting-revamp-coll/Response Parsing (Headers, Status, Body)">
+      <failure type="AssertionFailure" message="Expected 'null' to be 'true'"/>
+    </testcase>
+    <testcase name="Async response parsing in test works - FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io" classname="scripting-revamp-coll/Response Parsing (Headers, Status, Body)">
+      <error message="FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/Dynamic URL Construction" time="0.09" timestamp="2026-03-21T14:11:48.974Z" tests="5" failures="3" errors="2">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="Dynamic URL construction works - Expected toInclude to be called for an array or string" classname="scripting-revamp-coll/Dynamic URL Construction">
+      <error message="Expected toInclude to be called for an array or string"/>
+    </testcase>
+    <testcase name="Dynamic URL construction works - Expected 'null' to be '1'" classname="scripting-revamp-coll/Dynamic URL Construction">
+      <failure type="AssertionFailure" message="Expected 'null' to be '1'"/>
+    </testcase>
+    <testcase name="Dynamic URL construction works - Expected 'null' to be '10'" classname="scripting-revamp-coll/Dynamic URL Construction">
+      <failure type="AssertionFailure" message="Expected 'null' to be '10'"/>
+    </testcase>
+    <testcase name="Dynamic URL construction works - Expected 'null' to be 'name'" classname="scripting-revamp-coll/Dynamic URL Construction">
+      <failure type="AssertionFailure" message="Expected 'null' to be 'name'"/>
+    </testcase>
+    <testcase name="Dynamic URL in test script works - FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io" classname="scripting-revamp-coll/Dynamic URL Construction">
+      <error message="FetchError: Fetch failed: getaddrinfo ENOTFOUND echo.hoppscotch.io"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="scripting-revamp-coll/crypto-module-test" time="0.078" timestamp="2026-03-21T14:11:48.974Z" tests="18" failures="0" errors="0">
+    <system-err><![CDATA[
+      REQUEST_ERROR - Error: getaddrinfo ENOTFOUND echo.hoppscotch.io]]></system-err>
+    <testcase name="crypto.randomUUID() generates valid UUID v4 format - Expected '3a9f9eaa-ff04-46fc-82f7-3c4f7024995c' to be a string" classname="scripting-revamp-coll/crypto-module-test"/>
+    <testcase name="crypto.randomUUID() generates valid UUID v4 format - Expected 36 to equal 36" classname="scripting-revamp-coll/crypto-module-test"/>
+    <testcase name="crypto.randomUUID() generates valid UUID v4 format - Expected true to be true" classname="scripting-revamp-coll/crypto-module-test"/>
+    <testcase name="crypto.getRandomValues() fills array with random bytes - Expected 16 to equal 16" classname="scripting-revamp-coll/crypto-module-test"/>
+    <testcase name="crypto.getRandomValues() fills array with random bytes - Expected true to be true" classname="scripting-revamp-coll/crypto-module-test"/>
+    <testcase name="crypto.subtle.digest() produces SHA-256 hash - Expected 32 to equal 32" classname="scripting-revamp-coll/crypto-module-test"/>
+    <testcase name="crypto.subtle.generateKey() creates HMAC key - Expected 'secret' to equal 'secret'" classname="scripting-revamp-coll/crypto-module-test"/>
+    <testcase name="crypto.subtle.sign() produces HMAC signature - Expected 32 to equal 32" classname="scripting-revamp-coll/crypto-module-test"/>
+    <testcase name="crypto.subtle.verify() validates HMAC signature - Expected true to be true" classname="scripting-revamp-coll/crypto-module-test"/>
+    <testcase name="crypto.subtle.generateKey() creates AES-GCM key - Expected 'secret' to equal 'secret'" classname="scripting-revamp-coll/crypto-module-test"/>
+    <testcase name="crypto.subtle.encrypt() produces ciphertext - Expected 22 to be above 0" classname="scripting-revamp-coll/crypto-module-test"/>
+    <testcase name="crypto.subtle.decrypt() recovers original plaintext - Expected true to be true" classname="scripting-revamp-coll/crypto-module-test"/>
+    <testcase name="crypto.subtle.encrypt() produces RSA ciphertext - Expected 256 to be above 0" classname="scripting-revamp-coll/crypto-module-test"/>
+    <testcase name="crypto.subtle.decrypt() recovers RSA plaintext - Expected true to be true" classname="scripting-revamp-coll/crypto-module-test"/>
+    <testcase name="crypto.subtle.deriveKey() creates AES key from password - Expected 'secret' to equal 'secret'" classname="scripting-revamp-coll/crypto-module-test"/>
+    <testcase name="crypto.randomUUID() generates unique UUIDs - Expected 'd7bfb333-b279-471a-b432-0768c73b0e7a' to not equal 'c0ae0a09-f20f-4b4b-92d4-786b6f25d32b'" classname="scripting-revamp-coll/crypto-module-test"/>
+    <testcase name="crypto.getRandomValues() mutates array in place - Expected '[84, 209, 73, 67, 137, 164, 90, 193, 88, 117]' to equal '[84, 209, 73, 67, 137, 164, 90, 193, 88, 117]'" classname="scripting-revamp-coll/crypto-module-test"/>
+    <testcase name="crypto.getRandomValues() mutates array in place - Expected true to be true" classname="scripting-revamp-coll/crypto-module-test"/>
+  </testsuite>
+</testsuites>

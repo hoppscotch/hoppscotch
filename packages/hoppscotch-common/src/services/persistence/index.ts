@@ -55,8 +55,8 @@ import {
 import { bulkApplyLocalState, localStateStore } from "../../newstore/localstate"
 
 import {
-  HoppAccentColor,
   HoppBgColor,
+  HoppAccentColor,
   applySetting,
   bulkApplySettings,
   getDefaultSettings,
@@ -404,7 +404,8 @@ export class PersistenceService extends Service {
     if (themeColor) {
       const result = THEME_COLOR_SCHEMA.safeParse(themeColor)
       if (result.success) {
-        applySetting("THEME_COLOR", result.data as HoppAccentColor)
+        // result.data can be either a preset accent or a custom color string
+        applySetting("THEME_COLOR", result.data as HoppAccentColor | string)
       } else {
         this.showErrorToast(themeColorKey)
         window.localStorage.setItem(`${themeColorKey}-backup`, themeColor)

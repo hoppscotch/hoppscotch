@@ -56,6 +56,85 @@ const prescreenXArgs = flow(
   S.trim
 )
 
+const outputOnlyLongFlags = new Set([
+  "--silent",
+  "--show-error",
+  "--verbose",
+  "--no-progress-meter",
+])
+
+const outputOnlyShortFlagPattern = /^-[sSvV]+$/
+
+const tokenizeCurlCommand = (curlCmd: string) => {
+  const tokens: string[] = []
+  let token = ""
+  let quote: '"' | "'" | null = null
+  let escaped = false
+
+  for (const char of curlCmd) {
+    if (escaped) {
+      token += char
+      escaped = false
+      continue
+    }
+
+    if (char === "\\") {
+      token += char
+      escaped = true
+      continue
+    }
+
+    if (quote) {
+      token += char
+
+      if (char === quote) {
+        quote = null
+      }
+
+      continue
+    }
+
+    if (char === '"' || char === "'") {
+      token += char
+      quote = char
+      continue
+    }
+
+    if (/\s/.test(char)) {
+      if (token.length > 0) {
+        tokens.push(token)
+        token = ""
+      }
+
+      continue
+    }
+
+    token += char
+  }
+
+  if (token.length > 0) {
+    tokens.push(token)
+  }
+
+  return tokens
+}
+
+// Drop cURL flags that only change terminal output and should not affect request import.
+// Only strips standalone tokens composed entirely of output-only flags.
+// Mixed short options such as `-sH` remain untouched because they may affect the request.
+const stripOutputOnlyFlags = (curlCmd: string) =>
+  pipe(
+    curlCmd,
+    tokenizeCurlCommand,
+    A.filter(
+      (token) =>
+        !outputOnlyLongFlags.has(token) &&
+        !outputOnlyShortFlagPattern.test(token)
+    ),
+    (tokens) => tokens.join(" "),
+    S.trim
+  )
+
 /**
  * Sanitizes and makes curl string processable
  * @param curlCommand Raw curl command string
@@ -65,6 +144,8 @@ export const preProcessCurlCommand = (curlCommand: string) =>
   pipe(
     curlCommand,
     O.fromPredicate((curlCmd) => curlCmd.length > 0),
-    O.map(flow(paperCuts, replaceLongOptions, prescreenXArgs)),
+    O.map(
+      flow(paperCuts, replaceLongOptions, stripOutputOnlyFlags, prescreenXArgs)
+    ),
     O.getOrElse(() => "")
   )

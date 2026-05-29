@@ -61,6 +61,7 @@
             v-model="editableCollection.variables"
             :inherited-properties="editingProperties.inheritedProperties"
             :has-team-write-access="hasTeamWriteAccess"
+            :variable-to-focus="variableToFocus"
           />
         </HoppSmartTab>
 
@@ -268,12 +269,14 @@ const props = withDefaults(
     modelValue: string
     showDetails?: boolean
     hasTeamWriteAccess?: boolean
+    variableToFocus?: { name: string; isSecret: boolean } | null
   }>(),
   {
     show: false,
     loadingState: false,
     showDetails: false,
     hasTeamWriteAccess: true,
+    variableToFocus: null,
   }
 )
 

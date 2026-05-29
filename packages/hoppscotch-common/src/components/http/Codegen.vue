@@ -151,6 +151,7 @@ import { CurrentValueService } from "~/services/current-environment-value.servic
 import { getCurrentEnvironment } from "../../newstore/environments"
 import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
 import { filterNonEmptyEnvironmentVariables } from "~/helpers/RequestRunner"
+import { temporaryVariables } from "~/helpers/runner/temp_envs"
 
 const t = useI18n()
 
@@ -263,17 +264,41 @@ const buildFinalEnvironment = (): Environment => {
       })
     )
 
-  const environmentVariables = aggregateEnvs.map((env) => ({
+  const tempVariables = temporaryVariables.value
+    .filter((v) => Boolean(v.key))
+    .map((v) => ({
+      key: v.key,
+      currentValue: v.secret ? "******" : (v.currentValue ?? ""),
+      initialValue: v.secret ? "******" : (v.initialValue ?? ""),
+      secret: v.secret ?? false,
+    }))
+
+  const nonGlobalEnvs = aggregateEnvs.filter(
+    (env) => env.sourceEnv !== "Global"
+  )
+  const globalEnvs = aggregateEnvs.filter((env) => env.sourceEnv === "Global")
+
+  const nonGlobalEnvVariables = nonGlobalEnvs.map((env) => ({
     key: env.key,
     secret: env.secret,
     initialValue: env.initialValue,
     currentValue: getCurrentValue(env) || env.initialValue,
   }))
 
+  const globalEnvVariables = globalEnvs.map((env) => ({
+    key: env.key,
+    secret: env.secret,
+    initialValue: env.initialValue,
+    currentValue: getCurrentValue(env) || env.initialValue,
+  }))
+
+  // Priority: request → temporary → collection → selected env → global
   const allVariables = [
     ...requestVariables,
+    ...tempVariables,
     ...collectionVariables,
-    ...environmentVariables,
+    ...nonGlobalEnvVariables,
+    ...globalEnvVariables,
   ]
 
   const filteredVariables = filterNonEmptyEnvironmentVariables(allVariables)

@@ -25,6 +25,7 @@ import { RESTTabService } from "~/services/tab/rest"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
 import { HOPP_ENVIRONMENT_REGEX } from "~/helpers/environment-regex"
+import { temporaryVariables } from "~/helpers/runner/temp_envs"
 
 const isENVInString = (str: string) => HOPP_ENVIRONMENT_REGEX.test(str)
 
@@ -102,11 +103,29 @@ export class EnvironmentInspectorService extends Service implements Inspector {
           secret: false,
         })) ?? []
 
-    // combine everything into one list
+    const tempVariables = temporaryVariables.value
+      .filter((v) => Boolean(v.key))
+      .map((v) => ({
+        key: v.key,
+        currentValue: v.secret ? "******" : (v.currentValue ?? ""),
+        initialValue: v.secret ? "******" : (v.initialValue ?? ""),
+        sourceEnv: "Temporary",
+        secret: v.secret ?? false,
+      }))
+
+    // Priority: request → temporary → collection → selected env → global
+    const nonGlobalEnvs = this.aggregateEnvsWithValue.value.filter(
+      (e) => e.sourceEnv !== "Global"
+    )
+    const globalEnvs = this.aggregateEnvsWithValue.value.filter(
+      (e) => e.sourceEnv === "Global"
+    )
     const environmentVariables = [
       ...requestVariables,
+      ...tempVariables,
       ...collectionVariables,
-      ...this.aggregateEnvsWithValue.value,
+      ...nonGlobalEnvs,
+      ...globalEnvs,
     ]
     const envKeysSet = new Set(environmentVariables.map((e) => e.key))
 
@@ -239,36 +258,55 @@ export class EnvironmentInspectorService extends Service implements Inspector {
               )
             : []
 
-        // Merge all variables
+        const tempVariables = temporaryVariables.value
+          .filter((v) => Boolean(v.key))
+          .map((v) => ({
+            key: v.key,
+            currentValue: v.secret ? "******" : (v.currentValue ?? ""),
+            initialValue: v.secret ? "******" : (v.initialValue ?? ""),
+            sourceEnv: "Temporary",
+            secret: v.secret ?? false,
+          }))
+
+        // Priority: request → temporary → collection → selected env → global
+        const nonGlobalEnvs = this.aggregateEnvsWithValue.value.filter(
+          (e) => e.sourceEnv !== "Global"
+        )
+        const globalEnvs = this.aggregateEnvsWithValue.value.filter(
+          (e) => e.sourceEnv === "Global"
+        )
         const environmentVariables = this.filterNonEmptyEnvironmentVariables([
           ...requestVariables,
+          ...tempVariables,
           ...collectionVariables,
-          ...this.aggregateEnvsWithValue.value,
+          ...nonGlobalEnvs,
+          ...globalEnvs,
         ])
 
         // Check each variable for missing values
         environmentVariables.forEach((env) => {
-          const sourceEnvID =
-            env.sourceEnv === "Global"
-              ? "Global"
-              : env.sourceEnv === "CollectionVariable"
-                ? env.sourceEnvID!
-                : currentSelectedEnvironment.id
+          let sourceEnvID = currentSelectedEnvironment.id
+          if (env.sourceEnv === "Global") sourceEnvID = "Global"
+          else if (env.sourceEnv === "CollectionVariable")
+            sourceEnvID = env.sourceEnvID!
+          else if (env.sourceEnv === "Temporary") sourceEnvID = "Temporary"
 
-          const hasSecretEnv = this.secretEnvs.hasSecretValue(
-            sourceEnvID,
-            env.key
-          )
+          const hasSecretEnv =
+            env.sourceEnv === "Temporary"
+              ? env.currentValue !== "" || env.initialValue !== ""
+              : this.secretEnvs.hasSecretValue(sourceEnvID, env.key)
 
           const hasValue =
-            this.currentEnvs.hasValue(
-              env.sourceEnv !== "Global"
-                ? currentSelectedEnvironment.id
-                : "Global",
-              env.key
-            ) ||
-            env.currentValue !== "" ||
-            env.initialValue !== ""
+            env.sourceEnv === "Temporary"
+              ? env.currentValue !== "" || env.initialValue !== ""
+              : this.currentEnvs.hasValue(
+                  env.sourceEnv !== "Global"
+                    ? currentSelectedEnvironment.id
+                    : "Global",
+                  env.key
+                ) ||
+                env.currentValue !== "" ||
+                env.initialValue !== ""
 
           if (env.key !== formattedExEnv) return
 
@@ -328,7 +366,9 @@ export class EnvironmentInspectorService extends Service implements Inspector {
                     })
                   }
                 },
-                showAction: env.sourceEnv !== "CollectionVariable", // skip collection vars for now
+                showAction:
+                  env.sourceEnv !== "CollectionVariable" &&
+                  env.sourceEnv !== "Temporary", // skip collection + temporary vars for now
               },
               severity: 2,
               isApplicable: true,

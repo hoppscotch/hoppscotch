@@ -1,5 +1,5 @@
 <template>
-  <AppPaneLayout layout-id="gql-primary">
+  <AppPaneLayout layout-id="gql-primary" :tab-id="tab.id">
     <template #primary>
       <GraphqlRequestOptions
         v-model="tab.document.request"

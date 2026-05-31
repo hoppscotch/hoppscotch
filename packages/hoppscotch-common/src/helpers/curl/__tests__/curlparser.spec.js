@@ -1104,6 +1104,32 @@ data2: {"type":"test2","typeId":"123"}`,
       responses: {},
     }),
   },
+  {
+    command: `curl https://example.com --data=$'{"a": 1}' -H=$'Content-Type: application/json'`,
+    response: makeRESTRequest({
+      method: "POST",
+      name: "Untitled",
+      endpoint: "https://example.com/",
+      auth: { authType: "inherit", authActive: true },
+      body: {
+        contentType: "application/json",
+        body: `{\n  "a": 1\n}`,
+      },
+      headers: [
+        {
+          active: true,
+          key: "Content-Type",
+          value: "application/json",
+          description: "",
+        },
+      ],
+      params: [],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+    }),
+  },
 ]
 
 describe("Parse curl command to Hopp REST Request", () => {

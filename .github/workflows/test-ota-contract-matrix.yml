@@ -239,7 +239,13 @@ jobs:
           while IFS= read -r task_line; do
             task_name="$(jq -r '.name' <<<"$task_line")"
             echo ">>> [native exec] ${task_name}"
-            ota run --native --stream "$task_name" .
+            if ! timeout --preserve-status 25m ota run --native --stream "$task_name" .; then
+              status=$?
+              if [ "$status" -eq 124 ]; then
+                echo "native execution task timed out after 25m: ${task_name}"
+              fi
+              exit "$status"
+            fi
           done < ota-non-internal-native-exec.jsonl
 
       - name: Dry-run all non-internal tasks (container coverage lane)
@@ -308,7 +314,13 @@ jobs:
           while IFS= read -r task_line; do
             task_name="$(jq -r '.name' <<<"$task_line")"
             echo ">>> [container exec] ${task_name}"
-            ota run --container --stream "$task_name" .
+            if ! timeout --preserve-status 25m ota run --container --stream "$task_name" .; then
+              status=$?
+              if [ "$status" -eq 124 ]; then
+                echo "container execution task timed out after 25m: ${task_name}"
+              fi
+              exit "$status"
+            fi
           done < ota-non-internal-container-exec.jsonl
 
       - name: Proof selfhost workflow

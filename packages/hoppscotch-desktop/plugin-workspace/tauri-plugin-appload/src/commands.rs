@@ -210,6 +210,19 @@ pub async fn load<R: Runtime>(app: AppHandle<R>, options: LoadOptions) -> Result
             }
         };
 
+    // Apply the caller-supplied zoom before the first paint. The WebView is
+    // attached but no content has rendered yet, so a 150% zoom lands without
+    // the user seeing a 100% flash. A post-mount setZoom from the bundle's
+    // own JS would otherwise race the first paint and produce a visible
+    // jump. Failures here are logged and ignored, since the bundle's own
+    // watcher (in `hoppscotch-common`'s `useDesktopZoomEffect`) re-applies
+    // the value after mount and degrades the failure to today's behavior.
+    if let Some(zoom) = options.window.zoom_level {
+        if let Err(e) = window.set_zoom(zoom) {
+            tracing::warn!(?e, zoom, ?label, "set_zoom on new webview failed");
+        }
+    }
+
     #[cfg(target_os = "macos")]
     {
         let window_clone = window.clone();

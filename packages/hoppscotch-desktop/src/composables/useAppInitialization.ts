@@ -11,6 +11,7 @@ import type {
   ConnectionState,
 } from "@hoppscotch/common/platform/instance"
 import { VENDORED_INSTANCE_CONFIG } from "@hoppscotch/common/platform/instance"
+import { useDesktopSettings } from "@hoppscotch/common/composables/desktop-settings"
 
 // simple diag logger for the main window (runs before kernel log module is available)
 function mainDiag(msg: string) {
@@ -37,6 +38,16 @@ export enum AppState {
 export function useAppInitialization() {
   const persistence = DesktopPersistenceService.getInstance()
   const migration = InstanceStoreMigrationService.getInstance()
+
+  // Shared with the launcher's own zoom watcher (`useDesktopZoomEffect`).
+  // Each `load()` call below awaits `desktopSettings.ready()` before
+  // reading `zoomLevel`, so the appload Rust-side pre-mount apply gets
+  // the persisted value rather than the schema default on a fast
+  // cold-start click. Without the gate, a user who clicks Connect
+  // before the store read resolves would forward 1.0 to appload and
+  // see the bundled app paint at 100% even though their setting was
+  // 110, 125, or 150.
+  const desktopSettings = useDesktopSettings()
 
   const appState = ref<AppState>(AppState.LOADING)
   const error = ref("")
@@ -77,9 +88,17 @@ export function useAppInitialization() {
       mainDiag("loadVendoredInstance: calling load(bundleName=Hoppscotch)")
       console.log("Loading vendored app...")
 
+      // Wait for the store read before forwarding `zoomLevel`, so the
+      // appload Rust-side pre-mount apply gets the persisted value
+      // rather than the schema default on a fast cold-start click.
+      await desktopSettings.ready()
+
       const loadResp = await load({
         bundleName: VENDORED_INSTANCE_CONFIG.bundleName!,
-        window: { title: "Hoppscotch" },
+        window: {
+          title: "Hoppscotch",
+          zoomLevel: desktopSettings.settings.zoomLevel,
+        },
       })
 
       mainDiag(
@@ -140,10 +159,14 @@ export function useAppInitialization() {
         mainDiag(
           `loadVendoredIfMatches: loading cloud-org instance, bundle=${instance.bundleName}, host=${instance.serverUrl}`
         )
+        await desktopSettings.ready()
         const loadResp = await load({
           bundleName: instance.bundleName!,
           host: instance.serverUrl,
-          window: { title: "Hoppscotch" },
+          window: {
+            title: "Hoppscotch",
+            zoomLevel: desktopSettings.settings.zoomLevel,
+          },
         })
 
         mainDiag(
@@ -196,9 +219,13 @@ export function useAppInitialization() {
         mainDiag(
           `loadVendoredIfMatches: loading non-vendored instance, bundle=${instance.bundleName}`
         )
+        await desktopSettings.ready()
         const loadResp = await load({
           bundleName: instance.bundleName!,
-          window: { title: "Hoppscotch" },
+          window: {
+            title: "Hoppscotch",
+            zoomLevel: desktopSettings.settings.zoomLevel,
+          },
         })
 
         mainDiag(

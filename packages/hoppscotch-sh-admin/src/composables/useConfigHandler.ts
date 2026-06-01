@@ -27,6 +27,7 @@ import {
   MAIL_CONFIGS,
   MICROSOFT_CONFIGS,
   MOCK_SERVER_CONFIGS,
+  PROXY_URL_CONFIGS,
   ServerConfigs,
   TOKEN_VALIDATION_CONFIGS,
   UpdatedConfigs,
@@ -212,6 +213,12 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
           ),
         },
       },
+      proxyUrlConfigs: {
+        name: 'proxy_app_url',
+        fields: {
+          proxy_app_url: getFieldValue(InfraConfigEnum.ProxyAppUrl),
+        },
+      },
     };
 
     // Cloning the current configs to working configs
@@ -286,6 +293,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       config.mailConfigs,
       config.rateLimitConfigs,
       config.tokenConfigs,
+      config.proxyUrlConfigs,
     ];
 
     const hasSectionWithEmptyFields = sections.some((section) => {
@@ -335,6 +343,10 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       // and not empty strings
       if (section.name === 'rate_limit')
         return Object.values(section.fields).some(isNotValidNumber);
+
+      // Proxy URL section has no enabled toggle; ensure it isn't left empty
+      if (section.name === 'proxy_app_url')
+        return Object.values(section.fields).some(isFieldEmpty);
 
       return (
         section.enabled && Object.values(section.fields).some(isFieldEmpty)
@@ -417,6 +429,11 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
         enabled: true,
         fields: updatedConfigs?.mockServerConfigs?.fields ?? {},
       },
+      {
+        config: PROXY_URL_CONFIGS,
+        enabled: true,
+        fields: updatedConfigs?.proxyUrlConfigs?.fields,
+      },
     ];
 
     const transformedConfigs: UpdatedConfigs[] = [];
@@ -429,6 +446,10 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
         else if (enabled && fields) {
           const value =
             typeof fields === 'string' ? fields : String(fields[key]);
+          // BE rejects empty PROXY_APP_URL and would fail the whole batch.
+          // The form-level guard already blocks the save, but skip here too
+          // so a stray empty value can't blackhole unrelated settings.
+          if (name === InfraConfigEnum.ProxyAppUrl && !value.trim()) return;
           transformedConfigs.push({ name, value });
         }
       });

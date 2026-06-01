@@ -5,11 +5,14 @@ import { InfraConfigEnum } from 'src/types/InfraConfig';
 import { SMTPAuthType } from 'src/mailer/helper';
 import { decrypt, encrypt } from 'src/utils';
 import { randomBytes } from 'crypto';
+import { InfraConfig } from 'src/generated/prisma/client';
 
 export enum ServiceStatus {
   ENABLE = 'ENABLE',
   DISABLE = 'DISABLE',
 }
+
+const SYNC_ONLY_VARIABLES = [InfraConfigEnum.PROXY_APP_URL];
 
 type DefaultInfraConfig = {
   name: InfraConfigEnum;
@@ -345,6 +348,11 @@ export async function getDefaultInfraConfigs(): Promise<DefaultInfraConfig[]> {
       isEncrypted: false,
     },
     {
+      name: InfraConfigEnum.PROXY_APP_URL,
+      value: process.env.PROXY_APP_URL || 'https://proxy.hoppscotch.io',
+      isEncrypted: false,
+    },
+    {
       name: InfraConfigEnum.ALLOW_ANALYTICS_COLLECTION,
       value: false.toString(),
       isEncrypted: false,
@@ -411,6 +419,54 @@ export async function getEncryptionRequiredInfraConfigEntries(
   });
 
   return requiredEncryption;
+}
+
+/**
+ * Sync the 'infra_config' table with .env file
+ * @returns Array of InfraConfig
+ */
+export async function syncInfraConfigWithEnvFile() {
+  const prisma = getSharedPrismaInstance();
+  const dbInfraConfigs = await prisma.infraConfig.findMany({
+    where: { name: { in: SYNC_ONLY_VARIABLES } },
+  });
+
+  const updateRequiredObjs: (Partial<InfraConfig> & { id: string })[] = [];
+
+  for (const dbConfig of dbInfraConfigs) {
+    const envValue = process.env[dbConfig.name];
+
+    // If the env var is unset, leave the admin-set DB value alone. Otherwise
+    // an admin's later override would be wiped on every restart.
+    if (envValue === undefined) continue;
+
+    // lastSyncedEnvFileValue null check for backward compatibility from 2024.10.2 and below
+    if (!dbConfig.lastSyncedEnvFileValue) {
+      const configValue = dbConfig.isEncrypted ? encrypt(envValue) : envValue;
+      updateRequiredObjs.push({
+        id: dbConfig.id,
+        value: dbConfig.value === null ? configValue : undefined,
+        lastSyncedEnvFileValue: configValue,
+      });
+      continue;
+    }
+
+    // If the value in the database is different from the value in the .env file, means the value in the .env file has been updated
+    const rawLastSyncedEnvFileValue = dbConfig.isEncrypted
+      ? decrypt(dbConfig.lastSyncedEnvFileValue)
+      : dbConfig.lastSyncedEnvFileValue;
+
+    if (rawLastSyncedEnvFileValue !== envValue) {
+      const configValue = dbConfig.isEncrypted ? encrypt(envValue) : envValue;
+      updateRequiredObjs.push({
+        id: dbConfig.id,
+        value: configValue,
+        lastSyncedEnvFileValue: configValue,
+      });
+    }
+  }
+
+  return updateRequiredObjs;
 }
 
 /**

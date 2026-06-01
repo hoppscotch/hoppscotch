@@ -1028,6 +1028,9 @@ data2: {"type":"test2","typeId":"123"}`,
       responses: {},
     }),
   },
+  // Test case with unencoded RFC 3986 legal query chars (*, ~, !, $, [, ])
+  // and checks that '$' at the end of tag=~hello!$ is NOT stripped by the preprocessor.
+  // This guards against the regression where the naive S.replace(/\$'/g, "'") would strip it.
   {
     command: `curl 'https://echo.hoppscotch.io/api?bi=1440*2976&nested[a]=b&tag=~hello!$'`,
     response: makeRESTRequest({
@@ -1104,6 +1107,9 @@ data2: {"type":"test2","typeId":"123"}`,
       responses: {},
     }),
   },
+  // Test case that ensures bash ANSI-C dollar-single-quote quoting format ( $'...' )
+  // is successfully stripped even when it follows an equal sign (=).
+  // Under the new regex, the equal sign boundary is correctly matched and preserved.
   {
     command: `curl https://example.com --data=$'{"a": 1}' -H=$'Content-Type: application/json'`,
     response: makeRESTRequest({

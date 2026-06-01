@@ -313,12 +313,12 @@ jobs:
 
       - name: Proof selfhost workflow
         if: ${{ matrix.full_proof }}
-        timeout-minutes: 120
+        timeout-minutes: 35
         shell: bash
         run: |
           ota clean . || true
           set +e
-          ota proof runtime --workflow selfhost --json . > ota-proof-selfhost.json
+          ota proof runtime --workflow selfhost --ready-timeout 20m --json . > ota-proof-selfhost.json
           status=$?
           cat ota-proof-selfhost.json
           if [ "$status" -eq 0 ]; then

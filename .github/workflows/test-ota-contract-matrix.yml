@@ -10,7 +10,7 @@ on:
       ota_ref:
         description: Ota branch, tag, or commit to build for this matrix run
         required: false
-        default: main
+        default: v1.6.18
   pull_request:
     paths:
       - 'ota.yaml'
@@ -74,7 +74,7 @@ jobs:
         uses: ota-run/ota/.github/actions/install-ota-from-source@v1.6.18
         with:
           repository: ${{ github.event.inputs.ota_repository || 'ota-run/ota' }}
-          ref: ${{ github.event.inputs.ota_ref || 'main' }}
+          ref: ${{ github.event.inputs.ota_ref || 'v1.6.18' }}
 
       - name: Validate contract
         shell: bash

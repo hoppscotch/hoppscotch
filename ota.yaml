@@ -1,4 +1,7 @@
 version: 1
+metadata:
+  ota:
+    minimum_version: "1.6.18"
 project:
   name: hoppscotch
   description: Hoppscotch readiness slice covering the documented self-host Docker stack and the root pnpm verification workflow; desktop, relay, agent, and release workflows remain out of scope
@@ -424,8 +427,8 @@ agent:
   bootstrap:
     ota:
       note: Install ota when missing so contributors and agents can run the declared readiness workflows in this contract.
-      sh: curl -fsSL https://dist.ota.run/install.sh | OTA_VERSION=v1.6.15 sh
-      powershell: $env:OTA_VERSION='v1.6.15'; irm https://dist.ota.run/install.ps1 | iex
+      sh: curl -fsSL https://dist.ota.run/install.sh | OTA_VERSION=v1.6.18 sh
+      powershell: $env:OTA_VERSION='v1.6.18'; irm https://dist.ota.run/install.ps1 | iex
   notes: |
     Use `ota tasks --use .` to list runnable tasks and review the agent-safe surface before execution.
     Use `ota run setup:env .` before self-host workflows so `.env` is created from `.env.example`

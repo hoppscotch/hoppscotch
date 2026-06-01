@@ -234,7 +234,7 @@ jobs:
                   end
                 )
               }
-            | select(.supports_native and (.category != "dev"))
+            | select(.supports_native and (.category != "dev") and (.category != "test"))
           ' ota-tasks-all.json > ota-non-internal-native-exec.jsonl
           while IFS= read -r task_line; do
             task_name="$(jq -r '.name' <<<"$task_line")"
@@ -309,7 +309,7 @@ jobs:
                   end
                 )
               }
-            | select(.supports_container and (.category != "dev"))
+            | select(.supports_container and (.category != "dev") and (.category != "test"))
           ' ota-tasks-all.json > ota-non-internal-container-exec.jsonl
           while IFS= read -r task_line; do
             task_name="$(jq -r '.name' <<<"$task_line")"

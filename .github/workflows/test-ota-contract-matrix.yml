@@ -34,7 +34,7 @@ jobs:
   native:
     name: Ota Contract Matrix (Cross-OS + Ubuntu Runtime - ${{ matrix.name }})
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 90
+    timeout-minutes: 210
     strategy:
       fail-fast: false
       matrix:
@@ -213,6 +213,35 @@ jobs:
             fi
           done < ota-non-internal-native.jsonl
 
+      - name: Execute non-internal non-runtime tasks (native coverage lane)
+        if: ${{ matrix.full_proof }}
+        timeout-minutes: 150
+        shell: bash
+        run: |
+          set -euo pipefail
+          ota tasks --json . > ota-tasks-all.json
+          jq -c '
+            .tasks[]
+            | select((.internal // false) == false)
+            | {
+                name: .name,
+                category: (.category // ""),
+                supports_native: (
+                  if (.modes | type) == "array" then
+                    any(.modes[]?; .mode == "native")
+                  else
+                    ((.default_mode // "native") == "native")
+                  end
+                )
+              }
+            | select(.supports_native and (.category != "dev"))
+          ' ota-tasks-all.json > ota-non-internal-native-exec.jsonl
+          while IFS= read -r task_line; do
+            task_name="$(jq -r '.name' <<<"$task_line")"
+            echo ">>> [native exec] ${task_name}"
+            ota run --native --stream "$task_name" .
+          done < ota-non-internal-native-exec.jsonl
+
       - name: Dry-run all non-internal tasks (container coverage lane)
         if: ${{ matrix.full_proof }}
         timeout-minutes: 120
@@ -252,6 +281,35 @@ jobs:
               ota run --container --dry-run --json "$task_name" .
             fi
           done < ota-non-internal-container.jsonl
+
+      - name: Execute non-internal non-runtime tasks (container coverage lane)
+        if: ${{ matrix.full_proof }}
+        timeout-minutes: 180
+        shell: bash
+        run: |
+          set -euo pipefail
+          ota tasks --json . > ota-tasks-all.json
+          jq -c '
+            .tasks[]
+            | select((.internal // false) == false)
+            | {
+                name: .name,
+                category: (.category // ""),
+                supports_container: (
+                  if (.modes | type) == "array" then
+                    any(.modes[]?; .mode == "container")
+                  else
+                    ((.default_mode // "native") == "container")
+                  end
+                )
+              }
+            | select(.supports_container and (.category != "dev"))
+          ' ota-tasks-all.json > ota-non-internal-container-exec.jsonl
+          while IFS= read -r task_line; do
+            task_name="$(jq -r '.name' <<<"$task_line")"
+            echo ">>> [container exec] ${task_name}"
+            ota run --container --stream "$task_name" .
+          done < ota-non-internal-container-exec.jsonl
 
       - name: Proof selfhost workflow
         if: ${{ matrix.full_proof }}

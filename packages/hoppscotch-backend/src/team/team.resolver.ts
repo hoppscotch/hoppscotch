@@ -130,7 +130,7 @@ export class TeamResolver {
     })
     take?: number,
   ): Promise<Team[]> {
-    return this.teamService.getTeamsOfUser(user.uid, cursor ?? null, take);
+    return this.teamService.getTeamsOfUser(user.uid, cursor ?? null, take ?? 10);
   }
 
   @Query(() => Team, {

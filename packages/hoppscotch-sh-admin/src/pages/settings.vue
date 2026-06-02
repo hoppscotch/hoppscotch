@@ -18,11 +18,19 @@
 
   <div v-else-if="workingConfigs" class="flex flex-col py-8">
     <HoppSmartTabs v-model="selectedOptionTab" render-inactive-tabs>
-      <HoppSmartTab id="auth" :label="t('configs.tabs.auth')">
+      <HoppSmartTab
+        id="auth"
+        :label="t('configs.tabs.auth')"
+        :indicator="tabHasError('auth')"
+      >
         <SettingsAuthConfigurations v-model:config="workingConfigs" />
       </HoppSmartTab>
 
-      <HoppSmartTab id="smtp" :label="t('configs.tabs.smtp')">
+      <HoppSmartTab
+        id="smtp"
+        :label="t('configs.tabs.smtp')"
+        :indicator="tabHasError('smtp')"
+      >
         <div class="pb-8 px-4 flex flex-col space-y-8 divide-y divide-divider">
           <SettingsSmtpConfiguration v-model:config="workingConfigs" />
         </div>
@@ -31,13 +39,21 @@
       <HoppSmartTab :id="'token'" :label="t('configs.tabs.infra_tokens')">
         <Tokens />
       </HoppSmartTab>
-      <HoppSmartTab id="proxy" :label="t('configs.tabs.proxy')">
+      <HoppSmartTab
+        id="proxy"
+        :label="t('configs.tabs.proxy')"
+        :indicator="tabHasError('proxy')"
+      >
         <SettingsProxyURLConfiguration
           class="pb-8 px-4"
           v-model:config="workingConfigs"
         />
       </HoppSmartTab>
-      <HoppSmartTab :id="'rate-limit'" :label="t('configs.tabs.rate_limit')">
+      <HoppSmartTab
+        :id="'rate-limit'"
+        :label="t('configs.tabs.rate_limit')"
+        :indicator="tabHasError('rate-limit')"
+      >
         <SettingsRateLimit v-model:config="workingConfigs" />
       </HoppSmartTab>
       <HoppSmartTab id="miscellaneous" :label="t('configs.tabs.miscellaneous')">
@@ -75,11 +91,18 @@
 
 <script setup lang="ts">
 import { isEqual } from 'lodash-es';
-import { computed, ref } from 'vue';
+import { computed, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
 import { useConfigHandler } from '~/composables/useConfigHandler';
-import { hasInputValidationFailed } from '~/helpers/configs';
+import {
+  ConfigTab,
+  configEdited,
+  configValidationIssues,
+  getConfigValidationIssues,
+  hasGuardIssue,
+  tabHasConfigIssue,
+} from '~/helpers/configs';
 
 const t = useI18n();
 const toast = useToast();
@@ -107,8 +130,6 @@ const {
   infraConfigsError,
   fetchingAllowedAuthProviders,
   allowedAuthProvidersError,
-  AreAnyConfigFieldsEmpty,
-  hasPartialSmtpCredentials,
 } = useConfigHandler();
 
 // Check if the configs have been updated
@@ -118,32 +139,107 @@ const isConfigUpdated = computed(() =>
     : false,
 );
 
-// Check if any of the fields in workingConfigs are empty
-const areAnyFieldsEmpty = computed(() =>
-  workingConfigs.value ? AreAnyConfigFieldsEmpty(workingConfigs.value) : false,
+// Gates the field-border surface so borders appear while typing, not on load.
+watch(isConfigUpdated, (edited) => (configEdited.value = edited), {
+  immediate: true,
+});
+
+// The shared refs in helpers/configs live at module scope, so reset them
+// on unmount — otherwise a quick navigate-away-and-back briefly shows stale
+// borders/dots before the immediate watchers above re-fire.
+onUnmounted(() => {
+  configEdited.value = false;
+  configValidationIssues.value = [];
+});
+
+// Keep the issue list live so borders, tab dots, and guards all see the latest.
+watch(
+  workingConfigs,
+  (configs) => {
+    configValidationIssues.value = configs
+      ? getConfigValidationIssues(configs)
+      : [];
+  },
+  { deep: true, immediate: true },
 );
 
+const blockedByEmptyField = computed(() =>
+  hasGuardIssue(configValidationIssues.value, 'required'),
+);
+const blockedByPartialSmtp = computed(() =>
+  hasGuardIssue(configValidationIssues.value, 'smtp-pair'),
+);
+const blockedByInvalidInput = computed(() =>
+  hasGuardIssue(configValidationIssues.value, 'format'),
+);
+
+// Proactive — shows even before any edit so hidden blockers stay visible.
+const tabHasError = (tab: ConfigTab) =>
+  tabHasConfigIssue(configValidationIssues.value, tab);
+
+// Names the offending fields in the console for support cross-reference.
+const logConfigValidationIssues = () => {
+  const issues = configValidationIssues.value;
+  if (!issues.length) return;
+
+  const rows = issues.map((issue) => ({
+    tab: issue.subTab ? `${issue.tab} › ${issue.subTab}` : issue.tab,
+    field: issue.fieldKey,
+    envVar: issue.envVar,
+    issue: issue.kind,
+  }));
+
+  // eslint-disable-next-line no-console
+  console.warn(
+    `[Hoppscotch Admin] Save blocked — ${issues.length} configuration field(s) need attention:`,
+  );
+  // eslint-disable-next-line no-console
+  console.table(rows);
+};
+
 const triggerSaveChangesModal = () => {
-  if (areAnyFieldsEmpty.value) {
+  if (
+    blockedByEmptyField.value ||
+    blockedByPartialSmtp.value ||
+    blockedByInvalidInput.value
+  ) {
+    logConfigValidationIssues();
+  }
+
+  if (blockedByEmptyField.value) {
     return toast.error(t('configs.input_empty'));
   }
 
-  if (workingConfigs.value && hasPartialSmtpCredentials(workingConfigs.value)) {
+  if (blockedByPartialSmtp.value) {
     return toast.error(t('configs.mail_configs.smtp_auth_incomplete'));
   }
 
   // Check if any of the input validations have failed
-  if (Object.values(hasInputValidationFailed.value).some(Boolean)) {
+  if (blockedByInvalidInput.value) {
     return toast.error(t('configs.input_validation_error'));
   }
   showSaveChangesModal.value = true;
 };
 
 const restartServer = () => {
-  if (areAnyFieldsEmpty.value) {
+  if (blockedByEmptyField.value) {
+    logConfigValidationIssues();
     return toast.error(t('configs.input_empty'));
   }
   initiateServerRestart.value = true;
   showSaveChangesModal.value = false;
 };
 </script>
+
+<style scoped>
+/* The shared HoppSmartTab indicator dot defaults to the accent color.
+   Recolor it to a red error dot in this settings context so a tab with a
+   blocking field reads as an error rather than generic "new" activity.
+
+   This depends on @hoppscotch/ui's internal class names for the indicator
+   span; if those change in a future upgrade the override silently no-ops
+   and the dot falls back to accent (still functional, just not red). */
+:deep(.h-1.w-1.rounded-full.bg-accentLight) {
+  background-color: rgb(239 68 68);
+}
+</style>

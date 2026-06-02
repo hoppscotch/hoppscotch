@@ -33,6 +33,11 @@
                   placeholder="e.g., 60 (in seconds)"
                   :autofocus="false"
                   class="!my-2 !bg-primaryLight flex-1"
+                  :input-styles="
+                    isConfigFieldErrored('rate_limit', 'rate_limit_ttl')
+                      ? '!border-red-500'
+                      : ''
+                  "
                   @update:model-value="
                     validateNumberValue(rateLimitConfig.fields.rate_limit_ttl)
                   "
@@ -45,6 +50,11 @@
                   placeholder="e.g., 100 (requests per TTL)"
                   :autofocus="false"
                   class="!my-2 !bg-primaryLight flex-1"
+                  :input-styles="
+                    isConfigFieldErrored('rate_limit', 'rate_limit_max')
+                      ? '!border-red-500'
+                      : ''
+                  "
                   @update:model-value="
                     validateNumberValue(rateLimitConfig.fields.rate_limit_max)
                   "
@@ -63,7 +73,7 @@ import { useVModel } from '@vueuse/core';
 import { computed } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
-import { ServerConfigs } from '~/helpers/configs';
+import { isConfigFieldErrored, ServerConfigs } from '~/helpers/configs';
 import IconHelpCircle from '~icons/lucide/help-circle';
 
 const t = useI18n();

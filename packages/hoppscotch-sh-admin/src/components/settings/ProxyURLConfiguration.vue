@@ -19,6 +19,11 @@
             :placeholder="t('configs.proxy_url_configs.url_placeholder')"
             :autofocus="false"
             class="!my-2 !bg-primaryLight w-full max-w-xs"
+            :input-styles="
+              isConfigFieldErrored('proxy', 'proxy_app_url')
+                ? '!border-red-500'
+                : ''
+            "
           />
 
           <HoppButtonSecondary
@@ -46,10 +51,10 @@
 
 <script setup lang="ts">
 import { useVModel } from '@vueuse/core';
-import { computed, watch } from 'vue';
+import { computed } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import {
-  hasInputValidationFailed,
+  isConfigFieldErrored,
   isValidProxyUrl,
   ServerConfigs,
 } from '~/helpers/configs';
@@ -76,11 +81,8 @@ const proxyConfigs = computed({
   },
 });
 
-// Input Validation — uses the shared regex helper so the UI accepts exactly
-// what the backend's validateUrl will (and what the kernel store will persist).
-// Empty is also flagged here so the inline error banner appears in-context,
-// matching the app-side Proxy.vue behavior. AreAnyConfigFieldsEmpty still
-// blocks save for empty, but this gives the user a visible field-level signal.
+// Drives the inline banner. Border + save guard read from
+// getConfigValidationIssues (helpers/configs), same rule.
 const fieldErrors = computed(() => {
   const errors: Record<string, boolean> = {};
 
@@ -93,16 +95,4 @@ const fieldErrors = computed(() => {
 const getFieldError = (
   fieldKey: keyof ServerConfigs['proxyUrlConfigs']['fields'],
 ) => fieldErrors.value[fieldKey];
-
-// `immediate: true` so a pre-existing invalid stored value (e.g. junk left
-// over from earlier flows) flags the global save guard on mount, not just
-// after the user re-types the field.
-watch(
-  fieldErrors,
-  (errors) => {
-    hasInputValidationFailed.value.proxyUrl =
-      Object.values(errors).some(Boolean);
-  },
-  { immediate: true },
-);
 </script>

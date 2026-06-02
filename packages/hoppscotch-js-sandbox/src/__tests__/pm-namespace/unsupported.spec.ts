@@ -2,19 +2,10 @@ import { describe, expect, test } from "vitest"
 import { runTest, runPreRequest } from "~/utils/test-helpers"
 
 // APIs that still throw — Group 7 (pm.vault, pm.require) not yet implemented this sprint
+// Note: pm.info.iteration and pm.info.iterationCount were moved out of this list because
+// they now read the __hopp_current_iteration__ / __hopp_iteration_count__ sentinels
+// (mirrors pm.execution.iteration / pm.execution.iterationCount) instead of throwing.
 const unsupportedApis = [
-  {
-    api: "pm.info.iteration",
-    script: "const iteration = pm.info.iteration",
-    errorMessage:
-      "pm.info.iteration is not supported in Hoppscotch (Collection Runner feature)",
-  },
-  {
-    api: "pm.info.iterationCount",
-    script: "const iterationCount = pm.info.iterationCount",
-    errorMessage:
-      "pm.info.iterationCount is not supported in Hoppscotch (Collection Runner feature)",
-  },
   {
     api: "pm.vault.get()",
     script: 'pm.vault.get("test")',
@@ -111,3 +102,55 @@ describe("pm.execution — graceful degradation (PM005, PM006)", () => {
     return expect(runPreRequest(`pm.execution.runRequest("some-request-id")`, { global: [], selected: [] })()).resolves.not.toEqualLeft(expect.anything())
   })
 })
+
+// Group 8 — pm.info.iterationCount reads sentinel (mirrors pm.execution.iterationCount)
+describe("pm.info.iterationCount — reads __hopp_iteration_count__ sentinel", () => {
+  test("pm.info.iterationCount does not throw in test script (no sentinel → defaults to 1)", async () => {
+    expect(
+      await runTest(`pm.info.iterationCount`, { global: [], selected: [] })()
+    ).not.toEqualLeft(expect.anything())
+  })
+
+  test("pm.info.iterationCount does not throw in pre-request script (no sentinel → defaults to 1)", () => {
+    return expect(
+      runPreRequest(`pm.info.iterationCount`, { global: [], selected: [] })()
+    ).resolves.not.toEqualLeft(expect.anything())
+  })
+
+  test("pm.info.iterationCount returns injected sentinel value in test script", async () => {
+    const result = await runTest(
+      `pm.test("iterationCount", () => pm.expect(pm.info.iterationCount).to.eql(5))`,
+      {
+        global: [{ key: "__hopp_iteration_count__", currentValue: "5", initialValue: "5", secret: false }],
+        selected: [],
+      }
+    )()
+    // Must not be a Left (script execution error)
+    expect(result).not.toEqualLeft(expect.anything())
+    // The pm.test("iterationCount") assertion must have status "pass"
+    expect(result).toEqualRight([
+      expect.objectContaining({
+        descriptor: "root",
+        children: [
+          expect.objectContaining({
+            descriptor: "iterationCount",
+            expectResults: [expect.objectContaining({ status: "pass" })],
+          }),
+        ],
+      }),
+    ])
+  })
+
+  test("pm.info.iterationCount returns injected sentinel value in pre-request script", () => {
+    return expect(
+      runPreRequest(
+        `if (pm.info.iterationCount !== 3) throw new Error("expected 3, got " + pm.info.iterationCount)`,
+        {
+          global: [{ key: "__hopp_iteration_count__", currentValue: "3", initialValue: "3", secret: false }],
+          selected: [],
+        }
+      )()
+    ).resolves.not.toEqualLeft(expect.anything())
+  })
+})
+

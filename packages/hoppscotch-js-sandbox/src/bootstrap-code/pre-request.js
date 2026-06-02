@@ -1469,9 +1469,11 @@
         return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0
       },
       get iterationCount() {
-        throw new Error(
-          "pm.info.iterationCount is not supported in Hoppscotch (Collection Runner feature)"
-        )
+        // Read the total iteration count injected by the runner via the
+        // "__hopp_iteration_count__" sentinel — mirrors pm.execution.iterationCount.
+        const raw = globalThis.pm.variables.get("__hopp_iteration_count__")
+        const parsed = raw !== undefined && raw !== null ? parseInt(raw, 10) : NaN
+        return Number.isFinite(parsed) && parsed >= 1 ? parsed : 1
       },
     },
 

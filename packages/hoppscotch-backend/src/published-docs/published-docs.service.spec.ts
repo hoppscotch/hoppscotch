@@ -1217,6 +1217,30 @@ describe('getPublishedDocBySlugPublic - access revocation', () => {
     ).not.toHaveBeenCalled();
   });
 
+  test('should return PUBLISHED_DOCS_NOT_FOUND when user account is deleted and no snapshot exists', async () => {
+    const docNoSnapshot = {
+      ...userPublishedDoc,
+      autoSync: true,
+      documentTree: null,
+    };
+
+    mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([
+      docNoSnapshot,
+    ] as any);
+    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(docNoSnapshot);
+    mockPrisma.user.findUnique.mockResolvedValueOnce(null);
+
+    const result = await publishedDocsService.getPublishedDocBySlugPublic(
+      userPublishedDoc.slug,
+      userPublishedDoc.version,
+    );
+
+    expect(result).toEqualLeft(PUBLISHED_DOCS_NOT_FOUND);
+    expect(
+      mockUserCollectionService.exportUserCollectionToJSONObject,
+    ).not.toHaveBeenCalled();
+  });
+
   test('should fetch live data when user account still exists', async () => {
     const collectionData = { id: 'collection_1', folders: [], requests: [] };
 
@@ -1263,6 +1287,7 @@ describe('getPublishedDocBySlugPublic', () => {
         autoSync: userPublishedDoc.autoSync,
       },
     ] as any);
+    mockPrisma.user.findUnique.mockResolvedValueOnce({ uid: user.uid } as any);
     mockUserCollectionService.exportUserCollectionToJSONObject.mockResolvedValueOnce(
       E.right(collectionData as any),
     );
@@ -1926,6 +1951,7 @@ describe('getPublishedDocBySlugPublic - environment support', () => {
       docWithEnv,
     ] as any);
     mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(docWithEnv);
+    mockPrisma.user.findUnique.mockResolvedValueOnce({ uid: user.uid } as any);
     mockUserCollectionService.exportUserCollectionToJSONObject.mockResolvedValueOnce(
       E.right(collectionData as any),
     );
@@ -1990,6 +2016,7 @@ describe('getPublishedDocBySlugPublic - environment support', () => {
       userPublishedDoc,
     ] as any);
     mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(userPublishedDoc);
+    mockPrisma.user.findUnique.mockResolvedValueOnce({ uid: user.uid } as any);
     mockUserCollectionService.exportUserCollectionToJSONObject.mockResolvedValueOnce(
       E.right(collectionData as any),
     );
@@ -2023,6 +2050,7 @@ describe('getPublishedDocBySlugPublic - environment support', () => {
       docWithEnv,
     ] as any);
     mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(docWithEnv);
+    mockPrisma.user.findUnique.mockResolvedValueOnce({ uid: user.uid } as any);
     mockUserCollectionService.exportUserCollectionToJSONObject.mockResolvedValueOnce(
       E.right(collectionData as any),
     );

@@ -1109,6 +1109,138 @@ describe('getPublishedDocsVersions', () => {
   });
 });
 
+describe('getPublishedDocBySlugPublic - access revocation', () => {
+  test('should fall back to stored snapshot when team creator is removed from team', async () => {
+    const snapshot = { folders: [], requests: [] };
+    const docWithSnapshot = {
+      ...teamPublishedDoc,
+      autoSync: true,
+      documentTree: snapshot,
+    };
+
+    mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([
+      docWithSnapshot,
+    ] as any);
+    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(docWithSnapshot);
+    // Creator is no longer a team member
+    mockPrisma.teamMember.findFirst.mockResolvedValueOnce(null);
+
+    const result = await publishedDocsService.getPublishedDocBySlugPublic(
+      teamPublishedDoc.slug,
+      teamPublishedDoc.version,
+    );
+
+    expect(E.isRight(result)).toBe(true);
+    if (E.isRight(result)) {
+      expect(result.right.documentTree).toBe(JSON.stringify(snapshot));
+    }
+    // Should not attempt to fetch live collection data
+    expect(
+      mockTeamCollectionService.exportCollectionToJSONObject,
+    ).not.toHaveBeenCalled();
+  });
+
+  test('should return PUBLISHED_DOCS_NOT_FOUND when creator is removed and no snapshot exists', async () => {
+    const docNoSnapshot = {
+      ...teamPublishedDoc,
+      autoSync: true,
+      documentTree: null,
+    };
+
+    mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([
+      docNoSnapshot,
+    ] as any);
+    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(docNoSnapshot);
+    mockPrisma.teamMember.findFirst.mockResolvedValueOnce(null);
+
+    const result = await publishedDocsService.getPublishedDocBySlugPublic(
+      teamPublishedDoc.slug,
+      teamPublishedDoc.version,
+    );
+
+    expect(result).toEqualLeft(PUBLISHED_DOCS_NOT_FOUND);
+    expect(
+      mockTeamCollectionService.exportCollectionToJSONObject,
+    ).not.toHaveBeenCalled();
+  });
+
+  test('should fetch live data when creator is still a team member', async () => {
+    const collectionData = { id: 'team_collection_1', folders: [], requests: [] };
+
+    mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([
+      teamPublishedDoc,
+    ] as any);
+    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(teamPublishedDoc);
+    // Creator is still a member
+    mockPrisma.teamMember.findFirst.mockResolvedValueOnce({ id: 'member_1' } as any);
+    mockTeamCollectionService.exportCollectionToJSONObject.mockResolvedValueOnce(
+      E.right(collectionData as any),
+    );
+
+    const result = await publishedDocsService.getPublishedDocBySlugPublic(
+      teamPublishedDoc.slug,
+      teamPublishedDoc.version,
+    );
+
+    expect(E.isRight(result)).toBe(true);
+    expect(
+      mockTeamCollectionService.exportCollectionToJSONObject,
+    ).toHaveBeenCalledWith(teamPublishedDoc.workspaceID, teamPublishedDoc.collectionID);
+  });
+
+  test('should fall back to stored snapshot when user account no longer exists', async () => {
+    const snapshot = { folders: [], requests: [] };
+    const docWithSnapshot = {
+      ...userPublishedDoc,
+      autoSync: true,
+      documentTree: snapshot,
+    };
+
+    mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([
+      docWithSnapshot,
+    ] as any);
+    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(docWithSnapshot);
+    // User account deleted
+    mockPrisma.user.findUnique.mockResolvedValueOnce(null);
+
+    const result = await publishedDocsService.getPublishedDocBySlugPublic(
+      userPublishedDoc.slug,
+      userPublishedDoc.version,
+    );
+
+    expect(E.isRight(result)).toBe(true);
+    if (E.isRight(result)) {
+      expect(result.right.documentTree).toBe(JSON.stringify(snapshot));
+    }
+    expect(
+      mockUserCollectionService.exportUserCollectionToJSONObject,
+    ).not.toHaveBeenCalled();
+  });
+
+  test('should fetch live data when user account still exists', async () => {
+    const collectionData = { id: 'collection_1', folders: [], requests: [] };
+
+    mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([
+      userPublishedDoc,
+    ] as any);
+    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(userPublishedDoc);
+    mockPrisma.user.findUnique.mockResolvedValueOnce({ uid: user.uid } as any);
+    mockUserCollectionService.exportUserCollectionToJSONObject.mockResolvedValueOnce(
+      E.right(collectionData as any),
+    );
+
+    const result = await publishedDocsService.getPublishedDocBySlugPublic(
+      userPublishedDoc.slug,
+      userPublishedDoc.version,
+    );
+
+    expect(E.isRight(result)).toBe(true);
+    expect(
+      mockUserCollectionService.exportUserCollectionToJSONObject,
+    ).toHaveBeenCalledWith(userPublishedDoc.creatorUid, userPublishedDoc.collectionID);
+  });
+});
+
 describe('getPublishedDocBySlugPublic', () => {
   test('should return published document by slug and version with autoSync enabled', async () => {
     const collectionData = {

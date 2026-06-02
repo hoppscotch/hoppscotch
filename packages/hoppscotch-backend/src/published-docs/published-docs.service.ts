@@ -323,6 +323,37 @@ export class PublishedDocsService {
   }
 
   /**
+   * Check whether the creator of a published doc still has access to the
+   * underlying workspace. For USER workspaces we confirm the user account
+   * still exists; for TEAM workspaces we confirm the creator is still a
+   * member of the team.
+   */
+  private async creatorStillHasAccess(
+    publishedDocs: DbPublishedDocs,
+  ): Promise<boolean> {
+    if (publishedDocs.workspaceType === WorkspaceType.USER) {
+      const user = await this.prisma.user.findUnique({
+        where: { uid: publishedDocs.creatorUid },
+        select: { uid: true },
+      });
+      return user !== null;
+    }
+
+    if (publishedDocs.workspaceType === WorkspaceType.TEAM) {
+      const member = await this.prisma.teamMember.findFirst({
+        where: {
+          teamID: publishedDocs.workspaceID,
+          userUid: publishedDocs.creatorUid,
+        },
+        select: { id: true },
+      });
+      return member !== null;
+    }
+
+    return false;
+  }
+
+  /**
    * Get a published document by slug and version for public access (unauthenticated)
    * @param slug - The slug of the published document
    * @param version - The version of the published document
@@ -348,6 +379,24 @@ export class PublishedDocsService {
 
     // if autoSync is enabled, fetch from the collection directly
     if (publishedDocs.autoSync) {
+      const hasAccess = await this.creatorStillHasAccess(publishedDocs);
+
+      if (!hasAccess) {
+        // The creator no longer has access to the workspace. Fall back to the
+        // last stored snapshot if one exists, otherwise the doc is unusable.
+        if (!publishedDocs.documentTree) {
+          return E.left(PUBLISHED_DOCS_NOT_FOUND);
+        }
+
+        return E.right(
+          plainToInstance(
+            PublishedDocs,
+            this.cast(docToReturn, allVersions.right),
+            { excludeExtraneousValues: true, enableCircularCheck: true },
+          ),
+        );
+      }
+
       const collectionResult =
         publishedDocs.workspaceType === WorkspaceType.USER
           ? await this.userCollectionService.exportUserCollectionToJSONObject(

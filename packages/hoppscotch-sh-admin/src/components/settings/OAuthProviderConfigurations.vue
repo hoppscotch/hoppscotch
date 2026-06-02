@@ -87,9 +87,9 @@ import { useVModel } from '@vueuse/core';
 import { reactive } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import {
-  isConfigFieldErrored,
   ServerConfigs,
   SsoAuthProviders,
+  useConfigValidation,
 } from '~/helpers/configs';
 import { makeReadableKey } from '~/helpers/utils/readableKey';
 import IconCircleHelp from '~icons/lucide/circle-help';
@@ -97,6 +97,8 @@ import IconEye from '~icons/lucide/eye';
 import IconEyeOff from '~icons/lucide/eye-off';
 
 const t = useI18n();
+
+const { isConfigFieldErrored } = useConfigValidation();
 
 const props = defineProps<{
   config: ServerConfigs;

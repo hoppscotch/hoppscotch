@@ -267,8 +267,9 @@ import { computed, reactive } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import { useSmtpAuthTypeSwitch } from '~/composables/useSmtpAuthTypeSwitch';
 import {
-  isConfigFieldErrored,
+  isFieldEmpty,
   ServerConfigs,
+  useConfigValidation,
 } from '~/helpers/configs';
 import IconEye from '~icons/lucide/eye';
 import IconEyeOff from '~icons/lucide/eye-off';
@@ -277,6 +278,8 @@ import IconLock from '~icons/lucide/lock';
 import IconShield from '~icons/lucide/shield';
 
 const t = useI18n();
+
+const { isConfigFieldErrored } = useConfigValidation();
 
 const props = defineProps<{
   config: ServerConfigs;
@@ -412,8 +415,11 @@ const toggleCheckbox = (field: CheckboxField) =>
 const fieldErrors = computed(() => {
   const errors: Record<string, boolean> = {};
 
-  if (smtpConfigs.value?.fields.mailer_smtp_url) {
-    const value = smtpConfigs.value.fields.mailer_smtp_url;
+  const value = smtpConfigs.value?.fields.mailer_smtp_url;
+  // Reuse the single-source isFieldEmpty so the banner's notion of "empty"
+  // (whitespace-only included) stays identical to getConfigValidationIssues —
+  // a truthiness test would flag '   ' and disagree with the save guard.
+  if (value && !isFieldEmpty(value)) {
     errors.mailer_smtp_url =
       !value.startsWith('smtp://') && !value.startsWith('smtps://');
   }

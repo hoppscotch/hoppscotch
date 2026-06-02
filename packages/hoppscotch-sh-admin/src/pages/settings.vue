@@ -91,21 +91,24 @@
 
 <script setup lang="ts">
 import { isEqual } from 'lodash-es';
-import { computed, onUnmounted, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
 import { useConfigHandler } from '~/composables/useConfigHandler';
 import {
   ConfigTab,
-  configEdited,
-  configValidationIssues,
   getConfigValidationIssues,
   hasGuardIssue,
+  provideConfigValidation,
   tabHasConfigIssue,
 } from '~/helpers/configs';
 
 const t = useI18n();
 const toast = useToast();
+
+// Owns the config validation state and provides it to the child config
+// components (see helpers/configs); a fresh context per mount.
+const { configEdited, configValidationIssues } = provideConfigValidation();
 
 const showSaveChangesModal = ref(false);
 const initiateServerRestart = ref(false);
@@ -142,14 +145,6 @@ const isConfigUpdated = computed(() =>
 // Gates the field-border surface so borders appear while typing, not on load.
 watch(isConfigUpdated, (edited) => (configEdited.value = edited), {
   immediate: true,
-});
-
-// The shared refs in helpers/configs live at module scope, so reset them
-// on unmount — otherwise a quick navigate-away-and-back briefly shows stale
-// borders/dots before the immediate watchers above re-fire.
-onUnmounted(() => {
-  configEdited.value = false;
-  configValidationIssues.value = [];
 });
 
 // Keep the issue list live so borders, tab dots, and guards all see the latest.

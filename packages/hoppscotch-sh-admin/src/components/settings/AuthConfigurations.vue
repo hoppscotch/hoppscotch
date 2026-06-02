@@ -82,12 +82,14 @@ import { computed, onMounted, ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import {
   ConfigSubTab,
-  configValidationIssues,
   ServerConfigs,
   tabHasConfigIssue,
+  useConfigValidation,
 } from '~/helpers/configs';
 
 const t = useI18n();
+
+const { configValidationIssues } = useConfigValidation();
 
 const subTabHasError = (subTab: ConfigSubTab) =>
   tabHasConfigIssue(configValidationIssues.value, 'auth', subTab);

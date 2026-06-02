@@ -186,7 +186,7 @@
 import { useVModel } from '@vueuse/core';
 import { computed, ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
-import { isConfigFieldErrored, ServerConfigs } from '~/helpers/configs';
+import { ServerConfigs, useConfigValidation } from '~/helpers/configs';
 import IconHelpCircle from '~icons/lucide/help-circle';
 import IconEye from '~icons/lucide/eye';
 import IconEyeOff from '~icons/lucide/eye-off';
@@ -194,6 +194,8 @@ import { useToast } from '~/composables/toast';
 
 const t = useI18n();
 const toast = useToast();
+
+const { isConfigFieldErrored } = useConfigValidation();
 
 const props = defineProps<{
   config: ServerConfigs;

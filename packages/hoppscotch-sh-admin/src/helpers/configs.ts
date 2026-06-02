@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { inject, provide, ref, type InjectionKey, type Ref } from 'vue';
 import { InfraConfigEnum } from './backend/graphql';
 
 export type SsoAuthProviders = 'google' | 'microsoft' | 'github';
@@ -379,8 +379,9 @@ export const isNotValidNumber = (field: string | boolean | number): boolean => {
   return true;
 };
 
-// Token rule: empty strings and non-positive numbers are invalid.
-export const isFieldNotValid = (field: string | boolean): boolean => {
+// Token rule: empty strings and non-positive numbers are invalid. Param type
+// matches its sibling validators so all three accept the same field union.
+export const isFieldNotValid = (field: string | boolean | number): boolean => {
   if (typeof field === 'boolean') return false;
   const num = Number(field);
   if (isNaN(num) && typeof field === 'string') return field.trim() === '';
@@ -395,8 +396,8 @@ export const isFieldNotValid = (field: string | boolean): boolean => {
  * all derive from it.
  *
  * Add a FIELD: nothing here — the section loops iterate
- * `section.fields` generically. Just render it and add
- * `isConfigFieldErrored(section, fieldKey)`.
+ * `section.fields` generically. Just render it and wire
+ * `isConfigFieldErrored` (from `useConfigValidation()`).
  *
  * Add a SECTION/tab: push issues from a new block below, extend
  * `ConfigSectionId` / `ConfigTab`, and add a `:indicator` in
@@ -539,7 +540,7 @@ export const getConfigValidationIssues = (
     // here too would double-classify and tip the wrong toast.
     const smtpUrl = mail.fields.mailer_smtp_url;
     if (
-      smtpUrl &&
+      !isFieldEmpty(smtpUrl) &&
       !smtpUrl.startsWith('smtp://') &&
       !smtpUrl.startsWith('smtps://')
     ) {
@@ -649,19 +650,49 @@ export const tabHasConfigIssue = (
     (issue) => issue.tab === tab && (!subTab || issue.subTab === subTab)
   );
 
-/* Shared state for field borders, populated by settings.vue:
-   - `configEdited` mirrors `isConfigUpdated` (true once anything has changed),
-     gating borders so they surface while typing, not on a fresh load.
+/* Validation state shared from settings.vue to its config child components.
+   Provide/inject (not module-level singletons) so a consumer mounted without a
+   provider throws loudly instead of silently reading empty state.
+   - `configEdited` mirrors `isConfigUpdated`, gating borders so they surface
+     while typing, not on a fresh load.
    - `configValidationIssues` is rebuilt by a deep watch on `workingConfigs`. */
-export const configEdited = ref(false);
-export const configValidationIssues = ref<ConfigValidationIssue[]>([]);
+export type ConfigValidationContext = {
+  configEdited: Ref<boolean>;
+  configValidationIssues: Ref<ConfigValidationIssue[]>;
+};
 
-// Border lights up once the form is edited and the field has a live issue.
-export const isConfigFieldErrored = (
-  section: ConfigSectionId,
-  fieldKey: string
-): boolean =>
-  configEdited.value &&
-  configValidationIssues.value.some(
-    (issue) => issue.section === section && issue.fieldKey === fieldKey
-  );
+const CONFIG_VALIDATION_KEY: InjectionKey<ConfigValidationContext> =
+  Symbol('config-validation');
+
+// Called once by the owner (settings.vue); returns the refs so it can drive
+// its watchers.
+export const provideConfigValidation = (): ConfigValidationContext => {
+  const context: ConfigValidationContext = {
+    configEdited: ref(false),
+    configValidationIssues: ref<ConfigValidationIssue[]>([]),
+  };
+  provide(CONFIG_VALIDATION_KEY, context);
+  return context;
+};
+
+// Called by any descendant; throws when no provider is above it, so a consumer
+// outside settings.vue fails loudly instead of silently reading empty state.
+export const useConfigValidation = () => {
+  const context = inject(CONFIG_VALIDATION_KEY);
+  if (!context) {
+    throw new Error(
+      'useConfigValidation() must be used under a component that called ' +
+        'provideConfigValidation() (settings.vue). These config components read ' +
+        'validation state from that provider and cannot be mounted standalone.'
+    );
+  }
+
+  // Border lights up once the form is edited and the field has a live issue.
+  const isConfigFieldErrored = (section: ConfigSectionId, fieldKey: string) =>
+    context.configEdited.value &&
+    context.configValidationIssues.value.some(
+      (issue) => issue.section === section && issue.fieldKey === fieldKey
+    );
+
+  return { ...context, isConfigFieldErrored };
+};

@@ -244,5 +244,6 @@ export const parseCurlCommand = (curlCommand: string) => {
     body: finalBody,
     requestVariables: defaultRESTReq.requestVariables,
     responses: {},
+    description: defaultRESTReq.description,
   })
 }

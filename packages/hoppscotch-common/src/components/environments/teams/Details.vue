@@ -254,6 +254,7 @@ import {
   updateTeamEnvironment,
 } from "~/helpers/backend/mutations/TeamEnvironment"
 import { GQLError } from "~/helpers/backend/GQLClient"
+import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import { useColorMode } from "~/composables/theming"
 import { platform } from "~/platform"
@@ -353,7 +354,10 @@ const vars = ref<EnvironmentVariable[]>([
 const secretEnvironmentService = useService(SecretEnvironmentService)
 const currentEnvironmentValueService = useService(CurrentValueService)
 
-const globalEnv = useReadonlyStream(globalEnv$, {} as GlobalEnvironment)
+const globalEnv = useReadonlyStream(globalEnv$, {
+  v: 2,
+  variables: [],
+} as GlobalEnvironment)
 
 const secretVars = computed(() =>
   pipe(
@@ -551,15 +555,7 @@ const saveEnvironment = async () => {
     )
   )
 
-  const variables = pipe(
-    filteredVariables,
-    A.map((e) => ({
-      key: e.key,
-      secret: e.secret,
-      initialValue: e.secret ? "" : e.initialValue,
-      currentValue: "",
-    }))
-  )
+  const variables = stripSecretVariableValuesForWire(filteredVariables)
 
   const environmentUpdated: Environment = {
     v: 2,
@@ -612,26 +608,24 @@ const saveEnvironment = async () => {
       return
     }
 
-    if (editingID.value) {
-      secretEnvironmentService.addSecretEnvironment(
-        editingID.value,
-        secretVariables
-      )
-
-      currentEnvironmentValueService.addEnvironment(
-        editingID.value,
-        nonSecretVariables
-      )
-
-      // If the user is a viewer, we don't need to update the environment in BE
-      // just update the secret environment and current environment in the local storage
-      if (props.isViewer) {
-        hideModal()
-        toast.success(`${t("environment.updated")}`)
+    // Viewers don't sync to backend — update local stores immediately
+    // and exit. For non-viewers, defer the store writes to the backend
+    // success callback (mirrors the "new" branch above) so local state
+    // stays in sync with the persisted payload if the mutation fails.
+    if (props.isViewer) {
+      if (editingID.value) {
+        secretEnvironmentService.addSecretEnvironment(
+          editingID.value,
+          secretVariables
+        )
+        currentEnvironmentValueService.addEnvironment(
+          editingID.value,
+          nonSecretVariables
+        )
       }
-    }
-
-    if (!props.isViewer) {
+      hideModal()
+      toast.success(`${t("environment.updated")}`)
+    } else {
       await pipe(
         updateTeamEnvironment(
           JSON.stringify(environmentUpdated.variables),
@@ -645,6 +639,16 @@ const saveEnvironment = async () => {
             isLoading.value = false
           },
           () => {
+            if (editingID.value) {
+              secretEnvironmentService.addSecretEnvironment(
+                editingID.value,
+                secretVariables
+              )
+              currentEnvironmentValueService.addEnvironment(
+                editingID.value,
+                nonSecretVariables
+              )
+            }
             hideModal()
             toast.success(`${t("environment.updated")}`)
 

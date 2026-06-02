@@ -18,6 +18,7 @@ import { getI18n } from "~/modules/i18n"
 import { TeamCollection } from "../teams/TeamCollection"
 import { TeamRequest } from "../teams/TeamRequest"
 import { GQLError, runGQLQuery } from "./GQLClient"
+import { stripCollectionTreeForStore } from "~/helpers/secretVariables"
 import {
   ExportAsJsonDocument,
   ExportCollectionToJsonDocument,
@@ -42,6 +43,12 @@ export type CollectionDataProps = {
   description: string | null
   preRequestScript: string
   testScript: string
+  // Stable local-store key, round-tripped via `data._ref_id`. The wire
+  // payload is opaque to the backend, which just echoes it back; the FE
+  // uses it to pair populated secret-store entries to the backend `id`
+  // (personal) or to migrate from `_ref_id` to backend `id` (team
+  // collection import).
+  _ref_id?: string
 }
 
 export const BACKEND_PAGE_SIZE = 10
@@ -268,6 +275,8 @@ export const teamCollToHoppRESTColl = (
           headers: [],
           variables: [],
           description: null,
+          preRequestScript: "",
+          testScript: "",
         }
 
   const {
@@ -318,7 +327,9 @@ export const getTeamCollectionJSON = async (teamID: string) => {
     return E.left(t("error.no_collections_to_export"))
   }
 
-  const hoppCollections = collections.map(teamCollectionJSONToHoppRESTColl)
+  const hoppCollections = collections
+    .map(teamCollectionJSONToHoppRESTColl)
+    .map(stripCollectionTreeForStore)
   return E.right(JSON.stringify(hoppCollections, stripRefIdReplacer, 2))
 }
 
@@ -373,5 +384,11 @@ export const getSingleTeamCollectionJSON = async (
     return E.left(errorMsg)
   }
 
-  return E.right(JSON.stringify(result.right, null, 2))
+  return E.right(
+    JSON.stringify(
+      stripCollectionTreeForStore(result.right),
+      stripRefIdReplacer,
+      2
+    )
+  )
 }

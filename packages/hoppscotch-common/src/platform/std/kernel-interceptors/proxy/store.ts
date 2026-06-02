@@ -1,7 +1,11 @@
 import { ref, readonly, toRaw, type Ref, type DeepReadonly } from "vue"
 import { Service } from "dioc"
 import { Store } from "~/kernel/store"
-import { getDefaultProxyUrl, DEFAULT_HOPP_PROXY_URL } from "~/helpers/proxyUrl"
+import {
+  getDefaultProxyUrl,
+  DEFAULT_HOPP_PROXY_URL,
+  isValidProxyUrl,
+} from "~/helpers/proxyUrl"
 import * as E from "fp-ts/Either"
 
 const STORE_NAMESPACE = "interceptors.proxy.v1"
@@ -48,6 +52,14 @@ export class KernelInterceptorProxyStore extends Service {
     accessToken: import.meta.env.VITE_PROXYSCOTCH_ACCESS_TOKEN ?? "",
   })
 
+  private _resolveReady!: () => void
+  // Resolves once persisted settings have been loaded into `_settings`.
+  // Callers that read `proxyUrl` on initial page load (e.g. the OAuth redirect
+  // handler) must await this to avoid using the in-memory default URL.
+  private readonly _ready: Promise<void> = new Promise((resolve) => {
+    this._resolveReady = resolve
+  })
+
   /**
    * Reactive, read-only view of the current proxy settings.
    */
@@ -56,28 +68,46 @@ export class KernelInterceptorProxyStore extends Service {
   )
 
   async onServiceInit(): Promise<void> {
-    const initResult = await Store.init()
-    if (E.isLeft(initResult)) {
-      console.error("[ProxyStore] Failed to initialize store:", initResult.left)
-      return
-    }
-
-    await this.loadSettings()
-
-    const watcher = await Store.watch(STORE_NAMESPACE, SETTINGS_KEY)
-    watcher.on("change", async ({ value }) => {
-      if (value) {
-        const storedData = value as StoredData
-        this._settings.value = {
-          ...this._settings.value,
-          // Only sync user-configurable fields from external changes.
-          // Fallback to current value if persisted data is missing the field
-          // (e.g. older schema). accessToken stays env-derived.
-          proxyUrl:
-            storedData.settings?.proxyUrl ?? this._settings.value.proxyUrl,
-        }
+    try {
+      const initResult = await Store.init()
+      if (E.isLeft(initResult)) {
+        console.error(
+          "[ProxyStore] Failed to initialize store:",
+          initResult.left
+        )
+        return
       }
-    })
+
+      await this.loadSettings()
+
+      const watcher = await Store.watch(STORE_NAMESPACE, SETTINGS_KEY)
+      watcher.on("change", async ({ value }: { value?: unknown }) => {
+        if (value) {
+          const storedData = value as StoredData
+          const incomingProxyUrl = storedData.settings?.proxyUrl
+          this._settings.value = {
+            ...this._settings.value,
+            // Only sync user-configurable fields from external changes.
+            // Keep the current value if the incoming one is missing (older
+            // schema) or invalid (another tab wrote junk via a path that
+            // bypassed validation). accessToken stays env-derived.
+            proxyUrl:
+              incomingProxyUrl && isValidProxyUrl(incomingProxyUrl)
+                ? incomingProxyUrl
+                : this._settings.value.proxyUrl,
+          }
+        }
+      })
+    } catch (error) {
+      console.error("[ProxyStore] Failed to finish setup:", error)
+    } finally {
+      // Always resolve readiness so consumers never hang forever.
+      this._resolveReady()
+    }
+  }
+
+  public whenReady(): Promise<void> {
+    return this._ready
   }
 
   private async loadSettings(): Promise<void> {
@@ -90,12 +120,25 @@ export class KernelInterceptorProxyStore extends Service {
 
     if (E.isRight(loadResult) && loadResult.right) {
       const storedData = loadResult.right
+      // Reject persisted proxyUrl that wouldn't survive backend validation
+      // (e.g. junk left over from before client-side validation existed).
+      // Without this, execute() would post requests to an invalid URL.
+      const persistedProxyUrl = storedData.settings?.proxyUrl
+      const proxyUrl =
+        persistedProxyUrl && isValidProxyUrl(persistedProxyUrl)
+          ? persistedProxyUrl
+          : defaults.proxyUrl
       this._settings.value = {
         ...defaults,
         // Only restore user-configurable fields from storage.
         // accessToken is env-derived (VITE_PROXYSCOTCH_ACCESS_TOKEN) and
         // must always reflect the current deployment, not a stale persisted value.
-        proxyUrl: storedData.settings?.proxyUrl ?? defaults.proxyUrl,
+        proxyUrl,
+      }
+      // If we had to discard a bad persisted value, write the corrected
+      // settings back so we don't repeat the fallback on every boot.
+      if (proxyUrl !== persistedProxyUrl) {
+        await this.persistSettings()
       }
     } else {
       this._settings.value = { ...defaults }
@@ -131,6 +174,17 @@ export class KernelInterceptorProxyStore extends Service {
   public async updateSettings(
     patch: Pick<ProxySettings, "proxyUrl">
   ): Promise<void> {
+    // Belt-and-suspenders: the settings UI already gates this, but the
+    // store is a public API any future caller can hit, and execute() uses
+    // proxyUrl directly. Reject invalid input here so the interceptor
+    // can't be silently broken from outside the settings screen.
+    if (!isValidProxyUrl(patch.proxyUrl)) {
+      console.warn(
+        "[ProxyStore] Refused to persist invalid proxy URL:",
+        patch.proxyUrl
+      )
+      return
+    }
     this._settings.value = {
       ...this._settings.value,
       proxyUrl: patch.proxyUrl,

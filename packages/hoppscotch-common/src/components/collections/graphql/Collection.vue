@@ -250,6 +250,7 @@ import { useService } from "dioc/vue"
 import { computed, ref } from "vue"
 import { Picked } from "~/helpers/types/HoppPicked"
 import { removeGraphqlCollection } from "~/newstore/collections"
+import { flushLocalStoresForCollectionTree } from "~/helpers/secretVariables"
 import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 import { GQLTabService } from "~/services/tab/graphql"
 import IconCheckCircle from "~icons/lucide/check-circle"
@@ -381,6 +382,8 @@ const removeCollection = async () => {
     tab.value.document.saveContext = undefined
     tab.value.document.isDirty = true
   }
+
+  flushLocalStoresForCollectionTree(props.collection)
 
   removeGraphqlCollection(props.collectionIndex, props.collection.id)
   toast.success(`${t("state.deleted")}`)

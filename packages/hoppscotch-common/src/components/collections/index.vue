@@ -225,6 +225,13 @@
         </span>
       </template>
     </HoppSmartModal>
+    <CollectionsExportFormatModal
+      :show="showExportModal"
+      :loading="exportLoading"
+      @close="closeExportModal"
+      @export-hoppscotch="onExportHopp"
+      @export-openapi="onExportOpenAPI"
+    />
     <HoppSmartConfirmModal
       :show="showConfirmModal"
       :title="confirmModalTitle"
@@ -308,11 +315,13 @@ import { useService } from "dioc/vue"
 import { stripJsonSerializedModulePrefix } from "@hoppscotch/js-sandbox/scripting"
 
 import * as TE from "fp-ts/TaskEither"
+import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
 import { flow } from "fp-ts/function"
 
+import yaml from "js-yaml"
 import { cloneDeep, debounce, isEqual } from "lodash-es"
 import { PropType, computed, nextTick, onMounted, ref, watch } from "vue"
 import { useReadonlyStream } from "~/composables/stream"
@@ -321,8 +330,7 @@ import { GQLError, runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
 import {
   CollectionDataProps,
-  getCompleteCollectionTree,
-  teamCollToHoppRESTColl,
+  getTeamCollectionObject,
 } from "~/helpers/backend/helpers"
 import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 import {
@@ -355,6 +363,7 @@ import {
 } from "~/helpers/collection/request"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
 import { stripRefIdReplacer } from "~/helpers/import-export/export"
+import { hoppCollectionToOpenAPI } from "~/helpers/import-export/export/openapi"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import { TeamSearchService } from "~/helpers/teams/TeamsSearch.service"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
@@ -399,6 +408,12 @@ import { CurrentValueService } from "~/services/current-environment-value.servic
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { SortOptions } from "~/helpers/backend/graphql"
 import { CurrentSortValuesService } from "~/services/current-sort.service"
+import {
+  flushLocalStoresForCollectionTree,
+  flushLocalStoresForTeamCollectionTree,
+  stripCollectionTreeForStore,
+  stripSecretVariableValuesForWire,
+} from "~/helpers/secretVariables"
 
 const t = useI18n()
 const toast = useToast()
@@ -456,6 +471,10 @@ const editingRequestID = ref<string | null>(null)
 
 const editingResponseID = ref<string | null>(null)
 const showAddExampleModal = ref(false)
+// The queued collection is held here so async export work can read it after
+// the modal closes.
+const showExportModal = ref(false)
+const exportTargetCollection = ref<HoppCollection | TeamCollection | null>(null)
 
 const editingProperties = ref<EditingProperties>({
   collection: null,
@@ -884,6 +903,38 @@ const displayModalAddExample = (show: boolean) => {
   showAddExampleModal.value = show
 
   if (!show) resetSelectedData()
+}
+
+let exportGeneration = 0
+
+const closeExportModal = () => {
+  // Bump so any in-flight export's `finally` no-ops instead of closing a
+  // freshly-opened modal after this dismissal.
+  exportGeneration++
+  showExportModal.value = false
+  exportTargetCollection.value = null
+  exportLoading.value = false
+}
+
+const onExportHopp = async () => {
+  const collection = exportTargetCollection.value
+  if (!collection) return
+  // `doExportHoppCollection` sets `exportLoading = true` on entry; the reset
+  // is owned here via the generation-guarded `closeExportModal()` so a stale
+  // in-flight export cannot re-enable buttons on a freshly-opened modal.
+  // Same `exportGeneration` pattern as `doExportOpenAPI`.
+  const thisGeneration = ++exportGeneration
+  try {
+    await doExportHoppCollection(collection)
+  } finally {
+    if (thisGeneration === exportGeneration) closeExportModal()
+  }
+}
+
+const onExportOpenAPI = (format: "json" | "yaml") => {
+  // Modal stays open through the export to keep the loading state visible;
+  // doExportOpenAPI closes it when finished.
+  doExportOpenAPI(format)
 }
 
 const addNewRootCollection = async (name: string) => {
@@ -1992,15 +2043,8 @@ const onRemoveCollection = async () => {
     toast.success(t("state.deleted"))
     displayConfirmModal(false)
 
-    // delete the secret collection variables
-    // and current collection variables value if the collection is removed
     if (collectionToRemove) {
-      secretEnvironmentService.deleteSecretEnvironment(
-        collectionToRemove._ref_id ?? `${collectionIndex}`
-      )
-      currentEnvironmentValueService.deleteEnvironment(
-        collectionToRemove._ref_id ?? `${collectionIndex}`
-      )
+      flushLocalStoresForCollectionTree(collectionToRemove)
     }
   } else if (hasTeamWriteAccess.value) {
     const collectionID = editingCollectionID.value
@@ -2015,12 +2059,20 @@ const onRemoveCollection = async () => {
       emit("select", null)
     }
 
+    // Capture the subtree BEFORE the mutation so the
+    // team-collection-removed subscription can't drop it from FE state
+    // before we flush nested entries.
+    const subtreeSnapshot =
+      teamCollectionService.findCollectionByID(collectionID)
+
     removeTeamCollectionOrFolder(collectionID).then(() => {
       resetTeamRequestsContext()
 
-      // delete the secret collection variables
-      // and current collection variables value if the collection is removed
-      if (collectionID) {
+      if (subtreeSnapshot) {
+        flushLocalStoresForTeamCollectionTree(subtreeSnapshot)
+      } else if (collectionID) {
+        // Snapshot miss (already removed from tree). Flush at least the
+        // top-level id so the secret service doesn't leak this entry.
         secretEnvironmentService.deleteSecretEnvironment(collectionID)
         currentEnvironmentValueService.deleteEnvironment(collectionID)
       }
@@ -2053,8 +2105,6 @@ const onRemoveFolder = async () => {
       emit("select", null)
     }
 
-    const folderIndex = pathToLastIndex(folderPath)
-
     const folderToRemove = folderPath
       ? navigateToFolderWithIndexPath(
           restCollectionStore.value.state,
@@ -2075,15 +2125,8 @@ const onRemoveFolder = async () => {
     toast.success(t("state.deleted"))
     displayConfirmModal(false)
 
-    // delete the secret collection variables
-    // and current collection variables value if the collection is removed
     if (folderToRemove) {
-      secretEnvironmentService.deleteSecretEnvironment(
-        folderToRemove.id ?? `${folderIndex}`
-      )
-      currentEnvironmentValueService.deleteEnvironment(
-        folderToRemove.id ?? `${folderIndex}`
-      )
+      flushLocalStoresForCollectionTree(folderToRemove)
     }
   } else if (hasTeamWriteAccess.value) {
     const collectionID = editingCollectionID.value
@@ -2098,12 +2141,15 @@ const onRemoveFolder = async () => {
       emit("select", null)
     }
 
+    const subtreeSnapshot =
+      teamCollectionService.findCollectionByID(collectionID)
+
     removeTeamCollectionOrFolder(collectionID).then(() => {
       resetTeamRequestsContext()
 
-      // delete the secret collection variables
-      // and current collection variables value if the collection is removed
-      if (collectionID) {
+      if (subtreeSnapshot) {
+        flushLocalStoresForTeamCollectionTree(subtreeSnapshot)
+      } else if (collectionID) {
         secretEnvironmentService.deleteSecretEnvironment(collectionID)
         currentEnvironmentValueService.deleteEnvironment(collectionID)
       }
@@ -3145,57 +3191,164 @@ const initializeDownloadCollection = async (
 
   if (result.type === "unknown" || result.type === "saved") {
     toast.success(t("state.download_started").toString())
+    platform.analytics?.logEvent({
+      type: "HOPP_EXPORT_COLLECTION",
+      exporter: "json",
+      platform: "rest",
+    })
   }
 }
 
 /**
- * Export a specific collection or folder
- * Triggered by the export button in the tippy menu
- * @param collection - Collection or folder to be exported
+ * Entry point from the collection context menu. Opens the format-chooser
+ * modal so the user can pick between Hoppscotch JSON and OpenAPI 3.1.
  */
-const exportData = async (collection: HoppCollection | TeamCollection) => {
-  if (collectionsType.value.type === "my-collections") {
-    const collectionJSON = JSON.stringify(collection, stripRefIdReplacer, 2)
+const exportData = (collection: HoppCollection | TeamCollection) => {
+  exportTargetCollection.value = collection
+  showExportModal.value = true
+}
 
-    // Strip `export {};\n` from `testScript` and `preRequestScript` fields
-    const cleanedCollectionJSON =
-      stripJsonSerializedModulePrefix(collectionJSON)
+/**
+ * Native Hoppscotch JSON export (the original behavior of `exportData`).
+ */
+const doExportHoppCollection = async (
+  collection: HoppCollection | TeamCollection
+) => {
+  // Strip `export {};\n` from `testScript` and `preRequestScript` fields, and
+  // strip `_ref_id` / secret variable values via `stripCollectionTreeForStore`
+  // so neither leaks into the exported file.
+  const stringifyForExport = (coll: HoppCollection): string =>
+    stripJsonSerializedModulePrefix(
+      JSON.stringify(stripCollectionTreeForStore(coll), stripRefIdReplacer, 2)
+    )
 
-    const name = (collection as HoppCollection).name
-
-    initializeDownloadCollection(cleanedCollectionJSON, name)
-  } else {
-    if (!collection.id) return
-    exportLoading.value = true
-
-    pipe(
-      getCompleteCollectionTree(collection.id),
-      TE.match(
-        (err: GQLError<string>) => {
-          toast.error(`${getErrorMessage(err)}`)
-          exportLoading.value = false
-          return
-        },
-        async (coll) => {
-          const hoppColl = teamCollToHoppRESTColl(coll)
-          const collectionJSONString = JSON.stringify(
-            hoppColl,
-            stripRefIdReplacer,
-            2
-          )
-
-          // Strip `export {};\n` from `testScript` and `preRequestScript` fields
-          const cleanedCollectionJSON =
-            stripJsonSerializedModulePrefix(collectionJSONString)
-
-          await initializeDownloadCollection(
-            cleanedCollectionJSON,
-            hoppColl.name
-          )
-          exportLoading.value = false
-        }
+  exportLoading.value = true
+  try {
+    if (collectionsType.value.type === "my-collections") {
+      const hoppColl = collection as HoppCollection
+      await initializeDownloadCollection(
+        stringifyForExport(hoppColl),
+        hoppColl.name
       )
-    )()
+      return
+    }
+
+    if (!collection.id) return
+    const teamID = collectionsType.value.selectedTeam?.teamID
+    if (!teamID) return
+
+    const result = await getTeamCollectionObject(teamID, collection.id)
+    if (E.isLeft(result)) {
+      const errMsg =
+        typeof result.left === "string"
+          ? result.left
+          : getErrorMessage(result.left)
+      toast.error(`${errMsg}`)
+      return
+    }
+    const hoppColl = result.right
+    await initializeDownloadCollection(
+      stringifyForExport(hoppColl),
+      hoppColl.name
+    )
+  } catch {
+    toast.error(t("error.something_went_wrong"))
+  }
+}
+
+const doExportOpenAPI = async (format: "json" | "yaml") => {
+  const collection = exportTargetCollection.value
+  if (!collection) return
+
+  const thisGeneration = ++exportGeneration
+
+  const saveOpenAPIDoc = async (
+    openAPIDoc: Record<string, unknown>,
+    name: string
+  ) => {
+    const isYaml = format === "yaml"
+    let data: string
+    try {
+      data = isYaml
+        ? yaml.dump(openAPIDoc)
+        : JSON.stringify(openAPIDoc, null, 2)
+    } catch {
+      toast.error(t("error.something_went_wrong"))
+      return
+    }
+    const contentType = isYaml ? "application/x-yaml" : "application/json"
+    const extension = isYaml ? "yaml" : "json"
+
+    // `saveFileWithDialog` returns a discriminated SaveFileResponse and does
+    // not throw — checking `result.type` is the only correct way to know if
+    // the user actually saved or cancelled.
+    const result = await platform.kernelIO.saveFileWithDialog({
+      data,
+      contentType,
+      suggestedFilename: `${name}-openapi.${extension}`,
+      filters: [
+        {
+          name: `OpenAPI ${extension.toUpperCase()} file`,
+          extensions: [extension],
+        },
+      ],
+    })
+
+    if (result.type === "saved" || result.type === "unknown") {
+      toast.success(t("state.download_started").toString())
+      platform.analytics?.logEvent({
+        type: "HOPP_EXPORT_COLLECTION",
+        exporter: "openapi",
+        platform: "rest",
+      })
+    }
+  }
+
+  exportLoading.value = true
+
+  if (collectionsType.value.type === "my-collections") {
+    try {
+      // Chooser modal warns about lossiness upfront; per-export warnings would
+      // be redundant.
+      const { doc: openAPIDoc } = hoppCollectionToOpenAPI(
+        collection as HoppCollection
+      )
+      const name = (collection as HoppCollection).name
+      await saveOpenAPIDoc(openAPIDoc, name)
+    } catch {
+      toast.error(t("error.something_went_wrong"))
+    } finally {
+      if (thisGeneration === exportGeneration) closeExportModal()
+    }
+  } else {
+    if (!collection.id) {
+      closeExportModal()
+      return
+    }
+    const teamID = collectionsType.value.selectedTeam?.teamID
+    if (!teamID) {
+      closeExportModal()
+      return
+    }
+
+    try {
+      const result = await getTeamCollectionObject(teamID, collection.id)
+      if (E.isLeft(result)) {
+        const errMsg =
+          typeof result.left === "string"
+            ? result.left
+            : getErrorMessage(result.left)
+        toast.error(`${errMsg}`)
+        return
+      }
+      const hoppColl = result.right
+      const { doc: openAPIDoc } = hoppCollectionToOpenAPI(hoppColl)
+      await saveOpenAPIDoc(openAPIDoc, hoppColl.name)
+    } catch {
+      toast.error(t("error.something_went_wrong"))
+    } finally {
+      if (thisGeneration === exportGeneration) closeExportModal()
+    }
   }
 }
 
@@ -3235,6 +3388,26 @@ const getCurrentValue = (
   )?.currentValue
 }
 
+/**
+ * Restore both `initialValue` and `currentValue` for a secret variable from
+ * the local secret store. Both fields are blanked at the wire boundary
+ * before the variable is sent to the backend, so when the user reopens the
+ * Properties modal we re-populate from `secretEnvironmentService`.
+ * Returns null for non-secret variables (callers fall back to existing
+ * current-value lookup) or when the slot has no entry in the secret store.
+ */
+const getSecretValues = (
+  isSecret: boolean,
+  varIndex: number,
+  collectionID: string
+): { value: string; initialValue: string } | null => {
+  if (!isSecret) return null
+  return secretEnvironmentService.getSecretEnvironmentVariableValue(
+    collectionID,
+    varIndex
+  )
+}
+
 const editProperties = async (payload: {
   collectionIndex: string
   collection: HoppCollection | TeamCollection
@@ -3272,14 +3445,15 @@ const editProperties = async (payload: {
     const collectionVariables = pipe(
       (collection as HoppCollection).variables ?? [],
       A.mapWithIndex((index, e) => {
+        const storeID = (collection as HoppCollection)._ref_id ?? collectionId!
+        const stored = getSecretValues(e.secret, index, storeID)
         return {
           ...e,
           currentValue:
-            getCurrentValue(
-              e.secret,
-              index,
-              (collection as HoppCollection)._ref_id ?? collectionId!
-            ) ?? e.currentValue,
+            stored?.value ??
+            getCurrentValue(e.secret, index, storeID) ??
+            e.currentValue,
+          initialValue: stored?.initialValue ?? e.initialValue,
         }
       })
     )
@@ -3333,10 +3507,14 @@ const editProperties = async (payload: {
       const collectionVariables = pipe(
         (data.variables ?? []) as HoppCollectionVariable[],
         A.mapWithIndex((index, e) => {
+          const stored = getSecretValues(e.secret, index, collectionId!)
           return {
             ...e,
             currentValue:
-              getCurrentValue(e.secret, index, collectionId!) ?? e.currentValue,
+              stored?.value ??
+              getCurrentValue(e.secret, index, collectionId!) ??
+              e.currentValue,
+            initialValue: stored?.initialValue ?? e.initialValue,
           }
         })
       )
@@ -3399,6 +3577,7 @@ const setCollectionProperties = (newCollection: {
           ? O.some({
               key: e.key,
               value: e.currentValue,
+              initialValue: e.initialValue,
               varIndex: i,
             })
           : O.none
@@ -3419,24 +3598,17 @@ const setCollectionProperties = (newCollection: {
       )
     )
 
-    secretEnvironmentService.addSecretEnvironment(
-      collection._ref_id ?? collectionId!,
-      secretVariables
-    )
+    // Mirror the read-side keying in `editProperties`.
+    const storeKey =
+      collectionsType.value.type === "team-collections"
+        ? collectionId!
+        : (collection._ref_id ?? collectionId!)
 
-    currentEnvironmentValueService.addEnvironment(
-      collection._ref_id ?? collectionId!,
-      nonSecretVariables
-    )
+    secretEnvironmentService.addSecretEnvironment(storeKey, secretVariables)
 
-    //set current value and secret values to empty string
-    collection.variables = pipe(
-      filteredVariables,
-      A.map((e) => ({
-        ...e,
-        currentValue: "",
-      }))
-    )
+    currentEnvironmentValueService.addEnvironment(storeKey, nonSecretVariables)
+
+    collection.variables = stripSecretVariableValuesForWire(filteredVariables)
   }
 
   if (collectionsType.value.type === "my-collections") {
@@ -3451,7 +3623,7 @@ const setCollectionProperties = (newCollection: {
     })
     toast.success(t("collection.properties_updated"))
   } else if (hasTeamWriteAccess.value && collectionId) {
-    const data = {
+    const data: CollectionDataProps = {
       auth: collection.auth ?? {
         authType: "inherit",
         authActive: true,

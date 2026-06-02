@@ -35,6 +35,11 @@ import { gistExporter } from "~/helpers/import-export/export/gist"
 import { computed } from "vue"
 import { hoppGQLImporter } from "~/helpers/import-export/import/hopp"
 import { ReqType } from "~/helpers/backend/graphql"
+import {
+  ensureRefIds,
+  populateLocalStoresFromCollectionTree,
+  stripCollectionTreeForStore,
+} from "~/helpers/secretVariables"
 
 const t = useI18n()
 const toast = useToast()
@@ -191,10 +196,8 @@ const GqlCollectionsGistExporter: ImporterOrExporter = {
     const accessToken = currentUser.value?.accessToken
 
     if (accessToken) {
-      const res = await gistExporter(
-        JSON.stringify(gqlCollections.value),
-        accessToken
-      )
+      const stripped = gqlCollections.value.map(stripCollectionTreeForStore)
+      const res = await gistExporter(JSON.stringify(stripped), accessToken)
 
       if (E.isLeft(res)) {
         toast.error(t("export.failed"))
@@ -233,17 +236,22 @@ const showImportFailedError = () => {
 }
 
 const handleImportToStore = (gqlCollections: HoppCollection[]) => {
+  const collectionsWithRefIds = gqlCollections.map(ensureRefIds)
+  collectionsWithRefIds.forEach(populateLocalStoresFromCollectionTree)
+
   if (
     platform.sync.collections.importToPersonalWorkspace &&
     currentUser.value
   ) {
     return platform.sync.collections.importToPersonalWorkspace(
-      gqlCollections,
+      collectionsWithRefIds,
       ReqType.Gql
     )
   }
 
-  appendGraphqlCollections(gqlCollections)
+  appendGraphqlCollections(
+    collectionsWithRefIds.map(stripCollectionTreeForStore)
+  )
   toast.success(t("state.file_imported"))
 }
 

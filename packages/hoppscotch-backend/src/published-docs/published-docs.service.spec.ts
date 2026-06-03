@@ -1123,7 +1123,7 @@ describe('getPublishedDocBySlugPublic - access revocation', () => {
     ] as any);
     mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(docWithSnapshot);
     // Creator is no longer a team member
-    mockPrisma.teamMember.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.teamMember.findUnique.mockResolvedValueOnce(null);
 
     const result = await publishedDocsService.getPublishedDocBySlugPublic(
       teamPublishedDoc.slug,
@@ -1151,7 +1151,7 @@ describe('getPublishedDocBySlugPublic - access revocation', () => {
       docNoSnapshot,
     ] as any);
     mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(docNoSnapshot);
-    mockPrisma.teamMember.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.teamMember.findUnique.mockResolvedValueOnce(null);
 
     const result = await publishedDocsService.getPublishedDocBySlugPublic(
       teamPublishedDoc.slug,
@@ -1172,7 +1172,7 @@ describe('getPublishedDocBySlugPublic - access revocation', () => {
     ] as any);
     mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(teamPublishedDoc);
     // Creator is still a member
-    mockPrisma.teamMember.findFirst.mockResolvedValueOnce({ id: 'member_1' } as any);
+    mockPrisma.teamMember.findUnique.mockResolvedValueOnce({ id: 'member_1' } as any);
     mockTeamCollectionService.exportCollectionToJSONObject.mockResolvedValueOnce(
       E.right(collectionData as any),
     );

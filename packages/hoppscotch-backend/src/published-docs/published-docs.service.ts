@@ -340,10 +340,12 @@ export class PublishedDocsService {
     }
 
     if (publishedDocs.workspaceType === WorkspaceType.TEAM) {
-      const member = await this.prisma.teamMember.findFirst({
+      const member = await this.prisma.teamMember.findUnique({
         where: {
-          teamID: publishedDocs.workspaceID,
-          userUid: publishedDocs.creatorUid,
+          teamID_userUid: {
+            teamID: publishedDocs.workspaceID,
+            userUid: publishedDocs.creatorUid,
+          },
         },
         select: { id: true },
       });

@@ -4,268 +4,104 @@ import {
   setMCPAuth,
   setMCPCapabilities,
   setMCPRequest,
+  setMCPHTTPConfig,
+  setMCPSTDIOConfig,
+  addMCPEnvVar,
+  deleteMCPEnvVar,
+  updateMCPEnvVar,
+  deleteAllMCPEnvVars,
+  addMCPLogLine,
+  MCPTransportType$,
+  MCPAuth$,
+  MCPCapabilities$,
+  MCPHTTPConfig$,
+  MCPSTDIOConfig$,
+  MCPLog$,
 } from "../MCPSession"
-import type { HoppMCPRequest } from "@hoppscotch/data"
+import type { MCPCapabilities } from "~/helpers/realtime/MCPConnection"
+import { firstValueFrom } from "rxjs"
 
-// TODO: This test suite needs to be completely rewritten to match the actual
-// MCPSession store API. Many of the imported functions don't exist or have
-// different signatures than what the tests expect.
-describe.skip("MCPSession Store", () => {
+describe("MCPSession Store", () => {
   beforeEach(() => {
-    // Reset to default state before each test
-    mcpSessionStore.dispatch({
-      dispatcher: "setRequest",
-      payload: { newRequest: getDefaultMCPSessionState().request },
-    })
-    clearMCPLogs()
+    setMCPRequest()
   })
 
   describe("Transport Configuration", () => {
-    it("should set transport type to HTTP", () => {
+    it("should set transport type to HTTP", async () => {
       setMCPTransportType("http")
-
-      const state = mcpSessionStore.value
-      expect(state.request.transportType).toBe("http")
+      const type = await firstValueFrom(MCPTransportType$)
+      expect(type).toBe("http")
     })
 
-    it("should set transport type to STDIO", () => {
+    it("should set transport type to STDIO", async () => {
       setMCPTransportType("stdio")
-
-      const state = mcpSessionStore.value
-      expect(state.request.transportType).toBe("stdio")
+      const type = await firstValueFrom(MCPTransportType$)
+      expect(type).toBe("stdio")
     })
 
-    it("should set HTTP URL", () => {
-      setMCPHTTPUrl("https://mcp.example.com")
-
-      const state = mcpSessionStore.value
-      expect(state.request.httpConfig?.url).toBe("https://mcp.example.com")
+    it("should set HTTP config URL", async () => {
+      setMCPHTTPConfig({ url: "https://mcp.example.com" })
+      const config = await firstValueFrom(MCPHTTPConfig$)
+      expect(config?.url).toBe("https://mcp.example.com")
     })
 
-    it("should set HTTP method", () => {
-      setMCPHTTPMethod("GET")
-
-      const state = mcpSessionStore.value
-      expect(state.request.httpConfig?.method).toBe("GET")
-    })
-
-    it("should initialize HTTP config when null", () => {
-      const state = mcpSessionStore.value
-      state.request.httpConfig = null
-
-      setMCPHTTPUrl("https://test.com")
-
-      const newState = mcpSessionStore.value
-      expect(newState.request.httpConfig).not.toBeNull()
-      expect(newState.request.httpConfig?.url).toBe("https://test.com")
+    it("should set STDIO config", async () => {
+      setMCPSTDIOConfig({ command: "npx mcp-server", args: [], env: [] })
+      const config = await firstValueFrom(MCPSTDIOConfig$)
+      expect(config?.command).toBe("npx mcp-server")
     })
   })
 
   describe("Authentication", () => {
-    it("should set none auth", () => {
-      setMCPAuth({
-        authType: "none",
-        authActive: false,
-      })
-
-      const state = mcpSessionStore.value
-      expect(state.request.auth.authType).toBe("none")
+    it("should set none auth", async () => {
+      setMCPAuth({ authType: "none", authActive: false })
+      const auth = await firstValueFrom(MCPAuth$)
+      expect(auth.authType).toBe("none")
     })
 
-    it("should set basic auth with credentials", () => {
+    it("should set basic auth with credentials", async () => {
       setMCPAuth({
         authType: "basic",
+        authActive: true,
         username: "testuser",
         password: "testpass",
       })
-
-      const state = mcpSessionStore.value
-      expect(state.request.auth.authType).toBe("basic")
-      if (state.request.auth.authType === "basic") {
-        expect(state.request.auth.username).toBe("testuser")
-        expect(state.request.auth.password).toBe("testpass")
+      const auth = await firstValueFrom(MCPAuth$)
+      expect(auth.authType).toBe("basic")
+      if (auth.authType === "basic") {
+        expect(auth.username).toBe("testuser")
+        expect(auth.password).toBe("testpass")
       }
     })
 
-    it("should set bearer auth with token", () => {
-      setMCPAuth({
-        authType: "bearer",
-        token: "test-token-123",
-      })
-
-      const state = mcpSessionStore.value
-      expect(state.request.auth.authType).toBe("bearer")
-      if (state.request.auth.authType === "bearer") {
-        expect(state.request.auth.token).toBe("test-token-123")
+    it("should set bearer auth with token", async () => {
+      setMCPAuth({ authType: "bearer", authActive: true, token: "tok-123" })
+      const auth = await firstValueFrom(MCPAuth$)
+      expect(auth.authType).toBe("bearer")
+      if (auth.authType === "bearer") {
+        expect(auth.token).toBe("tok-123")
       }
     })
 
-    it("should set API key auth", () => {
+    it("should set API key auth", async () => {
       setMCPAuth({
         authType: "api-key",
+        authActive: true,
         key: "X-API-Key",
-        value: "api-value",
-        addTo: "Headers",
+        value: "val",
+        addTo: "HEADERS",
       })
-
-      const state = mcpSessionStore.value
-      expect(state.request.auth.authType).toBe("api-key")
-      if (state.request.auth.authType === "api-key") {
-        expect(state.request.auth.key).toBe("X-API-Key")
-        expect(state.request.auth.value).toBe("api-value")
+      const auth = await firstValueFrom(MCPAuth$)
+      expect(auth.authType).toBe("api-key")
+      if (auth.authType === "api-key") {
+        expect(auth.key).toBe("X-API-Key")
       }
-    })
-
-    it("should toggle auth active state", () => {
-      setMCPAuthActive(true)
-      expect(mcpSessionStore.value.request.authActive).toBe(true)
-
-      setMCPAuthActive(false)
-      expect(mcpSessionStore.value.request.authActive).toBe(false)
-    })
-  })
-
-  describe("Method Configuration", () => {
-    it("should set method type to tools", () => {
-      setMCPMethodType("tools")
-
-      const state = mcpSessionStore.value
-      expect(state.request.method.methodType).toBe("tools")
-    })
-
-    it("should set method type to prompts", () => {
-      setMCPMethodType("prompts")
-
-      const state = mcpSessionStore.value
-      expect(state.request.method.methodType).toBe("prompts")
-    })
-
-    it("should set method type to resources", () => {
-      setMCPMethodType("resources")
-
-      const state = mcpSessionStore.value
-      expect(state.request.method.methodType).toBe("resources")
-    })
-
-    it("should set method name", () => {
-      setMCPMethodName("get_weather")
-
-      const state = mcpSessionStore.value
-      expect(state.request.method.methodName).toBe("get_weather")
-    })
-
-    it("should set method arguments as JSON string", () => {
-      const args = JSON.stringify({ location: "San Francisco" })
-      setMCPMethodArguments(args)
-
-      const state = mcpSessionStore.value
-      expect(state.request.method.arguments).toBe(args)
-    })
-
-    it("should handle empty arguments", () => {
-      setMCPMethodArguments("")
-
-      const state = mcpSessionStore.value
-      expect(state.request.method.arguments).toBe("")
-    })
-  })
-
-  describe("Connection State", () => {
-    it("should set connection state to CONNECTING", () => {
-      setMCPConnectionState("CONNECTING")
-
-      const state = mcpSessionStore.value
-      expect(state.connectionState).toBe("CONNECTING")
-    })
-
-    it("should set connection state to CONNECTED", () => {
-      setMCPConnectionState("CONNECTED")
-
-      const state = mcpSessionStore.value
-      expect(state.connectionState).toBe("CONNECTED")
-    })
-
-    it("should set connection state to DISCONNECTED", () => {
-      setMCPConnectionState("DISCONNECTED")
-
-      const state = mcpSessionStore.value
-      expect(state.connectionState).toBe("DISCONNECTED")
-    })
-
-    it("should set connection state to ERROR", () => {
-      setMCPConnectionState("ERROR")
-
-      const state = mcpSessionStore.value
-      expect(state.connectionState).toBe("ERROR")
-    })
-  })
-
-  describe("Event Logging", () => {
-    it("should add log entry", () => {
-      const timestamp = new Date()
-      addMCPLog({
-        type: "INFO",
-        message: "Test log message",
-        timestamp,
-      })
-
-      const state = mcpSessionStore.value
-      expect(state.logs).toHaveLength(1)
-      expect(state.logs[0].message).toBe("Test log message")
-    })
-
-    it("should add multiple log entries", () => {
-      addMCPLog({ type: "INFO", message: "Log 1", timestamp: new Date() })
-      addMCPLog({ type: "ERROR", message: "Log 2", timestamp: new Date() })
-      addMCPLog({ type: "SUCCESS", message: "Log 3", timestamp: new Date() })
-
-      const state = mcpSessionStore.value
-      expect(state.logs).toHaveLength(3)
-    })
-
-    it("should preserve log order", () => {
-      addMCPLog({ type: "INFO", message: "First", timestamp: new Date() })
-      addMCPLog({ type: "INFO", message: "Second", timestamp: new Date() })
-      addMCPLog({ type: "INFO", message: "Third", timestamp: new Date() })
-
-      const state = mcpSessionStore.value
-      expect(state.logs[0].message).toBe("First")
-      expect(state.logs[1].message).toBe("Second")
-      expect(state.logs[2].message).toBe("Third")
-    })
-
-    it("should clear all logs", () => {
-      addMCPLog({ type: "INFO", message: "Log 1", timestamp: new Date() })
-      addMCPLog({ type: "INFO", message: "Log 2", timestamp: new Date() })
-
-      clearMCPLogs()
-
-      const state = mcpSessionStore.value
-      expect(state.logs).toHaveLength(0)
-    })
-  })
-
-  describe("Response Handling", () => {
-    it("should set response data", () => {
-      const response = { result: "Success", data: { value: 42 } }
-      setMCPResponse(response)
-
-      const state = mcpSessionStore.value
-      expect(state.response).toEqual(response)
-    })
-
-    it("should clear response with null", () => {
-      setMCPResponse({ result: "Test" })
-      setMCPResponse(null)
-
-      const state = mcpSessionStore.value
-      expect(state.response).toBeNull()
     })
   })
 
   describe("Capabilities", () => {
-    it("should set capabilities with tools", () => {
-      const capabilities = {
+    it("should set capabilities with tools", async () => {
+      const capabilities: MCPCapabilities = {
         tools: [
           {
             name: "get_weather",
@@ -276,111 +112,73 @@ describe.skip("MCPSession Store", () => {
         prompts: [],
         resources: [],
       }
-
       setMCPCapabilities(capabilities)
-
-      const state = mcpSessionStore.value
-      expect(state.capabilities?.tools).toHaveLength(1)
-      expect(state.capabilities?.tools[0].name).toBe("get_weather")
+      const caps = await firstValueFrom(MCPCapabilities$)
+      expect(caps?.tools).toHaveLength(1)
+      expect(caps?.tools[0].name).toBe("get_weather")
     })
 
-    it("should set capabilities with prompts", () => {
-      const capabilities = {
-        tools: [],
-        prompts: [
-          {
-            name: "code_review",
-            description: "Review code",
-            arguments: [],
-          },
-        ],
-        resources: [],
-      }
-
-      setMCPCapabilities(capabilities)
-
-      const state = mcpSessionStore.value
-      expect(state.capabilities?.prompts).toHaveLength(1)
-      expect(state.capabilities?.prompts[0].name).toBe("code_review")
-    })
-
-    it("should set capabilities with resources", () => {
-      const capabilities = {
-        tools: [],
-        prompts: [],
-        resources: [
-          {
-            uri: "file://README.md",
-            name: "README",
-            mimeType: "text/markdown",
-          },
-        ],
-      }
-
-      setMCPCapabilities(capabilities)
-
-      const state = mcpSessionStore.value
-      expect(state.capabilities?.resources).toHaveLength(1)
-      expect(state.capabilities?.resources[0].name).toBe("README")
-    })
-
-    it("should clear capabilities with null", () => {
+    it("should clear capabilities with null", async () => {
       setMCPCapabilities({
-        tools: [{ name: "test", description: "", inputSchema: {} }],
+        tools: [{ name: "test", inputSchema: {} }],
         prompts: [],
         resources: [],
       })
-
       setMCPCapabilities(null)
-
-      const state = mcpSessionStore.value
-      expect(state.capabilities).toBeNull()
+      const caps = await firstValueFrom(MCPCapabilities$)
+      expect(caps).toBeNull()
     })
   })
 
-  describe("Request Management", () => {
-    it("should replace entire request", () => {
-      const newRequest: HoppMCPRequest = {
-        v: 1,
-        name: "New Request",
-        transportType: "http",
-        stdioConfig: null,
-        httpConfig: {
-          url: "https://new.example.com",
-          method: "POST",
-        },
-        auth: {
-          authType: "bearer",
-          token: "new-token",
-        },
-        authActive: true,
-        method: {
-          methodType: "tools",
-          methodName: "new_tool",
-          arguments: "{}",
-        },
-      }
+  describe("Env Vars (STDIO)", () => {
+    beforeEach(() => {
+      setMCPSTDIOConfig({ command: "npx mcp", args: [], env: [] })
+    })
 
-      setMCPRequest(newRequest)
+    it("should add env var", async () => {
+      addMCPEnvVar({ key: "FOO", value: "bar", active: true })
+      const config = await firstValueFrom(MCPSTDIOConfig$)
+      expect(config?.env).toHaveLength(1)
+      expect(config?.env[0].key).toBe("FOO")
+    })
 
-      const state = mcpSessionStore.value
-      expect(state.request.name).toBe("New Request")
-      expect(state.request.httpConfig?.url).toBe("https://new.example.com")
-      expect(state.request.method.methodName).toBe("new_tool")
+    it("should delete env var by index", async () => {
+      addMCPEnvVar({ key: "A", value: "1", active: true })
+      addMCPEnvVar({ key: "B", value: "2", active: true })
+      deleteMCPEnvVar(0)
+      const config = await firstValueFrom(MCPSTDIOConfig$)
+      expect(config?.env).toHaveLength(1)
+      expect(config?.env[0].key).toBe("B")
+    })
+
+    it("should update env var at index", async () => {
+      addMCPEnvVar({ key: "OLD", value: "x", active: true })
+      updateMCPEnvVar(0, { key: "NEW", value: "y", active: false })
+      const config = await firstValueFrom(MCPSTDIOConfig$)
+      expect(config?.env[0].key).toBe("NEW")
+      expect(config?.env[0].active).toBe(false)
+    })
+
+    it("should delete all env vars", async () => {
+      addMCPEnvVar({ key: "A", value: "1", active: true })
+      addMCPEnvVar({ key: "B", value: "2", active: true })
+      deleteAllMCPEnvVars()
+      const config = await firstValueFrom(MCPSTDIOConfig$)
+      expect(config?.env).toHaveLength(0)
     })
   })
 
-  describe("Observable Streams", () => {
-    it("should emit state changes through subject", (done) => {
-      const subscription = mcpSessionStore.subject$.subscribe((state) => {
-        if (state.connectionState === "CONNECTED") {
-          expect(state.connectionState).toBe("CONNECTED")
-          subscription.unsubscribe()
-          done()
-        }
+  describe("Log Lines", () => {
+    it("should add a log line", async () => {
+      setMCPRequest()
+      addMCPLogLine({
+        payload: "test message",
+        source: "info",
+        ts: Date.now(),
       })
-
-      setMCPConnectionState("CONNECTED")
+      const log = await firstValueFrom(MCPLog$)
+      expect(log.length).toBeGreaterThan(0)
+      expect(log[log.length - 1].payload).toBe("test message")
     })
   })
 })

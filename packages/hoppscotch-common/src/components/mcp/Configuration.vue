@@ -110,12 +110,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue"
+import { ref, watch, onUnmounted } from "vue"
+import { Subscription } from "rxjs"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconPlus from "~icons/lucide/plus"
 import IconLucideAlertCircle from "~icons/lucide/alert-circle"
 import { useI18n } from "@composables/i18n"
-import { useStream, useStreamSubscriber } from "@composables/stream"
+import { useStream } from "@composables/stream"
 import {
   MCPTransportType$,
   MCPHTTPConfig$,
@@ -130,7 +131,6 @@ import MCPHTTPAuth from "./HTTPAuth.vue"
 import MCPEnvVarsList from "./EnvVarsList.vue"
 
 const t = useI18n()
-const { subscribeToStream } = useStreamSubscriber()
 
 const transportType = useStream(MCPTransportType$, "http", () => {})
 const httpConfig = useStream(MCPHTTPConfig$, null, setMCPHTTPConfig)
@@ -144,12 +144,16 @@ const isConnected = ref<"DISCONNECTED" | "CONNECTING" | "CONNECTED">(
   "DISCONNECTED"
 )
 
-// Watch connection and subscribe to its state
+let connectionStateSub: Subscription | null = null
+
 watch(
   connection,
   (newConnection) => {
+    connectionStateSub?.unsubscribe()
+    connectionStateSub = null
+
     if (newConnection?.connectionState$) {
-      subscribeToStream(newConnection.connectionState$, (state) => {
+      connectionStateSub = newConnection.connectionState$.subscribe((state) => {
         isConnected.value = state
       })
     } else {
@@ -158,6 +162,10 @@ watch(
   },
   { immediate: true }
 )
+
+onUnmounted(() => {
+  connectionStateSub?.unsubscribe()
+})
 
 watch(
   httpConfig,

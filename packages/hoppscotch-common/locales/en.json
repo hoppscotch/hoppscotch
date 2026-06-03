@@ -1995,7 +1995,8 @@
     "server_loaded": "Server configuration loaded",
     "popular": "Popular",
     "view_documentation": "View Documentation",
-    "disconnect_before_switching": "Please disconnect before switching transport"
+    "disconnect_before_switching": "Please disconnect before switching transport",
+    "method_invoked": "Invoked"
   },
   "workspace": {
     "change": "Change workspace",

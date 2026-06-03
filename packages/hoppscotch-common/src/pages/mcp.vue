@@ -415,7 +415,7 @@ const handleMCPEvent = (event: any) => {
 
     case "METHOD_INVOKED":
       addMCPLogLine({
-        payload: `Invoked: ${event.method}`,
+        payload: `${t("mcp.method_invoked")}: ${event.method}`,
         source: "client",
         ts: Date.now(),
       })
@@ -447,7 +447,9 @@ const handleMCPEvent = (event: any) => {
         color: "#ff5555",
         ts: Date.now(),
       })
-      toast.error(`${t("state.disconnected")}`)
+      if (!event.manual) {
+        toast.error(`${t("state.disconnected")}`)
+      }
       setMCPCapabilities(null)
       break
   }

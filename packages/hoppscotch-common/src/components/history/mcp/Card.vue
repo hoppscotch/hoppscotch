@@ -111,7 +111,7 @@ const getEntryDisplayName = () => {
     return request.stdioConfig.command
   }
 
-  return "MCP Request"
+  return t("mcp.title")
 }
 
 const useEntry = () => {

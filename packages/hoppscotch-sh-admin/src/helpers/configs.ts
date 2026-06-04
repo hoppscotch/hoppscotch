@@ -129,6 +129,10 @@ export type Config = {
   key: string;
   // Marks fields that are optional and should be excluded from mandatory validation
   optional?: boolean;
+  // Marks free-form secret strings (e.g. JWT/session secrets). Validated as
+  // non-empty only — never coerced to a number — so a numeric-looking secret
+  // like "0" or "1.5" stays valid (the backend stores these as opaque strings).
+  secret?: boolean;
 };
 
 export const GOOGLE_CONFIGS: Config[] = [
@@ -294,10 +298,12 @@ export const TOKEN_VALIDATION_CONFIGS: Config[] = [
   {
     name: InfraConfigEnum.JwtSecret,
     key: 'jwt_secret',
+    secret: true,
   },
   {
     name: InfraConfigEnum.SessionSecret,
     key: 'session_secret',
+    secret: true,
   },
   {
     name: InfraConfigEnum.SessionCookieName,
@@ -362,6 +368,12 @@ export const OPTIONAL_TOKEN_FIELD_KEYS = new Set(
   TOKEN_VALIDATION_CONFIGS.filter((cfg) => cfg.optional).map((cfg) => cfg.key)
 );
 
+// Token fields that are free-form secrets — validated as non-empty only, never
+// numerically (see Config.secret). Everything else in the section is numeric.
+export const TOKEN_SECRET_FIELD_KEYS = new Set(
+  TOKEN_VALIDATION_CONFIGS.filter((cfg) => cfg.secret).map((cfg) => cfg.key)
+);
+
 export const isFieldEmpty = (field: string | boolean | number): boolean => {
   if (typeof field === 'boolean' || typeof field === 'number') return false;
   return field.trim() === '';
@@ -375,19 +387,6 @@ export const isNotValidNumber = (field: string | boolean | number): boolean => {
   if (typeof field === 'boolean') return false;
   const num = typeof field === 'number' ? field : Number(field.trim());
   if (!Number.isFinite(num)) return true;
-  return !Number.isInteger(num) || num < 1;
-};
-
-// Token rule: secret strings (jwt_secret, session_secret) must be non-empty,
-// while the numeric fields (salt complexity, token validities) must be positive
-// integers (>= 1) to match the backend. So a non-empty value that doesn't parse
-// as a number is treated as a secret and accepted; any numeric value is held to
-// the integer >= 1 rule. Param type matches its sibling validators.
-export const isFieldNotValid = (field: string | boolean | number): boolean => {
-  if (typeof field === 'boolean') return false;
-  if (typeof field === 'string' && field.trim() === '') return true;
-  const num = Number(field);
-  if (Number.isNaN(num)) return false;
   return !Number.isInteger(num) || num < 1;
 };
 
@@ -419,15 +418,19 @@ export type ConfigSectionId =
 // What's wrong with a value; maps via GUARD_BY_KIND to its save guard / toast.
 export type ConfigIssueKind =
   | 'empty' // required field left blank
-  | 'invalid-number' // numeric field that is NaN or <= 0
+  | 'invalid-number' // numeric field present but not a positive integer (>= 1)
   | 'invalid-format' // value present but malformed (e.g. proxy / SMTP URL)
   | 'incomplete'; // interdependent pair only half-filled (SMTP user/pass)
 
 export type ConfigGuard = 'required' | 'format' | 'smtp-pair';
 
+// `invalid-number` sits with `invalid-format` under the `format` guard, not
+// `required`: the field isn't empty, it holds a bad value, so it should tip the
+// "invalid values" toast rather than "fill all the fields". Only truly blank
+// fields (`empty`) map to `required`.
 const GUARD_BY_KIND: Record<ConfigIssueKind, ConfigGuard> = {
   empty: 'required',
-  'invalid-number': 'required',
+  'invalid-number': 'format',
   'invalid-format': 'format',
   incomplete: 'smtp-pair',
 };
@@ -582,13 +585,18 @@ export const getConfigValidationIssues = (
   }
 
   // Token validity → auth › token
-  // Mixed-shape section: secret strings (jwt_secret, session_secret) must be
-  // non-empty; duration/complexity numbers must be > 0. `isFieldNotValid`
-  // handles both. `session_cookie_name` is opt-in and lives in
-  // OPTIONAL_TOKEN_FIELD_KEYS so it's skipped here.
+  // Mixed-shape section validated per field identity (not value shape):
+  //   - secret strings (jwt_secret, session_secret) only need to be non-empty,
+  //     so a numeric-looking secret like "0" or "1.5" stays valid;
+  //   - the numeric fields (salt complexity, token validities) must be positive
+  //     integers (>= 1) to match the backend.
+  // `session_cookie_name` is opt-in (OPTIONAL_TOKEN_FIELD_KEYS) and skipped.
   Object.entries(config.tokenConfigs.fields).forEach(([fieldKey, value]) => {
     if (OPTIONAL_TOKEN_FIELD_KEYS.has(fieldKey)) return;
-    if (isFieldNotValid(value)) {
+    const invalid = TOKEN_SECRET_FIELD_KEYS.has(fieldKey)
+      ? isFieldEmpty(value)
+      : isNotValidNumber(value);
+    if (invalid) {
       issues.push({
         tab: 'auth',
         subTab: 'token',

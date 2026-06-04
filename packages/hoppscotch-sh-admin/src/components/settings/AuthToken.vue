@@ -186,7 +186,11 @@
 import { useVModel } from '@vueuse/core';
 import { computed, ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
-import { ServerConfigs, useConfigValidation } from '~/helpers/configs';
+import {
+  ServerConfigs,
+  isNotValidNumber,
+  useConfigValidation,
+} from '~/helpers/configs';
 import IconHelpCircle from '~icons/lucide/help-circle';
 import IconEye from '~icons/lucide/eye';
 import IconEyeOff from '~icons/lucide/eye-off';
@@ -224,9 +228,12 @@ const toggleMask = (fieldKey: string) => {
 
 const isMasked = (fieldKey: string) => maskState.value[fieldKey];
 
+// Reuse the save-guard validator (isNotValidNumber) so the inline toast and the
+// save block agree: these numeric token fields must be positive integers (>= 1).
+// parseInt would accept "1.5" (→ 1) and pass silently here, only for the save to
+// be blocked later. Only the numeric fields call this; the secret inputs aren't.
 const validateNumberValue = (value: string | number) => {
-  const num = typeof value === 'string' ? parseInt(value, 10) : value;
-  if (isNaN(num) || num <= 0) {
+  if (isNotValidNumber(value)) {
     toast.error(t('configs.invalid_number'));
   }
 };

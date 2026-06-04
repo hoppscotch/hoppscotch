@@ -14,6 +14,7 @@
         id="auth-providers"
         :label="t('configs.auth_providers.oauth')"
         :indicator="subTabHasError('auth-providers')"
+        indicator-variant="error"
       >
         <div class="pb-8 px-4">
           <SettingsOAuthProviderConfigurations
@@ -67,6 +68,7 @@
         id="token"
         :label="t('configs.auth_providers.token.title')"
         :indicator="subTabHasError('token')"
+        indicator-variant="error"
       >
         <div class="pb-8 px-4">
           <SettingsAuthToken v-model:config="workingConfigs" />
@@ -110,7 +112,7 @@ const workingConfigs = useVModel(props, 'config', emit);
 
 // Check if SMTP is activated but not saved yet. Used to track if SMTP was enabled after the last save.
 const isSMTPActivated = computed(
-  () => workingConfigs.value?.mailConfigs.enabled ?? false
+  () => workingConfigs.value?.mailConfigs.enabled ?? false,
 );
 
 // Check if Email authentication is enabled

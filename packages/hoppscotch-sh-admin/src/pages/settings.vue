@@ -22,6 +22,7 @@
         id="auth"
         :label="t('configs.tabs.auth')"
         :indicator="tabHasError('auth')"
+        indicator-variant="error"
       >
         <SettingsAuthConfigurations v-model:config="workingConfigs" />
       </HoppSmartTab>
@@ -30,6 +31,7 @@
         id="smtp"
         :label="t('configs.tabs.smtp')"
         :indicator="tabHasError('smtp')"
+        indicator-variant="error"
       >
         <div class="pb-8 px-4 flex flex-col space-y-8 divide-y divide-divider">
           <SettingsSmtpConfiguration v-model:config="workingConfigs" />
@@ -43,6 +45,7 @@
         id="proxy"
         :label="t('configs.tabs.proxy')"
         :indicator="tabHasError('proxy')"
+        indicator-variant="error"
       >
         <SettingsProxyURLConfiguration
           class="pb-8 px-4"
@@ -53,6 +56,7 @@
         :id="'rate-limit'"
         :label="t('configs.tabs.rate_limit')"
         :indicator="tabHasError('rate-limit')"
+        indicator-variant="error"
       >
         <SettingsRateLimit v-model:config="workingConfigs" />
       </HoppSmartTab>
@@ -225,16 +229,3 @@ const restartServer = () => {
   showSaveChangesModal.value = false;
 };
 </script>
-
-<style scoped>
-/* The shared HoppSmartTab indicator dot defaults to the accent color.
-   Recolor it to a red error dot in this settings context so a tab with a
-   blocking field reads as an error rather than generic "new" activity.
-
-   This depends on @hoppscotch/ui's internal class names for the indicator
-   span; if those change in a future upgrade the override silently no-ops
-   and the dot falls back to accent (still functional, just not red). */
-:deep(.h-1.w-1.rounded-full.bg-accentLight) {
-  background-color: rgb(239 68 68);
-}
-</style>

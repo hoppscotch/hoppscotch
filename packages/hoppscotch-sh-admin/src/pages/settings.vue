@@ -196,36 +196,40 @@ const logConfigValidationIssues = () => {
   console.table(rows);
 };
 
-const triggerSaveChangesModal = () => {
-  if (
+// Logs diagnostics and surfaces the highest-priority blocking toast, returning
+// true when a guard fired (save must halt) and false when every guard passes.
+// Shared by the Save click and the post-confirm restart so the modal-confirm
+// path enforces the same full guard set as opening the modal — not just the
+// empty-field subset.
+const surfaceSaveBlockers = (): boolean => {
+  const blocked =
     blockedByEmptyField.value ||
     blockedByPartialSmtp.value ||
-    blockedByInvalidInput.value
-  ) {
-    logConfigValidationIssues();
-  }
+    blockedByInvalidInput.value;
+
+  if (!blocked) return false;
+
+  logConfigValidationIssues();
 
   if (blockedByEmptyField.value) {
-    return toast.error(t('configs.input_empty'));
+    toast.error(t('configs.input_empty'));
+  } else if (blockedByPartialSmtp.value) {
+    toast.error(t('configs.mail_configs.smtp_auth_incomplete'));
+  } else if (blockedByInvalidInput.value) {
+    toast.error(t('configs.input_validation_error'));
   }
 
-  if (blockedByPartialSmtp.value) {
-    return toast.error(t('configs.mail_configs.smtp_auth_incomplete'));
-  }
+  return true;
+};
 
-  // Check if any of the input validations have failed
-  if (blockedByInvalidInput.value) {
-    return toast.error(t('configs.input_validation_error'));
-  }
+const triggerSaveChangesModal = () => {
+  if (surfaceSaveBlockers()) return;
   showSaveChangesModal.value = true;
 };
 
 const restartServer = () => {
-  if (blockedByEmptyField.value) {
-    logConfigValidationIssues();
-    return toast.error(t('configs.input_empty'));
-  }
-  initiateServerRestart.value = true;
   showSaveChangesModal.value = false;
+  if (surfaceSaveBlockers()) return;
+  initiateServerRestart.value = true;
 };
 </script>

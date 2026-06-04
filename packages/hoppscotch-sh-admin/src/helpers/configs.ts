@@ -367,25 +367,28 @@ export const isFieldEmpty = (field: string | boolean | number): boolean => {
   return field.trim() === '';
 };
 
-// Empty strings and NaN both count as invalid.
+// Rate-limit rule: the backend requires positive integers (>= 1) for both
+// RATE_LIMIT_TTL and RATE_LIMIT_MAX, so blanks, non-numerics, decimals, zero,
+// and negatives are all invalid. Boolean short-circuits to valid to keep the
+// shared field-union signature (these fields are always numeric in practice).
 export const isNotValidNumber = (field: string | boolean | number): boolean => {
   if (typeof field === 'boolean') return false;
-  if (typeof field === 'number') return isNaN(field);
-  if (typeof field === 'string') {
-    const trimmed = field.trim();
-    if (trimmed === '') return true;
-    return isNaN(Number(trimmed));
-  }
-  return true;
+  const num = typeof field === 'number' ? field : Number(field.trim());
+  if (!Number.isFinite(num)) return true;
+  return !Number.isInteger(num) || num < 1;
 };
 
-// Token rule: empty strings and non-positive numbers are invalid. Param type
-// matches its sibling validators so all three accept the same field union.
+// Token rule: secret strings (jwt_secret, session_secret) must be non-empty,
+// while the numeric fields (salt complexity, token validities) must be positive
+// integers (>= 1) to match the backend. So a non-empty value that doesn't parse
+// as a number is treated as a secret and accepted; any numeric value is held to
+// the integer >= 1 rule. Param type matches its sibling validators.
 export const isFieldNotValid = (field: string | boolean | number): boolean => {
   if (typeof field === 'boolean') return false;
+  if (typeof field === 'string' && field.trim() === '') return true;
   const num = Number(field);
-  if (isNaN(num) && typeof field === 'string') return field.trim() === '';
-  return num <= 0;
+  if (Number.isNaN(num)) return false;
+  return !Number.isInteger(num) || num < 1;
 };
 
 /* ------------------------------------------------------------------ *

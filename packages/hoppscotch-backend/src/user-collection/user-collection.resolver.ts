@@ -417,7 +417,7 @@ export class UserCollectionResolver {
     return updatedUserCollection.right;
   }
 
-  @Mutation(() => Boolean, {
+  @Mutation(() => UserCollectionExportJSONData, {
     description: 'Duplicate a User Collection',
   })
   @UseGuards(GqlAuthGuard)

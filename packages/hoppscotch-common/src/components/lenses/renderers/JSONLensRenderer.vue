@@ -273,7 +273,7 @@ import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
 import { computed, ref, reactive } from "vue"
 import { computedAsync, refDebounced } from "@vueuse/core"
-import * as jq from "jq-wasm"
+import { executeJQFilter, preloadJQ } from "~/helpers/lenses/jqLazyLoader"
 import { useCodemirror } from "@composables/codemirror"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import jsonParse, { JSONObjectMember, JSONValue } from "~/helpers/jsonParse"
@@ -382,7 +382,7 @@ const jsonResponseBodyText = computedAsync(
         const input = JSON.parse(
           LJSON.stringify(responseJsonObject.value.right as any) || "{}"
         )
-        const { exitCode, stdout, stderr } = await jq.raw(
+        const { exitCode, stdout, stderr } = await executeJQFilter(
           input,
           debouncedFilterQuery.value
         )
@@ -557,6 +557,13 @@ const outlinePath = computed(() =>
 const toggleFilterState = () => {
   filterQueryText.value = ""
   toggleFilter.value = !toggleFilter.value
+  
+  // Preload jq-wasm in background if filter is being opened
+  if (toggleFilter.value) {
+    preloadJQ().catch((err) => {
+      console.debug("JQ preload failed, will load on first use:", err)
+    })
+  }
 }
 
 defineActionHandler("response.file.download", () => downloadResponse())

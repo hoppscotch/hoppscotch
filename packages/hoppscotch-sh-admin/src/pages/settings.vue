@@ -105,7 +105,7 @@ import {
   hasGuardIssue,
   provideConfigValidation,
   tabHasConfigIssue,
-} from '~/helpers/configs';
+} from '~/helpers/config-validation';
 
 const t = useI18n();
 const toast = useToast();

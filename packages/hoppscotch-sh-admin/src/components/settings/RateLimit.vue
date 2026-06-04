@@ -73,11 +73,11 @@ import { useVModel } from '@vueuse/core';
 import { computed } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
+import { ServerConfigs } from '~/helpers/configs';
 import {
-  ServerConfigs,
   isNotValidNumber,
   useConfigValidation,
-} from '~/helpers/configs';
+} from '~/helpers/config-validation';
 import IconHelpCircle from '~icons/lucide/help-circle';
 
 const t = useI18n();

@@ -186,11 +186,11 @@
 import { useVModel } from '@vueuse/core';
 import { computed, ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
+import { ServerConfigs } from '~/helpers/configs';
 import {
-  ServerConfigs,
   isNotValidNumber,
   useConfigValidation,
-} from '~/helpers/configs';
+} from '~/helpers/config-validation';
 import IconHelpCircle from '~icons/lucide/help-circle';
 import IconEye from '~icons/lucide/eye';
 import IconEyeOff from '~icons/lucide/eye-off';

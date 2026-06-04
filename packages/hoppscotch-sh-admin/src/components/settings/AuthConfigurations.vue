@@ -82,12 +82,12 @@
 import { useVModel } from '@vueuse/core';
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
+import { ServerConfigs } from '~/helpers/configs';
 import {
   ConfigSubTab,
-  ServerConfigs,
   tabHasConfigIssue,
   useConfigValidation,
-} from '~/helpers/configs';
+} from '~/helpers/config-validation';
 
 const t = useI18n();
 

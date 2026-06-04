@@ -266,11 +266,8 @@ import { useVModel } from '@vueuse/core';
 import { computed, reactive } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import { useSmtpAuthTypeSwitch } from '~/composables/useSmtpAuthTypeSwitch';
-import {
-  isFieldEmpty,
-  ServerConfigs,
-  useConfigValidation,
-} from '~/helpers/configs';
+import { ServerConfigs } from '~/helpers/configs';
+import { isFieldEmpty, useConfigValidation } from '~/helpers/config-validation';
 import IconEye from '~icons/lucide/eye';
 import IconEyeOff from '~icons/lucide/eye-off';
 import IconHelpCircle from '~icons/lucide/help-circle';

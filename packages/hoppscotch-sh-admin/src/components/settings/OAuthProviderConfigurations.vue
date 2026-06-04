@@ -86,11 +86,8 @@
 import { useVModel } from '@vueuse/core';
 import { reactive } from 'vue';
 import { useI18n } from '~/composables/i18n';
-import {
-  ServerConfigs,
-  SsoAuthProviders,
-  useConfigValidation,
-} from '~/helpers/configs';
+import { ServerConfigs, SsoAuthProviders } from '~/helpers/configs';
+import { useConfigValidation } from '~/helpers/config-validation';
 import { makeReadableKey } from '~/helpers/utils/readableKey';
 import IconCircleHelp from '~icons/lucide/circle-help';
 import IconEye from '~icons/lucide/eye';

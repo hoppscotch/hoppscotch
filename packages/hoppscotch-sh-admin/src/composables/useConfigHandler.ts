@@ -29,10 +29,12 @@ import {
   PROXY_URL_CONFIGS,
   ServerConfigs,
   UpdatedConfigs,
+} from '~/helpers/configs';
+import {
   getConfigValidationIssues,
   hasGuardIssue,
   isFieldEmpty,
-} from '~/helpers/configs';
+} from '~/helpers/config-validation';
 import { getCompiledErrorMessage } from '~/helpers/errors';
 import { useToast } from './toast';
 import { useClientHandler } from './useClientHandler';

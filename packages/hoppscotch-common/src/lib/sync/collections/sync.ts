@@ -25,11 +25,19 @@ import { ReqType, SortOptions } from "~/helpers/backend/graphql"
 import {
   graphqlCollectionStore,
   navigateToFolderWithIndexPath,
+  editGraphqlCollection,
+  editGraphqlFolder,
+  editRESTCollection,
+  editRESTFolder,
   removeDuplicateRESTCollectionOrFolder,
   restCollectionStore,
 } from "~/newstore/collections"
 import { getSettingSubject, settingsStore } from "~/newstore/settings"
-import { getSyncInitFunction, StoreSyncDefinitionOf } from ".."
+import {
+  getSyncInitFunction,
+  StoreSyncDefinitionOf,
+  runDispatchWithOutSyncing,
+} from ".."
 import { createMapper } from "../mapper"
 import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
 
@@ -59,6 +67,133 @@ export const restCollectionsMapper = createMapper<string, string>()
 
 // restRequestsMapper uses the collectionPath/requestIndex as the local identifier
 export const restRequestsMapper = createMapper<string, string>()
+
+type ExportedCollectionFolder = {
+  id?: string
+  folders: ExportedCollectionFolder[]
+  requests: Array<Record<string, unknown> & { id: string }>
+  name: string
+  data?: string
+}
+
+const addDescriptionField = (candidate: Array<Record<string, unknown>>) =>
+  candidate.map((item) => ({
+    ...item,
+    description: "description" in item ? item.description : "",
+  }))
+
+const exportedCollectionToHoppCollection = (
+  collection: ExportedCollectionFolder
+): HoppCollection => {
+  const data =
+    collection.data && collection.data !== "null"
+      ? JSON.parse(collection.data)
+      : {
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          _ref_id: generateUniqueRefId("coll"),
+          variables: [],
+          description: null,
+        }
+
+  return makeCollection({
+    id: collection.id,
+    _ref_id: data._ref_id ?? generateUniqueRefId("coll"),
+    name: collection.name,
+    folders: collection.folders.map((folder) =>
+      exportedCollectionToHoppCollection(folder)
+    ),
+    requests: collection.requests.map((request) => ({ ...request })),
+    auth: data.auth,
+    headers: addDescriptionField(data.headers),
+    variables: data.variables ?? [],
+    description: data.description ?? null,
+    preRequestScript: data.preRequestScript ?? "",
+    testScript: data.testScript ?? "",
+  })
+}
+
+function findCollectionPathByID(
+  collections: HoppCollection[],
+  collectionID: string,
+  currentPath: number[] = []
+): number[] | undefined {
+  for (const [index, collection] of collections.entries()) {
+    const nextPath = [...currentPath, index]
+
+    if (collection.id === collectionID) {
+      return nextPath
+    }
+
+    const childPath = findCollectionPathByID(
+      collection.folders ?? [],
+      collectionID,
+      nextPath
+    )
+
+    if (childPath) {
+      return childPath
+    }
+  }
+
+  return undefined
+}
+
+export function applyDuplicatedCollectionResult(
+  collectionType: "REST" | "GQL",
+  originalCollectionID: string,
+  exportedCollectionJSON: string
+) {
+  const exportedCollections = JSON.parse(
+    exportedCollectionJSON
+  ) as ExportedCollectionFolder[]
+
+  const duplicatedCollection = exportedCollections[0]
+  if (!duplicatedCollection) return
+
+  const transformedCollection =
+    exportedCollectionToHoppCollection(duplicatedCollection)
+
+  const { collectionStore } = getStoreByCollectionType(collectionType)
+  const originalCollectionPath = findCollectionPathByID(
+    collectionStore.value.state,
+    originalCollectionID
+  )
+
+  if (!originalCollectionPath) return
+
+  const parentCollectionPath = originalCollectionPath.slice(0, -1)
+
+  runDispatchWithOutSyncing(() => {
+    if (parentCollectionPath.length === 0) {
+      const duplicateCollectionIndex = collectionStore.value.state.length - 1
+
+      if (collectionType === "REST") {
+        editRESTCollection(duplicateCollectionIndex, transformedCollection)
+      } else {
+        editGraphqlCollection(duplicateCollectionIndex, transformedCollection)
+      }
+
+      return
+    }
+
+    const parentCollection = navigateToFolderWithIndexPath(
+      collectionStore.value.state,
+      parentCollectionPath
+    )
+
+    if (!parentCollection) return
+
+    const duplicateCollectionIndex = parentCollection.folders.length - 1
+    const duplicateCollectionPath = `${parentCollectionPath.join("/")}/${duplicateCollectionIndex}`
+
+    if (collectionType === "REST") {
+      editRESTFolder(duplicateCollectionPath, transformedCollection)
+    } else {
+      editGraphqlFolder(duplicateCollectionPath, transformedCollection)
+    }
+  })
+}
 
 // Optimized implementation using importUserCollectionsFromJSON for bulk operations
 // This replaces individual createRESTRootUserCollection/createRESTChildUserCollection/createRESTUserRequest calls
@@ -390,7 +525,15 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   },
   async duplicateCollection({ collectionSyncID }) {
     if (collectionSyncID) {
-      await duplicateUserCollection(collectionSyncID, ReqType.Rest)
+      const res = await duplicateUserCollection(collectionSyncID, ReqType.Rest)
+
+      if (E.isRight(res)) {
+        applyDuplicatedCollectionResult(
+          "REST",
+          collectionSyncID,
+          res.right.duplicateUserCollection.exportedCollection
+        )
+      }
     }
   },
   editRequest({ path, requestIndex, requestNew }) {

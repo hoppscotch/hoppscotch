@@ -25,7 +25,7 @@ import {
 import { getSettingSubject, settingsStore } from "~/newstore/settings"
 import { getSyncInitFunction, StoreSyncDefinitionOf } from ".."
 import { createMapper } from "../mapper"
-import { moveOrReorderRequests } from "./sync"
+import { applyDuplicatedCollectionResult, moveOrReorderRequests } from "./sync"
 import { ReqType } from "~/helpers/backend/graphql"
 import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
 
@@ -324,7 +324,15 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   },
   async duplicateCollection({ collectionSyncID }) {
     if (collectionSyncID) {
-      await duplicateUserCollection(collectionSyncID, ReqType.Gql)
+      const res = await duplicateUserCollection(collectionSyncID, ReqType.Gql)
+
+      if (E.isRight(res)) {
+        applyDuplicatedCollectionResult(
+          "GQL",
+          collectionSyncID,
+          res.right.duplicateUserCollection.exportedCollection
+        )
+      }
     }
   },
   editRequest({ path, requestIndex, requestNew }) {

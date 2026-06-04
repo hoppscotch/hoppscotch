@@ -642,6 +642,13 @@ function setupUserCollectionDuplicatedSubscription() {
 
       const { collectionStore } = getStoreByCollectionType(collectionType)
 
+      const duplicatedCollectionAlreadyApplied =
+        getCollectionPathFromCollectionID(id, collectionStore.value.state)
+
+      if (duplicatedCollectionAlreadyApplied) {
+        return
+      }
+
       const parentCollectionPath =
         parentCollectionID &&
         getCollectionPathFromCollectionID(

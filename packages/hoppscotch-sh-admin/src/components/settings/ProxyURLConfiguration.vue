@@ -54,6 +54,7 @@ import { useVModel } from '@vueuse/core';
 import { computed } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import {
+  isFieldEmpty,
   isValidProxyUrl,
   ServerConfigs,
   useConfigValidation,
@@ -83,13 +84,14 @@ const proxyConfigs = computed({
   },
 });
 
-// Drives the inline banner. Border + save guard read from
-// getConfigValidationIssues (helpers/configs), same rule.
+// Drives the inline "invalid format" banner, mirroring the save guard's format
+// branch: only a non-empty, malformed URL is flagged. An empty value is a
+// "required" issue, so the banner stays hidden — even on a fresh, untouched load.
 const fieldErrors = computed(() => {
   const errors: Record<string, boolean> = {};
 
   const value = proxyConfigs.value?.fields.proxy_app_url ?? '';
-  errors.proxy_app_url = !isValidProxyUrl(value);
+  errors.proxy_app_url = !isFieldEmpty(value) && !isValidProxyUrl(value);
 
   return errors;
 });

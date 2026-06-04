@@ -494,6 +494,23 @@ describe("CLI hopp-fetch", () => {
       expect((response as any)._bodyBytes).toEqual([72, 101, 108, 108, 111])
     })
 
+    it("should preserve byte offsets for response body ArrayBuffer views", async () => {
+      const hoppFetch = createHoppFetchHook()
+
+      const backingBytes = new Uint8Array([1, 2, 3, 4, 5])
+      const dataView = new DataView(backingBytes.buffer, 1, 3)
+      mockAxiosInstance.mockResolvedValue({
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        data: dataView,
+      })
+
+      const response = await hoppFetch("https://api.example.com/data")
+
+      expect((response as any)._bodyBytes).toEqual([2, 3, 4])
+    })
+
     it("should handle response body text conversion", async () => {
       const hoppFetch = createHoppFetchHook()
 

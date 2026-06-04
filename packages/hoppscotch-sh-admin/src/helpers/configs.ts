@@ -483,8 +483,8 @@ export const getConfigValidationIssues = (
   // Mail / SMTP → smtp
   // Only runs when SMTP is enabled. Three concerns are checked separately:
   //   1. required-empty (generic loop, mode-aware exclude list)
-  //   2. URL format (smtp:// or smtps:// only)
-  //   3. SMTP user/password pair completeness (login mode)
+  //   2. URL format (basic mode only — smtp:// or smtps://)
+  //   3. SMTP user/password pair completeness (custom mode)
   const mail = config.mailConfigs;
   if (mail.enabled) {
     const useCustom = mail.fields.mailer_use_custom_configs;
@@ -534,12 +534,14 @@ export const getConfigValidationIssues = (
       }
     });
 
-    // (2) URL format: only flag NON-empty values with the wrong scheme.
-    // nodemailer's `createTransport` accepts smtp:// or smtps:// only.
-    // Emptiness is owned by the required-empty loop above; flagging empty
-    // here too would double-classify and tip the wrong toast.
+    // (2) URL format — basic mode only. nodemailer's `createTransport` accepts
+    // smtp:// or smtps:// only. In custom mode the URL is hidden and never sent
+    // (see the transform in useConfigHandler), so a stale/malformed value must
+    // not block the save. Emptiness is owned by the required-empty loop above;
+    // flagging empty here too would double-classify and tip the wrong toast.
     const smtpUrl = mail.fields.mailer_smtp_url;
     if (
+      !useCustom &&
       !isFieldEmpty(smtpUrl) &&
       !smtpUrl.startsWith('smtp://') &&
       !smtpUrl.startsWith('smtps://')
@@ -553,9 +555,11 @@ export const getConfigValidationIssues = (
       });
     }
 
-    // (3) SMTP user/password must be provided together or not at all — a
-    // half-filled pair authenticates partially and the backend rejects it.
-    // Only relevant in custom mode (basic mode embeds credentials in the URL).
+    // (3) SMTP user/password must be provided together or not at all — the
+    // backend (validateSmtpCredentialPair) rejects a half-filled pair with
+    // INFRA_CONFIG_INVALID_INPUT, so mirror it here to surface the precise
+    // toast instead of a generic backend error. Only relevant in custom mode
+    // (basic mode embeds credentials in the URL).
     if (useCustom) {
       const hasUser = mail.fields.mailer_smtp_user.trim() !== '';
       const hasPass = mail.fields.mailer_smtp_password.trim() !== '';

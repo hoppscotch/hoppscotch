@@ -88,10 +88,13 @@ export class BrowserKernelInterceptorService
               description: (t: ReturnType<typeof getI18n>) => {
                 switch (error.kind) {
                   case "network":
-                    return t("error.network.description", {
-                      message: error.message,
-                      cause: error.cause ?? t("error.unknown.cause"),
-                    })
+                    return [
+                      t("error.network.description", {
+                        message: error.message,
+                        cause: error.cause ?? t("error.unknown.cause"),
+                      }),
+                      t("error.network.browser_cors_hint"),
+                    ].join(" ")
                   case "timeout":
                     return t("error.timeout.description", {
                       message: error.message,

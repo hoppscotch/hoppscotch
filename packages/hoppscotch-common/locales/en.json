@@ -672,7 +672,8 @@
   "error": {
     "network": {
       "heading": "Network Error",
-      "description": "Network connection failed. {message}: {cause}"
+      "description": "Network connection failed. {message}: {cause}",
+      "browser_cors_hint": "This is often caused by CORS (Cross-Origin Resource Sharing) restrictions. Install the Hoppscotch browser extension to send requests without CORS limitations."
     },
     "timeout": {
       "heading": "Timeout Error",

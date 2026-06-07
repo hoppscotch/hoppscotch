@@ -52,6 +52,17 @@ const getBodyFromContentType =
       )
     )
 
+/**
+ * Removes surrounding double quotes from multipart/form-data field values
+ * Needed for compatibility with Postman-generated curl commands
+ * @param value Raw field value
+ * @returns Value without surrounding double quotes
+ */
+export const stripQuotes = (value: string): string =>
+  value.startsWith('"') && value.endsWith('"')
+    ? value.slice(1, -1)
+    : value
+    
 const getContentTypeFromRawContentType = (rawContentType: string) =>
   pipe(
     rawContentType,
@@ -154,7 +165,7 @@ export function getFArgumentMultipartData(
                 O.fromPredicate(objHasProperty("form-string", "boolean")),
                 O.match(
                   // leave the value field empty for files
-                  () => [k, v[0] === "@" || v[0] === "<" ? "" : v],
+                  () => [k, v[0] === "@" || v[0] === "<" ? "" : stripQuotes(v)],
                   () => [k, v]
                 )
               )

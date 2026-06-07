@@ -4,6 +4,7 @@ import * as E from "fp-ts/Either";
 
 import { testRunner } from "../../utils/test";
 import { HoppEnvs } from "../../types/request";
+import { isolatedVmSupported } from "../helpers/isolated-vm-compat";
 
 const SAMPLE_ENVS: HoppEnvs = {
   global: [],
@@ -35,17 +36,6 @@ const SAMPLE_REQUEST = makeRESTRequest({
   description: null,
   responses: {},
 });
-
-// `isolated-vm@6.1.2` only ships prebuilt binaries for Node 22 (ABI 127) and
-// Node 24 (ABI 137) — the versions CI runs on. On other Node builds, the
-// locally-recompiled binary is incompatible with that Node's V8 internals and
-// `new Isolate()` segfaults the process outright (verified independently of
-// Vitest/mocks: SIGSEGV, not a hang from unresolved promises). Skip the
-// legacy-sandbox test here rather than crash the worker on unsupported builds.
-const ISOLATED_VM_COMPATIBLE_ABIS = ["127", "137"];
-const isolatedVmSupported = ISOLATED_VM_COMPATIBLE_ABIS.includes(
-  process.versions.modules
-);
 
 describe("testRunner - inheritance", () => {
   test("Inherited test scripts are executed and register test cases", async () => {

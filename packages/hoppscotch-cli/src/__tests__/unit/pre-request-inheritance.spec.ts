@@ -28,6 +28,17 @@ const SAMPLE_REQUEST = makeRESTRequest({
   responses: {},
 });
 
+// `isolated-vm@6.1.2` only ships prebuilt binaries for Node 22 (ABI 127) and
+// Node 24 (ABI 137) — the versions CI runs on. On other Node builds, the
+// locally-recompiled binary is incompatible with that Node's V8 internals and
+// `new Isolate()` segfaults the process outright (verified independently of
+// Vitest/mocks: SIGSEGV, not a hang from unresolved promises). Skip the
+// legacy-sandbox test here rather than crash the worker on unsupported builds.
+const ISOLATED_VM_COMPATIBLE_ABIS = ["127", "137"];
+const isolatedVmSupported = ISOLATED_VM_COMPATIBLE_ABIS.includes(
+  process.versions.modules
+);
+
 describe("preRequestScriptRunner - inheritance", () => {
   test("Inherited scripts execute in root → parent → request order", async () => {
     const rootScript = `pw.env.set("ORDER", "root");`;
@@ -182,35 +193,38 @@ describe("preRequestScriptRunner - inheritance", () => {
   // currently user-reachable in the CLI. The web worker path is where the
   // post-`await` drop is user-reachable; covered by the smoke fixture in
   // packages/hoppscotch-cli/src/__tests__/e2e/.
-  test("Legacy sandbox executes inherited scripts in order", async () => {
-    const rootScript = `pw.env.set("ORDER", "root");`;
-    const parentScript = `
-      const prev = pw.env.get("ORDER");
-      pw.env.set("ORDER", prev + ",parent");
-    `;
-    const request = makeRESTRequest({
-      ...SAMPLE_REQUEST,
-      preRequestScript: `
+  test.skipIf(!isolatedVmSupported)(
+    "Legacy sandbox executes inherited scripts in order",
+    async () => {
+      const rootScript = `pw.env.set("ORDER", "root");`;
+      const parentScript = `
         const prev = pw.env.get("ORDER");
-        pw.env.set("ORDER", prev + ",request");
-      `,
-    });
+        pw.env.set("ORDER", prev + ",parent");
+      `;
+      const request = makeRESTRequest({
+        ...SAMPLE_REQUEST,
+        preRequestScript: `
+          const prev = pw.env.get("ORDER");
+          pw.env.set("ORDER", prev + ",request");
+        `,
+      });
 
-    const result = await preRequestScriptRunner(
-      request,
-      SAMPLE_ENVS,
-      true,
-      undefined,
-      [rootScript, parentScript]
-    )();
+      const result = await preRequestScriptRunner(
+        request,
+        SAMPLE_ENVS,
+        true,
+        undefined,
+        [rootScript, parentScript]
+      )();
 
-    expect(result).toBeRight();
+      expect(result).toBeRight();
 
-    if (E.isRight(result)) {
-      const orderVar = result.right.updatedEnvs.selected.find(
-        (v) => v.key === "ORDER"
-      );
-      expect(orderVar?.currentValue).toBe("root,parent,request");
+      if (E.isRight(result)) {
+        const orderVar = result.right.updatedEnvs.selected.find(
+          (v) => v.key === "ORDER"
+        );
+        expect(orderVar?.currentValue).toBe("root,parent,request");
+      }
     }
-  });
+  );
 });

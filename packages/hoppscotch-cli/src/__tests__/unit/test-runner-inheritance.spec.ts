@@ -36,6 +36,17 @@ const SAMPLE_REQUEST = makeRESTRequest({
   responses: {},
 });
 
+// `isolated-vm@6.1.2` only ships prebuilt binaries for Node 22 (ABI 127) and
+// Node 24 (ABI 137) — the versions CI runs on. On other Node builds, the
+// locally-recompiled binary is incompatible with that Node's V8 internals and
+// `new Isolate()` segfaults the process outright (verified independently of
+// Vitest/mocks: SIGSEGV, not a hang from unresolved promises). Skip the
+// legacy-sandbox test here rather than crash the worker on unsupported builds.
+const ISOLATED_VM_COMPATIBLE_ABIS = ["127", "137"];
+const isolatedVmSupported = ISOLATED_VM_COMPATIBLE_ABIS.includes(
+  process.versions.modules
+);
+
 describe("testRunner - inheritance", () => {
   test("Inherited test scripts are executed and register test cases", async () => {
     const rootTestScript = `
@@ -201,34 +212,37 @@ describe("testRunner - inheritance", () => {
   // Note: the post-`await` drop is not currently user-reachable here either
   // (see pre-request-inheritance.spec.ts for context). User-facing coverage
   // for the web worker async path is in packages/hoppscotch-cli/src/__tests__/e2e/.
-  test("Legacy sandbox registers inherited test scripts", async () => {
-    const rootTestScript = `
-      pw.test("Root collection test", () => {
-        pw.expect(pw.response.status).toBe(200);
-      });
-    `;
+  test.skipIf(!isolatedVmSupported)(
+    "Legacy sandbox registers inherited test scripts",
+    async () => {
+      const rootTestScript = `
+        pw.test("Root collection test", () => {
+          pw.expect(pw.response.status).toBe(200);
+        });
+      `;
 
-    const result = await testRunner({
-      request: makeRESTRequest({
-        ...SAMPLE_REQUEST,
-        testScript: `
-          pw.test("Request test", () => {
-            pw.expect(pw.response.status).toBe(200);
-          });
-        `,
-      }),
-      envs: SAMPLE_ENVS,
-      response: SAMPLE_RESPONSE,
-      legacySandbox: true,
-      inheritedTestScripts: [rootTestScript],
-    })();
+      const result = await testRunner({
+        request: makeRESTRequest({
+          ...SAMPLE_REQUEST,
+          testScript: `
+            pw.test("Request test", () => {
+              pw.expect(pw.response.status).toBe(200);
+            });
+          `,
+        }),
+        envs: SAMPLE_ENVS,
+        response: SAMPLE_RESPONSE,
+        legacySandbox: true,
+        inheritedTestScripts: [rootTestScript],
+      })();
 
-    expect(result).toBeRight();
+      expect(result).toBeRight();
 
-    if (E.isRight(result)) {
-      const descriptors = result.right.testsReport.map((r) => r.descriptor);
-      expect(descriptors).toContain("Request test");
-      expect(descriptors).toContain("Root collection test");
+      if (E.isRight(result)) {
+        const descriptors = result.right.testsReport.map((r) => r.descriptor);
+        expect(descriptors).toContain("Request test");
+        expect(descriptors).toContain("Root collection test");
+      }
     }
-  });
+  );
 });

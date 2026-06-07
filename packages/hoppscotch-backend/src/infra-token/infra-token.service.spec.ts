@@ -1,7 +1,8 @@
 import { InfraTokenService } from './infra-token.service';
 import * as E from 'fp-ts/Either';
-import { INFRA_TOKEN_EXPIRY_INVALID, INFRA_TOKEN_LABEL_SHORT } from 'src/errors';
+import { INFRA_TOKEN_EXPIRY_INVALID, INFRA_TOKEN_LABEL_SHORT, INFRA_TOKEN_NOT_FOUND,} from 'src/errors';
 import { Admin } from 'src/admin/admin.model';
+
 
 describe('InfraTokenService - create', () => {
   let service: InfraTokenService;
@@ -58,3 +59,50 @@ describe('InfraTokenService - create', () => {
     expect(result).toEqual(E.left(INFRA_TOKEN_LABEL_SHORT));
   });
 });
+
+describe('InfraTokenService - revoke', () => {
+  let service: InfraTokenService;
+  let prismaMock: any;
+  let adminServiceMock: any;
+
+  beforeEach(() => {
+    // Database Mock setup focused on the delete function
+    prismaMock = {
+      infraToken: {
+        delete: jest.fn(), 
+      },
+    };
+    adminServiceMock = {};
+    service = new InfraTokenService(prismaMock, adminServiceMock);
+  });
+
+  // --- White-box Tests (try/catch coverage) ---
+
+  it('should return E.right(true) when the token is successfully deleted in Prisma', async () => {
+    prismaMock.infraToken.delete.mockResolvedValue({ id: 'valid-id-123' });
+
+    const result = await service.revoke('valid-id-123');
+
+    expect(prismaMock.infraToken.delete).toHaveBeenCalledWith({
+      where: { id: 'valid-id-123' },
+    });
+    //Ensures the return is a success containing "true"
+    expect(result).toEqual(E.right(true));
+  });
+
+  it('should return E.left(INFRA_TOKEN_NOT_FOUND) when Prisma throws an error', async () => {
+    
+    prismaMock.infraToken.delete.mockRejectedValue(
+      new Error('Record to delete does not exist.')
+    );
+
+    const result = await service.revoke('invalid-id-456');
+
+    expect(prismaMock.infraToken.delete).toHaveBeenCalledWith({
+      where: { id: 'invalid-id-456' },
+    });
+    // Ensures it caught the error and returned the expected Left
+    expect(result).toEqual(E.left(INFRA_TOKEN_NOT_FOUND));
+  });
+});
+

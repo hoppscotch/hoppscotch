@@ -33,6 +33,9 @@ importers:
       '@hoppscotch/ui':
         specifier: 0.2.5
         version: 0.2.5(eslint@10.2.1(jiti@2.6.1))(terser@5.46.1)(typescript@5.9.3)(vite@7.3.2(@types/node@24.10.1)(jiti@2.6.1)(sass@1.99.0)(terser@5.46.1)(yaml@2.8.3))(vue@3.5.33(typescript@5.9.3))
+      '@types/jest':
+        specifier: 30.0.0
+        version: 30.0.0
       '@types/node':
         specifier: 24.10.1
         version: 24.10.1

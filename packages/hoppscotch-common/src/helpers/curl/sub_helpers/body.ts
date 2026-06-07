@@ -59,10 +59,8 @@ const getBodyFromContentType =
  * @returns Value without surrounding double quotes
  */
 export const stripQuotes = (value: string): string =>
-  value.startsWith('"') && value.endsWith('"')
-    ? value.slice(1, -1)
-    : value
-    
+  value.startsWith('"') && value.endsWith('"') ? value.slice(1, -1) : value
+
 const getContentTypeFromRawContentType = (rawContentType: string) =>
   pipe(
     rawContentType,

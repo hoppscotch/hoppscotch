@@ -2,7 +2,6 @@ import { describe, expect, test } from "vitest"
 import { stripQuotes } from "../sub_helpers/body"
 
 describe("stripQuotes", () => {
-
   test("removes surrounding double quotes from value", () => {
     expect(stripQuotes('"4"')).toBe("4")
   })
@@ -26,5 +25,4 @@ describe("stripQuotes", () => {
   test("does not alter empty string", () => {
     expect(stripQuotes("")).toBe("")
   })
-
 })

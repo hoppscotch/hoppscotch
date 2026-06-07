@@ -214,15 +214,32 @@ export const parseCurlCommand = (curlCommand: string) => {
         O.filter((m) => m.length > 0),
         O.map(
           flow(
-            A.map(
-              ([key, value]) =>
-                <FormDataKeyValue>{
-                  active: true,
-                  isFile: false,
-                  key,
-                  value,
-                }
-            ),
+            A.map(([key, value]) => {
+              const fArgsRaw = parsedArguments.F
+              const fArgsArray: string[] = Array.isArray(fArgsRaw)
+                ? fArgsRaw
+                : fArgsRaw
+                  ? [fArgsRaw]
+                  : []
+
+              const originalDeclaration = fArgsArray.find((arg) =>
+                arg.startsWith(`${key}=`)
+              )
+
+              const rawValueStr = originalDeclaration
+                ? originalDeclaration.substring(key.length + 1)
+                : ""
+
+              const isFileUpload =
+                rawValueStr.startsWith("@") || rawValueStr.startsWith("<")
+
+              return <FormDataKeyValue>{
+                active: true,
+                isFile: isFileUpload,
+                key,
+                value,
+              }
+            }),
             (b) =>
               <HoppRESTReqBody>{ body: b, contentType: "multipart/form-data" }
           )

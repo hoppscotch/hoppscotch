@@ -5,7 +5,7 @@ use axum::{
 use std::sync::Arc;
 use tauri::AppHandle;
 
-use crate::{controller, state::AppState};
+use crate::{aws, controller, state::AppState};
 
 pub fn route(state: Arc<AppState>, app_handle: AppHandle) -> Router {
     Router::new()
@@ -30,5 +30,10 @@ pub fn route(state: Arc<AppState>, app_handle: AppHandle) -> Router {
         .route("/execute", post(controller::execute))
         .route("/cancel/:req_id", post(controller::cancel))
         .route("/log-sink", post(controller::log_sink))
+        .route("/aws/profiles", get(aws::list_profiles))
+        .route(
+            "/aws/resolve-credentials",
+            post(aws::resolve_credentials),
+        )
         .with_state((state, app_handle))
 }

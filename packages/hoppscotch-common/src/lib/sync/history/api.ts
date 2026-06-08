@@ -25,26 +25,12 @@ import {
   UserHistoryDeletedDocument,
   UserHistoryDeletedManyDocument,
   UserHistoryUpdatedDocument,
-  IsUserHistoryEnabledQuery,
-  IsUserHistoryEnabledQueryVariables,
-  IsUserHistoryEnabledDocument,
-  UserHistoryStoreStatusChangedDocument,
   UserHistoryAllDeletedDocument,
 } from "~/helpers/backend/graphql"
 
 export const getUserHistoryEntries = () =>
   runGQLQuery<GetRestUserHistoryQuery, GetRestUserHistoryQueryVariables, "">({
     query: GetRestUserHistoryDocument,
-    variables: {},
-  })
-
-export const getUserHistoryStore = () =>
-  runGQLQuery<
-    IsUserHistoryEnabledQuery,
-    IsUserHistoryEnabledQueryVariables,
-    ""
-  >({
-    query: IsUserHistoryEnabledDocument,
     variables: {},
   })
 
@@ -111,12 +97,6 @@ export const runUserHistoryDeletedSubscription = () =>
 export const runUserHistoryDeletedManySubscription = () =>
   runGQLSubscription({
     query: UserHistoryDeletedManyDocument,
-    variables: {},
-  })
-
-export const runUserHistoryStoreStatusChangedSubscription = () =>
-  runGQLSubscription({
-    query: UserHistoryStoreStatusChangedDocument,
     variables: {},
   })
 

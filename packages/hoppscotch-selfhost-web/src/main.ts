@@ -19,6 +19,7 @@ import { def as desktopInstance } from "@app/platform/instance/desktop"
 import { stdFooterItems } from "@hoppscotch/common/platform/std/ui/footerItem"
 import { stdSupportOptionItems } from "@hoppscotch/common/platform/std/ui/supportOptionsItem"
 import { InfraPlatform } from "@app/platform/infra/infra.platform"
+import { historySyncDef } from "@app/platform/history/sync"
 import { kernelIO } from "@hoppscotch/common/platform/std/kernel-io"
 import { HeaderDownloadableLinksService } from "@app/services/headerDownloadableLinks.service"
 
@@ -161,6 +162,13 @@ async function initApp() {
     auth: config.auth,
     kernelIO,
     instance: config.instance,
+
+    // The history-enabled toggle is a self-host-only infra-config; inject the
+    // documents the shared sync layer feature-detects rather than baking them
+    // into common.
+    sync: {
+      history: historySyncDef,
+    },
 
     kernelInterceptors: {
       default: config.defaultInterceptor,

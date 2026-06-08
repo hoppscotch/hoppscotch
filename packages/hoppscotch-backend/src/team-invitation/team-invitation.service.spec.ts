@@ -179,6 +179,50 @@ describe('createInvitation — Black-Box', () => {
   });
 });
 
+test('TC-07b: should send email and publish event on success', async () => {
+  // ... setup dos mocks como no TC-07 ...
+  const result = await service.createInvitation(
+    mockCreator, mockTeam.id, mockInvitee.email, TeamAccessRole.VIEWER
+  );
+  expect(E.isRight(result)).toBe(true);
+
+
+ expect(mockPrisma.teamInvitation.create).toHaveBeenCalledWith(
+  expect.objectContaining({
+    data: expect.objectContaining({ 
+      inviteeEmail: mockInvitee.email 
+    })
+  })
+);
+  expect(mockMailerService.sendEmail).toHaveBeenCalledTimes(1);
+  expect(mockPubSub.publish).toHaveBeenCalledWith(
+    `team/${mockTeam.id}/invite_added`,
+    expect.anything()
+  );
+});
+
+test('TC-07c: should create invitation with OWNER role successfully', async () => {
+  mockTeamService.getTeamWithID.mockResolvedValue(mockTeam);
+  mockTeamService.getTeamMember.mockResolvedValue(mockTeamMember);
+  mockUserService.findUserByEmail.mockResolvedValue(O.none);
+  mockPrisma.teamInvitation.findFirstOrThrow.mockRejectedValue(
+    new Error('Not Found')
+  );
+  mockPrisma.teamInvitation.create.mockResolvedValue({
+    ...mockDbInvitation,
+    inviteeRole: TeamAccessRole.OWNER,
+  });
+  mockMailerService.sendEmail.mockResolvedValue(undefined);
+  mockPubSub.publish.mockResolvedValue(undefined);
+
+
+  const result = await service.createInvitation(
+    mockCreator, mockTeam.id, mockInvitee.email, TeamAccessRole.OWNER
+  );
+  expect(E.isRight(result)).toBe(true);
+});
+
+
 describe('createInvitation — White-Box', () => {
   test('TC-B01: should skip membership verification when invitee has no account', async () => {
     mockTeamService.getTeamWithID.mockResolvedValue(mockTeam);
@@ -289,6 +333,25 @@ describe('acceptInvitation — White-Box', () => {
     if (E.isLeft(result)) expect(result.left).toBe(TEAM_INVITE_ALREADY_MEMBER);
   });
 
+  test('TC-05b: should reject when invitee is a member (case-insensitive email)', async () => {
+  mockTeamService.getTeamWithID.mockResolvedValue(mockTeam);
+  mockTeamService.getTeamMember
+    .mockResolvedValueOnce(mockTeamMember)      // creator is member
+    .mockResolvedValueOnce(mockTeamMember);     // invitee is member
+  mockUserService.findUserByEmail.mockResolvedValue(
+    O.some({ uid: mockInvitee.uid })
+  );
+  const result = await service.createInvitation(
+    mockCreator, mockTeam.id,
+    'INVITEE@EXAMPLE.COM', 
+    TeamAccessRole.VIEWER
+  );
+  expect(E.isLeft(result)).toBe(true);
+  if (E.isLeft(result))
+    expect(result.left).toBe(TEAM_INVITE_ALREADY_MEMBER);
+});
+
+
   test('TC-B06: should revoke the invitation after successful acceptance', async () => {
     mockPrisma.teamInvitation.findUniqueOrThrow.mockResolvedValue(mockDbInvitation);
     mockTeamService.getTeamMember.mockResolvedValue(null);
@@ -310,6 +373,19 @@ describe('revokeInvitation — Black-Box', () => {
     expect(E.isLeft(result)).toBe(true);
     if (E.isLeft(result)) expect(result.left).toBe(TEAM_INVITE_NO_INVITE_FOUND);
   });
+
+  test('TC-12b: should return error for a valid ID that was already accepted', async () => {
+
+  mockPrisma.teamInvitation.findUniqueOrThrow.mockRejectedValue(
+    new Error('Record not found')
+  );
+  const result = await service.revokeInvitation('valid-but-accepted-id');
+  expect(E.isLeft(result)).toBe(true);
+  if (E.isLeft(result))
+    expect(result.left).toBe(TEAM_INVITE_NO_INVITE_FOUND);
+  
+});
+
 
   test('TC-13: should revoke invitation successfully and return true', async () => {
     mockPrisma.teamInvitation.findUniqueOrThrow.mockResolvedValue(mockDbInvitation);

@@ -1,7 +1,7 @@
 {
   "name": "hoppscotch-desktop",
   "private": true,
-  "version": "26.4.0",
+  "version": "26.5.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -27,7 +27,7 @@
     "@fontsource-variable/roboto-mono": "5.2.8",
     "@hoppscotch/common": "workspace:^",
     "@hoppscotch/kernel": "workspace:^",
-    "@hoppscotch/plugin-appload": "github:CuriousCorrelation/tauri-plugin-appload#0d58d53be2bc75aeb5916bd0d77794fd209426af",
+    "@hoppscotch/plugin-appload": "github:CuriousCorrelation/tauri-plugin-appload#9d4528be4f385bccbe46859631d31aa2ee1ec0b6",
     "@hoppscotch/ui": "0.2.5",
     "@tauri-apps/api": "2.1.1",
     "@tauri-apps/plugin-fs": "2.0.2",
@@ -37,7 +37,7 @@
     "@tauri-apps/plugin-updater": "2.9.0",
     "fp-ts": "2.16.11",
     "rxjs": "7.8.2",
-    "vue": "3.5.33",
+    "vue": "3.5.34",
     "vue-router": "4.6.4",
     "vue-tippy": "6.7.1",
     "zod": "3.25.32"

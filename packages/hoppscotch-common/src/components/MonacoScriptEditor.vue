@@ -16,7 +16,7 @@ import { v4 as uuidv4 } from "uuid"
 import { computed, onMounted, onUnmounted, ref } from "vue"
 
 import { useColorMode } from "~/composables/theming"
-import { MODULE_PREFIX } from "~/helpers/scripting"
+import { MODULE_PREFIX } from "@hoppscotch/js-sandbox/scripting"
 
 // Import type definitions as raw strings
 import postRequestTypes from "~/types/post-request.d.ts?raw"

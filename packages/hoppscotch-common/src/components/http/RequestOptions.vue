@@ -104,7 +104,7 @@ import { useVModel } from "@vueuse/core"
 import { computed } from "vue"
 
 import { defineActionHandler } from "~/helpers/actions"
-import { hasActualScript } from "~/helpers/scripting"
+import { hasActualScript } from "@hoppscotch/js-sandbox/scripting"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { AggregateEnvironment } from "~/newstore/environments"
 

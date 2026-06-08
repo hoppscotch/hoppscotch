@@ -71,14 +71,88 @@
           </p>
         </div>
       </section>
+
+      <!-- Keyboard layout strategy. Three radios, each with a one-line
+           description so the user can pick without trial and error.
+           Selection writes to `keyboardLayoutStrategy` through the
+           desktop settings composable, which mirrors it into the
+           keyboard-strategy holder so the next keypress respects the
+           change. -->
+      <section>
+        <h4 class="font-semibold text-secondaryDark">
+          {{ t("settings.desktop_keyboard") }}
+        </h4>
+
+        <div class="mt-4">
+          <p class="text-secondaryLight">
+            {{ t("settings.desktop_keyboard_strategy_label") }}
+          </p>
+          <p class="mt-1 text-xs text-secondaryLight">
+            {{ t("settings.desktop_keyboard_strategy_description") }}
+          </p>
+
+          <div class="mt-4 space-y-4">
+            <div v-for="option in keyboardStrategyOptions" :key="option.value">
+              <HoppSmartRadio
+                :value="option.value"
+                :label="option.label"
+                :selected="
+                  desktopSettings.settings.keyboardLayoutStrategy ===
+                  option.value
+                "
+                class="!px-0 hover:bg-transparent"
+                @change="setKeyboardStrategy(option.value)"
+              />
+              <p class="ml-8 mt-1 text-xs text-secondaryLight">
+                {{ option.description }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h4 class="font-semibold text-secondaryDark">
+          {{ t("settings.desktop_display") }}
+        </h4>
+
+        <!-- Fixed-preset zoom control. Four named scale steps starting
+             at 100% follow Apple's pattern across Display preferences
+             and Safari View, which keeps every shipped zoom inside the
+             range cross-platform QA covers. Sub-100% steps stay out of
+             scope because the AppHeader's macOS traffic-light clearance
+             sets a 100% floor (see FE-1261). -->
+        <div class="mt-4">
+          <label class="text-secondaryLight">{{
+            t("settings.zoom_level")
+          }}</label>
+          <div class="mt-3">
+            <HoppSmartRadioGroup
+              :radios="zoomPresets"
+              :model-value="selectedZoomPreset"
+              class="!flex-row"
+              @update:model-value="setZoomPreset"
+            />
+          </div>
+          <p class="mt-3 text-xs text-secondaryLight">
+            {{ t("settings.zoom_level_description") }}
+          </p>
+        </div>
+      </section>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch, type Component } from "vue"
-import { HoppButtonSecondary, HoppSmartToggle } from "@hoppscotch/ui"
+import {
+  HoppButtonSecondary,
+  HoppSmartRadio,
+  HoppSmartRadioGroup,
+  HoppSmartToggle,
+} from "@hoppscotch/ui"
 import { useI18n } from "~/composables/i18n"
+import type { DesktopSettings } from "~/platform/desktop-settings"
 
 import IconLucideDownload from "~icons/lucide/download"
 import IconLucideRefreshCw from "~icons/lucide/refresh-cw"
@@ -267,6 +341,67 @@ async function toggleDisableUpdateChecks(): Promise<void> {
     "disableUpdateChecks",
     !desktopSettings.settings.disableUpdateChecks
   )
+}
+
+// Keyboard layout strategy radios. Order is recommended-first so users
+// without a preference get the smart default. Labels and descriptions
+// are i18n keys, rebuilt as a `computed` so a locale change updates
+// the rendered text.
+type KeyboardStrategy = DesktopSettings["keyboardLayoutStrategy"]
+
+const keyboardStrategyOptions = computed<
+  Array<{ value: KeyboardStrategy; label: string; description: string }>
+>(() => [
+  {
+    value: "hybrid",
+    label: t("settings.desktop_keyboard_strategy_hybrid"),
+    description: t("settings.desktop_keyboard_strategy_hybrid_description"),
+  },
+  {
+    value: "key",
+    label: t("settings.desktop_keyboard_strategy_key"),
+    description: t("settings.desktop_keyboard_strategy_key_description"),
+  },
+  {
+    value: "code",
+    label: t("settings.desktop_keyboard_strategy_code"),
+    description: t("settings.desktop_keyboard_strategy_code_description"),
+  },
+])
+
+async function setKeyboardStrategy(value: KeyboardStrategy): Promise<void> {
+  await desktopSettings.update("keyboardLayoutStrategy", value)
+}
+
+// Zoom presets as `{ value, label }` pairs, in the order the control
+// renders. `value` is the string id the radio group emits, kept distinct
+// from the stored float so the radio's `model-value` comparison never
+// trips on float equality. The float-to-string mapping lives in one
+// place (`zoomPresets`) and gets inverted by `setZoomPreset()` when the
+// user picks an option.
+const zoomPresets = computed(() => [
+  { value: "1.0", label: t("settings.zoom_level_100") },
+  { value: "1.1", label: t("settings.zoom_level_110") },
+  { value: "1.25", label: t("settings.zoom_level_125") },
+  { value: "1.5", label: t("settings.zoom_level_150") },
+])
+
+// Maps the persisted float back to a radio id. Falls through to "1.0"
+// for any value not in the preset set (a future schema migration could
+// introduce values outside the shipped range, and the control reads as
+// 100% rather than as no-selection in that case).
+const selectedZoomPreset = computed(() => {
+  const stored = desktopSettings.settings.zoomLevel
+  const match = zoomPresets.value.find(
+    (preset) => parseFloat(preset.value) === stored
+  )
+  return match?.value ?? "1.0"
+})
+
+async function setZoomPreset(value: string): Promise<void> {
+  const factor = parseFloat(value)
+  if (Number.isNaN(factor)) return
+  await desktopSettings.update("zoomLevel", factor)
 }
 </script>
 

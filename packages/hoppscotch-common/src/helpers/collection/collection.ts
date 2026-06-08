@@ -8,6 +8,7 @@ import { RESTTabService } from "~/services/tab/rest"
 import { GQLTabService } from "~/services/tab/graphql"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { cascadeParentCollectionForProperties } from "~/newstore/collections"
+import { stripSecretVariableValuesForWire } from "../secretVariables"
 import { CollectionDataProps } from "../backend/helpers"
 import { CollectionFolder } from "../backend/queries/PublishedDocs"
 
@@ -298,6 +299,7 @@ export function getFoldersByPath(
 /**
  * Transforms a collection to the format expected by team or personal collections.
  * BE expects CollectionFolder format with a data field containing auth, headers, variables, and description.
+ *
  * @param collection The collection to transform
  * @returns The transformed collection
  */
@@ -309,7 +311,11 @@ export function transformCollectionForImport(
   const data: CollectionDataProps = {
     auth: collection.auth,
     headers: collection.headers,
-    variables: collection.variables,
+    variables: stripSecretVariableValuesForWire(collection.variables ?? []),
+    // Round-trip the local-store key so the team-collection-added handler
+    // (`TeamCollectionsService.addCollection`) can migrate the importer's
+    // secret entries from this `_ref_id` to the backend-assigned `id`.
+    _ref_id: collection._ref_id,
     description: collection.description,
     preRequestScript: collection.preRequestScript ?? "",
     testScript: collection.testScript ?? "",

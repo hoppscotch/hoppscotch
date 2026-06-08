@@ -267,17 +267,16 @@
                     v-if="!hasNoTeamAccess"
                     ref="exportAction"
                     :icon="IconDownload"
-                    :label="t('export.title')"
+                    :label="t('export.collection')"
                     :shortcut="['X']"
                     :loading="exportLoading"
                     @click="
                       () => {
-                        ;(emit('export-data'),
-                          collectionsType === 'my-collections' ? hide() : null)
+                        emit('export-data')
+                        hide()
                       }
                     "
                   />
-
                   <HoppSmartItem
                     ref="propertiesAction"
                     :icon="IconSettings2"

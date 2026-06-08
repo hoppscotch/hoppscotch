@@ -1,7 +1,7 @@
 {
   "name": "hoppscotch-sh-admin",
   "private": true,
-  "version": "2026.4.0",
+  "version": "2026.5.0",
   "type": "module",
   "scripts": {
     "dev": "pnpm exec npm-run-all -p -l dev:*",
@@ -38,7 +38,7 @@
     "tippy.js": "6.3.7",
     "ts-node-dev": "2.0.0",
     "unplugin-vue-components": "30.0.0",
-    "vue": "3.5.33",
+    "vue": "3.5.34",
     "vue-i18n": "11.4.0",
     "vue-router": "4.6.4",
     "vue-tippy": "6.7.1"
@@ -57,7 +57,7 @@
     "@import-meta-env/unplugin": "0.6.3",
     "@types/lodash-es": "4.17.12",
     "@vitejs/plugin-vue": "6.0.6",
-    "@vue/compiler-sfc": "3.5.33",
+    "@vue/compiler-sfc": "3.5.34",
     "autoprefixer": "10.5.0",
     "dotenv": "17.4.2",
     "graphql-tag": "2.12.6",

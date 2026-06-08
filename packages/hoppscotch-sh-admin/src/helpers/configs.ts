@@ -1,8 +1,16 @@
 import { ref } from 'vue';
 import { InfraConfigEnum } from './backend/graphql';
 
+export type InputValidationStatus = {
+  proxyUrl: boolean;
+  smtpUrl: boolean;
+};
+
 // Check if any input validation has failed
-export const hasInputValidationFailed = ref(false);
+export const hasInputValidationFailed = ref<InputValidationStatus>({
+  proxyUrl: false,
+  smtpUrl: false,
+});
 
 export type SsoAuthProviders = 'google' | 'microsoft' | 'github';
 
@@ -99,6 +107,13 @@ export type ServerConfigs = {
     name: string;
     fields: {
       mock_server_wildcard_domain: string;
+    };
+  };
+
+  proxyUrlConfigs: {
+    name: string;
+    fields: {
+      proxy_app_url: string;
     };
   };
 };
@@ -325,6 +340,20 @@ export const MOCK_SERVER_CONFIGS: Config[] = [
   },
 ];
 
+export const PROXY_URL_CONFIGS: Config[] = [
+  {
+    name: InfraConfigEnum.ProxyAppUrl,
+    key: 'proxy_app_url',
+  },
+];
+
+// Mirrors the backend validateUrl regex (packages/hoppscotch-backend/src/utils.ts).
+// Keep these in sync — the backend rejects PROXY_APP_URL values that don't match.
+export const PROXY_URL_REGEX = /^(http|https):\/\/[^ "]+$/;
+
+export const isValidProxyUrl = (value: string): boolean =>
+  PROXY_URL_REGEX.test(value);
+
 export const ALL_CONFIGS = [
   GOOGLE_CONFIGS,
   MICROSOFT_CONFIGS,
@@ -336,4 +365,5 @@ export const ALL_CONFIGS = [
   RATE_LIMIT_CONFIGS,
   TOKEN_VALIDATION_CONFIGS,
   MOCK_SERVER_CONFIGS,
+  PROXY_URL_CONFIGS,
 ];

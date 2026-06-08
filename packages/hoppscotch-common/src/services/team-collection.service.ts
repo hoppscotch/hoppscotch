@@ -29,7 +29,7 @@ import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { ref, watch } from "vue"
 import { Service } from "dioc"
 import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
-import { hasActualScript } from "~/helpers/scripting"
+import { hasActualScript } from "@hoppscotch/js-sandbox/scripting"
 import { CollectionDataProps } from "~/helpers/backend/helpers"
 
 export const TEAMS_BACKEND_PAGE_SIZE = 10
@@ -174,6 +174,16 @@ export class TeamCollectionsService extends Service<void> {
   }
 
   /**
+   * Look up a `TeamCollection` subtree by backend `id` in the current tree.
+   * Useful before a delete mutation so callers can capture the subtree for
+   * recursive cleanup (e.g. flushing nested secret-store entries) without
+   * racing the delete subscription.
+   */
+  public findCollectionByID(id: string): TeamCollection | null {
+    return findCollInTree(this.collections.value, id)
+  }
+
+  /**
    * Watches for loading collections and updates inherited properties once loading is done
    */
   private collectionLoadingWatcher() {
@@ -288,10 +298,40 @@ export class TeamCollectionsService extends Service<void> {
       }
     }
 
+    // Migrate device-local secret entries seeded by `importToTeamsWorkspace`
+    // under the importer-stamped `_ref_id` to the backend-assigned `id`.
+    // No-op on devices that didn't seed (migration helpers skip when
+    // nothing exists under the old key).
+    this.migrateImportedSecretEntries(collection)
+
     // Add to entity ids set
     this.entityIDs.add(`collection-${collection.id}`)
 
     this.collections.value = [...tree]
+  }
+
+  // Relies on the backend preserving `data._ref_id` at every level —
+  // each nested folder's `teamCollectionAdded` event must carry its own
+  // `data._ref_id` for migration to fire. A backend that drops nested
+  // `data` would leave per-folder entries orphaned under `_ref_id`.
+  private migrateImportedSecretEntries(collection: TeamCollection) {
+    if (!collection.data) return
+    try {
+      const parsed = JSON.parse(collection.data) as { _ref_id?: unknown }
+      if (typeof parsed._ref_id !== "string" || !parsed._ref_id) return
+      this.secretEnvironmentService.updateSecretEnvironmentID(
+        parsed._ref_id,
+        collection.id
+      )
+      this.currentEnvironmentValueService.updateEnvironmentID(
+        parsed._ref_id,
+        collection.id
+      )
+    } catch {
+      // Malformed `data` — skip migration; the secret service stays
+      // keyed by `_ref_id` and the imported secrets aren't accessible
+      // via the team `id`. Rare; only happens on a malformed backend.
+    }
   }
 
   /**

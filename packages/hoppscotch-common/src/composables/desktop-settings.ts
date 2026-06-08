@@ -8,15 +8,25 @@ import { invoke } from "@tauri-apps/api/core"
 // shell reads them through its own `kernel/store.ts` wrapper at the
 // same physical path. Going through the org-scoped store would route
 // writes to a different file and the shell would never see them.
-import { UnifiedStore as Store } from "~/kernel/store"
+//
+// Relative imports rather than the `~/` alias because this module is
+// consumed by both the web entry (where `~` resolves to common's src)
+// and the desktop shell entry (where `~` resolves to the shell's own
+// src). The package-name alias `@hoppscotch/common/...` would work
+// under Vite dev but fails under Rollup build, which treats the
+// rewritten `@hoppscotch/common/src/...` as an unresolved package
+// specifier. Relative paths resolve identically under TS, both Vite
+// configs, and the production build.
+import { UnifiedStore as Store } from "../kernel/store"
 import {
   DESKTOP_SETTINGS_SCHEMA,
   DESKTOP_SETTINGS_STORE_KEY,
   DESKTOP_SETTINGS_STORE_NAMESPACE,
   parseDesktopSettings,
   type DesktopSettings,
-} from "~/platform/desktop-settings"
-import { Log } from "~/kernel/log"
+} from "../platform/desktop-settings"
+import { setKeyboardLayoutStrategy } from "../helpers/keyboard-strategy"
+import { Log } from "../kernel/log"
 
 const LOG_TAG = "useDesktopSettings"
 
@@ -74,6 +84,7 @@ async function loadInitial(): Promise<void> {
   )
   const raw = E.isRight(result) ? result.right : undefined
   Object.assign(settings, parseDesktopSettings(raw))
+  setKeyboardLayoutStrategy(settings.keyboardLayoutStrategy)
   loaded.value = true
 
   // Subscribe to external writes (for example the Tauri shell's portable
@@ -88,6 +99,7 @@ async function loadInitial(): Promise<void> {
     emitter.on("change", ({ value }: { value?: unknown }) => {
       if (value !== undefined) {
         Object.assign(settings, parseDesktopSettings(value))
+        setKeyboardLayoutStrategy(settings.keyboardLayoutStrategy)
       }
     })
   } catch (err) {
@@ -132,6 +144,15 @@ export function useDesktopSettings(): {
   loaded: Readonly<typeof loaded>
   /** Updates a single setting and persists immediately, rolling back on failure. */
   update: UpdateFn
+  /**
+   * Resolves once the initial store read has completed (success or
+   * failure). Synchronous readers of `settings` that need the persisted
+   * value rather than the schema default await this first. Callers that
+   * already react to `settings` through Vue reactivity do not need it,
+   * since `Object.assign(settings, ...)` inside `loadInitial()` triggers
+   * watchers when the persisted value arrives.
+   */
+  ready: () => Promise<void>
 } {
   if (!initPromise) {
     initPromise = loadInitial().catch((err) => {
@@ -140,6 +161,17 @@ export function useDesktopSettings(): {
       initPromise = undefined
       throw err
     })
+  }
+
+  const ready: () => Promise<void> = async () => {
+    if (!initPromise) return
+    try {
+      await initPromise
+    } catch {
+      // Load failed. Caller can check `loaded.value` to decide whether
+      // to proceed against the schema defaults or retry. Swallowing
+      // matches the pattern `update()` uses below.
+    }
   }
 
   const update: UpdateFn = async (key, value) => {
@@ -161,6 +193,15 @@ export function useDesktopSettings(): {
 
     const previous = settings[key]
     settings[key] = value
+    // Mirror the change into the keyboard-strategy holder eagerly so the
+    // next keypress respects the new strategy without waiting for the
+    // store-watch callback to round-trip. The watch fires later with the
+    // same value, and the redundant write is cheap.
+    if (key === "keyboardLayoutStrategy") {
+      setKeyboardLayoutStrategy(
+        value as DesktopSettings["keyboardLayoutStrategy"]
+      )
+    }
     try {
       await persist()
     } catch (err) {
@@ -168,6 +209,11 @@ export function useDesktopSettings(): {
       // actually in the store. Without this, a failed persist leaves the
       // settings object holding a value the next app start will not find.
       settings[key] = previous
+      if (key === "keyboardLayoutStrategy") {
+        setKeyboardLayoutStrategy(
+          previous as DesktopSettings["keyboardLayoutStrategy"]
+        )
+      }
       throw err
     }
   }
@@ -176,5 +222,6 @@ export function useDesktopSettings(): {
     settings: readonly(settings) as Readonly<DesktopSettings>,
     loaded: readonly(loaded),
     update,
+    ready,
   }
 }

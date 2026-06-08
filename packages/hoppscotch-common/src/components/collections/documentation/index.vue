@@ -270,6 +270,7 @@ import {
 
 import { updateTeamCollection } from "~/helpers/backend/mutations/TeamCollection"
 import { updateTeamRequest } from "~/helpers/backend/mutations/TeamRequest"
+import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
 import {
   CollectionDataProps,
   getSingleTeamCollectionJSON,
@@ -735,7 +736,7 @@ const saveCollectionDocumentation = async () => {
     const data: CollectionDataProps = {
       auth: collection.auth || { authType: "inherit", authActive: true },
       headers: collection.headers || [],
-      variables: collection.variables || [],
+      variables: stripSecretVariableValuesForWire(collection.variables || []),
       description: documentationDescription.value,
       preRequestScript: collection.preRequestScript || "",
       testScript: collection.testScript || "",
@@ -831,7 +832,9 @@ const saveCollectionDocumentationById = async (
       const data: CollectionDataProps = {
         auth: collectionData.auth || { authType: "inherit", authActive: true },
         headers: collectionData.headers || [],
-        variables: collectionData.variables || [],
+        variables: stripSecretVariableValuesForWire(
+          collectionData.variables || []
+        ),
         description: documentation,
         preRequestScript: collectionData.preRequestScript || "",
         testScript: collectionData.testScript || "",

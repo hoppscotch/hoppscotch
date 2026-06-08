@@ -9,9 +9,6 @@ import { FormDataEntry } from "../types/request";
 import { isHoppErrnoException } from "./checks";
 import { getResourceContents } from "./getters";
 
-// Re-export from the canonical implementation in scripting.ts
-export { stripModulePrefix } from "./scripting";
-
 const getValidRequests = (
   collections: HoppCollection[],
   collectionFilePath: string

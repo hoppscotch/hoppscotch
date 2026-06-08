@@ -75,6 +75,7 @@
         :label="`${
           !isTabResponseLoading ? t('action.send') : t('action.cancel')
         }`"
+        :loading="isTabResponseLoading"
         class="min-w-[5rem] flex-1 rounded-r-none"
         @click="!isTabResponseLoading ? newSendRequest() : cancelRequest()"
       />

@@ -27,6 +27,7 @@
     "@commitlint/cli": "20.5.2",
     "@commitlint/config-conventional": "20.5.0",
     "@hoppscotch/ui": "0.2.5",
+    "@types/jest": "30.0.0",
     "@types/node": "24.10.1",
     "cross-env": "10.1.0",
     "http-server": "14.1.1",

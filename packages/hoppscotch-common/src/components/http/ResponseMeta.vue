@@ -119,6 +119,14 @@
                 : `${response.meta.responseSize} B`
             }}
           </span>
+          <span v-if="responseBodyText">
+            <span class="text-secondary"> {{ t("response.lines") }}: </span>
+            {{ lineCount }}
+          </span>
+          <span v-if="responseBodyText">
+            <span class="text-secondary"> {{ t("response.words") }}: </span>
+            {{ wordCount }}
+          </span>
         </div>
       </div>
     </div>
@@ -137,6 +145,7 @@
 <script setup lang="ts">
 import { computed } from "vue"
 import findStatusGroup from "@helpers/findStatusGroup"
+import { getResponseBodyText } from "@composables/lens-actions"
 import type { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
@@ -160,6 +169,40 @@ const props = withDefaults(
     isLoading: false,
   }
 )
+
+/**
+ * The decoded text of the response body, or an empty string when the
+ * current response has no body (loading, network failure, etc.)
+ */
+const responseBodyText = computed(() => {
+  const response = props.response
+  if (!response || !("body" in response)) return ""
+  const raw = getResponseBodyText(response.body)
+  // Pretty-print JSON so the line and word counts reflect the formatted
+  // response shown in the viewer rather than a single minified line.
+  try {
+    return JSON.stringify(JSON.parse(raw), null, 2)
+  } catch {
+    return raw
+  }
+})
+
+/**
+ * Number of lines in the response body. A trailing newline counts as an
+ * additional empty line, matching how a code editor numbers lines.
+ */
+const lineCount = computed(() => {
+  const text = responseBodyText.value
+  return text.length === 0 ? 0 : text.split(/\r\n|\r|\n/).length
+})
+
+/**
+ * Number of whitespace-separated words in the response body.
+ */
+const wordCount = computed(() => {
+  const trimmed = responseBodyText.value.trim()
+  return trimmed.length === 0 ? 0 : trimmed.split(/\s+/).length
+})
 
 /**
  * Gives the response size in a human readable format

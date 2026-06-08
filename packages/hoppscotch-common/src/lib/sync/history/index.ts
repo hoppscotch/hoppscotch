@@ -19,20 +19,17 @@ import { translateToNewRequest, translateToGQLRequest } from "@hoppscotch/data"
 import { HistoryPlatformDef } from "~/platform/history"
 import {
   getUserHistoryEntries,
-  getUserHistoryStore,
   runUserHistoryAllDeletedSubscription,
   runUserHistoryCreatedSubscription,
   runUserHistoryDeletedManySubscription,
   runUserHistoryDeletedSubscription,
-  runUserHistoryStoreStatusChangedSubscription,
   runUserHistoryUpdatedSubscription,
 } from "./api"
 
 import * as E from "fp-ts/Either"
 import { restHistorySyncer, gqlHistorySyncer } from "./sync"
-import { runGQLSubscription } from "~/helpers/backend/GQLClient"
 import { runDispatchWithOutSyncing } from ".."
-import { ReqType, ServiceStatus } from "~/helpers/backend/graphql"
+import { ReqType } from "~/helpers/backend/graphql"
 import { ref } from "vue"
 import { platform } from "~/platform"
 
@@ -68,7 +65,7 @@ function initHistorySync() {
 }
 
 function setupSubscriptions() {
-  let subs: ReturnType<typeof runGQLSubscription>[1][] = []
+  let subs: { unsubscribe: () => void }[] = []
 
   const userHistoryCreatedSub = setupUserHistoryCreatedSubscription()
   const userHistoryUpdatedSub = setupUserHistoryUpdatedSubscription()
@@ -132,20 +129,23 @@ async function getUserHistoryStatus() {
     return
   }
 
-  isFetchingHistoryStoreStatus.value = true
-
-  const res = await getUserHistoryStore()
-
-  if (E.isLeft(res)) {
-    hasErrorFetchingHistoryStoreStatus.value = true
-    isFetchingHistoryStoreStatus.value = false
+  // The history-enabled toggle is a self-host infra-config concept. Backends
+  // without it (e.g. cloud) omit this hook and history is always enabled.
+  const getHistoryStoreStatus = platform.sync?.history?.getHistoryStoreStatus
+  if (!getHistoryStoreStatus) {
+    isHistoryStoreEnabled.value = true
     return
   }
 
-  isHistoryStoreEnabled.value =
-    res.right.isUserHistoryEnabled.value === ServiceStatus.Enable
+  isFetchingHistoryStoreStatus.value = true
 
-  isFetchingHistoryStoreStatus.value = false
+  try {
+    isHistoryStoreEnabled.value = await getHistoryStoreStatus()
+  } catch {
+    hasErrorFetchingHistoryStoreStatus.value = true
+  } finally {
+    isFetchingHistoryStoreStatus.value = false
+  }
 }
 
 function setupUserHistoryCreatedSubscription() {
@@ -282,19 +282,18 @@ function setupUserHistoryDeletedManySubscription() {
 }
 
 function setupUserHistoryStoreStatusChangedSubscription() {
-  const [userHistoryStoreStatusChanged$, userHistoryStoreStatusChangedSub] =
-    runUserHistoryStoreStatusChangedSubscription()
+  // Only self-host exposes the infra-config toggle this subscription tracks;
+  // backends without it (e.g. cloud) skip listening entirely.
+  const subscribeToHistoryStoreStatus =
+    platform.sync?.history?.subscribeToHistoryStoreStatus
 
-  userHistoryStoreStatusChanged$.subscribe((res) => {
-    if (E.isRight(res)) {
-      const status =
-        res.right.infraConfigUpdate == ServiceStatus.Enable ? true : false
+  if (!subscribeToHistoryStoreStatus) {
+    return { unsubscribe: () => {} }
+  }
 
-      isHistoryStoreEnabled.value = status
-    }
+  return subscribeToHistoryStoreStatus((enabled) => {
+    isHistoryStoreEnabled.value = enabled
   })
-
-  return userHistoryStoreStatusChangedSub
 }
 
 function setupUserHistoryAllDeletedSubscription() {

@@ -267,6 +267,7 @@ const selectAWSSignatureAuthType = () => {
     secretKey = "",
     region = "",
     serviceName = "",
+    serviceToken = "",
     addTo = "HEADERS",
   } = auth.value as HoppGQLAuthAWSSignature
 
@@ -278,6 +279,7 @@ const selectAWSSignatureAuthType = () => {
     secretKey,
     region,
     serviceName,
+    serviceToken,
   }
 }
 

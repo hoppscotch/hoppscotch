@@ -139,20 +139,61 @@ function findCollectionPathByID(
   return undefined
 }
 
+// Suffix stamped onto the optimistically-inserted duplicate in the
+// `duplicateCollection` store dispatcher. Used here to locate that placeholder
+// so it can be swapped for the backend response carrying the real IDs.
+const DUPLICATE_COLLECTION_ID_SUFFIX = "-duplicate-collection"
+
+// Find the index of the optimistically-inserted duplicate (its ID ends with
+// DUPLICATE_COLLECTION_ID_SUFFIX) within a sibling list. The original is
+// duplicated into its own parent, so the placeholder always sits alongside it.
+function findDuplicatePlaceholderIndex(collections: HoppCollection[]): number {
+  return collections.findIndex((collection) =>
+    collection.id?.endsWith(DUPLICATE_COLLECTION_ID_SUFFIX)
+  )
+}
+
+// Graft the backend-assigned IDs from the duplicate's exported representation
+// onto the optimistically-inserted collection, matching folders/requests by
+// position. Everything else the frontend already set (name, `_ref_id`, auth,
+// headers, variables, scripts, etc.) is preserved — only the IDs change, so the
+// placeholder `-duplicate-collection` IDs are replaced with the real ones the
+// backend just created.
+function applyExportedIdsToCollection(
+  target: HoppCollection,
+  exported: ExportedCollectionFolder
+): HoppCollection {
+  return {
+    ...target,
+    ...(exported.id ? { id: exported.id } : {}),
+    folders: (target.folders ?? []).map((folder, index) => {
+      const exportedFolder = exported.folders?.[index]
+      return exportedFolder
+        ? applyExportedIdsToCollection(folder, exportedFolder)
+        : folder
+    }),
+    requests: (target.requests ?? []).map((request, index) => {
+      const exportedRequest = exported.requests?.[index]
+      return exportedRequest?.id
+        ? { ...request, id: exportedRequest.id }
+        : request
+    }),
+  }
+}
+
 export function applyDuplicatedCollectionResult(
   collectionType: "REST" | "GQL",
   originalCollectionID: string,
   exportedCollectionJSON: string
 ) {
-  const exportedCollections = JSON.parse(
-    exportedCollectionJSON
-  ) as ExportedCollectionFolder[]
+  const parsed = JSON.parse(exportedCollectionJSON) as
+    | ExportedCollectionFolder
+    | ExportedCollectionFolder[]
 
-  const duplicatedCollection = exportedCollections[0]
+  // The backend may return either the duplicated collection directly or wrapped
+  // in an array — normalize to the single duplicated collection.
+  const duplicatedCollection = Array.isArray(parsed) ? parsed[0] : parsed
   if (!duplicatedCollection) return
-
-  const transformedCollection =
-    exportedCollectionToHoppCollection(duplicatedCollection)
 
   const { collectionStore } = getStoreByCollectionType(collectionType)
   const originalCollectionPath = findCollectionPathByID(
@@ -166,12 +207,27 @@ export function applyDuplicatedCollectionResult(
 
   runDispatchWithOutSyncing(() => {
     if (parentCollectionPath.length === 0) {
-      const duplicateCollectionIndex = collectionStore.value.state.length - 1
+      // Locate the placeholder by its suffixed ID rather than assuming it's the
+      // last root collection — otherwise a stale ID survives and subsequent
+      // edits hit the backend with the bogus `-duplicate-collection` ID.
+      const duplicateCollectionIndex = findDuplicatePlaceholderIndex(
+        collectionStore.value.state
+      )
+
+      if (duplicateCollectionIndex === -1) return
+
+      const placeholderCollection =
+        collectionStore.value.state[duplicateCollectionIndex]
+
+      const updatedCollection = applyExportedIdsToCollection(
+        placeholderCollection,
+        duplicatedCollection
+      )
 
       if (collectionType === "REST") {
-        editRESTCollection(duplicateCollectionIndex, transformedCollection)
+        editRESTCollection(duplicateCollectionIndex, updatedCollection)
       } else {
-        editGraphqlCollection(duplicateCollectionIndex, transformedCollection)
+        editGraphqlCollection(duplicateCollectionIndex, updatedCollection)
       }
 
       return
@@ -184,13 +240,26 @@ export function applyDuplicatedCollectionResult(
 
     if (!parentCollection) return
 
-    const duplicateCollectionIndex = parentCollection.folders.length - 1
+    const duplicateCollectionIndex = findDuplicatePlaceholderIndex(
+      parentCollection.folders
+    )
+
+    if (duplicateCollectionIndex === -1) return
+
+    const placeholderCollection =
+      parentCollection.folders[duplicateCollectionIndex]
+
+    const updatedCollection = applyExportedIdsToCollection(
+      placeholderCollection,
+      duplicatedCollection
+    )
+
     const duplicateCollectionPath = `${parentCollectionPath.join("/")}/${duplicateCollectionIndex}`
 
     if (collectionType === "REST") {
-      editRESTFolder(duplicateCollectionPath, transformedCollection)
+      editRESTFolder(duplicateCollectionPath, updatedCollection)
     } else {
-      editGraphqlFolder(duplicateCollectionPath, transformedCollection)
+      editGraphqlFolder(duplicateCollectionPath, updatedCollection)
     }
   })
 }

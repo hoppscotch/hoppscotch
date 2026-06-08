@@ -119,14 +119,16 @@
                 : `${response.meta.responseSize} B`
             }}
           </span>
-          <span v-if="responseBodyText">
-            <span class="text-secondary"> {{ t("response.lines") }}: </span>
-            {{ lineCount }}
-          </span>
-          <span v-if="responseBodyText">
-            <span class="text-secondary"> {{ t("response.words") }}: </span>
-            {{ wordCount }}
-          </span>
+          <template v-if="responseBodyText">
+            <span>
+              <span class="text-secondary"> {{ t("response.lines") }}: </span>
+              {{ lineCount }}
+            </span>
+            <span>
+              <span class="text-secondary"> {{ t("response.words") }}: </span>
+              {{ wordCount }}
+            </span>
+          </template>
         </div>
       </div>
     </div>
@@ -177,6 +179,20 @@ const props = withDefaults(
 const responseBodyText = computed(() => {
   const response = props.response
   if (!response || !("body" in response)) return ""
+
+  // Skip binary payloads (images, audio, video, etc.) whose decoded bytes
+  // would produce meaningless line and word counts.
+  const contentType = response.headers
+    .find((header) => header.key.toLowerCase() === "content-type")
+    ?.value.toLowerCase()
+  const isTextual =
+    !contentType ||
+    contentType.startsWith("text/") ||
+    /application\/(json|.*\+json|xml|.*\+xml|javascript|x-www-form-urlencoded)/.test(
+      contentType
+    )
+  if (!isTextual) return ""
+
   const raw = getResponseBodyText(response.body)
   // Pretty-print JSON so the line and word counts reflect the formatted
   // response shown in the viewer rather than a single minified line.

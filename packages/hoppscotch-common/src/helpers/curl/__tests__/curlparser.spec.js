@@ -44,6 +44,62 @@ const samples = [
     }),
   },
   {
+    command: `curl --location 'http://www.test.git/fileUpload' \
+    --header 'token: 123' \
+    --form 'file_name=@"/C:/Users/wu/Pictures/ocr.png"' \
+    --form 'folder="4"' \
+    --form 'type="1"' \
+    --form 'target_id="2"'`,
+    response: makeRESTRequest({
+      name: "Untitled",
+      method: "POST",
+      endpoint: "http://www.test.git/fileUpload",
+      auth: { authType: "inherit", authActive: true },
+      headers: [
+        {
+          active: true,
+          key: "token",
+          value: "123",
+          description: "",
+        },
+      ],
+      body: {
+        contentType: "multipart/form-data",
+        body: [
+          {
+            active: true,
+            isFile: true,
+            key: "file_name",
+            value: "",
+          },
+          {
+            active: true,
+            isFile: false,
+            key: "folder",
+            value: "4",
+          },
+          {
+            active: true,
+            isFile: false,
+            key: "type",
+            value: "1",
+          },
+          {
+            active: true,
+            isFile: false,
+            key: "target_id",
+            value: "2",
+          },
+        ],
+      },
+      params: [],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+    }),
+  },
+  {
     command: `
       curl 'http://avs:def@127.0.0.1:8000/api/admin/crm/brand/4'
         -X PUT
@@ -253,7 +309,7 @@ const samples = [
           },
           {
             active: true,
-            isFile: false,
+            isFile: true,
             key: "hello3",
             value: "",
           },

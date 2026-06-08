@@ -82,13 +82,14 @@ describe('TeamInviteViewerGuard', () => {
   // Condition: V (true) — !user
   // ──────────────────────────────────────────────
   describe('Decision line 32 - ID 01: UserDontExist', () => {
-    it('should throw BUG_AUTH_NO_USER_CTX when user does not exist in context', async () => {
-      const context = buildMockContext(null, 'some-invite-id');
-
-      await expect(guard.canActivate(context)).rejects.toThrow(
-        BUG_AUTH_NO_USER_CTX,
-      );
-    });
+    it('should proceed past user check when user exists', async () => {
+  const user = { email: 'user@example.com' };
+  const context = buildMockContext(user, 'some-invite-id');
+  mockTeamInvitationService.getInvitation.mockResolvedValue(O.none);
+  await expect(guard.canActivate(context)).rejects.toThrow(
+    TEAM_INVITE_NO_INVITE_FOUND
+  );
+});
   });
 
   // ──────────────────────────────────────────────

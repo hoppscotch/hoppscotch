@@ -115,8 +115,16 @@ const chooseImporterOrExporter = defineStep(
       const selectedExporter = props.exporterModules.find(
         (i) => i.metadata.id === id
       )
+      if (!selectedExporter) return
 
-      if (selectedExporter && selectedExporter.action) {
+      // Prefer in-modal step navigation when the exporter declares one;
+      // fall back to the legacy fire-and-forget action for exporters that
+      // pop their own UI (e.g. Gist).
+      if (selectedExporter.component) {
+        goToStep(selectedExporter.component.id)
+        return
+      }
+      if (selectedExporter.action) {
         selectedExporter.action()
       }
     },
@@ -183,6 +191,14 @@ watch(
   },
   { deep: true }
 )
+
+// Register exporter steps (e.g. format chooser) so the modal can advance to
+// them via goToStep instead of opening a parallel modal.
+props.exporterModules.forEach((exporter) => {
+  if (exporter.component) {
+    addStep(exporter.component)
+  }
+})
 
 props.importerModules.forEach((importer) => {
   if (importer.component) {

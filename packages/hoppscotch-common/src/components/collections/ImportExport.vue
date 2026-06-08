@@ -4,7 +4,9 @@
     modal-title="modal.collections"
     :importer-modules="importerModules"
     :exporter-modules="exporterModules"
-    :has-team-write-access="hasTeamWriteAccess"
+    :has-team-write-access="
+      hasTeamWriteAccess || collectionsType.type === 'my-collections'
+    "
     @hide-modal="emit('hide-modal')"
   />
 </template>
@@ -18,7 +20,9 @@ import { transformCollectionForImport } from "~/helpers/collection/collection"
 import { FileSource } from "~/helpers/import-export/import/import-sources/FileSource"
 import { UrlSource } from "~/helpers/import-export/import/import-sources/UrlSource"
 
+import IconDownload from "~icons/lucide/download"
 import IconFile from "~icons/lucide/file"
+import yaml from "js-yaml"
 
 import {
   harImporter,
@@ -32,9 +36,16 @@ import {
 import { defineStep } from "~/composables/step-components"
 
 import AllCollectionImport from "~/components/importExport/ImportExportSteps/AllCollectionImport.vue"
+import CollectionsExportFormatStep from "~/components/collections/ExportFormatStep.vue"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 import { appendRESTCollections, restCollections$ } from "~/newstore/collections"
+import {
+  ensureRefIds,
+  flushUnmatchedRefIdsFromTree,
+  populateLocalStoresFromCollectionTree,
+  stripCollectionTreeForStore,
+} from "~/helpers/secretVariables"
 
 import IconInsomnia from "~icons/hopp/insomnia"
 import IconPostman from "~icons/hopp/postman"
@@ -50,9 +61,13 @@ import { getTeamCollectionJSON } from "~/helpers/backend/helpers"
 
 import { platform } from "~/platform"
 
-import { initializeDownloadFile } from "~/helpers/import-export/export"
+import {
+  initializeDownloadFile,
+  stripRefIdReplacer,
+} from "~/helpers/import-export/export"
 import { gistExporter } from "~/helpers/import-export/export/gist"
 import { myCollectionsExporter } from "~/helpers/import-export/export/myCollections"
+import { hoppCollectionsToOpenAPI } from "~/helpers/import-export/export/openapi"
 import { teamCollectionsExporter } from "~/helpers/import-export/export/teamCollections"
 
 import { ImporterOrExporter } from "~/components/importExport/types"
@@ -121,7 +136,11 @@ const handleImportToStore = async (collections: HoppCollection[]) => {
  */
 const importToPersonalWorkspace = (collections: HoppCollection[]) => {
   // Remove old id from the imported collection and folders and transform it to new collection format
-  const sanitizedCollections = collections.map(sanitizeCollection)
+  const sanitizedCollections = collections
+    .map(sanitizeCollection)
+    .map(ensureRefIds)
+
+  sanitizedCollections.forEach(populateLocalStoresFromCollectionTree)
 
   if (
     platform.sync.collections.importToPersonalWorkspace &&
@@ -134,14 +153,17 @@ const importToPersonalWorkspace = (collections: HoppCollection[]) => {
     )
   }
 
-  appendRESTCollections(sanitizedCollections)
+  appendRESTCollections(sanitizedCollections.map(stripCollectionTreeForStore))
   return E.right({ success: true })
 }
 
 /**
- * Import collections to teams workspace
- * No need to sanitize the collections before importing to teams workspace because the BE handles this and add the new id to the collection and folders
- * @param collections Collections to import
+ * Import collections to teams workspace. Stamps `_ref_id` and seeds the
+ * device-local secret stores under it; on the team-collection-added
+ * subscription, `TeamCollectionsService.addCollection` migrates entries
+ * from `_ref_id` to the backend-assigned `id`. Wire payload is stripped
+ * of secrets via `transformCollectionForImport`; secrets stay
+ * device-local per the team-isolation model.
  */
 const importToTeamsWorkspace = async (collections: HoppCollection[]) => {
   if (!hasTeamWriteAccess.value || !selectedTeamID.value) {
@@ -150,7 +172,10 @@ const importToTeamsWorkspace = async (collections: HoppCollection[]) => {
     })
   }
 
-  const transformedCollection = collections.map((collection) =>
+  const collectionsWithRefIds = collections.map(ensureRefIds)
+  collectionsWithRefIds.forEach(populateLocalStoresFromCollectionTree)
+
+  const transformedCollection = collectionsWithRefIds.map((collection) =>
     transformCollectionForImport(collection)
   )
 
@@ -159,19 +184,23 @@ const importToTeamsWorkspace = async (collections: HoppCollection[]) => {
     selectedTeamID.value
   )()
 
-  return E.isRight(res)
-    ? E.right({ success: true })
-    : E.left({
-        success: false,
-      })
+  if (E.isLeft(res)) {
+    // Backend rejected — flush ONLY `_ref_id`-keyed entries we just
+    // seeded. `flushLocalStoresForCollectionTree` would also delete by
+    // `node.id`, which could be a live backend id from a same-workspace
+    // re-import and would wipe existing collections' in-memory secrets.
+    // Empty `keptRefIds` ⇒ every `_ref_id` in the tree is flushed.
+    flushUnmatchedRefIdsFromTree(collectionsWithRefIds, new Set())
+    return E.left({ success: false })
+  }
+  return E.right({ success: true })
 }
 
 const emit = defineEmits<{
   (e: "hide-modal"): () => void
 }>()
 
-const isHoppMyCollectionExporterInProgress = ref(false)
-const isHoppTeamCollectionExporterInProgress = ref(false)
+const isWorkspaceExportInProgress = ref(false)
 const isHoppGistCollectionExporterInProgress = ref(false)
 const isPostmanImporterInProgress = ref(false)
 
@@ -569,89 +598,171 @@ const HoppGistImporter: ImporterOrExporter = {
   }),
 }
 
-const HoppMyCollectionsExporter: ImporterOrExporter = {
-  metadata: {
-    id: "hopp_my_collections",
-    name: "export.as_json",
-    title: "action.download_file",
-    icon: IconUser,
-    disabled: false,
-    applicableTo: ["personal-workspace"],
-    isLoading: isHoppMyCollectionExporterInProgress,
-    format: "hoppscotch",
-  },
-  importSummary: currentImportSummary,
-  action: async () => {
+/**
+ * Resolve the array of HoppCollections for the current workspace. For the
+ * team workspace we have to fetch + parse the GraphQL JSON; for personal it's
+ * already a reactive ref.
+ */
+const getWorkspaceCollections = async (): Promise<{
+  collections: HoppCollection[]
+  workspaceName: string
+  fileBaseName: string
+} | null> => {
+  if (props.collectionsType.type === "my-collections") {
     if (!myCollections.value.length) {
-      return toast.error(t("error.no_collections_to_export"))
+      toast.error(t("error.no_collections_to_export"))
+      return null
     }
+    return {
+      collections: myCollections.value,
+      workspaceName: "Hoppscotch personal collections",
+      fileBaseName: "hoppscotch-personal-collections",
+    }
+  }
 
-    isHoppMyCollectionExporterInProgress.value = true
+  if (!props.collectionsType.selectedTeam) return null
+  const team = props.collectionsType.selectedTeam
+  const res = await teamCollectionsExporter(team.teamID)
+  if (E.isLeft(res)) {
+    toast.error(res.left)
+    return null
+  }
 
-    const message = await initializeDownloadFile(
-      myCollectionsExporter(myCollections.value),
-      "hoppscotch-personal-collections"
-    )
+  let collections: HoppCollection[]
+  try {
+    collections = JSON.parse(res.right) as HoppCollection[]
+  } catch {
+    toast.error(t("error.something_went_wrong"))
+    return null
+  }
+  if (!collections.length) {
+    toast.error(t("error.no_collections_to_export"))
+    return null
+  }
 
+  return {
+    collections,
+    workspaceName: team.teamName ?? "Hoppscotch team",
+    fileBaseName: "hoppscotch-team-collections",
+  }
+}
+
+const onWorkspaceExportHopp = async () => {
+  // Keep the modal open during the GraphQL fetch (team workspaces) and
+  // serialization. Closing early hid that latency from the user.
+  isWorkspaceExportInProgress.value = true
+  let saved = false
+  try {
+    const ctx = await getWorkspaceCollections()
+    if (!ctx) return
+
+    const json =
+      props.collectionsType.type === "my-collections"
+        ? myCollectionsExporter(ctx.collections)
+        : JSON.stringify(ctx.collections, null, 2)
+
+    const message = await initializeDownloadFile(json, ctx.fileBaseName)
     if (E.isRight(message)) {
-      toast.success(t("state.download_started"))
-
+      toast.success(t(message.right))
       platform.analytics?.logEvent({
         type: "HOPP_EXPORT_COLLECTION",
         exporter: "json",
         platform: "rest",
       })
+      saved = true
     } else {
       toast.error(t(message.left))
     }
-
-    isHoppMyCollectionExporterInProgress.value = false
-  },
+  } catch {
+    toast.error(t("export.failed"))
+  } finally {
+    isWorkspaceExportInProgress.value = false
+    // Only close the parent modal when the file actually saved. On cancel,
+    // no-data, or error the user stays on the format chooser so toasts and
+    // state remain visible and they can retry.
+    if (saved) emit("hide-modal")
+  }
 }
 
-const HoppTeamCollectionsExporter: ImporterOrExporter = {
+const onWorkspaceExportOpenAPI = async (format: "json" | "yaml") => {
+  isWorkspaceExportInProgress.value = true
+  let saved = false
+  try {
+    const ctx = await getWorkspaceCollections()
+    if (!ctx) return
+
+    // The chooser modal already shows the full list of OpenAPI lossiness
+    // categories upfront, so the converter's post-export warnings would be
+    // redundant — drop them.
+    const { doc } = hoppCollectionsToOpenAPI(ctx.workspaceName, ctx.collections)
+
+    const isYaml = format === "yaml"
+    let data: string
+    try {
+      data = isYaml ? yaml.dump(doc) : JSON.stringify(doc, null, 2)
+    } catch {
+      toast.error(t("error.something_went_wrong"))
+      return
+    }
+    const extension = isYaml ? "yaml" : "json"
+    const result = await platform.kernelIO.saveFileWithDialog({
+      data,
+      contentType: isYaml ? "application/x-yaml" : "application/json",
+      suggestedFilename: `${ctx.fileBaseName}-openapi.${extension}`,
+      filters: [
+        {
+          name: `OpenAPI ${extension.toUpperCase()} file`,
+          extensions: [extension],
+        },
+      ],
+    })
+    if (result.type === "saved" || result.type === "unknown") {
+      toast.success(t("state.download_started").toString())
+      platform.analytics?.logEvent({
+        type: "HOPP_EXPORT_COLLECTION",
+        exporter: "openapi",
+        platform: "rest",
+      })
+      saved = true
+    }
+  } catch {
+    toast.error(t("export.failed"))
+  } finally {
+    isWorkspaceExportInProgress.value = false
+    if (saved) emit("hide-modal")
+  }
+}
+
+// In-modal step that renders the format chooser (Hoppscotch JSON / OpenAPI
+// JSON / OpenAPI YAML + lossiness disclosure). Registered as the exporter's
+// `component` so ImportExportBase advances to it on click instead of opening
+// a parallel modal.
+const exportFormatStep = defineStep(
+  "collections_export_format",
+  CollectionsExportFormatStep,
+  () => ({
+    loading: isWorkspaceExportInProgress.value,
+    "onExport-hoppscotch": () => {
+      onWorkspaceExportHopp()
+    },
+    "onExport-openapi": (format: "json" | "yaml") => {
+      onWorkspaceExportOpenAPI(format)
+    },
+  })
+)
+
+const HoppCollectionsExporter: ImporterOrExporter = {
   metadata: {
-    id: "hopp_team_collections",
-    name: "export.as_json",
-    title: "export.as_json",
-    icon: IconUser,
+    id: "hopp_collections_export",
+    name: "export.collections",
+    title: "export.choose_format",
+    icon: IconDownload,
     disabled: false,
-    applicableTo: ["team-workspace"],
-    isLoading: isHoppTeamCollectionExporterInProgress,
+    applicableTo: ["personal-workspace", "team-workspace"],
+    isLoading: isWorkspaceExportInProgress,
   },
   importSummary: currentImportSummary,
-  action: async () => {
-    isHoppTeamCollectionExporterInProgress.value = true
-    if (
-      props.collectionsType.type === "team-collections" &&
-      props.collectionsType.selectedTeam
-    ) {
-      const res = await teamCollectionsExporter(
-        props.collectionsType.selectedTeam.teamID
-      )
-
-      if (E.isRight(res)) {
-        const message = await initializeDownloadFile(
-          res.right,
-          "hoppscotch-team-collections"
-        )
-
-        E.isRight(message)
-          ? toast.success(t(message.right))
-          : toast.error(t(message.left))
-
-        platform.analytics?.logEvent({
-          type: "HOPP_EXPORT_COLLECTION",
-          exporter: "json",
-          platform: "rest",
-        })
-      } else {
-        toast.error(res.left)
-      }
-    }
-
-    isHoppTeamCollectionExporterInProgress.value = false
-  },
+  component: exportFormatStep,
 }
 
 const HoppGistCollectionsExporter: ImporterOrExporter = {
@@ -777,10 +888,7 @@ const importerModules = computed(() => {
 })
 
 const exporterModules = computed(() => {
-  const enabledExporters = [
-    HoppMyCollectionsExporter,
-    HoppTeamCollectionsExporter,
-  ]
+  const enabledExporters = [HoppCollectionsExporter]
 
   if (platform.platformFeatureFlags.exportAsGIST) {
     enabledExporters.push(HoppGistCollectionsExporter)
@@ -831,7 +939,8 @@ const getCollectionJSON = async () => {
   }
 
   if (props.collectionsType.type === "my-collections") {
-    return E.right(JSON.stringify(myCollections.value, null, 2))
+    const stripped = myCollections.value.map(stripCollectionTreeForStore)
+    return E.right(JSON.stringify(stripped, stripRefIdReplacer, 2))
   }
 
   return E.left("INVALID_SELECTED_TEAM_OR_INVALID_COLLECTION_TYPE")

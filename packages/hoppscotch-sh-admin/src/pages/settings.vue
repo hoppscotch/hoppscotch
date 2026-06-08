@@ -31,13 +31,18 @@
       <HoppSmartTab :id="'token'" :label="t('configs.tabs.infra_tokens')">
         <Tokens />
       </HoppSmartTab>
+      <HoppSmartTab id="proxy" :label="t('configs.tabs.proxy')">
+        <SettingsProxyURLConfiguration
+          class="pb-8 px-4"
+          v-model:config="workingConfigs"
+        />
+      </HoppSmartTab>
       <HoppSmartTab :id="'rate-limit'" :label="t('configs.tabs.rate_limit')">
         <SettingsRateLimit v-model:config="workingConfigs" />
       </HoppSmartTab>
       <HoppSmartTab id="miscellaneous" :label="t('configs.tabs.miscellaneous')">
         <div class="pb-8 px-4 flex flex-col space-y-8 divide-y divide-divider">
           <SettingsDataSharing v-model:config="workingConfigs" />
-          <SettingsMockServer v-model:config="workingConfigs" />
           <SettingsReset />
         </div>
       </HoppSmartTab>
@@ -83,7 +88,15 @@ const showSaveChangesModal = ref(false);
 const initiateServerRestart = ref(false);
 
 // Tabs
-type OptionTabs = 'auth' | 'smtp' | 'token' | 'miscellaneous' | 'rate-limit';
+type OptionTabs =
+  | 'auth'
+  | 'smtp'
+  | 'token'
+  | 'proxy'
+  | 'miscellaneous'
+  | 'rate-limit'
+  | 'mock';
+
 const selectedOptionTab = ref<OptionTabs>('auth');
 
 // Obtain the current and working configs from the useConfigHandler composable
@@ -102,12 +115,12 @@ const {
 const isConfigUpdated = computed(() =>
   currentConfigs.value && workingConfigs.value
     ? !isEqual(currentConfigs.value, workingConfigs.value)
-    : false
+    : false,
 );
 
 // Check if any of the fields in workingConfigs are empty
 const areAnyFieldsEmpty = computed(() =>
-  workingConfigs.value ? AreAnyConfigFieldsEmpty(workingConfigs.value) : false
+  workingConfigs.value ? AreAnyConfigFieldsEmpty(workingConfigs.value) : false,
 );
 
 const triggerSaveChangesModal = () => {
@@ -119,7 +132,8 @@ const triggerSaveChangesModal = () => {
     return toast.error(t('configs.mail_configs.smtp_auth_incomplete'));
   }
 
-  if (hasInputValidationFailed.value) {
+  // Check if any of the input validations have failed
+  if (Object.values(hasInputValidationFailed.value).some(Boolean)) {
     return toast.error(t('configs.input_validation_error'));
   }
   showSaveChangesModal.value = true;

@@ -2515,25 +2515,19 @@ describe('importCollectionsFromJSON — collection-level script fields', () => {
     expect(createCallArg.data.preRequestScript).toBe(
       'pw.env.set("ROOT_RAN", "yes");',
     );
-    expect(createCallArg.data.testScript).toBe(
-      'pw.test("root", () => {});',
-    );
+    expect(createCallArg.data.testScript).toBe('pw.test("root", () => {});');
     const childCreateArg = createCallArg.children.create[0];
     expect(childCreateArg.data.preRequestScript).toBe(
       'pw.env.set("FOLDER_RAN", "yes");',
     );
-    expect(childCreateArg.data.testScript).toBe(
-      'pw.test("folder", () => {});',
-    );
+    expect(childCreateArg.data.testScript).toBe('pw.test("folder", () => {});');
 
     if (E.isRight(result)) {
       const exported = JSON.parse(result.right.exportedCollection);
       // `data` is JSON-stringified by transformCollectionData on export.
       const rootData = JSON.parse(exported[0].data);
       const folderData = JSON.parse(exported[0].folders[0].data);
-      expect(rootData.preRequestScript).toBe(
-        'pw.env.set("ROOT_RAN", "yes");',
-      );
+      expect(rootData.preRequestScript).toBe('pw.env.set("ROOT_RAN", "yes");');
       expect(rootData.testScript).toBe('pw.test("root", () => {});');
       expect(folderData.preRequestScript).toBe(
         'pw.env.set("FOLDER_RAN", "yes");',

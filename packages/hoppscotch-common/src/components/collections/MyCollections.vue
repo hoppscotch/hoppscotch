@@ -1049,9 +1049,12 @@ const reveal = async (target: {
   originLocation: "user-collection"
   folderPath: string
   requestIndex: number
+  isStale?: () => boolean
 }) => {
-  await expandAncestors(target.folderPath)
-  await scrollToNode(`${target.folderPath}/${target.requestIndex}`)
+  const { isStale } = target
+  await expandAncestors(target.folderPath, isStale)
+  if (isStale?.()) return
+  await scrollToNode(`${target.folderPath}/${target.requestIndex}`, isStale)
 }
 
 defineExpose({

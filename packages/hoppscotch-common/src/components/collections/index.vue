@@ -643,7 +643,12 @@ const switchToMyCollections = () => {
   collectionsType.value.selectedTeam = undefined
 }
 
+let revealGeneration = 0
+
 const revealInCollectionsSidebar = async (): Promise<void> => {
+  const generation = ++revealGeneration
+  const isStale = () => generation !== revealGeneration
+
   const doc = tabs.currentActiveTab.value.document
   if (doc.type !== "request") return
 
@@ -657,8 +662,10 @@ const revealInCollectionsSidebar = async (): Promise<void> => {
     if (!("folderPath" in ctx) || ctx.folderPath === null) return
     if (ctx.requestIndex === null || ctx.requestIndex === undefined) return
 
+    if (isStale()) return
     switchToMyCollections()
 
+    if (isStale()) return
     sidebarPicked.value = {
       pickedType: "my-request",
       folderPath: ctx.folderPath,
@@ -666,10 +673,12 @@ const revealInCollectionsSidebar = async (): Promise<void> => {
     }
 
     await nextTick()
+    if (isStale()) return
     await myCollectionsRef.value?.reveal({
       originLocation: "user-collection",
       folderPath: ctx.folderPath,
       requestIndex: ctx.requestIndex,
+      isStale,
     })
     return
   }
@@ -686,18 +695,22 @@ const revealInCollectionsSidebar = async (): Promise<void> => {
       }
     }
 
+    if (isStale()) return
     collectionsType.value.type = "team-collections"
 
+    if (isStale()) return
     sidebarPicked.value = {
       pickedType: "teams-request",
       requestID: ctx.requestID,
     }
 
     await nextTick()
+    if (isStale()) return
     await teamCollectionsRef.value?.reveal({
       originLocation: "team-collection",
       folderPath: ctx.collectionID,
       requestID: ctx.requestID,
+      isStale,
     })
   }
 }

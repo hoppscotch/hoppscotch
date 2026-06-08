@@ -68,10 +68,12 @@ export function useCollectionNodeReveal(options: CollectionNodeRevealOptions) {
     },
   })
 
-  const openNode = async (id: string) => {
+  const openNode = async (id: string, isStale?: () => boolean) => {
     let toggleIssued = false
 
     for (let attempt = 0; attempt < openNodeRetries; attempt++) {
+      if (isStale?.()) return
+
       const entry = nodeTogglers.get(id)
       if (entry) {
         if (entry.isOpen) return
@@ -82,13 +84,16 @@ export function useCollectionNodeReveal(options: CollectionNodeRevealOptions) {
       }
 
       await nextTick()
+      if (isStale?.()) return
     }
   }
 
-  const scrollToNode = async (targetId: string) => {
+  const scrollToNode = async (targetId: string, isStale?: () => boolean) => {
     const selectors = buildScrollSelectors(targetId)
 
     for (let attempt = 0; attempt < scrollRetries; attempt++) {
+      if (isStale?.()) return
+
       const el = selectors
         .map((selector) => document.querySelector(selector))
         .find((node) => node !== null)
@@ -101,15 +106,21 @@ export function useCollectionNodeReveal(options: CollectionNodeRevealOptions) {
         return
       }
       await nextTick()
+      if (isStale?.()) return
     }
   }
 
-  const expandAncestors = async (folderPath: string) => {
+  const expandAncestors = async (
+    folderPath: string,
+    isStale?: () => boolean
+  ) => {
     const parts = folderPath.split("/").filter((p) => p.length > 0)
     for (let i = 0; i < parts.length; i++) {
-      await openNode(parts.slice(0, i + 1).join("/"))
+      if (isStale?.()) return
+      await openNode(parts.slice(0, i + 1).join("/"), isStale)
     }
     await nextTick()
+    if (isStale?.()) return
   }
 
   return {

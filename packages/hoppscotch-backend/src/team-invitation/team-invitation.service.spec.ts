@@ -187,7 +187,6 @@ test('TC-07b: should send email and publish event on success', async () => {
   expect(E.isRight(result)).toBe(true);
 
 
-  // Verificar efeitos colaterais:
  expect(mockPrisma.teamInvitation.create).toHaveBeenCalledWith(
   expect.objectContaining({
     data: expect.objectContaining({ 
@@ -344,7 +343,7 @@ describe('acceptInvitation — White-Box', () => {
   );
   const result = await service.createInvitation(
     mockCreator, mockTeam.id,
-    'INVITEE@EXAMPLE.COM', // capitalização diferente
+    'INVITEE@EXAMPLE.COM', 
     TeamAccessRole.VIEWER
   );
   expect(E.isLeft(result)).toBe(true);
@@ -376,7 +375,7 @@ describe('revokeInvitation — Black-Box', () => {
   });
 
   test('TC-12b: should return error for a valid ID that was already accepted', async () => {
-  // Simula ID valido mas cujo registro foi deletado apos aceitacao
+
   mockPrisma.teamInvitation.findUniqueOrThrow.mockRejectedValue(
     new Error('Record not found')
   );
@@ -384,8 +383,7 @@ describe('revokeInvitation — Black-Box', () => {
   expect(E.isLeft(result)).toBe(true);
   if (E.isLeft(result))
     expect(result.left).toBe(TEAM_INVITE_NO_INVITE_FOUND);
-  // Nota: mesmo erro que ID invalido — correto, pois do ponto de vista
-  // do sistema ambos sao 'convite nao encontrado'.
+  
 });
 
 

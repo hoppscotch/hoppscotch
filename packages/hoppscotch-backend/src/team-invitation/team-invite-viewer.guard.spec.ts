@@ -12,7 +12,6 @@ import { TeamService } from 'src/team/team.service';
 import { TeamInvitationService } from './team-invitation.service';
 import { TeamInviteViewerGuard } from './team-invite-viewer.guard';
 
-// Intercepta e mocka o utilitário throwErr do Hoppscotch para lançar erros nativos legíveis pelo Jest
 jest.mock('src/utils', () => ({
   __esModule: true,
   throwErr: jest.fn((errStr: string) => {
@@ -20,7 +19,7 @@ jest.mock('src/utils', () => ({
   }),
 }));
 
-// Mock dos Serviços com resoluções dinâmicas padrão
+
 const mockTeamInvitationService = {
   getInvitation: jest.fn(),
 };
@@ -33,7 +32,6 @@ describe('TeamInviteViewerGuard', () => {
   let guard: TeamInviteViewerGuard;
   let gqlSpy: jest.SpyInstance;
 
-  // Helper para construir e registrar o spy do contexto de execução GraphQL
   const buildMockContext = (user: any, inviteID: any): ExecutionContext => {
     const mockGqlCtx = {
       getContext: () => ({ req: { user } }),
@@ -66,11 +64,9 @@ describe('TeamInviteViewerGuard', () => {
   });
 
   afterEach(() => {
-    // Restaura o ciclo original do GqlExecutionContext para prevenir vazamento de estado
     if (gqlSpy) {
       gqlSpy.mockRestore();
     }
-    // Limpa histórico e configurações de retorno de todos os mocks
     jest.clearAllMocks();
     mockTeamInvitationService.getInvitation.mockReset();
     mockTeamService.getTeamMember.mockReset();

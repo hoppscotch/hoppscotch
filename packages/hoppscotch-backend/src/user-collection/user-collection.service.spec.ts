@@ -10,6 +10,7 @@ import {
   USER_COLL_SAME_NEXT_COLL,
   USER_COLL_SHORT_TITLE,
   USER_COLL_ALREADY_ROOT,
+  USER_NOT_FOUND,
   USER_NOT_OWNER,
   USER_COLL_DATA_INVALID,
   USER_COLLECTION_CREATION_FAILED,
@@ -642,6 +643,50 @@ describe('getChildrenOfUserCollection', () => {
       ReqType.GQL,
     );
     expect(result).toEqual([]);
+  });
+});
+
+describe('getUserOfCollection', () => {
+  test('should return the user of a collection with valid collectionID', async () => {
+    mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce({
+      ...rootRESTUserCollection,
+      user,
+    } as any);
+
+    const result = await userCollectionService.getUserOfCollection(
+      rootRESTUserCollection.id,
+    );
+
+    expect(result).toEqualRight(user);
+    expect(mockPrisma.userCollection.findUniqueOrThrow).toHaveBeenCalledWith({
+      where: {
+        id: rootRESTUserCollection.id,
+      },
+      include: {
+        user: true,
+      },
+    });
+  });
+
+  test('should throw USER_NOT_FOUND when collectionID is invalid', async () => {
+    mockPrisma.userCollection.findUniqueOrThrow.mockRejectedValueOnce(
+      'NotFoundError',
+    );
+
+    const result =
+      await userCollectionService.getUserOfCollection('invalidID');
+
+    expect(result).toEqualLeft(USER_NOT_FOUND);
+  });
+
+  test('should throw USER_NOT_FOUND when collectionID is empty', async () => {
+    mockPrisma.userCollection.findUniqueOrThrow.mockRejectedValueOnce(
+      'NotFoundError',
+    );
+
+    const result = await userCollectionService.getUserOfCollection('');
+
+    expect(result).toEqualLeft(USER_NOT_FOUND);
   });
 });
 

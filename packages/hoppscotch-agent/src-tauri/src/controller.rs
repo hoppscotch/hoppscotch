@@ -222,7 +222,7 @@ pub async fn execute(
         }
     };
 
-    let request = match state.validate_access_and_get_data::<relay::Request>(
+    let (request, reg_info) = match state.validate_access_and_get_data::<relay::Request>(
         auth_header.token(),
         nonce,
         &body,
@@ -237,14 +237,6 @@ pub async fn execute(
     let request_id = request.id;
 
     tracing::Span::current().record("request_id", &request_id);
-
-    let reg_info = match state.get_registration(auth_header.token()) {
-        Some(r) => r,
-        None => {
-            tracing::warn!("Registration info not found");
-            return Err(AgentError::Unauthorized);
-        }
-    };
 
     Ok(relay::execute(request)
         .await
@@ -329,7 +321,7 @@ pub async fn log_sink(
         }
     };
 
-    let log_entry: LogEntry =
+    let (log_entry, _): (LogEntry, _) =
         match state.validate_access_and_get_data(auth_header.token(), nonce, &body) {
             Some(entry) => entry,
             None => {

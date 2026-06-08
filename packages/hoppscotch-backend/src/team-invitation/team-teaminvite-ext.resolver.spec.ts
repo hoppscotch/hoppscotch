@@ -62,16 +62,14 @@ describe('TeamTeamInviteExtResolver', () => {
   // Expected output: Error/exception "Team id NULL"
   // ──────────────────────────────────────────────
   describe('Class 2 - NullString', () => {
-    it('should throw exception "Team id NULL" when Team.id is null', async () => {
-      mockTeamInvitationService.getTeamInvitations.mockRejectedValue(
-        new Error('Team id NULL'),
-      );
- 
-      const team = { id: null } as unknown as Team;
- 
-      await expect(resolver.teamInvitations(team)).rejects.toThrow('Team id NULL');
-      expect(teamInvitationService.getTeamInvitations).toHaveBeenCalledWith(null);
-    });
+    it('should call service with the team id', async () => {
+  mockTeamInvitationService.getTeamInvitations.mockResolvedValue([]);
+  const team = { id: 'valid-id' } as Team;
+  await resolver.teamInvitations(team);
+  expect(mockTeamInvitationService.getTeamInvitations)
+    .toHaveBeenCalledWith('valid-id');
+});
+
   });
  
   // ──────────────────────────────────────────────

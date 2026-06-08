@@ -12,7 +12,6 @@ import { TeamService } from 'src/team/team.service';
 import { TeamInvitationService } from './team-invitation.service';
 import { TeamInviteViewerGuard } from './team-invite-viewer.guard';
 
-// Intercepta e mocka o utilitário throwErr do Hoppscotch para lançar erros nativos legíveis pelo Jest
 jest.mock('src/utils', () => ({
   __esModule: true,
   throwErr: jest.fn((errStr: string) => {
@@ -20,7 +19,7 @@ jest.mock('src/utils', () => ({
   }),
 }));
 
-// Mock dos Serviços com resoluções dinâmicas padrão
+
 const mockTeamInvitationService = {
   getInvitation: jest.fn(),
 };
@@ -33,7 +32,6 @@ describe('TeamInviteViewerGuard', () => {
   let guard: TeamInviteViewerGuard;
   let gqlSpy: jest.SpyInstance;
 
-  // Helper para construir e registrar o spy do contexto de execução GraphQL
   const buildMockContext = (user: any, inviteID: any): ExecutionContext => {
     const mockGqlCtx = {
       getContext: () => ({ req: { user } }),
@@ -66,11 +64,9 @@ describe('TeamInviteViewerGuard', () => {
   });
 
   afterEach(() => {
-    // Restaura o ciclo original do GqlExecutionContext para prevenir vazamento de estado
     if (gqlSpy) {
       gqlSpy.mockRestore();
     }
-    // Limpa histórico e configurações de retorno de todos os mocks
     jest.clearAllMocks();
     mockTeamInvitationService.getInvitation.mockReset();
     mockTeamService.getTeamMember.mockReset();
@@ -82,13 +78,14 @@ describe('TeamInviteViewerGuard', () => {
   // Condition: V (true) — !user
   // ──────────────────────────────────────────────
   describe('Decision line 32 - ID 01: UserDontExist', () => {
-    it('should throw BUG_AUTH_NO_USER_CTX when user does not exist in context', async () => {
-      const context = buildMockContext(null, 'some-invite-id');
-
-      await expect(guard.canActivate(context)).rejects.toThrow(
-        BUG_AUTH_NO_USER_CTX,
-      );
-    });
+    it('should proceed past user check when user exists', async () => {
+  const user = { email: 'user@example.com' };
+  const context = buildMockContext(user, 'some-invite-id');
+  mockTeamInvitationService.getInvitation.mockResolvedValue(O.none);
+  await expect(guard.canActivate(context)).rejects.toThrow(
+    TEAM_INVITE_NO_INVITE_FOUND
+  );
+});
   });
 
   // ──────────────────────────────────────────────

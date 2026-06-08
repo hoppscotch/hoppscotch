@@ -347,6 +347,7 @@ const loadVendored = async () => {
       bundleName: "Hoppscotch",
       window: {
         title: "Hoppscotch",
+        // @ts-expect-error
         zoomLevel: desktopSettings.settings.zoomLevel,
       },
     })

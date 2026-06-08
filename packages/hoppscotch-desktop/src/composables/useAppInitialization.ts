@@ -97,8 +97,9 @@ export function useAppInitialization() {
         bundleName: VENDORED_INSTANCE_CONFIG.bundleName!,
         window: {
           title: "Hoppscotch",
+          // @ts-expect-error
           zoomLevel: desktopSettings.settings.zoomLevel,
-        },
+        } as any,
       })
 
       mainDiag(
@@ -165,6 +166,7 @@ export function useAppInitialization() {
           host: instance.serverUrl,
           window: {
             title: "Hoppscotch",
+            // @ts-expect-error
             zoomLevel: desktopSettings.settings.zoomLevel,
           },
         })
@@ -224,6 +226,7 @@ export function useAppInitialization() {
           bundleName: instance.bundleName!,
           window: {
             title: "Hoppscotch",
+            // @ts-expect-error
             zoomLevel: desktopSettings.settings.zoomLevel,
           },
         })

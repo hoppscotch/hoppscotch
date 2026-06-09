@@ -394,9 +394,12 @@ describe('MockServerService', () => {
     test('should persist isPublic: false when input requests a private server', async () => {
       mockPrisma.userCollection.findUnique.mockResolvedValue(userCollection);
       mockPrisma.mockServer.findUnique.mockResolvedValue(null);
-      mockPrisma.mockServer.create.mockResolvedValue(dbMockServer);
+      mockPrisma.mockServer.create.mockResolvedValue({
+        ...dbMockServer,
+        isPublic: false,
+      });
 
-      await mockServerService.createMockServer(user, {
+      const result = await mockServerService.createMockServer(user, {
         ...createInput,
         isPublic: false,
       });
@@ -406,14 +409,21 @@ describe('MockServerService', () => {
           data: expect.objectContaining({ isPublic: false }),
         }),
       );
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).isPublic).toBe(false);
+      }
     });
 
     test('should persist isPublic: true when input requests a public server', async () => {
       mockPrisma.userCollection.findUnique.mockResolvedValue(userCollection);
       mockPrisma.mockServer.findUnique.mockResolvedValue(null);
-      mockPrisma.mockServer.create.mockResolvedValue(dbMockServer);
+      mockPrisma.mockServer.create.mockResolvedValue({
+        ...dbMockServer,
+        isPublic: true,
+      });
 
-      await mockServerService.createMockServer(user, {
+      const result = await mockServerService.createMockServer(user, {
         ...createInput,
         isPublic: true,
       });
@@ -423,12 +433,19 @@ describe('MockServerService', () => {
           data: expect.objectContaining({ isPublic: true }),
         }),
       );
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).isPublic).toBe(true);
+      }
     });
 
     test('should default to private (isPublic: false) when input omits isPublic', async () => {
       mockPrisma.userCollection.findUnique.mockResolvedValue(userCollection);
       mockPrisma.mockServer.findUnique.mockResolvedValue(null);
-      mockPrisma.mockServer.create.mockResolvedValue(dbMockServer);
+      mockPrisma.mockServer.create.mockResolvedValue({
+        ...dbMockServer,
+        isPublic: false,
+      });
 
       await mockServerService.createMockServer(user, createInput);
 

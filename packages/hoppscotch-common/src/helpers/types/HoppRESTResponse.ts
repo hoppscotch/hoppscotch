@@ -4,6 +4,15 @@ import { KernelInterceptorError } from "~/services/kernel-interceptor.service"
 
 export type HoppRESTResponseHeader = { key: string; value: string }
 
+export type HoppRESTResponseTimingPhases = {
+  dns?: number
+  connect?: number
+  tls?: number
+  send?: number
+  wait?: number
+  receive?: number
+}
+
 export type HoppRESTSuccessResponse = {
   type: "success"
   headers: HoppRESTResponseHeader[]
@@ -13,6 +22,7 @@ export type HoppRESTSuccessResponse = {
   meta: {
     responseSize: number // in bytes
     responseDuration: number // in millis
+    responseTimings?: HoppRESTResponseTimingPhases
   }
   req: HoppRESTRequest
 }
@@ -26,6 +36,7 @@ export type HoppRESTFailureResponse = {
   meta: {
     responseSize: number // in bytes
     responseDuration: number // in millis
+    responseTimings?: HoppRESTResponseTimingPhases
   }
   req: HoppRESTRequest
 }

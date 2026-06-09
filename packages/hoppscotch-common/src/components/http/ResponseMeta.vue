@@ -99,7 +99,15 @@
               )
             }}
           </span>
-          <span v-if="response.meta && response.meta.responseDuration">
+          <span
+            v-if="response.meta && response.meta.responseDuration"
+            v-tippy="
+              responseTimingBreakdown
+                ? { theme: 'tooltip', allowHTML: true }
+                : { onShow: () => false }
+            "
+            :title="responseTimingBreakdown"
+          >
             <span class="text-secondary"> {{ t("response.time") }}: </span>
             {{ `${response.meta.responseDuration} ms` }}
           </span>
@@ -185,6 +193,37 @@ const readableResponseSize = computed(() => {
   if (size >= 1000) return (size / 1000).toFixed(2) + " KB"
 
   return undefined
+})
+
+const responseTimingBreakdown = computed(() => {
+  if (
+    props.response === null ||
+    props.response === undefined ||
+    props.response.type === "loading" ||
+    props.response.type === "network_fail" ||
+    props.response.type === "script_fail" ||
+    props.response.type === "fail" ||
+    props.response.type === "extension_error"
+  )
+    return undefined
+
+  const timings = props.response.meta.responseTimings
+  if (!timings) return undefined
+
+  const phaseLabels: Array<[keyof typeof timings, string]> = [
+    ["dns", "DNS"],
+    ["connect", "Connect"],
+    ["tls", "TLS"],
+    ["send", "Send"],
+    ["wait", "Waiting"],
+    ["receive", "Download"],
+  ]
+
+  const rows = phaseLabels
+    .filter(([phase]) => typeof timings[phase] === "number")
+    .map(([phase, label]) => `${label}: ${timings[phase]} ms`)
+
+  return rows.length > 0 ? rows.join("<br>") : undefined
 })
 
 const statusCategory = computed(() => {

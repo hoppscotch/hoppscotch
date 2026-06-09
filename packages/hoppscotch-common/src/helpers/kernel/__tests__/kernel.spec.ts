@@ -227,6 +227,10 @@ describe("REST Response Transformation", () => {
         timing: {
           start: 100,
           end: 200,
+          phases: {
+            wait: 80,
+            receive: 20,
+          },
         },
         size: {
           total: 5,
@@ -258,6 +262,10 @@ describe("REST Response Transformation", () => {
     if (result.type === "success") {
       expect(result.statusCode).toBe(200)
       expect(result.meta.responseDuration).toBe(100)
+      expect(result.meta.responseTimings).toEqual({
+        wait: 80,
+        receive: 20,
+      })
       expect(result.meta.responseSize).toBe(5)
       expect(result.headers).toHaveLength(2)
     }

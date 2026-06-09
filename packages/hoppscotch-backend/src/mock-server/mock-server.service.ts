@@ -421,6 +421,7 @@ export class MockServerService {
               ? input.workspaceID
               : user.uid,
           delayInMs: input.delayInMs,
+          isPublic: input.isPublic ?? false,
         },
       });
       this.mockServerAnalyticsService.recordActivity(

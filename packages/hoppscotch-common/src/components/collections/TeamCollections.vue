@@ -534,7 +534,7 @@ import IconArrowUpDown from "~icons/lucide/arrow-up-down"
 import IconChevronsDownUp from "~icons/lucide/chevrons-down-up"
 import IconChevronsUpDown from "~icons/lucide/chevrons-up-down"
 
-import { computed, PropType, ref, Ref, toRef } from "vue"
+import { computed, PropType, ref, Ref, toRef, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
@@ -1021,6 +1021,15 @@ const toggleExpandAll = () => {
   isAllExpanded.value = !isAllExpanded.value
   treeKey.value++
 }
+
+// Reset the toggle when switching teams so an expanded state from one team
+// does not carry over and leave the button out of sync with the new tree.
+watch(teamID, () => {
+  if (isAllExpanded.value) {
+    isAllExpanded.value = false
+    treeKey.value++
+  }
+})
 
 type TeamCollections = {
   isLastItem: boolean

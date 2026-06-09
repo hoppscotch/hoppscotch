@@ -1,9 +1,11 @@
 import { Parent, ResolveField, Resolver } from '@nestjs/graphql';
+import { UseGuards } from '@nestjs/common';
 import { User } from 'src/user/user.model';
 import { UserEnvironment } from './user-environments.model';
 import { UserEnvironmentsService } from './user-environments.service';
 import * as E from 'fp-ts/Either';
 import { throwErr } from '../utils';
+import { GqlAuthGuard } from '../guards/gql-auth.guard';
 import { GqlUser } from '../decorators/gql-user.decorator';
 import { USER_ENVIRONMENT_ENV_DOES_NOT_EXISTS } from '../errors';
 
@@ -14,6 +16,7 @@ export class UserEnvsUserResolver {
   @ResolveField(() => [UserEnvironment], {
     description: 'Returns a list of users personal environments',
   })
+  @UseGuards(GqlAuthGuard)
   async environments(
     @Parent() user: User,
     @GqlUser() requestingUser: User,
@@ -25,6 +28,7 @@ export class UserEnvsUserResolver {
   @ResolveField(() => UserEnvironment, {
     description: 'Returns the users global environments',
   })
+  @UseGuards(GqlAuthGuard)
   async globalEnvironments(
     @Parent() user: User,
     @GqlUser() requestingUser: User,

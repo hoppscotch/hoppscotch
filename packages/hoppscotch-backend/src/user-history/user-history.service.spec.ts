@@ -405,9 +405,16 @@ describe('UserHistoryService', () => {
       // Scoped lookup finds nothing because the entry belongs to another user
       mockPrisma.userHistory.findFirst.mockResolvedValueOnce(null);
 
-      return expect(
-        await userHistoryService.toggleHistoryStarStatus('attacker', '1'),
-      ).toEqualLeft(USER_HISTORY_NOT_FOUND);
+      const result = await userHistoryService.toggleHistoryStarStatus(
+        'attacker',
+        '1',
+      );
+
+      expect(result).toEqualLeft(USER_HISTORY_NOT_FOUND);
+      // The lookup must be scoped to the requesting user's uid
+      expect(mockPrisma.userHistory.findFirst).toHaveBeenCalledWith({
+        where: { id: '1', userUid: 'attacker' },
+      });
     });
   });
   describe('removeRequestFromHistory', () => {
@@ -494,9 +501,16 @@ describe('UserHistoryService', () => {
       // Prisma throws when no row matches the user-scoped where clause
       mockPrisma.userHistory.delete.mockRejectedValueOnce(new Error('P2025'));
 
-      return expect(
-        await userHistoryService.removeRequestFromHistory('attacker', '1'),
-      ).toEqualLeft(USER_HISTORY_NOT_FOUND);
+      const result = await userHistoryService.removeRequestFromHistory(
+        'attacker',
+        '1',
+      );
+
+      expect(result).toEqualLeft(USER_HISTORY_NOT_FOUND);
+      // The delete must be scoped to the requesting user's uid
+      expect(mockPrisma.userHistory.delete).toHaveBeenCalledWith({
+        where: { id: '1', userUid: 'attacker' },
+      });
     });
   });
   describe('deleteAllUserHistory', () => {

@@ -205,6 +205,9 @@ export const validateSMTPUrl = (url: string) => {
 
   if (!url || url.length === 0) return false;
 
+  if (/[?#]/.test(url)) return false;
+  if (url.endsWith(':')) return false;
+
   let parsed: URL;
   try {
     parsed = new URL(url);
@@ -215,11 +218,9 @@ export const validateSMTPUrl = (url: string) => {
   // Only the SMTP schemes are permitted.
   if (parsed.protocol !== 'smtp:' && parsed.protocol !== 'smtps:') return false;
 
-  // A path, query string, or fragment must never be present. nodemailer's `createTransport(string)` merges every query-string key into the transport
-  // options (e.g. `?sendmail=true&path=/bin/sh&args=-c&args=<cmd>`), which can switch the transport to `SendmailTransport` and lead to RCE.
-  // Reject anything beyond a bare host[:port] endpoint.
-  if (parsed.search !== '' || parsed.hash !== '') return false;
-  if (parsed.pathname !== '' && parsed.pathname !== '/') return false;
+  // No path component — only a bare host[:port] endpoint is valid. Query
+  // strings and fragments are already rejected by the raw `[?#]` check above.
+  if (parsed.pathname !== '') return false;
 
   // A hostname is required and must not start with a dot.
   if (!parsed.hostname || parsed.hostname.startsWith('.')) return false;

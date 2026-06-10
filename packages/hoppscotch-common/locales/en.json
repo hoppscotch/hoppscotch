@@ -669,7 +669,7 @@
     "properties": "Environment Properties",
     "details": "Details"
   },
-"error": {
+  "error": {
     "network": {
       "heading": "Network Error",
       "description": "Network connection failed. {message}: {cause}. This may be caused by a CORS policy. Try enabling the Proxy or installing the Hoppscotch browser extension in Settings."

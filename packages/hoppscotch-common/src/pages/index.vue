@@ -62,8 +62,9 @@
             </template>
             <HttpProtocolSwitcher
               v-if="
-                tab.document.type === 'request' ||
-                tab.document.type === 'gql-request'
+                isGqlWorkspaceEnabled &&
+                (tab.document.type === 'request' ||
+                  tab.document.type === 'gql-request')
               "
             />
             <HttpExampleResponseTab
@@ -193,9 +194,12 @@ import { HoppTab } from "~/services/tab"
 import { HoppTabDocument } from "~/helpers/rest/document"
 import { ScrollService } from "~/services/scroll.service"
 import { GQLTabConnectionService } from "~/services/gql-tab-connection.service"
+import { useGqlWorkspaceVisibility } from "~/composables/gqlWorkspaceVisibility"
 
 const scrollService = useService(ScrollService)
 const gqlTabConn = useService(GQLTabConnectionService)
+
+const { isGqlWorkspaceEnabled } = useGqlWorkspaceVisibility()
 
 const savingRequest = ref(false)
 const confirmingCloseForTabID = ref<string | null>(null)

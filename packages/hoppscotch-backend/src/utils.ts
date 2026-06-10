@@ -205,7 +205,8 @@ export const validateSMTPUrl = (url: string) => {
 
   if (!url || url.length === 0) return false;
 
-  if (/[?#]/.test(url)) return false;
+  if (/[\s\x00-\x1f\x7f]/.test(url)) return false;
+  if (/[?#\\]/.test(url)) return false;
   if (url.endsWith(':')) return false;
 
   let parsed: URL;
@@ -217,10 +218,8 @@ export const validateSMTPUrl = (url: string) => {
 
   // Only the SMTP schemes are permitted.
   if (parsed.protocol !== 'smtp:' && parsed.protocol !== 'smtps:') return false;
-
-  // No path component — only a bare host[:port] endpoint is valid. Query
-  // strings and fragments are already rejected by the raw `[?#]` check above.
-  if (parsed.pathname !== '') return false;
+  if (parsed.pathname !== '' && parsed.pathname !== '/') return false;
+  if (parsed.search !== '' || parsed.hash !== '') return false;
 
   // A hostname is required and must not start with a dot.
   if (!parsed.hostname || parsed.hostname.startsWith('.')) return false;

@@ -737,7 +737,7 @@
     "json_parsing_failed": "Invalid JSON",
     "json_prettify_invalid_body": "Couldn't prettify an invalid body, solve json syntax errors and try again",
     "network_error": "There seems to be a network error. Please try again.",
-    "network_fail": "Could not send request",
+    "network_fail": "Could not send request. This may be caused by a CORS policy. Try enabling the Proxy or installing the Hoppscotch browser extension in Settings.",
     "no_collections_to_export": "No collections to export. Please create a collection to get started.",
     "no_duration": "No duration",
     "no_environments_to_export": "No environments to export. Please create an environment to get started.",

@@ -1,6 +1,7 @@
 import {
   HoppCollection,
   HoppCollectionVariable,
+  HoppGQLRequest,
   HoppRESTHeaders,
   HoppRESTRequest,
 } from "@hoppscotch/data"
@@ -13,6 +14,8 @@ import {
   captureInitialEnvironmentState,
   runTestRunnerRequest,
 } from "~/helpers/RequestRunner"
+import { runTestRunnerGQLRequest } from "~/helpers/graphql/testRunner"
+import { isGQLRequest } from "~/helpers/request-type"
 import {
   HoppTestRunnerDocument,
   TestRunnerConfig,
@@ -26,7 +29,11 @@ export type TestRunnerOptions = {
   stopRef: Ref<boolean>
 } & TestRunnerConfig
 
-export type TestRunnerRequest = HoppRESTRequest & {
+/**
+ * Run-result decorations attached to every request in the result tree —
+ * shared by both protocols.
+ */
+type TestRunnerResultFields = {
   type: "test-response"
   response?: HoppRESTResponse | null
   testResults?: HoppTestResult | null
@@ -36,6 +43,16 @@ export type TestRunnerRequest = HoppRESTRequest & {
   passedTests: number
   failedTests: number
 }
+
+/**
+ * A request inside a collection run. Unified collections hold both REST and
+ * GraphQL requests in the same `requests` array, so the runner discriminates
+ * per entry by shape (`isGQLRequest`). GraphQL responses are shaped as
+ * `HoppRESTResponse` (GraphQL-over-HTTP is a POST) so the result tree and
+ * response viewer render both protocols identically.
+ */
+export type TestRunnerRequest = (HoppRESTRequest | HoppGQLRequest) &
+  TestRunnerResultFields
 
 function delay(timeMS: number) {
   return new Promise((resolve, reject) => {
@@ -204,15 +221,26 @@ export class TestRunnerService extends Service {
           cloneDeep(request)
         )
 
-        // Update the request with inherited headers and auth before execution
+        // Update the request with inherited headers and auth before execution.
+        // Cast note: collection auth is the full REST auth union, so a GQL
+        // request inheriting (say) digest auth temporarily violates the
+        // HoppGQLAuth type. That's deliberate — the GQL run executor signs
+        // with the REST auth generators, which cover the full union.
+        //
+        // Headers: REST pre-merges inherited headers into the request (the
+        // REST executor expects that). GQL keeps its own headers and gets the
+        // inherited ones separately, so the executor can slot auth headers
+        // between them (precedence: request > auth > inherited).
         const finalRequest = {
           ...request,
           auth:
             request.auth.authType === "inherit" && request.auth.authActive
               ? inheritedAuth
               : request.auth,
-          headers: [...inheritedHeaders, ...request.headers],
-        }
+          headers: isGQLRequest(request)
+            ? request.headers
+            : [...inheritedHeaders, ...request.headers],
+        } as TestRunnerRequest
 
         await this.runTestRequest(
           tab,
@@ -222,7 +250,8 @@ export class TestRunnerService extends Service {
           currentPath,
           inheritedVariables,
           inheritedPreRequestScripts,
-          inheritedTestScripts
+          inheritedTestScripts,
+          inheritedHeaders
         )
 
         if (options.delay && options.delay > 0) {
@@ -315,10 +344,25 @@ export class TestRunnerService extends Service {
     path: number[],
     inheritedVariables: HoppCollectionVariable[] = [],
     inheritedPreRequestScripts: string[] = [],
-    inheritedTestScripts: string[] = []
+    inheritedTestScripts: string[] = [],
+    inheritedHeaders: HoppRESTHeaders = []
   ) {
     if (options.stopRef?.value) {
       throw new Error("Test execution stopped")
+    }
+
+    // GraphQL requests take their own execution path — no script stages
+    // (GraphQL requests carry no pre-request/test scripts), response shaped
+    // as HoppRESTResponse so the shared result UI renders it.
+    if (isGQLRequest(request)) {
+      return this.runTestGQLRequest(
+        tab,
+        request as HoppGQLRequest,
+        options,
+        path,
+        inheritedVariables,
+        inheritedHeaders
+      )
     }
 
     try {
@@ -338,7 +382,7 @@ export class TestRunnerService extends Service {
       const initialEnvironmentState = captureInitialEnvironmentState()
 
       const results = await runTestRunnerRequest(
-        request,
+        request as HoppRESTRequest,
         options.keepVariableValues,
         inheritedVariables,
         initialEnvironmentState,
@@ -402,6 +446,98 @@ export class TestRunnerService extends Service {
         error instanceof Error ? error.message : "Unknown error occurred"
 
       // Update request with error in the result collection
+      this.updateRequestAtPath(tab.value.document.resultCollection!, path, {
+        error: errorMsg,
+        isLoading: false,
+      })
+
+      if (options.stopOnError) {
+        tab.value.document.status = "stopped"
+        throw new Error("Test execution stopped due to error")
+      }
+    }
+  }
+
+  /**
+   * Executes a GraphQL request inside a run. Mirrors `runTestRequest`'s
+   * result handling minus the test-script stages — GraphQL requests have no
+   * scripts in their schema, so they contribute requests/time to the run
+   * meta but no test counts.
+   *
+   * `testResults` is deliberately left `undefined` (not `null`): the runner
+   * response panel treats `testResults === null` as "still executing".
+   */
+  private async runTestGQLRequest(
+    tab: Ref<HoppTab<HoppTestRunnerDocument>>,
+    request: HoppGQLRequest,
+    options: TestRunnerOptions,
+    path: number[],
+    inheritedVariables: HoppCollectionVariable[] = [],
+    inheritedHeaders: HoppRESTHeaders = []
+  ) {
+    try {
+      this.updateRequestAtPath(tab.value.document.resultCollection!, path, {
+        isLoading: true,
+        error: undefined,
+      })
+
+      await nextTick()
+
+      const initialEnvironmentState = captureInitialEnvironmentState()
+
+      const results = await runTestRunnerGQLRequest(
+        request,
+        options.keepVariableValues,
+        inheritedVariables,
+        initialEnvironmentState,
+        inheritedHeaders
+      )
+
+      if (options.stopRef?.value) {
+        throw new Error("Test execution stopped")
+      }
+
+      if (E.isRight(results)) {
+        const { response } = results.right
+
+        this.updateRequestAtPath(tab.value.document.resultCollection!, path, {
+          response: options.persistResponses ? response : null,
+          isLoading: false,
+        })
+
+        if (response.type === "success") {
+          tab.value.document.testRunnerMeta.totalTime +=
+            response.meta.responseDuration
+          tab.value.document.testRunnerMeta.completedRequests += 1
+        }
+      } else {
+        const errorMsg =
+          results.left.type === "subscription_unsupported"
+            ? "GraphQL subscriptions are not supported in the collection runner"
+            : results.left.message
+
+        this.updateRequestAtPath(tab.value.document.resultCollection!, path, {
+          error: errorMsg,
+          isLoading: false,
+          response: null,
+        })
+
+        if (options.stopOnError) {
+          tab.value.document.status = "stopped"
+          throw new Error("Test execution stopped due to error")
+        }
+      }
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === "Test execution stopped"
+      ) {
+        throw error
+      }
+
+      const errorMsg =
+        error instanceof Error ? error.message : "Unknown error occurred"
+
       this.updateRequestAtPath(tab.value.document.resultCollection!, path, {
         error: errorMsg,
         isLoading: false,

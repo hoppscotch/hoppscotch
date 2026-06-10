@@ -1,5 +1,6 @@
 import {
   getDefaultRESTRequest,
+  isGQLRequest,
   safelyExtractRESTRequest,
 } from "@hoppscotch/data"
 import { z } from "zod"
@@ -35,14 +36,25 @@ export const fixBrokenRequestVersion = (
     }
 
     if (x.doc.type === "test-runner") {
-      x.doc.request = safelyExtractRESTRequest(
-        x.doc.request,
-        getDefaultRESTRequest()
-      )
+      // `request` (the selected result row): keep null as null rather than
+      // resurrecting a phantom default request, and repair only REST-shaped
+      // selections — the tabs schema accepts both protocols, so GQL
+      // selections pass through untouched like the result rows below.
+      x.doc.request = !x.doc.request
+        ? null
+        : isGQLRequest(x.doc.request)
+          ? x.doc.request
+          : safelyExtractRESTRequest(x.doc.request, getDefaultRESTRequest())
 
       if (x.doc.resultCollection) {
         x.doc.resultCollection.requests = x.doc.resultCollection?.requests.map(
           (req) => {
+            // Unified runner collections mix REST and GQL rows. Coercing a
+            // GQL request through `safelyExtractRESTRequest` would rebuild
+            // it as a default REST request (no endpoint/method to copy),
+            // silently destroying the row on every app restore — so GQL rows
+            // pass through untouched and validate via their own schema.
+            if (isGQLRequest(req)) return req
             return safelyExtractRESTRequest(req, getDefaultRESTRequest())
           }
         )

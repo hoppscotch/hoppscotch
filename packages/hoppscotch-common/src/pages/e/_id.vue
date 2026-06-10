@@ -47,7 +47,10 @@ import {
 } from "~/helpers/backend/graphql"
 import * as E from "fp-ts/Either"
 import {
+  HoppGQLRequest,
+  HoppRESTRequest,
   getDefaultRESTRequest,
+  isGQLRequest,
   makeGQLRequest,
   safelyExtractRESTRequest,
 } from "@hoppscotch/data"
@@ -122,9 +125,7 @@ const gqlTab = ref<HoppTab<HoppGQLRequestDocument>>({
 const isGQLShortcodePayload = (req: unknown): boolean =>
   !!req &&
   typeof req === "object" &&
-  "query" in req &&
-  "url" in req &&
-  !("endpoint" in req)
+  isGQLRequest(req as HoppRESTRequest | HoppGQLRequest)
 
 watch(
   () => sharedRequestDetails.data,

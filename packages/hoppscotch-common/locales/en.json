@@ -1357,6 +1357,7 @@
     "experimental_scripting_sandbox": "Experimental scripting sandbox",
     "enable_experimental_mock_servers": "Enable Mock Servers",
     "enable_experimental_documentation": "Enable Documentation",
+    "enable_gql_in_rest_workspace": "Enable Unified GraphQL workspace",
     "sync": "Synchronise",
     "sync_collections": "Collections",
     "sync_description": "These settings are synced to cloud.",

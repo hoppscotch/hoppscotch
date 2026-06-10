@@ -166,7 +166,7 @@
                     "
                   />
                   <HoppSmartItem
-                    v-if="!hasNoTeamAccess"
+                    v-if="!hasNoTeamAccess && isGqlWorkspaceEnabled"
                     ref="gqlRequestAction"
                     :icon="IconGraphql"
                     :label="t('request.new_gql')"
@@ -341,6 +341,7 @@
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { useDocumentationVisibility } from "~/composables/documentationVisibility"
+import { useGqlWorkspaceVisibility } from "~/composables/gqlWorkspaceVisibility"
 import { HoppCollection } from "@hoppscotch/data"
 import { computed, ref, watch } from "vue"
 import { TippyComponent } from "vue-tippy"
@@ -461,6 +462,7 @@ const sortAction = ref<HTMLButtonElement | null>(null)
 const documentationAction = ref<HTMLButtonElement | null>(null)
 
 const { isDocumentationVisible } = useDocumentationVisibility()
+const { isGqlWorkspaceEnabled } = useGqlWorkspaceVisibility()
 
 const dragging = ref(false)
 const ordering = ref(false)

@@ -856,8 +856,8 @@ describe('getPublishedDocsCreator', () => {
 
     const expectedUser = {
       ...user,
-      currentGQLSession: JSON.stringify(user.currentGQLSession),
-      currentRESTSession: JSON.stringify(user.currentRESTSession),
+      currentGQLSession: null,
+      currentRESTSession: null,
     };
 
     expect(result).toEqualRight(expectedUser);

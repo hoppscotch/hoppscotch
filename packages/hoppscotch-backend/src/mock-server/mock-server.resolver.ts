@@ -48,8 +48,8 @@ export class MockServerResolver {
     if (E.isLeft(creator)) throwErr(creator.left);
     return {
       ...creator.right,
-      currentGQLSession: JSON.stringify(creator.right.currentGQLSession),
-      currentRESTSession: JSON.stringify(creator.right.currentRESTSession),
+      currentGQLSession: null,
+      currentRESTSession: null,
     };
   }
 

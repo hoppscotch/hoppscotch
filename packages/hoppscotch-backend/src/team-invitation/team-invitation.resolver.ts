@@ -65,8 +65,8 @@ export class TeamInvitationResolver {
 
     return {
       ...user.value,
-      currentGQLSession: JSON.stringify(user.value.currentGQLSession),
-      currentRESTSession: JSON.stringify(user.value.currentRESTSession),
+      currentGQLSession: null,
+      currentRESTSession: null,
     };
   }
 

@@ -369,6 +369,53 @@ describe('UserHistoryService', () => {
         userHistory,
       );
     });
+    test('Should scope the lookup and the update to the requesting user (ownership enforcement)', async () => {
+      const executedOn = new Date();
+
+      mockPrisma.userHistory.findFirst.mockResolvedValueOnce({
+        userUid: 'abc',
+        id: '1',
+        request: [{}],
+        responseMetadata: [{}],
+        reqType: ReqType.REST,
+        executedOn,
+        isStarred: false,
+      });
+      mockPrisma.userHistory.update.mockResolvedValueOnce({
+        userUid: 'abc',
+        id: '1',
+        request: [{}],
+        responseMetadata: [{}],
+        reqType: ReqType.REST,
+        executedOn,
+        isStarred: true,
+      });
+
+      await userHistoryService.toggleHistoryStarStatus('abc', '1');
+
+      expect(mockPrisma.userHistory.findFirst).toHaveBeenCalledWith({
+        where: { id: '1', userUid: 'abc' },
+      });
+      expect(mockPrisma.userHistory.update).toHaveBeenCalledWith({
+        where: { id: '1', userUid: 'abc' },
+        data: { isStarred: true },
+      });
+    });
+    test('Should resolve left when the history entry is not owned by the requesting user', async () => {
+      // Scoped lookup finds nothing because the entry belongs to another user
+      mockPrisma.userHistory.findFirst.mockResolvedValueOnce(null);
+
+      const result = await userHistoryService.toggleHistoryStarStatus(
+        'attacker',
+        '1',
+      );
+
+      expect(result).toEqualLeft(USER_HISTORY_NOT_FOUND);
+      // The lookup must be scoped to the requesting user's uid
+      expect(mockPrisma.userHistory.findFirst).toHaveBeenCalledWith({
+        where: { id: '1', userUid: 'attacker' },
+      });
+    });
   });
   describe('removeRequestFromHistory', () => {
     test('Should resolve right and delete request from users history', async () => {
@@ -432,6 +479,38 @@ describe('UserHistoryService', () => {
         `user_history/${userHistory.userUid}/deleted`,
         userHistory,
       );
+    });
+    test('Should scope the delete to the requesting user (ownership enforcement)', async () => {
+      mockPrisma.userHistory.delete.mockResolvedValueOnce({
+        userUid: 'abc',
+        id: '1',
+        request: [{}],
+        responseMetadata: [{}],
+        reqType: ReqType.REST,
+        executedOn: date,
+        isStarred: false,
+      });
+
+      await userHistoryService.removeRequestFromHistory('abc', '1');
+
+      expect(mockPrisma.userHistory.delete).toHaveBeenCalledWith({
+        where: { id: '1', userUid: 'abc' },
+      });
+    });
+    test('Should resolve left when deleting a history entry not owned by the requesting user', async () => {
+      // Prisma throws when no row matches the user-scoped where clause
+      mockPrisma.userHistory.delete.mockRejectedValueOnce(new Error('P2025'));
+
+      const result = await userHistoryService.removeRequestFromHistory(
+        'attacker',
+        '1',
+      );
+
+      expect(result).toEqualLeft(USER_HISTORY_NOT_FOUND);
+      // The delete must be scoped to the requesting user's uid
+      expect(mockPrisma.userHistory.delete).toHaveBeenCalledWith({
+        where: { id: '1', userUid: 'attacker' },
+      });
     });
   });
   describe('deleteAllUserHistory', () => {

@@ -72,6 +72,7 @@
         v-else-if="selectedRequest && selectedRequest.response"
         v-model:document="selectedRequest"
         :show-response="tab.document.config.persistResponses"
+        :tab-id="tab.id"
       />
 
       <HoppSmartPlaceholder
@@ -81,6 +82,23 @@
         :src="`/images/states/${colorMode.value}/add_files.svg`"
         :alt="`${t('collection_runner.no_response_persist')}`"
         :text="`${t('collection_runner.no_response_persist')}`"
+      >
+        <template #body>
+          <HoppButtonPrimary
+            :label="t('test.new_run')"
+            @click="showCollectionsRunnerModal = true"
+          />
+        </template>
+      </HoppSmartPlaceholder>
+
+      <!-- Selected row without a response — restored runner tabs lose
+           response bodies (ArrayBuffers don't survive the JSON round-trip),
+           so a row click after refresh lands here instead of a blank pane. -->
+      <HoppSmartPlaceholder
+        v-else-if="selectedRequest && !selectedRequest.response"
+        :src="`/images/states/${colorMode.value}/pack.svg`"
+        :alt="`${t('collection_runner.response_body_lost_rerun')}`"
+        :text="`${t('collection_runner.response_body_lost_rerun')}`"
       >
         <template #body>
           <HoppButtonPrimary
@@ -172,8 +190,10 @@ const emit = defineEmits<{
 const tabs = useService(WorkspaceTabsService)
 const tab = useVModel(props, "modelValue", emit)
 
+// Default to "" — `selectedRequestPath` is undefined until the user picks a
+// result row, and RunnerResult declares the prop as a required string.
 const selectedRequestPath = computed(
-  () => tab.value.document.selectedRequestPath
+  () => tab.value.document.selectedRequestPath ?? ""
 )
 const duration = computed(() => tab.value.document.testRunnerMeta.totalTime)
 const avgResponseTime = computed(() =>

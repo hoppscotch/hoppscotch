@@ -7,12 +7,19 @@
     >
       <div class="flex gap-4 mb-1 items-center">
         <span
+          v-if="requestChip.kind === 'rest'"
           class="flex items-center justify-center truncate pointer-events-none"
           :style="{ color: requestLabelColor }"
         >
           <span class="font-bold truncate">
-            {{ request.method }}
+            {{ requestChip.method }}
           </span>
+        </span>
+        <span
+          v-else
+          class="flex items-center justify-center pointer-events-none text-accent"
+        >
+          <component :is="IconGraphql" class="h-4 w-4" />
         </span>
         <span class="truncate text-sm text-secondaryDark">
           {{ request.name }}
@@ -32,7 +39,7 @@
       </div>
 
       <p class="text-left text-secondaryLight text-sm">
-        {{ request.endpoint }}
+        {{ requestTarget }}
       </p>
     </button>
 
@@ -54,7 +61,9 @@
 import { computed } from "vue"
 import findStatusGroup from "~/helpers/findStatusGroup"
 import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
+import { isRESTRequest } from "~/helpers/request-type"
 import { TestRunnerRequest } from "~/services/test-runner/test-runner.service"
+import IconGraphql from "~icons/hopp/graphql"
 
 const props = withDefaults(
   defineProps<{
@@ -98,8 +107,22 @@ const emit = defineEmits<{
   (event: "select-request"): void
 }>()
 
+// Per-entry protocol discrimination — unified collections mix REST and
+// GraphQL requests in the same run.
+const requestChip = computed(() =>
+  isRESTRequest(props.request)
+    ? { kind: "rest" as const, method: props.request.method }
+    : { kind: "gql" as const }
+)
+
+const requestTarget = computed(() =>
+  isRESTRequest(props.request) ? props.request.endpoint : props.request.url
+)
+
 const requestLabelColor = computed(() =>
-  getMethodLabelColorClassOf(props.request.method)
+  requestChip.value.kind === "rest"
+    ? getMethodLabelColorClassOf(requestChip.value.method)
+    : ""
 )
 
 const selectRequest = () => {

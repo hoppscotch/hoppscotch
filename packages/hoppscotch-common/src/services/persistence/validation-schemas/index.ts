@@ -594,7 +594,12 @@ export const WORKSPACE_TABS_STATE_SCHEMA = z
               failedTests: z.number(),
               totalTime: z.number(),
             }),
-            request: z.nullable(entityReference(HoppRESTRequest)),
+            request: z.nullable(
+              z.union([
+                entityReference(HoppRESTRequest),
+                entityReference(HoppGQLRequest),
+              ])
+            ),
             response: z.nullable(HoppRESTResponseSchema),
             testResults: z.optional(z.nullable(HoppTestResultSchema)),
             isDirty: z.boolean(),

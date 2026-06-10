@@ -29,6 +29,7 @@
       :is-editable="false"
       :is-test-runner="true"
       :show-response="showResponse"
+      :tab-id="tabId"
     />
     <HoppSmartPlaceholder
       v-else
@@ -54,6 +55,11 @@ const colorMode = useColorMode()
 const props = defineProps<{
   showResponse: boolean
   document: TestRunnerRequest
+  /**
+   * The test-runner tab's id — the lens renderers key scroll-position
+   * preservation by tab id.
+   */
+  tabId: string
 }>()
 
 const emit = defineEmits<{

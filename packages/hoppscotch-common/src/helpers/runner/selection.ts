@@ -1,7 +1,11 @@
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import {
+  HoppCollection,
+  HoppGQLRequest,
+  HoppRESTRequest,
+} from "@hoppscotch/data"
 
 export const getRequestSelectionID = (
-  request: HoppRESTRequest,
+  request: HoppRESTRequest | HoppGQLRequest,
   path: number[]
 ) => request._ref_id || `path:${path.join("/")}`
 

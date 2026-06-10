@@ -96,6 +96,9 @@ const EXPERIMENTAL_SCRIPTING_SANDBOX = useSetting(
   "EXPERIMENTAL_SCRIPTING_SANDBOX"
 )
 
+// Boolean() wrap — `saveContext` is undefined for documents that never came
+// from a collection (e.g. test-runner result rows), and `"success" &&
+// undefined` would leak `undefined` into the lens renderers' Boolean prop.
 const isSavable = computed(() =>
   Boolean(doc.value.response?.type === "success" && doc.value.saveContext)
 )

@@ -44,6 +44,13 @@
                 @close-other-tabs="closeOtherTabsAction(tab.id)"
                 @duplicate-tab="duplicateTab(tab.id)"
               />
+              <!-- Fallback for document types without a dedicated head
+                   (test-runner) — providing the #tabhead slot suppresses the
+                   Window's own `label`, so an unmatched type would otherwise
+                   render a blank tab head. -->
+              <span v-else class="flex items-center truncate px-2">
+                <span class="truncate">{{ getTabName(tab) }}</span>
+              </span>
             </template>
             <template #suffix>
               <span

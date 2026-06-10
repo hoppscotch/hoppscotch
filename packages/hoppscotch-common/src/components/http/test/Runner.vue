@@ -181,6 +181,23 @@
         </template>
       </HoppSmartPlaceholder>
 
+      <!-- Selected row without a response — restored runner tabs lose
+           response bodies (ArrayBuffers don't survive the JSON round-trip),
+           so a row click after refresh lands here instead of a blank pane. -->
+      <HoppSmartPlaceholder
+        v-else-if="selectedRequest && !selectedRequest.response"
+        :src="`/images/states/${colorMode.value}/pack.svg`"
+        :alt="`${t('collection_runner.response_body_lost_rerun')}`"
+        :text="`${t('collection_runner.response_body_lost_rerun')}`"
+      >
+        <template #body>
+          <HoppButtonPrimary
+            :label="t('test.new_run')"
+            @click="showCollectionsRunnerModal = true"
+          />
+        </template>
+      </HoppSmartPlaceholder>
+
       <HoppSmartPlaceholder
         v-else-if="!selectedRequest"
         :src="`/images/states/${colorMode.value}/pack.svg`"

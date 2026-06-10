@@ -197,7 +197,13 @@
 import { computed, onMounted, ref, watch } from "vue"
 import { useRoute, useRouter } from "vue-router"
 import * as E from "fp-ts/Either"
-import { makeGQLRequest, safelyExtractRESTRequest } from "@hoppscotch/data"
+import {
+  HoppGQLRequest,
+  HoppRESTRequest,
+  isGQLRequest,
+  makeGQLRequest,
+  safelyExtractRESTRequest,
+} from "@hoppscotch/data"
 import { useGQLQuery } from "@composables/graphql"
 import { useI18n } from "@composables/i18n"
 import {
@@ -217,16 +223,10 @@ import { useColorMode } from "~/composables/theming"
 import { useReadonlyStream } from "~/composables/stream"
 import { until } from "@vueuse/core"
 
-// Shape-based discriminator — a shortcode payload that has `url` + `query`
-// and no `endpoint` is a GraphQL request. Mirrors the heuristic used by
-// `isGQLRequest` in helpers/request-type.ts (kept inline here to avoid an
-// extra dependency on a page that runs pre-login on subdomain instances).
 const isGQLShortcodePayload = (req: unknown): boolean =>
   !!req &&
   typeof req === "object" &&
-  "query" in req &&
-  "url" in req &&
-  !("endpoint" in req)
+  isGQLRequest(req as HoppRESTRequest | HoppGQLRequest)
 
 const route = useRoute()
 const router = useRouter()

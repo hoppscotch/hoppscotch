@@ -1,4 +1,9 @@
-import { Environment, HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
+import {
+  Environment,
+  HoppCollection,
+  HoppRESTRequest,
+  isGQLRequest,
+} from "@hoppscotch/data";
 import fs from "fs/promises";
 import { entityReference } from "verzod";
 import { z } from "zod";
@@ -14,10 +19,24 @@ const getValidRequests = (
   collectionFilePath: string
 ) => {
   return collections.map((collection) => {
+    // Unified collections can mix REST and GraphQL requests. The CLI runner
+    // is REST-only today, so GraphQL entries are skipped (with a warning)
+    // rather than failing the whole collection as malformed.
+    const restRequests = collection.requests.filter(
+      (req) => !isGQLRequest(req)
+    );
+    const skippedCount = collection.requests.length - restRequests.length;
+
+    if (skippedCount > 0) {
+      console.warn(
+        `Skipped ${skippedCount} GraphQL request(s) in "${collection.name}" — GraphQL is not yet supported by the CLI runner.`
+      );
+    }
+
     // Validate requests using zod schema
     const requestSchemaParsedResult = z
       .array(entityReference(HoppRESTRequest))
-      .safeParse(collection.requests);
+      .safeParse(restRequests);
 
     // Handle validation errors
     if (!requestSchemaParsedResult.success) {

@@ -389,6 +389,73 @@ describe('MockServerService', () => {
       );
     });
 
+    // Regression: GHSA-c68f-wr5p-j6jf — isPublic from input must be persisted,
+    // and must default to private (false) when omitted.
+    test('should persist isPublic: false when input requests a private server', async () => {
+      mockPrisma.userCollection.findUnique.mockResolvedValue(userCollection);
+      mockPrisma.mockServer.findUnique.mockResolvedValue(null);
+      mockPrisma.mockServer.create.mockResolvedValue({
+        ...dbMockServer,
+        isPublic: false,
+      });
+
+      const result = await mockServerService.createMockServer(user, {
+        ...createInput,
+        isPublic: false,
+      });
+
+      expect(mockPrisma.mockServer.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ isPublic: false }),
+        }),
+      );
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).isPublic).toBe(false);
+      }
+    });
+
+    test('should persist isPublic: true when input requests a public server', async () => {
+      mockPrisma.userCollection.findUnique.mockResolvedValue(userCollection);
+      mockPrisma.mockServer.findUnique.mockResolvedValue(null);
+      mockPrisma.mockServer.create.mockResolvedValue({
+        ...dbMockServer,
+        isPublic: true,
+      });
+
+      const result = await mockServerService.createMockServer(user, {
+        ...createInput,
+        isPublic: true,
+      });
+
+      expect(mockPrisma.mockServer.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ isPublic: true }),
+        }),
+      );
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).isPublic).toBe(true);
+      }
+    });
+
+    test('should default to private (isPublic: false) when input omits isPublic', async () => {
+      mockPrisma.userCollection.findUnique.mockResolvedValue(userCollection);
+      mockPrisma.mockServer.findUnique.mockResolvedValue(null);
+      mockPrisma.mockServer.create.mockResolvedValue({
+        ...dbMockServer,
+        isPublic: false,
+      });
+
+      await mockServerService.createMockServer(user, createInput);
+
+      expect(mockPrisma.mockServer.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ isPublic: false }),
+        }),
+      );
+    });
+
     test('should create team mock server successfully', async () => {
       const teamInput: CreateMockServerInput = {
         name: 'Team Mock Server',

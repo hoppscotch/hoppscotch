@@ -113,18 +113,31 @@ export const importToPersonalWorkspace = async (
     // idempotent in the normal flow; it exists so a future caller that
     // forgets the upstream populate doesn't silently lose secrets on
     // backend failure.
-    collectionsWithRefIds.forEach(populateLocalStoresFromCollectionTree)
-    return appendCollectionsToStore(
-      collectionsWithRefIds.map(stripCollectionTreeForStore),
-      reqType
-    )
+    return appendImportedCollectionsLocally(collectionsWithRefIds, reqType)
   } catch {
-    collectionsWithRefIds.forEach(populateLocalStoresFromCollectionTree)
-    return appendCollectionsToStore(
-      collectionsWithRefIds.map(stripCollectionTreeForStore),
+    return appendImportedCollectionsLocally(collectionsWithRefIds, reqType)
+  }
+}
+
+/**
+ * Local-only append used by the backend-failure fallback. The store
+ * dispatch is suppressed via `runDispatchWithOutSyncing` so it does NOT
+ * re-enter the unified `appendCollections` store-sync (which would fire a
+ * second `importUserCollectionsFromJSON` for an import the backend already
+ * rejected — see the double-trigger this guards against).
+ */
+function appendImportedCollectionsLocally(
+  collections: HoppCollection[],
+  reqType: ReqType
+) {
+  collections.forEach(populateLocalStoresFromCollectionTree)
+  runDispatchWithOutSyncing(() =>
+    appendCollectionsToStore(
+      collections.map(stripCollectionTreeForStore),
       reqType
     )
-  }
+  )
+  return E.right({ success: true })
 }
 
 export const appendCollectionsToStore = (

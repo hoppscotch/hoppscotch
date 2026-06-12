@@ -1995,7 +1995,9 @@ export function removeGraphqlCollection(
   collectionID?: string
 ) {
   if (!collectionID) {
-    collectionID = graphqlCollectionStore.value.state[collectionIndex]?._ref_id
+    collectionID =
+      graphqlCollectionStore.value.state[collectionIndex]?.id ??
+      `${collectionIndex}`
   }
   graphqlCollectionStore.dispatch({
     dispatcher: "removeCollection",
@@ -2048,7 +2050,9 @@ export function removeGraphqlFolder(path: string, folderID?: string) {
       graphqlCollectionStore.value.state,
       path.split("/").map((index) => parseInt(index))
     )
-    folderID = folder?._ref_id
+    // GraphQL folders on some platforms (e.g. hoppscotch-web) carry no backend
+    // id, so fall back to the index path as the sync identifier.
+    folderID = folder?.id ?? path
   }
   graphqlCollectionStore.dispatch({
     dispatcher: "removeFolder",

@@ -10,9 +10,20 @@ import {
 } from "~/helpers/functional/object"
 import { tupleToRecord } from "~/helpers/functional/record"
 
+/**
+ * Splits a string on the first occurrence of the separator.
+ * Unlike S.split, this returns at most 2 parts, which ensures
+ * header values containing ": " (colon + space) are not split
+ * into more than 2 segments.
+ */
+const splitAtFirst = (sep: string) => (s: string): string[] => {
+  const idx = s.indexOf(sep)
+  return idx === -1 ? [s] : [s.slice(0, idx), s.slice(idx + sep.length)]
+}
+
 const getHeaderPair = flow(
   S.replace(":", ": "),
-  S.split(": "),
+  splitAtFirst(": "),
   // must have a key and a value
   O.fromPredicate((arr) => arr.length === 2),
   O.map(([k, v]) => [k.trim(), v?.trim() ?? ""] as [string, string])

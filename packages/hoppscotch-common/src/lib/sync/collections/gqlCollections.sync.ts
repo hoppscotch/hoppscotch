@@ -255,10 +255,12 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     }
   },
   editCollection({ collection, collectionIndex }) {
-    const collectionID = navigateToFolderWithIndexPath(
-      graphqlCollectionStore.value.state,
-      [collectionIndex]
-    )?.id
+    // Send the backend id when present, otherwise the index path — GraphQL
+    // collections on some platforms (e.g. hoppscotch-web) carry no backend id.
+    const collectionID =
+      navigateToFolderWithIndexPath(graphqlCollectionStore.value.state, [
+        collectionIndex,
+      ])?.id ?? `${collectionIndex}`
 
     const data = {
       auth: collection.auth,
@@ -267,9 +269,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       _ref_id: collection._ref_id,
     }
 
-    if (collectionID) {
-      updateUserCollection(collectionID, collection.name, JSON.stringify(data))
-    }
+    updateUserCollection(collectionID, collection.name, JSON.stringify(data))
   },
   async addFolder({ name, path }) {
     const parentCollection = navigateToFolderWithIndexPath(
@@ -277,34 +277,37 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       path.split("/").map((index) => parseInt(index))
     )
 
-    const parentCollectionBackendID = parentCollection?.id
+    if (!parentCollection) return
 
-    if (parentCollectionBackendID) {
-      const foldersLength = parentCollection.folders.length
+    // Send the parent backend id when present, otherwise its index path.
+    const parentCollectionBackendID = parentCollection.id ?? path
 
-      const res = await createGQLChildUserCollection(
-        name,
-        parentCollectionBackendID
-      )
+    const foldersLength = parentCollection.folders.length
 
-      if (E.isRight(res)) {
-        const { id } = res.right.createGQLChildUserCollection
+    const res = await createGQLChildUserCollection(
+      name,
+      parentCollectionBackendID
+    )
 
-        if (foldersLength) {
-          parentCollection.folders[foldersLength - 1].id = id
-          removeDuplicateGraphqlCollectionOrFolder(
-            id,
-            `${path}/${foldersLength - 1}`
-          )
-        }
+    if (E.isRight(res)) {
+      const { id } = res.right.createGQLChildUserCollection
+
+      if (foldersLength) {
+        parentCollection.folders[foldersLength - 1].id = id
+        removeDuplicateGraphqlCollectionOrFolder(
+          id,
+          `${path}/${foldersLength - 1}`
+        )
       }
     }
   },
   editFolder({ folder, path }) {
-    const folderBackendId = navigateToFolderWithIndexPath(
-      graphqlCollectionStore.value.state,
-      path.split("/").map((index) => parseInt(index))
-    )?.id
+    // Send the backend id when present, otherwise the index path.
+    const folderBackendId =
+      navigateToFolderWithIndexPath(
+        graphqlCollectionStore.value.state,
+        path.split("/").map((index) => parseInt(index))
+      )?.id ?? path
 
     const data = {
       auth: folder.auth,
@@ -313,9 +316,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       _ref_id: folder._ref_id,
     }
 
-    if (folderBackendId) {
-      updateUserCollection(folderBackendId, folder.name, JSON.stringify(data))
-    }
+    updateUserCollection(folderBackendId, folder.name, JSON.stringify(data))
   },
   async removeFolder({ folderID }) {
     if (folderID) {
@@ -341,15 +342,14 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       path.split("/").map((index) => parseInt(index))
     )?.requests[requestIndex]
 
-    const requestBackendID = request?.id
+    // Send the backend id when present, otherwise the index path.
+    const requestBackendID = request?.id ?? `${path}/${requestIndex}`
 
-    if (requestBackendID) {
-      editGQLUserRequest(
-        requestBackendID,
-        (requestNew as HoppRESTRequest).name,
-        JSON.stringify(requestNew)
-      )
-    }
+    editGQLUserRequest(
+      requestBackendID,
+      (requestNew as HoppRESTRequest).name,
+      JSON.stringify(requestNew)
+    )
   },
   async saveRequestAs({ path, request }) {
     const folder = navigateToFolderWithIndexPath(
@@ -357,27 +357,28 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       path.split("/").map((index) => parseInt(index))
     )
 
-    const parentCollectionBackendID = folder?.id
+    if (!folder) return
 
-    if (parentCollectionBackendID) {
-      const newRequest = folder.requests[folder.requests.length - 1]
+    // Send the parent backend id when present, otherwise its index path.
+    const parentCollectionBackendID = folder.id ?? path
 
-      const res = await createGQLUserRequest(
-        (request as HoppRESTRequest).name,
-        JSON.stringify(request),
-        parentCollectionBackendID
+    const newRequest = folder.requests[folder.requests.length - 1]
+
+    const res = await createGQLUserRequest(
+      (request as HoppRESTRequest).name,
+      JSON.stringify(request),
+      parentCollectionBackendID
+    )
+
+    if (E.isRight(res)) {
+      const { id } = res.right.createGQLUserRequest
+
+      newRequest.id = id
+      removeDuplicateGraphqlCollectionOrFolder(
+        id,
+        `${path}/${folder.requests.length - 1}`,
+        "request"
       )
-
-      if (E.isRight(res)) {
-        const { id } = res.right.createGQLUserRequest
-
-        newRequest.id = id
-        removeDuplicateGraphqlCollectionOrFolder(
-          id,
-          `${path}/${folder.requests.length - 1}`,
-          "request"
-        )
-      }
     }
   },
   async removeRequest({ requestID }) {

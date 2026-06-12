@@ -36,8 +36,10 @@ import {
 import { Store } from "@app/kernel/store"
 import { getKernelMode } from "@hoppscotch/kernel"
 import { getService } from "@hoppscotch/common/modules/dioc"
+import { PersistenceService } from "@hoppscotch/common/services/persistence"
 
 const STORE_NAMESPACE = "hoppscotch-desktop.v1"
+const persistenceService = getService(PersistenceService)
 
 type RecentInstances = Instance[]
 
@@ -1012,6 +1014,7 @@ export class DesktopInstanceService
     instance: Instance,
     options?: Partial<LoadOptions>
   ): TE.TaskEither<string, LoadResponse> {
+    let loadedInstance: Instance = instance
     return pipe(
       instance.kind === "vendored"
         ? TE.of(undefined)
@@ -1020,19 +1023,29 @@ export class DesktopInstanceService
               console.log(
                 `[InstanceService] Ensuring bundle is available for: ${instance.displayName}`
               )
-              await download({ serverUrl: instance.serverUrl })
-              return undefined
+              const dlResp = await download({ serverUrl: instance.serverUrl })
+              loadedInstance = {
+                ...instance,
+                version: dlResp.version,
+                bundleName: dlResp.bundleName,
+              }
+              if (instance.kind === "on-prem") {
+                await persistenceService.setLocalConfig(
+                  "hopp_v",
+                  loadedInstance.version
+                )
+              }
             },
             (error) => `Failed to ensure bundle is available: ${error}`
           ),
-      TE.chain(() => this.getBundleNameTE(instance)),
-      TE.map(() => this.buildLoadOptions(instance, options)),
+      TE.chain(() => this.getBundleNameTE(loadedInstance)),
+      TE.map(() => this.buildLoadOptions(loadedInstance, options)),
       TE.chain((loadOptions) => this.performLoadTE(loadOptions)),
       TE.chain((response) =>
-        this.validateLoadResponseTE(response, instance.displayName)
+        this.validateLoadResponseTE(response, loadedInstance.displayName)
       ),
-      TE.chainFirst(() => this.updateInstanceStateTE(instance)),
-      TE.chainFirst(() => this.updateInstanceLastUsed(instance)),
+      TE.chainFirst(() => this.updateInstanceStateTE(loadedInstance)),
+      TE.chainFirst(() => this.updateInstanceLastUsed(loadedInstance)),
       TE.chainFirst((_loadResponse) =>
         TE.fromTask(async () => {
           try {
@@ -1271,7 +1284,12 @@ export class DesktopInstanceService
       this.recentInstances$.value,
       A.map((i) =>
         i.serverUrl === instance.serverUrl
-          ? { ...i, lastUsed: new Date().toISOString() }
+          ? {
+              ...i,
+              version: instance.version,
+              bundleName: instance.bundleName,
+              lastUsed: new Date().toISOString(),
+            }
           : i
       ),
       sortByLastUsedDesc,

@@ -214,14 +214,57 @@ export function useAppInitialization() {
           target: instance.serverUrl,
         })
 
-        await download({ serverUrl: instance.serverUrl })
+        const dlResp = await download({ serverUrl: instance.serverUrl })
+        const updatedInstance: Instance = {
+          ...instance,
+          version: dlResp.version,
+          bundleName: dlResp.bundleName,
+        }
+        const normUrl = (u: string) => {
+          let n = u.toLowerCase()
+          if (n.endsWith("/desktop-app-server")) n = n.slice(0, -19)
+          while (n.endsWith("/")) n = n.slice(0, -1)
+          return n
+        }
+        try {
+          const recentInstances = await persistence.recentInstances.get()
+          await persistence.recentInstances.set(
+            recentInstances.map((r) =>
+              normUrl(r.serverUrl) === normUrl(updatedInstance.serverUrl)
+                ? {
+                    ...r,
+                    version: dlResp.version,
+                    bundleName: dlResp.bundleName,
+                  }
+                : r
+            )
+          )
+          const connState = await persistence.connectionState.get()
+          if (
+            connState?.status === "connected" &&
+            connState.instance &&
+            normUrl(connState.instance.serverUrl) ===
+              normUrl(updatedInstance.serverUrl)
+          ) {
+            await persistence.connectionState.set({
+              status: "connected",
+              instance: {
+                ...connState.instance,
+                version: dlResp.version,
+                bundleName: dlResp.bundleName,
+              },
+            })
+          }
+        } catch (syncErr) {
+          console.error("Failed to sync recent instance version:", syncErr)
+        }
 
         mainDiag(
-          `loadVendoredIfMatches: loading non-vendored instance, bundle=${instance.bundleName}`
+          `loadVendoredIfMatches: loading non-vendored instance, bundle=${updatedInstance.bundleName}`
         )
         await desktopSettings.ready()
         const loadResp = await load({
-          bundleName: instance.bundleName!,
+          bundleName: updatedInstance.bundleName!,
           window: {
             title: "Hoppscotch",
             zoomLevel: desktopSettings.settings.zoomLevel,
@@ -237,7 +280,7 @@ export function useAppInitialization() {
 
         await saveConnectionState({
           status: "connected",
-          instance: instance,
+          instance: updatedInstance,
         })
 
         console.log(`Successfully loaded instance: ${instance.displayName}`)

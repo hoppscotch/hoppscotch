@@ -36,10 +36,8 @@ import {
 import { Store } from "@app/kernel/store"
 import { getKernelMode } from "@hoppscotch/kernel"
 import { getService } from "@hoppscotch/common/modules/dioc"
-import { PersistenceService } from "@hoppscotch/common/services/persistence"
 
 const STORE_NAMESPACE = "hoppscotch-desktop.v1"
-const persistenceService = getService(PersistenceService)
 
 type RecentInstances = Instance[]
 
@@ -1028,12 +1026,6 @@ export class DesktopInstanceService
                 ...instance,
                 version: dlResp.version,
                 bundleName: dlResp.bundleName,
-              }
-              if (instance.kind === "on-prem") {
-                await persistenceService.setLocalConfig(
-                  "hopp_v",
-                  loadedInstance.version
-                )
               }
             },
             (error) => `Failed to ensure bundle is available: ${error}`

@@ -220,9 +220,12 @@ export function useAppInitialization() {
           version: dlResp.version,
           bundleName: dlResp.bundleName,
         }
+        const DESKTOP_APP_SERVER_PATH = "/desktop-app-server"
         const normUrl = (u: string) => {
           let n = u.toLowerCase()
-          if (n.endsWith("/desktop-app-server")) n = n.slice(0, -19)
+          while (n.endsWith("/")) n = n.slice(0, -1)
+          if (n.endsWith(DESKTOP_APP_SERVER_PATH))
+            n = n.slice(0, -DESKTOP_APP_SERVER_PATH.length)
           while (n.endsWith("/")) n = n.slice(0, -1)
           return n
         }
@@ -239,22 +242,6 @@ export function useAppInitialization() {
                 : r
             )
           )
-          const connState = await persistence.connectionState.get()
-          if (
-            connState?.status === "connected" &&
-            connState.instance &&
-            normUrl(connState.instance.serverUrl) ===
-              normUrl(updatedInstance.serverUrl)
-          ) {
-            await persistence.connectionState.set({
-              status: "connected",
-              instance: {
-                ...connState.instance,
-                version: dlResp.version,
-                bundleName: dlResp.bundleName,
-              },
-            })
-          }
         } catch (syncErr) {
           console.error("Failed to sync recent instance version:", syncErr)
         }

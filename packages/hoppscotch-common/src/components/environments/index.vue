@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="sticky top-0 z-10 flex flex-shrink-0 flex-col overflow-x-auto bg-primary"
+      <div class="sticky top-0 z-10 flex flex-shrink-0 flex-col bg-primary">
     >
       <WorkspaceCurrent :section="t('tab.environments')" />
       <EnvironmentsMyEnvironment

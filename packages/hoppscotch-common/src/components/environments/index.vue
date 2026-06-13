@@ -1,18 +1,21 @@
 <template>
   <div>
-    <div class="sticky top-0 z-10 flex flex-shrink-0 flex-col bg-primary">
+    <div
+      class="sticky top-0 z-10 flex flex-shrink-0 flex-col overflow-x-auto bg-primary"
+    >
       <WorkspaceCurrent :section="t('tab.environments')" />
       <EnvironmentsMyEnvironment
         environment-index="Global"
         :environment="globalEnvironment"
-        :duplicate-global-environment-loading="duplicateGlobalEnvironmentLoading"
+        :duplicate-global-environment-loading="
+          duplicateGlobalEnvironmentLoading
+        "
         :show-context-menu-loading-state="workspace.type === 'team'"
         class="border-b border-dividerLight"
         @duplicate-global-environment="duplicateGlobalEnvironment"
         @edit-environment="editEnvironment('Global')"
       />
     </div>
-    
     <EnvironmentsMy
       v-show="isPersonalEnvironmentType"
       @select-environment="handleEnvironmentChange"
@@ -162,6 +165,8 @@ const updateEnvironmentType = (newEnvironmentType: EnvironmentType) => {
 
 const workspace = workspaceService.currentWorkspace
 
+// Switch to my environments if workspace is personal and to team environments if workspace is team
+// also resets selected environment if workspace is personal and the previous selected environment was a team environment
 watch(
   workspace,
   (newWorkspace) => {
@@ -176,6 +181,8 @@ watch(
     const newTeamID =
       newWorkspaceType === "team" ? newWorkspace.teamID : undefined
 
+    // Set active environment to the `No environment` state
+    // if navigating away from a team workspace
     if (
       selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
       newTeamID &&
@@ -279,6 +286,9 @@ const duplicateGlobalEnvironment = async () => {
           toast.error(t(getEnvActionErrorMessage(err)))
         },
         () => {
+          // Secret variable values are intentionally NOT copied to the
+          // duplicated environment — duplicates start fresh on secrets per
+          // the per-entity secret model.
           toast.success(t("environment.duplicated"))
         }
       )
@@ -305,6 +315,10 @@ const removeSelectedEnvironment = () => {
   if (selectedEnvIndex?.type === "NO_ENV_SELECTED") return
 
   if (selectedEnvIndex?.type === "MY_ENV") {
+    // Pass envID so the selfhost sync handler can call the backend delete
+    // for already-synced envs. The handler internally guards against the
+    // create-window race (`pendingTempEnvIds` set in `sync.ts`) so a temp
+    // `uniqueID()` here won't 404; only real backend ids reach the wire.
     const envID =
       environmentsStore.value.environments[selectedEnvIndex.index]?.id
     deleteEnvironment(selectedEnvIndex.index, envID)
@@ -324,6 +338,8 @@ const removeSelectedEnvironment = () => {
           console.error(err)
         },
         () => {
+          // Same lifecycle hygiene as MY_ENV — flush after backend
+          // success so the secret service doesn't retain the entry.
           secretEnvironmentService.deleteSecretEnvironment(teamEnvID)
           currentEnvironmentValueService.deleteEnvironment(teamEnvID)
           toast.success(`${t("team_environment.deleted")}`)
@@ -365,6 +381,8 @@ defineActionHandler(
   }
 )
 
+/* Checking if there are any changes in the selected team environment when there are any updates
+in the selected team environment list */
 watch(
   () => teamEnvironmentList.value,
   (newTeamEnvironmentList) => {
@@ -380,6 +398,7 @@ watch(
       )
 
       if (selectedEnv) {
+        // Checking if the currently selected environment is still the same after the new list is loaded
         const isChange = !isEqual(
           selectedEnvironmentIndex.value.environment,
           selectedEnv.environment

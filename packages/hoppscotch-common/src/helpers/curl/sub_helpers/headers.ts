@@ -11,11 +11,16 @@ import {
 import { tupleToRecord } from "~/helpers/functional/record"
 
 const getHeaderPair = flow(
-  S.replace(":", ": "),
-  S.split(": "),
-  // must have a key and a value
-  O.fromPredicate((arr) => arr.length === 2),
-  O.map(([k, v]) => [k.trim(), v?.trim() ?? ""] as [string, string])
+  // Split on the first colon (with optional surrounding whitespace) only,
+  // so that header values containing ": " are preserved intact.
+  // e.g. "X-Note: hello: world" → ["X-Note", "hello: world"]
+  (s: string) => {
+    const idx = s.indexOf(":");
+    if (idx === -1) return O.none;
+    const key = s.slice(0, idx).trim();
+    const value = s.slice(idx + 1).trim();
+    return key.length > 0 ? O.some([key, value] as [string, string]) : O.none;
+  }
 )
 
 export function getHeaders(parsedArguments: parser.Arguments) {

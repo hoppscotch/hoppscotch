@@ -1,0 +1,13 @@
+cluster: make-hopp-rest-response-original-request
+version: 1
+fingerprint: 10gs08r
+captured: 2026-06-14T03:04:04.547Z
+watches: [makeHoppRESTResponseOriginalRequest]
+entry: makeHoppRESTResponseOriginalRequest
+stack: js
+fingerprintLevel: entry
+env: {"node_version":"v24.16.0","platform":"linux","arch":"x64","numpy":"not_installed","gmpy2":"not_installed"}
+---
+INPUT  {"endpoint":"https://api.example.com","method":"GET","headers":[]}
+OUTPUT {"v":"6","endpoint":"https://api.example.com","method":"GET","headers":[]}
+HASH   10gs08r

@@ -1,0 +1,13 @@
+cluster: raw-key-value-entries-to-string
+version: 1
+fingerprint: cc8nijp
+captured: 2026-06-14T03:04:04.542Z
+watches: [rawKeyValueEntriesToString]
+entry: rawKeyValueEntriesToString
+stack: js
+fingerprintLevel: entry
+env: {"node_version":"v24.16.0","platform":"linux","arch":"x64","numpy":"not_installed","gmpy2":"not_installed"}
+---
+INPUT  [{"key":"Authorization","value":"Bearer token123","active":true},{"key":"Content-Type","value":"application/json","active":true}]
+OUTPUT "Authorization: Bearer token123\nContent-Type: application/json"
+HASH   cc8nijp

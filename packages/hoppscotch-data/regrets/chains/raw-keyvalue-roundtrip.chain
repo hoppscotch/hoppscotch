@@ -1,0 +1,17 @@
+chain: raw-keyvalue-roundtrip
+chain_hash: 3r7k2p1
+captured: 2026-06-14T03:04:27.136Z
+steps:
+  1. cluster: parse-raw-key-value-entries
+     fingerprint: 5q60n8p
+  2. cluster: raw-key-value-entries-to-string
+     fingerprint: cc8nijp
+---
+STEP 1  parse-raw-key-value-entries
+  INPUT  "Authorization: Bearer token123\nContent-Type: application/json"
+  OUTPUT [{"active":true,"key":"Authorization","value":"Bearer token123"},{"active":true,"key":"Content-Type","value":"application/json"}]
+  HASH   5q60n8p
+STEP 2  raw-key-value-entries-to-string
+  INPUT  [{"active":true,"key":"Authorization","value":"Bearer token123"},{"active":true,"key":"Content-Type","value":"application/json"}]
+  OUTPUT "Authorization: Bearer token123\nContent-Type: application/json"
+  HASH   cc8nijp

@@ -1,0 +1,72 @@
+{
+  "fingerprints": {
+    "get-default-gql-request": {
+      "fingerprint": "3a7wv5z",
+      "hash": "3a7wv5z",
+      "captured": "2026-06-14T03:04:04.543Z",
+      "entry": "getDefaultGQLRequest"
+    },
+    "is-hopp-rest-request": {
+      "fingerprint": "4q562ej",
+      "hash": "4q562ej",
+      "captured": "2026-06-14T03:04:04.547Z",
+      "entry": "isHoppRESTRequest"
+    },
+    "make-gql-request": {
+      "fingerprint": "49djb8x",
+      "hash": "49djb8x",
+      "captured": "2026-06-14T03:04:04.545Z",
+      "entry": "makeGQLRequest"
+    },
+    "make-hopp-rest-response-original-request": {
+      "fingerprint": "10gs08r",
+      "hash": "10gs08r",
+      "captured": "2026-06-14T03:04:04.547Z",
+      "entry": "makeHoppRESTResponseOriginalRequest"
+    },
+    "parse-raw-key-value-entries-e": {
+      "fingerprint": "148ru0l",
+      "hash": "148ru0l",
+      "captured": "2026-06-14T03:04:04.540Z",
+      "entry": "parseRawKeyValueEntriesE"
+    },
+    "parse-raw-key-value-entries": {
+      "fingerprint": "5q60n8p",
+      "hash": "5q60n8p",
+      "captured": "2026-06-14T03:04:04.537Z",
+      "entry": "parseRawKeyValueEntries"
+    },
+    "raw-key-value-entries-to-string": {
+      "fingerprint": "cc8nijp",
+      "hash": "cc8nijp",
+      "captured": "2026-06-14T03:04:04.542Z",
+      "entry": "rawKeyValueEntriesToString"
+    },
+    "strict-parse-raw-key-value-entries-e": {
+      "fingerprint": "148ru0l",
+      "hash": "148ru0l",
+      "captured": "2026-06-14T03:04:04.542Z",
+      "entry": "strictParseRawKeyValueEntriesE"
+    },
+    "translate-to-gql-request": {
+      "fingerprint": "3a7wv5z",
+      "hash": "3a7wv5z",
+      "captured": "2026-06-14T03:04:04.545Z",
+      "entry": "translateToGQLRequest"
+    },
+    "translate-to-new-env-vars": {
+      "fingerprint": "2f3v4ve",
+      "hash": "2f3v4ve",
+      "captured": "2026-06-14T03:04:04.548Z",
+      "entry": "translateToNewEnvironmentVariables"
+    }
+  },
+  "chains": {
+    "gql-request-lifecycle": {
+      "chainHash": "3brjq92"
+    },
+    "raw-keyvalue-roundtrip": {
+      "chainHash": "3r7k2p1"
+    }
+  }
+}

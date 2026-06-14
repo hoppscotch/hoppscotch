@@ -1,0 +1,13 @@
+cluster: get-default-gql-request
+version: 1
+fingerprint: 3a7wv5z
+captured: 2026-06-14T03:04:04.543Z
+watches: [getDefaultGQLRequest]
+entry: getDefaultGQLRequest
+stack: js
+fingerprintLevel: entry
+env: {"node_version":"v24.16.0","platform":"linux","arch":"x64","numpy":"not_installed","gmpy2":"not_installed"}
+---
+INPUT  null
+OUTPUT {"v":9,"name":"Untitled","url":"https://echo.hoppscotch.io/graphql","headers":[],"variables":"{\n  \"id\": \"1\"\n}","query":"query Request {\n  method\n  url\n  headers {\n    key\n    value\n  }\n}","auth":{"authType":"inherit","authActive":true}}
+HASH   3a7wv5z

@@ -1,0 +1,13 @@
+cluster: make-gql-request
+version: 1
+fingerprint: 49djb8x
+captured: 2026-06-14T03:04:04.545Z
+watches: [makeGQLRequest]
+entry: makeGQLRequest
+stack: js
+fingerprintLevel: entry
+env: {"node_version":"v24.16.0","platform":"linux","arch":"x64","numpy":"not_installed","gmpy2":"not_installed"}
+---
+INPUT  {"name":"Test Query","url":"https://api.example.com/graphql","headers":[],"variables":""}
+OUTPUT {"v":9,"name":"Test Query","url":"https://api.example.com/graphql","headers":[],"variables":""}
+HASH   49djb8x

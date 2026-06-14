@@ -1,0 +1,13 @@
+cluster: translate-to-new-env-vars
+version: 1
+fingerprint: 2f3v4ve
+captured: 2026-06-14T03:04:04.548Z
+watches: [translateToNewEnvironmentVariables]
+entry: translateToNewEnvironmentVariables
+stack: js
+fingerprintLevel: entry
+env: {"node_version":"v24.16.0","platform":"linux","arch":"x64","numpy":"not_installed","gmpy2":"not_installed"}
+---
+INPUT  {"key":"API_KEY","value":"secret123"}
+OUTPUT {"key":"API_KEY","initialValue":"secret123","currentValue":"secret123","secret":false}
+HASH   2f3v4ve

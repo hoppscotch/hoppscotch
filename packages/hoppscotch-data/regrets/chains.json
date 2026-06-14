@@ -1,0 +1,19 @@
+{
+  "chains": [
+    {
+      "id": "gql-request-lifecycle",
+      "steps": [
+        { "cluster": "get-default-gql-request", "input": null },
+        { "cluster": "translate-to-gql-request", "input": {"name": "ChainTest", "url": "https://chain.example.com/graphql"} },
+        { "cluster": "make-gql-request", "input": {"name": "ChainTest", "url": "https://chain.example.com/graphql", "headers": [], "variables": ""} }
+      ]
+    },
+    {
+      "id": "raw-keyvalue-roundtrip",
+      "steps": [
+        { "cluster": "parse-raw-key-value-entries", "input": "Authorization: Bearer token123\nContent-Type: application/json" },
+        { "cluster": "raw-key-value-entries-to-string", "input": [{"key": "Authorization", "value": "Bearer token123", "active": true}, {"key": "Content-Type", "value": "application/json", "active": true}] }
+      ]
+    }
+  ]
+}

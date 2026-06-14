@@ -74,15 +74,23 @@ export function makeCollection(x: Omit<HoppCollection, "v">): HoppCollection {
 }
 
 /**
- * Translates an old collection to a new collection
- * @param x The collection object to load
- * @returns The proper new collection format
+ * Shared collection migration logic.
+ * Extracted to eliminate duplication between REST and GQL collection translators.
+ * The only difference between them is which request translator function is used.
+ *
+ * @param x The collection object to migrate
+ * @param requestTranslator The function to translate individual requests (REST or GQL)
+ * @param folderTranslator The recursive function for nested folders (passes itself)
+ * @returns The properly migrated collection
  */
-export function translateToNewRESTCollection(x: any): HoppCollection {
-  // Legacy
+function translateToNewCollection(
+  x: any,
+  requestTranslator: (r: any) => any,
+  folderTranslator: (x: any) => HoppCollection
+): HoppCollection {
   const name = x.name ?? "Untitled"
-  const folders = (x.folders ?? []).map(translateToNewRESTCollection)
-  const requests = (x.requests ?? []).map(translateToNewRequest)
+  const folders = (x.folders ?? []).map(folderTranslator)
+  const requests = (x.requests ?? []).map(requestTranslator)
 
   const auth = x.auth ?? { authType: "inherit", authActive: true }
   const headers = x.headers ?? []
@@ -114,41 +122,19 @@ export function translateToNewRESTCollection(x: any): HoppCollection {
 }
 
 /**
- * Translates an old collection to a new collection
+ * Translates an old REST collection to a new collection
+ * @param x The collection object to load
+ * @returns The proper new collection format
+ */
+export function translateToNewRESTCollection(x: any): HoppCollection {
+  return translateToNewCollection(x, translateToNewRequest, translateToNewRESTCollection)
+}
+
+/**
+ * Translates an old GQL collection to a new collection
  * @param x The collection object to load
  * @returns The proper new collection format
  */
 export function translateToNewGQLCollection(x: any): HoppCollection {
-  // Legacy
-  const name = x.name ?? "Untitled"
-  const folders = (x.folders ?? []).map(translateToNewGQLCollection)
-  const requests = (x.requests ?? []).map(translateToGQLRequest)
-
-  const auth = x.auth ?? { authType: "inherit", authActive: true }
-  const headers = x.headers ?? []
-  const variables = x.variables ?? []
-
-  const description = x.description ?? null
-
-  const preRequestScript = x.preRequestScript ?? ""
-  const testScript = x.testScript ?? ""
-
-  const obj = makeCollection({
-    name,
-    folders,
-    requests,
-    auth,
-    headers,
-    variables,
-    description,
-    preRequestScript,
-    testScript,
-  })
-
-  if (x.id) obj.id = x.id
-  if (x._ref_id) {
-    obj._ref_id = x._ref_id
-  }
-
-  return obj
+  return translateToNewCollection(x, translateToGQLRequest, translateToNewGQLCollection)
 }

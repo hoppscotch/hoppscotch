@@ -179,6 +179,28 @@ export const rawKeyValueEntriesToString = (entries: RawKeyValueEntry[]) =>
   )
 
 /**
+ * Format a parser error into a structured ParseError object.
+ * Extracted to eliminate duplication between tolerant and strict parsers.
+ */
+const formatParserError = (err: { expected: string[]; input: { cursor: number } }) => ({
+  message: `Expected ${err.expected.map((x) => `'${x}'`).join(", ")}`,
+  expected: err.expected,
+  pos: err.input.cursor,
+})
+
+/**
+ * Map parsed key-value-commented tuples to RawKeyValueEntry objects.
+ * Extracted to eliminate duplication between tolerant and strict parsers.
+ */
+const mapParsedToEntries = RA.map(({ key, value, commented }: { key: string; value: string; commented: boolean }) =>
+  <RawKeyValueEntry>{
+    active: !commented,
+    key,
+    value
+  }
+)
+
+/**
  * Parses raw key value entries string to array
  * @param s The file string to parse from
  * @returns Either the parser fail result or the raw key value entries
@@ -187,23 +209,8 @@ export const parseRawKeyValueEntriesE = (s: string) =>
   pipe(
     tolerantFile,
     S.run(s),
-    E.mapLeft((err) => ({
-      message: `Expected ${err.expected.map((x) => `'${x}'`).join(", ")}`,
-      expected: err.expected,
-      pos: err.input.cursor,
-    })),
-    E.map(
-      ({ value }) => pipe(
-        value,
-        RA.map(({ key, value, commented }) =>
-          <RawKeyValueEntry>{
-            active: !commented,
-            key,
-            value
-          }
-        )
-      )
-    )
+    E.mapLeft(formatParserError),
+    E.map(({ value }) => pipe(value, mapParsedToEntries))
   )
 
 /**
@@ -215,23 +222,8 @@ export const strictParseRawKeyValueEntriesE = (s: string) =>
   pipe(
     file,
     S.run(s),
-    E.mapLeft((err) => ({
-      message: `Expected ${err.expected.map((x) => `'${x}'`).join(", ")}`,
-      expected: err.expected,
-      pos: err.input.cursor,
-    })),
-    E.map(
-      ({ value }) => pipe(
-        value,
-        RA.map(({ key, value, commented }) =>
-          <RawKeyValueEntry>{
-            active: !commented,
-            key,
-            value
-          }
-        )
-      )
-    )
+    E.mapLeft(formatParserError),
+    E.map(({ value }) => pipe(value, mapParsedToEntries))
   )
 
 /**

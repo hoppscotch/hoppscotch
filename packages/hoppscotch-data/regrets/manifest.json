@@ -1,0 +1,141 @@
+{
+  "preBuild": "pnpm build:code",
+  "clusters": [
+    {
+      "id": "parse-raw-key-value-entries",
+      "entry": "parseRawKeyValueEntries",
+      "watches": ["parseRawKeyValueEntries"],
+      "file": "dist/hoppscotch-data.cjs",
+      "stack": "js",
+      "fingerprintLevel": "entry",
+      "description": "Legacy parse of raw key-value text to entries. Returns [] on failure.",
+      "inputs": [
+        "Authorization: Bearer token123\nContent-Type: application/json",
+        "",
+        "key1=value1\nkey2=value2",
+        "X-Custom: hello world"
+      ]
+    },
+    {
+      "id": "parse-raw-key-value-entries-e",
+      "entry": "parseRawKeyValueEntriesE",
+      "watches": ["parseRawKeyValueEntriesE"],
+      "file": "dist/hoppscotch-data.cjs",
+      "stack": "js",
+      "fingerprintLevel": "entry",
+      "description": "Tolerant parse of raw key-value text to entries, returns Either.",
+      "inputs": [
+        "Authorization: Bearer token123\nContent-Type: application/json",
+        "",
+        "key1=value1\nkey2=value2"
+      ]
+    },
+    {
+      "id": "strict-parse-raw-key-value-entries-e",
+      "entry": "strictParseRawKeyValueEntriesE",
+      "watches": ["strictParseRawKeyValueEntriesE"],
+      "file": "dist/hoppscotch-data.cjs",
+      "stack": "js",
+      "fingerprintLevel": "entry",
+      "description": "Strict parse of raw key-value text to entries, returns Either.",
+      "inputs": [
+        "Authorization: Bearer token123\nContent-Type: application/json",
+        "",
+        "key1=value1\nkey2=value2"
+      ]
+    },
+    {
+      "id": "raw-key-value-entries-to-string",
+      "entry": "rawKeyValueEntriesToString",
+      "watches": ["rawKeyValueEntriesToString"],
+      "file": "dist/hoppscotch-data.cjs",
+      "stack": "js",
+      "fingerprintLevel": "entry",
+      "description": "Serializes key-value entries to raw string format.",
+      "inputs": [
+        [{"key": "Authorization", "value": "Bearer token123", "active": true}, {"key": "Content-Type", "value": "application/json", "active": true}],
+        [],
+        [{"key": "X-Empty", "value": "", "active": false}]
+      ]
+    },
+    {
+      "id": "get-default-gql-request",
+      "entry": "getDefaultGQLRequest",
+      "watches": ["getDefaultGQLRequest"],
+      "file": "dist/hoppscotch-data.cjs",
+      "stack": "js",
+      "fingerprintLevel": "entry",
+      "description": "Returns hardcoded default GraphQL request. Pure factory.",
+      "inputs": [null]
+    },
+    {
+      "id": "translate-to-gql-request",
+      "entry": "translateToGQLRequest",
+      "watches": ["translateToGQLRequest"],
+      "file": "dist/hoppscotch-data.cjs",
+      "stack": "js",
+      "fingerprintLevel": "entry",
+      "description": "Parses unknown input to GQL request with fallback to default.",
+      "inputs": [
+        null,
+        {"name": "My Query", "url": "https://api.example.com/graphql"},
+        {"v": 1, "name": "Test", "url": "https://test.com", "headers": [], "variables": ""},
+        "invalid string"
+      ]
+    },
+    {
+      "id": "make-gql-request",
+      "entry": "makeGQLRequest",
+      "watches": ["makeGQLRequest"],
+      "file": "dist/hoppscotch-data.cjs",
+      "stack": "js",
+      "fingerprintLevel": "entry",
+      "description": "Constructs a GQL request with version stamp. Pure.",
+      "inputs": [
+        {"name": "Test Query", "url": "https://api.example.com/graphql", "headers": [], "variables": ""},
+        {"name": "Another", "url": "https://test.com", "headers": [{"key": "Auth", "value": "token", "active": true}], "variables": "{\"limit\": 10}"}
+      ]
+    },
+    {
+      "id": "is-hopp-rest-request",
+      "entry": "isHoppRESTRequest",
+      "watches": ["isHoppRESTRequest"],
+      "file": "dist/hoppscotch-data.cjs",
+      "stack": "js",
+      "fingerprintLevel": "entry",
+      "description": "Type guard for HoppRESTRequest (deprecated but functional).",
+      "inputs": [
+        {"endpoint": "https://api.example.com", "method": "GET", "v": 17},
+        null,
+        "invalid string",
+        42
+      ]
+    },
+    {
+      "id": "make-hopp-rest-response-original-request",
+      "entry": "makeHoppRESTResponseOriginalRequest",
+      "watches": ["makeHoppRESTResponseOriginalRequest"],
+      "file": "dist/hoppscotch-data.cjs",
+      "stack": "js",
+      "fingerprintLevel": "entry",
+      "description": "Constructs original request with version stamp. Pure.",
+      "inputs": [
+        {"endpoint": "https://api.example.com", "method": "GET", "headers": []}
+      ]
+    },
+    {
+      "id": "translate-to-new-env-vars",
+      "entry": "translateToNewEnvironmentVariables",
+      "watches": ["translateToNewEnvironmentVariables"],
+      "file": "dist/hoppscotch-data.cjs",
+      "stack": "js",
+      "fingerprintLevel": "entry",
+      "description": "Migrates legacy env variable format. Pure migration function.",
+      "inputs": [
+        {"key": "API_KEY", "value": "secret123"},
+        {"key": "HOST", "value": "localhost"},
+        {"key": "EMPTY", "value": ""}
+      ]
+    }
+  ]
+}

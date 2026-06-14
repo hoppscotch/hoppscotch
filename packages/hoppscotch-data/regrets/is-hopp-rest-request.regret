@@ -1,0 +1,13 @@
+cluster: is-hopp-rest-request
+version: 1
+fingerprint: 4q562ej
+captured: 2026-06-14T03:04:04.547Z
+watches: [isHoppRESTRequest]
+entry: isHoppRESTRequest
+stack: js
+fingerprintLevel: entry
+env: {"node_version":"v24.16.0","platform":"linux","arch":"x64","numpy":"not_installed","gmpy2":"not_installed"}
+---
+INPUT  {"endpoint":"https://api.example.com","method":"GET","v":17}
+OUTPUT false
+HASH   4q562ej

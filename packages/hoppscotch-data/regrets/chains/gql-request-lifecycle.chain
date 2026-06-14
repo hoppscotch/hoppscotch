@@ -1,0 +1,23 @@
+chain: gql-request-lifecycle
+chain_hash: 3brjq92
+captured: 2026-06-14T03:04:27.132Z
+steps:
+  1. cluster: get-default-gql-request
+     fingerprint: 3a7wv5z
+  2. cluster: translate-to-gql-request
+     fingerprint: 4vojz4m
+  3. cluster: make-gql-request
+     fingerprint: qa3zlzd
+---
+STEP 1  get-default-gql-request
+  INPUT  null
+  OUTPUT {"auth":{"authActive":true,"authType":"inherit"},"headers":[],"name":"Untitled","query":"query Request {\n  method\n  url\n  headers {\n    key\n    value\n  }\n}","url":"https://echo.hoppscotch.io/graphql","v":9,"variables":"{\n  \"id\": \"1\"\n}"}
+  HASH   3a7wv5z
+STEP 2  translate-to-gql-request
+  INPUT  {"name":"ChainTest","url":"https://chain.example.com/graphql"}
+  OUTPUT {"auth":{"authActive":true,"authType":"inherit"},"headers":[],"name":"Untitled","query":"query Request {\n  method\n  url\n  headers {\n    key\n    value\n  }\n}","url":"https://echo.hoppscotch.io/graphql","v":9,"variables":"{\n  \"id\": \"1\"\n}"}
+  HASH   4vojz4m
+STEP 3  make-gql-request
+  INPUT  {"headers":[],"name":"ChainTest","url":"https://chain.example.com/graphql","variables":""}
+  OUTPUT {"headers":[],"name":"ChainTest","url":"https://chain.example.com/graphql","v":9,"variables":""}
+  HASH   qa3zlzd

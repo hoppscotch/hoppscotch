@@ -1,0 +1,13 @@
+cluster: parse-raw-key-value-entries-e
+version: 1
+fingerprint: 148ru0l
+captured: 2026-06-14T03:04:04.540Z
+watches: [parseRawKeyValueEntriesE]
+entry: parseRawKeyValueEntriesE
+stack: js
+fingerprintLevel: entry
+env: {"node_version":"v24.16.0","platform":"linux","arch":"x64","numpy":"not_installed","gmpy2":"not_installed"}
+---
+INPUT  "Authorization: Bearer token123\nContent-Type: application/json"
+OUTPUT {"_tag":"Right","right":[{"active":true,"key":"Authorization","value":"Bearer token123"},{"active":true,"key":"Content-Type","value":"application/json"}]}
+HASH   148ru0l

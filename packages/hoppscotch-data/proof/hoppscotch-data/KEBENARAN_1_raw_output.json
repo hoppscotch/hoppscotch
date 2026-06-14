@@ -1,0 +1,371 @@
+{
+  "parse-raw-key-value-entries": [
+    {
+      "input": "Authorization: Bearer token123\nContent-Type: application/json",
+      "output": [
+        {
+          "active": true,
+          "key": "Authorization",
+          "value": "Bearer token123"
+        },
+        {
+          "active": true,
+          "key": "Content-Type",
+          "value": "application/json"
+        }
+      ]
+    },
+    {
+      "input": "",
+      "output": []
+    },
+    {
+      "input": "key1=value1\nkey2=value2",
+      "output": [
+        {
+          "active": true,
+          "key": "key1=value1",
+          "value": ""
+        },
+        {
+          "active": true,
+          "key": "key2=value2",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "input": "X-Custom: hello world",
+      "output": [
+        {
+          "active": true,
+          "key": "X-Custom",
+          "value": "hello world"
+        }
+      ]
+    }
+  ],
+  "parse-raw-key-value-entries-e": [
+    {
+      "input": "Authorization: Bearer token123\nContent-Type: application/json",
+      "output": {
+        "_tag": "Right",
+        "right": [
+          {
+            "active": true,
+            "key": "Authorization",
+            "value": "Bearer token123"
+          },
+          {
+            "active": true,
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      }
+    },
+    {
+      "input": "",
+      "output": {
+        "_tag": "Right",
+        "right": []
+      }
+    },
+    {
+      "input": "key1=value1\nkey2=value2",
+      "output": {
+        "_tag": "Right",
+        "right": [
+          {
+            "active": true,
+            "key": "key1=value1",
+            "value": ""
+          },
+          {
+            "active": true,
+            "key": "key2=value2",
+            "value": ""
+          }
+        ]
+      }
+    }
+  ],
+  "strict-parse-raw-key-value-entries-e": [
+    {
+      "input": "Authorization: Bearer token123\nContent-Type: application/json",
+      "output": {
+        "_tag": "Right",
+        "right": [
+          {
+            "active": true,
+            "key": "Authorization",
+            "value": "Bearer token123"
+          },
+          {
+            "active": true,
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      }
+    },
+    {
+      "input": "",
+      "output": {
+        "_tag": "Right",
+        "right": []
+      }
+    },
+    {
+      "input": "key1=value1\nkey2=value2",
+      "output": {
+        "_tag": "Left",
+        "left": {
+          "message": "Expected '\":\"'",
+          "expected": [
+            "\":\""
+          ],
+          "pos": 12
+        }
+      }
+    }
+  ],
+  "raw-key-value-entries-to-string": [
+    {
+      "input": [
+        {
+          "key": "Authorization",
+          "value": "Bearer token123",
+          "active": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "active": true
+        }
+      ],
+      "output": "Authorization: Bearer token123\nContent-Type: application/json"
+    },
+    {
+      "input": [],
+      "output": ""
+    },
+    {
+      "input": [
+        {
+          "key": "X-Empty",
+          "value": "",
+          "active": false
+        }
+      ],
+      "output": "# X-Empty: "
+    }
+  ],
+  "get-default-gql-request": [
+    {
+      "input": null,
+      "output": {
+        "v": 9,
+        "name": "Untitled",
+        "url": "https://echo.hoppscotch.io/graphql",
+        "headers": [],
+        "variables": "{\n  \"id\": \"1\"\n}",
+        "query": "query Request {\n  method\n  url\n  headers {\n    key\n    value\n  }\n}",
+        "auth": {
+          "authType": "inherit",
+          "authActive": true
+        }
+      }
+    }
+  ],
+  "translate-to-gql-request": [
+    {
+      "input": null,
+      "output": {
+        "v": 9,
+        "name": "Untitled",
+        "url": "https://echo.hoppscotch.io/graphql",
+        "headers": [],
+        "variables": "{\n  \"id\": \"1\"\n}",
+        "query": "query Request {\n  method\n  url\n  headers {\n    key\n    value\n  }\n}",
+        "auth": {
+          "authType": "inherit",
+          "authActive": true
+        }
+      }
+    },
+    {
+      "input": {
+        "name": "My Query",
+        "url": "https://api.example.com/graphql"
+      },
+      "output": {
+        "v": 9,
+        "name": "Untitled",
+        "url": "https://echo.hoppscotch.io/graphql",
+        "headers": [],
+        "variables": "{\n  \"id\": \"1\"\n}",
+        "query": "query Request {\n  method\n  url\n  headers {\n    key\n    value\n  }\n}",
+        "auth": {
+          "authType": "inherit",
+          "authActive": true
+        }
+      }
+    },
+    {
+      "input": {
+        "v": 1,
+        "name": "Test",
+        "url": "https://test.com",
+        "headers": [],
+        "variables": ""
+      },
+      "output": {
+        "v": 9,
+        "name": "Untitled",
+        "url": "https://echo.hoppscotch.io/graphql",
+        "headers": [],
+        "variables": "{\n  \"id\": \"1\"\n}",
+        "query": "query Request {\n  method\n  url\n  headers {\n    key\n    value\n  }\n}",
+        "auth": {
+          "authType": "inherit",
+          "authActive": true
+        }
+      }
+    },
+    {
+      "input": "invalid string",
+      "output": {
+        "v": 9,
+        "name": "Untitled",
+        "url": "https://echo.hoppscotch.io/graphql",
+        "headers": [],
+        "variables": "{\n  \"id\": \"1\"\n}",
+        "query": "query Request {\n  method\n  url\n  headers {\n    key\n    value\n  }\n}",
+        "auth": {
+          "authType": "inherit",
+          "authActive": true
+        }
+      }
+    }
+  ],
+  "make-gql-request": [
+    {
+      "input": {
+        "name": "Test Query",
+        "url": "https://api.example.com/graphql",
+        "headers": [],
+        "variables": ""
+      },
+      "output": {
+        "v": 9,
+        "name": "Test Query",
+        "url": "https://api.example.com/graphql",
+        "headers": [],
+        "variables": ""
+      }
+    },
+    {
+      "input": {
+        "name": "Another",
+        "url": "https://test.com",
+        "headers": [
+          {
+            "key": "Auth",
+            "value": "token",
+            "active": true
+          }
+        ],
+        "variables": "{\"limit\": 10}"
+      },
+      "output": {
+        "v": 9,
+        "name": "Another",
+        "url": "https://test.com",
+        "headers": [
+          {
+            "key": "Auth",
+            "value": "token",
+            "active": true
+          }
+        ],
+        "variables": "{\"limit\": 10}"
+      }
+    }
+  ],
+  "is-hopp-rest-request": [
+    {
+      "input": {
+        "endpoint": "https://api.example.com",
+        "method": "GET",
+        "v": 17
+      },
+      "output": false
+    },
+    {
+      "input": null,
+      "output": false
+    },
+    {
+      "input": "invalid string",
+      "output": false
+    },
+    {
+      "input": 42,
+      "output": false
+    }
+  ],
+  "make-hopp-rest-response-original-request": [
+    {
+      "input": {
+        "endpoint": "https://api.example.com",
+        "method": "GET",
+        "headers": []
+      },
+      "output": {
+        "v": "6",
+        "endpoint": "https://api.example.com",
+        "method": "GET",
+        "headers": []
+      }
+    }
+  ],
+  "translate-to-new-env-vars": [
+    {
+      "input": {
+        "key": "API_KEY",
+        "value": "secret123"
+      },
+      "output": {
+        "key": "API_KEY",
+        "initialValue": "secret123",
+        "currentValue": "secret123",
+        "secret": false
+      }
+    },
+    {
+      "input": {
+        "key": "HOST",
+        "value": "localhost"
+      },
+      "output": {
+        "key": "HOST",
+        "initialValue": "localhost",
+        "currentValue": "localhost",
+        "secret": false
+      }
+    },
+    {
+      "input": {
+        "key": "EMPTY",
+        "value": ""
+      },
+      "output": {
+        "key": "EMPTY",
+        "initialValue": "",
+        "currentValue": "",
+        "secret": false
+      }
+    }
+  ]
+}

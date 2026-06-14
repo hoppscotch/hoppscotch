@@ -178,7 +178,9 @@ _Official proxy server is hosted by Hoppscotch - **[GitHub](https://github.com/h
 
 🌎 **i18n:** Experience the app in your language.
 
-Help us to translate Hoppscotch. Please read [`TRANSLATIONS`](TRANSLATIONS.md) for details on our [`CODE OF CONDUCT`](CODE_OF_CONDUCT.md) and the process for submitting pull requests to us.
+🌎 **i18n:** Experience the app in your language.
+
+- Help us translate Hoppscotch. Please read [`TRANSLATIONS`](TRANSLATIONS.md) for details on our [`CODE OF CONDUCT`](CODE_OF_CONDUCT.md) and the process for submitting pull requests to us.
 
 ☁️ **Auth + Sync:** Sign in and sync your data in real-time across all your devices.
 

@@ -1,42 +1,42 @@
 <div align="center">
-  <a href="https://hoppscotch.io">
-    <img
-      src="https://avatars.githubusercontent.com/u/56705483"
-      alt="Hoppscotch"
-      height="64"
-    />
-  </a>
-  <h3>
-    <b>
-      Hoppscotch
-    </b>
-  </h3>
+ <a href="https://hoppscotch.io">
+  <img
+   src="https://avatars.githubusercontent.com/u/56705483"
+   alt="Hoppscotch"
+   height="64"
+  />
+ </a>
+ <h3>
   <b>
-    Open Source API Development Ecosystem
+   Hoppscotch
   </b>
-  <p>
+ </h3>
+ <b>
+  Open Source API Development Ecosystem
+ </b>
+ <p>
 
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen?logo=github)](CODE_OF_CONDUCT.md) [![Website](https://img.shields.io/website?url=https%3A%2F%2Fhoppscotch.io&logo=hoppscotch)](https://hoppscotch.io) [![Tests](https://github.com/hoppscotch/hoppscotch/actions/workflows/tests.yml/badge.svg)](https://github.com/hoppscotch/hoppscotch/actions) [![Tweet](https://img.shields.io/twitter/url?url=https%3A%2F%2Fhoppscotch.io%2F)](https://x.com/share?text=%F0%9F%91%BD%20Hoppscotch%20%E2%80%A2%20Open%20source%20API%20development%20ecosystem%20-%20Helps%20you%20create%20requests%20faster,%20saving%20precious%20time%20on%20development.&url=https://hoppscotch.io&hashtags=hoppscotch&via=hoppscotch_io)
 
-  </p>
-  <p>
-    <sub>
-      Built with ❤︎ by
-      <a href="https://github.com/hoppscotch/hoppscotch/graphs/contributors">
-        contributors
-      </a>
-    </sub>
-  </p>
-  <br />
-  <p>
-    <a href="https://hoppscotch.io">
-      <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="./packages/hoppscotch-common/public/images/banner-dark.png">
-        <source media="(prefers-color-scheme: light)" srcset="./packages/hoppscotch-common/public/images/banner-light.png">
-        <img alt="Hoppscotch" src="./packages/hoppscotch-common/public/images/banner-dark.png">
-      </picture>
-    </a>
-  </p>
+ </p>
+ <p>
+  <sub>
+   Built with ❤︎ by
+   <a href="https://github.com/hoppscotch/hoppscotch/graphs/contributors">
+    contributors
+   </a>
+  </sub>
+ </p>
+ <br />
+ <p>
+  <a href="https://hoppscotch.io">
+   <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./packages/hoppscotch-common/public/images/banner-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="./packages/hoppscotch-common/public/images/banner-light.png">
+    <img alt="Hoppscotch" src="./packages/hoppscotch-common/public/images/banner-dark.png">
+   </picture>
+  </a>
+ </p>
 </div>
 
 _We highly recommend you take a look at the [**Hoppscotch Documentation**](https://docs.hoppscotch.io) to learn more about the app._
@@ -213,7 +213,7 @@ Help us to translate Hoppscotch. Please read [`TRANSLATIONS`](TRANSLATIONS.md) f
 - Export as / import from GitHub gist
 
 <details>
-  <summary><i>Use-cases</i></summary>
+ <summary><i>Use-cases</i></summary>
 
 ---
 
@@ -243,9 +243,9 @@ Help us to translate Hoppscotch. Please read [`TRANSLATIONS`](TRANSLATIONS.md) f
 - **[Proxy](https://github.com/hoppscotch/proxyscotch)** - A simple proxy server created for Hoppscotch.
 - **[Browser Extensions](https://github.com/hoppscotch/hoppscotch-extension)** - Browser extensions that enhance your Hoppscotch experience.
 
-  [![Firefox](https://raw.github.com/alrra/browser-logos/master/src/firefox/firefox_16x16.png) **Firefox**](https://addons.mozilla.org/en-US/firefox/addon/hoppscotch) &nbsp;|&nbsp; [![Chrome](https://raw.github.com/alrra/browser-logos/master/src/chrome/chrome_16x16.png) **Chrome**](https://chrome.google.com/webstore/detail/hoppscotch-extension-for-c/amknoiejhlmhancpahfcfcfhllgkpbld)
+ [![Firefox](https://raw.github.com/alrra/browser-logos/master/src/firefox/firefox_16x16.png) **Firefox**](https://addons.mozilla.org/en-US/firefox/addon/hoppscotch) &nbsp;|&nbsp; [![Chrome](https://raw.github.com/alrra/browser-logos/master/src/chrome/chrome_16x16.png) **Chrome**](https://chrome.google.com/webstore/detail/hoppscotch-extension-for-c/amknoiejhlmhancpahfcfcfhllgkpbld)
 
-  > **Extensions fix `CORS` issues.**
+ > **Extensions fix `CORS` issues.**
 
 _Add-ons are developed and maintained under **[Hoppscotch Organization](https://github.com/hoppscotch)**._
 
@@ -285,11 +285,11 @@ See the [`CHANGELOG`](CHANGELOG.md) file for details.
 This project owes its existence to the collective efforts of all those who contribute — [contribute now](CONTRIBUTING.md).
 
 <div align="center">
-  <a href="https://github.com/hoppscotch/hoppscotch/graphs/contributors">
-    <img src="https://opencollective.com/hoppscotch/contributors.svg?width=840&button=false"
-      alt="Contributors"
-      width="100%" />
-  </a>
+ <a href="https://github.com/hoppscotch/hoppscotch/graphs/contributors">
+  <img src="https://opencollective.com/hoppscotch/contributors.svg?width=840&button=false"
+   alt="Contributors"
+   width="100%" />
+ </a>
 </div>
 
 ## License

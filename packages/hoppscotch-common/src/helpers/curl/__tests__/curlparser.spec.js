@@ -1057,6 +1057,91 @@ data2: {"type":"test2","typeId":"123"}`,
       description: null,
     }),
   },
+  {
+    command: `curl -H 'X-Note: hello: world' https://example.com`,
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled",
+      endpoint: "https://example.com/",
+      auth: { authType: "inherit", authActive: true },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      headers: [
+        {
+          active: true,
+          key: "X-Note",
+          value: "hello: world",
+          description: "",
+        },
+      ],
+      params: [],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+      description: null,
+    }),
+  },
+  {
+    command: `curl -H 'Authorization: Bearer token:extra' https://example.com`,
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled",
+      endpoint: "https://example.com/",
+      auth: {
+        authType: "bearer",
+        authActive: true,
+        token: "token:extra",
+      },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      headers: [
+        {
+          active: true,
+          key: "Authorization",
+          value: "Bearer token:extra",
+          description: "",
+        },
+      ],
+      params: [],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+      description: null,
+    }),
+  },
+  {
+    command: `curl -H 'Custom-Header: value: with: multiple: colons' https://example.com`,
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled",
+      endpoint: "https://example.com/",
+      auth: { authType: "inherit", authActive: true },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      headers: [
+        {
+          active: true,
+          key: "Custom-Header",
+          value: "value: with: multiple: colons",
+          description: "",
+        },
+      ],
+      params: [],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+      description: null,
+    }),
+  },
 ]
 
 describe("Parse curl command to Hopp REST Request", () => {

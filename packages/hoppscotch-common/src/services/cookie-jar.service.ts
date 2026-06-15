@@ -358,6 +358,20 @@ export class CookieJarService extends Service {
     return cookies.map((c) => `${c.name}=${c.value}`).join("; ")
   }
 
+  // Returns the parsed URL, or `null` if `raw` is unparseable. A
+  // request reaches the interceptor with an unresolved environment
+  // template, a relative URL, or a typo-ed scheme often enough that
+  // throwing inside the cookie path would surface as a request
+  // failure when the rest of the pipeline could have produced a
+  // clearer error.
+  private parseRequestURL(raw: string): URL | null {
+    try {
+      return new URL(raw)
+    } catch {
+      return null
+    }
+  }
+
   // The one shared send path. Native, agent, and proxy all call this
   // so a request gets the same Cookie header regardless of which
   // interceptor runs it, replacing the three slightly different inline
@@ -370,8 +384,12 @@ export class CookieJarService extends Service {
     if (!request.url) {
       return
     }
+    const url = this.parseRequestURL(request.url)
+    if (url === null) {
+      return
+    }
 
-    const cookies = this.getCookiesForURL(new URL(request.url))
+    const cookies = this.getCookiesForURL(url)
     if (cookies.length === 0) {
       return
     }
@@ -391,6 +409,10 @@ export class CookieJarService extends Service {
     if (!requestUrl) {
       return
     }
-    await this.extractFromResponse(response.cookies, new URL(requestUrl))
+    const url = this.parseRequestURL(requestUrl)
+    if (url === null) {
+      return
+    }
+    await this.extractFromResponse(response.cookies, url)
   }
 }

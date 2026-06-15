@@ -276,11 +276,19 @@ export class CookieJarService extends Service {
     await this.upsertCookies(normalized)
   }
 
-  // Replaces the entire jar, used by the manual cookie editor. Routed
-  // through the service so the edit persists.
+  // Replaces the entire jar. The argument is defensive-copied so a
+  // caller that keeps the reference and continues mutating its own
+  // Map cannot inadvertently mutate the live jar after the swap.
   public async replaceAll(jar: Map<string, Cookie[]>): Promise<void> {
     await this.whenReady()
-    this.cookieJar.value = jar
+    const copy = new Map<string, Cookie[]>()
+    for (const [domain, cookies] of jar.entries()) {
+      copy.set(
+        domain,
+        cookies.map((c) => ({ ...c }))
+      )
+    }
+    this.cookieJar.value = copy
     this.persistJar()
   }
 

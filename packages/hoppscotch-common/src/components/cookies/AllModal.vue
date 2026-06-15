@@ -165,7 +165,7 @@ import IconEdit from "~icons/lucide/edit"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconPlus from "~icons/lucide/plus"
 import IconCopy from "~icons/lucide/copy"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep, isEqual } from "lodash-es"
 import { ref, watch, computed } from "vue"
 import { EditCookieConfig } from "./EditCookie.vue"
 import { useColorMode } from "@composables/theming"
@@ -183,6 +183,12 @@ const newDomainText = ref("")
 const interceptorService = useService(KernelInterceptorService)
 const cookieJarService = useService(CookieJarService)
 
+// `baselineCookieJar` is the user's view of the jar at modal-open
+// time, kept separately from `workingCookieJar` so the save can
+// apply only the user's edits as a per-cookie delta. Without this
+// the previous wholesale `replaceAll` overwrote any cookies the
+// request flow captured into the live jar while the modal was open.
+const baselineCookieJar = ref(cloneDeep(cookieJarService.cookieJar.value))
 const workingCookieJar = ref(cloneDeep(cookieJarService.cookieJar.value))
 
 const currentInterceptorSupportsCookies = computed(() => {
@@ -214,8 +220,10 @@ function clearAllDomains() {
 
 watch(
   () => props.show,
-  (show) => {
+  async (show) => {
     if (show) {
+      await cookieJarService.whenReady()
+      baselineCookieJar.value = cloneDeep(cookieJarService.cookieJar.value)
       workingCookieJar.value = cloneDeep(cookieJarService.cookieJar.value)
     }
   }
@@ -223,8 +231,53 @@ watch(
 
 const showEditModalFor = ref<EditCookieConfig | null>(null)
 
-function saveCookieChanges() {
-  void cookieJarService.replaceAll(workingCookieJar.value)
+function flatten(jar: Map<string, Cookie[]>): Cookie[] {
+  const out: Cookie[] = []
+  for (const cookies of jar.values()) {
+    for (const c of cookies) {
+      out.push(c)
+    }
+  }
+  return out
+}
+
+const cookieKey = (c: Cookie) => `${c.domain} ${c.name} ${c.path ?? "/"}`
+
+async function saveCookieChanges() {
+  const before = new Map<string, Cookie>()
+  for (const c of flatten(baselineCookieJar.value)) {
+    before.set(cookieKey(c), c)
+  }
+  const after = new Map<string, Cookie>()
+  for (const c of flatten(workingCookieJar.value)) {
+    after.set(cookieKey(c), c)
+  }
+
+  const upserts: Cookie[] = []
+  for (const [key, post] of after) {
+    const prior = before.get(key)
+    if (!prior || !isEqual(prior, post)) {
+      upserts.push(post)
+    }
+  }
+
+  const removes: Array<{ domain: string; name: string; path?: string }> = []
+  for (const [key, prior] of before) {
+    if (!after.has(key)) {
+      removes.push({
+        domain: prior.domain,
+        name: prior.name,
+        path: prior.path,
+      })
+    }
+  }
+
+  if (upserts.length > 0) {
+    await cookieJarService.upsertCookies(upserts)
+  }
+  if (removes.length > 0) {
+    await cookieJarService.deleteCookies(removes)
+  }
   hideModal()
 }
 

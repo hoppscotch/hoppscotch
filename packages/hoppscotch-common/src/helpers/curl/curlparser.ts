@@ -162,7 +162,11 @@ export const parseCurlCommand = (curlCommand: string) => {
     O.getOrElseW(() => undefined)
   )
 
-  if (objHasProperty("G", "boolean")(parsedArguments) && !!pairs) {
+  if (
+    (objHasProperty("G", "boolean")(parsedArguments) ||
+      objHasProperty("get", "boolean")(parsedArguments)) &&
+    !!pairs
+  ) {
     const newQueries = getQueries(pairs)
     queries = [...queries, ...newQueries.queries]
     danglingParams = [...danglingParams, ...newQueries.danglingParams]

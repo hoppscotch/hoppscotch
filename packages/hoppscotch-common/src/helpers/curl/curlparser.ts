@@ -42,7 +42,35 @@ export const parseCurlCommand = (curlCommand: string) => {
 
   curlCommand = preProcessCurlCommand(curlCommand)
 
-  const args: parser.Arguments = parser(curlCommand)
+  const args: parser.Arguments = parser(curlCommand, {
+    boolean: [
+      "s",
+      "silent",
+      "S",
+      "show-error",
+      "f",
+      "fail",
+      "k",
+      "insecure",
+      "L",
+      "location",
+      "compressed",
+      "g",
+      "globoff",
+      "i",
+      "include",
+      "I",
+      "head",
+      "v",
+      "verbose",
+      "J",
+      "remote-header-name",
+      "O",
+      "remote-name",
+      "G",
+      "get",
+    ],
+  })
 
   const parsedArguments = pipe(
     args,
@@ -134,7 +162,11 @@ export const parseCurlCommand = (curlCommand: string) => {
     O.getOrElseW(() => undefined)
   )
 
-  if (objHasProperty("G", "boolean")(parsedArguments) && !!pairs) {
+  if (
+    (objHasProperty("G", "boolean")(parsedArguments) ||
+      objHasProperty("get", "boolean")(parsedArguments)) &&
+    !!pairs
+  ) {
     const newQueries = getQueries(pairs)
     queries = [...queries, ...newQueries.queries]
     danglingParams = [...danglingParams, ...newQueries.danglingParams]

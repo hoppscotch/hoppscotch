@@ -41,7 +41,11 @@ const getMethodByDeduction = (parsedArguments: parser.Arguments) => {
     )(parsedArguments)
   )
     return O.some("head")
-  else if (objHasProperty("G", "boolean")(parsedArguments)) return O.some("get")
+  else if (
+    objHasProperty("G", "boolean")(parsedArguments) ||
+    objHasProperty("get", "boolean")(parsedArguments)
+  )
+    return O.some("get")
   else if (
     pipe(
       objHasProperty("d", "string"),

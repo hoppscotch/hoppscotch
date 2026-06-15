@@ -76,7 +76,10 @@ const parseURL = (urlText: string | number) =>
  * @returns URL object
  */
 export function getURLObject(parsedArguments: parser.Arguments) {
-  const location = parsedArguments.location ?? undefined
+  const location =
+    typeof parsedArguments.location === "string"
+      ? parsedArguments.location
+      : undefined
 
   return pipe(
     // contains raw url strings

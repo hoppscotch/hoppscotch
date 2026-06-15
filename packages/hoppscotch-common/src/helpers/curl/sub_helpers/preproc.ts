@@ -35,11 +35,19 @@ const replaceFunction = (curlCmd: string, r: string) =>
     O.fromPredicate(
       () => r.includes("data") || r.includes("form") || r.includes("header")
     ),
-    O.map(S.replace(RegExp(`[ \t]${r}(["' ])`, "g"), ` ${replaceables[r]}$1`)),
+    O.map(
+      S.replace(
+        RegExp(`[ \t]${r}(?:[ \t]|=)(["' ]?)`, "g"),
+        ` ${replaceables[r]} $1`
+      )
+    ),
     O.alt(() =>
       pipe(
         curlCmd,
-        S.replace(RegExp(`[ \t]${r}(["' ])`), ` ${replaceables[r]}$1`),
+        S.replace(
+          RegExp(`[ \t]${r}(?:[ \t]|=)(["' ]?)`),
+          ` ${replaceables[r]} $1`
+        ),
         O.of
       )
     ),

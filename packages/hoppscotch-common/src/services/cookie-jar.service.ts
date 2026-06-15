@@ -183,6 +183,16 @@ export class CookieJarService extends Service {
   public async upsertCookies(cookies: Cookie[]): Promise<void> {
     await this.whenReady()
     for (const cookie of cookies) {
+      // A script that returns a cookie without a domain (or with an
+      // empty string) would otherwise persist under the Map key
+      // `undefined` which serializes as the literal string
+      // `"undefined"`, so the entry is dropped with a warning.
+      if (!cookie.domain) {
+        console.warn(
+          `[CookieJar] Skipping cookie "${cookie.name}" with empty domain`
+        )
+        continue
+      }
       const domain = cookie.domain
       const existing = this.cookieJar.value.get(domain) ?? []
 

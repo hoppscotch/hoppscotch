@@ -210,6 +210,21 @@ export class CookieJarService extends Service {
     await this.upsertCookies(cookies.map((c) => ({ ...c, domain })))
   }
 
+  // Canonicalizes a cookie domain per RFC 6265 5.1.2 and 5.2.3,
+  // returns null for a domain that should not be stored. Strips a
+  // leading dot the way the spec requires (the dot is wire-format
+  // history and is not part of the matching algorithm), lowercases
+  // the result, and rejects a single-label domain that would let
+  // the cookie attach to every site under that suffix.
+  private canonDomain(raw: string): string | null {
+    const stripped = raw.startsWith(".") ? raw.slice(1) : raw
+    const lower = stripped.toLowerCase()
+    if (lower.length === 0 || !lower.includes(".")) {
+      return null
+    }
+    return lower
+  }
+
   // Normalizes the kernel relay response cookies into the
   // `@hoppscotch/data` shape and merges them. Domain falls back to the
   // request host (host-only cookie), path to "/", the flags default
@@ -222,17 +237,32 @@ export class CookieJarService extends Service {
       return
     }
 
-    const normalized: Cookie[] = cookies.map((c) => ({
-      name: c.name,
-      value: c.value,
-      domain: c.domain ?? requestURL.hostname,
-      path: c.path ?? "/",
-      httpOnly: c.httpOnly ?? false,
-      secure: c.secure ?? false,
-      sameSite: c.sameSite ?? "Lax",
-      ...(c.expires ? { expires: new Date(c.expires).toISOString() } : {}),
-    }))
+    const requestHost = requestURL.hostname.toLowerCase()
+    const normalized: Cookie[] = []
+    for (const c of cookies) {
+      const domain = this.canonDomain(c.domain ?? requestHost)
+      if (domain === null) {
+        console.warn(
+          "[CookieJar] Dropped cookie with unusable domain:",
+          c.domain ?? requestHost
+        )
+        continue
+      }
+      normalized.push({
+        name: c.name,
+        value: c.value,
+        domain,
+        path: c.path ?? "/",
+        httpOnly: c.httpOnly ?? false,
+        secure: c.secure ?? false,
+        sameSite: c.sameSite ?? "Lax",
+        ...(c.expires ? { expires: new Date(c.expires).toISOString() } : {}),
+      })
+    }
 
+    if (normalized.length === 0) {
+      return
+    }
     await this.upsertCookies(normalized)
   }
 
@@ -274,9 +304,12 @@ export class CookieJarService extends Service {
   // RFC 6265 5.1.3 domain matching. The host matches a stored domain
   // when it is the domain or a subdomain of it. The old code used a
   // bare `hostname.endsWith(domain)`, which let `evil-example.com`
-  // match `example.com` because there was no label boundary.
+  // match `example.com` because there was no label boundary. Hosts
+  // are lowercased here, stored domains were lowercased on capture,
+  // so the comparison is case-insensitive per RFC 6265 5.1.2.
   private domainMatches(host: string, domain: string): boolean {
-    return host === domain || host.endsWith(`.${domain}`)
+    const h = host.toLowerCase()
+    return h === domain || h.endsWith(`.${domain}`)
   }
 
   // RFC 6265 5.1.4 path matching. The request path matches the cookie

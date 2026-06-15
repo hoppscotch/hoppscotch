@@ -78,7 +78,10 @@ export class ProxyKernelInterceptorService
     auth: new Set(["basic"]),
     security: new Set([]),
     proxy: new Set([]),
-    advanced: new Set([]),
+    // Proxy now attaches stored cookies to outgoing requests through
+    // the shared send path. Receive-side capture is a follow-up
+    // because proxyscotch returns Set-Cookie as a header string.
+    advanced: new Set(["cookies"]),
   } as const
   public readonly settingsEntry = markRaw({
     title: (t: ReturnType<typeof getI18n>) =>

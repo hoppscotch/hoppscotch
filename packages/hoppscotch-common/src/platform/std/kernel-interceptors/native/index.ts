@@ -185,7 +185,7 @@ export class NativeKernelInterceptorService
         preProcessRelayRequest(request)
       )
 
-      this.cookieJar.applyCookiesToRequest(effectiveRequest)
+      await this.cookieJar.applyCookiesToRequest(effectiveRequest)
 
       const existingUserAgentHeader = Object.keys(
         effectiveRequest.headers || {}
@@ -213,7 +213,7 @@ export class NativeKernelInterceptorService
 
       const relayResponse = await relayExecution.response
       if (E.isRight(relayResponse)) {
-        this.cookieJar.captureResponseCookies(
+        await this.cookieJar.captureResponseCookies(
           relayResponse.right,
           effectiveRequest.url
         )

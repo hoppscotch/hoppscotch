@@ -242,7 +242,7 @@ export class ProxyKernelInterceptorService
       // Same shared send path as native and agent. proxyscotch returns
       // Set-Cookie as a header string rather than structured cookies, so
       // receive-side capture for the proxy path is a separate follow-up.
-      this.cookieJar.applyCookiesToRequest(processedRequest)
+      await this.cookieJar.applyCookiesToRequest(processedRequest)
 
       let content: ContentType
       const multipartKey = `proxyRequestData-${v4()}`

@@ -20,6 +20,10 @@ interface StoredCookieJar {
   version: string
   domains: Record<string, Cookie[]>
   lastUpdated: string
+  // Stamped on every write this process does, so the cross-process
+  // watcher can ignore its own echo and not overwrite concurrent
+  // in-memory mutations with a stale disk snapshot.
+  writeToken?: string
 }
 
 // Mirror of one entry in the kernel relay response's `cookies` array
@@ -48,15 +52,43 @@ export class CookieJarService extends Service {
    */
   public cookieJar = ref(new Map<string, Cookie[]>())
 
-  async onServiceInit(): Promise<void> {
-    const initResult = await Store.init()
-    if (E.isLeft(initResult)) {
-      console.error("[CookieJar] Failed to initialize store:", initResult.left)
-      return
-    }
+  // Resolves once `onServiceInit` has loaded the jar from disk
+  // and attached the cross-process watcher. Callers that read or
+  // mutate the jar in the request flow await this so a cold-start
+  // request does not see an empty in-memory map and then overwrite
+  // the persisted state with one cookie.
+  private hydrated: Promise<void> | null = null
 
-    await this.loadJar()
-    await this.setupWatcher()
+  // Writes are serialized through this chain so two concurrent
+  // mutations cannot race on `Store.set`. Each write captures the
+  // current in-memory map at the time its turn runs, so the latest
+  // state always lands on disk.
+  private writeChain: Promise<void> = Promise.resolve()
+
+  private writeCounter = 0
+  private lastWriteToken: string | null = null
+
+  async onServiceInit(): Promise<void> {
+    this.hydrated = (async () => {
+      const initResult = await Store.init()
+      if (E.isLeft(initResult)) {
+        console.error(
+          "[CookieJar] Failed to initialize store:",
+          initResult.left
+        )
+        return
+      }
+
+      await this.loadJar()
+      await this.setupWatcher()
+    })()
+    await this.hydrated
+  }
+
+  public async whenReady(): Promise<void> {
+    if (this.hydrated) {
+      await this.hydrated
+    }
   }
 
   private async loadJar(): Promise<void> {
@@ -66,35 +98,77 @@ export class CookieJarService extends Service {
     )
 
     if (E.isRight(loadResult) && loadResult.right) {
-      this.cookieJar.value = new Map(Object.entries(loadResult.right.domains))
+      this.cookieJar.value = this.toMap(loadResult.right.domains)
       this.pruneExpired()
     }
   }
 
-  // Cross-process reload, another webview in the same org writes the
-  // jar and this picks it up. Matches `KernelInterceptorNativeStore`,
-  // the reload is idempotent so there is no echo guard.
+  // Cross-process reload, another webview in the same org writes
+  // the jar and this picks it up. The watch handler ignores echoes
+  // of this process's own writes by comparing `writeToken`, and
+  // rejects malformed payloads so a future schema mismatch does
+  // not kill the listener.
   private async setupWatcher(): Promise<void> {
     const watcher = await Store.watch(STORE_NAMESPACE, STORE_KEYS.JAR)
     watcher.on("change", ({ value }: { value?: unknown }) => {
-      if (value) {
-        const stored = value as StoredCookieJar
-        this.cookieJar.value = new Map(Object.entries(stored.domains))
+      if (!value) {
+        return
       }
+      let stored: StoredCookieJar
+      try {
+        stored = this.parseStored(value)
+      } catch (e) {
+        console.error("[CookieJar] Watcher rejected malformed payload:", e)
+        return
+      }
+      if (stored.writeToken && stored.writeToken === this.lastWriteToken) {
+        return
+      }
+      this.cookieJar.value = this.toMap(stored.domains)
+      this.pruneExpired()
     })
   }
 
-  private async persistJar(): Promise<void> {
-    const stored: StoredCookieJar = {
-      version: "v1",
-      domains: Object.fromEntries(this.cookieJar.value),
-      lastUpdated: new Date().toISOString(),
+  private parseStored(value: unknown): StoredCookieJar {
+    if (typeof value !== "object" || value === null) {
+      throw new Error("payload is not an object")
     }
+    const v = value as Partial<StoredCookieJar>
+    if (typeof v.domains !== "object" || v.domains === null) {
+      throw new Error("payload missing domains record")
+    }
+    return v as StoredCookieJar
+  }
 
-    const saveResult = await Store.set(STORE_NAMESPACE, STORE_KEYS.JAR, stored)
-    if (E.isLeft(saveResult)) {
-      console.error("[CookieJar] Failed to persist jar:", saveResult.left)
-    }
+  private toMap(domains: Record<string, Cookie[]>): Map<string, Cookie[]> {
+    return new Map(Object.entries(domains))
+  }
+
+  private persistJar(): void {
+    const token = `${++this.writeCounter}`
+    this.lastWriteToken = token
+
+    this.writeChain = this.writeChain
+      .then(async () => {
+        const stored: StoredCookieJar = {
+          version: "v1",
+          domains: Object.fromEntries(this.cookieJar.value),
+          lastUpdated: new Date().toISOString(),
+          writeToken: token,
+        }
+
+        const saveResult = await Store.set(
+          STORE_NAMESPACE,
+          STORE_KEYS.JAR,
+          stored
+        )
+        if (E.isLeft(saveResult)) {
+          console.error("[CookieJar] Failed to persist jar:", saveResult.left)
+        }
+      })
+      .catch((e) => {
+        console.error("[CookieJar] Persist chain error:", e)
+      })
   }
 
   public parseSetCookieString(setCookieString: string) {
@@ -106,7 +180,8 @@ export class CookieJarService extends Service {
   // instead of one wholesale-replacing the other. The in-memory
   // update is synchronous so callers in the request flow do not block
   // on disk, the write-through runs after.
-  public upsertCookies(cookies: Cookie[]): void {
+  public async upsertCookies(cookies: Cookie[]): Promise<void> {
+    await this.whenReady()
     for (const cookie of cookies) {
       const domain = cookie.domain
       const existing = this.cookieJar.value.get(domain) ?? []
@@ -123,23 +198,26 @@ export class CookieJarService extends Service {
       this.cookieJar.value.set(domain, existing)
     }
 
-    void this.persistJar()
+    this.persistJar()
   }
 
   // Kept for existing callers, now reconciles instead of blind-pushing
   // duplicates.
-  public bulkApplyCookiesToDomain(cookies: Cookie[], domain: string): void {
-    this.upsertCookies(cookies.map((c) => ({ ...c, domain })))
+  public async bulkApplyCookiesToDomain(
+    cookies: Cookie[],
+    domain: string
+  ): Promise<void> {
+    await this.upsertCookies(cookies.map((c) => ({ ...c, domain })))
   }
 
   // Normalizes the kernel relay response cookies into the
   // `@hoppscotch/data` shape and merges them. Domain falls back to the
   // request host (host-only cookie), path to "/", the flags default
   // off, and SameSite to "Lax" matching the browser default.
-  public extractFromResponse(
+  public async extractFromResponse(
     cookies: ResponseCookie[] | undefined,
     requestURL: URL
-  ): void {
+  ): Promise<void> {
     if (!cookies || cookies.length === 0) {
       return
     }
@@ -155,14 +233,15 @@ export class CookieJarService extends Service {
       ...(c.expires ? { expires: new Date(c.expires).toISOString() } : {}),
     }))
 
-    this.upsertCookies(normalized)
+    await this.upsertCookies(normalized)
   }
 
   // Replaces the entire jar, used by the manual cookie editor. Routed
   // through the service so the edit persists.
-  public replaceAll(jar: Map<string, Cookie[]>): void {
+  public async replaceAll(jar: Map<string, Cookie[]>): Promise<void> {
+    await this.whenReady()
     this.cookieJar.value = jar
-    void this.persistJar()
+    this.persistJar()
   }
 
   // Drops expired cookies from the jar. Called on load and before
@@ -188,7 +267,7 @@ export class CookieJarService extends Service {
     }
 
     if (changed) {
-      void this.persistJar()
+      this.persistJar()
     }
   }
 
@@ -250,10 +329,11 @@ export class CookieJarService extends Service {
   // so a request gets the same Cookie header regardless of which
   // interceptor runs it, replacing the three slightly different inline
   // blocks they used to carry.
-  public applyCookiesToRequest(request: {
+  public async applyCookiesToRequest(request: {
     url?: string
     headers?: Record<string, string>
-  }): void {
+  }): Promise<void> {
+    await this.whenReady()
     if (!request.url) {
       return
     }
@@ -271,13 +351,13 @@ export class CookieJarService extends Service {
 
   // The one shared receive path. Captures structured cookies the
   // relay parsed out of the response into the jar.
-  public captureResponseCookies(
+  public async captureResponseCookies(
     response: { cookies?: ResponseCookie[] },
     requestUrl: string | undefined
-  ): void {
+  ): Promise<void> {
     if (!requestUrl) {
       return
     }
-    this.extractFromResponse(response.cookies, new URL(requestUrl))
+    await this.extractFromResponse(response.cookies, new URL(requestUrl))
   }
 }

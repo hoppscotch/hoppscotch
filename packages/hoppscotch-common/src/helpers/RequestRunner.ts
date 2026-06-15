@@ -17,7 +17,7 @@ import * as A from "fp-ts/Array"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import { flow, pipe } from "fp-ts/function"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep, isEqual } from "lodash-es"
 import { Observable, Subject } from "rxjs"
 import { filter } from "rxjs/operators"
 import { Ref } from "vue"
@@ -654,10 +654,19 @@ export function runRESTRequest$(
             const updatedCookies = postRequestScriptResult.right.updatedCookies
 
             if (updatedCookies) {
-              // Merge the script's cookies in rather than replacing the
-              // whole jar, so cookies captured from the response during
-              // this request are not clobbered.
-              await cookieJarService.upsertCookies(updatedCookies)
+              // The script's `updatedCookies` is the post-script state of
+              // its pre-script view, so a set difference against the
+              // pre-script snapshot gives the actual mutations. Cookies
+              // the script returned identical to what it received get
+              // skipped because the response capture may have updated
+              // them in the jar in the interim and re-upserting the
+              // script's stale copy would overwrite that. Cookies the
+              // script omitted from its returned array are treated as
+              // deletes, restoring `hopp.cookies.delete` semantics.
+              await applyScriptCookieDelta(
+                cookieJarEntries ?? [],
+                updatedCookies
+              )
             }
           } else {
             console.error(
@@ -789,6 +798,45 @@ const getCookieJarEntries = () => {
   ).flatMap((cookies) => cookies)
 
   return cookieJarEntries
+}
+
+const cookieKey = (c: { domain: string; name: string; path?: string }) =>
+  `${c.domain} ${c.name} ${c.path ?? "/"}`
+
+const applyScriptCookieDelta = async (
+  preScript: Cookie[],
+  postScript: Cookie[]
+): Promise<void> => {
+  const preMap = new Map<string, Cookie>()
+  for (const c of preScript) {
+    preMap.set(cookieKey(c), c)
+  }
+  const postMap = new Map<string, Cookie>()
+  for (const c of postScript) {
+    postMap.set(cookieKey(c), c)
+  }
+
+  const mutated: Cookie[] = []
+  for (const [key, post] of postMap) {
+    const before = preMap.get(key)
+    if (!before || !isEqual(before, post)) {
+      mutated.push(post)
+    }
+  }
+
+  const removed: Array<{ domain: string; name: string; path?: string }> = []
+  for (const [key, pre] of preMap) {
+    if (!postMap.has(key)) {
+      removed.push({ domain: pre.domain, name: pre.name, path: pre.path })
+    }
+  }
+
+  if (mutated.length > 0) {
+    await cookieJarService.upsertCookies(mutated)
+  }
+  if (removed.length > 0) {
+    await cookieJarService.deleteCookies(removed)
+  }
 }
 
 /**

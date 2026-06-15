@@ -284,6 +284,41 @@ export class CookieJarService extends Service {
     this.persistJar()
   }
 
+  // Deletes the named cookies from the jar, matching by
+  // `(domain, name, path)`. The post-request script path computes
+  // a set difference between its pre-script view and the script's
+  // returned `updatedCookies` and calls this for the entries that
+  // disappeared, restoring delete-by-omission semantics without
+  // the wholesale-replace behaviour that clobbered concurrent
+  // response captures.
+  public async deleteCookies(
+    targets: Array<{ domain: string; name: string; path?: string }>
+  ): Promise<void> {
+    await this.whenReady()
+    let changed = false
+    for (const target of targets) {
+      const existing = this.cookieJar.value.get(target.domain)
+      if (!existing) {
+        continue
+      }
+      const next = existing.filter(
+        (c) => !(c.name === target.name && c.path === target.path)
+      )
+      if (next.length === existing.length) {
+        continue
+      }
+      changed = true
+      if (next.length === 0) {
+        this.cookieJar.value.delete(target.domain)
+      } else {
+        this.cookieJar.value.set(target.domain, next)
+      }
+    }
+    if (changed) {
+      this.persistJar()
+    }
+  }
+
   // Drops expired cookies from the jar. Called on load and before
   // every read so a stale cookie never gets forwarded. Persists only
   // when something was actually removed.

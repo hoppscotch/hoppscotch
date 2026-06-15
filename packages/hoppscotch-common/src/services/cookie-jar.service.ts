@@ -349,13 +349,39 @@ export class CookieJarService extends Service {
       }
     }
 
+    // RFC 6265 5.4 step 2, cookies with a longer path go first so a
+    // server that reads the first matching cookie picks the more
+    // specific value over an inherited one. Stable sort because a tie
+    // on path length keeps capture order.
+    result.sort((a, b) => (b.path?.length ?? 1) - (a.path?.length ?? 1))
+
     return result
+  }
+
+  // RFC 6265 5.4 cookie-value disallows CTL, whitespace, comma,
+  // semicolon, double-quote, and backslash. A value with any of
+  // these would corrupt the header on the wire, so the cookie is
+  // skipped and a warning logged. Most jars hit this only for
+  // server-set values that arrived already malformed; the matched
+  // cookie still exists in the in-memory jar for inspection.
+  private isCookieValueValid(value: string): boolean {
+    return !/[\x00-\x1f\x7f\s,;"\\]/.test(value)
   }
 
   // RFC 6265 5.4 Cookie header serialization, `name=value` pairs
   // joined by "; ".
   public serializeCookieHeader(cookies: Cookie[]): string {
-    return cookies.map((c) => `${c.name}=${c.value}`).join("; ")
+    const parts: string[] = []
+    for (const c of cookies) {
+      if (!this.isCookieValueValid(c.value)) {
+        console.warn(
+          `[CookieJar] Skipping cookie "${c.name}" with invalid value`
+        )
+        continue
+      }
+      parts.push(`${c.name}=${c.value}`)
+    }
+    return parts.join("; ")
   }
 
   // Returns the parsed URL, or `null` if `raw` is unparseable. A
@@ -396,6 +422,15 @@ export class CookieJarService extends Service {
 
     if (!request.headers) {
       request.headers = {}
+    }
+    // The request map is case-sensitive so a user-supplied `cookie`
+    // or `COOKIE` would survive next to our `Cookie` and ship two
+    // header lines. Strips any case-variant before setting the
+    // canonical-case name.
+    for (const key of Object.keys(request.headers)) {
+      if (key !== "Cookie" && key.toLowerCase() === "cookie") {
+        delete request.headers[key]
+      }
     }
     request.headers["Cookie"] = this.serializeCookieHeader(cookies)
   }

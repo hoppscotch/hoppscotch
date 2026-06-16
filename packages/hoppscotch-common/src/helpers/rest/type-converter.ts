@@ -18,8 +18,8 @@ import {
  * If `gqlDraft` is provided (e.g. a previously-snapshotted GQL request kept by
  * the protocol switcher for round-trip preservation), it is restored verbatim
  * as the new request. Otherwise the GQL request is freshly seeded from the
- * REST request: name, endpoint→url, headers, auth (where compatible) are
- * preserved; query/variables fall back to defaults.
+ * REST request: name, headers, auth (where compatible) are carried over; the
+ * URL, query, and variables fall back to GQL defaults.
  */
 export function convertRESTToGQL(
   doc: HoppRequestDocument,
@@ -55,6 +55,10 @@ export function convertRESTToGQL(
     // the network call).
     ...(restReq.id ? { id: restReq.id } : {}),
     name: restReq.name,
+    // Reset to the GQL default instead of carrying the REST endpoint over: a
+    // REST resource path (e.g. /users/123) is not a GraphQL endpoint, so it
+    // would seed a URL that looks ready but fails on run. Switching back
+    // restores the real URL verbatim via the `gqlDraft` branch above.
     url: defaultGQL.url,
     headers: restReq.headers.map((h) => ({
       key: h.key,
@@ -91,8 +95,8 @@ export function convertRESTToGQL(
  * If `restDraft` is provided (e.g. a previously-snapshotted REST request kept
  * by the protocol switcher for round-trip preservation), it is restored
  * verbatim as the new request. Otherwise the REST request is freshly seeded
- * from the GQL request: name, url→endpoint, headers, auth (where compatible)
- * are preserved; method/body/params fall back to defaults.
+ * from the GQL request: name, headers, auth (where compatible) are carried
+ * over; the endpoint, method, body, and params fall back to REST defaults.
  */
 export function convertGQLToREST(
   doc: HoppGQLRequestDocument,
@@ -110,6 +114,9 @@ export function convertGQLToREST(
     // a fresh request (which would skip the network call entirely).
     ...(gqlReq.id ? { id: gqlReq.id } : {}),
     name: gqlReq.name,
+    // Reset to the REST default instead of carrying the GQL `url` over (mirror
+    // of `convertRESTToGQL`): cross-protocol URLs aren't interchangeable.
+    // Switching back restores the real URL verbatim via the `restDraft` branch.
     endpoint: defaultREST.endpoint,
     method: "GET",
     params: [],

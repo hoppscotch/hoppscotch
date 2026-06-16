@@ -102,9 +102,14 @@ const newSendRequest = async () => {
   loading.value = true
 
   const [cancel, streamPromise] = runRESTRequest$(tab)
+  // Store the cancel handle synchronously — `runRESTRequest$` returns it
+  // immediately, before the stream resolves. If we waited until after the
+  // `await` below, an unmount during that window would leave `onBeforeUnmount`
+  // with a null handle and leak the in-flight request.
+  requestCancelFunc.value = cancel
+
   const streamResult = await streamPromise
 
-  requestCancelFunc.value = cancel
   if (E.isRight(streamResult)) {
     subscribeToStream(
       streamResult.right,

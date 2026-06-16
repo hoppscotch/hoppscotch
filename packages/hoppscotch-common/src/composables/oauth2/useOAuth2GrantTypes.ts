@@ -27,6 +27,7 @@ import passwordFlow, {
   getDefaultPasswordFlowParams,
 } from "~/services/oauth/flows/password"
 import { AuthRequestParam, TokenRequestParam } from "./useOAuth2AdvancedParams"
+import { platform } from "~/platform"
 
 export type GrantTypes = z.infer<
   typeof HoppRESTAuthOAuth2
@@ -46,6 +47,7 @@ export const useOAuth2GrantTypes = (
 ) => {
   const t = useI18n()
   const toast = useToast()
+  const supportsDesktopOAuth2Flow = !!platform.auth.oauth2
 
   // Helper function to prepare request parameters
   const prepareRequestParams = (
@@ -160,6 +162,20 @@ export const useOAuth2GrantTypes = (
           }
         )
 
+        const redirectURI = refWithCallbackOnChange(
+          grantType?.redirectURI,
+          (value) => {
+            if (auth.value.grantTypeInfo.grantType !== "AUTHORIZATION_CODE") {
+              return
+            }
+
+            auth.value.grantTypeInfo = {
+              ...auth.value.grantTypeInfo,
+              redirectURI: value,
+            }
+          }
+        )
+
         const isPKCE = refWithCallbackOnChange(
           auth.value.grantTypeInfo.isPKCE,
           (value) => {
@@ -259,6 +275,7 @@ export const useOAuth2GrantTypes = (
             clientID: clientID.value,
             clientSecret: clientSecret.value,
             scopes: scopes.value,
+            redirectURI: redirectURI.value,
             isPKCE: isPKCE.value,
             // Ensure older collections without `codeVerifierMethod` get a default
             // so schema validation does not fail. Default to 'plain' when PKCE
@@ -283,6 +300,15 @@ export const useOAuth2GrantTypes = (
 
           if (E.isLeft(res)) {
             return res
+          }
+
+          if (res.right?.access_token) {
+            setAccessTokenInActiveContext(
+              res.right.access_token,
+              res.right.refresh_token
+            )
+
+            toast.success(t("authorization.oauth.token_fetched_successfully"))
           }
 
           return E.right(undefined)
@@ -358,6 +384,16 @@ export const useOAuth2GrantTypes = (
               type: "text" as const,
               ref: scopes,
             },
+            ...(supportsDesktopOAuth2Flow
+              ? [
+                  {
+                    id: "redirectURI",
+                    label: t("authorization.oauth.label_redirect_uri"),
+                    type: "text" as const,
+                    ref: redirectURI,
+                  },
+                ]
+              : []),
           ]
         })
 
@@ -727,12 +763,29 @@ export const useOAuth2GrantTypes = (
           }
         )
 
-        const runAction = () => {
+        const redirectURI = refWithCallbackOnChange(
+          "redirectURI" in grantTypeInfo
+            ? grantTypeInfo.redirectURI
+            : undefined,
+          (value) => {
+            if (auth.value.grantTypeInfo.grantType !== "IMPLICIT") {
+              return
+            }
+
+            auth.value.grantTypeInfo = {
+              ...auth.value.grantTypeInfo,
+              redirectURI: value,
+            }
+          }
+        )
+
+        const runAction = async () => {
           const values: ImplicitOauthFlowParams =
             replaceTemplateStringsInObjectValues({
               authEndpoint: authEndpoint.value,
               clientID: clientID.value,
               scopes: scopes.value,
+              redirectURI: redirectURI.value,
               authRequestParams: preparedAuthRequestParams.value,
               refreshRequestParams: preparedRefreshRequestParams.value,
             })
@@ -745,7 +798,17 @@ export const useOAuth2GrantTypes = (
             return E.left("VALIDATION_FAILED" as const)
           }
 
-          implicit.init(parsedArgs.data)
+          const res = await implicit.init(parsedArgs.data)
+
+          if (E.isLeft(res)) {
+            return res
+          }
+
+          if (res.right?.access_token) {
+            setAccessTokenInActiveContext(res.right.access_token)
+
+            toast.success(t("authorization.oauth.token_fetched_successfully"))
+          }
 
           return E.right(undefined)
         }
@@ -770,6 +833,16 @@ export const useOAuth2GrantTypes = (
               type: "text" as const,
               ref: scopes,
             },
+            ...(supportsDesktopOAuth2Flow
+              ? [
+                  {
+                    id: "redirectURI",
+                    label: t("authorization.oauth.label_redirect_uri"),
+                    type: "text" as const,
+                    ref: redirectURI,
+                  },
+                ]
+              : []),
           ]
         })
 

@@ -11,6 +11,10 @@ import { HoppCollection } from "@hoppscotch/data"
 import { TeamCollection } from "~/helpers/backend/graphql"
 import { parseBytesToJSON } from "~/helpers/functional/json"
 import { MediaType } from "@hoppscotch/kernel"
+import { platform } from "~/platform"
+import { getDefaultOAuthRedirectURI } from "./redirect"
+
+export { getOAuthRedirectURI } from "./redirect"
 
 const persistenceService = getService(PersistenceService)
 
@@ -33,7 +37,19 @@ export type PersistedOAuthConfig = {
 
 export const grantTypesInvolvingRedirect = ["AUTHORIZATION_CODE", "IMPLICIT"]
 
-export const routeOAuthRedirect = async () => {
+export const startOAuthFlow = async (
+  authUrl: string,
+  redirectURI: string
+): Promise<string | undefined> => {
+  if (platform.auth.oauth2?.startFlow) {
+    return platform.auth.oauth2.startFlow(authUrl, redirectURI)
+  }
+
+  window.location.assign(authUrl)
+  return undefined
+}
+
+export const routeOAuthRedirect = async (callbackURL?: string) => {
   // get the temp data from the local storage
   const localOAuthTempConfig =
     await persistenceService.getLocalConfig("oauth_temp_config")
@@ -64,7 +80,7 @@ export const routeOAuthRedirect = async () => {
     return E.left("INVALID_STATE")
   }
 
-  return flowConfig?.onRedirectReceived(localOAuthTempConfig)
+  return flowConfig?.onRedirectReceived(localOAuthTempConfig, callbackURL)
 }
 
 export function createFlowConfig<
@@ -78,11 +94,12 @@ export function createFlowConfig<
   init: (
     params: AuthParams
   ) =>
-    | E.Either<string, InitFuncReturnObject>
-    | Promise<E.Either<string, InitFuncReturnObject>>
-    | E.Either<string, undefined>
-    | Promise<E.Either<string, undefined>>,
-  onRedirectReceived: (localConfig: string) => Promise<
+    | E.Either<string, InitFuncReturnObject | undefined>
+    | Promise<E.Either<string, InitFuncReturnObject | undefined>>,
+  onRedirectReceived: (
+    localConfig: string,
+    callbackURL?: string
+  ) => Promise<
     E.Either<
       string,
       {
@@ -121,7 +138,9 @@ export const decodeResponseAsJSON = (response: {
 export class OauthAuthService extends Service {
   public static readonly ID = "OAUTH_AUTH_SERVICE"
 
-  static redirectURI = `${window.location.origin}/oauth`
+  static get redirectURI() {
+    return getDefaultOAuthRedirectURI()
+  }
 }
 
 export const generateRandomString = () => {

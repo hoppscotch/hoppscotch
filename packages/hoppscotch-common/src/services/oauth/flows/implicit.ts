@@ -1,9 +1,10 @@
 import { PersistenceService } from "~/services/persistence"
 import {
-  OauthAuthService,
   PersistedOAuthConfig,
   createFlowConfig,
   generateRandomString,
+  getOAuthRedirectURI,
+  startOAuthFlow,
 } from "../oauth.service"
 import { z } from "zod"
 import { getService } from "~/modules/dioc"
@@ -43,6 +44,7 @@ export const getDefaultImplicitOauthFlowParams =
     authEndpoint: "",
     clientID: "",
     scopes: undefined,
+    redirectURI: getOAuthRedirectURI(),
     authRequestParams: [],
     refreshRequestParams: [],
   })
@@ -51,9 +53,11 @@ const initImplicitOauthFlow = async ({
   clientID,
   scopes,
   authEndpoint,
+  redirectURI: customRedirectURI,
   authRequestParams,
 }: ImplicitOauthFlowParams) => {
   const state = generateRandomString()
+  const redirectURI = getOAuthRedirectURI({ redirectURI: customRedirectURI })
 
   const localOAuthTempConfig =
     await persistenceService.getLocalConfig("oauth_temp_config")
@@ -72,6 +76,7 @@ const initImplicitOauthFlow = async ({
         authEndpoint,
         scopes,
         state,
+        redirectURI,
         authRequestParams,
       },
       grant_type: "IMPLICIT",
@@ -89,7 +94,7 @@ const initImplicitOauthFlow = async ({
   url.searchParams.set("client_id", clientID)
   url.searchParams.set("state", state)
   url.searchParams.set("response_type", "token")
-  url.searchParams.set("redirect_uri", OauthAuthService.redirectURI)
+  url.searchParams.set("redirect_uri", redirectURI)
 
   if (scopes) url.searchParams.set("scope", scopes)
 
@@ -102,16 +107,39 @@ const initImplicitOauthFlow = async ({
       })
   }
 
-  // Redirect to the authorization server
-  window.location.assign(url.toString())
+  const callbackURL = await startOAuthFlow(url.toString(), redirectURI)
+
+  if (callbackURL) {
+    const updatedLocalOAuthTempConfig =
+      await persistenceService.getLocalConfig("oauth_temp_config")
+
+    if (!updatedLocalOAuthTempConfig) {
+      return E.left("INVALID_LOCAL_CONFIG")
+    }
+
+    const result = await handleRedirectForAuthCodeOauthFlow(
+      updatedLocalOAuthTempConfig,
+      callbackURL
+    )
+
+    if (E.isRight(result)) {
+      await persistenceService.removeLocalConfig("oauth_temp_config")
+    }
+
+    return result
+  }
 
   return E.right(undefined)
 }
 
-const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
+const handleRedirectForAuthCodeOauthFlow = async (
+  localConfig: string,
+  callbackURL?: string
+) => {
   // parse the query string
-  const params = new URLSearchParams(window.location.search)
-  const paramsFromHash = new URLSearchParams(window.location.hash.substring(1))
+  const callback = callbackURL ? new URL(callbackURL) : window.location
+  const params = new URLSearchParams(callback.search)
+  const paramsFromHash = new URLSearchParams(callback.hash.substring(1))
 
   const accessToken =
     params.get("access_token") || paramsFromHash.get("access_token")

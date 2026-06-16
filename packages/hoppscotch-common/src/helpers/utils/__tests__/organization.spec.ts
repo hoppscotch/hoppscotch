@@ -159,4 +159,11 @@ describe("sanitizeLogoUrl", () => {
   test("blocks a dangerous scheme prefixed with a control character", () => {
     expect(sanitizeLogoUrl("\x01javascript:alert(1)")).toBe("")
   })
+
+  // C1 controls (U+0080-U+009F) are likewise dropped during browser URL
+  // parsing, so a scheme split by U+0085 (NEXT LINE) would otherwise pass.
+  test("blocks a dangerous scheme disguised with a C1 control character", () => {
+    const nel = String.fromCharCode(0x85)
+    expect(sanitizeLogoUrl(`javas${nel}cript:alert(1)`)).toBe("")
+  })
 })

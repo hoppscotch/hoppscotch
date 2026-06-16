@@ -63,14 +63,17 @@ export const getOrgColor = (orgName: string): string => {
 export const sanitizeLogoUrl = (url: string | null | undefined): string => {
   if (!url) return ""
 
-  // Browsers ignore ASCII control characters (tabs, newlines, etc.) while
-  // parsing URLs, so a disguised scheme like `java\tscript:` collapses to
-  // `javascript:` in the DOM. Strip them before validating so the protocol
-  // checks below can't be bypassed.
+  // Browsers ignore control characters (tabs, newlines, etc.) while parsing
+  // URLs, so a disguised scheme like `java\tscript:` collapses to
+  // `javascript:` in the DOM. Strip C0 controls (U+0000-U+001F), DEL (U+007F)
+  // and C1 controls (U+0080-U+009F) before validating so the protocol checks
+  // below can't be bypassed.
   const trimmed = Array.from(url)
     .filter((char) => {
       const code = char.charCodeAt(0)
-      return code > 0x1f && code !== 0x7f
+      // Keep everything except C0 (U+0000-U+001F), DEL (U+007F),
+      // and C1 (U+0080-U+009F) control characters.
+      return code > 0x1f && code !== 0x7f && !(code >= 0x80 && code <= 0x9f)
     })
     .join("")
     .trim()

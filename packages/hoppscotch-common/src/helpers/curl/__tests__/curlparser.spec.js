@@ -845,6 +845,39 @@ const samples = [
     }),
   },
   {
+    // Regression: headers whose value contains ": " were silently dropped
+    // because the parser split on every occurrence of ": " instead of only
+    // the first one (see RFC 9110 §5.1).
+    command: `curl https://api.example.com -H "X-Note: hello: world" -H "X-Simple: value"`,
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled",
+      endpoint: "https://api.example.com/",
+      auth: { authType: "inherit", authActive: true },
+      body: { contentType: null, body: null },
+      params: [],
+      headers: [
+        {
+          active: true,
+          key: "X-Note",
+          value: "hello: world",
+          description: "",
+        },
+        {
+          active: true,
+          key: "X-Simple",
+          value: "value",
+          description: "",
+        },
+      ],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+      description: null,
+    }),
+  },
+  {
     command: `curl google.com -u userx`,
     response: makeRESTRequest({
       method: "GET",

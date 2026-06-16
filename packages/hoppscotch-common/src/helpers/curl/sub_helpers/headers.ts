@@ -2,7 +2,6 @@ import { HoppRESTHeader } from "@hoppscotch/data"
 import * as A from "fp-ts/Array"
 import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
-import * as S from "fp-ts/string"
 import parser from "yargs-parser"
 import {
   objHasArrayProperty,
@@ -10,13 +9,26 @@ import {
 } from "~/helpers/functional/object"
 import { tupleToRecord } from "~/helpers/functional/record"
 
-const getHeaderPair = flow(
-  S.replace(":", ": "),
-  S.split(": "),
-  // must have a key and a value
-  O.fromPredicate((arr) => arr.length === 2),
-  O.map(([k, v]) => [k.trim(), v?.trim() ?? ""] as [string, string])
-)
+const getHeaderPair = (header: string): O.Option<[string, string]> => {
+  // Normalize headers that omit the space after the colon (e.g. "X-Foo:bar" → "X-Foo: bar")
+  // before looking for the separator. Only add a space when none follows the colon.
+  const normalized = /^[^:]+:(?! )/.test(header)
+    ? header.replace(":", ": ")
+    : header
+
+  // Per RFC 9110 §5.1, the field name is everything before the FIRST colon and
+  // the field value is everything after. Splitting on the first ": " preserves
+  // colons that appear inside the value (e.g. "X-Note: hello: world").
+  const separatorIndex = normalized.indexOf(": ")
+  if (separatorIndex === -1) return O.none
+
+  const key = normalized.slice(0, separatorIndex).trim()
+  const value = normalized.slice(separatorIndex + 2).trim()
+
+  if (!key) return O.none
+
+  return O.some([key, value] as [string, string])
+}
 
 export function getHeaders(parsedArguments: parser.Arguments) {
   let headers: Record<string, string> = {}

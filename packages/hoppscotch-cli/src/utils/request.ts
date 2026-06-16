@@ -295,6 +295,18 @@ export const processRequest =
       ({ effectiveRequest, updatedEnvs } = preRequestRes.right);
     }
 
+    // Keep the reported envs in sync with the latest known-good state (post
+    // pre-request-script). Without this, a test-script execution error
+    // (handled below, which leaves `result.envs` untouched) would cause
+    // `processCollection` to carry forward the envs as they were *before*
+    // this request's pre-request script ran, silently discarding any
+    // variables it set/updated. That state is then unavailable to every
+    // subsequent request in the collection, which is exactly the kind of
+    // leak/ordering bug this guards against. The test-runner success branch
+    // below still has the final say, overwriting this with the post-test
+    // envs once that step completes successfully.
+    result.envs = updatedEnvs;
+
     // Creating request-config for request-runner.
     const requestConfig = createRequest(effectiveRequest);
 

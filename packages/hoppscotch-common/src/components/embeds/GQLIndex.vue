@@ -74,7 +74,14 @@ onBeforeUnmount(() => {
 // Tracks which sub-tab (Query / Variables / Headers / Authorization) is
 // currently visible. Owned locally by the embed shell so the tab strip is
 // interactive without needing the share-er to pre-select one.
-const selectedOptionTab = ref<GQLOptionTabs>("query")
+//
+// Initialise from the first allowed tab (mirrors the REST embed shell): if the
+// share-er hid `query`, defaulting to it would select a tab that
+// `GqlRequestOptions` never renders, leaving a blank editor. An empty
+// `properties` array means "show all" there, so fall back to `query`.
+const selectedOptionTab = ref<GQLOptionTabs>(
+  (props.properties[0] as GQLOptionTabs) ?? "query"
+)
 
 // `GqlRequestOptions` watches the per-tab message stream from the connection
 // service and re-emits each event as `update:response`. The embed owns the

@@ -243,8 +243,11 @@ export const processRequest =
       inheritedTestScripts = [],
     } = params;
 
-    // Initialising updatedEnvs with given parameter envs, will eventually get updated.
-    const result = {
+    // Initialising result envs with given parameter envs; updated after the
+    // pre-request stage (so env mutations from pre-request scripts always
+    // propagate to the next request even when the test script fails) and
+    // again after a successful test-runner run.
+    const result: { envs: HoppEnvs; report: RequestReport } = {
       envs: <HoppEnvs>envs,
       report: <RequestReport>{},
     };
@@ -293,6 +296,10 @@ export const processRequest =
     } else {
       // Updating effective-request and consuming updated envs after pre-request script execution
       ({ effectiveRequest, updatedEnvs } = preRequestRes.right);
+      // Commit pre-request env mutations immediately so that if the test
+      // script later fails, the next request in the collection still sees the
+      // variables set here rather than the stale pre-run state.
+      result.envs = updatedEnvs;
     }
 
     // Creating request-config for request-runner.

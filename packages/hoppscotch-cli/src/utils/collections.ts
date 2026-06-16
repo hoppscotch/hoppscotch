@@ -163,7 +163,15 @@ const processCollection = async (
 
   // Process each folder in the collection
   for (const folder of collection.folders) {
-    const updatedFolder: HoppCollection = { ...folder };
+    // Copy headers and variables into new arrays so that the push calls below
+    // never mutate the original folder data.  Without this, multi-iteration
+    // runs (or any second traversal of the same collection tree) accumulate
+    // parent entries on each pass, producing duplicate / wrong-order values.
+    const updatedFolder: HoppCollection = {
+      ...folder,
+      headers: [...folder.headers],
+      variables: [...folder.variables],
+    };
 
     if (updatedFolder.auth.authType === "inherit") {
       updatedFolder.auth = collection.auth;

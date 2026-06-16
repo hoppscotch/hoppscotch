@@ -288,4 +288,12 @@ export type AuthPlatformDef = {
    * @returns True if tokens were refreshed successfully, false otherwise
    */
   refreshAuthToken?: () => Promise<boolean>
+
+  /**
+   * Desktop-only OAuth2 request auth bridge. Web platforms leave this undefined
+   * and continue using the in-app `/oauth` route.
+   */
+  oauth2?: {
+    startFlow: (authUrl: string, redirectURI: string) => Promise<string>
+  }
 }

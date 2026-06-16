@@ -109,6 +109,7 @@ type OAuth2GrantTypeInfo =
       clientID: string
       clientSecret?: string
       scopes?: string
+      redirectURI?: string
       isPKCE?: boolean
       codeVerifierMethod?: "plain" | "S256"
       token?: string
@@ -135,6 +136,7 @@ type OAuth2GrantTypeInfo =
       authEndpoint: string
       clientID: string
       scopes?: string
+      redirectURI?: string
     }
 
 interface HoppRESTAuthOAuth2 {

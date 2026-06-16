@@ -6,6 +6,7 @@ import { Ref, ref, watch } from "vue"
 import { content } from "@hoppscotch/kernel"
 
 import { Io } from "@hoppscotch/common/kernel/io"
+import { invoke } from "@tauri-apps/api/core"
 import { listen } from "@tauri-apps/api/event"
 import { getService } from "@hoppscotch/common/modules/dioc"
 import { parseBodyAsJSON } from "@hoppscotch/common/helpers/functional/json"
@@ -524,6 +525,36 @@ export const def: AuthPlatformDef = {
   async refreshAuthToken() {
     const refreshed = await refreshToken()
     return refreshed
+  },
+
+  oauth2: {
+    startFlow(authUrl, redirectURI) {
+      return new Promise<string>((resolve, reject) => {
+        let unlisten: (() => void) | undefined
+
+        const openOAuthWindow = async () => {
+          try {
+            unlisten = await listen<string>(
+              "oauth2-callback-received",
+              (event) => {
+                unlisten?.()
+                resolve(event.payload)
+              }
+            )
+
+            await invoke("start_oauth2_flow", {
+              authUrl,
+              redirectUri: redirectURI,
+            })
+          } catch (error) {
+            unlisten?.()
+            reject(error)
+          }
+        }
+
+        void openOAuthWindow()
+      })
+    },
   },
 
   /**

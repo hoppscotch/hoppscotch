@@ -1,10 +1,11 @@
 import { PersistenceService } from "~/services/persistence"
 import {
-  OauthAuthService,
   PersistedOAuthConfig,
   createFlowConfig,
   decodeResponseAsJSON,
   generateRandomString,
+  getOAuthRedirectURI,
+  startOAuthFlow,
 } from "../oauth.service"
 import { z } from "zod"
 import { getService } from "~/modules/dioc"
@@ -67,6 +68,7 @@ export const getDefaultAuthCodeOauthFlowParams =
     clientID: "",
     clientSecret: "",
     scopes: undefined,
+    redirectURI: getOAuthRedirectURI(),
     isPKCE: false,
     codeVerifierMethod: "S256",
     authRequestParams: [],
@@ -80,6 +82,7 @@ const initAuthCodeOauthFlow = async ({
   clientSecret,
   scopes,
   authEndpoint,
+  redirectURI: customRedirectURI,
   isPKCE,
   codeVerifierMethod,
   authRequestParams,
@@ -87,6 +90,7 @@ const initAuthCodeOauthFlow = async ({
   tokenRequestParams,
 }: AuthCodeOauthFlowParams) => {
   const state = generateRandomString()
+  const redirectURI = getOAuthRedirectURI({ redirectURI: customRedirectURI })
 
   let codeVerifier: string | undefined
   let codeChallenge: string | undefined
@@ -118,6 +122,7 @@ const initAuthCodeOauthFlow = async ({
     codeVerifier?: string
     codeVerifierMethod?: string
     codeChallenge?: string
+    redirectURI: string
     scopes?: string
     authRequestParams?: Array<{
       key: string
@@ -144,6 +149,7 @@ const initAuthCodeOauthFlow = async ({
     tokenEndpoint,
     clientSecret,
     clientID,
+    redirectURI,
     isPKCE,
     // Persist the normalized method so subsequent redirect handling has a value
     codeVerifierMethod: codeVerifierMethodNormalized,
@@ -192,7 +198,7 @@ const initAuthCodeOauthFlow = async ({
   url.searchParams.set("client_id", clientID)
   url.searchParams.set("state", state)
   url.searchParams.set("response_type", "code")
-  url.searchParams.set("redirect_uri", OauthAuthService.redirectURI)
+  url.searchParams.set("redirect_uri", redirectURI)
 
   if (scopes) url.searchParams.set("scope", scopes)
 
@@ -209,15 +215,38 @@ const initAuthCodeOauthFlow = async ({
     })
   }
 
-  // Redirect to the authorization server
-  window.location.assign(url.toString())
+  const callbackURL = await startOAuthFlow(url.toString(), redirectURI)
+
+  if (callbackURL) {
+    const updatedLocalOAuthTempConfig =
+      await persistenceService.getLocalConfig("oauth_temp_config")
+
+    if (!updatedLocalOAuthTempConfig) {
+      return E.left("INVALID_LOCAL_CONFIG")
+    }
+
+    const result = await handleRedirectForAuthCodeOauthFlow(
+      updatedLocalOAuthTempConfig,
+      callbackURL
+    )
+
+    if (E.isRight(result)) {
+      await persistenceService.removeLocalConfig("oauth_temp_config")
+    }
+
+    return result
+  }
 
   return E.right(undefined)
 }
 
-const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
+const handleRedirectForAuthCodeOauthFlow = async (
+  localConfig: string,
+  callbackURL?: string
+) => {
   // parse the query string
-  const params = new URLSearchParams(window.location.search)
+  const callback = callbackURL ? new URL(callbackURL) : window.location
+  const params = new URLSearchParams(callback.search)
 
   const code = params.get("code")
   const state = params.get("state")
@@ -239,6 +268,7 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
     clientID: z.string(),
     codeVerifier: z.string().optional(),
     codeChallenge: z.string().optional(),
+    redirectURI: z.string().optional(),
   })
 
   const decodedLocalConfig = expectedSchema.safeParse(
@@ -269,7 +299,9 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
       grant_type: "authorization_code",
       client_id: decodedLocalConfig.data.clientID,
       client_secret: decodedLocalConfig.data.clientSecret,
-      redirect_uri: OauthAuthService.redirectURI,
+      redirect_uri: getOAuthRedirectURI({
+        redirectURI: decodedLocalConfig.data.redirectURI,
+      }),
       ...(decodedLocalConfig.data.codeVerifier && {
         code_verifier: decodedLocalConfig.data.codeVerifier,
       }),
@@ -292,7 +324,7 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
     .object({
       access_token: z.string().optional(),
       id_token: z.string().optional(),
-      refresh_token: z.string().optional(),
+      refresh_token: z.string().nullable().optional(),
     })
     .refine((data) => data.access_token || data.id_token, {
       message: "Either access_token or id_token must be present",
@@ -311,7 +343,7 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
       parsedTokenResponse.data.access_token ||
       parsedTokenResponse.data.id_token ||
       "",
-    refresh_token: parsedTokenResponse.data.refresh_token,
+    refresh_token: parsedTokenResponse.data.refresh_token ?? undefined,
   })
 }
 

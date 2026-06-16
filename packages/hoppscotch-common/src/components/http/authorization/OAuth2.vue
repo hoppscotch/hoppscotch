@@ -591,6 +591,7 @@ const getPlaceholderForField = (fieldId: string): string => {
     clientId: "your_client_id_here",
     clientSecret: "your_client_secret_here",
     scopes: "read write",
+    redirectURI: "https://example.com/oauth/callback",
     username: "your_username",
     password: "your_password",
   }
@@ -807,6 +808,16 @@ const generateOAuthToken = async () => {
       const errorMessages = {
         VALIDATION_FAILED: t("authorization.oauth.validation_failed"),
         OAUTH_TOKEN_FETCH_FAILED: t("authorization.oauth.token_fetch_failed"),
+        AUTH_SERVER_RETURNED_ERROR: t(
+          "authorization.oauth.redirect_auth_server_returned_error"
+        ),
+        AUTH_TOKEN_REQUEST_FAILED: t(
+          "authorization.oauth.redirect_auth_token_request_failed"
+        ),
+        AUTH_TOKEN_REQUEST_INVALID_RESPONSE: t(
+          "authorization.oauth.redirect_auth_token_request_invalid_response"
+        ),
+        INVALID_STATE: t("authorization.oauth.redirect_invalid_state"),
       }
       if (res.left in errorMessages) {
         // @ts-expect-error - not possible to have a key that doesn't exist

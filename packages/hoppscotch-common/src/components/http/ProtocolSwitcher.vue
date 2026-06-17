@@ -84,6 +84,7 @@ import { computed, ref } from "vue"
 import { useService } from "dioc/vue"
 import { useReadonlyStream } from "@composables/stream"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
+import { GQLTabConnectionService } from "~/services/gql-tab-connection.service"
 import {
   convertRESTToGQL,
   convertGQLToREST,
@@ -99,6 +100,7 @@ import IconGlobe from "~icons/lucide/globe"
 import IconGraphql from "~icons/hopp/graphql"
 
 const tabs = useService(WorkspaceTabsService)
+const gqlTabConn = useService(GQLTabConnectionService)
 
 const protocolTippyActions = ref<HTMLDivElement | null>(null)
 
@@ -209,6 +211,15 @@ const switchToREST = () => {
     tab.document as HoppGQLRequestDocument,
     restDraft
   )
+
+  // Tear down the GQL connection (poll timer, subscription socket, context
+  // maps) before the document type flips to "request". The GQL tab components
+  // unmount with no cleanup hook of their own, and once the type is no longer
+  // "gql-request" the close paths in index.vue skip this tab — so without this
+  // the context and its 7s poll loop leak for the page's lifetime. Mirrors
+  // `removeTab`.
+  gqlTabConn.cleanupTab(tab.id)
+
   tab.document = restDoc
   tabs.updateTab(tab)
 }

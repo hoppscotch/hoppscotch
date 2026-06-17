@@ -180,7 +180,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, computed } from "vue"
+import { ref, onMounted, onBeforeUnmount, computed } from "vue"
 import { generateUniqueRefId, safelyExtractRESTRequest } from "@hoppscotch/data"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import { useRoute } from "vue-router"
@@ -205,6 +205,16 @@ import { useGqlWorkspaceVisibility } from "~/composables/gqlWorkspaceVisibility"
 
 const scrollService = useService(ScrollService)
 const gqlTabConn = useService(GQLTabConnectionService)
+
+// Tear down every GQL tab's poll timer and subscription socket when the user
+// navigates away from the REST workspace. Per-tab cleanup on close covers
+// tab-by-tab removal, but nothing fires when the whole page unmounts — so
+// without this each gql-request tab's 7s schema poll keeps running for the
+// rest of the app session. Contexts are kept (not deleted) so tabs reconnect
+// on return.
+onBeforeUnmount(() => {
+  gqlTabConn.disconnectAllTabs()
+})
 
 const { isGqlWorkspaceEnabled } = useGqlWorkspaceVisibility()
 
@@ -537,8 +547,10 @@ defineActionHandler("tab.close-current", () => {
 })
 
 defineActionHandler("tab.close-other", () => {
-  cleanupDiscardedGQLTabs(currentTabID.value)
-  tabs.closeOtherTabs(currentTabID.value)
+  // Route through closeOtherTabsAction so the keyboard shortcut gets the same
+  // dirty-tab confirmation (and scroll/GQL cleanup) as the tab context menu,
+  // instead of force-closing unsaved tabs.
+  closeOtherTabsAction(currentTabID.value)
 })
 
 defineActionHandler("tab.open-new", addNewTab)

@@ -26,6 +26,7 @@ import { getI18n } from "~/modules/i18n"
 import { addGraphqlHistoryEntry, makeGQLHistoryEntry } from "~/newstore/history"
 
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
+import { GQLTabService } from "~/services/tab/graphql"
 
 import { MediaType, content, Method, RelayRequest } from "@hoppscotch/kernel"
 import { GQLRequest } from "~/helpers/kernel/gql/request"
@@ -112,10 +113,18 @@ type Connection = {
 }
 
 /**
- * Writable ref for the current GQL tab ID.
- * Set by the GQL page or REST page GQL tab components to track the active tab.
+ * The current GQL tab ID for the legacy `/graphql` page, derived from the
+ * single source of truth on `GQLTabService`. A computed (not a writable ref)
+ * so it can't go stale or diverge: the page and its child request component
+ * previously each wrote this from their own watch, which risked the
+ * subscription-state map (keyed by this ID) reading the wrong slot.
+ *
+ * `getService` is resolved lazily inside the getter to avoid touching the DI
+ * container at module-eval time.
  */
-export const currentGQLTabID = ref<string>("")
+export const currentGQLTabID = computed(
+  () => getService(GQLTabService).currentTabID.value
+)
 
 export const connection = reactive<Connection>({
   state: "DISCONNECTED",

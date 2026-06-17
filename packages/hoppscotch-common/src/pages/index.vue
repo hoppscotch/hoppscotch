@@ -321,6 +321,19 @@ const removeTab = (tabID: string) => {
   }
 }
 
+// Tear down GQL connections (the 7s schema-poll timer, any open subscription
+// socket, and the per-tab context maps) for every tab `closeOtherTabs` is
+// about to discard — it only removes them from the tab map, so without this
+// each dropped gql-request tab leaks its poll loop and socket. Mirrors the
+// single-tab cleanup in `removeTab`; `cleanupTab` is idempotent.
+const cleanupDiscardedGQLTabs = (keepTabID: string) => {
+  for (const tab of tabs.getTabs()) {
+    if (tab.id !== keepTabID && tab.document.type === "gql-request") {
+      gqlTabConn.cleanupTab(tab.id)
+    }
+  }
+}
+
 const closeOtherTabsAction = (tabID: string) => {
   const isTabDirty = tabs.getTabRef(tabID).value?.document.isDirty
   const dirtyTabCount = tabs.getDirtyTabsCount()
@@ -334,6 +347,7 @@ const closeOtherTabsAction = (tabID: string) => {
     exceptedTabID.value = tabID
   } else {
     scrollService.cleanupAllScroll(tabID)
+    cleanupDiscardedGQLTabs(tabID)
     tabs.closeOtherTabs(tabID)
   }
 }
@@ -368,6 +382,7 @@ const duplicateTab = (tabID: string) => {
 const onResolveConfirmCloseAllTabs = () => {
   if (exceptedTabID.value) {
     scrollService.cleanupAllScroll(exceptedTabID.value)
+    cleanupDiscardedGQLTabs(exceptedTabID.value)
     tabs.closeOtherTabs(exceptedTabID.value)
   }
   confirmingCloseAllTabs.value = false
@@ -522,6 +537,7 @@ defineActionHandler("tab.close-current", () => {
 })
 
 defineActionHandler("tab.close-other", () => {
+  cleanupDiscardedGQLTabs(currentTabID.value)
   tabs.closeOtherTabs(currentTabID.value)
 })
 

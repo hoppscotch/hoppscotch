@@ -75,12 +75,19 @@ onBeforeUnmount(() => {
 // currently visible. Owned locally by the embed shell so the tab strip is
 // interactive without needing the share-er to pre-select one.
 //
-// Initialise from the first allowed tab (mirrors the REST embed shell): if the
-// share-er hid `query`, defaulting to it would select a tab that
+// `properties` is untrusted shortcode data, so initialise from the first
+// *known* tab it actually lists (in render order) rather than casting
+// `properties[0]` — a stray/unknown entry would otherwise select a tab that
 // `GqlRequestOptions` never renders, leaving a blank editor. An empty
 // `properties` array means "show all" there, so fall back to `query`.
+const GQL_OPTION_TABS: GQLOptionTabs[] = [
+  "query",
+  "variables",
+  "headers",
+  "authorization",
+]
 const selectedOptionTab = ref<GQLOptionTabs>(
-  (props.properties[0] as GQLOptionTabs) ?? "query"
+  GQL_OPTION_TABS.find((tab) => props.properties.includes(tab)) ?? "query"
 )
 
 // `GqlRequestOptions` watches the per-tab message stream from the connection

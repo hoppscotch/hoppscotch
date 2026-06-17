@@ -364,16 +364,14 @@ export class TeamCollectionResolver {
     collectionID: string,
     @Args({
       name: 'reqType',
-      description: 'Type of UserCollection',
+      description:
+        'Type of the collection (accepted for backwards compatibility; the actual type is derived from the source collection)',
       type: () => ReqType,
     })
     reqType: ReqType,
   ) {
     const duplicatedTeamCollection =
-      await this.teamCollectionService.duplicateTeamCollection(
-        collectionID,
-        reqType,
-      );
+      await this.teamCollectionService.duplicateTeamCollection(collectionID);
 
     if (E.isLeft(duplicatedTeamCollection))
       throwErr(duplicatedTeamCollection.left);

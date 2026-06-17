@@ -74,7 +74,7 @@ export class CreateUserRequestArgs {
 @ArgsType()
 export class UpdateUserRequestArgs {
   @Field(() => ID, {
-    description: 'ID of the user REST request',
+    description: 'ID of the user request',
   })
   @IsString()
   @IsNotEmpty()

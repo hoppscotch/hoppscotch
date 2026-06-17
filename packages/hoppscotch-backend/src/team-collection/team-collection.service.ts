@@ -222,6 +222,14 @@ export class TeamCollectionService {
     if (!Array.isArray(collectionsList.right))
       return E.left(TEAM_COLL_INVALID_JSON);
 
+    // When importing into an existing parent, ensure the type matches the parent
+    if (parentID) {
+      const parentCollection = await this.getCollection(parentID);
+      if (E.isLeft(parentCollection)) return E.left(TEAM_COLL_NOT_FOUND);
+      if (parentCollection.right.type !== type)
+        return E.left(TEAM_COLL_TYPE_MISMATCH);
+    }
+
     let teamCollections: DBTeamCollection[] = [];
     let queryList: Prisma.TeamCollectionCreateInput[] = [];
     try {
@@ -480,6 +488,12 @@ export class TeamCollectionService {
     if (parentID !== null) {
       const isOwner = await this.isOwnerCheck(parentID, teamID);
       if (O.isNone(isOwner)) return E.left(TEAM_NOT_OWNER);
+
+      // Ensure the child collection has the same type as its parent
+      const parentCollection = await this.getCollection(parentID);
+      if (E.isLeft(parentCollection)) return E.left(TEAM_COLL_NOT_FOUND);
+      if (parentCollection.right.type !== type)
+        return E.left(TEAM_COLL_TYPE_MISMATCH);
     }
 
     if (data === '') return E.left(TEAM_COLL_DATA_INVALID);
@@ -1529,7 +1543,7 @@ export class TeamCollectionService {
    * @param collectionID The Collection ID
    * @returns Boolean of duplication status
    */
-  async duplicateTeamCollection(collectionID: string, reqType: ReqType) {
+  async duplicateTeamCollection(collectionID: string) {
     const collection = await this.getCollection(collectionID);
     if (E.isLeft(collection)) return E.left(TEAM_INVALID_COLL_ID);
 
@@ -1548,7 +1562,7 @@ export class TeamCollectionService {
       ]),
       collection.right.teamID,
       collection.right.parentID,
-      reqType,
+      collection.right.type as ReqType,
     );
     if (E.isLeft(result)) return E.left(result.left as string);
 

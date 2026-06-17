@@ -26,7 +26,7 @@ export class TeamCollection {
   parentID: string;
 
   @Field(() => ReqType, {
-    description: 'Type of the user collection',
+    description: 'Type of the team collection',
   })
   type: ReqType;
 }

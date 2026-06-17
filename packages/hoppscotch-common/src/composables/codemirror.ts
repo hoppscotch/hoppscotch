@@ -436,7 +436,21 @@ export function useCodemirror(
               cachedValue.value = update.state.doc
                 .toJSON()
                 .join(update.state.lineBreak)
-              if (!options.extendedEditorConfig.readOnly) {
+
+              // Do not propagate intermediate composition changes to the Vue
+              // reactive value. During IME composition (e.g. Chinese via Sogou
+              // Pinyin), CodeMirror emits docChanged updates with the
+              // "input.type.compose" userEvent for every intermediate keystroke.
+              // Pushing these back through Vue's watch(value) watcher causes
+              // view.dispatch() to replace the entire document mid-composition,
+              // which resets the IME session and forces the user to type the
+              // character a second time. We wait for compositionend (when no
+              // transaction is a compose event) before syncing back.
+              const isComposing = update.transactions.some((tr) =>
+                tr.isUserEvent("input.type.compose")
+              )
+
+              if (!options.extendedEditorConfig.readOnly && !isComposing) {
                 // Only update if the value is actually different to prevent circular updates
                 if (value.value !== cachedValue.value) {
                   value.value = cachedValue.value

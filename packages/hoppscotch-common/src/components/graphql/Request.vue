@@ -65,12 +65,7 @@
 import { platform } from "~/platform"
 import { useI18n } from "@composables/i18n"
 import { computed, ref, watch } from "vue"
-import {
-  connection,
-  connect,
-  currentGQLTabID,
-  disconnect,
-} from "~/helpers/graphql/connection"
+import { connection, connect, disconnect } from "~/helpers/graphql/connection"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { useService } from "dioc/vue"
 import { defineActionHandler } from "~/helpers/actions"
@@ -138,7 +133,6 @@ watch(
   tabs.currentActiveTab,
   (newVal) => {
     if (newVal) {
-      currentGQLTabID.value = newVal.id
       lastTwoUrls.value.push(newVal.document.request.url)
       if (lastTwoUrls.value.length > 2) {
         lastTwoUrls.value.shift()

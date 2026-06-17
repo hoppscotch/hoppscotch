@@ -210,6 +210,20 @@ export const useOAuth2GrantTypes = (
           }
         )
 
+        const tokenType = refWithCallbackOnChange(
+          auth.value.grantTypeInfo.tokenType || "access_token",
+          (value) => {
+            if (!("tokenType" in auth.value.grantTypeInfo)) {
+              return
+            }
+
+            auth.value.grantTypeInfo = {
+              ...auth.value.grantTypeInfo,
+              tokenType: value,
+            }
+          }
+        )
+
         const refreshToken = async () => {
           const grantTypeInfo = auth.value.grantTypeInfo
 
@@ -269,6 +283,7 @@ export const useOAuth2GrantTypes = (
             authRequestParams: preparedAuthRequestParams.value,
             tokenRequestParams: preparedTokenRequestParams.value,
             refreshRequestParams: preparedRefreshRequestParams.value,
+            tokenType: tokenType.value,
           }
 
           const unwrappedParams = replaceTemplateStringsInObjectValues(params)
@@ -357,6 +372,24 @@ export const useOAuth2GrantTypes = (
               label: t("authorization.oauth.label_scopes"),
               type: "text" as const,
               ref: scopes,
+            },
+            {
+              id: "tokenType",
+              label: "Token Type",
+              type: "dropdown" as const,
+              ref: tokenType,
+              tippyRefName: "tokenTypeTippyActions",
+              tippyRef: { value: null },
+              options: [
+                {
+                  id: "access_token" as const,
+                  label: "Access Token",
+                },
+                {
+                  id: "id_token" as const,
+                  label: "ID Token",
+                },
+              ],
             },
           ]
         })
@@ -449,6 +482,20 @@ export const useOAuth2GrantTypes = (
           }
         )
 
+        const tokenType = refWithCallbackOnChange(
+          (auth.value.grantTypeInfo as any).tokenType || "access_token",
+          (value) => {
+            if (!("tokenType" in auth.value.grantTypeInfo)) {
+              return
+            }
+
+            auth.value.grantTypeInfo = {
+              ...auth.value.grantTypeInfo,
+              tokenType: value,
+            }
+          }
+        )
+
         const runAction = async () => {
           const values: ClientCredentialsFlowParams =
             replaceTemplateStringsInObjectValues({
@@ -459,6 +506,7 @@ export const useOAuth2GrantTypes = (
               clientAuthentication: clientAuthentication.value.id,
               tokenRequestParams: preparedTokenRequestParams.value,
               refreshRequestParams: preparedRefreshRequestParams.value,
+              tokenType: tokenType.value,
             })
 
           const parsedArgs = clientCredentials.params.safeParse(values)
@@ -521,6 +569,24 @@ export const useOAuth2GrantTypes = (
                 {
                   id: "AS_BASIC_AUTH_HEADERS" as const,
                   label: t("authorization.oauth.label_send_as_basic_auth"),
+                },
+              ],
+            },
+            {
+              id: "tokenType",
+              label: "Token Type",
+              type: "dropdown" as const,
+              ref: tokenType,
+              tippyRefName: "tokenTypeTippyActions",
+              tippyRef: { value: null },
+              options: [
+                {
+                  id: "access_token" as const,
+                  label: "Access Token",
+                },
+                {
+                  id: "id_token" as const,
+                  label: "ID Token",
                 },
               ],
             },
@@ -612,6 +678,20 @@ export const useOAuth2GrantTypes = (
           }
         )
 
+        const tokenType = refWithCallbackOnChange(
+          auth.value.grantTypeInfo.tokenType || "access_token",
+          (value) => {
+            if (!("tokenType" in auth.value.grantTypeInfo)) {
+              return
+            }
+
+            auth.value.grantTypeInfo = {
+              ...auth.value.grantTypeInfo,
+              tokenType: value,
+            }
+          }
+        )
+
         const runAction = async () => {
           const values: PasswordFlowParams =
             replaceTemplateStringsInObjectValues({
@@ -623,6 +703,7 @@ export const useOAuth2GrantTypes = (
               password: password.value,
               tokenRequestParams: preparedTokenRequestParams.value,
               refreshRequestParams: preparedRefreshRequestParams.value,
+              tokenType: tokenType.value,
             })
 
           const parsedArgs = passwordFlow.params.safeParse(values)
@@ -682,6 +763,24 @@ export const useOAuth2GrantTypes = (
               type: "text" as const,
               ref: scopes,
             },
+            {
+              id: "tokenType",
+              label: "Token Type",
+              type: "dropdown" as const,
+              ref: tokenType,
+              tippyRefName: "tokenTypeTippyActions",
+              tippyRef: { value: null },
+              options: [
+                {
+                  id: "access_token" as const,
+                  label: "Access Token",
+                },
+                {
+                  id: "id_token" as const,
+                  label: "ID Token",
+                },
+              ],
+            },
           ]
         })
 
@@ -727,6 +826,20 @@ export const useOAuth2GrantTypes = (
           }
         )
 
+        const tokenType = refWithCallbackOnChange(
+          auth.value.grantTypeInfo.tokenType || "access_token",
+          (value) => {
+            if (!("tokenType" in auth.value.grantTypeInfo)) {
+              return
+            }
+
+            auth.value.grantTypeInfo = {
+              ...auth.value.grantTypeInfo,
+              tokenType: value,
+            }
+          }
+        )
+
         const runAction = () => {
           const values: ImplicitOauthFlowParams =
             replaceTemplateStringsInObjectValues({
@@ -735,6 +848,7 @@ export const useOAuth2GrantTypes = (
               scopes: scopes.value,
               authRequestParams: preparedAuthRequestParams.value,
               refreshRequestParams: preparedRefreshRequestParams.value,
+              tokenType: tokenType.value,
             })
 
           const unwrappedValues = replaceTemplateStringsInObjectValues(values)
@@ -769,6 +883,24 @@ export const useOAuth2GrantTypes = (
               label: t("authorization.oauth.label_scopes"),
               type: "text" as const,
               ref: scopes,
+            },
+            {
+              id: "tokenType",
+              label: "Token Type",
+              type: "dropdown" as const,
+              ref: tokenType,
+              tippyRefName: "tokenTypeTippyActions",
+              tippyRef: { value: null },
+              options: [
+                {
+                  id: "access_token" as const,
+                  label: "Access Token",
+                },
+                {
+                  id: "id_token" as const,
+                  label: "ID Token",
+                },
+              ],
             },
           ]
         })

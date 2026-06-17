@@ -25,6 +25,7 @@ const PasswordFlowParamsSchema = PasswordGrantTypeParams.omit({
     // Override optional arrays to be required for the service layer
     tokenRequestParams: z.array(OAuth2ParamSchema),
     refreshRequestParams: z.array(OAuth2ParamSchema),
+    tokenType: z.enum(["access_token", "id_token"]).optional(),
   })
   .refine(
     (params) => {
@@ -52,6 +53,7 @@ export const getDefaultPasswordFlowParams = (): PasswordFlowParams => ({
   password: "",
   tokenRequestParams: [],
   refreshRequestParams: [],
+  tokenType: "access_token",
 })
 
 const initPasswordOauthFlow = async ({
@@ -62,6 +64,7 @@ const initPasswordOauthFlow = async ({
   scopes,
   authEndpoint,
   tokenRequestParams,
+  tokenType,
 }: PasswordFlowParams) => {
   const toast = useToast()
 
@@ -123,10 +126,11 @@ const initPasswordOauthFlow = async ({
   }
 
   const withAccessTokenSchema = z.object({
-    access_token: z.string(),
+    access_token: z.string().optional(),
+    id_token: z.string().optional(),
   })
 
-  const responsePayload = parseBytesToJSON<{ access_token: string }>(
+  const responsePayload = parseBytesToJSON<{ access_token?: string; id_token?: string }>(
     res.right.body.body
   )
 
@@ -134,9 +138,20 @@ const initPasswordOauthFlow = async ({
     const parsedTokenResponse = withAccessTokenSchema.safeParse(
       responsePayload.value
     )
-    return parsedTokenResponse.success
-      ? E.right(parsedTokenResponse.data)
-      : E.left("AUTH_TOKEN_REQUEST_INVALID_RESPONSE" as const)
+
+    if (parsedTokenResponse.success) {
+      // Return the preferred token type
+      const token =
+        tokenType === "id_token"
+          ? parsedTokenResponse.data.id_token ||
+            parsedTokenResponse.data.access_token
+          : parsedTokenResponse.data.access_token ||
+            parsedTokenResponse.data.id_token
+
+      if (token) {
+        return E.right({ access_token: token })
+      }
+    }
   }
 
   return E.left("AUTH_TOKEN_REQUEST_INVALID_RESPONSE" as const)

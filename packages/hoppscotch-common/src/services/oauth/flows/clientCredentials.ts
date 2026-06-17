@@ -28,6 +28,7 @@ const ClientCredentialsFlowParamsSchema = ClientCredentialsGrantTypeParams.omit(
     // Override optional arrays to be required for the service layer
     tokenRequestParams: z.array(OAuth2ParamSchema),
     refreshRequestParams: z.array(OAuth2ParamSchema),
+    tokenType: z.enum(["access_token", "id_token"]).optional(),
   })
   .refine(
     (params) => {
@@ -55,6 +56,7 @@ export const getDefaultClientCredentialsFlowParams =
     clientAuthentication: "IN_BODY",
     tokenRequestParams: [],
     refreshRequestParams: [],
+    tokenType: "access_token",
   })
 
 const initClientCredentialsOAuthFlow = async (
@@ -80,7 +82,8 @@ const initClientCredentialsOAuthFlow = async (
   if (E.isLeft(jsonResponse)) return E.left("AUTH_TOKEN_REQUEST_FAILED")
 
   const withAccessTokenSchema = z.object({
-    access_token: z.string(),
+    access_token: z.string().optional(),
+    id_token: z.string().optional(),
   })
 
   const parsedTokenResponse = withAccessTokenSchema.safeParse(
@@ -91,9 +94,21 @@ const initClientCredentialsOAuthFlow = async (
     toast.error("AUTH_TOKEN_REQUEST_INVALID_RESPONSE")
   }
 
-  return parsedTokenResponse.success
-    ? E.right(parsedTokenResponse.data)
-    : E.left("AUTH_TOKEN_REQUEST_INVALID_RESPONSE" as const)
+  if (parsedTokenResponse.success) {
+    // Return the preferred token type
+    const token =
+      payload.tokenType === "id_token"
+        ? parsedTokenResponse.data.id_token ||
+          parsedTokenResponse.data.access_token
+        : parsedTokenResponse.data.access_token ||
+          parsedTokenResponse.data.id_token
+
+    if (token) {
+      return E.right({ access_token: token })
+    }
+  }
+
+  return E.left("AUTH_TOKEN_REQUEST_INVALID_RESPONSE" as const)
 }
 
 const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {

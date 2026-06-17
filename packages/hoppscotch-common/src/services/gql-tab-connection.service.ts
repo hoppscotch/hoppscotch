@@ -667,6 +667,21 @@ export class GQLTabConnectionService extends Service {
         )
       }
 
+      // Introspection disabled (e.g. Hasura / Apollo with `introspection: false`):
+      // the 200 body carries `errors` and no `data`. `buildClientSchema(undefined)`
+      // throws a cryptic graphql-js internal error, so fail with a clear one.
+      // Set `ctx.error` too — on a background re-poll the catch below disconnects
+      // before `poll()` can toast, so the response-panel error watcher is the
+      // only thing left to surface this to the user.
+      if (!introspectResponse.data) {
+        ctx.error = {
+          type: "error",
+          message: (t: ReturnType<typeof getI18n>) =>
+            t("graphql.connection_error_introspection_disabled"),
+        }
+        throw new Error("Introspection is disabled on this server.")
+      }
+
       const schemaData = buildClientSchema(introspectResponse.data as any)
 
       ctx.schema = schemaData

@@ -198,19 +198,23 @@ export class CookieJarService extends Service {
         )
         continue
       }
-      const domain = cookie.domain
-      const existing = this.cookieJar.value.get(domain) ?? []
+      // Path is normalized at the entry boundary so the merge key
+      // (`name`, `path`) is comparable across response captures,
+      // script returns, and modal edits. An undefined incoming path
+      // would otherwise miss a stored `"/"` and produce a duplicate.
+      const normalized: Cookie = { ...cookie, path: cookie.path ?? "/" }
+      const existing = this.cookieJar.value.get(normalized.domain) ?? []
 
       const idx = existing.findIndex(
-        (c) => c.name === cookie.name && c.path === cookie.path
+        (c) => c.name === normalized.name && c.path === normalized.path
       )
       if (idx === -1) {
-        existing.push(cookie)
+        existing.push(normalized)
       } else {
-        existing[idx] = cookie
+        existing[idx] = normalized
       }
 
-      this.cookieJar.value.set(domain, existing)
+      this.cookieJar.value.set(normalized.domain, existing)
     }
 
     this.persistJar()
@@ -329,8 +333,9 @@ export class CookieJarService extends Service {
       if (!existing) {
         continue
       }
+      const path = target.path ?? "/"
       const next = existing.filter(
-        (c) => !(c.name === target.name && c.path === target.path)
+        (c) => !(c.name === target.name && c.path === path)
       )
       if (next.length === existing.length) {
         continue

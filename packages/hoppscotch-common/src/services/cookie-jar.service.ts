@@ -220,19 +220,29 @@ export class CookieJarService extends Service {
     await this.upsertCookies(cookies.map((c) => ({ ...c, domain })))
   }
 
-  // Canonicalizes a cookie domain per RFC 6265 5.1.2 and 5.2.3,
-  // returns null for a domain that should not be stored. Strips a
-  // leading dot the way the spec requires (the dot is wire-format
-  // history and is not part of the matching algorithm), lowercases
-  // the result, and rejects a single-label domain that would let
-  // the cookie attach to every site under that suffix.
-  private canonDomain(raw: string): string | null {
+  // Canonicalizes a cookie domain per RFC 6265 5.1.2 and 5.2.3 when
+  // it came from a Set-Cookie `Domain` attribute. Strips a leading
+  // dot the way the spec requires (the dot is wire-format history
+  // and is not part of the matching algorithm), lowercases the
+  // result, and rejects a single-label domain that would let the
+  // cookie attach to every site under that suffix. Returns null for
+  // a domain that should not be stored.
+  private canonAttrDomain(raw: string): string | null {
     const stripped = raw.startsWith(".") ? raw.slice(1) : raw
     const lower = stripped.toLowerCase()
     if (lower.length === 0 || !lower.includes(".")) {
       return null
     }
     return lower
+  }
+
+  // Canonicalizes the host used for a host-only cookie, where the
+  // response had no `Domain` attribute so the request host is the
+  // entire domain. The single-label rule does not apply here, the
+  // host is the literal endpoint the user spoke to. `localhost` and
+  // other single-label internal hostnames stay valid.
+  private canonHostOnly(host: string): string {
+    return host.toLowerCase()
   }
 
   // Normalizes the kernel relay response cookies into the
@@ -250,11 +260,16 @@ export class CookieJarService extends Service {
     const requestHost = requestURL.hostname.toLowerCase()
     const normalized: Cookie[] = []
     for (const c of cookies) {
-      const domain = this.canonDomain(c.domain ?? requestHost)
+      let domain: string | null
+      if (c.domain) {
+        domain = this.canonAttrDomain(c.domain)
+      } else {
+        domain = this.canonHostOnly(requestHost)
+      }
       if (domain === null) {
         console.warn(
           "[CookieJar] Dropped cookie with unusable domain:",
-          c.domain ?? requestHost
+          c.domain
         )
         continue
       }

@@ -65,6 +65,11 @@ export class CookieJarService extends Service {
   // state always lands on disk.
   private writeChain: Promise<void> = Promise.resolve()
 
+  // The write token prefix is fresh per service instance so two
+  // processes (this org's webview and another writing the same
+  // store file) cannot collide on the counter and mis-treat each
+  // other's writes as self-echoes.
+  private writePrefix = crypto.randomUUID()
   private writeCounter = 0
   private lastWriteToken: string | null = null
 
@@ -145,7 +150,7 @@ export class CookieJarService extends Service {
   }
 
   private persistJar(): void {
-    const token = `${++this.writeCounter}`
+    const token = `${this.writePrefix}-${++this.writeCounter}`
     this.lastWriteToken = token
 
     this.writeChain = this.writeChain

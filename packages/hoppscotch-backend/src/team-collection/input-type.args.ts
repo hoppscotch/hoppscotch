@@ -11,7 +11,7 @@ export class GetRootTeamCollectionsArgs extends PaginationArgs {
   teamID: string;
 
   @Field(() => ReqType, {
-    description: 'Type of the user collection',
+    description: 'Type of the team collection',
   })
   @IsEnum(ReqType)
   type: ReqType;
@@ -39,7 +39,7 @@ export class CreateRootTeamCollectionArgs {
   data: string;
 
   @Field(() => ReqType, {
-    description: 'Type of the user collection',
+    description: 'Type of the team collection',
   })
   @IsEnum(ReqType)
   type: ReqType;
@@ -70,7 +70,7 @@ export class CreateChildTeamCollectionArgs {
   data: string;
 
   @Field(() => ReqType, {
-    description: 'Type of the user collection',
+    description: 'Type of the team collection',
   })
   @IsEnum(ReqType)
   type: ReqType;

@@ -508,6 +508,20 @@ export class CookieJarService extends Service {
       return
     }
 
+    // A user who set a `Cookie` header through the request panel
+    // (any case-variant) is asserting deliberate intent for this
+    // request, so the jar yields and the user's header is
+    // preserved as written. The jar still updates from response
+    // capture and the manager remains the place to inspect or
+    // edit it.
+    if (request.headers) {
+      for (const key of Object.keys(request.headers)) {
+        if (key.toLowerCase() === "cookie") {
+          return
+        }
+      }
+    }
+
     const cookies = this.getCookiesForURL(url)
     if (cookies.length === 0) {
       return
@@ -515,15 +529,6 @@ export class CookieJarService extends Service {
 
     if (!request.headers) {
       request.headers = {}
-    }
-    // The request map is case-sensitive so a user-supplied `cookie`
-    // or `COOKIE` would survive next to our `Cookie` and ship two
-    // header lines. Strips any case-variant before setting the
-    // canonical-case name.
-    for (const key of Object.keys(request.headers)) {
-      if (key !== "Cookie" && key.toLowerCase() === "cookie") {
-        delete request.headers[key]
-      }
     }
     request.headers["Cookie"] = this.serializeCookieHeader(cookies)
   }

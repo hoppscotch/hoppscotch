@@ -254,6 +254,21 @@ export class CookieJarService extends Service {
     return host.toLowerCase()
   }
 
+  // RFC 6265 5.1.4 default-path. A response that omits the `Path`
+  // attribute defaults to the directory of the request URI path,
+  // i.e. the substring up to but not including the rightmost `/`.
+  // A path with no `/` or only the leading `/` defaults to `/`.
+  private defaultPath(uriPath: string): string {
+    if (uriPath.length === 0 || uriPath[0] !== "/") {
+      return "/"
+    }
+    const last = uriPath.lastIndexOf("/")
+    if (last === 0) {
+      return "/"
+    }
+    return uriPath.slice(0, last)
+  }
+
   // Normalizes the kernel relay response cookies into the
   // `@hoppscotch/data` shape and merges them. Domain falls back to the
   // request host (host-only cookie), path to "/", the flags default
@@ -286,7 +301,7 @@ export class CookieJarService extends Service {
         name: c.name,
         value: c.value,
         domain,
-        path: c.path ?? "/",
+        path: c.path ?? this.defaultPath(requestURL.pathname),
         httpOnly: c.httpOnly ?? false,
         secure: c.secure ?? false,
         sameSite: c.sameSite ?? "Lax",

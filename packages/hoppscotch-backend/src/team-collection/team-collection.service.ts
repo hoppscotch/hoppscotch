@@ -60,14 +60,6 @@ export class TeamCollectionService {
   MAX_RETRIES = 5; // Maximum number of retries for database transactions
 
   /**
-   * Generate a Prisma query object representation of a collection and its child collections and requests
-   *
-   * @param folder CollectionFolder from client
-   * @param teamID The Team ID
-   * @param orderIndex Initial OrderIndex of
-   * @returns A Prisma query object to create a collection, its child collections and requests
-   */
-  /**
    * Recursively create a TeamCollection together with its requests and child
    * collections, guaranteeing that a collection row exists before any row that
    * references it (its requests and its children) is inserted.
@@ -272,6 +264,10 @@ export class TeamCollectionService {
       }, {
         // Large imports run many sequential inserts; the default 10s interactive
         // transaction timeout (set in PrismaService) is not enough for big collections.
+        // The whole import is intentionally kept in one transaction so it stays
+        // atomic (a failure rolls back the partial tree). Trade-off: a very large
+        // import holds one pooled connection for up to this long; raise this value
+        // if you routinely import very large collections.
         timeout: 60000,
         maxWait: 10000,
       });

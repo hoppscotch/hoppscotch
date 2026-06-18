@@ -11,6 +11,7 @@
           :placeholder="`${t('graphql.url_placeholder')}`"
           :auto-complete-env="true"
           :inspection-results="urlResults"
+          :readonly="connected || connecting"
           @enter="runQuery"
         />
       </div>
@@ -98,7 +99,7 @@ import { platform } from "~/platform"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { useToast } from "@composables/toast"
-import { computed, ref, watch } from "vue"
+import { computed, ref } from "vue"
 import { useVModel } from "@vueuse/core"
 import * as E from "fp-ts/Either"
 import { GQLTabConnectionService } from "~/services/gql-tab-connection.service"
@@ -141,6 +142,10 @@ const saveTippyActions = ref<HTMLDivElement | null>(null)
 
 const tabCtx = computed(() => gqlTabConn.getTabConnectionState(tab.value.id))
 const connected = computed(() => tabCtx.value.state === "CONNECTED")
+// The URL field is locked once a connection is established or in flight — you
+// disconnect to retarget the tab. Keeping it read-only here is why there's no
+// "URL edited mid-connection" reconnect logic: that state isn't reachable.
+const connecting = computed(() => tabCtx.value.state === "CONNECTING")
 
 const url = computed({
   get: () => tab.value.document.request.url,
@@ -261,17 +266,6 @@ const gqlConnect = () => {
     strategy: interceptorService.current.value!.id,
   })
 }
-
-// When URL changes while connected, auto-reconnect with the new URL
-watch(
-  () => tab.value.document.request.url,
-  (_newUrl, oldUrl) => {
-    if (connected.value && oldUrl !== undefined) {
-      gqlTabConn.disconnectTab(tab.value.id)
-      gqlConnect()
-    }
-  }
-)
 
 defineActionHandler(
   "gql.connect",

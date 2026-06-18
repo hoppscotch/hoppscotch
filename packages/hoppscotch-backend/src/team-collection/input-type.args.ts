@@ -11,10 +11,12 @@ export class GetRootTeamCollectionsArgs extends PaginationArgs {
   teamID: string;
 
   @Field(() => ReqType, {
-    description: 'Type of the team collection',
+    nullable: true,
+    description: 'Filter by collection type; omit to return all types',
   })
   @IsEnum(ReqType)
-  type: ReqType;
+  @IsOptional()
+  type?: ReqType;
 }
 
 @ArgsType()
@@ -39,10 +41,13 @@ export class CreateRootTeamCollectionArgs {
   data: string;
 
   @Field(() => ReqType, {
+    nullable: true,
+    defaultValue: ReqType.REST,
     description: 'Type of the team collection',
   })
   @IsEnum(ReqType)
-  type: ReqType;
+  @IsOptional()
+  type: ReqType = ReqType.REST;
 }
 
 @ArgsType()
@@ -70,10 +75,13 @@ export class CreateChildTeamCollectionArgs {
   data: string;
 
   @Field(() => ReqType, {
+    nullable: true,
+    defaultValue: ReqType.REST,
     description: 'Type of the team collection',
   })
   @IsEnum(ReqType)
-  type: ReqType;
+  @IsOptional()
+  type: ReqType = ReqType.REST;
 }
 
 @ArgsType()

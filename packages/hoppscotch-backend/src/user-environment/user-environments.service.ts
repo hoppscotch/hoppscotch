@@ -5,8 +5,8 @@ import { PubSubService } from '../pubsub/pubsub.service';
 import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
 import {
-  USER_ENVIRONMENT_ENV_DOES_NOT_EXISTS,
-  USER_ENVIRONMENT_GLOBAL_ENV_DOES_NOT_EXISTS,
+  USER_ENVIRONMENT_ENV_DOES_NOT_EXIST,
+  USER_ENVIRONMENT_GLOBAL_ENV_DOES_NOT_EXIST,
   USER_ENVIRONMENT_GLOBAL_ENV_DELETION_FAILED,
   USER_ENVIRONMENT_GLOBAL_ENV_EXISTS,
   USER_ENVIRONMENT_IS_NOT_GLOBAL,
@@ -72,7 +72,7 @@ export class UserEnvironmentsService {
       });
     }
 
-    return E.left(USER_ENVIRONMENT_ENV_DOES_NOT_EXISTS);
+    return E.left(USER_ENVIRONMENT_ENV_DOES_NOT_EXIST);
   }
 
   /**
@@ -163,7 +163,7 @@ export class UserEnvironmentsService {
       );
       return E.right(updatedUserEnvironment);
     } catch (e) {
-      return E.left(USER_ENVIRONMENT_ENV_DOES_NOT_EXISTS);
+      return E.left(USER_ENVIRONMENT_ENV_DOES_NOT_EXIST);
     }
   }
 
@@ -205,7 +205,7 @@ export class UserEnvironmentsService {
       );
       return E.right(true);
     } catch (e) {
-      return E.left(USER_ENVIRONMENT_ENV_DOES_NOT_EXISTS);
+      return E.left(USER_ENVIRONMENT_ENV_DOES_NOT_EXIST);
     }
   }
 
@@ -240,7 +240,7 @@ export class UserEnvironmentsService {
   async clearGlobalEnvironments(uid: string, id: string) {
     const globalEnvExists = await this.checkForExistingGlobalEnv(uid);
     if (O.isNone(globalEnvExists))
-      return E.left(USER_ENVIRONMENT_GLOBAL_ENV_DOES_NOT_EXISTS);
+      return E.left(USER_ENVIRONMENT_GLOBAL_ENV_DOES_NOT_EXIST);
 
     const env = globalEnvExists.value;
     if (env.id === id) {

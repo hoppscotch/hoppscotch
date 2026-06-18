@@ -142,7 +142,7 @@ async function loadGlobalEnvironments() {
         setGlobalEnvID(globalEnv.id)
       })
     }
-  } else if (res.left.error == "user_environment/user_env_does_not_exist") {
+  } else if (res.left.error == "user_environment/global_env_does_not_exist") {
     const res = await createUserGlobalEnvironment(JSON.stringify([]))
 
     if (E.isRight(res)) {

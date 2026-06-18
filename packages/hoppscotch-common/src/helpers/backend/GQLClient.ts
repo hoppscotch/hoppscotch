@@ -192,6 +192,11 @@ export function initBackendGQLClient() {
 type RunQueryOptions<T = any, V = AnyVariables> = {
   query: TypedDocumentNode<T, V>
   variables: V
+  // When true, skip awaiting `platform.auth.waitOrganizationInfoReady` before
+  // issuing the request. This MUST be left unset for ordinary calls: it exists
+  // for the org-info bootstrap query itself (GetOrganizationInfoByDomain),
+  // which determines the org id and would otherwise deadlock waiting on itself.
+  skipOrgInfoWait?: boolean
 }
 
 /**
@@ -207,13 +212,21 @@ export type GQLError<T extends string> =
       error: T
     }
 
-export const runGQLQuery = <
+export const runGQLQuery = async <
   DocType,
   DocVarType extends AnyVariables,
   DocErrorType extends string,
 >(
   args: RunQueryOptions<DocType, DocVarType>
 ): Promise<E.Either<GQLError<DocErrorType>, DocType>> => {
+  // Gate the request on the org info lookup so `getBackendHeaders` has the
+  // `x-organization-id` set by the time the call goes out. The bootstrap
+  // query (which resolves the org id) passes `skipOrgInfoWait` to avoid
+  // waiting on itself.
+  if (!args.skipOrgInfoWait) {
+    await platform.auth.waitOrganizationInfoReady?.()
+  }
+
   const request = createRequest<DocType, DocVarType>(args.query, args.variables)
   const source = client.value!.executeQuery(request, {
     requestPolicy: "network-only",
@@ -280,53 +293,71 @@ export const runGQLSubscription = <
 ) => {
   const result$ = new Subject<E.Either<GQLError<DocErrorType>, DocType>>()
 
-  const source = client.value!.executeSubscription(
-    createRequest(args.query, args.variables)
-  )
+  // The wonka subscription isn't created until after the org-info wait below,
+  // so track it here and expose a stable handle that callers can unsubscribe
+  // from immediately (matches the shape of the previously returned sub).
+  let wonkaSub: { unsubscribe: () => void } | null = null
+  const sub = {
+    unsubscribe() {
+      wonkaSub?.unsubscribe()
+    },
+  }
 
-  const sub = wonkaPipe(
-    source,
-    subscribe((res) => {
-      result$.next(
-        pipe(
-          // The target
-          res.data as DocType | undefined,
-          // Define what happens if data does not exist (it is an error)
-          E.fromNullable(
-            pipe(
-              // Take the network error value
-              res.error?.networkError,
-              // If it null, set the left to the generic error name
-              E.fromNullable(res.error?.message),
-              E.match(
-                // The left case (network error was null)
-                (gqlErr) => {
-                  if (res.error) {
-                    gqlClientError$.next({
-                      type: "GQL_CLIENT_REPORTED_ERROR",
-                      opType: "subscription",
-                      opResult: res,
-                    })
-                  }
+  ;(async () => {
+    // Gate the subscription on org info so `connectionParams` carries the
+    // `x-organization-id`. See runGQLQuery for the bootstrap skip rationale.
+    if (!args.skipOrgInfoWait) {
+      await platform.auth.waitOrganizationInfoReady?.()
+    }
 
-                  return <GQLError<DocErrorType>>{
-                    type: "gql_error",
-                    error: parseGQLErrorString(gqlErr ?? "") as DocErrorType,
-                  }
-                },
-                // The right case (it was a GraphQL Error)
-                (networkErr) =>
-                  <GQLError<DocErrorType>>{
-                    type: "network_error",
-                    error: networkErr,
-                  }
+    const source = client.value!.executeSubscription(
+      createRequest(args.query, args.variables)
+    )
+
+    wonkaSub = wonkaPipe(
+      source,
+      subscribe((res) => {
+        result$.next(
+          pipe(
+            // The target
+            res.data as DocType | undefined,
+            // Define what happens if data does not exist (it is an error)
+            E.fromNullable(
+              pipe(
+                // Take the network error value
+                res.error?.networkError,
+                // If it null, set the left to the generic error name
+                E.fromNullable(res.error?.message),
+                E.match(
+                  // The left case (network error was null)
+                  (gqlErr) => {
+                    if (res.error) {
+                      gqlClientError$.next({
+                        type: "GQL_CLIENT_REPORTED_ERROR",
+                        opType: "subscription",
+                        opResult: res,
+                      })
+                    }
+
+                    return <GQLError<DocErrorType>>{
+                      type: "gql_error",
+                      error: parseGQLErrorString(gqlErr ?? "") as DocErrorType,
+                    }
+                  },
+                  // The right case (it was a GraphQL Error)
+                  (networkErr) =>
+                    <GQLError<DocErrorType>>{
+                      type: "network_error",
+                      error: networkErr,
+                    }
+                )
               )
             )
           )
         )
-      )
-    })
-  )
+      })
+    )
+  })()
 
   // Returns the stream and a subscription handle to unsub
   return [result$, sub] as const
@@ -372,13 +403,18 @@ export const runMutation = <
 ): TE.TaskEither<GQLError<DocErrors>, DocType> =>
   pipe(
     TE.tryCatch(
-      () =>
-        client
+      async () => {
+        // Gate the mutation on org info so the `x-organization-id` header is
+        // present. Mutations are user-triggered and never part of the org-id
+        // bootstrap, so they always wait.
+        await platform.auth.waitOrganizationInfoReady?.()
+        return client
           .value!.mutation(mutation, variables, {
             requestPolicy: "cache-and-network",
             ...additionalConfig,
           })
-          .toPromise(),
+          .toPromise()
+      },
       () => constVoid() as never // The mutation function can never fail, so this will never be called ;)
     ),
     TE.chainEitherK((result) =>

@@ -669,6 +669,14 @@ export class GQLTabConnectionService extends Service {
       try {
         introspectResponse = JSON.parse(responseText)
       } catch (_parseErr) {
+        // Set `ctx.error` (like the introspection-disabled case below) so a
+        // background re-poll surfaces this instead of silently dropping the
+        // connection — the catch below disconnects before `poll()` can toast.
+        ctx.error = {
+          type: "error",
+          message: (t: ReturnType<typeof getI18n>) =>
+            t("graphql.connection_error_invalid_json"),
+        }
         throw new Error(
           "Introspection response was not valid JSON — the endpoint may not be a GraphQL server."
         )

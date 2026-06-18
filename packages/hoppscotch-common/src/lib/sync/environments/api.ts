@@ -87,7 +87,7 @@ export const getGlobalEnvironments = () =>
   runGQLQuery<
     GetGlobalEnvironmentsQuery,
     GetGlobalEnvironmentsQueryVariables,
-    "user_environment/user_env_does_not_exist"
+    "user_environment/global_env_does_not_exist"
   >({
     query: GetGlobalEnvironmentsDocument,
     variables: {},

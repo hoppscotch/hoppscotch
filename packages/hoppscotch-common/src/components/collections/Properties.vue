@@ -21,6 +21,7 @@
           <HttpHeaders
             v-model="editableCollection"
             :is-collection-property="true"
+            :envs="envs"
             @change-tab="changeOptionTab"
           />
           <div
@@ -41,6 +42,7 @@
             :is-collection-property="true"
             :is-root-collection="editingProperties.isRootCollection"
             :inherited-properties="editingProperties.inheritedProperties"
+            :envs="envs"
             :source="source"
           />
           <div
@@ -228,6 +230,12 @@ import preRequestLinter from "~/helpers/editor/linting/preRequest"
 import testScriptLinter from "~/helpers/editor/linting/testScript"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { useService } from "dioc/vue"
+import { useReadonlyStream } from "@composables/stream"
+import {
+  aggregateEnvsWithCurrentValue$,
+  getAggregateEnvsWithCurrentValue,
+} from "~/newstore/environments"
+import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
 
 import {
   HoppCollection,
@@ -306,6 +314,28 @@ const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
 )
 const activeTab = useVModel(props, "modelValue", emit)
 const activeScriptsTab = ref<"pre-request" | "test-script">("pre-request")
+
+const aggregateEnvs = useReadonlyStream(
+  aggregateEnvsWithCurrentValue$,
+  getAggregateEnvsWithCurrentValue()
+)
+
+const envs = computed(() => {
+  const collectionVars = editableCollection.value.variables.map((v) => ({
+    key: v.key,
+    currentValue: v.currentValue,
+    initialValue: v.initialValue,
+    sourceEnv: "CollectionVariable",
+    secret: v.secret,
+  }))
+
+  const inheritedVars = transformInheritedCollectionVariablesToAggregateEnv(
+    props.editingProperties.inheritedProperties?.variables ?? [],
+    true
+  )
+
+  return [...collectionVars, ...inheritedVars, ...aggregateEnvs.value]
+})
 
 const activeTabIsDetails = computed(() => activeTab.value === "details")
 

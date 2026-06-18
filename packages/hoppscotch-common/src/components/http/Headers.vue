@@ -263,7 +263,7 @@ import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as RA from "fp-ts/ReadonlyArray"
 import { cloneDeep, isEqual } from "lodash-es"
-import { reactive, Ref, ref, toRef, watch } from "vue"
+import { computed, reactive, Ref, ref, toRef, watch } from "vue"
 import draggable from "vuedraggable-es"
 
 import { useVModel } from "@vueuse/core"
@@ -574,8 +574,9 @@ const inheritedProperty = ref<
 
 const currentSelectedEnvironment = getCurrentEnvironment()
 
-watch([props.modelValue, aggregateEnvs], async () => {
-  const resolvedEnvs = aggregateEnvs.value.map((env) => {
+const resolvedEnvs = computed(() => {
+  if (props.envs) return props.envs
+  return aggregateEnvs.value.map((env) => {
     return {
       ...env,
       currentValue:
@@ -589,20 +590,22 @@ watch([props.modelValue, aggregateEnvs], async () => {
             )?.currentValue ?? ""),
     }
   })
+})
+
+watch([() => props.modelValue, resolvedEnvs], async () => {
   computedHeaders.value = (
-    await getComputedHeaders(props.modelValue, resolvedEnvs)
+    await getComputedHeaders(props.modelValue, resolvedEnvs.value)
   ).map((header, index) => ({
     id: `header-${index}`,
     ...header,
   }))
-})
+}, { immediate: true })
 
 watch(
-  () => [props.inheritedProperties, request.value],
+  () => [props.inheritedProperties, request.value, resolvedEnvs.value],
   async () => {
     if (!props.inheritedProperties) return
 
-    //filter out headers that are already in the request headers
     const inheritedHeaders = props.inheritedProperties.headers.filter(
       (header) =>
         !request.value.headers.some(
@@ -628,7 +631,7 @@ watch(
       )
     ) {
       const [computedAuthHeader] = await getComputedAuthHeaders(
-        aggregateEnvs.value,
+        resolvedEnvs.value,
         request.value,
         props.inheritedProperties.auth.inheritedAuth,
         false

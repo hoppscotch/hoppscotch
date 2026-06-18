@@ -12,7 +12,7 @@ export class GetRootTeamCollectionsArgs extends PaginationArgs {
 
   @Field(() => ReqType, {
     nullable: true,
-    description: 'Filter by collection type; omit to return all types',
+    description: 'Filter by collection type; defaults to REST when omitted',
   })
   @IsEnum(ReqType)
   @IsOptional()

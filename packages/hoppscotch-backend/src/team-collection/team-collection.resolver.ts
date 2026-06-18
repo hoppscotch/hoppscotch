@@ -145,7 +145,7 @@ export class TeamCollectionResolver {
       args.teamID,
       args.cursor,
       args.take,
-      args.type,
+      args.type ?? ReqType.REST,
     );
   }
 

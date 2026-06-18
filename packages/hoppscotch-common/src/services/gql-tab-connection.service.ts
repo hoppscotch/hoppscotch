@@ -531,18 +531,24 @@ export class GQLTabConnectionService extends Service {
   public disconnectTab(tabId: string) {
     const ctx = this.getOrCreateContext(tabId)
 
-    // Already disconnected — no-op
-    if (ctx.state === "DISCONNECTED") {
-      return
-    }
-
-    // Stop any pending polling timer
+    // Release resources unconditionally, before the already-disconnected
+    // short-circuit below. The poll timer and any open subscription socket must
+    // be torn down on every disconnect regardless of state — a subscription can
+    // hold an open socket while the tab is not CONNECTED (introspection may fail
+    // while the WS subscribe still succeeds), so gating teardown on state would
+    // leak it. Every reset here is idempotent.
     const timer = this.tabPollingTimers.get(tabId)
     if (timer) clearTimeout(timer)
     this.tabPollingTimers.delete(tabId)
 
-    ctx.state = "DISCONNECTED"
-    ctx.schema = null
+    // Close any active subscription socket. An explicit disconnect must not
+    // leave the WS open — otherwise the server keeps pushing events and
+    // subscriptionState stays "SUBSCRIBED" while the tab shows DISCONNECTED.
+    if (ctx.socket) {
+      this.teardownSubscriptionSocket(ctx)
+      ctx.subscriptionState = "UNSUBSCRIBED"
+    }
+
     // Clear the connect dedup guard as part of the reset. `connectTab` returns
     // an existing `connectingPromise` instead of starting a fresh connect, so a
     // stale one left here would make an immediate reconnect dedupe against the
@@ -550,18 +556,22 @@ export class GQLTabConnectionService extends Service {
     // `connectTab`'s finally keeps the in-flight attempt from later clobbering
     // a newer promise.
     ctx.connectingPromise = undefined
+
+    // Already disconnected — the teardown above is idempotent, so skip the
+    // redundant state writes.
+    if (ctx.state === "DISCONNECTED") return
+
+    ctx.state = "DISCONNECTED"
+    ctx.schema = null
   }
 
   /**
-   * Reset a specific tab's connection. If connected, disconnects first.
+   * Reset a specific tab's connection — disconnect (tearing down the poll timer
+   * and any open subscription socket) and clear its schema. Thin wrapper over
+   * {@link disconnectTab}, which is idempotent when the tab is already idle.
    */
   public resetTab(tabId: string) {
-    const ctx = this.getOrCreateContext(tabId)
-    if (ctx.state === "CONNECTED") {
-      this.disconnectTab(tabId)
-    }
-    ctx.state = "DISCONNECTED"
-    ctx.schema = null
+    this.disconnectTab(tabId)
   }
 
   // --- Schema fetching ---

@@ -4,6 +4,7 @@
       class="hopp-doc-explorer-argument inline-flex items-center gap-1 cursor-pointer hover:text-accent transition"
       tabindex="0"
       @click="handleClick"
+      @keydown="handleKeydown"
     >
       <span class="hopp-doc-explorer-argument-name">{{ arg.name }}</span>
       <span class="text-secondaryLight">:</span>
@@ -18,6 +19,7 @@
     :class="{ 'line-through opacity-60': arg.deprecationReason }"
     tabindex="0"
     @click="handleClick"
+    @keydown="handleKeydown"
   >
     <div class="flex flex-1 min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1">
       <button
@@ -47,6 +49,7 @@
 </template>
 
 <script setup lang="ts">
+import { onBeforeUnmount } from "vue"
 import type { GraphQLArgument } from "graphql"
 import { debounce } from "lodash-es"
 import { useExplorer } from "~/helpers/graphql/explorer"
@@ -74,7 +77,26 @@ const handleClick = () => {
   push({ name: props.arg.name, def: props.arg })
 }
 
+// The span/div act as buttons (tabindex=0 + click), so mirror the click for
+// keyboard users — Enter and Space activate, with Space's default page scroll
+// suppressed. A `role="button"` is intentionally NOT added: these elements wrap
+// interactive children (the add button and clickable type links), which a
+// button role disallows.
+const handleKeydown = (e: KeyboardEvent) => {
+  if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault()
+    handleClick()
+  }
+}
+
 const insertQuery = debounce(() => {
   queryBuilder.handleAddArgument(props.arg)
 }, 50)
+
+// Cancel any pending debounced insert on unmount (docs explorer closing /
+// navigation) so it can't write to the long-lived query-builder service after
+// the component is gone.
+onBeforeUnmount(() => {
+  insertQuery.cancel()
+})
 </script>

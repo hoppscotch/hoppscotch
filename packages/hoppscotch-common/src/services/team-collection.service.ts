@@ -319,6 +319,15 @@ export class TeamCollectionsService extends Service<void> {
             totalCollections.length > 0
               ? totalCollections[totalCollections.length - 1].id
               : undefined,
+          // Team collections in the unified workspace are REST-typed by
+          // construction — create root/child/duplicate all pass ReqType.Rest,
+          // and GraphQL requests are saved *into* these REST-typed collections
+          // (read back via getCompleteCollectionTree, which has no type filter).
+          // So this load matches exactly what the workspace creates; GraphQL
+          // requests still appear, nested inside REST-typed collections.
+          // GQL-*typed* team collections come only from the legacy /graphql
+          // import — surfacing those here would need a both-types merge, not
+          // just flipping this arg.
           type: ReqType.Rest,
         },
       })

@@ -543,6 +543,13 @@ export class GQLTabConnectionService extends Service {
 
     ctx.state = "DISCONNECTED"
     ctx.schema = null
+    // Clear the connect dedup guard as part of the reset. `connectTab` returns
+    // an existing `connectingPromise` instead of starting a fresh connect, so a
+    // stale one left here would make an immediate reconnect (e.g. the URL-change
+    // watcher's disconnect→connect) dedupe against the now-dead attempt and
+    // silently no-op. The `=== pending` check in `connectTab`'s finally keeps
+    // the in-flight attempt from later clobbering a newer promise.
+    ctx.connectingPromise = undefined
   }
 
   /**

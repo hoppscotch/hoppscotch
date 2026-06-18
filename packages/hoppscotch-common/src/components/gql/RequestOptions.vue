@@ -226,7 +226,7 @@ if (props.tabId) {
           emit("update:response", [...(props.response ?? []), event])
         }
       } catch (error) {
-        console.log(error)
+        console.error(error)
       }
     },
     { deep: true }

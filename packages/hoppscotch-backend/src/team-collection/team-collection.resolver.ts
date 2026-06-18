@@ -221,8 +221,10 @@ export class TeamCollectionResolver {
     jsonString: string,
     @Args({
       name: 'type',
-      description: 'Type of the user collection',
+      description: 'Type of the team collection',
       type: () => ReqType,
+      nullable: true,
+      defaultValue: ReqType.REST,
     })
     type: ReqType,
     @Args({
@@ -367,6 +369,8 @@ export class TeamCollectionResolver {
       description:
         'Type of the collection (accepted for backwards compatibility; the actual type is derived from the source collection)',
       type: () => ReqType,
+      nullable: true,
+      defaultValue: ReqType.REST,
     })
     reqType: ReqType,
   ) {

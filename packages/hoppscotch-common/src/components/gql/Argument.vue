@@ -77,12 +77,13 @@ const handleClick = () => {
   push({ name: props.arg.name, def: props.arg })
 }
 
-// The span/div act as buttons (tabindex=0 + click), so mirror the click for
-// keyboard users — Enter and Space activate, with Space's default page scroll
-// suppressed. A `role="button"` is intentionally NOT added: these elements wrap
-// interactive children (the add button and clickable type links), which a
-// button role disallows.
+// Keyboard mirror of the click for the focusable span/div. The target guard
+// matters because keydown bubbles — only act when the container itself is
+// focused, so a focused child's Enter/Space (the add button, type links) isn't
+// hijacked. No `role="button"`: these wrap interactive children, which it
+// disallows.
 const handleKeydown = (e: KeyboardEvent) => {
+  if (e.target !== e.currentTarget) return
   if (e.key === "Enter" || e.key === " ") {
     e.preventDefault()
     handleClick()

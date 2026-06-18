@@ -239,14 +239,12 @@ const shareRequest = () => {
 }
 
 const gqlConnect = () => {
-  const inheritedHeaders = tab.value.document.inheritedProperties?.headers.map(
-    (header) => {
-      if (header.inheritedHeader) {
-        return header.inheritedHeader
-      }
-      return []
-    }
-  ) as HoppGQLRequest["headers"]
+  // Map each inherited entry to its header; `?? []` covers the no-inheritance
+  // case. (Mirrors GqlRequestOptions. The previous `return []` for a missing
+  // header inserted empty arrays into the header list.)
+  const inheritedHeaders = (tab.value.document.inheritedProperties?.headers.map(
+    (header) => header.inheritedHeader
+  ) ?? []) as HoppGQLRequest["headers"]
 
   gqlTabConn.connectTab(tab.value.id, {
     url: url.value,

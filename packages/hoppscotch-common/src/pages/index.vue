@@ -210,8 +210,8 @@ const gqlTabConn = useService(GQLTabConnectionService)
 // navigates away from the REST workspace. Per-tab cleanup on close covers
 // tab-by-tab removal, but nothing fires when the whole page unmounts — so
 // without this each gql-request tab's 7s schema poll keeps running for the
-// rest of the app session. Contexts are kept (not deleted) so tabs reconnect
-// on return.
+// rest of the app session. `disconnectAllTabs` clears the per-tab contexts;
+// each tab re-establishes a fresh connection when the page is revisited.
 onBeforeUnmount(() => {
   gqlTabConn.disconnectAllTabs()
 })

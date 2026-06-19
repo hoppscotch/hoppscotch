@@ -25,18 +25,42 @@ async function logout() {
   })
 }
 
+/**
+ * If the current page URL carries a `?redirect_uri=...` query param (e.g. the
+ * `/device-login` deep-link used by desktop and MCP clients), forward it to
+ * the backend SSO endpoint. Backend SSO guards carry it through the OAuth
+ * `state` parameter so the post-auth callback can redirect the user back to
+ * the original deep-link.
+ */
+function appendCurrentRedirectUri(url: string): string {
+  try {
+    const incoming = new URL(window.location.href).searchParams.get(
+      "redirect_uri"
+    )
+    if (!incoming) return url
+    const sep = url.includes("?") ? "&" : "?"
+    return `${url}${sep}redirect_uri=${encodeURIComponent(incoming)}`
+  } catch {
+    return url
+  }
+}
+
 async function signInUserWithGithubFB() {
-  window.location.href = `${import.meta.env.VITE_BACKEND_API_URL}/auth/github`
+  window.location.href = appendCurrentRedirectUri(
+    `${import.meta.env.VITE_BACKEND_API_URL}/auth/github`
+  )
 }
 
 async function signInUserWithGoogleFB() {
-  window.location.href = `${import.meta.env.VITE_BACKEND_API_URL}/auth/google`
+  window.location.href = appendCurrentRedirectUri(
+    `${import.meta.env.VITE_BACKEND_API_URL}/auth/google`
+  )
 }
 
 async function signInUserWithMicrosoftFB() {
-  window.location.href = `${
-    import.meta.env.VITE_BACKEND_API_URL
-  }/auth/microsoft`
+  window.location.href = appendCurrentRedirectUri(
+    `${import.meta.env.VITE_BACKEND_API_URL}/auth/microsoft`
+  )
 }
 
 async function getInitialUserDetails() {

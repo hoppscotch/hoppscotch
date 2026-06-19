@@ -334,6 +334,9 @@ const envs = computed(() => {
     true
   )
 
+  // Note: request-level variables are intentionally NOT merged here since
+  // there is no single active request in scope when editing collection-level
+  // properties. See PR #6447 review discussion.
   return [...collectionVars, ...inheritedVars, ...aggregateEnvs.value]
 })
 

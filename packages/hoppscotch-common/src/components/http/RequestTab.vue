@@ -6,7 +6,7 @@
         v-model="tab.document.request"
         v-model:option-tab="tab.document.optionTabPreference!"
         v-model:inherited-properties="tab.document.inheritedProperties"
-        :envs="envs"
+        :envs="resolvedEnvs"
       />
     </template>
     <template #secondary>
@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { watch } from "vue"
+import { watch, computed } from "vue"
 import { useVModel } from "@vueuse/core"
 import { cloneDeep } from "lodash-es"
 import { isEqualHoppRESTRequest } from "@hoppscotch/data"
@@ -31,6 +31,7 @@ import {
   aggregateEnvsWithCurrentValue$,
   getAggregateEnvsWithCurrentValue,
 } from "~/newstore/environments"
+import { getEffectiveVariablesForRequest } from "~/helpers/utils/environments"
 
 const props = defineProps<{ modelValue: HoppTab<HoppRequestDocument> }>()
 
@@ -44,6 +45,14 @@ const envs = useReadonlyStream(
   aggregateEnvsWithCurrentValue$,
   getAggregateEnvsWithCurrentValue()
 )
+
+const resolvedEnvs = computed(() => {
+  return getEffectiveVariablesForRequest(
+    tab.value.document.request.requestVariables,
+    tab.value.document.inheritedProperties?.variables,
+    envs.value
+  )
+})
 
 // TODO: Come up with a better dirty check
 let oldRequest = cloneDeep(tab.value.document.request)

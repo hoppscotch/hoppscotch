@@ -135,6 +135,7 @@ import {
   AggregateEnvironment,
   getAggregateEnvsWithCurrentValue,
 } from "~/newstore/environments"
+import { getEffectiveVariablesForRequest } from "~/helpers/utils/environments"
 
 import { useService } from "dioc/vue"
 import cloneDeep from "lodash-es/cloneDeep"
@@ -149,7 +150,6 @@ import { asyncComputed } from "@vueuse/core"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 import { getCurrentEnvironment } from "../../newstore/environments"
-import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
 import { filterNonEmptyEnvironmentVariables } from "~/helpers/RequestRunner"
 
 const t = useI18n()
@@ -195,17 +195,7 @@ const emit = defineEmits<{
   (e: "request-code", value: string): void
 }>()
 
-const getCurrentValue = (env: AggregateEnvironment) => {
-  const currentSelectedEnvironment = getCurrentEnvironment()
 
-  if (env && env.secret) {
-    return env.currentValue
-  }
-  return currentEnvironmentValueService.getEnvironmentByKey(
-    env?.sourceEnv !== "Global" ? currentSelectedEnvironment.id : "Global",
-    env?.key ?? ""
-  )?.currentValue
-}
 
 const getFinalURL = (input: string): string => {
   // If the URL is empty, return "https://"
@@ -244,39 +234,13 @@ const buildFinalEnvironment = (): Environment => {
   const inheritedVariables =
     currentActiveTabDocument.value.inheritedProperties?.variables || []
 
-  const requestVariables = (currentActiveRequest.value?.requestVariables || [])
-    .filter((variable) => variable.active)
-    .map((variable) => ({
-      key: variable.key,
-      initialValue: variable.value,
-      currentValue: variable.value,
-      secret: false,
-    }))
+  const resolvedEnvs = getEffectiveVariablesForRequest(
+    currentActiveRequest.value?.requestVariables,
+    inheritedVariables,
+    aggregateEnvs
+  )
 
-  const collectionVariables =
-    transformInheritedCollectionVariablesToAggregateEnv(inheritedVariables).map(
-      ({ key, initialValue, currentValue, secret }) => ({
-        key,
-        initialValue,
-        currentValue,
-        secret,
-      })
-    )
-
-  const environmentVariables = aggregateEnvs.map((env) => ({
-    key: env.key,
-    secret: env.secret,
-    initialValue: env.initialValue,
-    currentValue: getCurrentValue(env) || env.initialValue,
-  }))
-
-  const allVariables = [
-    ...requestVariables,
-    ...collectionVariables,
-    ...environmentVariables,
-  ]
-
-  const filteredVariables = filterNonEmptyEnvironmentVariables(allVariables)
+  const filteredVariables = filterNonEmptyEnvironmentVariables(resolvedEnvs)
 
   return {
     v: 2,

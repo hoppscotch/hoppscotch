@@ -1,13 +1,16 @@
-import { Environment } from "@hoppscotch/data"
+import { Environment, HoppRESTRequestVariable } from "@hoppscotch/data"
 import { cloneDeep } from "lodash-es"
 
 import { getService } from "~/modules/dioc"
 import {
   getCurrentEnvironment,
   getGlobalVariables,
+  AggregateEnvironment,
 } from "~/newstore/environments"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { transformInheritedCollectionVariablesToAggregateEnv } from "./inheritedCollectionVarTransformer"
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
 const currentEnvironmentValueService = getService(CurrentValueService)
@@ -87,3 +90,26 @@ export const getCombinedEnvVariables = (temp?: Environment["variables"]) => {
     temp: temp ? cloneDeep(temp) : [],
   }
 }
+
+export const getEffectiveVariablesForRequest = (
+  requestVariables: HoppRESTRequestVariable[] | undefined,
+  inheritedVariables: HoppInheritedProperty["variables"] | undefined,
+  environmentVars: AggregateEnvironment[]
+): AggregateEnvironment[] => {
+  const requestVars = (requestVariables ?? [])
+    .filter((v) => v.active)
+    .map((v) => ({
+      key: v.key,
+      currentValue: v.value,
+      initialValue: v.value,
+      sourceEnv: "RequestVariable",
+      secret: false,
+    }))
+
+  const collectionVars = transformInheritedCollectionVariablesToAggregateEnv(
+    inheritedVariables ?? []
+  )
+
+  return [...requestVars, ...collectionVars, ...environmentVars]
+}
+

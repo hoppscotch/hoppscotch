@@ -54,31 +54,103 @@ export const authCookieHandler = (
   if (isNaN(accessTokenValidityInMs)) accessTokenValidityInMs = 86400000; // Default: 1 day
   if (isNaN(refreshTokenValidityInMs)) refreshTokenValidityInMs = 604800000; // Default: 7 days
 
-  res.cookie(AuthTokenType.ACCESS_TOKEN, authTokens.access_token, {
-    httpOnly: true,
-    secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',
-    sameSite: 'lax',
-    maxAge: accessTokenValidityInMs,
-  });
-  res.cookie(AuthTokenType.REFRESH_TOKEN, authTokens.refresh_token, {
-    httpOnly: true,
-    secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',
-    sameSite: 'lax',
-    maxAge: refreshTokenValidityInMs,
-  });
+  const setAuthCookies = () => {
+    res.cookie(AuthTokenType.ACCESS_TOKEN, authTokens.access_token, {
+      httpOnly: true,
+      secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',
+      sameSite: 'lax',
+      maxAge: accessTokenValidityInMs,
+    });
+    res.cookie(AuthTokenType.REFRESH_TOKEN, authTokens.refresh_token, {
+      httpOnly: true,
+      secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',
+      sameSite: 'lax',
+      maxAge: refreshTokenValidityInMs,
+    });
+  };
 
   if (!redirect) {
+    setAuthCookies();
     return res.status(HttpStatus.OK).send();
   }
 
-  // check to see if redirectUrl is a whitelisted url
-  const whitelistedOrigins =
-    configService.get('WHITELISTED_ORIGINS')?.split(',') ?? [];
-  if (!whitelistedOrigins.includes(redirectUrl))
-    // if it is not redirect by default to App
-    redirectUrl = configService.get('VITE_BASE_URL');
+  const whitelistedOrigins = normalizeWhitelistedOrigins(
+    configService.get('WHITELISTED_ORIGINS'),
+  );
 
+  // Validate redirect target BEFORE issuing session cookies. If the target is
+  // not on a whitelisted origin, refuse the session (defense-in-depth against
+  // forged OAuth state) and bounce the user to VITE_BASE_URL.
+  if (!isAllowedRedirect(redirectUrl, whitelistedOrigins)) {
+    return res.status(HttpStatus.OK).redirect(configService.get('VITE_BASE_URL'));
+  }
+
+  setAuthCookies();
   return res.status(HttpStatus.OK).redirect(redirectUrl);
+};
+
+/**
+ * Path on a whitelisted origin that may carry an inner `?redirect_uri=...`
+ * for the device-login round-trip. Inner redirect_uri is validated FE-side
+ * (see redirect-uri.validator) — backend only authorises the page load.
+ */
+const DEVICE_LOGIN_PATH = '/device-login';
+
+/**
+ * Parse `WHITELISTED_ORIGINS` and normalize each entry so operator-visible
+ * forms collapse to the same string that `URL#origin` emits.
+ *
+ * - `http://localhost:80` → `http://localhost` (default port stripped)
+ * - `https://app.hoppscotch.io/` → `https://app.hoppscotch.io` (trailing slash off)
+ * - Mixed-case scheme/host → lowercased
+ * - Non-special schemes (e.g. `app://hoppscotch`, whose `URL#origin` is `"null"`)
+ *   are kept verbatim so the exact-match branch can still pin them.
+ */
+export const normalizeWhitelistedOrigins = (raw: string | undefined): string[] =>
+  (raw ?? '')
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .map((entry) => {
+      try {
+        const origin = new URL(entry).origin;
+        return origin === 'null' ? entry : origin;
+      } catch {
+        return entry;
+      }
+    });
+
+/**
+ * A redirect target is allowed when either:
+ *   1. The full string matches a whitelisted entry exactly (legacy callbacks,
+ *      including non-special schemes like `app://hoppscotch` whose `URL#origin`
+ *      is spec'd to be `"null"`), OR
+ *   2. The URL parses, carries no userinfo, lands on `DEVICE_LOGIN_PATH` (with
+ *      or without a trailing slash), and its origin matches a whitelisted entry.
+ */
+export const isAllowedRedirect = (
+  redirectUrl: string | null,
+  whitelistedOrigins: string[],
+): boolean => {
+  if (!redirectUrl) return false;
+  if (whitelistedOrigins.includes(redirectUrl)) return true;
+
+  let parsed: URL;
+  try {
+    parsed = new URL(redirectUrl);
+  } catch {
+    return false;
+  }
+
+  if (parsed.username || parsed.password) return false;
+
+  // Strip a single trailing slash so `/device-login/` matches `/device-login`.
+  // Multiple trailing slashes (`/device-login//`) remain rejected — that shape
+  // is not produced by any legitimate FE link.
+  const path = parsed.pathname.replace(/\/$/, '');
+  if (path !== DEVICE_LOGIN_PATH) return false;
+
+  return whitelistedOrigins.includes(parsed.origin);
 };
 
 /**

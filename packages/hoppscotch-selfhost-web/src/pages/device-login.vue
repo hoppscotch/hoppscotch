@@ -6,7 +6,7 @@
     >
       <h1 class="heading">Login Complete</h1>
       <p class="mt-2 text-center">
-        You have logged in to the desktop app. <br />
+        You have logged in to your Hoppscotch client. <br />
         You can close this browser window.
       </p>
     </div>
@@ -16,17 +16,19 @@
     >
       <h1 class="heading">Login Error</h1>
       <p class="mt-2 text-center">
-        There was an error while logging you in to the desktop app. <br />
-        Make sure you are using the desktop app on the same device and it is
-        open and try again.
+        There was an error while logging you in to your Hoppscotch client.
+        <br />
+        Make sure your client is running on the same device and try again.
       </p>
     </div>
     <div
       v-else-if="!currentUser"
       class="flex flex-1 flex-col items-center justify-center"
     >
-      <h1 class="heading">Login to Hoppscotch Desktop</h1>
-      <p class="mt-2 text-center">Please login to continue.</p>
+      <h1 class="heading">Sign in to Hoppscotch</h1>
+      <p class="mt-2 text-center">
+        Please sign in to authorize your Hoppscotch client.
+      </p>
       <HoppButtonPrimary
         :label="t('auth.login_to_hoppscotch')"
         class="mt-8"
@@ -34,10 +36,9 @@
       />
     </div>
     <div v-else class="flex flex-1 flex-col items-center justify-center">
-      <h1 class="heading">Confirm Desktop Login</h1>
+      <h1 class="heading">Authorize Hoppscotch client</h1>
       <p class="mt-2 text-center">
-        Are you sure you want to confirm login to your account in Hoppscotch
-        Desktop ?
+        Authorize this Hoppscotch client to access your account?
       </p>
 
       <div class="flex flex-col justify-center pt-4 space-y-4">

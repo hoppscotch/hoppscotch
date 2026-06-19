@@ -1,18 +1,18 @@
 # Base Go builder with Go lang installation
 # This stage is used to build both Caddy and the webapp server,
 # preventing vulnerable packages on the dependency chain
-FROM alpine:3.23.4 AS go_builder
+FROM alpine:3.24.1 AS go_builder
 RUN apk add --no-cache curl git openssh-client
 
 ARG TARGETARCH
-ENV GOLANG_VERSION=1.26.3
+ENV GOLANG_VERSION=1.26.4
 # Download Go tarball
 RUN case "${TARGETARCH}" in amd64) GOARCH=amd64 ;; arm64) GOARCH=arm64 ;; *) echo "Unsupported arch: ${TARGETARCH}" && exit 1 ;; esac && \
   curl -fsSL "https://go.dev/dl/go${GOLANG_VERSION}.linux-${GOARCH}.tar.gz" -o go.tar.gz
 # Checksum verification of Go tarball
 RUN case "${TARGETARCH}" in \
-  amd64) expected="2b2cfc7148493da5e73981bffbf3353af381d5f93e789c82c79aff64962eb556" ;; \
-  arm64) expected="9d89a3ea57d141c2b22d70083f2c8459ba3890f2d9e818e7e933b75614936565" ;; \
+  amd64) expected="1153d3d50e0ac764b447adfe05c2bcf08e889d42a02e0fe0259bd47f6733ad7f" ;; \
+  arm64) expected="ef758ae7c6cf9267c9c0ef080b8965f453d89ab2d25d9eb22de4405925238768" ;; \
   esac && \
   actual=$(sha256sum go.tar.gz | cut -d' ' -f1) && \
   [ "$actual" = "$expected" ] && \
@@ -30,9 +30,9 @@ ENV PATH="/usr/local/go/bin:${PATH}" \
 # Build Caddy from the Go base
 FROM go_builder AS caddy_builder
 RUN mkdir -p /tmp/caddy-build && \
-  curl -fsSL -o /tmp/caddy-build/src.tar.gz https://github.com/caddyserver/caddy/releases/download/v2.11.3/caddy_2.11.3_src.tar.gz
+  curl -fsSL -o /tmp/caddy-build/src.tar.gz https://github.com/caddyserver/caddy/releases/download/v2.11.4/caddy_2.11.4_src.tar.gz
 # Checksum verification of caddy source
-RUN expected="ea407ab88e3d2b1fae216fbdeec98186dad09a22f0dd51c9859f398b7fc82486" && \
+RUN expected="e44e457ba3f2b5b8447952d2de0ae0a91b09d1a013e2521527e08b6f52acc9eb" && \
   actual=$(sha256sum /tmp/caddy-build/src.tar.gz | cut -d' ' -f1) && \
   [ "$actual" = "$expected" ] && \
   echo "✅ Caddy Source Checksum OK" || \
@@ -63,7 +63,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o webapp-server .
 
 
 # Shared Node.js base with optimized NPM installation
-FROM alpine:3.23.4 AS node_base
+FROM alpine:3.24.1 AS node_base
 # Install dependencies
 RUN apk upgrade --no-cache && \
   apk add --no-cache nodejs curl bash tini ca-certificates
@@ -71,9 +71,9 @@ RUN apk upgrade --no-cache && \
 RUN mkdir -p /tmp/npm-install
 WORKDIR /tmp/npm-install
 # Download NPM tarball
-RUN curl -fsSL https://registry.npmjs.org/npm/-/npm-11.14.1.tgz -o npm.tgz
+RUN curl -fsSL https://registry.npmjs.org/npm/-/npm-11.17.0.tgz -o npm.tgz
 # Verify checksum
-RUN expected="bddc8ec2a698d283674cf0a798ef444ba7332497f330dd166056281fcafaca7a" \
+RUN expected="b290bbb35b9e72c3ef84edbe041f28c4479c4d9ee79f555817b8caafe7ce4bba" \
   && actual=$(sha256sum npm.tgz | cut -d' ' -f1) \
   && [ "$actual" = "$expected" ] \
   && echo "✅ NPM Tarball Checksum OK" \
@@ -85,9 +85,9 @@ RUN tar -xzf npm.tgz && \
   cd / && \
   rm -rf /tmp/npm-install
 RUN mkdir -p /tmp/pnpm-install && cd /tmp/pnpm-install && \
-  curl -fsSL https://registry.npmjs.org/pnpm/-/pnpm-10.33.4.tgz -o pnpm.tgz && \
+  curl -fsSL https://registry.npmjs.org/pnpm/-/pnpm-11.8.0.tgz -o pnpm.tgz && \
   curl -fsSL https://registry.npmjs.org/@import-meta-env/cli/-/cli-0.7.4.tgz -o cli.tgz && \
-  echo "8e70ddc6649b18bc3d895cf3a908c0291ea4c38039ad8722c47e018daf1e9cfc  pnpm.tgz" | sha256sum -c - && \
+  echo "1e963a5c4ca5168550ba03fc4ee8d873a772b072b7fce63b48fff27d720e2e98  pnpm.tgz" | sha256sum -c - && \
   echo "9edada700b616b4224ba69ce713e68c36e22cb2548be9134dd3af00c164d8ca0  cli.tgz" | sha256sum -c - && \
   npm install -g ./pnpm.tgz ./cli.tgz && \
   cd / && rm -rf /tmp/pnpm-install

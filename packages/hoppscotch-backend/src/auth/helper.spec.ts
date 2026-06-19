@@ -68,7 +68,7 @@ describe('normalizeWhitelistedOrigins', () => {
     ).toEqual(['https://app.hoppscotch.io']);
   });
 
-  it('keeps non-special schemes verbatim (URL#origin is "null")', () => {
+  it('keeps non-special schemes with authority verbatim (URL#origin is "null")', () => {
     // `new URL("app://hoppscotch").origin === "null"` per WHATWG. The exact
     // string is preserved so the exact-match branch in isAllowedRedirect
     // can still pin desktop auth.
@@ -77,11 +77,24 @@ describe('normalizeWhitelistedOrigins', () => {
     ]);
   });
 
-  it('keeps malformed entries verbatim (operator misconfiguration is loud, not silent)', () => {
-    expect(normalizeWhitelistedOrigins('not a url,http://localhost:3170')).toEqual([
-      'not a url',
-      'http://localhost:3170',
-    ]);
+  it('drops malformed and pseudo-URL entries (operator config cannot smuggle them into the whitelist)', () => {
+    // Protocol-relative / relative paths / scheme-less authority — all parse
+    // failures or shapes that must NOT exact-match a forged redirect.
+    expect(normalizeWhitelistedOrigins('//app.example')).toEqual([]);
+    expect(normalizeWhitelistedOrigins('/relative')).toEqual([]);
+    expect(normalizeWhitelistedOrigins('not a url')).toEqual([]);
+    expect(normalizeWhitelistedOrigins('localhost:3000')).toEqual([]);
+    // Non-special schemes without an authority (`javascript:`, `data:`, etc.)
+    // must be dropped even though they parse successfully — exact-string
+    // matching them in a forged redirect would be catastrophic.
+    expect(normalizeWhitelistedOrigins('javascript:alert(1)')).toEqual([]);
+    expect(normalizeWhitelistedOrigins('data:text/plain;base64,Zm9v')).toEqual(
+      [],
+    );
+    // Valid entries alongside malformed ones still come through.
+    expect(
+      normalizeWhitelistedOrigins('not a url,http://localhost:3170'),
+    ).toEqual(['http://localhost:3170']);
   });
 });
 
@@ -225,6 +238,38 @@ describe('authCookieHandler', () => {
     );
 
     expect(res.cookie).not.toHaveBeenCalled();
+    expect(res.redirect).toHaveBeenCalledWith('http://localhost:3000');
+  });
+
+  it('M1 regression — DOES set cookies when redirectUrl is null (regular web SSO without device-login context)', () => {
+    const res = makeRes();
+    const config = makeConfig();
+
+    authCookieHandler(
+      res as unknown as Response,
+      tokens,
+      true,
+      null,
+      config,
+    );
+
+    expect(res.cookie).toHaveBeenCalledTimes(2);
+    expect(res.redirect).toHaveBeenCalledWith('http://localhost:3000');
+  });
+
+  it('M1 regression — DOES set cookies when redirectUrl is empty string', () => {
+    const res = makeRes();
+    const config = makeConfig();
+
+    authCookieHandler(
+      res as unknown as Response,
+      tokens,
+      true,
+      '',
+      config,
+    );
+
+    expect(res.cookie).toHaveBeenCalledTimes(2);
     expect(res.redirect).toHaveBeenCalledWith('http://localhost:3000');
   });
 

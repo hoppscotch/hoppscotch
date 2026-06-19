@@ -74,15 +74,27 @@ export const authCookieHandler = (
     return res.status(HttpStatus.OK).send();
   }
 
+  const fallback = configService.get('VITE_BASE_URL');
+
+  // When no redirect target is provided (regular web SSO from the landing
+  // page), set the session and bounce to the fallback. The validate-before-
+  // cookie defense only applies when an attacker-influenced value reaches
+  // the handler; `null`/`undefined`/empty mean the caller didn't request a
+  // specific landing, so there's no value to validate.
+  if (!redirectUrl) {
+    setAuthCookies();
+    return res.status(HttpStatus.OK).redirect(fallback);
+  }
+
   const whitelistedOrigins = normalizeWhitelistedOrigins(
     configService.get('WHITELISTED_ORIGINS'),
   );
 
-  // Validate redirect target BEFORE issuing session cookies. If the target is
-  // not on a whitelisted origin, refuse the session (defense-in-depth against
-  // forged OAuth state) and bounce the user to VITE_BASE_URL.
+  // Validate present-but-non-trivial redirect target BEFORE issuing session
+  // cookies. If the target is not on a whitelisted origin, refuse the session
+  // (defense-in-depth against forged OAuth state) and bounce to VITE_BASE_URL.
   if (!isAllowedRedirect(redirectUrl, whitelistedOrigins)) {
-    return res.status(HttpStatus.OK).redirect(configService.get('VITE_BASE_URL'));
+    return res.status(HttpStatus.OK).redirect(fallback);
   }
 
   setAuthCookies();
@@ -103,8 +115,12 @@ const DEVICE_LOGIN_PATH = '/device-login';
  * - `http://localhost:80` → `http://localhost` (default port stripped)
  * - `https://app.hoppscotch.io/` → `https://app.hoppscotch.io` (trailing slash off)
  * - Mixed-case scheme/host → lowercased
- * - Non-special schemes (e.g. `app://hoppscotch`, whose `URL#origin` is `"null"`)
- *   are kept verbatim so the exact-match branch can still pin them.
+ * - Non-special schemes with an authority (e.g. `app://hoppscotch`, whose
+ *   `URL#origin` is `"null"`) are kept verbatim so the exact-match branch
+ *   can still pin them.
+ * - Malformed entries (`/relative`, `//host`, `localhost:3000`) and pseudo-URL
+ *   schemes without an authority (`javascript:...`, `data:...`) are dropped
+ *   so they cannot be exact-matched by a forged redirect target.
  */
 export const normalizeWhitelistedOrigins = (raw: string | undefined): string[] =>
   (raw ?? '')
@@ -112,13 +128,19 @@ export const normalizeWhitelistedOrigins = (raw: string | undefined): string[] =
     .map((entry) => entry.trim())
     .filter(Boolean)
     .map((entry) => {
+      let parsed: URL;
       try {
-        const origin = new URL(entry).origin;
-        return origin === 'null' ? entry : origin;
+        parsed = new URL(entry);
       } catch {
-        return entry;
+        return null;
       }
-    });
+      if (parsed.origin !== 'null') return parsed.origin;
+      // Non-special scheme. Preserve only if the entry has an authority
+      // component — `javascript:`/`data:`-style pseudo-URLs do not and must
+      // not be allowed into the whitelist.
+      return parsed.host ? entry : null;
+    })
+    .filter((entry): entry is string => entry !== null);
 
 /**
  * A redirect target is allowed when either:

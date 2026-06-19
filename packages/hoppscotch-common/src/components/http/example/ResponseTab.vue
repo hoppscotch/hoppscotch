@@ -18,11 +18,10 @@
 <script setup lang="ts">
 import { watch, ref } from "vue"
 import { useVModel } from "@vueuse/core"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep, isEqual } from "lodash-es"
 import { HoppTab } from "~/services/tab"
 import { HoppSavedExampleDocument } from "~/helpers/rest/document"
 import { RESTOptionTabs } from "../RequestOptions.vue"
-import { isEqual } from "lodash-es"
 import { useReadonlyStream } from "@composables/stream"
 import {
   aggregateEnvsWithCurrentValue$,

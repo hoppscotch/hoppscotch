@@ -281,8 +281,8 @@ import {
 import { isDragDropAllowed, DragDropEvent } from "~/helpers/dragDropValidation"
 import {
   AggregateEnvironment,
-  aggregateEnvs$,
-  getAggregateEnvs,
+  aggregateEnvsWithCurrentValue$,
+  getAggregateEnvsWithCurrentValue,
   getCurrentEnvironment,
 } from "~/newstore/environments"
 import { toggleNestedSetting } from "~/newstore/settings"
@@ -553,7 +553,7 @@ const clearContent = () => {
   bulkHeaders.value = ""
 }
 
-const aggregateEnvs = useReadonlyStream(aggregateEnvs$, getAggregateEnvs())
+const aggregateEnvs = useReadonlyStream(aggregateEnvsWithCurrentValue$, getAggregateEnvsWithCurrentValue())
 
 const computedHeaders: Ref<
   {
@@ -599,7 +599,7 @@ watch([() => props.modelValue, resolvedEnvs], async () => {
     id: `header-${index}`,
     ...header,
   }))
-}, { immediate: true })
+}, { immediate: true, deep: true })
 
 watch(
   () => [props.inheritedProperties, request.value, resolvedEnvs.value],

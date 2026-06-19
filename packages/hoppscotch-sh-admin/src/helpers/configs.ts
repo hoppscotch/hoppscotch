@@ -349,6 +349,12 @@ export const PROXY_URL_REGEX = /^(http|https):\/\/[^ "]+$/;
 export const isValidProxyUrl = (value: string): boolean =>
   PROXY_URL_REGEX.test(value);
 
+// Mirrors the backend cookie-name validation.
+export const SESSION_COOKIE_NAME_REGEX = /^[A-Za-z0-9_-]+$/;
+
+export const isValidSessionCookieName = (value: string): boolean =>
+  SESSION_COOKIE_NAME_REGEX.test(value);
+
 export const ALL_CONFIGS = [
   GOOGLE_CONFIGS,
   MICROSOFT_CONFIGS,
@@ -390,21 +396,14 @@ export const isNotValidNumber = (field: string | boolean | number): boolean => {
   return !Number.isInteger(num) || num < 1;
 };
 
-/* ------------------------------------------------------------------ *
- * Config validation — single source of truth
- *
- * `getConfigValidationIssues` decides whether a field is problematic;
- * the save guard, tab dots, field borders, and blocked-save console
- * all derive from it.
- *
- * Add a FIELD: nothing here — the section loops iterate
- * `section.fields` generically. Just render it and wire
- * `isConfigFieldErrored` (from `useConfigValidation()`).
- *
- * Add a SECTION/tab: push issues from a new block below, extend
- * `ConfigSectionId` / `ConfigTab`, and add a `:indicator` in
- * settings.vue. Guards + toasts follow automatically.
- * ------------------------------------------------------------------ */
+// Single source of truth for config validation. getConfigValidationIssues
+// drives the save guard, tab dots, field borders, and blocked-save console.
+//
+// Adding a field: nothing here — the section loops iterate fields generically.
+// Render it and wire isConfigFieldErrored from useConfigValidation().
+//
+// Adding a section/tab: push issues from a new block below, extend
+// ConfigSectionId / ConfigTab, and add a :indicator in settings.vue.
 
 export type ConfigTab = 'auth' | 'smtp' | 'proxy' | 'rate-limit';
 export type ConfigSubTab = 'auth-providers' | 'token';
@@ -590,7 +589,8 @@ export const getConfigValidationIssues = (
   //     so a numeric-looking secret like "0" or "1.5" stays valid;
   //   - the numeric fields (salt complexity, token validities) must be positive
   //     integers (>= 1) to match the backend.
-  // `session_cookie_name` is opt-in (OPTIONAL_TOKEN_FIELD_KEYS) and skipped.
+  // `session_cookie_name` is opt-in (OPTIONAL_TOKEN_FIELD_KEYS) and skipped
+  // here; its format check is below.
   Object.entries(config.tokenConfigs.fields).forEach(([fieldKey, value]) => {
     if (OPTIONAL_TOKEN_FIELD_KEYS.has(fieldKey)) return;
     const invalid = TOKEN_SECRET_FIELD_KEYS.has(fieldKey)
@@ -607,6 +607,23 @@ export const getConfigValidationIssues = (
       });
     }
   });
+
+  // Empty falls back to the backend default; only flag malformed non-empty.
+  const sessionCookieName =
+    config.tokenConfigs.fields.session_cookie_name ?? '';
+  if (
+    !isFieldEmpty(sessionCookieName) &&
+    !isValidSessionCookieName(sessionCookieName)
+  ) {
+    issues.push({
+      tab: 'auth',
+      subTab: 'token',
+      section: 'token',
+      fieldKey: 'session_cookie_name',
+      envVar: lookupEnvVar(TOKEN_VALIDATION_CONFIGS, 'session_cookie_name'),
+      kind: 'invalid-format',
+    });
+  }
 
   // Rate limit → rate-limit
   // Both fields are unconditionally required numerics — no enable toggle.

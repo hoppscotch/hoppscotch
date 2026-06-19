@@ -32,12 +32,11 @@ import {
   getConfigValidationIssues,
   hasGuardIssue,
   isFieldEmpty,
+  isValidSessionCookieName,
 } from '~/helpers/configs';
 import { getCompiledErrorMessage } from '~/helpers/errors';
 import { useToast } from './toast';
 import { useClientHandler } from './useClientHandler';
-
-const COOKIE_NAME_REGEX = /^[A-Za-z0-9_-]+$/;
 
 /** Composable that handles all operations related to server configurations
  * @param updatedConfigs A Config Object containing the updated configs
@@ -520,8 +519,10 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     const sessionCookieName = String(
       updatedConfigs?.tokenConfigs.fields.session_cookie_name || ''
     );
-    // Validate cookie name: allow empty (falls back to default), else enforce pattern
-    if (sessionCookieName && !COOKIE_NAME_REGEX.test(sessionCookieName)) {
+    // Save-time guard surfaces the field-specific toast; the proactive tab
+    // dot and red border are driven by getConfigValidationIssues via the
+    // same helper.
+    if (sessionCookieName && !isValidSessionCookieName(sessionCookieName)) {
       toast.error(t('configs.auth_providers.token.session_cookie_name_invalid'));
       return false;
     }

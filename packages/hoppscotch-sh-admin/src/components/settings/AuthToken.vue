@@ -169,6 +169,10 @@
                   placeholder="e.g., connect_sid"
                   :autofocus="false"
                   class="!my-2 !bg-primaryLight flex-1 border border-divider rounded"
+                  :class="{
+                    '!border-red-500':
+                      isConfigFieldErrored('token', 'session_cookie_name'),
+                  }"
                 />
                 <p class="my-1 text-secondaryLight">
                   {{ t('configs.auth_providers.token.session_cookie_name_help') }}

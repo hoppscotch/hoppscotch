@@ -64,8 +64,15 @@ export class MockServerService {
     const isSecure =
       this.configService.get<string>('INFRA.ALLOW_SECURE_COOKIES') === 'true';
     const protocol = isSecure ? 'https://' : 'http://';
+    const subpathSuffix =
+      this.configService.get<string>('ENABLE_SUBPATH_BASED_ACCESS') === 'true'
+        ? '/backend'
+        : '';
     const serverUrlDomainBased = wildcardDomain
-      ? protocol + dbMockServer.subdomain + wildcardDomain.substring(1)
+      ? protocol +
+        dbMockServer.subdomain +
+        wildcardDomain.substring(1) +
+        subpathSuffix
       : null;
 
     return {

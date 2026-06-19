@@ -151,6 +151,102 @@ describe('MockServerService', () => {
     });
   });
 
+  describe('cast - server URL generation', () => {
+    test('should not append /backend to serverUrlDomainBased when ENABLE_SUBPATH_BASED_ACCESS is not set', async () => {
+      mockPrisma.mockServer.findMany.mockResolvedValue([dbMockServer]);
+
+      const result = await mockServerService.getUserMockServers(user.uid, {
+        take: 10,
+        skip: 0,
+      });
+
+      expect(result[0].serverUrlDomainBased).toBe(
+        'http://test-subdomain.mock.hopp.io',
+      );
+    });
+
+    test('should not append /backend to serverUrlDomainBased when ENABLE_SUBPATH_BASED_ACCESS is "false"', async () => {
+      mockConfigService.get.mockImplementation((key: string) => {
+        if (key === 'VITE_BACKEND_API_URL') return 'http://localhost:3170/v1';
+        if (key === 'INFRA.MOCK_SERVER_WILDCARD_DOMAIN')
+          return '*.mock.hopp.io';
+        if (key === 'INFRA.ALLOW_SECURE_COOKIES') return 'false';
+        if (key === 'ENABLE_SUBPATH_BASED_ACCESS') return 'false';
+        return undefined;
+      });
+      mockPrisma.mockServer.findMany.mockResolvedValue([dbMockServer]);
+
+      const result = await mockServerService.getUserMockServers(user.uid, {
+        take: 10,
+        skip: 0,
+      });
+
+      expect(result[0].serverUrlDomainBased).toBe(
+        'http://test-subdomain.mock.hopp.io',
+      );
+    });
+
+    test('should append /backend to serverUrlDomainBased when ENABLE_SUBPATH_BASED_ACCESS is "true"', async () => {
+      mockConfigService.get.mockImplementation((key: string) => {
+        if (key === 'VITE_BACKEND_API_URL') return 'http://localhost:3170/v1';
+        if (key === 'INFRA.MOCK_SERVER_WILDCARD_DOMAIN')
+          return '*.mock.hopp.io';
+        if (key === 'INFRA.ALLOW_SECURE_COOKIES') return 'false';
+        if (key === 'ENABLE_SUBPATH_BASED_ACCESS') return 'true';
+        return undefined;
+      });
+      mockPrisma.mockServer.findMany.mockResolvedValue([dbMockServer]);
+
+      const result = await mockServerService.getUserMockServers(user.uid, {
+        take: 10,
+        skip: 0,
+      });
+
+      expect(result[0].serverUrlDomainBased).toBe(
+        'http://test-subdomain.mock.hopp.io/backend',
+      );
+    });
+
+    test('should use https protocol and append /backend when secure cookies and subpath access are enabled', async () => {
+      mockConfigService.get.mockImplementation((key: string) => {
+        if (key === 'VITE_BACKEND_API_URL') return 'https://localhost:3170/v1';
+        if (key === 'INFRA.MOCK_SERVER_WILDCARD_DOMAIN')
+          return '*.mock.hopp.io';
+        if (key === 'INFRA.ALLOW_SECURE_COOKIES') return 'true';
+        if (key === 'ENABLE_SUBPATH_BASED_ACCESS') return 'true';
+        return undefined;
+      });
+      mockPrisma.mockServer.findMany.mockResolvedValue([dbMockServer]);
+
+      const result = await mockServerService.getUserMockServers(user.uid, {
+        take: 10,
+        skip: 0,
+      });
+
+      expect(result[0].serverUrlDomainBased).toBe(
+        'https://test-subdomain.mock.hopp.io/backend',
+      );
+    });
+
+    test('should leave serverUrlDomainBased null and not append /backend when wildcard domain is not configured', async () => {
+      mockConfigService.get.mockImplementation((key: string) => {
+        if (key === 'VITE_BACKEND_API_URL') return 'http://localhost:3170/v1';
+        if (key === 'INFRA.MOCK_SERVER_WILDCARD_DOMAIN') return undefined;
+        if (key === 'INFRA.ALLOW_SECURE_COOKIES') return 'false';
+        if (key === 'ENABLE_SUBPATH_BASED_ACCESS') return 'true';
+        return undefined;
+      });
+      mockPrisma.mockServer.findMany.mockResolvedValue([dbMockServer]);
+
+      const result = await mockServerService.getUserMockServers(user.uid, {
+        take: 10,
+        skip: 0,
+      });
+
+      expect(result[0].serverUrlDomainBased).toBeNull();
+    });
+  });
+
   describe('getTeamMockServers', () => {
     test('should return team mock servers with pagination', async () => {
       const teamMockServer = {

@@ -133,6 +133,7 @@ import { ref, onMounted, onUnmounted } from "vue"
 import { LazyStore } from "@tauri-apps/plugin-store"
 import { load, close } from "@hoppscotch/plugin-appload"
 import { getVersion } from "@tauri-apps/api/app"
+import { useDesktopSettings } from "@hoppscotch/common/composables/desktop-settings"
 
 import { UpdateStatus, CheckResult, UpdateState } from "~/types"
 import { UpdaterService } from "~/utils/updater"
@@ -182,6 +183,13 @@ const statusMessage = ref("Initializing...")
 const appVersion = ref("...")
 
 const updaterService = new UpdaterService(appStore)
+
+// Shared singleton with the launcher's `useDesktopZoomEffect()` watcher.
+// The `load()` call below awaits `desktopSettings.ready()` before
+// reading `zoomLevel` so the appload Rust-side pre-mount apply gets
+// the persisted value rather than the schema default on a fast
+// cold-start click.
+const desktopSettings = useDesktopSettings()
 
 let progressPollingInterval: ReturnType<typeof setInterval> | undefined
 
@@ -299,7 +307,7 @@ const loadVendored = async () => {
     const vendoredInstance: VendoredInstance = {
       type: "vendored",
       displayName: "Hoppscotch",
-      version: "26.4.1",
+      version: "26.5.0",
     }
 
     const connectionState: ConnectionState = {
@@ -331,9 +339,16 @@ const loadVendored = async () => {
     }
 
     console.log("Loading vendored app...")
+    // Wait for the store read before forwarding `zoomLevel`, so the
+    // appload Rust-side pre-mount apply gets the persisted value
+    // rather than the schema default on a fast cold-start click.
+    await desktopSettings.ready()
     const loadResp = await load({
       bundleName: "Hoppscotch",
-      window: { title: "Hoppscotch" },
+      window: {
+        title: "Hoppscotch",
+        zoomLevel: desktopSettings.settings.zoomLevel,
+      },
     })
 
     if (!loadResp.success) {

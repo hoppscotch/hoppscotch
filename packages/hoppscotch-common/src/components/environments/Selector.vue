@@ -691,10 +691,13 @@ onMounted(() => {
 const envSelectorActions = ref<TippyComponent | null>(null)
 const envQuickPeekActions = ref<TippyComponent | null>(null)
 
-const globalVals = useReadonlyStream(globalEnv$, {} as GlobalEnvironment)
+const globalVals = useReadonlyStream(globalEnv$, {
+  v: 2,
+  variables: [],
+} as GlobalEnvironment)
 
 const globalEnvs = computed(() => {
-  return globalVals.value.variables.map((variable, index) => ({
+  return (globalVals.value?.variables ?? []).map((variable, index) => ({
     ...variable,
     currentValue:
       currentEnvironmentValueService.getEnvironmentVariableValue(

@@ -470,6 +470,7 @@
       "title": "Body"
     },
     "copied_to_clipboard": "Copied to clipboard!",
+    "copy_to_clipboard": "Copy to clipboard",
     "curl": {
       "click_to_load": "Click to load cURL command",
       "copied": "cURL command copied to clipboard!",
@@ -582,6 +583,9 @@
     "untitled_collection": "Untitled Collection",
     "untitled_request": "Untitled Request",
     "value": "Value",
+    "query": {
+      "title": "Query"
+    },
     "variables": {
       "no_vars": "No variables defined",
       "title": "Variables"
@@ -820,6 +824,8 @@
     "arguments": "Arguments",
     "connection_switch_confirm": "Do you want to connect with the latest GraphQL endpoint?",
     "connection_error_http": "Failed to fetch GraphQL Schema due to network error.",
+    "connection_error_introspection_disabled": "Introspection is disabled on this server.",
+    "connection_error_invalid_json": "Introspection response was not valid JSON — the endpoint may not be a GraphQL server.",
     "connection_switch_new_url": "Switching to a tab will disconnected you from the active GraphQL connection. New connection URL is",
     "connection_switch_url": "You're connected to a GraphQL endpoint the connection URL is",
     "deprecated": "Deprecated",
@@ -830,9 +836,11 @@
     "show_depricated_values": "Show deprecated values",
     "subscription": "Subscription",
     "subscriptions": "Subscriptions",
+    "subscribing": "Connecting to subscription endpoint…",
     "switch_connection": "Switch connection",
     "url_placeholder": "Enter a GraphQL endpoint URL",
-    "query": "Query"
+    "query": "Query",
+    "waiting_for_events": "Subscribed. Waiting for events…"
   },
   "graphql_collections": {
     "title": "GraphQL Collections"
@@ -1207,6 +1215,7 @@
     "moved": "Request moved",
     "name": "Request name",
     "new": "New Request",
+    "new_gql": "New GraphQL Request",
     "order_changed": "Request Order Updated",
     "override": "Override",
     "override_help": "Set <kbd>Content-Type</kbd> in Headers",
@@ -1264,6 +1273,7 @@
     "generate_data_schema": "Generate Data Schema",
     "data_schema": "Data Schema",
     "saved": "Response saved",
+    "save_as_example": "Save as example",
     "invalid_name": "Please provide a name for the response"
   },
   "script": {
@@ -1366,6 +1376,7 @@
     "experimental_scripting_sandbox": "Experimental scripting sandbox",
     "enable_experimental_mock_servers": "Enable Mock Servers",
     "enable_experimental_documentation": "Enable Documentation",
+    "enable_gql_in_rest_workspace": "Enable Unified GraphQL workspace",
     "sync": "Synchronise",
     "sync_collections": "Collections",
     "sync_description": "These settings are synced to cloud.",
@@ -1419,6 +1430,7 @@
     "proxy_auth": "You can also include username and password in the URL."
   },
   "shared_requests": {
+    "auth_warning": "This request contains authentication credentials. Anyone with the share link will be able to read them — including tokens, passwords, and API keys.",
     "button": "Button",
     "button_info": "Create a 'Run in Hoppscotch' button for your website, blog or a README.",
     "copy_html": "Copy HTML",

@@ -3,15 +3,13 @@ import {
   InspectionService,
   Inspector,
   InspectorLocation,
+  InspectorRequest,
   InspectorResult,
 } from ".."
+import { isGQLRequest } from "~/helpers/request-type"
 import { Service } from "dioc"
 import { Ref, markRaw, computed } from "vue"
 import IconPlusCircle from "~icons/lucide/plus-circle"
-import {
-  HoppRESTRequest,
-  HoppRESTResponseOriginalRequest,
-} from "@hoppscotch/data"
 import {
   AggregateEnvironment,
   aggregateEnvsWithCurrentValue$,
@@ -21,7 +19,7 @@ import {
 import { invokeAction } from "~/helpers/actions"
 import { useStreamStatic } from "~/composables/stream"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
 import { HOPP_ENVIRONMENT_REGEX } from "~/helpers/environment-regex"
@@ -45,7 +43,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
   private readonly inspection = this.bind(InspectionService)
   private readonly secretEnvs = this.bind(SecretEnvironmentService)
   private readonly currentEnvs = this.bind(CurrentValueService)
-  private readonly restTabs = this.bind(RESTTabService)
+  private readonly restTabs = this.bind(WorkspaceTabsService)
 
   private aggregateEnvsWithValue = useStreamStatic(
     aggregateEnvsWithCurrentValue$,
@@ -73,24 +71,27 @@ export class EnvironmentInspectorService extends Service implements Inspector {
     const newErrors: InspectorResult[] = []
     const currentTab = this.restTabs.currentActiveTab.value
 
-    // Get the current request or example-response request
+    const doc = currentTab.document
+
+    // Get the current request (REST, example-response, or GQL)
     const currentTabRequest =
-      currentTab.document.type === "request"
-        ? currentTab.document.request
-        : currentTab.document.type === "example-response"
-          ? currentTab.document.response.originalRequest
+      doc.type === "request"
+        ? doc.request
+        : doc.type === "example-response"
+          ? doc.response.originalRequest
           : null
 
-    // inherited collection-level variables
+    // inherited collection-level variables (REST, example-response, and GQL tabs)
     const collectionVariables =
-      currentTab.document.type === "request" ||
-      currentTab.document.type === "example-response"
+      doc.type === "request" ||
+      doc.type === "example-response" ||
+      doc.type === "gql-request"
         ? transformInheritedCollectionVariablesToAggregateEnv(
-            currentTab.document.inheritedProperties?.variables ?? []
+            doc.inheritedProperties?.variables ?? []
           )
         : []
 
-    // request variables (active only)
+    // request variables (active only) — only REST/example-response tabs have these
     const requestVariables =
       currentTabRequest?.requestVariables
         .filter((v) => v.active)
@@ -208,16 +209,17 @@ export class EnvironmentInspectorService extends Service implements Inspector {
         const formattedExEnv = exEnv.slice(2, -2)
         const currentSelectedEnvironment = getCurrentEnvironment()
         const currentTab = this.restTabs.currentActiveTab.value
+        const doc = currentTab.document
 
-        // Get current request or example
+        // Get current request (REST or example-response; GQL tabs don't have requestVariables)
         const currentTabRequest =
-          currentTab.document.type === "request"
-            ? currentTab.document.request
-            : currentTab.document.type === "example-response"
-              ? currentTab.document.response.originalRequest
+          doc.type === "request"
+            ? doc.request
+            : doc.type === "example-response"
+              ? doc.response.originalRequest
               : null
 
-        // request variables (active only)
+        // request variables (active only) — only REST/example-response tabs have these
         const requestVariables =
           currentTabRequest?.requestVariables
             .filter((v) => v.active)
@@ -229,12 +231,13 @@ export class EnvironmentInspectorService extends Service implements Inspector {
               secret: false,
             })) ?? []
 
-        // inherited collection variables
+        // inherited collection variables (REST, example-response, and GQL tabs)
         const collectionVariables =
-          currentTab.document.type === "request" ||
-          currentTab.document.type === "example-response"
+          doc.type === "request" ||
+          doc.type === "example-response" ||
+          doc.type === "gql-request"
             ? transformInheritedCollectionVariablesToAggregateEnv(
-                currentTab.document.inheritedProperties?.variables ?? [],
+                doc.inheritedProperties?.variables ?? [],
                 false
               )
             : []
@@ -347,68 +350,102 @@ export class EnvironmentInspectorService extends Service implements Inspector {
   }
 
   /**
-   * Runs all inspections for a given request and returns a computed list of results.
+   * Runs all environment-variable inspections for a request.
+   * Handles both REST (endpoint/headers/params) and GQL (url/headers) tabs.
    */
-  getInspections(
-    req: Readonly<Ref<HoppRESTRequest | HoppRESTResponseOriginalRequest>>
-  ) {
+  getInspections(req: Readonly<Ref<InspectorRequest>>) {
     return computed(() => {
       const results: InspectorResult[] = []
       if (!req.value) return results
 
-      const { endpoint, headers, params } = req.value
+      if (isGQLRequest(req.value)) {
+        // GQL: url + active headers only (no params)
+        const { url, headers } = req.value
 
-      // URL check
-      results.push(
-        ...this.validateEnvironmentVariables([endpoint], { type: "url" }),
-        ...this.validateEmptyEnvironmentVariables([endpoint], { type: "url" })
-      )
+        results.push(
+          ...this.validateEnvironmentVariables([url], { type: "url" }),
+          ...this.validateEmptyEnvironmentVariables([url], { type: "url" })
+        )
 
-      // Header keys and values
-      const headerKeys = Object.values(headers).map((h) => h.key)
-      const headerValues = Object.values(headers).map((h) => h.value)
+        const activeHeaders = headers.filter((h) => h.active)
+        const headerKeys = activeHeaders.map((h) => h.key)
+        const headerValues = activeHeaders.map((h) => h.value)
 
-      results.push(
-        ...this.validateEnvironmentVariables(headerKeys, {
-          type: "header",
-          position: "key",
-        }),
-        ...this.validateEmptyEnvironmentVariables(headerKeys, {
-          type: "header",
-          position: "key",
-        }),
-        ...this.validateEnvironmentVariables(headerValues, {
-          type: "header",
-          position: "value",
-        }),
-        ...this.validateEmptyEnvironmentVariables(headerValues, {
-          type: "header",
-          position: "value",
-        })
-      )
+        results.push(
+          ...this.validateEnvironmentVariables(headerKeys, {
+            type: "header",
+            position: "key",
+          }),
+          ...this.validateEmptyEnvironmentVariables(headerKeys, {
+            type: "header",
+            position: "key",
+          }),
+          ...this.validateEnvironmentVariables(headerValues, {
+            type: "header",
+            position: "value",
+          }),
+          ...this.validateEmptyEnvironmentVariables(headerValues, {
+            type: "header",
+            position: "value",
+          })
+        )
+      } else {
+        // REST: endpoint + headers + params
+        const { endpoint, headers, params } = req.value as {
+          endpoint: string
+          headers: { key: string; value: string }[]
+          params: { key: string; value: string }[]
+        }
 
-      // Parameter keys and values
-      const paramKeys = Object.values(params).map((p) => p.key)
-      const paramValues = Object.values(params).map((p) => p.value)
+        results.push(
+          ...this.validateEnvironmentVariables([endpoint], { type: "url" }),
+          ...this.validateEmptyEnvironmentVariables([endpoint], { type: "url" })
+        )
 
-      results.push(
-        ...this.validateEnvironmentVariables(paramKeys, {
-          type: "parameter",
-          position: "key",
-        }),
-        ...this.validateEmptyEnvironmentVariables(paramKeys, {
-          type: "parameter",
-          position: "key",
-        }),
-        ...this.validateEnvironmentVariables(paramValues, {
-          type: "parameter",
-          position: "value",
-        }),
-        ...this.validateEmptyEnvironmentVariables(paramValues, {
-          type: "parameter",
-          position: "value",
-        })
-      )
+        const headerKeys = Object.values(headers).map((h) => h.key)
+        const headerValues = Object.values(headers).map((h) => h.value)
+
+        results.push(
+          ...this.validateEnvironmentVariables(headerKeys, {
+            type: "header",
+            position: "key",
+          }),
+          ...this.validateEmptyEnvironmentVariables(headerKeys, {
+            type: "header",
+            position: "key",
+          }),
+          ...this.validateEnvironmentVariables(headerValues, {
+            type: "header",
+            position: "value",
+          }),
+          ...this.validateEmptyEnvironmentVariables(headerValues, {
+            type: "header",
+            position: "value",
+          })
+        )
+
+        const paramKeys = Object.values(params).map((p) => p.key)
+        const paramValues = Object.values(params).map((p) => p.value)
+
+        results.push(
+          ...this.validateEnvironmentVariables(paramKeys, {
+            type: "parameter",
+            position: "key",
+          }),
+          ...this.validateEmptyEnvironmentVariables(paramKeys, {
+            type: "parameter",
+            position: "key",
+          }),
+          ...this.validateEnvironmentVariables(paramValues, {
+            type: "parameter",
+            position: "value",
+          }),
+          ...this.validateEmptyEnvironmentVariables(paramValues, {
+            type: "parameter",
+            position: "value",
+          })
+        )
+      }
 
       return results
     })

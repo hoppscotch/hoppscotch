@@ -28,7 +28,7 @@ import { WorkspaceService } from "~/services/workspace.service"
 const t = useI18n()
 
 const props = defineProps<{
-  page: "rest" | "graphql"
+  page: "rest" | "graphql" | "unified-workspace"
   selectedTab: string
 }>()
 

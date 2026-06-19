@@ -3,6 +3,7 @@ import {
   GQLHeader,
   HoppGQLAuth,
   HoppGQLRequest,
+  HoppGQLRequestResponse,
   HoppRESTAuth,
   HoppRESTRequest,
   HoppRESTHeaders,
@@ -86,6 +87,7 @@ const SettingsDefSchema = z.object({
   EXPERIMENTAL_SCRIPTING_SANDBOX: z.optional(z.boolean()),
   ENABLE_EXPERIMENTAL_MOCK_SERVERS: z.optional(z.boolean()),
   ENABLE_EXPERIMENTAL_DOCUMENTATION: z.optional(z.boolean()),
+  ENABLE_GQL_IN_REST_WORKSPACE: z.optional(z.boolean()),
 })
 
 const HoppRESTRequestSchema = entityReference(HoppRESTRequest)
@@ -563,7 +565,7 @@ const validRestOperations = [
   "requestVariables",
 ] as const
 
-export const REST_TAB_STATE_SCHEMA = z
+export const WORKSPACE_TABS_STATE_SCHEMA = z
   .object({
     lastActiveTabID: z.string(),
     orderedDocs: z.array(
@@ -592,7 +594,12 @@ export const REST_TAB_STATE_SCHEMA = z
               failedTests: z.number(),
               totalTime: z.number(),
             }),
-            request: z.nullable(entityReference(HoppRESTRequest)),
+            request: z.nullable(
+              z.union([
+                entityReference(HoppRESTRequest),
+                entityReference(HoppGQLRequest),
+              ])
+            ),
             response: z.nullable(HoppRESTResponseSchema),
             testResults: z.optional(z.nullable(HoppTestResultSchema)),
             isDirty: z.boolean(),
@@ -614,6 +621,28 @@ export const REST_TAB_STATE_SCHEMA = z
           z.object({
             type: z.literal("example-response").catch("example-response"),
             response: entityReference(HoppRESTRequestResponse),
+            saveContext: z.optional(HoppRESTSaveContextSchema),
+            isDirty: z.boolean(),
+            inheritedProperties: z.optional(HoppInheritedPropertySchema),
+          }),
+          z.object({
+            type: z.literal("gql-request").catch("gql-request"),
+            request: entityReference(HoppGQLRequest),
+            isDirty: z.boolean(),
+            cursorPosition: z.optional(z.number()),
+            saveContext: z.optional(HoppRESTSaveContextSchema),
+            response: z.optional(z.nullable(z.array(z.any()))),
+            responseTabPreference: z.optional(z.string()),
+            optionTabPreference: z.optional(
+              z.enum(["query", "headers", "variables", "authorization"])
+            ),
+            inheritedProperties: z.optional(HoppInheritedPropertySchema),
+          }),
+          z.object({
+            type: z
+              .literal("gql-example-response")
+              .catch("gql-example-response"),
+            response: z.nullable(entityReference(HoppGQLRequestResponse)),
             saveContext: z.optional(HoppRESTSaveContextSchema),
             isDirty: z.boolean(),
             inheritedProperties: z.optional(HoppInheritedPropertySchema),

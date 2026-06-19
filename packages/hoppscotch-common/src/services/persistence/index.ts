@@ -9,8 +9,7 @@ import { assign, clone, isEmpty, cloneDeep } from "lodash-es"
 
 import {
   GlobalEnvironmentVariable,
-  translateToNewGQLCollection,
-  translateToNewRESTCollection,
+  translateToNewCollection,
 } from "@hoppscotch/data"
 
 import { StoreError } from "@hoppscotch/kernel"
@@ -18,7 +17,7 @@ import { StoreError } from "@hoppscotch/kernel"
 import { Store } from "~/kernel/store"
 import { diag } from "~/kernel/log"
 import { GQLTabService } from "~/services/tab/graphql"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import {
   SecretEnvironmentService,
   SecretVariable,
@@ -82,7 +81,7 @@ import {
   NUXT_COLOR_MODE_SCHEMA,
   REST_COLLECTION_SCHEMA,
   REST_HISTORY_ENTRY_SCHEMA,
-  REST_TAB_STATE_SCHEMA,
+  WORKSPACE_TABS_STATE_SCHEMA,
   SECRET_ENVIRONMENT_VARIABLE_SCHEMA,
   SELECTED_ENV_INDEX_SCHEMA,
   SETTINGS_SCHEMA,
@@ -257,7 +256,7 @@ export class PersistenceService extends Service {
   // TODO: Consider swapping this with platform dependent `StoreLike` impl
   public hoppLocalConfigStorage: StorageLike = localStorage
 
-  private readonly restTabService = this.bind(RESTTabService)
+  private readonly restTabService = this.bind(WorkspaceTabsService)
   private readonly gqlTabService = this.bind(GQLTabService)
   private readonly secretEnvironmentService = this.bind(
     SecretEnvironmentService
@@ -613,7 +612,7 @@ export class PersistenceService extends Service {
         const result = z.array(REST_COLLECTION_SCHEMA).safeParse(data)
 
         if (result.success) {
-          const translatedData = result.data.map(translateToNewRESTCollection)
+          const translatedData = result.data.map(translateToNewCollection)
           diag(
             "persistence",
             "REST collections translated, count:",
@@ -656,7 +655,7 @@ export class PersistenceService extends Service {
         const result = z.array(GQL_COLLECTION_SCHEMA).safeParse(data)
 
         if (result.success) {
-          const translatedData = result.data.map(translateToNewGQLCollection)
+          const translatedData = result.data.map(translateToNewCollection)
           setGraphqlCollections(translatedData)
         } else {
           this.showErrorToast(STORE_KEYS.GQL_COLLECTIONS)
@@ -1080,7 +1079,7 @@ export class PersistenceService extends Service {
           ...loadResult.right,
           orderedDocs,
         }
-        const result = REST_TAB_STATE_SCHEMA.safeParse(transformedTabs)
+        const result = WORKSPACE_TABS_STATE_SCHEMA.safeParse(transformedTabs)
         if (result.success) {
           // SAFETY: We know the schema matches
           this.restTabService.loadTabsFromPersistedState(

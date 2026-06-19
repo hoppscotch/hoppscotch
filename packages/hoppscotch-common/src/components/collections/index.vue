@@ -42,6 +42,7 @@
       "
       @add-folder="addFolder"
       @add-request="addRequest"
+      @add-gql-request="addGqlRequest"
       @edit-request="editRequest"
       @edit-collection="editCollection"
       @edit-folder="editFolder"
@@ -94,6 +95,7 @@
       :collection-move-loading="collectionMoveLoading"
       :request-move-loading="requestMoveLoading"
       @add-request="addRequest"
+      @add-gql-request="addGqlRequest"
       @add-folder="addFolder"
       @collection-click="handleCollectionClick"
       @duplicate-collection="duplicateCollection"
@@ -304,13 +306,18 @@ import {
   generateUniqueRefId,
   getDefaultRESTRequest,
   HoppCollection,
+  HoppGQLRequest,
+  HoppGQLRequestResponse,
   HoppRESTAuth,
   HoppRESTHeaders,
   HoppRESTRequest,
   HoppRESTRequestResponse,
+  isGQLRequest,
   makeCollection,
+  makeHoppGQLResponseOriginalRequest,
   makeHoppRESTResponseOriginalRequest,
 } from "@hoppscotch/data"
+import { getDefaultGQLRequest } from "~/helpers/graphql/default"
 import { useService } from "dioc/vue"
 import { stripJsonSerializedModulePrefix } from "@hoppscotch/js-sandbox/scripting"
 
@@ -327,7 +334,7 @@ import { PropType, computed, nextTick, onMounted, ref, watch } from "vue"
 import { useReadonlyStream } from "~/composables/stream"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { GQLError, runMutation } from "~/helpers/backend/GQLClient"
-import { UpdateRequestDocument } from "~/helpers/backend/graphql"
+import { ReqType, UpdateRequestDocument } from "~/helpers/backend/graphql"
 import {
   CollectionDataProps,
   getTeamCollectionObject,
@@ -366,6 +373,7 @@ import { stripRefIdReplacer } from "~/helpers/import-export/export"
 import { hoppCollectionToOpenAPI } from "~/helpers/import-export/export/openapi"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import { TeamSearchService } from "~/helpers/teams/TeamsSearch.service"
+import { HoppTabDocument } from "~/helpers/rest/document"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { Picked } from "~/helpers/types/HoppPicked"
 import {
@@ -396,7 +404,7 @@ import { currentReorderingStatus$ } from "~/newstore/reordering"
 import { platform } from "~/platform"
 import { PersistedOAuthConfig } from "~/services/oauth/oauth.service"
 import { PersistenceService } from "~/services/persistence"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { TeamWorkspace, WorkspaceService } from "~/services/workspace.service"
 import { RESTOptionTabs } from "../http/RequestOptions.vue"
 import { Collection as NodeCollection } from "./MyCollections.vue"
@@ -417,7 +425,7 @@ import {
 
 const t = useI18n()
 const toast = useToast()
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 
 const props = defineProps({
   saveRequest: {
@@ -461,8 +469,9 @@ const editingCollectionPath = ref<string | null>(null)
 const editingFolder = ref<HoppCollection | TeamCollection | null>(null)
 const editingFolderName = ref<string | null>(null)
 const editingFolderPath = ref<string | null>(null)
+const requestTypeToAdd = ref<"rest" | "gql">("rest")
 
-const editingRequest = ref<HoppRESTRequest | null>(null)
+const editingRequest = ref<HoppRESTRequest | HoppGQLRequest | null>(null)
 const editingRequestName = ref("")
 const editingResponseName = ref("")
 const editingResponseOldName = ref("")
@@ -493,6 +502,18 @@ const currentUser = useReadonlyStream(
 )
 
 const myCollections = useReadonlyStream(restCollections$, [], "deep")
+
+const setRequestTabResponses = (
+  tabRef: { value: { document: HoppTabDocument } },
+  responses: HoppRESTRequest["responses"] | HoppGQLRequest["responses"]
+) => {
+  const doc = tabRef.value.document
+  if (doc.type === "request") {
+    doc.request.responses = responses as HoppRESTRequest["responses"]
+  } else if (doc.type === "gql-request") {
+    doc.request.responses = responses as HoppGQLRequest["responses"]
+  }
+}
 
 // Dragging
 const draggingToRoot = ref(false)
@@ -707,15 +728,16 @@ const filteredCollections = computed(() => {
 
   const isMatch = (text: string) => text.toLowerCase().includes(filterText)
 
-  const isRequestMatch = (request: HoppRESTRequest) =>
-    isMatch(request.name) || isMatch(request.endpoint)
+  const isRequestMatch = (request: HoppRESTRequest | HoppGQLRequest) =>
+    isMatch(request.name) ||
+    (!isGQLRequest(request) && isMatch(request.endpoint)) ||
+    (isGQLRequest(request) && isMatch(request.url))
 
   for (const collection of collections) {
     const filteredRequests = []
     const filteredFolders = []
     for (const request of collection.requests) {
-      if (isRequestMatch(request as HoppRESTRequest))
-        filteredRequests.push(request)
+      if (isRequestMatch(request)) filteredRequests.push(request)
     }
     for (const folder of collection.folders) {
       if (isMatch(folder.name)) filteredFolders.push(folder)
@@ -983,7 +1005,11 @@ const addNewRootCollection = async (name: string) => {
     })
 
     pipe(
-      createNewRootCollection(name, collectionsType.value.selectedTeam.teamID),
+      createNewRootCollection(
+        name,
+        collectionsType.value.selectedTeam.teamID,
+        ReqType.Rest
+      ),
       TE.match(
         (err: GQLError<string>) => {
           toast.error(`${getErrorMessage(err)}`)
@@ -1006,14 +1032,27 @@ const addRequest = (payload: {
   const { path, folder } = payload
   editingFolder.value = folder
   editingFolderPath.value = path
+  requestTypeToAdd.value = "rest"
+  displayModalAddRequest(true)
+}
+
+const addGqlRequest = (payload: {
+  path: string
+  folder: HoppCollection | TeamCollection
+}) => {
+  const { path, folder } = payload
+  editingFolder.value = folder
+  editingFolderPath.value = path
+  requestTypeToAdd.value = "gql"
   displayModalAddRequest(true)
 }
 
 const onAddRequest = async (requestName: string) => {
-  const newRequest = {
-    ...getDefaultRESTRequest(),
-    name: requestName,
-  }
+  const isGqlRequest = requestTypeToAdd.value === "gql"
+
+  const newRequest = isGqlRequest
+    ? { ...getDefaultGQLRequest(), name: requestName }
+    : { ...getDefaultRESTRequest(), name: requestName }
 
   const path = editingFolderPath.value
   if (!path) return
@@ -1023,24 +1062,40 @@ const onAddRequest = async (requestName: string) => {
 
     const insertionIndex = saveRESTRequestAs(path, newRequest)
 
-    tabs.createNewTab({
-      type: "request",
-      request: newRequest,
-      isDirty: false,
-      saveContext: {
-        originLocation: "user-collection",
-        folderPath: path,
-        requestIndex: insertionIndex,
-        requestRefID: newRequest._ref_id,
-      },
-      inheritedProperties: cascadeParentCollectionForProperties(path, "rest"),
-    })
+    if (isGqlRequest) {
+      tabs.createNewTab({
+        type: "gql-request",
+        request: newRequest as HoppGQLRequest,
+        isDirty: false,
+        cursorPosition: 0,
+        saveContext: {
+          originLocation: "user-collection",
+          folderPath: path,
+          requestIndex: insertionIndex,
+          requestRefID: (newRequest as HoppGQLRequest)._ref_id,
+        },
+        inheritedProperties: cascadeParentCollectionForProperties(path, "rest"),
+      })
+    } else {
+      tabs.createNewTab({
+        type: "request",
+        request: newRequest as HoppRESTRequest,
+        isDirty: false,
+        saveContext: {
+          originLocation: "user-collection",
+          folderPath: path,
+          requestIndex: insertionIndex,
+          requestRefID: (newRequest as HoppRESTRequest)._ref_id,
+        },
+        inheritedProperties: cascadeParentCollectionForProperties(path, "rest"),
+      })
+    }
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
       workspaceType: "personal",
       createdNow: true,
-      platform: "rest",
+      platform: isGqlRequest ? "gql" : "rest",
     })
 
     displayModalAddRequest(false)
@@ -1061,7 +1116,7 @@ const onAddRequest = async (requestName: string) => {
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
       workspaceType: "team",
-      platform: "rest",
+      platform: isGqlRequest ? "gql" : "rest",
       createdNow: true,
     })
 
@@ -1075,20 +1130,42 @@ const onAddRequest = async (requestName: string) => {
         (result) => {
           const { createRequestInCollection } = result
 
-          tabs.createNewTab({
-            type: "request",
-            request: newRequest,
-            isDirty: false,
-            saveContext: {
-              originLocation: "team-collection",
-              requestID: createRequestInCollection.id,
-              collectionID: path,
-              teamID: createRequestInCollection.collection.team.id,
-              requestRefID: newRequest._ref_id,
-            },
-            inheritedProperties:
-              teamCollectionService.cascadeParentCollectionForProperties(path),
-          })
+          if (isGqlRequest) {
+            tabs.createNewTab({
+              type: "gql-request",
+              request: newRequest as HoppGQLRequest,
+              isDirty: false,
+              cursorPosition: 0,
+              saveContext: {
+                originLocation: "team-collection",
+                requestID: createRequestInCollection.id,
+                collectionID: path,
+                teamID: createRequestInCollection.collection.team.id,
+                requestRefID: (newRequest as HoppGQLRequest)._ref_id,
+              },
+              inheritedProperties:
+                teamCollectionService.cascadeParentCollectionForProperties(
+                  path
+                ),
+            })
+          } else {
+            tabs.createNewTab({
+              type: "request",
+              request: newRequest as HoppRESTRequest,
+              isDirty: false,
+              saveContext: {
+                originLocation: "team-collection",
+                requestID: createRequestInCollection.id,
+                collectionID: path,
+                teamID: createRequestInCollection.collection.team.id,
+                requestRefID: (newRequest as HoppRESTRequest)._ref_id,
+              },
+              inheritedProperties:
+                teamCollectionService.cascadeParentCollectionForProperties(
+                  path
+                ),
+            })
+          }
 
           modalLoadingState.value = false
           displayModalAddRequest(false)
@@ -1146,7 +1223,7 @@ const onAddFolder = async (folderName: string) => {
     })
 
     pipe(
-      createChildCollection(folderName, folder.id),
+      createChildCollection(folderName, folder.id, ReqType.Rest),
       TE.match(
         (err: GQLError<string>) => {
           if (err.error === "team_coll/short_title") {
@@ -1337,7 +1414,7 @@ const duplicateCollection = async ({
     duplicateCollectionLoading.value = true
 
     await pipe(
-      duplicateTeamCollection(pathOrID),
+      duplicateTeamCollection(pathOrID, ReqType.Rest),
       TE.match(
         (err: GQLError<string>) => {
           toast.error(`${getErrorMessage(err)}`)
@@ -1355,7 +1432,7 @@ const duplicateCollection = async ({
 const editRequest = (payload: {
   folderPath: string | undefined
   requestIndex: string
-  request: HoppRESTRequest
+  request: HoppRESTRequest | HoppGQLRequest
 }) => {
   const { folderPath, requestIndex, request } = payload
   editingRequest.value = request
@@ -1396,7 +1473,8 @@ const updateEditingRequest = async (newName: string) => {
 
     if (
       possibleActiveTab &&
-      possibleActiveTab.value.document.type === "request"
+      (possibleActiveTab.value.document.type === "request" ||
+        possibleActiveTab.value.document.type === "gql-request")
     ) {
       possibleActiveTab.value.document.request.name = requestUpdated.name
       nextTick(() => {
@@ -1438,7 +1516,11 @@ const updateEditingRequest = async (newName: string) => {
       requestID,
     })
 
-    if (possibleTab && possibleTab.value.document.type === "request") {
+    if (
+      possibleTab &&
+      (possibleTab.value.document.type === "request" ||
+        possibleTab.value.document.type === "gql-request")
+    ) {
       possibleTab.value.document.request.name = requestName
       nextTick(() => {
         possibleTab.value.document.isDirty = false
@@ -1450,7 +1532,7 @@ const updateEditingRequest = async (newName: string) => {
 type ResponseConfigPayload = {
   folderPath: string | undefined
   requestIndex: string
-  request: HoppRESTRequest
+  request: HoppRESTRequest | HoppGQLRequest
   responseName: string
   responseID: string
 }
@@ -1521,12 +1603,17 @@ const updateEditingResponse = (newName: string) => {
 
     if (
       possibleExampleActiveTab &&
-      possibleExampleActiveTab.value.document.type === "example-response"
+      (possibleExampleActiveTab.value.document.type === "example-response" ||
+        possibleExampleActiveTab.value.document.type === "gql-example-response")
     ) {
       possibleExampleActiveTab.value.document.response.name = newName
 
       nextTick(() => {
-        if (possibleExampleActiveTab.value.document.type === "test-runner")
+        const docType = possibleExampleActiveTab.value.document.type
+        if (
+          docType !== "example-response" &&
+          docType !== "gql-example-response"
+        )
           return
 
         possibleExampleActiveTab.value.document.isDirty = false
@@ -1539,13 +1626,8 @@ const updateEditingResponse = (newName: string) => {
       })
     }
 
-    // update the request tab responses if it's open
-    if (
-      possibleRequestActiveTab &&
-      possibleRequestActiveTab.value.document.type === "request"
-    ) {
-      possibleRequestActiveTab.value.document.request.responses =
-        request.responses
+    if (possibleRequestActiveTab) {
+      setRequestTabResponses(possibleRequestActiveTab, request.responses)
     }
 
     displayModalEditResponse(false)
@@ -1591,11 +1673,17 @@ const updateEditingResponse = (newName: string) => {
 
     if (
       possibleActiveResponseTab &&
-      possibleActiveResponseTab.value.document.type === "example-response"
+      (possibleActiveResponseTab.value.document.type === "example-response" ||
+        possibleActiveResponseTab.value.document.type ===
+          "gql-example-response")
     ) {
       possibleActiveResponseTab.value.document.response.name = newName
       nextTick(() => {
-        if (possibleActiveResponseTab.value.document.type === "test-runner")
+        const docType = possibleActiveResponseTab.value.document.type
+        if (
+          docType !== "example-response" &&
+          docType !== "gql-example-response"
+        )
           return
         possibleActiveResponseTab.value.document.isDirty = false
         possibleActiveResponseTab.value.document.saveContext = {
@@ -1606,30 +1694,26 @@ const updateEditingResponse = (newName: string) => {
       })
     }
 
-    // update the request tab responses if it's open
-    if (
-      possibleRequestActiveTab &&
-      possibleRequestActiveTab.value.document.type === "request"
-    ) {
-      possibleRequestActiveTab.value.document.request.responses =
-        request.responses
+    if (possibleRequestActiveTab) {
+      setRequestTabResponses(possibleRequestActiveTab, request.responses)
     }
   }
 }
 
 const duplicateRequest = async (payload: {
   folderPath: string
-  request: HoppRESTRequest
+  request: HoppRESTRequest | HoppGQLRequest
 }) => {
   const { folderPath, request } = payload
   if (!folderPath) return
 
   const { id: _, ...requestWithoutID } = request
+  const cloned = cloneDeep(requestWithoutID)
   const newRequest = {
-    ...cloneDeep(requestWithoutID),
+    ...cloned,
     _ref_id: generateUniqueRefId("req"),
     name: `${request.name} - ${t("action.duplicate")}`,
-  }
+  } as HoppRESTRequest | HoppGQLRequest
 
   if (collectionsType.value.type === "my-collections") {
     const isValidToken = await handleTokenValidation()
@@ -1704,13 +1788,8 @@ const duplicateResponse = async (payload: ResponseConfigPayload) => {
       folderPath,
     })
 
-    // update the request tab responses if it's open
-    if (
-      possibleRequestActiveTab &&
-      possibleRequestActiveTab.value.document.type === "request"
-    ) {
-      possibleRequestActiveTab.value.document.request.responses =
-        updatedRequest.responses
+    if (possibleRequestActiveTab) {
+      setRequestTabResponses(possibleRequestActiveTab, updatedRequest.responses)
     }
   } else if (hasTeamWriteAccess.value) {
     duplicateRequestLoading.value = true
@@ -1737,25 +1816,21 @@ const duplicateResponse = async (payload: ResponseConfigPayload) => {
       )
     )()
 
-    // update the request tab responses if it's open
+    // update the request tab responses if it's open (REST or GQL)
     const possibleRequestActiveTab = tabs.getTabRefWithSaveContext({
       originLocation: "team-collection",
       requestID: requestIndex,
     })
 
-    if (
-      possibleRequestActiveTab &&
-      possibleRequestActiveTab.value.document.type === "request"
-    ) {
-      possibleRequestActiveTab.value.document.request.responses =
-        updatedRequest.responses
+    if (possibleRequestActiveTab) {
+      setRequestTabResponses(possibleRequestActiveTab, updatedRequest.responses)
     }
   }
 }
 
 const addExample = (payload: {
   folderPath: string
-  request: HoppRESTRequest
+  request: HoppRESTRequest | HoppGQLRequest
   requestIndex: string | number
 }) => {
   const { folderPath, request, requestIndex } = payload
@@ -1767,8 +1842,12 @@ const addExample = (payload: {
     return
   }
 
-  // Additional validation for required request properties
-  if (!request.name && !request.endpoint) {
+  // Additional validation for required request properties — accept either the
+  // REST endpoint or the GQL url as proof we have a real request.
+  const hasUrl = isGQLRequest(request)
+    ? !!request.url
+    : !!(request as HoppRESTRequest).endpoint
+  if (!request.name && !hasUrl) {
     console.error("Request missing required properties:", request)
     toast.error(t("error.invalid_request"))
     return
@@ -1799,6 +1878,13 @@ const onAddExample = async () => {
   const request = editingRequest.value
   if (!request || !request.name) {
     toast.error(t("error.invalid_request"))
+    return
+  }
+
+  // GQL examples have a parallel-but-distinct shape (GQL originalRequest,
+  // no method/params/body). Handle them via the gql-example-response tab type.
+  if (isGQLRequest(request)) {
+    await addGQLExample(request, exampleName)
     return
   }
 
@@ -1969,6 +2055,150 @@ const onAddExample = async () => {
     )()
 
     return
+  }
+}
+
+/**
+ * GQL counterpart of the REST add-example flow inside `onAddExample`. Builds a
+ * `HoppGQLRequestResponse` with an empty body, persists it under the parent
+ * request's `responses` map, and opens it as a new `gql-example-response` tab.
+ * Persistence goes through the REST mutation in both personal and team paths
+ * because unified-workspace GQL bodies live in REST collection rows.
+ */
+const addGQLExample = async (request: HoppGQLRequest, exampleName: string) => {
+  if (request.responses && request.responses[exampleName]) {
+    toast.error(t("response.duplicate_name_error"))
+    return
+  }
+
+  const originalRequest = makeHoppGQLResponseOriginalRequest({
+    name: request.name,
+    url: request.url,
+    query: request.query,
+    variables: request.variables,
+    headers: request.headers,
+    auth: request.auth,
+  })
+
+  const newExample: HoppGQLRequestResponse = {
+    name: exampleName,
+    code: 200,
+    status: "OK",
+    headers: [],
+    body: "",
+    originalRequest,
+  }
+
+  const newExampleID = Object.keys(request.responses ?? {}).length.toString()
+
+  const updatedRequest: HoppGQLRequest = {
+    ...request,
+    responses: {
+      ...(request.responses ?? {}),
+      [exampleName]: newExample,
+    },
+  }
+
+  if (collectionsType.value.type === "my-collections") {
+    const folderPath = editingFolderPath.value
+    const requestIndex = editingRequestIndex.value
+    if (folderPath === null || requestIndex === null) return
+
+    const isValidToken = await handleTokenValidation()
+    if (!isValidToken) return
+
+    editRESTRequest(folderPath, requestIndex, updatedRequest)
+    toast.success(t("response.saved"))
+
+    const possibleRequestActiveTab = tabs.getTabRefWithSaveContext({
+      originLocation: "user-collection",
+      requestIndex,
+      folderPath,
+    })
+    if (
+      possibleRequestActiveTab &&
+      possibleRequestActiveTab.value.document.type === "gql-request"
+    ) {
+      possibleRequestActiveTab.value.document.request.responses =
+        updatedRequest.responses
+    }
+
+    displayModalAddExample(false)
+
+    tabs.createNewTab({
+      response: { ...cloneDeep(newExample), name: exampleName },
+      isDirty: false,
+      type: "gql-example-response",
+      saveContext: {
+        originLocation: "user-collection",
+        folderPath,
+        requestIndex,
+        exampleID: newExampleID,
+      },
+      inheritedProperties: cascadeParentCollectionForProperties(
+        folderPath,
+        "rest"
+      ),
+    })
+    return
+  }
+
+  if (hasTeamWriteAccess.value) {
+    modalLoadingState.value = true
+    if (!editingRequestID.value) return
+
+    const data = {
+      requestID: editingRequestID.value,
+      data: { title: request.name, request: JSON.stringify(updatedRequest) },
+    }
+
+    pipe(
+      runMutation(UpdateRequestDocument, data),
+      TE.match(
+        (err: GQLError<string>) => {
+          toast.error(`${getErrorMessage(err)}`)
+          modalLoadingState.value = false
+        },
+        () => {
+          modalLoadingState.value = false
+          toast.success(t("response.saved"))
+          displayModalAddExample(false)
+
+          const requestID = editingRequestID.value
+          const collectionID = editingFolderPath.value
+          if (!requestID) return
+
+          const possibleRequestActiveTab = tabs.getTabRefWithSaveContext({
+            originLocation: "team-collection",
+            requestID,
+          })
+          if (
+            possibleRequestActiveTab &&
+            possibleRequestActiveTab.value.document.type === "gql-request"
+          ) {
+            possibleRequestActiveTab.value.document.request.responses =
+              updatedRequest.responses
+          }
+
+          tabs.createNewTab({
+            response: { ...cloneDeep(newExample), name: exampleName },
+            isDirty: false,
+            type: "gql-example-response",
+            saveContext: {
+              originLocation: "team-collection",
+              requestID,
+              collectionID: collectionID ?? undefined,
+              exampleID: newExampleID,
+            },
+            inheritedProperties: collectionID
+              ? teamCollectionService.cascadeParentCollectionForProperties(
+                  collectionID
+                )
+              : undefined,
+          })
+        }
+      )
+    )()
   }
 }
 
@@ -2196,16 +2426,19 @@ const onRemoveRequest = async () => {
       requestIndex,
     })
 
-    // If there is a tab attached to this request, dissociate its state and mark it dirty
-    if (possibleTab && possibleTab.value.document.type === "request") {
-      possibleTab.value.document.saveContext = null
-      possibleTab.value.document.isDirty = true
-
-      // since the request is deleted, we need to remove the saved responses as well
-      possibleTab.value.document.request.responses = {}
-
-      // remove inherited properties
-      possibleTab.value.document.inheritedProperties = undefined
+    if (possibleTab) {
+      const doc = possibleTab.value.document
+      if (doc.type === "request") {
+        doc.saveContext = null
+        doc.isDirty = true
+        doc.request.responses = {}
+        doc.inheritedProperties = undefined
+      } else if (doc.type === "gql-request") {
+        doc.saveContext = null
+        doc.isDirty = true
+        doc.request.responses = {}
+        doc.inheritedProperties = undefined
+      }
     }
 
     const requestToRemove = navigateToFolderWithIndexPath(
@@ -2261,15 +2494,19 @@ const onRemoveRequest = async () => {
       requestID,
     })
 
-    if (possibleTab && possibleTab.value.document.type === "request") {
-      possibleTab.value.document.saveContext = null
-      possibleTab.value.document.isDirty = true
-
-      // since the request is deleted, we need to remove the saved responses as well
-      possibleTab.value.document.request.responses = {}
-
-      // remove inherited properties
-      possibleTab.value.document.inheritedProperties = undefined
+    if (possibleTab) {
+      const doc = possibleTab.value.document
+      if (doc.type === "request") {
+        doc.saveContext = null
+        doc.isDirty = true
+        doc.request.responses = {}
+        doc.inheritedProperties = undefined
+      } else if (doc.type === "gql-request") {
+        doc.saveContext = null
+        doc.isDirty = true
+        doc.request.responses = {}
+        doc.inheritedProperties = undefined
+      }
     }
   }
 }
@@ -2303,7 +2540,7 @@ const onRemoveResponse = async () => {
 
   delete request.responses[responseName]
 
-  const requestUpdated: HoppRESTRequest = {
+  const requestUpdated: HoppRESTRequest | HoppGQLRequest = {
     ...request,
   }
 
@@ -2330,10 +2567,13 @@ const onRemoveResponse = async () => {
       folderPath,
     })
 
-    // If there is a tab attached to this request, close it and set the active tab to the first one
+    // If there is a tab attached to this response (REST or GQL example), close
+    // it and set the active tab to the first one.
     if (
       possibleActiveResponseTab &&
-      possibleActiveResponseTab.value.document.type === "example-response"
+      (possibleActiveResponseTab.value.document.type === "example-response" ||
+        possibleActiveResponseTab.value.document.type ===
+          "gql-example-response")
     ) {
       const activeTabs = tabs.getActiveTabs()
 
@@ -2355,13 +2595,8 @@ const onRemoveResponse = async () => {
       }
     }
 
-    // update the request tab responses if it's open
-    if (
-      possibleRequestActiveTab &&
-      possibleRequestActiveTab.value.document.type === "request"
-    ) {
-      possibleRequestActiveTab.value.document.request.responses =
-        requestUpdated.responses
+    if (possibleRequestActiveTab) {
+      setRequestTabResponses(possibleRequestActiveTab, requestUpdated.responses)
     }
 
     toast.success(t("state.deleted"))
@@ -2404,10 +2639,13 @@ const onRemoveResponse = async () => {
       requestID,
     })
 
-    // If there is a tab attached to this request, close it and set the active tab to the first one
+    // If there is a tab attached to this response (REST or GQL example), close
+    // it and set the active tab to the first one.
     if (
       possibleActiveResponseTab &&
-      possibleActiveResponseTab.value.document.type === "example-response"
+      (possibleActiveResponseTab.value.document.type === "example-response" ||
+        possibleActiveResponseTab.value.document.type ===
+          "gql-example-response")
     ) {
       const activeTabs = tabs.getActiveTabs()
 
@@ -2429,13 +2667,8 @@ const onRemoveResponse = async () => {
       }
     }
 
-    // update the request tab responses if it's open
-    if (
-      possibleRequestActiveTab &&
-      possibleRequestActiveTab.value.document.type === "request"
-    ) {
-      possibleRequestActiveTab.value.document.request.responses =
-        requestUpdated.responses
+    if (possibleRequestActiveTab) {
+      setRequestTabResponses(possibleRequestActiveTab, requestUpdated.responses)
     }
   }
 }
@@ -2450,7 +2683,7 @@ const selectPicked = (payload: Picked | null) => {
  * @param selectedRequest The request that the user clicked on emitted from the collection tree
  */
 const selectRequest = (selectedRequest: {
-  request: HoppRESTRequest
+  request: HoppRESTRequest | HoppGQLRequest
   folderPath: string
   requestIndex: string
   isActive: boolean
@@ -2474,17 +2707,34 @@ const selectRequest = (selectedRequest: {
         teamCollectionService.cascadeParentCollectionForProperties(folderPath)
     }
 
+    const isGql = isGQLRequest(request)
+
     const possibleTab = tabs.getTabRefWithSaveContext({
       originLocation: "team-collection",
       requestID: requestIndex,
     })
 
-    if (possibleTab && possibleTab.value.document.type === "request") {
+    if (possibleTab) {
       tabs.setActiveTab(possibleTab.value.id)
+    } else if (isGql) {
+      tabs.createNewTab({
+        type: "gql-request",
+        request: cloneDeep(request) as HoppGQLRequest,
+        isDirty: false,
+        cursorPosition: 0,
+        saveContext: {
+          originLocation: "team-collection",
+          requestID: requestIndex,
+          collectionID: folderPath,
+          exampleID: undefined,
+          requestRefID: request.id,
+        },
+        inheritedProperties: inheritedProperties,
+      })
     } else {
       tabs.createNewTab({
         type: "request",
-        request: cloneDeep(request),
+        request: cloneDeep(request) as HoppRESTRequest,
         isDirty: false,
         saveContext: {
           originLocation: "team-collection",
@@ -2497,6 +2747,8 @@ const selectRequest = (selectedRequest: {
       })
     }
   } else {
+    const isGql = isGQLRequest(request)
+
     possibleTab = tabs.getTabRefWithSaveContext({
       originLocation: "user-collection",
       requestIndex: parseInt(requestIndex),
@@ -2506,11 +2758,27 @@ const selectRequest = (selectedRequest: {
 
     if (possibleTab) {
       tabs.setActiveTab(possibleTab.value.id)
+    } else if (isGql) {
+      tabs.createNewTab({
+        type: "gql-request",
+        request: cloneDeep(request) as HoppGQLRequest,
+        isDirty: false,
+        cursorPosition: 0,
+        saveContext: {
+          originLocation: "user-collection",
+          folderPath: folderPath!,
+          requestIndex: parseInt(requestIndex),
+          requestRefID: request._ref_id ?? request.id,
+        },
+        inheritedProperties: cascadeParentCollectionForProperties(
+          folderPath,
+          "rest"
+        ),
+      })
     } else {
-      // If not, open the request in a new tab
       tabs.createNewTab({
         type: "request",
-        request: cloneDeep(request),
+        request: cloneDeep(request) as HoppRESTRequest,
         isDirty: false,
         saveContext: {
           originLocation: "user-collection",
@@ -2531,11 +2799,81 @@ const selectResponse = (payload: {
   folderPath: string
   requestIndex: string
   responseName: string
-  request: HoppRESTRequest
+  request: HoppRESTRequest | HoppGQLRequest
   responseID: string
 }) => {
   const { folderPath, requestIndex, responseName, request, responseID } =
     payload
+
+  // GQL examples have their own tab document type (`gql-example-response`)
+  // backed by a GQL-shaped response payload; route there instead of the REST
+  // `example-response` path which renders REST-only components.
+  if (isGQLRequest(request)) {
+    const gqlResponse = request.responses[responseName]
+    if (!gqlResponse) return
+
+    if (collectionsType.value.type === "my-collections") {
+      const possibleTab = tabs.getTabRefWithSaveContext({
+        originLocation: "user-collection",
+        requestIndex: parseInt(requestIndex),
+        folderPath: folderPath!,
+        exampleID: responseID,
+      })
+
+      if (possibleTab) {
+        tabs.setActiveTab(possibleTab.value.id)
+      } else {
+        tabs.createNewTab({
+          response: {
+            ...cloneDeep(gqlResponse),
+            name: responseName,
+          },
+          isDirty: false,
+          type: "gql-example-response",
+          saveContext: {
+            originLocation: "user-collection",
+            folderPath: folderPath!,
+            requestIndex: parseInt(requestIndex),
+            exampleID: responseID,
+          },
+          inheritedProperties: cascadeParentCollectionForProperties(
+            folderPath,
+            "rest"
+          ),
+        })
+      }
+    } else {
+      const possibleTab = tabs.getTabRefWithSaveContext({
+        originLocation: "team-collection",
+        requestID: requestIndex,
+        exampleID: responseID,
+      })
+
+      if (possibleTab) {
+        tabs.setActiveTab(possibleTab.value.id)
+      } else {
+        tabs.createNewTab({
+          response: {
+            ...cloneDeep(gqlResponse),
+            name: responseName,
+          },
+          isDirty: false,
+          type: "gql-example-response",
+          saveContext: {
+            originLocation: "team-collection",
+            requestID: requestIndex,
+            collectionID: folderPath,
+            exampleID: responseID,
+          },
+          inheritedProperties:
+            teamCollectionService.cascadeParentCollectionForProperties(
+              folderPath
+            ),
+        })
+      }
+    }
+    return
+  }
 
   const response = request.responses[responseName]
 
@@ -2644,8 +2982,11 @@ const dropRequest = async (payload: {
       requestRefID,
     })
 
-    // If there is a tab attached to this request, change save its save context
-    if (possibleTab && possibleTab.value.document.type === "request") {
+    if (
+      possibleTab &&
+      (possibleTab.value.document.type === "request" ||
+        possibleTab.value.document.type === "gql-request")
+    ) {
       possibleTab.value.document.saveContext = {
         originLocation: "user-collection",
         folderPath: destinationCollectionIndex,
@@ -2701,7 +3042,11 @@ const dropRequest = async (payload: {
             requestID: requestIndex,
           })
 
-          if (possibleTab && possibleTab.value.document.type === "request") {
+          if (
+            possibleTab &&
+            (possibleTab.value.document.type === "request" ||
+              possibleTab.value.document.type === "gql-request")
+          ) {
             possibleTab.value.document.saveContext = {
               originLocation: "team-collection",
               requestID: requestIndex,
@@ -3352,7 +3697,11 @@ const doExportOpenAPI = async (format: "json" | "yaml") => {
   }
 }
 
-const shareRequest = ({ request }: { request: HoppRESTRequest }) => {
+const shareRequest = ({
+  request,
+}: {
+  request: HoppRESTRequest | HoppGQLRequest
+}) => {
   if (currentUser.value) {
     // opens the share request modal
     invokeAction("share.request", {

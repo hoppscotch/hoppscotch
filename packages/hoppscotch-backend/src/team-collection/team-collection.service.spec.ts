@@ -27,6 +27,7 @@ import { TeamCollectionService } from './team-collection.service';
 import { TeamCollection } from './team-collection.model';
 import { TeamService } from 'src/team/team.service';
 import { SortOptions } from 'src/types/SortOptions';
+import { ReqType } from 'src/types/RequestTypes';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockPubSub = mockDeep<PubSubService>();
@@ -669,6 +670,7 @@ describe('createCollection', () => {
       rootTeamCollection.teamID,
       '',
       JSON.stringify(rootTeamCollection.data),
+      ReqType.REST,
       rootTeamCollection.id,
     );
     expect(result).toEqualLeft(TEAM_COLL_SHORT_TITLE);
@@ -683,6 +685,7 @@ describe('createCollection', () => {
       rootTeamCollection.teamID,
       'abcd',
       JSON.stringify(rootTeamCollection.data),
+      ReqType.REST,
       rootTeamCollection.id,
     );
     expect(result).toEqualLeft(TEAM_NOT_OWNER);
@@ -692,11 +695,16 @@ describe('createCollection', () => {
     jest
       .spyOn(teamCollectionService as any, 'isOwnerCheck')
       .mockResolvedValueOnce(O.some(true));
+    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce({
+      ...rootTeamCollection,
+      type: ReqType.REST,
+    });
 
     const result = await teamCollectionService.createCollection(
       rootTeamCollection.teamID,
       'abcd',
       '{',
+      ReqType.REST,
       rootTeamCollection.id,
     );
     expect(result).toEqualLeft(TEAM_COLL_DATA_INVALID);
@@ -714,6 +722,7 @@ describe('createCollection', () => {
       rootTeamCollection.teamID,
       rootTeamCollection.title,
       JSON.stringify(rootTeamCollection.data),
+      ReqType.REST,
       null,
     );
     expect(result).toEqualRight(rootTeamCollectionsCasted);
@@ -729,11 +738,16 @@ describe('createCollection', () => {
     mockPrisma.$executeRaw.mockResolvedValueOnce(null);
     mockPrisma.teamCollection.findFirst.mockResolvedValueOnce(null);
     mockPrisma.teamCollection.create.mockResolvedValueOnce(childTeamCollection);
+    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce({
+      ...rootTeamCollection,
+      type: ReqType.REST,
+    });
 
     const result = await teamCollectionService.createCollection(
       childTeamCollection.teamID,
       childTeamCollection.title,
       JSON.stringify(childTeamCollection.data),
+      ReqType.REST,
       childTeamCollection.parentID,
     );
     expect(result).toEqualRight(childTeamCollectionCasted);
@@ -749,11 +763,16 @@ describe('createCollection', () => {
     mockPrisma.$executeRaw.mockResolvedValueOnce(null);
     mockPrisma.teamCollection.findFirst.mockResolvedValueOnce(null);
     mockPrisma.teamCollection.create.mockResolvedValueOnce(childTeamCollection);
+    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce({
+      ...rootTeamCollection,
+      type: ReqType.REST,
+    });
 
     await teamCollectionService.createCollection(
       childTeamCollection.teamID,
       childTeamCollection.title,
       JSON.stringify(childTeamCollection.data),
+      ReqType.REST,
       childTeamCollection.parentID,
     );
     expect(mockPubSub.publish).toHaveBeenCalledWith(
@@ -774,6 +793,7 @@ describe('createCollection', () => {
       rootTeamCollection.teamID,
       rootTeamCollection.title,
       JSON.stringify(rootTeamCollection.data),
+      ReqType.REST,
       null,
     );
     expect(mockPubSub.publish).toHaveBeenCalledWith(
@@ -1469,10 +1489,16 @@ describe('importCollectionsFromJSON', () => {
     mockPrisma.teamCollection.findFirst.mockResolvedValueOnce(null);
     mockPrisma.teamCollection.create.mockResolvedValueOnce(rootTeamCollection);
 
+    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce({
+      ...rootTeamCollection,
+      type: ReqType.REST,
+    });
+
     const result = await teamCollectionService.importCollectionsFromJSON(
       jsonString,
       rootTeamCollection.teamID,
       rootTeamCollection.id,
+      ReqType.REST,
     );
     expect(result).toEqualRight([rootTeamCollection]);
   });

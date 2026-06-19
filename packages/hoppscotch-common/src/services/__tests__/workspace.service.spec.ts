@@ -49,6 +49,18 @@ vi.mock("../documentation.service", () => ({
   },
 }))
 
+// Mock WorkspaceTabsService — it indirectly pulls in PersistenceService which
+// triggers an i18n getService() call at module init, breaking this test's setup.
+vi.mock("../tab/workspace-tabs", () => ({
+  WorkspaceTabsService: class MockWorkspaceTabsService {
+    static readonly ID = "WORKSPACE_TABS_SERVICE"
+
+    attachToWorkspace = vi.fn()
+
+    onServiceInit = vi.fn()
+  },
+}))
+
 describe("WorkspaceService", () => {
   const platformMock = {
     auth: {

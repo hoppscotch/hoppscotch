@@ -36,12 +36,12 @@ export class UserRequest {
 
 @ObjectType()
 export class UserRequestReorderData {
-  @Field({
+  @Field(() => UserRequest, {
     description: 'User request being moved',
   })
   request: UserRequest;
 
-  @Field({
+  @Field(() => UserRequest, {
     description:
       'User request succeeding the request being moved in its new position',
     nullable: true,

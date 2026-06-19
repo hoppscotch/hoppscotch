@@ -1,7 +1,9 @@
 import {
+  HoppGQLRequest,
   HoppRESTAuth,
   HoppRESTRequest,
   getDefaultRESTRequest,
+  isGQLRequest,
 } from "@hoppscotch/data"
 import axios from "axios"
 import { Service } from "dioc"
@@ -170,14 +172,18 @@ function convertToTeamTree(
     if (isAlreadyInserted) return
 
     if (parentCollection) {
-      const requestSchemaParsedResult = HoppRESTRequest.safeParse(
-        request.request
-      )
-
-      const effectiveRequest =
-        requestSchemaParsedResult.type === "ok"
-          ? requestSchemaParsedResult.value
-          : getDefaultRESTRequest()
+      // Unified collection: a single team collection can hold REST and GQL requests.
+      // Discriminate by shape so GQL search hits don't get clobbered into a blank REST request.
+      let effectiveRequest: HoppRESTRequest | HoppGQLRequest
+      if (isGQLRequest(request.request)) {
+        const gqlParsed = HoppGQLRequest.safeParse(request.request)
+        effectiveRequest =
+          gqlParsed.type === "ok" ? gqlParsed.value : request.request
+      } else {
+        const restParsed = HoppRESTRequest.safeParse(request.request)
+        effectiveRequest =
+          restParsed.type === "ok" ? restParsed.value : getDefaultRESTRequest()
+      }
 
       parentCollection.requests = parentCollection.requests || []
       parentCollection.requests.push({

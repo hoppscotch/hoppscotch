@@ -182,6 +182,14 @@
                   {{ t("settings.enable_experimental_documentation") }}
                 </HoppSmartToggle>
               </div>
+              <div class="flex items-center">
+                <HoppSmartToggle
+                  :on="ENABLE_GQL_IN_REST_WORKSPACE"
+                  @change="toggleSetting('ENABLE_GQL_IN_REST_WORKSPACE')"
+                >
+                  {{ t("settings.enable_gql_in_rest_workspace") }}
+                </HoppSmartToggle>
+              </div>
             </div>
           </section>
         </div>
@@ -334,6 +342,7 @@ const ENABLE_EXPERIMENTAL_MOCK_SERVERS = useSetting(
 const ENABLE_EXPERIMENTAL_DOCUMENTATION = useSetting(
   "ENABLE_EXPERIMENTAL_DOCUMENTATION"
 )
+const ENABLE_GQL_IN_REST_WORKSPACE = useSetting("ENABLE_GQL_IN_REST_WORKSPACE")
 
 const supportedNamingStyles = [
   {

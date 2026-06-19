@@ -102,7 +102,7 @@
           />
         </summary>
         <component
-          :is="page === 'rest' ? HistoryRestCard : HistoryGraphqlCard"
+          :is="resolveCardComponent(entry.entry)"
           v-for="(entry, index) in filteredHistoryGroup"
           :id="index"
           :key="`entry-${index}`"
@@ -166,11 +166,16 @@ import IconTrash from "~icons/lucide/trash"
 import IconFilter from "~icons/lucide/filter"
 import { computed, ref, Ref, toRaw } from "vue"
 import { useColorMode } from "@composables/theming"
-import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
-import { groupBy, escapeRegExp, filter } from "lodash-es"
+import {
+  HoppGQLRequest,
+  HoppRESTRequest,
+  makeGQLRequest,
+} from "@hoppscotch/data"
+import { groupBy, escapeRegExp, filter, isEqual } from "lodash-es"
 import { useTimeAgo } from "@vueuse/core"
 import { pipe } from "fp-ts/function"
 import * as A from "fp-ts/Array"
+import { combineLatest, map } from "rxjs"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { useToast } from "@composables/toast"
@@ -189,9 +194,12 @@ import {
 
 import HistoryRestCard from "./rest/Card.vue"
 import HistoryGraphqlCard from "./graphql/Card.vue"
+import HistoryGraphqlMergedCard from "./graphql/MergedCard.vue"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { useService } from "dioc/vue"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
+import { GQLTabService } from "~/services/tab/graphql"
+import { isRESTRequest } from "~/helpers/request-type"
 import { platform } from "~/platform"
 
 type HistoryEntry = GQLHistoryEntry | RESTHistoryEntry
@@ -202,7 +210,11 @@ type TimedHistoryEntry = {
 }
 
 const props = defineProps<{
-  page: "rest" | "graphql"
+  // "rest" / "graphql"    — single-protocol modes used by the standalone REST
+  //                         and /graphql pages; behaviour is unchanged.
+  // "unified-workspace"   — unified workspace mode; interleaves both stores
+  //                         sorted by `updatedOn`, routes each entry by shape.
+  page: "rest" | "graphql" | "unified-workspace"
 }>()
 
 const toast = useToast()
@@ -213,10 +225,26 @@ const filterText = ref("")
 const showMore = ref(false)
 const confirmRemove = ref(false)
 
-const history = useReadonlyStream<RESTHistoryEntry[] | GQLHistoryEntry[]>(
-  props.page === "rest" ? restHistory$ : graphqlHistory$,
-  []
+// Merged stream — combines both stores, sorts newest first. Built once and
+// only subscribed to in "unified-workspace" mode so single-protocol pages
+// don't pay the extra combineLatest subscription.
+const mergedHistory$ = combineLatest([restHistory$, graphqlHistory$]).pipe(
+  map(([rest, gql]) => {
+    const merged = [...rest, ...gql] as HistoryEntry[]
+    return merged.sort(
+      (a, b) => (b.updatedOn?.getTime() ?? 0) - (a.updatedOn?.getTime() ?? 0)
+    )
+  })
 )
+
+const historySource$ =
+  props.page === "rest"
+    ? restHistory$
+    : props.page === "graphql"
+      ? graphqlHistory$
+      : mergedHistory$
+
+const history = useReadonlyStream<HistoryEntry[]>(historySource$, [])
 
 const { isHistoryStoreEnabled, isFetchingHistoryStoreStatus } =
   "requestHistoryStore" in platform.sync.history &&
@@ -301,59 +329,175 @@ const filteredHistoryGroups = computed(() =>
   )
 )
 
-const getAppropriateURL = (entry: HistoryEntry) => {
-  if (props.page === "rest") {
-    return (entry.request as HoppRESTRequest).endpoint
-  } else if (props.page === "graphql") {
-    return (entry.request as HoppGQLRequest).url
-  }
+// Picks the right card per entry. The unified-workspace view uses a GQL card
+// variant styled with a left-side GraphQL icon chip (so REST and GQL rows
+// align in the same list). The legacy /graphql page keeps the original card
+// so its visual footprint stays identical to pre-merge.
+const resolveCardComponent = (entry: HistoryEntry) => {
+  if (isRESTRequest(entry.request)) return HistoryRestCard
+  return props.page === "unified-workspace"
+    ? HistoryGraphqlMergedCard
+    : HistoryGraphqlCard
 }
 
+const getAppropriateURL = (entry: HistoryEntry) =>
+  isRESTRequest(entry.request)
+    ? (entry.request as HoppRESTRequest).endpoint
+    : (entry.request as HoppGQLRequest).url
+
 const clearHistory = () => {
-  if (props.page === "rest") clearRESTHistory()
-  else clearGraphqlHistory()
+  // Unified-workspace mode clears both stores; otherwise mirror the legacy
+  // behaviour of the single-protocol pages so /graphql and REST-only flows
+  // are unchanged.
+  if (props.page === "unified-workspace") {
+    clearRESTHistory()
+    clearGraphqlHistory()
+  } else if (props.page === "rest") {
+    clearRESTHistory()
+  } else {
+    clearGraphqlHistory()
+  }
   toast.success(`${t("state.history_deleted")}`)
 }
 
-// NOTE: For GQL, the HistoryGraphqlCard component already implements useEntry
-// (That is not a really good behaviour tho ¯\_(ツ)_/¯)
-const tabs = useService(RESTTabService)
+// Unified workspace tab service (used for REST tabs everywhere, and for GQL
+// tabs in unified-workspace mode). The legacy /graphql page still uses its
+// own GQLTabService — bound below so we can route GQL clicks correctly there
+// without changing observable behaviour for that page.
+const tabs = useService(WorkspaceTabsService)
+const gqlTabs = useService(GQLTabService)
 
-const useHistory = (entry: RESTHistoryEntry) => {
-  tabs.createNewTab({
-    type: "request",
-    request: entry.request,
-    isDirty: false,
+// Compare the signature fields of two requests. We deliberately exclude:
+//   - `responses`  — mutated whenever the tab re-runs the request
+//   - `v`, `_ref_id`, `id` — schema/version/persistence metadata, not user intent
+//   - `name`, `description` — cosmetic; renaming a tab shouldn't fork it
+// Everything that affects the wire payload or runtime behaviour IS compared,
+// so two history entries that differ only in (say) preRequestScript are
+// recognised as distinct.
+const restRequestsMatch = (a: HoppRESTRequest, b: HoppRESTRequest) =>
+  a.endpoint === b.endpoint &&
+  a.method === b.method &&
+  a.preRequestScript === b.preRequestScript &&
+  a.testScript === b.testScript &&
+  isEqual(a.body, b.body) &&
+  isEqual(a.headers, b.headers) &&
+  isEqual(a.params, b.params) &&
+  isEqual(a.auth, b.auth) &&
+  isEqual(a.requestVariables, b.requestVariables)
+
+const gqlRequestsMatch = (a: HoppGQLRequest, b: HoppGQLRequest) =>
+  a.url === b.url &&
+  a.query === b.query &&
+  a.variables === b.variables &&
+  isEqual(a.headers, b.headers) &&
+  isEqual(a.auth, b.auth)
+
+const useHistory = (entry: HistoryEntry) => {
+  if (isRESTRequest(entry.request)) {
+    const restEntry = entry.request as HoppRESTRequest
+
+    // Focus an already-open REST tab that still matches the entry's
+    // signature — avoids opening duplicate tabs when the user re-clicks
+    // the same history row. Only meaningful in unified-workspace mode (the
+    // legacy /graphql page doesn't render REST entries).
+    const existing = tabs
+      .getTabs()
+      .find(
+        (t) =>
+          t.document.type === "request" &&
+          restRequestsMatch(t.document.request, restEntry)
+      )
+    if (existing) {
+      tabs.setActiveTab(existing.id)
+      return
+    }
+
+    tabs.createNewTab({
+      type: "request",
+      request: restEntry,
+      isDirty: false,
+    })
+    return
+  }
+
+  // GraphQL entry — normalize via makeGQLRequest so we get schema defaults
+  // (responses: {}, version, etc.) regardless of how the entry was stored.
+  const gqlEntryRequest = entry.request as HoppGQLRequest
+  const gqlRequest = makeGQLRequest({
+    name: gqlEntryRequest.name,
+    url: gqlEntryRequest.url,
+    headers: gqlEntryRequest.headers,
+    query: gqlEntryRequest.query,
+    variables: gqlEntryRequest.variables,
+    auth: gqlEntryRequest.auth,
+    description: gqlEntryRequest.description ?? null,
+    responses: {},
   })
-}
 
-const isRESTHistoryEntry = (
-  entries: TimedHistoryEntry[]
-): entries is Array<TimedHistoryEntry & { entry: RESTHistoryEntry }> =>
-  // If the page is rest, then we can guarantee what we have is a RESTHistoryEnry
-  props.page === "rest"
+  if (props.page === "graphql") {
+    // Legacy /graphql page — keep using GQLTabService so this path stays
+    // byte-identical to the pre-merge behaviour of HistoryGraphqlCard.
+    const existing = gqlTabs
+      .getTabs()
+      .find((t) => gqlRequestsMatch(t.document.request, gqlEntryRequest))
+    if (existing) {
+      gqlTabs.setActiveTab(existing.id)
+      return
+    }
 
-const deleteBatchHistoryEntry = (entries: TimedHistoryEntry[]) => {
-  if (isRESTHistoryEntry(entries)) {
-    entries.forEach((entry) => {
-      deleteRESTHistoryEntry(entry.entry)
+    gqlTabs.createNewTab({
+      request: gqlRequest,
+      isDirty: false,
     })
   } else {
-    entries.forEach((entry) => {
-      deleteGraphqlHistoryEntry(entry.entry as GQLHistoryEntry)
+    // Unified-workspace mode — open the GQL entry as a gql-request tab in
+    // the workspace tab strip.
+    const existing = tabs
+      .getTabs()
+      .find(
+        (t) =>
+          t.document.type === "gql-request" &&
+          gqlRequestsMatch(t.document.request, gqlEntryRequest)
+      )
+    if (existing) {
+      tabs.setActiveTab(existing.id)
+      return
+    }
+
+    tabs.createNewTab({
+      type: "gql-request",
+      request: gqlRequest,
+      isDirty: false,
+      cursorPosition: 0,
     })
   }
+}
+
+const deleteBatchHistoryEntry = (entries: TimedHistoryEntry[]) => {
+  entries.forEach(({ entry }) => {
+    if (isRESTRequest(entry.request)) {
+      deleteRESTHistoryEntry(entry as RESTHistoryEntry)
+    } else {
+      deleteGraphqlHistoryEntry(entry as GQLHistoryEntry)
+    }
+  })
   toast.success(`${t("state.deleted")}`)
 }
 
 const deleteHistory = (entry: HistoryEntry) => {
-  if (props.page === "rest") deleteRESTHistoryEntry(entry as RESTHistoryEntry)
-  else deleteGraphqlHistoryEntry(entry as GQLHistoryEntry)
+  if (isRESTRequest(entry.request)) {
+    deleteRESTHistoryEntry(entry as RESTHistoryEntry)
+  } else {
+    deleteGraphqlHistoryEntry(entry as GQLHistoryEntry)
+  }
   toast.success(`${t("state.deleted")}`)
 }
 
 const addToCollection = (entry: HistoryEntry) => {
-  if (props.page === "rest") {
+  // Only REST entries support add-to-collection from history today — the GQL
+  // card doesn't emit `add-to-collection`, so this is a no-op for GQL even
+  // in unified-workspace mode. Wiring GQL save-as is its own follow-up.
+  if (isRESTRequest(entry.request)) {
     invokeAction("request.save-as", {
       requestType: "rest",
       request: entry.request as HoppRESTRequest,
@@ -362,10 +506,11 @@ const addToCollection = (entry: HistoryEntry) => {
 }
 
 const toggleStar = (entry: HistoryEntry) => {
-  // History entry type specified because function does not know the type
-  if (props.page === "rest")
+  if (isRESTRequest(entry.request)) {
     toggleRESTHistoryEntryStar(entry as RESTHistoryEntry)
-  else toggleGraphqlHistoryEntryStar(entry as GQLHistoryEntry)
+  } else {
+    toggleGraphqlHistoryEntryStar(entry as GQLHistoryEntry)
+  }
 }
 
 defineActionHandler("history.clear", () => {

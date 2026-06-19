@@ -31,6 +31,7 @@ import * as E from 'fp-ts/Either';
 import { throwErr } from 'src/utils';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { SkipThrottle } from '@nestjs/throttler';
+import { ReqType } from 'src/types/RequestTypes';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => TeamCollection)
@@ -144,6 +145,7 @@ export class TeamCollectionResolver {
       args.teamID,
       args.cursor,
       args.take,
+      args.type ?? ReqType.REST,
     );
   }
 
@@ -164,18 +166,19 @@ export class TeamCollectionResolver {
       type: () => ID,
     })
     collectionID: string,
-  ) {
+  ): Promise<TeamCollection> {
     const teamCollections =
       await this.teamCollectionService.getCollection(collectionID);
 
     if (E.isLeft(teamCollections)) throwErr(teamCollections.left);
-    return <TeamCollection>{
+    return {
       id: teamCollections.right.id,
       title: teamCollections.right.title,
       parentID: teamCollections.right.parentID,
       data: !teamCollections.right.data
         ? null
         : JSON.stringify(teamCollections.right.data),
+      type: teamCollections.right.type as ReqType,
     };
   }
 
@@ -191,6 +194,7 @@ export class TeamCollectionResolver {
       args.teamID,
       args.title,
       args.data,
+      args.type,
       null,
     );
 
@@ -216,6 +220,14 @@ export class TeamCollectionResolver {
     })
     jsonString: string,
     @Args({
+      name: 'type',
+      description: 'Type of the team collection',
+      type: () => ReqType,
+      nullable: true,
+      defaultValue: ReqType.REST,
+    })
+    type: ReqType,
+    @Args({
       name: 'parentCollectionID',
       type: () => ID,
       description:
@@ -229,6 +241,7 @@ export class TeamCollectionResolver {
         jsonString,
         teamID,
         parentCollectionID ?? null,
+        type,
       );
     if (E.isLeft(importedCollection)) throwErr(importedCollection.left);
     return true;
@@ -249,6 +262,7 @@ export class TeamCollectionResolver {
       team.right.id,
       args.childTitle,
       args.data,
+      args.type,
       args.collectionID,
     );
 
@@ -350,6 +364,15 @@ export class TeamCollectionResolver {
       description: 'ID of the collection',
     })
     collectionID: string,
+    @Args({
+      name: 'reqType',
+      description:
+        'Type of the collection (accepted for backwards compatibility; the actual type is derived from the source collection)',
+      type: () => ReqType,
+      nullable: true,
+      defaultValue: ReqType.REST,
+    })
+    reqType: ReqType,
   ) {
     const duplicatedTeamCollection =
       await this.teamCollectionService.duplicateTeamCollection(collectionID);

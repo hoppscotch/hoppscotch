@@ -7,6 +7,7 @@ import {
   HoppRESTAuth,
   HoppRESTHeaders,
   HoppRESTRequest,
+  isGQLRequest,
 } from "@hoppscotch/data";
 
 import { HoppEnvPair } from "../types/request";
@@ -39,12 +40,29 @@ interface WorkspaceRequest {
  * Transforms the incoming list of workspace requests by applying `JSON.parse` to the `request` field.
  * It includes the `v` field indicating the schema version, but migration is handled already at the `parseCollectionData()` helper function.
  *
+ * GraphQL requests (present in unified team collections) are filtered out
+ * with a warning — the CLI runner is REST-only today, and mis-parsing them
+ * as REST would abort the whole run downstream at request validation.
+ *
  * @param {WorkspaceRequest[]} requests - An array of workspace request objects to be transformed.
  * @returns {HoppRESTRequest[]} The transformed array of requests conforming to the `HoppRESTRequest` type.
  */
 const transformWorkspaceRequests = (
   requests: WorkspaceRequest[]
-): HoppRESTRequest[] => requests.map(({ request }) => JSON.parse(request));
+): HoppRESTRequest[] => {
+  const parsed = requests.map(({ request }) => JSON.parse(request));
+
+  const restRequests = parsed.filter((req) => !isGQLRequest(req));
+  const skippedCount = parsed.length - restRequests.length;
+
+  if (skippedCount > 0) {
+    console.warn(
+      `Skipped ${skippedCount} GraphQL request(s) — GraphQL is not yet supported by the CLI runner.`
+    );
+  }
+
+  return restRequests;
+};
 
 /**
  * Apply relevant migrations for data conforming to older formats

@@ -5,7 +5,7 @@ import { ServiceStatus } from './helper';
 
 @ObjectType()
 export class InfraConfig {
-  @Field({
+  @Field(() => InfraConfigEnum, {
     description: 'Infra Config Name',
   })
   name: InfraConfigEnum;

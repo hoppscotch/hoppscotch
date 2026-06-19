@@ -112,8 +112,19 @@ type Connection = {
   } | null
 }
 
-const tabs = getService(GQLTabService)
-const currentTabID = computed(() => tabs.currentTabID.value)
+/**
+ * The current GQL tab ID for the legacy `/graphql` page, derived from the
+ * single source of truth on `GQLTabService`. A computed (not a writable ref)
+ * so it can't go stale or diverge: the page and its child request component
+ * previously each wrote this from their own watch, which risked the
+ * subscription-state map (keyed by this ID) reading the wrong slot.
+ *
+ * `getService` is resolved lazily inside the getter to avoid touching the DI
+ * container at module-eval time.
+ */
+export const currentGQLTabID = computed(
+  () => getService(GQLTabService).currentTabID.value
+)
 
 export const connection = reactive<Connection>({
   state: "DISCONNECTED",
@@ -125,7 +136,7 @@ export const connection = reactive<Connection>({
 
 export const schema = computed(() => connection.schema)
 export const subscriptionState = computed(() =>
-  connection.subscriptionState.get(currentTabID.value)
+  connection.subscriptionState.get(currentGQLTabID.value)
 )
 
 export const gqlMessageEvent = ref<GQLResponseEvent | "reset">()
@@ -330,7 +341,9 @@ const getSchema = async (options: ConnectionRequestOptions) => {
     connection.error = null
   } catch (e: any) {
     console.error(e)
-    disconnect()
+    if (connection.state === "CONNECTED") {
+      disconnect()
+    }
   }
 }
 
@@ -410,13 +423,15 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
   )
 
   const gqlRequest: HoppGQLRequest = {
-    v: 9,
+    v: 10,
     name: options.name || "Untitled Request",
     url: finalUrl,
     headers: finalHoppHeaders,
     query,
     variables,
     auth: auth ?? request.auth,
+    description: null,
+    responses: {},
   }
 
   if (operationType === "subscription") {
@@ -577,7 +592,7 @@ export const runSubscription = (
   const { url, query, operationName } = options
   const wsUrl = url.replace(/^http/, "ws")
 
-  connection.subscriptionState.set(currentTabID.value, "SUBSCRIBING")
+  connection.subscriptionState.set(currentGQLTabID.value, "SUBSCRIBING")
 
   connection.socket = new WebSocket(wsUrl, "graphql-ws")
 
@@ -606,7 +621,7 @@ export const runSubscription = (
     const data = JSON.parse(event.data)
     switch (data.type) {
       case GQL.CONNECTION_ACK: {
-        connection.subscriptionState.set(currentTabID.value, "SUBSCRIBED")
+        connection.subscriptionState.set(currentGQLTabID.value, "SUBSCRIBED")
         break
       }
       case GQL.CONNECTION_ERROR: {
@@ -635,7 +650,7 @@ export const runSubscription = (
 
   connection.socket.onclose = (event) => {
     console.log("WebSocket is closed now.", event)
-    connection.subscriptionState.set(currentTabID.value, "UNSUBSCRIBED")
+    connection.subscriptionState.set(currentGQLTabID.value, "UNSUBSCRIBED")
   }
 
   addQueryToHistory(options, "")
@@ -658,6 +673,8 @@ const addQueryToHistory = (options: RunQueryOptions, response: string) => {
         headers: request.headers,
         variables,
         auth: request.auth as HoppGQLAuth,
+        description: null,
+        responses: {},
       }),
       response,
       star: false,

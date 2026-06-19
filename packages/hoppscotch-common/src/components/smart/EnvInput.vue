@@ -98,7 +98,7 @@ import IconEye from "~icons/lucide/eye"
 import IconEyeoff from "~icons/lucide/eye-off"
 import { CompletionContext, autocompletion } from "@codemirror/autocomplete"
 import { useService } from "dioc/vue"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { syntaxTree } from "@codemirror/language"
 import { uniqueID } from "~/helpers/utils/uniqueID"
 import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
@@ -389,7 +389,7 @@ const aggregateEnvs = useReadonlyStream(
   []
 ) as Ref<AggregateEnvironment[]>
 
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 
 const envVars = computed(() => {
   // If envs are passed directly as props, mask secrets and return them
@@ -408,21 +408,26 @@ const envVars = computed(() => {
   const currentTab = tabs.currentActiveTab.value
   const { document } = currentTab
   const isRequest = document.type === "request"
-  const isExample = document.type === "example-response"
+  const isRESTExample = document.type === "example-response"
+  const isGQLExample = document.type === "gql-example-response"
+  const isExample = isRESTExample || isGQLExample
+  const isGQLRequest = document.type === "gql-request"
 
-  // variables inherited from the collection if we're in a request or example
+  // variables inherited from the collection if we're in a request, GQL request, or example
   const collectionVariables =
-    isRequest || isExample
+    isRequest || isExample || isGQLRequest
       ? transformInheritedCollectionVariablesToAggregateEnv(
           document.inheritedProperties?.variables ?? [],
           false
         )
       : []
 
-  // request-level variables
+  // request-level variables. Only REST carries a `requestVariables` key/value
+  // array — GQL has a JSON `variables` blob which is a different concept (it's
+  // GraphQL operation variables, not env-style overrides).
   const rawRequestVars = isRequest
     ? document.request.requestVariables
-    : isExample
+    : isRESTExample
       ? document.response.originalRequest.requestVariables
       : []
 

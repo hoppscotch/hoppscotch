@@ -21,8 +21,15 @@
     </div>
 
     <Embeds
-      v-else-if="tab"
-      v-model:model-tab="tab"
+      v-else-if="protocol === 'rest' && restTab"
+      v-model:model-tab="restTab"
+      :properties="properties"
+      :shared-request-i-d="sharedRequestID"
+    />
+
+    <EmbedsGQLIndex
+      v-else-if="protocol === 'gql' && gqlTab"
+      v-model:model-tab="gqlTab"
       :properties="properties"
       :shared-request-i-d="sharedRequestID"
     />
@@ -30,8 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
-import { watch } from "vue"
+import { ref, watch, onMounted } from "vue"
 import { useRoute } from "vue-router"
 import { useGQLQuery } from "~/composables/graphql"
 import {
@@ -40,13 +46,19 @@ import {
   ResolveShortcodeQueryVariables,
 } from "~/helpers/backend/graphql"
 import * as E from "fp-ts/Either"
-import { onMounted } from "vue"
 import {
+  HoppGQLRequest,
+  HoppRESTRequest,
   getDefaultRESTRequest,
+  isGQLRequest,
+  makeGQLRequest,
   safelyExtractRESTRequest,
 } from "@hoppscotch/data"
 import { HoppTab } from "~/services/tab"
-import { HoppRequestDocument } from "~/helpers/rest/document"
+import {
+  HoppGQLRequestDocument,
+  HoppRequestDocument,
+} from "~/helpers/rest/document"
 import { applySetting } from "~/newstore/settings"
 import { useI18n } from "~/composables/i18n"
 
@@ -56,7 +68,11 @@ const route = useRoute()
 
 const sharedRequestID = ref("")
 const invalidLink = ref(false)
-const properties = ref([])
+const properties = ref<string[]>([])
+
+// Discriminator for which embed shell to render. Set when the shortcode
+// payload is parsed; null until then (loading state).
+const protocol = ref<"rest" | "gql" | null>(null)
 
 const sharedRequestDetails = useGQLQuery<
   ResolveShortcodeQuery,
@@ -69,8 +85,16 @@ const sharedRequestDetails = useGQLQuery<
   },
 })
 
-const tab = ref<HoppTab<HoppRequestDocument>>({
-  id: "0",
+// Tab ids unique per page mount so two embeds opened back-to-back via SPA
+// navigation don't share connection-service state (the GQL connection
+// service keys schema/socket/subscription by tabId). `crypto.randomUUID`
+// is available in all evergreen browsers and the desktop renderer.
+const embedTabId = `embed-${crypto.randomUUID()}`
+
+// One tab ref per protocol so each child component gets a tightly-typed
+// model and we don't need to widen the embed components themselves.
+const restTab = ref<HoppTab<HoppRequestDocument>>({
+  id: embedTabId,
   document: {
     request: getDefaultRESTRequest(),
     response: null,
@@ -78,6 +102,30 @@ const tab = ref<HoppTab<HoppRequestDocument>>({
     type: "request",
   },
 })
+
+const gqlTab = ref<HoppTab<HoppGQLRequestDocument>>({
+  id: embedTabId,
+  document: {
+    request: makeGQLRequest({
+      name: "Untitled Request",
+      url: "",
+      headers: [],
+      query: "",
+      variables: "",
+      auth: { authType: "none", authActive: true },
+      description: null,
+      responses: {},
+    }),
+    response: null,
+    isDirty: false,
+    type: "gql-request",
+  },
+})
+
+const isGQLShortcodePayload = (req: unknown): boolean =>
+  !!req &&
+  typeof req === "object" &&
+  isGQLRequest(req as HoppRESTRequest | HoppGQLRequest)
 
 watch(
   () => sharedRequestDetails.data,
@@ -96,10 +144,30 @@ watch(
         data.right.shortcode?.request as string
       )
 
-      tab.value.document.request = safelyExtractRESTRequest(
-        request,
-        getDefaultRESTRequest()
-      )
+      if (isGQLShortcodePayload(request)) {
+        const gql = request as Record<string, unknown>
+        gqlTab.value.document.request = makeGQLRequest({
+          name: typeof gql.name === "string" ? gql.name : "Untitled Request",
+          url: typeof gql.url === "string" ? gql.url : "",
+          headers: Array.isArray(gql.headers) ? (gql.headers as never) : [],
+          query: typeof gql.query === "string" ? gql.query : "",
+          variables: typeof gql.variables === "string" ? gql.variables : "",
+          auth:
+            gql.auth && typeof gql.auth === "object" && "authType" in gql.auth
+              ? (gql.auth as never)
+              : { authType: "none", authActive: true },
+          description:
+            typeof gql.description === "string" ? gql.description : null,
+          responses: {},
+        })
+        protocol.value = "gql"
+      } else {
+        restTab.value.document.request = safelyExtractRESTRequest(
+          request,
+          getDefaultRESTRequest()
+        )
+        protocol.value = "rest"
+      }
 
       if (data.right.shortcode && data.right.shortcode.properties) {
         const parsedProperties = JSON.parse(data.right.shortcode.properties)

@@ -196,7 +196,9 @@ pub fn run() {
                     app.set_menu(menu)?;
 
                     for (_label, window) in app.webview_windows() {
-                        let _ = window.hide_menu();
+                        if let Err(e) = window.hide_menu() {
+                            tracing::warn!("failed to hide menu for window {}: {e}", _label);
+                        }
                     }
                     Ok(())
                 })();

@@ -169,6 +169,7 @@ pub fn run() {
             #[cfg(target_os = "linux")]
             {
                 use tauri::menu::{Menu, PredefinedMenuItem, Submenu};
+                use tauri::Manager;
 
                 let result = (|| -> Result<(), Box<dyn std::error::Error>> {
                     let handle = app.handle();
@@ -187,12 +188,16 @@ pub fn run() {
                             &PredefinedMenuItem::select_all(handle, None)?,
                         ],
                     )?;
-                    // NOTE: This menu bar will be visible on Linux. Removing it or hiding it
-                    // also removes the accelerator registrations and breaks clipboard shortcuts
-                    // (webkit2gtk requires native menu items to recognise Ctrl+C/V/X etc.).
+                    // The menu must be registered so webkit2gtk picks up the accelerators
+                    // (Ctrl+C/V/X etc.), but the menu bar itself should be hidden so it
+                    // does not appear as a visible "Edit" strip the user cannot dismiss.
                     // See https://github.com/tauri-apps/tauri/issues/2397
                     let menu = Menu::with_items(handle, &[&edit_menu])?;
                     app.set_menu(menu)?;
+
+                    for (_label, window) in app.webview_windows() {
+                        let _ = window.hide_menu();
+                    }
                     Ok(())
                 })();
 

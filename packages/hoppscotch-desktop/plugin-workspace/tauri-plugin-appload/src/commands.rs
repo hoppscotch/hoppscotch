@@ -239,6 +239,11 @@ pub async fn load<R: Runtime>(app: AppHandle<R>, options: LoadOptions) -> Result
         })?;
     }
 
+    #[cfg(target_os = "linux")]
+    {
+        let _ = window.hide_menu();
+    }
+
     let is_visible = window.is_visible().unwrap_or(false);
     let response = LoadResponse {
         success: is_visible,

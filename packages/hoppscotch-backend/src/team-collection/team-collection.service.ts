@@ -1250,7 +1250,8 @@ export class TeamCollectionService {
     WHERE
       "TeamRequest"."teamID"=${teamID}
       AND
-        title ILIKE ${`%${escapeSqlLikeString(searchQuery)}%`}
+        (title ILIKE ${`%${escapeSqlLikeString(searchQuery)}%`}
+        OR request->>'endpoint' ILIKE ${`%${escapeSqlLikeString(searchQuery)}%`})
     ORDER BY
       similarity(title, ${searchQuery})
     LIMIT ${take}

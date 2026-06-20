@@ -1253,7 +1253,10 @@ export class TeamCollectionService {
         (title ILIKE ${`%${escapeSqlLikeString(searchQuery)}%`}
         OR request->>'endpoint' ILIKE ${`%${escapeSqlLikeString(searchQuery)}%`})
     ORDER BY
-      similarity(title, ${searchQuery})
+      GREATEST(
+        similarity(title, ${searchQuery}),
+        COALESCE(similarity(request->>'endpoint', ${searchQuery}), 0)
+      ) DESC
     LIMIT ${take}
     OFFSET ${skip === 0 ? 0 : (skip - 1) * take};
   `;

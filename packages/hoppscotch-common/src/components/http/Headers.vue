@@ -263,7 +263,7 @@ import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as RA from "fp-ts/ReadonlyArray"
 import { cloneDeep, isEqual } from "lodash-es"
-import { reactive, Ref, ref, toRef, watch } from "vue"
+import { computed, reactive, Ref, ref, toRef, watch } from "vue"
 import draggable from "vuedraggable-es"
 
 import { useVModel } from "@vueuse/core"
@@ -281,8 +281,8 @@ import {
 import { isDragDropAllowed, DragDropEvent } from "~/helpers/dragDropValidation"
 import {
   AggregateEnvironment,
-  aggregateEnvs$,
-  getAggregateEnvs,
+  aggregateEnvsWithCurrentValue$,
+  getAggregateEnvsWithCurrentValue,
   getCurrentEnvironment,
 } from "~/newstore/environments"
 import { toggleNestedSetting } from "~/newstore/settings"
@@ -553,7 +553,10 @@ const clearContent = () => {
   bulkHeaders.value = ""
 }
 
-const aggregateEnvs = useReadonlyStream(aggregateEnvs$, getAggregateEnvs())
+const aggregateEnvs = useReadonlyStream(
+  aggregateEnvsWithCurrentValue$,
+  getAggregateEnvsWithCurrentValue()
+)
 
 const computedHeaders: Ref<
   {
@@ -574,23 +577,24 @@ const inheritedProperty = ref<
 
 const currentSelectedEnvironment = getCurrentEnvironment()
 
-watch([props.modelValue, aggregateEnvs], async () => {
-  const resolvedEnvs = aggregateEnvs.value.map((env) => {
-    return {
-      ...env,
-      currentValue:
-        env.currentValue !== ""
-          ? env.currentValue
-          : (currentEnvironmentValueService.getEnvironmentByKey(
-              env?.sourceEnv !== "Global"
-                ? currentSelectedEnvironment.id
-                : "Global",
-              env?.key ?? ""
-            )?.currentValue ?? ""),
-    }
-  })
+const resolvedEnvs = computed(() =>
+  aggregateEnvs.value.map((env) => ({
+    ...env,
+    currentValue:
+      env.currentValue !== ""
+        ? env.currentValue
+        : (currentEnvironmentValueService.getEnvironmentByKey(
+            env?.sourceEnv !== "Global"
+              ? currentSelectedEnvironment.id
+              : "Global",
+            env?.key ?? ""
+          )?.currentValue ?? ""),
+  }))
+)
+
+watch([props.modelValue, resolvedEnvs], async () => {
   computedHeaders.value = (
-    await getComputedHeaders(props.modelValue, resolvedEnvs)
+    await getComputedHeaders(props.modelValue, resolvedEnvs.value)
   ).map((header, index) => ({
     id: `header-${index}`,
     ...header,
@@ -598,7 +602,7 @@ watch([props.modelValue, aggregateEnvs], async () => {
 })
 
 watch(
-  () => [props.inheritedProperties, request.value],
+  () => [props.inheritedProperties, request.value, resolvedEnvs.value],
   async () => {
     if (!props.inheritedProperties) return
 
@@ -628,7 +632,7 @@ watch(
       )
     ) {
       const [computedAuthHeader] = await getComputedAuthHeaders(
-        aggregateEnvs.value,
+        resolvedEnvs.value,
         request.value,
         props.inheritedProperties.auth.inheritedAuth,
         false

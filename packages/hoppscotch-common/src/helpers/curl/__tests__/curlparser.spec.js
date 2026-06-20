@@ -870,6 +870,36 @@ const samples = [
     }),
   },
   {
+    command: `curl google.com -H "X-Signature: sha256: abc:def"`,
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled",
+      endpoint: "https://google.com/",
+      auth: {
+        authType: "inherit",
+        authActive: true,
+      },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      params: [],
+      headers: [
+        {
+          active: true,
+          key: "X-Signature",
+          value: "sha256: abc:def",
+          description: "",
+        },
+      ],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+      description: null,
+    }),
+  },
+  {
     command: `curl google.com -H "Authorization"`,
     response: makeRESTRequest({
       method: "GET",

@@ -331,6 +331,32 @@ describe("REST Request Transformation", () => {
     })
   })
 
+  it("preserves JSON request body text without re-serializing numbers", async () => {
+    const jsonBody = '{"amount":70.0,"nested":{"value":1.0}}'
+    const request: EffectiveHoppRESTRequest = {
+      ...baseEffectiveRequest,
+      method: "POST",
+      body: { contentType: "application/json", body: jsonBody },
+      effectiveFinalBody: jsonBody,
+      effectiveFinalHeaders: [
+        {
+          active: true,
+          key: "content-type",
+          value: "application/json",
+          description: "",
+        },
+      ],
+    }
+
+    const result = await RESTRequest.toRequest(request)
+
+    expect(result.content).toEqual({
+      kind: "text",
+      content: jsonBody,
+      mediaType: "application/json",
+    })
+  })
+
   it("includes auth parameters when basic auth is active", async () => {
     const request: EffectiveHoppRESTRequest = {
       ...baseEffectiveRequest,

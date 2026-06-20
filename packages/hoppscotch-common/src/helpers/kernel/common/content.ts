@@ -5,6 +5,12 @@ import { pipe } from "fp-ts/function"
 
 import { ContentType, MediaType, content } from "@hoppscotch/kernel"
 import { EffectiveHoppRESTRequest } from "~/helpers/utils/EffectiveURL"
+import { isJSONContentType } from "~/helpers/utils/contenttypes"
+
+const isJSONContentTypeWithPreservedText = (
+  contentType: string | null
+): contentType is string =>
+  typeof contentType === "string" && isJSONContentType(contentType)
 
 /**
  * Content processors for converting raw body strings to standardized ContentType objects.
@@ -13,17 +19,6 @@ import { EffectiveHoppRESTRequest } from "~/helpers/utils/EffectiveURL"
  * NOTE: Validation belongs in upper layers, not the processor layer.
  */
 const Processors = {
-  /**
-   * Processes JSON content as pre-stringified JSON text.
-   *
-   * NOTE: Assumes input is valid JSON in string format since user selected "JSON".
-   * Uses `content.text()` with JSON media type to avoid double-encoding.
-   */
-  json: {
-    process: (body: string): E.Either<Error, ContentType> =>
-      E.right(content.text(body, MediaType.APPLICATION_JSON)),
-  },
-
   /**
    * Processes binary content from Blob/File objects.
    *
@@ -92,11 +87,6 @@ const Processors = {
  */
 const getProcessor = (contentType: string) => {
   switch (contentType) {
-    case "application/json":
-    case "application/ld+json":
-    case "application/hal+json":
-    case "application/vnd.api+json":
-      return Processors.json.process
     case "application/xml":
     case "text/xml":
       return Processors.xml.process
@@ -144,6 +134,15 @@ export const transformContent = (
       if (typeof effectiveFinalBody !== "string") {
         return TE.right(O.none)
       }
+
+      // JSON request bodies originate from the editor as text. Preserve that
+      // exact representation instead of passing it through any JSON parser or
+      // serializer, because JavaScript number serialization normalizes values
+      // like `70.0` to `70`.
+      if (isJSONContentTypeWithPreservedText(body.contentType)) {
+        return TE.right(O.some(content.text(effectiveFinalBody, body.contentType)))
+      }
+
       return pipe(
         TE.fromEither(getProcessor(body.contentType)(effectiveFinalBody)),
         TE.map(O.some)

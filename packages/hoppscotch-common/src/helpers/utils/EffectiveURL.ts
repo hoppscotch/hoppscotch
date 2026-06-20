@@ -30,6 +30,20 @@ import { toFormData } from "../functional/formData"
 import { tupleWithSameKeysToRecord } from "../functional/record"
 import { isJSONContentType } from "./contenttypes"
 
+const getJSONBodyContent = (body: string | null): string => {
+  const bodyContent = body ?? ""
+
+  // If the body is already valid JSON, preserve the exact text the user wrote.
+  // Rebuilding JSON through a parser/serializer normalizes number tokens, e.g.
+  // `70.0` becomes `70`, which changes the outbound request body.
+  try {
+    JSON.parse(bodyContent)
+    return bodyContent
+  } catch (_) {
+    return stripComments(bodyContent)
+  }
+}
+
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   /**
    * The effective final URL.
@@ -241,7 +255,7 @@ export const resolvesEnvsInBody = (
   // underlying stripComments_("") from jsonc-parser returns null. This pattern is used
   // consistently throughout this file (see also getFinalBodyFromRequest).
   if (isJSONContentType(body.contentType))
-    bodyContent = stripComments(body.body ?? "")
+    bodyContent = getJSONBodyContent(body.body)
 
   if (body.contentType === "application/x-www-form-urlencoded") {
     bodyContent = body.body
@@ -343,7 +357,7 @@ export function getFinalBodyFromRequest(
   let bodyContent = request.body.body ?? ""
 
   if (isJSONContentType(request.body.contentType))
-    bodyContent = stripComments(request.body.body ?? "")
+    bodyContent = getJSONBodyContent(request.body.body)
 
   // body can be null if the content-type is not set
   return parseBodyEnvVariables(bodyContent, envVariables)

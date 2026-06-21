@@ -98,8 +98,19 @@ export class CookieJarService extends Service {
         return
       }
 
-      await this.loadJar()
-      await this.setupWatcher()
+      // `loadJar` and `setupWatcher` errors are caught so `hydrated`
+      // resolves either way. A rejected `hydrated` would make every
+      // later `whenReady()` reject, and the interceptors' outer
+      // try/catch would convert a successful HTTP response into
+      // `E.left` on every request, the same failure mode the
+      // `initFailed` flag exists to avoid.
+      try {
+        await this.loadJar()
+        await this.setupWatcher()
+      } catch (e) {
+        this.initFailed = true
+        console.error("[CookieJar] Failed during init:", e)
+      }
     })()
     await this.hydrated
   }

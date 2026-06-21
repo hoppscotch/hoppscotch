@@ -444,7 +444,12 @@ export class CookieJarService extends Service {
     await this.whenReady()
     let changed = false
     for (const target of targets) {
-      const existing = this.cookieJar.value.get(target.domain)
+      // Domain is canonicalized at the lookup boundary so a target
+      // built from raw user input or a script-supplied value (e.g.
+      // ".Example.COM") finds the canonical bucket the jar
+      // actually stored.
+      const domain = this.canonStoreDomain(target.domain)
+      const existing = this.cookieJar.value.get(domain)
       if (!existing) {
         continue
       }
@@ -457,9 +462,9 @@ export class CookieJarService extends Service {
       }
       changed = true
       if (next.length === 0) {
-        this.cookieJar.value.delete(target.domain)
+        this.cookieJar.value.delete(domain)
       } else {
-        this.cookieJar.value.set(target.domain, next)
+        this.cookieJar.value.set(domain, next)
       }
     }
     if (changed) {

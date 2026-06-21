@@ -201,6 +201,15 @@ function addNewDomain() {
     toast.error(`${t("cookies.modal.empty_domain")}`)
     return
   }
+  // If the user types a domain that already has a row, `.set` with
+  // an empty array would wipe the existing cookies under that
+  // domain on save. The duplicate-add is treated as a no-op so an
+  // accidental re-type does not remove cookies the user can see in
+  // the same modal.
+  if (workingCookieJar.value.has(newDomainText.value)) {
+    newDomainText.value = ""
+    return
+  }
   workingCookieJar.value.set(newDomainText.value, [])
   newDomainText.value = ""
 }

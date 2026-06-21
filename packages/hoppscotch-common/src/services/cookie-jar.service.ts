@@ -59,6 +59,12 @@ export class CookieJarService extends Service {
   // the persisted state with one cookie.
   private hydrated: Promise<void> | null = null
 
+  // Set when `Store.init` fails. The service stays alive (the
+  // request flow keeps working without cookies) but public
+  // mutators no-op so a doomed `persistJar` cannot log the same
+  // failure on every request.
+  private initFailed = false
+
   // Writes are serialized through this chain so two concurrent
   // mutations cannot race on `Store.set`. Each write captures the
   // current in-memory map at the time its turn runs, so the latest
@@ -84,6 +90,7 @@ export class CookieJarService extends Service {
     this.hydrated = (async () => {
       const initResult = await Store.init()
       if (E.isLeft(initResult)) {
+        this.initFailed = true
         console.error(
           "[CookieJar] Failed to initialize store:",
           initResult.left
@@ -169,6 +176,9 @@ export class CookieJarService extends Service {
   }
 
   private persistJar(): void {
+    if (this.initFailed) {
+      return
+    }
     const token = `${this.writePrefix}-${++this.writeCounter}`
     this.recentWriteTokens.push(token)
     if (this.recentWriteTokens.length > this.recentWriteTokensCap) {

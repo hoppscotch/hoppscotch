@@ -159,13 +159,29 @@ export class CookieJarService extends Service {
     if (typeof v.domains !== "object" || v.domains === null) {
       throw new Error("payload missing domains record")
     }
-    // Per-domain entries must be arrays. Without this guard a
-    // malformed cross-process write (or a future schema change)
-    // gets past the surface check and then `pruneExpired` throws
-    // on `cookies.filter(...)`, which the watcher promises not to.
+    // Per-domain entries must be arrays of minimally-shaped cookie
+    // objects. Without the per-cookie shape check a malformed
+    // cross-process write (cookie with non-string name or value)
+    // would survive parseStored, slip past `isCookieNameValid`'s
+    // regex when `.test` coerces undefined to the string
+    // "undefined", and ship `Cookie: undefined=undefined` on the
+    // wire. The schema-grade fields the rest of the service relies
+    // on are name, value, and domain, so those get the typeof
+    // check at the boundary.
     for (const cookies of Object.values(v.domains)) {
       if (!Array.isArray(cookies)) {
         throw new Error("payload has non-array domain entry")
+      }
+      for (const c of cookies) {
+        if (
+          typeof c !== "object" ||
+          c === null ||
+          typeof (c as { name?: unknown }).name !== "string" ||
+          typeof (c as { value?: unknown }).value !== "string" ||
+          typeof (c as { domain?: unknown }).domain !== "string"
+        ) {
+          throw new Error("payload has malformed cookie")
+        }
       }
     }
     return v as StoredCookieJar
@@ -344,6 +360,17 @@ export class CookieJarService extends Service {
         )
         continue
       }
+      // `new Date(c.expires).toISOString()` throws RangeError on an
+      // Invalid Date (kernel passes a Date built from an unparseable
+      // Expires attribute). The expires field is dropped instead so
+      // the cookie still captures, treated as a session cookie.
+      let expires: string | undefined
+      if (c.expires) {
+        const t = new Date(c.expires).getTime()
+        if (Number.isFinite(t)) {
+          expires = new Date(t).toISOString()
+        }
+      }
       normalized.push({
         name: c.name,
         value: c.value,
@@ -352,7 +379,7 @@ export class CookieJarService extends Service {
         httpOnly: c.httpOnly ?? false,
         secure: c.secure ?? false,
         sameSite: c.sameSite ?? "Lax",
-        ...(c.expires ? { expires: new Date(c.expires).toISOString() } : {}),
+        ...(expires !== undefined ? { expires } : {}),
       })
     }
 

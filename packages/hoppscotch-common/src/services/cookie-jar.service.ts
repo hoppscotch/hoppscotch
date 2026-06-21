@@ -526,11 +526,19 @@ export class CookieJarService extends Service {
     if (cookies.length === 0) {
       return
     }
+    // `serializeCookieHeader` may drop every cookie if the values
+    // fail validation, returning an empty string. The Cookie header
+    // is set only when the serialized form has content, so a request
+    // never goes out with `Cookie: ""` which some servers reject.
+    const serialized = this.serializeCookieHeader(cookies)
+    if (serialized.length === 0) {
+      return
+    }
 
     if (!request.headers) {
       request.headers = {}
     }
-    request.headers["Cookie"] = this.serializeCookieHeader(cookies)
+    request.headers["Cookie"] = serialized
   }
 
   // The one shared receive path. Captures structured cookies the

@@ -82,8 +82,11 @@ export class CookieJarService extends Service {
   // `lastWriteToken` would lose the prior token whenever two writes
   // landed in the same tick, so an in-process echo for the older
   // write would be misclassified as foreign and reapply a stale
-  // snapshot. The ring tolerates burst writes up to its size.
-  private readonly recentWriteTokensCap = 100
+  // snapshot. The ring tolerates burst writes up to its size. The
+  // cap is sized well above any realistic burst (modal save, bulk
+  // import, response capture with many Set-Cookies) so a token
+  // cannot age out before its disk-write's watcher echo arrives.
+  private readonly recentWriteTokensCap = 10_000
   private recentWriteTokens: string[] = []
 
   async onServiceInit(): Promise<void> {

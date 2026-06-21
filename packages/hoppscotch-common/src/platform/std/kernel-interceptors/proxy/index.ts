@@ -233,7 +233,7 @@ export class ProxyKernelInterceptorService
     // request, otherwise the in-memory default (`proxy.hoppscotch.io`) is used
     // when `execute()` is called during initial page load — e.g. the OAuth
     // redirect handler on `/oauth`.
-    const pending = this.store.whenReady().then(() => {
+    const pending = this.store.whenReady().then(async () => {
       if (cancelled) return null
 
       const settings = this.store.getSettings()

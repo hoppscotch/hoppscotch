@@ -286,16 +286,28 @@ async function saveCookieChanges() {
     }
   }
 
-  // A domain the user removed from `workingCookieJar` may have
+  // Domains the user removed from `workingCookieJar` may have
   // gained new cookies in the live jar (response capture during
-  // the modal session) that are not in `baseline`. The delta would
-  // otherwise leave them alive even though the user clicked
-  // delete on the domain. For each removed-from-working domain,
-  // also delete any cookies currently in the live jar under it.
-  for (const domain of baselineCookieJar.value.keys()) {
-    if (workingCookieJar.value.has(domain)) {
-      continue
+  // the modal session). The delta against baseline would leave
+  // them alive even though the user clicked delete on the domain.
+  // Clear All also produces an empty `workingCookieJar`, and a
+  // domain captured for the first time during the session is in
+  // neither baseline nor working, so the baseline-only loop would
+  // miss it. The removed-domain set walks both baseline and the
+  // live jar so every domain absent from working contributes its
+  // live cookies to the delete list.
+  const removedDomains = new Set<string>()
+  for (const d of baselineCookieJar.value.keys()) {
+    if (!workingCookieJar.value.has(d)) {
+      removedDomains.add(d)
     }
+  }
+  for (const d of cookieJarService.cookieJar.value.keys()) {
+    if (!workingCookieJar.value.has(d)) {
+      removedDomains.add(d)
+    }
+  }
+  for (const domain of removedDomains) {
     const liveCookies = cookieJarService.cookieJar.value.get(domain) ?? []
     for (const c of liveCookies) {
       const key = cookieKey(c)

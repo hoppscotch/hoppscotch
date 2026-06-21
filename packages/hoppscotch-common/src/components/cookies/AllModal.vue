@@ -328,7 +328,20 @@ function saveCookie(value: string) {
     const { domain } = showEditModalFor.value
     const entry = workingCookieJar.value.get(domain)!
 
-    const name = `Cookie-${entry.length}`
+    // Auto-name uses one past the highest existing `Cookie-N` so
+    // a delete-then-create flow does not produce two rows with
+    // the same name (which `cookieKey`'s `(domain, name, path)`
+    // merge would collapse to one on save and silently drop the
+    // duplicate).
+    let next = 0
+    for (const existing of entry) {
+      const m = /^Cookie-(\d+)$/.exec(existing.name)
+      if (m) {
+        const n = Number(m[1])
+        if (n >= next) next = n + 1
+      }
+    }
+    const name = `Cookie-${next}`
     entry.push(makeUICookie(domain, value, name))
     showEditModalFor.value = null
     return

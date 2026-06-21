@@ -261,13 +261,24 @@ export class CookieJarService extends Service {
       // the entry boundary so script-supplied and modal-supplied
       // entries like `.Example.COM` end up as `example.com`, the
       // same form `domainMatches` compares against.
+      // A canonicalized domain that contains whitespace or comes
+      // out empty cannot match any request host, so the cookie is
+      // skipped instead of polluting the jar with an unreachable
+      // entry.
       // Path is normalized too so the merge key (`name`, `path`)
       // is comparable across response captures, script returns,
       // and modal edits. An undefined incoming path would otherwise
       // miss a stored `"/"` and produce a duplicate.
+      const canonDomain = this.canonStoreDomain(cookie.domain)
+      if (canonDomain.length === 0 || /\s/.test(canonDomain)) {
+        console.warn(
+          `[CookieJar] Skipping cookie "${cookie.name}" with invalid domain "${cookie.domain}"`
+        )
+        continue
+      }
       const normalized: Cookie = {
         ...cookie,
-        domain: this.canonStoreDomain(cookie.domain),
+        domain: canonDomain,
         path: cookie.path ?? "/",
       }
       const existing = this.cookieJar.value.get(normalized.domain) ?? []
@@ -458,15 +469,21 @@ export class CookieJarService extends Service {
 
   // Drops expired cookies from the jar. Called on load and before
   // every read so a stale cookie never gets forwarded. Persists only
-  // when something was actually removed.
+  // when something was actually removed. A cookie whose `expires`
+  // is unparseable (the kernel handed back an Invalid Date that
+  // serialized strangely, or a cross-process write stored something
+  // non-ISO) is treated as a session cookie instead of as expired,
+  // so a malformed payload cannot silently evaporate jar entries.
   public pruneExpired(): void {
     const now = Date.now()
     let changed = false
 
     for (const [domain, cookies] of this.cookieJar.value.entries()) {
-      const live = cookies.filter(
-        (c) => !c.expires || new Date(c.expires).getTime() >= now
-      )
+      const live = cookies.filter((c) => {
+        if (!c.expires) return true
+        const t = new Date(c.expires).getTime()
+        return !Number.isFinite(t) || t >= now
+      })
       if (live.length === cookies.length) {
         continue
       }
@@ -520,8 +537,11 @@ export class CookieJarService extends Service {
       for (const cookie of cookies) {
         const passesPath = this.pathMatches(url.pathname, cookie.path || "/")
 
-        const passesExpires =
-          !cookie.expires || new Date(cookie.expires).getTime() >= Date.now()
+        const passesExpires = (() => {
+          if (!cookie.expires) return true
+          const t = new Date(cookie.expires).getTime()
+          return !Number.isFinite(t) || t >= Date.now()
+        })()
 
         const passesSecure = !cookie.secure || url.protocol === "https:"
 
@@ -624,7 +644,8 @@ export class CookieJarService extends Service {
       for (const key of Object.keys(request.headers)) {
         if (
           key.toLowerCase() === "cookie" &&
-          request.headers[key].trim() !== ""
+          request.headers[key]?.trim() !== "" &&
+          request.headers[key] !== undefined
         ) {
           return
         }

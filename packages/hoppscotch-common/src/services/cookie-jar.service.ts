@@ -71,7 +71,14 @@ export class CookieJarService extends Service {
   // other's writes as self-echoes.
   private writePrefix = crypto.randomUUID()
   private writeCounter = 0
-  private lastWriteToken: string | null = null
+
+  // Ring buffer of recent self-write tokens. A single-slot
+  // `lastWriteToken` would lose the prior token whenever two writes
+  // landed in the same tick, so an in-process echo for the older
+  // write would be misclassified as foreign and reapply a stale
+  // snapshot. The ring tolerates burst writes up to its size.
+  private readonly recentWriteTokensCap = 100
+  private recentWriteTokens: string[] = []
 
   async onServiceInit(): Promise<void> {
     this.hydrated = (async () => {
@@ -126,7 +133,10 @@ export class CookieJarService extends Service {
         console.error("[CookieJar] Watcher rejected malformed payload:", e)
         return
       }
-      if (stored.writeToken && stored.writeToken === this.lastWriteToken) {
+      if (
+        stored.writeToken &&
+        this.recentWriteTokens.includes(stored.writeToken)
+      ) {
         return
       }
       this.cookieJar.value = this.toMap(stored.domains)
@@ -160,7 +170,10 @@ export class CookieJarService extends Service {
 
   private persistJar(): void {
     const token = `${this.writePrefix}-${++this.writeCounter}`
-    this.lastWriteToken = token
+    this.recentWriteTokens.push(token)
+    if (this.recentWriteTokens.length > this.recentWriteTokensCap) {
+      this.recentWriteTokens.shift()
+    }
 
     this.writeChain = this.writeChain
       .then(async () => {

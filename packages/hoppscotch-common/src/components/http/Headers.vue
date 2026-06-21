@@ -282,7 +282,9 @@ import { isDragDropAllowed, DragDropEvent } from "~/helpers/dragDropValidation"
 import {
   AggregateEnvironment,
   aggregateEnvs$,
+  aggregateEnvsWithCurrentValue$,
   getAggregateEnvs,
+  getAggregateEnvsWithCurrentValue,
   getCurrentEnvironment,
 } from "~/newstore/environments"
 import { toggleNestedSetting } from "~/newstore/settings"
@@ -554,6 +556,10 @@ const clearContent = () => {
 }
 
 const aggregateEnvs = useReadonlyStream(aggregateEnvs$, getAggregateEnvs())
+const aggregateEnvsWithCurrentValue = useReadonlyStream(
+  aggregateEnvsWithCurrentValue$,
+  getAggregateEnvsWithCurrentValue()
+)
 
 const computedHeaders: Ref<
   {
@@ -598,7 +604,11 @@ watch([props.modelValue, aggregateEnvs], async () => {
 })
 
 watch(
-  () => [props.inheritedProperties, request.value],
+  () => [
+    props.inheritedProperties,
+    request.value,
+    aggregateEnvsWithCurrentValue.value,
+  ],
   async () => {
     if (!props.inheritedProperties) return
 
@@ -628,7 +638,7 @@ watch(
       )
     ) {
       const [computedAuthHeader] = await getComputedAuthHeaders(
-        aggregateEnvs.value,
+        aggregateEnvsWithCurrentValue.value,
         request.value,
         props.inheritedProperties.auth.inheritedAuth,
         false

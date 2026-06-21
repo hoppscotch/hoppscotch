@@ -246,7 +246,7 @@ function flatten(jar: Map<string, Cookie[]>): Cookie[] {
 // tuples the way a space separator can when a path contains
 // whitespace.
 const cookieKey = (c: Cookie) =>
-  `${c.domain}\u0000${c.name}\u0000${c.path ?? "/"}`
+  `${cookieJarService.canonStoreDomain(c.domain)}\u0000${c.name}\u0000${c.path ?? "/"}`
 
 async function saveCookieChanges() {
   const before = new Map<string, Cookie>()

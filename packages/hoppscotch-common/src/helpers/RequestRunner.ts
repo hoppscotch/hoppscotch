@@ -809,7 +809,7 @@ const getCookieJarEntries = () => {
 }
 
 const cookieKey = (c: { domain: string; name: string; path?: string }) =>
-  `${c.domain}\u0000${c.name}\u0000${c.path ?? "/"}`
+  `${cookieJarService.canonStoreDomain(c.domain)}\u0000${c.name}\u0000${c.path ?? "/"}`
 
 const applyScriptCookieDelta = async (
   preScript: Cookie[],

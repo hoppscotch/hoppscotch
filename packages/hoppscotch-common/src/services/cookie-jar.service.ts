@@ -475,6 +475,15 @@ export class CookieJarService extends Service {
     return result
   }
 
+  // RFC 6265 4.1.1 cookie-name is an RFC 7230 `token`, alphanumeric
+  // plus `!#$%&'*+-.^_` `` ` ``|~. Anything outside that set
+  // (whitespace, `=`, `;`, control chars, etc.) would either
+  // corrupt the header or be ambiguous on parse, so the cookie is
+  // skipped at serialization time.
+  private isCookieNameValid(name: string): boolean {
+    return name.length > 0 && /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/.test(name)
+  }
+
   // RFC 6265 5.4 cookie-value disallows CTL, whitespace, comma,
   // semicolon, double-quote, and backslash. A value with any of
   // these would corrupt the header on the wire, so the cookie is
@@ -490,6 +499,12 @@ export class CookieJarService extends Service {
   public serializeCookieHeader(cookies: Cookie[]): string {
     const parts: string[] = []
     for (const c of cookies) {
+      if (!this.isCookieNameValid(c.name)) {
+        console.warn(
+          `[CookieJar] Skipping cookie with invalid name "${c.name}"`
+        )
+        continue
+      }
       if (!this.isCookieValueValid(c.value)) {
         console.warn(
           `[CookieJar] Skipping cookie "${c.name}" with invalid value`

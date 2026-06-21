@@ -195,9 +195,9 @@ pub fn run() {
                     let menu = Menu::with_items(handle, &[&edit_menu])?;
                     app.set_menu(menu)?;
 
-                    for (_label, window) in app.webview_windows() {
+                    for (label, window) in app.webview_windows() {
                         if let Err(e) = window.hide_menu() {
-                            tracing::warn!("failed to hide menu for window {}: {e}", _label);
+                            tracing::warn!(?e, window_label = %label, "Failed to hide menu bar");
                         }
                     }
                     Ok(())

@@ -676,6 +676,16 @@ export class CookieJarService extends Service {
     if (!request.headers) {
       request.headers = {}
     }
+    // The user may have left a case-variant `cookie` / `COOKIE`
+    // key with an empty value (treated as absent above and not
+    // suppressing the jar). Removing every case-variant before
+    // writing the canonical `Cookie` ensures the request goes out
+    // with one header line, never two.
+    for (const key of Object.keys(request.headers)) {
+      if (key !== "Cookie" && key.toLowerCase() === "cookie") {
+        delete request.headers[key]
+      }
+    }
     request.headers["Cookie"] = serialized
   }
 

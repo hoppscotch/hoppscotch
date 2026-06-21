@@ -801,7 +801,7 @@ const getCookieJarEntries = () => {
 }
 
 const cookieKey = (c: { domain: string; name: string; path?: string }) =>
-  `${c.domain} ${c.name} ${c.path ?? "/"}`
+  `${c.domain}\u0000${c.name}\u0000${c.path ?? "/"}`
 
 const applyScriptCookieDelta = async (
   preScript: Cookie[],

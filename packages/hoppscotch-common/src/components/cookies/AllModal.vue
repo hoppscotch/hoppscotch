@@ -241,7 +241,12 @@ function flatten(jar: Map<string, Cookie[]>): Cookie[] {
   return out
 }
 
-const cookieKey = (c: Cookie) => `${c.domain} ${c.name} ${c.path ?? "/"}`
+// NUL between fields, never a valid cookie character per RFC 6265,
+// so the key cannot collide across different (domain, name, path)
+// tuples the way a space separator can when a path contains
+// whitespace.
+const cookieKey = (c: Cookie) =>
+  `${c.domain}\u0000${c.name}\u0000${c.path ?? "/"}`
 
 async function saveCookieChanges() {
   const before = new Map<string, Cookie>()

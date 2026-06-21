@@ -285,13 +285,17 @@ export class CookieJarService extends Service {
     await this.upsertCookies(cookies.map((c) => ({ ...c, domain })))
   }
 
-  // Strips a leading dot the way RFC 6265 5.2.3 requires (the dot
-  // is wire-format history and is not part of the matching
-  // algorithm), then lowercases per RFC 6265 5.1.2. Used at every
-  // boundary that writes into the jar so the stored key always
-  // matches `domainMatches`'s lowercase comparison.
-  private canonStoreDomain(raw: string): string {
-    const stripped = raw.startsWith(".") ? raw.slice(1) : raw
+  // Trims, strips a leading dot the way RFC 6265 5.2.3 requires
+  // (the dot is wire-format history and is not part of the
+  // matching algorithm), then lowercases per RFC 6265 5.1.2. Used
+  // at every boundary that writes into the jar so the stored key
+  // always matches `domainMatches`'s lowercase comparison. Public
+  // so the post-request script delta in `RequestRunner` and the
+  // modal save in `AllModal` can build matching keys without
+  // re-implementing the same normalization in three places.
+  public canonStoreDomain(raw: string): string {
+    const trimmed = raw.trim()
+    const stripped = trimmed.startsWith(".") ? trimmed.slice(1) : trimmed
     return stripped.toLowerCase()
   }
 

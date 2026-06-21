@@ -793,9 +793,17 @@ const getCookieJarEntries = () => {
     return null
   }
 
-  const cookieJarEntries = Array.from(
-    cookieJarService.cookieJar.value.values()
-  ).flatMap((cookies) => cookies)
+  // `cloneDeep` so the sandbox cannot mutate the live jar through
+  // a shared reference, and so `applyScriptCookieDelta`'s
+  // pre-script snapshot is independent of whatever the script
+  // returns. Without this a script that mutates a cookie in place
+  // and returns the same array would produce a pre-vs-post delta
+  // of "identical" and the mutation would silently drop.
+  const cookieJarEntries = cloneDeep(
+    Array.from(cookieJarService.cookieJar.value.values()).flatMap(
+      (cookies) => cookies
+    )
+  )
 
   return cookieJarEntries
 }

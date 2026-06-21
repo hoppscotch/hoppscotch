@@ -277,6 +277,25 @@ async function saveCookieChanges() {
     }
   }
 
+  // A domain the user removed from `workingCookieJar` may have
+  // gained new cookies in the live jar (response capture during
+  // the modal session) that are not in `baseline`. The delta would
+  // otherwise leave them alive even though the user clicked
+  // delete on the domain. For each removed-from-working domain,
+  // also delete any cookies currently in the live jar under it.
+  for (const domain of baselineCookieJar.value.keys()) {
+    if (workingCookieJar.value.has(domain)) {
+      continue
+    }
+    const liveCookies = cookieJarService.cookieJar.value.get(domain) ?? []
+    for (const c of liveCookies) {
+      const key = cookieKey(c)
+      if (!before.has(key)) {
+        removes.push({ domain: c.domain, name: c.name, path: c.path })
+      }
+    }
+  }
+
   if (upserts.length > 0) {
     await cookieJarService.upsertCookies(upserts)
   }

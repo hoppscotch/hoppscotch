@@ -198,11 +198,19 @@ export class CookieJarService extends Service {
         )
         continue
       }
-      // Path is normalized at the entry boundary so the merge key
-      // (`name`, `path`) is comparable across response captures,
-      // script returns, and modal edits. An undefined incoming path
-      // would otherwise miss a stored `"/"` and produce a duplicate.
-      const normalized: Cookie = { ...cookie, path: cookie.path ?? "/" }
+      // Domain is canonicalized (strip leading dot, lowercase) at
+      // the entry boundary so script-supplied and modal-supplied
+      // entries like `.Example.COM` end up as `example.com`, the
+      // same form `domainMatches` compares against.
+      // Path is normalized too so the merge key (`name`, `path`)
+      // is comparable across response captures, script returns,
+      // and modal edits. An undefined incoming path would otherwise
+      // miss a stored `"/"` and produce a duplicate.
+      const normalized: Cookie = {
+        ...cookie,
+        domain: this.canonStoreDomain(cookie.domain),
+        path: cookie.path ?? "/",
+      }
       const existing = this.cookieJar.value.get(normalized.domain) ?? []
 
       const idx = existing.findIndex(
@@ -229,16 +237,23 @@ export class CookieJarService extends Service {
     await this.upsertCookies(cookies.map((c) => ({ ...c, domain })))
   }
 
-  // Canonicalizes a cookie domain per RFC 6265 5.1.2 and 5.2.3 when
-  // it came from a Set-Cookie `Domain` attribute. Strips a leading
-  // dot the way the spec requires (the dot is wire-format history
-  // and is not part of the matching algorithm), lowercases the
-  // result, and rejects a single-label domain that would let the
-  // cookie attach to every site under that suffix. Returns null for
-  // a domain that should not be stored.
-  private canonAttrDomain(raw: string): string | null {
+  // Strips a leading dot the way RFC 6265 5.2.3 requires (the dot
+  // is wire-format history and is not part of the matching
+  // algorithm), then lowercases per RFC 6265 5.1.2. Used at every
+  // boundary that writes into the jar so the stored key always
+  // matches `domainMatches`'s lowercase comparison.
+  private canonStoreDomain(raw: string): string {
     const stripped = raw.startsWith(".") ? raw.slice(1) : raw
-    const lower = stripped.toLowerCase()
+    return stripped.toLowerCase()
+  }
+
+  // Canonicalizes a cookie domain that came from a Set-Cookie
+  // `Domain` attribute. Calls `canonStoreDomain` then rejects a
+  // single-label domain that would let the cookie attach to every
+  // site under that suffix. Returns null for a domain that should
+  // not be stored.
+  private canonAttrDomain(raw: string): string | null {
+    const lower = this.canonStoreDomain(raw)
     if (lower.length === 0 || !lower.includes(".")) {
       return null
     }

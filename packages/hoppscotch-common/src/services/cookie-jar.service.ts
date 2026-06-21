@@ -142,6 +142,15 @@ export class CookieJarService extends Service {
     if (typeof v.domains !== "object" || v.domains === null) {
       throw new Error("payload missing domains record")
     }
+    // Per-domain entries must be arrays. Without this guard a
+    // malformed cross-process write (or a future schema change)
+    // gets past the surface check and then `pruneExpired` throws
+    // on `cookies.filter(...)`, which the watcher promises not to.
+    for (const cookies of Object.values(v.domains)) {
+      if (!Array.isArray(cookies)) {
+        throw new Error("payload has non-array domain entry")
+      }
+    }
     return v as StoredCookieJar
   }
 

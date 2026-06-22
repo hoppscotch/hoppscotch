@@ -29,8 +29,6 @@ import {
   PROXY_URL_CONFIGS,
   ServerConfigs,
   UpdatedConfigs,
-  getConfigValidationIssues,
-  hasGuardIssue,
   isFieldEmpty,
   isValidSessionCookieName,
 } from '~/helpers/configs';
@@ -225,16 +223,6 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
   // Check if custom mail config is enabled
   const isCustomMailConfigEnabled =
     updatedConfigs?.mailConfigs.fields.mailer_use_custom_configs;
-
-  // Derived from the single source of truth in helpers/configs. Kept on the
-  // composable's public API (returned below) so enterprise overlays that
-  // still import them keep working — internally, settings.vue reads the
-  // issue list directly.
-  const AreAnyConfigFieldsEmpty = (config: ServerConfigs): boolean =>
-    hasGuardIssue(getConfigValidationIssues(config), 'required');
-
-  const hasPartialSmtpCredentials = (config: ServerConfigs): boolean =>
-    hasGuardIssue(getConfigValidationIssues(config), 'smtp-pair');
 
   // Extract the mail config fields (excluding the custom mail config fields)
   const mailConfigFields = Object.fromEntries(
@@ -519,9 +507,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     const sessionCookieName = String(
       updatedConfigs?.tokenConfigs.fields.session_cookie_name || ''
     );
-    // Save-time guard surfaces the field-specific toast; the proactive tab
-    // dot and red border are driven by getConfigValidationIssues via the
-    // same helper.
+    // Keep save-time toast behavior aligned with proactive validation.
     if (sessionCookieName && !isValidSessionCookieName(sessionCookieName)) {
       toast.error(t('configs.auth_providers.token.session_cookie_name_invalid'));
       return false;
@@ -593,7 +579,5 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     fetchingAllowedAuthProviders,
     infraConfigsError,
     allowedAuthProvidersError,
-    AreAnyConfigFieldsEmpty,
-    hasPartialSmtpCredentials,
   };
 }

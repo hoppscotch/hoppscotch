@@ -589,8 +589,7 @@ export const getConfigValidationIssues = (
   //     so a numeric-looking secret like "0" or "1.5" stays valid;
   //   - the numeric fields (salt complexity, token validities) must be positive
   //     integers (>= 1) to match the backend.
-  // `session_cookie_name` is opt-in (OPTIONAL_TOKEN_FIELD_KEYS) and skipped
-  // here; its format check is below.
+  // session_cookie_name is format-validated separately below.
   Object.entries(config.tokenConfigs.fields).forEach(([fieldKey, value]) => {
     if (OPTIONAL_TOKEN_FIELD_KEYS.has(fieldKey)) return;
     const invalid = TOKEN_SECRET_FIELD_KEYS.has(fieldKey)

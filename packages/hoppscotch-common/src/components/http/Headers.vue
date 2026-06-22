@@ -625,7 +625,12 @@ watch(
       isStale = true
     })
 
-    if (!props.inheritedProperties) return
+    if (!props.inheritedProperties) {
+      // Clear any previously-computed inherited rows so they don't linger when
+      // the request switches to one without inherited collection settings.
+      inheritedProperty.value = []
+      return
+    }
 
     const inheritedHeaders = props.inheritedProperties.headers.filter(
       (header) =>

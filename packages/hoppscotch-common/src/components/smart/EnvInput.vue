@@ -392,14 +392,24 @@ const aggregateEnvs = useReadonlyStream(
 const tabs = useService(RESTTabService)
 
 const envVars = computed(() => {
-  // If envs are passed directly as props, mask secrets and return them
+  // If envs are passed directly as props, mask secrets and return them.
+  // Keep sourceEnvID: the env tooltip uses it to look up secret/current values
+  // for collection-scoped variables (otherwise they show as "Empty").
   if (props.envs?.length) {
     return props.envs.map(
-      ({ key, currentValue, initialValue, secret, sourceEnv }) => ({
+      ({
+        key,
+        currentValue,
+        initialValue,
+        secret,
+        sourceEnv,
+        sourceEnvID,
+      }) => ({
         key,
         currentValue: secret ? "********" : currentValue,
         initialValue: secret ? "********" : initialValue,
         sourceEnv: sourceEnv ?? "",
+        sourceEnvID,
         secret,
       })
     )

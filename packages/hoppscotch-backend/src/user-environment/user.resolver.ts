@@ -7,7 +7,7 @@ import * as E from 'fp-ts/Either';
 import { throwErr } from '../utils';
 import { GqlAuthGuard } from '../guards/gql-auth.guard';
 import { GqlUser } from '../decorators/gql-user.decorator';
-import { USER_ENVIRONMENT_ENV_DOES_NOT_EXISTS } from '../errors';
+import { USER_ENVIRONMENT_ENV_DOES_NOT_EXIST } from '../errors';
 
 @Resolver(() => User)
 export class UserEnvsUserResolver {
@@ -34,7 +34,7 @@ export class UserEnvsUserResolver {
     @GqlUser() requestingUser: User,
   ): Promise<UserEnvironment | string> {
     if (requestingUser?.uid !== user.uid) {
-      throwErr(USER_ENVIRONMENT_ENV_DOES_NOT_EXISTS);
+      throwErr(USER_ENVIRONMENT_ENV_DOES_NOT_EXIST);
     }
     const userEnvironment =
       await this.userEnvironmentsService.fetchUserGlobalEnvironment(user.uid);

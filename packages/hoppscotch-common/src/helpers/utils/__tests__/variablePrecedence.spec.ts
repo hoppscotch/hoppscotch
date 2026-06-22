@@ -1,138 +1,136 @@
-import { describe, expect, it } from "vitest"
-import { HoppRESTAuth, HoppRESTRequestVariable } from "@hoppscotch/data"
+import { describe, expect, test } from "vitest"
+import { Environment, HoppRESTAuth } from "@hoppscotch/data"
 import { getEffectiveVariablesForRequest } from "../environments"
 import { getComputedAuthHeaders } from "../EffectiveURL"
+import { filterNonEmptyEnvironmentVariables } from "~/helpers/RequestRunner"
 import { AggregateEnvironment } from "~/newstore/environments"
 import { HoppInheritedProperty } from "../../types/HoppInheritedProperties"
 
-describe("inherited collection auth — variable precedence in preview", () => {
-  it("resolves request variable over environment variable with the same key", async () => {
-    // Arrange
-    const collectionAuth: HoppRESTAuth = {
-      authType: "basic",
-      authActive: true,
-      username: "<<token>>",
-      password: "irrelevant",
-    }
+// A request that inherits auth from a parent collection resolves `<<var>>` from
+// three sources, highest precedence first:
+//   request variable > collection variable > environment variable
+// `getEffectiveVariablesForRequest` builds that ordered list; the preview and the
+// request runner then pass it through `filterNonEmptyEnvironmentVariables`, so an
+// empty high-precedence value falls through to a non-empty lower one.
+// Tests use Basic auth with username "<<token>>", so the encoded header shows
+// which source won.
 
-    const environmentVars: AggregateEnvironment[] = [
-      {
-        key: "token",
-        currentValue: "env-token",
-        initialValue: "env-token",
-        secret: false,
-        sourceEnv: "Test Env",
-      },
-    ]
+const collectionAuth: HoppRESTAuth = {
+  authType: "basic",
+  authActive: true,
+  username: "<<token>>",
+  password: "pw",
+}
 
-    const requestVariables: HoppRESTRequestVariable[] = [
-      { key: "token", value: "request-token", active: true },
-    ]
+const envVar = (key: string, value: string): AggregateEnvironment => ({
+  key,
+  currentValue: value,
+  initialValue: value,
+  secret: false,
+  sourceEnv: "Test Env",
+})
 
-    // Act — build the same merged list the preview path now produces
-    const resolvedList = getEffectiveVariablesForRequest(
-      requestVariables,
-      [], // no collection vars in this case
-      environmentVars
+const collectionVar = (
+  key: string,
+  value: string
+): HoppInheritedProperty["variables"] => [
+  {
+    parentID: "parent-coll",
+    parentName: "Parent Coll",
+    inheritedVariables: [
+      { key, currentValue: value, initialValue: value, secret: false },
+    ],
+  },
+]
+
+// The Basic auth header the preview renders for `<<token>>` resolved against `vars`.
+const authHeaderFor = async (vars: Environment["variables"]) => {
+  const headers = await getComputedAuthHeaders(vars, undefined, collectionAuth)
+  return headers.find((h) => h.key === "Authorization")?.value
+}
+
+describe("getEffectiveVariablesForRequest", () => {
+  test("orders sources request → collection → environment and drops inactive request vars", () => {
+    const vars = getEffectiveVariablesForRequest(
+      [
+        { key: "a", value: "reqA", active: true },
+        { key: "b", value: "reqB", active: false },
+      ],
+      collectionVar("c", "collC"),
+      [envVar("d", "envD")]
     )
 
-    const computedHeaders = await getComputedAuthHeaders(
-      resolvedList,
-      undefined,
-      collectionAuth
-    )
-
-    // Assert
-    const authHeader = computedHeaders.find((h) => h.key === "Authorization")
-    const expectedEncoded = btoa("request-token:irrelevant")
-    expect(authHeader?.value).toBe(`Basic ${expectedEncoded}`)
-    // NOT btoa("env-token:irrelevant") — that would mean the bug regressed
+    expect(vars.map((v) => v.key)).toEqual(["a", "c", "d"])
+    expect(vars[0]).toMatchObject({
+      key: "a",
+      currentValue: "reqA",
+      initialValue: "reqA",
+      sourceEnv: "RequestVariable",
+      secret: false,
+    })
   })
 
-  it("falls back to environment variable when no request variable exists", async () => {
-    // Arrange
-    const collectionAuth: HoppRESTAuth = {
-      authType: "basic",
-      authActive: true,
-      username: "<<token>>",
-      password: "irrelevant",
-    }
+  test("treats undefined request and collection inputs as just the environment list", () => {
+    const vars = getEffectiveVariablesForRequest(undefined, undefined, [
+      envVar("d", "envD"),
+    ])
 
-    const environmentVars: AggregateEnvironment[] = [
-      {
-        key: "token",
-        currentValue: "env-token",
-        initialValue: "env-token",
-        secret: false,
-        sourceEnv: "Test Env",
-      },
-    ]
+    expect(vars).toEqual([
+      expect.objectContaining({ key: "d", currentValue: "envD" }),
+    ])
+  })
+})
 
-    const requestVariables: HoppRESTRequestVariable[] = []
+describe("inherited collection auth — variable precedence in the preview", () => {
+  test("request variable wins over collection and environment", async () => {
+    const vars = getEffectiveVariablesForRequest(
+      [{ key: "token", value: "request-token", active: true }],
+      collectionVar("token", "coll-token"),
+      [envVar("token", "env-token")]
+    )
 
-    // Act
-    const resolvedList = getEffectiveVariablesForRequest(
-      requestVariables,
+    expect(await authHeaderFor(vars)).toBe(`Basic ${btoa("request-token:pw")}`)
+  })
+
+  test("collection variable wins over environment", async () => {
+    const vars = getEffectiveVariablesForRequest(
       [],
-      environmentVars
+      collectionVar("token", "coll-token"),
+      [envVar("token", "env-token")]
     )
 
-    const computedHeaders = await getComputedAuthHeaders(
-      resolvedList,
-      undefined,
-      collectionAuth
-    )
-
-    // Assert
-    const authHeader = computedHeaders.find((h) => h.key === "Authorization")
-    const expectedEncoded = btoa("env-token:irrelevant")
-    expect(authHeader?.value).toBe(`Basic ${expectedEncoded}`)
+    expect(await authHeaderFor(vars)).toBe(`Basic ${btoa("coll-token:pw")}`)
   })
 
-  it("falls back to collection variable when neither request nor matching env var exists", async () => {
-    // Arrange
-    const collectionAuth: HoppRESTAuth = {
-      authType: "basic",
-      authActive: true,
-      username: "<<token>>",
-      password: "irrelevant",
-    }
-
-    const environmentVars: AggregateEnvironment[] = []
-
-    const requestVariables: HoppRESTRequestVariable[] = []
-
-    const inheritedVariables: HoppInheritedProperty["variables"] = [
-      {
-        parentID: "parent-coll",
-        parentName: "Parent Coll",
-        inheritedVariables: [
-          {
-            key: "token",
-            currentValue: "coll-token",
-            initialValue: "coll-token",
-            secret: false,
-          },
-        ],
-      },
-    ]
-
-    // Act
-    const resolvedList = getEffectiveVariablesForRequest(
-      requestVariables,
-      inheritedVariables,
-      environmentVars
+  test("falls back to the environment variable when nothing else defines the key", async () => {
+    const vars = getEffectiveVariablesForRequest(
+      [],
+      [],
+      [envVar("token", "env-token")]
     )
 
-    const computedHeaders = await getComputedAuthHeaders(
-      resolvedList,
-      undefined,
-      collectionAuth
+    expect(await authHeaderFor(vars)).toBe(`Basic ${btoa("env-token:pw")}`)
+  })
+
+  test("raw list: an empty request variable still shadows the env var (first match wins)", async () => {
+    const vars = getEffectiveVariablesForRequest(
+      [{ key: "token", value: "", active: true }],
+      [],
+      [envVar("token", "env-token")]
     )
 
-    // Assert
-    const authHeader = computedHeaders.find((h) => h.key === "Authorization")
-    const expectedEncoded = btoa("coll-token:irrelevant")
-    expect(authHeader?.value).toBe(`Basic ${expectedEncoded}`)
+    expect(await authHeaderFor(vars)).toBe(`Basic ${btoa(":pw")}`)
+  })
+
+  test("filtered list: the empty request variable falls through to the env var (matches runtime)", async () => {
+    const vars = filterNonEmptyEnvironmentVariables(
+      getEffectiveVariablesForRequest(
+        [{ key: "token", value: "", active: true }],
+        [],
+        [envVar("token", "env-token")]
+      )
+    )
+
+    expect(await authHeaderFor(vars)).toBe(`Basic ${btoa("env-token:pw")}`)
   })
 })

@@ -63,6 +63,7 @@
             v-model="editableCollection.variables"
             :inherited-properties="editingProperties.inheritedProperties"
             :has-team-write-access="hasTeamWriteAccess"
+            :collection-store-key="collectionStoreKey"
           />
         </HoppSmartTab>
 
@@ -320,12 +321,25 @@ const aggregateEnvs = useReadonlyStream(
   getAggregateEnvsWithCurrentValue()
 )
 
+// Mirror the read/write keying in collections `editProperties`: personal
+// collections are keyed by `_ref_id`, team collections by `id` (falling back
+// to the last path segment). The env tooltip uses sourceEnvID to resolve the
+// collection's stored secret/current values.
+const collectionStoreKey = computed(
+  () =>
+    props.editingProperties.collection?._ref_id ??
+    props.editingProperties.collection?.id ??
+    props.editingProperties.path.split("/").pop() ??
+    ""
+)
+
 const envs = computed(() => {
   const collectionVars = editableCollection.value.variables.map((v) => ({
     key: v.key,
     currentValue: v.currentValue,
     initialValue: v.initialValue,
     sourceEnv: "CollectionVariable",
+    sourceEnvID: collectionStoreKey.value,
     secret: v.secret,
   }))
 

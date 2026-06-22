@@ -44,8 +44,14 @@ const collectionVar = (
 ]
 
 // The Basic auth header the preview renders for `<<token>>` resolved against `vars`.
+// Pass the auth via a request-like object rather than the bare `auth` argument, so
+// the request context is a real `{ auth, headers }` value instead of an unsafe
+// `undefined` cast — this keeps working if an auth type starts reading the request.
 const authHeaderFor = async (vars: Environment["variables"]) => {
-  const headers = await getComputedAuthHeaders(vars, undefined, collectionAuth)
+  const headers = await getComputedAuthHeaders(vars, {
+    auth: collectionAuth,
+    headers: [],
+  })
   return headers.find((h) => h.key === "Authorization")?.value
 }
 

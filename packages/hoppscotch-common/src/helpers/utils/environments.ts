@@ -91,10 +91,26 @@ export const getCombinedEnvVariables = (temp?: Environment["variables"]) => {
   }
 }
 
+/**
+ * Merges a request's variables into one precedence-ordered list:
+ * request → collection → environment (highest precedence first). Template
+ * resolution picks the first matching key, so this order — matching the
+ * runtime's `combineEnvVariables` — lets request vars override collection vars,
+ * which override environment vars. Not de-duplicated.
+ *
+ * @param requestVariables - Request's own variables; only `active` ones are kept.
+ * @param inheritedVariables - Variables inherited from ancestor collections.
+ * @param environmentVars - Active environment aggregate (selected + global + predefined).
+ * @param showSecretCollectionValues - Resolve inherited collection secrets (`true`,
+ *   default) or keep them masked (`false`).
+ * @returns Precedence-ordered `AggregateEnvironment[]`. Wrap with
+ *   `filterNonEmptyEnvironmentVariables` to match the runtime's empty-value handling.
+ */
 export const getEffectiveVariablesForRequest = (
   requestVariables: HoppRESTRequestVariable[] | undefined,
   inheritedVariables: HoppInheritedProperty["variables"] | undefined,
-  environmentVars: AggregateEnvironment[]
+  environmentVars: AggregateEnvironment[],
+  showSecretCollectionValues = true
 ): AggregateEnvironment[] => {
   const requestVars = (requestVariables ?? [])
     .filter((v) => v.active)
@@ -107,9 +123,9 @@ export const getEffectiveVariablesForRequest = (
     }))
 
   const collectionVars = transformInheritedCollectionVariablesToAggregateEnv(
-    inheritedVariables ?? []
+    inheritedVariables ?? [],
+    showSecretCollectionValues
   )
 
   return [...requestVars, ...collectionVars, ...environmentVars]
 }
-

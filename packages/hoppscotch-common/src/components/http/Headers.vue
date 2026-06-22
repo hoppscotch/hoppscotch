@@ -279,6 +279,7 @@ import {
   getComputedHeaders,
 } from "~/helpers/utils/EffectiveURL"
 import { isDragDropAllowed, DragDropEvent } from "~/helpers/dragDropValidation"
+import { filterNonEmptyEnvironmentVariables } from "~/helpers/RequestRunner"
 import {
   AggregateEnvironment,
   aggregateEnvsWithCurrentValue$,
@@ -553,7 +554,10 @@ const clearContent = () => {
   bulkHeaders.value = ""
 }
 
-const aggregateEnvs = useReadonlyStream(aggregateEnvsWithCurrentValue$, getAggregateEnvsWithCurrentValue())
+const aggregateEnvs = useReadonlyStream(
+  aggregateEnvsWithCurrentValue$,
+  getAggregateEnvsWithCurrentValue()
+)
 
 const computedHeaders: Ref<
   {
@@ -572,10 +576,9 @@ const inheritedProperty = ref<
   }[]
 >([])
 
-const currentSelectedEnvironment = getCurrentEnvironment()
-
 const resolvedEnvs = computed(() => {
   if (props.envs) return props.envs
+  const currentSelectedEnvironment = getCurrentEnvironment()
   return aggregateEnvs.value.map((env) => {
     return {
       ...env,
@@ -600,7 +603,10 @@ watch(
       isStale = true
     })
 
-    const headers = await getComputedHeaders(props.modelValue, resolvedEnvs.value)
+    const headers = await getComputedHeaders(
+      props.modelValue,
+      filterNonEmptyEnvironmentVariables(resolvedEnvs.value)
+    )
     if (isStale) return
 
     computedHeaders.value = headers.map((header, index) => ({
@@ -630,7 +636,7 @@ watch(
         )
     )
     const headersList = inheritedHeaders.map((header, index) => ({
-      inheritedFrom: props.inheritedProperties!.headers[index].parentName!,
+      inheritedFrom: header.parentName,
       source: "headers" as const,
       id: `header-${index}`,
       header: header.inheritedHeader,
@@ -646,7 +652,7 @@ watch(
       )
     ) {
       const [computedAuthHeader] = await getComputedAuthHeaders(
-        resolvedEnvs.value,
+        filterNonEmptyEnvironmentVariables(resolvedEnvs.value),
         request.value,
         props.inheritedProperties.auth.inheritedAuth,
         false
@@ -661,8 +667,6 @@ watch(
           header: computedAuthHeader,
         })
       }
-    } else {
-      if (isStale) return
     }
 
     inheritedProperty.value = headersList

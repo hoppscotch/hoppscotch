@@ -101,7 +101,7 @@ import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
 import { syntaxTree } from "@codemirror/language"
 import { uniqueID } from "~/helpers/utils/uniqueID"
-import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
+import { getEffectiveVariablesForRequest } from "~/helpers/utils/environments"
 
 const t = useI18n()
 
@@ -410,34 +410,25 @@ const envVars = computed(() => {
   const isRequest = document.type === "request"
   const isExample = document.type === "example-response"
 
-  // variables inherited from the collection if we're in a request or example
-  const collectionVariables =
-    isRequest || isExample
-      ? transformInheritedCollectionVariablesToAggregateEnv(
-          document.inheritedProperties?.variables ?? [],
-          false
-        )
-      : []
-
-  // request-level variables
-  const rawRequestVars = isRequest
+  // request-level variables for the active request/example
+  const requestVariables = isRequest
     ? document.request.requestVariables
     : isExample
       ? document.response.originalRequest.requestVariables
       : []
 
-  // formated request variables
-  const requestVariables = rawRequestVars
-    .filter((v) => v.active)
-    .map(({ key, value }) => ({
-      key,
-      currentValue: value,
-      initialValue: value,
-      sourceEnv: "RequestVariable",
-      secret: false,
-    }))
+  // variables inherited from the collection if we're in a request or example
+  const inheritedVariables =
+    isRequest || isExample ? document.inheritedProperties?.variables : []
 
-  return [...requestVariables, ...collectionVariables, ...aggregateEnvs.value]
+  // Merge in precedence order (request → collection → environment).
+  // Collection secrets stay masked here (showSecretCollectionValues = false).
+  return getEffectiveVariablesForRequest(
+    requestVariables,
+    inheritedVariables,
+    aggregateEnvs.value,
+    false
+  )
 })
 
 function envAutoCompletion(context: CompletionContext) {

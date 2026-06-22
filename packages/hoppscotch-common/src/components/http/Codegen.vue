@@ -131,10 +131,7 @@ import {
   getEffectiveRESTRequest,
   resolvesEnvsInBody,
 } from "~/helpers/utils/EffectiveURL"
-import {
-  AggregateEnvironment,
-  getAggregateEnvsWithCurrentValue,
-} from "~/newstore/environments"
+import { getAggregateEnvsWithCurrentValue } from "~/newstore/environments"
 import { getEffectiveVariablesForRequest } from "~/helpers/utils/environments"
 
 import { useService } from "dioc/vue"
@@ -148,14 +145,11 @@ import IconCheck from "~icons/lucide/check"
 import IconWrapText from "~icons/lucide/wrap-text"
 import { asyncComputed } from "@vueuse/core"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
-import { CurrentValueService } from "~/services/current-environment-value.service"
-import { getCurrentEnvironment } from "../../newstore/environments"
 import { filterNonEmptyEnvironmentVariables } from "~/helpers/RequestRunner"
 
 const t = useI18n()
 
 const tabs = useService(RESTTabService)
-const currentEnvironmentValueService = useService(CurrentValueService)
 
 // Get the current active request if the current active tab is a request else get the original request from the response tab
 const currentActiveRequest = computed(() => {
@@ -194,8 +188,6 @@ defineProps({
 const emit = defineEmits<{
   (e: "request-code", value: string): void
 }>()
-
-
 
 const getFinalURL = (input: string): string => {
   // If the URL is empty, return "https://"

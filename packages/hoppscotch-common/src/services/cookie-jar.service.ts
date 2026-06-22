@@ -91,28 +91,39 @@ export class CookieJarService extends Service {
 
   async onServiceInit(): Promise<void> {
     this.hydrated = (async () => {
-      const initResult = await Store.init()
-      if (E.isLeft(initResult)) {
-        this.initFailed = true
-        console.error(
-          "[CookieJar] Failed to initialize store:",
-          initResult.left
-        )
-        return
-      }
-
-      // `loadJar` and `setupWatcher` errors are caught so `hydrated`
-      // resolves either way. A rejected `hydrated` would make every
-      // later `whenReady()` reject, and the interceptors' outer
-      // try/catch would convert a successful HTTP response into
-      // `E.left` on every request, the same failure mode the
-      // `initFailed` flag exists to avoid.
+      // `Store.init` resolves an `Either` for storage-layer failures
+      // but `getModule("store")` throws synchronously when the kernel
+      // is not bootstrapped, which happens in vitest specs that pull
+      // the service in transitively. Catching here keeps `hydrated`
+      // resolved, the service alive on its in-memory jar, and
+      // `initFailed` set so `persistJar` no-ops.
       try {
-        await this.loadJar()
-        await this.setupWatcher()
+        const initResult = await Store.init()
+        if (E.isLeft(initResult)) {
+          this.initFailed = true
+          console.error(
+            "[CookieJar] Failed to initialize store:",
+            initResult.left
+          )
+          return
+        }
+
+        // `loadJar` and `setupWatcher` errors are caught so `hydrated`
+        // resolves either way. A rejected `hydrated` would make every
+        // later `whenReady()` reject, and the interceptors' outer
+        // try/catch would convert a successful HTTP response into
+        // `E.left` on every request, the same failure mode the
+        // `initFailed` flag exists to avoid.
+        try {
+          await this.loadJar()
+          await this.setupWatcher()
+        } catch (e) {
+          this.initFailed = true
+          console.error("[CookieJar] Failed during init:", e)
+        }
       } catch (e) {
         this.initFailed = true
-        console.error("[CookieJar] Failed during init:", e)
+        console.error("[CookieJar] Kernel store unavailable:", e)
       }
     })()
     await this.hydrated

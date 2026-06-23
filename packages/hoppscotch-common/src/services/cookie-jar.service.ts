@@ -87,16 +87,20 @@ export class CookieJarService extends Service {
   })()
   private writeCounter = 0
 
-  // Ring buffer of recent self-write tokens. A single-slot
+  // Ring of recent self-write tokens. A single-slot
   // `lastWriteToken` would lose the prior token whenever two writes
-  // landed in the same tick, so an in-process echo for the older
+  // ran in the same tick, so an in-process echo for the older
   // write would be misclassified as foreign and reapply a stale
   // snapshot. The ring tolerates burst writes up to its size. The
   // cap is sized well above any realistic burst (modal save, bulk
   // import, response capture with many Set-Cookies) so a token
   // cannot age out before its disk-write's watcher echo arrives.
+  // A `Set` backs the membership check so the watcher's hot path
+  // is `O(1)` instead of `O(n)` against a 10k buffer, and `Set`
+  // iteration order is insertion order per the spec so FIFO
+  // eviction works by reading `values().next()`.
   private readonly recentWriteTokensCap = 10_000
-  private recentWriteTokens: string[] = []
+  private recentWriteTokens = new Set<string>()
 
   async onServiceInit(): Promise<void> {
     this.hydrated = (async () => {
@@ -174,10 +178,7 @@ export class CookieJarService extends Service {
         console.error("[CookieJar] Watcher rejected malformed payload:", e)
         return
       }
-      if (
-        stored.writeToken &&
-        this.recentWriteTokens.includes(stored.writeToken)
-      ) {
+      if (stored.writeToken && this.recentWriteTokens.has(stored.writeToken)) {
         return
       }
       this.cookieJar.value = this.toMap(stored.domains)
@@ -230,10 +231,13 @@ export class CookieJarService extends Service {
       return
     }
     const token = `${this.writePrefix}-${++this.writeCounter}`
-    this.recentWriteTokens.push(token)
-    if (this.recentWriteTokens.length > this.recentWriteTokensCap) {
-      this.recentWriteTokens.shift()
+    if (this.recentWriteTokens.size >= this.recentWriteTokensCap) {
+      const oldest = this.recentWriteTokens.values().next().value
+      if (oldest !== undefined) {
+        this.recentWriteTokens.delete(oldest)
+      }
     }
+    this.recentWriteTokens.add(token)
 
     this.writeChain = this.writeChain
       .then(async () => {

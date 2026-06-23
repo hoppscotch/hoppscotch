@@ -92,6 +92,14 @@ RUN mkdir -p /tmp/pnpm-install && cd /tmp/pnpm-install && \
   npm install -g ./pnpm.tgz ./cli.tgz && \
   cd / && rm -rf /tmp/pnpm-install
 
+# Fix CVE-2026-12151: replace vulnerable undici bundled in npm (ships 6.26.0, fix requires >=6.27.0)
+RUN mkdir -p /tmp/undici-fix && \
+  cd /tmp/undici-fix && \
+  npm install undici@6.27.0 && \
+  rm -rf /usr/lib/node_modules/npm/node_modules/undici && \
+  cp -r node_modules/undici /usr/lib/node_modules/npm/node_modules/ && \
+  rm -rf /tmp/undici-fix
+
 # Fix CVE-2025-64756 by replacing vulnerable glob in @import-meta-env/cli (ships glob@11.0.2, fix requires >=11.1.0)
 RUN mkdir -p /tmp/glob-fix && \
   cd /tmp/glob-fix && \

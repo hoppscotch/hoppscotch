@@ -10,15 +10,16 @@ overrides:
   body-parser: 2.2.1
   cross-spawn: 7.0.6
   execa@<2.0.0: 2.0.0
-  fast-uri@<=3.1.1: 3.1.2
-  form-data: 4.0.4
+  form-data@>=4.0.0 <4.0.6: 4.0.6
   glob@>=11.0.0 <11.1.0: 11.1.0
-  lodash: 4.18.1
+  hono@<4.12.25: 4.12.25
+  liquidjs@<10.26.0: 10.26.0
   minimatch@>=4.0.0 <4.2.5: 4.2.5
+  multer@2.1.1: 2.2.0
+  nodemailer@<=9.0.0: 9.0.1
   serialize-javascript@<7.0.3: 7.0.3
-  subscriptions-transport-ws>ws: 7.5.10
   vue: 3.5.34
-  ws: 8.17.1
+  ws: 8.21.0
 
 importers:
 
@@ -177,8 +178,8 @@ importers:
         specifier: 1.1.2
         version: 1.1.2(@apollo/server@5.5.1(graphql@16.14.0))(express@5.2.1)
       '@nestjs-modules/mailer':
-        specifier: 2.3.6
-        version: 2.3.6(@nestjs/common@11.1.27(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.27)(@nestjs/terminus@11.1.1(@nestjs/common@11.1.27(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.27)(@prisma/client@7.8.0(prisma@7.8.0(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3))(typescript@5.9.3))(reflect-metadata@0.2.2)(rxjs@7.8.2))(chokidar@4.0.3)(nodemailer@8.0.7)(terser@5.46.1)(typescript@5.9.3)
+        specifier: 2.3.7
+        version: 2.3.7(@nestjs/common@11.1.27(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.27)(@nestjs/terminus@11.1.1(@nestjs/common@11.1.27(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.27)(@prisma/client@7.8.0(prisma@7.8.0(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3))(typescript@5.9.3))(reflect-metadata@0.2.2)(rxjs@7.8.2))(chokidar@4.0.3)(nodemailer@9.0.1)(terser@5.46.1)(typescript@5.9.3)
       '@nestjs/apollo':
         specifier: 13.4.2
         version: 13.4.2(@apollo/server@5.5.1(graphql@16.14.0))(@as-integrations/express5@1.1.2(@apollo/server@5.5.1(graphql@16.14.0))(express@5.2.1))(@nestjs/common@11.1.27(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.27)(@nestjs/graphql@13.4.2(@nestjs/common@11.1.27(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.27)(class-transformer@0.5.1)(class-validator@0.15.1)(graphql@16.14.0)(reflect-metadata@0.2.2))(graphql@16.14.0)
@@ -270,8 +271,8 @@ importers:
         specifier: 1.11.0
         version: 1.11.0
       nodemailer:
-        specifier: 8.0.7
-        version: 8.0.7
+        specifier: 9.0.1
+        version: 9.0.1
       passport:
         specifier: 0.7.0
         version: 0.7.0
@@ -291,11 +292,11 @@ importers:
         specifier: 2.1.0
         version: 2.1.0
       pg:
-        specifier: 8.21.0
-        version: 8.21.0
+        specifier: 8.22.0
+        version: 8.22.0
       posthog-node:
-        specifier: 5.38.0
-        version: 5.38.0(rxjs@7.8.2)
+        specifier: 5.38.2
+        version: 5.38.2(rxjs@7.8.2)
       prisma:
         specifier: 7.8.0
         version: 7.8.0(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3)
@@ -4315,7 +4316,7 @@ packages:
     resolution: {integrity: sha512-dr8/3zEaB+p0D2n/IUrlPF1HZm586qgJNXK1a9fhg/PzdtkK7Ksd5l312tJX2yBuALqDYBlG20QEbayqPyxn+g==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
-      hono: ^4
+      hono: 4.12.25
 
   '@hoppscotch/httpsnippet@3.0.9':
     resolution: {integrity: sha512-XTs2SYxOItC7Go38VsFYtnxEk6C5JhscEpZHgd9+klyah+Iy2uKLFaBFq9M/10YLhwfPNVP3UpGsL/jY50zQgQ==}
@@ -4876,15 +4877,15 @@ packages:
   '@napi-rs/wasm-runtime@0.2.12':
     resolution: {integrity: sha512-ZVWUcfwY4E/yPitQJl481FjFo3K22D6qF0DuFH6Y/nbnE11GY5uguDxZMGXPQ8WQ0128MXQD7TnfHyK4oWoIJQ==}
 
-  '@nestjs-modules/mailer@2.3.6':
-    resolution: {integrity: sha512-mk7+fNNzq74lVa+5hRMyrkcUvK/kptmPk7XstDURWjXGTgIRHVinQwK9Os9lX3L/FD3Ye93E8sF6uD48xJ8SPw==}
+  '@nestjs-modules/mailer@2.3.7':
+    resolution: {integrity: sha512-7prUdL8rt7Lz9m/RP/PFvZHwYgAewDexQHLwy4kyYueksoTGGxOzu7q4N/4Q+SU2+hKLakasbHdw8GrvQJi85w==}
     peerDependencies:
       '@nestjs/common': '>=7.0.9'
       '@nestjs/core': '>=7.0.9'
       '@nestjs/event-emitter': '>=2.0.0'
       '@nestjs/terminus': '>=10.0.0'
       bullmq: '>=4.0.0'
-      nodemailer: '>=8.0.5'
+      nodemailer: 9.0.1
     peerDependenciesMeta:
       '@nestjs/event-emitter':
         optional: true
@@ -5276,11 +5277,11 @@ packages:
   '@popperjs/core@2.11.8':
     resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
 
-  '@posthog/core@1.33.0':
-    resolution: {integrity: sha512-Xk5O4g70SlsodD941j5GJTto2DgteKslmuhQ1kH5nR03JVOgdOw7rBesyWGhYkEdkxr8Vhvx33f1NTEZgejL2A==}
+  '@posthog/core@1.35.3':
+    resolution: {integrity: sha512-EsGPbSLl39Jgo2KZ+kI9UAxFnh5nddaN5bNm2rXvUwF+vGmam9eN1EXeNbxhRU7ulEeIiGdm7XjoU7pzavkgIQ==}
 
-  '@posthog/types@1.387.0':
-    resolution: {integrity: sha512-XR0B1geABbnUlSNv4RuFWvk19D870B668C/XzcKDctAZ+xCH5gmGM0oltGbA9yj+2ia9Y65nOrDYKN6Whu1oBw==}
+  '@posthog/types@1.390.2':
+    resolution: {integrity: sha512-WcfKz2GNn2vfDX8vXmJYbKxegPxVWHuDQ/pHdAn0HoZDXDFnEp/+x3qBQA+fEvtbPjjtjgAt2wIgJMlM7asx7g==}
 
   '@prisma/adapter-pg@7.8.0':
     resolution: {integrity: sha512-ygb3UkerK3v8MDpXVgCISdRNDozpxh6+JVJgiIGbSr5KBgz10LLf5ejUskPGoXlsIjxsOu6nuy1JVQr2EKGSlg==}
@@ -6951,6 +6952,7 @@ packages:
   apiconnect-wsdl@2.0.36:
     resolution: {integrity: sha512-jHXC6y/duZ+zzn756/znpfDeVM0hprt2Yk/4QfiIhzNG4YmJXt7NSCup4DFRCitBZVK85lM6UYRaa36fSWs3JQ==}
     engines: {node: '>=18.7.0 <21.0.0'}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   append-field@1.0.0:
     resolution: {integrity: sha512-klpgFSWLW1ZEs8svjfb7g4qWY0YS5imI82dTg+QahUvJ8YqAY0P10Uk8tTyh9ZGuYEZEMaeJYCF5BFuX552hsw==}
@@ -8747,8 +8749,12 @@ packages:
       typescript: '>3.6.0'
       webpack: ^5.11.0
 
-  form-data@4.0.4:
-    resolution: {integrity: sha512-KrGhL9Q4zjj0kiUt5OO4Mr/A/jlI2jDYs5eHBpYHPcBEVSiipAvn2Ko2HnPe20rmcuuvMHNdZFp+4IlGTMF0Ow==}
+  form-data@2.5.6:
+    resolution: {integrity: sha512-Ogz/E85h9tlfJzpI6TuFpGcHZFhLrb9Gw8wq9v40CxSCPnv7ahKr6Xgtkn0KYCDQJ8DNn5VoMO8EXr9V5PadyA==}
+    engines: {node: '>= 0.12'}
+
+  form-data@4.0.6:
+    resolution: {integrity: sha512-vKatAh4SlVfgbv+YtmhiRjhEMJsYpsG1Y2rMQtR+SVSbytsSD1YGzDIcrAJmdFec88u/+VoGmxnl+80gL1tRCQ==}
     engines: {node: '>= 6'}
 
   formdata-polyfill@4.0.10:
@@ -9022,7 +9028,7 @@ packages:
       '@fastify/websocket': ^10 || ^11
       crossws: ~0.3
       graphql: ^15.10.1 || ^16
-      ws: 8.17.1
+      ws: 8.21.0
     peerDependenciesMeta:
       '@fastify/websocket':
         optional: true
@@ -9084,10 +9090,6 @@ packages:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
     engines: {node: '>= 0.4'}
 
-  hasown@2.0.3:
-    resolution: {integrity: sha512-ej4AhfhfL2Q2zpMmLo7U1Uv9+PyhIZpgQLGT1F9miIGmiCJIoCgSmczFdrc97mWT4kVY72KA+WnnhJ5pghSvSg==}
-    engines: {node: '>= 0.4'}
-
   hasown@2.0.4:
     resolution: {integrity: sha512-T2UbfbBEF32wiepXIsMlTW9+dDYC6wMh/t/vYA4tuOMKqWz/n3vr1NFSxQiyP+zk2mXsoMA/i/7qV6LKut1t1A==}
     engines: {node: '>= 0.4'}
@@ -9109,8 +9111,8 @@ packages:
   highlightjs-curl@1.3.0:
     resolution: {integrity: sha512-50UEfZq1KR0Lfk2Tr6xb/MUIZH3h10oNC0OTy9g7WELcs5Fgy/mKN1vEhuKTkKbdo8vr5F9GXstu2eLhApfQ3A==}
 
-  hono@4.12.15:
-    resolution: {integrity: sha512-qM0jDhFEaCBb4TxoW7f53Qrpv9RBiayUHo0S52JudprkhvpjIrGoU1mnnr29Fvd1U335ZFPZQY1wlkqgfGXyLg==}
+  hono@4.12.25:
+    resolution: {integrity: sha512-2NFaIyNVgJmBs/ecmtGzlmluTFs5cHEWGTdu0t1HBwYzoGXOL5nUQBRMXsXWla5i4KkG//QMzVP88m1+I3fdAQ==}
     engines: {node: '>=16.9.0'}
 
   hookable@6.1.0:
@@ -9584,12 +9586,12 @@ packages:
   isomorphic-ws@5.0.0:
     resolution: {integrity: sha512-muId7Zzn9ywDsyXgTIafTry2sV3nySZeUDe6YedVd1Hvuuep5AsIlqK+XefWpYTyJG5e503F2xIuT2lcU6rCSw==}
     peerDependencies:
-      ws: 8.17.1
+      ws: 8.21.0
 
   isows@1.0.7:
     resolution: {integrity: sha512-I1fSfDCZL5P0v33sVqeTDSpcstAg/N+wF5HS033mogOVIp4B+oHC7oOCsA3axAbBSGTJ8QubbNmnIRN/h8U7hg==}
     peerDependencies:
-      ws: 8.17.1
+      ws: 8.21.0
 
   istanbul-lib-coverage@3.2.2:
     resolution: {integrity: sha512-O8dpsF+r0WV/8MNRKfnmrtCWhuKjxrq2w+jpzBL5UZKTi2LeVWnWOmWRxFlesJONmc+wLAGvKQZEOanko0LFTg==}
@@ -9990,8 +9992,8 @@ packages:
     resolution: {integrity: sha512-wUayTU8MS827Dam6MxgD72Ui+KOSF+u/eIqpatOtjnvgJ0+mnDq33uC2M7J0tPK+upe/DpUAuK4JUU89iBoNKQ==}
     engines: {node: '>=4'}
 
-  liquidjs@10.25.7:
-    resolution: {integrity: sha512-rPCjJLiD4eDhQjvv964AeXFC+HbeYBbZrd7Z82Q6hqv1lX7G+5w4SJcKLn9CAAAwHI4aS3dTdo083UB79K3pDA==}
+  liquidjs@10.26.0:
+    resolution: {integrity: sha512-Ub9FFNOLB9tdH/gB2MKkeU7x9NifoVidxAam6YWU7LUcy7Glumi6q5C3tDpWOEpeNaT8Cdwdb1axEdlvLSoyaQ==}
     engines: {node: '>=16'}
     hasBin: true
 
@@ -10100,6 +10102,9 @@ packages:
 
   lodash.upperfirst@4.3.1:
     resolution: {integrity: sha512-sReKOYJIJf74dhJONhU4e0/shzi1trVbSWDOhKYE5XV2O+H7Sb2Dihwuc7xWxVl+DgFPyTqIN3zMfT9cq5iWDg==}
+
+  lodash@4.17.23:
+    resolution: {integrity: sha512-LgVTMpQtIopCi79SJeDiP0TfWi5CNEc/L/aRdTh3yIvmZXTnheWpKjSZhnvMl8iXbC1tFg9gdHHDMLoV7CnG+w==}
 
   lodash@4.18.1:
     resolution: {integrity: sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==}
@@ -10472,8 +10477,8 @@ packages:
   muggle-string@0.4.1:
     resolution: {integrity: sha512-VNTrAak/KhO2i8dqqnqnAHOa3cYBwXEZe9h+D5h/1ZqFSTEFHdM65lR7RoIqq3tBBYavsOXV84NoHXZ0AkPyqQ==}
 
-  multer@2.1.1:
-    resolution: {integrity: sha512-mo+QTzKlx8R7E5ylSXxWzGoXoZbOsRMpyitcht8By2KHvMbf3tjwosZ/Mu/XYU6UuJ3VZnODIrak5ZrPiPyB6A==}
+  multer@2.2.0:
+    resolution: {integrity: sha512-6rdyFg2kLrMh9Jee7/BMPuV9lEAd7lLW2YUpF9/YxR7njyoUwwQ0ZPh3TaIY50Sw6vlyD2HW3wGOkTS4P79xrQ==}
     engines: {node: '>= 10.16.0'}
 
   mute-stream@2.0.0:
@@ -10565,12 +10570,8 @@ packages:
   node-releases@2.0.38:
     resolution: {integrity: sha512-3qT/88Y3FbH/Kx4szpQQ4HzUbVrHPKTLVpVocKiLfoYvw9XSGOX2FmD2d6DrXbVYyAQTF2HeF6My8jmzx7/CRw==}
 
-  nodemailer@7.0.13:
-    resolution: {integrity: sha512-PNDFSJdP+KFgdsG3ZzMXCgquO7I6McjY2vlqILjtJd0hy8wEvtugS9xKRF2NWlPNGxvLCXlTNIae4serI7dinw==}
-    engines: {node: '>=6.0.0'}
-
-  nodemailer@8.0.7:
-    resolution: {integrity: sha512-pkjE4mkBzQjdJT4/UmlKl3pX0rC9fZmjh7c6C9o7lv66Ac6w9WCnzPzhbPNxwZAzlF4mdq4CSWB5+FbK6FWCow==}
+  nodemailer@9.0.1:
+    resolution: {integrity: sha512-Gwv8SQewT616ZM/URn0H54b8PWo/Wum7md3EW2aWy1lO27+WZCX+Xyak3J+NlmHUjDh5ME+uesJUDRbR3Ye8Bw==}
     engines: {node: '>=6.0.0'}
 
   normalize-package-data@2.5.0:
@@ -10941,8 +10942,8 @@ packages:
   pg-cloudflare@1.4.0:
     resolution: {integrity: sha512-Vo7z/6rrQYxpNRylp4Tlob2elzbh+N/MOQbxFVWCxS7oEx6jF53GTJFxK2WWpKuBRkmiin4Mt+xofFDjx09R0A==}
 
-  pg-connection-string@2.13.0:
-    resolution: {integrity: sha512-EMnU9E2fSULdsbErBbMaXJvFeD9B4+nPcM3f+4lsiCR0BHLPrLVjv3DbyM2hgQQviKJaTWIRRTjKjWlHg3p2ig==}
+  pg-connection-string@2.14.0:
+    resolution: {integrity: sha512-XwWDGcLRGCXAR8F/AM5bG7Q+A3Wm2s6QeEjlOKZLlH3UYcguiqCWKyWXVag5TLTIjR7oOJUY8kcADaZgWPyLeg==}
 
   pg-int8@1.0.1:
     resolution: {integrity: sha512-WCtabS6t3c8SkpDBUlb1kjOs7l66xsGdKpIPZsg4wR+B3+u9UAum2odSsF9tnvxg80h4ZxLWMy4pRjOsFIqQpw==}
@@ -10956,15 +10957,15 @@ packages:
   pg-protocol@1.13.0:
     resolution: {integrity: sha512-zzdvXfS6v89r6v7OcFCHfHlyG/wvry1ALxZo4LqgUoy7W9xhBDMaqOuMiF3qEV45VqsN6rdlcehHrfDtlCPc8w==}
 
-  pg-protocol@1.14.0:
-    resolution: {integrity: sha512-n5taZ1kO3s9ngDTVxsEznOqCyToTgz0FLuPq0B33COy5pPpuWJpY3/2oRBVETuOgzdqRXfWpM9HIhp2LBBT1BA==}
+  pg-protocol@1.15.0:
+    resolution: {integrity: sha512-cq9sECI5s0+uPUXjbz8ioyPJni6RzsRib0US67i5IoTZKw8fNeYlVE7u8F4dG7vEJJtc5wdD1K189lCCUwqWTQ==}
 
   pg-types@2.2.0:
     resolution: {integrity: sha512-qTAAlrEsl8s4OiEQY69wDvcMIdQN6wdz5ojQiOy6YRMuynxenON0O5oCpJI6lshc6scgAY8qvJ2On/p+CXY0GA==}
     engines: {node: '>=4'}
 
-  pg@8.21.0:
-    resolution: {integrity: sha512-AUP1EYJuHraQGsVoCQVIcM7TEJVGtDzxWtGFZd8rds9d+CCXlU5Js1rYgfLNvxy9iJrpHjGrRjoi/3BT9fRyiA==}
+  pg@8.22.0:
+    resolution: {integrity: sha512-8wih1vVIBMxoUM2oB4soJsD9tDnDpLv4OXBJ+EJzFsvycD+lfyIreC2gGHq78f8jbLLt+bvlPTFdFZfJkOuzAA==}
     engines: {node: '>= 16.0.0'}
     peerDependencies:
       pg-native: '>=3.0.1'
@@ -11274,8 +11275,8 @@ packages:
     resolution: {integrity: sha512-Jtc2612XINuBjIl/QTWsV5UvE8UHuNblcO3vVADSrKsrc6RqGX6lOW1cEo3CM2v0XG4Nat8nI+YM7/f26VxXLw==}
     engines: {node: '>=12'}
 
-  posthog-node@5.38.0:
-    resolution: {integrity: sha512-xEojUWq7ajYfsMPZIexG9xtvhewpqrPWvL/qRhnm8W3KVZi6BlXHe29tjywZJglrDwEQpqdtYKbRXyg2zF9MWw==}
+  posthog-node@5.38.2:
+    resolution: {integrity: sha512-eiKpU+vX4hVuHbO/EosvPHsmh2AVIdoVmWss/uUOs1t4b0ViCblw2o8OIFqHxKj3mYRnSOBlX0Dw3wBvcCaYpA==}
     engines: {node: ^20.20.0 || >=22.22.0}
     peerDependencies:
       rxjs: ^7.0.0
@@ -13556,20 +13557,8 @@ packages:
     resolution: {integrity: sha512-+QU2zd6OTD8XWIJCbffaiQeH9U73qIqafo1x6V1snCWYGJf6cVE0cDR4D8xRzcEnfI21IFrUPzPGtcPf8AC+Rw==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
 
-  ws@7.5.10:
-    resolution: {integrity: sha512-+dbF1tHwZpXcbOJdVOkzLDxZP1ailvSxM6ZweXTegylPny803bFhA+vqBYw4s31NSAk4S2Qz+AKXK9a4wkdjcQ==}
-    engines: {node: '>=8.3.0'}
-    peerDependencies:
-      bufferutil: ^4.0.1
-      utf-8-validate: ^5.0.2
-    peerDependenciesMeta:
-      bufferutil:
-        optional: true
-      utf-8-validate:
-        optional: true
-
-  ws@8.17.1:
-    resolution: {integrity: sha512-6XQFvXTkbfUOZOKKILFG1PDK2NDQs4azKQl26T0YS5CxqWLgXajbPZ+h4gZekJyRqFU8pvnbAbbs/3TgRPy+GQ==}
+  ws@8.21.0:
+    resolution: {integrity: sha512-Vsp28b7DRcimFQvrqu2Wek3z1iYxDCWqHYB8Qsnk/S4RfaCQzPGPyBNuVjJV3cd6UiKtUtp6sNM77gWvzcCH+g==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -16431,7 +16420,7 @@ snapshots:
       common-tags: 1.8.2
       graphql: 16.13.2
       import-from: 4.0.0
-      lodash: 4.18.1
+      lodash: 4.17.23
       tslib: 2.4.1
 
   '@graphql-codegen/plugin-helpers@3.1.2(graphql@16.14.0)':
@@ -16441,7 +16430,7 @@ snapshots:
       common-tags: 1.8.2
       graphql: 16.14.0
       import-from: 4.0.0
-      lodash: 4.18.1
+      lodash: 4.17.23
       tslib: 2.4.1
 
   '@graphql-codegen/plugin-helpers@6.3.0(graphql@16.13.2)':
@@ -16772,9 +16761,9 @@ snapshots:
       '@types/ws': 8.18.1
       graphql: 16.13.2
       graphql-ws: 5.12.1(graphql@16.13.2)
-      isomorphic-ws: 5.0.0(ws@8.17.1)
+      isomorphic-ws: 5.0.0(ws@8.21.0)
       tslib: 2.8.1
-      ws: 8.17.1
+      ws: 8.21.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -16785,10 +16774,10 @@ snapshots:
       '@graphql-tools/utils': 11.1.0(graphql@16.13.2)
       '@whatwg-node/disposablestack': 0.0.6
       graphql: 16.13.2
-      graphql-ws: 6.0.8(graphql@16.13.2)(ws@8.17.1)
-      isows: 1.0.7(ws@8.17.1)
+      graphql-ws: 6.0.8(graphql@16.13.2)(ws@8.21.0)
+      isows: 1.0.7(ws@8.21.0)
       tslib: 2.8.1
-      ws: 8.17.1
+      ws: 8.21.0
     transitivePeerDependencies:
       - '@fastify/websocket'
       - bufferutil
@@ -16801,10 +16790,10 @@ snapshots:
       '@graphql-tools/utils': 11.1.0(graphql@16.14.0)
       '@whatwg-node/disposablestack': 0.0.6
       graphql: 16.14.0
-      graphql-ws: 6.0.8(graphql@16.14.0)(ws@8.17.1)
-      isows: 1.0.7(ws@8.17.1)
+      graphql-ws: 6.0.8(graphql@16.14.0)(ws@8.21.0)
+      isows: 1.0.7(ws@8.21.0)
       tslib: 2.8.1
-      ws: 8.17.1
+      ws: 8.21.0
     transitivePeerDependencies:
       - '@fastify/websocket'
       - bufferutil
@@ -16875,9 +16864,9 @@ snapshots:
       '@graphql-tools/utils': 9.2.1(graphql@16.13.2)
       '@types/ws': 8.18.1
       graphql: 16.13.2
-      isomorphic-ws: 5.0.0(ws@8.17.1)
+      isomorphic-ws: 5.0.0(ws@8.21.0)
       tslib: 2.8.1
-      ws: 8.17.1
+      ws: 8.21.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -16887,9 +16876,9 @@ snapshots:
       '@graphql-tools/utils': 11.1.0(graphql@16.13.2)
       '@types/ws': 8.18.1
       graphql: 16.13.2
-      isomorphic-ws: 5.0.0(ws@8.17.1)
+      isomorphic-ws: 5.0.0(ws@8.21.0)
       tslib: 2.8.1
-      ws: 8.17.1
+      ws: 8.21.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -16899,9 +16888,9 @@ snapshots:
       '@graphql-tools/utils': 11.1.0(graphql@16.14.0)
       '@types/ws': 8.18.1
       graphql: 16.14.0
-      isomorphic-ws: 5.0.0(ws@8.17.1)
+      isomorphic-ws: 5.0.0(ws@8.21.0)
       tslib: 2.8.1
-      ws: 8.17.1
+      ws: 8.21.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -17229,10 +17218,10 @@ snapshots:
       '@types/ws': 8.18.1
       '@whatwg-node/fetch': 0.8.8
       graphql: 16.13.2
-      isomorphic-ws: 5.0.0(ws@8.17.1)
+      isomorphic-ws: 5.0.0(ws@8.21.0)
       tslib: 2.8.1
       value-or-promise: 1.0.12
-      ws: 8.17.1
+      ws: 8.21.0
     transitivePeerDependencies:
       - '@types/node'
       - bufferutil
@@ -17250,10 +17239,10 @@ snapshots:
       '@whatwg-node/fetch': 0.10.13
       '@whatwg-node/promise-helpers': 1.3.2
       graphql: 16.13.2
-      isomorphic-ws: 5.0.0(ws@8.17.1)
+      isomorphic-ws: 5.0.0(ws@8.21.0)
       sync-fetch: 0.6.0
       tslib: 2.8.1
-      ws: 8.17.1
+      ws: 8.21.0
     transitivePeerDependencies:
       - '@fastify/websocket'
       - '@types/node'
@@ -17272,10 +17261,10 @@ snapshots:
       '@whatwg-node/fetch': 0.10.13
       '@whatwg-node/promise-helpers': 1.3.2
       graphql: 16.13.2
-      isomorphic-ws: 5.0.0(ws@8.17.1)
+      isomorphic-ws: 5.0.0(ws@8.21.0)
       sync-fetch: 0.6.0
       tslib: 2.8.1
-      ws: 8.17.1
+      ws: 8.21.0
     transitivePeerDependencies:
       - '@fastify/websocket'
       - '@types/node'
@@ -17294,10 +17283,10 @@ snapshots:
       '@whatwg-node/fetch': 0.10.13
       '@whatwg-node/promise-helpers': 1.3.2
       graphql: 16.14.0
-      isomorphic-ws: 5.0.0(ws@8.17.1)
+      isomorphic-ws: 5.0.0(ws@8.21.0)
       sync-fetch: 0.6.0
       tslib: 2.8.1
-      ws: 8.17.1
+      ws: 8.21.0
     transitivePeerDependencies:
       - '@fastify/websocket'
       - '@types/node'
@@ -17405,15 +17394,15 @@ snapshots:
 
   '@hapi/hoek@9.3.0': {}
 
-  '@hono/node-server@1.19.11(hono@4.12.15)':
+  '@hono/node-server@1.19.11(hono@4.12.25)':
     dependencies:
-      hono: 4.12.15
+      hono: 4.12.25
 
   '@hoppscotch/httpsnippet@3.0.9':
     dependencies:
       chalk: 4.1.2
       event-stream: 4.0.1
-      form-data: 4.0.4
+      form-data: 4.0.6
       har-validator-compiled: 1.0.0
       stringify-object: 3.3.0
       yargs: 17.7.2
@@ -18335,13 +18324,13 @@ snapshots:
       '@tybys/wasm-util': 0.10.1
     optional: true
 
-  '@nestjs-modules/mailer@2.3.6(@nestjs/common@11.1.27(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.27)(@nestjs/terminus@11.1.1(@nestjs/common@11.1.27(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.27)(@prisma/client@7.8.0(prisma@7.8.0(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3))(typescript@5.9.3))(reflect-metadata@0.2.2)(rxjs@7.8.2))(chokidar@4.0.3)(nodemailer@8.0.7)(terser@5.46.1)(typescript@5.9.3)':
+  '@nestjs-modules/mailer@2.3.7(@nestjs/common@11.1.27(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.27)(@nestjs/terminus@11.1.1(@nestjs/common@11.1.27(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.27)(@prisma/client@7.8.0(prisma@7.8.0(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3))(typescript@5.9.3))(reflect-metadata@0.2.2)(rxjs@7.8.2))(chokidar@4.0.3)(nodemailer@9.0.1)(terser@5.46.1)(typescript@5.9.3)':
     dependencies:
       '@css-inline/css-inline': 0.20.0
       '@nestjs/common': 11.1.27(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@nestjs/core': 11.1.27(@nestjs/common@11.1.27(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.27)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       glob: 13.0.6
-      nodemailer: 8.0.7
+      nodemailer: 9.0.1
       tslib: 2.8.1
     optionalDependencies:
       '@nestjs/terminus': 11.1.1(@nestjs/common@11.1.27(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.27)(@prisma/client@7.8.0(prisma@7.8.0(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3))(typescript@5.9.3))(reflect-metadata@0.2.2)(rxjs@7.8.2)
@@ -18350,7 +18339,7 @@ snapshots:
       '@types/pug': 2.0.10
       ejs: 5.0.2
       handlebars: 4.7.9
-      liquidjs: 10.25.7
+      liquidjs: 10.26.0
       mjml: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
       nunjucks: 3.2.4(chokidar@4.0.3)
       preview-email: 3.1.1
@@ -18455,13 +18444,13 @@ snapshots:
       fast-glob: 3.3.3
       graphql: 16.14.0
       graphql-tag: 2.12.6(graphql@16.14.0)
-      graphql-ws: 6.0.8(graphql@16.14.0)(ws@8.17.1)
+      graphql-ws: 6.0.8(graphql@16.14.0)(ws@8.21.0)
       lodash: 4.18.1
       normalize-path: 3.0.0
       reflect-metadata: 0.2.2
       subscriptions-transport-ws: 0.11.0(graphql@16.14.0)
       tslib: 2.8.1
-      ws: 8.17.1
+      ws: 8.21.0
     optionalDependencies:
       class-transformer: 0.5.1
       class-validator: 0.15.1
@@ -18496,7 +18485,7 @@ snapshots:
       '@nestjs/core': 11.1.27(@nestjs/common@11.1.27(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.27)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       cors: 2.8.6
       express: 5.2.1
-      multer: 2.1.1
+      multer: 2.2.0
       path-to-regexp: 8.4.2
       tslib: 2.8.1
     transitivePeerDependencies:
@@ -18692,17 +18681,17 @@ snapshots:
 
   '@popperjs/core@2.11.8': {}
 
-  '@posthog/core@1.33.0':
+  '@posthog/core@1.35.3':
     dependencies:
-      '@posthog/types': 1.387.0
+      '@posthog/types': 1.390.2
 
-  '@posthog/types@1.387.0': {}
+  '@posthog/types@1.390.2': {}
 
   '@prisma/adapter-pg@7.8.0':
     dependencies:
       '@prisma/driver-adapter-utils': 7.8.0
       '@types/pg': 8.20.0
-      pg: 8.21.0
+      pg: 8.22.0
       postgres-array: 3.0.4
     transitivePeerDependencies:
       - pg-native
@@ -18734,13 +18723,13 @@ snapshots:
       '@electric-sql/pglite': 0.4.1
       '@electric-sql/pglite-socket': 0.1.1(@electric-sql/pglite@0.4.1)
       '@electric-sql/pglite-tools': 0.3.1(@electric-sql/pglite@0.4.1)
-      '@hono/node-server': 1.19.11(hono@4.12.15)
+      '@hono/node-server': 1.19.11(hono@4.12.25)
       '@prisma/get-platform': 7.2.0
       '@prisma/query-plan-executor': 7.2.0
       '@prisma/streams-local': 0.1.2
       foreground-child: 3.3.1
       get-port-please: 3.2.0
-      hono: 4.12.15
+      hono: 4.12.25
       http-status-codes: 2.3.0
       pathe: 2.0.3
       proper-lockfile: 4.1.2
@@ -19572,7 +19561,7 @@ snapshots:
       '@types/caseless': 0.12.5
       '@types/node': 25.9.3
       '@types/tough-cookie': 4.0.5
-      form-data: 4.0.4
+      form-data: 2.5.6
 
   '@types/resolve@1.20.2': {}
 
@@ -19606,7 +19595,7 @@ snapshots:
       '@types/cookiejar': 2.1.5
       '@types/methods': 1.1.4
       '@types/node': 25.9.3
-      form-data: 4.0.4
+      form-data: 4.0.6
 
   '@types/supertest@7.2.0':
     dependencies:
@@ -20594,7 +20583,7 @@ snapshots:
   axios@1.18.0:
     dependencies:
       follow-redirects: 1.16.0
-      form-data: 4.0.4
+      form-data: 4.0.6
       https-proxy-agent: 5.0.1
       proxy-from-env: 2.1.0
     transitivePeerDependencies:
@@ -21761,7 +21750,7 @@ snapshots:
       indexof: 0.0.1
       parseqs: 0.0.6
       parseuri: 0.0.6
-      ws: 8.17.1
+      ws: 8.21.0
       xmlhttprequest-ssl: 1.6.3
       yeast: 0.1.2
     transitivePeerDependencies:
@@ -21778,7 +21767,7 @@ snapshots:
       has-cors: 1.1.0
       parseqs: 0.0.6
       parseuri: 0.0.6
-      ws: 8.17.1
+      ws: 8.21.0
       xmlhttprequest-ssl: 1.6.3
       yeast: 0.1.2
     transitivePeerDependencies:
@@ -21791,7 +21780,7 @@ snapshots:
       '@socket.io/component-emitter': 3.1.2
       debug: 4.4.3(supports-color@8.1.1)
       engine.io-parser: 5.2.3
-      ws: 8.17.1
+      ws: 8.21.0
       xmlhttprequest-ssl: 2.1.2
     transitivePeerDependencies:
       - bufferutil
@@ -21871,7 +21860,7 @@ snapshots:
       data-view-byte-offset: 1.0.1
       es-define-property: 1.0.1
       es-errors: 1.3.0
-      es-object-atoms: 1.1.1
+      es-object-atoms: 1.1.2
       es-set-tostringtag: 2.1.0
       es-to-primitive: 1.3.0
       function.prototype.name: 1.1.8
@@ -21883,7 +21872,7 @@ snapshots:
       has-property-descriptors: 1.0.2
       has-proto: 1.2.0
       has-symbols: 1.1.0
-      hasown: 2.0.2
+      hasown: 2.0.4
       internal-slot: 1.1.0
       is-array-buffer: 3.0.5
       is-callable: 1.2.7
@@ -21994,7 +21983,7 @@ snapshots:
       es-errors: 1.3.0
       get-intrinsic: 1.3.0
       has-tostringtag: 1.0.2
-      hasown: 2.0.2
+      hasown: 2.0.4
 
   es-to-primitive@1.3.0:
     dependencies:
@@ -22693,12 +22682,21 @@ snapshots:
       typescript: 5.9.3
       webpack: 5.106.2
 
-  form-data@4.0.4:
+  form-data@2.5.6:
     dependencies:
       asynckit: 0.4.0
       combined-stream: 1.0.8
       es-set-tostringtag: 2.1.0
-      hasown: 2.0.3
+      hasown: 2.0.4
+      mime-types: 2.1.35
+      safe-buffer: 5.2.1
+
+  form-data@4.0.6:
+    dependencies:
+      asynckit: 0.4.0
+      combined-stream: 1.0.8
+      es-set-tostringtag: 2.1.0
+      hasown: 2.0.4
       mime-types: 2.1.35
 
   formdata-polyfill@4.0.10:
@@ -22749,7 +22747,7 @@ snapshots:
       call-bound: 1.0.4
       define-properties: 1.2.1
       functions-have-names: 1.2.3
-      hasown: 2.0.2
+      hasown: 2.0.4
       is-callable: 1.2.7
 
   function.prototype.name@1.2.0:
@@ -22783,12 +22781,12 @@ snapshots:
       call-bind-apply-helpers: 1.0.2
       es-define-property: 1.0.1
       es-errors: 1.3.0
-      es-object-atoms: 1.1.1
+      es-object-atoms: 1.1.2
       function-bind: 1.1.2
       get-proto: 1.0.1
       gopd: 1.2.0
       has-symbols: 1.1.0
-      hasown: 2.0.2
+      hasown: 2.0.4
       math-intrinsics: 1.1.0
 
   get-own-enumerable-property-symbols@3.0.2: {}
@@ -22803,7 +22801,7 @@ snapshots:
   get-proto@1.0.1:
     dependencies:
       dunder-proto: 1.0.1
-      es-object-atoms: 1.1.1
+      es-object-atoms: 1.1.2
 
   get-stream@5.2.0:
     dependencies:
@@ -22851,7 +22849,7 @@ snapshots:
     dependencies:
       foreground-child: 3.3.1
       jackspeak: 4.2.3
-      minimatch: 10.2.4
+      minimatch: 10.2.5
       minipass: 7.1.3
       package-json-from-dist: 1.0.1
       path-scurry: 2.0.2
@@ -23076,17 +23074,17 @@ snapshots:
     dependencies:
       graphql: 16.13.2
 
-  graphql-ws@6.0.8(graphql@16.13.2)(ws@8.17.1):
+  graphql-ws@6.0.8(graphql@16.13.2)(ws@8.21.0):
     dependencies:
       graphql: 16.13.2
     optionalDependencies:
-      ws: 8.17.1
+      ws: 8.21.0
 
-  graphql-ws@6.0.8(graphql@16.14.0)(ws@8.17.1):
+  graphql-ws@6.0.8(graphql@16.14.0)(ws@8.21.0):
     dependencies:
       graphql: 16.14.0
     optionalDependencies:
-      ws: 8.17.1
+      ws: 8.21.0
 
   graphql@16.13.2: {}
 
@@ -23133,10 +23131,6 @@ snapshots:
     dependencies:
       function-bind: 1.1.2
 
-  hasown@2.0.3:
-    dependencies:
-      function-bind: 1.1.2
-
   hasown@2.0.4:
     dependencies:
       function-bind: 1.1.2
@@ -23159,7 +23153,7 @@ snapshots:
 
   highlightjs-curl@1.3.0: {}
 
-  hono@4.12.15: {}
+  hono@4.12.25: {}
 
   hookable@6.1.0: {}
 
@@ -23373,7 +23367,7 @@ snapshots:
   internal-slot@1.1.0:
     dependencies:
       es-errors: 1.3.0
-      hasown: 2.0.2
+      hasown: 2.0.4
       side-channel: 1.1.1
 
   invariant@2.2.4:
@@ -23550,7 +23544,7 @@ snapshots:
       call-bound: 1.0.4
       gopd: 1.2.0
       has-tostringtag: 1.0.2
-      hasown: 2.0.2
+      hasown: 2.0.4
 
   is-regexp@1.0.0: {}
 
@@ -23629,13 +23623,13 @@ snapshots:
     dependencies:
       node-gyp-build: 4.8.4
 
-  isomorphic-ws@5.0.0(ws@8.17.1):
+  isomorphic-ws@5.0.0(ws@8.21.0):
     dependencies:
-      ws: 8.17.1
+      ws: 8.21.0
 
-  isows@1.0.7(ws@8.17.1):
+  isows@1.0.7(ws@8.21.0):
     dependencies:
-      ws: 8.17.1
+      ws: 8.21.0
 
   istanbul-lib-coverage@3.2.2: {}
 
@@ -24148,7 +24142,7 @@ snapshots:
       webidl-conversions: 8.0.1
       whatwg-mimetype: 4.0.0
       whatwg-url: 15.1.0
-      ws: 8.17.1
+      ws: 8.21.0
       xml-name-validator: 5.0.0
     transitivePeerDependencies:
       - '@noble/hashes'
@@ -24302,7 +24296,7 @@ snapshots:
 
   liquid-json@0.3.1: {}
 
-  liquidjs@10.25.7:
+  liquidjs@10.26.0:
     dependencies:
       commander: 10.0.1
     optional: true
@@ -24394,6 +24388,8 @@ snapshots:
 
   lodash.upperfirst@4.3.1: {}
 
+  lodash@4.17.23: {}
+
   lodash@4.18.1: {}
 
   log-symbols@4.1.0:
@@ -24466,7 +24462,7 @@ snapshots:
       iconv-lite: 0.7.2
       libmime: 5.3.7
       linkify-it: 5.0.0
-      nodemailer: 7.0.13
+      nodemailer: 9.0.1
       punycode.js: 2.3.1
       tlds: 1.261.0
     optional: true
@@ -24608,7 +24604,7 @@ snapshots:
 
   mjml-accordion@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       lodash: 4.18.1
       mjml-core: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
     transitivePeerDependencies:
@@ -24624,7 +24620,7 @@ snapshots:
 
   mjml-body@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       lodash: 4.18.1
       mjml-core: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
     transitivePeerDependencies:
@@ -24640,7 +24636,7 @@ snapshots:
 
   mjml-button@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       lodash: 4.18.1
       mjml-core: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
     transitivePeerDependencies:
@@ -24656,7 +24652,7 @@ snapshots:
 
   mjml-carousel@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       lodash: 4.18.1
       mjml-core: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
     transitivePeerDependencies:
@@ -24672,7 +24668,7 @@ snapshots:
 
   mjml-cli@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       chokidar: 3.6.0
       glob: 10.5.0
       lodash: 4.18.1
@@ -24694,7 +24690,7 @@ snapshots:
 
   mjml-column@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       lodash: 4.18.1
       mjml-core: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
     transitivePeerDependencies:
@@ -24710,7 +24706,7 @@ snapshots:
 
   mjml-core@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       cheerio: 1.0.0-rc.12
       cssnano: 7.1.3(postcss@8.5.15)
       detect-node: 2.1.0
@@ -24734,7 +24730,7 @@ snapshots:
 
   mjml-divider@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       lodash: 4.18.1
       mjml-core: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
     transitivePeerDependencies:
@@ -24750,7 +24746,7 @@ snapshots:
 
   mjml-group@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       lodash: 4.18.1
       mjml-core: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
     transitivePeerDependencies:
@@ -24766,7 +24762,7 @@ snapshots:
 
   mjml-head-attributes@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       lodash: 4.18.1
       mjml-core: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
     transitivePeerDependencies:
@@ -24782,7 +24778,7 @@ snapshots:
 
   mjml-head-breakpoint@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       lodash: 4.18.1
       mjml-core: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
     transitivePeerDependencies:
@@ -24798,7 +24794,7 @@ snapshots:
 
   mjml-head-font@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       lodash: 4.18.1
       mjml-core: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
     transitivePeerDependencies:
@@ -24814,7 +24810,7 @@ snapshots:
 
   mjml-head-html-attributes@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       lodash: 4.18.1
       mjml-core: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
     transitivePeerDependencies:
@@ -24830,7 +24826,7 @@ snapshots:
 
   mjml-head-preview@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       lodash: 4.18.1
       mjml-core: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
     transitivePeerDependencies:
@@ -24846,7 +24842,7 @@ snapshots:
 
   mjml-head-style@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       lodash: 4.18.1
       mjml-core: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
     transitivePeerDependencies:
@@ -24862,7 +24858,7 @@ snapshots:
 
   mjml-head-title@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       lodash: 4.18.1
       mjml-core: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
     transitivePeerDependencies:
@@ -24878,7 +24874,7 @@ snapshots:
 
   mjml-head@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       lodash: 4.18.1
       mjml-core: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
     transitivePeerDependencies:
@@ -24894,7 +24890,7 @@ snapshots:
 
   mjml-hero@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       lodash: 4.18.1
       mjml-core: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
     transitivePeerDependencies:
@@ -24910,7 +24906,7 @@ snapshots:
 
   mjml-image@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       lodash: 4.18.1
       mjml-core: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
     transitivePeerDependencies:
@@ -24926,7 +24922,7 @@ snapshots:
 
   mjml-navbar@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       lodash: 4.18.1
       mjml-core: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
     transitivePeerDependencies:
@@ -24942,7 +24938,7 @@ snapshots:
 
   mjml-parser-xml@5.0.0-alpha.4:
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       detect-node: 2.1.0
       htmlparser2: 9.1.0
       lodash: 4.18.1
@@ -24950,7 +24946,7 @@ snapshots:
 
   mjml-preset-core@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       mjml-accordion: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
       mjml-body: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
       mjml-button: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
@@ -24989,7 +24985,7 @@ snapshots:
 
   mjml-raw@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       lodash: 4.18.1
       mjml-core: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
     transitivePeerDependencies:
@@ -25005,7 +25001,7 @@ snapshots:
 
   mjml-section@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       lodash: 4.18.1
       mjml-core: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
     transitivePeerDependencies:
@@ -25021,7 +25017,7 @@ snapshots:
 
   mjml-social@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       lodash: 4.18.1
       mjml-core: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
     transitivePeerDependencies:
@@ -25037,7 +25033,7 @@ snapshots:
 
   mjml-spacer@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       lodash: 4.18.1
       mjml-core: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
     transitivePeerDependencies:
@@ -25053,7 +25049,7 @@ snapshots:
 
   mjml-table@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       lodash: 4.18.1
       mjml-core: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
     transitivePeerDependencies:
@@ -25069,7 +25065,7 @@ snapshots:
 
   mjml-text@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       lodash: 4.18.1
       mjml-core: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
     transitivePeerDependencies:
@@ -25085,12 +25081,12 @@ snapshots:
 
   mjml-validator@5.0.0-alpha.4:
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
     optional: true
 
   mjml-wrapper@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       lodash: 4.18.1
       mjml-core: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
       mjml-section: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
@@ -25107,7 +25103,7 @@ snapshots:
 
   mjml@5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       mjml-cli: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
       mjml-core: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
       mjml-preset-core: 5.0.0-alpha.4(terser@5.46.1)(typescript@5.9.3)
@@ -25181,7 +25177,7 @@ snapshots:
 
   muggle-string@0.4.1: {}
 
-  multer@2.1.1:
+  multer@2.2.0:
     dependencies:
       append-field: 1.0.0
       busboy: 1.6.0
@@ -25266,10 +25262,7 @@ snapshots:
 
   node-releases@2.0.38: {}
 
-  nodemailer@7.0.13:
-    optional: true
-
-  nodemailer@8.0.7: {}
+  nodemailer@9.0.1: {}
 
   normalize-package-data@2.5.0:
     dependencies:
@@ -25373,7 +25366,7 @@ snapshots:
       call-bind: 1.0.8
       call-bound: 1.0.4
       define-properties: 1.2.1
-      es-object-atoms: 1.1.1
+      es-object-atoms: 1.1.2
       has-symbols: 1.1.0
       object-keys: 1.1.1
 
@@ -25671,17 +25664,17 @@ snapshots:
   pg-cloudflare@1.4.0:
     optional: true
 
-  pg-connection-string@2.13.0: {}
+  pg-connection-string@2.14.0: {}
 
   pg-int8@1.0.1: {}
 
-  pg-pool@3.14.0(pg@8.21.0):
+  pg-pool@3.14.0(pg@8.22.0):
     dependencies:
-      pg: 8.21.0
+      pg: 8.22.0
 
   pg-protocol@1.13.0: {}
 
-  pg-protocol@1.14.0: {}
+  pg-protocol@1.15.0: {}
 
   pg-types@2.2.0:
     dependencies:
@@ -25691,11 +25684,11 @@ snapshots:
       postgres-date: 1.0.7
       postgres-interval: 1.2.0
 
-  pg@8.21.0:
+  pg@8.22.0:
     dependencies:
-      pg-connection-string: 2.13.0
-      pg-pool: 3.14.0(pg@8.21.0)
-      pg-protocol: 1.14.0
+      pg-connection-string: 2.14.0
+      pg-pool: 3.14.0(pg@8.22.0)
+      pg-protocol: 1.15.0
       pg-types: 2.2.0
       pgpass: 1.0.5
     optionalDependencies:
@@ -25995,9 +25988,9 @@ snapshots:
 
   postgres@3.4.7: {}
 
-  posthog-node@5.38.0(rxjs@7.8.2):
+  posthog-node@5.38.2(rxjs@7.8.2):
     dependencies:
-      '@posthog/core': 1.33.0
+      '@posthog/core': 1.35.3
     optionalDependencies:
       rxjs: 7.8.2
 
@@ -26024,7 +26017,7 @@ snapshots:
       http-reasons: 0.1.0
       iconv-lite: 0.6.3
       liquid-json: 0.3.1
-      lodash: 4.18.1
+      lodash: 4.17.23
       mime: 3.0.0
       mime-format: 2.0.2
       postman-url-encoder: 3.0.8
@@ -26083,7 +26076,7 @@ snapshots:
       fixpack: 4.0.0
       get-port: 5.1.1
       mailparser: 3.9.3
-      nodemailer: 7.0.13
+      nodemailer: 9.0.1
       open: 7.4.2
       p-event: 4.2.0
       p-wait-for: 3.2.0
@@ -26372,7 +26365,7 @@ snapshots:
       define-properties: 1.2.1
       es-abstract: 1.24.1
       es-errors: 1.3.0
-      es-object-atoms: 1.1.1
+      es-object-atoms: 1.1.2
       get-intrinsic: 1.3.0
       get-proto: 1.0.1
       which-builtin-type: 1.2.1
@@ -26741,7 +26734,7 @@ snapshots:
     dependencies:
       dunder-proto: 1.0.1
       es-errors: 1.3.0
-      es-object-atoms: 1.1.1
+      es-object-atoms: 1.1.2
 
   setimmediate@1.0.5: {}
 
@@ -27091,7 +27084,7 @@ snapshots:
       define-data-property: 1.1.4
       define-properties: 1.2.1
       es-abstract: 1.24.1
-      es-object-atoms: 1.1.1
+      es-object-atoms: 1.1.2
       has-property-descriptors: 1.0.2
 
   string.prototype.trim@1.2.11:
@@ -27117,13 +27110,13 @@ snapshots:
       call-bind: 1.0.8
       call-bound: 1.0.4
       define-properties: 1.2.1
-      es-object-atoms: 1.1.1
+      es-object-atoms: 1.1.2
 
   string.prototype.trimstart@1.0.8:
     dependencies:
       call-bind: 1.0.8
       define-properties: 1.2.1
-      es-object-atoms: 1.1.1
+      es-object-atoms: 1.1.2
 
   string_decoder@1.1.1:
     dependencies:
@@ -27179,7 +27172,7 @@ snapshots:
       graphql: 16.13.2
       iterall: 1.3.0
       symbol-observable: 1.2.0
-      ws: 7.5.10
+      ws: 8.21.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -27191,7 +27184,7 @@ snapshots:
       graphql: 16.14.0
       iterall: 1.3.0
       symbol-observable: 1.2.0
-      ws: 7.5.10
+      ws: 8.21.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -27212,7 +27205,7 @@ snapshots:
       cookiejar: 2.1.4
       debug: 4.4.3(supports-color@8.1.1)
       fast-safe-stringify: 2.1.1
-      form-data: 4.0.4
+      form-data: 4.0.6
       formidable: 3.5.4
       methods: 1.1.2
       mime: 2.6.0
@@ -28756,9 +28749,7 @@ snapshots:
       imurmurhash: 0.1.4
       signal-exit: 4.1.0
 
-  ws@7.5.10: {}
-
-  ws@8.17.1: {}
+  ws@8.21.0: {}
 
   wsl-utils@0.3.1:
     dependencies:

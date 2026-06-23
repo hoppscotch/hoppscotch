@@ -299,10 +299,16 @@ export class CookieJarService extends Service {
         )
         continue
       }
+      // An empty-string `path` falls through `??` (only `undefined`
+      // triggers it) and would otherwise produce `startsWith("")`
+      // matching every request path under the domain, plus a
+      // duplicate jar entry alongside the canonical `/` form. The
+      // explicit length check collapses both empty and undefined
+      // to `/`.
       const normalized: Cookie = {
         ...cookie,
         domain: canonDomain,
-        path: cookie.path ?? "/",
+        path: cookie.path && cookie.path.length > 0 ? cookie.path : "/",
       }
       const existing = this.cookieJar.value.get(normalized.domain) ?? []
 
@@ -424,7 +430,10 @@ export class CookieJarService extends Service {
         name: c.name,
         value: c.value,
         domain,
-        path: c.path ?? this.defaultPath(requestURL.pathname),
+        path:
+          c.path && c.path.length > 0
+            ? c.path
+            : this.defaultPath(requestURL.pathname),
         httpOnly: c.httpOnly ?? false,
         secure: c.secure ?? false,
         sameSite: c.sameSite ?? "Lax",
@@ -476,7 +485,7 @@ export class CookieJarService extends Service {
       if (!existing) {
         continue
       }
-      const path = target.path ?? "/"
+      const path = target.path && target.path.length > 0 ? target.path : "/"
       const next = existing.filter(
         (c) => !(c.name === target.name && c.path === path)
       )

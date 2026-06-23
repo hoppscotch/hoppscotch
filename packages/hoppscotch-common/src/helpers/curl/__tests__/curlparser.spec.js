@@ -1057,6 +1057,37 @@ data2: {"type":"test2","typeId":"123"}`,
       description: null,
     }),
   },
+  {
+    // Issue #6400: headers with ": " in value should not be dropped
+    command: `curl https://httpbin.org/get -H "X-Note: hello: world" -H "Accept: application/json"`,
+    response: makeRESTRequest({
+      name: "Untitled",
+      endpoint: "https://httpbin.org/get",
+      method: "GET",
+      auth: { authType: "inherit", authActive: true },
+      headers: [
+        {
+          active: true,
+          key: "X-Note",
+          value: "hello: world",
+          description: "",
+        },
+        {
+          active: true,
+          key: "Accept",
+          value: "application/json",
+          description: "",
+        },
+      ],
+      body: { contentType: null, body: null },
+      params: [],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+      description: null,
+    }),
+  },
 ]
 
 describe("Parse curl command to Hopp REST Request", () => {

@@ -228,8 +228,8 @@ const triggerSaveChangesModal = () => {
 };
 
 const restartServer = () => {
-  showSaveChangesModal.value = false;
   if (surfaceSaveBlockers()) return;
+  showSaveChangesModal.value = false;
   initiateServerRestart.value = true;
 };
 </script>

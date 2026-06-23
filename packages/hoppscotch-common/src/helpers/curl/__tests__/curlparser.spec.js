@@ -1057,6 +1057,37 @@ data2: {"type":"test2","typeId":"123"}`,
       description: null,
     }),
   },
+  {
+    command:
+      'curl https://httpbin.org/get -H "X-Note: hello: world" -H "Accept: application/json"',
+    response: makeRESTRequest({
+      name: "Untitled",
+      endpoint: "https://httpbin.org/get",
+      method: "GET",
+      auth: { authType: "inherit", authActive: true },
+      body: { contentType: null, body: null },
+      params: [],
+      headers: [
+        {
+          active: true,
+          key: "X-Note",
+          value: "hello: world",
+          description: "",
+        },
+        {
+          active: true,
+          key: "Accept",
+          value: "application/json",
+          description: "",
+        },
+      ],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+      description: null,
+    }),
+  },
 ]
 
 describe("Parse curl command to Hopp REST Request", () => {

@@ -245,6 +245,27 @@ describe('MockServerService', () => {
 
       expect(result[0].serverUrlDomainBased).toBeNull();
     });
+
+    test('should strip trailing slashes from wildcard domain before appending subpath suffix', async () => {
+      mockConfigService.get.mockImplementation((key: string) => {
+        if (key === 'VITE_BACKEND_API_URL') return 'http://localhost:3170/v1';
+        if (key === 'INFRA.MOCK_SERVER_WILDCARD_DOMAIN')
+          return '*.mock.hopp.io/'; // Domain with trailing slash
+        if (key === 'INFRA.ALLOW_SECURE_COOKIES') return 'false';
+        if (key === 'ENABLE_SUBPATH_BASED_ACCESS') return 'true';
+        return undefined;
+      });
+      mockPrisma.mockServer.findMany.mockResolvedValue([dbMockServer]);
+
+      const result = await mockServerService.getUserMockServers(user.uid, {
+        take: 10,
+        skip: 0,
+      });
+
+      expect(result[0].serverUrlDomainBased).toBe(
+        'http://test-subdomain.mock.hopp.io/backend',
+      );
+    });
   });
 
   describe('getTeamMockServers', () => {

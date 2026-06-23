@@ -32,6 +32,9 @@
                   placeholder="e.g., your-secret-key"
                   :autofocus="false"
                   class="!my-2 !bg-primaryLight flex-1 border border-divider rounded"
+                  :class="{
+                    '!border-red-500': isConfigFieldErrored('token', 'jwt_secret'),
+                  }"
                   input-styles="!border-0 "
                   :type="isMasked('jwt_secret') ? 'password' : 'text'"
                 >
@@ -53,6 +56,11 @@
                   placeholder="e.g., 10 (salt complexity)"
                   :autofocus="false"
                   class="!my-2 !bg-primaryLight flex-1"
+                  :input-styles="
+                    isConfigFieldErrored('token', 'token_salt_complexity')
+                      ? '!border-red-500'
+                      : ''
+                  "
                   type="number"
                   @update:model-value="
                     validateNumberValue(
@@ -70,6 +78,11 @@
                   placeholder="e.g., 3 (in hour)"
                   :autofocus="false"
                   class="!my-2 !bg-primaryLight flex-1"
+                  :input-styles="
+                    isConfigFieldErrored('token', 'magic_link_token_validity')
+                      ? '!border-red-500'
+                      : ''
+                  "
                   type="number"
                   @update:model-value="
                     validateNumberValue(
@@ -87,6 +100,11 @@
                   placeholder="e.g., 604800000 (in milliseconds)"
                   :autofocus="false"
                   class="!my-2 !bg-primaryLight flex-1"
+                  :input-styles="
+                    isConfigFieldErrored('token', 'refresh_token_validity')
+                      ? '!border-red-500'
+                      : ''
+                  "
                   type="number"
                   @update:model-value="
                     validateNumberValue(
@@ -104,6 +122,11 @@
                   placeholder="e.g., 86400000 (in milliseconds)"
                   :autofocus="false"
                   class="!my-2 !bg-primaryLight flex-1"
+                  :input-styles="
+                    isConfigFieldErrored('token', 'access_token_validity')
+                      ? '!border-red-500'
+                      : ''
+                  "
                   type="number"
                   @update:model-value="
                     validateNumberValue(
@@ -122,6 +145,10 @@
                   :autofocus="false"
                   input-styles="!border-0 "
                   class="!my-2 !bg-primaryLight flex-1 border border-divider rounded"
+                  :class="{
+                    '!border-red-500':
+                      isConfigFieldErrored('token', 'session_secret'),
+                  }"
                   :type="isMasked('session_secret') ? 'password' : 'text'"
                 >
                   <template #button>
@@ -142,6 +169,10 @@
                   placeholder="e.g., connect_sid"
                   :autofocus="false"
                   class="!my-2 !bg-primaryLight flex-1 border border-divider rounded"
+                  :class="{
+                    '!border-red-500':
+                      isConfigFieldErrored('token', 'session_cookie_name'),
+                  }"
                 />
                 <p class="my-1 text-secondaryLight">
                   {{ t('configs.auth_providers.token.session_cookie_name_help') }}
@@ -159,7 +190,11 @@
 import { useVModel } from '@vueuse/core';
 import { computed, ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
-import { ServerConfigs } from '~/helpers/configs';
+import {
+  ServerConfigs,
+  isNotValidNumber,
+  useConfigValidation,
+} from '~/helpers/configs';
 import IconHelpCircle from '~icons/lucide/help-circle';
 import IconEye from '~icons/lucide/eye';
 import IconEyeOff from '~icons/lucide/eye-off';
@@ -167,6 +202,8 @@ import { useToast } from '~/composables/toast';
 
 const t = useI18n();
 const toast = useToast();
+
+const { isConfigFieldErrored } = useConfigValidation();
 
 const props = defineProps<{
   config: ServerConfigs;
@@ -195,9 +232,12 @@ const toggleMask = (fieldKey: string) => {
 
 const isMasked = (fieldKey: string) => maskState.value[fieldKey];
 
+// Reuse the save-guard validator (isNotValidNumber) so the inline toast and the
+// save block agree: these numeric token fields must be positive integers (>= 1).
+// parseInt would accept "1.5" (→ 1) and pass silently here, only for the save to
+// be blocked later. Only the numeric fields call this; the secret inputs aren't.
 const validateNumberValue = (value: string | number) => {
-  const num = typeof value === 'string' ? parseInt(value, 10) : value;
-  if (isNaN(num) || num <= 0) {
+  if (isNotValidNumber(value)) {
     toast.error(t('configs.invalid_number'));
   }
 };

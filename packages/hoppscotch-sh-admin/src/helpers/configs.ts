@@ -396,14 +396,10 @@ export const isNotValidNumber = (field: string | boolean | number): boolean => {
   return !Number.isInteger(num) || num < 1;
 };
 
-// Single source of truth for config validation. getConfigValidationIssues
-// drives the save guard, tab dots, field borders, and blocked-save console.
-//
-// Adding a field: nothing here — the section loops iterate fields generically.
-// Render it and wire isConfigFieldErrored from useConfigValidation().
-//
-// Adding a section/tab: push issues from a new block below, extend
-// ConfigSectionId / ConfigTab, and add a :indicator in settings.vue.
+// Single source of truth for config validation. `getConfigValidationIssues` drives
+// the save guard, tab dots, field borders, and blocked-save console.
+// Add a field: render it and wire `isConfigFieldErrored` from `useConfigValidation()` — no edits here, the section loops are generic.
+// Add a section/tab: push from a new block below, extend `ConfigSectionId`/`ConfigTab`, and add `:indicator` in `settings.vue`.
 
 export type ConfigTab = 'auth' | 'smtp' | 'proxy' | 'rate-limit';
 export type ConfigSubTab = 'auth-providers' | 'token';
@@ -589,7 +585,7 @@ export const getConfigValidationIssues = (
   //     so a numeric-looking secret like "0" or "1.5" stays valid;
   //   - the numeric fields (salt complexity, token validities) must be positive
   //     integers (>= 1) to match the backend.
-  // session_cookie_name is format-validated separately below.
+  // `session_cookie_name` is format-validated separately below.
   Object.entries(config.tokenConfigs.fields).forEach(([fieldKey, value]) => {
     if (OPTIONAL_TOKEN_FIELD_KEYS.has(fieldKey)) return;
     const invalid = TOKEN_SECRET_FIELD_KEYS.has(fieldKey)
@@ -681,12 +677,9 @@ export const tabHasConfigIssue = (
     (issue) => issue.tab === tab && (!subTab || issue.subTab === subTab)
   );
 
-/* Validation state shared from settings.vue to its config child components.
-   Provide/inject (not module-level singletons) so a consumer mounted without a
-   provider throws loudly instead of silently reading empty state.
-   - `configEdited` mirrors `isConfigUpdated`, gating borders so they surface
-     while typing, not on a fresh load.
-   - `configValidationIssues` is rebuilt by a deep watch on `workingConfigs`. */
+/* Provide/inject (not module singleton) so an unscoped consumer throws loudly instead of
+   reading empty state. `configEdited` mirrors `settings.vue`'s `isConfigUpdated` (gates borders
+   to typing-time); `configValidationIssues` is rebuilt by its deep watch on `workingConfigs`. */
 export type ConfigValidationContext = {
   configEdited: Ref<boolean>;
   configValidationIssues: Ref<ConfigValidationIssue[]>;

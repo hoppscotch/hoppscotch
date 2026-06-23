@@ -110,8 +110,7 @@ import {
 const t = useI18n();
 const toast = useToast();
 
-// Owns the config validation state and provides it to the child config
-// components (see helpers/configs); a fresh context per mount.
+// Fresh validation context per mount; children inject for field-level borders.
 const { configEdited, configValidationIssues } = provideConfigValidation();
 
 const showSaveChangesModal = ref(false);

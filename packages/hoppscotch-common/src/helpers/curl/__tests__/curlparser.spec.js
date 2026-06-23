@@ -366,6 +366,65 @@ const samples = [
     }),
   },
   {
+    command: "curl -X GET localhost --user admin:p:a:s:s",
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled",
+      endpoint: "http://localhost/",
+      auth: {
+        authType: "basic",
+        authActive: true,
+        username: "admin",
+        password: "p:a:s:s",
+      },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      params: [],
+      headers: [],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+      description: null,
+    }),
+  },
+  {
+    // Base64 of "admin:p:a:s:s"
+    command:
+      "curl -X GET localhost --header 'Authorization: Basic YWRtaW46cDphOnM6cw=='",
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled",
+      endpoint: "http://localhost/",
+      auth: {
+        authType: "basic",
+        authActive: true,
+        username: "admin",
+        password: "p:a:s:s",
+      },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      params: [],
+      headers: [
+        {
+          active: true,
+          key: "Authorization",
+          value: "Basic YWRtaW46cDphOnM6cw==",
+          description: "",
+        },
+      ],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+      description: null,
+    }),
+  },
+  {
     command:
       "curl -X GET localhost --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'",
     response: makeRESTRequest({

@@ -92,6 +92,25 @@ export const getCombinedEnvVariables = (temp?: Environment["variables"]) => {
 }
 
 /**
+ * Maps a request's `active` variables to the `AggregateEnvironment` (v2) shape,
+ * tagged `RequestVariable` — the stored `value` becomes both current and initial
+ * value. The request-scope counterpart of
+ * `transformInheritedCollectionVariablesToAggregateEnv`.
+ */
+export const transformRequestVariablesToAggregateEnv = (
+  requestVariables: HoppRESTRequestVariable[] | undefined
+): AggregateEnvironment[] =>
+  (requestVariables ?? [])
+    .filter((v) => v.active)
+    .map((v) => ({
+      key: v.key,
+      currentValue: v.value,
+      initialValue: v.value,
+      sourceEnv: "RequestVariable",
+      secret: false,
+    }))
+
+/**
  * Merges a request's variables into one precedence-ordered list:
  * request → collection → environment (highest precedence first). Template
  * resolution picks the first matching key, so this order — matching the
@@ -112,15 +131,7 @@ export const getEffectiveVariablesForRequest = (
   environmentVars: AggregateEnvironment[],
   showSecretCollectionValues = true
 ): AggregateEnvironment[] => {
-  const requestVars = (requestVariables ?? [])
-    .filter((v) => v.active)
-    .map((v) => ({
-      key: v.key,
-      currentValue: v.value,
-      initialValue: v.value,
-      sourceEnv: "RequestVariable",
-      secret: false,
-    }))
+  const requestVars = transformRequestVariablesToAggregateEnv(requestVariables)
 
   const collectionVars = transformInheritedCollectionVariablesToAggregateEnv(
     inheritedVariables ?? [],
@@ -129,3 +140,23 @@ export const getEffectiveVariablesForRequest = (
 
   return [...requestVars, ...collectionVars, ...environmentVars]
 }
+
+/**
+ * Defensively normalizes possibly-legacy env rows to the v2 `AggregateEnvironment`
+ * shape (preserving any extra fields), so consumers like
+ * `filterNonEmptyEnvironmentVariables` / `parseTemplateString` always see a
+ * `currentValue`/`initialValue`. Legacy rows shaped `{ key, value }` (e.g. older
+ * embed callers) lack those fields and would otherwise resolve to an empty string.
+ */
+export const normalizeAggregateEnvs = (
+  envs: ReadonlyArray<
+    Partial<AggregateEnvironment> & { key: string; value?: string }
+  >
+): AggregateEnvironment[] =>
+  envs.map((env) => ({
+    ...env,
+    currentValue: env.currentValue ?? env.value ?? "",
+    initialValue: env.initialValue ?? env.value ?? "",
+    sourceEnv: env.sourceEnv ?? "",
+    secret: env.secret ?? false,
+  }))

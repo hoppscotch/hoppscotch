@@ -1,6 +1,9 @@
 import { describe, expect, test } from "vitest"
 import { Environment, HoppRESTAuth } from "@hoppscotch/data"
-import { getEffectiveVariablesForRequest } from "../environments"
+import {
+  getEffectiveVariablesForRequest,
+  normalizeAggregateEnvs,
+} from "../environments"
 import { getComputedAuthHeaders } from "../EffectiveURL"
 import { filterNonEmptyEnvironmentVariables } from "~/helpers/RequestRunner"
 import { AggregateEnvironment } from "~/newstore/environments"
@@ -138,5 +141,40 @@ describe("inherited collection auth — variable precedence in the preview", () 
     )
 
     expect(await authHeaderFor(vars)).toBe(`Basic ${btoa("env-token:pw")}`)
+  })
+})
+
+describe("normalizeAggregateEnvs (legacy { key, value } rows)", () => {
+  test("fills currentValue/initialValue from a legacy `value`, leaving v2 rows intact", () => {
+    const [normalized] = normalizeAggregateEnvs([
+      {
+        key: "token",
+        value: "legacy",
+        secret: false,
+        sourceEnv: "RequestVariable",
+      },
+    ])
+    expect(normalized).toMatchObject({
+      key: "token",
+      currentValue: "legacy",
+      initialValue: "legacy",
+    })
+
+    const v2 = envVar("env", "v2-val")
+    expect(normalizeAggregateEnvs([v2])[0]).toMatchObject(v2)
+  })
+
+  test("a normalized legacy row resolves in computed auth instead of empty", async () => {
+    const legacy = [
+      {
+        key: "token",
+        value: "legacy-token",
+        secret: false,
+        sourceEnv: "RequestVariable",
+      },
+    ]
+    expect(await authHeaderFor(normalizeAggregateEnvs(legacy))).toBe(
+      `Basic ${btoa("legacy-token:pw")}`
+    )
   })
 })

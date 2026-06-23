@@ -264,6 +264,9 @@ export type EditingProperties = {
   isRootCollection: boolean
   path: string
   inheritedProperties?: HoppInheritedProperty
+  // Key the collection's secret/current values are stored under, computed
+  // authoritatively by `editProperties` (team → `id`, personal → `_ref_id`).
+  collectionStoreKey?: string
 }
 type HoppCollectionAuth = HoppRESTAuth | HoppGQLAuth
 type HoppCollectionHeaders = HoppRESTHeaders | GQLHeader[]
@@ -321,16 +324,12 @@ const aggregateEnvs = useReadonlyStream(
   getAggregateEnvsWithCurrentValue()
 )
 
-// Mirror the read/write keying in collections `editProperties`: personal
-// collections are keyed by `_ref_id`, team collections by `id` (falling back
-// to the last path segment). The env tooltip uses sourceEnvID to resolve the
-// collection's stored secret/current values.
+// The store key (team → `id`, personal → `_ref_id`) is computed authoritatively
+// by `editProperties` and passed through here, so it can't diverge from the
+// save-side keying. The env tooltip uses it (as sourceEnvID) to resolve the
+// collection's own stored secret/current values.
 const collectionStoreKey = computed(
-  () =>
-    props.editingProperties.collection?._ref_id ??
-    props.editingProperties.collection?.id ??
-    props.editingProperties.path.split("/").pop() ??
-    ""
+  () => props.editingProperties.collectionStoreKey ?? ""
 )
 
 const envs = computed(() => {

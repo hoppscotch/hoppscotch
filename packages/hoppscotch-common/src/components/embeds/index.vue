@@ -36,6 +36,7 @@ import { HoppTab } from "~/services/tab"
 import { HoppRequestDocument } from "~/helpers/rest/document"
 import { platform } from "~/platform"
 import { RESTOptionTabs } from "../http/RequestOptions.vue"
+import { transformRequestVariablesToAggregateEnv } from "~/helpers/utils/environments"
 
 const props = defineProps<{
   modelTab: HoppTab<HoppRequestDocument>
@@ -55,14 +56,11 @@ const sharedRequestURL = computed(() => {
   return `${shortcodeBaseURL.value}/r/${props.sharedRequestID}`
 })
 
-const tabRequestVariables = computed(() => {
-  return tab.value.document.request.requestVariables.map(({ key, value }) => ({
-    key,
-    value,
-    secret: false,
-    sourceEnv: "RequestVariable",
-  }))
-})
+const tabRequestVariables = computed(() =>
+  transformRequestVariablesToAggregateEnv(
+    tab.value.document.request.requestVariables
+  )
+)
 
 const showCustomEmbedsView = computed(() => {
   const { organization, ui } = platform

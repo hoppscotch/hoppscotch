@@ -280,6 +280,7 @@ import {
 } from "~/helpers/utils/EffectiveURL"
 import { isDragDropAllowed, DragDropEvent } from "~/helpers/dragDropValidation"
 import { filterNonEmptyEnvironmentVariables } from "~/helpers/RequestRunner"
+import { normalizeAggregateEnvs } from "~/helpers/utils/environments"
 import {
   AggregateEnvironment,
   aggregateEnvsWithCurrentValue$,
@@ -577,7 +578,9 @@ const inheritedProperty = ref<
 >([])
 
 const resolvedEnvs = computed(() => {
-  if (props.envs) return props.envs
+  // Normalize to the v2 env shape so any legacy `{ key, value }` rows still
+  // resolve correctly in the computed headers/auth below.
+  if (props.envs) return normalizeAggregateEnvs(props.envs)
   const currentSelectedEnvironment = getCurrentEnvironment()
   return aggregateEnvs.value.map((env) => {
     return {

@@ -303,7 +303,15 @@ const t = useI18n()
 // JSON response render has to load and parse.
 let jqWasmPromise: Promise<typeof JqWasm> | null = null
 const getJqWasm = () => {
-  if (!jqWasmPromise) jqWasmPromise = import("jq-wasm")
+  if (!jqWasmPromise) {
+    // if the dynamic import fails (e.g. a transient network error), drop the
+    // cached promise so the next filter attempt can retry instead of being
+    // stuck failing until the page is reloaded
+    jqWasmPromise = import("jq-wasm").catch((err) => {
+      jqWasmPromise = null
+      throw err
+    })
+  }
   return jqWasmPromise
 }
 

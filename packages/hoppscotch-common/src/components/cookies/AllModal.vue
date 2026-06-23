@@ -197,7 +197,11 @@ const currentInterceptorSupportsCookies = computed(() => {
 })
 
 function addNewDomain() {
-  if (newDomainText.value.trim() === "") {
+  // Trim once and use the trimmed value as both the duplicate-key
+  // probe and the Map key, so two adds that differ only by
+  // whitespace do not produce two rows.
+  const trimmed = newDomainText.value.trim()
+  if (trimmed === "") {
     toast.error(`${t("cookies.modal.empty_domain")}`)
     return
   }
@@ -206,11 +210,11 @@ function addNewDomain() {
   // domain on save. The duplicate-add is treated as a no-op so an
   // accidental re-type does not remove cookies the user can see in
   // the same modal.
-  if (workingCookieJar.value.has(newDomainText.value)) {
+  if (workingCookieJar.value.has(trimmed)) {
     newDomainText.value = ""
     return
   }
-  workingCookieJar.value.set(newDomainText.value, [])
+  workingCookieJar.value.set(trimmed, [])
   newDomainText.value = ""
 }
 

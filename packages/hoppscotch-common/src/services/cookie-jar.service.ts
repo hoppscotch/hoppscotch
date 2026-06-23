@@ -74,8 +74,17 @@ export class CookieJarService extends Service {
   // The write token prefix is fresh per service instance so two
   // processes (this org's webview and another writing the same
   // store file) cannot collide on the counter and mis-treat each
-  // other's writes as self-echoes.
-  private writePrefix = crypto.randomUUID()
+  // other's writes as self-echoes. `globalThis.crypto.randomUUID`
+  // is the preferred source; a `Math.random`-based fallback keeps
+  // the service constructable in environments (test runners with
+  // older jsdom, some SSR setups) where the Web Crypto API is not
+  // exposed. The echo guard only needs uniqueness within the
+  // running process, no cryptographic property is required.
+  private writePrefix = (() => {
+    const uuid = globalThis.crypto?.randomUUID?.()
+    if (uuid) return uuid
+    return `wp-${Math.random().toString(36).slice(2)}-${Date.now().toString(36)}`
+  })()
   private writeCounter = 0
 
   // Ring buffer of recent self-write tokens. A single-slot

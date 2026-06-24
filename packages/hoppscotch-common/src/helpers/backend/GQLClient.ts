@@ -421,7 +421,11 @@ export const runMutation = <
           })
           .toPromise()
       },
-      () => constVoid() as never // The mutation function can never fail, so this will never be called ;)
+      (err) =>
+        ({
+          type: "network_error",
+          error: err instanceof Error ? err : new Error(String(err)),
+        }) as GQLError<DocErrors>
     ),
     TE.chainEitherK((result) =>
       pipe(

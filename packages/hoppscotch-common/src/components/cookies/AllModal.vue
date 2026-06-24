@@ -197,24 +197,28 @@ const currentInterceptorSupportsCookies = computed(() => {
 })
 
 function addNewDomain() {
-  // Trim once and use the trimmed value as both the duplicate-key
-  // probe and the Map key, so two adds that differ only by
-  // whitespace do not produce two rows.
+  // Canonicalize through the service so the new row's key matches
+  // the form the eventual save uses. Without this the modal row
+  // and `cookieKey` would disagree (modal row keyed `Example.COM`,
+  // save key `example.com`), and two visually different
+  // entries that canonicalize to the same domain would add as
+  // separate rows then clobber each other at save time.
   const trimmed = newDomainText.value.trim()
   if (trimmed === "") {
     toast.error(`${t("cookies.modal.empty_domain")}`)
     return
   }
+  const canon = cookieJarService.canonStoreDomain(trimmed)
   // If the user types a domain that already has a row, `.set` with
   // an empty array would wipe the existing cookies under that
   // domain on save. The duplicate-add is treated as a no-op so an
   // accidental re-type does not remove cookies the user can see in
   // the same modal.
-  if (workingCookieJar.value.has(trimmed)) {
+  if (workingCookieJar.value.has(canon)) {
     newDomainText.value = ""
     return
   }
-  workingCookieJar.value.set(trimmed, [])
+  workingCookieJar.value.set(canon, [])
   newDomainText.value = ""
 }
 

@@ -320,44 +320,93 @@
     "details": "Details"
   },
   "error": {
-    "authproviders_load_error": "Unable to load auth providers",
+    "network": {
+      "heading": "ネットワークエラー",
+      "description": "ネットワーク接続に失敗しました。{message}: {cause}"
+    },
+    "timeout": {
+      "heading": "タイムアウトエラー",
+      "description": "{phase}中にリクエストがタイムアウトしました。{message}"
+    },
+    "certificate": {
+      "heading": "証明書エラー",
+      "description": "証明書が無効です。{message}: {cause}"
+    },
+    "auth": {
+      "heading": "認証エラー",
+      "description": "アクセスが拒否されました。{message}: {cause}"
+    },
+    "proxy": {
+      "heading": "プロキシエラー",
+      "description": "プロキシ接続に失敗しました。{message}: {cause}"
+    },
+    "parse": {
+      "heading": "解析エラー",
+      "description": "レスポンスの解析に失敗しました。{message}: {cause}"
+    },
+    "version": {
+      "heading": "バージョンエラー",
+      "description": "バージョンに互換性がありません。{message}: {cause}"
+    },
+    "abort": {
+      "heading": "リクエストが中断されました",
+      "description": "操作がキャンセルされました。{message}: {cause}"
+    },
+    "unknown": {
+      "heading": "不明なエラー",
+      "description": "不明なエラーが発生しました。",
+      "cause": "原因不明"
+    },
+    "extension": {
+      "heading": "拡張機能エラー",
+      "description": "拡張機能でのリクエスト実行に失敗しました"
+    },
+    "authproviders_load_error": "認証プロバイダーを読み込めませんでした",
     "browser_support_sse": "このブラウザはServer-Sent Eventsをサポートしていないようです。",
     "check_console_details": "詳細については、コンソールログを確認してください。",
-    "check_how_to_add_origin": "Check how you can add an origin",
+    "check_how_to_add_origin": "オリジンを追加する方法を確認する",
     "curl_invalid_format": "cURLが正しくフォーマットされていません",
     "danger_zone": "危険",
     "delete_account": "あなたのアカウントは以下のチームのオーナーとなっています:",
     "delete_account_description": "アカウントを削除する前にチームを離脱するか、オーナーを委任するか、チームを削除してください。",
-    "empty_email_address": "Email Address cannot be empty",
-    "empty_profile_name": "Profile name cannot be empty",
+    "delete_activity_log": "アクティビティログの削除に失敗しました",
+    "delete_all_activity_logs": "すべてのアクティビティログの削除に失敗しました",
+    "email_already_exists": "このメールアドレスは別のアカウントですでに使用されています。別のメールアドレスを設定してください。",
+    "empty_email_address": "メールアドレスを入力してください",
+    "empty_profile_name": "プロフィール名を入力してください",
     "empty_req_name": "リクエスト名がありません",
+    "fetch_activity_logs": "アクティビティログの取得に失敗しました",
     "f12_details": "（詳細はF12キーを押してください）",
     "gql_prettify_invalid_query": "クエリを整形できませんでした。クエリの構文エラーを解決して再試行してください。",
     "incomplete_config_urls": "設定URLが不完全です",
     "incorrect_email": "メールアドレスが間違っています",
+    "invalid_file_type": "`{filename}`のファイル形式が無効です。",
     "invalid_link": "リンクが無効です",
     "invalid_link_description": "クリックしたリンクは無効か期限切れです。",
-    "invalid_embed_link": "The embed does not exist or is invalid.",
+    "invalid_embed_link": "この埋め込みは存在しないか無効です。",
     "json_parsing_failed": "JSONが無効です",
     "json_prettify_invalid_body": "ボディを整形できませんでした。JSONの構文エラーを解決して再試行してください。",
     "network_error": "ネットワークエラーが発生したようです。もう一度お試しください。",
     "network_fail": "リクエストを送信できませんでした",
-    "no_collections_to_export": "No collections to export. Please create a collection to get started.",
+    "no_collections_to_export": "エクスポートできるコレクションがありません。まずはコレクションを作成してください。",
     "no_duration": "期間なし",
-    "no_environments_to_export": "No environments to export. Please create an environment to get started.",
+    "no_environments_to_export": "エクスポートできる環境変数がありません。まずは環境変数を作成してください。",
     "no_results_found": "該当するものがありませんでした",
     "page_not_found": "このページは見つかりませんでした",
-    "please_install_extension": "Please install the extension and add origin to the extension.",
-    "proxy_error": "Proxy error",
-    "same_email_address": "Updated email address is same as the current email address",
-    "same_profile_name": "Updated profile name is same as the current profile name",
+    "please_install_extension": "拡張機能をインストールし、拡張機能にオリジンを追加してください。",
+    "proxy_error": "プロキシエラー",
+    "same_email_address": "更新後のメールアドレスが現在のメールアドレスと同じです",
+    "same_profile_name": "更新後のプロフィール名が現在のプロフィール名と同じです",
     "script_fail": "リクエスト前のスクリプトを実行できませんでした",
     "something_went_wrong": "不明なエラーです",
+    "subscription_error": "トピックの購読に失敗しました: {error}",
     "post_request_script_fail": "リクエスト後のスクリプトを実行できませんでした",
-    "reading_files": "Error while reading one or more files.",
-    "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
-    "generate_access_token": "Something went wrong while generating the access token",
-    "delete_access_token": "Something went wrong while deleting the access token"
+    "reading_files": "1つ以上のファイルの読み込み中にエラーが発生しました。",
+    "fetching_access_tokens_list": "トークン一覧の取得中に問題が発生しました",
+    "generate_access_token": "アクセストークンの生成中に問題が発生しました",
+    "delete_access_token": "アクセストークンの削除中に問題が発生しました",
+    "extension_not_found": "拡張機能が見つかりません",
+    "invalid_request": "リクエストデータが無効です"
   },
   "export": {
     "as_json": "JSONとしてエクスポート",

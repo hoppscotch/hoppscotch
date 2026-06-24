@@ -131,10 +131,8 @@ import {
   getEffectiveRESTRequest,
   resolvesEnvsInBody,
 } from "~/helpers/utils/EffectiveURL"
-import {
-  AggregateEnvironment,
-  getAggregateEnvsWithCurrentValue,
-} from "~/newstore/environments"
+import { getAggregateEnvsWithCurrentValue } from "~/newstore/environments"
+import { getEffectiveVariablesForRequest } from "~/helpers/utils/environments"
 
 import { useService } from "dioc/vue"
 import cloneDeep from "lodash-es/cloneDeep"
@@ -147,15 +145,11 @@ import IconCheck from "~icons/lucide/check"
 import IconWrapText from "~icons/lucide/wrap-text"
 import { asyncComputed } from "@vueuse/core"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
-import { CurrentValueService } from "~/services/current-environment-value.service"
-import { getCurrentEnvironment } from "../../newstore/environments"
-import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
 import { filterNonEmptyEnvironmentVariables } from "~/helpers/RequestRunner"
 
 const t = useI18n()
 
 const tabs = useService(RESTTabService)
-const currentEnvironmentValueService = useService(CurrentValueService)
 
 // Get the current active request if the current active tab is a request else get the original request from the response tab
 const currentActiveRequest = computed(() => {
@@ -195,18 +189,6 @@ const emit = defineEmits<{
   (e: "request-code", value: string): void
 }>()
 
-const getCurrentValue = (env: AggregateEnvironment) => {
-  const currentSelectedEnvironment = getCurrentEnvironment()
-
-  if (env && env.secret) {
-    return env.currentValue
-  }
-  return currentEnvironmentValueService.getEnvironmentByKey(
-    env?.sourceEnv !== "Global" ? currentSelectedEnvironment.id : "Global",
-    env?.key ?? ""
-  )?.currentValue
-}
-
 const getFinalURL = (input: string): string => {
   // If the URL is empty, return "https://"
   // This is to ensure that the URL is always valid and can be used in code generation
@@ -244,39 +226,13 @@ const buildFinalEnvironment = (): Environment => {
   const inheritedVariables =
     currentActiveTabDocument.value.inheritedProperties?.variables || []
 
-  const requestVariables = (currentActiveRequest.value?.requestVariables || [])
-    .filter((variable) => variable.active)
-    .map((variable) => ({
-      key: variable.key,
-      initialValue: variable.value,
-      currentValue: variable.value,
-      secret: false,
-    }))
+  const resolvedEnvs = getEffectiveVariablesForRequest(
+    currentActiveRequest.value?.requestVariables,
+    inheritedVariables,
+    aggregateEnvs
+  )
 
-  const collectionVariables =
-    transformInheritedCollectionVariablesToAggregateEnv(inheritedVariables).map(
-      ({ key, initialValue, currentValue, secret }) => ({
-        key,
-        initialValue,
-        currentValue,
-        secret,
-      })
-    )
-
-  const environmentVariables = aggregateEnvs.map((env) => ({
-    key: env.key,
-    secret: env.secret,
-    initialValue: env.initialValue,
-    currentValue: getCurrentValue(env) || env.initialValue,
-  }))
-
-  const allVariables = [
-    ...requestVariables,
-    ...collectionVariables,
-    ...environmentVariables,
-  ]
-
-  const filteredVariables = filterNonEmptyEnvironmentVariables(allVariables)
+  const filteredVariables = filterNonEmptyEnvironmentVariables(resolvedEnvs)
 
   return {
     v: 2,

@@ -3442,10 +3442,11 @@ const editProperties = async (payload: {
       )
     }
 
+    const storeID = (collection as HoppCollection)._ref_id ?? collectionId!
+
     const collectionVariables = pipe(
       (collection as HoppCollection).variables ?? [],
       A.mapWithIndex((index, e) => {
-        const storeID = (collection as HoppCollection)._ref_id ?? collectionId!
         const stored = getSecretValues(e.secret, index, storeID)
         return {
           ...e,
@@ -3466,6 +3467,10 @@ const editProperties = async (payload: {
       isRootCollection: isAlreadyInRoot(collectionIndex),
       path: collectionIndex,
       inheritedProperties,
+      // Persist the exact key secrets/current values were read under, so the
+      // properties modal resolves them without re-deriving (and diverging from)
+      // this keying.
+      collectionStoreKey: storeID,
     }
   } else {
     const parentIndex = collectionIndex.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
@@ -3539,6 +3544,8 @@ const editProperties = async (payload: {
       isRootCollection: isAlreadyInRoot(collectionIndex),
       path: collectionIndex,
       inheritedProperties,
+      // Team collections are keyed by `id` (mirrors the save-side keying).
+      collectionStoreKey: collectionId ?? "",
     }
   }
 

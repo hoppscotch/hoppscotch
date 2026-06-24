@@ -23,7 +23,7 @@ import { useStreamStatic } from "~/composables/stream"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { RESTTabService } from "~/services/tab/rest"
 import { CurrentValueService } from "~/services/current-environment-value.service"
-import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
+import { getEffectiveVariablesForRequest } from "~/helpers/utils/environments"
 import { HOPP_ENVIRONMENT_REGEX } from "~/helpers/environment-regex"
 
 const isENVInString = (str: string) => HOPP_ENVIRONMENT_REGEX.test(str)
@@ -81,33 +81,16 @@ export class EnvironmentInspectorService extends Service implements Inspector {
           ? currentTab.document.response.originalRequest
           : null
 
-    // inherited collection-level variables
-    const collectionVariables =
+    // request → collection → environment, in the same precedence order the
+    // request runner uses (single source of truth)
+    const environmentVariables = getEffectiveVariablesForRequest(
+      currentTabRequest?.requestVariables,
       currentTab.document.type === "request" ||
-      currentTab.document.type === "example-response"
-        ? transformInheritedCollectionVariablesToAggregateEnv(
-            currentTab.document.inheritedProperties?.variables ?? []
-          )
-        : []
-
-    // request variables (active only)
-    const requestVariables =
-      currentTabRequest?.requestVariables
-        .filter((v) => v.active)
-        .map(({ key, value }) => ({
-          key,
-          currentValue: value,
-          initialValue: value,
-          sourceEnv: "RequestVariable",
-          secret: false,
-        })) ?? []
-
-    // combine everything into one list
-    const environmentVariables = [
-      ...requestVariables,
-      ...collectionVariables,
-      ...this.aggregateEnvsWithValue.value,
-    ]
+        currentTab.document.type === "example-response"
+        ? currentTab.document.inheritedProperties?.variables
+        : [],
+      this.aggregateEnvsWithValue.value
+    )
     const envKeysSet = new Set(environmentVariables.map((e) => e.key))
 
     // Scan each string for <<VAR>> patterns
@@ -217,34 +200,19 @@ export class EnvironmentInspectorService extends Service implements Inspector {
               ? currentTab.document.response.originalRequest
               : null
 
-        // request variables (active only)
-        const requestVariables =
-          currentTabRequest?.requestVariables
-            .filter((v) => v.active)
-            .map(({ key, value }) => ({
-              key,
-              currentValue: value,
-              initialValue: value,
-              sourceEnv: "RequestVariable",
-              secret: false,
-            })) ?? []
-
-        // inherited collection variables
-        const collectionVariables =
-          currentTab.document.type === "request" ||
-          currentTab.document.type === "example-response"
-            ? transformInheritedCollectionVariablesToAggregateEnv(
-                currentTab.document.inheritedProperties?.variables ?? [],
-                false
-              )
-            : []
-
-        // Merge all variables
-        const environmentVariables = this.filterNonEmptyEnvironmentVariables([
-          ...requestVariables,
-          ...collectionVariables,
-          ...this.aggregateEnvsWithValue.value,
-        ])
+        // request → collection → environment, matching the request runner's
+        // precedence and non-empty resolution (single source of truth)
+        const environmentVariables = this.filterNonEmptyEnvironmentVariables(
+          getEffectiveVariablesForRequest(
+            currentTabRequest?.requestVariables,
+            currentTab.document.type === "request" ||
+              currentTab.document.type === "example-response"
+              ? currentTab.document.inheritedProperties?.variables
+              : [],
+            this.aggregateEnvsWithValue.value,
+            false
+          )
+        )
 
         // Check each variable for missing values
         environmentVariables.forEach((env) => {

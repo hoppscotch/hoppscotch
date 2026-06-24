@@ -149,13 +149,23 @@ export class CookieJarService extends Service {
   }
 
   private async loadJar(): Promise<void> {
-    const loadResult = await Store.get<StoredCookieJar>(
-      STORE_NAMESPACE,
-      STORE_KEYS.JAR
-    )
+    const loadResult = await Store.get<unknown>(STORE_NAMESPACE, STORE_KEYS.JAR)
 
     if (E.isRight(loadResult) && loadResult.right) {
-      this.cookieJar.value = this.toMap(loadResult.right.domains)
+      // Initial load routes the on-disk payload through the same
+      // `parseStored` shape check the cross-process watcher uses,
+      // so a corrupted file or a future schema drift cannot
+      // hydrate the jar with values that later crash matching or
+      // serialization. Failure here keeps the in-memory map empty
+      // and the request flow keeps working on a fresh state.
+      let stored: StoredCookieJar
+      try {
+        stored = this.parseStored(loadResult.right)
+      } catch (e) {
+        console.error("[CookieJar] Initial load rejected payload:", e)
+        return
+      }
+      this.cookieJar.value = this.toMap(stored.domains)
       this.pruneExpired()
     }
   }

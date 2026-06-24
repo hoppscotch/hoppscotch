@@ -43,11 +43,19 @@ async function loadUserSettings() {
   const res = await getUserSettings()
 
   // create user settings if it doesn't exist
-  E.isLeft(res) &&
-    res.left.error == "user_settings/not_found" &&
-    (await createUserSettings(JSON.stringify(getDefaultSettings())))
+  if (E.isLeft(res) && res.left.error == "user_settings/not_found") {
+    const createRes = await createUserSettings(
+      JSON.stringify(getDefaultSettings())
+    )
 
-  if (E.isRight(res)) {
+    if (E.isRight(createRes)) {
+      runDispatchWithOutSyncing(() => {
+        bulkApplySettings(
+          JSON.parse(createRes.right.createUserSettings.properties)
+        )
+      })
+    }
+  } else if (E.isRight(res)) {
     runDispatchWithOutSyncing(() => {
       bulkApplySettings(JSON.parse(res.right.me.settings.properties))
     })

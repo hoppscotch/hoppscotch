@@ -2,6 +2,7 @@ import {
   generateUniqueRefId,
   HoppCollection,
   HoppRESTRequest,
+  makeCollection,
 } from "@hoppscotch/data"
 
 import {

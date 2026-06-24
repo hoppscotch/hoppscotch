@@ -209,6 +209,15 @@ function addNewDomain() {
     return
   }
   const canon = cookieJarService.canonStoreDomain(trimmed)
+  // `upsertCookies` skips a domain that canonicalizes to empty or
+  // carries internal whitespace, so the modal would otherwise let
+  // the user create a row that vanishes silently on save. The
+  // validation mirrors the service contract and surfaces a
+  // localized error instead.
+  if (canon.length === 0 || /\s/.test(canon)) {
+    toast.error(`${t("cookies.modal.invalid_domain")}`)
+    return
+  }
   // If the user types a domain that already has a row, `.set` with
   // an empty array would wipe the existing cookies under that
   // domain on save. The duplicate-add is treated as a no-op so an

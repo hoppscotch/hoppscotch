@@ -297,8 +297,10 @@ export const runGQLSubscription = <
   // so track it here and expose a stable handle that callers can unsubscribe
   // from immediately (matches the shape of the previously returned sub).
   let wonkaSub: { unsubscribe: () => void } | null = null
+  let unsubscribeRequested = false
   const sub = {
     unsubscribe() {
+      unsubscribeRequested = true
       wonkaSub?.unsubscribe()
     },
   }
@@ -357,6 +359,10 @@ export const runGQLSubscription = <
         )
       })
     )
+
+    if (unsubscribeRequested) {
+      wonkaSub.unsubscribe()
+    }
   })()
 
   // Returns the stream and a subscription handle to unsub

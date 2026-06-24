@@ -443,10 +443,10 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       // Fallback to individual calls if bulk import fails
       let indexStart = restCollectionStore.value.state.length - entries.length
 
-      entries.forEach((collection) => {
-        recursivelySyncCollections(collection, `${indexStart}`)
+      for (const collection of entries) {
+        await recursivelySyncCollections(collection, `${indexStart}`)
         indexStart++
-      })
+      }
     }
   },
   async addCollection({ collection }) {
@@ -454,7 +454,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const lastCreatedCollectionIndex =
       restCollectionStore.value.state.length - 1
 
-    recursivelySyncCollections(collection, `${lastCreatedCollectionIndex}`)
+    await recursivelySyncCollections(collection, `${lastCreatedCollectionIndex}`)
   },
   async removeCollection({ collectionID }) {
     if (collectionID) {

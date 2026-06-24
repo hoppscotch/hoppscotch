@@ -233,10 +233,10 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       let indexStart =
         graphqlCollectionStore.value.state.length - entries.length
 
-      entries.forEach((collection: HoppCollection) => {
-        recursivelySyncCollections(collection, `${indexStart}`)
+      for (const collection of entries) {
+        await recursivelySyncCollections(collection, `${indexStart}`)
         indexStart++
-      })
+      }
     }
   },
   async addCollection({ collection }) {

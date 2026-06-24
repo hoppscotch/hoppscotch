@@ -720,37 +720,36 @@ function setupUserCollectionDuplicatedSubscription() {
             id?.endsWith(collectionCreatedFromStoreIDSuffix)
           )
 
-        if (collectionInsertedViaStoreUpdateIdx === -1) {
-          return
-        }
-
-        const collectionInsertedViaStoreUpdateIndexPath = `${parentCollectionPath}/${collectionInsertedViaStoreUpdateIdx}`
-
         runDispatchWithOutSyncing(() => {
-          /**
-           * Step 1. Remove the collection inserted via store update with the ID suffix
-           * Step 2. Add the duplicated collection received from the GQL subscription
-           * Step 3. Update the duplicated collection with the relevant data
-           */
+          if (collectionInsertedViaStoreUpdateIdx === -1) {
+            // Cross-device duplicate: no local placeholder to remove, just add it
+            const newFolderPath = `${parentCollectionPath}/${parentCollection.folders.length}`
 
-          if (collectionType === "GQL") {
-            removeGraphqlFolder(collectionInsertedViaStoreUpdateIndexPath)
-
-            addGraphqlFolder(name, parentCollectionPath)
-
-            editGraphqlFolder(
-              collectionInsertedViaStoreUpdateIndexPath,
-              effectiveDuplicatedCollection
-            )
+            if (collectionType === "GQL") {
+              addGraphqlFolder(name, parentCollectionPath)
+              editGraphqlFolder(newFolderPath, effectiveDuplicatedCollection)
+            } else {
+              addRESTFolder(name, parentCollectionPath)
+              editRESTFolder(newFolderPath, effectiveDuplicatedCollection)
+            }
           } else {
-            removeRESTFolder(collectionInsertedViaStoreUpdateIndexPath)
+            const collectionInsertedViaStoreUpdateIndexPath = `${parentCollectionPath}/${collectionInsertedViaStoreUpdateIdx}`
 
-            addRESTFolder(name, parentCollectionPath)
-
-            editRESTFolder(
-              collectionInsertedViaStoreUpdateIndexPath,
-              effectiveDuplicatedCollection
-            )
+            if (collectionType === "GQL") {
+              removeGraphqlFolder(collectionInsertedViaStoreUpdateIndexPath)
+              addGraphqlFolder(name, parentCollectionPath)
+              editGraphqlFolder(
+                collectionInsertedViaStoreUpdateIndexPath,
+                effectiveDuplicatedCollection
+              )
+            } else {
+              removeRESTFolder(collectionInsertedViaStoreUpdateIndexPath)
+              addRESTFolder(name, parentCollectionPath)
+              editRESTFolder(
+                collectionInsertedViaStoreUpdateIndexPath,
+                effectiveDuplicatedCollection
+              )
+            }
           }
         })
       } else {
@@ -763,23 +762,21 @@ function setupUserCollectionDuplicatedSubscription() {
             id?.endsWith(collectionCreatedFromStoreIDSuffix)
           )
 
-        if (collectionInsertedViaStoreUpdateIdx === -1) {
-          return
-        }
-
         runDispatchWithOutSyncing(() => {
-          /**
-           * Step 1. Remove the collection inserted via store update with the ID suffix
-           * Step 2. Add the duplicated collection received from the GQL subscription
-           */
-          if (collectionType === "GQL") {
-            removeGraphqlCollection(collectionInsertedViaStoreUpdateIdx)
-
-            addGraphqlCollection(effectiveDuplicatedCollection)
+          if (collectionInsertedViaStoreUpdateIdx === -1) {
+            if (collectionType === "GQL") {
+              addGraphqlCollection(effectiveDuplicatedCollection)
+            } else {
+              addRESTCollection(effectiveDuplicatedCollection)
+            }
           } else {
-            removeRESTCollection(collectionInsertedViaStoreUpdateIdx)
-
-            addRESTCollection(effectiveDuplicatedCollection)
+            if (collectionType === "GQL") {
+              removeGraphqlCollection(collectionInsertedViaStoreUpdateIdx)
+              addGraphqlCollection(effectiveDuplicatedCollection)
+            } else {
+              removeRESTCollection(collectionInsertedViaStoreUpdateIdx)
+              addRESTCollection(effectiveDuplicatedCollection)
+            }
           }
         })
       }

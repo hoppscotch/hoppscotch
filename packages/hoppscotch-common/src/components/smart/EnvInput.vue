@@ -420,14 +420,12 @@ const envVars = computed(() => {
   const isRequest = document.type === "request"
   const isExample = document.type === "example-response"
 
-  // request-level variables for the active request/example
   const requestVariables = isRequest
     ? document.request.requestVariables
     : isExample
       ? document.response.originalRequest.requestVariables
       : []
 
-  // variables inherited from the collection if we're in a request or example
   const inheritedVariables =
     isRequest || isExample ? document.inheritedProperties?.variables : []
 

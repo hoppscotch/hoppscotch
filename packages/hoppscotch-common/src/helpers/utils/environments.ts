@@ -91,12 +91,8 @@ export const getCombinedEnvVariables = (temp?: Environment["variables"]) => {
   }
 }
 
-/**
- * Maps a request's `active` variables to the `AggregateEnvironment` (v2) shape,
- * tagged `RequestVariable` — the stored `value` becomes both current and initial
- * value. The request-scope counterpart of
- * `transformInheritedCollectionVariablesToAggregateEnv`.
- */
+// Active request variables → `AggregateEnvironment` rows; `value` populates both
+// `currentValue` and `initialValue`.
 export const transformRequestVariablesToAggregateEnv = (
   requestVariables: HoppRESTRequestVariable[] | undefined
 ): AggregateEnvironment[] =>
@@ -110,21 +106,12 @@ export const transformRequestVariablesToAggregateEnv = (
       secret: false,
     }))
 
-/**
- * Merges a request's variables into one precedence-ordered list:
- * request → collection → environment (highest precedence first). Template
- * resolution picks the first matching key, so this order — matching the
- * runtime's `combineEnvVariables` — lets request vars override collection vars,
- * which override environment vars. Not de-duplicated.
- *
- * @param requestVariables - Request's own variables; only `active` ones are kept.
- * @param inheritedVariables - Variables inherited from ancestor collections.
- * @param environmentVars - Active environment aggregate (selected + global + predefined).
- * @param showSecretCollectionValues - Resolve inherited collection secrets (`true`,
- *   default) or keep them masked (`false`).
- * @returns Precedence-ordered `AggregateEnvironment[]`. Wrap with
- *   `filterNonEmptyEnvironmentVariables` to match the runtime's empty-value handling.
- */
+// Builds the precedence-ordered variable list for resolving `<<var>>` templates:
+// request → collection → environment (highest first). Matches the runtime's
+// `combineEnvVariables` ordering, so previews stay in sync with execution. Not
+// de-duplicated — wrap with `filterNonEmptyEnvironmentVariables` for the runtime's
+// empty-value fall-through. `showSecretCollectionValues=false` keeps inherited
+// collection secrets masked (used by the inspector / autocomplete).
 export const getEffectiveVariablesForRequest = (
   requestVariables: HoppRESTRequestVariable[] | undefined,
   inheritedVariables: HoppInheritedProperty["variables"] | undefined,

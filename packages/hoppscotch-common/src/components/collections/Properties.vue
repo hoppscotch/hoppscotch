@@ -324,10 +324,8 @@ const aggregateEnvs = useReadonlyStream(
   getAggregateEnvsWithCurrentValue()
 )
 
-// The store key (team → `id`, personal → `_ref_id`) is computed authoritatively
-// by `editProperties` and passed through here, so it can't diverge from the
-// save-side keying. The env tooltip uses it (as sourceEnvID) to resolve the
-// collection's own stored secret/current values.
+// Surfaces the prop's already-keyed store ID so `envs` can pass it as
+// `sourceEnvID` — lets the env tooltip resolve the collection's own secrets.
 const collectionStoreKey = computed(
   () => props.editingProperties.collectionStoreKey ?? ""
 )
@@ -421,6 +419,7 @@ const persistUnsavedChanges = async (
       isRootCollection: props.editingProperties.isRootCollection ?? false,
       path: props.editingProperties.path,
       inheritedProperties: props.editingProperties.inheritedProperties,
+      collectionStoreKey: props.editingProperties.collectionStoreKey,
     })
   )
 }

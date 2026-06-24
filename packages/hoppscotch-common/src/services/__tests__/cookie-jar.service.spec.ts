@@ -268,6 +268,15 @@ describe("CookieJarService", () => {
       )
       expect(service.cookieJar.value.size).toBe(0)
     })
+
+    it("falls back to default-path when the Path attribute does not start with /", async () => {
+      await service.extractFromResponse(
+        [{ name: "a", value: "1", path: "foo" }],
+        new URL("https://example.com/v1/users/42")
+      )
+      const stored = service.cookieJar.value.get("example.com")?.[0]
+      expect(stored?.path).toBe("/v1/users")
+    })
   })
 
   describe("serializeCookieHeader", () => {

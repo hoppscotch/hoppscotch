@@ -440,14 +440,18 @@ export class CookieJarService extends Service {
           expires = new Date(t).toISOString()
         }
       }
+      // RFC 6265 5.1.4 requires the Path attribute to begin with
+      // `/`. A response that sends `Path=foo` (or anything else
+      // not starting with the separator) falls back to the
+      // default-path so the cookie is stored under a key the
+      // request matcher can actually hit.
+      const explicitPath =
+        c.path && c.path.length > 0 && c.path.startsWith("/") ? c.path : null
       normalized.push({
         name: c.name,
         value: c.value,
         domain,
-        path:
-          c.path && c.path.length > 0
-            ? c.path
-            : this.defaultPath(requestURL.pathname),
+        path: explicitPath ?? this.defaultPath(requestURL.pathname),
         httpOnly: c.httpOnly ?? false,
         secure: c.secure ?? false,
         sameSite: c.sameSite ?? "Lax",

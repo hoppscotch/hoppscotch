@@ -1,3 +1,4 @@
+import { IncomingHttpHeaders } from 'http';
 import { HttpException, Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
@@ -55,20 +56,24 @@ import { PublishedDocsModule } from './published-docs/published-docs.module';
           },
           playground: configService.get('PRODUCTION') !== 'true',
           autoSchemaFile: true,
-          installSubscriptionHandlers: true,
           subscriptions: {
-            'subscriptions-transport-ws': {
+            'graphql-ws': {
               path: '/graphql',
-              onConnect: (connectionParams, websocket) => {
-                const websocketHeaders = websocket?.upgradeReq?.headers;
+              onConnect: (ctx) => {
+                const websocketHeaders = (
+                  ctx.extra as {
+                    request?: { headers?: Record<string, string> };
+                  }
+                ).request?.headers;
 
                 try {
-                  const accessToken =
-                    extractAccessTokenFromAuthRecords(connectionParams);
+                  const accessToken = extractAccessTokenFromAuthRecords(
+                    ctx.connectionParams as unknown as IncomingHttpHeaders,
+                  );
                   const authorization = `Bearer ${accessToken}`;
 
                   return { headers: { ...websocketHeaders, authorization } };
-                } catch (authError) {
+                } catch {
                   const cookiesFromHeader = websocketHeaders?.cookie;
                   const cookies = cookiesFromHeader
                     ? subscriptionContextCookieParser(cookiesFromHeader)
@@ -85,10 +90,11 @@ import { PublishedDocsModule } from './published-docs/published-docs.module';
               },
             },
           },
-          context: ({ req, res, connection }) => ({
+          context: ({ req, res, extra }) => ({
             req,
             res,
-            connection,
+            extra,
+            headers: extra?.headers,
           }),
         };
       },

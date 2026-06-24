@@ -653,7 +653,7 @@ export function runRESTRequest$(
 
             const updatedCookies = postRequestScriptResult.right.updatedCookies
 
-            if (updatedCookies) {
+            if (updatedCookies && cookieJarEntries !== null) {
               // The script's `updatedCookies` is the post-script state of
               // its pre-script view, so a set difference against the
               // pre-script snapshot gives the actual mutations. Cookies
@@ -663,10 +663,13 @@ export function runRESTRequest$(
               // script's stale copy would overwrite that. Cookies the
               // script omitted from its returned array are treated as
               // deletes, restoring `hopp.cookies.delete` semantics.
-              await applyScriptCookieDelta(
-                cookieJarEntries ?? [],
-                updatedCookies
-              )
+              //
+              // Skipped entirely when `cookieJarEntries` is null
+              // (cookies disabled on the platform). The previous
+              // `?? []` made the empty pre-script snapshot classify
+              // every script cookie as new and never as removed, so
+              // delete-by-omission silently broke on non-desktop.
+              await applyScriptCookieDelta(cookieJarEntries, updatedCookies)
             }
           } else {
             console.error(

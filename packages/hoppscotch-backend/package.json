@@ -90,7 +90,7 @@
     "@types/express": "5.0.6",
     "@types/jest": "30.0.0",
     "@types/node": "25.9.3",
-    "@types/nodemailer": "9.0.1",
+    "@types/nodemailer": "8.0.1",
     "@types/passport-github2": "1.2.9",
     "@types/passport-google-oauth20": "2.0.17",
     "@types/passport-jwt": "4.0.1",

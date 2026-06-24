@@ -22,24 +22,24 @@ import {
 
 import * as E from "fp-ts/Either"
 import { ReqType, SortOptions } from "~/helpers/backend/graphql"
+import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
 import {
-  graphqlCollectionStore,
-  navigateToFolderWithIndexPath,
   editGraphqlCollection,
   editGraphqlFolder,
   editRESTCollection,
   editRESTFolder,
+  graphqlCollectionStore,
+  navigateToFolderWithIndexPath,
   removeDuplicateRESTCollectionOrFolder,
   restCollectionStore,
 } from "~/newstore/collections"
 import { getSettingSubject, settingsStore } from "~/newstore/settings"
 import {
   getSyncInitFunction,
-  StoreSyncDefinitionOf,
   runDispatchWithOutSyncing,
+  StoreSyncDefinitionOf,
 } from ".."
 import { createMapper } from "../mapper"
-import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
 
 // restCollectionsMapper uses the collectionPath as the local identifier
 // Helper function to transform HoppCollection to backend format
@@ -454,7 +454,10 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const lastCreatedCollectionIndex =
       restCollectionStore.value.state.length - 1
 
-    await recursivelySyncCollections(collection, `${lastCreatedCollectionIndex}`)
+    await recursivelySyncCollections(
+      collection,
+      `${lastCreatedCollectionIndex}`
+    )
   },
   async removeCollection({ collectionID }) {
     if (collectionID) {
@@ -783,7 +786,7 @@ export async function moveOrReorderRequests(
   let nextRequestBackendID: string | undefined
 
   // we only need this for reordering requests, not for moving requests
-  if (nextRequestIndex) {
+  if (nextRequestIndex !== undefined) {
     // reordering
     const [newRequestIndex, newDestinationIndex] = getIndexesAfterReorder(
       requestIndex,

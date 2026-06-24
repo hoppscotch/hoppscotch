@@ -995,7 +995,8 @@ function setupUserRequestMovedSubscription() {
 
       // there is no nextRequest, so request is moved
       if (
-        (destinationRequestIndex || destinationRequestIndex == 0) &&
+        destinationRequestIndex != null &&
+        destinationRequestIndex >= 0 &&
         destinationCollectionPath &&
         sourceRequestPath &&
         !nextRequest
@@ -1017,7 +1018,8 @@ function setupUserRequestMovedSubscription() {
 
       // there is nextRequest, so request is reordered
       if (
-        (destinationRequestIndex || destinationRequestIndex == 0) &&
+        destinationRequestIndex != null &&
+        destinationRequestIndex >= 0 &&
         destinationCollectionPath &&
         nextRequest &&
         // we don't have request reordering for graphql yet
@@ -1040,7 +1042,8 @@ function setupUserRequestMovedSubscription() {
             )
           : undefined
 
-        nextRequestIndex &&
+        nextRequestIndex !== undefined &&
+          nextRequestIndex !== -1 &&
           nextCollectionPath &&
           sourceRequestPath &&
           runDispatchWithOutSyncing(() => {

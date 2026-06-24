@@ -38,8 +38,8 @@ export const getSyncInitFunction = <T extends DispatchingStore<any, any>>(
   shouldSyncValue: () => boolean,
   shouldSyncObservable?: Observable<boolean>
 ) => {
-  let startSubscriptions: () => () => void | undefined
-  let stopSubscriptions: () => void | undefined
+  let startSubscriptions: (() => () => void) | undefined
+  let stopSubscriptions: (() => void) | undefined
 
   let oldSyncStatus = shouldSyncValue()
 

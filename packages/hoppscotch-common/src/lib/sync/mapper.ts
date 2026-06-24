@@ -27,15 +27,15 @@ export const createMapper = <
     },
     removeEntry(backendId?: BackendIDType, index?: LocalIDType) {
       if (backendId) {
-        const index = localIDByBackendIDMap.get(backendId)
+        const localIndex = localIDByBackendIDMap.get(backendId)
 
         localIDByBackendIDMap.delete(backendId)
-        index && backendIDByLocalIDMap.delete(index)
-      } else if (index) {
-        const backendId = backendIDByLocalIDMap.get(index)
+        localIndex != null && backendIDByLocalIDMap.delete(localIndex)
+      } else if (index !== undefined) {
+        const backendIdForLocal = backendIDByLocalIDMap.get(index)
 
         backendIDByLocalIDMap.delete(index)
-        backendId && localIDByBackendIDMap.delete(backendId)
+        backendIdForLocal != null && localIDByBackendIDMap.delete(backendIdForLocal)
       }
     },
   }

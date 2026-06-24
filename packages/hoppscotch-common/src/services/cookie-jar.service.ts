@@ -687,21 +687,30 @@ export class CookieJarService extends Service {
       return
     }
 
+    // Empty or whitespace-only `Cookie` placeholders are stripped
+    // unconditionally so a leftover row from a request template
+    // never reaches the wire, regardless of whether the jar ends
+    // up contributing cookies on this request.
+    if (request.headers) {
+      for (const key of Object.keys(request.headers)) {
+        if (
+          key.toLowerCase() === "cookie" &&
+          (request.headers[key] === undefined ||
+            request.headers[key].trim() === "")
+        ) {
+          delete request.headers[key]
+        }
+      }
+    }
     // A user who set a non-empty `Cookie` header through the
     // request panel (any case-variant) is asserting deliberate
     // intent for this request, so the jar yields and the user's
     // header is preserved as written. The jar still updates from
     // response capture and the manager remains the place to
-    // inspect or edit it. An empty value is treated as absent so a
-    // leftover `Cookie: ""` from a request template does not
-    // suppress the jar.
+    // inspect or edit it.
     if (request.headers) {
       for (const key of Object.keys(request.headers)) {
-        if (
-          key.toLowerCase() === "cookie" &&
-          request.headers[key]?.trim() !== "" &&
-          request.headers[key] !== undefined
-        ) {
+        if (key.toLowerCase() === "cookie") {
           return
         }
       }

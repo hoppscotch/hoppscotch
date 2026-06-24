@@ -216,6 +216,16 @@ describe("CookieJarService", () => {
       expect(req.headers["Cookie"]).toBeUndefined()
     })
 
+    it("strips an empty case-variant Cookie header even when the jar has no match", async () => {
+      const req = {
+        url: "https://no-match.example.com/",
+        headers: { cookie: "" } as Record<string, string>,
+      }
+      await service.applyCookiesToRequest(req)
+      expect(req.headers["cookie"]).toBeUndefined()
+      expect(req.headers["Cookie"]).toBeUndefined()
+    })
+
     it('does not send `Cookie: ""` when every matching cookie fails value validation', async () => {
       await service.upsertCookies([cookie({ name: "a", value: "has;semi" })])
       const req = {

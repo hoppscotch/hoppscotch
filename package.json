@@ -46,9 +46,8 @@
       "liquidjs@<10.26.0": "10.26.0",
       "minimatch@>=4.0.0 <4.2.5": "4.2.5",
       "multer@2.1.1": "2.2.0",
-      "nodemailer@<=9.0.0": "9.0.1",
       "serialize-javascript@<7.0.3": "7.0.3",
-      "vue": "3.5.34",
+      "vue": "3.5.38",
       "ws": "8.21.0"
     },
     "onlyBuiltDependencies": [

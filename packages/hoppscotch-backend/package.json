@@ -64,7 +64,7 @@
     "handlebars": "4.7.9",
     "io-ts": "2.2.22",
     "morgan": "1.11.0",
-    "nodemailer": "8.0.7",
+    "nodemailer": "9.0.1",
     "passport": "0.7.0",
     "passport-github2": "0.1.12",
     "passport-google-oauth20": "2.0.0",

@@ -3,10 +3,13 @@ use std::{collections::HashMap, str::FromStr, time::SystemTime};
 use bytes::Bytes;
 use http::{StatusCode, Version};
 use mime::Mime;
+use time::OffsetDateTime;
 
 use crate::{
     error::{RelayError, Result},
-    interop::{MediaType, Response, ResponseBody, ResponseMeta, SizeInfo, TimingInfo},
+    interop::{
+        Cookie, MediaType, Response, ResponseBody, ResponseMeta, SameSite, SizeInfo, TimingInfo,
+    },
 };
 
 pub(crate) struct ResponseHandler {
@@ -63,6 +66,8 @@ impl ResponseHandler {
             "Response built successfully"
         );
 
+        let cookies = self.parse_cookies();
+
         let body = ResponseBody {
             body: self.body,
             media_type,
@@ -73,11 +78,74 @@ impl ResponseHandler {
             status: self.status,
             status_text: self.status.to_string(),
             version: self.version,
+            cookies,
             headers: self.headers,
-            cookies: None,
             meta: ResponseMeta { timing, size },
             body,
         })
+    }
+
+    /// Parses the response's `Set-Cookie` header(s) into structured cookies.
+    ///
+    /// The relay used to return `cookies: None` because nothing downstream
+    /// consumed structured cookies, and `transfer.rs` joins multiple
+    /// `Set-Cookie` headers into one value with `\n`. This splits on that
+    /// same delimiter and parses each line with the `cookie` crate so the
+    /// jar service gets a real contract instead of re-parsing the joined
+    /// header string. The joined header is left in `headers` untouched so
+    /// the existing header path does not regress.
+    fn parse_cookies(&self) -> Option<Vec<Cookie>> {
+        let raw = self
+            .headers
+            .iter()
+            .find(|(k, _)| k.eq_ignore_ascii_case("set-cookie"))
+            .map(|(_, v)| v.as_str())?;
+
+        let cookies: Vec<Cookie> = raw
+            .split('\n')
+            .filter_map(|line| {
+                let line = line.trim();
+                if line.is_empty() {
+                    return None;
+                }
+                match cookie::Cookie::parse(line) {
+                    Ok(parsed) => Some(Self::to_interop_cookie(&parsed)),
+                    Err(e) => {
+                        tracing::warn!(error = %e, raw = %line, "Skipping unparseable Set-Cookie");
+                        None
+                    }
+                }
+            })
+            .collect();
+
+        (!cookies.is_empty()).then_some(cookies)
+    }
+
+    fn to_interop_cookie(c: &cookie::Cookie<'_>) -> Cookie {
+        // RFC 6265 5.2.2, Max-Age takes precedence over Expires when both
+        // are present. `checked_add` so an absurd Max-Age cannot panic the
+        // relay, it just drops the expiry and the cookie reads as session.
+        let expires = c
+            .max_age()
+            .and_then(|age| OffsetDateTime::now_utc().checked_add(age))
+            .or_else(|| c.expires_datetime());
+
+        let same_site = c.same_site().map(|s| match s {
+            cookie::SameSite::Strict => SameSite::Strict,
+            cookie::SameSite::Lax => SameSite::Lax,
+            cookie::SameSite::None => SameSite::None,
+        });
+
+        Cookie {
+            name: c.name().to_owned(),
+            value: c.value().to_owned(),
+            domain: c.domain().map(str::to_owned),
+            path: c.path().map(str::to_owned),
+            expires,
+            secure: c.secure(),
+            http_only: c.http_only(),
+            same_site,
+        }
     }
 
     fn determine_media_type(&self) -> MediaType {

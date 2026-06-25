@@ -180,6 +180,43 @@ describe("CookieJarService", () => {
       expect(service.cookieJar.value.size).toBe(0)
     })
 
+    it("defaults secure to false when a script-set cookie omits the flag", async () => {
+      await service.upsertCookies([
+        { name: "a", value: "1", domain: "example.com", path: "/" } as Cookie,
+      ])
+      const stored = service.cookieJar.value.get("example.com")?.[0]
+      expect(stored?.secure).toBe(false)
+    })
+
+    it("defaults httpOnly to false when a script-set cookie omits the flag", async () => {
+      await service.upsertCookies([
+        { name: "a", value: "1", domain: "example.com", path: "/" } as Cookie,
+      ])
+      const stored = service.cookieJar.value.get("example.com")?.[0]
+      expect(stored?.httpOnly).toBe(false)
+    })
+
+    it("skips a script-set cookie whose name is not a string", async () => {
+      await service.upsertCookies([
+        { name: 42 as unknown as string, value: "1", domain: "example.com" } as Cookie,
+      ])
+      expect(service.cookieJar.value.size).toBe(0)
+    })
+
+    it("produces a cookie that parseStored accepts after upsert", async () => {
+      await service.upsertCookies([
+        { name: "a", value: "1", domain: "example.com" } as Cookie,
+      ])
+      const stored = service.cookieJar.value.get("example.com")
+      expect(stored).toBeDefined()
+      // Round-trip through parseStored to confirm the upsert output
+      // satisfies the load-time shape check.
+      const payload = {
+        domains: { "example.com": stored },
+      }
+      expect(() => (service as any).parseStored(payload)).not.toThrow()
+    })
+
     it("merges by (domain, name, path) instead of duplicating", async () => {
       await service.upsertCookies([
         cookie({ name: "a", value: "old" }),

@@ -367,10 +367,31 @@ export class CookieJarService extends Service {
       // duplicate jar entry alongside the canonical `/` form. The
       // explicit length check collapses both empty and undefined
       // to `/`.
+      // Scripting sandbox callers (`hopp.cookies.set(...)`) are
+      // untyped at runtime, so a `name` or `value` that comes
+      // through as a non-string would later crash
+      // `serializeCookieHeader` and the persisted-payload
+      // `parseStored` check. The cookie is skipped instead of
+      // sneaking a bad shape onto disk.
+      if (typeof cookie.name !== "string" || typeof cookie.value !== "string") {
+        console.warn(
+          `[CookieJar] Skipping cookie with non-string name or value on domain "${cookie.domain}"`
+        )
+        continue
+      }
       const normalized: Cookie = {
         ...cookie,
         domain: canonDomain,
         path: cookie.path && cookie.path.length > 0 ? cookie.path : "/",
+        // `parseStored` validates `secure` as a boolean, so a
+        // script-set cookie that omitted the flag (or sent a
+        // non-boolean) would crash the entire jar load on next
+        // launch via the load-time shape check. Default to
+        // `false` so an in-memory write survives the persist
+        // round-trip.
+        secure: typeof cookie.secure === "boolean" ? cookie.secure : false,
+        httpOnly:
+          typeof cookie.httpOnly === "boolean" ? cookie.httpOnly : false,
       }
       const existing = this.cookieJar.value.get(normalized.domain) ?? []
 

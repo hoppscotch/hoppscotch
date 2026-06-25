@@ -16,7 +16,7 @@ import {
 } from "@urql/core"
 import { AuthConfig, authExchange } from "@urql/exchange-auth"
 // import { devtoolsExchange } from "@urql/devtools"
-import { SubscriptionClient } from "subscriptions-transport-ws"
+import { createClient as createWSClient } from "graphql-ws"
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 import { pipe, constVoid, flow } from "fp-ts/function"
@@ -52,16 +52,16 @@ export type GQLClientErrorEvent =
 export const gqlClientError$ = new Subject<GQLClientErrorEvent>()
 
 const createSubscriptionClient = () => {
-  return new SubscriptionClient(BACKEND_WS_URL, {
-    reconnect: true,
+  return createWSClient({
+    url: BACKEND_WS_URL,
     connectionParams: () => platform.auth.getBackendHeaders(),
-    connectionCallback(error) {
-      if (error?.length > 0) {
+    on: {
+      error(error) {
         gqlClientError$.next({
           type: "SUBSCRIPTION_CONN_CALLBACK_ERR_REPORT",
-          errors: error,
+          errors: [error as Error],
         })
-      }
+      },
     },
   })
 }
@@ -132,7 +132,13 @@ const createHoppClient = () => {
     exchanges.push(
       subscriptionExchange({
         forwardSubscription: (operation) => {
-          return subscriptionClient!.request(operation)
+          const input = { ...operation, query: operation.query ?? "" }
+          return {
+            subscribe(sink) {
+              const unsubscribe = subscriptionClient!.subscribe(input, sink)
+              return { unsubscribe }
+            },
+          }
         },
       })
     )
@@ -148,7 +154,7 @@ const createHoppClient = () => {
   })
 }
 
-let subscriptionClient: SubscriptionClient | null
+let subscriptionClient: ReturnType<typeof createWSClient> | null
 let authEventSubscription: Subscription | null = null
 export const client = ref<Client>()
 
@@ -171,7 +177,8 @@ export function initBackendGQLClient() {
 
     // triggering reconnect by closing the websocket client
     if (currentUser && subscriptionClient) {
-      subscriptionClient?.client?.close()
+      subscriptionClient?.dispose()
+      subscriptionClient = null
     }
 
     // creating new subscription
@@ -181,7 +188,7 @@ export function initBackendGQLClient() {
 
     // closing existing subscription client.
     if (!currentUser && subscriptionClient) {
-      subscriptionClient.close()
+      subscriptionClient.dispose()
       subscriptionClient = null
     }
 

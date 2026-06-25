@@ -90,12 +90,8 @@ export type SubscriptionState = "SUBSCRIBING" | "SUBSCRIBED" | "UNSUBSCRIBED"
 const GQL = {
   CONNECTION_INIT: "connection_init",
   CONNECTION_ACK: "connection_ack",
-  CONNECTION_ERROR: "connection_error",
-  CONNECTION_KEEP_ALIVE: "ka",
-  START: "start",
-  STOP: "stop",
-  CONNECTION_TERMINATE: "connection_terminate",
-  DATA: "data",
+  SUBSCRIBE: "subscribe",
+  NEXT: "next",
   ERROR: "error",
   COMPLETE: "complete",
 }
@@ -579,7 +575,7 @@ export const runSubscription = (
 
   connection.subscriptionState.set(currentTabID.value, "SUBSCRIBING")
 
-  connection.socket = new WebSocket(wsUrl, "graphql-ws")
+  connection.socket = new WebSocket(wsUrl, "graphql-transport-ws")
 
   connection.socket.onopen = (event) => {
     console.log("WebSocket is open now.", event)
@@ -588,14 +584,6 @@ export const runSubscription = (
       JSON.stringify({
         type: GQL.CONNECTION_INIT,
         payload: headers ?? {},
-      })
-    )
-
-    connection.socket?.send(
-      JSON.stringify({
-        type: GQL.START,
-        id: "1",
-        payload: { query, operationName },
       })
     )
   }
@@ -607,22 +595,39 @@ export const runSubscription = (
     switch (data.type) {
       case GQL.CONNECTION_ACK: {
         connection.subscriptionState.set(currentTabID.value, "SUBSCRIBED")
+        connection.socket?.send(
+          JSON.stringify({
+            type: GQL.SUBSCRIBE,
+            id: "1",
+            payload: {
+              query,
+              variables: options.variables
+                ? JSON.parse(options.variables)
+                : undefined,
+              operationName,
+            },
+          })
+        )
         break
       }
-      case GQL.CONNECTION_ERROR: {
-        console.error(data.payload)
-        break
-      }
-      case GQL.CONNECTION_KEEP_ALIVE: {
-        break
-      }
-      case GQL.DATA: {
+      case GQL.NEXT: {
         gqlMessageEvent.value = {
           type: "response",
           time: Date.now(),
           operationName,
           data: JSON.stringify(data.payload),
           operationType: "subscription",
+        }
+        break
+      }
+      case GQL.ERROR: {
+        connection.subscriptionState.set(currentTabID.value, "UNSUBSCRIBED")
+        gqlMessageEvent.value = {
+          type: "error",
+          error: {
+            type: "subscription_error",
+            message: JSON.stringify(data.payload),
+          },
         }
         break
       }

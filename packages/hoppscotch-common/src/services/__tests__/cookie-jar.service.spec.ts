@@ -53,6 +53,16 @@ describe("CookieJarService", () => {
       expect(map.get("example.com")).toHaveLength(2)
     })
 
+    it("dedupes by (name, path) across non-canonical keys that collapse onto the same canon", () => {
+      const map = (service as any).toMap({
+        ".Example.COM": [cookie({ name: "sid", value: "old", path: "/" })],
+        "EXAMPLE.com": [cookie({ name: "sid", value: "new", path: "/" })],
+      })
+      const bucket = map.get("example.com")
+      expect(bucket).toHaveLength(1)
+      expect(bucket?.[0].value).toBe("new")
+    })
+
     it("drops an entry whose key canonicalizes to empty", () => {
       const map = (service as any).toMap({
         ".": [cookie({ name: "a", value: "1" })],

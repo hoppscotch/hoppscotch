@@ -247,26 +247,39 @@ export class CookieJarService extends Service {
   // every load (initial and watcher) so the on-disk shape
   // upgrades on first read after the upgrade, and collisions
   // between two non-canonical keys that map to the same canonical
-  // form merge into one entry. Each cookie's own `domain` is also
-  // canonicalized so `domainMatches` sees the canonical form on
-  // both sides.
+  // form dedupe by `(name, path)` with last-occurrence wins, so
+  // `applyCookiesToRequest` never emits two cookies with the same
+  // name and path in one Cookie header. Each cookie's own
+  // `domain` is also canonicalized so `domainMatches` sees the
+  // canonical form on both sides.
   private toMap(domains: Record<string, Cookie[]>): Map<string, Cookie[]> {
-    const map = new Map<string, Cookie[]>()
+    const dedup = new Map<string, Map<string, Cookie>>()
     for (const [rawKey, cookies] of Object.entries(domains)) {
       const key = this.canonStoreDomain(rawKey)
       if (key.length === 0) {
         continue
       }
-      const canonized = cookies.map((c) => ({
-        ...c,
-        domain: this.canonStoreDomain(c.domain ?? key) || key,
-      }))
-      const existing = map.get(key)
-      if (existing) {
-        map.set(key, [...existing, ...canonized])
-      } else {
-        map.set(key, canonized)
+      let bucket = dedup.get(key)
+      if (!bucket) {
+        bucket = new Map<string, Cookie>()
+        dedup.set(key, bucket)
       }
+      for (const c of cookies) {
+        const canonized: Cookie = {
+          ...c,
+          domain: this.canonStoreDomain(c.domain ?? key) || key,
+        }
+        // NUL separator matches the `cookieKey` pattern in
+        // `RequestRunner.ts`. Empty-string path collapses to
+        // `/` so an empty and a `/` cookie dedupe onto the same
+        // key.
+        const dedupKey = `${canonized.name} ${canonized.path && canonized.path.length > 0 ? canonized.path : "/"}`
+        bucket.set(dedupKey, canonized)
+      }
+    }
+    const map = new Map<string, Cookie[]>()
+    for (const [key, bucket] of dedup) {
+      map.set(key, Array.from(bucket.values()))
     }
     return map
   }

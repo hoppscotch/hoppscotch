@@ -223,8 +223,15 @@ export class CookieJarService extends Service {
           c === null ||
           typeof (c as { name?: unknown }).name !== "string" ||
           typeof (c as { value?: unknown }).value !== "string" ||
-          typeof (c as { domain?: unknown }).domain !== "string"
+          typeof (c as { domain?: unknown }).domain !== "string" ||
+          typeof (c as { path?: unknown }).path !== "string" ||
+          typeof (c as { secure?: unknown }).secure !== "boolean"
         ) {
+          // `path` is what `pathMatches` reads to decide whether
+          // a cookie applies, `secure` is what gates the HTTPS-only
+          // attach in `applyCookiesToRequest`, so a schema-drifted
+          // payload that smuggled a string `"false"` past either
+          // would silently mismatch path scope or attach over HTTP.
           throw new Error("payload has malformed cookie")
         }
       }
@@ -232,8 +239,36 @@ export class CookieJarService extends Service {
     return v as StoredCookieJar
   }
 
+  // Migration-aware hydration. A jar persisted before the RFC
+  // 6265 canon work could carry `.example.com` or `Example.COM`
+  // keys, and the new `domainMatches` would never line those up
+  // with an incoming `example.com` request, so the cookies would
+  // load into memory and never apply. The canon pass runs on
+  // every load (initial and watcher) so the on-disk shape
+  // upgrades on first read after the upgrade, and collisions
+  // between two non-canonical keys that map to the same canonical
+  // form merge into one entry. Each cookie's own `domain` is also
+  // canonicalized so `domainMatches` sees the canonical form on
+  // both sides.
   private toMap(domains: Record<string, Cookie[]>): Map<string, Cookie[]> {
-    return new Map(Object.entries(domains))
+    const map = new Map<string, Cookie[]>()
+    for (const [rawKey, cookies] of Object.entries(domains)) {
+      const key = this.canonStoreDomain(rawKey)
+      if (key.length === 0) {
+        continue
+      }
+      const canonized = cookies.map((c) => ({
+        ...c,
+        domain: this.canonStoreDomain(c.domain ?? key) || key,
+      }))
+      const existing = map.get(key)
+      if (existing) {
+        map.set(key, [...existing, ...canonized])
+      } else {
+        map.set(key, canonized)
+      }
+    }
+    return map
   }
 
   private persistJar(): void {

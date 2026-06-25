@@ -36,6 +36,31 @@ describe("CookieJarService", () => {
     })
   })
 
+  describe("toMap migration on hydrate", () => {
+    it("canonicalizes a leading-dot domain key from on-disk payload", () => {
+      const map = (service as any).toMap({
+        ".Example.COM": [cookie({ name: "a", value: "1", domain: ".Example.COM" })],
+      })
+      expect(map.has("example.com")).toBe(true)
+      expect(map.get("example.com")?.[0].domain).toBe("example.com")
+    })
+
+    it("merges two non-canonical keys that collapse to the same canon", () => {
+      const map = (service as any).toMap({
+        ".Example.COM": [cookie({ name: "a", value: "1", domain: ".Example.COM" })],
+        "EXAMPLE.com": [cookie({ name: "b", value: "2", domain: "EXAMPLE.com" })],
+      })
+      expect(map.get("example.com")).toHaveLength(2)
+    })
+
+    it("drops an entry whose key canonicalizes to empty", () => {
+      const map = (service as any).toMap({
+        ".": [cookie({ name: "a", value: "1" })],
+      })
+      expect(map.size).toBe(0)
+    })
+  })
+
   describe("getCookiesForURL", () => {
     it("matches the exact host per RFC 6265 5.1.3", async () => {
       await service.upsertCookies([cookie({ name: "a", value: "1" })])
@@ -234,6 +259,32 @@ describe("CookieJarService", () => {
       }
       await service.applyCookiesToRequest(req)
       expect(req.headers["Cookie"]).toBeUndefined()
+    })
+  })
+
+  describe("parseStored", () => {
+    it("rejects a payload whose cookie has non-string path", () => {
+      expect(() =>
+        (service as any).parseStored({
+          domains: {
+            "example.com": [
+              { name: "a", value: "1", domain: "example.com", path: 1, secure: false },
+            ],
+          },
+        })
+      ).toThrow()
+    })
+
+    it("rejects a payload whose cookie has non-boolean secure", () => {
+      expect(() =>
+        (service as any).parseStored({
+          domains: {
+            "example.com": [
+              { name: "a", value: "1", domain: "example.com", path: "/", secure: "false" },
+            ],
+          },
+        })
+      ).toThrow()
     })
   })
 

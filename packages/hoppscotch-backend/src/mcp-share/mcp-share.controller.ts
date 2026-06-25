@@ -12,6 +12,7 @@ import * as E from 'fp-ts/Either';
 import { ThrottlerBehindProxyGuard } from 'src/guards/throttler-behind-proxy.guard';
 import { McpShareService } from './mcp-share.service';
 import { collectionToMcpTools, McpToolDefinition } from './mcp-tool-generator';
+import { assertUrlAllowed, SSRFBlockedError } from './ssrf-guard';
 import { MCP_SHARE_TOOL_NOT_FOUND } from 'src/errors';
 import { McpShare as DbMcpShare } from 'src/generated/prisma/client';
 
@@ -33,30 +34,6 @@ const toolsCache = new Map<
 
 // Maximum response body size (1 MB) to prevent OOM from malicious upstreams.
 const MAX_RESPONSE_BYTES = 1_048_576;
-
-/**
- * Reject URLs that resolve to loopback or RFC-1918 private addresses to
- * prevent SSRF from user-controlled collection endpoints.
- */
-function isPrivateUrl(raw: string): boolean {
-  let url: URL;
-  try {
-    url = new URL(raw);
-  } catch {
-    return true; // malformed URL — block it
-  }
-  const host = url.hostname;
-  // Block loopback, link-local, RFC-1918 private ranges, and IPv6 loopback.
-  // Patterns are anchored with full-segment boundaries to avoid false positives
-  // on legitimate external hostnames like "10.0.0.1.cdn.example.com".
-  // Node's URL parser normalises decimal/hex-encoded IPs (e.g. 0x7f000001 →
-  // 127.0.0.1) so we only need to match the canonical dotted-decimal form.
-  // IPv6 addresses are returned by URL with brackets (e.g. "[::1]").
-  // Covers: IPv4-mapped IPv6 ([::ffff:x.x.x.x]), ULA (fc/fd), link-local (fe80).
-  const privatePattern =
-    /^(127\.\d+\.\d+\.\d+|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|169\.254\.\d+\.\d+|0\.0\.0\.0|\[::1\]|\[::ffff:(127\.\d+\.\d+\.\d+|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|169\.254\.\d+\.\d+|0\.0\.0\.0)\]|\[f[cd][0-9a-f]{2}:.*\]|\[fe80:.*\]|localhost)$/i;
-  return privatePattern.test(host);
-}
 
 function jsonRpcSuccess(id: unknown, result: unknown) {
   return { jsonrpc: '2.0', id, result };
@@ -254,8 +231,13 @@ export class McpShareController {
     try {
       const meta = tool._meta;
 
-      if (isPrivateUrl(meta.endpoint)) {
-        return E.left('Request blocked: endpoint resolves to a private address');
+      try {
+        await assertUrlAllowed(meta.endpoint);
+      } catch (err) {
+        if (err instanceof SSRFBlockedError) {
+          return E.left(err.message);
+        }
+        throw err;
       }
 
       if (meta.reqType === 'GQL') {

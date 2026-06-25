@@ -281,7 +281,7 @@ export class McpShareController {
           redirect: 'manual',
         });
         const text = await readResponseBounded(response);
-        return E.right(text);
+        return E.right(this.formatResponse(response, text));
       }
 
       // REST execution
@@ -329,10 +329,16 @@ export class McpShareController {
 
       const response = await fetch(endpoint, fetchOptions);
       const text = await readResponseBounded(response);
-      return E.right(text);
+      return E.right(this.formatResponse(response, text));
     } catch (err) {
       return E.left(`Request failed: ${(err as Error).message}`);
     }
+  }
+
+  private formatResponse(response: globalThis.Response, body: string): string {
+    // Prefix status so the calling agent can distinguish 2xx from 4xx/5xx;
+    // without this the upstream body is returned as MCP-success regardless.
+    return `HTTP ${response.status} ${response.statusText}\n\n${body}`;
   }
 
   private buildHeaders(

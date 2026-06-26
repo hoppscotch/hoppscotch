@@ -7,8 +7,8 @@
   >
     <template #body>
       <div class="flex flex-col space-y-4 p-4">
-        <!-- Loading state -->
-        <div v-if="loading" class="flex justify-center py-4">
+        <!-- Loading / generating state -->
+        <div v-if="loading || generating" class="flex justify-center py-4">
           <HoppSmartSpinner />
         </div>
 
@@ -97,18 +97,6 @@
             @click="handleRevoke"
           />
         </template>
-
-        <!-- No share yet: generate button -->
-        <template v-else>
-          <p class="text-secondary text-sm">
-            {{ t("mcp.setup_hint") }}
-          </p>
-          <HoppButtonPrimary
-            :loading="generating"
-            :label="t('mcp.generate')"
-            @click="handleGenerate"
-          />
-        </template>
       </div>
     </template>
   </HoppSmartModal>
@@ -148,9 +136,11 @@ const generating = ref(false)
 const revoking = ref(false)
 const error = ref<string | null>(null)
 const activeShare = ref<McpShareResult | null>(null)
-const activeTab = ref<"claude" | "cursor" | "windsurf">("claude")
+const activeTab = ref<
+  "claude" | "claudeCode" | "codex" | "cursor" | "windsurf"
+>("claude")
 
-const tabs = ["claude", "cursor", "windsurf"] as const
+const tabs = ["claude", "claudeCode", "codex", "cursor", "windsurf"] as const
 
 const copyPathIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
   IconCopy,
@@ -173,6 +163,12 @@ const snippetForTab = computed(() => {
       null,
       2
     )
+  }
+  if (activeTab.value === "claudeCode") {
+    return `claude mcp add hoppscotch --transport http ${url}`
+  }
+  if (activeTab.value === "codex") {
+    return `[mcp_servers.hoppscotch]\nurl = "${url}"`
   }
   if (activeTab.value === "cursor") {
     return JSON.stringify(
@@ -263,13 +259,20 @@ const handleRevoke = async () => {
   }
 }
 
+const loadOrGenerate = async () => {
+  await loadExistingShare()
+  if (!activeShare.value && !error.value) {
+    await handleGenerate()
+  }
+}
+
 watch(
   () => props.show,
   (visible) => {
     if (visible) {
       activeShare.value = null
       error.value = null
-      loadExistingShare()
+      loadOrGenerate()
     }
   },
   { immediate: true }

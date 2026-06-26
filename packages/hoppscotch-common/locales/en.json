@@ -1154,6 +1154,8 @@
     "generate": "Generate MCP link",
     "setup_hint": "Paste this URL into your AI client's MCP configuration",
     "setup_claude": "Claude Desktop",
+    "setup_claudeCode": "Claude Code",
+    "setup_codex": "Codex",
     "setup_cursor": "Cursor",
     "setup_windsurf": "Windsurf"
   },

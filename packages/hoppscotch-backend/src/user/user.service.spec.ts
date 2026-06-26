@@ -3,6 +3,7 @@ import {
   USERS_NOT_FOUND,
   USER_NOT_FOUND,
   USER_SHORT_DISPLAY_NAME,
+  USER_UPDATE_FAILED,
 } from 'src/errors';
 import { mockDeep, mockReset } from 'jest-mock-extended';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -847,7 +848,7 @@ describe('UserService', () => {
 
       const result = await service.updateUserEmail(mockUserUid, mockNewEmail);
 
-      expect(result).toEqualLeft('USER_UPDATE_FAILED');
+      expect(result).toEqualLeft(USER_UPDATE_FAILED);
     });
 
     it('should return USER_UPDATE_FAILED for any other Prisma error', async () => {
@@ -857,7 +858,7 @@ describe('UserService', () => {
 
       const result = await service.updateUserEmail(mockUserUid, mockNewEmail);
 
-      expect(result).toEqualLeft('USER_UPDATE_FAILED');
+      expect(result).toEqualLeft(USER_UPDATE_FAILED);
     });
   });
 });

@@ -291,7 +291,7 @@ export class UserService {
         return E.left(USER_NOT_FOUND);
       }
       // Return a distinct error for other failures (e.g., P2002 unique constraint)
-      return E.left('USER_UPDATE_FAILED'); // Define this constant elsewhere
+      return E.left(USER_UPDATE_FAILED); // Define this constant elsewhere
     }
   }
 

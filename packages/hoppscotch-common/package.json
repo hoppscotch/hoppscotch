@@ -6,6 +6,7 @@
     "dev": "pnpm exec npm-run-all -p -l dev:*",
     "test": "vitest --run",
     "test:watch": "vitest",
+    "bench:memory": "cross-env NODE_OPTIONS=--expose-gc vitest run --config vitest.bench.config.mts",
     "dev:vite": "vite",
     "dev:gql-codegen": "graphql-codegen --require dotenv/config --config gql-codegen.yml --watch dotenv_config_path=\"../../.env\"",
     "lint": "eslint src",

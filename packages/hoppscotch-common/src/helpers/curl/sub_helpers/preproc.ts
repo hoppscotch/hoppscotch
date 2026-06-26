@@ -141,12 +141,10 @@ const placeholderIndex = (value: string) => {
 }
 
 /**
- * Some sources generate "curl" commands where the request body is wrapped in
- * single quotes but contains unescaped single quotes (e.g. `'''text'''`), which
- * breaks the argument tokenizer and causes body parsing to fail.
- *
- * This replaces JSON bodies passed via `-d`/`--data*` with safe placeholders
- * before passing the string to yargs-parser, and later restores them.
+ * Some exported curl commands wrap the request body in single quotes but
+ * contain unescaped single quotes (e.g. `'''text'''`), which breaks the
+ * argument tokenizer. Replace JSON bodies passed via `-d`/`--data*` with
+ * placeholders before yargs-parser sees them, then restore them after.
  */
 export const replaceJSONDataArgsWithPlaceholders = (curlCommand: string) => {
   const dataFlags = [
@@ -233,34 +231,43 @@ export const replaceJSONDataArgsWithPlaceholders = (curlCommand: string) => {
   }
 }
 
+const DATA_ARG_KEYS = ["d", "data"] as const
+
+const restorePlaceholder = (
+  value: unknown,
+  extractedJSONData: string[]
+): unknown => {
+  if (typeof value === "string") {
+    if (!isJSONDataPlaceholder(value)) return value
+    const idx = placeholderIndex(value)
+    if (idx === null) return value
+    return extractedJSONData[idx] ?? value
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((v) => restorePlaceholder(v, extractedJSONData))
+  }
+
+  return value
+}
+
 export const restoreJSONDataArgsFromPlaceholders = <T>(
   parsedArguments: T,
   extractedJSONData: string[]
 ): T => {
-  const restore = (value: unknown): unknown => {
-    if (!value) return value
-
-    if (typeof value === "string") {
-      if (!isJSONDataPlaceholder(value)) return value
-      const idx = placeholderIndex(value)
-      if (idx === null) return value
-      return extractedJSONData[idx] ?? value
-    }
-
-    if (Array.isArray(value)) {
-      return value.map(restore)
-    }
-
-    if (typeof value === "object") {
-      const result: Record<string, unknown> = {}
-      for (const [key, val] of Object.entries(value)) {
-        result[key] = restore(val)
-      }
-      return result
-    }
-
-    return value
+  if (extractedJSONData.length === 0) return parsedArguments
+  if (!parsedArguments || typeof parsedArguments !== "object") {
+    return parsedArguments
   }
 
-  return restore(parsedArguments) as T
+  const args = parsedArguments as Record<string, unknown>
+  const restored: Record<string, unknown> = { ...args }
+
+  for (const key of DATA_ARG_KEYS) {
+    if (key in restored) {
+      restored[key] = restorePlaceholder(restored[key], extractedJSONData)
+    }
+  }
+
+  return restored as T
 }

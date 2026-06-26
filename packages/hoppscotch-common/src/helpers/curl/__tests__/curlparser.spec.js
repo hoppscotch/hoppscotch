@@ -1082,8 +1082,25 @@ describe("Parse curl command to Hopp REST Request", () => {
       "https://open.bigmodel.cn/api/paas/v4/chat/completions"
     )
     expect(actual.body.contentType).toBe("application/json")
-    expect(actual.body.body).toContain('"model": "gpt-translate"')
-    expect(actual.body.body).toContain('"temperature": 0.30000001192092896')
+
+    const parsedBody = JSON.parse(actual.body.body)
+    expect(parsedBody.model).toBe("gpt-translate")
+    expect(parsedBody.temperature).toBe(0.30000001192092896)
+    expect(parsedBody.response_format).toEqual({ type: "json_object" })
+    expect(parsedBody.messages).toHaveLength(2)
+    expect(parsedBody.messages[0].role).toBe("system")
+    expect(parsedBody.messages[1].role).toBe("user")
+  })
+
+  test("preserves -d POST without -G as form-urlencoded", () => {
+    const command = `curl -X POST 'https://example.com/submit' -d 'name=alice&role=admin'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+
+    expect(actual.method).toBe("POST")
+    expect(actual.endpoint).toBe("https://example.com/submit")
+    expect(actual.body.contentType).toBe("application/x-www-form-urlencoded")
+    expect(actual.body.body).toBe("name: alice\nrole: admin")
   })
 
   for (const [i, { command, response }] of samples.entries()) {

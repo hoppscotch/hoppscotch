@@ -82,10 +82,18 @@
                 {{ t(`mcp.setup_${tab}`) }}
               </button>
             </div>
-            <div
-              class="px-3 py-2 border border-divider rounded bg-primaryLight font-mono text-xs whitespace-pre overflow-x-auto"
-            >
-              {{ snippetForTab }}
+            <div class="flex items-start space-x-2">
+              <div
+                class="flex-1 px-3 py-2 border border-divider rounded bg-primaryLight font-mono text-xs whitespace-pre overflow-x-auto"
+              >
+                {{ snippetForTab }}
+              </div>
+              <HoppButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="t('mcp.copy_snippet')"
+                :icon="copySnippetIcon"
+                @click="handleCopy(snippetForTab, 'snippet')"
+              />
             </div>
           </div>
 
@@ -136,11 +144,9 @@ const generating = ref(false)
 const revoking = ref(false)
 const error = ref<string | null>(null)
 const activeShare = ref<McpShareResult | null>(null)
-const activeTab = ref<
-  "claude" | "claudeCode" | "codex" | "cursor" | "windsurf"
->("claude")
+const activeTab = ref<"claudeCode" | "codex">("claudeCode")
 
-const tabs = ["claude", "claudeCode", "codex", "cursor", "windsurf"] as const
+const tabs = ["claudeCode", "codex"] as const
 
 const copyPathIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
   IconCopy,
@@ -150,51 +156,25 @@ const copyDomainIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
   IconCopy,
   1000
 )
+const copySnippetIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
+  IconCopy,
+  1000
+)
 
 const snippetForTab = computed(() => {
   const url = activeShare.value?.shareUrlPathBased ?? ""
-  if (activeTab.value === "claude") {
-    return JSON.stringify(
-      {
-        mcpServers: {
-          hoppscotch: { url },
-        },
-      },
-      null,
-      2
-    )
-  }
   if (activeTab.value === "claudeCode") {
     return `claude mcp add hoppscotch --transport http ${url}`
   }
-  if (activeTab.value === "codex") {
-    return `[mcp_servers.hoppscotch]\nurl = "${url}"`
-  }
-  if (activeTab.value === "cursor") {
-    return JSON.stringify(
-      {
-        mcpServers: [{ name: "hoppscotch", url }],
-      },
-      null,
-      2
-    )
-  }
-  // windsurf
-  return JSON.stringify(
-    {
-      mcp: {
-        servers: [{ name: "hoppscotch", url }],
-      },
-    },
-    null,
-    2
-  )
+  // codex
+  return `[mcp_servers.hoppscotch]\nurl = "${url}"`
 })
 
-const handleCopy = (text: string, which: "path" | "domain") => {
+const handleCopy = (text: string, which: "path" | "domain" | "snippet") => {
   copyToClipboardHelper(text)
   if (which === "path") copyPathIcon.value = IconCheck
-  else copyDomainIcon.value = IconCheck
+  else if (which === "domain") copyDomainIcon.value = IconCheck
+  else copySnippetIcon.value = IconCheck
   toast.success(t("mcp.copied"))
 }
 

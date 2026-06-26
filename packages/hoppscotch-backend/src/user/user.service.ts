@@ -88,8 +88,10 @@ export class UserService {
     provider: string,
     providerAccountId: string,
   ): Promise<O.Option<AuthUser>> {
-    const account = await this.prisma.account.findFirst({
-      where: { provider, providerAccountId },
+    const account = await this.prisma.account.findUnique({
+      where: {
+        verifyProviderAccount: { provider, providerAccountId },
+      },
       include: { user: true },
     });
 

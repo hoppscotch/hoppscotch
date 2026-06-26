@@ -228,7 +228,6 @@ const handleGenerate = async () => {
     const result = await task()
     if (result._tag === "Right") {
       activeShare.value = result.right as McpShareResult
-      toast.success(t("state.success"))
     } else {
       error.value = t("error.something_went_wrong")
     }

@@ -724,4 +724,134 @@ describe('UserService', () => {
       expect(result).toEqualLeft(USERS_NOT_FOUND);
     });
   });
+
+  describe('findUserByProviderAccount', () => {
+    const mockProvider = 'microsoft';
+    const mockProviderAccountId = '123456789';
+    const mockUser = {
+      uid: 'user-123',
+      email: 'test@example.com',
+      displayName: 'Test User',
+      photoURL: 'https://example.com/photo.jpg',
+      isAdmin: false,
+      currentRESTSession: {},
+      currentGQLSession: {},
+      refreshToken: 'test-refresh-token',
+      lastLoggedOn: new Date(),
+      lastActiveOn: new Date(),
+      createdOn: new Date(),
+    };
+
+    it('should return user when account and user exist', async () => {
+      const mockAccount = {
+        provider: mockProvider,
+        providerAccountId: mockProviderAccountId,
+        user: mockUser,
+      };
+
+      mockPrisma.account.findFirst.mockResolvedValue(mockAccount);
+
+      const result = await service.findUserByProviderAccount(
+        mockProvider,
+        mockProviderAccountId,
+      );
+
+      expect(mockPrisma.account.findFirst).toHaveBeenCalledWith({
+        where: {
+          provider: mockProvider,
+          providerAccountId: mockProviderAccountId,
+        },
+        include: { user: true },
+      });
+      expect(result).toEqualSome(mockUser);
+    });
+
+    it('should return O.none when account is not found', async () => {
+      mockPrisma.account.findFirst.mockResolvedValue(null);
+
+      const result = await service.findUserByProviderAccount(
+        mockProvider,
+        mockProviderAccountId,
+      );
+
+      expect(result).resolves.toBeNone;
+    });
+
+    it('should return O.none when account exists but user is null (dangling account)', async () => {
+      const mockAccount = {
+        provider: mockProvider,
+        providerAccountId: mockProviderAccountId,
+        user: null,
+      };
+
+      mockPrisma.account.findFirst.mockResolvedValue(mockAccount);
+
+      const result = await service.findUserByProviderAccount(
+        mockProvider,
+        mockProviderAccountId,
+      );
+
+      expect(result).resolves.toBeNone;
+    });
+  });
+
+  describe('updateUserEmail', () => {
+    const mockUserUid = 'user-123';
+    const mockNewEmail = 'new-email@example.com';
+    const mockUpdatedUser = {
+      uid: mockUserUid,
+      email: mockNewEmail,
+      displayName: 'Test User',
+      photoURL: 'https://example.com/photo.jpg',
+      isAdmin: false,
+      currentRESTSession: {},
+      currentGQLSession: {},
+      refreshToken: 'test-refresh-token',
+      lastLoggedOn: new Date(),
+      lastActiveOn: new Date(),
+      createdOn: new Date(),
+    };
+
+    it('should successfully update user email', async () => {
+      mockPrisma.user.update.mockResolvedValue(mockUpdatedUser);
+
+      const result = await service.updateUserEmail(mockUserUid, mockNewEmail);
+
+      expect(mockPrisma.user.update).toHaveBeenCalledWith({
+        where: { uid: mockUserUid },
+        data: { email: mockNewEmail, lastLoggedOn: expect.any(Date) },
+      });
+      expect(result).toEqualRight(mockUpdatedUser);
+    });
+
+    it('should return USER_NOT_FOUND when user does not exist (P2025)', async () => {
+      const prismaError = new Error('Record not found');
+      (prismaError as any).code = 'P2025';
+      mockPrisma.user.update.mockRejectedValue(prismaError);
+
+      const result = await service.updateUserEmail(mockUserUid, mockNewEmail);
+
+      expect(result).toEqualLeft(USER_NOT_FOUND);
+    });
+
+    it('should return USER_UPDATE_FAILED when email violates unique constraint (P2002)', async () => {
+      const prismaError = new Error('Unique constraint failed');
+      (prismaError as any).code = 'P2002';
+      mockPrisma.user.update.mockRejectedValue(prismaError);
+
+      const result = await service.updateUserEmail(mockUserUid, mockNewEmail);
+
+      expect(result).toEqualLeft('USER_UPDATE_FAILED');
+    });
+
+    it('should return USER_UPDATE_FAILED for any other Prisma error', async () => {
+      const prismaError = new Error('Database connection error');
+      (prismaError as any).code = 'P1000';
+      mockPrisma.user.update.mockRejectedValue(prismaError);
+
+      const result = await service.updateUserEmail(mockUserUid, mockNewEmail);
+
+      expect(result).toEqualLeft('USER_UPDATE_FAILED');
+    });
+  });
 });

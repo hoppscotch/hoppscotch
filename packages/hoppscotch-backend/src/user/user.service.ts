@@ -94,7 +94,8 @@ export class UserService {
     });
 
     if (!account) return O.none;
-    return O.some(account.user as AuthUser);
+    if (!account.user) return O.none;
+    return O.some(account.user);
   }
 
   /**
@@ -283,7 +284,12 @@ export class UserService {
       });
       return E.right(user);
     } catch (error) {
-      return E.left(USER_NOT_FOUND);
+      // Handle "record not found" specifically
+      if ((error as { code?: string })?.code === 'P2025') {
+        return E.left(USER_NOT_FOUND);
+      }
+      // Return a distinct error for other failures (e.g., P2002 unique constraint)
+      return E.left('USER_UPDATE_FAILED'); // Define this constant elsewhere
     }
   }
 

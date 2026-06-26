@@ -217,7 +217,7 @@ export const replaceJSONDataArgsWithPlaceholders = (curlCommand: string) => {
     if (output.length > 0 && !isWhitespace(output[output.length - 1]))
       output += " "
 
-    output += `-d ${placeholder} `
+    output += `-d ${placeholder}`
 
     let nextIndex = endIndex + 1
     if (quoteChar && curlCommand[nextIndex] === quoteChar) nextIndex++

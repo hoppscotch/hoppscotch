@@ -1047,8 +1047,10 @@ describe("Parse curl command to Hopp REST Request", () => {
       "http://test.portal.goodcol.com/muses-gateway/api/workflow/wf/common/process/insert"
     )
     expect(actual.body.contentType).toBe("application/json")
-    expect(actual.body.body).toContain('"insertProcessDto"')
-    expect(actual.body.body).toContain('"formSaveDTO"')
+
+    const parsedBody = JSON.parse(actual.body.body)
+    expect(parsedBody.insertProcessDto.name).toBe("测hi退回")
+    expect(JSON.parse(parsedBody.formSaveDTO.formProps)).toEqual({ list: [] })
   })
 
   test("parses original goodcol insert curl", () => {
@@ -1067,9 +1069,13 @@ describe("Parse curl command to Hopp REST Request", () => {
       "http://test.portal.goodcol.com/muses-gateway/api/workflow/wf/common/process/insert"
     )
     expect(actual.body.contentType).toBe("application/json")
-    expect(actual.body.body).toContain('"bpmnXmlString"')
-    expect(actual.body.body).toContain("bpmn2:definitions")
-    expect(actual.body.body).toContain('"formProps"')
+
+    const parsedBody = JSON.parse(actual.body.body)
+    expect(parsedBody.insertProcessDto.bpmnXmlString).toContain("<?xml")
+    expect(parsedBody.insertProcessDto.bpmnXmlString).toContain(
+      "bpmn2:definitions"
+    )
+    expect(JSON.parse(parsedBody.formSaveDTO.formProps)).toEqual({ list: [] })
   })
 
   test("does not drop JSON body for -d with many headers", () => {

@@ -281,7 +281,7 @@ export class CookieJarService extends Service {
         // `RequestRunner.ts`. Empty-string path collapses to
         // `/` so an empty and a `/` cookie dedupe onto the same
         // key.
-        const dedupKey = `${canonized.name} ${canonized.path && canonized.path.length > 0 ? canonized.path : "/"}`
+        const dedupKey = `${canonized.name}\0${canonized.path && canonized.path.length > 0 ? canonized.path : "/"}`
         bucket.set(dedupKey, canonized)
       }
     }

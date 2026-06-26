@@ -13,37 +13,18 @@
  * Prereq: dev server running (serve.sh). Usage:
  *   BODY_MB=3 node memory-bench/full-app/response-render.mjs
  */
-import { chromium } from "playwright"
 import { fileURLToPath } from "node:url"
 import { dirname, resolve } from "node:path"
 import { mkdirSync, writeFileSync } from "node:fs"
+import { bytesToMB as toMB, leakSlope, launchHeapSession } from "./lib.mjs"
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const APP_URL = process.env.APP_URL ?? "http://localhost:3000/"
 const SRC = "/@fs" + resolve(__dirname, "../../src")
-const MB = 1024 * 1024
-const toMB = (b) => +(b / MB).toFixed(2)
 const BODY_MB = Number(process.env.BODY_MB ?? 3)
 
 async function main() {
-  const browser = await chromium.launch({
-    headless: true,
-    args: ["--js-flags=--expose-gc", "--enable-precise-memory-info"],
-  })
-  const page = await browser.newPage()
-  const pageErrors = []
-  page.on("pageerror", (e) => pageErrors.push(String(e)))
-  const client = await page.context().newCDPSession(page)
-  await client.send("HeapProfiler.enable")
-  const gcHeap = async () => {
-    for (let i = 0; i < 4; i++) {
-      await client.send("HeapProfiler.collectGarbage")
-      await page.waitForTimeout(40)
-    }
-    return (await client.send("Runtime.getHeapUsage")).usedSize
-  }
-
-  await page.goto(APP_URL, { waitUntil: "domcontentloaded", timeout: 60_000 })
+  const { browser, page, pageErrors, gcHeap } = await launchHeapSession(APP_URL)
   await page.waitForTimeout(6000)
 
   const ROUNDS = Number(process.env.ROUNDS ?? 5)
@@ -132,16 +113,7 @@ async function main() {
 
   // Linear slope of retained-after-close across rounds (MB per round).
   const ys = afterCloseSamples
-  const n = ys.length
-  const mx = (n - 1) / 2
-  const my = ys.reduce((a, b) => a + b, 0) / n
-  let num = 0,
-    den = 0
-  for (let i = 0; i < n; i++) {
-    num += (i - mx) * (ys[i] - my)
-    den += (i - mx) ** 2
-  }
-  const slope = den ? num / den : 0
+  const slope = leakSlope(ys)
 
   const result = {
     scenario: `Scenario C/D full-app — large JSON rendered then closed, ${ROUNDS} rounds (${bodyMB} MB body each)`,
@@ -162,6 +134,21 @@ async function main() {
   writeFileSync(resolve(outDir, "response-render.json"), JSON.stringify(result, null, 2) + "\n")
   console.log(JSON.stringify(result, null, 2))
   await browser.close()
+
+  // Regression guard for the large-response prettify/AST cap (JSONLensRenderer):
+  // with the cap a multi-MB response retains ~8 MB/round after close; without it
+  // the slope is ~59 MB/round. Fail above a budget that sits well between the two
+  // so removing/breaking the cap is caught. Enforced only for bodies above the
+  // 2 MB cap threshold (default BODY_MB=3 -> ~4.8 MB).
+  const BUDGET = Number(process.env.SLOPE_BUDGET_MB ?? 25)
+  if (BODY_MB >= 3 && slope > BUDGET) {
+    console.error(
+      `REGRESSION: large-response retained slope ${slope.toFixed(
+        1
+      )} MB/round exceeds budget ${BUDGET} MB/round (cap likely broken)`
+    )
+    process.exit(2)
+  }
 }
 
 main().catch((e) => {

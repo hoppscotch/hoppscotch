@@ -7,7 +7,7 @@
 import { chromium } from "playwright"
 import { fileURLToPath } from "node:url"
 import { dirname, resolve } from "node:path"
-import { writeFileSync, readFileSync, rmSync } from "node:fs"
+import { writeFileSync, readFileSync, rmSync, createWriteStream } from "node:fs"
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const APP_URL = process.env.APP_URL ?? "http://localhost:3000/"
@@ -68,13 +68,14 @@ for (let r = 0; r < ROUNDS; r++) {
 }
 for (let i = 0; i < 5; i++) { await client.send("HeapProfiler.collectGarbage"); await page.waitForTimeout(40) }
 
-// Collect the snapshot.
-const chunks = []
-const onChunk = (p) => chunks.push(p.chunk)
+// Collect the snapshot, streaming chunks to disk (it can exceed the max JS
+// string length, so we cannot join in memory).
+const out = createWriteStream(SNAP)
+const onChunk = (p) => out.write(p.chunk)
 client.on("HeapProfiler.addHeapSnapshotChunk", onChunk)
 await client.send("HeapProfiler.takeHeapSnapshot", { reportProgress: false })
 client.off("HeapProfiler.addHeapSnapshotChunk", onChunk)
-writeFileSync(SNAP, chunks.join(""))
+await new Promise((res) => out.end(res))
 await browser.close()
 
 // Parse: node_fields = [type, name, id, self_size, edge_count, ...]; name -> strings[].
@@ -147,22 +148,35 @@ for (let n = 0; n < nodeCount; n++) {
 }
 const nodeName = (n) => `${typeEnum[nodes[n * nFields + typeIdx]]} ${strings[nodes[n * nFields + nameIdx]]}`.trim()
 
+// Skip traversing INTO V8 type-feedback / hidden-class metadata so the path
+// follows real app references (properties, contexts, array elements).
+const isNoise = (nm) =>
+  /shape |PrototypeInfo|WeakArrayList|\(map descriptors\)|\(feedback|TransitionArray|DescriptorArray|system \/ Oddball|system \/ AccessorInfo/.test(
+    nm
+  )
+const isNoiseEdge = (ename) =>
+  /internal:(constructor|prototype_info|object_function_prototype_map|map|feedback)/.test(
+    ename
+  )
+
 function retainingPath(startOrdinal) {
-  // BFS backward toward a root; report first path that reaches a GC-rootish node.
   const seen = new Set([startOrdinal])
   const q = [[startOrdinal, []]]
   let best = null
   while (q.length) {
     const [cur, path] = q.shift()
     const ps = parents.get(cur)
-    if (!ps || path.length > 18) {
-      if (!best) best = path
+    if (!ps || path.length > 22) {
+      if (!best || path.length > best.length) best = path
       continue
     }
+    // Follow only real app edges (property/context/element); skip V8-internal
+    // type-feedback / hidden-class metadata.
     for (const [p, ename] of ps) {
       const nm = nodeName(p)
+      if (isNoise(nm) || isNoiseEdge(ename)) continue
       const step = `${ename} <- ${nm}`
-      if (/Window|GC roots|\(global|Document DOM tree|\(Documents\)/.test(nm)) {
+      if (/Window|GC roots|\(global|Document DOM tree|\(Documents\)|Pinned|Global handles/.test(nm)) {
         return [...path, step]
       }
       if (!seen.has(p)) {
@@ -189,6 +203,56 @@ const traced = stringNodes.slice(0, 3).map(([ord, sz]) => ({
   retainingPath: retainingPath(ord).slice(0, 12),
 }))
 
+// Forward child ordinals of a node ordinal.
+function children(n) {
+  const ec = nodes[n * nFields + edgeCountIdx]
+  const base = firstEdge[n] * eFields
+  const out = []
+  for (let e = 0; e < ec; e++) {
+    const off = base + e * eFields
+    out.push(edges[off + eToIdx] / nFields)
+  }
+  return out
+}
+// Does this node transitively hold a >1MB string within `depth` hops?
+function holdsBigString(start, depth = 7) {
+  const seen = new Set([start])
+  let frontier = [start]
+  for (let d = 0; d < depth; d++) {
+    const next = []
+    for (const n of frontier) {
+      for (const c of children(n)) {
+        if (seen.has(c)) continue
+        seen.add(c)
+        if (
+          typeEnum[nodes[c * nFields + typeIdx]] === "string" &&
+          nodes[c * nFields + sizeIdx] > 1_000_000
+        )
+          return true
+        next.push(c)
+      }
+    }
+    frontier = next
+  }
+  return false
+}
+
+// Trace the EditorView instances that actually hold a big response doc (the
+// leaked ones), not the app's permanent small-doc editors.
+function tracedNodesByName(name, limit = 3) {
+  const out = []
+  for (let i = 0; i < nodeCount && out.length < limit; i++) {
+    if (
+      typeEnum[nodes[i * nFields + typeIdx]] === "object" &&
+      strings[nodes[i * nFields + nameIdx]] === name &&
+      (name !== "_EditorView" || holdsBigString(i))
+    ) {
+      out.push({ name, retainingPath: retainingPath(i).slice(0, 18) })
+    }
+  }
+  return out
+}
+
 console.log(JSON.stringify({
   rounds: ROUNDS,
   bodyMB: BODY_MB,
@@ -197,5 +261,7 @@ console.log(JSON.stringify({
   topRetainedClassesBySelfSize: top.map(([n, s]) => `${n}: ${(s / 1048576).toFixed(1)} MB`),
   watchedInstanceCounts: Object.fromEntries(WATCH.map((w) => [w, watchCount.get(w)])),
   largestStringRetainers: traced,
+  editorViewRetainers: tracedNodesByName("_EditorView", 4),
+  computedRefRetainers: tracedNodesByName("ComputedRefImpl", 4),
 }, null, 2))
 rmSync(SNAP, { force: true })

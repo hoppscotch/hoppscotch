@@ -16,57 +16,25 @@
  * Prereq: dev server running (memory-bench/full-app/serve.sh). Then:
  *   node memory-bench/full-app/churn.mjs
  */
-import { chromium } from "playwright"
 import { fileURLToPath } from "node:url"
 import { dirname, resolve } from "node:path"
 import { mkdirSync, writeFileSync } from "node:fs"
+import { bytesToMB, leakSlope, launchHeapSession } from "./lib.mjs"
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const APP_URL = process.env.APP_URL ?? "http://localhost:3000/"
 // Absolute /@fs URL base for hoppscotch-common/src (matches the app's module URLs).
 const SRC = "/@fs" + resolve(__dirname, "../../src")
-const MB = 1024 * 1024
-const bytesToMB = (b) => +(b / MB).toFixed(2)
 
 const ROUNDS = Number(process.env.ROUNDS ?? 12)
 const TABS_PER_ROUND = Number(process.env.TABS_PER_ROUND ?? 10)
 const WARMUP_ROUNDS = 3
 
-function leakSlope(ys) {
-  const n = ys.length
-  if (n < 2) return 0
-  const mx = (n - 1) / 2
-  const my = ys.reduce((a, b) => a + b, 0) / n
-  let num = 0,
-    den = 0
-  for (let i = 0; i < n; i++) {
-    num += (i - mx) * (ys[i] - my)
-    den += (i - mx) ** 2
-  }
-  return den ? num / den : 0
-}
-
 async function main() {
-  const browser = await chromium.launch({
-    headless: true,
-    args: ["--js-flags=--expose-gc", "--enable-precise-memory-info"],
-  })
-  const page = await browser.newPage()
-  const pageErrors = []
-  page.on("pageerror", (e) => pageErrors.push(String(e)))
-
-  const client = await page.context().newCDPSession(page)
-  await client.send("HeapProfiler.enable")
-  const gcHeap = async () => {
-    for (let i = 0; i < 4; i++) {
-      await client.send("HeapProfiler.collectGarbage")
-      await page.waitForTimeout(30)
-    }
-    const { usedSize } = await client.send("Runtime.getHeapUsage")
-    return usedSize
-  }
-
-  await page.goto(APP_URL, { waitUntil: "domcontentloaded", timeout: 60_000 })
+  const { browser, page, pageErrors, gcHeap } = await launchHeapSession(
+    APP_URL,
+    { gcWaitMs: 30 }
+  )
   await page.waitForTimeout(6000)
 
   // Wire up the real tab service in page context.

@@ -407,6 +407,33 @@ const jsonResponseBodyText = computedAsync(
   E.right(responseBodyText.value)
 )
 
+/**
+ * Responses larger than this skip the in-memory prettify + outline-AST pipeline.
+ * For large bodies that pipeline builds tens of MB of derived structures per
+ * response (a lossless-parsed object graph, a re-stringified pretty copy and a
+ * positional JSON AST) on top of the raw body, decoded string and editor
+ * document — the dominant driver of the desktop app's memory growth on large
+ * responses (issues #5883 / #6340). Above the threshold the body is shown as-is
+ * (unformatted, no structure outline); the raw and download paths are unaffected.
+ */
+const JSON_PRETTIFY_MAX_BYTES = 2 * 1024 * 1024 // 2 MB
+
+/**
+ * Response body size in bytes. Live REST responses carry an authoritative byte
+ * count in `meta.responseSize`; saved collection responses
+ * (`HoppRESTRequestResponse`) have no `meta`, so fall back to the decoded string
+ * length (≈ bytes for the ASCII-dominant JSON this lens handles).
+ */
+const responseSizeBytes = computed(() => {
+  const res = props.response
+  if ("meta" in res) return res.meta?.responseSize ?? 0
+  return responseBodyText.value?.length ?? 0
+})
+
+const isLargeResponse = computed(
+  () => responseSizeBytes.value > JSON_PRETTIFY_MAX_BYTES
+)
+
 const jsonBodyText = computed(() => {
   const { responseBodyText } = useResponseBody(
     props.response as HoppRESTResponse
@@ -435,6 +462,12 @@ const jsonBodyText = computed(() => {
     )
   }
 
+  // Large unfiltered responses: show the raw body without the lossless-parse +
+  // pretty round-trip, which would otherwise allocate (and retain) tens of MB.
+  if (isLargeResponse.value) {
+    return stringValue
+  }
+
   // For unfiltered responses, use LJSON for lossless parsing
   return pipe(
     stringValue,
@@ -444,13 +477,17 @@ const jsonBodyText = computed(() => {
   )
 })
 
-const ast = computed(() =>
-  pipe(
+const ast = computed(() => {
+  // Skip the positional JSON AST (used only for the structure outline) on large
+  // responses — it is a large retained object graph and the outline is not shown
+  // for unformatted large bodies anyway.
+  if (isLargeResponse.value) return null
+  return pipe(
     jsonBodyText.value,
     O.tryCatchK(jsonParse),
     O.getOrElseW(() => null)
   )
-)
+})
 
 const filterResponseError = computed(() =>
   pipe(

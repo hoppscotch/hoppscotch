@@ -750,7 +750,6 @@ describe('UserService', () => {
         user: mockUser,
       };
 
-      // ✅ CHANGE: Use findUnique instead of findFirst
       mockPrisma.account.findUnique.mockResolvedValue(mockAccount);
 
       const result = await service.findUserByProviderAccount(
@@ -758,7 +757,6 @@ describe('UserService', () => {
         mockProviderAccountId,
       );
 
-      // ✅ CHANGE: Update the assertion to check findUnique with the composite key
       expect(mockPrisma.account.findUnique).toHaveBeenCalledWith({
         where: {
           verifyProviderAccount: {
@@ -772,7 +770,6 @@ describe('UserService', () => {
     });
 
     it('should return O.none when account is not found', async () => {
-      // ✅ CHANGE: Use findUnique instead of findFirst
       mockPrisma.account.findUnique.mockResolvedValue(null);
 
       const result = await service.findUserByProviderAccount(
@@ -790,7 +787,6 @@ describe('UserService', () => {
         user: null,
       };
 
-      // ✅ CHANGE: Use findUnique instead of findFirst
       mockPrisma.account.findUnique.mockResolvedValue(mockAccount);
 
       const result = await service.findUserByProviderAccount(

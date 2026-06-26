@@ -598,7 +598,7 @@ watch([props.modelValue, aggregateEnvs], async () => {
 })
 
 watch(
-  () => [props.inheritedProperties, request.value],
+  () => [props.inheritedProperties, request.value, aggregateEnvs.value],
   async () => {
     if (!props.inheritedProperties) return
 

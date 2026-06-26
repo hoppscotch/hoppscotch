@@ -42,6 +42,27 @@ export class MicrosoftStrategy extends PassportStrategy(Strategy) {
     const user = await this.usersService.findUserByEmail(email);
 
     if (O.isNone(user)) {
+      // Check if a user exists with this Microsoft account ID but a different email.
+      // This handles the case where the user's primary Microsoft email has changed.
+      const existingUserByProvider =
+        await this.usersService.findUserByProviderAccount(
+          'microsoft',
+          profile.id,
+        );
+
+      if (O.isSome(existingUserByProvider)) {
+        // Email has changed — update it on the existing user record
+        const updatedUser = await this.usersService.updateUserEmail(
+          existingUserByProvider.value.uid,
+          email,
+        );
+        if (E.isLeft(updatedUser)) {
+          throw new UnauthorizedException(updatedUser.left);
+        }
+        return updatedUser.right;
+      }
+
+      // Truly new user — create them
       const createdUser = await this.usersService.createUserSSO(
         accessToken,
         refreshToken,

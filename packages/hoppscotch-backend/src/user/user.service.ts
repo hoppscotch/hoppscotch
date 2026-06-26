@@ -77,6 +77,27 @@ export class UserService {
   }
 
   /**
+   * Find User by their SSO provider and provider account ID
+   * Useful for detecting email changes on the provider side
+   *
+   * @param provider SSO provider name (e.g. 'microsoft', 'google', 'github')
+   * @param providerAccountId Provider-assigned account ID for the user
+   * @returns Option of found User
+   */
+  async findUserByProviderAccount(
+    provider: string,
+    providerAccountId: string,
+  ): Promise<O.Option<AuthUser>> {
+    const account = await this.prisma.account.findFirst({
+      where: { provider, providerAccountId },
+      include: { user: true },
+    });
+
+    if (!account) return O.none;
+    return O.some(account.user as AuthUser);
+  }
+
+  /**
    * Find User with given ID
    *
    * @param userUid User ID
@@ -243,6 +264,24 @@ export class UserService {
         },
       });
       return E.right(updatedUser);
+    } catch (error) {
+      return E.left(USER_NOT_FOUND);
+    }
+  }
+
+  /**
+   * Update a user's email address when it changes on the SSO provider side
+   * @param userUID User UID
+   * @param email New email address
+   * @returns Either of updated User or error
+   */
+  async updateUserEmail(userUID: string, email: string) {
+    try {
+      const user = await this.prisma.user.update({
+        where: { uid: userUID },
+        data: { email, lastLoggedOn: new Date() },
+      });
+      return E.right(user);
     } catch (error) {
       return E.left(USER_NOT_FOUND);
     }

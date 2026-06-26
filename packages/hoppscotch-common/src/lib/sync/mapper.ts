@@ -26,12 +26,12 @@ export const createMapper = <
       return localIDByBackendIDMap.get(backendId)
     },
     removeEntry(backendId?: BackendIDType, index?: LocalIDType) {
-      if (backendId) {
+      if (backendId != null) {
         const localIndex = localIDByBackendIDMap.get(backendId)
 
         localIDByBackendIDMap.delete(backendId)
         localIndex != null && backendIDByLocalIDMap.delete(localIndex)
-      } else if (index !== undefined) {
+      } else if (index != null) {
         const backendIdForLocal = backendIDByLocalIDMap.get(index)
 
         backendIDByLocalIDMap.delete(index)

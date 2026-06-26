@@ -508,6 +508,10 @@ const restCollectionDispatchers = defineDispatchers({
         return {}
       }
 
+      if (folderIndex < 0 || folderIndex >= containingFolder.folders.length) {
+        console.error(`Folder index ${folderIndex} out of bounds. Skipping request.`)
+        return {}
+      }
       const theFolder = containingFolder.folders.splice(folderIndex, 1)
       newState.push(theFolder[0] as HoppCollection)
 
@@ -545,10 +549,18 @@ const restCollectionDispatchers = defineDispatchers({
     const containingFolder = navigateToFolderWithIndexPath(newState, indexPaths)
     // We are moving a folder from the root
     if (containingFolder === null) {
+      if (folderIndex < 0 || folderIndex >= newState.length) {
+        console.error(`Folder index ${folderIndex} out of bounds in root. Skipping request.`)
+        return {}
+      }
       const theFolder = newState.splice(folderIndex, 1)
 
       target.folders.push(theFolder[0])
     } else {
+      if (folderIndex < 0 || folderIndex >= containingFolder.folders.length) {
+        console.error(`Folder index ${folderIndex} out of bounds. Skipping request.`)
+        return {}
+      }
       const theFolder = containingFolder.folders.splice(folderIndex, 1)
 
       target.folders.push(theFolder[0])
@@ -1164,6 +1176,10 @@ const gqlCollectionDispatchers = defineDispatchers({
         return {}
       }
 
+      if (folderIndex < 0 || folderIndex >= containingFolder.folders.length) {
+        console.error(`Folder index ${folderIndex} out of bounds. Skipping request.`)
+        return {}
+      }
       const theFolder = containingFolder.folders.splice(folderIndex, 1)
       newState.push(theFolder[0] as HoppCollection)
 
@@ -1201,10 +1217,18 @@ const gqlCollectionDispatchers = defineDispatchers({
     const containingFolder = navigateToFolderWithIndexPath(newState, indexPaths)
     // We are moving a folder from the root
     if (containingFolder === null) {
+      if (folderIndex < 0 || folderIndex >= newState.length) {
+        console.error(`Folder index ${folderIndex} out of bounds in root. Skipping request.`)
+        return {}
+      }
       const theFolder = newState.splice(folderIndex, 1)
 
       target.folders.push(theFolder[0])
     } else {
+      if (folderIndex < 0 || folderIndex >= containingFolder.folders.length) {
+        console.error(`Folder index ${folderIndex} out of bounds. Skipping request.`)
+        return {}
+      }
       const theFolder = containingFolder.folders.splice(folderIndex, 1)
 
       target.folders.push(theFolder[0])
@@ -1996,8 +2020,7 @@ export function removeGraphqlCollection(
 ) {
   if (!collectionID) {
     collectionID =
-      graphqlCollectionStore.value.state[collectionIndex]?.id ??
-      `${collectionIndex}`
+      graphqlCollectionStore.value.state[collectionIndex]?.id
   }
   graphqlCollectionStore.dispatch({
     dispatcher: "removeCollection",
@@ -2050,9 +2073,7 @@ export function removeGraphqlFolder(path: string, folderID?: string) {
       graphqlCollectionStore.value.state,
       path.split("/").map((index) => parseInt(index))
     )
-    // GraphQL folders on some platforms (e.g. hoppscotch-web) carry no backend
-    // id, so fall back to the index path as the sync identifier.
-    folderID = folder?.id ?? path
+    folderID = folder?.id
   }
   graphqlCollectionStore.dispatch({
     dispatcher: "removeFolder",

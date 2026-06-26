@@ -224,7 +224,14 @@ export const runGQLQuery = async <
   // query (which resolves the org id) passes `skipOrgInfoWait` to avoid
   // waiting on itself.
   if (!args.skipOrgInfoWait) {
-    await platform.auth.waitOrganizationInfoReady?.()
+    try {
+      await platform.auth.waitOrganizationInfoReady?.()
+    } catch (e: any) {
+      return E.left({
+        type: "network_error",
+        error: e instanceof Error ? e : new Error(String(e)),
+      })
+    }
   }
 
   const request = createRequest<DocType, DocVarType>(args.query, args.variables)
@@ -308,8 +315,18 @@ export const runGQLSubscription = <
   ;(async () => {
     // Gate the subscription on org info so `connectionParams` carries the
     // `x-organization-id`. See runGQLQuery for the bootstrap skip rationale.
-    if (!args.skipOrgInfoWait) {
-      await platform.auth.waitOrganizationInfoReady?.()
+    try {
+      if (!args.skipOrgInfoWait) {
+        await platform.auth.waitOrganizationInfoReady?.()
+      }
+    } catch (e: any) {
+      result$.next(
+        E.left({
+          type: "network_error",
+          error: e instanceof Error ? e : new Error(String(e)),
+        })
+      )
+      return
     }
 
     const source = client.value!.executeSubscription(

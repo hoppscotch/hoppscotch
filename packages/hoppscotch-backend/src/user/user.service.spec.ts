@@ -777,7 +777,7 @@ describe('UserService', () => {
         mockProviderAccountId,
       );
 
-      expect(result).resolves.toBeNone;
+      expect(result).toBeNone();
     });
 
     it('should return O.none when account exists but user is null (dangling account)', async () => {
@@ -794,7 +794,7 @@ describe('UserService', () => {
         mockProviderAccountId,
       );
 
-      expect(result).resolves.toBeNone;
+      expect(result).toBeNone();
     });
   });
 

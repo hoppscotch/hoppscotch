@@ -1032,7 +1032,7 @@ data2: {"type":"test2","typeId":"123"}`,
 
 describe("Parse curl command to Hopp REST Request", () => {
   test("parses json body with semicolon-only headers", () => {
-    const command = String.raw`curl 'http://test.portal.goodcol.com/muses-gateway/api/workflow/wf/common/process/insert' \
+    const command = String.raw`curl 'https://echo.hoppscotch.io/api/process/insert' \
   -H 'Authorization-OAuth2;' \
   -H 'Authorization-OAuth2-Client;' \
   -H 'Authorization-OAuth2-Refresh;' \
@@ -1044,7 +1044,7 @@ describe("Parse curl command to Hopp REST Request", () => {
 
     expect(actual.method).toBe("POST")
     expect(actual.endpoint).toBe(
-      "http://test.portal.goodcol.com/muses-gateway/api/workflow/wf/common/process/insert"
+      "https://echo.hoppscotch.io/api/process/insert"
     )
     expect(actual.body.contentType).toBe("application/json")
 
@@ -1053,8 +1053,8 @@ describe("Parse curl command to Hopp REST Request", () => {
     expect(JSON.parse(parsedBody.formSaveDTO.formProps)).toEqual({ list: [] })
   })
 
-  test("parses original goodcol insert curl", () => {
-    const command = String.raw`curl 'http://test.portal.goodcol.com/muses-gateway/api/workflow/wf/common/process/insert' \
+  test("parses json body containing escaped XML", () => {
+    const command = String.raw`curl 'https://echo.hoppscotch.io/api/process/insert' \
   -H 'Authorization-OAuth2;' \
   -H 'Authorization-OAuth2-Client;' \
   -H 'Authorization-OAuth2-Refresh;' \
@@ -1066,7 +1066,7 @@ describe("Parse curl command to Hopp REST Request", () => {
 
     expect(actual.method).toBe("POST")
     expect(actual.endpoint).toBe(
-      "http://test.portal.goodcol.com/muses-gateway/api/workflow/wf/common/process/insert"
+      "https://echo.hoppscotch.io/api/process/insert"
     )
     expect(actual.body.contentType).toBe("application/json")
 
@@ -1079,13 +1079,13 @@ describe("Parse curl command to Hopp REST Request", () => {
   })
 
   test("does not drop JSON body for -d with many headers", () => {
-    const command = `curl 'https://open.bigmodel.cn/api/paas/v4/chat/completions' -d '{"response_format":{"type":"json_object"},"messages":[{"content":"Translate array of texts from en into zh and return JSON result with the same array length, do not add any additional text, and do not return code blocks, such as: {\\"translations\\": [\\"translation of input text 1\\", ...]}","role":"system"},{"content":"[\\"Epic Games CEO Tim Sweeney argues banning Twitter over its ability to AI-generate pornographic images of minors is just '''gatekeepers''' attempting to '''censor all of their political opponents'''\\"]","role":"user"}],"model":"gpt-translate","temperature":0.30000001192092896}' -H ':authority: open.bigmodel.cn' -H 'accept: */*' -H 'content-type: application/json' -H 'accept-language: en-US;q=1.0, zh-Hans-US;q=0.9' -H 'authorization: Bearer <redacted>' -H 'accept-encoding: br;q=1.0, gzip;q=0.9, deflate;q=0.8' -H 'user-agent: TranslationExtension/1.14.5 (org.lesslab.relingo.TranslationExtension; build:104; iOS 26.2.0) Alamofire/5.10.2' -H 'priority: u=3, i' --compressed`
+    const command = `curl 'https://echo.hoppscotch.io/api/chat/completions' -d '{"response_format":{"type":"json_object"},"messages":[{"content":"Translate array of texts from en into zh and return JSON result with the same array length, do not add any additional text, and do not return code blocks, such as: {\\"translations\\": [\\"translation of input text 1\\", ...]}","role":"system"},{"content":"[\\"Epic Games CEO Tim Sweeney argues banning Twitter over its ability to AI-generate pornographic images of minors is just '''gatekeepers''' attempting to '''censor all of their political opponents'''\\"]","role":"user"}],"model":"gpt-translate","temperature":0.30000001192092896}' -H ':authority: echo.hoppscotch.io' -H 'accept: */*' -H 'content-type: application/json' -H 'accept-language: en-US;q=1.0, zh-Hans-US;q=0.9' -H 'authorization: Bearer <redacted>' -H 'accept-encoding: br;q=1.0, gzip;q=0.9, deflate;q=0.8' -H 'user-agent: TranslationExtension/1.14.5 (org.lesslab.relingo.TranslationExtension; build:104; iOS 26.2.0) Alamofire/5.10.2' -H 'priority: u=3, i' --compressed`
 
     const actual = parseCurlToHoppRESTReq(command)
 
     expect(actual.method).toBe("POST")
     expect(actual.endpoint).toBe(
-      "https://open.bigmodel.cn/api/paas/v4/chat/completions"
+      "https://echo.hoppscotch.io/api/chat/completions"
     )
     expect(actual.body.contentType).toBe("application/json")
 

@@ -1095,7 +1095,13 @@ describe("Parse curl command to Hopp REST Request", () => {
     expect(parsedBody.response_format).toEqual({ type: "json_object" })
     expect(parsedBody.messages).toHaveLength(2)
     expect(parsedBody.messages[0].role).toBe("system")
+    expect(parsedBody.messages[0].content).toBe(
+      `Translate array of texts from en into zh and return JSON result with the same array length, do not add any additional text, and do not return code blocks, such as: {"translations": ["translation of input text 1", ...]}`
+    )
     expect(parsedBody.messages[1].role).toBe("user")
+    expect(parsedBody.messages[1].content).toBe(
+      `["Epic Games CEO Tim Sweeney argues banning Twitter over its ability to AI-generate pornographic images of minors is just '''gatekeepers''' attempting to '''censor all of their political opponents'''"]`
+    )
   })
 
   test("preserves -d POST without -G as form-urlencoded", () => {
@@ -1107,6 +1113,21 @@ describe("Parse curl command to Hopp REST Request", () => {
     expect(actual.endpoint).toBe("https://example.com/submit")
     expect(actual.body.contentType).toBe("application/x-www-form-urlencoded")
     expect(actual.body.body).toBe("name: alice\nrole: admin")
+  })
+
+  test("does not intercept -d inside a quoted header value", () => {
+    const command = `curl 'https://example.com/api' -H 'X-Custom: -d {"fake":1}' -d '{"real":true}'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+
+    expect(actual.method).toBe("POST")
+    expect(actual.endpoint).toBe("https://example.com/api")
+    expect(actual.body.contentType).toBe("application/json")
+    expect(JSON.parse(actual.body.body)).toEqual({ real: true })
+
+    const customHeader = actual.headers.find((h) => h.key === "X-Custom")
+    expect(customHeader).toBeDefined()
+    expect(customHeader.value).toBe(`-d {"fake":1}`)
   })
 
   for (const [i, { command, response }] of samples.entries()) {

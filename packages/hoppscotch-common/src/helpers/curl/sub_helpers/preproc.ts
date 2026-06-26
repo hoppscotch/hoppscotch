@@ -158,11 +158,30 @@ export const replaceJSONDataArgsWithPlaceholders = (curlCommand: string) => {
 
   let output = ""
   let i = 0
+  let shellQuote: '"' | "'" | null = null
 
   while (i < curlCommand.length) {
+    const ch = curlCommand[i]
+
+    // Inside a top-level shell-quoted argument, copy verbatim and watch
+    // for the close. Skip flag detection so an embedded `-d`/`--data`
+    // inside e.g. a header value doesn't get intercepted as a data flag.
+    if (shellQuote !== null) {
+      if (
+        ch === shellQuote &&
+        (shellQuote === "'" || curlCommand[i - 1] !== "\\")
+      ) {
+        shellQuote = null
+      }
+      output += ch
+      i++
+      continue
+    }
+
     const isBoundaryBefore = i === 0 || isWhitespace(curlCommand[i - 1])
     if (!isBoundaryBefore) {
-      output += curlCommand[i]
+      if (ch === '"' || ch === "'") shellQuote = ch
+      output += ch
       i++
       continue
     }
@@ -170,7 +189,8 @@ export const replaceJSONDataArgsWithPlaceholders = (curlCommand: string) => {
     const flag = dataFlags.find((f) => curlCommand.startsWith(f, i))
 
     if (!flag) {
-      output += curlCommand[i]
+      if (ch === '"' || ch === "'") shellQuote = ch
+      output += ch
       i++
       continue
     }
@@ -221,6 +241,13 @@ export const replaceJSONDataArgsWithPlaceholders = (curlCommand: string) => {
 
     let nextIndex = endIndex + 1
     if (quoteChar && curlCommand[nextIndex] === quoteChar) nextIndex++
+
+    if (
+      nextIndex < curlCommand.length &&
+      !isWhitespace(curlCommand[nextIndex])
+    ) {
+      output += " "
+    }
 
     i = nextIndex
   }

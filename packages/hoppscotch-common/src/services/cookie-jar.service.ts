@@ -151,23 +151,31 @@ export class CookieJarService extends Service {
   private async loadJar(): Promise<void> {
     const loadResult = await Store.get<unknown>(STORE_NAMESPACE, STORE_KEYS.JAR)
 
-    if (E.isRight(loadResult) && loadResult.right) {
-      // Initial load routes the on-disk payload through the same
-      // `parseStored` shape check the cross-process watcher uses,
-      // so a corrupted file or a future schema drift cannot
-      // hydrate the jar with values that later crash matching or
-      // serialization. Failure here keeps the in-memory map empty
-      // and the request flow keeps working on a fresh state.
-      let stored: StoredCookieJar
-      try {
-        stored = this.parseStored(loadResult.right)
-      } catch (e) {
-        console.error("[CookieJar] Initial load rejected payload:", e)
-        return
-      }
-      this.cookieJar.value = this.toMap(stored.domains)
-      this.pruneExpired()
+    // Don't degrade a read failure into "no jar yet" — that lets
+    // the next persistJar overwrite the disk with `{ domains: {} }`.
+    if (E.isLeft(loadResult)) {
+      this.initFailed = true
+      console.error(
+        "[CookieJar] Failed to read persisted jar:",
+        loadResult.left
+      )
+      return
     }
+    if (!loadResult.right) {
+      return
+    }
+    let stored: StoredCookieJar
+    try {
+      stored = this.parseStored(loadResult.right)
+    } catch (e) {
+      // Same reasoning as the read-failure path: a corrupted payload
+      // must not be silently replaced with an empty jar.
+      this.initFailed = true
+      console.error("[CookieJar] Initial load rejected payload:", e)
+      return
+    }
+    this.cookieJar.value = this.toMap(stored.domains)
+    this.pruneExpired()
   }
 
   // Cross-process reload, another webview in the same org writes

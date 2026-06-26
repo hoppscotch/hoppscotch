@@ -93,7 +93,7 @@
           <HoppButtonSecondary
             :loading="revoking"
             :label="t('mcp.revoke')"
-            class="text-red-500 border-red-300 hover:bg-red-50"
+            class="!text-red-500 !border-red-500/30 hover:!bg-red-500/10 hover:!text-red-400"
             @click="handleRevoke"
           />
         </template>

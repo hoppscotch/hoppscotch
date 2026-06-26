@@ -42,9 +42,6 @@ function initHistorySync() {
 
   gqlHistorySyncer.startStoreSync()
 
-  getUserHistoryStatus()
-  loadHistoryEntries()
-
   currentUser$.subscribe(async (user) => {
     getUserHistoryStatus()
 

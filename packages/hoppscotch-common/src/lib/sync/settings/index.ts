@@ -17,10 +17,6 @@ function initSettingsSync() {
   settingsSyncer.startStoreSync()
   settingsSyncer.setupSubscriptions(setupSubscriptions)
 
-  // load the settings
-
-  loadUserSettings()
-
   currentUser$.subscribe(async (user) => {
     if (user) {
       // load the settings

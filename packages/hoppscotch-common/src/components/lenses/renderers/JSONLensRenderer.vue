@@ -440,7 +440,7 @@ const JSON_OUTLINE_MAX_BYTES = 512 * 1024 // 512 KB
 const responseSizeBytes = computed(() => {
   const res = props.response
   if ("meta" in res) return res.meta?.responseSize ?? 0
-  return new TextEncoder().encode(responseBodyText.value ?? "").byteLength
+  return (responseBodyText.value ?? "").length
 })
 
 const isLargeResponse = computed(

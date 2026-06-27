@@ -7,7 +7,8 @@
 import { chromium } from "playwright"
 import { fileURLToPath } from "node:url"
 import { dirname, resolve } from "node:path"
-import { writeFileSync, readFileSync, rmSync, createWriteStream } from "node:fs"
+import { writeFileSync, rmSync, createWriteStream } from "node:fs"
+import { parseJSONFile } from "./stream-json.mjs"
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const APP_URL = process.env.APP_URL ?? "http://localhost:3000/"
@@ -79,7 +80,11 @@ await new Promise((res) => out.end(res))
 await browser.close()
 
 // Parse: node_fields = [type, name, id, self_size, edge_count, ...]; name -> strings[].
-const snap = JSON.parse(readFileSync(SNAP, "utf8"))
+// Stream the file in from disk rather than readFileSync+JSON.parse: a large
+// snapshot exceeds V8's max string length (the same reason the write above was
+// streamed), so it can never be held as one JS string. parseJSONFile builds the
+// value incrementally, keeping only the parsed result in memory.
+const snap = await parseJSONFile(SNAP)
 const { node_fields, node_types } = snap.snapshot.meta
 const nFields = node_fields.length
 const nameIdx = node_fields.indexOf("name")

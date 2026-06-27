@@ -24,7 +24,7 @@ import { bytesToMB, leakSlope, launchHeapSession } from "./lib.mjs"
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const APP_URL = process.env.APP_URL ?? "http://localhost:3000/"
 // Absolute /@fs URL base for hoppscotch-common/src (matches the app's module URLs).
-const SRC = "/@fs" + resolve(__dirname, "../../src")
+const SRC = "/@fs" + new URL("../../src/", import.meta.url).pathname
 
 const ROUNDS = Number(process.env.ROUNDS ?? 12)
 const TABS_PER_ROUND = Number(process.env.TABS_PER_ROUND ?? 10)

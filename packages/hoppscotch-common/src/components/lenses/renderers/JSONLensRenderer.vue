@@ -419,6 +419,19 @@ const jsonResponseBodyText = computedAsync(
 const JSON_PRETTIFY_MAX_BYTES = 2 * 1024 * 1024 // 2 MB
 
 /**
+ * Separate, lower threshold for the structure-outline AST. The positional JSON
+ * AST (`ast`) powers only the outline breadcrumb yet is the single most expensive
+ * derived structure — roughly 5x the body, ~45% of a response's in-memory
+ * footprint. Building it for every formatted response is the largest avoidable
+ * cost on small/medium responses too (not just multi-MB ones), so it is skipped
+ * above this smaller threshold while formatting still applies up to
+ * `JSON_PRETTIFY_MAX_BYTES`. Tunable; lower = less memory, fewer responses get
+ * the outline. Keep this ≤ `JSON_PRETTIFY_MAX_BYTES` so the outline is always
+ * dropped on the large responses that also skip formatting.
+ */
+const JSON_OUTLINE_MAX_BYTES = 512 * 1024 // 512 KB
+
+/**
  * Response body size in bytes. Live REST responses carry an authoritative byte
  * count in `meta.responseSize`; saved collection responses
  * (`HoppRESTRequestResponse`) have no `meta`, so fall back to the decoded string
@@ -432,6 +445,10 @@ const responseSizeBytes = computed(() => {
 
 const isLargeResponse = computed(
   () => responseSizeBytes.value > JSON_PRETTIFY_MAX_BYTES
+)
+
+const isOutlineSuppressed = computed(
+  () => responseSizeBytes.value > JSON_OUTLINE_MAX_BYTES
 )
 
 const jsonBodyText = computed(() => {
@@ -478,10 +495,11 @@ const jsonBodyText = computed(() => {
 })
 
 const ast = computed(() => {
-  // Skip the positional JSON AST (used only for the structure outline) on large
-  // responses — it is a large retained object graph and the outline is not shown
-  // for unformatted large bodies anyway.
-  if (isLargeResponse.value) return null
+  // The positional JSON AST (used only for the structure-outline breadcrumb) is
+  // the largest derived structure per response, so skip it above the smaller
+  // outline threshold (and, transitively, on large responses where formatting is
+  // dropped too).
+  if (isOutlineSuppressed.value) return null
   return pipe(
     jsonBodyText.value,
     O.tryCatchK(jsonParse),

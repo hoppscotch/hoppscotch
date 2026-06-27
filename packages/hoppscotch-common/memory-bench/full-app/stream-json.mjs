@@ -221,10 +221,15 @@ function readString(s, i, atEnd) {
   return null
 }
 
+// JSON number grammar: -?(0|[1-9]\d*)(\.\d+)?([eE][+-]?\d+)?
+const JSON_NUMBER = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/
+
 // Read a number starting at `s[i]`. A number is only known to be complete when
 // followed by a non-number character, so an unterminated run at the true end of
 // input would be ambiguous — but valid JSON always has a closing token after a
 // top-level/structural number, so `atEnd` with a trailing number is finalised.
+// The collected run is validated against the JSON number grammar so malformed
+// syntax (e.g. `1.2.3`, `1e`, `01`) is rejected rather than coerced to NaN.
 function readNumber(s, i, atEnd) {
   let j = i
   const n = s.length
@@ -234,7 +239,9 @@ function readNumber(s, i, atEnd) {
     else break
   }
   if (j === n && !atEnd) return null // may continue in next chunk
-  return { value: Number(s.slice(i, j)), next: j }
+  const text = s.slice(i, j)
+  if (!JSON_NUMBER.test(text)) throw new SyntaxError(`Invalid number '${text}'`)
+  return { value: Number(text), next: j }
 }
 
 const LITERALS = { true: true, false: false, null: null }

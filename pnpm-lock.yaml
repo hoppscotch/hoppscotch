@@ -23,6 +23,10 @@ overrides:
 importers:
 
   .:
+    dependencies:
+      liquidjs:
+        specifier: 10.26.0
+        version: 10.26.0
     devDependencies:
       '@commitlint/cli':
         specifier: 20.5.2
@@ -6683,6 +6687,7 @@ packages:
   apiconnect-wsdl@2.0.36:
     resolution: {integrity: sha512-jHXC6y/duZ+zzn756/znpfDeVM0hprt2Yk/4QfiIhzNG4YmJXt7NSCup4DFRCitBZVK85lM6UYRaa36fSWs3JQ==}
     engines: {node: '>=18.7.0 <21.0.0'}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   append-field@1.0.0:
     resolution: {integrity: sha512-klpgFSWLW1ZEs8svjfb7g4qWY0YS5imI82dTg+QahUvJ8YqAY0P10Uk8tTyh9ZGuYEZEMaeJYCF5BFuX552hsw==}
@@ -9689,6 +9694,11 @@ packages:
 
   liquidjs@10.25.7:
     resolution: {integrity: sha512-rPCjJLiD4eDhQjvv964AeXFC+HbeYBbZrd7Z82Q6hqv1lX7G+5w4SJcKLn9CAAAwHI4aS3dTdo083UB79K3pDA==}
+    engines: {node: '>=16'}
+    hasBin: true
+
+  liquidjs@10.26.0:
+    resolution: {integrity: sha512-Ub9FFNOLB9tdH/gB2MKkeU7x9NifoVidxAam6YWU7LUcy7Glumi6q5C3tDpWOEpeNaT8Cdwdb1axEdlvLSoyaQ==}
     engines: {node: '>=16'}
     hasBin: true
 
@@ -20443,8 +20453,7 @@ snapshots:
     dependencies:
       delayed-stream: 1.0.0
 
-  commander@10.0.1:
-    optional: true
+  commander@10.0.1: {}
 
   commander@11.1.0:
     optional: true
@@ -23547,6 +23556,10 @@ snapshots:
     dependencies:
       commander: 10.0.1
     optional: true
+
+  liquidjs@10.26.0:
+    dependencies:
+      commander: 10.0.1
 
   listr2@9.0.5:
     dependencies:

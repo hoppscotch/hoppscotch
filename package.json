@@ -66,5 +66,8 @@
       "prisma",
       "vue-demi"
     ]
+  },
+  "dependencies": {
+    "liquidjs": "10.26.0"
   }
 }

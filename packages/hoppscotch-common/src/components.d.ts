@@ -90,6 +90,7 @@ declare module 'vue' {
     CollectionsGraphqlImportExport: typeof import('./components/collections/graphql/ImportExport.vue')['default']
     CollectionsGraphqlRequest: typeof import('./components/collections/graphql/Request.vue')['default']
     CollectionsImportExport: typeof import('./components/collections/ImportExport.vue')['default']
+    CollectionsMcpShare: typeof import('./components/collections/McpShare.vue')['default']
     CollectionsMyCollections: typeof import('./components/collections/MyCollections.vue')['default']
     CollectionsProperties: typeof import('./components/collections/Properties.vue')['default']
     CollectionsRequest: typeof import('./components/collections/Request.vue')['default']

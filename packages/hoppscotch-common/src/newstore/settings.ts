@@ -149,7 +149,7 @@ export const getDefaultSettings = (): SettingsDef => {
     EXPERIMENTAL_SCRIPTING_SANDBOX: true,
     ENABLE_EXPERIMENTAL_MOCK_SERVERS: true,
     ENABLE_EXPERIMENTAL_DOCUMENTATION: true,
-    ENABLE_MCP_SHARE: false,
+    ENABLE_MCP_SHARE: true,
   }
 }
 

@@ -294,6 +294,11 @@ import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { HoppRESTRequestResponse } from "@hoppscotch/data"
 import { useScrollerRef } from "~/composables/useScrollerRef"
+import {
+  JSON_PRETTIFY_MAX_BYTES,
+  JSON_OUTLINE_MAX_BYTES,
+  responseBodySizeBytes,
+} from "./jsonLensSizing"
 
 const t = useI18n()
 
@@ -407,41 +412,9 @@ const jsonResponseBodyText = computedAsync(
   E.right(responseBodyText.value)
 )
 
-/**
- * Responses larger than this skip the in-memory prettify + outline-AST pipeline.
- * For large bodies that pipeline builds tens of MB of derived structures per
- * response (a lossless-parsed object graph, a re-stringified pretty copy and a
- * positional JSON AST) on top of the raw body, decoded string and editor
- * document — the dominant driver of the desktop app's memory growth on large
- * responses (issues #5883 / #6340). Above the threshold the body is shown as-is
- * (unformatted, no structure outline); the raw and download paths are unaffected.
- */
-const JSON_PRETTIFY_MAX_BYTES = 2 * 1024 * 1024 // 2 MB
-
-/**
- * Separate, lower threshold for the structure-outline AST. The positional JSON
- * AST (`ast`) powers only the outline breadcrumb yet is the single most expensive
- * derived structure — roughly 5x the body, ~45% of a response's in-memory
- * footprint. Building it for every formatted response is the largest avoidable
- * cost on small/medium responses too (not just multi-MB ones), so it is skipped
- * above this smaller threshold while formatting still applies up to
- * `JSON_PRETTIFY_MAX_BYTES`. Tunable; lower = less memory, fewer responses get
- * the outline. Keep this ≤ `JSON_PRETTIFY_MAX_BYTES` so the outline is always
- * dropped on the large responses that also skip formatting.
- */
-const JSON_OUTLINE_MAX_BYTES = 512 * 1024 // 512 KB
-
-/**
- * Response body size in bytes. Live REST responses carry an authoritative byte
- * count in `meta.responseSize`; saved collection responses
- * (`HoppRESTRequestResponse`) have no `meta`, so fall back to the decoded string
- * length (≈ bytes for the ASCII-dominant JSON this lens handles).
- */
-const responseSizeBytes = computed(() => {
-  const res = props.response
-  if ("meta" in res) return res.meta?.responseSize ?? 0
-  return (responseBodyText.value ?? "").length
-})
+const responseSizeBytes = computed(() =>
+  responseBodySizeBytes(props.response, responseBodyText.value ?? "")
+)
 
 const isLargeResponse = computed(
   () => responseSizeBytes.value > JSON_PRETTIFY_MAX_BYTES

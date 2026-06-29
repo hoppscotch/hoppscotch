@@ -273,7 +273,6 @@ import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
 import { computed, ref, reactive } from "vue"
 import { computedAsync, refDebounced } from "@vueuse/core"
-import type * as JqWasm from "jq-wasm"
 import { useCodemirror } from "@composables/codemirror"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import jsonParse, { JSONObjectMember, JSONValue } from "~/helpers/jsonParse"
@@ -301,7 +300,7 @@ const t = useI18n()
 // ever needed when the user actively filters a JSON response with a jq
 // query. Importing it lazily keeps that payload out of the chunk every
 // JSON response render has to load and parse.
-let jqWasmPromise: Promise<typeof JqWasm> | null = null
+let jqWasmPromise: Promise<typeof import("jq-wasm")> | null = null
 const getJqWasm = () => {
   if (!jqWasmPromise) {
     // if the dynamic import fails (e.g. a transient network error), drop the

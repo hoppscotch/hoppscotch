@@ -29,6 +29,7 @@ import { TeamAccessRole } from 'src/team/team.model';
 import { throwErr } from 'src/utils';
 import { AuthUser } from 'src/types/AuthUser';
 import { INVALID_PARAMS } from 'src/errors';
+import { IsString, IsNotEmpty } from "class-validator";
 
 @Resolver(() => MockServer)
 export class MockServerResolver {
@@ -173,6 +174,8 @@ export class MockServerResolver {
   async updateMockServer(
     @GqlUser() user: AuthUser,
     @Args({ name: "id", type: () => ID, description: "Id of the mockserver to update" })
+    @IsString()
+    @IsNotEmpty()
     id: string,
     @Args('input') input: UpdateMockServerInput,
   ): Promise<MockServer> {

@@ -17,7 +17,7 @@
     "do-lintfix": "pnpm run lintfix"
   },
   "dependencies": {
-    "@hoppscotch/ui": "0.2.5",
+    "@hoppscotch/ui": "0.2.6",
     "@tauri-apps/api": "2.1.1",
     "@tauri-apps/plugin-shell": "2.3.3",
     "@vueuse/core": "14.3.0",

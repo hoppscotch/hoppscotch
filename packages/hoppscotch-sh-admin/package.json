@@ -17,7 +17,7 @@
     "@fontsource-variable/material-symbols-rounded": "5.2.45",
     "@fontsource-variable/roboto-mono": "5.2.9",
     "@graphql-typed-document-node/core": "3.2.0",
-    "@hoppscotch/ui": "0.2.5",
+    "@hoppscotch/ui": "0.2.6",
     "@hoppscotch/vue-toasted": "0.1.0",
     "@intlify/unplugin-vue-i18n": "11.2.4",
     "@types/cors": "2.8.19",

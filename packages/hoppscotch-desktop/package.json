@@ -28,7 +28,7 @@
     "@hoppscotch/common": "workspace:^",
     "@hoppscotch/kernel": "workspace:^",
     "@hoppscotch/plugin-appload": "github:CuriousCorrelation/tauri-plugin-appload#9d4528be4f385bccbe46859631d31aa2ee1ec0b6",
-    "@hoppscotch/ui": "0.2.5",
+    "@hoppscotch/ui": "0.2.6",
     "@tauri-apps/api": "2.1.1",
     "@tauri-apps/plugin-fs": "2.0.2",
     "@tauri-apps/plugin-process": "2.2.0",

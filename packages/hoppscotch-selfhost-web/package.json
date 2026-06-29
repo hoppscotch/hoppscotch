@@ -30,7 +30,7 @@
     "@hoppscotch/data": "workspace:^",
     "@hoppscotch/kernel": "workspace:^",
     "@hoppscotch/plugin-appload": "github:CuriousCorrelation/tauri-plugin-appload#9d4528be4f385bccbe46859631d31aa2ee1ec0b6",
-    "@hoppscotch/ui": "0.2.5",
+    "@hoppscotch/ui": "0.2.6",
     "@import-meta-env/unplugin": "0.6.3",
     "@tauri-apps/api": "2.1.1",
     "@tauri-apps/plugin-dialog": "2.0.1",

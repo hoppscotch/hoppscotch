@@ -41,7 +41,7 @@
     "@hoppscotch/js-sandbox": "workspace:^",
     "@hoppscotch/kernel": "workspace:^",
     "@hoppscotch/plugin-appload": "github:CuriousCorrelation/tauri-plugin-appload#9d4528be4f385bccbe46859631d31aa2ee1ec0b6",
-    "@hoppscotch/ui": "0.2.5",
+    "@hoppscotch/ui": "0.2.6",
     "@hoppscotch/vue-toasted": "0.1.0",
     "@lezer/highlight": "1.2.1",
     "@noble/curves": "2.2.0",

@@ -1,13 +1,13 @@
 import { TestContainer } from "dioc/testing"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { HistorySpotlightSearcherService } from "../history.searcher"
 import { nextTick, ref } from "vue"
-import { SpotlightService } from "../.."
-import { GQLHistoryEntry, RESTHistoryEntry } from "~/newstore/history"
-import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { HoppAction, HoppActionWithArgs } from "~/helpers/actions"
 import { getDefaultGQLRequest } from "~/helpers/graphql/default"
+import { getDefaultRESTRequest } from "~/helpers/rest/default"
+import { GQLHistoryEntry, RESTHistoryEntry } from "~/newstore/history"
 import { RESTTabService } from "~/services/tab/rest"
+import { SpotlightService } from "../.."
+import { HistorySpotlightSearcherService } from "../history.searcher"
 
 async function flushPromises() {
   return await new Promise((r) => setTimeout(r))
@@ -56,7 +56,7 @@ vi.mock("~/lib/sync/history", () => ({
   __esModule: true,
   def: {
     initHistorySync: vi.fn(),
-    requestHistoryStore: undefined,
+    isHistoryStoreEnabled: false,
   },
 }))
 

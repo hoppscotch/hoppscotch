@@ -148,7 +148,8 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
   }
 
   // Get the token type preference from the persisted config
-  const tokenTypePreference = decodedLocalConfig.data.tokenType || "access_token"
+  const tokenTypePreference =
+    decodedLocalConfig.data.tokenType || "access_token"
 
   // Return the preferred token type
   const token =

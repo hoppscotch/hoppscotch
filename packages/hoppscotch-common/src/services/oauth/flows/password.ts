@@ -125,14 +125,19 @@ const initPasswordOauthFlow = async ({
     return E.left("AUTH_TOKEN_REQUEST_FAILED" as const)
   }
 
-  const withAccessTokenSchema = z.object({
-    access_token: z.string().optional(),
-    id_token: z.string().optional(),
-  })
+  const withAccessTokenSchema = z
+    .object({
+      access_token: z.string().optional(),
+      id_token: z.string().optional(),
+    })
+    .refine((data) => data.access_token || data.id_token, {
+      message: "Either access_token or id_token must be present",
+    })
 
-  const responsePayload = parseBytesToJSON<{ access_token?: string; id_token?: string }>(
-    res.right.body.body
-  )
+  const responsePayload = parseBytesToJSON<{
+    access_token?: string
+    id_token?: string
+  }>(res.right.body.body)
 
   if (O.isSome(responsePayload)) {
     const parsedTokenResponse = withAccessTokenSchema.safeParse(

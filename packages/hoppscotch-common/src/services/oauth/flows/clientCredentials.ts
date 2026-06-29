@@ -81,10 +81,14 @@ const initClientCredentialsOAuthFlow = async (
 
   if (E.isLeft(jsonResponse)) return E.left("AUTH_TOKEN_REQUEST_FAILED")
 
-  const withAccessTokenSchema = z.object({
-    access_token: z.string().optional(),
-    id_token: z.string().optional(),
-  })
+  const withAccessTokenSchema = z
+    .object({
+      access_token: z.string().optional(),
+      id_token: z.string().optional(),
+    })
+    .refine((data) => data.access_token || data.id_token, {
+      message: "Either access_token or id_token must be present",
+    })
 
   const parsedTokenResponse = withAccessTokenSchema.safeParse(
     jsonResponse.right

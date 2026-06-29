@@ -47,6 +47,18 @@ export const useOAuth2GrantTypes = (
   const t = useI18n()
   const toast = useToast()
 
+  // Token type dropdown options (shared across all grant types). The OAuth2
+  // dropdown component reads `ref.value.{id,label}` and assigns the whole
+  // option object on click, so the ref must hold an `{id,label}` object — not
+  // the raw string union.
+  const tokenTypeOptions = [
+    { id: "access_token" as const, label: "Access Token" },
+    { id: "id_token" as const, label: "ID Token" },
+  ]
+
+  const tokenTypeOptionFor = (value: string | undefined) =>
+    tokenTypeOptions.find((o) => o.id === value) ?? tokenTypeOptions[0]
+
   // Helper function to prepare request parameters
   const prepareRequestParams = (
     params: Ref<AuthRequestParam[] | TokenRequestParam[]>
@@ -211,7 +223,7 @@ export const useOAuth2GrantTypes = (
         )
 
         const tokenType = refWithCallbackOnChange(
-          auth.value.grantTypeInfo.tokenType || "access_token",
+          tokenTypeOptionFor(auth.value.grantTypeInfo.tokenType),
           (value) => {
             if (!("tokenType" in auth.value.grantTypeInfo)) {
               return
@@ -219,7 +231,7 @@ export const useOAuth2GrantTypes = (
 
             auth.value.grantTypeInfo = {
               ...auth.value.grantTypeInfo,
-              tokenType: value,
+              tokenType: value.id,
             }
           }
         )
@@ -283,7 +295,7 @@ export const useOAuth2GrantTypes = (
             authRequestParams: preparedAuthRequestParams.value,
             tokenRequestParams: preparedTokenRequestParams.value,
             refreshRequestParams: preparedRefreshRequestParams.value,
-            tokenType: tokenType.value,
+            tokenType: tokenType.value.id,
           }
 
           const unwrappedParams = replaceTemplateStringsInObjectValues(params)
@@ -380,16 +392,7 @@ export const useOAuth2GrantTypes = (
               ref: tokenType,
               tippyRefName: "tokenTypeTippyActions",
               tippyRef: { value: null },
-              options: [
-                {
-                  id: "access_token" as const,
-                  label: "Access Token",
-                },
-                {
-                  id: "id_token" as const,
-                  label: "ID Token",
-                },
-              ],
+              options: tokenTypeOptions,
             },
           ]
         })
@@ -483,7 +486,7 @@ export const useOAuth2GrantTypes = (
         )
 
         const tokenType = refWithCallbackOnChange(
-          (auth.value.grantTypeInfo as any).tokenType || "access_token",
+          tokenTypeOptionFor(auth.value.grantTypeInfo.tokenType),
           (value) => {
             if (!("tokenType" in auth.value.grantTypeInfo)) {
               return
@@ -491,7 +494,7 @@ export const useOAuth2GrantTypes = (
 
             auth.value.grantTypeInfo = {
               ...auth.value.grantTypeInfo,
-              tokenType: value,
+              tokenType: value.id,
             }
           }
         )
@@ -506,7 +509,7 @@ export const useOAuth2GrantTypes = (
               clientAuthentication: clientAuthentication.value.id,
               tokenRequestParams: preparedTokenRequestParams.value,
               refreshRequestParams: preparedRefreshRequestParams.value,
-              tokenType: tokenType.value,
+              tokenType: tokenType.value.id,
             })
 
           const parsedArgs = clientCredentials.params.safeParse(values)
@@ -579,16 +582,7 @@ export const useOAuth2GrantTypes = (
               ref: tokenType,
               tippyRefName: "tokenTypeTippyActions",
               tippyRef: { value: null },
-              options: [
-                {
-                  id: "access_token" as const,
-                  label: "Access Token",
-                },
-                {
-                  id: "id_token" as const,
-                  label: "ID Token",
-                },
-              ],
+              options: tokenTypeOptions,
             },
           ]
         })
@@ -679,7 +673,7 @@ export const useOAuth2GrantTypes = (
         )
 
         const tokenType = refWithCallbackOnChange(
-          auth.value.grantTypeInfo.tokenType || "access_token",
+          tokenTypeOptionFor(auth.value.grantTypeInfo.tokenType),
           (value) => {
             if (!("tokenType" in auth.value.grantTypeInfo)) {
               return
@@ -687,7 +681,7 @@ export const useOAuth2GrantTypes = (
 
             auth.value.grantTypeInfo = {
               ...auth.value.grantTypeInfo,
-              tokenType: value,
+              tokenType: value.id,
             }
           }
         )
@@ -703,7 +697,7 @@ export const useOAuth2GrantTypes = (
               password: password.value,
               tokenRequestParams: preparedTokenRequestParams.value,
               refreshRequestParams: preparedRefreshRequestParams.value,
-              tokenType: tokenType.value,
+              tokenType: tokenType.value.id,
             })
 
           const parsedArgs = passwordFlow.params.safeParse(values)
@@ -770,16 +764,7 @@ export const useOAuth2GrantTypes = (
               ref: tokenType,
               tippyRefName: "tokenTypeTippyActions",
               tippyRef: { value: null },
-              options: [
-                {
-                  id: "access_token" as const,
-                  label: "Access Token",
-                },
-                {
-                  id: "id_token" as const,
-                  label: "ID Token",
-                },
-              ],
+              options: tokenTypeOptions,
             },
           ]
         })
@@ -827,7 +812,7 @@ export const useOAuth2GrantTypes = (
         )
 
         const tokenType = refWithCallbackOnChange(
-          auth.value.grantTypeInfo.tokenType || "access_token",
+          tokenTypeOptionFor(auth.value.grantTypeInfo.tokenType),
           (value) => {
             if (!("tokenType" in auth.value.grantTypeInfo)) {
               return
@@ -835,7 +820,7 @@ export const useOAuth2GrantTypes = (
 
             auth.value.grantTypeInfo = {
               ...auth.value.grantTypeInfo,
-              tokenType: value,
+              tokenType: value.id,
             }
           }
         )
@@ -848,7 +833,7 @@ export const useOAuth2GrantTypes = (
               scopes: scopes.value,
               authRequestParams: preparedAuthRequestParams.value,
               refreshRequestParams: preparedRefreshRequestParams.value,
-              tokenType: tokenType.value,
+              tokenType: tokenType.value.id,
             })
 
           const unwrappedValues = replaceTemplateStringsInObjectValues(values)
@@ -891,16 +876,7 @@ export const useOAuth2GrantTypes = (
               ref: tokenType,
               tippyRefName: "tokenTypeTippyActions",
               tippyRef: { value: null },
-              options: [
-                {
-                  id: "access_token" as const,
-                  label: "Access Token",
-                },
-                {
-                  id: "id_token" as const,
-                  label: "ID Token",
-                },
-              ],
+              options: tokenTypeOptions,
             },
           ]
         })

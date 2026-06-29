@@ -17,7 +17,7 @@ import * as A from "fp-ts/Array"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import { flow, pipe } from "fp-ts/function"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep, isEqual } from "lodash-es"
 import { Observable, Subject } from "rxjs"
 import { filter } from "rxjs/operators"
 import { Ref } from "vue"
@@ -653,20 +653,23 @@ export function runRESTRequest$(
 
             const updatedCookies = postRequestScriptResult.right.updatedCookies
 
-            if (updatedCookies) {
-              const newCookieMap = new Map<string, Cookie[]>()
-
-              for (const cookie of updatedCookies) {
-                const domain = cookie.domain
-
-                if (!newCookieMap.has(domain)) {
-                  newCookieMap.set(domain, [])
-                }
-
-                newCookieMap.get(domain)!.push(cookie)
-              }
-
-              cookieJarService.cookieJar.value = newCookieMap
+            if (updatedCookies && cookieJarEntries !== null) {
+              // The script's `updatedCookies` is the post-script state of
+              // its pre-script view, so a set difference against the
+              // pre-script snapshot gives the actual mutations. Cookies
+              // the script returned identical to what it received get
+              // skipped because the response capture may have updated
+              // them in the jar in the interim and re-upserting the
+              // script's stale copy would overwrite that. Cookies the
+              // script omitted from its returned array are treated as
+              // deletes, restoring `hopp.cookies.delete` semantics.
+              //
+              // Skipped entirely when `cookieJarEntries` is null
+              // (cookies disabled on the platform). The previous
+              // `?? []` made the empty pre-script snapshot classify
+              // every script cookie as new and never as removed, so
+              // delete-by-omission silently broke on non-desktop.
+              await applyScriptCookieDelta(cookieJarEntries, updatedCookies)
             }
           } else {
             console.error(
@@ -793,11 +796,58 @@ const getCookieJarEntries = () => {
     return null
   }
 
-  const cookieJarEntries = Array.from(
-    cookieJarService.cookieJar.value.values()
-  ).flatMap((cookies) => cookies)
+  // `cloneDeep` so the sandbox cannot mutate the live jar through
+  // a shared reference, and so `applyScriptCookieDelta`'s
+  // pre-script snapshot is independent of whatever the script
+  // returns. Without this a script that mutates a cookie in place
+  // and returns the same array would produce a pre-vs-post delta
+  // of "identical" and the mutation would silently drop.
+  const cookieJarEntries = cloneDeep(
+    Array.from(cookieJarService.cookieJar.value.values()).flatMap(
+      (cookies) => cookies
+    )
+  )
 
   return cookieJarEntries
+}
+
+const cookieKey = (c: { domain: string; name: string; path?: string }) =>
+  `${cookieJarService.canonStoreDomain(c.domain)}\u0000${c.name}\u0000${c.path && c.path.length > 0 ? c.path : "/"}`
+
+const applyScriptCookieDelta = async (
+  preScript: Cookie[],
+  postScript: Cookie[]
+): Promise<void> => {
+  const preMap = new Map<string, Cookie>()
+  for (const c of preScript) {
+    preMap.set(cookieKey(c), c)
+  }
+  const postMap = new Map<string, Cookie>()
+  for (const c of postScript) {
+    postMap.set(cookieKey(c), c)
+  }
+
+  const mutated: Cookie[] = []
+  for (const [key, post] of postMap) {
+    const before = preMap.get(key)
+    if (!before || !isEqual(before, post)) {
+      mutated.push(post)
+    }
+  }
+
+  const removed: Array<{ domain: string; name: string; path?: string }> = []
+  for (const [key, pre] of preMap) {
+    if (!postMap.has(key)) {
+      removed.push({ domain: pre.domain, name: pre.name, path: pre.path })
+    }
+  }
+
+  if (mutated.length > 0) {
+    await cookieJarService.upsertCookies(mutated)
+  }
+  if (removed.length > 0) {
+    await cookieJarService.deleteCookies(removed)
+  }
 }
 
 /**

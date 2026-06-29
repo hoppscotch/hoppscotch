@@ -16,4 +16,4 @@ tracing = "0.1.41"
 relay = { git = "https://github.com/CuriousCorrelation/relay.git" }
 
 [build-dependencies]
-tauri-plugin = { version = "2.0.2", features = ["build"] }
+tauri-plugin = { version = "2.5.4", features = ["build"] }

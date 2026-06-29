@@ -1314,8 +1314,8 @@ importers:
   packages/hoppscotch-kernel:
     dependencies:
       '@hoppscotch/plugin-relay':
-        specifier: github:CuriousCorrelation/tauri-plugin-relay#42f449e1c5657679fecf0374b0ce5047ad03c069
-        version: '@CuriousCorrelation/plugin-relay@https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/42f449e1c5657679fecf0374b0ce5047ad03c069'
+        specifier: github:CuriousCorrelation/tauri-plugin-relay#273488c8f50a22ee707af6b50ccd5570851f8bc9
+        version: '@CuriousCorrelation/plugin-relay@https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/273488c8f50a22ee707af6b50ccd5570851f8bc9'
       '@tauri-apps/api':
         specifier: 2.1.1
         version: 2.1.1
@@ -1772,11 +1772,11 @@ packages:
         optional: true
 
   '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/9d4528be4f385bccbe46859631d31aa2ee1ec0b6':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/9d4528be4f385bccbe46859631d31aa2ee1ec0b6}
+    resolution: {gitHosted: true, integrity: sha512-fH4riUTO4+6/Pr87Q4PTV7EqGXEnSuLl01g3ws54V2k+A3LDzbCrSa+50XBbmPgroHxnhefkXig8q8qL099f0g==, tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/9d4528be4f385bccbe46859631d31aa2ee1ec0b6}
     version: 0.1.0
 
-  '@CuriousCorrelation/plugin-relay@https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/42f449e1c5657679fecf0374b0ce5047ad03c069':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/42f449e1c5657679fecf0374b0ce5047ad03c069}
+  '@CuriousCorrelation/plugin-relay@https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/273488c8f50a22ee707af6b50ccd5570851f8bc9':
+    resolution: {gitHosted: true, integrity: sha512-ipTfU7ci4UGP5+lpR2oDQGfVY3PvF3p5OtqKBVoNoRyIogHoqlpw6VsK+IfvsNbNN+LmAGKpQFyiZaRKErB2Lg==, tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/273488c8f50a22ee707af6b50ccd5570851f8bc9}
     version: 0.1.0
 
   '@acemir/cssom@0.9.31':
@@ -13707,7 +13707,7 @@ snapshots:
     dependencies:
       '@tauri-apps/api': 2.9.1
 
-  '@CuriousCorrelation/plugin-relay@https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/42f449e1c5657679fecf0374b0ce5047ad03c069':
+  '@CuriousCorrelation/plugin-relay@https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/273488c8f50a22ee707af6b50ccd5570851f8bc9':
     dependencies:
       '@tauri-apps/api': 2.1.1
 

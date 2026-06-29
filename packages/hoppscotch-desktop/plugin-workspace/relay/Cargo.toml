@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 curl = { git = "https://github.com/CuriousCorrelation/curl-rust.git", features = ["ntlm"] }
+cookie = "0.18"
 tokio-util = "0.7.12"
 lazy_static = "1.5.0"
 time = { version = "0.3.37", features = ["serde"] }

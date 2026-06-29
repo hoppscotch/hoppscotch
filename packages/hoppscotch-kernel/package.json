@@ -58,7 +58,7 @@
     }
   },
   "dependencies": {
-    "@hoppscotch/plugin-relay": "github:CuriousCorrelation/tauri-plugin-relay#42f449e1c5657679fecf0374b0ce5047ad03c069",
+    "@hoppscotch/plugin-relay": "github:CuriousCorrelation/tauri-plugin-relay#273488c8f50a22ee707af6b50ccd5570851f8bc9",
     "@tauri-apps/plugin-dialog": "2.0.1",
     "@tauri-apps/plugin-fs": "2.0.2",
     "@tauri-apps/plugin-shell": "2.3.3",

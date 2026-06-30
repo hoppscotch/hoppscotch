@@ -2,3 +2,5 @@ packages:
   - 'packages/**'
 
 minimumReleaseAge: 4320
+minimumReleaseAgeExclude:
+  - '@hoppscotch/ui'

@@ -1017,11 +1017,7 @@ function setupUserRequestMovedSubscription() {
         : undefined
 
       // there is no nextRequest, so request is moved
-      if (
-        destinationCollectionPath &&
-        sourceRequestPath &&
-        !nextRequest
-      ) {
+      if (destinationCollectionPath && sourceRequestPath && !nextRequest) {
         runDispatchWithOutSyncing(() => {
           requestType == "REST"
             ? moveRESTRequest(

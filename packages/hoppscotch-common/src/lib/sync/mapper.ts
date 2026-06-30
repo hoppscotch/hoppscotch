@@ -35,7 +35,8 @@ export const createMapper = <
         const backendIdForLocal = backendIDByLocalIDMap.get(index)
 
         backendIDByLocalIDMap.delete(index)
-        backendIdForLocal != null && localIDByBackendIDMap.delete(backendIdForLocal)
+        backendIdForLocal != null &&
+          localIDByBackendIDMap.delete(backendIdForLocal)
       }
     },
   }

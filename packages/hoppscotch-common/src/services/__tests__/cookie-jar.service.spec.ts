@@ -39,7 +39,9 @@ describe("CookieJarService", () => {
   describe("toMap migration on hydrate", () => {
     it("canonicalizes a leading-dot domain key from on-disk payload", () => {
       const map = (service as any).toMap({
-        ".Example.COM": [cookie({ name: "a", value: "1", domain: ".Example.COM" })],
+        ".Example.COM": [
+          cookie({ name: "a", value: "1", domain: ".Example.COM" }),
+        ],
       })
       expect(map.has("example.com")).toBe(true)
       expect(map.get("example.com")?.[0].domain).toBe("example.com")
@@ -47,8 +49,12 @@ describe("CookieJarService", () => {
 
     it("merges two non-canonical keys that collapse to the same canon", () => {
       const map = (service as any).toMap({
-        ".Example.COM": [cookie({ name: "a", value: "1", domain: ".Example.COM" })],
-        "EXAMPLE.com": [cookie({ name: "b", value: "2", domain: "EXAMPLE.com" })],
+        ".Example.COM": [
+          cookie({ name: "a", value: "1", domain: ".Example.COM" }),
+        ],
+        "EXAMPLE.com": [
+          cookie({ name: "b", value: "2", domain: "EXAMPLE.com" }),
+        ],
       })
       expect(map.get("example.com")).toHaveLength(2)
     })
@@ -198,7 +204,11 @@ describe("CookieJarService", () => {
 
     it("skips a script-set cookie whose name is not a string", async () => {
       await service.upsertCookies([
-        { name: 42 as unknown as string, value: "1", domain: "example.com" } as Cookie,
+        {
+          name: 42 as unknown as string,
+          value: "1",
+          domain: "example.com",
+        } as Cookie,
       ])
       expect(service.cookieJar.value.size).toBe(0)
     })
@@ -315,7 +325,13 @@ describe("CookieJarService", () => {
         (service as any).parseStored({
           domains: {
             "example.com": [
-              { name: "a", value: "1", domain: "example.com", path: 1, secure: false },
+              {
+                name: "a",
+                value: "1",
+                domain: "example.com",
+                path: 1,
+                secure: false,
+              },
             ],
           },
         })
@@ -327,7 +343,13 @@ describe("CookieJarService", () => {
         (service as any).parseStored({
           domains: {
             "example.com": [
-              { name: "a", value: "1", domain: "example.com", path: "/", secure: "false" },
+              {
+                name: "a",
+                value: "1",
+                domain: "example.com",
+                path: "/",
+                secure: "false",
+              },
             ],
           },
         })

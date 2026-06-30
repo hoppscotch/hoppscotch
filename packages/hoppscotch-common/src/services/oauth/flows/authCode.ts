@@ -30,6 +30,7 @@ const AuthCodeOauthFlowParamsSchema = AuthCodeGrantTypeParams.omit({
     authRequestParams: z.array(OAuth2AuthRequestParam),
     tokenRequestParams: z.array(OAuth2ParamSchema),
     refreshRequestParams: z.array(OAuth2ParamSchema),
+    tokenType: z.enum(["access_token", "id_token"]).optional(),
   })
   .refine(
     (params) => {
@@ -72,6 +73,7 @@ export const getDefaultAuthCodeOauthFlowParams =
     authRequestParams: [],
     refreshRequestParams: [],
     tokenRequestParams: [],
+    tokenType: "access_token",
   })
 
 const initAuthCodeOauthFlow = async ({
@@ -85,6 +87,7 @@ const initAuthCodeOauthFlow = async ({
   authRequestParams,
   refreshRequestParams,
   tokenRequestParams,
+  tokenType,
 }: AuthCodeOauthFlowParams) => {
   const state = generateRandomString()
 
@@ -137,6 +140,7 @@ const initAuthCodeOauthFlow = async ({
       active: boolean
       sendIn?: string
     }>
+    tokenType?: "access_token" | "id_token"
   } = {
     state,
     grant_type: "AUTHORIZATION_CODE",
@@ -151,6 +155,7 @@ const initAuthCodeOauthFlow = async ({
     authRequestParams,
     refreshRequestParams,
     tokenRequestParams,
+    tokenType,
   }
 
   if (codeVerifier && codeChallenge) {
@@ -239,6 +244,7 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
     clientID: z.string(),
     codeVerifier: z.string().optional(),
     codeChallenge: z.string().optional(),
+    tokenType: z.enum(["access_token", "id_token"]).optional(),
   })
 
   const decodedLocalConfig = expectedSchema.safeParse(
@@ -306,11 +312,19 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
     return E.left("AUTH_TOKEN_REQUEST_INVALID_RESPONSE" as const)
   }
 
+  // Get the token type preference from the persisted config
+  const tokenTypePreference =
+    decodedLocalConfig.data.tokenType || "access_token"
+
   return E.right({
     access_token:
-      parsedTokenResponse.data.access_token ||
-      parsedTokenResponse.data.id_token ||
-      "",
+      tokenTypePreference === "id_token"
+        ? parsedTokenResponse.data.id_token ||
+          parsedTokenResponse.data.access_token ||
+          ""
+        : parsedTokenResponse.data.access_token ||
+          parsedTokenResponse.data.id_token ||
+          "",
     refresh_token: parsedTokenResponse.data.refresh_token,
   })
 }

@@ -533,6 +533,23 @@ const restCollectionDispatchers = defineDispatchers({
       return {}
     }
 
+    // Block self-move: moving a folder to its own location
+    if (path === destinationPath) {
+      console.error(
+        `Cannot move folder to itself. Skipping request to move folder '${path}'.`
+      )
+      return {}
+    }
+
+    // Block descendant move: moving a folder into itself or its descendants
+    // This would create a cyclic tree structure
+    if (destinationPath.startsWith(path + "/")) {
+      console.error(
+        `Cannot move folder into its descendant. Destination '${destinationPath}' is inside source '${path}'. Skipping request.`
+      )
+      return {}
+    }
+
     const target = navigateToFolderWithIndexPath(
       newState,
       destinationIndexPaths
@@ -1197,6 +1214,23 @@ const gqlCollectionDispatchers = defineDispatchers({
     if (indexPaths.length === 0 || destinationIndexPaths.length === 0) {
       console.error(
         `Given path is too short. Skipping request to move folder '${path}' to destination '${destinationPath}'.`
+      )
+      return {}
+    }
+
+    // Block self-move: moving a folder to its own location
+    if (path === destinationPath) {
+      console.error(
+        `Cannot move folder to itself. Skipping request to move folder '${path}'.`
+      )
+      return {}
+    }
+
+    // Block descendant move: moving a folder into itself or its descendants
+    // This would create a cyclic tree structure
+    if (destinationPath.startsWith(path + "/")) {
+      console.error(
+        `Cannot move folder into its descendant. Destination '${destinationPath}' is inside source '${path}'. Skipping request.`
       )
       return {}
     }

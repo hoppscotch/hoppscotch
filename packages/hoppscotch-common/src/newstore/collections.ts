@@ -508,6 +508,10 @@ const restCollectionDispatchers = defineDispatchers({
         return {}
       }
 
+      if (folderIndex < 0 || folderIndex >= containingFolder.folders.length) {
+        console.error(`Folder index ${folderIndex} out of bounds. Skipping request.`)
+        return {}
+      }
       const theFolder = containingFolder.folders.splice(folderIndex, 1)
       newState.push(theFolder[0] as HoppCollection)
 
@@ -529,6 +533,23 @@ const restCollectionDispatchers = defineDispatchers({
       return {}
     }
 
+    // Block self-move: moving a folder to its own location
+    if (path === destinationPath) {
+      console.error(
+        `Cannot move folder to itself. Skipping request to move folder '${path}'.`
+      )
+      return {}
+    }
+
+    // Block descendant move: moving a folder into itself or its descendants
+    // This would create a cyclic tree structure
+    if (destinationPath.startsWith(path + "/")) {
+      console.error(
+        `Cannot move folder into its descendant. Destination '${destinationPath}' is inside source '${path}'. Skipping request.`
+      )
+      return {}
+    }
+
     const target = navigateToFolderWithIndexPath(
       newState,
       destinationIndexPaths
@@ -545,10 +566,18 @@ const restCollectionDispatchers = defineDispatchers({
     const containingFolder = navigateToFolderWithIndexPath(newState, indexPaths)
     // We are moving a folder from the root
     if (containingFolder === null) {
+      if (folderIndex < 0 || folderIndex >= newState.length) {
+        console.error(`Folder index ${folderIndex} out of bounds in root. Skipping request.`)
+        return {}
+      }
       const theFolder = newState.splice(folderIndex, 1)
 
       target.folders.push(theFolder[0])
     } else {
+      if (folderIndex < 0 || folderIndex >= containingFolder.folders.length) {
+        console.error(`Folder index ${folderIndex} out of bounds. Skipping request.`)
+        return {}
+      }
       const theFolder = containingFolder.folders.splice(folderIndex, 1)
 
       target.folders.push(theFolder[0])
@@ -1130,6 +1159,245 @@ const gqlCollectionDispatchers = defineDispatchers({
     }
 
     containingFolder.folders.splice(folderIndex, 1)
+
+    return {
+      state: newState,
+    }
+  },
+
+  moveFolder(
+    { state }: GraphqlCollectionStoreType,
+    { path, destinationPath }: { path: string; destinationPath: string | null }
+  ) {
+    const newState = state
+
+    // Move the folder to the root
+    if (destinationPath === null) {
+      const indexPaths = path.split("/").map((x) => parseInt(x))
+
+      if (indexPaths.length === 0) {
+        console.log("Given path too short. Skipping request.")
+        return {}
+      }
+
+      const folderIndex = indexPaths.pop() as number
+
+      const containingFolder = navigateToFolderWithIndexPath(
+        newState,
+        indexPaths
+      )
+      if (containingFolder === null) {
+        console.error(
+          `The folder to move is already in the root. Skipping request to move folder.`
+        )
+        return {}
+      }
+
+      if (folderIndex < 0 || folderIndex >= containingFolder.folders.length) {
+        console.error(`Folder index ${folderIndex} out of bounds. Skipping request.`)
+        return {}
+      }
+      const theFolder = containingFolder.folders.splice(folderIndex, 1)
+      newState.push(theFolder[0] as HoppCollection)
+
+      return {
+        state: newState,
+      }
+    }
+
+    const indexPaths = path.split("/").map((x) => parseInt(x))
+
+    const destinationIndexPaths = destinationPath
+      .split("/")
+      .map((x) => parseInt(x))
+
+    if (indexPaths.length === 0 || destinationIndexPaths.length === 0) {
+      console.error(
+        `Given path is too short. Skipping request to move folder '${path}' to destination '${destinationPath}'.`
+      )
+      return {}
+    }
+
+    // Block self-move: moving a folder to its own location
+    if (path === destinationPath) {
+      console.error(
+        `Cannot move folder to itself. Skipping request to move folder '${path}'.`
+      )
+      return {}
+    }
+
+    // Block descendant move: moving a folder into itself or its descendants
+    // This would create a cyclic tree structure
+    if (destinationPath.startsWith(path + "/")) {
+      console.error(
+        `Cannot move folder into its descendant. Destination '${destinationPath}' is inside source '${path}'. Skipping request.`
+      )
+      return {}
+    }
+
+    const target = navigateToFolderWithIndexPath(
+      newState,
+      destinationIndexPaths
+    )
+    if (target === null) {
+      console.error(
+        `Could not resolve destination path '${destinationPath}'. Skipping moveFolder dispatch.`
+      )
+      return {}
+    }
+
+    const folderIndex = indexPaths.pop() as number
+
+    const containingFolder = navigateToFolderWithIndexPath(newState, indexPaths)
+    // We are moving a folder from the root
+    if (containingFolder === null) {
+      if (folderIndex < 0 || folderIndex >= newState.length) {
+        console.error(`Folder index ${folderIndex} out of bounds in root. Skipping request.`)
+        return {}
+      }
+      const theFolder = newState.splice(folderIndex, 1)
+
+      target.folders.push(theFolder[0])
+    } else {
+      if (folderIndex < 0 || folderIndex >= containingFolder.folders.length) {
+        console.error(`Folder index ${folderIndex} out of bounds. Skipping request.`)
+        return {}
+      }
+      const theFolder = containingFolder.folders.splice(folderIndex, 1)
+
+      target.folders.push(theFolder[0])
+    }
+
+    return { state: newState }
+  },
+
+  sortGraphqlCollection(
+    { state }: GraphqlCollectionStoreType,
+    {
+      collectionPath,
+      sortOrder,
+    }: { collectionPath: number | null; sortOrder: "asc" | "desc" }
+  ) {
+    const newState = state
+
+    if (collectionPath === null || isNaN(collectionPath)) {
+      return {
+        state: newState.sort(createComparator("name", sortOrder)),
+      }
+    }
+
+    const collection = newState.find((_, index) => index === collectionPath)
+
+    if (!collection) {
+      console.error(`Collection not found.`)
+      return {}
+    }
+
+    collection.requests.sort(createComparator("name", sortOrder))
+    collection.folders.sort(createComparator("name", sortOrder))
+
+    return {
+      state: newState,
+    }
+  },
+
+  sortGraphqlFolder(
+    { state }: GraphqlCollectionStoreType,
+    { path, sortOrder }: { path: string; sortOrder: "asc" | "desc" }
+  ) {
+    const newState = state
+
+    const indexPaths = path.split("/").map((x) => parseInt(x))
+    if (indexPaths.length === 0) {
+      console.log("Given path too short. Skipping request.")
+      return {}
+    }
+
+    const target = navigateToFolderWithIndexPath(newState, indexPaths)
+    if (target === null) {
+      console.log(
+        `Could not resolve path '${path}'. Ignoring sortGraphqlFolder dispatch.`
+      )
+      return {}
+    }
+
+    target.requests.sort(createComparator("name", sortOrder))
+    target.folders.sort(createComparator("name", sortOrder))
+
+    return {
+      state: newState,
+    }
+  },
+
+  updateCollectionOrder(
+    { state }: GraphqlCollectionStoreType,
+    {
+      collectionIndex,
+      destinationCollectionIndex,
+    }: {
+      collectionIndex: string
+      destinationCollectionIndex: string | null
+    }
+  ) {
+    const newState = state
+
+    const indexPaths = collectionIndex.split("/").map((x) => parseInt(x))
+
+    if (indexPaths.length === 0) {
+      console.log("Given path too short. Skipping request.")
+      return {}
+    }
+
+    if (destinationCollectionIndex === null) {
+      const folderIndex = indexPaths.pop() as number
+
+      const containingFolder = navigateToFolderWithIndexPath(
+        newState,
+        indexPaths
+      )
+
+      if (containingFolder === null) {
+        newState.push(newState.splice(folderIndex, 1)[0])
+        return {
+          state: newState,
+        }
+      }
+
+      containingFolder.folders.push(
+        containingFolder.folders.splice(folderIndex, 1)[0]
+      )
+
+      return {
+        state: newState,
+      }
+    }
+
+    const destinationIndexPaths = destinationCollectionIndex
+      .split("/")
+      .map((x) => parseInt(x))
+
+    if (destinationIndexPaths.length === 0) {
+      console.log("Given path too short. Skipping request.")
+      return {}
+    }
+
+    const folderIndex = indexPaths.pop() as number
+    const destinationFolderIndex = destinationIndexPaths.pop() as number
+
+    const containingFolder = navigateToFolderWithIndexPath(
+      newState,
+      destinationIndexPaths
+    )
+
+    if (containingFolder === null) {
+      reorderItems(newState, folderIndex, destinationFolderIndex)
+
+      return {
+        state: newState,
+      }
+    }
+
+    reorderItems(containingFolder.folders, folderIndex, destinationFolderIndex)
 
     return {
       state: newState,
@@ -1785,7 +2053,8 @@ export function removeGraphqlCollection(
   collectionID?: string
 ) {
   if (!collectionID) {
-    collectionID = graphqlCollectionStore.value.state[collectionIndex]?._ref_id
+    collectionID =
+      graphqlCollectionStore.value.state[collectionIndex]?.id
   }
   graphqlCollectionStore.dispatch({
     dispatcher: "removeCollection",
@@ -1838,7 +2107,7 @@ export function removeGraphqlFolder(path: string, folderID?: string) {
       graphqlCollectionStore.value.state,
       path.split("/").map((index) => parseInt(index))
     )
-    folderID = folder?._ref_id
+    folderID = folder?.id
   }
   graphqlCollectionStore.dispatch({
     dispatcher: "removeFolder",
@@ -1945,6 +2214,55 @@ export function moveGraphqlRequest(
       path,
       requestIndex,
       destinationPath,
+    },
+  })
+}
+
+export function moveGraphqlFolder(
+  path: string,
+  destinationPath: string | null
+) {
+  graphqlCollectionStore.dispatch({
+    dispatcher: "moveFolder",
+    payload: {
+      path,
+      destinationPath,
+    },
+  })
+}
+
+export function sortGraphqlCollection(
+  collectionPath: number | null,
+  sortOrder: "asc" | "desc"
+) {
+  graphqlCollectionStore.dispatch({
+    dispatcher: "sortGraphqlCollection",
+    payload: {
+      collectionPath,
+      sortOrder,
+    },
+  })
+}
+
+export function sortGraphqlFolder(path: string, sortOrder: "asc" | "desc") {
+  graphqlCollectionStore.dispatch({
+    dispatcher: "sortGraphqlFolder",
+    payload: {
+      path,
+      sortOrder,
+    },
+  })
+}
+
+export function updateGraphqlCollectionOrder(
+  collectionIndex: string,
+  destinationCollectionIndex: string | null
+) {
+  graphqlCollectionStore.dispatch({
+    dispatcher: "updateCollectionOrder",
+    payload: {
+      collectionIndex,
+      destinationCollectionIndex,
     },
   })
 }

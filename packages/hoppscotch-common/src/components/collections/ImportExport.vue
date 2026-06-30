@@ -60,6 +60,7 @@ import IconUser from "~icons/lucide/user"
 import { getTeamCollectionJSON } from "~/helpers/backend/helpers"
 
 import { platform } from "~/platform"
+import { sync } from "~/lib/sync/defs"
 
 import {
   initializeDownloadFile,
@@ -142,12 +143,9 @@ const importToPersonalWorkspace = (collections: HoppCollection[]) => {
 
   sanitizedCollections.forEach(populateLocalStoresFromCollectionTree)
 
-  if (
-    platform.sync.collections.importToPersonalWorkspace &&
-    currentUser.value
-  ) {
+  if (sync.collections.importToPersonalWorkspace && currentUser.value) {
     // The SH adds the id to the collection and folders but for safety we remove it by sanitizeCollection
-    return platform.sync.collections.importToPersonalWorkspace(
+    return sync.collections.importToPersonalWorkspace(
       sanitizedCollections,
       ReqType.Rest
     )

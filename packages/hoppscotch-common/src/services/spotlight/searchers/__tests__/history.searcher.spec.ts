@@ -1,14 +1,13 @@
 import { TestContainer } from "dioc/testing"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { HistorySpotlightSearcherService } from "../history.searcher"
 import { nextTick, ref } from "vue"
-import { SpotlightService } from "../.."
-import { GQLHistoryEntry, RESTHistoryEntry } from "~/newstore/history"
-import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { HoppAction, HoppActionWithArgs } from "~/helpers/actions"
 import { getDefaultGQLRequest } from "~/helpers/graphql/default"
+import { getDefaultRESTRequest } from "~/helpers/rest/default"
+import { GQLHistoryEntry, RESTHistoryEntry } from "~/newstore/history"
 import { RESTTabService } from "~/services/tab/rest"
-import { PlatformDef, setPlatformDef } from "~/platform"
+import { SpotlightService } from "../.."
+import { HistorySpotlightSearcherService } from "../history.searcher"
 
 async function flushPromises() {
   return await new Promise((r) => setTimeout(r))
@@ -53,6 +52,18 @@ vi.mock("~/newstore/history", () => ({
   },
 }))
 
+vi.mock("~/lib/sync/history", () => ({
+  __esModule: true,
+  def: {
+    initHistorySync: vi.fn(),
+    requestHistoryStore: {
+      isHistoryStoreEnabled: { value: true },
+      isFetchingHistoryStoreStatus: { value: false },
+      hasErrorFetchingHistoryStoreStatus: { value: false },
+    },
+  },
+}))
+
 describe("HistorySpotlightSearcherService", () => {
   beforeEach(() => {
     let x = actionsMock.value.pop()
@@ -75,14 +86,6 @@ describe("HistorySpotlightSearcherService", () => {
 
     actionsMock.invokeAction.mockReset()
     createNewTabFn.mockReset()
-
-    const platform = {
-      sync: {
-        history: {},
-      },
-    }
-
-    setPlatformDef(platform as PlatformDef)
   })
 
   it("registers with the spotlight service upon initialization", async () => {

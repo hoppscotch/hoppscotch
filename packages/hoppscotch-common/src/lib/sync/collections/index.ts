@@ -454,45 +454,71 @@ function setupUserCollectionUpdatedSubscription() {
 
   userCollectionUpdated$.subscribe((res) => {
     if (E.isRight(res)) {
-      const collectionType = res.right.userCollectionUpdated.type
+      const {
+        id: updatedCollectionBackendID,
+        title,
+        type: collectionType,
+        data,
+      } = res.right.userCollectionUpdated
 
       const { collectionStore } = getStoreByCollectionType(collectionType)
 
-      const updatedCollectionBackendID = res.right.userCollectionUpdated.id
       const updatedCollectionLocalPath = getCollectionPathFromCollectionID(
         updatedCollectionBackendID,
         collectionStore.value.state
       )
 
-      const isFolder =
-        updatedCollectionLocalPath &&
-        updatedCollectionLocalPath.split("/").length > 1
+      if (!updatedCollectionLocalPath) return
 
-      // updated collection is a folder
-      if (isFolder) {
-        runDispatchWithOutSyncing(() => {
-          collectionType == "REST"
-            ? editRESTFolder(updatedCollectionLocalPath, {
-                name: res.right.userCollectionUpdated.title,
-              })
-            : editGraphqlFolder(updatedCollectionLocalPath, {
-                name: res.right.userCollectionUpdated.title,
-              })
-        })
+      const isFolder = updatedCollectionLocalPath.split("/").length > 1
+
+      // Carry auth, headers, variables, and scripts from the data payload
+      const {
+        auth,
+        headers,
+        variables,
+        description,
+        preRequestScript,
+        testScript,
+      } =
+        data && data != "null"
+          ? JSON.parse(data)
+          : {
+              auth: { authType: "inherit", authActive: true },
+              headers: [],
+              variables: [],
+              description: null,
+              preRequestScript: "",
+              testScript: "",
+            }
+
+      const partialUpdate: Partial<HoppCollection> = {
+        name: title,
+        auth,
+        headers: addDescriptionField(headers),
+        variables: variables ?? [],
+        description: description ?? null,
+        preRequestScript: preRequestScript ?? "",
+        testScript: testScript ?? "",
       }
 
-      // updated collection is a root collection
-      if (updatedCollectionLocalPath && !isFolder) {
-        runDispatchWithOutSyncing(() => {
+      runDispatchWithOutSyncing(() => {
+        if (isFolder) {
           collectionType == "REST"
-            ? editRESTCollection(parseInt(updatedCollectionLocalPath), {
-                name: res.right.userCollectionUpdated.title,
-              })
-            : editGraphqlCollection(parseInt(updatedCollectionLocalPath), {
-                name: res.right.userCollectionUpdated.title,
-              })
-        })
-      }
+            ? editRESTFolder(updatedCollectionLocalPath, partialUpdate)
+            : editGraphqlFolder(updatedCollectionLocalPath, partialUpdate)
+        } else {
+          collectionType == "REST"
+            ? editRESTCollection(
+                parseInt(updatedCollectionLocalPath),
+                partialUpdate
+              )
+            : editGraphqlCollection(
+                parseInt(updatedCollectionLocalPath),
+                partialUpdate
+              )
+        }
+      })
     }
   })
 

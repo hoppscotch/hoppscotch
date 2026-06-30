@@ -37,7 +37,7 @@ describe("stripSecretVariableValuesForWire", () => {
     ])
   })
 
-  it("keeps initialValue but clears currentValue for non-secret variables", () => {
+  it("keeps both initialValue and currentValue for non-secret variables", () => {
     const result = stripSecretVariableValuesForWire([
       {
         key: "host",
@@ -51,7 +51,7 @@ describe("stripSecretVariableValuesForWire", () => {
       {
         key: "host",
         initialValue: "https://api.example.com",
-        currentValue: "",
+        currentValue: "https://staging.example.com",
         secret: false,
       },
     ])

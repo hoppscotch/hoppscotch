@@ -13,8 +13,14 @@ type SecretCapableVariable = {
 }
 
 /**
- * Clear `initialValue` for secrets and `currentValue` for all variables
- * before the wire write. Raw values live only in the local secret store.
+ * Strip raw values that must never reach the backend before the wire write.
+ *
+ * For SECRET variables we clear BOTH `initialValue` and `currentValue` — the
+ * secret value lives only in the local secret store (see #6279).
+ *
+ * For NON-SECRET variables `currentValue` is a normal, syncable value and
+ * MUST be preserved on the wire — otherwise environment / global-env updates
+ * persist an empty `currentValue` and the value is lost on reload.
  */
 export const stripSecretVariableValuesForWire = <
   T extends SecretCapableVariable,
@@ -24,14 +30,14 @@ export const stripSecretVariableValuesForWire = <
   variables.map((v) => ({
     ...v,
     initialValue: v.secret ? "" : v.initialValue,
-    currentValue: "",
+    currentValue: v.secret ? "" : v.currentValue,
   }))
 
 /**
  * Seed the local secret + currentValue stores from raw variables.
  *
- * IMPORTANT: pass RAW (pre-strip) inputs. A stripped variable has empty
- * `initialValue` / `currentValue` and will persist as blank.
+ * IMPORTANT: pass RAW (pre-strip) inputs. A stripped SECRET variable has
+ * empty `initialValue` / `currentValue` and will persist as blank.
  *
  * ─── `??` vs `||` — read before "fixing" this ───
  * Both branches below use `??` so an explicit `""` is preserved. This is
@@ -89,12 +95,11 @@ export const populateLocalStoresFromVariables = (
 }
 
 /**
- * Foreign-import convention normalizer for BOTH secret and non-secret
- * variables. The wire strip blanks `currentValue` for everything and (for
- * secrets) `initialValue`; non-secret `initialValue` is preserved. So a
- * Hoppscotch / Postman / Insomnia exported file lands with
- * `currentValue: ""` and (for non-secrets) `initialValue: "value"`. Promote
- * so the local stores see the imported value.
+ * Foreign-import convention normalizer for variables exported with
+ * `currentValue: ""` and the real value in `initialValue` — Postman /
+ * Insomnia format, plus legacy Hoppscotch exports from before non-secret
+ * `currentValue` was preserved on the wire. Promote so the local stores
+ * see the imported value.
  *
  * The global-env rehydration path bypasses this step intentionally — there
  * `""` means "user deliberately cleared," not "value lives in initialValue."

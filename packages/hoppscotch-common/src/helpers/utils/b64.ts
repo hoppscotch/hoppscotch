@@ -1,5 +1,8 @@
 export function decodeB64StringToArrayBuffer(input: string): ArrayBuffer {
-  const bytes = Math.floor((input.length / 4) * 3)
+  input = input.replace(/[^A-Za-z0-9+/=]/g, "")
+
+  const padding = input.endsWith("==") ? 2 : input.endsWith("=") ? 1 : 0
+  const bytes = Math.floor((input.length / 4) * 3) - padding
   const ab = new ArrayBuffer(bytes)
   const uarray = new Uint8Array(ab)
 
@@ -9,8 +12,6 @@ export function decodeB64StringToArrayBuffer(input: string): ArrayBuffer {
   let chr1, chr2, chr3
   let enc1, enc2, enc3, enc4
   let j = 0
-
-  input = input.replace(/[^A-Za-z0-9+/=]/g, "")
 
   for (let i = 0; i < bytes; i += 3) {
     // get the 3 octets in 4 ASCII chars

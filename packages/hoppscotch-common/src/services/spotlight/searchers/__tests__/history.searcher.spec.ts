@@ -57,7 +57,7 @@ vi.mock("~/lib/sync/history", () => ({
   def: {
     initHistorySync: vi.fn(),
     requestHistoryStore: {
-      isHistoryStoreEnabled: { value: false },
+      isHistoryStoreEnabled: { value: true },
       isFetchingHistoryStoreStatus: { value: false },
       hasErrorFetchingHistoryStoreStatus: { value: false },
     },

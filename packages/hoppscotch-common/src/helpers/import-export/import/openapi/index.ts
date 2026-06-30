@@ -1240,6 +1240,25 @@ const convertPathToHoppReqs = (
           ? openAPIUrl + openAPIPath.slice(1)
           : openAPIUrl + openAPIPath
 
+      // Merge path-level parameters with operation-level parameters.
+      // Per the OpenAPI spec, operation-level parameters override path-level
+      // parameters that share the same name and location (in).
+      const pathLevelParams =
+        (pathObj.parameters as OpenAPIParamsType[] | undefined) ?? []
+      const operationParams =
+        (info.parameters as OpenAPIParamsType[] | undefined) ?? []
+
+      const mergedParams = [
+        ...pathLevelParams.filter(
+          (pathParam) =>
+            !operationParams.some(
+              (opParam) =>
+                opParam.name === pathParam.name && opParam.in === pathParam.in
+            )
+        ),
+        ...operationParams,
+      ]
+
       const res: {
         request: HoppRESTRequest
         metadata: {
@@ -1253,12 +1272,8 @@ const convertPathToHoppReqs = (
           endpoint,
 
           // We don't need to worry about reference types as the Dereferencing pass should remove them
-          params: parseOpenAPIParams(
-            (info.parameters as OpenAPIParamsType[] | undefined) ?? []
-          ),
-          headers: parseOpenAPIHeaders(
-            (info.parameters as OpenAPIParamsType[] | undefined) ?? []
-          ),
+          params: parseOpenAPIParams(mergedParams),
+          headers: parseOpenAPIHeaders(mergedParams),
 
           auth: parseOpenAPIAuth(doc, info),
 
@@ -1267,9 +1282,7 @@ const convertPathToHoppReqs = (
           preRequestScript: "",
           testScript: "",
 
-          requestVariables: parseOpenAPIVariables(
-            (info.parameters as OpenAPIParamsType[] | undefined) ?? []
-          ),
+          requestVariables: parseOpenAPIVariables(mergedParams),
 
           responses: parseOpenAPIResponses(
             doc,
@@ -1280,16 +1293,10 @@ const convertPathToHoppReqs = (
               body: parseOpenAPIBody(doc, info),
               endpoint,
               // We don't need to worry about reference types as the Dereferencing pass should remove them
-              params: parseOpenAPIParams(
-                (info.parameters as OpenAPIParamsType[] | undefined) ?? []
-              ),
-              headers: parseOpenAPIHeaders(
-                (info.parameters as OpenAPIParamsType[] | undefined) ?? []
-              ),
+              params: parseOpenAPIParams(mergedParams),
+              headers: parseOpenAPIHeaders(mergedParams),
               method: method.toUpperCase(),
-              requestVariables: parseOpenAPIVariables(
-                (info.parameters as OpenAPIParamsType[] | undefined) ?? []
-              ),
+              requestVariables: parseOpenAPIVariables(mergedParams),
             })
           ),
         }),

@@ -995,8 +995,6 @@ function setupUserRequestMovedSubscription() {
 
       // there is no nextRequest, so request is moved
       if (
-        destinationRequestIndex != null &&
-        destinationRequestIndex >= 0 &&
         destinationCollectionPath &&
         sourceRequestPath &&
         !nextRequest

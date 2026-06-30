@@ -2133,3 +2133,59 @@ describe('getCollectionForCLI', () => {
   //   });
   // });
 });
+
+describe('searchByTitle', () => {
+  beforeEach(() => {
+    mockReset(mockPrisma);
+  });
+
+  test('should return a request when only the endpoint URL matches (not the title)', async () => {
+    const teamID = team.id;
+    const searchQuery = 'api/v1/users';
+
+    mockPrisma.$queryRaw
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        {
+          id: 'req_1',
+          title: 'Get Users',
+          method: 'GET',
+          type: 'request',
+        },
+      ])
+      .mockResolvedValueOnce([]);
+
+    const result = await teamCollectionService.searchByTitle(
+      searchQuery,
+      teamID,
+    );
+
+    expect(result).toEqualRight({
+      data: [
+        {
+          id: 'req_1',
+          title: 'Get Users',
+          method: 'GET',
+          type: 'request',
+          path: [],
+        },
+      ],
+    });
+  });
+
+  test('should return empty results when neither title nor endpoint matches', async () => {
+    const teamID = team.id;
+    const searchQuery = 'nonexistent';
+
+    mockPrisma.$queryRaw
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
+
+    const result = await teamCollectionService.searchByTitle(
+      searchQuery,
+      teamID,
+    );
+
+    expect(result).toEqualRight({ data: [] });
+  });
+});

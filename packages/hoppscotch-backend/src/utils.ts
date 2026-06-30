@@ -385,3 +385,28 @@ export function decrypt(
   decrypted = Buffer.concat([decrypted, decipher.final()]);
   return decrypted.toString();
 }
+
+/**
+ * Returns a list of all whitelisted origins, including dynamically generated Tauri v2 origins.
+ *
+ * @param whitelistedOrigins A comma-separated string of whitelisted origins
+ * @returns An array of all whitelisted origins
+ */
+export function getWhitelistedOrigins(whitelistedOrigins: string | undefined | null): string[] {
+  const origins = whitelistedOrigins ? whitelistedOrigins.split(',') : [];
+  const tauriOrigins = origins
+    .map((origin) => {
+      try {
+        const url = new URL(origin);
+        if (url.protocol === 'http:' || url.protocol === 'https:') {
+          return `https://app.hoppscotch_${url.hostname.replace(/\./g, '_')}`;
+        }
+      } catch (e) {
+        return undefined;
+      }
+    })
+    .filter((origin) => origin !== undefined);
+
+  return [...origins, ...tauriOrigins] as string[];
+}
+

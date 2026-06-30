@@ -1185,3 +1185,41 @@ describe("Parse curl command to Hopp REST Request", () => {
     })
   }
 })
+
+describe("cURL basic-auth password with colons", () => {
+  // curl splits user:password on the FIRST colon only; the password may itself
+  // contain colons (e.g. tokens, base64). The username cannot contain a colon.
+  // base64("admin:p:a:s:s") === "YWRtaW46cDphOnM6cw=="
+  const cases = [
+    {
+      title: "-u with colons in password",
+      command: `curl http://localhost -u "admin:p:a:s:s"`,
+      username: "admin",
+      password: "p:a:s:s",
+    },
+    {
+      title: "--user long form with colons in password",
+      command: `curl http://localhost --user "admin:a:b:c"`,
+      username: "admin",
+      password: "a:b:c",
+    },
+    {
+      title: "Authorization: Basic header with colons in password",
+      command: `curl http://localhost -H "Authorization: Basic YWRtaW46cDphOnM6cw=="`,
+      username: "admin",
+      password: "p:a:s:s",
+    },
+  ]
+
+  for (const { title, command, username, password } of cases) {
+    test(`preserves colons in the password — ${title}`, () => {
+      const result = parseCurlToHoppRESTReq(command)
+      expect(result.auth).toMatchObject({
+        authActive: true,
+        authType: "basic",
+        username,
+        password,
+      })
+    })
+  }
+})

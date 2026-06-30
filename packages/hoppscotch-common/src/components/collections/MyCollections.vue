@@ -31,6 +31,15 @@
           @click="debouncedSorting"
         />
         <HoppButtonSecondary
+          v-if="filteredCollections && filteredCollections.length > 0"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="
+            isAllExpanded ? t('action.collapse_all') : t('action.expand_all')
+          "
+          :icon="isAllExpanded ? IconChevronsDownUp : IconChevronsUpDown"
+          @click="toggleExpandAll"
+        />
+        <HoppButtonSecondary
           v-if="!saveRequest"
           v-tippy="{ theme: 'tooltip' }"
           :icon="IconImport"
@@ -40,7 +49,11 @@
       </span>
     </div>
     <div class="flex flex-1 flex-col">
-      <HoppSmartTree :adapter="myAdapter">
+      <HoppSmartTree
+        :key="treeKey"
+        :adapter="myAdapter"
+        :expand-all="isAllExpanded"
+      >
         <template
           #content="{ node, toggleChildren, isOpen, highlightChildren }"
         >
@@ -459,6 +472,8 @@ import IconPlus from "~icons/lucide/plus"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconImport from "~icons/lucide/folder-down"
 import IconArrowUpDown from "~icons/lucide/arrow-up-down"
+import IconChevronsDownUp from "~icons/lucide/chevrons-down-up"
+import IconChevronsUpDown from "~icons/lucide/chevrons-up-down"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { computed, PropType, ref, Ref, toRef } from "vue"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
@@ -898,6 +913,15 @@ const debouncedSorting = useDebounceFn(() => {
     collectionRefID: "personal",
   })
 }, 250)
+
+const isAllExpanded = ref(false)
+// HoppSmartTree only reads `expand-all` when it mounts, so bumping the key
+// remounts the tree to apply the new expanded state to every folder.
+const treeKey = ref(0)
+const toggleExpandAll = () => {
+  isAllExpanded.value = !isAllExpanded.value
+  treeKey.value++
+}
 
 type MyCollectionNode = Collection | Folder | Requests
 

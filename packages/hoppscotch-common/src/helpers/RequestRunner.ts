@@ -74,7 +74,7 @@ const currentEnvironmentValueService = getService(CurrentValueService)
 // the service during ESM evaluation. `onServiceInit` then reads
 // `window.__KERNEL__.store` and throws because `createHoppApp` has
 // not yet called `initKernel(...)` at that point.
-const cookieJarService = () => getService(CookieJarService)
+const getCookieJarService = () => getService(CookieJarService)
 const kernelInterceptorService = getService(KernelInterceptorService)
 
 const EXPERIMENTAL_SCRIPTING_SANDBOX = useSetting(
@@ -807,7 +807,7 @@ const getCookieJarEntries = () => {
   // and returns the same array would produce a pre-vs-post delta
   // of "identical" and the mutation would silently drop.
   const cookieJarEntries = cloneDeep(
-    Array.from(cookieJarService().cookieJar.value.values()).flatMap(
+    Array.from(getCookieJarService().cookieJar.value.values()).flatMap(
       (cookies) => cookies
     )
   )
@@ -816,7 +816,7 @@ const getCookieJarEntries = () => {
 }
 
 const cookieKey = (c: { domain: string; name: string; path?: string }) =>
-  `${cookieJarService().canonStoreDomain(c.domain)}\u0000${c.name}\u0000${c.path && c.path.length > 0 ? c.path : "/"}`
+  `${getCookieJarService().canonStoreDomain(c.domain)}\u0000${c.name}\u0000${c.path && c.path.length > 0 ? c.path : "/"}`
 
 const applyScriptCookieDelta = async (
   preScript: Cookie[],
@@ -847,10 +847,10 @@ const applyScriptCookieDelta = async (
   }
 
   if (mutated.length > 0) {
-    await cookieJarService().upsertCookies(mutated)
+    await getCookieJarService().upsertCookies(mutated)
   }
   if (removed.length > 0) {
-    await cookieJarService().deleteCookies(removed)
+    await getCookieJarService().deleteCookies(removed)
   }
 }
 

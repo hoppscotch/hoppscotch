@@ -29,6 +29,12 @@ export class UserHistory {
   responseMetadata: string;
 
   @Field({
+    description: 'JSON string representing the response headers',
+    nullable: true,
+  })
+  responseHeaders?: string;
+
+  @Field({
     description: 'If the request in the history starred',
   })
   isStarred: boolean;

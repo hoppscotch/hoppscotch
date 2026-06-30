@@ -60,6 +60,7 @@ export type GQLResponseEvent =
       operationName: string | undefined
       operationType: OperationType
       data: string
+      headers?: Record<string, string>
       rawQuery?: RunQueryOptions
       document?: {
         type: string
@@ -479,6 +480,7 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
 
     gqlMessageEvent.value = {
       ...parsedResponse,
+      headers: parsedResponse.headers,
       document: {
         type: "success",
         statusCode: relayResponse.status,
@@ -490,7 +492,7 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
       },
     }
 
-    addQueryToHistory(options, parsedResponse.data)
+    addQueryToHistory(options, parsedResponse.data, parsedResponse.headers)
 
     return parsedResponse.data
   } catch (error: any) {
@@ -647,7 +649,11 @@ export const socketDisconnect = () => {
   connection.socket?.close()
 }
 
-const addQueryToHistory = (options: RunQueryOptions, response: string) => {
+const addQueryToHistory = (
+  options: RunQueryOptions,
+  response: string,
+  headers?: Record<string, string>
+) => {
   const { name, url, request, query, variables } = options
   addGraphqlHistoryEntry(
     makeGQLHistoryEntry({
@@ -660,6 +666,7 @@ const addQueryToHistory = (options: RunQueryOptions, response: string) => {
         auth: request.auth as HoppGQLAuth,
       }),
       response,
+      headers,
       star: false,
     })
   )

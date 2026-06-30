@@ -20,9 +20,9 @@ const paperCuts = flow(
   // remove '\' and newlines
   S.replace(/ ?\\ ?$/gm, " "),
   S.replace(/\n/g, " "),
-  // remove all $ symbols from start of argument values
-  S.replace(/\$'/g, "'"),
-  S.replace(/\$"/g, '"'),
+  S.replace(/(^|\s|=)\$'/g, "$1'"),
+  S.replace(/(^|\s|=)\$"/g, '$1"'),
+  S.replace(/ -([a-zA-Z])=/g, " -$1 "),
   S.trim
 )
 
@@ -36,11 +36,19 @@ const replaceFunction = (curlCmd: string, r: string) =>
     O.fromPredicate(
       () => r.includes("data") || r.includes("form") || r.includes("header")
     ),
-    O.map(S.replace(RegExp(`[ \t]${r}(["' ])`, "g"), ` ${replaceables[r]}$1`)),
+    O.map(
+      S.replace(
+        RegExp(`[ \t]${r}(?:[ \t]|=)(["' ]?)`, "g"),
+        ` ${replaceables[r]} $1`
+      )
+    ),
     O.alt(() =>
       pipe(
         curlCmd,
-        S.replace(RegExp(`[ \t]${r}(["' ])`), ` ${replaceables[r]}$1`),
+        S.replace(
+          RegExp(`[ \t]${r}(?:[ \t]|=)(["' ]?)`),
+          ` ${replaceables[r]} $1`
+        ),
         O.of
       )
     ),

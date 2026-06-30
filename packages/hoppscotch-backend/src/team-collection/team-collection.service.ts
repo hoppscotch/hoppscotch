@@ -60,45 +60,59 @@ export class TeamCollectionService {
   MAX_RETRIES = 5; // Maximum number of retries for database transactions
 
   /**
-   * Generate a Prisma query object representation of a collection and its child collections and requests
+   * Recursively create a TeamCollection together with its requests and child
+   * collections, guaranteeing that a collection row exists before any row that
+   * references it (its requests and its children) is inserted.
    *
-   * @param folder CollectionFolder from client
-   * @param teamID The Team ID
-   * @param orderIndex Initial OrderIndex of
-   * @returns A Prisma query object to create a collection, its child collections and requests
+   * This deliberately avoids Prisma's deeply-nested `create` over the recursive
+   * `children` self-relation combined with `Promise.all`. Running concurrent
+   * writes on a single interactive transaction under Prisma 7 + the pg driver
+   * adapter can interleave statements so a TeamRequest is inserted before its
+   * parent TeamCollection, violating `TeamRequest_collectionID_fkey` (P2003).
+   * The race only opens on large imports (many folders + large request bodies),
+   * which is why small collections imported fine.
    */
-  private generatePrismaQueryObjForFBCollFolder(
+  private async createTeamCollectionTree(
+    tx: Prisma.TransactionClient,
     folder: CollectionFolder,
     teamID: string,
+    parentID: string | null,
     orderIndex: number,
-  ): Prisma.TeamCollectionCreateInput {
-    return {
-      title: folder.name,
-      team: {
-        connect: {
-          id: teamID,
-        },
+  ): Promise<DBTeamCollection> {
+    const collection = await tx.teamCollection.create({
+      data: {
+        title: folder.name,
+        team: { connect: { id: teamID } },
+        parent: parentID ? { connect: { id: parentID } } : undefined,
+        orderIndex,
+        data: folder.data ?? undefined,
       },
-      requests: {
-        create: folder.requests.map((r, index) => ({
-          title: r.name,
-          team: {
-            connect: {
-              id: teamID,
-            },
-          },
-          request: r,
+    });
+
+    if (folder.requests.length > 0) {
+      await tx.teamRequest.createMany({
+        data: folder.requests.map((request, index) => ({
+          title: request.name,
+          teamID,
+          collectionID: collection.id,
+          request: request as Prisma.InputJsonValue,
           orderIndex: index + 1,
         })),
-      },
-      orderIndex: orderIndex,
-      children: {
-        create: folder.folders.map((f, index) =>
-          this.generatePrismaQueryObjForFBCollFolder(f, teamID, index + 1),
-        ),
-      },
-      data: folder.data ?? undefined,
-    };
+      });
+    }
+
+    let childOrderIndex = 0;
+    for (const childFolder of folder.folders) {
+      await this.createTeamCollectionTree(
+        tx,
+        childFolder,
+        teamID,
+        collection.id,
+        ++childOrderIndex,
+      );
+    }
+
+    return collection;
   }
 
   /**
@@ -211,7 +225,6 @@ export class TeamCollectionService {
       return E.left(TEAM_COLL_INVALID_JSON);
 
     let teamCollections: DBTeamCollection[] = [];
-    let queryList: Prisma.TeamCollectionCreateInput[] = [];
     try {
       await this.prisma.$transaction(async (tx) => {
         try {
@@ -230,27 +243,33 @@ export class TeamCollectionService {
           });
           let lastOrderIndex = lastEntry ? lastEntry.orderIndex : 0;
 
-          // Generate Prisma Query Object for all child collections in collectionsList
-          queryList = collectionsList.right.map((x) =>
-            this.generatePrismaQueryObjForFBCollFolder(
-              x,
-              teamID,
-              ++lastOrderIndex,
-            ),
-          );
-
-          const promises = queryList.map((query) =>
-            tx.teamCollection.create({
-              data: {
-                ...query,
-                parent: parentID ? { connect: { id: parentID } } : undefined,
-              },
-            }),
-          );
-          teamCollections = await Promise.all(promises);
+          // Create each root collection tree sequentially (parent-before-child)
+          // to guarantee FK ordering. See createTeamCollectionTree for why the
+          // previous nested-create + Promise.all caused P2003 on large imports.
+          teamCollections = [];
+          for (const collFolder of collectionsList.right) {
+            teamCollections.push(
+              await this.createTeamCollectionTree(
+                tx,
+                collFolder,
+                teamID,
+                parentID,
+                ++lastOrderIndex,
+              ),
+            );
+          }
         } catch (error) {
           throw new ConflictException(error);
         }
+      }, {
+        // Large imports run many sequential inserts; the default 10s interactive
+        // transaction timeout (set in PrismaService) is not enough for big collections.
+        // The whole import is intentionally kept in one transaction so it stays
+        // atomic (a failure rolls back the partial tree). Trade-off: a very large
+        // import holds one pooled connection for up to this long; raise this value
+        // if you routinely import very large collections.
+        timeout: 60000,
+        maxWait: 10000,
       });
     } catch (error) {
       console.error(

@@ -294,6 +294,11 @@ import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { HoppRESTRequestResponse } from "@hoppscotch/data"
 import { useScrollerRef } from "~/composables/useScrollerRef"
+import {
+  JSON_PRETTIFY_MAX_BYTES,
+  JSON_OUTLINE_MAX_BYTES,
+  responseBodySizeBytes,
+} from "./jsonLensSizing"
 
 const t = useI18n()
 
@@ -407,6 +412,18 @@ const jsonResponseBodyText = computedAsync(
   E.right(responseBodyText.value)
 )
 
+const responseSizeBytes = computed(() =>
+  responseBodySizeBytes(props.response, responseBodyText.value ?? "")
+)
+
+const isLargeResponse = computed(
+  () => responseSizeBytes.value > JSON_PRETTIFY_MAX_BYTES
+)
+
+const isOutlineSuppressed = computed(
+  () => responseSizeBytes.value > JSON_OUTLINE_MAX_BYTES
+)
+
 const jsonBodyText = computed(() => {
   const { responseBodyText } = useResponseBody(
     props.response as HoppRESTResponse
@@ -435,6 +452,12 @@ const jsonBodyText = computed(() => {
     )
   }
 
+  // Large unfiltered responses: show the raw body without the lossless-parse +
+  // pretty round-trip, which would otherwise allocate (and retain) tens of MB.
+  if (isLargeResponse.value) {
+    return stringValue
+  }
+
   // For unfiltered responses, use LJSON for lossless parsing
   return pipe(
     stringValue,
@@ -444,13 +467,18 @@ const jsonBodyText = computed(() => {
   )
 })
 
-const ast = computed(() =>
-  pipe(
+const ast = computed(() => {
+  // The positional JSON AST (used only for the structure-outline breadcrumb) is
+  // the largest derived structure per response, so skip it above the smaller
+  // outline threshold (and, transitively, on large responses where formatting is
+  // dropped too).
+  if (isOutlineSuppressed.value) return null
+  return pipe(
     jsonBodyText.value,
     O.tryCatchK(jsonParse),
     O.getOrElseW(() => null)
   )
-)
+})
 
 const filterResponseError = computed(() =>
   pipe(

@@ -1,0 +1,4 @@
+# Generated benchmark results — not committed
+*.json
+*.md
+!.gitignore

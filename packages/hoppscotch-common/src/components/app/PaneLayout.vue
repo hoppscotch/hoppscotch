@@ -37,11 +37,36 @@
       </Splitpanes>
     </Pane>
     <Pane
-      :size="SIDEBAR && hasSidebar ? PANE_SIDEBAR_SIZE : 0"
-      :min-size="25"
+      :size="SIDEBAR && hasSidebar ? PANE_SIDEBAR_SIZE : (hasSidebar ? 4 : 0)"
+      :min-size="SIDEBAR && hasSidebar ? 25 : (hasSidebar ? 4 : 0)"
       class="flex flex-col !overflow-auto bg-primaryContrast"
     >
       <slot name="sidebar" />
+      <!-- Collapsed sidebar indicator - shows when sidebar is hidden -->
+      <div
+        v-if="!SIDEBAR && hasSidebar"
+        class="flex flex-col items-center justify-center w-full h-full bg-primary border-l border-dividerLight"
+      >
+        <div class="flex flex-col gap-2 py-2 px-1 text-xs text-secondaryLight">
+          <button
+            v-tippy="{ theme: 'tooltip', placement: 'right' }"
+            title="Expand sidebar"
+            class="p-1 rounded hover:bg-primaryLight transition-colors"
+            @click="SIDEBAR = true"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
     </Pane>
   </Splitpanes>
 </template>

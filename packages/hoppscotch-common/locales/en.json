@@ -1074,6 +1074,7 @@
     "qos": "QoS",
     "ssl": "SSL",
     "subscribe": "Subscribe",
+    "all_topics": "All Topics",
     "topic": "Topic",
     "topic_name": "Topic Name",
     "topic_title": "Publish / Subscribe topic",

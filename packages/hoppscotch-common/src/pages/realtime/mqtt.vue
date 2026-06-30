@@ -97,7 +97,7 @@
           v-for="tab in tabs"
           :id="tab.id"
           :key="'removable_tab_' + tab.id"
-          :label="tab.name"
+          :label="tab.id === 'all' ? t('mqtt.all_topics') : tab.name"
           :is-removable="tab.removable"
         >
           <template #prefix>

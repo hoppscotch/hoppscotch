@@ -157,6 +157,7 @@ export type TestResult = {
     global: EnvironmentVariable[]
     selected: EnvironmentVariable[]
   }
+  nextRequest?: string | null
 }
 
 export type GlobalEnvItem = TestResult["envs"]["global"][number]
@@ -167,6 +168,7 @@ export type SandboxTestResult = {
   envs: TestResult["envs"]
   consoleEntries?: ConsoleEntry[]
   updatedCookies: Cookie[] | null
+  nextRequest?: string | null
 }
 
 export type SandboxPreRequestResult = {
@@ -174,6 +176,7 @@ export type SandboxPreRequestResult = {
   consoleEntries?: ConsoleEntry[]
   updatedRequest?: HoppRESTRequest
   updatedCookies: Cookie[] | null
+  nextRequest?: string | null
 }
 
 export interface Expectation {
@@ -281,6 +284,7 @@ export interface PwNamespaceMethods {
 export interface PmNamespaceMethods {
   pmInfoRequestName: SandboxFunction
   pmInfoRequestId: SandboxFunction
+  pmSetNextRequest: SandboxFunction
 }
 
 /**
@@ -339,6 +343,7 @@ export interface BaseInputs
   // Returns serialized env vars (SandboxValue -> string conversion happens here)
   getUpdatedEnvs: () => TestResult["envs"]
   getUpdatedCookies: () => Cookie[] | null
+  getNextRequest: () => string | null | undefined
   [key: string]: SandboxValue // Index signature for dynamic namespace properties
 }
 

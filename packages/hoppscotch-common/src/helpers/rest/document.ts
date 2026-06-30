@@ -101,6 +101,12 @@ export type TestRunnerConfig = {
   stopOnError: boolean
   persistResponses: boolean
   keepVariableValues: boolean
+  /** Optional iteration dataset (CSV/JSON rows) — each row is injected as pm.iterationData */
+  dataset?: { enabled: boolean; data: Record<string, unknown>[] }
+  /** Optional explicit request execution order (path strings like "folder_0/request_1") */
+  requestOrder?: string[]
+  /** Optional per-request selection state — if non-empty, only truthy entries are executed */
+  requestSelection?: Record<string, boolean>
 }
 
 export type HoppTestRunnerDocument = {

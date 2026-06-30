@@ -81,6 +81,10 @@ const EXPERIMENTAL_SCRIPTING_SANDBOX = useSetting(
   "EXPERIMENTAL_SCRIPTING_SANDBOX"
 )
 
+type SandboxNextRequest = {
+  nextRequest?: string | null
+}
+
 export type InitialEnvironmentState = {
   initialGlobalEnvs: Environment["variables"]
   initialEnvID: string
@@ -399,6 +403,7 @@ const delegatePreRequestScriptRunner = (
       E.right({
         updatedEnvs: envs,
         updatedCookies: cookies,
+        nextRequest: undefined,
       })
     )
   }
@@ -869,13 +874,17 @@ export async function runTestRunnerRequest(
   inheritedVariables: HoppCollectionVariable[] = [],
   initialEnvironmentState: InitialEnvironmentState,
   inheritedPreRequestScripts: string[] = [],
-  inheritedTestScripts: string[] = []
+  inheritedTestScripts: string[] = [],
+  iterationData?: Record<string, unknown>,
+  totalIterations: number = 1,
+  currentIteration: number = 0
 ): Promise<
   | E.Left<"script_fail">
   | E.Right<{
       response: HoppRESTResponse
       testResult: HoppTestResult
       updatedRequest: HoppRESTRequest
+      nextRequest?: string | null
     }>
   | undefined
 > {
@@ -895,15 +904,172 @@ export async function runTestRunnerRequest(
   // Adds ~32ms latency but ensures immediate visual feedback
   await waitForBrowserPaint()
 
+  // Build a sentinel variable that serialises the full iteration dataset so
+  // pm.iterationData.toObject() / toJSON() can reconstruct the object.
+  // Uses a private key "__hopp_row__" (instead of "row") to avoid colliding with
+  // any user dataset column that is also named "row".
+  const iterationDataEntries = iterationData
+    ? Object.entries(iterationData).map(([key, value]) => ({
+        key,
+        initialValue: String(value ?? ""),
+        currentValue: String(value ?? ""),
+        secret: false,
+      }))
+    : []
+
+  const iterationRowVar = iterationData
+    ? {
+        key: "__hopp_row__",
+        initialValue: JSON.stringify(iterationData),
+        currentValue: JSON.stringify(iterationData),
+        secret: false,
+      }
+    : null
+
+  // Inject iteration data into the pre-request sandbox via the SELECTED scope.
+  // The cage sandbox's getSharedEnvMethods only reads `global` and `selected` —
+  // anything placed in `temp` is silently dropped by the sandbox. Using `selected`
+  // ensures pm.iterationData.get(key), pm.variables.get(key), and
+  // pm.iterationData.toObject()/toJSON() all work inside pre-request scripts,
+  // consistent with the post-request injection path.
+  // Private sentinel keys (__hopp_row__, __hopp_iteration_count__) are included here
+  // and will be stripped from the result envs before persisting to avoid polluting
+  // the user's environment (same cleanup that runs on the post-request result).
+  const iterationCountVar = {
+    key: "__hopp_iteration_count__",
+    initialValue: String(totalIterations),
+    currentValue: String(totalIterations),
+    secret: false,
+  }
+
+  // 0-based index of the current iteration (pm.execution.iteration / pm.info.iteration)
+  const iterationIndexVar = {
+    key: "__hopp_current_iteration__",
+    initialValue: String(currentIteration),
+    currentValue: String(currentIteration),
+    secret: false,
+  }
+
+  const preRequestSelected = [
+    // Drop any iteration keys that are already in selected to avoid duplicates.
+    ...initialEnvs.selected.filter(
+      (v) =>
+        v.key !== "__hopp_row__" &&
+        v.key !== "__hopp_iteration_count__" &&
+        v.key !== "__hopp_current_iteration__" &&
+        !iterationDataEntries.some((e) => e.key === v.key)
+    ),
+    ...iterationDataEntries,
+    ...(iterationRowVar ? [iterationRowVar] : []),
+    iterationCountVar,
+    iterationIndexVar,
+  ]
+
+  const enrichedInitialEnvs = {
+    ...initialEnvs,
+    selected: preRequestSelected,
+  }
+
   return delegatePreRequestScriptRunner(
     request,
-    initialEnvs,
+    enrichedInitialEnvs,
     cookieJarEntries,
     inheritedPreRequestScripts
   ).then(async (preRequestScriptResult) => {
     if (E.isLeft(preRequestScriptResult)) {
       console.error("[Pre-Request Script Error]", preRequestScriptResult.left)
       return E.left("script_fail" as const)
+    }
+
+    // If the pre-request script called pm.execution.skipRequest(), abort the HTTP call.
+    // Postman does NOT roll back env mutations made before skipRequest() fires — persist them.
+    const preReqNext = (
+      preRequestScriptResult.right as SandboxPreRequestResult & SandboxNextRequest
+    ).nextRequest
+    if (preReqNext === "__HOPP_SKIP_REQUEST__") {
+      const skipPrivateSentinels = new Set([
+        "__hopp_row__",
+        "__hopp_iteration_count__",
+        "__hopp_current_iteration__",
+      ])
+      const skipColumnInjectedValues = new Map<string, string>(
+        iterationDataEntries.map((e) => [e.key, e.currentValue])
+      )
+      // Dataset columns are only injected into `selected`, never into `global`.
+      // For `global`: only strip private sentinels — column-key stripping would
+      // silently discard a legitimate pm.globals.set() whose value happens to
+      // equal a dataset column value.
+      const stripSkipGlobalKeys = (
+        vars: (typeof preRequestScriptResult.right.updatedEnvs)["global"]
+      ) => vars.filter((v) => !skipPrivateSentinels.has(v.key))
+      // For `selected`: strip private sentinels AND unmodified dataset column
+      // copies (runner-injected value was never overwritten by the script).
+      const stripSkipSelectedKeys = (
+        vars: (typeof preRequestScriptResult.right.updatedEnvs)["selected"]
+      ) =>
+        vars.filter((v) => {
+          if (skipPrivateSentinels.has(v.key)) return false
+          if (skipColumnInjectedValues.has(v.key)) {
+            return v.currentValue !== skipColumnInjectedValues.get(v.key)
+          }
+          return true
+        })
+      const skipCleanedGlobal = stripSkipGlobalKeys(
+        preRequestScriptResult.right.updatedEnvs.global
+      )
+      const skipCleanedSelected = stripSkipSelectedKeys(
+        preRequestScriptResult.right.updatedEnvs.selected
+      )
+      const skipCleanedEnvs = {
+        global: skipCleanedGlobal,
+        selected: skipCleanedSelected,
+      }
+      if (persistEnv) {
+        if (hasEnvironmentChanges(initialEnvsForComparison, skipCleanedEnvs)) {
+          updateEnvsAfterTestScript(
+            {
+              _tag: "Right",
+              right: {
+                ...preRequestScriptResult.right,
+                envs: skipCleanedEnvs,
+              } as unknown as SandboxTestResult,
+            },
+            initialEnvironmentIndex,
+            initialEnvName,
+            initialEnvID
+          )
+        }
+      } else {
+        setTemporaryVariables([...skipCleanedGlobal, ...skipCleanedSelected])
+      }
+      return E.right({
+        response: {
+          type: "network_fail" as const,
+          error: "Request skipped via pm.execution.skipRequest()",
+          req: request,
+        },
+        testResult: {
+          description: "",
+          expectResults: [],
+          tests: [],
+          scriptError: false,
+          envDiff: {
+            global: {
+              additions: getAddedEnvVariables(initialGlobalEnvs, skipCleanedGlobal),
+              updations: getUpdatedEnvVariables(initialGlobalEnvs, skipCleanedGlobal),
+              deletions: getRemovedEnvVariables(initialGlobalEnvs, skipCleanedGlobal),
+            },
+            selected: {
+              additions: getAddedEnvVariables(initialSelectedEnvs, skipCleanedSelected),
+              updations: getUpdatedEnvVariables(initialSelectedEnvs, skipCleanedSelected),
+              deletions: getRemovedEnvVariables(initialSelectedEnvs, skipCleanedSelected),
+            },
+          },
+          consoleEntries: preRequestScriptResult.right.consoleEntries ?? [],
+        },
+        updatedRequest: request,
+        nextRequest: "__HOPP_SKIP_REQUEST__" as string,
+      })
     }
 
     const finalRequestVariables = pipe(
@@ -931,7 +1097,19 @@ export async function runTestRunnerRequest(
         combineEnvVariables({
           environments: {
             ...preRequestScriptResult.right.updatedEnvs,
-            temp: !persistEnv ? getTemporaryVariables() : [],
+            // Inject iteration data as temp vars so pm.iterationData.get() and
+            // pm.variables.get() can both resolve dataset keys.
+            temp: [
+              ...(!persistEnv ? getTemporaryVariables() : []),
+              ...(iterationData
+                ? Object.entries(iterationData).map(([key, value]) => ({
+                    key,
+                    initialValue: String(value ?? ""),
+                    currentValue: String(value ?? ""),
+                    secret: false,
+                  }))
+                : []),
+            ],
           },
           requestVariables: finalRequestVariables,
           collectionVariables: inheritedVariables,
@@ -948,8 +1126,38 @@ export async function runTestRunnerRequest(
         if (res?.type === "success" || res?.type === "fail") {
           executedResponses$.next(res)
 
+          // Inject "__hopp_row__" and "__hopp_iteration_count__" into the post-request
+          // selected env so pm.iterationData.toObject()/toJSON() and
+          // pm.execution.iterationCount both resolve correctly inside post-request scripts.
+          const postRequestEnvs: typeof preRequestScriptResult.right.updatedEnvs =
+            {
+              ...preRequestScriptResult.right.updatedEnvs,
+              selected: [
+                // Remove any pre-existing sentinel keys first to avoid duplicates
+                ...preRequestScriptResult.right.updatedEnvs.selected.filter(
+                  (v) =>
+                    v.key !== "__hopp_row__" &&
+                    v.key !== "__hopp_iteration_count__" &&
+                    v.key !== "__hopp_current_iteration__"
+                ),
+                ...(iterationRowVar
+                  ? [
+                      ...iterationDataEntries.filter(
+                        (v) =>
+                          !preRequestScriptResult.right.updatedEnvs.selected.some(
+                            (s) => s.key === v.key
+                          )
+                      ),
+                      iterationRowVar,
+                    ]
+                  : []),
+                iterationCountVar,
+                iterationIndexVar,
+              ],
+            }
+
           const postRequestScriptResult = await runPostRequestScript(
-            preRequestScriptResult.right.updatedEnvs,
+            postRequestEnvs,
             res.req,
             {
               status: res.statusCode,
@@ -963,9 +1171,79 @@ export async function runTestRunnerRequest(
           )
 
           if (E.isRight(postRequestScriptResult)) {
+            const preRequestResultWithNext = preRequestScriptResult.right as
+              | (SandboxPreRequestResult & SandboxNextRequest)
+              | SandboxPreRequestResult
+
+            const postRequestResultWithNext = postRequestScriptResult.right as
+              | (SandboxTestResult & SandboxNextRequest)
+              | SandboxTestResult
+
+            const resolvedNextRequest =
+              postRequestResultWithNext.nextRequest !== undefined
+                ? postRequestResultWithNext.nextRequest
+                : preRequestResultWithNext.nextRequest
+
+            // Strip runner-injected sentinel keys from the post-request envs so they
+            // don't appear as user-visible environment changes/additions.
+            //
+            // Private sentinel keys (__hopp_row__, __hopp_iteration_count__) are
+            // ALWAYS stripped — the user never writes to these directly.
+            //
+            // Individual dataset column keys are stripped ONLY when the entry's
+            // currentValue still matches the value the runner originally injected
+            // (meaning the user's script never called pm.environment.set() for that
+            // key, or called it with the identical value).  If the user deliberately
+            // wrote a different value via pm.environment.set("city", "Paris"), the
+            // entry's currentValue will differ from the injected copy and it will be
+            // preserved, enabling the common Postman pattern of reading a dataset
+            // column, transforming it, and storing the result back to the environment.
+            const iterationPrivateSentinels = new Set<string>([
+              "__hopp_row__",
+              "__hopp_iteration_count__",
+              "__hopp_current_iteration__",
+            ])
+            // Map from column key → the string value the runner injected so we can
+            // detect unmodified copies.
+            const iterationColumnInjectedValues = new Map<string, string>(
+              iterationDataEntries.map((e) => [e.key, e.currentValue])
+            )
+            // Dataset columns are only injected into the `selected` scope, never into
+            // `global`. Applying column-key stripping to `global` would silently discard
+            // legitimate pm.globals.set() writes whose value happens to equal a dataset
+            // column value. For the global scope only remove the private sentinels.
+            const stripGlobalIterationKeys = (
+              vars: TestResult["envs"]["global"]
+            ) => vars.filter((v) => !iterationPrivateSentinels.has(v.key))
+
+            // For the selected scope: strip private sentinels AND unmodified dataset
+            // column copies (i.e. the runner-injected value was never overwritten).
+            const stripSelectedIterationKeys = (
+              vars: TestResult["envs"]["selected"]
+            ) =>
+              vars.filter((v) => {
+                if (iterationPrivateSentinels.has(v.key)) return false
+                if (iterationColumnInjectedValues.has(v.key)) {
+                  return (
+                    v.currentValue !== iterationColumnInjectedValues.get(v.key)
+                  )
+                }
+                return true
+              })
+
+            const cleanedPostEnvs: TestResult["envs"] = {
+              global: stripGlobalIterationKeys(
+                postRequestScriptResult.right.envs.global
+              ),
+              selected: stripSelectedIterationKeys(
+                postRequestScriptResult.right.envs.selected
+              ),
+            }
+
             // Combine console entries from pre and post request scripts
             const combinedResult = {
               ...postRequestScriptResult.right,
+              envs: cleanedPostEnvs,
               consoleEntries: [
                 ...(preRequestScriptResult.right.consoleEntries ?? []),
                 ...(postRequestScriptResult.right.consoleEntries ?? []),
@@ -983,11 +1261,18 @@ export async function runTestRunnerRequest(
               if (
                 hasEnvironmentChanges(
                   initialEnvsForComparison, // Initial script environment when requests started
-                  postRequestScriptResult.right.envs // Final script environment after test script execution
+                  cleanedPostEnvs // Final script environment after test script execution
                 )
               ) {
+                const cleanedRight: E.Right<SandboxTestResult> = {
+                  _tag: "Right",
+                  right: {
+                    ...postRequestScriptResult.right,
+                    envs: cleanedPostEnvs,
+                  },
+                }
                 updateEnvsAfterTestScript(
-                  postRequestScriptResult,
+                  cleanedRight,
                   initialEnvironmentIndex,
                   initialEnvName,
                   initialEnvsForComparison,
@@ -997,8 +1282,8 @@ export async function runTestRunnerRequest(
             } else {
               // Combine global and selected environment changes
               const allChanges = [
-                ...postRequestScriptResult.right.envs.global,
-                ...postRequestScriptResult.right.envs.selected,
+                ...cleanedPostEnvs.global,
+                ...cleanedPostEnvs.selected,
               ]
 
               setTemporaryVariables(allChanges)
@@ -1008,6 +1293,7 @@ export async function runTestRunnerRequest(
               response: res,
               testResult: sandboxTestResult,
               updatedRequest: finalRequest,
+              nextRequest: resolvedNextRequest,
             })
           }
 
@@ -1040,6 +1326,11 @@ export async function runTestRunnerRequest(
             response: res,
             testResult: sandboxTestResult,
             updatedRequest: finalRequest,
+            nextRequest: (
+              preRequestScriptResult.right as
+                | (SandboxPreRequestResult & SandboxNextRequest)
+                | SandboxPreRequestResult
+            ).nextRequest,
           })
         }
       })

@@ -760,21 +760,18 @@ function setupUserCollectionDuplicatedSubscription() {
             }
           } else {
             const collectionInsertedViaStoreUpdateIndexPath = `${parentCollectionPath}/${collectionInsertedViaStoreUpdateIdx}`
+            // After remove + append, the new folder sits at the last index;
+            // editing the placeholder path now would hit a shifted sibling.
+            const newFolderPath = `${parentCollectionPath}/${parentCollection.folders.length - 1}`
 
             if (collectionType === "GQL") {
               removeGraphqlFolder(collectionInsertedViaStoreUpdateIndexPath)
               addGraphqlFolder(name, parentCollectionPath)
-              editGraphqlFolder(
-                collectionInsertedViaStoreUpdateIndexPath,
-                effectiveDuplicatedCollection
-              )
+              editGraphqlFolder(newFolderPath, effectiveDuplicatedCollection)
             } else {
               removeRESTFolder(collectionInsertedViaStoreUpdateIndexPath)
               addRESTFolder(name, parentCollectionPath)
-              editRESTFolder(
-                collectionInsertedViaStoreUpdateIndexPath,
-                effectiveDuplicatedCollection
-              )
+              editRESTFolder(newFolderPath, effectiveDuplicatedCollection)
             }
           }
         })

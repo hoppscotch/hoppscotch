@@ -72,7 +72,7 @@ export class UserEnvironmentsService {
       });
     }
 
-    return E.left(USER_ENVIRONMENT_ENV_DOES_NOT_EXIST);
+    return E.left(USER_ENVIRONMENT_GLOBAL_ENV_DOES_NOT_EXIST);
   }
 
   /**

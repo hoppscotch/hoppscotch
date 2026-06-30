@@ -5,6 +5,7 @@ import { UserEnvironmentsService } from './user-environments.service';
 import {
   USER_ENVIRONMENT_ENV_DOES_NOT_EXIST,
   USER_ENVIRONMENT_GLOBAL_ENV_DELETION_FAILED,
+  USER_ENVIRONMENT_GLOBAL_ENV_DOES_NOT_EXIST,
   USER_ENVIRONMENT_GLOBAL_ENV_EXISTS,
   USER_ENVIRONMENT_INVALID_ENVIRONMENT_NAME,
 } from '../errors';
@@ -140,7 +141,7 @@ describe('UserEnvironmentsService', () => {
 
       expect(
         await userEnvironmentsService.fetchUserGlobalEnvironment('abc'),
-      ).toEqualLeft(USER_ENVIRONMENT_ENV_DOES_NOT_EXIST);
+      ).toEqualLeft(USER_ENVIRONMENT_GLOBAL_ENV_DOES_NOT_EXIST);
     });
   });
 

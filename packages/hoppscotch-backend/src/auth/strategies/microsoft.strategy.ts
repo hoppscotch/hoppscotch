@@ -42,6 +42,58 @@ export class MicrosoftStrategy extends PassportStrategy(Strategy) {
     const user = await this.usersService.findUserByEmail(email);
 
     if (O.isNone(user)) {
+      // 1. Check by provider account ID first (most authoritative)
+      const userByProvider = await this.usersService.findUserByProviderAccount(
+        profile.provider,
+        profile.id,
+      );
+
+      // 2. If found by provider account, this is an existing user with possibly changed email
+      if (O.isSome(userByProvider)) {
+        let user = userByProvider.value;
+
+        // Update email if it changed on the provider side
+        if (user.email !== email) {
+          const updatedUser = await this.usersService.updateUserEmail(
+            user.uid,
+            email,
+          );
+          if (E.isLeft(updatedUser)) {
+            // Handle specific errors, e.g., if email is taken by another user
+            throw new UnauthorizedException(updatedUser.left);
+          }
+          user = updatedUser.right;
+        }
+
+        if (!user.displayName || !user.photoURL) {
+          const updatedUser = await this.usersService.updateUserDetails(
+            user,
+            profile,
+          );
+          if (E.isLeft(updatedUser)) {
+            throw new UnauthorizedException(updatedUser.left);
+          }
+          user = updatedUser.right;
+        }
+
+        // Ensure the provider account entry exists for this user
+        const providerAccountExists =
+          await this.authService.checkIfProviderAccountExists(user, profile);
+
+        if (O.isNone(providerAccountExists)) {
+          await this.usersService.createProviderAccount(
+            user,
+            accessToken,
+            refreshToken,
+            profile,
+          );
+        }
+
+        // Return the existing user (now updated with new email and/or profile info)
+        return user;
+      }
+
+      // Truly new user — create them
       const createdUser = await this.usersService.createUserSSO(
         accessToken,
         refreshToken,

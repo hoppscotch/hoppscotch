@@ -538,7 +538,6 @@
         "versions": "版本",
         "create_new_version": "创建新版本",
         "invalid_version": "版本只能包含字母数字字符、点和连字符",
-        "snapshot_description": "这会将当前文档快照保存为此版本",
         "live": "实时版",
         "snapshot": "快照",
         "version_immutable": "已发布版本为只读快照",
@@ -559,7 +558,6 @@
         "snapshot_promote_warning": "启用自动同步会将此冻结快照替换为实时集合树。此操作无法撤销。",
         "live_freeze_notice": "自动同步将被关闭，并且此版本会冻结在当前集合状态。",
         "untitled_project": "未命名项目",
-        "first_publish_hint": "您的文档将作为一个实时版本发布，并自动与您的集合保持同步",
         "environment": "环境",
         "no_environment": "无环境",
         "environment_description": "附加一个环境以解析已发布文档中的变量"

@@ -27,10 +27,7 @@ const here = dirname(fileURLToPath(import.meta.url))
 
 describe("RequestRunner cookie-jar binding", () => {
   test("binds CookieJarService lazily on first call", () => {
-    const source = readFileSync(
-      resolve(here, "../RequestRunner.ts"),
-      "utf8"
-    )
+    const source = readFileSync(resolve(here, "../RequestRunner.ts"), "utf8")
     // The optional `\s*:\s*\S+` group catches a typed eager binding
     // like `const cookieJarService: CookieJarService = getService(...)`
     // which a plain `^const\s+\w+\s*=` would skip.

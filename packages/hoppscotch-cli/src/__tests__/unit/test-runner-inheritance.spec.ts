@@ -4,6 +4,7 @@ import * as E from "fp-ts/Either";
 
 import { testRunner } from "../../utils/test";
 import { HoppEnvs } from "../../types/request";
+import { isolatedVmSupported } from "../helpers/isolated-vm-compat";
 
 const SAMPLE_ENVS: HoppEnvs = {
   global: [],
@@ -201,34 +202,37 @@ describe("testRunner - inheritance", () => {
   // Note: the post-`await` drop is not currently user-reachable here either
   // (see pre-request-inheritance.spec.ts for context). User-facing coverage
   // for the web worker async path is in packages/hoppscotch-cli/src/__tests__/e2e/.
-  test("Legacy sandbox registers inherited test scripts", async () => {
-    const rootTestScript = `
-      pw.test("Root collection test", () => {
-        pw.expect(pw.response.status).toBe(200);
-      });
-    `;
+  test.skipIf(!isolatedVmSupported)(
+    "Legacy sandbox registers inherited test scripts",
+    async () => {
+      const rootTestScript = `
+        pw.test("Root collection test", () => {
+          pw.expect(pw.response.status).toBe(200);
+        });
+      `;
 
-    const result = await testRunner({
-      request: makeRESTRequest({
-        ...SAMPLE_REQUEST,
-        testScript: `
-          pw.test("Request test", () => {
-            pw.expect(pw.response.status).toBe(200);
-          });
-        `,
-      }),
-      envs: SAMPLE_ENVS,
-      response: SAMPLE_RESPONSE,
-      legacySandbox: true,
-      inheritedTestScripts: [rootTestScript],
-    })();
+      const result = await testRunner({
+        request: makeRESTRequest({
+          ...SAMPLE_REQUEST,
+          testScript: `
+            pw.test("Request test", () => {
+              pw.expect(pw.response.status).toBe(200);
+            });
+          `,
+        }),
+        envs: SAMPLE_ENVS,
+        response: SAMPLE_RESPONSE,
+        legacySandbox: true,
+        inheritedTestScripts: [rootTestScript],
+      })();
 
-    expect(result).toBeRight();
+      expect(result).toBeRight();
 
-    if (E.isRight(result)) {
-      const descriptors = result.right.testsReport.map((r) => r.descriptor);
-      expect(descriptors).toContain("Request test");
-      expect(descriptors).toContain("Root collection test");
+      if (E.isRight(result)) {
+        const descriptors = result.right.testsReport.map((r) => r.descriptor);
+        expect(descriptors).toContain("Request test");
+        expect(descriptors).toContain("Root collection test");
+      }
     }
-  });
+  );
 });

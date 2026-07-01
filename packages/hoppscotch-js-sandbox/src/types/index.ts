@@ -162,16 +162,20 @@ export type TestResult = {
 export type GlobalEnvItem = TestResult["envs"]["global"][number]
 export type SelectedEnvItem = TestResult["envs"]["selected"][number]
 
+export type SandboxConsoleEntry = ConsoleEntry & {
+  collapsed?: boolean
+}
+
 export type SandboxTestResult = {
   tests: TestDescriptor
   envs: TestResult["envs"]
-  consoleEntries?: ConsoleEntry[]
+  consoleEntries?: SandboxConsoleEntry[]
   updatedCookies: Cookie[] | null
 }
 
 export type SandboxPreRequestResult = {
   updatedEnvs: TestResult["envs"]
-  consoleEntries?: ConsoleEntry[]
+  consoleEntries?: SandboxConsoleEntry[]
   updatedRequest?: HoppRESTRequest
   updatedCookies: Cookie[] | null
 }

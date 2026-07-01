@@ -4,6 +4,20 @@
 import { spawn } from 'child_process';
 import process from 'process';
 
+// Caddy bind port — when set, must be an unprivileged integer (1024-65535).
+const RESERVED_PORTS = ['3170', '8080'];
+const altPort = process.env.HOPP_ALTERNATE_PORT;
+if (altPort !== undefined) {
+  if (!(/^[0-9]+$/.test(altPort) && +altPort >= 1024 && +altPort <= 65535)) {
+    console.error(`HOPP_ALTERNATE_PORT="${altPort}" is invalid: use an integer in 1024-65535 (e.g. 8000).`);
+    process.exit(1);
+  }
+  if (RESERVED_PORTS.includes(altPort)) {
+    console.error(`HOPP_ALTERNATE_PORT="${altPort}" is already used by this image (${RESERVED_PORTS.join(', ')}); pick another port (e.g. 8000).`);
+    process.exit(1);
+  }
+}
+
 function runChildProcessWithPrefix(command, args, prefix) {
   const childProcess = spawn(command, args);
 

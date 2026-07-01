@@ -155,6 +155,10 @@ COPY --from=base_builder /usr/src/app/packages/hoppscotch-backend/prod_run.mjs /
 ENV PRODUCTION="true"
 ENV PORT=8080
 
+# Writable Caddy storage for non-root UIDs (no writable $HOME needed).
+ENV XDG_DATA_HOME=/tmp
+ENV XDG_CONFIG_HOME=/tmp
+
 WORKDIR /dist/backend
 
 CMD ["node", "prod_run.mjs"]
@@ -179,6 +183,14 @@ COPY --from=webapp_server_builder /usr/src/app/packages/hoppscotch-selfhost-web/
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/prod_run.mjs /site/prod_run.mjs
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/selfhost-web.Caddyfile /etc/caddy/selfhost-web.Caddyfile
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist/ /site/selfhost-web
+
+# Writable Caddy storage for non-root UIDs (no writable $HOME needed).
+ENV XDG_DATA_HOME=/tmp
+ENV XDG_CONFIG_HOME=/tmp
+
+# Env injection rewrites /site in place; make it group-writable (GID 0) so a
+# non-root UID (OpenShift runs as GID 0) can write. No-op for root.
+RUN chgrp -R 0 /site && chmod -R g=rwX /site
 
 WORKDIR /site
 # Run both webapp-server and Caddy after env processing (NOTE: env processing is required by both)
@@ -206,6 +218,14 @@ COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/sh-admin-
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/sh-admin-subpath-access.Caddyfile /etc/caddy/sh-admin-subpath-access.Caddyfile
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-multiport-setup /site/sh-admin-multiport-setup
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-subpath-access /site/sh-admin-subpath-access
+
+# Writable Caddy storage for non-root UIDs (no writable $HOME needed).
+ENV XDG_DATA_HOME=/tmp
+ENV XDG_CONFIG_HOME=/tmp
+
+# Env injection rewrites /site in place; make it group-writable (GID 0) so a
+# non-root UID (OpenShift runs as GID 0) can write. No-op for root.
+RUN chgrp -R 0 /site && chmod -R g=rwX /site
 
 WORKDIR /site
 CMD ["node","/site/prod_run.mjs"]
@@ -247,6 +267,14 @@ COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-subp
 COPY aio-multiport-setup.Caddyfile /etc/caddy/aio-multiport-setup.Caddyfile
 COPY aio-subpath-access.Caddyfile /etc/caddy/aio-subpath-access.Caddyfile
 
+# Writable Caddy storage for non-root UIDs (no writable $HOME needed).
+ENV XDG_DATA_HOME=/tmp
+ENV XDG_CONFIG_HOME=/tmp
+
+# Env injection rewrites /site in place; make it group-writable (GID 0) so a
+# non-root UID (OpenShift runs as GID 0) can write. No-op for root.
+RUN chgrp -R 0 /site && chmod -R g=rwX /site
+
 ENTRYPOINT [ "tini", "--" ]
 COPY --chmod=755 healthcheck.sh /
 HEALTHCHECK --interval=2s --start-period=15s CMD /bin/sh /healthcheck.sh
@@ -254,7 +282,9 @@ HEALTHCHECK --interval=2s --start-period=15s CMD /bin/sh /healthcheck.sh
 WORKDIR /dist/backend
 CMD ["node", "/usr/src/app/aio_run.mjs"]
 
-# NOTE: Although these ports are exposed, the HOPP_ALTERNATE_AIO_PORT variable can be used to assign a user-specified port
+# NOTE: Although these ports are exposed, HOPP_ALTERNATE_PORT assigns the HTTP port
+#       Caddy listens on (default 80) — required under a non-root UID, which cannot
+#       bind ports < 1024. The legacy HOPP_AIO_ALTERNATE_PORT is still honoured.
 EXPOSE 3170
 EXPOSE 3000
 EXPOSE 3100

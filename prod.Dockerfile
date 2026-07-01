@@ -155,6 +155,11 @@ COPY --from=base_builder /usr/src/app/packages/hoppscotch-backend/prod_run.mjs /
 ENV PRODUCTION="true"
 ENV PORT=8080
 
+# Point Caddy's data/config storage at a world-writable path so the image can run
+# under an arbitrary non-root UID (e.g. OpenShift) without needing $HOME to be writable.
+ENV XDG_DATA_HOME=/tmp
+ENV XDG_CONFIG_HOME=/tmp
+
 WORKDIR /dist/backend
 
 CMD ["node", "prod_run.mjs"]
@@ -179,6 +184,17 @@ COPY --from=webapp_server_builder /usr/src/app/packages/hoppscotch-selfhost-web/
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/prod_run.mjs /site/prod_run.mjs
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/selfhost-web.Caddyfile /etc/caddy/selfhost-web.Caddyfile
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist/ /site/selfhost-web
+
+# Point Caddy's data/config storage at a world-writable path so the image can run
+# under an arbitrary non-root UID (e.g. OpenShift) without needing $HOME to be writable.
+ENV XDG_DATA_HOME=/tmp
+ENV XDG_CONFIG_HOME=/tmp
+
+# Runtime env injection rewrites the built assets under /site in place, so make the
+# tree group-owned by GID 0 and group-writable. This is a no-op for the default root
+# user, but lets an arbitrary non-root UID (which OpenShift always runs with GID 0)
+# perform the rewrite.
+RUN chgrp -R 0 /site && chmod -R g=rwX /site
 
 WORKDIR /site
 # Run both webapp-server and Caddy after env processing (NOTE: env processing is required by both)
@@ -206,6 +222,16 @@ COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/sh-admin-
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/sh-admin-subpath-access.Caddyfile /etc/caddy/sh-admin-subpath-access.Caddyfile
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-multiport-setup /site/sh-admin-multiport-setup
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-subpath-access /site/sh-admin-subpath-access
+
+# Point Caddy's data/config storage at a world-writable path so the image can run
+# under an arbitrary non-root UID (e.g. OpenShift) without needing $HOME to be writable.
+ENV XDG_DATA_HOME=/tmp
+ENV XDG_CONFIG_HOME=/tmp
+
+# Runtime env injection rewrites the built assets under /site in place, so make the
+# tree group-owned by GID 0 and group-writable. No-op for the default root user; lets
+# an arbitrary non-root UID (OpenShift always runs with GID 0) perform the rewrite.
+RUN chgrp -R 0 /site && chmod -R g=rwX /site
 
 WORKDIR /site
 CMD ["node","/site/prod_run.mjs"]
@@ -247,6 +273,16 @@ COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-subp
 COPY aio-multiport-setup.Caddyfile /etc/caddy/aio-multiport-setup.Caddyfile
 COPY aio-subpath-access.Caddyfile /etc/caddy/aio-subpath-access.Caddyfile
 
+# Point Caddy's data/config storage at a world-writable path so the image can run
+# under an arbitrary non-root UID (e.g. OpenShift) without needing $HOME to be writable.
+ENV XDG_DATA_HOME=/tmp
+ENV XDG_CONFIG_HOME=/tmp
+
+# Runtime env injection rewrites the built assets under /site in place, so make the
+# tree group-owned by GID 0 and group-writable. No-op for the default root user; lets
+# an arbitrary non-root UID (OpenShift always runs with GID 0) perform the rewrite.
+RUN chgrp -R 0 /site && chmod -R g=rwX /site
+
 ENTRYPOINT [ "tini", "--" ]
 COPY --chmod=755 healthcheck.sh /
 HEALTHCHECK --interval=2s --start-period=15s CMD /bin/sh /healthcheck.sh
@@ -254,7 +290,9 @@ HEALTHCHECK --interval=2s --start-period=15s CMD /bin/sh /healthcheck.sh
 WORKDIR /dist/backend
 CMD ["node", "/usr/src/app/aio_run.mjs"]
 
-# NOTE: Although these ports are exposed, the HOPP_ALTERNATE_AIO_PORT variable can be used to assign a user-specified port
+# NOTE: Although these ports are exposed, the HOPP_ALTERNATE_PORT variable can be used to assign a user-specified
+#       HTTP port for Caddy (defaults to 80). This is required to run under a non-root UID, which cannot bind ports < 1024.
+#       The legacy HOPP_AIO_ALTERNATE_PORT variable is still honoured as a fallback for backward compatibility.
 EXPOSE 3170
 EXPOSE 3000
 EXPOSE 3100

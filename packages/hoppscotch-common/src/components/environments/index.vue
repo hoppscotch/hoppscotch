@@ -27,6 +27,7 @@
       :loading="loading"
       :adapter-error="adapterError"
       @select-environment="handleEnvironmentChange"
+      @refetch-environments="refetchTeamEnvironments"
     />
     <EnvironmentsMyDetails
       :show="showModalDetails"
@@ -144,6 +145,12 @@ const selectedEnvironmentIndex = useStream(
 const loading = computed(
   () => adapterLoading.value && teamEnvironmentList.value.length === 0
 )
+
+const refetchTeamEnvironments = () => {
+  if (environmentType.value.selectedTeam?.teamID) {
+    adapter.fetchList().catch((e) => console.error(e))
+  }
+}
 
 const switchToMyEnvironments = () => {
   environmentType.value.selectedTeam = undefined
@@ -290,6 +297,7 @@ const duplicateGlobalEnvironment = async () => {
           // duplicated environment — duplicates start fresh on secrets per
           // the per-entity secret model.
           toast.success(t("environment.duplicated"))
+          refetchTeamEnvironments()
         }
       )
     )()
@@ -343,6 +351,7 @@ const removeSelectedEnvironment = () => {
           secretEnvironmentService.deleteSecretEnvironment(teamEnvID)
           currentEnvironmentValueService.deleteEnvironment(teamEnvID)
           toast.success(`${t("team_environment.deleted")}`)
+          refetchTeamEnvironments()
         }
       )
     )()

@@ -198,7 +198,7 @@ const saveRequest = () => {
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
-      platform: "graphql",
+      platform: "gql",
       createdNow: false,
       workspaceType: "personal",
     })
@@ -207,7 +207,7 @@ const saveRequest = () => {
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
-      platform: "graphql",
+      platform: "gql",
       createdNow: false,
       workspaceType: "team",
     })

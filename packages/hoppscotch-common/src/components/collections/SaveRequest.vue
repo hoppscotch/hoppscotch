@@ -405,7 +405,7 @@ const saveRequestAs = async () => {
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
       createdNow: true,
-      platform: "rest",
+      platform: isGQLRequest(requestUpdated) ? "gql" : "rest",
       workspaceType: "personal",
     })
 
@@ -453,7 +453,7 @@ const saveRequestAs = async () => {
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
       createdNow: true,
-      platform: "rest",
+      platform: isGQLRequest(requestUpdated) ? "gql" : "rest",
       workspaceType: "personal",
     })
 
@@ -502,7 +502,7 @@ const saveRequestAs = async () => {
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
       createdNow: false,
-      platform: "rest",
+      platform: isGQLRequest(requestUpdated) ? "gql" : "rest",
       workspaceType: "personal",
     })
 

@@ -477,6 +477,9 @@ export class GQLTabConnectionService extends Service {
     const t = getI18n()
 
     ctx.state = "CONNECTING"
+    // Fresh attempt, fresh slate — a failure that doesn't set its own error
+    // must not surface the previous attempt's
+    ctx.error = null
 
     const poll = async () => {
       try {

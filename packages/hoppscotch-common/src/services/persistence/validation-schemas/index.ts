@@ -715,7 +715,10 @@ export const WORKSPACE_TABS_STATE_SCHEMA = z
             inheritedProperties: z.optional(HoppInheritedPropertySchema),
           }),
           z.object({
-            type: z.literal("gql-request").catch("gql-request"),
+            // No `.catch()` on the new GQL literals — nothing legacy coerces
+            // into them, and a `.catch()` lets a corrupt gql-request doc
+            // silently morph into an empty gql-example-response doc.
+            type: z.literal("gql-request"),
             request: entityReference(HoppGQLRequest),
             isDirty: z.boolean(),
             cursorPosition: z.optional(z.number()),
@@ -728,9 +731,7 @@ export const WORKSPACE_TABS_STATE_SCHEMA = z
             inheritedProperties: z.optional(HoppInheritedPropertySchema),
           }),
           z.object({
-            type: z
-              .literal("gql-example-response")
-              .catch("gql-example-response"),
+            type: z.literal("gql-example-response"),
             response: z.nullable(entityReference(HoppGQLRequestResponse)),
             saveContext: z.optional(HoppRESTSaveContextSchema),
             isDirty: z.boolean(),

@@ -712,10 +712,9 @@ export class GQLTabConnectionService extends Service {
       ctx.schema = schemaData
       ctx.error = null
     } catch (e: any) {
-      // Mid-poll failure on an already-connected tab: drop the connection.
-      // The disconnect resets state to DISCONNECTED so poll()'s post-await
-      // guard short-circuits and stops scheduling further polls.
-      if (ctx.state === "CONNECTED") {
+      // Mid-poll failure on a connected tab: drop the connection — unless a
+      // subscription is streaming; a schema-poll blip must not kill its WS.
+      if (ctx.state === "CONNECTED" && !ctx.socket) {
         this.disconnectTab(tabId)
       }
       // Re-throw so the initial-connect path in poll() catches this and
@@ -853,6 +852,9 @@ export class GQLTabConnectionService extends Service {
     }
 
     if (operationType === "subscription") {
+      // History gets the RAW options — the resolved URL/query can carry
+      // secrets and query-param auth tokens.
+      this.addQueryToHistory(options, "")
       // Hand the subscription path templated URL + query so the WS payload
       // resolves the same way the HTTP path does.
       return this.runTabSubscription(
@@ -1201,7 +1203,8 @@ export class GQLTabConnectionService extends Service {
       }
     }
 
-    this.addQueryToHistory(options, "")
+    // History is written by the caller with raw options; `options` here is
+    // the resolved wire copy.
 
     return socket
   }

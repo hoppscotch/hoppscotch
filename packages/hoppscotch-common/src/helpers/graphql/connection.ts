@@ -341,9 +341,12 @@ const getSchema = async (options: ConnectionRequestOptions) => {
     connection.error = null
   } catch (e: any) {
     console.error(e)
+    // Guarded: disconnect() throws while still CONNECTING
     if (connection.state === "CONNECTED") {
       disconnect()
     }
+    // Re-throw so poll() sets ERROR instead of promoting a null schema to CONNECTED
+    throw e
   }
 }
 

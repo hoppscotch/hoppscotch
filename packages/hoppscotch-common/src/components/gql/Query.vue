@@ -113,7 +113,7 @@ import { selectedGQLOpHighlight } from "~/helpers/editor/gql/operation"
 import { debounce } from "lodash-es"
 import { ViewUpdate } from "@codemirror/view"
 import { defineActionHandler } from "~/helpers/actions"
-import { schema } from "~/helpers/graphql/connection"
+import { GQLTabConnectionService } from "~/services/gql-tab-connection.service"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { useService } from "dioc/vue"
@@ -165,6 +165,11 @@ const queryBuilder = useService(GQLQueryBuilderService)
 const updatedQuery = queryBuilder.updatedQuery
 const cursorPosition = queryBuilder.cursorPosition
 const operationDefinitions = queryBuilder.operations
+
+// Active tab's schema — not the legacy /graphql page singleton, which the
+// unified workspace never writes.
+const gqlTabConn = useService(GQLTabConnectionService)
+const schema = gqlTabConn.activeTabSchema
 
 const debouncedOnUpdateQueryState = debounce((update: ViewUpdate) => {
   const selectedPos = update.state.selection.main.head

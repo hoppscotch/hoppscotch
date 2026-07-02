@@ -16,7 +16,7 @@ import { WorkspaceService } from "~/services/workspace.service"
 import RESTTeamRequestEntry from "~/components/app/spotlight/entry/RESTTeamRequestEntry.vue"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
-import { HoppRESTRequest } from "@hoppscotch/data"
+import { HoppGQLRequest, HoppRESTRequest, isGQLRequest } from "@hoppscotch/data"
 import MiniSearch from "minisearch"
 import { invokeAction } from "~/helpers/actions"
 
@@ -233,6 +233,24 @@ export class TeamsSpotlightSearcherService
 
     if (possibleTab) {
       this.tabs.setActiveTab(possibleTab.value.id)
+    } else if (
+      isGQLRequest(selectedRequest.request as HoppRESTRequest | HoppGQLRequest)
+    ) {
+      // Team collections hold mixed types — route GQL requests to a gql tab
+      this.tabs.createNewTab({
+        request: cloneDeep(
+          selectedRequest.request as unknown as HoppGQLRequest
+        ),
+        isDirty: false,
+        type: "gql-request",
+        cursorPosition: 0,
+        saveContext: {
+          originLocation: "team-collection",
+          requestID: selectedRequest.id,
+          collectionID: selectedRequest.collectionID,
+        },
+        inheritedProperties: inheritedProperties,
+      })
     } else {
       this.tabs.createNewTab({
         request: cloneDeep(selectedRequest.request as HoppRESTRequest),

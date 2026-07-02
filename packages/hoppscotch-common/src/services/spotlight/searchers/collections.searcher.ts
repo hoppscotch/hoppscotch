@@ -25,6 +25,7 @@ import {
 } from "@hoppscotch/data"
 import { WorkspaceService } from "~/services/workspace.service"
 import { invokeAction } from "~/helpers/actions"
+import { isGQLRequest } from "~/helpers/request-type"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { GQLTabService } from "~/services/tab/graphql"
 
@@ -314,27 +315,49 @@ export class CollectionsSpotlightSearcherService
         this.restTab.setActiveTab(possibleTab.value.id)
       } else {
         const req = this.getRESTFolderFromFolderPath(folderPath.join("/"))
-          ?.requests[reqIndex] as HoppRESTRequest
+          ?.requests[reqIndex]
 
         if (!req) return
 
-        this.restTab.createNewTab(
-          {
-            type: "request",
-            request: req,
-            isDirty: false,
-            saveContext: {
-              originLocation: "user-collection",
-              folderPath: folderPath.join("/"),
-              requestIndex: reqIndex,
+        // Collections hold mixed types — route GQL requests to a gql tab
+        if (isGQLRequest(req)) {
+          this.restTab.createNewTab(
+            {
+              type: "gql-request",
+              request: req as HoppGQLRequest,
+              isDirty: false,
+              cursorPosition: 0,
+              saveContext: {
+                originLocation: "user-collection",
+                folderPath: folderPath.join("/"),
+                requestIndex: reqIndex,
+              },
+              inheritedProperties: cascadeParentCollectionForProperties(
+                folderPath.join("/"),
+                "rest"
+              ),
             },
-            inheritedProperties: cascadeParentCollectionForProperties(
-              folderPath.join("/"),
-              "rest"
-            ),
-          },
-          true
-        )
+            true
+          )
+        } else {
+          this.restTab.createNewTab(
+            {
+              type: "request",
+              request: req as HoppRESTRequest,
+              isDirty: false,
+              saveContext: {
+                originLocation: "user-collection",
+                folderPath: folderPath.join("/"),
+                requestIndex: reqIndex,
+              },
+              inheritedProperties: cascadeParentCollectionForProperties(
+                folderPath.join("/"),
+                "rest"
+              ),
+            },
+            true
+          )
+        }
       }
     } else if (type === "gql") {
       const folderPath = path.split("/").map((x) => parseInt(x))

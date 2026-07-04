@@ -2,7 +2,6 @@ import { HoppRESTHeader } from "@hoppscotch/data"
 import * as A from "fp-ts/Array"
 import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
-import * as S from "fp-ts/string"
 import parser from "yargs-parser"
 import {
   objHasArrayProperty,
@@ -10,13 +9,17 @@ import {
 } from "~/helpers/functional/object"
 import { tupleToRecord } from "~/helpers/functional/record"
 
-const getHeaderPair = flow(
-  S.replace(":", ": "),
-  S.split(": "),
-  // must have a key and a value
-  O.fromPredicate((arr) => arr.length === 2),
-  O.map(([k, v]) => [k.trim(), v?.trim() ?? ""] as [string, string])
-)
+// RFC 9110: a header is "name: value". The name ends at the first colon;
+// everything after the colon (trimmed) is the value, which may itself contain
+// ": " sequences. Splitting on all ": " would silently drop such headers.
+const getHeaderPair = (raw: string): O.Option<[string, string]> => {
+  const idx = raw.indexOf(":")
+  if (idx === -1) return O.none
+  const key = raw.slice(0, idx).trim()
+  const value = raw.slice(idx + 1).trim()
+  if (!key) return O.none
+  return O.some([key, value])
+}
 
 export function getHeaders(parsedArguments: parser.Arguments) {
   let headers: Record<string, string> = {}

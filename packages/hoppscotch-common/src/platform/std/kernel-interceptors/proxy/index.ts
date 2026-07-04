@@ -12,6 +12,7 @@ import { Service } from "dioc"
 import { Relay } from "~/kernel/relay"
 import SettingsProxy from "~/components/settings/Proxy.vue"
 import { KernelInterceptorProxyStore } from "./store"
+import { CookieJarService } from "~/services/cookie-jar.service"
 import type {
   KernelInterceptor,
   ExecutionResult,
@@ -56,6 +57,7 @@ export class ProxyKernelInterceptorService
 {
   public static readonly ID = "KERNEL_PROXY_INTERCEPTOR_SERVICE"
   private readonly store = this.bind(KernelInterceptorProxyStore)
+  private readonly cookieJar = this.bind(CookieJarService)
 
   public readonly id = "proxy"
   public readonly name = (t: ReturnType<typeof getI18n>) =>
@@ -76,7 +78,10 @@ export class ProxyKernelInterceptorService
     auth: new Set(["basic"]),
     security: new Set([]),
     proxy: new Set([]),
-    advanced: new Set([]),
+    // Proxy now attaches stored cookies to outgoing requests through
+    // the shared send path. Receive-side capture is a follow-up
+    // because proxyscotch returns Set-Cookie as a header string.
+    advanced: new Set(["cookies"]),
   } as const
   public readonly settingsEntry = markRaw({
     title: (t: ReturnType<typeof getI18n>) =>
@@ -228,7 +233,7 @@ export class ProxyKernelInterceptorService
     // request, otherwise the in-memory default (`proxy.hoppscotch.io`) is used
     // when `execute()` is called during initial page load — e.g. the OAuth
     // redirect handler on `/oauth`.
-    const pending = this.store.whenReady().then(() => {
+    const pending = this.store.whenReady().then(async () => {
       if (cancelled) return null
 
       const settings = this.store.getSettings()
@@ -236,6 +241,11 @@ export class ProxyKernelInterceptorService
       const proxyUrl = settings.proxyUrl
 
       const processedRequest = preProcessRelayRequest(request)
+
+      // Same shared send path as native and agent. proxyscotch returns
+      // Set-Cookie as a header string rather than structured cookies, so
+      // receive-side capture for the proxy path is a separate follow-up.
+      await this.cookieJar.applyCookiesToRequest(processedRequest)
 
       let content: ContentType
       const multipartKey = `proxyRequestData-${v4()}`

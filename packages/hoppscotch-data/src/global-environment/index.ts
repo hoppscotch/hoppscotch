@@ -35,3 +35,5 @@ export type GlobalEnvironment = InferredEntity<typeof GlobalEnvironment>
 export type GlobalEnvironmentVariable = InferredEntity<
   typeof GlobalEnvironment
 >["variables"][number]
+
+export const GlobalEnvironmentSchemaVersion = 2

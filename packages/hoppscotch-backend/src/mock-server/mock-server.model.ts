@@ -179,8 +179,8 @@ export class CreateMockServerInput {
   @IsOptional()
   @Field({
     nullable: true,
-    defaultValue: true,
-    description: 'Whether the mock server is publicly accessible',
+    description:
+      'Whether the mock server is publicly accessible (defaults to false/private if omitted)',
   })
   isPublic?: boolean;
 }

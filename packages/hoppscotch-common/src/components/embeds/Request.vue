@@ -65,6 +65,7 @@ import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { runRESTRequest$ } from "~/helpers/RequestRunner"
 import { HoppTab } from "~/services/tab"
 import { HoppRequestDocument } from "~/helpers/rest/document"
+import { transformRequestVariablesToAggregateEnv } from "~/helpers/utils/environments"
 
 const toast = useToast()
 const t = useI18n()
@@ -80,14 +81,11 @@ const requestCancelFunc: Ref<(() => void) | null> = ref(null)
 
 const loading = ref(false)
 
-const tabRequestVariables = computed(() => {
-  return tab.value.document.request.requestVariables.map(({ key, value }) => ({
-    key,
-    value,
-    secret: false,
-    sourceEnv: "RequestVariable",
-  }))
-})
+const tabRequestVariables = computed(() =>
+  transformRequestVariablesToAggregateEnv(
+    tab.value.document.request.requestVariables
+  )
+)
 
 const { subscribeToStream } = useStreamSubscriber()
 

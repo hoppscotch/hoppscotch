@@ -61,6 +61,12 @@
                     :type="isMasked(field.key) ? 'password' : 'text'"
                     :autofocus="false"
                     class="!my-2 !bg-primaryLight flex-1 border border-divider rounded"
+                    :class="{
+                      '!border-red-500': isConfigFieldErrored(
+                        'email',
+                        field.key,
+                      ),
+                    }"
                     input-styles="!border-0"
                   >
                     <template #button>
@@ -99,6 +105,11 @@
                     :type="isMasked(field.key) ? 'password' : 'text'"
                     :autofocus="false"
                     class="!my-2 !bg-primaryLight flex-1 border border-divider rounded"
+                    :class="{
+                      '!border-red-500': isConfigFieldErrored(
+                        'email', field.key,
+                      ),
+                    }"
                     input-styles="!border-0"
                   >
                     <template #button>
@@ -122,6 +133,12 @@
                   :type="isMasked('mailer_from_address') ? 'password' : 'text'"
                   :autofocus="false"
                   class="!my-2 !bg-primaryLight flex-1 border border-divider rounded"
+                  :class="{
+                    '!border-red-500': isConfigFieldErrored(
+                      'email',
+                      'mailer_from_address',
+                    ),
+                  }"
                   input-styles="!border-0"
                 >
                   <template #button>
@@ -156,6 +173,11 @@
                             :type="isMasked(field.key) ? 'password' : 'text'"
                             :autofocus="false"
                             class="!my-2 !bg-primaryLight flex-1 border border-divider rounded"
+                            :class="{
+                              '!border-red-500': isConfigFieldErrored(
+                                'email', field.key,
+                              ),
+                            }"
                             input-styles="!border-0"
                           >
                             <template #button>
@@ -187,6 +209,11 @@
                             :type="isMasked(field.key) ? 'password' : 'text'"
                             :autofocus="false"
                             class="!my-2 !bg-primaryLight flex-1 border border-divider rounded"
+                            :class="{
+                              '!border-red-500': isConfigFieldErrored(
+                                'email', field.key,
+                              ),
+                            }"
                             input-styles="!border-0"
                           >
                             <template #button>
@@ -236,10 +263,14 @@
 
 <script setup lang="ts">
 import { useVModel } from '@vueuse/core';
-import { computed, reactive, watch } from 'vue';
+import { computed, reactive } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import { useSmtpAuthTypeSwitch } from '~/composables/useSmtpAuthTypeSwitch';
-import { hasInputValidationFailed, ServerConfigs } from '~/helpers/configs';
+import {
+  isFieldEmpty,
+  ServerConfigs,
+  useConfigValidation,
+} from '~/helpers/configs';
 import IconEye from '~icons/lucide/eye';
 import IconEyeOff from '~icons/lucide/eye-off';
 import IconHelpCircle from '~icons/lucide/help-circle';
@@ -247,6 +278,8 @@ import IconLock from '~icons/lucide/lock';
 import IconShield from '~icons/lucide/shield';
 
 const t = useI18n();
+
+const { isConfigFieldErrored } = useConfigValidation();
 
 const props = defineProps<{
   config: ServerConfigs;
@@ -377,12 +410,16 @@ const isMasked = (fieldKey: keyof ServerConfigs['mailConfigs']['fields']) =>
 const toggleCheckbox = (field: CheckboxField) =>
   (smtpConfigs.value.fields[field.key] = !smtpConfigs.value.fields[field.key]);
 
-// Input Validation
+// Drives the inline banner on the SMTP URL. Border + save guard read from
+// getConfigValidationIssues (helpers/configs), same rule.
 const fieldErrors = computed(() => {
   const errors: Record<string, boolean> = {};
 
-  if (smtpConfigs.value?.fields.mailer_smtp_url) {
-    const value = smtpConfigs.value.fields.mailer_smtp_url;
+  const value = smtpConfigs.value?.fields.mailer_smtp_url;
+  // Reuse the single-source isFieldEmpty so the banner's notion of "empty"
+  // (whitespace-only included) stays identical to getConfigValidationIssues —
+  // a truthiness test would flag '   ' and disagree with the save guard.
+  if (value && !isFieldEmpty(value)) {
     errors.mailer_smtp_url =
       !value.startsWith('smtp://') && !value.startsWith('smtps://');
   }
@@ -391,10 +428,6 @@ const fieldErrors = computed(() => {
 });
 
 const getFieldError = (fieldKey: StringFieldKey) => fieldErrors.value[fieldKey];
-
-watch(fieldErrors, (errors) => {
-  hasInputValidationFailed.value.smtpUrl = Object.values(errors).some(Boolean);
-});
 
 const LOGIN_KEYS: StringFieldKey[] = [
   'mailer_smtp_user',

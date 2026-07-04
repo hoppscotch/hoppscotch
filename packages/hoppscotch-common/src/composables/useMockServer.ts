@@ -9,6 +9,7 @@ import { computed } from "vue"
 import { WorkspaceType } from "~/helpers/backend/graphql"
 import type { MockServer } from "~/helpers/backend/types/MockServer"
 import { platform } from "~/platform"
+import { sync } from "~/lib/sync/defs"
 import {
   createTeamEnvironment,
   updateTeamEnvironment,
@@ -101,8 +102,8 @@ export function useMockServer() {
         teamCollectionsService.changeTeamID(currentWorkspace.value.teamID)
       } else {
         // For personal workspace, load REST collections only (mock servers are REST-based)
-        if (platform.sync.collections.loadUserCollections) {
-          await platform.sync.collections.loadUserCollections("REST")
+        if (sync.collections.loadUserCollections) {
+          await sync.collections.loadUserCollections("REST")
         }
       }
     } catch (error) {

@@ -33,6 +33,11 @@
                   placeholder="e.g., 60 (in seconds)"
                   :autofocus="false"
                   class="!my-2 !bg-primaryLight flex-1"
+                  :input-styles="
+                    isConfigFieldErrored('rate_limit', 'rate_limit_ttl')
+                      ? '!border-red-500'
+                      : ''
+                  "
                   @update:model-value="
                     validateNumberValue(rateLimitConfig.fields.rate_limit_ttl)
                   "
@@ -45,6 +50,11 @@
                   placeholder="e.g., 100 (requests per TTL)"
                   :autofocus="false"
                   class="!my-2 !bg-primaryLight flex-1"
+                  :input-styles="
+                    isConfigFieldErrored('rate_limit', 'rate_limit_max')
+                      ? '!border-red-500'
+                      : ''
+                  "
                   @update:model-value="
                     validateNumberValue(rateLimitConfig.fields.rate_limit_max)
                   "
@@ -63,11 +73,17 @@ import { useVModel } from '@vueuse/core';
 import { computed } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
-import { ServerConfigs } from '~/helpers/configs';
+import {
+  ServerConfigs,
+  isNotValidNumber,
+  useConfigValidation,
+} from '~/helpers/configs';
 import IconHelpCircle from '~icons/lucide/help-circle';
 
 const t = useI18n();
 const toast = useToast();
+
+const { isConfigFieldErrored } = useConfigValidation();
 
 const props = defineProps<{
   config: ServerConfigs;
@@ -85,9 +101,11 @@ const rateLimitConfig = computed({
   set: (value) => (workingConfigs.value.rateLimitConfigs = value),
 });
 
+// Reuse the save-guard validator so the inline toast and the save block agree:
+// rate-limit values must be positive integers (>= 1). parseInt would accept
+// "1.5" (→ 1) and pass silently here, only for the save to be blocked later.
 const validateNumberValue = (value: string | number) => {
-  const num = typeof value === 'string' ? parseInt(value, 10) : value;
-  if (isNaN(num) || num <= 0) {
+  if (isNotValidNumber(value)) {
     toast.error(t('configs.invalid_number'));
   }
 };

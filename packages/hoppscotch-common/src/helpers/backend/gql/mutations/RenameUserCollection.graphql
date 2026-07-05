@@ -1,0 +1,8 @@
+mutation RenameUserCollection($userCollectionID: ID!, $newTitle: String!) {
+  renameUserCollection(
+    userCollectionID: $userCollectionID
+    newTitle: $newTitle
+  ) {
+    id
+  }
+}

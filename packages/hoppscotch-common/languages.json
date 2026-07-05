@@ -115,6 +115,12 @@
     "name": "한국어"
   },
   {
+    "code": "mn",
+    "file": "mn.json",
+    "iso": "mn-MN",
+    "name": "Монгол"
+  },
+  {
     "code": "nl",
     "file": "nl.json",
     "iso": "nl-NL",
@@ -167,6 +173,12 @@
     "file": "sv.json",
     "iso": "sv-SV",
     "name": "Svenska"
+  },
+  {
+    "code": "th",
+    "file": "th.json",
+    "iso": "th-TH",
+    "name": "ไทย"
   },
   {
     "code": "tr",

@@ -34,6 +34,7 @@ import {
 } from 'src/infra-config/input-args';
 import { InfraConfigEnum } from 'src/types/InfraConfig';
 import { ServiceStatus } from 'src/infra-config/helper';
+import { FetchAllTeamsV2Args, FetchAllUsersV2Args } from './input-types.args';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => Infra)
@@ -92,19 +93,11 @@ export class InfraResolver {
     description: 'Returns a list of all the users in infra',
   })
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
-  async allUsersV2(
-    @Args({
-      name: 'searchString',
-      nullable: true,
-      description: 'Search on users displayName or email',
-    })
-    searchString: string,
-    @Args() paginationOption: OffsetPaginationArgs,
-  ): Promise<AuthUser[]> {
-    const users = await this.adminService.fetchUsersV2(
-      searchString,
-      paginationOption,
-    );
+  async allUsersV2(@Args() args: FetchAllUsersV2Args): Promise<AuthUser[]> {
+    const users = await this.adminService.fetchUsersV2(args.searchString, {
+      skip: args.skip,
+      take: args.take,
+    });
     return users;
   }
 
@@ -130,19 +123,11 @@ export class InfraResolver {
   @ResolveField(() => [Team], {
     description: 'Returns a list of all the teams in the infra',
   })
-  async allTeamsV2(
-    @Args({
-      name: 'searchString',
-      nullable: true,
-      description: 'Search on team name or ID',
-    })
-    searchString: string,
-    @Args() paginationOption: OffsetPaginationArgs,
-  ): Promise<Team[]> {
-    const teams = await this.adminService.fetchAllTeamsV2(
-      searchString,
-      paginationOption,
-    );
+  async allTeamsV2(@Args() args: FetchAllTeamsV2Args): Promise<Team[]> {
+    const teams = await this.adminService.fetchAllTeamsV2(args.searchString, {
+      skip: args.skip,
+      take: args.take,
+    });
     return teams;
   }
 

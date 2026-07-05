@@ -102,8 +102,13 @@
               <div
                 class="flex items-center border border-accent pl-4 pr-2 rounded cursor-pointer"
               >
-                <icon-lucide-globe class="svg-icons" />
-
+                <div class="relative flex items-center">
+                  <icon-lucide-globe class="svg-icons" />
+                  <span
+                    v-if="selectedVersionDoc?.autoSync"
+                    class="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-green-500 ring-1 ring-primary animate-pulse"
+                  />
+                </div>
                 <HoppButtonSecondary
                   :icon="IconCheveronDown"
                   reverse
@@ -237,11 +242,6 @@
     :workspace-i-d="isTeamCollection ? teamID || '' : ''"
     :mode="publishModalMode"
     :is-first-publish="!isCollectionPublished && !isCreatingNewVersion"
-    :is-auto-sync-locked="
-      !!selectedVersionDoc &&
-      isLiveVersion(selectedVersionDoc) &&
-      !isCreatingNewVersion
-    "
     :published-doc-id="publishedDocId"
     :existing-data="existingPublishedData"
     :loading="isProcessingPublish"
@@ -270,6 +270,7 @@ import {
 
 import { updateTeamCollection } from "~/helpers/backend/mutations/TeamCollection"
 import { updateTeamRequest } from "~/helpers/backend/mutations/TeamRequest"
+import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
 import {
   CollectionDataProps,
   getSingleTeamCollectionJSON,
@@ -300,11 +301,7 @@ import {
   CreatePublishedDocsArgs,
   UpdatePublishedDocsArgs,
 } from "~/helpers/backend/graphql"
-import {
-  createPublishedDoc,
-  deletePublishedDoc,
-  updatePublishedDoc,
-} from "~/helpers/backend/mutations/PublishedDocs"
+import { platform } from "~/platform"
 
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
@@ -387,9 +384,12 @@ const publishedDocs = computed(() => {
 
 const selectedVersionDoc = ref<PublishedDocInfo | null>(null)
 
+// When viewing a snapshot from the dropdown, we use a separate ref so the
+// selected (dropdown) version isn't changed. The modal reads from this ref.
+const viewingSnapshotDoc = ref<PublishedDocInfo | null>(null)
+
 /**
- * Finds the CURRENT version from the published docs list.
- * The CURRENT version is the initial publish — identified by version string "CURRENT" (case-insensitive).
+ * Finds the live (auto-synced) version from the published docs list.
  * Falls back to the last doc (oldest, since the list is in descending order).
  */
 const findCurrentVersion = (docs: PublishedDocInfo[]): PublishedDocInfo => {
@@ -399,6 +399,14 @@ const findCurrentVersion = (docs: PublishedDocInfo[]): PublishedDocInfo => {
 watch(
   publishedDocs,
   (docs) => {
+    // Keep the snapshot-viewing doc in sync with the latest data (by ID)
+    if (viewingSnapshotDoc.value) {
+      const foundViewing = docs?.find(
+        (d) => d.id === viewingSnapshotDoc.value?.id
+      )
+      viewingSnapshotDoc.value = foundViewing ?? null
+    }
+
     if (docs && docs.length > 0) {
       // If we already have a selected version, try to keep it (by ID)
       if (selectedVersionDoc.value) {
@@ -418,17 +426,25 @@ watch(
 )
 
 const isCollectionPublished = computed(() => publishedDocs.value.length > 0)
-const publishedDocId = computed(() => selectedVersionDoc.value?.id)
+
+// The doc that the publish modal should operate on — the snapshot-being-viewed
+// takes precedence, otherwise fall back to the selected (dropdown) version.
+const activeModalDoc = computed<PublishedDocInfo | null>(
+  () => viewingSnapshotDoc.value || selectedVersionDoc.value
+)
+
+const publishedDocId = computed(() => activeModalDoc.value?.id)
 const existingPublishedData = computed(() => {
   if (isCreatingNewVersion.value) return undefined
-  if (!selectedVersionDoc.value) return undefined
+  if (!activeModalDoc.value) return undefined
   return {
-    title: selectedVersionDoc.value.title,
-    version: selectedVersionDoc.value.version,
-    autoSync: selectedVersionDoc.value.autoSync,
-    url: selectedVersionDoc.value.url,
-    environmentName: selectedVersionDoc.value.environmentName ?? null,
-    environmentID: selectedVersionDoc.value.environmentID ?? null,
+    id: activeModalDoc.value.id,
+    title: activeModalDoc.value.title,
+    version: activeModalDoc.value.version,
+    autoSync: activeModalDoc.value.autoSync,
+    url: activeModalDoc.value.url,
+    environmentName: activeModalDoc.value.environmentName ?? null,
+    environmentID: activeModalDoc.value.environmentID ?? null,
   }
 })
 
@@ -596,18 +612,22 @@ const openPublishModalForView = () => {
 
 /**
  * Handles version selection from the dropdown.
- * For frozen (snapshot) versions, auto-opens the snapshot view modal.
+ * For frozen (snapshot) versions, auto-opens the snapshot view modal without
+ * changing the currently selected dropdown version.
  * For live versions, just selects them (user can then click Edit).
  */
 const handleVersionSelect = (
   doc: PublishedDocInfo,
   hideDropdown: () => void
 ) => {
-  selectedVersionDoc.value = doc
   if (!isLiveVersion(doc)) {
+    viewingSnapshotDoc.value = doc
     hideDropdown()
     openPublishModalForView()
+    return
   }
+  selectedVersionDoc.value = doc
+  hideDropdown()
 }
 
 const createNewVersion = () => {
@@ -620,11 +640,10 @@ watch(showPublishModal, (isOpen) => {
   if (!isOpen) {
     // Reset selection back to the CURRENT version so the dropdown
     // label matches what the editor is actually showing
-    if (isViewingSnapshot.value || isCreatingNewVersion.value) {
-      if (publishedDocs.value.length > 0) {
-        selectedVersionDoc.value = findCurrentVersion(publishedDocs.value)
-      }
+    if (isCreatingNewVersion.value && publishedDocs.value.length > 0) {
+      selectedVersionDoc.value = findCurrentVersion(publishedDocs.value)
     }
+    viewingSnapshotDoc.value = null
     isCreatingNewVersion.value = false
     isViewingSnapshot.value = false
   }
@@ -717,8 +736,10 @@ const saveCollectionDocumentation = async () => {
     const data: CollectionDataProps = {
       auth: collection.auth || { authType: "inherit", authActive: true },
       headers: collection.headers || [],
-      variables: collection.variables || [],
+      variables: stripSecretVariableValuesForWire(collection.variables || []),
       description: documentationDescription.value,
+      preRequestScript: collection.preRequestScript || "",
+      testScript: collection.testScript || "",
     }
 
     pipe(
@@ -811,8 +832,12 @@ const saveCollectionDocumentationById = async (
       const data: CollectionDataProps = {
         auth: collectionData.auth || { authType: "inherit", authActive: true },
         headers: collectionData.headers || [],
-        variables: collectionData.variables || [],
+        variables: stripSecretVariableValuesForWire(
+          collectionData.variables || []
+        ),
         description: documentation,
+        preRequestScript: collectionData.preRequestScript || "",
+        testScript: collectionData.testScript || "",
       }
 
       const result = await pipe(
@@ -976,7 +1001,7 @@ const handlePublish = async (
   }
 
   await pipe(
-    createPublishedDoc(doc),
+    platform.backend.createPublishedDoc(doc),
     TE.match(
       (error) => {
         console.error("Error publishing documentation:", error)
@@ -1009,9 +1034,17 @@ const handlePublish = async (
           )
         }
 
-        // Select the new version and exit create mode
-        selectedVersionDoc.value = newDocInfo
-        isCreatingNewVersion.value = false
+        // Only select the new version if it's live; for non-live (snapshot)
+        // versions, keep the previously selected live version in the dropdown
+        // and close the modal (otherwise the mode would recompute to "update"
+        // for the still-selected live version).
+        if (isLiveVersion(newDocInfo)) {
+          selectedVersionDoc.value = newDocInfo
+          isCreatingNewVersion.value = false
+        } else {
+          isCreatingNewVersion.value = false
+          showPublishModal.value = false
+        }
       }
     )
   )()
@@ -1032,7 +1065,7 @@ const handleUpdate = async (
   }
 
   await pipe(
-    updatePublishedDoc(id, doc),
+    platform.backend.updatePublishedDoc(id, doc),
     TE.match(
       (error) => {
         console.error("Error updating documentation:", error)
@@ -1077,7 +1110,7 @@ const handleDelete = async () => {
 
   isProcessingPublish.value = true
   await pipe(
-    deletePublishedDoc(publishedDocId.value),
+    platform.backend.deletePublishedDoc(publishedDocId.value),
     TE.match(
       (error) => {
         console.error("Error deleting documentation:", error)

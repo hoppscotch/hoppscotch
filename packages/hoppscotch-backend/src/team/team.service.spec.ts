@@ -800,17 +800,20 @@ describe('getMembersOfTeam', () => {
 
 describe('getTeamsOfUser', () => {
   test('resolves with the first 10 elements when no cursor is given', async () => {
-    mockPrisma.teamMember.findMany.mockResolvedValue([]);
+    mockPrisma.team.findMany.mockResolvedValue([]);
 
     await teamService.getTeamsOfUser(dbTeamMember.userUid, null);
 
-    expect(mockPrisma.teamMember.findMany).toHaveBeenCalledWith({
+    expect(mockPrisma.team.findMany).toHaveBeenCalledWith({
       take: 10,
+      skip: 0,
+      cursor: undefined,
       where: {
-        userUid: dbTeamMember.userUid,
-      },
-      include: {
-        team: true,
+        members: {
+          some: {
+            userUid: dbTeamMember.userUid,
+          },
+        },
       },
     });
   });
@@ -818,30 +821,28 @@ describe('getTeamsOfUser', () => {
   test('resolves as expected for paginated requests with cursor', async () => {
     const cursor = 'secondpage';
 
-    mockPrisma.teamMember.findMany.mockResolvedValue([]);
+    mockPrisma.team.findMany.mockResolvedValue([]);
     await teamService.getTeamsOfUser(dbTeamMember.userUid, cursor);
 
-    expect(mockPrisma.teamMember.findMany).toHaveBeenCalledWith({
+    expect(mockPrisma.team.findMany).toHaveBeenCalledWith({
       take: 10,
       skip: 1,
       cursor: {
-        teamID_userUid: {
-          teamID: cursor,
-          userUid: dbTeamMember.userUid,
-        },
+        id: cursor,
       },
       where: {
-        userUid: dbTeamMember.userUid,
-      },
-      include: {
-        team: true,
+        members: {
+          some: {
+            userUid: dbTeamMember.userUid,
+          },
+        },
       },
     });
   });
 
   test('resolves with an empty array for an invalid cursor', () => {
     // Invalid cursors return an empty array
-    mockPrisma.teamMember.findMany.mockResolvedValue([]);
+    mockPrisma.team.findMany.mockResolvedValue([]);
 
     return expect(
       teamService.getTeamsOfUser(dbTeamMember.userUid, 'invalidcursor'),
@@ -849,7 +850,7 @@ describe('getTeamsOfUser', () => {
   });
 
   test('resolves with an empty array for invalid user id and null cursor', () => {
-    mockPrisma.teamMember.findMany.mockResolvedValue([]);
+    mockPrisma.team.findMany.mockResolvedValue([]);
 
     return expect(
       teamService.getTeamsOfUser('invalidid', null),
@@ -857,7 +858,7 @@ describe('getTeamsOfUser', () => {
   });
 
   test('resolves with an empty array for invalid user id and invalid cursor', () => {
-    mockPrisma.teamMember.findMany.mockResolvedValue([]);
+    mockPrisma.team.findMany.mockResolvedValue([]);
 
     return expect(
       teamService.getTeamsOfUser('invalidId', 'invalidCursor'),

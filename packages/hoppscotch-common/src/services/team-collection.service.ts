@@ -1,11 +1,6 @@
 import * as E from "fp-ts/Either"
 import { Subscription } from "rxjs"
-import {
-  HoppCollectionVariable,
-  HoppRESTAuth,
-  HoppRESTHeader,
-  translateToNewRequest,
-} from "@hoppscotch/data"
+import { HoppCollectionVariable, translateToNewRequest } from "@hoppscotch/data"
 import { pull, remove } from "lodash-es"
 import { Subscription as WSubscription } from "wonka"
 import {
@@ -34,6 +29,8 @@ import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { ref, watch } from "vue"
 import { Service } from "dioc"
 import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
+import { hasActualScript } from "@hoppscotch/js-sandbox/scripting"
+import { CollectionDataProps } from "~/helpers/backend/helpers"
 
 export const TEAMS_BACKEND_PAGE_SIZE = 10
 
@@ -177,6 +174,16 @@ export class TeamCollectionsService extends Service<void> {
   }
 
   /**
+   * Look up a `TeamCollection` subtree by backend `id` in the current tree.
+   * Useful before a delete mutation so callers can capture the subtree for
+   * recursive cleanup (e.g. flushing nested secret-store entries) without
+   * racing the delete subscription.
+   */
+  public findCollectionByID(id: string): TeamCollection | null {
+    return findCollInTree(this.collections.value, id)
+  }
+
+  /**
    * Watches for loading collections and updates inherited properties once loading is done
    */
   private collectionLoadingWatcher() {
@@ -291,10 +298,40 @@ export class TeamCollectionsService extends Service<void> {
       }
     }
 
+    // Migrate device-local secret entries seeded by `importToTeamsWorkspace`
+    // under the importer-stamped `_ref_id` to the backend-assigned `id`.
+    // No-op on devices that didn't seed (migration helpers skip when
+    // nothing exists under the old key).
+    this.migrateImportedSecretEntries(collection)
+
     // Add to entity ids set
     this.entityIDs.add(`collection-${collection.id}`)
 
-    this.collections.value = tree
+    this.collections.value = [...tree]
+  }
+
+  // Relies on the backend preserving `data._ref_id` at every level —
+  // each nested folder's `teamCollectionAdded` event must carry its own
+  // `data._ref_id` for migration to fire. A backend that drops nested
+  // `data` would leave per-folder entries orphaned under `_ref_id`.
+  private migrateImportedSecretEntries(collection: TeamCollection) {
+    if (!collection.data) return
+    try {
+      const parsed = JSON.parse(collection.data) as { _ref_id?: unknown }
+      if (typeof parsed._ref_id !== "string" || !parsed._ref_id) return
+      this.secretEnvironmentService.updateSecretEnvironmentID(
+        parsed._ref_id,
+        collection.id
+      )
+      this.currentEnvironmentValueService.updateEnvironmentID(
+        parsed._ref_id,
+        collection.id
+      )
+    } catch {
+      // Malformed `data` — skip migration; the secret service stays
+      // keyed by `_ref_id` and the imported secrets aren't accessible
+      // via the team `id`. Rare; only happens on a malformed backend.
+    }
   }
 
   /**
@@ -386,7 +423,7 @@ export class TeamCollectionsService extends Service<void> {
 
     updateCollInTree(tree, collectionUpdate)
 
-    this.collections.value = tree
+    this.collections.value = [...tree]
   }
 
   /**
@@ -401,7 +438,7 @@ export class TeamCollectionsService extends Service<void> {
 
     this.entityIDs.delete(`collection-${collectionID}`)
 
-    this.collections.value = tree
+    this.collections.value = [...tree]
   }
 
   /**
@@ -428,7 +465,7 @@ export class TeamCollectionsService extends Service<void> {
     // Update the Entity IDs list
     this.entityIDs.add(`request-${request.id}`)
 
-    this.collections.value = tree
+    this.collections.value = [...tree]
   }
 
   /**
@@ -447,7 +484,7 @@ export class TeamCollectionsService extends Service<void> {
 
     Object.assign(req, requestUpdate)
 
-    this.collections.value = tree
+    this.collections.value = [...tree]
   }
 
   /**
@@ -469,7 +506,7 @@ export class TeamCollectionsService extends Service<void> {
     this.entityIDs.delete(`request-${requestID}`)
 
     // Publish new tree
-    this.collections.value = tree
+    this.collections.value = [...tree]
   }
 
   /**
@@ -588,7 +625,7 @@ export class TeamCollectionsService extends Service<void> {
       this.reorderItems(collection.requests, requestIndex, destinationIndex)
     }
 
-    this.collections.value = tree
+    this.collections.value = [...tree]
   }
 
   public updateCollectionOrder = (
@@ -653,7 +690,7 @@ export class TeamCollectionsService extends Service<void> {
       }
     }
 
-    this.collections.value = tree
+    this.collections.value = [...tree]
   }
 
   private registerSubscriptions() {
@@ -1123,14 +1160,16 @@ export class TeamCollectionsService extends Service<void> {
 
     const variables: HoppInheritedProperty["variables"] = []
 
-    if (!folderPath) return { auth, headers, variables }
+    const scripts: HoppInheritedProperty["scripts"] = []
+
+    if (!folderPath) return { auth, headers, variables, scripts }
 
     const path = folderPath.split("/")
 
     // Check if the path is empty or invalid
     if (!path || path.length === 0) {
       console.error("Invalid path:", folderPath)
-      return { auth, headers, variables }
+      return { auth, headers, variables, scripts }
     }
 
     // Loop through the path and get the last parent folder with authType other than 'inherit'
@@ -1140,20 +1179,12 @@ export class TeamCollectionsService extends Service<void> {
       // Check if parentFolder is undefined or null
       if (!parentFolder) {
         console.error("Parent folder not found for path:", path)
-        return { auth, headers, variables }
+        return { auth, headers, variables, scripts }
       }
 
-      const data: {
-        auth?: HoppRESTAuth
-        headers?: HoppRESTHeader[]
-        variables?: HoppCollectionVariable[]
-      } = parentFolder.data
+      const data: Partial<CollectionDataProps> = parentFolder.data
         ? JSON.parse(parentFolder.data)
-        : {
-            auth: null,
-            headers: null,
-            variables: null,
-          }
+        : {}
 
       if (!data.auth) {
         data.auth = {
@@ -1230,9 +1261,27 @@ export class TeamCollectionsService extends Service<void> {
           ),
         })
       }
+
+      // Collect scripts from the collection hierarchy (root to child order)
+      const parentPreRequestScript = data.preRequestScript ?? ""
+      const parentTestScript = data.testScript ?? ""
+
+      if (
+        hasActualScript(parentPreRequestScript) ||
+        hasActualScript(parentTestScript)
+      ) {
+        const currentPath = path.slice(0, i + 1).join("/")
+
+        scripts.push({
+          parentID: parentFolder.id ?? currentPath,
+          parentName: parentFolder.title,
+          preRequestScript: parentPreRequestScript,
+          testScript: parentTestScript,
+        })
+      }
     }
 
-    return { auth, headers, variables }
+    return { auth, headers, variables, scripts }
   }
 
   private async waitForCollectionLoading(collectionID: string) {
@@ -1260,6 +1309,7 @@ export class TeamCollectionsService extends Service<void> {
         },
         headers: [],
         variables: [],
+        scripts: [],
       }
 
     const path = folderPath.split("/")
@@ -1278,6 +1328,7 @@ export class TeamCollectionsService extends Service<void> {
         },
         headers: [],
         variables: [],
+        scripts: [],
       }
     }
 

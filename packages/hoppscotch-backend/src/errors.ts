@@ -424,8 +424,8 @@ export const USER_SETTINGS_NULL_SETTINGS =
  * Global environment doesn't exist for the user
  * (UserEnvironmentsService)
  */
-export const USER_ENVIRONMENT_GLOBAL_ENV_DOES_NOT_EXISTS =
-  'user_environment/global_env_does_not_exists' as const;
+export const USER_ENVIRONMENT_GLOBAL_ENV_DOES_NOT_EXIST =
+  'user_environment/global_env_does_not_exist' as const;
 
 /**
  * Global environment already exists for the user
@@ -438,8 +438,8 @@ export const USER_ENVIRONMENT_GLOBAL_ENV_EXISTS =
  * User environment doesn't exist for the user
  * (UserEnvironmentsService)
  */
-export const USER_ENVIRONMENT_ENV_DOES_NOT_EXISTS =
-  'user_environment/user_env_does_not_exists' as const;
+export const USER_ENVIRONMENT_ENV_DOES_NOT_EXIST =
+  'user_environment/user_env_does_not_exist' as const;
 
 /**
  * Cannot delete the global user environment
@@ -461,6 +461,12 @@ export const USER_ENVIRONMENT_IS_NOT_GLOBAL =
  */
 export const USER_ENVIRONMENT_UPDATE_FAILED =
   'user_environment/user_env_update_failed' as const;
+
+/**
+ * User environment not found for the user
+ * (UserEnvironmentsService)
+ */
+export const USER_ENVIRONMENT_NOT_FOUND = 'user_environment/not_found' as const;
 
 /**
  * User environment invalid environment name
@@ -977,8 +983,8 @@ export const PUBLISHED_DOCS_DELETION_FAILED = 'published_docs/deletion_failed';
  * Published Docs invalid environment
  * (PublishedDocsService)
  */
-export const PUBLISHED_DOCS_INVALID_ENVIRONMENT =
-  'published_docs/invalid_environment';
+export const PUBLISHED_DOCS_FORBIDDEN_ENVIRONMENT_ACCESS =
+  'published_docs/forbidden_environment_access';
 
 /**
  * Published Docs not found

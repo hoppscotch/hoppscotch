@@ -9,7 +9,12 @@
 </template>
 
 <script setup lang="ts">
-import { Environment, NonSecretEnvironment } from "@hoppscotch/data"
+import { Environment, generateUniqueRefId } from "@hoppscotch/data"
+import {
+  populateLocalStoresFromVariables,
+  promoteInitialValueForImport,
+  stripSecretVariableValuesForWire,
+} from "~/helpers/secretVariables"
 import * as E from "fp-ts/Either"
 import { ref } from "vue"
 
@@ -24,8 +29,12 @@ import {
   addGlobalEnvVariable,
   appendEnvironments,
   environments$,
+  getGlobalVariables,
 } from "~/newstore/environments"
 
+import { useService } from "dioc/vue"
+import { CurrentValueService } from "~/services/current-environment-value.service"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { CreateTeamEnvironmentMutation } from "~/helpers/backend/graphql"
 import { createTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
@@ -55,6 +64,9 @@ const props = defineProps<{
 }>()
 
 const myEnvironments = useReadonlyStream(environments$, [])
+
+const currentEnvironmentValueService = useService(CurrentValueService)
+const secretEnvironmentService = useService(SecretEnvironmentService)
 
 const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),
@@ -358,17 +370,85 @@ const showImportFailedError = () => {
 
 const handleImportToStore = async (
   environments: Environment[],
-  globalEnvs: NonSecretEnvironment[] = []
+  globalEnvs: Environment[] = []
 ) => {
-  // Add global envs to the store
-  globalEnvs.forEach(({ variables }) => {
-    variables.forEach(({ key, initialValue, currentValue, secret }) => {
-      addGlobalEnvVariable({ key, initialValue, currentValue, secret })
-    })
-  })
+  // Per-env populate happens inside MY_ENV / TEAMS branches below, each
+  // keyed appropriately. Globals share the single `"Global"` key and must
+  // merge with existing entries — hydrate, concat, populate once.
+  if (globalEnvs.length > 0) {
+    const importedGlobals = globalEnvs.flatMap(({ variables }) => variables)
+
+    const existingHydrated: Environment["variables"] = getGlobalVariables().map(
+      (v, i) => {
+        if (v.secret) {
+          const stored = secretEnvironmentService.getSecretEnvironmentVariable(
+            "Global",
+            i
+          )
+          return {
+            ...v,
+            initialValue: stored?.initialValue ?? "",
+            currentValue: stored?.value ?? "",
+          }
+        }
+        const stored = currentEnvironmentValueService.getEnvironmentVariable(
+          "Global",
+          i
+        )
+        return {
+          ...v,
+          currentValue: stored?.currentValue ?? v.currentValue,
+        }
+      }
+    )
+
+    // `populateLocalStoresFromVariables` is a full replace for `"Global"`.
+    // Relies on the sync path above (`getGlobalVariables()` → hydrate →
+    // concat) running with no awaits in between — a future refactor that
+    // introduces one between the snapshot and this call would silently
+    // drop any global added meanwhile.
+    //
+    // Promote on the IMPORTED slice only (not `existingHydrated`) so a
+    // legacy export shape (`initialValue` set, `currentValue: ""`) lands
+    // its secrets correctly, while user-cleared existing globals stay
+    // cleared per the rehydration semantic.
+    populateLocalStoresFromVariables("Global", [
+      ...existingHydrated,
+      ...promoteInitialValueForImport(importedGlobals),
+    ])
+
+    // Append stripped imports; varIndex aligns with the hydrated entries.
+    stripSecretVariableValuesForWire(importedGlobals).forEach(
+      ({ key, initialValue, currentValue, secret }) => {
+        addGlobalEnvVariable({ key, initialValue, currentValue, secret })
+      }
+    )
+  }
 
   if (props.environmentType === "MY_ENV") {
-    appendEnvironments(environments)
+    // Always stamp a fresh temp id, even if the export carried one —
+    // re-using the exported `id` would land the populate on a store
+    // entry already owned by the original environment (then the sync
+    // remap would migrate that entry away, blanking the original's
+    // secrets). A fresh id guarantees no collision with anything in
+    // the store before the sync handler creates the new backend row.
+    const envsWithIds = environments.map((env) => ({
+      ...env,
+      id: generateUniqueRefId("env"),
+    }))
+
+    envsWithIds.forEach((env) => {
+      populateLocalStoresFromVariables(
+        env.id,
+        promoteInitialValueForImport(env.variables)
+      )
+    })
+
+    const strippedEnvironments = envsWithIds.map((env) => ({
+      ...env,
+      variables: stripSecretVariableValuesForWire(env.variables),
+    }))
+    appendEnvironments(strippedEnvironments)
     toast.success(t("state.file_imported"))
   } else {
     await importToTeams(environments)
@@ -382,7 +462,7 @@ const importToTeams = async (content: Environment[]) => {
 
   for (const [, env] of content.entries()) {
     const res = createTeamEnvironment(
-      JSON.stringify(env.variables),
+      JSON.stringify(stripSecretVariableValuesForWire(env.variables)),
       props.teamId as string,
       env.name
     )()
@@ -391,6 +471,17 @@ const importToTeams = async (content: Environment[]) => {
   }
 
   const res = await Promise.all(envImportPromises)
+
+  // Populate local stores keyed by the new backend env ID — this device
+  // retains the raw values; the team DB row stays clean.
+  res.forEach((entry, index) => {
+    if (E.isRight(entry)) {
+      populateLocalStoresFromVariables(
+        entry.right.createTeamEnvironment.id,
+        promoteInitialValueForImport(content[index].variables)
+      )
+    }
+  })
 
   const failedImports = res.some((r) => E.isLeft(r))
 

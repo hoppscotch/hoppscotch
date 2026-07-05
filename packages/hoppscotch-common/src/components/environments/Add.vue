@@ -79,6 +79,7 @@ import { useToast } from "~/composables/toast"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { updateTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
 import { getEnvActionErrorMessage } from "~/helpers/error-messages"
+import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
 import {
   setGlobalEnvVariables,
   updateEnvironment,
@@ -205,7 +206,7 @@ const addEnvironment = async () => {
 
     await pipe(
       updateTeamEnvironment(
-        JSON.stringify(newVariables),
+        JSON.stringify(stripSecretVariableValuesForWire(newVariables)),
         scope.value.environment.id,
         scope.value.environment.environment.name
       ),

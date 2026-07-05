@@ -60,6 +60,7 @@ declare module 'vue' {
     SettingsHistoryConfiguration: typeof import('./components/settings/HistoryConfiguration.vue')['default']
     SettingsMockServerConfig: typeof import('./components/settings/MockServerConfig.vue')['default']
     SettingsOAuthProviderConfigurations: typeof import('./components/settings/OAuthProviderConfigurations.vue')['default']
+    SettingsProxyURLConfiguration: typeof import('./components/settings/ProxyURLConfiguration.vue')['default']
     SettingsRateLimit: typeof import('./components/settings/RateLimit.vue')['default']
     SettingsReset: typeof import('./components/settings/Reset.vue')['default']
     SettingsServerRestart: typeof import('./components/settings/ServerRestart.vue')['default']
@@ -81,5 +82,6 @@ declare module 'vue' {
     UsersInviteModal: typeof import('./components/users/InviteModal.vue')['default']
     UsersSharedRequests: typeof import('./components/users/SharedRequests.vue')['default']
     UsersSuccessInviteModal: typeof import('./components/users/SuccessInviteModal.vue')['default']
+    UsersTeams: typeof import('./components/users/Teams.vue')['default']
   }
 }

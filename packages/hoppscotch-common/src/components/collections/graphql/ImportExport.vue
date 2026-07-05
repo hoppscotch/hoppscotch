@@ -25,6 +25,7 @@ import { initializeDownloadFile } from "~/helpers/import-export/export"
 import { useReadonlyStream } from "~/composables/stream"
 
 import { platform } from "~/platform"
+import { sync } from "~/lib/sync/defs"
 import {
   appendGraphqlCollections,
   graphqlCollections$,
@@ -35,6 +36,11 @@ import { gistExporter } from "~/helpers/import-export/export/gist"
 import { computed } from "vue"
 import { hoppGQLImporter } from "~/helpers/import-export/import/hopp"
 import { ReqType } from "~/helpers/backend/graphql"
+import {
+  ensureRefIds,
+  populateLocalStoresFromCollectionTree,
+  stripCollectionTreeForStore,
+} from "~/helpers/secretVariables"
 
 const t = useI18n()
 const toast = useToast()
@@ -191,10 +197,8 @@ const GqlCollectionsGistExporter: ImporterOrExporter = {
     const accessToken = currentUser.value?.accessToken
 
     if (accessToken) {
-      const res = await gistExporter(
-        JSON.stringify(gqlCollections.value),
-        accessToken
-      )
+      const stripped = gqlCollections.value.map(stripCollectionTreeForStore)
+      const res = await gistExporter(JSON.stringify(stripped), accessToken)
 
       if (E.isLeft(res)) {
         toast.error(t("export.failed"))
@@ -233,17 +237,19 @@ const showImportFailedError = () => {
 }
 
 const handleImportToStore = (gqlCollections: HoppCollection[]) => {
-  if (
-    platform.sync.collections.importToPersonalWorkspace &&
-    currentUser.value
-  ) {
-    return platform.sync.collections.importToPersonalWorkspace(
-      gqlCollections,
+  const collectionsWithRefIds = gqlCollections.map(ensureRefIds)
+  collectionsWithRefIds.forEach(populateLocalStoresFromCollectionTree)
+
+  if (sync.collections.importToPersonalWorkspace && currentUser.value) {
+    return sync.collections.importToPersonalWorkspace(
+      collectionsWithRefIds,
       ReqType.Gql
     )
   }
 
-  appendGraphqlCollections(gqlCollections)
+  appendGraphqlCollections(
+    collectionsWithRefIds.map(stripCollectionTreeForStore)
+  )
   toast.success(t("state.file_imported"))
 }
 

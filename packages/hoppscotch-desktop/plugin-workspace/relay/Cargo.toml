@@ -6,7 +6,7 @@ authors = ["CuriousCorrelation"]
 edition = "2021"
 
 [dependencies]
-curl = { git = "https://github.com/CuriousCorrelation/curl-rust.git", features = ["ntlm"] }
+curl = { git = "https://github.com/CuriousCorrelation/curl-rust.git", rev = "1ec8079cf527b9cf47cc7a48c68b458affdae273", features = ["ntlm"] }
 cookie = "0.18"
 tokio-util = "0.7.12"
 lazy_static = "1.5.0"

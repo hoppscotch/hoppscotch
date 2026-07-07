@@ -8,7 +8,7 @@
       </label>
       <div class="flex">
         <HoppButtonSecondary
-          v-if="isEditable"
+          v-if="isEditable && headers"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('add.new')"
           :icon="IconPlus"

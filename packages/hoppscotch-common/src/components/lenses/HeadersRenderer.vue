@@ -8,6 +8,13 @@
       </label>
       <div class="flex">
         <HoppButtonSecondary
+          v-if="isEditable"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('add.new')"
+          :icon="IconPlus"
+          @click="addHeader"
+        />
+        <HoppButtonSecondary
           v-if="headers"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.copy')"
@@ -30,6 +37,7 @@
 <script setup lang="ts">
 import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
+import IconPlus from "~icons/lucide/plus"
 import { refAutoReset } from "@vueuse/core"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { useI18n } from "@composables/i18n"
@@ -61,6 +69,10 @@ const copyHeaders = () => {
   copyToClipboard(JSON.stringify(props.modelValue))
   copyIcon.value = IconCheck
   toast.success(`${t("state.copied_to_clipboard")}`)
+}
+
+const addHeader = () => {
+  headers.value.push({ key: "", value: "" })
 }
 
 const deleteHeader = (index: number) => {

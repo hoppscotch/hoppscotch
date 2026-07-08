@@ -140,10 +140,17 @@ export const populateLocalStoresFromCollectionTree = (
   ;(collection.folders ?? []).forEach(populateLocalStoresFromCollectionTree)
 }
 
-/** Fresh node objects + `folders` arrays; other fields alias the input. */
+/** Fresh node objects + `folders`/`requests` arrays; other fields alias the input. */
 export const ensureRefIds = (collection: HoppCollection): HoppCollection => ({
   ...collection,
   _ref_id: collection._ref_id ?? generateUniqueRefId("coll"),
+  // Exports strip request `_ref_id`s (stripRefIdReplacer) and schema parse
+  // doesn't backfill them — stamp at import so tab↔request matching and
+  // sync row identity work for imported requests
+  requests: (collection.requests ?? []).map((request) => ({
+    ...request,
+    _ref_id: request._ref_id ?? generateUniqueRefId("req"),
+  })),
   folders: (collection.folders ?? []).map(ensureRefIds),
 })
 

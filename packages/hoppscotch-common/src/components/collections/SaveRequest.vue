@@ -152,6 +152,7 @@ import {
 } from "~/newstore/collections"
 import { platform } from "~/platform"
 import { GQLTabService } from "~/services/tab/graphql"
+import { TeamCollectionsService } from "~/services/team-collection.service"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { TeamWorkspace } from "~/services/workspace.service"
 import IconSparkle from "~icons/lucide/sparkles"
@@ -164,6 +165,7 @@ const toast = useToast()
 
 const RESTTabs = useService(WorkspaceTabsService)
 const GQLTabs = useService(GQLTabService)
+const teamCollectionService = useService(TeamCollectionsService)
 
 type CollectionType =
   | {
@@ -713,6 +715,13 @@ const updateTeamCollectionOrFolder = (
           teamID: createRequestInCollection.collection.team.id,
         }
 
+        // Cascade team folder auth/headers/variables onto the saved tab —
+        // without this, inherited auth doesn't apply until reload
+        const inheritedProperties =
+          teamCollectionService.cascadeParentCollectionForProperties(
+            collectionID
+          )
+
         if (isGQLRequest(requestUpdated)) {
           RESTTabs.currentActiveTab.value.document = {
             type: "gql-request",
@@ -720,6 +729,7 @@ const updateTeamCollectionOrFolder = (
             isDirty: false,
             cursorPosition: 0,
             saveContext,
+            inheritedProperties,
           }
         } else {
           RESTTabs.currentActiveTab.value.document = {
@@ -727,6 +737,7 @@ const updateTeamCollectionOrFolder = (
             request: requestUpdated as HoppRESTRequest,
             isDirty: false,
             saveContext,
+            inheritedProperties,
           }
         }
 

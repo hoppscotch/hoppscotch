@@ -114,8 +114,8 @@
     },
     "mock_server": {
       "description": "예제 응답을 호스팅하는 데 사용되는 Mock 서버 설정을 구성합니다.",
-      "subpath_content_type_notice_prefix": "Mock 서버에 와일드카드 도메인을 사용하지 않는 경우(즉, 서브패스를 사용하는 경우), XSS 공격을 방지하기 위해 다음 컨텐츠 종류의 응답은 자동으로 다음과 같이 제공됩니다:",
-      "subpath_content_type_notice_suffix": "다음과 같이 제공됩니다:",
+      "subpath_content_type_notice_prefix": "Mock 서버에 와일드카드 도메인을 사용하지 않는 경우(즉, 서브패스를 사용하는 경우), XSS 공격을 방지하기 위해 다음 컨텐츠 종류의 응답은 자동으로",
+      "subpath_content_type_notice_suffix": "(으)로 제공됩니다:",
       "subpath_content_type_text_plain": "text/plain",
       "title": "Mock 서버",
       "wildcard_domain": "와일드카드 도메인",

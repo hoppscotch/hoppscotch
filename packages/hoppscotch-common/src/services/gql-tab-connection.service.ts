@@ -521,7 +521,7 @@ export class GQLTabConnectionService extends Service {
         if (!currentCtx) return
         // Superseded by a newer connect/disconnect while the fetch ran
         if (currentCtx.pollEpoch !== epoch) return
-        // Stop polling if disconnected while fetch was in-flight
+        // Belt-and-suspenders — every DISCONNECTED write also bumps the epoch
         if (currentCtx.state === "DISCONNECTED") return
         // Only promote to CONNECTED when we actually have a schema in hand.
         // Without this guard, a silently-failed introspection would leave the
@@ -541,7 +541,7 @@ export class GQLTabConnectionService extends Service {
         if (!currentCtx) return
         // Superseded by a newer connect/disconnect while the fetch ran
         if (currentCtx.pollEpoch !== epoch) return
-        // Don't overwrite DISCONNECTED state if user disconnected during fetch
+        // Belt-and-suspenders — every DISCONNECTED write also bumps the epoch
         if (currentCtx.state === "DISCONNECTED") return
         // Toast only on the ERROR transition, not on every retry below
         const firstFailure = currentCtx.state !== "ERROR"
@@ -559,7 +559,7 @@ export class GQLTabConnectionService extends Service {
         }
 
         // Keep polling while a subscription is live so a transient failure
-        // self-heals a later success promotes back to CONNECTED
+        // self-heals — a later success promotes back to CONNECTED
         if (currentCtx.socket) {
           const timer = setTimeout(() => {
             poll()
@@ -581,7 +581,8 @@ export class GQLTabConnectionService extends Service {
   }
 
   /**
-   * Disconnect a specific tab — stops polling, clears schema.
+   * Disconnect a specific tab — stops polling, closes any subscription
+   * socket, clears schema.
    */
   public disconnectTab(tabId: string) {
     const ctx = this.getOrCreateContext(tabId)
@@ -713,8 +714,8 @@ export class GQLTabConnectionService extends Service {
 
       if (E.isLeft(res)) {
         // No state write here — state transitions belong to poll()'s catch /
-        // disconnectTab. Pre-writing ERROR defeated poll's firstFailure toast
-        // and made Left failures behave differently from the other kinds.
+        // disconnectTab, and poll's firstFailure toast depends on seeing the
+        // pre-failure state.
         if (
           isCurrent() &&
           res.left !== "cancellation" &&
@@ -812,7 +813,7 @@ export class GQLTabConnectionService extends Service {
   // --- Query/Mutation execution ---
 
   /**
-   * Run a GQL query or mutation. Captures the current tab ID at call time
+   * Run a GQL query, mutation, or subscription. Captures the current tab ID at call time
    * and routes the response to that tab's message event — even if the user
    * switches tabs before the response arrives.
    */

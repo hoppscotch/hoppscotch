@@ -1,12 +1,18 @@
 import {
   HoppGQLAuth,
   HoppGQLRequest,
+  HoppRESTAuth,
   HoppRESTHeaders,
+  HoppRESTRequest,
   makeGQLRequest,
 } from "@hoppscotch/data"
 import { OperationType } from "@urql/core"
-import { AwsV4Signer } from "aws4fetch"
 import * as E from "fp-ts/Either"
+import {
+  generateAuthHeaders,
+  generateAuthParams,
+} from "~/helpers/auth/auth-types"
+import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import {
   GraphQLSchema,
   buildClientSchema,
@@ -614,7 +620,8 @@ export class GQLTabConnectionService extends Service {
 
       const { authHeaders } = await this.generateAuthHeader(
         effective.effectiveFinalURL,
-        effective.effectiveFinalAuth
+        effective.effectiveFinalAuth,
+        envVars
       )
 
       // Precedence (matches the original behavior): request > auth > inherited.
@@ -810,7 +817,8 @@ export class GQLTabConnectionService extends Service {
 
     const { authHeaders, authParams } = await this.generateAuthHeader(
       effective.effectiveFinalURL,
-      effective.effectiveFinalAuth
+      effective.effectiveFinalAuth,
+      envVars
     )
 
     let finalUrl = effective.effectiveFinalURL
@@ -1257,75 +1265,43 @@ export class GQLTabConnectionService extends Service {
 
   private async generateAuthHeader(
     url: string,
-    auth: HoppGQLAuth | undefined
+    auth: HoppGQLAuth | undefined,
+    envVars: Environment["variables"] = []
   ): Promise<{
     authHeaders: Record<string, string>
     authParams: Record<string, string>
   }> {
-    const finalHeaders: Record<string, string> = {}
-    const params: Record<string, string> = {}
+    const authHeaders: Record<string, string> = {}
+    const authParams: Record<string, string> = {}
 
-    if (auth?.authActive) {
-      if (auth.authType === "basic") {
-        const username = auth.username
-        const password = auth.password
-        finalHeaders.Authorization = `Basic ${btoa(`${username}:${password}`)}`
-      } else if (auth.authType === "bearer") {
-        finalHeaders.Authorization = `Bearer ${auth.token}`
-      } else if (auth.authType === "oauth-2") {
-        const { addTo } = auth
+    if (!auth?.authActive) return { authHeaders, authParams }
 
-        if (addTo === "HEADERS") {
-          finalHeaders.Authorization = `Bearer ${auth.grantTypeInfo.token}`
-        } else if (addTo === "QUERY_PARAMS") {
-          params["access_token"] = auth.grantTypeInfo.token
-        }
-      } else if (auth.authType === "api-key") {
-        const { key, value, addTo } = auth
-        if (addTo === "HEADERS") {
-          finalHeaders[key] = value
-        } else if (addTo === "QUERY_PARAMS") {
-          params[key] = value
-        }
-      } else if (auth.authType === "aws-signature") {
-        const {
-          accessKey,
-          secretKey,
-          region,
-          serviceName,
-          addTo,
-          serviceToken,
-        } = auth
+    // Collection-inherited auth can be a REST-only type (digest, HAWK, NTLM,
+    // JWT…) — delegate to the shared REST generators via a synthetic request
+    // so the full union works (mirrors helpers/graphql/testRunner.ts).
+    const syntheticRESTRequest: HoppRESTRequest = {
+      ...getDefaultRESTRequest(),
+      method: "POST",
+      endpoint: url,
+    }
+    const restAuth = auth as HoppRESTAuth
 
-        const currentDate = new Date()
-        const amzDate = currentDate.toISOString().replace(/[:-]|\.\d{3}/g, "")
-
-        const signer = new AwsV4Signer({
-          datetime: amzDate,
-          signQuery: addTo === "QUERY_PARAMS",
-          accessKeyId: accessKey,
-          secretAccessKey: secretKey,
-          region: region ?? "us-east-1",
-          service: serviceName,
-          url,
-          sessionToken: serviceToken,
-        })
-
-        const sign = await signer.sign()
-
-        if (addTo === "HEADERS") {
-          sign.headers.forEach((v, k) => {
-            finalHeaders[k] = v
-          })
-        } else if (addTo === "QUERY_PARAMS") {
-          for (const [k, v] of sign.url.searchParams) {
-            params[k] = v
-          }
-        }
-      }
+    for (const h of await generateAuthHeaders(
+      restAuth,
+      syntheticRESTRequest,
+      envVars
+    )) {
+      authHeaders[h.key] = h.value
+    }
+    for (const p of await generateAuthParams(
+      restAuth,
+      syntheticRESTRequest,
+      envVars
+    )) {
+      authParams[p.key] = p.value
     }
 
-    return { authHeaders: finalHeaders, authParams: params }
+    return { authHeaders, authParams }
   }
 
   // --- History ---

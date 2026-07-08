@@ -675,7 +675,7 @@ export class GQLTabConnectionService extends Service {
 
       const finalHeaders: Record<string, string> = {}
 
-      const { authHeaders } = await this.generateAuthHeader(
+      const { authHeaders, authParams } = await this.generateAuthHeader(
         effective.effectiveFinalURL,
         effective.effectiveFinalAuth,
         envVars
@@ -683,6 +683,21 @@ export class GQLTabConnectionService extends Service {
 
       // Superseded while auth resolved — bail before firing the request
       if (!isCurrent()) return
+
+      // Query-param auth (api-key/oauth2 in query, AWS query signing) must
+      // reach introspection too — mirrors runTabGQLOperation
+      let introspectionUrl = effective.effectiveFinalURL
+      if (Object.keys(authParams).length > 0) {
+        try {
+          const urlObj = new URL(introspectionUrl)
+          for (const [key, value] of Object.entries(authParams)) {
+            urlObj.searchParams.append(key, value)
+          }
+          introspectionUrl = urlObj.toString()
+        } catch (_e) {
+          // Unparseable URL — let the network layer surface the real error
+        }
+      }
 
       // Precedence (matches the original behavior): request > auth > inherited.
       effective.effectiveFinalHeaders.forEach((header) => {
@@ -695,7 +710,7 @@ export class GQLTabConnectionService extends Service {
 
       const kernelRequest: RelayRequest = {
         id: Date.now(),
-        url: effective.effectiveFinalURL,
+        url: introspectionUrl,
         method: "POST" as Method,
         version: "HTTP/1.1",
         headers: {

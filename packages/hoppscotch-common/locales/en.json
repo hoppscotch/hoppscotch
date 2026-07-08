@@ -1206,6 +1206,7 @@
     "show_content_type": "Show Content Type",
     "different_collection": "Cannot reorder requests from different collections",
     "duplicated": "Request duplicated",
+    "rest_in_gql_collection": "This is a REST request — open it from the REST workspace",
     "duration": "Duration",
     "enter_curl": "Enter cURL command",
     "generate_code": "Generate code",

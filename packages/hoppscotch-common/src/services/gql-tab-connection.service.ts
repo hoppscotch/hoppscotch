@@ -790,7 +790,14 @@ export class GQLTabConnectionService extends Service {
       // Set `ctx.error` too — on a background re-poll the catch below disconnects
       // before `poll()` can toast, so the response-panel error watcher is the
       // only thing left to surface this to the user.
-      if (!introspectResponse.data) {
+      // Shape-check up front: a 200 JSON body without an introspection result
+      // (e.g. echo servers return a truthy non-introspection `data`) would
+      // make buildClientSchema throw its raw multi-KB error into the toast
+      if (
+        !introspectResponse.data ||
+        typeof introspectResponse.data !== "object" ||
+        !(introspectResponse.data as Record<string, unknown>).__schema
+      ) {
         if (isCurrent()) {
           ctx.error = {
             type: "error",

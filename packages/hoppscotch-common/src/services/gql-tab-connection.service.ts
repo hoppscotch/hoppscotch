@@ -180,6 +180,14 @@ type TabConnectionContext = {
    * is still resolving.
    */
   connectingPromise?: Promise<void>
+  /**
+   * Ownership token for the schema-poll loop. Every connect/disconnect claims
+   * a fresh service-unique epoch; in-flight fetches and pending retry timers
+   * captured under an older epoch bail at their next check instead of writing
+   * state or re-arming. Recreated contexts start at 0, which never matches a
+   * claimed epoch.
+   */
+  pollEpoch: number
 }
 
 /**
@@ -217,6 +225,10 @@ export class GQLTabConnectionService extends Service {
 
   // Per-tab schema polling timers (non-reactive, just timeouts)
   private tabPollingTimers = new Map<string, ReturnType<typeof setTimeout>>()
+
+  // Monotonic source for poll epochs — service-level so epochs stay unique
+  // even across context deletion/recreation (cleanupTab → getOrCreateContext)
+  private pollEpochCounter = 0
 
   // Monotonic counter for subscription IDs. graphql-transport-ws lets you
   // multiplex multiple subscriptions on one socket; even though we run one
@@ -283,6 +295,7 @@ export class GQLTabConnectionService extends Service {
           error: null,
           socket: undefined,
           subscriptionState: undefined,
+          pollEpoch: 0,
         })
       )
     }
@@ -487,10 +500,27 @@ export class GQLTabConnectionService extends Service {
     // must not surface the previous attempt's
     ctx.error = null
 
+    // Claim the poll loop: the fresh epoch invalidates any in-flight fetch or
+    // scheduled poll from a previous attempt, and the eager timer clear stops
+    // the pending-retry case before it fires
+    const epoch = (ctx.pollEpoch = ++this.pollEpochCounter)
+    const pendingTimer = this.tabPollingTimers.get(tabId)
+    if (pendingTimer) clearTimeout(pendingTimer)
+    this.tabPollingTimers.delete(tabId)
+
+    // Run-initiated connects stay silent only for their INITIAL failure
+    // (execution proceeds without a schema); failures after a successful
+    // connect are genuine and must toast
+    let hasConnected = false
+
     const poll = async () => {
       try {
-        await this.fetchSchema(tabId, options)
-        const currentCtx = this.getOrCreateContext(tabId)
+        await this.fetchSchema(tabId, options, epoch)
+        // `.get`, not getOrCreate — a closed tab's context must stay deleted
+        const currentCtx = this.tabContexts.get(tabId)
+        if (!currentCtx) return
+        // Superseded by a newer connect/disconnect while the fetch ran
+        if (currentCtx.pollEpoch !== epoch) return
         // Stop polling if disconnected while fetch was in-flight
         if (currentCtx.state === "DISCONNECTED") return
         // Only promote to CONNECTED when we actually have a schema in hand.
@@ -499,20 +529,25 @@ export class GQLTabConnectionService extends Service {
         // renders the empty placeholder.
         if (!currentCtx.schema) return
         if (currentCtx.state !== "CONNECTED") currentCtx.state = "CONNECTED"
+        hasConnected = true
 
         const timer = setTimeout(() => {
           poll()
         }, GQL_SCHEMA_POLL_INTERVAL)
         this.tabPollingTimers.set(tabId, timer)
       } catch (error) {
-        const currentCtx = this.getOrCreateContext(tabId)
+        // `.get`, not getOrCreate — a closed tab's context must stay deleted
+        const currentCtx = this.tabContexts.get(tabId)
+        if (!currentCtx) return
+        // Superseded by a newer connect/disconnect while the fetch ran
+        if (currentCtx.pollEpoch !== epoch) return
         // Don't overwrite DISCONNECTED state if user disconnected during fetch
         if (currentCtx.state === "DISCONNECTED") return
         // Toast only on the ERROR transition, not on every retry below
         const firstFailure = currentCtx.state !== "ERROR"
         currentCtx.state = "ERROR"
 
-        if (firstFailure && !isRunGQLOperation) {
+        if (firstFailure && !(isRunGQLOperation && !hasConnected)) {
           // Use the underlying error message when we have one (e.g.
           // "Introspection response was not valid JSON") so the toast tells
           // the user the actual cause instead of a generic "network error".
@@ -576,6 +611,8 @@ export class GQLTabConnectionService extends Service {
     // `connectTab`'s finally keeps the in-flight attempt from later clobbering
     // a newer promise.
     ctx.connectingPromise = undefined
+    // Invalidate any in-flight fetch or scheduled poll for this tab
+    ctx.pollEpoch = ++this.pollEpochCounter
 
     // Already disconnected — the teardown above is idempotent, so skip the
     // redundant state writes.
@@ -596,8 +633,16 @@ export class GQLTabConnectionService extends Service {
 
   // --- Schema fetching ---
 
-  private async fetchSchema(tabId: string, options: ConnectionRequestOptions) {
+  private async fetchSchema(
+    tabId: string,
+    options: ConnectionRequestOptions,
+    epoch: number
+  ) {
     const ctx = this.getOrCreateContext(tabId)
+
+    // Superseded-attempt guard — mirrors isCurrentSubscription on the WS side.
+    // A fetch from an older connect must not write state onto a newer attempt.
+    const isCurrent = () => ctx.pollEpoch === epoch
 
     try {
       const {
@@ -664,9 +709,14 @@ export class GQLTabConnectionService extends Service {
       const res = await response
 
       if (E.isLeft(res)) {
-        ctx.state = "ERROR"
-
-        if (res.left !== "cancellation" && typeof res.left === "object") {
+        // No state write here — state transitions belong to poll()'s catch /
+        // disconnectTab. Pre-writing ERROR defeated poll's firstFailure toast
+        // and made Left failures behave differently from the other kinds.
+        if (
+          isCurrent() &&
+          res.left !== "cancellation" &&
+          typeof res.left === "object"
+        ) {
           ctx.error = {
             type: res.left.error?.kind || "error",
             message: (t: ReturnType<typeof getI18n>) => {
@@ -703,10 +753,12 @@ export class GQLTabConnectionService extends Service {
         // Set `ctx.error` (like the introspection-disabled case below) so a
         // background re-poll surfaces this instead of silently dropping the
         // connection — the catch below disconnects before `poll()` can toast.
-        ctx.error = {
-          type: "error",
-          message: (t: ReturnType<typeof getI18n>) =>
-            t("graphql.connection_error_invalid_json"),
+        if (isCurrent()) {
+          ctx.error = {
+            type: "error",
+            message: (t: ReturnType<typeof getI18n>) =>
+              t("graphql.connection_error_invalid_json"),
+          }
         }
         throw new Error(
           "Introspection response was not valid JSON — the endpoint may not be a GraphQL server."
@@ -720,19 +772,26 @@ export class GQLTabConnectionService extends Service {
       // before `poll()` can toast, so the response-panel error watcher is the
       // only thing left to surface this to the user.
       if (!introspectResponse.data) {
-        ctx.error = {
-          type: "error",
-          message: (t: ReturnType<typeof getI18n>) =>
-            t("graphql.connection_error_introspection_disabled"),
+        if (isCurrent()) {
+          ctx.error = {
+            type: "error",
+            message: (t: ReturnType<typeof getI18n>) =>
+              t("graphql.connection_error_introspection_disabled"),
+          }
         }
         throw new Error("Introspection is disabled on this server.")
       }
 
       const schemaData = buildClientSchema(introspectResponse.data as any)
 
+      // A superseded fetch must not clobber the newer attempt's schema
+      if (!isCurrent()) return
+
       ctx.schema = schemaData
       ctx.error = null
     } catch (e: any) {
+      // A superseded fetch must not disconnect the newer attempt either
+      if (!isCurrent()) throw e
       // Mid-poll failure on a connected tab: drop the connection — unless a
       // subscription is streaming; a schema-poll blip must not kill its WS.
       if (ctx.state === "CONNECTED" && !ctx.socket) {
@@ -792,6 +851,19 @@ export class GQLTabConnectionService extends Service {
         // below doesn't depend on the schema.
       }
     }
+
+    // Ownership snapshot (post auto-connect): a disconnect/cleanup during the
+    // awaits below bumps the epoch or replaces the context — this run must not
+    // write errors or open a subscription socket past that. The DISCONNECTED
+    // leg covers a disconnect landing during the auto-connect await itself
+    // (epoch then matches post-disconnect); ERROR passes so runs still work on
+    // introspection-less servers. Response delivery via messageEvent is
+    // deliberately NOT gated (documented cross-tab routing).
+    const runEpoch = ctx.pollEpoch
+    const runIsCurrent = () =>
+      this.tabContexts.get(tabId) === ctx &&
+      ctx.pollEpoch === runEpoch &&
+      ctx.state !== "DISCONNECTED"
 
     const {
       url,
@@ -877,6 +949,19 @@ export class GQLTabConnectionService extends Service {
       // History gets the RAW options — the resolved URL/query can carry
       // secrets and query-param auth tokens.
       this.addQueryToHistory(options, "")
+      // The tab was disconnected/closed while auth resolved — opening a
+      // socket now would contradict the explicit teardown
+      if (!runIsCurrent()) {
+        messageEvent.value = {
+          type: "error",
+          error: {
+            type: "subscription_error",
+            message:
+              "Connection was closed before the subscription started — run again to subscribe.",
+          },
+        }
+        return
+      }
       // Hand the subscription path templated URL + query so the WS payload
       // resolves the same way the HTTP path does.
       return this.runTabSubscription(
@@ -907,7 +992,11 @@ export class GQLTabConnectionService extends Service {
       const result = await response
 
       if (E.isLeft(result)) {
-        if (result.left !== "cancellation" && typeof result.left === "object") {
+        if (
+          runIsCurrent() &&
+          result.left !== "cancellation" &&
+          typeof result.left === "object"
+        ) {
           ctx.error = {
             type: result.left.error?.kind || "error",
             message: (t: ReturnType<typeof getI18n>) => {
@@ -1245,6 +1334,9 @@ export class GQLTabConnectionService extends Service {
     const ctx = this.tabContexts.get(tabId)
     if (ctx) {
       this.teardownSubscriptionSocket(ctx)
+      // Invalidate in-flight fetches pinned to this context — without this an
+      // orphaned fetch stays "current" and can disconnect a recreated tab
+      ctx.pollEpoch = ++this.pollEpochCounter
     }
 
     this.tabContexts.delete(tabId)
@@ -1264,6 +1356,8 @@ export class GQLTabConnectionService extends Service {
 
       ctx.state = "DISCONNECTED"
       ctx.schema = null
+      // Invalidate in-flight fetches pinned to this context (see cleanupTab)
+      ctx.pollEpoch = ++this.pollEpochCounter
     }
 
     this.tabPollingTimers.clear()

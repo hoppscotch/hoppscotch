@@ -364,9 +364,23 @@ export class CollectionsSpotlightSearcherService
       const reqIndex = folderPath.pop()!
 
       const req = this.getGQLFolderFromFolderPath(folderPath.join("/"))
-        ?.requests[reqIndex] as HoppGQLRequest
+        ?.requests[reqIndex]
 
       if (!req) return
+
+      // Mirror of the REST branch above — GQL collections can hold
+      // REST-shaped requests; open those in the unified workspace
+      if (!isGQLRequest(req)) {
+        this.restTab.createNewTab(
+          {
+            type: "request",
+            request: req as HoppRESTRequest,
+            isDirty: false,
+          },
+          true
+        )
+        return
+      }
 
       this.gqlTab.createNewTab({
         saveContext: {
@@ -375,7 +389,7 @@ export class CollectionsSpotlightSearcherService
           requestIndex: reqIndex,
         },
         cursorPosition: 0,
-        request: cloneDeep(req),
+        request: cloneDeep(req) as HoppGQLRequest,
         isDirty: false,
         inheritedProperties: cascadeParentCollectionForProperties(
           folderPath.join("/"),

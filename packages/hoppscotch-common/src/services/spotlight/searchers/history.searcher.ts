@@ -75,9 +75,17 @@ export class HistorySpotlightSearcherService
     }
   )[0]
 
+  // Openable via the legacy /graphql page OR the unified workspace
   private gqlHistoryEntryOpenable = useStreamStatic(
-    activeActions$.pipe(map((actions) => actions.includes("gql.request.open"))),
-    activeActions$.value.includes("gql.request.open"),
+    activeActions$.pipe(
+      map(
+        (actions) =>
+          actions.includes("gql.request.open") ||
+          actions.includes("rest.gql-request.open")
+      )
+    ),
+    activeActions$.value.includes("gql.request.open") ||
+      activeActions$.value.includes("rest.gql-request.open"),
     () => {
       /* noop */
     }
@@ -262,9 +270,21 @@ export class HistorySpotlightSearcherService
         graphqlHistoryStore.value.state[parseInt(result.id.split("-")[1])]
           .request
 
-      invokeAction("gql.request.open", {
-        request: req,
-      })
+      // Legacy /graphql page handler when bound; else the unified workspace
+      if (activeActions$.value.includes("gql.request.open")) {
+        invokeAction("gql.request.open", {
+          request: req,
+        })
+      } else {
+        invokeAction("rest.gql-request.open", {
+          doc: {
+            type: "gql-request",
+            request: req,
+            isDirty: false,
+            cursorPosition: 0,
+          },
+        })
+      }
     }
   }
 }

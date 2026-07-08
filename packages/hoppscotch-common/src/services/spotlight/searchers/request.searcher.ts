@@ -52,7 +52,13 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
       this.route.name === "index" &&
       this.restTab.currentActiveTab.value.document.type === "request"
   )
-  private isGQLPage = computed(() => this.route.name === "graphql")
+  // Legacy /graphql page OR a gql-request tab on the unified workspace
+  private isGQLPage = computed(
+    () =>
+      this.route.name === "graphql" ||
+      (this.route.name === "index" &&
+        this.restTab.currentActiveTab.value.document.type === "gql-request")
+  )
   private isRESTOrGQLPage = computed(
     () => this.isRESTPage.value || this.isGQLPage.value
   )

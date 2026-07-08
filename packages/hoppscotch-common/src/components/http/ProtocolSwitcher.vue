@@ -128,9 +128,7 @@ const requestName = computed({
   set: (value: string) => {
     const doc = currentDoc.value
     if (!doc) return
-    if (doc.type === "request") {
-      doc.request.name = value
-    } else if (doc.type === "gql-request") {
+    if (doc.type === "request" || doc.type === "gql-request") {
       doc.request.name = value
     }
   },

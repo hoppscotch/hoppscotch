@@ -202,6 +202,8 @@ const saveRequest = () => {
       createdNow: false,
       workspaceType: "personal",
     })
+
+    toast.success(`${t("request.saved")}`)
   } else if (saveCtx.originLocation === "team-collection") {
     const req = tab.value.document.request
 

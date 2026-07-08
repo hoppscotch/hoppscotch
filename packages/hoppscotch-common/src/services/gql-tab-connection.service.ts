@@ -508,9 +508,11 @@ export class GQLTabConnectionService extends Service {
         const currentCtx = this.getOrCreateContext(tabId)
         // Don't overwrite DISCONNECTED state if user disconnected during fetch
         if (currentCtx.state === "DISCONNECTED") return
+        // Toast only on the ERROR transition, not on every retry below
+        const firstFailure = currentCtx.state !== "ERROR"
         currentCtx.state = "ERROR"
 
-        if (!isRunGQLOperation) {
+        if (firstFailure && !isRunGQLOperation) {
           // Use the underlying error message when we have one (e.g.
           // "Introspection response was not valid JSON") so the toast tells
           // the user the actual cause instead of a generic "network error".
@@ -519,6 +521,15 @@ export class GQLTabConnectionService extends Service {
               ? error.message
               : t("graphql.connection_error_http")
           toast.error(reason)
+        }
+
+        // Keep polling while a subscription is live so a transient failure
+        // self-heals a later success promotes back to CONNECTED
+        if (currentCtx.socket) {
+          const timer = setTimeout(() => {
+            poll()
+          }, GQL_SCHEMA_POLL_INTERVAL)
+          this.tabPollingTimers.set(tabId, timer)
         }
       }
     }

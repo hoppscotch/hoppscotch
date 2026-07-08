@@ -322,12 +322,15 @@ const removeTab = (tabID: string) => {
   if (tabState.document.isDirty) {
     confirmingCloseForTabID.value = tabID
   } else {
-    scrollService.cleanupScrollForTab(tabState.id)
-    if (tabState.document.type === "gql-request") {
-      gqlTabConn.cleanupTab(tabState.id)
+    // closeTab refuses to close the last open tab — only tear down when it
+    // actually closed, or a live connection dies under a still-open tab
+    if (tabs.closeTab(tabState.id)) {
+      scrollService.cleanupScrollForTab(tabState.id)
+      if (tabState.document.type === "gql-request") {
+        gqlTabConn.cleanupTab(tabState.id)
+      }
+      inspectionService.deleteTabInspectorResult(tabState.id)
     }
-    tabs.closeTab(tabState.id)
-    inspectionService.deleteTabInspectorResult(tabState.id)
   }
 }
 
@@ -449,11 +452,13 @@ const renameReqName = () => {
 const onCloseConfirmSaveTab = () => {
   if (!savingRequest.value && confirmingCloseForTabID.value) {
     const tabState = tabs.getTabRef(confirmingCloseForTabID.value).value
-    if (tabState?.document.type === "gql-request") {
-      gqlTabConn.cleanupTab(confirmingCloseForTabID.value)
+    // Only tear down when the tab actually closed (see removeTab)
+    if (tabs.closeTab(confirmingCloseForTabID.value)) {
+      if (tabState?.document.type === "gql-request") {
+        gqlTabConn.cleanupTab(confirmingCloseForTabID.value)
+      }
+      inspectionService.deleteTabInspectorResult(confirmingCloseForTabID.value)
     }
-    tabs.closeTab(confirmingCloseForTabID.value)
-    inspectionService.deleteTabInspectorResult(confirmingCloseForTabID.value)
     confirmingCloseForTabID.value = null
   }
 }
@@ -467,10 +472,13 @@ const onResolveConfirmSaveTab = () => {
 
     if (confirmingCloseForTabID.value) {
       const tabState = tabs.getTabRef(confirmingCloseForTabID.value).value
-      if (tabState?.document.type === "gql-request") {
+      // Only tear down when the tab actually closed (see removeTab)
+      if (
+        tabs.closeTab(confirmingCloseForTabID.value) &&
+        tabState?.document.type === "gql-request"
+      ) {
         gqlTabConn.cleanupTab(confirmingCloseForTabID.value)
       }
-      tabs.closeTab(confirmingCloseForTabID.value)
       confirmingCloseForTabID.value = null
     }
   } else {
@@ -485,10 +493,13 @@ const onSaveModalClose = () => {
   savingRequest.value = false
   if (confirmingCloseForTabID.value) {
     const tabState = tabs.getTabRef(confirmingCloseForTabID.value).value
-    if (tabState?.document.type === "gql-request") {
+    // Only tear down when the tab actually closed (see removeTab)
+    if (
+      tabs.closeTab(confirmingCloseForTabID.value) &&
+      tabState?.document.type === "gql-request"
+    ) {
       gqlTabConn.cleanupTab(confirmingCloseForTabID.value)
     }
-    tabs.closeTab(confirmingCloseForTabID.value)
     confirmingCloseForTabID.value = null
   }
 }

@@ -115,7 +115,8 @@ export interface TabService<Doc> {
    * Closes the tab with the specified ID.
    * @param tabID - The ID of the tab to close.
    */
-  closeTab(tabID: string): void
+  /** @returns whether the tab was actually closed (refused for the last open tab) */
+  closeTab(tabID: string): boolean
 
   /**
    * Closes all tabs except the one with the specified ID.

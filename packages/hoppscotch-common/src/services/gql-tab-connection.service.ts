@@ -680,6 +680,9 @@ export class GQLTabConnectionService extends Service {
         envVars
       )
 
+      // Superseded while auth resolved — bail before firing the request
+      if (!isCurrent()) return
+
       // Precedence (matches the original behavior): request > auth > inherited.
       effective.effectiveFinalHeaders.forEach((header) => {
         finalHeaders[header.key] = header.value

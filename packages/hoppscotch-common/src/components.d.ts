@@ -150,6 +150,7 @@ declare module 'vue' {
     GqlRequestTab: typeof import('./components/gql/RequestTab.vue')['default']
     GqlResponse: typeof import('./components/gql/Response.vue')['default']
     GqlResponseMeta: typeof import('./components/gql/ResponseMeta.vue')['default']
+    GqlSchema: typeof import('./components/gql/Schema.vue')['default']
     GqlSchemaDocumentation: typeof import('./components/gql/SchemaDocumentation.vue')['default']
     GqlSchemaSearch: typeof import('./components/gql/SchemaSearch.vue')['default']
     GqlSubscriptionLog: typeof import('./components/gql/SubscriptionLog.vue')['default']

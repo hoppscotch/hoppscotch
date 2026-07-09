@@ -90,16 +90,6 @@
         <div ref="schemaEditor" class="absolute inset-0 h-full"></div>
       </div>
     </div>
-    <component
-      :is="response[0].error.component"
-      v-else-if="
-        response &&
-        response.length > 0 &&
-        response[0].type === 'error' &&
-        response[0].error.component
-      "
-      class="flex-1"
-    />
     <div
       v-else-if="
         response &&

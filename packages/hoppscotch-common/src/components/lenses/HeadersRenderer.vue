@@ -72,10 +72,10 @@ const copyHeaders = () => {
 }
 
 const addHeader = () => {
-  headers.value.push({ key: "", value: "" })
+  headers.value = [...headers.value, { key: "", value: "" }]
 }
 
 const deleteHeader = (index: number) => {
-  headers.value.splice(index, 1)
+  headers.value = headers.value.filter((_, i) => i !== index)
 }
 </script>

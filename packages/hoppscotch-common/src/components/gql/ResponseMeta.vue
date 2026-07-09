@@ -21,11 +21,19 @@
         <span class="text-secondaryLight">{{ t("state.loading") }}</span>
       </div>
 
-      <component
-        :is="errorResponse?.error?.component"
+      <HoppSmartPlaceholder
         v-if="errorResponse?.error?.component"
-        class="flex-1"
-      />
+        :src="`/images/states/${colorMode.value}/upload_error.svg`"
+        :alt="t('error.network_fail')"
+        :heading="t('error.network_fail')"
+        :text="errorResponse.error.message || t('helpers.network_fail')"
+      >
+        <template #body>
+          <AppKernelInterceptor
+            class="rounded border border-dividerLight p-2"
+          />
+        </template>
+      </HoppSmartPlaceholder>
 
       <HoppSmartPlaceholder
         v-if="errorResponse && !errorResponse.error.component"
@@ -33,7 +41,13 @@
         :alt="errorResponse.error.message || t('error.network_fail')"
         :heading="errorResponse.error.message || t('error.network_fail')"
         :text="errorResponse.error.message || t('error.network_fail')"
-      />
+      >
+        <template #body>
+          <AppKernelInterceptor
+            class="rounded border border-dividerLight p-2"
+          />
+        </template>
+      </HoppSmartPlaceholder>
 
       <div
         v-if="successResponse"

@@ -192,7 +192,20 @@ const runQuery = async (
     const duration = Date.now() - startTime
     completePageProgress()
     toast.success(`${t("state.finished_in", { duration })}`)
-    if (definition?.operation === "subscription" && request.value.auth) {
+    // `auth` is always truthy (authType "none" included) — only toast when
+    // auth actually rides the connection_init payload
+    const auth = request.value.auth
+    const effectiveAuth =
+      auth.authType === "inherit"
+        ? props.inheritedProperties?.auth?.inheritedAuth
+        : auth
+    if (
+      definition?.operation === "subscription" &&
+      effectiveAuth &&
+      effectiveAuth.authActive &&
+      effectiveAuth.authType !== "none" &&
+      effectiveAuth.authType !== "inherit"
+    ) {
       toast.success(t("authorization.graphql_headers"))
     }
   } catch (e: any) {

@@ -72,7 +72,7 @@ import {
 } from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
 import * as gql from "graphql"
-import { clone } from "lodash-es"
+import { clone, cloneDeep } from "lodash-es"
 import { computed, watch } from "vue"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import {
@@ -169,6 +169,13 @@ const runQuery = async (
     const runURL = clone(props.url)
     const runQueryStr = clone(request.value.query)
     const runVariables = clone(request.value.variables)
+    // Deep-freeze the whole request at click time (like url/query/variables)
+    // so edits during the run's awaits can't change what's sent — auth
+    // editors mutate nested fields in place, so a shallow clone wouldn't hold
+    const runRequest = cloneDeep(request.value) as HoppGQLRequest
+    const runInheritedAuth = props.inheritedProperties?.auth.inheritedAuth as
+      | HoppGQLAuth
+      | undefined
 
     const inheritedHeaders =
       props.inheritedProperties?.headers.map(
@@ -176,13 +183,11 @@ const runQuery = async (
       ) ?? []
 
     await gqlTabConn.runTabGQLOperation(props.tabId, {
-      name: request.value.name,
+      name: runRequest.name,
       url: runURL,
-      request: request.value as HoppGQLRequest,
+      request: runRequest,
       inheritedHeaders,
-      inheritedAuth: props.inheritedProperties?.auth.inheritedAuth as
-        | HoppGQLAuth
-        | undefined,
+      inheritedAuth: runInheritedAuth,
       inheritedVariables: props.inheritedProperties?.variables,
       query: runQueryStr,
       variables: runVariables,
@@ -193,12 +198,10 @@ const runQuery = async (
     completePageProgress()
     toast.success(`${t("state.finished_in", { duration })}`)
     // `auth` is always truthy (authType "none" included) — only toast when
-    // auth actually rides the connection_init payload
-    const auth = request.value.auth
-    const effectiveAuth =
-      auth.authType === "inherit"
-        ? props.inheritedProperties?.auth?.inheritedAuth
-        : auth
+    // auth actually rode the connection_init payload (same snapshot the
+    // operation received)
+    const auth = runRequest.auth
+    const effectiveAuth = auth.authType === "inherit" ? runInheritedAuth : auth
     if (
       definition?.operation === "subscription" &&
       effectiveAuth &&

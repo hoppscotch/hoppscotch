@@ -932,11 +932,16 @@ export class GQLTabConnectionService extends Service {
 
     let finalUrl = effective.effectiveFinalURL
     if (Object.keys(authParams).length > 0) {
-      const urlObj = new URL(finalUrl)
-      for (const [key, value] of Object.entries(authParams)) {
-        urlObj.searchParams.append(key, value)
+      try {
+        const urlObj = new URL(finalUrl)
+        for (const [key, value] of Object.entries(authParams)) {
+          urlObj.searchParams.append(key, value)
+        }
+        finalUrl = urlObj.toString()
+      } catch (_e) {
+        // Unparseable URL (e.g. unresolved env template) — let the network
+        // layer surface the real error as a response event
       }
-      finalUrl = urlObj.toString()
     }
 
     // Precedence (matches the original behavior): request > auth > inherited.

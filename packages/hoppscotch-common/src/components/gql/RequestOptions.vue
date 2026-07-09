@@ -173,14 +173,18 @@ const runQuery = async (
     // so edits during the run's awaits can't change what's sent — auth
     // editors mutate nested fields in place, so a shallow clone wouldn't hold
     const runRequest = cloneDeep(request.value) as HoppGQLRequest
-    const runInheritedAuth = props.inheritedProperties?.auth.inheritedAuth as
-      | HoppGQLAuth
-      | undefined
+    const runInheritedAuth = cloneDeep(
+      props.inheritedProperties?.auth.inheritedAuth
+    ) as HoppGQLAuth | undefined
 
-    const inheritedHeaders =
+    const inheritedHeaders = cloneDeep(
       props.inheritedProperties?.headers.map(
         (header) => header.inheritedHeader
       ) ?? []
+    )
+    const runInheritedVariables = cloneDeep(
+      props.inheritedProperties?.variables
+    )
 
     await gqlTabConn.runTabGQLOperation(props.tabId, {
       name: runRequest.name,
@@ -188,7 +192,7 @@ const runQuery = async (
       request: runRequest,
       inheritedHeaders,
       inheritedAuth: runInheritedAuth,
-      inheritedVariables: props.inheritedProperties?.variables,
+      inheritedVariables: runInheritedVariables,
       query: runQueryStr,
       variables: runVariables,
       operationName: definition?.name?.value,

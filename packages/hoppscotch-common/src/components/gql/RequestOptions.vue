@@ -236,15 +236,24 @@ if (props.tabId) {
         return
       }
 
+      if (!event) return
+
       try {
-        if (
-          event?.type === "response" &&
-          event?.operationType !== "subscription"
-        ) {
-          emit("update:response", [event])
-        } else {
-          emit("update:response", [...(props.response ?? []), event])
-        }
+        // A subscription stream accumulates into the log; anything else —
+        // query/mutation result or a run-level error — concludes a discrete
+        // run and replaces the panel. Errors append only when a subscription
+        // log is actually on screen: the renderers key off `response[0]`, so
+        // appending an error after a query response would hide it behind the
+        // stale result (blank body + old meta).
+        const current = props.response ?? []
+        const head = current[0]
+        const appendsToLog =
+          (event.type === "response" &&
+            event.operationType === "subscription") ||
+          (event.type === "error" &&
+            head?.type === "response" &&
+            head.operationType === "subscription")
+        emit("update:response", appendsToLog ? [...current, event] : [event])
       } catch (error) {
         console.error(error)
       }

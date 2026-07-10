@@ -1,0 +1,13 @@
+mutation CreateGQLUserRequest(
+  $title: String!
+  $request: String!
+  $collectionID: ID!
+) {
+  createGQLUserRequest(
+    title: $title
+    request: $request
+    collectionID: $collectionID
+  ) {
+    id
+  }
+}

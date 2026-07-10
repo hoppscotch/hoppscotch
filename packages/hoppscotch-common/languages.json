@@ -175,6 +175,12 @@
     "name": "Svenska"
   },
   {
+    "code": "th",
+    "file": "th.json",
+    "iso": "th-TH",
+    "name": "ไทย"
+  },
+  {
     "code": "tr",
     "file": "tr.json",
     "iso": "tr-TR",

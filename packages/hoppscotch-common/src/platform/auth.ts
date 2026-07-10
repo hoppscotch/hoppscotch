@@ -126,6 +126,17 @@ export type AuthPlatformDef = {
   getBackendHeaders: () => Record<string, string>
 
   /**
+   * Resolves once any org-scoped context required by `getBackendHeaders` (e.g.
+   * the `x-organization-id` header) has settled. On org subdomains this waits
+   * for the org info lookup to succeed or fail before letting backend calls
+   * proceed, so requests don't go out with a missing org id on reload.
+   *
+   * Returns immediately when not in an org context or when the info is already
+   * determined. May be absent on platforms that don't scope backend calls by org.
+   */
+  waitOrganizationInfoReady?: () => Promise<void>
+
+  /**
    * Called when the backend GQL API client encounters an auth error to check if with the
    * current state, if an auth error is possible. This lets the backend GQL client know that
    * it can expect an auth error and we should wait and (possibly retry) to re-execute an operation.

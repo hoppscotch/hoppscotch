@@ -10,16 +10,8 @@ import { getKernelMode } from "@hoppscotch/kernel"
 import { def as stdBackendDef } from "@hoppscotch/common/platform/std/backend"
 // Platform imports
 import { def as webAuth } from "@app/platform/auth/web"
-import { def as webEnvironments } from "@app/platform/environments/web"
-import { def as webCollections } from "@app/platform/collections/web"
-import { def as webSettings } from "@app/platform/settings/web"
-import { def as webHistory } from "@app/platform/history/web"
 
 import { def as desktopAuth } from "@app/platform/auth/desktop"
-import { def as desktopEnvironments } from "@app/platform/environments/desktop"
-import { def as desktopCollections } from "@app/platform/collections/desktop"
-import { def as desktopSettings } from "@app/platform/settings/desktop"
-import { def as desktopHistory } from "@app/platform/history/desktop"
 
 // Std platform
 import { def as webInstance } from "@app/platform/instance/web"
@@ -27,6 +19,7 @@ import { def as desktopInstance } from "@app/platform/instance/desktop"
 import { stdFooterItems } from "@hoppscotch/common/platform/std/ui/footerItem"
 import { stdSupportOptionItems } from "@hoppscotch/common/platform/std/ui/supportOptionsItem"
 import { InfraPlatform } from "@app/platform/infra/infra.platform"
+import { historySyncDef } from "@app/platform/history/sync"
 import { kernelIO } from "@hoppscotch/common/platform/std/kernel-io"
 import { HeaderDownloadableLinksService } from "@app/services/headerDownloadableLinks.service"
 
@@ -43,10 +36,6 @@ import { BrowserKernelInterceptorService } from "@hoppscotch/common/platform/std
 const PLATFORM_CONFIG = {
   web: {
     auth: webAuth,
-    environments: webEnvironments,
-    collections: webCollections,
-    settings: webSettings,
-    history: webHistory,
     instance: webInstance,
     interceptors: [
       BrowserKernelInterceptorService,
@@ -62,10 +51,6 @@ const PLATFORM_CONFIG = {
 
   desktop: {
     auth: desktopAuth,
-    environments: desktopEnvironments,
-    collections: desktopCollections,
-    settings: desktopSettings,
-    history: desktopHistory,
     instance: desktopInstance,
     interceptors: [
       NativeKernelInterceptorService,
@@ -177,11 +162,12 @@ async function initApp() {
     auth: config.auth,
     kernelIO,
     instance: config.instance,
+
+    // The history-enabled toggle is a self-host-only infra-config; inject the
+    // documents the shared sync layer feature-detects rather than baking them
+    // into common.
     sync: {
-      environments: config.environments,
-      collections: config.collections,
-      settings: config.settings,
-      history: config.history,
+      history: historySyncDef,
     },
 
     kernelInterceptors: {

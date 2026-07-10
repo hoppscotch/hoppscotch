@@ -64,8 +64,20 @@ export class MockServerService {
     const isSecure =
       this.configService.get<string>('INFRA.ALLOW_SECURE_COOKIES') === 'true';
     const protocol = isSecure ? 'https://' : 'http://';
-    const serverUrlDomainBased = wildcardDomain
-      ? protocol + dbMockServer.subdomain + wildcardDomain.substring(1)
+
+    // ENABLE_SUBPATH_BASED_ACCESS is a flat config key (no INFRA. prefix) to support flexible deployment strategies
+    const SUBPATH_BACKEND_SUFFIX = '/backend';
+    const subpathSuffix =
+      this.configService.get<string>('ENABLE_SUBPATH_BASED_ACCESS') === 'true'
+        ? SUBPATH_BACKEND_SUFFIX
+        : '';
+
+    const domainPart = wildcardDomain
+      ? dbMockServer.subdomain + wildcardDomain.substring(1)
+      : null;
+
+    const serverUrlDomainBased = domainPart
+      ? `${protocol}${domainPart.replace(/\/+$/, '')}${subpathSuffix}`
       : null;
 
     return {
@@ -421,6 +433,7 @@ export class MockServerService {
               ? input.workspaceID
               : user.uid,
           delayInMs: input.delayInMs,
+          isPublic: input.isPublic ?? false,
         },
       });
       this.mockServerAnalyticsService.recordActivity(

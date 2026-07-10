@@ -160,39 +160,39 @@
 </template>
 
 <script setup lang="ts">
-import IconHelpCircle from "~icons/lucide/help-circle"
-import IconTrash2 from "~icons/lucide/trash-2"
-import IconTrash from "~icons/lucide/trash"
-import IconFilter from "~icons/lucide/filter"
-import { computed, ref, Ref, toRaw } from "vue"
-import { useColorMode } from "@composables/theming"
-import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
-import { groupBy, escapeRegExp, filter } from "lodash-es"
-import { useTimeAgo } from "@vueuse/core"
-import { pipe } from "fp-ts/function"
-import * as A from "fp-ts/Array"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
+import { useColorMode } from "@composables/theming"
 import { useToast } from "@composables/toast"
+import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
+import { useTimeAgo } from "@vueuse/core"
+import * as A from "fp-ts/Array"
+import { pipe } from "fp-ts/function"
+import { escapeRegExp, filter, groupBy } from "lodash-es"
+import { computed, ref, Ref, toRaw } from "vue"
 import {
-  restHistory$,
-  graphqlHistory$,
-  clearRESTHistory,
   clearGraphqlHistory,
-  toggleGraphqlHistoryEntryStar,
-  toggleRESTHistoryEntryStar,
+  clearRESTHistory,
   deleteGraphqlHistoryEntry,
   deleteRESTHistoryEntry,
-  RESTHistoryEntry,
   GQLHistoryEntry,
+  graphqlHistory$,
+  restHistory$,
+  RESTHistoryEntry,
+  toggleGraphqlHistoryEntryStar,
+  toggleRESTHistoryEntryStar,
 } from "~/newstore/history"
+import IconFilter from "~icons/lucide/filter"
+import IconHelpCircle from "~icons/lucide/help-circle"
+import IconTrash from "~icons/lucide/trash"
+import IconTrash2 from "~icons/lucide/trash-2"
 
-import HistoryRestCard from "./rest/Card.vue"
-import HistoryGraphqlCard from "./graphql/Card.vue"
-import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { useService } from "dioc/vue"
+import { defineActionHandler, invokeAction } from "~/helpers/actions"
+import { sync } from "~/lib/sync/defs"
 import { RESTTabService } from "~/services/tab/rest"
-import { platform } from "~/platform"
+import HistoryGraphqlCard from "./graphql/Card.vue"
+import HistoryRestCard from "./rest/Card.vue"
 
 type HistoryEntry = GQLHistoryEntry | RESTHistoryEntry
 
@@ -219,13 +219,7 @@ const history = useReadonlyStream<RESTHistoryEntry[] | GQLHistoryEntry[]>(
 )
 
 const { isHistoryStoreEnabled, isFetchingHistoryStoreStatus } =
-  "requestHistoryStore" in platform.sync.history &&
-  platform.sync.history.requestHistoryStore
-    ? platform.sync.history.requestHistoryStore
-    : {
-        isHistoryStoreEnabled: ref(true),
-        isFetchingHistoryStoreStatus: ref(false),
-      }
+  sync.history.requestHistoryStore
 
 const deepCheckForRegex = (value: unknown, regExp: RegExp): boolean => {
   if (value === null || value === undefined) return false

@@ -223,6 +223,9 @@ const props = defineProps<{
   modelValue: HoppCollectionVariable[]
   inheritedProperties?: HoppInheritedProperty
   hasTeamWriteAccess: boolean
+  // Store key this collection's secret/current values are saved under; lets the
+  // env tooltip resolve own-collection secrets (set by Properties.vue).
+  collectionStoreKey?: string
 }>()
 
 type SelectedEnv = "variables" | "secret"
@@ -290,6 +293,7 @@ const liveEnvs = computed(() => {
     A.map((env) => ({
       ...env,
       sourceEnv: "CollectionVariable",
+      sourceEnvID: props.collectionStoreKey ?? "",
     }))
   )
   const parentInheritedVariables =

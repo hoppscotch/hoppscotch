@@ -1012,6 +1012,7 @@ export class DesktopInstanceService
     instance: Instance,
     options?: Partial<LoadOptions>
   ): TE.TaskEither<string, LoadResponse> {
+    let loadedInstance: Instance = instance
     return pipe(
       instance.kind === "vendored"
         ? TE.of(undefined)
@@ -1020,19 +1021,23 @@ export class DesktopInstanceService
               console.log(
                 `[InstanceService] Ensuring bundle is available for: ${instance.displayName}`
               )
-              await download({ serverUrl: instance.serverUrl })
-              return undefined
+              const dlResp = await download({ serverUrl: instance.serverUrl })
+              loadedInstance = {
+                ...instance,
+                version: dlResp.version,
+                bundleName: dlResp.bundleName,
+              }
             },
             (error) => `Failed to ensure bundle is available: ${error}`
           ),
-      TE.chain(() => this.getBundleNameTE(instance)),
-      TE.map(() => this.buildLoadOptions(instance, options)),
+      TE.chain(() => this.getBundleNameTE(loadedInstance)),
+      TE.map(() => this.buildLoadOptions(loadedInstance, options)),
       TE.chain((loadOptions) => this.performLoadTE(loadOptions)),
       TE.chain((response) =>
-        this.validateLoadResponseTE(response, instance.displayName)
+        this.validateLoadResponseTE(response, loadedInstance.displayName)
       ),
-      TE.chainFirst(() => this.updateInstanceStateTE(instance)),
-      TE.chainFirst(() => this.updateInstanceLastUsed(instance)),
+      TE.chainFirst(() => this.updateInstanceStateTE(loadedInstance)),
+      TE.chainFirst(() => this.updateInstanceLastUsed(loadedInstance)),
       TE.chainFirst((_loadResponse) =>
         TE.fromTask(async () => {
           try {
@@ -1271,7 +1276,12 @@ export class DesktopInstanceService
       this.recentInstances$.value,
       A.map((i) =>
         i.serverUrl === instance.serverUrl
-          ? { ...i, lastUsed: new Date().toISOString() }
+          ? {
+              ...i,
+              version: instance.version,
+              bundleName: instance.bundleName,
+              lastUsed: new Date().toISOString(),
+            }
           : i
       ),
       sortByLastUsedDesc,

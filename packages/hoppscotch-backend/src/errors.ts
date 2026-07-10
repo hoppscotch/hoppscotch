@@ -424,8 +424,8 @@ export const USER_SETTINGS_NULL_SETTINGS =
  * Global environment doesn't exist for the user
  * (UserEnvironmentsService)
  */
-export const USER_ENVIRONMENT_GLOBAL_ENV_DOES_NOT_EXISTS =
-  'user_environment/global_env_does_not_exists' as const;
+export const USER_ENVIRONMENT_GLOBAL_ENV_DOES_NOT_EXIST =
+  'user_environment/global_env_does_not_exist' as const;
 
 /**
  * Global environment already exists for the user
@@ -438,8 +438,8 @@ export const USER_ENVIRONMENT_GLOBAL_ENV_EXISTS =
  * User environment doesn't exist for the user
  * (UserEnvironmentsService)
  */
-export const USER_ENVIRONMENT_ENV_DOES_NOT_EXISTS =
-  'user_environment/user_env_does_not_exists' as const;
+export const USER_ENVIRONMENT_ENV_DOES_NOT_EXIST =
+  'user_environment/user_env_does_not_exist' as const;
 
 /**
  * Cannot delete the global user environment

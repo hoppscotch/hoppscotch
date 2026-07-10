@@ -1,0 +1,23 @@
+query GetRESTUserHistory {
+  me {
+    RESTHistory {
+      id
+      userUid
+      reqType
+      request
+      responseMetadata
+      isStarred
+      executedOn
+    }
+
+    GQLHistory {
+      id
+      userUid
+      reqType
+      request
+      responseMetadata
+      isStarred
+      executedOn
+    }
+  }
+}

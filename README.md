@@ -266,6 +266,8 @@ _Add-ons are developed and maintained under **[Hoppscotch Organization](https://
 
 Follow our [self-hosting documentation](https://docs.hoppscotch.io/documentation/self-host/getting-started) to get started with the development environment.
 
+Prefer managed hosting? [![Deploy with Zenith](https://cdn.zenith.hosting/buttons/deploy-with-zenith.svg)](https://zenith.hosting/host/hoppscotch) one-click managed Hoppscotch, no server required.
+
 ## Contributing
 
 Please contribute using [GitHub Flow](https://guides.github.com/introduction/flow). Create a branch, add commits, and [open a pull request](https://github.com/hoppscotch/hoppscotch/compare).

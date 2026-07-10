@@ -860,6 +860,15 @@ export class GQLTabConnectionService extends Service {
       ctx.subscriptionState = "UNSUBSCRIBED"
     }
 
+    // A subscription run owns the panel from the start — mark the run
+    // boundary before the awaits below so no later event of this run can
+    // land in a previous run's log. It must be a flush tick ahead of those
+    // events: Vue batches ref writes, so a reset assigned in the same tick
+    // as an error (the stale-run bail below) collapses to just the error.
+    if (options.operationType === "subscription") {
+      messageEvent.value = "reset"
+    }
+
     if (ctx.state !== "CONNECTED") {
       // Introspection failure is non-fatal — schema is for the docs explorer
       // and autocomplete, not for executing the request. Servers that disable

@@ -165,12 +165,14 @@ export class TeamRequestService {
    * @param teamID Team ID to create the request in
    * @param title Title of the request
    * @param request Request body of the request
+   * @param type Type (REST/GQL) of the request
    */
   async createTeamRequest(
     collectionID: string,
     teamID: string,
     title: string,
     request: string,
+    type: ReqType,
   ) {
     const team =
       await this.teamCollectionService.getTeamOfCollection(collectionID);
@@ -205,6 +207,7 @@ export class TeamRequestService {
             data: {
               request: jsonReq,
               title,
+              type,
               orderIndex: lastTeamRequest ? lastTeamRequest.orderIndex + 1 : 1,
               team: { connect: { id: team.right.id } },
               collection: { connect: { id: collectionID } },

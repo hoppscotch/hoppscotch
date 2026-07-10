@@ -256,6 +256,7 @@ describe('createTeamRequest', () => {
       team.id,
       'Test Request',
       '{}',
+      ReqType.REST,
     );
 
     expect(response).toEqualLeft(TEAM_INVALID_COLL_ID);
@@ -280,6 +281,7 @@ describe('createTeamRequest', () => {
       team.id,
       teamRequest.title,
       teamRequest.request,
+      ReqType.REST,
     );
 
     await expect(response).resolves.toEqualRight(teamRequest);
@@ -303,6 +305,7 @@ describe('createTeamRequest', () => {
       team.id,
       teamRequest.title,
       teamRequest.request,
+      ReqType.REST,
     );
     expect(mockPubSub.publish).toHaveBeenCalledWith(
       `team_req/${dbRequest.teamID}/req_created`,

@@ -79,6 +79,13 @@ export type GQLResponseEvent =
     }
   | {
       type: "error"
+      /**
+       * Operation type of the run this error belongs to — lets the response
+       * panel decide replace-vs-append on the event's own identity instead
+       * of inferring it from the panel's current contents. Absent on
+       * connection-level errors, which always replace.
+       */
+      operationType?: OperationType
       error: {
         type: string
         message: string
@@ -985,6 +992,7 @@ export class GQLTabConnectionService extends Service {
       if (!runIsCurrent()) {
         messageEvent.value = {
           type: "error",
+          operationType: "subscription",
           error: {
             type: "subscription_error",
             message:
@@ -1087,6 +1095,8 @@ export class GQLTabConnectionService extends Service {
       // Route error to the captured tab's message event
       messageEvent.value = {
         type: "error",
+        // Never "subscription" — that path returned above
+        operationType,
         error: {
           type: "network_error",
           message: error.message || "An unknown error occurred",
@@ -1149,6 +1159,7 @@ export class GQLTabConnectionService extends Service {
       if (!isCurrentSubscription()) return
       messageEvent.value = {
         type: "error",
+        operationType: "subscription",
         error: { type: "subscription_error", message },
       }
       this.teardownSubscriptionSocket(ctx)
@@ -1312,6 +1323,7 @@ export class GQLTabConnectionService extends Service {
           event.reason || this.describeWSCloseCode(event.code) || ""
         messageEvent.value = {
           type: "error",
+          operationType: "subscription",
           error: {
             type: "subscription_error",
             message: `WebSocket closed (code ${event.code})${
@@ -1337,6 +1349,7 @@ export class GQLTabConnectionService extends Service {
       if (!messageEvent.value || messageEvent.value === "reset") {
         messageEvent.value = {
           type: "error",
+          operationType: "subscription",
           error: {
             type: "subscription_error",
             message: `WebSocket connection to ${wsUrl} failed. Check that the endpoint accepts GraphQL over WebSocket.`,

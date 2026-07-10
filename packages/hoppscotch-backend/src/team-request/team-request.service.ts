@@ -9,6 +9,7 @@ import {
   TEAM_INVALID_ID,
   TEAM_REQ_NOT_FOUND,
   TEAM_REQ_REORDERING_FAILED,
+  TEAM_REQ_TYPE_MISMATCH,
   TEAM_COLL_CREATION_FAILED,
 } from 'src/errors';
 import { PubSubService } from 'src/pubsub/pubsub.service';
@@ -390,6 +391,29 @@ export class TeamRequestService {
     });
     if (!request) return E.left(TEAM_REQ_NOT_FOUND);
 
+    // The destination collection must exist and belong to the same team as
+    // the request
+    const destCollection = await this.prisma.teamCollection.findUnique({
+      where: { id: destCollID },
+      select: { teamID: true, type: true },
+    });
+    if (!destCollection) return E.left(TEAM_INVALID_COLL_ID);
+    if (destCollection.teamID !== request.teamID) {
+      return E.left(TEAM_REQ_INVALID_TARGET_COLL_ID);
+    }
+
+    // When moving across collections, the source and destination collections
+    // must hold the same request type (REST/GQL)
+    if (request.collectionID !== destCollID) {
+      const srcCollection = await this.prisma.teamCollection.findUnique({
+        where: { id: request.collectionID },
+        select: { type: true },
+      });
+      if (srcCollection && srcCollection.type !== destCollection.type) {
+        return E.left(TEAM_REQ_TYPE_MISMATCH);
+      }
+    }
+
     let nextRequest = null;
     if (nextRequestID) {
       nextRequest = await this.prisma.teamRequest.findFirst({
@@ -401,18 +425,6 @@ export class TeamRequestService {
         nextRequest.collectionID !== destCollID ||
         request.teamID !== nextRequest.teamID
       ) {
-        return E.left(TEAM_REQ_INVALID_TARGET_COLL_ID);
-      }
-    } else {
-      // When nextRequestID is null, validate that the destination collection
-      // belongs to the same team as the request to prevent cross-team moves
-      const destCollection = await this.prisma.teamCollection.findUnique({
-        where: { id: destCollID },
-        select: { teamID: true },
-      });
-      if (!destCollection) return E.left(TEAM_INVALID_COLL_ID);
-
-      if (destCollection.teamID !== request.teamID) {
         return E.left(TEAM_REQ_INVALID_TARGET_COLL_ID);
       }
     }

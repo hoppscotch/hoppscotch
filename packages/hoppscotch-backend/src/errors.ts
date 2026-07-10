@@ -335,6 +335,12 @@ export const TEAM_REQ_INVALID_TARGET_COLL_ID =
   'team_req/invalid_target_id' as const;
 
 /**
+ * The request type does not match the type of the target collection
+ * (TeamRequestService)
+ */
+export const TEAM_REQ_TYPE_MISMATCH = 'team_req/request_type_mismatch' as const;
+
+/**
  * Tried to reorder team request but failed
  * (TeamRequestService)
  */

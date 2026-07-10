@@ -222,10 +222,13 @@ export class TeamCollectionService {
     if (!Array.isArray(collectionsList.right))
       return E.left(TEAM_COLL_INVALID_JSON);
 
-    // When importing into an existing parent, ensure the type matches the parent
+    // When importing into an existing parent, ensure the parent belongs to
+    // the team and the type matches the parent
     if (parentID) {
       const parentCollection = await this.getCollection(parentID);
       if (E.isLeft(parentCollection)) return E.left(TEAM_COLL_NOT_FOUND);
+      if (parentCollection.right.teamID !== teamID)
+        return E.left(TEAM_NOT_OWNER);
       if (parentCollection.right.type !== type)
         return E.left(TEAM_COLL_TYPE_MISMATCH);
     }
@@ -445,28 +448,6 @@ export class TeamCollectionService {
   }
 
   /**
-   * Check to see if Collection belongs to Team
-   *
-   * @param collectionID getChildCollectionsCount
-   * @param teamID The Team ID
-   * @returns An Option of a Boolean
-   */
-  private async isOwnerCheck(collectionID: string, teamID: string) {
-    try {
-      await this.prisma.teamCollection.findFirstOrThrow({
-        where: {
-          id: collectionID,
-          teamID,
-        },
-      });
-
-      return O.some(true);
-    } catch (error) {
-      return O.none;
-    }
-  }
-
-  /**
    * Create a new TeamCollection
    *
    * @param teamID The Team ID
@@ -484,15 +465,15 @@ export class TeamCollectionService {
     const isTitleValid = isValidLength(title, this.TITLE_LENGTH);
     if (!isTitleValid) return E.left(TEAM_COLL_SHORT_TITLE);
 
-    // Check to see if parentTeamCollectionID belongs to this Team
+    // Check that the parent collection belongs to this Team and the child
+    // collection has the same type as its parent
     if (parentID !== null) {
-      const isOwner = await this.isOwnerCheck(parentID, teamID);
-      if (O.isNone(isOwner)) return E.left(TEAM_NOT_OWNER);
-
-      // Ensure the child collection has the same type as its parent
-      const parentCollection = await this.getCollection(parentID);
-      if (E.isLeft(parentCollection)) return E.left(TEAM_COLL_NOT_FOUND);
-      if (parentCollection.right.type !== type)
+      const parentCollection = await this.prisma.teamCollection.findFirst({
+        where: { id: parentID, teamID },
+        select: { type: true },
+      });
+      if (!parentCollection) return E.left(TEAM_NOT_OWNER);
+      if (parentCollection.type !== type)
         return E.left(TEAM_COLL_TYPE_MISMATCH);
     }
 

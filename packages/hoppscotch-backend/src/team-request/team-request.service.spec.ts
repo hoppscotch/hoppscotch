@@ -8,8 +8,10 @@ import {
   TEAM_INVALID_ID,
   TEAM_REQ_NOT_FOUND,
   TEAM_REQ_REORDERING_FAILED,
+  TEAM_REQ_TYPE_MISMATCH,
   TEAM_COLL_NOT_FOUND,
 } from 'src/errors';
+import { ReqType } from 'src/types/RequestTypes';
 import * as E from 'fp-ts/Either';
 import { mockDeep, mockReset } from 'jest-mock-extended';
 import { TeamRequest } from './team-request.model';
@@ -39,6 +41,7 @@ const team: DbTeam = {
   name: 'Team A',
 };
 const teamCollection: DbTeamCollection = {
+  type: ReqType.REST,
   id: 'team-coll-1',
   parentID: null,
   teamID: team.id,
@@ -57,6 +60,7 @@ for (let i = 1; i <= 10; i++) {
     request: {},
     mockExamples: {},
     title: `Test Request ${i}`,
+    type: ReqType.REST,
     orderIndex: i,
     createdOn: new Date(),
     updatedOn: new Date(),
@@ -68,6 +72,7 @@ const teamRequests: TeamRequest[] = dbTeamRequests.map((tr) => ({
   teamID: tr.teamID,
   title: tr.title,
   request: JSON.stringify(tr.request),
+  type: tr.type as ReqType,
 }));
 
 beforeEach(async () => {
@@ -271,13 +276,13 @@ describe('createTeamRequest', () => {
     mockPrisma.teamRequest.create.mockResolvedValue(dbRequest);
 
     const response = teamRequestService.createTeamRequest(
-      teamRequest.title,
+      teamCollection.id,
       team.id,
       teamRequest.title,
       teamRequest.request,
     );
 
-    expect(response).resolves.toEqualRight(teamRequest);
+    await expect(response).resolves.toEqualRight(teamRequest);
   });
 
   test('publishes creation to pubsub topic "team_req/<team_id>/req_created"', async () => {
@@ -294,7 +299,7 @@ describe('createTeamRequest', () => {
     mockPrisma.teamRequest.create.mockResolvedValue(dbRequest);
 
     await teamRequestService.createTeamRequest(
-      teamRequest.title,
+      teamCollection.id,
       team.id,
       teamRequest.title,
       teamRequest.request,
@@ -468,6 +473,7 @@ describe('findRequestAndNextRequest', () => {
     mockPrisma.teamRequest.findFirst
       .mockResolvedValueOnce(dbTeamRequests[0])
       .mockResolvedValueOnce(dbTeamRequests[4]);
+    mockPrisma.teamCollection.findUnique.mockResolvedValueOnce(teamCollection);
 
     const result = await (teamRequestService as any).findRequestAndNextRequest(
       args.srcCollID,
@@ -578,6 +584,7 @@ describe('findRequestAndNextRequest', () => {
     mockPrisma.teamRequest.findFirst
       .mockResolvedValueOnce(dbTeamRequests[0])
       .mockResolvedValueOnce(null);
+    mockPrisma.teamCollection.findUnique.mockResolvedValueOnce(teamCollection);
 
     const result = (teamRequestService as any).findRequestAndNextRequest(
       args.srcCollID,
@@ -587,6 +594,26 @@ describe('findRequestAndNextRequest', () => {
     );
 
     expect(result).resolves.toEqualLeft(TEAM_REQ_NOT_FOUND);
+  });
+  test('Should resolve left if the destination collection type does not match the source collection type', async () => {
+    mockPrisma.teamRequest.findFirst.mockResolvedValueOnce(dbTeamRequests[0]);
+    // destination collection lookup
+    mockPrisma.teamCollection.findUnique.mockResolvedValueOnce({
+      ...teamCollection,
+      id: 'gql-coll',
+      type: ReqType.GQL,
+    });
+    // source collection lookup
+    mockPrisma.teamCollection.findUnique.mockResolvedValueOnce(teamCollection);
+
+    const result = await (teamRequestService as any).findRequestAndNextRequest(
+      teamRequests[0].collectionID,
+      teamRequests[0].id,
+      'gql-coll',
+      null,
+    );
+
+    expect(result).toEqualLeft(TEAM_REQ_TYPE_MISMATCH);
   });
 });
 

@@ -15,9 +15,11 @@ import {
   TEAM_COL_REORDERING_FAILED,
   TEAM_COL_SAME_NEXT_COLL,
   TEAM_INVALID_COLL_ID,
+  TEAM_COLL_TYPE_MISMATCH,
   TEAM_MEMBER_NOT_FOUND,
   TEAM_NOT_OWNER,
 } from 'src/errors';
+import { ReqType } from 'src/types/RequestTypes';
 import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -60,6 +62,7 @@ const team: Team = {
 };
 
 const rootTeamCollection: DBTeamCollection = {
+  type: ReqType.REST,
   id: '123',
   orderIndex: 1,
   parentID: null,
@@ -71,6 +74,7 @@ const rootTeamCollection: DBTeamCollection = {
 };
 
 const rootTeamCollectionsCasted: TeamCollection = {
+  type: ReqType.REST,
   id: rootTeamCollection.id,
   title: rootTeamCollection.title,
   parentID: rootTeamCollection.parentID,
@@ -78,6 +82,7 @@ const rootTeamCollectionsCasted: TeamCollection = {
 };
 
 const rootTeamCollection_2: DBTeamCollection = {
+  type: ReqType.REST,
   id: 'erv',
   orderIndex: 2,
   parentID: null,
@@ -89,6 +94,7 @@ const rootTeamCollection_2: DBTeamCollection = {
 };
 
 const childTeamCollection: DBTeamCollection = {
+  type: ReqType.REST,
   id: 'rfe',
   orderIndex: 1,
   parentID: rootTeamCollection.id,
@@ -100,6 +106,7 @@ const childTeamCollection: DBTeamCollection = {
 };
 
 const childTeamCollectionCasted: TeamCollection = {
+  type: ReqType.REST,
   id: 'rfe',
   parentID: rootTeamCollection.id,
   data: JSON.stringify(childTeamCollection.data),
@@ -107,6 +114,7 @@ const childTeamCollectionCasted: TeamCollection = {
 };
 
 const childTeamCollection_2: DBTeamCollection = {
+  type: ReqType.REST,
   id: 'bgdz',
   orderIndex: 1,
   data: {},
@@ -118,6 +126,7 @@ const childTeamCollection_2: DBTeamCollection = {
 };
 
 const childTeamCollection_2Casted: TeamCollection = {
+  type: ReqType.REST,
   id: 'bgdz',
   data: JSON.stringify(childTeamCollection_2.data),
   parentID: rootTeamCollection_2.id,
@@ -126,6 +135,7 @@ const childTeamCollection_2Casted: TeamCollection = {
 
 const rootTeamCollectionList: DBTeamCollection[] = [
   {
+    type: ReqType.REST,
     id: 'fdv',
     orderIndex: 1,
     parentID: null,
@@ -137,6 +147,7 @@ const rootTeamCollectionList: DBTeamCollection[] = [
     updatedOn: currentTime,
   },
   {
+    type: ReqType.REST,
     id: 'fbbg',
     orderIndex: 2,
     parentID: null,
@@ -148,6 +159,7 @@ const rootTeamCollectionList: DBTeamCollection[] = [
     updatedOn: currentTime,
   },
   {
+    type: ReqType.REST,
     id: 'fgbfg',
     orderIndex: 3,
     parentID: null,
@@ -159,6 +171,7 @@ const rootTeamCollectionList: DBTeamCollection[] = [
     updatedOn: currentTime,
   },
   {
+    type: ReqType.REST,
     id: 'bre3',
     orderIndex: 4,
     parentID: null,
@@ -170,6 +183,7 @@ const rootTeamCollectionList: DBTeamCollection[] = [
     updatedOn: currentTime,
   },
   {
+    type: ReqType.REST,
     id: 'hghgf',
     orderIndex: 5,
     parentID: null,
@@ -181,6 +195,7 @@ const rootTeamCollectionList: DBTeamCollection[] = [
     updatedOn: currentTime,
   },
   {
+    type: ReqType.REST,
     id: '123',
     orderIndex: 6,
     parentID: null,
@@ -192,6 +207,7 @@ const rootTeamCollectionList: DBTeamCollection[] = [
     updatedOn: currentTime,
   },
   {
+    type: ReqType.REST,
     id: '54tyh',
     orderIndex: 7,
     parentID: null,
@@ -203,6 +219,7 @@ const rootTeamCollectionList: DBTeamCollection[] = [
     updatedOn: currentTime,
   },
   {
+    type: ReqType.REST,
     id: '234re',
     orderIndex: 8,
     parentID: null,
@@ -213,6 +230,7 @@ const rootTeamCollectionList: DBTeamCollection[] = [
     updatedOn: currentTime,
   },
   {
+    type: ReqType.REST,
     id: '34rtg',
     orderIndex: 9,
     parentID: null,
@@ -223,6 +241,7 @@ const rootTeamCollectionList: DBTeamCollection[] = [
     updatedOn: currentTime,
   },
   {
+    type: ReqType.REST,
     id: '45tgh',
     orderIndex: 10,
     parentID: null,
@@ -236,60 +255,70 @@ const rootTeamCollectionList: DBTeamCollection[] = [
 
 const rootTeamCollectionListCasted: TeamCollection[] = [
   {
+    type: ReqType.REST,
     id: 'fdv',
     parentID: null,
     title: 'Root Collection 1',
     data: JSON.stringify(rootTeamCollection.data),
   },
   {
+    type: ReqType.REST,
     id: 'fbbg',
     parentID: null,
     title: 'Root Collection 1',
     data: JSON.stringify(rootTeamCollection.data),
   },
   {
+    type: ReqType.REST,
     id: 'fgbfg',
     parentID: null,
     title: 'Root Collection 1',
     data: JSON.stringify(rootTeamCollection.data),
   },
   {
+    type: ReqType.REST,
     id: 'bre3',
     parentID: null,
     data: JSON.stringify(rootTeamCollection.data),
     title: 'Root Collection 1',
   },
   {
+    type: ReqType.REST,
     id: 'hghgf',
     parentID: null,
     title: 'Root Collection 1',
     data: JSON.stringify(rootTeamCollection.data),
   },
   {
+    type: ReqType.REST,
     id: '123',
     parentID: null,
     title: 'Root Collection 1',
     data: JSON.stringify(rootTeamCollection.data),
   },
   {
+    type: ReqType.REST,
     id: '54tyh',
     parentID: null,
     title: 'Root Collection 1',
     data: JSON.stringify(rootTeamCollection.data),
   },
   {
+    type: ReqType.REST,
     id: '234re',
     parentID: null,
     title: 'Root Collection 1',
     data: JSON.stringify(rootTeamCollection.data),
   },
   {
+    type: ReqType.REST,
     id: '34rtg',
     parentID: null,
     title: 'Root Collection 1',
     data: JSON.stringify(rootTeamCollection.data),
   },
   {
+    type: ReqType.REST,
     id: '45tgh',
     parentID: null,
     title: 'Root Collection 1',
@@ -299,6 +328,7 @@ const rootTeamCollectionListCasted: TeamCollection[] = [
 
 const childTeamCollectionList: DBTeamCollection[] = [
   {
+    type: ReqType.REST,
     id: '123',
     orderIndex: 1,
     parentID: rootTeamCollection.id,
@@ -310,6 +340,7 @@ const childTeamCollectionList: DBTeamCollection[] = [
     updatedOn: currentTime,
   },
   {
+    type: ReqType.REST,
     id: '345',
     orderIndex: 2,
     parentID: rootTeamCollection.id,
@@ -321,6 +352,7 @@ const childTeamCollectionList: DBTeamCollection[] = [
     updatedOn: currentTime,
   },
   {
+    type: ReqType.REST,
     id: '456',
     orderIndex: 3,
     parentID: rootTeamCollection.id,
@@ -332,6 +364,7 @@ const childTeamCollectionList: DBTeamCollection[] = [
     updatedOn: currentTime,
   },
   {
+    type: ReqType.REST,
     id: '567',
     orderIndex: 4,
     parentID: rootTeamCollection.id,
@@ -343,6 +376,7 @@ const childTeamCollectionList: DBTeamCollection[] = [
     updatedOn: currentTime,
   },
   {
+    type: ReqType.REST,
     id: '123',
     orderIndex: 5,
     parentID: rootTeamCollection.id,
@@ -354,6 +388,7 @@ const childTeamCollectionList: DBTeamCollection[] = [
     updatedOn: currentTime,
   },
   {
+    type: ReqType.REST,
     id: '678',
     orderIndex: 6,
     parentID: rootTeamCollection.id,
@@ -365,6 +400,7 @@ const childTeamCollectionList: DBTeamCollection[] = [
     updatedOn: currentTime,
   },
   {
+    type: ReqType.REST,
     id: '789',
     orderIndex: 7,
     parentID: rootTeamCollection.id,
@@ -376,6 +412,7 @@ const childTeamCollectionList: DBTeamCollection[] = [
     updatedOn: currentTime,
   },
   {
+    type: ReqType.REST,
     id: '890',
     orderIndex: 8,
     parentID: rootTeamCollection.id,
@@ -387,6 +424,7 @@ const childTeamCollectionList: DBTeamCollection[] = [
     updatedOn: currentTime,
   },
   {
+    type: ReqType.REST,
     id: '012',
     orderIndex: 9,
     parentID: rootTeamCollection.id,
@@ -397,6 +435,7 @@ const childTeamCollectionList: DBTeamCollection[] = [
     updatedOn: currentTime,
   },
   {
+    type: ReqType.REST,
     id: '0bhu',
     orderIndex: 10,
     parentID: rootTeamCollection.id,
@@ -411,24 +450,28 @@ const childTeamCollectionList: DBTeamCollection[] = [
 
 const childTeamCollectionListCasted: TeamCollection[] = [
   {
+    type: ReqType.REST,
     id: '123',
     parentID: rootTeamCollection.id,
     title: 'Root Collection 1',
     data: JSON.stringify({}),
   },
   {
+    type: ReqType.REST,
     id: '345',
     parentID: rootTeamCollection.id,
     title: 'Root Collection 1',
     data: JSON.stringify({}),
   },
   {
+    type: ReqType.REST,
     id: '456',
     parentID: rootTeamCollection.id,
     title: 'Root Collection 1',
     data: JSON.stringify({}),
   },
   {
+    type: ReqType.REST,
     id: '567',
     parentID: rootTeamCollection.id,
     data: JSON.stringify({}),
@@ -436,6 +479,7 @@ const childTeamCollectionListCasted: TeamCollection[] = [
     title: 'Root Collection 1',
   },
   {
+    type: ReqType.REST,
     id: '123',
     parentID: rootTeamCollection.id,
     data: JSON.stringify({}),
@@ -443,6 +487,7 @@ const childTeamCollectionListCasted: TeamCollection[] = [
     title: 'Root Collection 1',
   },
   {
+    type: ReqType.REST,
     id: '678',
     parentID: rootTeamCollection.id,
     data: JSON.stringify({}),
@@ -450,6 +495,7 @@ const childTeamCollectionListCasted: TeamCollection[] = [
     title: 'Root Collection 1',
   },
   {
+    type: ReqType.REST,
     id: '789',
     parentID: rootTeamCollection.id,
     data: JSON.stringify({}),
@@ -457,6 +503,7 @@ const childTeamCollectionListCasted: TeamCollection[] = [
     title: 'Root Collection 1',
   },
   {
+    type: ReqType.REST,
     id: '890',
     parentID: rootTeamCollection.id,
     data: JSON.stringify({}),
@@ -464,12 +511,14 @@ const childTeamCollectionListCasted: TeamCollection[] = [
     title: 'Root Collection 1',
   },
   {
+    type: ReqType.REST,
     id: '012',
     parentID: rootTeamCollection.id,
     data: JSON.stringify({}),
     title: 'Root Collection 1',
   },
   {
+    type: ReqType.REST,
     id: '0bhu',
     parentID: rootTeamCollection.id,
     data: JSON.stringify({}),
@@ -595,6 +644,7 @@ describe('getTeamRootCollections', () => {
       rootTeamCollection.teamID,
       null,
       10,
+      ReqType.REST,
     );
     expect(result).toEqual(rootTeamCollectionListCasted);
   });
@@ -610,6 +660,7 @@ describe('getTeamRootCollections', () => {
       rootTeamCollection.teamID,
       rootTeamCollectionList[6].id,
       10,
+      ReqType.REST,
     );
     expect(result).toEqual([
       { ...rootTeamCollectionListCasted[7] },
@@ -625,6 +676,7 @@ describe('getTeamRootCollections', () => {
       'invalidTeamID',
       null,
       10,
+      ReqType.REST,
     );
     expect(result).toEqual([]);
   });
@@ -669,34 +721,52 @@ describe('createCollection', () => {
       rootTeamCollection.teamID,
       '',
       JSON.stringify(rootTeamCollection.data),
+      ReqType.REST,
       rootTeamCollection.id,
     );
     expect(result).toEqualLeft(TEAM_COLL_SHORT_TITLE);
   });
 
   test('should throw TEAM_NOT_OWNER when parent TeamCollection does not belong to the team', async () => {
-    jest
-      .spyOn(teamCollectionService as any, 'isOwnerCheck')
-      .mockResolvedValueOnce(O.none);
+    mockPrisma.teamCollection.findFirst.mockResolvedValueOnce(null);
 
     const result = await teamCollectionService.createCollection(
       rootTeamCollection.teamID,
       'abcd',
       JSON.stringify(rootTeamCollection.data),
+      ReqType.REST,
       rootTeamCollection.id,
     );
     expect(result).toEqualLeft(TEAM_NOT_OWNER);
   });
 
-  test('should throw TEAM_COLL_DATA_INVALID when parent TeamCollection does not belong to the team', async () => {
-    jest
-      .spyOn(teamCollectionService as any, 'isOwnerCheck')
-      .mockResolvedValueOnce(O.some(true));
+  test('should throw TEAM_COLL_TYPE_MISMATCH when the type does not match the parent TeamCollection type', async () => {
+    mockPrisma.teamCollection.findFirst.mockResolvedValueOnce({
+      ...rootTeamCollection,
+      type: ReqType.GQL,
+    });
+
+    const result = await teamCollectionService.createCollection(
+      rootTeamCollection.teamID,
+      'abcd',
+      JSON.stringify(rootTeamCollection.data),
+      ReqType.REST,
+      rootTeamCollection.id,
+    );
+    expect(result).toEqualLeft(TEAM_COLL_TYPE_MISMATCH);
+  });
+
+  test('should throw TEAM_COLL_DATA_INVALID when the data is invalid JSON', async () => {
+    mockPrisma.teamCollection.findFirst.mockResolvedValueOnce({
+      ...rootTeamCollection,
+      type: ReqType.REST,
+    });
 
     const result = await teamCollectionService.createCollection(
       rootTeamCollection.teamID,
       'abcd',
       '{',
+      ReqType.REST,
       rootTeamCollection.id,
     );
     expect(result).toEqualLeft(TEAM_COLL_DATA_INVALID);
@@ -714,15 +784,18 @@ describe('createCollection', () => {
       rootTeamCollection.teamID,
       rootTeamCollection.title,
       JSON.stringify(rootTeamCollection.data),
+      ReqType.REST,
       null,
     );
     expect(result).toEqualRight(rootTeamCollectionsCasted);
   });
 
   test('should successfully create a new child TeamCollection with valid inputs', async () => {
-    jest
-      .spyOn(teamCollectionService as any, 'isOwnerCheck')
-      .mockResolvedValueOnce(O.some(true));
+    // parent ownership + type check
+    mockPrisma.teamCollection.findFirst.mockResolvedValueOnce({
+      ...rootTeamCollection,
+      type: ReqType.REST,
+    });
     mockPrisma.$transaction.mockImplementationOnce(async (fn) =>
       fn(mockPrisma),
     );
@@ -734,15 +807,18 @@ describe('createCollection', () => {
       childTeamCollection.teamID,
       childTeamCollection.title,
       JSON.stringify(childTeamCollection.data),
+      ReqType.REST,
       childTeamCollection.parentID,
     );
     expect(result).toEqualRight(childTeamCollectionCasted);
   });
 
   test('should send pubsub message to "team_coll/<teamID>/coll_added" if child TeamCollection is created successfully', async () => {
-    jest
-      .spyOn(teamCollectionService as any, 'isOwnerCheck')
-      .mockResolvedValueOnce(O.some(true));
+    // parent ownership + type check
+    mockPrisma.teamCollection.findFirst.mockResolvedValueOnce({
+      ...rootTeamCollection,
+      type: ReqType.REST,
+    });
     mockPrisma.$transaction.mockImplementationOnce(async (fn) =>
       fn(mockPrisma),
     );
@@ -754,6 +830,7 @@ describe('createCollection', () => {
       childTeamCollection.teamID,
       childTeamCollection.title,
       JSON.stringify(childTeamCollection.data),
+      ReqType.REST,
       childTeamCollection.parentID,
     );
     expect(mockPubSub.publish).toHaveBeenCalledWith(
@@ -774,6 +851,7 @@ describe('createCollection', () => {
       rootTeamCollection.teamID,
       rootTeamCollection.title,
       JSON.stringify(rootTeamCollection.data),
+      ReqType.REST,
       null,
     );
     expect(mockPubSub.publish).toHaveBeenCalledWith(
@@ -1438,6 +1516,7 @@ describe('importCollectionsFromJSON', () => {
       'invalidString',
       rootTeamCollection.teamID,
       null,
+      ReqType.REST,
     );
     expect(result).toEqualLeft(TEAM_COLL_INVALID_JSON);
   });
@@ -1447,8 +1526,42 @@ describe('importCollectionsFromJSON', () => {
       '{}',
       rootTeamCollection.teamID,
       null,
+      ReqType.REST,
     );
     expect(result).toEqualLeft(TEAM_COLL_INVALID_JSON);
+  });
+
+  test('should throw TEAM_NOT_OWNER when the parent collection does not belong to the team', async () => {
+    // getCollection (parent lookup)
+    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce({
+      ...rootTeamCollection,
+      teamID: 'another-team-id',
+      type: ReqType.REST,
+    });
+
+    const result = await teamCollectionService.importCollectionsFromJSON(
+      jsonString,
+      rootTeamCollection.teamID,
+      rootTeamCollection.id,
+      ReqType.REST,
+    );
+    expect(result).toEqualLeft(TEAM_NOT_OWNER);
+  });
+
+  test('should throw TEAM_COLL_TYPE_MISMATCH when the type does not match the parent collection type', async () => {
+    // getCollection (parent lookup)
+    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce({
+      ...rootTeamCollection,
+      type: ReqType.GQL,
+    });
+
+    const result = await teamCollectionService.importCollectionsFromJSON(
+      jsonString,
+      rootTeamCollection.teamID,
+      rootTeamCollection.id,
+      ReqType.REST,
+    );
+    expect(result).toEqualLeft(TEAM_COLL_TYPE_MISMATCH);
   });
 
   test('should successfully create new TeamCollections in root and TeamRequests with valid inputs', async () => {
@@ -1460,11 +1573,17 @@ describe('importCollectionsFromJSON', () => {
       jsonString,
       rootTeamCollection.teamID,
       null,
+      ReqType.REST,
     );
     expect(result).toEqualRight([rootTeamCollection]);
   });
 
   test('should successfully create new TeamCollections in a child collection and TeamRequests with valid inputs', async () => {
+    // getCollection (parent lookup)
+    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce({
+      ...rootTeamCollection,
+      type: ReqType.REST,
+    });
     mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
     mockPrisma.teamCollection.findFirst.mockResolvedValueOnce(null);
     mockPrisma.teamCollection.create.mockResolvedValueOnce(rootTeamCollection);
@@ -1473,6 +1592,7 @@ describe('importCollectionsFromJSON', () => {
       jsonString,
       rootTeamCollection.teamID,
       rootTeamCollection.id,
+      ReqType.REST,
     );
     expect(result).toEqualRight([rootTeamCollection]);
   });
@@ -1486,6 +1606,7 @@ describe('importCollectionsFromJSON', () => {
       jsonString,
       rootTeamCollection.teamID,
       null,
+      ReqType.REST,
     );
     expect(mockPubSub.publish).toHaveBeenCalledWith(
       `team_coll/${rootTeamCollection.teamID}/coll_added`,
@@ -1679,6 +1800,7 @@ describe('FIX: updateMany queries now include teamID filter for root collections
      */
 
     const team1RootToDelete: DBTeamCollection = {
+      type: ReqType.REST,
       id: 'team1-root-to-delete',
       orderIndex: 2,
       parentID: null,
@@ -1722,6 +1844,7 @@ describe('FIX: updateMany queries now include teamID filter for root collections
      */
 
     const team1RootCollection: DBTeamCollection = {
+      type: ReqType.REST,
       id: 'team1-root-coll',
       orderIndex: 2,
       parentID: null,
@@ -1774,6 +1897,7 @@ describe('FIX: updateMany queries now include teamID filter for root collections
      */
 
     const team1RootCollection1: DBTeamCollection = {
+      type: ReqType.REST,
       id: 'team1-root-1',
       orderIndex: 1,
       parentID: null,
@@ -1785,6 +1909,7 @@ describe('FIX: updateMany queries now include teamID filter for root collections
     };
 
     const team1RootCollection2: DBTeamCollection = {
+      type: ReqType.REST,
       id: 'team1-root-2',
       orderIndex: 4,
       parentID: null,
@@ -1864,6 +1989,7 @@ describe('SCENARIO: Two teams performing concurrent operations on root collectio
   };
 
   const team1RootCollection: DBTeamCollection = {
+    type: ReqType.REST,
     id: 'team1-root',
     orderIndex: 2,
     parentID: null,
@@ -1875,6 +2001,7 @@ describe('SCENARIO: Two teams performing concurrent operations on root collectio
   };
 
   const team2RootCollection: DBTeamCollection = {
+    type: ReqType.REST,
     id: 'team2-root',
     orderIndex: 2,
     parentID: null,
@@ -1965,6 +2092,7 @@ describe('SCENARIO: Two teams performing concurrent operations on root collectio
      */
 
     const team1Root1: DBTeamCollection = {
+      type: ReqType.REST,
       id: 'team1-root-1',
       orderIndex: 1,
       parentID: null,
@@ -1976,6 +2104,7 @@ describe('SCENARIO: Two teams performing concurrent operations on root collectio
     };
 
     const team1Root2: DBTeamCollection = {
+      type: ReqType.REST,
       id: 'team1-root-2',
       orderIndex: 3,
       parentID: null,
@@ -2018,6 +2147,7 @@ describe('SCENARIO: Two teams performing concurrent operations on root collectio
     mockReset(mockPrisma);
 
     const team2Root1: DBTeamCollection = {
+      type: ReqType.REST,
       id: 'team2-root-1',
       orderIndex: 1,
       parentID: null,
@@ -2029,6 +2159,7 @@ describe('SCENARIO: Two teams performing concurrent operations on root collectio
     };
 
     const team2Root2: DBTeamCollection = {
+      type: ReqType.REST,
       id: 'team2-root-2',
       orderIndex: 5,
       parentID: null,

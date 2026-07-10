@@ -22,6 +22,7 @@ import {
   User,
 } from 'src/generated/prisma/client';
 import { WorkspaceType } from '../types/WorkspaceTypes';
+import { ReqType } from 'src/types/RequestTypes';
 import {
   CreateMockServerInput,
   UpdateMockServerInput,
@@ -104,6 +105,7 @@ const userCollection: UserCollection = {
 };
 
 const teamCollection: TeamCollection = {
+  type: ReqType.REST,
   id: 'team-coll123',
   title: 'Team Collection',
   teamID: 'team123',

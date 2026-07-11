@@ -263,6 +263,24 @@ describe('createTeamRequest', () => {
     expect(mockPrisma.teamRequest.create).not.toHaveBeenCalled();
   });
 
+  test('rejects when the request type does not match the collection type', async () => {
+    jest
+      .spyOn(mockTeamCollectionService, 'getTeamOfCollection')
+      .mockResolvedValue(E.right(team));
+    mockPrisma.teamCollection.findUnique.mockResolvedValue(teamCollection); // type: REST
+
+    const response = await teamRequestService.createTeamRequest(
+      teamCollection.id,
+      team.id,
+      'Test Request',
+      '{}',
+      ReqType.GQL,
+    );
+
+    expect(response).toEqualLeft(TEAM_REQ_TYPE_MISMATCH);
+    expect(mockPrisma.teamRequest.create).not.toHaveBeenCalled();
+  });
+
   test('resolves for valid collection id', async () => {
     const dbRequest = dbTeamRequests[0];
     const teamRequest = teamRequests[0];
@@ -270,6 +288,7 @@ describe('createTeamRequest', () => {
     jest
       .spyOn(mockTeamCollectionService, 'getTeamOfCollection')
       .mockResolvedValue(E.right(team));
+    mockPrisma.teamCollection.findUnique.mockResolvedValue(teamCollection);
     mockPrisma.$transaction.mockImplementation(async (fn) => {
       return fn(mockPrisma);
     });
@@ -287,6 +306,36 @@ describe('createTeamRequest', () => {
     await expect(response).resolves.toEqualRight(teamRequest);
   });
 
+  test('inherits the collection type when type is not provided', async () => {
+    const dbRequest = dbTeamRequests[0];
+    const teamRequest = teamRequests[0];
+
+    jest
+      .spyOn(mockTeamCollectionService, 'getTeamOfCollection')
+      .mockResolvedValue(E.right(team));
+    mockPrisma.teamCollection.findUnique.mockResolvedValue(teamCollection); // type: REST
+    mockPrisma.$transaction.mockImplementation(async (fn) => {
+      return fn(mockPrisma);
+    });
+    mockPrisma.teamRequest.findFirst.mockResolvedValue(null);
+    mockPrisma.teamRequest.create.mockResolvedValue(dbRequest);
+
+    const response = await teamRequestService.createTeamRequest(
+      teamCollection.id,
+      team.id,
+      teamRequest.title,
+      teamRequest.request,
+      undefined,
+    );
+
+    expect(response).toEqualRight(teamRequest);
+    expect(mockPrisma.teamRequest.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ type: teamCollection.type }),
+      }),
+    );
+  });
+
   test('publishes creation to pubsub topic "team_req/<team_id>/req_created"', async () => {
     const dbRequest = dbTeamRequests[0];
     const teamRequest = teamRequests[0];
@@ -294,6 +343,7 @@ describe('createTeamRequest', () => {
     jest
       .spyOn(mockTeamCollectionService, 'getTeamOfCollection')
       .mockResolvedValue(E.right(team));
+    mockPrisma.teamCollection.findUnique.mockResolvedValue(teamCollection);
     mockPrisma.$transaction.mockImplementation(async (fn) => {
       return fn(mockPrisma);
     });

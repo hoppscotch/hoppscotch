@@ -32,7 +32,6 @@ import * as O from 'fp-ts/Option';
 import { throwErr } from 'src/utils';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { SkipThrottle } from '@nestjs/throttler';
-import { ReqType } from 'src/types/RequestTypes';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => TeamRequest)
@@ -149,7 +148,7 @@ export class TeamRequestResolver {
       data.teamID,
       data.title,
       data.request,
-      ReqType.REST,
+      data.type ?? undefined,
     );
     if (E.isLeft(teamRequest)) throwErr(teamRequest.left);
     return teamRequest.right;

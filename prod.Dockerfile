@@ -170,6 +170,10 @@ EXPOSE 3170
 FROM base_builder AS fe_builder
 WORKDIR /usr/src/app/packages/hoppscotch-selfhost-web
 RUN pnpm run generate
+# Group-writable (GID 0) so a non-root UID (OpenShift runs as GID 0) can rewrite
+# these files during env injection. Done here (not in the runtime stage) so the
+# perms travel with the COPY instead of duplicating the layer with a chmod there.
+RUN chmod -R g=rwX /usr/src/app/packages/hoppscotch-selfhost-web/dist
 
 
 
@@ -182,19 +186,22 @@ COPY --from=webapp_server_builder /usr/src/app/packages/hoppscotch-selfhost-web/
 
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/prod_run.mjs /site/prod_run.mjs
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/selfhost-web.Caddyfile /etc/caddy/selfhost-web.Caddyfile
-COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist/ /site/selfhost-web
+COPY --chown=root:0 --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist/ /site/selfhost-web
 
 # Writable Caddy storage for non-root UIDs (no writable $HOME needed).
 ENV XDG_DATA_HOME=/tmp
 ENV XDG_CONFIG_HOME=/tmp
 
-# Env injection rewrites /site in place; make it group-writable (GID 0) so a
-# non-root UID (OpenShift runs as GID 0) can write. No-op for root.
-RUN chgrp -R 0 /site && chmod -R g=rwX /site
+# The copied files already carry g=rwX from the builder stage; only the dirs COPY
+# itself created still need it. Non-recursive on purpose — a recursive chmod here
+# would duplicate the whole /site tree into this layer.
+RUN chmod g=rwX /site /site/*
 
 WORKDIR /site
 # Run both webapp-server and Caddy after env processing (NOTE: env processing is required by both)
-CMD ["/bin/sh", "-c", "node /site/prod_run.mjs && (webapp-server & caddy run --config /etc/caddy/selfhost-web.Caddyfile --adapter caddyfile)"]
+# An empty HOPP_ALTERNATE_PORT (compose passthrough of an undefined var) means unset,
+# so the Caddyfile default (:80) applies.
+CMD ["/bin/sh", "-c", "[ -n \"$HOPP_ALTERNATE_PORT\" ] || unset HOPP_ALTERNATE_PORT; node /site/prod_run.mjs && (webapp-server & caddy run --config /etc/caddy/selfhost-web.Caddyfile --adapter caddyfile)"]
 
 EXPOSE 80
 EXPOSE 3000
@@ -207,6 +214,10 @@ WORKDIR /usr/src/app/packages/hoppscotch-sh-admin
 # Generate two builds for `sh-admin`, one based on subpath-access and the regular build
 RUN pnpm run build --outDir dist-multiport-setup
 RUN pnpm run build --outDir dist-subpath-access --base /admin/
+# Group-writable (GID 0) so a non-root UID (OpenShift runs as GID 0) can rewrite
+# these files during env injection. Done here (not in the runtime stage) so the
+# perms travel with the COPY instead of duplicating the layer with a chmod there.
+RUN chmod -R g=rwX dist-multiport-setup dist-subpath-access
 
 
 FROM node_base AS sh_admin
@@ -216,16 +227,17 @@ COPY --from=caddy_builder /tmp/caddy-build/cmd/caddy/caddy /usr/bin/caddy
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/prod_run.mjs /site/prod_run.mjs
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/sh-admin-multiport-setup.Caddyfile /etc/caddy/sh-admin-multiport-setup.Caddyfile
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/sh-admin-subpath-access.Caddyfile /etc/caddy/sh-admin-subpath-access.Caddyfile
-COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-multiport-setup /site/sh-admin-multiport-setup
-COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-subpath-access /site/sh-admin-subpath-access
+COPY --chown=root:0 --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-multiport-setup /site/sh-admin-multiport-setup
+COPY --chown=root:0 --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-subpath-access /site/sh-admin-subpath-access
 
 # Writable Caddy storage for non-root UIDs (no writable $HOME needed).
 ENV XDG_DATA_HOME=/tmp
 ENV XDG_CONFIG_HOME=/tmp
 
-# Env injection rewrites /site in place; make it group-writable (GID 0) so a
-# non-root UID (OpenShift runs as GID 0) can write. No-op for root.
-RUN chgrp -R 0 /site && chmod -R g=rwX /site
+# The copied files already carry g=rwX from the builder stage; only the dirs COPY
+# itself created still need it. Non-recursive on purpose — a recursive chmod here
+# would duplicate the whole /site tree into this layer.
+RUN chmod g=rwX /site /site/*
 
 WORKDIR /site
 CMD ["node","/site/prod_run.mjs"]
@@ -257,13 +269,13 @@ COPY --from=base_builder /usr/src/app/packages/hoppscotch-backend/prod_run.mjs /
 # Static Server
 COPY --from=webapp_server_builder /usr/src/app/packages/hoppscotch-selfhost-web/webapp-server/webapp-server /usr/local/bin/
 RUN mkdir -p /site/selfhost-web
-COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist /site/selfhost-web
+COPY --chown=root:0 --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist /site/selfhost-web
 
 # FE Files
 COPY --from=base_builder /usr/src/app/aio_run.mjs /usr/src/app/aio_run.mjs
-COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist /site/selfhost-web
-COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-multiport-setup /site/sh-admin-multiport-setup
-COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-subpath-access /site/sh-admin-subpath-access
+COPY --chown=root:0 --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist /site/selfhost-web
+COPY --chown=root:0 --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-multiport-setup /site/sh-admin-multiport-setup
+COPY --chown=root:0 --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-subpath-access /site/sh-admin-subpath-access
 COPY aio-multiport-setup.Caddyfile /etc/caddy/aio-multiport-setup.Caddyfile
 COPY aio-subpath-access.Caddyfile /etc/caddy/aio-subpath-access.Caddyfile
 
@@ -271,9 +283,10 @@ COPY aio-subpath-access.Caddyfile /etc/caddy/aio-subpath-access.Caddyfile
 ENV XDG_DATA_HOME=/tmp
 ENV XDG_CONFIG_HOME=/tmp
 
-# Env injection rewrites /site in place; make it group-writable (GID 0) so a
-# non-root UID (OpenShift runs as GID 0) can write. No-op for root.
-RUN chgrp -R 0 /site && chmod -R g=rwX /site
+# The copied files already carry g=rwX from the builder stages; only the dirs COPY
+# itself created still need it. Non-recursive on purpose — a recursive chmod here
+# would duplicate the whole /site tree into this layer.
+RUN chmod g=rwX /site /site/*
 
 ENTRYPOINT [ "tini", "--" ]
 COPY --chmod=755 healthcheck.sh /

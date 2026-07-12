@@ -5,15 +5,21 @@ import os from 'os';
 import path from 'path';
 import process from 'process';
 
-// Caddy bind port — when set, must be an unprivileged integer (1024-65535).
+// Compose passes undefined host vars through as ""; treat empty as unset so the
+// Caddyfile default (:80) applies.
+if (process.env.HOPP_ALTERNATE_PORT === '') delete process.env.HOPP_ALTERNATE_PORT;
+
+// Caddy bind port — when set, must be a bindable integer (root may bind any port;
+// other UIDs can't bind below 1024).
 const RESERVED_PORTS = ['3100'];
+const MIN_PORT = process.getuid?.() === 0 ? 1 : 1024;
 const altPort = process.env.HOPP_ALTERNATE_PORT;
 if (altPort !== undefined) {
-  if (!(/^[0-9]+$/.test(altPort) && +altPort >= 1024 && +altPort <= 65535)) {
-    console.error(`HOPP_ALTERNATE_PORT="${altPort}" is invalid: use an integer in 1024-65535 (e.g. 8000).`);
+  if (!(/^[0-9]+$/.test(altPort) && +altPort >= MIN_PORT && +altPort <= 65535)) {
+    console.error(`HOPP_ALTERNATE_PORT="${altPort}" is invalid: use an integer in ${MIN_PORT}-65535 (e.g. 8000)${MIN_PORT > 1 ? ' — ports below 1024 need root' : ''}.`);
     process.exit(1);
   }
-  if (RESERVED_PORTS.includes(altPort)) {
+  if (RESERVED_PORTS.includes(String(+altPort))) {
     console.error(`HOPP_ALTERNATE_PORT="${altPort}" is already used by this image (${RESERVED_PORTS.join(', ')}); pick another port (e.g. 8000).`);
     process.exit(1);
   }

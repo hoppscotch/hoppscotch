@@ -55,7 +55,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: "update:modelValue"): void
+  (e: "update:modelValue", value: HoppRESTResponseHeader[]): void
 }>()
 
 const headers = useVModel(props, "modelValue", emit)

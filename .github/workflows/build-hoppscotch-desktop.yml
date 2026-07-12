@@ -31,6 +31,11 @@ on:
         type: boolean
         required: false
         default: true
+      build_linux_arm64:
+        description: Build for Linux ARM64
+        type: boolean
+        required: false
+        default: true
       build_windows:
         description: Build for Windows
         type: boolean
@@ -153,6 +158,106 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: selfhost-desktop-linux
+          path: dist/*
+  build-linux-arm64:
+    runs-on: ubuntu-24.04-arm
+    if: ${{ inputs.build_linux_arm64 }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: ${{ inputs.repository }}
+          ref: ${{ inputs.tag != '' && inputs.tag || inputs.branch }}
+          token: ${{ secrets.HOPPSCOTCH_GITHUB_CHECKOUT_TOKEN }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.18.3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+      - name: Install additional tools
+        run: |
+          curl -LO "https://github.com/tauri-apps/tauri/releases/download/tauri-cli-v2.2.0/cargo-tauri-aarch64-unknown-linux-gnu.tgz"
+          tar -xzf cargo-tauri-aarch64-unknown-linux-gnu.tgz
+          chmod +x cargo-tauri
+          sudo mv cargo-tauri /usr/local/bin/tauri
+      - name: Install system dependencies
+        run: |
+          sudo apt update;
+          sudo apt install -y \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libssl-dev \
+            libgtk-3-dev \
+            libappindicator3-dev \
+            librsvg2-dev;
+          sudo apt install -y \
+            libwebkit2gtk-4.1-0=2.44.0-2 \
+            libwebkit2gtk-4.1-dev=2.44.0-2 \
+            libjavascriptcoregtk-4.1-0=2.44.0-2 \
+            libjavascriptcoregtk-4.1-dev=2.44.0-2 \
+            gir1.2-javascriptcoregtk-4.1=2.44.0-2 \
+            gir1.2-webkit2-4.1=2.44.0-2;
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-arm64-${{ hashFiles('**/Cargo.lock') }}
+      - name: Setup environment
+        run: |
+          if [ ! -z "${{ secrets.ENV_FILE_CONTENT }}" ]; then
+            echo "${{ secrets.ENV_FILE_CONTENT }}" > ${{ env.WORKSPACE_PATH }}/.env
+            echo "Created .env file from repository secret"
+          elif [ -f "${{ env.WORKSPACE_PATH }}/.env" ]; then
+            echo "Using existing .env file found in repository"
+          else
+            cp ${{ env.WORKSPACE_PATH }}/.env.example ${{ env.WORKSPACE_PATH }}/.env
+            echo "No .env found, copied from .env.example template"
+          fi
+          pnpm install --dir ${{ env.DESKTOP_PATH }}
+      - name: Build web app
+        run: |
+          pnpm install --dir ${{ env.WEB_PATH }}
+          pnpm --dir ${{ env.WEB_PATH }} generate
+      - name: Build and run webapp-bundler
+        run: |
+          cargo build --release --manifest-path ${{ env.BUNDLER_PATH }}/Cargo.toml
+          ${{ env.BUNDLER_PATH }}/target/release/webapp-bundler \
+            --input ${{ env.WEB_PATH }}/dist \
+            --output ${{ env.DESKTOP_PATH }}/bundle.zip \
+            --manifest ${{ env.DESKTOP_PATH }}/manifest.json
+      - name: Build AppImage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+          RUST_LOG: debug
+        run: pnpm --dir ${{ env.DESKTOP_PATH }} tauri build --verbose -b appimage -b updater
+      - name: Build DEB
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+          RUST_LOG: debug
+        run: pnpm --dir ${{ env.DESKTOP_PATH }} tauri build --verbose -b deb -b updater
+      - name: Prepare artifacts
+        run: |
+          ls -lahR ${{ env.DESKTOP_PATH }}/src-tauri/target/release/bundle/
+          mkdir -p dist
+          cp ${{ env.DESKTOP_PATH }}/src-tauri/target/release/bundle/appimage/*.AppImage dist/Hoppscotch_SelfHost_linux_arm64.AppImage
+          cp ${{ env.DESKTOP_PATH }}/src-tauri/target/release/bundle/appimage/*.AppImage.sig dist/Hoppscotch_SelfHost_linux_arm64.AppImage.sig
+          cp ${{ env.DESKTOP_PATH }}/src-tauri/target/release/bundle/deb/*.deb dist/Hoppscotch_SelfHost_linux_arm64.deb
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: selfhost-desktop-linux-arm64
           path: dist/*
   build-windows:
     runs-on: windows-latest
@@ -457,9 +562,9 @@ jobs:
           name: selfhost-desktop-macos-aarch64
           path: dist/*
   create-update-manifest:
-    needs: [build-linux, build-windows, build-macos-x64, build-macos-arm64]
+    needs: [build-linux, build-linux-arm64, build-windows, build-macos-x64, build-macos-arm64]
     runs-on: ubuntu-latest
-    if: ${{ inputs.build_linux && inputs.build_windows && inputs.build_macos_x64 && inputs.build_macos_arm64 }}
+    if: ${{ inputs.build_linux && inputs.build_linux_arm64 && inputs.build_windows && inputs.build_macos_x64 && inputs.build_macos_arm64 }}
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -479,6 +584,10 @@ jobs:
               "linux-x86_64": {
                 "signature": "$(cat artifacts/selfhost-desktop-linux/Hoppscotch_SelfHost_linux_x64.AppImage.sig)",
                 "url": "https://github.com/hoppscotch/releases/releases/download/${VERSION}/Hoppscotch_SelfHost_linux_x64.AppImage"
+              },
+              "linux-aarch64": {
+                "signature": "$(cat artifacts/selfhost-desktop-linux-arm64/Hoppscotch_SelfHost_linux_arm64.AppImage.sig)",
+                "url": "https://github.com/hoppscotch/releases/releases/download/${VERSION}/Hoppscotch_SelfHost_linux_arm64.AppImage"
               },
               "windows-x86_64": {
                 "signature": "$(cat artifacts/selfhost-desktop-windows/Hoppscotch_SelfHost_win_x64.msi.sig)",

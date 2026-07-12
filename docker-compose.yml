@@ -51,7 +51,7 @@ services:
       hoppscotch-db:
         condition: service_healthy
     ports:
-      - "3180:80"
+      - "3180:${HOPP_ALTERNATE_PORT:-80}"
       - "3170:3170"
 
   # The main hoppscotch app with integrated webapp server. This will be hosted at port 3000
@@ -70,7 +70,7 @@ services:
     depends_on:
       - hoppscotch-backend
     ports:
-      - "3080:80"
+      - "3080:${HOPP_ALTERNATE_PORT:-80}"
       - "3000:3000"
       - "3200:3200"
 
@@ -89,7 +89,7 @@ services:
     depends_on:
       - hoppscotch-backend
     ports:
-      - "3280:80"
+      - "3280:${HOPP_ALTERNATE_PORT:-80}"
       - "3100:3100"
 
   # The service that spins up all services at once in one container
@@ -111,7 +111,7 @@ services:
       - "3100:3100"
       - "3170:3170"
       - "3200:3200"
-      - "3080:80"
+      - "3080:${HOPP_ALTERNATE_PORT:-80}"
 
   # Profile with no database dependency (purely developmental)
   hoppscotch-aio-no-db:
@@ -129,7 +129,7 @@ services:
       - "3100:3100"
       - "3170:3170"
       - "3200:3200"
-      - "3080:80"
+      - "3080:${HOPP_ALTERNATE_PORT:-80}"
 
   # The preset DB service, you can delete/comment the below lines if
   # you are using an external postgres instance

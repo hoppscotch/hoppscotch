@@ -192,10 +192,13 @@ COPY --chown=root:0 --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-
 ENV XDG_DATA_HOME=/tmp
 ENV XDG_CONFIG_HOME=/tmp
 
-# The copied files already carry g=rwX from the builder stage; only the dirs COPY
-# itself created still need it. Non-recursive on purpose — a recursive chmod here
-# would duplicate the whole /site tree into this layer.
-RUN chmod g=rwX /site /site/*
+# Files keep g=rwX from the builder; only the COPY-created dirs need it. List the
+# dirs (not /site/*) so the layer stays metadata-only and prod_run.mjs stays 755.
+RUN chmod g=rwX /site /site/selfhost-web
+
+# Pre-create /data group-writable so webapp-server's signing key persists across
+# restarts under a non-root UID (else it's regenerated and logged each start).
+RUN mkdir -p /data/webapp-server && chmod g=rwX /data /data/webapp-server
 
 WORKDIR /site
 # Run both webapp-server and Caddy after env processing (NOTE: env processing is required by both)
@@ -234,10 +237,9 @@ COPY --chown=root:0 --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-
 ENV XDG_DATA_HOME=/tmp
 ENV XDG_CONFIG_HOME=/tmp
 
-# The copied files already carry g=rwX from the builder stage; only the dirs COPY
-# itself created still need it. Non-recursive on purpose — a recursive chmod here
-# would duplicate the whole /site tree into this layer.
-RUN chmod g=rwX /site /site/*
+# Files keep g=rwX from the builder; only the COPY-created dirs need it. List the
+# dirs (not /site/*) so the layer stays metadata-only and prod_run.mjs stays 755.
+RUN chmod g=rwX /site /site/sh-admin-multiport-setup /site/sh-admin-subpath-access
 
 WORKDIR /site
 CMD ["node","/site/prod_run.mjs"]
@@ -268,7 +270,6 @@ COPY --from=base_builder /usr/src/app/packages/hoppscotch-backend/prod_run.mjs /
 
 # Static Server
 COPY --from=webapp_server_builder /usr/src/app/packages/hoppscotch-selfhost-web/webapp-server/webapp-server /usr/local/bin/
-RUN mkdir -p /site/selfhost-web
 COPY --chown=root:0 --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist /site/selfhost-web
 
 # FE Files
@@ -282,10 +283,13 @@ COPY aio-subpath-access.Caddyfile /etc/caddy/aio-subpath-access.Caddyfile
 ENV XDG_DATA_HOME=/tmp
 ENV XDG_CONFIG_HOME=/tmp
 
-# The copied files already carry g=rwX from the builder stages; only the dirs COPY
-# itself created still need it. Non-recursive on purpose — a recursive chmod here
-# would duplicate the whole /site tree into this layer.
-RUN chmod g=rwX /site /site/*
+# Files keep g=rwX from the builders; only the COPY-created dirs need it. List the
+# dirs (not /site/*) so the layer stays metadata-only.
+RUN chmod g=rwX /site /site/selfhost-web /site/sh-admin-multiport-setup /site/sh-admin-subpath-access
+
+# Pre-create /data group-writable so webapp-server's signing key persists across
+# restarts under a non-root UID (else it's regenerated and logged each start).
+RUN mkdir -p /data/webapp-server && chmod g=rwX /data /data/webapp-server
 
 ENTRYPOINT [ "tini", "--" ]
 COPY --chmod=755 healthcheck.sh /
@@ -294,9 +298,10 @@ HEALTHCHECK --interval=2s --start-period=15s CMD /bin/sh /healthcheck.sh
 WORKDIR /dist/backend
 CMD ["node", "/usr/src/app/aio_run.mjs"]
 
-# NOTE: Although these ports are exposed, HOPP_ALTERNATE_PORT assigns the HTTP port
-#       Caddy listens on (default 80) — required under a non-root UID, which cannot
-#       bind ports < 1024. The legacy HOPP_AIO_ALTERNATE_PORT is still honoured.
+# NOTE: In subpath mode (ENABLE_SUBPATH_BASED_ACCESS=true) HOPP_ALTERNATE_PORT sets
+#       Caddy's HTTP port (default 80). In multiport mode (default) Caddy uses the
+#       fixed ports 3000/3100/3170 and it has no effect. Legacy
+#       HOPP_AIO_ALTERNATE_PORT is still honoured.
 EXPOSE 3170
 EXPOSE 3000
 EXPOSE 3100

@@ -140,6 +140,24 @@ describe("inherited collection auth — variable precedence in the preview", () 
 
     expect(await authHeaderFor(vars)).toBe(`Basic ${btoa("env-token:pw")}`)
   })
+
+  test("currentValue falls back to initialValue if currentValue is empty", async () => {
+    const vars = filterNonEmptyEnvironmentVariables(
+      getEffectiveVariablesForRequest(
+        [],
+        [],
+        [{
+          key: "token",
+          currentValue: "",
+          initialValue: "fallback-token",
+          secret: false,
+          sourceEnv: "Test Env",
+        }]
+      )
+    )
+
+    expect(await authHeaderFor(vars)).toBe(`Basic ${btoa("fallback-token:pw")}`)
+  })
 })
 
 describe("normalizeAggregateEnvs (legacy { key, value } rows)", () => {

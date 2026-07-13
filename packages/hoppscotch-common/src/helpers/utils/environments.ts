@@ -6,6 +6,7 @@ import {
   getCurrentEnvironment,
   getGlobalVariables,
   AggregateEnvironment,
+  getEffectiveCurrentValue,
 } from "~/newstore/environments"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
@@ -36,15 +37,19 @@ const unWrapEnvironments = (
     )
 
     if (secretVar) {
+      const initialVal = secretVar.initialValue ?? ""
       return {
         ...globalVar,
-        currentValue: secretVar.value,
-        initialValue: secretVar.initialValue ?? "",
+        currentValue: getEffectiveCurrentValue(secretVar.value, initialVal),
+        initialValue: initialVal,
       }
     }
     return {
       ...globalVar,
-      currentValue: currentVar?.currentValue || globalVar.currentValue || "",
+      currentValue: getEffectiveCurrentValue(
+        currentVar?.currentValue || globalVar.currentValue,
+        globalVar.initialValue
+      ),
     }
   })
 
@@ -59,16 +64,19 @@ const unWrapEnvironments = (
         index
       )
       if (secretVar) {
+        const initialVal = secretVar.initialValue ?? ""
         return {
           ...selectedVar,
-          currentValue: secretVar.value,
-          initialValue: secretVar.initialValue ?? "",
+          currentValue: getEffectiveCurrentValue(secretVar.value, initialVal),
+          initialValue: initialVal,
         }
       }
       return {
         ...selectedVar,
-        currentValue:
-          currentVar?.currentValue || selectedVar.currentValue || "",
+        currentValue: getEffectiveCurrentValue(
+          currentVar?.currentValue || selectedVar.currentValue,
+          selectedVar.initialValue
+        ),
       }
     }
   )

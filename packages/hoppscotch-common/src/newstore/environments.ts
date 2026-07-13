@@ -427,6 +427,19 @@ export type AggregateEnvironment = {
 }
 
 /**
+ * Resolves the effective current value of a variable, falling back to initialValue if currentValue is empty.
+ * @param currentValue The resolved or stored currentValue of the environment variable.
+ * @param initialValue The initialValue of the environment variable.
+ * @returns The effective currentValue.
+ */
+export function getEffectiveCurrentValue(
+  currentValue: string | undefined | null,
+  initialValue: string | undefined | null
+): string {
+  return (currentValue || initialValue) ?? ""
+}
+
+/**
  * Stream returning all the environment variables accessible in
  * the current state (Global + The Selected Environment).
  * NOTE: The source environment attribute will be "Global" for Global Env as source.
@@ -512,7 +525,7 @@ export function getAggregateEnvs() {
     ...currentEnv.variables.map((x) => {
       let currentValue = ""
       if (!x.secret) {
-        currentValue = x.currentValue
+        currentValue = getEffectiveCurrentValue(x.currentValue, x.initialValue)
       }
 
       return <AggregateEnvironment>{
@@ -526,7 +539,7 @@ export function getAggregateEnvs() {
     ...getGlobalVariables().map((x) => {
       let currentValue = ""
       if (!x.secret) {
-        currentValue = x.currentValue
+        currentValue = getEffectiveCurrentValue(x.currentValue, x.initialValue)
       }
       return <AggregateEnvironment>{
         key: x.key,
@@ -575,11 +588,13 @@ export function getAggregateEnvsWithCurrentValue() {
 
       return <AggregateEnvironment>{
         key: x.key,
-        currentValue:
+        currentValue: getEffectiveCurrentValue(
           currentEnvironmentValueService.getEnvironmentVariableValue(
             currentEnv.id,
             index
-          ) ?? currentValue,
+          ) || currentValue,
+          initialValue
+        ),
         // Use the local resolved value — `x.initialValue ?? initialValue`
         // would pin `""` for stripped secrets and skip the store hydration.
         initialValue,
@@ -605,11 +620,13 @@ export function getAggregateEnvsWithCurrentValue() {
       }
       return <AggregateEnvironment>{
         key: x.key,
-        currentValue:
+        currentValue: getEffectiveCurrentValue(
           currentEnvironmentValueService.getEnvironmentVariableValue(
             "Global",
             index
-          ) ?? currentValue,
+          ) || currentValue,
+          initialValue
+        ),
         initialValue,
         secret: x.secret,
         sourceEnv: "Global",
@@ -657,11 +674,13 @@ export const aggregateEnvsWithCurrentValue$: Observable<
         }
         results.push({
           key: x.key,
-          currentValue:
+          currentValue: getEffectiveCurrentValue(
             currentEnvironmentValueService.getEnvironmentVariableValue(
               selectedEnv.id,
               index
-            ) ?? currentValue,
+            ) || currentValue,
+            initialValue
+          ),
           // Use the local resolved value — see note on `aggregateEnvs$`.
           initialValue,
           secret: x.secret,
@@ -686,11 +705,13 @@ export const aggregateEnvsWithCurrentValue$: Observable<
         }
         results.push({
           key: x.key,
-          currentValue:
+          currentValue: getEffectiveCurrentValue(
             currentEnvironmentValueService.getEnvironmentVariableValue(
               "Global",
               index
-            ) ?? currentValue,
+            ) || currentValue,
+            initialValue
+          ),
           initialValue,
           secret: x.secret,
           sourceEnv: "Global",

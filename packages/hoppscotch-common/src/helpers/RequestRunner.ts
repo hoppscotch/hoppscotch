@@ -41,6 +41,7 @@ import {
   SelectedEnvironmentIndex,
   setGlobalEnvVariables,
   updateEnvironment,
+  getEffectiveCurrentValue,
 } from "~/newstore/environments"
 import { platform } from "~/platform"
 import { CookieJarService } from "~/services/cookie-jar.service"
@@ -1100,15 +1101,16 @@ const resolveEnvVars = (
     const secretMeta = v.secret
       ? getSecretEnvironmentVariableValue(envID, index)
       : null
+    const initialValue =
+      (v.secret ? secretMeta?.initialValue : "") ?? v.initialValue
+    const resolvedCurrentValue = v.secret
+      ? secretMeta?.value
+      : getEnvironmentVariableValue(envID, index)
     return {
       ...v,
-      currentValue:
-        (v.secret
-          ? secretMeta?.value
-          : getEnvironmentVariableValue(envID, index)) ?? "",
+      currentValue: getEffectiveCurrentValue(resolvedCurrentValue, initialValue),
       // fallback to var initialValue if secretMeta is not found
-      initialValue:
-        (v.secret ? secretMeta?.initialValue : "") ?? v.initialValue,
+      initialValue,
     }
   })
 

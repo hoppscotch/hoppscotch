@@ -21,10 +21,12 @@ import {
 /**
  * Extracts an access token from a cookie in the request.
  *
- * An empty-string cookie is treated as absent so `extractToken` uses the
- * `Authorization` header. `O.fromNullable` alone keeps an empty string as
- * `Some('')`, which is read in preference to a valid bearer token and
- * rejects the request with an empty credential.
+ * A blank cookie is treated as absent so `extractToken` uses the
+ * `Authorization` header. `O.fromNullable` alone keeps `''` as `Some('')`,
+ * and a whitespace-only value (`access_token=   `) is non-empty by length,
+ * so both would be read in preference to a valid bearer token and reject
+ * the request with an unusable credential. A real JWT has no whitespace,
+ * so the trim-and-length check drops both.
  *
  * @param request - Express Request object
  * @returns Option<string> containing the token if found
@@ -33,7 +35,7 @@ const extractFromCookie = (request: Request): O.Option<string> =>
   pipe(
     O.fromNullable(request.cookies),
     O.chain((cookies) => O.fromNullable(cookies['access_token'])),
-    O.filter((token) => token.length > 0),
+    O.filter((token) => token.trim().length > 0),
   );
 
 /**

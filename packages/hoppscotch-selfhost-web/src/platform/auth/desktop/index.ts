@@ -47,12 +47,22 @@ const isGettingInitialUser: Ref<null | boolean> = ref(null)
 const persistenceService = getService(PersistenceService)
 const interceptorService = getService(KernelInterceptorService)
 
+// Every backend call in this module authenticates with a bearer token
+// from local config, so none of them should touch the shared request
+// cookie jar. Without this the interceptor captures the backend's auth
+// `Set-Cookie` into the jar and reattaches it to later calls, where a
+// stale or blank `access_token` cookie is read in preference to the
+// bearer token, the request is rejected, and desktop login stalls.
+// Spread into each request to opt it out of jar attach and capture.
+const NO_COOKIE_JAR = { meta: { options: { cookies: false } } }
+
 async function logout() {
   const { response } = interceptorService.execute({
     id: Date.now(),
     url: `${import.meta.env.VITE_BACKEND_API_URL}/auth/logout`,
     version: "HTTP/1.1",
     method: "GET",
+    ...NO_COOKIE_JAR,
   })
 
   await response
@@ -117,6 +127,7 @@ async function getInitialUserDetails(): Promise<
          }
        }`,
       }),
+      ...NO_COOKIE_JAR,
     })
 
     const responseBytes = await response
@@ -232,6 +243,7 @@ async function refreshToken() {
       headers: {
         Authorization: `Bearer ${refreshToken}`,
       },
+      ...NO_COOKIE_JAR,
     })
 
     const res = await response
@@ -269,6 +281,7 @@ async function sendMagicLink(email: string) {
       "Content-Type": "application/json",
     },
     content: content.json({ email }),
+    ...NO_COOKIE_JAR,
   })
 
   const res = await response
@@ -474,6 +487,7 @@ export const def: AuthPlatformDef = {
         token: verifyToken,
         deviceIdentifier,
       }),
+      ...NO_COOKIE_JAR,
     })
 
     const res = await response
@@ -542,6 +556,7 @@ export const def: AuthPlatformDef = {
         "Content-Type": "application/json",
         ...this.getBackendHeaders(),
       },
+      ...NO_COOKIE_JAR,
     })
 
     const res = await response

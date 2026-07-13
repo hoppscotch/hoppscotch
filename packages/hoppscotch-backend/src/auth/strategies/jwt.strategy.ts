@@ -21,6 +21,11 @@ import {
 /**
  * Extracts an access token from a cookie in the request.
  *
+ * An empty-string cookie is treated as absent so `extractToken` uses the
+ * `Authorization` header. `O.fromNullable` alone keeps an empty string as
+ * `Some('')`, which is read in preference to a valid bearer token and
+ * rejects the request with an empty credential.
+ *
  * @param request - Express Request object
  * @returns Option<string> containing the token if found
  */
@@ -28,6 +33,7 @@ const extractFromCookie = (request: Request): O.Option<string> =>
   pipe(
     O.fromNullable(request.cookies),
     O.chain((cookies) => O.fromNullable(cookies['access_token'])),
+    O.filter((token) => token.length > 0),
   );
 
 /**

@@ -245,7 +245,12 @@ export class ProxyKernelInterceptorService
       // Same shared send path as native and agent. proxyscotch returns
       // Set-Cookie as a header string rather than structured cookies, so
       // receive-side capture for the proxy path is a separate follow-up.
-      await this.cookieJar.applyCookiesToRequest(processedRequest)
+      // A caller opts out of the jar by setting `meta.options.cookies` to
+      // false, so the interceptor skips attaching a captured auth cookie
+      // to the desktop auth module's bearer-authenticated backend calls.
+      if (request.meta?.options?.cookies !== false) {
+        await this.cookieJar.applyCookiesToRequest(processedRequest)
+      }
 
       let content: ContentType
       const multipartKey = `proxyRequestData-${v4()}`

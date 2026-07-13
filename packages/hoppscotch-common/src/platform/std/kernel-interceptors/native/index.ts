@@ -185,7 +185,19 @@ export class NativeKernelInterceptorService
         preProcessRelayRequest(request)
       )
 
-      await this.cookieJar.applyCookiesToRequest(effectiveRequest)
+      // A caller opts a request out of the shared cookie jar by setting
+      // `meta.options.cookies` to false. The desktop auth module sets it
+      // on its own bearer-authenticated backend calls so the interceptor
+      // skips both attaching a captured auth cookie to them and capturing
+      // one from their responses. Without that, a stale or blank
+      // `access_token` cookie was read in preference to the bearer token
+      // and desktop login stalled. Read from the original request because
+      // `completeRequest` rebuilds `meta` from domain settings.
+      const useCookieJar = request.meta?.options?.cookies !== false
+
+      if (useCookieJar) {
+        await this.cookieJar.applyCookiesToRequest(effectiveRequest)
+      }
 
       const existingUserAgentHeader = Object.keys(
         effectiveRequest.headers || {}
@@ -212,7 +224,7 @@ export class NativeKernelInterceptorService
       setRelayExecution(relayExecution)
 
       const relayResponse = await relayExecution.response
-      if (E.isRight(relayResponse)) {
+      if (E.isRight(relayResponse) && useCookieJar) {
         await this.cookieJar.captureResponseCookies(
           relayResponse.right,
           effectiveRequest.url

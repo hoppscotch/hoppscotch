@@ -838,6 +838,7 @@
     "schema": "Schema",
     "show_depricated_values": "Show deprecated values",
     "subscription": "Subscription",
+    "subscription_log": "Subscription Log",
     "subscriptions": "Subscriptions",
     "subscribing": "Connecting to subscription endpoint…",
     "switch_connection": "Switch connection",

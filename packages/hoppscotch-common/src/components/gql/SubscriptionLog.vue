@@ -4,7 +4,7 @@
       class="sticky top-0 z-10 flex flex-none items-center justify-between border-b border-dividerLight bg-primary pl-4"
     >
       <label for="log" class="py-2 font-semibold text-secondaryLight">
-        {{ "Subscription Log" }}
+        {{ t("graphql.subscription_log") }}
       </label>
       <div>
         <HoppButtonSecondary

@@ -387,6 +387,9 @@ const duplicateTab = (tabID: string) => {
       },
       isDirty: true,
       cursorPosition: doc.cursorPosition ?? 0,
+      // Like REST duplicates: no inheritedProperties (the copy is detached
+      // from the source collection, `inherit` resolves to none until saved)
+      // and no response/sub-tab preference
     })
     tabs.setActiveTab(newTab.id)
   }

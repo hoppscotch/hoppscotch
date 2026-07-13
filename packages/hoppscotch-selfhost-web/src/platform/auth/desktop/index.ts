@@ -53,8 +53,11 @@ const interceptorService = getService(KernelInterceptorService)
 // `Set-Cookie` into the jar and reattaches it to later calls, where a
 // stale or blank `access_token` cookie is read in preference to the
 // bearer token, the request is rejected, and desktop login stalls.
-// Spread into each request to opt it out of jar attach and capture.
-const NO_COOKIE_JAR = { meta: { options: { cookies: false } } }
+// Used as each request's `meta` so it opts out of jar attach and
+// capture. A factory returns a fresh object per call, so a request that
+// later needs other `meta.options` can add them inline without a shared
+// top-level spread overwriting the whole `meta`.
+const noCookieJarMeta = () => ({ options: { cookies: false } })
 
 async function logout() {
   const { response } = interceptorService.execute({
@@ -62,7 +65,7 @@ async function logout() {
     url: `${import.meta.env.VITE_BACKEND_API_URL}/auth/logout`,
     version: "HTTP/1.1",
     method: "GET",
-    ...NO_COOKIE_JAR,
+    meta: noCookieJarMeta(),
   })
 
   await response
@@ -127,7 +130,7 @@ async function getInitialUserDetails(): Promise<
          }
        }`,
       }),
-      ...NO_COOKIE_JAR,
+      meta: noCookieJarMeta(),
     })
 
     const responseBytes = await response
@@ -243,7 +246,7 @@ async function refreshToken() {
       headers: {
         Authorization: `Bearer ${refreshToken}`,
       },
-      ...NO_COOKIE_JAR,
+      meta: noCookieJarMeta(),
     })
 
     const res = await response
@@ -281,7 +284,7 @@ async function sendMagicLink(email: string) {
       "Content-Type": "application/json",
     },
     content: content.json({ email }),
-    ...NO_COOKIE_JAR,
+    meta: noCookieJarMeta(),
   })
 
   const res = await response
@@ -487,7 +490,7 @@ export const def: AuthPlatformDef = {
         token: verifyToken,
         deviceIdentifier,
       }),
-      ...NO_COOKIE_JAR,
+      meta: noCookieJarMeta(),
     })
 
     const res = await response
@@ -556,7 +559,7 @@ export const def: AuthPlatformDef = {
         "Content-Type": "application/json",
         ...this.getBackendHeaders(),
       },
-      ...NO_COOKIE_JAR,
+      meta: noCookieJarMeta(),
     })
 
     const res = await response

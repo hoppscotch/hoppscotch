@@ -28,6 +28,9 @@ import {
  * the request with an unusable credential. A real JWT has no whitespace,
  * so the trim-and-length check drops both.
  *
+ * The value may not be a string: `cookie-parser` JSON-decodes `j:`-prefixed
+ * cookies into objects, where calling `.trim()` throws before auth fallback.
+ *
  * @param request - Express Request object
  * @returns Option<string> containing the token if found
  */
@@ -35,7 +38,10 @@ const extractFromCookie = (request: Request): O.Option<string> =>
   pipe(
     O.fromNullable(request.cookies),
     O.chain((cookies) => O.fromNullable(cookies['access_token'])),
-    O.filter((token) => token.trim().length > 0),
+    O.filter(
+      (token): token is string =>
+        typeof token === 'string' && token.trim().length > 0,
+    ),
   );
 
 /**

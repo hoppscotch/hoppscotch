@@ -47,7 +47,10 @@ const isGettingInitialUser: Ref<null | boolean> = ref(null)
 
 const persistenceService = getService(PersistenceService)
 const interceptorService = getService(KernelInterceptorService)
-const cookieJarService = getService(CookieJarService)
+// Deferred: this module is evaluated before `initKernel`, so a top-level
+// `getService(CookieJarService)` would permanently fail the jar's init and
+// the cleanup below would see an empty jar.
+const getCookieJarService = () => getService(CookieJarService)
 
 // Every backend call in this module authenticates with a bearer token
 // from local config, so none of them should touch the shared request
@@ -190,6 +193,7 @@ async function setUser(user: HoppUserWithAuthDetail | null) {
 // once on init. New installs never capture these, so this only heals state
 // an earlier build left behind.
 async function clearPersistedAuthCookiesFromJar() {
+  const cookieJarService = getCookieJarService()
   await cookieJarService.whenReady()
 
   const authCookieNames = new Set(["access_token", "refresh_token"])

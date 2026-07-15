@@ -163,18 +163,18 @@ jobs:
     runs-on: ubuntu-24.04-arm
     if: ${{ inputs.build_linux_arm64 }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           repository: ${{ inputs.repository }}
           ref: ${{ inputs.tag != '' && inputs.tag || inputs.branch }}
           token: ${{ secrets.HOPPSCOTCH_GITHUB_CHECKOUT_TOKEN }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
       - uses: pnpm/action-setup@v4
         with:
           version: 10.18.3
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: nightly
           override: true

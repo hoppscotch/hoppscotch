@@ -2,10 +2,10 @@
   <div>
     <AppPaneLayout layout-id="graphql">
       <template #primary>
-        <GraphqlRequest />
+        <GraphqlRequest v-if="activeTabs.length > 0" />
 
         <HoppSmartWindows
-          v-if="currentTabID"
+          v-if="activeTabs.length > 0"
           :id="'gql_windows'"
           :model-value="currentTabID"
           @update:model-value="changeTab"
@@ -18,13 +18,14 @@
             :id="tab.id"
             :key="'removable_tab_' + tab.id"
             :label="tab.document.request.name"
-            :is-removable="activeTabs.length > 1"
+            :is-removable="true"
             :close-visibility="'hover'"
           >
             <template #tabhead>
               <GraphqlTabHead
                 :tab="tab"
-                :is-removable="activeTabs.length > 1"
+                :is-removable="true"
+                :can-close-others="activeTabs.length > 1"
                 @open-rename-modal="openReqRenameModal(tab)"
                 @close-tab="removeTab(tab.id)"
                 @close-other-tabs="closeOtherTabsAction(tab.id)"
@@ -54,6 +55,11 @@
             />
           </HoppSmartWindow>
         </HoppSmartWindows>
+        <AppEmptyTabs
+          v-else
+          @new-request="addNewTab"
+          @import-collection="invokeAction('modals.collection.import')"
+        />
       </template>
       <template #sidebar>
         <GraphqlSidebar />
@@ -88,7 +94,8 @@ import { usePageHead } from "@composables/head"
 import { useI18n } from "@composables/i18n"
 import { useService } from "dioc/vue"
 import { computed, onBeforeUnmount, ref } from "vue"
-import { defineActionHandler } from "~/helpers/actions"
+import AppEmptyTabs from "~/components/app/EmptyTabs.vue"
+import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { connection, disconnect } from "~/helpers/graphql/connection"
 import { getDefaultGQLRequest } from "~/helpers/graphql/default"
 import { HoppGQLDocument } from "~/helpers/graphql/document"
@@ -234,19 +241,21 @@ defineActionHandler("gql.request.open", ({ request, saveContext }) => {
 })
 
 defineActionHandler("request.rename", () => {
+  if (!currentTabID.value) return
   openReqRenameModal(tabs.getTabRef(currentTabID.value).value!)
 })
 
 defineActionHandler("tab.duplicate-tab", ({ tabID }) => {
-  duplicateTab(tabID ?? currentTabID.value)
+  const targetTabID = tabID ?? currentTabID.value
+  if (targetTabID) duplicateTab(targetTabID)
 })
 
 defineActionHandler("tab.close-current", () => {
-  removeTab(currentTabID.value)
+  if (currentTabID.value) removeTab(currentTabID.value)
 })
 
 defineActionHandler("tab.close-other", () => {
-  tabs.closeOtherTabs(currentTabID.value)
+  if (currentTabID.value) tabs.closeOtherTabs(currentTabID.value)
 })
 
 defineActionHandler("tab.open-new", addNewTab)

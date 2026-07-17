@@ -1766,6 +1766,19 @@ describe("PersistenceService", () => {
         )
       })
 
+      it("loads an empty gql tab state without backup or error toast", async () => {
+        const tabState = { lastActiveTabID: null, orderedDocs: [] }
+        await setStoreItem(gqlTabStateKey, tabState)
+
+        const getItemSpy = spyOnGetItem()
+
+        await invokeSetupLocalPersistence({ mockGQLTabService: true, mock })
+
+        expect(getItemSpy).toHaveBeenCalledWith(gqlTabStateKey)
+        expect(toastErrorFn).not.toHaveBeenCalledWith(gqlTabStateKey)
+        expect(loadTabsFromPersistedStateFn).toHaveBeenCalledWith(tabState)
+      })
+
       it("logs an error to the console on failing to parse persisted gql tab state", async () => {
         await setStoreItem(gqlTabStateKey, "invalid-json")
 
@@ -1865,6 +1878,19 @@ describe("PersistenceService", () => {
           expect.any(Function),
           { debounce: 500, deep: true }
         )
+      })
+
+      it("loads an empty rest tab state without backup or error toast", async () => {
+        const tabState = { lastActiveTabID: null, orderedDocs: [] }
+        await setStoreItem(restTabStateKey, tabState)
+
+        const getItemSpy = spyOnGetItem()
+
+        await invokeSetupLocalPersistence({ mockRESTTabService: true, mock })
+
+        expect(getItemSpy).toHaveBeenCalledWith(restTabStateKey)
+        expect(toastErrorFn).not.toHaveBeenCalledWith(restTabStateKey)
+        expect(loadTabsFromPersistedStateFn).toHaveBeenCalledWith(tabState)
       })
 
       it("logs an error to the console on failing to parse persisted rest tab state", async () => {

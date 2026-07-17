@@ -125,7 +125,9 @@ export const connection = reactive<Connection>({
 
 export const schema = computed(() => connection.schema)
 export const subscriptionState = computed(() =>
-  connection.subscriptionState.get(currentTabID.value)
+  currentTabID.value
+    ? connection.subscriptionState.get(currentTabID.value)
+    : undefined
 )
 
 export const gqlMessageEvent = ref<GQLResponseEvent | "reset">()
@@ -574,10 +576,13 @@ export const runSubscription = (
   options: RunQueryOptions,
   headers?: Record<string, string>
 ) => {
+  const tabID = currentTabID.value
+  if (!tabID) return
+
   const { url, query, operationName } = options
   const wsUrl = url.replace(/^http/, "ws")
 
-  connection.subscriptionState.set(currentTabID.value, "SUBSCRIBING")
+  connection.subscriptionState.set(tabID, "SUBSCRIBING")
 
   connection.socket = new WebSocket(wsUrl, "graphql-ws")
 
@@ -606,7 +611,7 @@ export const runSubscription = (
     const data = JSON.parse(event.data)
     switch (data.type) {
       case GQL.CONNECTION_ACK: {
-        connection.subscriptionState.set(currentTabID.value, "SUBSCRIBED")
+        connection.subscriptionState.set(tabID, "SUBSCRIBED")
         break
       }
       case GQL.CONNECTION_ERROR: {
@@ -635,7 +640,7 @@ export const runSubscription = (
 
   connection.socket.onclose = (event) => {
     console.log("WebSocket is closed now.", event)
-    connection.subscriptionState.set(currentTabID.value, "UNSUBSCRIBED")
+    connection.subscriptionState.set(tabID, "UNSUBSCRIBED")
   }
 
   addQueryToHistory(options, "")

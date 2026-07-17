@@ -96,7 +96,7 @@ describe("TabService", () => {
     const service = container.bind(MockTabService)
 
     service.updateTab({
-      id: service.currentTabID.value,
+      id: service.currentTabID.value!,
       document: {
         request: "updated request",
       },
@@ -139,6 +139,36 @@ describe("TabService", () => {
     service.closeTab("test")
 
     expect(service.getActiveTabs().value.length).toEqual(1)
+  })
+
+  it("closes the only tab and clears active tab", () => {
+    const container = new TestContainer()
+
+    const service = container.bind(MockTabService)
+
+    service.closeTab("test")
+
+    expect(service.getActiveTabs().value.length).toEqual(0)
+    expect(service.getActiveTab()).toBeNull()
+    expect(service.currentTabID.value).toBeNull()
+  })
+
+  it("activates the nearest remaining tab when closing the current tab", () => {
+    const container = new TestContainer()
+
+    const service = container.bind(MockTabService)
+
+    const tab2 = service.createNewTab({ request: "second request" })
+    const tab3 = service.createNewTab({ request: "third request" })
+
+    service.setActiveTab(tab2.id)
+    service.closeTab(tab2.id)
+
+    expect(service.getActiveTab()?.id).toEqual(tab3.id)
+
+    service.closeTab(tab3.id)
+
+    expect(service.getActiveTab()?.id).toEqual("test")
   })
 
   describe("Tab Navigation", () => {
@@ -265,6 +295,22 @@ describe("TabService", () => {
       service.goToLastTab()
       expect(service.getActiveTab()?.id).toEqual(originalActiveTab?.id)
     })
+
+    it("should handle navigation with no tabs", () => {
+      const container = new TestContainer()
+      const service = container.bind(MockTabService)
+
+      service.closeTab("test")
+
+      service.goToNextTab()
+      service.goToPreviousTab()
+      service.goToFirstTab()
+      service.goToLastTab()
+      service.goToTabByIndex(1)
+
+      expect(service.getActiveTabs().value.length).toEqual(0)
+      expect(service.getActiveTab()).toBeNull()
+    })
   })
 
   // NOTE: This feature is currently WIP.
@@ -286,6 +332,21 @@ describe("TabService", () => {
       expect(reopened).toBe(true)
       expect(service.getActiveTabs().value.length).toEqual(2)
       expect(service.getActiveTab()?.id).toEqual(tab2.id)
+    })
+
+    it("should reopen a tab from empty state", () => {
+      const container = new TestContainer()
+      const service = container.bind(MockTabService)
+
+      service.closeTab("test")
+
+      expect(service.getActiveTabs().value.length).toEqual(0)
+
+      const reopened = service.reopenClosedTab()
+
+      expect(reopened).toBe(true)
+      expect(service.getActiveTabs().value.length).toEqual(1)
+      expect(service.getActiveTab()?.id).toEqual("test")
     })
 
     it("should return false when no tabs to reopen", () => {
@@ -452,6 +513,22 @@ describe("TabService", () => {
       expect(service.getActiveTab()?.id).toEqual(originalActiveTab?.id)
     })
 
+    it("should handle MRU navigation with no tabs", () => {
+      const container = new TestContainer()
+      const service = container.bind(MockTabService)
+
+      service.closeTab("test")
+
+      service.goToMRUTab()
+      service.goToPreviousMRUTab()
+      service.commitMRUNavigation()
+      service.resetMRUNavigation()
+
+      expect(service.getActiveTabs().value.length).toEqual(0)
+      expect(service.getActiveTab()).toBeNull()
+      expect(service.getMRUOrder()).toEqual([])
+    })
+
     it("should remove closed tabs from MRU order", () => {
       const container = new TestContainer()
       const service = container.bind(MockTabService)
@@ -569,6 +646,20 @@ describe("TabService", () => {
       expect(service.getMRUOrder().length).toEqual(3)
 
       expect(service.getMRUOrder()[0]).toEqual("persisted-tab-2")
+    })
+
+    it("should load empty persisted state", () => {
+      const container = new TestContainer()
+      const service = container.bind(MockTabService)
+
+      service.loadTabsFromPersistedState({
+        lastActiveTabID: null,
+        orderedDocs: [],
+      })
+
+      expect(service.getActiveTabs().value.length).toEqual(0)
+      expect(service.getActiveTab()).toBeNull()
+      expect(service.getMRUOrder()).toEqual([])
     })
 
     it("should handle closeOtherTabs correctly with MRU", () => {

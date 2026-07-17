@@ -487,6 +487,25 @@ const HoppTestResultSchema = z
   })
   .strict()
 
+const TestRunnerDatasetSchema = z
+  .object({
+    fileName: z.string(),
+    type: z.enum(["csv", "json"]),
+    rows: z.array(z.record(z.string(), z.string())),
+  })
+  .strict()
+
+const TestRunnerMetaSchema = z
+  .object({
+    totalRequests: z.number(),
+    completedRequests: z.number(),
+    totalTests: z.number(),
+    passedTests: z.number(),
+    failedTests: z.number(),
+    totalTime: z.number(),
+  })
+  .strict()
+
 const HoppRESTResponseHeaderSchema = z
   .object({
     key: z.string(),
@@ -599,20 +618,28 @@ export const REST_TAB_STATE_SCHEMA = z
               keepVariableValues: z.boolean(),
               persistResponses: z.boolean(),
               stopOnError: z.boolean(),
+              dataset: z.optional(TestRunnerDatasetSchema),
             }),
             status: z.enum(["idle", "running", "stopped", "error"]),
             collection: HoppRESTCollectionSchema,
             collectionType: z.enum(["my-collections", "team-collections"]),
             collectionID: z.optional(z.string()),
             resultCollection: z.optional(HoppRESTCollectionSchema),
-            testRunnerMeta: z.object({
-              totalRequests: z.number(),
-              completedRequests: z.number(),
-              totalTests: z.number(),
-              passedTests: z.number(),
-              failedTests: z.number(),
-              totalTime: z.number(),
-            }),
+            iterationResults: z.optional(
+              z.array(
+                z
+                  .object({
+                    iteration: z.number(),
+                    resultCollection: HoppRESTCollectionSchema,
+                    meta: TestRunnerMetaSchema,
+                  })
+                  .strict()
+              )
+            ),
+            selectedIteration: z.optional(z.number()),
+            selectedRequestRefIds: z.optional(z.array(z.string())),
+            environmentName: z.optional(z.string()),
+            testRunnerMeta: TestRunnerMetaSchema,
             request: z.nullable(entityReference(HoppRESTRequest)),
             response: z.nullable(HoppRESTResponseSchema),
             testResults: z.optional(z.nullable(HoppTestResultSchema)),

@@ -8,6 +8,7 @@ import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
 import { HoppRESTResponse } from "../types/HoppRESTResponse"
 import { HoppTestResult } from "../types/HoppTestResult"
 import { TestRunnerRequest } from "~/services/test-runner/test-runner.service"
+import { TestRunnerDataset } from "../runner/dataset"
 
 export type HoppRESTSaveContext =
   | {
@@ -101,6 +102,22 @@ export type TestRunnerConfig = {
   stopOnError: boolean
   persistResponses: boolean
   keepVariableValues: boolean
+  dataset?: TestRunnerDataset
+}
+
+export type TestRunnerMeta = {
+  totalRequests: number
+  completedRequests: number
+  totalTests: number
+  passedTests: number
+  failedTests: number
+  totalTime: number
+}
+
+export type TestRunnerIterationResult = {
+  iteration: number
+  resultCollection: HoppCollection
+  meta: TestRunnerMeta
 }
 
 export type HoppTestRunnerDocument = {
@@ -147,16 +164,31 @@ export type HoppTestRunnerDocument = {
   resultCollection?: HoppCollection
 
   /**
+   * Results grouped by iteration.
+   */
+  iterationResults?: TestRunnerIterationResult[]
+
+  /**
+   * Selected result iteration in the UI.
+   */
+  selectedIteration?: number
+
+  /**
+   * Requests selected to run. Empty or undefined means the full collection.
+   */
+  selectedRequestRefIds?: string[]
+
+  /**
+   * Name of the environment active when the run started ("Global" when none
+   * was selected). Captured at run start so it is stable across later env
+   * switches.
+   */
+  environmentName?: string
+
+  /**
    * The test runner meta information
    */
-  testRunnerMeta: {
-    totalRequests: number
-    completedRequests: number
-    totalTests: number
-    passedTests: number
-    failedTests: number
-    totalTime: number
-  }
+  testRunnerMeta: TestRunnerMeta
 
   /**
    * Selected test runner request

@@ -26,6 +26,18 @@
         >
           {{ `${request.response?.statusCode}` }}
         </span>
+        <span
+          v-if="responseDuration !== null"
+          class="text-[10px] text-secondaryLight flex items-center"
+        >
+          {{ `${responseDuration} ms` }}
+        </span>
+        <span
+          v-if="responseSize !== null"
+          class="text-[10px] text-secondaryLight flex items-center"
+        >
+          {{ responseSize }}
+        </span>
         <span v-if="isLoading" class="flex flex-col items-center">
           <HoppSmartSpinner />
         </span>
@@ -38,7 +50,11 @@
 
     <div
       v-if="request.error"
-      class="py-2 pl-4 ml-4 mb-2 border-l text-red-500 border-red-500"
+      class="py-2 pl-4 ml-4 mb-2 border-l"
+      :style="{
+        color: 'var(--status-critical-error-color)',
+        borderColor: 'var(--status-critical-error-color)',
+      }"
     >
       <span> {{ request.error }} </span>
     </div>
@@ -63,14 +79,12 @@ const props = withDefaults(
     parentID: string | null
     isActive?: boolean
     isSelected?: boolean
-    showSelection?: boolean
     showTestType: "all" | "passed" | "failed"
   }>(),
   {
     parentID: null,
     isActive: false,
     isSelected: false,
-    showSelection: false,
     requestID: "",
   }
 )
@@ -89,9 +103,29 @@ const statusCategory = computed(() => {
   )
     return {
       name: "error",
-      className: "text-red-500",
+      className: "critical-error-response",
     }
   return findStatusGroup(props.request?.response.statusCode)
+})
+
+// Only success/fail responses carry meta (duration + size).
+const responseMeta = computed(() => {
+  const response = props.request?.response
+  if (response?.type === "success" || response?.type === "fail")
+    return response.meta
+  return null
+})
+
+const responseDuration = computed(
+  () => responseMeta.value?.responseDuration ?? null
+)
+
+const responseSize = computed(() => {
+  const size = responseMeta.value?.responseSize
+  if (size === undefined) return null
+  if (size >= 100000) return `${(size / 1000000).toFixed(2)} MB`
+  if (size >= 1000) return `${(size / 1000).toFixed(2)} KB`
+  return `${size} B`
 })
 
 const emit = defineEmits<{

@@ -1159,6 +1159,30 @@ describe("Parse curl command to Hopp REST Request", () => {
     expect(customHeader.value).toBe(`-d {"fake":1}`)
   })
 
+  test("preserves header values containing ': ' (colon-space)", () => {
+    const command = `curl https://httpbin.org/get -H 'X-Note: hello: world' -H 'Accept: application/json'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+
+    const xNote = actual.headers.find((h) => h.key === "X-Note")
+    expect(xNote).toBeDefined()
+    expect(xNote.value).toBe("hello: world")
+
+    const accept = actual.headers.find((h) => h.key === "Accept")
+    expect(accept).toBeDefined()
+    expect(accept.value).toBe("application/json")
+  })
+
+  test("preserves header values containing multiple ': ' delimiters", () => {
+    const command = `curl https://example.com -H 'X-Time: 12:30: 45'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+
+    const xTime = actual.headers.find((h) => h.key === "X-Time")
+    expect(xTime).toBeDefined()
+    expect(xTime.value).toBe("12:30: 45")
+  })
+
   for (const [i, { command, response }] of samples.entries()) {
     test(`for sample #${i + 1}:\n\n${command}`, () => {
       const actual = parseCurlToHoppRESTReq(command)
@@ -1185,3 +1209,4 @@ describe("Parse curl command to Hopp REST Request", () => {
     })
   }
 })
+

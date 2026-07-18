@@ -16,7 +16,10 @@ export const hoppEnvImporter = (contents: string[]) => {
   }
 
   const parsedValues = parsedContents.flatMap((content) => {
-    const unwrappedContent = O.toNullable(content) as Environment[] | null
+    const rawContent = O.toNullable(content)
+    const unwrappedContent = (
+      Array.isArray(rawContent) ? rawContent : rawContent ? [rawContent] : null
+    ) as Environment[] | null
 
     if (unwrappedContent) {
       return unwrappedContent.map((contentEntry) => {

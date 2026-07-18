@@ -10,13 +10,14 @@ import {
 } from "~/helpers/functional/object"
 import { tupleToRecord } from "~/helpers/functional/record"
 
-const getHeaderPair = flow(
-  S.replace(":", ": "),
-  S.split(": "),
-  // must have a key and a value
-  O.fromPredicate((arr) => arr.length === 2),
-  O.map(([k, v]) => [k.trim(), v?.trim() ?? ""] as [string, string])
-)
+const getHeaderPair = (raw: string): O.Option<[string, string]> => {
+  const colonIndex = raw.indexOf(":")
+  if (colonIndex === -1) return O.none
+  const key = raw.slice(0, colonIndex).trim()
+  const value = raw.slice(colonIndex + 1).trim()
+  if (!key) return O.none
+  return O.some([key, value] as [string, string])
+}
 
 export function getHeaders(parsedArguments: parser.Arguments) {
   let headers: Record<string, string> = {}

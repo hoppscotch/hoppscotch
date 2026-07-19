@@ -751,6 +751,33 @@ const samples = [
     }),
   },
   {
+    command: "curl -F 'token=a=b=c' https://echo.hoppscotch.io/",
+    response: makeRESTRequest({
+      name: "Untitled",
+      endpoint: "https://echo.hoppscotch.io/",
+      method: "POST",
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      body: {
+        contentType: "multipart/form-data",
+        body: [
+          {
+            active: true,
+            isFile: false,
+            key: "token",
+            value: "a=b=c",
+          },
+        ],
+      },
+      params: [],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+      description: null,
+    }),
+  },
+  {
     command: "curl 127.0.0.1 -X custommethod",
     response: makeRESTRequest({
       name: "Untitled",

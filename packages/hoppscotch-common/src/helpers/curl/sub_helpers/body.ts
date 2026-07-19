@@ -118,6 +118,22 @@ export const getBody = (
 }
 
 /**
+ * Splits a curl `-F`/`--form` argument into its key and value on the FIRST `=`
+ * only. curl treats everything after the first `=` as the value, so the value
+ * itself may legitimately contain `=` characters (e.g. base64 padding, query
+ * strings). Splitting on every `=` would silently truncate such values.
+ * @param fArg The raw `-F` argument (e.g. `key=a=b`)
+ * @returns `[key, value]`, or `[key]` when no `=` is present
+ */
+const splitFormArgumentOnFirstEquals = (fArg: string): string[] => {
+  const separatorIndex = fArg.indexOf("=")
+
+  return separatorIndex === -1
+    ? [fArg]
+    : [fArg.slice(0, separatorIndex), fArg.slice(separatorIndex + 1)]
+}
+
+/**
  * Parses and structures multipart/form-data from -F argument of curl command
  * @param parsedArguments Parsed Arguments object
  * @returns Option of Record<string, string> type containing key-value pairs of multipart/form-data
@@ -141,7 +157,7 @@ export function getFArgumentMultipartData(
     ),
     O.chain(
       flow(
-        A.map(S.split("=")),
+        A.map(splitFormArgumentOnFirstEquals),
         // can only have a key and no value
         O.fromPredicate((fArgs) => fArgs.length > 0),
         O.map(

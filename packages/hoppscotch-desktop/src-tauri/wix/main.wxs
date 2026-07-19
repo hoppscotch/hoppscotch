@@ -39,7 +39,7 @@
             <RegistrySearch Id="MachineInstallRegistry" Root="HKLM" Key="Software\\{{manufacturer}}\\{{product_name}}" Name="InstallDir" Type="raw" />
         </Property>
         <Condition Message="A machine-wide installation of [ProductName] was detected. Please uninstall it manually from Windows Settings before installing this user-specific version.">
-            NOT MACHINE_INSTALL_DETECTED
+            Installed OR (NOT MACHINE_INSTALL_DETECTED)
         </Condition>
 
         {{#if allow_downgrades}}

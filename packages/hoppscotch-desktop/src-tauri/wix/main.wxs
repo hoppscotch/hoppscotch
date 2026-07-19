@@ -1,12 +1,9 @@
 <?if $(sys.BUILDARCH)="x86"?>
     <?define Win64 = "no" ?>
-    <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
 <?elseif $(sys.BUILDARCH)="x64"?>
     <?define Win64 = "yes" ?>
-    <?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
 <?elseif $(sys.BUILDARCH)="arm64"?>
     <?define Win64 = "yes" ?>
-    <?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
 <?else?>
     <?error Unsupported value of sys.BUILDARCH=$(sys.BUILDARCH)?>
 <?endif?>
@@ -36,6 +33,14 @@
         <Property Id="AUTOLAUNCHAPP" Secure="yes" />
         <!-- Property to forward cli args to the launched app to not lose those of the pre-update instance -->
         <Property Id="LAUNCHAPPARGS" Secure="yes" />
+
+        <!-- Block installation if a machine-wide install is detected -->
+        <Property Id="MACHINE_INSTALL_DETECTED" Secure="yes">
+            <RegistrySearch Id="MachineInstallRegistry" Root="HKLM" Key="Software\\{{manufacturer}}\\{{product_name}}" Name="InstallDir" Type="raw" />
+        </Property>
+        <Condition Message="A machine-wide installation of [ProductName] was detected. Please uninstall it manually from Windows Settings before installing this user-specific version.">
+            NOT MACHINE_INSTALL_DETECTED
+        </Condition>
 
         {{#if allow_downgrades}}
             <MajorUpgrade Schedule="afterInstallInitialize" AllowDowngrades="yes" />
@@ -114,7 +119,6 @@
             <Directory Id="DesktopFolder" Name="Desktop">
                 <Component Id="ApplicationShortcutDesktop" Guid="*">
                     <Shortcut Id="ApplicationDesktopShortcut" Name="{{product_name}}" Description="Runs {{product_name}}" Target="[!Path]" WorkingDirectory="INSTALLDIR" />
-                    <RemoveFolder Id="DesktopFolder" On="uninstall" />
                     <RegistryValue Root="HKCU" Key="Software\\{{manufacturer}}\\{{product_name}}" Name="Desktop Shortcut" Type="integer" Value="1" KeyPath="yes" />
                 </Component>
             </Directory>
@@ -146,7 +150,8 @@
                 {{/each~}}
             </Component>
             <Component Id="Path" Guid="{{path_component_guid}}" Win64="$(var.Win64)">
-                <File Id="Path" Source="{{main_binary_path}}" KeyPath="yes" Checksum="yes"/>
+                <RegistryValue Root="HKCU" Key="Software\\{{manufacturer}}\\{{product_name}}" Name="Install_Path" Type="integer" Value="1" KeyPath="yes"/>
+                <File Id="Path" Source="{{main_binary_path}}" Checksum="yes"/>
                 {{#each file_associations as |association| ~}}
                 {{#each association.ext as |ext| ~}}
                 <ProgId Id="{{../../product_name}}.{{ext}}" Advertise="yes" Description="{{association.description}}">
@@ -159,18 +164,22 @@
             </Component>
             {{#each binaries as |bin| ~}}
             <Component Id="{{ bin.id }}" Guid="{{bin.guid}}" Win64="$(var.Win64)">
-                <File Id="Bin_{{ bin.id }}" Source="{{bin.path}}" KeyPath="yes"/>
+                <RegistryValue Root="HKCU" Key="Software\\{{manufacturer}}\\{{product_name}}" Name="Install_{{ bin.id }}" Type="integer" Value="1" KeyPath="yes"/>
+                <File Id="Bin_{{ bin.id }}" Source="{{bin.path}}"/>
             </Component>
             {{/each~}}
             {{#if enable_elevated_update_task}}
             <Component Id="UpdateTask" Guid="C492327D-9720-4CD5-8DB8-F09082AF44BE" Win64="$(var.Win64)">
-                <File Id="UpdateTask" Source="update.xml" KeyPath="yes" Checksum="yes"/>
+                <RegistryValue Root="HKCU" Key="Software\\{{manufacturer}}\\{{product_name}}" Name="Install_UpdateTask" Type="integer" Value="1" KeyPath="yes"/>
+                <File Id="UpdateTask" Source="update.xml" Checksum="yes"/>
             </Component>
             <Component Id="UpdateTaskInstaller" Guid="011F25ED-9BE3-50A7-9E9B-3519ED2B9932" Win64="$(var.Win64)">
-                <File Id="UpdateTaskInstaller" Source="install-task.ps1" KeyPath="yes" Checksum="yes"/>
+                <RegistryValue Root="HKCU" Key="Software\\{{manufacturer}}\\{{product_name}}" Name="Install_UpdateTaskInstaller" Type="integer" Value="1" KeyPath="yes"/>
+                <File Id="UpdateTaskInstaller" Source="install-task.ps1" Checksum="yes"/>
             </Component>
             <Component Id="UpdateTaskUninstaller" Guid="D4F6CC3F-32DC-5FD0-95E8-782FFD7BBCE1" Win64="$(var.Win64)">
-                <File Id="UpdateTaskUninstaller" Source="uninstall-task.ps1" KeyPath="yes" Checksum="yes"/>
+                <RegistryValue Root="HKCU" Key="Software\\{{manufacturer}}\\{{product_name}}" Name="Install_UpdateTaskUninstaller" Type="integer" Value="1" KeyPath="yes"/>
+                <File Id="UpdateTaskUninstaller" Source="uninstall-task.ps1" Checksum="yes"/>
             </Component>
             {{/if}}
             {{resources}}
@@ -331,7 +340,7 @@
         </Property>
         <!-- Chromium updater docs: https://source.chromium.org/chromium/chromium/src/+/main:docs/updater/user_manual.md -->
         <!-- Modified from "HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Microsoft EdgeWebView\ModifyPath" -->
-        <CustomAction Id="UpdateWebView2ViaEdgeUpdate" Execute="deferred" Property="EDGEUPDATE_PATH" Return="check" Impersonate="no" ExeCommand="/install appguid={F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}&amp;needsadmin=true" />
+        <CustomAction Id="UpdateWebView2ViaEdgeUpdate" Execute="deferred" Property="EDGEUPDATE_PATH" Return="check" Impersonate="yes" ExeCommand="/install appguid={F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}&amp;needsadmin=false" />
         <InstallExecuteSequence>
             <Custom Action='UpdateWebView2ViaEdgeUpdate' Before='InstallFinalize'>
                 <![CDATA[

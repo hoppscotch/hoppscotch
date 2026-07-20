@@ -58,6 +58,34 @@ describe("collection runner dataset parsing", () => {
     ])
   })
 
+  test("preserves empty JSON rows as iterations with no variables", async () => {
+    const result = await parseDatasetFile(
+      file(
+        "testing.json",
+        JSON.stringify([{ title: "first" }, {}, { title: "third" }])
+      )
+    )
+
+    expect(E.isRight(result)).toBe(true)
+    if (E.isLeft(result)) return
+
+    expect(result.right.rows).toEqual([
+      { title: "first" },
+      {},
+      { title: "third" },
+    ])
+  })
+
+  test("returns a Left when the file cannot be read", async () => {
+    // A non-Blob makes FileReader.readAsText throw; the rejection must surface
+    // as a Left rather than an unhandled promise rejection.
+    const result = await parseDatasetFile({
+      name: "unreadable.json",
+    } as unknown as File)
+
+    expect(E.isLeft(result)).toBe(true)
+  })
+
   test("rejects JSON files that are not arrays of objects", async () => {
     const primitiveArray = await parseDatasetFile(
       file("testing.json", JSON.stringify(["first", "second"]))

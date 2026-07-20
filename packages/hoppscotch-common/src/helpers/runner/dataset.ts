@@ -47,9 +47,9 @@ const parseCSV = (contents: string): E.Either<string, DatasetRow[]> => {
     return E.left(parsed.errors.map((error) => error.message).join(", "))
   }
 
-  return E.right(
-    parsed.data.map(normalizeRow).filter((row) => Object.keys(row).length > 0)
-  )
+  // Keep every parsed row (blank lines are already dropped via skipEmptyLines).
+  // A row with no data columns is still a valid iteration.
+  return E.right(parsed.data.map(normalizeRow))
 }
 
 const parseJSON = (contents: string): E.Either<string, DatasetRow[]> => {
@@ -64,9 +64,9 @@ const parseJSON = (contents: string): E.Either<string, DatasetRow[]> => {
       return E.left("JSON data file must contain only objects")
     }
 
-    return E.right(
-      parsed.map(normalizeRow).filter((row) => Object.keys(row).length > 0)
-    )
+    // Every supplied object is one iteration, including empty objects (an
+    // iteration with no data variables); don't drop them.
+    return E.right(parsed.map(normalizeRow))
   } catch (error) {
     return E.left(
       error instanceof Error ? error.message : "Invalid JSON data file"
@@ -91,7 +91,15 @@ export const parseDatasetFile = async (
 
   if (!type) return E.left("Unsupported data file type")
 
-  const contents = await readFileAsText(file)
+  let contents: string
+  try {
+    contents = await readFileAsText(file)
+  } catch (error) {
+    return E.left(
+      error instanceof Error ? error.message : "Failed to read data file"
+    )
+  }
+
   const parsedRows = type === "csv" ? parseCSV(contents) : parseJSON(contents)
 
   if (E.isLeft(parsedRows)) return parsedRows

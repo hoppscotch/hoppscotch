@@ -424,7 +424,8 @@ export class TeamRequestService {
         where: { id: request.collectionID },
         select: { type: true },
       });
-      if (srcCollection && srcCollection.type !== destCollection.type) {
+      if (!srcCollection) return E.left(TEAM_INVALID_COLL_ID);
+      if (srcCollection.type !== destCollection.type) {
         return E.left(TEAM_REQ_TYPE_MISMATCH);
       }
     }

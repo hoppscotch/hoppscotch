@@ -452,6 +452,8 @@ export class TeamCollectionService {
    *
    * @param teamID The Team ID
    * @param title The title of new TeamCollection
+   * @param type Type (REST/GQL) of the collection. When omitted, a child
+   * collection inherits its parent's type and a root collection defaults to REST
    * @param parentID The parent collectionID (null if root collection)
    * @returns An Either of TeamCollection
    */
@@ -459,11 +461,18 @@ export class TeamCollectionService {
     teamID: string,
     title: string,
     data: string | null = null,
-    type: ReqType,
+    type: ReqType | null | undefined,
     parentID: string | null,
   ) {
     const isTitleValid = isValidLength(title, this.TITLE_LENGTH);
     if (!isTitleValid) return E.left(TEAM_COLL_SHORT_TITLE);
+
+    // A `null` or omitted `type` means "inherit": child collections take their
+    // parent's type, root collections fall back to REST. This keeps clients
+    // that predate `type` able to create sub-collections under a GQL parent.
+    // Only an explicitly supplied type that disagrees with the parent is rejected.
+    const explicitType = type ?? undefined;
+    let collectionType = explicitType ?? ReqType.REST;
 
     // Check that the parent collection belongs to this Team and the child
     // collection has the same type as its parent
@@ -473,8 +482,9 @@ export class TeamCollectionService {
         select: { type: true },
       });
       if (!parentCollection) return E.left(TEAM_NOT_OWNER);
-      if (parentCollection.type !== type)
+      if (explicitType !== undefined && explicitType !== parentCollection.type)
         return E.left(TEAM_COLL_TYPE_MISMATCH);
+      collectionType = parentCollection.type as ReqType;
     }
 
     if (data === '') return E.left(TEAM_COLL_DATA_INVALID);
@@ -509,7 +519,7 @@ export class TeamCollectionService {
               teamID,
               parentID: parentID ? parentID : undefined,
               data: data ?? undefined,
-              type,
+              type: collectionType,
               orderIndex: lastCollection ? lastCollection.orderIndex + 1 : 1,
             },
           });

@@ -208,6 +208,10 @@ export class TestRunnerService extends Service {
 
       const resultCollection = this.createResultCollection(collection)
       const meta = this.createEmptyMeta()
+      // The iteration count is normally locked to the dataset length by the UI,
+      // so this clamp is defensive: if the two ever diverge (e.g. a persisted
+      // state that keeps the count but has fewer rows), reuse the last row
+      // rather than reading out of bounds.
       const iterationVars = options.dataset?.rows.length
         ? datasetRowToTempVars(
             options.dataset.rows[

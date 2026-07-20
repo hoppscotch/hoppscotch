@@ -903,7 +903,13 @@ export async function runTestRunnerRequest(
     envs: TestResult["envs"]
   ): TestResult["envs"] => ({
     global: envs.global,
-    selected: envs.selected.filter(({ key }) => !iterationVarKeys.has(key)),
+    // Drop the injected iteration entries. If a dataset column shadowed a real
+    // selected env var, restore that var's original entry so a data run stays
+    // ephemeral instead of erasing genuine environment state on writeback.
+    selected: [
+      ...envs.selected.filter(({ key }) => !iterationVarKeys.has(key)),
+      ...initialEnvs.selected.filter(({ key }) => iterationVarKeys.has(key)),
+    ],
   })
 
   // Wait for browser to paint the loading state (Send -> Cancel button)

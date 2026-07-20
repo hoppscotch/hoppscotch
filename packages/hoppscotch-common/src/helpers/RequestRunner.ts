@@ -1103,9 +1103,14 @@ const resolveEnvVars = (
         (v.secret
           ? secretMeta?.value
           : getEnvironmentVariableValue(envID, index)) ?? "",
-      // fallback to var initialValue if secretMeta is not found
-      initialValue:
-        (v.secret ? secretMeta?.initialValue : "") ?? v.initialValue,
+      // For a secret, use the secret store's initialValue (falling back to the
+      // definition's when the store has no entry); for a non-secret, use the
+      // definition's initialValue directly. The old `: ""` branch produced a
+      // non-nullish "", short-circuiting the `?? v.initialValue` fallback so
+      // every non-secret resolved to an empty initialValue.
+      initialValue: v.secret
+        ? (secretMeta?.initialValue ?? v.initialValue)
+        : v.initialValue,
     }
   })
 

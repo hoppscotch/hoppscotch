@@ -951,7 +951,11 @@ export async function runTestRunnerRequest(
       variables: filterNonEmptyEnvironmentVariables([
         // Data-file iteration values take precedence over every other scope
         // (request, collection, environment) for that iteration, matching
-        // Postman's data-variable semantics.
+        // Postman's data-variable semantics: the Data scope outranks the
+        // Environment scope that a pre-request script writes to, so a
+        // `pm.environment.set` on a data-column key does not shadow it.
+        // Prepend the iteration values once, then drop those keys from the
+        // combined scopes so each appears exactly once and stays authoritative.
         ...iterationVars,
         ...combineEnvVariables({
           environments: {
@@ -960,7 +964,7 @@ export async function runTestRunnerRequest(
           },
           requestVariables: finalRequestVariables,
           collectionVariables: inheritedVariables,
-        }),
+        }).filter(({ key }) => !iterationVarKeys.has(key)),
       ]),
     })
 

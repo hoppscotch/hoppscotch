@@ -379,12 +379,12 @@ import { refAutoReset } from "@vueuse/core"
 import { computed, onMounted, ref } from "vue"
 import { useI18n } from "~/composables/i18n"
 
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import { HoppCollection } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 import { useToast } from "~/composables/toast"
 import { TestRunnerConfig } from "~/helpers/rest/document"
 import { parseDatasetFile } from "~/helpers/runner/dataset"
-import { getRequestSelectionID } from "~/helpers/runner/selection"
+import { collectRequestIDs } from "~/helpers/runner/selection"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { RESTTabService } from "~/services/tab/rest"
 import IconCheck from "~icons/lucide/check"
@@ -446,18 +446,6 @@ const dataFileInput = ref<HTMLInputElement | null>(null)
 
 const collectionTree = ref<HoppCollection | null>(null)
 const selectedRequestIDs = ref<Set<string>>(new Set())
-
-const collectRequestIDs = (
-  collection: HoppCollection,
-  parentPath: number[] = []
-): string[] => [
-  ...collection.requests.map((request, index) =>
-    getRequestSelectionID(request as HoppRESTRequest, [...parentPath, index])
-  ),
-  ...collection.folders.flatMap((folder, index) =>
-    collectRequestIDs(folder, [...parentPath, index])
-  ),
-]
 
 const allRequestIDs = computed(() =>
   collectionTree.value ? collectRequestIDs(collectionTree.value) : []

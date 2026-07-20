@@ -28,7 +28,10 @@
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { computed } from "vue"
 import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
-import { getRequestSelectionID } from "~/helpers/runner/selection"
+import {
+  collectRequestIDs,
+  getRequestSelectionID,
+} from "~/helpers/runner/selection"
 import IconFolder from "~icons/lucide/folder"
 
 const props = defineProps<{
@@ -59,18 +62,6 @@ type Entry =
       selected: boolean
       onToggle: () => void
     }
-
-const collectRequestIDs = (
-  collection: HoppCollection,
-  parentPath: number[]
-): string[] => [
-  ...collection.requests.map((request, index) =>
-    getRequestSelectionID(request as HoppRESTRequest, [...parentPath, index])
-  ),
-  ...collection.folders.flatMap((folder, index) =>
-    collectRequestIDs(folder, [...parentPath, index])
-  ),
-]
 
 const flatten = (
   collection: HoppCollection,

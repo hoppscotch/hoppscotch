@@ -76,12 +76,12 @@ export class CreateChildTeamCollectionArgs {
 
   @Field(() => ReqType, {
     nullable: true,
-    defaultValue: ReqType.REST,
-    description: 'Type of the team collection',
+    description:
+      'Type of the collection; inherited from the parent collection when omitted',
   })
   @IsEnum(ReqType)
   @IsOptional()
-  type: ReqType = ReqType.REST;
+  type?: ReqType;
 }
 
 @ArgsType()

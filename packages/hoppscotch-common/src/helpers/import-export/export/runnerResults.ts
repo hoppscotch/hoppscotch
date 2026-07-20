@@ -173,7 +173,11 @@ const exportResponse = (
 ): ExportedResponse | undefined => {
   if (!response) return undefined
 
-  if (response.type === "success" || response.type === "failure") {
+  // The kernel REST layer emits `"fail"` for HTTP error responses (4xx/5xx),
+  // even though the legacy `HoppRESTResponse` union still calls it `"failure"`.
+  // Match `"fail"` so error iterations keep their status/body/meta in the export
+  // (every other runner code path keys off `"fail"` too).
+  if (response.type === "success" || response.type === "fail") {
     return {
       type: response.type,
       statusCode: response.statusCode,

@@ -376,7 +376,7 @@
             Execute="deferred"
             ExeCommand="powershell.exe -WindowStyle hidden .\uninstall-task.ps1" />
         <InstallExecuteSequence>
-            <Custom Action="DeleteUpdateTask" Before='InstallFinalize'>
+            <Custom Action="DeleteUpdateTask" Before='RemoveFiles'>
                 (REMOVE = "ALL") AND NOT UPGRADINGPRODUCTCODE
             </Custom>
         </InstallExecuteSequence>

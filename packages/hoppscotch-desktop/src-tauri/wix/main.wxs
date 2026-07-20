@@ -137,7 +137,7 @@
                 </RegistryKey>
                 <!-- Change the Root to HKCU for perUser installations -->
                 {{#each deep_link_protocols as |protocol| ~}}
-                <RegistryKey Root="HKCU" Key="Software\Classes\\{{protocol}}">
+                <RegistryKey Root="HKCU" Key="Software\\Classes\\{{protocol}}">
                     <RegistryValue Type="string" Name="URL Protocol" Value=""/>
                     <RegistryValue Type="string" Value="URL:{{bundle_id}} protocol"/>
                     <RegistryKey Key="DefaultIcon">
@@ -373,6 +373,7 @@
             Id="DeleteUpdateTask"
             Return="check"
             Directory="INSTALLDIR"
+            Execute="deferred"
             ExeCommand="powershell.exe -WindowStyle hidden .\uninstall-task.ps1" />
         <InstallExecuteSequence>
             <Custom Action="DeleteUpdateTask" Before='InstallFinalize'>

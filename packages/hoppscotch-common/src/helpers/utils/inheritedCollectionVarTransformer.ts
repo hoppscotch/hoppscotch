@@ -1,4 +1,4 @@
-import { AggregateEnvironment, getEffectiveCurrentValue } from "~/newstore/environments"
+import { AggregateEnvironment } from "~/newstore/environments"
 import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { CurrentValueService } from "~/services/current-environment-value.service"
@@ -44,10 +44,8 @@ export const transformInheritedCollectionVariablesToAggregateEnv = (
     inheritedVariables.map(
       ({ currentValue, initialValue, key, secret }, index) => ({
         key,
-        currentValue: getEffectiveCurrentValue(
-          getCurrentValue(secret, index, parentID, showSecret) || currentValue,
-          initialValue
-        ),
+        currentValue:
+          getCurrentValue(secret, index, parentID, showSecret) ?? currentValue,
         initialValue,
         sourceEnv: "CollectionVariable",
         secret,
@@ -78,9 +76,8 @@ export const populateValuesInInheritedCollectionVars = (
   parentID
     ? variables.map((variable, index) => ({
         ...variable,
-        currentValue: getEffectiveCurrentValue(
-          getCurrentValue(variable.secret, index, parentID) || variable.currentValue,
-          variable.initialValue
-        ),
+        currentValue:
+          getCurrentValue(variable.secret, index, parentID) ??
+          variable.currentValue,
       }))
     : []

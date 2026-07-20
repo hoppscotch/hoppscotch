@@ -1,11 +1,16 @@
 import { describe, expect, test } from "vitest"
-import { Environment, HoppRESTAuth } from "@hoppscotch/data"
+import {
+  Environment,
+  HoppRESTAuth,
+  parseTemplateString,
+  parseBodyEnvVariables,
+} from "@hoppscotch/data"
 import {
   getEffectiveVariablesForRequest,
   normalizeAggregateEnvs,
+  filterNonEmptyEnvironmentVariables,
 } from "../environments"
 import { getComputedAuthHeaders } from "../EffectiveURL"
-import { filterNonEmptyEnvironmentVariables } from "~/helpers/RequestRunner"
 import { AggregateEnvironment } from "~/newstore/environments"
 import { HoppInheritedProperty } from "../../types/HoppInheritedProperties"
 
@@ -141,22 +146,63 @@ describe("inherited collection auth — variable precedence in the preview", () 
     expect(await authHeaderFor(vars)).toBe(`Basic ${btoa("env-token:pw")}`)
   })
 
+  // Auth/OAuth resolution goes through this same pipeline (see
+  // `replaceTemplateStringsInObjectValues` in helpers/auth). An INACTIVE request
+  // variable must be dropped, not shadow a real environment variable.
+  test("an inactive request variable does not shadow the environment variable", async () => {
+    const vars = filterNonEmptyEnvironmentVariables(
+      getEffectiveVariablesForRequest(
+        [{ key: "token", value: "should-be-ignored", active: false }],
+        [],
+        [envVar("token", "env-token")]
+      )
+    )
+
+    expect(await authHeaderFor(vars)).toBe(`Basic ${btoa("env-token:pw")}`)
+  })
+
   test("currentValue falls back to initialValue if currentValue is empty", async () => {
     const vars = filterNonEmptyEnvironmentVariables(
       getEffectiveVariablesForRequest(
         [],
         [],
-        [{
-          key: "token",
-          currentValue: "",
-          initialValue: "fallback-token",
-          secret: false,
-          sourceEnv: "Test Env",
-        }]
+        [
+          {
+            key: "token",
+            currentValue: "",
+            initialValue: "fallback-token",
+            secret: false,
+            sourceEnv: "Test Env",
+          },
+        ]
       )
     )
 
     expect(await authHeaderFor(vars)).toBe(`Basic ${btoa("fallback-token:pw")}`)
+  })
+
+  // Precedence must use the *effective* value (current || initial), not the raw
+  // current value. A fully-empty request variable should fall through to a lower
+  // env variable that only has an initialValue. The environment inspector relies
+  // on this too, so it doesn't flag such a variable as "empty".
+  test("empty higher-precedence var falls through to a lower one that only has an initialValue", async () => {
+    const vars = filterNonEmptyEnvironmentVariables(
+      getEffectiveVariablesForRequest(
+        [{ key: "token", value: "", active: true }],
+        [],
+        [
+          {
+            key: "token",
+            currentValue: "",
+            initialValue: "env-init",
+            secret: false,
+            sourceEnv: "Test Env",
+          },
+        ]
+      )
+    )
+
+    expect(await authHeaderFor(vars)).toBe(`Basic ${btoa("env-init:pw")}`)
   })
 })
 
@@ -192,5 +238,39 @@ describe("normalizeAggregateEnvs (legacy { key, value } rows)", () => {
     expect(await authHeaderFor(normalizeAggregateEnvs(legacy))).toBe(
       `Basic ${btoa("legacy-token:pw")}`
     )
+  })
+})
+
+// The current→initial fallback lives in the resolvers (single source of truth):
+// resolving `<<var>>` uses currentValue, falling back to initialValue when empty.
+// This covers every execution path (auth, body, url, params, scripts) since they
+// all route through these two functions. Display surfaces read `currentValue`
+// directly and never call these, so an empty current value stays empty on screen.
+describe("resolver current→initial fallback (single source of truth)", () => {
+  const vars: Environment["variables"] = [
+    { key: "emptyCur", currentValue: "", initialValue: "init", secret: false },
+    { key: "both", currentValue: "cur", initialValue: "init", secret: false },
+    { key: "allEmpty", currentValue: "", initialValue: "", secret: false },
+    { key: "zeroish", currentValue: "0", initialValue: "init", secret: false },
+  ]
+
+  test("parseTemplateString: empty currentValue resolves to initialValue", () => {
+    expect(parseTemplateString("<<emptyCur>>", vars)).toBe("init")
+  })
+
+  test("parseTemplateString: non-empty currentValue wins over initialValue", () => {
+    expect(parseTemplateString("<<both>>", vars)).toBe("cur")
+  })
+
+  test("parseTemplateString: both empty resolves to empty string", () => {
+    expect(parseTemplateString("<<allEmpty>>", vars)).toBe("")
+  })
+
+  test('parseTemplateString: a real "0" currentValue is kept, not treated as empty', () => {
+    expect(parseTemplateString("<<zeroish>>", vars)).toBe("0")
+  })
+
+  test("parseBodyEnvVariables: empty currentValue resolves to initialValue", () => {
+    expect(parseBodyEnvVariables("token=<<emptyCur>>", vars)).toBe("token=init")
   })
 })

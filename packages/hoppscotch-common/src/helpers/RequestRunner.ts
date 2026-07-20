@@ -194,12 +194,16 @@ export const getTestableBody = (
 }
 
 /**
- * Combines the environment variables from the request and the selected, global, and temporary environments.
+ * Combines the request, collection, and environment (temporary/selected/global)
+ * variables into a single precedence-ordered list. Order is precedence: earlier
+ * entries win, and de-duplication (keeping the first non-empty occurrence) is
+ * applied later by `filterNonEmptyEnvironmentVariables`.
  * The priority is as follows:
  * 1. Request variables
- * 2. Temporary variables (if any)
- * 3. Selected environment variables
- * 4. Global environment variables
+ * 2. Collection variables (inherited)
+ * 3. Temporary variables (if any)
+ * 4. Selected environment variables
+ * 5. Global environment variables
  * @param variables The environment variables to combine
  * @returns The combined environment variables
  */

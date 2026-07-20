@@ -138,16 +138,12 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           tooltipEnv?.key ?? ""
         )
 
-      // Treat the variable as secret if a secret value is stored for this key in
-      // the SAME scope, even when the deduped tooltip row is a non-secret same-key
-      // sibling (duplicate keys in one env) — otherwise that sibling shows raw.
-      // Exclude RequestVariable: its scope is the request, but its tooltipSourceEnvID
-      // falls through to the selected-env id, so an env secret that merely shares
-      // its key would wrongly mask it.
-      const isSecret =
-        tooltipEnv?.secret === true ||
-        (tooltipEnv?.sourceEnv !== "RequestVariable" &&
-          (hasSecretValueStored || hasSecretInitialValueStored))
+      // Secret-ness follows the resolved variable itself, so the preview matches
+      // what the request actually sends. For a duplicate key with a secret and a
+      // non-secret sibling, whichever wins resolution (first non-empty by
+      // position) is what executes — masking a non-secret winner just because a
+      // secret sibling shares its key made the tooltip disagree with execution.
+      const isSecret = tooltipEnv?.secret === true
 
       if (isSecret) {
         if (hasSecretValueStored && hasSecretInitialValueStored) {

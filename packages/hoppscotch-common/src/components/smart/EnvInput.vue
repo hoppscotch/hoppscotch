@@ -102,6 +102,7 @@ import { RESTTabService } from "~/services/tab/rest"
 import { syntaxTree } from "@codemirror/language"
 import { uniqueID } from "~/helpers/utils/uniqueID"
 import { getEffectiveVariablesForRequest } from "~/helpers/utils/environments"
+import { maskSecretValue } from "~/helpers/utils/secretMask"
 
 const t = useI18n()
 
@@ -406,8 +407,8 @@ const envVars = computed(() => {
         sourceEnvID,
       }) => ({
         key,
-        currentValue: secret ? "********" : currentValue,
-        initialValue: secret ? "********" : initialValue,
+        currentValue: secret ? maskSecretValue(currentValue) : currentValue,
+        initialValue: secret ? maskSecretValue(initialValue) : initialValue,
         sourceEnv: sourceEnv ?? "",
         sourceEnvID,
         secret,
@@ -462,7 +463,13 @@ function envAutoCompletion(context: CompletionContext) {
 
       return {
         label: `<<${envKey}>>`,
-        info: env?.currentValue ?? "",
+        // Mask secrets here too: the computed branch (URL/Body, no `:envs`)
+        // carries raw secret values, so an unmasked `info` would leak them in
+        // the completion panel. Display shows `currentValue` as-is (empty stays
+        // empty); the current→initial fallback happens only at execution time.
+        info: env?.secret
+          ? maskSecretValue(env.currentValue)
+          : (env?.currentValue ?? ""),
         apply: completionText,
       }
     })

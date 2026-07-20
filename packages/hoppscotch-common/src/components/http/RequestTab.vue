@@ -47,10 +47,14 @@ const envs = useReadonlyStream(
 )
 
 const resolvedEnvs = computed(() => {
+  // `showSecretCollectionValues = false` keeps inherited collection secrets
+  // masked in this display list (consumed by the headers/auth preview and the
+  // request field editors), matching every other consumer of these envs.
   return getEffectiveVariablesForRequest(
     tab.value.document.request.requestVariables,
     tab.value.document.inheritedProperties?.variables,
-    envs.value
+    envs.value,
+    false
   )
 })
 

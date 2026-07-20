@@ -32,7 +32,10 @@ import IconVariable from "~icons/lucide/variable?raw"
 import IconLibrary from "~icons/lucide/library?raw"
 
 import { isComment } from "./helpers"
-import { getEffectiveVariablesForRequest } from "~/helpers/utils/environments"
+import {
+  getEffectiveVariablesForRequest,
+  filterNonEmptyEnvironmentVariables,
+} from "~/helpers/utils/environments"
 import {
   ENV_VAR_NAME_REGEX,
   HOPP_ENVIRONMENT_REGEX,
@@ -42,6 +45,7 @@ import {
   constrainTooltipToViewport,
   createTooltipValueRow,
 } from "~/helpers/utils/tooltip"
+import { maskSecretValue } from "~/helpers/utils/secretMask"
 
 const HOPP_ENV_HIGHLIGHT =
   "cursor-help transition rounded px-1 focus:outline-none mx-0.5 env-highlight"
@@ -56,32 +60,6 @@ const TOOLTIP_ENV_CONTAINER_Z_INDEX_CLASS = "!z-[1002]"
 const secretEnvironmentService = getService(SecretEnvironmentService)
 const currentEnvironmentValueService = getService(CurrentValueService)
 const restTabs = getService(RESTTabService)
-
-/**
- * Transforms the environment list to a list with unique keys with value
- * @param envs The environment list to be transformed
- * @returns The transformed environment list with keys with value
- */
-const filterNonEmptyEnvironmentVariables = (
-  envs: AggregateEnvironment[]
-): AggregateEnvironment[] => {
-  const envsMap = new Map<string, AggregateEnvironment>()
-  envs.forEach((env) => {
-    if (envsMap.has(env.key)) {
-      const existingEnv = envsMap.get(env.key)
-      if (
-        existingEnv?.currentValue === "" &&
-        existingEnv?.initialValue === "" &&
-        (env.currentValue || env.initialValue)
-      ) {
-        envsMap.set(env.key, env)
-      }
-    } else {
-      envsMap.set(env.key, env)
-    }
-  })
-  return Array.from(envsMap.values())
-}
 
 const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
   hoverTooltip(
@@ -141,7 +119,6 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
             )?.currentValue || tooltipEnv?.currentValue
           : tooltipEnv?.currentValue
 
-      const isSecret = tooltipEnv?.secret === true
       const hasSource = Boolean(tooltipEnv?.sourceEnv)
 
       const tooltipSourceEnvID =
@@ -161,15 +138,25 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           tooltipEnv?.key ?? ""
         )
 
-      // Display secret values as "******" when stored; if no secret is saved, show "Empty" placeholders instead
+      // Treat the variable as secret if a secret value is stored for this key in
+      // the SAME scope, even when the deduped tooltip row is a non-secret same-key
+      // sibling (duplicate keys in one env) — otherwise that sibling shows raw.
+      // Exclude RequestVariable: its scope is the request, but its tooltipSourceEnvID
+      // falls through to the selected-env id, so an env secret that merely shares
+      // its key would wrongly mask it.
+      const isSecret =
+        tooltipEnv?.secret === true ||
+        (tooltipEnv?.sourceEnv !== "RequestVariable" &&
+          (hasSecretValueStored || hasSecretInitialValueStored))
+
       if (isSecret) {
         if (hasSecretValueStored && hasSecretInitialValueStored) {
-          envInitialValue = "******"
-          envCurrentValue = "******"
+          envInitialValue = maskSecretValue(envInitialValue)
+          envCurrentValue = maskSecretValue(envCurrentValue)
         } else if (!hasSecretValueStored && hasSecretInitialValueStored) {
-          envInitialValue = "******"
+          envInitialValue = maskSecretValue(envInitialValue)
         } else if (hasSecretValueStored && !hasSecretInitialValueStored) {
-          envCurrentValue = "******"
+          envCurrentValue = maskSecretValue(envCurrentValue)
         } else {
           envInitialValue = "Empty"
           envCurrentValue = "Empty"
@@ -178,19 +165,27 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
         envInitialValue = "Not Found"
         envCurrentValue = "Not Found"
       } else {
-        // Parse templates only if needed and values are not already masked
-        if (!envCurrentValue && envInitialValue) {
+        // Resolve each column independently so a variable that has BOTH an
+        // initial and a current value still previews resolved values (matching
+        // what the runner resolves), instead of leaving `<<...>>` unparsed when
+        // both are set. Empty values are skipped so they stay empty.
+        // `maskValue = true`: a non-secret wrapper like `Bearer <<apiKey>>` must
+        // render its nested SECRET reference masked, never as raw plaintext.
+        if (envInitialValue) {
           const parsedInitial = parseTemplateStringE(
             envInitialValue,
-            aggregateEnvs
+            aggregateEnvs,
+            true
           )
           envInitialValue = E.isLeft(parsedInitial)
             ? "error"
             : parsedInitial.right
-        } else if (!envInitialValue && envCurrentValue) {
+        }
+        if (envCurrentValue) {
           const parsedCurrent = parseTemplateStringE(
             envCurrentValue,
-            aggregateEnvs
+            aggregateEnvs,
+            true
           )
           envCurrentValue = E.isLeft(parsedCurrent)
             ? "error"

@@ -104,4 +104,60 @@ describe("buildRunnerResultReport", () => {
     expect(exported?.statusCode).toBe(200)
     expect(exported?.durationInMs).toBe(42)
   })
+
+  test("derives a failed outcome from an errored assertion (no plain failures)", () => {
+    const request = {
+      name: "req",
+      method: "GET",
+      endpoint: "https://example.com",
+      passedTests: 1,
+      failedTests: 0,
+      error: undefined,
+      testResults: {
+        description: "",
+        scriptError: false,
+        expectResults: [{ status: "error", message: "assertion threw" }],
+        tests: [],
+      },
+      response: null,
+    }
+
+    const document = {
+      collectionID: "coll-id",
+      collection: { name: "My Collection" },
+      collectionType: "my-collections",
+      status: "idle",
+      selectedIteration: 0,
+      config: { iterations: 1 },
+      testRunnerMeta: {
+        totalRequests: 1,
+        completedRequests: 1,
+        totalTests: 1,
+        passedTests: 1,
+        failedTests: 0,
+        totalTime: 0,
+      },
+      iterationResults: [
+        {
+          iteration: 0,
+          meta: {
+            totalRequests: 1,
+            completedRequests: 1,
+            totalTests: 1,
+            passedTests: 1,
+            failedTests: 0,
+            totalTime: 0,
+          },
+          resultCollection: {
+            name: "My Collection",
+            folders: [],
+            requests: [request],
+          },
+        },
+      ],
+    } as unknown as HoppTestRunnerDocument
+
+    const report = buildRunnerResultReport(document, "all", "none")
+    expect(report.outcome).toBe("failed")
+  })
 })

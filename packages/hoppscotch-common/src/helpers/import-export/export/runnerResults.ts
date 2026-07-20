@@ -241,16 +241,44 @@ const collectionHasRequestError = (collection: HoppCollection): boolean =>
     Boolean((request as TestRunnerRequest).error)
   ) || collection.folders.some(collectionHasRequestError)
 
+const hasErrorAssertion = (tests: HoppTestData[]): boolean =>
+  tests.some(
+    (test) =>
+      test.expectResults.some((result) => result.status === "error") ||
+      hasErrorAssertion(test.tests)
+  )
+
+const testResultHasError = (
+  testResults: HoppTestResult | null | undefined
+): boolean => {
+  if (!testResults) return false
+  return (
+    testResults.scriptError ||
+    testResults.expectResults.some((result) => result.status === "error") ||
+    hasErrorAssertion(testResults.tests)
+  )
+}
+
+const collectionHasTestError = (collection: HoppCollection): boolean =>
+  collection.requests.some((request) =>
+    testResultHasError((request as TestRunnerRequest).testResults)
+  ) || collection.folders.some(collectionHasTestError)
+
 const deriveOutcome = (
   document: HoppTestRunnerDocument
 ): "passed" | "failed" | "errored" => {
   if (document.status === "error") return "errored"
 
-  const hasRequestError = (document.iterationResults ?? []).some((iteration) =>
-    collectionHasRequestError(iteration.resultCollection)
+  // A test-script error or an assertion with `status: "error"` does not bump
+  // failedTests, so fold those in explicitly — otherwise a run with an errored
+  // assertion (but no plain failures) would be reported as passed.
+  const hasError = (document.iterationResults ?? []).some(
+    (iteration) =>
+      collectionHasRequestError(iteration.resultCollection) ||
+      collectionHasTestError(iteration.resultCollection)
   )
 
-  return document.testRunnerMeta.failedTests > 0 || hasRequestError
+  return document.testRunnerMeta.failedTests > 0 || hasError
     ? "failed"
     : "passed"
 }

@@ -155,6 +155,10 @@ COPY --from=base_builder /usr/src/app/packages/hoppscotch-backend/prod_run.mjs /
 ENV PRODUCTION="true"
 ENV PORT=8080
 
+# Writable Caddy storage for non-root UIDs (no writable $HOME needed).
+ENV XDG_DATA_HOME=/tmp
+ENV XDG_CONFIG_HOME=/tmp
+
 WORKDIR /dist/backend
 
 CMD ["node", "prod_run.mjs"]
@@ -166,6 +170,10 @@ EXPOSE 3170
 FROM base_builder AS fe_builder
 WORKDIR /usr/src/app/packages/hoppscotch-selfhost-web
 RUN pnpm run generate
+# Group-writable (GID 0) so a non-root UID (OpenShift runs as GID 0) can rewrite
+# these files during env injection. Done here (not in the runtime stage) so the
+# perms travel with the COPY instead of duplicating the layer with a chmod there.
+RUN chmod -R g=rwX /usr/src/app/packages/hoppscotch-selfhost-web/dist
 
 
 
@@ -178,11 +186,25 @@ COPY --from=webapp_server_builder /usr/src/app/packages/hoppscotch-selfhost-web/
 
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/prod_run.mjs /site/prod_run.mjs
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/selfhost-web.Caddyfile /etc/caddy/selfhost-web.Caddyfile
-COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist/ /site/selfhost-web
+COPY --chown=root:0 --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist/ /site/selfhost-web
+
+# Writable Caddy storage for non-root UIDs (no writable $HOME needed).
+ENV XDG_DATA_HOME=/tmp
+ENV XDG_CONFIG_HOME=/tmp
+
+# Files keep g=rwX from the builder; only the COPY-created dirs need it. List the
+# dirs (not /site/*) so the layer stays metadata-only and prod_run.mjs stays 755.
+RUN chmod g=rwX /site /site/selfhost-web
+
+# Pre-create /data group-writable so webapp-server's signing key persists across
+# restarts under a non-root UID (else it's regenerated and logged each start).
+RUN mkdir -p /data/webapp-server && chmod g=rwX /data /data/webapp-server
 
 WORKDIR /site
 # Run both webapp-server and Caddy after env processing (NOTE: env processing is required by both)
-CMD ["/bin/sh", "-c", "node /site/prod_run.mjs && (webapp-server & caddy run --config /etc/caddy/selfhost-web.Caddyfile --adapter caddyfile)"]
+# An empty HOPP_ALTERNATE_PORT (compose passthrough of an undefined var) means unset,
+# so the Caddyfile default (:80) applies.
+CMD ["/bin/sh", "-c", "[ -n \"$HOPP_ALTERNATE_PORT\" ] || unset HOPP_ALTERNATE_PORT; node /site/prod_run.mjs && (webapp-server & caddy run --config /etc/caddy/selfhost-web.Caddyfile --adapter caddyfile)"]
 
 EXPOSE 80
 EXPOSE 3000
@@ -195,6 +217,10 @@ WORKDIR /usr/src/app/packages/hoppscotch-sh-admin
 # Generate two builds for `sh-admin`, one based on subpath-access and the regular build
 RUN pnpm run build --outDir dist-multiport-setup
 RUN pnpm run build --outDir dist-subpath-access --base /admin/
+# Group-writable (GID 0) so a non-root UID (OpenShift runs as GID 0) can rewrite
+# these files during env injection. Done here (not in the runtime stage) so the
+# perms travel with the COPY instead of duplicating the layer with a chmod there.
+RUN chmod -R g=rwX dist-multiport-setup dist-subpath-access
 
 
 FROM node_base AS sh_admin
@@ -204,8 +230,16 @@ COPY --from=caddy_builder /tmp/caddy-build/cmd/caddy/caddy /usr/bin/caddy
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/prod_run.mjs /site/prod_run.mjs
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/sh-admin-multiport-setup.Caddyfile /etc/caddy/sh-admin-multiport-setup.Caddyfile
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/sh-admin-subpath-access.Caddyfile /etc/caddy/sh-admin-subpath-access.Caddyfile
-COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-multiport-setup /site/sh-admin-multiport-setup
-COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-subpath-access /site/sh-admin-subpath-access
+COPY --chown=root:0 --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-multiport-setup /site/sh-admin-multiport-setup
+COPY --chown=root:0 --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-subpath-access /site/sh-admin-subpath-access
+
+# Writable Caddy storage for non-root UIDs (no writable $HOME needed).
+ENV XDG_DATA_HOME=/tmp
+ENV XDG_CONFIG_HOME=/tmp
+
+# Files keep g=rwX from the builder; only the COPY-created dirs need it. List the
+# dirs (not /site/*) so the layer stays metadata-only and prod_run.mjs stays 755.
+RUN chmod g=rwX /site /site/sh-admin-multiport-setup /site/sh-admin-subpath-access
 
 WORKDIR /site
 CMD ["node","/site/prod_run.mjs"]
@@ -236,16 +270,26 @@ COPY --from=base_builder /usr/src/app/packages/hoppscotch-backend/prod_run.mjs /
 
 # Static Server
 COPY --from=webapp_server_builder /usr/src/app/packages/hoppscotch-selfhost-web/webapp-server/webapp-server /usr/local/bin/
-RUN mkdir -p /site/selfhost-web
-COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist /site/selfhost-web
+COPY --chown=root:0 --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist /site/selfhost-web
 
 # FE Files
 COPY --from=base_builder /usr/src/app/aio_run.mjs /usr/src/app/aio_run.mjs
-COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist /site/selfhost-web
-COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-multiport-setup /site/sh-admin-multiport-setup
-COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-subpath-access /site/sh-admin-subpath-access
+COPY --chown=root:0 --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-multiport-setup /site/sh-admin-multiport-setup
+COPY --chown=root:0 --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-subpath-access /site/sh-admin-subpath-access
 COPY aio-multiport-setup.Caddyfile /etc/caddy/aio-multiport-setup.Caddyfile
 COPY aio-subpath-access.Caddyfile /etc/caddy/aio-subpath-access.Caddyfile
+
+# Writable Caddy storage for non-root UIDs (no writable $HOME needed).
+ENV XDG_DATA_HOME=/tmp
+ENV XDG_CONFIG_HOME=/tmp
+
+# Files keep g=rwX from the builders; only the COPY-created dirs need it. List the
+# dirs (not /site/*) so the layer stays metadata-only.
+RUN chmod g=rwX /site /site/selfhost-web /site/sh-admin-multiport-setup /site/sh-admin-subpath-access
+
+# Pre-create /data group-writable so webapp-server's signing key persists across
+# restarts under a non-root UID (else it's regenerated and logged each start).
+RUN mkdir -p /data/webapp-server && chmod g=rwX /data /data/webapp-server
 
 ENTRYPOINT [ "tini", "--" ]
 COPY --chmod=755 healthcheck.sh /
@@ -254,7 +298,10 @@ HEALTHCHECK --interval=2s --start-period=15s CMD /bin/sh /healthcheck.sh
 WORKDIR /dist/backend
 CMD ["node", "/usr/src/app/aio_run.mjs"]
 
-# NOTE: Although these ports are exposed, the HOPP_ALTERNATE_AIO_PORT variable can be used to assign a user-specified port
+# NOTE: In subpath mode (ENABLE_SUBPATH_BASED_ACCESS=true) HOPP_ALTERNATE_PORT sets
+#       Caddy's HTTP port (default 80). In multiport mode (default) Caddy uses the
+#       fixed ports 3000/3100/3170 and it has no effect. Legacy
+#       HOPP_AIO_ALTERNATE_PORT is still honoured.
 EXPOSE 3170
 EXPOSE 3000
 EXPOSE 3100

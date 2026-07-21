@@ -3,7 +3,7 @@
   persist_config off
 }
 
-:80 :3100 {
+:{$HOPP_ALTERNATE_PORT:80} :3100 {
 	try_files {path} /
 	root * /site/sh-admin-multiport-setup
 	file_server

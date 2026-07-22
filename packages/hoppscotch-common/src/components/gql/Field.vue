@@ -1,7 +1,6 @@
 <template>
   <div
     class="group flex items-start gap-1 px-4 py-2 transition hover:bg-primaryLight cursor-pointer"
-    role="button"
     tabindex="0"
     @click="handleClick"
     @keydown="handleKeydown"

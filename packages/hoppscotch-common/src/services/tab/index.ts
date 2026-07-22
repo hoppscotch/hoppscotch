@@ -40,6 +40,11 @@ export type PersistableTabState<Doc> = {
   orderedDocs: Array<{
     tabID: string
     doc: Doc
+    /**
+     * Opposite-protocol shadow drafts (see `HoppTab.protocolDrafts`) — persisted
+     * so a protocol switch's unsaved draft survives a page refresh.
+     */
+    protocolDrafts?: ProtocolDrafts
   }>
 }
 

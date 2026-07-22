@@ -571,6 +571,14 @@ export const WORKSPACE_TABS_STATE_SCHEMA = z
     orderedDocs: z.array(
       z.object({
         tabID: z.string(),
+        // Opposite-protocol shadow drafts from the protocol switcher —
+        // modeled explicitly because safeParse strips unknown keys
+        protocolDrafts: z.optional(
+          z.object({
+            rest: z.optional(HoppRESTRequestSchema),
+            gql: z.optional(HoppGQLRequestSchema),
+          })
+        ),
         doc: z.union([
           z.object({
             type: z.literal("test-runner").catch("test-runner"),

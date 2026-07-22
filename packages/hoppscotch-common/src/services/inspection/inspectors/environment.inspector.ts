@@ -91,7 +91,8 @@ export class EnvironmentInspectorService extends Service implements Inspector {
       currentTabRequest?.requestVariables,
       currentTab.document.type === "request" ||
         currentTab.document.type === "example-response" ||
-        currentTab.document.type === "gql-request"
+        currentTab.document.type === "gql-request" ||
+        currentTab.document.type === "gql-example-response"
         ? currentTab.document.inheritedProperties?.variables
         : [],
       this.aggregateEnvsWithValue.value
@@ -189,7 +190,8 @@ export class EnvironmentInspectorService extends Service implements Inspector {
             currentTabRequest?.requestVariables,
             currentTab.document.type === "request" ||
               currentTab.document.type === "example-response" ||
-              currentTab.document.type === "gql-request"
+              currentTab.document.type === "gql-request" ||
+              currentTab.document.type === "gql-example-response"
               ? currentTab.document.inheritedProperties?.variables
               : [],
             this.aggregateEnvsWithValue.value,

@@ -339,9 +339,11 @@ export class EnvironmentInspectorService extends Service implements Inspector {
           ...this.validateEmptyEnvironmentVariables([url], { type: "url" })
         )
 
-        const activeHeaders = headers.filter((h) => h.active)
-        const headerKeys = activeHeaders.map((h) => h.key)
-        const headerValues = activeHeaders.map((h) => h.value)
+        // Preserve row positions — gql/Headers.vue matches results by the
+        // UNFILTERED row index. Masking inactive rows to "" keeps indices
+        // aligned while exempting them from validation.
+        const headerKeys = headers.map((h) => (h.active ? h.key : ""))
+        const headerValues = headers.map((h) => (h.active ? h.value : ""))
 
         results.push(
           ...this.validateEnvironmentVariables(headerKeys, {

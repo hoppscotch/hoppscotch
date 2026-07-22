@@ -646,7 +646,11 @@ export class GQLTabConnectionService extends Service {
     options: ConnectionRequestOptions,
     epoch: number
   ) {
-    const ctx = this.getOrCreateContext(tabId)
+    // `.get`, not getOrCreate — a poll timer that fired just before
+    // cleanupTab cleared it can still execute afterwards, and creating here
+    // would resurrect a phantom context for the closed tab
+    const ctx = this.tabContexts.get(tabId)
+    if (!ctx) return
 
     // Superseded-attempt guard — mirrors isCurrentSubscription on the WS side.
     // A fetch from an older connect must not write state onto a newer attempt.
@@ -1010,14 +1014,15 @@ export class GQLTabConnectionService extends Service {
         }
         return
       }
-      // Hand the subscription path templated URL + query so the WS payload
-      // resolves the same way the HTTP path does.
+      // Hand the subscription path templated URL + query + variables so the
+      // WS payload resolves the same way the HTTP path does.
       return this.runTabSubscription(
         tabId,
         {
           ...options,
           url: finalUrl,
           query: effective.effectiveFinalQuery,
+          variables: effective.effectiveFinalVariables,
         },
         finalHeaders
       )

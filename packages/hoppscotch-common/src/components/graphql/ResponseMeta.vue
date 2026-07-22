@@ -157,10 +157,13 @@ const statusCategory = computed(() => {
 
 const inspectionService = useService(InspectionService)
 
-const effectiveTabId = props.tabId ?? tabs.currentTabID.value
-
-const tabResults = inspectionService.getResultViewFor(
-  effectiveTabId,
-  (result) => result.locations.type === "response"
+// Re-derived per tab change — a setup-time capture of `currentTabID` would
+// pin inspection results to whichever tab was active at mount
+const tabResults = computed(
+  () =>
+    inspectionService.getResultViewFor(
+      props.tabId ?? tabs.currentTabID.value,
+      (result) => result.locations.type === "response"
+    ).value
 )
 </script>

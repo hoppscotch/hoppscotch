@@ -86,8 +86,16 @@ export function translateToNewCollection(x: any): HoppCollection {
   const folders = (x.folders ?? []).map(translateToNewCollection)
   const requests = (x.requests ?? []).map(
     (req: any): HoppRESTRequest | HoppGQLRequest => {
-      // Detect GQL requests and translate them through the GQL path
-      if (req && "query" in req && "url" in req && !("endpoint" in req)) {
+      // Detect GQL requests and translate them through the GQL path.
+      // Object check first — `in` throws on primitives, and this runs on
+      // raw legacy/imported JSON
+      if (
+        req &&
+        typeof req === "object" &&
+        "query" in req &&
+        "url" in req &&
+        !("endpoint" in req)
+      ) {
         return translateToGQLRequest(req)
       }
       return translateToNewRequest(req)
@@ -132,7 +140,15 @@ export function translateToNewCollection(x: any): HoppCollection {
 export function isGQLRequest(
   req: HoppRESTRequest | HoppGQLRequest
 ): req is HoppGQLRequest {
-  return "query" in req && "url" in req && !("endpoint" in req)
+  // Object check first — callers pass raw persisted/imported JSON, and the
+  // `in` operator throws on primitives
+  return (
+    !!req &&
+    typeof req === "object" &&
+    "query" in req &&
+    "url" in req &&
+    !("endpoint" in req)
+  )
 }
 
 /**

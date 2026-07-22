@@ -509,7 +509,11 @@ const onSaveModalClose = () => {
 
 const shareTabRequest = (tabID: string) => {
   const tab = tabs.getTabRef(tabID)
-  if (tab.value && tab.value.document.type === "request") {
+  if (
+    tab.value &&
+    (tab.value.document.type === "request" ||
+      tab.value.document.type === "gql-request")
+  ) {
     if (currentUser.value) {
       invokeAction("share.request", {
         request: tab.value.document.request,

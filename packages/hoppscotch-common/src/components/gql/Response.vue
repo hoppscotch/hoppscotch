@@ -358,6 +358,9 @@ const onSaveAsExample = () => {
       if (E.isLeft(result)) {
         toast.error(`${t("profile.no_permission")}`)
       } else {
+        // The example is persisted — clear the dirty flag like the REST
+        // sibling (http/Response.vue) does
+        if (doc.value) doc.value.isDirty = false
         toast.success(`${t("response.saved")}`)
       }
       responseName.value = ""

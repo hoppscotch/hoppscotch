@@ -46,7 +46,7 @@
       :label="`${t('tab.history')}`"
     >
       <History
-        :page="'unified-workspace'"
+        :page="isGqlWorkspaceEnabled ? 'unified-workspace' : 'rest'"
         :selected-tab="selectedNavigationTab"
       />
     </HoppSmartTab>
@@ -91,6 +91,14 @@
       <MockServerDashboard v-if="selectedNavigationTab === 'mock-servers'" />
     </HoppSmartTab>
   </HoppSmartTabs>
+  <!-- Share hosts the app's only `share.request` action handler (and its
+       modals). When its sidebar tab is hidden for non-request tabs, keep one
+       hidden instance mounted so sharing a request tab from the collections
+       tree / tab-head context menu still works (main kept it always mounted
+       via render-inactive-tabs). -->
+  <div v-if="!isRequestBearingTab" class="hidden">
+    <Share />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -108,6 +116,7 @@ import { useService } from "dioc/vue"
 import MockServerDashboard from "~/components/mockServer/MockServerDashboard.vue"
 import { useMockServerWorkspaceSync } from "~/composables/mockServerWorkspace"
 import { useMockServerVisibility } from "~/composables/mockServerVisibility"
+import { useGqlWorkspaceVisibility } from "~/composables/gqlWorkspaceVisibility"
 import { GQLTabConnectionService } from "~/services/gql-tab-connection.service"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 
@@ -119,6 +128,7 @@ const gqlTabConn = useService(GQLTabConnectionService)
 const activeGQLTabId = gqlTabConn.activeGQLTabId
 
 const { isMockServerVisible } = useMockServerVisibility()
+const { isGqlWorkspaceEnabled } = useGqlWorkspaceVisibility()
 
 const activeDocType = computed(() => tabs.currentActiveTab.value?.document.type)
 

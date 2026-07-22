@@ -136,7 +136,11 @@
               placeholder="Token"
             />
           </div>
-          <HttpAuthorizationOAuth2 v-model="auth" source="GraphQL" />
+          <!-- source names the HOSTING PAGE, not the protocol: "REST" routes
+               the generated token + post-redirect back to the unified
+               workspace ("/", WorkspaceTabsService — where this GQL tab
+               lives); "GraphQL" targets the legacy /graphql page -->
+          <HttpAuthorizationOAuth2 v-model="auth" source="REST" />
         </div>
         <div v-if="auth.authType === 'api-key'">
           <HttpAuthorizationApiKey v-model="auth" />

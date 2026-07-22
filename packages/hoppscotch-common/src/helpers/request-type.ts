@@ -13,12 +13,15 @@ type AnyRequest =
 
 /**
  * Type guard to check if a request object is GraphQL-shaped.
- * GQL requests / saved example original-requests have `url` but not `endpoint`.
+ * GQL requests / saved example original-requests have `query` + `url` but not
+ * `endpoint`. Predicate kept aligned with `isGQLRequest` in
+ * `@hoppscotch/data/collection` (this one admits the example
+ * original-request variants, hence the wider signature).
  */
 export function isGQLRequest(
   req: AnyRequest
 ): req is HoppGQLRequest | HoppGQLResponseOriginalRequest {
-  return "url" in req && !("endpoint" in req)
+  return "url" in req && "query" in req && !("endpoint" in req)
 }
 
 /**
@@ -62,7 +65,12 @@ export function requestHasSharedSecrets(
 
     case "oauth-2": {
       const info = auth.grantTypeInfo as Record<string, unknown> | undefined
-      return nonEmpty(info?.token) || nonEmpty(info?.clientSecret)
+      return (
+        nonEmpty(info?.token) ||
+        nonEmpty(info?.clientSecret) ||
+        nonEmpty(info?.password) ||
+        nonEmpty(info?.refreshToken)
+      )
     }
 
     case "api-key":

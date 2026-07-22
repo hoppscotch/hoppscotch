@@ -51,6 +51,7 @@
       />
     </HoppSmartTab>
     <HoppSmartTab
+      v-if="isRequestBearingTab"
       :id="'share-request'"
       :icon="IconShare2"
       :label="`${t('tab.shared_requests')}`"
@@ -58,7 +59,7 @@
       <Share />
     </HoppSmartTab>
     <HoppSmartTab
-      v-if="!isGQLTab"
+      v-if="!isGQLTab && isRequestBearingTab"
       :id="'codegen'"
       :icon="IconCode"
       :label="`${t('tab.codegen')}`"
@@ -119,8 +120,15 @@ const activeGQLTabId = gqlTabConn.activeGQLTabId
 
 const { isMockServerVisible } = useMockServerVisibility()
 
-const isGQLTab = computed(
-  () => tabs.currentActiveTab.value?.document.type === "gql-request"
+const activeDocType = computed(() => tabs.currentActiveTab.value?.document.type)
+
+const isGQLTab = computed(() => activeDocType.value === "gql-request")
+
+// Share and Codegen operate on the active tab's request — hide them for
+// documents that carry no live request (test-runner, saved examples)
+const isRequestBearingTab = computed(
+  () =>
+    activeDocType.value === "request" || activeDocType.value === "gql-request"
 )
 
 type RequestOptionTabs =
@@ -135,16 +143,21 @@ type RequestOptionTabs =
 
 const selectedNavigationTab = ref<RequestOptionTabs>("collections")
 
-// GQL-only and HTTP-only sidebar tab IDs — used to reset when tab type changes
+// GQL-only, HTTP-only, and request-only sidebar tab IDs — used to reset when
+// the active tab's document type changes
 const gqlOnlyTabs: RequestOptionTabs[] = ["docs", "schema"]
 const httpOnlyTabs: RequestOptionTabs[] = ["codegen"]
+const requestOnlyTabs: RequestOptionTabs[] = ["share-request", "codegen"]
 
-// When switching between HTTP ↔ GQL tabs, reset sidebar selection if current
-// selection belongs to the other tab type (preventing stale/invisible tab state)
-watch(isGQLTab, (nowGQL) => {
-  if (nowGQL && httpOnlyTabs.includes(selectedNavigationTab.value)) {
-    selectedNavigationTab.value = "collections"
-  } else if (!nowGQL && gqlOnlyTabs.includes(selectedNavigationTab.value)) {
+// When the active document type changes, reset sidebar selection if the
+// current selection is no longer visible (preventing stale/invisible tab state)
+watch([isGQLTab, isRequestBearingTab], ([nowGQL, requestBearing]) => {
+  const selected = selectedNavigationTab.value
+  if (
+    (nowGQL && httpOnlyTabs.includes(selected)) ||
+    (!nowGQL && gqlOnlyTabs.includes(selected)) ||
+    (!requestBearing && requestOnlyTabs.includes(selected))
+  ) {
     selectedNavigationTab.value = "collections"
   }
 })

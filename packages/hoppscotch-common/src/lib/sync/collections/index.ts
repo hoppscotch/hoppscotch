@@ -186,7 +186,7 @@ function normalizeCollectionRequest(
     url: g.url,
     variables: g.variables,
     description: g.description ?? null,
-    _ref_id: g._ref_id,
+    _ref_id: g._ref_id ?? generateUniqueRefId("req"),
     responses: g.responses ?? {},
   }
 }

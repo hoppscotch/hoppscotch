@@ -1,7 +1,10 @@
 <template>
   <div
     class="group flex items-start gap-1 px-4 py-2 transition hover:bg-primaryLight cursor-pointer"
+    role="button"
+    tabindex="0"
     @click="handleClick"
+    @keydown="handleKeydown"
   >
     <div
       class="flex flex-1 min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1"
@@ -53,6 +56,15 @@ const queryBuilder = useService(GQLQueryBuilderService)
 
 const handleClick = () => {
   push({ name: props.field.name, def: props.field })
+}
+
+// Keyboard activation parity with the click handler (mirrors Argument.vue)
+const handleKeydown = (e: KeyboardEvent) => {
+  if (e.target !== e.currentTarget) return
+  if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault()
+    handleClick()
+  }
 }
 
 const insertQuery = () => {

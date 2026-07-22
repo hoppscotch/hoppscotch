@@ -44,7 +44,11 @@
       >
         <RealtimeLogEntry
           v-for="(entry, index) in log"
-          :key="`entry-${index}`"
+          :key="
+            entry.type === 'response'
+              ? `entry-${entry.time}-${index}`
+              : `error-${index}`
+          "
           :entry="
             entry.type === 'response'
               ? { ts: entry.time, source: 'info', payload: entry.data }

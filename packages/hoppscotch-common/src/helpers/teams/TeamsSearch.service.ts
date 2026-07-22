@@ -348,7 +348,9 @@ export class TeamSearchService extends Service {
           {
             collectionID: request.collectionID,
             name: request.title,
-            method: request.request.method,
+            // GQL rows have no `method` — badge them as GQL instead of
+            // rendering an undefined method chip
+            method: request.request.method ?? "GQL",
             id: request.id,
           },
           Object.values(this.searchResultsCollections)

@@ -438,6 +438,12 @@ const displayCustomizeRequestModal = (
   show: boolean,
   embedProperties?: string | null
 ) => {
+  if (!show) {
+    // Flush any pending debounced persist before the guards it re-checks
+    // (modal open, embed widget) go false — otherwise the last customize
+    // toggle within the debounce window is silently dropped
+    persistEmbedProperties.flush()
+  }
   showShareRequestModal.value = show
   step.value = 2
 

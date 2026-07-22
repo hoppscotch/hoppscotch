@@ -40,7 +40,7 @@ import type {
 } from "graphql"
 import { isInputObjectType, isInterfaceType, isObjectType } from "graphql"
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue"
-import { useI18n } from "vue-i18n"
+import { useI18n } from "~/composables/i18n"
 import { useService } from "dioc/vue"
 import { GQLTabConnectionService } from "~/services/gql-tab-connection.service"
 import { ExplorerNavStackItem, useExplorer } from "~/helpers/graphql/explorer"
@@ -57,7 +57,7 @@ type SearchResult = {
 }
 
 // Composables
-const { t } = useI18n()
+const t = useI18n()
 const { navStack, push, pop } = useExplorer()
 const gqlTabConn = useService(GQLTabConnectionService)
 

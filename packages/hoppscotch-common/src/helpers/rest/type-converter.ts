@@ -132,6 +132,9 @@ export function convertGQLToREST(
       contentType: null,
       body: null,
     },
+    // Safe cast: HoppGQLAuth is a strict structural subset of HoppRESTAuth
+    // (every GQL auth variant is a REST auth variant) — the reverse direction
+    // needs its guard because REST has auth types GQL lacks
     auth: gqlReq.auth as HoppRESTRequest["auth"],
     requestVariables: [],
     responses: {},

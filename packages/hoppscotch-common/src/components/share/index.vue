@@ -384,9 +384,12 @@ onAuthEvent((ev) => {
 
 const shareRequest = () => {
   if (currentUser.value) {
-    const tab = restTab.currentActiveTab
+    const doc = restTab.currentActiveTab.value.document
+    // Only request-bearing documents can be shared — test-runner and
+    // example-response tabs have no `request` to snapshot
+    if (doc.type !== "request" && doc.type !== "gql-request") return
     invokeAction("share.request", {
-      request: tab.value.document.request,
+      request: doc.request,
     })
   } else {
     invokeAction("modals.login.toggle")
@@ -541,6 +544,10 @@ const createSharedRequest = async (
     type: "HOPP_SHORTCODE_CREATED",
   })
 
+  // Reset before the early-return branches — an error must not strand the
+  // modal on an infinite spinner
+  shareRequestCreatingLoading.value = false
+
   if (E.isLeft(sharedRequestResult)) {
     toast.error(`${sharedRequestResult.left.error}`)
     toast.error(t("error.something_went_wrong"))
@@ -549,7 +556,6 @@ const createSharedRequest = async (
 
   if (!sharedRequestResult.right.createShortcode) return
 
-  shareRequestCreatingLoading.value = false
   requestToShare.value = {
     ...JSON.parse(sharedRequestResult.right.createShortcode.request),
     id: sharedRequestResult.right.createShortcode.id,

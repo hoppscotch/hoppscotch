@@ -116,6 +116,15 @@ export class WorkspaceTabsService extends TabService<HoppTabDocument> {
       const stored = this.tabMap.get(id)
       if (stored) stored.workspaceHandle = workspace
     }
+
+    // Rehydrate opposite-protocol shadow drafts (the base loader only
+    // restores {tabID, doc})
+    for (const entry of data?.orderedDocs ?? []) {
+      if (entry.protocolDrafts) {
+        const stored = this.tabMap.get(entry.tabID)
+        if (stored) stored.protocolDrafts = entry.protocolDrafts
+      }
+    }
   }
 
   /**
@@ -175,6 +184,10 @@ export class WorkspaceTabsService extends TabService<HoppTabDocument> {
     orderedDocs: this.tabOrdering.value.map((tabID) => {
       const tab = this.tabMap.get(tabID)! // tab ordering is guaranteed to have value for this key
 
+      // Persist the opposite-protocol shadow draft (if any) so the unsaved
+      // pre-switch request survives a page refresh like the document does
+      const protocolDrafts = tab.protocolDrafts
+
       if (
         tab.document.type === "example-response" ||
         tab.document.type === "gql-example-response"
@@ -182,6 +195,7 @@ export class WorkspaceTabsService extends TabService<HoppTabDocument> {
         return {
           tabID: tab.id,
           doc: tab.document,
+          protocolDrafts,
         }
       }
 
@@ -220,6 +234,7 @@ export class WorkspaceTabsService extends TabService<HoppTabDocument> {
               totalTime: 0,
             },
           },
+          protocolDrafts,
         }
       }
 
@@ -227,6 +242,7 @@ export class WorkspaceTabsService extends TabService<HoppTabDocument> {
         return {
           tabID: tab.id,
           doc: { ...tab.document, response: null },
+          protocolDrafts,
         }
       }
 
@@ -236,6 +252,7 @@ export class WorkspaceTabsService extends TabService<HoppTabDocument> {
           ...tab.document,
           response: null,
         },
+        protocolDrafts,
       }
     }),
   }))

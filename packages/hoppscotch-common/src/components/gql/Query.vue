@@ -99,7 +99,15 @@ import IconCheck from "~icons/lucide/check"
 import IconInfo from "~icons/lucide/info"
 import IconWand from "~icons/lucide/wand"
 import IconWrapText from "~icons/lucide/wrap-text"
-import { onMounted, reactive, ref, markRaw, watch, nextTick } from "vue"
+import {
+  onBeforeUnmount,
+  onMounted,
+  reactive,
+  ref,
+  markRaw,
+  watch,
+  nextTick,
+} from "vue"
 import { copyToClipboard } from "@helpers/utils/clipboard"
 import { useCodemirror } from "@composables/codemirror"
 import { useI18n } from "@composables/i18n"
@@ -201,6 +209,13 @@ const debouncedOnUpdateQueryState = debounce((update: ViewUpdate) => {
     }
   }
 }, 100)
+
+// A pending update from a closing tab must not overwrite the shared
+// query-builder service refs after another tab's Query.vue has mounted
+// (mirrors Argument.vue's cancel-on-unmount)
+onBeforeUnmount(() => {
+  debouncedOnUpdateQueryState.cancel()
+})
 
 onMounted(() => {
   try {

@@ -12,7 +12,7 @@
     </button>
     <span
       class="hopp-doc-explorer-field-name text-sm font-medium"
-      @click="clickable ? handleClick : undefined"
+      @click="clickable && handleClick($event)"
     >
       {{ field.name }}
     </span>
@@ -20,6 +20,7 @@
 </template>
 
 <script setup lang="ts">
+import { onBeforeUnmount } from "vue"
 import { type ExplorerFieldDef, useExplorer } from "~/helpers/graphql/explorer"
 import { debounce } from "lodash-es"
 
@@ -44,6 +45,13 @@ const emit = defineEmits<{
 const addField = debounce(() => {
   emit("add-field", props.field)
 }, 50)
+
+// Cancel pending debounced inserts on unmount so they can't write to the
+// long-lived query-builder service after the component is gone (mirrors
+// Argument.vue)
+onBeforeUnmount(() => {
+  addField.cancel()
+})
 
 const { push } = useExplorer()
 

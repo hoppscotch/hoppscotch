@@ -200,7 +200,13 @@ const runQuery = async (
     })
     const duration = Date.now() - startTime
     completePageProgress()
-    toast.success(`${t("state.finished_in", { duration })}`)
+    // Subscriptions only just OPENED at this point (runTabGQLOperation
+    // returns as soon as the socket is initiated) — "finished in Xms" would
+    // be false; the response panel's subscribing/streaming states carry the
+    // feedback instead
+    if (definition?.operation !== "subscription") {
+      toast.success(`${t("state.finished_in", { duration })}`)
+    }
     // `auth` is always truthy (authType "none" included) — only toast when
     // auth actually rode the connection_init payload (same snapshot the
     // operation received)

@@ -16,11 +16,15 @@ import { getKernelMode } from "@hoppscotch/kernel"
 import { listen } from "@tauri-apps/api/event"
 
 /**
- * This variable keeps track whether keybindings are being accepted
- * true -> Keybindings are checked
- * false -> Key presses are ignored (Keybindings are not checked)
+ * Tracks the number of active modal locks on keybindings.
+ * Keybindings are disabled whenever this counter is greater than 0,
+ * which prevents the race condition where closing one modal re-enables
+ * keybindings while another modal is still open.
  */
-let keybindingsEnabled = true
+let keybindingLockCount = 0
+
+/** Derived helper — keybindings are active only when no locks are held */
+const keybindingsEnabled = () => keybindingLockCount === 0
 
 /**
  * Unlisten function for Tauri event
@@ -177,7 +181,7 @@ export function hookKeybindingsListener() {
 
 function handleKeyDown(ev: KeyboardEvent) {
   // Do not check keybinds if the mode is disabled
-  if (!keybindingsEnabled) return
+  if (!keybindingsEnabled()) return
 
   // Skip during IME composition (CJK input). Modern browsers report
   // `isComposing`. Older ones use the sentinel `keyCode === 229`.
@@ -448,16 +452,19 @@ function getActiveModifier(ev: KeyboardEvent): ModifierKeys | null {
 }
 
 /**
- * This composable allows for the UI component to be disabled if the component in question is mounted
+ * This composable allows a UI component to hold a keybinding lock.
+ * Each call to disableKeybindings() increments the lock counter;
+ * each call to enableKeybindings() decrements it. Keybindings are
+ * only re-enabled once every caller has released its lock, which
+ * prevents the race condition when multiple modals are open simultaneously.
  */
 export function useKeybindingDisabler() {
-  // TODO: Move to a lock based system that keeps the bindings disabled until all locks are lifted
   const disableKeybindings = () => {
-    keybindingsEnabled = false
+    keybindingLockCount++
   }
 
   const enableKeybindings = () => {
-    keybindingsEnabled = true
+    if (keybindingLockCount > 0) keybindingLockCount--
   }
 
   return {

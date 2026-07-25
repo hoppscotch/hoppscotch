@@ -1,5 +1,9 @@
 import { describe, expect, test } from "vitest"
-import { resolvePressedKey } from "../keybindings"
+import {
+  isKeybindingsEnabled,
+  resolvePressedKey,
+  useKeybindingDisabler,
+} from "../keybindings"
 
 // Fixture builder to keep individual cases readable. Layout name in the
 // describe block is the conceptual layout; `key` and `code` are what the
@@ -159,6 +163,42 @@ describe("resolvePressedKey: synthetic-event fallback", () => {
 
   test("'hybrid' strategy resolves Latin letter without needing code", () => {
     expect(resolvePressedKey(ev("a", ""), "hybrid")).toBe("a")
+  })
+})
+
+describe("useKeybindingDisabler: lock-based enable/disable", () => {
+  test("keybindings stay disabled while any lock is held", () => {
+    const { disableKeybindings, enableKeybindings } = useKeybindingDisabler()
+
+    expect(isKeybindingsEnabled()).toBe(true)
+
+    // Two modals both disable keybindings on open.
+    disableKeybindings()
+    disableKeybindings()
+    expect(isKeybindingsEnabled()).toBe(false)
+
+    // First modal closes: second modal's lock must keep bindings disabled.
+    enableKeybindings()
+    expect(isKeybindingsEnabled()).toBe(false)
+
+    // Second modal closes: all locks released, bindings re-enable.
+    enableKeybindings()
+    expect(isKeybindingsEnabled()).toBe(true)
+  })
+
+  test("extra enableKeybindings calls don't underflow the lock count", () => {
+    const { disableKeybindings, enableKeybindings } = useKeybindingDisabler()
+
+    disableKeybindings()
+    enableKeybindings()
+    enableKeybindings()
+    enableKeybindings()
+    expect(isKeybindingsEnabled()).toBe(true)
+
+    disableKeybindings()
+    expect(isKeybindingsEnabled()).toBe(false)
+    enableKeybindings()
+    expect(isKeybindingsEnabled()).toBe(true)
   })
 })
 

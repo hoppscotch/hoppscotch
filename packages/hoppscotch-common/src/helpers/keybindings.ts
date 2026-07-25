@@ -23,6 +23,14 @@ import { listen } from "@tauri-apps/api/event"
 let keybindingsEnabled = true
 
 /**
+ * Number of active locks requesting keybindings to be disabled.
+ * Keybindings only re-enable once every lock has been released, so
+ * multiple modals disabling keybindings at once don't race each other
+ * when only one of them closes.
+ */
+let keybindingsDisableLockCount = 0
+
+/**
  * Unlisten function for Tauri event
  */
 let unlistenTauriEvent: (() => void) | null = null
@@ -451,17 +459,29 @@ function getActiveModifier(ev: KeyboardEvent): ModifierKeys | null {
  * This composable allows for the UI component to be disabled if the component in question is mounted
  */
 export function useKeybindingDisabler() {
-  // TODO: Move to a lock based system that keeps the bindings disabled until all locks are lifted
   const disableKeybindings = () => {
+    keybindingsDisableLockCount += 1
     keybindingsEnabled = false
   }
 
   const enableKeybindings = () => {
-    keybindingsEnabled = true
+    keybindingsDisableLockCount = Math.max(0, keybindingsDisableLockCount - 1)
+
+    if (keybindingsDisableLockCount === 0) {
+      keybindingsEnabled = true
+    }
   }
 
   return {
     disableKeybindings,
     enableKeybindings,
   }
+}
+
+/**
+ * Exposes whether keybindings are currently enabled. Exported for testing
+ * the lock-based disable/enable behaviour in `useKeybindingDisabler`.
+ */
+export function isKeybindingsEnabled() {
+  return keybindingsEnabled
 }

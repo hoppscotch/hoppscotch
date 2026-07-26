@@ -36,11 +36,10 @@ export class TeamResolver {
     private readonly userService: UserService,
   ) {}
 
-  // Field Resolvers
-  // TODO: Deprecate this
   @ResolveField(() => [TeamMember], {
     description: 'Returns the list of members of a team',
     complexity: 10,
+    deprecationReason: 'Use teamMembers instead',
   })
   members(
     @Parent() team: Team,

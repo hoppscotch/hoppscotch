@@ -17,7 +17,7 @@ import * as A from "fp-ts/Array"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import { flow, pipe } from "fp-ts/function"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep, isEqual } from "lodash-es"
 import { Observable, Subject } from "rxjs"
 import { filter } from "rxjs/operators"
 import { Ref } from "vue"
@@ -70,7 +70,11 @@ import { applyScriptRequestUpdates } from "./experimental-sandbox-integration"
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
 const currentEnvironmentValueService = getService(CurrentValueService)
-const cookieJarService = getService(CookieJarService)
+// `getService(CookieJarService)` at module top level would construct
+// the service during ESM evaluation. `onServiceInit` then reads
+// `window.__KERNEL__.store` and throws because `createHoppApp` has
+// not yet called `initKernel(...)` at that point.
+const getCookieJarService = () => getService(CookieJarService)
 const kernelInterceptorService = getService(KernelInterceptorService)
 
 const EXPERIMENTAL_SCRIPTING_SANDBOX = useSetting(
@@ -134,7 +138,9 @@ export const captureInitialEnvironmentState = (): InitialEnvironmentState => {
   // Capture the initial environment name
   const initialEnvName = getCurrentEnvironment().name
 
-  // Capture the initial script environment state (the environment passed to scripts)
+  // Snapshot for the post-script diff. Both this and the sandbox receive
+  // secret-hydrated values from `getCombinedEnvVariables`, so reading a
+  // secret doesn't show up as a change in `hasScopeChanges`.
   const initialEnvs = getCombinedEnvVariables()
   const initialEnvsForComparison: TestResult["envs"] = {
     global: initialEnvs.global,
@@ -239,11 +245,14 @@ const updateEnvironments = (
           initialValue: e.initialValue ?? "",
         })
 
-        // For secret variables, keep the initialValue but clear currentValue for storage
+        // Secret values stay client-side only (they were saved into the
+        // local secret service above). Both `initialValue` and
+        // `currentValue` are cleared on the wire payload so the secret
+        // never leaves the device.
         return {
           key: e.key,
           secret: e.secret,
-          initialValue: e.initialValue ?? "",
+          initialValue: "",
           currentValue: "",
         }
       }
@@ -255,12 +264,16 @@ const updateEnvironments = (
         currentValue: e.currentValue ?? "",
       })
 
-      // For non-secret variables, preserve both initialValue and currentValue
+      // `currentValue` is per-user/per-session by Hoppscotch convention and
+      // is never persisted server-side. The actual value lives in the local
+      // `currentEnvironmentValueService` (populated above); the wire payload
+      // gets it cleared so test-script env updates can't leak per-user state
+      // into the team backend.
       return {
         key: e.key,
         secret: e.secret ?? false,
         initialValue: e.initialValue ?? "",
-        currentValue: e.currentValue ?? "",
+        currentValue: "",
       }
     })
   )
@@ -637,26 +650,30 @@ export function runRESTRequest$(
                 combinedResult,
                 initialEnvironmentIndex,
                 initialEnvName,
+                initialEnvsForComparison,
                 initialEnvID
               )
             }
 
             const updatedCookies = postRequestScriptResult.right.updatedCookies
 
-            if (updatedCookies) {
-              const newCookieMap = new Map<string, Cookie[]>()
-
-              for (const cookie of updatedCookies) {
-                const domain = cookie.domain
-
-                if (!newCookieMap.has(domain)) {
-                  newCookieMap.set(domain, [])
-                }
-
-                newCookieMap.get(domain)!.push(cookie)
-              }
-
-              cookieJarService.cookieJar.value = newCookieMap
+            if (updatedCookies && cookieJarEntries !== null) {
+              // The script's `updatedCookies` is the post-script state of
+              // its pre-script view, so a set difference against the
+              // pre-script snapshot gives the actual mutations. Cookies
+              // the script returned identical to what it received get
+              // skipped because the response capture may have updated
+              // them in the jar in the interim and re-upserting the
+              // script's stale copy would overwrite that. Cookies the
+              // script omitted from its returned array are treated as
+              // deletes, restoring `hopp.cookies.delete` semantics.
+              //
+              // Skipped entirely when `cookieJarEntries` is null
+              // (cookies disabled on the platform). The previous
+              // `?? []` made the empty pre-script snapshot classify
+              // every script cookie as new and never as removed, so
+              // delete-by-omission silently broke on non-desktop.
+              await applyScriptCookieDelta(cookieJarEntries, updatedCookies)
             }
           } else {
             console.error(
@@ -699,97 +716,83 @@ function updateEnvsAfterTestScript(
   runResult: E.Right<SandboxTestResult>,
   initialEnvironmentIndex: SelectedEnvironmentIndex,
   initialEnvName: string,
+  initialEnvsForComparison: TestResult["envs"],
   initialEnvID?: string
 ) {
-  const globalEnvVariables = updateEnvironments(
-    runResult.right.envs.global,
-    "global"
+  // Gate each writeback on whether its own scope actually changed. The outer
+  // `hasEnvironmentChanges` guard is an OR across both scopes, so without
+  // these per-scope checks a script that touched only the selected env would
+  // still trigger an `updateUserEnvironment` round-trip for the unchanged
+  // globals (and the same happens the other way for TEAM_ENV).
+  const globalChanged = hasScopeChanges(
+    initialEnvsForComparison.global,
+    runResult.right.envs.global
+  )
+  const selectedChanged = hasScopeChanges(
+    initialEnvsForComparison.selected,
+    runResult.right.envs.selected
   )
 
-  setGlobalEnvVariables({
-    v: 2,
-    variables: globalEnvVariables,
-  })
+  if (globalChanged) {
+    const globalEnvVariables = updateEnvironments(
+      runResult.right.envs.global,
+      "global"
+    )
 
-  const selectedEnvVariables = updateEnvironments(
-    cloneDeep(runResult.right.envs.selected),
-    "selected",
-    initialEnvID
-  )
-
-  if (initialEnvironmentIndex.type === "MY_ENV") {
-    const env = getEnvironment({
-      type: "MY_ENV",
-      index: initialEnvironmentIndex.index,
-    })
-    updateEnvironment(initialEnvironmentIndex.index, {
-      name: env.name,
+    setGlobalEnvVariables({
       v: 2,
-      id: "id" in env ? env.id : "",
-      variables: selectedEnvVariables,
+      variables: globalEnvVariables,
     })
-  } else if (initialEnvironmentIndex.type === "TEAM_ENV") {
-    // Use the initial environment name to avoid issues when environment changes during request execution
-    // adding a fallback to current environment name just in case so it's not null
-    const envName = initialEnvName ?? getCurrentEnvironment().name
-    pipe(
-      updateTeamEnvironment(
-        JSON.stringify(selectedEnvVariables),
-        initialEnvironmentIndex.teamEnvID,
-        envName
-      )
-    )()
+  }
+
+  if (selectedChanged) {
+    const selectedEnvVariables = updateEnvironments(
+      cloneDeep(runResult.right.envs.selected),
+      "selected",
+      initialEnvID
+    )
+
+    if (initialEnvironmentIndex.type === "MY_ENV") {
+      const env = getEnvironment({
+        type: "MY_ENV",
+        index: initialEnvironmentIndex.index,
+      })
+      updateEnvironment(initialEnvironmentIndex.index, {
+        name: env.name,
+        v: 2,
+        id: "id" in env ? env.id : "",
+        variables: selectedEnvVariables,
+      })
+    } else if (initialEnvironmentIndex.type === "TEAM_ENV") {
+      // Use the initial environment name to avoid issues when environment changes during request execution
+      // adding a fallback to current environment name just in case so it's not null
+      const envName = initialEnvName ?? getCurrentEnvironment().name
+      // `updateEnvironments` above already returns wire-shaped variables
+      pipe(
+        updateTeamEnvironment(
+          JSON.stringify(selectedEnvVariables),
+          initialEnvironmentIndex.teamEnvID,
+          envName
+        )
+      )()
+    }
   }
 }
 
-/**
- * Checks if there are any changes between two environment states by comparing
- * the initial environment state with the final environment state.
- * @param initialEnvs The environment state at the start
- * @param finalEnvs The environment state after changes
- * @returns true if there are any environment changes, false otherwise
- */
+const hasScopeChanges = (
+  initial: Environment["variables"],
+  final: Environment["variables"]
+): boolean =>
+  getAddedEnvVariables(initial, final).length > 0 ||
+  getRemovedEnvVariables(initial, final).length > 0 ||
+  getUpdatedEnvVariables(initial, final).length > 0
+
 const hasEnvironmentChanges = (
   initialEnvs: TestResult["envs"],
   finalEnvs: TestResult["envs"]
-): boolean => {
-  // Check global environment changes
-  const globalAdditions = getAddedEnvVariables(
-    initialEnvs.global,
-    finalEnvs.global
-  )
-  const globalDeletions = getRemovedEnvVariables(
-    initialEnvs.global,
-    finalEnvs.global
-  )
-  const globalUpdations = getUpdatedEnvVariables(
-    initialEnvs.global,
-    finalEnvs.global
-  )
-
-  // Check selected environment changes
-  const selectedAdditions = getAddedEnvVariables(
-    initialEnvs.selected,
-    finalEnvs.selected
-  )
-  const selectedDeletions = getRemovedEnvVariables(
-    initialEnvs.selected,
-    finalEnvs.selected
-  )
-  const selectedUpdations = getUpdatedEnvVariables(
-    initialEnvs.selected,
-    finalEnvs.selected
-  )
-
-  return (
-    globalAdditions.length > 0 ||
-    globalDeletions.length > 0 ||
-    globalUpdations.length > 0 ||
-    selectedAdditions.length > 0 ||
-    selectedDeletions.length > 0 ||
-    selectedUpdations.length > 0
-  )
-}
+): boolean =>
+  hasScopeChanges(initialEnvs.global, finalEnvs.global) ||
+  hasScopeChanges(initialEnvs.selected, finalEnvs.selected)
 
 const getCookieJarEntries = () => {
   // Exclusive to the Desktop App
@@ -797,11 +800,58 @@ const getCookieJarEntries = () => {
     return null
   }
 
-  const cookieJarEntries = Array.from(
-    cookieJarService.cookieJar.value.values()
-  ).flatMap((cookies) => cookies)
+  // `cloneDeep` so the sandbox cannot mutate the live jar through
+  // a shared reference, and so `applyScriptCookieDelta`'s
+  // pre-script snapshot is independent of whatever the script
+  // returns. Without this a script that mutates a cookie in place
+  // and returns the same array would produce a pre-vs-post delta
+  // of "identical" and the mutation would silently drop.
+  const cookieJarEntries = cloneDeep(
+    Array.from(getCookieJarService().cookieJar.value.values()).flatMap(
+      (cookies) => cookies
+    )
+  )
 
   return cookieJarEntries
+}
+
+const cookieKey = (c: { domain: string; name: string; path?: string }) =>
+  `${getCookieJarService().canonStoreDomain(c.domain)}\u0000${c.name}\u0000${c.path && c.path.length > 0 ? c.path : "/"}`
+
+const applyScriptCookieDelta = async (
+  preScript: Cookie[],
+  postScript: Cookie[]
+): Promise<void> => {
+  const preMap = new Map<string, Cookie>()
+  for (const c of preScript) {
+    preMap.set(cookieKey(c), c)
+  }
+  const postMap = new Map<string, Cookie>()
+  for (const c of postScript) {
+    postMap.set(cookieKey(c), c)
+  }
+
+  const mutated: Cookie[] = []
+  for (const [key, post] of postMap) {
+    const before = preMap.get(key)
+    if (!before || !isEqual(before, post)) {
+      mutated.push(post)
+    }
+  }
+
+  const removed: Array<{ domain: string; name: string; path?: string }> = []
+  for (const [key, pre] of preMap) {
+    if (!postMap.has(key)) {
+      removed.push({ domain: pre.domain, name: pre.name, path: pre.path })
+    }
+  }
+
+  if (mutated.length > 0) {
+    await getCookieJarService().upsertCookies(mutated)
+  }
+  if (removed.length > 0) {
+    await getCookieJarService().deleteCookies(removed)
+  }
 }
 
 /**
@@ -940,6 +990,7 @@ export async function runTestRunnerRequest(
                   postRequestScriptResult,
                   initialEnvironmentIndex,
                   initialEnvName,
+                  initialEnvsForComparison,
                   initialEnvID
                 )
               }

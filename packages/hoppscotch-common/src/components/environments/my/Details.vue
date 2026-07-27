@@ -241,6 +241,7 @@ import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import { flow, pipe } from "fp-ts/function"
 import { ComputedRef, computed, ref, watch } from "vue"
+import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
 import { uniqueID } from "~/helpers/utils/uniqueID"
 import {
   createEnvironment,
@@ -361,7 +362,10 @@ const clearIcon = refAutoReset<typeof IconTrash2 | typeof IconDone>(
   1000
 )
 
-const globalEnv = useReadonlyStream(globalEnv$, {} as GlobalEnvironment)
+const globalEnv = useReadonlyStream(globalEnv$, {
+  v: 2,
+  variables: [],
+} as GlobalEnvironment)
 
 type SelectedEnv = "variables" | "secret"
 
@@ -570,39 +574,25 @@ const saveEnvironment = () => {
     )
   )
 
-  if (secretVariables.length > 0) {
-    if (editingID.value) {
-      secretEnvironmentService.addSecretEnvironment(
-        editingID.value,
-        secretVariables
-      )
-    } else if (props.editingEnvironmentIndex === "Global") {
-      secretEnvironmentService.addSecretEnvironment("Global", secretVariables)
-    }
-  }
-  if (nonSecretVariables.length > 0) {
-    if (editingID.value) {
-      currentEnvironmentValueService.addEnvironment(
-        editingID.value,
-        nonSecretVariables
-      )
-    } else if (props.editingEnvironmentIndex === "Global") {
-      currentEnvironmentValueService.addEnvironment(
-        "Global",
-        nonSecretVariables
-      )
-    }
+  // Always write to both stores (even when an array is empty) so a save
+  // that removes secrets/non-secrets clears the prior entries instead of
+  // leaving stale values keyed by old `varIndex` slots — `addSecretEnvironment`
+  // / `addEnvironment` are `Map.set` replacements, not merges.
+  if (editingID.value) {
+    secretEnvironmentService.addSecretEnvironment(
+      editingID.value,
+      secretVariables
+    )
+    currentEnvironmentValueService.addEnvironment(
+      editingID.value,
+      nonSecretVariables
+    )
+  } else if (props.editingEnvironmentIndex === "Global") {
+    secretEnvironmentService.addSecretEnvironment("Global", secretVariables)
+    currentEnvironmentValueService.addEnvironment("Global", nonSecretVariables)
   }
 
-  const variables = pipe(
-    filteredVariables,
-    A.map((e) => ({
-      key: e.key,
-      secret: e.secret,
-      initialValue: e.secret ? "" : e.initialValue,
-      currentValue: "",
-    }))
-  )
+  const variables = stripSecretVariableValuesForWire(filteredVariables)
 
   const environmentUpdated: Environment = {
     v: 2,

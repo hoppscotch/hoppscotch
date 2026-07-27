@@ -273,7 +273,6 @@ import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
 import { computed, ref, reactive } from "vue"
 import { computedAsync, refDebounced } from "@vueuse/core"
-import * as jq from "jq-wasm"
 import { useCodemirror } from "@composables/codemirror"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import jsonParse, { JSONObjectMember, JSONValue } from "~/helpers/jsonParse"
@@ -296,6 +295,24 @@ import { HoppRESTRequestResponse } from "@hoppscotch/data"
 import { useScrollerRef } from "~/composables/useScrollerRef"
 
 const t = useI18n()
+
+// `jq-wasm` bundles a sizeable (1MB+) WASM/Emscripten payload that's only
+// ever needed when the user actively filters a JSON response with a jq
+// query. Importing it lazily keeps that payload out of the chunk every
+// JSON response render has to load and parse.
+let jqWasmPromise: Promise<typeof import("jq-wasm")> | null = null
+const getJqWasm = () => {
+  if (!jqWasmPromise) {
+    // if the dynamic import fails (e.g. a transient network error), drop the
+    // cached promise so the next filter attempt can retry instead of being
+    // stuck failing until the page is reloaded
+    jqWasmPromise = import("jq-wasm").catch((err) => {
+      jqWasmPromise = null
+      throw err
+    })
+  }
+  return jqWasmPromise
+}
 
 const props = defineProps<{
   response: HoppRESTResponse | HoppRESTRequestResponse
@@ -382,6 +399,7 @@ const jsonResponseBodyText = computedAsync(
         const input = JSON.parse(
           LJSON.stringify(responseJsonObject.value.right as any) || "{}"
         )
+        const jq = await getJqWasm()
         const { exitCode, stdout, stderr } = await jq.raw(
           input,
           debouncedFilterQuery.value

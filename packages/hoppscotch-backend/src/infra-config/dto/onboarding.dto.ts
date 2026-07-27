@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { InfraConfigEnum } from 'src/types/InfraConfig';
 
 export class GetOnboardingStatusResponse {
@@ -15,6 +15,7 @@ export class GetOnboardingStatusResponse {
 export class SaveOnboardingConfigRequest {
   @ApiProperty()
   @IsString()
+  @IsNotEmpty()
   [InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS]: string;
 
   @ApiPropertyOptional()
@@ -84,6 +85,7 @@ export class SaveOnboardingConfigRequest {
 
   @ApiPropertyOptional()
   @IsOptional()
+  @IsString()
   [InfraConfigEnum.MAILER_SMTP_URL]: string;
 
   @ApiPropertyOptional()
@@ -137,7 +139,6 @@ export class SaveOnboardingConfigRequest {
   [InfraConfigEnum.MAILER_SMTP_OAUTH2_REFRESH_TOKEN]: string;
   @ApiPropertyOptional()
   @IsOptional()
-  @IsString()
   [InfraConfigEnum.MAILER_SMTP_OAUTH2_ACCESS_URL]: string;
 }
 

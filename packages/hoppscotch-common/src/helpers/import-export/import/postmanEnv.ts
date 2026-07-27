@@ -15,6 +15,8 @@ const postmanEnvSchema = z.object({
       key: z.string(),
       value: z.string(),
       type: z.string(),
+      // Postman 12+ uses `secret: true`; older exports use `type: "secret"`.
+      secret: z.boolean().optional(),
     })
   ),
 })
@@ -49,17 +51,17 @@ export const postmanEnvImporter = (contents: string[]) => {
     return TE.left(IMPORTER_INVALID_FILE_FORMAT)
   }
 
-  // Convert `values` to `variables` to match the format expected by the system
+  // Treat as secret on legacy `type: "secret"` OR Postman 12+ `secret: true`.
   const environments: Environment[] = validationResult.data.map(
     ({ name, values }) => ({
       id: uniqueID(),
       v: EnvironmentSchemaVersion,
       name,
-      variables: values.map(({ key, value, type }) => ({
+      variables: values.map(({ key, value, type, secret }) => ({
         key,
         initialValue: replacePMVarTemplating(value),
         currentValue: replacePMVarTemplating(value),
-        secret: type === "secret",
+        secret: type === "secret" || secret === true,
       })),
     })
   )

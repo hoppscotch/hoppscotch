@@ -9,6 +9,7 @@ import { computed } from "vue"
 import { WorkspaceType } from "~/helpers/backend/graphql"
 import type { MockServer } from "~/helpers/backend/types/MockServer"
 import { platform } from "~/platform"
+import { sync } from "~/lib/sync/defs"
 import {
   createTeamEnvironment,
   updateTeamEnvironment,
@@ -30,6 +31,7 @@ import {
   loadMockServers,
 } from "~/newstore/mockServers"
 import { CurrentValueService } from "~/services/current-environment-value.service"
+import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { WorkspaceService } from "~/services/workspace.service"
 
@@ -100,8 +102,8 @@ export function useMockServer() {
         teamCollectionsService.changeTeamID(currentWorkspace.value.teamID)
       } else {
         // For personal workspace, load REST collections only (mock servers are REST-based)
-        if (platform.sync.collections.loadUserCollections) {
-          await platform.sync.collections.loadUserCollections("REST")
+        if (sync.collections.loadUserCollections) {
+          await sync.collections.loadUserCollections("REST")
         }
       }
     } catch (error) {
@@ -281,7 +283,9 @@ export function useMockServer() {
 
         await pipe(
           updateTeamEnvironment(
-            JSON.stringify(normalizedVariables),
+            JSON.stringify(
+              stripSecretVariableValuesForWire(normalizedVariables)
+            ),
             existingEnv.id,
             existingEnv.environment.name
           ),
@@ -323,7 +327,11 @@ export function useMockServer() {
         ]
 
         await pipe(
-          createTeamEnvironment(JSON.stringify(variables), teamID, envName),
+          createTeamEnvironment(
+            JSON.stringify(stripSecretVariableValuesForWire(variables)),
+            teamID,
+            envName
+          ),
           TE.match(
             (error) => {
               console.error("Failed to create team environment:", error)

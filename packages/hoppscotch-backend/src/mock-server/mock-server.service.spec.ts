@@ -151,6 +151,123 @@ describe('MockServerService', () => {
     });
   });
 
+  describe('cast - server URL generation', () => {
+    test('should not append /backend to serverUrlDomainBased when ENABLE_SUBPATH_BASED_ACCESS is not set', async () => {
+      mockPrisma.mockServer.findMany.mockResolvedValue([dbMockServer]);
+
+      const result = await mockServerService.getUserMockServers(user.uid, {
+        take: 10,
+        skip: 0,
+      });
+
+      expect(result[0].serverUrlDomainBased).toBe(
+        'http://test-subdomain.mock.hopp.io',
+      );
+    });
+
+    test('should not append /backend to serverUrlDomainBased when ENABLE_SUBPATH_BASED_ACCESS is "false"', async () => {
+      mockConfigService.get.mockImplementation((key: string) => {
+        if (key === 'VITE_BACKEND_API_URL') return 'http://localhost:3170/v1';
+        if (key === 'INFRA.MOCK_SERVER_WILDCARD_DOMAIN')
+          return '*.mock.hopp.io';
+        if (key === 'INFRA.ALLOW_SECURE_COOKIES') return 'false';
+        if (key === 'ENABLE_SUBPATH_BASED_ACCESS') return 'false';
+        return undefined;
+      });
+      mockPrisma.mockServer.findMany.mockResolvedValue([dbMockServer]);
+
+      const result = await mockServerService.getUserMockServers(user.uid, {
+        take: 10,
+        skip: 0,
+      });
+
+      expect(result[0].serverUrlDomainBased).toBe(
+        'http://test-subdomain.mock.hopp.io',
+      );
+    });
+
+    test('should append /backend to serverUrlDomainBased when ENABLE_SUBPATH_BASED_ACCESS is "true"', async () => {
+      mockConfigService.get.mockImplementation((key: string) => {
+        if (key === 'VITE_BACKEND_API_URL') return 'http://localhost:3170/v1';
+        if (key === 'INFRA.MOCK_SERVER_WILDCARD_DOMAIN')
+          return '*.mock.hopp.io';
+        if (key === 'INFRA.ALLOW_SECURE_COOKIES') return 'false';
+        if (key === 'ENABLE_SUBPATH_BASED_ACCESS') return 'true';
+        return undefined;
+      });
+      mockPrisma.mockServer.findMany.mockResolvedValue([dbMockServer]);
+
+      const result = await mockServerService.getUserMockServers(user.uid, {
+        take: 10,
+        skip: 0,
+      });
+
+      expect(result[0].serverUrlDomainBased).toBe(
+        'http://test-subdomain.mock.hopp.io/backend',
+      );
+    });
+
+    test('should use https protocol and append /backend when secure cookies and subpath access are enabled', async () => {
+      mockConfigService.get.mockImplementation((key: string) => {
+        if (key === 'VITE_BACKEND_API_URL') return 'https://localhost:3170/v1';
+        if (key === 'INFRA.MOCK_SERVER_WILDCARD_DOMAIN')
+          return '*.mock.hopp.io';
+        if (key === 'INFRA.ALLOW_SECURE_COOKIES') return 'true';
+        if (key === 'ENABLE_SUBPATH_BASED_ACCESS') return 'true';
+        return undefined;
+      });
+      mockPrisma.mockServer.findMany.mockResolvedValue([dbMockServer]);
+
+      const result = await mockServerService.getUserMockServers(user.uid, {
+        take: 10,
+        skip: 0,
+      });
+
+      expect(result[0].serverUrlDomainBased).toBe(
+        'https://test-subdomain.mock.hopp.io/backend',
+      );
+    });
+
+    test('should leave serverUrlDomainBased null and not append /backend when wildcard domain is not configured', async () => {
+      mockConfigService.get.mockImplementation((key: string) => {
+        if (key === 'VITE_BACKEND_API_URL') return 'http://localhost:3170/v1';
+        if (key === 'INFRA.MOCK_SERVER_WILDCARD_DOMAIN') return undefined;
+        if (key === 'INFRA.ALLOW_SECURE_COOKIES') return 'false';
+        if (key === 'ENABLE_SUBPATH_BASED_ACCESS') return 'true';
+        return undefined;
+      });
+      mockPrisma.mockServer.findMany.mockResolvedValue([dbMockServer]);
+
+      const result = await mockServerService.getUserMockServers(user.uid, {
+        take: 10,
+        skip: 0,
+      });
+
+      expect(result[0].serverUrlDomainBased).toBeNull();
+    });
+
+    test('should strip trailing slashes from wildcard domain before appending subpath suffix', async () => {
+      mockConfigService.get.mockImplementation((key: string) => {
+        if (key === 'VITE_BACKEND_API_URL') return 'http://localhost:3170/v1';
+        if (key === 'INFRA.MOCK_SERVER_WILDCARD_DOMAIN')
+          return '*.mock.hopp.io/'; // Domain with trailing slash
+        if (key === 'INFRA.ALLOW_SECURE_COOKIES') return 'false';
+        if (key === 'ENABLE_SUBPATH_BASED_ACCESS') return 'true';
+        return undefined;
+      });
+      mockPrisma.mockServer.findMany.mockResolvedValue([dbMockServer]);
+
+      const result = await mockServerService.getUserMockServers(user.uid, {
+        take: 10,
+        skip: 0,
+      });
+
+      expect(result[0].serverUrlDomainBased).toBe(
+        'http://test-subdomain.mock.hopp.io/backend',
+      );
+    });
+  });
+
   describe('getTeamMockServers', () => {
     test('should return team mock servers with pagination', async () => {
       const teamMockServer = {
@@ -386,6 +503,73 @@ describe('MockServerService', () => {
         dbMockServer,
         MockServerAction.CREATED,
         user.uid,
+      );
+    });
+
+    // Regression: GHSA-c68f-wr5p-j6jf — isPublic from input must be persisted,
+    // and must default to private (false) when omitted.
+    test('should persist isPublic: false when input requests a private server', async () => {
+      mockPrisma.userCollection.findUnique.mockResolvedValue(userCollection);
+      mockPrisma.mockServer.findUnique.mockResolvedValue(null);
+      mockPrisma.mockServer.create.mockResolvedValue({
+        ...dbMockServer,
+        isPublic: false,
+      });
+
+      const result = await mockServerService.createMockServer(user, {
+        ...createInput,
+        isPublic: false,
+      });
+
+      expect(mockPrisma.mockServer.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ isPublic: false }),
+        }),
+      );
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).isPublic).toBe(false);
+      }
+    });
+
+    test('should persist isPublic: true when input requests a public server', async () => {
+      mockPrisma.userCollection.findUnique.mockResolvedValue(userCollection);
+      mockPrisma.mockServer.findUnique.mockResolvedValue(null);
+      mockPrisma.mockServer.create.mockResolvedValue({
+        ...dbMockServer,
+        isPublic: true,
+      });
+
+      const result = await mockServerService.createMockServer(user, {
+        ...createInput,
+        isPublic: true,
+      });
+
+      expect(mockPrisma.mockServer.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ isPublic: true }),
+        }),
+      );
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).isPublic).toBe(true);
+      }
+    });
+
+    test('should default to private (isPublic: false) when input omits isPublic', async () => {
+      mockPrisma.userCollection.findUnique.mockResolvedValue(userCollection);
+      mockPrisma.mockServer.findUnique.mockResolvedValue(null);
+      mockPrisma.mockServer.create.mockResolvedValue({
+        ...dbMockServer,
+        isPublic: false,
+      });
+
+      await mockServerService.createMockServer(user, createInput);
+
+      expect(mockPrisma.mockServer.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ isPublic: false }),
+        }),
       );
     });
 

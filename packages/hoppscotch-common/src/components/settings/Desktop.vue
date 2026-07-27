@@ -110,6 +110,35 @@
           </div>
         </div>
       </section>
+
+      <section>
+        <h4 class="font-semibold text-secondaryDark">
+          {{ t("settings.desktop_display") }}
+        </h4>
+
+        <!-- Fixed-preset zoom control. Four named scale steps starting
+             at 100% follow Apple's pattern across Display preferences
+             and Safari View, which keeps every shipped zoom inside the
+             range cross-platform QA covers. Sub-100% steps stay out of
+             scope because the AppHeader's macOS traffic-light clearance
+             sets a 100% floor (see FE-1261). -->
+        <div class="mt-4">
+          <label class="text-secondaryLight">{{
+            t("settings.zoom_level")
+          }}</label>
+          <div class="mt-3">
+            <HoppSmartRadioGroup
+              :radios="zoomPresets"
+              :model-value="selectedZoomPreset"
+              class="!flex-row"
+              @update:model-value="setZoomPreset"
+            />
+          </div>
+          <p class="mt-3 text-xs text-secondaryLight">
+            {{ t("settings.zoom_level_description") }}
+          </p>
+        </div>
+      </section>
     </div>
   </div>
 </template>
@@ -119,6 +148,7 @@ import { computed, onBeforeUnmount, ref, watch, type Component } from "vue"
 import {
   HoppButtonSecondary,
   HoppSmartRadio,
+  HoppSmartRadioGroup,
   HoppSmartToggle,
 } from "@hoppscotch/ui"
 import { useI18n } from "~/composables/i18n"
@@ -341,6 +371,37 @@ const keyboardStrategyOptions = computed<
 
 async function setKeyboardStrategy(value: KeyboardStrategy): Promise<void> {
   await desktopSettings.update("keyboardLayoutStrategy", value)
+}
+
+// Zoom presets as `{ value, label }` pairs, in the order the control
+// renders. `value` is the string id the radio group emits, kept distinct
+// from the stored float so the radio's `model-value` comparison never
+// trips on float equality. The float-to-string mapping lives in one
+// place (`zoomPresets`) and gets inverted by `setZoomPreset()` when the
+// user picks an option.
+const zoomPresets = computed(() => [
+  { value: "1.0", label: t("settings.zoom_level_100") },
+  { value: "1.1", label: t("settings.zoom_level_110") },
+  { value: "1.25", label: t("settings.zoom_level_125") },
+  { value: "1.5", label: t("settings.zoom_level_150") },
+])
+
+// Maps the persisted float back to a radio id. Falls through to "1.0"
+// for any value not in the preset set (a future schema migration could
+// introduce values outside the shipped range, and the control reads as
+// 100% rather than as no-selection in that case).
+const selectedZoomPreset = computed(() => {
+  const stored = desktopSettings.settings.zoomLevel
+  const match = zoomPresets.value.find(
+    (preset) => parseFloat(preset.value) === stored
+  )
+  return match?.value ?? "1.0"
+})
+
+async function setZoomPreset(value: string): Promise<void> {
+  const factor = parseFloat(value)
+  if (Number.isNaN(factor)) return
+  await desktopSettings.update("zoomLevel", factor)
 }
 </script>
 

@@ -113,12 +113,7 @@
                     :label="option.label"
                     :info-icon="option.selected ? IconLucideCheck : null"
                     :active-info-icon="option.selected"
-                    @click="
-                      () => {
-                        setConnectionTimeout(option.ms)
-                        hide()
-                      }
-                    "
+                    @click="() => selectConnectionTimeout(option.ms, hide)"
                   />
                 </div>
               </template>
@@ -441,8 +436,23 @@ const selectedTimeoutLabel = computed(() =>
 // wiring `smart/ChangeLanguage.vue` uses.
 const timeoutTippyActions = ref<HTMLElement | null>(null)
 
-async function setConnectionTimeout(ms: number): Promise<void> {
-  await desktopSettings.update("connectionTimeoutMs", ms)
+// The popup item calls this from a click handler that discards the returned
+// promise, so a rejection would escape as an unhandled rejection Vue cannot
+// route to its error handler. `update()` already logs the failure and rolls
+// the reactive value back, so the catch here only stops the rethrow from
+// leaving the handler. `close` runs in `finally` so the popup shuts whether
+// the write succeeds or fails.
+async function selectConnectionTimeout(
+  ms: number,
+  close: () => void
+): Promise<void> {
+  try {
+    await desktopSettings.update("connectionTimeoutMs", ms)
+  } catch {
+    // handled in the composable
+  } finally {
+    close()
+  }
 }
 
 // Order is recommended-first so users without a preference get the smart

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest"
-import { resolvePressedKey } from "../keybindings"
+import { bindings, resolvePressedKey } from "../keybindings"
 
 // Fixture builder to keep individual cases readable. Layout name in the
 // describe block is the conceptual layout; `key` and `code` are what the
@@ -194,5 +194,28 @@ describe("resolvePressedKey: edge cases", () => {
         "hybrid"
       )
     ).toBeNull()
+  })
+})
+
+describe("bindings: native word-delete chords stay unmapped", () => {
+  // ctrl-backspace and ctrl-delete are the browser's word-delete chords in
+  // any editable input (URL bar, header value, body). Mapping either to
+  // response.erase wiped the response pane while the user was only deleting
+  // a word (hoppscotch/hoppscotch#5967). handleKeyDown lets the native chord
+  // through only while it stays unmapped, so a future shortcut addition that
+  // rebinds either one would silently bring the bug back. These assertions
+  // are the guard against that.
+  const chords = Object.keys(bindings)
+
+  test("ctrl-backspace has no action", () => {
+    expect(chords).not.toContain("ctrl-backspace")
+  })
+
+  test("ctrl-delete has no action", () => {
+    expect(chords).not.toContain("ctrl-delete")
+  })
+
+  test("no chord maps to response.erase", () => {
+    expect(Object.values(bindings)).not.toContain("response.erase")
   })
 })

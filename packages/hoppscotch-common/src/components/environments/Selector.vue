@@ -258,16 +258,10 @@
                   {{ variable.key }}
                 </span>
                 <span class="min-w-[4rem] w-full truncate text-secondaryLight">
-                  <template v-if="variable.secret"> ******** </template>
-                  <template v-else>
-                    {{ variable.initialValue }}
-                  </template>
+                  {{ variable.initialValue }}
                 </span>
                 <span class="min-w-[4rem] w-full truncate text-secondaryLight">
-                  <template v-if="variable.secret"> ******** </template>
-                  <template v-else>
-                    {{ variable.currentValue }}
-                  </template>
+                  {{ variable.currentValue }}
                 </span>
               </div>
               <div v-if="globalEnvs.length === 0" class="text-secondaryLight">
@@ -327,16 +321,10 @@
                   {{ variable.key }}
                 </span>
                 <span class="min-w-[4rem] w-full truncate text-secondaryLight">
-                  <template v-if="variable.secret"> ******** </template>
-                  <template v-else>
-                    {{ variable.initialValue }}
-                  </template>
+                  {{ variable.initialValue }}
                 </span>
                 <span class="min-w-[4rem] w-full truncate text-secondaryLight">
-                  <template v-if="variable.secret"> ******** </template>
-                  <template v-else>
-                    {{ variable.currentValue }}
-                  </template>
+                  {{ variable.currentValue }}
                 </span>
               </div>
               <div
@@ -379,6 +367,8 @@ import {
 } from "~/newstore/environments"
 import { useLocalState } from "~/newstore/localstate"
 import { CurrentValueService } from "~/services/current-environment-value.service"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
+import { maskSecretValue } from "~/helpers/utils/secretMask"
 import { WorkspaceService } from "~/services/workspace.service"
 import IconCheck from "~icons/lucide/check"
 import IconEdit from "~icons/lucide/edit"
@@ -425,6 +415,8 @@ const workspaceService = useService(WorkspaceService)
 const workspace = workspaceService.currentWorkspace
 
 const currentEnvironmentValueService = useService(CurrentValueService)
+
+const secretEnvironmentService = useService(SecretEnvironmentService)
 
 // TeamList-Adapter
 const teamListAdapter = workspaceService.acquireTeamListAdapter(null)
@@ -696,27 +688,45 @@ const globalVals = useReadonlyStream(globalEnv$, {
   variables: [],
 } as GlobalEnvironment)
 
-const globalEnvs = computed(() => {
-  return (globalVals.value?.variables ?? []).map((variable, index) => ({
+// Resolve each variable's display values. Secrets are masked by length (an
+// unset secret renders empty, not a fixed `********`) so the popover matches the
+// env tooltip and never claims a value exists when it doesn't.
+const resolveDisplayVariable = (
+  variable: Environment["variables"][number],
+  envID: string,
+  index: number
+) => {
+  if (variable.secret) {
+    const secretValue =
+      secretEnvironmentService.getSecretEnvironmentVariableValue(envID, index)
+    return {
+      ...variable,
+      initialValue: maskSecretValue(secretValue?.initialValue),
+      currentValue: maskSecretValue(secretValue?.value),
+    }
+  }
+  return {
     ...variable,
     currentValue:
       currentEnvironmentValueService.getEnvironmentVariableValue(
-        "Global",
+        envID,
         index
       ) ?? "",
-  }))
+  }
+}
+
+const globalEnvs = computed(() => {
+  return (globalVals.value?.variables ?? []).map((variable, index) =>
+    resolveDisplayVariable(variable, "Global", index)
+  )
 })
 
 const environmentVariables = computed(() => {
   if (selectedEnv.value.variables && selectedEnv.value.id) {
-    return selectedEnv.value.variables.map((variable, index) => ({
-      ...variable,
-      currentValue:
-        currentEnvironmentValueService.getEnvironmentVariableValue(
-          selectedEnv.value.id ?? "",
-          index
-        ) ?? "",
-    }))
+    const envID = selectedEnv.value.id
+    return selectedEnv.value.variables.map((variable, index) =>
+      resolveDisplayVariable(variable, envID, index)
+    )
   }
   return []
 })

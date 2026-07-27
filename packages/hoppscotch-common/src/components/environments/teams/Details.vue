@@ -254,7 +254,7 @@ import {
   updateTeamEnvironment,
 } from "~/helpers/backend/mutations/TeamEnvironment"
 import { GQLError } from "~/helpers/backend/GQLClient"
-import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
+import { stripClientLocalValuesForWire } from "~/helpers/clientLocalVariables"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import { useColorMode } from "~/composables/theming"
 import { platform } from "~/platform"
@@ -555,7 +555,7 @@ const saveEnvironment = async () => {
     )
   )
 
-  const variables = stripSecretVariableValuesForWire(filteredVariables)
+  const variables = stripClientLocalValuesForWire(filteredVariables)
 
   const environmentUpdated: Environment = {
     v: 2,

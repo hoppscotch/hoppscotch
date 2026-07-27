@@ -23,7 +23,7 @@ import {
 
 import * as E from "fp-ts/Either"
 import { ReqType, SortOptions } from "~/helpers/backend/graphql"
-import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
+import { stripClientLocalValuesForWire } from "~/helpers/clientLocalVariables"
 import {
   editGraphqlCollection,
   editGraphqlFolder,
@@ -51,7 +51,7 @@ const transformCollectionForBackend = (collection: HoppCollection): any => {
       authActive: true,
     },
     headers: collection.headers ?? [],
-    variables: stripSecretVariableValuesForWire(collection.variables ?? []),
+    variables: stripClientLocalValuesForWire(collection.variables ?? []),
     _ref_id: collection._ref_id,
     description: collection.description ?? null,
   }
@@ -282,7 +282,7 @@ const recursivelySyncCollections = async (
         authActive: true,
       },
       headers: collection.headers ?? [],
-      variables: stripSecretVariableValuesForWire(collection.variables ?? []),
+      variables: stripClientLocalValuesForWire(collection.variables ?? []),
       _ref_id: collection._ref_id,
       description: collection.description ?? null,
     }
@@ -327,7 +327,7 @@ const recursivelySyncCollections = async (
         authActive: true,
       },
       headers: collection.headers ?? [],
-      variables: stripSecretVariableValuesForWire(collection.variables ?? []),
+      variables: stripClientLocalValuesForWire(collection.variables ?? []),
       _ref_id: collection._ref_id,
       description: collection.description ?? null,
     }
@@ -474,7 +474,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const data = {
       auth: collection.auth,
       headers: collection.headers,
-      variables: stripSecretVariableValuesForWire(collection.variables),
+      variables: stripClientLocalValuesForWire(collection.variables),
       _ref_id: collection._ref_id,
       description: collection.description ?? null,
     }
@@ -558,7 +558,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const data = {
       auth: folder.auth,
       headers: folder.headers,
-      variables: stripSecretVariableValuesForWire(folder.variables),
+      variables: stripClientLocalValuesForWire(folder.variables),
       _ref_id: folder._ref_id,
       description: folder.description,
     }

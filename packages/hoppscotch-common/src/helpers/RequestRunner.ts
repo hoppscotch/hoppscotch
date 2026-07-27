@@ -40,6 +40,7 @@ import {
   getGlobalVariables,
   SelectedEnvironmentIndex,
   setGlobalEnvVariables,
+  setSelectedEnvironmentIndex,
   updateEnvironment,
 } from "~/newstore/environments"
 import { platform } from "~/platform"
@@ -63,7 +64,14 @@ import {
 import { HoppRESTResponse } from "./types/HoppRESTResponse"
 import { HoppTestData, HoppTestResult } from "./types/HoppTestResult"
 import { getEffectiveRESTRequest } from "./utils/EffectiveURL"
-import { getCombinedEnvVariables } from "./utils/environments"
+import {
+  getCombinedEnvVariables,
+  filterNonEmptyEnvironmentVariables,
+} from "./utils/environments"
+import {
+  nonSecretKeysOf,
+  frozenInitialValueForWire,
+} from "./utils/scriptEnvWriteback"
 import { transformInheritedCollectionVariablesToAggregateEnv } from "./utils/inheritedCollectionVarTransformer"
 import { isJSONContentType } from "./utils/contenttypes"
 import { applyScriptRequestUpdates } from "./experimental-sandbox-integration"
@@ -186,12 +194,16 @@ export const getTestableBody = (
 }
 
 /**
- * Combines the environment variables from the request and the selected, global, and temporary environments.
+ * Combines the request, collection, and environment (temporary/selected/global)
+ * variables into a single precedence-ordered list. Order is precedence: earlier
+ * entries win, and de-duplication (keeping the first non-empty occurrence) is
+ * applied later by `filterNonEmptyEnvironmentVariables`.
  * The priority is as follows:
  * 1. Request variables
- * 2. Temporary variables (if any)
- * 3. Selected environment variables
- * 4. Global environment variables
+ * 2. Collection variables (inherited)
+ * 3. Temporary variables (if any)
+ * 4. Selected environment variables
+ * 5. Global environment variables
  * @param variables The environment variables to combine
  * @returns The combined environment variables
  */
@@ -226,7 +238,12 @@ export const executedResponses$ = new Subject<
 const updateEnvironments = (
   envs: Environment["variables"],
   type: "global" | "selected",
-  initialEnvID?: string
+  initialEnvID?: string,
+  // Keys that existed as NON-secret variables before this run (see
+  // `nonSecretKeysOf`). Used to freeze the shared `initialValue`: a script only
+  // ever changes `currentValue`, so a pre-existing non-secret var keeps its
+  // default while a script-created (or since-demoted-secret) key goes out empty.
+  existingNonSecretKeys?: ReadonlySet<string>
 ) => {
   const envID =
     type === "selected" ? initialEnvID || getCurrentEnvironment().id : "Global"
@@ -269,10 +286,18 @@ const updateEnvironments = (
       // `currentEnvironmentValueService` (populated above); the wire payload
       // gets it cleared so test-script env updates can't leak per-user state
       // into the team backend.
+      //
+      // The shared `initialValue` is the editor's to change, never a script's:
+      // a pre-existing non-secret var keeps its own default; a script-created
+      // (or since-demoted-secret) key goes out empty, so a per-user/runtime
+      // value — or a resolved secret — can't become a shared default. Keyed by
+      // membership (not a value lookup), so duplicate keys keep their own value.
       return {
         key: e.key,
         secret: e.secret ?? false,
-        initialValue: e.initialValue ?? "",
+        initialValue: existingNonSecretKeys
+          ? frozenInitialValueForWire(e, existingNonSecretKeys)
+          : (e.initialValue ?? ""),
         currentValue: "",
       }
     })
@@ -324,53 +349,6 @@ const getEnvironmentVariableValue = (
     envID,
     index
   )
-}
-
-/**
- * Set currentValue as initialValue if currentValue is empty
- * This is set just for request runtime and it will not be persisted.
- * @param env The environment variable to be transformed
- * @returns The transformed environment variable with currentValue set to initialValue if empty
- */
-const getTransformedEnvs = (
-  env: Environment["variables"][number]
-): Environment["variables"][number] => {
-  return {
-    ...env,
-    currentValue: env.currentValue || env.initialValue,
-  }
-}
-
-/**
- * Transforms the environment list to a list with unique keys with value
- * and set currentValue as initialValue if currentValue is empty.
- * @param envs The environment list to be transformed
- * @returns The transformed environment list with keys with value
- */
-export const filterNonEmptyEnvironmentVariables = (
-  envs: Environment["variables"]
-): Environment["variables"] => {
-  const envsMap = new Map<string, Environment["variables"][number]>()
-  envs.forEach((env) => {
-    const transformedEnv = getTransformedEnvs(env)
-
-    if (envsMap.has(transformedEnv.key)) {
-      const existingEnv = envsMap.get(transformedEnv.key)
-
-      if (
-        existingEnv &&
-        "currentValue" in existingEnv &&
-        existingEnv.currentValue === "" &&
-        transformedEnv.currentValue !== ""
-      ) {
-        envsMap.set(transformedEnv.key, transformedEnv)
-      }
-    } else {
-      envsMap.set(transformedEnv.key, transformedEnv)
-    }
-  })
-
-  return Array.from(envsMap.values())
 }
 
 const delegatePreRequestScriptRunner = (
@@ -736,7 +714,9 @@ function updateEnvsAfterTestScript(
   if (globalChanged) {
     const globalEnvVariables = updateEnvironments(
       runResult.right.envs.global,
-      "global"
+      "global",
+      undefined,
+      nonSecretKeysOf(initialEnvsForComparison.global)
     )
 
     setGlobalEnvVariables({
@@ -749,7 +729,8 @@ function updateEnvsAfterTestScript(
     const selectedEnvVariables = updateEnvironments(
       cloneDeep(runResult.right.envs.selected),
       "selected",
-      initialEnvID
+      initialEnvID,
+      nonSecretKeysOf(initialEnvsForComparison.selected)
     )
 
     if (initialEnvironmentIndex.type === "MY_ENV") {
@@ -775,6 +756,26 @@ function updateEnvsAfterTestScript(
           envName
         )
       )()
+
+      // Team envs have no local store dispatch (unlike `updateEnvironment` for
+      // MY_ENV), so `currentEnvironment$` — and the aggregate stream feeding the
+      // request field highlights/tooltips — would stay stale until the team-env
+      // subscription round-trips. Optimistically refresh the selected index so
+      // the new values show immediately. Guarded so a mid-request env switch
+      // isn't clobbered.
+      const selected = environmentsStore.value.selectedEnvironmentIndex
+      if (
+        selected.type === "TEAM_ENV" &&
+        selected.teamEnvID === initialEnvironmentIndex.teamEnvID
+      ) {
+        setSelectedEnvironmentIndex({
+          ...selected,
+          environment: {
+            ...selected.environment,
+            variables: selectedEnvVariables,
+          },
+        })
+      }
     }
   }
 }
@@ -1106,9 +1107,14 @@ const resolveEnvVars = (
         (v.secret
           ? secretMeta?.value
           : getEnvironmentVariableValue(envID, index)) ?? "",
-      // fallback to var initialValue if secretMeta is not found
-      initialValue:
-        (v.secret ? secretMeta?.initialValue : "") ?? v.initialValue,
+      // For a secret, use the secret store's initialValue (falling back to the
+      // definition's when the store has no entry); for a non-secret, use the
+      // definition's initialValue directly. The old `: ""` branch produced a
+      // non-nullish "", short-circuiting the `?? v.initialValue` fallback so
+      // every non-secret resolved to an empty initialValue.
+      initialValue: v.secret
+        ? (secretMeta?.initialValue ?? v.initialValue)
+        : v.initialValue,
     }
   })
 

@@ -40,7 +40,7 @@ import {
   ensureRefIds,
   populateLocalStoresFromCollectionTree,
   stripCollectionTreeForStore,
-} from "~/helpers/secretVariables"
+} from "~/helpers/clientLocalVariables"
 
 const t = useI18n()
 const toast = useToast()

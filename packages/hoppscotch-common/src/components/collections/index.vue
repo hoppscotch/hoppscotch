@@ -412,8 +412,8 @@ import {
   flushLocalStoresForCollectionTree,
   flushLocalStoresForTeamCollectionTree,
   stripCollectionTreeForStore,
-  stripSecretVariableValuesForWire,
-} from "~/helpers/secretVariables"
+  stripClientLocalValuesForWire,
+} from "~/helpers/clientLocalVariables"
 
 const t = useI18n()
 const toast = useToast()
@@ -3615,7 +3615,7 @@ const setCollectionProperties = (newCollection: {
 
     currentEnvironmentValueService.addEnvironment(storeKey, nonSecretVariables)
 
-    collection.variables = stripSecretVariableValuesForWire(filteredVariables)
+    collection.variables = stripClientLocalValuesForWire(filteredVariables)
   }
 
   if (collectionsType.value.type === "my-collections") {

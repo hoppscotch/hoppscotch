@@ -57,7 +57,7 @@
 <script setup lang="ts">
 import { useReadonlyStream, useStream } from "@composables/stream"
 import { Environment, GlobalEnvironment } from "@hoppscotch/data"
-import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
+import { stripClientLocalValuesForWire } from "~/helpers/clientLocalVariables"
 import { useService } from "dioc/vue"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
@@ -274,7 +274,7 @@ const duplicateGlobalEnvironment = async () => {
     await pipe(
       createTeamEnvironment(
         JSON.stringify(
-          stripSecretVariableValuesForWire(globalEnvironment.value.variables)
+          stripClientLocalValuesForWire(globalEnvironment.value.variables)
         ),
         workspace.value.teamID,
         `Global - ${t("action.duplicate")}`

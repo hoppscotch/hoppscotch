@@ -79,7 +79,7 @@ import { useToast } from "~/composables/toast"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { updateTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
 import { getEnvActionErrorMessage } from "~/helpers/error-messages"
-import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
+import { stripClientLocalValuesForWire } from "~/helpers/clientLocalVariables"
 import {
   setGlobalEnvVariables,
   updateEnvironment,
@@ -206,7 +206,7 @@ const addEnvironment = async () => {
 
     await pipe(
       updateTeamEnvironment(
-        JSON.stringify(stripSecretVariableValuesForWire(newVariables)),
+        JSON.stringify(stripClientLocalValuesForWire(newVariables)),
         scope.value.environment.id,
         scope.value.environment.environment.name
       ),
@@ -223,8 +223,10 @@ const addEnvironment = async () => {
                 key: editingName.value,
                 currentValue: editingValue.value,
                 isSecret: false,
-                varIndex:
-                  scope.value.environment.environment.variables.length - 1,
+                // The new variable is appended at index `length` of the
+                // pre-append array; `length - 1` collided with the previous
+                // last variable's slot.
+                varIndex: scope.value.environment.environment.variables.length,
               }
             )
           }

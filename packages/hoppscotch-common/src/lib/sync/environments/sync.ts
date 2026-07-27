@@ -8,7 +8,7 @@ import { getSettingSubject, settingsStore } from "~/newstore/settings"
 import * as E from "fp-ts/Either"
 
 import { Environment } from "@hoppscotch/data"
-import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
+import { stripClientLocalValuesForWire } from "~/helpers/clientLocalVariables"
 import { getService } from "~/modules/dioc"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
@@ -47,7 +47,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     try {
       const res = await createUserEnvironment(
         name,
-        JSON.stringify(stripSecretVariableValuesForWire(variables))
+        JSON.stringify(stripClientLocalValuesForWire(variables))
       )
 
       if (E.isRight(res)) {
@@ -87,9 +87,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
           // invariant can't rely on callers.
           const res = await createUserEnvironment(
             env.name,
-            JSON.stringify(
-              stripSecretVariableValuesForWire(env.variables ?? [])
-            )
+            JSON.stringify(stripClientLocalValuesForWire(env.variables ?? []))
           )
 
           if (E.isRight(res)) {
@@ -134,9 +132,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       const res = await createUserEnvironment(
         `${environmentToDuplicate.name} - Duplicate`,
         JSON.stringify(
-          stripSecretVariableValuesForWire(
-            environmentToDuplicate.variables ?? []
-          )
+          stripClientLocalValuesForWire(environmentToDuplicate.variables ?? [])
         )
       )
 
@@ -158,7 +154,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
         backendId,
         updatedEnv.name,
         JSON.stringify(
-          stripSecretVariableValuesForWire(updatedEnv.variables ?? [])
+          stripClientLocalValuesForWire(updatedEnv.variables ?? [])
         )
       )()
     }
@@ -189,7 +185,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       }
       const payload = JSON.stringify({
         v: 2,
-        variables: stripSecretVariableValuesForWire(variables),
+        variables: stripClientLocalValuesForWire(variables),
       })
       // Feature-detect a platform-provided global-env updater. Newer
       // backends (cloud) split the global update into a dedicated

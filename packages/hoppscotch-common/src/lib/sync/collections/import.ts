@@ -9,8 +9,8 @@ import {
   populateLocalStoresFromCollectionTree,
   repopulateLoadedCollectionTree,
   stripCollectionTreeForStore,
-  stripSecretVariableValuesForWire,
-} from "~/helpers/secretVariables"
+  stripClientLocalValuesForWire,
+} from "~/helpers/clientLocalVariables"
 import {
   appendGraphqlCollections,
   appendRESTCollections,
@@ -168,7 +168,7 @@ export function translateToPersonalCollectionFormat(x: HoppCollection) {
   const data: CollectionDataProps = {
     auth: x.auth,
     headers: x.headers,
-    variables: stripSecretVariableValuesForWire(x.variables ?? []),
+    variables: stripClientLocalValuesForWire(x.variables ?? []),
     // Lives inside `data` so it round-trips the backend — the top-level
     // `_ref_id` on the wire is dropped, only `data._ref_id` is echoed back.
     _ref_id: refId,

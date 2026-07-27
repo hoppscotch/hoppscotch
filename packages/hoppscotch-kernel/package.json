@@ -41,8 +41,8 @@
   "devDependencies": {
     "@eslint/js": "9.39.2",
     "@types/node": "24.9.1",
-    "@typescript-eslint/eslint-plugin": "8.61.1",
-    "@typescript-eslint/parser": "8.61.1",
+    "@typescript-eslint/eslint-plugin": "8.64.0",
+    "@typescript-eslint/parser": "8.64.0",
     "eslint": "9.39.2",
     "eslint-plugin-prettier": "5.5.6",
     "globals": "16.5.0",
@@ -64,7 +64,7 @@
     "@tauri-apps/plugin-shell": "2.3.3",
     "@tauri-apps/plugin-store": "2.4.1",
     "aws4fetch": "1.0.20",
-    "axios": "1.18.0",
+    "axios": "1.18.1",
     "fp-ts": "2.16.11",
     "superjson": "2.2.6",
     "zod": "3.25.32"

@@ -47,7 +47,7 @@
       "minimatch@>=4.0.0 <4.2.5": "4.2.5",
       "multer@2.1.1": "2.2.0",
       "serialize-javascript@<7.0.3": "7.0.3",
-      "vue": "3.5.38",
+      "vue": "3.5.40",
       "ws": "8.21.0"
     },
     "onlyBuiltDependencies": [

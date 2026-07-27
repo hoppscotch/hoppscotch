@@ -5,6 +5,7 @@ import { InspectionService } from "../../index"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { ref } from "vue"
 import { CurrentValueService } from "~/services/current-environment-value.service"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
 
 vi.mock("~/modules/i18n", () => ({
   __esModule: true,
@@ -28,6 +29,12 @@ vi.mock("~/newstore/environments", async () => {
         currentValue: "",
         initialValue: "",
         secret: false,
+      },
+      {
+        key: "SECRET_ENV_VAR",
+        currentValue: "",
+        initialValue: "",
+        secret: true,
       },
     ]),
     getCurrentEnvironment: () => ({
@@ -364,6 +371,42 @@ describe("EnvironmentInspectorService", () => {
       const result = envInspector.getInspections(req)
 
       expect(result.value).toHaveLength(0)
+    })
+
+    it("should not flag a secret variable whose current value is empty but has an initial value", () => {
+      const container = new TestContainer()
+      container.bindMock(SecretEnvironmentService, {
+        hasSecretValue: vi.fn(() => false),
+        hasSecretInitialValue: vi.fn(() => true),
+      })
+      const envInspector = container.bind(EnvironmentInspectorService)
+
+      const req = ref({
+        ...getDefaultRESTRequest(),
+        endpoint: "<<SECRET_ENV_VAR>>",
+      })
+
+      const result = envInspector.getInspections(req)
+
+      expect(result.value).toHaveLength(0)
+    })
+
+    it("should flag a secret variable that has neither a current nor an initial value", () => {
+      const container = new TestContainer()
+      container.bindMock(SecretEnvironmentService, {
+        hasSecretValue: vi.fn(() => false),
+        hasSecretInitialValue: vi.fn(() => false),
+      })
+      const envInspector = container.bind(EnvironmentInspectorService)
+
+      const req = ref({
+        ...getDefaultRESTRequest(),
+        endpoint: "<<SECRET_ENV_VAR>>",
+      })
+
+      const result = envInspector.getInspections(req)
+
+      expect(result.value).toHaveLength(1)
     })
   })
 })

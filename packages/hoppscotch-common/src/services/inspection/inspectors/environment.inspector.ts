@@ -13,7 +13,6 @@ import {
   HoppRESTResponseOriginalRequest,
 } from "@hoppscotch/data"
 import {
-  AggregateEnvironment,
   aggregateEnvsWithCurrentValue$,
   getCurrentEnvironment,
   getSelectedEnvironmentType,
@@ -23,7 +22,10 @@ import { useStreamStatic } from "~/composables/stream"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { RESTTabService } from "~/services/tab/rest"
 import { CurrentValueService } from "~/services/current-environment-value.service"
-import { getEffectiveVariablesForRequest } from "~/helpers/utils/environments"
+import {
+  getEffectiveVariablesForRequest,
+  filterNonEmptyEnvironmentVariables,
+} from "~/helpers/utils/environments"
 import { HOPP_ENVIRONMENT_REGEX } from "~/helpers/environment-regex"
 
 const isENVInString = (str: string) => HOPP_ENVIRONMENT_REGEX.test(str)
@@ -147,31 +149,6 @@ export class EnvironmentInspectorService extends Service implements Inspector {
   }
 
   /**
-   * Keeps only unique environment variables and prefers ones with values.
-   * @param envs The environment list to be transformed
-   * @returns The transformed environment list with keys with value
-   */
-  private filterNonEmptyEnvironmentVariables = (
-    envs: AggregateEnvironment[]
-  ): AggregateEnvironment[] => {
-    const envsMap = new Map<string, AggregateEnvironment>()
-
-    envs.forEach((env) => {
-      if (envsMap.has(env.key)) {
-        const existingEnv = envsMap.get(env.key)
-        // Replace if existing is empty and this one has a value
-        if (existingEnv?.currentValue === "" && env.currentValue !== "") {
-          envsMap.set(env.key, env)
-        }
-      } else {
-        envsMap.set(env.key, env)
-      }
-    })
-
-    return Array.from(envsMap.values())
-  }
-
-  /**
    * Looks for variables that exist but are empty (no value or secret).
    * Suggests adding a value for them.
    * @param target The target array to validate
@@ -202,7 +179,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
 
         // request → collection → environment, matching the request runner's
         // precedence and non-empty resolution (single source of truth)
-        const environmentVariables = this.filterNonEmptyEnvironmentVariables(
+        const environmentVariables = filterNonEmptyEnvironmentVariables(
           getEffectiveVariablesForRequest(
             currentTabRequest?.requestVariables,
             currentTab.document.type === "request" ||
@@ -223,10 +200,12 @@ export class EnvironmentInspectorService extends Service implements Inspector {
                 ? env.sourceEnvID!
                 : currentSelectedEnvironment.id
 
-          const hasSecretEnv = this.secretEnvs.hasSecretValue(
-            sourceEnvID,
-            env.key
-          )
+          // A secret counts as "has a value" when either its current or its
+          // initial secret value is set — the initial value is the resolution
+          // fallback, so an empty current value alone isn't an empty variable.
+          const hasSecretEnv =
+            this.secretEnvs.hasSecretValue(sourceEnvID, env.key) ||
+            this.secretEnvs.hasSecretInitialValue(sourceEnvID, env.key)
 
           const hasValue =
             this.currentEnvs.hasValue(

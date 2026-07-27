@@ -429,14 +429,9 @@ const fetchSnapshotPreview = async () => {
         const parsedVars =
           typeof rawEnvVars === "string" ? JSON.parse(rawEnvVars) : rawEnvVars
         if (Array.isArray(parsedVars)) {
-          snapshotEnvironmentVariables.value = parsedVars.map((v) => {
-            const normalized = translateToNewEnvironmentVariables(v)
-            // Ensure currentValue falls back to initialValue
-            return {
-              ...normalized,
-              currentValue: normalized.currentValue || normalized.initialValue,
-            }
-          })
+          snapshotEnvironmentVariables.value = parsedVars.map((v) =>
+            translateToNewEnvironmentVariables(v)
+          )
         }
       } catch (e) {
         console.error("Error parsing snapshot environment variables:", e)

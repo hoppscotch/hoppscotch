@@ -115,6 +115,8 @@ const gqlTab = ref<HoppTab<HoppGQLRequestDocument>>({
       auth: { authType: "none", authActive: true },
       description: null,
       responses: {},
+      preRequestScript: "",
+      testScript: "",
     }),
     response: null,
     isDirty: false,
@@ -159,6 +161,11 @@ watch(
           description:
             typeof gql.description === "string" ? gql.description : null,
           responses: {},
+          preRequestScript:
+            typeof gql.preRequestScript === "string"
+              ? gql.preRequestScript
+              : "",
+          testScript: typeof gql.testScript === "string" ? gql.testScript : "",
         })
         protocol.value = "gql"
       } else {

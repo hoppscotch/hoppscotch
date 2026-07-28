@@ -381,6 +381,13 @@ export type HoppGQLRequestDocument = {
   response?: GQLResponseEvent[] | null
 
   /**
+   * The test script results of the last query/mutation run (if any).
+   * `null` while a run is in flight — the Results tab renders its loading
+   * state off that sentinel (GQL has no `loading` response type like REST).
+   */
+  testResults?: HoppTestResult | null
+
+  /**
    * Response tab preference for the current tab's document
    */
   responseTabPreference?: string

@@ -241,7 +241,17 @@ export class WorkspaceTabsService extends TabService<HoppTabDocument> {
       if (tab.document.type === "gql-request") {
         return {
           tabID: tab.id,
-          doc: { ...tab.document, response: null },
+          doc: {
+            ...tab.document,
+            response: null,
+            // `null` is the run-in-flight sentinel — persisting it verbatim
+            // would restore into a permanent loading state with no run to
+            // ever clear it
+            testResults:
+              tab.document.testResults === null
+                ? undefined
+                : tab.document.testResults,
+          },
           protocolDrafts,
         }
       }

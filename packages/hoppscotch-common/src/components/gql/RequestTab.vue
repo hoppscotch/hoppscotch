@@ -5,6 +5,7 @@
       <GqlRequestOptions
         v-model="tab.document.request"
         v-model:response="tab.document.response"
+        v-model:test-results="tab.document.testResults"
         v-model:option-tab="tab.document.optionTabPreference"
         :inherited-properties="tab.document.inheritedProperties"
         :tab-id="tab.id"

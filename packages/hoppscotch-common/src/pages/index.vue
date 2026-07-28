@@ -43,6 +43,7 @@
                 @close-tab="removeTab(tab.id)"
                 @close-other-tabs="closeOtherTabsAction(tab.id)"
                 @duplicate-tab="duplicateTab(tab.id)"
+                @share-tab-request="shareTabRequest(tab.id)"
               />
               <!-- Fallback for document types without a dedicated head
                    (test-runner) — providing the #tabhead slot suppresses the

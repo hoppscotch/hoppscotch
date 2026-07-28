@@ -319,6 +319,11 @@ const addRequestToTab = () => {
           description:
             typeof gql.description === "string" ? gql.description : null,
           responses: {},
+          preRequestScript:
+            typeof gql.preRequestScript === "string"
+              ? gql.preRequestScript
+              : "",
+          testScript: typeof gql.testScript === "string" ? gql.testScript : "",
         }),
         isDirty: false,
         cursorPosition: 0,

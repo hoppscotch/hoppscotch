@@ -71,6 +71,10 @@ export function convertRESTToGQL(
     auth,
     description: restReq.description ?? null,
     responses: {},
+    // Scripts are protocol-agnostic (env + header mutation) — carry them
+    // across the switch instead of dropping user code
+    preRequestScript: restReq.preRequestScript,
+    testScript: restReq.testScript,
   }
 
   return {
@@ -126,8 +130,10 @@ export function convertGQLToREST(
       active: h.active,
       description: h.description,
     })),
-    preRequestScript: "",
-    testScript: "",
+    // Scripts are protocol-agnostic (env + header mutation) — carry them
+    // across the switch instead of dropping user code
+    preRequestScript: gqlReq.preRequestScript ?? "",
+    testScript: gqlReq.testScript ?? "",
     body: {
       contentType: null,
       body: null,

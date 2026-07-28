@@ -322,6 +322,8 @@ const validGqlOperations = [
   "headers",
   "variables",
   "authorization",
+  "preRequestScript",
+  "tests",
 ] as const
 
 const HoppInheritedPropertySchema = z
@@ -734,8 +736,16 @@ export const WORKSPACE_TABS_STATE_SCHEMA = z
             response: z.optional(z.nullable(z.array(z.any()))),
             responseTabPreference: z.optional(z.string()),
             optionTabPreference: z.optional(
-              z.enum(["query", "headers", "variables", "authorization"])
+              z.enum([
+                "query",
+                "headers",
+                "variables",
+                "authorization",
+                "preRequestScript",
+                "tests",
+              ])
             ),
+            testResults: z.optional(z.nullable(HoppTestResultSchema)),
             inheritedProperties: z.optional(HoppInheritedPropertySchema),
           }),
           z.object({

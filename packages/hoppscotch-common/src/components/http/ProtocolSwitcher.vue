@@ -11,6 +11,9 @@
       >
         <HoppSmartSelectWrapper>
           <button
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t('request.switch_protocol')"
+            :aria-label="t('request.switch_protocol')"
             class="flex items-center gap-1.5 rounded bg-primaryLight px-3 py-1 text-tiny font-bold uppercase tracking-wide text-secondaryDark transition hover:bg-primaryDark"
           >
             <component :is="currentProtocolIcon" class="h-3.5 w-3.5" />
@@ -32,6 +35,8 @@
               label="REST"
               :icon="IconGlobe"
               :active="isREST"
+              :info-icon="isREST ? IconCheck : undefined"
+              :active-info-icon="isREST"
               @click="
                 () => {
                   switchToREST()
@@ -43,6 +48,8 @@
               label="GraphQL"
               :icon="IconGraphql"
               :active="isGQL"
+              :info-icon="isGQL ? IconCheck : undefined"
+              :active-info-icon="isGQL"
               @click="
                 () => {
                   switchToGQL()
@@ -82,6 +89,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
 import { useService } from "dioc/vue"
+import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { GQLTabConnectionService } from "~/services/gql-tab-connection.service"
@@ -96,8 +104,11 @@ import {
 import { restCollections$ } from "~/newstore/collections"
 import IconChevronRight from "~icons/lucide/chevron-right"
 import IconChevronDown from "~icons/lucide/chevron-down"
+import IconCheck from "~icons/lucide/check"
 import IconGlobe from "~icons/lucide/globe"
 import IconGraphql from "~icons/hopp/graphql"
+
+const t = useI18n()
 
 const tabs = useService(WorkspaceTabsService)
 const gqlTabConn = useService(GQLTabConnectionService)

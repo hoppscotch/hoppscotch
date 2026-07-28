@@ -160,5 +160,9 @@ export function isGQLRequest(
 export function isRESTRequest(
   req: HoppRESTRequest | HoppGQLRequest
 ): req is HoppRESTRequest {
-  return "endpoint" in req && "method" in req
+  // Object check first — callers pass raw persisted/imported JSON, and the
+  // `in` operator throws on primitives
+  return (
+    !!req && typeof req === "object" && "endpoint" in req && "method" in req
+  )
 }

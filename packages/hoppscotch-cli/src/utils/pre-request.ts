@@ -188,6 +188,7 @@ export async function getEffectiveRESTRequest(
   if (E.isLeft(_effectiveFinalBody)) {
     return _effectiveFinalBody;
   }
+  const effectiveFinalBody = _effectiveFinalBody.right;
 
   // Authentication
   if (request.auth.authActive) {
@@ -260,11 +261,10 @@ export async function getEffectiveRESTRequest(
       const amzDate = currentDate.toISOString().replace(/[:-]|\.\d{3}/g, "");
       const { method, endpoint } = request;
 
-      const body = getFinalBodyFromRequest(request, resolvedVariables);
-
       const signer = new AwsV4Signer({
         method,
-        body: E.isRight(body) ? body.right?.toString() : undefined,
+        // Must be the body actually sent, else the signature mismatches
+        body: effectiveFinalBody?.toString(),
         datetime: amzDate,
         signQuery: addTo === "QUERY_PARAMS",
         accessKeyId: parseTemplateString(
@@ -338,7 +338,8 @@ export async function getEffectiveRESTRequest(
         opaque: request.auth.opaque
           ? parseTemplateString(request.auth.opaque, resolvedVariables)
           : authInfo.opaque,
-        reqBody: typeof request.body.body === "string" ? request.body.body : "",
+        reqBody:
+          typeof effectiveFinalBody === "string" ? effectiveFinalBody : "",
       };
 
       // Step 3: Generate the Authorization header
@@ -434,8 +435,6 @@ export async function getEffectiveRESTRequest(
       }
     }
   }
-
-  const effectiveFinalBody = _effectiveFinalBody.right;
 
   if (
     request.body.contentType &&

@@ -181,7 +181,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onBeforeUnmount, computed } from "vue"
+import { ref, onMounted, onBeforeUnmount, computed, nextTick } from "vue"
 import { generateUniqueRefId, safelyExtractRESTRequest } from "@hoppscotch/data"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import { useRoute } from "vue-router"
@@ -458,6 +458,7 @@ const onCloseConfirmSaveTab = () => {
     const tabState = tabs.getTabRef(confirmingCloseForTabID.value).value
     // Only tear down when the tab actually closed (see removeTab)
     if (tabs.closeTab(confirmingCloseForTabID.value)) {
+      scrollService.cleanupScrollForTab(confirmingCloseForTabID.value)
       if (tabState?.document.type === "gql-request") {
         gqlTabConn.cleanupTab(confirmingCloseForTabID.value)
       }
@@ -470,24 +471,36 @@ const onCloseConfirmSaveTab = () => {
 /**
  * Called when the user confirms they want to save the tab
  */
-const onResolveConfirmSaveTab = () => {
-  if (tabs.currentActiveTab.value.document.saveContext) {
-    invokeAction("request-response.save")
+const onResolveConfirmSaveTab = async () => {
+  const closingTabID = confirmingCloseForTabID.value
+  if (!closingTabID) return
 
-    if (confirmingCloseForTabID.value) {
-      const tabState = tabs.getTabRef(confirmingCloseForTabID.value).value
-      // Only tear down when the tab actually closed (see removeTab)
-      if (
-        tabs.closeTab(confirmingCloseForTabID.value) &&
-        tabState?.document.type === "gql-request"
-      ) {
-        gqlTabConn.cleanupTab(confirmingCloseForTabID.value)
-      }
-      confirmingCloseForTabID.value = null
-    }
-  } else {
-    savingRequest.value = true
+  const tabState = tabs.getTabRef(closingTabID).value
+
+  // Both save paths (the `request-response.save` handler and the Save As
+  // modal) act on the active tab, so the tab being closed has to be focused
+  // first — closing a dirty background tab would otherwise save the active
+  // one. `nextTick` lets the newly active tab mount and bind its handler.
+  if (currentTabID.value !== closingTabID) {
+    tabs.setActiveTab(closingTabID)
+    await nextTick()
   }
+
+  if (!tabState.document.saveContext) {
+    savingRequest.value = true
+    return
+  }
+
+  invokeAction("request-response.save")
+
+  // Only tear down when the tab actually closed (see removeTab)
+  if (tabs.closeTab(closingTabID)) {
+    scrollService.cleanupScrollForTab(closingTabID)
+    if (tabState.document.type === "gql-request") {
+      gqlTabConn.cleanupTab(closingTabID)
+    }
+  }
+  confirmingCloseForTabID.value = null
 }
 
 /**
@@ -498,11 +511,11 @@ const onSaveModalClose = () => {
   if (confirmingCloseForTabID.value) {
     const tabState = tabs.getTabRef(confirmingCloseForTabID.value).value
     // Only tear down when the tab actually closed (see removeTab)
-    if (
-      tabs.closeTab(confirmingCloseForTabID.value) &&
-      tabState?.document.type === "gql-request"
-    ) {
-      gqlTabConn.cleanupTab(confirmingCloseForTabID.value)
+    if (tabs.closeTab(confirmingCloseForTabID.value)) {
+      scrollService.cleanupScrollForTab(confirmingCloseForTabID.value)
+      if (tabState?.document.type === "gql-request") {
+        gqlTabConn.cleanupTab(confirmingCloseForTabID.value)
+      }
     }
     confirmingCloseForTabID.value = null
   }

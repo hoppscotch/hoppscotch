@@ -235,15 +235,7 @@ const selectSearchResult = (result: SearchResult) => {
   }
 
   // Push each item in the path sequentially
-  navigationPath.forEach((item, i) => {
-    if (
-      i === 0 ||
-      (!isObjectType(item.def) &&
-        !isInterfaceType(item.def) &&
-        !isInputObjectType(item.def))
-    )
-      push(item)
-  })
+  navigationPath.forEach((item) => push(item))
 
   showSearchResults.value = false
   searchText.value = ""

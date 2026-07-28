@@ -3,21 +3,21 @@
     <div v-if="request" class="space-y-8">
       <div class="flex-col space-y-4">
         <div class="flex items-center justify-between mb-2">
-          <div class="flex items-center gap-3">
+          <div class="flex min-w-0 items-center gap-3">
             <span
               v-if="isGqlRequest"
-              class="px-2 py-1 text-xs font-mono rounded bg-purple-500/20 text-purple-500"
+              class="flex flex-shrink-0 items-center rounded px-2 py-1"
             >
-              GQL
+              <IconGraphql class="svg-icons h-4 w-4 text-accent" />
             </span>
             <span
               v-else
-              class="px-2 py-1 text-xs font-mono rounded"
+              class="flex-shrink-0 px-2 py-1 text-xs font-mono rounded"
               :class="getMethodClass(requestMethod)"
             >
               {{ requestMethod }}
             </span>
-            <h1 class="text-2xl font-bold text-secondaryDark">
+            <h1 class="min-w-0 truncate text-2xl font-bold text-secondaryDark">
               {{ requestName }}
             </h1>
           </div>
@@ -135,6 +135,7 @@ import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { ref, computed, watch } from "vue"
 import IconCopy from "~icons/lucide/copy"
 import IconExternalLink from "~icons/lucide/external-link"
+import IconGraphql from "~icons/hopp/graphql"
 import { useToast } from "~/composables/toast"
 import { useService } from "dioc/vue"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"

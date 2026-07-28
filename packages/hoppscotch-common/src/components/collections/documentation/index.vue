@@ -10,7 +10,7 @@
     <template #body>
       <div class="w-full h-[80vh] overflow-hidden">
         <div class="flex h-full">
-          <div class="flex-1 flex">
+          <div class="flex min-w-0 flex-1">
             <CollectionsDocumentationPreview
               v-if="currentCollection"
               v-model:documentation-description="documentationDescription"

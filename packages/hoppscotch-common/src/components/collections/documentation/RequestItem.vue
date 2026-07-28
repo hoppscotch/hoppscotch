@@ -1,13 +1,10 @@
 <template>
   <div
-    class="py-1.5 space-x-2 flex items-center group cursor-pointer"
+    class="py-1.5 space-x-2 flex min-w-0 items-center group cursor-pointer"
     @click.stop="$emit('request-select', actualRequest)"
   >
-    <span
-      v-if="isGql"
-      class="text-tiny px-1 rounded-sm bg-purple-500/10 text-purple-500"
-    >
-      GQL
+    <span v-if="isGql" class="flex flex-shrink-0 items-center px-1">
+      <IconGraphql class="svg-icons h-3.5 w-3.5 text-accent" />
     </span>
     <span
       v-else
@@ -27,6 +24,7 @@
 <script lang="ts" setup>
 import { HoppGQLRequest, HoppRESTRequest, isGQLRequest } from "@hoppscotch/data"
 import { computed } from "vue"
+import IconGraphql from "~icons/hopp/graphql"
 
 type HoppRequest = HoppRESTRequest | HoppGQLRequest
 

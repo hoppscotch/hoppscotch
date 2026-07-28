@@ -10,7 +10,7 @@
       class="sticky top-0 z-[99] py-2 border-b border-divider bg-primaryLight flex items-center justify-between space-x-3"
     >
       <div
-        class="font-medium text-secondaryDark flex flex-1 items-center text-xs px-4 truncate cursor-pointer transition-colors"
+        class="font-medium text-secondaryDark flex min-w-0 flex-1 items-center text-xs px-4 truncate cursor-pointer transition-colors"
         @click="scrollToTop"
       >
         <span class="truncate">

@@ -87,9 +87,9 @@ RUN tar -xzf npm.tgz && \
   cd / && \
   rm -rf /tmp/npm-install
 RUN mkdir -p /tmp/pnpm-install && cd /tmp/pnpm-install && \
-  curl -fsSL https://registry.npmjs.org/pnpm/-/pnpm-10.33.4.tgz -o pnpm.tgz && \
+  curl -fsSL https://registry.npmjs.org/pnpm/-/pnpm-10.34.0.tgz -o pnpm.tgz && \
   curl -fsSL https://registry.npmjs.org/@import-meta-env/cli/-/cli-0.7.4.tgz -o cli.tgz && \
-  echo "8e70ddc6649b18bc3d895cf3a908c0291ea4c38039ad8722c47e018daf1e9cfc  pnpm.tgz" | sha256sum -c - && \
+  echo "58e143258871df51589b651c06205dabec48766a5dbba3c25999b69b50be598e  pnpm.tgz" | sha256sum -c - && \
   echo "9edada700b616b4224ba69ce713e68c36e22cb2548be9134dd3af00c164d8ca0  cli.tgz" | sha256sum -c - && \
   npm install -g ./pnpm.tgz ./cli.tgz && \
   cd / && rm -rf /tmp/pnpm-install
@@ -131,6 +131,21 @@ RUN mkdir -p /tmp/brace-fix && \
       cp -r /tmp/brace-fix/node_modules/brace-expansion "$dir"; \
     done && \
   rm -rf /tmp/brace-fix
+
+# Fix multiple tar advisories (CVE-2026-59873 and the GHSA-r292-9mhp-454m family):
+# every tar <7.5.22 is affected. Both the bundled npm (ships 7.5.19) and pnpm
+# (ships 7.5.15) copies are vulnerable, so replace all bundled copies with the
+# fixed 7.5.22. tar 7.5.x is a patch line (identical deps, pure JS), so the swap
+# is a safe drop-in that keeps npm/pnpm working.
+RUN mkdir -p /tmp/tar-fix && \
+  cd /tmp/tar-fix && \
+  npm install tar@7.5.22 && \
+  find /usr/lib/node_modules -type d -path '*/node_modules/tar' -not -path '*/tar-fix/*' | \
+    while read -r dir; do \
+      rm -rf "$dir" && \
+      cp -r /tmp/tar-fix/node_modules/tar "$dir"; \
+    done && \
+  rm -rf /tmp/tar-fix
 
 
 

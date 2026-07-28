@@ -64,10 +64,14 @@
 
     <!-- Folder path + editable request name -->
     <div class="ml-4 flex min-w-0 items-center">
-      <template v-if="folderPath.length > 0">
-        <template v-for="(segment, i) in folderPath" :key="i">
-          <span class="flex-shrink-0 truncate text-tiny text-secondaryLight">
-            {{ segment }}
+      <template v-if="displayFolderPath.length > 0">
+        <template v-for="(segment, i) in displayFolderPath" :key="i">
+          <span
+            v-tippy="{ theme: 'tooltip' }"
+            :title="segment.tooltip"
+            class="max-w-[10rem] flex-shrink-0 cursor-default truncate text-tiny text-secondaryLight"
+          >
+            {{ segment.name }}
           </span>
           <component
             :is="IconChevronRight"
@@ -185,6 +189,24 @@ const folderPath = computed<string[]>(() => {
   }
 
   return names
+})
+
+// Every segment is width-capped (ellipsized by CSS),
+// and deep paths collapse to `root > … > parent` with the hidden
+// segments in the tooltip
+const displayFolderPath = computed<{ name: string; tooltip: string }[]>(() => {
+  const path = folderPath.value
+  if (path.length <= 3) {
+    return path.map((name) => ({ name, tooltip: name }))
+  }
+  return [
+    { name: path[0], tooltip: path[0] },
+    {
+      name: "…",
+      tooltip: path.slice(1, -1).join(" > "),
+    },
+    { name: path[path.length - 1], tooltip: path[path.length - 1] },
+  ]
 })
 
 const switchToGQL = () => {

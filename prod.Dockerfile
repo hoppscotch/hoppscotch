@@ -118,6 +118,20 @@ RUN mkdir -p /tmp/serialize-fix && \
   cp -r node_modules/serialize-javascript /usr/lib/node_modules/@import-meta-env/cli/node_modules/ && \
   rm -rf /tmp/serialize-fix
 
+# Fix CVE-2026-14257: brace-expansion <5.0.8 allows a DoS (unbounded expansion
+# length → OOM crash). Every version below 5.0.8 is affected with no per-line
+# backport, so replace all bundled/transitive copies (npm ships 5.0.7; the
+# @import-meta-env/cli tree pulls an older copy) with the fixed 5.0.8.
+RUN mkdir -p /tmp/brace-fix && \
+  cd /tmp/brace-fix && \
+  npm install brace-expansion@5.0.8 && \
+  find /usr/lib/node_modules -type d -name brace-expansion -not -path '*/brace-fix/*' | \
+    while read -r dir; do \
+      rm -rf "$dir" && \
+      cp -r /tmp/brace-fix/node_modules/brace-expansion "$dir"; \
+    done && \
+  rm -rf /tmp/brace-fix
+
 
 
 FROM node_base AS base_builder

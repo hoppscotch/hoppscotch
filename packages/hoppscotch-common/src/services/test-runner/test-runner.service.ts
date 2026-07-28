@@ -604,9 +604,9 @@ export class TestRunnerService extends Service {
       throw new Error("Test execution stopped")
     }
 
-    // GraphQL requests take their own execution path — no script stages
-    // (GraphQL requests carry no pre-request/test scripts), response shaped
-    // as HoppRESTResponse so the shared result UI renders it.
+    // GraphQL requests take their own execution path (HTTP POST, response
+    // shaped as HoppRESTResponse so the shared result UI renders it) with
+    // the same script stages as REST.
     if (isGQLRequest(request)) {
       return this.runTestGQLRequest(
         tab,
@@ -616,6 +616,8 @@ export class TestRunnerService extends Service {
         iterationMeta,
         inheritedVariables,
         inheritedHeaders,
+        inheritedPreRequestScripts,
+        inheritedTestScripts,
         iterationEnvState
       )
     }
@@ -730,12 +732,9 @@ export class TestRunnerService extends Service {
 
   /**
    * Executes a GraphQL request inside a run. Mirrors `runTestRequest`'s
-   * result handling minus the test-script stages — GraphQL requests have no
-   * scripts in their schema, so they contribute requests/time to the run
-   * meta but no test counts.
-   *
-   * `testResults` is deliberately left `undefined` (not `null`): the runner
-   * response panel treats `testResults === null` as "still executing".
+   * result handling including the script stages — pre-request/test scripts
+   * run through the shared sandbox and contribute test counts to the run
+   * meta like REST requests do.
    */
   private async runTestGQLRequest(
     tab: Ref<HoppTab<HoppTestRunnerDocument>>,
@@ -745,6 +744,8 @@ export class TestRunnerService extends Service {
     iterationMeta: TestRunnerMeta,
     inheritedVariables: HoppCollectionVariable[] = [],
     inheritedHeaders: HoppRESTHeaders = [],
+    inheritedPreRequestScripts: string[] = [],
+    inheritedTestScripts: string[] = [],
     iterationEnvState?: InitialEnvironmentState
   ) {
     try {
@@ -766,7 +767,9 @@ export class TestRunnerService extends Service {
         options.keepVariableValues,
         inheritedVariables,
         initialEnvironmentState,
-        inheritedHeaders
+        inheritedHeaders,
+        inheritedPreRequestScripts,
+        inheritedTestScripts
       )
 
       if (options.stopRef?.value) {
@@ -774,10 +777,21 @@ export class TestRunnerService extends Service {
       }
 
       if (E.isRight(results)) {
-        const { response } = results.right
+        const { response, testResult } = results.right
+
+        // Tally test counts into the run meta — REST parity
+        // (HoppTestResult is structurally a HoppTestData root node)
+        const { passed, failed } = this.getTestResultInfo(testResult)
+        tab.value.document.testRunnerMeta.totalTests += passed + failed
+        tab.value.document.testRunnerMeta.passedTests += passed
+        tab.value.document.testRunnerMeta.failedTests += failed
+        iterationMeta.totalTests += passed + failed
+        iterationMeta.passedTests += passed
+        iterationMeta.failedTests += failed
 
         this.updateRequestAtPath(tab.value.document.resultCollection!, path, {
           response: options.persistResponses ? response : null,
+          testResults: testResult,
           isLoading: false,
         })
 

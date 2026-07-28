@@ -353,7 +353,11 @@ const getEnvironmentVariableValue = (
   )
 }
 
-const delegatePreRequestScriptRunner = (
+// Re-exported for consumers that resolve envs the same way the runner does
+// (the GQL tab-connection service imports it from here)
+export { filterNonEmptyEnvironmentVariables }
+
+export const delegatePreRequestScriptRunner = (
   request: HoppRESTRequest,
   envs: {
     global: Environment["variables"]
@@ -401,7 +405,7 @@ const delegatePreRequestScriptRunner = (
   })
 }
 
-const runPostRequestScript = (
+export const runPostRequestScript = (
   envs: TestResult["envs"],
   request: HoppRESTRequest,
   response: HoppRESTResponse,
@@ -692,7 +696,7 @@ export function runRESTRequest$(
   return [cancel, res]
 }
 
-function updateEnvsAfterTestScript(
+export function updateEnvsAfterTestScript(
   runResult: E.Right<SandboxTestResult>,
   initialEnvironmentIndex: SelectedEnvironmentIndex,
   initialEnvName: string,
@@ -790,7 +794,7 @@ const hasScopeChanges = (
   getRemovedEnvVariables(initial, final).length > 0 ||
   getUpdatedEnvVariables(initial, final).length > 0
 
-const hasEnvironmentChanges = (
+export const hasEnvironmentChanges = (
   initialEnvs: TestResult["envs"],
   finalEnvs: TestResult["envs"]
 ): boolean =>
@@ -1145,7 +1149,7 @@ const resolveEnvVars = (
     }
   })
 
-function translateToSandboxTestResults(
+export function translateToSandboxTestResults(
   testDesc: SandboxTestResult,
   initialGlobalEnvs: Environment["variables"],
   initialSelectedEnvs: Environment["variables"]

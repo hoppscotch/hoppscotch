@@ -145,6 +145,8 @@ describe("GraphQL Request Transformation", () => {
     auth: { authType: "none", authActive: true },
     description: null,
     responses: {},
+    preRequestScript: "",
+    testScript: "",
   }
 
   it("transforms a basic GraphQL request correctly", async () => {

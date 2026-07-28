@@ -46,6 +46,19 @@ import { useExplorer } from "~/helpers/graphql/explorer"
 import { getEffectiveHoppGQLRequest } from "~/helpers/utils/EffectiveURL"
 import { getAggregateEnvsWithCurrentValue } from "~/newstore/environments"
 import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
+import {
+  captureInitialEnvironmentState,
+  combineEnvVariables,
+  delegatePreRequestScriptRunner,
+  filterNonEmptyEnvironmentVariables,
+  hasEnvironmentChanges,
+  runPostRequestScript,
+  translateToSandboxTestResults,
+  updateEnvsAfterTestScript,
+} from "~/helpers/RequestRunner"
+import { SandboxTestResult } from "@hoppscotch/js-sandbox"
+import { hasActualScript } from "@hoppscotch/js-sandbox/scripting"
+import { HoppTestResult } from "~/helpers/types/HoppTestResult"
 import type { Environment } from "@hoppscotch/data"
 import type { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
@@ -95,6 +108,23 @@ export type GQLResponseEvent =
 
 const GQL_SCHEMA_POLL_INTERVAL = 7000
 
+/**
+ * Empty `HoppTestResult` sentinel — written when a run completes without
+ * producing real test results so the Results tab's loading state (which keys
+ * off `testResults === null`) always terminates.
+ */
+export const emptyTestResults = (scriptError: boolean): HoppTestResult => ({
+  description: "",
+  expectResults: [],
+  tests: [],
+  envDiff: {
+    global: { additions: [], deletions: [], updations: [] },
+    selected: { additions: [], deletions: [], updations: [] },
+  },
+  scriptError,
+  consoleEntries: [],
+})
+
 export type ConnectionRequestOptions = {
   url: string
   request: HoppGQLRequest
@@ -121,6 +151,13 @@ export type RunQueryOptions = {
    * these are merged into the env list used to template the GraphQL request.
    */
   inheritedVariables?: HoppInheritedProperty["variables"]
+  /**
+   * Collection-level scripts cascaded from parent folders (root → request
+   * order, from `tab.document.inheritedProperties.scripts`). Combined with
+   * the request's own scripts: pre-request runs root → request, test runs
+   * request → root, mirroring REST.
+   */
+  inheritedScripts?: HoppInheritedProperty["scripts"]
   query: string
   variables: string
   operationName: string | undefined
@@ -674,10 +711,12 @@ export class GQLTabConnectionService extends Service {
             inheritedVariables
           )
         : []
-      const envVars = [
+      // `filterNonEmptyEnvironmentVariables` also applies the current→initial
+      // fallback — a variable with only an initial value must not template to ""
+      const envVars = filterNonEmptyEnvironmentVariables([
         ...inheritedVarsEnv,
         ...getAggregateEnvsWithCurrentValue(),
-      ] as Environment["variables"]
+      ] as Environment["variables"]) as Environment["variables"]
       const effective = getEffectiveHoppGQLRequest(request, envVars, {
         inheritedHeaders,
         inheritedAuth,
@@ -923,24 +962,99 @@ export class GQLTabConnectionService extends Service {
       operationType,
     } = options
 
-    // Resolve env variables in URL / headers / auth / query / variables before
-    // anything reaches the wire. Mirrors REST's `getEffectiveRESTRequest` flow.
-    // Inherited collection variables (cascaded from parent team/personal folders)
-    // sit at the head of the list so they outrank selected/global env vars.
+    // --- Pre-request script stage (v1: env vars + request headers) ---
+    // The sandbox is REST-shaped, so the GQL request rides in as a synthetic
+    // POST. The auto-connect above templated with pre-script-free envs —
+    // scripts affect the run, not the schema connection.
+    const initialEnvState = captureInitialEnvironmentState()
+    let sandboxEnvs = initialEnvState.initialEnvs
+    let scriptedHeaders: HoppGQLRequest["headers"] | null = null
+
+    const inheritedPreScripts = (options.inheritedScripts ?? []).map(
+      (s) => s.preRequestScript
+    )
+    const inheritedTestScripts = (options.inheritedScripts ?? []).map(
+      (s) => s.testScript
+    )
+    const syntheticScriptRequest: HoppRESTRequest = {
+      ...getDefaultRESTRequest(),
+      name: request.name,
+      method: "POST",
+      endpoint: url,
+      headers: request.headers,
+      // GQL auth is a strict structural subset of REST auth, so the script's
+      // read-only `hopp.request.auth` view stays faithful
+      auth: request.auth as HoppRESTRequest["auth"],
+      preRequestScript: request.preRequestScript ?? "",
+      testScript: request.testScript ?? "",
+    }
+
+    // The test stage below only carries the post-script sandbox result —
+    // merge pre-script console output like the collection runner does
+    let preScriptConsoleEntries: SandboxTestResult["consoleEntries"] = []
+
+    if (
+      hasActualScript(syntheticScriptRequest.preRequestScript) ||
+      inheritedPreScripts.some((s) => hasActualScript(s))
+    ) {
+      const preResult = await delegatePreRequestScriptRunner(
+        syntheticScriptRequest,
+        sandboxEnvs,
+        null,
+        inheritedPreScripts
+      )
+      if (E.isLeft(preResult)) {
+        // A failing pre-request script must not send the request with
+        // unmutated envs — surface the failure and abort (REST's script_fail)
+        messageEvent.value = {
+          type: "error",
+          operationType,
+          error: {
+            type: "script_error",
+            message: `Pre-request script failed: ${preResult.left}`,
+          },
+        }
+        return { testResults: emptyTestResults(true), preScriptFailed: true }
+      }
+      preScriptConsoleEntries = preResult.right.consoleEntries ?? []
+      const updated = preResult.right.updatedEnvs as typeof sandboxEnvs
+      sandboxEnvs = {
+        global: updated.global,
+        selected: updated.selected,
+        temp: updated.temp ?? [],
+      }
+      // v1 request-mutation surface: headers only (hopp.request.setHeader) —
+      // REST and GQL header shapes are structurally identical
+      if (preResult.right.updatedRequest?.headers) {
+        scriptedHeaders = preResult.right.updatedRequest.headers
+      }
+    }
+
+    // Inherited collection variables outrank selected/global env vars;
+    // pre-script mutations ride in via `sandboxEnvs`
     const inheritedVarsEnv = inheritedVariables
       ? transformInheritedCollectionVariablesToAggregateEnv(inheritedVariables)
       : []
-    const envVars = [
-      ...inheritedVarsEnv,
-      ...getAggregateEnvsWithCurrentValue(),
-    ] as Environment["variables"]
-    const effective = getEffectiveHoppGQLRequest(request, envVars, {
-      inheritedHeaders,
-      inheritedAuth,
-      url,
-      query,
-      variables,
-    })
+    // `filterNonEmptyEnvironmentVariables` also applies the current→initial
+    // fallback — a variable with only an initial value must not template to ""
+    const envVars = filterNonEmptyEnvironmentVariables(
+      combineEnvVariables({
+        environments: sandboxEnvs,
+        requestVariables: [],
+        collectionVariables: inheritedVarsEnv,
+      })
+    ) as Environment["variables"]
+    const effective = getEffectiveHoppGQLRequest(
+      scriptedHeaders ? { ...request, headers: scriptedHeaders } : request,
+      envVars,
+      {
+        inheritedHeaders,
+        inheritedAuth,
+        url,
+        query,
+        variables,
+      }
+    )
 
     const finalHeaders: Record<string, string> = {}
 
@@ -994,6 +1108,9 @@ export class GQLTabConnectionService extends Service {
       auth: effective.effectiveFinalAuth,
       description: null,
       responses: {},
+      // Wire-shape object only — scripts never ride the network request
+      preRequestScript: "",
+      testScript: "",
     }
 
     if (operationType === "subscription") {
@@ -1014,9 +1131,31 @@ export class GQLTabConnectionService extends Service {
         }
         return
       }
-      // Hand the subscription path templated URL + query + variables so the
-      // WS payload resolves the same way the HTTP path does.
-      return this.runTabSubscription(
+      // The HTTP path persists pre-script env writes in its post-request
+      // stage, which subscriptions never reach — persist here so the same
+      // script behaves identically per operation type
+      if (
+        hasEnvironmentChanges(initialEnvState.initialEnvsForComparison, {
+          global: sandboxEnvs.global,
+          selected: sandboxEnvs.selected,
+        })
+      ) {
+        updateEnvsAfterTestScript(
+          E.right({
+            envs: {
+              global: sandboxEnvs.global,
+              selected: sandboxEnvs.selected,
+            },
+          } as SandboxTestResult),
+          initialEnvState.initialEnvironmentIndex,
+          initialEnvState.initialEnvName,
+          initialEnvState.initialEnvsForComparison,
+          initialEnvState.initialEnvID
+        )
+      }
+      // Test scripts don't run per-frame, so no testResults for
+      // subscriptions
+      this.runTabSubscription(
         tabId,
         {
           ...options,
@@ -1026,6 +1165,7 @@ export class GQLTabConnectionService extends Service {
         },
         finalHeaders
       )
+      return {}
     }
 
     try {
@@ -1104,7 +1244,63 @@ export class GQLTabConnectionService extends Service {
 
       this.addQueryToHistory(options, parsedResponse.data)
 
-      return parsedResponse.data
+      // --- Post-request (test) script stage ---
+      // Always runs on the HTTP path — its env writeback is also how
+      // PRE-script env mutations persist (REST does the same)
+      let testResults = emptyTestResults(false)
+      try {
+        const testResponse = {
+          status: relayResponse.status,
+          statusText: relayResponse.statusText,
+          headers: Object.entries(relayResponse.headers ?? {}).map(
+            ([key, value]) => ({ key, value: String(value) })
+          ),
+          responseTime: timeEnd - timeStart,
+          body: JSON.parse(parsedResponse.data),
+        }
+        const testResult = await runPostRequestScript(
+          sandboxEnvs,
+          syntheticScriptRequest,
+          // Runtime contract is TestResponse — the param annotation says
+          // HoppRESTResponse but every REST call site passes this shape too
+          testResponse as never,
+          null,
+          inheritedTestScripts
+        )
+        if (E.isRight(testResult)) {
+          testResults = translateToSandboxTestResults(
+            {
+              ...testResult.right,
+              consoleEntries: [
+                ...preScriptConsoleEntries,
+                ...(testResult.right.consoleEntries ?? []),
+              ],
+            },
+            initialEnvState.initialGlobalEnvs,
+            initialEnvState.initialSelectedEnvs
+          )
+          if (
+            hasEnvironmentChanges(
+              initialEnvState.initialEnvsForComparison,
+              testResult.right.envs
+            )
+          ) {
+            updateEnvsAfterTestScript(
+              testResult,
+              initialEnvState.initialEnvironmentIndex,
+              initialEnvState.initialEnvName,
+              initialEnvState.initialEnvsForComparison,
+              initialEnvState.initialEnvID
+            )
+          }
+        } else {
+          testResults = emptyTestResults(true)
+        }
+      } catch (_scriptError) {
+        testResults = emptyTestResults(true)
+      }
+
+      return { data: parsedResponse.data, testResults }
     } catch (error: any) {
       // Route error to the captured tab's message event
       messageEvent.value = {
@@ -1482,6 +1678,9 @@ export class GQLTabConnectionService extends Service {
           auth: request.auth as HoppGQLAuth,
           description: request.description ?? null,
           responses: {},
+          // Snapshot scripts so reopening the history entry restores them
+          preRequestScript: request.preRequestScript ?? "",
+          testScript: request.testScript ?? "",
         }),
         response,
         star: false,

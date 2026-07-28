@@ -435,6 +435,9 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
     auth: auth ?? request.auth,
     description: null,
     responses: {},
+    // Wire-shape object only — scripts never ride the network request
+    preRequestScript: "",
+    testScript: "",
   }
 
   if (operationType === "subscription") {
@@ -678,6 +681,9 @@ const addQueryToHistory = (options: RunQueryOptions, response: string) => {
         auth: request.auth as HoppGQLAuth,
         description: null,
         responses: {},
+        // Snapshot scripts so reopening the history entry restores them
+        preRequestScript: request.preRequestScript ?? "",
+        testScript: request.testScript ?? "",
       }),
       response,
       star: false,

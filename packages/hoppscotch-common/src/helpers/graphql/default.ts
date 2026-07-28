@@ -37,4 +37,6 @@ export const getDefaultGQLRequest = (): HoppGQLRequest => ({
   _ref_id: generateUniqueRefId("req"),
   description: null,
   responses: {},
+  preRequestScript: "",
+  testScript: "",
 })

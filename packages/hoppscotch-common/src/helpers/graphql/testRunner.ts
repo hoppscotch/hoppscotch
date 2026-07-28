@@ -14,9 +14,19 @@ import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import {
   InitialEnvironmentState,
   combineEnvVariables,
+  delegatePreRequestScriptRunner,
   filterNonEmptyEnvironmentVariables,
+  getTestableBody,
+  hasEnvironmentChanges,
+  runPostRequestScript,
+  translateToSandboxTestResults,
+  updateEnvsAfterTestScript,
 } from "~/helpers/RequestRunner"
-import { getTemporaryVariables } from "~/helpers/runner/temp_envs"
+import {
+  getTemporaryVariables,
+  setTemporaryVariables,
+} from "~/helpers/runner/temp_envs"
+import { HoppTestResult } from "~/helpers/types/HoppTestResult"
 import { getEffectiveHoppGQLRequest } from "~/helpers/utils/EffectiveURL"
 import {
   generateAuthHeaders,
@@ -82,9 +92,10 @@ const getRunnableOperation = (
  * Surfacing body-level GraphQL errors on the row is a planned enhancement
  * in `runTestGQLRequest` — purely additive, no change to this shape.
  *
- * Mirrors `runTestRunnerRequest` minus the script stages: GraphQL requests
- * carry no pre-request/test scripts (not in the v10 schema), so runs execute
- * the operation and report the transport result only.
+ * Mirrors `runTestRunnerRequest` including the script stages: the combined
+ * (root → request) pre-request script mutates envs/headers before execution,
+ * and the (request → root) test script runs against the HTTP response. The
+ * sandbox is REST-shaped, so scripts see the GQL request as a synthetic POST.
  *
  * The `request` arrives with auth already resolved by the test-runner
  * service walk; inherited headers are passed separately so auth headers can
@@ -96,15 +107,60 @@ export async function runTestRunnerGQLRequest(
   persistEnv = true,
   inheritedVariables: HoppCollectionVariable[] = [],
   initialEnvironmentState: InitialEnvironmentState,
-  inheritedHeaders: GQLHeader[] = []
-): Promise<E.Either<GQLTestRunnerFailure, { response: HoppRESTResponse }>> {
-  const { initialEnvs } = initialEnvironmentState
+  inheritedHeaders: GQLHeader[] = [],
+  inheritedPreRequestScripts: string[] = [],
+  inheritedTestScripts: string[] = []
+): Promise<
+  E.Either<
+    GQLTestRunnerFailure,
+    { response: HoppRESTResponse; testResult: HoppTestResult }
+  >
+> {
+  const {
+    initialGlobalEnvs,
+    initialEnvID,
+    initialSelectedEnvs,
+    initialEnvironmentIndex,
+    initialEnvName,
+    initialEnvs,
+    initialEnvsForComparison,
+  } = initialEnvironmentState
+
+  // --- Pre-request script stage --- (short-circuits when no script exists)
+  const scriptSyntheticRequest: HoppRESTRequest = {
+    ...getDefaultRESTRequest(),
+    name: request.name,
+    method: "POST",
+    endpoint: request.url,
+    headers: request.headers,
+    auth: request.auth as HoppRESTAuth,
+    preRequestScript: request.preRequestScript ?? "",
+    testScript: request.testScript ?? "",
+  }
+
+  const preResult = await delegatePreRequestScriptRunner(
+    scriptSyntheticRequest,
+    initialEnvs,
+    null,
+    inheritedPreRequestScripts
+  )
+  if (E.isLeft(preResult)) {
+    return E.left({
+      type: "request_fail",
+      message: `Pre-request script failed: ${preResult.left}`,
+    })
+  }
+
+  // v1 request-mutation surface: headers only (hopp.request.setHeader) —
+  // REST and GQL header shapes are structurally identical
+  const scriptedRequest = preResult.right.updatedRequest?.headers
+    ? { ...request, headers: preResult.right.updatedRequest.headers }
+    : request
 
   const envVars = filterNonEmptyEnvironmentVariables(
     combineEnvVariables({
       environments: {
-        selected: initialEnvs.selected,
-        global: initialEnvs.global,
+        ...preResult.right.updatedEnvs,
         temp: !persistEnv ? getTemporaryVariables() : [],
       },
       // GraphQL requests have no request-level variables (REST-style
@@ -114,7 +170,7 @@ export async function runTestRunnerGQLRequest(
     })
   ) as Environment["variables"]
 
-  const effective = getEffectiveHoppGQLRequest(request, envVars, {
+  const effective = getEffectiveHoppGQLRequest(scriptedRequest, envVars, {
     inheritedHeaders,
   })
 
@@ -189,6 +245,9 @@ export async function runTestRunnerGQLRequest(
     auth: effective.effectiveFinalAuth,
     description: null,
     responses: {},
+    // Wire-shape object only — scripts never ride the network request
+    preRequestScript: "",
+    testScript: "",
   }
 
   try {
@@ -229,7 +288,77 @@ export async function runTestRunnerGQLRequest(
       })
     }
 
-    return E.right({ response: parsedResponse })
+    // --- Post-request (test) script stage --- (short-circuits when empty)
+    const postResult = await runPostRequestScript(
+      preResult.right.updatedEnvs,
+      scriptSyntheticRequest,
+      {
+        status: parsedResponse.statusCode,
+        body: getTestableBody(parsedResponse),
+        headers: parsedResponse.headers,
+        statusText: parsedResponse.statusText,
+        responseTime: parsedResponse.meta.responseDuration,
+        // Runtime contract is TestResponse — the param annotation says
+        // HoppRESTResponse but every call site passes this shape
+      } as never,
+      preResult.right.updatedCookies ?? null,
+      inheritedTestScripts
+    )
+
+    if (E.isLeft(postResult)) {
+      console.error("[Post-Request Script Error]", postResult.left)
+      return E.right({
+        response: parsedResponse,
+        testResult: {
+          description: "",
+          expectResults: [],
+          tests: [],
+          envDiff: {
+            global: { additions: [], deletions: [], updations: [] },
+            selected: { additions: [], deletions: [], updations: [] },
+          },
+          scriptError: true,
+          consoleEntries: [],
+        },
+      })
+    }
+
+    const combinedResult = {
+      ...postResult.right,
+      consoleEntries: [
+        ...(preResult.right.consoleEntries ?? []),
+        ...(postResult.right.consoleEntries ?? []),
+      ],
+    }
+
+    const testResult = translateToSandboxTestResults(
+      combinedResult,
+      initialGlobalEnvs,
+      initialSelectedEnvs
+    )
+
+    // Persist env mutations after the test script (or stash them as
+    // temporary variables when keepVariableValues is off) — REST parity
+    if (persistEnv) {
+      if (
+        hasEnvironmentChanges(initialEnvsForComparison, postResult.right.envs)
+      ) {
+        updateEnvsAfterTestScript(
+          postResult,
+          initialEnvironmentIndex,
+          initialEnvName,
+          initialEnvsForComparison,
+          initialEnvID
+        )
+      }
+    } else {
+      setTemporaryVariables([
+        ...postResult.right.envs.global,
+        ...postResult.right.envs.selected,
+      ])
+    }
+
+    return E.right({ response: parsedResponse, testResult })
   } catch (error) {
     return E.left({
       type: "request_fail",

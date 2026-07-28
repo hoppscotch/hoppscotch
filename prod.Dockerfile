@@ -87,9 +87,9 @@ RUN tar -xzf npm.tgz && \
   cd / && \
   rm -rf /tmp/npm-install
 RUN mkdir -p /tmp/pnpm-install && cd /tmp/pnpm-install && \
-  curl -fsSL https://registry.npmjs.org/pnpm/-/pnpm-10.34.0.tgz -o pnpm.tgz && \
+  curl -fsSL https://registry.npmjs.org/pnpm/-/pnpm-10.34.2.tgz -o pnpm.tgz && \
   curl -fsSL https://registry.npmjs.org/@import-meta-env/cli/-/cli-0.7.4.tgz -o cli.tgz && \
-  echo "58e143258871df51589b651c06205dabec48766a5dbba3c25999b69b50be598e  pnpm.tgz" | sha256sum -c - && \
+  echo "06e0108a4941de2d709e1c3bc841d3e90c45c6a26cecac76f62044fa02cac1a0  pnpm.tgz" | sha256sum -c - && \
   echo "9edada700b616b4224ba69ce713e68c36e22cb2548be9134dd3af00c164d8ca0  cli.tgz" | sha256sum -c - && \
   npm install -g ./pnpm.tgz ./cli.tgz && \
   cd / && rm -rf /tmp/pnpm-install

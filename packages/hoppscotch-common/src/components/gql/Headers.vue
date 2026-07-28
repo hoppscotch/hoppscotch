@@ -620,11 +620,13 @@ const getComputedHeaders = async (req: GqlHeadersModel) => {
   ]
 }
 
-const computedHeaders = computedAsync(async () =>
-  (await getComputedHeaders(request.value)).map((header, index) => ({
-    id: `header-${index}`,
-    ...header,
-  }))
+const computedHeaders = computedAsync(
+  async () =>
+    (await getComputedHeaders(request.value)).map((header, index) => ({
+      id: `header-${index}`,
+      ...header,
+    })),
+  []
 )
 
 const inheritedProperty = ref<

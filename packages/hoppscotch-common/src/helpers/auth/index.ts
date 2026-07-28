@@ -14,8 +14,8 @@ export const replaceTemplateStringsInObjectValues = <
   obj: T,
   source: "REST" | "GQL" = "REST"
 ) => {
-  const document = getService(WorkspaceTabsService).currentActiveTab.value
-    .document
+  const document =
+    getService(WorkspaceTabsService).currentActiveTab.value.document
 
   // Only a REST request tab has request/collection variables.
   const isRESTRequest = source === "REST" && document.type === "request"

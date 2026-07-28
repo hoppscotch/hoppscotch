@@ -138,6 +138,20 @@ export class TestRunnerService extends Service {
     ancestorPreRequestScripts: string[] = [],
     ancestorTestScripts: string[] = []
   ) {
+    // Guard an explicit empty selection. The UI never emits this — it sends
+    // `undefined` to run the full collection and a non-empty array to run a
+    // subset — so an empty array only arrives from restored/external state.
+    // Fail loudly instead of silently running zero requests.
+    const selection = tab.value.document.selectedRequestRefIds
+    if (Array.isArray(selection) && selection.length === 0) {
+      tab.value.document.status = "error"
+      console.error(
+        "[Test Runner] No requests selected to run. Provide at least one " +
+          "request, or omit the selection to run the full collection."
+      )
+      return
+    }
+
     // Reset the result collection
     tab.value.document.status = "running"
     tab.value.document.resultCollection = undefined

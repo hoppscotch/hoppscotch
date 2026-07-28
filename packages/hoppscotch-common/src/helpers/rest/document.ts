@@ -174,7 +174,10 @@ export type HoppTestRunnerDocument = {
   selectedIteration?: number
 
   /**
-   * Requests selected to run. Empty or undefined means the full collection.
+   * Requests selected to run. `undefined` runs the full collection; a non-empty
+   * array runs only those requests. An empty array means "no selection" and is
+   * rejected by the runner (the UI never produces it — it uses `undefined` for
+   * "run all").
    */
   selectedRequestRefIds?: string[]
 

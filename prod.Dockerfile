@@ -5,14 +5,14 @@ FROM alpine:3.24.1 AS go_builder
 RUN apk add --no-cache curl git openssh-client
 
 ARG TARGETARCH
-ENV GOLANG_VERSION=1.26.4
+ENV GOLANG_VERSION=1.26.5
 # Download Go tarball
 RUN case "${TARGETARCH}" in amd64) GOARCH=amd64 ;; arm64) GOARCH=arm64 ;; *) echo "Unsupported arch: ${TARGETARCH}" && exit 1 ;; esac && \
   curl -fsSL "https://go.dev/dl/go${GOLANG_VERSION}.linux-${GOARCH}.tar.gz" -o go.tar.gz
 # Checksum verification of Go tarball
 RUN case "${TARGETARCH}" in \
-  amd64) expected="1153d3d50e0ac764b447adfe05c2bcf08e889d42a02e0fe0259bd47f6733ad7f" ;; \
-  arm64) expected="ef758ae7c6cf9267c9c0ef080b8965f453d89ab2d25d9eb22de4405925238768" ;; \
+  amd64) expected="5c2c3b16caefa1d968a94c1daca04a7ca301a496d9b086e17ad77bb81393f053" ;; \
+  arm64) expected="fe4789e92b1f33358680864bbe8704289e7bb5fc207d80623c308935bd696d49" ;; \
   esac && \
   actual=$(sha256sum go.tar.gz | cut -d' ' -f1) && \
   [ "$actual" = "$expected" ] && \
@@ -39,6 +39,8 @@ RUN expected="e44e457ba3f2b5b8447952d2de0ae0a91b09d1a013e2521527e08b6f52acc9eb" 
   (echo "❌ Caddy Source Checksum failed!" && exit 1)
 WORKDIR /tmp/caddy-build
 RUN tar -xzf /tmp/caddy-build/src.tar.gz && \
+  # Fix GHSA-hrxh-6v49-42gf: upgrade grpc v1.82.1 (HIGH - DoS via crafted HTTP/2 request)
+  go get google.golang.org/grpc@v1.82.1 && \
   # Fix CVE-2026-34986: upgrade go-jose v3 (HIGH - DoS via crafted JWE)
   go get github.com/go-jose/go-jose/v3@v3.0.5 && \
   # Clean up any existing vendor directory and regenerate with updated deps
@@ -71,9 +73,9 @@ RUN apk upgrade --no-cache && \
 RUN mkdir -p /tmp/npm-install
 WORKDIR /tmp/npm-install
 # Download NPM tarball
-RUN curl -fsSL https://registry.npmjs.org/npm/-/npm-11.17.0.tgz -o npm.tgz
+RUN curl -fsSL https://registry.npmjs.org/npm/-/npm-11.18.0.tgz -o npm.tgz
 # Verify checksum
-RUN expected="b290bbb35b9e72c3ef84edbe041f28c4479c4d9ee79f555817b8caafe7ce4bba" \
+RUN expected="73f6155215ebabf4ed96dca1f567c2372cc713c33af2e5b9b62fde4e92373e2e" \
   && actual=$(sha256sum npm.tgz | cut -d' ' -f1) \
   && [ "$actual" = "$expected" ] \
   && echo "✅ NPM Tarball Checksum OK" \
@@ -85,9 +87,9 @@ RUN tar -xzf npm.tgz && \
   cd / && \
   rm -rf /tmp/npm-install
 RUN mkdir -p /tmp/pnpm-install && cd /tmp/pnpm-install && \
-  curl -fsSL https://registry.npmjs.org/pnpm/-/pnpm-10.33.4.tgz -o pnpm.tgz && \
+  curl -fsSL https://registry.npmjs.org/pnpm/-/pnpm-10.34.2.tgz -o pnpm.tgz && \
   curl -fsSL https://registry.npmjs.org/@import-meta-env/cli/-/cli-0.7.4.tgz -o cli.tgz && \
-  echo "8e70ddc6649b18bc3d895cf3a908c0291ea4c38039ad8722c47e018daf1e9cfc  pnpm.tgz" | sha256sum -c - && \
+  echo "06e0108a4941de2d709e1c3bc841d3e90c45c6a26cecac76f62044fa02cac1a0  pnpm.tgz" | sha256sum -c - && \
   echo "9edada700b616b4224ba69ce713e68c36e22cb2548be9134dd3af00c164d8ca0  cli.tgz" | sha256sum -c - && \
   npm install -g ./pnpm.tgz ./cli.tgz && \
   cd / && rm -rf /tmp/pnpm-install
@@ -111,10 +113,39 @@ RUN mkdir -p /tmp/glob-fix && \
 # Fix CVE: upgrade serialize-javascript in @import-meta-env/cli (ships 6.0.2, fix requires >=7.0.3)
 RUN mkdir -p /tmp/serialize-fix && \
   cd /tmp/serialize-fix && \
-  npm install serialize-javascript@7.0.3 && \
+  npm install serialize-javascript@7.0.7 && \
   rm -rf /usr/lib/node_modules/@import-meta-env/cli/node_modules/serialize-javascript && \
   cp -r node_modules/serialize-javascript /usr/lib/node_modules/@import-meta-env/cli/node_modules/ && \
   rm -rf /tmp/serialize-fix
+
+# Fix CVE-2026-14257: brace-expansion <5.0.8 allows a DoS (unbounded expansion
+# length → OOM crash). Every version below 5.0.8 is affected with no per-line
+# backport, so replace all bundled/transitive copies (npm ships 5.0.7; the
+# @import-meta-env/cli tree pulls an older copy) with the fixed 5.0.8.
+RUN mkdir -p /tmp/brace-fix && \
+  cd /tmp/brace-fix && \
+  npm install brace-expansion@5.0.8 && \
+  find /usr/lib/node_modules -type d -name brace-expansion -not -path '*/brace-fix/*' | \
+    while read -r dir; do \
+      rm -rf "$dir" && \
+      cp -r /tmp/brace-fix/node_modules/brace-expansion "$dir"; \
+    done && \
+  rm -rf /tmp/brace-fix
+
+# Fix multiple tar advisories (CVE-2026-59873 and the GHSA-r292-9mhp-454m family):
+# every tar <7.5.22 is affected. Both the bundled npm (ships 7.5.19) and pnpm
+# (ships 7.5.15) copies are vulnerable, so replace all bundled copies with the
+# fixed 7.5.22. tar 7.5.x is a patch line (identical deps, pure JS), so the swap
+# is a safe drop-in that keeps npm/pnpm working.
+RUN mkdir -p /tmp/tar-fix && \
+  cd /tmp/tar-fix && \
+  npm install tar@7.5.22 && \
+  find /usr/lib/node_modules -type d -path '*/node_modules/tar' -not -path '*/tar-fix/*' | \
+    while read -r dir; do \
+      rm -rf "$dir" && \
+      cp -r /tmp/tar-fix/node_modules/tar "$dir"; \
+    done && \
+  rm -rf /tmp/tar-fix
 
 
 

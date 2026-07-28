@@ -2010,6 +2010,7 @@
     "select_data_file": "Select CSV / JSON File",
     "data_preview": "Data Preview",
     "dataset_rows": "{count} rows",
+    "dataset_preview_truncated": "Showing the first {count} rows of the dataset.",
     "dataset_iterations_info": "Dataset contains {rows} rows, running {total} iterations as per your configuration.",
     "iterations_locked_to_dataset": "Iterations match the dataset row count. Remove the data file to set this manually.",
     "jump_to_iteration": "Jump to iteration",

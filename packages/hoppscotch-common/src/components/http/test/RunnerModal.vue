@@ -359,8 +359,18 @@
         </div>
         <pre
           class="p-4 overflow-auto rounded bg-primaryLight text-secondaryLight"
-          >{{ JSON.stringify(config.dataset.rows, null, 2) }}</pre
+          >{{ datasetPreview }}</pre
         >
+        <p
+          v-if="datasetPreviewTruncated"
+          class="mt-2 text-tiny text-secondaryLight"
+        >
+          {{
+            t("collection_runner.dataset_preview_truncated", {
+              count: DATASET_PREVIEW_ROW_CAP,
+            })
+          }}
+        </p>
       </div>
     </template>
     <template #footer>
@@ -490,6 +500,22 @@ const config = ref<TestRunnerConfig>({
   persistResponses: true,
   keepVariableValues: true,
 })
+
+// Cap the data-preview so a large dataset doesn't stringify thousands of rows
+// into the DOM on every render. Computed once, and only while the preview is open.
+const DATASET_PREVIEW_ROW_CAP = 50
+
+const datasetPreview = computed(() =>
+  JSON.stringify(
+    (config.value.dataset?.rows ?? []).slice(0, DATASET_PREVIEW_ROW_CAP),
+    null,
+    2
+  )
+)
+
+const datasetPreviewTruncated = computed(
+  () => (config.value.dataset?.rows.length ?? 0) > DATASET_PREVIEW_ROW_CAP
+)
 
 onMounted(async () => {
   if (props.prevConfig) {

@@ -4,11 +4,15 @@ import { computed, reactive, ref, watch, readonly } from "vue"
 import { useStreamStatic } from "~/composables/stream"
 import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { platform } from "~/platform"
-import { min } from "lodash-es"
+import { isEqual, min } from "lodash-es"
 import { TeamAccessRole } from "~/helpers/backend/graphql"
 import { TeamCollectionsService } from "./team-collection.service"
 import { DocumentationService } from "./documentation.service"
 import { WorkspaceTabsService } from "./tab/workspace-tabs"
+import {
+  getSelectedEnvironmentIndex,
+  setSelectedEnvironmentIndex,
+} from "~/newstore/environments"
 
 /**
  * Defines a workspace and its information
@@ -207,11 +211,31 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
   }
 
   /**
-   * Changes the current workspace to the given workspace.
+   * Changes the current workspace. Re-selecting the identical workspace is
+   * a no-op (a fresh object would retrigger every workspace watcher), and a
+   * selected team environment not belonging to the target workspace is
+   * reset.
    * @param workspace The new workspace
    */
   public changeWorkspace(workspace: Workspace) {
+    if (isEqual(this._currentWorkspace.value, workspace)) return
+
+    this.resetStaleTeamEnvironment(workspace)
     this._currentWorkspace.value = workspace
+  }
+
+  /**
+   * A selected team environment is scoped to its team — it must not stay
+   * active after switching to personal or to a different team.
+   */
+  private resetStaleTeamEnvironment(workspace: Workspace) {
+    const envIndex = getSelectedEnvironmentIndex()
+    if (
+      envIndex.type === "TEAM_ENV" &&
+      (workspace.type === "personal" || workspace.teamID !== envIndex.teamID)
+    ) {
+      setSelectedEnvironmentIndex({ type: "NO_ENV_SELECTED" })
+    }
   }
 
   /**

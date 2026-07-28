@@ -2,6 +2,10 @@ import { describe, expect, vi, it, beforeEach, afterEach } from "vitest"
 import { TestContainer } from "dioc/testing"
 import { WorkspaceService } from "../workspace.service"
 import { setPlatformDef } from "~/platform"
+import {
+  getSelectedEnvironmentIndex,
+  setSelectedEnvironmentIndex,
+} from "~/newstore/environments"
 import { BehaviorSubject } from "rxjs"
 import { effectScope, nextTick } from "vue"
 
@@ -147,6 +151,111 @@ describe("WorkspaceService", () => {
         teamID: "test",
         teamName: "test",
         role: null,
+      })
+    })
+
+    it("is a no-op when re-selecting the current workspace", () => {
+      const container = new TestContainer()
+      const service = container.bind(WorkspaceService)
+
+      service.changeWorkspace({
+        type: "team",
+        teamID: "test",
+        teamName: "test",
+        role: null,
+      })
+      const before = service.currentWorkspace.value
+
+      // Fresh-but-identical object must not retrigger workspace watchers
+      service.changeWorkspace({
+        type: "team",
+        teamID: "test",
+        teamName: "test",
+        role: null,
+      })
+
+      expect(service.currentWorkspace.value).toBe(before)
+    })
+
+    it("resets a selected team environment when switching to the personal workspace", () => {
+      const container = new TestContainer()
+      const service = container.bind(WorkspaceService)
+
+      service.changeWorkspace({
+        type: "team",
+        teamID: "team-a",
+        teamName: "Team A",
+        role: null,
+      })
+      setSelectedEnvironmentIndex({
+        type: "TEAM_ENV",
+        teamID: "team-a",
+        teamEnvID: "env-1",
+        environment: { v: 2, id: "env-1", name: "Team Env", variables: [] },
+      })
+
+      service.changeWorkspace({ type: "personal" })
+
+      expect(getSelectedEnvironmentIndex()).toEqual({
+        type: "NO_ENV_SELECTED",
+      })
+    })
+
+    it("resets a selected team environment when switching to a different team", () => {
+      const container = new TestContainer()
+      const service = container.bind(WorkspaceService)
+
+      setSelectedEnvironmentIndex({
+        type: "TEAM_ENV",
+        teamID: "team-a",
+        teamEnvID: "env-1",
+        environment: { v: 2, id: "env-1", name: "Team Env", variables: [] },
+      })
+
+      service.changeWorkspace({
+        type: "team",
+        teamID: "team-b",
+        teamName: "Other Team",
+        role: null,
+      })
+
+      expect(getSelectedEnvironmentIndex()).toEqual({
+        type: "NO_ENV_SELECTED",
+      })
+    })
+
+    it("keeps the selected team environment when switching within the same team", () => {
+      const container = new TestContainer()
+      const service = container.bind(WorkspaceService)
+
+      setSelectedEnvironmentIndex({
+        type: "TEAM_ENV",
+        teamID: "team-a",
+        teamEnvID: "env-1",
+        environment: { v: 2, id: "env-1", name: "Team Env", variables: [] },
+      })
+
+      service.changeWorkspace({
+        type: "team",
+        teamID: "team-a",
+        teamName: "Same Team",
+        role: null,
+      })
+
+      expect(getSelectedEnvironmentIndex().type).toBe("TEAM_ENV")
+    })
+
+    it("keeps a selected personal environment when switching workspaces", () => {
+      const container = new TestContainer()
+      const service = container.bind(WorkspaceService)
+
+      setSelectedEnvironmentIndex({ type: "MY_ENV", index: 0 })
+
+      service.changeWorkspace({ type: "personal" })
+
+      expect(getSelectedEnvironmentIndex()).toEqual({
+        type: "MY_ENV",
+        index: 0,
       })
     })
   })

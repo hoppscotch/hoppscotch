@@ -35,6 +35,8 @@
   },
   "pnpm": {
     "overrides": {
+      "@xmldom/xmldom": "0.8.13",
+      "apiconnect-wsdl": "2.0.36",
       "body-parser": "2.2.1",
       "brace-expansion@<=5.0.7": "5.0.8",
       "cross-spawn": "7.0.6",
@@ -46,6 +48,7 @@
       "js-yaml@>=5.0.0 <=5.2.1": "5.2.2",
       "linkify-it@<=5.0.1": "5.0.2",
       "liquidjs@<10.27.0": "10.27.1",
+      "minimatch@>=4.0.0 <4.2.5": "4.2.5",
       "nodemailer@<=9.0.0": "9.0.1",
       "postcss@<=8.5.17": "8.5.18",
       "serialize-javascript@<7.0.7": "7.0.7",

@@ -27,7 +27,7 @@
     "@fontsource-variable/roboto-mono": "5.2.9",
     "@hoppscotch/common": "workspace:^",
     "@hoppscotch/kernel": "workspace:^",
-    "@hoppscotch/plugin-appload": "github:CuriousCorrelation/tauri-plugin-appload#9d4528be4f385bccbe46859631d31aa2ee1ec0b6",
+    "@hoppscotch/plugin-appload": "github:CuriousCorrelation/tauri-plugin-appload#95eb43e6036b34a1ddcf4c4deb941b198aa02e4b",
     "@hoppscotch/ui": "0.2.6",
     "@tauri-apps/api": "2.1.1",
     "@tauri-apps/plugin-fs": "2.0.2",

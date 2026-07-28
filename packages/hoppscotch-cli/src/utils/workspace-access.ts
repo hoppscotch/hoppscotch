@@ -6,8 +6,8 @@ import {
   HoppCollectionVariable,
   HoppRESTAuth,
   HoppRESTHeaders,
+  HoppGQLRequest,
   HoppRESTRequest,
-  isGQLRequest,
 } from "@hoppscotch/data";
 
 import { HoppEnvPair } from "../types/request";
@@ -40,29 +40,17 @@ interface WorkspaceRequest {
  * Transforms the incoming list of workspace requests by applying `JSON.parse` to the `request` field.
  * It includes the `v` field indicating the schema version, but migration is handled already at the `parseCollectionData()` helper function.
  *
- * GraphQL requests (present in unified team collections) are filtered out
- * with a warning — the CLI runner is REST-only today, and mis-parsing them
- * as REST would abort the whole run downstream at request validation.
+ * Unified team collections can mix REST and GraphQL requests — both are
+ * returned (in order) and validated per-schema downstream in
+ * `getValidRequests`; the runner routes each by shape at execution time.
  *
  * @param {WorkspaceRequest[]} requests - An array of workspace request objects to be transformed.
- * @returns {HoppRESTRequest[]} The transformed array of requests conforming to the `HoppRESTRequest` type.
+ * @returns The transformed array of REST/GraphQL requests.
  */
 const transformWorkspaceRequests = (
   requests: WorkspaceRequest[]
-): HoppRESTRequest[] => {
-  const parsed = requests.map(({ request }) => JSON.parse(request));
-
-  const restRequests = parsed.filter((req) => !isGQLRequest(req));
-  const skippedCount = parsed.length - restRequests.length;
-
-  if (skippedCount > 0) {
-    console.warn(
-      `Skipped ${skippedCount} GraphQL request(s) — GraphQL is not yet supported by the CLI runner.`
-    );
-  }
-
-  return restRequests;
-};
+): (HoppRESTRequest | HoppGQLRequest)[] =>
+  requests.map(({ request }) => JSON.parse(request));
 
 /**
  * Apply relevant migrations for data conforming to older formats

@@ -1514,4 +1514,33 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       expect(result.error).toBeNull();
     });
   });
+
+  describe("Test `hopp test <file_path_or_id>` command with GraphQL requests:", () => {
+    test("Successfully runs an all-GraphQL collection, including pre-request scripts and header templating", async () => {
+      const args = `test ${getTestJsonFilePath("gql-coll.json", "collection")}`;
+      const result = await runCLIWithNetworkRetry(args);
+      if (result === null) return;
+
+      // Assert content so a regression back to skip-GraphQL can't pass
+      expect(result.stdout).toContain("echoes the POST method");
+      expect(result.stdout).toContain("scripted header echoed");
+      expect(result.error).toBeNull();
+    });
+
+    test("Successfully runs a collection mixing REST and GraphQL requests, resolving environment variables from the supplied env file", async () => {
+      const COLL_PATH = getTestJsonFilePath(
+        "mixed-rest-gql-coll.json",
+        "collection"
+      );
+      const ENV_PATH = getTestJsonFilePath("gql-envs.json", "environment");
+      const args = `test ${COLL_PATH} --env ${ENV_PATH}`;
+      const result = await runCLIWithNetworkRetry(args);
+      if (result === null) return;
+
+      expect(result.stdout).toContain("REST responds 200");
+      expect(result.stdout).toContain("env templated header echoed");
+      expect(result.stdout).toContain("anonymous query in nested folder");
+      expect(result.error).toBeNull();
+    });
+  });
 });

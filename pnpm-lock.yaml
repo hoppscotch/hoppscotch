@@ -496,6 +496,9 @@ importers:
       fp-ts:
         specifier: 2.16.11
         version: 2.16.11
+      graphql:
+        specifier: 16.13.2
+        version: 16.13.2
       prettier:
         specifier: 3.9.6
         version: 3.9.6

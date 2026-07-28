@@ -34,6 +34,7 @@ import {
 import { isHoppCLIError } from "./checks";
 import { arrayFlatMap, arraySort, tupleToRecord } from "./functions/array";
 import { getEffectiveFinalMetaData, getResolvedVariables } from "./getters";
+import { buildEffectiveGQLPayload, isGQLStubRequest } from "./gql-request";
 import { stripComments } from "./jsonc";
 import { toFormData } from "./mutators";
 import { combineScriptsWithIIFE, filterValidScripts } from "@hoppscotch/js-sandbox/scripting";
@@ -179,11 +180,11 @@ export async function getEffectiveRESTRequest(
   }
   const effectiveFinalParams = _effectiveFinalParams.right;
 
-  // Parsing final-body with applied ENVs.
-  const _effectiveFinalBody = getFinalBodyFromRequest(
-    request,
-    resolvedVariables
-  );
+  // Parsing final-body with applied ENVs. GraphQL stubs assemble their
+  // payload from the raw query/variables AFTER templating — see gql-request.ts
+  const _effectiveFinalBody = isGQLStubRequest(request)
+    ? buildEffectiveGQLPayload(request, resolvedVariables)
+    : getFinalBodyFromRequest(request, resolvedVariables);
   if (E.isLeft(_effectiveFinalBody)) {
     return _effectiveFinalBody;
   }

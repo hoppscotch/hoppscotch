@@ -66,6 +66,7 @@
     "@types/papaparse": "5.5.2",
     "@types/qs": "6.15.1",
     "fp-ts": "2.16.11",
+    "graphql": "16.13.2",
     "prettier": "3.9.6",
     "tsup": "8.5.1",
     "typescript": "5.9.3",

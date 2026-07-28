@@ -14,10 +14,12 @@
             v-tippy="{ theme: 'tooltip' }"
             :title="t('request.switch_protocol')"
             :aria-label="t('request.switch_protocol')"
-            class="flex items-center gap-1.5 rounded bg-primaryLight px-3 py-1 text-tiny font-bold uppercase tracking-wide text-secondaryDark transition hover:bg-primaryDark"
+            class="flex w-[7.2rem] items-center justify-between rounded bg-primaryLight px-3 py-1 text-tiny font-bold uppercase tracking-wide text-secondaryDark transition hover:bg-primaryDark"
           >
-            <component :is="currentProtocolIcon" class="h-3.5 w-3.5" />
-            {{ currentProtocolLabel }}
+            <span class="flex items-center gap-1.5">
+              <component :is="currentProtocolIcon" class="h-3.5 w-3.5" />
+              {{ currentProtocolLabel }}
+            </span>
             <component
               :is="IconChevronDown"
               class="h-3.5 w-3.5 text-secondaryLight"

@@ -128,8 +128,11 @@ export class HistorySpotlightSearcherService
     if (this.restHistoryEntryOpenable.value) {
       minisearch.addAll(
         restHistoryStore.value.state
-          .filter((x) => !!x.updatedOn)
-          .map((entry, index) => {
+          // Index BEFORE filtering — the result id is used to look the entry
+          // back up in the unfiltered store, so it must be the store index
+          .map((entry, index) => ({ entry, index }))
+          .filter(({ entry }) => !!entry.updatedOn)
+          .map(({ entry, index }) => {
             const relTimeString = capitalize(
               useTimeAgo(entry.updatedOn!, {
                 updateInterval: 0,
@@ -149,8 +152,10 @@ export class HistorySpotlightSearcherService
     if (this.gqlHistoryEntryOpenable.value) {
       minisearch.addAll(
         graphqlHistoryStore.value.state
-          .filter((x) => !!x.updatedOn)
-          .map((entry, index) => {
+          // Index BEFORE filtering — see the REST block above
+          .map((entry, index) => ({ entry, index }))
+          .filter(({ entry }) => !!entry.updatedOn)
+          .map(({ entry, index }) => {
             const relTimeString = capitalize(
               useTimeAgo(entry.updatedOn!, {
                 updateInterval: 0,

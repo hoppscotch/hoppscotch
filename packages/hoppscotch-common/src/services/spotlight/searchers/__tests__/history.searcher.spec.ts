@@ -315,6 +315,103 @@ describe("HistorySpotlightSearcherService", () => {
     })
   })
 
+  it("selecting an entry opens that same entry when earlier entries lack updatedOn", async () => {
+    actionsMock.value.push("rest.request.open")
+
+    // Entries without `updatedOn` are filtered out of the search index, but
+    // result ids must still address the unfiltered store
+    historyMock.restEntries.push({
+      request: {
+        ...getDefaultRESTRequest(),
+        endpoint: "skipped.com",
+      },
+      responseMeta: { duration: null, statusCode: null },
+      star: false,
+      v: 1,
+      updatedOn: undefined,
+    } as unknown as RESTHistoryEntry)
+
+    const targetEntry: RESTHistoryEntry = {
+      request: {
+        ...getDefaultRESTRequest(),
+        endpoint: "bla.com",
+      },
+      responseMeta: { duration: null, statusCode: null },
+      star: false,
+      v: 1,
+      updatedOn: new Date(),
+    }
+
+    historyMock.restEntries.push(targetEntry)
+
+    const container = new TestContainer()
+
+    const history = container.bind(HistorySpotlightSearcherService)
+    await flushPromises()
+
+    const query = ref("bla")
+    const [result] = history.createSearchSession(query)
+    await nextTick()
+
+    // Store index (1), not the filtered index (0)
+    expect(result.value.results[0].id).toBe("rest-1")
+
+    history.onResultSelect(result.value.results[0])
+
+    expect(actionsMock.invokeAction).toHaveBeenCalledWith("rest.request.open", {
+      doc: {
+        request: targetEntry.request,
+        isDirty: false,
+        type: "request",
+      },
+    })
+  })
+
+  it("selecting a graphql entry opens that same entry when earlier entries lack updatedOn", async () => {
+    actionsMock.value.push("gql.request.open")
+
+    historyMock.gqlEntries.push({
+      request: {
+        ...getDefaultGQLRequest(),
+        url: "skipped.com",
+      },
+      response: "{}",
+      star: false,
+      v: 1,
+      updatedOn: undefined,
+    } as unknown as GQLHistoryEntry)
+
+    const targetEntry: GQLHistoryEntry = {
+      request: {
+        ...getDefaultGQLRequest(),
+        url: "bla.com",
+      },
+      response: "{}",
+      star: false,
+      v: 1,
+      updatedOn: new Date(),
+    }
+
+    historyMock.gqlEntries.push(targetEntry)
+
+    const container = new TestContainer()
+
+    const history = container.bind(HistorySpotlightSearcherService)
+    await flushPromises()
+
+    const query = ref("bla")
+    const [result] = history.createSearchSession(query)
+    await nextTick()
+
+    expect(result.value.results[0].id).toBe("gql-1")
+
+    history.onResultSelect(result.value.results[0])
+
+    expect(actionsMock.invokeAction).toHaveBeenCalledWith("gql.request.open", {
+      request: targetEntry.request,
+    })
+  })
+
   it("rest history entries are not shown when the rest open action is not registered", async () => {
     actionsMock.value.push("gql.request.open")
 

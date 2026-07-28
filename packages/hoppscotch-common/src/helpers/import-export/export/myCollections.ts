@@ -1,6 +1,6 @@
 import { HoppCollection } from "@hoppscotch/data"
 import { stripRefIdReplacer } from "."
-import { stripCollectionTreeForStore } from "~/helpers/secretVariables"
+import { stripCollectionTreeForStore } from "~/helpers/clientLocalVariables"
 
 export const myCollectionsExporter = (myCollections: HoppCollection[]) => {
   const stripped = myCollections.map(stripCollectionTreeForStore)

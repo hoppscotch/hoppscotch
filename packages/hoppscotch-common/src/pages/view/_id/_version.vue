@@ -247,14 +247,9 @@ const fetchDocs = async (docId: string, version: string) => {
       const parsed =
         typeof rawEnvVars === "string" ? JSON.parse(rawEnvVars) : rawEnvVars
       if (Array.isArray(parsed)) {
-        parsedEnvironmentVariables.value = parsed.map((v) => {
-          const normalized = translateToNewEnvironmentVariables(v)
-          // Ensure currentValue falls back to initialValue
-          return {
-            ...normalized,
-            currentValue: normalized.currentValue || normalized.initialValue,
-          }
-        })
+        parsedEnvironmentVariables.value = parsed.map((v) =>
+          translateToNewEnvironmentVariables(v)
+        )
       }
     } catch (e) {
       console.error("Error parsing environment variables:", e)

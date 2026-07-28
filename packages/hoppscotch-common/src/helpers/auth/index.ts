@@ -2,7 +2,11 @@ import { getService } from "~/modules/dioc"
 import { RESTTabService } from "~/services/tab/rest"
 import { parseTemplateStringE } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
-import { getCombinedEnvVariables } from "../utils/environments"
+import {
+  getEffectiveVariablesForRequest,
+  filterNonEmptyEnvironmentVariables,
+} from "../utils/environments"
+import { getAggregateEnvsWithCurrentValue } from "~/newstore/environments"
 
 export const replaceTemplateStringsInObjectValues = <
   T extends Record<string, unknown>,
@@ -10,33 +14,21 @@ export const replaceTemplateStringsInObjectValues = <
   obj: T,
   source: "REST" | "GQL" = "REST"
 ) => {
-  const envs = getCombinedEnvVariables()
-  const restTabsService = getService(RESTTabService)
+  const document = getService(RESTTabService).currentActiveTab.value.document
 
-  const requestVariables =
-    source === "REST" &&
-    restTabsService.currentActiveTab.value.document.type === "request"
-      ? restTabsService.currentActiveTab.value.document.request.requestVariables.map(
-          ({ key, value }) => ({
-            key,
-            initialValue: value,
-            currentValue: value,
-            secret: false,
-          })
-        )
-      : []
+  // Only a REST request tab has request/collection variables.
+  const isRESTRequest = source === "REST" && document.type === "request"
 
-  // Ensure request variables are prioritized by removing any selected/global environment variables with the same key
-  const selectedEnvVars = envs.selected.filter(
-    ({ key }) =>
-      !requestVariables.some(({ key: reqVarKey }) => reqVarKey === key)
+  // Resolve like a sent request: request > collection > environment precedence,
+  // active request vars only. The current→initial fallback happens in
+  // `parseTemplateStringE`.
+  const envVars = filterNonEmptyEnvironmentVariables(
+    getEffectiveVariablesForRequest(
+      isRESTRequest ? document.request.requestVariables : [],
+      isRESTRequest ? document.inheritedProperties?.variables : [],
+      getAggregateEnvsWithCurrentValue()
+    )
   )
-  const globalEnvVars = envs.global.filter(
-    ({ key }) =>
-      !requestVariables.some(({ key: reqVarKey }) => reqVarKey === key)
-  )
-
-  const envVars = [...selectedEnvVars, ...globalEnvVars, ...requestVariables]
 
   const newObj: Partial<T> = {}
 

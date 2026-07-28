@@ -11,14 +11,14 @@ import {
   populateLocalStoresFromCollectionTree,
   populateLocalStoresFromVariables,
   repopulateLoadedCollectionTree,
-  stripSecretVariableValuesForWire,
-} from "../secretVariables"
+  stripClientLocalValuesForWire,
+} from "../clientLocalVariables"
 
 const ENTITY_ID = "entity-1"
 
-describe("stripSecretVariableValuesForWire", () => {
+describe("stripClientLocalValuesForWire", () => {
   it("clears both initialValue and currentValue for secret variables", () => {
-    const result = stripSecretVariableValuesForWire([
+    const result = stripClientLocalValuesForWire([
       {
         key: "token",
         initialValue: "should-be-stripped",
@@ -37,12 +37,12 @@ describe("stripSecretVariableValuesForWire", () => {
     ])
   })
 
-  it("keeps both initialValue and currentValue for non-secret variables", () => {
-    const result = stripSecretVariableValuesForWire([
+  it("clears currentValue for non-secret variables (per-user, client-local) but keeps initialValue", () => {
+    const result = stripClientLocalValuesForWire([
       {
         key: "host",
         initialValue: "https://api.example.com",
-        currentValue: "https://staging.example.com",
+        currentValue: "https://my-laptop.local",
         secret: false,
       },
     ])
@@ -51,7 +51,7 @@ describe("stripSecretVariableValuesForWire", () => {
       {
         key: "host",
         initialValue: "https://api.example.com",
-        currentValue: "https://staging.example.com",
+        currentValue: "",
         secret: false,
       },
     ])
@@ -62,19 +62,20 @@ describe("stripSecretVariableValuesForWire", () => {
       {
         key: "x",
         initialValue: "v",
-        currentValue: "v",
+        currentValue: "c",
         secret: false,
         // hypothetical future field
         description: "the X variable",
       },
     ]
 
-    const [out] = stripSecretVariableValuesForWire(input)
+    const [out] = stripClientLocalValuesForWire(input)
     expect(out.description).toBe("the X variable")
+    expect(out.currentValue).toBe("")
   })
 
   it("returns an empty array for empty input", () => {
-    expect(stripSecretVariableValuesForWire([])).toEqual([])
+    expect(stripClientLocalValuesForWire([])).toEqual([])
   })
 })
 

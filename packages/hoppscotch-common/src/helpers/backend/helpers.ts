@@ -18,7 +18,7 @@ import { getI18n } from "~/modules/i18n"
 import { TeamCollection } from "../teams/TeamCollection"
 import { TeamRequest } from "../teams/TeamRequest"
 import { GQLError, runGQLQuery } from "./GQLClient"
-import { stripCollectionTreeForStore } from "~/helpers/secretVariables"
+import { stripCollectionTreeForStore } from "~/helpers/clientLocalVariables"
 import {
   ExportAsJsonDocument,
   ExportCollectionToJsonDocument,

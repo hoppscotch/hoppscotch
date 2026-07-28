@@ -13,8 +13,8 @@ import { Environment, generateUniqueRefId } from "@hoppscotch/data"
 import {
   populateLocalStoresFromVariables,
   promoteInitialValueForImport,
-  stripSecretVariableValuesForWire,
-} from "~/helpers/secretVariables"
+  stripClientLocalValuesForWire,
+} from "~/helpers/clientLocalVariables"
 import * as E from "fp-ts/Either"
 import { ref } from "vue"
 
@@ -418,7 +418,7 @@ const handleImportToStore = async (
     ])
 
     // Append stripped imports; varIndex aligns with the hydrated entries.
-    stripSecretVariableValuesForWire(importedGlobals).forEach(
+    stripClientLocalValuesForWire(importedGlobals).forEach(
       ({ key, initialValue, currentValue, secret }) => {
         addGlobalEnvVariable({ key, initialValue, currentValue, secret })
       }
@@ -446,7 +446,7 @@ const handleImportToStore = async (
 
     const strippedEnvironments = envsWithIds.map((env) => ({
       ...env,
-      variables: stripSecretVariableValuesForWire(env.variables),
+      variables: stripClientLocalValuesForWire(env.variables),
     }))
     appendEnvironments(strippedEnvironments)
     toast.success(t("state.file_imported"))
@@ -462,7 +462,7 @@ const importToTeams = async (content: Environment[]) => {
 
   for (const [, env] of content.entries()) {
     const res = createTeamEnvironment(
-      JSON.stringify(stripSecretVariableValuesForWire(env.variables)),
+      JSON.stringify(stripClientLocalValuesForWire(env.variables)),
       props.teamId as string,
       env.name
     )()

@@ -31,7 +31,7 @@ import {
   loadMockServers,
 } from "~/newstore/mockServers"
 import { CurrentValueService } from "~/services/current-environment-value.service"
-import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
+import { stripClientLocalValuesForWire } from "~/helpers/clientLocalVariables"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { WorkspaceService } from "~/services/workspace.service"
 
@@ -283,9 +283,7 @@ export function useMockServer() {
 
         await pipe(
           updateTeamEnvironment(
-            JSON.stringify(
-              stripSecretVariableValuesForWire(normalizedVariables)
-            ),
+            JSON.stringify(stripClientLocalValuesForWire(normalizedVariables)),
             existingEnv.id,
             existingEnv.environment.name
           ),
@@ -328,7 +326,7 @@ export function useMockServer() {
 
         await pipe(
           createTeamEnvironment(
-            JSON.stringify(stripSecretVariableValuesForWire(variables)),
+            JSON.stringify(stripClientLocalValuesForWire(variables)),
             teamID,
             envName
           ),

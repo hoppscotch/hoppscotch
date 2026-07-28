@@ -34,6 +34,7 @@
         @click="emit('delete-entry')"
       />
       <HoppButtonSecondary
+        v-if="canExpand"
         v-tippy="{ theme: 'tooltip' }"
         :title="expand ? t('hide.more') : t('show.more')"
         :icon="expand ? IconMinimize2 : IconMaximize2"
@@ -81,7 +82,6 @@ const t = useI18n()
 
 const props = defineProps<{
   entry: GQLHistoryEntry
-  showMore: boolean
 }>()
 
 const emit = defineEmits<{
@@ -92,13 +92,14 @@ const emit = defineEmits<{
 
 const expand = ref(false)
 
+const queryLines = computed(() => props.entry.request.query.split("\n"))
+
+const canExpand = computed(() => queryLines.value.length > 2)
+
 const query = computed(() =>
-  expand.value
-    ? (props.entry.request.query.split("\n") as string[])
-    : (props.entry.request.query
-        .split("\n")
-        .slice(0, 2)
-        .concat(["..."]) as string[])
+  expand.value || !canExpand.value
+    ? queryLines.value
+    : queryLines.value.slice(0, 2).concat(["..."])
 )
 
 const useEntry = () => {

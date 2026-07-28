@@ -26,7 +26,7 @@
         class="sticky top-0 z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
       >
         <label class="truncate font-semibold text-secondaryLight">
-          {{ t("response.title") }}
+          {{ t("response.body") }}
         </label>
         <div class="flex items-center">
           <HoppButtonSecondary

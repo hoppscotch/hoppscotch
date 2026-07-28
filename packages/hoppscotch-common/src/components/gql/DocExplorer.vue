@@ -62,8 +62,8 @@
   <HoppSmartPlaceholder
     v-else
     :src="`/images/states/${colorMode.value}/pack.svg`"
-    :alt="t('empty.empty_schema')"
-    :text="t('empty.empty_schema')"
+    :alt="t('empty.documentation')"
+    :text="t('empty.documentation')"
   >
   </HoppSmartPlaceholder>
 </template>

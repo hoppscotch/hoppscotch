@@ -25,7 +25,14 @@ import {
   insertTab,
   redo,
 } from "@codemirror/commands"
-import { Completion, autocompletion } from "@codemirror/autocomplete"
+import {
+  Completion,
+  CompletionContext,
+  CompletionResult,
+  CompletionSource,
+  autocompletion,
+} from "@codemirror/autocomplete"
+import { getAggregateEnvsWithCurrentValue } from "~/newstore/environments"
 import { linter } from "@codemirror/lint"
 import { watch, ref, Ref, onMounted, onBeforeUnmount } from "vue"
 import { javascriptLanguage } from "@codemirror/lang-javascript"
@@ -103,39 +110,78 @@ type CodeMirrorOptions = {
   onInit?: (view: EditorView) => void
 }
 
-const hoppCompleterExt = (completer: Completer): Extension => {
+const languageCompletionSource =
+  (completer: Completer): CompletionSource =>
+  async (context) => {
+    // Expensive operation! Disable on bigger files ?
+    const text = context.state.doc.toJSON().join(context.state.lineBreak)
+
+    const line = context.state.doc.lineAt(context.pos)
+    const lineStart = line.from
+    const lineNo = line.number - 1
+    const ch = context.pos - lineStart
+
+    // Only do trigger on type when typing a word token, else stop (unless explicit)
+    if (!context.matchBefore(/\w+/) && !context.explicit)
+      return {
+        from: context.pos,
+        options: [],
+      }
+
+    const result = await completer(text, { line: lineNo, ch })
+
+    // Use more completion features ?
+    const completions =
+      result?.completions.map<Completion>((comp) => ({
+        label: comp.text,
+        detail: comp.meta,
+      })) ?? []
+
+    return {
+      from: context.state.wordAt(context.pos)?.from ?? context.pos,
+      options: completions,
+    }
+  }
+
+/**
+ * Environment variable completion for `<<...>>` templates — the multi-line
+ * editor counterpart of SmartEnvInput's `envAutoCompletion`. Suggests the
+ * aggregate env list (predefined + selected + global) with the current→initial
+ * value fallback in the info preview; secrets stay masked.
+ */
+const envCompletionSource = (
+  context: CompletionContext
+): CompletionResult | null => {
+  const tagBefore = context.matchBefore(/<<\$?[A-Za-z0-9_.-]*/)
+  if (!tagBefore && !context.explicit) return null
+
+  // If closing brackets already exist after the cursor, don't re-insert them
+  const textAfter = context.state.sliceDoc(context.pos, context.pos + 2)
+  const hasClosingBrackets = textAfter === ">>"
+
+  const options = getAggregateEnvsWithCurrentValue()
+    .filter((env) => !!env.key)
+    .map<Completion>((env) => ({
+      label: `<<${env.key}>>`,
+      info: env.secret ? "••••••" : env.currentValue || env.initialValue || "",
+      apply: hasClosingBrackets ? `<<${env.key}` : `<<${env.key}>>`,
+    }))
+
+  return {
+    from: tagBefore ? tagBefore.from : context.pos,
+    options,
+    validFor: /^(<<\$?[A-Za-z0-9_.-]*)?$/,
+  }
+}
+
+const hoppCompleterExt = (
+  completer: Completer | null,
+  envComplete: boolean
+): Extension => {
   return autocompletion({
     override: [
-      async (context) => {
-        // Expensive operation! Disable on bigger files ?
-        const text = context.state.doc.toJSON().join(context.state.lineBreak)
-
-        const line = context.state.doc.lineAt(context.pos)
-        const lineStart = line.from
-        const lineNo = line.number - 1
-        const ch = context.pos - lineStart
-
-        // Only do trigger on type when typing a word token, else stop (unless explicit)
-        if (!context.matchBefore(/\w+/) && !context.explicit)
-          return {
-            from: context.pos,
-            options: [],
-          }
-
-        const result = await completer(text, { line: lineNo, ch })
-
-        // Use more completion features ?
-        const completions =
-          result?.completions.map<Completion>((comp) => ({
-            label: comp.text,
-            detail: comp.meta,
-          })) ?? []
-
-        return {
-          from: context.state.wordAt(context.pos)?.from ?? context.pos,
-          options: completions,
-        }
-      },
+      ...(completer ? [languageCompletionSource(completer)] : []),
+      ...(envComplete ? [envCompletionSource] : []),
     ],
   })
 }
@@ -167,12 +213,14 @@ const hoppLinterExt = (hoppLinter: LinterDefinition | undefined): Extension => {
 const hoppLang = (
   language: Language | undefined,
   linter?: LinterDefinition | undefined,
-  completer?: Completer | undefined
+  completer?: Completer | undefined,
+  envComplete = false
 ): Extension | LanguageSupport => {
   const exts: Extension[] = []
 
   exts.push(hoppLinterExt(linter))
-  if (completer) exts.push(hoppCompleterExt(completer))
+  if (completer || envComplete)
+    exts.push(hoppCompleterExt(completer ?? null, envComplete))
 
   // Add comment token configuration for JSONC to enable comment toggle
   if (language === jsoncLanguage) {
@@ -282,8 +330,10 @@ const parseDoc = (
 const getEditorLanguage = (
   langMime: string,
   linter: LinterDefinition | undefined,
-  completer: Completer | undefined
-): Extension => hoppLang(getLanguage(langMime) ?? undefined, linter, completer)
+  completer: Completer | undefined,
+  envComplete = false
+): Extension =>
+  hoppLang(getLanguage(langMime) ?? undefined, linter, completer, envComplete)
 
 /**
  * Strips the `export {};\n` prefix from the value for display in the editor.
@@ -483,7 +533,11 @@ export function useCodemirror(
             ? ((options.extendedEditorConfig.mode as any) ?? "")
             : "",
           options.linter ?? undefined,
-          options.completer ?? undefined
+          options.completer ?? undefined,
+          // Completions can never apply in a read-only editor — highlights
+          // and tooltips stay on, the popup stays off
+          options.environmentHighlights &&
+            !options.extendedEditorConfig.readOnly
         )
       ),
       lineWrapping.of(
@@ -624,7 +678,9 @@ export function useCodemirror(
               ? ((options.extendedEditorConfig.mode as any) ?? "")
               : "",
             options.linter ?? undefined,
-            options.completer ?? undefined
+            options.completer ?? undefined,
+            options.environmentHighlights &&
+              !options.extendedEditorConfig.readOnly
           )
         ),
       })

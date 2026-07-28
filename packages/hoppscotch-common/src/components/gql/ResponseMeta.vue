@@ -2,9 +2,21 @@
   <div
     class="sticky top-0 z-10 flex flex-shrink-0 items-center justify-center overflow-auto overflow-x-auto whitespace-nowrap bg-primary p-4"
   >
-    <AppShortcutsPrompt v-if="response == null && !isEmbed" class="flex-1" />
+    <div
+      v-if="isLoading"
+      class="flex flex-1 flex-col items-center justify-center"
+    >
+      <HoppSmartSpinner class="my-4" />
+      <span class="text-secondaryLight">{{ t("state.loading") }}</span>
+    </div>
 
-    <div v-if="response == null && isEmbed">
+    <AppShortcutsPrompt
+      v-else-if="(response == null || response.length === 0) && !isEmbed"
+      class="flex-1"
+      documentation-url="https://docs.hoppscotch.io/documentation/features/graphql-api-testing"
+    />
+
+    <div v-else-if="response == null || response.length === 0">
       <HoppButtonSecondary
         :label="`${t('app.documentation')}`"
         to="https://docs.hoppscotch.io/documentation/features/graphql-api-testing"
@@ -15,12 +27,7 @@
       />
     </div>
 
-    <div v-else-if="response" class="flex flex-1 flex-col">
-      <div v-if="isLoading" class="flex flex-col items-center justify-center">
-        <HoppSmartSpinner class="my-4" />
-        <span class="text-secondaryLight">{{ t("state.loading") }}</span>
-      </div>
-
+    <div v-else class="flex flex-1 flex-col">
       <HoppSmartPlaceholder
         v-if="errorResponse?.error?.component"
         :src="`/images/states/${colorMode.value}/upload_error.svg`"
@@ -94,7 +101,7 @@
       v-if="!isLoading"
       :inspection-results="tabResults"
       :class="[
-        response === null || errorResponse
+        !response || response.length === 0 || errorResponse
           ? 'absolute right-2 top-2'
           : '-m-2 ml-2',
       ]"
@@ -122,11 +129,10 @@ const props = defineProps<{
   response: GQLResponseEvent[] | null | undefined
   isEmbed?: boolean
   tabId?: string
+  // Driven by the run-in-flight signal (doc.testResults === null) — the
+  // response prop keeps the PREVIOUS run's data during a re-run
+  isLoading?: boolean
 }>()
-
-const isLoading = computed(() => {
-  return props.response === null || props.response === undefined
-})
 
 const successResponse = computed(() => {
   if (!props.response || props.response.length === 0) return null

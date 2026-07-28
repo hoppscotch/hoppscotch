@@ -1,6 +1,6 @@
 <template>
   <div
-    class="sticky top-sidebarPrimaryStickyFold z-10 flex items-center justify-between border-y border-dividerLight bg-primary pl-4"
+    class="sticky top-upperSecondaryStickyFold z-10 flex items-center justify-between border-y border-dividerLight bg-primary pl-4"
   >
     <label class="font-semibold text-secondaryLight">
       {{ t("request.variables") }}
@@ -20,22 +20,17 @@
         @click="stopQuery()"
       />
       <HoppButtonSecondary
-        v-if="
-          showRunActions &&
-          selectedOperation &&
-          subscriptionState !== 'SUBSCRIBED'
-        "
+        v-if="showRunActions && subscriptionState !== 'SUBSCRIBED'"
         v-tippy="{
           theme: 'tooltip',
           delay: [500, 20],
           allowHTML: true,
         }"
-        :title="`${t('request.run')} <kbd>${getSpecialKey()}</kbd><kbd>G</kbd>`"
-        :label="`${selectedOperation.name?.value ?? t('request.run')}`"
+        :title="`${t('request.run')} <kbd>${getSpecialKey()}</kbd><kbd>↩</kbd>`"
+        :label="`${t('request.run')}`"
         :icon="IconPlay"
-        :disabled="!selectedOperation"
         class="!hover:text-accentDark rounded-none !text-accent"
-        @click="runQuery(selectedOperation)"
+        @click="runQuery(null)"
       />
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
@@ -117,9 +112,6 @@ const emit = defineEmits<{
   (e: "run-query", definition: gql.OperationDefinitionNode | null): void
   (e: "stop-query"): void
 }>()
-
-// Watch operations on graphql query string
-const selectedOperation = ref<gql.OperationDefinitionNode | null>(null)
 
 const variableString = useVModel(props, "modelValue", emit)
 

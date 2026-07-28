@@ -152,6 +152,7 @@
     <CollectionsAddRequest
       :show="showModalAddRequest"
       :loading-state="modalLoadingState"
+      :request-type="requestTypeToAdd"
       @add-request="onAddRequest"
       @hide-modal="displayModalAddRequest(false)"
     />
@@ -318,6 +319,8 @@ import {
   makeHoppRESTResponseOriginalRequest,
 } from "@hoppscotch/data"
 import { getDefaultGQLRequest } from "~/helpers/graphql/default"
+import { parse as parseGQLDocument } from "graphql"
+import type { OperationDefinitionNode } from "graphql"
 import { useService } from "dioc/vue"
 import { stripJsonSerializedModulePrefix } from "@hoppscotch/js-sandbox/scripting"
 
@@ -2080,6 +2083,24 @@ const addGQLExample = async (request: HoppGQLRequest, exampleName: string) => {
     auth: request.auth,
   })
 
+  // Stamp the operation identity from the request's document (first
+  // operation — the one a run would execute) so the mock server can match
+  // this example; without stamps the matcher skips it entirely
+  let operationName: string | undefined
+  let operationType: string | undefined
+  try {
+    const operation = parseGQLDocument(request.query).definitions.find(
+      (definition): definition is OperationDefinitionNode =>
+        definition.kind === "OperationDefinition"
+    )
+    if (operation) {
+      operationType = operation.operation
+      operationName = operation.name?.value
+    }
+  } catch (_e) {
+    // Unparseable document — leave the example unstamped
+  }
+
   const newExample: HoppGQLRequestResponse = {
     name: exampleName,
     code: 200,
@@ -2087,6 +2108,8 @@ const addGQLExample = async (request: HoppGQLRequest, exampleName: string) => {
     headers: [],
     body: "",
     originalRequest,
+    ...(operationType ? { operationType } : {}),
+    ...(operationName ? { operationName } : {}),
   }
 
   const newExampleID = Object.keys(request.responses ?? {}).length.toString()

@@ -383,6 +383,8 @@ const gqlRequestsMatch = (a: HoppGQLRequest, b: HoppGQLRequest) =>
   a.url === b.url &&
   a.query === b.query &&
   a.variables === b.variables &&
+  a.preRequestScript === b.preRequestScript &&
+  a.testScript === b.testScript &&
   isEqual(a.headers, b.headers) &&
   isEqual(a.auth, b.auth)
 
@@ -426,6 +428,8 @@ const useHistory = (entry: HistoryEntry) => {
     auth: gqlEntryRequest.auth,
     description: gqlEntryRequest.description ?? null,
     responses: {},
+    preRequestScript: gqlEntryRequest.preRequestScript ?? "",
+    testScript: gqlEntryRequest.testScript ?? "",
   })
 
   if (props.page === "graphql") {

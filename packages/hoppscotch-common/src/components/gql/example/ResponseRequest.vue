@@ -6,16 +6,16 @@
       class="min-w-[12rem] flex flex-1 whitespace-nowrap rounded border border-divider"
     >
       <div
-        class="flex w-26 cursor-default rounded-l bg-primaryLight px-4 py-2 font-semibold text-secondaryDark"
+        class="flex cursor-default items-center rounded-l bg-primaryLight px-4 py-2"
       >
-        GQL
+        <IconGraphql class="svg-icons h-4 w-4 text-accent" />
       </div>
       <div
         class="flex flex-1 whitespace-nowrap rounded-r border-l border-divider bg-primaryLight transition"
       >
         <SmartEnvInput
           v-model="tab.document.response.originalRequest.url"
-          :placeholder="`${t('request.url_placeholder')}`"
+          :placeholder="`${t('graphql.url_placeholder')}`"
           :auto-complete-env="true"
         />
       </div>
@@ -23,8 +23,8 @@
     <div class="mt-2 flex sm:mt-0 items-stretch space-x-2">
       <HoppButtonPrimary
         v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
-        title="Try"
-        label="Try"
+        :title="t('request.try')"
+        :label="t('request.try')"
         class="min-w-[5rem] flex-1"
         @click="tryExampleResponse"
       />
@@ -33,7 +33,7 @@
         :title="`${t(
           'request.save'
         )} <kbd>${getSpecialKey()}</kbd><kbd>S</kbd>`"
-        label="Save"
+        :label="t('action.save')"
         filled
         :icon="IconSave"
         class="flex-1 rounded"
@@ -48,6 +48,7 @@ import { useI18n } from "@composables/i18n"
 import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { cloneDeep } from "lodash-es"
+import IconGraphql from "~icons/hopp/graphql"
 import IconSave from "~icons/lucide/save"
 import * as E from "fp-ts/Either"
 

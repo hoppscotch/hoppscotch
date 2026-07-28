@@ -4,92 +4,128 @@
       v-if="!isSubscriptionView"
       :response="response"
       :tab-id="tabId"
+      :is-loading="isTestResultsLoading"
     />
-    <div
+    <HoppSmartTabs
       v-if="
+        !isTestResultsLoading &&
         response &&
         response.length === 1 &&
         response[0].type === 'response' &&
         response[0].operationType !== 'subscription'
       "
-      class="flex flex-1 flex-col"
+      v-model="selectedResponseTab"
+      styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-0 z-10"
+      render-inactive-tabs
     >
-      <div
-        class="sticky top-0 z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
-      >
-        <label class="truncate font-semibold text-secondaryLight">
-          {{ t("response.title") }}
-        </label>
-        <div class="flex items-center">
-          <HoppButtonSecondary
-            v-if="document"
-            v-tippy="{ theme: 'tooltip' }"
-            :title="t('response.save_as_example')"
-            :icon="IconSave"
-            @click="onSaveAsExampleClick"
-          />
-          <HoppButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :title="t('state.linewrap')"
-            :class="{ '!text-accent': WRAP_LINES }"
-            :icon="IconWrapText"
-            @click.prevent="
-              toggleNestedSetting('WRAP_LINES', 'graphqlResponseBody')
-            "
-          />
-          <HoppButtonSecondary
-            v-tippy="{ theme: 'tooltip', allowHTML: true }"
-            :title="`${t(
-              'action.download_file'
-            )} <kbd>${getSpecialKey()}</kbd><kbd>J</kbd>`"
-            :icon="downloadIcon"
-            @click="downloadResponse"
-          />
-          <HoppButtonSecondary
-            v-tippy="{ theme: 'tooltip', allowHTML: true }"
-            :title="`${t(
-              'action.copy'
-            )} <kbd>${getSpecialKey()}</kbd><kbd>.</kbd>`"
-            :icon="copyIcon"
-            @click="copyResponse"
-          />
-          <tippy
-            interactive
-            trigger="click"
-            theme="popover"
-            :on-shown="() => copyInterfaceTippyActions.focus()"
+      <HoppSmartTab :id="'response'" :label="`${t('response.title')}`">
+        <div class="flex flex-1 flex-col">
+          <div
+            class="sticky top-0 z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
           >
-            <HoppButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="t('action.more')"
-              :icon="IconMore"
-            />
-            <template #content="{ hide }">
-              <div
-                ref="copyInterfaceTippyActions"
-                class="flex flex-col focus:outline-none"
-                tabindex="0"
-                @keyup.escape="hide()"
+            <label class="truncate font-semibold text-secondaryLight">
+              {{ t("response.body") }}
+            </label>
+            <div class="flex items-center">
+              <HoppButtonSecondary
+                v-if="document"
+                v-tippy="{ theme: 'tooltip', allowHTML: true }"
+                :title="
+                  isSavable
+                    ? `${t(
+                        'response.save_as_example'
+                      )} <kbd>${getSpecialKey()}</kbd><kbd>E</kbd>`
+                    : t('response.please_save_request')
+                "
+                :icon="IconSave"
+                :class="{
+                  'opacity-75 cursor-not-allowed select-none': !isSavable,
+                }"
+                @click="isSavable ? onSaveAsExampleClick() : null"
+              />
+              <HoppButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="t('state.linewrap')"
+                :class="{ '!text-accent': WRAP_LINES }"
+                :icon="IconWrapText"
+                @click.prevent="
+                  toggleNestedSetting('WRAP_LINES', 'graphqlResponseBody')
+                "
+              />
+              <HoppButtonSecondary
+                v-tippy="{ theme: 'tooltip', allowHTML: true }"
+                :title="`${t(
+                  'action.download_file'
+                )} <kbd>${getSpecialKey()}</kbd><kbd>J</kbd>`"
+                :icon="downloadIcon"
+                @click="downloadResponse"
+              />
+              <HoppButtonSecondary
+                v-tippy="{ theme: 'tooltip', allowHTML: true }"
+                :title="`${t(
+                  'action.copy'
+                )} <kbd>${getSpecialKey()}</kbd><kbd>.</kbd>`"
+                :icon="copyIcon"
+                @click="copyResponse"
+              />
+              <tippy
+                interactive
+                trigger="click"
+                theme="popover"
+                :on-shown="() => copyInterfaceTippyActions.focus()"
               >
-                <HoppSmartItem
-                  :label="t('response.generate_data_schema')"
-                  :icon="IconNetwork"
-                  @click="
-                    () => {
-                      invokeAction('response.schema.toggle')
-                      hide()
-                    }
-                  "
+                <HoppButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="t('action.more')"
+                  :icon="IconMore"
                 />
-              </div>
-            </template>
-          </tippy>
+                <template #content="{ hide }">
+                  <div
+                    ref="copyInterfaceTippyActions"
+                    class="flex flex-col focus:outline-none"
+                    tabindex="0"
+                    @keyup.escape="hide()"
+                  >
+                    <HoppSmartItem
+                      :label="t('response.generate_data_schema')"
+                      :icon="IconNetwork"
+                      @click="
+                        () => {
+                          invokeAction('response.schema.toggle')
+                          hide()
+                        }
+                      "
+                    />
+                  </div>
+                </template>
+              </tippy>
+            </div>
+          </div>
+          <div class="h-full relative overflow-auto flex flex-col flex-1">
+            <div ref="schemaEditor" class="absolute inset-0 h-full"></div>
+          </div>
         </div>
-      </div>
-      <div class="h-full relative overflow-auto flex flex-col flex-1">
-        <div ref="schemaEditor" class="absolute inset-0 h-full"></div>
-      </div>
-    </div>
+      </HoppSmartTab>
+      <HoppSmartTab
+        v-if="document !== undefined"
+        :id="'results'"
+        :label="`${t('test.results')}`"
+        :indicator="testResultsIndicator"
+      >
+        <HttpTestResult
+          v-model="testResultsModel"
+          :is-loading="isTestResultsLoading"
+        />
+      </HoppSmartTab>
+      <HoppSmartTab
+        v-if="showConsoleTab"
+        id="console"
+        label="Console"
+        class="flex flex-1 flex-col"
+      >
+        <ConsolePanel :messages="consoleEntries" />
+      </HoppSmartTab>
+    </HoppSmartTabs>
     <div
       v-else-if="
         response &&
@@ -123,7 +159,7 @@ import IconWrapText from "~icons/lucide/wrap-text"
 import IconNetwork from "~icons/lucide/network"
 import IconMore from "~icons/lucide/more-horizontal"
 import IconSave from "~icons/lucide/save"
-import { computed, reactive, ref } from "vue"
+import { computed, reactive, ref, watch } from "vue"
 import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import {
@@ -140,7 +176,7 @@ import {
   GQLResponseEvent,
   GQLTabConnectionService,
 } from "~/services/gql-tab-connection.service"
-import { useNestedSetting } from "~/composables/settings"
+import { useNestedSetting, useSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 import {
   useCopyResponse,
@@ -175,6 +211,71 @@ const emit = defineEmits<{
 const doc = useVModel(props, "document", emit)
 
 const gqlTabConn = useService(GQLTabConnectionService)
+
+// --- Test results tab ---
+
+const selectedResponseTab = ref<string>(
+  props.document?.responseTabPreference ?? "response"
+)
+watch(selectedResponseTab, (tab) => {
+  if (doc.value) doc.value.responseTabPreference = tab
+})
+
+const testResultsModel = computed({
+  get: () => doc.value?.testResults,
+  // `null` is reserved for "run in flight" — the clear button's null write
+  // maps to undefined so it shows the empty state, not an eternal spinner
+  set: (val) => {
+    if (doc.value) doc.value.testResults = val === null ? undefined : val
+  },
+})
+
+const isTestResultsLoading = computed(() => doc.value?.testResults === null)
+
+// Save-as-example needs a persisted request to write into — mirror the REST
+// renderer's disabled affordance for unsaved requests
+const isSavable = computed(() => !!doc.value?.saveContext)
+
+const EXPERIMENTAL_SCRIPTING_SANDBOX = useSetting(
+  "EXPERIMENTAL_SCRIPTING_SANDBOX"
+)
+
+const showConsoleTab = computed(() => {
+  const entries = doc.value?.testResults?.consoleEntries
+  return !!entries && entries.length > 0 && EXPERIMENTAL_SCRIPTING_SANDBOX.value
+})
+
+const consoleEntries = computed(() => {
+  const entries = doc.value?.testResults?.consoleEntries ?? []
+  return entries.filter(({ type }) =>
+    ["log", "warn", "debug", "error", "info"].includes(type)
+  )
+})
+
+// The Console tab unmounts when a run produces no console output — a stale
+// "console" selection (in-session or restored via responseTabPreference)
+// would leave the panel blank
+watch(
+  showConsoleTab,
+  (visible) => {
+    if (!visible && selectedResponseTab.value === "console") {
+      selectedResponseTab.value = "response"
+    }
+  },
+  { immediate: true }
+)
+
+const testResultsIndicator = computed(() => {
+  const results = doc.value?.testResults
+  if (!results) return false
+  return Boolean(
+    results.expectResults.length ||
+    results.tests.length ||
+    results.envDiff.selected.additions.length ||
+    results.envDiff.selected.updations.length ||
+    results.envDiff.global.updations.length
+  )
+})
 
 // `subscriptionPending` is true when a subscription has been initiated and
 // the server hasn't pushed any data yet — covers both the SUBSCRIBING window
@@ -269,6 +370,11 @@ defineActionHandler(
   () => copyResponse(),
   computed(() => !!props.response && props.response.length > 0)
 )
+defineActionHandler(
+  "response.save-as-example",
+  () => onSaveAsExampleClick(),
+  computed(() => !!doc.value && !!responseString.value && isSavable.value)
+)
 
 const responseName = ref("")
 const showSaveResponseName = ref(false)
@@ -314,6 +420,10 @@ const onSaveAsExample = () => {
     // exposes them, this is where they'd land.
     headers: [],
     body: event.data,
+    // Operation identity for the mock server's GraphQL matcher — the
+    // DB trigger projects these into `mockExamples`
+    operationName: event.operationName,
+    operationType: event.operationType,
   }
 
   doc.value.request.responses = {

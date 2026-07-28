@@ -28,6 +28,14 @@ import { datasetRowToTempVars } from "~/helpers/runner/dataset"
 import { getRequestSelectionID } from "~/helpers/runner/selection"
 import { clearTemporaryVariables } from "~/helpers/runner/temp_envs"
 
+// Sentinel errors used to unwind the runner. A plain "Test execution stopped"
+// is a user cancel; "Test execution stopped due to error" is a stop-on-error
+// halt. Both are normal terminations (run status "stopped"), not runner
+// failures, so every unwinding catch must recognize either form.
+const STOP_SIGNAL_PREFIX = "Test execution stopped"
+const isStopSignal = (error: unknown): error is Error =>
+  error instanceof Error && error.message.startsWith(STOP_SIGNAL_PREFIX)
+
 export type TestRunnerOptions = {
   stopRef: Ref<boolean>
 } & TestRunnerConfig
@@ -158,10 +166,7 @@ export class TestRunnerService extends Service {
         tab.value.document.status = "stopped"
       })
       .catch((error) => {
-        if (
-          error instanceof Error &&
-          error.message === "Test execution stopped"
-        ) {
+        if (isStopSignal(error)) {
           tab.value.document.status = "stopped"
         } else {
           tab.value.document.status = "error"
@@ -431,10 +436,7 @@ export class TestRunnerService extends Service {
         }
       }
     } catch (error) {
-      if (
-        error instanceof Error &&
-        error.message === "Test execution stopped"
-      ) {
+      if (isStopSignal(error)) {
         throw error
       }
       tab.value.document.status = "error"
@@ -590,10 +592,7 @@ export class TestRunnerService extends Service {
         }
       }
     } catch (error) {
-      if (
-        error instanceof Error &&
-        error.message === "Test execution stopped"
-      ) {
+      if (isStopSignal(error)) {
         throw error
       }
 

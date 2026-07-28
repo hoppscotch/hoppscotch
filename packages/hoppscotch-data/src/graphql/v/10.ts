@@ -9,6 +9,8 @@ export const V10_SCHEMA = V9_SCHEMA.extend({
   _ref_id: z.string().optional(),
   description: z.string().nullable().catch(null),
   responses: HoppGQLRequestResponses.catch({}),
+  preRequestScript: z.string().catch(""),
+  testScript: z.string().catch(""),
 })
 
 export default defineVersion({
@@ -21,6 +23,8 @@ export default defineVersion({
       _ref_id: generateUniqueRefId("req"),
       description: null,
       responses: {},
+      preRequestScript: "",
+      testScript: "",
     }
   },
 })

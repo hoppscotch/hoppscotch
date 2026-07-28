@@ -81,6 +81,8 @@ export function getDefaultGQLRequest(): HoppGQLRequest {
     _ref_id: generateUniqueRefId("req"),
     description: null,
     responses: {},
+    preRequestScript: "",
+    testScript: "",
   }
 }
 

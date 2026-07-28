@@ -18,6 +18,7 @@ overrides:
   liquidjs@<10.27.0: 10.27.1
   nodemailer@<=9.0.0: 9.0.1
   postcss@<=8.5.17: 8.5.18
+  serialize-javascript@<7.0.7: 7.0.7
   svgo@>=4.0.0 <4.0.2: 4.0.2
   vue: 3.5.40
   ws: 8.21.0
@@ -1774,11 +1775,11 @@ packages:
         optional: true
 
   '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/9d4528be4f385bccbe46859631d31aa2ee1ec0b6':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/9d4528be4f385bccbe46859631d31aa2ee1ec0b6}
+    resolution: {gitHosted: true, integrity: sha512-fH4riUTO4+6/Pr87Q4PTV7EqGXEnSuLl01g3ws54V2k+A3LDzbCrSa+50XBbmPgroHxnhefkXig8q8qL099f0g==, tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/9d4528be4f385bccbe46859631d31aa2ee1ec0b6}
     version: 0.1.0
 
   '@CuriousCorrelation/plugin-relay@https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/273488c8f50a22ee707af6b50ccd5570851f8bc9':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/273488c8f50a22ee707af6b50ccd5570851f8bc9}
+    resolution: {gitHosted: true, integrity: sha512-ipTfU7ci4UGP5+lpR2oDQGfVY3PvF3p5OtqKBVoNoRyIogHoqlpw6VsK+IfvsNbNN+LmAGKpQFyiZaRKErB2Lg==, tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/273488c8f50a22ee707af6b50ccd5570851f8bc9}
     version: 0.1.0
 
   '@acemir/cssom@0.9.31':
@@ -11847,9 +11848,6 @@ packages:
   ramda@0.27.2:
     resolution: {integrity: sha512-SbiLPU40JuJniHexQSAgad32hfwd+DRUdwF2PlVuI5RZD0/vahUco7R8vD86J/tcEKKF9vZrUVwgtmGCqlCKyA==}
 
-  randombytes@2.1.0:
-    resolution: {integrity: sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ==}
-
   range-parser@1.2.1:
     resolution: {integrity: sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==}
     engines: {node: '>= 0.6'}
@@ -12186,8 +12184,9 @@ packages:
   seq-queue@0.0.5:
     resolution: {integrity: sha512-hr3Wtp/GZIc/6DAGPDcV4/9WoZhjrkXsi5B/07QgX8tsdc6ilr7BFM6PM6rbdAX1kFSDYeZGLipIZZKyQP0O5Q==}
 
-  serialize-javascript@6.0.2:
-    resolution: {integrity: sha512-Saa1xPByTTq2gdeFZYLLo+RFE35NHZkAbqZeWNd3BpzppeVisAqpDjcp8dyf6uIvEqJRd46jemmyA4iFIeVk8g==}
+  serialize-javascript@7.0.7:
+    resolution: {integrity: sha512-YAy8Od6KV+uuwUuU50np8fGB/Aues6Y0nAhA9y/hId74PlKUcme4pXcBD46NWKr1Q4osN/iseZ17YqO1XfmI8g==}
+    engines: {node: '>=20.0.0'}
 
   serve-static@2.2.1:
     resolution: {integrity: sha512-xRXBn0pPqQTVQiC8wyQrKs2MOlX24zQ0POGaj0kultvoOCstBQM5yvOhAVSUwOMjQtTvsPWoNCHfPGwaaQJhTw==}
@@ -17791,7 +17790,7 @@ snapshots:
       dotenv: 16.5.0
       glob: 11.0.2
       picocolors: 1.1.1
-      serialize-javascript: 6.0.2
+      serialize-javascript: 7.0.7
     optionalDependencies:
       '@import-meta-env/unplugin': 0.6.3
 
@@ -19173,7 +19172,7 @@ snapshots:
 
   '@rollup/plugin-terser@0.4.4(rollup@2.80.0)':
     dependencies:
-      serialize-javascript: 6.0.2
+      serialize-javascript: 7.0.7
       smob: 1.6.2
       terser: 5.46.1
     optionalDependencies:
@@ -25725,7 +25724,7 @@ snapshots:
       minimatch: 9.0.9
       ms: 2.1.3
       picocolors: 1.1.1
-      serialize-javascript: 6.0.2
+      serialize-javascript: 7.0.7
       strip-json-comments: 3.1.1
       supports-color: 8.1.1
       workerpool: 9.3.4
@@ -26852,10 +26851,6 @@ snapshots:
 
   ramda@0.27.2: {}
 
-  randombytes@2.1.0:
-    dependencies:
-      safe-buffer: 5.2.1
-
   range-parser@1.2.1: {}
 
   raw-body@3.0.2:
@@ -27283,9 +27278,7 @@ snapshots:
 
   seq-queue@0.0.5: {}
 
-  serialize-javascript@6.0.2:
-    dependencies:
-      randombytes: 2.1.0
+  serialize-javascript@7.0.7: {}
 
   serve-static@2.2.1:
     dependencies:

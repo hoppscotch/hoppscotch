@@ -6,6 +6,7 @@ import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { platform } from "~/platform"
 import { isEqual, min } from "lodash-es"
 import { TeamAccessRole } from "~/helpers/backend/graphql"
+import { applyLocalState } from "~/newstore/localstate"
 import { TeamCollectionsService } from "./team-collection.service"
 import { DocumentationService } from "./documentation.service"
 import { WorkspaceTabsService } from "./tab/workspace-tabs"
@@ -71,8 +72,10 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
   )
 
   override onServiceInit() {
-    // Dispose the managed team list adapter when the user logs out
-    // and initialize it when the user logs in
+    // Session-driven state: the managed team list adapter follows login state,
+    // and a team workspace can't outlive the session that granted access to it.
+    // The workspace reset lives here rather than in the workspace selector —
+    // that component only exists while its dropdown is open.
     watch(
       this.currentUser,
       (user) => {
@@ -82,6 +85,11 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
 
         if (user && !this.managedTeamListAdapter.isInitialized) {
           this.managedTeamListAdapter.initialize()
+        }
+
+        if (!user && this._currentWorkspace.value.type === "team") {
+          applyLocalState("REMEMBERED_TEAM_ID", undefined)
+          this.changeWorkspace({ type: "personal" })
         }
       },
       { immediate: true }

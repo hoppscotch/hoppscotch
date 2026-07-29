@@ -260,6 +260,44 @@ describe("WorkspaceService", () => {
     })
   })
 
+  describe("logout", () => {
+    it("falls back to the personal workspace when the user logs out of a team", async () => {
+      const userStream = new BehaviorSubject<unknown>({ uid: "user-1" })
+      platformMock.auth.getCurrentUserStream.mockReturnValue(userStream)
+      platformMock.auth.getCurrentUser.mockReturnValue({ uid: "user-1" })
+
+      const container = new TestContainer()
+      const service = container.bind(WorkspaceService)
+
+      service.changeWorkspace({
+        type: "team",
+        teamID: "team-a",
+        teamName: "Team A",
+        role: null,
+      })
+      expect(service.currentWorkspace.value.type).toBe("team")
+
+      userStream.next(null)
+      await nextTick()
+
+      expect(service.currentWorkspace.value).toEqual({ type: "personal" })
+    })
+
+    it("leaves a personal workspace untouched on logout", async () => {
+      const userStream = new BehaviorSubject<unknown>({ uid: "user-1" })
+      platformMock.auth.getCurrentUserStream.mockReturnValue(userStream)
+      platformMock.auth.getCurrentUser.mockReturnValue({ uid: "user-1" })
+
+      const container = new TestContainer()
+      const service = container.bind(WorkspaceService)
+
+      userStream.next(null)
+      await nextTick()
+
+      expect(service.currentWorkspace.value).toEqual({ type: "personal" })
+    })
+  })
+
   describe("acquireTeamListAdapter", () => {
     beforeEach(() => {
       vi.useFakeTimers()

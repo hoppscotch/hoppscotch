@@ -2306,6 +2306,67 @@ describe('MockServerService', () => {
       }
     });
 
+    test('x-mock-response-name override does not cross operation types', async () => {
+      // A query example and a mutation example share the name 'Shared Name'.
+      // A mutation request naming it must not resolve to the query example.
+      const queryNamed = {
+        ...gqlExample,
+        key: 'gql-q',
+        name: 'Shared Name',
+        operationType: 'query',
+        responseBody: '{"data":{"fromQuery":true}}',
+      };
+      const mutationNamed = {
+        ...gqlExample,
+        key: 'gql-m',
+        name: 'Shared Name',
+        operationName: 'UpdateUser',
+        operationType: 'mutation',
+        responseBody: '{"data":{"fromMutation":true}}',
+      };
+      setupMocks([
+        {
+          ...gqlUserRequest,
+          mockExamples: { examples: [queryNamed, mutationNamed] },
+        },
+      ]);
+
+      const result = await mockServerService.handleMockRequest(
+        dbMockServer,
+        '/graphql',
+        'POST',
+        {},
+        { 'x-mock-response-name': 'Shared Name' },
+        { query: 'mutation UpdateUser { updateUser { id } }' },
+      );
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).body).toBe(
+          '{"data":{"fromMutation":true}}',
+        );
+      }
+    });
+
+    test('treats an empty-string operationName as unspecified', async () => {
+      setupMocks([gqlUserRequest]);
+
+      const result = await mockServerService.handleMockRequest(
+        dbMockServer,
+        '/graphql',
+        'POST',
+        {},
+        {},
+        { query: 'query GetUser { user { id } }', operationName: '' },
+      );
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).statusCode).toBe(200);
+        expect((result.right as any).body).toBe('{"data":{"user":{"id":"1"}}}');
+      }
+    });
+
     test('prefers a 200 example among equal-score matches', async () => {
       const error500 = {
         ...gqlExample,

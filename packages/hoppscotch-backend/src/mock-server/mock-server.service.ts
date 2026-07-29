@@ -1231,7 +1231,9 @@ export class MockServerService {
     const rawOpName = (body as Record<string, unknown>).operationName;
     const node = getOperationAST(
       doc,
-      typeof rawOpName === 'string' ? rawOpName : undefined,
+      typeof rawOpName === 'string' && rawOpName.length > 0
+        ? rawOpName
+        : undefined,
     );
     if (!node) {
       return E.left(
@@ -1246,9 +1248,9 @@ export class MockServerService {
    * Operation-based matching for GraphQL mock requests — the GraphQL
    * counterpart of the path/query scoring pipeline. GraphQL examples are
    * discriminated by SHAPE (presence of `operationType`, stamped by the app
-   * and projected by the `sync_mock_examples` trigger), never by the request
-   * row's `type` column: unified-workspace GraphQL requests live in
-   * REST-typed rows by design.
+   * and projected by the `sync_mock_examples` trigger). Team requests carry
+   * no REST/GQL discriminator of their own, so shape is the only signal:
+   * GraphQL requests live alongside REST ones in the same rows by design.
    */
   private handleGraphQLMockRequest(
     operation: { name: string | null; type: string },
@@ -1295,15 +1297,18 @@ export class MockServerService {
     }
 
     // x-mock-response-id / x-mock-response-name: exact-example override,
-    // bypassing scoring (mirrors the REST fast path; no method gate — the
-    // GraphQL transport is method-agnostic here)
+    // bypassing scoring. The REST fast path gates its override on the HTTP
+    // method; over GraphQL the method carries no meaning, so the operation
+    // type is the equivalent discriminator — a mutation request must never
+    // resolve to a query example just because the names collide.
     const overrideId = requestHeaders?.['x-mock-response-id'];
     const overrideName = requestHeaders?.['x-mock-response-name'];
     if (overrideId || overrideName) {
       const exact = examples.find(
         (ex) =>
-          (overrideId && ex.id === overrideId) ||
-          (overrideName && ex.name === overrideName),
+          ex.operationType === operation.type &&
+          ((overrideId && ex.id === overrideId) ||
+            (overrideName && ex.name === overrideName)),
       );
       if (exact) return this.formatExampleResponse(exact, delayInMs);
     }

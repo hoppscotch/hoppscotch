@@ -66,96 +66,19 @@
         "
       >
         <template #item="{ element: param, index }">
-          <div
-            class="draggable-content group flex divide-x divide-dividerLight border-b border-dividerLight"
-          >
-            <span>
-              <HoppButtonSecondary
-                v-tippy="{
-                  theme: 'tooltip',
-                  delay: [500, 20],
-                  content:
-                    index !== workingUrlEncodedParams?.length - 1
-                      ? t('action.drag_to_reorder')
-                      : null,
-                }"
-                :icon="IconGripVertical"
-                class="opacity-0"
-                :class="{
-                  'draggable-handle cursor-grab group-hover:opacity-100':
-                    index !== workingUrlEncodedParams?.length - 1,
-                }"
-                tabindex="-1"
-              />
-            </span>
-            <SmartEnvInput
-              v-model="param.key"
-              :class="{ 'opacity-50': !param.active }"
-              :placeholder="`${t('count.parameter', { count: index + 1 })}`"
-              :auto-complete-env="true"
-              :envs="envs"
-              @change="
-                updateUrlEncodedParam(index, {
-                  id: param.id,
-                  key: $event,
-                  value: param.value,
-                  active: param.active,
-                })
-              "
-            />
-            <SmartEnvInput
-              v-model="param.value"
-              :class="{ 'opacity-50': !param.active }"
-              :placeholder="`${t('count.value', { count: index + 1 })}`"
-              :auto-complete-env="true"
-              :envs="envs"
-              @change="
-                updateUrlEncodedParam(index, {
-                  id: param.id,
-                  key: param.key,
-                  value: $event,
-                  active: param.active,
-                })
-              "
-            />
-            <span>
-              <HoppButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="
-                  param.hasOwnProperty('active')
-                    ? param.active
-                      ? t('action.turn_off')
-                      : t('action.turn_on')
-                    : t('action.turn_off')
-                "
-                :icon="
-                  param.hasOwnProperty('active')
-                    ? param.active
-                      ? IconCheckCircle
-                      : IconCircle
-                    : IconCheckCircle
-                "
-                color="green"
-                @click="
-                  updateUrlEncodedParam(index, {
-                    id: param.id,
-                    key: param.key,
-                    value: param.value,
-                    active: !param.active,
-                  })
-                "
-              />
-            </span>
-            <span>
-              <HoppButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="t('action.remove')"
-                :icon="IconTrash"
-                color="red"
-                @click="deleteUrlEncodedParam(index)"
-              />
-            </span>
-          </div>
+          <HttpKeyValue
+            v-model:name="param.key"
+            v-model:value="param.value"
+            v-model:description="param.description"
+            :total="workingUrlEncodedParams.length"
+            :index="index"
+            :entity-id="param.id"
+            :entity-active="param.active"
+            :envs="envs"
+            :is-active="param.hasOwnProperty('active')"
+            @update-entity="updateUrlEncodedParam($event.index, $event.payload)"
+            @delete-entity="deleteUrlEncodedParam($event)"
+          />
         </template>
       </draggable>
       <HoppSmartPlaceholder
@@ -182,10 +105,6 @@ import IconHelpCircle from "~icons/lucide/help-circle"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconEdit from "~icons/lucide/edit"
 import IconPlus from "~icons/lucide/plus"
-import IconGripVertical from "~icons/lucide/grip-vertical"
-import IconCheckCircle from "~icons/lucide/check-circle"
-import IconCircle from "~icons/lucide/circle"
-import IconTrash from "~icons/lucide/trash"
 import IconWrapText from "~icons/lucide/wrap-text"
 import { computed, reactive, ref, watch } from "vue"
 import { isEqual, cloneDeep } from "lodash-es"
@@ -258,6 +177,7 @@ const workingUrlEncodedParams = ref<Array<RawKeyValueEntry & { id: number }>>([
     id: idTicker.value++,
     key: "",
     value: "",
+    description: "",
     active: true,
   },
 ])
@@ -272,6 +192,7 @@ watch(workingUrlEncodedParams, (urlEncodedParamList) => {
       id: idTicker.value++,
       key: "",
       value: "",
+      description: "",
       active: true,
     })
   }
@@ -322,6 +243,7 @@ const addUrlEncodedParam = () => {
     id: idTicker.value++,
     key: "",
     value: "",
+    description: "",
     active: true,
   })
 }
@@ -381,7 +303,10 @@ const deleteUrlEncodedParam = (index: number) => {
 const convertWorkingParamsToBulkEditContent = (params: RawKeyValueEntry[]) => {
   return params
     .filter((param) => param.key !== "")
-    .map((param) => `${!param.active ? "# " : ""}${param.key}: ${param.value}`)
+    .map((param) => {
+      const base = `${!param.active ? "# " : ""}${param.key}: ${param.value}`
+      return param.description ? `${base} # ${param.description}` : base
+    })
     .join("\n")
 }
 
@@ -410,6 +335,7 @@ watch(bulkEditContent, () => {
         id: idTicker.value++,
         key: entry.key,
         value: entry.value,
+        description: entry.description ?? "",
         active: entry.active,
       })),
     ]
@@ -451,6 +377,7 @@ const clearContent = () => {
       id: idTicker.value++,
       key: "",
       value: "",
+      description: "",
       active: true,
     },
   ]

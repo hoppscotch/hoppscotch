@@ -571,7 +571,7 @@ const parseOpenAPIV3BodyFormData = (
 
   const properties = (schema.properties ?? {}) as Record<
     string,
-    { format?: string; example?: unknown }
+    { format?: string; example?: unknown; description?: string }
   >
   const keys = Object.keys(properties)
 
@@ -581,7 +581,9 @@ const parseOpenAPIV3BodyFormData = (
       body: keys
         .map((key) => {
           const value = readParamExampleAsString(properties[key])
-          return `${key}: ${value}`
+          const prop = properties[key]
+          const description = prop?.description ? String(prop.description) : ""
+          return description ? `${key}: ${value} # ${description}` : `${key}: ${value}`
         })
         .join("\n"),
     }
@@ -591,9 +593,16 @@ const parseOpenAPIV3BodyFormData = (
     body: keys.map((key) => {
       const prop = properties[key]
       const isFile = prop?.format === "binary"
+      const description = prop?.description ? String(prop.description) : ""
       // FormDataKeyValue requires `Blob[]` for files and `string` for others.
       if (isFile) {
-        return <FormDataKeyValue>{ key, isFile: true, value: [], active: true }
+        return <FormDataKeyValue>{
+          key,
+          isFile: true,
+          value: [],
+          active: true,
+          description,
+        }
       }
       const value = readParamExampleAsString(prop)
       return <FormDataKeyValue>{
@@ -601,6 +610,7 @@ const parseOpenAPIV3BodyFormData = (
         isFile: false,
         value,
         active: true,
+        description,
       }
     }),
   }

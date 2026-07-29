@@ -3120,12 +3120,13 @@ describe("convertOpenApiDocsToHopp — request body examples", () => {
     expect(firstReq(coll)?.body).toEqual({
       contentType: "multipart/form-data",
       body: [
-        { key: "file", isFile: true, value: [], active: true },
+        { key: "file", isFile: true, value: [], active: true, description: "" },
         {
           key: "metadata",
           isFile: false,
           value: '{"title":"avatar"}',
           active: true,
+          description: "",
         },
       ],
     })

@@ -182,8 +182,8 @@ function convertBody(
     for (const entry of bodyEntries) {
       if (!entry.active || !entry.key) continue
       properties[entry.key] = entry.isFile
-        ? { type: "string", format: "binary" }
-        : { type: "string", example: entry.value }
+        ? { type: "string", format: "binary", description: entry.description || undefined }
+        : { type: "string", example: entry.value, description: entry.description || undefined }
     }
 
     // Skip emission when there are no active entries — an empty `properties`
@@ -212,7 +212,11 @@ function convertBody(
 
     for (const entry of parseRawKeyValueEntries(bodyStr)) {
       if (!entry.active || !entry.key) continue
-      properties[entry.key] = { type: "string", example: entry.value }
+      properties[entry.key] = {
+        type: "string",
+        example: entry.value,
+        description: entry.description || undefined,
+      }
     }
 
     if (Object.keys(properties).length === 0) return undefined

@@ -963,11 +963,17 @@ describe("PersistenceService", () => {
             setGraphqlCollections: vi.fn(),
             setRESTCollections: vi.fn(),
             graphqlCollectionStore: {
+              value: {
+                state: [],
+              },
               subject$: {
                 subscribe: vi.fn(),
               },
             },
             restCollectionStore: {
+              value: {
+                state: [],
+              },
               subject$: {
                 subscribe: vi.fn(),
               },

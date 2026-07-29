@@ -60,7 +60,24 @@ export function makeGQLHistoryEntry(
 }
 
 export function translateToNewRESTHistory(x: any): RESTHistoryEntry {
-  if (x.v === 1) return x
+  let responseMeta = x.responseMeta
+  if (typeof responseMeta === "string") {
+    try {
+      responseMeta = JSON.parse(responseMeta)
+    } catch {
+      responseMeta = { duration: null, statusCode: null }
+    }
+  }
+
+  if (x.v === 1) {
+    return {
+      ...x,
+      responseMeta: {
+        duration: responseMeta?.duration ?? null,
+        statusCode: responseMeta?.statusCode ?? null,
+      },
+    }
+  }
 
   // Legacy
   const request = translateToNewRequest(x)

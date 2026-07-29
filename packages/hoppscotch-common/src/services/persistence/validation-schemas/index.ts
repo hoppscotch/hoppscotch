@@ -132,11 +132,16 @@ export const REST_HISTORY_ENTRY_SCHEMA = z
     //! Versioned entity
     request: HoppRESTRequestSchema,
     responseMeta: z
-      .object({
-        duration: z.nullable(z.number()),
-        statusCode: z.nullable(z.number()),
-      })
-      .strict(),
+      .union([
+        z.string(),
+        z
+          .object({
+            duration: z.nullable(z.number()),
+            statusCode: z.nullable(z.number()),
+          })
+          .strict(),
+      ])
+      .catch({ duration: null, statusCode: null }),
     star: z.boolean(),
     id: z.string().nullish(),
     updatedOn: z.union([z.date(), z.string()]).nullish(),

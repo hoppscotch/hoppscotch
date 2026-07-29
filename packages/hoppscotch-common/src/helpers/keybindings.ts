@@ -16,11 +16,14 @@ import { getKernelMode } from "@hoppscotch/kernel"
 import { listen } from "@tauri-apps/api/event"
 
 /**
- * This variable keeps track whether keybindings are being accepted
- * true -> Keybindings are checked
- * false -> Key presses are ignored (Keybindings are not checked)
+ * Tracks how many callers have requested that keybindings be suppressed.
+ * Keybindings are active only when this counter is zero.
+ *
+ * A reference counter (rather than a single boolean) ensures that when
+ * multiple components disable keybindings concurrently, the bindings
+ * stay suppressed until every caller has released its lock.
  */
-let keybindingsEnabled = true
+let keybindingDisabledCount = 0
 
 /**
  * Unlisten function for Tauri event
@@ -176,8 +179,8 @@ export function hookKeybindingsListener() {
 }
 
 function handleKeyDown(ev: KeyboardEvent) {
-  // Do not check keybinds if the mode is disabled
-  if (!keybindingsEnabled) return
+  // Do not check keybinds if any component currently holds a disable lock
+  if (keybindingDisabledCount > 0) return
 
   // Skip during IME composition (CJK input). Modern browsers report
   // `isComposing`. Older ones use the sentinel `keyCode === 229`.
@@ -272,8 +275,8 @@ function handleKeyDown(ev: KeyboardEvent) {
 function handleTauriShortcut(shortcut: string) {
   console.info("Tauri shortcut:", shortcut)
 
-  // Do not check keybinds if the mode is disabled
-  if (!keybindingsEnabled) return
+  // Do not check keybinds if any component currently holds a disable lock
+  if (keybindingDisabledCount > 0) return
 
   const activeBindings = getActiveBindings()
   const boundAction = activeBindings[shortcut as ShortcutKey]
@@ -447,17 +450,28 @@ function getActiveModifier(ev: KeyboardEvent): ModifierKeys | null {
   return activeModifier === "" ? null : (activeModifier as ModifierKeys)
 }
 
+/** Returns true when keybindings are currently active (no component holds a disable lock). */
+export function areKeybindingsEnabled(): boolean {
+  return keybindingDisabledCount === 0
+}
+
 /**
- * This composable allows for the UI component to be disabled if the component in question is mounted
+ * Composable that lets a UI component suppress global keybindings for
+ * as long as it is mounted (e.g. a modal or flyout that handles its own
+ * keyboard interactions).
+ *
+ * Multiple components may call `disableKeybindings()` concurrently.
+ * Keybindings are only re-enabled once every caller has called
+ * `enableKeybindings()`, preventing the race condition where closing one
+ * modal would re-activate shortcuts while a second modal was still open.
  */
 export function useKeybindingDisabler() {
-  // TODO: Move to a lock based system that keeps the bindings disabled until all locks are lifted
   const disableKeybindings = () => {
-    keybindingsEnabled = false
+    keybindingDisabledCount++
   }
 
   const enableKeybindings = () => {
-    keybindingsEnabled = true
+    keybindingDisabledCount = Math.max(0, keybindingDisabledCount - 1)
   }
 
   return {

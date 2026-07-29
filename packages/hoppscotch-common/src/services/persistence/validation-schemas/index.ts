@@ -138,8 +138,8 @@ export const REST_HISTORY_ENTRY_SCHEMA = z
       })
       .strict(),
     star: z.boolean(),
-    id: z.optional(z.string()),
-    updatedOn: z.optional(z.union([z.date(), z.string()])),
+    id: z.string().nullish(),
+    updatedOn: z.union([z.date(), z.string()]).nullish(),
   })
   .strict()
 
@@ -150,8 +150,8 @@ export const GQL_HISTORY_ENTRY_SCHEMA = z
     request: HoppGQLRequestSchema,
     response: z.string(),
     star: z.boolean(),
-    id: z.optional(z.string()),
-    updatedOn: z.optional(z.union([z.date(), z.string()])),
+    id: z.string().nullish(),
+    updatedOn: z.union([z.date(), z.string()]).nullish(),
   })
   .strict()
 

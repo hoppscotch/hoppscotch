@@ -86,12 +86,52 @@ function setupSubscriptions() {
   }
 }
 
+function mergeHistoryEntries<T extends { id?: string; updatedOn?: Date }>(
+  local: T[],
+  fetched: T[]
+): T[] {
+  const fetchedMap = new Map<string, T>()
+  for (const entry of fetched) {
+    if (entry.id) {
+      fetchedMap.set(entry.id, entry)
+    }
+  }
+
+  const merged: T[] = []
+
+  for (const localEntry of local) {
+    if (!localEntry.id) {
+      merged.push(localEntry)
+    } else {
+      const fetchedEntry = fetchedMap.get(localEntry.id)
+      if (fetchedEntry) {
+        merged.push(fetchedEntry)
+        fetchedMap.delete(localEntry.id)
+      } else {
+        merged.push(localEntry)
+      }
+    }
+  }
+
+  for (const fetchedEntry of fetchedMap.values()) {
+    merged.push(fetchedEntry)
+  }
+
+  merged.sort((a, b) => {
+    const timeA = a.updatedOn ? a.updatedOn.getTime() : 0
+    const timeB = b.updatedOn ? b.updatedOn.getTime() : 0
+    return timeB - timeA
+  })
+
+  return merged
+}
+
 async function loadHistoryEntries() {
   const res = await getUserHistoryEntries()
 
   if (E.isRight(res)) {
-    const restEntries = res.right.me.RESTHistory
-    const gqlEntries = res.right.me.GQLHistory
+    const restEntries = res.right.me.RESTHistory ?? []
+    const gqlEntries = res.right.me.GQLHistory ?? []
 
     const restHistoryEntries: RESTHistoryEntry[] = restEntries.map((entry) => ({
       v: 1,
@@ -111,9 +151,15 @@ async function loadHistoryEntries() {
       id: entry.id,
     }))
 
+    const localRESTHistory = restHistoryStore.value.state
+    const localGQLHistory = graphqlHistoryStore.value.state
+
+    const mergedREST = mergeHistoryEntries(localRESTHistory, restHistoryEntries)
+    const mergedGQL = mergeHistoryEntries(localGQLHistory, gqlHistoryEntries)
+
     runDispatchWithOutSyncing(() => {
-      setRESTHistoryEntries(restHistoryEntries)
-      setGraphqlHistoryEntries(gqlHistoryEntries)
+      setRESTHistoryEntries(mergedREST)
+      setGraphqlHistoryEntries(mergedGQL)
     })
   }
 }

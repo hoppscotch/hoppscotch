@@ -337,7 +337,7 @@ import { PropType, computed, nextTick, onMounted, ref, watch } from "vue"
 import { useReadonlyStream } from "~/composables/stream"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { GQLError, runMutation } from "~/helpers/backend/GQLClient"
-import { ReqType, UpdateRequestDocument } from "~/helpers/backend/graphql"
+import { UpdateRequestDocument } from "~/helpers/backend/graphql"
 import {
   CollectionDataProps,
   getTeamCollectionObject,
@@ -1008,11 +1008,7 @@ const addNewRootCollection = async (name: string) => {
     })
 
     pipe(
-      createNewRootCollection(
-        name,
-        collectionsType.value.selectedTeam.teamID,
-        ReqType.Rest
-      ),
+      createNewRootCollection(name, collectionsType.value.selectedTeam.teamID),
       TE.match(
         (err: GQLError<string>) => {
           toast.error(`${getErrorMessage(err)}`)
@@ -1226,7 +1222,7 @@ const onAddFolder = async (folderName: string) => {
     })
 
     pipe(
-      createChildCollection(folderName, folder.id, ReqType.Rest),
+      createChildCollection(folderName, folder.id),
       TE.match(
         (err: GQLError<string>) => {
           if (err.error === "team_coll/short_title") {
@@ -1417,7 +1413,7 @@ const duplicateCollection = async ({
     duplicateCollectionLoading.value = true
 
     await pipe(
-      duplicateTeamCollection(pathOrID, ReqType.Rest),
+      duplicateTeamCollection(pathOrID),
       TE.match(
         (err: GQLError<string>) => {
           toast.error(`${getErrorMessage(err)}`)

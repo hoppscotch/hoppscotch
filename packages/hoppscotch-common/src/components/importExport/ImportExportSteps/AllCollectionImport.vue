@@ -97,10 +97,7 @@ import { computed, onMounted, ref, watch } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { useReadonlyStream } from "~/composables/stream"
 import { runGQLQuery } from "~/helpers/backend/GQLClient"
-import {
-  ReqType,
-  RootCollectionsOfTeamDocument,
-} from "~/helpers/backend/graphql"
+import { RootCollectionsOfTeamDocument } from "~/helpers/backend/graphql"
 import { getTeamCollectionObject } from "~/helpers/backend/helpers"
 import { TEAMS_BACKEND_PAGE_SIZE } from "~/services/team-collection.service"
 import { getRESTCollection, restCollections$ } from "~/newstore/collections"
@@ -229,7 +226,6 @@ const getWorkspaceRootCollections = async (workspaceID: string) => {
           totalCollections.length > 0
             ? totalCollections[totalCollections.length - 1].id
             : undefined,
-        type: ReqType.Rest,
       },
     })
 

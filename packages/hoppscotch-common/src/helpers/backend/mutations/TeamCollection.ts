@@ -21,7 +21,6 @@ import {
   RenameCollectionDocument,
   RenameCollectionMutation,
   RenameCollectionMutationVariables,
-  ReqType,
   SortOptions,
   SortTeamCollectionsDocument,
   SortTeamCollectionsMutation,
@@ -56,11 +55,7 @@ type UpdateCollectionOrderError =
   | "team/team_collections_have_different_parents"
   | "team_coll/not_same_parent"
 
-export const createNewRootCollection = (
-  title: string,
-  teamID: string,
-  type: ReqType
-) =>
+export const createNewRootCollection = (title: string, teamID: string) =>
   runMutation<
     CreateNewRootCollectionMutation,
     CreateNewRootCollectionMutationVariables,
@@ -68,13 +63,11 @@ export const createNewRootCollection = (
   >(CreateNewRootCollectionDocument, {
     title,
     teamID,
-    type,
   })
 
 export const createChildCollection = (
   childTitle: string,
-  collectionID: string,
-  type: ReqType
+  collectionID: string
 ) =>
   runMutation<
     CreateChildCollectionMutation,
@@ -83,7 +76,6 @@ export const createChildCollection = (
   >(CreateChildCollectionDocument, {
     childTitle,
     collectionID,
-    type,
   })
 
 /** Can be used to rename both collection and folder (considered same in BE) */
@@ -134,17 +126,12 @@ export const updateOrderRESTTeamCollection = (
     destCollID,
   })
 
-export const importJSONToTeam = (
-  collectionJSON: string,
-  teamID: string,
-  type: ReqType
-) =>
+export const importJSONToTeam = (collectionJSON: string, teamID: string) =>
   runMutation<ImportFromJsonMutation, ImportFromJsonMutationVariables, "">(
     ImportFromJsonDocument,
     {
       jsonString: collectionJSON,
       teamID,
-      type,
     }
   )
 
@@ -163,17 +150,13 @@ export const updateTeamCollection = (
     newTitle,
   })
 
-export const duplicateTeamCollection = (
-  collectionID: string,
-  reqType: ReqType
-) =>
+export const duplicateTeamCollection = (collectionID: string) =>
   runMutation<
     DuplicateTeamCollectionMutation,
     DuplicateTeamCollectionMutationVariables,
     ""
   >(DuplicateTeamCollectionDocument, {
     collectionID,
-    reqType,
   })
 
 export const sortTeamCollections = (

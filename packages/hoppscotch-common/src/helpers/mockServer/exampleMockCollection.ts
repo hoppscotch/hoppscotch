@@ -17,7 +17,6 @@ import {
   CreateRestUserRequestDocument,
   CreateRestUserRequestMutation,
   CreateRestUserRequestMutationVariables,
-  ReqType,
 } from "~/helpers/backend/graphql"
 import { addRESTCollection } from "~/newstore/collections"
 
@@ -205,7 +204,7 @@ export async function createMockCollectionForTeam(
 ): Promise<E.Either<string, { id: string; name: string }>> {
   // Create the root collection
   const collectionResult = await pipe(
-    createNewRootCollection(collectionName, teamID, ReqType.Rest),
+    createNewRootCollection(collectionName, teamID),
     TE.match(
       (error) => E.left(`Failed to create collection: ${error}`),
       (collection) => E.right(collection)

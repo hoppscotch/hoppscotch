@@ -179,8 +179,7 @@ const importToTeamsWorkspace = async (collections: HoppCollection[]) => {
 
   const res = await toTeamsImporter(
     JSON.stringify(transformedCollection),
-    selectedTeamID.value,
-    ReqType.Rest
+    selectedTeamID.value
   )()
 
   if (E.isLeft(res)) {

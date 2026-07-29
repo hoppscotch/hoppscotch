@@ -1,11 +1,3 @@
-mutation importFromJSON(
-  $jsonString: String!
-  $teamID: ID!
-  $type: ReqType!
-) {
-  importCollectionsFromJSON(
-    jsonString: $jsonString
-    teamID: $teamID
-    type: $type
-  )
+mutation importFromJSON($jsonString: String!, $teamID: ID!) {
+  importCollectionsFromJSON(jsonString: $jsonString, teamID: $teamID)
 }

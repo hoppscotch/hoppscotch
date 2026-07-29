@@ -256,6 +256,108 @@ export function exportedCollectionToHoppCollection(
   })
 }
 
+function mergeTwoCollections(
+  local: HoppCollection,
+  fetched: HoppCollection
+): HoppCollection {
+  const mergedFolders: HoppCollection[] = []
+  const fetchedFoldersMap = new Map<string, HoppCollection>()
+  for (const f of fetched.folders) {
+    if (f.id) fetchedFoldersMap.set(f.id, f)
+  }
+
+  const processedFetchedFolderIds = new Set<string>()
+  for (const localFolder of local.folders) {
+    if (localFolder.id) {
+      const fetchedFolder = fetchedFoldersMap.get(localFolder.id)
+      if (fetchedFolder) {
+        mergedFolders.push(mergeTwoCollections(localFolder, fetchedFolder))
+        processedFetchedFolderIds.add(localFolder.id)
+      } else {
+        mergedFolders.push(localFolder)
+      }
+    } else {
+      mergedFolders.push(localFolder)
+    }
+  }
+
+  for (const fetchedFolder of fetched.folders) {
+    if (fetchedFolder.id && !processedFetchedFolderIds.has(fetchedFolder.id)) {
+      mergedFolders.push(fetchedFolder)
+    }
+  }
+
+  const mergedRequests: typeof fetched.requests = []
+  const fetchedRequestsMap = new Map<string, any>()
+  for (const r of fetched.requests) {
+    if (r.id) fetchedRequestsMap.set(r.id, r)
+  }
+
+  const processedFetchedRequestIds = new Set<string>()
+  for (const localReq of local.requests) {
+    if (localReq.id) {
+      const fetchedReq = fetchedRequestsMap.get(localReq.id)
+      if (fetchedReq) {
+        mergedRequests.push(fetchedReq)
+        processedFetchedRequestIds.add(localReq.id)
+      } else {
+        mergedRequests.push(localReq)
+      }
+    } else {
+      mergedRequests.push(localReq)
+    }
+  }
+
+  for (const fetchedReq of fetched.requests) {
+    if (fetchedReq.id && !processedFetchedRequestIds.has(fetchedReq.id)) {
+      mergedRequests.push(fetchedReq)
+    }
+  }
+
+  return {
+    ...fetched,
+    folders: mergedFolders,
+    requests: mergedRequests,
+  }
+}
+
+function mergeCollections(
+  localCollections: HoppCollection[],
+  fetchedCollections: HoppCollection[]
+): HoppCollection[] {
+  const fetchedMap = new Map<string, HoppCollection>()
+  for (const col of fetchedCollections) {
+    if (col.id) {
+      fetchedMap.set(col.id, col)
+    }
+  }
+
+  const merged: HoppCollection[] = []
+  const processedFetchedIds = new Set<string>()
+
+  for (const localCol of localCollections) {
+    if (localCol.id) {
+      const fetchedCol = fetchedMap.get(localCol.id)
+      if (fetchedCol) {
+        merged.push(mergeTwoCollections(localCol, fetchedCol))
+        processedFetchedIds.add(localCol.id)
+      } else {
+        merged.push(localCol)
+      }
+    } else {
+      merged.push(localCol)
+    }
+  }
+
+  for (const fetchedCol of fetchedCollections) {
+    if (fetchedCol.id && !processedFetchedIds.has(fetchedCol.id)) {
+      merged.push(fetchedCol)
+    }
+  }
+
+  return merged
+}
+
 async function loadUserCollections(collectionType: "REST" | "GQL") {
   const res = await exportUserCollectionsToJSON(
     undefined,
@@ -269,26 +371,26 @@ async function loadUserCollections(collectionType: "REST" | "GQL") {
         ExportedUserCollectionGQL | ExportedUserCollectionREST
       >
     ).map((collection) => ({ v: 1, ...collection }))
+
+    const fetchedCollections = exportedCollections.map(
+      (collection) =>
+        exportedCollectionToHoppCollection(
+          collection,
+          collectionType
+        ) as HoppCollection
+    )
+
+    const localCollections =
+      collectionType == "REST"
+        ? restCollectionStore.value.state
+        : graphqlCollectionStore.value.state
+
+    const mergedCollections = mergeCollections(localCollections, fetchedCollections)
+
     runDispatchWithOutSyncing(() => {
       collectionType == "REST"
-        ? setRESTCollections(
-            exportedCollections.map(
-              (collection) =>
-                exportedCollectionToHoppCollection(
-                  collection,
-                  "REST"
-                ) as HoppCollection
-            )
-          )
-        : setGraphqlCollections(
-            exportedCollections.map(
-              (collection) =>
-                exportedCollectionToHoppCollection(
-                  collection,
-                  "GQL"
-                ) as HoppCollection
-            )
-          )
+        ? setRESTCollections(mergedCollections)
+        : setGraphqlCollections(mergedCollections)
     })
   }
 }

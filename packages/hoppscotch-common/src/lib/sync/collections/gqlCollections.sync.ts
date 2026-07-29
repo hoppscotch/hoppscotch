@@ -207,6 +207,43 @@ type OperationCollectionRemoved = {
 
 export const gqlCollectionsOperations: Array<OperationCollectionRemoved> = []
 
+async function ensurePathSynced(path: string | number | null): Promise<boolean> {
+  if (path === null || path === undefined || path === "") return true
+
+  const collections = graphqlCollectionStore.value.state
+  const pathIndexes = typeof path === "number" ? [path] : path.split("/").map((index) => parseInt(index))
+
+  let highestUnsyncedPath: number[] | null = null
+  let parentID: string | undefined = undefined
+
+  for (let i = 0; i < pathIndexes.length; i++) {
+    const subPath = pathIndexes.slice(0, i + 1)
+    const collection = navigateToFolderWithIndexPath(collections, subPath)
+    if (!collection) break
+
+    if (!collection.id) {
+      highestUnsyncedPath = subPath
+      break
+    } else {
+      parentID = collection.id
+    }
+  }
+
+  if (highestUnsyncedPath) {
+    const collectionToSync = navigateToFolderWithIndexPath(collections, highestUnsyncedPath)
+    if (collectionToSync) {
+      await recursivelySyncCollections(
+        collectionToSync,
+        highestUnsyncedPath.join("/"),
+        parentID
+      )
+      return false
+    }
+  }
+
+  return true
+}
+
 export const storeSyncDefinition: StoreSyncDefinitionOf<
   typeof graphqlCollectionStore
 > = {
@@ -254,13 +291,14 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       await deleteUserCollection(collectionID)
     }
   },
-  editCollection({ collection, collectionIndex }) {
-    // Send the backend id when present, otherwise the index path — GraphQL
-    // collections on some platforms (e.g. hoppscotch-web) carry no backend id.
-    const collectionID =
-      navigateToFolderWithIndexPath(graphqlCollectionStore.value.state, [
-        collectionIndex,
-      ])?.id ?? `${collectionIndex}`
+  async editCollection({ collection, collectionIndex }) {
+    const isSynced = await ensurePathSynced(collectionIndex)
+    if (!isSynced) return
+
+    const collectionID = navigateToFolderWithIndexPath(
+      graphqlCollectionStore.value.state,
+      [collectionIndex]
+    )?.id
 
     const data = {
       auth: collection.auth,
@@ -269,9 +307,14 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       _ref_id: collection._ref_id,
     }
 
-    updateUserCollection(collectionID, collection.name, JSON.stringify(data))
+    if (collectionID) {
+      updateUserCollection(collectionID, collection.name, JSON.stringify(data))
+    }
   },
   async addFolder({ name, path }) {
+    const isSynced = await ensurePathSynced(path)
+    if (!isSynced) return
+
     const parentCollection = navigateToFolderWithIndexPath(
       graphqlCollectionStore.value.state,
       path.split("/").map((index) => parseInt(index))
@@ -279,35 +322,37 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
 
     if (!parentCollection) return
 
-    // Send the parent backend id when present, otherwise its index path.
-    const parentCollectionBackendID = parentCollection.id ?? path
+    const parentCollectionBackendID = parentCollection.id
 
     const foldersLength = parentCollection.folders.length
 
-    const res = await createGQLChildUserCollection(
-      name,
-      parentCollectionBackendID
-    )
+    if (parentCollectionBackendID) {
+      const res = await createGQLChildUserCollection(
+        name,
+        parentCollectionBackendID
+      )
 
-    if (E.isRight(res)) {
-      const { id } = res.right.createGQLChildUserCollection
+      if (E.isRight(res)) {
+        const { id } = res.right.createGQLChildUserCollection
 
-      if (foldersLength) {
-        parentCollection.folders[foldersLength - 1].id = id
-        removeDuplicateGraphqlCollectionOrFolder(
-          id,
-          `${path}/${foldersLength - 1}`
-        )
+        if (foldersLength) {
+          parentCollection.folders[foldersLength - 1].id = id
+          removeDuplicateGraphqlCollectionOrFolder(
+            id,
+            `${path}/${foldersLength - 1}`
+          )
+        }
       }
     }
   },
-  editFolder({ folder, path }) {
-    // Send the backend id when present, otherwise the index path.
-    const folderBackendId =
-      navigateToFolderWithIndexPath(
-        graphqlCollectionStore.value.state,
-        path.split("/").map((index) => parseInt(index))
-      )?.id ?? path
+  async editFolder({ folder, path }) {
+    const isSynced = await ensurePathSynced(path)
+    if (!isSynced) return
+
+    const folderBackendId = navigateToFolderWithIndexPath(
+      graphqlCollectionStore.value.state,
+      path.split("/").map((index) => parseInt(index))
+    )?.id
 
     const data = {
       auth: folder.auth,
@@ -316,7 +361,9 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       _ref_id: folder._ref_id,
     }
 
-    updateUserCollection(folderBackendId, folder.name, JSON.stringify(data))
+    if (folderBackendId) {
+      updateUserCollection(folderBackendId, folder.name, JSON.stringify(data))
+    }
   },
   async removeFolder({ folderID }) {
     if (folderID) {
@@ -336,20 +383,36 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       }
     }
   },
-  editRequest({ path, requestIndex, requestNew }) {
-    const request = navigateToFolderWithIndexPath(
+  async editRequest({ path, requestIndex, requestNew }) {
+    const isSynced = await ensurePathSynced(path)
+
+    const folder = navigateToFolderWithIndexPath(
       graphqlCollectionStore.value.state,
       path.split("/").map((index) => parseInt(index))
-    )?.requests[requestIndex]
-
-    // Send the backend id when present, otherwise the index path.
-    const requestBackendID = request?.id ?? `${path}/${requestIndex}`
-
-    editGQLUserRequest(
-      requestBackendID,
-      (requestNew as HoppRESTRequest).name,
-      JSON.stringify(requestNew)
     )
+    if (!folder) return
+
+    const request = folder.requests[requestIndex]
+    if (!request) return
+
+    if (request.id) {
+      editGQLUserRequest(
+        request.id,
+        (requestNew as HoppRESTRequest).name,
+        JSON.stringify(requestNew)
+      )
+    } else {
+      if (isSynced && folder.id) {
+        const res = await createGQLUserRequest(
+          (requestNew as HoppRESTRequest).name,
+          JSON.stringify(requestNew),
+          folder.id
+        )
+        if (res && E.isRight(res)) {
+          request.id = res.right.createGQLUserRequest.id
+        }
+      }
+    }
   },
   async saveRequestAs({ path, request }) {
     const folder = navigateToFolderWithIndexPath(
@@ -359,8 +422,11 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
 
     if (!folder) return
 
-    // Send the parent backend id when present, otherwise its index path.
-    const parentCollectionBackendID = folder.id ?? path
+    const isSynced = await ensurePathSynced(path)
+    if (!isSynced) return
+
+    const parentCollectionBackendID = folder.id
+    if (!parentCollectionBackendID) return
 
     const newRequest = folder.requests[folder.requests.length - 1]
 
@@ -386,7 +452,9 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       await deleteUserRequest(requestID)
     }
   },
-  moveRequest({ destinationPath, path, requestIndex }) {
+  async moveRequest({ destinationPath, path, requestIndex }) {
+    await ensurePathSynced(path)
+    await ensurePathSynced(destinationPath)
     moveOrReorderRequests(requestIndex, path, destinationPath, undefined, "GQL")
   },
 }

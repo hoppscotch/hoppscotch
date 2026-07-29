@@ -419,6 +419,43 @@ type OperationCollectionRemoved = {
 
 export const restCollectionsOperations: Array<OperationCollectionRemoved> = []
 
+async function ensurePathSynced(path: string | number | null): Promise<boolean> {
+  if (path === null || path === undefined || path === "") return true
+
+  const collections = restCollectionStore.value.state
+  const pathIndexes = typeof path === "number" ? [path] : path.split("/").map((index) => parseInt(index))
+
+  let highestUnsyncedPath: number[] | null = null
+  let parentID: string | undefined = undefined
+
+  for (let i = 0; i < pathIndexes.length; i++) {
+    const subPath = pathIndexes.slice(0, i + 1)
+    const collection = navigateToFolderWithIndexPath(collections, subPath)
+    if (!collection) break
+
+    if (!collection.id) {
+      highestUnsyncedPath = subPath
+      break
+    } else {
+      parentID = collection.id
+    }
+  }
+
+  if (highestUnsyncedPath) {
+    const collectionToSync = navigateToFolderWithIndexPath(collections, highestUnsyncedPath)
+    if (collectionToSync) {
+      await recursivelySyncCollections(
+        collectionToSync,
+        highestUnsyncedPath.join("/"),
+        parentID
+      )
+      return false
+    }
+  }
+
+  return true
+}
+
 export const storeSyncDefinition: StoreSyncDefinitionOf<
   typeof restCollectionStore
 > = {
@@ -465,7 +502,10 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       await deleteUserCollection(collectionID)
     }
   },
-  editCollection({ partialCollection: collection, collectionIndex }) {
+  async editCollection({ partialCollection: collection, collectionIndex }) {
+    const isSynced = await ensurePathSynced(collectionIndex)
+    if (!isSynced) return
+
     const collectionID = navigateToFolderWithIndexPath(
       restCollectionStore.value.state,
       [collectionIndex]
@@ -514,6 +554,9 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   },
 
   async addFolder({ name, path }) {
+    const isSynced = await ensurePathSynced(path)
+    if (!isSynced) return
+
     const parentCollection = navigateToFolderWithIndexPath(
       restCollectionStore.value.state,
       path.split("/").map((index) => parseInt(index))
@@ -548,7 +591,10 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       }
     }
   },
-  editFolder({ folder, path }) {
+  async editFolder({ folder, path }) {
+    const isSynced = await ensurePathSynced(path)
+    if (!isSynced) return
+
     const folderID = navigateToFolderWithIndexPath(
       restCollectionStore.value.state,
       path.split("/").map((index) => parseInt(index))
@@ -578,6 +624,11 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     )
 
     if (newSourcePath) {
+      await ensurePathSynced(newSourcePath)
+      if (newDestinationPath) {
+        await ensurePathSynced(newDestinationPath)
+      }
+
       const sourceCollectionID = navigateToFolderWithIndexPath(
         restCollectionStore.value.state,
         newSourcePath.split("/").map((index) => parseInt(index))
@@ -609,23 +660,41 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       }
     }
   },
-  editRequest({ path, requestIndex, requestNew }) {
-    const request = navigateToFolderWithIndexPath(
+  async editRequest({ path, requestIndex, requestNew }) {
+    const isSynced = await ensurePathSynced(path)
+
+    const folder = navigateToFolderWithIndexPath(
       restCollectionStore.value.state,
       path.split("/").map((index) => parseInt(index))
-    )?.requests[requestIndex]
+    )
+    if (!folder) return
 
-    const requestBackendID = request?.id
+    const request = folder.requests[requestIndex]
+    if (!request) return
 
-    if (requestBackendID) {
+    if (request.id) {
       editUserRequest(
-        requestBackendID,
+        request.id,
         (requestNew as HoppRESTRequest).name,
         JSON.stringify(requestNew)
       )
+    } else {
+      if (isSynced && folder.id) {
+        const res = await createRESTUserRequest(
+          (requestNew as HoppRESTRequest).name,
+          JSON.stringify(requestNew),
+          folder.id
+        )
+        if (res && E.isRight(res)) {
+          request.id = res.right.createRESTUserRequest.id
+        }
+      }
     }
   },
   async saveRequestAs({ path, request }) {
+    const isSynced = await ensurePathSynced(path)
+    if (!isSynced) return
+
     const folder = navigateToFolderWithIndexPath(
       restCollectionStore.value.state,
       path.split("/").map((index) => parseInt(index))
@@ -667,10 +736,12 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       await deleteUserRequest(requestID)
     }
   },
-  moveRequest({ destinationPath, path, requestIndex }) {
+  async moveRequest({ destinationPath, path, requestIndex }) {
+    await ensurePathSynced(path)
+    await ensurePathSynced(destinationPath)
     moveOrReorderRequests(requestIndex, path, destinationPath)
   },
-  updateRequestOrder({
+  async updateRequestOrder({
     destinationCollectionPath,
     destinationRequestIndex,
     requestIndex,
@@ -679,6 +750,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
      * currently the FE implementation only supports reordering requests between the same collection,
      * so destinationCollectionPath and sourceCollectionPath will be same
      */
+    await ensurePathSynced(destinationCollectionPath)
     moveOrReorderRequests(
       requestIndex,
       destinationCollectionPath,

@@ -328,19 +328,48 @@ describe('getRequestsInCollection', () => {
   });
 
   test('resolves with the correct info for the collection id and a valid cursor', async () => {
+    mockPrisma.teamRequest.findFirst.mockResolvedValue({
+      orderIndex: dbTeamRequests[0].orderIndex,
+    } as DbTeamRequest);
     mockPrisma.teamRequest.findMany.mockResolvedValue([dbTeamRequests[1]]);
 
-    const response = teamRequestService.getRequestsInCollection(
+    const response = await teamRequestService.getRequestsInCollection(
       dbTeamRequests[1].collectionID,
       dbTeamRequests[0].id,
       1,
     );
 
-    expect(response).resolves.toEqual([teamRequests[1]]);
+    expect(response).toEqual([teamRequests[1]]);
+  });
+
+  test('paginates on the orderIndex of the cursor item, scoped to the collection', async () => {
+    mockPrisma.teamRequest.findFirst.mockResolvedValue({
+      orderIndex: dbTeamRequests[0].orderIndex,
+    } as DbTeamRequest);
+    mockPrisma.teamRequest.findMany.mockResolvedValue([dbTeamRequests[1]]);
+
+    await teamRequestService.getRequestsInCollection(
+      teamCollection.id,
+      dbTeamRequests[0].id,
+      1,
+    );
+
+    expect(mockPrisma.teamRequest.findFirst).toHaveBeenCalledWith({
+      where: { id: dbTeamRequests[0].id, collectionID: teamCollection.id },
+      select: { orderIndex: true },
+    });
+    expect(mockPrisma.teamRequest.findMany).toHaveBeenCalledWith({
+      take: 1,
+      where: {
+        collectionID: teamCollection.id,
+        orderIndex: { gt: dbTeamRequests[0].orderIndex },
+      },
+      orderBy: { orderIndex: 'asc' },
+    });
   });
 
   test('resolves with an empty array when cursor is provided but cursor item is not found', async () => {
-    mockPrisma.teamRequest.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.teamRequest.findFirst.mockResolvedValue(null);
 
     const result = await teamRequestService.getRequestsInCollection(
       'testcoll',
@@ -350,6 +379,23 @@ describe('getRequestsInCollection', () => {
 
     expect(result).toEqual([]);
     expect(mockPrisma.teamRequest.findMany).not.toHaveBeenCalled();
+  });
+
+  test('does not look up a cursor item when no cursor is provided', async () => {
+    mockPrisma.teamRequest.findMany.mockResolvedValue(dbTeamRequests);
+
+    await teamRequestService.getRequestsInCollection(
+      teamCollection.id,
+      null,
+      10,
+    );
+
+    expect(mockPrisma.teamRequest.findFirst).not.toHaveBeenCalled();
+    expect(mockPrisma.teamRequest.findMany).toHaveBeenCalledWith({
+      take: 10,
+      where: { collectionID: teamCollection.id },
+      orderBy: { orderIndex: 'asc' },
+    });
   });
 });
 

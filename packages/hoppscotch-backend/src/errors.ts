@@ -190,12 +190,6 @@ export const TEAM_FB_COLL_PATH_RESOLVE_FAIL = 'team/fb_coll_path_resolve_fail';
 export const TEAM_COLL_NOT_FOUND = 'team_coll/collection_not_found';
 
 /**
- * The collection type does not match the expected type
- * (TeamCollectionService)
- */
-export const TEAM_COLL_TYPE_MISMATCH = 'team_coll/collection_type_mismatch';
-
-/**
  * The collection does not have the same parent as the expected parentw
  * (TeamCollectionService)
  */
@@ -333,12 +327,6 @@ export const TEAM_REQ_NOT_FOUND = 'team_req/not_found' as const;
  */
 export const TEAM_REQ_INVALID_TARGET_COLL_ID =
   'team_req/invalid_target_id' as const;
-
-/**
- * The request type does not match the type of the target collection
- * (TeamRequestService)
- */
-export const TEAM_REQ_TYPE_MISMATCH = 'team_req/request_type_mismatch' as const;
 
 /**
  * Tried to reorder team request but failed

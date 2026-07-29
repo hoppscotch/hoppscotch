@@ -9,7 +9,6 @@ import {
   TEAM_INVALID_ID,
   TEAM_REQ_NOT_FOUND,
   TEAM_REQ_REORDERING_FAILED,
-  TEAM_REQ_TYPE_MISMATCH,
   TEAM_COLL_CREATION_FAILED,
 } from 'src/errors';
 import { PubSubService } from 'src/pubsub/pubsub.service';
@@ -22,7 +21,6 @@ import {
 } from 'src/generated/prisma/client';
 import { SortOptions } from 'src/types/SortOptions';
 import { PrismaError } from 'src/prisma/prisma-error-codes';
-import { ReqType } from 'src/types/RequestTypes';
 
 @Injectable()
 export class TeamRequestService {
@@ -44,7 +42,6 @@ export class TeamRequestService {
       teamID: tr.teamID,
       title: tr.title,
       request: JSON.stringify(tr.request),
-      type: tr.type as ReqType,
     };
   }
 
@@ -165,31 +162,17 @@ export class TeamRequestService {
    * @param teamID Team ID to create the request in
    * @param title Title of the request
    * @param request Request body of the request
-   * @param type Type (REST/GQL) of the request. When omitted, the type of the collection is used
    */
   async createTeamRequest(
     collectionID: string,
     teamID: string,
     title: string,
     request: string,
-    type: ReqType | undefined = undefined,
   ) {
     const team =
       await this.teamCollectionService.getTeamOfCollection(collectionID);
     if (E.isLeft(team)) return E.left(team.left);
     if (team.right.id !== teamID) return E.left(TEAM_INVALID_ID);
-
-    // The request must hold the same type (REST/GQL) as the collection it is
-    // created in
-    const collection = await this.prisma.teamCollection.findUnique({
-      where: { id: collectionID },
-      select: { type: true },
-    });
-    if (!collection) return E.left(TEAM_INVALID_COLL_ID);
-    if (type && type !== collection.type) {
-      return E.left(TEAM_REQ_TYPE_MISMATCH);
-    }
-    const requestType = type ?? (collection.type as ReqType);
 
     let jsonReq = null;
     if (request) {
@@ -219,7 +202,6 @@ export class TeamRequestService {
             data: {
               request: jsonReq,
               title,
-              type: requestType,
               orderIndex: lastTeamRequest ? lastTeamRequest.orderIndex + 1 : 1,
               team: { connect: { id: team.right.id } },
               collection: { connect: { id: collectionID } },
@@ -410,24 +392,11 @@ export class TeamRequestService {
     // the request
     const destCollection = await this.prisma.teamCollection.findUnique({
       where: { id: destCollID },
-      select: { teamID: true, type: true },
+      select: { teamID: true },
     });
     if (!destCollection) return E.left(TEAM_INVALID_COLL_ID);
     if (destCollection.teamID !== request.teamID) {
       return E.left(TEAM_REQ_INVALID_TARGET_COLL_ID);
-    }
-
-    // When moving across collections, the source and destination collections
-    // must hold the same request type (REST/GQL)
-    if (request.collectionID !== destCollID) {
-      const srcCollection = await this.prisma.teamCollection.findUnique({
-        where: { id: request.collectionID },
-        select: { type: true },
-      });
-      if (!srcCollection) return E.left(TEAM_INVALID_COLL_ID);
-      if (srcCollection.type !== destCollection.type) {
-        return E.left(TEAM_REQ_TYPE_MISMATCH);
-      }
     }
 
     let nextRequest = null;

@@ -148,7 +148,6 @@ export class TeamRequestResolver {
       data.teamID,
       data.title,
       data.request,
-      data.type ?? undefined,
     );
     if (E.isLeft(teamRequest)) throwErr(teamRequest.left);
     return teamRequest.right;

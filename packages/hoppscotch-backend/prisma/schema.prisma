@@ -78,7 +78,6 @@ model TeamCollection {
   parentID   String?
   teamID     String
   title      String
-  type       ReqType  @default(REST)
   orderIndex Int
   data       Json?
   createdOn  DateTime @default(now()) @db.Timestamptz(3)
@@ -98,7 +97,6 @@ model TeamRequest {
   teamID       String
   title        String
   request      Json
-  type         ReqType  @default(REST)
   mockExamples Json?
   orderIndex   Int
   createdOn    DateTime @default(now()) @db.Timestamptz(3)

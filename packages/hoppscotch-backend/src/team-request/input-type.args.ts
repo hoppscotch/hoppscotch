@@ -1,7 +1,6 @@
 import { Field, ID, InputType, ArgsType } from '@nestjs/graphql';
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { PaginationArgs } from 'src/types/input-types.args';
-import { ReqType } from 'src/types/RequestTypes';
 
 @InputType()
 export class CreateTeamRequestInput {
@@ -25,14 +24,6 @@ export class CreateTeamRequestInput {
   @IsString()
   @IsNotEmpty()
   title: string;
-
-  @Field(() => ReqType, {
-    nullable: true,
-    description: 'Type (REST/GQL) of the request',
-  })
-  @IsEnum(ReqType)
-  @IsOptional()
-  type?: ReqType;
 }
 
 @InputType()

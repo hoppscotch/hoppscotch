@@ -20,7 +20,6 @@ import {
   TEAM_COLL_PARENT_TREE_GEN_FAILED,
   TEAM_MEMBER_NOT_FOUND,
   TEAM_COLL_CREATION_FAILED,
-  TEAM_COLL_TYPE_MISMATCH,
   TEAM_COLL_NOT_SAME_PARENT,
 } from '../errors';
 import { PubSubService } from '../pubsub/pubsub.service';
@@ -49,7 +48,6 @@ import { RESTError } from 'src/types/RESTError';
 import { TeamService } from 'src/team/team.service';
 import { PrismaError } from 'src/prisma/prisma-error-codes';
 import { SortOptions } from 'src/types/SortOptions';
-import { ReqType } from 'src/types/RequestTypes';
 
 @Injectable()
 export class TeamCollectionService {
@@ -74,7 +72,6 @@ export class TeamCollectionService {
     folder: CollectionFolder,
     teamID: string,
     orderIndex: number,
-    type: ReqType,
   ): Prisma.TeamCollectionCreateInput {
     return {
       title: folder.name,
@@ -83,7 +80,6 @@ export class TeamCollectionService {
           id: teamID,
         },
       },
-      type,
       requests: {
         create: folder.requests.map((r, index) => ({
           title: r.name,
@@ -93,19 +89,13 @@ export class TeamCollectionService {
             },
           },
           request: r,
-          type,
           orderIndex: index + 1,
         })),
       },
       orderIndex: orderIndex,
       children: {
         create: folder.folders.map((f, index) =>
-          this.generatePrismaQueryObjForFBCollFolder(
-            f,
-            teamID,
-            index + 1,
-            type,
-          ),
+          this.generatePrismaQueryObjForFBCollFolder(f, teamID, index + 1),
         ),
       },
       data: folder.data ?? undefined,
@@ -212,7 +202,6 @@ export class TeamCollectionService {
     jsonString: string,
     teamID: string,
     parentID: string | null,
-    type: ReqType,
   ) {
     // Check to see if jsonString is valid
     const collectionsList = stringToJson<CollectionFolder[]>(jsonString);
@@ -223,14 +212,12 @@ export class TeamCollectionService {
       return E.left(TEAM_COLL_INVALID_JSON);
 
     // When importing into an existing parent, ensure the parent belongs to
-    // the team and the type matches the parent
+    // the team
     if (parentID) {
       const parentCollection = await this.getCollection(parentID);
       if (E.isLeft(parentCollection)) return E.left(TEAM_COLL_NOT_FOUND);
       if (parentCollection.right.teamID !== teamID)
         return E.left(TEAM_NOT_OWNER);
-      if (parentCollection.right.type !== type)
-        return E.left(TEAM_COLL_TYPE_MISMATCH);
     }
 
     let teamCollections: DBTeamCollection[] = [];
@@ -259,7 +246,6 @@ export class TeamCollectionService {
               x,
               teamID,
               ++lastOrderIndex,
-              type,
             ),
           );
 
@@ -268,7 +254,6 @@ export class TeamCollectionService {
               data: {
                 ...query,
                 parent: parentID ? { connect: { id: parentID } } : undefined,
-                type,
               },
             }),
           );
@@ -309,7 +294,6 @@ export class TeamCollectionService {
       title: teamCollection.title,
       parentID: teamCollection.parentID,
       data,
-      type: teamCollection.type as ReqType,
     };
   }
 
@@ -400,13 +384,11 @@ export class TeamCollectionService {
     teamID: string,
     cursor: string | null,
     take: number,
-    type: ReqType,
   ) {
     const res = await this.prisma.teamCollection.findMany({
       where: {
         teamID,
         parentID: null,
-        type,
       },
       orderBy: {
         orderIndex: 'asc',
@@ -452,8 +434,6 @@ export class TeamCollectionService {
    *
    * @param teamID The Team ID
    * @param title The title of new TeamCollection
-   * @param type Type (REST/GQL) of the collection. When omitted, a child
-   * collection inherits its parent's type and a root collection defaults to REST
    * @param parentID The parent collectionID (null if root collection)
    * @returns An Either of TeamCollection
    */
@@ -461,30 +441,18 @@ export class TeamCollectionService {
     teamID: string,
     title: string,
     data: string | null = null,
-    type: ReqType | null | undefined,
     parentID: string | null,
   ) {
     const isTitleValid = isValidLength(title, this.TITLE_LENGTH);
     if (!isTitleValid) return E.left(TEAM_COLL_SHORT_TITLE);
 
-    // A `null` or omitted `type` means "inherit": child collections take their
-    // parent's type, root collections fall back to REST. This keeps clients
-    // that predate `type` able to create sub-collections under a GQL parent.
-    // Only an explicitly supplied type that disagrees with the parent is rejected.
-    const explicitType = type ?? undefined;
-    let collectionType = explicitType ?? ReqType.REST;
-
-    // Check that the parent collection belongs to this Team and the child
-    // collection has the same type as its parent
+    // Check that the parent collection belongs to this Team
     if (parentID !== null) {
       const parentCollection = await this.prisma.teamCollection.findFirst({
         where: { id: parentID, teamID },
-        select: { type: true },
+        select: { id: true },
       });
       if (!parentCollection) return E.left(TEAM_NOT_OWNER);
-      if (explicitType !== undefined && explicitType !== parentCollection.type)
-        return E.left(TEAM_COLL_TYPE_MISMATCH);
-      collectionType = parentCollection.type as ReqType;
     }
 
     if (data === '') return E.left(TEAM_COLL_DATA_INVALID);
@@ -519,7 +487,6 @@ export class TeamCollectionService {
               teamID,
               parentID: parentID ? parentID : undefined,
               data: data ?? undefined,
-              type: collectionType,
               orderIndex: lastCollection ? lastCollection.orderIndex + 1 : 1,
             },
           });
@@ -822,11 +789,6 @@ export class TeamCollectionService {
           return E.left(TEAM_COLL_NOT_SAME_TEAM);
         }
 
-        // Check ReqType of destCollection and collection should be same
-        if (collection.right.type !== destCollection.right.type) {
-          return E.left(TEAM_COLL_TYPE_MISMATCH);
-        }
-
         // Check if collection is present on the parent tree for destCollection
         const checkIfParent = await this.isParent(
           collection.right,
@@ -1008,10 +970,6 @@ export class TeamCollectionService {
     // Check if collection and subsequentCollection have the same parentID
     if (collection.right.parentID !== subsequentCollection.right.parentID)
       return E.left(TEAM_COLL_NOT_SAME_PARENT);
-
-    // Check if collection and subsequentCollection have the same type
-    if (collection.right.type !== subsequentCollection.right.type)
-      return E.left(TEAM_COLL_TYPE_MISMATCH);
 
     try {
       await this.prisma.$transaction(async (tx) => {
@@ -1553,7 +1511,6 @@ export class TeamCollectionService {
       ]),
       collection.right.teamID,
       collection.right.parentID,
-      collection.right.type as ReqType,
     );
     if (E.isLeft(result)) return E.left(result.left as string);
 

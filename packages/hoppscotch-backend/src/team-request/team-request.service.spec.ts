@@ -8,10 +8,8 @@ import {
   TEAM_INVALID_ID,
   TEAM_REQ_NOT_FOUND,
   TEAM_REQ_REORDERING_FAILED,
-  TEAM_REQ_TYPE_MISMATCH,
   TEAM_COLL_NOT_FOUND,
 } from 'src/errors';
-import { ReqType } from 'src/types/RequestTypes';
 import * as E from 'fp-ts/Either';
 import { mockDeep, mockReset } from 'jest-mock-extended';
 import { TeamRequest } from './team-request.model';
@@ -41,7 +39,6 @@ const team: DbTeam = {
   name: 'Team A',
 };
 const teamCollection: DbTeamCollection = {
-  type: ReqType.REST,
   id: 'team-coll-1',
   parentID: null,
   teamID: team.id,
@@ -60,7 +57,6 @@ for (let i = 1; i <= 10; i++) {
     request: {},
     mockExamples: {},
     title: `Test Request ${i}`,
-    type: ReqType.REST,
     orderIndex: i,
     createdOn: new Date(),
     updatedOn: new Date(),
@@ -72,7 +68,6 @@ const teamRequests: TeamRequest[] = dbTeamRequests.map((tr) => ({
   teamID: tr.teamID,
   title: tr.title,
   request: JSON.stringify(tr.request),
-  type: tr.type as ReqType,
 }));
 
 beforeEach(async () => {
@@ -256,28 +251,9 @@ describe('createTeamRequest', () => {
       team.id,
       'Test Request',
       '{}',
-      ReqType.REST,
     );
 
     expect(response).toEqualLeft(TEAM_INVALID_COLL_ID);
-    expect(mockPrisma.teamRequest.create).not.toHaveBeenCalled();
-  });
-
-  test('rejects when the request type does not match the collection type', async () => {
-    jest
-      .spyOn(mockTeamCollectionService, 'getTeamOfCollection')
-      .mockResolvedValue(E.right(team));
-    mockPrisma.teamCollection.findUnique.mockResolvedValue(teamCollection); // type: REST
-
-    const response = await teamRequestService.createTeamRequest(
-      teamCollection.id,
-      team.id,
-      'Test Request',
-      '{}',
-      ReqType.GQL,
-    );
-
-    expect(response).toEqualLeft(TEAM_REQ_TYPE_MISMATCH);
     expect(mockPrisma.teamRequest.create).not.toHaveBeenCalled();
   });
 
@@ -300,40 +276,9 @@ describe('createTeamRequest', () => {
       team.id,
       teamRequest.title,
       teamRequest.request,
-      ReqType.REST,
     );
 
     await expect(response).resolves.toEqualRight(teamRequest);
-  });
-
-  test('inherits the collection type when type is not provided', async () => {
-    const dbRequest = dbTeamRequests[0];
-    const teamRequest = teamRequests[0];
-
-    jest
-      .spyOn(mockTeamCollectionService, 'getTeamOfCollection')
-      .mockResolvedValue(E.right(team));
-    mockPrisma.teamCollection.findUnique.mockResolvedValue(teamCollection); // type: REST
-    mockPrisma.$transaction.mockImplementation(async (fn) => {
-      return fn(mockPrisma);
-    });
-    mockPrisma.teamRequest.findFirst.mockResolvedValue(null);
-    mockPrisma.teamRequest.create.mockResolvedValue(dbRequest);
-
-    const response = await teamRequestService.createTeamRequest(
-      teamCollection.id,
-      team.id,
-      teamRequest.title,
-      teamRequest.request,
-      undefined,
-    );
-
-    expect(response).toEqualRight(teamRequest);
-    expect(mockPrisma.teamRequest.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({ type: teamCollection.type }),
-      }),
-    );
   });
 
   test('publishes creation to pubsub topic "team_req/<team_id>/req_created"', async () => {
@@ -355,7 +300,6 @@ describe('createTeamRequest', () => {
       team.id,
       teamRequest.title,
       teamRequest.request,
-      ReqType.REST,
     );
     expect(mockPubSub.publish).toHaveBeenCalledWith(
       `team_req/${dbRequest.teamID}/req_created`,
@@ -706,26 +650,6 @@ describe('findRequestAndNextRequest', () => {
     );
 
     expect(result).resolves.toEqualLeft(TEAM_REQ_NOT_FOUND);
-  });
-  test('Should resolve left if the destination collection type does not match the source collection type', async () => {
-    mockPrisma.teamRequest.findFirst.mockResolvedValueOnce(dbTeamRequests[0]);
-    // destination collection lookup
-    mockPrisma.teamCollection.findUnique.mockResolvedValueOnce({
-      ...teamCollection,
-      id: 'gql-coll',
-      type: ReqType.GQL,
-    });
-    // source collection lookup
-    mockPrisma.teamCollection.findUnique.mockResolvedValueOnce(teamCollection);
-
-    const result = await (teamRequestService as any).findRequestAndNextRequest(
-      teamRequests[0].collectionID,
-      teamRequests[0].id,
-      'gql-coll',
-      null,
-    );
-
-    expect(result).toEqualLeft(TEAM_REQ_TYPE_MISMATCH);
   });
 });
 

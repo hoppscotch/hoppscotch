@@ -318,6 +318,7 @@ const recursivelySyncCollections = async (
       )
     } else {
       parentCollectionID = undefined
+      return
     }
   } else {
     // if parentUserCollectionID exists, create the collection as a child collection
@@ -366,6 +367,9 @@ const recursivelySyncCollections = async (
         childCollectionId,
         `${collectionPath}`
       )
+    } else {
+      parentCollectionID = undefined
+      return
     }
   }
 
@@ -419,10 +423,18 @@ type OperationCollectionRemoved = {
 
 export const restCollectionsOperations: Array<OperationCollectionRemoved> = []
 
-async function ensurePathSynced(path: string | number | null): Promise<boolean> {
+export async function ensurePathSynced(
+  path: string | number | null,
+  collectionStore: typeof restCollectionStore | typeof graphqlCollectionStore,
+  recursivelySyncFn: (
+    collection: HoppCollection,
+    collectionPath: string,
+    parentUserCollectionID?: string
+  ) => Promise<void>
+): Promise<boolean> {
   if (path === null || path === undefined || path === "") return true
 
-  const collections = restCollectionStore.value.state
+  const collections = collectionStore.value.state
   const pathIndexes = typeof path === "number" ? [path] : path.split("/").map((index) => parseInt(index))
 
   let highestUnsyncedPath: number[] | null = null
@@ -444,7 +456,7 @@ async function ensurePathSynced(path: string | number | null): Promise<boolean> 
   if (highestUnsyncedPath) {
     const collectionToSync = navigateToFolderWithIndexPath(collections, highestUnsyncedPath)
     if (collectionToSync) {
-      await recursivelySyncCollections(
+      await recursivelySyncFn(
         collectionToSync,
         highestUnsyncedPath.join("/"),
         parentID
@@ -455,6 +467,9 @@ async function ensurePathSynced(path: string | number | null): Promise<boolean> 
 
   return true
 }
+
+const ensureRESTPathSynced = (path: string | number | null) =>
+  ensurePathSynced(path, restCollectionStore, recursivelySyncCollections)
 
 export const storeSyncDefinition: StoreSyncDefinitionOf<
   typeof restCollectionStore
@@ -503,7 +518,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     }
   },
   async editCollection({ partialCollection: collection, collectionIndex }) {
-    const isSynced = await ensurePathSynced(collectionIndex)
+    const isSynced = await ensureRESTPathSynced(collectionIndex)
     if (!isSynced) return
 
     const collectionID = navigateToFolderWithIndexPath(
@@ -554,7 +569,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   },
 
   async addFolder({ name, path }) {
-    const isSynced = await ensurePathSynced(path)
+    const isSynced = await ensureRESTPathSynced(path)
     if (!isSynced) return
 
     const parentCollection = navigateToFolderWithIndexPath(
@@ -592,7 +607,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     }
   },
   async editFolder({ folder, path }) {
-    const isSynced = await ensurePathSynced(path)
+    const isSynced = await ensureRESTPathSynced(path)
     if (!isSynced) return
 
     const folderID = navigateToFolderWithIndexPath(
@@ -624,10 +639,12 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     )
 
     if (newSourcePath) {
-      await ensurePathSynced(newSourcePath)
-      if (newDestinationPath) {
-        await ensurePathSynced(newDestinationPath)
-      }
+      const isSourceSynced = await ensureRESTPathSynced(newSourcePath)
+      const isDestSynced = newDestinationPath
+        ? await ensureRESTPathSynced(newDestinationPath)
+        : true
+
+      if (!isSourceSynced || !isDestSynced) return
 
       const sourceCollectionID = navigateToFolderWithIndexPath(
         restCollectionStore.value.state,
@@ -661,7 +678,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     }
   },
   async editRequest({ path, requestIndex, requestNew }) {
-    const isSynced = await ensurePathSynced(path)
+    const isSynced = await ensureRESTPathSynced(path)
 
     const folder = navigateToFolderWithIndexPath(
       restCollectionStore.value.state,
@@ -692,7 +709,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     }
   },
   async saveRequestAs({ path, request }) {
-    const isSynced = await ensurePathSynced(path)
+    const isSynced = await ensureRESTPathSynced(path)
     if (!isSynced) return
 
     const folder = navigateToFolderWithIndexPath(
@@ -737,8 +754,10 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     }
   },
   async moveRequest({ destinationPath, path, requestIndex }) {
-    await ensurePathSynced(path)
-    await ensurePathSynced(destinationPath)
+    const isSourceSynced = await ensureRESTPathSynced(path)
+    const isDestSynced = await ensureRESTPathSynced(destinationPath)
+    if (!isSourceSynced || !isDestSynced) return
+
     moveOrReorderRequests(requestIndex, path, destinationPath)
   },
   async updateRequestOrder({
@@ -750,7 +769,9 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
      * currently the FE implementation only supports reordering requests between the same collection,
      * so destinationCollectionPath and sourceCollectionPath will be same
      */
-    await ensurePathSynced(destinationCollectionPath)
+    const isSynced = await ensureRESTPathSynced(destinationCollectionPath)
+    if (!isSynced) return
+
     moveOrReorderRequests(
       requestIndex,
       destinationCollectionPath,

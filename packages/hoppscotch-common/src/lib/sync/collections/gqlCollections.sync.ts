@@ -25,7 +25,7 @@ import {
 import { getSettingSubject, settingsStore } from "~/newstore/settings"
 import { getSyncInitFunction, StoreSyncDefinitionOf } from ".."
 import { createMapper } from "../mapper"
-import { applyDuplicatedCollectionResult, moveOrReorderRequests } from "./sync"
+import { applyDuplicatedCollectionResult, moveOrReorderRequests, ensurePathSynced } from "./sync"
 import { ReqType } from "~/helpers/backend/graphql"
 import { stripClientLocalValuesForWire } from "~/helpers/clientLocalVariables"
 
@@ -108,6 +108,7 @@ const recursivelySyncCollections = async (
       )
     } else {
       parentCollectionID = undefined
+      return
     }
   } else {
     // if parentUserCollectionID exists, create the collection as a child collection
@@ -154,6 +155,9 @@ const recursivelySyncCollections = async (
         childCollectionId,
         `${collectionPath}`
       )
+    } else {
+      parentCollectionID = undefined
+      return
     }
   }
 
@@ -207,42 +211,8 @@ type OperationCollectionRemoved = {
 
 export const gqlCollectionsOperations: Array<OperationCollectionRemoved> = []
 
-async function ensurePathSynced(path: string | number | null): Promise<boolean> {
-  if (path === null || path === undefined || path === "") return true
-
-  const collections = graphqlCollectionStore.value.state
-  const pathIndexes = typeof path === "number" ? [path] : path.split("/").map((index) => parseInt(index))
-
-  let highestUnsyncedPath: number[] | null = null
-  let parentID: string | undefined = undefined
-
-  for (let i = 0; i < pathIndexes.length; i++) {
-    const subPath = pathIndexes.slice(0, i + 1)
-    const collection = navigateToFolderWithIndexPath(collections, subPath)
-    if (!collection) break
-
-    if (!collection.id) {
-      highestUnsyncedPath = subPath
-      break
-    } else {
-      parentID = collection.id
-    }
-  }
-
-  if (highestUnsyncedPath) {
-    const collectionToSync = navigateToFolderWithIndexPath(collections, highestUnsyncedPath)
-    if (collectionToSync) {
-      await recursivelySyncCollections(
-        collectionToSync,
-        highestUnsyncedPath.join("/"),
-        parentID
-      )
-      return false
-    }
-  }
-
-  return true
-}
+const ensureGQLPathSynced = (path: string | number | null) =>
+  ensurePathSynced(path, graphqlCollectionStore, recursivelySyncCollections)
 
 export const storeSyncDefinition: StoreSyncDefinitionOf<
   typeof graphqlCollectionStore
@@ -292,7 +262,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     }
   },
   async editCollection({ collection, collectionIndex }) {
-    const isSynced = await ensurePathSynced(collectionIndex)
+    const isSynced = await ensureGQLPathSynced(collectionIndex)
     if (!isSynced) return
 
     const collectionID = navigateToFolderWithIndexPath(
@@ -312,7 +282,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     }
   },
   async addFolder({ name, path }) {
-    const isSynced = await ensurePathSynced(path)
+    const isSynced = await ensureGQLPathSynced(path)
     if (!isSynced) return
 
     const parentCollection = navigateToFolderWithIndexPath(
@@ -346,7 +316,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     }
   },
   async editFolder({ folder, path }) {
-    const isSynced = await ensurePathSynced(path)
+    const isSynced = await ensureGQLPathSynced(path)
     if (!isSynced) return
 
     const folderBackendId = navigateToFolderWithIndexPath(
@@ -384,7 +354,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     }
   },
   async editRequest({ path, requestIndex, requestNew }) {
-    const isSynced = await ensurePathSynced(path)
+    const isSynced = await ensureGQLPathSynced(path)
 
     const folder = navigateToFolderWithIndexPath(
       graphqlCollectionStore.value.state,
@@ -422,7 +392,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
 
     if (!folder) return
 
-    const isSynced = await ensurePathSynced(path)
+    const isSynced = await ensureGQLPathSynced(path)
     if (!isSynced) return
 
     const parentCollectionBackendID = folder.id
@@ -453,8 +423,10 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     }
   },
   async moveRequest({ destinationPath, path, requestIndex }) {
-    await ensurePathSynced(path)
-    await ensurePathSynced(destinationPath)
+    const isSourceSynced = await ensureGQLPathSynced(path)
+    const isDestSynced = await ensureGQLPathSynced(destinationPath)
+    if (!isSourceSynced || !isDestSynced) return
+
     moveOrReorderRequests(requestIndex, path, destinationPath, undefined, "GQL")
   },
 }

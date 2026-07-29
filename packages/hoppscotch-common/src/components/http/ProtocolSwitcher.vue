@@ -99,6 +99,7 @@ import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { GQLTabConnectionService } from "~/services/gql-tab-connection.service"
+import { ScrollService } from "~/services/scroll.service"
 import {
   convertRESTToGQL,
   convertGQLToREST,
@@ -118,6 +119,7 @@ const t = useI18n()
 
 const tabs = useService(WorkspaceTabsService)
 const gqlTabConn = useService(GQLTabConnectionService)
+const scrollService = useService(ScrollService)
 
 const protocolTippyActions = ref<HTMLDivElement | null>(null)
 
@@ -224,6 +226,9 @@ const switchToGQL = () => {
   // Otherwise let the converter seed a fresh GQL request from the REST one.
   const gqlDraft = tabs.getProtocolDraft(tab.id)?.gql
 
+  // The REST document's scroll offsets don't map onto the GQL panes
+  scrollService.cleanupScrollForTab(tab.id)
+
   const gqlDoc = convertRESTToGQL(tab.document as HoppRequestDocument, gqlDraft)
   tab.document = gqlDoc
   tabs.updateTab(tab)
@@ -246,12 +251,11 @@ const switchToREST = () => {
   )
 
   // Tear down the GQL connection (poll timer, subscription socket, context
-  // maps) before the document type flips to "request". The GQL tab components
-  // unmount with no cleanup hook of their own, and once the type is no longer
-  // "gql-request" the close paths in index.vue skip this tab — so without this
-  // the context and its 7s poll loop leak for the page's lifetime. Mirrors
-  // `removeTab`.
+  // maps) before the document type flips to "request" — the close paths in
+  // index.vue skip a tab that is no longer `gql-request`, so the context and
+  // its 7s poll loop would leak for the page's lifetime.
   gqlTabConn.cleanupTab(tab.id)
+  scrollService.cleanupScrollForTab(tab.id)
 
   tab.document = restDoc
   tabs.updateTab(tab)

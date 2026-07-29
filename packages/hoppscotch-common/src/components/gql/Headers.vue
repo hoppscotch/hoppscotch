@@ -234,7 +234,9 @@ import { useCodemirror } from "@composables/codemirror"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { useToast } from "@composables/toast"
+import { useReadonlyStream } from "@composables/stream"
 import {
+  Environment,
   GQLHeader,
   HoppGQLAuth,
   HoppGQLRequest,
@@ -242,15 +244,14 @@ import {
   rawKeyValueEntriesToString,
   RawKeyValueEntry,
 } from "@hoppscotch/data"
-import { computedAsync, useVModel } from "@vueuse/core"
-import { AwsV4Signer } from "aws4fetch"
+import { useVModel } from "@vueuse/core"
 import * as A from "fp-ts/Array"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import * as RA from "fp-ts/ReadonlyArray"
 import { flow, pipe } from "fp-ts/function"
 import { clone, cloneDeep, isEqual } from "lodash-es"
-import { reactive, ref, toRef, watch } from "vue"
+import { computed, reactive, Ref, ref, toRef, watch } from "vue"
 import draggable from "vuedraggable-es"
 
 import { useNestedSetting } from "~/composables/settings"
@@ -259,6 +260,15 @@ import { objRemoveKey } from "~/helpers/functional/object"
 import { commonHeaders } from "~/helpers/headers"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { isDragDropAllowed, DragDropEvent } from "~/helpers/dragDropValidation"
+import { getComputedGQLAuthHeaders } from "~/helpers/utils/EffectiveURL"
+import {
+  filterNonEmptyEnvironmentVariables,
+  getEffectiveVariablesForRequest,
+} from "~/helpers/utils/environments"
+import {
+  aggregateEnvsWithCurrentValue$,
+  getAggregateEnvsWithCurrentValue,
+} from "~/newstore/environments"
 import { toggleNestedSetting } from "~/newstore/settings"
 import IconArrowUpRight from "~icons/lucide/arrow-up-right"
 import IconEdit from "~icons/lucide/edit"
@@ -528,120 +538,77 @@ const clearContent = () => {
   bulkHeaders.value = ""
 }
 
-const getComputedAuthHeaders = async (
-  req?: GqlHeadersModel,
-  auth?: HoppGQLAuth
-) => {
-  const request = auth ? { auth: auth ?? { authActive: false } } : req
-  if (req && req.headers.find((h) => h.key.toLowerCase() === "authorization"))
-    return []
-
-  if (!request || !request.auth || !request.auth.authActive) return []
-
-  const headers: GQLHeader[] = []
-
-  if (request.auth.authType === "basic") {
-    const username = request.auth.username
-    const password = request.auth.password
-
-    headers.push({
-      active: true,
-      key: "Authorization",
-      value: `Basic ${btoa(`${username}:${password}`)}`,
-      description: "",
-    })
-  } else if (
-    request.auth.authType === "bearer" ||
-    (request.auth.authType === "oauth-2" && request.auth.addTo === "HEADERS")
-  ) {
-    const requestAuth = request.auth
-
-    const isOAuth2 = requestAuth.authType === "oauth-2"
-
-    const token = isOAuth2 ? requestAuth.grantTypeInfo.token : requestAuth.token
-
-    headers.push({
-      active: true,
-      key: "Authorization",
-      value: `Bearer ${token}`,
-      description: "",
-    })
-  } else if (request.auth.authType === "api-key") {
-    const { key, addTo } = request.auth
-
-    if (addTo === "HEADERS" && key) {
-      headers.push({
-        active: true,
-        key,
-        value: request.auth.value ?? "",
-        description: "",
-      })
-    }
-  } else if (request.auth.authType === "aws-signature") {
-    const { addTo } = request.auth
-    if (addTo === "HEADERS") {
-      const currentDate = new Date()
-      const amzDate = currentDate.toISOString().replace(/[:-]|\.\d{3}/g, "")
-
-      const { url } = req as HoppGQLRequest
-
-      const signer = new AwsV4Signer({
-        datetime: amzDate,
-        accessKeyId: request.auth.accessKey,
-        secretAccessKey: request.auth.secretKey,
-        region: request.auth.region ?? "us-east-1",
-        service: request.auth.serviceName,
-        url,
-        sessionToken: request.auth.serviceToken,
-      })
-
-      const sign = await signer.sign()
-
-      sign.headers.forEach((x, k) => {
-        headers.push({
-          active: true,
-          key: k,
-          value: x,
-          description: "",
-        })
-      })
-    }
-  }
-
-  return headers
-}
-
-const getComputedHeaders = async (req: GqlHeadersModel) => {
-  return [
-    ...(await getComputedAuthHeaders(req)).map((header) => ({
-      source: "auth" as const,
-      header,
-    })),
-  ]
-}
-
-const computedHeaders = computedAsync(
-  async () =>
-    (await getComputedHeaders(request.value)).map((header, index) => ({
-      id: `header-${index}`,
-      ...header,
-    })),
-  []
+const aggregateEnvs = useReadonlyStream(
+  aggregateEnvsWithCurrentValue$,
+  getAggregateEnvsWithCurrentValue()
 )
 
-const inheritedProperty = ref<
+// Same precedence as the send path (gql-tab-connection.service): inherited
+// collection variables outrank selected/global env vars.
+const resolvedEnvs = computed<Environment["variables"]>(() =>
+  filterNonEmptyEnvironmentVariables(
+    getEffectiveVariablesForRequest(
+      undefined,
+      props.inheritedProperties?.variables,
+      aggregateEnvs.value
+    )
+  )
+)
+
+const computedHeaders: Ref<
   {
-    inheritedFrom: string
-    source: "auth" | "headers"
-    id: string
+    source: "auth"
     header: GQLHeader
+    id: string
   }[]
->([])
+> = ref([])
 
 watch(
-  () => [props.inheritedProperties, request.value],
-  async () => {
-    if (!props.inheritedProperties) return
+  [request, resolvedEnvs],
+  async (_newVals, _oldVals, onCleanup) => {
+    let isStale = false
+    onCleanup(() => {
+      isStale = true
+    })
+
+    const headers = await getComputedGQLAuthHeaders(
+      resolvedEnvs.value,
+      request.value
+    )
+    if (isStale) return
+
+    computedHeaders.value = headers.map((header, index) => ({
+      id: `header-${index}`,
+      source: "auth",
+      header,
+    }))
+  },
+  { immediate: true, deep: true }
+)
+
+type InheritedHeader = {
+  inheritedFrom: string
+  source: "auth" | "headers"
+  id: string
+  header: GQLHeader
+}
+
+const inheritedProperty = ref<InheritedHeader[]>([])
+
+watch(
+  [() => props.inheritedProperties, request, resolvedEnvs],
+  async (_newVals, _oldVals, onCleanup) => {
+    let isStale = false
+    onCleanup(() => {
+      isStale = true
+    })
+
+    if (!props.inheritedProperties) {
+      // Clear any previously-computed inherited rows so they don't linger when
+      // the request switches to one without inherited collection settings.
+      inheritedProperty.value = []
+      return
+    }
 
     const inheritedHeaders = props.inheritedProperties.headers.filter(
       (header) =>
@@ -651,12 +618,14 @@ watch(
             requestHeader.active
         )
     )
-    inheritedProperty.value = inheritedHeaders.map((header, index) => ({
-      inheritedFrom: props.inheritedProperties!.headers[index].parentName!,
-      source: "headers",
-      id: `header-${index}`,
-      header: header.inheritedHeader,
-    }))
+    const headersList: InheritedHeader[] = inheritedHeaders.map(
+      (header, index) => ({
+        inheritedFrom: header.parentName!,
+        source: "headers",
+        id: `header-${index}`,
+        header: header.inheritedHeader,
+      })
+    )
 
     if (
       props.inheritedProperties.auth &&
@@ -667,19 +636,32 @@ watch(
           requestHeader.key === "Authorization" && requestHeader.active
       )
     ) {
-      const [computedAuthHeader] = await getComputedAuthHeaders(
-        request.value,
-        props.inheritedProperties.auth.inheritedAuth as HoppGQLAuth
-      )
-      if (computedAuthHeader) {
-        inheritedProperty.value.push({
-          inheritedFrom: props.inheritedProperties.auth.parentName,
-          source: "auth",
-          id: `header-auth`,
-          header: computedAuthHeader,
-        })
+      try {
+        const [computedAuthHeader] = await getComputedGQLAuthHeaders(
+          resolvedEnvs.value,
+          request.value,
+          props.inheritedProperties.auth.inheritedAuth
+        )
+        if (isStale) return
+
+        if (computedAuthHeader) {
+          headersList.push({
+            inheritedFrom: props.inheritedProperties.auth.parentName,
+            source: "auth",
+            id: `header-auth`,
+            header: computedAuthHeader,
+          })
+        }
+      } catch (e) {
+        // A signing generator can throw (eg. aws-signature on an unresolvable
+        // URL) — commit the headers collected so far without the auth row
+        // rather than erasing every inherited header.
+        if (isStale) return
+        console.error(e)
       }
     }
+
+    inheritedProperty.value = headersList
   },
   { immediate: true, deep: true }
 )

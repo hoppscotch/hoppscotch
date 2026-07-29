@@ -244,9 +244,7 @@ export class WorkspaceTabsService extends TabService<HoppTabDocument> {
           doc: {
             ...tab.document,
             response: null,
-            // `null` is the run-in-flight sentinel — persisting it verbatim
-            // would restore into a permanent loading state with no run to
-            // ever clear it
+            // see the sentinel note on the request-doc branch below
             testResults:
               tab.document.testResults === null
                 ? undefined
@@ -256,11 +254,19 @@ export class WorkspaceTabsService extends TabService<HoppTabDocument> {
         }
       }
 
+      // REST + GQL request docs
       return {
         tabID: tab.id,
         doc: {
           ...tab.document,
           response: null,
+          // `null` is the run-in-flight sentinel — persisting it verbatim
+          // would restore into a permanent loading state with no run to
+          // ever clear it
+          testResults:
+            tab.document.testResults === null
+              ? undefined
+              : tab.document.testResults,
         },
         protocolDrafts,
       }

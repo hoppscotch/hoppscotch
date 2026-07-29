@@ -54,6 +54,7 @@ type UpdateCollectionOrderError =
   | "team/invalid_coll_id"
   | "team/collection_and_next_collection_are_same"
   | "team/team_collections_have_different_parents"
+  | "team_coll/not_same_parent"
 
 export const createNewRootCollection = (
   title: string,

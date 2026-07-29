@@ -31,6 +31,7 @@ import { stripComments } from "../editor/linting/jsonc"
 import { arrayFlatMap, arraySort } from "../functional/array"
 import { toFormData } from "../functional/formData"
 import { tupleWithSameKeysToRecord } from "../functional/record"
+import { getDefaultRESTRequest } from "../rest/default"
 import { isJSONContentType } from "./contenttypes"
 
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
@@ -76,6 +77,44 @@ export const getComputedAuthHeaders = async (
     envVars,
     showKeyIfSecret
   )
+}
+
+/**
+ * GraphQL counterpart of `getComputedAuthHeaders`.
+ *
+ * A GQL request carries no method/params/body, so the signing auth types (AWS,
+ * digest, HAWK) are handed the same synthetic `POST <url>` request the send path
+ * signs (see `gql-tab-connection.service`) — that keeps the headers preview and
+ * the wire in agreement. GQL auth is a structural subset of REST auth, and
+ * inherited collection auth can legitimately be a REST-only type (digest, HAWK,
+ * JWT…), all of which the shared generators cover.
+ *
+ * @param envVars Currently active environment variables
+ * @param req Request to check
+ * @param auth Authorization config to check, overriding the one on `req`
+ * @returns The list of headers
+ */
+export const getComputedGQLAuthHeaders = async (
+  envVars: Environment["variables"],
+  req: HoppGQLRequest | { auth: HoppGQLAuth; headers: GQLHeader[] },
+  auth?: HoppGQLAuth | HoppRESTAuth
+): Promise<GQLHeader[]> => {
+  // Request headers are applied last on the wire, so an explicit Authorization
+  // header supersedes anything auth would generate
+  if (req.headers.some((h) => h.key.toLowerCase() === "authorization"))
+    return []
+
+  const effectiveAuth = (auth ?? req.auth) as HoppRESTAuth
+
+  if (!effectiveAuth?.authActive) return []
+
+  const syntheticRESTRequest: HoppRESTRequest = {
+    ...getDefaultRESTRequest(),
+    method: "POST",
+    endpoint: "url" in req ? req.url : "",
+  }
+
+  return generateAuthHeaders(effectiveAuth, syntheticRESTRequest, envVars)
 }
 
 /**

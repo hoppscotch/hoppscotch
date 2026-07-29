@@ -4208,6 +4208,7 @@ const getErrorMessage = (err: GQLError<string>) => {
     case "team_req/requests_not_from_same_collection":
       return t("request.different_collection")
     case "team/team_collections_have_different_parents":
+    case "team_coll/not_same_parent":
       return t("collection.different_parent")
     default:
       return t("error.something_went_wrong")

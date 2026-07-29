@@ -25,6 +25,7 @@ import {
   ComputedRef,
   Ref,
   computed,
+  effectScope,
   ref,
   shallowReactive,
   watch,
@@ -293,16 +294,20 @@ export class GQLTabConnectionService extends Service {
   >()
 
   override onServiceInit() {
-    this.setupActiveTabTracking()
+    // Detached scope: `onServiceInit` runs synchronously inside whichever
+    // component first binds this singleton, so an un-scoped watcher would be
+    // disposed when that component unmounts and never re-created
+    effectScope(true).run(() => {
+      this.setupActiveTabTracking()
+    })
   }
 
   /**
-   * Track the active GQL tab. Empty when the active tab is not a GQL request.
-   *
-   * Source must depend on BOTH the tab reference AND `document.type` so an
-   * in-place protocol flip (REST → GQL on the same tab, via ProtocolSwitcher)
-   * is detected — that path reassigns `tab.document` but keeps the same tab
-   * object, so watching `currentActiveTab.value` alone would never fire.
+   * Mirrors the active tab's id into `_activeGQLTabId` (empty for non-GQL
+   * tabs) and resets the explorer on change, so the docs pane never shows the
+   * previous tab's schema. Runs in a detached scope (see `onServiceInit`);
+   * per-tab teardown stays caller-driven — every close path calls
+   * {@link cleanupTab} explicitly rather than relying on a watcher.
    */
   private setupActiveTabTracking() {
     const { reset: resetExplorer } = useExplorer()
@@ -1578,7 +1583,8 @@ export class GQLTabConnectionService extends Service {
 
   /**
    * Full cleanup for a specific tab: stop polling, close socket, remove state.
-   * Call this when a GQL tab is closed.
+   * Called from every path that closes a tab or flips it away from
+   * `gql-request`; idempotent.
    */
   public cleanupTab(tabId: string) {
     const timer = this.tabPollingTimers.get(tabId)

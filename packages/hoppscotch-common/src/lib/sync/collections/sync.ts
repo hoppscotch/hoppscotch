@@ -461,7 +461,8 @@ export async function ensurePathSynced(
         highestUnsyncedPath.join("/"),
         parentID
       )
-      return false
+      const targetCollection = navigateToFolderWithIndexPath(collections, pathIndexes)
+      return !!targetCollection?.id
     }
   }
 
@@ -577,6 +578,13 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       path.split("/").map((index) => parseInt(index))
     )
 
+    if (parentCollection) {
+      const foldersLength = parentCollection.folders.length
+      if (foldersLength > 0 && parentCollection.folders[foldersLength - 1].id) {
+        return
+      }
+    }
+
     const parentCollectionBackendID = parentCollection?.id
 
     if (parentCollectionBackendID) {
@@ -639,12 +647,29 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     )
 
     if (newSourcePath) {
+      const collections = restCollectionStore.value.state
+      const sourceCollection = navigateToFolderWithIndexPath(
+        collections,
+        newSourcePath.split("/").map((index) => parseInt(index))
+      )
+      const destCollection = destinationPath && newDestinationPath
+        ? navigateToFolderWithIndexPath(
+            collections,
+            newDestinationPath.split("/").map((index) => parseInt(index))
+          )
+        : null
+
+      const wasSourceSynced = !!sourceCollection?.id
+      const wasDestSynced = destinationPath ? !!destCollection?.id : true
+
       const isSourceSynced = await ensureRESTPathSynced(newSourcePath)
       const isDestSynced = newDestinationPath
         ? await ensureRESTPathSynced(newDestinationPath)
         : true
 
       if (!isSourceSynced || !isDestSynced) return
+
+      if (!wasSourceSynced || !wasDestSynced) return
 
       const sourceCollectionID = navigateToFolderWithIndexPath(
         restCollectionStore.value.state,
@@ -717,6 +742,13 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       path.split("/").map((index) => parseInt(index))
     )
 
+    if (folder) {
+      const requestsLength = folder.requests.length
+      if (requestsLength > 0 && folder.requests[requestsLength - 1].id) {
+        return
+      }
+    }
+
     const parentCollectionBackendID = folder?.id
 
     if (parentCollectionBackendID) {
@@ -754,9 +786,24 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     }
   },
   async moveRequest({ destinationPath, path, requestIndex }) {
+    const collections = restCollectionStore.value.state
+    const sourceCollection = navigateToFolderWithIndexPath(
+      collections,
+      path.split("/").map((index) => parseInt(index))
+    )
+    const destCollection = navigateToFolderWithIndexPath(
+      collections,
+      destinationPath.split("/").map((index) => parseInt(index))
+    )
+
+    const wasSourceSynced = !!sourceCollection?.id
+    const wasDestSynced = !!destCollection?.id
+
     const isSourceSynced = await ensureRESTPathSynced(path)
     const isDestSynced = await ensureRESTPathSynced(destinationPath)
     if (!isSourceSynced || !isDestSynced) return
+
+    if (!wasSourceSynced || !wasDestSynced) return
 
     moveOrReorderRequests(requestIndex, path, destinationPath)
   },
@@ -769,8 +816,17 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
      * currently the FE implementation only supports reordering requests between the same collection,
      * so destinationCollectionPath and sourceCollectionPath will be same
      */
+    const collections = restCollectionStore.value.state
+    const collection = navigateToFolderWithIndexPath(
+      collections,
+      destinationCollectionPath.split("/").map((index) => parseInt(index))
+    )
+    const wasSynced = !!collection?.id
+
     const isSynced = await ensureRESTPathSynced(destinationCollectionPath)
     if (!isSynced) return
+
+    if (!wasSynced) return
 
     moveOrReorderRequests(
       requestIndex,

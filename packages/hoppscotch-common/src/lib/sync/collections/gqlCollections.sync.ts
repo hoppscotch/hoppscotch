@@ -292,9 +292,12 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
 
     if (!parentCollection) return
 
-    const parentCollectionBackendID = parentCollection.id
-
     const foldersLength = parentCollection.folders.length
+    if (foldersLength > 0 && parentCollection.folders[foldersLength - 1].id) {
+      return
+    }
+
+    const parentCollectionBackendID = parentCollection.id
 
     if (parentCollectionBackendID) {
       const res = await createGQLChildUserCollection(
@@ -395,6 +398,11 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const isSynced = await ensureGQLPathSynced(path)
     if (!isSynced) return
 
+    const requestsLength = folder.requests.length
+    if (requestsLength > 0 && folder.requests[requestsLength - 1].id) {
+      return
+    }
+
     const parentCollectionBackendID = folder.id
     if (!parentCollectionBackendID) return
 
@@ -423,9 +431,24 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     }
   },
   async moveRequest({ destinationPath, path, requestIndex }) {
+    const collections = graphqlCollectionStore.value.state
+    const sourceCollection = navigateToFolderWithIndexPath(
+      collections,
+      path.split("/").map((index) => parseInt(index))
+    )
+    const destCollection = navigateToFolderWithIndexPath(
+      collections,
+      destinationPath.split("/").map((index) => parseInt(index))
+    )
+
+    const wasSourceSynced = !!sourceCollection?.id
+    const wasDestSynced = !!destCollection?.id
+
     const isSourceSynced = await ensureGQLPathSynced(path)
     const isDestSynced = await ensureGQLPathSynced(destinationPath)
     if (!isSourceSynced || !isDestSynced) return
+
+    if (!wasSourceSynced || !wasDestSynced) return
 
     moveOrReorderRequests(requestIndex, path, destinationPath, undefined, "GQL")
   },

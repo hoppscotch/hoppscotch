@@ -23,6 +23,10 @@ overrides:
 importers:
 
   .:
+    dependencies:
+      shell-quote:
+        specifier: 1.8.4
+        version: 1.8.4
     devDependencies:
       '@commitlint/cli':
         specifier: 20.5.2
@@ -1772,11 +1776,11 @@ packages:
         optional: true
 
   '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/9d4528be4f385bccbe46859631d31aa2ee1ec0b6':
-    resolution: {gitHosted: true, integrity: sha512-fH4riUTO4+6/Pr87Q4PTV7EqGXEnSuLl01g3ws54V2k+A3LDzbCrSa+50XBbmPgroHxnhefkXig8q8qL099f0g==, tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/9d4528be4f385bccbe46859631d31aa2ee1ec0b6}
+    resolution: {gitHosted: true, tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/9d4528be4f385bccbe46859631d31aa2ee1ec0b6}
     version: 0.1.0
 
   '@CuriousCorrelation/plugin-relay@https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/273488c8f50a22ee707af6b50ccd5570851f8bc9':
-    resolution: {gitHosted: true, integrity: sha512-ipTfU7ci4UGP5+lpR2oDQGfVY3PvF3p5OtqKBVoNoRyIogHoqlpw6VsK+IfvsNbNN+LmAGKpQFyiZaRKErB2Lg==, tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/273488c8f50a22ee707af6b50ccd5570851f8bc9}
+    resolution: {gitHosted: true, tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/273488c8f50a22ee707af6b50ccd5570851f8bc9}
     version: 0.1.0
 
   '@acemir/cssom@0.9.31':
@@ -11947,6 +11951,10 @@ packages:
 
   shell-quote@1.8.3:
     resolution: {integrity: sha512-ObmnIF4hXNg1BqhnHmgbDETF8dLPCggZWBjkQfhZpbszZnYur5DUljTcCHii5LC3J5E0yeO/1LIMyH+UvHQgyw==}
+    engines: {node: '>= 0.4'}
+
+  shell-quote@1.8.4:
+    resolution: {integrity: sha512-VsC6n6vz1ihYYyZZwX7YZSF5l5x36ca17OC+a69h94YqB7X6XLwf+5MOgynYir2SLFUbl8gIYvBo8K8RoNQ6bQ==}
     engines: {node: '>= 0.4'}
 
   should-equal@2.0.0:
@@ -26687,6 +26695,8 @@ snapshots:
   shebang-regex@3.0.0: {}
 
   shell-quote@1.8.3: {}
+
+  shell-quote@1.8.4: {}
 
   should-equal@2.0.0:
     dependencies:

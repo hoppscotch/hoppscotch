@@ -133,7 +133,23 @@ export const REST_HISTORY_ENTRY_SCHEMA = z
     request: HoppRESTRequestSchema,
     responseMeta: z
       .union([
-        z.string(),
+        z.string().refine((val) => {
+          try {
+            const parsed = JSON.parse(val)
+            return (
+              typeof parsed === "object" &&
+              parsed !== null &&
+              (parsed.duration === undefined ||
+                parsed.duration === null ||
+                typeof parsed.duration === "number") &&
+              (parsed.statusCode === undefined ||
+                parsed.statusCode === null ||
+                typeof parsed.statusCode === "number")
+            )
+          } catch {
+            return false
+          }
+        }),
         z
           .object({
             duration: z.nullable(z.number()),

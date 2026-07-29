@@ -86,10 +86,9 @@ function setupSubscriptions() {
   }
 }
 
-function mergeHistoryEntries<T extends { id?: string; updatedOn?: Date }>(
-  local: T[],
-  fetched: T[]
-): T[] {
+function mergeHistoryEntries<
+  T extends { id?: string; updatedOn?: Date | string | null }
+>(local: T[], fetched: T[]): T[] {
   const fetchedMap = new Map<string, T>()
   for (const entry of fetched) {
     if (entry.id) {
@@ -117,9 +116,15 @@ function mergeHistoryEntries<T extends { id?: string; updatedOn?: Date }>(
     merged.push(fetchedEntry)
   }
 
+  const getSafeTimestamp = (date: Date | string | null | undefined): number => {
+    if (!date) return 0
+    const time = new Date(date).getTime()
+    return isNaN(time) ? 0 : time
+  }
+
   merged.sort((a, b) => {
-    const timeA = a.updatedOn ? a.updatedOn.getTime() : 0
-    const timeB = b.updatedOn ? b.updatedOn.getTime() : 0
+    const timeA = getSafeTimestamp(a.updatedOn)
+    const timeB = getSafeTimestamp(b.updatedOn)
     return timeB - timeA
   })
 

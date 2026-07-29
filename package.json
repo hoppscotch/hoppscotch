@@ -66,5 +66,8 @@
       "prisma",
       "vue-demi"
     ]
+  },
+  "dependencies": {
+    "shell-quote": "1.8.4"
   }
 }

@@ -5,17 +5,26 @@ use tauri_plugin_appload::{ApiConfig, CacheConfig, Config, StorageConfig, Vendor
 
 use crate::{error::HoppError, path};
 
-// Appload plugin configuration. These constants are baked into the plugin
-// config at startup via `HoppApploadConfig::build()`, before the webview
-// exists, so they cannot be overridden by runtime user settings. A future
-// user-facing connection timeout override will need a separate mechanism,
-// either a startup-time store file read or a deferred appload init.
+// Appload plugin configuration, baked into the plugin config at startup by
+// `HoppApploadConfig::build()`. `API_TIMEOUT_SECS` is the fallback when the
+// store holds no usable `connectionTimeoutMs`, see
+// `persisted_connection_timeout()`. The rest stay compile-time only.
 const API_SERVER_URL: &str = "http://localhost:3200";
 const API_TIMEOUT_SECS: u64 = 30;
 const CACHE_MAX_SIZE_MB: usize = 1000;
 const CACHE_FILE_TTL_SECS: u64 = 3600;
 const CACHE_HOT_RATIO: f32 = 0.9;
 const MAX_BUNDLE_SIZE_MB: usize = 50;
+
+// `STORE_FILE_NAME` mirrors `STORE_PATH` in the shell's `kernel/store.ts`,
+// and the namespace and key mirror `DESKTOP_SETTINGS_STORE_NAMESPACE` and
+// `DESKTOP_SETTINGS_STORE_KEY` in
+// `hoppscotch-common/src/platform/desktop-settings.ts`. A rename on either
+// side without a matching edit here reads as "no stored value" and silently
+// falls back, so the three constants stay next to the read that uses them.
+const STORE_FILE_NAME: &str = "hoppscotch-unified.store";
+const DESKTOP_SETTINGS_NAMESPACE: &str = "hoppscotch-desktop.v1";
+const DESKTOP_SETTINGS_KEY: &str = "desktopSettings";
 
 pub struct HoppApploadConfig {
     bundle_path: PathBuf,
@@ -50,7 +59,8 @@ impl HoppApploadConfig {
         Config::builder()
             .api(ApiConfig {
                 server_url: API_SERVER_URL.to_string(),
-                timeout: Duration::from_secs(API_TIMEOUT_SECS),
+                timeout: persisted_connection_timeout()
+                    .unwrap_or_else(|| Duration::from_secs(API_TIMEOUT_SECS)),
             })
             .cache(CacheConfig {
                 max_size: CACHE_MAX_SIZE_MB * 1024 * 1024,
@@ -72,18 +82,65 @@ impl HoppApploadConfig {
     }
 }
 
-// Webview-pushed runtime settings bridge.
-//
+/// Extracts `connectionTimeoutMs` out of a parsed unified-store document.
+///
+/// The nesting comes from `TauriStoreManager` in
+/// `hoppscotch-kernel/src/store/impl/desktop/v/1.ts`, which keeps every
+/// namespace under a single `data` key on the tauri-plugin-store file and
+/// wraps each stored value in a `{ schemaVersion, metadata, data }`
+/// envelope, so the field is four levels down.
+///
+/// A zero or absent value returns `None`. Zero would build a client that
+/// times out before it can connect, and the Zod schema on the webview side
+/// already rejects it, so it only appears in a hand-edited or truncated
+/// file. No upper bound is applied, since a large value only costs a long
+/// wait the user asked for.
+fn connection_timeout_from_store(root: &serde_json::Value) -> Option<Duration> {
+    let ms = root
+        .get("data")?
+        .get(DESKTOP_SETTINGS_NAMESPACE)?
+        .get(DESKTOP_SETTINGS_KEY)?
+        .get("data")?
+        .get("connectionTimeoutMs")?
+        .as_u64()?;
+
+    (ms > 0).then(|| Duration::from_millis(ms))
+}
+
+/// Reads the persisted connection timeout directly off the store file.
+///
+/// `build()` is called before `tauri::Builder`, so there is no app handle
+/// and `tauri-plugin-store` is not registered yet, which rules out the
+/// plugin's own API. The webview's `set_desktop_config` push arrives later
+/// still, after appload has already downloaded the bundle it needed the
+/// timeout for, so a mailbox read here would see `None` on every launch and
+/// the first connection attempt would always use the compile-time default.
+///
+/// Every failure path returns `None` and leaves the caller on that default,
+/// so a fresh install, a missing directory, unreadable bytes, or a changed
+/// store layout all degrade to current behavior and startup continues.
+fn persisted_connection_timeout() -> Option<Duration> {
+    let path = path::store_dir().ok()?.join(STORE_FILE_NAME);
+    let contents = fs::read_to_string(&path).ok()?;
+    let root = serde_json::from_str::<serde_json::Value>(&contents).ok()?;
+    let timeout = connection_timeout_from_store(&root)?;
+
+    tracing::debug!(?timeout, "Applying persisted connection timeout");
+    Some(timeout)
+}
+
 // The webview persists user settings (timeout, zoom, auto-reconnect, and so
-// on) via `tauri-plugin-store`. The Tauri shell needs live access to some
-// of those values, for example `connectionTimeoutMs` for the appload HTTP
-// client. Rather than having Rust read the store file directly, which would
-// couple this code to the plugin's on-disk format, the webview pushes the
-// current settings to Rust via `set_desktop_config` at init and on change.
+// on) via `tauri-plugin-store`, and pushes them to Rust through
+// `set_desktop_config` at init and on every change. A pushed value reaches
+// Rust without a restart, which is what a live consumer needs and what
+// reading the store file cannot give.
 //
 // The IPC plumbing is wired end-to-end but no Rust code reads
-// `DESKTOP_CONFIG` yet. Consumers such as the appload connection timeout
-// are future scope.
+// `DESKTOP_CONFIG` yet. The appload connection timeout deliberately does
+// not, because appload's config is built before any webview exists to push,
+// so `persisted_connection_timeout()` reads the store file for that one
+// value and accepts a restart to pick up a change. Anything needing the
+// change to apply immediately is what the mailbox is still here for.
 //
 // The struct deliberately only deserializes fields Rust actually consumes.
 // TS sends the full `DESKTOP_SETTINGS_SCHEMA` payload and serde drops the
@@ -216,6 +273,65 @@ mod tests {
             current_desktop_config().unwrap().connection_timeout_ms,
             90_000
         );
+    }
+
+    // Mirrors a real `hoppscotch-unified.store` document, including the
+    // sibling namespace and the sibling keys the shell writes. A minimal
+    // stub would pass even with the lookup path wrong by one level, so
+    // the full nesting is what makes the assertion meaningful.
+    fn store_document(settings: serde_json::Value) -> serde_json::Value {
+        serde_json::json!({
+            "data": {
+                "migration.v1": { "schema_version": { "data": 2 } },
+                "hoppscotch-desktop.v1": {
+                    "connectionState": { "data": { "status": "idle" } },
+                    "schema_version": { "data": 2 },
+                    "desktopSettings": {
+                        "schemaVersion": 1,
+                        "metadata": { "namespace": "hoppscotch-desktop.v1" },
+                        "data": settings
+                    }
+                }
+            }
+        })
+    }
+
+    #[test]
+    fn reads_connection_timeout_from_store_document() {
+        let doc = store_document(serde_json::json!({
+            "connectionTimeoutMs": 90_000,
+            "zoomLevel": 1.0,
+            "keyboardLayoutStrategy": "hybrid"
+        }));
+        assert_eq!(
+            connection_timeout_from_store(&doc),
+            Some(Duration::from_millis(90_000))
+        );
+    }
+
+    #[test]
+    fn store_without_desktop_settings_yields_no_override() {
+        let empty = serde_json::json!({});
+        assert_eq!(connection_timeout_from_store(&empty), None);
+
+        let other_namespace = serde_json::json!({ "data": { "migration.v1": {} } });
+        assert_eq!(connection_timeout_from_store(&other_namespace), None);
+    }
+
+    #[test]
+    fn unusable_timeout_values_yield_no_override() {
+        // Zero would build a client that expires before it can connect.
+        let zero = store_document(serde_json::json!({ "connectionTimeoutMs": 0 }));
+        assert_eq!(connection_timeout_from_store(&zero), None);
+
+        let missing = store_document(serde_json::json!({ "zoomLevel": 1.0 }));
+        assert_eq!(connection_timeout_from_store(&missing), None);
+
+        let wrong_type = store_document(serde_json::json!({ "connectionTimeoutMs": "90s" }));
+        assert_eq!(connection_timeout_from_store(&wrong_type), None);
+
+        let negative = store_document(serde_json::json!({ "connectionTimeoutMs": -1 }));
+        assert_eq!(connection_timeout_from_store(&negative), None);
     }
 
     #[test]

@@ -42,7 +42,7 @@
   "private": false,
   "dependencies": {
     "aws4fetch": "1.0.20",
-    "axios": "1.18.0",
+    "axios": "1.18.1",
     "axios-cookiejar-support": "6.0.5",
     "chalk": "5.6.2",
     "commander": "14.0.3",
@@ -51,9 +51,9 @@
     "jsonc-parser": "3.3.1",
     "lodash-es": "4.18.1",
     "papaparse": "5.5.4",
-    "qs": "6.15.2",
+    "qs": "6.15.3",
     "semver": "7.8.5",
-    "tough-cookie": "6.0.1",
+    "tough-cookie": "6.0.2",
     "verzod": "0.4.0",
     "xmlbuilder2": "4.0.3",
     "zod": "3.25.32"
@@ -66,9 +66,9 @@
     "@types/papaparse": "5.5.2",
     "@types/qs": "6.15.1",
     "fp-ts": "2.16.11",
-    "prettier": "3.8.4",
+    "prettier": "3.8.5",
     "tsup": "8.5.1",
     "typescript": "5.9.3",
-    "vitest": "4.1.9"
+    "vitest": "4.1.10"
   }
 }

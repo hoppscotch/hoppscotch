@@ -4,6 +4,8 @@ import {
   runGQLSubscription,
 } from "~/helpers/backend/GQLClient"
 
+import { HISTORY_LIMIT } from "~/newstore/history"
+
 import {
   CreateUserHistoryDocument,
   CreateUserHistoryMutation,
@@ -28,10 +30,12 @@ import {
   UserHistoryAllDeletedDocument,
 } from "~/helpers/backend/graphql"
 
-export const getUserHistoryEntries = () =>
+export const getUserHistoryEntries = (take: number = HISTORY_LIMIT) =>
   runGQLQuery<GetRestUserHistoryQuery, GetRestUserHistoryQueryVariables, "">({
     query: GetRestUserHistoryDocument,
-    variables: {},
+    variables: {
+      take,
+    },
   })
 
 export const createUserHistory = (

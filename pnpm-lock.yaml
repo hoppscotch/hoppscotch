@@ -18,15 +18,12 @@ overrides:
   multer@2.1.1: 2.2.0
   serialize-javascript@<7.0.3: 7.0.3
   vue: 3.5.38
+  shell-quote: 1.8.4
   ws: 8.21.0
 
 importers:
 
   .:
-    dependencies:
-      shell-quote:
-        specifier: 1.8.4
-        version: 1.8.4
     devDependencies:
       '@commitlint/cli':
         specifier: 20.5.2
@@ -9004,7 +9001,8 @@ packages:
       '@fastify/websocket': ^10 || ^11
       crossws: ~0.3
       graphql: ^15.10.1 || ^16
-      ws: 8.21.0
+      shell-quote: 1.8.4
+  ws: 8.21.0
     peerDependenciesMeta:
       '@fastify/websocket':
         optional: true
@@ -9562,12 +9560,14 @@ packages:
   isomorphic-ws@5.0.0:
     resolution: {integrity: sha512-muId7Zzn9ywDsyXgTIafTry2sV3nySZeUDe6YedVd1Hvuuep5AsIlqK+XefWpYTyJG5e503F2xIuT2lcU6rCSw==}
     peerDependencies:
-      ws: 8.21.0
+      shell-quote: 1.8.4
+  ws: 8.21.0
 
   isows@1.0.7:
     resolution: {integrity: sha512-I1fSfDCZL5P0v33sVqeTDSpcstAg/N+wF5HS033mogOVIp4B+oHC7oOCsA3axAbBSGTJ8QubbNmnIRN/h8U7hg==}
     peerDependencies:
-      ws: 8.21.0
+      shell-quote: 1.8.4
+  ws: 8.21.0
 
   istanbul-lib-coverage@3.2.2:
     resolution: {integrity: sha512-O8dpsF+r0WV/8MNRKfnmrtCWhuKjxrq2w+jpzBL5UZKTi2LeVWnWOmWRxFlesJONmc+wLAGvKQZEOanko0LFTg==}
@@ -16197,7 +16197,7 @@ snapshots:
       listr2: 9.0.5
       log-symbols: 4.1.0
       micromatch: 4.0.8
-      shell-quote: 1.8.3
+      shell-quote: 1.8.4
       string-env-interpolation: 1.0.1
       ts-log: 2.2.7
       tslib: 2.8.1
@@ -16248,7 +16248,7 @@ snapshots:
       listr2: 9.0.5
       log-symbols: 4.1.0
       micromatch: 4.0.8
-      shell-quote: 1.8.3
+      shell-quote: 1.8.4
       string-env-interpolation: 1.0.1
       ts-log: 2.2.7
       tslib: 2.8.1
@@ -16299,7 +16299,7 @@ snapshots:
       listr2: 9.0.5
       log-symbols: 4.1.0
       micromatch: 4.0.8
-      shell-quote: 1.8.3
+      shell-quote: 1.8.4
       string-env-interpolation: 1.0.1
       ts-log: 2.2.7
       tslib: 2.8.1
@@ -16743,7 +16743,8 @@ snapshots:
       graphql-ws: 5.12.1(graphql@16.13.2)
       isomorphic-ws: 5.0.0(ws@8.21.0)
       tslib: 2.8.1
-      ws: 8.21.0
+      shell-quote: 1.8.4
+  ws: 8.21.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -16757,7 +16758,8 @@ snapshots:
       graphql-ws: 6.0.8(graphql@16.13.2)(ws@8.21.0)
       isows: 1.0.7(ws@8.21.0)
       tslib: 2.8.1
-      ws: 8.21.0
+      shell-quote: 1.8.4
+  ws: 8.21.0
     transitivePeerDependencies:
       - '@fastify/websocket'
       - bufferutil
@@ -16773,7 +16775,8 @@ snapshots:
       graphql-ws: 6.0.8(graphql@16.14.0)(ws@8.21.0)
       isows: 1.0.7(ws@8.21.0)
       tslib: 2.8.1
-      ws: 8.21.0
+      shell-quote: 1.8.4
+  ws: 8.21.0
     transitivePeerDependencies:
       - '@fastify/websocket'
       - bufferutil
@@ -16846,7 +16849,8 @@ snapshots:
       graphql: 16.13.2
       isomorphic-ws: 5.0.0(ws@8.21.0)
       tslib: 2.8.1
-      ws: 8.21.0
+      shell-quote: 1.8.4
+  ws: 8.21.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -16858,7 +16862,8 @@ snapshots:
       graphql: 16.13.2
       isomorphic-ws: 5.0.0(ws@8.21.0)
       tslib: 2.8.1
-      ws: 8.21.0
+      shell-quote: 1.8.4
+  ws: 8.21.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -16870,7 +16875,8 @@ snapshots:
       graphql: 16.14.0
       isomorphic-ws: 5.0.0(ws@8.21.0)
       tslib: 2.8.1
-      ws: 8.21.0
+      shell-quote: 1.8.4
+  ws: 8.21.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -17201,7 +17207,8 @@ snapshots:
       isomorphic-ws: 5.0.0(ws@8.21.0)
       tslib: 2.8.1
       value-or-promise: 1.0.12
-      ws: 8.21.0
+      shell-quote: 1.8.4
+  ws: 8.21.0
     transitivePeerDependencies:
       - '@types/node'
       - bufferutil
@@ -17222,7 +17229,8 @@ snapshots:
       isomorphic-ws: 5.0.0(ws@8.21.0)
       sync-fetch: 0.6.0
       tslib: 2.8.1
-      ws: 8.21.0
+      shell-quote: 1.8.4
+  ws: 8.21.0
     transitivePeerDependencies:
       - '@fastify/websocket'
       - '@types/node'
@@ -17244,7 +17252,8 @@ snapshots:
       isomorphic-ws: 5.0.0(ws@8.21.0)
       sync-fetch: 0.6.0
       tslib: 2.8.1
-      ws: 8.21.0
+      shell-quote: 1.8.4
+  ws: 8.21.0
     transitivePeerDependencies:
       - '@fastify/websocket'
       - '@types/node'
@@ -17266,7 +17275,8 @@ snapshots:
       isomorphic-ws: 5.0.0(ws@8.21.0)
       sync-fetch: 0.6.0
       tslib: 2.8.1
-      ws: 8.21.0
+      shell-quote: 1.8.4
+  ws: 8.21.0
     transitivePeerDependencies:
       - '@fastify/websocket'
       - '@types/node'
@@ -18430,7 +18440,8 @@ snapshots:
       reflect-metadata: 0.2.2
       subscriptions-transport-ws: 0.11.0(graphql@16.14.0)
       tslib: 2.8.1
-      ws: 8.21.0
+      shell-quote: 1.8.4
+  ws: 8.21.0
     optionalDependencies:
       class-transformer: 0.5.1
       class-validator: 0.15.1
@@ -21689,7 +21700,8 @@ snapshots:
       indexof: 0.0.1
       parseqs: 0.0.6
       parseuri: 0.0.6
-      ws: 8.21.0
+      shell-quote: 1.8.4
+  ws: 8.21.0
       xmlhttprequest-ssl: 1.6.3
       yeast: 0.1.2
     transitivePeerDependencies:
@@ -21706,7 +21718,8 @@ snapshots:
       has-cors: 1.1.0
       parseqs: 0.0.6
       parseuri: 0.0.6
-      ws: 8.21.0
+      shell-quote: 1.8.4
+  ws: 8.21.0
       xmlhttprequest-ssl: 1.6.3
       yeast: 0.1.2
     transitivePeerDependencies:
@@ -21719,7 +21732,8 @@ snapshots:
       '@socket.io/component-emitter': 3.1.2
       debug: 4.4.3(supports-color@8.1.1)
       engine.io-parser: 5.2.3
-      ws: 8.21.0
+      shell-quote: 1.8.4
+  ws: 8.21.0
       xmlhttprequest-ssl: 2.1.2
     transitivePeerDependencies:
       - bufferutil
@@ -23017,13 +23031,15 @@ snapshots:
     dependencies:
       graphql: 16.13.2
     optionalDependencies:
-      ws: 8.21.0
+      shell-quote: 1.8.4
+  ws: 8.21.0
 
   graphql-ws@6.0.8(graphql@16.14.0)(ws@8.21.0):
     dependencies:
       graphql: 16.14.0
     optionalDependencies:
-      ws: 8.21.0
+      shell-quote: 1.8.4
+  ws: 8.21.0
 
   graphql@16.13.2: {}
 
@@ -23297,7 +23313,7 @@ snapshots:
       commander: 7.2.0
       ramda: 0.27.2
       ramda-adjunct: 2.36.0(ramda@0.27.2)
-      shell-quote: 1.8.3
+      shell-quote: 1.8.4
       yaml: 1.10.3
     transitivePeerDependencies:
       - encoding
@@ -23564,11 +23580,13 @@ snapshots:
 
   isomorphic-ws@5.0.0(ws@8.21.0):
     dependencies:
-      ws: 8.21.0
+      shell-quote: 1.8.4
+  ws: 8.21.0
 
   isows@1.0.7(ws@8.21.0):
     dependencies:
-      ws: 8.21.0
+      shell-quote: 1.8.4
+  ws: 8.21.0
 
   istanbul-lib-coverage@3.2.2: {}
 
@@ -24081,7 +24099,8 @@ snapshots:
       webidl-conversions: 8.0.1
       whatwg-mimetype: 4.0.0
       whatwg-url: 15.1.0
-      ws: 8.21.0
+      shell-quote: 1.8.4
+  ws: 8.21.0
       xml-name-validator: 5.0.0
     transitivePeerDependencies:
       - '@noble/hashes'
@@ -25228,7 +25247,7 @@ snapshots:
       minimatch: 3.1.5
       pidtree: 0.3.1
       read-pkg: 3.0.0
-      shell-quote: 1.8.3
+      shell-quote: 1.8.4
       string.prototype.padend: 3.1.6
 
   npm-run-path@3.1.0:
@@ -27116,7 +27135,8 @@ snapshots:
       graphql: 16.13.2
       iterall: 1.3.0
       symbol-observable: 1.2.0
-      ws: 8.21.0
+      shell-quote: 1.8.4
+  ws: 8.21.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -27128,7 +27148,8 @@ snapshots:
       graphql: 16.14.0
       iterall: 1.3.0
       symbol-observable: 1.2.0
-      ws: 8.21.0
+      shell-quote: 1.8.4
+  ws: 8.21.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate

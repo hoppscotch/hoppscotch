@@ -48,6 +48,7 @@
       "multer@2.1.1": "2.2.0",
       "serialize-javascript@<7.0.3": "7.0.3",
       "vue": "3.5.38",
+      "shell-quote": "1.8.4",
       "ws": "8.21.0"
     },
     "onlyBuiltDependencies": [
@@ -66,8 +67,5 @@
       "prisma",
       "vue-demi"
     ]
-  },
-  "dependencies": {
-    "shell-quote": "1.8.4"
   }
 }

@@ -880,9 +880,14 @@ describe("PersistenceService", () => {
         // 3. Malformed stringified responseMeta (non-numeric duration/statusCode) should fail and fall back to catch values
         const entryWithMalformedStr = {
           ...REST_HISTORY_MOCK[0],
-          responseMeta: JSON.stringify({ duration: "invalid", statusCode: 200 }),
+          responseMeta: JSON.stringify({
+            duration: "invalid",
+            statusCode: 200,
+          }),
         }
-        const parseResult = REST_HISTORY_ENTRY_SCHEMA.safeParse(entryWithMalformedStr)
+        const parseResult = REST_HISTORY_ENTRY_SCHEMA.safeParse(
+          entryWithMalformedStr
+        )
         expect(parseResult.success).toBe(true)
         expect(parseResult.data?.responseMeta).toEqual({
           duration: null,

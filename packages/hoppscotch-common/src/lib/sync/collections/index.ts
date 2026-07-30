@@ -385,7 +385,10 @@ async function loadUserCollections(collectionType: "REST" | "GQL") {
         ? restCollectionStore.value.state
         : graphqlCollectionStore.value.state
 
-    const mergedCollections = mergeCollections(localCollections, fetchedCollections)
+    const mergedCollections = mergeCollections(
+      localCollections,
+      fetchedCollections
+    )
 
     runDispatchWithOutSyncing(() => {
       collectionType == "REST"

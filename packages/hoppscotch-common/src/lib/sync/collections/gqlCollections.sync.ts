@@ -25,7 +25,11 @@ import {
 import { getSettingSubject, settingsStore } from "~/newstore/settings"
 import { getSyncInitFunction, StoreSyncDefinitionOf } from ".."
 import { createMapper } from "../mapper"
-import { applyDuplicatedCollectionResult, moveOrReorderRequests, ensurePathSynced } from "./sync"
+import {
+  applyDuplicatedCollectionResult,
+  moveOrReorderRequests,
+  ensurePathSynced,
+} from "./sync"
 import { ReqType } from "~/helpers/backend/graphql"
 import { stripClientLocalValuesForWire } from "~/helpers/clientLocalVariables"
 

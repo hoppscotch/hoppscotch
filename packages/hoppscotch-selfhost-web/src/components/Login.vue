@@ -55,9 +55,7 @@ const DeviceTokenResponse = z.object({
 })
 
 type FlowStates =
-  | { type: "loading" }
-  | { type: "waiting"; openURL: string }
-  | { type: "error" }
+  { type: "loading" } | { type: "waiting"; openURL: string } | { type: "error" }
 
 const authFlowState = ref<FlowStates>({ type: "loading" })
 const copyIcon = refAutoReset(IconLink, 1000)

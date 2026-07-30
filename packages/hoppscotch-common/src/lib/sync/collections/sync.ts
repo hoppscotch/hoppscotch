@@ -435,7 +435,10 @@ export async function ensurePathSynced(
   if (path === null || path === undefined || path === "") return true
 
   const collections = collectionStore.value.state
-  const pathIndexes = typeof path === "number" ? [path] : path.split("/").map((index) => parseInt(index))
+  const pathIndexes =
+    typeof path === "number"
+      ? [path]
+      : path.split("/").map((index) => parseInt(index))
 
   let highestUnsyncedPath: number[] | null = null
   let parentID: string | undefined = undefined
@@ -454,14 +457,20 @@ export async function ensurePathSynced(
   }
 
   if (highestUnsyncedPath) {
-    const collectionToSync = navigateToFolderWithIndexPath(collections, highestUnsyncedPath)
+    const collectionToSync = navigateToFolderWithIndexPath(
+      collections,
+      highestUnsyncedPath
+    )
     if (collectionToSync) {
       await recursivelySyncFn(
         collectionToSync,
         highestUnsyncedPath.join("/"),
         parentID
       )
-      const targetCollection = navigateToFolderWithIndexPath(collections, pathIndexes)
+      const targetCollection = navigateToFolderWithIndexPath(
+        collections,
+        pathIndexes
+      )
       return !!targetCollection?.id
     }
   }
@@ -652,12 +661,13 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
         collections,
         newSourcePath.split("/").map((index) => parseInt(index))
       )
-      const destCollection = destinationPath && newDestinationPath
-        ? navigateToFolderWithIndexPath(
-            collections,
-            newDestinationPath.split("/").map((index) => parseInt(index))
-          )
-        : null
+      const destCollection =
+        destinationPath && newDestinationPath
+          ? navigateToFolderWithIndexPath(
+              collections,
+              newDestinationPath.split("/").map((index) => parseInt(index))
+            )
+          : null
 
       const wasSourceSynced = !!sourceCollection?.id
       const wasDestSynced = destinationPath ? !!destCollection?.id : true

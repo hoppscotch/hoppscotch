@@ -58,6 +58,7 @@ const SettingsDefSchema = z.object({
       httpRequestBody: z.boolean().catch(true),
       httpResponseBody: z.boolean().catch(true),
       httpHeaders: z.boolean().catch(true),
+      httpParams: z.boolean().catch(true),
       httpUrlEncoded: z.boolean().catch(true),
       httpPreRequest: z.boolean().catch(true),
       httpTest: z.boolean().catch(true),

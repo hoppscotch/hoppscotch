@@ -1241,7 +1241,7 @@
     "generate_name_error": "Failed to generate request name.",
     "disable_cookies": "Disable cookie jar",
     "disable_cookies_default": "(Default: Settings)",
-    "disable_cookies_description": "Prevent cookies used in this request from being stored in the cookie jar. Existing cookies in the cookie jar will not be added as headers for this request."
+    "disable_cookies_description": "Prevent cookies used in this request from being stored in the cookie jar. Existing cookies in the cookie jar will not be added as headers for this request. Note: Due to browser limitations, same-origin requests will still include cookies."
   },
   "response": {
     "audio": "Audio",
@@ -1430,7 +1430,7 @@
     "proxy_auth": "You can also include username and password in the URL.",
     "network": "Network",
     "disable_cookies": "Disable cookies",
-    "disable_cookies_description": "Disable cookie jar for all requests."
+    "disable_cookies_description": "Disable cookie jar for all requests. Note: Due to browser limitations, same-origin requests will still include cookies."
   },
   "shared_requests": {
     "button": "Button",

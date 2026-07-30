@@ -12,6 +12,7 @@ import {
   filterActiveToRecord,
   filterActiveParams,
 } from "~/helpers/functional/filter-active"
+import { settingsStore } from "~/newstore/settings"
 
 export const RESTRequest = {
   async toRequest(request: EffectiveHoppRESTRequest): Promise<RelayRequest> {
@@ -38,6 +39,14 @@ export const RESTRequest = {
       params,
       auth,
       content,
+      meta: {
+        options: {
+          cookies: !(
+            (request.requestOptions?.disableCookies ?? false) ||
+            settingsStore.value.DISABLE_COOKIES
+          )
+        }
+      }
     }
   },
 }

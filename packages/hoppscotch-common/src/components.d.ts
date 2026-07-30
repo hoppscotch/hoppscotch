@@ -212,6 +212,7 @@ declare module 'vue' {
     HttpReqChangeConfirmModal: typeof import('./components/http/ReqChangeConfirmModal.vue')['default']
     HttpRequest: typeof import('./components/http/Request.vue')['default']
     HttpRequestOptions: typeof import('./components/http/RequestOptions.vue')['default']
+    HttpRequestSettings: typeof import('./components/http/RequestSettings.vue')['default']
     HttpRequestTab: typeof import('./components/http/RequestTab.vue')['default']
     HttpRequestVariables: typeof import('./components/http/RequestVariables.vue')['default']
     HttpResponse: typeof import('./components/http/Response.vue')['default']

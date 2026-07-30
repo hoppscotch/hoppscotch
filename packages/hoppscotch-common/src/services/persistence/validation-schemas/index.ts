@@ -58,7 +58,6 @@ const SettingsDefSchema = z.object({
       httpRequestBody: z.boolean().catch(true),
       httpResponseBody: z.boolean().catch(true),
       httpHeaders: z.boolean().catch(true),
-      httpParams: z.boolean().catch(true),
       httpUrlEncoded: z.boolean().catch(true),
       httpPreRequest: z.boolean().catch(true),
       httpTest: z.boolean().catch(true),
@@ -86,6 +85,7 @@ const SettingsDefSchema = z.object({
   EXPERIMENTAL_SCRIPTING_SANDBOX: z.optional(z.boolean()),
   ENABLE_EXPERIMENTAL_MOCK_SERVERS: z.optional(z.boolean()),
   ENABLE_EXPERIMENTAL_DOCUMENTATION: z.optional(z.boolean()),
+  DISABLE_COOKIES: z.boolean().catch(false),
 })
 
 const HoppRESTRequestSchema = entityReference(HoppRESTRequest)

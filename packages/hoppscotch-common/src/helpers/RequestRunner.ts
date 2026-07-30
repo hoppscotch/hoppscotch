@@ -26,6 +26,7 @@ import { map } from "fp-ts/Either"
 
 import { runPreRequestScript, runTestScript } from "@hoppscotch/js-sandbox/web"
 import { useSetting } from "~/composables/settings"
+import { settingsStore } from "~/newstore/settings"
 import { getService } from "~/modules/dioc"
 import {
   combineScriptsWithIIFE,
@@ -465,7 +466,11 @@ export function runRESTRequest$(
     cancelFunc?.()
   }
 
-  const cookieJarEntries = getCookieJarEntries()
+  const cookieJarDisabled =
+    (tab.value.document.request.requestOptions?.disableCookies ?? false) ||
+    settingsStore.value.DISABLE_COOKIES
+
+  const cookieJarEntries = cookieJarDisabled ? null : getCookieJarEntries()
 
   const { request, inheritedProperties } = tab.value.document
 

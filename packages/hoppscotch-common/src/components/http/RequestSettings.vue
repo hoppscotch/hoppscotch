@@ -11,8 +11,8 @@
       <div class="flex flex-col">
         <div class="flex items-center justify-between">
           <span class="font-semibold text-secondaryDark">
-            Disable cookie jar
-            <span class="text-secondaryLight font-normal text-xs ml-2">(Default: Settings)</span>
+            {{ t('request.disable_cookies') }}
+            <span class="text-secondaryLight font-normal text-xs ml-2">{{ t('request.disable_cookies_default') }}</span>
           </span>
           <HoppSmartToggle
             :on="disableCookies"
@@ -21,8 +21,8 @@
             {{ disableCookies ? 'ON' : 'OFF' }}
           </HoppSmartToggle>
         </div>
-        <p class="mt-2 text-secondaryLight">
-          Prevent cookies used in this request from being stored in the cookie jar. Existing cookies in the cookie jar will not be added as headers for this request.
+        <p class="mt-2 text-secondaryLight text-tiny">
+          {{ t('request.disable_cookies_description') }}
         </p>
       </div>
     </div>

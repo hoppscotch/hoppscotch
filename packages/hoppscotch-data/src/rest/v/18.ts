@@ -10,7 +10,7 @@ export type HoppRESTRequestOptions = z.infer<typeof HoppRESTRequestOptions>
 
 export const V18_SCHEMA = V17_SCHEMA.extend({
   v: z.literal("18"),
-  requestOptions: HoppRESTRequestOptions.catch({ disableCookies: false }).default({ disableCookies: false }),
+  requestOptions: HoppRESTRequestOptions.catch({ disableCookies: false }).optional(),
 })
 
 const V18_VERSION = defineVersion({

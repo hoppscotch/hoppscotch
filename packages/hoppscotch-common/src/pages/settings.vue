@@ -185,24 +185,24 @@
             </div>
           </section>
 
-          <section>
-            <h4 class="font-semibold text-secondaryDark">
-              {{ t("settings.network") || 'Network' }}
-            </h4>
-            <div class="mt-4 space-y-2">
+          <div class="mb-8 flex flex-col">
+            <h2 class="mb-4 font-semibold text-secondaryDark">
+              {{ t("settings.network") }}
+            </h2>
+            <div class="flex flex-col space-y-4">
               <div class="flex items-center">
                 <HoppSmartToggle
                   :on="DISABLE_COOKIES"
                   @change="toggleSetting('DISABLE_COOKIES')"
                 >
-                  Disable cookies
+                  {{ t("settings.disable_cookies") }}
                 </HoppSmartToggle>
               </div>
-              <div class="text-secondaryLight">
-                Disable cookie jar for all requests.
-              </div>
+              <p class="mt-2 text-secondaryLight text-tiny">
+                {{ t("settings.disable_cookies_description") }}
+              </p>
             </div>
-          </section>
+          </div>
         </div>
       </div>
 

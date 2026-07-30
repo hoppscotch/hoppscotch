@@ -92,12 +92,15 @@
       <HttpRequestVariables v-model="request.requestVariables" />
     </HoppSmartTab>
     <HoppSmartTab
-      v-if="properties?.includes('settings') ?? true"
+      v-if="(properties?.includes('settings') ?? true) && 'requestOptions' in request"
       :id="'settings'"
-      :label="'Settings'"
+      :label="`${t('tab.settings')}`"
       :align-last="true"
     >
-      <HttpRequestSettings v-model="request.requestOptions" />
+      <HttpRequestSettings
+        v-if="'requestOptions' in request"
+        v-model="request.requestOptions"
+      />
     </HoppSmartTab>
   </HoppSmartTabs>
 </template>

@@ -556,18 +556,21 @@ export function runRESTRequest$(
       resolvedRequest,
       preRequestScriptResult.right.updatedRequest
     )
-
-    // A pre-request script may have added or activated an Authorization
-    // header after the auth guard above ran, or removed one that was there.
-    // Re-evaluate against the final headers: an active Authorization header
-    // suppresses auth-derived credentials; otherwise fall back to the
-    // inherited collection auth when the request inherits it.
+    // A pre-request script may have added, activated, or removed an
+    // Authorization header, or changed the request auth entirely.
+    // Re-evaluate against the final state: an active Authorization header
+    // suppresses auth-derived credentials; if the request still inherits
+    // collection auth (the script did not change it), fall back to the
+    // inherited auth when no explicit header remains.
     const hasActiveAuthHeader = finalRequest.headers.some(
       (header) => header.key.toLowerCase() === "authorization" && header.active
     )
     if (hasActiveAuthHeader) {
       finalRequest.auth = { authType: "none", authActive: false }
-    } else if (request.auth.authType === "inherit" && request.auth.authActive) {
+    } else if (
+      finalRequest.auth.authType === "inherit" &&
+      finalRequest.auth.authActive
+    ) {
       finalRequest.auth = inheritedProperties?.auth.inheritedAuth ?? {
         authType: "none",
         authActive: false,

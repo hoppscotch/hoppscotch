@@ -558,15 +558,20 @@ export function runRESTRequest$(
     )
 
     // A pre-request script may have added or activated an Authorization
-    // header after the auth guard above ran. Suppress any auth-derived
-    // Authorization so the request does not end up with two credentials.
-    if (
-      finalRequest.headers.some(
-        (header) =>
-          header.key.toLowerCase() === "authorization" && header.active
-      )
-    ) {
+    // header after the auth guard above ran, or removed one that was there.
+    // Re-evaluate against the final headers: an active Authorization header
+    // suppresses auth-derived credentials; otherwise fall back to the
+    // inherited collection auth when the request inherits it.
+    const hasActiveAuthHeader = finalRequest.headers.some(
+      (header) => header.key.toLowerCase() === "authorization" && header.active
+    )
+    if (hasActiveAuthHeader) {
       finalRequest.auth = { authType: "none", authActive: false }
+    } else if (request.auth.authType === "inherit" && request.auth.authActive) {
+      finalRequest.auth = inheritedProperties?.auth.inheritedAuth ?? {
+        authType: "none",
+        authActive: false,
+      }
     }
 
     // Propagate changes to request variables from the scripting context to the UI

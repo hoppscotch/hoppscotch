@@ -470,7 +470,13 @@ export function runRESTRequest$(
   const { request, inheritedProperties } = tab.value.document
 
   const requestAuth =
-    request.auth.authType === "inherit" && request.auth.authActive
+    request.auth.authType === "inherit" &&
+    request.auth.authActive &&
+    !request.headers.some(
+      (requestHeader) =>
+        requestHeader.key.toLowerCase() === "authorization" &&
+        requestHeader.active
+    )
       ? inheritedProperties?.auth.inheritedAuth
       : request.auth
 
@@ -550,6 +556,18 @@ export function runRESTRequest$(
       resolvedRequest,
       preRequestScriptResult.right.updatedRequest
     )
+
+    // A pre-request script may have added or activated an Authorization
+    // header after the auth guard above ran. Suppress any auth-derived
+    // Authorization so the request does not end up with two credentials.
+    if (
+      finalRequest.headers.some(
+        (header) =>
+          header.key.toLowerCase() === "authorization" && header.active
+      )
+    ) {
+      finalRequest.auth = { authType: "none", authActive: false }
+    }
 
     // Propagate changes to request variables from the scripting context to the UI
     tab.value.document.request.requestVariables = finalRequest.requestVariables

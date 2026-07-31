@@ -157,6 +157,8 @@ interface HoppRESTAuthAWSSignature {
   serviceName: string
   serviceToken?: string
   addTo: AuthLocation
+  credentialMode: "manual" | "profile"
+  profileName: string
 }
 
 interface HoppRESTAuthDigest {

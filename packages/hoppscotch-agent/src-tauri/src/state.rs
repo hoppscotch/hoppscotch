@@ -195,7 +195,7 @@ impl AppState {
         auth_key: &str,
         nonce: &str,
         data: &Bytes,
-    ) -> Option<T>
+    ) -> Option<(T, Registration)>
     where
         T: DeserializeOwned,
     {
@@ -213,10 +213,7 @@ impl AppState {
             }
         };
 
-        let key: [u8; 32] = match base16::decode(&registration.shared_secret_b16).ok()?[0..32]
-            .try_into()
-            .ok()
-        {
+        let key: [u8; 32] = match decode_fixed_b16(&registration.shared_secret_b16) {
             Some(k) => k,
             None => {
                 tracing::error!(auth_key, "Failed to decode shared secret");
@@ -224,7 +221,7 @@ impl AppState {
             }
         };
 
-        let nonce: [u8; 12] = match base16::decode(nonce).ok()?[0..12].try_into().ok() {
+        let nonce: [u8; 12] = match decode_fixed_b16(nonce) {
             Some(n) => n,
             None => {
                 tracing::error!(auth_key, "Failed to decode nonce");
@@ -243,10 +240,12 @@ impl AppState {
             }
         };
 
+        let reg_clone = registration.clone();
+
         match serde_json::from_reader(plain_data.as_slice()) {
             Ok(result) => {
                 tracing::info!(auth_key, "Data successfully decrypted and parsed");
-                Some(result)
+                Some((result, reg_clone))
             }
             Err(e) => {
                 tracing::error!(auth_key, error = ?e, "Failed to parse decrypted data");
@@ -273,5 +272,55 @@ impl AppState {
         }
 
         result
+    }
+}
+
+/// Decode a base16 (hex) string into a fixed-size `[u8; N]` array.
+///
+/// Returns `None` if the input is not valid hex or decodes to fewer than `N`
+/// bytes, instead of panicking on an out-of-range slice. Any bytes beyond the
+/// first `N` are ignored.
+fn decode_fixed_b16<const N: usize>(hex: &str) -> Option<[u8; N]> {
+    base16::decode(hex).ok()?.get(0..N)?.try_into().ok()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::decode_fixed_b16;
+
+    #[test]
+    fn decodes_valid_hex_of_exact_length() {
+        let bytes: Option<[u8; 12]> = decode_fixed_b16("000102030405060708090a0b");
+        assert_eq!(bytes, Some([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]));
+    }
+
+    #[test]
+    fn truncates_extra_bytes_beyond_n() {
+        let bytes: Option<[u8; 12]> = decode_fixed_b16("000102030405060708090a0b0c0d0e0f");
+        assert_eq!(bytes, Some([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]));
+    }
+
+    #[test]
+    fn short_input_returns_none_instead_of_panicking() {
+        // Regression: a valid-hex but too-short nonce/secret must not panic.
+        // "00" decodes to a single byte; requesting 12 previously indexed
+        // `[0..12]` and panicked with "range end index 12 out of range".
+        let nonce: Option<[u8; 12]> = decode_fixed_b16("00");
+        assert_eq!(nonce, None);
+
+        let key: Option<[u8; 32]> = decode_fixed_b16("00");
+        assert_eq!(key, None);
+    }
+
+    #[test]
+    fn invalid_hex_returns_none() {
+        let bytes: Option<[u8; 32]> = decode_fixed_b16("zzzz");
+        assert_eq!(bytes, None);
+    }
+
+    #[test]
+    fn empty_input_returns_none() {
+        let bytes: Option<[u8; 32]> = decode_fixed_b16("");
+        assert_eq!(bytes, None);
     }
 }

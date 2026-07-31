@@ -17,6 +17,20 @@ type SignOptions = {
   signQuery?: boolean
 }
 
+type AgentStore = InstanceType<
+  typeof import("~/platform/std/kernel-interceptors/agent/store").KernelInterceptorAgentStore
+>
+
+async function getAgentService(): Promise<AgentStore> {
+  // DIOC's getService already returns a memoized singleton, so there's no need
+  // to cache the instance here. The dynamic imports keep the agent store loaded
+  // lazily (only when profile mode is used) to avoid an eager import cycle.
+  const { getService } = await import("~/modules/dioc")
+  const { KernelInterceptorAgentStore } =
+    await import("~/platform/std/kernel-interceptors/agent/store")
+  return getService(KernelInterceptorAgentStore)
+}
+
 function processQueryParameters(
   params: HoppRESTParams,
   envVars: Environment["variables"],
@@ -56,13 +70,44 @@ async function signAWSRequest({
     baseUrl
   )
 
-  const accessKeyId = parseTemplateString(auth.accessKey, envVars)
-  const secretAccessKey = parseTemplateString(auth.secretKey, envVars)
-  const region = parseTemplateString(auth.region, envVars) ?? "us-east-1"
+  let accessKeyId: string
+  let secretAccessKey: string
+  let sessionToken: string | undefined
+  // The region the user explicitly set (empty input normalized to undefined).
+  const explicitRegion = parseTemplateString(auth.region, envVars) || undefined
+  let region = explicitRegion ?? "us-east-1"
   const service = parseTemplateString(auth.serviceName, envVars)
-  const sessionToken = auth.serviceToken
-    ? parseTemplateString(auth.serviceToken, envVars)
-    : undefined
+
+  const profileName = parseTemplateString(auth.profileName, envVars)
+
+  if (auth.credentialMode === "profile") {
+    if (!profileName) {
+      throw new Error(
+        "No AWS profile selected. Choose a profile or switch to manual credentials."
+      )
+    }
+
+    const agentService = await getAgentService()
+    const creds = await agentService.resolveAwsCredentials(
+      profileName,
+      explicitRegion
+    )
+    accessKeyId = creds.access_key_id
+    secretAccessKey = creds.secret_access_key
+    sessionToken = creds.session_token ?? undefined
+
+    // When the user didn't specify a region, sign with the profile's own
+    // resolved region rather than silently defaulting to us-east-1.
+    if (!explicitRegion && creds.region) {
+      region = creds.region
+    }
+  } else {
+    accessKeyId = parseTemplateString(auth.accessKey, envVars)
+    secretAccessKey = parseTemplateString(auth.secretKey, envVars)
+    sessionToken = auth.serviceToken
+      ? parseTemplateString(auth.serviceToken, envVars)
+      : undefined
+  }
 
   const signerConfig: ConstructorParameters<typeof AwsV4Signer>[0] = {
     method: request.method,

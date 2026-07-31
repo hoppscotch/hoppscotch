@@ -253,6 +253,18 @@ export async function getEffectiveRESTRequest(
         });
       }
     } else if (request.auth.authType === "aws-signature") {
+      // Profile credential mode resolves credentials through the desktop
+      // app/agent, which the CLI has no access to. Fail clearly instead of
+      // silently signing with empty access/secret keys.
+      if (request.auth.credentialMode === "profile") {
+        return E.left(
+          error({
+            code: "REQUEST_ERROR",
+            data: "AWS Signature profile credential mode is not supported in the CLI; it requires the Hoppscotch desktop app. Use manual access key and secret key instead.",
+          })
+        );
+      }
+
       const { addTo } = request.auth;
 
       const currentDate = new Date();

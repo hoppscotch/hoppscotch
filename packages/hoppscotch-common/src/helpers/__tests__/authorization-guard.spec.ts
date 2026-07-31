@@ -15,7 +15,7 @@ describe("RequestRunner authorization guard", () => {
   test("suppresses inherited auth case-insensitively when an active Authorization header exists", () => {
     const source = readFileSync(resolve(here, "../RequestRunner.ts"), "utf8")
     expect(source).toMatch(
-      /requestHeader\.key\.toLowerCase\(\) === "authorization"/
+      /requestHeader\.key\.toLowerCase\(\) === "authorization" &&\s*requestHeader\.active/
     )
   })
 

@@ -3,7 +3,7 @@ import * as E from "fp-ts/Either"
 import { cloneDeep } from "lodash-es"
 
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
-import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
+import { stripClientLocalValuesForWire } from "~/helpers/clientLocalVariables"
 import { initializeDownloadFile } from "."
 
 const getEnvironmentJSON = (
@@ -41,7 +41,7 @@ export const transformEnvironmentVariables = ({
     id,
     v,
     name,
-    variables: stripSecretVariableValuesForWire(variables),
+    variables: stripClientLocalValuesForWire(variables),
   }
 }
 

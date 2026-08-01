@@ -45,7 +45,7 @@ import {
   flushUnmatchedRefIdsFromTree,
   populateLocalStoresFromCollectionTree,
   stripCollectionTreeForStore,
-} from "~/helpers/secretVariables"
+} from "~/helpers/clientLocalVariables"
 
 import IconInsomnia from "~icons/hopp/insomnia"
 import IconPostman from "~icons/hopp/postman"

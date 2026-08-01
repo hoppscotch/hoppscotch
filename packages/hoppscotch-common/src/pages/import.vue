@@ -18,7 +18,7 @@ import {
   ensureRefIds,
   populateLocalStoresFromCollectionTree,
   stripCollectionTreeForStore,
-} from "~/helpers/secretVariables"
+} from "~/helpers/clientLocalVariables"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { IMPORTER_INVALID_FILE_FORMAT } from "~/helpers/import-export/import"

@@ -132,7 +132,10 @@ import {
   resolvesEnvsInBody,
 } from "~/helpers/utils/EffectiveURL"
 import { getAggregateEnvsWithCurrentValue } from "~/newstore/environments"
-import { getEffectiveVariablesForRequest } from "~/helpers/utils/environments"
+import {
+  getEffectiveVariablesForRequest,
+  filterNonEmptyEnvironmentVariables,
+} from "~/helpers/utils/environments"
 
 import { useService } from "dioc/vue"
 import cloneDeep from "lodash-es/cloneDeep"
@@ -145,7 +148,6 @@ import IconCheck from "~icons/lucide/check"
 import IconWrapText from "~icons/lucide/wrap-text"
 import { asyncComputed } from "@vueuse/core"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
-import { filterNonEmptyEnvironmentVariables } from "~/helpers/RequestRunner"
 
 const t = useI18n()
 

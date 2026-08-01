@@ -1124,12 +1124,10 @@ export class DesktopInstanceService
             TE.chainFirst(() =>
               this.removeFromRecentInstancesTE(instance.serverUrl)
             ),
-            TE.map(
-              (): OperationResult => ({
-                success: true,
-                message: `Successfully removed ${instance.displayName}`,
-              })
-            )
+            TE.map((): OperationResult => ({
+              success: true,
+              message: `Successfully removed ${instance.displayName}`,
+            }))
           )
       )
     )
@@ -1148,12 +1146,10 @@ export class DesktopInstanceService
         const instancesToKeep = vendoredInstance ? [vendoredInstance] : []
         return this.setRecentInstances(instancesToKeep)
       }),
-      TE.map(
-        (): OperationResult => ({
-          success: true,
-          message: "Cache cleared successfully",
-        })
-      )
+      TE.map((): OperationResult => ({
+        success: true,
+        message: "Cache cleared successfully",
+      }))
     )
   }
 
@@ -1230,12 +1226,10 @@ export class DesktopInstanceService
         pipe(
           this.createOrGetInstanceTE(normalizedUrl, instanceKind, displayName),
           TE.chain((instance) => this.loadInstanceTE(instance, options)),
-          TE.map(
-            (): OperationResult => ({
-              success: true,
-              message: `Successfully connected to ${displayName || serverUrl}`,
-            })
-          )
+          TE.map((): OperationResult => ({
+            success: true,
+            message: `Successfully connected to ${displayName || serverUrl}`,
+          }))
         )
       )
     )
@@ -1294,12 +1288,10 @@ export class DesktopInstanceService
     return pipe(
       this.performCloseTE(),
       TE.chain((response) => this.validateCloseResponseTE(response)),
-      TE.map(
-        (): OperationResult => ({
-          success: true,
-          message: "Disconnected successfully",
-        })
-      ),
+      TE.map((): OperationResult => ({
+        success: true,
+        message: "Disconnected successfully",
+      })),
       TE.orElse((error) => {
         if (error.includes("Cannot close main window")) {
           console.log(

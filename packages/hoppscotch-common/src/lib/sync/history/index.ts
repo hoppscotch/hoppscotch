@@ -86,12 +86,57 @@ function setupSubscriptions() {
   }
 }
 
+function mergeHistoryEntries<
+  T extends { id?: string; updatedOn?: Date | string | null },
+>(local: T[], fetched: T[]): T[] {
+  const fetchedMap = new Map<string, T>()
+  for (const entry of fetched) {
+    if (entry.id) {
+      fetchedMap.set(entry.id, entry)
+    }
+  }
+
+  const merged: T[] = []
+
+  for (const localEntry of local) {
+    if (!localEntry.id) {
+      merged.push(localEntry)
+    } else {
+      const fetchedEntry = fetchedMap.get(localEntry.id)
+      if (fetchedEntry) {
+        merged.push(fetchedEntry)
+        fetchedMap.delete(localEntry.id)
+      } else {
+        merged.push(localEntry)
+      }
+    }
+  }
+
+  for (const fetchedEntry of fetchedMap.values()) {
+    merged.push(fetchedEntry)
+  }
+
+  const getSafeTimestamp = (date: Date | string | null | undefined): number => {
+    if (!date) return 0
+    const time = new Date(date).getTime()
+    return isNaN(time) ? 0 : time
+  }
+
+  merged.sort((a, b) => {
+    const timeA = getSafeTimestamp(a.updatedOn)
+    const timeB = getSafeTimestamp(b.updatedOn)
+    return timeB - timeA
+  })
+
+  return merged
+}
+
 async function loadHistoryEntries() {
   const res = await getUserHistoryEntries()
 
   if (E.isRight(res)) {
-    const restEntries = res.right.me.RESTHistory
-    const gqlEntries = res.right.me.GQLHistory
+    const restEntries = res.right.me.RESTHistory ?? []
+    const gqlEntries = res.right.me.GQLHistory ?? []
 
     const restHistoryEntries: RESTHistoryEntry[] = restEntries.map((entry) => ({
       v: 1,
@@ -111,9 +156,15 @@ async function loadHistoryEntries() {
       id: entry.id,
     }))
 
+    const localRESTHistory = restHistoryStore.value.state
+    const localGQLHistory = graphqlHistoryStore.value.state
+
+    const mergedREST = mergeHistoryEntries(localRESTHistory, restHistoryEntries)
+    const mergedGQL = mergeHistoryEntries(localGQLHistory, gqlHistoryEntries)
+
     runDispatchWithOutSyncing(() => {
-      setRESTHistoryEntries(restHistoryEntries)
-      setGraphqlHistoryEntries(gqlHistoryEntries)
+      setRESTHistoryEntries(mergedREST)
+      setGraphqlHistoryEntries(mergedGQL)
     })
   }
 }

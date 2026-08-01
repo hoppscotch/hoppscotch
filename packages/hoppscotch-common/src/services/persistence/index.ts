@@ -541,6 +541,10 @@ export class PersistenceService extends Service {
           const translatedData = result.data.map(translateToNewRESTHistory)
           setRESTHistoryEntries(translatedData)
         } else {
+          console.error(
+            `Failed parsing persisted REST_HISTORY:`,
+            result.error.message
+          )
           this.showErrorToast(STORE_KEYS.REST_HISTORY)
           await Store.set(
             STORE_NAMESPACE,
@@ -621,7 +625,7 @@ export class PersistenceService extends Service {
           )
           setRESTCollections(translatedData)
         } else {
-          console.error(`Failed with `, result.error, data)
+          console.error(`Failed with `, result.error.message)
           this.showErrorToast(STORE_KEYS.REST_COLLECTIONS)
           await Store.set(
             STORE_NAMESPACE,

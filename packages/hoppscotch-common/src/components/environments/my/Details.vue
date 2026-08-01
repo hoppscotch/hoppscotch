@@ -241,7 +241,7 @@ import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import { flow, pipe } from "fp-ts/function"
 import { ComputedRef, computed, ref, watch } from "vue"
-import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
+import { stripClientLocalValuesForWire } from "~/helpers/clientLocalVariables"
 import { uniqueID } from "~/helpers/utils/uniqueID"
 import {
   createEnvironment,
@@ -592,7 +592,7 @@ const saveEnvironment = () => {
     currentEnvironmentValueService.addEnvironment("Global", nonSecretVariables)
   }
 
-  const variables = stripSecretVariableValuesForWire(filteredVariables)
+  const variables = stripClientLocalValuesForWire(filteredVariables)
 
   const environmentUpdated: Environment = {
     v: 2,

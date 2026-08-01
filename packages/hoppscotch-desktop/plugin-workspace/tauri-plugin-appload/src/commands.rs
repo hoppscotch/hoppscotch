@@ -239,6 +239,13 @@ pub async fn load<R: Runtime>(app: AppHandle<R>, options: LoadOptions) -> Result
         })?;
     }
 
+    #[cfg(target_os = "linux")]
+    {
+        if let Err(e) = window.hide_menu() {
+            tracing::warn!(?e, window_label = %label, "Failed to hide menu bar");
+        }
+    }
+
     let is_visible = window.is_visible().unwrap_or(false);
     let response = LoadResponse {
         success: is_visible,

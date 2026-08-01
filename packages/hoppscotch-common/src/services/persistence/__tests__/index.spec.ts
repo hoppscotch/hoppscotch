@@ -56,6 +56,7 @@ import {
   STORE_KEYS,
   STORE_NAMESPACE,
 } from "../../persistence"
+import { REST_HISTORY_ENTRY_SCHEMA } from "../validation-schemas"
 import {
   ENVIRONMENTS_MOCK,
   GLOBAL_ENV_MOCK,
@@ -856,6 +857,56 @@ describe("PersistenceService", () => {
           expect.any(Function)
         )
       })
+
+      it("validates REST_HISTORY_ENTRY_SCHEMA responseMeta correctly", () => {
+        // 1. Valid object responseMeta
+        const entryWithValidObj = {
+          ...REST_HISTORY_MOCK[0],
+          responseMeta: { duration: 807, statusCode: 200 },
+        }
+        expect(
+          REST_HISTORY_ENTRY_SCHEMA.safeParse(entryWithValidObj).success
+        ).toBe(true)
+
+        // 2. Valid stringified responseMeta
+        const entryWithValidStr = {
+          ...REST_HISTORY_MOCK[0],
+          responseMeta: JSON.stringify({ duration: 807, statusCode: 200 }),
+        }
+        expect(
+          REST_HISTORY_ENTRY_SCHEMA.safeParse(entryWithValidStr).success
+        ).toBe(true)
+
+        // 3. Malformed stringified responseMeta (non-numeric duration/statusCode) should fail and fall back to catch values
+        const entryWithMalformedStr = {
+          ...REST_HISTORY_MOCK[0],
+          responseMeta: JSON.stringify({
+            duration: "invalid",
+            statusCode: 200,
+          }),
+        }
+        const parseResult = REST_HISTORY_ENTRY_SCHEMA.safeParse(
+          entryWithMalformedStr
+        )
+        expect(parseResult.success).toBe(true)
+        expect(parseResult.data?.responseMeta).toEqual({
+          duration: null,
+          statusCode: null,
+        })
+
+        // 4. Non-JSON string should fail and fall back to catch values
+        const entryWithNonJSONStr = {
+          ...REST_HISTORY_MOCK[0],
+          responseMeta: "not-json",
+        }
+        const parseResultNonJSON =
+          REST_HISTORY_ENTRY_SCHEMA.safeParse(entryWithNonJSONStr)
+        expect(parseResultNonJSON.success).toBe(true)
+        expect(parseResultNonJSON.data?.responseMeta).toEqual({
+          duration: null,
+          statusCode: null,
+        })
+      })
     })
 
     describe("setup collections persistence", () => {
@@ -963,11 +1014,17 @@ describe("PersistenceService", () => {
             setGraphqlCollections: vi.fn(),
             setRESTCollections: vi.fn(),
             graphqlCollectionStore: {
+              value: {
+                state: [],
+              },
               subject$: {
                 subscribe: vi.fn(),
               },
             },
             restCollectionStore: {
+              value: {
+                state: [],
+              },
               subject$: {
                 subscribe: vi.fn(),
               },

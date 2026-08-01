@@ -1,10 +1,10 @@
 import { Environment } from "@hoppscotch/data"
-import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
+import { stripClientLocalValuesForWire } from "~/helpers/clientLocalVariables"
 
 export const environmentsExporter = (myEnvironments: Environment[]) => {
   const stripped = myEnvironments.map((env) => ({
     ...env,
-    variables: stripSecretVariableValuesForWire(env.variables),
+    variables: stripClientLocalValuesForWire(env.variables),
   }))
   return JSON.stringify(stripped, null, 2)
 }

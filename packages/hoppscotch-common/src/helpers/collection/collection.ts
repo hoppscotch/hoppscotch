@@ -8,7 +8,7 @@ import { RESTTabService } from "~/services/tab/rest"
 import { GQLTabService } from "~/services/tab/graphql"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { cascadeParentCollectionForProperties } from "~/newstore/collections"
-import { stripSecretVariableValuesForWire } from "../secretVariables"
+import { stripClientLocalValuesForWire } from "../clientLocalVariables"
 import { CollectionDataProps } from "../backend/helpers"
 import { CollectionFolder } from "../backend/queries/PublishedDocs"
 
@@ -311,7 +311,7 @@ export function transformCollectionForImport(
   const data: CollectionDataProps = {
     auth: collection.auth,
     headers: collection.headers,
-    variables: stripSecretVariableValuesForWire(collection.variables ?? []),
+    variables: stripClientLocalValuesForWire(collection.variables ?? []),
     // Round-trip the local-store key so the team-collection-added handler
     // (`TeamCollectionsService.addCollection`) can migrate the importer's
     // secret entries from this `_ref_id` to the backend-assigned `id`.

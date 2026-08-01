@@ -23,7 +23,7 @@ import {
 
 import * as E from "fp-ts/Either"
 import { ReqType, SortOptions } from "~/helpers/backend/graphql"
-import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
+import { stripClientLocalValuesForWire } from "~/helpers/clientLocalVariables"
 import {
   editGraphqlCollection,
   editGraphqlFolder,
@@ -51,7 +51,7 @@ const transformCollectionForBackend = (collection: HoppCollection): any => {
       authActive: true,
     },
     headers: collection.headers ?? [],
-    variables: stripSecretVariableValuesForWire(collection.variables ?? []),
+    variables: stripClientLocalValuesForWire(collection.variables ?? []),
     _ref_id: collection._ref_id,
     description: collection.description ?? null,
   }
@@ -282,7 +282,7 @@ const recursivelySyncCollections = async (
         authActive: true,
       },
       headers: collection.headers ?? [],
-      variables: stripSecretVariableValuesForWire(collection.variables ?? []),
+      variables: stripClientLocalValuesForWire(collection.variables ?? []),
       _ref_id: collection._ref_id,
       description: collection.description ?? null,
     }
@@ -318,6 +318,7 @@ const recursivelySyncCollections = async (
       )
     } else {
       parentCollectionID = undefined
+      return
     }
   } else {
     // if parentUserCollectionID exists, create the collection as a child collection
@@ -327,7 +328,7 @@ const recursivelySyncCollections = async (
         authActive: true,
       },
       headers: collection.headers ?? [],
-      variables: stripSecretVariableValuesForWire(collection.variables ?? []),
+      variables: stripClientLocalValuesForWire(collection.variables ?? []),
       _ref_id: collection._ref_id,
       description: collection.description ?? null,
     }
@@ -366,6 +367,9 @@ const recursivelySyncCollections = async (
         childCollectionId,
         `${collectionPath}`
       )
+    } else {
+      parentCollectionID = undefined
+      return
     }
   }
 
@@ -419,6 +423,64 @@ type OperationCollectionRemoved = {
 
 export const restCollectionsOperations: Array<OperationCollectionRemoved> = []
 
+export async function ensurePathSynced(
+  path: string | number | null,
+  collectionStore: typeof restCollectionStore | typeof graphqlCollectionStore,
+  recursivelySyncFn: (
+    collection: HoppCollection,
+    collectionPath: string,
+    parentUserCollectionID?: string
+  ) => Promise<void>
+): Promise<boolean> {
+  if (path === null || path === undefined || path === "") return true
+
+  const collections = collectionStore.value.state
+  const pathIndexes =
+    typeof path === "number"
+      ? [path]
+      : path.split("/").map((index) => parseInt(index))
+
+  let highestUnsyncedPath: number[] | null = null
+  let parentID: string | undefined = undefined
+
+  for (let i = 0; i < pathIndexes.length; i++) {
+    const subPath = pathIndexes.slice(0, i + 1)
+    const collection = navigateToFolderWithIndexPath(collections, subPath)
+    if (!collection) break
+
+    if (!collection.id) {
+      highestUnsyncedPath = subPath
+      break
+    } else {
+      parentID = collection.id
+    }
+  }
+
+  if (highestUnsyncedPath) {
+    const collectionToSync = navigateToFolderWithIndexPath(
+      collections,
+      highestUnsyncedPath
+    )
+    if (collectionToSync) {
+      await recursivelySyncFn(
+        collectionToSync,
+        highestUnsyncedPath.join("/"),
+        parentID
+      )
+      const targetCollection = navigateToFolderWithIndexPath(
+        collections,
+        pathIndexes
+      )
+      return !!targetCollection?.id
+    }
+  }
+
+  return true
+}
+
+const ensureRESTPathSynced = (path: string | number | null) =>
+  ensurePathSynced(path, restCollectionStore, recursivelySyncCollections)
+
 export const storeSyncDefinition: StoreSyncDefinitionOf<
   typeof restCollectionStore
 > = {
@@ -465,7 +527,10 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       await deleteUserCollection(collectionID)
     }
   },
-  editCollection({ partialCollection: collection, collectionIndex }) {
+  async editCollection({ partialCollection: collection, collectionIndex }) {
+    const isSynced = await ensureRESTPathSynced(collectionIndex)
+    if (!isSynced) return
+
     const collectionID = navigateToFolderWithIndexPath(
       restCollectionStore.value.state,
       [collectionIndex]
@@ -474,7 +539,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const data = {
       auth: collection.auth,
       headers: collection.headers,
-      variables: stripSecretVariableValuesForWire(collection.variables),
+      variables: stripClientLocalValuesForWire(collection.variables),
       _ref_id: collection._ref_id,
       description: collection.description ?? null,
     }
@@ -514,10 +579,20 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   },
 
   async addFolder({ name, path }) {
+    const isSynced = await ensureRESTPathSynced(path)
+    if (!isSynced) return
+
     const parentCollection = navigateToFolderWithIndexPath(
       restCollectionStore.value.state,
       path.split("/").map((index) => parseInt(index))
     )
+
+    if (parentCollection) {
+      const foldersLength = parentCollection.folders.length
+      if (foldersLength > 0 && parentCollection.folders[foldersLength - 1].id) {
+        return
+      }
+    }
 
     const parentCollectionBackendID = parentCollection?.id
 
@@ -548,7 +623,10 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       }
     }
   },
-  editFolder({ folder, path }) {
+  async editFolder({ folder, path }) {
+    const isSynced = await ensureRESTPathSynced(path)
+    if (!isSynced) return
+
     const folderID = navigateToFolderWithIndexPath(
       restCollectionStore.value.state,
       path.split("/").map((index) => parseInt(index))
@@ -558,7 +636,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const data = {
       auth: folder.auth,
       headers: folder.headers,
-      variables: stripSecretVariableValuesForWire(folder.variables),
+      variables: stripClientLocalValuesForWire(folder.variables),
       _ref_id: folder._ref_id,
       description: folder.description,
     }
@@ -578,6 +656,31 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     )
 
     if (newSourcePath) {
+      const collections = restCollectionStore.value.state
+      const sourceCollection = navigateToFolderWithIndexPath(
+        collections,
+        newSourcePath.split("/").map((index) => parseInt(index))
+      )
+      const destCollection =
+        destinationPath && newDestinationPath
+          ? navigateToFolderWithIndexPath(
+              collections,
+              newDestinationPath.split("/").map((index) => parseInt(index))
+            )
+          : null
+
+      const wasSourceSynced = !!sourceCollection?.id
+      const wasDestSynced = destinationPath ? !!destCollection?.id : true
+
+      const isSourceSynced = await ensureRESTPathSynced(newSourcePath)
+      const isDestSynced = newDestinationPath
+        ? await ensureRESTPathSynced(newDestinationPath)
+        : true
+
+      if (!isSourceSynced || !isDestSynced) return
+
+      if (!wasSourceSynced || !wasDestSynced) return
+
       const sourceCollectionID = navigateToFolderWithIndexPath(
         restCollectionStore.value.state,
         newSourcePath.split("/").map((index) => parseInt(index))
@@ -609,27 +712,52 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       }
     }
   },
-  editRequest({ path, requestIndex, requestNew }) {
-    const request = navigateToFolderWithIndexPath(
-      restCollectionStore.value.state,
-      path.split("/").map((index) => parseInt(index))
-    )?.requests[requestIndex]
+  async editRequest({ path, requestIndex, requestNew }) {
+    const isSynced = await ensureRESTPathSynced(path)
 
-    const requestBackendID = request?.id
-
-    if (requestBackendID) {
-      editUserRequest(
-        requestBackendID,
-        (requestNew as HoppRESTRequest).name,
-        JSON.stringify(requestNew)
-      )
-    }
-  },
-  async saveRequestAs({ path, request }) {
     const folder = navigateToFolderWithIndexPath(
       restCollectionStore.value.state,
       path.split("/").map((index) => parseInt(index))
     )
+    if (!folder) return
+
+    const request = folder.requests[requestIndex]
+    if (!request) return
+
+    if (request.id) {
+      editUserRequest(
+        request.id,
+        (requestNew as HoppRESTRequest).name,
+        JSON.stringify(requestNew)
+      )
+    } else {
+      if (isSynced && folder.id) {
+        const res = await createRESTUserRequest(
+          (requestNew as HoppRESTRequest).name,
+          JSON.stringify(requestNew),
+          folder.id
+        )
+        if (res && E.isRight(res)) {
+          request.id = res.right.createRESTUserRequest.id
+        }
+      }
+    }
+  },
+  async saveRequestAs({ path, request }) {
+    const isSynced = await ensureRESTPathSynced(path)
+    if (!isSynced) return
+
+    const folder = navigateToFolderWithIndexPath(
+      restCollectionStore.value.state,
+      path.split("/").map((index) => parseInt(index))
+    )
+
+    if (folder) {
+      const requestsLength = folder.requests.length
+      if (requestsLength > 0 && folder.requests[requestsLength - 1].id) {
+        return
+      }
+    }
 
     const parentCollectionBackendID = folder?.id
 
@@ -667,10 +795,29 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       await deleteUserRequest(requestID)
     }
   },
-  moveRequest({ destinationPath, path, requestIndex }) {
+  async moveRequest({ destinationPath, path, requestIndex }) {
+    const collections = restCollectionStore.value.state
+    const sourceCollection = navigateToFolderWithIndexPath(
+      collections,
+      path.split("/").map((index) => parseInt(index))
+    )
+    const destCollection = navigateToFolderWithIndexPath(
+      collections,
+      destinationPath.split("/").map((index) => parseInt(index))
+    )
+
+    const wasSourceSynced = !!sourceCollection?.id
+    const wasDestSynced = !!destCollection?.id
+
+    const isSourceSynced = await ensureRESTPathSynced(path)
+    const isDestSynced = await ensureRESTPathSynced(destinationPath)
+    if (!isSourceSynced || !isDestSynced) return
+
+    if (!wasSourceSynced || !wasDestSynced) return
+
     moveOrReorderRequests(requestIndex, path, destinationPath)
   },
-  updateRequestOrder({
+  async updateRequestOrder({
     destinationCollectionPath,
     destinationRequestIndex,
     requestIndex,
@@ -679,6 +826,18 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
      * currently the FE implementation only supports reordering requests between the same collection,
      * so destinationCollectionPath and sourceCollectionPath will be same
      */
+    const collections = restCollectionStore.value.state
+    const collection = navigateToFolderWithIndexPath(
+      collections,
+      destinationCollectionPath.split("/").map((index) => parseInt(index))
+    )
+    const wasSynced = !!collection?.id
+
+    const isSynced = await ensureRESTPathSynced(destinationCollectionPath)
+    if (!isSynced) return
+
+    if (!wasSynced) return
+
     moveOrReorderRequests(
       requestIndex,
       destinationCollectionPath,

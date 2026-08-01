@@ -25,9 +25,13 @@ import {
 import { getSettingSubject, settingsStore } from "~/newstore/settings"
 import { getSyncInitFunction, StoreSyncDefinitionOf } from ".."
 import { createMapper } from "../mapper"
-import { applyDuplicatedCollectionResult, moveOrReorderRequests } from "./sync"
+import {
+  applyDuplicatedCollectionResult,
+  moveOrReorderRequests,
+  ensurePathSynced,
+} from "./sync"
 import { ReqType } from "~/helpers/backend/graphql"
-import { stripSecretVariableValuesForWire } from "~/helpers/secretVariables"
+import { stripClientLocalValuesForWire } from "~/helpers/clientLocalVariables"
 
 // gqlCollectionsMapper uses the collectionPath as the local identifier
 // Helper function to transform HoppCollection to backend format
@@ -38,7 +42,7 @@ const transformCollectionForBackend = (collection: HoppCollection): any => {
       authActive: true,
     },
     headers: collection.headers ?? [],
-    variables: stripSecretVariableValuesForWire(collection.variables ?? []),
+    variables: stripClientLocalValuesForWire(collection.variables ?? []),
     _ref_id: collection._ref_id,
   }
 
@@ -72,7 +76,7 @@ const recursivelySyncCollections = async (
         authActive: true,
       },
       headers: collection.headers ?? [],
-      variables: stripSecretVariableValuesForWire(collection.variables ?? []),
+      variables: stripClientLocalValuesForWire(collection.variables ?? []),
       _ref_id: collection._ref_id,
     }
     const res = await createGQLRootUserCollection(
@@ -108,6 +112,7 @@ const recursivelySyncCollections = async (
       )
     } else {
       parentCollectionID = undefined
+      return
     }
   } else {
     // if parentUserCollectionID exists, create the collection as a child collection
@@ -118,7 +123,7 @@ const recursivelySyncCollections = async (
         authActive: true,
       },
       headers: collection.headers ?? [],
-      variables: stripSecretVariableValuesForWire(collection.variables ?? []),
+      variables: stripClientLocalValuesForWire(collection.variables ?? []),
       _ref_id: collection._ref_id,
     }
 
@@ -154,6 +159,9 @@ const recursivelySyncCollections = async (
         childCollectionId,
         `${collectionPath}`
       )
+    } else {
+      parentCollectionID = undefined
+      return
     }
   }
 
@@ -207,6 +215,9 @@ type OperationCollectionRemoved = {
 
 export const gqlCollectionsOperations: Array<OperationCollectionRemoved> = []
 
+const ensureGQLPathSynced = (path: string | number | null) =>
+  ensurePathSynced(path, graphqlCollectionStore, recursivelySyncCollections)
+
 export const storeSyncDefinition: StoreSyncDefinitionOf<
   typeof graphqlCollectionStore
 > = {
@@ -254,24 +265,30 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       await deleteUserCollection(collectionID)
     }
   },
-  editCollection({ collection, collectionIndex }) {
-    // Send the backend id when present, otherwise the index path — GraphQL
-    // collections on some platforms (e.g. hoppscotch-web) carry no backend id.
-    const collectionID =
-      navigateToFolderWithIndexPath(graphqlCollectionStore.value.state, [
-        collectionIndex,
-      ])?.id ?? `${collectionIndex}`
+  async editCollection({ collection, collectionIndex }) {
+    const isSynced = await ensureGQLPathSynced(collectionIndex)
+    if (!isSynced) return
+
+    const collectionID = navigateToFolderWithIndexPath(
+      graphqlCollectionStore.value.state,
+      [collectionIndex]
+    )?.id
 
     const data = {
       auth: collection.auth,
       headers: collection.headers,
-      variables: stripSecretVariableValuesForWire(collection.variables),
+      variables: stripClientLocalValuesForWire(collection.variables),
       _ref_id: collection._ref_id,
     }
 
-    updateUserCollection(collectionID, collection.name, JSON.stringify(data))
+    if (collectionID) {
+      updateUserCollection(collectionID, collection.name, JSON.stringify(data))
+    }
   },
   async addFolder({ name, path }) {
+    const isSynced = await ensureGQLPathSynced(path)
+    if (!isSynced) return
+
     const parentCollection = navigateToFolderWithIndexPath(
       graphqlCollectionStore.value.state,
       path.split("/").map((index) => parseInt(index))
@@ -279,44 +296,51 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
 
     if (!parentCollection) return
 
-    // Send the parent backend id when present, otherwise its index path.
-    const parentCollectionBackendID = parentCollection.id ?? path
-
     const foldersLength = parentCollection.folders.length
+    if (foldersLength > 0 && parentCollection.folders[foldersLength - 1].id) {
+      return
+    }
 
-    const res = await createGQLChildUserCollection(
-      name,
-      parentCollectionBackendID
-    )
+    const parentCollectionBackendID = parentCollection.id
 
-    if (E.isRight(res)) {
-      const { id } = res.right.createGQLChildUserCollection
+    if (parentCollectionBackendID) {
+      const res = await createGQLChildUserCollection(
+        name,
+        parentCollectionBackendID
+      )
 
-      if (foldersLength) {
-        parentCollection.folders[foldersLength - 1].id = id
-        removeDuplicateGraphqlCollectionOrFolder(
-          id,
-          `${path}/${foldersLength - 1}`
-        )
+      if (E.isRight(res)) {
+        const { id } = res.right.createGQLChildUserCollection
+
+        if (foldersLength) {
+          parentCollection.folders[foldersLength - 1].id = id
+          removeDuplicateGraphqlCollectionOrFolder(
+            id,
+            `${path}/${foldersLength - 1}`
+          )
+        }
       }
     }
   },
-  editFolder({ folder, path }) {
-    // Send the backend id when present, otherwise the index path.
-    const folderBackendId =
-      navigateToFolderWithIndexPath(
-        graphqlCollectionStore.value.state,
-        path.split("/").map((index) => parseInt(index))
-      )?.id ?? path
+  async editFolder({ folder, path }) {
+    const isSynced = await ensureGQLPathSynced(path)
+    if (!isSynced) return
+
+    const folderBackendId = navigateToFolderWithIndexPath(
+      graphqlCollectionStore.value.state,
+      path.split("/").map((index) => parseInt(index))
+    )?.id
 
     const data = {
       auth: folder.auth,
       headers: folder.headers,
-      variables: stripSecretVariableValuesForWire(folder.variables),
+      variables: stripClientLocalValuesForWire(folder.variables),
       _ref_id: folder._ref_id,
     }
 
-    updateUserCollection(folderBackendId, folder.name, JSON.stringify(data))
+    if (folderBackendId) {
+      updateUserCollection(folderBackendId, folder.name, JSON.stringify(data))
+    }
   },
   async removeFolder({ folderID }) {
     if (folderID) {
@@ -336,20 +360,36 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       }
     }
   },
-  editRequest({ path, requestIndex, requestNew }) {
-    const request = navigateToFolderWithIndexPath(
+  async editRequest({ path, requestIndex, requestNew }) {
+    const isSynced = await ensureGQLPathSynced(path)
+
+    const folder = navigateToFolderWithIndexPath(
       graphqlCollectionStore.value.state,
       path.split("/").map((index) => parseInt(index))
-    )?.requests[requestIndex]
-
-    // Send the backend id when present, otherwise the index path.
-    const requestBackendID = request?.id ?? `${path}/${requestIndex}`
-
-    editGQLUserRequest(
-      requestBackendID,
-      (requestNew as HoppRESTRequest).name,
-      JSON.stringify(requestNew)
     )
+    if (!folder) return
+
+    const request = folder.requests[requestIndex]
+    if (!request) return
+
+    if (request.id) {
+      editGQLUserRequest(
+        request.id,
+        (requestNew as HoppRESTRequest).name,
+        JSON.stringify(requestNew)
+      )
+    } else {
+      if (isSynced && folder.id) {
+        const res = await createGQLUserRequest(
+          (requestNew as HoppRESTRequest).name,
+          JSON.stringify(requestNew),
+          folder.id
+        )
+        if (res && E.isRight(res)) {
+          request.id = res.right.createGQLUserRequest.id
+        }
+      }
+    }
   },
   async saveRequestAs({ path, request }) {
     const folder = navigateToFolderWithIndexPath(
@@ -359,8 +399,16 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
 
     if (!folder) return
 
-    // Send the parent backend id when present, otherwise its index path.
-    const parentCollectionBackendID = folder.id ?? path
+    const isSynced = await ensureGQLPathSynced(path)
+    if (!isSynced) return
+
+    const requestsLength = folder.requests.length
+    if (requestsLength > 0 && folder.requests[requestsLength - 1].id) {
+      return
+    }
+
+    const parentCollectionBackendID = folder.id
+    if (!parentCollectionBackendID) return
 
     const newRequest = folder.requests[folder.requests.length - 1]
 
@@ -386,7 +434,26 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       await deleteUserRequest(requestID)
     }
   },
-  moveRequest({ destinationPath, path, requestIndex }) {
+  async moveRequest({ destinationPath, path, requestIndex }) {
+    const collections = graphqlCollectionStore.value.state
+    const sourceCollection = navigateToFolderWithIndexPath(
+      collections,
+      path.split("/").map((index) => parseInt(index))
+    )
+    const destCollection = navigateToFolderWithIndexPath(
+      collections,
+      destinationPath.split("/").map((index) => parseInt(index))
+    )
+
+    const wasSourceSynced = !!sourceCollection?.id
+    const wasDestSynced = !!destCollection?.id
+
+    const isSourceSynced = await ensureGQLPathSynced(path)
+    const isDestSynced = await ensureGQLPathSynced(destinationPath)
+    if (!isSourceSynced || !isDestSynced) return
+
+    if (!wasSourceSynced || !wasDestSynced) return
+
     moveOrReorderRequests(requestIndex, path, destinationPath, undefined, "GQL")
   },
 }

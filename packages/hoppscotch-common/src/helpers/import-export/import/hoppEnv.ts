@@ -9,7 +9,7 @@ import { Environment } from "@hoppscotch/data"
 import { z } from "zod"
 
 export const hoppEnvImporter = (contents: string[]) => {
-  const parsedContents = contents.map((str) => safeParseJSON(str, true))
+  const parsedContents = contents.map((str) => safeParseJSON(str))
 
   if (parsedContents.some((parsed) => O.isNone(parsed))) {
     return TE.left(IMPORTER_INVALID_FILE_FORMAT)

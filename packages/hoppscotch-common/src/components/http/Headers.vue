@@ -663,7 +663,7 @@ watch(
       ) &&
       !props.inheritedProperties.headers.some(
         (inheritedHeader) =>
-          inheritedHeader.inheritedHeader?.key.toLowerCase() ===
+          inheritedHeader.inheritedHeader?.key?.toLowerCase() ===
             "authorization" && inheritedHeader.inheritedHeader?.active
       )
     ) {

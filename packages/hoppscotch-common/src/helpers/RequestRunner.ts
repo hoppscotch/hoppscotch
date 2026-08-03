@@ -389,7 +389,11 @@ const delegatePreRequestScriptRunner = (
     })
   }
 
-  const hoppFetchHook = createHoppFetchHook(kernelInterceptorService)
+  const hoppFetchHook = createHoppFetchHook(
+    kernelInterceptorService,
+    undefined,
+    getEffectiveCookieJarDisabled(request)
+  )
 
   return runPreRequestScript(combinedScript, {
     envs,
@@ -437,7 +441,11 @@ const runPostRequestScript = (
     })
   }
 
-  const hoppFetchHook = createHoppFetchHook(kernelInterceptorService)
+  const hoppFetchHook = createHoppFetchHook(
+    kernelInterceptorService,
+    undefined,
+    getEffectiveCookieJarDisabled(request)
+  )
 
   return runTestScript(combinedScript, {
     envs,
@@ -885,7 +893,8 @@ export async function runTestRunnerRequest(
     }>
   | undefined
 > {
-  const cookieJarEntries = getCookieJarEntries()
+  const disableCookies = getEffectiveCookieJarDisabled(request)
+  const cookieJarEntries = disableCookies ? null : getCookieJarEntries()
 
   const {
     initialGlobalEnvs,

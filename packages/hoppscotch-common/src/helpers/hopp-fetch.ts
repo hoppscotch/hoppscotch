@@ -14,7 +14,8 @@ import type { RelayRequest } from "@hoppscotch/kernel"
  */
 export const createHoppFetchHook = (
   kernelInterceptor: KernelInterceptorService,
-  onFetchCall?: (meta: FetchCallMeta) => void
+  onFetchCall?: (meta: FetchCallMeta) => void,
+  cookieJarDisabled?: boolean
 ): HoppFetchHook => {
   return async (input, init) => {
     const urlStr =
@@ -33,7 +34,11 @@ export const createHoppFetchHook = (
     })
 
     // Convert Fetch API request to RelayRequest
-    const relayRequest = await convertFetchToRelayRequest(input, init)
+    const relayRequest = await convertFetchToRelayRequest(
+      input,
+      init,
+      cookieJarDisabled
+    )
 
     // Execute via interceptor
     const execution = kernelInterceptor.execute(relayRequest)
@@ -66,7 +71,8 @@ export const createHoppFetchHook = (
  */
 async function convertFetchToRelayRequest(
   input: RequestInfo | URL,
-  init?: RequestInit
+  init?: RequestInit,
+  cookieJarDisabled?: boolean
 ): Promise<RelayRequest> {
   const urlStr =
     typeof input === "string"
@@ -199,6 +205,11 @@ async function convertFetchToRelayRequest(
     params: undefined, // Undefined so preProcessRelayRequest doesn't try to process it
     auth: { kind: "none" }, // Required field - no auth for fetch()
     content,
+    meta: {
+      options: {
+        cookies: !cookieJarDisabled,
+      },
+    },
     // Note: auth, proxy, security are inherited from interceptor configuration
   }
 

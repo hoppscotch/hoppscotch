@@ -396,11 +396,17 @@ const useHistory = (entry: HistoryEntry) => {
     // signature — avoids opening duplicate tabs when the user re-clicks
     // the same history row. Only meaningful in unified-workspace mode (the
     // legacy /graphql page doesn't render REST entries).
+    //
+    // Deliberately skips tabs bound to a collection: history stores the same
+    // fields `restRequestsMatch` compares, so an unedited run matches its own
+    // originating tab. Focusing that tab would turn a later save into a silent
+    // overwrite of the stored request instead of the Save-As the user expects.
     const existing = tabs
       .getTabs()
       .find(
         (t) =>
           t.document.type === "request" &&
+          !t.document.saveContext &&
           restRequestsMatch(t.document.request, restEntry)
       )
     if (existing) {
@@ -433,28 +439,27 @@ const useHistory = (entry: HistoryEntry) => {
   })
 
   if (props.page === "graphql") {
-    // Legacy /graphql page — keep using GQLTabService so this path stays
-    // byte-identical to the pre-merge behaviour of HistoryGraphqlCard.
-    const existing = gqlTabs
-      .getTabs()
-      .find((t) => gqlRequestsMatch(t.document.request, gqlEntryRequest))
-    if (existing) {
-      gqlTabs.setActiveTab(existing.id)
-      return
-    }
-
+    // Legacy /graphql page — always open a fresh tab, matching what
+    // HistoryGraphqlCard did before this moved up to the parent. Reusing a
+    // matching tab would be wrong here: history stores exactly the fields
+    // `gqlRequestsMatch` compares, so an unedited run matches its own
+    // originating tab — and if that tab came from a collection it carries a
+    // saveContext, turning a later save into a silent overwrite of the stored
+    // request instead of the Save-As the user expects.
     gqlTabs.createNewTab({
       request: gqlRequest,
       isDirty: false,
     })
   } else {
     // Unified-workspace mode — open the GQL entry as a gql-request tab in
-    // the workspace tab strip.
+    // the workspace tab strip. Collection-bound tabs are skipped for the same
+    // reason as the REST branch above.
     const existing = tabs
       .getTabs()
       .find(
         (t) =>
           t.document.type === "gql-request" &&
+          !t.document.saveContext &&
           gqlRequestsMatch(t.document.request, gqlEntryRequest)
       )
     if (existing) {

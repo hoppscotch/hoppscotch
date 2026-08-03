@@ -341,11 +341,16 @@ const getSchema = async (options: ConnectionRequestOptions) => {
     connection.error = null
   } catch (e: any) {
     console.error(e)
-    // Guarded: disconnect() throws while still CONNECTING
-    if (connection.state === "CONNECTED") {
-      disconnect()
-    }
-    // Re-throw so poll() sets ERROR instead of promoting a null schema to CONNECTED
+
+    // On an established connection this is a transient poll failure (server
+    // blip, malformed introspection). Keep the last good schema and return so
+    // `poll()` re-arms its timer and the next tick self-heals — tearing the
+    // connection down here would blank the docs panes and stop polling for
+    // the rest of the session, since poll()'s catch never re-arms.
+    if (connection.state === "CONNECTED") return
+
+    // Initial connect: there is no schema to fall back on, so surface the
+    // failure and let poll() set ERROR rather than promoting a null schema.
     throw e
   }
 }

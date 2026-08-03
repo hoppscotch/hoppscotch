@@ -226,6 +226,11 @@ const switchToGQL = () => {
   // Otherwise let the converter seed a fresh GQL request from the REST one.
   const gqlDraft = tabs.getProtocolDraft(tab.id)?.gql
 
+  // Cancel the in-flight REST run before the document type flips — the runner
+  // writes into `tab.document` from a subscription, not a component, so a late
+  // response would land a HoppRESTResponse in a field typed GQLResponseEvent[].
+  tab.document.cancelFunction?.()
+
   // The REST document's scroll offsets don't map onto the GQL panes
   scrollService.cleanupScrollForTab(tab.id)
 

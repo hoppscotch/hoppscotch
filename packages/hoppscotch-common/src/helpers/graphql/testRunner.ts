@@ -344,7 +344,7 @@ export async function runTestRunnerGQLRequest(
         hasEnvironmentChanges(initialEnvsForComparison, postResult.right.envs)
       ) {
         updateEnvsAfterTestScript(
-          postResult,
+          postResult.right.envs,
           initialEnvironmentIndex,
           initialEnvName,
           initialEnvsForComparison,

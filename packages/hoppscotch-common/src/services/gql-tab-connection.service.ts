@@ -1151,12 +1151,10 @@ export class GQLTabConnectionService extends Service {
         })
       ) {
         updateEnvsAfterTestScript(
-          E.right({
-            envs: {
-              global: sandboxEnvs.global,
-              selected: sandboxEnvs.selected,
-            },
-          } as SandboxTestResult),
+          {
+            global: sandboxEnvs.global,
+            selected: sandboxEnvs.selected,
+          },
           initialEnvState.initialEnvironmentIndex,
           initialEnvState.initialEnvName,
           initialEnvState.initialEnvsForComparison,
@@ -1296,7 +1294,7 @@ export class GQLTabConnectionService extends Service {
             )
           ) {
             updateEnvsAfterTestScript(
-              testResult,
+              testResult.right.envs,
               initialEnvState.initialEnvironmentIndex,
               initialEnvState.initialEnvName,
               initialEnvState.initialEnvsForComparison,

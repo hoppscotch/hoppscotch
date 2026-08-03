@@ -38,6 +38,23 @@ import { ReqType } from 'src/types/RequestTypes';
 import { AuthUser } from 'src/types/AuthUser';
 import { mockServerCollRequestExample } from './constants/mock-server-coll-request-example';
 
+/**
+ * A saved example carrying GraphQL operation identity, projected by the
+ * `sync_mock_examples` trigger. Examples saved before operation stamping
+ * existed (i.e. every example in an already-deployed database) have no
+ * `operationType` and are not GraphQL examples.
+ */
+interface GqlExample {
+  id: string;
+  name: string;
+  operationName: string | null;
+  operationType: string;
+  statusCode: number;
+  statusText: string;
+  responseBody: string;
+  responseHeaders: Array<{ key: string; value: string }>;
+}
+
 @Injectable()
 export class MockServerService {
   constructor(
@@ -739,26 +756,44 @@ export class MockServerService {
       // operation-based matching instead of path scoring. A body that merely
       // LOOKS GraphQL-ish but fails to parse falls through to REST matching,
       // so REST payloads that happen to carry a `query` field keep working.
+      //
+      // The branch is gated on this mock actually owning GraphQL-stamped
+      // examples. Operation stamping only exists in clients that ship the
+      // unified playground, so every example in an already-deployed database
+      // is unstamped — without the gate, a mock that has always served
+      // `POST /graphql` from a REST example would start returning 404 on
+      // upgrade, with no way back (the divert precedes the
+      // `x-mock-response-id`/`-name` override below).
       const gqlOperation = this.resolveGraphQLOperation(requestBody);
       if (gqlOperation) {
-        if (E.isLeft(gqlOperation)) {
-          // Genuinely GraphQL (parsed) but unresolvable operation —
-          // respond per GraphQL-over-HTTP instead of a REST-style 404
-          return E.right({
-            statusCode: 400,
-            body: JSON.stringify({
-              errors: [{ message: gqlOperation.left }],
-            }),
-            headers: JSON.stringify({ 'content-type': 'application/json' }),
-            delay: mockServer.delayInMs || 0,
-          });
+        const gqlExamples = this.collectGraphQLExamples(requests);
+
+        if (gqlExamples.length > 0) {
+          if (E.isLeft(gqlOperation)) {
+            // Genuinely GraphQL (parsed) but unresolvable operation —
+            // respond per GraphQL-over-HTTP instead of a REST-style 404
+            return E.right({
+              statusCode: 400,
+              body: JSON.stringify({
+                errors: [{ message: gqlOperation.left }],
+              }),
+              headers: JSON.stringify({ 'content-type': 'application/json' }),
+              delay: mockServer.delayInMs || 0,
+            });
+          }
+
+          const gqlResult = this.handleGraphQLMockRequest(
+            gqlOperation.right,
+            gqlExamples,
+            requestHeaders,
+            mockServer.delayInMs,
+          );
+
+          // A mixed collection can hold GraphQL examples that don't cover this
+          // operation while still holding a REST example for the same path, so
+          // a miss falls through to REST scoring rather than terminating in 404.
+          if (E.isRight(gqlResult)) return gqlResult;
         }
-        return this.handleGraphQLMockRequest(
-          gqlOperation.right,
-          requests,
-          requestHeaders,
-          mockServer.delayInMs,
-        );
       }
 
       // OPTIMIZATION: Check for custom headers first (fastest path)
@@ -1252,23 +1287,9 @@ export class MockServerService {
    * no REST/GQL discriminator of their own, so shape is the only signal:
    * GraphQL requests live alongside REST ones in the same rows by design.
    */
-  private handleGraphQLMockRequest(
-    operation: { name: string | null; type: string },
+  private collectGraphQLExamples(
     requests: Array<{ id: string; mockExamples: any }>,
-    requestHeaders: Record<string, string> | undefined,
-    delayInMs: number,
-  ): E.Either<string, MockServerResponse> {
-    interface GqlExample {
-      id: string;
-      name: string;
-      operationName: string | null;
-      operationType: string;
-      statusCode: number;
-      statusText: string;
-      responseBody: string;
-      responseHeaders: Array<{ key: string; value: string }>;
-    }
-
+  ): GqlExample[] {
     const examples: GqlExample[] = [];
     for (const request of requests) {
       const mockExamples = request.mockExamples as any;
@@ -1289,7 +1310,15 @@ export class MockServerService {
         });
       }
     }
+    return examples;
+  }
 
+  private handleGraphQLMockRequest(
+    operation: { name: string | null; type: string },
+    examples: GqlExample[],
+    requestHeaders: Record<string, string> | undefined,
+    delayInMs: number,
+  ): E.Either<string, MockServerResponse> {
     if (examples.length === 0) {
       return E.left(
         `No GraphQL mock examples found for ${operation.type} ${operation.name ?? '(anonymous)'}`,

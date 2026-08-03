@@ -2276,6 +2276,99 @@ describe('MockServerService', () => {
       }
     });
 
+    // Regression: operation stamping only exists in clients shipping the
+    // unified playground, so every example in an already-deployed database is
+    // unstamped. A parseable GraphQL body must not divert into operation
+    // matching when the mock owns no GraphQL examples — doing so 404s every
+    // pre-existing REST mock of a GraphQL-over-HTTP endpoint.
+    const unstampedGraphqlRestExample = {
+      key: 'rest-gql',
+      name: 'Legacy GraphQL Mock',
+      method: 'POST',
+      endpoint: 'http://api.example.com/graphql',
+      statusCode: 200,
+      statusText: 'OK',
+      responseBody: '{"data":{"legacy":true}}',
+      responseHeaders: [],
+      headers: [],
+    };
+
+    test('parseable GraphQL body falls through to REST when no example is operation-stamped', async () => {
+      setupMocks([
+        {
+          ...gqlUserRequest,
+          mockExamples: { examples: [unstampedGraphqlRestExample] },
+        },
+      ]);
+
+      const result = await mockServerService.handleMockRequest(
+        dbMockServer,
+        '/graphql',
+        'POST',
+        {},
+        {},
+        { query: 'query GetUser { user { id } }' },
+      );
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).body).toBe('{"data":{"legacy":true}}');
+      }
+    });
+
+    test('x-mock-response-name still resolves when no example is operation-stamped', async () => {
+      setupMocks([
+        {
+          ...gqlUserRequest,
+          mockExamples: { examples: [unstampedGraphqlRestExample] },
+        },
+      ]);
+
+      const result = await mockServerService.handleMockRequest(
+        dbMockServer,
+        '/graphql',
+        'POST',
+        {},
+        { 'x-mock-response-name': 'Legacy GraphQL Mock' },
+        { query: 'query GetUser { user { id } }' },
+      );
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).body).toBe('{"data":{"legacy":true}}');
+      }
+    });
+
+    test('GraphQL operation with no matching stamped example falls back to REST scoring', async () => {
+      setupMocks([
+        {
+          ...gqlUserRequest,
+          mockExamples: {
+            // A stamped mutation example plus a plain REST example on the same
+            // path — an unmatched *query* must reach the REST example, not 404
+            examples: [
+              { ...gqlExample, operationType: 'mutation', operationName: 'Nope' },
+              unstampedGraphqlRestExample,
+            ],
+          },
+        },
+      ]);
+
+      const result = await mockServerService.handleMockRequest(
+        dbMockServer,
+        '/graphql',
+        'POST',
+        {},
+        {},
+        { query: 'query GetUser { user { id } }' },
+      );
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).body).toBe('{"data":{"legacy":true}}');
+      }
+    });
+
     test('x-mock-response-name override picks the named GraphQL example', async () => {
       const otherExample = {
         ...gqlExample,

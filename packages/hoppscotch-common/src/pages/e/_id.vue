@@ -58,7 +58,7 @@ import { HoppTab } from "~/services/tab"
 import {
   HoppGQLRequestDocument,
   HoppRequestDocument,
-} from "~/helpers/rest/document"
+} from "~/helpers/tab/document"
 import { applySetting } from "~/newstore/settings"
 import { useI18n } from "~/composables/i18n"
 

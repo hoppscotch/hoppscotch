@@ -60,7 +60,7 @@ export class URLMenuService extends Service implements ContextMenu {
   public readonly menuID = "url"
 
   private readonly contextMenu = this.bind(ContextMenuService)
-  private readonly restTab = this.bind(WorkspaceTabsService)
+  private readonly workspaceTab = this.bind(WorkspaceTabsService)
 
   override onServiceInit() {
     this.contextMenu.registerMenu(this)
@@ -77,7 +77,7 @@ export class URLMenuService extends Service implements ContextMenu {
       endpoint: url,
     }
 
-    this.restTab.createNewTab({
+    this.workspaceTab.createNewTab({
       type: "request",
       request: request,
       isDirty: false,
@@ -90,7 +90,7 @@ export class URLMenuService extends Service implements ContextMenu {
    * @param replacement The replacement text (encoded or decoded)
    */
   private replaceSelectedText(selectedText: string, replacement: string) {
-    const currentTab = this.restTab.currentActiveTab.value
+    const currentTab = this.workspaceTab.currentActiveTab.value
 
     if (!currentTab || currentTab.document.type !== "request") {
       return

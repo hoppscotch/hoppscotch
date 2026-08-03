@@ -123,7 +123,7 @@ import { HoppTab } from "~/services/tab"
 import {
   HoppRequestDocument,
   HoppSavedExampleDocument,
-} from "~/helpers/rest/document"
+} from "~/helpers/tab/document"
 import { restCollectionStore } from "~/newstore/collections"
 
 const t = useI18n()

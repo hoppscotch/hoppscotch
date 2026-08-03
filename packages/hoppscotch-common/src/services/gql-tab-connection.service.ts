@@ -259,7 +259,7 @@ export class GQLTabConnectionService extends Service {
   public static readonly ID = "GQL_TAB_CONNECTION_SERVICE"
 
   private readonly interceptorService = this.bind(KernelInterceptorService)
-  private readonly restTabService = this.bind(WorkspaceTabsService)
+  private readonly workspaceTabsService = this.bind(WorkspaceTabsService)
 
   // Active GQL tab ID — tracks which GQL tab is currently focused
   private _activeGQLTabId = ref<string>("")
@@ -318,7 +318,7 @@ export class GQLTabConnectionService extends Service {
     const { reset: resetExplorer } = useExplorer()
 
     const computedActiveGQLTabId = computed(() => {
-      const tab = this.restTabService.currentActiveTab.value
+      const tab = this.workspaceTabsService.currentActiveTab.value
       return tab?.document.type === "gql-request" ? tab.id : ""
     })
 
@@ -383,7 +383,7 @@ export class GQLTabConnectionService extends Service {
    * pane spinning until the next run on that tab.
    */
   private setTabTestResults(tabId: string, results: HoppTestResult | null) {
-    const tab = this.restTabService.getTabs().find((t) => t.id === tabId)
+    const tab = this.workspaceTabsService.getTabs().find((t) => t.id === tabId)
     if (!tab || tab.document.type !== "gql-request") return
     tab.document.testResults = results
   }

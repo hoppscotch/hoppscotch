@@ -28,7 +28,7 @@ import { useVModel } from "@vueuse/core"
 import { cloneDeep } from "lodash-es"
 import { watch } from "vue"
 import { isEqualHoppGQLRequest } from "~/helpers/graphql"
-import { HoppGQLRequestDocument } from "~/helpers/rest/document"
+import { HoppGQLRequestDocument } from "~/helpers/tab/document"
 import { HoppTab } from "~/services/tab"
 
 const props = defineProps<{ modelValue: HoppTab<HoppGQLRequestDocument> }>()

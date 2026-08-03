@@ -45,7 +45,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
   private readonly inspection = this.bind(InspectionService)
   private readonly secretEnvs = this.bind(SecretEnvironmentService)
   private readonly currentEnvs = this.bind(CurrentValueService)
-  private readonly restTabs = this.bind(WorkspaceTabsService)
+  private readonly workspaceTabs = this.bind(WorkspaceTabsService)
 
   private aggregateEnvsWithValue = useStreamStatic(
     aggregateEnvsWithCurrentValue$,
@@ -71,7 +71,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
     locations: InspectorLocation
   ) => {
     const newErrors: InspectorResult[] = []
-    const currentTab = this.restTabs.currentActiveTab.value
+    const currentTab = this.workspaceTabs.currentActiveTab.value
 
     const doc = currentTab.document
 
@@ -170,7 +170,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
       matches?.forEach((exEnv) => {
         const formattedExEnv = exEnv.slice(2, -2)
         const currentSelectedEnvironment = getCurrentEnvironment()
-        const currentTab = this.restTabs.currentActiveTab.value
+        const currentTab = this.workspaceTabs.currentActiveTab.value
         const doc = currentTab.document
 
         // Get current request (REST or example-response; GQL tabs don't have requestVariables)

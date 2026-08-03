@@ -183,7 +183,7 @@ import {
   useDownloadResponse,
 } from "~/composables/lens-actions"
 import { editRESTRequest } from "~/newstore/collections"
-import { HoppGQLRequestDocument } from "~/helpers/rest/document"
+import { HoppGQLRequestDocument } from "~/helpers/tab/document"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
 import * as E from "fp-ts/Either"

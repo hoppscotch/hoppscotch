@@ -56,7 +56,7 @@ import {
 import { HoppTab } from "~/services/tab"
 import { updateTeamEnvironment } from "./backend/mutations/TeamEnvironment"
 import { createRESTNetworkRequestStream } from "./network"
-import { HoppRequestDocument } from "./rest/document"
+import { HoppRequestDocument } from "./tab/document"
 import { stripIterationVarsFromEnvs } from "./runner/iteration-vars"
 import {
   getTemporaryVariables,

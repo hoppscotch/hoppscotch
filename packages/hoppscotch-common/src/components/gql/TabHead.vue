@@ -122,7 +122,7 @@ import { HoppTab } from "~/services/tab"
 import {
   HoppGQLRequestDocument,
   HoppSavedGQLExampleDocument,
-} from "~/helpers/rest/document"
+} from "~/helpers/tab/document"
 
 const t = useI18n()
 

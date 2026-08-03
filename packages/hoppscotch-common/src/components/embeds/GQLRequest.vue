@@ -58,7 +58,7 @@ import { useI18n } from "~/composables/i18n"
 import { useService } from "dioc/vue"
 import { GQLTabConnectionService } from "~/services/gql-tab-connection.service"
 import { HoppTab } from "~/services/tab"
-import { HoppGQLRequestDocument } from "~/helpers/rest/document"
+import { HoppGQLRequestDocument } from "~/helpers/tab/document"
 import { parse } from "graphql"
 import type { OperationDefinitionNode } from "graphql"
 

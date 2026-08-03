@@ -89,7 +89,7 @@ import {
   isValidStatusCode,
 } from "~/helpers/utils/statusCodes"
 import jsonLinter from "~/helpers/editor/linting/json"
-import { HoppSavedGQLExampleDocument } from "~/helpers/rest/document"
+import { HoppSavedGQLExampleDocument } from "~/helpers/tab/document"
 
 const t = useI18n()
 const toast = useToast()

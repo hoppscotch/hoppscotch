@@ -19,7 +19,7 @@ import { shortDateTime } from "~/helpers/utils/date"
 import { useStreamStatic } from "~/composables/stream"
 import { activeActions$, invokeAction } from "~/helpers/actions"
 import { map } from "rxjs/operators"
-import { HoppRequestDocument } from "~/helpers/rest/document"
+import { HoppRequestDocument } from "~/helpers/tab/document"
 import { def as historySync } from "~/lib/sync/history"
 
 /**

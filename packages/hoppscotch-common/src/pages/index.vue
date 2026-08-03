@@ -199,7 +199,7 @@ import { ScriptingInterceptorInspectorService } from "~/services/inspection/insp
 import { cloneDeep } from "lodash-es"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { HoppTab } from "~/services/tab"
-import { HoppTabDocument } from "~/helpers/rest/document"
+import { HoppTabDocument } from "~/helpers/tab/document"
 import { ScrollService } from "~/services/scroll.service"
 import { GQLTabConnectionService } from "~/services/gql-tab-connection.service"
 import { useGqlWorkspaceVisibility } from "~/composables/gqlWorkspaceVisibility"

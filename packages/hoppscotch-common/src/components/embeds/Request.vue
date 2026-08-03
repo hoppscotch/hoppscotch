@@ -64,7 +64,7 @@ import { useStreamSubscriber } from "~/composables/stream"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { runRESTRequest$ } from "~/helpers/RequestRunner"
 import { HoppTab } from "~/services/tab"
-import { HoppRequestDocument } from "~/helpers/rest/document"
+import { HoppRequestDocument } from "~/helpers/tab/document"
 import { transformRequestVariablesToAggregateEnv } from "~/helpers/utils/environments"
 
 const toast = useToast()

@@ -48,7 +48,7 @@
     </HoppSmartTab>
   </HoppSmartTabs>
   <CollectionsSaveRequest
-    mode="graphql"
+    mode="legacy-graphql"
     :show="showSaveRequestModal"
     @hide-modal="hideRequestModal"
   />

@@ -3,7 +3,7 @@ import { computed, ref, readonly, type Ref } from "vue"
 import { cloneDeep } from "lodash-es"
 import type { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
-import { HoppRESTSaveContext, HoppTabDocument } from "~/helpers/rest/document"
+import { HoppTabSaveContext, HoppTabDocument } from "~/helpers/tab/document"
 import { getService } from "~/modules/dioc"
 import { PersistenceService, STORE_KEYS } from "../persistence"
 import type { Workspace } from "../workspace.service"
@@ -287,7 +287,7 @@ export class WorkspaceTabsService extends TabService<HoppTabDocument> {
 
   private matchesSaveContext(
     tab: HoppTab<HoppTabDocument>,
-    ctx: HoppRESTSaveContext
+    ctx: HoppTabSaveContext
   ) {
     if (tab.document.type === "test-runner") return false
 
@@ -333,13 +333,13 @@ export class WorkspaceTabsService extends TabService<HoppTabDocument> {
    * more than one tab, and a write-back that skips one leaves it holding
    * stale content that its next save persists.
    */
-  public getTabsRefWithSaveContext(ctx: HoppRESTSaveContext) {
+  public getTabsRefWithSaveContext(ctx: HoppTabSaveContext) {
     return Array.from(this.tabMap.values())
       .filter((tab) => this.matchesSaveContext(tab, ctx))
       .map((tab) => this.getTabRef(tab.id))
   }
 
-  public getTabRefWithSaveContext(ctx: HoppRESTSaveContext) {
+  public getTabRefWithSaveContext(ctx: HoppTabSaveContext) {
     for (const tab of this.tabMap.values()) {
       if (this.matchesSaveContext(tab, ctx)) return this.getTabRef(tab.id)
     }

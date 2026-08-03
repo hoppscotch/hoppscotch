@@ -46,7 +46,7 @@ import { useVModel } from "@vueuse/core"
 import {
   HoppRequestDocument,
   HoppSavedExampleDocument,
-} from "~/helpers/rest/document"
+} from "~/helpers/tab/document"
 
 const props = defineProps<{
   document: HoppSavedExampleDocument

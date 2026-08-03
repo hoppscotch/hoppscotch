@@ -376,7 +376,7 @@ import { stripRefIdReplacer } from "~/helpers/import-export/export"
 import { hoppCollectionToOpenAPI } from "~/helpers/import-export/export/openapi"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import { TeamSearchService } from "~/helpers/teams/TeamsSearch.service"
-import { HoppTabDocument } from "~/helpers/rest/document"
+import { HoppTabDocument } from "~/helpers/tab/document"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { Picked } from "~/helpers/types/HoppPicked"
 import {

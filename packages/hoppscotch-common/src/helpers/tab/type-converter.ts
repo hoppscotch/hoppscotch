@@ -10,7 +10,7 @@ import {
 import {
   HoppRequestDocument,
   HoppGQLRequestDocument,
-} from "~/helpers/rest/document"
+} from "~/helpers/tab/document"
 import type { ProtocolDraft } from "~/services/tab"
 
 /**

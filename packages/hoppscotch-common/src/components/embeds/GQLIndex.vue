@@ -41,7 +41,7 @@
 import { computed, onBeforeUnmount, ref, useModel } from "vue"
 import { useService } from "dioc/vue"
 import { HoppTab } from "~/services/tab"
-import { HoppGQLRequestDocument } from "~/helpers/rest/document"
+import { HoppGQLRequestDocument } from "~/helpers/tab/document"
 import { platform } from "~/platform"
 import type { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
 import {

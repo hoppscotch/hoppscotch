@@ -59,7 +59,7 @@ import {
 } from "@hoppscotch/data"
 
 import { HoppTab } from "~/services/tab"
-import { HoppSavedGQLExampleDocument } from "~/helpers/rest/document"
+import { HoppSavedGQLExampleDocument } from "~/helpers/tab/document"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { editRESTRequest, restCollections$ } from "~/newstore/collections"

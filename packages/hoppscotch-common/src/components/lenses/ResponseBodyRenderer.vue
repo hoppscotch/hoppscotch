@@ -75,7 +75,7 @@ import {
   getSuitableLenses,
   Lens,
 } from "~/helpers/lenses/lenses"
-import { HoppRequestDocument } from "~/helpers/rest/document"
+import { HoppRequestDocument } from "~/helpers/tab/document"
 import { ConsoleEntry } from "../console/Panel.vue"
 
 const props = defineProps<{

@@ -20,7 +20,7 @@ import { useVModel } from "@vueuse/core"
 import { cloneDeep, isEqual } from "lodash-es"
 import { ref, watch } from "vue"
 import { HoppTab } from "~/services/tab"
-import { HoppSavedGQLExampleDocument } from "~/helpers/rest/document"
+import { HoppSavedGQLExampleDocument } from "~/helpers/tab/document"
 import type { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
 
 const props = defineProps<{

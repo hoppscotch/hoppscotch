@@ -103,11 +103,11 @@ import { ScrollService } from "~/services/scroll.service"
 import {
   convertRESTToGQL,
   convertGQLToREST,
-} from "~/helpers/rest/type-converter"
+} from "~/helpers/tab/type-converter"
 import {
   HoppRequestDocument,
   HoppGQLRequestDocument,
-} from "~/helpers/rest/document"
+} from "~/helpers/tab/document"
 import { restCollections$ } from "~/newstore/collections"
 import IconChevronRight from "~icons/lucide/chevron-right"
 import IconChevronDown from "~icons/lucide/chevron-down"

@@ -133,7 +133,7 @@ import {
   HoppGQLRequestResponse,
   HoppRESTRequestResponse,
 } from "@hoppscotch/data"
-import { HoppRESTSaveContext } from "~/helpers/rest/document"
+import { HoppTabSaveContext } from "~/helpers/tab/document"
 import findStatusGroup from "@helpers/findStatusGroup"
 
 const t = useI18n()
@@ -194,7 +194,7 @@ const pathToIndex = (path: string) => {
   return pathArr[pathArr.length - 1]
 }
 
-const getSaveContext = (): HoppRESTSaveContext => {
+const getSaveContext = (): HoppTabSaveContext => {
   if (props.saveContext.collectionsType === "my-collections") {
     return {
       originLocation: "user-collection",

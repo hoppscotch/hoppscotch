@@ -88,7 +88,7 @@
   </div>
   <CollectionsSaveRequest
     v-if="showSaveRequestModal"
-    mode="rest"
+    mode="workspace"
     :show="showSaveRequestModal"
     @hide-modal="showSaveRequestModal = false"
   />
@@ -109,7 +109,7 @@ import { useService } from "dioc/vue"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { HoppGQLAuth, HoppGQLRequest } from "@hoppscotch/data"
 import { HoppTab } from "~/services/tab"
-import { HoppGQLRequestDocument } from "~/helpers/rest/document"
+import { HoppGQLRequestDocument } from "~/helpers/tab/document"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { editRESTRequest } from "~/newstore/collections"
 import { updateTeamRequest } from "~/helpers/backend/mutations/TeamRequest"

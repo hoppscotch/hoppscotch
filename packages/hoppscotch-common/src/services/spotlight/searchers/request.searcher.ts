@@ -44,20 +44,21 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
   public searcherSectionTitle = this.t("shortcut.request.title")
 
   private readonly spotlight = this.bind(SpotlightService)
-  private readonly restTab = this.bind(WorkspaceTabsService)
+  private readonly workspaceTab = this.bind(WorkspaceTabsService)
 
   private route = useRoute()
   private isRESTPage = computed(
     () =>
       this.route.name === "index" &&
-      this.restTab.currentActiveTab.value.document.type === "request"
+      this.workspaceTab.currentActiveTab.value.document.type === "request"
   )
   // Legacy /graphql page OR a gql-request tab on the unified workspace
   private isGQLPage = computed(
     () =>
       this.route.name === "graphql" ||
       (this.route.name === "index" &&
-        this.restTab.currentActiveTab.value.document.type === "gql-request")
+        this.workspaceTab.currentActiveTab.value.document.type ===
+          "gql-request")
   )
   private isRESTOrGQLPage = computed(
     () => this.isRESTPage.value || this.isGQLPage.value
@@ -283,8 +284,9 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
         invokeAction("request.save-as", {
           requestType: "rest",
           request:
-            this.restTab.currentActiveTab.value?.document.type === "request"
-              ? this.restTab.currentActiveTab.value?.document.request
+            this.workspaceTab.currentActiveTab.value?.document.type ===
+            "request"
+              ? this.workspaceTab.currentActiveTab.value?.document.request
               : null,
         })
         break

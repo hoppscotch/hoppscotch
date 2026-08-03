@@ -73,10 +73,10 @@ export class InitializationService extends Service<InitEvent> {
       throw new Error("Cannot initialize tabs before persistence")
     }
 
-    const restTabService = getService(WorkspaceTabsService)
+    const workspaceTabsService = getService(WorkspaceTabsService)
     const gqlTabService = getService(GQLTabService)
 
-    await Promise.all([restTabService.init(), gqlTabService.init()])
+    await Promise.all([workspaceTabsService.init(), gqlTabService.init()])
 
     this.initState.tabs = true
     this.emit({ type: "TABS_READY" })

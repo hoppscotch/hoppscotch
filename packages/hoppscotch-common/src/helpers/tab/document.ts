@@ -14,7 +14,7 @@ import { HoppTestResult } from "../types/HoppTestResult"
 import { TestRunnerRequest } from "~/services/test-runner/test-runner.service"
 import { TestRunnerDataset } from "../runner/dataset"
 
-export type HoppRESTSaveContext =
+export type HoppTabSaveContext =
   | {
       /**
        * The origin source of the request
@@ -248,7 +248,7 @@ export type HoppRequestDocument = {
    * Info about where this request should be saved.
    * This contains where the request is originated from basically.
    */
-  saveContext?: HoppRESTSaveContext
+  saveContext?: HoppTabSaveContext
 
   /**
    * The response as it is in the document
@@ -299,7 +299,7 @@ export type HoppSavedExampleDocument = {
    * Info about where this response should be saved.
    * This contains where the response is originated from basically.
    */
-  saveContext?: HoppRESTSaveContext
+  saveContext?: HoppTabSaveContext
 
   /**
    * Whether the response has any unsaved changes
@@ -331,7 +331,7 @@ export type HoppSavedGQLExampleDocument = {
    * Info about where this response should be saved.
    * This contains where the response is originated from basically.
    */
-  saveContext?: HoppRESTSaveContext
+  saveContext?: HoppTabSaveContext
 
   /**
    * Whether the response has any unsaved changes
@@ -372,7 +372,7 @@ export type HoppGQLRequestDocument = {
    * Info about where this request should be saved.
    * This contains where the request is originated from basically.
    */
-  saveContext?: HoppRESTSaveContext
+  saveContext?: HoppTabSaveContext
 
   /**
    * The response as it is in the document

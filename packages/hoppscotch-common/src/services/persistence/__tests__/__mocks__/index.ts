@@ -8,7 +8,7 @@ import {
 } from "@hoppscotch/data"
 
 import { HoppGQLDocument } from "~/helpers/graphql/document"
-import { HoppRequestDocument } from "~/helpers/rest/document"
+import { HoppRequestDocument } from "~/helpers/tab/document"
 import { GQLHistoryEntry, RESTHistoryEntry } from "~/newstore/history"
 import { SettingsDef, getDefaultSettings } from "~/newstore/settings"
 import { SecretVariable } from "~/services/secret-environment.service"

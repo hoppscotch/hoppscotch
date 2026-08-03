@@ -46,7 +46,7 @@ export class CollectionsSpotlightSearcherService
   public searcherID = "collections"
   public searcherSectionTitle = this.t("collection.my_collections")
 
-  private readonly restTab = this.bind(WorkspaceTabsService)
+  private readonly workspaceTab = this.bind(WorkspaceTabsService)
   private readonly gqlTab = this.bind(GQLTabService)
 
   private readonly spotlight = this.bind(SpotlightService)
@@ -322,14 +322,15 @@ export class CollectionsSpotlightSearcherService
         requestRefID: req._ref_id ?? req.id,
       } as const
 
-      const possibleTab = this.restTab.getTabRefWithSaveContext(saveContext)
+      const possibleTab =
+        this.workspaceTab.getTabRefWithSaveContext(saveContext)
 
       if (possibleTab) {
-        this.restTab.setActiveTab(possibleTab.value.id)
+        this.workspaceTab.setActiveTab(possibleTab.value.id)
       } else {
         // Collections hold mixed types — route GQL requests to a gql tab
         if (isGQLRequest(req)) {
-          this.restTab.createNewTab(
+          this.workspaceTab.createNewTab(
             {
               type: "gql-request",
               request: cloneDeep(req) as HoppGQLRequest,
@@ -344,7 +345,7 @@ export class CollectionsSpotlightSearcherService
             true
           )
         } else {
-          this.restTab.createNewTab(
+          this.workspaceTab.createNewTab(
             {
               type: "request",
               request: cloneDeep(req) as HoppRESTRequest,
@@ -371,7 +372,7 @@ export class CollectionsSpotlightSearcherService
       // Mirror of the REST branch above — GQL collections can hold
       // REST-shaped requests; open those in the unified workspace
       if (!isGQLRequest(req)) {
-        this.restTab.createNewTab(
+        this.workspaceTab.createNewTab(
           {
             type: "request",
             request: req as HoppRESTRequest,

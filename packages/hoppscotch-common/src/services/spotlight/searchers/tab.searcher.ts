@@ -49,13 +49,13 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
     () => this.route.name === "index" || this.route.name === "graphql"
   )
 
-  private readonly restTab = this.bind(WorkspaceTabsService)
+  private readonly workspaceTab = this.bind(WorkspaceTabsService)
   private readonly gqlTab = this.bind(GQLTabService)
 
   private isOnlyTab = computed(() =>
     this.route.name === "graphql"
       ? this.gqlTab.getActiveTabs().value.length === 1
-      : this.restTab.getActiveTabs().value.length === 1
+      : this.workspaceTab.getActiveTabs().value.length === 1
   )
 
   private isDesktopMode = computed(() => getKernelMode() === "desktop")

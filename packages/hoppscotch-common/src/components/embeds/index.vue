@@ -33,7 +33,7 @@
 import { computed, useModel } from "vue"
 import { ref } from "vue"
 import { HoppTab } from "~/services/tab"
-import { HoppRequestDocument } from "~/helpers/rest/document"
+import { HoppRequestDocument } from "~/helpers/tab/document"
 import { platform } from "~/platform"
 import { RESTOptionTabs } from "../http/RequestOptions.vue"
 import { transformRequestVariablesToAggregateEnv } from "~/helpers/utils/environments"

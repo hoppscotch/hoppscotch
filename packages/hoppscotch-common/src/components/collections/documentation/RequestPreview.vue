@@ -190,7 +190,7 @@ const emit = defineEmits<{
   (event: "close-modal"): void
 }>()
 
-const restTabs = useService(WorkspaceTabsService)
+const workspaceTabs = useService(WorkspaceTabsService)
 const teamCollectionsService = useService(TeamCollectionsService)
 const documentationService = useService(DocumentationService)
 
@@ -494,12 +494,13 @@ const openInNewTab = () => {
         collectionID: props.folderPath!,
       }
 
-      const possibleTeamTab = restTabs.getTabRefWithSaveContext(saveContext)
+      const possibleTeamTab =
+        workspaceTabs.getTabRefWithSaveContext(saveContext)
 
       if (possibleTeamTab) {
-        restTabs.setActiveTab(possibleTeamTab.value.id)
+        workspaceTabs.setActiveTab(possibleTeamTab.value.id)
       } else if (isGqlRequest.value) {
-        restTabs.createNewTab({
+        workspaceTabs.createNewTab({
           type: "gql-request",
           request: cloneDeep(props.request) as HoppGQLRequest,
           isDirty: false,
@@ -511,7 +512,7 @@ const openInNewTab = () => {
             ),
         })
       } else {
-        restTabs.createNewTab({
+        workspaceTabs.createNewTab({
           type: "request",
           request: cloneDeep(props.request) as HoppRESTRequest,
           isDirty: false,
@@ -530,12 +531,13 @@ const openInNewTab = () => {
         requestRefID: requestId.value,
       }
 
-      const possibleUserTab = restTabs.getTabRefWithSaveContext(saveContext)
+      const possibleUserTab =
+        workspaceTabs.getTabRefWithSaveContext(saveContext)
 
       if (possibleUserTab) {
-        restTabs.setActiveTab(possibleUserTab.value.id)
+        workspaceTabs.setActiveTab(possibleUserTab.value.id)
       } else if (isGqlRequest.value) {
-        restTabs.createNewTab({
+        workspaceTabs.createNewTab({
           type: "gql-request",
           request: cloneDeep(props.request) as HoppGQLRequest,
           isDirty: false,
@@ -547,7 +549,7 @@ const openInNewTab = () => {
           ),
         })
       } else {
-        restTabs.createNewTab({
+        workspaceTabs.createNewTab({
           type: "request",
           request: cloneDeep(props.request) as HoppRESTRequest,
           isDirty: false,
@@ -564,7 +566,7 @@ const openInNewTab = () => {
         "Unable to determine collection type, creating tab without save context"
       )
       if (isGqlRequest.value) {
-        restTabs.createNewTab({
+        workspaceTabs.createNewTab({
           type: "gql-request",
           request: cloneDeep(props.request) as HoppGQLRequest,
           isDirty: false,
@@ -573,7 +575,7 @@ const openInNewTab = () => {
           inheritedProperties: undefined,
         })
       } else {
-        restTabs.createNewTab({
+        workspaceTabs.createNewTab({
           type: "request",
           request: cloneDeep(props.request) as HoppRESTRequest,
           isDirty: false,

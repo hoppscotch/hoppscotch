@@ -159,7 +159,7 @@ const emit = defineEmits<{
   (e: "close"): void
 }>()
 
-const restTabs = useService(WorkspaceTabsService)
+const workspaceTabs = useService(WorkspaceTabsService)
 const gqlTabs = useService(GQLTabService)
 
 function getCurrentPageCategory(): "graphql" | "rest" | "other" {
@@ -183,7 +183,7 @@ const response = computed(() => {
   const pageCategory = getCurrentPageCategory()
 
   if (pageCategory === "rest") {
-    const doc = restTabs.currentActiveTab.value.document
+    const doc = workspaceTabs.currentActiveTab.value.document
     if (doc.type === "request") {
       const res = doc.response
       if (res?.type === "success" || res?.type === "fail") {

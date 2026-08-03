@@ -227,7 +227,7 @@
     />
     <CollectionsSaveRequest
       v-if="showSaveRequestModal"
-      mode="rest"
+      mode="workspace"
       :show="showSaveRequestModal"
       :request="request"
       @hide-modal="showSaveRequestModal = false"
@@ -264,7 +264,7 @@ import { HoppRESTRequest } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 import { InspectionService } from "~/services/inspection"
 import { HoppTab } from "~/services/tab"
-import { HoppRequestDocument } from "~/helpers/rest/document"
+import { HoppRequestDocument } from "~/helpers/tab/document"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { getMethodLabelColor } from "~/helpers/rest/labelColoring"
 import { WorkspaceService } from "~/services/workspace.service"

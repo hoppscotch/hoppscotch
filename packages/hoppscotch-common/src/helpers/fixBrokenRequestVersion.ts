@@ -6,7 +6,7 @@ import {
 import { z } from "zod"
 import { WORKSPACE_TABS_STATE_SCHEMA } from "~/services/persistence/validation-schemas"
 
-type HoppRESTab = z.infer<typeof WORKSPACE_TABS_STATE_SCHEMA>
+type WorkspaceTabsState = z.infer<typeof WORKSPACE_TABS_STATE_SCHEMA>
 
 /**
  * Fixes broken request versions in the given REST tab documents.
@@ -22,9 +22,9 @@ type HoppRESTab = z.infer<typeof WORKSPACE_TABS_STATE_SCHEMA>
  * @returns The fixed ordered documents with valid request structures.
  */
 export const fixBrokenRequestVersion = (
-  docs: HoppRESTab["orderedDocs"]
-): HoppRESTab["orderedDocs"] => {
-  return docs.map((x: HoppRESTab["orderedDocs"][number]) => {
+  docs: WorkspaceTabsState["orderedDocs"]
+): WorkspaceTabsState["orderedDocs"] => {
+  return docs.map((x: WorkspaceTabsState["orderedDocs"][number]) => {
     if (x.doc.type === "request") {
       const req = safelyExtractRESTRequest(
         x.doc.request,

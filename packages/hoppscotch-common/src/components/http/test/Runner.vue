@@ -251,7 +251,7 @@ import {
 import {
   HoppTestRunnerDocument,
   TestRunnerIterationResult,
-} from "~/helpers/rest/document"
+} from "~/helpers/tab/document"
 import {
   CollectionNode,
   TestRunnerCollectionsAdapter,

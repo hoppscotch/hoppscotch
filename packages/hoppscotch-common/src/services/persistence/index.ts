@@ -92,7 +92,7 @@ import {
   WEBSOCKET_REQUEST_SCHEMA,
 } from "./validation-schemas"
 import { PersistableTabState } from "../tab"
-import { HoppTabDocument } from "~/helpers/rest/document"
+import { HoppTabDocument } from "~/helpers/tab/document"
 import { HoppGQLDocument } from "~/helpers/graphql/document"
 import {
   CurrentValueService,
@@ -256,7 +256,7 @@ export class PersistenceService extends Service {
   // TODO: Consider swapping this with platform dependent `StoreLike` impl
   public hoppLocalConfigStorage: StorageLike = localStorage
 
-  private readonly restTabService = this.bind(WorkspaceTabsService)
+  private readonly workspaceTabsService = this.bind(WorkspaceTabsService)
   private readonly gqlTabService = this.bind(GQLTabService)
   private readonly secretEnvironmentService = this.bind(
     SecretEnvironmentService
@@ -1066,7 +1066,7 @@ export class PersistenceService extends Service {
     })
   }
 
-  private async setupRESTTabsPersistence() {
+  private async setupWorkspaceTabsPersistence() {
     const loadResult = await Store.get<any>(
       STORE_NAMESPACE,
       STORE_KEYS.REST_TABS
@@ -1086,7 +1086,7 @@ export class PersistenceService extends Service {
         const result = WORKSPACE_TABS_STATE_SCHEMA.safeParse(transformedTabs)
         if (result.success) {
           // SAFETY: We know the schema matches
-          this.restTabService.loadTabsFromPersistedState(
+          this.workspaceTabsService.loadTabsFromPersistedState(
             result.data as PersistableTabState<HoppTabDocument>
           )
         } else {
@@ -1101,7 +1101,7 @@ export class PersistenceService extends Service {
             JSON.stringify(loadResult.right)
           )
           // NOTE: Still loading data to match legacy behavior
-          this.restTabService.loadTabsFromPersistedState(loadResult.right)
+          this.workspaceTabsService.loadTabsFromPersistedState(loadResult.right)
         }
       }
     } catch (_e) {
@@ -1109,7 +1109,7 @@ export class PersistenceService extends Service {
     }
 
     watchDebounced(
-      this.restTabService.persistableTabState,
+      this.workspaceTabsService.persistableTabState,
       async (newData) => {
         const result = await Store.set(
           STORE_NAMESPACE,
@@ -1201,7 +1201,7 @@ export class PersistenceService extends Service {
       this.setupSocketIOPersistence(),
       this.setupSSEPersistence(),
       this.setupMQTTPersistence(),
-      this.setupRESTTabsPersistence(),
+      this.setupWorkspaceTabsPersistence(),
       this.setupGQLTabsPersistence(),
 
       this.setupSecretEnvironmentsPersistence(),

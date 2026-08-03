@@ -138,7 +138,7 @@ export class InspectionService extends Service {
 
   public tabs: Ref<Map<string, InspectorResult[]>> = ref(new Map())
 
-  private readonly restTab = this.bind(WorkspaceTabsService)
+  private readonly workspaceTab = this.bind(WorkspaceTabsService)
 
   private watcherStopHandle: (() => void) | null = null
   private effectScope: EffectScope | null = null
@@ -149,7 +149,10 @@ export class InspectionService extends Service {
     // Watch for tab changes and inspector registration to reinitialize
     // and create new debounced refs
     watch(
-      () => [this.inspectors.entries(), this.restTab.currentActiveTab.value.id],
+      () => [
+        this.inspectors.entries(),
+        this.workspaceTab.currentActiveTab.value.id,
+      ],
       () => {
         this.initializeListeners()
       },
@@ -181,7 +184,7 @@ export class InspectionService extends Service {
       // or when an example tab has a missing/broken `response` payload (e.g.
       // stale persisted data) — never throw on a null-deref.
       const currentTabRequest = computed((): InspectorRequest | null => {
-        const doc = this.restTab.currentActiveTab.value.document
+        const doc = this.workspaceTab.currentActiveTab.value.document
 
         if (doc.type === "test-runner") return null
         if (doc.type === "request") return doc.request
@@ -196,7 +199,7 @@ export class InspectionService extends Service {
       })
 
       const currentTabResponse = computed(() => {
-        const doc = this.restTab.currentActiveTab.value.document
+        const doc = this.workspaceTab.currentActiveTab.value.document
         if (doc.type === "request") {
           return doc.response
         }
@@ -229,7 +232,7 @@ export class InspectionService extends Service {
         () => [...activeInspections.value],
         () => {
           this.tabs.value.set(
-            this.restTab.currentActiveTab.value.id,
+            this.workspaceTab.currentActiveTab.value.id,
             activeInspections.value
           )
         },

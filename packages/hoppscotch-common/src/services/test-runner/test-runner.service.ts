@@ -22,7 +22,7 @@ import {
   HoppTestRunnerDocument,
   TestRunnerMeta,
   TestRunnerConfig,
-} from "~/helpers/rest/document"
+} from "~/helpers/tab/document"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { HoppTestData, HoppTestResult } from "~/helpers/types/HoppTestResult"
 import { HoppTab } from "../tab"

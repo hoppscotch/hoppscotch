@@ -4,7 +4,7 @@
 
 import { Ref, onBeforeUnmount, onMounted, reactive, watch, computed } from "vue"
 import { BehaviorSubject } from "rxjs"
-import { HoppGQLRequestDocument, HoppRequestDocument } from "./rest/document"
+import { HoppGQLRequestDocument, HoppRequestDocument } from "./tab/document"
 import { Environment, HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
 import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
 import { HoppGQLSaveContext } from "./graphql/document"

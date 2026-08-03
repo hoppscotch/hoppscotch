@@ -288,7 +288,7 @@ watch(
   { deep: true }
 )
 
-const restTab = useService(WorkspaceTabsService)
+const workspaceTab = useService(WorkspaceTabsService)
 
 const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),
@@ -384,7 +384,7 @@ onAuthEvent((ev) => {
 
 const shareRequest = () => {
   if (currentUser.value) {
-    const doc = restTab.currentActiveTab.value.document
+    const doc = workspaceTab.currentActiveTab.value.document
     // Only request-bearing documents can be shared — test-runner and
     // example-response tabs have no `request` to snapshot
     if (doc.type !== "request" && doc.type !== "gql-request") return
@@ -645,7 +645,7 @@ const getErrorMessage = (err: GQLError<string>) => {
 
 const openRequestInNewTab = (request: HoppRESTRequest | HoppGQLRequest) => {
   if (isRESTRequest(request)) {
-    restTab.createNewTab({
+    workspaceTab.createNewTab({
       isDirty: false,
       request: request as HoppRESTRequest,
       type: "request",
@@ -653,7 +653,7 @@ const openRequestInNewTab = (request: HoppRESTRequest | HoppGQLRequest) => {
     return
   }
   // GraphQL shortcode — open as a gql-request tab in the unified workspace.
-  restTab.createNewTab({
+  workspaceTab.createNewTab({
     isDirty: false,
     request: request as HoppGQLRequest,
     type: "gql-request",

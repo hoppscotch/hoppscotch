@@ -115,7 +115,7 @@ import { SmartTreeAdapter } from "@hoppscotch/ui"
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { useColorMode } from "~/composables/theming"
-import { HoppTestRunnerDocument } from "~/helpers/rest/document"
+import { HoppTestRunnerDocument } from "~/helpers/tab/document"
 import { HoppTab } from "~/services/tab"
 import { TestRunnerRequest } from "~/services/test-runner/test-runner.service"
 

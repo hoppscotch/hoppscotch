@@ -716,8 +716,8 @@ const parseOpenAPIV3Body = (
 
 const isOpenAPIV3Operation = (
   doc: OpenAPI.Document,
-  op: OpenAPIOperationType
-): op is OpenAPIV3.OperationObject | OpenAPIV31.OperationObject =>
+  _op: OpenAPIOperationType
+): _op is OpenAPIV3.OperationObject | OpenAPIV31.OperationObject =>
   objectHasProperty(doc, "openapi") &&
   typeof doc.openapi === "string" &&
   doc.openapi.startsWith("3.")

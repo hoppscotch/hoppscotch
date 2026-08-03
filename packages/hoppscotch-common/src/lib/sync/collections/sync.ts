@@ -3,7 +3,6 @@ import {
   HoppCollection,
   HoppGQLRequest,
   HoppRESTRequest,
-  makeCollection,
 } from "@hoppscotch/data"
 
 import {
@@ -76,43 +75,6 @@ type ExportedCollectionFolder = {
   requests: Array<Record<string, unknown> & { id: string }>
   name: string
   data?: string
-}
-
-const addDescriptionField = (candidate: Array<Record<string, unknown>>) =>
-  candidate.map((item) => ({
-    ...item,
-    description: "description" in item ? item.description : "",
-  }))
-
-const exportedCollectionToHoppCollection = (
-  collection: ExportedCollectionFolder
-): HoppCollection => {
-  const data =
-    collection.data && collection.data !== "null"
-      ? JSON.parse(collection.data)
-      : {
-          auth: { authType: "inherit", authActive: true },
-          headers: [],
-          _ref_id: generateUniqueRefId("coll"),
-          variables: [],
-          description: null,
-        }
-
-  return makeCollection({
-    id: collection.id,
-    _ref_id: data._ref_id ?? generateUniqueRefId("coll"),
-    name: collection.name,
-    folders: collection.folders.map((folder) =>
-      exportedCollectionToHoppCollection(folder)
-    ),
-    requests: collection.requests.map((request) => ({ ...request })),
-    auth: data.auth,
-    headers: addDescriptionField(data.headers),
-    variables: data.variables ?? [],
-    description: data.description ?? null,
-    preRequestScript: data.preRequestScript ?? "",
-    testScript: data.testScript ?? "",
-  })
 }
 
 function findCollectionPathByID(

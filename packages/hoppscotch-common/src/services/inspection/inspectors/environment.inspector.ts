@@ -11,7 +11,6 @@ import { Service } from "dioc"
 import { Ref, markRaw, computed } from "vue"
 import IconPlusCircle from "~icons/lucide/plus-circle"
 import {
-  AggregateEnvironment,
   aggregateEnvsWithCurrentValue$,
   getCurrentEnvironment,
   getSelectedEnvironmentType,

@@ -94,6 +94,25 @@ const HoppRESTRequestSchema = entityReference(HoppRESTRequest)
 
 const HoppGQLRequestSchema = entityReference(HoppGQLRequest)
 
+/**
+ * A protocol-switcher draft: the snapshotted request plus the tab's dirty
+ * flag at snapshot time.
+ *
+ * Drafts written before dirty tracking existed were bare requests, so those
+ * are still accepted and normalized to `isDirty: true` — the behaviour they
+ * were written under. Without this, an in-flight draft from an older build
+ * would fail the tab-state schema on upgrade and take the whole persisted
+ * tab list down with it.
+ */
+const ProtocolDraftSchema = <T extends z.ZodTypeAny>(requestSchema: T) =>
+  z.union([
+    z.object({ request: requestSchema, isDirty: z.boolean() }),
+    requestSchema.transform((request: z.infer<T>) => ({
+      request,
+      isDirty: true,
+    })),
+  ])
+
 const HoppRESTCollectionSchema = entityReference(HoppCollection)
 
 const HoppGQLCollectionSchema = entityReference(HoppCollection)
@@ -652,8 +671,8 @@ export const WORKSPACE_TABS_STATE_SCHEMA = z
         // modeled explicitly because safeParse strips unknown keys
         protocolDrafts: z.optional(
           z.object({
-            rest: z.optional(HoppRESTRequestSchema),
-            gql: z.optional(HoppGQLRequestSchema),
+            rest: z.optional(ProtocolDraftSchema(HoppRESTRequestSchema)),
+            gql: z.optional(ProtocolDraftSchema(HoppGQLRequestSchema)),
           })
         ),
         doc: z.union([

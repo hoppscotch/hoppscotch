@@ -220,7 +220,12 @@ const switchToGQL = () => {
 
   // Snapshot the current REST request as the REST draft so a later switch back
   // restores edits the user made before this protocol switch.
-  tabs.setProtocolDraft(tab.id, "rest", tab.document.request)
+  tabs.setProtocolDraft(
+    tab.id,
+    "rest",
+    tab.document.request,
+    tab.document.isDirty
+  )
 
   // If the user previously had GQL data on this tab, restore it verbatim.
   // Otherwise let the converter seed a fresh GQL request from the REST one.
@@ -245,7 +250,12 @@ const switchToREST = () => {
   if (!tab || tab.document.type !== "gql-request") return
 
   // Snapshot the current GQL request as the GQL draft for round-trip preservation.
-  tabs.setProtocolDraft(tab.id, "gql", tab.document.request)
+  tabs.setProtocolDraft(
+    tab.id,
+    "gql",
+    tab.document.request,
+    tab.document.isDirty
+  )
 
   // Restore the previously-snapshotted REST request if any; else seed from GQL.
   const restDraft = tabs.getProtocolDraft(tab.id)?.rest

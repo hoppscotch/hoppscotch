@@ -11,19 +11,42 @@ import {
   HoppRequestDocument,
   HoppGQLRequestDocument,
 } from "~/helpers/rest/document"
+import type { ProtocolDraft } from "~/services/tab"
+
+/**
+ * Re-stamps a restored protocol draft with the live request's identity.
+ *
+ * Drafts are snapshots from the previous switch, so their `id`/`_ref_id` go
+ * stale — the request may have been saved (gaining an id) or repointed by a
+ * "Save as" since. Restoring verbatim either duplicates the backend row or
+ * overwrites another collection's request. Content stays the draft's.
+ */
+const restoreDraftIdentity = <T extends { id?: string; _ref_id?: string }>(
+  draft: T,
+  source: { id?: string; _ref_id?: string }
+): T => {
+  const restored: T = {
+    ...draft,
+    _ref_id: source._ref_id ?? draft._ref_id ?? generateUniqueRefId("req"),
+  }
+
+  if (source.id) restored.id = source.id
+  else delete restored.id
+
+  return restored
+}
 
 /**
  * Converts a REST request document to a GQL request document.
  *
- * If `gqlDraft` is provided (e.g. a previously-snapshotted GQL request kept by
- * the protocol switcher for round-trip preservation), it is restored verbatim
- * as the new request. Otherwise the GQL request is freshly seeded from the
- * REST request: name, headers, auth (where compatible) are carried over; the
- * URL, query, and variables fall back to GQL defaults.
+ * A `gqlDraft` (kept by the protocol switcher for round-trip preservation)
+ * restores its content, with identity re-stamped via `restoreDraftIdentity`.
+ * Otherwise the GQL request is seeded from the REST one: name, headers and
+ * compatible auth carry over; URL, query and variables fall back to defaults.
  */
 export function convertRESTToGQL(
   doc: HoppRequestDocument,
-  gqlDraft?: HoppGQLRequest
+  gqlDraft?: ProtocolDraft<HoppGQLRequest>
 ): HoppGQLRequestDocument {
   const restReq = doc.request
 
@@ -44,47 +67,41 @@ export function convertRESTToGQL(
 
   const defaultGQL = getDefaultGQLRequest()
 
-  const gqlRequest: HoppGQLRequest = gqlDraft ?? {
-    v: GQL_REQ_SCHEMA_VERSION,
-    _ref_id: restReq._ref_id ?? generateUniqueRefId("req"),
-    // Preserve the backend id from the REST request so the personal-workspace
-    // sync layer can issue an `editUserRequest` mutation against the existing
-    // backend row instead of treating the protocol-switched request as
-    // brand-new (which would short-circuit sync — `editRequest` reads
-    // `request.id` to find the backend row, so dropping it silently disables
-    // the network call).
-    ...(restReq.id ? { id: restReq.id } : {}),
-    name: restReq.name,
-    // Reset to the GQL default instead of carrying the REST endpoint over: a
-    // REST resource path (e.g. /users/123) is not a GraphQL endpoint, so it
-    // would seed a URL that looks ready but fails on run. Switching back
-    // restores the real URL verbatim via the `gqlDraft` branch above.
-    url: defaultGQL.url,
-    headers: restReq.headers.map((h) => ({
-      key: h.key,
-      value: h.value,
-      active: h.active,
-      description: h.description,
-    })),
-    query: defaultGQL.query,
-    variables: defaultGQL.variables,
-    auth,
-    description: restReq.description ?? null,
-    responses: {},
-    // Scripts are protocol-agnostic (env + header mutation) — carry them
-    // across the switch instead of dropping user code
-    preRequestScript: restReq.preRequestScript,
-    testScript: restReq.testScript,
-  }
+  const gqlRequest: HoppGQLRequest = gqlDraft
+    ? restoreDraftIdentity(gqlDraft.request, restReq)
+    : {
+        v: GQL_REQ_SCHEMA_VERSION,
+        _ref_id: restReq._ref_id ?? generateUniqueRefId("req"),
+        // Preserve the backend id so sync can issue `editUserRequest` against
+        // the existing row — `editRequest` reads `request.id` to find it
+        ...(restReq.id ? { id: restReq.id } : {}),
+        name: restReq.name,
+        // A REST path isn't a GraphQL endpoint; the real URL comes back via
+        // the `gqlDraft` branch above
+        url: defaultGQL.url,
+        headers: restReq.headers.map((h) => ({
+          key: h.key,
+          value: h.value,
+          active: h.active,
+          description: h.description,
+        })),
+        query: defaultGQL.query,
+        variables: defaultGQL.variables,
+        auth,
+        description: restReq.description ?? null,
+        responses: {},
+        // Scripts are protocol-agnostic — carry them instead of dropping code
+        preRequestScript: restReq.preRequestScript,
+        testScript: restReq.testScript,
+      }
 
   return {
     type: "gql-request",
     request: gqlRequest,
-    // Protocol conversion changes the persisted shape (REST ↔ GQL is not a
-    // no-op against a saved collection entry), so always mark dirty on switch.
-    // Without this, the user can switch, hit refresh, and the collection still
-    // holds the pre-switch shape — silently losing their conversion.
-    isDirty: true,
+    // A fresh conversion diverges from the saved entry, so it's dirty. A
+    // restored draft carries the flag it was snapshotted with — round-tripping
+    // a saved request back to its original shape leaves it clean
+    isDirty: gqlDraft?.isDirty ?? true,
     cursorPosition: 0,
     saveContext: doc.saveContext,
     response: null,
@@ -96,63 +113,56 @@ export function convertRESTToGQL(
 /**
  * Converts a GQL request document to a REST request document.
  *
- * If `restDraft` is provided (e.g. a previously-snapshotted REST request kept
- * by the protocol switcher for round-trip preservation), it is restored
- * verbatim as the new request. Otherwise the REST request is freshly seeded
- * from the GQL request: name, headers, auth (where compatible) are carried
- * over; the endpoint, method, body, and params fall back to REST defaults.
+ * Mirror of `convertRESTToGQL`: a `restDraft` restores its content with
+ * identity re-stamped, otherwise the REST request is seeded from the GQL one.
  */
 export function convertGQLToREST(
   doc: HoppGQLRequestDocument,
-  restDraft?: HoppRESTRequest
+  restDraft?: ProtocolDraft<HoppRESTRequest>
 ): HoppRequestDocument {
   const gqlReq = doc.request
 
   const defaultREST = getDefaultRESTRequest()
 
-  const restRequest: HoppRESTRequest = restDraft ?? {
-    v: RESTReqSchemaVersion,
-    _ref_id: gqlReq._ref_id ?? generateUniqueRefId("req"),
-    // See the mirror block in `convertRESTToGQL` — preserve the backend id so
-    // sync can re-target the existing backend row instead of treating this as
-    // a fresh request (which would skip the network call entirely).
-    ...(gqlReq.id ? { id: gqlReq.id } : {}),
-    name: gqlReq.name,
-    // Reset to the REST default instead of carrying the GQL `url` over (mirror
-    // of `convertRESTToGQL`): cross-protocol URLs aren't interchangeable.
-    // Switching back restores the real URL verbatim via the `restDraft` branch.
-    endpoint: defaultREST.endpoint,
-    method: "GET",
-    params: [],
-    headers: gqlReq.headers.map((h) => ({
-      key: h.key,
-      value: h.value,
-      active: h.active,
-      description: h.description,
-    })),
-    // Scripts are protocol-agnostic (env + header mutation) — carry them
-    // across the switch instead of dropping user code
-    preRequestScript: gqlReq.preRequestScript ?? "",
-    testScript: gqlReq.testScript ?? "",
-    body: {
-      contentType: null,
-      body: null,
-    },
-    // Safe cast: HoppGQLAuth is a strict structural subset of HoppRESTAuth
-    // (every GQL auth variant is a REST auth variant) — the reverse direction
-    // needs its guard because REST has auth types GQL lacks
-    auth: gqlReq.auth as HoppRESTRequest["auth"],
-    requestVariables: [],
-    responses: {},
-    description: gqlReq.description ?? "",
-  }
+  const restRequest: HoppRESTRequest = restDraft
+    ? restoreDraftIdentity(restDraft.request, gqlReq)
+    : {
+        v: RESTReqSchemaVersion,
+        _ref_id: gqlReq._ref_id ?? generateUniqueRefId("req"),
+        // Mirror of `convertRESTToGQL` — preserve the backend id for sync
+        ...(gqlReq.id ? { id: gqlReq.id } : {}),
+        name: gqlReq.name,
+        // Cross-protocol URLs aren't interchangeable; the real endpoint comes
+        // back via the `restDraft` branch
+        endpoint: defaultREST.endpoint,
+        method: "GET",
+        params: [],
+        headers: gqlReq.headers.map((h) => ({
+          key: h.key,
+          value: h.value,
+          active: h.active,
+          description: h.description,
+        })),
+        // Scripts are protocol-agnostic — carry them instead of dropping code
+        preRequestScript: gqlReq.preRequestScript ?? "",
+        testScript: gqlReq.testScript ?? "",
+        body: {
+          contentType: null,
+          body: null,
+        },
+        // Safe cast: every GQL auth variant is a REST one. The reverse needs
+        // the guard above because REST has auth types GQL lacks
+        auth: gqlReq.auth as HoppRESTRequest["auth"],
+        requestVariables: [],
+        responses: {},
+        description: gqlReq.description ?? "",
+      }
 
   return {
     type: "request",
     request: restRequest,
-    // Mark dirty for the same reason as `convertRESTToGQL`: until the user
-    // saves, the collection still holds the pre-switch GQL shape.
-    isDirty: true,
+    // Same reasoning as `convertRESTToGQL`
+    isDirty: restDraft?.isDirty ?? true,
     saveContext: doc.saveContext,
     response: null,
     optionTabPreference: "params",

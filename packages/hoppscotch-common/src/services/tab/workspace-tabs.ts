@@ -138,31 +138,35 @@ export class WorkspaceTabsService extends TabService<HoppTabDocument> {
   }
 
   /**
-   * Snapshot a request as the draft for one protocol. Stored as a deep clone
-   * so subsequent mutations to the original request don't leak into the draft.
+   * Snapshot a request, plus the tab's dirty flag, as the draft for one
+   * protocol. Stored as a deep clone so subsequent mutations to the original
+   * request don't leak into the draft.
    */
   public setProtocolDraft(
     tabID: string,
     kind: "rest",
-    request: HoppRESTRequest
+    request: HoppRESTRequest,
+    isDirty: boolean
   ): void
   public setProtocolDraft(
     tabID: string,
     kind: "gql",
-    request: HoppGQLRequest
+    request: HoppGQLRequest,
+    isDirty: boolean
   ): void
   public setProtocolDraft(
     tabID: string,
     kind: "rest" | "gql",
-    request: HoppRESTRequest | HoppGQLRequest
+    request: HoppRESTRequest | HoppGQLRequest,
+    isDirty: boolean
   ): void {
     const tab = this.tabMap.get(tabID)
     if (!tab) return
     const drafts = tab.protocolDrafts ?? {}
     if (kind === "rest") {
-      drafts.rest = cloneDeep(request as HoppRESTRequest)
+      drafts.rest = { request: cloneDeep(request as HoppRESTRequest), isDirty }
     } else {
-      drafts.gql = cloneDeep(request as HoppGQLRequest)
+      drafts.gql = { request: cloneDeep(request as HoppGQLRequest), isDirty }
     }
     tab.protocolDrafts = drafts
   }

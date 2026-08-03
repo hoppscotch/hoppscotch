@@ -15,13 +15,13 @@
         response[0].operationType !== 'subscription'
       "
       v-model="selectedResponseTab"
-      styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-0 z-10"
+      styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-lowerPrimaryStickyFold z-10"
       render-inactive-tabs
     >
       <HoppSmartTab :id="'response'" :label="`${t('response.title')}`">
         <div class="flex flex-1 flex-col">
           <div
-            class="sticky top-0 z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
+            class="sticky top-lowerSecondaryStickyFold z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
           >
             <label class="truncate font-semibold text-secondaryLight">
               {{ t("response.body") }}

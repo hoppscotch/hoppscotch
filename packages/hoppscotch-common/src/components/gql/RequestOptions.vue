@@ -109,7 +109,6 @@ import { computed, watch } from "vue"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import {
   GQLTabConnectionService,
-  emptyTestResults,
   type GQLResponseEvent,
 } from "~/services/gql-tab-connection.service"
 import { HoppTestResult } from "~/helpers/types/HoppTestResult"
@@ -265,12 +264,12 @@ const runQuery = async (
     )
     const runInheritedScripts = cloneDeep(props.inheritedProperties?.scripts)
 
-    // `null` = test run in flight — drives the Results tab's loading state.
-    // Subscriptions never produce test results, so leave theirs untouched.
-    if ((runDefinition?.operation ?? "query") !== "subscription") {
-      emit("update:testResults", null)
-    }
-
+    // `testResults` — including the in-flight `null` sentinel — is written by
+    // GQLTabConnectionService (see `setTabTestResults`). It can't be emitted
+    // from here: the response pane is gated behind `testResults !== null`, and
+    // this component unmounts whenever its tab isn't the active one, so a run
+    // finishing in the background would strand the sentinel and leave the
+    // Results pane spinning until the next run.
     const runResult = await gqlTabConn.runTabGQLOperation(props.tabId, {
       name: runRequest.name,
       url: runURL,
@@ -285,9 +284,6 @@ const runQuery = async (
       operationType: runDefinition?.operation ?? "query",
     })
 
-    if (runResult?.testResults !== undefined) {
-      emit("update:testResults", runResult.testResults)
-    }
     const duration = Date.now() - startTime
     completePageProgress()
     if (runResult?.preScriptFailed) {
@@ -320,13 +316,6 @@ const runQuery = async (
     }
   } catch (e: any) {
     completePageProgress()
-    // Terminate the Results tab's loading state — the run died before the
-    // test stage could produce anything. Subscriptions never set the
-    // loading sentinel, so leave their previous results untouched (mirrors
-    // the gate at run start)
-    if ((runDefinition?.operation ?? "query") !== "subscription") {
-      emit("update:testResults", emptyTestResults(false))
-    }
     console.error(e)
   }
   platform.analytics?.logEvent({

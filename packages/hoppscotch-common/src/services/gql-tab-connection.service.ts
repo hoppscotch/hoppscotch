@@ -373,6 +373,22 @@ export class GQLTabConnectionService extends Service {
   }
 
   /**
+   * Writes a tab's test results straight to its document.
+   *
+   * Must live here, not in the run's calling component: `null` is the
+   * in-flight sentinel driving the Results pane's loading state, and
+   * `HoppSmartWindows` unmounts a tab as soon as it isn't the active one. A
+   * terminal value emitted from the component is therefore lost whenever the
+   * run finishes in the background, stranding the sentinel and leaving the
+   * pane spinning until the next run on that tab.
+   */
+  private setTabTestResults(tabId: string, results: HoppTestResult | null) {
+    const tab = this.restTabService.getTabs().find((t) => t.id === tabId)
+    if (!tab || tab.document.type !== "gql-request") return
+    tab.document.testResults = results
+  }
+
+  /**
    * Read-only view of a tab's connection state. Returns a reactive proxy that
    * exposes only the UI-relevant fields — consumers can't accidentally mutate
    * the live context or hold a reference to the live WebSocket / timers.
@@ -972,6 +988,12 @@ export class GQLTabConnectionService extends Service {
       operationType,
     } = options
 
+    // `null` = test run in flight, driving the Results pane's loading state.
+    // Subscriptions never produce test results, so leave theirs untouched.
+    if (operationType !== "subscription") {
+      this.setTabTestResults(tabId, null)
+    }
+
     // --- Pre-request script stage (v1: env vars + request headers) ---
     // The sandbox is REST-shaped, so the GQL request rides in as a synthetic
     // POST. The auto-connect above templated with pre-script-free envs —
@@ -1024,6 +1046,7 @@ export class GQLTabConnectionService extends Service {
             message: `Pre-request script failed: ${preResult.left}`,
           },
         }
+        this.setTabTestResults(tabId, emptyTestResults(true))
         return { testResults: emptyTestResults(true), preScriptFailed: true }
       }
       preScriptConsoleEntries = preResult.right.consoleEntries ?? []
@@ -1308,6 +1331,7 @@ export class GQLTabConnectionService extends Service {
         testResults = emptyTestResults(true)
       }
 
+      this.setTabTestResults(tabId, testResults)
       return { data: parsedResponse.data, testResults }
     } catch (error: any) {
       // Route error to the captured tab's message event
@@ -1320,6 +1344,11 @@ export class GQLTabConnectionService extends Service {
           message: error.message || "An unknown error occurred",
         },
       }
+
+      // Terminate the loading sentinel — the run died before the test stage
+      // could produce anything, and the response pane stays hidden while
+      // `testResults` is null
+      this.setTabTestResults(tabId, emptyTestResults(false))
 
       throw error
     }

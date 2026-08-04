@@ -50,6 +50,7 @@
     "remove": "Remove",
     "remove_instance": "Remove instance",
     "rename": "Rename",
+    "resize": "Resize",
     "restore": "Restore",
     "retry": "Retry",
     "save": "Save",

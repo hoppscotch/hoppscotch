@@ -289,9 +289,16 @@ export async function runTestRunnerGQLRequest(
     }
 
     // --- Post-request (test) script stage --- (short-circuits when empty)
+    // Test scripts observe the executed request (resolved URL, final wire
+    // headers), mirroring REST runs
+    const executedScriptRequest: HoppRESTRequest = {
+      ...scriptSyntheticRequest,
+      endpoint: finalUrl,
+      headers: gqlRequest.headers,
+    }
     const postResult = await runPostRequestScript(
       preResult.right.updatedEnvs,
-      scriptSyntheticRequest,
+      executedScriptRequest,
       {
         status: parsedResponse.statusCode,
         body: getTestableBody(parsedResponse),

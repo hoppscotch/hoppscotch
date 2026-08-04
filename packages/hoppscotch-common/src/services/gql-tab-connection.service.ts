@@ -1289,9 +1289,15 @@ export class GQLTabConnectionService extends Service {
           responseTime: timeEnd - timeStart,
           body: JSON.parse(parsedResponse.data),
         }
+        // Test scripts observe the executed request (resolved URL, final
+        // wire headers), mirroring REST runs and the GQL collection runner
         const testResult = await runPostRequestScript(
           sandboxEnvs,
-          syntheticScriptRequest,
+          {
+            ...syntheticScriptRequest,
+            endpoint: finalUrl,
+            headers: finalHoppHeaders,
+          },
           // Runtime contract is TestResponse — the param annotation says
           // HoppRESTResponse but every REST call site passes this shape too
           testResponse as never,

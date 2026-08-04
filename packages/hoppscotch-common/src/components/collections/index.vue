@@ -2163,8 +2163,8 @@ const addGQLExample = async (request: HoppGQLRequest, exampleName: string) => {
   }
 
   if (hasTeamWriteAccess.value) {
-    modalLoadingState.value = true
     if (!editingRequestID.value) return
+    modalLoadingState.value = true
 
     const data = {
       requestID: editingRequestID.value,

@@ -100,8 +100,11 @@ export const getComputedGQLAuthHeaders = async (
   auth?: HoppGQLAuth | HoppRESTAuth
 ): Promise<GQLHeader[]> => {
   // Request headers are applied last on the wire, so an explicit Authorization
-  // header supersedes anything auth would generate
-  if (req.headers.some((h) => h.key.toLowerCase() === "authorization"))
+  // header supersedes anything auth would generate — active rows only,
+  // matching what execution actually sends
+  if (
+    req.headers.some((h) => h.active && h.key.toLowerCase() === "authorization")
+  )
     return []
 
   const effectiveAuth = (auth ?? req.auth) as HoppRESTAuth

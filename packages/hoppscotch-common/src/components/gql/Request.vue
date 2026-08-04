@@ -182,28 +182,34 @@ const saveRequest = () => {
   if (saveCtx.originLocation === "user-collection") {
     const req = tab.value.document.request
 
-    if (saveCtx.requestIndex === undefined) {
-      showSaveRequestModal.value = true
-      return
+    try {
+      if (saveCtx.requestIndex === undefined) {
+        showSaveRequestModal.value = true
+        return
+      }
+
+      editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, req)
+
+      // Ensure requestRefID is set in save context for active indicator
+      if (!saveCtx.requestRefID && req._ref_id) {
+        saveCtx.requestRefID = req._ref_id
+      }
+
+      tab.value.document.isDirty = false
+
+      platform.analytics?.logEvent({
+        type: "HOPP_SAVE_REQUEST",
+        platform: "gql",
+        createdNow: false,
+        workspaceType: "personal",
+      })
+
+      toast.success(`${t("request.saved")}`)
+    } catch (_e) {
+      // Stale saveContext — drop it and reopen Save As, same as the REST flow
+      tab.value.document.saveContext = undefined
+      saveRequest()
     }
-
-    editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, req)
-
-    // Ensure requestRefID is set in save context for active indicator
-    if (!saveCtx.requestRefID && req._ref_id) {
-      saveCtx.requestRefID = req._ref_id
-    }
-
-    tab.value.document.isDirty = false
-
-    platform.analytics?.logEvent({
-      type: "HOPP_SAVE_REQUEST",
-      platform: "gql",
-      createdNow: false,
-      workspaceType: "personal",
-    })
-
-    toast.success(`${t("request.saved")}`)
   } else if (saveCtx.originLocation === "team-collection") {
     const req = tab.value.document.request
 

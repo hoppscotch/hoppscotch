@@ -188,6 +188,8 @@ function normalizeCollectionRequest(
     description: g.description ?? null,
     _ref_id: g._ref_id ?? generateUniqueRefId("req"),
     responses: g.responses ?? {},
+    preRequestScript: g.preRequestScript ?? "",
+    testScript: g.testScript ?? "",
   }
 }
 

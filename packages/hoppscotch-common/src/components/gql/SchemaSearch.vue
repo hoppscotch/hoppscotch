@@ -54,6 +54,10 @@ type SearchResult = {
     | GraphQLField<unknown, unknown>
     | GraphQLInputField
     | GraphQLArgument
+  // Set on "Argument in …" results — the label alone can't be resolved back
+  // to a navigation path
+  parentField?: GraphQLField<unknown, unknown>
+  parentTypeName?: string
 }
 
 // Composables
@@ -130,6 +134,8 @@ const generateSearchResults = () => {
               name: arg.name,
               type: `Argument in ${fieldName}`,
               def: arg,
+              parentField: field,
+              parentTypeName: typeName,
             })
           }
         })
@@ -221,6 +227,17 @@ const buildNavigationPath = (result: SearchResult): ExplorerNavStackItem[] => {
         def: result.def,
       })
     }
+  } else if (
+    result.type.startsWith("Argument in") &&
+    result.parentField &&
+    result.parentTypeName
+  ) {
+    // Arguments render on their containing field's documentation page
+    return buildNavigationPath({
+      name: result.parentField.name,
+      type: `Field in ${result.parentTypeName}`,
+      def: result.parentField,
+    })
   }
 
   return path
@@ -261,7 +278,12 @@ const handleSearchKeystroke = (ev: KeyboardEvent) => {
     showSearchResults.value = false
   }
 
-  if (ev.key === "Enter" && currentResultIndex.value > -1) {
+  // ArrowUp clamps the index to 0 even with no matches — guard the lookup
+  if (
+    ev.key === "Enter" &&
+    currentResultIndex.value > -1 &&
+    filteredResults.value[currentResultIndex.value]
+  ) {
     selectSearchResult(filteredResults.value[currentResultIndex.value])
   }
 

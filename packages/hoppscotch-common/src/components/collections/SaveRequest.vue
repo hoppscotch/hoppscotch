@@ -351,7 +351,9 @@ const saveRequestAs = async () => {
     picked.value.pickedType === "my-collection" ||
     picked.value.pickedType === "my-folder" ||
     picked.value.pickedType === "teams-collection" ||
-    picked.value.pickedType === "teams-folder"
+    picked.value.pickedType === "teams-folder" ||
+    picked.value.pickedType === "gql-my-collection" ||
+    picked.value.pickedType === "gql-my-folder"
 
   if (isNewCollectionEntry) {
     requestUpdated._ref_id = generateUniqueRefId("req")

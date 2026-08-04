@@ -329,7 +329,14 @@ const responseString = computed(() => {
     response[0].type === "response" &&
     response[0].data
   ) {
-    return JSON.stringify(JSON.parse(response[0].data), null, 2)
+    // The payload is server-controlled, so it is not guaranteed to be JSON
+    // (error pages, truncated bodies, non-JSON content types). Throwing here
+    // would take down the whole response panel, so fall back to the raw text.
+    try {
+      return JSON.stringify(JSON.parse(response[0].data), null, 2)
+    } catch {
+      return response[0].data
+    }
   }
   return ""
 })
@@ -443,6 +450,14 @@ const onSaveAsExample = () => {
   // so personal-workspace saves go through the REST store / REST mutation
   // (mirrors `editRequest` in the personal sync layer).
   if (saveCtx.originLocation === "user-collection") {
+    // `requestIndex` is optional on the save-context union (example tabs
+    // omit it). Without it there is no collection row to write to — treat
+    // it like a missing saveContext: the example still lives on the open
+    // tab's request, it just isn't persisted to the collection.
+    if (saveCtx.requestIndex === undefined) {
+      responseName.value = ""
+      return
+    }
     try {
       editRESTRequest(
         saveCtx.folderPath,

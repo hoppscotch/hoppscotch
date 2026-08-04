@@ -481,9 +481,9 @@ export function runRESTRequest$(
     cancelFunc?.()
   }
 
-  const cookieJarDisabled =
-    (tab.value.document.request.requestOptions?.disableCookies ?? false) ||
-    settingsStore.value.DISABLE_COOKIES
+  const cookieJarDisabled = getEffectiveCookieJarDisabled(
+    tab.value.document.request
+  )
 
   const cookieJarEntries = cookieJarDisabled ? null : getCookieJarEntries()
 

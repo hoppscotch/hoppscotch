@@ -13,6 +13,7 @@ import {
   filterActiveParams,
 } from "~/helpers/functional/filter-active"
 import { settingsStore } from "~/newstore/settings"
+import { getEffectiveCookieJarDisabled } from "~/helpers/RequestRunner"
 
 export const RESTRequest = {
   async toRequest(request: EffectiveHoppRESTRequest): Promise<RelayRequest> {
@@ -41,10 +42,7 @@ export const RESTRequest = {
       content,
       meta: {
         options: {
-          cookies: !(
-            (request.requestOptions?.disableCookies ?? false) ||
-            settingsStore.value.DISABLE_COOKIES
-          )
+          cookies: !getEffectiveCookieJarDisabled(request as any)
         }
       }
     }

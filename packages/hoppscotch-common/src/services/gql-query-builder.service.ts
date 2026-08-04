@@ -217,11 +217,14 @@ export class GQLQueryBuilderService extends Service {
       requestedOperationType === OperationTypeNode.SUBSCRIPTION &&
       requestedOperationType === existingOperation?.operation
     ) {
-      const existingTopField = existingOperation.selectionSet
-        .selections[0] as FieldNode
+      // Selections can be inline fragments or fragment spreads, which carry no
+      // `name` — only a FieldNode is comparable against the query path.
+      const [firstSelection] = existingOperation.selectionSet.selections
+      const existingTopField =
+        firstSelection?.kind === Kind.FIELD ? firstSelection : undefined
 
       if (
-        existingTopField.name.value !==
+        existingTopField?.name.value !==
         (queryPath && queryPath[0] && queryPath[0]?.name)
       ) {
         append = true

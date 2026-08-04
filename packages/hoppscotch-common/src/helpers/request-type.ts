@@ -12,6 +12,14 @@ type AnyRequest =
   | HoppGQLResponseOriginalRequest
 
 /**
+ * The `in` operator throws on `null`/primitives, so every shape guard below
+ * has to establish "is a non-null object" before probing for keys — callers
+ * feed these raw persisted and imported JSON.
+ */
+const isRequestObject = (req: AnyRequest): req is AnyRequest =>
+  !!req && typeof req === "object"
+
+/**
  * Type guard to check if a request object is GraphQL-shaped.
  * GQL requests / saved example original-requests have `query` + `url` but not
  * `endpoint`. Predicate kept aligned with `isGQLRequest` in
@@ -21,7 +29,14 @@ type AnyRequest =
 export function isGQLRequest(
   req: AnyRequest
 ): req is HoppGQLRequest | HoppGQLResponseOriginalRequest {
-  return "url" in req && "query" in req && !("endpoint" in req)
+  // Object check first — callers pass raw persisted/imported JSON, and the
+  // `in` operator throws on primitives
+  return (
+    isRequestObject(req) &&
+    "url" in req &&
+    "query" in req &&
+    !("endpoint" in req)
+  )
 }
 
 /**
@@ -30,7 +45,7 @@ export function isGQLRequest(
 export function isRESTRequest(
   req: AnyRequest
 ): req is HoppRESTRequest | HoppRESTResponseOriginalRequest {
-  return "endpoint" in req
+  return isRequestObject(req) && "endpoint" in req
 }
 
 /**

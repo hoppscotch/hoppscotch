@@ -36,7 +36,7 @@
 
 <script setup lang="ts">
 import { GraphQLOutputType, getNamedType } from "graphql"
-import { computed, defineProps } from "vue"
+import { computed } from "vue"
 import { useI18n } from "~/composables/i18n"
 
 interface Field {

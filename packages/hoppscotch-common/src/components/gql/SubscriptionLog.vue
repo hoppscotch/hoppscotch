@@ -66,7 +66,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, PropType, computed, watch, Ref } from "vue"
+import { ref, PropType, computed, watch } from "vue"
 import IconTrash from "~icons/lucide/trash"
 import IconArrowUp from "~icons/lucide/arrow-up"
 import IconArrowDown from "~icons/lucide/arrow-down"
@@ -94,7 +94,7 @@ const logs = ref<HTMLElement | null>(null)
 
 const autoScrollEnabled = ref(true)
 
-const logListScroll = useScroll(logs as Ref<HTMLElement>)
+const logListScroll = useScroll(logs)
 
 watch(logListScroll.isScrolling, (isScrolling) => {
   if (isScrolling && logListScroll.directions.top)

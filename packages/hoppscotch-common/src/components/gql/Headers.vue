@@ -280,7 +280,9 @@ import IconLock from "~icons/lucide/lock"
 import IconPlus from "~icons/lucide/plus"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconWrapText from "~icons/lucide/wrap-text"
-import { GQLOptionTabs } from "./RequestOptions.vue"
+// `./RequestOptions.vue` only re-imports this type, it doesn't re-export it —
+// pull it from the module that actually declares it (same as gql/RequestOptions.vue does).
+import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
 import { InspectionService, InspectorResult } from "~/services/inspection"
 import { useService } from "dioc/vue"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
@@ -453,8 +455,8 @@ watch(workingHeaders, (newHeadersList) => {
 
   try {
     const currentBulkHeaders = bulkHeaders.value.split("\n").map((item) => ({
-      key: item.substring(0, item.indexOf(":")).trimLeft().replace(/^#/, ""),
-      value: item.substring(item.indexOf(":") + 1).trimLeft(),
+      key: item.substring(0, item.indexOf(":")).trimStart().replace(/^#/, ""),
+      value: item.substring(item.indexOf(":") + 1).trimStart(),
       active: !item.trim().startsWith("#"),
     }))
 

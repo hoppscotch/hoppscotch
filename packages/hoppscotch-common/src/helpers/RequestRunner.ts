@@ -352,6 +352,13 @@ const getEnvironmentVariableValue = (
   )
 }
 
+export function getEffectiveCookieJarDisabled(request: HoppRESTRequest): boolean {
+  return (
+    (request.requestOptions?.disableCookies ?? false) ||
+    settingsStore.value.DISABLE_COOKIES
+  )
+}
+
 const delegatePreRequestScriptRunner = (
   request: HoppRESTRequest,
   envs: {

@@ -407,12 +407,10 @@ const shortcodeBaseURL = computed(() => {
 })
 
 const copyEmbed = () => {
-  // `sandbox` is set deliberately *without* `allow-same-origin` so the iframe
-  // can't read the host page's cookies/storage — a clickjacked Run inside
-  // a malicious embed can still fire HTTP/WS requests (those go to the URL in
-  // the shortcode, which the share-er already controls), but can't escalate
-  // into reading the embedder's session.
-  return `<iframe src="${shortcodeBaseURL.value}/e/${props.request?.id}" title="Hoppscotch Embed" sandbox="allow-scripts allow-forms" style="width: 100%; height: 480px; border-radius: 4px; border: 1px solid rgba(0, 0, 0, 0.1);"></iframe>`
+  // No `sandbox`: the embed is already cross-origin from the host page, and
+  // sandboxing gives it an opaque origin — breaking localStorage on boot and
+  // stamping `Origin: null` on every request it fires
+  return `<iframe src="${shortcodeBaseURL.value}/e/${props.request?.id}" title="Hoppscotch Embed" style="width: 100%; height: 480px; border-radius: 4px; border: 1px solid rgba(0, 0, 0, 0.1);"></iframe>`
 }
 
 const copyButton = (

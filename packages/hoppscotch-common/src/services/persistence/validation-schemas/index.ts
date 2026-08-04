@@ -83,6 +83,8 @@ const SettingsDefSchema = z.object({
     .catch("DESCRIPTIVE_WITH_SPACES"),
   CUSTOM_NAMING_STYLE: z.string().optional().catch(""),
 
+  REVEAL_REQUEST_ON_TAB_ACTIVATE: z.optional(z.boolean()),
+
   EXPERIMENTAL_SCRIPTING_SANDBOX: z.optional(z.boolean()),
   ENABLE_EXPERIMENTAL_MOCK_SERVERS: z.optional(z.boolean()),
   ENABLE_EXPERIMENTAL_DOCUMENTATION: z.optional(z.boolean()),

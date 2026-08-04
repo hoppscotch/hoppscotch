@@ -190,6 +190,13 @@ const importSourceAndSupportedFeatures: Record<
     preRequestScripts: "NOT_SUPPORTED_BY_SOURCE",
     testScripts: "NOT_SUPPORTED_BY_SOURCE",
   },
+  yaak: {
+    collections: "SUPPORTED",
+    requests: "SUPPORTED",
+    responses: "NOT_SUPPORTED_BY_SOURCE",
+    preRequestScripts: "NOT_SUPPORTED_BY_SOURCE",
+    testScripts: "NOT_SUPPORTED_BY_SOURCE",
+  },
 }
 
 const featuresWithCount: Ref<FeatureWithCount[]> = ref([])

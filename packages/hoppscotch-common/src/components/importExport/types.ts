@@ -8,7 +8,7 @@ export type SupportedImportFormat =
   | "insomnia"
   | "openapi"
   | "har"
-
+  | "yaak"
 // TODO: move the metadata except disabled and isLoading to importers.ts
 export type ImporterOrExporter = {
   metadata: {

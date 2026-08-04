@@ -74,7 +74,14 @@ export type CollectionFolder = {
 // using the same predicate the data package uses internally — `isGQLRequest`
 // is gated on `query` + `url` + no `endpoint`.
 function translatePublishedRequest(req: any): HoppRESTRequest | HoppGQLRequest {
-  if (req && "query" in req && "url" in req && !("endpoint" in req)) {
+  // Object check first — `in` throws on primitives
+  if (
+    !!req &&
+    typeof req === "object" &&
+    "query" in req &&
+    "url" in req &&
+    !("endpoint" in req)
+  ) {
     return translateToGQLRequest(req)
   }
   return translateToNewRequest(req)

@@ -162,7 +162,14 @@ type ParsedShortcode =
 
 const parsed = computed<ParsedShortcode>(() => {
   const raw = JSON.parse(props.request.request) as Record<string, unknown>
-  if ("query" in raw && "url" in raw && !("endpoint" in raw)) {
+  // Object check first — `in` throws on null/primitives
+  if (
+    !!raw &&
+    typeof raw === "object" &&
+    "query" in raw &&
+    "url" in raw &&
+    !("endpoint" in raw)
+  ) {
     return { protocol: "gql", request: translateToGQLRequest(raw) }
   }
   return { protocol: "rest", request: translateToNewRequest(raw) }

@@ -53,6 +53,7 @@ import {
   isGQLRequest,
   makeGQLRequest,
   safelyExtractRESTRequest,
+  translateToGQLRequest,
 } from "@hoppscotch/data"
 import { HoppTab } from "~/services/tab"
 import {
@@ -147,26 +148,9 @@ watch(
       )
 
       if (isGQLShortcodePayload(request)) {
-        const gql = request as Record<string, unknown>
-        gqlTab.value.document.request = makeGQLRequest({
-          name: typeof gql.name === "string" ? gql.name : "Untitled Request",
-          url: typeof gql.url === "string" ? gql.url : "",
-          headers: Array.isArray(gql.headers) ? (gql.headers as never) : [],
-          query: typeof gql.query === "string" ? gql.query : "",
-          variables: typeof gql.variables === "string" ? gql.variables : "",
-          auth:
-            gql.auth && typeof gql.auth === "object" && "authType" in gql.auth
-              ? (gql.auth as never)
-              : { authType: "none", authActive: true },
-          description:
-            typeof gql.description === "string" ? gql.description : null,
-          responses: {},
-          preRequestScript:
-            typeof gql.preRequestScript === "string"
-              ? gql.preRequestScript
-              : "",
-          testScript: typeof gql.testScript === "string" ? gql.testScript : "",
-        })
+        // Versioned parser (safeParse + migrations, default fallback) — same
+        // as `share/Request.vue` / `PublishedDocs.ts` for identical payloads
+        gqlTab.value.document.request = translateToGQLRequest(request)
         protocol.value = "gql"
       } else {
         restTab.value.document.request = safelyExtractRESTRequest(

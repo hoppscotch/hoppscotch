@@ -201,8 +201,8 @@ import {
   HoppGQLRequest,
   HoppRESTRequest,
   isGQLRequest,
-  makeGQLRequest,
   safelyExtractRESTRequest,
+  translateToGQLRequest,
 } from "@hoppscotch/data"
 import { useGQLQuery } from "@composables/graphql"
 import { useI18n } from "@composables/i18n"
@@ -300,31 +300,11 @@ const addRequestToTab = () => {
     const request: unknown = JSON.parse(data.right.shortcode?.request as string)
 
     if (isGQLShortcodePayload(request)) {
-      // GraphQL shortcode — normalize through `makeGQLRequest` so we get
-      // schema defaults (responses: {}, version, etc.) regardless of what
-      // shape the stored payload had at save time.
-      const gql = request as Record<string, unknown>
+      // Versioned parser (safeParse + migrations, default fallback) — same
+      // as `share/Request.vue` / `PublishedDocs.ts` for identical payloads
       tabs.createNewTab({
         type: "gql-request",
-        request: makeGQLRequest({
-          name: typeof gql.name === "string" ? gql.name : "Untitled Request",
-          url: typeof gql.url === "string" ? gql.url : "",
-          headers: Array.isArray(gql.headers) ? (gql.headers as never) : [],
-          query: typeof gql.query === "string" ? gql.query : "",
-          variables: typeof gql.variables === "string" ? gql.variables : "",
-          auth:
-            gql.auth && typeof gql.auth === "object" && "authType" in gql.auth
-              ? (gql.auth as never)
-              : { authType: "none", authActive: true },
-          description:
-            typeof gql.description === "string" ? gql.description : null,
-          responses: {},
-          preRequestScript:
-            typeof gql.preRequestScript === "string"
-              ? gql.preRequestScript
-              : "",
-          testScript: typeof gql.testScript === "string" ? gql.testScript : "",
-        }),
+        request: translateToGQLRequest(request),
         isDirty: false,
         cursorPosition: 0,
       })

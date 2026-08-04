@@ -283,8 +283,9 @@ const onTabUpdate = (tab: HoppTab<HoppTabDocument>) => {
   tabs.updateTab(tab)
 }
 
-// Always "rest" — on the unified REST page, all saves go to restCollectionStore
-const saveRequestMode = computed(() => "rest" as const)
+// Always "workspace" — on the unified page every save goes through
+// WorkspaceTabsService, for both REST and GQL documents.
+const saveRequestMode = computed(() => "workspace" as const)
 
 const addNewTab = () => {
   const tab = tabs.createNewTab({
@@ -488,7 +489,14 @@ const onResolveConfirmSaveTab = async () => {
     await nextTick()
   }
 
-  if (!tabState.document.saveContext) {
+  // `HoppTabDocument` is a union — test-runner documents carry no
+  // `saveContext`, so probe for the key instead of assuming it exists.
+  const saveContext =
+    "saveContext" in tabState.document
+      ? tabState.document.saveContext
+      : undefined
+
+  if (!saveContext) {
     savingRequest.value = true
     return
   }

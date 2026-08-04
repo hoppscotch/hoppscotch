@@ -9,7 +9,10 @@ import type { PmNamespaceMethods } from "~/types"
  */
 export const createPmNamespaceMethods = (
   ctx: CageModuleCtx,
-  config: { request: HoppRESTRequest }
+  config: {
+    request: HoppRESTRequest
+    setNextRequest: (requestNameOrId: string | null) => void
+  }
 ): PmNamespaceMethods => {
   return {
     // `pm` namespace methods for Postman compatibility
@@ -21,5 +24,18 @@ export const createPmNamespaceMethods = (
       // Postman uses a unique ID, but for compatibility we use name if ID not set
       return config.request.id || config.request.name
     }),
+    pmSetNextRequest: defineSandboxFn(
+      ctx,
+      "pmSetNextRequest",
+      (requestNameOrId: unknown) => {
+        if (requestNameOrId !== null && typeof requestNameOrId !== "string") {
+          throw new TypeError(
+            "pm.execution.setNextRequest() expects a string or null"
+          )
+        }
+
+        config.setNextRequest(requestNameOrId)
+      }
+    ),
   }
 }

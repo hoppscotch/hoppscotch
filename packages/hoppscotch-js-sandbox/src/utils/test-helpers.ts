@@ -108,6 +108,23 @@ export const runPreRequest = (
     TE.map((x) => x.updatedEnvs)
   )
 
+export const runPreRequestAndGetNextRequest = (
+  script: string,
+  envs: TestResult["envs"],
+  request: ReturnType<typeof getDefaultRESTRequest> = defaultRequest,
+  hoppFetchHook?: HoppFetchHook
+) =>
+  pipe(
+    runPreRequestScript(script, {
+      envs,
+      request,
+      cookies: null,
+      experimentalScriptingSandbox: true,
+      hoppFetchHook,
+    }),
+    TE.map((x) => x.nextRequest)
+  )
+
 /**
  * Run a test script with custom response
  *
@@ -201,4 +218,23 @@ export const runTestAndGetEnvs = (
       experimentalScriptingSandbox: true,
     }),
     TE.map((x: TestResult) => x.envs)
+  )
+
+export const runTestAndGetNextRequest = (
+  script: string,
+  envs: TestResult["envs"],
+  response: TestResponse = fakeResponse,
+  request: ReturnType<typeof getDefaultRESTRequest> = defaultRequest,
+  hoppFetchHook?: HoppFetchHook
+) =>
+  pipe(
+    runTestScript(script, {
+      envs,
+      request,
+      response,
+      cookies: null,
+      experimentalScriptingSandbox: true,
+      hoppFetchHook,
+    }),
+    TE.map((x) => x.nextRequest)
   )

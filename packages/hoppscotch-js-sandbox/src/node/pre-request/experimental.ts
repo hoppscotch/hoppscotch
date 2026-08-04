@@ -22,6 +22,7 @@ const executePreRequestOnCage = async (
   let finalEnvs = envs
   let finalRequest = request
   let finalCookies = cookies
+  let finalNextRequest: string | null | undefined = undefined
 
   const captureHook: {
     capture?: () => void
@@ -39,10 +40,11 @@ const executePreRequestOnCage = async (
         envs: cloneDeep(envs),
         request: cloneDeep(request),
         cookies: cookies ? cloneDeep(cookies) : null,
-        handleSandboxResults: ({ envs, request, cookies }) => {
+        handleSandboxResults: ({ envs, request, cookies, nextRequest }) => {
           finalEnvs = envs
           finalRequest = request
           finalCookies = cookies
+          finalNextRequest = nextRequest
         },
       },
       captureHook
@@ -94,6 +96,7 @@ const executePreRequestOnCage = async (
     updatedEnvs: finalEnvs,
     updatedRequest: finalRequest,
     updatedCookies: finalCookies,
+    nextRequest: finalNextRequest,
   })
 }
 

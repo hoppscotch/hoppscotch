@@ -587,6 +587,19 @@ declare namespace hopp {
     getAll(domain: string): Cookie[]
     delete(domain: string, name: string): void
     clear(domain: string): void
+    /**
+     * Returns a Postman-compatible CookieJar backed by hopp.cookies.
+     * URL inputs are normalized to hostname. Callbacks are Node.js-style (err, result).
+     * Only available on the Desktop App — returns a no-op jar on Web/CLI.
+     */
+    jar(): Readonly<{
+      set(url: string, name: string, value: string, callback?: (err: Error | null) => void): void
+      set(url: string, cookie: Partial<Cookie> & { name: string; value: string }, callback?: (err: Error | null) => void): void
+      get(url: string, name: string, callback: (err: Error | null, value: string | undefined) => void): void
+      getAll(url: string, callback: (err: Error | null, cookies: Cookie[]) => void): void
+      unset(url: string, name: string, callback?: (err: Error | null) => void): void
+      clear(url: string, callback?: (err: Error | null) => void): void
+    }>
   }>
 
   function test(name: string, testFunction: () => void): void
@@ -634,185 +647,8 @@ declare function fetch(
   init?: RequestInit
 ): Promise<Response>
 
+
 declare namespace pm {
-  const environment: Readonly<{
-    get(key: string): string | null
-    set(key: string, value: string): void
-    unset(key: string): void
-    has(key: string): boolean
-    clear(): void
-    toObject(): Record<string, string>
-  }>
-
-  const globals: Readonly<{
-    get(key: string): string | null
-    set(key: string, value: string): void
-    unset(key: string): void
-    has(key: string): boolean
-    clear(): void
-    toObject(): Record<string, string>
-  }>
-
-  const collectionVariables: Readonly<{
-    get(key: string): string | null
-    set(key: string, value: string): void
-    unset(key: string): void
-    has(key: string): boolean
-    clear(): void
-    toObject(): Record<string, string>
-  }>
-
-  const variables: Readonly<{
-    get(key: string): string | null
-    set(key: string, value: string): void
-    unset(key: string): void
-    has(key: string): boolean
-    toObject(): Record<string, string>
-  }>
-
-  const iterationData: Readonly<{
-    get(key: string): any
-    toObject(): Record<string, any>
-  }>
-
-  const request: Readonly<{
-    url: Readonly<{
-      toString(): string
-      protocol: string | null
-      port: string | null
-      path: string[]
-      host: string[]
-      query: Readonly<{
-        has(key: string): boolean
-        get(key: string): string | null
-        toObject(): Record<string, string>
-      }>
-      variables: Readonly<{
-        has(key: string): boolean
-        get(key: string): string | null
-        toObject(): Record<string, string>
-      }>
-      hash: string | null
-      update(url: string): void
-      addQueryParams(params: string | Array<{ key: string; value: string }>): void
-      removeQueryParams(params: string | string[]): void
-    }>
-    headers: Readonly<{
-      has(key: string): boolean
-      get(key: string): string | null
-      toObject(): Record<string, string>
-      add(header: { key: string; value: string }): void
-      remove(key: string): void
-      upsert(header: { key: string; value: string }): void
-    }>
-    method: string
-    body: Readonly<{
-      mode: string
-      raw: string | null
-      urlencoded: Array<{ key: string; value: string }> | null
-      formdata: Array<{ key: string; value: string }> | null
-      file: any | null
-      graphql: any | null
-      toObject(): any
-      update(body: any): void
-    }>
-    auth: any
-    certificate: any
-    proxy: any
-  }>
-
-  const response: Readonly<{
-    code: number
-    status: string
-    headers: Readonly<{
-      has(key: string): boolean
-      get(key: string): string | null
-      toObject(): Record<string, string>
-    }>
-    cookies: Readonly<{
-      has(name: string): boolean
-      get(name: string): Cookie | null
-      toObject(): Record<string, Cookie>
-    }>
-    body: string
-    json(): any
-    text(): string
-    reason(): string
-    responseTime: number
-    responseSize: number
-    dataURI(): string
-  }>
-
-  const cookies: Readonly<{
-    has(name: string): boolean
-    get(name: string): Cookie | null
-    set(name: string, value: string, options?: any): void
-    jar(): any
-  }>
-
-  function test(name: string, fn: () => void): void
-
-  interface PmExpectFunction {
-    (value: any, message?: string): ChaiExpectation
-    fail?: (...args: any[]) => never
-  }
-
-  const expect: PmExpectFunction
-
-  const info: Readonly<{
-    eventName: string
-    iteration: number
-    iterationCount: number
-    requestName: string
-    requestId: string
-  }>
-
-  interface SendRequestCallback {
-    (error: Error | null, response: {
-      code: number
-      status: string
-      headers: {
-        has(key: string): boolean
-        get(key: string): string | null
-      }
-      body: string
-      responseTime: number
-      responseSize: number
-      text(): string
-      json(): any
-      cookies: {
-        has(name: string): boolean
-        get(name: string): any | null
-      }
-    } | null): void
-  }
-
-  function sendRequest(
-    urlOrRequest: string | {
-      url: string
-      method?: string
-      header?: Record<string, string> | Array<{ key: string; value: string }>
-      body?: {
-        mode: 'raw' | 'urlencoded' | 'formdata'
-        raw?: string
-        urlencoded?: Array<{ key: string; value: string }>
-        formdata?: Array<{ key: string; value: string }>
-      }
-    },
-    callback: SendRequestCallback
-  ): void
-
-  const vault: Readonly<{
-    get(key: string): string | null
-    set(key: string, value: string): void
-    unset(key: string): void
-  }>
-
-  const visualizer: Readonly<{
-    set(template: string, data?: any): void
-    clear(): void
-  }>
-}
   const environment: Readonly<{
     readonly name: string
     get(key: string): any
@@ -892,6 +728,11 @@ declare namespace pm {
        * @returns Hostname with port if non-standard or forced
        */
       getRemote(forcePort?: boolean): string
+      /**
+       * Get the base URL for OAuth1 signature (scheme + host + path, no query string). (PM312)
+       * @returns URL string without query parameters
+       */
+      getOAuth1BaseUrl(): string
 
       readonly query: Readonly<{
         /**
@@ -1068,8 +909,20 @@ declare namespace pm {
        * @returns Index of header, or -1 if not found
        */
       indexOf(item: string | { key: string; value: string }): number
+      /**
+       * Get the value of the first header matching the name (case-insensitive). (PM310)
+       * Alias for get().
+       * @param name - Header name
+       * @returns Header value or null if not found
+       */
+      one(name: string): string | null
     }>
-    readonly body: HoppRESTReqBody
+    readonly body: HoppRESTReqBody & {
+      /**
+       * Returns true if the request body is empty or absent. (PM311)
+       */
+      isEmpty(): boolean
+    }
     readonly auth: HoppRESTAuth
   }>
 
@@ -1097,15 +950,39 @@ declare namespace pm {
      * @returns Parsed JSON object from JSONP wrapper
      */
     jsonp(callbackName?: string): any
+    /**
+     * Get response body as raw bytes. In QuickJS returns Uint8Array or falls back to string. (PM313)
+     */
+    blob(): Uint8Array | string
+    /**
+     * Return a plain serialisable snapshot of the response. (PM314)
+     */
+    toJSON(): {
+      code: number
+      status: string
+      responseTime: number
+      headers: HoppRESTResponseHeader[]
+      body: string
+    }
     headers: Readonly<{
       get(name: string): string | null
       has(name: string): boolean
       all(): HoppRESTResponseHeader[]
+      /** Convert all response headers to a key→value object (keys lowercased). (PM305) */
+      toObject(): Record<string, string>
+      /** Iterate over all response headers. (PM306) */
+      each(fn: (header: HoppRESTResponseHeader) => void): void
+      /** Alias for get(name). (PM307) */
+      one(name: string): string | undefined
+      /** Number of response headers. (PM308) */
+      count(): number
     }>
     cookies: Readonly<{
       get(name: string): string | null
       has(name: string): boolean
       toObject(): Record<string, string>
+      /** Iterate over all response cookies as { key, value } objects. (PM309) */
+      each(fn: (cookie: { key: string; value: string }) => void): void
     }>
     to: Readonly<{
       have: Readonly<{
@@ -1153,17 +1030,46 @@ declare namespace pm {
         html(): void
         xml(): void
         text(): void
+        /** Assert 1xx Informational response. (PM301) */
+        info(): void
+        /** Assert 3xx Redirection response. (PM302) */
+        redirection(): void
+        /** Assert 4xx or 5xx Error response. (PM303) */
+        error(): void
+        /** Assert response body is non-empty. (PM304) */
+        withBody(): void
       }>
     }>
   }>
 
   const cookies: Readonly<{
-    get(name: string): any
-    set(name: string, value: string, options?: any): any
-    jar(): never
+    /** Get cookie value for the current request's domain. (PM004) */
+    get(name: string): string | undefined
+    /** Check if a cookie exists for the current request's domain. (PM004) */
+    has(name: string): boolean
+    /** Get all cookies for the current request's domain. (PM004) */
+    getAll(): Cookie[]
+    /** Get all cookies as a key→value object for the current request's domain. (PM004) */
+    toObject(): Record<string, string>
+    /** Returns a Postman-compatible CookieJar. Delegates to hopp.cookies.jar(). (PM004) */
+    jar(): Readonly<{
+      set(url: string, name: string, value: string, callback?: (err: Error | null) => void): void
+      set(url: string, cookie: Partial<Cookie> & { name: string; value: string }, callback?: (err: Error | null) => void): void
+      get(url: string, name: string, callback: (err: Error | null, value: string | undefined) => void): void
+      getAll(url: string, callback: (err: Error | null, cookies: Cookie[]) => void): void
+      unset(url: string, name: string, callback?: (err: Error | null) => void): void
+      clear(url: string, callback?: (err: Error | null) => void): void
+    }>
   }>
 
-  function test(name: string, testFunction: () => void): void
+  const test: {
+    (name: string, testFunction: () => void): void
+    /**
+     * Returns the sequential index (0-based) of the current test block
+     * within this script execution. (PM315)
+     */
+    index(): number
+  }
 
   interface ExpectFunction {
     (value: any): ChaiExpectation
@@ -1194,44 +1100,43 @@ declare namespace pm {
   ): never
 
   /**
-   * Visualizer API (unsupported)
-   * The Postman Visualizer allows you to present response data as HTML templates with styling.
-   * This feature is not supported in Hoppscotch as it requires a browser-based visualization UI.
+   * Postman Visualizer — graceful degradation (PM003).
+   * Hoppscotch has no visual template renderer.
+   * set() logs the data payload to the console; clear() is a no-op.
    * @see https://learning.postman.com/docs/sending-requests/response-data/visualizer/
    */
   const visualizer: Readonly<{
     /**
-     * Set a Handlebars template to visualize response data (unsupported)
-     * @param layout - HTML template string with Handlebars syntax
-     * @param data - Data object to pass to the template
-     * @param options - Optional configuration object
-     * @throws Error - Visualizer is not supported in Hoppscotch
+     * Discard the HTML template; log the data payload to console. (PM003)
+     * @param layout - HTML template string (ignored)
+     * @param data - Data object logged to console
+     * @param options - Optional configuration (ignored)
      */
     set(
       layout: string,
       data?: Record<string, any>,
       options?: Record<string, any>
-    ): never
+    ): void
 
     /**
-     * Clear the current visualization (unsupported)
-     * @throws Error - Visualizer is not supported in Hoppscotch
+     * No-op — visualizer is not supported; silently ignored. (PM003)
      */
-    clear(): never
+    clear(): void
   }>
 
   /**
-   * Collection variables (unsupported - Workspace feature)
-   * Collection variables are not supported in Hoppscotch as they are a Postman Workspace feature
+   * Collection variables — delegated to the active environment scope.
+   * Accepts any value type (string, number, boolean, object, array).
+   * Data written here is shared with pm.environment (same store).
    */
   const collectionVariables: Readonly<{
-    get(key: string): never
-    set(key: string, value: string): never
-    unset(key: string): never
-    has(key: string): never
-    clear(): never
-    toObject(): never
-    replaceIn(template: string): never
+    get(key: string): any
+    set(key: string, value: any): void
+    unset(key: string): void
+    has(key: string): boolean
+    clear(): void
+    toObject(): Record<string, any>
+    replaceIn(template: string): string
   }>
 
   /**
@@ -1245,17 +1150,26 @@ declare namespace pm {
   }>
 
   /**
-   * Iteration data (unsupported - Collection Runner feature)
-   * Iteration data is not supported in Hoppscotch as it requires Collection Runner
+   * Iteration data — delegated to pm.variables / pm.environment. (PM002)
+   * The runner injects each dataset row's keys into the active environment before the request runs.
+   * toObject()/toJSON() read the "row" environment variable (set by the runner as JSON).
    */
   const iterationData: Readonly<{
-    get(key: string): never
-    set(key: string, value: string): never
-    unset(key: string): never
-    has(key: string): never
-    toObject(): never
-    toJSON(): never
+    /** Get a value from the current iteration's data row (reads pm.variables). (PM002) */
+    get(key: string): any
+    /** Check if a key exists in the current iteration's data row. (PM002) */
+    has(key: string): boolean
+    /** Get all data for the current iteration as a plain object. (PM002) */
+    toObject(): Record<string, any>
+    /** Same as toObject() — alias for JSON serialization. (PM002) */
+    toJSON(): Record<string, any>
   }>
+
+  /**
+   * Backward-compatible alias for `pm.execution.setNextRequest()`.
+   * @param requestNameOrId - Name or ID of the next request
+   */
+  function setNextRequest(requestNameOrId: string | null): void
 
   /**
    * Execution control
@@ -1269,19 +1183,28 @@ declare namespace pm {
       readonly current: string
     }
     /**
-     * Set next request to execute (unsupported - Collection Runner feature)
+     * Set the next request to execute in the collection runner.
+     * Pass `null` to stop after the current request.
      * @param requestNameOrId - Name or ID of the next request
      */
-    setNextRequest(requestNameOrId: string | null): never
+    setNextRequest(requestNameOrId: string | null): void
     /**
-     * Skip current request execution (unsupported - Collection Runner feature)
+     * Skip current request — redirects to setNextRequest(null) to abort the flow. (PM005)
+     * Logs a console warning; does not throw.
      */
-    skipRequest(): never
+    skipRequest(): void
     /**
-     * Run a request (unsupported - Collection Runner feature)
-     * @param requestNameOrId - Name or ID of the request to run
+     * Run a named/ID'd request — not supported; logs a console warning and no-ops. (PM006)
+     * Use pm.sendRequest() for extra HTTP calls instead.
+     * @param requestNameOrId - Name or ID of the request to run (logged in warning)
      */
-    runRequest(requestNameOrId: string): never
+    runRequest(requestNameOrId: string): void
+    /**
+     * The total number of iterations scheduled for this run.
+     * Returns 1 in Hoppscotch (single-execution environment).
+     * In Postman Collection Runner this reflects the configured iteration count.
+     */
+    readonly iterationCount: number
   }>
 
   /**

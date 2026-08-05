@@ -124,7 +124,11 @@ function populateValues(
 /**
  * Used to obtain the inherited auth and headers for a given folder path, used for both REST and GraphQL personal collections
  * @param folderPath the path of the folder to cascade the auth from
- * @param type the type of collection
+ * @param type Names the COLLECTION STORE the `folderPath` indexes — NOT the
+ * protocol of the request being opened. "rest" is the unified store
+ * (`restCollectionStore`), which also holds GQL requests as embedded rows, so
+ * a GQL request opened from a unified collection cascades with "rest".
+ * "graphql" is the legacy GQL-only store backing the standalone /graphql page.
  * @param showSecret whether to show secret values in the collection variables
  * @returns the inherited auth and headers for the given folder path
  */

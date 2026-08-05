@@ -543,6 +543,8 @@ const openInNewTab = () => {
           isDirty: false,
           cursorPosition: 0,
           saveContext,
+          // "rest" is correct for a GQL request here: docs only render
+          // unified collections, whose paths index restCollectionStore
           inheritedProperties: cascadeParentCollectionForProperties(
             props.folderPath,
             "rest"

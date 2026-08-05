@@ -276,6 +276,13 @@ export class CookieJarService extends Service {
         const canonized: Cookie = {
           ...c,
           domain: this.canonStoreDomain(c.domain ?? key) || key,
+          // A jar persisted before the host-only flag existed has no
+          // `hostOnly` on its entries. Treating those as non-host-only
+          // keeps the subdomain matching they had before the
+          // upgrade, so an existing cookie whose bucket key is a parent
+          // domain keeps applying to child hosts as before. An entry
+          // that already has the flag keeps its value.
+          hostOnly: typeof c.hostOnly === "boolean" ? c.hostOnly : false,
         }
         // NUL separator matches the `cookieKey` pattern in
         // `RequestRunner.ts`. Empty-string path collapses to
@@ -480,8 +487,9 @@ export class CookieJarService extends Service {
 
   // Normalizes the kernel relay response cookies into the
   // `@hoppscotch/data` shape and merges them. Domain falls back to the
-  // request host (host-only cookie), path to "/", the flags default
-  // off, and SameSite to "Lax" matching the browser default.
+  // request host with the host-only flag set, path to "/", the
+  // httpOnly/secure flags default off, and SameSite to "Lax" matching
+  // the browser default.
   public async extractFromResponse(
     cookies: ResponseCookie[] | undefined,
     requestURL: URL
@@ -494,6 +502,13 @@ export class CookieJarService extends Service {
     const normalized: Cookie[] = []
     for (const c of cookies) {
       let domain: string | null
+      // A Set-Cookie without a Domain attribute is host-only per RFC 6265
+      // 5.3, so it applies to the request host alone. The flag is what
+      // `domainMatches` reads to enforce that, so a
+      // host-only entry stored under a parent host cannot also apply to a
+      // child-host request where a Domain-scoped cookie of the same name
+      // already applies.
+      const hostOnly = !c.domain
       if (c.domain) {
         domain = this.canonAttrDomain(c.domain)
       } else {
@@ -532,6 +547,7 @@ export class CookieJarService extends Service {
         httpOnly: c.httpOnly ?? false,
         secure: c.secure ?? false,
         sameSite: c.sameSite ?? "Lax",
+        hostOnly,
         ...(expires !== undefined ? { expires } : {}),
       })
     }
@@ -637,9 +653,19 @@ export class CookieJarService extends Service {
   // bare `hostname.endsWith(domain)`, which let `evil-example.com`
   // match `example.com` because there was no label boundary. Hosts
   // are lowercased here, stored domains were lowercased on capture,
-  // so the comparison is case-insensitive per RFC 6265 5.1.2.
-  private domainMatches(host: string, domain: string): boolean {
+  // so the comparison is case-insensitive per RFC 6265 5.1.2. A
+  // host-only cookie (RFC 6265 5.4 step 1.1, no Domain attribute on
+  // capture) requires exact host equality so it never applies to a
+  // subdomain of the host that set it.
+  private domainMatches(
+    host: string,
+    domain: string,
+    hostOnly: boolean
+  ): boolean {
     const h = host.toLowerCase()
+    if (hostOnly) {
+      return h === domain
+    }
     return h === domain || h.endsWith(`.${domain}`)
   }
 
@@ -662,11 +688,17 @@ export class CookieJarService extends Service {
     const result: Cookie[] = []
 
     for (const [domain, cookies] of this.cookieJar.value.entries()) {
-      if (!this.domainMatches(url.hostname, domain)) {
-        continue
-      }
-
       for (const cookie of cookies) {
+        // The domain check runs per cookie, not per bucket, because
+        // the host-only flag is a per-cookie property. A bucket can
+        // contain both a host-only entry and a Domain-scoped one, and
+        // only the latter applies to a subdomain request.
+        if (
+          !this.domainMatches(url.hostname, domain, cookie.hostOnly ?? false)
+        ) {
+          continue
+        }
+
         const passesPath = this.pathMatches(url.pathname, cookie.path || "/")
 
         const passesExpires = (() => {

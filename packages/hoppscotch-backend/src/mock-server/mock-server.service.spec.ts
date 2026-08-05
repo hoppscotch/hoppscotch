@@ -2200,6 +2200,28 @@ describe('MockServerService', () => {
       expect(E.isLeft(result)).toBe(true);
     });
 
+    test('matches a large query', async () => {
+      setupMocks([gqlUserRequest]);
+
+      const large = `query GetUser { user { id ${'alias: id '.repeat(
+        5_000,
+      )} } }`;
+
+      const result = await mockServerService.handleMockRequest(
+        dbMockServer,
+        '/graphql',
+        'POST',
+        {},
+        {},
+        { query: large },
+      );
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).body).toBe('{"data":{"user":{"id":"1"}}}');
+      }
+    });
+
     test('anonymous multi-operation document without operationName returns 400 errors body', async () => {
       setupMocks([gqlUserRequest]);
 

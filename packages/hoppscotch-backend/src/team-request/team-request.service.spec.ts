@@ -610,6 +610,54 @@ describe('findRequestAndNextRequest', () => {
 
     expect(result).toEqualLeft(TEAM_REQ_INVALID_TARGET_COLL_ID);
   });
+  test('Should resolve left if the destination collection does not exist when nextRequestID is given', async () => {
+    const args: MoveTeamRequestArgs = {
+      srcCollID: teamRequests[0].collectionID,
+      destCollID: 'non-existent-coll',
+      requestID: teamRequests[0].id,
+      nextRequestID: teamRequests[4].id,
+    };
+
+    mockPrisma.teamRequest.findFirst.mockResolvedValueOnce(dbTeamRequests[0]);
+    mockPrisma.teamCollection.findUnique.mockResolvedValueOnce(null);
+
+    const result = await (teamRequestService as any).findRequestAndNextRequest(
+      args.srcCollID,
+      args.requestID,
+      args.destCollID,
+      args.nextRequestID,
+    );
+
+    expect(result).toEqualLeft(TEAM_INVALID_COLL_ID);
+    // The destination is validated before the nextRequest lookup, so only the
+    // request itself should have been fetched
+    expect(mockPrisma.teamRequest.findFirst).toHaveBeenCalledTimes(1);
+  });
+  test('Should resolve left if the destination collection belongs to a different team when nextRequestID is given', async () => {
+    const args: MoveTeamRequestArgs = {
+      srcCollID: teamRequests[0].collectionID,
+      destCollID: 'cross-team-coll',
+      requestID: teamRequests[0].id,
+      nextRequestID: teamRequests[4].id,
+    };
+
+    mockPrisma.teamRequest.findFirst.mockResolvedValueOnce(dbTeamRequests[0]);
+    mockPrisma.teamCollection.findUnique.mockResolvedValueOnce({
+      ...teamCollection,
+      id: 'cross-team-coll',
+      teamID: 'different-team-id',
+    });
+
+    const result = await (teamRequestService as any).findRequestAndNextRequest(
+      args.srcCollID,
+      args.requestID,
+      args.destCollID,
+      args.nextRequestID,
+    );
+
+    expect(result).toEqualLeft(TEAM_REQ_INVALID_TARGET_COLL_ID);
+    expect(mockPrisma.teamRequest.findFirst).toHaveBeenCalledTimes(1);
+  });
   test('Should resolve left if the request is not found', () => {
     const args: MoveTeamRequestArgs = {
       srcCollID: teamRequests[0].collectionID,

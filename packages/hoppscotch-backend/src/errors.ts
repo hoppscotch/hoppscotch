@@ -190,7 +190,7 @@ export const TEAM_FB_COLL_PATH_RESOLVE_FAIL = 'team/fb_coll_path_resolve_fail';
 export const TEAM_COLL_NOT_FOUND = 'team_coll/collection_not_found';
 
 /**
- * The collection does not have the same parent as the expected parentw
+ * The collection does not have the same parent as the expected parent
  * (TeamCollectionService)
  */
 export const TEAM_COLL_NOT_SAME_PARENT = 'team_coll/not_same_parent';
@@ -226,13 +226,6 @@ export const TEAM_COLL_DEST_SAME =
  */
 export const TEAM_COL_ALREADY_ROOT =
   'team_coll/target_collection_is_already_root_collection';
-
-/**
- * Collections have different parents
- * (TeamCollectionService)
- */
-export const TEAM_COL_NOT_SAME_PARENT =
-  'team_coll/team_collections_have_different_parents';
 
 /**
  * Collection and next Collection are the same

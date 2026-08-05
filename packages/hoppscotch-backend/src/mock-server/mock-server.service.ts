@@ -764,11 +764,17 @@ export class MockServerService {
       // `POST /graphql` from a REST example would start returning 404 on
       // upgrade, with no way back (the divert precedes the
       // `x-mock-response-id`/`-name` override below).
-      const gqlOperation = this.resolveGraphQLOperation(requestBody);
-      if (gqlOperation) {
-        const gqlExamples = this.collectGraphQLExamples(requests);
+      //
+      // The example gate is evaluated FIRST, and deliberately so: collecting
+      // examples is an in-memory pass over rows already fetched above, whereas
+      // parsing allocates an AST several times the size of its input. This
+      // endpoint is public (throttled only), so a mock that could not use the
+      // result should never reach the parser.
+      const gqlExamples = this.collectGraphQLExamples(requests);
+      if (gqlExamples.length > 0) {
+        const gqlOperation = this.resolveGraphQLOperation(requestBody);
 
-        if (gqlExamples.length > 0) {
+        if (gqlOperation) {
           if (E.isLeft(gqlOperation)) {
             // Genuinely GraphQL (parsed) but unresolvable operation —
             // respond per GraphQL-over-HTTP instead of a REST-style 404

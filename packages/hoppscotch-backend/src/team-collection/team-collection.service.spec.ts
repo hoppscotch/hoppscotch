@@ -9,6 +9,7 @@ import {
   TEAM_COLL_INVALID_JSON,
   TEAM_COLL_IS_PARENT_COLL,
   TEAM_COLL_NOT_FOUND,
+  TEAM_COLL_NOT_SAME_PARENT,
   TEAM_COLL_NOT_SAME_TEAM,
   TEAM_COLL_SHORT_TITLE,
   TEAM_COL_ALREADY_ROOT,
@@ -1336,6 +1337,33 @@ describe('updateCollectionOrder', () => {
       childTeamCollection_2.id,
     );
     expect(result).toEqualLeft(TEAM_COLL_NOT_SAME_TEAM);
+  });
+
+  test('should throw TEAM_COLL_NOT_SAME_PARENT if collection and nextCollection have different parents', async () => {
+    // getCollection; both collections belong to the same team but sit under
+    // different parents, so reordering between them is not a valid operation
+    mockPrisma.teamCollection.findUniqueOrThrow
+      .mockResolvedValueOnce(childTeamCollectionList[4])
+      .mockResolvedValueOnce(childTeamCollection_2);
+
+    const result = await teamCollectionService.updateCollectionOrder(
+      childTeamCollectionList[4].id,
+      childTeamCollection_2.id,
+    );
+    expect(result).toEqualLeft(TEAM_COLL_NOT_SAME_PARENT);
+  });
+
+  test('should not reorder when collection and nextCollection have different parents', async () => {
+    mockPrisma.teamCollection.findUniqueOrThrow
+      .mockResolvedValueOnce(childTeamCollectionList[4])
+      .mockResolvedValueOnce(childTeamCollection_2);
+
+    await teamCollectionService.updateCollectionOrder(
+      childTeamCollectionList[4].id,
+      childTeamCollection_2.id,
+    );
+    expect(mockPrisma.$transaction).not.toHaveBeenCalled();
+    expect(mockPubSub.publish).not.toHaveBeenCalled();
   });
 
   test('should successfully update the order of the child TeamCollection list', async () => {

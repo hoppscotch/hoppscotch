@@ -36,6 +36,20 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Backfill: re-fire the trigger so existing rows pick up the new projection
-UPDATE "UserRequest" SET request = request WHERE request IS NOT NULL;
-UPDATE "TeamRequest" SET request = request WHERE request IS NOT NULL;
+-- Backfill: re-fire the trigger so existing rows pick up the new projection.
+--
+-- Scoped to rows that actually carry saved example responses. `request` is
+-- NOT NULL on both tables, so an `IS NOT NULL` guard would filter nothing and
+-- rewrite every request row in the database — a full-table rewrite (plus bloat
+-- and a long lock hold on large self-hosted instances) to recompute a value
+-- that is unchanged for those rows: with no `responses` object the projection
+-- COALESCEs to the same `{"examples": []}` the previous trigger produced.
+UPDATE "UserRequest"
+SET request = request
+WHERE jsonb_typeof(request -> 'responses') = 'object'
+  AND request -> 'responses' <> '{}'::jsonb;
+
+UPDATE "TeamRequest"
+SET request = request
+WHERE jsonb_typeof(request -> 'responses') = 'object'
+  AND request -> 'responses' <> '{}'::jsonb;

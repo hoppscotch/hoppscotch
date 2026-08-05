@@ -409,6 +409,45 @@ describe("CookieJarService", () => {
     })
   })
 
+  describe("captureResponseCookies header fallback", () => {
+    it("parses the Set-Cookie header when structured cookies is undefined", async () => {
+      await service.captureResponseCookies(
+        { headers: { "set-cookie": "sid=abc123; Path=/; HttpOnly" } },
+        "https://example.com/"
+      )
+      const stored = service.getCookiesForURL(new URL("https://example.com/"))
+      expect(stored).toHaveLength(1)
+      expect(stored[0].name).toBe("sid")
+      expect(stored[0].value).toBe("abc123")
+    })
+
+    it("splits newline-joined Set-Cookie headers the agent relay concatenates", async () => {
+      await service.captureResponseCookies(
+        { headers: { "set-cookie": "a=1; Path=/\nb=2; Path=/" } },
+        "https://example.com/"
+      )
+      const stored = service.getCookiesForURL(new URL("https://example.com/"))
+      expect(stored).toHaveLength(2)
+      expect(stored.map((c) => c.name).sort()).toEqual(["a", "b"])
+    })
+
+    it("does not re-parse headers when cookies is a defined empty array", async () => {
+      await service.captureResponseCookies(
+        { cookies: [], headers: { "set-cookie": "sid=abc123; Path=/" } },
+        "https://example.com/"
+      )
+      expect(service.cookieJar.value.size).toBe(0)
+    })
+
+    it("does nothing when cookies is undefined and no Set-Cookie header is present", async () => {
+      await service.captureResponseCookies(
+        { headers: { "content-type": "application/json" } },
+        "https://example.com/"
+      )
+      expect(service.cookieJar.value.size).toBe(0)
+    })
+  })
+
   describe("serializeCookieHeader", () => {
     it("joins `name=value` pairs with `; `", () => {
       expect(

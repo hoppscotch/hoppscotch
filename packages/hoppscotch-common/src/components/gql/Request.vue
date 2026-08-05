@@ -182,34 +182,38 @@ const saveRequest = () => {
   if (saveCtx.originLocation === "user-collection") {
     const req = tab.value.document.request
 
+    if (saveCtx.requestIndex === undefined) {
+      showSaveRequestModal.value = true
+      return
+    }
+
+    // Only the mutation is guarded — post-persist steps must not clear a
+    // save context the store write already honored
     try {
-      if (saveCtx.requestIndex === undefined) {
-        showSaveRequestModal.value = true
-        return
-      }
-
       editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, req)
-
-      // Ensure requestRefID is set in save context for active indicator
-      if (!saveCtx.requestRefID && req._ref_id) {
-        saveCtx.requestRefID = req._ref_id
-      }
-
-      tab.value.document.isDirty = false
-
-      platform.analytics?.logEvent({
-        type: "HOPP_SAVE_REQUEST",
-        platform: "gql",
-        createdNow: false,
-        workspaceType: "personal",
-      })
-
-      toast.success(`${t("request.saved")}`)
-    } catch (_e) {
+    } catch (e) {
       // Stale saveContext — drop it and reopen Save As, same as the REST flow
+      console.error("Stale save context, reopening Save As", e)
       tab.value.document.saveContext = undefined
       saveRequest()
+      return
     }
+
+    // Ensure requestRefID is set in save context for active indicator
+    if (!saveCtx.requestRefID && req._ref_id) {
+      saveCtx.requestRefID = req._ref_id
+    }
+
+    tab.value.document.isDirty = false
+
+    platform.analytics?.logEvent({
+      type: "HOPP_SAVE_REQUEST",
+      platform: "gql",
+      createdNow: false,
+      workspaceType: "personal",
+    })
+
+    toast.success(`${t("request.saved")}`)
   } else if (saveCtx.originLocation === "team-collection") {
     const req = tab.value.document.request
 

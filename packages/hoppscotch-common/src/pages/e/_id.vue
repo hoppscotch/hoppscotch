@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue"
+import { ref, watch, onMounted, onBeforeUnmount } from "vue"
 import { useRoute } from "vue-router"
 import { useGQLQuery } from "~/composables/graphql"
 import {
@@ -63,16 +63,29 @@ import {
 import { useI18n } from "~/composables/i18n"
 
 // Sharer-controlled theme — apply to this embed document only; persisting
-// it via applySetting would write into the viewer's settings store
-const applyEmbedTheme = (theme: "dark" | "light" | "system") => {
-  const resolved =
-    theme === "system"
-      ? window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light"
-      : theme
-  document.documentElement.setAttribute("class", resolved)
+// it via applySetting would write into the viewer's settings store.
+// "system" tracks later OS color-scheme changes via a media listener.
+let systemThemeQuery: MediaQueryList | null = null
+const onSystemThemeChange = (e: MediaQueryListEvent) => {
+  document.documentElement.setAttribute("class", e.matches ? "dark" : "light")
 }
+const applyEmbedTheme = (theme: "dark" | "light" | "system") => {
+  systemThemeQuery?.removeEventListener("change", onSystemThemeChange)
+  systemThemeQuery = null
+  if (theme === "system") {
+    systemThemeQuery = window.matchMedia("(prefers-color-scheme: dark)")
+    systemThemeQuery.addEventListener("change", onSystemThemeChange)
+    document.documentElement.setAttribute(
+      "class",
+      systemThemeQuery.matches ? "dark" : "light"
+    )
+    return
+  }
+  document.documentElement.setAttribute("class", theme)
+}
+onBeforeUnmount(() => {
+  systemThemeQuery?.removeEventListener("change", onSystemThemeChange)
+})
 
 const t = useI18n()
 

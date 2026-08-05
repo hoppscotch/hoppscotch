@@ -295,6 +295,68 @@ export function useAppInitialization() {
     }
   }
 
+  // Only cloud-org and self-hosted (`on-prem`) instances require auth.
+  // `vendored` runs fully offline and `cloud` (default cloud) stays usable
+  // while signed out, so neither can leave the user on a login-required
+  // screen and neither needs an auth probe before resuming.
+  const isAuthRequiringInstance = (instance: Instance): boolean =>
+    instance.kind === "cloud-org" || instance.kind === "on-prem"
+
+  // The auth session for an instance is stored in that instance's webview
+  // (its `localStorage` bearer tokens), a context the launcher window cannot
+  // read, so the launcher cannot verify the session over the network on its
+  // own. Instead the webview records the instance's `serverUrl` under
+  // `instanceAuthFailure` when its auth flow routes to the login-required
+  // screen. Reading and consuming that record here is the launcher's auth
+  // probe, a match means the last resume of this instance ended unable to
+  // authenticate, so resuming again would route straight back to the same
+  // screen with the main window already closed. Returning false lets startup
+  // continue to the vendored app instead, whose header renders the
+  // instance switcher.
+  const probeInstanceAuth = async (instance: Instance): Promise<boolean> => {
+    if (!isAuthRequiringInstance(instance)) return true
+
+    try {
+      const failedUrl = await persistence.instanceAuthFailure.get()
+      if (failedUrl && failedUrl === instance.serverUrl) {
+        // Consume the one-shot record so a later manual reconnect through the
+        // switcher is not blocked once the user re-authenticates.
+        await persistence.instanceAuthFailure.set(null)
+        return false
+      }
+      return true
+    } catch (err) {
+      // A degraded store must not block a resume that would otherwise
+      // succeed, so treat an unreadable record as "no known failure".
+      console.warn("Failed to read instance auth-failure record:", err)
+      return true
+    }
+  }
+
+  // Resume `instance` unless its auth-failure record blocks it. A blocked
+  // resume demotes the persisted state to `idle` and loads the vendored app,
+  // so the user reaches the instance switcher rather than the login-required
+  // screen the failed instance would route to. Returns true once startup is
+  // handled here (resume started, or the vendored redirect ran), and false
+  // when the resume threw so the caller can try the next candidate.
+  const tryResumeInstance = async (instance: Instance): Promise<boolean> => {
+    if (!(await probeInstanceAuth(instance))) {
+      mainDiag(
+        `loadRecent: auth probe failed for ${instance.displayName}, demoting to idle and loading vendored`
+      )
+      await saveConnectionState({ status: "idle" })
+      await loadVendoredInstance()
+      return true
+    }
+    try {
+      await loadVendoredIfMatches(instance)
+      return true
+    } catch (err) {
+      console.warn("Failed to resume instance:", err)
+      return false
+    }
+  }
+
   const loadRecent = async () => {
     try {
       statusMessage.value = "Loading application..."
@@ -322,16 +384,12 @@ export function useAppInitialization() {
               mainDiag(
                 `loadRecent: resuming connected instance: kind=${connectionState.instance.kind}, displayName=${connectionState.instance.displayName}`
               )
+              // A `connected` status persists across restarts, so without the
+              // auth probe in `tryResumeInstance` an auth-gated instance whose
+              // last resume could not authenticate would be resumed again on
+              // every launch, routing back to the login-required screen.
               statusMessage.value = `Connecting to ${connectionState.instance.displayName}...`
-              try {
-                await loadVendoredIfMatches(connectionState.instance)
-                return
-              } catch (err) {
-                console.warn(
-                  "Failed to load previously connected instance:",
-                  err
-                )
-              }
+              if (await tryResumeInstance(connectionState.instance)) return
             }
             break
 
@@ -343,12 +401,7 @@ export function useAppInitialization() {
                 connectionState.target
               )
               if (targetInstance) {
-                try {
-                  await loadVendoredIfMatches(targetInstance)
-                  return
-                } catch (err) {
-                  console.warn("Failed to resume connection:", err)
-                }
+                if (await tryResumeInstance(targetInstance)) return
               }
             }
             break
@@ -367,12 +420,7 @@ export function useAppInitialization() {
 
       if (mostRecentInstance) {
         statusMessage.value = `Connecting to ${mostRecentInstance.displayName}...`
-        try {
-          await loadVendoredIfMatches(mostRecentInstance)
-          return
-        } catch (err) {
-          console.warn("Failed to load most recent instance:", err)
-        }
+        if (await tryResumeInstance(mostRecentInstance)) return
       }
 
       console.log("No recent instances found, loading vendored as fallback")

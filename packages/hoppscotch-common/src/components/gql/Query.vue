@@ -122,6 +122,7 @@ import { toggleNestedSetting } from "~/newstore/settings"
 import { useService } from "dioc/vue"
 import { GQLQueryBuilderService } from "~/services/gql-query-builder.service"
 import type { SubscriptionState } from "~/helpers/graphql/connection"
+import type { AggregateEnvironment } from "~/newstore/environments"
 
 // Template refs
 const queryEditor = ref<any | null>(null)
@@ -134,8 +135,10 @@ const props = withDefaults(
     modelValue: string
     showRunActions?: boolean
     subscriptionState?: SubscriptionState
+    // Embed-only env scope for `<<var>>` highlights
+    envs?: AggregateEnvironment[]
   }>(),
-  { showRunActions: true, subscriptionState: undefined }
+  { showRunActions: true, subscriptionState: undefined, envs: undefined }
 )
 
 const emit = defineEmits<{
@@ -239,6 +242,7 @@ const cmQueryEditor = useCodemirror(
     linter: createGQLQueryLinter(schema),
     completer: queryCompleter(schema),
     environmentHighlights: true,
+    envs: props.envs,
     predefinedVariablesHighlights: true,
     additionalExts: [markRaw(selectedGQLOpHighlight)],
     onUpdate: debouncedOnUpdateQueryState,

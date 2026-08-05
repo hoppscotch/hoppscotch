@@ -193,9 +193,11 @@ const props = withDefaults(
   defineProps<{
     modelValue: HoppRESTAuthJWT
     envs?: AggregateEnvironment[]
+    scopedEnvs?: AggregateEnvironment[]
   }>(),
   {
     envs: undefined,
+    scopedEnvs: undefined,
   }
 )
 
@@ -253,6 +255,7 @@ useCodemirror(
     linter: null,
     completer: null,
     environmentHighlights: true,
+    envs: props.scopedEnvs,
   })
 )
 
@@ -269,6 +272,7 @@ useCodemirror(
     linter: null,
     completer: null,
     environmentHighlights: true,
+    envs: props.scopedEnvs,
   })
 )
 
@@ -287,6 +291,7 @@ Your private key here
     linter: null,
     completer: null,
     environmentHighlights: true,
+    envs: props.scopedEnvs,
   })
 )
 

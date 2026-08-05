@@ -91,6 +91,7 @@ import { refAutoReset, useVModel } from "@vueuse/core"
 import { useToast } from "~/composables/toast"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import type { SubscriptionState } from "~/helpers/graphql/connection"
+import type { AggregateEnvironment } from "~/newstore/environments"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 
@@ -102,8 +103,10 @@ const props = withDefaults(
     modelValue: string
     showRunActions?: boolean
     subscriptionState?: SubscriptionState
+    // Embed-only env scope for `<<var>>` highlights
+    envs?: AggregateEnvironment[]
   }>(),
-  { showRunActions: true, subscriptionState: undefined }
+  { showRunActions: true, subscriptionState: undefined, envs: undefined }
 )
 
 const emit = defineEmits<{
@@ -141,6 +144,7 @@ useCodemirror(
     ),
     completer: null,
     environmentHighlights: true,
+    envs: props.envs,
     predefinedVariablesHighlights: true,
   })
 )

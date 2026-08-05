@@ -10,7 +10,11 @@
       :label="`${t('tab.parameters')}`"
       :info="`${newActiveParamsCount}`"
     >
-      <HttpParameters v-model="request.params" :envs="envs" />
+      <HttpParameters
+        v-model="request.params"
+        :envs="envs"
+        :scoped-envs="scopedEnvs"
+      />
     </HoppSmartTab>
     <HoppSmartTab
       v-if="showTab('bodyParams')"
@@ -22,6 +26,7 @@
         v-model:headers="request.headers"
         v-model:body="request.body"
         :envs="envs"
+        :scoped-envs="scopedEnvs"
         @change-tab="changeOptionTab"
       />
     </HoppSmartTab>
@@ -35,6 +40,7 @@
         v-model="request"
         :inherited-properties="inheritedProperties"
         :envs="envs"
+        :scoped-envs="scopedEnvs"
         @change-tab="changeOptionTab"
       />
     </HoppSmartTab>
@@ -47,6 +53,7 @@
         v-model="request.auth"
         :inherited-properties="inheritedProperties"
         :envs="envs"
+        :scoped-envs="scopedEnvs"
       />
     </HoppSmartTab>
     <HoppSmartTab
@@ -130,9 +137,12 @@ const props = withDefaults(
     properties?: string[]
     inheritedProperties?: HoppInheritedProperty
     envs?: AggregateEnvironment[]
+    // Embed-only codemirror scope — `envs` alone must keep workspace editors live
+    scopedEnvs?: AggregateEnvironment[]
   }>(),
   {
     optionTab: "params",
+    scopedEnvs: undefined,
   }
 )
 

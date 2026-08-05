@@ -154,6 +154,14 @@ const WRAP_LINES = useNestedSetting("WRAP_LINES", "httpParams")
 
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 
+// Declared before `useCodemirror` — its options read props at setup
+const props = defineProps<{
+  modelValue: HoppRESTParam[]
+  envs?: AggregateEnvironment[]
+  // Embed-only codemirror scope — `envs` alone must keep workspace editors live
+  scopedEnvs?: AggregateEnvironment[]
+}>()
+
 useCodemirror(
   bulkEditor,
   bulkParams,
@@ -166,14 +174,10 @@ useCodemirror(
     linter,
     completer: null,
     environmentHighlights: true,
+    envs: props.scopedEnvs,
     predefinedVariablesHighlights: true,
   })
 )
-
-const props = defineProps<{
-  modelValue: HoppRESTParam[]
-  envs?: AggregateEnvironment[]
-}>()
 
 const emit = defineEmits<{
   (e: "update:modelValue", value: Array<HoppRESTParam>): void

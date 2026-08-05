@@ -14,6 +14,7 @@
         v-model="request.query"
         :show-run-actions="showRunActions"
         :subscription-state="subscriptionState"
+        :envs="envs"
         @run-query="runQuery"
         @stop-query="stopQuery"
         @save-request="() => invokeAction('request-response.save')"
@@ -32,6 +33,7 @@
         v-model="request.variables"
         :show-run-actions="showRunActions"
         :subscription-state="subscriptionState"
+        :envs="envs"
         @run-query="runQuery"
         @stop-query="stopQuery"
         @save-request="() => invokeAction('request-response.save')"
@@ -46,6 +48,7 @@
       <GqlHeaders
         v-model="request"
         :inherited-properties="inheritedProperties"
+        :envs="envs"
         @change-tab="changeOptionTab"
       />
     </HoppSmartTab>
@@ -57,6 +60,7 @@
       <GqlAuthorization
         v-model="request.auth"
         :inherited-properties="inheritedProperties"
+        :envs="envs"
       />
     </HoppSmartTab>
     <!-- Script tabs are guarded on the request SHAPE (not just the filter):
@@ -113,6 +117,7 @@ import {
 } from "~/services/gql-tab-connection.service"
 import { HoppTestResult } from "~/helpers/types/HoppTestResult"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { AggregateEnvironment } from "~/newstore/environments"
 import { completePageProgress, startPageProgress } from "~/modules/loadingbar"
 import { platform } from "~/platform"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
@@ -145,6 +150,8 @@ const props = withDefaults(
      * tabs (default for the live editor).
      */
     properties?: string[]
+    // Embed-only env scope; `undefined` uses the global aggregate envs
+    envs?: AggregateEnvironment[]
   }>(),
   {
     response: null,
@@ -154,6 +161,7 @@ const props = withDefaults(
     url: "",
     showRunActions: true,
     properties: undefined,
+    envs: undefined,
   }
 )
 
@@ -282,6 +290,9 @@ const runQuery = async (
       variables: runVariables,
       operationName: runDefinition?.name?.value,
       operationType: runDefinition?.operation ?? "query",
+      // A scoped env list is only ever passed by embeds — isolate their
+      // runs from the viewer's stored environments too
+      isolatedEnvs: props.envs !== undefined,
     })
 
     const duration = Date.now() - startTime

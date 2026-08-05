@@ -70,6 +70,7 @@
           :index="index"
           :entity-id="header.id"
           :entity-active="header.active"
+          :envs="envs"
           :is-active="header.hasOwnProperty('active')"
           :inspection-key-result="getInspectorResult(headerKeyResults, index)"
           :inspection-value-result="
@@ -107,12 +108,14 @@
           <SmartEnvInput
             v-model="header.header.key"
             :placeholder="`${t('count.value', { count: index + 1 })}`"
+            :envs="envs"
             readonly
           />
 
           <SmartEnvInput
             :model-value="mask(header)"
             :placeholder="`${t('count.value', { count: index + 1 })}`"
+            :envs="envs"
             readonly
           />
 
@@ -172,6 +175,7 @@
           <SmartEnvInput
             v-model="header.header.key"
             :placeholder="`${t('count.value', { count: index + 1 })}`"
+            :envs="envs"
             readonly
           />
 
@@ -180,6 +184,7 @@
               header.source === 'auth' ? mask(header) : header.header.value
             "
             :placeholder="`${t('count.value', { count: index + 1 })}`"
+            :envs="envs"
             readonly
           />
           <input
@@ -266,6 +271,7 @@ import {
   getEffectiveVariablesForRequest,
 } from "~/helpers/utils/environments"
 import {
+  AggregateEnvironment,
   aggregateEnvsWithCurrentValue$,
   getAggregateEnvsWithCurrentValue,
 } from "~/newstore/environments"
@@ -298,6 +304,8 @@ type GqlHeadersModel =
 const props = defineProps<{
   modelValue: GqlHeadersModel
   inheritedProperties?: HoppInheritedProperty
+  // Embed-only env scope; omit to use the global aggregate envs
+  envs?: AggregateEnvironment[]
 }>()
 
 const emit = defineEmits<{
@@ -329,6 +337,7 @@ useCodemirror(
     linter: null,
     completer: null,
     environmentHighlights: true,
+    envs: props.envs,
     predefinedVariablesHighlights: true,
   })
 )
@@ -546,13 +555,14 @@ const aggregateEnvs = useReadonlyStream(
 )
 
 // Same precedence as the send path (gql-tab-connection.service): inherited
-// collection variables outrank selected/global env vars.
+// collection variables outrank selected/global env vars. A scoped `envs`
+// prop (embeds) replaces the global aggregate, mirroring http/Headers.
 const resolvedEnvs = computed<Environment["variables"]>(() =>
   filterNonEmptyEnvironmentVariables(
     getEffectiveVariablesForRequest(
       undefined,
       props.inheritedProperties?.variables,
-      aggregateEnvs.value
+      props.envs ?? aggregateEnvs.value
     )
   )
 )

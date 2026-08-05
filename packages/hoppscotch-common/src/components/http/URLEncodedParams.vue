@@ -222,6 +222,8 @@ type Body = HoppRESTReqBody & {
 const props = defineProps<{
   modelValue: Body
   envs: AggregateEnvironment[]
+  // Embed-only codemirror scope — `envs` alone must keep workspace editors live
+  scopedEnvs?: AggregateEnvironment[]
 }>()
 
 const emit = defineEmits<{
@@ -440,6 +442,7 @@ useCodemirror(
     linter,
     completer: null,
     environmentHighlights: true,
+    envs: props.scopedEnvs,
     predefinedVariablesHighlights: true,
   })
 )

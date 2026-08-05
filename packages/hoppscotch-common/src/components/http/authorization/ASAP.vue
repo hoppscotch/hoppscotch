@@ -156,6 +156,7 @@ const t = useI18n()
 const props = defineProps<{
   modelValue: HoppRESTAuthASAP
   envs?: AggregateEnvironment[]
+  scopedEnvs?: AggregateEnvironment[]
 }>()
 
 const emit = defineEmits<{
@@ -181,6 +182,7 @@ useCodemirror(
     linter: JSONLinter,
     completer: null,
     environmentHighlights: true,
+    envs: props.scopedEnvs,
   })
 )
 

@@ -92,6 +92,7 @@
             <SmartEnvInput
               v-model="auth.username"
               :auto-complete-env="true"
+              :envs="envs"
               :placeholder="t('authorization.username')"
             />
           </div>
@@ -99,6 +100,7 @@
             <SmartEnvInput
               v-model="auth.password"
               :auto-complete-env="true"
+              :envs="envs"
               :placeholder="t('authorization.password')"
             />
           </div>
@@ -124,6 +126,7 @@
             <SmartEnvInput
               v-model="auth.token"
               :auto-complete-env="true"
+              :envs="envs"
               placeholder="Token"
             />
           </div>
@@ -133,6 +136,7 @@
             <SmartEnvInput
               v-model="auth.grantTypeInfo.token"
               :auto-complete-env="true"
+              :envs="envs"
               placeholder="Token"
             />
           </div>
@@ -140,13 +144,13 @@
                the generated token + post-redirect back to the unified
                workspace ("/", WorkspaceTabsService — where this GQL tab
                lives); "GraphQL" targets the legacy /graphql page -->
-          <HttpAuthorizationOAuth2 v-model="auth" source="REST" />
+          <HttpAuthorizationOAuth2 v-model="auth" source="REST" :envs="envs" />
         </div>
         <div v-if="auth.authType === 'api-key'">
-          <HttpAuthorizationApiKey v-model="auth" />
+          <HttpAuthorizationApiKey v-model="auth" :envs="envs" />
         </div>
         <div v-if="auth.authType === 'aws-signature'">
-          <HttpAuthorizationAWSSign v-model="auth" />
+          <HttpAuthorizationAWSSign v-model="auth" :envs="envs" />
         </div>
       </div>
       <div
@@ -181,6 +185,7 @@ import { useVModel } from "@vueuse/core"
 import { computed, ref } from "vue"
 
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { AggregateEnvironment } from "~/newstore/environments"
 
 import IconCircle from "~icons/lucide/circle"
 import IconCircleDot from "~icons/lucide/circle-dot"
@@ -203,6 +208,8 @@ const colorMode = useColorMode()
 const props = defineProps<{
   modelValue: HoppGQLAuth
   inheritedProperties?: HoppInheritedProperty
+  // Embed-only env scope; omit to use the global aggregate envs
+  envs?: AggregateEnvironment[]
 }>()
 
 const emit = defineEmits<{

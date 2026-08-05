@@ -335,6 +335,8 @@ const props = defineProps<{
   isCollectionProperty?: boolean
   inheritedProperties?: HoppInheritedProperty
   envs?: AggregateEnvironment[]
+  // Embed-only codemirror scope — `envs` alone must keep workspace editors live
+  scopedEnvs?: AggregateEnvironment[]
 }>()
 
 const emit = defineEmits<{
@@ -356,6 +358,7 @@ useCodemirror(
     linter,
     completer: null,
     environmentHighlights: true,
+    envs: props.scopedEnvs,
     predefinedVariablesHighlights: true,
   })
 )

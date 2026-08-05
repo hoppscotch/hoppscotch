@@ -619,8 +619,11 @@ export function runRESTRequest$(
       !runOptions?.isolatedEnvs
     )
 
-    const [stream, cancelRun] =
-      await createRESTNetworkRequestStream(effectiveRequest)
+    const [stream, cancelRun] = await createRESTNetworkRequestStream(
+      effectiveRequest,
+      // Isolated runs also opt out of the interceptor-level cookie jar
+      { noCookieJar: runOptions?.isolatedEnvs }
+    )
     cancelFunc = cancelRun
 
     const subscription = stream

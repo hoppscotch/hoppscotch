@@ -802,6 +802,10 @@ export class GQLTabConnectionService extends Service {
           { query: getIntrospectionQuery() },
           MediaType.APPLICATION_JSON
         ),
+        // Isolated runs opt out of the interceptor-level cookie jar
+        ...(options.isolatedEnvs
+          ? { meta: { options: { cookies: false } } }
+          : {}),
       }
 
       const { response } = this.interceptorService.execute(kernelRequest)
@@ -1211,13 +1215,21 @@ export class GQLTabConnectionService extends Service {
     }
 
     try {
-      const kernelRequest = await GQLRequest.toRequest(gqlRequest)
+      const kernelRequest: RelayRequest = await GQLRequest.toRequest(gqlRequest)
 
       if (operationName) {
         if (kernelRequest.content?.kind === "json") {
           const jsonContent = kernelRequest.content.content as any
           jsonContent.operationName = operationName
           kernelRequest.content.content = jsonContent
+        }
+      }
+
+      // Isolated runs opt out of the interceptor-level cookie jar
+      if (options.isolatedEnvs) {
+        kernelRequest.meta = {
+          ...kernelRequest.meta,
+          options: { ...kernelRequest.meta?.options, cookies: false },
         }
       }
 

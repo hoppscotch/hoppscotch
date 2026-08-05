@@ -301,7 +301,10 @@ export const resolvesEnvsInBody = (
 export function getFinalBodyFromRequest(
   request: HoppRESTRequest,
   envVariables: Environment["variables"],
-  showKeyIfSecret = false
+  showKeyIfSecret = false,
+  // Isolated runs (embeds) resolve missing body vars to "" — consistent
+  // with how the URL/headers template them
+  keepMissingBodyVars = true
 ): FormData | Blob | string | null {
   if (request.body.contentType === null) return null
 
@@ -391,7 +394,7 @@ export function getFinalBodyFromRequest(
     bodyContent = stripComments(request.body.body ?? "")
 
   // body can be null if the content-type is not set
-  return parseBodyEnvVariables(bodyContent, envVariables)
+  return parseBodyEnvVariables(bodyContent, envVariables, keepMissingBodyVars)
 }
 
 /**
@@ -401,6 +404,9 @@ export function getFinalBodyFromRequest(
  * @param environment The environment to apply
  * @param showKeyIfSecret Whether to show the key if the value is a secret
  * @param showKeyIfNotFound Whether to show the key if the value is not found
+ * @param keepMissingBodyVars Whether missing body vars stay as literal
+ * `<<key>>` (long-standing default); isolated embed runs pass false so the
+ * body resolves them to "" like the URL/headers
  *
  * @returns An object with extra fields defining a complete request
  */
@@ -408,7 +414,8 @@ export async function getEffectiveRESTRequest(
   request: HoppRESTRequest,
   environment: Environment,
   showKeyIfSecret = false,
-  showKeyIfNotFound = false
+  showKeyIfNotFound = false,
+  keepMissingBodyVars = true
 ): Promise<EffectiveHoppRESTRequest> {
   const effectiveFinalHeaders = pipe(
     (
@@ -471,7 +478,8 @@ export async function getEffectiveRESTRequest(
   const effectiveFinalBody = getFinalBodyFromRequest(
     request,
     environment.variables,
-    showKeyIfSecret
+    showKeyIfSecret,
+    keepMissingBodyVars
   )
 
   return {

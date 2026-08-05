@@ -123,6 +123,18 @@ export const waitForBrowserPaint = (): Promise<void> => {
   })
 }
 
+// Empty env state for isolated runs (embeds) — viewer envs must not
+// resolve into a shared request's execution
+export const emptyInitialEnvironmentState = (): InitialEnvironmentState => ({
+  initialGlobalEnvs: [],
+  initialEnvID: "",
+  initialSelectedEnvs: [],
+  initialEnvironmentIndex: { type: "NO_ENV_SELECTED" },
+  initialEnvName: "",
+  initialEnvs: { global: [], selected: [], temp: [] },
+  initialEnvsForComparison: { global: [], selected: [] },
+})
+
 /**
  * Captures the initial environment state before request execution
  * So that we can compare and update environment variables after test script execution
@@ -454,8 +466,25 @@ export const runPostRequestScript = (
   })
 }
 
+/**
+ * Executes the tab's REST request end-to-end: pre-request script, env/auth
+ * templating, network call, then post-request (test) script with env/cookie
+ * writeback and history capture.
+ *
+ * @param tab The tab whose document request is run; response/testResults are
+ * written back onto it
+ * @param runOptions `isolatedEnvs` (embeds) runs with an empty env set and
+ * skips every viewer-store writeback (envs, cookies, history)
+ * @returns A cancel function and a promise of the response stream (`Left` on
+ * script failure or cancellation)
+ */
 export function runRESTRequest$(
-  tab: Ref<HoppTab<HoppRequestDocument>>
+  tab: Ref<HoppTab<HoppRequestDocument>>,
+  runOptions?: {
+    // Embeds: empty env set for templating/scripts, no env/cookie/history
+    // writeback to the viewer's stores
+    isolatedEnvs?: boolean
+  }
 ): [
   () => void,
   Promise<
@@ -471,7 +500,11 @@ export function runRESTRequest$(
     cancelFunc?.()
   }
 
-  const cookieJarEntries = getCookieJarEntries()
+  // Isolated runs never see the viewer's cookie jar — independent of the
+  // platform's cookiesEnabled flag
+  const cookieJarEntries = runOptions?.isolatedEnvs
+    ? null
+    : getCookieJarEntries()
 
   const { request, inheritedProperties } = tab.value.document
 
@@ -503,7 +536,9 @@ export function runRESTRequest$(
     initialEnvName,
     initialEnvs,
     initialEnvsForComparison,
-  } = captureInitialEnvironmentState()
+  } = runOptions?.isolatedEnvs
+    ? emptyInitialEnvironmentState()
+    : captureInitialEnvironmentState()
 
   // Extract inherited scripts from collection hierarchy, filtering out empty/module-prefix-only scripts
   const inheritedScripts = inheritedProperties?.scripts ?? []
@@ -570,12 +605,19 @@ export function runRESTRequest$(
       combineEnvVariables(finalEnvs)
     )
 
-    const effectiveRequest = await getEffectiveRESTRequest(finalRequest, {
-      id: "env-id",
-      v: 2,
-      name: "Env",
-      variables: finalEnvsWithNonEmptyValues,
-    })
+    const effectiveRequest = await getEffectiveRESTRequest(
+      finalRequest,
+      {
+        id: "env-id",
+        v: 2,
+        name: "Env",
+        variables: finalEnvsWithNonEmptyValues,
+      },
+      false,
+      false,
+      // Isolated runs resolve missing body vars to "" like the URL/headers
+      !runOptions?.isolatedEnvs
+    )
 
     const [stream, cancelRun] =
       await createRESTNetworkRequestStream(effectiveRequest)
@@ -585,7 +627,10 @@ export function runRESTRequest$(
       .pipe(filter((res) => res.type === "success" || res.type === "fail"))
       .subscribe(async (res) => {
         if (res.type === "success" || res.type === "fail") {
-          executedResponses$.next(res)
+          // Sole subscriber persists history — skip for isolated runs
+          if (!runOptions?.isolatedEnvs) {
+            executedResponses$.next(res)
+          }
 
           const postRequestScriptResult = await runPostRequestScript(
             preRequestScriptResult.right.updatedEnvs,
@@ -623,8 +668,9 @@ export function runRESTRequest$(
               initialSelectedEnvs
             )
 
-            // Check if scripts actually modified environment variables
+            // Skip env writeback for isolated runs
             if (
+              !runOptions?.isolatedEnvs &&
               hasEnvironmentChanges(
                 initialEnvsForComparison, // Initial environment when request started
                 postRequestScriptResult.right.envs // Final script environment after test script execution

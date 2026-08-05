@@ -49,6 +49,7 @@ import { getAggregateEnvsWithCurrentValue } from "~/newstore/environments"
 import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
 import {
   captureInitialEnvironmentState,
+  emptyInitialEnvironmentState,
   combineEnvVariables,
   delegatePreRequestScriptRunner,
   filterNonEmptyEnvironmentVariables,
@@ -138,6 +139,8 @@ export type ConnectionRequestOptions = {
    * — `<<myCollectionVar>>` defined on a team folder resolves here.
    */
   inheritedVariables?: HoppInheritedProperty["variables"]
+  // Embeds: empty env set for templating/auth/scripts, no store writeback
+  isolatedEnvs?: boolean
 }
 
 export type RunQueryOptions = {
@@ -163,6 +166,8 @@ export type RunQueryOptions = {
   variables: string
   operationName: string | undefined
   operationType: OperationType
+  // Embeds: empty env set for templating/auth/scripts, no store writeback
+  isolatedEnvs?: boolean
 }
 
 type WSGraphQLProtocol = "graphql-transport-ws" | "graphql-ws"
@@ -741,7 +746,7 @@ export class GQLTabConnectionService extends Service {
       // fallback — a variable with only an initial value must not template to ""
       const envVars = filterNonEmptyEnvironmentVariables([
         ...inheritedVarsEnv,
-        ...getAggregateEnvsWithCurrentValue(),
+        ...(options.isolatedEnvs ? [] : getAggregateEnvsWithCurrentValue()),
       ] as Environment["variables"]) as Environment["variables"]
       const effective = getEffectiveHoppGQLRequest(request, envVars, {
         inheritedHeaders,
@@ -953,6 +958,7 @@ export class GQLTabConnectionService extends Service {
             inheritedHeaders: options.inheritedHeaders,
             inheritedAuth: options.inheritedAuth,
             inheritedVariables: options.inheritedVariables,
+            isolatedEnvs: options.isolatedEnvs,
           },
           true
         )
@@ -998,7 +1004,9 @@ export class GQLTabConnectionService extends Service {
     // The sandbox is REST-shaped, so the GQL request rides in as a synthetic
     // POST. The auto-connect above templated with pre-script-free envs —
     // scripts affect the run, not the schema connection.
-    const initialEnvState = captureInitialEnvironmentState()
+    const initialEnvState = options.isolatedEnvs
+      ? emptyInitialEnvironmentState()
+      : captureInitialEnvironmentState()
     let sandboxEnvs = initialEnvState.initialEnvs
     let scriptedHeaders: HoppGQLRequest["headers"] | null = null
 
@@ -1148,8 +1156,10 @@ export class GQLTabConnectionService extends Service {
 
     if (operationType === "subscription") {
       // History gets the RAW options — the resolved URL/query can carry
-      // secrets and query-param auth tokens.
-      this.addQueryToHistory(options, "")
+      // secrets and query-param auth tokens. Skipped for isolated runs.
+      if (!options.isolatedEnvs) {
+        this.addQueryToHistory(options, "")
+      }
       // The tab was disconnected/closed while auth resolved — opening a
       // socket now would contradict the explicit teardown
       if (!runIsCurrent()) {
@@ -1166,8 +1176,9 @@ export class GQLTabConnectionService extends Service {
       }
       // The HTTP path persists pre-script env writes in its post-request
       // stage, which subscriptions never reach — persist here so the same
-      // script behaves identically per operation type
+      // script behaves identically per operation type. Skipped when isolated.
       if (
+        !options.isolatedEnvs &&
         hasEnvironmentChanges(initialEnvState.initialEnvsForComparison, {
           global: sandboxEnvs.global,
           selected: sandboxEnvs.selected,
@@ -1273,7 +1284,10 @@ export class GQLTabConnectionService extends Service {
         },
       }
 
-      this.addQueryToHistory(options, parsedResponse.data)
+      // Skipped for isolated runs
+      if (!options.isolatedEnvs) {
+        this.addQueryToHistory(options, parsedResponse.data)
+      }
 
       // --- Post-request (test) script stage ---
       // Always runs on the HTTP path — its env writeback is also how
@@ -1316,7 +1330,9 @@ export class GQLTabConnectionService extends Service {
             initialEnvState.initialGlobalEnvs,
             initialEnvState.initialSelectedEnvs
           )
+          // Skipped for isolated runs
           if (
+            !options.isolatedEnvs &&
             hasEnvironmentChanges(
               initialEnvState.initialEnvsForComparison,
               testResult.right.envs

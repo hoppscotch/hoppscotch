@@ -661,6 +661,29 @@ export const TestRunnerResultCollectionSchema = z.intersection(
   TestRunnerResultOverlaySchema
 )
 
+// Persisted per-tab GQL response events (unified workspace) — mirrors
+// `GQLResponseEvent` in gql-tab-connection.service. Passthrough keeps the
+// optional fields (`document`, `rawQuery`) without pinning their shapes;
+// the legacy `GQLResponseEventSchema` above can't be reused here — it is
+// `.strict()` and models neither the `type` discriminant nor error events.
+const GQLTabResponseEventSchema = z.union([
+  z
+    .object({
+      type: z.literal("response"),
+      time: z.number(),
+      operationName: z.optional(z.string()),
+      operationType: z.string(),
+      data: z.string(),
+    })
+    .passthrough(),
+  z
+    .object({
+      type: z.literal("error"),
+      error: z.object({ type: z.string(), message: z.string() }).passthrough(),
+    })
+    .passthrough(),
+])
+
 export const WORKSPACE_TABS_STATE_SCHEMA = z
   .object({
     lastActiveTabID: z.string(),
@@ -752,7 +775,11 @@ export const WORKSPACE_TABS_STATE_SCHEMA = z
             isDirty: z.boolean(),
             cursorPosition: z.optional(z.number()),
             saveContext: z.optional(HoppTabSaveContextSchema),
-            response: z.optional(z.nullable(z.array(z.any()))),
+            // Field-level catch: a corrupt persisted response degrades to an
+            // empty panel rather than failing the whole tabs-state parse
+            response: z
+              .optional(z.nullable(z.array(GQLTabResponseEventSchema)))
+              .catch(null),
             responseTabPreference: z.optional(z.string()),
             optionTabPreference: z.optional(
               z.enum([

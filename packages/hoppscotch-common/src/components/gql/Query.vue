@@ -102,6 +102,7 @@ import {
   markRaw,
   watch,
   nextTick,
+  computed,
 } from "vue"
 import { copyToClipboard } from "@helpers/utils/clipboard"
 import { useCodemirror } from "@composables/codemirror"
@@ -242,7 +243,7 @@ const cmQueryEditor = useCodemirror(
     linter: createGQLQueryLinter(schema),
     completer: queryCompleter(schema),
     environmentHighlights: true,
-    envs: props.envs,
+    envs: computed(() => props.envs),
     predefinedVariablesHighlights: true,
     additionalExts: [markRaw(selectedGQLOpHighlight)],
     onUpdate: debouncedOnUpdateQueryState,

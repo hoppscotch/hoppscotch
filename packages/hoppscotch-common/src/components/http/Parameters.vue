@@ -109,7 +109,7 @@ import IconTrash2 from "~icons/lucide/trash-2"
 import IconEdit from "~icons/lucide/edit"
 import IconPlus from "~icons/lucide/plus"
 import IconWrapText from "~icons/lucide/wrap-text"
-import { reactive, ref, watch } from "vue"
+import { reactive, ref, watch, computed } from "vue"
 import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
@@ -174,7 +174,7 @@ useCodemirror(
     linter,
     completer: null,
     environmentHighlights: true,
-    envs: props.scopedEnvs,
+    envs: computed(() => props.scopedEnvs),
     predefinedVariablesHighlights: true,
   })
 )

@@ -96,7 +96,8 @@ type CodeMirrorOptions = {
   environmentHighlights: boolean
 
   // Embed-only env scope for highlights/tooltips/completions; `undefined`
-  // keeps the live tab + global stream. NOTE: Not reactive.
+  // keeps the live tab + global stream. Pass a `computed` into the reactive
+  // options object so scope changes (e.g. request-variable edits) propagate.
   envs?: AggregateEnvironment[]
 
   /**
@@ -157,7 +158,7 @@ const languageCompletionSource =
  * value fallback in the info preview; secrets stay masked.
  */
 const makeEnvCompletionSource =
-  (scopedEnvs?: AggregateEnvironment[]) =>
+  (getScopedEnvs?: () => AggregateEnvironment[] | undefined) =>
   (context: CompletionContext): CompletionResult | null => {
     const tagBefore = context.matchBefore(/<<\$?[A-Za-z0-9_.-]*/)
     if (!tagBefore && !context.explicit) return null
@@ -166,9 +167,9 @@ const makeEnvCompletionSource =
     const textAfter = context.state.sliceDoc(context.pos, context.pos + 2)
     const hasClosingBrackets = textAfter === ">>"
 
-    // A scoped list (embeds) replaces the global store; the getter is called
-    // at fire time so live-editor completions always see fresh values
-    const options = (scopedEnvs ?? getAggregateEnvsWithCurrentValue())
+    // Both the scoped list and the global store are read at fire time so
+    // completions always see fresh values
+    const options = (getScopedEnvs?.() ?? getAggregateEnvsWithCurrentValue())
       .filter((env) => !!env.key)
       .map<Completion>((env) => ({
         label: `<<${env.key}>>`,
@@ -188,12 +189,12 @@ const makeEnvCompletionSource =
 const hoppCompleterExt = (
   completer: Completer | null,
   envComplete: boolean,
-  scopedEnvs?: AggregateEnvironment[]
+  getScopedEnvs?: () => AggregateEnvironment[] | undefined
 ): Extension => {
   return autocompletion({
     override: [
       ...(completer ? [languageCompletionSource(completer)] : []),
-      ...(envComplete ? [makeEnvCompletionSource(scopedEnvs)] : []),
+      ...(envComplete ? [makeEnvCompletionSource(getScopedEnvs)] : []),
     ],
   })
 }
@@ -227,13 +228,13 @@ const hoppLang = (
   linter?: LinterDefinition | undefined,
   completer?: Completer | undefined,
   envComplete = false,
-  scopedEnvs?: AggregateEnvironment[]
+  getScopedEnvs?: () => AggregateEnvironment[] | undefined
 ): Extension | LanguageSupport => {
   const exts: Extension[] = []
 
   exts.push(hoppLinterExt(linter))
   if (completer || envComplete)
-    exts.push(hoppCompleterExt(completer ?? null, envComplete, scopedEnvs))
+    exts.push(hoppCompleterExt(completer ?? null, envComplete, getScopedEnvs))
 
   // Add comment token configuration for JSONC to enable comment toggle
   if (language === jsoncLanguage) {
@@ -345,14 +346,14 @@ const getEditorLanguage = (
   linter: LinterDefinition | undefined,
   completer: Completer | undefined,
   envComplete = false,
-  scopedEnvs?: AggregateEnvironment[]
+  getScopedEnvs?: () => AggregateEnvironment[] | undefined
 ): Extension =>
   hoppLang(
     getLanguage(langMime) ?? undefined,
     linter,
     completer,
     envComplete,
-    scopedEnvs
+    getScopedEnvs
   )
 
 /**
@@ -405,7 +406,11 @@ export function useCodemirror(
   const view = ref<EditorView>()
 
   const environmentTooltip = options.environmentHighlights
-    ? new HoppEnvironmentPlugin(subscribeToStream, view, options.envs)
+    ? new HoppEnvironmentPlugin(
+        subscribeToStream,
+        view,
+        options.envs !== undefined ? () => options.envs : undefined
+      )
     : null
 
   const closeContextMenu = () => {
@@ -558,7 +563,7 @@ export function useCodemirror(
           // and tooltips stay on, the popup stays off
           options.environmentHighlights &&
             !options.extendedEditorConfig.readOnly,
-          options.envs
+          () => options.envs
         )
       ),
       lineWrapping.of(
@@ -702,7 +707,7 @@ export function useCodemirror(
             options.completer ?? undefined,
             options.environmentHighlights &&
               !options.extendedEditorConfig.readOnly,
-            options.envs
+            () => options.envs
           )
         ),
       })

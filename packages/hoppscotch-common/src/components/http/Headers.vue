@@ -358,7 +358,7 @@ useCodemirror(
     linter,
     completer: null,
     environmentHighlights: true,
-    envs: props.scopedEnvs,
+    envs: computed(() => props.scopedEnvs),
     predefinedVariablesHighlights: true,
   })
 )

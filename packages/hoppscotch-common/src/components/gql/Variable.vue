@@ -144,7 +144,7 @@ useCodemirror(
     ),
     completer: null,
     environmentHighlights: true,
-    envs: props.envs,
+    envs: computed(() => props.envs),
     predefinedVariablesHighlights: true,
   })
 )

@@ -255,7 +255,7 @@ useCodemirror(
     linter: null,
     completer: null,
     environmentHighlights: true,
-    envs: props.scopedEnvs,
+    envs: computed(() => props.scopedEnvs),
   })
 )
 
@@ -272,7 +272,7 @@ useCodemirror(
     linter: null,
     completer: null,
     environmentHighlights: true,
-    envs: props.scopedEnvs,
+    envs: computed(() => props.scopedEnvs),
   })
 )
 
@@ -291,7 +291,7 @@ Your private key here
     linter: null,
     completer: null,
     environmentHighlights: true,
-    envs: props.scopedEnvs,
+    envs: computed(() => props.scopedEnvs),
   })
 )
 

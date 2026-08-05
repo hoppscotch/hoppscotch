@@ -364,12 +364,25 @@ export class HoppEnvironmentPlugin {
   constructor(
     subscribeToStream: StreamSubscriberFunc,
     private editorView: Ref<EditorView | undefined>,
-    scopedEnvs?: AggregateEnvironment[]
+    getScopedEnvs?: () => AggregateEnvironment[] | undefined
   ) {
-    // A scoped list (embeds) replaces the live tab/store wiring entirely —
-    // the viewer's stored environments must not highlight or resolve there
-    if (scopedEnvs) {
-      this.envs = scopedEnvs
+    // A scoped getter (embeds) replaces the live tab/store wiring entirely —
+    // the viewer's stored environments must not highlight or resolve there.
+    // Watched so scope changes (e.g. request-variable edits) re-render.
+    if (getScopedEnvs) {
+      watch(
+        () => getScopedEnvs() ?? [],
+        (envs) => {
+          this.envs = envs
+          this.editorView.value?.dispatch({
+            effects: this.compartment.reconfigure([
+              cursorTooltipField(this.envs),
+              environmentHighlightStyle(this.envs),
+            ]),
+          })
+        },
+        { immediate: true, deep: true }
+      )
       return
     }
 

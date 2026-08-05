@@ -32,7 +32,10 @@ import {
   CompletionSource,
   autocompletion,
 } from "@codemirror/autocomplete"
-import { getAggregateEnvsWithCurrentValue } from "~/newstore/environments"
+import {
+  AggregateEnvironment,
+  getAggregateEnvsWithCurrentValue,
+} from "~/newstore/environments"
 import { linter } from "@codemirror/lint"
 import { watch, ref, Ref, onMounted, onBeforeUnmount } from "vue"
 import { javascriptLanguage } from "@codemirror/lang-javascript"
@@ -92,6 +95,10 @@ type CodeMirrorOptions = {
   // NOTE: This property is not reactive
   environmentHighlights: boolean
 
+  // Embed-only env scope for highlights/tooltips/completions; `undefined`
+  // keeps the live tab + global stream. NOTE: Not reactive.
+  envs?: AggregateEnvironment[]
+
   /**
    * Whether or not to highlight predefined variables, such as: `<<$guid>>`.
    * - These are special variables that starts with a dolar sign.
@@ -149,39 +156,44 @@ const languageCompletionSource =
  * aggregate env list (predefined + selected + global) with the current→initial
  * value fallback in the info preview; secrets stay masked.
  */
-const envCompletionSource = (
-  context: CompletionContext
-): CompletionResult | null => {
-  const tagBefore = context.matchBefore(/<<\$?[A-Za-z0-9_.-]*/)
-  if (!tagBefore && !context.explicit) return null
+const makeEnvCompletionSource =
+  (scopedEnvs?: AggregateEnvironment[]) =>
+  (context: CompletionContext): CompletionResult | null => {
+    const tagBefore = context.matchBefore(/<<\$?[A-Za-z0-9_.-]*/)
+    if (!tagBefore && !context.explicit) return null
 
-  // If closing brackets already exist after the cursor, don't re-insert them
-  const textAfter = context.state.sliceDoc(context.pos, context.pos + 2)
-  const hasClosingBrackets = textAfter === ">>"
+    // If closing brackets already exist after the cursor, don't re-insert them
+    const textAfter = context.state.sliceDoc(context.pos, context.pos + 2)
+    const hasClosingBrackets = textAfter === ">>"
 
-  const options = getAggregateEnvsWithCurrentValue()
-    .filter((env) => !!env.key)
-    .map<Completion>((env) => ({
-      label: `<<${env.key}>>`,
-      info: env.secret ? "••••••" : env.currentValue || env.initialValue || "",
-      apply: hasClosingBrackets ? `<<${env.key}` : `<<${env.key}>>`,
-    }))
+    // A scoped list (embeds) replaces the global store; the getter is called
+    // at fire time so live-editor completions always see fresh values
+    const options = (scopedEnvs ?? getAggregateEnvsWithCurrentValue())
+      .filter((env) => !!env.key)
+      .map<Completion>((env) => ({
+        label: `<<${env.key}>>`,
+        info: env.secret
+          ? "••••••"
+          : env.currentValue || env.initialValue || "",
+        apply: hasClosingBrackets ? `<<${env.key}` : `<<${env.key}>>`,
+      }))
 
-  return {
-    from: tagBefore ? tagBefore.from : context.pos,
-    options,
-    validFor: /^(<<\$?[A-Za-z0-9_.-]*)?$/,
+    return {
+      from: tagBefore ? tagBefore.from : context.pos,
+      options,
+      validFor: /^(<<\$?[A-Za-z0-9_.-]*)?$/,
+    }
   }
-}
 
 const hoppCompleterExt = (
   completer: Completer | null,
-  envComplete: boolean
+  envComplete: boolean,
+  scopedEnvs?: AggregateEnvironment[]
 ): Extension => {
   return autocompletion({
     override: [
       ...(completer ? [languageCompletionSource(completer)] : []),
-      ...(envComplete ? [envCompletionSource] : []),
+      ...(envComplete ? [makeEnvCompletionSource(scopedEnvs)] : []),
     ],
   })
 }
@@ -214,13 +226,14 @@ const hoppLang = (
   language: Language | undefined,
   linter?: LinterDefinition | undefined,
   completer?: Completer | undefined,
-  envComplete = false
+  envComplete = false,
+  scopedEnvs?: AggregateEnvironment[]
 ): Extension | LanguageSupport => {
   const exts: Extension[] = []
 
   exts.push(hoppLinterExt(linter))
   if (completer || envComplete)
-    exts.push(hoppCompleterExt(completer ?? null, envComplete))
+    exts.push(hoppCompleterExt(completer ?? null, envComplete, scopedEnvs))
 
   // Add comment token configuration for JSONC to enable comment toggle
   if (language === jsoncLanguage) {
@@ -331,9 +344,16 @@ const getEditorLanguage = (
   langMime: string,
   linter: LinterDefinition | undefined,
   completer: Completer | undefined,
-  envComplete = false
+  envComplete = false,
+  scopedEnvs?: AggregateEnvironment[]
 ): Extension =>
-  hoppLang(getLanguage(langMime) ?? undefined, linter, completer, envComplete)
+  hoppLang(
+    getLanguage(langMime) ?? undefined,
+    linter,
+    completer,
+    envComplete,
+    scopedEnvs
+  )
 
 /**
  * Strips the `export {};\n` prefix from the value for display in the editor.
@@ -385,7 +405,7 @@ export function useCodemirror(
   const view = ref<EditorView>()
 
   const environmentTooltip = options.environmentHighlights
-    ? new HoppEnvironmentPlugin(subscribeToStream, view)
+    ? new HoppEnvironmentPlugin(subscribeToStream, view, options.envs)
     : null
 
   const closeContextMenu = () => {
@@ -537,7 +557,8 @@ export function useCodemirror(
           // Completions can never apply in a read-only editor — highlights
           // and tooltips stay on, the popup stays off
           options.environmentHighlights &&
-            !options.extendedEditorConfig.readOnly
+            !options.extendedEditorConfig.readOnly,
+          options.envs
         )
       ),
       lineWrapping.of(
@@ -680,7 +701,8 @@ export function useCodemirror(
             options.linter ?? undefined,
             options.completer ?? undefined,
             options.environmentHighlights &&
-              !options.extendedEditorConfig.readOnly
+              !options.extendedEditorConfig.readOnly,
+            options.envs
           )
         ),
       })

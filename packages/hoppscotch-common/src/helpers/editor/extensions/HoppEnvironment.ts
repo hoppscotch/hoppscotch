@@ -363,8 +363,16 @@ export class HoppEnvironmentPlugin {
 
   constructor(
     subscribeToStream: StreamSubscriberFunc,
-    private editorView: Ref<EditorView | undefined>
+    private editorView: Ref<EditorView | undefined>,
+    scopedEnvs?: AggregateEnvironment[]
   ) {
+    // A scoped list (embeds) replaces the live tab/store wiring entirely —
+    // the viewer's stored environments must not highlight or resolve there
+    if (scopedEnvs) {
+      this.envs = scopedEnvs
+      return
+    }
+
     // Watch the current active tab to update the variables accordingly
     watch(
       () => workspaceTabs.currentActiveTab.value,

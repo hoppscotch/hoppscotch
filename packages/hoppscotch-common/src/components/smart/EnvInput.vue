@@ -396,7 +396,9 @@ const envVars = computed(() => {
   // If envs are passed directly as props, mask secrets and return them.
   // Keep sourceEnvID: the env tooltip uses it to look up secret/current values
   // for collection-scoped variables (otherwise they show as "Empty").
-  if (props.envs?.length) {
+  // An explicitly-passed EMPTY list scopes to nothing (embeds) — only a
+  // missing prop falls back to the global aggregate envs.
+  if (props.envs) {
     return props.envs.map(
       ({
         key,

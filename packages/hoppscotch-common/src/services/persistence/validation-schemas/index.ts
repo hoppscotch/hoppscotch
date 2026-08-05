@@ -672,7 +672,7 @@ const GQLTabResponseEventSchema = z.union([
       type: z.literal("response"),
       time: z.number(),
       operationName: z.optional(z.string()),
-      operationType: z.string(),
+      operationType: OperationTypeSchema,
       data: z.string(),
     })
     .passthrough(),

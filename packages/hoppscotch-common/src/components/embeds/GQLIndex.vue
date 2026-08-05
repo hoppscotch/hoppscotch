@@ -14,14 +14,16 @@
           :shared-request-u-r-l="sharedRequestURL"
         />
         <div class="flex flex-col flex-1">
+          <!-- In-tab Run/Stop stays enabled — it runs the operation at the
+               cursor, which the top button (first operation only) can't -->
           <GqlRequestOptions
             v-model="tab.document.request"
             v-model:option-tab="selectedOptionTab"
             :tab-id="tab.id"
             :url="tab.document.request.url"
             :response="tab.document.response"
-            :show-run-actions="false"
             :properties="properties"
+            :envs="scopedEnvs"
             @update:response="onResponseUpdate"
           />
         </div>
@@ -48,6 +50,7 @@ import {
   GQLTabConnectionService,
   type GQLResponseEvent,
 } from "~/services/gql-tab-connection.service"
+import type { AggregateEnvironment } from "~/newstore/environments"
 
 // Mirrors components/embeds/index.vue but mounts the GraphQL component
 // tree — GqlRequestOptions for the four-tab editor, gql/Response for the
@@ -60,6 +63,10 @@ const props = defineProps<{
 }>()
 
 const tab = useModel(props, "modelTab")
+
+// Explicitly EMPTY env scope — the viewer's stored environments must not
+// surface anywhere in the embed (GQL requests carry no request variables)
+const scopedEnvs: AggregateEnvironment[] = []
 
 const gqlTabConn = useService(GQLTabConnectionService)
 

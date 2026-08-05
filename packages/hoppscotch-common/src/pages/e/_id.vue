@@ -60,8 +60,19 @@ import {
   HoppGQLRequestDocument,
   HoppRequestDocument,
 } from "~/helpers/tab/document"
-import { applySetting } from "~/newstore/settings"
 import { useI18n } from "~/composables/i18n"
+
+// Sharer-controlled theme — apply to this embed document only; persisting
+// it via applySetting would write into the viewer's settings store
+const applyEmbedTheme = (theme: "dark" | "light" | "system") => {
+  const resolved =
+    theme === "system"
+      ? window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light"
+      : theme
+  document.documentElement.setAttribute("class", resolved)
+}
 
 const t = useI18n()
 
@@ -162,12 +173,8 @@ watch(
 
       if (data.right.shortcode && data.right.shortcode.properties) {
         const parsedProperties = JSON.parse(data.right.shortcode.properties)
-        if (parsedProperties.theme === "dark") {
-          applySetting("BG_COLOR", "dark")
-        } else if (parsedProperties.theme === "light") {
-          applySetting("BG_COLOR", "light")
-        } else if (parsedProperties.theme === "system") {
-          applySetting("BG_COLOR", "system")
+        if (["dark", "light", "system"].includes(parsedProperties.theme)) {
+          applyEmbedTheme(parsedProperties.theme)
         }
         properties.value = parsedProperties.options
       }

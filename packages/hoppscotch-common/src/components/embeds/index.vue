@@ -14,11 +14,14 @@
           :shared-request-u-r-l="sharedRequestURL"
         />
         <div class="flex flex-col flex-1">
+          <!-- Both scopes carry only the shared request's own variables —
+               viewer envs never surface in the embed editors -->
           <HttpRequestOptions
             v-model="tab.document.request"
             v-model:option-tab="selectedOptionTab"
             :properties="properties"
             :envs="tabRequestVariables"
+            :scoped-envs="tabRequestVariables"
           />
         </div>
       </div>

@@ -14,7 +14,12 @@
         <div
           class="flex items-center flex-1 flex-shrink-0 min-w-0 truncate rounded-r"
         >
-          <SmartEnvInput v-model="tab.document.request.url" :readonly="true" />
+          <!-- Empty env scope — viewer envs must not resolve here -->
+          <SmartEnvInput
+            v-model="tab.document.request.url"
+            :envs="[]"
+            :readonly="true"
+          />
         </div>
       </div>
       <div class="flex mt-2 space-x-2 sm:mt-0">
@@ -108,6 +113,8 @@ const runQuery = async () => {
       variables: tab.value.document.request.variables,
       operationName: op?.name?.value,
       operationType: op?.operation ?? "query",
+      // Viewer envs must not resolve into a shared request's execution
+      isolatedEnvs: true,
     })
   } catch (_e) {
     // Connection service routes the error onto the response stream; no

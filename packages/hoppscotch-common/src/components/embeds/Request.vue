@@ -99,7 +99,8 @@ const newSendRequest = async () => {
 
   loading.value = true
 
-  const [cancel, streamPromise] = runRESTRequest$(tab)
+  // Viewer envs must not resolve into a shared request's execution
+  const [cancel, streamPromise] = runRESTRequest$(tab, { isolatedEnvs: true })
   // Store the cancel handle synchronously — `runRESTRequest$` returns it
   // immediately, before the stream resolves. If we waited until after the
   // `await` below, an unmount during that window would leave `onBeforeUnmount`

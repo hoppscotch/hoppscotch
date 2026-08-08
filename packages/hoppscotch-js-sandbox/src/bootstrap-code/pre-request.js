@@ -69,6 +69,26 @@
     })
   })
 
+  // Special handling for requestOptions: support nested mutations via Proxy
+  Object.defineProperty(requestProps, "requestOptions", {
+    enumerable: true,
+    configurable: false,
+    get() {
+      const currentValues = inputs.getRequestProps()
+      const opts = currentValues.requestOptions || {}
+      return new Proxy(opts, {
+        set(target, prop, value) {
+          target[prop] = value
+          inputs.setRequestOptions(target)
+          return true
+        },
+      })
+    },
+    set(_value) {
+      throw new TypeError("hopp.request.requestOptions is read-only")
+    },
+  })
+
   // Freeze the entire requestProps object for additional protection
   Object.freeze(requestProps)
 
@@ -179,10 +199,27 @@
       clear: (domain) => inputs.cookieClear(domain),
     },
     // Expose fetch as hopp.fetch() for explicit access
-    // Note: This exposes the fetch implementation provided by the host environment via hoppFetchHook
-    // (injected in cage.ts during sandbox initialization), not the native browser fetch.
-    // This allows requests to respect interceptor settings.
-    fetch: fetch,
+    // The wrapper reads requestOptions.disableCookies at the time of the call
+    // so that pre-request script mutations are honoured even if the hook was
+    // constructed with the pre-script snapshot.
+    fetch: (function () {
+      const _nativeFetch = fetch
+      return function (input, init) {
+        const currentReqProps = inputs.getRequestProps()
+        const disableCookies =
+          (currentReqProps.requestOptions &&
+            currentReqProps.requestOptions.disableCookies) === true
+        const patchedInit = Object.assign({}, init)
+        // Non-enumerable so user scripts cannot accidentally read or overwrite it
+        Object.defineProperty(patchedInit, "__hoppDisableCookies", {
+          value: disableCookies,
+          enumerable: false,
+          configurable: false,
+          writable: false,
+        })
+        return _nativeFetch(input, patchedInit)
+      }
+    })(),
   }
 
   // Make global fetch() an alias to hopp.fetch()

@@ -34,14 +34,17 @@ export const createHoppFetchHook = (
       timestamp: Date.now(),
     })
 
-    // Extract the marker transmitted across the sandbox bridge.
-    // This enumerable property is stamped by the sandbox wrapper to reflect
-    // the live script-mutated requestOptions.disableCookies value.
+    // Extract the markers transmitted across the sandbox bridge.
     const scriptRequestDisabled = (init as any)?.__hoppDisableCookies
+    const initWasUndefined = (init as any)?.__hoppInitWasUndefined
 
-    // Clean up the marker so it doesn't leak into the relay request or native fetch
-    if (init && "__hoppDisableCookies" in init) {
+    // Clean up the markers so they don't leak into the relay request or native fetch
+    if (init && ("__hoppDisableCookies" in init || "__hoppInitWasUndefined" in init)) {
       delete (init as any).__hoppDisableCookies
+      delete (init as any).__hoppInitWasUndefined
+      if (initWasUndefined) {
+        init = undefined
+      }
     }
 
     // Use the live request-level value if provided by the sandbox, otherwise

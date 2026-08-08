@@ -209,23 +209,19 @@
         const disableCookies =
           (currentReqProps.requestOptions &&
             currentReqProps.requestOptions.disableCookies) === true
-        // Only create a patched init when one was provided; passing an empty
-        // object in place of undefined can alter fetch semantics for some hooks.
         const patchedInit = init !== undefined && init !== null
           ? Object.assign({}, init)
-          : undefined
+          : { __hoppInitWasUndefined: true }
           
-        if (patchedInit !== undefined) {
-          // Enumerable so it survives vm.dump serialization across the sandbox bridge
-          Object.defineProperty(patchedInit, "__hoppDisableCookies", {
-            value: disableCookies,
-            enumerable: true,
-            configurable: false,
-            writable: false,
-          })
-        }
+        // Enumerable so it survives vm.dump serialization across the sandbox bridge
+        Object.defineProperty(patchedInit, "__hoppDisableCookies", {
+          value: disableCookies,
+          enumerable: true,
+          configurable: false,
+          writable: false,
+        })
         
-        return _nativeFetch(input, patchedInit !== undefined ? patchedInit : (disableCookies ? { __hoppDisableCookies: true } : undefined))
+        return _nativeFetch(input, patchedInit)
       }
     })(),
   }

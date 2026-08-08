@@ -496,12 +496,24 @@ export function getSharedEnvMethods(
   }
 }
 
-export const getSharedCookieMethods = (cookies: Cookie[] | null) => {
+export const getSharedCookieMethods = (
+  cookies: Cookie[] | null,
+  getUpdatedRequest?: () => HoppRESTRequest
+) => {
   // Incoming `cookies` specified as `null` indicates unsupported platform
   const cookiesSupported = cookies !== null
   let updatedCookies: Cookie[] = cookies ?? []
 
   const throwIfCookiesUnsupported = () => {
+    if (
+      getUpdatedRequest &&
+      getUpdatedRequest().requestOptions?.disableCookies
+    ) {
+      throw new Error(
+        "Cookies are disabled for this request. Cookie isolation is active."
+      )
+    }
+
     if (cookies === null) {
       throw new Error(
         "Cookies are not supported in the current platform and are exclusive to the Desktop App."

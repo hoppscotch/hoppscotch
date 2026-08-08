@@ -47,12 +47,14 @@ export const createHoppFetchHook = (
       }
     }
 
-    // Use the live request-level value if provided by the sandbox, otherwise
-    // fall back to the static snapshot captured when the hook was created.
+    // If the request started with cookies disabled, a script cannot relax that isolation.
+    // If it started enabled, a script can disable them dynamically.
+    const initialRequestDisabled = cookiePolicy?.requestDisabled ?? false
     const requestDisabled =
-      typeof scriptRequestDisabled === "boolean"
+      initialRequestDisabled ||
+      (typeof scriptRequestDisabled === "boolean"
         ? scriptRequestDisabled
-        : cookiePolicy?.requestDisabled ?? false
+        : false)
 
     // Combine with the global policy: if globally disabled, cookies are disabled
     // regardless of the request-level setting.

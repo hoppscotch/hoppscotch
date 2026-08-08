@@ -359,6 +359,51 @@ describe("Common hopp-fetch", () => {
       )
     })
 
+    it("should not allow script to relax initial request isolation policy", async () => {
+      const hoppFetch = createHoppFetchHook(mockKernelInterceptor, undefined, {
+        globalDisabled: false,
+        requestDisabled: true, // Initial request had cookies disabled
+      })
+
+      // The pre-request script attempts to mutate the request and enable cookies.
+      // This sends an explicit false marker, but the initial restrictive policy should be preserved.
+      await hoppFetch("https://api.example.com/data", {
+        __hoppDisableCookies: false,
+      } as any)
+
+      expect(mockKernelInterceptor.execute).toHaveBeenCalledWith(
+        expect.objectContaining({
+          meta: expect.objectContaining({
+            options: expect.objectContaining({
+              cookies: false, // Cookies MUST remain disabled
+            }),
+          }),
+        })
+      )
+    })
+
+    it("should allow script to dynamically enable isolation when request starts enabled", async () => {
+      const hoppFetch = createHoppFetchHook(mockKernelInterceptor, undefined, {
+        globalDisabled: false,
+        requestDisabled: false, // Initial request has cookies enabled
+      })
+
+      // Script disables cookies
+      await hoppFetch("https://api.example.com/data", {
+        __hoppDisableCookies: true,
+      } as any)
+
+      expect(mockKernelInterceptor.execute).toHaveBeenCalledWith(
+        expect.objectContaining({
+          meta: expect.objectContaining({
+            options: expect.objectContaining({
+              cookies: false, // Cookies became disabled
+            }),
+          }),
+        })
+      )
+    })
+
     it("should handle FormData body", async () => {
       const hoppFetch = createHoppFetchHook(mockKernelInterceptor)
 

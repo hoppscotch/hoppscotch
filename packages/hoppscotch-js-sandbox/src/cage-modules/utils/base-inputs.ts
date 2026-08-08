@@ -35,7 +35,8 @@ export const createBaseInputs = (
   } = getSharedEnvMethods(config.envs, true)
 
   const { methods: cookieMethods, getUpdatedCookies } = getSharedCookieMethods(
-    config.cookies
+    config.cookies,
+    config.getUpdatedRequest
   )
 
   // Get request properties - shared across pre and post request contexts

@@ -13,16 +13,11 @@ import { createPmNamespaceMethods } from "../namespaces/pm-namespace"
 import { createPwNamespaceMethods } from "../namespaces/pw-namespace"
 
 type BaseInputsConfig = {
-  /**
-   * Environment variables typed as TestResult["envs"] for external API compatibility.
-   * At runtime, this will be mutated to contain SandboxValue types (arrays, objects, etc.)
-   * during script execution to support PM namespace compatibility.
-   * See `getSharedEnvMethods()` for detailed explanation of the type flow.
-   */
   envs: TestResult["envs"]
   request: HoppRESTRequest
   cookies: Cookie[] | null
   getUpdatedRequest?: () => HoppRESTRequest
+  setRequestOptions?: SandboxFunction
 }
 
 /**
@@ -104,7 +99,14 @@ export const createBaseInputs = (
 
   // Combine all namespace methods
   const pwMethods = createPwNamespaceMethods(ctx, envMethods, requestProps)
-  const hoppMethods = createHoppNamespaceMethods(ctx, envMethods, requestProps)
+  const hoppMethods = createHoppNamespaceMethods(
+    ctx,
+    envMethods,
+    requestProps,
+    config.setRequestOptions
+      ? { setRequestOptions: config.setRequestOptions }
+      : undefined
+  )
   const pmMethods = createPmNamespaceMethods(ctx, config)
 
   // PM namespace-specific setter that accepts any type (for type preservation)

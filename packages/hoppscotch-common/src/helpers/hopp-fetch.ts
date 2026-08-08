@@ -33,15 +33,14 @@ export const createHoppFetchHook = (
       timestamp: Date.now(),
     })
 
-    // Convert Fetch API request to RelayRequest.
     // `__hoppDisableCookies` is a hidden non-enumerable property stamped by the
     // pre-request sandbox fetch wrapper at call time, so it reflects any
-    // requestOptions.disableCookies mutation made by the script — overriding
-    // the static snapshot captured when the hook was constructed.
+    // requestOptions.disableCookies mutation made by the script.
+    // We OR with the static snapshot so the global "Disable cookies" setting
+    // can never be overridden by a request-level false value from the script.
     const effectiveCookieJarDisabled =
-      typeof (init as any)?.__hoppDisableCookies === "boolean"
-        ? (init as any).__hoppDisableCookies
-        : cookieJarDisabled
+      cookieJarDisabled === true ||
+      (init as any)?.__hoppDisableCookies === true
 
     const relayRequest = await convertFetchToRelayRequest(
       input,

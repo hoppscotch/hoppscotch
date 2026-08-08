@@ -4,6 +4,7 @@ import {
   HoppRESTParams,
   HoppRESTReqBody,
   HoppRESTRequest,
+  HoppRESTRequestOptions,
 } from "@hoppscotch/data"
 import { cloneDeep } from "lodash"
 
@@ -128,6 +129,16 @@ export const getRequestSetterMethods = (request: HoppRESTRequest) => {
     updatedRequest.auth = { ...parseResult.data }
   }
 
+  const setRequestOptions = (newOptions: unknown) => {
+    const parseResult = HoppRESTRequestOptions.safeParse(newOptions)
+
+    if (!parseResult.success) {
+      throw new Error("Invalid requestOptions object")
+    }
+
+    updatedRequest.requestOptions = parseResult.data
+  }
+
   const setRequestVariable = (key: string, value: string) => {
     const reqVarIndex = updatedRequest.requestVariables.findIndex(
       (reqVar) => reqVar.key === key
@@ -154,6 +165,7 @@ export const getRequestSetterMethods = (request: HoppRESTRequest) => {
       setBody,
       setAuth,
       setRequestVariable,
+      setRequestOptions,
     },
     updatedRequest,
   }

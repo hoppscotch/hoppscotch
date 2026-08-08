@@ -10,7 +10,8 @@ import type { EnvAPIOptions } from "~/utils/shared"
 export const createHoppNamespaceMethods = (
   ctx: CageModuleCtx,
   envMethods: EnvMethods,
-  requestProps: RequestProps
+  requestProps: RequestProps,
+  requestSetterMethods?: { setRequestOptions: SandboxFunction }
 ): HoppNamespaceMethods => {
   return {
     // `hopp` namespace environment methods
@@ -71,7 +72,19 @@ export const createHoppNamespaceMethods = (
         get auth() {
           return requestProps.auth
         },
+        get requestOptions() {
+          return requestProps.requestOptions
+        },
       }
     }),
+
+    // Request options setter (only wired in pre-request context)
+    setRequestOptions:
+      requestSetterMethods?.setRequestOptions ??
+      defineSandboxFn(ctx, "setRequestOptions", function () {
+        throw new Error(
+          "hopp.request.requestOptions is read-only in this script context"
+        )
+      }),
   }
 }

@@ -261,6 +261,7 @@ export interface HoppNamespaceMethods {
   envGetInitialRaw: SandboxFunction
   envSetInitial: SandboxFunction
   getRequestProps: SandboxFunction
+  setRequestOptions: SandboxFunction
 }
 
 /**
@@ -321,6 +322,7 @@ export interface RequestSetterMethodsResult {
     setRequestBody: SandboxFunction
     setRequestAuth: SandboxFunction
     setRequestVariable: SandboxFunction
+    setRequestOptions: SandboxFunction
   }
   getUpdatedRequest: () => HoppRESTRequest
 }

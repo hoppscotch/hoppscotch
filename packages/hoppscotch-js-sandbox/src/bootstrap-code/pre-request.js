@@ -209,7 +209,11 @@
         const disableCookies =
           (currentReqProps.requestOptions &&
             currentReqProps.requestOptions.disableCookies) === true
-        const patchedInit = Object.assign({}, init)
+        // Only create a patched init when one was provided; passing an empty
+        // object in place of undefined can alter fetch semantics for some hooks.
+        const patchedInit = init !== undefined && init !== null
+          ? Object.assign({}, init)
+          : {}
         // Non-enumerable so user scripts cannot accidentally read or overwrite it
         Object.defineProperty(patchedInit, "__hoppDisableCookies", {
           value: disableCookies,

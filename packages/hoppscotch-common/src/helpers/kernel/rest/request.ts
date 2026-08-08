@@ -12,8 +12,7 @@ import {
   filterActiveToRecord,
   filterActiveParams,
 } from "~/helpers/functional/filter-active"
-import { settingsStore } from "~/newstore/settings"
-import { getEffectiveCookieJarDisabled } from "~/helpers/RequestRunner"
+import { getEffectiveCookieJarDisabled } from "~/helpers/utils/cookiePolicy"
 
 export const RESTRequest = {
   async toRequest(request: EffectiveHoppRESTRequest): Promise<RelayRequest> {

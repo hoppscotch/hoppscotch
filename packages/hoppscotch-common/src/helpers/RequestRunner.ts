@@ -76,6 +76,7 @@ import {
 import { transformInheritedCollectionVariablesToAggregateEnv } from "./utils/inheritedCollectionVarTransformer"
 import { isJSONContentType } from "./utils/contenttypes"
 import { applyScriptRequestUpdates } from "./experimental-sandbox-integration"
+import { getEffectiveCookieJarDisabled } from "~/helpers/utils/cookiePolicy"
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
 const currentEnvironmentValueService = getService(CurrentValueService)
@@ -352,12 +353,7 @@ const getEnvironmentVariableValue = (
   )
 }
 
-export function getEffectiveCookieJarDisabled(request: HoppRESTRequest): boolean {
-  return (
-    (request.requestOptions?.disableCookies ?? false) ||
-    settingsStore.value.DISABLE_COOKIES
-  )
-}
+
 
 const delegatePreRequestScriptRunner = (
   request: HoppRESTRequest,

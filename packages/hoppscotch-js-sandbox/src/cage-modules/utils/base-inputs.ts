@@ -36,6 +36,7 @@ export const createBaseInputs = (
 
   const { methods: cookieMethods, getUpdatedCookies } = getSharedCookieMethods(
     config.cookies,
+    config.request,
     config.getUpdatedRequest
   )
 

@@ -498,6 +498,7 @@ export function getSharedEnvMethods(
 
 export const getSharedCookieMethods = (
   cookies: Cookie[] | null,
+  request: HoppRESTRequest,
   getUpdatedRequest?: () => HoppRESTRequest
 ) => {
   // Incoming `cookies` specified as `null` indicates unsupported platform
@@ -505,10 +506,8 @@ export const getSharedCookieMethods = (
   let updatedCookies: Cookie[] = cookies ?? []
 
   const throwIfCookiesUnsupported = () => {
-    if (
-      getUpdatedRequest &&
-      getUpdatedRequest().requestOptions?.disableCookies
-    ) {
+    const currentRequest = getUpdatedRequest ? getUpdatedRequest() : request
+    if (currentRequest.requestOptions?.disableCookies) {
       throw new Error(
         "Cookies are disabled for this request. Cookie isolation is active."
       )

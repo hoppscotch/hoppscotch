@@ -1,6 +1,11 @@
 import { CageModuleCtx, defineSandboxFn } from "faraday-cage/modules"
 
-import type { EnvMethods, RequestProps, HoppNamespaceMethods } from "~/types"
+import type {
+  EnvMethods,
+  RequestProps,
+  HoppNamespaceMethods,
+  SandboxFunction,
+} from "~/types"
 import type { EnvAPIOptions } from "~/utils/shared"
 
 /**

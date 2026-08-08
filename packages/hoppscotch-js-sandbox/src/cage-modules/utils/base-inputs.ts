@@ -1,7 +1,7 @@
 import { Cookie, HoppRESTRequest } from "@hoppscotch/data"
 import { CageModuleCtx, defineSandboxFn } from "faraday-cage/modules"
 
-import { TestResult, BaseInputs, SandboxValue } from "~/types"
+import { TestResult, BaseInputs, SandboxValue, SandboxFunction } from "~/types"
 import {
   getSharedCookieMethods,
   getSharedEnvMethods,

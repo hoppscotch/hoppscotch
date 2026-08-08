@@ -1005,5 +1005,9 @@ export const getSharedRequestProps = (
       const currentRequest = getUpdatedRequest ? getUpdatedRequest() : request
       return currentRequest.requestVariables
     },
+    get requestOptions() {
+      const currentRequest = getUpdatedRequest ? getUpdatedRequest() : request
+      return currentRequest.requestOptions
+    },
   }
 }

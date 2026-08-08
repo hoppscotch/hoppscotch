@@ -76,7 +76,10 @@ import {
 import { transformInheritedCollectionVariablesToAggregateEnv } from "./utils/inheritedCollectionVarTransformer"
 import { isJSONContentType } from "./utils/contenttypes"
 import { applyScriptRequestUpdates } from "./experimental-sandbox-integration"
-import { getEffectiveCookieJarDisabled } from "~/helpers/utils/cookiePolicy"
+import {
+  getEffectiveCookieJarDisabled,
+  getCookiePolicy,
+} from "~/helpers/utils/cookiePolicy"
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
 const currentEnvironmentValueService = getService(CurrentValueService)
@@ -395,7 +398,7 @@ const delegatePreRequestScriptRunner = (
   const hoppFetchHook = createHoppFetchHook(
     kernelInterceptorService,
     undefined,
-    getEffectiveCookieJarDisabled(request)
+    getCookiePolicy(request)
   )
 
   return runPreRequestScript(combinedScript, {
@@ -447,7 +450,7 @@ const runPostRequestScript = (
   const hoppFetchHook = createHoppFetchHook(
     kernelInterceptorService,
     undefined,
-    getEffectiveCookieJarDisabled(request)
+    getCookiePolicy(request)
   )
 
   return runTestScript(combinedScript, {

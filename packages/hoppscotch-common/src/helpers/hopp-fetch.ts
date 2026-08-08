@@ -10,12 +10,13 @@ import type { RelayRequest } from "@hoppscotch/kernel"
  *
  * @param kernelInterceptor - The kernel interceptor service instance
  * @param onFetchCall - Optional callback to track fetch calls for inspector warnings
+ * @param cookiePolicy - Snapshots of the global and request-level cookie isolation settings
  * @returns HoppFetchHook implementation
  */
 export const createHoppFetchHook = (
   kernelInterceptor: KernelInterceptorService,
   onFetchCall?: (meta: FetchCallMeta) => void,
-  cookieJarDisabled?: boolean
+  cookiePolicy?: { globalDisabled: boolean; requestDisabled: boolean }
 ): HoppFetchHook => {
   return async (input, init) => {
     const urlStr =
@@ -33,14 +34,27 @@ export const createHoppFetchHook = (
       timestamp: Date.now(),
     })
 
-    // `__hoppDisableCookies` is a hidden non-enumerable property stamped by the
-    // pre-request sandbox fetch wrapper at call time, so it reflects any
-    // requestOptions.disableCookies mutation made by the script.
-    // We OR with the static snapshot so the global "Disable cookies" setting
-    // can never be overridden by a request-level false value from the script.
+    // Extract the marker transmitted across the sandbox bridge.
+    // This enumerable property is stamped by the sandbox wrapper to reflect
+    // the live script-mutated requestOptions.disableCookies value.
+    const scriptRequestDisabled = (init as any)?.__hoppDisableCookies
+
+    // Clean up the marker so it doesn't leak into the relay request or native fetch
+    if (init && "__hoppDisableCookies" in init) {
+      delete (init as any).__hoppDisableCookies
+    }
+
+    // Use the live request-level value if provided by the sandbox, otherwise
+    // fall back to the static snapshot captured when the hook was created.
+    const requestDisabled =
+      typeof scriptRequestDisabled === "boolean"
+        ? scriptRequestDisabled
+        : cookiePolicy?.requestDisabled ?? false
+
+    // Combine with the global policy: if globally disabled, cookies are disabled
+    // regardless of the request-level setting.
     const effectiveCookieJarDisabled =
-      cookieJarDisabled === true ||
-      (init as any)?.__hoppDisableCookies === true
+      (cookiePolicy?.globalDisabled ?? false) || requestDisabled
 
     const relayRequest = await convertFetchToRelayRequest(
       input,

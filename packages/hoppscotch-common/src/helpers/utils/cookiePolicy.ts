@@ -13,3 +13,14 @@ export function getEffectiveCookieJarDisabled(
     settingsStore.value.DISABLE_COOKIES
   )
 }
+
+/**
+ * Evaluates the cookie isolation policy for a request and returns the parts,
+ * preserving provenance so that scripts can override the request-level setting.
+ */
+export function getCookiePolicy(request: HoppRESTRequest) {
+  return {
+    globalDisabled: settingsStore.value.DISABLE_COOKIES,
+    requestDisabled: request.requestOptions?.disableCookies ?? false,
+  }
+}

@@ -213,15 +213,19 @@
         // object in place of undefined can alter fetch semantics for some hooks.
         const patchedInit = init !== undefined && init !== null
           ? Object.assign({}, init)
-          : {}
-        // Non-enumerable so user scripts cannot accidentally read or overwrite it
-        Object.defineProperty(patchedInit, "__hoppDisableCookies", {
-          value: disableCookies,
-          enumerable: false,
-          configurable: false,
-          writable: false,
-        })
-        return _nativeFetch(input, patchedInit)
+          : undefined
+          
+        if (patchedInit !== undefined) {
+          // Enumerable so it survives vm.dump serialization across the sandbox bridge
+          Object.defineProperty(patchedInit, "__hoppDisableCookies", {
+            value: disableCookies,
+            enumerable: true,
+            configurable: false,
+            writable: false,
+          })
+        }
+        
+        return _nativeFetch(input, patchedInit !== undefined ? patchedInit : (disableCookies ? { __hoppDisableCookies: true } : undefined))
       }
     })(),
   }

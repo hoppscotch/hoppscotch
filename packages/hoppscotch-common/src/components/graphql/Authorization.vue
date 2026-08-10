@@ -296,7 +296,7 @@ const authTypes: AuthType[] = [
   },
   {
     key: "bearer",
-    label: "Bearer",
+    label: "Bearer Token",
   },
   {
     key: "oauth-2",
@@ -317,7 +317,7 @@ const authTypes: AuthType[] = [
 
 const AUTH_KEY_NAME: Record<HoppGQLAuth["authType"], string> = {
   basic: "Basic Auth",
-  bearer: "Bearer",
+  bearer: "Bearer Token",
   "oauth-2": "OAuth 2.0",
   "api-key": "API key",
   none: "None",

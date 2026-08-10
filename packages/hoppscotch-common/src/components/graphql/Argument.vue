@@ -56,7 +56,7 @@
 <script setup lang="ts">
 import type { GraphQLArgument } from "graphql"
 import { useQuery } from "~/helpers/graphql/query"
-import { debounce } from "lodash-es"
+import { debounce } from "es-toolkit/compat"
 import { useExplorer } from "~/helpers/graphql/explorer"
 
 const { handleAddArgument, isArgumentInOperation } = useQuery()

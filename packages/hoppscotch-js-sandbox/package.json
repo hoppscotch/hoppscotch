@@ -56,13 +56,11 @@
   "license": "MIT",
   "dependencies": {
     "@hoppscotch/data": "workspace:^",
-    "@types/lodash-es": "4.17.12",
     "acorn": "8.17.0",
     "chai": "6.2.2",
+    "es-toolkit": "^1.39.0",
     "faraday-cage": "0.1.0",
-    "fp-ts": "2.16.11",
-    "lodash": "4.18.1",
-    "lodash-es": "4.18.1"
+    "fp-ts": "2.16.11"
   },
   "devDependencies": {
     "@digitak/esrun": "3.2.26",
@@ -71,7 +69,6 @@
     "@relmify/jest-fp-ts": "2.1.1",
     "@types/chai": "5.2.3",
     "@types/jest": "30.0.0",
-    "@types/lodash": "4.17.24",
     "@types/node": "24.10.1",
     "@typescript-eslint/eslint-plugin": "8.64.0",
     "@typescript-eslint/parser": "8.64.0",

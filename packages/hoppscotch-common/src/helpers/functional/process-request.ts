@@ -2,7 +2,7 @@ import type { RelayRequest } from "@hoppscotch/kernel"
 import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep } from "es-toolkit/compat"
 import superjson from "superjson"
 
 import { useSetting } from "~/composables/settings"

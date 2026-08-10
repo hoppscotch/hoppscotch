@@ -5,7 +5,7 @@ import {
   defineSandboxFn,
   defineSandboxObject,
 } from "faraday-cage/modules"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep } from "es-toolkit/compat"
 
 import { getStatusReason } from "~/constants/http-status-codes"
 import { BaseInputs, TestDescriptor, TestResponse, TestResult } from "~/types"

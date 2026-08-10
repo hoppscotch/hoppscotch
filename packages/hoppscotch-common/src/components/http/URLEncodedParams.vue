@@ -188,7 +188,7 @@ import IconCircle from "~icons/lucide/circle"
 import IconTrash from "~icons/lucide/trash"
 import IconWrapText from "~icons/lucide/wrap-text"
 import { computed, reactive, ref, watch } from "vue"
-import { isEqual, cloneDeep } from "lodash-es"
+import { isEqual, cloneDeep } from "es-toolkit/compat"
 import {
   HoppRESTReqBody,
   parseRawKeyValueEntries,

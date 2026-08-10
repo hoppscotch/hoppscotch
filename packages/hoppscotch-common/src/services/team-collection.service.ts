@@ -1,7 +1,7 @@
 import * as E from "fp-ts/Either"
 import { Subscription } from "rxjs"
 import { HoppCollectionVariable, translateToNewRequest } from "@hoppscotch/data"
-import { pull, remove } from "lodash-es"
+import { pull, remove } from "es-toolkit/compat"
 import { Subscription as WSubscription } from "wonka"
 import {
   RootCollectionsOfTeamDocument,

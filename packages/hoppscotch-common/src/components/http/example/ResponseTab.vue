@@ -18,7 +18,7 @@
 <script setup lang="ts">
 import { watch, ref, computed } from "vue"
 import { useVModel } from "@vueuse/core"
-import { cloneDeep, isEqual } from "lodash-es"
+import { cloneDeep, isEqual } from "es-toolkit/compat"
 import { HoppTab } from "~/services/tab"
 import { HoppSavedExampleDocument } from "~/helpers/rest/document"
 import { RESTOptionTabs } from "../RequestOptions.vue"

@@ -1,4 +1,4 @@
-import { clone } from "lodash-es"
+import { clone } from "es-toolkit/compat"
 /**
  * Sorts the array based on the sort func.
  * NOTE: Creates a new array, if you don't need ref

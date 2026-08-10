@@ -257,7 +257,7 @@ import {
   HoppRESTReqBody,
   parseRawKeyValueEntriesE,
 } from "@hoppscotch/data"
-import { isEqual, clone } from "lodash-es"
+import { isEqual, clone } from "es-toolkit/compat"
 import draggable from "vuedraggable-es"
 import { pluckRef } from "@composables/ref"
 import { useI18n } from "@composables/i18n"

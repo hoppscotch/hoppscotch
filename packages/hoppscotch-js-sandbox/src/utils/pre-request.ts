@@ -5,7 +5,7 @@ import {
   HoppRESTReqBody,
   HoppRESTRequest,
 } from "@hoppscotch/data"
-import { cloneDeep } from "lodash"
+import { cloneDeep } from "es-toolkit/compat"
 
 export const getRequestSetterMethods = (request: HoppRESTRequest) => {
   // Clone to allow safe mutations internally

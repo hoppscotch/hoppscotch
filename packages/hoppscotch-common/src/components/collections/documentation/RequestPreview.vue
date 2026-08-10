@@ -104,7 +104,7 @@ import { RESTTabService } from "~/services/tab/rest"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { DocumentationService } from "~/services/documentation.service"
 import { cascadeParentCollectionForProperties } from "~/newstore/collections"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep } from "es-toolkit/compat"
 import { getEffectiveRESTRequest } from "~/helpers/utils/EffectiveURL"
 import {
   AggregateEnvironment,

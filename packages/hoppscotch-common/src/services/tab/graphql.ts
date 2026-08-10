@@ -1,4 +1,4 @@
-import { isEqual } from "lodash-es"
+import { isEqual } from "es-toolkit/compat"
 import { getDefaultGQLRequest } from "~/helpers/graphql/default"
 import { HoppGQLDocument, HoppGQLSaveContext } from "~/helpers/graphql/document"
 import { TabService } from "./tab"

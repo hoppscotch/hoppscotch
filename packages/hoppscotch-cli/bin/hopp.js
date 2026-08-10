@@ -5,7 +5,7 @@
 import chalk from "chalk";
 import { spawnSync } from "child_process";
 import fs from "fs";
-import { cloneDeep } from "lodash-es";
+import { cloneDeep } from "es-toolkit/compat";
 import semver from "semver";
 import { fileURLToPath } from "url";
 

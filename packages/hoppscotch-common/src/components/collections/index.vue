@@ -322,7 +322,7 @@ import * as O from "fp-ts/Option"
 import { flow } from "fp-ts/function"
 
 import yaml from "js-yaml"
-import { cloneDeep, debounce, isEqual } from "lodash-es"
+import { cloneDeep, debounce, isEqual } from "es-toolkit/compat"
 import { PropType, computed, nextTick, onMounted, ref, watch } from "vue"
 import { useReadonlyStream } from "~/composables/stream"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"

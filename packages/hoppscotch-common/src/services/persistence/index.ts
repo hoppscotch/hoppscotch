@@ -5,7 +5,7 @@ import { z } from "zod"
 
 import { Service } from "dioc"
 import { StorageLike, watchDebounced } from "@vueuse/core"
-import { assign, clone, isEmpty, cloneDeep } from "lodash-es"
+import { assign, clone, isEmpty, cloneDeep } from "es-toolkit/compat"
 
 import {
   GlobalEnvironmentVariable,

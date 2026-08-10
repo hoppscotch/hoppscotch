@@ -17,7 +17,7 @@ import {
   getIntrospectionQuery,
   printSchema,
 } from "graphql"
-import { clone } from "lodash-es"
+import { clone } from "es-toolkit/compat"
 import { Component, computed, reactive, ref } from "vue"
 import { useToast } from "~/composables/toast"
 import { getService } from "~/modules/dioc"

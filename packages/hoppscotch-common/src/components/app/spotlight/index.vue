@@ -88,7 +88,7 @@
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { useService } from "dioc/vue"
-import { isEqual } from "lodash-es"
+import { isEqual } from "es-toolkit/compat"
 import { computed, ref, watch } from "vue"
 import { platform } from "~/platform"
 import { HoppSpotlightSessionEventData } from "~/platform/analytics"

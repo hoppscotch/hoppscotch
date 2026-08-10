@@ -61,7 +61,7 @@ import { HoppGQLAuth, HoppGQLRequest } from "@hoppscotch/data"
 import { computedWithControl, useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import * as gql from "graphql"
-import { clone } from "lodash-es"
+import { clone } from "es-toolkit/compat"
 import { computed, ref, watch } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
 import {

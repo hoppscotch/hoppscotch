@@ -8,7 +8,7 @@ import {
 } from "@hoppscotch/data"
 import { watchDebounced } from "@vueuse/core"
 import { TestContainer } from "dioc/testing"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep } from "es-toolkit/compat"
 import superjson from "superjson"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 

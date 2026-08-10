@@ -1,6 +1,6 @@
 import { ConsoleEntry } from "faraday-cage/modules"
 import * as E from "fp-ts/Either"
-import { cloneDeep } from "lodash"
+import { cloneDeep } from "es-toolkit/compat"
 import {
   HoppFetchHook,
   RunPreRequestScriptOptions,

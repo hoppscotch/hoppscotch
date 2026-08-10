@@ -61,7 +61,7 @@ import { computed, onBeforeMount, ref } from "vue"
 import { ShortcutDef, getShortcuts } from "~/helpers/shortcuts"
 import MiniSearch from "minisearch"
 import { useI18n } from "@composables/i18n"
-import { groupBy, isEmpty } from "lodash-es"
+import { groupBy, isEmpty } from "es-toolkit/compat"
 
 const t = useI18n()
 

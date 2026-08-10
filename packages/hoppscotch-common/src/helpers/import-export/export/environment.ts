@@ -1,6 +1,6 @@
 import { Environment } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep } from "es-toolkit/compat"
 
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import { stripClientLocalValuesForWire } from "~/helpers/clientLocalVariables"

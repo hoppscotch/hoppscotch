@@ -4,7 +4,7 @@ import {
   GlobalEnvironmentVariable,
   HOPP_SUPPORTED_PREDEFINED_VARIABLES,
 } from "@hoppscotch/data"
-import { cloneDeep, isEqual } from "lodash-es"
+import { cloneDeep, isEqual } from "es-toolkit/compat"
 import { combineLatest, Observable } from "rxjs"
 import { distinctUntilChanged, map, pluck } from "rxjs/operators"
 import { uniqueID } from "~/helpers/utils/uniqueID"

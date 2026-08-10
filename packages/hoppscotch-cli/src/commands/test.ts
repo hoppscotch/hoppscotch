@@ -1,5 +1,5 @@
 import fs from "fs";
-import { isSafeInteger } from "lodash-es";
+import { isSafeInteger } from "es-toolkit/compat";
 import Papa from "papaparse";
 import path from "path";
 

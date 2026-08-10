@@ -138,7 +138,7 @@ import {
 } from "~/helpers/utils/environments"
 
 import { useService } from "dioc/vue"
-import cloneDeep from "lodash-es/cloneDeep"
+import { cloneDeep } from "es-toolkit/compat"
 import { onMounted } from "vue"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"

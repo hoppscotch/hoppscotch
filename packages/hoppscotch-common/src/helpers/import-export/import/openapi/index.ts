@@ -32,7 +32,7 @@ import * as TE from "fp-ts/TaskEither"
 import * as RA from "fp-ts/ReadonlyArray"
 import * as E from "fp-ts/Either"
 import { IMPORTER_INVALID_FILE_FORMAT } from ".."
-import { cloneDeep } from "lodash-es"
+import { cloneDeep } from "es-toolkit/compat"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
 import { isNumeric } from "~/helpers/utils/number"
 import {

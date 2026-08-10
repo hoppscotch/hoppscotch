@@ -1,4 +1,4 @@
-import { clone, cloneDeep } from 'lodash-es';
+import { clone, cloneDeep } from "es-toolkit/compat";
 import { Observable, Subscription } from 'rxjs';
 import { customRef, onBeforeUnmount, readonly, Ref } from 'vue';
 

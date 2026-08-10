@@ -161,7 +161,7 @@
 
 <script setup lang="ts">
 import { nextTick, onMounted, ref } from "vue"
-import { clone, cloneDeep } from "lodash-es"
+import { clone, cloneDeep } from "es-toolkit/compat"
 import {
   graphqlCollections$,
   addGraphqlFolder,

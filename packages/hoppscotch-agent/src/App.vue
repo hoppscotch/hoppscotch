@@ -88,7 +88,7 @@ import { listen } from "@tauri-apps/api/event"
 import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as TE from "fp-ts/TaskEither"
-import { orderBy } from "lodash-es"
+import { orderBy } from "es-toolkit/compat"
 
 interface Registration {
   auth_key_hash: string

@@ -20,7 +20,7 @@
 
 <script setup lang="ts">
 import { type ExplorerFieldDef, useExplorer } from "~/helpers/graphql/explorer"
-import { debounce } from "lodash-es"
+import { debounce } from "es-toolkit/compat"
 
 const props = withDefaults(
   defineProps<{

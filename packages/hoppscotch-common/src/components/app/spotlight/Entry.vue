@@ -70,7 +70,7 @@ const SPECIAL_KEY_CHARS: Record<string, string> = {
 
 <script setup lang="ts">
 import { computed, watch, ref } from "vue"
-import { capitalize } from "lodash-es"
+import { capitalize } from "es-toolkit/compat"
 import { getPlatformAlternateKey } from "~/helpers/platformutils"
 
 const el = ref<HTMLElement>()

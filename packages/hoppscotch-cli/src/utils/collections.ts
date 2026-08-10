@@ -3,7 +3,7 @@ import chalk from "chalk";
 import { log } from "console";
 import * as A from "fp-ts/Array";
 import { pipe } from "fp-ts/function";
-import { round } from "lodash-es";
+import { round } from "es-toolkit/compat";
 
 import { CollectionRunnerParam } from "../types/collections";
 import {

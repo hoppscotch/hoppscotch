@@ -1,6 +1,6 @@
 import * as TE from "fp-ts/TaskEither"
 import { BehaviorSubject, Observable } from "rxjs"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep } from "es-toolkit/compat"
 import { HoppRESTResponse } from "./types/HoppRESTResponse"
 import { EffectiveHoppRESTRequest } from "./utils/EffectiveURL"
 import { getService } from "~/modules/dioc"

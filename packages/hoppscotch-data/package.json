@@ -35,15 +35,14 @@
   },
   "homepage": "https://github.com/hoppscotch/hoppscotch#readme",
   "devDependencies": {
-    "@types/lodash": "4.17.24",
     "typescript": "5.9.3",
     "vite": "7.3.2"
   },
   "dependencies": {
+    "es-toolkit": "^1.39.0",
     "fp-ts": "2.16.11",
     "io-ts": "2.2.22",
     "jose": "6.2.3",
-    "lodash": "4.18.1",
     "parser-ts": "0.7.0",
     "uuid": "13.0.0",
     "verzod": "0.4.0",

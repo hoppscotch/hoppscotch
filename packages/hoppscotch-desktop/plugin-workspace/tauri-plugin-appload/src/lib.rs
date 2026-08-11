@@ -11,11 +11,18 @@
     html_favicon_url = "https://github.com/<Placeholder>/<Placeholder>/raw/main/packages/app/public/favicon.ico"
 )]
 
-use std::sync::Arc;
+use std::path::PathBuf;
+use std::sync::{Arc, OnceLock};
 use tauri::{
     plugin::{Builder, Plugin, TauriPlugin},
     Manager, Runtime,
 };
+
+// log directory for the plugin-level diagnostic logger (commands::diag_log).
+// set once during plugin init from Config::log_dir. a OnceLock because
+// diag_log is a free function called from command handlers that don't
+// carry the config around
+static DIAG_LOG_DIR: OnceLock<PathBuf> = OnceLock::new();
 
 pub use config::Config;
 pub use config::{ApiConfig, CacheConfig, StorageConfig};
@@ -56,6 +63,10 @@ pub fn init<R: Runtime>(config: Config) -> TauriPlugin<R> {
         .setup(move |app, api| {
             tracing::info!("Initializing appload plugin");
 
+            if let Some(log_dir) = &config.log_dir {
+                let _ = DIAG_LOG_DIR.set(log_dir.clone());
+            }
+
             tracing::debug!("Using provided configuration settings.");
             let storage_root = config.storage.root_dir.clone();
 
@@ -95,7 +106,11 @@ pub fn init<R: Runtime>(config: Config) -> TauriPlugin<R> {
             ));
 
             tracing::debug!("Setting up bundle loader.");
-            let bundle_loader = Arc::new(bundle::BundleLoader::new(cache.clone(), storage.clone()));
+            let bundle_loader = Arc::new(bundle::BundleLoader::new(
+                cache.clone(),
+                storage.clone(),
+                config.api.timeout,
+            ));
 
             tracing::debug!("Initializing host mapper.");
             let host_mapper = Arc::new(mapping::HostMapper::new());

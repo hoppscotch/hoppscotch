@@ -20,26 +20,21 @@ import {
 import {
   ALL_CONFIGS,
   CUSTOM_MAIL_CONFIGS,
-  ConfigSection,
   ConfigTransform,
   GITHUB_CONFIGS,
   GOOGLE_CONFIGS,
   MAIL_CONFIGS,
   MICROSOFT_CONFIGS,
   MOCK_SERVER_CONFIGS,
+  PROXY_URL_CONFIGS,
   ServerConfigs,
-  TOKEN_VALIDATION_CONFIGS,
   UpdatedConfigs,
+  isFieldEmpty,
+  isValidSessionCookieName,
 } from '~/helpers/configs';
 import { getCompiledErrorMessage } from '~/helpers/errors';
 import { useToast } from './toast';
 import { useClientHandler } from './useClientHandler';
-
-const COOKIE_NAME_REGEX = /^[A-Za-z0-9_-]+$/;
-
-const OPTIONAL_TOKEN_FIELD_KEYS = new Set(
-  TOKEN_VALIDATION_CONFIGS.filter((cfg) => cfg.optional).map((cfg) => cfg.key)
-);
 
 /** Composable that handles all operations related to server configurations
  * @param updatedConfigs A Config Object containing the updated configs
@@ -137,11 +132,30 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
           ),
           mailer_smtp_secure:
             getFieldValue(InfraConfigEnum.MailerSmtpSecure) === 'true',
+          mailer_smtp_ignore_tls:
+            getFieldValue(InfraConfigEnum.MailerSmtpIgnoreTls) === 'true',
           mailer_tls_reject_unauthorized:
             getFieldValue(InfraConfigEnum.MailerTlsRejectUnauthorized) ===
             'true',
           mailer_use_custom_configs:
             getFieldValue(InfraConfigEnum.MailerUseCustomConfigs) === 'true',
+          mailer_smtp_auth_type:
+            getFieldValue(InfraConfigEnum.MailerSmtpAuthType) || 'login',
+          mailer_smtp_oauth2_user: getFieldValue(
+            InfraConfigEnum.MailerSmtpOauth2User
+          ),
+          mailer_smtp_oauth2_client_id: getFieldValue(
+            InfraConfigEnum.MailerSmtpOauth2ClientId
+          ),
+          mailer_smtp_oauth2_client_secret: getFieldValue(
+            InfraConfigEnum.MailerSmtpOauth2ClientSecret
+          ),
+          mailer_smtp_oauth2_refresh_token: getFieldValue(
+            InfraConfigEnum.MailerSmtpOauth2RefreshToken
+          ),
+          mailer_smtp_oauth2_access_url: getFieldValue(
+            InfraConfigEnum.MailerSmtpOauth2AccessUrl
+          ),
         },
       },
       tokenConfigs: {
@@ -193,6 +207,12 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
           ),
         },
       },
+      proxyUrlConfigs: {
+        name: 'proxy_app_url',
+        fields: {
+          proxy_app_url: getFieldValue(InfraConfigEnum.ProxyAppUrl),
+        },
+      },
     };
 
     // Cloning the current configs to working configs
@@ -203,114 +223,6 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
   // Check if custom mail config is enabled
   const isCustomMailConfigEnabled =
     updatedConfigs?.mailConfigs.fields.mailer_use_custom_configs;
-
-  /*
-    Check if any of the config fields are empty
-  */
-  const isFieldEmpty = (field: string | boolean) => {
-    if (typeof field === 'boolean' || typeof field === 'number') {
-      return false;
-    }
-    return field.trim() === '';
-  };
-
-  /**
-   * This is used to validate number fields, ensuring they are not NaN or less than or equal to zero.
-   * It checks if the field is a number or a numeric string, and returns true if it is not valid.
-   * @param field Field value to validate
-   * @returns Boolean indicating if the field is not valid
-   */
-  const isNotValidNumber = (field: string | boolean | number) => {
-    if (typeof field === 'boolean') {
-      return false;
-    }
-
-    // Accept numbers or numeric strings (e.g., "1000"), but not non-numeric strings (e.g., "abc")
-    if (typeof field === 'number') {
-      return isNaN(field);
-    }
-
-    if (typeof field === 'string') {
-      // Trim and check if the string is a valid number
-      const trimmed = field.trim();
-      if (trimmed === '') return true;
-      return isNaN(Number(trimmed));
-    }
-
-    return true;
-  };
-
-  /**
-   * Check if the field is not valid
-   * This is used to validate number fields, ensuring they are not NaN or less than or equal to zero.
-   * @param field Field value to validate
-   * @returns Boolean indicating if the field is valid
-   */
-  const isFieldNotValid = (field: string | boolean) => {
-    if (typeof field === 'boolean') {
-      return false;
-    }
-
-    const num = Number(field);
-    if (isNaN(num) && typeof field === 'string') {
-      return field.trim() === '';
-    }
-
-    return num <= 0;
-  };
-
-  const AreAnyConfigFieldsEmpty = (config: ServerConfigs): boolean => {
-    const sections: Array<ConfigSection> = [
-      config.providers.github,
-      config.providers.google,
-      config.providers.microsoft,
-      config.mailConfigs,
-      config.rateLimitConfigs,
-      config.tokenConfigs,
-    ];
-
-    const hasSectionWithEmptyFields = sections.some((section) => {
-      if (section.name === 'email') {
-        const { mailer_use_custom_configs, ...otherFields } = section.fields;
-
-        const excludeKeys = mailer_use_custom_configs
-          ? ['mailer_smtp_url']
-          : [
-              'mailer_smtp_host',
-              'mailer_smtp_port',
-              'mailer_smtp_user',
-              'mailer_smtp_password',
-            ];
-
-        return (
-          section.enabled &&
-          Object.entries(otherFields).some(
-            ([key, value]) => isFieldEmpty(value) && !excludeKeys.includes(key)
-          )
-        );
-      }
-
-      // This section has no enabled property, so we check fields directly
-      // for a valid number (>0) or non-empty string
-      if (section.name === 'token') {
-        return Object.entries(section.fields).some(
-          ([key, value]) =>
-            !OPTIONAL_TOKEN_FIELD_KEYS.has(key) && isFieldNotValid(value)
-        );
-      }
-
-      // For rate limit section, we want to check if the values are not valid numbers
-      // and not empty strings
-      if (section.name === 'rate_limit')
-        return Object.values(section.fields).some(isNotValidNumber);
-
-      return (
-        section.enabled && Object.values(section.fields).some(isFieldEmpty)
-      );
-    });
-
-    return hasSectionWithEmptyFields;
-  };
 
   // Extract the mail config fields (excluding the custom mail config fields)
   const mailConfigFields = Object.fromEntries(
@@ -369,6 +281,11 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
         enabled: true,
         fields: updatedConfigs?.mockServerConfigs?.fields ?? {},
       },
+      {
+        config: PROXY_URL_CONFIGS,
+        enabled: true,
+        fields: updatedConfigs?.proxyUrlConfigs?.fields,
+      },
     ];
 
     const transformedConfigs: UpdatedConfigs[] = [];
@@ -381,6 +298,10 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
         else if (enabled && fields) {
           const value =
             typeof fields === 'string' ? fields : String(fields[key]);
+          // BE rejects empty PROXY_APP_URL and would fail the whole batch.
+          // The form-level guard already blocks the save, but skip here too
+          // so a stray empty value can't blackhole unrelated settings.
+          if (name === InfraConfigEnum.ProxyAppUrl && !value.trim()) return;
           transformedConfigs.push({ name, value });
         }
       });
@@ -586,8 +507,8 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     const sessionCookieName = String(
       updatedConfigs?.tokenConfigs.fields.session_cookie_name || ''
     );
-    // Validate cookie name: allow empty (falls back to default), else enforce pattern
-    if (sessionCookieName && !COOKIE_NAME_REGEX.test(sessionCookieName)) {
+    // Keep save-time toast behavior aligned with proactive validation.
+    if (sessionCookieName && !isValidSessionCookieName(sessionCookieName)) {
       toast.error(t('configs.auth_providers.token.session_cookie_name_invalid'));
       return false;
     }
@@ -658,6 +579,5 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     fetchingAllowedAuthProviders,
     infraConfigsError,
     allowedAuthProvidersError,
-    AreAnyConfigFieldsEmpty,
   };
 }

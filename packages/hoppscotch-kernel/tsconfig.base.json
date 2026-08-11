@@ -15,6 +15,7 @@
       "@io/*": ["src/io/*"],
       "@relay/*": ["src/relay/*"],
       "@store/*": ["src/store/*"],
+      "@log/*": ["src/log/*"],
       "@type/*": ["src/type/*"],
       "@util/*": ["src/util/*"]
     }

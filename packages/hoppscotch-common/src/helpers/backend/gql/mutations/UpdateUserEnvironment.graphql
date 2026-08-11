@@ -1,0 +1,9 @@
+mutation UpdateUserEnvironment($id: ID!, $name: String!, $variables: String!) {
+  updateUserEnvironment(id: $id, name: $name, variables: $variables) {
+    id
+    userUid
+    name
+    variables
+    isGlobal
+  }
+}

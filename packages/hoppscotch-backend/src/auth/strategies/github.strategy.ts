@@ -8,6 +8,7 @@ import * as E from 'fp-ts/Either';
 import { ConfigService } from '@nestjs/config';
 import { validateEmail } from 'src/utils';
 import { AUTH_EMAIL_NOT_PROVIDED_BY_OAUTH } from 'src/errors';
+import { StatelessStateStore } from '../stateless-state-store';
 
 @Injectable()
 export class GithubStrategy extends PassportStrategy(Strategy) {
@@ -21,7 +22,13 @@ export class GithubStrategy extends PassportStrategy(Strategy) {
       clientSecret: configService.get<string>('INFRA.GITHUB_CLIENT_SECRET'),
       callbackURL: configService.get<string>('INFRA.GITHUB_CALLBACK_URL'),
       scope: [configService.get<string>('INFRA.GITHUB_SCOPE')],
-      store: true,
+      store: new StatelessStateStore(
+        configService.get<string>('INFRA.SESSION_SECRET'),
+        undefined,
+        (configService.get<string>('INFRA.SESSION_COOKIE_NAME') ||
+          '__oauth_nonce') + '_github',
+        configService.get<string>('INFRA.ALLOW_SECURE_COOKIES') === 'true',
+      ),
     });
   }
 

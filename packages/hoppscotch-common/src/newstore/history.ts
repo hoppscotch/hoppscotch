@@ -63,7 +63,24 @@ export function makeGQLHistoryEntry(
 }
 
 export function translateToNewRESTHistory(x: any): RESTHistoryEntry {
-  if (x.v === 1) return x
+  let responseMeta = x.responseMeta
+  if (typeof responseMeta === "string") {
+    try {
+      responseMeta = JSON.parse(responseMeta)
+    } catch {
+      responseMeta = { duration: null, statusCode: null }
+    }
+  }
+
+  if (x.v === 1) {
+    return {
+      ...x,
+      responseMeta: {
+        duration: responseMeta?.duration ?? null,
+        statusCode: responseMeta?.statusCode ?? null,
+      },
+    }
+  }
 
   // Legacy
   const request = translateToNewRequest(x)
@@ -107,6 +124,18 @@ export function translateToNewGQLHistory(x: any): GQLHistoryEntry {
   if (x.id) obj.id = x.id
 
   return obj
+}
+
+// Decodes a JSON-stringified wire value back to a string. Returns the
+// raw value if parsing yields a non-string (object, array, etc.) so
+// callers always receive a string per the GQLHistoryEntry contract.
+export const decodeGQLHistoryResponse = (value: string): string => {
+  try {
+    const parsed = JSON.parse(value)
+    return typeof parsed === "string" ? parsed : value
+  } catch {
+    return value
+  }
 }
 
 export const defaultRESTHistoryState = {

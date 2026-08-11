@@ -195,7 +195,7 @@ import { useReadonlyStream } from "@composables/stream"
 import { useToast } from "@composables/toast"
 import { refAutoReset } from "@vueuse/core"
 import { computed, ref, watch } from "vue"
-import { MockServer } from "~/helpers/backend/graphql"
+import type { MockServer } from "~/helpers/backend/types/MockServer"
 import { copyToClipboard as copyToClipboardHelper } from "~/helpers/utils/clipboard"
 import {
   mockServers$,

@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{sync::Arc, time::Duration};
 
 use super::{BundleError, Result, VerifiedBundle};
 use crate::{
@@ -14,14 +14,28 @@ struct BundleInfo {
     content: Vec<u8>,
 }
 
+/// Downloads, verifies, and caches bundles for instance servers.
+///
+/// The `api_timeout` field holds the value every `ApiClient` this loader
+/// creates is built with. Those clients are per-server and short-lived, so
+/// the timeout has to outlive any one of them.
 pub struct BundleLoader {
     cache: Arc<CacheManager>,
     storage: Arc<StorageManager>,
+    api_timeout: Duration,
 }
 
 impl BundleLoader {
-    pub fn new(cache: Arc<CacheManager>, storage: Arc<StorageManager>) -> Self {
-        Self { cache, storage }
+    pub fn new(
+        cache: Arc<CacheManager>,
+        storage: Arc<StorageManager>,
+        api_timeout: Duration,
+    ) -> Self {
+        Self {
+            cache,
+            storage,
+            api_timeout,
+        }
     }
 
     pub async fn load_bundle(&self, server_url: &str) -> Result<()> {
@@ -101,10 +115,12 @@ impl BundleLoader {
     }
 
     fn create_api_client(&self, server_url: &str) -> Result<ApiClient> {
-        Ok(ApiClient::new(server_url).map_err(|e| {
-            tracing::error!(%server_url, %e, "Failed to create API client");
-            e
-        })?)
+        Ok(
+            ApiClient::new(server_url, self.api_timeout).map_err(|e| {
+                tracing::error!(%server_url, %e, "Failed to create API client");
+                e
+            })?,
+        )
     }
 
     async fn init_bundle_verifier(&self, api_client: &ApiClient) -> Result<BundleVerifier> {

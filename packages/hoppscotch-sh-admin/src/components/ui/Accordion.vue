@@ -41,7 +41,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
 
 const t = useI18n();
@@ -60,18 +60,18 @@ const idSuffix = Math.random().toString(36).substring(2, 9);
 const contentId = `accordion-content-${idSuffix}`;
 const headerId = `accordion-header-${idSuffix}`;
 
-const isOpen = ref(false);
+// `isOpen` follows `initialOpen` reactively until the user toggles manually.
+// After a manual toggle, `userOverride` takes precedence so subsequent
+// prop changes (e.g. backend data arriving late) don't snap the accordion
+// back open/closed against the user's intent.
+const userOverride = ref<boolean | null>(null);
 
-watch(
-  () => props.initialOpen,
-  (val) => {
-    isOpen.value = val ?? false;
-  },
-  { immediate: true }
+const isOpen = computed(() =>
+  userOverride.value !== null ? userOverride.value : props.initialOpen ?? false
 );
 
 const toggleAccordion = () => {
-  isOpen.value = !isOpen.value;
-  emit('toggle', isOpen.value);
+  userOverride.value = !isOpen.value;
+  emit('toggle', userOverride.value);
 };
 </script>

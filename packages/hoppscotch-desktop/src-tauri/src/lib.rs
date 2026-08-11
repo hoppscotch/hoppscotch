@@ -164,6 +164,50 @@ pub fn run() {
 
     let app = tauri::Builder::default()
         .setup(|app| {
+            // Set up native Edit menu to enable standard clipboard shortcuts (copy, paste, etc.)
+            // Required on Linux where webkit2gtk does not handle these without menu items
+            #[cfg(target_os = "linux")]
+            {
+                use tauri::menu::{Menu, PredefinedMenuItem, Submenu};
+                use tauri::Manager;
+
+                let result = (|| -> Result<(), Box<dyn std::error::Error>> {
+                    let handle = app.handle();
+                    let edit_menu = Submenu::with_items(
+                        handle,
+                        "Edit",
+                        true,
+                        &[
+                            &PredefinedMenuItem::undo(handle, None)?,
+                            &PredefinedMenuItem::redo(handle, None)?,
+                            &PredefinedMenuItem::separator(handle)?,
+                            &PredefinedMenuItem::cut(handle, None)?,
+                            &PredefinedMenuItem::copy(handle, None)?,
+                            &PredefinedMenuItem::paste(handle, None)?,
+                            &PredefinedMenuItem::separator(handle)?,
+                            &PredefinedMenuItem::select_all(handle, None)?,
+                        ],
+                    )?;
+                    // The menu must be registered so webkit2gtk picks up the accelerators
+                    // (Ctrl+C/V/X etc.), but the menu bar itself should be hidden so it
+                    // does not appear as a visible "Edit" strip the user cannot dismiss.
+                    // See https://github.com/tauri-apps/tauri/issues/2397
+                    let menu = Menu::with_items(handle, &[&edit_menu])?;
+                    app.set_menu(menu)?;
+
+                    for (label, window) in app.webview_windows() {
+                        if let Err(e) = window.hide_menu() {
+                            tracing::warn!(?e, window_label = %label, "Failed to hide menu bar");
+                        }
+                    }
+                    Ok(())
+                })();
+
+                if let Err(e) = result {
+                    tracing::warn!(error = %e, "Failed to set up native Edit menu; clipboard shortcuts may not work");
+                }
+            }
+
             tauri::async_runtime::block_on(async {
                 if let Err(e) = setup_version_backup(app).await {
                     tracing::error!(error = %e, "Failed to setup version backup");
@@ -211,6 +255,7 @@ pub fn run() {
             hopp_auth_port,
             quit_app,
             backup::check_and_backup_on_version_change,
+            config::set_desktop_config,
             updater::check_for_updates,
             updater::download_and_install_update,
             updater::restart_application,
@@ -223,6 +268,9 @@ pub fn run() {
             path::get_store_dir,
             path::get_backup_dir,
             path::get_logs_dir,
+            logger::append_log,
+            path::read_log,
+            path::get_appload_registry,
         ])
         .run(tauri::generate_context!());
 

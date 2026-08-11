@@ -6,6 +6,7 @@ import {
   applyTooltipOverflowStyles,
   createTooltipValueRow,
   constrainTooltipToViewport,
+  stabilizeTooltipHover,
   TOOLTIP_MAX_VALUE_LENGTH,
   TOOLTIP_MAX_HEIGHT_PX,
   TOOLTIP_MAX_WIDTH_PX,
@@ -371,6 +372,24 @@ describe("constrainTooltipToViewport", () => {
     expect(parseInt(tooltipBox.style.maxWidth)).toBeLessThanOrEqual(
       TOOLTIP_MAX_WIDTH_PX
     )
+  })
+})
+
+// ─── stabilizeTooltipHover ───────────────────────────────────────
+
+describe("stabilizeTooltipHover", () => {
+  test("adds 'hopp-tooltip-interactive-wrapper' class to element", () => {
+    const el = document.createElement("div")
+    stabilizeTooltipHover(el)
+    expect(el.classList.contains("hopp-tooltip-interactive-wrapper")).toBe(true)
+  })
+
+  test("does not remove existing classes", () => {
+    const el = document.createElement("div")
+    el.className = "existing-class"
+    stabilizeTooltipHover(el)
+    expect(el.className).toContain("existing-class")
+    expect(el.className).toContain("hopp-tooltip-interactive-wrapper")
   })
 })
 

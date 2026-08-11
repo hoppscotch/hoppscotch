@@ -1,4 +1,5 @@
 import { getKernelMode, initKernel } from "@hoppscotch/kernel"
+import { Log } from "./kernel/log"
 import { HOPP_MODULES } from "@modules/."
 import { createApp } from "vue"
 
@@ -25,6 +26,13 @@ export async function createHoppApp(
   platformDef: PlatformDef
 ) {
   initKernel(getKernelMode())
+
+  // initialize the kernel log module (opens the log file on desktop,
+  // no-op on web). also drains any `diag()` entries that were buffered
+  // during module evaluation (before `initKernel()` ran) so they make
+  // it to the log file on disk
+  Log.init().catch((err) => console.warn("[kernel-log] init failed:", err))
+
   setPlatformDef(platformDef)
 
   const app = createApp(App)

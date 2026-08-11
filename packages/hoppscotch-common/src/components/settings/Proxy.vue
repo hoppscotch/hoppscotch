@@ -28,23 +28,24 @@
       @click="resetSettings"
     />
   </div>
+  <div v-if="isProxyUrlInvalid" class="text-tiny text-red-500 -mt-2 pb-2">
+    {{ t("settings.proxy_url_invalid") }}
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from "vue"
+import { ref, computed, watch } from "vue"
 import { refAutoReset } from "@vueuse/core"
-
 import { useService } from "dioc/vue"
 
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 import { useReadonlyStream } from "~/composables/stream"
-import { getDefaultProxyUrl } from "~/helpers/proxyUrl"
 import { platform } from "~/platform"
+import { isValidProxyUrl } from "~/helpers/proxyUrl"
 
 import { KernelInterceptorProxyStore } from "~/platform/std/kernel-interceptors/proxy/store"
 import { ProxyKernelInterceptorService } from "~/platform/std/kernel-interceptors/proxy/index"
-
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 
 import IconRotateCCW from "~icons/lucide/rotate-ccw"
@@ -57,26 +58,45 @@ const store = useService(KernelInterceptorProxyStore)
 const interceptorService = useService(KernelInterceptorService)
 const proxyInterceptorService = useService(ProxyKernelInterceptorService)
 
-const proxyUrl = ref("")
+// Local editable copy, synced from the reactive store
+const proxyUrl = ref(store.settings$.value.proxyUrl)
+
+// Empty is treated as invalid here — the proxy interceptor needs a real
+// URL to execute requests against; use the Reset button to restore the
+// platform default. Regex is shared with the store-boundary validator
+// so what the UI accepts is exactly what the store will persist.
+const isProxyUrlInvalid = computed(() => !isValidProxyUrl(proxyUrl.value))
+
+// When the store's settings change (e.g. async init resolves, or external
+// tab updates via the Store watcher), keep the local input in sync —
+// but only if the user hasn't actively edited it to something different.
+watch(
+  () => store.settings$.value.proxyUrl,
+  (storeUrl, prevStoreUrl) => {
+    // Don't overwrite user edits, only sync when local still matches
+    // the previous store value (i.e. user hasn't typed anything new)
+    if (proxyUrl.value === "" || proxyUrl.value === prevStoreUrl) {
+      proxyUrl.value = storeUrl
+    }
+  },
+  { immediate: true }
+)
 
 const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),
   platform.auth.getCurrentUser()
 )
 
-async function updateProxyUrl() {
-  await store.updateSettings({ proxyUrl: proxyUrl.value })
-  toast.success(t("state.saved"))
-}
-
-watch(
-  () => currentUser.value,
-  async () => {
-    if (!currentUser.value) {
-      proxyUrl.value = await getDefaultProxyUrl()
-    }
+// Reset proxy settings to platform defaults when user logs out.
+// Force-sync the local ref after reset — the settings$ watch has a guard
+// that skips sync when the user has unsaved local edits, but logout should
+// unconditionally reset the input.
+watch(currentUser, async (user) => {
+  if (!user) {
+    await store.resetSettings()
+    proxyUrl.value = store.settings$.value.proxyUrl
   }
-)
+})
 
 const enabled = computed(
   () => interceptorService.getCurrentId() === proxyInterceptorService.id
@@ -87,16 +107,20 @@ const clearIcon = refAutoReset<typeof IconRotateCCW | typeof IconCheck>(
   1000
 )
 
+async function updateProxyUrl() {
+  if (isProxyUrlInvalid.value) {
+    toast.error(t("settings.proxy_url_invalid"))
+    return
+  }
+  await store.updateSettings({ proxyUrl: proxyUrl.value })
+  toast.success(t("state.saved"))
+}
+
 async function resetSettings() {
   await store.resetSettings()
-  const settings = store.getSettings()
-  proxyUrl.value = settings.proxyUrl
+  // Store is reactive — settings$ already updated, just sync local ref
+  proxyUrl.value = store.settings$.value.proxyUrl
   clearIcon.value = IconCheck
   toast.success(t("state.cleared"))
 }
-
-onMounted(async () => {
-  const settings = store.getSettings()
-  proxyUrl.value = settings.proxyUrl
-})
 </script>

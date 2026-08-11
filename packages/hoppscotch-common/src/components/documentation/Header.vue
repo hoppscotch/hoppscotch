@@ -11,14 +11,32 @@
         </div>
         <div class="flex items-center gap-4">
           <span
-            class="text-md font-bold text-secondaryDark px-6 py-1 rounded-full border border-dividerDark shadow"
+            class="text-md font-bold text-secondaryDark px-6 py-1 rounded-full"
           >
             {{
               publishedDoc?.title || t("documentation.publish.untitled_project")
             }}
           </span>
 
-          <div>
+          <div class="flex items-center gap-2">
+            <!-- Live indicator pill -->
+            <div
+              v-if="isCurrentDocLive"
+              class="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-gradient-to-r from-green-500/10 to-emerald-500/10 shadow-sm shadow-green-500/10"
+            >
+              <span class="relative flex items-center justify-center">
+                <span
+                  class="absolute w-2 h-2 rounded-full bg-green-500/40 animate-ping"
+                />
+                <span class="relative w-1 h-1 rounded-full bg-green-500" />
+              </span>
+              <span
+                class="text-[9px] font-bold uppercase tracking-wider text-green-600"
+              >
+                {{ t("documentation.publish.live") }}
+              </span>
+            </div>
+
             <!-- Version dropdown (when multiple versions exist) -->
             <tippy
               v-if="versions.length"
@@ -28,17 +46,11 @@
               :on-shown="() => versionDropdownRef?.focus()"
             >
               <button
-                class="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md cursor-pointer transition-colors"
-                :class="
-                  isCurrentDocLive
-                    ? 'bg-green-500/10 text-green-600 hover:bg-green-500/20'
-                    : 'bg-accent/10 text-accent hover:bg-accent/20'
-                "
+                class="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md cursor-pointer transition-colors bg-accent/10 text-accent hover:bg-accent/20 border border-dividerDark"
               >
+                <icon-lucide-globe class="w-3.5 h-3.5" />
                 {{
-                  isCurrentDocLive
-                    ? t("documentation.publish.live")
-                    : `${publishedDoc?.version}`
+                  publishedDoc?.version || t("documentation.publish.published")
                 }}
                 <icon-lucide-chevron-down class="w-3 h-3" />
               </button>
@@ -51,40 +63,30 @@
                   tabindex="0"
                   @keyup.escape="hide()"
                 >
-                  <HoppSmartItem
+                  <div
                     v-for="ver in versions"
                     :key="ver.id"
-                    :label="getVersionLabel(ver)"
-                    :info-icon="
-                      ver.version === publishedDoc?.version
-                        ? IconCheck
-                        : undefined
-                    "
-                    :active-info-icon="ver.version === publishedDoc?.version"
-                    @click="
-                      () => {
-                        navigateToVersion(ver)
-                        hide()
-                      }
-                    "
+                    :class="{ 'version-item--live': isLiveVersion(ver) }"
+                    class="flex-1"
                   >
-                    <template #prefix>
-                      <span
-                        class="px-1.5 py-0.5 text-[10px] font-semibold uppercase rounded mr-2"
-                        :class="
-                          isLiveVersion(ver)
-                            ? 'bg-green-500/10 text-green-600'
-                            : 'bg-accent/10 text-accent'
-                        "
-                      >
-                        {{
-                          isLiveVersion(ver)
-                            ? t("documentation.publish.live")
-                            : t("documentation.publish.snapshot")
-                        }}
-                      </span>
-                    </template>
-                  </HoppSmartItem>
+                    <HoppSmartItem
+                      :icon="IconGlobe"
+                      :label="ver.version"
+                      :info-icon="
+                        ver.version === publishedDoc?.version
+                          ? IconCheck
+                          : undefined
+                      "
+                      :active-info-icon="ver.version === publishedDoc?.version"
+                      class="w-full"
+                      @click="
+                        () => {
+                          navigateToVersion(ver)
+                          hide()
+                        }
+                      "
+                    />
+                  </div>
                 </div>
               </template>
             </tippy>
@@ -157,6 +159,7 @@ import { useRouter } from "vue-router"
 import { computed, PropType, ref } from "vue"
 import { PublishedDocs } from "~/helpers/backend/graphql"
 import IconCheck from "~icons/lucide/check"
+import IconGlobe from "~icons/lucide/globe"
 import IconLayers from "~icons/lucide/layers"
 import { isLiveVersion } from "~/services/documentation.service"
 
@@ -203,21 +206,15 @@ const versionDropdownRef = ref<HTMLElement | null>(null)
 const envDropdownRef = ref<HTMLElement | null>(null)
 
 /**
- * Checks whether the currently displayed published doc is the live (current) version.
- * This is true if the doc is auto-synced, has the CURRENT version identifier, or has version 1.0.0 (legacy).
+ * Checks whether the currently displayed published doc is the live version —
+ * this is purely based on the auto-sync flag.
  */
 const isCurrentDocLive = computed(() => {
-  if (!props.publishedDoc?.version) return true
+  if (!props.publishedDoc) return false
   return isLiveVersion({
     autoSync: props.publishedDoc.autoSync ?? false,
-    version: props.publishedDoc.version,
   })
 })
-
-const getVersionLabel = (ver: PublishedDocVersion): string => {
-  if (isLiveVersion(ver)) return t("documentation.publish.live")
-  return `${ver.version}`
-}
 
 const navigateToVersion = (ver: PublishedDocVersion) => {
   if (ver.version === props.publishedDoc?.version) return
@@ -235,3 +232,10 @@ const navigateToVersion = (ver: PublishedDocVersion) => {
   }
 }
 </script>
+
+<style scoped>
+/* Color the leading globe icon green for live versions */
+.version-item--live :deep(.svg-icons.mr-4) {
+  @apply text-green-500;
+}
+</style>

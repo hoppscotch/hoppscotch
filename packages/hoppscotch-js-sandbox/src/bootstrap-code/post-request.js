@@ -3,6 +3,27 @@
   // Keep strict mode scoped to this IIFE to avoid leaking strictness to concatenated/bootstrapped code
   "use strict"
 
+  // Exposes a host reporter for the generated experimental `try/catch`
+  // wrapper in combineScriptsWithIIFE. Locked down (non-writable,
+  // non-configurable) so user scripts cannot delete or overwrite it to
+  // suppress error reporting. faraday-cage's `runCode` creates a fresh
+  // QuickJS runtime per call, so re-definition across calls is not a
+  // concern — the property lives only for the current run's VM.
+  Object.defineProperty(globalThis, "__hoppReportScriptExecutionError", {
+    value: (error) => {
+      const safe = error && typeof error === "object" ? error : {}
+      inputs.setScriptExecutionError({
+        name: typeof safe.name === "string" ? safe.name : "",
+        message:
+          typeof safe.message === "string" ? safe.message : String(error),
+        stack: typeof safe.stack === "string" ? safe.stack : "",
+      })
+    },
+    enumerable: false,
+    configurable: false,
+    writable: false,
+  })
+
   // Sequential test execution promise chain
   // Initialize with a resolved promise to start the chain
   // Store on globalThis so pm.sendRequest() and test() can both access and modify it

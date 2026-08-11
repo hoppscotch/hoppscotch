@@ -63,6 +63,14 @@
       </tippy>
     </span>
     <HoppButtonSecondary
+      v-if="entry.responseBody"
+      v-tippy="{ theme: 'tooltip' }"
+      :icon="IconEye"
+      :title="t('history.response_preview')"
+      class="hidden group-hover:inline-flex"
+      @click="emit('show-response')"
+    />
+    <HoppButtonSecondary
       v-tippy="{ theme: 'tooltip' }"
       :icon="IconTrash"
       color="red"
@@ -93,6 +101,7 @@ import IconSave from "~icons/lucide/save"
 import IconStar from "~icons/lucide/star"
 import IconStarOff from "~icons/hopp/star-off"
 import IconTrash from "~icons/lucide/trash"
+import IconEye from "~icons/lucide/eye"
 import { TippyComponent } from "vue-tippy"
 
 const props = defineProps<{
@@ -105,6 +114,7 @@ const emit = defineEmits<{
   (e: "delete-entry"): void
   (e: "toggle-star"): void
   (e: "add-to-collection"): void
+  (e: "show-response"): void
 }>()
 
 const tippyActions = ref<TippyComponent | null>(null)

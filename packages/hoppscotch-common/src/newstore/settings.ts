@@ -85,6 +85,10 @@ export type SettingsDef = {
   EXPERIMENTAL_SCRIPTING_SANDBOX: boolean
   ENABLE_EXPERIMENTAL_MOCK_SERVERS: boolean
   ENABLE_EXPERIMENTAL_DOCUMENTATION: boolean
+
+  SAVE_RESPONSE_IN_HISTORY: boolean
+  MAX_HISTORY_COUNT: number
+  MAX_HISTORY_ENTRY_SIZE_KB: number
 }
 
 export const getDefaultSettings = (): SettingsDef => {
@@ -144,6 +148,10 @@ export const getDefaultSettings = (): SettingsDef => {
     EXPERIMENTAL_SCRIPTING_SANDBOX: true,
     ENABLE_EXPERIMENTAL_MOCK_SERVERS: true,
     ENABLE_EXPERIMENTAL_DOCUMENTATION: true,
+
+    SAVE_RESPONSE_IN_HISTORY: false,
+    MAX_HISTORY_COUNT: 50,
+    MAX_HISTORY_ENTRY_SIZE_KB: 100,
   }
 }
 

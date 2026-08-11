@@ -42,11 +42,17 @@
   @apply border-4 border-solid border-transparent;
   @apply hover:bg-dividerDark;
   @apply hover:bg-clip-content;
+  transition: background-color 0.2s ease;
 }
 
 ::-webkit-scrollbar {
   @apply w-4;
   @apply h-0;
+}
+
+.overflow-auto {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
 }
 
 .no-scrollbar {

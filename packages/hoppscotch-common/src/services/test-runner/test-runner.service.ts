@@ -164,7 +164,9 @@ export class TestRunnerService extends Service {
       tab.value.document.selectedRequestRefIds
     )
     const selectedIDs = new Set(tab.value.document.selectedRequestRefIds ?? [])
-    const resolvedIterations = Math.max(1, Number(options.iterations) || 1)
+    const resolvedIterations = options.dataset?.rows.length
+      ? options.dataset.rows.length
+      : Math.max(1, Number(options.iterations) || 1)
 
     this.runTestIterations(
       tab,

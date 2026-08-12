@@ -603,34 +603,39 @@ const validRestOperations = [
   "requestVariables",
 ] as const
 
-// A collection request as it appears inside a test-runner *result* collection:
-// a normal HoppRESTRequest augmented with the runner-only result fields
-// (`TestRunnerRequest`). `entityReference` strips unknown keys, so the runner
-// fields are intersected back on to survive a persist/restore round-trip.
-const TestRunnerResultRequestSchema = z.intersection(
-  HoppRESTRequestSchema,
+// The runner-only result fields that live on a request inside a test-runner
+// result collection (`TestRunnerRequest`). All optional and lax — its only job
+// is to re-capture the fields `entityReference` strips during migration.
+const TestRunnerRequestResultFieldsSchema = z.object({
+  type: z.optional(z.literal("test-response")),
+  response: z.optional(z.nullable(HoppRESTResponseSchema)),
+  testResults: z.optional(z.nullable(HoppTestResultSchema)),
+  isLoading: z.optional(z.boolean()),
+  error: z.optional(z.string()),
+  renderResults: z.optional(z.boolean()),
+  passedTests: z.optional(z.number()),
+  failedTests: z.optional(z.number()),
+  runnerRequestID: z.optional(z.string()),
+})
+
+// Mirrors the collection's requests/folders tree, capturing only the runner
+// result fields on each request so it can be merged back onto the migrated
+// collection.
+const TestRunnerResultOverlaySchema: z.ZodType<unknown> = z.lazy(() =>
   z.object({
-    type: z.optional(z.literal("test-response")),
-    response: z.optional(z.nullable(HoppRESTResponseSchema)),
-    testResults: z.optional(z.nullable(HoppTestResultSchema)),
-    isLoading: z.optional(z.boolean()),
-    error: z.optional(z.string()),
-    renderResults: z.optional(z.boolean()),
-    passedTests: z.optional(z.number()),
-    failedTests: z.optional(z.number()),
-    runnerRequestID: z.optional(z.string()),
+    requests: z.array(TestRunnerRequestResultFieldsSchema),
+    folders: z.array(TestRunnerResultOverlaySchema),
   })
 )
 
-// A test-runner result collection mirrors HoppCollection but keeps the runner
-// result fields on its requests. Inherit every collection field from the real
-// latest schema (so it tracks future version bumps) and override only
-// `requests`/`folders` to preserve those fields recursively.
-export const TestRunnerResultCollectionSchema: z.ZodType<unknown> = z.lazy(() =>
-  (HoppCollection.latestSchema as unknown as z.AnyZodObject).extend({
-    requests: z.array(TestRunnerResultRequestSchema),
-    folders: z.array(TestRunnerResultCollectionSchema),
-  })
+// A test-runner result collection: the version-migrated HoppCollection (via
+// entityReference, which strips runner fields) intersected with the overlay
+// that re-captures them. z.intersection element-wise-merges the two, so an
+// older-version persisted collection is still migrated AND the runner result
+// fields survive the round-trip.
+export const TestRunnerResultCollectionSchema = z.intersection(
+  HoppRESTCollectionSchema,
+  TestRunnerResultOverlaySchema
 )
 
 export const REST_TAB_STATE_SCHEMA = z

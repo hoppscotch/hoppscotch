@@ -80,4 +80,37 @@ describe("TestRunnerResultCollectionSchema", () => {
     expect(nestedRequest.runnerRequestID).toBe("rid-nested")
     expect(nestedRequest.testResults).toBeDefined()
   })
+
+  test("migrates an older-version collection while keeping runner fields", () => {
+    // A v2 collection (pre-dates variables/preRequestScript/testScript). It must
+    // be migrated to the latest version — not rejected — and still keep the
+    // runner result fields on its requests.
+    const legacyCollection = {
+      v: 2,
+      name: "Legacy Collection",
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      requests: [makeRunnerRequest("legacy")],
+      folders: [],
+    }
+
+    const parsed = TestRunnerResultCollectionSchema.safeParse(legacyCollection)
+
+    expect(parsed.success).toBe(true)
+    if (!parsed.success) return
+
+    const data = parsed.data as ReturnType<typeof makeResultCollection> & {
+      v: number
+    }
+
+    // Migrated up: version bumped and the newer collection fields were filled.
+    expect(data.v).toBeGreaterThan(2)
+    expect(data.variables).toBeDefined()
+    expect(data.preRequestScript).toBeDefined()
+
+    // ...and the runner result fields survived the migration.
+    expect(data.requests[0].passedTests).toBe(2)
+    expect(data.requests[0].runnerRequestID).toBe("rid-legacy")
+    expect(data.requests[0].testResults).toBeDefined()
+  })
 })

@@ -603,6 +603,36 @@ const validRestOperations = [
   "requestVariables",
 ] as const
 
+// A collection request as it appears inside a test-runner *result* collection:
+// a normal HoppRESTRequest augmented with the runner-only result fields
+// (`TestRunnerRequest`). `entityReference` strips unknown keys, so the runner
+// fields are intersected back on to survive a persist/restore round-trip.
+const TestRunnerResultRequestSchema = z.intersection(
+  HoppRESTRequestSchema,
+  z.object({
+    type: z.optional(z.literal("test-response")),
+    response: z.optional(z.nullable(HoppRESTResponseSchema)),
+    testResults: z.optional(z.nullable(HoppTestResultSchema)),
+    isLoading: z.optional(z.boolean()),
+    error: z.optional(z.string()),
+    renderResults: z.optional(z.boolean()),
+    passedTests: z.optional(z.number()),
+    failedTests: z.optional(z.number()),
+    runnerRequestID: z.optional(z.string()),
+  })
+)
+
+// A test-runner result collection mirrors HoppCollection but keeps the runner
+// result fields on its requests. Inherit every collection field from the real
+// latest schema (so it tracks future version bumps) and override only
+// `requests`/`folders` to preserve those fields recursively.
+export const TestRunnerResultCollectionSchema: z.ZodType<unknown> = z.lazy(() =>
+  (HoppCollection.latestSchema as unknown as z.AnyZodObject).extend({
+    requests: z.array(TestRunnerResultRequestSchema),
+    folders: z.array(TestRunnerResultCollectionSchema),
+  })
+)
+
 export const REST_TAB_STATE_SCHEMA = z
   .object({
     lastActiveTabID: z.string(),
@@ -624,13 +654,13 @@ export const REST_TAB_STATE_SCHEMA = z
             collection: HoppRESTCollectionSchema,
             collectionType: z.enum(["my-collections", "team-collections"]),
             collectionID: z.optional(z.string()),
-            resultCollection: z.optional(HoppRESTCollectionSchema),
+            resultCollection: z.optional(TestRunnerResultCollectionSchema),
             iterationResults: z.optional(
               z.array(
                 z
                   .object({
                     iteration: z.number(),
-                    resultCollection: HoppRESTCollectionSchema,
+                    resultCollection: TestRunnerResultCollectionSchema,
                     meta: TestRunnerMetaSchema,
                   })
                   .strict()

@@ -665,7 +665,13 @@ export const REST_TAB_STATE_SCHEMA = z
                 z
                   .object({
                     iteration: z.number(),
-                    resultCollection: TestRunnerResultCollectionSchema,
+                    // Current builds persist no iterations at all (see
+                    // `persistableTabState`); optional so states written by
+                    // earlier builds still validate — and when they carry
+                    // result trees, the runner fields survive the parse.
+                    resultCollection: z.optional(
+                      TestRunnerResultCollectionSchema
+                    ),
                     meta: TestRunnerMetaSchema,
                   })
                   .strict()

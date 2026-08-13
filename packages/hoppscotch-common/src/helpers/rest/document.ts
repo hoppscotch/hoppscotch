@@ -116,7 +116,7 @@ export type TestRunnerMeta = {
 
 export type TestRunnerIterationResult = {
   iteration: number
-  resultCollection: HoppCollection
+  resultCollection?: HoppCollection
   meta: TestRunnerMeta
 }
 

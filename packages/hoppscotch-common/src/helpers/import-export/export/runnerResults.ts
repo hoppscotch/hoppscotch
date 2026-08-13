@@ -74,7 +74,7 @@ const COLLECTION_RUN_TYPE_LABELS: Record<CollectionRunType, string> = {
   SHARED: "Shared Collection",
 }
 
-export const collectionRunTypeLabel = (type: CollectionRunType): string =>
+const collectionRunTypeLabel = (type: CollectionRunType): string =>
   COLLECTION_RUN_TYPE_LABELS[type] ?? type
 
 export type RunnerResultReport = {
@@ -230,10 +230,10 @@ const exportIteration = (
 ): ExportedIteration => ({
   iteration: iterationResult.iteration,
   summary: toSummary(iterationResult.meta),
-  requests: exportCollectionRequests(
-    iterationResult.resultCollection,
-    bodyMode
-  ),
+  // A restored iteration keeps only its summary — no rows to export.
+  requests: iterationResult.resultCollection
+    ? exportCollectionRequests(iterationResult.resultCollection, bodyMode)
+    : [],
 })
 
 const collectionHasRequestError = (collection: HoppCollection): boolean =>
@@ -274,8 +274,9 @@ const deriveOutcome = (
   // assertion (but no plain failures) would be reported as passed.
   const hasError = (document.iterationResults ?? []).some(
     (iteration) =>
-      collectionHasRequestError(iteration.resultCollection) ||
-      collectionHasTestError(iteration.resultCollection)
+      iteration.resultCollection !== undefined &&
+      (collectionHasRequestError(iteration.resultCollection) ||
+        collectionHasTestError(iteration.resultCollection))
   )
 
   return document.testRunnerMeta.failedTests > 0 || hasError
@@ -343,34 +344,6 @@ const base64ToReadableResponse = (response: ExportedResponse): void => {
 }
 
 /**
- * Returns a display string for a stored response body. Base64 text bodies are
- * decoded to UTF-8; binary (non-text) bodies are left as base64 so the viewer
- * can still surface them.
- */
-export const getDisplayBody = (
-  response: ExportedResponse
-): { body: string; isBinary: boolean } | null => {
-  if (response.body === undefined) return null
-
-  if (response.bodyEncoding !== "base64") {
-    return { body: response.body, isBinary: false }
-  }
-
-  if (!isTextContentType(getContentType(response.headers ?? []))) {
-    return { body: response.body, isBinary: true }
-  }
-
-  const decoded = decodeBase64Text(response.body)
-  if (decoded === null) return { body: response.body, isBinary: true }
-
-  return { body: decoded, isBinary: false }
-}
-
-/**
- * Re-encodes a stored (base64-body) report into the readable export format so
- * exported files never contain base64 text bodies. Binary bodies stay base64.
- */
-/**
  * The exported file uses a human-readable collectionType label while the
  * stored report keeps a stable code.
  */
@@ -378,7 +351,11 @@ type ExportedReport = Omit<RunnerResultReport, "collectionType"> & {
   collectionType: string
 }
 
-export const reencodeReportForExport = (
+/**
+ * Re-encodes a stored (base64-body) report into the readable export format so
+ * exported files never contain base64 text bodies. Binary bodies stay base64.
+ */
+const reencodeReportForExport = (
   report: RunnerResultReport
 ): ExportedReport => {
   const clone: RunnerResultReport = JSON.parse(JSON.stringify(report))
@@ -422,10 +399,4 @@ export const exportRunnerResults = async (
       buildRunnerResultReport(document, scope, "readable")
     ),
     `${document.collection.name || "collection"}-run.json`
-  )
-
-export const exportRunnerReport = async (report: RunnerResultReport) =>
-  saveReport(
-    reencodeReportForExport(report),
-    `${report.collectionName || "collection"}-run.json`
   )

@@ -19,8 +19,9 @@ const reservedOAuthParamKeys = new Set([
   "grant_type",
   "redirect_uri",
   "refresh_token",
-  "scope",
 ])
+
+const scopeOAuthParamKeys = new Set(["scope"])
 
 export const getBasicAuthHeader = (
   clientID: string,
@@ -43,12 +44,18 @@ export const applyRequestParams = (
   requestParams: Array<OAuth2RequestParam> | undefined,
   headers: Record<string, string>,
   bodyParams: Record<string, string>,
-  urlParams: Record<string, string>
+  urlParams: Record<string, string>,
+  additionalReservedParamKeys?: ReadonlySet<string>
 ) => {
   requestParams
     ?.filter((param) => param.active && param.key)
     .forEach((param) => {
-      if (reservedOAuthParamKeys.has(param.key.toLowerCase())) {
+      const normalizedKey = param.key.toLowerCase()
+
+      if (
+        reservedOAuthParamKeys.has(normalizedKey) ||
+        additionalReservedParamKeys?.has(normalizedKey)
+      ) {
         return
       }
 
@@ -172,7 +179,13 @@ export const getPayloadForClientCredentialsTokenRequest = ({
 
   const urlParams: Record<string, string> = {}
 
-  applyRequestParams(tokenRequestParams, headers, bodyParams, urlParams)
+  applyRequestParams(
+    tokenRequestParams,
+    headers,
+    bodyParams,
+    urlParams,
+    scopes ? scopeOAuthParamKeys : undefined
+  )
 
   return {
     id: Date.now(),

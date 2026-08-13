@@ -103,6 +103,24 @@ describe("Authorization Code OAuth flow", () => {
     expect(request.headers["X-Request-Source"]).toBe("hoppscotch")
   })
 
+  it("allows scope as an advanced Authorization Code token parameter", () => {
+    const request = getPayloadForAuthCodeTokenRequest({
+      ...baseRequestParams,
+      tokenRequestParams: [
+        {
+          id: 1,
+          key: "scope",
+          value: "read write",
+          active: true,
+          sendIn: "body",
+        },
+      ],
+    })
+    const bodyParams = getBodyParams(request)
+
+    expect(bodyParams.get("scope")).toBe("read write")
+  })
+
   it("omits the client secret for public clients", () => {
     const request = getPayloadForAuthCodeTokenRequest({
       tokenEndpoint: baseRequestParams.tokenEndpoint,
@@ -240,6 +258,26 @@ describe("Authorization Code OAuth flow", () => {
     expect(bodyParams.get("scope")).toBe("read")
   })
 
+  it("allows an advanced scope when Client Credentials scopes are not configured", () => {
+    const request = getPayloadForClientCredentialsTokenRequest({
+      tokenEndpoint: baseRequestParams.tokenEndpoint,
+      clientID: baseRequestParams.clientID,
+      clientSecret: baseRequestParams.clientSecret,
+      tokenRequestParams: [
+        {
+          id: 1,
+          key: "scope",
+          value: "read write",
+          active: true,
+          sendIn: "body",
+        },
+      ],
+    })
+    const bodyParams = getBodyParams(request)
+
+    expect(bodyParams.get("scope")).toBe("read write")
+  })
+
   it("sends refresh credentials in the body by default", () => {
     const request = getPayloadForRefreshTokenRequest({
       tokenEndpoint: baseRequestParams.tokenEndpoint,
@@ -291,6 +329,21 @@ describe("Authorization Code OAuth flow", () => {
     expect(bodyParams.has("client_secret")).toBe(false)
     expect(bodyParams.get("resource")).toBe("https://example.com/api")
     expect(new URL(request.url).searchParams.get("audience")).toBe("api")
+  })
+
+  it("allows scope as an advanced refresh-token parameter", () => {
+    const request = getPayloadForRefreshTokenRequest({
+      tokenEndpoint: baseRequestParams.tokenEndpoint,
+      clientID: baseRequestParams.clientID,
+      clientSecret: baseRequestParams.clientSecret,
+      refreshToken: "refresh-token",
+      refreshRequestParams: [
+        { id: 1, key: "scope", value: "read", active: true, sendIn: "body" },
+      ],
+    })
+    const bodyParams = getBodyParams(request)
+
+    expect(bodyParams.get("scope")).toBe("read")
   })
 
   it("defaults new and existing configurations to body authentication", () => {

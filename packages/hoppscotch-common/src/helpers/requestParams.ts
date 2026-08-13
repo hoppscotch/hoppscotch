@@ -1,4 +1,4 @@
-interface RequestParam {
+export interface RequestParam {
   key: string
   value: string
   type: string
@@ -6,9 +6,7 @@ interface RequestParam {
 }
 
 function isActiveParam(item: RequestParam): boolean {
-  return Object.prototype.hasOwnProperty.call(item, "active")
-    ? item.active === true
-    : true
+  return item.active !== false
 }
 
 export function hasPathParams(params: RequestParam[]): boolean {

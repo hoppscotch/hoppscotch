@@ -371,6 +371,7 @@ const getHoppReqAuth = (
         tokenEndpoint: accessTokenURL,
         clientSecret: clientSecret,
         isPKCE: isPKCE,
+        clientAuthentication: "IN_BODY",
         ...(codeVerifierMethod ? { codeVerifierMethod } : {}),
         authRequestParams: [],
         tokenRequestParams: [],

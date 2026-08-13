@@ -1,0 +1,172 @@
+import { describe, expect, it } from "vitest"
+import { AuthCodeGrantTypeParams } from "@hoppscotch/data"
+import {
+  getPayloadForAuthCodeTokenRequest,
+  getPayloadForRefreshTokenRequest,
+} from "../../clientAuthentication"
+
+const getBodyParams = (
+  request: ReturnType<typeof getPayloadForAuthCodeTokenRequest>
+) => {
+  if (!request.content || request.content.kind !== "urlencoded") {
+    throw new Error("Expected a URL-encoded request body")
+  }
+
+  return new URLSearchParams(request.content.content)
+}
+
+const baseRequestParams = {
+  tokenEndpoint: "https://example.com/oauth/token",
+  redirectURI: "https://example.com/oauth/callback",
+  clientID: "client-id",
+  clientSecret: "client-secret",
+  code: "authorization-code",
+  codeVerifier: "code-verifier",
+}
+
+describe("Authorization Code OAuth flow", () => {
+  it("sends client credentials in the body by default", () => {
+    const request = getPayloadForAuthCodeTokenRequest({
+      ...baseRequestParams,
+      clientAuthentication: "IN_BODY",
+    })
+    const bodyParams = getBodyParams(request)
+
+    expect(request.headers).toEqual({
+      "Content-Type": "application/x-www-form-urlencoded",
+      Accept: "application/json",
+    })
+    expect(bodyParams.get("client_id")).toBe("client-id")
+    expect(bodyParams.get("client_secret")).toBe("client-secret")
+    expect(bodyParams.get("code")).toBe("authorization-code")
+    expect(bodyParams.get("grant_type")).toBe("authorization_code")
+    expect(bodyParams.get("redirect_uri")).toBe(
+      "https://example.com/oauth/callback"
+    )
+    expect(bodyParams.get("code_verifier")).toBe("code-verifier")
+  })
+
+  it("sends client credentials using Basic authentication when selected", () => {
+    const request = getPayloadForAuthCodeTokenRequest({
+      ...baseRequestParams,
+      clientID: "client id",
+      clientSecret: "client&secret",
+      clientAuthentication: "AS_BASIC_AUTH_HEADERS",
+    })
+    const bodyParams = getBodyParams(request)
+
+    expect(request.headers).toEqual({
+      Authorization: `Basic ${btoa("client+id:client%26secret")}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+      Accept: "application/json",
+    })
+    expect(bodyParams.has("client_id")).toBe(false)
+    expect(bodyParams.has("client_secret")).toBe(false)
+    expect(bodyParams.get("code")).toBe("authorization-code")
+    expect(bodyParams.get("grant_type")).toBe("authorization_code")
+    expect(bodyParams.get("redirect_uri")).toBe(
+      "https://example.com/oauth/callback"
+    )
+    expect(bodyParams.get("code_verifier")).toBe("code-verifier")
+  })
+
+  it("sends advanced token request parameters in their configured locations", () => {
+    const request = getPayloadForAuthCodeTokenRequest({
+      ...baseRequestParams,
+      tokenRequestParams: [
+        { id: 1, key: "audience", value: "api", active: true, sendIn: "url" },
+        {
+          id: 2,
+          key: "resource",
+          value: "https://example.com/api",
+          active: true,
+          sendIn: "body",
+        },
+        {
+          id: 3,
+          key: "X-Request-Source",
+          value: "hoppscotch",
+          active: true,
+          sendIn: "headers",
+        },
+      ],
+    })
+    const bodyParams = getBodyParams(request)
+
+    expect(new URL(request.url).searchParams.get("audience")).toBe("api")
+    expect(bodyParams.get("resource")).toBe("https://example.com/api")
+    expect(request.headers["X-Request-Source"]).toBe("hoppscotch")
+  })
+
+  it("sends refresh credentials in the body by default", () => {
+    const request = getPayloadForRefreshTokenRequest({
+      tokenEndpoint: baseRequestParams.tokenEndpoint,
+      clientID: baseRequestParams.clientID,
+      clientSecret: baseRequestParams.clientSecret,
+      refreshToken: "refresh-token",
+    })
+    const bodyParams = getBodyParams(request)
+
+    expect(request.headers.Authorization).toBeUndefined()
+    expect(bodyParams.get("grant_type")).toBe("refresh_token")
+    expect(bodyParams.get("refresh_token")).toBe("refresh-token")
+    expect(bodyParams.get("client_id")).toBe("client-id")
+    expect(bodyParams.get("client_secret")).toBe("client-secret")
+  })
+
+  it("sends refresh credentials using Basic authentication and preserves parameters", () => {
+    const request = getPayloadForRefreshTokenRequest({
+      tokenEndpoint: baseRequestParams.tokenEndpoint,
+      clientID: "client id",
+      clientSecret: "client&secret",
+      refreshToken: "refresh-token",
+      clientAuthentication: "AS_BASIC_AUTH_HEADERS",
+      refreshRequestParams: [
+        { id: 1, key: "audience", value: "api", active: true, sendIn: "url" },
+        {
+          id: 2,
+          key: "X-Request-Source",
+          value: "hoppscotch",
+          active: true,
+          sendIn: "headers",
+        },
+        {
+          id: 3,
+          key: "resource",
+          value: "https://example.com/api",
+          active: true,
+          sendIn: "body",
+        },
+      ],
+    })
+    const bodyParams = getBodyParams(request)
+
+    expect(request.headers.Authorization).toBe(
+      `Basic ${btoa("client+id:client%26secret")}`
+    )
+    expect(request.headers["X-Request-Source"]).toBe("hoppscotch")
+    expect(bodyParams.has("client_id")).toBe(false)
+    expect(bodyParams.has("client_secret")).toBe(false)
+    expect(bodyParams.get("resource")).toBe("https://example.com/api")
+    expect(new URL(request.url).searchParams.get("audience")).toBe("api")
+  })
+
+  it("defaults new and existing configurations to body authentication", () => {
+    const parsed = AuthCodeGrantTypeParams.safeParse({
+      grantType: "AUTHORIZATION_CODE",
+      authEndpoint: "https://example.com/oauth/authorize",
+      tokenEndpoint: "https://example.com/oauth/token",
+      clientID: "client-id",
+      clientSecret: "client-secret",
+      isPKCE: false,
+      authRequestParams: [],
+      tokenRequestParams: [],
+      refreshRequestParams: [],
+    })
+
+    expect(parsed.success).toBe(true)
+    if (parsed.success) {
+      expect(parsed.data.clientAuthentication).toBe("IN_BODY")
+    }
+  })
+})

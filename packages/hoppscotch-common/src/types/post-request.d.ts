@@ -120,6 +120,7 @@ type OAuth2GrantTypeInfo =
       tokenEndpoint: string
       clientID: string
       clientSecret?: string
+      clientAuthentication?: "AS_BASIC_AUTH_HEADERS" | "IN_BODY"
       scopes?: string
       isPKCE?: boolean
       codeVerifierMethod?: "plain" | "S256"

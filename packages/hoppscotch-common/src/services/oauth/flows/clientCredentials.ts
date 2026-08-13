@@ -11,6 +11,7 @@ import { useToast } from "~/composables/toast"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { RelayRequest, content } from "@hoppscotch/kernel"
 import { parseBytesToJSON } from "~/helpers/functional/json"
+import { getBasicAuthHeader } from "../clientAuthentication"
 import { refreshToken, OAuth2ParamSchema } from "../utils"
 import { ClientCredentialsGrantTypeParams } from "@hoppscotch/data"
 
@@ -207,13 +208,8 @@ const getPayloadForViaBasicAuthHeader = ({
   authEndpoint,
   tokenRequestParams,
 }: ClientCredentialsFlowParams): RelayRequest => {
-  // RFC 6749 Section 2.3.1 states that the client ID and secret should be URL encoded.
-  const encodedClientID = encodeBasicAuthComponent(clientID)
-  const encodedClientSecret = encodeBasicAuthComponent(clientSecret || "")
-  const basicAuthToken = btoa(`${encodedClientID}:${encodedClientSecret}`)
-
   const headers: Record<string, string> = {
-    Authorization: `Basic ${basicAuthToken}`,
+    Authorization: getBasicAuthHeader(clientID, clientSecret),
     "Content-Type": "application/x-www-form-urlencoded",
     Accept: "application/json",
   }
@@ -306,10 +302,4 @@ const getPayloadForViaBody = ({
     headers,
     content: content.urlencoded(bodyParams),
   }
-}
-
-const encodeBasicAuthComponent = (component: string): string => {
-  // application/x-www-form-urlencoded expects spaces to be encoded as '+', but
-  // encodeURIComponent encodes them as '%20'.
-  return encodeURIComponent(component).replace(/%20/g, "+")
 }

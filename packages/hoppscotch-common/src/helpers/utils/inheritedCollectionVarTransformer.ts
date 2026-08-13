@@ -71,13 +71,46 @@ export const transformInheritedCollectionVariablesToAggregateEnv = (
  */
 export const populateValuesInInheritedCollectionVars = (
   variables: HoppCollectionVariable[],
-  parentID?: string
+  parentID?: string,
+  /**
+   * Second storage key to try when `parentID` misses. Client-local values are
+   * stored under `_ref_id ?? id` for personal collections but under the
+   * server `id` for team collections, whose `_ref_id` is regenerated on every
+   * fetch — passing the server id here serves both key schemes.
+   */
+  fallbackID?: string
 ): HoppCollectionVariable[] =>
   parentID
     ? variables.map((variable, index) => ({
         ...variable,
         currentValue:
           getCurrentValue(variable.secret, index, parentID) ??
+          (fallbackID && fallbackID !== parentID
+            ? getCurrentValue(variable.secret, index, fallbackID)
+            : undefined) ??
           variable.currentValue,
       }))
     : []
+
+/**
+ * Resolves one level of collection-variable inheritance for the runner walk.
+ *
+ * Parents arrive already resolved and pass through untouched; only the
+ * current collection's own variables are populated here, under its own ID
+ * with indices into its own list — the `(collectionID, varIndex)` key shape
+ * `CurrentValueService` stores. Never re-resolve the merged array under a
+ * single ID: indices collide across owners and read other variables' slots.
+ */
+export const resolveInheritedVariables = (
+  parentVariables: HoppCollectionVariable[],
+  ownVariables: HoppCollectionVariable[],
+  ownCollectionID?: string,
+  ownCollectionFallbackID?: string
+): HoppCollectionVariable[] => [
+  ...parentVariables,
+  ...populateValuesInInheritedCollectionVars(
+    ownVariables,
+    ownCollectionID,
+    ownCollectionFallbackID
+  ),
+]

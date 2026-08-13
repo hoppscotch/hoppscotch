@@ -36,18 +36,32 @@ const normalizeRow = (row: Record<string, unknown>): DatasetRow =>
       .map(([key, value]) => [key.trim(), stringifyDatasetValue(value)])
   )
 
+// PapaParse reports notices through the same `errors` array as real failures.
+// `UndetectableDelimiter` fires on every single-column file even though the
+// parse succeeded, so `Delimiter` errors are never fatal.
+const isFatalParseError = (error: Papa.ParseError) => error.type !== "Delimiter"
+
+const formatParseError = (error: Papa.ParseError) =>
+  // `row` is 0-based and excludes the header line, so +2 is the file line.
+  typeof error.row === "number"
+    ? `Line ${error.row + 2}: ${error.message}`
+    : error.message
+
 const parseCSV = (contents: string): E.Either<string, DatasetRow[]> => {
   const parsed = Papa.parse<Record<string, unknown>>(contents, {
     header: true,
-    skipEmptyLines: true,
+    // "greedy" also drops whitespace-only lines, which plain `true` parses as
+    // one-field rows that fail the file with TooFewFields.
+    skipEmptyLines: "greedy",
     transformHeader: (header) => header.trim(),
   })
 
-  if (parsed.errors.length > 0) {
-    return E.left(parsed.errors.map((error) => error.message).join(", "))
+  const fatalErrors = parsed.errors.filter(isFatalParseError)
+
+  if (fatalErrors.length > 0) {
+    return E.left(fatalErrors.map(formatParseError).join(", "))
   }
 
-  // Keep every parsed row (blank lines are already dropped via skipEmptyLines).
   // A row with no data columns is still a valid iteration.
   return E.right(parsed.data.map(normalizeRow))
 }
@@ -64,8 +78,7 @@ const parseJSON = (contents: string): E.Either<string, DatasetRow[]> => {
       return E.left("JSON data file must contain only objects")
     }
 
-    // Every supplied object is one iteration, including empty objects (an
-    // iteration with no data variables); don't drop them.
+    // An empty object is still a valid iteration; don't drop it.
     return E.right(parsed.map(normalizeRow))
   } catch (error) {
     return E.left(

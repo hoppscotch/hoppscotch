@@ -57,8 +57,10 @@ import { HoppTab } from "~/services/tab"
 import { updateTeamEnvironment } from "./backend/mutations/TeamEnvironment"
 import { createRESTNetworkRequestStream } from "./network"
 import { HoppRequestDocument } from "./rest/document"
+import { stripIterationVarsFromEnvs } from "./runner/iteration-vars"
 import {
   getTemporaryVariables,
+  scriptEnvsToTemporaryVariables,
   setTemporaryVariables,
 } from "./runner/temp_envs"
 import { HoppRESTResponse } from "./types/HoppRESTResponse"
@@ -894,23 +896,14 @@ export async function runTestRunnerRequest(
   } = initialEnvironmentState
 
   const iterationVarKeys = new Set(iterationVars.map(({ key }) => key))
+  // Injected into `selected` only — the sandbox env shape has no temp scope;
+  // template resolution gets the iteration values via the effective request.
   const initialEnvsWithIterationData = {
     ...initialEnvs,
     selected: [...iterationVars, ...initialEnvs.selected],
-    temp: [...iterationVars, ...(initialEnvs.temp ?? [])],
   }
-  const stripIterationVars = (
-    envs: TestResult["envs"]
-  ): TestResult["envs"] => ({
-    global: envs.global,
-    // Drop the injected iteration entries. If a dataset column shadowed a real
-    // selected env var, restore that var's original entry so a data run stays
-    // ephemeral instead of erasing genuine environment state on writeback.
-    selected: [
-      ...envs.selected.filter(({ key }) => !iterationVarKeys.has(key)),
-      ...initialEnvs.selected.filter(({ key }) => iterationVarKeys.has(key)),
-    ],
-  })
+  const stripIterationVars = (envs: TestResult["envs"]): TestResult["envs"] =>
+    stripIterationVarsFromEnvs(envs, iterationVarKeys, initialEnvs.selected)
 
   // Wait for browser to paint the loading state (Send -> Cancel button)
   // Adds ~32ms latency but ensures immediate visual feedback
@@ -1032,13 +1025,11 @@ export async function runTestRunnerRequest(
                 )
               }
             } else {
-              // Combine global and selected environment changes
-              const allChanges = [
-                ...filteredPostRequestScriptResult.envs.global,
-                ...filteredPostRequestScriptResult.envs.selected,
-              ]
-
-              setTemporaryVariables(allChanges)
+              setTemporaryVariables(
+                scriptEnvsToTemporaryVariables(
+                  filteredPostRequestScriptResult.envs
+                )
+              )
             }
 
             return E.right({

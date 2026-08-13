@@ -23,15 +23,17 @@ import {
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { HoppTestData, HoppTestResult } from "~/helpers/types/HoppTestResult"
 import { HoppTab } from "../tab"
-import { populateValuesInInheritedCollectionVars } from "~/helpers/utils/inheritedCollectionVarTransformer"
+import { resolveInheritedVariables } from "~/helpers/utils/inheritedCollectionVarTransformer"
 import { datasetRowToTempVars } from "~/helpers/runner/dataset"
-import { getRequestSelectionID } from "~/helpers/runner/selection"
+import {
+  applyRunOrder,
+  getRequestSelectionID,
+} from "~/helpers/runner/selection"
 import { clearTemporaryVariables } from "~/helpers/runner/temp_envs"
 
-// Sentinel errors used to unwind the runner. A plain "Test execution stopped"
-// is a user cancel; "Test execution stopped due to error" is a stop-on-error
-// halt. Both are normal terminations (run status "stopped"), not runner
-// failures, so every unwinding catch must recognize either form.
+// Sentinel errors that unwind the runner: "Test execution stopped" is a user
+// cancel, "…stopped due to error" a stop-on-error halt. Both are normal
+// terminations, so unwinding catches must recognize either form.
 const STOP_SIGNAL_PREFIX = "Test execution stopped"
 const isStopSignal = (error: unknown): error is Error =>
   error instanceof Error && error.message.startsWith(STOP_SIGNAL_PREFIX)
@@ -39,6 +41,23 @@ const isStopSignal = (error: unknown): error is Error =>
 export type TestRunnerOptions = {
   stopRef: Ref<boolean>
 } & TestRunnerConfig
+
+/**
+ * One request resolved against its ancestry and bound to its slot in the
+ * result tree.
+ */
+type PlannedRequest = {
+  /** Selection ID — how the run sequence refers to this request. */
+  id: string
+  request: TestRunnerRequest
+  /** Owning collection/folder, for the test-script context. */
+  collection: HoppCollection
+  /** Folder names from the run root down to this request's parent. */
+  folderPath: string[]
+  inheritedVariables: HoppCollectionVariable[]
+  inheritedPreRequestScripts: string[]
+  inheritedTestScripts: string[]
+}
 
 export type TestRunnerRequest = HoppRESTRequest & {
   type: "test-response"
@@ -50,6 +69,8 @@ export type TestRunnerRequest = HoppRESTRequest & {
   passedTests: number
   failedTests: number
   runnerRequestID?: string
+  /** Folder names from the run root down to this request's parent. */
+  folderPath?: string[]
 }
 
 function delay(timeMS: number) {
@@ -136,18 +157,28 @@ export class TestRunnerService extends Service {
     collection: HoppCollection,
     options: TestRunnerOptions,
     ancestorPreRequestScripts: string[] = [],
-    ancestorTestScripts: string[] = []
+    ancestorTestScripts: string[] = [],
+    // Pre-resolved under their owning collections; the run root's own
+    // variables stay raw on `collection.variables` for the plan walk.
+    ancestorVariables: HoppCollectionVariable[] = []
   ) {
-    // Guard an explicit empty selection. The UI never emits this — it sends
-    // `undefined` to run the full collection and a non-empty array to run a
-    // subset — so an empty array only arrives from restored/external state.
-    // Fail loudly instead of silently running zero requests.
+    // `undefined` runs the full collection; an array runs that subset.
     const selection = tab.value.document.selectedRequestRefIds
-    if (Array.isArray(selection) && selection.length === 0) {
+    const selectionActive = Array.isArray(selection)
+    const selectedIDs = new Set(selection ?? [])
+
+    // A selection can resolve to zero requests: an explicitly empty array
+    // (the UI sends `undefined` for "run all"), or IDs that stopped resolving
+    // after a refetch. Fail loudly rather than report a successful empty run.
+    if (
+      selectionActive &&
+      !this.collectionHasSelectedRequest(collection, [], selectedIDs, true)
+    ) {
       tab.value.document.status = "error"
       console.error(
-        "[Test Runner] No requests selected to run. Provide at least one " +
-          "request, or omit the selection to run the full collection."
+        "[Test Runner] The request selection matches no requests in this " +
+          "collection. Provide at least one request that exists in the tree, " +
+          "or omit the selection to run the full collection."
       )
       return
     }
@@ -160,13 +191,16 @@ export class TestRunnerService extends Service {
     tab.value.document.testRunnerMeta = this.createEmptyMeta()
     clearTemporaryVariables()
 
-    const selectionActive = Array.isArray(
-      tab.value.document.selectedRequestRefIds
-    )
-    const selectedIDs = new Set(tab.value.document.selectedRequestRefIds ?? [])
+    // One run per dataset row when a data file is attached; config.iterations
+    // only drives dataset-less runs (persisted/external state can diverge
+    // from the UI's lock).
     const resolvedIterations = options.dataset?.rows.length
       ? options.dataset.rows.length
       : Math.max(1, Number(options.iterations) || 1)
+
+    // The selection array doubles as the run order; anything it doesn't
+    // mention keeps collection order, after everything it does.
+    const runOrder = new Map((selection ?? []).map((id, index) => [id, index]))
 
     this.runTestIterations(
       tab,
@@ -175,8 +209,10 @@ export class TestRunnerService extends Service {
       resolvedIterations,
       selectedIDs,
       selectionActive,
+      runOrder,
       ancestorPreRequestScripts,
-      ancestorTestScripts
+      ancestorTestScripts,
+      ancestorVariables
     )
       .then(() => {
         tab.value.document.status = "stopped"
@@ -203,8 +239,10 @@ export class TestRunnerService extends Service {
     resolvedIterations: number,
     selectedIDs: Set<string>,
     selectionActive: boolean,
+    runOrder: Map<string, number>,
     ancestorPreRequestScripts: string[] = [],
-    ancestorTestScripts: string[] = []
+    ancestorTestScripts: string[] = [],
+    ancestorVariables: HoppCollectionVariable[] = []
   ) {
     for (
       let iterationIndex = 0;
@@ -218,21 +256,17 @@ export class TestRunnerService extends Service {
 
       if (!options.keepVariableValues) clearTemporaryVariables()
 
-      // When variable values are not persisted, the global/selected env stores
-      // are never written back mid-iteration, so this snapshot is identical for
-      // every request in the iteration and can be captured once. With
-      // keepVariableValues on, scripts persist changes to the store between
-      // requests, so each request must re-capture (left undefined here).
+      // Without persisted values the env stores are never written back
+      // mid-iteration, so one snapshot serves the whole iteration. With
+      // keepVariableValues on, each request re-captures (left undefined here).
       const iterationEnvState = options.keepVariableValues
         ? undefined
         : captureInitialEnvironmentState()
 
       const resultCollection = this.createResultCollection(collection)
       const meta = this.createEmptyMeta()
-      // The iteration count is normally locked to the dataset length by the UI,
-      // so this clamp is defensive: if the two ever diverge (e.g. a persisted
-      // state that keeps the count but has fewer rows), reuse the last row
-      // rather than reading out of bounds.
+      // The UI locks the iteration count to the dataset length; if the two
+      // ever diverge, reuse the last row rather than read out of bounds.
       const iterationVars = options.dataset?.rows.length
         ? datasetRowToTempVars(
             options.dataset.rows[
@@ -246,197 +280,215 @@ export class TestRunnerService extends Service {
         resultCollection,
         meta,
       })
-      tab.value.document.selectedIteration = iterationIndex
+      // `selectedIteration` is the iteration the user is VIEWING — owned by
+      // the jump control and scroll tracking, not the run. Advancing it here
+      // left a finished run's counter parked on the last iteration while the
+      // viewport still showed the first.
       tab.value.document.resultCollection = resultCollection
 
-      await this.runTestCollection(
+      // Read the collection back off the document: the assignment above stores
+      // the raw object, and mutating a raw object never notifies Vue — rows
+      // must be appended through the reactive view.
+      const liveResultCollection = tab.value.document.resultCollection!
+
+      const orderedPlan = applyRunOrder(
+        this.planCollection(
+          collection,
+          selectedIDs,
+          selectionActive,
+          [],
+          [],
+          undefined,
+          undefined,
+          ancestorVariables,
+          ancestorPreRequestScripts,
+          ancestorTestScripts
+        ),
+        runOrder
+      )
+
+      // Results are a flat list in run order; each row carries its folder
+      // path instead of nesting back under folders.
+      orderedPlan.forEach((entry) =>
+        this.addRequestToPath(liveResultCollection, [], {
+          ...cloneDeep(entry.request),
+          runnerRequestID: entry.id,
+          folderPath: entry.folderPath,
+          passedTests: 0,
+          failedTests: 0,
+        })
+      )
+
+      tab.value.document.testRunnerMeta.totalRequests += orderedPlan.length
+      meta.totalRequests += orderedPlan.length
+
+      await this.runPlan(
         tab,
-        collection,
+        orderedPlan,
         options,
-        selectedIDs,
-        selectionActive,
-        resultCollection,
         meta,
         iterationVars,
-        [],
-        [],
-        undefined,
-        undefined,
-        [],
-        undefined,
-        ancestorPreRequestScripts,
-        ancestorTestScripts,
         iterationEnvState
       )
     }
   }
 
-  private async runTestCollection(
-    tab: Ref<HoppTab<HoppTestRunnerDocument>>,
+  /**
+   * Walks the collection and returns the requests to run, each with inherited
+   * auth/headers/variables/scripts resolved against its own ancestry.
+   *
+   * Planning is separate from execution so the run sequence can reorder
+   * across folders; result slots are allocated after ordering so results
+   * read in executed order.
+   */
+  private planCollection(
     collection: HoppCollection,
-    options: TestRunnerOptions,
     selectedIDs: Set<string>,
     selectionActive: boolean,
-    resultCollection: HoppCollection,
-    iterationMeta: TestRunnerMeta,
-    iterationVars: Environment["variables"],
     sourceParentPath: number[] = [],
-    resultParentPath: number[] = [],
+    folderPath: string[] = [],
     parentHeaders?: HoppRESTHeaders,
     parentAuth?: HoppRESTRequest["auth"],
     parentVariables: HoppCollection["variables"] = [],
-    parentID?: string,
     parentPreRequestScripts: string[] = [],
-    parentTestScripts: string[] = [],
-    iterationEnvState?: InitialEnvironmentState
-  ) {
-    try {
-      // Compute inherited auth and headers for this collection
-      const inheritedAuth =
-        collection.auth?.authType === "inherit" && collection.auth.authActive
-          ? parentAuth || { authType: "none", authActive: false }
-          : collection.auth || { authType: "none", authActive: false }
+    parentTestScripts: string[] = []
+  ): PlannedRequest[] {
+    const inheritedAuth =
+      collection.auth?.authType === "inherit" && collection.auth.authActive
+        ? parentAuth || { authType: "none", authActive: false }
+        : collection.auth || { authType: "none", authActive: false }
 
-      const inheritedHeaders: HoppRESTHeaders = [
-        ...(parentHeaders || []),
-        ...collection.headers,
-      ]
+    const inheritedHeaders: HoppRESTHeaders = [
+      ...(parentHeaders || []),
+      ...collection.headers,
+    ]
 
-      const inheritedVariables = [
-        ...(populateValuesInInheritedCollectionVars(
-          parentVariables,
-          parentID || collection._ref_id || collection.id
-        ) || []),
-        ...(populateValuesInInheritedCollectionVars(
-          collection.variables,
-          collection._ref_id || collection.id
-        ) || []),
-      ]
+    // Parents pass through already resolved; only this collection's own
+    // variables are populated here, under its own ID. The server `id`
+    // fallback mirrors the save-side keying for team collections, whose
+    // `_ref_id` is regenerated on every fetch.
+    const inheritedVariables = resolveInheritedVariables(
+      parentVariables,
+      collection.variables,
+      collection._ref_id || collection.id,
+      collection.id
+    )
 
-      const inheritedPreRequestScripts = [
-        ...parentPreRequestScripts,
-        ...(hasActualScript(collection.preRequestScript)
-          ? [collection.preRequestScript]
-          : []),
-      ]
-      const inheritedTestScripts = [
-        ...parentTestScripts,
-        ...(hasActualScript(collection.testScript)
-          ? [collection.testScript]
-          : []),
-      ]
+    const inheritedPreRequestScripts = [
+      ...parentPreRequestScripts,
+      ...(hasActualScript(collection.preRequestScript)
+        ? [collection.preRequestScript]
+        : []),
+    ]
+    const inheritedTestScripts = [
+      ...parentTestScripts,
+      ...(hasActualScript(collection.testScript)
+        ? [collection.testScript]
+        : []),
+    ]
 
-      // Process folders progressively
-      for (let i = 0; i < collection.folders.length; i++) {
-        if (options.stopRef?.value) {
-          tab.value.document.status = "stopped"
-          throw new Error("Test execution stopped")
-        }
+    const planned: PlannedRequest[] = []
 
-        const folder = collection.folders[i]
-        const sourcePath = [...sourceParentPath, i]
+    // Folders (depth-first) before a node's own requests — must match
+    // `collectRequestIDs` and the run-sequence UI's flatten.
+    for (let i = 0; i < collection.folders.length; i++) {
+      const folder = collection.folders[i]
+      const sourcePath = [...sourceParentPath, i]
 
-        if (
-          !this.collectionHasSelectedRequest(
-            folder,
-            sourcePath,
-            selectedIDs,
-            selectionActive
-          )
-        ) {
-          continue
-        }
-
-        // Add folder to the result collection
-        const resultFolderIndex = this.addFolderToPath(
-          resultCollection,
-          resultParentPath,
-          {
-            ...cloneDeep(folder),
-            folders: [],
-            requests: [],
-          }
-        )
-        const resultPath = [...resultParentPath, resultFolderIndex]
-
-        await this.runTestCollection(
-          tab,
+      if (
+        !this.collectionHasSelectedRequest(
           folder,
-          options,
+          sourcePath,
+          selectedIDs,
+          selectionActive
+        )
+      ) {
+        continue
+      }
+
+      planned.push(
+        ...this.planCollection(
+          folder,
           selectedIDs,
           selectionActive,
-          resultCollection,
-          iterationMeta,
-          iterationVars,
           sourcePath,
-          resultPath,
+          [...folderPath, folder.name],
           inheritedHeaders,
           inheritedAuth,
           inheritedVariables,
-          collection._ref_id || collection.id,
           inheritedPreRequestScripts,
-          inheritedTestScripts,
-          iterationEnvState
+          inheritedTestScripts
         )
+      )
+    }
+
+    for (let i = 0; i < collection.requests.length; i++) {
+      const request = collection.requests[i] as TestRunnerRequest
+      const sourcePath = [...sourceParentPath, i]
+
+      if (
+        !this.shouldRunRequest(
+          request,
+          sourcePath,
+          selectedIDs,
+          selectionActive
+        )
+      ) {
+        continue
       }
 
-      // Process requests progressively
-      for (let i = 0; i < collection.requests.length; i++) {
-        if (options.stopRef?.value) {
-          tab.value.document.status = "stopped"
-          throw new Error("Test execution stopped")
-        }
-
-        const request = collection.requests[i] as TestRunnerRequest
-        const sourcePath = [...sourceParentPath, i]
-
-        if (
-          !this.shouldRunRequest(
-            request,
-            sourcePath,
-            selectedIDs,
-            selectionActive
-          )
-        ) {
-          continue
-        }
-
-        // Add request to the result collection before execution
-        const resultRequestIndex = this.addRequestToPath(
-          resultCollection,
-          resultParentPath,
-          {
-            ...cloneDeep(request),
-            runnerRequestID: getRequestSelectionID(request, sourcePath),
-            passedTests: 0,
-            failedTests: 0,
-          }
-        )
-        const resultPath = [...resultParentPath, resultRequestIndex]
-        tab.value.document.testRunnerMeta.totalRequests += 1
-        iterationMeta.totalRequests += 1
-
-        // Update the request with inherited headers and auth before execution
-        const finalRequest = {
+      planned.push({
+        id: getRequestSelectionID(request, sourcePath),
+        request: {
           ...request,
           auth:
             request.auth.authType === "inherit" && request.auth.authActive
               ? inheritedAuth
               : request.auth,
           headers: [...inheritedHeaders, ...request.headers],
+        },
+        collection,
+        folderPath,
+        inheritedVariables,
+        inheritedPreRequestScripts,
+        inheritedTestScripts,
+      })
+    }
+
+    return planned
+  }
+
+  /**
+   * Runs a plan in the given order, which is the user's run sequence when they
+   * set one and plain collection order otherwise.
+   */
+  private async runPlan(
+    tab: Ref<HoppTab<HoppTestRunnerDocument>>,
+    plan: PlannedRequest[],
+    options: TestRunnerOptions,
+    iterationMeta: TestRunnerMeta,
+    iterationVars: Environment["variables"],
+    iterationEnvState?: InitialEnvironmentState
+  ) {
+    try {
+      for (const [index, entry] of plan.entries()) {
+        if (options.stopRef?.value) {
+          tab.value.document.status = "stopped"
+          throw new Error("Test execution stopped")
         }
 
         await this.runTestRequest(
           tab,
-          finalRequest,
-          collection,
+          entry.request,
+          entry.collection,
           options,
-          resultPath,
+          // Result rows are allocated in this same order: plan index = row.
+          [index],
           iterationMeta,
           iterationVars,
-          inheritedVariables,
-          inheritedPreRequestScripts,
-          inheritedTestScripts,
+          entry.inheritedVariables,
+          entry.inheritedPreRequestScripts,
+          entry.inheritedTestScripts,
           iterationEnvState
         )
 
@@ -459,22 +511,6 @@ export class TestRunnerService extends Service {
       console.error("Collection execution failed:", error)
       throw error
     }
-  }
-
-  private addFolderToPath(
-    collection: HoppCollection,
-    parentPath: number[],
-    folder: HoppCollection
-  ) {
-    let current = collection
-
-    // Navigate to the parent folder
-    for (let i = 0; i < parentPath.length; i++) {
-      current = current.folders[parentPath[i]]
-    }
-
-    current.folders.push(folder)
-    return current.folders.length - 1
   }
 
   private addRequestToPath(
@@ -505,13 +541,13 @@ export class TestRunnerService extends Service {
       current = current.folders[path[i]]
     }
 
-    // Update the request at the specified index
+    // Mutate in place: selecting a request stores a reference to this object
+    // on the tab (`document.request`); replacing it would orphan that
+    // reference and the response would never reach the selected view.
     if (path.length > 0) {
       const index = path[path.length - 1]
-      current.requests[index] = {
-        ...current.requests[index],
-        ...updates,
-      } as TestRunnerRequest
+      const target = current.requests[index]
+      if (target) Object.assign(target, updates)
     }
   }
 
@@ -539,10 +575,9 @@ export class TestRunnerService extends Service {
         error: undefined,
       })
 
-      // Reuse the per-iteration snapshot when variable values aren't persisted;
-      // otherwise re-capture so this request sees env changes persisted by
-      // earlier requests in the run. runTestRunnerRequest yields for a browser
-      // paint before the network call, so the loading state still renders.
+      // Reuse the per-iteration snapshot when variable values aren't
+      // persisted; otherwise re-capture so this request sees env changes
+      // persisted by earlier requests in the run.
       const initialEnvironmentState =
         iterationEnvState ?? captureInitialEnvironmentState()
 
@@ -557,6 +592,11 @@ export class TestRunnerService extends Service {
       )
 
       if (options.stopRef?.value) {
+        // Clear the loading flag so a stop taken mid-flight doesn't leave a
+        // permanent spinner on the row.
+        this.updateRequestAtPath(tab.value.document.resultCollection!, path, {
+          isLoading: false,
+        })
         throw new Error("Test execution stopped")
       }
 

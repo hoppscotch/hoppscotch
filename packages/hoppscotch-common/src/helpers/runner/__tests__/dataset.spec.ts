@@ -26,6 +26,55 @@ describe("collection runner dataset parsing", () => {
     })
   })
 
+  // PapaParse emits UndetectableDelimiter on single-column files even though
+  // the parse succeeded; it must not be treated as fatal.
+  test("accepts a single-column CSV", async () => {
+    const result = await parseDatasetFile(
+      file("testing.csv", "userId\n1\n2\n3")
+    )
+
+    expect(E.isRight(result)).toBe(true)
+    if (E.isLeft(result)) return
+
+    expect(result.right.rows).toEqual([
+      { userId: "1" },
+      { userId: "2" },
+      { userId: "3" },
+    ])
+  })
+
+  test("accepts a single-column CSV prefixed with a UTF-8 BOM", async () => {
+    const result = await parseDatasetFile(file("testing.csv", "﻿userId\n1\n2"))
+
+    expect(E.isRight(result)).toBe(true)
+    if (E.isLeft(result)) return
+
+    expect(result.right.rows).toEqual([{ userId: "1" }, { userId: "2" }])
+  })
+
+  test("ignores trailing whitespace-only lines", async () => {
+    const result = await parseDatasetFile(
+      file("testing.csv", "a,b\n1,2\n   \n")
+    )
+
+    expect(E.isRight(result)).toBe(true)
+    if (E.isLeft(result)) return
+
+    expect(result.right.rows).toEqual([{ a: "1", b: "2" }])
+  })
+
+  test("reports the spreadsheet line number for a malformed row", async () => {
+    const result = await parseDatasetFile(
+      file("testing.csv", "a,b\n1,2\n3\n4,5")
+    )
+
+    expect(E.isLeft(result)).toBe(true)
+    if (E.isRight(result)) return
+
+    // Header is line 1, so the short row (parsed row index 1) is line 3.
+    expect(result.left).toContain("Line 3")
+  })
+
   test("parses JSON rows and stringifies non-string values", async () => {
     const result = await parseDatasetFile(
       file(

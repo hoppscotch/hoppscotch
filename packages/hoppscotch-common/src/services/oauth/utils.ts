@@ -43,8 +43,9 @@ export const refreshToken = async ({
   clientAuthentication,
   refreshRequestParams,
 }: RefreshTokenParams) => {
-  const { response } = interceptorService.execute(
-    getPayloadForRefreshTokenRequest({
+  let refreshRequest: ReturnType<typeof getPayloadForRefreshTokenRequest>
+  try {
+    refreshRequest = getPayloadForRefreshTokenRequest({
       tokenEndpoint,
       clientID,
       clientSecret,
@@ -52,7 +53,11 @@ export const refreshToken = async ({
       clientAuthentication,
       refreshRequestParams,
     })
-  )
+  } catch (_error) {
+    return E.left("AUTH_TOKEN_REQUEST_FAILED" as const)
+  }
+
+  const { response } = interceptorService.execute(refreshRequest)
 
   const res = await response
 

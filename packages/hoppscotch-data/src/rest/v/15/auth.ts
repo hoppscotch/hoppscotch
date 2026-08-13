@@ -34,9 +34,6 @@ export const OAuth2AdvancedParam = z.object({
 export const OAuth2AuthRequestParam = OAuth2AdvancedParam.omit({ sendIn: true })
 
 export const AuthCodeGrantTypeParams = AuthCodeGrantTypeParamsOld.extend({
-  clientAuthentication: z
-    .enum(["AS_BASIC_AUTH_HEADERS", "IN_BODY"])
-    .catch("IN_BODY"),
   authRequestParams: z.array(OAuth2AuthRequestParam).optional().default([]),
   tokenRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
   refreshRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),

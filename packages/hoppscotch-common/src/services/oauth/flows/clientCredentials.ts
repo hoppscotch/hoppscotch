@@ -9,9 +9,9 @@ import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import { useToast } from "~/composables/toast"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
-import { RelayRequest, content } from "@hoppscotch/kernel"
+import { content } from "@hoppscotch/kernel"
 import { parseBytesToJSON } from "~/helpers/functional/json"
-import { getBasicAuthHeader } from "../clientAuthentication"
+import { getPayloadForClientCredentialsTokenRequest } from "../clientAuthentication"
 import { refreshToken, OAuth2ParamSchema } from "../utils"
 import { ClientCredentialsGrantTypeParams } from "@hoppscotch/data"
 
@@ -25,7 +25,9 @@ const ClientCredentialsFlowParamsSchema = ClientCredentialsGrantTypeParams.omit(
   }
 )
   .extend({
-    clientAuthentication: z.enum(["AS_BASIC_AUTH_HEADERS", "IN_BODY"]),
+    clientAuthentication: z
+      .enum(["AS_BASIC_AUTH_HEADERS", "IN_BODY"])
+      .catch("IN_BODY"),
     // Override optional arrays to be required for the service layer
     tokenRequestParams: z.array(OAuth2ParamSchema),
     refreshRequestParams: z.array(OAuth2ParamSchema),
@@ -65,10 +67,21 @@ const initClientCredentialsOAuthFlow = async (
 ) => {
   const toast = useToast()
 
-  const requestPayload =
-    payload.clientAuthentication === "AS_BASIC_AUTH_HEADERS"
-      ? getPayloadForViaBasicAuthHeader(payload)
-      : getPayloadForViaBody(payload)
+  let requestPayload: ReturnType<
+    typeof getPayloadForClientCredentialsTokenRequest
+  >
+  try {
+    requestPayload = getPayloadForClientCredentialsTokenRequest({
+      tokenEndpoint: payload.authEndpoint,
+      clientID: payload.clientID,
+      clientSecret: payload.clientSecret,
+      scopes: payload.scopes,
+      clientAuthentication: payload.clientAuthentication,
+      tokenRequestParams: payload.tokenRequestParams,
+    })
+  } catch (_error) {
+    return E.left("AUTH_TOKEN_REQUEST_FAILED" as const)
+  }
 
   const { response } = interceptorService.execute(requestPayload)
 
@@ -200,106 +213,3 @@ export default createFlowConfig(
   handleRedirectForAuthCodeOauthFlow,
   refreshToken
 )
-
-const getPayloadForViaBasicAuthHeader = ({
-  clientID,
-  clientSecret,
-  scopes,
-  authEndpoint,
-  tokenRequestParams,
-}: ClientCredentialsFlowParams): RelayRequest => {
-  const headers: Record<string, string> = {
-    Authorization: getBasicAuthHeader(clientID, clientSecret),
-    "Content-Type": "application/x-www-form-urlencoded",
-    Accept: "application/json",
-  }
-
-  const bodyParams: Record<string, string> = {
-    grant_type: "client_credentials",
-    ...(scopes && { scope: scopes }),
-  }
-
-  const urlParams: Record<string, string> = {}
-
-  // Process additional token request parameters
-  if (tokenRequestParams) {
-    tokenRequestParams
-      .filter((param) => param.active && param.key && param.value)
-      .forEach((param) => {
-        if (param.sendIn === "headers") {
-          headers[param.key] = param.value
-        } else if (param.sendIn === "url") {
-          urlParams[param.key] = param.value
-        } else {
-          // Default to body
-          bodyParams[param.key] = param.value
-        }
-      })
-  }
-
-  const url = new URL(authEndpoint)
-  Object.entries(urlParams).forEach(([key, value]) => {
-    url.searchParams.set(key, value)
-  })
-
-  return {
-    id: Date.now(),
-    url: url.toString(),
-    method: "POST",
-    version: "HTTP/1.1",
-    headers,
-    content: content.urlencoded(bodyParams),
-  }
-}
-
-const getPayloadForViaBody = ({
-  clientID,
-  clientSecret,
-  scopes,
-  authEndpoint,
-  tokenRequestParams,
-}: ClientCredentialsFlowParams): RelayRequest => {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/x-www-form-urlencoded",
-    Accept: "application/json",
-  }
-
-  const bodyParams: Record<string, string> = {
-    grant_type: "client_credentials",
-    client_id: clientID,
-    ...(clientSecret && { client_secret: clientSecret }),
-    ...(scopes && { scope: scopes }),
-  }
-
-  const urlParams: Record<string, string> = {}
-
-  // Process additional token request parameters
-  if (tokenRequestParams) {
-    tokenRequestParams
-      .filter((param) => param.active && param.key && param.value)
-      .forEach((param) => {
-        if (param.sendIn === "headers") {
-          headers[param.key] = param.value
-        } else if (param.sendIn === "url") {
-          urlParams[param.key] = param.value
-        } else {
-          // Default to body
-          bodyParams[param.key] = param.value
-        }
-      })
-  }
-
-  const url = new URL(authEndpoint)
-  Object.entries(urlParams).forEach(([key, value]) => {
-    url.searchParams.set(key, value)
-  })
-
-  return {
-    id: Date.now(),
-    url: url.toString(),
-    method: "POST",
-    version: "HTTP/1.1",
-    headers,
-    content: content.urlencoded(bodyParams),
-  }
-}

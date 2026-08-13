@@ -10,6 +10,17 @@ export type OAuth2RequestParam = {
   sendIn?: "headers" | "url" | "body"
 }
 
+const reservedOAuthParamKeys = new Set([
+  "authorization",
+  "client_id",
+  "client_secret",
+  "code",
+  "code_verifier",
+  "grant_type",
+  "redirect_uri",
+  "refresh_token",
+])
+
 export const getBasicAuthHeader = (
   clientID: string,
   clientSecret = ""
@@ -27,15 +38,19 @@ const encodeBasicAuthComponent = (component: string): string => {
   return encodeURIComponent(component).replace(/%20/g, "+")
 }
 
-const applyRequestParams = (
+export const applyRequestParams = (
   requestParams: Array<OAuth2RequestParam> | undefined,
   headers: Record<string, string>,
   bodyParams: Record<string, string>,
   urlParams: Record<string, string>
 ) => {
   requestParams
-    ?.filter((param) => param.active && param.key && param.value)
+    ?.filter((param) => param.active && param.key)
     .forEach((param) => {
+      if (reservedOAuthParamKeys.has(param.key.toLowerCase())) {
+        return
+      }
+
       if (param.sendIn === "headers") {
         headers[param.key] = param.value
       } else if (param.sendIn === "url") {
@@ -46,11 +61,23 @@ const applyRequestParams = (
     })
 }
 
+const getURLWithParams = (
+  tokenEndpoint: string,
+  urlParams: Record<string, string>
+) => {
+  const url = new URL(tokenEndpoint)
+  Object.entries(urlParams).forEach(([key, value]) => {
+    url.searchParams.set(key, value)
+  })
+
+  return url.toString()
+}
+
 type AuthCodeTokenRequestParams = {
   tokenEndpoint: string
   redirectURI: string
   clientID: string
-  clientSecret: string
+  clientSecret?: string
   clientAuthentication?: ClientAuthentication
   code: string
   codeVerifier?: string
@@ -81,7 +108,9 @@ export const getPayloadForAuthCodeTokenRequest = ({
     grant_type: "authorization_code",
     ...(clientAuthentication === "IN_BODY" && {
       client_id: clientID,
-      client_secret: clientSecret,
+      ...(clientSecret && {
+        client_secret: clientSecret,
+      }),
     }),
     redirect_uri: redirectURI,
     ...(codeVerifier && {
@@ -93,14 +122,60 @@ export const getPayloadForAuthCodeTokenRequest = ({
 
   applyRequestParams(tokenRequestParams, headers, bodyParams, urlParams)
 
-  const url = new URL(tokenEndpoint)
-  Object.entries(urlParams).forEach(([key, value]) => {
-    url.searchParams.set(key, value)
-  })
+  return {
+    id: Date.now(),
+    url: getURLWithParams(tokenEndpoint, urlParams),
+    method: "POST",
+    version: "HTTP/1.1",
+    headers,
+    content: content.urlencoded(bodyParams),
+  }
+}
+
+type ClientCredentialsTokenRequestParams = {
+  tokenEndpoint: string
+  clientID: string
+  clientSecret?: string
+  scopes?: string
+  clientAuthentication?: ClientAuthentication
+  tokenRequestParams?: Array<OAuth2RequestParam>
+}
+
+export const getPayloadForClientCredentialsTokenRequest = ({
+  tokenEndpoint,
+  clientID,
+  clientSecret,
+  scopes,
+  clientAuthentication = "IN_BODY",
+  tokenRequestParams,
+}: ClientCredentialsTokenRequestParams): RelayRequest => {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/x-www-form-urlencoded",
+    Accept: "application/json",
+  }
+
+  if (clientAuthentication === "AS_BASIC_AUTH_HEADERS") {
+    headers.Authorization = getBasicAuthHeader(clientID, clientSecret)
+  }
+
+  const bodyParams: Record<string, string> = {
+    grant_type: "client_credentials",
+    ...(clientAuthentication === "IN_BODY" && {
+      client_id: clientID,
+      ...(clientSecret && {
+        client_secret: clientSecret,
+      }),
+    }),
+    ...(scopes && { scope: scopes }),
+  }
+
+  const urlParams: Record<string, string> = {}
+
+  applyRequestParams(tokenRequestParams, headers, bodyParams, urlParams)
 
   return {
     id: Date.now(),
-    url: url.toString(),
+    url: getURLWithParams(tokenEndpoint, urlParams),
     method: "POST",
     version: "HTTP/1.1",
     headers,
@@ -149,14 +224,9 @@ export const getPayloadForRefreshTokenRequest = ({
 
   applyRequestParams(refreshRequestParams, headers, bodyParams, urlParams)
 
-  const url = new URL(tokenEndpoint)
-  Object.entries(urlParams).forEach(([key, value]) => {
-    url.searchParams.set(key, value)
-  })
-
   return {
     id: Date.now(),
-    url: url.toString(),
+    url: getURLWithParams(tokenEndpoint, urlParams),
     method: "POST",
     version: "HTTP/1.1",
     headers,

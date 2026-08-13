@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { AuthCodeGrantTypeParams } from "@hoppscotch/data"
 import {
+  getPayloadForClientCredentialsTokenRequest,
   getPayloadForAuthCodeTokenRequest,
   getPayloadForRefreshTokenRequest,
 } from "../../clientAuthentication"
@@ -96,6 +97,128 @@ describe("Authorization Code OAuth flow", () => {
     expect(new URL(request.url).searchParams.get("audience")).toBe("api")
     expect(bodyParams.get("resource")).toBe("https://example.com/api")
     expect(request.headers["X-Request-Source"]).toBe("hoppscotch")
+  })
+
+  it("omits the client secret for public clients", () => {
+    const request = getPayloadForAuthCodeTokenRequest({
+      tokenEndpoint: baseRequestParams.tokenEndpoint,
+      redirectURI: baseRequestParams.redirectURI,
+      clientID: baseRequestParams.clientID,
+      code: baseRequestParams.code,
+      codeVerifier: baseRequestParams.codeVerifier,
+    })
+    const bodyParams = getBodyParams(request)
+
+    expect(bodyParams.get("client_id")).toBe("client-id")
+    expect(bodyParams.has("client_secret")).toBe(false)
+  })
+
+  it("preserves active advanced parameters with empty values", () => {
+    const request = getPayloadForAuthCodeTokenRequest({
+      ...baseRequestParams,
+      tokenRequestParams: [
+        { id: 1, key: "audience", value: "", active: true, sendIn: "url" },
+        { id: 2, key: "resource", value: "", active: true, sendIn: "body" },
+        {
+          id: 3,
+          key: "X-Empty-Header",
+          value: "",
+          active: true,
+          sendIn: "headers",
+        },
+      ],
+    })
+    const bodyParams = getBodyParams(request)
+
+    expect(new URL(request.url).searchParams.has("audience")).toBe(true)
+    expect(bodyParams.get("resource")).toBe("")
+    expect(request.headers["X-Empty-Header"]).toBe("")
+  })
+
+  it("does not allow advanced parameters to override OAuth fields", () => {
+    const request = getPayloadForAuthCodeTokenRequest({
+      ...baseRequestParams,
+      clientAuthentication: "AS_BASIC_AUTH_HEADERS",
+      tokenRequestParams: [
+        {
+          id: 1,
+          key: "Authorization",
+          value: "Bearer overridden",
+          active: true,
+          sendIn: "headers",
+        },
+        {
+          id: 2,
+          key: "client_id",
+          value: "overridden-client",
+          active: true,
+          sendIn: "body",
+        },
+        {
+          id: 3,
+          key: "client_secret",
+          value: "overridden-secret",
+          active: true,
+          sendIn: "body",
+        },
+        {
+          id: 4,
+          key: "code",
+          value: "overridden-code",
+          active: true,
+          sendIn: "body",
+        },
+        {
+          id: 5,
+          key: "grant_type",
+          value: "overridden-grant",
+          active: true,
+          sendIn: "body",
+        },
+        {
+          id: 6,
+          key: "redirect_uri",
+          value: "https://overridden.example.com",
+          active: true,
+          sendIn: "body",
+        },
+      ],
+    })
+    const bodyParams = getBodyParams(request)
+
+    expect(request.headers.Authorization).toBe(
+      `Basic ${btoa("client-id:client-secret")}`
+    )
+    expect(bodyParams.has("client_id")).toBe(false)
+    expect(bodyParams.has("client_secret")).toBe(false)
+    expect(bodyParams.get("code")).toBe("authorization-code")
+    expect(bodyParams.get("grant_type")).toBe("authorization_code")
+    expect(bodyParams.get("redirect_uri")).toBe(
+      "https://example.com/oauth/callback"
+    )
+  })
+
+  it("shares parameter placement with client credentials requests", () => {
+    const request = getPayloadForClientCredentialsTokenRequest({
+      tokenEndpoint: baseRequestParams.tokenEndpoint,
+      clientID: baseRequestParams.clientID,
+      clientSecret: baseRequestParams.clientSecret,
+      scopes: "read",
+      clientAuthentication: "AS_BASIC_AUTH_HEADERS",
+      tokenRequestParams: [
+        { id: 1, key: "audience", value: "api", active: true, sendIn: "url" },
+        { id: 2, key: "resource", value: "", active: true, sendIn: "body" },
+      ],
+    })
+    const bodyParams = getBodyParams(request)
+
+    expect(request.headers.Authorization).toBe(
+      `Basic ${btoa("client-id:client-secret")}`
+    )
+    expect(new URL(request.url).searchParams.get("audience")).toBe("api")
+    expect(bodyParams.get("resource")).toBe("")
+    expect(bodyParams.get("scope")).toBe("read")
+    expect(bodyParams.has("client_id")).toBe(false)
   })
 
   it("sends refresh credentials in the body by default", () => {

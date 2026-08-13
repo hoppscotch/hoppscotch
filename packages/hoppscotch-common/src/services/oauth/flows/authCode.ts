@@ -26,7 +26,9 @@ const AuthCodeOauthFlowParamsSchema = AuthCodeGrantTypeParams.omit({
   token: true,
 })
   .extend({
-    clientAuthentication: z.enum(["AS_BASIC_AUTH_HEADERS", "IN_BODY"]),
+    clientAuthentication: z
+      .enum(["AS_BASIC_AUTH_HEADERS", "IN_BODY"])
+      .catch("IN_BODY"),
     // Override optional arrays to be required for the service layer
     authRequestParams: z.array(OAuth2AuthRequestParam),
     tokenRequestParams: z.array(OAuth2ParamSchema),
@@ -247,7 +249,7 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
     source: z.optional(z.string()),
     state: z.string(),
     tokenEndpoint: z.string(),
-    clientSecret: z.string(),
+    clientSecret: z.string().optional(),
     clientID: z.string(),
     clientAuthentication: z
       .enum(["AS_BASIC_AUTH_HEADERS", "IN_BODY"])
@@ -272,8 +274,9 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
   }
 
   // exchange the code for a token
-  const { response } = interceptorService.execute(
-    getPayloadForAuthCodeTokenRequest({
+  let tokenRequest: ReturnType<typeof getPayloadForAuthCodeTokenRequest>
+  try {
+    tokenRequest = getPayloadForAuthCodeTokenRequest({
       tokenEndpoint: decodedLocalConfig.data.tokenEndpoint,
       redirectURI: OauthAuthService.redirectURI,
       clientID: decodedLocalConfig.data.clientID,
@@ -283,7 +286,11 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
       codeVerifier: decodedLocalConfig.data.codeVerifier,
       tokenRequestParams: decodedLocalConfig.data.tokenRequestParams,
     })
-  )
+  } catch (_error) {
+    return E.left("AUTH_TOKEN_REQUEST_FAILED" as const)
+  }
+
+  const { response } = interceptorService.execute(tokenRequest)
 
   const res = await response
 

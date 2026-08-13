@@ -4,7 +4,6 @@ import infer from "tern/lib/infer"
 import tern from "tern/lib/tern"
 import * as walk from "acorn-walk"
 
-
 var defaultRules = {
   UnknownProperty: { severity: "warning" },
   UnknownIdentifier: { severity: "warning" },
@@ -17,6 +16,34 @@ var defaultRules = {
   TypeMismatch: { severity: "warning" },
   Array: { severity: "error" },
   ES6Modules: { severity: "error" },
+}
+
+function getArrType(type) {
+  if (type instanceof infer.Arr) {
+    return type.getObjType()
+  } else if (type.types) {
+    for (var i = 0; i < type.types.length; i++) {
+      if (getArrType(type.types[i])) return type.types[i]
+    }
+  }
+}
+function getTypeName(type) {
+  if (!type) return "Unknown type"
+  if (type.types) {
+    // multiple types
+    var types = type.types,
+      s = ""
+    for (var i = 0; i < types.length; i++) {
+      if (i > 0) s += "|"
+      var t = getTypeName(types[i])
+      if (t != "Unknown type") s += t
+    }
+    return s == "" ? "Unknown type" : s
+  }
+  if (type.name) {
+    return type.name
+  }
+  return type.proto ? type.proto.name : "Unknown type"
 }
 
 function makeVisitors(server, query, file, messages) {
@@ -91,25 +118,6 @@ function makeVisitors(server, query, file, messages) {
       return node.property
     }
     return node
-  }
-
-  function getTypeName(type) {
-    if (!type) return "Unknown type"
-    if (type.types) {
-      // multiple types
-      var types = type.types,
-        s = ""
-      for (var i = 0; i < types.length; i++) {
-        if (i > 0) s += "|"
-        var t = getTypeName(types[i])
-        if (t != "Unknown type") s += t
-      }
-      return s == "" ? "Unknown type" : s
-    }
-    if (type.name) {
-      return type.name
-    }
-    return type.proto ? type.proto.name : "Unknown type"
   }
 
   function hasProto(expectedType, name) {
@@ -241,6 +249,59 @@ function makeVisitors(server, query, file, messages) {
     return type.proto && type.proto.name == "Function.prototype"
   }
 
+  function validateCallArguments(
+    actualArgs,
+    expectedArgs,
+    state,
+    invalidArgument
+  ) {
+    for (var i = 0; i < expectedArgs.length; i++) {
+      var expectedArg = expectedArgs[i]
+
+      if (actualArgs.length <= i) continue
+
+      var actualNode = actualArgs[i]
+
+      if (isRegexExpected(expectedArg.getType())) {
+        var value = getNodeValue(actualNode)
+
+        if (value) {
+          try {
+            var regex = new RegExp(value)
+          } catch (e) {
+            addMessage(
+              actualNode,
+              "Invalid argument at " + (i + 1) + ": " + e,
+              invalidArgument.severity
+            )
+          }
+        }
+      } else {
+        var actualArg = infer.expressionType({
+          node: actualNode,
+          state: state,
+        })
+
+        // if actual type is an Object literal and expected type is an object, we ignore
+        // the comparison type since object literal properties validation is done inside "ObjectExpression".
+        if (!(expectedArg.getObjType() && isObjectLiteral(actualArg))) {
+          if (!compareType(expectedArg, actualArg)) {
+            addMessage(
+              actualNode,
+              "Invalid argument at " +
+                (i + 1) +
+                ": cannot convert from " +
+                getTypeName(actualArg) +
+                " to " +
+                getTypeName(expectedArg),
+              invalidArgument.severity
+            )
+          }
+        }
+      }
+    }
+  }
+
   function validateCallExpression(node, state, c) {
     var notAFunctionRule = getRule("NotAFunction"),
       invalidArgument = getRule("InvalidArgument")
@@ -264,52 +325,17 @@ function makeVisitors(server, query, file, messages) {
       var fnLint = getFunctionLint(fnType)
       var continueLint = fnLint ? fnLint(node, addMessage, getRule) : true
       if (continueLint && fnType.args) {
-        // validate parameters of the function
         if (!invalidArgument) return
+
         var actualArgs = node.arguments
         if (!actualArgs) return
-        var expectedArgs = fnType.args
-        for (var i = 0; i < expectedArgs.length; i++) {
-          var expectedArg = expectedArgs[i]
-          if (actualArgs.length > i) {
-            var actualNode = actualArgs[i]
-            if (isRegexExpected(expectedArg.getType())) {
-              var value = getNodeValue(actualNode)
-              if (value) {
-                try {
-                  var regex = new RegExp(value)
-                } catch (e) {
-                  addMessage(
-                    actualNode,
-                    "Invalid argument at " + (i + 1) + ": " + e,
-                    invalidArgument.severity
-                  )
-                }
-              }
-            } else {
-              var actualArg = infer.expressionType({
-                node: actualNode,
-                state: state,
-              })
-              // if actual type is an Object literal and expected type is an object, we ignore
-              // the comparison type since object literal properties validation is done inside "ObjectExpression".
-              if (!(expectedArg.getObjType() && isObjectLiteral(actualArg))) {
-                if (!compareType(expectedArg, actualArg)) {
-                  addMessage(
-                    actualNode,
-                    "Invalid argument at " +
-                      (i + 1) +
-                      ": cannot convert from " +
-                      getTypeName(actualArg) +
-                      " to " +
-                      getTypeName(expectedArg),
-                    invalidArgument.severity
-                  )
-                }
-              }
-            }
-          }
-        }
+
+        validateCallArguments(
+          actualArgs,
+          fnType.args,
+          state,
+          invalidArgument
+        )
       }
     }
   }
@@ -405,16 +431,6 @@ function makeVisitors(server, query, file, messages) {
             )
         }
         break
-    }
-  }
-
-  function getArrType(type) {
-    if (type instanceof infer.Arr) {
-      return type.getObjType()
-    } else if (type.types) {
-      for (var i = 0; i < type.types.length; i++) {
-        if (getArrType(type.types[i])) return type.types[i]
-      }
     }
   }
 

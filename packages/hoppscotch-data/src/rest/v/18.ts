@@ -24,7 +24,9 @@ const V18_VERSION = defineVersion({
         ...old.auth,
         grantTypeInfo: {
           ...old.auth.grantTypeInfo,
-          clientAuthentication: "IN_BODY" as const,
+          ...(old.auth.grantTypeInfo.grantType === "AUTHORIZATION_CODE"
+            ? { clientAuthentication: "IN_BODY" as const }
+            : {}),
         },
       } as z.infer<typeof HoppRESTAuth>
     } else {

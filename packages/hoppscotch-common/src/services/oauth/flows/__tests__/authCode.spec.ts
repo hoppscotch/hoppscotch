@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { AuthCodeGrantTypeParams } from "@hoppscotch/data"
+import {
+  AuthCodeGrantTypeParams,
+  getDefaultRESTRequest,
+  HoppRESTRequest,
+} from "@hoppscotch/data"
 import {
   getPayloadForClientCredentialsTokenRequest,
   getPayloadForAuthCodeTokenRequest,
@@ -221,6 +225,21 @@ describe("Authorization Code OAuth flow", () => {
     expect(bodyParams.has("client_id")).toBe(false)
   })
 
+  it("does not allow advanced parameters to override the configured scope", () => {
+    const request = getPayloadForClientCredentialsTokenRequest({
+      tokenEndpoint: baseRequestParams.tokenEndpoint,
+      clientID: baseRequestParams.clientID,
+      clientSecret: baseRequestParams.clientSecret,
+      scopes: "read",
+      tokenRequestParams: [
+        { id: 1, key: "scope", value: "write", active: true, sendIn: "body" },
+      ],
+    })
+    const bodyParams = getBodyParams(request)
+
+    expect(bodyParams.get("scope")).toBe("read")
+  })
+
   it("sends refresh credentials in the body by default", () => {
     const request = getPayloadForRefreshTokenRequest({
       tokenEndpoint: baseRequestParams.tokenEndpoint,
@@ -291,5 +310,46 @@ describe("Authorization Code OAuth flow", () => {
     if (parsed.success) {
       expect(parsed.data.clientAuthentication).toBe("IN_BODY")
     }
+  })
+})
+
+describe("REST OAuth schema migration", () => {
+  it("preserves Basic client authentication when migrating Client Credentials", () => {
+    const request = {
+      ...getDefaultRESTRequest(),
+      v: "17",
+      auth: {
+        authActive: true,
+        authType: "oauth-2",
+        addTo: "HEADERS",
+        grantTypeInfo: {
+          grantType: "CLIENT_CREDENTIALS",
+          authEndpoint: "https://example.com/oauth/token",
+          clientID: "client-id",
+          clientSecret: "client-secret",
+          scopes: "read",
+          token: "",
+          clientAuthentication: "AS_BASIC_AUTH_HEADERS",
+          tokenRequestParams: [],
+          refreshRequestParams: [],
+          tokenType: "access_token",
+        },
+      },
+    }
+
+    const parsed = HoppRESTRequest.safeParse(request)
+
+    expect(parsed.type).toBe("ok")
+    if (parsed.type === "err") return
+
+    expect(parsed.value.v).toBe("18")
+    if (parsed.value.auth.authType !== "oauth-2") return
+    if (parsed.value.auth.grantTypeInfo.grantType !== "CLIENT_CREDENTIALS") {
+      return
+    }
+
+    expect(parsed.value.auth.grantTypeInfo.clientAuthentication).toBe(
+      "AS_BASIC_AUTH_HEADERS"
+    )
   })
 })

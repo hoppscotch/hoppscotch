@@ -19,6 +19,7 @@ const reservedOAuthParamKeys = new Set([
   "grant_type",
   "redirect_uri",
   "refresh_token",
+  "scope",
 ])
 
 export const getBasicAuthHeader = (

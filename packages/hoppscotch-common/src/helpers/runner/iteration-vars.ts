@@ -13,6 +13,11 @@ import { TestResult } from "@hoppscotch/js-sandbox"
  * keys and sandbox writes mutate the first matching occurrence. Script-added
  * keys are appended; `global` is left alone (iteration values are never
  * injected into it).
+ *
+ * Known limit: if a script DELETES an occurrence of a key duplicated in the
+ * initial scope, the surviving occurrence keeps the deleted row's position
+ * (initial-order walk) instead of its post-script one. Values stay correct;
+ * only the relative order of that pair can differ from the script's view.
  */
 export const stripIterationVarsFromEnvs = (
   envs: TestResult["envs"],

@@ -1697,6 +1697,10 @@ export function getRESTCollection(collectionIndex: number) {
 export type RESTCollectionInheritedProps = {
   auth: HoppRESTAuth
   headers: HoppRESTHeaders
+  /**
+   * Resolved for EXECUTION — secret values are populated in both variable
+   * arrays. Never render or persist them.
+   */
   variables: HoppCollectionVariable[]
   /**
    * Ancestor collection variables only (root → target's parent), each level
@@ -1736,12 +1740,15 @@ function computeCollectionInheritedProps(
   // Each level's own variables are resolved under the level's OWN ID — the
   // `(collectionID, varIndex)` key shape current values are stored with.
   // Consumers must never re-resolve the merged array under a single ID.
+  // Secrets resolve (`showSecret`) because this only feeds the collection
+  // runner's execution path — the output is never rendered or persisted.
   const inheritedVariables = [
     ...(parentVariables ?? []),
     ...populateValuesInInheritedCollectionVars(
       collection.variables,
       collection._ref_id || collection.id,
-      collection.id
+      collection.id,
+      true
     ),
   ]
 

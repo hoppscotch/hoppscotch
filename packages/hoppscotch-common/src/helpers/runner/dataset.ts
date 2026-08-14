@@ -41,17 +41,21 @@ const normalizeRow = (row: Record<string, unknown>): DatasetRow =>
 // parse succeeded, so `Delimiter` errors are never fatal.
 const isFatalParseError = (error: Papa.ParseError) => error.type !== "Delimiter"
 
+// PapaParse's `row` base differs by error type: FieldMismatch counts 0-based
+// data rows (header excluded, so +2 is the file line), but Quotes errors come
+// from the core parser where the header itself is row 0 (so +1).
 const formatParseError = (error: Papa.ParseError) =>
-  // `row` is 0-based and excludes the header line, so +2 is the file line.
   typeof error.row === "number"
-    ? `Line ${error.row + 2}: ${error.message}`
+    ? `Line ${error.row + (error.type === "Quotes" ? 1 : 2)}: ${error.message}`
     : error.message
 
 const parseCSV = (contents: string): E.Either<string, DatasetRow[]> => {
   const parsed = Papa.parse<Record<string, unknown>>(contents, {
     header: true,
     // "greedy" also drops whitespace-only lines, which plain `true` parses as
-    // one-field rows that fail the file with TooFewFields.
+    // one-field rows that fail the file with TooFewFields. Trade-off: greedy
+    // tests the parsed values (quotes already stripped), so a row whose every
+    // field is quoted whitespace (e.g. `"   "`) is dropped too.
     skipEmptyLines: "greedy",
     transformHeader: (header) => header.trim(),
   })

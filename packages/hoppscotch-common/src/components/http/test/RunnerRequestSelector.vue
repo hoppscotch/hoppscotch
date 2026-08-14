@@ -8,6 +8,7 @@
     chosen-class="bg-primaryLight"
     drag-class="cursor-grabbing"
     class="flex flex-col"
+    :disabled="filterActive"
   >
     <template #item="{ element: entry }">
       <label
@@ -24,6 +25,7 @@
              descendant, stealing row clicks from the checkbox. -->
         <span
           class="draggable-handle flex flex-shrink-0 cursor-grab items-center text-secondaryLight opacity-0 group-hover:opacity-100"
+          :class="{ invisible: filterActive }"
           @click.prevent
         >
           <component :is="IconGripVertical" class="svg-icons" />
@@ -105,6 +107,8 @@ type Entry = {
 const matches = (haystack: string, filter: string) =>
   filter.trim().length === 0 ||
   haystack.toLowerCase().includes(filter.trim().toLowerCase())
+
+const filterActive = computed(() => props.filter.trim().length > 0)
 
 /**
  * Flattens the tree in the runner's walk order — folders (depth-first) before

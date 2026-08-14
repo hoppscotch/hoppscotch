@@ -418,9 +418,13 @@ const runTests = async () => {
     )
       .filter((group) => group.parentID !== collectionID)
       .flatMap((group) =>
+        // `showSecret` — execution-only output; never written back to the
+        // document or persisted.
         populateValuesInInheritedCollectionVars(
           group.inheritedVariables,
-          group.parentID
+          group.parentID,
+          undefined,
+          true
         )
       )
 

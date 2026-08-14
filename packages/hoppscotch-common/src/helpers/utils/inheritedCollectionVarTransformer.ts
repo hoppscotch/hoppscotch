@@ -78,15 +78,22 @@ export const populateValuesInInheritedCollectionVars = (
    * server `id` for team collections, whose `_ref_id` is regenerated on every
    * fetch — passing the server id here serves both key schemes.
    */
-  fallbackID?: string
+  fallbackID?: string,
+  /**
+   * Secret values live in `SecretEnvironmentService`, not
+   * `CurrentValueService` — pass `true` from execution paths (the collection
+   * runner) so secret variables resolve. Leave `false` anywhere the output
+   * is rendered or persisted.
+   */
+  showSecret: boolean = false
 ): HoppCollectionVariable[] =>
   parentID
     ? variables.map((variable, index) => ({
         ...variable,
         currentValue:
-          getCurrentValue(variable.secret, index, parentID) ??
+          getCurrentValue(variable.secret, index, parentID, showSecret) ??
           (fallbackID && fallbackID !== parentID
-            ? getCurrentValue(variable.secret, index, fallbackID)
+            ? getCurrentValue(variable.secret, index, fallbackID, showSecret)
             : undefined) ??
           variable.currentValue,
       }))
@@ -105,12 +112,14 @@ export const resolveInheritedVariables = (
   parentVariables: HoppCollectionVariable[],
   ownVariables: HoppCollectionVariable[],
   ownCollectionID?: string,
-  ownCollectionFallbackID?: string
+  ownCollectionFallbackID?: string,
+  showSecret: boolean = false
 ): HoppCollectionVariable[] => [
   ...parentVariables,
   ...populateValuesInInheritedCollectionVars(
     ownVariables,
     ownCollectionID,
-    ownCollectionFallbackID
+    ownCollectionFallbackID,
+    showSecret
   ),
 ]

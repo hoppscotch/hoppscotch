@@ -193,11 +193,14 @@ const reportVisibleIteration = () => {
   const tabsEl = filterTabsEl.value
   if (!tabsEl || iterationRefs.size === 0) return
 
-  // At the bottom of the pane the reading line can't reach the tail
-  // iterations; report the last one so a jump there isn't overwritten.
+  // At the bottom of an overflowing pane the reading line can't reach the
+  // tail iterations; report the last one so a jump there isn't overwritten.
+  // Without the overflow check a short, non-scrolling run is always "at the
+  // bottom" and would report the last iteration while the user sees the first.
   const container = scrollContainerOf(tabsEl)
   if (
     container &&
+    container.scrollHeight > container.clientHeight &&
     container.scrollTop + container.clientHeight >= container.scrollHeight - 2
   ) {
     emit("visibleIteration", Math.max(...iterationRefs.keys()))
@@ -214,7 +217,14 @@ const reportVisibleIteration = () => {
   }
 }
 
-const onScrollCapture = () => {
+const onScrollCapture = (event: Event) => {
+  // Capture-phase on document sees every scroll in the app; only react when
+  // the scrolled container is an ancestor of this result view.
+  const tabsEl = filterTabsEl.value
+  if (!tabsEl) return
+  const target = event.target
+  if (target instanceof Element && !target.contains(tabsEl)) return
+
   if (visibleIterationScheduled) return
   visibleIterationScheduled = true
   requestAnimationFrame(reportVisibleIteration)

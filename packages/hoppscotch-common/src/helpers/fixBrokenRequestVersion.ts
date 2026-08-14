@@ -39,8 +39,11 @@ export const fixBrokenRequestVersion = (
       // null into a default request lets a runner doc with an invalid
       // collection satisfy the tab-state union's request-tab branch and
       // silently morph into a blank request tab — only sanitize a request
-      // that actually exists.
-      if (x.doc.request !== null && x.doc.request !== undefined) {
+      // that actually exists. A missing key is normalized to null: the tab
+      // schema accepts null but not undefined.
+      if (x.doc.request === null || x.doc.request === undefined) {
+        x.doc.request = null
+      } else {
         x.doc.request = safelyExtractRESTRequest(
           x.doc.request,
           getDefaultRESTRequest()

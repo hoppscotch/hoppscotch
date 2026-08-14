@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from "vitest"
+import { afterEach, describe, expect, test, vi } from "vitest"
 
 // RequestRunner drags in the network/kernel stack; the plan walk never
 // touches it.
@@ -9,10 +9,19 @@ vi.mock("~/helpers/RequestRunner", () => ({
 
 import { getService } from "~/modules/dioc"
 import { CurrentValueService } from "~/services/current-environment-value.service"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { TestRunnerService } from "../test-runner.service"
 
 const currentValues = getService(CurrentValueService)
+const secretEnvs = getService(SecretEnvironmentService)
 const service = getService(TestRunnerService)
+
+// The value stores are module-scoped singletons — drop everything a test
+// stored so no state leaks into the next one.
+afterEach(() => {
+  currentValues.environments.clear()
+  secretEnvs.secretEnvironments.clear()
+})
 
 const planCollection = (collection: unknown, parentVariables: unknown[] = []) =>
   (service as any).planCollection(
@@ -137,5 +146,94 @@ describe("TestRunnerService.planCollection — inherited variable resolution", (
       }),
       expect.objectContaining({ key: "own", currentValue: "own-current" }),
     ])
+  })
+
+  // Secret values live in SecretEnvironmentService, not CurrentValueService;
+  // the plan walk must resolve them (showSecret) or every secret collection
+  // variable executes as "".
+  test("resolves secret variables from SecretEnvironmentService", () => {
+    secretEnvs.addSecretEnvironment("plan-sec", [
+      { key: "TOKEN", value: "plan-s3cret", varIndex: 1 },
+    ])
+    currentValues.addEnvironment("plan-sec", [
+      stored("plain", "plain-current", 0),
+    ])
+
+    const tree = node(
+      { refId: "plan-sec" },
+      [
+        collectionVar("plain"),
+        { key: "TOKEN", currentValue: "", initialValue: "", secret: true },
+      ],
+      [request("secret-leaf")]
+    )
+
+    const [planned] = planCollection(tree)
+
+    expect(planned.inheritedVariables).toEqual([
+      expect.objectContaining({ key: "plain", currentValue: "plain-current" }),
+      expect.objectContaining({ key: "TOKEN", currentValue: "plan-s3cret" }),
+    ])
+  })
+
+  test("resolves secret variables via the server-id fallback (team key scheme)", () => {
+    secretEnvs.addSecretEnvironment("srv-sec-1", [
+      { key: "TEAM_TOKEN", value: "team-s3cret", varIndex: 0 },
+    ])
+
+    const tree = node(
+      { refId: "regenerated-on-fetch-sec", id: "srv-sec-1" },
+      [{ key: "TEAM_TOKEN", currentValue: "", initialValue: "", secret: true }],
+      [request("team-secret-leaf")]
+    )
+
+    const [planned] = planCollection(tree)
+
+    expect(planned.inheritedVariables).toEqual([
+      expect.objectContaining({
+        key: "TEAM_TOKEN",
+        currentValue: "team-s3cret",
+      }),
+    ])
+  })
+})
+
+describe("TestRunnerService.getTestResultInfo — pass/fail counting", () => {
+  const count = (result: unknown) => (service as any).getTestResultInfo(result)
+
+  test("counts error-status expectations as failures", () => {
+    expect(
+      count({
+        expectResults: [
+          { status: "pass", message: "" },
+          { status: "fail", message: "" },
+          { status: "error", message: "" },
+        ],
+        tests: [],
+      })
+    ).toEqual({ passed: 1, failed: 2 })
+  })
+
+  test("counts a script error as one failure", () => {
+    expect(count({ scriptError: true, expectResults: [], tests: [] })).toEqual({
+      passed: 0,
+      failed: 1,
+    })
+  })
+
+  test("accumulates nested test blocks", () => {
+    expect(
+      count({
+        scriptError: false,
+        expectResults: [{ status: "pass", message: "" }],
+        tests: [
+          {
+            description: "",
+            expectResults: [{ status: "error", message: "" }],
+            tests: [],
+          },
+        ],
+      })
+    ).toEqual({ passed: 1, failed: 1 })
   })
 })

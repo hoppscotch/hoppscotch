@@ -366,12 +366,14 @@ export class TestRunnerService extends Service {
     // Parents pass through already resolved; only this collection's own
     // variables are populated here, under its own ID. The server `id`
     // fallback mirrors the save-side keying for team collections, whose
-    // `_ref_id` is regenerated on every fetch.
+    // `_ref_id` is regenerated on every fetch. `showSecret` is true because
+    // this feeds execution only — planned requests are never persisted.
     const inheritedVariables = resolveInheritedVariables(
       parentVariables,
       collection.variables,
       collection._ref_id || collection.id,
-      collection.id
+      collection.id,
+      true
     )
 
     const inheritedPreRequestScripts = [
@@ -628,6 +630,14 @@ export class TestRunnerService extends Service {
           iterationMeta.totalTime += response.meta.responseDuration
           iterationMeta.completedRequests += 1
         }
+
+        // A post-request script failure arrives as a Right with `scriptError`
+        // set, so the Left/stop-on-error branch below never sees it. Halt
+        // here after the row and meta have recorded the request.
+        if (options.stopOnError && testResult.scriptError) {
+          tab.value.document.status = "stopped"
+          throw new Error("Test execution stopped due to error")
+        }
       } else {
         const errorMsg = "Request execution failed"
 
@@ -668,14 +678,17 @@ export class TestRunnerService extends Service {
     }
   }
 
-  private getTestResultInfo(testResult: HoppTestData) {
+  private getTestResultInfo(testResult: HoppTestData | HoppTestResult) {
     let passed = 0
-    let failed = 0
+    // A failed script means the request's assertions never ran — count it as
+    // one failure so the meta counters and the run outcome reflect it.
+    // (`scriptError` exists only on the top-level `HoppTestResult`.)
+    let failed = "scriptError" in testResult && testResult.scriptError ? 1 : 0
 
     for (const result of testResult.expectResults) {
       if (result.status === "pass") {
         passed++
-      } else if (result.status === "fail") {
+      } else if (result.status === "fail" || result.status === "error") {
         failed++
       }
     }

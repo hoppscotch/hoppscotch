@@ -75,6 +75,49 @@ describe("collection runner dataset parsing", () => {
     expect(result.left).toContain("Line 3")
   })
 
+  test("reports the spreadsheet line number for an unterminated quote", async () => {
+    const result = await parseDatasetFile(
+      file("testing.csv", 'user,pass\nbob,x\nalice,"unclosed')
+    )
+
+    expect(E.isLeft(result)).toBe(true)
+    if (E.isRight(result)) return
+
+    // Quotes errors count the header itself as row 0 (PapaParse reports
+    // row 2 here), so the bad row is file line 3 — not line 4.
+    expect(result.left).toContain("Line 3")
+  })
+
+  // skipEmptyLines: "greedy" tests the parsed values with quotes already
+  // stripped, so a row whose every field is quoted whitespace is dropped
+  // exactly like a bare whitespace-only line. Accepted trade-off; a row with
+  // any non-blank field survives, and its quoted whitespace is preserved.
+  test("drops a row whose only field values are quoted whitespace", async () => {
+    const result = await parseDatasetFile(
+      file("testing.csv", 'user\nalice\n"   "\nbob\n')
+    )
+
+    expect(E.isRight(result)).toBe(true)
+    if (E.isLeft(result)) return
+
+    expect(result.right.rows).toEqual([{ user: "alice" }, { user: "bob" }])
+  })
+
+  test("keeps a quoted-whitespace field when another field has content", async () => {
+    const result = await parseDatasetFile(
+      file("testing.csv", 'a,b\n1,2\nx,"  "\n3,4')
+    )
+
+    expect(E.isRight(result)).toBe(true)
+    if (E.isLeft(result)) return
+
+    expect(result.right.rows).toEqual([
+      { a: "1", b: "2" },
+      { a: "x", b: "  " },
+      { a: "3", b: "4" },
+    ])
+  })
+
   test("parses JSON rows and stringifies non-string values", async () => {
     const result = await parseDatasetFile(
       file(

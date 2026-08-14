@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from "vitest"
+import { afterEach, describe, expect, test, vi } from "vitest"
 
 // newstore/collections sits on an import cycle (collections → services/tab/rest
 // → services/persistence → collections); stub the cycle edge so the module
@@ -12,6 +12,14 @@ vi.mock("~/modules/i18n", () => ({ getI18n: () => (k: string) => k }))
 
 import { getService } from "~/modules/dioc"
 import { CurrentValueService } from "~/services/current-environment-value.service"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
+
+// The value stores are module-scoped singletons — drop everything a test
+// stored so no state leaks into the next one.
+afterEach(() => {
+  getService(CurrentValueService).environments.clear()
+  getService(SecretEnvironmentService).secretEnvironments.clear()
+})
 
 const collectionVar = (key: string, initialValue: string) => ({
   key,
@@ -136,5 +144,32 @@ describe("getRESTCollectionInheritedProps — collection variable values", () =>
       "my-collections"
     )
     expect(props!.ancestorVariables).toEqual([])
+  })
+
+  // Secret values live in SecretEnvironmentService, not CurrentValueService —
+  // this output feeds the runner's execution path, so secrets must resolve.
+  test("resolves an ancestor's SECRET value for the runner", async () => {
+    const { getRESTCollectionInheritedProps } = await import("../collections")
+
+    getService(SecretEnvironmentService).addSecretEnvironment("ref-sec-root", [
+      { key: "TOKEN", value: "root-s3cret", varIndex: 0 },
+    ])
+
+    const tree = node(
+      "ref-sec-root",
+      "Root",
+      [{ key: "TOKEN", initialValue: "", currentValue: "", secret: true }],
+      [node("ref-sec-child", "Child", [])]
+    )
+
+    const props = getRESTCollectionInheritedProps(
+      "ref-sec-child",
+      [tree] as any,
+      "my-collections"
+    )
+
+    expect(props!.ancestorVariables).toEqual([
+      expect.objectContaining({ key: "TOKEN", currentValue: "root-s3cret" }),
+    ])
   })
 })

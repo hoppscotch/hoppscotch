@@ -96,9 +96,9 @@ const EXPERIMENTAL_SCRIPTING_SANDBOX = useSetting(
   "EXPERIMENTAL_SCRIPTING_SANDBOX"
 )
 
-const isSavable = computed(() => {
-  return doc.value.response?.type === "success" && doc.value.saveContext
-})
+const isSavable = computed(() =>
+  Boolean(doc.value.response?.type === "success" && doc.value.saveContext)
+)
 
 const showIndicator = computed(() => {
   if (!doc.value.testResults) return false

@@ -158,6 +158,7 @@
         v-else-if="selectedRequest && selectedRequest.response"
         v-model:document="selectedRequest"
         :show-response="tab.document.config.persistResponses"
+        :tab-id="tab.id"
       />
 
       <HoppSmartPlaceholder

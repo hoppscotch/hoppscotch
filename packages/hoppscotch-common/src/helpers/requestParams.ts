@@ -6,7 +6,9 @@ export interface RequestParam {
 }
 
 function isActiveParam(item: RequestParam): boolean {
-  return item.active !== false
+  return Object.prototype.hasOwnProperty.call(item, "active")
+    ? item.active === true
+    : true
 }
 
 export function hasPathParams(params: RequestParam[]): boolean {

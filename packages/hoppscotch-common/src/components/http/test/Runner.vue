@@ -65,11 +65,15 @@
               :heading="t('test.iterations')"
               :text="iterationResults.length.toString()"
             />
+            <!-- The values tick while a run is live; reserve width so the
+                 rest of the meta row doesn't shift with every request. -->
             <HttpTestRunnerMeta
+              class="min-w-24 tabular-nums"
               :heading="t('test.duration')"
               :text="duration ? msToHumanReadable(duration) : '...'"
             />
             <HttpTestRunnerMeta
+              class="min-w-24 tabular-nums"
               :heading="t('test.avg_resp')"
               :text="
                 avgResponseTime ? msToHumanReadable(avgResponseTime) : '...'

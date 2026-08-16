@@ -36,6 +36,7 @@ import {
   search,
 } from "@codemirror/search"
 import { lintKeymap } from "@codemirror/lint"
+import { createSearchPanelWithCounts } from "@helpers/editor/extensions/SearchMatchCount"
 
 export const baseTheme = EditorView.theme({
   "&": {
@@ -76,11 +77,33 @@ export const baseTheme = EditorView.theme({
   },
   ".cm-search": {
     display: "flex",
-    alignItems: "center",
+    flexDirection: "column",
+    alignItems: "flex-start",
     flexWrap: "nowrap",
     flexShrink: "0",
     overflow: "auto",
     padding: "0.25rem 0.5rem !important",
+    gap: "4px",
+  },
+  ".cm-search-row": {
+    display: "flex",
+    alignItems: "center",
+    gap: "4px",
+    flexWrap: "wrap",
+  },
+  ".cm-search-options": {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    flexWrap: "wrap",
+    marginTop: "2px",
+  },
+  ".cm-search-match-count": {
+    color: "var(--secondary-light-color)",
+    fontSize: "var(--font-size-tiny)",
+    padding: "0 4px",
+    minWidth: "40px",
+    textAlign: "center",
   },
   ".cm-search label": {
     display: "inline-flex",
@@ -219,11 +242,33 @@ export const inputTheme = EditorView.theme({
   },
   ".cm-search": {
     display: "flex",
-    alignItems: "center",
+    flexDirection: "column",
+    alignItems: "flex-start",
     flexWrap: "nowrap",
     flexShrink: "0",
     overflow: "auto",
     padding: "0.25rem 0.5rem !important",
+    gap: "4px",
+  },
+  ".cm-search-row": {
+    display: "flex",
+    alignItems: "center",
+    gap: "4px",
+    flexWrap: "wrap",
+  },
+  ".cm-search-options": {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    flexWrap: "wrap",
+    marginTop: "2px",
+  },
+  ".cm-search-match-count": {
+    color: "var(--secondary-light-color)",
+    fontSize: "var(--font-size-tiny)",
+    padding: "0 4px",
+    minWidth: "40px",
+    textAlign: "center",
   },
   ".cm-search label": {
     display: "inline-flex",
@@ -569,5 +614,6 @@ export const basicSetup: Extension = [
   ]),
   search({
     top: true,
+    createPanel: createSearchPanelWithCounts,
   }),
 ]

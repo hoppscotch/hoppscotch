@@ -55,6 +55,7 @@ export const collectionsRunner = async (
     iterationCount,
     iterationData,
     legacySandbox,
+    bail,
   } = param;
 
   const resolvedDelay = delay ?? 0;
@@ -90,14 +91,18 @@ export const collectionsRunner = async (
     }
 
     for (const { collection, path } of collectionQueue) {
-      await processCollection(
+      const shouldBail = await processCollection(
         collection,
         path,
         envs,
         resolvedDelay,
         requestsReport,
-        legacySandbox
+        legacySandbox,
+        [],
+        [],
+        bail
       );
+      if (shouldBail) break;
     }
   }
 
@@ -112,7 +117,8 @@ const processCollection = async (
   requestsReport: RequestReport[],
   legacySandbox?: boolean,
   ancestorPreRequestScripts: string[] = [],
-  ancestorTestScripts: string[] = []
+  ancestorTestScripts: string[] = [],
+  bail?: boolean
 ) => {
   // Accumulate scripts from root -> current collection for inheritance
   // filterValidScripts strips empty, whitespace-only, and module-prefix-only scripts
@@ -159,6 +165,11 @@ const processCollection = async (
     // Storing current request's report.
     const requestReport = result.report;
     requestsReport.push(requestReport);
+
+    // If bail is enabled and the request failed, stop immediately
+    if (bail && !requestReport.result) {
+      return true;
+    }
   }
 
   // Process each folder in the collection
@@ -198,7 +209,7 @@ const processCollection = async (
       updatedFolder.variables.push(...filteredVariables);
     }
 
-    await processCollection(
+    const shouldBail = await processCollection(
       updatedFolder,
       `${path}/${updatedFolder.name}`,
       envs,
@@ -206,9 +217,13 @@ const processCollection = async (
       requestsReport,
       legacySandbox,
       inheritedPreRequestScripts,
-      inheritedTestScripts
+      inheritedTestScripts,
+      bail
     );
+
+    if (shouldBail) return true;
   }
+  return false;
 };
 /**
  * Transforms collections to generate collection-stack which describes each collection's

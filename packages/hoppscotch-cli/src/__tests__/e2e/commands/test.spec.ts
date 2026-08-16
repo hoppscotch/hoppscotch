@@ -263,6 +263,38 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       expect(stdout).not.toContain("Encoded");
     });
 
+    describe("--bail flag", () => {
+      test("Stops after the first failing request and does not run subsequent requests", async () => {
+        const args = `test ${getTestJsonFilePath("bail-coll.json", "collection")} --bail`;
+        const { error, stdout } = await runCLI(args);
+
+        // Should exit with error because a test failed
+        expect(error).not.toBeNull();
+        expect(error).toMatchObject(<ExecException>{ code: 1 });
+
+        // Request 1 (passes) and Request 2 (fails) should have run
+        expect(stdout).toContain("Request 1 - passes");
+        expect(stdout).toContain("Request 2 - fails");
+
+        // Request 3 should NOT have run at all
+        expect(stdout).not.toContain("Request 3 - should not run with bail");
+      });
+
+      test("Runs all requests when --bail is not supplied, even after a failure", async () => {
+        const args = `test ${getTestJsonFilePath("bail-coll.json", "collection")}`;
+        const { error, stdout } = await runCLI(args);
+
+        // Should exit with error because a test failed
+        expect(error).not.toBeNull();
+        expect(error).toMatchObject(<ExecException>{ code: 1 });
+
+        // All three requests should have run
+        expect(stdout).toContain("Request 1 - passes");
+        expect(stdout).toContain("Request 2 - fails");
+        expect(stdout).toContain("Request 3 - should not run with bail");
+      });
+    });
+
     test("Ensures tests run in sequence order based on request path", async () => {
       // Expected order of collection runs
       const expectedOrder = [

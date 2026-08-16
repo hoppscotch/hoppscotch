@@ -24,6 +24,7 @@ import {
   indentLess,
   insertTab,
   redo,
+  copyLineDown,
 } from "@codemirror/commands"
 import { Completion, autocompletion } from "@codemirror/autocomplete"
 import { linter } from "@codemirror/lint"
@@ -521,6 +522,16 @@ export function useCodemirror(
             mac: "Cmd-Enter" /* Mac */,
             preventDefault: true,
             run: () => true,
+          },
+        ])
+      ),
+      Prec.highest(
+        keymap.of([
+          {
+            key: "Ctrl-d",
+            mac: "Cmd-d",
+            preventDefault: true,
+            run: copyLineDown,
           },
         ])
       ),

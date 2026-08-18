@@ -855,7 +855,7 @@
     "collection_properties_header": "This header will be set for every request in this collection.",
     "collection_properties_scripts": "These scripts will run for every request in this collection. Pre-request scripts run before the request, test scripts run after the response.",
     "generate_documentation_first": "Generate documentation first",
-    "network_fail": "Unable to reach the API endpoint. Check your network connection or select a different Interceptor and try again.",
+    "network_fail": "Network or CORS error. Check your connection or change the Interceptor to bypass CORS restrictions.",
     "offline": "You're using Hoppscotch offline. Updates will sync when you're online, based on workspace settings.",
     "offline_short": "You're using Hoppscotch offline.",
     "post_request_tests": "Post-request scripts are written in JavaScript, and are run after the response is received.",

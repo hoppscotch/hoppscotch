@@ -233,13 +233,19 @@ export class CookieJarService extends Service {
           typeof (c as { value?: unknown }).value !== "string" ||
           typeof (c as { domain?: unknown }).domain !== "string" ||
           typeof (c as { path?: unknown }).path !== "string" ||
-          typeof (c as { secure?: unknown }).secure !== "boolean"
+          typeof (c as { secure?: unknown }).secure !== "boolean" ||
+          ((c as { hostOnly?: unknown }).hostOnly !== undefined &&
+            typeof (c as { hostOnly?: unknown }).hostOnly !== "boolean")
         ) {
           // `path` is what `pathMatches` reads to decide whether
           // a cookie applies, `secure` is what gates the HTTPS-only
           // attach in `applyCookiesToRequest`, so a schema-drifted
           // payload that smuggled a string `"false"` past either
           // would silently mismatch path scope or attach over HTTP.
+          // `hostOnly` is checked only when present, because absent
+          // is the pre-flag jar that `toMap` migrates. A present but
+          // non-boolean value would read as false there and widen a
+          // host-only cookie to every subdomain.
           throw new Error("payload has malformed cookie")
         }
       }

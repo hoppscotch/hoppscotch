@@ -35,6 +35,22 @@ export enum AppState {
   LOADED = "loaded",
 }
 
+const DESKTOP_APP_SERVER_PATH = "/desktop-app-server"
+
+// One spelling of an instance URL. The same server is written as
+// `https://Acme.example.com/`, `https://acme.example.com` and with the
+// `/desktop-app-server` suffix depending on which flow recorded it, so
+// every comparison between a stored URL and an instance's `serverUrl`
+// normalizes both sides first.
+const normalizeServerUrl = (u: string) => {
+  let n = u.toLowerCase()
+  while (n.endsWith("/")) n = n.slice(0, -1)
+  if (n.endsWith(DESKTOP_APP_SERVER_PATH))
+    n = n.slice(0, -DESKTOP_APP_SERVER_PATH.length)
+  while (n.endsWith("/")) n = n.slice(0, -1)
+  return n
+}
+
 export function useAppInitialization() {
   const persistence = DesktopPersistenceService.getInstance()
   const migration = InstanceStoreMigrationService.getInstance()
@@ -220,15 +236,7 @@ export function useAppInitialization() {
           version: dlResp.version,
           bundleName: dlResp.bundleName,
         }
-        const DESKTOP_APP_SERVER_PATH = "/desktop-app-server"
-        const normUrl = (u: string) => {
-          let n = u.toLowerCase()
-          while (n.endsWith("/")) n = n.slice(0, -1)
-          if (n.endsWith(DESKTOP_APP_SERVER_PATH))
-            n = n.slice(0, -DESKTOP_APP_SERVER_PATH.length)
-          while (n.endsWith("/")) n = n.slice(0, -1)
-          return n
-        }
+        const normUrl = normalizeServerUrl
         try {
           const recentInstances = await persistence.recentInstances.get()
           await persistence.recentInstances.set(
@@ -307,8 +315,8 @@ export function useAppInitialization() {
   // read, so the launcher cannot verify the session over the network on its
   // own. Instead the webview records the instance's `serverUrl` under
   // `instanceAuthFailure` when its auth flow routes to the login-required
-  // screen. Reading and consuming that record here is the launcher's auth
-  // probe, a match means the last resume of this instance ended unable to
+  // screen. Reading that record here is the launcher's auth probe, a match
+  // means the last resume of this instance ended unable to
   // authenticate, so resuming again would route straight back to the same
   // screen with the main window already closed. Returning false lets startup
   // continue to the vendored app instead, whose header renders the
@@ -318,10 +326,10 @@ export function useAppInitialization() {
 
     try {
       const failedUrl = await persistence.instanceAuthFailure.get()
-      if (failedUrl && failedUrl === instance.serverUrl) {
-        // Consume the one-shot record so a later manual reconnect through the
-        // switcher is not blocked once the user re-authenticates.
-        await persistence.instanceAuthFailure.set(null)
+      if (
+        failedUrl &&
+        normalizeServerUrl(failedUrl) === normalizeServerUrl(instance.serverUrl)
+      ) {
         return false
       }
       return true
@@ -334,18 +342,34 @@ export function useAppInitialization() {
   }
 
   // Resume `instance` unless its auth-failure record blocks it. A blocked
-  // resume demotes the persisted state to `idle` and loads the vendored app,
+  // resume loads the vendored app, which persists its own connection state,
   // so the user reaches the instance switcher rather than the login-required
   // screen the failed instance would route to. Returns true once startup is
   // handled here (resume started, or the vendored redirect ran), and false
   // when the resume threw so the caller can try the next candidate.
+  const clearInstanceAuthFailure = async () => {
+    try {
+      await persistence.instanceAuthFailure.set(null)
+    } catch (err) {
+      console.warn("Failed to clear instance auth-failure record:", err)
+    }
+  }
+
   const tryResumeInstance = async (instance: Instance): Promise<boolean> => {
     if (!(await probeInstanceAuth(instance))) {
       mainDiag(
-        `loadRecent: auth probe failed for ${instance.displayName}, demoting to idle and loading vendored`
+        `loadRecent: auth probe failed for ${instance.displayName}, loading vendored`
       )
-      await saveConnectionState({ status: "idle" })
       await loadVendoredInstance()
+      // The record is a one-shot, so a later manual reconnect through the
+      // switcher is not blocked once the user re-authenticates. Clearing it
+      // waits for the vendored app to be up, which `loadVendoredInstance`
+      // reports through `appState` rather than by throwing. Dropping it
+      // before that would let the next launch resume the same instance with
+      // nothing left to record that its auth had failed.
+      if (appState.value !== AppState.ERROR) {
+        await clearInstanceAuthFailure()
+      }
       return true
     }
     try {

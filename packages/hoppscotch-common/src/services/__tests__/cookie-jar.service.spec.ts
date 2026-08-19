@@ -410,7 +410,7 @@ describe("CookieJarService", () => {
   })
 
   describe("captureResponseCookies header fallback", () => {
-    it("parses the Set-Cookie header when structured cookies is undefined", async () => {
+    it("parses the Set-Cookie header when structured cookies are undefined", async () => {
       await service.captureResponseCookies(
         { headers: { "set-cookie": "sid=abc123; Path=/; HttpOnly" } },
         "https://example.com/"
@@ -419,6 +419,27 @@ describe("CookieJarService", () => {
       expect(stored).toHaveLength(1)
       expect(stored[0].name).toBe("sid")
       expect(stored[0].value).toBe("abc123")
+    })
+
+    it("resolves Max-Age into an expiry on the header fallback", async () => {
+      await service.captureResponseCookies(
+        { headers: { "set-cookie": "sid=abc; Max-Age=60; Path=/" } },
+        "https://example.com/"
+      )
+      const stored = service.getCookiesForURL(new URL("https://example.com/"))
+      expect(stored).toHaveLength(1)
+      expect(stored[0].expires).toBeDefined()
+      expect(new Date(stored[0].expires!).getTime()).toBeGreaterThan(Date.now())
+    })
+
+    it("keeps a percent-encoded value undecoded on the header fallback", async () => {
+      await service.captureResponseCookies(
+        { headers: { "set-cookie": "sid=abc%20123; Path=/" } },
+        "https://example.com/"
+      )
+      const stored = service.getCookiesForURL(new URL("https://example.com/"))
+      expect(stored).toHaveLength(1)
+      expect(stored[0].value).toBe("abc%20123")
     })
 
     it("splits newline-joined Set-Cookie headers the agent relay concatenates", async () => {

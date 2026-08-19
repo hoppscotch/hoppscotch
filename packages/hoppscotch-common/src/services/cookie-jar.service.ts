@@ -850,9 +850,12 @@ export class CookieJarService extends Service {
   // multiple Set-Cookie headers with newlines (see the agent
   // interceptor's multiHeaders split), so each line is parsed on its
   // own. Lines the parser cannot resolve to a name are dropped rather
-  // than stored as `undefined=...`. Returns undefined when the header
-  // is absent so the caller can distinguish "no header" from "header
-  // with no usable cookies".
+  // than stored as `undefined=...`. Returns undefined when there is no
+  // Set-Cookie header to read, empty value included, and an array
+  // otherwise. `decodeValues` is off so a percent-encoded value is
+  // stored exactly as the relay's structured path stores it, since a
+  // decoded value would be re-emitted unencoded by
+  // `serializeCookieHeader`.
   private cookiesFromSetCookieHeader(
     headers: Record<string, string> | undefined
   ): ResponseCookie[] | undefined {
@@ -874,7 +877,7 @@ export class CookieJarService extends Service {
       .split("\n")
       .map((s) => s.trim())
       .filter(Boolean)) {
-      const parsed = this.parseSetCookieString(line)
+      const parsed = setCookieParse(line, { decodeValues: false })
       if (!parsed.name) {
         continue
       }
@@ -883,7 +886,15 @@ export class CookieJarService extends Service {
         value: parsed.value,
         domain: parsed.domain,
         path: parsed.path,
-        expires: parsed.expires,
+        // RFC 6265 4.1.2.2, Max-Age takes precedence over Expires, and
+        // the structured relay path has already resolved it into an
+        // expiry by the time cookies arrive that way. Converting here
+        // keeps a `Max-Age` cookie from being stored as a session
+        // cookie, and lets `Max-Age=0` expire an entry on capture.
+        expires:
+          parsed.maxAge !== undefined && Number.isFinite(parsed.maxAge)
+            ? new Date(Date.now() + parsed.maxAge * 1000)
+            : parsed.expires,
         secure: parsed.secure,
         httpOnly: parsed.httpOnly,
         sameSite: this.normalizeSameSite(parsed.sameSite),

@@ -122,6 +122,7 @@ import { useToast } from "@composables/toast"
 import {
   HoppGQLRequest,
   HoppRESTRequest,
+  generateUniqueRefId,
   isHoppRESTRequest,
 } from "@hoppscotch/data"
 import { computedWithControl } from "@vueuse/core"
@@ -144,6 +145,8 @@ import {
   cascadeParentCollectionForProperties,
   editGraphqlRequest,
   editRESTRequest,
+  navigateToFolderWithIndexPath,
+  restCollectionStore,
   saveGraphqlRequestAs,
   saveRESTRequestAs,
 } from "~/newstore/collections"
@@ -338,6 +341,19 @@ const saveRequestAs = async () => {
 
   requestUpdated.name = requestName.value
 
+  // Saving into a collection or folder creates a new entry, so it needs its
+  // own `_ref_id` — matching treats equal ref ids as the same request, and a
+  // copy sharing the source's id would leave their tabs bound to each other
+  if (
+    isHoppRESTRequest(requestUpdated) &&
+    (picked.value.pickedType === "my-collection" ||
+      picked.value.pickedType === "my-folder" ||
+      picked.value.pickedType === "teams-collection" ||
+      picked.value.pickedType === "teams-folder")
+  ) {
+    requestUpdated._ref_id = generateUniqueRefId("req")
+  }
+
   if (picked.value.pickedType === "my-collection") {
     if (!isHoppRESTRequest(requestUpdated))
       throw new Error("requestUpdated is not a REST Request")
@@ -411,6 +427,20 @@ const saveRequestAs = async () => {
   } else if (picked.value.pickedType === "my-request") {
     if (!isHoppRESTRequest(requestUpdated))
       throw new Error("requestUpdated is not a REST Request")
+
+    // Overwriting replaces the target entry's content, not its identity —
+    // carry the target's own `_ref_id` rather than the source's, so tabs on
+    // the target stay bound to it and the source doesn't end up sharing
+    // identity with the overwritten copy
+    const targetRequest = navigateToFolderWithIndexPath(
+      restCollectionStore.value.state,
+      picked.value.folderPath.split("/").map((x) => parseInt(x))
+    )?.requests[picked.value.requestIndex]
+
+    requestUpdated._ref_id =
+      targetRequest && "_ref_id" in targetRequest
+        ? targetRequest._ref_id
+        : undefined
 
     editRESTRequest(
       picked.value.folderPath,

@@ -347,13 +347,9 @@ const documentationService = useService(DocumentationService)
 const restTabs = useService(RESTTabService)
 
 /**
- * Mirrors a saved documentation description onto the request tabs it belongs
- * to, if that request happens to be open. Without this a tab keeps its pre-edit
- * copy of the request and the next save from it writes the stale description
- * back over the one we just saved.
- *
- * The same request can be open in more than one tab, so every match has to be
- * updated — skipping one just leaves it holding the stale copy.
+ * Mirrors a saved documentation description onto any open tabs of the request —
+ * otherwise a tab keeps its pre-edit copy and its next save writes the stale
+ * description back over the one just saved.
  */
 const syncOpenRequestTabDescription = (
   saveContext: HoppRESTSaveContext,
@@ -362,8 +358,8 @@ const syncOpenRequestTabDescription = (
   const possibleTabs = restTabs.getTabsRefWithSaveContext(saveContext)
 
   for (const possibleTab of possibleTabs) {
-    // Hold the document itself rather than the tab ref: the ref's getter throws
-    // once the tab leaves the tab map, and we read it again after a tick
+    // Hold the document, not the tab ref — the ref's getter throws once the
+    // tab is closed, and it's read again after a tick
     const tabDocument = possibleTab.value.document
 
     if (tabDocument.type !== "request") continue
@@ -371,8 +367,7 @@ const syncOpenRequestTabDescription = (
     const wasDirty = tabDocument.isDirty
     tabDocument.request.description = description
 
-    // The tab marks itself dirty on any request change, so restore whatever
-    // dirty state it had before this sync
+    // The tab marks itself dirty on any request change; restore its prior state
     nextTick(() => {
       tabDocument.isDirty = wasDirty
     })
@@ -810,9 +805,8 @@ const saveCollectionDocumentation = async () => {
 }
 
 const saveRequestDocumentation = async () => {
-  // The editor stays live while the team request is in flight, so hold on to
-  // what we are about to persist rather than re-reading it once the mutation
-  // resolves — otherwise the tab gets synced with text that was never saved
+  // The editor stays live while the team mutation is in flight — sync the tab
+  // with what was persisted, not whatever the editor holds when it resolves
   const savedDescription = documentationDescription.value
 
   const updatedRequest = {

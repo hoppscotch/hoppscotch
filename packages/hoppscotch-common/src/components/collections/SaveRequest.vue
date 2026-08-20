@@ -341,9 +341,8 @@ const saveRequestAs = async () => {
 
   requestUpdated.name = requestName.value
 
-  // Saving into a collection or folder creates a new entry, so it needs its
-  // own `_ref_id` — matching treats equal ref ids as the same request, and a
-  // copy sharing the source's id would leave their tabs bound to each other
+  // A copy is a new entry and needs its own `_ref_id` — equal ref ids are
+  // treated as the same request, which would bind the copy's tab to the source
   if (
     isHoppRESTRequest(requestUpdated) &&
     (picked.value.pickedType === "my-collection" ||
@@ -428,10 +427,9 @@ const saveRequestAs = async () => {
     if (!isHoppRESTRequest(requestUpdated))
       throw new Error("requestUpdated is not a REST Request")
 
-    // Overwriting replaces the target entry's content, not its identity —
-    // carry the target's own `_ref_id` rather than the source's, so tabs on
-    // the target stay bound to it and the source doesn't end up sharing
-    // identity with the overwritten copy
+    // Overwriting replaces the target's content, not its identity — keep the
+    // target's own `_ref_id` and backend `id` so its tabs stay bound to it and
+    // the source doesn't share identity with the copy
     const targetRequest = navigateToFolderWithIndexPath(
       restCollectionStore.value.state,
       picked.value.folderPath.split("/").map((x) => parseInt(x))
@@ -441,6 +439,7 @@ const saveRequestAs = async () => {
       targetRequest && "_ref_id" in targetRequest
         ? targetRequest._ref_id
         : undefined
+    requestUpdated.id = targetRequest?.id
 
     editRESTRequest(
       picked.value.folderPath,

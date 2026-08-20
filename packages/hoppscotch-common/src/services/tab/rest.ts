@@ -90,21 +90,16 @@ export class RESTTabService extends TabService<HoppTabDocument> {
     if (tabCtx?.originLocation !== "user-collection") return false
     if (tabCtx.exampleID !== ctx?.exampleID) return false
 
-    // `_ref_id` names the request wherever it currently sits, so when both
-    // sides carry one it settles the match on its own: a tab whose index has
-    // drifted is still the same request, and a tab that merely inherited those
-    // coordinates is not. Truthiness rather than a null check, because some
-    // creation paths store `""` when the request has neither `_ref_id` nor
-    // `id` — an empty string is junk, not an identity, so let it fall through
-    // to the positional match instead of pinning the comparison on it.
+    // When both sides carry a ref id it settles the match on its own — a tab
+    // whose index has drifted is still the same request. Truthiness, not a
+    // null check: some creation paths store `""`, which is not an identity.
     if (ctx?.requestRefID && tabCtx.requestRefID) {
       return tabCtx.requestRefID === ctx.requestRefID
     }
 
-    // `_ref_id` is optional and plenty of requests don't carry one (see
-    // `getDefaultRESTRequest`), so contexts missing it can only be matched by
-    // position — treat the absent ref as a wildcard rather than a mismatch,
-    // otherwise those tabs are invisible to every lookup that supplies one.
+    // `_ref_id` is optional, so a context missing it can only be matched by
+    // position — a mismatch here would make such tabs invisible to every
+    // lookup that supplies one.
     return (
       tabCtx.folderPath === ctx?.folderPath &&
       tabCtx.requestIndex === ctx?.requestIndex
@@ -112,13 +107,9 @@ export class RESTTabService extends TabService<HoppTabDocument> {
   }
 
   /**
-   * Returns every tab matching the save context, not just the first.
-   *
-   * A request can end up open in more than one tab whenever two tabs were
-   * created with save contexts that don't match each other — most easily when
-   * one of them omits `requestRefID`, since a lookup that supplies one won't
-   * find it. Callers writing back into a tab need all of the matches: any they
-   * skip keeps stale content and overwrites the write on its next save.
+   * Returns every tab matching the save context — a request can be open in
+   * more than one tab, and a write-back that skips one leaves it holding
+   * stale content that its next save persists.
    */
   public getTabsRefWithSaveContext(ctx: HoppRESTSaveContext) {
     return Array.from(this.tabMap.values())

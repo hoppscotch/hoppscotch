@@ -312,9 +312,8 @@ export class CollectionsSpotlightSearcherService
 
       if (!req) return
 
-      // `requestRefID` identifies the request independently of its position, so
-      // it has to be recorded here too — a tab opened without one isn't matched
-      // by the lookups that do supply it, and the request ends up open twice
+      // Record `requestRefID` like the sidebar does — a tab opened without one
+      // isn't matched by lookups that supply it, and the request opens twice
       const saveContext = {
         originLocation: "user-collection",
         folderPath: resolvedFolderPath,

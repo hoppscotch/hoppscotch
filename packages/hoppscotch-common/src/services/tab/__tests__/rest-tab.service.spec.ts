@@ -5,10 +5,8 @@ import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { HoppRESTSaveContext } from "~/helpers/rest/document"
 import { RESTTabService } from "../rest"
 
-// `RESTTabService` imports the persistence service for tab restoration, whose
-// module graph reaches stores with top-level side effects that cannot run in
-// this bare test container. Matching doesn't touch persistence, so stub it
-// out (`vi.mock` is hoisted above the imports).
+// The persistence import drags in stores with top-level side effects that
+// can't run in this bare container; matching never touches it (hoisted mock)
 vi.mock("../../persistence", () => ({
   PersistenceService: class {},
   STORE_KEYS: {},
@@ -149,8 +147,7 @@ describe("RESTTabService", () => {
     it("treats an empty-string requestRefID as missing", () => {
       const service = makeService()
 
-      // Some creation paths store "" when the request has neither
-      // `_ref_id` nor `id`
+      // Some creation paths store "" when a request has neither `_ref_id` nor `id`
       const tab = openRequestTab(service, {
         originLocation: "user-collection",
         folderPath: "0",

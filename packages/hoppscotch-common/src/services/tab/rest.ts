@@ -96,17 +96,17 @@ export class RESTTabService extends TabService<HoppTabDocument> {
     const tabRefID =
       tabCtx.requestRefID ||
       (tab.document.type === "request"
-        ? tab.document.request._ref_id
+        ? tab.document.request._ref_id || tab.document.request.id
         : undefined)
 
-    // When both sides carry an identity it settles the match on its own — a
-    // tab whose index has drifted is still the same request, and a stale tab
-    // that merely sits at reused coordinates is not.
-    if (ctx?.requestRefID && tabRefID) {
+    // A lookup that names its request is authoritative — a tab with a
+    // different or missing identity is not that request, even at matching
+    // coordinates, which may have been reused since the tab was bound.
+    if (ctx?.requestRefID) {
       return tabRefID === ctx.requestRefID
     }
 
-    // Position is all that's left when either side has no usable identity
+    // Position is all that's left when the lookup carries no identity
     return (
       tabCtx.folderPath === ctx?.folderPath &&
       tabCtx.requestIndex === ctx?.requestIndex

@@ -20,11 +20,11 @@ const makeService = () => {
 const openRequestTab = (
   service: RESTTabService,
   saveContext: HoppRESTSaveContext,
-  requestRefID?: string
+  requestFields?: { _ref_id?: string; id?: string }
 ) =>
   service.createNewTab({
     type: "request",
-    request: { ...getDefaultRESTRequest(), _ref_id: requestRefID },
+    request: { ...getDefaultRESTRequest(), ...requestFields },
     isDirty: false,
     saveContext,
   })
@@ -107,23 +107,23 @@ describe("RESTTabService", () => {
       ).toBeNull()
     })
 
-    it("falls back to position when the tab has no requestRefID but the lookup does", () => {
+    it("does not match an identity-less tab when the lookup names its request", () => {
       const service = makeService()
 
-      const tab = openRequestTab(service, {
+      openRequestTab(service, {
         originLocation: "user-collection",
         folderPath: "0",
         requestIndex: 1,
       })
 
-      const found = service.getTabRefWithSaveContext({
-        originLocation: "user-collection",
-        folderPath: "0",
-        requestIndex: 1,
-        requestRefID: "req_a",
-      })
-
-      expect(found?.value.id).toEqual(tab.id)
+      expect(
+        service.getTabRefWithSaveContext({
+          originLocation: "user-collection",
+          folderPath: "0",
+          requestIndex: 1,
+          requestRefID: "req_a",
+        })
+      ).toBeNull()
     })
 
     it("identifies a tab without a context ref by the request it holds", () => {
@@ -138,7 +138,7 @@ describe("RESTTabService", () => {
           folderPath: "0",
           requestIndex: 5,
         },
-        "req_a"
+        { _ref_id: "req_a" }
       )
 
       const found = service.getTabRefWithSaveContext({
@@ -146,6 +146,29 @@ describe("RESTTabService", () => {
         folderPath: "0",
         requestIndex: 1,
         requestRefID: "req_a",
+      })
+
+      expect(found?.value.id).toEqual(tab.id)
+    })
+
+    it("identifies a legacy tab by the backend id its request holds", () => {
+      const service = makeService()
+
+      const tab = openRequestTab(
+        service,
+        {
+          originLocation: "user-collection",
+          folderPath: "0",
+          requestIndex: 3,
+        },
+        { id: "backend_1" }
+      )
+
+      const found = service.getTabRefWithSaveContext({
+        originLocation: "user-collection",
+        folderPath: "0",
+        requestIndex: 1,
+        requestRefID: "backend_1",
       })
 
       expect(found?.value.id).toEqual(tab.id)
@@ -161,7 +184,7 @@ describe("RESTTabService", () => {
           folderPath: "0",
           requestIndex: 1,
         },
-        "req_other"
+        { _ref_id: "req_other" }
       )
 
       expect(
@@ -193,7 +216,7 @@ describe("RESTTabService", () => {
       expect(found?.value.id).toEqual(tab.id)
     })
 
-    it("treats an empty-string requestRefID as missing", () => {
+    it("treats an empty-string requestRefID as missing on both sides", () => {
       const service = makeService()
 
       // Some creation paths store "" when a request has neither `_ref_id` nor `id`
@@ -208,7 +231,7 @@ describe("RESTTabService", () => {
         originLocation: "user-collection",
         folderPath: "0",
         requestIndex: 1,
-        requestRefID: "req_a",
+        requestRefID: "",
       })
 
       expect(found?.value.id).toEqual(tab.id)

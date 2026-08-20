@@ -194,9 +194,7 @@
     "save_to_collection": "Save to Collection",
     "select": "Selectați o colecție",
     "select_location": "Selectați locația",
-    "details": "Details",
-    "select_team": "Selectați o echipă",
-    "team_collections": "Colecții de echipă"
+    "details": "Details"
   },
   "confirm": {
     "close_unsaved_tab": "Are you sure you want to close this tab?",
@@ -241,7 +239,7 @@
   },
   "count": {
     "header": "Antet {count}",
-    "message": "Număr de mesaje",
+    "message": "Mesajul {count}",
     "parameter": "Parametrul {count}",
     "protocol": "Protocolul {count}",
     "value": "Valoarea {count}",
@@ -277,8 +275,7 @@
     "team_name": "Numele echipei este gol",
     "teams": "Echipele sunt goale",
     "tests": "Nu există teste pentru această solicitare",
-    "access_tokens": "Access tokens are empty",
-    "shortcodes": "Codurile scurte sunt goale"
+    "access_tokens": "Access tokens are empty"
   },
   "environment": {
     "add_to_global": "Adaugă global",
@@ -367,8 +364,7 @@
     "secret_gist_success": "Successfully exported as secret Gist",
     "require_github": "Conectați-vă cu GitHub pentru a crea un Gist secret",
     "title": "Export",
-    "success": "Successfully exported",
-    "gist_created": "Gist creat"
+    "success": "Successfully exported"
   },
   "filter": {
     "all": "All",
@@ -458,8 +454,8 @@
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment from a JSON file",
     "title": "Import",
-    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of 10MB. Only the first {files} selected will be imported",
-    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of 10MB. Please select another file.",
+    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of {sizeLimit}MB. Only the first {files} selected will be imported",
+    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of {sizeLimit}MB. Please select another file.",
     "success": "Successfully imported"
   },
   "inspections": {
@@ -617,8 +613,7 @@
     "url": "URL",
     "url_placeholder": "Enter a URL or paste a cURL command",
     "variables": "Variabile",
-    "view_my_links": "Vizualizare link-uri",
-    "copy_link": "Copiază legătură"
+    "view_my_links": "Vizualizare link-uri"
   },
   "response": {
     "audio": "Audio",
@@ -763,8 +758,7 @@
       "send_request": "Trimite cerere",
       "share_request": "Share Request",
       "show_code": "Generate code snippet",
-      "title": "Cerere",
-      "copy_request_link": "Copiați legătura de solicitare"
+      "title": "Cerere"
     },
     "response": {
       "copy": "Copiați răspunsul în clipboard",
@@ -934,8 +928,7 @@
     "github": "Urmarește-ne pe Github",
     "shortcuts": "Utilizați aplicația mai rapid",
     "title": "Suport",
-    "twitter": "Urmăriți-ne pe Twitter",
-    "team": "Luați legătura cu echipa"
+    "twitter": "Urmăriți-ne pe Twitter"
   },
   "tab": {
     "authorization": "Autorizare",
@@ -960,7 +953,6 @@
     "share_tab_request": "Share tab request",
     "socketio": "Socket.IO",
     "sse": "SSE",
-    "tests": "Teste",
     "types": "Tipuri",
     "variables": "Variabile",
     "websocket": "WebSocket"
@@ -984,10 +976,10 @@
     "invite": "Invită",
     "invite_more": "Invită mai mulți",
     "invite_tooltip": "Invită oameni la acest workspace",
-    "invited_to_team": "{owner} te-a invitat să te alături echipei {team}",
+    "invited_to_team": "{owner} te-a invitat să te alături echipei {workspace}",
     "join": "Invitație acceptată",
-    "join_team": "Alăturați-vă {team}",
-    "joined_team": "V-ați alăturat echipei {team}",
+    "join_team": "Alăturați-vă {workspace}",
+    "joined_team": "V-ați alăturat echipei {workspace}",
     "joined_team_description": "Sunteți acum membru al acestei echipe",
     "left": "Ați părăsit echipa",
     "login_to_continue": "Autentificați-vă pentru a continua",
@@ -1022,8 +1014,7 @@
     "we_sent_invite_link_description": "Rugați toate persoanele invitate să iși verifice căsuța. Click pe link pentru a se alătura echipei.",
     "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of Hoppscotch. Please use the Copy link button to copy and share the invite link manually.",
     "copy_invite_link": "Copy Invite Link",
-    "search_title": "Team Requests",
-    "join_beta": "Alăturați-vă programului beta pentru a accesa echipe."
+    "search_title": "Team Requests"
   },
   "team_environment": {
     "deleted": "Environment Deleted",
@@ -1093,14 +1084,5 @@
     "cli_command_generation_description_sh": "Copy the below command and run it from the CLI. Please specify a personal access token and verify the generated SH instance server URL.",
     "cli_command_generation_description_sh_with_server_url_placeholder": "Copy the below command and run it from the CLI. Please specify a personal access token and the SH instance server URL.",
     "run_collection": "Run collection"
-  },
-  "shortcodes": {
-    "actions": "Acțiuni",
-    "created_on": "Creat la",
-    "deleted": "Cod scurt șters",
-    "method": "Metodă",
-    "not_found": "Codul scurt nu a fost găsit",
-    "short_code": "Cod scurt",
-    "url": "URL"
   }
 }

@@ -538,7 +538,6 @@
       "versions": "Sürümler",
       "create_new_version": "Yeni Sürüm Oluştur",
       "invalid_version": "Sürüm yalnızca alfanümerik karakterler, noktalar ve tire içerebilir",
-      "snapshot_description": "Bu, mevcut dokümantasyonun bu sürüm olarak anlık görüntüsünü alacak",
       "live": "Canlı",
       "snapshot": "Anlık Görüntü",
       "version_immutable": "Yayımlanan sürümler salt okunur anlık görüntülerdir",
@@ -557,7 +556,6 @@
       "snapshot_item_count": "{count} öğe",
       "auto_sync_live_notice": "Bu sürüm canlı koleksiyonla otomatik senkronize edilir",
       "untitled_project": "Başlıksız Proje",
-      "first_publish_hint": "Dokümantasyonunuz, koleksiyonunuzla otomatik olarak senkronize kalan canlı bir sürüm olarak yayımlanacak",
       "environment": "Ortam",
       "no_environment": "Ortam yok",
       "environment_description": "Yayımlanan dokümantasyondaki değişkenleri çözümlemek için bir ortam ekleyin"

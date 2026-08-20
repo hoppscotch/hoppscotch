@@ -2217,11 +2217,8 @@
     "admin": "Admin"
   },
   "organization_sidebar": {
-    "instances": "Instance",
     "hoppscotch_cloud": "Hoppscotch Cloud",
     "admin": "Admin",
-    "no_orgs_title": "Zatím žádné organizace",
-    "no_orgs_description": "Připojte se nebo vytvořte organizaci a spolupracujte se svým týmem",
     "error_loading": "Organizace se nepodařilo načíst",
     "inactive_orgs": "Neaktivní organizace",
     "multi_account_notice": "Každá organizace si uchovává své vlastní přihlašovací údaje pomocí posledního účtu, ke kterému se přihlásila.",

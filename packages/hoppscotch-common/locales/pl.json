@@ -194,9 +194,7 @@
     "save_to_collection": "Save to Collection",
     "select": "Wybierz kolekcję",
     "select_location": "Wybierz lokalizację",
-    "details": "Details",
-    "select_team": "Wybierz zespół",
-    "team_collections": "Kolekcje zespołowe"
+    "details": "Details"
   },
   "confirm": {
     "close_unsaved_tab": "Are you sure you want to close this tab?",
@@ -277,8 +275,7 @@
     "team_name": "Nazwa zespołu jest pusta",
     "teams": "Zespoły są puste",
     "tests": "Nie ma testów dla tego żądania",
-    "access_tokens": "Access tokens are empty",
-    "shortcodes": "Shortcodes are empty"
+    "access_tokens": "Access tokens are empty"
   },
   "environment": {
     "add_to_global": "Add to Global",
@@ -367,8 +364,7 @@
     "secret_gist_success": "Successfully exported as secret Gist",
     "require_github": "Zaloguj się za pomocą GitHub, aby utworzyć tajny Gist",
     "title": "Export",
-    "success": "Successfully exported",
-    "gist_created": "Utworzono Gist"
+    "success": "Successfully exported"
   },
   "filter": {
     "all": "All",
@@ -458,8 +454,8 @@
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment from a JSON file",
     "title": "Import",
-    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of 10MB. Only the first {files} selected will be imported",
-    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of 10MB. Please select another file.",
+    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of {sizeLimit}MB. Only the first {files} selected will be imported",
+    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of {sizeLimit}MB. Please select another file.",
     "success": "Successfully imported"
   },
   "inspections": {
@@ -617,8 +613,7 @@
     "url": "URL",
     "url_placeholder": "Enter a URL or paste a cURL command",
     "variables": "Zmienne",
-    "view_my_links": "View my links",
-    "copy_link": "Skopiuj link"
+    "view_my_links": "View my links"
   },
   "response": {
     "audio": "Audio",
@@ -763,8 +758,7 @@
       "send_request": "Wyślij żądanie",
       "share_request": "Share Request",
       "show_code": "Generate code snippet",
-      "title": "Żądania",
-      "copy_request_link": "Kopiuj łącze żądania"
+      "title": "Żądania"
     },
     "response": {
       "copy": "Copy response to clipboard",
@@ -934,8 +928,7 @@
     "github": "Follow us on Github",
     "shortcuts": "Przeglądaj aplikację szybciej",
     "title": "Wsparcie",
-    "twitter": "Śledź nas na Twitterze",
-    "team": "Skontaktuj się z zespołem"
+    "twitter": "Śledź nas na Twitterze"
   },
   "tab": {
     "authorization": "Autoryzacja",
@@ -960,7 +953,6 @@
     "share_tab_request": "Share tab request",
     "socketio": "Socket.IO",
     "sse": "SSE",
-    "tests": "Testy",
     "types": "Rodzaje",
     "variables": "Zmienne",
     "websocket": "WebSocket"
@@ -984,10 +976,10 @@
     "invite": "Invite",
     "invite_more": "Invite more",
     "invite_tooltip": "Invite people to this workspace",
-    "invited_to_team": "{owner} invited you to join {team}",
+    "invited_to_team": "{owner} invited you to join {workspace}",
     "join": "Invitation accepted",
-    "join_team": "Join {team}",
-    "joined_team": "You have joined {team}",
+    "join_team": "Join {workspace}",
+    "joined_team": "You have joined {workspace}",
     "joined_team_description": "You are now a member of this team",
     "left": "Opuściłeś zespół",
     "login_to_continue": "Login to continue",
@@ -1022,8 +1014,7 @@
     "we_sent_invite_link_description": "Ask all invitees to check their inbox. Click on the link to join the team.",
     "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of Hoppscotch. Please use the Copy link button to copy and share the invite link manually.",
     "copy_invite_link": "Copy Invite Link",
-    "search_title": "Team Requests",
-    "join_beta": "Dołącz do programu beta, aby uzyskać dostęp do zespołów."
+    "search_title": "Team Requests"
   },
   "team_environment": {
     "deleted": "Environment Deleted",
@@ -1093,14 +1084,5 @@
     "cli_command_generation_description_sh": "Copy the below command and run it from the CLI. Please specify a personal access token and verify the generated SH instance server URL.",
     "cli_command_generation_description_sh_with_server_url_placeholder": "Copy the below command and run it from the CLI. Please specify a personal access token and the SH instance server URL.",
     "run_collection": "Run collection"
-  },
-  "shortcodes": {
-    "actions": "Actions",
-    "created_on": "Created on",
-    "deleted": "Shortcode deleted",
-    "method": "Method",
-    "not_found": "Shortcode not found",
-    "short_code": "Short code",
-    "url": "URL"
   }
 }

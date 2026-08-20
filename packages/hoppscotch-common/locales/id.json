@@ -194,9 +194,7 @@
     "save_to_collection": "Save to Collection",
     "select": "Pilih Koleksi",
     "select_location": "Pilih lokasi",
-    "details": "Details",
-    "select_team": "Pilih tim",
-    "team_collections": "Koleksi Tim"
+    "details": "Details"
   },
   "confirm": {
     "close_unsaved_tab": "Are you sure you want to close this tab?",
@@ -277,8 +275,7 @@
     "team_name": "Nama team kosong",
     "teams": "Kamu bukan di team manapun",
     "tests": "Tidak ada tes untuk permintaan ini",
-    "access_tokens": "Access tokens are empty",
-    "shortcodes": "Shortcodes kosong"
+    "access_tokens": "Access tokens are empty"
   },
   "environment": {
     "add_to_global": "Tambahkan ke Global",
@@ -367,8 +364,7 @@
     "secret_gist_success": "Successfully exported as secret Gist",
     "require_github": "Masuk dengan GitHub untuk membuat secret gist",
     "title": "Export",
-    "success": "Successfully exported",
-    "gist_created": "Gist dibuat"
+    "success": "Successfully exported"
   },
   "filter": {
     "all": "All",
@@ -458,8 +454,8 @@
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment from a JSON file",
     "title": "Impor",
-    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of 10MB. Only the first {files} selected will be imported",
-    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of 10MB. Please select another file.",
+    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of {sizeLimit}MB. Only the first {files} selected will be imported",
+    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of {sizeLimit}MB. Please select another file.",
     "success": "Successfully imported"
   },
   "inspections": {
@@ -617,8 +613,7 @@
     "url": "URL",
     "url_placeholder": "Enter a URL or paste a cURL command",
     "variables": "Variables",
-    "view_my_links": "Lihat tautan saya",
-    "copy_link": "Salin tautan"
+    "view_my_links": "Lihat tautan saya"
   },
   "response": {
     "audio": "Audio",
@@ -763,8 +758,7 @@
       "send_request": "Kirim Request",
       "share_request": "Share Request",
       "show_code": "Generate code snippet",
-      "title": "Request",
-      "copy_request_link": "Salin Tautan Permintaan"
+      "title": "Request"
     },
     "response": {
       "copy": "Salin response ke papan klip",
@@ -934,8 +928,7 @@
     "github": "Ikuti kami di GitHub",
     "shortcuts": "Jelajahi aplikasi lebih cepat",
     "title": "Mendukung",
-    "twitter": "Ikuti kami di Twitter",
-    "team": "Hubungi tim"
+    "twitter": "Ikuti kami di Twitter"
   },
   "tab": {
     "authorization": "Authorization",
@@ -960,7 +953,6 @@
     "share_tab_request": "Share tab request",
     "socketio": "Socket.IO",
     "sse": "SSE",
-    "tests": "Tests",
     "types": "Types",
     "variables": "Variables",
     "websocket": "WebSocket"
@@ -984,10 +976,10 @@
     "invite": "Mengundang",
     "invite_more": "Undang lebih banyak",
     "invite_tooltip": "Undang orang ke ruang kerja ini",
-    "invited_to_team": "{owner} mengundang Anda untuk bergabung {team}",
+    "invited_to_team": "{owner} mengundang Anda untuk bergabung {workspace}",
     "join": "Undangan diterima",
-    "join_team": "Bergabung {team}",
-    "joined_team": "Anda telah bergabung {team}",
+    "join_team": "Bergabung {workspace}",
+    "joined_team": "Anda telah bergabung {workspace}",
     "joined_team_description": "Anda sekarang adalah anggota tim ini",
     "left": "Anda meninggalkan tim",
     "login_to_continue": "Masuk untuk melanjutkan",
@@ -1022,8 +1014,7 @@
     "we_sent_invite_link_description": "Minta semua undangan untuk memeriksa kotak masuk mereka. Klik tautan untuk bergabung dengan tim.",
     "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of Hoppscotch. Please use the Copy link button to copy and share the invite link manually.",
     "copy_invite_link": "Copy Invite Link",
-    "search_title": "Team Requests",
-    "join_beta": "Bergabunglah dengan program beta untuk mengakses tim."
+    "search_title": "Team Requests"
   },
   "team_environment": {
     "deleted": "Environment dihapus",
@@ -1093,14 +1084,5 @@
     "cli_command_generation_description_sh": "Copy the below command and run it from the CLI. Please specify a personal access token and verify the generated SH instance server URL.",
     "cli_command_generation_description_sh_with_server_url_placeholder": "Copy the below command and run it from the CLI. Please specify a personal access token and the SH instance server URL.",
     "run_collection": "Run collection"
-  },
-  "shortcodes": {
-    "actions": "Tindakan",
-    "created_on": "Dibuat pada",
-    "deleted": "Shortcode dihapus",
-    "method": "Method",
-    "not_found": "Shortcode tidak ditemukan",
-    "short_code": "Short code",
-    "url": "URL"
   }
 }

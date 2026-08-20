@@ -85,14 +85,26 @@ export class RESTTabService extends TabService<HoppTabDocument> {
       )
     }
 
+    const tabCtx = tab.document.saveContext
+
+    if (tabCtx?.originLocation !== "user-collection") return false
+    if (tabCtx.exampleID !== ctx?.exampleID) return false
+
+    // `_ref_id` names the request wherever it currently sits, so when both
+    // sides carry one it settles the match on its own: a tab whose index has
+    // drifted is still the same request, and a tab that merely inherited those
+    // coordinates is not.
+    if (ctx?.requestRefID != null && tabCtx.requestRefID != null) {
+      return tabCtx.requestRefID === ctx.requestRefID
+    }
+
+    // `_ref_id` is optional and plenty of requests don't carry one (see
+    // `getDefaultRESTRequest`), so contexts missing it can only be matched by
+    // position — treat the absent ref as a wildcard rather than a mismatch,
+    // otherwise those tabs are invisible to every lookup that supplies one.
     return (
-      tab.document.saveContext?.originLocation === "user-collection" &&
-      tab.document.saveContext.folderPath === ctx?.folderPath &&
-      tab.document.saveContext.requestIndex === ctx?.requestIndex &&
-      tab.document.saveContext.exampleID === ctx?.exampleID &&
-      (ctx?.requestRefID != null
-        ? tab.document.saveContext.requestRefID === ctx.requestRefID
-        : true)
+      tabCtx.folderPath === ctx?.folderPath &&
+      tabCtx.requestIndex === ctx?.requestIndex
     )
   }
 

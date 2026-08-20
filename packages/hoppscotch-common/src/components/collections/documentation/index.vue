@@ -362,16 +362,19 @@ const syncOpenRequestTabDescription = (
   const possibleTabs = restTabs.getTabsRefWithSaveContext(saveContext)
 
   for (const possibleTab of possibleTabs) {
-    if (possibleTab.value.document.type !== "request") continue
+    // Hold the document itself rather than the tab ref: the ref's getter throws
+    // once the tab leaves the tab map, and we read it again after a tick
+    const tabDocument = possibleTab.value.document
 
-    const wasDirty = possibleTab.value.document.isDirty
-    possibleTab.value.document.request.description = description
+    if (tabDocument.type !== "request") continue
+
+    const wasDirty = tabDocument.isDirty
+    tabDocument.request.description = description
 
     // The tab marks itself dirty on any request change, so restore whatever
     // dirty state it had before this sync
     nextTick(() => {
-      if (possibleTab.value.document.type !== "request") return
-      possibleTab.value.document.isDirty = wasDirty
+      tabDocument.isDirty = wasDirty
     })
   }
 }
@@ -854,6 +857,7 @@ const saveRequestDocumentation = async () => {
         originLocation: "user-collection",
         folderPath: props.folderPath!,
         requestIndex: props.requestIndex!,
+        requestRefID: updatedRequest._ref_id ?? updatedRequest.id,
       },
       savedDescription
     )
@@ -1004,6 +1008,7 @@ const saveRequestDocumentationById = async (
           originLocation: "user-collection",
           folderPath,
           requestIndex: item.requestIndex,
+          requestRefID: updatedRequest._ref_id ?? updatedRequest.id,
         },
         documentation
       )

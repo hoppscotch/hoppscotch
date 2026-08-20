@@ -426,7 +426,7 @@ const saveRequestAs = async () => {
         originLocation: "user-collection",
         folderPath: picked.value.folderPath,
         requestIndex: picked.value.requestIndex,
-        requestRefID: requestUpdated._ref_id,
+        requestRefID: requestUpdated._ref_id ?? requestUpdated.id,
       },
     }
 

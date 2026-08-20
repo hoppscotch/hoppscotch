@@ -802,9 +802,14 @@ const saveCollectionDocumentation = async () => {
 }
 
 const saveRequestDocumentation = async () => {
+  // The editor stays live while the team request is in flight, so hold on to
+  // what we are about to persist rather than re-reading it once the mutation
+  // resolves — otherwise the tab gets synced with text that was never saved
+  const savedDescription = documentationDescription.value
+
   const updatedRequest = {
     ...props.request!,
-    description: documentationDescription.value,
+    description: savedDescription,
   }
 
   if (props.isTeamCollection && props.requestID) {
@@ -829,7 +834,7 @@ const saveRequestDocumentation = async () => {
               originLocation: "team-collection",
               requestID: props.requestID!,
             },
-            documentationDescription.value
+            savedDescription
           )
           toast.success(t("documentation.save_success"))
           isSavingDocumentation.value = false
@@ -845,7 +850,7 @@ const saveRequestDocumentation = async () => {
         folderPath: props.folderPath!,
         requestIndex: props.requestIndex!,
       },
-      documentationDescription.value
+      savedDescription
     )
     toast.success(t("documentation.save_success"))
   }

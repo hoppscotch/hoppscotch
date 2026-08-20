@@ -90,16 +90,23 @@ export class RESTTabService extends TabService<HoppTabDocument> {
     if (tabCtx?.originLocation !== "user-collection") return false
     if (tabCtx.exampleID !== ctx?.exampleID) return false
 
-    // When both sides carry a ref id it settles the match on its own — a tab
-    // whose index has drifted is still the same request. Truthiness, not a
-    // null check: some creation paths store `""`, which is not an identity.
-    if (ctx?.requestRefID && tabCtx.requestRefID) {
-      return tabCtx.requestRefID === ctx.requestRefID
+    // A tab whose context predates ref ids is still identified by the request
+    // it holds. Truthiness, not a null check: some creation paths store `""`,
+    // which is not an identity.
+    const tabRefID =
+      tabCtx.requestRefID ||
+      (tab.document.type === "request"
+        ? tab.document.request._ref_id
+        : undefined)
+
+    // When both sides carry an identity it settles the match on its own — a
+    // tab whose index has drifted is still the same request, and a stale tab
+    // that merely sits at reused coordinates is not.
+    if (ctx?.requestRefID && tabRefID) {
+      return tabRefID === ctx.requestRefID
     }
 
-    // `_ref_id` is optional, so a context missing it can only be matched by
-    // position — a mismatch here would make such tabs invisible to every
-    // lookup that supplies one.
+    // Position is all that's left when either side has no usable identity
     return (
       tabCtx.folderPath === ctx?.folderPath &&
       tabCtx.requestIndex === ctx?.requestIndex

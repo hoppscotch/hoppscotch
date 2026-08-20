@@ -19,11 +19,12 @@ const makeService = () => {
 
 const openRequestTab = (
   service: RESTTabService,
-  saveContext: HoppRESTSaveContext
+  saveContext: HoppRESTSaveContext,
+  requestRefID?: string
 ) =>
   service.createNewTab({
     type: "request",
-    request: getDefaultRESTRequest(),
+    request: { ...getDefaultRESTRequest(), _ref_id: requestRefID },
     isDirty: false,
     saveContext,
   })
@@ -123,6 +124,54 @@ describe("RESTTabService", () => {
       })
 
       expect(found?.value.id).toEqual(tab.id)
+    })
+
+    it("identifies a tab without a context ref by the request it holds", () => {
+      const service = makeService()
+
+      // Context predates ref ids, but the held request names itself — found
+      // even though its index has drifted
+      const tab = openRequestTab(
+        service,
+        {
+          originLocation: "user-collection",
+          folderPath: "0",
+          requestIndex: 5,
+        },
+        "req_a"
+      )
+
+      const found = service.getTabRefWithSaveContext({
+        originLocation: "user-collection",
+        folderPath: "0",
+        requestIndex: 1,
+        requestRefID: "req_a",
+      })
+
+      expect(found?.value.id).toEqual(tab.id)
+    })
+
+    it("rejects a stale tab holding a different request at reused coordinates", () => {
+      const service = makeService()
+
+      openRequestTab(
+        service,
+        {
+          originLocation: "user-collection",
+          folderPath: "0",
+          requestIndex: 1,
+        },
+        "req_other"
+      )
+
+      expect(
+        service.getTabRefWithSaveContext({
+          originLocation: "user-collection",
+          folderPath: "0",
+          requestIndex: 1,
+          requestRefID: "req_a",
+        })
+      ).toBeNull()
     })
 
     it("falls back to position when the lookup has no requestRefID but the tab does", () => {

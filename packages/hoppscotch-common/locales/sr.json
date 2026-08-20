@@ -122,7 +122,7 @@
     "send_magic_link": "Пошаљите чаробну везу",
     "sync": "Синхронизовати",
     "we_sent_magic_link": "Послали смо вам чаробну везу!",
-    "we_sent_magic_link_description": "Проверите пријемно сандуче - послали смо поруку е -поште на адресу {емаил}. Садржи чаробну везу помоћу које ћете се пријавити."
+    "we_sent_magic_link_description": "Проверите пријемно сандуче - послали смо поруку е -поште на адресу {email}. Садржи чаробну везу помоћу које ћете се пријавити."
   },
   "authorization": {
     "generate_token": "Генериши токен",
@@ -194,9 +194,7 @@
     "save_to_collection": "Save to Collection",
     "select": "Изаберите колекцију",
     "select_location": "Изаберите локацију",
-    "details": "Details",
-    "select_team": "Изаберите тим",
-    "team_collections": "Збирке тима"
+    "details": "Details"
   },
   "confirm": {
     "close_unsaved_tab": "Are you sure you want to close this tab?",
@@ -277,8 +275,7 @@
     "team_name": "Назив тима празан",
     "teams": "Тимови су празни",
     "tests": "Нема тестова за овај захтев",
-    "access_tokens": "Access tokens are empty",
-    "shortcodes": "Shortcodes are empty"
+    "access_tokens": "Access tokens are empty"
   },
   "environment": {
     "add_to_global": "Add to Global",
@@ -367,8 +364,7 @@
     "secret_gist_success": "Successfully exported as secret Gist",
     "require_github": "Пријавите се са ГитХуб -ом да бисте креирали тајну суштину",
     "title": "Export",
-    "success": "Successfully exported",
-    "gist_created": "Суштина створена"
+    "success": "Successfully exported"
   },
   "filter": {
     "all": "All",
@@ -458,8 +454,8 @@
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment from a JSON file",
     "title": "Увоз",
-    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of 10MB. Only the first {files} selected will be imported",
-    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of 10MB. Please select another file.",
+    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of {sizeLimit}MB. Only the first {files} selected will be imported",
+    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of {sizeLimit}MB. Please select another file.",
     "success": "Successfully imported"
   },
   "inspections": {
@@ -617,8 +613,7 @@
     "url": "УРЛ",
     "url_placeholder": "Enter a URL or paste a cURL command",
     "variables": "Променљиве",
-    "view_my_links": "View my links",
-    "copy_link": "Копирај везу"
+    "view_my_links": "View my links"
   },
   "response": {
     "audio": "Audio",
@@ -763,8 +758,7 @@
       "send_request": "Пошаљите упит",
       "share_request": "Share Request",
       "show_code": "Generate code snippet",
-      "title": "Захтев",
-      "copy_request_link": "Копирајте везу захтева"
+      "title": "Захтев"
     },
     "response": {
       "copy": "Copy response to clipboard",
@@ -889,8 +883,8 @@
     "bulk_mode_placeholder": "Уноси су одвојени новим редом\nКључеви и вредности су одвојени:\nДодати # било ком реду који желите да додате, али га онемогућите",
     "cleared": "Очишћено",
     "connected": "Повезан",
-    "connected_to": "Повезано са {наме}",
-    "connecting_to": "Повезивање са {наме} ...",
+    "connected_to": "Повезано са {name}",
+    "connecting_to": "Повезивање са {name} ...",
     "connection_error": "Failed to connect",
     "connection_failed": "Connection failed",
     "connection_lost": "Connection lost",
@@ -900,7 +894,7 @@
     "deprecated": "ЗАСТАРЕЛА",
     "disabled": "Онемогућено",
     "disconnected": "Прекинуто",
-    "disconnected_from": "Прекинута је веза са именом {наме}",
+    "disconnected_from": "Прекинута је веза са именом {name}",
     "docs_generated": "Генерисана документација",
     "download_failed": "Download failed",
     "download_started": "Преузимање је започело",
@@ -934,8 +928,7 @@
     "github": "Follow us on Github",
     "shortcuts": "Брже прегледајте апликацију",
     "title": "Подршка",
-    "twitter": "Пратите нас на Твиттер -у",
-    "team": "Ступите у контакт са тимом"
+    "twitter": "Пратите нас на Твиттер -у"
   },
   "tab": {
     "authorization": "Овлашћење",
@@ -960,7 +953,6 @@
     "share_tab_request": "Share tab request",
     "socketio": "Соцкет.ИО",
     "sse": "ССЕ",
-    "tests": "Тестови",
     "types": "Врсте",
     "variables": "Променљиве",
     "websocket": "ВебСоцкет"
@@ -984,10 +976,10 @@
     "invite": "Invite",
     "invite_more": "Invite more",
     "invite_tooltip": "Invite people to this workspace",
-    "invited_to_team": "{owner} invited you to join {team}",
+    "invited_to_team": "{owner} invited you to join {workspace}",
     "join": "Invitation accepted",
-    "join_team": "Join {team}",
-    "joined_team": "You have joined {team}",
+    "join_team": "Join {workspace}",
+    "joined_team": "You have joined {workspace}",
     "joined_team_description": "You are now a member of this team",
     "left": "Напустио си тим",
     "login_to_continue": "Login to continue",
@@ -1022,8 +1014,7 @@
     "we_sent_invite_link_description": "Ask all invitees to check their inbox. Click on the link to join the team.",
     "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of Hoppscotch. Please use the Copy link button to copy and share the invite link manually.",
     "copy_invite_link": "Copy Invite Link",
-    "search_title": "Team Requests",
-    "join_beta": "Придружите се бета програму да бисте приступили тимовима."
+    "search_title": "Team Requests"
   },
   "team_environment": {
     "deleted": "Environment Deleted",
@@ -1093,14 +1084,5 @@
     "cli_command_generation_description_sh": "Copy the below command and run it from the CLI. Please specify a personal access token and verify the generated SH instance server URL.",
     "cli_command_generation_description_sh_with_server_url_placeholder": "Copy the below command and run it from the CLI. Please specify a personal access token and the SH instance server URL.",
     "run_collection": "Run collection"
-  },
-  "shortcodes": {
-    "actions": "Actions",
-    "created_on": "Created on",
-    "deleted": "Shortcode deleted",
-    "method": "Method",
-    "not_found": "Shortcode not found",
-    "short_code": "Short code",
-    "url": "URL"
   }
 }

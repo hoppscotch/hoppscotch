@@ -74,7 +74,7 @@
   },
   "activity_logs": {
     "ACTIVITY_LOG_DELETE": "Aktivitätsprotokoll gelöscht",
-    "WORKSPACE_CREATE": "Arbeitsbereich {title} erstellt",
+    "WORKSPACE_CREATE": "Arbeitsbereich {name} erstellt",
     "WORKSPACE_RENAME": "Arbeitsbereich von {old_name} zu {new_name} umbenannt",
     "WORKSPACE_USER_ADD": "{user} wurde zum Arbeitsbereich als {role} hinzugefügt",
     "WORKSPACE_USER_INVITE": "{user} wurde von {inviteeEmail} als {role} eingeladen",
@@ -100,7 +100,6 @@
     "enter_otp_instruction": "Bitte geben Sie den Verifizierungscode ein, der vom Hoppscotch Agent generiert wurde, und schließen Sie die Registrierung ab.",
     "otp_label": "Verifizierungscode",
     "processing": "Verarbeite die Anfrage...",
-    "not_running": "Der Hoppscotch Agent läuft nicht. Bitte starten Sie den Agenten und klicken Sie auf 'Wiederholen'.",
     "not_running_title": "Agent nicht erkannt",
     "registration_title": "Agent registrierung",
     "verify_ssl_certs": "SSL-Zertifikate überprüfen",
@@ -251,9 +250,7 @@
       "secret_key": "Geheimer Schlüssel",
       "service_name": "Dienstname",
       "aws_region": "AWS-Region",
-      "service_token": "Dienst-Token",
-      "advance_config": "Erweiterte Konfiguration",
-      "advance_config_description": "Hoppscotch weist automatisch Standardwerte für bestimmte Felder zu, wenn kein expliziter Wert angegeben wird."
+      "service_token": "Dienst-Token"
     }
   },
   "collection": {
@@ -556,8 +553,8 @@
     "postman_environment": "Postman Umgebung",
     "postman_environment_description": "Postman-Umgebung aus einer JSON-Datei importieren",
     "title": "Importieren",
-    "file_size_limit_exceeded_warning_multiple_files": "Die gewählten Dateien überschreiten das Limit von 10 MB. Nur die ersten {files} ausgewählten Dateien werden importiert.",
-    "file_size_limit_exceeded_warning_single_file": "Die aktuell gewählte Datei überschreitet das empfohlene Limit von 10 MB. Bitte wählen Sie eine andere Datei.",
+    "file_size_limit_exceeded_warning_multiple_files": "Die gewählten Dateien überschreiten das Limit von {sizeLimit} MB. Nur die ersten {files} ausgewählten Dateien werden importiert.",
+    "file_size_limit_exceeded_warning_single_file": "Die aktuell gewählte Datei überschreitet das empfohlene Limit von {sizeLimit} MB. Bitte wählen Sie eine andere Datei.",
     "success": "Erfolgreich importiert"
   },
   "inspections": {
@@ -719,8 +716,7 @@
     "url": "URL",
     "url_placeholder": "Gib eine URL ein oder füge einen cURL-Befehl ein",
     "variables": "Variablen",
-    "view_my_links": "Meine Links anzeigen",
-    "copy_link": "Link kopieren"
+    "view_my_links": "Meine Links anzeigen"
   },
   "response": {
     "audio": "Audio",
@@ -1071,7 +1067,6 @@
     "share_tab_request": "Share tab request",
     "socketio": "Socket.IO",
     "sse": "SSE",
-    "tests": "Tests",
     "types": "Typen",
     "variables": "Variablen",
     "websocket": "WebSocket"
@@ -1095,10 +1090,10 @@
     "invite": "Einladen",
     "invite_more": "Mehr einladen",
     "invite_tooltip": "Personen zum Team einladen",
-    "invited_to_team": "{owner} hat dich zu {team} eingeladen",
+    "invited_to_team": "{owner} hat dich zu {workspace} eingeladen",
     "join": "Einladung angenommen",
-    "join_team": "{team} beitreten",
-    "joined_team": "Du bist {team} beigetreten",
+    "join_team": "{workspace} beitreten",
+    "joined_team": "Du bist {workspace} beigetreten",
     "joined_team_description": "Du bist nun ein Mitglied des Teams",
     "left": "Du hast das Team verlassen",
     "login_to_continue": "Zum Fortfahren anmelden",

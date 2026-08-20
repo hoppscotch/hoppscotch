@@ -76,7 +76,6 @@
     "enter_otp_instruction": "Insira o código de verificação gerado pelo Agente Hoppscotch e complete o cadastro",
     "otp_label": "Cõdigo de verificação",
     "processing": "Processando sua requisição...",
-    "not_running": "O Agente Hoppscotch não está executando. Inicie o agente e clique em 'Tentar novamente'.",
     "not_running_title": "Agente não detectado",
     "registration_title": "Cadastro do agente",
     "verify_ssl_certs": "Verificar Certificados SSL",
@@ -229,8 +228,7 @@
       "nonce_count": "Nonce Count",
       "client_nonce": "Client Nonce",
       "opaque": "Opaque",
-      "disable_retry": "Desabilitar Retentativa de Requisição",
-      "inspector_warning": "É recomendado utilizar o interceptor Agente ao utilizar Autorização Digest."
+      "disable_retry": "Desabilitar Retentativa de Requisição"
     }
   },
   "collection": {
@@ -545,8 +543,8 @@
     "postman_environment": "Ambiente Postman",
     "postman_environment_description": "Importar Ambiente Postman de arquivo JSON/YAML",
     "title": "Importar",
-    "file_size_limit_exceeded_warning_multiple_files": "O arquivo escolhido ultrapassa o limite recomendado de 10MB. Apenas os primeiros {files} selecionados serão importados",
-    "file_size_limit_exceeded_warning_single_file": "O arquivo escolhido ultrapassa o limite recomendado de 10MB. Selecione outro arquivo.",
+    "file_size_limit_exceeded_warning_multiple_files": "O arquivo escolhido ultrapassa o limite recomendado de {sizeLimit}MB. Apenas os primeiros {files} selecionados serão importados",
+    "file_size_limit_exceeded_warning_single_file": "O arquivo escolhido ultrapassa o limite recomendado de {sizeLimit}MB. Selecione outro arquivo.",
     "success": "Importado com sucesso",
     "import_summary_collections_title": "Coleções",
     "import_summary_requests_title": "Requisições",
@@ -579,9 +577,6 @@
       "extension_unknown_origin": "Verifique se você adicionou a origem do endpoint da API à lista da extensão de navegador do Hoppscotch.",
       "extention_enable_action": "Habilitar Extensão do Navegador",
       "extention_not_enabled": "Extensão não habilitada."
-    },
-    "requestBody": {
-      "active_interceptor_doesnt_support_binary_body": "O interceptor selecionado ainda não possui suporte para envio de dados binários."
     }
   },
   "layout": {
@@ -1090,7 +1085,6 @@
     "share_tab_request": "Compartilhar requisição da aba",
     "socketio": "Socket.IO",
     "sse": "SSE",
-    "tests": "Testes",
     "types": "Tipos",
     "variables": "Variáveis",
     "websocket": "WebSocket",

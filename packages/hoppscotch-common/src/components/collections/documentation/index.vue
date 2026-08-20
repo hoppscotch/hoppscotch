@@ -347,28 +347,33 @@ const documentationService = useService(DocumentationService)
 const restTabs = useService(RESTTabService)
 
 /**
- * Mirrors a saved documentation description onto the request tab it belongs to,
- * if that request happens to be open. Without this the tab keeps its pre-edit
- * copy of the request and the next save from the tab writes the stale
- * description back over the one we just saved.
+ * Mirrors a saved documentation description onto the request tabs it belongs
+ * to, if that request happens to be open. Without this a tab keeps its pre-edit
+ * copy of the request and the next save from it writes the stale description
+ * back over the one we just saved.
+ *
+ * The same request can be open in more than one tab, so every match has to be
+ * updated — skipping one just leaves it holding the stale copy.
  */
 const syncOpenRequestTabDescription = (
   saveContext: HoppRESTSaveContext,
   description: string
 ) => {
-  const possibleTab = restTabs.getTabRefWithSaveContext(saveContext)
+  const possibleTabs = restTabs.getTabsRefWithSaveContext(saveContext)
 
-  if (!possibleTab || possibleTab.value.document.type !== "request") return
+  for (const possibleTab of possibleTabs) {
+    if (possibleTab.value.document.type !== "request") continue
 
-  const wasDirty = possibleTab.value.document.isDirty
-  possibleTab.value.document.request.description = description
+    const wasDirty = possibleTab.value.document.isDirty
+    possibleTab.value.document.request.description = description
 
-  // The tab marks itself dirty on any request change, so restore whatever
-  // dirty state it had before this sync
-  nextTick(() => {
-    if (possibleTab.value.document.type !== "request") return
-    possibleTab.value.document.isDirty = wasDirty
-  })
+    // The tab marks itself dirty on any request change, so restore whatever
+    // dirty state it had before this sync
+    nextTick(() => {
+      if (possibleTab.value.document.type !== "request") return
+      possibleTab.value.document.isDirty = wasDirty
+    })
+  }
 }
 
 const isLoadingTeamCollection = ref<boolean>(false)

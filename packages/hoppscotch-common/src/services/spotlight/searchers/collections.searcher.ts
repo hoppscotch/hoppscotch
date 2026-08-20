@@ -6,6 +6,7 @@ import {
   SpotlightSearcherSessionState,
   SpotlightService,
 } from "../"
+import { cloneDeep } from "lodash-es"
 import { Ref, computed, effectScope, markRaw, ref, watch } from "vue"
 import { getI18n } from "~/modules/i18n"
 import MiniSearch from "minisearch"
@@ -304,32 +305,36 @@ export class CollectionsSpotlightSearcherService
         })
       }
 
-      const possibleTab = this.restTab.getTabRefWithSaveContext({
+      const resolvedFolderPath = folderPath.join("/")
+
+      const req = this.getRESTFolderFromFolderPath(resolvedFolderPath)
+        ?.requests[reqIndex] as HoppRESTRequest
+
+      if (!req) return
+
+      // `requestRefID` identifies the request independently of its position, so
+      // it has to be recorded here too — a tab opened without one isn't matched
+      // by the lookups that do supply it, and the request ends up open twice
+      const saveContext = {
         originLocation: "user-collection",
-        folderPath: folderPath.join("/"),
+        folderPath: resolvedFolderPath,
         requestIndex: reqIndex,
-      })
+        requestRefID: req._ref_id ?? req.id,
+      } as const
+
+      const possibleTab = this.restTab.getTabRefWithSaveContext(saveContext)
 
       if (possibleTab) {
         this.restTab.setActiveTab(possibleTab.value.id)
       } else {
-        const req = this.getRESTFolderFromFolderPath(folderPath.join("/"))
-          ?.requests[reqIndex] as HoppRESTRequest
-
-        if (!req) return
-
         this.restTab.createNewTab(
           {
             type: "request",
-            request: req,
+            request: cloneDeep(req),
             isDirty: false,
-            saveContext: {
-              originLocation: "user-collection",
-              folderPath: folderPath.join("/"),
-              requestIndex: reqIndex,
-            },
+            saveContext,
             inheritedProperties: cascadeParentCollectionForProperties(
-              folderPath.join("/"),
+              resolvedFolderPath,
               "rest"
             ),
           },
@@ -352,7 +357,7 @@ export class CollectionsSpotlightSearcherService
           requestIndex: reqIndex,
         },
         cursorPosition: 0,
-        request: req,
+        request: cloneDeep(req),
         isDirty: false,
         inheritedProperties: cascadeParentCollectionForProperties(
           folderPath.join("/"),

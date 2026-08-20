@@ -93,8 +93,11 @@ export class RESTTabService extends TabService<HoppTabDocument> {
     // `_ref_id` names the request wherever it currently sits, so when both
     // sides carry one it settles the match on its own: a tab whose index has
     // drifted is still the same request, and a tab that merely inherited those
-    // coordinates is not.
-    if (ctx?.requestRefID != null && tabCtx.requestRefID != null) {
+    // coordinates is not. Truthiness rather than a null check, because some
+    // creation paths store `""` when the request has neither `_ref_id` nor
+    // `id` — an empty string is junk, not an identity, so let it fall through
+    // to the positional match instead of pinning the comparison on it.
+    if (ctx?.requestRefID && tabCtx.requestRefID) {
       return tabCtx.requestRefID === ctx.requestRefID
     }
 
@@ -124,7 +127,11 @@ export class RESTTabService extends TabService<HoppTabDocument> {
   }
 
   public getTabRefWithSaveContext(ctx: HoppRESTSaveContext) {
-    return this.getTabsRefWithSaveContext(ctx)[0] ?? null
+    for (const tab of this.tabMap.values()) {
+      if (this.matchesSaveContext(tab, ctx)) return this.getTabRef(tab.id)
+    }
+
+    return null
   }
 
   public getDirtyTabsCount() {

@@ -59,7 +59,7 @@ export async function generateJWTToken(
   }
 
   try {
-    let cryptoKey: Uint8Array
+    let cryptoKey: Uint8Array | jose.CryptoKey
 
     // Use private key for RSA/ECDSA algorithms, secret for HMAC algorithms
     if (
@@ -72,7 +72,9 @@ export async function generateJWTToken(
         console.error("Private key is required for RSA/ECDSA algorithms")
         return null
       }
-      cryptoKey = new TextEncoder().encode(privateKey)
+      // jose requires an imported CryptoKey/KeyLike for asymmetric
+      // algorithms - the raw PEM text can't be signed with directly.
+      cryptoKey = await jose.importPKCS8(privateKey, algorithm)
     } else {
       // HMAC algorithms - use secret
       if (!secret) {

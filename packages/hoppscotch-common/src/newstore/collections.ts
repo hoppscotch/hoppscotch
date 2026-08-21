@@ -645,26 +645,19 @@ const restCollectionDispatchers = defineDispatchers({
       return {}
     }
 
-    // Reordering the collection to the last position
+    const folderIndex = indexPaths.pop() as number
+
+    const sourceContainingFolder = navigateToFolderWithIndexPath(
+      newState,
+      indexPaths
+    )
+    const sourceArray = sourceContainingFolder
+      ? sourceContainingFolder.folders
+      : newState
+
+    // Reordering the collection to the last position within its own parent
     if (destinationCollectionIndex === null) {
-      const folderIndex = indexPaths.pop() as number
-
-      const containingFolder = navigateToFolderWithIndexPath(
-        newState,
-        indexPaths
-      )
-
-      if (containingFolder === null) {
-        newState.push(newState.splice(folderIndex, 1)[0])
-        return {
-          state: newState,
-        }
-      }
-
-      // Pushing the folder to the end of the array (last position)
-      containingFolder.folders.push(
-        containingFolder.folders.splice(folderIndex, 1)[0]
-      )
+      sourceArray.push(sourceArray.splice(folderIndex, 1)[0])
 
       return {
         state: newState,
@@ -680,23 +673,29 @@ const restCollectionDispatchers = defineDispatchers({
       return {}
     }
 
-    const folderIndex = indexPaths.pop() as number
     const destinationFolderIndex = destinationIndexPaths.pop() as number
 
-    const containingFolder = navigateToFolderWithIndexPath(
+    const destinationContainingFolder = navigateToFolderWithIndexPath(
       newState,
       destinationIndexPaths
     )
+    const destinationArray = destinationContainingFolder
+      ? destinationContainingFolder.folders
+      : newState
 
-    if (containingFolder === null) {
-      reorderItems(newState, folderIndex, destinationFolderIndex)
+    if (sourceArray === destinationArray) {
+      reorderItems(sourceArray, folderIndex, destinationFolderIndex)
 
       return {
         state: newState,
       }
     }
 
-    reorderItems(containingFolder.folders, folderIndex, destinationFolderIndex)
+    // Moving to a different parent (e.g. a nested collection dropped among
+    // the top-level collections list) - remove it from its current parent
+    // and insert it into the destination parent at the target position
+    const [movedFolder] = sourceArray.splice(folderIndex, 1)
+    destinationArray.splice(destinationFolderIndex, 0, movedFolder)
 
     return {
       state: newState,

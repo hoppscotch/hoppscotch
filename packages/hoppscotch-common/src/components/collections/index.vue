@@ -3010,6 +3010,16 @@ const isSameSameParent = (
   if (destinationItemPath === null) return false
   const destinationItemIndex = pathToIndex(destinationItemPath)
 
+  // if the destination item is itself at the root (and has no parent of its
+  // own), dropping relative to it means the dragged item ends up at the root
+  // too - regardless of how deeply nested the dragged item currently is
+  if (
+    destinationItemIndex.length === 1 &&
+    destinationCollectionIndex === null
+  ) {
+    return true
+  }
+
   // length of 1 means the request is in the root
   if (draggedItemIndex.length === 1 && destinationItemIndex.length === 1) {
     return true

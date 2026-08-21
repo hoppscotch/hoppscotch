@@ -1159,6 +1159,22 @@ describe("Parse curl command to Hopp REST Request", () => {
     expect(customHeader.value).toBe(`-d {"fake":1}`)
   })
 
+  test("keeps a header whose value itself contains a colon-space", () => {
+    const command = `curl 'https://example.com/api' -H 'X-Custom: foo: bar' -H 'Authorization:Basic dXNlcjpwYXNz'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+
+    expect(actual.headers).toContainEqual(
+      expect.objectContaining({ key: "X-Custom", value: "foo: bar" })
+    )
+    expect(actual.headers).toContainEqual(
+      expect.objectContaining({
+        key: "Authorization",
+        value: "Basic dXNlcjpwYXNz",
+      })
+    )
+  })
+
   for (const [i, { command, response }] of samples.entries()) {
     test(`for sample #${i + 1}:\n\n${command}`, () => {
       const actual = parseCurlToHoppRESTReq(command)

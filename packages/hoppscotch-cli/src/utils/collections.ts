@@ -102,7 +102,7 @@ export const collectionsRunner = async (
         [],
         bail
       );
-      if (shouldBail) break;
+      if (shouldBail) return requestsReport;
     }
   }
 

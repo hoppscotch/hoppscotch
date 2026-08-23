@@ -1,4 +1,4 @@
-import { clone } from "es-toolkit/compat";
+import { clone } from 'es-toolkit/compat';
 
 /**
  * Sorts the array based on the sort func.

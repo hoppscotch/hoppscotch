@@ -101,8 +101,8 @@ importers:
         specifier: 1.18.1
         version: 1.18.1
       es-toolkit:
-        specifier: ^1.39.0
-        version: 1.50.0
+        specifier: 1.39.0
+        version: 1.39.0
       fp-ts:
         specifier: 2.16.11
         version: 2.16.11
@@ -433,8 +433,8 @@ importers:
         specifier: 14.0.3
         version: 14.0.3
       es-toolkit:
-        specifier: ^1.39.0
-        version: 1.50.0
+        specifier: 1.39.0
+        version: 1.39.0
       isolated-vm:
         specifier: 6.1.2
         version: 6.1.2
@@ -629,8 +629,8 @@ importers:
         specifier: 3.4.12
         version: 3.4.12
       es-toolkit:
-        specifier: ^1.39.0
-        version: 1.50.0
+        specifier: 1.39.0
+        version: 1.39.0
       esprima:
         specifier: 4.0.1
         version: 4.0.1
@@ -999,8 +999,8 @@ importers:
   packages/hoppscotch-data:
     dependencies:
       es-toolkit:
-        specifier: ^1.39.0
-        version: 1.50.0
+        specifier: 1.39.0
+        version: 1.39.0
       fp-ts:
         specifier: 2.16.11
         version: 2.16.11
@@ -1229,8 +1229,8 @@ importers:
         specifier: 6.2.2
         version: 6.2.2
       es-toolkit:
-        specifier: ^1.39.0
-        version: 1.50.0
+        specifier: 1.39.0
+        version: 1.39.0
       faraday-cage:
         specifier: 0.1.0
         version: 0.1.0
@@ -1616,8 +1616,8 @@ importers:
         specifier: 4.4.0
         version: 4.4.0
       es-toolkit:
-        specifier: ^1.39.0
-        version: 1.50.0
+        specifier: 1.39.0
+        version: 1.39.0
       fp-ts:
         specifier: 2.16.11
         version: 2.16.11
@@ -1694,6 +1694,12 @@ importers:
       '@import-meta-env/unplugin':
         specifier: 0.6.3
         version: 0.6.3
+      '@vitejs/plugin-vue':
+        specifier: 6.0.8
+        version: 6.0.8(vite@7.3.2(@types/node@25.9.3)(jiti@2.6.1)(sass@1.101.0)(terser@5.46.1)(yaml@2.9.0))(vue@3.5.40(typescript@5.9.3))
+      '@vue/compiler-sfc':
+        specifier: 3.5.40
+        version: 3.5.40
       autoprefixer:
         specifier: 10.5.4
         version: 10.5.4(postcss@8.5.20)
@@ -8456,8 +8462,8 @@ packages:
     resolution: {integrity: sha512-CxN9N56HYfd2m/acc/NOFrZQsN9kU4eh+2kk6A707Kz1krH8tKmfrs5RnftB8WNX80T0NS7vSQsDOlg23diR2g==}
     engines: {node: '>= 0.4'}
 
-  es-toolkit@1.50.0:
-    resolution: {integrity: sha512-OyZKhUVvEep9ITEiwHn8GKnMRQIVqoSIX7WnRbkWgJkllCujilqP2rD0u979tkl8wqyc8ICwlc1UBVv/Sl1G6w==}
+  es-toolkit@1.39.0:
+    resolution: {integrity: sha512-EoVtfsblZAUBu1pLM7SS0JH6mOUSln+l7IPkdTAasDFO1jYJIrdFv6usRuGbUFKIuA78OVlvpGldGSztAihQQQ==}
 
   es6-promise@3.3.1:
     resolution: {integrity: sha512-SOp9Phqvqn7jtEUxPWdWfWoLmyt2VaJ6MpvP9Comy1MceMXqE6bxvaTu4iaxpYYPzhny28Lc+M87/c2cPK6lDg==}
@@ -22579,7 +22585,7 @@ snapshots:
       is-date-object: 1.1.0
       is-symbol: 1.1.1
 
-  es-toolkit@1.50.0: {}
+  es-toolkit@1.39.0: {}
 
   es6-promise@3.3.1: {}
 

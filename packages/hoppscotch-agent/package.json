@@ -23,7 +23,7 @@
     "@vueuse/core": "14.3.0",
     "axios": "1.18.1",
     "fp-ts": "2.16.11",
-    "es-toolkit": "^1.39.0",
+    "es-toolkit": "1.39.0",
     "vue": "3.5.38"
   },
   "devDependencies": {

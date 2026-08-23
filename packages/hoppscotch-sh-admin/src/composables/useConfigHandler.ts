@@ -1,5 +1,5 @@
 import { AnyVariables, UseMutationResponse } from '@urql/vue';
-import { cloneDeep } from "es-toolkit/compat";
+import { cloneDeep } from 'es-toolkit/compat';
 import { onMounted, ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import {

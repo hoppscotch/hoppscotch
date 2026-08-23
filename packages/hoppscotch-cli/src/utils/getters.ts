@@ -14,7 +14,7 @@ import * as O from "fp-ts/Option";
 import { pipe } from "fp-ts/function";
 import * as S from "fp-ts/string";
 import fs from "fs/promises";
-import { round } from "es-toolkit/compat";
+import { round } from 'es-toolkit/compat';
 
 import { error } from "../types/errors";
 import { DEFAULT_DURATION_PRECISION } from "./constants";

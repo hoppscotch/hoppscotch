@@ -39,7 +39,7 @@
     "vite": "7.3.2"
   },
   "dependencies": {
-    "es-toolkit": "^1.39.0",
+    "es-toolkit": "1.39.0",
     "fp-ts": "2.16.11",
     "io-ts": "2.2.22",
     "jose": "6.2.3",

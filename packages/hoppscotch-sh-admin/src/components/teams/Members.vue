@@ -162,7 +162,7 @@
 <script setup lang="ts">
 import { useMutation } from '@urql/vue';
 import { useVModel } from '@vueuse/core';
-import { cloneDeep, isEqual } from "es-toolkit/compat";
+import { cloneDeep, isEqual } from 'es-toolkit/compat';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from '~/composables/i18n';

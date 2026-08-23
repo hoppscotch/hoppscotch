@@ -80,7 +80,7 @@
     "js-md5": "0.8.3",
     "js-yaml": "4.2.0",
     "jsonc-parser": "3.3.1",
-    "es-toolkit": "^1.39.0",
+    "es-toolkit": "1.39.0",
     "lossless-json": "4.3.0",
     "markdown-it": "14.3.0",
     "minisearch": "7.2.0",

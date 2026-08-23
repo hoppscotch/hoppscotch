@@ -58,7 +58,7 @@
     "@hoppscotch/data": "workspace:^",
     "acorn": "8.17.0",
     "chai": "6.2.2",
-    "es-toolkit": "^1.39.0",
+    "es-toolkit": "1.39.0",
     "faraday-cage": "0.1.0",
     "fp-ts": "2.16.11"
   },

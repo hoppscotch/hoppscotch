@@ -1,6 +1,6 @@
 import * as Eq from "fp-ts/Eq"
 import * as S from "fp-ts/string"
-import { isEqual } from "es-toolkit/compat"
+import { isEqual } from 'es-toolkit/compat'
 
 /*
  * Eq-s are fp-ts an interface (type class) that defines how the equality

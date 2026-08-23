@@ -3,7 +3,7 @@ import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as R from "fp-ts/Record"
 import { createI18n, I18n, I18nOptions } from "vue-i18n"
-import { merge } from "lodash-es"
+import { merge } from "es-toolkit/compat"
 import { HoppModule } from "."
 
 import languages from "../../languages.json"

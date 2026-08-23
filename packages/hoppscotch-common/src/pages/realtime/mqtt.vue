@@ -204,7 +204,7 @@ import IconPlus from "~icons/lucide/plus"
 import IconTrash from "~icons/lucide/trash"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import { computed, onMounted, onUnmounted, ref, watch } from "vue"
-import debounce from "lodash-es/debounce"
+import { debounce } from "es-toolkit/compat"
 import {
   MQTTConnection,
   MQTTConnectionConfig,

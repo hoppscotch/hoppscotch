@@ -1,6 +1,6 @@
 import { vi, describe, expect, test } from "vitest"
 import { BehaviorSubject, Subject } from "rxjs"
-import { isEqual } from "lodash-es"
+import { isEqual } from "es-toolkit/compat"
 import DispatchingStore from "~/newstore/DispatchingStore"
 
 describe("DispatchingStore", () => {

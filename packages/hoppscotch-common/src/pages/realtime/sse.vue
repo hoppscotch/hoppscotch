@@ -70,7 +70,7 @@
 <script setup lang="ts">
 import { ref, watch, onUnmounted, onMounted } from "vue"
 import "splitpanes/dist/splitpanes.css"
-import { debounce } from "lodash-es"
+import { debounce } from "es-toolkit/compat"
 import {
   SSEEndpoint$,
   setSSEEndpoint,

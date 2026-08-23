@@ -1,6 +1,6 @@
 import { ConsoleEntry } from "faraday-cage/modules"
 import * as E from "fp-ts/Either"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep } from "es-toolkit/compat"
 
 import { defaultModules, postRequestModule } from "~/cage-modules"
 import {

@@ -1,5 +1,5 @@
 import { Container, Service } from "dioc"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep } from "es-toolkit/compat"
 import { reactive, computed, watch, nextTick } from "vue"
 
 /**

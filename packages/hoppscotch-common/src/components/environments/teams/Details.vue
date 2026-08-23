@@ -246,7 +246,7 @@ import {
   parseTemplateStringE,
 } from "@hoppscotch/data"
 import { refAutoReset } from "@vueuse/core"
-import { clone } from "lodash-es"
+import { clone } from "es-toolkit/compat"
 import { useToast } from "@composables/toast"
 import { useI18n } from "~/composables/i18n"
 import {

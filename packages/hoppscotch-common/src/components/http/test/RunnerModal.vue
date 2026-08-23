@@ -192,7 +192,7 @@ import {
 } from "~/helpers/backend/helpers"
 import * as TE from "fp-ts/TaskEither"
 import { GQLError } from "~/helpers/backend/GQLClient"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep } from "es-toolkit/compat"
 import { getErrorMessage } from "~/helpers/runner/collection-tree"
 import { getRESTCollectionByRefId } from "~/newstore/collections"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"

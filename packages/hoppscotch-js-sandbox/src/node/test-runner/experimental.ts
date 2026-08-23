@@ -1,7 +1,7 @@
 import { HoppRESTRequest } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
-import { cloneDeep } from "lodash"
+import { cloneDeep } from "es-toolkit/compat"
 
 import { defaultModules, postRequestModule } from "~/cage-modules"
 import {

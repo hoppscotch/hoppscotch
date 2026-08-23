@@ -220,7 +220,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from "vue"
 import { refAutoReset, useVModel } from "@vueuse/core"
-import { clone } from "lodash-es"
+import { clone } from "es-toolkit/compat"
 import { useCodemirror } from "@composables/codemirror"
 import { useI18n } from "@composables/i18n"
 import { useSetting } from "~/composables/settings"

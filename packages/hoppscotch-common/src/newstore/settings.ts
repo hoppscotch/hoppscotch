@@ -1,4 +1,4 @@
-import { cloneDeep, defaultsDeep, has } from "lodash-es"
+import { cloneDeep, defaultsDeep, has } from "es-toolkit/compat"
 import { Observable } from "rxjs"
 import { distinctUntilChanged, pluck } from "rxjs/operators"
 import type { KeysMatching } from "~/types/ts-utils"

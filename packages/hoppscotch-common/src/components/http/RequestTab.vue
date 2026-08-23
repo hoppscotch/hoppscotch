@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import { watch, computed } from "vue"
 import { useVModel } from "@vueuse/core"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep } from "es-toolkit/compat"
 import { isEqualHoppRESTRequest } from "@hoppscotch/data"
 import { HoppTab } from "~/services/tab"
 import { HoppRequestDocument } from "~/helpers/rest/document"

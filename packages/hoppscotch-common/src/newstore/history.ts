@@ -1,4 +1,4 @@
-import { isEqual } from "lodash-es"
+import { isEqual } from "es-toolkit/compat"
 import { pluck } from "rxjs/operators"
 import {
   HoppRESTRequest,

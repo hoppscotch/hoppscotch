@@ -94,7 +94,7 @@
 </template>
 
 <script setup lang="ts">
-import { isEqual } from 'lodash-es';
+import { isEqual } from 'es-toolkit/compat';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';

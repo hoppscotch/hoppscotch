@@ -262,7 +262,7 @@ import * as E from "fp-ts/Either"
 import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as RA from "fp-ts/ReadonlyArray"
-import { cloneDeep, isEqual } from "lodash-es"
+import { cloneDeep, isEqual } from "es-toolkit/compat"
 import { computed, reactive, Ref, ref, toRef, watch } from "vue"
 import draggable from "vuedraggable-es"
 

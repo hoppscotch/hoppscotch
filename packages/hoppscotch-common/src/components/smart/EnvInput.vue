@@ -79,7 +79,7 @@ import {
   EditorState,
   Extension,
 } from "@codemirror/state"
-import { clone } from "lodash-es"
+import { clone } from "es-toolkit/compat"
 import { history, historyKeymap } from "@codemirror/commands"
 import { inputTheme } from "~/helpers/editor/themes/baseTheme"
 import { HoppReactiveEnvPlugin } from "~/helpers/editor/extensions/HoppEnvironment"

@@ -1,6 +1,6 @@
 import * as Eq from "fp-ts/Eq"
 import * as S from "fp-ts/string"
-import cloneDeep from "lodash/cloneDeep"
+import { cloneDeep } from 'es-toolkit/compat'
 import { createVersionedEntity, InferredEntity } from "verzod"
 import { z } from "zod"
 

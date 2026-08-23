@@ -168,7 +168,7 @@ import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
 import { useTimeAgo } from "@vueuse/core"
 import * as A from "fp-ts/Array"
 import { pipe } from "fp-ts/function"
-import { escapeRegExp, filter, groupBy } from "lodash-es"
+import { escapeRegExp, filter, groupBy } from "es-toolkit/compat"
 import { computed, ref, Ref, toRaw } from "vue"
 import {
   clearGraphqlHistory,

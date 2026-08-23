@@ -26,7 +26,7 @@ import { HoppButtonPrimary, HoppSmartTable } from "@hoppscotch/ui"
 import { getCurrentWindow } from "@tauri-apps/api/window"
 import { invoke } from "@tauri-apps/api/core"
 import { listen } from "@tauri-apps/api/event"
-import { orderBy } from "lodash-es"
+import { orderBy } from "es-toolkit/compat"
 
 interface Registration {
   auth_key_hash: string

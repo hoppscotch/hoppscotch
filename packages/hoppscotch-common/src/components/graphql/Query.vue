@@ -104,7 +104,7 @@ import { OperationDefinitionNode, parse, print } from "graphql"
 import { createGQLQueryLinter } from "~/helpers/editor/linting/gqlQuery"
 import queryCompleter from "~/helpers/editor/completion/gqlQuery"
 import { selectedGQLOpHighlight } from "~/helpers/editor/gql/operation"
-import { debounce } from "lodash-es"
+import { debounce } from "es-toolkit/compat"
 import { ViewUpdate } from "@codemirror/view"
 import { defineActionHandler } from "~/helpers/actions"
 import {

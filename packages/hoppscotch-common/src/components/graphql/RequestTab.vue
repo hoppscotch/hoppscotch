@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 import { useVModel } from "@vueuse/core"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep } from "es-toolkit/compat"
 import { watch } from "vue"
 import { isEqualHoppGQLRequest } from "~/helpers/graphql"
 import { HoppGQLDocument } from "~/helpers/graphql/document"

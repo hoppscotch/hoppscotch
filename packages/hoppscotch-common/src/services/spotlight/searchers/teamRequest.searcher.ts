@@ -9,7 +9,7 @@ import {
 import { getI18n } from "~/modules/i18n"
 import { Ref, computed, effectScope, markRaw, ref, watch } from "vue"
 import { TeamSearchService } from "~/helpers/teams/TeamsSearch.service"
-import { cloneDeep, debounce } from "lodash-es"
+import { cloneDeep, debounce } from "es-toolkit/compat"
 import IconFolder from "~icons/lucide/folder"
 import IconImport from "~icons/lucide/folder-down"
 import { WorkspaceService } from "~/services/workspace.service"

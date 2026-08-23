@@ -121,7 +121,7 @@ import {
   rawKeyValueEntriesToString,
   RawKeyValueEntry,
 } from "@hoppscotch/data"
-import { isEqual, cloneDeep } from "lodash-es"
+import { isEqual, cloneDeep } from "es-toolkit/compat"
 import draggable from "vuedraggable-es"
 import linter from "~/helpers/editor/linting/rawKeyValue"
 import { isDragDropAllowed, DragDropEvent } from "~/helpers/dragDropValidation"

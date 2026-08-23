@@ -227,7 +227,7 @@
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream, useStream } from "@composables/stream"
-import { isEqual } from "lodash-es"
+import { isEqual } from "es-toolkit/compat"
 import { computed, ref } from "vue"
 import { HoppTestResult } from "~/helpers/types/HoppTestResult"
 import {

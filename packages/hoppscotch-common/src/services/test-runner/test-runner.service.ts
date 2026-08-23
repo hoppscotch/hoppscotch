@@ -7,7 +7,7 @@ import {
 import { Service } from "dioc"
 import { hasActualScript } from "@hoppscotch/js-sandbox/scripting"
 import * as E from "fp-ts/Either"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep } from "es-toolkit/compat"
 import { nextTick, Ref } from "vue"
 import {
   captureInitialEnvironmentState,

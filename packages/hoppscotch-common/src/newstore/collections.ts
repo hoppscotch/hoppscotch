@@ -10,7 +10,7 @@ import {
   makeCollection,
   GQLHeader,
 } from "@hoppscotch/data"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep } from "es-toolkit/compat"
 import { hasActualScript } from "@hoppscotch/js-sandbox/scripting"
 import { pluck } from "rxjs/operators"
 import { resolveSaveContextOnRequestReorder } from "~/helpers/collection/request"

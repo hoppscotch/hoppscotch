@@ -1,7 +1,7 @@
 import { Cookie, HoppRESTRequest } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/lib/TaskEither"
-import { cloneDeep } from "lodash"
+import { cloneDeep } from "es-toolkit/compat"
 
 import { defaultModules, preRequestModule } from "~/cage-modules"
 import { HoppFetchHook, SandboxPreRequestResult, TestResult } from "~/types"

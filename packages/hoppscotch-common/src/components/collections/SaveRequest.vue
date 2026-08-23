@@ -128,7 +128,7 @@ import { computedWithControl } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep } from "es-toolkit/compat"
 import { computed, nextTick, reactive, ref, watch } from "vue"
 import {
   useRequestNameGeneration,

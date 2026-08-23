@@ -1,5 +1,5 @@
 import { pipe } from "fp-ts/function"
-import { isEqual, cloneDeep } from "lodash-es"
+import { isEqual, cloneDeep } from "es-toolkit/compat"
 import { JSPrimitive, TypeFromPrimitive } from "./primtive"
 
 export const objRemoveKey =

@@ -194,9 +194,7 @@
     "save_to_collection": "Save to Collection",
     "select": "Επιλέξτε μια Συλλογή",
     "select_location": "Επιλέξτε τοποθεσία",
-    "details": "Details",
-    "select_team": "Επιλέξτε μια ομάδα",
-    "team_collections": "Συλλογές ομάδων"
+    "details": "Details"
   },
   "confirm": {
     "close_unsaved_tab": "Are you sure you want to close this tab?",
@@ -277,8 +275,7 @@
     "team_name": "Το όνομα της ομάδας είναι κενό",
     "teams": "Οι ομάδες είναι άδειες",
     "tests": "Δεν υπάρχουν δοκιμές για αυτό το αίτημα",
-    "access_tokens": "Access tokens are empty",
-    "shortcodes": "Τα Shortcodes είναι κενά"
+    "access_tokens": "Access tokens are empty"
   },
   "environment": {
     "add_to_global": "Προσθήκη στο Global",
@@ -367,8 +364,7 @@
     "secret_gist_success": "Successfully exported as secret Gist",
     "require_github": "Συνδεθείτε με το GitHub για να δημιουργήσετε μυστική ουσία",
     "title": "Export",
-    "success": "Successfully exported",
-    "gist_created": "Η ουσία δημιουργήθηκε"
+    "success": "Successfully exported"
   },
   "filter": {
     "all": "All",
@@ -458,8 +454,8 @@
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment from a JSON file",
     "title": "Εισαγωγή",
-    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of 10MB. Only the first {files} selected will be imported",
-    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of 10MB. Please select another file.",
+    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of {sizeLimit}MB. Only the first {files} selected will be imported",
+    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of {sizeLimit}MB. Please select another file.",
     "success": "Successfully imported"
   },
   "inspections": {
@@ -617,8 +613,7 @@
     "url": "URL",
     "url_placeholder": "Enter a URL or paste a cURL command",
     "variables": "Μεταβλητές",
-    "view_my_links": "Προβολή των links μου",
-    "copy_link": "Αντιγραφή συνδέσμου"
+    "view_my_links": "Προβολή των links μου"
   },
   "response": {
     "audio": "Audio",
@@ -763,8 +758,7 @@
       "send_request": "Στείλε αίτημα",
       "share_request": "Share Request",
       "show_code": "Generate code snippet",
-      "title": "Αίτηση",
-      "copy_request_link": "Αντιγραφή συνδέσμου αιτήματος"
+      "title": "Αίτηση"
     },
     "response": {
       "copy": "Αντιγραφή response στο πρόχειρο",
@@ -934,8 +928,7 @@
     "github": "Follow us on Github",
     "shortcuts": "Περιηγηθείτε πιο γρήγορα στην εφαρμογή",
     "title": "Υποστήριξη",
-    "twitter": "Ακολουθήστε μας στο Twitter",
-    "team": "Επικοινωνήστε με την ομάδα"
+    "twitter": "Ακολουθήστε μας στο Twitter"
   },
   "tab": {
     "authorization": "Εξουσιοδότηση",
@@ -960,7 +953,6 @@
     "share_tab_request": "Share tab request",
     "socketio": "Υποδοχή.IO",
     "sse": "SSE",
-    "tests": "Δοκιμές",
     "types": "Τύποι",
     "variables": "Μεταβλητές",
     "websocket": "WebSocket"
@@ -984,10 +976,10 @@
     "invite": "Πρόσκληση",
     "invite_more": "Πρόσκληση περισσοτέρων",
     "invite_tooltip": "Πρόσκληση χρηστών σε αυτό το workspace",
-    "invited_to_team": "{owner} σου έκανε πρόσκληση για να μπεις στην {team}",
+    "invited_to_team": "{owner} σου έκανε πρόσκληση για να μπεις στην {workspace}",
     "join": "Πρόσκληση Αποδεκτή",
-    "join_team": "Γίνε Μέλος {team}",
-    "joined_team": "Μπήκες στην ομάδα: {team}",
+    "join_team": "Γίνε Μέλος {workspace}",
+    "joined_team": "Μπήκες στην ομάδα: {workspace}",
     "joined_team_description": "Είστε πλέον μέλος αυτής της ομάδας",
     "left": "Έφυγες από την ομάδα",
     "login_to_continue": "Συνδέσου για να συνεχίσεις",
@@ -1022,8 +1014,7 @@
     "we_sent_invite_link_description": "Ζητήστε από όλους όσους στείλατε πρόσκληση να ελέγξουν τα email τους. Click στον σύνδεσμο για εισαγωγή στην ομάδα.",
     "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of Hoppscotch. Please use the Copy link button to copy and share the invite link manually.",
     "copy_invite_link": "Copy Invite Link",
-    "search_title": "Team Requests",
-    "join_beta": "Εγγραφείτε στο πρόγραμμα beta για πρόσβαση σε ομάδες."
+    "search_title": "Team Requests"
   },
   "team_environment": {
     "deleted": "Το περιβάλλον διαγράφηκε",
@@ -1093,14 +1084,5 @@
     "cli_command_generation_description_sh": "Copy the below command and run it from the CLI. Please specify a personal access token and verify the generated SH instance server URL.",
     "cli_command_generation_description_sh_with_server_url_placeholder": "Copy the below command and run it from the CLI. Please specify a personal access token and the SH instance server URL.",
     "run_collection": "Run collection"
-  },
-  "shortcodes": {
-    "actions": "Δράσεις",
-    "created_on": "Created on",
-    "deleted": "Το Shortcode διαγράφηκε",
-    "method": "Method",
-    "not_found": "Το Shortcode δεν βρέθηκε",
-    "short_code": "Short code",
-    "url": "URL"
   }
 }

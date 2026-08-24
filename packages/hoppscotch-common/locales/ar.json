@@ -194,9 +194,7 @@
     "save_to_collection": "حفظ إلى المجموعة",
     "select": "حدد مجموعة",
     "select_location": "اختر موقعا",
-    "details": "تفاصيل",
-    "select_team": "اختر فريقًا",
-    "team_collections": "مجموعات الفريق"
+    "details": "تفاصيل"
   },
   "confirm": {
     "close_unsaved_tab": "هل أنت متأكد أنك تريد إغلاق هذه التبويبة؟",
@@ -277,8 +275,7 @@
     "team_name": "اسم الفريق فارغ",
     "teams": "الفرق فارغة",
     "tests": "لا توجد tests لهذا الطلب",
-    "access_tokens": "رموز الوصول فارغة",
-    "shortcodes": "الرموز القصيرة فارغة"
+    "access_tokens": "رموز الوصول فارغة"
   },
   "environment": {
     "add_to_global": "أضف إلى العام",
@@ -367,8 +364,7 @@
     "secret_gist_success": "تم التصدير بنجاح كـ Gist سري",
     "require_github": "تسجيل الدخول باستخدام GitHub لإنشاء Gist سري",
     "title": "تصدير",
-    "success": "تم التصدير بنجاح",
-    "gist_created": "تم إنشاء Gist"
+    "success": "تم التصدير بنجاح"
   },
   "filter": {
     "all": "الكل",
@@ -458,8 +454,8 @@
     "postman_environment": "بيئة Postman",
     "postman_environment_description": "استيراد بيئة Postman من ملف JSON",
     "title": "استيراد",
-    "file_size_limit_exceeded_warning_multiple_files": "الملفات المختارة تتجاوز الحد الموصى به وهو 10MB. سيتم استيراد الملفات {files} الأولى المختارة فقط",
-    "file_size_limit_exceeded_warning_single_file": "الملف المختار حاليًا يتجاوز الحد الموصى به وهو 10MB. يرجى اختيار ملف آخر.",
+    "file_size_limit_exceeded_warning_multiple_files": "الملفات المختارة تتجاوز الحد الموصى به وهو {sizeLimit}MB. سيتم استيراد الملفات {files} الأولى المختارة فقط",
+    "file_size_limit_exceeded_warning_single_file": "الملف المختار حاليًا يتجاوز الحد الموصى به وهو {sizeLimit}MB. يرجى اختيار ملف آخر.",
     "success": "تم الاستيراد بنجاح"
   },
   "inspections": {
@@ -617,8 +613,7 @@
     "url": "URL",
     "url_placeholder": "أدخل URL أو الصق أمر cURL",
     "variables": "المتغيرات",
-    "view_my_links": "عرض روابطى",
-    "copy_link": "نسخ الرابط"
+    "view_my_links": "عرض روابطى"
   },
   "response": {
     "audio": "صوت",
@@ -763,8 +758,7 @@
       "send_request": "ارسل طلب",
       "share_request": "مشاركة الطلب",
       "show_code": "توليد الكود",
-      "title": "طلب",
-      "copy_request_link": "نسخ رابط الطلب"
+      "title": "طلب"
     },
     "response": {
       "copy": "نسخ الاستجابة إلى الحافظة",
@@ -934,8 +928,7 @@
     "github": "تابعنا على جيت هاب",
     "shortcuts": "تصفح التطبيق بشكل أسرع",
     "title": "الدعم",
-    "twitter": "تابعنا على تويتر",
-    "team": "تواصل مع الفريق"
+    "twitter": "تابعنا على تويتر"
   },
   "tab": {
     "authorization": "Authorization",
@@ -960,7 +953,6 @@
     "share_tab_request": "مشاركة طلب التبويب",
     "socketio": "مقبس",
     "sse": "SSE",
-    "tests": "الاختبارات",
     "types": "أنواع",
     "variables": "المتغيرات",
     "websocket": "WebSocket"
@@ -984,10 +976,10 @@
     "invite": "دعوة",
     "invite_more": "دعوة المزيد",
     "invite_tooltip": "دعوة الأشخاص للانضمام",
-    "invited_to_team": "{owner} دعاك للانضمام إلى فريق {team}",
+    "invited_to_team": "{owner} دعاك للانضمام إلى فريق {workspace}",
     "join": "تم قبول الدعوة",
-    "join_team": "انضم إلى فريق {team}",
-    "joined_team": "لقد انضممت إلى فريق {team}",
+    "join_team": "انضم إلى فريق {workspace}",
+    "joined_team": "لقد انضممت إلى فريق {workspace}",
     "joined_team_description": "أنت الآن عضو في الفريق",
     "left": "لقد تركت الفريق",
     "login_to_continue": "سجل الدخول للإكمال",
@@ -1022,8 +1014,7 @@
     "we_sent_invite_link_description": "اطلب من جميع المدعوين التحقق من صندوق الوارد الخاص بهم. انقر على الرابط للانضمام إلى الفريق.",
     "invite_sent_smtp_disabled_description": "إرسال رسائل الدعوة معطل لهذه النسخة من هوبسكوتش. يرجى استخدام زر نسخ الرابط لنسخ الرابط ومشاركته يدويًا.",
     "copy_invite_link": "نسخ رابط الدعوة",
-    "search_title": "طلبات الفريق",
-    "join_beta": "انضم إلى برنامج بيتا للوصول إلى الفرق."
+    "search_title": "طلبات الفريق"
   },
   "team_environment": {
     "deleted": "تم حذف البيئة",
@@ -1093,14 +1084,5 @@
     "cli_command_generation_description_sh": "انسخ الأمر أدناه وقم بتشغيله من CLI. يرجى تحديد رمز الوصول الشخصي والتحقق من عنوان URL لخادم مثيل SH المُولّد.",
     "cli_command_generation_description_sh_with_server_url_placeholder": "انسخ الأمر أدناه وقم بتشغيله من CLI. يرجى تحديد رمز الوصول الشخصي وعنوان URL لخادم مثيل SH.",
     "run_collection": "تشغيل المجموعة"
-  },
-  "shortcodes": {
-    "actions": "الإجراءات",
-    "created_on": "تم الإنشاء في",
-    "deleted": "تم حذف الرمز القصير",
-    "method": "الطريقة",
-    "not_found": "الرمز القصير غير موجود",
-    "short_code": "رمز قصير",
-    "url": "الرابط"
   }
 }

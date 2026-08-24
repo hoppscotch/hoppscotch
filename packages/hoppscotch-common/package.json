@@ -12,11 +12,12 @@
     "lint:ts": "vue-tsc --noEmit",
     "prod-lint": "cross-env HOPP_LINT_FOR_PROD=true pnpm run lint",
     "lintfix": "eslint --fix src",
+    "lint:i18n": "eloqnt lint",
     "preview": "vite preview",
     "gql-codegen": "graphql-codegen --require dotenv/config --config gql-codegen.yml dotenv_config_path=\"../../.env\"",
     "postinstall": "pnpm run gql-codegen",
     "do-test": "pnpm run test",
-    "do-lint": "pnpm run prod-lint",
+    "do-lint": "pnpm run prod-lint && pnpm run lint:i18n",
     "do-typecheck": "node type-check.mjs",
     "do-lintfix": "pnpm run lintfix"
   },
@@ -127,6 +128,8 @@
   "devDependencies": {
     "@esbuild-plugins/node-globals-polyfill": "0.2.3",
     "@esbuild-plugins/node-modules-polyfill": "0.2.2",
+    "@eloqnt/cli": "0.6.17",
+    "@eloqnt/format-vue-i18n-json": "0.0.2",
     "@eslint/eslintrc": "3.3.6",
     "@eslint/js": "9.39.2",
     "@graphql-codegen/add": "6.0.1",

@@ -906,9 +906,16 @@ export class CookieJarService extends Service {
         // expiry by the time cookies arrive that way. Converting here
         // keeps a `Max-Age` cookie from being stored as a session
         // cookie, and lets `Max-Age=0` expire an entry on capture.
+        // A non-positive age resolves one millisecond behind the
+        // capture instant rather than onto it, since `pruneExpired`
+        // and the read filter both keep an entry while its expiry
+        // equals the current time, which would carry a deleted
+        // cookie into a read taken in that same millisecond.
         expires:
           parsed.maxAge !== undefined && Number.isFinite(parsed.maxAge)
-            ? new Date(Date.now() + parsed.maxAge * 1000)
+            ? new Date(
+                Date.now() + (parsed.maxAge > 0 ? parsed.maxAge * 1000 : -1)
+              )
             : parsed.expires,
         secure: parsed.secure,
         httpOnly: parsed.httpOnly,

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 import { TestContainer } from "dioc/testing"
 import { Cookie } from "@hoppscotch/data"
 
@@ -471,6 +471,29 @@ describe("CookieJarService", () => {
       const stored = service.getCookiesForURL(new URL("https://example.com/"))
       expect(stored).toHaveLength(2)
       expect(stored.map((c) => c.name).sort()).toEqual(["a", "b"])
+    })
+
+    it("drops an existing cookie on a Max-Age=0 fallback capture", async () => {
+      // Frozen so the read happens at the same instant as the
+      // capture, which is the only window in which an expiry equal
+      // to the capture time still reads as live.
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date("2026-01-01T00:00:00.000Z"))
+      try {
+        await service.captureResponseCookies(
+          { headers: { "set-cookie": "sid=abc; Path=/" } },
+          "https://example.com/"
+        )
+        await service.captureResponseCookies(
+          { headers: { "set-cookie": "sid=abc; Max-Age=0; Path=/" } },
+          "https://example.com/"
+        )
+        expect(
+          service.getCookiesForURL(new URL("https://example.com/"))
+        ).toHaveLength(0)
+      } finally {
+        vi.useRealTimers()
+      }
     })
 
     it("rejects a cross-domain Domain on the header fallback", async () => {

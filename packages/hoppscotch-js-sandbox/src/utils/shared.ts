@@ -503,23 +503,25 @@ export const getSharedCookieMethods = (
 ) => {
   // Incoming `cookies` specified as `null` indicates unsupported platform
   const cookiesSupported = cookies !== null
-  let updatedCookies: Cookie[] = cookies ?? []
-
   // Track whether cookie isolation was dynamically activated during script
-  // execution. Once set, all cookie reads return empty results and
-  // getUpdatedCookies returns null so the runner discards staged mutations.
-  let isolationActivatedDuringScript = false
+  // execution. Initialized from the starting request policy so requests
+  // that start with isolation enabled can never revert it, completely
+  // blocking access to the initial snapshot.
+  let isolationActivatedDuringScript = request?.requestOptions?.disableCookies ?? false
+  let updatedCookies: Cookie[] = isolationActivatedDuringScript ? [] : (cookies ?? [])
 
   const throwIfCookiesUnsupported = () => {
     const currentRequest = getUpdatedRequest ? getUpdatedRequest() : request
+    
+    // Catch cases where isolation becomes active dynamically
     if (currentRequest?.requestOptions?.disableCookies) {
-      // First time isolation is detected: purge the in-memory snapshot so
-      // any subsequent reads (even from shared/imported scripts that run
-      // after this point) cannot access cookie data.
       if (!isolationActivatedDuringScript) {
         isolationActivatedDuringScript = true
         updatedCookies = []
       }
+    }
+
+    if (isolationActivatedDuringScript) {
       throw new Error(
         "Cookies are disabled for this request. Cookie isolation is active."
       )

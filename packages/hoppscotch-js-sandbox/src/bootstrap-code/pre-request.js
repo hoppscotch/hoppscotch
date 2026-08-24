@@ -201,26 +201,35 @@
     // Expose fetch as hopp.fetch() for explicit access
     // The wrapper reads requestOptions.disableCookies at the time of the call
     // so that pre-request script mutations are honoured even if the hook was
-    // constructed with the pre-script snapshot.
+    // constructed with the pre-script snapshot
     fetch: (function () {
       const _nativeFetch = fetch
+      
+      // Initialize latch from the starting request policy.
+      // We must retrieve the initial properties right away.
+      const initialProps = inputs.getRequestProps()
+      let isolationActivated = (initialProps.requestOptions && initialProps.requestOptions.disableCookies) === true
+      
       return function (input, init) {
         const currentReqProps = inputs.getRequestProps()
-        const disableCookies =
-          (currentReqProps.requestOptions &&
-            currentReqProps.requestOptions.disableCookies) === true
+        
+        // If isolation becomes active dynamically, permanently latch it
+        if (currentReqProps.requestOptions && currentReqProps.requestOptions.disableCookies) {
+          isolationActivated = true
+        }
+
         const patchedInit = init !== undefined && init !== null
           ? Object.assign({}, init)
           : { __hoppInitWasUndefined: true }
-          
+
         // Enumerable so it survives vm.dump serialization across the sandbox bridge
         Object.defineProperty(patchedInit, "__hoppDisableCookies", {
-          value: disableCookies,
+          value: isolationActivated,
           enumerable: true,
           configurable: false,
           writable: false,
         })
-        
+
         return _nativeFetch(input, patchedInit)
       }
     })(),

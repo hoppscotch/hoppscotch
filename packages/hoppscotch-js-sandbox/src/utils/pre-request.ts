@@ -9,8 +9,7 @@ import {
 import { cloneDeep } from "lodash"
 
 export const getRequestSetterMethods = (
-  request: HoppRESTRequest,
-  options?: { onDisableCookies?: () => void }
+  request: HoppRESTRequest
 ) => {
   // Clone to allow safe mutations internally
   const updatedRequest = <HoppRESTRequest>cloneDeep(request)
@@ -139,15 +138,17 @@ export const getRequestSetterMethods = (
       throw new Error("Invalid requestOptions object")
     }
 
-    updatedRequest.requestOptions = parseResult.data
+    // Prohibit changing disableCookies dynamically from sandbox scripts
+    // to guarantee cookie isolation for the entire execution.
+    const isChangingDisableCookies = 
+      parseResult.data.disableCookies !== undefined && 
+      parseResult.data.disableCookies !== updatedRequest.requestOptions?.disableCookies
 
-    // Notify cookie methods that isolation was enabled so the cookie
-    // snapshot is immediately purged and the isolation latch is set.
-    // This is a permanent latch — even if the script later sets
-    // disableCookies back to false, staged mutations are discarded.
-    if (parseResult.data.disableCookies) {
-      options?.onDisableCookies?.()
+    if (isChangingDisableCookies) {
+      throw new Error("Cannot change disableCookies dynamically from sandbox scripts. It must be set prior to script execution.")
     }
+
+    updatedRequest.requestOptions = parseResult.data
   }
 
   const setRequestVariable = (key: string, value: string) => {

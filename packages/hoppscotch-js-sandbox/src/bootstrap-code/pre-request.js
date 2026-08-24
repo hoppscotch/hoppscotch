@@ -69,6 +69,13 @@
     })
   })
 
+  // Track cookie isolation activation across the script lifecycle.
+  // Initialized from the starting request policy.
+  const initialReqPropsForLatch = inputs.getRequestProps()
+  let __hoppCookieIsolationLatch = 
+    (initialReqPropsForLatch.requestOptions && 
+     initialReqPropsForLatch.requestOptions.disableCookies) === true
+
   // Special handling for requestOptions: support nested mutations via Proxy
   Object.defineProperty(requestProps, "requestOptions", {
     enumerable: true,
@@ -79,6 +86,9 @@
       return new Proxy(opts, {
         set(target, prop, value) {
           target[prop] = value
+          if (prop === "disableCookies" && value === true) {
+            __hoppCookieIsolationLatch = true
+          }
           inputs.setRequestOptions(target)
           return true
         },
@@ -205,18 +215,12 @@
     fetch: (function () {
       const _nativeFetch = fetch
       
-      // Initialize latch from the starting request policy.
-      // We must retrieve the initial properties right away.
-      const initialProps = inputs.getRequestProps()
-      let isolationActivated = (initialProps.requestOptions && initialProps.requestOptions.disableCookies) === true
-      
       return function (input, init) {
         const currentReqProps = inputs.getRequestProps()
         
-        // If isolation becomes active dynamically, permanently latch it
-        if (currentReqProps.requestOptions && currentReqProps.requestOptions.disableCookies) {
-          isolationActivated = true
-        }
+        // Use the globally maintained latch or current state
+        const isolationActivated = __hoppCookieIsolationLatch || 
+          (currentReqProps.requestOptions && currentReqProps.requestOptions.disableCookies) === true
 
         const patchedInit = init !== undefined && init !== null
           ? Object.assign({}, init)

@@ -145,17 +145,9 @@ function createScriptingInputsObj(
   if (type === "pre") {
     const preConfig = config as PreRequestModuleConfig
 
-    // Deferred callback: setRequestOptions needs to notify cookie methods
-    // when disableCookies is set to true, but notifyIsolationEnabled
-    // comes from createBaseInputs which hasn't been called yet.
-    // This holder is populated after createBaseInputs returns.
-    let deferredIsolationNotifier: (() => void) | undefined
-
     // Create request setter methods FIRST for pre-request scripts
     const { methods: requestSetterMethods, getUpdatedRequest } =
-      createRequestSetterMethods(ctx, preConfig.request, {
-        onDisableCookies: () => deferredIsolationNotifier?.(),
-      })
+      createRequestSetterMethods(ctx, preConfig.request)
 
     // Capture the getUpdatedRequest function so the caller can use it
     if (captureGetUpdatedRequest) {
@@ -170,9 +162,6 @@ function createScriptingInputsObj(
       getUpdatedRequest, // Pass the updater function for pre-request
       setRequestOptions: requestSetterMethods.setRequestOptions, // Wire options setter into hopp namespace
     })
-
-    // Now wire the deferred callback to the actual notifyIsolationEnabled
-    deferredIsolationNotifier = baseInputs.notifyIsolationEnabled
 
     // Register hook with helper function
     registerAfterScriptExecutionHook(ctx, "pre", preConfig, baseInputs, {

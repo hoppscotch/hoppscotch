@@ -342,8 +342,6 @@ export interface BaseInputs
   // Returns serialized env vars (SandboxValue -> string conversion happens here)
   getUpdatedEnvs: () => TestResult["envs"]
   getUpdatedCookies: () => Cookie[] | null
-  // Permanently latches cookie isolation for the script's lifetime
-  notifyIsolationEnabled: () => void
   [key: string]: SandboxValue // Index signature for dynamic namespace properties
 }
 

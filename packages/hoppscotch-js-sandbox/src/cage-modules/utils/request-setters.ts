@@ -16,13 +16,10 @@ import { RequestSetterMethodsResult } from "~/types"
  */
 export const createRequestSetterMethods = (
   ctx: CageModuleCtx,
-  request: HoppRESTRequest,
-  options?: { onDisableCookies?: () => void }
+  request: HoppRESTRequest
 ): RequestSetterMethodsResult => {
   const { methods: requestMethods, updatedRequest } =
-    getRequestSetterMethods(request, {
-      onDisableCookies: options?.onDisableCookies,
-    })
+    getRequestSetterMethods(request)
 
   const setterMethods = {
     // Request setter methods

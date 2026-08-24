@@ -442,6 +442,32 @@ export class CookieJarService extends Service {
     return stripped.toLowerCase()
   }
 
+  // Whether a response from `host` may set a cookie for `domain`.
+  // RFC 6265 5.3 step 5 treats an IP-literal host as an address
+  // rather than as a label chain, so only an exact match is allowed
+  // there. Running `domainMatches` on `192.168.1.1` would accept
+  // `Domain=1.1` as a parent, and the cookie would then attach to
+  // the unrelated address `10.0.1.1`, which shares the suffix and
+  // nothing else. Everything else is the 5.1.3 comparison, so a
+  // subdomain setting its parent domain still passes.
+  private hostAcceptsDomain(host: string, domain: string): boolean {
+    if (this.isIPLiteral(host)) {
+      return host === domain
+    }
+    return this.domainMatches(host, domain)
+  }
+
+  // `URL.hostname` renders an IPv6 address bracketed, so the two
+  // forms are recognized separately. An IPv4 check on the four
+  // dotted fields is enough here, since a host that reached this
+  // point already parsed as a URL.
+  private isIPLiteral(host: string): boolean {
+    if (host.startsWith("[") && host.endsWith("]")) {
+      return true
+    }
+    return /^\d{1,3}(\.\d{1,3}){3}$/.test(host)
+  }
+
   // Canonicalizes a cookie domain that came from a Set-Cookie
   // `Domain` attribute. Calls `canonStoreDomain` then rejects a
   // single-label domain that would let the cookie attach to every
@@ -505,7 +531,7 @@ export class CookieJarService extends Service {
         // here. `api.example.com` setting `Domain=example.com` still
         // passes, since `domainMatches` is the same 5.1.3 comparison
         // the read side uses.
-        if (domain !== null && !this.domainMatches(requestHost, domain)) {
+        if (domain !== null && !this.hostAcceptsDomain(requestHost, domain)) {
           console.warn(
             "[CookieJar] Dropped cookie with a cross-domain Domain:",
             c.domain

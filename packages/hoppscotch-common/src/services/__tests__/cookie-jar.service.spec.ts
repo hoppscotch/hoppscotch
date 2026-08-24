@@ -420,6 +420,27 @@ describe("CookieJarService", () => {
       ).toHaveLength(1)
     })
 
+    it("rejects a partial IP suffix as a Domain attribute", async () => {
+      await service.extractFromResponse(
+        [{ name: "sid", value: "1", domain: "1.1" }],
+        new URL("https://192.168.1.1/")
+      )
+      expect(service.cookieJar.value.size).toBe(0)
+      expect(
+        service.getCookiesForURL(new URL("https://10.0.1.1/"))
+      ).toHaveLength(0)
+    })
+
+    it("accepts a Domain attribute equal to the IP host", async () => {
+      await service.extractFromResponse(
+        [{ name: "sid", value: "1", domain: "192.168.1.1" }],
+        new URL("https://192.168.1.1/")
+      )
+      expect(
+        service.getCookiesForURL(new URL("https://192.168.1.1/"))
+      ).toHaveLength(1)
+    })
+
     it("falls back to default-path when the Path attribute does not start with /", async () => {
       await service.extractFromResponse(
         [{ name: "a", value: "1", path: "foo" }],

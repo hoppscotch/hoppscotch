@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 import { TestContainer } from "dioc/testing"
 import { Cookie } from "@hoppscotch/data"
 
@@ -411,6 +411,48 @@ describe("CookieJarService", () => {
       expect(service.cookieJar.value.size).toBe(0)
     })
 
+    it("rejects a Domain the response host does not domain-match", async () => {
+      await service.extractFromResponse(
+        [{ name: "sid", value: "attacker", domain: "example.com" }],
+        new URL("https://attacker.invalid/")
+      )
+      expect(service.cookieJar.value.size).toBe(0)
+      expect(
+        service.getCookiesForURL(new URL("https://example.com/"))
+      ).toHaveLength(0)
+    })
+
+    it("accepts a parent Domain from a subdomain host", async () => {
+      await service.extractFromResponse(
+        [{ name: "sid", value: "1", domain: "example.com" }],
+        new URL("https://api.example.com/")
+      )
+      expect(
+        service.getCookiesForURL(new URL("https://example.com/"))
+      ).toHaveLength(1)
+    })
+
+    it("rejects a partial IP suffix as a Domain attribute", async () => {
+      await service.extractFromResponse(
+        [{ name: "sid", value: "1", domain: "1.1" }],
+        new URL("https://192.168.1.1/")
+      )
+      expect(service.cookieJar.value.size).toBe(0)
+      expect(
+        service.getCookiesForURL(new URL("https://10.0.1.1/"))
+      ).toHaveLength(0)
+    })
+
+    it("accepts a Domain attribute equal to the IP host", async () => {
+      await service.extractFromResponse(
+        [{ name: "sid", value: "1", domain: "192.168.1.1" }],
+        new URL("https://192.168.1.1/")
+      )
+      expect(
+        service.getCookiesForURL(new URL("https://192.168.1.1/"))
+      ).toHaveLength(1)
+    })
+
     it("falls back to default-path when the Path attribute does not start with /", async () => {
       await service.extractFromResponse(
         [{ name: "a", value: "1", path: "foo" }],
@@ -418,6 +460,104 @@ describe("CookieJarService", () => {
       )
       const stored = service.cookieJar.value.get("example.com")?.[0]
       expect(stored?.path).toBe("/v1/users")
+    })
+  })
+
+  describe("captureResponseCookies header fallback", () => {
+    it("parses the Set-Cookie header when structured cookies are undefined", async () => {
+      await service.captureResponseCookies(
+        { headers: { "set-cookie": "sid=abc123; Path=/; HttpOnly" } },
+        "https://example.com/"
+      )
+      const stored = service.getCookiesForURL(new URL("https://example.com/"))
+      expect(stored).toHaveLength(1)
+      expect(stored[0].name).toBe("sid")
+      expect(stored[0].value).toBe("abc123")
+    })
+
+    it("resolves Max-Age into an expiry on the header fallback", async () => {
+      await service.captureResponseCookies(
+        { headers: { "set-cookie": "sid=abc; Max-Age=60; Path=/" } },
+        "https://example.com/"
+      )
+      const stored = service.getCookiesForURL(new URL("https://example.com/"))
+      expect(stored).toHaveLength(1)
+      expect(stored[0].expires).toBeDefined()
+      expect(new Date(stored[0].expires!).getTime()).toBeGreaterThan(Date.now())
+    })
+
+    it("keeps a percent-encoded value undecoded on the header fallback", async () => {
+      await service.captureResponseCookies(
+        { headers: { "set-cookie": "sid=abc%20123; Path=/" } },
+        "https://example.com/"
+      )
+      const stored = service.getCookiesForURL(new URL("https://example.com/"))
+      expect(stored).toHaveLength(1)
+      expect(stored[0].value).toBe("abc%20123")
+    })
+
+    it("splits newline-joined Set-Cookie headers the agent relay concatenates", async () => {
+      await service.captureResponseCookies(
+        { headers: { "set-cookie": "a=1; Path=/\nb=2; Path=/" } },
+        "https://example.com/"
+      )
+      const stored = service.getCookiesForURL(new URL("https://example.com/"))
+      expect(stored).toHaveLength(2)
+      expect(stored.map((c) => c.name).sort()).toEqual(["a", "b"])
+    })
+
+    it("drops an existing cookie on a Max-Age=0 fallback capture", async () => {
+      // Frozen so the read happens at the same instant as the
+      // capture, which is the only window in which an expiry equal
+      // to the capture time still reads as live.
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date("2026-01-01T00:00:00.000Z"))
+      try {
+        await service.captureResponseCookies(
+          { headers: { "set-cookie": "sid=abc; Path=/" } },
+          "https://example.com/"
+        )
+        await service.captureResponseCookies(
+          { headers: { "set-cookie": "sid=abc; Max-Age=0; Path=/" } },
+          "https://example.com/"
+        )
+        expect(
+          service.getCookiesForURL(new URL("https://example.com/"))
+        ).toHaveLength(0)
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it("rejects a cross-domain Domain on the header fallback", async () => {
+      await service.captureResponseCookies(
+        {
+          headers: {
+            "set-cookie": "sid=attacker; Domain=example.com; Path=/",
+          },
+        },
+        "https://attacker.invalid/"
+      )
+      expect(service.cookieJar.value.size).toBe(0)
+      expect(
+        service.getCookiesForURL(new URL("https://example.com/"))
+      ).toHaveLength(0)
+    })
+
+    it("does not re-parse headers when cookies is a defined empty array", async () => {
+      await service.captureResponseCookies(
+        { cookies: [], headers: { "set-cookie": "sid=abc123; Path=/" } },
+        "https://example.com/"
+      )
+      expect(service.cookieJar.value.size).toBe(0)
+    })
+
+    it("does nothing when cookies is undefined and no Set-Cookie header is present", async () => {
+      await service.captureResponseCookies(
+        { headers: { "content-type": "application/json" } },
+        "https://example.com/"
+      )
+      expect(service.cookieJar.value.size).toBe(0)
     })
   })
 

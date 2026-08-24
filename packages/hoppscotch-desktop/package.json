@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
+    "test": "vitest --run",
+    "test:watch": "vitest",
     "tauri": "tauri",
     "lint": "eslint src",
     "lint:ts": "vue-tsc --noEmit",
@@ -19,7 +21,8 @@
     "dev:full": "pnpm tauri dev",
     "build:full": "pnpm tauri build",
     "dev:portable": "pnpm tauri dev -- --no-default-features --features portable",
-    "build:portable": "pnpm tauri build -- --no-default-features --features portable"
+    "build:portable": "pnpm tauri build -- --no-default-features --features portable",
+    "do-test": "pnpm run test"
   },
   "dependencies": {
     "@fontsource-variable/inter": "5.2.8",
@@ -57,6 +60,7 @@
     "eslint-plugin-prettier": "5.5.6",
     "eslint-plugin-vue": "10.9.2",
     "globals": "16.5.0",
+    "jsdom": "27.4.0",
     "postcss": "8.5.15",
     "sass": "1.101.0",
     "tailwindcss": "3.4.16",
@@ -64,6 +68,7 @@
     "unplugin-icons": "22.5.0",
     "unplugin-vue-components": "30.0.0",
     "vite": "7.3.2",
+    "vitest": "4.1.10",
     "vue-tsc": "2.2.0"
   }
 }

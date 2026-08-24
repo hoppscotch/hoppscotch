@@ -399,6 +399,27 @@ describe("CookieJarService", () => {
       expect(service.cookieJar.value.size).toBe(0)
     })
 
+    it("rejects a Domain the response host does not domain-match", async () => {
+      await service.extractFromResponse(
+        [{ name: "sid", value: "attacker", domain: "example.com" }],
+        new URL("https://attacker.invalid/")
+      )
+      expect(service.cookieJar.value.size).toBe(0)
+      expect(
+        service.getCookiesForURL(new URL("https://example.com/"))
+      ).toHaveLength(0)
+    })
+
+    it("accepts a parent Domain from a subdomain host", async () => {
+      await service.extractFromResponse(
+        [{ name: "sid", value: "1", domain: "example.com" }],
+        new URL("https://api.example.com/")
+      )
+      expect(
+        service.getCookiesForURL(new URL("https://example.com/"))
+      ).toHaveLength(1)
+    })
+
     it("falls back to default-path when the Path attribute does not start with /", async () => {
       await service.extractFromResponse(
         [{ name: "a", value: "1", path: "foo" }],
@@ -450,6 +471,21 @@ describe("CookieJarService", () => {
       const stored = service.getCookiesForURL(new URL("https://example.com/"))
       expect(stored).toHaveLength(2)
       expect(stored.map((c) => c.name).sort()).toEqual(["a", "b"])
+    })
+
+    it("rejects a cross-domain Domain on the header fallback", async () => {
+      await service.captureResponseCookies(
+        {
+          headers: {
+            "set-cookie": "sid=attacker; Domain=example.com; Path=/",
+          },
+        },
+        "https://attacker.invalid/"
+      )
+      expect(service.cookieJar.value.size).toBe(0)
+      expect(
+        service.getCookiesForURL(new URL("https://example.com/"))
+      ).toHaveLength(0)
     })
 
     it("does not re-parse headers when cookies is a defined empty array", async () => {

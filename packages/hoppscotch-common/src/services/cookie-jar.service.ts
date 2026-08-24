@@ -497,6 +497,21 @@ export class CookieJarService extends Service {
       let domain: string | null
       if (c.domain) {
         domain = this.canonAttrDomain(c.domain)
+        // RFC 6265 5.3 step 6 rejects a `Domain` attribute the
+        // request host does not domain-match. Without it a response
+        // from one host writes a cookie stored under another, and
+        // the next request to that other host attaches it, which is
+        // a cross-origin write for every capture path that reaches
+        // here. `api.example.com` setting `Domain=example.com` still
+        // passes, since `domainMatches` is the same 5.1.3 comparison
+        // the read side uses.
+        if (domain !== null && !this.domainMatches(requestHost, domain)) {
+          console.warn(
+            "[CookieJar] Dropped cookie with a cross-domain Domain:",
+            c.domain
+          )
+          continue
+        }
       } else {
         domain = this.canonHostOnly(requestHost)
       }

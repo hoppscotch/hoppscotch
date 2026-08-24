@@ -251,7 +251,9 @@
       "service_name": "Dienstname",
       "aws_region": "AWS-Region",
       "service_token": "Dienst-Token"
-    }
+    },
+    "advance_config": "Erweiterte Konfiguration",
+    "advance_config_description": "Hoppscotch weist automatisch Standardwerte für bestimmte Felder zu, wenn kein expliziter Wert angegeben wird."
   },
   "collection": {
     "created": "Sammlung erstellt",

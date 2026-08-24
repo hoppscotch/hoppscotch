@@ -653,8 +653,14 @@ export function runRESTRequest$(
             }
 
             const updatedCookies = postRequestScriptResult.right.updatedCookies
+            const finalCookieJarDisabled =
+              getEffectiveCookieJarDisabled(finalRequest)
 
-            if (updatedCookies && cookieJarEntries !== null) {
+            if (
+              updatedCookies &&
+              cookieJarEntries !== null &&
+              !finalCookieJarDisabled
+            ) {
               // The script's `updatedCookies` is the post-script state of
               // its pre-script view, so a set difference against the
               // pre-script snapshot gives the actual mutations. Cookies

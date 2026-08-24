@@ -1,8 +1,17 @@
 import { HoppRESTResponse } from "@helpers/types/HoppRESTResponse"
 import { copyToClipboard } from "@helpers/utils/clipboard"
 import { refAutoReset } from "@vueuse/core"
-import { computed, ComputedRef, ref, Ref, watch } from "vue"
+import {
+  computed,
+  ComputedRef,
+  MaybeRefOrGetter,
+  ref,
+  Ref,
+  toValue,
+  watch,
+} from "vue"
 
+import { getSuggestedFilename } from "~/helpers/utils/contentDisposition"
 import jsonToLanguage from "~/helpers/utils/json-to-language"
 import { platform } from "~/platform"
 import IconCheck from "~icons/lucide/check"
@@ -54,10 +63,34 @@ export function useCopyResponse(responseBodyText: Ref<any>) {
 
 export type downloadResponseReturnType = (() => void) | Ref<any>
 
+/**
+ * Resolves the filename to suggest when downloading a response body.
+ *
+ * The name (and extension) advertised by the server through the
+ * `Content-Disposition` header wins over the locally derived fallback,
+ * which is only used when the header is absent or carries no usable filename.
+ *
+ * @param response The response being rendered, used for its headers
+ * @param fallback The filename to use when the server suggests none
+ */
+export function useResponseFilename(
+  response: MaybeRefOrGetter<object | null | undefined>,
+  fallback: MaybeRefOrGetter<string>
+): ComputedRef<string> {
+  return computed(() => {
+    // Response variants like `loading` carry no headers, hence the optional access
+    const { headers } = (toValue(response) ?? {}) as {
+      headers?: { key: string; value: string }[]
+    }
+
+    return getSuggestedFilename(headers, toValue(fallback))
+  })
+}
+
 export function useDownloadResponse(
   contentType: string,
   responseBody: Ref<string | ArrayBuffer>,
-  filename: string
+  filename: MaybeRefOrGetter<string>
 ) {
   const downloadIcon = refAutoReset(IconDownload, 1000)
 
@@ -71,7 +104,7 @@ export function useDownloadResponse(
     const result = await platform.kernelIO.saveFileWithDialog({
       data: dataToWrite,
       contentType: contentType,
-      suggestedFilename: filename,
+      suggestedFilename: toValue(filename),
     })
 
     // Assume success if unknown as we cannot determine

@@ -113,6 +113,7 @@ import {
   useDownloadResponse,
   usePreview,
   useResponseBody,
+  useResponseFilename,
 } from "@composables/lens-actions"
 import { useService } from "dioc/vue"
 import { reactive, ref, computed } from "vue"
@@ -184,7 +185,7 @@ const filename = t("filename.lens", {
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "text/html",
   responseBodyText,
-  `${filename}.html`
+  useResponseFilename(() => props.response, `${filename}.html`)
 )
 
 const defaultPreview = computedAsync(

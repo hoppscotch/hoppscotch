@@ -105,6 +105,7 @@ import {
   useResponseBody,
   useDownloadResponse,
   useCopyResponse,
+  useResponseFilename,
 } from "@composables/lens-actions"
 import { objFieldMatches } from "~/helpers/functional/object"
 import { defineActionHandler } from "~/helpers/actions"
@@ -207,9 +208,13 @@ const responseName = computed(() => {
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   responseType.value,
   rawResponseBody,
-  t("filename.lens", {
-    request_name: responseName.value,
-  })
+  useResponseFilename(
+    () => props.response,
+    () =>
+      t("filename.lens", {
+        request_name: responseName.value,
+      })
+  )
 )
 
 const { copyIcon, copyResponse } = useCopyResponse(responseBodyText)

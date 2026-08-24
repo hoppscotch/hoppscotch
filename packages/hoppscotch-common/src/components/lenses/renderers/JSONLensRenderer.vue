@@ -286,6 +286,7 @@ import {
   useCopyResponse,
   useResponseBody,
   useDownloadResponse,
+  useResponseFilename,
 } from "@composables/lens-actions"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
@@ -520,9 +521,13 @@ const eraseResponse = () => {
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "application/json",
   jsonBodyText,
-  t("filename.lens", {
-    request_name: responseName.value,
-  })
+  useResponseFilename(
+    () => props.response,
+    () =>
+      t("filename.lens", {
+        request_name: responseName.value,
+      })
+  )
 )
 
 // Template refs

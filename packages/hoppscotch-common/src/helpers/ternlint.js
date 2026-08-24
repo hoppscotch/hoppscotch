@@ -267,7 +267,7 @@ function makeVisitors(server, query, file, messages) {
 
         if (value) {
           try {
-            var regex = new RegExp(value)
+            new RegExp(value)
           } catch (e) {
             addMessage(
               actualNode,

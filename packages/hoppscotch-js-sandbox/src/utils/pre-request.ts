@@ -8,7 +8,10 @@ import {
 } from "@hoppscotch/data"
 import { cloneDeep } from "lodash"
 
-export const getRequestSetterMethods = (request: HoppRESTRequest) => {
+export const getRequestSetterMethods = (
+  request: HoppRESTRequest,
+  options?: { onDisableCookies?: () => void }
+) => {
   // Clone to allow safe mutations internally
   const updatedRequest = <HoppRESTRequest>cloneDeep(request)
 
@@ -137,6 +140,14 @@ export const getRequestSetterMethods = (request: HoppRESTRequest) => {
     }
 
     updatedRequest.requestOptions = parseResult.data
+
+    // Notify cookie methods that isolation was enabled so the cookie
+    // snapshot is immediately purged and the isolation latch is set.
+    // This is a permanent latch — even if the script later sets
+    // disableCookies back to false, staged mutations are discarded.
+    if (parseResult.data.disableCookies) {
+      options?.onDisableCookies?.()
+    }
   }
 
   const setRequestVariable = (key: string, value: string) => {

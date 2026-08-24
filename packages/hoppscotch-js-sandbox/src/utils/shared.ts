@@ -610,11 +610,29 @@ export const getSharedCookieMethods = (
       delete: cookieDeleteFn,
       clear: cookieClearFn,
     },
-    // When isolation was activated during script execution, return null to
-    // signal that all cookie mutations (including those staged before the
-    // flag was set) must be discarded by the runner.
+    // Called by setRequestOptions when disableCookies is set to true.
+    // This is a permanent latch: once isolation is activated, all staged
+    // cookie mutations are discarded for the rest of the script's lifetime,
+    // even if the script later sets disableCookies back to false.
+    notifyIsolationEnabled: () => {
+      if (!isolationActivatedDuringScript) {
+        isolationActivatedDuringScript = true
+        updatedCookies = []
+      }
+    },
+    // When isolation was activated during script execution (even briefly),
+    // return null to signal that all cookie mutations must be discarded.
+    // Also re-check the live request state as a final defense layer.
     getUpdatedCookies: () => {
       if (isolationActivatedDuringScript) return null
+      // Final check: if disableCookies is currently true but no cookie
+      // API call triggered the guard, catch it here
+      const currentRequest = getUpdatedRequest ? getUpdatedRequest() : request
+      if (currentRequest?.requestOptions?.disableCookies) {
+        isolationActivatedDuringScript = true
+        updatedCookies = []
+        return null
+      }
       return cookiesSupported ? cloneDeep(updatedCookies) : null
     },
   }

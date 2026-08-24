@@ -34,11 +34,12 @@ export const createBaseInputs = (
     updatedEnvs,
   } = getSharedEnvMethods(config.envs, true)
 
-  const { methods: cookieMethods, getUpdatedCookies } = getSharedCookieMethods(
-    config.cookies,
-    config.request,
-    config.getUpdatedRequest
-  )
+  const { methods: cookieMethods, getUpdatedCookies, notifyIsolationEnabled } =
+    getSharedCookieMethods(
+      config.cookies,
+      config.request,
+      config.getUpdatedRequest
+    )
 
   // Get request properties - shared across pre and post request contexts
   // For pre-request, use the updater function to read from mutated request
@@ -178,5 +179,6 @@ export const createBaseInputs = (
       }
     },
     getUpdatedCookies,
+    notifyIsolationEnabled,
   }
 }

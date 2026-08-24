@@ -505,9 +505,21 @@ export const getSharedCookieMethods = (
   const cookiesSupported = cookies !== null
   let updatedCookies: Cookie[] = cookies ?? []
 
+  // Track whether cookie isolation was dynamically activated during script
+  // execution. Once set, all cookie reads return empty results and
+  // getUpdatedCookies returns null so the runner discards staged mutations.
+  let isolationActivatedDuringScript = false
+
   const throwIfCookiesUnsupported = () => {
     const currentRequest = getUpdatedRequest ? getUpdatedRequest() : request
     if (currentRequest?.requestOptions?.disableCookies) {
+      // First time isolation is detected: purge the in-memory snapshot so
+      // any subsequent reads (even from shared/imported scripts that run
+      // after this point) cannot access cookie data.
+      if (!isolationActivatedDuringScript) {
+        isolationActivatedDuringScript = true
+        updatedCookies = []
+      }
       throw new Error(
         "Cookies are disabled for this request. Cookie isolation is active."
       )
@@ -598,9 +610,13 @@ export const getSharedCookieMethods = (
       delete: cookieDeleteFn,
       clear: cookieClearFn,
     },
-    // Use a function so we always read the latest `updatedCookies` (not a stale snapshot)
-    getUpdatedCookies: () =>
-      cookiesSupported ? cloneDeep(updatedCookies) : null,
+    // When isolation was activated during script execution, return null to
+    // signal that all cookie mutations (including those staged before the
+    // flag was set) must be discarded by the runner.
+    getUpdatedCookies: () => {
+      if (isolationActivatedDuringScript) return null
+      return cookiesSupported ? cloneDeep(updatedCookies) : null
+    },
   }
 }
 

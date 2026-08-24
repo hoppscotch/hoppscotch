@@ -236,6 +236,18 @@ describe("CookieJarService", () => {
       expect(stored).toHaveLength(1)
       expect(stored?.[0].value).toBe("new")
     })
+
+    it("drops a non-boolean hostOnly instead of persisting it", async () => {
+      await service.upsertCookies([
+        cookie({
+          name: "a",
+          value: "1",
+          hostOnly: "true" as unknown as boolean,
+        }),
+      ])
+      const stored = service.cookieJar.value.get("example.com")?.[0]
+      expect(stored?.hostOnly).toBeUndefined()
+    })
   })
 
   describe("deleteCookies", () => {

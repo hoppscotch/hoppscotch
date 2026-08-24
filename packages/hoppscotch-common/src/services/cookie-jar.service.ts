@@ -413,6 +413,13 @@ export class CookieJarService extends Service {
         secure: typeof cookie.secure === "boolean" ? cookie.secure : false,
         httpOnly:
           typeof cookie.httpOnly === "boolean" ? cookie.httpOnly : false,
+        // `parseStored` rejects a present non-boolean `hostOnly` and a
+        // rejected payload fails the whole load, so a script-set value
+        // of the wrong type is dropped at the write instead of
+        // persisted. Absent stays absent, which `toMap` reads as the
+        // pre-flag jar and migrates.
+        hostOnly:
+          typeof cookie.hostOnly === "boolean" ? cookie.hostOnly : undefined,
       }
       const existing = this.cookieJar.value.get(normalized.domain) ?? []
 

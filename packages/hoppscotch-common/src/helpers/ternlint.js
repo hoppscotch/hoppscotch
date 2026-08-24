@@ -27,6 +27,7 @@ function getArrType(type) {
     }
   }
 }
+
 function getTypeName(type) {
   if (!type) return "Unknown type"
   if (type.types) {

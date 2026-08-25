@@ -596,7 +596,9 @@ describe("CookieJarService", () => {
         [{ name: "a", value: "1" }],
         new URL("https://example.com/")
       )
-      expect(service.cookieJar.value.get("example.com")?.[0].hostOnly).toBe(true)
+      expect(service.cookieJar.value.get("example.com")?.[0].hostOnly).toBe(
+        true
+      )
     })
 
     it("does not mark a Domain-scoped Set-Cookie as host-only", async () => {

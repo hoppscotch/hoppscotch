@@ -1144,6 +1144,9 @@ importers:
       globals:
         specifier: 16.5.0
         version: 16.5.0
+      jsdom:
+        specifier: 27.4.0
+        version: 27.4.0(@noble/hashes@2.2.0)
       postcss:
         specifier: 8.5.18
         version: 8.5.18
@@ -1165,6 +1168,9 @@ importers:
       vite:
         specifier: 7.3.2
         version: 7.3.2(@types/node@25.9.3)(jiti@2.6.1)(sass@1.101.0)(terser@5.46.1)(yaml@2.9.0)
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@25.9.3)(jsdom@27.4.0(@noble/hashes@2.2.0))(vite@7.3.2(@types/node@25.9.3)(jiti@2.6.1)(sass@1.101.0)(terser@5.46.1)(yaml@2.9.0))
       vue-tsc:
         specifier: 2.2.0
         version: 2.2.0(typescript@5.9.3)

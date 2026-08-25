@@ -395,6 +395,8 @@
       "empty_domains": "Domain list is empty",
       "invalid_domain": "Domain has invalid characters",
       "enter_cookie_string": "Enter cookie string",
+      "host_only": "HostOnly",
+      "host_only_info": "Sent to the host that set it. Subdomains do not receive it.",
       "http_only": "HttpOnly",
       "http_only_info": "Not exposed to page scripts. Still sent on matching requests.",
       "interceptor_no_support": "Your currently selected interceptor does not support cookies. Select a different Interceptor and try again.",

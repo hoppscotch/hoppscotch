@@ -236,6 +236,18 @@ describe("CookieJarService", () => {
       expect(stored).toHaveLength(1)
       expect(stored?.[0].value).toBe("new")
     })
+
+    it("drops a non-boolean hostOnly instead of persisting it", async () => {
+      await service.upsertCookies([
+        cookie({
+          name: "a",
+          value: "1",
+          hostOnly: "true" as unknown as boolean,
+        }),
+      ])
+      const stored = service.cookieJar.value.get("example.com")?.[0]
+      expect(stored?.hostOnly).toBeUndefined()
+    })
   })
 
   describe("deleteCookies", () => {
@@ -575,6 +587,77 @@ describe("CookieJarService", () => {
           cookie({ name: "b", value: "2" }),
         ])
       ).toBe("b=2")
+    })
+  })
+
+  describe("host-only cookies (FE-1284)", () => {
+    it("marks a Set-Cookie with no Domain attribute as host-only", async () => {
+      await service.extractFromResponse(
+        [{ name: "a", value: "1" }],
+        new URL("https://example.com/")
+      )
+      expect(service.cookieJar.value.get("example.com")?.[0].hostOnly).toBe(true)
+    })
+
+    it("does not mark a Domain-scoped Set-Cookie as host-only", async () => {
+      await service.extractFromResponse(
+        [{ name: "a", value: "1", domain: "example.com" }],
+        new URL("https://example.com/")
+      )
+      expect(service.cookieJar.value.get("example.com")?.[0].hostOnly).toBe(
+        false
+      )
+    })
+
+    it("sends a host-only cookie to its exact host", async () => {
+      await service.extractFromResponse(
+        [{ name: "a", value: "1" }],
+        new URL("https://example.com/")
+      )
+      expect(
+        service.getCookiesForURL(new URL("https://example.com/"))
+      ).toHaveLength(1)
+    })
+
+    it("does not send a host-only cookie to a subdomain of its host", async () => {
+      await service.extractFromResponse(
+        [{ name: "a", value: "1" }],
+        new URL("https://example.com/")
+      )
+      expect(
+        service.getCookiesForURL(new URL("https://api.example.com/"))
+      ).toHaveLength(0)
+    })
+
+    it("does not duplicate a cookie name across a host-only and a Domain-scoped bucket on a child-host request", async () => {
+      // Host-only cookie set at the parent host (no Domain attribute).
+      await service.extractFromResponse(
+        [{ name: "sid", value: "host" }],
+        new URL("https://example.com/")
+      )
+      // Same name, Domain-scoped to the child host it legitimately applies to.
+      await service.extractFromResponse(
+        [{ name: "sid", value: "child", domain: "api.example.com" }],
+        new URL("https://api.example.com/")
+      )
+      const cookies = service.getCookiesForURL(
+        new URL("https://api.example.com/")
+      )
+      expect(cookies).toHaveLength(1)
+      expect(cookies[0].value).toBe("child")
+    })
+
+    it("treats a legacy persisted cookie with no hostOnly flag as non-host-only", () => {
+      const map = (service as any).toMap({
+        "example.com": [cookie({ name: "a", value: "1" })],
+      })
+      service.cookieJar.value = map
+      // Backward compatibility, the pre-flag entry still matches the
+      // subdomains it matched before the upgrade.
+      expect(map.get("example.com")?.[0].hostOnly).toBe(false)
+      expect(
+        service.getCookiesForURL(new URL("https://api.example.com/"))
+      ).toHaveLength(1)
     })
   })
 })

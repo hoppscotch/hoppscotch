@@ -474,7 +474,11 @@ export class CookieJarService extends Service {
     if (this.isIPLiteral(host)) {
       return host === domain
     }
-    return this.domainMatches(host, domain)
+    // `hostOnly` is false because this runs only where the response
+    // sent a `Domain` attribute, and the host-only flag describes a
+    // response that sent none. A capture without the attribute takes
+    // the request host as its domain and never reaches here.
+    return this.domainMatches(host, domain, false)
   }
 
   // `URL.hostname` renders an IPv6 address bracketed, so the two

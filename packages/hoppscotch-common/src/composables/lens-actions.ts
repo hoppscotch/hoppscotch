@@ -74,17 +74,15 @@ export type downloadResponseReturnType = (() => void) | Ref<any>
  * @param fallback The filename to use when the server suggests none
  */
 export function useResponseFilename(
-  response: MaybeRefOrGetter<object | null | undefined>,
+  response: MaybeRefOrGetter<
+    { headers?: { key: string; value: string }[] } | null | undefined
+  >,
   fallback: MaybeRefOrGetter<string>
 ): ComputedRef<string> {
-  return computed(() => {
+  return computed(() =>
     // Response variants like `loading` carry no headers, hence the optional access
-    const { headers } = (toValue(response) ?? {}) as {
-      headers?: { key: string; value: string }[]
-    }
-
-    return getSuggestedFilename(headers, toValue(fallback))
-  })
+    getSuggestedFilename(toValue(response)?.headers, toValue(fallback))
+  )
 }
 
 export function useDownloadResponse(

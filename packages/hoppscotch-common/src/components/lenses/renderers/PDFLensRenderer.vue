@@ -92,14 +92,13 @@ const pdfsrc = computed(() =>
   )
 )
 
-const filename = t("filename.lens", {
-  request_name: props.response.req.name,
-})
-
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "application/pdf",
   computed(() => props.response.body),
-  useResponseFilename(() => props.response, `${filename}.pdf`)
+  useResponseFilename(
+    () => props.response,
+    () => `${t("filename.lens", { request_name: props.response.req.name })}.pdf`
+  )
 )
 
 /**

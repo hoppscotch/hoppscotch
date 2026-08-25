@@ -179,13 +179,13 @@ const responseName = computed(() => {
 
 const { responseBodyText } = useResponseBody(props.response)
 
-const filename = t("filename.lens", {
-  request_name: responseName.value,
-})
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "text/html",
   responseBodyText,
-  useResponseFilename(() => props.response, `${filename}.html`)
+  useResponseFilename(
+    () => props.response,
+    () => `${t("filename.lens", { request_name: responseName.value })}.html`
+  )
 )
 
 const defaultPreview = computedAsync(

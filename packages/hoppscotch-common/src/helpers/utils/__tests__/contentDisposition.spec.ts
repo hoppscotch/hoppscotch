@@ -174,6 +174,26 @@ describe("parseContentDispositionFilename", () => {
       ).toBe("fallback.txt")
     })
 
+    test("falls back to `filename` when an ISO-8859-1 `filename*` has malformed percent escapes", () => {
+      expect(
+        parseContentDispositionFilename(
+          "attachment; filename=\"fallback.txt\"; filename*=ISO-8859-1''r%E9sum%E9%.txt"
+        )
+      ).toBe("fallback.txt")
+    })
+
+    test("returns null when only a malformed ISO-8859-1 `filename*` is present", () => {
+      expect(
+        parseContentDispositionFilename(
+          "attachment; filename*=ISO-8859-1''r%E9sum%E9%.txt"
+        )
+      ).toBeNull()
+
+      expect(
+        parseContentDispositionFilename("attachment; filename*=ISO-8859-1''%ZZ")
+      ).toBeNull()
+    })
+
     test("falls back to `filename` when `filename*` is missing its charset delimiters", () => {
       expect(
         parseContentDispositionFilename(

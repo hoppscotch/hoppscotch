@@ -156,13 +156,14 @@ function decodeExtValue(charset: string, encoded: string): string | null {
     normalizedCharset === "iso8859-1" ||
     normalizedCharset === "latin1"
   ) {
-    try {
-      return encoded.replace(/%([0-9A-Fa-f]{2})/g, (_, hex: string) =>
-        String.fromCharCode(parseInt(hex, 16))
-      )
-    } catch {
-      return null
-    }
+    // `String.replace` silently leaves malformed escapes (a `%` not followed by
+    // two hex digits) in place, so reject them up front to match the strictness
+    // `decodeURIComponent` gives us on the UTF-8 path.
+    if (/%(?![0-9A-Fa-f]{2})/.test(encoded)) return null
+
+    return encoded.replace(/%([0-9A-Fa-f]{2})/g, (_, hex: string) =>
+      String.fromCharCode(parseInt(hex, 16))
+    )
   }
 
   // RFC 8187 §3.2.1: recipients should ignore parameters using a charset

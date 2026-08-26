@@ -43,8 +43,13 @@ const isV5InsomniaDoc = (data: InsomniaDoc) =>
   typeof data.type === "string" &&
   (data.type as string).startsWith("collection.insomnia.rest/5")
 
-const replacePathVarTemplating = (expression: string) =>
-  expression.replaceAll(/:([^/]+)/g, "<<$1>>")
+const replacePathVarTemplating = (expression: string) => {
+  // Same coercion as replaceInsomniaTemplating: v5 export values are typed as
+  // strings but arrive as numbers/booleans/null in real files (#6606).
+  const safe =
+    expression === null || expression === undefined ? "" : String(expression)
+  return safe.replaceAll(/:([^/]+)/g, "<<$1>>")
+}
 
 const replaceVarTemplating = (expression: string, pathVar = false) => {
   return pipe(
@@ -91,7 +96,11 @@ const getCollectionVariables = (
   return Object.entries(env).map(([key, value]) => ({
     key: replaceVarTemplating(key),
     currentValue: "", // set it as empty value since it is handled by currentValue service and we don't want it to sync with BE
-    initialValue: replaceVarTemplating(value),
+    // Values in real v5 exports are not guaranteed to be strings (numbers,
+    // booleans, null all show up); coerce so the import never crashes (#6606).
+    initialValue: replaceVarTemplating(
+      typeof value === "string" ? value : String(value ?? "")
+    ),
     secret: false,
   }))
 }

@@ -28,8 +28,14 @@ const insomniaEnvSchema = z.object({
 })
 
 export const replaceInsomniaTemplating = (expression: string) => {
+  // Real-world Insomnia v5 exports carry non-string values in environment and
+  // folder-environment maps (numbers, booleans, null). Coerce before
+  // replaceAll so the importer degrades gracefully instead of crashing with
+  // "replaceAll is not a function" mid-import (#6606).
+  const safe =
+    expression === null || expression === undefined ? "" : String(expression)
   const regex = /\{\{ _\.([^}]+) \}\}/g
-  return expression.replaceAll(regex, "<<$1>>")
+  return safe.replaceAll(regex, "<<$1>>")
 }
 
 export const insomniaEnvImporter = (contents: string[]) => {

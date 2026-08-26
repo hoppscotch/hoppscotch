@@ -160,6 +160,7 @@ function createScriptingInputsObj(
       request: config.request,
       cookies: config.cookies,
       getUpdatedRequest, // Pass the updater function for pre-request
+      setRequestOptions: requestSetterMethods.setRequestOptions, // Wire options setter into hopp namespace
     })
 
     // Register hook with helper function

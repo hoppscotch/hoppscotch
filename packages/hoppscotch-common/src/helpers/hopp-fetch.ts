@@ -10,11 +10,13 @@ import type { RelayRequest } from "@hoppscotch/kernel"
  *
  * @param kernelInterceptor - The kernel interceptor service instance
  * @param onFetchCall - Optional callback to track fetch calls for inspector warnings
+ * @param cookiePolicy - Snapshots of the global and request-level cookie isolation settings
  * @returns HoppFetchHook implementation
  */
 export const createHoppFetchHook = (
   kernelInterceptor: KernelInterceptorService,
-  onFetchCall?: (meta: FetchCallMeta) => void
+  onFetchCall?: (meta: FetchCallMeta) => void,
+  cookiePolicy?: { globalDisabled: boolean; requestDisabled: boolean }
 ): HoppFetchHook => {
   return async (input, init) => {
     const urlStr =
@@ -32,8 +34,38 @@ export const createHoppFetchHook = (
       timestamp: Date.now(),
     })
 
-    // Convert Fetch API request to RelayRequest
-    const relayRequest = await convertFetchToRelayRequest(input, init)
+    // Extract the markers transmitted across the sandbox bridge.
+    const scriptRequestDisabled = (init as any)?.__hoppDisableCookies
+    const initWasUndefined = (init as any)?.__hoppInitWasUndefined
+
+    // Clean up the markers so they don't leak into the relay request or native fetch
+    if (init && ("__hoppDisableCookies" in init || "__hoppInitWasUndefined" in init)) {
+      delete (init as any).__hoppDisableCookies
+      delete (init as any).__hoppInitWasUndefined
+      if (initWasUndefined) {
+        init = undefined
+      }
+    }
+
+    // If the request started with cookies disabled, a script cannot relax that isolation.
+    // If it started enabled, a script can disable them dynamically.
+    const initialRequestDisabled = cookiePolicy?.requestDisabled ?? false
+    const requestDisabled =
+      initialRequestDisabled ||
+      (typeof scriptRequestDisabled === "boolean"
+        ? scriptRequestDisabled
+        : false)
+
+    // Combine with the global policy: if globally disabled, cookies are disabled
+    // regardless of the request-level setting.
+    const effectiveCookieJarDisabled =
+      (cookiePolicy?.globalDisabled ?? false) || requestDisabled
+
+    const relayRequest = await convertFetchToRelayRequest(
+      input,
+      init,
+      effectiveCookieJarDisabled
+    )
 
     // Execute via interceptor
     const execution = kernelInterceptor.execute(relayRequest)
@@ -66,7 +98,8 @@ export const createHoppFetchHook = (
  */
 async function convertFetchToRelayRequest(
   input: RequestInfo | URL,
-  init?: RequestInit
+  init?: RequestInit,
+  cookieJarDisabled?: boolean
 ): Promise<RelayRequest> {
   const urlStr =
     typeof input === "string"
@@ -199,6 +232,11 @@ async function convertFetchToRelayRequest(
     params: undefined, // Undefined so preProcessRelayRequest doesn't try to process it
     auth: { kind: "none" }, // Required field - no auth for fetch()
     content,
+    meta: {
+      options: {
+        cookies: !cookieJarDisabled,
+      },
+    },
     // Note: auth, proxy, security are inherited from interceptor configuration
   }
 

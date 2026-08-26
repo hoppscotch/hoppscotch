@@ -26,6 +26,7 @@ import { map } from "fp-ts/Either"
 
 import { runPreRequestScript, runTestScript } from "@hoppscotch/js-sandbox/web"
 import { useSetting } from "~/composables/settings"
+import { settingsStore } from "~/newstore/settings"
 import { getService } from "~/modules/dioc"
 import {
   combineScriptsWithIIFE,
@@ -75,6 +76,10 @@ import {
 import { transformInheritedCollectionVariablesToAggregateEnv } from "./utils/inheritedCollectionVarTransformer"
 import { isJSONContentType } from "./utils/contenttypes"
 import { applyScriptRequestUpdates } from "./experimental-sandbox-integration"
+import {
+  getEffectiveCookieJarDisabled,
+  getCookiePolicy,
+} from "~/helpers/utils/cookiePolicy"
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
 const currentEnvironmentValueService = getService(CurrentValueService)
@@ -351,6 +356,8 @@ const getEnvironmentVariableValue = (
   )
 }
 
+
+
 const delegatePreRequestScriptRunner = (
   request: HoppRESTRequest,
   envs: {
@@ -388,7 +395,11 @@ const delegatePreRequestScriptRunner = (
     })
   }
 
-  const hoppFetchHook = createHoppFetchHook(kernelInterceptorService)
+  const hoppFetchHook = createHoppFetchHook(
+    kernelInterceptorService,
+    undefined,
+    getCookiePolicy(request)
+  )
 
   return runPreRequestScript(combinedScript, {
     envs,
@@ -436,7 +447,11 @@ const runPostRequestScript = (
     })
   }
 
-  const hoppFetchHook = createHoppFetchHook(kernelInterceptorService)
+  const hoppFetchHook = createHoppFetchHook(
+    kernelInterceptorService,
+    undefined,
+    getCookiePolicy(request)
+  )
 
   return runTestScript(combinedScript, {
     envs,
@@ -465,7 +480,11 @@ export function runRESTRequest$(
     cancelFunc?.()
   }
 
-  const cookieJarEntries = getCookieJarEntries()
+  const cookieJarDisabled = getEffectiveCookieJarDisabled(
+    tab.value.document.request
+  )
+
+  const cookieJarEntries = cookieJarDisabled ? null : getCookieJarEntries()
 
   const { request, inheritedProperties } = tab.value.document
 
@@ -634,8 +653,14 @@ export function runRESTRequest$(
             }
 
             const updatedCookies = postRequestScriptResult.right.updatedCookies
+            const finalCookieJarDisabled =
+              getEffectiveCookieJarDisabled(finalRequest)
 
-            if (updatedCookies && cookieJarEntries !== null) {
+            if (
+              updatedCookies &&
+              cookieJarEntries !== null &&
+              !finalCookieJarDisabled
+            ) {
               // The script's `updatedCookies` is the post-script state of
               // its pre-script view, so a set difference against the
               // pre-script snapshot gives the actual mutations. Cookies
@@ -880,7 +905,8 @@ export async function runTestRunnerRequest(
     }>
   | undefined
 > {
-  const cookieJarEntries = getCookieJarEntries()
+  const disableCookies = getEffectiveCookieJarDisabled(request)
+  const cookieJarEntries = disableCookies ? null : getCookieJarEntries()
 
   const {
     initialGlobalEnvs,

@@ -91,6 +91,17 @@
     >
       <HttpRequestVariables v-model="request.requestVariables" />
     </HoppSmartTab>
+    <HoppSmartTab
+      v-if="(properties?.includes('settings') ?? true) && 'requestOptions' in request"
+      :id="'settings'"
+      :label="`${t('tab.settings')}`"
+      :align-last="true"
+    >
+      <HttpRequestSettings
+        v-if="'requestOptions' in request"
+        v-model="request.requestOptions"
+      />
+    </HoppSmartTab>
   </HoppSmartTabs>
 </template>
 
@@ -116,6 +127,7 @@ const _VALID_OPTION_TABS = [
   "preRequestScript",
   "tests",
   "requestVariables",
+  "settings",
 ] as const
 
 export type RESTOptionTabs = (typeof _VALID_OPTION_TABS)[number]

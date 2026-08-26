@@ -496,12 +496,27 @@ export function getSharedEnvMethods(
   }
 }
 
-export const getSharedCookieMethods = (cookies: Cookie[] | null) => {
+export const getSharedCookieMethods = (
+  cookies: Cookie[] | null,
+  request?: HoppRESTRequest,
+  getUpdatedRequest?: () => HoppRESTRequest
+) => {
   // Incoming `cookies` specified as `null` indicates unsupported platform
   const cookiesSupported = cookies !== null
-  let updatedCookies: Cookie[] = cookies ?? []
+  // Track whether cookie isolation was dynamically activated during script
+  // execution. Initialized from the starting request policy so requests
+  // that start with isolation enabled can never revert it, completely
+  // blocking access to the initial snapshot.
+  let isolationActivatedDuringScript = request?.requestOptions?.disableCookies ?? false
+  let updatedCookies: Cookie[] = isolationActivatedDuringScript ? [] : (cookies ?? [])
 
   const throwIfCookiesUnsupported = () => {
+    if (isolationActivatedDuringScript) {
+      throw new Error(
+        "Cookies are disabled for this request. Cookie isolation is active."
+      )
+    }
+
     if (cookies === null) {
       throw new Error(
         "Cookies are not supported in the current platform and are exclusive to the Desktop App."
@@ -587,9 +602,15 @@ export const getSharedCookieMethods = (cookies: Cookie[] | null) => {
       delete: cookieDeleteFn,
       clear: cookieClearFn,
     },
-    // Use a function so we always read the latest `updatedCookies` (not a stale snapshot)
-    getUpdatedCookies: () =>
-      cookiesSupported ? cloneDeep(updatedCookies) : null,
+    getUpdatedCookies: () => {
+      if (isolationActivatedDuringScript) return null
+      
+      const currentRequest = getUpdatedRequest ? getUpdatedRequest() : request
+      if (currentRequest?.requestOptions?.disableCookies) {
+        return null
+      }
+      return cookiesSupported ? cloneDeep(updatedCookies) : null
+    },
   }
 }
 
@@ -1004,6 +1025,10 @@ export const getSharedRequestProps = (
     get requestVariables() {
       const currentRequest = getUpdatedRequest ? getUpdatedRequest() : request
       return currentRequest.requestVariables
+    },
+    get requestOptions() {
+      const currentRequest = getUpdatedRequest ? getUpdatedRequest() : request
+      return currentRequest.requestOptions
     },
   }
 }

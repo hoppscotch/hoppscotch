@@ -69,6 +69,36 @@
     })
   })
 
+  // Track cookie isolation activation across the script lifecycle.
+  // Initialized from the starting request policy.
+  const initialReqPropsForLatch = inputs.getRequestProps()
+  let __hoppCookieIsolationLatch = 
+    (initialReqPropsForLatch.requestOptions && 
+     initialReqPropsForLatch.requestOptions.disableCookies) === true
+
+  // Special handling for requestOptions: support nested mutations via Proxy
+  Object.defineProperty(requestProps, "requestOptions", {
+    enumerable: true,
+    configurable: false,
+    get() {
+      const currentValues = inputs.getRequestProps()
+      const opts = currentValues.requestOptions || {}
+      return new Proxy(opts, {
+        set(target, prop, value) {
+          target[prop] = value
+          inputs.setRequestOptions(target)
+          if (prop === "disableCookies" && value === true) {
+            __hoppCookieIsolationLatch = true
+          }
+          return true
+        },
+      })
+    },
+    set(_value) {
+      throw new TypeError("hopp.request.requestOptions is read-only")
+    },
+  })
+
   // Freeze the entire requestProps object for additional protection
   Object.freeze(requestProps)
 
@@ -179,10 +209,34 @@
       clear: (domain) => inputs.cookieClear(domain),
     },
     // Expose fetch as hopp.fetch() for explicit access
-    // Note: This exposes the fetch implementation provided by the host environment via hoppFetchHook
-    // (injected in cage.ts during sandbox initialization), not the native browser fetch.
-    // This allows requests to respect interceptor settings.
-    fetch: fetch,
+    // The wrapper reads requestOptions.disableCookies at the time of the call
+    // so that pre-request script mutations are honoured even if the hook was
+    // constructed with the pre-script snapshot
+    fetch: (function () {
+      const _nativeFetch = fetch
+      
+      return function (input, init) {
+        const currentReqProps = inputs.getRequestProps()
+        
+        // Use the globally maintained latch or current state
+        const isolationActivated = __hoppCookieIsolationLatch || 
+          (currentReqProps.requestOptions && currentReqProps.requestOptions.disableCookies) === true
+
+        const patchedInit = init !== undefined && init !== null
+          ? Object.assign({}, init)
+          : { __hoppInitWasUndefined: true }
+
+        // Enumerable so it survives vm.dump serialization across the sandbox bridge
+        Object.defineProperty(patchedInit, "__hoppDisableCookies", {
+          value: isolationActivated,
+          enumerable: true,
+          configurable: false,
+          writable: false,
+        })
+
+        return _nativeFetch(input, patchedInit)
+      }
+    })(),
   }
 
   // Make global fetch() an alias to hopp.fetch()

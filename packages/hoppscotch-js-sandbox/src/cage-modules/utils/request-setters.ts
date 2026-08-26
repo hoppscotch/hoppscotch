@@ -88,6 +88,13 @@ export const createRequestSetterMethods = (
         requestMethods.setRequestVariable(key as string, value as string)
       }
     ),
+    setRequestOptions: defineSandboxFn(
+      ctx,
+      "setRequestOptions",
+      (options: unknown) => {
+        requestMethods.setRequestOptions(options)
+      }
+    ),
   }
 
   return {

@@ -4,10 +4,13 @@ import {
   HoppRESTParams,
   HoppRESTReqBody,
   HoppRESTRequest,
+  HoppRESTRequestOptions,
 } from "@hoppscotch/data"
 import { cloneDeep } from "lodash"
 
-export const getRequestSetterMethods = (request: HoppRESTRequest) => {
+export const getRequestSetterMethods = (
+  request: HoppRESTRequest
+) => {
   // Clone to allow safe mutations internally
   const updatedRequest = <HoppRESTRequest>cloneDeep(request)
 
@@ -128,6 +131,26 @@ export const getRequestSetterMethods = (request: HoppRESTRequest) => {
     updatedRequest.auth = { ...parseResult.data }
   }
 
+  const setRequestOptions = (newOptions: unknown) => {
+    const parseResult = HoppRESTRequestOptions.safeParse(newOptions)
+
+    if (!parseResult.success) {
+      throw new Error("Invalid requestOptions object")
+    }
+
+    // Prohibit changing disableCookies dynamically from sandbox scripts
+    // to guarantee cookie isolation for the entire execution.
+    const isChangingDisableCookies = 
+      parseResult.data.disableCookies !== undefined && 
+      parseResult.data.disableCookies !== (updatedRequest.requestOptions?.disableCookies ?? false)
+
+    if (isChangingDisableCookies) {
+      throw new Error("Cannot change disableCookies dynamically from sandbox scripts. It must be set prior to script execution.")
+    }
+
+    updatedRequest.requestOptions = parseResult.data
+  }
+
   const setRequestVariable = (key: string, value: string) => {
     const reqVarIndex = updatedRequest.requestVariables.findIndex(
       (reqVar) => reqVar.key === key
@@ -154,6 +177,7 @@ export const getRequestSetterMethods = (request: HoppRESTRequest) => {
       setBody,
       setAuth,
       setRequestVariable,
+      setRequestOptions,
     },
     updatedRequest,
   }

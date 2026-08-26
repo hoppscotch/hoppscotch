@@ -1238,7 +1238,10 @@
     "url_placeholder": "Enter a URL or paste a cURL command",
     "variables": "Variables",
     "view_my_links": "View my links",
-    "generate_name_error": "Failed to generate request name."
+    "generate_name_error": "Failed to generate request name.",
+    "disable_cookies": "Disable cookie jar",
+    "disable_cookies_default": "(Default: Settings)",
+    "disable_cookies_description": "Prevent cookies used in this request from being stored in the cookie jar. Existing cookies in the cookie jar will not be added as headers for this request. Note: Due to browser limitations, same-origin requests will still include cookies."
   },
   "response": {
     "audio": "Audio",
@@ -1387,11 +1390,11 @@
     "theme_description": "Customize your application theme.",
     "update_check_description": "Manually check for a new version and install it. Works regardless of the toggle below.",
     "update_check_now": "Check for updates",
-    "update_checking": "Checking\u2026",
+    "update_checking": "Checking…",
     "update_download_version": "Download v{version}",
-    "update_downloading": "Downloading\u2026",
+    "update_downloading": "Downloading…",
     "update_downloading_percent": "Downloading {percent}%",
-    "update_installing": "Installing\u2026",
+    "update_installing": "Installing…",
     "update_restart_now": "Restart to apply update",
     "update_up_to_date": "Up to date",
     "use_experimental_url_bar": "Use experimental URL bar with environment highlighting",
@@ -1424,7 +1427,10 @@
     "ca_certificates": "CA Certificates",
     "ca_certificates_support": "Hoppscotch supports .crt, .cer or .pem files containing one or more certificates.",
     "proxy_capabilities": "Hoppscotch Agent and Desktop App supports HTTP/HTTPS/SOCKS proxies with NTLM and Basic Auth support.",
-    "proxy_auth": "You can also include username and password in the URL."
+    "proxy_auth": "You can also include username and password in the URL.",
+    "network": "Network",
+    "disable_cookies": "Disable cookies",
+    "disable_cookies_description": "Disable cookie jar for all requests. Note: Due to browser limitations, same-origin requests will still include cookies."
   },
   "shared_requests": {
     "button": "Button",
@@ -1852,7 +1858,8 @@
     "websocket": "WebSocket",
     "all_tests": "All Tests",
     "passed": "Passed",
-    "failed": "Failed"
+    "failed": "Failed",
+    "settings": "Settings"
   },
   "team": {
     "activity_logs": "Activity Logs",

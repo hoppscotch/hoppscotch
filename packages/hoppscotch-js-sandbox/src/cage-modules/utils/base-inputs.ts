@@ -1,7 +1,7 @@
 import { Cookie, HoppRESTRequest } from "@hoppscotch/data"
 import { CageModuleCtx, defineSandboxFn } from "faraday-cage/modules"
 
-import { TestResult, BaseInputs, SandboxValue } from "~/types"
+import { TestResult, BaseInputs, SandboxValue, SandboxFunction } from "~/types"
 import {
   getSharedCookieMethods,
   getSharedEnvMethods,
@@ -13,16 +13,11 @@ import { createPmNamespaceMethods } from "../namespaces/pm-namespace"
 import { createPwNamespaceMethods } from "../namespaces/pw-namespace"
 
 type BaseInputsConfig = {
-  /**
-   * Environment variables typed as TestResult["envs"] for external API compatibility.
-   * At runtime, this will be mutated to contain SandboxValue types (arrays, objects, etc.)
-   * during script execution to support PM namespace compatibility.
-   * See `getSharedEnvMethods()` for detailed explanation of the type flow.
-   */
   envs: TestResult["envs"]
   request: HoppRESTRequest
   cookies: Cookie[] | null
   getUpdatedRequest?: () => HoppRESTRequest
+  setRequestOptions?: SandboxFunction
 }
 
 /**
@@ -40,7 +35,9 @@ export const createBaseInputs = (
   } = getSharedEnvMethods(config.envs, true)
 
   const { methods: cookieMethods, getUpdatedCookies } = getSharedCookieMethods(
-    config.cookies
+    config.cookies,
+    config.request,
+    config.getUpdatedRequest
   )
 
   // Get request properties - shared across pre and post request contexts
@@ -104,7 +101,14 @@ export const createBaseInputs = (
 
   // Combine all namespace methods
   const pwMethods = createPwNamespaceMethods(ctx, envMethods, requestProps)
-  const hoppMethods = createHoppNamespaceMethods(ctx, envMethods, requestProps)
+  const hoppMethods = createHoppNamespaceMethods(
+    ctx,
+    envMethods,
+    requestProps,
+    config.setRequestOptions
+      ? { setRequestOptions: config.setRequestOptions }
+      : undefined
+  )
   const pmMethods = createPmNamespaceMethods(ctx, config)
 
   // PM namespace-specific setter that accepts any type (for type preservation)

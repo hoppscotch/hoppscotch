@@ -134,6 +134,7 @@ export const implementation: VersionedAPI<RelayV1> = {
               validateStatus: null,
               cancelToken: cancelTokenSource.token,
               responseType: "arraybuffer",
+              withCredentials: request.meta?.options?.cookies ?? true,
             }
 
             // The following code is temporarily commented out because the auth has been pre-processed in EffectiveURL.ts and added in header

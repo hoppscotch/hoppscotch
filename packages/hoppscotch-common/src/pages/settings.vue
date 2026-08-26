@@ -184,6 +184,25 @@
               </div>
             </div>
           </section>
+
+          <div class="mb-8 flex flex-col">
+            <h2 class="mb-4 font-semibold text-secondaryDark">
+              {{ t("settings.network") }}
+            </h2>
+            <div class="flex flex-col space-y-4">
+              <div class="flex items-center">
+                <HoppSmartToggle
+                  :on="DISABLE_COOKIES"
+                  @change="toggleSetting('DISABLE_COOKIES')"
+                >
+                  {{ t("settings.disable_cookies") }}
+                </HoppSmartToggle>
+              </div>
+              <p class="mt-2 text-secondaryLight text-tiny">
+                {{ t("settings.disable_cookies_description") }}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -328,6 +347,7 @@ const CUSTOM_NAMING_STYLE = useSetting("CUSTOM_NAMING_STYLE")
 const EXPERIMENTAL_SCRIPTING_SANDBOX = useSetting(
   "EXPERIMENTAL_SCRIPTING_SANDBOX"
 )
+const DISABLE_COOKIES = useSetting("DISABLE_COOKIES")
 const ENABLE_EXPERIMENTAL_MOCK_SERVERS = useSetting(
   "ENABLE_EXPERIMENTAL_MOCK_SERVERS"
 )

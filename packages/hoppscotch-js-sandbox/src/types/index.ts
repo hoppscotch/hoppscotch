@@ -4,7 +4,7 @@ import { ConsoleEntry, defineSandboxFn } from "faraday-cage/modules"
 import type { EnvAPIOptions } from "~/utils/shared"
 
 // Infer the return type of defineSandboxFn from faraday-cage
-type SandboxFunction = ReturnType<typeof defineSandboxFn>
+export type SandboxFunction = ReturnType<typeof defineSandboxFn>
 
 /**
  * Type alias for values that cross the QuickJS sandbox boundary.
@@ -227,6 +227,7 @@ export type RequestProps = {
   readonly body: HoppRESTRequest["body"]
   readonly auth: HoppRESTRequest["auth"]
   readonly requestVariables: HoppRESTRequest["requestVariables"]
+  readonly requestOptions?: HoppRESTRequest["requestOptions"]
 }
 
 /**
@@ -261,6 +262,7 @@ export interface HoppNamespaceMethods {
   envGetInitialRaw: SandboxFunction
   envSetInitial: SandboxFunction
   getRequestProps: SandboxFunction
+  setRequestOptions: SandboxFunction
 }
 
 /**
@@ -321,6 +323,7 @@ export interface RequestSetterMethodsResult {
     setRequestBody: SandboxFunction
     setRequestAuth: SandboxFunction
     setRequestVariable: SandboxFunction
+    setRequestOptions: SandboxFunction
   }
   getUpdatedRequest: () => HoppRESTRequest
 }

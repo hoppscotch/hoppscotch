@@ -28,6 +28,7 @@ import V16_VERSION from "./v/16"
 import { HoppRESTRequestResponses } from "../rest-request-response"
 import { generateUniqueRefId } from "../utils/collection"
 import V17_VERSION from "./v/17"
+import V18_VERSION, { HoppRESTRequestOptions } from "./v/18"
 
 export * from "./content-types"
 
@@ -39,6 +40,8 @@ export {
 } from "./v/1"
 
 export { HoppRESTRequestVariables } from "./v/2"
+
+export { HoppRESTRequestOptions } from "./v/18"
 
 export { HoppRESTAuthAPIKey } from "./v/4"
 
@@ -78,7 +81,7 @@ const versionedObject = z.object({
 })
 
 export const HoppRESTRequest = createVersionedEntity({
-  latestVersion: 17,
+  latestVersion: 18,
   versionMap: {
     0: V0_VERSION,
     1: V1_VERSION,
@@ -98,6 +101,7 @@ export const HoppRESTRequest = createVersionedEntity({
     15: V15_VERSION,
     16: V16_VERSION,
     17: V17_VERSION,
+    18: V18_VERSION,
   },
   getVersion(data) {
     // For V1 onwards we have the v string storing the number
@@ -140,9 +144,10 @@ const HoppRESTRequestEq = Eq.struct<HoppRESTRequest>({
   responses: lodashIsEqualEq,
   _ref_id: undefinedEq(S.Eq),
   description: lodashIsEqualEq,
+  requestOptions: lodashIsEqualEq,
 })
 
-export const RESTReqSchemaVersion = "17"
+export const RESTReqSchemaVersion = "18"
 
 export type HoppRESTParam = HoppRESTRequest["params"][number]
 export type HoppRESTHeader = HoppRESTRequest["headers"][number]
@@ -234,6 +239,13 @@ export function safelyExtractRESTRequest(
     if ("description" in x && typeof x.description === "string") {
       req.description = x.description
     }
+
+    if ("requestOptions" in x) {
+      const result = HoppRESTRequestOptions.safeParse(x.requestOptions)
+      if (result.success) {
+        req.requestOptions = result.data
+      }
+    }
   }
 
   return req
@@ -272,6 +284,9 @@ export function getDefaultRESTRequest(): HoppRESTRequest {
     responses: {},
     _ref_id: ref_id,
     description: null,
+    requestOptions: {
+      disableCookies: false,
+    },
   }
 }
 

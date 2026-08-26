@@ -142,7 +142,7 @@ export const getRequestSetterMethods = (
     // to guarantee cookie isolation for the entire execution.
     const isChangingDisableCookies = 
       parseResult.data.disableCookies !== undefined && 
-      parseResult.data.disableCookies !== updatedRequest.requestOptions?.disableCookies
+      parseResult.data.disableCookies !== (updatedRequest.requestOptions?.disableCookies ?? false)
 
     if (isChangingDisableCookies) {
       throw new Error("Cannot change disableCookies dynamically from sandbox scripts. It must be set prior to script execution.")

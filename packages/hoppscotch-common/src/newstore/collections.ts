@@ -730,13 +730,14 @@ const restCollectionDispatchers = defineDispatchers({
           _ref_id: generateUniqueRefId("coll"),
         }
 
-        // Copied requests need their own identity too — tabs match on
-        // `_ref_id`, so a copy sharing the original's would fight it for tabs
+        // Copied requests need their own identity too — matching falls back to
+        // the backend `id`, so even a legacy request copied without a fresh
+        // `_ref_id` would fight the original for tabs
         newCollection.requests = (newCollection.requests ?? []).map(
-          (request) =>
-            "_ref_id" in request
-              ? { ...request, _ref_id: generateUniqueRefId("req") }
-              : request
+          (request) => ({
+            ...request,
+            _ref_id: generateUniqueRefId("req"),
+          })
         )
 
         newCollection.folders = (newCollection.folders ?? []).map((folder) =>

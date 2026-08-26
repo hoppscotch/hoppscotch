@@ -46,8 +46,7 @@ const isV5InsomniaDoc = (data: InsomniaDoc) =>
 const replacePathVarTemplating = (expression: string) => {
   // Same coercion as replaceInsomniaTemplating: v5 export values are typed as
   // strings but arrive as numbers/booleans/null in real files (#6606).
-  const safe =
-    expression === null || expression === undefined ? "" : String(expression)
+  const safe = String(expression ?? "")
   return safe.replaceAll(/:([^/]+)/g, "<<$1>>")
 }
 

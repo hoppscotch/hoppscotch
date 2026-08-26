@@ -32,8 +32,7 @@ export const replaceInsomniaTemplating = (expression: string) => {
   // folder-environment maps (numbers, booleans, null). Coerce before
   // replaceAll so the importer degrades gracefully instead of crashing with
   // "replaceAll is not a function" mid-import (#6606).
-  const safe =
-    expression === null || expression === undefined ? "" : String(expression)
+  const safe = String(expression ?? "")
   const regex = /\{\{ _\.([^}]+) \}\}/g
   return safe.replaceAll(regex, "<<$1>>")
 }

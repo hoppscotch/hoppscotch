@@ -43,11 +43,9 @@ RUN tar -xzf /tmp/caddy-build/src.tar.gz && \
   go get google.golang.org/grpc@v1.82.1 && \
   # Fix CVE-2026-34986: upgrade go-jose v3 (HIGH - DoS via crafted JWE)
   go get github.com/go-jose/go-jose/v3@v3.0.5 && \
-  # Fix CVE-2026-46600: upgrade golang.org/x/net v0.56.0 (HIGH - panic when parsing an
-  # invalid SVCB/HTTPS resource record in dns/dnsmessage). Caddy 2.11.4 pins v0.55.0.
+  # Fix CVE-2026-46600: upgrade golang.org/x/net v0.56.0 (HIGH - panic on invalid DNS RR)
   go get golang.org/x/net@v0.56.0 && \
-  # Fix CVE-2026-56852: upgrade golang.org/x/text v0.39.0 (HIGH - infinite loop on
-  # invalid input). Caddy 2.11.4 pulls it in indirectly at v0.37.0.
+  # Fix CVE-2026-56852: upgrade golang.org/x/text v0.39.0 (HIGH - infinite loop on input)
   go get golang.org/x/text@v0.39.0 && \
   # Clean up any existing vendor directory and regenerate with updated deps
   rm -rf vendor && \
@@ -73,8 +71,10 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o webapp-server .
 # Shared Node.js base with optimized NPM installation
 FROM alpine:3.24.1 AS node_base
 # Install dependencies
+# Version floors for CVE-2026-11856 (curl) and the nodejs 24.18.1-r0 batch. The base
+# tag ships older builds and this layer is cached, so the bound forces a re-resolve.
 RUN apk upgrade --no-cache && \
-  apk add --no-cache nodejs curl bash tini ca-certificates
+  apk add --no-cache "nodejs>=24.18.1-r0" "curl>=8.21.0-r0" bash tini ca-certificates
 # Set working directory for NPM installation
 RUN mkdir -p /tmp/npm-install
 WORKDIR /tmp/npm-install
@@ -141,6 +141,17 @@ RUN mkdir -p /tmp/brace-fix && \
       cp -r /tmp/brace-fix/node_modules/brace-expansion "$dir"; \
     done && \
   rm -rf /tmp/brace-fix
+
+# Fix CVE-2026-69192: npm and pnpm both bundle ip-address 10.2.0 (affected <=10.3.0)
+RUN mkdir -p /tmp/ip-fix && \
+  cd /tmp/ip-fix && \
+  npm install ip-address@10.5.0 && \
+  find /usr/lib/node_modules -type d -name ip-address -not -path '*/ip-fix/*' | \
+    while read -r dir; do \
+      rm -rf "$dir" && \
+      cp -r /tmp/ip-fix/node_modules/ip-address "$dir"; \
+    done && \
+  rm -rf /tmp/ip-fix
 
 # Fix multiple tar advisories (CVE-2026-59873 and the GHSA-r292-9mhp-454m family):
 # every tar <7.5.22 is affected. Both the bundled npm and pnpm copies still ship

@@ -43,6 +43,12 @@ RUN tar -xzf /tmp/caddy-build/src.tar.gz && \
   go get google.golang.org/grpc@v1.82.1 && \
   # Fix CVE-2026-34986: upgrade go-jose v3 (HIGH - DoS via crafted JWE)
   go get github.com/go-jose/go-jose/v3@v3.0.5 && \
+  # Fix CVE-2026-46600: upgrade golang.org/x/net v0.56.0 (HIGH - panic when parsing an
+  # invalid SVCB/HTTPS resource record in dns/dnsmessage). Caddy 2.11.4 pins v0.55.0.
+  go get golang.org/x/net@v0.56.0 && \
+  # Fix CVE-2026-56852: upgrade golang.org/x/text v0.39.0 (HIGH - infinite loop on
+  # invalid input). Caddy 2.11.4 pulls it in indirectly at v0.37.0.
+  go get golang.org/x/text@v0.39.0 && \
   # Clean up any existing vendor directory and regenerate with updated deps
   rm -rf vendor && \
   go mod tidy && \

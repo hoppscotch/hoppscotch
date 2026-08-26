@@ -86,10 +86,10 @@
       return new Proxy(opts, {
         set(target, prop, value) {
           target[prop] = value
+          inputs.setRequestOptions(target)
           if (prop === "disableCookies" && value === true) {
             __hoppCookieIsolationLatch = true
           }
-          inputs.setRequestOptions(target)
           return true
         },
       })

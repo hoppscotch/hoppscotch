@@ -435,11 +435,19 @@ const saveRequestAs = async () => {
       picked.value.folderPath.split("/").map((x) => parseInt(x))
     )?.requests[picked.value.requestIndex]
 
-    requestUpdated._ref_id =
-      targetRequest && "_ref_id" in targetRequest
-        ? targetRequest._ref_id
-        : undefined
-    requestUpdated.id = targetRequest?.id
+    // Delete rather than assign undefined — an explicit undefined key survives
+    // into the store and not every sync backend tolerates it
+    if (targetRequest && "_ref_id" in targetRequest && targetRequest._ref_id) {
+      requestUpdated._ref_id = targetRequest._ref_id
+    } else {
+      delete requestUpdated._ref_id
+    }
+
+    if (targetRequest?.id) {
+      requestUpdated.id = targetRequest.id
+    } else {
+      delete requestUpdated.id
+    }
 
     editRESTRequest(
       picked.value.folderPath,

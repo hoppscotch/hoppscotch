@@ -196,7 +196,7 @@ export class TestRunnerService extends Service {
     // from the UI's lock).
     const resolvedIterations = options.dataset?.rows.length
       ? options.dataset.rows.length
-      : Math.max(1, Number(options.iterations) || 1)
+      : Math.max(1, Math.floor(Number(options.iterations)) || 1)
 
     // The selection array doubles as the run order; anything it doesn't
     // mention keeps collection order, after everything it does.

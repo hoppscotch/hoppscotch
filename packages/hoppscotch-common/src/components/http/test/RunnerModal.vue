@@ -725,6 +725,22 @@ const handleDatasetFile = async (event: Event) => {
     return
   }
 
+  // What persists is the PARSED rows, and a wide CSV balloons once column
+  // names repeat per row — so the raw-file gate above isn't enough; gate the
+  // serialized size the tab state will actually carry.
+  if (
+    JSON.stringify(result.right.rows).length >
+    DATA_FILE_SIZE_LIMIT_MB * 1024 * 1024
+  ) {
+    toast.error(
+      t("collection_runner.data_file_size_limit_exceeded", {
+        sizeLimit: DATA_FILE_SIZE_LIMIT_MB,
+      })
+    )
+    resetFileInputs()
+    return
+  }
+
   config.value.dataset = result.right
   config.value.iterations = result.right.rows.length
   resetFileInputs()

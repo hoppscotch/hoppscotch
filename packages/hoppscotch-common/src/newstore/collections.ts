@@ -1698,16 +1698,12 @@ export type RESTCollectionInheritedProps = {
   auth: HoppRESTAuth
   headers: HoppRESTHeaders
   /**
-   * Resolved for EXECUTION — secret values are populated in both variable
-   * arrays. Never render or persist them.
-   */
-  variables: HoppCollectionVariable[]
-  /**
    * Ancestor collection variables only (root → target's parent), each level
-   * resolved under its OWNING collection's ID. Kept separate from `variables`
-   * (which merges the target's own in) so the runner gets ancestors
-   * pre-resolved while the target's own variables stay raw — re-resolving a
-   * merged array under one ID reads other variables' slots by index collision.
+   * resolved under its OWNING collection's ID — resolved for EXECUTION
+   * (secret values included; never render or persist them). The target's own
+   * variables are deliberately NOT merged in: the runner resolves those
+   * itself, and re-resolving a merged array under one ID reads other
+   * variables' slots by index collision.
    */
   ancestorVariables: HoppCollectionVariable[]
   // Ancestor scripts for partial-scope runs (root → target's parent).
@@ -1762,7 +1758,6 @@ function computeCollectionInheritedProps(
     return {
       auth: inheritedAuth,
       headers: inheritedHeaders,
-      variables: inheritedVariables,
       ancestorVariables: parentVariables ?? [],
       ancestorPreRequestScripts: parentPreRequestScripts,
       ancestorTestScripts: parentTestScripts,

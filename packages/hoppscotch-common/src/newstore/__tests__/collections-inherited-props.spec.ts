@@ -128,11 +128,9 @@ describe("getRESTCollectionInheritedProps — collection variable values", () =>
     expect(props!.ancestorVariables).toEqual([
       expect.objectContaining({ key: "a", currentValue: "a-CURRENT" }),
     ])
-    // The merged view still resolves the folder's own current value too.
-    expect(props!.variables).toEqual([
-      expect.objectContaining({ key: "a", currentValue: "a-CURRENT" }),
-      expect.objectContaining({ key: "b", currentValue: "b-CURRENT" }),
-    ])
+    // The target's own variables stay out of the ancestor list — the runner
+    // resolves them itself from the raw collection.
+    expect(props!.ancestorVariables).toHaveLength(1)
   })
 
   test("running the root: no ancestors", async () => {

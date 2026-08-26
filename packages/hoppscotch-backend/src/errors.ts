@@ -991,3 +991,39 @@ export const PUBLISHED_DOCS_FORBIDDEN_ENVIRONMENT_ACCESS =
  * (PublishedDocsService)
  */
 export const PUBLISHED_DOCS_NOT_FOUND = 'published_docs/not_found';
+
+/**
+ * MCP Share not found or inactive
+ * (McpShareService)
+ */
+export const MCP_SHARE_NOT_FOUND = 'mcp-share/not-found' as const;
+
+/**
+ * MCP Share expired
+ * (McpShareService)
+ */
+export const MCP_SHARE_EXPIRED = 'mcp-share/expired' as const;
+
+/**
+ * MCP Share creation failed
+ * (McpShareService)
+ */
+export const MCP_SHARE_CREATION_FAILED = 'mcp-share/creation-failed' as const;
+
+/**
+ * MCP Share deletion failed
+ * (McpShareService)
+ */
+export const MCP_SHARE_DELETION_FAILED = 'mcp-share/deletion-failed' as const;
+
+/**
+ * MCP tool not found for the given name
+ * (McpShareController)
+ */
+export const MCP_SHARE_TOOL_NOT_FOUND = 'mcp-share/tool-not-found' as const;
+
+/**
+ * User is not authorized to manage this MCP share
+ * (McpShareService)
+ */
+export const MCP_SHARE_UNAUTHORIZED = 'mcp-share/unauthorized' as const;

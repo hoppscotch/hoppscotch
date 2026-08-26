@@ -340,3 +340,19 @@ enum MockServerAction {
   ACTIVATED
   DEACTIVATED
 }
+
+model McpShare {
+  id            String        @id @default(cuid())
+  shareToken    String        @unique
+  workspaceType WorkspaceType
+  workspaceID   String
+  collectionID  String
+  createdBy     String
+  createdOn     DateTime      @default(now()) @db.Timestamptz(3)
+  expiresAt     DateTime?     @db.Timestamptz(3)
+  isActive      Boolean       @default(true)
+  deletedAt     DateTime?     @db.Timestamptz(3)
+
+  @@index([collectionID])
+  @@index([createdBy])
+}

@@ -133,6 +133,13 @@
                 collection: node.data.data.data,
               })
             "
+            @share-as-mcp="
+              node.data.type === 'collections' &&
+              emit('share-as-mcp', {
+                collectionID: node.data.data.data.id,
+                collection: node.data.data.data,
+              })
+            "
             @export-data="
               node.data.type === 'collections' &&
               emit('export-data', node.data.data.data)
@@ -787,6 +794,13 @@ const emit = defineEmits<{
   ): void
   (
     event: "create-mock-server",
+    payload: {
+      collectionID: string
+      collection: TeamCollection
+    }
+  ): void
+  (
+    event: "share-as-mcp",
     payload: {
       collectionID: string
       collection: TeamCollection

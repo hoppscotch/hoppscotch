@@ -97,9 +97,7 @@ const getCollectionVariables = (
     currentValue: "", // set it as empty value since it is handled by currentValue service and we don't want it to sync with BE
     // Values in real v5 exports are not guaranteed to be strings (numbers,
     // booleans, null all show up); coerce so the import never crashes (#6606).
-    initialValue: replaceVarTemplating(
-      typeof value === "string" ? value : String(value ?? "")
-    ),
+    initialValue: replaceVarTemplating(String(value ?? "")),
     secret: false,
   }))
 }

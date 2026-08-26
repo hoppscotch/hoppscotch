@@ -86,6 +86,9 @@ const SettingsDefSchema = z.object({
   EXPERIMENTAL_SCRIPTING_SANDBOX: z.optional(z.boolean()),
   ENABLE_EXPERIMENTAL_MOCK_SERVERS: z.optional(z.boolean()),
   ENABLE_EXPERIMENTAL_DOCUMENTATION: z.optional(z.boolean()),
+
+  AUTO_SAVE_REQUESTS: z.optional(z.boolean().catch(false)),
+  AUTO_SAVE_DELAY_MS: z.optional(z.number().min(500).max(10000).catch(2000)),
 })
 
 const HoppRESTRequestSchema = entityReference(HoppRESTRequest)

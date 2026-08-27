@@ -282,7 +282,7 @@ import {
 } from "~/helpers/backend/helpers"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { getErrorMessage } from "~/helpers/backend/mutations/MockServer"
-import { HoppRESTSaveContext } from "~/helpers/rest/document"
+import { HoppTabSaveContext } from "~/helpers/tab/document"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 
 import {
@@ -356,7 +356,7 @@ const restTabs = useService(WorkspaceTabsService)
  * description back over the one just saved.
  */
 const syncOpenRequestTabDescription = (
-  saveContext: HoppRESTSaveContext,
+  saveContext: HoppTabSaveContext,
   description: string
 ) => {
   const possibleTabs = restTabs.getTabsRefWithSaveContext(saveContext)

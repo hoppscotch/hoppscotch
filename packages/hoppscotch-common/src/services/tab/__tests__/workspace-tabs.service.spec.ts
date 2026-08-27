@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest"
 import { TestContainer } from "dioc/testing"
 
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
-import { HoppRESTSaveContext } from "~/helpers/rest/document"
+import { HoppTabSaveContext } from "~/helpers/tab/document"
 import { WorkspaceTabsService } from "../workspace-tabs"
 
 // The persistence import drags in stores with top-level side effects that
@@ -19,7 +19,7 @@ const makeService = () => {
 
 const openRequestTab = (
   service: WorkspaceTabsService,
-  saveContext: HoppRESTSaveContext,
+  saveContext: HoppTabSaveContext,
   requestFields?: { _ref_id?: string; id?: string }
 ) =>
   service.createNewTab({

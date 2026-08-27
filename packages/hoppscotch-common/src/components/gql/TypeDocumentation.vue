@@ -8,7 +8,7 @@
       {{ type.description }}
     </AppMarkdown>
     <GqlImplementsInterfaces :type="type" />
-    <GqlFields :type="type" :insert-query="false" :show-add-field="!readonly" />
+    <GqlFields :type="type" :show-add-field="!readonly" />
     <GqlEnumValues :type="type" />
   </div>
 </template>

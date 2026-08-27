@@ -16,22 +16,9 @@
 </template>
 
 <script setup lang="ts">
-type ExplorerSectionTitle =
-  | "Root Types"
-  | "Fields"
-  | "Deprecated Fields"
-  | "Type"
-  | "Arguments"
-  | "Deprecated Arguments"
-  | "Implements"
-  | "Implementations"
-  | "Possible Types"
-  | "Enum Values"
-  | "Deprecated Enum Values"
-  | "Directives"
-  | "All Schema Types"
-
 defineProps<{
-  title: ExplorerSectionTitle
+  // Plain string, not a title union — call sites pass i18n output
+  // (e.g. t("graphql.fields")), which only types as `string`
+  title: string
 }>()
 </script>

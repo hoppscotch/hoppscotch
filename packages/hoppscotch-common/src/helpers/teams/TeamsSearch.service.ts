@@ -71,9 +71,12 @@ type _SearchRequest = {
   id: string
   collectionID: string
   title: string
+  // Search hits store a display stub; rows inserted while expanding store the
+  // full parsed request. Team collections hold both protocols and GQL
+  // requests have no `method` — readers fall back to a "GQL" badge.
   request: {
     name: string
-    method: string
+    method?: string
   }
   meta?: CollectionSearchMeta
 }

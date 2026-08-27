@@ -614,6 +614,7 @@ export class TestRunnerService extends Service {
         options,
         path,
         iterationMeta,
+        iterationVars,
         inheritedVariables,
         inheritedHeaders,
         inheritedPreRequestScripts,
@@ -742,6 +743,7 @@ export class TestRunnerService extends Service {
     options: TestRunnerOptions,
     path: number[],
     iterationMeta: TestRunnerMeta,
+    iterationVars: Environment["variables"] = [],
     inheritedVariables: HoppCollectionVariable[] = [],
     inheritedHeaders: HoppRESTHeaders = [],
     inheritedPreRequestScripts: string[] = [],
@@ -769,10 +771,16 @@ export class TestRunnerService extends Service {
         initialEnvironmentState,
         inheritedHeaders,
         inheritedPreRequestScripts,
-        inheritedTestScripts
+        inheritedTestScripts,
+        iterationVars
       )
 
       if (options.stopRef?.value) {
+        // Clear the loading flag so a stop taken mid-flight doesn't leave a
+        // permanent spinner on the row.
+        this.updateRequestAtPath(tab.value.document.resultCollection!, path, {
+          isLoading: false,
+        })
         throw new Error("Test execution stopped")
       }
 
@@ -792,6 +800,8 @@ export class TestRunnerService extends Service {
         this.updateRequestAtPath(tab.value.document.resultCollection!, path, {
           response: options.persistResponses ? response : null,
           testResults: testResult,
+          passedTests: passed,
+          failedTests: failed,
           isLoading: false,
         })
 
@@ -801,6 +811,14 @@ export class TestRunnerService extends Service {
           tab.value.document.testRunnerMeta.completedRequests += 1
           iterationMeta.totalTime += response.meta.responseDuration
           iterationMeta.completedRequests += 1
+        }
+
+        // A post-request script failure arrives as a Right with `scriptError`
+        // set, so the Left/stop-on-error branch below never sees it. Halt
+        // here after the row and meta have recorded the request — REST parity.
+        if (options.stopOnError && testResult.scriptError) {
+          tab.value.document.status = "stopped"
+          throw new Error("Test execution stopped due to error")
         }
       } else {
         const errorMsg =

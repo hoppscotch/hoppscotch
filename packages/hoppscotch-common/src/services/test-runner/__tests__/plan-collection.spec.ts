@@ -1,10 +1,12 @@
 import { afterEach, describe, expect, test, vi } from "vitest"
 
 // RequestRunner drags in the network/kernel stack; the plan walk never
-// touches it.
+// touches it. `executedResponses$` must exist on the mock — newstore/history
+// subscribes to it at module load.
 vi.mock("~/helpers/RequestRunner", () => ({
   captureInitialEnvironmentState: vi.fn(),
   runTestRunnerRequest: vi.fn(),
+  executedResponses$: { subscribe: vi.fn() },
 }))
 
 import { getService } from "~/modules/dioc"
@@ -71,6 +73,35 @@ const node = (
   auth: { authType: "inherit", authActive: true },
   preRequestScript: "",
   testScript: "",
+})
+
+const gqlRequest = (name: string) => ({
+  v: 10,
+  name,
+  _ref_id: `gql-${name}`,
+  url: "https://example.com/graphql",
+  query: "query { hello }",
+  variables: "{}",
+  headers: [
+    {
+      key: "X-Own",
+      value: "own",
+      active: true,
+      description: "",
+    },
+  ],
+  auth: { authType: "inherit", authActive: true },
+  description: null,
+  responses: {},
+  preRequestScript: "",
+  testScript: "",
+})
+
+const header = (key: string, value: string) => ({
+  key,
+  value,
+  active: true,
+  description: "",
 })
 
 const stored = (key: string, currentValue: string, varIndex: number) => ({
@@ -195,6 +226,88 @@ describe("TestRunnerService.planCollection — inherited variable resolution", (
         currentValue: "team-s3cret",
       }),
     ])
+  })
+})
+
+describe("TestRunnerService.planCollection — GQL requests in unified collections", () => {
+  const planWithHeaders = (collection: unknown, parentHeaders: unknown[]) =>
+    (service as any).planCollection(
+      collection,
+      new Set<string>(),
+      false,
+      [],
+      [],
+      parentHeaders,
+      undefined,
+      []
+    )
+
+  test("GQL entries keep their own headers unmerged; REST siblings get inherited headers pre-merged", () => {
+    const tree = node(
+      { refId: "plan-gql" },
+      [],
+      [request("rest-leaf"), gqlRequest("gql-leaf") as any]
+    )
+    tree.headers = [header("X-Coll", "coll")] as any
+
+    const planned = planWithHeaders(tree, [header("X-Parent", "parent")])
+    expect(planned).toHaveLength(2)
+
+    const [rest, gql] = planned
+
+    // REST executor expects inherited headers pre-merged into the request
+    expect(rest.request.headers.map((h: any) => h.key)).toEqual([
+      "X-Parent",
+      "X-Coll",
+    ])
+
+    // GQL executor slots auth headers between request and inherited headers
+    // itself — the planned request must carry ONLY its own headers, with the
+    // inherited ones threaded separately on the entry
+    expect(gql.request.headers.map((h: any) => h.key)).toEqual(["X-Own"])
+    expect(gql.inheritedHeaders.map((h: any) => h.key)).toEqual([
+      "X-Parent",
+      "X-Coll",
+    ])
+  })
+
+  test("GQL auth: inherit resolves to the collection's effective auth", () => {
+    const tree = node(
+      { refId: "plan-gql-auth" },
+      [],
+      [gqlRequest("gql-auth-leaf") as any]
+    )
+    tree.auth = { authType: "basic", authActive: true } as any
+
+    const [planned] = planCollection(tree)
+
+    expect(planned.request.auth).toEqual({
+      authType: "basic",
+      authActive: true,
+    })
+  })
+
+  test("selection IDs resolve for GQL rows via _ref_id", () => {
+    const tree = node(
+      { refId: "plan-gql-sel" },
+      [],
+      [request("rest-skip"), gqlRequest("gql-pick") as any]
+    )
+
+    const planned = (service as any).planCollection(
+      tree,
+      new Set<string>(["gql-gql-pick"]),
+      true,
+      [],
+      [],
+      undefined,
+      undefined,
+      []
+    )
+
+    expect(planned).toHaveLength(1)
+    expect(planned[0].id).toBe("gql-gql-pick")
+    expect(planned[0].request.name).toBe("gql-pick")
   })
 })
 

@@ -22,11 +22,15 @@ import {
   translateToSandboxTestResults,
   updateEnvsAfterTestScript,
 } from "~/helpers/RequestRunner"
+import { stripIterationVarsFromEnvs } from "~/helpers/runner/iteration-vars"
 import {
   getTemporaryVariables,
+  scriptEnvsToTemporaryVariables,
   setTemporaryVariables,
 } from "~/helpers/runner/temp_envs"
 import { HoppTestResult } from "~/helpers/types/HoppTestResult"
+import { TestResult } from "@hoppscotch/js-sandbox"
+import { getI18n } from "~/modules/i18n"
 import { getEffectiveHoppGQLRequest } from "~/helpers/utils/EffectiveURL"
 import {
   generateAuthHeaders,
@@ -109,7 +113,8 @@ export async function runTestRunnerGQLRequest(
   initialEnvironmentState: InitialEnvironmentState,
   inheritedHeaders: GQLHeader[] = [],
   inheritedPreRequestScripts: string[] = [],
-  inheritedTestScripts: string[] = []
+  inheritedTestScripts: string[] = [],
+  iterationVars: Environment["variables"] = []
 ): Promise<
   E.Either<
     GQLTestRunnerFailure,
@@ -126,6 +131,17 @@ export async function runTestRunnerGQLRequest(
     initialEnvsForComparison,
   } = initialEnvironmentState
 
+  const iterationVarKeys = new Set(iterationVars.map(({ key }) => key))
+  // Injected into `selected` only — the sandbox env shape has no data scope;
+  // template resolution gets the iteration values via the env list below.
+  // Mirrors `runTestRunnerRequest`.
+  const initialEnvsWithIterationData = {
+    ...initialEnvs,
+    selected: [...iterationVars, ...initialEnvs.selected],
+  }
+  const stripIterationVars = (envs: TestResult["envs"]): TestResult["envs"] =>
+    stripIterationVarsFromEnvs(envs, iterationVarKeys, initialEnvs.selected)
+
   // --- Pre-request script stage --- (short-circuits when no script exists)
   const scriptSyntheticRequest: HoppRESTRequest = {
     ...getDefaultRESTRequest(),
@@ -140,7 +156,7 @@ export async function runTestRunnerGQLRequest(
 
   const preResult = await delegatePreRequestScriptRunner(
     scriptSyntheticRequest,
-    initialEnvs,
+    initialEnvsWithIterationData,
     null,
     inheritedPreRequestScripts
   )
@@ -157,8 +173,13 @@ export async function runTestRunnerGQLRequest(
     ? { ...request, headers: preResult.right.updatedRequest.headers }
     : request
 
-  const envVars = filterNonEmptyEnvironmentVariables(
-    combineEnvVariables({
+  const envVars = filterNonEmptyEnvironmentVariables([
+    // Data-file iteration values take precedence over every other scope for
+    // the duration of the iteration — REST parity (see runTestRunnerRequest):
+    // prepend them once, then drop those keys from the combined scopes so
+    // each appears exactly once and stays authoritative.
+    ...iterationVars,
+    ...combineEnvVariables({
       environments: {
         ...preResult.right.updatedEnvs,
         temp: !persistEnv ? getTemporaryVariables() : [],
@@ -167,8 +188,8 @@ export async function runTestRunnerGQLRequest(
       // requestVariables) — collection variables are the innermost scope.
       requestVariables: [],
       collectionVariables: inheritedVariables as Environment["variables"],
-    })
-  ) as Environment["variables"]
+    }).filter(({ key }) => !iterationVarKeys.has(key)),
+  ]) as Environment["variables"]
 
   const effective = getEffectiveHoppGQLRequest(scriptedRequest, envVars, {
     inheritedHeaders,
@@ -267,10 +288,11 @@ export async function runTestRunnerGQLRequest(
     const result = await response
 
     if (E.isLeft(result)) {
+      // `humanMessage.heading` is a translator-taking function, not a string
       const message =
         result.left === "cancellation"
           ? "Request cancelled"
-          : (result.left.humanMessage?.heading ??
+          : (result.left.humanMessage?.heading?.(getI18n()) ??
             result.left.error?.message ??
             "Request execution failed")
       return E.left({ type: "request_fail", message })
@@ -330,8 +352,16 @@ export async function runTestRunnerGQLRequest(
       })
     }
 
-    const combinedResult = {
+    // Iteration values are injected into the environment for the duration of
+    // the request only; strip them back out so a data run never persists
+    // data-file columns as environment variables — REST parity
+    const filteredPostResult = {
       ...postResult.right,
+      envs: stripIterationVars(postResult.right.envs),
+    }
+
+    const combinedResult = {
+      ...filteredPostResult,
       consoleEntries: [
         ...(preResult.right.consoleEntries ?? []),
         ...(postResult.right.consoleEntries ?? []),
@@ -348,10 +378,10 @@ export async function runTestRunnerGQLRequest(
     // temporary variables when keepVariableValues is off) — REST parity
     if (persistEnv) {
       if (
-        hasEnvironmentChanges(initialEnvsForComparison, postResult.right.envs)
+        hasEnvironmentChanges(initialEnvsForComparison, filteredPostResult.envs)
       ) {
         updateEnvsAfterTestScript(
-          postResult.right.envs,
+          filteredPostResult.envs,
           initialEnvironmentIndex,
           initialEnvName,
           initialEnvsForComparison,
@@ -359,10 +389,11 @@ export async function runTestRunnerGQLRequest(
         )
       }
     } else {
-      setTemporaryVariables([
-        ...postResult.right.envs.global,
-        ...postResult.right.envs.selected,
-      ])
+      // `selected` before `global` — the temp store dedupes
+      // first-occurrence-wins, and the selected scope must shadow global
+      setTemporaryVariables(
+        scriptEnvsToTemporaryVariables(filteredPostResult.envs)
+      )
     }
 
     return E.right({ response: parsedResponse, testResult })

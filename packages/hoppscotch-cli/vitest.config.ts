@@ -9,8 +9,6 @@ export default defineConfig({
       "**/node_modules/**",
       "**/dist/**",
       "**/src/__tests__/functions/**/*.ts",
-      // echo.hoppscotch.io failing service-side, breaking these live e2e tests; re-enable once echo recovers.
-      "**/src/__tests__/e2e/**",
     ],
   },
 });

@@ -366,7 +366,8 @@ const syncOpenRequestTabDescription = (
     // tab is closed, and it's read again after a tick
     const tabDocument = possibleTab.value.document
 
-    if (tabDocument.type !== "request") continue
+    if (tabDocument.type !== "request" && tabDocument.type !== "gql-request")
+      continue
 
     const wasDirty = tabDocument.isDirty
     tabDocument.request.description = description

@@ -27,7 +27,7 @@ export interface TeamRequest {
  * Normalize the JSON `request` string from a team request row into the
  * canonical REST or GQL shape. Both branches go through their respective
  * `translateTo*` migrators so legacy schema versions get carried up to the
- * latest (e.g. v10 GQL rows pick up the `description` field added in v11).
+ * latest (e.g. v9 GQL rows pick up the `description` field added in v10).
  *
  * Defensive against:
  * - Malformed JSON (parse error → default REST request, doesn't throw).

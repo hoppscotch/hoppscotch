@@ -1,6 +1,6 @@
 <template>
   <template v-if="defaultValueAst">
-    {' = '}
+    <span class="text-secondaryLight"> = </span>
     <span class="hopp-doc-explorer-default-value">
       {{ printDefault(defaultValueAst) }}
     </span>

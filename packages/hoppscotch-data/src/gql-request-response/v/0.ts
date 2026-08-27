@@ -9,7 +9,9 @@ export const HoppGQLResponseHeaders = z.array(
   })
 )
 
-export type HoppGQLResponseHeader = z.infer<typeof HoppGQLResponseHeaders>
+export type HoppGQLResponseHeader = z.infer<
+  typeof HoppGQLResponseHeaders
+>[number]
 
 export const V0_SCHEMA = z.object({
   name: z.string(),

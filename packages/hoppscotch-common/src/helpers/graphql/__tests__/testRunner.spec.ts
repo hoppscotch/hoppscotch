@@ -140,6 +140,37 @@ describe("runTestRunnerGQLRequest — dataset iteration variables", () => {
     )
   })
 
+  test("interceptor failures surface the invoked humanMessage heading, not the function", async () => {
+    vi.spyOn(interceptor, "execute").mockImplementation(
+      () =>
+        ({
+          cancel: () => {},
+          response: Promise.resolve(
+            E.left({
+              humanMessage: { heading: () => "Interceptor exploded" },
+              error: { message: "boom" },
+            })
+          ),
+        }) as any
+    )
+
+    const result = await runTestRunnerGQLRequest(
+      gqlRequest("https://api.example.com/graphql", "query { hello }") as any,
+      true,
+      [],
+      makeEnvState() as any,
+      [],
+      [],
+      []
+    )
+
+    expect(E.isLeft(result)).toBe(true)
+    expect((result as any).left).toEqual({
+      type: "request_fail",
+      message: "Interceptor exploded",
+    })
+  })
+
   test("without iteration variables, environment resolution is unchanged", async () => {
     const spy = captureExecutedRequest()
 

@@ -144,6 +144,9 @@ describe("TestRunnerService.runTestGQLRequest", () => {
     // (request, keepVariableValues, inheritedVariables, envState,
     //  inheritedHeaders, preScripts, testScripts, iterationVars)
     expect(mockedRun.mock.calls[0][7]).toBe(iterationVars)
+    // Pins the positional threading — a future arg shuffle that displaces the
+    // captured env state (or iterationVars) must fail here
+    expect(mockedRun.mock.calls[0][3]).toEqual({ initial: "env-state" })
   })
 
   test("writes per-row pass/fail counts and tallies both run metas", async () => {

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest"
 
-import { HoppTestRunnerDocument } from "~/helpers/rest/document"
+import { HoppTestRunnerDocument } from "~/helpers/tab/document"
 import { buildRunnerResultReport } from "../runnerResults"
 
 // Minimal document fixture: a single iteration with one request whose response
@@ -103,6 +103,28 @@ describe("buildRunnerResultReport", () => {
     expect(exported?.type).toBe("success")
     expect(exported?.statusCode).toBe(200)
     expect(exported?.durationInMs).toBe(42)
+  })
+
+  test("GQL rows export their wire shape (POST + url) instead of dropping the keys", () => {
+    const document = makeDocument("success")
+    const gqlRow = {
+      name: "gql-row",
+      url: "https://example.com/graphql",
+      query: "query { hello }",
+      passedTests: 1,
+      failedTests: 0,
+      error: undefined,
+      testResults: null,
+      response: null,
+    }
+    ;(document.iterationResults![0].resultCollection as any).requests = [gqlRow]
+
+    const report = buildRunnerResultReport(document, "all", "none")
+    const exported = report.iterationResults[0].requests[0]
+
+    expect(exported.name).toBe("gql-row")
+    expect(exported.method).toBe("POST")
+    expect(exported.endpoint).toBe("https://example.com/graphql")
   })
 
   test("derives a failed outcome from an errored assertion (no plain failures)", () => {

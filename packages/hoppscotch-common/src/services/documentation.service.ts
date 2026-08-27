@@ -63,8 +63,7 @@ export interface RequestDocumentationItem extends BaseDocumentationItem {
 }
 
 export type DocumentationItem =
-  | CollectionDocumentationItem
-  | RequestDocumentationItem
+  CollectionDocumentationItem | RequestDocumentationItem
 
 /**
  * Base options for setting documentation

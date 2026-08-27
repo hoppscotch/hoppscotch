@@ -81,10 +81,7 @@ export type GQLResponseEvent =
     }
 
 export type ConnectionState =
-  | "CONNECTING"
-  | "CONNECTED"
-  | "DISCONNECTED"
-  | "ERROR"
+  "CONNECTING" | "CONNECTED" | "DISCONNECTED" | "ERROR"
 export type SubscriptionState = "SUBSCRIBING" | "SUBSCRIBED" | "UNSUBSCRIBED"
 
 const GQL = {

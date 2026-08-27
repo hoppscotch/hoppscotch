@@ -298,11 +298,7 @@ const currentUser = useReadonlyStream(
 const step = ref(1)
 
 type EmbedTabs =
-  | "params"
-  | "bodyParams"
-  | "headers"
-  | "authorization"
-  | "requestVariables"
+  "params" | "bodyParams" | "headers" | "authorization" | "requestVariables"
 
 type EmbedOption = {
   selectedTab: EmbedTabs

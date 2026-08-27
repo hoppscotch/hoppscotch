@@ -395,8 +395,7 @@ function selectOAuth2AuthType() {
 
   // @ts-expect-error - the existing grantTypeInfo might be in the auth object, typescript doesnt know that
   const existingGrantTypeInfo = auth.value.grantTypeInfo as
-    | HoppRESTAuthOAuth2["grantTypeInfo"]
-    | undefined
+    HoppRESTAuthOAuth2["grantTypeInfo"] | undefined
 
   const grantTypeInfo = existingGrantTypeInfo
     ? existingGrantTypeInfo

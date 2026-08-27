@@ -260,8 +260,7 @@ export const findPublishedDocForCollection = (
 }
 
 type GetPublishedDocError =
-  | "published_docs/not_found"
-  | "published_docs/unauthorized"
+  "published_docs/not_found" | "published_docs/unauthorized"
 
 // Get a single published doc by ID (GraphQL)
 export const getPublishedDocByID = (id: string) =>

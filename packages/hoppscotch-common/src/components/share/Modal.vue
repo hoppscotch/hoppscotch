@@ -76,11 +76,7 @@ import { isRESTRequest, requestHasSharedSecrets } from "~/helpers/request-type"
 const t = useI18n()
 
 type EmbedTabs =
-  | "params"
-  | "bodyParams"
-  | "headers"
-  | "authorization"
-  | "requestVariables"
+  "params" | "bodyParams" | "headers" | "authorization" | "requestVariables"
 
 type EmbedOption = {
   selectedTab: EmbedTabs

@@ -320,12 +320,9 @@ const updateParam = (index: number, param: HoppRESTParam & { id: number }) => {
 const deleteParam = (index: number) => {
   const paramsBeforeDeletion = cloneDeep(workingParams.value)
 
-  if (
-    !(
-      paramsBeforeDeletion.length > 0 &&
-      index === paramsBeforeDeletion.length - 1
-    )
-  ) {
+  if (!(
+    paramsBeforeDeletion.length > 0 && index === paramsBeforeDeletion.length - 1
+  )) {
     if (deletionToast.value) {
       deletionToast.value.goAway(0)
       deletionToast.value = null

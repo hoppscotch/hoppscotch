@@ -509,12 +509,10 @@ const updateHeader = (
 const deleteHeader = (index: number) => {
   const headersBeforeDeletion = cloneDeep(workingHeaders.value)
 
-  if (
-    !(
-      headersBeforeDeletion.length > 0 &&
-      index === headersBeforeDeletion.length - 1
-    )
-  ) {
+  if (!(
+    headersBeforeDeletion.length > 0 &&
+    index === headersBeforeDeletion.length - 1
+  )) {
     if (deletionToast.value) {
       deletionToast.value.goAway(0)
       deletionToast.value = null

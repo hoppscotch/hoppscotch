@@ -179,8 +179,7 @@ export function cascadeParentCollectionForProperties(
 
     const parentFolderAuth = parentFolder.auth as HoppRESTAuth | HoppGQLAuth
     const parentFolderHeaders = parentFolder.headers as
-      | HoppRESTHeaders
-      | GQLHeader[]
+      HoppRESTHeaders | GQLHeader[]
     const parentFolderVariables =
       parentFolder.variables as HoppCollectionVariable[]
 

@@ -292,11 +292,7 @@ const widgets: Widget[] = [
 ]
 
 type EmbedTabs =
-  | "params"
-  | "bodyParams"
-  | "headers"
-  | "authorization"
-  | "requestVariables"
+  "params" | "bodyParams" | "headers" | "authorization" | "requestVariables"
 
 type EmbedOption = {
   selectedTab: EmbedTabs

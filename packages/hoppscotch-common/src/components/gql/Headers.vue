@@ -298,8 +298,7 @@ const t = useI18n()
 const toast = useToast()
 
 type GqlHeadersModel =
-  | HoppGQLRequest
-  | { headers: GQLHeader[]; auth: HoppGQLAuth }
+  HoppGQLRequest | { headers: GQLHeader[]; auth: HoppGQLAuth }
 
 const props = defineProps<{
   modelValue: GqlHeadersModel
@@ -499,12 +498,10 @@ const updateHeader = (index: number, header: GQLHeader & { id: number }) => {
 const deleteHeader = (index: number) => {
   const headersBeforeDeletion = clone(workingHeaders.value)
 
-  if (
-    !(
-      headersBeforeDeletion.length > 0 &&
-      index === headersBeforeDeletion.length - 1
-    )
-  ) {
+  if (!(
+    headersBeforeDeletion.length > 0 &&
+    index === headersBeforeDeletion.length - 1
+  )) {
     if (deletionToast.value) {
       deletionToast.value.goAway(0)
       deletionToast.value = null

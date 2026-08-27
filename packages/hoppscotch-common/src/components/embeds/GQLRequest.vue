@@ -93,8 +93,7 @@ const firstOperation = (): OperationDefinitionNode | null => {
     const ast = parse(tab.value.document.request.query)
     return (
       (ast.definitions.find((d) => d.kind === "OperationDefinition") as
-        | OperationDefinitionNode
-        | undefined) ?? null
+        OperationDefinitionNode | undefined) ?? null
     )
   } catch {
     return null

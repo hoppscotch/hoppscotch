@@ -167,8 +167,7 @@ export class GQLQueryBuilderService extends Service {
       existingOperation.operation !== requestedOperationType
     ) {
       const lastFieldDef = lastItem.def as
-        | GraphQLField<unknown, unknown>
-        | undefined
+        GraphQLField<unknown, unknown> | undefined
       let currentSelection = this.createFieldNode(
         lastItem.name,
         isArgument && argumentItem
@@ -291,8 +290,7 @@ export class GQLQueryBuilderService extends Service {
         }
       } else {
         const itemFieldDef = item.def as
-          | GraphQLField<unknown, unknown>
-          | undefined
+          GraphQLField<unknown, unknown> | undefined
         const newField = this.createFieldNode(
           item.name,
           isLastItem && isArgument && argumentItem

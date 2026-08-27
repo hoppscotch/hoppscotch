@@ -271,14 +271,11 @@ const parseOpenAPIV3Responses = (
 
   for (const [key, value] of Object.entries(responses)) {
     const response = value as
-      | OpenAPIV3.ResponseObject
-      | OpenAPIV31.ResponseObject
+      OpenAPIV3.ResponseObject | OpenAPIV31.ResponseObject
 
     const contentType = Object.keys(response.content ?? {})[0]
     const mediaObject = response.content?.[contentType] as
-      | OpenAPIV3.MediaTypeObject
-      | OpenAPIV31.MediaTypeObject
-      | undefined
+      OpenAPIV3.MediaTypeObject | OpenAPIV31.MediaTypeObject | undefined
 
     const name = response.description ?? key
 
@@ -559,9 +556,7 @@ const parseOpenAPIV3BodyFormData = (
   mediaObj: OpenAPIV3.MediaTypeObject | OpenAPIV31.MediaTypeObject
 ): HoppRESTReqBody => {
   const schema = mediaObj.schema as
-    | OpenAPIV3.SchemaObject
-    | OpenAPIV31.SchemaObject
-    | undefined
+    OpenAPIV3.SchemaObject | OpenAPIV31.SchemaObject | undefined
 
   if (!schema || schema.type !== "object") {
     return contentType === "application/x-www-form-urlencoded"
@@ -613,9 +608,7 @@ const parseOpenAPIV3Body = (
   const objs = Object.entries(
     (
       op.requestBody as
-        | OpenAPIV3.RequestBodyObject
-        | OpenAPIV31.RequestBodyObject
-        | undefined
+        OpenAPIV3.RequestBodyObject | OpenAPIV31.RequestBodyObject | undefined
     )?.content ?? {}
   )
 
@@ -889,8 +882,7 @@ const resolveOpenAPIV3SecurityScheme = (
   schemeData: string[]
 ): HoppRESTAuth => {
   const scheme = doc.components?.securitySchemes?.[schemeName] as
-    | OpenAPIV3.SecuritySchemeObject
-    | undefined
+    OpenAPIV3.SecuritySchemeObject | undefined
 
   if (!scheme) return { authType: "none", authActive: true }
   return resolveOpenAPIV3SecurityObj(scheme, schemeData)

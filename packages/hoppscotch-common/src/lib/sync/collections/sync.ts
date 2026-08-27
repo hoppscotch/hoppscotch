@@ -151,8 +151,7 @@ export function applyDuplicatedCollectionResult(
   exportedCollectionJSON: string
 ) {
   const parsed = JSON.parse(exportedCollectionJSON) as
-    | ExportedCollectionFolder
-    | ExportedCollectionFolder[]
+    ExportedCollectionFolder | ExportedCollectionFolder[]
 
   // The backend may return either the duplicated collection directly or wrapped
   // in an array — normalize to the single duplicated collection.

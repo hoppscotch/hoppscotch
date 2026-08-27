@@ -453,12 +453,9 @@ const updateBodyParam = (index: number, entry: FormDataKeyValue) => {
 const deleteBodyParam = (index: number) => {
   const paramsBeforeDeletion = clone(workingParams.value)
 
-  if (
-    !(
-      paramsBeforeDeletion.length > 0 &&
-      index === paramsBeforeDeletion.length - 1
-    )
-  ) {
+  if (!(
+    paramsBeforeDeletion.length > 0 && index === paramsBeforeDeletion.length - 1
+  )) {
     if (deletionToast.value) {
       deletionToast.value.goAway(0)
       deletionToast.value = null

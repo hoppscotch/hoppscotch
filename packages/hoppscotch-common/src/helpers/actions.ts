@@ -214,8 +214,7 @@ export type HoppActionWithArgs = keyof HoppActionArgsMap
  */
 
 export type HoppActionWithOptionalArgs =
-  | HoppActionWithNoArgs
-  | KeysWithValueUndefined<HoppActionArgsMap>
+  HoppActionWithNoArgs | KeysWithValueUndefined<HoppActionArgsMap>
 
 /**
  * HoppActions which do not require arguments for their invocation

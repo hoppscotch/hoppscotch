@@ -13,8 +13,7 @@
     <div class="px-4 py-2">
       <pre
         class="bg-primaryLight p-3 rounded my-2 overflow-auto max-h-96 text-xs font-mono text-secondaryLight whitespace-pre"
-        >{{ query }}</pre
-      >
+        >{{ query }}</pre>
     </div>
   </div>
 </template>

@@ -342,12 +342,10 @@ const deleteUrlEncodedParam = (index: number) => {
     workingUrlEncodedParams.value
   )
 
-  if (
-    !(
-      urlEncodedParamsBeforeDeletion.length > 0 &&
-      index === urlEncodedParamsBeforeDeletion.length - 1
-    )
-  ) {
+  if (!(
+    urlEncodedParamsBeforeDeletion.length > 0 &&
+    index === urlEncodedParamsBeforeDeletion.length - 1
+  )) {
     if (deletionToast.value) {
       deletionToast.value.goAway(0)
       deletionToast.value = null

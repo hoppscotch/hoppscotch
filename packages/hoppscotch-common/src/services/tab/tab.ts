@@ -48,8 +48,8 @@ export abstract class TabService<Doc>
     },
   })
 
-  public currentActiveTab = computed(
-    () => this.tabMap.get(this.currentTabID.value)!
+  public currentActiveTab = computed(() =>
+    this.tabMap.get(this.currentTabID.value)!
   ) // Guaranteed to not be undefined
 
   protected watchCurrentTabID() {

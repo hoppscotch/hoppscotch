@@ -8,8 +8,7 @@
     <div class="px-4 py-2">
       <pre
         class="bg-primaryLight p-3 rounded my-2 overflow-auto max-h-64 text-xs font-mono text-secondaryLight"
-        >{{ formatted }}</pre
-      >
+        >{{ formatted }}</pre>
     </div>
   </div>
 </template>

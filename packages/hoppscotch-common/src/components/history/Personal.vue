@@ -284,12 +284,10 @@ const filteredHistory = computed(() =>
         )
       }
     ),
-    A.map(
-      (entry): TimedHistoryEntry => ({
-        entry,
-        timeAgo: useTimeAgo(entry.updatedOn),
-      })
-    )
+    A.map((entry): TimedHistoryEntry => ({
+      entry,
+      timeAgo: useTimeAgo(entry.updatedOn),
+    }))
   )
 )
 

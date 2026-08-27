@@ -67,10 +67,7 @@ import type { HoppInheritedProperty } from "~/helpers/types/HoppInheritedPropert
 // --- Types (defined locally so new-flow consumers don't depend on connection.ts) ---
 
 export type ConnectionState =
-  | "CONNECTING"
-  | "CONNECTED"
-  | "DISCONNECTED"
-  | "ERROR"
+  "CONNECTING" | "CONNECTED" | "DISCONNECTED" | "ERROR"
 
 export type SubscriptionState = "SUBSCRIBING" | "SUBSCRIBED" | "UNSUBSCRIBED"
 

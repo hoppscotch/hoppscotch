@@ -2,6 +2,7 @@ import {
   HoppGQLRequest,
   HoppRESTAuth,
   HoppRESTRequest,
+  getDefaultGQLRequest,
   getDefaultRESTRequest,
   isGQLRequest,
 } from "@hoppscotch/data"
@@ -178,7 +179,7 @@ function convertToTeamTree(
       if (isGQLRequest(request.request)) {
         const gqlParsed = HoppGQLRequest.safeParse(request.request)
         effectiveRequest =
-          gqlParsed.type === "ok" ? gqlParsed.value : request.request
+          gqlParsed.type === "ok" ? gqlParsed.value : getDefaultGQLRequest()
       } else {
         const restParsed = HoppRESTRequest.safeParse(request.request)
         effectiveRequest =

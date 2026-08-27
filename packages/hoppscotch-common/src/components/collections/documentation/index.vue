@@ -278,6 +278,8 @@ import {
 } from "~/helpers/backend/helpers"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { getErrorMessage } from "~/helpers/backend/mutations/MockServer"
+import { HoppRESTSaveContext } from "~/helpers/rest/document"
+import { RESTTabService } from "~/services/tab/rest"
 
 import {
   DocumentationService,
@@ -342,6 +344,35 @@ const props = withDefaults(
 )
 
 const documentationService = useService(DocumentationService)
+const restTabs = useService(RESTTabService)
+
+/**
+ * Mirrors a saved documentation description onto any open tabs of the request —
+ * otherwise a tab keeps its pre-edit copy and its next save writes the stale
+ * description back over the one just saved.
+ */
+const syncOpenRequestTabDescription = (
+  saveContext: HoppRESTSaveContext,
+  description: string
+) => {
+  const possibleTabs = restTabs.getTabsRefWithSaveContext(saveContext)
+
+  for (const possibleTab of possibleTabs) {
+    // Hold the document, not the tab ref — the ref's getter throws once the
+    // tab is closed, and it's read again after a tick
+    const tabDocument = possibleTab.value.document
+
+    if (tabDocument.type !== "request") continue
+
+    const wasDirty = tabDocument.isDirty
+    tabDocument.request.description = description
+
+    // The tab marks itself dirty on any request change; restore its prior state
+    nextTick(() => {
+      tabDocument.isDirty = wasDirty
+    })
+  }
+}
 
 const isLoadingTeamCollection = ref<boolean>(false)
 const isSavingDocumentation = ref<boolean>(false)
@@ -774,9 +805,13 @@ const saveCollectionDocumentation = async () => {
 }
 
 const saveRequestDocumentation = async () => {
+  // The editor stays live while the team mutation is in flight — sync the tab
+  // with what was persisted, not whatever the editor holds when it resolves
+  const savedDescription = documentationDescription.value
+
   const updatedRequest = {
     ...props.request!,
-    description: documentationDescription.value,
+    description: savedDescription,
   }
 
   if (props.isTeamCollection && props.requestID) {
@@ -796,6 +831,13 @@ const saveRequestDocumentation = async () => {
           isSavingDocumentation.value = false
         },
         () => {
+          syncOpenRequestTabDescription(
+            {
+              originLocation: "team-collection",
+              requestID: props.requestID!,
+            },
+            savedDescription
+          )
           toast.success(t("documentation.save_success"))
           isSavingDocumentation.value = false
         }
@@ -804,6 +846,15 @@ const saveRequestDocumentation = async () => {
   } else {
     // Personal request
     editRESTRequest(props.folderPath!, props.requestIndex!, updatedRequest)
+    syncOpenRequestTabDescription(
+      {
+        originLocation: "user-collection",
+        folderPath: props.folderPath!,
+        requestIndex: props.requestIndex!,
+        requestRefID: updatedRequest._ref_id ?? updatedRequest.id,
+      },
+      savedDescription
+    )
     toast.success(t("documentation.save_success"))
   }
 }
@@ -916,6 +967,13 @@ const saveRequestDocumentationById = async (
             return false
           },
           () => {
+            syncOpenRequestTabDescription(
+              {
+                originLocation: "team-collection",
+                requestID: item.requestID!,
+              },
+              documentation
+            )
             return true
           }
         )
@@ -939,6 +997,15 @@ const saveRequestDocumentationById = async (
 
     try {
       editRESTRequest(folderPath, item.requestIndex, updatedRequest)
+      syncOpenRequestTabDescription(
+        {
+          originLocation: "user-collection",
+          folderPath,
+          requestIndex: item.requestIndex,
+          requestRefID: updatedRequest._ref_id ?? updatedRequest.id,
+        },
+        documentation
+      )
       return true
     } catch (e) {
       console.error(e)

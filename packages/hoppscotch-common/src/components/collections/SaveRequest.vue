@@ -122,6 +122,7 @@ import { useToast } from "@composables/toast"
 import {
   HoppGQLRequest,
   HoppRESTRequest,
+  generateUniqueRefId,
   isHoppRESTRequest,
 } from "@hoppscotch/data"
 import { computedWithControl } from "@vueuse/core"
@@ -144,6 +145,8 @@ import {
   cascadeParentCollectionForProperties,
   editGraphqlRequest,
   editRESTRequest,
+  navigateToFolderWithIndexPath,
+  restCollectionStore,
   saveGraphqlRequestAs,
   saveRESTRequestAs,
 } from "~/newstore/collections"
@@ -338,6 +341,18 @@ const saveRequestAs = async () => {
 
   requestUpdated.name = requestName.value
 
+  // A copy is a new entry and needs its own `_ref_id` — equal ref ids are
+  // treated as the same request, which would bind the copy's tab to the source
+  if (
+    isHoppRESTRequest(requestUpdated) &&
+    (picked.value.pickedType === "my-collection" ||
+      picked.value.pickedType === "my-folder" ||
+      picked.value.pickedType === "teams-collection" ||
+      picked.value.pickedType === "teams-folder")
+  ) {
+    requestUpdated._ref_id = generateUniqueRefId("req")
+  }
+
   if (picked.value.pickedType === "my-collection") {
     if (!isHoppRESTRequest(requestUpdated))
       throw new Error("requestUpdated is not a REST Request")
@@ -412,6 +427,28 @@ const saveRequestAs = async () => {
     if (!isHoppRESTRequest(requestUpdated))
       throw new Error("requestUpdated is not a REST Request")
 
+    // Overwriting replaces the target's content, not its identity — keep the
+    // target's own `_ref_id` and backend `id` so its tabs stay bound to it and
+    // the source doesn't share identity with the copy
+    const targetRequest = navigateToFolderWithIndexPath(
+      restCollectionStore.value.state,
+      picked.value.folderPath.split("/").map((x) => parseInt(x))
+    )?.requests[picked.value.requestIndex]
+
+    // Delete rather than assign undefined — an explicit undefined key survives
+    // into the store and not every sync backend tolerates it
+    if (targetRequest && "_ref_id" in targetRequest && targetRequest._ref_id) {
+      requestUpdated._ref_id = targetRequest._ref_id
+    } else {
+      delete requestUpdated._ref_id
+    }
+
+    if (targetRequest?.id) {
+      requestUpdated.id = targetRequest.id
+    } else {
+      delete requestUpdated.id
+    }
+
     editRESTRequest(
       picked.value.folderPath,
       picked.value.requestIndex,
@@ -426,6 +463,7 @@ const saveRequestAs = async () => {
         originLocation: "user-collection",
         folderPath: picked.value.folderPath,
         requestIndex: picked.value.requestIndex,
+        requestRefID: requestUpdated._ref_id ?? requestUpdated.id,
       },
     }
 

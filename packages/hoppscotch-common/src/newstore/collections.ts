@@ -1456,6 +1456,13 @@ const gqlCollectionDispatchers = defineDispatchers({
           ...coll,
           _ref_id: generateUniqueRefId("coll"),
         }
+
+        // Copied requests need fresh `_ref_id`s too, else they alias the originals' tabs
+        next.requests = (next.requests ?? []).map((request) => ({
+          ...request,
+          _ref_id: generateUniqueRefId("req"),
+        }))
+
         next.folders = (next.folders ?? []).map(
           recursiveChangeRefIdToAvoidConflicts
         )

@@ -709,6 +709,9 @@ importers:
       paho-mqtt:
         specifier: 1.1.0
         version: 1.1.0
+      papaparse:
+        specifier: 5.5.4
+        version: 5.5.4
       path:
         specifier: 0.12.7
         version: 0.12.7
@@ -884,6 +887,9 @@ importers:
       '@types/paho-mqtt':
         specifier: 1.0.10
         version: 1.0.10
+      '@types/papaparse':
+        specifier: 5.5.2
+        version: 5.5.2
       '@types/postman-collection':
         specifier: 3.5.11
         version: 3.5.11

@@ -35,10 +35,20 @@ export const fixBrokenRequestVersion = (
     }
 
     if (x.doc.type === "test-runner") {
-      x.doc.request = safelyExtractRESTRequest(
-        x.doc.request,
-        getDefaultRESTRequest()
-      )
+      // Runner docs persist `request: null` deliberately. Resurrecting the
+      // null into a default request lets a runner doc with an invalid
+      // collection satisfy the tab-state union's request-tab branch and
+      // silently morph into a blank request tab — only sanitize a request
+      // that actually exists. A missing key is normalized to null: the tab
+      // schema accepts null but not undefined.
+      if (x.doc.request === null || x.doc.request === undefined) {
+        x.doc.request = null
+      } else {
+        x.doc.request = safelyExtractRESTRequest(
+          x.doc.request,
+          getDefaultRESTRequest()
+        )
+      }
 
       if (x.doc.resultCollection) {
         x.doc.resultCollection.requests = x.doc.resultCollection?.requests.map(
@@ -46,6 +56,13 @@ export const fixBrokenRequestVersion = (
             return safelyExtractRESTRequest(req, getDefaultRESTRequest())
           }
         )
+      }
+
+      // Run results are no longer persisted, but an earlier build's state can
+      // still carry per-iteration result trees whose stale requests would
+      // fail schema validation and take the whole tab state down — drop them.
+      if ("iterationResults" in x.doc) {
+        x.doc.iterationResults = undefined
       }
     }
 

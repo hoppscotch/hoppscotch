@@ -487,6 +487,25 @@ const HoppTestResultSchema = z
   })
   .strict()
 
+const TestRunnerDatasetSchema = z
+  .object({
+    fileName: z.string(),
+    type: z.enum(["csv", "json"]),
+    rows: z.array(z.record(z.string(), z.string())),
+  })
+  .strict()
+
+const TestRunnerMetaSchema = z
+  .object({
+    totalRequests: z.number(),
+    completedRequests: z.number(),
+    totalTests: z.number(),
+    passedTests: z.number(),
+    failedTests: z.number(),
+    totalTime: z.number(),
+  })
+  .strict()
+
 const HoppRESTResponseHeaderSchema = z
   .object({
     key: z.string(),
@@ -584,6 +603,41 @@ const validRestOperations = [
   "requestVariables",
 ] as const
 
+// The runner-only result fields that live on a request inside a test-runner
+// result collection (`TestRunnerRequest`). All optional and lax — its only job
+// is to re-capture the fields `entityReference` strips during migration.
+const TestRunnerRequestResultFieldsSchema = z.object({
+  type: z.optional(z.literal("test-response")),
+  response: z.optional(z.nullable(HoppRESTResponseSchema)),
+  testResults: z.optional(z.nullable(HoppTestResultSchema)),
+  isLoading: z.optional(z.boolean()),
+  error: z.optional(z.string()),
+  renderResults: z.optional(z.boolean()),
+  passedTests: z.optional(z.number()),
+  failedTests: z.optional(z.number()),
+  runnerRequestID: z.optional(z.string()),
+})
+
+// Mirrors the collection's requests/folders tree, capturing only the runner
+// result fields on each request so it can be merged back onto the migrated
+// collection.
+const TestRunnerResultOverlaySchema: z.ZodType<unknown> = z.lazy(() =>
+  z.object({
+    requests: z.array(TestRunnerRequestResultFieldsSchema),
+    folders: z.array(TestRunnerResultOverlaySchema),
+  })
+)
+
+// A test-runner result collection: the version-migrated HoppCollection (via
+// entityReference, which strips runner fields) intersected with the overlay
+// that re-captures them. z.intersection element-wise-merges the two, so an
+// older-version persisted collection is still migrated AND the runner result
+// fields survive the round-trip.
+export const TestRunnerResultCollectionSchema = z.intersection(
+  HoppRESTCollectionSchema,
+  TestRunnerResultOverlaySchema
+)
+
 export const REST_TAB_STATE_SCHEMA = z
   .object({
     lastActiveTabID: z.string(),
@@ -599,20 +653,34 @@ export const REST_TAB_STATE_SCHEMA = z
               keepVariableValues: z.boolean(),
               persistResponses: z.boolean(),
               stopOnError: z.boolean(),
+              dataset: z.optional(TestRunnerDatasetSchema),
             }),
             status: z.enum(["idle", "running", "stopped", "error"]),
             collection: HoppRESTCollectionSchema,
             collectionType: z.enum(["my-collections", "team-collections"]),
             collectionID: z.optional(z.string()),
-            resultCollection: z.optional(HoppRESTCollectionSchema),
-            testRunnerMeta: z.object({
-              totalRequests: z.number(),
-              completedRequests: z.number(),
-              totalTests: z.number(),
-              passedTests: z.number(),
-              failedTests: z.number(),
-              totalTime: z.number(),
-            }),
+            resultCollection: z.optional(TestRunnerResultCollectionSchema),
+            iterationResults: z.optional(
+              z.array(
+                z
+                  .object({
+                    iteration: z.number(),
+                    // Current builds persist no iterations at all (see
+                    // `persistableTabState`); optional so states written by
+                    // earlier builds still validate — and when they carry
+                    // result trees, the runner fields survive the parse.
+                    resultCollection: z.optional(
+                      TestRunnerResultCollectionSchema
+                    ),
+                    meta: TestRunnerMetaSchema,
+                  })
+                  .strict()
+              )
+            ),
+            selectedIteration: z.optional(z.number()),
+            selectedRequestRefIds: z.optional(z.array(z.string())),
+            environmentName: z.optional(z.string()),
+            testRunnerMeta: TestRunnerMetaSchema,
             request: z.nullable(entityReference(HoppRESTRequest)),
             response: z.nullable(HoppRESTResponseSchema),
             testResults: z.optional(z.nullable(HoppTestResultSchema)),

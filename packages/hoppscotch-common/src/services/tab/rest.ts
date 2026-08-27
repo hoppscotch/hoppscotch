@@ -42,12 +42,39 @@ export class RESTTabService extends TabService<HoppTabDocument> {
       }
 
       if (tab.document.type === "test-runner") {
+        // Run results are deliberately not persisted: the collection schema
+        // strips `response`/`testResults`/counters so restored rows come back
+        // empty anyway, and per-iteration trees can blow the localStorage
+        // quota. The whole run is dropped; the tab restores ready to run.
         return {
           tabID: tab.id,
           doc: {
             ...tab.document,
+            // The debounced persist fires during a run, so a tab killed
+            // mid-run would restore as "running". Normalize to "stopped",
+            // never "idle" — an idle runner tab auto-runs on mount.
+            status:
+              tab.document.status === "running"
+                ? ("stopped" as const)
+                : tab.document.status,
             request: null,
             response: null,
+            // Drop the run outright rather than half of it: an iteration
+            // list without its result trees restores a summary over an
+            // empty table.
+            resultCollection: undefined,
+            iterationResults: undefined,
+            selectedIteration: 0,
+            // Meaningless without the result rows it points into.
+            selectedRequestPath: undefined,
+            testRunnerMeta: {
+              totalRequests: 0,
+              completedRequests: 0,
+              totalTests: 0,
+              passedTests: 0,
+              failedTests: 0,
+              totalTime: 0,
+            },
           },
         }
       }

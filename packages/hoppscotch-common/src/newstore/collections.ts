@@ -21,6 +21,7 @@ import { RESTTabService } from "~/services/tab/rest"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { CurrentValueService } from "~/services/current-environment-value.service"
+import { populateValuesInInheritedCollectionVars } from "~/helpers/utils/inheritedCollectionVarTransformer"
 
 //collection variables current value and secret value
 const secretEnvironmentService = getService(SecretEnvironmentService)
@@ -1713,7 +1714,15 @@ export function getRESTCollection(collectionIndex: number) {
 export type RESTCollectionInheritedProps = {
   auth: HoppRESTAuth
   headers: HoppRESTHeaders
-  variables: HoppCollectionVariable[]
+  /**
+   * Ancestor collection variables only (root → target's parent), each level
+   * resolved under its OWNING collection's ID — resolved for EXECUTION
+   * (secret values included; never render or persist them). The target's own
+   * variables are deliberately NOT merged in: the runner resolves those
+   * itself, and re-resolving a merged array under one ID reads other
+   * variables' slots by index collision.
+   */
+  ancestorVariables: HoppCollectionVariable[]
   // Ancestor scripts for partial-scope runs (root → target's parent).
   // Empty when running from the topmost collection.
   ancestorPreRequestScripts: string[]
@@ -1741,9 +1750,19 @@ function computeCollectionInheritedProps(
     ...collection.headers,
   ]
 
+  // Each level's own variables are resolved under the level's OWN ID — the
+  // `(collectionID, varIndex)` key shape current values are stored with.
+  // Consumers must never re-resolve the merged array under a single ID.
+  // Secrets resolve (`showSecret`) because this only feeds the collection
+  // runner's execution path — the output is never rendered or persisted.
   const inheritedVariables = [
     ...(parentVariables ?? []),
-    ...collection.variables,
+    ...populateValuesInInheritedCollectionVars(
+      collection.variables,
+      collection._ref_id || collection.id,
+      collection.id,
+      true
+    ),
   ]
 
   // Check if the current collection matches the target reference ID
@@ -1756,7 +1775,7 @@ function computeCollectionInheritedProps(
     return {
       auth: inheritedAuth,
       headers: inheritedHeaders,
-      variables: inheritedVariables,
+      ancestorVariables: parentVariables ?? [],
       ancestorPreRequestScripts: parentPreRequestScripts,
       ancestorTestScripts: parentTestScripts,
     }

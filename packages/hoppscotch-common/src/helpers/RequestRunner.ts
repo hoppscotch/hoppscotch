@@ -57,8 +57,10 @@ import { HoppTab } from "~/services/tab"
 import { updateTeamEnvironment } from "./backend/mutations/TeamEnvironment"
 import { createRESTNetworkRequestStream } from "./network"
 import { HoppRequestDocument } from "./rest/document"
+import { stripIterationVarsFromEnvs } from "./runner/iteration-vars"
 import {
   getTemporaryVariables,
+  scriptEnvsToTemporaryVariables,
   setTemporaryVariables,
 } from "./runner/temp_envs"
 import { HoppRESTResponse } from "./types/HoppRESTResponse"
@@ -870,7 +872,8 @@ export async function runTestRunnerRequest(
   inheritedVariables: HoppCollectionVariable[] = [],
   initialEnvironmentState: InitialEnvironmentState,
   inheritedPreRequestScripts: string[] = [],
-  inheritedTestScripts: string[] = []
+  inheritedTestScripts: string[] = [],
+  iterationVars: Environment["variables"] = []
 ): Promise<
   | E.Left<"script_fail">
   | E.Right<{
@@ -892,13 +895,23 @@ export async function runTestRunnerRequest(
     initialEnvsForComparison,
   } = initialEnvironmentState
 
+  const iterationVarKeys = new Set(iterationVars.map(({ key }) => key))
+  // Injected into `selected` only — the sandbox env shape has no temp scope;
+  // template resolution gets the iteration values via the effective request.
+  const initialEnvsWithIterationData = {
+    ...initialEnvs,
+    selected: [...iterationVars, ...initialEnvs.selected],
+  }
+  const stripIterationVars = (envs: TestResult["envs"]): TestResult["envs"] =>
+    stripIterationVarsFromEnvs(envs, iterationVarKeys, initialEnvs.selected)
+
   // Wait for browser to paint the loading state (Send -> Cancel button)
   // Adds ~32ms latency but ensures immediate visual feedback
   await waitForBrowserPaint()
 
   return delegatePreRequestScriptRunner(
     request,
-    initialEnvs,
+    initialEnvsWithIterationData,
     cookieJarEntries,
     inheritedPreRequestScripts
   ).then(async (preRequestScriptResult) => {
@@ -928,16 +941,24 @@ export async function runTestRunnerRequest(
       id: "env-id",
       v: 2,
       name: "Env",
-      variables: filterNonEmptyEnvironmentVariables(
-        combineEnvVariables({
+      variables: filterNonEmptyEnvironmentVariables([
+        // Data-file iteration values take precedence over every other scope
+        // (request, collection, environment) for that iteration, matching
+        // Postman's data-variable semantics: the Data scope outranks the
+        // Environment scope that a pre-request script writes to, so a
+        // `pm.environment.set` on a data-column key does not shadow it.
+        // Prepend the iteration values once, then drop those keys from the
+        // combined scopes so each appears exactly once and stays authoritative.
+        ...iterationVars,
+        ...combineEnvVariables({
           environments: {
             ...preRequestScriptResult.right.updatedEnvs,
             temp: !persistEnv ? getTemporaryVariables() : [],
           },
           requestVariables: finalRequestVariables,
           collectionVariables: inheritedVariables,
-        })
-      ),
+        }).filter(({ key }) => !iterationVarKeys.has(key)),
+      ]),
     })
 
     const [stream] = createRESTNetworkRequestStream(effectiveRequest)
@@ -964,9 +985,17 @@ export async function runTestRunnerRequest(
           )
 
           if (E.isRight(postRequestScriptResult)) {
+            // Iteration values are injected into the environment for the
+            // duration of the request only; strip them back out so a data run
+            // never persists data-file columns as environment variables.
+            const filteredPostRequestScriptResult = {
+              ...postRequestScriptResult.right,
+              envs: stripIterationVars(postRequestScriptResult.right.envs),
+            }
+
             // Combine console entries from pre and post request scripts
             const combinedResult = {
-              ...postRequestScriptResult.right,
+              ...filteredPostRequestScriptResult,
               consoleEntries: [
                 ...(preRequestScriptResult.right.consoleEntries ?? []),
                 ...(postRequestScriptResult.right.consoleEntries ?? []),
@@ -984,11 +1013,11 @@ export async function runTestRunnerRequest(
               if (
                 hasEnvironmentChanges(
                   initialEnvsForComparison, // Initial script environment when requests started
-                  postRequestScriptResult.right.envs // Final script environment after test script execution
+                  filteredPostRequestScriptResult.envs // Final script environment after test script execution
                 )
               ) {
                 updateEnvsAfterTestScript(
-                  postRequestScriptResult,
+                  E.right(filteredPostRequestScriptResult),
                   initialEnvironmentIndex,
                   initialEnvName,
                   initialEnvsForComparison,
@@ -996,13 +1025,11 @@ export async function runTestRunnerRequest(
                 )
               }
             } else {
-              // Combine global and selected environment changes
-              const allChanges = [
-                ...postRequestScriptResult.right.envs.global,
-                ...postRequestScriptResult.right.envs.selected,
-              ]
-
-              setTemporaryVariables(allChanges)
+              setTemporaryVariables(
+                scriptEnvsToTemporaryVariables(
+                  filteredPostRequestScriptResult.envs
+                )
+              )
             }
 
             return E.right({

@@ -1112,7 +1112,20 @@ export class PersistenceService extends Service {
     watchDebounced(
       this.restTabService.persistableTabState,
       async (newData) => {
-        await Store.set(STORE_NAMESPACE, STORE_KEYS.REST_TABS, newData)
+        const result = await Store.set(
+          STORE_NAMESPACE,
+          STORE_KEYS.REST_TABS,
+          newData
+        )
+
+        // A failed write (e.g. QuotaExceededError) silently freezes the
+        // persisted state for every REST tab at the last write that fit.
+        if (E.isLeft(result)) {
+          console.error(
+            `Failed persisting ${STORE_KEYS.REST_TABS}:`,
+            result.left
+          )
+        }
       },
       { debounce: 500, deep: true }
     )

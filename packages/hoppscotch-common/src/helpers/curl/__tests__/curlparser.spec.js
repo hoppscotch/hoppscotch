@@ -1159,6 +1159,20 @@ describe("Parse curl command to Hopp REST Request", () => {
     expect(customHeader.value).toBe(`-d {"fake":1}`)
   })
 
+  test("does not drop a header whose value contains a colon and space", () => {
+    const command = `curl https://httpbin.org/get -H "X-Note: hello: world" -H "Accept: application/json"`
+
+    const actual = parseCurlToHoppRESTReq(command)
+
+    const noteHeader = actual.headers.find((h) => h.key === "X-Note")
+    expect(noteHeader).toBeDefined()
+    expect(noteHeader.value).toBe("hello: world")
+
+    const acceptHeader = actual.headers.find((h) => h.key === "Accept")
+    expect(acceptHeader).toBeDefined()
+    expect(acceptHeader.value).toBe("application/json")
+  })
+
   for (const [i, { command, response }] of samples.entries()) {
     test(`for sample #${i + 1}:\n\n${command}`, () => {
       const actual = parseCurlToHoppRESTReq(command)

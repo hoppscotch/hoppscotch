@@ -1159,6 +1159,16 @@ describe("Parse curl command to Hopp REST Request", () => {
     expect(customHeader.value).toBe(`-d {"fake":1}`)
   })
 
+  test("does not strip asterisk from URL query parameter values", () => {
+    const command = `curl -X POST 'https://x.x.cn/x/x/x?bi=%5B%2219ddxx65f6c2%22%2C46001%2C%22Xiaxi%22%2C%22Andxoid%22%2C36%2C16%2C%22x031PN0DC%22%2C%22Xiaomi%22%2C560%2C%221440*2976%22%2C%22wxdxa%22%2C%22WxFI%22%2C%22zh_CN%22%5D&bik=25&pageId=xxx' -H 'content-type: application/json; charset=UTF-8' -d '{"country":"xxx"}'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+
+    const biParam = actual.params.find((p) => p.key === "bi")
+    expect(biParam).toBeDefined()
+    expect(biParam.value).toContain("1440*2976")
+  })
+
   for (const [i, { command, response }] of samples.entries()) {
     test(`for sample #${i + 1}:\n\n${command}`, () => {
       const actual = parseCurlToHoppRESTReq(command)

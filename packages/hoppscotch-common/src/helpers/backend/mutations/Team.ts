@@ -29,26 +29,18 @@ type DeleteTeamErrors =
   | "ea/not_invite_or_admin"
 
 type LeaveTeamErrors =
-  | "team/invalid_id"
-  | "team/member_not_found"
-  | "ea/not_invite_or_admin"
+  "team/invalid_id" | "team/member_not_found" | "ea/not_invite_or_admin"
 
 type CreateTeamErrors = "team/name_invalid" | "ea/not_invite_or_admin"
 
 type RenameTeamErrors =
-  | "ea/not_invite_or_admin"
-  | "team/invalid_id"
-  | "team/not_required_role"
+  "ea/not_invite_or_admin" | "team/invalid_id" | "team/not_required_role"
 
 type UpdateTeamAccessRoleErrors =
-  | "ea/not_invite_or_admin"
-  | "team/invalid_id"
-  | "team/not_required_role"
+  "ea/not_invite_or_admin" | "team/invalid_id" | "team/not_required_role"
 
 type RemoveTeamMemberErrors =
-  | "ea/not_invite_or_admin"
-  | "team/invalid_id"
-  | "team/not_required_role"
+  "ea/not_invite_or_admin" | "team/invalid_id" | "team/not_required_role"
 
 export const createTeam = (name: TeamName) => {
   return pipe(

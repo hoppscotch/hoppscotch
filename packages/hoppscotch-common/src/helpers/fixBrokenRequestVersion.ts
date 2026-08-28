@@ -1,11 +1,12 @@
 import {
   getDefaultRESTRequest,
+  isGQLRequest,
   safelyExtractRESTRequest,
 } from "@hoppscotch/data"
 import { z } from "zod"
-import { REST_TAB_STATE_SCHEMA } from "~/services/persistence/validation-schemas"
+import { WORKSPACE_TABS_STATE_SCHEMA } from "~/services/persistence/validation-schemas"
 
-type HoppRESTab = z.infer<typeof REST_TAB_STATE_SCHEMA>
+type WorkspaceTabsState = z.infer<typeof WORKSPACE_TABS_STATE_SCHEMA>
 
 /**
  * Fixes broken request versions in the given REST tab documents.
@@ -21,9 +22,9 @@ type HoppRESTab = z.infer<typeof REST_TAB_STATE_SCHEMA>
  * @returns The fixed ordered documents with valid request structures.
  */
 export const fixBrokenRequestVersion = (
-  docs: HoppRESTab["orderedDocs"]
-): HoppRESTab["orderedDocs"] => {
-  return docs.map((x: HoppRESTab["orderedDocs"][number]) => {
+  docs: WorkspaceTabsState["orderedDocs"]
+): WorkspaceTabsState["orderedDocs"] => {
+  return docs.map((x: WorkspaceTabsState["orderedDocs"][number]) => {
     if (x.doc.type === "request") {
       const req = safelyExtractRESTRequest(
         x.doc.request,
@@ -35,24 +36,25 @@ export const fixBrokenRequestVersion = (
     }
 
     if (x.doc.type === "test-runner") {
-      // Runner docs persist `request: null` deliberately. Resurrecting the
-      // null into a default request lets a runner doc with an invalid
-      // collection satisfy the tab-state union's request-tab branch and
-      // silently morph into a blank request tab — only sanitize a request
-      // that actually exists. A missing key is normalized to null: the tab
-      // schema accepts null but not undefined.
-      if (x.doc.request === null || x.doc.request === undefined) {
-        x.doc.request = null
-      } else {
-        x.doc.request = safelyExtractRESTRequest(
-          x.doc.request,
-          getDefaultRESTRequest()
-        )
-      }
+      // `request` (the selected result row): keep null as null rather than
+      // resurrecting a phantom default request, and repair only REST-shaped
+      // selections — the tabs schema accepts both protocols, so GQL
+      // selections pass through untouched like the result rows below.
+      x.doc.request = !x.doc.request
+        ? null
+        : isGQLRequest(x.doc.request)
+          ? x.doc.request
+          : safelyExtractRESTRequest(x.doc.request, getDefaultRESTRequest())
 
       if (x.doc.resultCollection) {
         x.doc.resultCollection.requests = x.doc.resultCollection?.requests.map(
           (req) => {
+            // Unified runner collections mix REST and GQL rows. Coercing a
+            // GQL request through `safelyExtractRESTRequest` would rebuild
+            // it as a default REST request (no endpoint/method to copy),
+            // silently destroying the row on every app restore — so GQL rows
+            // pass through untouched and validate via their own schema.
+            if (isGQLRequest(req)) return req
             return safelyExtractRESTRequest(req, getDefaultRESTRequest())
           }
         )

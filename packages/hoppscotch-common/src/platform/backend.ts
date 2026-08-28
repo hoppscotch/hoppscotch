@@ -1,4 +1,4 @@
-import { HoppRESTRequest } from "@hoppscotch/data"
+import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
 import * as TE from "fp-ts/TaskEither"
 import * as E from "fp-ts/lib/Either"
 
@@ -75,7 +75,7 @@ export type BackendPlatformDef = {
   >
 
   createShortcode: (
-    request: HoppRESTRequest,
+    request: HoppRESTRequest | HoppGQLRequest,
     properties?: string
   ) => TE.TaskEither<GQLError<string>, CreateShortcodeMutation>
 

@@ -10,7 +10,7 @@
     <template #body>
       <div class="w-full h-[80vh] overflow-hidden">
         <div class="flex h-full">
-          <div class="flex-1 flex">
+          <div class="flex min-w-0 flex-1">
             <CollectionsDocumentationPreview
               v-if="currentCollection"
               v-model:documentation-description="documentationDescription"
@@ -259,7 +259,11 @@ import { useToast } from "~/composables/toast"
 import { useDocumentationWorker } from "~/composables/useDocumentationWorker"
 import { useService } from "dioc/vue"
 
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import {
+  HoppCollection,
+  HoppGQLRequest,
+  HoppRESTRequest,
+} from "@hoppscotch/data"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
 
 import {
@@ -278,8 +282,8 @@ import {
 } from "~/helpers/backend/helpers"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { getErrorMessage } from "~/helpers/backend/mutations/MockServer"
-import { HoppRESTSaveContext } from "~/helpers/rest/document"
-import { RESTTabService } from "~/services/tab/rest"
+import { HoppTabSaveContext } from "~/helpers/tab/document"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 
 import {
   DocumentationService,
@@ -324,7 +328,7 @@ const props = withDefaults(
     folderPath?: string | null
     requestIndex?: number | null
     requestID?: string | null
-    request?: HoppRESTRequest | null
+    request?: HoppRESTRequest | HoppGQLRequest | null
     teamID?: string
     isTeamCollection?: boolean
   }>(),
@@ -344,7 +348,7 @@ const props = withDefaults(
 )
 
 const documentationService = useService(DocumentationService)
-const restTabs = useService(RESTTabService)
+const restTabs = useService(WorkspaceTabsService)
 
 /**
  * Mirrors a saved documentation description onto any open tabs of the request —
@@ -352,7 +356,7 @@ const restTabs = useService(RESTTabService)
  * description back over the one just saved.
  */
 const syncOpenRequestTabDescription = (
-  saveContext: HoppRESTSaveContext,
+  saveContext: HoppTabSaveContext,
   description: string
 ) => {
   const possibleTabs = restTabs.getTabsRefWithSaveContext(saveContext)
@@ -362,7 +366,8 @@ const syncOpenRequestTabDescription = (
     // tab is closed, and it's read again after a tick
     const tabDocument = possibleTab.value.document
 
-    if (tabDocument.type !== "request") continue
+    if (tabDocument.type !== "request" && tabDocument.type !== "gql-request")
+      continue
 
     const wasDirty = tabDocument.isDirty
     tabDocument.request.description = description

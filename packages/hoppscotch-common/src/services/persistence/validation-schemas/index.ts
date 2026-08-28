@@ -3,6 +3,7 @@ import {
   GQLHeader,
   HoppGQLAuth,
   HoppGQLRequest,
+  HoppGQLRequestResponse,
   HoppRESTAuth,
   HoppRESTRequest,
   HoppRESTHeaders,
@@ -86,11 +87,31 @@ const SettingsDefSchema = z.object({
   EXPERIMENTAL_SCRIPTING_SANDBOX: z.optional(z.boolean()),
   ENABLE_EXPERIMENTAL_MOCK_SERVERS: z.optional(z.boolean()),
   ENABLE_EXPERIMENTAL_DOCUMENTATION: z.optional(z.boolean()),
+  ENABLE_GQL_IN_REST_WORKSPACE: z.optional(z.boolean()),
 })
 
 const HoppRESTRequestSchema = entityReference(HoppRESTRequest)
 
 const HoppGQLRequestSchema = entityReference(HoppGQLRequest)
+
+/**
+ * A protocol-switcher draft: the snapshotted request plus the tab's dirty
+ * flag at snapshot time.
+ *
+ * Drafts written before dirty tracking existed were bare requests, so those
+ * are still accepted and normalized to `isDirty: true` — the behaviour they
+ * were written under. Without this, an in-flight draft from an older build
+ * would fail the tab-state schema on upgrade and take the whole persisted
+ * tab list down with it.
+ */
+const ProtocolDraftSchema = <T extends z.ZodTypeAny>(requestSchema: T) =>
+  z.union([
+    z.object({ request: requestSchema, isDirty: z.boolean() }),
+    requestSchema.transform((request: z.infer<T>) => ({
+      request,
+      isDirty: true,
+    })),
+  ])
 
 const HoppRESTCollectionSchema = entityReference(HoppCollection)
 
@@ -320,6 +341,8 @@ const validGqlOperations = [
   "headers",
   "variables",
   "authorization",
+  "preRequestScript",
+  "tests",
 ] as const
 
 const HoppInheritedPropertySchema = z
@@ -569,7 +592,7 @@ const HoppRESTResponseSchema = z.discriminatedUnion("type", [
     .strict(),
 ])
 
-const HoppRESTSaveContextSchema = z.nullable(
+const HoppTabSaveContextSchema = z.nullable(
   z.discriminatedUnion("originLocation", [
     z
       .object({
@@ -638,12 +661,43 @@ export const TestRunnerResultCollectionSchema = z.intersection(
   TestRunnerResultOverlaySchema
 )
 
-export const REST_TAB_STATE_SCHEMA = z
+// Persisted per-tab GQL response events (unified workspace) — mirrors
+// `GQLResponseEvent` in gql-tab-connection.service. Passthrough keeps the
+// optional fields (`document`, `rawQuery`) without pinning their shapes;
+// the legacy `GQLResponseEventSchema` above can't be reused here — it is
+// `.strict()` and models neither the `type` discriminant nor error events.
+const GQLTabResponseEventSchema = z.union([
+  z
+    .object({
+      type: z.literal("response"),
+      time: z.number(),
+      operationName: z.optional(z.string()),
+      operationType: OperationTypeSchema,
+      data: z.string(),
+    })
+    .passthrough(),
+  z
+    .object({
+      type: z.literal("error"),
+      error: z.object({ type: z.string(), message: z.string() }).passthrough(),
+    })
+    .passthrough(),
+])
+
+export const WORKSPACE_TABS_STATE_SCHEMA = z
   .object({
     lastActiveTabID: z.string(),
     orderedDocs: z.array(
       z.object({
         tabID: z.string(),
+        // Opposite-protocol shadow drafts from the protocol switcher —
+        // modeled explicitly because safeParse strips unknown keys
+        protocolDrafts: z.optional(
+          z.object({
+            rest: z.optional(ProtocolDraftSchema(HoppRESTRequestSchema)),
+            gql: z.optional(ProtocolDraftSchema(HoppGQLRequestSchema)),
+          })
+        ),
         doc: z.union([
           z.object({
             type: z.literal("test-runner").catch("test-runner"),
@@ -681,7 +735,12 @@ export const REST_TAB_STATE_SCHEMA = z
             selectedRequestRefIds: z.optional(z.array(z.string())),
             environmentName: z.optional(z.string()),
             testRunnerMeta: TestRunnerMetaSchema,
-            request: z.nullable(entityReference(HoppRESTRequest)),
+            request: z.nullable(
+              z.union([
+                entityReference(HoppRESTRequest),
+                entityReference(HoppGQLRequest),
+              ])
+            ),
             response: z.nullable(HoppRESTResponseSchema),
             testResults: z.optional(z.nullable(HoppTestResultSchema)),
             isDirty: z.boolean(),
@@ -692,7 +751,7 @@ export const REST_TAB_STATE_SCHEMA = z
             request: entityReference(HoppRESTRequest),
             type: z.literal("request").catch("request"),
             isDirty: z.boolean(),
-            saveContext: z.optional(HoppRESTSaveContextSchema),
+            saveContext: z.optional(HoppTabSaveContextSchema),
             response: z.optional(z.nullable(HoppRESTResponseSchema)),
             testResults: z.optional(z.nullable(HoppTestResultSchema)),
             responseTabPreference: z.optional(z.string()),
@@ -703,7 +762,42 @@ export const REST_TAB_STATE_SCHEMA = z
           z.object({
             type: z.literal("example-response").catch("example-response"),
             response: entityReference(HoppRESTRequestResponse),
-            saveContext: z.optional(HoppRESTSaveContextSchema),
+            saveContext: z.optional(HoppTabSaveContextSchema),
+            isDirty: z.boolean(),
+            inheritedProperties: z.optional(HoppInheritedPropertySchema),
+          }),
+          z.object({
+            // No `.catch()` on the new GQL literals — nothing legacy coerces
+            // into them, and a `.catch()` lets a corrupt gql-request doc
+            // silently morph into an empty gql-example-response doc.
+            type: z.literal("gql-request"),
+            request: entityReference(HoppGQLRequest),
+            isDirty: z.boolean(),
+            cursorPosition: z.optional(z.number()),
+            saveContext: z.optional(HoppTabSaveContextSchema),
+            // Field-level catch: a corrupt persisted response degrades to an
+            // empty panel rather than failing the whole tabs-state parse
+            response: z
+              .optional(z.nullable(z.array(GQLTabResponseEventSchema)))
+              .catch(null),
+            responseTabPreference: z.optional(z.string()),
+            optionTabPreference: z.optional(
+              z.enum([
+                "query",
+                "headers",
+                "variables",
+                "authorization",
+                "preRequestScript",
+                "tests",
+              ])
+            ),
+            testResults: z.optional(z.nullable(HoppTestResultSchema)),
+            inheritedProperties: z.optional(HoppInheritedPropertySchema),
+          }),
+          z.object({
+            type: z.literal("gql-example-response"),
+            response: z.nullable(entityReference(HoppGQLRequestResponse)),
+            saveContext: z.optional(HoppTabSaveContextSchema),
             isDirty: z.boolean(),
             inheritedProperties: z.optional(HoppInheritedPropertySchema),
           }),

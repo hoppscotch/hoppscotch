@@ -9,8 +9,7 @@ import { assign, clone, isEmpty, cloneDeep } from "lodash-es"
 
 import {
   GlobalEnvironmentVariable,
-  translateToNewGQLCollection,
-  translateToNewRESTCollection,
+  translateToNewCollection,
 } from "@hoppscotch/data"
 
 import { StoreError } from "@hoppscotch/kernel"
@@ -18,7 +17,7 @@ import { StoreError } from "@hoppscotch/kernel"
 import { Store } from "~/kernel/store"
 import { diag } from "~/kernel/log"
 import { GQLTabService } from "~/services/tab/graphql"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import {
   SecretEnvironmentService,
   SecretVariable,
@@ -82,7 +81,7 @@ import {
   NUXT_COLOR_MODE_SCHEMA,
   REST_COLLECTION_SCHEMA,
   REST_HISTORY_ENTRY_SCHEMA,
-  REST_TAB_STATE_SCHEMA,
+  WORKSPACE_TABS_STATE_SCHEMA,
   SECRET_ENVIRONMENT_VARIABLE_SCHEMA,
   SELECTED_ENV_INDEX_SCHEMA,
   SETTINGS_SCHEMA,
@@ -93,7 +92,7 @@ import {
   WEBSOCKET_REQUEST_SCHEMA,
 } from "./validation-schemas"
 import { PersistableTabState } from "../tab"
-import { HoppTabDocument } from "~/helpers/rest/document"
+import { HoppTabDocument } from "~/helpers/tab/document"
 import { HoppGQLDocument } from "~/helpers/graphql/document"
 import {
   CurrentValueService,
@@ -257,7 +256,7 @@ export class PersistenceService extends Service {
   // TODO: Consider swapping this with platform dependent `StoreLike` impl
   public hoppLocalConfigStorage: StorageLike = localStorage
 
-  private readonly restTabService = this.bind(RESTTabService)
+  private readonly workspaceTabsService = this.bind(WorkspaceTabsService)
   private readonly gqlTabService = this.bind(GQLTabService)
   private readonly secretEnvironmentService = this.bind(
     SecretEnvironmentService
@@ -617,7 +616,7 @@ export class PersistenceService extends Service {
         const result = z.array(REST_COLLECTION_SCHEMA).safeParse(data)
 
         if (result.success) {
-          const translatedData = result.data.map(translateToNewRESTCollection)
+          const translatedData = result.data.map(translateToNewCollection)
           diag(
             "persistence",
             "REST collections translated, count:",
@@ -660,7 +659,7 @@ export class PersistenceService extends Service {
         const result = z.array(GQL_COLLECTION_SCHEMA).safeParse(data)
 
         if (result.success) {
-          const translatedData = result.data.map(translateToNewGQLCollection)
+          const translatedData = result.data.map(translateToNewCollection)
           setGraphqlCollections(translatedData)
         } else {
           this.showErrorToast(STORE_KEYS.GQL_COLLECTIONS)
@@ -1067,7 +1066,7 @@ export class PersistenceService extends Service {
     })
   }
 
-  private async setupRESTTabsPersistence() {
+  private async setupWorkspaceTabsPersistence() {
     const loadResult = await Store.get<any>(
       STORE_NAMESPACE,
       STORE_KEYS.REST_TABS
@@ -1084,10 +1083,10 @@ export class PersistenceService extends Service {
           ...loadResult.right,
           orderedDocs,
         }
-        const result = REST_TAB_STATE_SCHEMA.safeParse(transformedTabs)
+        const result = WORKSPACE_TABS_STATE_SCHEMA.safeParse(transformedTabs)
         if (result.success) {
           // SAFETY: We know the schema matches
-          this.restTabService.loadTabsFromPersistedState(
+          this.workspaceTabsService.loadTabsFromPersistedState(
             result.data as PersistableTabState<HoppTabDocument>
           )
         } else {
@@ -1102,7 +1101,7 @@ export class PersistenceService extends Service {
             JSON.stringify(loadResult.right)
           )
           // NOTE: Still loading data to match legacy behavior
-          this.restTabService.loadTabsFromPersistedState(loadResult.right)
+          this.workspaceTabsService.loadTabsFromPersistedState(loadResult.right)
         }
       }
     } catch (_e) {
@@ -1110,7 +1109,7 @@ export class PersistenceService extends Service {
     }
 
     watchDebounced(
-      this.restTabService.persistableTabState,
+      this.workspaceTabsService.persistableTabState,
       async (newData) => {
         const result = await Store.set(
           STORE_NAMESPACE,
@@ -1202,7 +1201,7 @@ export class PersistenceService extends Service {
       this.setupSocketIOPersistence(),
       this.setupSSEPersistence(),
       this.setupMQTTPersistence(),
-      this.setupRESTTabsPersistence(),
+      this.setupWorkspaceTabsPersistence(),
       this.setupGQLTabsPersistence(),
 
       this.setupSecretEnvironmentsPersistence(),

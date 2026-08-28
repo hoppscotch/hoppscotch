@@ -52,7 +52,7 @@
                 </HoppSmartLink>
               </span>
               <span
-                v-if="inspector.action ? inspector.action.showAction : true"
+                v-if="inspector.action ? inspector.action.showAction : false"
                 class="flex space-x-2 p-2"
               >
                 <HoppButtonSecondary

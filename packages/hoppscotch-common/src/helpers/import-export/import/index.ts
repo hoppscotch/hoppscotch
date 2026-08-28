@@ -5,7 +5,7 @@ import {
   HoppCollection,
   generateUniqueRefId,
   makeCollection,
-  translateToNewRESTCollection,
+  translateToNewCollection,
 } from "@hoppscotch/data"
 
 /**
@@ -88,7 +88,7 @@ export const sanitizeCollection = (
     _ref_id: _refId,
     v: _v,
     ...rest
-  } = translateToNewRESTCollection(collection)
+  } = translateToNewCollection(collection)
 
   return makeCollection({
     ...rest,

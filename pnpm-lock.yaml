@@ -441,6 +441,9 @@ importers:
       commander:
         specifier: 14.0.3
         version: 14.0.3
+      graphql:
+        specifier: 16.13.2
+        version: 16.13.2
       isolated-vm:
         specifier: 6.1.2
         version: 6.1.2

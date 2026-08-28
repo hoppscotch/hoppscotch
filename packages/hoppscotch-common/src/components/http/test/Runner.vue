@@ -181,6 +181,23 @@
         </template>
       </HoppSmartPlaceholder>
 
+      <!-- Selected row without a response — restored runner tabs lose
+           response bodies (ArrayBuffers don't survive the JSON round-trip),
+           so a row click after refresh lands here instead of a blank pane. -->
+      <HoppSmartPlaceholder
+        v-else-if="selectedRequest && !selectedRequest.response"
+        :src="`/images/states/${colorMode.value}/pack.svg`"
+        :alt="`${t('collection_runner.response_body_lost_rerun')}`"
+        :text="`${t('collection_runner.response_body_lost_rerun')}`"
+      >
+        <template #body>
+          <HoppButtonPrimary
+            :label="t('test.new_run')"
+            @click="showCollectionsRunnerModal = true"
+          />
+        </template>
+      </HoppSmartPlaceholder>
+
       <HoppSmartPlaceholder
         v-else-if="!selectedRequest"
         :src="`/images/states/${colorMode.value}/pack.svg`"
@@ -234,7 +251,7 @@ import {
 import {
   HoppTestRunnerDocument,
   TestRunnerIterationResult,
-} from "~/helpers/rest/document"
+} from "~/helpers/tab/document"
 import {
   CollectionNode,
   TestRunnerCollectionsAdapter,
@@ -252,7 +269,7 @@ import {
   getSelectedEnvironmentType,
 } from "~/newstore/environments"
 import { HoppTab } from "~/services/tab"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import {
   TestRunnerRequest,
@@ -281,7 +298,7 @@ const emit = defineEmits<{
   (e: "update:modelValue", val: HoppTab<HoppTestRunnerDocument>): void
 }>()
 
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 const tab = useVModel(props, "modelValue", emit)
 
 // The sticky run header spans two rows of variable-height content (long

@@ -158,7 +158,9 @@ withDefaults(
     description: "",
     inspectionKeyResult: () => [],
     inspectionValueResult: () => [],
-    envs: () => [],
+    // `undefined` means "use global aggregate envs" in SmartEnvInput, while
+    // an explicit [] scopes completions to nothing
+    envs: undefined,
     autoCompleteEnv: true,
     keyAutoCompleteSource: () => [],
   }

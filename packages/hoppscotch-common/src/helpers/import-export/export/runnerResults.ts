@@ -4,7 +4,8 @@ import {
   HoppTestRunnerDocument,
   TestRunnerIterationResult,
   TestRunnerMeta,
-} from "~/helpers/rest/document"
+} from "~/helpers/tab/document"
+import { isRESTRequest } from "~/helpers/request-type"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { HoppTestData, HoppTestResult } from "~/helpers/types/HoppTestResult"
 import { TestRunnerRequest } from "~/services/test-runner/test-runner.service"
@@ -203,8 +204,11 @@ const exportRequest = (
   bodyMode: RunnerBodyMode
 ): ExportedRequest => ({
   name: request.name,
-  method: request.method,
-  endpoint: request.endpoint,
+  // Unified runs hold both protocols. A GraphQL row has no method/endpoint —
+  // report its wire truth (a single POST to its url) instead of silently
+  // dropping the keys from the JSON.
+  method: isRESTRequest(request) ? request.method : "POST",
+  endpoint: isRESTRequest(request) ? request.endpoint : request.url,
   passedTests: request.passedTests,
   failedTests: request.failedTests,
   error: request.error,

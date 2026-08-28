@@ -140,7 +140,7 @@ import {
   Language,
 } from "~/helpers/utils/interfaceLanguages"
 import { toggleNestedSetting } from "~/newstore/settings"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import IconCheck from "~icons/lucide/check"
 import IconWrapText from "~icons/lucide/wrap-text"
 import jsonToLanguage from "~/helpers/utils/json-to-language"
@@ -159,7 +159,7 @@ const emit = defineEmits<{
   (e: "close"): void
 }>()
 
-const restTabs = useService(RESTTabService)
+const workspaceTabs = useService(WorkspaceTabsService)
 const gqlTabs = useService(GQLTabService)
 
 function getCurrentPageCategory(): "graphql" | "rest" | "other" {
@@ -183,7 +183,7 @@ const response = computed(() => {
   const pageCategory = getCurrentPageCategory()
 
   if (pageCategory === "rest") {
-    const doc = restTabs.currentActiveTab.value.document
+    const doc = workspaceTabs.currentActiveTab.value.document
     if (doc.type === "request") {
       const res = doc.response
       if (res?.type === "success" || res?.type === "fail") {

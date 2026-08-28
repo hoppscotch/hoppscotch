@@ -1,16 +1,20 @@
 import {
   HoppCollection,
+  HoppGQLRequest,
+  HoppGQLRequestResponse,
   HoppRESTRequest,
   HoppRESTRequestResponse,
 } from "@hoppscotch/data"
 import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
+import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
+import { type GQLResponseEvent } from "~/services/gql-tab-connection.service"
 import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
 import { HoppRESTResponse } from "../types/HoppRESTResponse"
 import { HoppTestResult } from "../types/HoppTestResult"
 import { TestRunnerRequest } from "~/services/test-runner/test-runner.service"
 import { TestRunnerDataset } from "../runner/dataset"
 
-export type HoppRESTSaveContext =
+export type HoppTabSaveContext =
   | {
       /**
        * The origin source of the request
@@ -244,7 +248,7 @@ export type HoppRequestDocument = {
    * Info about where this request should be saved.
    * This contains where the request is originated from basically.
    */
-  saveContext?: HoppRESTSaveContext
+  saveContext?: HoppTabSaveContext
 
   /**
    * The response as it is in the document
@@ -295,7 +299,7 @@ export type HoppSavedExampleDocument = {
    * Info about where this response should be saved.
    * This contains where the response is originated from basically.
    */
-  saveContext?: HoppRESTSaveContext
+  saveContext?: HoppTabSaveContext
 
   /**
    * Whether the response has any unsaved changes
@@ -310,10 +314,102 @@ export type HoppSavedExampleDocument = {
   inheritedProperties?: HoppInheritedProperty
 }
 
+export type HoppSavedGQLExampleDocument = {
+  /**
+   * The type of the document
+   */
+  type: "gql-example-response"
+
+  /**
+   * The response as it is in the document.
+   * Carries the GQL example shape (with a GQL `originalRequest` snapshot) so
+   * the renderer can reuse the GQL request/response surfaces.
+   */
+  response: HoppGQLRequestResponse
+
+  /**
+   * Info about where this response should be saved.
+   * This contains where the response is originated from basically.
+   */
+  saveContext?: HoppTabSaveContext
+
+  /**
+   * Whether the response has any unsaved changes
+   * (atleast as far as we can say)
+   */
+  isDirty: boolean
+
+  /**
+   * The inherited properties from the parent collection
+   * (if any)
+   */
+  inheritedProperties?: HoppInheritedProperty
+}
+
+export type HoppGQLRequestDocument = {
+  /**
+   * The document type
+   */
+  type: "gql-request"
+
+  /**
+   * The GQL request as it is in the document
+   */
+  request: HoppGQLRequest
+
+  /**
+   * Whether the request has any unsaved changes
+   * (atleast as far as we can say)
+   */
+  isDirty: boolean
+
+  /**
+   * The cursor position in the query editor
+   */
+  cursorPosition?: number
+
+  /**
+   * Info about where this request should be saved.
+   * This contains where the request is originated from basically.
+   */
+  saveContext?: HoppTabSaveContext
+
+  /**
+   * The response as it is in the document
+   * (if any)
+   */
+  response?: GQLResponseEvent[] | null
+
+  /**
+   * The test script results of the last query/mutation run (if any).
+   * `null` while a run is in flight — the Results tab renders its loading
+   * state off that sentinel (GQL has no `loading` response type like REST).
+   */
+  testResults?: HoppTestResult | null
+
+  /**
+   * Response tab preference for the current tab's document
+   */
+  responseTabPreference?: string
+
+  /**
+   * Options tab preference for the current tab's document
+   */
+  optionTabPreference?: GQLOptionTabs
+
+  /**
+   * The inherited properties from the parent collection
+   * (if any)
+   */
+  inheritedProperties?: HoppInheritedProperty
+}
+
 /**
  * Defines a live 'document' (something that is open and being edited) in the app
  */
 export type HoppTabDocument =
   | HoppSavedExampleDocument
+  | HoppSavedGQLExampleDocument
   | HoppRequestDocument
   | HoppTestRunnerDocument
+  | HoppGQLRequestDocument

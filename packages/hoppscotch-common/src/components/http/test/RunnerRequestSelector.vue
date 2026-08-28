@@ -50,10 +50,14 @@
         </span>
 
         <span
+          v-if="entry.kind === 'rest'"
           class="font-bold text-tiny flex-shrink-0"
           :style="{ color: entry.methodColor }"
         >
           {{ entry.method }}
+        </span>
+        <span v-else class="flex flex-shrink-0 items-center text-accent">
+          <component :is="IconGraphql" class="h-4 w-4" />
         </span>
         <span class="truncate">{{ entry.name }}</span>
       </label>
@@ -66,12 +70,14 @@
 </template>
 
 <script setup lang="ts">
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import { HoppCollection } from "@hoppscotch/data"
 import { computed } from "vue"
 import draggable from "vuedraggable-es"
 import { useI18n } from "~/composables/i18n"
+import { isRESTRequest } from "~/helpers/request-type"
 import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
 import { getRequestSelectionID } from "~/helpers/runner/selection"
+import IconGraphql from "~icons/hopp/graphql"
 import IconChevronRight from "~icons/lucide/chevron-right"
 import IconFolder from "~icons/lucide/folder"
 import IconGripVertical from "~icons/lucide/grip-vertical"
@@ -97,6 +103,8 @@ const emit = defineEmits<{
 type Entry = {
   id: string
   name: string
+  kind: "rest" | "gql"
+  /** Filter text for GQL rows is the literal "GQL". */
   method: string
   methodColor: string
   /** Folder names from the collection root down to the request's parent. */
@@ -125,15 +133,16 @@ const flatten = (
   ),
   ...collection.requests.map((request, index): Entry => {
     const path = [...parentPath, index]
+    // Unified collections hold both protocols; GQL requests have no `method`
+    const rest = isRESTRequest(request)
     return {
-      id: getRequestSelectionID(request as HoppRESTRequest, path),
+      id: getRequestSelectionID(request, path),
       name: request.name,
-      method: request.method,
-      methodColor: getMethodLabelColorClassOf(request.method),
+      kind: rest ? "rest" : "gql",
+      method: rest ? request.method : "GQL",
+      methodColor: rest ? getMethodLabelColorClassOf(request.method) : "",
       path: folderNames,
-      selected: props.selectedIDs.has(
-        getRequestSelectionID(request as HoppRESTRequest, path)
-      ),
+      selected: props.selectedIDs.has(getRequestSelectionID(request, path)),
     }
   }),
 ]

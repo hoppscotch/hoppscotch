@@ -36,7 +36,11 @@
       >
         <span
           class="pointer-events-none flex w-8 items-center justify-start truncate px-0.5"
-          :style="{ color: getMethodLabelColorClassOf(request.method) }"
+          :style="{
+            color: isGQL
+              ? undefined
+              : getMethodLabelColorClassOf((request as HoppRESTRequest).method),
+          }"
         >
           <component
             :is="IconCheckCircle"
@@ -45,8 +49,13 @@
             :class="{ 'text-accent': isSelected }"
           />
           <HoppSmartSpinner v-else-if="isRequestLoading" />
+          <component
+            :is="IconGraphql"
+            v-else-if="isGQL"
+            class="svg-icons h-3.5 w-3.5 text-accent"
+          />
           <span v-else class="truncate text-tiny font-semibold">
-            {{ request.method }}
+            {{ (request as HoppRESTRequest).method }}
           </span>
         </span>
         <span
@@ -211,7 +220,9 @@
       <div class="flex flex-col w-full pl-3">
         <CollectionsExampleResponse
           v-for="[index, [key, value]] of Object.entries(
-            Object.entries(request.responses)
+            Object.entries(
+              (request as HoppRESTRequest | HoppGQLRequest).responses
+            )
           )"
           :key="key"
           :response-name="key"
@@ -246,7 +257,9 @@ import IconArrowDown from "~icons/lucide/chevron-down"
 import IconBook from "~icons/lucide/book"
 import IconPlusCircle from "~icons/lucide/plus-circle"
 import { ref, PropType, watch, computed } from "vue"
-import { HoppRESTRequest } from "@hoppscotch/data"
+import { HoppRESTRequest, HoppGQLRequest } from "@hoppscotch/data"
+import { isGQLRequest } from "@hoppscotch/data"
+import IconGraphql from "~icons/hopp/graphql"
 import { useI18n } from "@composables/i18n"
 import { useDocumentationVisibility } from "~/composables/documentationVisibility"
 import { TippyComponent } from "vue-tippy"
@@ -265,7 +278,7 @@ const t = useI18n()
 
 const props = defineProps({
   request: {
-    type: Object as PropType<HoppRESTRequest>,
+    type: Object as PropType<HoppRESTRequest | HoppGQLRequest>,
     default: () => ({}),
     required: true,
   },
@@ -354,6 +367,8 @@ const documentationAction = ref<HTMLButtonElement | null>(null)
 const addExampleAction = ref<HTMLButtonElement | null>(null)
 
 const { isDocumentationVisible } = useDocumentationVisibility()
+
+const isGQL = computed(() => isGQLRequest(props.request))
 
 const dragging = ref(false)
 const ordering = ref(false)

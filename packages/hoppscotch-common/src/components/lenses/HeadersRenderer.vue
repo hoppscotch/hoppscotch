@@ -8,6 +8,13 @@
       </label>
       <div class="flex">
         <HoppButtonSecondary
+          v-if="isEditable && headers"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('add.new')"
+          :icon="IconPlus"
+          @click="addHeader"
+        />
+        <HoppButtonSecondary
           v-if="headers"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.copy')"
@@ -30,6 +37,7 @@
 <script setup lang="ts">
 import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
+import IconPlus from "~icons/lucide/plus"
 import { refAutoReset } from "@vueuse/core"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { useI18n } from "@composables/i18n"
@@ -47,7 +55,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: "update:modelValue"): void
+  (e: "update:modelValue", value: HoppRESTResponseHeader[]): void
 }>()
 
 const headers = useVModel(props, "modelValue", emit)
@@ -63,7 +71,11 @@ const copyHeaders = () => {
   toast.success(`${t("state.copied_to_clipboard")}`)
 }
 
+const addHeader = () => {
+  headers.value = [...headers.value, { key: "", value: "" }]
+}
+
 const deleteHeader = (index: number) => {
-  headers.value.splice(index, 1)
+  headers.value = headers.value.filter((_, i) => i !== index)
 }
 </script>

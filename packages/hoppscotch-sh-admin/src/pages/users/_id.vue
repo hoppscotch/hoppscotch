@@ -30,6 +30,7 @@
             @make-admin="makeUserAdmin"
             @remove-admin="makeAdminToUser"
             @update-user-name="(name: string) => (userName = name)"
+            @update-user-email="(newEmail: string) => (email = newEmail)"
             class="py-8 px-4"
           />
         </HoppSmartTab>
@@ -131,6 +132,15 @@ const userName = computed({
   set: (value) => {
     if (value) {
       data.value!.infra.userInfo.displayName = value;
+    }
+  },
+});
+
+const email = computed({
+  get: () => data.value?.infra.userInfo.email,
+  set: (value) => {
+    if (value) {
+      data.value!.infra.userInfo.email = value;
     }
   },
 });

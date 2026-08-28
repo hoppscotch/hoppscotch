@@ -139,8 +139,7 @@ const persistenceService = useService(PersistenceService)
 
 const props = defineProps<{
   response:
-    | (HoppRESTResponse & { type: "success" | "fail" })
-    | HoppRESTRequestResponse
+    (HoppRESTResponse & { type: "success" | "fail" }) | HoppRESTRequestResponse
   isSavable: boolean
   isEditable: boolean
   tabId: string

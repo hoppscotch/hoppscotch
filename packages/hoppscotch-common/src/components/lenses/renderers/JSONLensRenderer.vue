@@ -355,8 +355,7 @@ const filterQueryText = ref("")
 const debouncedFilterQuery = refDebounced(filterQueryText, 300)
 
 type BodyParseError =
-  | { type: "JSON_PARSE_FAILED" }
-  | { type: "JSON_QUERY_FAILED"; error: Error }
+  { type: "JSON_PARSE_FAILED" } | { type: "JSON_QUERY_FAILED"; error: Error }
 
 const responseJsonObject = computed(() => {
   if (isHttpResponse.value) {
@@ -366,10 +365,9 @@ const responseJsonObject = computed(() => {
 
     return pipe(
       responseBodyText.value,
-      E.tryCatchK(
-        LJSON.parse,
-        (): BodyParseError => ({ type: "JSON_PARSE_FAILED" })
-      )
+      E.tryCatchK(LJSON.parse, (): BodyParseError => ({
+        type: "JSON_PARSE_FAILED",
+      }))
     )
   }
 

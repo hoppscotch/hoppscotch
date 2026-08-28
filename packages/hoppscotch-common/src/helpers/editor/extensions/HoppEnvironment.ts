@@ -21,7 +21,7 @@ import {
   getSelectedEnvironmentType,
 } from "~/newstore/environments"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 
 import IconEdit from "~icons/lucide/edit?raw"
@@ -59,7 +59,7 @@ const TOOLTIP_ENV_CONTAINER_Z_INDEX_CLASS = "!z-[1002]"
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
 const currentEnvironmentValueService = getService(CurrentValueService)
-const restTabs = getService(RESTTabService)
+const workspaceTabs = getService(WorkspaceTabsService)
 
 const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
   hoverTooltip(
@@ -226,9 +226,9 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
 
           if (
             tooltipEnv?.sourceEnv === "RequestVariable" &&
-            restTabs.currentActiveTab.value.document.type === "request"
+            workspaceTabs.currentActiveTab.value.document.type === "request"
           ) {
-            restTabs.currentActiveTab.value.document.optionTabPreference =
+            workspaceTabs.currentActiveTab.value.document.optionTabPreference =
               "requestVariables"
           } else {
             invokeAction(invokeActionType, {
@@ -363,11 +363,32 @@ export class HoppEnvironmentPlugin {
 
   constructor(
     subscribeToStream: StreamSubscriberFunc,
-    private editorView: Ref<EditorView | undefined>
+    private editorView: Ref<EditorView | undefined>,
+    getScopedEnvs?: () => AggregateEnvironment[] | undefined
   ) {
+    // A scoped getter (embeds) replaces the live tab/store wiring entirely —
+    // the viewer's stored environments must not highlight or resolve there.
+    // Watched so scope changes (e.g. request-variable edits) re-render.
+    if (getScopedEnvs) {
+      watch(
+        () => getScopedEnvs() ?? [],
+        (envs) => {
+          this.envs = envs
+          this.editorView.value?.dispatch({
+            effects: this.compartment.reconfigure([
+              cursorTooltipField(this.envs),
+              environmentHighlightStyle(this.envs),
+            ]),
+          })
+        },
+        { immediate: true, deep: true }
+      )
+      return
+    }
+
     // Watch the current active tab to update the variables accordingly
     watch(
-      () => restTabs.currentActiveTab.value,
+      () => workspaceTabs.currentActiveTab.value,
       (currentTab) => {
         const request =
           currentTab.document.type === "example-response"
@@ -407,7 +428,7 @@ export class HoppEnvironmentPlugin {
 
     subscribeToStream(aggregateEnvsWithCurrentValue$, (envs) => {
       // Recompute request and collection variables from current tab to avoid stale closure values
-      const tab = restTabs.currentActiveTab.value
+      const tab = workspaceTabs.currentActiveTab.value
       const request =
         tab.document.type === "example-response"
           ? tab.document.response.originalRequest

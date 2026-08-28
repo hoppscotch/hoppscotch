@@ -5,14 +5,14 @@ FROM alpine:3.24.1 AS go_builder
 RUN apk add --no-cache curl git openssh-client
 
 ARG TARGETARCH
-ENV GOLANG_VERSION=1.26.5
+ENV GOLANG_VERSION=1.26.7
 # Download Go tarball
 RUN case "${TARGETARCH}" in amd64) GOARCH=amd64 ;; arm64) GOARCH=arm64 ;; *) echo "Unsupported arch: ${TARGETARCH}" && exit 1 ;; esac && \
   curl -fsSL "https://go.dev/dl/go${GOLANG_VERSION}.linux-${GOARCH}.tar.gz" -o go.tar.gz
 # Checksum verification of Go tarball
 RUN case "${TARGETARCH}" in \
-  amd64) expected="5c2c3b16caefa1d968a94c1daca04a7ca301a496d9b086e17ad77bb81393f053" ;; \
-  arm64) expected="fe4789e92b1f33358680864bbe8704289e7bb5fc207d80623c308935bd696d49" ;; \
+  amd64) expected="ffb5f8de10c62550dfddab66b36b57030721e0a44a3218e9e1181d7b59f121ca" ;; \
+  arm64) expected="5a4ec883379d51ee9ce1040d5e87f8d35e20387574dd8c947feb01eabc3c1b37" ;; \
   esac && \
   actual=$(sha256sum go.tar.gz | cut -d' ' -f1) && \
   [ "$actual" = "$expected" ] && \
@@ -43,6 +43,10 @@ RUN tar -xzf /tmp/caddy-build/src.tar.gz && \
   go get google.golang.org/grpc@v1.82.1 && \
   # Fix CVE-2026-34986: upgrade go-jose v3 (HIGH - DoS via crafted JWE)
   go get github.com/go-jose/go-jose/v3@v3.0.5 && \
+  # Fix CVE-2026-46600: upgrade golang.org/x/net v0.56.0 (HIGH - panic on invalid DNS RR)
+  go get golang.org/x/net@v0.56.0 && \
+  # Fix CVE-2026-56852: upgrade golang.org/x/text v0.39.0 (HIGH - infinite loop on input)
+  go get golang.org/x/text@v0.39.0 && \
   # Clean up any existing vendor directory and regenerate with updated deps
   rm -rf vendor && \
   go mod tidy && \
@@ -67,15 +71,17 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o webapp-server .
 # Shared Node.js base with optimized NPM installation
 FROM alpine:3.24.1 AS node_base
 # Install dependencies
+# Version floors for CVE-2026-11856 (curl) and the nodejs 24.18.1-r0 batch. The base
+# tag ships older builds and this layer is cached, so the bound forces a re-resolve.
 RUN apk upgrade --no-cache && \
-  apk add --no-cache nodejs curl bash tini ca-certificates
+  apk add --no-cache "nodejs>=24.18.1-r0" "curl>=8.21.0-r0" bash tini ca-certificates
 # Set working directory for NPM installation
 RUN mkdir -p /tmp/npm-install
 WORKDIR /tmp/npm-install
 # Download NPM tarball
-RUN curl -fsSL https://registry.npmjs.org/npm/-/npm-11.18.0.tgz -o npm.tgz
+RUN curl -fsSL https://registry.npmjs.org/npm/-/npm-11.19.0.tgz -o npm.tgz
 # Verify checksum
-RUN expected="73f6155215ebabf4ed96dca1f567c2372cc713c33af2e5b9b62fde4e92373e2e" \
+RUN expected="31e9770f7dc71119a58509353b27917557aaf0ac9b5ef1a0465ee7d8ec67ae75" \
   && actual=$(sha256sum npm.tgz | cut -d' ' -f1) \
   && [ "$actual" = "$expected" ] \
   && echo "✅ NPM Tarball Checksum OK" \
@@ -87,17 +93,20 @@ RUN tar -xzf npm.tgz && \
   cd / && \
   rm -rf /tmp/npm-install
 RUN mkdir -p /tmp/pnpm-install && cd /tmp/pnpm-install && \
-  curl -fsSL https://registry.npmjs.org/pnpm/-/pnpm-10.34.2.tgz -o pnpm.tgz && \
+  curl -fsSL https://registry.npmjs.org/pnpm/-/pnpm-10.34.5.tgz -o pnpm.tgz && \
   curl -fsSL https://registry.npmjs.org/@import-meta-env/cli/-/cli-0.7.4.tgz -o cli.tgz && \
-  echo "06e0108a4941de2d709e1c3bc841d3e90c45c6a26cecac76f62044fa02cac1a0  pnpm.tgz" | sha256sum -c - && \
+  echo "ccb5c479cab1b00621325bfe7d4c9a8a8031e7a525d7249e275ecbec81b08db2  pnpm.tgz" | sha256sum -c - && \
   echo "9edada700b616b4224ba69ce713e68c36e22cb2548be9134dd3af00c164d8ca0  cli.tgz" | sha256sum -c - && \
   npm install -g ./pnpm.tgz ./cli.tgz && \
   cd / && rm -rf /tmp/pnpm-install
 
-# Fix CVE-2026-12151: replace vulnerable undici bundled in npm (ships 6.26.0, fix requires >=6.27.0)
+# Fix the undici advisories that supersede CVE-2026-12151 (response desynchronization
+# via the retry interceptor, CRLF injection via a blob-like body `type`, and cookie
+# attribute injection). npm now bundles 6.27.0, which is still affected — all three
+# fixes first land in 6.28.0, so replace the bundled copy with that.
 RUN mkdir -p /tmp/undici-fix && \
   cd /tmp/undici-fix && \
-  npm install undici@6.27.0 && \
+  npm install undici@6.28.0 && \
   rm -rf /usr/lib/node_modules/npm/node_modules/undici && \
   cp -r node_modules/undici /usr/lib/node_modules/npm/node_modules/ && \
   rm -rf /tmp/undici-fix
@@ -118,13 +127,14 @@ RUN mkdir -p /tmp/serialize-fix && \
   cp -r node_modules/serialize-javascript /usr/lib/node_modules/@import-meta-env/cli/node_modules/ && \
   rm -rf /tmp/serialize-fix
 
-# Fix CVE-2026-14257: brace-expansion <5.0.8 allows a DoS (unbounded expansion
-# length → OOM crash). Every version below 5.0.8 is affected with no per-line
-# backport, so replace all bundled/transitive copies (npm ships 5.0.7; the
-# @import-meta-env/cli tree pulls an older copy) with the fixed 5.0.8.
+# Fix the brace-expansion DoS chain: CVE-2026-14257 (unbounded expansion length →
+# OOM crash) plus the follow-up HIGH advisory that 5.0.8 only partially mitigated —
+# unbounded intermediate arrays still crash every version <5.0.9. No per-line
+# backport exists, so replace all bundled/transitive copies (npm ships 5.0.7; the
+# @import-meta-env/cli tree pulls an older copy) with the fixed 5.0.9.
 RUN mkdir -p /tmp/brace-fix && \
   cd /tmp/brace-fix && \
-  npm install brace-expansion@5.0.8 && \
+  npm install brace-expansion@5.0.9 && \
   find /usr/lib/node_modules -type d -name brace-expansion -not -path '*/brace-fix/*' | \
     while read -r dir; do \
       rm -rf "$dir" && \
@@ -132,9 +142,20 @@ RUN mkdir -p /tmp/brace-fix && \
     done && \
   rm -rf /tmp/brace-fix
 
+# Fix CVE-2026-69192: npm and pnpm both bundle ip-address 10.2.0 (affected <=10.3.0)
+RUN mkdir -p /tmp/ip-fix && \
+  cd /tmp/ip-fix && \
+  npm install ip-address@10.5.0 && \
+  find /usr/lib/node_modules -type d -name ip-address -not -path '*/ip-fix/*' | \
+    while read -r dir; do \
+      rm -rf "$dir" && \
+      cp -r /tmp/ip-fix/node_modules/ip-address "$dir"; \
+    done && \
+  rm -rf /tmp/ip-fix
+
 # Fix multiple tar advisories (CVE-2026-59873 and the GHSA-r292-9mhp-454m family):
-# every tar <7.5.22 is affected. Both the bundled npm (ships 7.5.19) and pnpm
-# (ships 7.5.15) copies are vulnerable, so replace all bundled copies with the
+# every tar <7.5.22 is affected. Both the bundled npm and pnpm copies still ship
+# 7.5.19 and are vulnerable, so replace all bundled copies with the
 # fixed 7.5.22. tar 7.5.x is a patch line (identical deps, pure JS), so the swap
 # is a safe drop-in that keeps npm/pnpm working.
 RUN mkdir -p /tmp/tar-fix && \

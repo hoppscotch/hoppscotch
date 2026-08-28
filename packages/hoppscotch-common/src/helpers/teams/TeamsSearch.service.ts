@@ -1,7 +1,10 @@
 import {
+  HoppGQLRequest,
   HoppRESTAuth,
   HoppRESTRequest,
+  getDefaultGQLRequest,
   getDefaultRESTRequest,
+  isGQLRequest,
 } from "@hoppscotch/data"
 import axios from "axios"
 import { Service } from "dioc"
@@ -68,9 +71,12 @@ type _SearchRequest = {
   id: string
   collectionID: string
   title: string
+  // Search hits store a display stub; rows inserted while expanding store the
+  // full parsed request. Team collections hold both protocols and GQL
+  // requests have no `method` — readers fall back to a "GQL" badge.
   request: {
     name: string
-    method: string
+    method?: string
   }
   meta?: CollectionSearchMeta
 }
@@ -170,14 +176,18 @@ function convertToTeamTree(
     if (isAlreadyInserted) return
 
     if (parentCollection) {
-      const requestSchemaParsedResult = HoppRESTRequest.safeParse(
-        request.request
-      )
-
-      const effectiveRequest =
-        requestSchemaParsedResult.type === "ok"
-          ? requestSchemaParsedResult.value
-          : getDefaultRESTRequest()
+      // Unified collection: a single team collection can hold REST and GQL requests.
+      // Discriminate by shape so GQL search hits don't get clobbered into a blank REST request.
+      let effectiveRequest: HoppRESTRequest | HoppGQLRequest
+      if (isGQLRequest(request.request)) {
+        const gqlParsed = HoppGQLRequest.safeParse(request.request)
+        effectiveRequest =
+          gqlParsed.type === "ok" ? gqlParsed.value : getDefaultGQLRequest()
+      } else {
+        const restParsed = HoppRESTRequest.safeParse(request.request)
+        effectiveRequest =
+          restParsed.type === "ok" ? restParsed.value : getDefaultRESTRequest()
+      }
 
       parentCollection.requests = parentCollection.requests || []
       parentCollection.requests.push({
@@ -342,7 +352,9 @@ export class TeamSearchService extends Service {
           {
             collectionID: request.collectionID,
             name: request.title,
-            method: request.request.method,
+            // GQL rows have no `method` — badge them as GQL instead of
+            // rendering an undefined method chip
+            method: request.request.method ?? "GQL",
             id: request.id,
           },
           Object.values(this.searchResultsCollections)

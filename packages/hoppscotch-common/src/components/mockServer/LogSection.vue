@@ -35,8 +35,7 @@
       <pre
         class="relative whitespace-pre-wrap cursor-text select-text break-words bg-primaryLight border border-dividerLight rounded-sm p-4 max-h-96 overflow-y-auto"
         :class="[isValidJSON ? 'text-accent' : 'text-secondaryLight']"
-        >{{ formattedContent }}</pre
-      >
+        >{{ formattedContent }}</pre>
     </div>
 
     <div

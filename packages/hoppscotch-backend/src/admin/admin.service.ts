@@ -57,8 +57,8 @@ export class AdminService {
    * @deprecated use fetchUsersV2 instead
    */
   async fetchUsers(cursorID: string, take: number) {
-    const allUsers = await this.userService.fetchAllUsers(cursorID, take);
-    return allUsers;
+    return this.userService.fetchAllUsers(cursorID, take);
+   
   }
 
   /**
@@ -71,11 +71,11 @@ export class AdminService {
     searchString: string,
     paginationOption: OffsetPaginationArgs,
   ) {
-    const allUsers = await this.userService.fetchAllUsersV2(
+  return   this.userService.fetchAllUsersV2(
       searchString,
       paginationOption,
     );
-    return allUsers;
+   
   }
 
   /**
@@ -103,7 +103,7 @@ export class AdminService {
         },
       },
     });
-    if (alreadyInvitedUser != null) return E.left(USER_ALREADY_INVITED);
+    if (alreadyInvitedUser) return E.left(USER_ALREADY_INVITED);
 
     try {
       await this.mailerService.sendUserInvitationEmail(inviteeEmail, {
@@ -121,16 +121,17 @@ export class AdminService {
     const dbInvitedUser = await this.prisma.invitedUsers.create({
       data: {
         adminUid: adminUID,
-        adminEmail: adminEmail,
-        inviteeEmail: inviteeEmail,
+       adminEmail,
+        inviteeEmail,
       },
     });
+    const { adminUid , invitedOn}= dbInvitedUser
 
     const invitedUser = <InvitedUser>{
-      adminEmail: dbInvitedUser.adminEmail,
-      adminUid: dbInvitedUser.adminUid,
-      inviteeEmail: dbInvitedUser.inviteeEmail,
-      invitedOn: dbInvitedUser.invitedOn,
+      adminEmail,
+      adminUid,
+      inviteeEmail,
+      invitedOn,
     };
 
     // Publish invited user subscription
@@ -192,6 +193,8 @@ export class AdminService {
       },
     });
 
+    
+
     const pendingInvitedUsers = await this.prisma.invitedUsers.findMany({
       take: paginationOption.take,
       skip: paginationOption.skip,
@@ -223,8 +226,8 @@ export class AdminService {
    * @deprecated use fetchAllTeamsV2 instead
    */
   async fetchAllTeams(cursorID: string, take: number) {
-    const allTeams = await this.teamService.fetchAllTeams(cursorID, take);
-    return allTeams;
+   return  this.teamService.fetchAllTeams(cursorID, take);
+    
   }
 
   /**
@@ -250,9 +253,9 @@ export class AdminService {
    * @returns a count of team members
    */
   async membersCountInTeam(teamID: string) {
-    const teamMembersCount =
-      await this.teamService.getCountOfMembersInTeam(teamID);
-    return teamMembersCount;
+    
+     return   this.teamService.getCountOfMembersInTeam(teamID);
+    
   }
 
   /**
@@ -261,9 +264,9 @@ export class AdminService {
    * @returns a of count of collections
    */
   async collectionCountInTeam(teamID: string) {
-    const teamCollectionsCount =
-      await this.teamCollectionService.totalCollectionsInTeam(teamID);
-    return teamCollectionsCount;
+   
+     return await this.teamCollectionService.totalCollectionsInTeam(teamID);
+  
   }
 
   /**
@@ -272,10 +275,10 @@ export class AdminService {
    * @returns a count of total requests in a team
    */
   async requestCountInTeam(teamID: string) {
-    const teamRequestsCount =
-      await this.teamRequestService.totalRequestsInATeam(teamID);
+ 
+ return  this.teamRequestService.totalRequestsInATeam(teamID);
 
-    return teamRequestsCount;
+    
   }
 
   /**
@@ -284,8 +287,8 @@ export class AdminService {
    * @returns a count of environments in a team
    */
   async environmentCountInTeam(teamID: string) {
-    const envCount = await this.teamEnvironmentsService.totalEnvsInTeam(teamID);
-    return envCount;
+   return  this.teamEnvironmentsService.totalEnvsInTeam(teamID);
+   
   }
 
   /**
@@ -294,10 +297,10 @@ export class AdminService {
    * @returns an array team invitations
    */
   async pendingInvitationCountInTeam(teamID: string) {
-    const invitations =
-      await this.teamInvitationService.getTeamInvitations(teamID);
+    
+      return  this.teamInvitationService.getTeamInvitations(teamID);
 
-    return invitations;
+ 
   }
 
   /**
@@ -467,7 +470,7 @@ export class AdminService {
 
     // step 1: fetch all users
     const allUsersList = await this.userService.findUsersByIds(userUIDs);
-    if (allUsersList.length === 0) return E.left(USERS_NOT_FOUND);
+    if (!allUsersList.length) return E.left(USERS_NOT_FOUND);
 
     // step 2: admin user can not be deleted without removing admin status/role
     allUsersList.forEach((user) => {
@@ -582,8 +585,8 @@ export class AdminService {
    * @returns number of users in the org
    */
   async getUsersCount() {
-    const usersCount = this.userService.getUsersCount();
-    return usersCount;
+    return this.userService.getUsersCount();
+    
   }
 
   /**
@@ -591,8 +594,8 @@ export class AdminService {
    * @returns number of users in the org
    */
   async getTeamsCount() {
-    const teamsCount = this.teamService.getTeamsCount();
-    return teamsCount;
+    return this.teamService.getTeamsCount();
+    
   }
 
   /**
@@ -600,9 +603,9 @@ export class AdminService {
    * @returns number of users in the org
    */
   async getTeamCollectionsCount() {
-    const teamCollectionCount =
-      this.teamCollectionService.getTeamCollectionsCount();
-    return teamCollectionCount;
+   
+   return   this.teamCollectionService.getTeamCollectionsCount();
+   
   }
 
   /**
@@ -610,8 +613,8 @@ export class AdminService {
    * @returns number of users in the org
    */
   async getTeamRequestsCount() {
-    const teamRequestCount = this.teamRequestService.getTeamRequestsCount();
-    return teamRequestCount;
+    return this.teamRequestService.getTeamRequestsCount();
+    
   }
 
   /**

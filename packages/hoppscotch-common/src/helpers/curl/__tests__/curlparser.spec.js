@@ -1185,3 +1185,44 @@ describe("Parse curl command to Hopp REST Request", () => {
     })
   }
 })
+
+describe("cURL header parsing (#6400)", () => {
+  const cases = [
+    {
+      title: "single ': ' in value",
+      command: `curl https://httpbin.org/get -H 'X-Note: hello: world' -H 'Accept: application/json'`,
+      key: "X-Note",
+      value: "hello: world",
+    },
+    {
+      title: "multiple colons in value",
+      command: `curl --location 'https://httpbin.org/get' --header 'X-Note: hello: ejnfworld:owjen. hi' --header 'Accept: application/json'`,
+      key: "X-Note",
+      value: "hello: ejnfworld:owjen. hi",
+    },
+    {
+      title: "many colons + extra spaces in value",
+      command: `curl --location 'https://httpbin.org/get' --header 'X-Note: hello: ejnfworld:owjen:sdf. :  . hi' --header 'Accept: application/json'`,
+      key: "X-Note",
+      value: "hello: ejnfworld:owjen:sdf. :  . hi",
+    },
+  ]
+
+  for (const { title, command, key, value } of cases) {
+    test(`preserves header values containing colons — ${title}`, () => {
+      const result = parseCurlToHoppRESTReq(command)
+      expect(result.headers).toContainEqual({
+        active: true,
+        key,
+        value,
+        description: "",
+      })
+      expect(result.headers).toContainEqual({
+        active: true,
+        key: "Accept",
+        value: "application/json",
+        description: "",
+      })
+    })
+  }
+})

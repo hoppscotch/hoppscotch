@@ -29,12 +29,29 @@ import { computed } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { useColorMode } from "~/composables/theming"
 
-export type ConsoleLogLevel = "log" | "warn" | "info" | "error" | "debug"
+export type ConsoleEntryType =
+  | "log"
+  | "warn"
+  | "info"
+  | "error"
+  | "debug"
+  | "trace"
+  | "count"
+  | "timeEnd"
+  | "timeLog"
+  | "group"
+  | "groupEnd"
+  | "clear"
+  | "assert"
+  | "dir"
+  | "table"
 
 export type ConsoleEntry = {
-  type: ConsoleLogLevel
+  type: ConsoleEntryType
   args: unknown[]
   timestamp: number
+  collapsed?: boolean
+  children?: ConsoleEntry[]
 }
 
 const props = defineProps<{
@@ -44,12 +61,47 @@ const props = defineProps<{
 const colorMode = useColorMode()
 const t = useI18n()
 
-// Filter out "clear" and compute final list to show (simulate console.clear)
 const renderedMessages = computed(() => {
   const output: ConsoleEntry[] = []
-  for (const entry of props.messages) {
+
+  const groupStack: ConsoleEntry[] = []
+  const appendEntry = (entry: ConsoleEntry) => {
+    const currentGroup = groupStack[groupStack.length - 1]
+
+    if (currentGroup) {
+      currentGroup.children?.push(entry)
+      return
+    }
+
     output.push(entry)
   }
+
+  for (const entry of props.messages) {
+    if (entry.type === "clear") {
+      output.length = 0
+      groupStack.length = 0
+      continue
+    }
+
+    if (entry.type === "group") {
+      const groupEntry: ConsoleEntry = {
+        ...entry,
+        children: [],
+      }
+
+      appendEntry(groupEntry)
+      groupStack.push(groupEntry)
+      continue
+    }
+
+    if (entry.type === "groupEnd") {
+      groupStack.pop()
+      continue
+    }
+
+    appendEntry(entry)
+  }
+
   return output
 })
 </script>

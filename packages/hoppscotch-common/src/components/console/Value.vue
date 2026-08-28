@@ -16,7 +16,9 @@
       >{{ formattedJSONString }}
     </pre>
 
-    <pre v-else class="truncate select-text"
+    <pre
+      v-else
+      class="max-h-96 overflow-auto whitespace-pre-wrap break-words select-text"
       >{{ formattedPrimitive }}
     </pre>
   </div>

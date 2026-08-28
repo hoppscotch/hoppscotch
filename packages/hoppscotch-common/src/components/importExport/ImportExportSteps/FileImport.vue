@@ -123,7 +123,7 @@ const experimentalScriptingEnabled = useSetting(
   "EXPERIMENTAL_SCRIPTING_SANDBOX"
 )
 
-const ALLOWED_FILE_SIZE_LIMIT = platform.limits?.collectionImportSizeLimit ?? 10 // Default to 10 MB
+const ALLOWED_FILE_SIZE_LIMIT = platform.limits?.collectionImportSizeLimit ?? 50 // Default to 50
 
 const importFilesCount = ref(0)
 

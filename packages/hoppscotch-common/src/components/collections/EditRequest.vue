@@ -132,6 +132,7 @@ const emit = defineEmits<{
 }>()
 
 const editingName = useVModel(props, "modelValue")
+const REQUEST_NAME_REGEX = /^[A-Za-z0-9 _-]{1,50}$/
 
 const {
   generateRequestName,
@@ -139,6 +140,9 @@ const {
   isGenerateRequestNamePending,
   lastTraceID,
 } = useRequestNameGeneration(editingName)
+
+const submittedFeedback = ref(false)
+const { submitFeedback, isSubmitFeedbackPending } = useSubmitFeedback()
 
 watch(
   () => props.show,
@@ -150,20 +154,17 @@ watch(
   }
 )
 
-const submittedFeedback = ref(false)
-const { submitFeedback, isSubmitFeedbackPending } = useSubmitFeedback()
-
 const editRequest = () => {
-  if (props.loadingState) {
-    return
-  }
+  if (props.loadingState) return
 
-  if (editingName.value.trim() === "") {
+  const name = editingName.value.trim()
+
+  if (!REQUEST_NAME_REGEX.test(name)) {
     toast.error(t("request.invalid_name"))
     return
   }
 
-  emit("submit", editingName.value)
+  emit("submit", name)
 }
 
 const hideModal = () => {

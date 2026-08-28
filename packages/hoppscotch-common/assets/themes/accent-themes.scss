@@ -87,3 +87,25 @@
   --gradient-via-color: theme("colors.pink.500");
   --gradient-to-color: theme("colors.pink.600");
 }
+
+/*
+  When a custom accent color is selected at runtime, JavaScript injects the
+  following CSS custom properties into :root:
+
+    --accent-color
+    --accent-light-color
+    --accent-dark-color
+    --accent-contrast-color
+    --gradient-from-color
+    --gradient-via-color
+    --gradient-to-color
+
+  This selector exists as documentation and a minimal fallback for the
+  custom-accent case. The actual values are set at runtime; leaving these
+  rules empty ensures CSS rules targeting these variables still resolve
+  and makes the architecture explicit for future maintainers.
+*/
+:root[data-accent="custom"] {
+  /* runtime-injected variables; no static defaults here */
+  --hoppscotch-custom-accent: 1;
+}

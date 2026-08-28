@@ -172,6 +172,7 @@ export const implementation: VersionedAPI<RelayV1> = {
                 timing: {
                   start: result.response.meta.timing.start,
                   end: result.response.meta.timing.end,
+                  phases: result.response.meta.timing.phases,
                 },
                 size: result.response.meta.size,
               },

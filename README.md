@@ -107,7 +107,7 @@ _Customized themes are synced with your cloud/local session._
 - Query schema
 - Get query response
 
-🔐 **Authorization:** Allows to identify the end-user.
+🔐 **Authorization:** Allows you to identify the end-user.
 
 - None
 - Basic
@@ -142,7 +142,7 @@ _Customized themes are synced with your cloud/local session._
 
 _Collections are synced with your cloud/local session storage._
 
-📜 **Pre-Request Scripts:** Snippets of code associated with a request that is executed before the request is sent.
+📜 **Pre-Request Scripts:** Snippets of code associated with a request that are executed before the request is sent.
 
 - Set environment variables
 - Include timestamp in the request headers
@@ -237,7 +237,7 @@ Help us to translate Hoppscotch. Please read [`TRANSLATIONS`](TRANSLATIONS.md) f
 - Manage users
 - Manage teams
 
-📦 **Add-ons:** Official add-ons for hoppscotch.
+📦 **Add-ons:** Official add-ons for Hoppscotch.
 
 - **[Hoppscotch CLI](https://github.com/hoppscotch/hoppscotch/tree/main/packages/hoppscotch-cli)** - Command-line interface for Hoppscotch.
 - **[Proxy](https://github.com/hoppscotch/proxyscotch)** - A simple proxy server created for Hoppscotch.

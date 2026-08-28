@@ -67,6 +67,7 @@ function parseV0ExtURL(
               key: x.key,
               value: x.value,
               isFile: false,
+              description: x.description || "",
             }
         ),
       }

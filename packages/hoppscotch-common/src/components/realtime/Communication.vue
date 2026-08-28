@@ -135,7 +135,7 @@
     </div>
   </div>
 </template>
-<script setup lang="ts">
+<script setup lang="ts" generic="ParseJsonPayload extends boolean = false">
 import { Component, computed, reactive, ref } from "vue"
 import IconSend from "~icons/lucide/send"
 import IconHelpCircle from "~icons/lucide/help-circle"
@@ -159,31 +159,22 @@ import { isJSONContentType } from "@helpers/utils/contenttypes"
 import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 
-defineProps({
-  showEventField: {
-    type: Boolean,
-    default: false,
-  },
-  eventFieldStyles: {
-    type: String,
-    default: "",
-  },
-  stickyHeaderStyles: {
-    type: String,
-    default: "",
-  },
-  isConnected: {
-    type: Boolean,
-    default: false,
-  },
-})
+const props = defineProps<{
+  showEventField?: boolean
+  eventFieldStyles?: string
+  stickyHeaderStyles?: string
+  isConnected?: boolean
+  parseJsonPayload?: ParseJsonPayload
+}>()
+
+type MessagePayload = ParseJsonPayload extends true ? unknown : string
 
 const emit = defineEmits<{
   (
     e: "send-message",
     body: {
       eventName: string
-      message: string
+      message: MessagePayload
     }
   ): void
 }>()
@@ -241,11 +232,26 @@ const clearContent = () => {
 const sendMessage = () => {
   if (!communicationBody.value) return
 
-  emit("send-message", {
-    eventName: eventName.value,
-    message: communicationBody.value,
-  })
-  clearContent()
+  if (contentType.value !== "JSON" || !props.parseJsonPayload) {
+    emit("send-message", {
+      eventName: eventName.value,
+      message: communicationBody.value as MessagePayload,
+    })
+    clearContent()
+    return
+  }
+
+  try {
+    const message = JSON.parse(communicationBody.value)
+    emit("send-message", {
+      eventName: eventName.value,
+      message: message,
+    })
+    clearContent()
+  } catch (e) {
+    toast.error(`${t("error.json_parsing_failed")}`)
+    console.error(e)
+  }
 }
 
 const uploadPayload = async (e: Event) => {

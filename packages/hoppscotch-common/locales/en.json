@@ -1264,6 +1264,8 @@
     "duplicated": "Response duplicated",
     "duplicate_name_error": "Same name response already exists",
     "filter_response_body": "Filter JSON response body (uses jq syntax)",
+    "formatted_preview_too_large": "Response is too large for formatted preview.",
+    "formatted_preview_too_large_help": "Download or copy the full response. Formatting, filtering, and outline are skipped so the app stays responsive.",
     "headers": "Headers",
     "request_headers": "Request Headers",
     "html": "HTML",

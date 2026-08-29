@@ -1,19 +1,26 @@
 import { defineAsyncComponent } from "vue"
 import { Lens } from "./lenses"
 import { isJSONContentType } from "../utils/contenttypes"
+import { isBodyTooLargeForJsonPreview } from "./responseBodySize"
 
 /**
- * Checks if response body contents can be parsed as valid JSON
+ * Checks if response body contents can be parsed as valid JSON.
+ * Oversized bodies skip decode + JSON.parse so lens detection cannot freeze
+ * the UI on 100+ MB payloads.
  */
 export function isValidJSONResponse(contents: string | ArrayBuffer): boolean {
   if (!contents) {
     return false
   }
 
+  if (isBodyTooLargeForJsonPreview(contents)) {
+    return false
+  }
+
   const resolvedStr =
-    contents instanceof ArrayBuffer
-      ? new TextDecoder("utf-8").decode(contents)
-      : contents
+    typeof contents === "string"
+      ? contents
+      : new TextDecoder("utf-8").decode(contents)
 
   if (!resolvedStr.trim()) {
     return false

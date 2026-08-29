@@ -93,8 +93,8 @@ import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { useService } from "dioc/vue"
 import { InspectionService } from "~/services/inspection"
 import { HoppTab } from "~/services/tab"
-import { HoppSavedExampleDocument } from "~/helpers/rest/document"
-import { RESTTabService } from "~/services/tab/rest"
+import { HoppSavedExampleDocument } from "~/helpers/tab/document"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { getMethodLabelColor } from "~/helpers/rest/labelColoring"
 import IconSave from "~icons/lucide/save"
 import { editRESTRequest, restCollections$ } from "~/newstore/collections"
@@ -129,7 +129,7 @@ const toast = useToast()
 const props = defineProps<{ modelValue: HoppTab<HoppSavedExampleDocument> }>()
 const emit = defineEmits(["update:modelValue"])
 
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 
 const tab = useVModel(props, "modelValue", emit)
 

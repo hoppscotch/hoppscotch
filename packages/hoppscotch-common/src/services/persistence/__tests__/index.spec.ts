@@ -2,10 +2,7 @@
 
 import * as E from "fp-ts/Either"
 
-import {
-  translateToNewGQLCollection,
-  translateToNewRESTCollection,
-} from "@hoppscotch/data"
+import { translateToNewCollection } from "@hoppscotch/data"
 import { watchDebounced } from "@vueuse/core"
 import { TestContainer } from "dioc/testing"
 import { cloneDeep } from "lodash-es"
@@ -50,7 +47,7 @@ import {
 } from "~/newstore/settings"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { GQLTabService } from "~/services/tab/graphql"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import {
   PersistenceService,
   STORE_KEYS,
@@ -163,12 +160,12 @@ const setStoreItem = async <T>(key: string, value: T) => {
 
 const bindPersistenceService = ({
   mockGQLTabService = false,
-  mockRESTTabService = false,
+  mockWorkspaceTabsService = false,
   mockSecretEnvironmentsService = false,
   mock = {},
 }: {
   mockGQLTabService?: boolean
-  mockRESTTabService?: boolean
+  mockWorkspaceTabsService?: boolean
   mockSecretEnvironmentsService?: boolean
   mock?: Record<string, unknown>
 } = {}) => {
@@ -178,8 +175,8 @@ const bindPersistenceService = ({
     container.bindMock(GQLTabService, mock)
   }
 
-  if (mockRESTTabService) {
-    container.bindMock(RESTTabService, mock)
+  if (mockWorkspaceTabsService) {
+    container.bindMock(WorkspaceTabsService, mock)
   }
 
   if (mockSecretEnvironmentsService) {
@@ -1000,10 +997,7 @@ describe("PersistenceService", () => {
 
           return {
             ...actualModule,
-            translateToNewGQLCollection: vi
-              .fn()
-              .mockImplementation((data: any) => data),
-            translateToNewRESTCollection: vi
+            translateToNewCollection: vi
               .fn()
               .mockImplementation((data: any) => data),
           }
@@ -1056,8 +1050,7 @@ describe("PersistenceService", () => {
           expect.stringContaining('"schemaVersion":1')
         )
 
-        expect(translateToNewGQLCollection).toHaveBeenCalled()
-        expect(translateToNewRESTCollection).toHaveBeenCalled()
+        expect(translateToNewCollection).toHaveBeenCalled()
 
         expect(setRESTCollections).toHaveBeenCalledWith(restCollections)
         expect(setGraphqlCollections).toHaveBeenCalledWith(gqlCollections)
@@ -1883,7 +1876,10 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        await invokeSetupLocalPersistence({ mockRESTTabService: true, mock })
+        await invokeSetupLocalPersistence({
+          mockWorkspaceTabsService: true,
+          mock,
+        })
 
         expect(getItemSpy).toHaveBeenCalledWith(restTabStateKey)
 
@@ -1905,7 +1901,10 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        await invokeSetupLocalPersistence({ mockRESTTabService: true, mock })
+        await invokeSetupLocalPersistence({
+          mockWorkspaceTabsService: true,
+          mock,
+        })
 
         expect(getItemSpy).toHaveBeenCalledWith(restTabStateKey)
 

@@ -191,6 +191,10 @@ import { useI18n } from "@composables/i18n"
 import { useReadonlyStream, useStream } from "@composables/stream"
 import { isEqual } from "lodash-es"
 import { computed, ref } from "vue"
+// Explicit import: auto-resolution inside `http/test/` maps the name to the
+// missing `http/test/ResultEntry.vue` (directoryAsNamespace) and fails at
+// runtime, so nested test entries never rendered.
+import HttpTestResultEntry from "~/components/http/TestResultEntry.vue"
 import { HoppTestData, HoppTestResult } from "~/helpers/types/HoppTestResult"
 import {
   globalEnv$,

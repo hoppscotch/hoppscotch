@@ -27,12 +27,12 @@ export class TeamCollection {
 
 @ObjectType()
 export class CollectionReorderData {
-  @Field({
+  @Field(() => TeamCollection, {
     description: 'Team Collection being moved',
   })
   collection: TeamCollection;
 
-  @Field({
+  @Field(() => TeamCollection, {
     description:
       'Team Collection succeeding the collection being moved in its new position',
     nullable: true,

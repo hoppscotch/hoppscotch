@@ -1,6 +1,8 @@
 import {
   HoppCollection,
+  HoppGQLRequest,
   HoppRESTRequest,
+  isGQLRequest,
   makeCollection,
   parseRawKeyValueEntries,
   rawKeyValueEntriesToString,
@@ -849,6 +851,9 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
     const variableValues = buildVariableValues(inheritedVariables)
     const secretKeys = collectSecretKeys(inheritedVariables)
     for (const request of requests) {
+      // GQL requests have no OpenAPI representation — skip instead of
+      // failing the whole export on a missing endpoint/method
+      if (isGQLRequest(request as HoppRESTRequest | HoppGQLRequest)) continue
       const {
         server,
         path: rawPath,

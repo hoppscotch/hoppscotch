@@ -20,7 +20,10 @@ import { pipe } from "fp-ts/function"
 import { convert } from "insomnia-importers"
 
 import { IMPORTER_INVALID_FILE_FORMAT } from ".."
-import { replaceInsomniaTemplating } from "./insomniaEnv"
+import {
+  replaceInsomniaTemplating,
+  safeStringifyValue,
+} from "./insomniaEnv"
 import { safeParseJSONOrYAML } from "~/helpers/functional/yaml"
 import {
   InsomniaDoc,
@@ -45,14 +48,14 @@ const isV5InsomniaDoc = (data: InsomniaDoc) =>
 
 const replacePathVarTemplating = (expression: unknown) => {
   if (typeof expression !== "string") {
-    return String(expression ?? "")
+    return safeStringifyValue(expression)
   }
   return expression.replaceAll(/:([^/]+)/g, "<<$1>>")
 }
 
 const replaceVarTemplating = (expression: unknown, pathVar = false): string => {
   if (typeof expression !== "string") {
-    return String(expression ?? "")
+    return safeStringifyValue(expression)
   }
   return pipe(
     expression,

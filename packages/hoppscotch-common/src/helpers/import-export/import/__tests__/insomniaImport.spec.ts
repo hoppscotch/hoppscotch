@@ -5,9 +5,10 @@ import { hoppInsomniaImporter } from "../insomnia/insomniaColl"
 import {
   insomniaEnvImporter,
   replaceInsomniaTemplating,
+  safeStringifyValue,
 } from "../insomnia/insomniaEnv"
 
-describe("replaceInsomniaTemplating", () => {
+describe("safeStringifyValue and replaceInsomniaTemplating", () => {
   it("replaces Insomnia template expressions with Hoppscotch variables", () => {
     expect(replaceInsomniaTemplating("{{ _.baseUrl }}/api")).toBe("<<baseUrl>>/api")
   })
@@ -18,10 +19,17 @@ describe("replaceInsomniaTemplating", () => {
     expect(replaceInsomniaTemplating(null as any)).toBe("")
     expect(replaceInsomniaTemplating(undefined as any)).toBe("")
   })
+
+  it("preserves nested objects and arrays as valid JSON strings", () => {
+    expect(safeStringifyValue({ key: "value", nested: 42 })).toBe(
+      JSON.stringify({ key: "value", nested: 42 })
+    )
+    expect(safeStringifyValue([1, 2, "three"])).toBe(JSON.stringify([1, 2, "three"]))
+  })
 })
 
-describe("hoppInsomniaImporter - Insomnia v5 Export with non-string environment values", () => {
-  it("successfully imports an Insomnia v5 collection containing numbers and booleans in environment", async () => {
+describe("hoppInsomniaImporter - Insomnia v5 Export with complex environment values", () => {
+  it("successfully imports an Insomnia v5 collection containing numbers, booleans, and nested objects", async () => {
     const insomniaV5Doc = {
       type: "collection.insomnia.rest/5.0",
       name: "Sample V5 Collection",
@@ -34,6 +42,7 @@ describe("hoppInsomniaImporter - Insomnia v5 Export with non-string environment 
           enabled: true,
           baseUrl: "https://api.example.com",
           timeout: null,
+          config: { retries: 3, debug: true },
         },
       },
       collection: [
@@ -61,14 +70,18 @@ describe("hoppInsomniaImporter - Insomnia v5 Export with non-string environment 
             key: "baseUrl",
             initialValue: "https://api.example.com",
           }),
+          expect.objectContaining({
+            key: "config",
+            initialValue: JSON.stringify({ retries: 3, debug: true }),
+          }),
         ])
       )
     }
   })
 })
 
-describe("insomniaEnvImporter - Insomnia environment resources", () => {
-  it("imports environment resources containing number and boolean values", async () => {
+describe("insomniaEnvImporter - Insomnia environment resources with null and object data", () => {
+  it("handles environment resources with null data and preserves object values", async () => {
     const insomniaEnvDoc = {
       resources: [
         {
@@ -78,7 +91,13 @@ describe("insomniaEnvImporter - Insomnia environment resources", () => {
             port: 3000,
             debug: true,
             apiUrl: "http://localhost:3000",
+            headers: { "X-Custom": "header" },
           },
+        },
+        {
+          _type: "environment",
+          name: "Empty Environment",
+          data: null,
         },
       ],
     }
@@ -96,6 +115,10 @@ describe("insomniaEnvImporter - Insomnia environment resources", () => {
           expect.objectContaining({
             key: "apiUrl",
             initialValue: "http://localhost:3000",
+          }),
+          expect.objectContaining({
+            key: "headers",
+            initialValue: JSON.stringify({ "X-Custom": "header" }),
           }),
         ])
       )

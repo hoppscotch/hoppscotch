@@ -27,9 +27,22 @@ const insomniaEnvSchema = z.object({
   data: z.record(z.string()),
 })
 
+export const safeStringifyValue = (val: unknown): string => {
+  if (val === null || val === undefined) return ""
+  if (typeof val === "string") return val
+  if (typeof val === "object") {
+    try {
+      return JSON.stringify(val)
+    } catch {
+      return String(val)
+    }
+  }
+  return String(val)
+}
+
 export const replaceInsomniaTemplating = (expression: unknown) => {
   if (typeof expression !== "string") {
-    return String(expression ?? "")
+    return safeStringifyValue(expression)
   }
   const regex = /\{\{ _\.([^}]+) \}\}/g
   return expression.replaceAll(regex, "<<$1>>")
@@ -55,11 +68,14 @@ export const insomniaEnvImporter = (contents: string[]) => {
     return resources
       .filter((resource) => resource._type === "environment")
       .map((envResource) => {
-        const envResourceData = envResource.data as Record<string, unknown>
+        const envResourceData =
+          envResource.data && typeof envResource.data === "object"
+            ? (envResource.data as Record<string, unknown>)
+            : {}
         const stringifiedData: Record<string, string> = {}
 
         Object.keys(envResourceData).forEach((key) => {
-          stringifiedData[key] = String(envResourceData[key])
+          stringifiedData[key] = safeStringifyValue(envResourceData[key])
         })
 
         return { ...envResource, data: stringifiedData }

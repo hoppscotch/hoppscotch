@@ -27,7 +27,7 @@ const insomniaEnvSchema = z.object({
   data: z.record(z.string()),
 })
 
-export const replaceInsomniaTemplating = (expression: string) => {
+export const replaceInsomniaTemplating = (expression: unknown) => {
   // Real-world Insomnia v5 exports carry non-string values in environment and
   // folder-environment maps (numbers, booleans, null). Coerce before
   // replaceAll so the importer degrades gracefully instead of crashing with

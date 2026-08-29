@@ -29,7 +29,7 @@ describe("safeStringifyValue and replaceInsomniaTemplating", () => {
 })
 
 describe("hoppInsomniaImporter - Insomnia v5 Export with complex environment values", () => {
-  it("successfully imports an Insomnia v5 collection containing numbers, booleans, and nested objects", async () => {
+  it("successfully imports an Insomnia v5 collection containing numbers, booleans, nulls, and nested template objects", async () => {
     const insomniaV5Doc = {
       type: "collection.insomnia.rest/5.0",
       name: "Sample V5 Collection",
@@ -42,7 +42,7 @@ describe("hoppInsomniaImporter - Insomnia v5 Export with complex environment val
           enabled: true,
           baseUrl: "https://api.example.com",
           timeout: null,
-          config: { retries: 3, debug: true },
+          config: { retries: 3, endpoint: "{{ _.baseUrl }}/v1" },
         },
       },
       collection: [
@@ -70,9 +70,10 @@ describe("hoppInsomniaImporter - Insomnia v5 Export with complex environment val
             key: "baseUrl",
             initialValue: "https://api.example.com",
           }),
+          expect.objectContaining({ key: "timeout", initialValue: "" }),
           expect.objectContaining({
             key: "config",
-            initialValue: JSON.stringify({ retries: 3, debug: true }),
+            initialValue: JSON.stringify({ retries: 3, endpoint: "<<baseUrl>>/v1" }),
           }),
         ])
       )
@@ -91,7 +92,7 @@ describe("insomniaEnvImporter - Insomnia environment resources with null and obj
             port: 3000,
             debug: true,
             apiUrl: "http://localhost:3000",
-            headers: { "X-Custom": "header" },
+            headers: { "X-Custom": "{{ _.customHeader }}" },
           },
         },
         {
@@ -106,9 +107,9 @@ describe("insomniaEnvImporter - Insomnia environment resources with null and obj
 
     expect(E.isRight(result)).toBe(true)
     if (E.isRight(result)) {
-      const [env] = result.right
-      expect(env.name).toBe("Dev Environment")
-      expect(env.variables).toEqual(
+      const [devEnv, emptyEnv] = result.right
+      expect(devEnv.name).toBe("Dev Environment")
+      expect(devEnv.variables).toEqual(
         expect.arrayContaining([
           expect.objectContaining({ key: "port", initialValue: "3000" }),
           expect.objectContaining({ key: "debug", initialValue: "true" }),
@@ -118,10 +119,13 @@ describe("insomniaEnvImporter - Insomnia environment resources with null and obj
           }),
           expect.objectContaining({
             key: "headers",
-            initialValue: JSON.stringify({ "X-Custom": "header" }),
+            initialValue: JSON.stringify({ "X-Custom": "<<customHeader>>" }),
           }),
         ])
       )
+
+      expect(emptyEnv.name).toBe("Empty Environment")
+      expect(emptyEnv.variables).toEqual([])
     }
   })
 })

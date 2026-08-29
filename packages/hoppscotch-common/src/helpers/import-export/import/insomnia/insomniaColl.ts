@@ -46,19 +46,21 @@ const isV5InsomniaDoc = (data: InsomniaDoc) =>
   typeof data.type === "string" &&
   (data.type as string).startsWith("collection.insomnia.rest/5")
 
-const replacePathVarTemplating = (expression: unknown) => {
-  if (typeof expression !== "string") {
-    return safeStringifyValue(expression)
-  }
-  return expression.replaceAll(/:([^/]+)/g, "<<$1>>")
+const replacePathVarTemplating = (expression: unknown): string => {
+  const str =
+    typeof expression === "string"
+      ? expression
+      : safeStringifyValue(expression)
+  return str.replaceAll(/:([^/]+)/g, "<<$1>>")
 }
 
 const replaceVarTemplating = (expression: unknown, pathVar = false): string => {
-  if (typeof expression !== "string") {
-    return safeStringifyValue(expression)
-  }
+  const str =
+    typeof expression === "string"
+      ? expression
+      : safeStringifyValue(expression)
   return pipe(
-    expression,
+    str,
     pathVar ? replacePathVarTemplating : (x) => x,
     replaceInsomniaTemplating
   )

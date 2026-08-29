@@ -20,7 +20,10 @@ import { pipe } from "fp-ts/function"
 import { convert } from "insomnia-importers"
 
 import { IMPORTER_INVALID_FILE_FORMAT } from ".."
-import { replaceInsomniaTemplating } from "./insomniaEnv"
+import {
+  replaceInsomniaTemplating,
+  safeStringifyValue,
+} from "./insomniaEnv"
 import { safeParseJSONOrYAML } from "~/helpers/functional/yaml"
 import {
   InsomniaDoc,
@@ -43,12 +46,21 @@ const isV5InsomniaDoc = (data: InsomniaDoc) =>
   typeof data.type === "string" &&
   (data.type as string).startsWith("collection.insomnia.rest/5")
 
-const replacePathVarTemplating = (expression: string) =>
-  expression.replaceAll(/:([^/]+)/g, "<<$1>>")
+const replacePathVarTemplating = (expression: unknown): string => {
+  const str =
+    typeof expression === "string"
+      ? expression
+      : safeStringifyValue(expression)
+  return str.replaceAll(/:([^/]+)/g, "<<$1>>")
+}
 
-const replaceVarTemplating = (expression: string, pathVar = false) => {
+const replaceVarTemplating = (expression: unknown, pathVar = false): string => {
+  const str =
+    typeof expression === "string"
+      ? expression
+      : safeStringifyValue(expression)
   return pipe(
-    expression,
+    str,
     pathVar ? replacePathVarTemplating : (x) => x,
     replaceInsomniaTemplating
   )
@@ -80,7 +92,7 @@ const getRequestsIn = (
   )
 
 const getCollectionVariables = (
-  environment: Record<string, string> | undefined,
+  environment: Record<string, unknown> | undefined,
   folderRes?: InsomniaFolderResource
 ): HoppCollectionVariable[] => {
   const env =

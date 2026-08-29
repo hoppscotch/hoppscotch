@@ -248,7 +248,19 @@ watch(
   }
 )
 
+const ARROW_KEYS = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"]
+
+const isTextNavigationKeystroke = (ev: KeyboardEvent) =>
+  (ev.shiftKey || ev.metaKey || ev.ctrlKey || ev.altKey) &&
+  ARROW_KEYS.includes(ev.key)
+
 const handleKeystroke = (ev: KeyboardEvent) => {
+  // Selection and word jumps belong to CodeMirror, not the suggestion list below
+  if (isTextNavigationKeystroke(ev)) {
+    showSuggestionPopover.value = false
+    return
+  }
+
   if (["ArrowDown", "ArrowUp", "Enter", "Escape"].includes(ev.key)) {
     ev.preventDefault()
   }

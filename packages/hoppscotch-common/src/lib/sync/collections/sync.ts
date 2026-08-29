@@ -1,8 +1,8 @@
 import {
   generateUniqueRefId,
   HoppCollection,
+  HoppGQLRequest,
   HoppRESTRequest,
-  makeCollection,
 } from "@hoppscotch/data"
 
 import {
@@ -75,43 +75,6 @@ type ExportedCollectionFolder = {
   requests: Array<Record<string, unknown> & { id: string }>
   name: string
   data?: string
-}
-
-const addDescriptionField = (candidate: Array<Record<string, unknown>>) =>
-  candidate.map((item) => ({
-    ...item,
-    description: "description" in item ? item.description : "",
-  }))
-
-const exportedCollectionToHoppCollection = (
-  collection: ExportedCollectionFolder
-): HoppCollection => {
-  const data =
-    collection.data && collection.data !== "null"
-      ? JSON.parse(collection.data)
-      : {
-          auth: { authType: "inherit", authActive: true },
-          headers: [],
-          _ref_id: generateUniqueRefId("coll"),
-          variables: [],
-          description: null,
-        }
-
-  return makeCollection({
-    id: collection.id,
-    _ref_id: data._ref_id ?? generateUniqueRefId("coll"),
-    name: collection.name,
-    folders: collection.folders.map((folder) =>
-      exportedCollectionToHoppCollection(folder)
-    ),
-    requests: collection.requests.map((request) => ({ ...request })),
-    auth: data.auth,
-    headers: addDescriptionField(data.headers),
-    variables: data.variables ?? [],
-    description: data.description ?? null,
-    preRequestScript: data.preRequestScript ?? "",
-    testScript: data.testScript ?? "",
-  })
 }
 
 function findCollectionPathByID(
@@ -188,8 +151,7 @@ export function applyDuplicatedCollectionResult(
   exportedCollectionJSON: string
 ) {
   const parsed = JSON.parse(exportedCollectionJSON) as
-    | ExportedCollectionFolder
-    | ExportedCollectionFolder[]
+    ExportedCollectionFolder | ExportedCollectionFolder[]
 
   // The backend may return either the duplicated collection directly or wrapped
   // in an array — normalize to the single duplicated collection.
@@ -724,17 +686,16 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const request = folder.requests[requestIndex]
     if (!request) return
 
+    // Unified workspace: REST mutation handles both kinds — backend stores the request as opaque JSON in a REST row.
+    const typed = requestNew as HoppRESTRequest | HoppGQLRequest
+
     if (request.id) {
-      editUserRequest(
-        request.id,
-        (requestNew as HoppRESTRequest).name,
-        JSON.stringify(requestNew)
-      )
+      editUserRequest(request.id, typed.name, JSON.stringify(typed))
     } else {
       if (isSynced && folder.id) {
         const res = await createRESTUserRequest(
-          (requestNew as HoppRESTRequest).name,
-          JSON.stringify(requestNew),
+          typed.name,
+          JSON.stringify(typed),
           folder.id
         )
         if (res && E.isRight(res)) {
@@ -762,9 +723,11 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const parentCollectionBackendID = folder?.id
 
     if (parentCollectionBackendID) {
+      // See `editRequest` above — REST mutation handles both kinds.
+      const typed = request as HoppRESTRequest | HoppGQLRequest
       const res = await createRESTUserRequest(
-        (request as HoppRESTRequest).name,
-        JSON.stringify(request),
+        typed.name,
+        JSON.stringify(typed),
         parentCollectionBackendID
       )
 
@@ -945,7 +908,7 @@ export async function moveOrReorderRequests(
 
   let nextRequestBackendID: string | undefined
 
-  // we only need this for reordering requests, not for moving requests
+  // `!== undefined` (not truthy) so position-0 drops still take the reorder path.
   if (nextRequestIndex !== undefined) {
     // reordering
     const [newRequestIndex, newDestinationIndex] = getIndexesAfterReorder(

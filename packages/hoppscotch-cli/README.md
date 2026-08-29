@@ -35,6 +35,35 @@ hopp [options or commands] arguments
     - Outputs the response of each request.
     - Executes and outputs test-script response.
 
+    #### GraphQL support:
+
+    Collections can freely mix REST and GraphQL requests — both run in
+    collection order through the same pipeline (environment templating,
+    the full auth surface, pre-request/test scripts, collection-level
+    script inheritance, metrics, and reports).
+
+    - GraphQL requests execute as GraphQL-over-HTTP: a `POST` with a JSON
+      `{"query", "variables", "operationName"}` body.
+    - The **first operation** in the document runs; for multi-operation
+      documents its name is injected as `operationName` automatically.
+    - Environment variables resolve anywhere in the request — URL, headers,
+      the query (including a whole document stored in a variable), and
+      **inside `variables`**, including bare non-string positions like
+      `{ "count": <<n>> }`. Invalid `variables` JSON fails the request with
+      an error instead of sending a broken body.
+    - Test scripts assert on the GraphQL response body as parsed JSON, e.g.
+      `pw.expect(pw.response.body.data.hello).toBe("world")`.
+    - **Subscriptions cannot run** in a single HTTP round-trip: they are
+      reported as request errors, the run continues, and the exit code is
+      non-zero (matching the app's collection runner).
+
+    Runnable examples live in
+    [`src/__tests__/e2e/fixtures/`](./src/__tests__/e2e/fixtures/):
+    `collections/mixed-rest-gql-coll.json` (REST + GraphQL, run with
+    `--env environments/gql-envs.json`) and `collections/gql-coll.json`
+    (GraphQL only). They run in CI against the public echo server at
+    `https://echo.hoppscotch.io/graphql`.
+
     #### Options:
 
     ##### `-e, --env <file_path_or_id> `

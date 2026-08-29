@@ -1,0 +1,50 @@
+[
+  {
+    "v": 1,
+    "name": "GraphQL Only",
+    "folders": [],
+    "requests": [
+      {
+        "v": 10,
+        "name": "Named query",
+        "url": "https://echo.hoppscotch.io/graphql",
+        "headers": [],
+        "query": "query RequestInfo { method url }",
+        "variables": "{}",
+        "auth": { "authType": "none", "authActive": true },
+        "description": null,
+        "responses": {},
+        "preRequestScript": "",
+        "testScript": "pw.test(\"echoes the POST method\", () => { pw.expect(pw.response.body.data.method).toBe(\"POST\") })"
+      },
+      {
+        "v": 10,
+        "name": "Scripted auth header",
+        "url": "https://echo.hoppscotch.io/graphql",
+        "headers": [
+          { "key": "Authorization", "value": "Bearer <<myToken>>", "active": true, "description": "" }
+        ],
+        "query": "query AuthEcho { headers { key value } }",
+        "variables": "{}",
+        "auth": { "authType": "none", "authActive": true },
+        "description": null,
+        "responses": {},
+        "preRequestScript": "pw.env.set(\"myToken\", \"secret123\")",
+        "testScript": "pw.test(\"scripted header echoed\", () => { const auth = pw.response.body.data.headers.find((h) => h.key === \"authorization\"); pw.expect(auth.value).toBe(\"Bearer secret123\") })"
+      },
+      {
+        "v": 10,
+        "name": "Anonymous query",
+        "url": "https://echo.hoppscotch.io/graphql",
+        "headers": [],
+        "query": "{ url }",
+        "variables": "{}",
+        "auth": { "authType": "none", "authActive": true },
+        "description": null,
+        "responses": {},
+        "preRequestScript": "",
+        "testScript": ""
+      }
+    ]
+  }
+]

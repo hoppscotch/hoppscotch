@@ -13,7 +13,13 @@ export type NetworkStrategy = (
 ) => TE.TaskEither<RelayError, HoppRESTResponse>
 
 export function createRESTNetworkRequestStream(
-  request: EffectiveHoppRESTRequest
+  request: EffectiveHoppRESTRequest,
+  streamOptions?: {
+    // Opts the request out of the shared cookie jar at the interceptor
+    // level (`meta.options.cookies: false`) — isolated embed runs must not
+    // ride the viewer's cookies even on cookie-enabled platforms (desktop)
+    noCookieJar?: boolean
+  }
 ): [Observable<HoppRESTResponse>, () => void] {
   const response = new BehaviorSubject<HoppRESTResponse>({
     type: "loading",
@@ -23,6 +29,12 @@ export function createRESTNetworkRequestStream(
   const req = cloneDeep(request)
 
   const execResult = RESTRequest.toRequest(req).then((kernelRequest) => {
+    if (kernelRequest && streamOptions?.noCookieJar) {
+      kernelRequest.meta = {
+        ...kernelRequest.meta,
+        options: { ...kernelRequest.meta?.options, cookies: false },
+      }
+    }
     if (!kernelRequest) {
       response.next({
         type: "network_fail",

@@ -29,6 +29,7 @@
       :is-editable="false"
       :is-test-runner="true"
       :show-response="showResponse"
+      :tab-id="tabId"
     />
     <HoppSmartPlaceholder
       v-else
@@ -45,7 +46,7 @@ import { useVModel } from "@vueuse/core"
 import { computed } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { useColorMode } from "~/composables/theming"
-import { HoppRequestDocument } from "~/helpers/rest/document"
+import { HoppRequestDocument } from "~/helpers/tab/document"
 import { TestRunnerRequest } from "~/services/test-runner/test-runner.service"
 
 const t = useI18n()
@@ -54,6 +55,8 @@ const colorMode = useColorMode()
 const props = defineProps<{
   showResponse: boolean
   document: TestRunnerRequest
+  /** Owning runner tab — the lens renderers key their state by tab. */
+  tabId: string
 }>()
 
 const emit = defineEmits<{

@@ -34,7 +34,7 @@ import MiniSearch from "minisearch"
 import { map } from "rxjs"
 import { useStreamStatic } from "~/composables/stream"
 import { GQLError, runGQLQuery } from "~/helpers/backend/GQLClient"
-import { deleteTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
+import { createDuplicateEnvironment as duplicateTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
 import {
   SelectedEnvironmentIndex,
   createEnvironment,
@@ -81,10 +81,6 @@ export class EnvironmentsSpotlightSearcherService extends StaticSpotlightSearche
 
   public readonly searcherID = "environments"
   public searcherSectionTitle = this.t("spotlight.environments.title")
-
-  private readonly workspaceService = this.bind(WorkspaceService)
-
-  private workspace = this.workspaceService.currentWorkspace
 
   private readonly spotlight = this.bind(SpotlightService)
 
@@ -218,7 +214,7 @@ export class EnvironmentsSpotlightSearcherService extends StaticSpotlightSearche
 
     if (this.selectedEnvIndex.value?.type === "TEAM_ENV") {
       pipe(
-        deleteTeamEnvironment(this.selectedEnvIndex.value.teamEnvID),
+        duplicateTeamEnvironment(this.selectedEnvIndex.value.teamEnvID),
         TE.match(
           (err: GQLError<string>) => {
             console.error(err)
@@ -244,12 +240,16 @@ export class EnvironmentsSpotlightSearcherService extends StaticSpotlightSearche
         break
       case "edit_selected_env":
         if (this.selectedEnv.value) {
-          if (this.workspace.value.type === "personal") {
-            invokeAction(`modals.my.environment.edit`, {
+          // Branch on the SELECTED environment's scope, not the workspace —
+          // a personal env can be selected inside a team workspace, and the
+          // team editor resolves by name (a collision would edit the wrong,
+          // team-shared environment)
+          if (this.selectedEnvIndex.value?.type === "TEAM_ENV") {
+            invokeAction(`modals.team.environment.edit`, {
               envName: this.selectedEnv.value.name,
             })
           } else {
-            invokeAction(`modals.team.environment.edit`, {
+            invokeAction(`modals.my.environment.edit`, {
               envName: this.selectedEnv.value.name,
             })
           }

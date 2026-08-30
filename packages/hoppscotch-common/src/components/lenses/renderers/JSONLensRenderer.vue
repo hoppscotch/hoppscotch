@@ -459,7 +459,7 @@ const jsonResponseBodyText = computedAsync(
 
     return E.right(responseBodyText.value)
   },
-  E.right("")
+  E.right(responseBodyText.value)
 )
 
 const jsonBodyText = computed(() => {

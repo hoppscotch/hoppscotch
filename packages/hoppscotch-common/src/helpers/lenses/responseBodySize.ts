@@ -15,6 +15,9 @@ export const JSON_FORMATTED_PREVIEW_LIMIT_BYTES = 5 * 1024 * 1024
 
 export function getResponseBodyByteLength(body: string | ArrayBuffer): number {
   if (typeof body === "string") {
+    // body.length (UTF-16 units) is a lower bound on UTF-8 byte count;
+    // skip encode() for strings already over the threshold. Do not use this
+    // return value for display sizes.
     if (body.length > JSON_FORMATTED_PREVIEW_LIMIT_BYTES) {
       return body.length
     }

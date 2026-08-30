@@ -20,7 +20,7 @@ export function isValidJSONResponse(contents: string | ArrayBuffer): boolean {
   const resolvedStr =
     typeof contents === "string"
       ? contents
-      : new TextDecoder("utf-8").decode(contents)
+      : new TextDecoder("utf-8").decode(contents).replace(/\0+$/, "")
 
   if (!resolvedStr.trim()) {
     return false

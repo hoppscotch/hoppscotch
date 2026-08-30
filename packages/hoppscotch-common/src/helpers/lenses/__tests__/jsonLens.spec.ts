@@ -87,6 +87,10 @@ describe("isValidJSONResponse", () => {
     expect(isValidJSONResponse(encode('{"ok":true}'))).toBe(true)
   })
 
+  test("accepts ArrayBuffer JSON with trailing NUL characters", () => {
+    expect(isValidJSONResponse(encode('{"ok":true}\0\0'))).toBe(true)
+  })
+
   test("rejects empty responses", () => {
     expect(isValidJSONResponse("")).toBe(false)
     expect(isValidJSONResponse("   ")).toBe(false)
@@ -158,6 +162,14 @@ describe("getSuitableLenses", () => {
   test("still sniffs JSON in small text/plain bodies", () => {
     const lenses = getSuitableLenses(
       successResponse("text/plain", encode('{"ok":true}'))
+    )
+
+    expect(lenses.map((lens) => lens.renderer)).toContain(jsonLens.renderer)
+  })
+
+  test("still sniffs JSON with trailing NULs in text/plain bodies", () => {
+    const lenses = getSuitableLenses(
+      successResponse("text/plain", encode('{"ok":true}\0\0'))
     )
 
     expect(lenses.map((lens) => lens.renderer)).toContain(jsonLens.renderer)

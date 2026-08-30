@@ -9,7 +9,7 @@
       </label>
       <div class="flex items-center">
         <HoppButtonSecondary
-          v-if="showResponse"
+          v-if="showResponse && !isLargeJsonPreview"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
           :class="{ '!text-accent': WRAP_LINES }"
@@ -17,7 +17,7 @@
           @click.prevent="toggleNestedSetting('WRAP_LINES', 'httpResponseBody')"
         />
         <HoppButtonSecondary
-          v-if="showResponse"
+          v-if="showResponse && !isLargeJsonPreview"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.filter')"
           :icon="IconFilter"
@@ -59,7 +59,12 @@
           @click="copyResponse"
         />
         <tippy
-          v-if="showResponse && response.body && !isEditable"
+          v-if="
+            showResponse &&
+            response.body &&
+            !isEditable &&
+            !(isTestRunner && isLargeJsonPreview)
+          "
           interactive
           trigger="click"
           theme="popover"
@@ -78,6 +83,7 @@
               @keyup.escape="hide()"
             >
               <HoppSmartItem
+                v-if="!isLargeJsonPreview"
                 :label="t('response.generate_data_schema')"
                 :icon="IconNetwork"
                 @click="
@@ -100,7 +106,7 @@
       </div>
     </div>
     <div
-      v-if="toggleFilter"
+      v-if="toggleFilter && !isLargeJsonPreview"
       class="sticky top-lowerTertiaryStickyFold z-10 flex flex-shrink-0 overflow-x-auto border-b border-dividerLight bg-primary"
     >
       <div
@@ -147,13 +153,25 @@
       </div>
     </div>
     <div
+      v-if="isLargeJsonPreview"
+      class="flex flex-1 flex-col justify-center gap-2 px-4 py-6"
+    >
+      <p class="font-semibold text-secondary">
+        {{ t("response.formatted_preview_too_large") }}
+      </p>
+      <p class="text-secondaryLight">
+        {{ t("response.formatted_preview_too_large_help") }}
+      </p>
+    </div>
+    <div
+      v-else
       ref="containerRef"
       class="h-full relative overflow-auto flex flex-col flex-1"
     >
       <div ref="jsonResponse" class="absolute inset-0 h-full"></div>
     </div>
     <div
-      v-if="outlinePath"
+      v-if="outlinePath && !isLargeJsonPreview"
       class="sticky bottom-0 z-10 flex flex-shrink-0 flex-nowrap overflow-auto overflow-x-auto border-t border-dividerLight bg-primaryLight px-2"
     >
       <div
@@ -283,6 +301,7 @@ import {
 } from "~/helpers/editor/utils"
 import { useI18n } from "@composables/i18n"
 import {
+  getResponseBodyText,
   useCopyResponse,
   useResponseBody,
   useDownloadResponse,
@@ -293,6 +312,7 @@ import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { HoppRESTRequestResponse } from "@hoppscotch/data"
 import { useScrollerRef } from "~/composables/useScrollerRef"
+import { isBodyTooLargeForJsonPreview } from "~/helpers/lenses/responseBodySize"
 
 const t = useI18n()
 
@@ -349,6 +369,14 @@ const isHttpResponse = computed(() => {
   )
 })
 
+const isLargeJsonPreview = computed(() => {
+  if (!("body" in props.response) || props.response.body === undefined) {
+    return false
+  }
+
+  return isBodyTooLargeForJsonPreview(props.response.body)
+})
+
 const toggleFilter = ref(false)
 const filterQueryText = ref("")
 const debouncedFilterQuery = refDebounced(filterQueryText, 300)
@@ -357,6 +385,10 @@ type BodyParseError =
   { type: "JSON_PARSE_FAILED" } | { type: "JSON_QUERY_FAILED"; error: Error }
 
 const responseJsonObject = computed(() => {
+  if (isLargeJsonPreview.value) {
+    return undefined
+  }
+
   if (isHttpResponse.value) {
     const { responseBodyText } = useResponseBody(
       props.response as HoppRESTResponse
@@ -384,10 +416,17 @@ const responseName = computed(() => {
   return props.response.name
 })
 
-const { responseBodyText } = useResponseBody(props.response)
+const decodedResponseBody = useResponseBody(props.response)
+const responseBodyText = computed(() =>
+  isLargeJsonPreview.value ? "" : decodedResponseBody.responseBodyText.value
+)
 
 const jsonResponseBodyText = computedAsync(
   async (): Promise<E.Either<BodyParseError, string | object>> => {
+    if (isLargeJsonPreview.value) {
+      return E.right("")
+    }
+
     if (debouncedFilterQuery.value.length > 0 && responseJsonObject.value) {
       if (E.isLeft(responseJsonObject.value)) {
         return responseJsonObject.value
@@ -424,6 +463,10 @@ const jsonResponseBodyText = computedAsync(
 )
 
 const jsonBodyText = computed(() => {
+  if (isLargeJsonPreview.value) {
+    return ""
+  }
+
   const { responseBodyText } = useResponseBody(
     props.response as HoppRESTResponse
   )
@@ -460,13 +503,17 @@ const jsonBodyText = computed(() => {
   )
 })
 
-const ast = computed(() =>
-  pipe(
+const ast = computed(() => {
+  if (isLargeJsonPreview.value) {
+    return null
+  }
+
+  return pipe(
     jsonBodyText.value,
     O.tryCatchK(jsonParse),
     O.getOrElseW(() => null)
   )
-)
+})
 
 const filterResponseError = computed(() =>
   pipe(
@@ -504,7 +551,23 @@ const saveAsExample = () => {
   emit("save-as-example")
 }
 
-const { copyIcon, copyResponse } = useCopyResponse(jsonBodyText)
+const copySource = computed(() => {
+  if (isLargeJsonPreview.value && "body" in props.response) {
+    return getResponseBodyText(props.response.body)
+  }
+
+  return jsonBodyText.value
+})
+
+const downloadSource = computed(() => {
+  if (isLargeJsonPreview.value && "body" in props.response) {
+    return props.response.body
+  }
+
+  return jsonBodyText.value
+})
+
+const { copyIcon, copyResponse } = useCopyResponse(copySource)
 
 /**
  * Erases the response body.
@@ -517,7 +580,7 @@ const eraseResponse = () => {
 
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "application/json",
-  jsonBodyText,
+  downloadSource,
   t("filename.lens", {
     request_name: responseName.value,
   })
@@ -556,8 +619,12 @@ const jumpCursor = (ast: JSONValue | JSONObjectMember) => {
   cursor.value = pos
 }
 
-const outlinePath = computed(() =>
-  pipe(
+const outlinePath = computed(() => {
+  if (isLargeJsonPreview.value) {
+    return null
+  }
+
+  return pipe(
     ast.value,
     O.fromNullable,
     O.map((ast) =>
@@ -568,7 +635,7 @@ const outlinePath = computed(() =>
     ),
     O.getOrElseW(() => null)
   )
-)
+})
 
 const toggleFilterState = () => {
   filterQueryText.value = ""

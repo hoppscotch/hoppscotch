@@ -98,7 +98,7 @@ import IconEye from "~icons/lucide/eye"
 import IconEyeoff from "~icons/lucide/eye-off"
 import { CompletionContext, autocompletion } from "@codemirror/autocomplete"
 import { useService } from "dioc/vue"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { syntaxTree } from "@codemirror/language"
 import { uniqueID } from "~/helpers/utils/uniqueID"
 import { getEffectiveVariablesForRequest } from "~/helpers/utils/environments"
@@ -390,13 +390,15 @@ const aggregateEnvs = useReadonlyStream(
   []
 ) as Ref<AggregateEnvironment[]>
 
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 
 const envVars = computed(() => {
   // If envs are passed directly as props, mask secrets and return them.
   // Keep sourceEnvID: the env tooltip uses it to look up secret/current values
   // for collection-scoped variables (otherwise they show as "Empty").
-  if (props.envs?.length) {
+  // An explicitly-passed EMPTY list scopes to nothing (embeds) — only a
+  // missing prop falls back to the global aggregate envs.
+  if (props.envs) {
     return props.envs.map(
       ({
         key,
@@ -419,16 +421,21 @@ const envVars = computed(() => {
   const currentTab = tabs.currentActiveTab.value
   const { document } = currentTab
   const isRequest = document.type === "request"
-  const isExample = document.type === "example-response"
+  const isRESTExample = document.type === "example-response"
+  const isGQLExample = document.type === "gql-example-response"
+  const isExample = isRESTExample || isGQLExample
+  const isGQLRequest = document.type === "gql-request"
 
   const requestVariables = isRequest
     ? document.request.requestVariables
-    : isExample
+    : isRESTExample
       ? document.response.originalRequest.requestVariables
       : []
 
   const inheritedVariables =
-    isRequest || isExample ? document.inheritedProperties?.variables : []
+    isRequest || isExample || isGQLRequest
+      ? document.inheritedProperties?.variables
+      : []
 
   // Merge in precedence order (request → collection → environment).
   // Collection secrets stay masked here (showSecretCollectionValues = false).

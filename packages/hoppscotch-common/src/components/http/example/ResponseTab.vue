@@ -10,7 +10,11 @@
       />
     </template>
     <template #secondary>
-      <HttpExampleResponse v-model:document="tab.document" :is-embed="false" />
+      <HttpExampleResponse
+        v-model:document="tab.document"
+        :is-embed="false"
+        :tab-id="tab.id"
+      />
     </template>
   </AppPaneLayout>
 </template>
@@ -20,7 +24,7 @@ import { watch, ref, computed } from "vue"
 import { useVModel } from "@vueuse/core"
 import { cloneDeep, isEqual } from "lodash-es"
 import { HoppTab } from "~/services/tab"
-import { HoppSavedExampleDocument } from "~/helpers/rest/document"
+import { HoppSavedExampleDocument } from "~/helpers/tab/document"
 import { RESTOptionTabs } from "../RequestOptions.vue"
 import { useReadonlyStream } from "@composables/stream"
 import {

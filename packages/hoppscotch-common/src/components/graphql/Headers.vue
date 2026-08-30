@@ -478,12 +478,10 @@ const updateHeader = (index: number, header: GQLHeader & { id: number }) => {
 const deleteHeader = (index: number) => {
   const headersBeforeDeletion = clone(workingHeaders.value)
 
-  if (
-    !(
-      headersBeforeDeletion.length > 0 &&
-      index === headersBeforeDeletion.length - 1
-    )
-  ) {
+  if (!(
+    headersBeforeDeletion.length > 0 &&
+    index === headersBeforeDeletion.length - 1
+  )) {
     if (deletionToast.value) {
       deletionToast.value.goAway(0)
       deletionToast.value = null
@@ -699,4 +697,9 @@ const mask = (header: any) => {
 }
 
 const changeTab = () => emit("change-tab", "authorization")
+
+// No inspection wiring here: this component serves the legacy /graphql page,
+// whose tabs live in GQLTabService — the InspectionService only inspects the
+// unified workspace's tabs, so reading its results here would show warnings
+// belonging to a different page's active tab.
 </script>

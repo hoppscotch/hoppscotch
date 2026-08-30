@@ -60,7 +60,7 @@ export class ShortcodeWithUserEmail {
   })
   createdOn: Date;
 
-  @Field({
+  @Field(() => ShortcodeCreator, {
     description: 'Details of user who created the shortcode',
     nullable: true,
   })

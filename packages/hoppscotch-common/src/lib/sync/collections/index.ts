@@ -25,6 +25,7 @@ import {
   HoppRESTHeaders,
   HoppRESTParam,
   HoppRESTRequest,
+  isGQLRequest,
   makeCollection,
 } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
@@ -128,6 +129,70 @@ function addDescriptionField(
   }))
 }
 
+// Unified collections can hold cross-type requests, so try both schemas before rebuilding.
+function normalizeCollectionRequest(
+  request: HoppRESTRequest | HoppGQLRequest,
+  collectionType: "REST" | "GQL"
+): HoppRESTRequest | HoppGQLRequest {
+  if (collectionType === "REST") {
+    const restParsed = HoppRESTRequest.safeParse(request)
+    if (restParsed.type === "ok") return restParsed.value
+
+    if (isGQLRequest(request)) {
+      const gqlParsed = HoppGQLRequest.safeParse(request)
+      return gqlParsed.type === "ok"
+        ? gqlParsed.value
+        : (request as HoppGQLRequest)
+    }
+
+    const r = request as HoppRESTRequest
+    return {
+      v: r.v,
+      id: r.id,
+      name: r.name,
+      endpoint: r.endpoint,
+      method: r.method,
+      params: addDescriptionField(r.params) as HoppRESTParam[],
+      requestVariables: r.requestVariables,
+      auth: r.auth,
+      headers: addDescriptionField(r.headers) as HoppRESTHeaders,
+      body: r.body,
+      preRequestScript: r.preRequestScript,
+      testScript: r.testScript,
+      responses: r.responses,
+      description: r.description ?? null,
+      _ref_id: r._ref_id ?? generateUniqueRefId("req"),
+    }
+  }
+
+  const gqlParsed = HoppGQLRequest.safeParse(request)
+  if (gqlParsed.type === "ok") return gqlParsed.value
+
+  if (!isGQLRequest(request)) {
+    const restParsed = HoppRESTRequest.safeParse(request)
+    return restParsed.type === "ok"
+      ? restParsed.value
+      : (request as HoppRESTRequest)
+  }
+
+  const g = request as HoppGQLRequest
+  return {
+    id: g.id,
+    v: g.v,
+    auth: g.auth,
+    headers: addDescriptionField(g.headers) as GQLHeader[],
+    name: g.name,
+    query: g.query,
+    url: g.url,
+    variables: g.variables,
+    description: g.description ?? null,
+    _ref_id: g._ref_id ?? generateUniqueRefId("req"),
+    responses: g.responses ?? {},
+    preRequestScript: g.preRequestScript ?? "",
+    testScript: g.testScript ?? "",
+  }
+}
+
 export function exportedCollectionToHoppCollection(
   collection: ExportedUserCollectionREST | ExportedUserCollectionGQL,
   collectionType: "REST" | "GQL"
@@ -153,51 +218,9 @@ export function exportedCollectionToHoppCollection(
       folders: restCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
       ),
-      requests: restCollection.requests.map((request) => {
-        const requestParsedResult = HoppRESTRequest.safeParse(request)
-        if (requestParsedResult.type === "ok") {
-          return requestParsedResult.value
-        }
-
-        const {
-          v,
-          id,
-          auth,
-          body,
-          endpoint,
-          headers,
-          method,
-          name,
-          params,
-          preRequestScript,
-          testScript,
-          requestVariables,
-          responses,
-          description,
-          _ref_id,
-        } = request
-
-        const resolvedParams = addDescriptionField(params)
-        const resolvedHeaders = addDescriptionField(headers)
-
-        return {
-          v,
-          id,
-          name,
-          endpoint,
-          method,
-          params: resolvedParams,
-          requestVariables,
-          auth,
-          headers: resolvedHeaders,
-          body,
-          preRequestScript,
-          testScript,
-          responses,
-          description: description ?? null,
-          _ref_id: _ref_id ?? generateUniqueRefId("req"),
-        }
-      }),
+      requests: restCollection.requests.map((request) =>
+        normalizeCollectionRequest(request, "REST")
+      ),
       description: data.description ?? null,
       auth: data.auth,
       headers: addDescriptionField(data.headers),
@@ -226,27 +249,9 @@ export function exportedCollectionToHoppCollection(
     folders: gqlCollection.folders.map((folder) =>
       exportedCollectionToHoppCollection(folder, collectionType)
     ),
-    requests: gqlCollection.requests.map((request) => {
-      const requestParsedResult = HoppGQLRequest.safeParse(request)
-      if (requestParsedResult.type === "ok") {
-        return requestParsedResult.value
-      }
-
-      const { v, auth, headers, name, id, query, url, variables } = request
-
-      const resolvedHeaders = addDescriptionField(headers)
-
-      return {
-        id,
-        v,
-        auth,
-        headers: resolvedHeaders,
-        name,
-        query,
-        url,
-        variables,
-      }
-    }),
+    requests: gqlCollection.requests.map((request) =>
+      normalizeCollectionRequest(request, "GQL")
+    ),
     auth: data.auth,
     headers: addDescriptionField(data.headers),
     variables: data.variables ?? [],
@@ -809,10 +814,14 @@ function setupUserCollectionDuplicatedSubscription() {
       // Duplicated collection will have a unique ref id
       const _ref_id = generateUniqueRefId("coll")
 
-      const folders = transformDuplicatedCollections(childCollectionsJSONStr)
+      const folders = transformDuplicatedCollections(
+        childCollectionsJSONStr,
+        collectionType
+      )
 
       const requests = transformDuplicatedCollectionRequests(
-        userRequests as UserRequest[]
+        userRequests as UserRequest[],
+        collectionType
       )
 
       // New collection to be added to store with the transformed data
@@ -996,10 +1005,12 @@ function setupUserRequestCreatedSubscription() {
   userRequestCreated$.subscribe((res) => {
     if (E.isRight(res)) {
       const collectionID = res.right.userRequestCreated.collectionID
-      const request = JSON.parse(res.right.userRequestCreated.request)
-      const requestID = res.right.userRequestCreated.id
-
       const requestType = res.right.userRequestCreated.type
+      const request = normalizeCollectionRequest(
+        JSON.parse(res.right.userRequestCreated.request),
+        requestType
+      )
+      const requestID = res.right.userRequestCreated.id
 
       const { collectionStore } = getStoreByCollectionType(requestType)
 
@@ -1021,7 +1032,7 @@ function setupUserRequestCreatedSubscription() {
         runDispatchWithOutSyncing(() => {
           requestType == "REST"
             ? saveRESTRequestAs(collectionPath, request)
-            : saveGraphqlRequestAs(collectionPath, request)
+            : saveGraphqlRequestAs(collectionPath, request as HoppGQLRequest)
 
           const target = navigateToFolderWithIndexPath(
             collectionStore.value.state,
@@ -1059,19 +1070,20 @@ function setupUserRequestUpdatedSubscription() {
       const collectionPath = requestPath?.collectionPath
       const requestIndex = requestPath?.requestIndex
 
+      const updatedRequest = normalizeCollectionRequest(
+        JSON.parse(res.right.userRequestUpdated.request),
+        requestType
+      )
+
       ;(requestIndex || requestIndex == 0) &&
         collectionPath &&
         runDispatchWithOutSyncing(() => {
           requestType == "REST"
-            ? editRESTRequest(
-                collectionPath,
-                requestIndex,
-                JSON.parse(res.right.userRequestUpdated.request)
-              )
+            ? editRESTRequest(collectionPath, requestIndex, updatedRequest)
             : editGraphqlRequest(
                 collectionPath,
                 requestIndex,
-                JSON.parse(res.right.userRequestUpdated.request)
+                updatedRequest as HoppGQLRequest
               )
         })
     }
@@ -1164,8 +1176,9 @@ function setupUserRequestMovedSubscription() {
             )
           : undefined
 
+        // `!== undefined` (not truthy) so cross-tab reorders to position 0
+        // still dispatch; `!== -1` guards a getRequestIndex findIndex miss.
         nextRequestIndex !== undefined &&
-          nextRequestIndex !== -1 &&
           nextCollectionPath &&
           sourceRequestPath &&
           runDispatchWithOutSyncing(() => {
@@ -1317,7 +1330,8 @@ function getRequestIndex(
 }
 
 function transformDuplicatedCollections(
-  collectionsJSONStr: string
+  collectionsJSONStr: string,
+  collectionType: "REST" | "GQL"
 ): HoppCollection[] {
   const parsedCollections: UserCollectionDuplicatedData[] =
     JSON.parse(collectionsJSONStr)
@@ -1351,9 +1365,15 @@ function transformDuplicatedCollections(
 
       const _ref_id = generateUniqueRefId("coll")
 
-      const folders = transformDuplicatedCollections(childCollectionsJSONStr)
+      const folders = transformDuplicatedCollections(
+        childCollectionsJSONStr,
+        collectionType
+      )
 
-      const requests = transformDuplicatedCollectionRequests(userRequests)
+      const requests = transformDuplicatedCollectionRequests(
+        userRequests,
+        collectionType
+      )
 
       return makeCollection({
         id,
@@ -1373,14 +1393,18 @@ function transformDuplicatedCollections(
 }
 
 function transformDuplicatedCollectionRequests(
-  requests: UserRequest[]
+  requests: UserRequest[],
+  collectionType: "REST" | "GQL"
 ): HoppRESTRequest[] | HoppGQLRequest[] {
   return requests.map(({ id, request }) => {
-    const parsedRequest = JSON.parse(request)
+    const normalized = normalizeCollectionRequest(
+      JSON.parse(request),
+      collectionType
+    )
 
     return {
-      ...parsedRequest,
+      ...normalized,
       id,
     }
-  })
+  }) as HoppRESTRequest[] | HoppGQLRequest[]
 }

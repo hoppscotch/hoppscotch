@@ -11,12 +11,7 @@ type Options = {
 }
 
 type PossibleEvent =
-  | "connect"
-  | "connect_error"
-  | "reconnect_error"
-  | "error"
-  | "disconnect"
-  | "*"
+  "connect" | "connect_error" | "reconnect_error" | "error" | "disconnect" | "*"
 
 export interface SIOClient {
   connect(url: string, opts?: Options): void

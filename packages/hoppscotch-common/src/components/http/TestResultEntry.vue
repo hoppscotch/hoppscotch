@@ -77,6 +77,14 @@ import {
 import IconCheck from "~icons/lucide/check"
 import IconClose from "~icons/lucide/x"
 
+// The template renders `<HttpTestResultEntry>` recursively for nested test
+// groups. Auto-imported component names are resolved per-file by
+// unplugin-vue-components, which can't import a file into itself, so the
+// recursive tag only resolves via Vue's self-name lookup — which needs the
+// component's own `name` to match the tag. Without this, nested groups fail
+// to resolve and silently render nothing.
+defineOptions({ name: "HttpTestResultEntry" })
+
 const t = useI18n()
 
 const props = withDefaults(

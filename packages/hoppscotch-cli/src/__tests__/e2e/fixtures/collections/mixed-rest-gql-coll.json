@@ -1,0 +1,57 @@
+[
+  {
+    "v": 1,
+    "name": "Mixed REST GQL Suite",
+    "folders": [
+      {
+        "v": 1,
+        "name": "Inherited",
+        "folders": [],
+        "requests": [
+          {
+            "v": 10,
+            "name": "GQL nested in folder",
+            "url": "https://echo.hoppscotch.io/graphql",
+            "headers": [],
+            "query": "{ method }",
+            "variables": "{}",
+            "auth": { "authType": "none", "authActive": true },
+            "description": null,
+            "responses": {},
+            "preRequestScript": "",
+            "testScript": "pw.test(\"anonymous query in nested folder\", () => { pw.expect(pw.response.body.data.method).toBe(\"POST\") })"
+          }
+        ]
+      }
+    ],
+    "requests": [
+      {
+        "v": "1",
+        "name": "REST echo",
+        "method": "GET",
+        "endpoint": "https://echo.hoppscotch.io",
+        "params": [],
+        "headers": [],
+        "preRequestScript": "",
+        "testScript": "pw.test(\"REST responds 200\", () => { pw.expect(pw.response.status).toBe(200); pw.expect(pw.response.body.method).toBe(\"GET\") })",
+        "auth": { "authType": "none", "authActive": true },
+        "body": { "contentType": null, "body": null }
+      },
+      {
+        "v": 10,
+        "name": "GQL env templated header",
+        "url": "https://echo.hoppscotch.io/graphql",
+        "headers": [
+          { "key": "x-hopp-greeting", "value": "<<greeting>>", "active": true, "description": "" }
+        ],
+        "query": "query GreetingEcho { headers { key value } }",
+        "variables": "{}",
+        "auth": { "authType": "none", "authActive": true },
+        "description": null,
+        "responses": {},
+        "preRequestScript": "",
+        "testScript": "pw.test(\"env templated header echoed\", () => { const greeting = pw.response.body.data.headers.find((h) => h.key === \"x-hopp-greeting\"); pw.expect(greeting.value).toBe(\"hello-world\") })"
+      }
+    ]
+  }
+]

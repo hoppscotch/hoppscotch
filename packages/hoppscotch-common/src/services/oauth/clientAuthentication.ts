@@ -51,10 +51,14 @@ export const applyRequestParams = (
     ?.filter((param) => param.active && param.key)
     .forEach((param) => {
       const normalizedKey = param.key.toLowerCase()
+      const hasAuthorizationHeader = Object.keys(headers).some(
+        (key) => key.toLowerCase() === "authorization"
+      )
 
       if (
-        reservedOAuthParamKeys.has(normalizedKey) ||
-        additionalReservedParamKeys?.has(normalizedKey)
+        (reservedOAuthParamKeys.has(normalizedKey) ||
+          additionalReservedParamKeys?.has(normalizedKey)) &&
+        !(normalizedKey === "authorization" && !hasAuthorizationHeader)
       ) {
         return
       }

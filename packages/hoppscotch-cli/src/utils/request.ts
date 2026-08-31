@@ -38,30 +38,28 @@ import { getTestScriptParams, hasFailedTestCases, testRunner } from "./test";
  * @param variable Variable to be processed
  * @returns Updated variable with value from system environment
  */
-const processVariables = (variable: Environment["variables"][number]) => {
-  const trimIfString = (val: unknown) =>
-    typeof val === "string" ? val.trim() : val;
-
-  // Only process secret variables to avoid changing existing behavior
+export const processVariables = (
+  variable: Environment["variables"][number]
+) => {
   if (!variable.secret) {
-    return variable; 
+    return variable;
   }
 
-  const envValue = trimIfString(process.env[variable.key]);
+  const isNonEmptyString = (value: unknown): value is string =>
+    typeof value === "string" && value.trim().length > 0;
 
-  const current = trimIfString(
-    "currentValue" in variable ? variable.currentValue : undefined
-  );
+  const current =
+    "currentValue" in variable ? variable.currentValue : undefined;
+  const envValue = process.env[variable.key];
+  const initial = variable.initialValue;
 
-  const initial = trimIfString(variable.initialValue);
+  let resolvedValue: string;
 
-  let resolvedValue: unknown;
-
-  if (typeof current === "string" && current.length > 0) {
+  if (isNonEmptyString(current)) {
     resolvedValue = current;
-  } else if (typeof envValue === "string" && envValue.length > 0) {
+  } else if (isNonEmptyString(envValue)) {
     resolvedValue = envValue;
-  } else if (typeof initial === "string" && initial.length > 0) {
+  } else if (isNonEmptyString(initial)) {
     resolvedValue = initial;
   } else {
     resolvedValue = "";

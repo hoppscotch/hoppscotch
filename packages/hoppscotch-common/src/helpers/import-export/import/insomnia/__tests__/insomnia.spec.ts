@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import * as E from "fp-ts/Either"
 
 import { insomniaEnvImporter, replaceInsomniaTemplating } from "../insomniaEnv"
-import { replacePathVarTemplating } from "../insomniaColl"
+import { hoppInsomniaImporter, replacePathVarTemplating } from "../insomniaColl"
 
 describe("insomnia import templating", () => {
   it("coerces non-string templating inputs instead of crashing (#6606)", () => {
@@ -52,5 +52,48 @@ describe("insomnia import templating", () => {
       c: "true",
       d: "plain",
     })
+  })
+
+  it('preserves null v5 collection and folder env values as the literal string "null"', async () => {
+    const contents = [
+      JSON.stringify({
+        _type: "export",
+        __export_format: 5,
+        type: "collection.insomnia.rest/5.0.1",
+        name: "test-collection",
+        meta: { id: "w_1", created: 1, modified: 1, description: null },
+        environments: { data: { a: null, b: 123, c: true, d: "plain" } },
+        collection: [
+          {
+            name: "folder",
+            meta: { id: "f_1", created: 1, modified: 1, description: null },
+            children: [],
+            environment: { f: null, g: false },
+          },
+        ],
+      }),
+    ]
+
+    const result = await hoppInsomniaImporter(contents)()
+
+    if (!E.isRight(result)) {
+      throw new Error("expected the import to succeed")
+    }
+
+    const [collection] = result.right
+    const collectionValues = Object.fromEntries(
+      collection.variables.map((v) => [v.key, v.initialValue])
+    )
+    expect(collectionValues).toEqual({
+      a: "null",
+      b: "123",
+      c: "true",
+      d: "plain",
+    })
+
+    const folderValues = Object.fromEntries(
+      collection.folders[0].variables.map((v) => [v.key, v.initialValue])
+    )
+    expect(folderValues).toEqual({ f: "null", g: "false" })
   })
 })

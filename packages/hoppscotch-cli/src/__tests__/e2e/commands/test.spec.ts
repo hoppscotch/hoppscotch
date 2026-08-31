@@ -1052,7 +1052,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
           ? fs.readFileSync(absPath).toString()
           : "";
         const combinedOutput = `${result.stdout}\n${result.stderr}\n${fileContents}`;
-        const { isTransient } = isTransientCliFailure(combinedOutput);
+        const { isTransient, detail } = isTransientCliFailure(combinedOutput);
         const isLastAttempt = attempt === maxAttempts - 1;
 
         // Non-transient outcome — surface to caller (real bug or intentional
@@ -1063,7 +1063,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
 
         if (!isLastAttempt) {
           console.log(
-            `⚠️  Transient signal in JUnit snapshot run — retrying once for a clean snapshot...`
+            `⚠️  Transient signal (${detail}) in JUnit snapshot run — retrying once for a clean snapshot...`
           );
           if (xmlOnDisk) {
             try {
@@ -1075,7 +1075,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
         }
 
         console.warn(
-          `⚠️  Skipping snapshot test: transient signals persisted after retry. External services may be degraded.`
+          `⚠️  Skipping snapshot test: transient signal persisted after retry (${detail}). External services may be degraded.`
         );
         return null;
       }

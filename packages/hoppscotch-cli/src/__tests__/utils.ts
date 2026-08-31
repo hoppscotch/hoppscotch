@@ -51,7 +51,7 @@ const HTTPBIN_5XX_PATTERN =
 // Excludes httpbin.org (intentional /status/500 fixtures exist there) and
 // failure-message/XML content (no METHOD prefix at line start).
 const EXTERNAL_SERVICE_DEGRADATION_PATTERN =
-  /(?:^|\n)\s+(?:GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\s+https?:\/\/(?:echo\.hoppscotch\.io|hoppscotch\.io|postman-echo\.com)(?:\/\S*)?\s+(?:429|5\d{2})(?:\s|$)/i;
+  /(?:^|\n)\s+(?:GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\s+https?:\/\/(?:echo\.hoppscotch\.io|hoppscotch\.io|postman-echo\.com)(?:[\/?#]\S*)?\s+(?:429|5\d{2})(?:\s|$)/i;
 // Co-located REQUEST_ERROR + sandbox script crash from network failure. Matches
 // both TEST_SCRIPT_ERROR (test-script phase) and PRE_REQUEST_SCRIPT_ERROR
 // (pre-request phase), and both TypeError shape (response undefined from
@@ -95,7 +95,7 @@ export const isTransientCliFailure = (
   else if (hasExternalServiceDegradation)
     detail = "external service degradation (5xx/429)";
   else if (hasTestScriptErrorFromNetworkFailure)
-    detail = "TEST_SCRIPT_ERROR (response undefined - likely network failure)";
+    detail = "script error co-occurring with REQUEST_ERROR (likely network failure)";
 
   return { isTransient, detail };
 };

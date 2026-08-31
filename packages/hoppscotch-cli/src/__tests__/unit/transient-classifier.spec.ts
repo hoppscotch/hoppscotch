@@ -48,6 +48,7 @@ describe("isTransientCliFailure", () => {
       ["echo 429", " GET  https://echo.hoppscotch.io  429 : Too Many Requests"],
       ["postman-echo 500", " GET  https://postman-echo.com/get  500 : Internal Server Error"],
       ["hoppscotch.io 504", " HEAD  https://hoppscotch.io  504 : Gateway Timeout"],
+      ["echo 503 with query-only URL", " GET  https://echo.hoppscotch.io?key=value  503 : Service Unavailable"],
     ])("classifies %s runner line as transient", (_name, line) => {
       const { isTransient } = isTransientCliFailure(`\n${line}\n`);
       expect(isTransient).toBe(true);

@@ -7,6 +7,7 @@ import { HoppErrorCode } from "../../../types/errors";
 import {
   getErrorCode,
   getTestJsonFilePath,
+  isTransientCliFailure,
   runCLI,
   runCLIWithNetworkRetry,
 } from "../../utils";
@@ -301,26 +302,8 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       expect(result.error).toBeNull();
     });
 
-    /**
-     * Tests pm.sendRequest() functionality with external HTTP endpoints.
-     *
-     * Network Resilience Strategy:
-     * - Retries once (2 total attempts) on transient network errors
-     * - Detects and logs specific errors (ECONNRESET, ETIMEDOUT, etc.)
-     * - Validates JUnit XML completeness (60+ test suites) before accepting success
-     * - Auto-skips on network failures to prevent blocking PRs
-     */
+    // Validates the full `hopp`/`pm` scripting surface and JUnit report structure.
     test("Supports the new scripting API method additions under the `hopp` and `pm` namespaces and validates JUnit report structure", async () => {
-      // First, run without JUnit report to ensure basic functionality works
-      const basicArgs = `test ${getTestJsonFilePath(
-        "scripting-revamp-coll.json",
-        "collection"
-      )}`;
-      const basicResult = await runCLIWithNetworkRetry(basicArgs);
-      if (basicResult === null) return;
-      expect(basicResult.error).toBeNull();
-
-      // Then, run with JUnit report and validate structure
       const junitPath = path.join(
         __dirname,
         "scripting-revamp-snapshot-junit.xml"
@@ -335,25 +318,10 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
         "collection"
       )} --reporter-junit ${junitPath}`;
 
-      // Enhanced retry for JUnit run - also validate output completeness
+      // Retry wrapper with XML-completeness check; retries only on transient signals.
       const runWithValidation = async () => {
-        const minExpectedTestSuites = 60; // Should have 67+ test suites
-        const maxAttempts = 2; // Only retry once (2 total attempts)
-
-        const extractNetworkError = (output: string): string => {
-          const econnresetMatch = output.match(/ECONNRESET/i);
-          const eaiAgainMatch = output.match(/EAI_AGAIN/i);
-          const enotfoundMatch = output.match(/ENOTFOUND/i);
-          const etimedoutMatch = output.match(/ETIMEDOUT/i);
-          const econnrefusedMatch = output.match(/ECONNREFUSED/i);
-
-          if (econnresetMatch) return "ECONNRESET (connection reset by peer)";
-          if (eaiAgainMatch) return "EAI_AGAIN (DNS lookup timeout)";
-          if (enotfoundMatch) return "ENOTFOUND (DNS lookup failed)";
-          if (etimedoutMatch) return "ETIMEDOUT (connection timeout)";
-          if (econnrefusedMatch) return "ECONNREFUSED (connection refused)";
-          return "Unknown network error";
-        };
+        const minExpectedTestSuites = 60;
+        const maxAttempts = 2;
 
         for (let attempt = 0; attempt < maxAttempts; attempt++) {
           if (fs.existsSync(junitPath)) {
@@ -361,73 +329,52 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
           }
 
           const result = await runCLI(junitArgs);
-
-          // Check for transient errors in output (network or httpbin 5xx)
           const output = `${result.stdout}\n${result.stderr}`;
-          const hasNetworkError =
-            /ECONNRESET|EAI_AGAIN|ENOTFOUND|ETIMEDOUT|ECONNREFUSED|REQUEST_ERROR/i.test(
-              output
-            );
-          const hasHttpbin5xx =
-            /httpbin\.org is down \(5xx\)|httpbin\.org is down \(503\)/i.test(
-              output
-            );
+          const { isTransient, detail } = isTransientCliFailure(output);
+          const isLastAttempt = attempt === maxAttempts - 1;
 
-          // If successful and JUnit file exists, validate completeness
           if (!result.error && fs.existsSync(junitPath)) {
             const xml = fs.readFileSync(junitPath, "utf-8");
             const testsuiteCount = (xml.match(/<testsuite /g) || []).length;
 
-            // If we have the expected number of test suites and no httpbin issues, we're good
-            if (testsuiteCount >= minExpectedTestSuites && !hasHttpbin5xx) {
+            if (testsuiteCount >= minExpectedTestSuites && !isTransient) {
               return result;
             }
 
-            // Incomplete output or httpbin issues - retry once if transient
-            if (
-              (hasNetworkError || hasHttpbin5xx) &&
-              attempt < maxAttempts - 1
-            ) {
-              const errorDetail = hasHttpbin5xx
-                ? "httpbin.org 5xx response"
-                : `incomplete output (${testsuiteCount}/${minExpectedTestSuites} test suites) with ${extractNetworkError(output)}`;
+            // Incomplete XML without transient signal — real reporter regression.
+            if (!isTransient) {
+              return result;
+            }
+
+            if (!isLastAttempt) {
               console.log(
-                `⚠️  Transient error detected: ${errorDetail}. Retrying once...`
+                `⚠️  Transient error detected: incomplete output (${testsuiteCount}/${minExpectedTestSuites} test suites) with ${detail}. Retrying once...`
               );
               await new Promise((r) => setTimeout(r, 2000));
               continue;
             }
           }
 
-          // Non-transient error - fail fast
-          if (result.error && !hasNetworkError && !hasHttpbin5xx) {
+          // Non-transient error — real failure, surface to caller.
+          if (!isTransient) {
             return result;
           }
 
-          // Transient error - retry once
-          const isLastAttempt = attempt === maxAttempts - 1;
           if (!isLastAttempt) {
-            const errorDetail = hasHttpbin5xx
-              ? "httpbin.org 5xx response"
-              : extractNetworkError(output);
             console.log(
-              `⚠️  Transient error detected: ${errorDetail}. Retrying once...`
+              `⚠️  Transient error detected: ${detail}. Retrying once...`
             );
             await new Promise((r) => setTimeout(r, 2000));
             continue;
           }
 
-          // Last attempt exhausted due to transient issues - skip test to avoid blocking PR
-          const errorDetail = hasHttpbin5xx
-            ? "httpbin.org service degradation (5xx)"
-            : extractNetworkError(output);
+          // Transient on last attempt — skip.
           console.warn(
-            `⚠️  Skipping test: Retry exhausted due to ${errorDetail}. External services may be unavailable.`
+            `⚠️  Skipping test: Retry exhausted due to ${detail}. External services may be unavailable.`
           );
-          return null; // Signal to skip test
+          return null;
         }
 
-        // Should never reach here - all paths above should return
         throw new Error("Unexpected: retry loop completed without returning");
       };
 
@@ -1062,12 +1009,79 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
         );
 
     beforeAll(() => {
+      // Force-clean to recover from a prior interrupted run leaving stale
+      // files or the directory itself behind.
+      fs.rmSync(genPath, { recursive: true, force: true });
       fs.mkdirSync(genPath);
     });
 
     afterAll(() => {
-      fs.rmdirSync(genPath, { recursive: true });
+      fs.rmSync(genPath, { recursive: true, force: true });
     });
+
+    // Retries JUnit snapshot on transient signals; returns null only on confirmed flake.
+    // `preSeed`, if provided, runs before each attempt so tests that need a
+    // pre-existing file (e.g. overwrite-log coverage) can re-seed between retries.
+    const runJUnitSnapshot = async (
+      args: string,
+      exportPath: string,
+      preSeed?: () => void
+    ): Promise<{
+      result: Awaited<ReturnType<typeof runCLI>>;
+      fileContents: string;
+    } | null> => {
+      const maxAttempts = 2;
+      const absPath = path.resolve(genPath, exportPath);
+
+      for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        if (preSeed) {
+          if (fs.existsSync(absPath)) {
+            try {
+              fs.unlinkSync(absPath);
+            } catch {}
+          }
+          preSeed();
+        }
+
+        const result = await runCLI(args, {
+          cwd: path.resolve("hopp-cli-test"),
+        });
+
+        const xmlOnDisk = fs.existsSync(absPath);
+        const fileContents = xmlOnDisk
+          ? fs.readFileSync(absPath).toString()
+          : "";
+        const combinedOutput = `${result.stdout}\n${result.stderr}\n${fileContents}`;
+        const { isTransient, detail } = isTransientCliFailure(combinedOutput);
+        const isLastAttempt = attempt === maxAttempts - 1;
+
+        // Non-transient outcome — surface to caller (real bug or intentional
+        // error-path fixture); callers own their own assertions.
+        if (!isTransient) {
+          return { result, fileContents };
+        }
+
+        if (!isLastAttempt) {
+          console.log(
+            `⚠️  Transient signal (${detail}) in JUnit snapshot run — retrying once for a clean snapshot...`
+          );
+          if (xmlOnDisk) {
+            try {
+              fs.unlinkSync(absPath);
+            } catch {}
+          }
+          await new Promise((r) => setTimeout(r, 2000));
+          continue;
+        }
+
+        console.warn(
+          `⚠️  Skipping snapshot test: transient signal persisted after retry (${detail}). External services may be degraded.`
+        );
+        return null;
+      }
+
+      throw new Error("Unexpected: retry loop completed without returning");
+    };
 
     test("Report export fails with the code `REPORT_EXPORT_FAILED` while encountering an error during path creation", async () => {
       const exportPath = "hopp-junit-report.xml";
@@ -1093,7 +1107,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       );
     });
 
-    test("Generates a JUnit report at the default path", async () => {
+    test("Generates a JUnit report at the default path", async ({ skip }) => {
       const exportPath = "hopp-junit-report.xml";
 
       const COLL_PATH = getTestJsonFilePath(
@@ -1103,67 +1117,26 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
 
       const args = `test ${COLL_PATH} --reporter-junit`;
 
-      // Use retry logic to handle transient network errors (ECONNRESET, etc.)
-      // that can corrupt JUnit XML structure and cause snapshot mismatches
-      const maxAttempts = 2; // Only retry once (2 total attempts)
-      let lastResult: Awaited<ReturnType<typeof runCLI>> | null = null;
-      let lastFileContents = "";
-
-      for (let attempt = 0; attempt < maxAttempts; attempt++) {
-        lastResult = await runCLI(args, {
-          cwd: path.resolve("hopp-cli-test"),
-        });
-
-        // Read JUnit XML file
-        const fileContents = fs
-          .readFileSync(path.resolve(genPath, exportPath))
-          .toString();
-
-        lastFileContents = fileContents;
-
-        const hasNetworkErrorInXML =
-          /ECONNRESET|EAI_AGAIN|ENOTFOUND|ETIMEDOUT|ECONNREFUSED/i.test(
-            fileContents
-          ) ||
-          (/REQUEST_ERROR/i.test(fileContents) &&
-            !/Invalid URL/i.test(fileContents));
-
-        if (!hasNetworkErrorInXML) {
-          break;
-        }
-
-        // Network error detected - retry once if not last attempt
-        if (attempt < maxAttempts - 1) {
-          console.log(
-            `⚠️  Network error detected in JUnit XML (ECONNRESET/DNS). Retrying once to get clean snapshot...`
-          );
-          // Delete corrupted XML file before retry
-          try {
-            fs.unlinkSync(path.resolve(genPath, exportPath));
-          } catch {}
-          await new Promise((r) => setTimeout(r, 2000));
-          continue;
-        }
-
-        // Last attempt exhausted - skip test to avoid false positive
-        console.warn(
-          `⚠️  Skipping snapshot test: Network errors persisted in JUnit XML after retry. External services may be degraded.`
-        );
-        return; // Skip test - don't fail on infrastructure issues
+      const outcome = await runJUnitSnapshot(args, exportPath);
+      // `skip()` keeps snapshots deferred rather than obsolete when transient flakes abort the run.
+      if (outcome === null) {
+        skip();
+        return;
       }
+      const { result, fileContents } = outcome;
 
-      expect(lastResult?.stdout).not.toContain(
+      expect(result.stdout).not.toContain(
         `Overwriting the pre-existing path: ${exportPath}`
       );
 
-      expect(lastResult?.stdout).toContain(
+      expect(result.stdout).toContain(
         `Successfully exported the JUnit report to: ${exportPath}`
       );
 
-      expect(replaceDynamicValuesInStr(lastFileContents)).toMatchSnapshot();
+      expect(replaceDynamicValuesInStr(fileContents)).toMatchSnapshot();
     });
 
-    test("Generates a JUnit report at the specified path", async () => {
+    test("Generates a JUnit report at the specified path", async ({ skip }) => {
       const exportPath = "outer-dir/inner-dir/report.xml";
 
       const COLL_PATH = getTestJsonFilePath(
@@ -1173,138 +1146,50 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
 
       const args = `test ${COLL_PATH} --reporter-junit ${exportPath}`;
 
-      // Use retry logic to handle transient network errors (ECONNRESET, etc.)
-      // that can corrupt JUnit XML structure and cause snapshot mismatches
-      const maxAttempts = 2; // Only retry once (2 total attempts)
-      let lastResult: Awaited<ReturnType<typeof runCLI>> | null = null;
-      let lastFileContents = "";
-
-      for (let attempt = 0; attempt < maxAttempts; attempt++) {
-        lastResult = await runCLI(args, {
-          cwd: path.resolve("hopp-cli-test"),
-        });
-
-        // Read JUnit XML file
-        const fileContents = fs
-          .readFileSync(path.resolve(genPath, exportPath))
-          .toString();
-
-        lastFileContents = fileContents;
-
-        const hasNetworkErrorInXML =
-          /ECONNRESET|EAI_AGAIN|ENOTFOUND|ETIMEDOUT|ECONNREFUSED/i.test(
-            fileContents
-          ) ||
-          (/REQUEST_ERROR/i.test(fileContents) &&
-            !/Invalid URL/i.test(fileContents));
-
-        if (!hasNetworkErrorInXML) {
-          break;
-        }
-
-        // Network error detected - retry once if not last attempt
-        if (attempt < maxAttempts - 1) {
-          console.log(
-            `⚠️  Network error detected in JUnit XML (ECONNRESET/DNS). Retrying once to get clean snapshot...`
-          );
-          // Delete corrupted XML file before retry
-          try {
-            fs.unlinkSync(path.resolve(genPath, exportPath));
-          } catch {}
-          await new Promise((r) => setTimeout(r, 2000));
-          continue;
-        }
-
-        // Last attempt exhausted - skip test to avoid false positive
-        console.warn(
-          `⚠️  Skipping snapshot test: Network errors persisted in JUnit XML after retry. External services may be degraded.`
-        );
-        return; // Skip test - don't fail on infrastructure issues
+      const outcome = await runJUnitSnapshot(args, exportPath);
+      if (outcome === null) {
+        skip();
+        return;
       }
+      const { result, fileContents } = outcome;
 
-      expect(lastResult?.stdout).not.toContain(
+      expect(result.stdout).not.toContain(
         `Overwriting the pre-existing path: ${exportPath}`
       );
 
-      expect(lastResult?.stdout).toContain(
+      expect(result.stdout).toContain(
         `Successfully exported the JUnit report to: ${exportPath}`
       );
 
-      expect(replaceDynamicValuesInStr(lastFileContents)).toMatchSnapshot();
+      expect(replaceDynamicValuesInStr(fileContents)).toMatchSnapshot();
     });
 
-    test("Generates a JUnit report for a collection with authorization/headers set at the collection level", async () => {
-      const exportPath = "hopp-junit-report.xml";
+    test("Generates a JUnit report for a collection with authorization/headers set at the collection level", async ({ skip }) => {
+      const exportPath = "collection-level-auth-headers-report.xml";
 
       const COLL_PATH = getTestJsonFilePath(
         "collection-level-auth-headers-coll.json",
         "collection"
       );
 
-      const args = `test ${COLL_PATH} --reporter-junit`;
+      const args = `test ${COLL_PATH} --reporter-junit ${exportPath}`;
 
-      // Use retry logic to handle transient network errors (ECONNRESET, etc.)
-      // that can corrupt JUnit XML structure and cause snapshot mismatches
-      const maxAttempts = 2; // Only retry once (2 total attempts)
-      let lastResult: Awaited<ReturnType<typeof runCLI>> | null = null;
-      let lastFileContents = "";
-
-      for (let attempt = 0; attempt < maxAttempts; attempt++) {
-        lastResult = await runCLI(args, {
-          cwd: path.resolve("hopp-cli-test"),
-        });
-
-        // Read JUnit XML file
-        const fileContents = fs
-          .readFileSync(path.resolve(genPath, exportPath))
-          .toString();
-
-        lastFileContents = fileContents;
-
-        const hasNetworkErrorInXML =
-          /ECONNRESET|EAI_AGAIN|ENOTFOUND|ETIMEDOUT|ECONNREFUSED/i.test(
-            fileContents
-          ) ||
-          (/REQUEST_ERROR/i.test(fileContents) &&
-            !/Invalid URL/i.test(fileContents));
-
-        if (!hasNetworkErrorInXML) {
-          break;
-        }
-
-        // Network error detected - retry once if not last attempt
-        if (attempt < maxAttempts - 1) {
-          console.log(
-            `⚠️  Network error detected in JUnit XML (ECONNRESET/DNS). Retrying once to get clean snapshot...`
-          );
-          // Delete corrupted XML file before retry
-          try {
-            fs.unlinkSync(path.resolve(genPath, exportPath));
-          } catch {}
-          await new Promise((r) => setTimeout(r, 2000));
-          continue;
-        }
-
-        // Last attempt exhausted - skip test to avoid false positive
-        console.warn(
-          `⚠️  Skipping snapshot test: Network errors persisted in JUnit XML after retry. External services may be degraded.`
-        );
-        return; // Skip test - don't fail on infrastructure issues
+      const outcome = await runJUnitSnapshot(args, exportPath);
+      if (outcome === null) {
+        skip();
+        return;
       }
+      const { result, fileContents } = outcome;
 
-      expect(lastResult?.stdout).toContain(
-        `Overwriting the pre-existing path: ${exportPath}`
-      );
-
-      expect(lastResult?.stdout).toContain(
+      expect(result.stdout).toContain(
         `Successfully exported the JUnit report to: ${exportPath}`
       );
 
-      expect(replaceDynamicValuesInStr(lastFileContents)).toMatchSnapshot();
+      expect(replaceDynamicValuesInStr(fileContents)).toMatchSnapshot();
     });
 
-    test("Generates a JUnit report for a collection referring to environment variables", async () => {
-      const exportPath = "hopp-junit-report.xml";
+    test("Generates a JUnit report for a collection referring to environment variables", async ({ skip }) => {
+      const exportPath = "env-vars-report.xml";
 
       const COLL_PATH = getTestJsonFilePath(
         "req-body-env-vars-coll.json",
@@ -1315,66 +1200,50 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
         "environment"
       );
 
-      const args = `test ${COLL_PATH} --env ${ENV_PATH} --reporter-junit`;
+      const args = `test ${COLL_PATH} --env ${ENV_PATH} --reporter-junit ${exportPath}`;
 
-      // Use retry logic to handle transient network errors (ECONNRESET, etc.)
-      // that can corrupt JUnit XML structure and cause snapshot mismatches
-      const maxAttempts = 2; // Only retry once (2 total attempts)
-      let lastResult: Awaited<ReturnType<typeof runCLI>> | null = null;
-      let lastFileContents = "";
-
-      for (let attempt = 0; attempt < maxAttempts; attempt++) {
-        lastResult = await runCLI(args, {
-          cwd: path.resolve("hopp-cli-test"),
-        });
-
-        // Read JUnit XML file
-        const fileContents = fs
-          .readFileSync(path.resolve(genPath, exportPath))
-          .toString();
-
-        lastFileContents = fileContents;
-
-        const hasNetworkErrorInXML =
-          /ECONNRESET|EAI_AGAIN|ENOTFOUND|ETIMEDOUT|ECONNREFUSED/i.test(
-            fileContents
-          ) ||
-          (/REQUEST_ERROR/i.test(fileContents) &&
-            !/Invalid URL/i.test(fileContents));
-
-        if (!hasNetworkErrorInXML) {
-          break;
-        }
-
-        // Network error detected - retry once if not last attempt
-        if (attempt < maxAttempts - 1) {
-          console.log(
-            `⚠️  Network error detected in JUnit XML (ECONNRESET/DNS). Retrying once to get clean snapshot...`
-          );
-          // Delete corrupted XML file before retry
-          try {
-            fs.unlinkSync(path.resolve(genPath, exportPath));
-          } catch {}
-          await new Promise((r) => setTimeout(r, 2000));
-          continue;
-        }
-
-        // Last attempt exhausted - skip test to avoid false positive
-        console.warn(
-          `⚠️  Skipping snapshot test: Network errors persisted in JUnit XML after retry. External services may be degraded.`
-        );
-        return; // Skip test - don't fail on infrastructure issues
+      const outcome = await runJUnitSnapshot(args, exportPath);
+      if (outcome === null) {
+        skip();
+        return;
       }
+      const { result, fileContents } = outcome;
 
-      expect(lastResult?.stdout).toContain(
-        `Overwriting the pre-existing path: ${exportPath}`
-      );
-
-      expect(lastResult?.stdout).toContain(
+      expect(result.stdout).toContain(
         `Successfully exported the JUnit report to: ${exportPath}`
       );
 
-      expect(replaceDynamicValuesInStr(lastFileContents)).toMatchSnapshot();
+      expect(replaceDynamicValuesInStr(fileContents)).toMatchSnapshot();
+    });
+
+    test("Logs overwrite message when the JUnit target file already exists", async ({ skip }) => {
+      const exportPath = "overwrite-test-report.xml";
+      const absPath = path.resolve(genPath, exportPath);
+
+      const COLL_PATH = getTestJsonFilePath(
+        "test-junit-report-export-coll.json",
+        "collection"
+      );
+      const args = `test ${COLL_PATH} --reporter-junit ${exportPath}`;
+
+      // Re-seed a placeholder before each attempt so the reporter's
+      // overwrite branch fires on retry just as it does on attempt 0.
+      const outcome = await runJUnitSnapshot(args, exportPath, () => {
+        fs.writeFileSync(absPath, "<placeholder />");
+      });
+
+      if (outcome === null) {
+        skip();
+        return;
+      }
+
+      const { result } = outcome;
+      expect(result.stdout).toContain(
+        `Overwriting the pre-existing path: ${exportPath}`
+      );
+      expect(result.stdout).toContain(
+        `Successfully exported the JUnit report to: ${exportPath}`
+      );
     });
   });
 

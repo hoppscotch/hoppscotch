@@ -40,12 +40,16 @@ describe("processVariables", () => {
   });
 
   test("preserves whitespace in initialValue", () => {
+    vi.stubEnv("TEST_SECRET", "");
+
     const variable = createSecretVariable({
       currentValue: "",
       initialValue: "  initial-secret  ",
     });
 
     expect(processVariables(variable).currentValue).toBe("  initial-secret  ");
+
+    vi.unstubAllEnvs();
   });
 
   test("falls back when currentValue contains only whitespace", () => {

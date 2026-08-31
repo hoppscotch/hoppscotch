@@ -1,6 +1,6 @@
 <template>
   <HttpExampleResponseMeta v-model:response="doc.response" />
-  <HttpExampleLenseBodyRenderer v-model:document="doc" />
+  <HttpExampleLenseBodyRenderer v-model:document="doc" :tab-id="tabId" />
 </template>
 
 <script setup lang="ts">
@@ -8,11 +8,12 @@ import { useVModel } from "@vueuse/core"
 import {
   HoppRequestDocument,
   HoppSavedExampleDocument,
-} from "~/helpers/rest/document"
+} from "~/helpers/tab/document"
 
 const props = defineProps<{
   document: HoppSavedExampleDocument
   isEmbed: boolean
+  tabId: string
 }>()
 
 const emit = defineEmits<{

@@ -264,6 +264,7 @@ describe('createTeamRequest', () => {
     jest
       .spyOn(mockTeamCollectionService, 'getTeamOfCollection')
       .mockResolvedValue(E.right(team));
+    mockPrisma.teamCollection.findUnique.mockResolvedValue(teamCollection);
     mockPrisma.$transaction.mockImplementation(async (fn) => {
       return fn(mockPrisma);
     });
@@ -271,13 +272,13 @@ describe('createTeamRequest', () => {
     mockPrisma.teamRequest.create.mockResolvedValue(dbRequest);
 
     const response = teamRequestService.createTeamRequest(
-      teamRequest.title,
+      teamCollection.id,
       team.id,
       teamRequest.title,
       teamRequest.request,
     );
 
-    expect(response).resolves.toEqualRight(teamRequest);
+    await expect(response).resolves.toEqualRight(teamRequest);
   });
 
   test('publishes creation to pubsub topic "team_req/<team_id>/req_created"', async () => {
@@ -287,6 +288,7 @@ describe('createTeamRequest', () => {
     jest
       .spyOn(mockTeamCollectionService, 'getTeamOfCollection')
       .mockResolvedValue(E.right(team));
+    mockPrisma.teamCollection.findUnique.mockResolvedValue(teamCollection);
     mockPrisma.$transaction.mockImplementation(async (fn) => {
       return fn(mockPrisma);
     });
@@ -294,7 +296,7 @@ describe('createTeamRequest', () => {
     mockPrisma.teamRequest.create.mockResolvedValue(dbRequest);
 
     await teamRequestService.createTeamRequest(
-      teamRequest.title,
+      teamCollection.id,
       team.id,
       teamRequest.title,
       teamRequest.request,
@@ -527,6 +529,7 @@ describe('findRequestAndNextRequest', () => {
     mockPrisma.teamRequest.findFirst
       .mockResolvedValueOnce(dbTeamRequests[0])
       .mockResolvedValueOnce(dbTeamRequests[4]);
+    mockPrisma.teamCollection.findUnique.mockResolvedValueOnce(teamCollection);
 
     const result = await (teamRequestService as any).findRequestAndNextRequest(
       args.srcCollID,
@@ -607,6 +610,54 @@ describe('findRequestAndNextRequest', () => {
 
     expect(result).toEqualLeft(TEAM_REQ_INVALID_TARGET_COLL_ID);
   });
+  test('Should resolve left if the destination collection does not exist when nextRequestID is given', async () => {
+    const args: MoveTeamRequestArgs = {
+      srcCollID: teamRequests[0].collectionID,
+      destCollID: 'non-existent-coll',
+      requestID: teamRequests[0].id,
+      nextRequestID: teamRequests[4].id,
+    };
+
+    mockPrisma.teamRequest.findFirst.mockResolvedValueOnce(dbTeamRequests[0]);
+    mockPrisma.teamCollection.findUnique.mockResolvedValueOnce(null);
+
+    const result = await (teamRequestService as any).findRequestAndNextRequest(
+      args.srcCollID,
+      args.requestID,
+      args.destCollID,
+      args.nextRequestID,
+    );
+
+    expect(result).toEqualLeft(TEAM_INVALID_COLL_ID);
+    // The destination is validated before the nextRequest lookup, so only the
+    // request itself should have been fetched
+    expect(mockPrisma.teamRequest.findFirst).toHaveBeenCalledTimes(1);
+  });
+  test('Should resolve left if the destination collection belongs to a different team when nextRequestID is given', async () => {
+    const args: MoveTeamRequestArgs = {
+      srcCollID: teamRequests[0].collectionID,
+      destCollID: 'cross-team-coll',
+      requestID: teamRequests[0].id,
+      nextRequestID: teamRequests[4].id,
+    };
+
+    mockPrisma.teamRequest.findFirst.mockResolvedValueOnce(dbTeamRequests[0]);
+    mockPrisma.teamCollection.findUnique.mockResolvedValueOnce({
+      ...teamCollection,
+      id: 'cross-team-coll',
+      teamID: 'different-team-id',
+    });
+
+    const result = await (teamRequestService as any).findRequestAndNextRequest(
+      args.srcCollID,
+      args.requestID,
+      args.destCollID,
+      args.nextRequestID,
+    );
+
+    expect(result).toEqualLeft(TEAM_REQ_INVALID_TARGET_COLL_ID);
+    expect(mockPrisma.teamRequest.findFirst).toHaveBeenCalledTimes(1);
+  });
   test('Should resolve left if the request is not found', () => {
     const args: MoveTeamRequestArgs = {
       srcCollID: teamRequests[0].collectionID,
@@ -637,6 +688,7 @@ describe('findRequestAndNextRequest', () => {
     mockPrisma.teamRequest.findFirst
       .mockResolvedValueOnce(dbTeamRequests[0])
       .mockResolvedValueOnce(null);
+    mockPrisma.teamCollection.findUnique.mockResolvedValueOnce(teamCollection);
 
     const result = (teamRequestService as any).findRequestAndNextRequest(
       args.srcCollID,

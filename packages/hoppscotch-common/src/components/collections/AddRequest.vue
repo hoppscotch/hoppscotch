@@ -2,7 +2,7 @@
   <HoppSmartModal
     v-if="show"
     dialog
-    :title="t('request.new')"
+    :title="t(requestType === 'gql' ? 'request.new_gql' : 'request.new')"
     @close="hideModal"
   >
     <template #body>
@@ -50,10 +50,12 @@ const props = withDefaults(
   defineProps<{
     show?: boolean
     loadingState?: boolean
+    requestType?: "rest" | "gql"
   }>(),
   {
     show: false,
     loadingState: false,
+    requestType: "rest",
   }
 )
 

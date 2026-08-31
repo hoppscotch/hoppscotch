@@ -17,10 +17,11 @@ import { resolveSaveContextOnRequestReorder } from "~/helpers/collection/request
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { getService } from "~/modules/dioc"
 import { getI18n } from "~/modules/i18n"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { CurrentValueService } from "~/services/current-environment-value.service"
+import { populateValuesInInheritedCollectionVars } from "~/helpers/utils/inheritedCollectionVarTransformer"
 
 //collection variables current value and secret value
 const secretEnvironmentService = getService(SecretEnvironmentService)
@@ -123,7 +124,11 @@ function populateValues(
 /**
  * Used to obtain the inherited auth and headers for a given folder path, used for both REST and GraphQL personal collections
  * @param folderPath the path of the folder to cascade the auth from
- * @param type the type of collection
+ * @param type Names the COLLECTION STORE the `folderPath` indexes — NOT the
+ * protocol of the request being opened. "rest" is the unified store
+ * (`restCollectionStore`), which also holds GQL requests as embedded rows, so
+ * a GQL request opened from a unified collection cascades with "rest".
+ * "graphql" is the legacy GQL-only store backing the standalone /graphql page.
  * @param showSecret whether to show secret values in the collection variables
  * @returns the inherited auth and headers for the given folder path
  */
@@ -174,8 +179,7 @@ export function cascadeParentCollectionForProperties(
 
     const parentFolderAuth = parentFolder.auth as HoppRESTAuth | HoppGQLAuth
     const parentFolderHeaders = parentFolder.headers as
-      | HoppRESTHeaders
-      | GQLHeader[]
+      HoppRESTHeaders | GQLHeader[]
     const parentFolderVariables =
       parentFolder.variables as HoppCollectionVariable[]
 
@@ -730,6 +734,16 @@ const restCollectionDispatchers = defineDispatchers({
           _ref_id: generateUniqueRefId("coll"),
         }
 
+        // Copied requests need their own identity too — matching falls back to
+        // the backend `id`, so even a legacy request copied without a fresh
+        // `_ref_id` would fight the original for tabs
+        newCollection.requests = (newCollection.requests ?? []).map(
+          (request) => ({
+            ...request,
+            _ref_id: generateUniqueRefId("req"),
+          })
+        )
+
         newCollection.folders = (newCollection.folders ?? []).map((folder) =>
           recursiveChangeRefIdToAvoidConflicts(folder)
         )
@@ -847,7 +861,7 @@ const restCollectionDispatchers = defineDispatchers({
     // Deal with situations where a tab with the given thing is deleted
     // We are just going to dissociate the save context of the tab and mark it dirty
 
-    const tabService = getService(RESTTabService)
+    const tabService = getService(WorkspaceTabsService)
 
     const tab = tabService.getTabRefWithSaveContext({
       originLocation: "user-collection",
@@ -855,7 +869,7 @@ const restCollectionDispatchers = defineDispatchers({
       requestIndex: requestIndex,
     })
 
-    if (tab) {
+    if (tab && tab.value.document.type !== "test-runner") {
       tab.value.document.saveContext = undefined
       tab.value.document.isDirty = true
     }
@@ -907,14 +921,14 @@ const restCollectionDispatchers = defineDispatchers({
     destLocation.requests.push(req)
     targetLocation.requests.splice(requestIndex, 1)
 
-    const tabService = getService(RESTTabService)
+    const tabService = getService(WorkspaceTabsService)
     const possibleTab = tabService.getTabRefWithSaveContext({
       originLocation: "user-collection",
       folderPath: path,
       requestIndex,
     })
 
-    if (possibleTab) {
+    if (possibleTab && possibleTab.value.document.type !== "test-runner") {
       possibleTab.value.document.saveContext = {
         originLocation: "user-collection",
         folderPath: destinationPath,
@@ -1446,6 +1460,13 @@ const gqlCollectionDispatchers = defineDispatchers({
           ...coll,
           _ref_id: generateUniqueRefId("coll"),
         }
+
+        // Copied requests need fresh `_ref_id`s too, else they alias the originals' tabs
+        next.requests = (next.requests ?? []).map((request) => ({
+          ...request,
+          _ref_id: generateUniqueRefId("req"),
+        }))
+
         next.folders = (next.folders ?? []).map(
           recursiveChangeRefIdToAvoidConflicts
         )
@@ -1696,7 +1717,15 @@ export function getRESTCollection(collectionIndex: number) {
 export type RESTCollectionInheritedProps = {
   auth: HoppRESTAuth
   headers: HoppRESTHeaders
-  variables: HoppCollectionVariable[]
+  /**
+   * Ancestor collection variables only (root → target's parent), each level
+   * resolved under its OWNING collection's ID — resolved for EXECUTION
+   * (secret values included; never render or persist them). The target's own
+   * variables are deliberately NOT merged in: the runner resolves those
+   * itself, and re-resolving a merged array under one ID reads other
+   * variables' slots by index collision.
+   */
+  ancestorVariables: HoppCollectionVariable[]
   // Ancestor scripts for partial-scope runs (root → target's parent).
   // Empty when running from the topmost collection.
   ancestorPreRequestScripts: string[]
@@ -1724,9 +1753,19 @@ function computeCollectionInheritedProps(
     ...collection.headers,
   ]
 
+  // Each level's own variables are resolved under the level's OWN ID — the
+  // `(collectionID, varIndex)` key shape current values are stored with.
+  // Consumers must never re-resolve the merged array under a single ID.
+  // Secrets resolve (`showSecret`) because this only feeds the collection
+  // runner's execution path — the output is never rendered or persisted.
   const inheritedVariables = [
     ...(parentVariables ?? []),
-    ...collection.variables,
+    ...populateValuesInInheritedCollectionVars(
+      collection.variables,
+      collection._ref_id || collection.id,
+      collection.id,
+      true
+    ),
   ]
 
   // Check if the current collection matches the target reference ID
@@ -1739,7 +1778,7 @@ function computeCollectionInheritedProps(
     return {
       auth: inheritedAuth,
       headers: inheritedHeaders,
-      variables: inheritedVariables,
+      ancestorVariables: parentVariables ?? [],
       ancestorPreRequestScripts: parentPreRequestScripts,
       ancestorTestScripts: parentTestScripts,
     }
@@ -1930,7 +1969,7 @@ export function removeDuplicateRESTCollectionOrFolder(
 export function editRESTRequest(
   path: string,
   requestIndex: number,
-  requestNew: HoppRESTRequest
+  requestNew: HoppRESTRequest | HoppGQLRequest
 ) {
   const indexPaths = path.split("/").map((x) => parseInt(x))
   if (
@@ -1948,7 +1987,10 @@ export function editRESTRequest(
   })
 }
 
-export function saveRESTRequestAs(path: string, request: HoppRESTRequest) {
+export function saveRESTRequestAs(
+  path: string,
+  request: HoppRESTRequest | HoppGQLRequest
+) {
   // For calculating the insertion request index
   const targetLocation = navigateToFolderWithIndexPath(
     restCollectionStore.value.state,

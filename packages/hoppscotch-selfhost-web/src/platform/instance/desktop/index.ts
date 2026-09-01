@@ -39,6 +39,13 @@ import { getService } from "@hoppscotch/common/modules/dioc"
 
 const STORE_NAMESPACE = "hoppscotch-desktop.v1"
 
+// Must match `DOWNLOAD_TIMEOUT_FACTOR` in tauri-plugin-appload's ApiClient.
+// `download()` fetches key + manifest + the ~35 MB bundle; Rust times the
+// bundle GET at 10x the connection timeout. This JS race wraps the whole
+// call, so it cannot be shorter or it wins with
+// "Connection timeout after 30000ms" while the zip is still transferring.
+const BUNDLE_DOWNLOAD_TIMEOUT_FACTOR = 10
+
 type RecentInstances = Instance[]
 
 const sortByLastUsedDesc = A.sort(
@@ -836,7 +843,8 @@ export class DesktopInstanceService
   ): TE.TaskEither<string, DownloadResponse> {
     console.log(`[InstanceService] Downloading from: ${serverUrl}`)
 
-    const timeout = this.config?.connectionTimeout || 30000
+    const connectionTimeout = this.config?.connectionTimeout || 30000
+    const timeout = connectionTimeout * BUNDLE_DOWNLOAD_TIMEOUT_FACTOR
 
     return TE.tryCatch(
       () =>

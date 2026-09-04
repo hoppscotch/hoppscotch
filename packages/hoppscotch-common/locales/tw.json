@@ -556,7 +556,8 @@
     "profile": "設定檔",
     "realtime": "即時",
     "rest": "REST",
-    "settings": "設定"
+    "settings": "設定",
+    "grpc": "gRPC"
   },
   "preRequest": {
     "javascript_code": "JavaScript 程式碼",
@@ -653,7 +654,11 @@
     "title": "回應",
     "video": "視訊",
     "waiting_for_connection": "等待連線",
-    "xml": "XML"
+    "xml": "XML",
+    "metadata": "中繼資料",
+    "no_metadata": "此回應不包含任何中繼資料",
+    "no_trailers": "此回應不包含任何尾端資訊",
+    "trailers": "尾端資訊"
   },
   "settings": {
     "accent_color": "強調色",
@@ -1118,5 +1123,14 @@
     "not_found": "找不到快捷碼",
     "short_code": "快捷碼",
     "url": "網址"
+  },
+  "grpc": {
+    "unsupported_title": "目前的平台不支援 gRPC",
+    "unsupported_description": "請使用支援二進位 HTTP/2 的攔截器，例如桌面應用程式的原生攔截器。",
+    "invoke": "呼叫",
+    "server_url": "gRPC 伺服器 URL",
+    "service": "服務",
+    "streaming": "串流",
+    "url_placeholder": "http://localhost:8080"
   }
 }

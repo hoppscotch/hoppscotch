@@ -540,7 +540,8 @@
     "profile": "Profile",
     "realtime": "זמן אמת",
     "rest": "REST",
-    "settings": "הגדרות"
+    "settings": "הגדרות",
+    "grpc": "gRPC"
   },
   "preRequest": {
     "javascript_code": "קוד JavaScript",
@@ -637,7 +638,11 @@
     "title": "תְגוּבָה",
     "video": "Video",
     "waiting_for_connection": "מחכה לחיבור",
-    "xml": "XML"
+    "xml": "XML",
+    "metadata": "מטא-נתונים",
+    "no_metadata": "תגובה זו אינה מכילה מטא-נתונים",
+    "no_trailers": "תגובה זו אינה מכילה כותרות סיום",
+    "trailers": "כותרות סיום"
   },
   "settings": {
     "accent_color": "צבע הדגשה",
@@ -1102,5 +1107,14 @@
     "not_found": "Shortcode not found",
     "short_code": "Short code",
     "url": "URL"
+  },
+  "grpc": {
+    "unsupported_title": "‏gRPC אינו זמין בפלטפורמה הנוכחית",
+    "unsupported_description": "השתמשו במיירט התומך ב-HTTP/2 בינארי, כגון המיירט המקורי של יישום שולחן העבודה.",
+    "invoke": "הפעלה",
+    "server_url": "כתובת URL של שרת gRPC",
+    "service": "שירות",
+    "streaming": "הזרמה",
+    "url_placeholder": "http://localhost:8080"
   }
 }

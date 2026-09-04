@@ -1047,7 +1047,8 @@
         "mock_servers": "Մոք սերվերներ",
         "settings": "Կարգավորումներ",
         "goto_app": "Անցնել հավելվածին",
-        "authentication": "Նույնականացում"
+        "authentication": "Նույնականացում",
+        "grpc": "gRPC"
     },
     "mock_server": {
         "confirm_delete_log": "Վստա՞հ եք, որ ցանկանում եք ջնջել այս մատյանը:",
@@ -1224,7 +1225,11 @@
         "generate_data_schema": "Ստեղծել տվյալների սխեմա",
         "data_schema": "Տվյալների սխեմա",
         "saved": "Պատասխանը պահպանվել է",
-        "invalid_name": "Խնդրում ենք տրամադրել անուն պատասխանի համար"
+        "invalid_name": "Խնդրում ենք տրամադրել անուն պատասխանի համար",
+        "metadata": "Մետատվյալներ",
+        "no_metadata": "Այս պատասխանը մետատվյալներ չունի",
+        "no_trailers": "Այս պատասխանը վերջնամասեր չունի",
+        "trailers": "Վերջնամասեր"
     },
     "settings": {
         "accent_color": "Շեշտադրման գույն",
@@ -2295,5 +2300,14 @@
             "delete_success": "Mock server-ը հաջողությամբ ջնջվեց",
             "delete_error": "Չհաջողվեց ջնջել mock server-ը"
         }
+    },
+    "grpc": {
+        "unsupported_title": "gRPC-ն հասանելի չէ ընթացիկ հարթակում",
+        "unsupported_description": "Օգտագործեք բինար HTTP/2 աջակցող interceptor, օրինակ՝ աշխատասեղանի հավելվածի ներկառուցված interceptor-ը։",
+        "invoke": "Կանչել",
+        "server_url": "gRPC սերվերի URL",
+        "service": "Ծառայություն",
+        "streaming": "հոսքային",
+        "url_placeholder": "http://localhost:8080"
     }
 }

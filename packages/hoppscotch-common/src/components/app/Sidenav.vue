@@ -32,8 +32,13 @@ import IconLink2 from "~icons/lucide/link-2"
 import IconGraphql from "~icons/hopp/graphql"
 import IconGlobe from "~icons/lucide/globe"
 import IconSettings from "~icons/lucide/settings"
+import IconBoxes from "~icons/lucide/boxes"
 import { useSetting } from "@composables/settings"
 import { useI18n } from "@composables/i18n"
+import { useService } from "dioc/vue"
+import { computed } from "vue"
+import { supportsGRPC } from "~/helpers/grpc"
+import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 
 const t = useI18n()
 
@@ -41,8 +46,9 @@ const breakpoints = useBreakpoints(breakpointsTailwind)
 const mdAndLarger = breakpoints.greater("md")
 
 const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")
+const interceptorService = useService(KernelInterceptorService)
 
-const primaryNavigation = [
+const navigationEntries = [
   {
     target: "/",
     svg: IconLink2,
@@ -53,6 +59,12 @@ const primaryNavigation = [
     target: "/graphql",
     svg: IconGraphql,
     title: "navigation.graphql",
+    exact: false,
+  },
+  {
+    target: "/grpc",
+    svg: IconBoxes,
+    title: "navigation.grpc",
     exact: false,
   },
   {
@@ -68,6 +80,16 @@ const primaryNavigation = [
     exact: false,
   },
 ]
+
+const primaryNavigation = computed(() =>
+  navigationEntries.filter(
+    (entry) =>
+      entry.target !== "/grpc" ||
+      interceptorService.available.value.some((interceptor) =>
+        supportsGRPC(interceptor.capabilities)
+      )
+  )
+)
 </script>
 
 <style lang="scss" scoped>

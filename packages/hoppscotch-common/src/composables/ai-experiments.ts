@@ -2,21 +2,15 @@ import { computed, Ref, ref } from "vue"
 import { useReadonlyStream } from "./stream"
 import { platform } from "~/platform"
 import { useSetting } from "./settings"
-import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
+import { HoppGQLRequest, HoppRESTRequest, isGQLRequest } from "@hoppscotch/data"
 import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import * as E from "fp-ts/Either"
-import { useRoute } from "vue-router"
 import { invokeAction } from "~/helpers/actions"
 
 export const useRequestNameGeneration = (targetNameRef: Ref<string>) => {
   const toast = useToast()
   const t = useI18n()
-  const route = useRoute()
-
-  const targetPage = computed(() => {
-    return route.fullPath.includes("/graphql") ? "gql" : "rest"
-  })
 
   const isGenerateRequestNamePending = ref(false)
 
@@ -54,9 +48,11 @@ export const useRequestNameGeneration = (targetNameRef: Ref<string>) => {
 
     isGenerateRequestNamePending.value = true
 
+    // Derive from the request itself — the route can't tell a GQL request
+    // apart on the unified REST page
     platform.analytics?.logEvent({
       type: "EXPERIMENTS_GENERATE_REQUEST_NAME_WITH_AI",
-      platform: targetPage.value,
+      platform: isGQLRequest(requestContext) ? "gql" : "rest",
     })
 
     const result = await generateRequestNameForPlatform(

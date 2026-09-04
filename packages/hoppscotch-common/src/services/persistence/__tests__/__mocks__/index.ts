@@ -1,12 +1,14 @@
 import {
+  CollectionSchemaVersion,
   Environment,
   GlobalEnvironment,
+  GQL_REQ_SCHEMA_VERSION,
   HoppCollection,
   RESTReqSchemaVersion,
 } from "@hoppscotch/data"
 
 import { HoppGQLDocument } from "~/helpers/graphql/document"
-import { HoppRequestDocument } from "~/helpers/rest/document"
+import { HoppRequestDocument } from "~/helpers/tab/document"
 import { GQLHistoryEntry, RESTHistoryEntry } from "~/newstore/history"
 import { SettingsDef, getDefaultSettings } from "~/newstore/settings"
 import { SecretVariable } from "~/services/secret-environment.service"
@@ -25,7 +27,7 @@ const DEFAULT_SETTINGS = getDefaultSettings()
 
 export const REST_COLLECTIONS_MOCK: HoppCollection[] = [
   {
-    v: 11,
+    v: CollectionSchemaVersion,
     name: "Echo",
     requests: [
       {
@@ -54,17 +56,19 @@ export const REST_COLLECTIONS_MOCK: HoppCollection[] = [
     headers: [],
     variables: [],
     description: null,
+    preRequestScript: "",
+    testScript: "",
     folders: [],
   },
 ]
 
 export const GQL_COLLECTIONS_MOCK: HoppCollection[] = [
   {
-    v: 11,
+    v: CollectionSchemaVersion,
     name: "Echo",
     requests: [
       {
-        v: 9,
+        v: GQL_REQ_SCHEMA_VERSION,
         name: "Echo test",
         url: "https://echo.hoppscotch.io/graphql",
         headers: [],
@@ -74,12 +78,19 @@ export const GQL_COLLECTIONS_MOCK: HoppCollection[] = [
           authType: "none",
           authActive: true,
         },
+        _ref_id: "gql_req_ref_id_1",
+        description: null,
+        responses: {},
+        preRequestScript: "",
+        testScript: "",
       },
     ],
     auth: { authType: "none", authActive: true },
     headers: [],
     variables: [],
     description: null,
+    preRequestScript: "",
+    testScript: "",
     folders: [],
   },
 ]
@@ -188,13 +199,18 @@ export const GQL_HISTORY_MOCK: GQLHistoryEntry[] = [
   {
     v: 1,
     request: {
-      v: 9,
+      v: GQL_REQ_SCHEMA_VERSION,
       name: "Untitled",
       url: "https://echo.hoppscotch.io/graphql",
       query: "query Request { url }",
       headers: [],
       variables: "",
       auth: { authType: "none", authActive: true },
+      _ref_id: "gql_req_ref_id_2",
+      description: null,
+      responses: {},
+      preRequestScript: "",
+      testScript: "",
     },
     response: '{"data":{"url":"/graphql"}}',
     star: false,
@@ -209,13 +225,18 @@ export const GQL_TAB_STATE_MOCK: PersistableTabState<HoppGQLDocument> = {
       tabID: "5edbe8d4-65c9-4381-9354-5f1bf05d8ccc",
       doc: {
         request: {
-          v: 9,
+          v: GQL_REQ_SCHEMA_VERSION,
           name: "Untitled",
           url: "https://echo.hoppscotch.io/graphql",
           headers: [],
           variables: '{\n  "id": "1"\n}',
           query: "query Request { url }",
           auth: { authType: "none", authActive: true },
+          _ref_id: "gql_req_ref_id_3",
+          description: null,
+          responses: {},
+          preRequestScript: "",
+          testScript: "",
         },
         isDirty: true,
         optionTabPreference: "query",

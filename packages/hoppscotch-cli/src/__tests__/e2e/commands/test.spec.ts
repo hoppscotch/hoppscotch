@@ -539,6 +539,45 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       // Clean up
       fs.unlinkSync(junitPath);
     }, 600000); // 600 second (10 minute) timeout
+
+    test("Inherited collection-level scripts run in order on the experimental sandbox (default)", async () => {
+      const args = `test ${getTestJsonFilePath(
+        "collection-level-scripts-coll.json",
+        "collection"
+      )}`;
+
+      const defaultResult = await runCLIWithNetworkRetry(args);
+      if (defaultResult === null) return;
+      expect(defaultResult.error).toBeNull();
+    });
+
+    // The legacy sandbox uses a non-module evaluator that rejects top-level
+    // ESM imports at parse time, so it runs against a pruned fixture that
+    // omits the import-using request.
+    test("Inherited collection-level scripts run in order on the legacy sandbox", async () => {
+      const args = `test ${getTestJsonFilePath(
+        "collection-level-scripts-legacy-coll.json",
+        "collection"
+      )} --legacy-sandbox`;
+
+      const legacyResult = await runCLIWithNetworkRetry(args);
+      if (legacyResult === null) return;
+      expect(legacyResult.error).toBeNull();
+    });
+
+    test("Surfaces a SyntaxError when the same import binding appears in multiple scripts in a request's cascade", async () => {
+      const args = `test ${getTestJsonFilePath(
+        "collection-level-scripts-duplicate-import-coll.json",
+        "collection"
+      )}`;
+      const { error, stderr } = await runCLI(args);
+
+      expect(error).not.toBeNull();
+      expect(stderr).toContain("PRE_REQUEST_SCRIPT_ERROR");
+      expect(stderr).toContain(
+        "'dup' is imported from different sources across scripts in this request's chain"
+      );
+    });
   });
 
   describe("Test `hopp test <file_path_or_id> --env <file_path_or_id>` command:", () => {
@@ -1472,6 +1511,35 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
         expect(result.stdout).include(`Iteration: ${idx + 1}/${iterationCount}`)
       );
 
+      expect(result.error).toBeNull();
+    });
+  });
+
+  describe("Test `hopp test <file_path_or_id>` command with GraphQL requests:", () => {
+    test("Successfully runs an all-GraphQL collection, including pre-request scripts and header templating", async () => {
+      const args = `test ${getTestJsonFilePath("gql-coll.json", "collection")}`;
+      const result = await runCLIWithNetworkRetry(args);
+      if (result === null) return;
+
+      // Assert content so a regression back to skip-GraphQL can't pass
+      expect(result.stdout).toContain("echoes the POST method");
+      expect(result.stdout).toContain("scripted header echoed");
+      expect(result.error).toBeNull();
+    });
+
+    test("Successfully runs a collection mixing REST and GraphQL requests, resolving environment variables from the supplied env file", async () => {
+      const COLL_PATH = getTestJsonFilePath(
+        "mixed-rest-gql-coll.json",
+        "collection"
+      );
+      const ENV_PATH = getTestJsonFilePath("gql-envs.json", "environment");
+      const args = `test ${COLL_PATH} --env ${ENV_PATH}`;
+      const result = await runCLIWithNetworkRetry(args);
+      if (result === null) return;
+
+      expect(result.stdout).toContain("REST responds 200");
+      expect(result.stdout).toContain("env templated header echoed");
+      expect(result.stdout).toContain("anonymous query in nested folder");
       expect(result.error).toBeNull();
     });
   });

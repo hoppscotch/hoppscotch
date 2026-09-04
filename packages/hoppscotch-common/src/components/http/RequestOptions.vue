@@ -5,15 +5,19 @@
     render-inactive-tabs
   >
     <HoppSmartTab
-      v-if="properties?.includes('params') ?? true"
+      v-if="showTab('params')"
       :id="'params'"
       :label="`${t('tab.parameters')}`"
       :info="`${newActiveParamsCount}`"
     >
-      <HttpParameters v-model="request.params" :envs="envs" />
+      <HttpParameters
+        v-model="request.params"
+        :envs="envs"
+        :scoped-envs="scopedEnvs"
+      />
     </HoppSmartTab>
     <HoppSmartTab
-      v-if="properties?.includes('bodyParams') ?? true"
+      v-if="showTab('bodyParams')"
       :id="'bodyParams'"
       :label="`${t('tab.body')}`"
       :indicator="isBodyFilled"
@@ -22,11 +26,12 @@
         v-model:headers="request.headers"
         v-model:body="request.body"
         :envs="envs"
+        :scoped-envs="scopedEnvs"
         @change-tab="changeOptionTab"
       />
     </HoppSmartTab>
     <HoppSmartTab
-      v-if="properties?.includes('headers') ?? true"
+      v-if="showTab('headers')"
       :id="'headers'"
       :label="`${t('tab.headers')}`"
       :info="`${newActiveHeadersCount}`"
@@ -35,11 +40,12 @@
         v-model="request"
         :inherited-properties="inheritedProperties"
         :envs="envs"
+        :scoped-envs="scopedEnvs"
         @change-tab="changeOptionTab"
       />
     </HoppSmartTab>
     <HoppSmartTab
-      v-if="properties?.includes('authorization') ?? true"
+      v-if="showTab('authorization')"
       :id="'authorization'"
       :label="`${t('tab.authorization')}`"
     >
@@ -47,6 +53,7 @@
         v-model="request.auth"
         :inherited-properties="inheritedProperties"
         :envs="envs"
+        :scoped-envs="scopedEnvs"
       />
     </HoppSmartTab>
     <HoppSmartTab
@@ -54,17 +61,16 @@
       :id="'preRequestScript'"
       :label="`${t('tab.pre_request_script')}`"
       :indicator="
-        'preRequestScript' in request &&
-        request.preRequestScript &&
-        request.preRequestScript.length > 0
-          ? true
-          : false
+        ('preRequestScript' in request &&
+          hasActualScript(request.preRequestScript)) ||
+        hasInheritedPreRequestScripts
       "
     >
       <HttpPreRequestScript
         v-if="'preRequestScript' in request"
         v-model="request.preRequestScript"
         :is-active="selectedOptionTab === 'preRequestScript'"
+        :inherited-properties="inheritedProperties"
       />
     </HoppSmartTab>
     <HoppSmartTab
@@ -72,21 +78,19 @@
       :id="'tests'"
       :label="`${t('tab.post_request_script')}`"
       :indicator="
-        'testScript' in request &&
-        request.testScript &&
-        request.testScript.length > 0
-          ? true
-          : false
+        ('testScript' in request && hasActualScript(request.testScript)) ||
+        hasInheritedTestScripts
       "
     >
       <HttpTests
         v-if="'testScript' in request"
         v-model="request.testScript"
         :is-active="selectedOptionTab === 'tests'"
+        :inherited-properties="inheritedProperties"
       />
     </HoppSmartTab>
     <HoppSmartTab
-      v-if="properties?.includes('requestVariables') ?? true"
+      v-if="showTab('requestVariables')"
       :id="'requestVariables'"
       :label="`${t('tab.variables')}`"
       :info="`${newActiveRequestVariablesCount}`"
@@ -107,6 +111,7 @@ import { useVModel } from "@vueuse/core"
 import { computed } from "vue"
 
 import { defineActionHandler } from "~/helpers/actions"
+import { hasActualScript } from "@hoppscotch/js-sandbox/scripting"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { AggregateEnvironment } from "~/newstore/environments"
 
@@ -132,9 +137,12 @@ const props = withDefaults(
     properties?: string[]
     inheritedProperties?: HoppInheritedProperty
     envs?: AggregateEnvironment[]
+    // Embed-only codemirror scope — `envs` alone must keep workspace editors live
+    scopedEnvs?: AggregateEnvironment[]
   }>(),
   {
     optionTab: "params",
+    scopedEnvs: undefined,
   }
 )
 
@@ -146,15 +154,27 @@ const emit = defineEmits<{
 const request = useVModel(props, "modelValue", emit)
 const selectedOptionTab = useVModel(props, "optionTab", emit)
 
+// Treat both `undefined` and `[]` as "no filter — show everything". The
+// embed customize flow can persist an empty options array when the share-er
+// disables all toggles; without this guard a `.includes()` returns false
+// for every tab and the embed renders a blank options panel.
+const hasPropertyFilter = computed(
+  () => Array.isArray(props.properties) && props.properties.length > 0
+)
+
+const showTab = (id: RESTOptionTabs) => {
+  if (!hasPropertyFilter.value) return true
+  return props.properties!.includes(id)
+}
+
 const showPreRequestScriptTab = computed(() => {
-  return (
-    props.properties?.includes("preRequestScript") ??
-    "preRequestScript" in request.value
-  )
+  if (!hasPropertyFilter.value) return "preRequestScript" in request.value
+  return props.properties!.includes("preRequestScript")
 })
 
 const showTestsTab = computed(() => {
-  return props.properties?.includes("tests") ?? "testScript" in request.value
+  if (!hasPropertyFilter.value) return "testScript" in request.value
+  return props.properties!.includes("tests")
 })
 
 const changeOptionTab = (e: RESTOptionTabs) => {
@@ -186,6 +206,22 @@ const newActiveRequestVariablesCount = computed(() => {
 
 const isBodyFilled = computed(() => {
   return Boolean(request.value.body.body && request.value.body.body.length > 0)
+})
+
+const hasInheritedPreRequestScripts = computed(() => {
+  return (
+    props.inheritedProperties?.scripts?.some((script) =>
+      hasActualScript(script.preRequestScript)
+    ) ?? false
+  )
+})
+
+const hasInheritedTestScripts = computed(() => {
+  return (
+    props.inheritedProperties?.scripts?.some((script) =>
+      hasActualScript(script.testScript)
+    ) ?? false
+  )
 })
 
 defineActionHandler("request.open-tab", ({ tab }) => {

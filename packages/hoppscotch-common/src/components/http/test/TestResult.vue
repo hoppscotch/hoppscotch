@@ -191,6 +191,10 @@ import { useI18n } from "@composables/i18n"
 import { useReadonlyStream, useStream } from "@composables/stream"
 import { isEqual } from "lodash-es"
 import { computed, ref } from "vue"
+// Explicit import: auto-resolution inside `http/test/` maps the name to the
+// missing `http/test/ResultEntry.vue` (directoryAsNamespace) and fails at
+// runtime, so nested test entries never rendered.
+import HttpTestResultEntry from "~/components/http/TestResultEntry.vue"
 import { HoppTestData, HoppTestResult } from "~/helpers/types/HoppTestResult"
 import {
   globalEnv$,
@@ -276,7 +280,10 @@ const selectedEnvironmentIndex = useStream(
   setSelectedEnvironmentIndex
 )
 
-const globalEnvVars = useReadonlyStream(globalEnv$, {} as GlobalEnvironment)
+const globalEnvVars = useReadonlyStream(globalEnv$, {
+  v: 2,
+  variables: [],
+} as GlobalEnvironment)
 
 const noEnvSelected = computed(
   () => selectedEnvironmentIndex.value.type === "NO_ENV_SELECTED"

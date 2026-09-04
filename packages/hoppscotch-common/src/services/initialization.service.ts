@@ -3,7 +3,7 @@ import * as E from "fp-ts/Either"
 import { getService } from "~/modules/dioc"
 
 import { PersistenceService } from "~/services/persistence"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { GQLTabService } from "~/services/tab/graphql"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 
@@ -13,6 +13,8 @@ import { NativeKernelInterceptorService } from "~/platform/std/kernel-intercepto
 import { performMigrations } from "~/helpers/migrations"
 import { initBackendGQLClient } from "~/helpers/backend/GQLClient"
 import { getKernelMode } from "@hoppscotch/kernel"
+import { diag } from "~/kernel/log"
+import { sync } from "~/lib/sync/defs"
 
 type InitEvent =
   | { type: "STORE_READY" }
@@ -71,10 +73,10 @@ export class InitializationService extends Service<InitEvent> {
       throw new Error("Cannot initialize tabs before persistence")
     }
 
-    const restTabService = getService(RESTTabService)
+    const workspaceTabsService = getService(WorkspaceTabsService)
     const gqlTabService = getService(GQLTabService)
 
-    await Promise.all([restTabService.init(), gqlTabService.init()])
+    await Promise.all([workspaceTabsService.init(), gqlTabService.init()])
 
     this.initState.tabs = true
     this.emit({ type: "TABS_READY" })
@@ -135,10 +137,10 @@ export class InitializationService extends Service<InitEvent> {
     }
 
     await Promise.all([
-      platform.sync.settings.initSettingsSync(),
-      platform.sync.collections.initCollectionsSync(),
-      platform.sync.history.initHistorySync(),
-      platform.sync.environments.initEnvironmentsSync(),
+      sync.settings.initSettingsSync(),
+      sync.collections.initCollectionsSync(),
+      sync.history.initHistorySync(),
+      sync.environments.initEnvironmentsSync(),
       platform.analytics?.initAnalytics(),
     ])
 
@@ -146,25 +148,37 @@ export class InitializationService extends Service<InitEvent> {
   }
 
   public async initPre() {
+    diag("init", "initPre() start")
     await this.initStore()
+    diag("init", "initPre() store done")
     await this.initPersistenceFirst()
+    diag("init", "initPre() persistenceFirst done")
 
     if (getKernelMode() === "desktop") {
       await this.initNativeKernelNetworking()
+      diag("init", "initPre() nativeKernelNetworking done")
     }
 
     await this.initBackendClient()
+    diag("init", "initPre() backendClient done")
     await this.initTabs()
+    diag("init", "initPre() tabs done, initPre complete")
   }
 
   public async initAuthAndSync() {
+    diag("init", "initAuthAndSync() start")
     await this.initAuth()
+    diag("init", "initAuthAndSync() auth done")
     await this.initSync()
+    diag("init", "initAuthAndSync() sync done, initAuthAndSync complete")
   }
 
   public async initPost() {
+    diag("init", "initPost() start")
     await this.initPersistenceLater()
+    diag("init", "initPost() persistenceLater done")
     performMigrations()
+    diag("init", "initPost() migrations done, initPost complete")
   }
 
   public isInitialized() {

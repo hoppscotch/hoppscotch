@@ -2,10 +2,7 @@
 
 import * as E from "fp-ts/Either"
 
-import {
-  translateToNewGQLCollection,
-  translateToNewRESTCollection,
-} from "@hoppscotch/data"
+import { translateToNewCollection } from "@hoppscotch/data"
 import { watchDebounced } from "@vueuse/core"
 import { TestContainer } from "dioc/testing"
 import { cloneDeep } from "lodash-es"
@@ -50,12 +47,13 @@ import {
 } from "~/newstore/settings"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { GQLTabService } from "~/services/tab/graphql"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import {
   PersistenceService,
   STORE_KEYS,
   STORE_NAMESPACE,
 } from "../../persistence"
+import { REST_HISTORY_ENTRY_SCHEMA } from "../validation-schemas"
 import {
   ENVIRONMENTS_MOCK,
   GLOBAL_ENV_MOCK,
@@ -162,12 +160,12 @@ const setStoreItem = async <T>(key: string, value: T) => {
 
 const bindPersistenceService = ({
   mockGQLTabService = false,
-  mockRESTTabService = false,
+  mockWorkspaceTabsService = false,
   mockSecretEnvironmentsService = false,
   mock = {},
 }: {
   mockGQLTabService?: boolean
-  mockRESTTabService?: boolean
+  mockWorkspaceTabsService?: boolean
   mockSecretEnvironmentsService?: boolean
   mock?: Record<string, unknown>
 } = {}) => {
@@ -177,8 +175,8 @@ const bindPersistenceService = ({
     container.bindMock(GQLTabService, mock)
   }
 
-  if (mockRESTTabService) {
-    container.bindMock(RESTTabService, mock)
+  if (mockWorkspaceTabsService) {
+    container.bindMock(WorkspaceTabsService, mock)
   }
 
   if (mockSecretEnvironmentsService) {
@@ -709,6 +707,74 @@ describe("PersistenceService", () => {
         )
       })
 
+      it(`v=2 migration repairs entries in "${graphqlHistoryKey}" whose response field is a non-string and writes a pre-v2 backup`, async () => {
+        // Pre-fix sync writes round-tripped via JSON.stringify/parse,
+        // leaving entries with object-shaped response in localStorage.
+        const corruptedEntries = [
+          { ...GQL_HISTORY_MOCK[0], response: {} },
+          { ...GQL_HISTORY_MOCK[0], response: null },
+        ]
+        await setStoreItem(graphqlHistoryKey, corruptedEntries)
+
+        const setItemSpy = spyOnSetItem()
+
+        await invokeSetupLocalPersistence()
+
+        // Original is preserved at the pre-v2 backup key for recovery.
+        expect(setItemSpy).toHaveBeenCalledWith(
+          `${graphqlHistoryKey}-pre-v2-backup`,
+          expect.stringContaining(JSON.stringify(corruptedEntries))
+        )
+
+        // Repaired data is written back to the live key with response coerced.
+        // - Object response {} stringifies to "{}", which appears in the
+        //   serialized payload as `"response":"{}"`.
+        // - Null response stringifies to "null", which appears in the
+        //   serialized payload as `"response":"null"` and preserves the
+        //   original semantic of an empty payload.
+        expect(setItemSpy).toHaveBeenCalledWith(
+          graphqlHistoryKey,
+          expect.stringContaining('"response":"{}"')
+        )
+        expect(setItemSpy).toHaveBeenCalledWith(
+          graphqlHistoryKey,
+          expect.stringContaining('"response":"null"')
+        )
+
+        // Schema version bumps to 2, so the migration won't run again.
+        expect(setItemSpy).toHaveBeenCalledWith(
+          schemaVersionKey,
+          expect.stringMatching(/"data":"2"/)
+        )
+
+        // No Zod-failure backup since the migration repaired the shape
+        // before validation could reject it.
+        expect(toastErrorFn).not.toHaveBeenCalledWith(
+          expect.stringContaining(graphqlHistoryKey)
+        )
+      })
+
+      it(`v=2 migration is a no-op when "${graphqlHistoryKey}" entries already have string responses`, async () => {
+        // Clean entries — response is already a string per the contract.
+        await setStoreItem(graphqlHistoryKey, GQL_HISTORY_MOCK)
+
+        const setItemSpy = spyOnSetItem()
+
+        await invokeSetupLocalPersistence()
+
+        // No backup write since needsRepair was false.
+        expect(setItemSpy).not.toHaveBeenCalledWith(
+          `${graphqlHistoryKey}-pre-v2-backup`,
+          expect.anything()
+        )
+
+        // Schema version still bumps to 2 so the migration is recorded as run.
+        expect(setItemSpy).toHaveBeenCalledWith(
+          schemaVersionKey,
+          expect.stringMatching(/"data":"2"/)
+        )
+      })
+
       it(`GQL history schema parsing succeeds if there is no "${graphqlHistoryKey}" key present in localStorage where the fallback of "[]" is chosen`, async () => {
         window.localStorage.removeItem(graphqlHistoryKey)
 
@@ -787,6 +853,56 @@ describe("PersistenceService", () => {
         expect(graphqlHistoryStore.subject$.subscribe).toHaveBeenCalledWith(
           expect.any(Function)
         )
+      })
+
+      it("validates REST_HISTORY_ENTRY_SCHEMA responseMeta correctly", () => {
+        // 1. Valid object responseMeta
+        const entryWithValidObj = {
+          ...REST_HISTORY_MOCK[0],
+          responseMeta: { duration: 807, statusCode: 200 },
+        }
+        expect(
+          REST_HISTORY_ENTRY_SCHEMA.safeParse(entryWithValidObj).success
+        ).toBe(true)
+
+        // 2. Valid stringified responseMeta
+        const entryWithValidStr = {
+          ...REST_HISTORY_MOCK[0],
+          responseMeta: JSON.stringify({ duration: 807, statusCode: 200 }),
+        }
+        expect(
+          REST_HISTORY_ENTRY_SCHEMA.safeParse(entryWithValidStr).success
+        ).toBe(true)
+
+        // 3. Malformed stringified responseMeta (non-numeric duration/statusCode) should fail and fall back to catch values
+        const entryWithMalformedStr = {
+          ...REST_HISTORY_MOCK[0],
+          responseMeta: JSON.stringify({
+            duration: "invalid",
+            statusCode: 200,
+          }),
+        }
+        const parseResult = REST_HISTORY_ENTRY_SCHEMA.safeParse(
+          entryWithMalformedStr
+        )
+        expect(parseResult.success).toBe(true)
+        expect(parseResult.data?.responseMeta).toEqual({
+          duration: null,
+          statusCode: null,
+        })
+
+        // 4. Non-JSON string should fail and fall back to catch values
+        const entryWithNonJSONStr = {
+          ...REST_HISTORY_MOCK[0],
+          responseMeta: "not-json",
+        }
+        const parseResultNonJSON =
+          REST_HISTORY_ENTRY_SCHEMA.safeParse(entryWithNonJSONStr)
+        expect(parseResultNonJSON.success).toBe(true)
+        expect(parseResultNonJSON.data?.responseMeta).toEqual({
+          duration: null,
+          statusCode: null,
+        })
       })
     })
 
@@ -881,10 +997,7 @@ describe("PersistenceService", () => {
 
           return {
             ...actualModule,
-            translateToNewGQLCollection: vi
-              .fn()
-              .mockImplementation((data: any) => data),
-            translateToNewRESTCollection: vi
+            translateToNewCollection: vi
               .fn()
               .mockImplementation((data: any) => data),
           }
@@ -895,11 +1008,17 @@ describe("PersistenceService", () => {
             setGraphqlCollections: vi.fn(),
             setRESTCollections: vi.fn(),
             graphqlCollectionStore: {
+              value: {
+                state: [],
+              },
               subject$: {
                 subscribe: vi.fn(),
               },
             },
             restCollectionStore: {
+              value: {
+                state: [],
+              },
               subject$: {
                 subscribe: vi.fn(),
               },
@@ -931,8 +1050,7 @@ describe("PersistenceService", () => {
           expect.stringContaining('"schemaVersion":1')
         )
 
-        expect(translateToNewGQLCollection).toHaveBeenCalled()
-        expect(translateToNewRESTCollection).toHaveBeenCalled()
+        expect(translateToNewCollection).toHaveBeenCalled()
 
         expect(setRESTCollections).toHaveBeenCalledWith(restCollections)
         expect(setGraphqlCollections).toHaveBeenCalledWith(gqlCollections)
@@ -1758,7 +1876,10 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        await invokeSetupLocalPersistence({ mockRESTTabService: true, mock })
+        await invokeSetupLocalPersistence({
+          mockWorkspaceTabsService: true,
+          mock,
+        })
 
         expect(getItemSpy).toHaveBeenCalledWith(restTabStateKey)
 
@@ -1780,7 +1901,10 @@ describe("PersistenceService", () => {
         const getItemSpy = spyOnGetItem()
         const setItemSpy = spyOnSetItem()
 
-        await invokeSetupLocalPersistence({ mockRESTTabService: true, mock })
+        await invokeSetupLocalPersistence({
+          mockWorkspaceTabsService: true,
+          mock,
+        })
 
         expect(getItemSpy).toHaveBeenCalledWith(restTabStateKey)
 

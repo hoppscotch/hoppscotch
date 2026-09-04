@@ -38,6 +38,7 @@ export type AuthEvent =
   | { event: "probable_login"; user: HoppUser } // We have previous login state, but the app is waiting for authentication
   | { event: "login"; user: HoppUser } // We are authenticated
   | { event: "logout" } // No authentication and we have no previous state
+  | { event: "token_refresh"; user: HoppUser } // We have refreshed our tokens and have new ones now
 
 export type GithubSignInResult =
   | { type: "success"; user: HoppUser } // The authentication was a success
@@ -123,6 +124,17 @@ export type AuthPlatformDef = {
    * @returns An object with the header key and header values as strings
    */
   getBackendHeaders: () => Record<string, string>
+
+  /**
+   * Resolves once any org-scoped context required by `getBackendHeaders` (e.g.
+   * the `x-organization-id` header) has settled. On org subdomains this waits
+   * for the org info lookup to succeed or fail before letting backend calls
+   * proceed, so requests don't go out with a missing org id on reload.
+   *
+   * Returns immediately when not in an org context or when the info is already
+   * determined. May be absent on platforms that don't scope backend calls by org.
+   */
+  waitOrganizationInfoReady?: () => Promise<void>
 
   /**
    * Called when the backend GQL API client encounters an auth error to check if with the

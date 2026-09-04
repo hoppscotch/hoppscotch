@@ -2,63 +2,153 @@
   <AppPaneLayout layout-id="test-runner-primary">
     <template #primary>
       <div
-        class="flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary sticky top-0 z-20"
+        class="flex flex-col"
+        :style="
+          headerHeight
+            ? { '--upper-runner-sticky-fold': `${headerHeight}px` }
+            : undefined
+        "
       >
-        <div class="inline-flex flex-1 gap-8">
-          <HttpTestRunnerMeta
-            :heading="t('collection.title')"
-            :text="collectionName"
-          />
-
-          <template v-if="showResult">
-            <HttpTestRunnerMeta :heading="t('environment.heading')">
-              <HttpTestEnv />
-            </HttpTestRunnerMeta>
-            <!-- <HttpTestRunnerMeta :heading="t('test.iterations')" :text="'1'" /> -->
+        <div
+          ref="headerEl"
+          class="flex flex-col flex-shrink-0 bg-primary sticky top-0 z-20"
+        >
+          <div class="flex items-center gap-4 px-4 pt-4">
             <HttpTestRunnerMeta
+              class="min-w-0 flex-1"
+              :heading="t('collection.title')"
+              :text="collectionName"
+            />
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <HoppButtonPrimary
+                v-if="showResult && tab.document.status === 'running'"
+                :label="t('test.stop')"
+                @click="stopTests()"
+              />
+              <HoppButtonPrimary
+                v-else
+                :label="t('test.run_again')"
+                @click="runAgain()"
+              />
+              <HoppButtonSecondary
+                v-if="showResult && tab.document.status !== 'running'"
+                :icon="IconPlus"
+                :label="t('test.new_run')"
+                filled
+                outline
+                @click="newRun()"
+              />
+              <HoppButtonSecondary
+                v-if="canExport"
+                :icon="IconDownload"
+                :label="t('collection_runner.export_results')"
+                filled
+                outline
+                @click="exportResults('all')"
+              />
+            </div>
+          </div>
+
+          <!-- Hidden on a restored tab: a row of zeroes would crowd out the
+               empty placeholder. -->
+          <div
+            v-if="
+              showResult && (hasResults || tab.document.status === 'running')
+            "
+            class="flex gap-8 px-4 py-4 overflow-x-auto"
+          >
+            <HttpTestRunnerMeta
+              :heading="t('environment.heading')"
+              :text="runEnvironmentName"
+            />
+            <HttpTestRunnerMeta
+              :heading="t('test.iterations')"
+              :text="iterationResults.length.toString()"
+            />
+            <!-- The values tick while a run is live; reserve width so the
+                 rest of the meta row doesn't shift with every request. -->
+            <HttpTestRunnerMeta
+              class="min-w-24 tabular-nums"
               :heading="t('test.duration')"
               :text="duration ? msToHumanReadable(duration) : '...'"
             />
             <HttpTestRunnerMeta
+              class="min-w-24 tabular-nums"
               :heading="t('test.avg_resp')"
               :text="
                 avgResponseTime ? msToHumanReadable(avgResponseTime) : '...'
               "
             />
-          </template>
+            <HttpTestRunnerMeta
+              v-if="iterationResults.length > 1"
+              class="ml-auto"
+              :heading="t('collection_runner.jump_to_iteration')"
+            >
+              <div class="flex items-center -ml-2">
+                <HoppButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="t('collection_runner.previous_iteration')"
+                  :icon="IconChevronLeft"
+                  :disabled="viewedIteration <= 1"
+                  class="!p-1"
+                  @click="jumpTo(viewedIteration - 1)"
+                />
+                <!-- The visible face is the counter; the transparent select on
+                     top of it provides direct jumps without a second control. -->
+                <span
+                  class="relative flex items-center rounded focus-within:ring-1 focus-within:ring-accent"
+                >
+                  <span
+                    class="whitespace-nowrap px-1 text-sm font-bold tabular-nums text-secondaryDark"
+                  >
+                    {{ viewedIteration }} / {{ iterationResults.length }}
+                  </span>
+                  <select
+                    v-tippy="{ theme: 'tooltip' }"
+                    :title="t('collection_runner.jump_to_iteration')"
+                    :aria-label="t('collection_runner.jump_to_iteration')"
+                    class="absolute inset-0 cursor-pointer opacity-0"
+                    :value="viewedIteration"
+                    @change="onIterationSelect"
+                  >
+                    <option
+                      v-for="{ iteration } in iterationAdapters"
+                      :key="iteration"
+                      :value="iteration"
+                    >
+                      {{
+                        t("collection_runner.iteration", { count: iteration })
+                      }}
+                    </option>
+                  </select>
+                </span>
+                <HoppButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="t('collection_runner.next_iteration')"
+                  :icon="IconChevronRight"
+                  :disabled="viewedIteration >= iterationResults.length"
+                  class="!p-1"
+                  @click="jumpTo(viewedIteration + 1)"
+                />
+              </div>
+            </HttpTestRunnerMeta>
+          </div>
         </div>
-        <div class="flex items-center gap-2">
-          <HoppButtonPrimary
-            v-if="showResult && tab.document.status === 'running'"
-            :label="t('test.stop')"
-            @click="stopTests()"
-          />
-          <HoppButtonPrimary
-            v-else
-            :label="t('test.run_again')"
-            @click="runAgain()"
-          />
-          <HoppButtonSecondary
-            v-if="showResult && tab.document.status !== 'running'"
-            :icon="IconPlus"
-            :label="t('test.new_run')"
-            filled
-            outline
-            @click="newRun()"
-          />
-        </div>
-      </div>
 
-      <HttpTestRunnerResult
-        v-if="showResult"
-        :tab="tab"
-        :collection-adapter="collectionAdapter"
-        :is-running="tab.document.status === 'running'"
-        :selected-request-path="selectedRequestPath"
-        @on-change-tab="showTestsType = $event as 'all' | 'passed' | 'failed'"
-        @on-select-request="onSelectRequest"
-        @request-path="onChangeRequestPath"
-      />
+        <HttpTestRunnerResult
+          v-if="showResult"
+          :tab="tab"
+          :iteration-adapters="iterationAdapters"
+          :is-running="tab.document.status === 'running'"
+          :selected-request-path="selectedRequestPath"
+          :jump-to-iteration="jumpToIteration"
+          @on-change-tab="showTestsType = $event as 'all' | 'passed' | 'failed'"
+          @on-select-request="onSelectRequest"
+          @request-path="onChangeRequestPath"
+          @jumped="jumpToIteration = 0"
+          @visible-iteration="onVisibleIteration"
+        />
+      </div>
     </template>
     <template #secondary>
       <div
@@ -72,6 +162,7 @@
         v-else-if="selectedRequest && selectedRequest.response"
         v-model:document="selectedRequest"
         :show-response="tab.document.config.persistResponses"
+        :tab-id="tab.id"
       />
 
       <HoppSmartPlaceholder
@@ -81,6 +172,23 @@
         :src="`/images/states/${colorMode.value}/add_files.svg`"
         :alt="`${t('collection_runner.no_response_persist')}`"
         :text="`${t('collection_runner.no_response_persist')}`"
+      >
+        <template #body>
+          <HoppButtonPrimary
+            :label="t('test.new_run')"
+            @click="showCollectionsRunnerModal = true"
+          />
+        </template>
+      </HoppSmartPlaceholder>
+
+      <!-- Selected row without a response — restored runner tabs lose
+           response bodies (ArrayBuffers don't survive the JSON round-trip),
+           so a row click after refresh lands here instead of a blank pane. -->
+      <HoppSmartPlaceholder
+        v-else-if="selectedRequest && !selectedRequest.response"
+        :src="`/images/states/${colorMode.value}/pack.svg`"
+        :alt="`${t('collection_runner.response_body_lost_rerun')}`"
+        :text="`${t('collection_runner.response_body_lost_rerun')}`"
       >
         <template #body>
           <HoppButtonPrimary
@@ -115,19 +223,24 @@
           }
     "
     :prev-config="testRunnerConfig"
+    :prev-selection="tab.document.selectedRequestRefIds"
     @hide-modal="showCollectionsRunnerModal = false"
   />
 </template>
 
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
-import { HoppCollection, HoppRESTHeader } from "@hoppscotch/data"
+import {
+  HoppCollection,
+  HoppCollectionVariable,
+  HoppRESTHeader,
+} from "@hoppscotch/data"
 import { SmartTreeAdapter } from "@hoppscotch/ui"
 import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { pipe } from "fp-ts/lib/function"
 import * as TE from "fp-ts/TaskEither"
-import { computed, nextTick, onMounted, ref } from "vue"
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue"
 import { useColorMode } from "~/composables/theming"
 import { useToast } from "~/composables/toast"
 import { GQLError } from "~/helpers/backend/GQLClient"
@@ -135,26 +248,42 @@ import {
   getCompleteCollectionTree,
   teamCollToHoppRESTColl,
 } from "~/helpers/backend/helpers"
-import { HoppTestRunnerDocument } from "~/helpers/rest/document"
+import {
+  HoppTestRunnerDocument,
+  TestRunnerIterationResult,
+} from "~/helpers/tab/document"
 import {
   CollectionNode,
   TestRunnerCollectionsAdapter,
 } from "~/helpers/runner/adapter"
 import { getErrorMessage } from "~/helpers/runner/collection-tree"
-import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
+import { collectRequestIDs } from "~/helpers/runner/selection"
+import { populateValuesInInheritedCollectionVars } from "~/helpers/utils/inheritedCollectionVarTransformer"
 import {
   getRESTCollectionByRefId,
   getRESTCollectionInheritedProps,
   restCollectionStore,
 } from "~/newstore/collections"
+import {
+  getCurrentEnvironment,
+  getSelectedEnvironmentType,
+} from "~/newstore/environments"
 import { HoppTab } from "~/services/tab"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import {
   TestRunnerRequest,
   TestRunnerService,
 } from "~/services/test-runner/test-runner.service"
 import IconPlus from "~icons/lucide/plus"
+import IconDownload from "~icons/lucide/download"
+import IconChevronLeft from "~icons/lucide/chevron-left"
+import IconChevronRight from "~icons/lucide/chevron-right"
+import {
+  exportRunnerResults,
+  RunnerExportScope,
+} from "~/helpers/import-export/export/runnerResults"
+import * as E from "fp-ts/Either"
 
 const t = useI18n()
 const toast = useToast()
@@ -169,11 +298,21 @@ const emit = defineEmits<{
   (e: "update:modelValue", val: HoppTab<HoppTestRunnerDocument>): void
 }>()
 
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 const tab = useVModel(props, "modelValue", emit)
 
+// The sticky run header spans two rows of variable-height content (long
+// collection names, locale-dependent labels). Measure it at runtime so the
+// filter tabs and iteration headers below it stick at the correct offset via
+// the --upper-runner-sticky-fold CSS var, instead of a brittle hardcoded value.
+const headerEl = ref<HTMLElement | null>(null)
+const headerHeight = ref(0)
+let headerResizeObserver: ResizeObserver | null = null
+
+// RunnerResult's prop is a required string; the document field is undefined
+// until a request is selected.
 const selectedRequestPath = computed(
-  () => tab.value.document.selectedRequestPath
+  () => tab.value.document.selectedRequestPath ?? ""
 )
 const duration = computed(() => tab.value.document.testRunnerMeta.totalTime)
 const avgResponseTime = computed(() =>
@@ -214,7 +353,17 @@ const collectionName = computed(() =>
     : ""
 )
 
+const runEnvironmentName = computed(
+  () => tab.value.document.environmentName ?? "Global"
+)
+
 const testRunnerConfig = computed(() => tab.value.document.config)
+
+const iterationResults = computed(
+  () => tab.value.document.iterationResults ?? []
+)
+
+const hasResults = computed(() => iterationResults.value.length > 0)
 
 const collection = computed(() => {
   return tab.value.document.collection
@@ -236,6 +385,11 @@ const showResult = computed(() => {
 const runTests = async () => {
   const { collectionID, collectionType } = tab.value.document
 
+  tab.value.document.environmentName =
+    getSelectedEnvironmentType() === "NO_ENV_SELECTED"
+      ? "Global"
+      : getCurrentEnvironment().name
+
   const isPersonalWorkspace = collectionType === "my-collections"
 
   const collections = isPersonalWorkspace
@@ -249,6 +403,15 @@ const runTests = async () => {
   )
 
   let resolvedCollection: HoppCollection = collection.value
+  // Scripts declared on ancestors above the selected run-start node — must be
+  // seeded into the runner so partial-scope runs still honor the documented
+  // Root → Parent → Child → Request inheritance chain.
+  let ancestorPreRequestScripts: string[] = []
+  let ancestorTestScripts: string[] = []
+  // Ancestor collection variables, already resolved under their owning
+  // collections — passed separately from the run root's own variables so the
+  // runner never re-resolves a merged array under a single ID.
+  let ancestorVariables: HoppCollectionVariable[] = []
 
   if (!isPersonalWorkspace) {
     const requestAuth = tab.value.document.inheritedProperties?.auth
@@ -266,36 +429,89 @@ const runTests = async () => {
       }
     )
 
-    const parentVariables = transformInheritedCollectionVariablesToAggregateEnv(
+    // Ancestors only — the run root's own level is excluded. Each level is
+    // resolved under its OWNING collection's server id (the key client-local
+    // team values are stored with); the root's own RAW variables go on
+    // `resolvedCollection.variables` for the plan walk, mirroring the
+    // personal path, so the runner never re-resolves a merged array under a
+    // single ID.
+    ancestorVariables = (
       tab.value.document.inheritedProperties?.variables ?? []
     )
+      .filter((group) => group.parentID !== collectionID)
+      .flatMap((group) =>
+        // `showSecret` — execution-only output; never written back to the
+        // document or persisted.
+        populateValuesInInheritedCollectionVars(
+          group.inheritedVariables,
+          group.parentID,
+          undefined,
+          true
+        )
+      )
+
+    // Team cascade includes the selected node itself in its scripts array;
+    // drop it here because runTestCollection will cascade that node's scripts
+    // as part of the normal tree walk, and we must not double-run them.
+    const inheritedScripts = (
+      tab.value.document.inheritedProperties?.scripts ?? []
+    ).filter((s) => s.parentID !== collectionID)
+    ancestorPreRequestScripts = inheritedScripts
+      .map((s) => s.preRequestScript)
+      .filter((s) => s && s.trim().length > 0)
+    ancestorTestScripts = inheritedScripts
+      .map((s) => s.testScript)
+      .filter((s) => s && s.trim().length > 0)
 
     resolvedCollection = {
       ...collection.value,
       auth: requestAuth,
-      headers: requestHeaders as HoppRESTHeader[],
-      variables: parentVariables,
+      // `inheritedProperties` is optional on the doc — without the fallback
+      // the runner gets `headers: undefined`.
+      headers: (requestHeaders ?? []) as HoppRESTHeader[],
+      variables: collection.value.variables ?? [],
     }
   } else {
-    const { auth, headers, variables } = collectionInheritedProps ?? {
+    const {
+      auth,
+      headers,
+      ancestorVariables: varAncestors,
+      ancestorPreRequestScripts: preAncestors,
+      ancestorTestScripts: testAncestors,
+    } = collectionInheritedProps ?? {
       auth: { authActive: true, authType: "none" },
       headers: [],
-      variables: [],
+      ancestorVariables: [],
+      ancestorPreRequestScripts: [],
+      ancestorTestScripts: [],
     }
+
+    ancestorPreRequestScripts = preAncestors
+    ancestorTestScripts = testAncestors
+    ancestorVariables = varAncestors
 
     resolvedCollection = {
       ...collection.value,
       auth,
       headers,
-      variables,
+      // The run root keeps its own RAW variable list — the plan walk resolves
+      // it; ancestors travel separately, already resolved.
+      variables: collection.value.variables ?? [],
     }
   }
 
   testRunnerStopRef.value = false // when testRunnerStopRef is false, the test runner will start running
-  testRunnerService.runTests(tab, resolvedCollection, {
-    ...testRunnerConfig.value,
-    stopRef: testRunnerStopRef,
-  })
+  testRunnerService.runTests(
+    tab,
+    resolvedCollection,
+    {
+      ...testRunnerConfig.value,
+      stopRef: testRunnerStopRef,
+    },
+    ancestorPreRequestScripts,
+    ancestorTestScripts,
+    ancestorVariables
+  )
 }
 
 const stopTests = () => {
@@ -321,12 +537,39 @@ const runAgain = async () => {
     }
 
     tab.value.document.collection = updatedCollection
+    reconcileRequestSelection(updatedCollection)
     await nextTick()
     runTests()
   } else {
     tabs.closeTab(tab.value.id)
     toast.error(t("collection_runner.collection_not_found"))
   }
+}
+
+/**
+ * Re-resolves the stored request selection against a freshly fetched tree —
+ * positional IDs shift when the collection is edited, and team `_ref_id`s
+ * regenerate on every fetch. Keeps whatever still resolves; if nothing does,
+ * falls back to running the full collection and says so.
+ */
+const reconcileRequestSelection = (collection: HoppCollection) => {
+  const stored = tab.value.document.selectedRequestRefIds
+
+  if (!Array.isArray(stored)) return
+
+  const available = new Set(collectRequestIDs(collection))
+  const stillValid = stored.filter((id) => available.has(id))
+
+  if (stillValid.length === stored.length) return
+
+  if (stillValid.length === 0) {
+    tab.value.document.selectedRequestRefIds = undefined
+    toast.info(t("collection_runner.selection_reset"))
+    return
+  }
+
+  tab.value.document.selectedRequestRefIds = stillValid
+  toast.info(t("collection_runner.selection_partially_reset"))
 }
 
 const resetRunnerState = () => {
@@ -342,11 +585,18 @@ const resetRunnerState = () => {
 
 onMounted(() => {
   if (tab.value.document.status === "idle") runTests()
-  if (
-    tab.value.document.status === "stopped" ||
-    tab.value.document.status === "error"
-  ) {
+
+  if (headerEl.value) {
+    headerResizeObserver = new ResizeObserver(() => {
+      if (headerEl.value) headerHeight.value = headerEl.value.offsetHeight
+    })
+    headerResizeObserver.observe(headerEl.value)
+    headerHeight.value = headerEl.value.offsetHeight
   }
+})
+
+onBeforeUnmount(() => {
+  headerResizeObserver?.disconnect()
 })
 
 function calculateAverageTime(
@@ -361,18 +611,105 @@ const newRun = () => {
   selectedCollectionID.value = collection.value.id
 }
 
-const testRunnerService = useService(TestRunnerService)
+// Restored iterations carry only their summary; require at least one that
+// still has rows, rather than offering an empty report.
+const canExport = computed(
+  () =>
+    showResult.value &&
+    tab.value.document.status !== "running" &&
+    iterationResults.value.some(({ resultCollection }) => resultCollection)
+)
 
-const result = computed(() => {
-  return tab.value.document.resultCollection
-    ? [tab.value.document.resultCollection]
-    : []
-})
+const exportResults = async (scope: RunnerExportScope) => {
+  const result = await exportRunnerResults(tab.value.document, scope)
+  if (E.isRight(result)) toast.success(t(result.right))
+  else toast.error(t(result.left))
+}
+
+const testRunnerService = useService(TestRunnerService)
 
 const showTestsType = ref<"all" | "passed" | "failed">("all")
 
-const collectionAdapter: SmartTreeAdapter<CollectionNode> =
-  new TestRunnerCollectionsAdapter(result, showTestsType)
+// 0 = no pending jump; set to an iteration number to scroll its section into
+// view. Reset back to 0 after the result view consumes it so re-selecting the
+// same iteration triggers another scroll.
+const jumpToIteration = ref(0)
+
+// Keep the document's current iteration in step with the one the user
+// navigated to (the "current iteration" export scope reads it).
+// `jumpToIteration` is 1-based; `selectedIteration` is an index.
+watch(jumpToIteration, (iteration) => {
+  if (iteration > 0) tab.value.document.selectedIteration = iteration - 1
+})
+
+/** 1-based iteration the user is currently viewing, clamped to the run. */
+const viewedIteration = computed(() => {
+  const total = iterationResults.value.length
+  const current = (tab.value.document.selectedIteration ?? 0) + 1
+  return Math.min(Math.max(current, 1), Math.max(total, 1))
+})
+
+const jumpTo = (iteration: number) => {
+  jumpToIteration.value = Math.min(
+    Math.max(iteration, 1),
+    iterationResults.value.length
+  )
+}
+
+const onIterationSelect = (event: Event) => {
+  jumpTo(Number((event.target as HTMLSelectElement).value))
+}
+
+// Scroll position drives the counter, so it always names the iteration on
+// screen — not the last one jumped to.
+const onVisibleIteration = (iteration: number) => {
+  tab.value.document.selectedIteration = iteration - 1
+}
+
+type IterationAdapterEntry = {
+  iteration: number
+  /**
+   * `v-for` key in the result view. `HoppSmartTree` reads its adapter only on
+   * mount, so the key must change whenever the adapter is rebuilt to force a
+   * remount — keying by iteration number alone left the tree on a dead adapter.
+   */
+  key: string
+  adapter: SmartTreeAdapter<CollectionNode>
+}
+
+// Cached per iteration so appending one doesn't rebuild the rest and each
+// SmartTree keeps its expansion state; an entry is rebuilt only when the
+// backing iteration-result object is replaced.
+const adapterCache = new Map<
+  number,
+  { source: TestRunnerIterationResult; entry: IterationAdapterEntry }
+>()
+let adapterBuildCount = 0
+
+const iterationAdapters = computed<IterationAdapterEntry[]>(() =>
+  iterationResults.value.map((iterationResult) => {
+    const cached = adapterCache.get(iterationResult.iteration)
+    if (cached?.source === iterationResult) return cached.entry
+
+    const entry: IterationAdapterEntry = {
+      iteration: iterationResult.iteration,
+      key: `${iterationResult.iteration}-${++adapterBuildCount}`,
+      adapter: new TestRunnerCollectionsAdapter(
+        computed(() =>
+          iterationResult.resultCollection
+            ? [iterationResult.resultCollection]
+            : []
+        ),
+        showTestsType
+      ),
+    }
+    adapterCache.set(iterationResult.iteration, {
+      source: iterationResult,
+      entry,
+    })
+    return entry
+  })
+)
 
 /**
  * refetches the collection tree from the backend

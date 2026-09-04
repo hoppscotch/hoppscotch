@@ -9,6 +9,7 @@ export default defineConfig({
       entry: {
         web: "./src/web/index.ts",
         node: "./src/node/index.ts",
+        scripting: "./src/scripting.ts",
       },
       name: "js-sandbox",
       formats: ["es", "cjs"],

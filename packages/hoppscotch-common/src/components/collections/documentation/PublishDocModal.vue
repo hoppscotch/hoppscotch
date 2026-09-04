@@ -3,15 +3,26 @@
     v-if="show"
     dialog
     :title="modalTitle"
-    :styles="mode === 'view' ? 'sm:max-w-6xl' : 'sm:max-w-2xl'"
+    :styles="
+      mode === 'view'
+        ? 'sm:max-w-6xl xl:max-w-7xl 2xl:max-w-[80vw]'
+        : 'sm:max-w-2xl'
+    "
     @close="hideModal"
   >
     <template #body>
       <CollectionsDocumentationPublishDocSnapshotPreview
         v-if="mode === 'view'"
+        v-model:publish-title="publishTitle"
+        v-model:publish-version="publishVersion"
+        v-model:auto-sync="autoSync"
+        v-model:selected-environment-i-d="selectedEnvironmentID"
         :existing-data="existingData"
         :published-url="publishedUrl"
         :show="show && mode === 'view'"
+        :is-valid-version="isValidVersion"
+        :workspace-type="workspaceType"
+        :workspace-i-d="workspaceID"
         @copy-url="copyUrl"
         @view-published="viewPublished"
       />
@@ -24,8 +35,6 @@
         v-model:auto-sync="autoSync"
         v-model:selected-environment-i-d="selectedEnvironmentID"
         :published-url="publishedUrl"
-        :is-first-publish="isFirstPublish ?? false"
-        :is-auto-sync-locked="isAutoSyncLocked ?? false"
         :is-valid-version="isValidVersion"
         :workspace-type="workspaceType"
         :workspace-i-d="workspaceID"
@@ -46,7 +55,7 @@
             @click="handlePublish"
           />
           <HoppButtonPrimary
-            v-else-if="mode === 'update'"
+            v-else-if="mode === 'update' || mode === 'view'"
             :label="t('documentation.publish.update_button')"
             :disabled="!canPublish || loading || !hasChanges"
             :loading="loading"
@@ -112,9 +121,9 @@ const props = defineProps<{
   workspaceID: string
   mode?: "create" | "update" | "view"
   isFirstPublish?: boolean
-  isAutoSyncLocked?: boolean
   publishedDocId?: string
   existingData?: {
+    id: string
     title: string
     version: string
     autoSync: boolean
@@ -168,15 +177,28 @@ const initializeFormData = () => {
   }
 }
 
-// Watch for modal open/close
 watch(
-  [() => props.existingData, () => props.show],
-  ([, isOpen]) => {
-    if (isOpen) {
-      initializeFormData()
-    }
+  () => props.show,
+  (isOpen) => {
+    if (isOpen) initializeFormData()
   },
   { immediate: true }
+)
+
+// Reinitialize only on doc switches (snapshot ↔ live) — same-doc refreshes must not clobber in-flight edits.
+watch(
+  () => props.existingData?.id,
+  (newId, oldId) => {
+    if (props.show && newId && newId !== oldId) initializeFormData()
+  }
+)
+
+// Same-doc URL can change when the backend rebuilds it (version rename). Sync display only.
+watch(
+  () => props.existingData?.url,
+  (newUrl) => {
+    if (props.show && newUrl) publishedUrl.value = newUrl
+  }
 )
 
 const modalTitle = computed(() => {

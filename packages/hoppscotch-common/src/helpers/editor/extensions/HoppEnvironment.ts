@@ -7,10 +7,7 @@ import {
   hoverTooltip,
 } from "@codemirror/view"
 import { StreamSubscriberFunc } from "@composables/stream"
-import {
-  parseTemplateStringE,
-  HoppRESTRequestVariables,
-} from "@hoppscotch/data"
+import { parseTemplateStringE } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import { Ref, watch } from "vue"
 
@@ -24,7 +21,7 @@ import {
   getSelectedEnvironmentType,
 } from "~/newstore/environments"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 
 import IconEdit from "~icons/lucide/edit?raw"
@@ -35,16 +32,20 @@ import IconVariable from "~icons/lucide/variable?raw"
 import IconLibrary from "~icons/lucide/library?raw"
 
 import { isComment } from "./helpers"
-import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
-import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import {
+  getEffectiveVariablesForRequest,
+  filterNonEmptyEnvironmentVariables,
+} from "~/helpers/utils/environments"
 import {
   ENV_VAR_NAME_REGEX,
   HOPP_ENVIRONMENT_REGEX,
 } from "~/helpers/environment-regex"
 import {
+  stabilizeTooltipHover,
   constrainTooltipToViewport,
   createTooltipValueRow,
 } from "~/helpers/utils/tooltip"
+import { maskSecretValue } from "~/helpers/utils/secretMask"
 
 const HOPP_ENV_HIGHLIGHT =
   "cursor-help transition rounded px-1 focus:outline-none mx-0.5 env-highlight"
@@ -58,33 +59,7 @@ const TOOLTIP_ENV_CONTAINER_Z_INDEX_CLASS = "!z-[1002]"
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
 const currentEnvironmentValueService = getService(CurrentValueService)
-const restTabs = getService(RESTTabService)
-
-/**
- * Transforms the environment list to a list with unique keys with value
- * @param envs The environment list to be transformed
- * @returns The transformed environment list with keys with value
- */
-const filterNonEmptyEnvironmentVariables = (
-  envs: AggregateEnvironment[]
-): AggregateEnvironment[] => {
-  const envsMap = new Map<string, AggregateEnvironment>()
-  envs.forEach((env) => {
-    if (envsMap.has(env.key)) {
-      const existingEnv = envsMap.get(env.key)
-      if (
-        existingEnv?.currentValue === "" &&
-        existingEnv?.initialValue === "" &&
-        (env.currentValue || env.initialValue)
-      ) {
-        envsMap.set(env.key, env)
-      }
-    } else {
-      envsMap.set(env.key, env)
-    }
-  })
-  return Array.from(envsMap.values())
-}
+const workspaceTabs = getService(WorkspaceTabsService)
 
 const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
   hoverTooltip(
@@ -144,7 +119,6 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
             )?.currentValue || tooltipEnv?.currentValue
           : tooltipEnv?.currentValue
 
-      const isSecret = tooltipEnv?.secret === true
       const hasSource = Boolean(tooltipEnv?.sourceEnv)
 
       const tooltipSourceEnvID =
@@ -164,15 +138,21 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           tooltipEnv?.key ?? ""
         )
 
-      // Display secret values as "******" when stored; if no secret is saved, show "Empty" placeholders instead
+      // Secret-ness follows the resolved variable itself, so the preview matches
+      // what the request actually sends. For a duplicate key with a secret and a
+      // non-secret sibling, whichever wins resolution (first non-empty by
+      // position) is what executes — masking a non-secret winner just because a
+      // secret sibling shares its key made the tooltip disagree with execution.
+      const isSecret = tooltipEnv?.secret === true
+
       if (isSecret) {
         if (hasSecretValueStored && hasSecretInitialValueStored) {
-          envInitialValue = "******"
-          envCurrentValue = "******"
+          envInitialValue = maskSecretValue(envInitialValue)
+          envCurrentValue = maskSecretValue(envCurrentValue)
         } else if (!hasSecretValueStored && hasSecretInitialValueStored) {
-          envInitialValue = "******"
+          envInitialValue = maskSecretValue(envInitialValue)
         } else if (hasSecretValueStored && !hasSecretInitialValueStored) {
-          envCurrentValue = "******"
+          envCurrentValue = maskSecretValue(envCurrentValue)
         } else {
           envInitialValue = "Empty"
           envCurrentValue = "Empty"
@@ -181,19 +161,27 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
         envInitialValue = "Not Found"
         envCurrentValue = "Not Found"
       } else {
-        // Parse templates only if needed and values are not already masked
-        if (!envCurrentValue && envInitialValue) {
+        // Resolve each column independently so a variable that has BOTH an
+        // initial and a current value still previews resolved values (matching
+        // what the runner resolves), instead of leaving `<<...>>` unparsed when
+        // both are set. Empty values are skipped so they stay empty.
+        // `maskValue = true`: a non-secret wrapper like `Bearer <<apiKey>>` must
+        // render its nested SECRET reference masked, never as raw plaintext.
+        if (envInitialValue) {
           const parsedInitial = parseTemplateStringE(
             envInitialValue,
-            aggregateEnvs
+            aggregateEnvs,
+            true
           )
           envInitialValue = E.isLeft(parsedInitial)
             ? "error"
             : parsedInitial.right
-        } else if (!envInitialValue && envCurrentValue) {
+        }
+        if (envCurrentValue) {
           const parsedCurrent = parseTemplateStringE(
             envCurrentValue,
-            aggregateEnvs
+            aggregateEnvs,
+            true
           )
           envCurrentValue = E.isLeft(parsedCurrent)
             ? "error"
@@ -238,9 +226,9 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
 
           if (
             tooltipEnv?.sourceEnv === "RequestVariable" &&
-            restTabs.currentActiveTab.value.document.type === "request"
+            workspaceTabs.currentActiveTab.value.document.type === "request"
           ) {
-            restTabs.currentActiveTab.value.document.optionTabPreference =
+            workspaceTabs.currentActiveTab.value.document.optionTabPreference =
               "requestVariables"
           } else {
             invokeAction(invokeActionType, {
@@ -313,6 +301,9 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           // Apply viewport-aware overflow constraints to the tooltip
           constrainTooltipToViewport(dom, tooltipContainer)
 
+          // Apply an interactive bridge to stabilize hover transitions
+          stabilizeTooltipHover(dom)
+
           return { dom }
         },
       }
@@ -366,45 +357,38 @@ export const environmentHighlightStyle = (
   )
 }
 
-/**
- * Function to get the request variables and collection variables in AggregateEnvironment type
- * @param requestVariables Request Variables defined in the request
- * @param collectionVariables Inherited Collection Variables
- * @returns Transforms the request and collection variables to AggregateEnvironment type
- */
-const getRequestAndCollectionVariables = (
-  requestVariables: HoppRESTRequestVariables,
-  collectionVariables: HoppInheritedProperty["variables"]
-) => {
-  const reqVars = requestVariables
-    .filter((v) => v.active)
-    .map(({ key, value }) => ({
-      key,
-      currentValue: value,
-      initialValue: value,
-      sourceEnv: "RequestVariable",
-      secret: false,
-    }))
-
-  const collVars = transformInheritedCollectionVariablesToAggregateEnv(
-    collectionVariables,
-    false
-  )
-
-  return [...reqVars, ...collVars]
-}
-
 export class HoppEnvironmentPlugin {
   private compartment = new Compartment()
   private envs: AggregateEnvironment[] = []
 
   constructor(
     subscribeToStream: StreamSubscriberFunc,
-    private editorView: Ref<EditorView | undefined>
+    private editorView: Ref<EditorView | undefined>,
+    getScopedEnvs?: () => AggregateEnvironment[] | undefined
   ) {
+    // A scoped getter (embeds) replaces the live tab/store wiring entirely —
+    // the viewer's stored environments must not highlight or resolve there.
+    // Watched so scope changes (e.g. request-variable edits) re-render.
+    if (getScopedEnvs) {
+      watch(
+        () => getScopedEnvs() ?? [],
+        (envs) => {
+          this.envs = envs
+          this.editorView.value?.dispatch({
+            effects: this.compartment.reconfigure([
+              cursorTooltipField(this.envs),
+              environmentHighlightStyle(this.envs),
+            ]),
+          })
+        },
+        { immediate: true, deep: true }
+      )
+      return
+    }
+
     // Watch the current active tab to update the variables accordingly
     watch(
-      () => restTabs.currentActiveTab.value,
+      () => workspaceTabs.currentActiveTab.value,
       (currentTab) => {
         const request =
           currentTab.document.type === "example-response"
@@ -425,13 +409,12 @@ export class HoppEnvironmentPlugin {
             ? request.requestVariables
             : []
 
-        const requestAndCollVars = getRequestAndCollectionVariables(
+        this.envs = getEffectiveVariablesForRequest(
           requestVariables,
-          collectionVariables
+          collectionVariables,
+          getAggregateEnvsWithCurrentValue(),
+          false
         )
-
-        const currentAggregateEnvs = getAggregateEnvsWithCurrentValue()
-        this.envs = [...requestAndCollVars, ...currentAggregateEnvs]
 
         this.editorView.value?.dispatch({
           effects: this.compartment.reconfigure([
@@ -445,7 +428,7 @@ export class HoppEnvironmentPlugin {
 
     subscribeToStream(aggregateEnvsWithCurrentValue$, (envs) => {
       // Recompute request and collection variables from current tab to avoid stale closure values
-      const tab = restTabs.currentActiveTab.value
+      const tab = workspaceTabs.currentActiveTab.value
       const request =
         tab.document.type === "example-response"
           ? tab.document.response.originalRequest
@@ -456,12 +439,12 @@ export class HoppEnvironmentPlugin {
       const requestVariables =
         request && "requestVariables" in request ? request.requestVariables : []
 
-      const freshRequestAndCollVars = getRequestAndCollectionVariables(
+      this.envs = getEffectiveVariablesForRequest(
         requestVariables,
-        inheritedProperties?.variables ?? []
+        inheritedProperties?.variables ?? [],
+        envs,
+        false
       )
-
-      this.envs = [...freshRequestAndCollVars, ...envs]
 
       this.editorView.value?.dispatch({
         effects: this.compartment.reconfigure([

@@ -4,10 +4,11 @@ import {
   PUBLISHED_DOCS_CREATION_FAILED,
   PUBLISHED_DOCS_DELETION_FAILED,
   PUBLISHED_DOCS_INVALID_COLLECTION,
-  PUBLISHED_DOCS_INVALID_ENVIRONMENT,
   PUBLISHED_DOCS_NOT_FOUND,
   PUBLISHED_DOCS_UPDATE_FAILED,
+  TEAM_ENVIRONMENT_NOT_FOUND,
   TEAM_INVALID_ID,
+  USER_ENVIRONMENT_NOT_FOUND,
 } from 'src/errors';
 import * as E from 'fp-ts/Either';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -855,8 +856,8 @@ describe('getPublishedDocsCreator', () => {
 
     const expectedUser = {
       ...user,
-      currentGQLSession: JSON.stringify(user.currentGQLSession),
-      currentRESTSession: JSON.stringify(user.currentRESTSession),
+      currentGQLSession: null,
+      currentRESTSession: null,
     };
 
     expect(result).toEqualRight(expectedUser);
@@ -1491,7 +1492,7 @@ describe('createPublishedDoc - environment support', () => {
       userUid: user.uid,
     } as any);
     mockPrisma.publishedDocs.findFirst.mockResolvedValueOnce(null);
-    mockPrisma.userEnvironment.findFirst.mockResolvedValueOnce(envData as any);
+    mockPrisma.userEnvironment.findUnique.mockResolvedValueOnce(envData as any);
     mockPrisma.publishedDocs.create.mockResolvedValueOnce({
       ...userPublishedDoc,
       environmentID: 'env_1',
@@ -1537,7 +1538,7 @@ describe('createPublishedDoc - environment support', () => {
       teamID: 'team_1',
     } as any);
     mockPrisma.publishedDocs.findFirst.mockResolvedValueOnce(null);
-    mockPrisma.teamEnvironment.findFirst.mockResolvedValueOnce(envData as any);
+    mockPrisma.teamEnvironment.findUnique.mockResolvedValueOnce(envData as any);
     mockPrisma.publishedDocs.create.mockResolvedValueOnce({
       ...teamPublishedDoc,
       environmentID: 'team_env_1',
@@ -1568,14 +1569,14 @@ describe('createPublishedDoc - environment support', () => {
       userUid: user.uid,
     } as any);
     mockPrisma.publishedDocs.findFirst.mockResolvedValueOnce(null);
-    mockPrisma.userEnvironment.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.userEnvironment.findUnique.mockResolvedValueOnce(null);
 
     const result = await publishedDocsService.createPublishedDoc(
       { ...createArgs, environmentID: 'invalid_env' },
       user,
     );
 
-    expect(result).toEqualLeft(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
+    expect(result).toEqualLeft(USER_ENVIRONMENT_NOT_FOUND);
   });
 
   test('should return error when team environment ID is invalid', async () => {
@@ -1593,14 +1594,14 @@ describe('createPublishedDoc - environment support', () => {
       teamID: 'team_1',
     } as any);
     mockPrisma.publishedDocs.findFirst.mockResolvedValueOnce(null);
-    mockPrisma.teamEnvironment.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.teamEnvironment.findUnique.mockResolvedValueOnce(null);
 
     const result = await publishedDocsService.createPublishedDoc(
       teamArgs,
       user,
     );
 
-    expect(result).toEqualLeft(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
+    expect(result).toEqualLeft(TEAM_ENVIRONMENT_NOT_FOUND);
   });
 
   test('should create published doc without environment when environmentID is not provided', async () => {
@@ -1640,7 +1641,7 @@ describe('updatePublishedDoc - environment support', () => {
     };
 
     mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(userPublishedDoc);
-    mockPrisma.userEnvironment.findFirst.mockResolvedValueOnce(envData as any);
+    mockPrisma.userEnvironment.findUnique.mockResolvedValueOnce(envData as any);
     mockPrisma.publishedDocs.update.mockResolvedValueOnce({
       ...userPublishedDoc,
       environmentID: 'env_2',
@@ -1701,7 +1702,7 @@ describe('updatePublishedDoc - environment support', () => {
 
   test('should return error when updating with invalid environment ID', async () => {
     mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(userPublishedDoc);
-    mockPrisma.userEnvironment.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.userEnvironment.findUnique.mockResolvedValueOnce(null);
 
     const result = await publishedDocsService.updatePublishedDoc(
       userPublishedDoc.id,
@@ -1709,7 +1710,7 @@ describe('updatePublishedDoc - environment support', () => {
       user,
     );
 
-    expect(result).toEqualLeft(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
+    expect(result).toEqualLeft(USER_ENVIRONMENT_NOT_FOUND);
   });
 
   test('should not change environment when environmentID is not provided in update args', async () => {
@@ -1743,7 +1744,7 @@ describe('updatePublishedDoc - environment support', () => {
 
     mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(teamPublishedDoc);
     mockPrisma.team.findFirst.mockResolvedValueOnce({ id: 'team_1' } as any);
-    mockPrisma.teamEnvironment.findFirst.mockResolvedValueOnce(envData as any);
+    mockPrisma.teamEnvironment.findUnique.mockResolvedValueOnce(envData as any);
     mockPrisma.publishedDocs.update.mockResolvedValueOnce({
       ...teamPublishedDoc,
       environmentID: 'team_env_1',
@@ -1796,7 +1797,7 @@ describe('getPublishedDocBySlugPublic - environment support', () => {
     mockUserCollectionService.exportUserCollectionToJSONObject.mockResolvedValueOnce(
       E.right(collectionData as any),
     );
-    mockPrisma.userEnvironment.findFirst.mockResolvedValueOnce(envData as any);
+    mockPrisma.userEnvironment.findUnique.mockResolvedValueOnce(envData as any);
 
     const result = await publishedDocsService.getPublishedDocBySlugPublic(
       'slug-collection-1',
@@ -1894,14 +1895,14 @@ describe('getPublishedDocBySlugPublic - environment support', () => {
       E.right(collectionData as any),
     );
     // Environment not found — fetchEnvironment returns Left
-    mockPrisma.userEnvironment.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.userEnvironment.findUnique.mockResolvedValueOnce(null);
 
     const result = await publishedDocsService.getPublishedDocBySlugPublic(
       'slug-collection-1',
       '1.0.0',
     );
 
-    expect(result).toEqualLeft(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
+    expect(result).toEqualLeft(USER_ENVIRONMENT_NOT_FOUND);
   });
 
   test('should return null environment fields when no environment is associated', async () => {

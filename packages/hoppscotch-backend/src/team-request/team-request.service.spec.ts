@@ -264,6 +264,7 @@ describe('createTeamRequest', () => {
     jest
       .spyOn(mockTeamCollectionService, 'getTeamOfCollection')
       .mockResolvedValue(E.right(team));
+    mockPrisma.teamCollection.findUnique.mockResolvedValue(teamCollection);
     mockPrisma.$transaction.mockImplementation(async (fn) => {
       return fn(mockPrisma);
     });
@@ -271,13 +272,13 @@ describe('createTeamRequest', () => {
     mockPrisma.teamRequest.create.mockResolvedValue(dbRequest);
 
     const response = teamRequestService.createTeamRequest(
-      teamRequest.title,
+      teamCollection.id,
       team.id,
       teamRequest.title,
       teamRequest.request,
     );
 
-    expect(response).resolves.toEqualRight(teamRequest);
+    await expect(response).resolves.toEqualRight(teamRequest);
   });
 
   test('publishes creation to pubsub topic "team_req/<team_id>/req_created"', async () => {
@@ -287,6 +288,7 @@ describe('createTeamRequest', () => {
     jest
       .spyOn(mockTeamCollectionService, 'getTeamOfCollection')
       .mockResolvedValue(E.right(team));
+    mockPrisma.teamCollection.findUnique.mockResolvedValue(teamCollection);
     mockPrisma.$transaction.mockImplementation(async (fn) => {
       return fn(mockPrisma);
     });
@@ -294,7 +296,7 @@ describe('createTeamRequest', () => {
     mockPrisma.teamRequest.create.mockResolvedValue(dbRequest);
 
     await teamRequestService.createTeamRequest(
-      teamRequest.title,
+      teamCollection.id,
       team.id,
       teamRequest.title,
       teamRequest.request,
@@ -328,15 +330,74 @@ describe('getRequestsInCollection', () => {
   });
 
   test('resolves with the correct info for the collection id and a valid cursor', async () => {
+    mockPrisma.teamRequest.findFirst.mockResolvedValue({
+      orderIndex: dbTeamRequests[0].orderIndex,
+    } as DbTeamRequest);
     mockPrisma.teamRequest.findMany.mockResolvedValue([dbTeamRequests[1]]);
 
-    const response = teamRequestService.getRequestsInCollection(
+    const response = await teamRequestService.getRequestsInCollection(
       dbTeamRequests[1].collectionID,
       dbTeamRequests[0].id,
       1,
     );
 
-    expect(response).resolves.toEqual([teamRequests[1]]);
+    expect(response).toEqual([teamRequests[1]]);
+  });
+
+  test('paginates on the orderIndex of the cursor item, scoped to the collection', async () => {
+    mockPrisma.teamRequest.findFirst.mockResolvedValue({
+      orderIndex: dbTeamRequests[0].orderIndex,
+    } as DbTeamRequest);
+    mockPrisma.teamRequest.findMany.mockResolvedValue([dbTeamRequests[1]]);
+
+    await teamRequestService.getRequestsInCollection(
+      teamCollection.id,
+      dbTeamRequests[0].id,
+      1,
+    );
+
+    expect(mockPrisma.teamRequest.findFirst).toHaveBeenCalledWith({
+      where: { id: dbTeamRequests[0].id, collectionID: teamCollection.id },
+      select: { orderIndex: true },
+    });
+    expect(mockPrisma.teamRequest.findMany).toHaveBeenCalledWith({
+      take: 1,
+      where: {
+        collectionID: teamCollection.id,
+        orderIndex: { gt: dbTeamRequests[0].orderIndex },
+      },
+      orderBy: { orderIndex: 'asc' },
+    });
+  });
+
+  test('resolves with an empty array when cursor is provided but cursor item is not found', async () => {
+    mockPrisma.teamRequest.findFirst.mockResolvedValue(null);
+
+    const result = await teamRequestService.getRequestsInCollection(
+      'testcoll',
+      'nonexistent-cursor',
+      10,
+    );
+
+    expect(result).toEqual([]);
+    expect(mockPrisma.teamRequest.findMany).not.toHaveBeenCalled();
+  });
+
+  test('does not look up a cursor item when no cursor is provided', async () => {
+    mockPrisma.teamRequest.findMany.mockResolvedValue(dbTeamRequests);
+
+    await teamRequestService.getRequestsInCollection(
+      teamCollection.id,
+      null,
+      10,
+    );
+
+    expect(mockPrisma.teamRequest.findFirst).not.toHaveBeenCalled();
+    expect(mockPrisma.teamRequest.findMany).toHaveBeenCalledWith({
+      take: 10,
+      where: { collectionID: teamCollection.id },
+      orderBy: { orderIndex: 'asc' },
+    });
   });
 });
 
@@ -468,6 +529,7 @@ describe('findRequestAndNextRequest', () => {
     mockPrisma.teamRequest.findFirst
       .mockResolvedValueOnce(dbTeamRequests[0])
       .mockResolvedValueOnce(dbTeamRequests[4]);
+    mockPrisma.teamCollection.findUnique.mockResolvedValueOnce(teamCollection);
 
     const result = await (teamRequestService as any).findRequestAndNextRequest(
       args.srcCollID,
@@ -481,7 +543,7 @@ describe('findRequestAndNextRequest', () => {
       nextRequest: dbTeamRequests[4],
     });
   });
-  test('Should resolve right if the request and next request null', () => {
+  test('Should resolve right if the request and next request null', async () => {
     const args: MoveTeamRequestArgs = {
       srcCollID: teamRequests[0].collectionID,
       destCollID: teamRequests[4].collectionID,
@@ -489,21 +551,112 @@ describe('findRequestAndNextRequest', () => {
       nextRequestID: null,
     };
 
-    mockPrisma.teamRequest.findFirst
-      .mockResolvedValueOnce(dbTeamRequests[0])
-      .mockResolvedValueOnce(null);
+    mockPrisma.teamRequest.findFirst.mockResolvedValueOnce(dbTeamRequests[0]);
+    mockPrisma.teamCollection.findUnique.mockResolvedValueOnce(teamCollection);
 
-    const result = (teamRequestService as any).findRequestAndNextRequest(
+    const result = await (teamRequestService as any).findRequestAndNextRequest(
       args.srcCollID,
       args.requestID,
       args.destCollID,
       args.nextRequestID,
     );
 
-    expect(result).resolves.toEqualRight({
+    expect(result).toEqualRight({
       request: dbTeamRequests[0],
       nextRequest: null,
     });
+  });
+  test('Should resolve left if the destination collection does not exist when nextRequestID is null', async () => {
+    const args: MoveTeamRequestArgs = {
+      srcCollID: teamRequests[0].collectionID,
+      destCollID: 'non-existent-coll',
+      requestID: teamRequests[0].id,
+      nextRequestID: null,
+    };
+
+    mockPrisma.teamRequest.findFirst.mockResolvedValueOnce(dbTeamRequests[0]);
+    mockPrisma.teamCollection.findUnique.mockResolvedValueOnce(null);
+
+    const result = await (teamRequestService as any).findRequestAndNextRequest(
+      args.srcCollID,
+      args.requestID,
+      args.destCollID,
+      args.nextRequestID,
+    );
+
+    expect(result).toEqualLeft(TEAM_INVALID_COLL_ID);
+  });
+  test('Should resolve left if the destination collection belongs to a different team when nextRequestID is null', async () => {
+    const args: MoveTeamRequestArgs = {
+      srcCollID: teamRequests[0].collectionID,
+      destCollID: 'cross-team-coll',
+      requestID: teamRequests[0].id,
+      nextRequestID: null,
+    };
+
+    mockPrisma.teamRequest.findFirst.mockResolvedValueOnce(dbTeamRequests[0]);
+    mockPrisma.teamCollection.findUnique.mockResolvedValueOnce({
+      ...teamCollection,
+      id: 'cross-team-coll',
+      teamID: 'different-team-id',
+    });
+
+    const result = await (teamRequestService as any).findRequestAndNextRequest(
+      args.srcCollID,
+      args.requestID,
+      args.destCollID,
+      args.nextRequestID,
+    );
+
+    expect(result).toEqualLeft(TEAM_REQ_INVALID_TARGET_COLL_ID);
+  });
+  test('Should resolve left if the destination collection does not exist when nextRequestID is given', async () => {
+    const args: MoveTeamRequestArgs = {
+      srcCollID: teamRequests[0].collectionID,
+      destCollID: 'non-existent-coll',
+      requestID: teamRequests[0].id,
+      nextRequestID: teamRequests[4].id,
+    };
+
+    mockPrisma.teamRequest.findFirst.mockResolvedValueOnce(dbTeamRequests[0]);
+    mockPrisma.teamCollection.findUnique.mockResolvedValueOnce(null);
+
+    const result = await (teamRequestService as any).findRequestAndNextRequest(
+      args.srcCollID,
+      args.requestID,
+      args.destCollID,
+      args.nextRequestID,
+    );
+
+    expect(result).toEqualLeft(TEAM_INVALID_COLL_ID);
+    // The destination is validated before the nextRequest lookup, so only the
+    // request itself should have been fetched
+    expect(mockPrisma.teamRequest.findFirst).toHaveBeenCalledTimes(1);
+  });
+  test('Should resolve left if the destination collection belongs to a different team when nextRequestID is given', async () => {
+    const args: MoveTeamRequestArgs = {
+      srcCollID: teamRequests[0].collectionID,
+      destCollID: 'cross-team-coll',
+      requestID: teamRequests[0].id,
+      nextRequestID: teamRequests[4].id,
+    };
+
+    mockPrisma.teamRequest.findFirst.mockResolvedValueOnce(dbTeamRequests[0]);
+    mockPrisma.teamCollection.findUnique.mockResolvedValueOnce({
+      ...teamCollection,
+      id: 'cross-team-coll',
+      teamID: 'different-team-id',
+    });
+
+    const result = await (teamRequestService as any).findRequestAndNextRequest(
+      args.srcCollID,
+      args.requestID,
+      args.destCollID,
+      args.nextRequestID,
+    );
+
+    expect(result).toEqualLeft(TEAM_REQ_INVALID_TARGET_COLL_ID);
+    expect(mockPrisma.teamRequest.findFirst).toHaveBeenCalledTimes(1);
   });
   test('Should resolve left if the request is not found', () => {
     const args: MoveTeamRequestArgs = {
@@ -535,6 +688,7 @@ describe('findRequestAndNextRequest', () => {
     mockPrisma.teamRequest.findFirst
       .mockResolvedValueOnce(dbTeamRequests[0])
       .mockResolvedValueOnce(null);
+    mockPrisma.teamCollection.findUnique.mockResolvedValueOnce(teamCollection);
 
     const result = (teamRequestService as any).findRequestAndNextRequest(
       args.srcCollID,

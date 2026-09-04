@@ -42,6 +42,7 @@
       "
       @add-folder="addFolder"
       @add-request="addRequest"
+      @add-gql-request="addGqlRequest"
       @edit-request="editRequest"
       @edit-collection="editCollection"
       @edit-folder="editFolder"
@@ -94,6 +95,7 @@
       :collection-move-loading="collectionMoveLoading"
       :request-move-loading="requestMoveLoading"
       @add-request="addRequest"
+      @add-gql-request="addGqlRequest"
       @add-folder="addFolder"
       @collection-click="handleCollectionClick"
       @duplicate-collection="duplicateCollection"
@@ -150,6 +152,7 @@
     <CollectionsAddRequest
       :show="showModalAddRequest"
       :loading-state="modalLoadingState"
+      :request-type="requestTypeToAdd"
       @add-request="onAddRequest"
       @hide-modal="displayModalAddRequest(false)"
     />
@@ -225,6 +228,13 @@
         </span>
       </template>
     </HoppSmartModal>
+    <CollectionsExportFormatModal
+      :show="showExportModal"
+      :loading="exportLoading"
+      @close="closeExportModal"
+      @export-hoppscotch="onExportHopp"
+      @export-openapi="onExportOpenAPI"
+    />
     <HoppSmartConfirmModal
       :show="showConfirmModal"
       :title="confirmModalTitle"
@@ -297,22 +307,31 @@ import {
   generateUniqueRefId,
   getDefaultRESTRequest,
   HoppCollection,
+  HoppGQLRequest,
+  HoppGQLRequestResponse,
   HoppRESTAuth,
   HoppRESTHeaders,
   HoppRESTRequest,
   HoppRESTRequestResponse,
+  isGQLRequest,
   makeCollection,
+  makeHoppGQLResponseOriginalRequest,
   makeHoppRESTResponseOriginalRequest,
 } from "@hoppscotch/data"
+import { getDefaultGQLRequest } from "~/helpers/graphql/default"
+import { parse as parseGQLDocument } from "graphql"
+import type { OperationDefinitionNode } from "graphql"
 import { useService } from "dioc/vue"
-import { MODULE_PREFIX_REGEX_JSON_SERIALIZED } from "~/helpers/scripting"
+import { stripJsonSerializedModulePrefix } from "@hoppscotch/js-sandbox/scripting"
 
 import * as TE from "fp-ts/TaskEither"
+import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
 import { flow } from "fp-ts/function"
 
+import yaml from "js-yaml"
 import { cloneDeep, debounce, isEqual } from "lodash-es"
 import { PropType, computed, nextTick, onMounted, ref, watch } from "vue"
 import { useReadonlyStream } from "~/composables/stream"
@@ -321,8 +340,7 @@ import { GQLError, runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
 import {
   CollectionDataProps,
-  getCompleteCollectionTree,
-  teamCollToHoppRESTColl,
+  getTeamCollectionObject,
 } from "~/helpers/backend/helpers"
 import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 import {
@@ -355,8 +373,10 @@ import {
 } from "~/helpers/collection/request"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
 import { stripRefIdReplacer } from "~/helpers/import-export/export"
+import { hoppCollectionToOpenAPI } from "~/helpers/import-export/export/openapi"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import { TeamSearchService } from "~/helpers/teams/TeamsSearch.service"
+import { HoppTabDocument } from "~/helpers/tab/document"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { Picked } from "~/helpers/types/HoppPicked"
 import {
@@ -387,7 +407,7 @@ import { currentReorderingStatus$ } from "~/newstore/reordering"
 import { platform } from "~/platform"
 import { PersistedOAuthConfig } from "~/services/oauth/oauth.service"
 import { PersistenceService } from "~/services/persistence"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { TeamWorkspace, WorkspaceService } from "~/services/workspace.service"
 import { RESTOptionTabs } from "../http/RequestOptions.vue"
 import { Collection as NodeCollection } from "./MyCollections.vue"
@@ -399,10 +419,16 @@ import { CurrentValueService } from "~/services/current-environment-value.servic
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { SortOptions } from "~/helpers/backend/graphql"
 import { CurrentSortValuesService } from "~/services/current-sort.service"
+import {
+  flushLocalStoresForCollectionTree,
+  flushLocalStoresForTeamCollectionTree,
+  stripCollectionTreeForStore,
+  stripClientLocalValuesForWire,
+} from "~/helpers/clientLocalVariables"
 
 const t = useI18n()
 const toast = useToast()
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 
 const props = defineProps({
   saveRequest: {
@@ -446,8 +472,9 @@ const editingCollectionPath = ref<string | null>(null)
 const editingFolder = ref<HoppCollection | TeamCollection | null>(null)
 const editingFolderName = ref<string | null>(null)
 const editingFolderPath = ref<string | null>(null)
+const requestTypeToAdd = ref<"rest" | "gql">("rest")
 
-const editingRequest = ref<HoppRESTRequest | null>(null)
+const editingRequest = ref<HoppRESTRequest | HoppGQLRequest | null>(null)
 const editingRequestName = ref("")
 const editingResponseName = ref("")
 const editingResponseOldName = ref("")
@@ -456,6 +483,10 @@ const editingRequestID = ref<string | null>(null)
 
 const editingResponseID = ref<string | null>(null)
 const showAddExampleModal = ref(false)
+// The queued collection is held here so async export work can read it after
+// the modal closes.
+const showExportModal = ref(false)
+const exportTargetCollection = ref<HoppCollection | TeamCollection | null>(null)
 
 const editingProperties = ref<EditingProperties>({
   collection: null,
@@ -474,6 +505,18 @@ const currentUser = useReadonlyStream(
 )
 
 const myCollections = useReadonlyStream(restCollections$, [], "deep")
+
+const setRequestTabResponses = (
+  tabRef: { value: { document: HoppTabDocument } },
+  responses: HoppRESTRequest["responses"] | HoppGQLRequest["responses"]
+) => {
+  const doc = tabRef.value.document
+  if (doc.type === "request") {
+    doc.request.responses = responses as HoppRESTRequest["responses"]
+  } else if (doc.type === "gql-request") {
+    doc.request.responses = responses as HoppGQLRequest["responses"]
+  }
+}
 
 // Dragging
 const draggingToRoot = ref(false)
@@ -688,15 +731,16 @@ const filteredCollections = computed(() => {
 
   const isMatch = (text: string) => text.toLowerCase().includes(filterText)
 
-  const isRequestMatch = (request: HoppRESTRequest) =>
-    isMatch(request.name) || isMatch(request.endpoint)
+  const isRequestMatch = (request: HoppRESTRequest | HoppGQLRequest) =>
+    isMatch(request.name) ||
+    (!isGQLRequest(request) && isMatch(request.endpoint)) ||
+    (isGQLRequest(request) && isMatch(request.url))
 
   for (const collection of collections) {
     const filteredRequests = []
     const filteredFolders = []
     for (const request of collection.requests) {
-      if (isRequestMatch(request as HoppRESTRequest))
-        filteredRequests.push(request)
+      if (isRequestMatch(request)) filteredRequests.push(request)
     }
     for (const folder of collection.folders) {
       if (isMatch(folder.name)) filteredFolders.push(folder)
@@ -886,6 +930,38 @@ const displayModalAddExample = (show: boolean) => {
   if (!show) resetSelectedData()
 }
 
+let exportGeneration = 0
+
+const closeExportModal = () => {
+  // Bump so any in-flight export's `finally` no-ops instead of closing a
+  // freshly-opened modal after this dismissal.
+  exportGeneration++
+  showExportModal.value = false
+  exportTargetCollection.value = null
+  exportLoading.value = false
+}
+
+const onExportHopp = async () => {
+  const collection = exportTargetCollection.value
+  if (!collection) return
+  // `doExportHoppCollection` sets `exportLoading = true` on entry; the reset
+  // is owned here via the generation-guarded `closeExportModal()` so a stale
+  // in-flight export cannot re-enable buttons on a freshly-opened modal.
+  // Same `exportGeneration` pattern as `doExportOpenAPI`.
+  const thisGeneration = ++exportGeneration
+  try {
+    await doExportHoppCollection(collection)
+  } finally {
+    if (thisGeneration === exportGeneration) closeExportModal()
+  }
+}
+
+const onExportOpenAPI = (format: "json" | "yaml") => {
+  // Modal stays open through the export to keep the loading state visible;
+  // doExportOpenAPI closes it when finished.
+  doExportOpenAPI(format)
+}
+
 const addNewRootCollection = async (name: string) => {
   if (collectionsType.value.type === "my-collections") {
     modalLoadingState.value = true
@@ -906,6 +982,8 @@ const addNewRootCollection = async (name: string) => {
         },
         variables: [],
         description: "",
+        preRequestScript: "",
+        testScript: "",
       })
     )
 
@@ -953,14 +1031,27 @@ const addRequest = (payload: {
   const { path, folder } = payload
   editingFolder.value = folder
   editingFolderPath.value = path
+  requestTypeToAdd.value = "rest"
+  displayModalAddRequest(true)
+}
+
+const addGqlRequest = (payload: {
+  path: string
+  folder: HoppCollection | TeamCollection
+}) => {
+  const { path, folder } = payload
+  editingFolder.value = folder
+  editingFolderPath.value = path
+  requestTypeToAdd.value = "gql"
   displayModalAddRequest(true)
 }
 
 const onAddRequest = async (requestName: string) => {
-  const newRequest = {
-    ...getDefaultRESTRequest(),
-    name: requestName,
-  }
+  const isGqlRequest = requestTypeToAdd.value === "gql"
+
+  const newRequest = isGqlRequest
+    ? { ...getDefaultGQLRequest(), name: requestName }
+    : { ...getDefaultRESTRequest(), name: requestName }
 
   const path = editingFolderPath.value
   if (!path) return
@@ -970,24 +1061,40 @@ const onAddRequest = async (requestName: string) => {
 
     const insertionIndex = saveRESTRequestAs(path, newRequest)
 
-    tabs.createNewTab({
-      type: "request",
-      request: newRequest,
-      isDirty: false,
-      saveContext: {
-        originLocation: "user-collection",
-        folderPath: path,
-        requestIndex: insertionIndex,
-        requestRefID: newRequest._ref_id,
-      },
-      inheritedProperties: cascadeParentCollectionForProperties(path, "rest"),
-    })
+    if (isGqlRequest) {
+      tabs.createNewTab({
+        type: "gql-request",
+        request: newRequest as HoppGQLRequest,
+        isDirty: false,
+        cursorPosition: 0,
+        saveContext: {
+          originLocation: "user-collection",
+          folderPath: path,
+          requestIndex: insertionIndex,
+          requestRefID: (newRequest as HoppGQLRequest)._ref_id,
+        },
+        inheritedProperties: cascadeParentCollectionForProperties(path, "rest"),
+      })
+    } else {
+      tabs.createNewTab({
+        type: "request",
+        request: newRequest as HoppRESTRequest,
+        isDirty: false,
+        saveContext: {
+          originLocation: "user-collection",
+          folderPath: path,
+          requestIndex: insertionIndex,
+          requestRefID: (newRequest as HoppRESTRequest)._ref_id,
+        },
+        inheritedProperties: cascadeParentCollectionForProperties(path, "rest"),
+      })
+    }
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
       workspaceType: "personal",
       createdNow: true,
-      platform: "rest",
+      platform: isGqlRequest ? "gql" : "rest",
     })
 
     displayModalAddRequest(false)
@@ -1008,7 +1115,7 @@ const onAddRequest = async (requestName: string) => {
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
       workspaceType: "team",
-      platform: "rest",
+      platform: isGqlRequest ? "gql" : "rest",
       createdNow: true,
     })
 
@@ -1022,20 +1129,42 @@ const onAddRequest = async (requestName: string) => {
         (result) => {
           const { createRequestInCollection } = result
 
-          tabs.createNewTab({
-            type: "request",
-            request: newRequest,
-            isDirty: false,
-            saveContext: {
-              originLocation: "team-collection",
-              requestID: createRequestInCollection.id,
-              collectionID: path,
-              teamID: createRequestInCollection.collection.team.id,
-              requestRefID: newRequest._ref_id,
-            },
-            inheritedProperties:
-              teamCollectionService.cascadeParentCollectionForProperties(path),
-          })
+          if (isGqlRequest) {
+            tabs.createNewTab({
+              type: "gql-request",
+              request: newRequest as HoppGQLRequest,
+              isDirty: false,
+              cursorPosition: 0,
+              saveContext: {
+                originLocation: "team-collection",
+                requestID: createRequestInCollection.id,
+                collectionID: path,
+                teamID: createRequestInCollection.collection.team.id,
+                requestRefID: (newRequest as HoppGQLRequest)._ref_id,
+              },
+              inheritedProperties:
+                teamCollectionService.cascadeParentCollectionForProperties(
+                  path
+                ),
+            })
+          } else {
+            tabs.createNewTab({
+              type: "request",
+              request: newRequest as HoppRESTRequest,
+              isDirty: false,
+              saveContext: {
+                originLocation: "team-collection",
+                requestID: createRequestInCollection.id,
+                collectionID: path,
+                teamID: createRequestInCollection.collection.team.id,
+                requestRefID: (newRequest as HoppRESTRequest)._ref_id,
+              },
+              inheritedProperties:
+                teamCollectionService.cascadeParentCollectionForProperties(
+                  path
+                ),
+            })
+          }
 
           modalLoadingState.value = false
           displayModalAddRequest(false)
@@ -1049,6 +1178,13 @@ const addFolder = (payload: {
   path: string
   folder: HoppCollection | TeamCollection
 }) => {
+  if (
+    collectionsType.value.type === "team-collections" &&
+    !hasTeamWriteAccess.value
+  ) {
+    return
+  }
+
   const { path, folder } = payload
   editingFolder.value = folder
   editingFolderPath.value = path
@@ -1295,7 +1431,7 @@ const duplicateCollection = async ({
 const editRequest = (payload: {
   folderPath: string | undefined
   requestIndex: string
-  request: HoppRESTRequest
+  request: HoppRESTRequest | HoppGQLRequest
 }) => {
   const { folderPath, requestIndex, request } = payload
   editingRequest.value = request
@@ -1336,7 +1472,8 @@ const updateEditingRequest = async (newName: string) => {
 
     if (
       possibleActiveTab &&
-      possibleActiveTab.value.document.type === "request"
+      (possibleActiveTab.value.document.type === "request" ||
+        possibleActiveTab.value.document.type === "gql-request")
     ) {
       possibleActiveTab.value.document.request.name = requestUpdated.name
       nextTick(() => {
@@ -1378,7 +1515,11 @@ const updateEditingRequest = async (newName: string) => {
       requestID,
     })
 
-    if (possibleTab && possibleTab.value.document.type === "request") {
+    if (
+      possibleTab &&
+      (possibleTab.value.document.type === "request" ||
+        possibleTab.value.document.type === "gql-request")
+    ) {
       possibleTab.value.document.request.name = requestName
       nextTick(() => {
         possibleTab.value.document.isDirty = false
@@ -1390,7 +1531,7 @@ const updateEditingRequest = async (newName: string) => {
 type ResponseConfigPayload = {
   folderPath: string | undefined
   requestIndex: string
-  request: HoppRESTRequest
+  request: HoppRESTRequest | HoppGQLRequest
   responseName: string
   responseID: string
 }
@@ -1461,12 +1602,17 @@ const updateEditingResponse = (newName: string) => {
 
     if (
       possibleExampleActiveTab &&
-      possibleExampleActiveTab.value.document.type === "example-response"
+      (possibleExampleActiveTab.value.document.type === "example-response" ||
+        possibleExampleActiveTab.value.document.type === "gql-example-response")
     ) {
       possibleExampleActiveTab.value.document.response.name = newName
 
       nextTick(() => {
-        if (possibleExampleActiveTab.value.document.type === "test-runner")
+        const docType = possibleExampleActiveTab.value.document.type
+        if (
+          docType !== "example-response" &&
+          docType !== "gql-example-response"
+        )
           return
 
         possibleExampleActiveTab.value.document.isDirty = false
@@ -1479,13 +1625,8 @@ const updateEditingResponse = (newName: string) => {
       })
     }
 
-    // update the request tab responses if it's open
-    if (
-      possibleRequestActiveTab &&
-      possibleRequestActiveTab.value.document.type === "request"
-    ) {
-      possibleRequestActiveTab.value.document.request.responses =
-        request.responses
+    if (possibleRequestActiveTab) {
+      setRequestTabResponses(possibleRequestActiveTab, request.responses)
     }
 
     displayModalEditResponse(false)
@@ -1531,11 +1672,17 @@ const updateEditingResponse = (newName: string) => {
 
     if (
       possibleActiveResponseTab &&
-      possibleActiveResponseTab.value.document.type === "example-response"
+      (possibleActiveResponseTab.value.document.type === "example-response" ||
+        possibleActiveResponseTab.value.document.type ===
+          "gql-example-response")
     ) {
       possibleActiveResponseTab.value.document.response.name = newName
       nextTick(() => {
-        if (possibleActiveResponseTab.value.document.type === "test-runner")
+        const docType = possibleActiveResponseTab.value.document.type
+        if (
+          docType !== "example-response" &&
+          docType !== "gql-example-response"
+        )
           return
         possibleActiveResponseTab.value.document.isDirty = false
         possibleActiveResponseTab.value.document.saveContext = {
@@ -1546,30 +1693,26 @@ const updateEditingResponse = (newName: string) => {
       })
     }
 
-    // update the request tab responses if it's open
-    if (
-      possibleRequestActiveTab &&
-      possibleRequestActiveTab.value.document.type === "request"
-    ) {
-      possibleRequestActiveTab.value.document.request.responses =
-        request.responses
+    if (possibleRequestActiveTab) {
+      setRequestTabResponses(possibleRequestActiveTab, request.responses)
     }
   }
 }
 
 const duplicateRequest = async (payload: {
   folderPath: string
-  request: HoppRESTRequest
+  request: HoppRESTRequest | HoppGQLRequest
 }) => {
   const { folderPath, request } = payload
   if (!folderPath) return
 
   const { id: _, ...requestWithoutID } = request
+  const cloned = cloneDeep(requestWithoutID)
   const newRequest = {
-    ...cloneDeep(requestWithoutID),
+    ...cloned,
     _ref_id: generateUniqueRefId("req"),
     name: `${request.name} - ${t("action.duplicate")}`,
-  }
+  } as HoppRESTRequest | HoppGQLRequest
 
   if (collectionsType.value.type === "my-collections") {
     const isValidToken = await handleTokenValidation()
@@ -1644,13 +1787,8 @@ const duplicateResponse = async (payload: ResponseConfigPayload) => {
       folderPath,
     })
 
-    // update the request tab responses if it's open
-    if (
-      possibleRequestActiveTab &&
-      possibleRequestActiveTab.value.document.type === "request"
-    ) {
-      possibleRequestActiveTab.value.document.request.responses =
-        updatedRequest.responses
+    if (possibleRequestActiveTab) {
+      setRequestTabResponses(possibleRequestActiveTab, updatedRequest.responses)
     }
   } else if (hasTeamWriteAccess.value) {
     duplicateRequestLoading.value = true
@@ -1677,25 +1815,21 @@ const duplicateResponse = async (payload: ResponseConfigPayload) => {
       )
     )()
 
-    // update the request tab responses if it's open
+    // update the request tab responses if it's open (REST or GQL)
     const possibleRequestActiveTab = tabs.getTabRefWithSaveContext({
       originLocation: "team-collection",
       requestID: requestIndex,
     })
 
-    if (
-      possibleRequestActiveTab &&
-      possibleRequestActiveTab.value.document.type === "request"
-    ) {
-      possibleRequestActiveTab.value.document.request.responses =
-        updatedRequest.responses
+    if (possibleRequestActiveTab) {
+      setRequestTabResponses(possibleRequestActiveTab, updatedRequest.responses)
     }
   }
 }
 
 const addExample = (payload: {
   folderPath: string
-  request: HoppRESTRequest
+  request: HoppRESTRequest | HoppGQLRequest
   requestIndex: string | number
 }) => {
   const { folderPath, request, requestIndex } = payload
@@ -1707,8 +1841,12 @@ const addExample = (payload: {
     return
   }
 
-  // Additional validation for required request properties
-  if (!request.name && !request.endpoint) {
+  // Additional validation for required request properties — accept either the
+  // REST endpoint or the GQL url as proof we have a real request.
+  const hasUrl = isGQLRequest(request)
+    ? !!request.url
+    : !!(request as HoppRESTRequest).endpoint
+  if (!request.name && !hasUrl) {
     console.error("Request missing required properties:", request)
     toast.error(t("error.invalid_request"))
     return
@@ -1739,6 +1877,13 @@ const onAddExample = async () => {
   const request = editingRequest.value
   if (!request || !request.name) {
     toast.error(t("error.invalid_request"))
+    return
+  }
+
+  // GQL examples have a parallel-but-distinct shape (GQL originalRequest,
+  // no method/params/body). Handle them via the gql-example-response tab type.
+  if (isGQLRequest(request)) {
+    await addGQLExample(request, exampleName)
     return
   }
 
@@ -1912,6 +2057,170 @@ const onAddExample = async () => {
   }
 }
 
+/**
+ * GQL counterpart of the REST add-example flow inside `onAddExample`. Builds a
+ * `HoppGQLRequestResponse` with an empty body, persists it under the parent
+ * request's `responses` map, and opens it as a new `gql-example-response` tab.
+ * Persistence goes through the REST mutation in both personal and team paths
+ * because unified-workspace GQL bodies live in REST collection rows.
+ */
+const addGQLExample = async (request: HoppGQLRequest, exampleName: string) => {
+  if (request.responses && request.responses[exampleName]) {
+    toast.error(t("response.duplicate_name_error"))
+    return
+  }
+
+  const originalRequest = makeHoppGQLResponseOriginalRequest({
+    name: request.name,
+    url: request.url,
+    query: request.query,
+    variables: request.variables,
+    headers: request.headers,
+    auth: request.auth,
+  })
+
+  // Stamp the operation identity from the request's document (first
+  // operation — the one a run would execute) so the mock server can match
+  // this example; without stamps the matcher skips it entirely
+  let operationName: string | undefined
+  let operationType: string | undefined
+  try {
+    const operation = parseGQLDocument(request.query).definitions.find(
+      (definition): definition is OperationDefinitionNode =>
+        definition.kind === "OperationDefinition"
+    )
+    if (operation) {
+      operationType = operation.operation
+      operationName = operation.name?.value
+    }
+  } catch (_e) {
+    // Unparseable document — leave the example unstamped
+  }
+
+  const newExample: HoppGQLRequestResponse = {
+    name: exampleName,
+    code: 200,
+    status: "OK",
+    headers: [],
+    body: "",
+    originalRequest,
+    ...(operationType ? { operationType } : {}),
+    ...(operationName ? { operationName } : {}),
+  }
+
+  const newExampleID = Object.keys(request.responses ?? {}).length.toString()
+
+  const updatedRequest: HoppGQLRequest = {
+    ...request,
+    responses: {
+      ...(request.responses ?? {}),
+      [exampleName]: newExample,
+    },
+  }
+
+  if (collectionsType.value.type === "my-collections") {
+    const folderPath = editingFolderPath.value
+    const requestIndex = editingRequestIndex.value
+    if (folderPath === null || requestIndex === null) return
+
+    const isValidToken = await handleTokenValidation()
+    if (!isValidToken) return
+
+    editRESTRequest(folderPath, requestIndex, updatedRequest)
+    toast.success(t("response.saved"))
+
+    const possibleRequestActiveTab = tabs.getTabRefWithSaveContext({
+      originLocation: "user-collection",
+      requestIndex,
+      folderPath,
+    })
+    if (
+      possibleRequestActiveTab &&
+      possibleRequestActiveTab.value.document.type === "gql-request"
+    ) {
+      possibleRequestActiveTab.value.document.request.responses =
+        updatedRequest.responses
+    }
+
+    displayModalAddExample(false)
+
+    tabs.createNewTab({
+      response: { ...cloneDeep(newExample), name: exampleName },
+      isDirty: false,
+      type: "gql-example-response",
+      saveContext: {
+        originLocation: "user-collection",
+        folderPath,
+        requestIndex,
+        exampleID: newExampleID,
+      },
+      inheritedProperties: cascadeParentCollectionForProperties(
+        folderPath,
+        "rest"
+      ),
+    })
+    return
+  }
+
+  if (hasTeamWriteAccess.value) {
+    if (!editingRequestID.value) return
+    modalLoadingState.value = true
+
+    const data = {
+      requestID: editingRequestID.value,
+      data: { title: request.name, request: JSON.stringify(updatedRequest) },
+    }
+
+    pipe(
+      runMutation(UpdateRequestDocument, data),
+      TE.match(
+        (err: GQLError<string>) => {
+          toast.error(`${getErrorMessage(err)}`)
+          modalLoadingState.value = false
+        },
+        () => {
+          modalLoadingState.value = false
+          toast.success(t("response.saved"))
+          displayModalAddExample(false)
+
+          const requestID = editingRequestID.value
+          const collectionID = editingFolderPath.value
+          if (!requestID) return
+
+          const possibleRequestActiveTab = tabs.getTabRefWithSaveContext({
+            originLocation: "team-collection",
+            requestID,
+          })
+          if (
+            possibleRequestActiveTab &&
+            possibleRequestActiveTab.value.document.type === "gql-request"
+          ) {
+            possibleRequestActiveTab.value.document.request.responses =
+              updatedRequest.responses
+          }
+
+          tabs.createNewTab({
+            response: { ...cloneDeep(newExample), name: exampleName },
+            isDirty: false,
+            type: "gql-example-response",
+            saveContext: {
+              originLocation: "team-collection",
+              requestID,
+              collectionID: collectionID ?? undefined,
+              exampleID: newExampleID,
+            },
+            inheritedProperties: collectionID
+              ? teamCollectionService.cascadeParentCollectionForProperties(
+                  collectionID
+                )
+              : undefined,
+          })
+        }
+      )
+    )()
+  }
+}
+
 const removeCollection = (id: string) => {
   if (collectionsType.value.type === "my-collections")
     editingCollectionIndex.value = parseInt(id)
@@ -1983,15 +2292,8 @@ const onRemoveCollection = async () => {
     toast.success(t("state.deleted"))
     displayConfirmModal(false)
 
-    // delete the secret collection variables
-    // and current collection variables value if the collection is removed
     if (collectionToRemove) {
-      secretEnvironmentService.deleteSecretEnvironment(
-        collectionToRemove._ref_id ?? `${collectionIndex}`
-      )
-      currentEnvironmentValueService.deleteEnvironment(
-        collectionToRemove._ref_id ?? `${collectionIndex}`
-      )
+      flushLocalStoresForCollectionTree(collectionToRemove)
     }
   } else if (hasTeamWriteAccess.value) {
     const collectionID = editingCollectionID.value
@@ -2006,12 +2308,20 @@ const onRemoveCollection = async () => {
       emit("select", null)
     }
 
+    // Capture the subtree BEFORE the mutation so the
+    // team-collection-removed subscription can't drop it from FE state
+    // before we flush nested entries.
+    const subtreeSnapshot =
+      teamCollectionService.findCollectionByID(collectionID)
+
     removeTeamCollectionOrFolder(collectionID).then(() => {
       resetTeamRequestsContext()
 
-      // delete the secret collection variables
-      // and current collection variables value if the collection is removed
-      if (collectionID) {
+      if (subtreeSnapshot) {
+        flushLocalStoresForTeamCollectionTree(subtreeSnapshot)
+      } else if (collectionID) {
+        // Snapshot miss (already removed from tree). Flush at least the
+        // top-level id so the secret service doesn't leak this entry.
         secretEnvironmentService.deleteSecretEnvironment(collectionID)
         currentEnvironmentValueService.deleteEnvironment(collectionID)
       }
@@ -2044,8 +2354,6 @@ const onRemoveFolder = async () => {
       emit("select", null)
     }
 
-    const folderIndex = pathToLastIndex(folderPath)
-
     const folderToRemove = folderPath
       ? navigateToFolderWithIndexPath(
           restCollectionStore.value.state,
@@ -2066,15 +2374,8 @@ const onRemoveFolder = async () => {
     toast.success(t("state.deleted"))
     displayConfirmModal(false)
 
-    // delete the secret collection variables
-    // and current collection variables value if the collection is removed
     if (folderToRemove) {
-      secretEnvironmentService.deleteSecretEnvironment(
-        folderToRemove.id ?? `${folderIndex}`
-      )
-      currentEnvironmentValueService.deleteEnvironment(
-        folderToRemove.id ?? `${folderIndex}`
-      )
+      flushLocalStoresForCollectionTree(folderToRemove)
     }
   } else if (hasTeamWriteAccess.value) {
     const collectionID = editingCollectionID.value
@@ -2089,12 +2390,15 @@ const onRemoveFolder = async () => {
       emit("select", null)
     }
 
+    const subtreeSnapshot =
+      teamCollectionService.findCollectionByID(collectionID)
+
     removeTeamCollectionOrFolder(collectionID).then(() => {
       resetTeamRequestsContext()
 
-      // delete the secret collection variables
-      // and current collection variables value if the collection is removed
-      if (collectionID) {
+      if (subtreeSnapshot) {
+        flushLocalStoresForTeamCollectionTree(subtreeSnapshot)
+      } else if (collectionID) {
         secretEnvironmentService.deleteSecretEnvironment(collectionID)
         currentEnvironmentValueService.deleteEnvironment(collectionID)
       }
@@ -2141,16 +2445,19 @@ const onRemoveRequest = async () => {
       requestIndex,
     })
 
-    // If there is a tab attached to this request, dissociate its state and mark it dirty
-    if (possibleTab && possibleTab.value.document.type === "request") {
-      possibleTab.value.document.saveContext = null
-      possibleTab.value.document.isDirty = true
-
-      // since the request is deleted, we need to remove the saved responses as well
-      possibleTab.value.document.request.responses = {}
-
-      // remove inherited properties
-      possibleTab.value.document.inheritedProperties = undefined
+    if (possibleTab) {
+      const doc = possibleTab.value.document
+      if (doc.type === "request") {
+        doc.saveContext = null
+        doc.isDirty = true
+        doc.request.responses = {}
+        doc.inheritedProperties = undefined
+      } else if (doc.type === "gql-request") {
+        doc.saveContext = null
+        doc.isDirty = true
+        doc.request.responses = {}
+        doc.inheritedProperties = undefined
+      }
     }
 
     const requestToRemove = navigateToFolderWithIndexPath(
@@ -2206,15 +2513,19 @@ const onRemoveRequest = async () => {
       requestID,
     })
 
-    if (possibleTab && possibleTab.value.document.type === "request") {
-      possibleTab.value.document.saveContext = null
-      possibleTab.value.document.isDirty = true
-
-      // since the request is deleted, we need to remove the saved responses as well
-      possibleTab.value.document.request.responses = {}
-
-      // remove inherited properties
-      possibleTab.value.document.inheritedProperties = undefined
+    if (possibleTab) {
+      const doc = possibleTab.value.document
+      if (doc.type === "request") {
+        doc.saveContext = null
+        doc.isDirty = true
+        doc.request.responses = {}
+        doc.inheritedProperties = undefined
+      } else if (doc.type === "gql-request") {
+        doc.saveContext = null
+        doc.isDirty = true
+        doc.request.responses = {}
+        doc.inheritedProperties = undefined
+      }
     }
   }
 }
@@ -2248,7 +2559,7 @@ const onRemoveResponse = async () => {
 
   delete request.responses[responseName]
 
-  const requestUpdated: HoppRESTRequest = {
+  const requestUpdated: HoppRESTRequest | HoppGQLRequest = {
     ...request,
   }
 
@@ -2275,10 +2586,13 @@ const onRemoveResponse = async () => {
       folderPath,
     })
 
-    // If there is a tab attached to this request, close it and set the active tab to the first one
+    // If there is a tab attached to this response (REST or GQL example), close
+    // it and set the active tab to the first one.
     if (
       possibleActiveResponseTab &&
-      possibleActiveResponseTab.value.document.type === "example-response"
+      (possibleActiveResponseTab.value.document.type === "example-response" ||
+        possibleActiveResponseTab.value.document.type ===
+          "gql-example-response")
     ) {
       const activeTabs = tabs.getActiveTabs()
 
@@ -2300,13 +2614,8 @@ const onRemoveResponse = async () => {
       }
     }
 
-    // update the request tab responses if it's open
-    if (
-      possibleRequestActiveTab &&
-      possibleRequestActiveTab.value.document.type === "request"
-    ) {
-      possibleRequestActiveTab.value.document.request.responses =
-        requestUpdated.responses
+    if (possibleRequestActiveTab) {
+      setRequestTabResponses(possibleRequestActiveTab, requestUpdated.responses)
     }
 
     toast.success(t("state.deleted"))
@@ -2349,10 +2658,13 @@ const onRemoveResponse = async () => {
       requestID,
     })
 
-    // If there is a tab attached to this request, close it and set the active tab to the first one
+    // If there is a tab attached to this response (REST or GQL example), close
+    // it and set the active tab to the first one.
     if (
       possibleActiveResponseTab &&
-      possibleActiveResponseTab.value.document.type === "example-response"
+      (possibleActiveResponseTab.value.document.type === "example-response" ||
+        possibleActiveResponseTab.value.document.type ===
+          "gql-example-response")
     ) {
       const activeTabs = tabs.getActiveTabs()
 
@@ -2374,13 +2686,8 @@ const onRemoveResponse = async () => {
       }
     }
 
-    // update the request tab responses if it's open
-    if (
-      possibleRequestActiveTab &&
-      possibleRequestActiveTab.value.document.type === "request"
-    ) {
-      possibleRequestActiveTab.value.document.request.responses =
-        requestUpdated.responses
+    if (possibleRequestActiveTab) {
+      setRequestTabResponses(possibleRequestActiveTab, requestUpdated.responses)
     }
   }
 }
@@ -2395,7 +2702,7 @@ const selectPicked = (payload: Picked | null) => {
  * @param selectedRequest The request that the user clicked on emitted from the collection tree
  */
 const selectRequest = (selectedRequest: {
-  request: HoppRESTRequest
+  request: HoppRESTRequest | HoppGQLRequest
   folderPath: string
   requestIndex: string
   isActive: boolean
@@ -2419,17 +2726,34 @@ const selectRequest = (selectedRequest: {
         teamCollectionService.cascadeParentCollectionForProperties(folderPath)
     }
 
+    const isGql = isGQLRequest(request)
+
     const possibleTab = tabs.getTabRefWithSaveContext({
       originLocation: "team-collection",
       requestID: requestIndex,
     })
 
-    if (possibleTab && possibleTab.value.document.type === "request") {
+    if (possibleTab) {
       tabs.setActiveTab(possibleTab.value.id)
+    } else if (isGql) {
+      tabs.createNewTab({
+        type: "gql-request",
+        request: cloneDeep(request) as HoppGQLRequest,
+        isDirty: false,
+        cursorPosition: 0,
+        saveContext: {
+          originLocation: "team-collection",
+          requestID: requestIndex,
+          collectionID: folderPath,
+          exampleID: undefined,
+          requestRefID: request.id,
+        },
+        inheritedProperties: inheritedProperties,
+      })
     } else {
       tabs.createNewTab({
         type: "request",
-        request: cloneDeep(request),
+        request: cloneDeep(request) as HoppRESTRequest,
         isDirty: false,
         saveContext: {
           originLocation: "team-collection",
@@ -2442,6 +2766,8 @@ const selectRequest = (selectedRequest: {
       })
     }
   } else {
+    const isGql = isGQLRequest(request)
+
     possibleTab = tabs.getTabRefWithSaveContext({
       originLocation: "user-collection",
       requestIndex: parseInt(requestIndex),
@@ -2451,11 +2777,27 @@ const selectRequest = (selectedRequest: {
 
     if (possibleTab) {
       tabs.setActiveTab(possibleTab.value.id)
+    } else if (isGql) {
+      tabs.createNewTab({
+        type: "gql-request",
+        request: cloneDeep(request) as HoppGQLRequest,
+        isDirty: false,
+        cursorPosition: 0,
+        saveContext: {
+          originLocation: "user-collection",
+          folderPath: folderPath!,
+          requestIndex: parseInt(requestIndex),
+          requestRefID: request._ref_id ?? request.id,
+        },
+        inheritedProperties: cascadeParentCollectionForProperties(
+          folderPath,
+          "rest"
+        ),
+      })
     } else {
-      // If not, open the request in a new tab
       tabs.createNewTab({
         type: "request",
-        request: cloneDeep(request),
+        request: cloneDeep(request) as HoppRESTRequest,
         isDirty: false,
         saveContext: {
           originLocation: "user-collection",
@@ -2476,11 +2818,81 @@ const selectResponse = (payload: {
   folderPath: string
   requestIndex: string
   responseName: string
-  request: HoppRESTRequest
+  request: HoppRESTRequest | HoppGQLRequest
   responseID: string
 }) => {
   const { folderPath, requestIndex, responseName, request, responseID } =
     payload
+
+  // GQL examples have their own tab document type (`gql-example-response`)
+  // backed by a GQL-shaped response payload; route there instead of the REST
+  // `example-response` path which renders REST-only components.
+  if (isGQLRequest(request)) {
+    const gqlResponse = request.responses[responseName]
+    if (!gqlResponse) return
+
+    if (collectionsType.value.type === "my-collections") {
+      const possibleTab = tabs.getTabRefWithSaveContext({
+        originLocation: "user-collection",
+        requestIndex: parseInt(requestIndex),
+        folderPath: folderPath!,
+        exampleID: responseID,
+      })
+
+      if (possibleTab) {
+        tabs.setActiveTab(possibleTab.value.id)
+      } else {
+        tabs.createNewTab({
+          response: {
+            ...cloneDeep(gqlResponse),
+            name: responseName,
+          },
+          isDirty: false,
+          type: "gql-example-response",
+          saveContext: {
+            originLocation: "user-collection",
+            folderPath: folderPath!,
+            requestIndex: parseInt(requestIndex),
+            exampleID: responseID,
+          },
+          inheritedProperties: cascadeParentCollectionForProperties(
+            folderPath,
+            "rest"
+          ),
+        })
+      }
+    } else {
+      const possibleTab = tabs.getTabRefWithSaveContext({
+        originLocation: "team-collection",
+        requestID: requestIndex,
+        exampleID: responseID,
+      })
+
+      if (possibleTab) {
+        tabs.setActiveTab(possibleTab.value.id)
+      } else {
+        tabs.createNewTab({
+          response: {
+            ...cloneDeep(gqlResponse),
+            name: responseName,
+          },
+          isDirty: false,
+          type: "gql-example-response",
+          saveContext: {
+            originLocation: "team-collection",
+            requestID: requestIndex,
+            collectionID: folderPath,
+            exampleID: responseID,
+          },
+          inheritedProperties:
+            teamCollectionService.cascadeParentCollectionForProperties(
+              folderPath
+            ),
+        })
+      }
+    }
+    return
+  }
 
   const response = request.responses[responseName]
 
@@ -2589,8 +3001,11 @@ const dropRequest = async (payload: {
       requestRefID,
     })
 
-    // If there is a tab attached to this request, change save its save context
-    if (possibleTab && possibleTab.value.document.type === "request") {
+    if (
+      possibleTab &&
+      (possibleTab.value.document.type === "request" ||
+        possibleTab.value.document.type === "gql-request")
+    ) {
       possibleTab.value.document.saveContext = {
         originLocation: "user-collection",
         folderPath: destinationCollectionIndex,
@@ -2646,7 +3061,11 @@ const dropRequest = async (payload: {
             requestID: requestIndex,
           })
 
-          if (possibleTab && possibleTab.value.document.type === "request") {
+          if (
+            possibleTab &&
+            (possibleTab.value.document.type === "request" ||
+              possibleTab.value.document.type === "gql-request")
+          ) {
             possibleTab.value.document.saveContext = {
               originLocation: "team-collection",
               requestID: requestIndex,
@@ -3136,65 +3555,172 @@ const initializeDownloadCollection = async (
 
   if (result.type === "unknown" || result.type === "saved") {
     toast.success(t("state.download_started").toString())
+    platform.analytics?.logEvent({
+      type: "HOPP_EXPORT_COLLECTION",
+      exporter: "json",
+      platform: "rest",
+    })
   }
 }
 
 /**
- * Export a specific collection or folder
- * Triggered by the export button in the tippy menu
- * @param collection - Collection or folder to be exported
+ * Entry point from the collection context menu. Opens the format-chooser
+ * modal so the user can pick between Hoppscotch JSON and OpenAPI 3.1.
  */
-const exportData = async (collection: HoppCollection | TeamCollection) => {
-  if (collectionsType.value.type === "my-collections") {
-    const collectionJSON = JSON.stringify(collection, stripRefIdReplacer, 2)
+const exportData = (collection: HoppCollection | TeamCollection) => {
+  exportTargetCollection.value = collection
+  showExportModal.value = true
+}
 
-    // Strip `export {};\n` from `testScript` and `preRequestScript` fields
-    const cleanedCollectionJSON = collectionJSON.replace(
-      MODULE_PREFIX_REGEX_JSON_SERIALIZED,
-      ""
+/**
+ * Native Hoppscotch JSON export (the original behavior of `exportData`).
+ */
+const doExportHoppCollection = async (
+  collection: HoppCollection | TeamCollection
+) => {
+  // Strip `export {};\n` from `testScript` and `preRequestScript` fields, and
+  // strip `_ref_id` / secret variable values via `stripCollectionTreeForStore`
+  // so neither leaks into the exported file.
+  const stringifyForExport = (coll: HoppCollection): string =>
+    stripJsonSerializedModulePrefix(
+      JSON.stringify(stripCollectionTreeForStore(coll), stripRefIdReplacer, 2)
     )
 
-    const name = (collection as HoppCollection).name
-
-    initializeDownloadCollection(cleanedCollectionJSON, name)
-  } else {
-    if (!collection.id) return
-    exportLoading.value = true
-
-    pipe(
-      getCompleteCollectionTree(collection.id),
-      TE.match(
-        (err: GQLError<string>) => {
-          toast.error(`${getErrorMessage(err)}`)
-          exportLoading.value = false
-          return
-        },
-        async (coll) => {
-          const hoppColl = teamCollToHoppRESTColl(coll)
-          const collectionJSONString = JSON.stringify(
-            hoppColl,
-            stripRefIdReplacer,
-            2
-          )
-
-          // Strip `export {};\n` from `testScript` and `preRequestScript` fields
-          const cleanedCollectionJSON = collectionJSONString.replace(
-            MODULE_PREFIX_REGEX_JSON_SERIALIZED,
-            ""
-          )
-
-          await initializeDownloadCollection(
-            cleanedCollectionJSON,
-            hoppColl.name
-          )
-          exportLoading.value = false
-        }
+  exportLoading.value = true
+  try {
+    if (collectionsType.value.type === "my-collections") {
+      const hoppColl = collection as HoppCollection
+      await initializeDownloadCollection(
+        stringifyForExport(hoppColl),
+        hoppColl.name
       )
-    )()
+      return
+    }
+
+    if (!collection.id) return
+    const teamID = collectionsType.value.selectedTeam?.teamID
+    if (!teamID) return
+
+    const result = await getTeamCollectionObject(teamID, collection.id)
+    if (E.isLeft(result)) {
+      const errMsg =
+        typeof result.left === "string"
+          ? result.left
+          : getErrorMessage(result.left)
+      toast.error(`${errMsg}`)
+      return
+    }
+    const hoppColl = result.right
+    await initializeDownloadCollection(
+      stringifyForExport(hoppColl),
+      hoppColl.name
+    )
+  } catch {
+    toast.error(t("error.something_went_wrong"))
   }
 }
 
-const shareRequest = ({ request }: { request: HoppRESTRequest }) => {
+const doExportOpenAPI = async (format: "json" | "yaml") => {
+  const collection = exportTargetCollection.value
+  if (!collection) return
+
+  const thisGeneration = ++exportGeneration
+
+  const saveOpenAPIDoc = async (
+    openAPIDoc: Record<string, unknown>,
+    name: string
+  ) => {
+    const isYaml = format === "yaml"
+    let data: string
+    try {
+      data = isYaml
+        ? yaml.dump(openAPIDoc)
+        : JSON.stringify(openAPIDoc, null, 2)
+    } catch {
+      toast.error(t("error.something_went_wrong"))
+      return
+    }
+    const contentType = isYaml ? "application/x-yaml" : "application/json"
+    const extension = isYaml ? "yaml" : "json"
+
+    // `saveFileWithDialog` returns a discriminated SaveFileResponse and does
+    // not throw — checking `result.type` is the only correct way to know if
+    // the user actually saved or cancelled.
+    const result = await platform.kernelIO.saveFileWithDialog({
+      data,
+      contentType,
+      suggestedFilename: `${name}-openapi.${extension}`,
+      filters: [
+        {
+          name: `OpenAPI ${extension.toUpperCase()} file`,
+          extensions: [extension],
+        },
+      ],
+    })
+
+    if (result.type === "saved" || result.type === "unknown") {
+      toast.success(t("state.download_started").toString())
+      platform.analytics?.logEvent({
+        type: "HOPP_EXPORT_COLLECTION",
+        exporter: "openapi",
+        platform: "rest",
+      })
+    }
+  }
+
+  exportLoading.value = true
+
+  if (collectionsType.value.type === "my-collections") {
+    try {
+      // Chooser modal warns about lossiness upfront; per-export warnings would
+      // be redundant.
+      const { doc: openAPIDoc } = hoppCollectionToOpenAPI(
+        collection as HoppCollection
+      )
+      const name = (collection as HoppCollection).name
+      await saveOpenAPIDoc(openAPIDoc, name)
+    } catch {
+      toast.error(t("error.something_went_wrong"))
+    } finally {
+      if (thisGeneration === exportGeneration) closeExportModal()
+    }
+  } else {
+    if (!collection.id) {
+      closeExportModal()
+      return
+    }
+    const teamID = collectionsType.value.selectedTeam?.teamID
+    if (!teamID) {
+      closeExportModal()
+      return
+    }
+
+    try {
+      const result = await getTeamCollectionObject(teamID, collection.id)
+      if (E.isLeft(result)) {
+        const errMsg =
+          typeof result.left === "string"
+            ? result.left
+            : getErrorMessage(result.left)
+        toast.error(`${errMsg}`)
+        return
+      }
+      const hoppColl = result.right
+      const { doc: openAPIDoc } = hoppCollectionToOpenAPI(hoppColl)
+      await saveOpenAPIDoc(openAPIDoc, hoppColl.name)
+    } catch {
+      toast.error(t("error.something_went_wrong"))
+    } finally {
+      if (thisGeneration === exportGeneration) closeExportModal()
+    }
+  }
+}
+
+const shareRequest = ({
+  request,
+}: {
+  request: HoppRESTRequest | HoppGQLRequest
+}) => {
   if (currentUser.value) {
     // opens the share request modal
     invokeAction("share.request", {
@@ -3230,6 +3756,26 @@ const getCurrentValue = (
   )?.currentValue
 }
 
+/**
+ * Restore both `initialValue` and `currentValue` for a secret variable from
+ * the local secret store. Both fields are blanked at the wire boundary
+ * before the variable is sent to the backend, so when the user reopens the
+ * Properties modal we re-populate from `secretEnvironmentService`.
+ * Returns null for non-secret variables (callers fall back to existing
+ * current-value lookup) or when the slot has no entry in the secret store.
+ */
+const getSecretValues = (
+  isSecret: boolean,
+  varIndex: number,
+  collectionID: string
+): { value: string; initialValue: string } | null => {
+  if (!isSecret) return null
+  return secretEnvironmentService.getSecretEnvironmentVariableValue(
+    collectionID,
+    varIndex
+  )
+}
+
 const editProperties = async (payload: {
   collectionIndex: string
   collection: HoppCollection | TeamCollection
@@ -3254,6 +3800,7 @@ const editProperties = async (payload: {
       },
       headers: [],
       variables: [],
+      scripts: [],
     }
 
     if (parentIndex) {
@@ -3263,17 +3810,19 @@ const editProperties = async (payload: {
       )
     }
 
+    const storeID = (collection as HoppCollection)._ref_id ?? collectionId!
+
     const collectionVariables = pipe(
       (collection as HoppCollection).variables ?? [],
       A.mapWithIndex((index, e) => {
+        const stored = getSecretValues(e.secret, index, storeID)
         return {
           ...e,
           currentValue:
-            getCurrentValue(
-              e.secret,
-              index,
-              (collection as HoppCollection)._ref_id ?? collectionId!
-            ) ?? e.currentValue,
+            stored?.value ??
+            getCurrentValue(e.secret, index, storeID) ??
+            e.currentValue,
+          initialValue: stored?.initialValue ?? e.initialValue,
         }
       })
     )
@@ -3286,6 +3835,10 @@ const editProperties = async (payload: {
       isRootCollection: isAlreadyInRoot(collectionIndex),
       path: collectionIndex,
       inheritedProperties,
+      // Persist the exact key secrets/current values were read under, so the
+      // properties modal resolves them without re-deriving (and diverging from)
+      // this keying.
+      collectionStoreKey: storeID,
     }
   } else {
     const parentIndex = collectionIndex.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
@@ -3307,16 +3860,19 @@ const editProperties = async (payload: {
       description: null as string | null,
       folders: null,
       requests: null,
+      preRequestScript: "",
+      testScript: "",
     }
 
     if (parentIndex) {
-      const { auth, headers, variables } =
+      const { auth, headers, variables, scripts } =
         teamCollectionService.cascadeParentCollectionForProperties(parentIndex)
 
       inheritedProperties = {
         auth,
         headers,
         variables,
+        scripts,
       }
     }
 
@@ -3324,10 +3880,14 @@ const editProperties = async (payload: {
       const collectionVariables = pipe(
         (data.variables ?? []) as HoppCollectionVariable[],
         A.mapWithIndex((index, e) => {
+          const stored = getSecretValues(e.secret, index, collectionId!)
           return {
             ...e,
             currentValue:
-              getCurrentValue(e.secret, index, collectionId!) ?? e.currentValue,
+              stored?.value ??
+              getCurrentValue(e.secret, index, collectionId!) ??
+              e.currentValue,
+            initialValue: stored?.initialValue ?? e.initialValue,
           }
         })
       )
@@ -3337,6 +3897,8 @@ const editProperties = async (payload: {
         headers: data.headers,
         variables: collectionVariables,
         description: data.description,
+        preRequestScript: data.preRequestScript ?? "",
+        testScript: data.testScript ?? "",
       }
 
       coll = {
@@ -3350,6 +3912,8 @@ const editProperties = async (payload: {
       isRootCollection: isAlreadyInRoot(collectionIndex),
       path: collectionIndex,
       inheritedProperties,
+      // Team collections are keyed by `id` (mirrors the save-side keying).
+      collectionStoreKey: collectionId ?? "",
     }
   }
 
@@ -3388,6 +3952,7 @@ const setCollectionProperties = (newCollection: {
           ? O.some({
               key: e.key,
               value: e.currentValue,
+              initialValue: e.initialValue,
               varIndex: i,
             })
           : O.none
@@ -3408,24 +3973,17 @@ const setCollectionProperties = (newCollection: {
       )
     )
 
-    secretEnvironmentService.addSecretEnvironment(
-      collection._ref_id ?? collectionId!,
-      secretVariables
-    )
+    // Mirror the read-side keying in `editProperties`.
+    const storeKey =
+      collectionsType.value.type === "team-collections"
+        ? collectionId!
+        : (collection._ref_id ?? collectionId!)
 
-    currentEnvironmentValueService.addEnvironment(
-      collection._ref_id ?? collectionId!,
-      nonSecretVariables
-    )
+    secretEnvironmentService.addSecretEnvironment(storeKey, secretVariables)
 
-    //set current value and secret values to empty string
-    collection.variables = pipe(
-      filteredVariables,
-      A.map((e) => ({
-        ...e,
-        currentValue: "",
-      }))
-    )
+    currentEnvironmentValueService.addEnvironment(storeKey, nonSecretVariables)
+
+    collection.variables = stripClientLocalValuesForWire(filteredVariables)
   }
 
   if (collectionsType.value.type === "my-collections") {
@@ -3440,7 +3998,7 @@ const setCollectionProperties = (newCollection: {
     })
     toast.success(t("collection.properties_updated"))
   } else if (hasTeamWriteAccess.value && collectionId) {
-    const data = {
+    const data: CollectionDataProps = {
       auth: collection.auth ?? {
         authType: "inherit",
         authActive: true,
@@ -3448,6 +4006,8 @@ const setCollectionProperties = (newCollection: {
       headers: collection.headers ?? [],
       variables: collection.variables ?? [],
       description: collection.description ?? null,
+      preRequestScript: collection.preRequestScript ?? "",
+      testScript: collection.testScript ?? "",
     }
 
     // Mark as loading BEFORE triggering async update to avoid race conditions and push the collectionId to the loading array
@@ -3644,6 +4204,7 @@ const getErrorMessage = (err: GQLError<string>) => {
     case "team_req/requests_not_from_same_collection":
       return t("request.different_collection")
     case "team/team_collections_have_different_parents":
+    case "team_coll/not_same_parent":
       return t("collection.different_parent")
     default:
       return t("error.something_went_wrong")

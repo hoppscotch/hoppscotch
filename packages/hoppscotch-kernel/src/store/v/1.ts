@@ -128,6 +128,45 @@ export interface StoreV1 {
   ): Promise<StoreEventEmitter<StoreEvents>>
 }
 
+export interface ScopedStore {
+  isAvailable(): Promise<boolean>
+  set(key: string, value: unknown): Promise<void>
+  get<T>(key: string): Promise<T | null>
+  remove(key: string): Promise<void>
+}
+
+export function extend(
+  store: StoreV1,
+  storePath: string,
+  namespace: string
+): ScopedStore {
+  return {
+    async isAvailable(): Promise<boolean> {
+      try {
+        return E.isRight(await store.init(storePath))
+      } catch {
+        return false
+      }
+    },
+
+    async set(key: string, value: unknown): Promise<void> {
+      const result = await store.set(storePath, namespace, key, value)
+      if (E.isLeft(result)) throw new Error(result.left.message)
+    },
+
+    async get<T>(key: string): Promise<T | null> {
+      const result = await store.get<T>(storePath, namespace, key)
+      if (E.isLeft(result)) return null
+      return result.right ?? null
+    },
+
+    async remove(key: string): Promise<void> {
+      const result = await store.remove(storePath, namespace, key)
+      if (E.isLeft(result)) throw new Error(result.left.message)
+    },
+  }
+}
+
 export const v1: VersionedAPI<StoreV1> = {
   version: { major: 1, minor: 0, patch: 0 },
   api: {

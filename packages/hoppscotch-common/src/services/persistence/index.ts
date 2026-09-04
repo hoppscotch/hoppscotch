@@ -9,15 +9,15 @@ import { assign, clone, isEmpty, cloneDeep } from "lodash-es"
 
 import {
   GlobalEnvironmentVariable,
-  translateToNewGQLCollection,
-  translateToNewRESTCollection,
+  translateToNewCollection,
 } from "@hoppscotch/data"
 
 import { StoreError } from "@hoppscotch/kernel"
 
 import { Store } from "~/kernel/store"
+import { diag } from "~/kernel/log"
 import { GQLTabService } from "~/services/tab/graphql"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import {
   SecretEnvironmentService,
   SecretVariable,
@@ -81,7 +81,7 @@ import {
   NUXT_COLOR_MODE_SCHEMA,
   REST_COLLECTION_SCHEMA,
   REST_HISTORY_ENTRY_SCHEMA,
-  REST_TAB_STATE_SCHEMA,
+  WORKSPACE_TABS_STATE_SCHEMA,
   SECRET_ENVIRONMENT_VARIABLE_SCHEMA,
   SELECTED_ENV_INDEX_SCHEMA,
   SETTINGS_SCHEMA,
@@ -92,7 +92,7 @@ import {
   WEBSOCKET_REQUEST_SCHEMA,
 } from "./validation-schemas"
 import { PersistableTabState } from "../tab"
-import { HoppTabDocument } from "~/helpers/rest/document"
+import { HoppTabDocument } from "~/helpers/tab/document"
 import { HoppGQLDocument } from "~/helpers/graphql/document"
 import {
   CurrentValueService,
@@ -128,6 +128,8 @@ export const STORE_KEYS = {
   CURRENT_ENVIRONMENT_VALUE: "currentEnvironmentValue",
   CURRENT_SORT_VALUES: "currentSortValues",
   SCHEMA_VERSION: "schema_version",
+  LOGIN_STATE: "login_state",
+  EMAIL_FOR_SIGN_IN: "emailForSignIn",
 } as const
 
 interface Migration {
@@ -173,6 +175,76 @@ const migrations: Migration[] = [
       }
     },
   },
+  {
+    // Coerce gqlHistory entries with non-string `response` to string,
+    // backing up originals at `${GQL_HISTORY}-pre-v2-backup`.
+    version: 2,
+    migrate: async () => {
+      const result = await Store.get<unknown>(
+        STORE_NAMESPACE,
+        STORE_KEYS.GQL_HISTORY
+      )
+
+      if (!E.isRight(result) || !Array.isArray(result.right)) return
+
+      const entries = result.right
+      // Only target entries with own `response` field that's non-string;
+      // unrelated schema mismatches still go through the Zod-fail backup.
+      const needsRepair = entries.some(
+        (entry) =>
+          typeof entry === "object" &&
+          entry !== null &&
+          Object.prototype.hasOwnProperty.call(entry, "response") &&
+          typeof (entry as { response?: unknown }).response !== "string"
+      )
+
+      if (!needsRepair) return
+
+      // Throw on backup or repair write failure so `runMigrations` can
+      // skip the schema_version bump and retry on the next launch. The
+      // alternative — log-and-continue — would mark the migration done
+      // while leaving poisoned data in place, with no future retry path.
+      const backupResult = await Store.set(
+        STORE_NAMESPACE,
+        `${STORE_KEYS.GQL_HISTORY}-pre-v2-backup`,
+        entries
+      )
+      if (E.isLeft(backupResult)) {
+        throw new Error(
+          `[v2 migration] failed to write pre-v2 backup: ${backupResult.left.kind}: ${backupResult.left.message}`
+        )
+      }
+
+      const repaired = entries.map((entry) => {
+        if (typeof entry !== "object" || entry === null) return entry
+        const e = entry as Record<string, unknown>
+        if (
+          !Object.prototype.hasOwnProperty.call(e, "response") ||
+          typeof e.response === "string"
+        ) {
+          return e
+        }
+        // Use JSON.stringify(e.response) directly so a `null` payload
+        // serializes to the string `"null"` rather than `'""'`. Either
+        // form satisfies the `response: z.string()` schema, but `"null"`
+        // preserves the original semantic of an empty payload (e.g. a
+        // subscription that produced no data) and avoids re-stringifying
+        // on the next sync write.
+        return { ...e, response: JSON.stringify(e.response) }
+      })
+
+      const repairResult = await Store.set(
+        STORE_NAMESPACE,
+        STORE_KEYS.GQL_HISTORY,
+        repaired
+      )
+      if (E.isLeft(repairResult)) {
+        throw new Error(
+          `[v2 migration] failed to write repaired ${STORE_KEYS.GQL_HISTORY}: ${repairResult.left.kind}: ${repairResult.left.message}`
+        )
+      }
+    },
+  },
 ]
 
 /**
@@ -184,7 +256,7 @@ export class PersistenceService extends Service {
   // TODO: Consider swapping this with platform dependent `StoreLike` impl
   public hoppLocalConfigStorage: StorageLike = localStorage
 
-  private readonly restTabService = this.bind(RESTTabService)
+  private readonly workspaceTabsService = this.bind(WorkspaceTabsService)
   private readonly gqlTabService = this.bind(GQLTabService)
   private readonly secretEnvironmentService = this.bind(
     SecretEnvironmentService
@@ -204,14 +276,24 @@ export class PersistenceService extends Service {
   }
 
   async init(): Promise<E.Either<StoreError, void>> {
+    diag(
+      "persistence",
+      "PersistenceService.init() called, about to Store.init()"
+    )
     const initResult = await Store.init()
     if (E.isLeft(initResult)) {
+      diag(
+        "persistence",
+        "PersistenceService Store.init() FAILED:",
+        initResult.left
+      )
       console.error(
         "[PersistenceService] Failed to initialize store:",
         initResult.left
       )
       return initResult
     }
+    diag("persistence", "PersistenceService Store.init() succeeded")
     return initResult
   }
 
@@ -222,13 +304,25 @@ export class PersistenceService extends Service {
     )
     const perhapsVersion = E.isRight(versionResult) ? versionResult.right : "0"
     const currentVersion = perhapsVersion ?? "0"
-    const targetVersion = "1"
+    const targetVersion = "2"
 
     if (currentVersion !== targetVersion) {
-      for (const migration of migrations) {
-        if (migration.version > parseInt(currentVersion)) {
-          await migration.migrate()
+      try {
+        for (const migration of migrations) {
+          if (migration.version > parseInt(currentVersion)) {
+            await migration.migrate()
+          }
         }
+      } catch (err) {
+        // A migration that throws (e.g. v2 repair on a degraded store)
+        // aborts the schema_version bump so the next launch retries
+        // from the same currentVersion rather than recording an
+        // incomplete migration as done.
+        console.error(
+          "[persistence] migration failed; schema_version not advanced:",
+          err
+        )
+        return
       }
 
       await Store.set(STORE_NAMESPACE, STORE_KEYS.SCHEMA_VERSION, targetVersion)
@@ -364,6 +458,10 @@ export class PersistenceService extends Service {
   }
 
   private async setupSettingsPersistence() {
+    diag(
+      "persistence",
+      "setupSettingsPersistence() loading settings from store"
+    )
     const loadResult = await Store.get<any>(
       STORE_NAMESPACE,
       STORE_KEYS.SETTINGS
@@ -372,12 +470,37 @@ export class PersistenceService extends Service {
     try {
       if (E.isRight(loadResult)) {
         const data = loadResult.right ?? getDefaultSettings()
+        diag(
+          "persistence",
+          "settings loaded, BG_COLOR:",
+          data?.BG_COLOR,
+          "THEME_COLOR:",
+          data?.THEME_COLOR
+        )
+        diag(
+          "persistence",
+          "settings keys:",
+          data ? Object.keys(data).join(", ") : "(null/default)"
+        )
         const result = SETTINGS_SCHEMA.safeParse(data)
 
         if (result.success) {
           const migratedSettings = performSettingsDataMigrations(result.data)
+          diag(
+            "persistence",
+            "settings migrated, BG_COLOR:",
+            migratedSettings?.BG_COLOR,
+            "THEME_COLOR:",
+            migratedSettings?.THEME_COLOR
+          )
           bulkApplySettings(migratedSettings)
+          diag("persistence", "settings applied via bulkApplySettings")
         } else {
+          diag(
+            "persistence",
+            "settings schema validation FAILED:",
+            result.error?.message
+          )
           this.showErrorToast(STORE_KEYS.SETTINGS)
           await Store.set(
             STORE_NAMESPACE,
@@ -385,8 +508,15 @@ export class PersistenceService extends Service {
             data
           )
         }
+      } else {
+        diag(
+          "persistence",
+          "settings load returned Left (error):",
+          loadResult.left
+        )
       }
     } catch (_e) {
+      diag("persistence", "settings parse error:", String(_e))
       console.error(`Failed parsing persisted SETTINGS:`, loadResult)
     }
 
@@ -410,6 +540,10 @@ export class PersistenceService extends Service {
           const translatedData = result.data.map(translateToNewRESTHistory)
           setRESTHistoryEntries(translatedData)
         } else {
+          console.error(
+            `Failed parsing persisted REST_HISTORY:`,
+            result.error.message
+          )
           this.showErrorToast(STORE_KEYS.REST_HISTORY)
           await Store.set(
             STORE_NAMESPACE,
@@ -460,6 +594,10 @@ export class PersistenceService extends Service {
   }
 
   private async setupRESTCollectionsPersistence() {
+    diag(
+      "persistence",
+      "setupRESTCollectionsPersistence() loading REST collections"
+    )
     const restLoadResult = await Store.get<any>(
       STORE_NAMESPACE,
       STORE_KEYS.REST_COLLECTIONS
@@ -468,14 +606,25 @@ export class PersistenceService extends Service {
     try {
       if (E.isRight(restLoadResult)) {
         const data = restLoadResult.right ?? []
+        diag(
+          "persistence",
+          "REST collections loaded, count:",
+          Array.isArray(data) ? data.length : "(not array)",
+          "first name:",
+          Array.isArray(data) && data[0]?.name ? data[0].name : "(none)"
+        )
         const result = z.array(REST_COLLECTION_SCHEMA).safeParse(data)
 
         if (result.success) {
-          const translatedData = result.data.map(translateToNewRESTCollection)
-
+          const translatedData = result.data.map(translateToNewCollection)
+          diag(
+            "persistence",
+            "REST collections translated, count:",
+            translatedData.length
+          )
           setRESTCollections(translatedData)
         } else {
-          console.error(`Failed with `, result.error, data)
+          console.error(`Failed with `, result.error.message)
           this.showErrorToast(STORE_KEYS.REST_COLLECTIONS)
           await Store.set(
             STORE_NAMESPACE,
@@ -510,7 +659,7 @@ export class PersistenceService extends Service {
         const result = z.array(GQL_COLLECTION_SCHEMA).safeParse(data)
 
         if (result.success) {
-          const translatedData = result.data.map(translateToNewGQLCollection)
+          const translatedData = result.data.map(translateToNewCollection)
           setGraphqlCollections(translatedData)
         } else {
           this.showErrorToast(STORE_KEYS.GQL_COLLECTIONS)
@@ -917,7 +1066,7 @@ export class PersistenceService extends Service {
     })
   }
 
-  private async setupRESTTabsPersistence() {
+  private async setupWorkspaceTabsPersistence() {
     const loadResult = await Store.get<any>(
       STORE_NAMESPACE,
       STORE_KEYS.REST_TABS
@@ -934,10 +1083,10 @@ export class PersistenceService extends Service {
           ...loadResult.right,
           orderedDocs,
         }
-        const result = REST_TAB_STATE_SCHEMA.safeParse(transformedTabs)
+        const result = WORKSPACE_TABS_STATE_SCHEMA.safeParse(transformedTabs)
         if (result.success) {
           // SAFETY: We know the schema matches
-          this.restTabService.loadTabsFromPersistedState(
+          this.workspaceTabsService.loadTabsFromPersistedState(
             result.data as PersistableTabState<HoppTabDocument>
           )
         } else {
@@ -952,7 +1101,7 @@ export class PersistenceService extends Service {
             JSON.stringify(loadResult.right)
           )
           // NOTE: Still loading data to match legacy behavior
-          this.restTabService.loadTabsFromPersistedState(loadResult.right)
+          this.workspaceTabsService.loadTabsFromPersistedState(loadResult.right)
         }
       }
     } catch (_e) {
@@ -960,9 +1109,22 @@ export class PersistenceService extends Service {
     }
 
     watchDebounced(
-      this.restTabService.persistableTabState,
+      this.workspaceTabsService.persistableTabState,
       async (newData) => {
-        await Store.set(STORE_NAMESPACE, STORE_KEYS.REST_TABS, newData)
+        const result = await Store.set(
+          STORE_NAMESPACE,
+          STORE_KEYS.REST_TABS,
+          newData
+        )
+
+        // A failed write (e.g. QuotaExceededError) silently freezes the
+        // persisted state for every REST tab at the last write that fit.
+        if (E.isLeft(result)) {
+          console.error(
+            `Failed persisting ${STORE_KEYS.REST_TABS}:`,
+            result.left
+          )
+        }
       },
       { debounce: 500, deep: true }
     )
@@ -1012,12 +1174,16 @@ export class PersistenceService extends Service {
   }
 
   public async setupFirst() {
+    diag("persistence", "setupFirst() start")
     await this.init()
+    diag("persistence", "setupFirst() init done, running migrations")
     await this.runMigrations()
     await this.checkAndMigrateOldSettings()
+    diag("persistence", "setupFirst() complete")
   }
 
   public async setupLater() {
+    diag("persistence", "setupLater() start - loading all persisted data")
     await Promise.all([
       this.setupLocalStatePersistence(),
 
@@ -1035,7 +1201,7 @@ export class PersistenceService extends Service {
       this.setupSocketIOPersistence(),
       this.setupSSEPersistence(),
       this.setupMQTTPersistence(),
-      this.setupRESTTabsPersistence(),
+      this.setupWorkspaceTabsPersistence(),
       this.setupGQLTabsPersistence(),
 
       this.setupSecretEnvironmentsPersistence(),

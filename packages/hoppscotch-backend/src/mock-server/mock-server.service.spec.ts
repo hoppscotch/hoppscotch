@@ -151,6 +151,123 @@ describe('MockServerService', () => {
     });
   });
 
+  describe('cast - server URL generation', () => {
+    test('should not append /backend to serverUrlDomainBased when ENABLE_SUBPATH_BASED_ACCESS is not set', async () => {
+      mockPrisma.mockServer.findMany.mockResolvedValue([dbMockServer]);
+
+      const result = await mockServerService.getUserMockServers(user.uid, {
+        take: 10,
+        skip: 0,
+      });
+
+      expect(result[0].serverUrlDomainBased).toBe(
+        'http://test-subdomain.mock.hopp.io',
+      );
+    });
+
+    test('should not append /backend to serverUrlDomainBased when ENABLE_SUBPATH_BASED_ACCESS is "false"', async () => {
+      mockConfigService.get.mockImplementation((key: string) => {
+        if (key === 'VITE_BACKEND_API_URL') return 'http://localhost:3170/v1';
+        if (key === 'INFRA.MOCK_SERVER_WILDCARD_DOMAIN')
+          return '*.mock.hopp.io';
+        if (key === 'INFRA.ALLOW_SECURE_COOKIES') return 'false';
+        if (key === 'ENABLE_SUBPATH_BASED_ACCESS') return 'false';
+        return undefined;
+      });
+      mockPrisma.mockServer.findMany.mockResolvedValue([dbMockServer]);
+
+      const result = await mockServerService.getUserMockServers(user.uid, {
+        take: 10,
+        skip: 0,
+      });
+
+      expect(result[0].serverUrlDomainBased).toBe(
+        'http://test-subdomain.mock.hopp.io',
+      );
+    });
+
+    test('should append /backend to serverUrlDomainBased when ENABLE_SUBPATH_BASED_ACCESS is "true"', async () => {
+      mockConfigService.get.mockImplementation((key: string) => {
+        if (key === 'VITE_BACKEND_API_URL') return 'http://localhost:3170/v1';
+        if (key === 'INFRA.MOCK_SERVER_WILDCARD_DOMAIN')
+          return '*.mock.hopp.io';
+        if (key === 'INFRA.ALLOW_SECURE_COOKIES') return 'false';
+        if (key === 'ENABLE_SUBPATH_BASED_ACCESS') return 'true';
+        return undefined;
+      });
+      mockPrisma.mockServer.findMany.mockResolvedValue([dbMockServer]);
+
+      const result = await mockServerService.getUserMockServers(user.uid, {
+        take: 10,
+        skip: 0,
+      });
+
+      expect(result[0].serverUrlDomainBased).toBe(
+        'http://test-subdomain.mock.hopp.io/backend',
+      );
+    });
+
+    test('should use https protocol and append /backend when secure cookies and subpath access are enabled', async () => {
+      mockConfigService.get.mockImplementation((key: string) => {
+        if (key === 'VITE_BACKEND_API_URL') return 'https://localhost:3170/v1';
+        if (key === 'INFRA.MOCK_SERVER_WILDCARD_DOMAIN')
+          return '*.mock.hopp.io';
+        if (key === 'INFRA.ALLOW_SECURE_COOKIES') return 'true';
+        if (key === 'ENABLE_SUBPATH_BASED_ACCESS') return 'true';
+        return undefined;
+      });
+      mockPrisma.mockServer.findMany.mockResolvedValue([dbMockServer]);
+
+      const result = await mockServerService.getUserMockServers(user.uid, {
+        take: 10,
+        skip: 0,
+      });
+
+      expect(result[0].serverUrlDomainBased).toBe(
+        'https://test-subdomain.mock.hopp.io/backend',
+      );
+    });
+
+    test('should leave serverUrlDomainBased null and not append /backend when wildcard domain is not configured', async () => {
+      mockConfigService.get.mockImplementation((key: string) => {
+        if (key === 'VITE_BACKEND_API_URL') return 'http://localhost:3170/v1';
+        if (key === 'INFRA.MOCK_SERVER_WILDCARD_DOMAIN') return undefined;
+        if (key === 'INFRA.ALLOW_SECURE_COOKIES') return 'false';
+        if (key === 'ENABLE_SUBPATH_BASED_ACCESS') return 'true';
+        return undefined;
+      });
+      mockPrisma.mockServer.findMany.mockResolvedValue([dbMockServer]);
+
+      const result = await mockServerService.getUserMockServers(user.uid, {
+        take: 10,
+        skip: 0,
+      });
+
+      expect(result[0].serverUrlDomainBased).toBeNull();
+    });
+
+    test('should strip trailing slashes from wildcard domain before appending subpath suffix', async () => {
+      mockConfigService.get.mockImplementation((key: string) => {
+        if (key === 'VITE_BACKEND_API_URL') return 'http://localhost:3170/v1';
+        if (key === 'INFRA.MOCK_SERVER_WILDCARD_DOMAIN')
+          return '*.mock.hopp.io/'; // Domain with trailing slash
+        if (key === 'INFRA.ALLOW_SECURE_COOKIES') return 'false';
+        if (key === 'ENABLE_SUBPATH_BASED_ACCESS') return 'true';
+        return undefined;
+      });
+      mockPrisma.mockServer.findMany.mockResolvedValue([dbMockServer]);
+
+      const result = await mockServerService.getUserMockServers(user.uid, {
+        take: 10,
+        skip: 0,
+      });
+
+      expect(result[0].serverUrlDomainBased).toBe(
+        'http://test-subdomain.mock.hopp.io/backend',
+      );
+    });
+  });
+
   describe('getTeamMockServers', () => {
     test('should return team mock servers with pagination', async () => {
       const teamMockServer = {
@@ -386,6 +503,73 @@ describe('MockServerService', () => {
         dbMockServer,
         MockServerAction.CREATED,
         user.uid,
+      );
+    });
+
+    // Regression: GHSA-c68f-wr5p-j6jf — isPublic from input must be persisted,
+    // and must default to private (false) when omitted.
+    test('should persist isPublic: false when input requests a private server', async () => {
+      mockPrisma.userCollection.findUnique.mockResolvedValue(userCollection);
+      mockPrisma.mockServer.findUnique.mockResolvedValue(null);
+      mockPrisma.mockServer.create.mockResolvedValue({
+        ...dbMockServer,
+        isPublic: false,
+      });
+
+      const result = await mockServerService.createMockServer(user, {
+        ...createInput,
+        isPublic: false,
+      });
+
+      expect(mockPrisma.mockServer.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ isPublic: false }),
+        }),
+      );
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).isPublic).toBe(false);
+      }
+    });
+
+    test('should persist isPublic: true when input requests a public server', async () => {
+      mockPrisma.userCollection.findUnique.mockResolvedValue(userCollection);
+      mockPrisma.mockServer.findUnique.mockResolvedValue(null);
+      mockPrisma.mockServer.create.mockResolvedValue({
+        ...dbMockServer,
+        isPublic: true,
+      });
+
+      const result = await mockServerService.createMockServer(user, {
+        ...createInput,
+        isPublic: true,
+      });
+
+      expect(mockPrisma.mockServer.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ isPublic: true }),
+        }),
+      );
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).isPublic).toBe(true);
+      }
+    });
+
+    test('should default to private (isPublic: false) when input omits isPublic', async () => {
+      mockPrisma.userCollection.findUnique.mockResolvedValue(userCollection);
+      mockPrisma.mockServer.findUnique.mockResolvedValue(null);
+      mockPrisma.mockServer.create.mockResolvedValue({
+        ...dbMockServer,
+        isPublic: false,
+      });
+
+      await mockServerService.createMockServer(user, createInput);
+
+      expect(mockPrisma.mockServer.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ isPublic: false }),
+        }),
       );
     });
 
@@ -1884,6 +2068,448 @@ describe('MockServerService', () => {
       expect(result).not.toBeNull();
       expect(result.path).toBe('/users');
       expect(result.queryParams).toEqual({});
+    });
+  });
+
+  describe('handleMockRequest — GraphQL', () => {
+    const gqlExample = {
+      key: 'gql1',
+      name: 'Get User Example',
+      endpoint: null,
+      method: null,
+      operationName: 'GetUser',
+      operationType: 'query',
+      statusCode: 200,
+      statusText: 'OK',
+      responseBody: '{"data":{"user":{"id":"1"}}}',
+      responseHeaders: [{ key: 'content-type', value: 'application/json' }],
+      headers: [],
+    };
+
+    const gqlUserRequest = {
+      id: 'gqlreq1',
+      collectionID: userCollection.id,
+      teamID: null,
+      title: 'Get User',
+      request: {},
+      mockExamples: {
+        examples: [gqlExample],
+      },
+      orderIndex: 1,
+      createdOn: currentTime,
+      updatedOn: currentTime,
+    } as any;
+
+    const setupMocks = (requests: any[]) => {
+      mockPrisma.userCollection.findUnique.mockResolvedValue(userCollection);
+      mockPrisma.userCollection.findMany.mockResolvedValue([]);
+      mockPrisma.userRequest.findMany.mockResolvedValue(requests as any);
+    };
+
+    test('matches a GraphQL example by operation name and type', async () => {
+      setupMocks([gqlUserRequest]);
+
+      const result = await mockServerService.handleMockRequest(
+        dbMockServer,
+        '/graphql',
+        'POST',
+        {},
+        {},
+        { query: 'query GetUser { user { id } }' },
+      );
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).statusCode).toBe(200);
+        expect((result.right as any).body).toBe('{"data":{"user":{"id":"1"}}}');
+      }
+    });
+
+    test('exact operation-name match beats a wildcard example', async () => {
+      const wildcardExample = {
+        ...gqlExample,
+        key: 'gql-wild',
+        name: 'Any Query',
+        operationName: null,
+        responseBody: '{"data":{"wildcard":true}}',
+      };
+      setupMocks([
+        {
+          ...gqlUserRequest,
+          mockExamples: { examples: [wildcardExample, gqlExample] },
+        },
+      ]);
+
+      const result = await mockServerService.handleMockRequest(
+        dbMockServer,
+        '/graphql',
+        'POST',
+        {},
+        {},
+        { query: 'query GetUser { user { id } }' },
+      );
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).body).toBe('{"data":{"user":{"id":"1"}}}');
+      }
+    });
+
+    test('wildcard example matches an unnamed operation of the same type', async () => {
+      const wildcardExample = {
+        ...gqlExample,
+        key: 'gql-wild',
+        name: 'Any Query',
+        operationName: null,
+        responseBody: '{"data":{"wildcard":true}}',
+      };
+      setupMocks([
+        {
+          ...gqlUserRequest,
+          mockExamples: { examples: [wildcardExample] },
+        },
+      ]);
+
+      const result = await mockServerService.handleMockRequest(
+        dbMockServer,
+        '/graphql',
+        'POST',
+        {},
+        {},
+        { query: '{ user { id } }' },
+      );
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).body).toBe('{"data":{"wildcard":true}}');
+      }
+    });
+
+    test('operation type mismatch returns Left', async () => {
+      setupMocks([gqlUserRequest]);
+
+      const result = await mockServerService.handleMockRequest(
+        dbMockServer,
+        '/graphql',
+        'POST',
+        {},
+        {},
+        { query: 'mutation GetUser { updateUser { id } }' },
+      );
+
+      expect(E.isLeft(result)).toBe(true);
+    });
+
+    test('matches a large query', async () => {
+      setupMocks([gqlUserRequest]);
+
+      const large = `query GetUser { user { id ${'alias: id '.repeat(
+        5_000,
+      )} } }`;
+
+      const result = await mockServerService.handleMockRequest(
+        dbMockServer,
+        '/graphql',
+        'POST',
+        {},
+        {},
+        { query: large },
+      );
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).body).toBe('{"data":{"user":{"id":"1"}}}');
+      }
+    });
+
+    test('anonymous multi-operation document without operationName returns 400 errors body', async () => {
+      setupMocks([gqlUserRequest]);
+
+      const result = await mockServerService.handleMockRequest(
+        dbMockServer,
+        '/graphql',
+        'POST',
+        {},
+        {},
+        {
+          query: 'query GetUser { user { id } } query Other { other { id } }',
+        },
+      );
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).statusCode).toBe(400);
+        expect((result.right as any).body).toContain('operationName');
+      }
+    });
+
+    test('multi-operation document with operationName selects the named operation', async () => {
+      setupMocks([gqlUserRequest]);
+
+      const result = await mockServerService.handleMockRequest(
+        dbMockServer,
+        '/graphql',
+        'POST',
+        {},
+        {},
+        {
+          query: 'query GetUser { user { id } } query Other { other { id } }',
+          operationName: 'GetUser',
+        },
+      );
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).statusCode).toBe(200);
+      }
+    });
+
+    test('unparseable query falls through to REST matching', async () => {
+      const restExample = {
+        key: 'rest1',
+        name: 'REST Example',
+        method: 'POST',
+        endpoint: 'http://api.example.com/search',
+        statusCode: 200,
+        statusText: 'OK',
+        responseBody: '{"rest":true}',
+        responseHeaders: [],
+        headers: [],
+      };
+      setupMocks([
+        {
+          ...gqlUserRequest,
+          mockExamples: { examples: [restExample] },
+        },
+      ]);
+
+      const result = await mockServerService.handleMockRequest(
+        dbMockServer,
+        '/search',
+        'POST',
+        {},
+        {},
+        { query: 'SELECT * FROM users' },
+      );
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).body).toBe('{"rest":true}');
+      }
+    });
+
+    // Regression: operation stamping only exists in clients shipping the
+    // unified playground, so every example in an already-deployed database is
+    // unstamped. A parseable GraphQL body must not divert into operation
+    // matching when the mock owns no GraphQL examples — doing so 404s every
+    // pre-existing REST mock of a GraphQL-over-HTTP endpoint.
+    const unstampedGraphqlRestExample = {
+      key: 'rest-gql',
+      name: 'Legacy GraphQL Mock',
+      method: 'POST',
+      endpoint: 'http://api.example.com/graphql',
+      statusCode: 200,
+      statusText: 'OK',
+      responseBody: '{"data":{"legacy":true}}',
+      responseHeaders: [],
+      headers: [],
+    };
+
+    test('parseable GraphQL body falls through to REST when no example is operation-stamped', async () => {
+      setupMocks([
+        {
+          ...gqlUserRequest,
+          mockExamples: { examples: [unstampedGraphqlRestExample] },
+        },
+      ]);
+
+      const result = await mockServerService.handleMockRequest(
+        dbMockServer,
+        '/graphql',
+        'POST',
+        {},
+        {},
+        { query: 'query GetUser { user { id } }' },
+      );
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).body).toBe('{"data":{"legacy":true}}');
+      }
+    });
+
+    test('x-mock-response-name still resolves when no example is operation-stamped', async () => {
+      setupMocks([
+        {
+          ...gqlUserRequest,
+          mockExamples: { examples: [unstampedGraphqlRestExample] },
+        },
+      ]);
+
+      const result = await mockServerService.handleMockRequest(
+        dbMockServer,
+        '/graphql',
+        'POST',
+        {},
+        { 'x-mock-response-name': 'Legacy GraphQL Mock' },
+        { query: 'query GetUser { user { id } }' },
+      );
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).body).toBe('{"data":{"legacy":true}}');
+      }
+    });
+
+    test('GraphQL operation with no matching stamped example falls back to REST scoring', async () => {
+      setupMocks([
+        {
+          ...gqlUserRequest,
+          mockExamples: {
+            // A stamped mutation example plus a plain REST example on the same
+            // path — an unmatched *query* must reach the REST example, not 404
+            examples: [
+              { ...gqlExample, operationType: 'mutation', operationName: 'Nope' },
+              unstampedGraphqlRestExample,
+            ],
+          },
+        },
+      ]);
+
+      const result = await mockServerService.handleMockRequest(
+        dbMockServer,
+        '/graphql',
+        'POST',
+        {},
+        {},
+        { query: 'query GetUser { user { id } }' },
+      );
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).body).toBe('{"data":{"legacy":true}}');
+      }
+    });
+
+    test('x-mock-response-name override picks the named GraphQL example', async () => {
+      const otherExample = {
+        ...gqlExample,
+        key: 'gql2',
+        name: 'Error Case',
+        statusCode: 500,
+        responseBody: '{"errors":[{"message":"boom"}]}',
+      };
+      setupMocks([
+        {
+          ...gqlUserRequest,
+          mockExamples: { examples: [gqlExample, otherExample] },
+        },
+      ]);
+
+      const result = await mockServerService.handleMockRequest(
+        dbMockServer,
+        '/graphql',
+        'POST',
+        {},
+        { 'x-mock-response-name': 'Error Case' },
+        { query: 'query GetUser { user { id } }' },
+      );
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).statusCode).toBe(500);
+      }
+    });
+
+    test('x-mock-response-name override does not cross operation types', async () => {
+      // A query example and a mutation example share the name 'Shared Name'.
+      // A mutation request naming it must not resolve to the query example.
+      const queryNamed = {
+        ...gqlExample,
+        key: 'gql-q',
+        name: 'Shared Name',
+        operationType: 'query',
+        responseBody: '{"data":{"fromQuery":true}}',
+      };
+      const mutationNamed = {
+        ...gqlExample,
+        key: 'gql-m',
+        name: 'Shared Name',
+        operationName: 'UpdateUser',
+        operationType: 'mutation',
+        responseBody: '{"data":{"fromMutation":true}}',
+      };
+      setupMocks([
+        {
+          ...gqlUserRequest,
+          mockExamples: { examples: [queryNamed, mutationNamed] },
+        },
+      ]);
+
+      const result = await mockServerService.handleMockRequest(
+        dbMockServer,
+        '/graphql',
+        'POST',
+        {},
+        { 'x-mock-response-name': 'Shared Name' },
+        { query: 'mutation UpdateUser { updateUser { id } }' },
+      );
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).body).toBe(
+          '{"data":{"fromMutation":true}}',
+        );
+      }
+    });
+
+    test('treats an empty-string operationName as unspecified', async () => {
+      setupMocks([gqlUserRequest]);
+
+      const result = await mockServerService.handleMockRequest(
+        dbMockServer,
+        '/graphql',
+        'POST',
+        {},
+        {},
+        { query: 'query GetUser { user { id } }', operationName: '' },
+      );
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).statusCode).toBe(200);
+        expect((result.right as any).body).toBe('{"data":{"user":{"id":"1"}}}');
+      }
+    });
+
+    test('prefers a 200 example among equal-score matches', async () => {
+      const error500 = {
+        ...gqlExample,
+        key: 'gql-a-500',
+        name: 'Failure',
+        statusCode: 500,
+        responseBody: '{"errors":[{"message":"boom"}]}',
+      };
+      setupMocks([
+        {
+          ...gqlUserRequest,
+          mockExamples: { examples: [error500, gqlExample] },
+        },
+      ]);
+
+      const result = await mockServerService.handleMockRequest(
+        dbMockServer,
+        '/graphql',
+        'POST',
+        {},
+        {},
+        { query: 'query GetUser { user { id } }' },
+      );
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect((result.right as any).statusCode).toBe(200);
+      }
     });
   });
 });

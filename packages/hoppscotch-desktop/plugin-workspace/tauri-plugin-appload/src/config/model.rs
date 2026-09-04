@@ -16,6 +16,13 @@ pub struct Config {
     pub storage: StorageConfig,
     #[serde(skip)]
     pub vendor: VendorConfig,
+    // optional log directory for diagnostic logging from the plugin layer.
+    // when set, the plugin writes best-effort diag lines (window lifecycle
+    // events, etc.) to `appload.diag.log` inside this directory. the host
+    // app is responsible for passing its own log directory here so the
+    // plugin doesn't need to know about app-specific path conventions
+    #[serde(skip)]
+    pub log_dir: Option<PathBuf>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -1,3 +1,4 @@
+use std::io::Write;
 use std::path::PathBuf;
 
 use file_rotate::{compression::Compression, suffix::AppendCount, ContentLimit, FileRotate};
@@ -49,4 +50,28 @@ pub fn setup(log_dir: &PathBuf) -> Result<LogGuard, Box<dyn std::error::Error>> 
     );
 
     Ok(LogGuard(guard))
+}
+
+// appends content to a log file inside `logs_dir()`. bypasses the Tauri
+// fs plugin so the write isn't subject to the scope in capabilities.json.
+// the filename is caller-controlled but confined to `logs_dir()` to
+// prevent arbitrary file writes
+#[tauri::command]
+pub fn append_log(filename: String, content: String) -> Result<(), String> {
+    let dir = path::logs_dir().map_err(|e| e.to_string())?;
+    let path = dir.join(&filename);
+
+    // safety: reject any path traversal attempts
+    if path.parent() != Some(&dir) {
+        return Err("invalid log filename".to_string());
+    }
+
+    let mut file = std::fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(&path)
+        .map_err(|e| e.to_string())?;
+
+    file.write_all(content.as_bytes())
+        .map_err(|e| e.to_string())
 }

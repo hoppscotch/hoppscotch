@@ -37,22 +37,26 @@ export const AuthCodeGrantTypeParams = AuthCodeGrantTypeParamsOld.extend({
   authRequestParams: z.array(OAuth2AuthRequestParam).optional().default([]),
   tokenRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
   refreshRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
+  tokenType: z.enum(["access_token", "id_token"]).optional().catch("access_token"),
 })
 
 export const ClientCredentialsGrantTypeParams =
   ClientCredentialsGrantTypeParamsOld.extend({
     tokenRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
     refreshRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
+    tokenType: z.enum(["access_token", "id_token"]).optional().catch("access_token"),
   })
 
 export const PasswordGrantTypeParams = PasswordGrantTypeParamsOld.extend({
   tokenRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
   refreshRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
+  tokenType: z.enum(["access_token", "id_token"]).optional().catch("access_token"),
 })
 
 export const ImplicitOauthFlowParams = ImplicitOauthFlowParamsOld.extend({
   authRequestParams: z.array(OAuth2AuthRequestParam).optional().default([]),
   refreshRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
+  tokenType: z.enum(["access_token", "id_token"]).optional().catch("access_token"),
 })
 
 // Extend OAuth2 with advanced parameters

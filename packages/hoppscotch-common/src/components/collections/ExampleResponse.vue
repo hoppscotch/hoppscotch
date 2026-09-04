@@ -128,9 +128,12 @@ import { ref, PropType, computed } from "vue"
 import { useI18n } from "@composables/i18n"
 import { TippyComponent } from "vue-tippy"
 import { useService } from "dioc/vue"
-import { RESTTabService } from "~/services/tab/rest"
-import { HoppRESTRequestResponse } from "@hoppscotch/data"
-import { HoppRESTSaveContext } from "~/helpers/rest/document"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
+import {
+  HoppGQLRequestResponse,
+  HoppRESTRequestResponse,
+} from "@hoppscotch/data"
+import { HoppTabSaveContext } from "~/helpers/tab/document"
 import findStatusGroup from "@helpers/findStatusGroup"
 
 const t = useI18n()
@@ -147,7 +150,7 @@ type SaveContext = {
 
 const props = defineProps({
   response: {
-    type: Object as PropType<HoppRESTRequestResponse>,
+    type: Object as PropType<HoppRESTRequestResponse | HoppGQLRequestResponse>,
     default: null,
     required: true,
   },
@@ -184,14 +187,14 @@ const emit = defineEmits<{
   (event: "select-response", payload: ResponsePayload): void
 }>()
 
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 
 const pathToIndex = (path: string) => {
   const pathArr = path.split("/")
   return pathArr[pathArr.length - 1]
 }
 
-const getSaveContext = (): HoppRESTSaveContext => {
+const getSaveContext = (): HoppTabSaveContext => {
   if (props.saveContext.collectionsType === "my-collections") {
     return {
       originLocation: "user-collection",

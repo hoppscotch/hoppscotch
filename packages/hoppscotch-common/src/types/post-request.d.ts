@@ -642,7 +642,6 @@ declare namespace pm {
   const environment: Readonly<{
     get(key: string): string | null
     set(key: string, value: string): void
-    setSecret(key: string, value: string): void;
     unset(key: string): void
     has(key: string): boolean
     clear(): void
@@ -652,7 +651,6 @@ declare namespace pm {
   const globals: Readonly<{
     get(key: string): string | null
     set(key: string, value: string): void
-    setSecret(key: string, value: string): void;
     unset(key: string): void
     has(key: string): boolean
     clear(): void
@@ -662,7 +660,6 @@ declare namespace pm {
   const collectionVariables: Readonly<{
     get(key: string): string | null
     set(key: string, value: string): void
-    setSecret(key: string, value: string): void;
     unset(key: string): void
     has(key: string): boolean
     clear(): void
@@ -672,7 +669,6 @@ declare namespace pm {
   const variables: Readonly<{
     get(key: string): string | null
     set(key: string, value: string): void
-    setSecret(key: string, value: string): void;
     unset(key: string): void
     has(key: string): boolean
     toObject(): Record<string, string>
@@ -813,7 +809,6 @@ declare namespace pm {
   const vault: Readonly<{
     get(key: string): string | null
     set(key: string, value: string): void
-    setSecret(key: string, value: string): void;
     unset(key: string): void
   }>
 

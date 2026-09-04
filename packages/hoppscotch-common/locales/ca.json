@@ -540,7 +540,8 @@
     "profile": "Perfil",
     "realtime": "En temps real",
     "rest": "REST",
-    "settings": "Configuració"
+    "settings": "Configuració",
+    "grpc": "gRPC"
   },
   "preRequest": {
     "javascript_code": "Codi JavaScript",
@@ -637,7 +638,11 @@
     "title": "Resposta",
     "video": "Video",
     "waiting_for_connection": "esperant la connexió",
-    "xml": "XML"
+    "xml": "XML",
+    "metadata": "Metadades",
+    "no_metadata": "Aquesta resposta no conté metadades",
+    "no_trailers": "Aquesta resposta no conté tràilers",
+    "trailers": "Tràilers"
   },
   "settings": {
     "accent_color": "Color d'accent",
@@ -1102,5 +1107,14 @@
     "not_found": "No s'ha trobat el shortcode",
     "short_code": "Short code",
     "url": "URL"
+  },
+  "grpc": {
+    "unsupported_title": "gRPC no està disponible a la plataforma actual",
+    "unsupported_description": "Utilitzeu un interceptor amb compatibilitat amb HTTP/2 binari, com ara l'interceptor natiu de l'aplicació d'escriptori.",
+    "invoke": "Invocar",
+    "server_url": "URL del servidor gRPC",
+    "service": "Servei",
+    "streaming": "transmissió",
+    "url_placeholder": "http://localhost:8080"
   }
 }

@@ -1078,7 +1078,8 @@
     "mock_servers": "Хуурамч серверүүд",
     "settings": "Тохиргоо",
     "goto_app": "Програм руу очно уу",
-    "authentication": "Баталгаажуулалт"
+    "authentication": "Баталгаажуулалт",
+    "grpc": "gRPC"
   },
   "mock_server": {
     "confirm_delete_log": "Та энэ бүртгэлийг устгахдаа итгэлтэй байна уу?",
@@ -1255,7 +1256,11 @@
     "generate_data_schema": "Өгөгдлийн схем үүсгэх",
     "data_schema": "Өгөгдлийн схем",
     "saved": "Хариултыг хадгалсан",
-    "invalid_name": "Хариуд нь нэр өгнө үү"
+    "invalid_name": "Хариуд нь нэр өгнө үү",
+    "metadata": "Мета өгөгдөл",
+    "no_metadata": "Энэ хариунд мета өгөгдөл алга",
+    "no_trailers": "Энэ хариунд төгсгөлийн толгой мэдээлэл алга",
+    "trailers": "Төгсгөлийн толгой мэдээлэл"
   },
   "script": {
     "inheriting": "-аас скриптүүдийг өвлөн авч байна",
@@ -2357,5 +2362,14 @@
       "delete_success": "Хуурамч серверийг амжилттай устгалаа",
       "delete_error": "Хуурамч серверийг устгаж чадсангүй"
     }
+  },
+  "grpc": {
+    "unsupported_title": "gRPC одоогийн платформ дээр ашиглах боломжгүй",
+    "unsupported_description": "Desktop аппын үндсэн interceptor зэрэг хоёртын HTTP/2 дэмждэг interceptor ашиглана уу.",
+    "invoke": "Дуудах",
+    "server_url": "gRPC серверийн URL",
+    "service": "Үйлчилгээ",
+    "streaming": "урсгал",
+    "url_placeholder": "http://localhost:8080"
   }
 }

@@ -1047,7 +1047,8 @@
     "mock_servers": "Mock servery",
     "settings": "Nastavení",
     "goto_app": "Přejít na aplikaci",
-    "authentication": "Autentizace"
+    "authentication": "Autentizace",
+    "grpc": "gRPC"
   },
   "mock_server": {
     "confirm_delete_log": "Opravdu chcete tento protokol smazat?",
@@ -1224,7 +1225,11 @@
     "generate_data_schema": "Vygenerovat schéma dat",
     "data_schema": "Schéma dat",
     "saved": "Odpověď uložena",
-    "invalid_name": "Zadejte prosím název odpovědi"
+    "invalid_name": "Zadejte prosím název odpovědi",
+    "metadata": "Metadata",
+    "no_metadata": "Tato odpověď nemá žádná metadata",
+    "no_trailers": "Tato odpověď nemá žádné trailery",
+    "trailers": "Trailery"
   },
   "settings": {
     "accent_color": "Akcentní barva",
@@ -2295,5 +2300,14 @@
       "delete_success": "Mock server byl úspěšně smazán",
       "delete_error": "Smazání mock serveru se nezdařilo"
     }
+  },
+  "grpc": {
+    "unsupported_title": "gRPC není na aktuální platformě dostupné",
+    "unsupported_description": "Použijte interceptor s podporou binárního HTTP/2, například nativní interceptor desktopové aplikace.",
+    "invoke": "Vyvolat",
+    "server_url": "URL gRPC serveru",
+    "service": "Služba",
+    "streaming": "streaming",
+    "url_placeholder": "http://localhost:8080"
   }
 }

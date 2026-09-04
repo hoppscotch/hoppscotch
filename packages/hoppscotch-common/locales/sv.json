@@ -540,7 +540,8 @@
     "profile": "Profile",
     "realtime": "Realtid",
     "rest": "REST",
-    "settings": "inställningar"
+    "settings": "inställningar",
+    "grpc": "gRPC"
   },
   "preRequest": {
     "javascript_code": "JavaScript -kod",
@@ -637,7 +638,11 @@
     "title": "Svar",
     "video": "Video",
     "waiting_for_connection": "väntar på anslutning",
-    "xml": "XML"
+    "xml": "XML",
+    "metadata": "Metadata",
+    "no_metadata": "Svaret innehåller inga metadata",
+    "no_trailers": "Svaret innehåller inga trailers",
+    "trailers": "Trailers"
   },
   "settings": {
     "accent_color": "Accentfärg",
@@ -1102,5 +1107,14 @@
     "not_found": "Shortcode not found",
     "short_code": "Short code",
     "url": "URL"
+  },
+  "grpc": {
+    "unsupported_title": "gRPC är inte tillgängligt på den aktuella plattformen",
+    "unsupported_description": "Använd en interceptor med stöd för binär HTTP/2, till exempel skrivbordsappens inbyggda interceptor.",
+    "invoke": "Anropa",
+    "server_url": "URL till gRPC-server",
+    "service": "Tjänst",
+    "streaming": "strömning",
+    "url_placeholder": "http://localhost:8080"
   }
 }

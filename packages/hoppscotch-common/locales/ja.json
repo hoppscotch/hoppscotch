@@ -540,7 +540,8 @@
     "profile": "Profile",
     "realtime": "リアルタイム",
     "rest": "REST",
-    "settings": "設定"
+    "settings": "設定",
+    "grpc": "gRPC"
   },
   "preRequest": {
     "javascript_code": "JavaScriptコード",
@@ -637,7 +638,11 @@
     "title": "レスポンス",
     "video": "Video",
     "waiting_for_connection": "接続を待っています",
-    "xml": "XML"
+    "xml": "XML",
+    "metadata": "メタデータ",
+    "no_metadata": "このレスポンスにはメタデータがありません",
+    "no_trailers": "このレスポンスにはトレーラーがありません",
+    "trailers": "トレーラー"
   },
   "settings": {
     "accent_color": "アクセントの色",
@@ -1102,5 +1107,14 @@
     "not_found": "ショートコードが見つかりません",
     "short_code": "ショートコード",
     "url": "URL"
+  },
+  "grpc": {
+    "unsupported_title": "現在のプラットフォームでは gRPC を利用できません",
+    "unsupported_description": "デスクトップアプリのネイティブインターセプターなど、バイナリ HTTP/2 をサポートするインターセプターを使用してください。",
+    "invoke": "呼び出す",
+    "server_url": "gRPC サーバー URL",
+    "service": "サービス",
+    "streaming": "ストリーミング",
+    "url_placeholder": "http://localhost:8080"
   }
 }

@@ -20,7 +20,7 @@ import { listen } from "@tauri-apps/api/event"
  * owners release their locks, so closing one of several open modals cannot
  * re-enable shortcuts while another modal still needs them disabled.
  */
-const keybindingLocks = new Set<symbol>()
+const keybindingLocks = new Map<symbol, number>()
 
 /**
  * Unlisten function for Tauri event
@@ -452,11 +452,19 @@ export function useKeybindingDisabler() {
   const lock = Symbol("keybinding-disabler")
 
   const disableKeybindings = () => {
-    keybindingLocks.add(lock)
+    keybindingLocks.set(lock, (keybindingLocks.get(lock) ?? 0) + 1)
   }
 
   const enableKeybindings = () => {
-    keybindingLocks.delete(lock)
+    const count = keybindingLocks.get(lock)
+
+    if (!count) return
+
+    if (count === 1) {
+      keybindingLocks.delete(lock)
+    } else {
+      keybindingLocks.set(lock, count - 1)
+    }
   }
 
   return {

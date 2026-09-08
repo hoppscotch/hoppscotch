@@ -43,5 +43,22 @@ export type ExperimentsPlatformDef = {
     ) => Promise<
       E.Either<string, { modified_script: string; trace_id: string }>
     >
+    chat?: (
+      messages: { role: "user" | "assistant"; content: string | unknown[] }[],
+      context: string
+    ) => Promise<
+      E.Either<
+        string,
+        {
+          content: string
+          tool_calls: {
+            id: string
+            name: string
+            input: Record<string, unknown>
+          }[]
+          trace_id: string
+        }
+      >
+    >
   }
 }

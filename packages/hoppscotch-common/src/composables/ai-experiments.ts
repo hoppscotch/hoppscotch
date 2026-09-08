@@ -25,7 +25,10 @@ export const useRequestNameGeneration = (targetNameRef: Ref<string>) => {
   const ENABLE_AI_EXPERIMENTS = useSetting("ENABLE_AI_EXPERIMENTS")
 
   const canDoRequestNameGeneration = computed(() => {
-    return ENABLE_AI_EXPERIMENTS.value && !!platform.experiments?.aiExperiments
+    return (
+      ENABLE_AI_EXPERIMENTS.value &&
+      !!platform.experiments?.aiExperiments?.generateRequestName
+    )
   })
 
   const lastTraceID = ref<string | null>(null)
@@ -82,11 +85,28 @@ export const useRequestNameGeneration = (targetNameRef: Ref<string>) => {
   }
 }
 
-export const useAIExperiments = () => {
+/**
+ * The individual AI capabilities a platform may implement. Mirrors the
+ * function members of `ExperimentsPlatformDef["aiExperiments"]`.
+ */
+export type AIExperimentsCapability = keyof Omit<
+  NonNullable<NonNullable<typeof platform.experiments>["aiExperiments"]>,
+  "enableAIExperiments"
+>
+
+/**
+ * Whether AI features should be surfaced. Pass the capability a feature relies
+ * on so its UI only shows when the platform actually implements it — platforms
+ * may provide a subset (e.g. self-host implements only `chat`). With no
+ * capability given, checks only that AI experiments exist at all.
+ */
+export const useAIExperiments = (capability?: AIExperimentsCapability) => {
   const ENABLE_AI_EXPERIMENTS = useSetting("ENABLE_AI_EXPERIMENTS")
 
   const shouldEnableAIFeatures = computed(() => {
-    return ENABLE_AI_EXPERIMENTS.value && !!platform.experiments?.aiExperiments
+    const aiExperiments = platform.experiments?.aiExperiments
+    if (!ENABLE_AI_EXPERIMENTS.value || !aiExperiments) return false
+    return capability ? !!aiExperiments[capability] : true
   })
 
   return {

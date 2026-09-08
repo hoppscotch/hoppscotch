@@ -78,6 +78,7 @@ const baseBindings: {
   "shift-/": "modals.support.toggle",
   "ctrl-shift-/": "flyouts.keybinds.toggle",
   "ctrl-m": "modals.share.toggle",
+  "alt-t": "tab.switch-protocol",
   "alt-r": "navigation.jump.rest",
   "alt-q": "navigation.jump.graphql",
   "alt-w": "navigation.jump.realtime",

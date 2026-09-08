@@ -262,6 +262,21 @@ watch(updatedQuery, async (newQuery) => {
   }
 })
 
+// Cursor-only moves requested by non-editor surfaces (e.g. the AI chat
+// pointing at the operation it runs or just wrote) — the `updatedQuery`
+// watcher above only fires when the query text itself changes.
+watch(
+  () => queryBuilder.requestedCursor.value,
+  async (pos) => {
+    if (!pos) return
+    // Let a same-tick query update land in the editor first so the position
+    // exists in the document being addressed.
+    await nextTick()
+    cmQueryEditor.cursor.value = pos
+    queryBuilder.requestedCursor.value = null
+  }
+)
+
 const prettifyQuery = () => {
   try {
     gqlQueryString.value = print(

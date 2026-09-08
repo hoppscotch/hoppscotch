@@ -43,7 +43,13 @@ impl<'a> HeadersBuilder<'a> {
                     value = ?value_str,
                     "Processing headers"
                 );
-                let header = format!("{}: {}", key_str, value_str);
+                // A colon with no value tells libcurl to remove the header.
+                // A trailing semicolon sends an explicitly empty value instead.
+                let header = if value_str.is_empty() {
+                    format!("{};", key_str)
+                } else {
+                    format!("{}: {}", key_str, value_str)
+                };
                 tracing::debug!(%header, "Adding header");
                 header
             })
@@ -65,5 +71,57 @@ impl<'a> HeadersBuilder<'a> {
                 cause: Some(e.to_string()),
             }
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::{Read, Write};
+    use std::net::TcpListener;
+    use std::thread;
+    use std::time::Duration;
+
+    #[test]
+    fn sends_empty_and_nonempty_headers_over_http() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let server = thread::spawn(move || {
+            let (mut stream, _) = listener.accept().unwrap();
+            stream
+                .set_read_timeout(Some(Duration::from_secs(5)))
+                .unwrap();
+            let mut request = Vec::new();
+            let mut buffer = [0; 1024];
+            while !request.windows(4).any(|bytes| bytes == b"\r\n\r\n") {
+                let count = stream.read(&mut buffer).unwrap();
+                assert_ne!(count, 0, "connection closed before request headers");
+                request.extend_from_slice(&buffer[..count]);
+            }
+            stream
+                .write_all(b"HTTP/1.1 200 OK\r\nContent-Length: 0\r\nConnection: close\r\n\r\n")
+                .unwrap();
+            String::from_utf8(request).unwrap()
+        });
+
+        let mut handle = Easy::new();
+        handle.url(&format!("http://{address}/")).unwrap();
+        handle.proxy("").unwrap();
+        handle.timeout(Duration::from_secs(5)).unwrap();
+        let headers = HashMap::from([
+            ("X-Empty-Header".to_owned(), String::new()),
+            ("Accept".to_owned(), String::new()),
+            ("X-Value".to_owned(), "hello: world".to_owned()),
+        ]);
+        HeadersBuilder::new(&mut handle)
+            .add_headers(Some(&headers))
+            .unwrap();
+        handle.perform().unwrap();
+
+        let request = server.join().unwrap();
+        let lines: Vec<_> = request.lines().collect();
+        assert!(lines.contains(&"x-empty-header:"), "{request}");
+        assert!(lines.contains(&"accept:"), "{request}");
+        assert!(lines.contains(&"x-value: hello: world"), "{request}");
     }
 }

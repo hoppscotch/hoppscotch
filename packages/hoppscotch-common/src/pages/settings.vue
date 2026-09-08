@@ -80,7 +80,7 @@
                 </HoppSmartToggle>
               </div>
               <div
-                v-if="hasAIExperimentsSupport && ENABLE_AI_EXPERIMENTS"
+                v-if="hasAIRequestNamingSupport && ENABLE_AI_EXPERIMENTS"
                 class="flex items-center"
               >
                 <div class="flex flex-col space-y-2 w-full">
@@ -379,6 +379,12 @@ const confirmRemove = ref(false)
 
 const hasAIExperimentsSupport =
   !!platform.experiments?.aiExperiments?.enableAIExperiments
+
+// The naming-style preference only matters when the platform can generate
+// request names — platforms may implement just a subset of the AI features.
+const hasAIRequestNamingSupport =
+  hasAIExperimentsSupport &&
+  !!platform.experiments?.aiExperiments?.generateRequestName
 
 const showConfirmModal = () => {
   if (TELEMETRY_ENABLED.value) confirmRemove.value = true

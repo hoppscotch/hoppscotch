@@ -990,3 +990,23 @@ export const PUBLISHED_DOCS_FORBIDDEN_ENVIRONMENT_ACCESS =
  * (PublishedDocsService)
  */
 export const PUBLISHED_DOCS_NOT_FOUND = 'published_docs/not_found';
+
+/**
+ * Failure while running an AI chat turn against the LLM provider
+ * (AIExperimentsService)
+ */
+export const AI_EXPERIMENTS_CANNOT_RUN_CHAT = 'ai_experiments/cannot_run_chat';
+
+/**
+ * The chat input was empty or malformed after normalization
+ * (AIExperimentsService)
+ */
+export const AI_EXPERIMENTS_INVALID_CHAT_INPUT =
+  'ai_experiments/invalid_chat_input';
+
+/**
+ * The chat input exceeds the size the assistant accepts
+ * (AIExperimentsService)
+ */
+export const AI_EXPERIMENTS_CHAT_INPUT_TOO_LARGE =
+  'ai_experiments/chat_input_too_large';

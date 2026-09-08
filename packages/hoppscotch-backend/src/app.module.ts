@@ -38,6 +38,7 @@ import { PubSubModule } from './pubsub/pubsub.module';
 import { SortModule } from './orchestration/sort/sort.module';
 import { MockServerModule } from './mock-server/mock-server.module';
 import { PublishedDocsModule } from './published-docs/published-docs.module';
+import { AIExperimentsModule } from './ai-experiments/ai-experiments.module';
 
 @Module({
   imports: [
@@ -128,6 +129,7 @@ import { PublishedDocsModule } from './published-docs/published-docs.module';
     SortModule,
     MockServerModule,
     PublishedDocsModule,
+    AIExperimentsModule,
   ],
   providers: [
     GQLComplexityPlugin,

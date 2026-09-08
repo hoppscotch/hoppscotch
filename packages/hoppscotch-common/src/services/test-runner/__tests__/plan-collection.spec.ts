@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, test, vi } from "vitest"
+import { ref } from "vue"
 
 // RequestRunner drags in the network/kernel stack; the plan walk never
 // touches it. `executedResponses$` must exist on the mock — newstore/history
@@ -331,6 +332,72 @@ describe("TestRunnerService.getTestResultInfo — pass/fail counting", () => {
     expect(count({ scriptError: true, expectResults: [], tests: [] })).toEqual({
       passed: 0,
       failed: 1,
+    })
+  })
+
+  describe("TestRunnerService.stopRun", () => {
+    test("signals and cleans up an active runner by tab id", async () => {
+      const collection = node(
+        { refId: "cancellable-collection" },
+        [],
+        [request("cancellable-request")]
+      )
+      const stopRef = ref(false)
+      const tab = ref({
+        id: "cancellable-runner",
+        document: {
+          type: "test-runner" as const,
+          collection,
+          collectionType: "my-collections" as const,
+          collectionID: "cancellable-collection",
+          isDirty: false,
+          config: {
+            iterations: 1,
+            delay: 0,
+            stopOnError: false,
+            persistResponses: false,
+            keepVariableValues: false,
+          },
+          status: "idle" as const,
+          request: null,
+          testRunnerMeta: {
+            totalRequests: 0,
+            completedRequests: 0,
+            totalTests: 0,
+            passedTests: 0,
+            failedTests: 0,
+            totalTime: 0,
+          },
+        },
+      }) as any
+
+      let finishRun: (() => void) | undefined
+      const run = vi
+        .spyOn(service as any, "runTestIterations")
+        .mockImplementation(
+          () =>
+            new Promise<void>((resolve) => {
+              finishRun = resolve
+            })
+        )
+
+      service.runTests(tab, collection, {
+        iterations: 1,
+        delay: 0,
+        stopOnError: false,
+        persistResponses: false,
+        keepVariableValues: false,
+        stopRef,
+      })
+
+      expect(service.stopRun("cancellable-runner")).toBe(true)
+      expect(stopRef.value).toBe(true)
+
+      finishRun?.()
+      await new Promise((resolve) => setTimeout(resolve, 0))
+
+      expect(service.stopRun("cancellable-runner")).toBe(false)
+      run.mockRestore()
     })
   })
 

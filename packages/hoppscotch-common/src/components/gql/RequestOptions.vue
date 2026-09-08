@@ -413,7 +413,31 @@ const changeOptionTab = (e: GQLOptionTabs) => {
 }
 
 const runActionsActive = computed(() => props.showRunActions)
-defineActionHandler("request.send-cancel", runQuery, runActionsActive)
+
+/** Resolves a named operation from the current query document, if present. */
+const findOperationByName = (name?: string) => {
+  if (!name) return null
+  try {
+    return (
+      gql
+        .parse(request.value.query)
+        .definitions.find(
+          (d): d is gql.OperationDefinitionNode =>
+            d.kind === "OperationDefinition" && d.name?.value === name
+        ) ?? null
+    )
+  } catch (_e) {
+    return null
+  }
+}
+
+defineActionHandler(
+  "request.send-cancel",
+  // The payload can name which operation to run (multi-operation documents);
+  // without it, runQuery falls back to the document's first operation.
+  (payload) => runQuery(findOperationByName(payload?.operationName)),
+  runActionsActive
+)
 defineActionHandler("request.reset", clearGQLQuery, runActionsActive)
 
 defineActionHandler("request.open-tab", ({ tab }) => {

@@ -155,6 +155,13 @@ export function getShortcuts(t: (x: string) => string): ShortcutDef[] {
       section: t("shortcut.navigation.title"),
     },
 
+    // Tabs (all platforms)
+    {
+      keys: [getPlatformAlternateKey(), "T"],
+      label: t("shortcut.tabs.switch_protocol"),
+      section: t("shortcut.tabs.title"),
+    },
+
     // Miscellaneous
     {
       keys: [getPlatformSpecialKey(), "M"],

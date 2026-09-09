@@ -17,7 +17,10 @@ export const cachedResponsesList = ref<CachedResponseRecord[]>([])
 
 // Auto-cache executed responses during the session
 executedResponses$.subscribe((res) => {
-  if (res.response && (res.response.type === "success" || res.response.type === "fail")) {
+  if (
+    res.response &&
+    (res.response.type === "success" || res.response.type === "fail")
+  ) {
     cachedResponsesList.value.unshift({
       id: Math.random().toString(36).substring(2, 9),
       timestamp: new Date(),

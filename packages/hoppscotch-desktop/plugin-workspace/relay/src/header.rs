@@ -77,17 +77,28 @@ impl<'a> HeadersBuilder<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::io::{Read, Write};
+    use std::io::{ErrorKind, Read, Write};
     use std::net::TcpListener;
     use std::thread;
-    use std::time::Duration;
+    use std::time::{Duration, Instant};
 
     #[test]
     fn sends_empty_and_nonempty_headers_over_http() {
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         let address = listener.local_addr().unwrap();
+        listener.set_nonblocking(true).unwrap();
         let server = thread::spawn(move || {
-            let (mut stream, _) = listener.accept().unwrap();
+            let deadline = Instant::now() + Duration::from_secs(5);
+            let (mut stream, _) = loop {
+                match listener.accept() {
+                    Ok(connection) => break connection,
+                    Err(error) if error.kind() == ErrorKind::WouldBlock => {
+                        assert!(Instant::now() < deadline, "timed out waiting for client");
+                        thread::sleep(Duration::from_millis(10));
+                    }
+                    Err(error) => panic!("accept failed: {error}"),
+                }
+            };
             stream
                 .set_read_timeout(Some(Duration::from_secs(5)))
                 .unwrap();
@@ -119,9 +130,19 @@ mod tests {
         handle.perform().unwrap();
 
         let request = server.join().unwrap();
-        let lines: Vec<_> = request.lines().collect();
-        assert!(lines.contains(&"x-empty-header:"), "{request}");
-        assert!(lines.contains(&"accept:"), "{request}");
-        assert!(lines.contains(&"x-value: hello: world"), "{request}");
+        for (name, value) in [
+            ("x-empty-header", ""),
+            ("accept", ""),
+            ("x-value", "hello: world"),
+        ] {
+            assert!(
+                request
+                    .lines()
+                    .filter_map(|line| line.split_once(':'))
+                    .any(|(key, actual)| key.trim().eq_ignore_ascii_case(name)
+                        && actual.trim() == value),
+                "{request}"
+            );
+        }
     }
 }

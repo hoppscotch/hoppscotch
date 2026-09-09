@@ -1261,6 +1261,7 @@
   "response": {
     "audio": "Audio",
     "body": "Response Body",
+    "compare": "Compare",
     "duplicated": "Response duplicated",
     "duplicate_name_error": "Same name response already exists",
     "filter_response_body": "Filter JSON response body (uses jq syntax)",

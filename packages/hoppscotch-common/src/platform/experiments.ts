@@ -57,6 +57,16 @@ export type ExperimentsPlatformDef = {
             input: Record<string, unknown>
           }[]
           trace_id: string
+          usage?: {
+            input_tokens: number
+            cache_read_input_tokens: number
+            cache_creation_input_tokens: number
+            output_tokens: number
+          }
+          /** Full assistant blocks to echo back unchanged on the next step. */
+          assistant_content?: unknown[]
+          /** Deferred tools the model discovered via tool search this step. */
+          loaded_tools?: string[]
         }
       >
     >

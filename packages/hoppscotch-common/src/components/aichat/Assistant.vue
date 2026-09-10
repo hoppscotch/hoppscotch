@@ -3,7 +3,7 @@
     <!-- Docked, resizable chat pane -->
     <aside
       v-if="chat.isOpen.value"
-      class="flex flex-col bg-primary"
+      class="chat-pane flex flex-col bg-primary"
       :class="
         mdAndLarger
           ? 'relative h-full shrink-0 border-l border-dividerLight'
@@ -26,18 +26,22 @@
         />
       </div>
 
-      <!-- Header -->
       <header
-        class="relative flex shrink-0 items-center justify-between gap-2 border-b border-dividerLight px-3 py-2.5 after:pointer-events-none after:absolute after:inset-x-0 after:-bottom-px after:h-px after:opacity-0 after:transition-opacity after:duration-300 after:content-[''] after:[background:linear-gradient(90deg,transparent,color-mix(in_srgb,var(--accent-color)_45%,transparent),transparent)] after:[background-size:200%_100%]"
-        :class="{
-          'after:animate-[chat-header-sweep_1.6s_linear_infinite] after:opacity-100 motion-reduce:after:animate-none':
-            chat.isStreaming.value,
-        }"
+        class="relative flex shrink-0 items-center justify-between gap-2 border-b border-dividerLight px-3 py-2.5"
       >
-        <div class="flex min-w-0 items-center gap-2">
+        <!-- A short accent segment glides along the divider while a reply
+             streams in; a still, half-opacity hairline under reduced motion. -->
+        <span
+          v-if="chat.isStreaming.value"
+          class="pointer-events-none absolute inset-x-0 -bottom-px h-px overflow-hidden"
+          aria-hidden="true"
+        >
           <span
-            class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-primaryLight text-accent [background:color-mix(in_srgb,var(--accent-color)_10%,var(--primary-light-color))]"
-          >
+            class="block h-full w-[28%] -translate-x-full animate-[hopp-chat-sweep-line_1.4s_cubic-bezier(0.4,0,0.2,1)_infinite] bg-accent opacity-75 motion-reduce:w-full motion-reduce:translate-x-0 motion-reduce:animate-none motion-reduce:opacity-50"
+          />
+        </span>
+        <div class="flex min-w-0 items-center gap-2">
+          <span :class="[ORB, 'h-6 w-6 rounded-md']">
             <IconSparkles class="h-3.5 w-3.5" />
           </span>
           <span class="truncate text-sm font-semibold text-secondaryDark">
@@ -68,12 +72,12 @@
         </div>
       </header>
 
-      <!-- Context -->
+      <!-- Context: off = dimmed text, no frame; on = hairline frame, accent icon -->
       <div
         class="flex shrink-0 flex-wrap items-center gap-1.5 border-b border-dividerLight px-3 py-2"
       >
         <span
-          class="text-tiny font-medium uppercase tracking-wide text-secondaryLight"
+          class="mr-0.5 text-tiny font-medium uppercase tracking-wide text-secondaryLight"
         >
           {{ t("ai_experiments.chat.context") }}
         </span>
@@ -83,18 +87,19 @@
             :key="item.id"
             v-tippy="{ theme: 'tooltip' }"
             :title="item.detail"
-            class="flex max-w-[10rem] items-center gap-1 rounded-full border px-2 py-0.5 text-tiny transition"
+            class="inline-flex max-w-[10rem] items-center gap-1.5 rounded-full border px-2 py-0.5 text-tiny transition focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
             :class="
               context.isIncluded(item.id)
-                ? 'border-dividerDark bg-primaryDark text-secondaryDark'
-                : 'border-dividerLight text-secondaryLight opacity-60 hover:opacity-100'
+                ? 'border-divider bg-primaryLight text-secondaryDark'
+                : 'border-transparent text-secondaryLight opacity-[0.55] hover:bg-primaryLight hover:text-secondary hover:opacity-100 focus-visible:opacity-100'
             "
+            :aria-pressed="context.isIncluded(item.id)"
             @click="context.toggle(item.id)"
           >
             <component
-              :is="context.isIncluded(item.id) ? IconCheck : IconPlus"
+              :is="contextIcon(item.id)"
               class="h-3 w-3 shrink-0"
-              :class="context.isIncluded(item.id) ? 'text-accent' : ''"
+              :class="{ 'text-accent': context.isIncluded(item.id) }"
             />
             <span class="truncate">{{ item.label }}</span>
           </button>
@@ -111,12 +116,15 @@
           v-if="chat.messages.value.length === 0"
           class="flex h-full flex-col items-center justify-center px-4 text-center"
         >
+          <!-- Hero mark over a soft halo that breathes very slowly -->
           <span
-            class="flex h-11 w-11 items-center justify-center rounded-xl bg-primaryLight text-accent [background:color-mix(in_srgb,var(--accent-color)_10%,var(--primary-light-color))]"
+            class="relative inline-flex before:absolute before:-inset-5 before:animate-[hopp-chat-breathe_4s_ease-in-out_infinite] before:rounded-full before:content-[''] before:[background:radial-gradient(circle,color-mix(in_srgb,var(--accent-color)_18%,transparent),transparent_70%)] motion-reduce:before:animate-none"
           >
-            <IconSparkles class="h-5 w-5" />
+            <span :class="[ORB, 'relative h-11 w-11 rounded-xl']">
+              <IconSparkles class="h-5 w-5" />
+            </span>
           </span>
-          <p class="mt-3 text-sm font-semibold text-secondaryDark">
+          <p class="mt-4 text-sm font-semibold text-secondaryDark">
             {{ t("ai_experiments.chat.empty_title") }}
           </p>
           <p
@@ -128,14 +136,16 @@
           <div class="mt-5 w-full max-w-xs space-y-1.5 text-left">
             <button
               v-for="s in suggestions"
-              :key="s"
-              class="group flex w-full items-center gap-2 rounded-lg border border-dividerLight bg-primaryLight px-3 py-2 text-xs text-secondary transition hover:border-divider hover:text-secondaryDark"
-              @click="send(t(s))"
+              :key="s.label"
+              class="group flex w-full items-center gap-2 rounded-lg border border-dividerLight bg-primaryLight px-2.5 py-2 text-left text-xs text-secondary transition hover:-translate-y-px hover:border-dividerDark hover:text-secondaryDark hover:shadow-[0_4px_12px_-6px_rgb(0_0_0_/_0.35)] focus-visible:-translate-y-px focus-visible:border-dividerDark focus-visible:text-secondaryDark focus-visible:outline-none active:translate-y-0 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+              @click="send(t(s.label))"
             >
-              <IconArrowUpRight
-                class="h-3.5 w-3.5 shrink-0 text-secondaryLight transition group-hover:text-accent"
-              />
-              <span class="truncate">{{ t(s) }}</span>
+              <span
+                class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-primaryDark text-secondaryLight transition group-hover:text-accent group-hover:[background:color-mix(in_srgb,var(--accent-color)_12%,var(--primary-light-color))] group-focus-visible:text-accent motion-reduce:transition-none"
+              >
+                <component :is="s.icon" class="h-3.5 w-3.5" />
+              </span>
+              <span class="min-w-0 flex-1 truncate">{{ t(s.label) }}</span>
             </button>
           </div>
         </div>
@@ -151,21 +161,25 @@
           <button
             v-for="s in followUps"
             :key="s"
-            class="group flex items-center gap-1 rounded-full border border-dividerLight bg-primaryLight px-2.5 py-1 text-tiny text-secondary transition hover:-translate-y-px hover:border-divider hover:text-secondaryDark"
+            class="group inline-flex items-center gap-1 rounded-full border border-dividerLight bg-primaryLight py-1 pl-2 pr-2.5 text-tiny text-secondary transition hover:-translate-y-px hover:border-dividerDark hover:text-secondaryDark focus-visible:border-dividerDark focus-visible:text-secondaryDark focus-visible:outline-none motion-reduce:transition-none motion-reduce:hover:translate-y-0"
             @click="send(t(s))"
           >
             <IconArrowUpRight
-              class="h-3 w-3 shrink-0 text-secondaryLight transition group-hover:text-accent"
+              class="h-3 w-3 shrink-0 text-secondaryLight transition group-hover:text-accent group-focus-visible:text-accent motion-reduce:transition-none"
             />
             <span class="truncate">{{ t(s) }}</span>
           </button>
         </div>
       </div>
 
-      <!-- Input -->
+      <!-- Composer: a quiet focus state (tinted border, no ring) -->
       <div class="shrink-0 border-t border-dividerLight px-3 py-3">
         <div
-          class="flex items-end gap-2 rounded-xl border border-divider bg-primaryLight px-3 py-2 transition focus-within:border-accent"
+          class="flex flex-col rounded-xl border border-divider bg-primaryLight transition-colors focus-within:[border-color:color-mix(in_srgb,var(--accent-color)_45%,var(--divider-color))]"
+          :class="{
+            '[border-color:color-mix(in_srgb,var(--accent-color)_35%,var(--divider-color))]':
+              chat.isStreaming.value,
+          }"
         >
           <textarea
             ref="textareaEl"
@@ -173,29 +187,47 @@
             v-focus
             rows="1"
             :placeholder="t('ai_experiments.chat.placeholder')"
-            class="max-h-40 min-w-0 flex-1 resize-none self-center whitespace-pre-wrap [overflow-wrap:anywhere] bg-transparent text-xs text-secondaryDark placeholder:text-secondaryLight focus:outline-none"
+            class="max-h-40 min-w-0 w-full resize-none whitespace-pre-wrap [overflow-wrap:anywhere] bg-transparent px-3 pt-2.5 text-xs text-secondaryDark placeholder:text-secondaryLight focus:outline-none"
             @input="autoResize"
             @keydown="onKeydown"
           ></textarea>
-          <button
-            v-tippy="{ theme: 'tooltip' }"
-            :title="t('ai_experiments.chat.send')"
-            class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent text-accentContrast transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
-            :disabled="!input.trim() || chat.isStreaming.value"
-            @click="send()"
-          >
-            <IconArrowUp class="h-4 w-4" />
-          </button>
+          <div class="flex items-center justify-between gap-2 px-2 pb-1.5 pt-1">
+            <span
+              class="hidden items-center gap-1 text-tiny text-secondaryLight sm:flex"
+            >
+              <kbd :class="KBD">↵</kbd>
+              <span>{{ t("ai_experiments.chat.hint_send") }}</span>
+              <span class="mx-0.5 opacity-50">·</span>
+              <kbd :class="KBD">⇧ ↵</kbd>
+              <span>{{ t("ai_experiments.chat.hint_newline") }}</span>
+            </span>
+            <button
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('ai_experiments.chat.send')"
+              class="ml-auto flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent text-accentContrast transition enabled:hover:-translate-y-px enabled:hover:bg-accentDark enabled:hover:[box-shadow:0_4px_12px_-4px_color-mix(in_srgb,var(--accent-color)_55%,transparent)] enabled:active:translate-y-0 enabled:active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed motion-reduce:transition-none motion-reduce:enabled:hover:translate-y-0"
+              :class="{ 'disabled:opacity-40': !chat.isStreaming.value }"
+              :aria-label="t('ai_experiments.chat.send')"
+              :disabled="!input.trim() || chat.isStreaming.value"
+              @click="send()"
+            >
+              <IconLoaderCircle
+                v-if="chat.isStreaming.value"
+                class="h-3.5 w-3.5 animate-spin motion-reduce:animate-none"
+              />
+              <IconArrowUp v-else class="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </div>
     </aside>
 
-    <!-- Launcher -->
+    <!-- Launcher: a quiet surface circle; accent border and glow only on hover -->
     <button
       v-if="!chat.isOpen.value"
       v-tippy="{ theme: 'tooltip', placement: 'left' }"
       :title="t('ai_experiments.chat.title')"
-      class="fixed bottom-4 right-4 z-[1100] flex h-11 w-11 items-center justify-center rounded-full border border-dividerLight bg-primary text-accent shadow-[0_2px_10px_-2px_rgb(0_0_0_/_0.25)] transition hover:scale-105 hover:border-accent hover:bg-primaryLight hover:[border-color:color-mix(in_srgb,var(--accent-color)_45%,transparent)] hover:[box-shadow:0_4px_16px_-4px_color-mix(in_srgb,var(--accent-color)_35%,transparent)] active:scale-95"
+      class="fixed bottom-4 right-4 z-[1100] flex h-11 w-11 items-center justify-center rounded-full border border-dividerLight bg-primary text-accent shadow-[0_2px_10px_-2px_rgb(0_0_0_/_0.25)] transition hover:scale-105 hover:bg-primaryLight hover:[border-color:color-mix(in_srgb,var(--accent-color)_45%,transparent)] hover:[box-shadow:0_4px_16px_-4px_color-mix(in_srgb,var(--accent-color)_35%,transparent)] focus-visible:scale-105 focus-visible:outline-none focus-visible:[border-color:color-mix(in_srgb,var(--accent-color)_45%,transparent)] active:scale-95 motion-reduce:transition-none motion-reduce:hover:scale-100"
+      :aria-label="t('ai_experiments.chat.title')"
       @click="openChat"
     >
       <IconSparkles class="h-5 w-5" />
@@ -204,7 +236,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from "vue"
+import { computed, nextTick, ref, watch, type Component } from "vue"
 import {
   breakpointsTailwind,
   useBreakpoints,
@@ -220,13 +252,31 @@ import { AIChatService } from "~/services/ai-chat.service"
 import { getFollowUpSuggestions } from "~/helpers/aichat/suggestions"
 import { invokeAction } from "~/helpers/actions"
 import { platform } from "~/platform"
-import IconSparkles from "~icons/lucide/sparkles"
-import IconTrash2 from "~icons/lucide/trash-2"
-import IconPanelRightClose from "~icons/lucide/panel-right-close"
+import IconActivity from "~icons/lucide/activity"
 import IconArrowUp from "~icons/lucide/arrow-up"
 import IconArrowUpRight from "~icons/lucide/arrow-up-right"
-import IconCheck from "~icons/lucide/check"
-import IconPlus from "~icons/lucide/plus"
+import IconBraces from "~icons/lucide/braces"
+import IconBriefcase from "~icons/lucide/briefcase"
+import IconCircleDot from "~icons/lucide/circle-dot"
+import IconFileText from "~icons/lucide/file-text"
+import IconFlaskConical from "~icons/lucide/flask-conical"
+import IconFolder from "~icons/lucide/folder"
+import IconGlobe from "~icons/lucide/globe"
+import IconKeyRound from "~icons/lucide/key-round"
+import IconLoaderCircle from "~icons/lucide/loader-circle"
+import IconMessageSquareText from "~icons/lucide/message-square-text"
+import IconPanelRightClose from "~icons/lucide/panel-right-close"
+import IconPlay from "~icons/lucide/play"
+import IconSparkles from "~icons/lucide/sparkles"
+import IconTrash2 from "~icons/lucide/trash-2"
+
+/** Accent-tinted badge behind the sparkles mark (header, empty state). */
+const ORB =
+  "inline-flex shrink-0 items-center justify-center border text-accent [background:color-mix(in_srgb,var(--accent-color)_12%,var(--primary-light-color))] [border-color:color-mix(in_srgb,var(--accent-color)_25%,transparent)]"
+
+/** Keycap in the composer hint. */
+const KBD =
+  "inline-flex min-w-[1.1rem] items-center rounded border border-divider bg-primaryDark px-1 font-sans text-[0.6rem] leading-4 text-secondary"
 
 const t = useI18n()
 const { shouldEnableAIFeatures } = useAIExperiments("chat")
@@ -248,9 +298,15 @@ const openChat = () => {
   chat.open()
 }
 
-// Logging out closes an open pane (its context/history belong to the session).
+// Logging out closes an open pane and drops the conversation — its history
+// (and any credentials typed into it) belongs to the session that ended.
 watch(currentUser, (user) => {
-  if (!user) chat.close()
+  if (!user) {
+    chat.close()
+    // reset, not clear: clear defers while a reply is streaming, which is
+    // exactly when the transcript and its secrets must not survive.
+    chat.reset()
+  }
 })
 
 const breakpoints = useBreakpoints(breakpointsTailwind)
@@ -260,12 +316,30 @@ const input = ref("")
 const scrollEl = ref<HTMLElement | null>(null)
 const textareaEl = ref<HTMLTextAreaElement | null>(null)
 
-const suggestions = [
-  "ai_experiments.chat.suggestion_explain",
-  "ai_experiments.chat.suggestion_add_header",
-  "ai_experiments.chat.suggestion_write_tests",
-  "ai_experiments.chat.suggestion_run",
+const suggestions: Array<{ label: string; icon: Component }> = [
+  {
+    label: "ai_experiments.chat.suggestion_explain",
+    icon: IconMessageSquareText,
+  },
+  { label: "ai_experiments.chat.suggestion_add_header", icon: IconKeyRound },
+  {
+    label: "ai_experiments.chat.suggestion_write_tests",
+    icon: IconFlaskConical,
+  },
+  { label: "ai_experiments.chat.suggestion_run", icon: IconPlay },
 ]
+
+/** Icon for each kind of context chip (ids come from useChatContext). */
+const CONTEXT_ICONS: Record<string, Component> = {
+  workspace: IconBriefcase,
+  request: IconFileText,
+  response: IconActivity,
+  schema: IconBraces,
+  environment: IconGlobe,
+  collections: IconFolder,
+}
+const contextIcon = (id: string): Component =>
+  CONTEXT_ICONS[id] ?? IconCircleDot
 
 // Next-step chips for the last completed turn, derived from what it executed.
 const followUps = computed(() => {
@@ -279,11 +353,12 @@ const followUps = computed(() => {
   return getFollowUpSuggestions(chat.lastTurnTools.value)
 })
 
-// --- Resizable width (persisted) ---
 const MIN_WIDTH = 320
 const MAX_WIDTH = 640
 const storedWidth = useLocalStorage("hopp-ai-chat-width", 400)
-const clampWidth = (w: number) => Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, w))
+// A corrupt stored value (NaN / garbage) must not yield a "NaNpx" pane.
+const clampWidth = (w: number) =>
+  Number.isFinite(w) ? Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, w)) : 400
 
 const paneWidth = computed(() =>
   mdAndLarger.value ? `${clampWidth(storedWidth.value)}px` : "100%"
@@ -316,7 +391,6 @@ useEventListener(window, "mouseup", () => {
   document.body.style.cursor = ""
 })
 
-// --- Input ---
 const autoResize = () => {
   const el = textareaEl.value
   if (!el) return
@@ -343,7 +417,8 @@ const send = async (text?: string) => {
 }
 
 const onKeydown = (e: KeyboardEvent) => {
-  if (e.key === "Enter" && !e.shiftKey) {
+  // Enter during IME composition confirms the candidate, not the message.
+  if (e.key === "Enter" && !e.shiftKey && !e.isComposing) {
     e.preventDefault()
     send()
   }
@@ -362,13 +437,24 @@ watch(
 )
 </script>
 
-<style scoped>
-@keyframes chat-header-sweep {
+<style>
+@keyframes hopp-chat-sweep-line {
   0% {
-    background-position: 200% 0;
+    transform: translateX(-100%);
   }
   100% {
-    background-position: -200% 0;
+    transform: translateX(360%);
+  }
+}
+@keyframes hopp-chat-breathe {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
   }
 }
 </style>

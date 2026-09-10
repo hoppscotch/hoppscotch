@@ -2112,7 +2112,13 @@
       "suggestion_run": "Run the request",
       "suggestion_explain_response": "Explain the response",
       "suggestion_save": "Save the request",
-      "suggestion_use_env": "Use the environment variables in this request"
+      "suggestion_use_env": "Use the environment variables in this request",
+      "step_done": "Done",
+      "step_warning": "Warning",
+      "step_error": "Failed",
+      "step_running": "In progress",
+      "hint_send": "to send",
+      "hint_newline": "for a new line"
     }
   },
   "configs": {

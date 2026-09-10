@@ -1,32 +1,67 @@
 <template>
   <div :class="message.role === 'user' ? 'flex justify-end' : 'group'">
-    <!-- User message -->
+    <!-- User message: a whisper of accent over the surface, soft edge, tiny lift -->
     <div
       v-if="message.role === 'user'"
-      class="chat-user-bubble max-w-[85%] whitespace-pre-wrap break-words rounded-2xl rounded-br-sm px-3.5 py-2 text-xs text-secondaryDark"
+      class="max-w-[85%] whitespace-pre-wrap break-words rounded-2xl rounded-br-md border border-dividerLight bg-primaryLight px-3.5 py-2 text-xs text-secondaryDark shadow-sm [background:linear-gradient(135deg,color-mix(in_srgb,var(--accent-color)_10%,var(--primary-light-color)),var(--primary-light-color)_70%)]"
     >
       {{ message.content }}
     </div>
 
-    <!-- Tool step (compact, one block of executed actions) -->
-    <!-- eslint-disable vue/no-v-html -->
-    <div
+    <!-- Tool steps: one timeline of the actions this turn executed -->
+    <ol
       v-else-if="message.kind === 'tool'"
-      class="chat-md chat-step break-words text-tiny text-secondaryLight"
-      v-html="rendered"
-    ></div>
-    <!-- eslint-enable vue/no-v-html -->
+      role="list"
+      class="flex flex-col gap-1.5"
+    >
+      <li
+        v-for="(step, index) in steps"
+        :key="index"
+        class="relative flex animate-[hopp-chat-step-in_240ms_ease-out_both] items-start gap-2 before:absolute before:-bottom-[0.4375rem] before:left-[calc(0.5625rem-0.5px)] before:top-[1.1875rem] before:w-px before:bg-dividerDark before:content-[''] last:before:hidden motion-reduce:animate-none"
+      >
+        <span
+          class="relative z-[1] mt-px inline-flex h-[1.125rem] w-[1.125rem] shrink-0 items-center justify-center rounded-full border transition-colors"
+          :class="TONE_STYLES[step.tone].icon"
+        >
+          <component
+            :is="STEP_ICONS[step.kind]"
+            class="h-3 w-3"
+            :class="{
+              'animate-spin motion-reduce:animate-none':
+                step.kind === 'running',
+            }"
+            aria-hidden="true"
+          />
+          <span v-if="TONE_LABELS[step.tone]" class="sr-only">
+            {{ t(TONE_LABELS[step.tone]!) }}
+          </span>
+        </span>
+        <!-- Sanitized by DOMPurify -->
+        <!-- eslint-disable vue/no-v-html -->
+        <div
+          class="chat-md chat-step-text min-w-0 flex-1 break-words pt-0.5 text-tiny leading-normal"
+          :class="TONE_STYLES[step.tone].text"
+          v-html="render(step.text)"
+        ></div>
+        <!-- eslint-enable vue/no-v-html -->
+      </li>
+    </ol>
 
     <!-- Assistant message -->
     <template v-else>
-      <!-- Thinking indicator (until the first token arrives) -->
+      <!-- Thinking indicator (until the first token arrives): a pill with an
+           accent sweep gliding across and shimmering text -->
       <div
         v-if="message.pending && !message.content"
-        class="chat-thinking-card"
+        class="relative isolate inline-flex items-center gap-2 overflow-hidden rounded-full border border-dividerLight bg-primaryLight px-3.5 py-1.5 after:absolute after:inset-0 after:-z-10 after:-translate-x-full after:animate-[hopp-chat-sweep_1.8s_ease-in-out_infinite] after:content-[''] after:[background:linear-gradient(110deg,transparent_25%,color-mix(in_srgb,var(--accent-color)_10%,transparent)_50%,transparent_75%)] motion-reduce:after:animate-none"
         aria-live="polite"
       >
-        <IconSparkles class="h-3.5 w-3.5 shrink-0 text-accent" />
-        <span class="chat-thinking text-xs font-medium">
+        <IconSparkles
+          class="h-3.5 w-3.5 shrink-0 animate-[hopp-chat-glow_1.8s_ease-in-out_infinite] text-accent motion-reduce:animate-none"
+        />
+        <span
+          class="animate-[hopp-chat-shimmer_1.5s_linear_infinite] bg-clip-text text-xs font-medium text-transparent [background-image:linear-gradient(90deg,var(--secondary-light-color),var(--secondary-dark-color),var(--secondary-light-color))] [background-size:200%_100%] motion-reduce:animate-none"
+        >
           {{ t("ai_experiments.chat.thinking") }}
         </span>
       </div>
@@ -35,7 +70,7 @@
         <!-- The thinking indicator settles into a quiet duration note -->
         <div
           v-if="thoughtDuration"
-          class="mb-1 flex items-center gap-1 text-tiny text-secondaryLight"
+          class="mb-1.5 flex items-center gap-1 text-tiny text-secondaryLight"
         >
           <IconSparkles class="h-3 w-3 shrink-0" />
           <span>{{
@@ -55,18 +90,23 @@
         <!-- Actions -->
         <div
           v-if="!message.pending && message.content"
-          class="mt-1 flex h-5 items-center opacity-0 transition focus-within:opacity-100 group-hover:opacity-100"
+          class="mt-1 flex h-6 items-center opacity-0 transition focus-within:opacity-100 group-hover:opacity-100"
         >
           <button
-            class="flex items-center gap-1 rounded text-tiny text-secondaryLight transition hover:text-secondary"
+            class="-ml-1.5 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-tiny transition hover:bg-primaryLight focus-visible:bg-primaryLight focus-visible:outline-none"
+            :class="
+              copied
+                ? 'text-accent'
+                : 'text-secondaryLight hover:text-secondaryDark focus-visible:text-secondaryDark'
+            "
             @click="copy"
           >
             <component :is="copied ? IconCheck : IconCopy" class="h-3 w-3" />
-            {{
+            <span>{{
               copied
                 ? t("ai_experiments.chat.copied")
                 : t("ai_experiments.chat.copy")
-            }}
+            }}</span>
           </button>
         </div>
       </div>
@@ -77,19 +117,116 @@
 <script setup lang="ts">
 import MarkdownIt from "markdown-it"
 import DOMPurify from "dompurify"
-import { computed, ref } from "vue"
+import { computed, ref, type Component } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
+import {
+  parseStepLines,
+  type StepKind,
+  type StepTone,
+} from "~/helpers/aichat/step-lines"
 import type { ChatMessage } from "~/services/ai-chat.service"
-import IconCopy from "~icons/lucide/copy"
+
+import IconArrowLeftRight from "~icons/lucide/arrow-left-right"
+import IconBan from "~icons/lucide/ban"
+import IconBookOpen from "~icons/lucide/book-open"
 import IconCheck from "~icons/lucide/check"
+import IconCircleCheck from "~icons/lucide/circle-check"
+import IconCircleX from "~icons/lucide/circle-x"
+import IconClock from "~icons/lucide/clock"
+import IconCopy from "~icons/lucide/copy"
+import IconCornerDownRight from "~icons/lucide/corner-down-right"
+import IconFileText from "~icons/lucide/file-text"
+import IconFlaskConical from "~icons/lucide/flask-conical"
+import IconFolder from "~icons/lucide/folder"
+import IconGlobe from "~icons/lucide/globe"
+import IconHouse from "~icons/lucide/house"
+import IconLibrary from "~icons/lucide/library"
+import IconLoaderCircle from "~icons/lucide/loader-circle"
+import IconPanelsTopLeft from "~icons/lucide/panels-top-left"
+import IconPencil from "~icons/lucide/pencil"
+import IconPlug from "~icons/lucide/plug"
+import IconSave from "~icons/lucide/save"
+import IconSlidersHorizontal from "~icons/lucide/sliders-horizontal"
 import IconSparkles from "~icons/lucide/sparkles"
+import IconTriangleAlert from "~icons/lucide/triangle-alert"
+import IconUsers from "~icons/lucide/users"
+import IconWrench from "~icons/lucide/wrench"
+import IconX from "~icons/lucide/x"
 
 const props = defineProps<{
   message: ChatMessage
 }>()
 
 const t = useI18n()
+
+/** Each step kind gets its Lucide icon; the tone (colour) comes from the parser. */
+const STEP_ICONS: Record<StepKind, Component> = {
+  done: IconCheck,
+  verified: IconCircleCheck,
+  warn: IconTriangleAlert,
+  error: IconCircleX,
+  running: IconLoaderCircle,
+  waiting: IconClock,
+  cancelled: IconBan,
+  environment: IconGlobe,
+  collection: IconFolder,
+  properties: IconSlidersHorizontal,
+  tab: IconPanelsTopLeft,
+  closed: IconX,
+  saved: IconSave,
+  team: IconUsers,
+  personal: IconHouse,
+  renamed: IconPencil,
+  documented: IconFileText,
+  published: IconBookOpen,
+  mock: IconFlaskConical,
+  protocol: IconArrowLeftRight,
+  interceptor: IconPlug,
+  tools: IconWrench,
+  context: IconLibrary,
+  note: IconCornerDownRight,
+}
+
+// Accent tones mix the theme's accent variable; status tones use the same
+// Tailwind greens/ambers/reds the response meta uses elsewhere in the app.
+const ACCENT_ICON =
+  "text-accent [border-color:color-mix(in_srgb,var(--accent-color)_35%,var(--divider-color))] [background:color-mix(in_srgb,var(--accent-color)_12%,var(--primary-light-color))]"
+
+/** Icon node + text colour classes per step tone. */
+const TONE_STYLES: Record<StepTone, { icon: string; text: string }> = {
+  neutral: {
+    icon: "border-divider bg-primaryLight text-secondaryLight",
+    text: "text-secondary",
+  },
+  accent: { icon: ACCENT_ICON, text: "text-secondary" },
+  pending: { icon: ACCENT_ICON, text: "text-secondaryDark" },
+  success: {
+    icon: "border-green-500/35 bg-green-500/10 text-green-500",
+    text: "text-secondary",
+  },
+  warning: {
+    icon: "border-amber-500/35 bg-amber-500/10 text-amber-500",
+    text: "text-secondaryDark",
+  },
+  error: {
+    icon: "border-red-500/35 bg-red-500/10 text-red-500",
+    text: "text-secondaryDark",
+  },
+  muted: {
+    icon: "border-dashed border-divider bg-primaryLight text-secondaryLight",
+    text: "text-secondaryLight",
+  },
+}
+
+/** Spoken status for the tones that carry one; the rest read as plain text. */
+const TONE_LABELS: Partial<Record<StepTone, string>> = {
+  accent: "ai_experiments.chat.step_done",
+  success: "ai_experiments.chat.step_done",
+  warning: "ai_experiments.chat.step_warning",
+  error: "ai_experiments.chat.step_error",
+  pending: "ai_experiments.chat.step_running",
+}
 
 const md = new MarkdownIt({
   html: false,
@@ -107,10 +244,13 @@ md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
   return defaultLinkRender(tokens, idx, options, env, self)
 }
 
-const rendered = computed(() =>
-  DOMPurify.sanitize(md.render(props.message.content || ""), {
-    ADD_ATTR: ["target"],
-  })
+const render = (text: string) =>
+  DOMPurify.sanitize(md.render(text), { ADD_ATTR: ["target"] })
+
+const rendered = computed(() => render(props.message.content || ""))
+
+const steps = computed(() =>
+  props.message.kind === "tool" ? parseStepLines(props.message.content) : []
 )
 
 // Sub-second waits aren't worth a note; longer ones settle into "Thought
@@ -136,33 +276,58 @@ const copy = () => {
 }
 </script>
 
-<style scoped>
-/* User bubble — a whisper of accent over the surface, soft edge, tiny lift. */
-.chat-user-bubble {
-  border: 1px solid var(--divider-light-color);
-  background: var(--primary-light-color);
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--accent-color) 9%, var(--primary-light-color)),
-    var(--primary-light-color) 65%
-  );
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+<style>
+@keyframes hopp-chat-step-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
+@keyframes hopp-chat-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  60%,
+  100% {
+    transform: translateX(100%);
+  }
+}
+@keyframes hopp-chat-glow {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes hopp-chat-shimmer {
+  0% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: -200% center;
+  }
+}
+@keyframes hopp-chat-blink {
+  50% {
+    opacity: 0;
+  }
+}
+</style>
 
+<!-- Rendered markdown (v-html) can't carry utility classes, so its typography
+     lives here. -->
+<style scoped>
 .chat-md :deep(> *:first-child) {
   margin-top: 0;
 }
 .chat-md :deep(> *:last-child) {
   margin-bottom: 0;
-}
-/* Compact "executed action" step block. */
-.chat-step {
-  border-left: 2px solid var(--divider-color);
-  padding-left: 0.6rem;
-}
-.chat-step :deep(p) {
-  margin: 0;
-  line-height: 1.5;
 }
 .chat-md :deep(p) {
   margin: 0 0 0.5rem;
@@ -185,6 +350,15 @@ const copy = () => {
 .chat-md :deep(li > ul),
 .chat-md :deep(li > ol) {
   margin: 0.15rem 0;
+}
+
+/* Step lines are one dense row each, not prose. */
+.chat-step-text :deep(p) {
+  margin: 0;
+}
+.chat-step-text :deep(ul),
+.chat-step-text :deep(ol) {
+  margin: 0.2rem 0 0;
 }
 .chat-md :deep(a) {
   color: var(--accent-color);
@@ -263,85 +437,6 @@ const copy = () => {
   border-radius: 0.375rem;
 }
 
-/* Pill around the "Thinking…" state, with a gradient sweep gliding across. */
-.chat-thinking-card {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.85rem;
-  border-radius: 9999px;
-  border: 1px solid var(--divider-light-color);
-  background: var(--primary-light-color);
-  overflow: hidden;
-  isolation: isolate;
-}
-.chat-thinking-card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  /* Fallback for browsers without color-mix */
-  background: linear-gradient(
-    110deg,
-    transparent 25%,
-    var(--divider-light-color) 50%,
-    transparent 75%
-  );
-  background: linear-gradient(
-    110deg,
-    transparent 25%,
-    color-mix(in srgb, var(--accent-color) 10%, transparent) 50%,
-    transparent 75%
-  );
-  transform: translateX(-100%);
-  animation: chat-sweep 1.8s ease-in-out infinite;
-}
-.chat-thinking-card :deep(svg) {
-  animation: chat-glow 1.8s ease-in-out infinite;
-}
-
-/* Shimmering "Thinking…" text while waiting for the first token. */
-.chat-thinking {
-  background: linear-gradient(
-    90deg,
-    var(--secondary-light-color),
-    var(--secondary-dark-color),
-    var(--secondary-light-color)
-  );
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: chat-shimmer 1.5s linear infinite;
-}
-@keyframes chat-shimmer {
-  0% {
-    background-position: 200% center;
-  }
-  100% {
-    background-position: -200% center;
-  }
-}
-@keyframes chat-sweep {
-  0% {
-    transform: translateX(-100%);
-  }
-  60%,
-  100% {
-    transform: translateX(100%);
-  }
-}
-@keyframes chat-glow {
-  0%,
-  100% {
-    opacity: 0.6;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
 /* Blinking caret at the end of the reply while it streams in. */
 .chat-md.is-streaming :deep(> *:last-child)::after {
   content: "";
@@ -352,20 +447,9 @@ const copy = () => {
   vertical-align: text-bottom;
   border-radius: 1px;
   background: var(--accent-color);
-  animation: chat-blink 1s step-start infinite;
+  animation: hopp-chat-blink 1s step-start infinite;
 }
-@keyframes chat-blink {
-  50% {
-    opacity: 0;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .chat-thinking,
-  .chat-thinking-card::after,
-  .chat-thinking-card :deep(svg) {
-    animation: none;
-  }
   .chat-md.is-streaming :deep(> *:last-child)::after {
     animation: none;
   }

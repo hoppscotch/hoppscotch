@@ -45,9 +45,10 @@ describe("collection request definitions", () => {
         },
       ],
       params: [{ key: "expand[]", value: "latest_charge", active: true }],
+      // Stored as the raw `key: value` lines the URL-encoded editor uses.
       body: {
         contentType: "application/x-www-form-urlencoded",
-        body: "amount=2000&currency=usd",
+        body: "amount: 2000\ncurrency: usd",
       },
     })
     expect(request.testScript).toContain("pw.response.status")
@@ -127,7 +128,7 @@ describe("collection request definitions", () => {
       params: [{ key: "expand[]", value: "latest_charge", active: true }],
       body: {
         contentType: "application/x-www-form-urlencoded",
-        body: "amount=3000&currency=usd",
+        body: "amount: 3000\ncurrency: usd",
       },
       preRequestScript: "original pre-request",
       endpoint: "<<baseUrl>>/v1/payment_intents",
@@ -166,6 +167,34 @@ describe("collection request definitions", () => {
     ).toEqual({
       error:
         "Request 1 headers must contain non-empty string keys and string values.",
+    })
+  })
+})
+
+describe("content type without a body", () => {
+  test("is accepted and keeps the existing string body on update", () => {
+    const parsed = parseCollectionRequestDefinitions([
+      {
+        name: "Update",
+        method: "PUT",
+        url: "<<baseUrl>>/v1/items/1",
+        contentType: "application/json",
+      },
+    ])
+    expect("error" in parsed).toBe(false)
+    if ("error" in parsed) return
+
+    const existing = buildCollectionRequest({
+      name: "Update",
+      method: "PUT",
+      url: "<<baseUrl>>/v1/items/1",
+      body: '{"name":"x"}',
+      contentType: "text/plain",
+    })
+    const updated = buildCollectionRequest(parsed.definitions[0], existing)
+    expect(updated.body).toEqual({
+      contentType: "application/json",
+      body: '{"name":"x"}',
     })
   })
 })

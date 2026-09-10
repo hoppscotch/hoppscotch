@@ -15,6 +15,8 @@ export type CollectionRequestDefinition = {
   contentType?: string
   preRequestScript?: string
   testScript?: string
+  /** Markdown documentation for the request. */
+  description?: string
 }
 
 type ParseResult =
@@ -110,11 +112,6 @@ export function parseCollectionRequestDefinitions(value: unknown): ParseResult {
         error: `Request ${requestNumber} has an unsupported content type.`,
       }
     }
-    if (candidate.contentType !== undefined && candidate.body === undefined) {
-      return {
-        error: `Request ${requestNumber} must include a body when setting its content type.`,
-      }
-    }
     if (
       candidate.preRequestScript !== undefined &&
       typeof candidate.preRequestScript !== "string"
@@ -128,6 +125,12 @@ export function parseCollectionRequestDefinitions(value: unknown): ParseResult {
       typeof candidate.testScript !== "string"
     ) {
       return { error: `Request ${requestNumber} test script must be a string.` }
+    }
+    if (
+      candidate.description !== undefined &&
+      typeof candidate.description !== "string"
+    ) {
+      return { error: `Request ${requestNumber} description must be a string.` }
     }
 
     definitions.push({
@@ -145,6 +148,9 @@ export function parseCollectionRequestDefinitions(value: unknown): ParseResult {
         : {}),
       ...(candidate.testScript !== undefined
         ? { testScript: candidate.testScript }
+        : {}),
+      ...(candidate.description !== undefined
+        ? { description: candidate.description }
         : {}),
     })
   }
@@ -197,18 +203,30 @@ export function buildCollectionRequest(
   request.preRequestScript =
     definition.preRequestScript ?? existing?.preRequestScript ?? ""
   request.testScript = definition.testScript ?? existing?.testScript ?? ""
+  if (definition.description !== undefined) {
+    request.description = definition.description
+  }
 
+  const existingContentType =
+    existing?.body &&
+    "contentType" in existing.body &&
+    typeof existing.body.contentType === "string"
+      ? existing.body.contentType
+      : undefined
   if (definition.body !== undefined) {
-    const existingContentType =
-      existing?.body &&
-      "contentType" in existing.body &&
-      typeof existing.body.contentType === "string"
-        ? existing.body.contentType
-        : undefined
     applyChatBody(
       request,
       definition.body,
       definition.contentType ?? existingContentType
+    )
+  } else if (definition.contentType !== undefined) {
+    // Content type only: keep the existing string body (or an empty one).
+    const existingBody =
+      existing?.body && "body" in existing.body ? existing.body.body : undefined
+    applyChatBody(
+      request,
+      typeof existingBody === "string" ? existingBody : "",
+      definition.contentType
     )
   } else if (existing) {
     request.body = existing.body

@@ -27,6 +27,43 @@ export function listRequestNames(
   return names.join(", ")
 }
 
+export interface FoundCollection {
+  collection: HoppCollection
+  /** Index path of the node, e.g. "0" (top-level) or "0/2" (nested folder). */
+  path: string
+}
+
+/**
+ * Finds a collection or folder by name (case-insensitive), preferring a
+ * top-level match and otherwise the shallowest nested folder — the context
+ * lists both identically, so the model refers to either the same way.
+ */
+export function findCollectionByName(
+  collections: HoppCollection[],
+  name: string
+): FoundCollection | null {
+  const n = name.trim().toLowerCase()
+  if (!n) return null
+  const top = findTopLevelCollection(collections, name)
+  if (top) return { collection: top.collection, path: String(top.index) }
+
+  // Breadth-first so the shallowest folder wins on duplicate names.
+  const queue: Array<{ node: HoppCollection; path: string }> = collections.map(
+    (c, i) => ({ node: c, path: String(i) })
+  )
+  while (queue.length) {
+    const { node, path } = queue.shift()!
+    for (const [i, folder] of (node.folders ?? []).entries()) {
+      const childPath = `${path}/${i}`
+      if ((folder.name ?? "").toLowerCase() === n) {
+        return { collection: folder, path: childPath }
+      }
+      queue.push({ node: folder, path: childPath })
+    }
+  }
+  return null
+}
+
 /** Finds a top-level collection by name (case-insensitive). */
 export function findTopLevelCollection(
   collections: HoppCollection[],

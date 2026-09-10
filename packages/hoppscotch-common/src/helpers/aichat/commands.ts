@@ -108,8 +108,47 @@ export function applyChatBody(
       }
     }
   }
-  req.body = { contentType: ct, body } as HoppRESTReqBody
+  req.body = {
+    contentType: ct,
+    body:
+      ct === "application/x-www-form-urlencoded"
+        ? toRawKeyValueLines(body)
+        : body,
+  } as HoppRESTReqBody
   return `✓ Set the request body (${code(ct)}).`
+}
+
+/**
+ * The app stores a form-urlencoded body as raw `key: value` lines (what the
+ * URL-encoded editor shows and `parseRawKeyValueEntries` reads at send time).
+ * A model naturally writes the wire form `a=1&b=2`, which that parser would
+ * take as ONE key — convert it, leaving already line-shaped input alone.
+ */
+export function toRawKeyValueLines(body: string): string {
+  const trimmed = body.trim()
+  const looksLikeQueryString =
+    trimmed.length > 0 &&
+    !trimmed.includes("\n") &&
+    trimmed.includes("=") &&
+    !/^[^=&]+:\s/.test(trimmed)
+  if (!looksLikeQueryString) return body
+  const decode = (part: string) => {
+    try {
+      return decodeURIComponent(part.replace(/\+/g, " "))
+    } catch (_e) {
+      return part
+    }
+  }
+  return trimmed
+    .split("&")
+    .filter(Boolean)
+    .map((pair) => {
+      const eq = pair.indexOf("=")
+      const key = eq === -1 ? pair : pair.slice(0, eq)
+      const value = eq === -1 ? "" : pair.slice(eq + 1)
+      return `${decode(key)}: ${decode(value)}`
+    })
+    .join("\n")
 }
 
 /**
@@ -272,21 +311,24 @@ export function runChatCommand(
     const pairs = parsePairs(t.replace(/^.*?\bheaders?\b\s*:?\s*/i, ""))
     if (pairs.length) {
       if (!req) return NEED_REQUEST
+      let changed = false
       for (const { key, value } of pairs) {
         const existing = req.headers.find(
           (h) => h.key.toLowerCase() === key.toLowerCase()
         )
         if (existing) {
+          if (existing.value !== value || !existing.active) changed = true
           existing.value = value
           existing.active = true
         } else {
           req.headers.push({ key, value, active: true, description: "" })
+          changed = true
         }
       }
       return {
         handled: true,
-        changed: true,
-        reply: summarize("Added", "header", pairs, ": "),
+        changed,
+        reply: summarize(changed ? "Added" : "Kept", "header", pairs, ": "),
       }
     }
   }
@@ -299,21 +341,24 @@ export function runChatCommand(
     const pairs = parsePairs(t.replace(/^.*?\bparam(?:eter)?s?\b\s*:?\s*/i, ""))
     if (pairs.length) {
       if (!req) return NEED_REQUEST
+      let changed = false
       for (const { key, value } of pairs) {
         const existing = req.params.find(
           (p) => p.key.toLowerCase() === key.toLowerCase()
         )
         if (existing) {
+          if (existing.value !== value || !existing.active) changed = true
           existing.value = value
           existing.active = true
         } else {
           req.params.push({ key, value, active: true, description: "" })
+          changed = true
         }
       }
       return {
         handled: true,
-        changed: true,
-        reply: summarize("Added", "query param", pairs, "="),
+        changed,
+        reply: summarize(changed ? "Added" : "Kept", "query param", pairs, "="),
       }
     }
   }
@@ -323,21 +368,29 @@ export function runChatCommand(
     const pairs = parsePairs(t.replace(/^.*?\bvariables?\b\s*:?\s*/i, ""))
     if (pairs.length) {
       if (!req) return NEED_REQUEST
+      let changed = false
       for (const { key, value } of pairs) {
         const existing = req.requestVariables.find(
           (v) => v.key.toLowerCase() === key.toLowerCase()
         )
         if (existing) {
+          if (existing.value !== value || !existing.active) changed = true
           existing.value = value
           existing.active = true
         } else {
           req.requestVariables.push({ key, value, active: true })
+          changed = true
         }
       }
       return {
         handled: true,
-        changed: true,
-        reply: summarize("Added", "request variable", pairs, "="),
+        changed,
+        reply: summarize(
+          changed ? "Added" : "Kept",
+          "request variable",
+          pairs,
+          "="
+        ),
       }
     }
   }
@@ -377,6 +430,9 @@ export function runChatCommand(
 
   return { handled: false, reply: "" }
 }
+
+const NO_SCRIPT_REPLY =
+  "No script was provided — pass the full script text (an empty string clears it)."
 
 /** Coerces an LLM tool-call array argument into `{ key, value }` pairs. */
 function toPairs(value: unknown): Array<{ key: string; value: string }> {
@@ -490,12 +546,20 @@ export function applyToolCall(
     }
 
     case "set_method": {
-      const method = String(args.method ?? "").toUpperCase()
+      const method = String(args.method ?? "")
+        .trim()
+        .toUpperCase()
       if (!method)
         return {
           handled: true,
           changed: false,
           reply: "No method was provided.",
+        }
+      if (!CHAT_HTTP_METHODS.includes(method))
+        return {
+          handled: true,
+          changed: false,
+          reply: `Unsupported method ${code(method)}. Use one of: ${CHAT_HTTP_METHODS.join(", ")}.`,
         }
       req.method = method
       return {
@@ -566,22 +630,39 @@ export function applyToolCall(
     }
 
     case "set_body": {
-      const body = typeof args.body === "string" ? args.body : ""
       const contentType = args.contentType
         ? String(args.contentType)
         : undefined
-      if (!body && !contentType) {
-        return { handled: true, changed: false, reply: "No body was provided." }
+      if (typeof args.body !== "string") {
+        if (!contentType) {
+          return {
+            handled: true,
+            changed: false,
+            reply: "No body was provided.",
+          }
+        }
+        // Only the content type changes — keep whatever string body exists.
+        const current =
+          req.body && "body" in req.body && typeof req.body.body === "string"
+            ? req.body.body
+            : ""
+        return {
+          handled: true,
+          changed: true,
+          reply: applyChatBody(req, current, contentType),
+        }
       }
       return {
         handled: true,
         changed: true,
-        reply: applyChatBody(req, body, contentType),
+        reply: applyChatBody(req, args.body, contentType),
       }
     }
 
     case "set_prerequest_script": {
-      const script = typeof args.script === "string" ? args.script : ""
+      if (typeof args.script !== "string")
+        return { handled: true, changed: false, reply: NO_SCRIPT_REPLY }
+      const script = args.script
       req.preRequestScript = script
       return {
         handled: true,
@@ -593,7 +674,9 @@ export function applyToolCall(
     }
 
     case "set_test_script": {
-      const script = typeof args.script === "string" ? args.script : ""
+      if (typeof args.script !== "string")
+        return { handled: true, changed: false, reply: NO_SCRIPT_REPLY }
+      const script = args.script
       req.testScript = script
       return {
         handled: true,
@@ -739,7 +822,9 @@ export function applyGQLToolCall(
     }
 
     case "set_prerequest_script": {
-      const script = typeof args.script === "string" ? args.script : ""
+      if (typeof args.script !== "string")
+        return { handled: true, changed: false, reply: NO_SCRIPT_REPLY }
+      const script = args.script
       req.preRequestScript = script
       return {
         handled: true,
@@ -751,7 +836,9 @@ export function applyGQLToolCall(
     }
 
     case "set_test_script": {
-      const script = typeof args.script === "string" ? args.script : ""
+      if (typeof args.script !== "string")
+        return { handled: true, changed: false, reply: NO_SCRIPT_REPLY }
+      const script = args.script
       req.testScript = script
       return {
         handled: true,
@@ -763,7 +850,14 @@ export function applyGQLToolCall(
     }
 
     case "set_query": {
-      const query = typeof args.query === "string" ? args.query : ""
+      if (typeof args.query !== "string")
+        return {
+          handled: true,
+          changed: false,
+          reply:
+            "No query was provided — pass the full query text (an empty string clears it).",
+        }
+      const query = args.query
       req.query = query
       return {
         handled: true,
@@ -775,7 +869,14 @@ export function applyGQLToolCall(
     }
 
     case "set_gql_variables": {
-      const variables = typeof args.variables === "string" ? args.variables : ""
+      if (typeof args.variables !== "string")
+        return {
+          handled: true,
+          changed: false,
+          reply:
+            "No variables were provided — pass the variables JSON as a string (an empty string clears them).",
+        }
+      const variables = args.variables
       req.variables = variables
       return {
         handled: true,

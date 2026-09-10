@@ -1,18 +1,12 @@
-import { computed, ref, watchEffect } from "vue"
+import { computed, ref, watch, watchEffect } from "vue"
+import { tryOnScopeDispose } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import type {
   Environment,
-  HoppCollection,
   HoppGQLRequest,
   HoppRESTRequest,
 } from "@hoppscotch/data"
-import {
-  GraphQLSchema,
-  isIntrospectionType,
-  isSpecifiedScalarType,
-  parse as parseGQL,
-  printType,
-} from "graphql"
+import { parse as parseGQL } from "graphql"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import {
   GQLTabConnectionService,
@@ -26,6 +20,10 @@ import {
   getCurrentEnvironment,
 } from "~/newstore/environments"
 import { restCollections$ } from "~/newstore/collections"
+import { TeamCollectionsService } from "~/services/team-collection.service"
+import { teamCollToHoppRESTColl } from "~/helpers/backend/helpers"
+import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
+import type { TeamAccessRole } from "~/helpers/backend/graphql"
 import type { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { AIChatService, type ChatContextItem } from "~/services/ai-chat.service"
 
@@ -34,11 +32,27 @@ export type { ChatContextItem }
 const truncate = (value: string, max: number) =>
   value.length > max ? `${value.slice(0, max)}…[truncated]` : value
 
+// Every character here is re-sent on each model round-trip, so the caps are
+// deliberately tight — the model asks for more when it needs it.
+const BODY_CHARS = 1000
+const HEADER_VALUE_CHARS = 120
+const MAX_RESPONSE_HEADERS = 12
+const MAX_ENV_NAMES = 20
+
+const headerLines = (headers: Array<{ key: string; value: string }>) =>
+  headers
+    .map((h) => `- ${h.key}: ${truncate(h.value, HEADER_VALUE_CHARS)}`)
+    .join("\n")
+
 const serializeRequest = (req: HoppRESTRequest): string => {
   const lines: string[] = [
     "### Current request",
     `${req.method} ${req.endpoint}`,
   ]
+
+  if (req.description?.trim()) {
+    lines.push(`Documentation:\n${truncate(req.description, 400)}`)
+  }
 
   const params = (req.params ?? []).filter((p) => p.active && p.key)
   if (params.length) {
@@ -49,9 +63,7 @@ const serializeRequest = (req: HoppRESTRequest): string => {
 
   const headers = (req.headers ?? []).filter((h) => h.active && h.key)
   if (headers.length) {
-    lines.push(
-      "Headers:\n" + headers.map((h) => `- ${h.key}: ${h.value}`).join("\n")
-    )
+    lines.push("Headers:\n" + headerLines(headers))
   }
 
   if (
@@ -70,7 +82,7 @@ const serializeRequest = (req: HoppRESTRequest): string => {
     body.body.trim()
   ) {
     const contentType = "contentType" in body ? body.contentType : "raw"
-    lines.push(`Body (${contentType}):\n${truncate(body.body, 1500)}`)
+    lines.push(`Body (${contentType}):\n${truncate(body.body, BODY_CHARS)}`)
   }
 
   return lines.join("\n")
@@ -85,11 +97,12 @@ const serializeResponse = (res: HoppRESTResponse): string => {
     `Duration: ${res.meta.responseDuration}ms · Size: ${res.meta.responseSize} bytes`,
   ]
 
-  const headers = res.headers.filter((h) => h.key)
+  // Response headers are mostly boilerplate — keep the first few, short.
+  const headers = res.headers
+    .filter((h: { key: string; value: string }) => h.key)
+    .slice(0, MAX_RESPONSE_HEADERS)
   if (headers.length) {
-    lines.push(
-      "Headers:\n" + headers.map((h) => `- ${h.key}: ${h.value}`).join("\n")
-    )
+    lines.push("Headers:\n" + headerLines(headers))
   }
 
   let bodyText = ""
@@ -99,53 +112,10 @@ const serializeResponse = (res: HoppRESTResponse): string => {
     bodyText = ""
   }
   if (bodyText.trim()) {
-    lines.push(`Body (truncated):\n${truncate(bodyText, 1500)}`)
+    lines.push(`Body (truncated):\n${truncate(bodyText, BODY_CHARS)}`)
   }
 
   return lines.join("\n")
-}
-
-/**
- * Compact SDL snapshot of an introspected schema. The operation roots
- * (Query / Mutation / Subscription) always ship — they name every operation
- * the endpoint offers — and the remaining named types follow until the
- * budget runs out, since real schemas can be megabytes.
- */
-const serializeGQLSchema = (schema: GraphQLSchema): string => {
-  const TOTAL_BUDGET = 9000
-  const ROOT_BUDGET = 3000
-
-  const parts: string[] = ["### GraphQL schema (introspected)"]
-  let used = parts[0].length
-
-  const roots = [
-    schema.getQueryType(),
-    schema.getMutationType(),
-    schema.getSubscriptionType(),
-  ].filter((t): t is NonNullable<typeof t> => !!t)
-  const rootNames = new Set(roots.map((t) => t.name))
-
-  for (const t of roots) {
-    const printed = truncate(printType(t), ROOT_BUDGET)
-    parts.push(printed)
-    used += printed.length
-  }
-
-  let truncated = false
-  for (const t of Object.values(schema.getTypeMap())) {
-    if (rootNames.has(t.name)) continue
-    if (isIntrospectionType(t) || isSpecifiedScalarType(t)) continue
-    const printed = printType(t)
-    if (used + printed.length > TOTAL_BUDGET) {
-      truncated = true
-      break
-    }
-    parts.push(printed)
-    used += printed.length
-  }
-  if (truncated) parts.push("…(schema truncated — more types exist)")
-
-  return parts.join("\n\n")
 }
 
 const serializeGQLRequest = (
@@ -159,9 +129,7 @@ const serializeGQLRequest = (
 
   const headers = (req.headers ?? []).filter((h) => h.active && h.key)
   if (headers.length) {
-    lines.push(
-      "Headers:\n" + headers.map((h) => `- ${h.key}: ${h.value}`).join("\n")
-    )
+    lines.push("Headers:\n" + headerLines(headers))
   }
 
   if (
@@ -173,7 +141,7 @@ const serializeGQLRequest = (
   }
 
   if (req.query?.trim()) {
-    lines.push(`Query:\n${truncate(req.query, 1500)}`)
+    lines.push(`Query:\n${truncate(req.query, BODY_CHARS)}`)
 
     // A document can hold several operations — spell them out so the model
     // can pick one via run_request { operation: "<name>" }.
@@ -191,9 +159,7 @@ const serializeGQLRequest = (
           .filter(Boolean)
           .join(", ")
         lines.push(
-          `The query document contains ${operations.length} operations: ${names}. ` +
-            `run_request executes the FIRST one unless you pass its name, ` +
-            `e.g. run_request { "operation": "<operationName>" }.`
+          `Operations in this document: ${names}. Pass the name to run_request to run one.`
         )
       }
     } catch (_e) {
@@ -205,17 +171,9 @@ const serializeGQLRequest = (
   }
 
   lines.push(
-    "Note: this is a GraphQL request tab. You can run it (run_request), save " +
-      "it (save_request), and edit it with set_query (the GraphQL query), " +
-      "set_gql_variables (the query variables JSON), set_url, " +
-      "add_or_update_headers / remove_header, set_bearer_auth, " +
-      "set_request_name, and the script tools. Body and query-param tools " +
-      "are REST-only." +
-      (hasSchema
-        ? " The introspected schema is provided in the context — write " +
-          "queries/mutations against it."
-        : " The endpoint isn't introspected yet — suggest connecting the " +
-          "GraphQL tab first before writing operations against unknown fields.")
+    hasSchema
+      ? "GraphQL tab; endpoint introspected — call get_graphql_schema before writing operations."
+      : "GraphQL tab; not introspected yet — suggest connecting the tab before writing operations against unknown fields."
   )
 
   return lines.join("\n")
@@ -244,7 +202,7 @@ const serializeGQLResponse = (events: GQLResponseEvent[]): string => {
     )
   }
   if (last.data?.trim()) {
-    lines.push(`Body (truncated):\n${truncate(last.data, 1500)}`)
+    lines.push(`Body (truncated):\n${truncate(last.data, BODY_CHARS)}`)
   }
 
   return lines.join("\n")
@@ -252,51 +210,43 @@ const serializeGQLResponse = (events: GQLResponseEvent[]): string => {
 
 const serializeEnvironment = (env: Environment, allNames: string[]): string => {
   const keys = (env.variables ?? []).map((v) => v.key).filter(Boolean)
+  const names = allNames.slice(0, MAX_ENV_NAMES)
+  const more = allNames.length - names.length
   return [
     "### Active environment",
     `Name: ${env.name || "—"}`,
     `Variables: ${keys.length ? keys.join(", ") : "none"}`,
-    `All environments: ${allNames.length ? allNames.join(", ") : "none"}`,
+    `All environments: ${
+      names.length
+        ? names.join(", ") + (more > 0 ? ` (+${more} more)` : "")
+        : "none"
+    }`,
   ].join("\n")
 }
 
-/** Compact outline of the collection tree — capped so context stays bounded. */
-const serializeCollections = (collections: HoppCollection[]): string => {
-  const lines: string[] = ["### Collections"]
-  let count = 0
-  const MAX = 80
+const roleLabel = (role: TeamAccessRole | null | undefined) =>
+  role ? ` (${String(role).toLowerCase()})` : ""
 
-  const walk = (nodes: HoppCollection[], depth: number) => {
-    for (const c of nodes) {
-      if (count >= MAX) return
-      lines.push(`${"  ".repeat(depth)}- ${c.name || "Untitled"}/`)
-      count += 1
-      for (const req of c.requests ?? []) {
-        if (count >= MAX) return
-        const r = req as HoppRESTRequest
-        lines.push(
-          `${"  ".repeat(depth + 1)}- ${r.method ?? "GET"} ${
-            r.name || r.endpoint || "request"
-          }`
-        )
-        count += 1
-      }
-      if (depth < 3) walk(c.folders ?? [], depth + 1)
-    }
-  }
-
-  walk(collections, 0)
-  if (count >= MAX) lines.push("…(truncated)")
-  return lines.join("\n")
-}
-
-const serializeWorkspace = (ws: Workspace): string =>
-  [
+const serializeWorkspace = (
+  ws: Workspace,
+  teams: Array<{ name: string; myRole?: TeamAccessRole | null }>
+): string => {
+  const names = teams
+    .slice(0, MAX_ENV_NAMES)
+    .map((t) => `${t.name}${roleLabel(t.myRole)}`)
+  const more = teams.length - names.length
+  return [
     "### Workspace",
     ws.type === "team"
-      ? `Team workspace "${ws.teamName}". New environments are created as team environments.`
-      : "Personal workspace. New environments are created as personal environments.",
+      ? `Team workspace "${ws.teamName}"${roleLabel(ws.role)}. Collections and environments here are the team's (shared).`
+      : "Personal workspace. Collections and environments here are personal.",
+    `Your teams: ${
+      names.length
+        ? names.join(", ") + (more > 0 ? ` (+${more} more)` : "")
+        : "none"
+    }. Use switch_workspace to change workspace.`,
   ].join("\n")
+}
 
 /**
  * Builds the live, toggleable context for the AI chat from whatever the user is
@@ -315,6 +265,29 @@ export function useChatContext() {
   )
   const allEnvironments = useReadonlyStream(environments$, [])
   const collections = useReadonlyStream(restCollections$, [])
+
+  // Team workspaces: the team list (for switching), team environments (their
+  // names), and the team collection tree (roots plus whatever is expanded).
+  const teamList = useReadonlyStream(
+    workspaceService.acquireTeamListAdapter(null).teamList$,
+    []
+  )
+  const teamEnvAdapter = new TeamEnvironmentAdapter(undefined)
+  const teamEnvironments = useReadonlyStream(
+    teamEnvAdapter.teamEnvironmentList$,
+    []
+  )
+  // The adapter opens GraphQL subscriptions per team — drop them with the
+  // component so a remounted layout does not double-subscribe.
+  tryOnScopeDispose(() => teamEnvAdapter.unsubscribeSubscriptions())
+  const teamCollectionService = useService(TeamCollectionsService)
+  watch(
+    workspaceService.currentWorkspace,
+    (ws) => {
+      teamEnvAdapter.changeTeamID(ws.type === "team" ? ws.teamID : undefined)
+    },
+    { immediate: true }
+  )
 
   const activeRequestDoc = computed(() => {
     const doc = restTabs.currentActiveTab.value?.document
@@ -338,7 +311,7 @@ export function useChatContext() {
         workspace.type === "team"
           ? `Team workspace: ${workspace.teamName}`
           : "Personal workspace",
-      serialize: () => serializeWorkspace(workspace),
+      serialize: () => serializeWorkspace(workspace, teamList.value ?? []),
     })
 
     const doc = activeRequestDoc.value
@@ -381,7 +354,10 @@ export function useChatContext() {
           id: "schema",
           label: "Schema",
           detail: "Introspected schema (queries, mutations, subscriptions)",
-          serialize: () => serializeGQLSchema(schema),
+          // The SDL is large and rarely needed — the assistant fetches it
+          // with get_graphql_schema when it writes an operation.
+          serialize: () =>
+            "### GraphQL schema\nIntrospected and available — call get_graphql_schema for the operation roots and types before writing queries.",
         })
       }
 
@@ -401,9 +377,11 @@ export function useChatContext() {
 
     const env = currentEnv.value
     if (env) {
-      const envNames = (allEnvironments.value ?? [])
-        .map((e) => e.name)
-        .filter(Boolean)
+      const envNames = (
+        workspace.type === "team"
+          ? (teamEnvironments.value ?? []).map((e) => e.environment.name)
+          : (allEnvironments.value ?? []).map((e) => e.name)
+      ).filter(Boolean)
       out.push({
         id: "environment",
         label: "Environment",
@@ -412,15 +390,35 @@ export function useChatContext() {
       })
     }
 
-    const collectionTree = collections.value ?? []
+    const collectionTree =
+      workspace.type === "team"
+        ? (teamCollectionService.collections.value ?? []).flatMap((c) => {
+            // A single collection with malformed `data` must not take the
+            // whole context down.
+            try {
+              return [teamCollToHoppRESTColl(c)]
+            } catch (_e) {
+              return []
+            }
+          })
+        : (collections.value ?? [])
     if (collectionTree.length) {
+      const names = collectionTree
+        .map((c) => c.name || "Untitled")
+        .slice(0, MAX_ENV_NAMES)
+      const more = collectionTree.length - names.length
       out.push({
         id: "collections",
         label: "Collections",
         detail: `${collectionTree.length} collection${
           collectionTree.length > 1 ? "s" : ""
         }`,
-        serialize: () => serializeCollections(collectionTree),
+        // Names only; the outline with requests is fetched on demand via
+        // list_collections (it is the largest piece of context otherwise).
+        serialize: () =>
+          `### Collections\n${names.join(", ")}${
+            more > 0 ? ` (+${more} more)` : ""
+          } — call list_collections for the outline with folders and requests.`,
       })
     }
 

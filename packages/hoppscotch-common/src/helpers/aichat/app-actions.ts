@@ -26,6 +26,20 @@ export const APP_ACTION_TOOLS = new Set<string>([
   "add_or_update_collection_requests",
   "open_request",
   "run_collection",
+  "create_team",
+  "switch_workspace",
+  "rename_team",
+  "set_collection_properties",
+  "set_request_description",
+  "set_collection_description",
+  "publish_documentation",
+  "unpublish_documentation",
+  "create_mock_server",
+  "list_mock_servers",
+  "update_mock_server",
+  "delete_mock_server",
+  "get_graphql_schema",
+  "list_collections",
 ])
 
 /** A stopword name that shouldn't be treated as a real environment name. */

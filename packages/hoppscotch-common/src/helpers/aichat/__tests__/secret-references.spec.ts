@@ -52,6 +52,34 @@ describe("replaceSensitiveChatValues", () => {
     expect(content).toBe("STRIPE_API_KEY=<<stripeSecretKey>>")
     expect(captured).toEqual([])
   })
+
+  test("does not re-capture an existing local reference", () => {
+    const captured: string[] = []
+    const content = replaceSensitiveChatValues(
+      "add header Authorization: Bearer <<local-ref:secret_1>>",
+      (secret) => {
+        captured.push(secret)
+        return `secret_${captured.length + 1}`
+      }
+    )
+    expect(content).toBe(
+      "add header Authorization: Bearer <<local-ref:secret_1>>"
+    )
+    expect(captured).toEqual([])
+  })
+
+  test("captures a whole cookie value as one secret", () => {
+    const captured: string[] = []
+    const content = replaceSensitiveChatValues(
+      "add header Cookie: session=abc123; theme=dark",
+      (secret) => {
+        captured.push(secret)
+        return `secret_${captured.length}`
+      }
+    )
+    expect(content).toBe("add header Cookie: <<local-ref:secret_1>>")
+    expect(captured).toEqual(["session=abc123; theme=dark"])
+  })
 })
 
 describe("redactSensitiveChatValues", () => {
@@ -60,7 +88,31 @@ describe("redactSensitiveChatValues", () => {
       redactSensitiveChatValues(
         "Authorization: Bearer sk_test_Secret\nwebhook=whsec_Secret"
       )
-    ).toBe("Authorization: [REDACTED]\nwebhook=[REDACTED]")
+    ).toBe("Authorization: Bearer [REDACTED]\nwebhook=[REDACTED]")
+  })
+
+  test("keeps JSON literals after keyword field names and redacts whole cookie values", () => {
+    expect(
+      redactSensitiveChatValues(
+        '{"secret":true,"password":{"type":"string"}}\nCookie: a=1; b=2\nAuthorization: Basic dXNlcjpwYXNz'
+      )
+    ).toBe(
+      '{"secret":true,"password":{"type":"string"}}\nCookie: [REDACTED]\nAuthorization: Basic [REDACTED]'
+    )
+  })
+
+  test("redacts bare JWTs but leaves prose and short sk- ids alone", () => {
+    expect(
+      redactSensitiveChatValues(
+        "how do I set a bearer token? eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.abcdefghij /sk-123/items"
+      )
+    ).toBe("how do I set a bearer token? [REDACTED] /sk-123/items")
+  })
+
+  test("stays linear on adversarial whitespace", () => {
+    const started = Date.now()
+    redactSensitiveChatValues(`password${" ".repeat(200_000)}x`)
+    expect(Date.now() - started).toBeLessThan(500)
   })
 
   test("keeps safe environment placeholders visible in request context", () => {

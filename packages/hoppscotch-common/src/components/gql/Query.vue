@@ -272,8 +272,19 @@ watch(
     // Let a same-tick query update land in the editor first so the position
     // exists in the document being addressed.
     await nextTick()
+    // The editor focuses itself when its cursor is set; a move requested by
+    // another surface (the chat) must not pull focus away from it.
+    const previouslyFocused = document.activeElement
     cmQueryEditor.cursor.value = pos
     queryBuilder.requestedCursor.value = null
+    await nextTick()
+    if (
+      previouslyFocused instanceof HTMLElement &&
+      previouslyFocused !== document.activeElement &&
+      previouslyFocused.isConnected
+    ) {
+      previouslyFocused.focus({ preventScroll: true })
+    }
   }
 )
 

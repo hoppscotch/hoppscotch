@@ -17,7 +17,7 @@ import IconChevronsLeft from "~icons/lucide/chevrons-left"
 import IconChevronsRight from "~icons/lucide/chevrons-right"
 import IconGlobe from "~icons/lucide/globe"
 import IconGraphql from "~icons/hopp/graphql"
-import { invokeAction } from "~/helpers/actions"
+import { invokeAction, isActionBound } from "~/helpers/actions"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { GQLTabService } from "~/services/tab/graphql"
 import { Container } from "dioc"
@@ -68,6 +68,10 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
     () => this.workspaceTab.currentActiveTab.value?.document.type
   )
 
+  // The switcher binds `tab.switch-protocol` only while it is mounted (REST
+  // page with the GQL-in-REST setting on) — offer nothing that would no-op.
+  private canSwitchProtocol = isActionBound("tab.switch-protocol")
+
   private documents: Record<string, Doc> = reactive({
     duplicate_tab: {
       text: [this.t("spotlight.tab.title"), this.t("spotlight.tab.duplicate")],
@@ -112,7 +116,9 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
       icon: markRaw(IconGraphql),
       excludeFromSearch: computed(
         () =>
-          this.route.name !== "index" || this.activeDocType.value !== "request"
+          this.route.name !== "index" ||
+          this.activeDocType.value !== "request" ||
+          !this.canSwitchProtocol.value
       ),
     },
     switch_protocol_rest: {
@@ -125,7 +131,8 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
       excludeFromSearch: computed(
         () =>
           this.route.name !== "index" ||
-          this.activeDocType.value !== "gql-request"
+          this.activeDocType.value !== "gql-request" ||
+          !this.canSwitchProtocol.value
       ),
     },
     // NOTE: Desktop-only actions

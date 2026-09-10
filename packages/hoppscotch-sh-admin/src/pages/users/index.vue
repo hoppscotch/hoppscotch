@@ -2,9 +2,17 @@
   <div class="flex flex-col">
     <!-- Table View for All Users -->
     <div class="flex flex-col">
-      <h1 class="text-lg font-bold text-secondaryDark">
-        {{ t('users.users') }}
-      </h1>
+      <div class="flex items-center space-x-2">
+        <h1 class="text-lg font-bold text-secondaryDark">
+          {{ t('users.users') }}
+        </h1>
+        <span
+          v-if="usersCount"
+          class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-primaryDark border border-divider text-secondaryLight"
+        >
+          {{ usersCount }}
+        </span>
+      </div>
       <div class="flex items-center space-x-4 mt-10 mb-5">
         <HoppButtonPrimary
           :label="t('users.invite_user')"
@@ -21,26 +29,45 @@
         </div>
       </div>
       <div class="overflow-x-auto mb-5">
-        <div class="mb-3 flex items-center justify-end">
-          <HoppButtonSecondary
-            outline
-            filled
-            :icon="IconLeft"
-            :disabled="page === 1"
-            @click="changePage(PageDirection.Previous)"
-          />
-
-          <div class="flex h-full w-10 items-center justify-center">
-            <span>{{ page }}</span>
+        <div class="mb-3 flex items-center justify-between">
+          <div class="text-xs text-secondaryLight">
+            <span v-if="!query && usersCount">
+              {{ (page - 1) * usersPerPage + 1 }}-{{
+                Math.min(page * usersPerPage, usersCount)
+              }}
+              of {{ usersCount }}
+            </span>
+            <span v-else-if="query">
+              {{ finalUsersList.length }} result(s)
+            </span>
           </div>
 
-          <HoppButtonSecondary
-            outline
-            filled
-            :icon="IconRight"
-            :disabled="page >= totalPages"
-            @click="changePage(PageDirection.Next)"
-          />
+          <div class="flex items-center">
+            <HoppButtonSecondary
+              outline
+              filled
+              :icon="IconLeft"
+              :disabled="page === 1"
+              @click="changePage(PageDirection.Previous)"
+            />
+
+            <div
+              class="flex h-full min-w-10 px-2 items-center justify-center text-sm font-medium"
+            >
+              <span>
+                {{ page }}
+                <template v-if="totalPages > 1"> / {{ totalPages }}</template>
+              </span>
+            </div>
+
+            <HoppButtonSecondary
+              outline
+              filled
+              :icon="IconRight"
+              :disabled="page >= totalPages"
+              @click="changePage(PageDirection.Next)"
+            />
+          </div>
         </div>
 
         <HoppSmartTable
@@ -162,6 +189,51 @@
             </td>
           </template>
         </HoppSmartTable>
+
+        <!-- Bottom Pagination -->
+        <div
+          v-if="finalUsersList.length > 0"
+          class="mt-4 flex items-center justify-between"
+        >
+          <div class="text-xs text-secondaryLight">
+            <span v-if="!query && usersCount">
+              {{ (page - 1) * usersPerPage + 1 }}-{{
+                Math.min(page * usersPerPage, usersCount)
+              }}
+              of {{ usersCount }}
+            </span>
+            <span v-else-if="query">
+              {{ finalUsersList.length }} result(s)
+            </span>
+          </div>
+
+          <div class="flex items-center">
+            <HoppButtonSecondary
+              outline
+              filled
+              :icon="IconLeft"
+              :disabled="page === 1"
+              @click="changePage(PageDirection.Previous)"
+            />
+
+            <div
+              class="flex h-full min-w-10 px-2 items-center justify-center text-sm font-medium"
+            >
+              <span>
+                {{ page }}
+                <template v-if="totalPages > 1"> / {{ totalPages }}</template>
+              </span>
+            </div>
+
+            <HoppButtonSecondary
+              outline
+              filled
+              :icon="IconRight"
+              :disabled="page >= totalPages"
+              @click="changePage(PageDirection.Next)"
+            />
+          </div>
+        </div>
 
         <!-- Actions for Selected Rows -->
         <div

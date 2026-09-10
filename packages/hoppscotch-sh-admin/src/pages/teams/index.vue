@@ -1,9 +1,17 @@
 <template>
   <div class="flex flex-col">
     <div class="flex flex-col">
-      <h1 class="text-lg font-bold text-secondaryDark">
-        {{ t('teams.teams') }}
-      </h1>
+      <div class="flex items-center space-x-2">
+        <h1 class="text-lg font-bold text-secondaryDark">
+          {{ t('teams.teams') }}
+        </h1>
+        <span
+          v-if="teamsCount"
+          class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-primaryDark border border-divider text-secondaryLight"
+        >
+          {{ teamsCount }}
+        </span>
+      </div>
       <div class="flex items-center mt-10 mb-5">
         <HoppButtonPrimary
           :icon="IconAddUsers"
@@ -12,26 +20,47 @@
         />
       </div>
       <div class="overflow-x-auto mb-5">
-        <div class="mb-3 flex items-center justify-end">
-          <HoppButtonSecondary
-            outline
-            filled
-            :icon="IconLeft"
-            :disabled="page === 1"
-            @click="changePage(PageDirection.Previous)"
-          />
-
-          <div class="flex h-full w-10 items-center justify-center">
-            <span>{{ page }}</span>
+        <div class="mb-3 flex items-center justify-between">
+          <div class="text-xs text-secondaryLight">
+            <span v-if="!searchQuery && teamsCount">
+              {{ (page - 1) * teamsPerPage + 1 }}-{{
+                Math.min(page * teamsPerPage, teamsCount)
+              }}
+              of {{ teamsCount }}
+            </span>
+            <span v-else-if="searchQuery">
+              {{ teamsList.length }} result(s)
+            </span>
           </div>
 
-          <HoppButtonSecondary
-            outline
-            filled
-            :icon="IconRight"
-            :disabled="!hasNextPage"
-            @click="changePage(PageDirection.Next)"
-          />
+          <div class="flex items-center">
+            <HoppButtonSecondary
+              outline
+              filled
+              :icon="IconLeft"
+              :disabled="page === 1"
+              @click="changePage(PageDirection.Previous)"
+            />
+
+            <div
+              class="flex h-full min-w-10 px-2 items-center justify-center text-sm font-medium"
+            >
+              <span>
+                {{ page }}
+                <template v-if="!searchQuery && totalPages > 1">
+                  / {{ totalPages }}
+                </template>
+              </span>
+            </div>
+
+            <HoppButtonSecondary
+              outline
+              filled
+              :icon="IconRight"
+              :disabled="!hasNextPage"
+              @click="changePage(PageDirection.Next)"
+            />
+          </div>
         </div>
 
         <HoppSmartTable
@@ -130,6 +159,53 @@
             </td>
           </template>
         </HoppSmartTable>
+
+        <!-- Bottom Pagination -->
+        <div
+          v-if="teamsList.length > 0"
+          class="mt-4 flex items-center justify-between"
+        >
+          <div class="text-xs text-secondaryLight">
+            <span v-if="!searchQuery && teamsCount">
+              {{ (page - 1) * teamsPerPage + 1 }}-{{
+                Math.min(page * teamsPerPage, teamsCount)
+              }}
+              of {{ teamsCount }}
+            </span>
+            <span v-else-if="searchQuery">
+              {{ teamsList.length }} result(s)
+            </span>
+          </div>
+
+          <div class="flex items-center">
+            <HoppButtonSecondary
+              outline
+              filled
+              :icon="IconLeft"
+              :disabled="page === 1"
+              @click="changePage(PageDirection.Previous)"
+            />
+
+            <div
+              class="flex h-full min-w-10 px-2 items-center justify-center text-sm font-medium"
+            >
+              <span>
+                {{ page }}
+                <template v-if="!searchQuery && totalPages > 1">
+                  / {{ totalPages }}
+                </template>
+              </span>
+            </div>
+
+            <HoppButtonSecondary
+              outline
+              filled
+              :icon="IconRight"
+              :disabled="!hasNextPage"
+              @click="changePage(PageDirection.Next)"
+            />
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -174,8 +250,12 @@ const t = useI18n();
 const toast = useToast();
 
 // Get Users List (for team creation modal)
-const { data } = useQuery({ query: MetricsDocument, variables: {} });
+const { data, executeQuery: refetchMetrics } = useQuery({
+  query: MetricsDocument,
+  variables: {},
+});
 const usersPerPage = computed(() => data.value?.infra.usersCount || 10000);
+const teamsCount = computed(() => data.value?.infra.teamsCount ?? 0);
 
 const { list: usersList } = usePagedQuery(
   UsersListDocument,
@@ -246,6 +326,13 @@ const {
 const teamsRaw = computed(() => teamsData.value?.infra.allTeamsV2 ?? []);
 const hasNextPage = computed(() => teamsRaw.value.length > teamsPerPage);
 const teamsList = computed(() => teamsRaw.value.slice(0, teamsPerPage));
+const totalPages = computed(() => {
+  if (!teamsCount.value) return 1;
+  if (searchQuery.value) {
+    return hasNextPage.value ? page.value + 1 : page.value;
+  }
+  return Math.max(1, Math.ceil(teamsCount.value / teamsPerPage));
+});
 const refetch = () => executeQuery({ requestPolicy: 'network-only' });
 
 // If a page loads empty and we're not on page 1, auto-regress
@@ -312,6 +399,7 @@ const createTeam = async (newTeamName: string, ownerEmail: string) => {
     toast.success(t('state.create_team_success'));
     showCreateTeamModal.value = false;
     refetch();
+    refetchMetrics({ requestPolicy: 'network-only' });
   }
   createTeamLoading.value = false;
 };
@@ -348,6 +436,7 @@ const deleteTeamMutation = async (id: string | null) => {
     } else {
       refetch();
     }
+    refetchMetrics({ requestPolicy: 'network-only' });
   }
   confirmDeletion.value = false;
   deleteTeamID.value = null;

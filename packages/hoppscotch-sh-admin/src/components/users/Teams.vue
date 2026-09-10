@@ -1,6 +1,6 @@
 <template>
   <div class="px-4 mt-7">
-    <div v-if="fetching" class="flex justify-center">
+    <div v-if="fetching && teams.length === 0" class="flex justify-center">
       <HoppSmartSpinner />
     </div>
 
@@ -10,45 +10,55 @@
       {{ t('user_teams.no_teams') }}
     </div>
 
-    <HoppSmartTable v-else :headings="headings" :list="teams">
-      <template #head>
-        <th class="px-6 py-2">{{ t('user_teams.workspace_name') }}</th>
-        <th class="px-6 py-2">{{ t('user_teams.workspace_id') }}</th>
-        <th class="px-6 py-2">{{ t('user_teams.role') }}</th>
-      </template>
-      <template #body="{ row: team }">
-        <td class="py-4 px-7 max-w-50">
-          <RouterLink
-            :to="`/teams/${team.id}`"
-            class="text-accent hover:underline"
-          >
-            {{ team.name }}
-          </RouterLink>
-        </td>
-        <td class="py-4 px-7">
-          <span class="font-mono text-secondaryDark text-sm">{{
-            team.id
-          }}</span>
-        </td>
-        <td class="py-4 px-7">
-          <span
-            class="text-xs font-medium px-2.5 py-0.5 rounded-full"
-            :class="roleBadgeClass(team.role)"
-          >
-            {{ team.role ?? t('user_teams.role_unknown') }}
-          </span>
-        </td>
-      </template>
-    </HoppSmartTable>
+    <template v-else>
+      <div class="mb-3 flex items-center justify-between">
+        <span class="text-xs text-secondaryLight">
+          Showing {{ teams.length }} {{ t('user_teams.title').toLowerCase() }}
+        </span>
+      </div>
 
-    <div
-      v-if="hasNextPage && teams.length >= teamsPerPage"
-      class="flex items-center w-28 px-3 py-2 mt-5 mx-auto font-semibold text-secondaryDark bg-divider hover:bg-dividerDark rounded-3xl cursor-pointer"
-      @click="fetchNextTeams"
-    >
-      <span class="mr-2">{{ t('user_teams.show_more') }}</span>
-      <icon-lucide-chevron-down />
-    </div>
+      <HoppSmartTable :headings="headings" :list="teams">
+        <template #head>
+          <th class="px-6 py-2">{{ t('user_teams.workspace_name') }}</th>
+          <th class="px-6 py-2">{{ t('user_teams.workspace_id') }}</th>
+          <th class="px-6 py-2">{{ t('user_teams.role') }}</th>
+        </template>
+        <template #body="{ row: team }">
+          <td class="py-4 px-7 max-w-50">
+            <RouterLink
+              :to="`/teams/${team.id}`"
+              class="text-accent hover:underline"
+            >
+              {{ team.name }}
+            </RouterLink>
+          </td>
+          <td class="py-4 px-7">
+            <span class="font-mono text-secondaryDark text-sm">{{
+              team.id
+            }}</span>
+          </td>
+          <td class="py-4 px-7">
+            <span
+              class="text-xs font-medium px-2.5 py-0.5 rounded-full"
+              :class="roleBadgeClass(team.role)"
+            >
+              {{ team.role ?? t('user_teams.role_unknown') }}
+            </span>
+          </td>
+        </template>
+      </HoppSmartTable>
+
+      <div
+        v-if="hasNextPage && teams.length >= teamsPerPage"
+        class="flex items-center w-28 px-3 py-2 mt-5 mx-auto font-semibold text-secondaryDark bg-divider hover:bg-dividerDark rounded-3xl cursor-pointer"
+        :class="{ 'opacity-50 pointer-events-none': fetching }"
+        @click="fetchNextTeams"
+      >
+        <span class="mr-2">{{ t('user_teams.show_more') }}</span>
+        <icon-lucide-chevron-down v-if="!fetching" />
+        <HoppSmartSpinner v-else class="w-4 h-4" />
+      </div>
+    </template>
   </div>
 </template>
 
@@ -67,7 +77,7 @@ const props = defineProps<{
   userUid: string;
 }>();
 
-const teamsPerPage = 10;
+const teamsPerPage = 20;
 
 const {
   fetching,

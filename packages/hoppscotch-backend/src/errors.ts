@@ -1010,3 +1010,9 @@ export const AI_EXPERIMENTS_INVALID_CHAT_INPUT =
  */
 export const AI_EXPERIMENTS_CHAT_INPUT_TOO_LARGE =
   'ai_experiments/chat_input_too_large';
+
+/**
+ * AI chat is disabled on this instance (AI_CHAT_ENABLED / ANTHROPIC_API_KEY
+ * not configured) (AIExperimentsService)
+ */
+export const AI_EXPERIMENTS_CHAT_DISABLED = 'ai_experiments/chat_disabled';

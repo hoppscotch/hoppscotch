@@ -370,6 +370,9 @@
     "require_auth_provider": "คุณต้องตั้งค่าผู้ให้บริการการยืนยันตัวตนอย่างน้อยหนึ่งรายเพื่อเข้าสู่ระบบ",
     "role_update_failed": "อัปเดตบทบาทไม่สำเร็จ!!",
     "role_update_success": "อัปเดตบทบาทสำเร็จแล้ว!!",
+    "page_range": "{start}-{end} จาก {total}",
+    "showing_range": "แสดง {start}-{end}",
+    "results": "{count} รายการ",
     "selected": "เลือกแล้ว {count} รายการ",
     "self_host_docs": "เอกสารประกอบการโฮสต์ด้วยตนเอง",
     "send_magic_link": "ส่งลิงก์เวทมนตร์",
@@ -455,6 +458,7 @@
     "role": "บทบาท",
     "role_unknown": "ไม่ทราบ",
     "show_more": "แสดงเพิ่มเติม",
+    "showing_workspaces": "แสดง {count} พื้นที่ทำงาน",
     "title": "พื้นที่ทำงาน",
     "workspace_id": "Workspace ID",
     "workspace_name": "ชื่อพื้นที่ทำงาน"

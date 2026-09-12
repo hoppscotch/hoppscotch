@@ -116,6 +116,7 @@ declare module 'vue' {
     EmbedsRequest: typeof import('./components/embeds/Request.vue')['default']
     Environments: typeof import('./components/environments/index.vue')['default']
     EnvironmentsAdd: typeof import('./components/environments/Add.vue')['default']
+    EnvironmentsCurrentValueInput: typeof import('./components/environments/CurrentValueInput.vue')['default']
     EnvironmentsImportExport: typeof import('./components/environments/ImportExport.vue')['default']
     EnvironmentsMy: typeof import('./components/environments/my/index.vue')['default']
     EnvironmentsMyDetails: typeof import('./components/environments/my/Details.vue')['default']

@@ -22,7 +22,7 @@
       <div class="overflow-x-auto mb-5">
         <div class="mb-3 flex items-center justify-between">
           <div class="text-xs text-secondaryLight">
-            <span v-if="!searchQuery && typeof teamsCount === 'number'">
+            <span v-if="!searchQuery && teamsCount && teamsCount > 0">
               {{
                 t('state.page_range', {
                   start: (page - 1) * teamsPerPage + 1,
@@ -179,7 +179,7 @@
           class="mt-4 flex items-center justify-between"
         >
           <div class="text-xs text-secondaryLight">
-            <span v-if="!searchQuery && typeof teamsCount === 'number'">
+            <span v-if="!searchQuery && teamsCount && teamsCount > 0">
               {{
                 t('state.page_range', {
                   start: (page - 1) * teamsPerPage + 1,

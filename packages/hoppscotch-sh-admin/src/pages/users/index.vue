@@ -31,7 +31,7 @@
       <div class="overflow-x-auto mb-5">
         <div class="mb-3 flex items-center justify-between">
           <div class="text-xs text-secondaryLight">
-            <span v-if="!searchQuery && typeof usersCount === 'number'">
+            <span v-if="!searchQuery && usersCount && usersCount > 0">
               {{
                 t('state.page_range', {
                   start: (page - 1) * usersPerPage + 1,
@@ -210,7 +210,7 @@
           class="mt-4 flex items-center justify-between"
         >
           <div class="text-xs text-secondaryLight">
-            <span v-if="!searchQuery && typeof usersCount === 'number'">
+            <span v-if="!searchQuery && usersCount && usersCount > 0">
               {{
                 t('state.page_range', {
                   start: (page - 1) * usersPerPage + 1,
@@ -493,6 +493,13 @@ watch(query, () => {
   }
 });
 
+// Re-run active search if usersCount resolves after the initial search
+watch(usersCount, (newCount, oldCount) => {
+  if (!oldCount && newCount && searchQuery.value.length > 0) {
+    handleSearch(searchQuery.value);
+  }
+});
+
 // Final Users List after Search and Pagination operations
 const finalUsersList = computed(() =>
   // If search query is present, filter the list based on the search query and return the paginated results
@@ -762,11 +769,19 @@ const deleteUsers = async (id: string | null) => {
     selectedRows.value.splice(0, selectedRows.value.length);
     refetchMetrics({ requestPolicy: 'network-only' });
 
-    if (!searchQuery.value) {
+    if (searchQuery.value) {
+      if (page.value > totalPages.value) {
+        page.value = Math.max(1, totalPages.value);
+      }
+    } else {
       if (usersList.value.length === 0 && page.value > 1) {
         page.value -= 1;
       } else {
-        refetch();
+        refetch({
+          searchString: '',
+          take: usersPerPage,
+          skip: (page.value - 1) * usersPerPage,
+        });
       }
     }
   }

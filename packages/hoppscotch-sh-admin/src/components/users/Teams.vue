@@ -4,7 +4,9 @@
       <HoppSmartSpinner />
     </div>
 
-    <div v-else-if="error">{{ t('user_teams.load_error') }}</div>
+    <div v-else-if="error && teams.length === 0">
+      {{ t('user_teams.load_error') }}
+    </div>
 
     <div v-else-if="teams.length === 0">
       {{ t('user_teams.no_teams') }}

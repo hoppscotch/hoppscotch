@@ -412,6 +412,12 @@ const headings = [
 // Get Paginated Results of all the users in the infra
 const usersPerPage = 20;
 
+const { data, executeQuery: refetchMetrics } = useQuery({
+  query: MetricsDocument,
+  variables: {},
+});
+const usersCount = computed(() => data?.value?.infra.usersCount);
+
 const {
   fetching,
   error,
@@ -472,9 +478,14 @@ const handleSearch = async (input: string) => {
     });
   } else {
     // If search query is present, fetch all the users filtered by the search query
+    let totalUsers = usersCount.value;
+    if (!totalUsers) {
+      const res = await refetchMetrics();
+      totalUsers = res.data?.value?.infra.usersCount;
+    }
     await refetch({
       searchString: input,
-      take: usersCount.value || 10000,
+      take: totalUsers,
       skip: 0,
     });
   }
@@ -490,13 +501,6 @@ watch(query, () => {
     debounce(() => {
       handleSearch(query.value);
     }, 500);
-  }
-});
-
-// Re-run active search if usersCount resolves after the initial search
-watch(usersCount, (newCount, oldCount) => {
-  if (!oldCount && newCount && searchQuery.value.length > 0) {
-    handleSearch(searchQuery.value);
   }
 });
 
@@ -531,11 +535,6 @@ enum PageDirection {
 }
 
 const page = ref(1);
-const { data, executeQuery: refetchMetrics } = useQuery({
-  query: MetricsDocument,
-  variables: {},
-});
-const usersCount = computed(() => data?.value?.infra.usersCount);
 
 const changePage = (direction: PageDirection) => {
   const isPrevious = direction === PageDirection.Previous;
@@ -769,20 +768,14 @@ const deleteUsers = async (id: string | null) => {
     selectedRows.value.splice(0, selectedRows.value.length);
     refetchMetrics({ requestPolicy: 'network-only' });
 
-    if (searchQuery.value) {
-      if (page.value > totalPages.value) {
-        page.value = Math.max(1, totalPages.value);
-      }
-    } else {
-      if (usersList.value.length === 0 && page.value > 1) {
-        page.value -= 1;
-      } else {
-        refetch({
-          searchString: '',
-          take: usersPerPage,
-          skip: (page.value - 1) * usersPerPage,
-        });
-      }
+    if (page.value > totalPages.value) {
+      page.value = Math.max(1, totalPages.value);
+    } else if (!searchQuery.value) {
+      refetch({
+        searchString: '',
+        take: usersPerPage,
+        skip: (page.value - 1) * usersPerPage,
+      });
     }
   }
   confirmUsersDeletion.value = false;

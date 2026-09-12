@@ -35,22 +35,13 @@ impl<'a> HeadersBuilder<'a> {
         let list = header_map
             .iter()
             .map(|(key, value)| {
-                let key_str = key.as_str();
-                let value_str = value.to_str().unwrap_or("");
                 tracing::debug!(
-                    key = ?key_str,
-                    value_count = value_str.len(),
-                    value = ?value_str,
+                    key = ?key.as_str(),
+                    value_count = value.as_bytes().len(),
                     "Processing headers"
                 );
-                // A colon with no value tells libcurl to remove the header.
-                // A trailing semicolon sends an explicitly empty value instead.
-                let header = if value_str.is_empty() {
-                    format!("{};", key_str)
-                } else {
-                    format!("{}: {}", key_str, value_str)
-                };
-                tracing::debug!(%header, "Adding header");
+                let header = header_entry(key, value);
+                tracing::debug!(header = ?header, "Adding header");
                 header
             })
             .try_fold(List::new(), |mut list, header| {
@@ -74,6 +65,26 @@ impl<'a> HeadersBuilder<'a> {
     }
 }
 
+/// Builds the libcurl header list entry for a header/value pair.
+///
+/// libcurl interprets `Name: ` with no value as an instruction to remove the
+/// header, and `Name;` as an explicitly empty value. Emptiness must be decided
+/// from the raw value bytes, not from a string conversion: `to_str()` fails
+/// for non-UTF-8 values and would otherwise turn a nonempty value into `Name;`.
+/// The curl binding only accepts UTF-8 strings, so non-UTF-8 values are
+/// forwarded via a lossy conversion instead of being dropped or emptied.
+fn header_entry(key: &HeaderName, value: &HeaderValue) -> String {
+    if value.as_bytes().is_empty() {
+        format!("{};", key.as_str())
+    } else {
+        format!(
+            "{}: {}",
+            key.as_str(),
+            String::from_utf8_lossy(value.as_bytes())
+        )
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -81,6 +92,36 @@ mod tests {
     use std::net::TcpListener;
     use std::thread;
     use std::time::{Duration, Instant};
+
+    #[test]
+    fn empty_value_uses_semicolon_syntax() {
+        let key = HeaderName::from_str("x-test").unwrap();
+        let value = HeaderValue::from_bytes(b"").unwrap();
+        assert_eq!(header_entry(&key, &value), "x-test;");
+    }
+
+    #[test]
+    fn nonempty_ascii_value_keeps_colon_format() {
+        let key = HeaderName::from_str("x-test").unwrap();
+        let value = HeaderValue::from_str("hello").unwrap();
+        assert_eq!(header_entry(&key, &value), "x-test: hello");
+    }
+
+    #[test]
+    fn value_containing_colon_is_not_treated_as_empty() {
+        let key = HeaderName::from_str("x-test").unwrap();
+        let value = HeaderValue::from_str("abc:def").unwrap();
+        assert_eq!(header_entry(&key, &value), "x-test: abc:def");
+    }
+
+    #[test]
+    fn non_utf8_value_is_not_treated_as_empty() {
+        let key = HeaderName::from_str("x-test").unwrap();
+        let value = HeaderValue::from_bytes(b"hello \xFF world").unwrap();
+        let entry = header_entry(&key, &value);
+        assert!(entry.starts_with("x-test: "), "unexpected entry: {entry}");
+        assert_ne!(entry, "x-test;");
+    }
 
     #[test]
     fn sends_empty_and_nonempty_headers_over_http() {

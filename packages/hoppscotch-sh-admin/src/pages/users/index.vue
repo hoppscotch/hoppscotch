@@ -7,7 +7,7 @@
           {{ t('users.users') }}
         </h1>
         <span
-          v-if="usersCount"
+          v-if="typeof usersCount === 'number'"
           class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-primaryDark border border-divider text-secondaryLight"
         >
           {{ usersCount }}
@@ -31,14 +31,28 @@
       <div class="overflow-x-auto mb-5">
         <div class="mb-3 flex items-center justify-between">
           <div class="text-xs text-secondaryLight">
-            <span v-if="!query && usersCount">
-              {{ (page - 1) * usersPerPage + 1 }}-{{
-                Math.min(page * usersPerPage, usersCount)
+            <span v-if="!searchQuery && typeof usersCount === 'number'">
+              {{
+                t('state.page_range', {
+                  start: (page - 1) * usersPerPage + 1,
+                  end: Math.min(page * usersPerPage, usersCount),
+                  total: usersCount,
+                })
               }}
-              of {{ usersCount }}
             </span>
-            <span v-else-if="query">
-              {{ finalUsersList.length }} result(s)
+            <span v-else-if="searchQuery">
+              <template v-if="totalPages <= 1">
+                {{ t('state.results', { count: usersList.length }) }}
+              </template>
+              <template v-else>
+                {{
+                  t('state.page_range', {
+                    start: (page - 1) * usersPerPage + 1,
+                    end: Math.min(page * usersPerPage, usersList.length),
+                    total: usersList.length,
+                  })
+                }}
+              </template>
             </span>
           </div>
 
@@ -196,14 +210,28 @@
           class="mt-4 flex items-center justify-between"
         >
           <div class="text-xs text-secondaryLight">
-            <span v-if="!query && usersCount">
-              {{ (page - 1) * usersPerPage + 1 }}-{{
-                Math.min(page * usersPerPage, usersCount)
+            <span v-if="!searchQuery && typeof usersCount === 'number'">
+              {{
+                t('state.page_range', {
+                  start: (page - 1) * usersPerPage + 1,
+                  end: Math.min(page * usersPerPage, usersCount),
+                  total: usersCount,
+                })
               }}
-              of {{ usersCount }}
             </span>
-            <span v-else-if="query">
-              {{ finalUsersList.length }} result(s)
+            <span v-else-if="searchQuery">
+              <template v-if="totalPages <= 1">
+                {{ t('state.results', { count: usersList.length }) }}
+              </template>
+              <template v-else>
+                {{
+                  t('state.page_range', {
+                    start: (page - 1) * usersPerPage + 1,
+                    end: Math.min(page * usersPerPage, usersList.length),
+                    total: usersList.length,
+                  })
+                }}
+              </template>
             </span>
           </div>
 
@@ -444,7 +472,11 @@ const handleSearch = async (input: string) => {
     });
   } else {
     // If search query is present, fetch all the users filtered by the search query
-    await refetch({ searchString: input, take: usersCount.value!, skip: 0 });
+    await refetch({
+      searchString: input,
+      take: usersCount.value || 10000,
+      skip: 0,
+    });
   }
 
   // Reset the page to 1 when the search query changes
@@ -492,7 +524,10 @@ enum PageDirection {
 }
 
 const page = ref(1);
-const { data } = useQuery({ query: MetricsDocument, variables: {} });
+const { data, executeQuery: refetchMetrics } = useQuery({
+  query: MetricsDocument,
+  variables: {},
+});
 const usersCount = computed(() => data?.value?.infra.usersCount);
 
 const changePage = (direction: PageDirection) => {
@@ -507,11 +542,11 @@ const changePage = (direction: PageDirection) => {
 };
 
 const totalPages = computed(() => {
-  if (!usersCount.value) return 0;
-  if (query.value.length > 0) {
-    return Math.ceil(usersList.value.length / usersPerPage);
+  if (searchQuery.value.length > 0) {
+    return Math.max(1, Math.ceil(usersList.value.length / usersPerPage));
   }
-  return Math.ceil(usersCount.value / usersPerPage);
+  if (!usersCount.value) return 1;
+  return Math.max(1, Math.ceil(usersCount.value / usersPerPage));
 });
 
 watch(page, async () => {
@@ -519,7 +554,7 @@ watch(page, async () => {
     return;
   }
   // Show spinner when moving to a different page when search query is present
-  else if (query.value.length > 0) {
+  else if (searchQuery.value.length > 0) {
     showSpinner.value = true;
     debounce(() => (showSpinner.value = false), 500);
   } else {
@@ -725,6 +760,15 @@ const deleteUsers = async (id: string | null) => {
     );
 
     selectedRows.value.splice(0, selectedRows.value.length);
+    refetchMetrics({ requestPolicy: 'network-only' });
+
+    if (!searchQuery.value) {
+      if (usersList.value.length === 0 && page.value > 1) {
+        page.value -= 1;
+      } else {
+        refetch();
+      }
+    }
   }
   confirmUsersDeletion.value = false;
   deleteUserUID.value = null;

@@ -6,7 +6,7 @@
           {{ t('teams.teams') }}
         </h1>
         <span
-          v-if="teamsCount"
+          v-if="typeof teamsCount === 'number'"
           class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-primaryDark border border-divider text-secondaryLight"
         >
           {{ teamsCount }}
@@ -22,14 +22,27 @@
       <div class="overflow-x-auto mb-5">
         <div class="mb-3 flex items-center justify-between">
           <div class="text-xs text-secondaryLight">
-            <span v-if="!searchQuery && teamsCount">
-              {{ (page - 1) * teamsPerPage + 1 }}-{{
-                Math.min(page * teamsPerPage, teamsCount)
+            <span v-if="!searchQuery && typeof teamsCount === 'number'">
+              {{
+                t('state.page_range', {
+                  start: (page - 1) * teamsPerPage + 1,
+                  end: Math.min(page * teamsPerPage, teamsCount),
+                  total: teamsCount,
+                })
               }}
-              of {{ teamsCount }}
             </span>
             <span v-else-if="searchQuery">
-              {{ teamsList.length }} result(s)
+              <template v-if="page === 1 && !hasNextPage">
+                {{ t('state.results', { count: teamsList.length }) }}
+              </template>
+              <template v-else>
+                {{
+                  t('state.showing_range', {
+                    start: (page - 1) * teamsPerPage + 1,
+                    end: (page - 1) * teamsPerPage + teamsList.length,
+                  })
+                }}
+              </template>
             </span>
           </div>
 
@@ -166,14 +179,27 @@
           class="mt-4 flex items-center justify-between"
         >
           <div class="text-xs text-secondaryLight">
-            <span v-if="!searchQuery && teamsCount">
-              {{ (page - 1) * teamsPerPage + 1 }}-{{
-                Math.min(page * teamsPerPage, teamsCount)
+            <span v-if="!searchQuery && typeof teamsCount === 'number'">
+              {{
+                t('state.page_range', {
+                  start: (page - 1) * teamsPerPage + 1,
+                  end: Math.min(page * teamsPerPage, teamsCount),
+                  total: teamsCount,
+                })
               }}
-              of {{ teamsCount }}
             </span>
             <span v-else-if="searchQuery">
-              {{ teamsList.length }} result(s)
+              <template v-if="page === 1 && !hasNextPage">
+                {{ t('state.results', { count: teamsList.length }) }}
+              </template>
+              <template v-else>
+                {{
+                  t('state.showing_range', {
+                    start: (page - 1) * teamsPerPage + 1,
+                    end: (page - 1) * teamsPerPage + teamsList.length,
+                  })
+                }}
+              </template>
             </span>
           </div>
 
@@ -255,7 +281,7 @@ const { data, executeQuery: refetchMetrics } = useQuery({
   variables: {},
 });
 const usersPerPage = computed(() => data.value?.infra.usersCount || 10000);
-const teamsCount = computed(() => data.value?.infra.teamsCount ?? 0);
+const teamsCount = computed(() => data.value?.infra.teamsCount);
 
 const { list: usersList } = usePagedQuery(
   UsersListDocument,

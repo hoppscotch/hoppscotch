@@ -13,7 +13,7 @@
     <template v-else>
       <div class="mb-3 flex items-center justify-between">
         <span class="text-xs text-secondaryLight">
-          Showing {{ teams.length }} {{ t('user_teams.title').toLowerCase() }}
+          {{ t('user_teams.showing_workspaces', { count: teams.length }) }}
         </span>
       </div>
 

@@ -23,7 +23,7 @@
 import IconArrowLeft from "~icons/lucide/arrow-left"
 
 import { useI18n } from "~/composables/i18n"
-import { computed, PropType, ref, watch } from "vue"
+import { computed, onMounted, PropType, ref, watch } from "vue"
 
 import { useSteps, defineStep } from "~/composables/step-components"
 import ImportExportList from "./ImportExportList.vue"
@@ -53,6 +53,14 @@ const props = defineProps({
   hasTeamWriteAccess: {
     type: Boolean,
     default: false,
+  },
+  defaultImporterId: {
+    type: String,
+    default: undefined,
+  },
+  defaultSourceId: {
+    type: String,
+    default: undefined,
   },
 })
 
@@ -92,6 +100,7 @@ const chooseImporterOrExporter = defineStep(
       loading: exporter.metadata.isLoading?.value ?? false,
     })),
     hasTeamWriteAccess: props.hasTeamWriteAccess,
+    lastUsedImporterId: props.defaultImporterId,
     "onImporter-selected": (id: string) => {
       selectedImporterID.value = id
 
@@ -156,6 +165,7 @@ const chooseImportSource = defineStep(
         name: source.name,
         icon: source.icon,
       })),
+      lastUsedSourceId: props.defaultSourceId,
       "onImport-source-selected": (sourceID) => {
         selectedSourceID.value = sourceID
 
@@ -171,6 +181,35 @@ const chooseImportSource = defineStep(
 
 addStep(chooseImporterOrExporter)
 addStep(chooseImportSource)
+
+onMounted(() => {
+  if (props.defaultImporterId) {
+    const selectedImporter = props.importerModules.find(
+      (i) => i.metadata.id === props.defaultImporterId
+    )
+    if (selectedImporter) {
+      selectedImporterID.value = props.defaultImporterId
+
+      if (selectedImporter.supported_sources) {
+        goToNextStep()
+        const sources = selectedImporter.supported_sources
+        sources.forEach((source) => {
+          addStep(source.step)
+        })
+        if (props.defaultSourceId) {
+          const sourceStep = sources.find(
+            (s) => s.id === props.defaultSourceId
+          )?.step
+          if (sourceStep) {
+            goToStep(sourceStep.id)
+          }
+        }
+      } else if (selectedImporter.component) {
+        goToStep(selectedImporter.component.id)
+      }
+    }
+  }
+})
 
 const selectedImporterImportSummary = computed(() => {
   const importer = props.importerModules.find(

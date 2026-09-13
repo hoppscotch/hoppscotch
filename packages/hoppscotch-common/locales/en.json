@@ -373,7 +373,11 @@
     "requests_preserved": "Requests preserved",
     "folders_updated": "Folders updated",
     "folders_added": "Folders added",
-    "scripts_preserved": "Custom scripts preserved"
+    "scripts_preserved": "Custom scripts preserved",
+    "last_used": "Last used",
+    "previous_source_file": "Previous file",
+    "previous_source_url": "Previous URL",
+    "last_updated_at": "Last updated"
   },
   "confirm": {
     "close_unsaved_tab": "Are you sure you want to close this tab?",

@@ -128,6 +128,7 @@ const props = withDefaults(
     loading?: boolean
     description?: string
     showUpdateOptions?: boolean
+    initialUrl?: string
   }>(),
   {
     actionLabel: "import.title",
@@ -135,6 +136,7 @@ const props = withDefaults(
     loading: false,
     description: undefined,
     showUpdateOptions: false,
+    initialUrl: "",
   }
 )
 
@@ -145,10 +147,21 @@ const emit = defineEmits<{
   (e: "importFromURL", content: unknown, ...additionalArgs: any[]): void
 }>()
 
-const inputChooseGistToImportFrom = ref<string>("")
-const hasURL = ref(false)
+const inputChooseGistToImportFrom = ref<string>(props.initialUrl ?? "")
+const hasURL = ref(!!props.initialUrl)
 const isFetchingUrl = ref(false)
 const showCorsError = ref(false)
+
+watch(
+  () => props.initialUrl,
+  (val) => {
+    if (val && !inputChooseGistToImportFrom.value) {
+      inputChooseGistToImportFrom.value = val
+      hasURL.value = true
+    }
+  },
+  { immediate: true }
+)
 
 watch(inputChooseGistToImportFrom, (url) => {
   hasURL.value = !!url
@@ -221,9 +234,12 @@ const retryWithProxy = async () => {
         emit("importFromURL", res.right, {
           preserveScripts: preserveScripts.value,
           keepMissingRequests: keepMissingRequests.value,
+          url: inputChooseGistToImportFrom.value,
         })
       } else {
-        emit("importFromURL", res.right)
+        emit("importFromURL", res.right, {
+          url: inputChooseGistToImportFrom.value,
+        })
       }
     } else {
       toast.error(t("import.failed"))
@@ -254,9 +270,12 @@ async function fetchUrlData() {
     emit("importFromURL", res.right, {
       preserveScripts: preserveScripts.value,
       keepMissingRequests: keepMissingRequests.value,
+      url: inputChooseGistToImportFrom.value,
     })
   } else {
-    emit("importFromURL", res.right)
+    emit("importFromURL", res.right, {
+      url: inputChooseGistToImportFrom.value,
+    })
   }
   isFetchingUrl.value = false
 }

@@ -6,7 +6,7 @@ import * as O from "fp-ts/Option"
 import { z } from "zod"
 
 import { v4 as uuidv4 } from "uuid"
-import { Ref } from "vue"
+import { Ref, unref } from "vue"
 import { getService } from "~/modules/dioc"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { parseBodyAsJSON } from "~/helpers/functional/json"
@@ -23,6 +23,7 @@ export function GistSource(metadata: {
   isLoading?: Ref<boolean>
   description?: string
   showUpdateOptions?: boolean
+  initialUrl?: string | Ref<string | undefined>
 }) {
   const stepID = uuidv4()
 
@@ -31,6 +32,7 @@ export function GistSource(metadata: {
     actionLabel: metadata.actionLabel,
     description: metadata.description,
     showUpdateOptions: metadata.showUpdateOptions,
+    initialUrl: unref(metadata.initialUrl),
     onImportFromURL: (gistResponse: unknown, ...args: any[]) => {
       const fileSchema = z.object({
         files: z.record(z.object({ content: z.string() })),

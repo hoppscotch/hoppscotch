@@ -5,6 +5,8 @@
     :importer-modules="importerModules"
     :exporter-modules="[]"
     :has-team-write-access="true"
+    :default-importer-id="savedSource?.importerId"
+    :default-source-id="savedSource?.sourceId"
     @hide-modal="emit('hide-modal')"
   />
 </template>
@@ -13,6 +15,7 @@
 import { HoppCollection } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import { PropType, Ref, computed, ref } from "vue"
+import { useService } from "dioc/vue"
 
 import { FileSource } from "~/helpers/import-export/import/import-sources/FileSource"
 import { UrlSource } from "~/helpers/import-export/import/import-sources/UrlSource"
@@ -51,6 +54,10 @@ import {
   UpdateOptions,
   UpdateSummaryData,
 } from "~/helpers/collection/update"
+import {
+  CollectionUpdateSource,
+  CollectionUpdateSourceService,
+} from "~/services/collection-update-source.service"
 import UpdateSummary from "./UpdateSummary.vue"
 
 const isInsomniaImporterInProgress = ref(false)
@@ -61,6 +68,7 @@ const isGistImporterInProgress = ref(false)
 
 const t = useI18n()
 const toast = useToast()
+const collectionUpdateSourceService = useService(CollectionUpdateSourceService)
 
 type CollectionType =
   | {
@@ -96,6 +104,15 @@ const isTeamWorkspace = computed(() => {
   return props.collectionsType.type === "team-collections"
 })
 
+const collectionKey = computed(() => {
+  return props.collection._ref_id ?? props.collection.id ?? ""
+})
+
+const savedSource = computed<CollectionUpdateSource | undefined>(() => {
+  if (!collectionKey.value) return undefined
+  return collectionUpdateSourceService.getUpdateSource(collectionKey.value)
+})
+
 const currentImportSummary: Ref<{
   showImportSummary: boolean
   importedCollections: HoppCollection[] | null
@@ -127,7 +144,14 @@ const showImportFailedError = () => {
 
 const handleUpdateToStore = async (
   collections: HoppCollection[],
-  options: UpdateOptions = { preserveScripts: true, keepMissingRequests: true }
+  options: UpdateOptions = { preserveScripts: true, keepMissingRequests: true },
+  sourceMeta?: {
+    importerId: string
+    sourceId?: string
+    sourceType: "url" | "file"
+    url?: string
+    fileName?: string
+  }
 ) => {
   if (!collections || collections.length === 0) {
     showImportFailedError()
@@ -157,6 +181,18 @@ const handleUpdateToStore = async (
       )
       toast.success(t("collection.updated"))
       setCurrentImportSummary([finalCollection], stats)
+
+      // Save the update source configuration for this collection
+      if (sourceMeta && collectionKey.value) {
+        collectionUpdateSourceService.setUpdateSource(collectionKey.value, {
+          importerId: sourceMeta.importerId,
+          sourceId: sourceMeta.sourceId,
+          sourceType: sourceMeta.sourceType,
+          url: sourceMeta.url,
+          fileName: sourceMeta.fileName,
+          updatedAt: Date.now(),
+        })
+      }
     }
   } catch (_e) {
     showImportFailedError()
@@ -181,12 +217,29 @@ const HoppRESTImporter: ImporterOrExporter = {
     actionLabel: "action.update",
     acceptedFileTypes: ".json",
     showUpdateOptions: true,
-    onImportFromFile: async (content, options?: UpdateOptions) => {
+    lastFileName: computed(() =>
+      savedSource.value?.importerId === "hopp_rest"
+        ? savedSource.value.fileName
+        : undefined
+    ),
+    lastUpdated: computed(() =>
+      savedSource.value?.importerId === "hopp_rest"
+        ? savedSource.value.updatedAt
+        : undefined
+    ),
+    onImportFromFile: async (
+      content,
+      options?: UpdateOptions & { fileName?: string }
+    ) => {
       isRESTImporterInProgress.value = true
       const res = await hoppRESTImporter(content)()
 
       if (E.isRight(res)) {
-        await handleUpdateToStore(res.right, options)
+        await handleUpdateToStore(res.right, options, {
+          importerId: "hopp_rest",
+          sourceType: "file",
+          fileName: options?.fileName,
+        })
 
         platform.analytics?.logEvent({
           type: "HOPP_IMPORT_COLLECTION",
@@ -229,13 +282,33 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
         acceptedFileTypes: ".json, .yaml, .yml",
         description: "import.from_openapi_import_summary",
         showUpdateOptions: true,
-        onImportFromFile: async (content, options?: UpdateOptions) => {
+        lastFileName: computed(() =>
+          savedSource.value?.importerId === "hopp_openapi" &&
+          savedSource.value?.sourceId === "file_import"
+            ? savedSource.value.fileName
+            : undefined
+        ),
+        lastUpdated: computed(() =>
+          savedSource.value?.importerId === "hopp_openapi" &&
+          savedSource.value?.sourceId === "file_import"
+            ? savedSource.value.updatedAt
+            : undefined
+        ),
+        onImportFromFile: async (
+          content,
+          options?: UpdateOptions & { fileName?: string }
+        ) => {
           isOpenAPIImporterInProgress.value = true
 
           const res = await hoppOpenAPIImporter(content)()
 
           if (E.isRight(res)) {
-            await handleUpdateToStore(res.right, options)
+            await handleUpdateToStore(res.right, options, {
+              importerId: "hopp_openapi",
+              sourceId: "file_import",
+              sourceType: "file",
+              fileName: options?.fileName,
+            })
 
             platform.analytics?.logEvent({
               platform: "rest",
@@ -262,13 +335,26 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
         actionLabel: "action.update",
         description: "import.from_openapi_import_summary",
         showUpdateOptions: true,
-        onImportFromURL: async (content, options?: UpdateOptions) => {
+        initialUrl: computed(() =>
+          savedSource.value?.importerId === "hopp_openapi"
+            ? savedSource.value.url
+            : undefined
+        ),
+        onImportFromURL: async (
+          content,
+          options?: UpdateOptions & { url?: string }
+        ) => {
           isOpenAPIImporterInProgress.value = true
 
           const res = await hoppOpenAPIImporter([content])()
 
           if (E.isRight(res)) {
-            await handleUpdateToStore(res.right, options)
+            await handleUpdateToStore(res.right, options, {
+              importerId: "hopp_openapi",
+              sourceId: "url_import",
+              sourceType: "url",
+              url: options?.url,
+            })
 
             platform.analytics?.logEvent({
               platform: "rest",
@@ -308,9 +394,22 @@ const HoppPostmanImporter: ImporterOrExporter = {
     description: "import.from_postman_import_summary",
     showPostmanScriptOption: true,
     showUpdateOptions: true,
+    lastFileName: computed(() =>
+      savedSource.value?.importerId === "hopp_postman"
+        ? savedSource.value.fileName
+        : undefined
+    ),
+    lastUpdated: computed(() =>
+      savedSource.value?.importerId === "hopp_postman"
+        ? savedSource.value.updatedAt
+        : undefined
+    ),
     onImportFromFile: async (
       content: string[],
-      optionsOrScripts?: UpdateOptions & { importScripts?: boolean }
+      optionsOrScripts?: UpdateOptions & {
+        importScripts?: boolean
+        fileName?: string
+      }
     ) => {
       isPostmanImporterInProgress.value = true
 
@@ -324,7 +423,12 @@ const HoppPostmanImporter: ImporterOrExporter = {
       if (E.isRight(res)) {
         await handleUpdateToStore(
           res.right,
-          typeof optionsOrScripts === "object" ? optionsOrScripts : undefined
+          typeof optionsOrScripts === "object" ? optionsOrScripts : undefined,
+          {
+            importerId: "hopp_postman",
+            sourceType: "file",
+            fileName: optionsOrScripts?.fileName,
+          }
         )
 
         platform.analytics?.logEvent({
@@ -362,13 +466,30 @@ const HoppInsomniaImporter: ImporterOrExporter = {
     acceptedFileTypes: ".json, .yaml, .yml, .har",
     description: "import.from_insomnia_import_summary",
     showUpdateOptions: true,
-    onImportFromFile: async (content, options?: UpdateOptions) => {
+    lastFileName: computed(() =>
+      savedSource.value?.importerId === "hopp_insomnia"
+        ? savedSource.value.fileName
+        : undefined
+    ),
+    lastUpdated: computed(() =>
+      savedSource.value?.importerId === "hopp_insomnia"
+        ? savedSource.value.updatedAt
+        : undefined
+    ),
+    onImportFromFile: async (
+      content,
+      options?: UpdateOptions & { fileName?: string }
+    ) => {
       isInsomniaImporterInProgress.value = true
 
       const res = await hoppInsomniaImporter(content)()
 
       if (E.isRight(res)) {
-        await handleUpdateToStore(res.right, options)
+        await handleUpdateToStore(res.right, options, {
+          importerId: "hopp_insomnia",
+          sourceType: "file",
+          fileName: options?.fileName,
+        })
 
         platform.analytics?.logEvent({
           platform: "rest",
@@ -404,7 +525,15 @@ const HoppGistImporter: ImporterOrExporter = {
     actionLabel: "action.update",
     description: "import.from_gist_import_summary",
     showUpdateOptions: true,
-    onImportFromGist: async (content, options?: UpdateOptions) => {
+    initialUrl: computed(() =>
+      savedSource.value?.importerId === "hopp_gist"
+        ? savedSource.value.url
+        : undefined
+    ),
+    onImportFromGist: async (
+      content,
+      options?: UpdateOptions & { url?: string }
+    ) => {
       if (E.isLeft(content)) {
         showImportFailedError()
         return
@@ -415,7 +544,11 @@ const HoppGistImporter: ImporterOrExporter = {
       const res = await hoppRESTImporter(content.right)()
 
       if (E.isRight(res)) {
-        await handleUpdateToStore(res.right, options)
+        await handleUpdateToStore(res.right, options, {
+          importerId: "hopp_gist",
+          sourceType: "url",
+          url: options?.url,
+        })
 
         platform.analytics?.logEvent({
           platform: "rest",

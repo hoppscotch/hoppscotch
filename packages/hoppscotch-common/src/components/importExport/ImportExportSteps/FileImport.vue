@@ -33,6 +33,24 @@
       />
     </div>
 
+    <!-- Previous file indicator -->
+    <div
+      v-if="lastFileName && !hasFile"
+      class="flex items-center space-x-2 px-3 py-2 rounded bg-primaryLight border border-divider text-secondary text-sm"
+    >
+      <icon-lucide-history
+        class="svg-icons text-secondaryLight flex-shrink-0"
+      />
+      <div class="flex flex-col truncate">
+        <span class="text-tiny text-secondaryLight">{{
+          t("collection.previous_source_file")
+        }}</span>
+        <span class="font-mono text-xs font-semibold truncate">{{
+          lastFileName
+        }}</span>
+      </div>
+    </div>
+
     <p v-if="showFileSizeLimitExceededWarning" class="text-red-500 ml-10">
       <template v-if="importFilesCount">
         {{
@@ -150,6 +168,8 @@ const props = withDefaults(
     description?: string
     showPostmanScriptOption?: boolean
     showUpdateOptions?: boolean
+    lastFileName?: string
+    lastUpdated?: number
   }>(),
   {
     actionLabel: "import.title",
@@ -157,6 +177,8 @@ const props = withDefaults(
     description: undefined,
     showPostmanScriptOption: false,
     showUpdateOptions: false,
+    lastFileName: undefined,
+    lastUpdated: undefined,
   }
 )
 
@@ -178,6 +200,7 @@ const ALLOWED_FILE_SIZE_LIMIT = platform.limits?.collectionImportSizeLimit ?? 10
 const importFilesCount = ref(0)
 
 const hasFile = ref(false)
+const selectedFileName = ref<string>("")
 const showFileSizeLimitExceededWarning = ref(false)
 const fileContent = ref<string[]>([])
 
@@ -198,6 +221,7 @@ const handleImport = () => {
     emit("importFromFile", fileContent.value, {
       preserveScripts: preserveScripts.value,
       keepMissingRequests: keepMissingRequests.value,
+      fileName: selectedFileName.value || props.lastFileName,
       importScripts:
         props.showPostmanScriptOption && experimentalScriptingEnabled.value
           ? importScripts.value
@@ -227,15 +251,19 @@ const onFileChange = async () => {
 
   if (!inputFileToImport) {
     hasFile.value = false
+    selectedFileName.value = ""
     return
   }
 
   if (!inputFileToImport.files || inputFileToImport.files.length === 0) {
     inputChooseFileToImportFrom.value = ""
     hasFile.value = false
+    selectedFileName.value = ""
     toast.show(t("action.choose_file").toString())
     return
   }
+
+  selectedFileName.value = inputFileToImport.files[0]?.name ?? ""
 
   const readerPromises: Promise<string | null>[] = []
 

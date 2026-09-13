@@ -2,7 +2,7 @@ import UrlImport from "~/components/importExport/ImportExportSteps/UrlImport.vue
 import { defineStep } from "~/composables/step-components"
 
 import { v4 as uuidv4 } from "uuid"
-import { Ref } from "vue"
+import { Ref, unref } from "vue"
 
 export function UrlSource(metadata: {
   caption: string
@@ -12,6 +12,7 @@ export function UrlSource(metadata: {
   isLoading?: Ref<boolean>
   description: string
   showUpdateOptions?: boolean
+  initialUrl?: string | Ref<string | undefined>
 }) {
   const stepID = uuidv4()
 
@@ -26,5 +27,6 @@ export function UrlSource(metadata: {
     loading: metadata.isLoading?.value,
     description: metadata.description,
     showUpdateOptions: metadata.showUpdateOptions,
+    initialUrl: unref(metadata.initialUrl),
   }))
 }

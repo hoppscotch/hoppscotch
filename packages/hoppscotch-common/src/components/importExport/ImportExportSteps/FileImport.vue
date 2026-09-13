@@ -33,24 +33,6 @@
       />
     </div>
 
-    <!-- Previous file indicator -->
-    <div
-      v-if="lastFileName && !hasFile"
-      class="flex items-center space-x-2 px-3 py-2 rounded bg-primaryLight border border-divider text-secondary text-sm"
-    >
-      <icon-lucide-history
-        class="svg-icons text-secondaryLight flex-shrink-0"
-      />
-      <div class="flex flex-col truncate">
-        <span class="text-tiny text-secondaryLight">{{
-          t("collection.previous_source_file")
-        }}</span>
-        <span class="font-mono text-xs font-semibold truncate">{{
-          lastFileName
-        }}</span>
-      </div>
-    </div>
-
     <p v-if="showFileSizeLimitExceededWarning" class="text-red-500 ml-10">
       <template v-if="importFilesCount">
         {{
@@ -168,8 +150,6 @@ const props = withDefaults(
     description?: string
     showPostmanScriptOption?: boolean
     showUpdateOptions?: boolean
-    lastFileName?: string
-    lastUpdated?: number
   }>(),
   {
     actionLabel: "import.title",
@@ -177,8 +157,6 @@ const props = withDefaults(
     description: undefined,
     showPostmanScriptOption: false,
     showUpdateOptions: false,
-    lastFileName: undefined,
-    lastUpdated: undefined,
   }
 )
 

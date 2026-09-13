@@ -217,16 +217,6 @@ const HoppRESTImporter: ImporterOrExporter = {
     actionLabel: "action.update",
     acceptedFileTypes: ".json",
     showUpdateOptions: true,
-    lastFileName: computed(() =>
-      savedSource.value?.importerId === "hopp_rest"
-        ? savedSource.value.fileName
-        : undefined
-    ),
-    lastUpdated: computed(() =>
-      savedSource.value?.importerId === "hopp_rest"
-        ? savedSource.value.updatedAt
-        : undefined
-    ),
     onImportFromFile: async (
       content,
       options?: UpdateOptions & { fileName?: string }
@@ -282,18 +272,6 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
         acceptedFileTypes: ".json, .yaml, .yml",
         description: "import.from_openapi_import_summary",
         showUpdateOptions: true,
-        lastFileName: computed(() =>
-          savedSource.value?.importerId === "hopp_openapi" &&
-          savedSource.value?.sourceId === "file_import"
-            ? savedSource.value.fileName
-            : undefined
-        ),
-        lastUpdated: computed(() =>
-          savedSource.value?.importerId === "hopp_openapi" &&
-          savedSource.value?.sourceId === "file_import"
-            ? savedSource.value.updatedAt
-            : undefined
-        ),
         onImportFromFile: async (
           content,
           options?: UpdateOptions & { fileName?: string }
@@ -394,16 +372,6 @@ const HoppPostmanImporter: ImporterOrExporter = {
     description: "import.from_postman_import_summary",
     showPostmanScriptOption: true,
     showUpdateOptions: true,
-    lastFileName: computed(() =>
-      savedSource.value?.importerId === "hopp_postman"
-        ? savedSource.value.fileName
-        : undefined
-    ),
-    lastUpdated: computed(() =>
-      savedSource.value?.importerId === "hopp_postman"
-        ? savedSource.value.updatedAt
-        : undefined
-    ),
     onImportFromFile: async (
       content: string[],
       optionsOrScripts?: UpdateOptions & {
@@ -466,16 +434,6 @@ const HoppInsomniaImporter: ImporterOrExporter = {
     acceptedFileTypes: ".json, .yaml, .yml, .har",
     description: "import.from_insomnia_import_summary",
     showUpdateOptions: true,
-    lastFileName: computed(() =>
-      savedSource.value?.importerId === "hopp_insomnia"
-        ? savedSource.value.fileName
-        : undefined
-    ),
-    lastUpdated: computed(() =>
-      savedSource.value?.importerId === "hopp_insomnia"
-        ? savedSource.value.updatedAt
-        : undefined
-    ),
     onImportFromFile: async (
       content,
       options?: UpdateOptions & { fileName?: string }

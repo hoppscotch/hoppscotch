@@ -214,12 +214,13 @@ props.importerModules.forEach((importer) => {
   if (importSummary.value) {
     addStep({
       id: `import_summary_${importer.metadata.id}`,
-      component: ImportSummary,
+      component: importer.summaryComponent ?? ImportSummary,
       props: () => ({
         collections: importSummary.value.importedCollections,
         importFormat: importer.metadata.format,
         scriptsImported: importSummary.value.scriptsImported,
         originalScriptCounts: importSummary.value.originalScriptCounts,
+        updateSummaryData: importSummary.value.updateSummaryData,
         "on-close": () => {
           emit("hide-modal")
         },

@@ -80,10 +80,52 @@
       </label>
     </div>
 
+    <!-- Conflict / Update Options -->
+    <div
+      v-if="showUpdateOptions"
+      class="flex flex-col space-y-3 px-1 py-2 border-t border-dividerLight"
+    >
+      <div class="flex items-start space-x-3">
+        <HoppSmartCheckbox
+          :on="preserveScripts"
+          @change="preserveScripts = !preserveScripts"
+        />
+        <label
+          class="cursor-pointer select-none text-secondary flex flex-col space-y-0.5"
+          @click="preserveScripts = !preserveScripts"
+        >
+          <span class="font-medium text-sm">
+            {{ t("collection.preserve_scripts") }}
+          </span>
+          <span class="text-tiny text-secondaryLight">
+            {{ t("collection.preserve_scripts_description") }}
+          </span>
+        </label>
+      </div>
+
+      <div class="flex items-start space-x-3">
+        <HoppSmartCheckbox
+          :on="keepMissingRequests"
+          @change="keepMissingRequests = !keepMissingRequests"
+        />
+        <label
+          class="cursor-pointer select-none text-secondary flex flex-col space-y-0.5"
+          @click="keepMissingRequests = !keepMissingRequests"
+        >
+          <span class="font-medium text-sm">
+            {{ t("collection.keep_missing_requests") }}
+          </span>
+          <span class="text-tiny text-secondaryLight">
+            {{ t("collection.keep_missing_requests_description") }}
+          </span>
+        </label>
+      </div>
+    </div>
+
     <div>
       <HoppButtonPrimary
         :disabled="disableImportCTA"
-        :label="t('import.title')"
+        :label="t(actionLabel)"
         :loading="loading"
         class="w-full"
         @click="handleImport"
@@ -103,19 +145,27 @@ const props = withDefaults(
   defineProps<{
     caption: string
     acceptedFileTypes: string
+    actionLabel?: string
     loading?: boolean
     description?: string
     showPostmanScriptOption?: boolean
+    showUpdateOptions?: boolean
   }>(),
   {
+    actionLabel: "import.title",
     loading: false,
     description: undefined,
     showPostmanScriptOption: false,
+    showUpdateOptions: false,
   }
 )
 
 const t = useI18n()
 const toast = useToast()
+
+// Update / conflict options
+const preserveScripts = ref(true)
+const keepMissingRequests = ref(true)
 
 // Postman-specific: Script import state (only use case so far)
 const importScripts = ref(false)
@@ -144,9 +194,19 @@ const disableImportCTA = computed(
 )
 
 const handleImport = () => {
-  // If Postman script option is enabled AND experimental sandbox is enabled, pass the importScripts value
-  // Otherwise, don't pass it (undefined) to indicate the feature wasn't available
-  if (props.showPostmanScriptOption && experimentalScriptingEnabled.value) {
+  if (props.showUpdateOptions) {
+    emit("importFromFile", fileContent.value, {
+      preserveScripts: preserveScripts.value,
+      keepMissingRequests: keepMissingRequests.value,
+      importScripts:
+        props.showPostmanScriptOption && experimentalScriptingEnabled.value
+          ? importScripts.value
+          : undefined,
+    })
+  } else if (
+    props.showPostmanScriptOption &&
+    experimentalScriptingEnabled.value
+  ) {
     emit("importFromFile", fileContent.value, importScripts.value)
   } else {
     emit("importFromFile", fileContent.value)

@@ -22,6 +22,7 @@ export type JSONReportRequest = {
   tests: {
     passed: number;
     failed: number;
+    errored: number;
   };
   errors: { code: string; data?: unknown }[];
 };
@@ -103,6 +104,13 @@ export const buildJSONReportIteration = (
         failed: tests.reduce(
           (acc, suite) =>
             acc + suite.expectResults.filter((t) => t.status === "fail").length,
+          0
+        ),
+        // Assertions that errored (e.g. `pw.expect` threw) are tracked
+        // separately, mirroring the JUnit reporter's `errors` dimension
+        errored: tests.reduce(
+          (acc, suite) =>
+            acc + suite.expectResults.filter((t) => t.status === "error").length,
           0
         ),
       },

@@ -12,7 +12,8 @@ exports[`hopp test [options] <file_path_or_id> > Test \`hopp test <file_path_or_
           "duration": "duration",
           "tests": {
             "passed": 0,
-            "failed": 0
+            "failed": 0,
+            "errored": 22
           },
           "errors": []
         },
@@ -22,7 +23,8 @@ exports[`hopp test [options] <file_path_or_id> > Test \`hopp test <file_path_or_
           "duration": "duration",
           "tests": {
             "passed": 5,
-            "failed": 0
+            "failed": 0,
+            "errored": 0
           },
           "errors": []
         },
@@ -32,7 +34,8 @@ exports[`hopp test [options] <file_path_or_id> > Test \`hopp test <file_path_or_
           "duration": "duration",
           "tests": {
             "passed": 3,
-            "failed": 2
+            "failed": 2,
+            "errored": 0
           },
           "errors": []
         },
@@ -42,7 +45,8 @@ exports[`hopp test [options] <file_path_or_id> > Test \`hopp test <file_path_or_
           "duration": "duration",
           "tests": {
             "passed": 0,
-            "failed": 0
+            "failed": 0,
+            "errored": 22
           },
           "errors": [
             {
@@ -60,7 +64,8 @@ exports[`hopp test [options] <file_path_or_id> > Test \`hopp test <file_path_or_
           "duration": "duration",
           "tests": {
             "passed": 0,
-            "failed": 0
+            "failed": 0,
+            "errored": 0
           },
           "errors": [
             {
@@ -82,7 +87,8 @@ exports[`hopp test [options] <file_path_or_id> > Test \`hopp test <file_path_or_
           "duration": "duration",
           "tests": {
             "passed": 0,
-            "failed": 0
+            "failed": 0,
+            "errored": 22
           },
           "errors": [
             {

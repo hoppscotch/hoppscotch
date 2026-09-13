@@ -1,33 +1,45 @@
 <template>
   <div>
-    <div
-      class="sticky top-0 z-10 flex flex-shrink-0 flex-col overflow-x-auto bg-primary"
-    >
-      <WorkspaceCurrent :section="t('tab.environments')" />
-      <EnvironmentsMyEnvironment
-        environment-index="Global"
-        :environment="globalEnvironment"
-        :duplicate-global-environment-loading="
-          duplicateGlobalEnvironmentLoading
-        "
-        :show-context-menu-loading-state="workspace.type === 'team'"
-        class="border-b border-dividerLight"
-        @duplicate-global-environment="duplicateGlobalEnvironment"
-        @edit-environment="editEnvironment('Global')"
+    <EnvironmentsEditor
+      v-if="openEnvironment"
+      :target="openEnvironment"
+      :team-environments="teamEnvironmentList"
+      :keys-readonly="areOpenEnvironmentKeysReadonly"
+      @close="openEnvironment = null"
+    />
+    <div v-show="!openEnvironment">
+      <div
+        class="sticky top-0 z-10 flex flex-shrink-0 flex-col overflow-x-auto bg-primary"
+      >
+        <WorkspaceCurrent :section="t('tab.environments')" />
+        <EnvironmentsMyEnvironment
+          environment-index="Global"
+          :environment="globalEnvironment"
+          :duplicate-global-environment-loading="
+            duplicateGlobalEnvironmentLoading
+          "
+          :show-context-menu-loading-state="workspace.type === 'team'"
+          class="border-b border-dividerLight"
+          @duplicate-global-environment="duplicateGlobalEnvironment"
+          @edit-environment="editEnvironment('Global')"
+          @open-environment="openEnvironment = { type: 'global' }"
+        />
+      </div>
+      <EnvironmentsMy
+        v-show="isPersonalEnvironmentType"
+        @select-environment="handleEnvironmentChange"
+        @open-environment="openEnvironment = $event"
+      />
+      <EnvironmentsTeams
+        v-show="environmentType.type === 'team-environments'"
+        :team="environmentType.selectedTeam"
+        :team-environments="teamEnvironmentList"
+        :loading="loading"
+        :adapter-error="adapterError"
+        @select-environment="handleEnvironmentChange"
+        @open-environment="openEnvironment = $event"
       />
     </div>
-    <EnvironmentsMy
-      v-show="isPersonalEnvironmentType"
-      @select-environment="handleEnvironmentChange"
-    />
-    <EnvironmentsTeams
-      v-show="environmentType.type === 'team-environments'"
-      :team="environmentType.selectedTeam"
-      :team-environments="teamEnvironmentList"
-      :loading="loading"
-      :adapter-error="adapterError"
-      @select-environment="handleEnvironmentChange"
-    />
     <EnvironmentsMyDetails
       :show="showModalDetails"
       :action="action"
@@ -87,6 +99,9 @@ import {
 import { getService } from "~/modules/dioc"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { CurrentValueService } from "~/services/current-environment-value.service"
+import EnvironmentsEditor, {
+  type EnvironmentEditorTarget,
+} from "~/components/environments/Editor.vue"
 import { useLocalState } from "~/newstore/localstate"
 import { platform } from "~/platform"
 import { TeamWorkspace, WorkspaceService } from "~/services/workspace.service"
@@ -120,6 +135,16 @@ const globalEnvironment = computed<Environment>(() => ({
 
 const isPersonalEnvironmentType = computed(
   () => environmentType.value.type === "my-environments"
+)
+
+const openEnvironment = ref<EnvironmentEditorTarget | null>(null)
+
+// Team viewers may not write the shared team environment, so lock the keys.
+// Current values remain editable — they are local-only and never synced.
+const areOpenEnvironmentKeysReadonly = computed(
+  () =>
+    openEnvironment.value?.type === "team-environment" &&
+    environmentType.value.selectedTeam?.role === "VIEWER"
 )
 
 const currentUser = useReadonlyStream(

@@ -1,4 +1,5 @@
 import { Container, Service } from "dioc"
+import { cloneDeep } from "lodash-es"
 import { reactive, computed, watch, nextTick } from "vue"
 
 /**
@@ -75,6 +76,64 @@ export class SecretEnvironmentService extends Service {
       value: secretVar.value || "",
       initialValue: secretVar.initialValue || "",
     }
+  }
+
+  /**
+   * Update the current value of a single secret variable, leaving the rest of
+   * the environment's entries untouched.
+   *
+   * `key` is only consulted when the variable has no entry yet (for example a
+   * secret edited on this device for the first time). The
+   * `watchSecretEnvironments` cleanup drops environments whose variables all
+   * have empty keys, so a freshly created entry must carry the real key.
+   *
+   * @param id ID of the environment
+   * @param varIndex Index of the variable in the environment
+   * @param value New current value
+   * @param key Key of the variable, used only when creating a missing entry
+   */
+  public setSecretEnvironmentVariableValue(
+    id: string,
+    varIndex: number,
+    value: string,
+    key = ""
+  ) {
+    const vars = this.getSecretEnvironment(id)
+    const newVars = cloneDeep(vars ?? [])
+    const variable = newVars.find((v) => v.varIndex === varIndex)
+
+    if (variable) {
+      variable.value = value
+    } else {
+      newVars.push({ key, value, varIndex, initialValue: "" })
+    }
+
+    this.secretEnvironments.set(id, newVars)
+  }
+
+  /**
+   * Rename the key of an existing secret entry so key-based lookups
+   * (`hasSecretValue`, the env inspector) keep resolving after a variable is
+   * renamed. No-op when there is no entry for `varIndex`.
+   *
+   * @param id ID of the environment
+   * @param varIndex Index of the variable in the environment
+   * @param key New key of the variable
+   */
+  public setSecretEnvironmentVariableKey(
+    id: string,
+    varIndex: number,
+    key: string
+  ) {
+    const vars = this.getSecretEnvironment(id)
+    if (!vars) return
+
+    const variable = vars.find((v) => v.varIndex === varIndex)
+    if (!variable || variable.key === key) return
+
+    const newVars = cloneDeep(vars)
+    newVars.find((v) => v.varIndex === varIndex)!.key = key
+    this.secretEnvironments.set(id, newVars)
   }
 
   /**

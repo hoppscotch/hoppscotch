@@ -2,6 +2,7 @@
   "action": {
     "add": "Add",
     "autoscroll": "Autoscroll",
+    "back": "Back",
     "cancel": "Cancel",
     "choose_file": "Choose a file",
     "choose_workspace": "Choose a workspace",

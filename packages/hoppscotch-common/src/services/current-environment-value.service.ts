@@ -123,6 +123,29 @@ export class CurrentValueService extends Service {
   }
 
   /**
+   * Rename the key of an existing entry so lookups that match by key (code
+   * editor highlighting, docs preview, `hasValue`) keep resolving after a
+   * variable is renamed in the editor. No-op when the environment has no entry
+   * for `varIndex` — a variable that never had a current value set locally
+   * doesn't need one to survive a rename.
+   *
+   * @param id ID of the environment
+   * @param varIndex Index of the variable in the environment
+   * @param key New key of the variable
+   */
+  public setEnvironmentVariableKey(id: string, varIndex: number, key: string) {
+    const vars = this.getEnvironment(id)
+    if (!vars) return
+
+    const variable = vars.find((v) => v.varIndex === varIndex)
+    if (!variable || variable.key === key) return
+
+    const newVars = cloneDeep(vars)
+    newVars.find((v) => v.varIndex === varIndex)!.key = key
+    this.environments.set(id, newVars)
+  }
+
+  /**
    *
    * @param environments Used to load environments from persisted state.
    */

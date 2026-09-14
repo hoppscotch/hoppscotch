@@ -1057,6 +1057,107 @@ data2: {"type":"test2","typeId":"123"}`,
       description: null,
     }),
   },
+  // Test case with unencoded RFC 3986 legal query chars (*, ~, !, $, [, ])
+  // and checks that '$' at the end of tag=~hello!$ is NOT stripped by the preprocessor.
+  // This guards against the regression where the naive S.replace(/\$'/g, "'") would strip it.
+  {
+    command: `curl 'https://echo.hoppscotch.io/api?bi=1440*2976&nested[a]=b&tag=~hello!$'`,
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled",
+      endpoint: "https://echo.hoppscotch.io/api",
+      auth: { authType: "inherit", authActive: true },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      headers: [],
+      params: [
+        {
+          active: true,
+          key: "bi",
+          value: "1440*2976",
+          description: "",
+        },
+        {
+          active: true,
+          key: "nested[a]",
+          value: "b",
+          description: "",
+        },
+        {
+          active: true,
+          key: "tag",
+          value: "~hello!$",
+          description: "",
+        },
+      ],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+    }),
+  },
+  {
+    command: `curl -X POST 'https://x.x.cn/x/x/x?bi=%5B%221440*2976%22%5D&bik=25&~wave=1'`,
+    response: makeRESTRequest({
+      method: "POST",
+      name: "Untitled",
+      endpoint: "https://x.x.cn/x/x/x",
+      auth: { authType: "inherit", authActive: true },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      headers: [],
+      params: [
+        {
+          active: true,
+          key: "bi",
+          value: '["1440*2976"]',
+          description: "",
+        },
+        {
+          active: true,
+          key: "bik",
+          value: "25",
+          description: "",
+        },
+        {
+          active: true,
+          key: "~wave",
+          value: "1",
+          description: "",
+        },
+      ],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+    }),
+  },
+  // Test case that ensures bash ANSI-C dollar-single-quote quoting format ( $'...' )
+  // is successfully stripped even when it follows an equal sign (=).
+  // Under the new regex, the equal sign boundary is correctly matched and preserved.
+  {
+    command: `curl https://example.com --data=$'{"a": 1}' -H=$'Content-Type: application/json'`,
+    response: makeRESTRequest({
+      method: "POST",
+      name: "Untitled",
+      endpoint: "https://example.com/",
+      auth: { authType: "inherit", authActive: true },
+      body: {
+        contentType: "application/json",
+        body: `{\n  "a": 1\n}`,
+      },
+      headers: [],
+      params: [],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+    }),
+  },
 ]
 
 describe("Parse curl command to Hopp REST Request", () => {
@@ -1157,6 +1258,44 @@ describe("Parse curl command to Hopp REST Request", () => {
     const customHeader = actual.headers.find((h) => h.key === "X-Custom")
     expect(customHeader).toBeDefined()
     expect(customHeader.value).toBe(`-d {"fake":1}`)
+  })
+
+  test("does not corrupt body data containing space dash letter equals (e.g. -q=value)", () => {
+    const command = `curl 'https://example.com/api' -d '{"filter": "field -q=value"}'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+
+    expect(actual.method).toBe("POST")
+    expect(actual.endpoint).toBe("https://example.com/api")
+    expect(actual.body.contentType).toBe("application/json")
+    expect(JSON.parse(actual.body.body)).toEqual({ filter: "field -q=value" })
+  })
+
+  test("normalizes short options with equals followed by quotes", () => {
+    const command = `curl 'https://example.com/api' -H='Content-Type: application/json' -d='{"foo": "bar"}'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+
+    expect(actual.method).toBe("POST")
+    expect(actual.body.contentType).toBe("application/json")
+    expect(JSON.parse(actual.body.body)).toEqual({ foo: "bar" })
+  })
+
+  test("parses double-quoted URL and preserves commonly tolerated unencoded characters", () => {
+    const command = `curl "https://example.com/api?filter={id}|all"`
+
+    const actual = parseCurlToHoppRESTReq(command)
+
+    expect(actual.method).toBe("GET")
+    expect(actual.endpoint).toBe("https://example.com/api")
+    expect(actual.params).toEqual([
+      {
+        active: true,
+        key: "filter",
+        value: "{id}|all",
+        description: "",
+      },
+    ])
   })
 
   for (const [i, { command, response }] of samples.entries()) {

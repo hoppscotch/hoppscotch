@@ -1,6 +1,10 @@
 <template>
   <div class="flex flex-1 flex-col overflow-auto whitespace-nowrap">
-    <GraphqlResponseMeta :response="response" :tab-id="tabId" />
+    <GraphqlResponseMeta
+      :response="response"
+      :tab-id="tabId"
+      @compare="showCompareModal = true"
+    />
     <div
       v-if="
         response && response.length === 1 && response[0].type === 'response'
@@ -89,6 +93,11 @@
     >
       <GraphqlSubscriptionLog :log="response" />
     </div>
+    <GqlResponseCompareModal
+      :show="showCompareModal"
+      :response="response"
+      @hide-modal="showCompareModal = false"
+    />
   </div>
 </template>
 
@@ -97,6 +106,9 @@ import IconWrapText from "~icons/lucide/wrap-text"
 import IconNetwork from "~icons/lucide/network"
 import IconMore from "~icons/lucide/more-horizontal"
 import { computed, reactive, ref } from "vue"
+import GqlResponseCompareModal from "../gql/ResponseCompareModal.vue"
+
+const showCompareModal = ref(false)
 import { useCodemirror } from "@composables/codemirror"
 import { useI18n } from "@composables/i18n"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"

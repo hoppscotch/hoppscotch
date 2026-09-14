@@ -1,0 +1,14 @@
+{
+  "identifier": "remote-selfhosted",
+  "description": "Capability for self-hosted HTTPS instances with minimal required permissions",
+  "windows": ["*"],
+  "webviews": ["*"],
+  "remote": {
+    "urls": ["https://*"]
+  },
+  "permissions": [
+    "core:event:default",
+    "core:path:default",
+    "store:allow-load"
+  ]
+}

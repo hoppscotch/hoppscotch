@@ -267,22 +267,27 @@ const persistKey = (varIndex: number, newKey: string) => {
     index === varIndex ? { ...variable, key: newKey } : variable
   )
 
+  // Mirror the modal: never write client-local values back into the environment
+  // definition. The sync layer strips on the wire too, but keeping the stored
+  // definition clean avoids the store and the value services disagreeing.
+  const variablesForWire = stripClientLocalValuesForWire(updatedVariables)
+
   if (props.target.type === "my-environment") {
     updateEnvironment(props.target.index, {
       ...cloneDeep(env),
-      variables: updatedVariables,
+      variables: variablesForWire,
     })
   } else if (props.target.type === "global") {
     setGlobalEnvVariables({
       v: 2,
-      variables: updatedVariables,
+      variables: variablesForWire,
     } as GlobalEnvironment)
   } else {
     const teamEnvID = props.target.id
     const teamEnvName = envName.value
     pipe(
       updateTeamEnvironment(
-        JSON.stringify(stripClientLocalValuesForWire(updatedVariables)),
+        JSON.stringify(variablesForWire),
         teamEnvID,
         teamEnvName
       ),

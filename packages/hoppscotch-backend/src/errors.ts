@@ -57,6 +57,12 @@ export const ENV_INVALID_DATA_ENCRYPTION_KEY =
   '"DATA_ENCRYPTION_KEY" value changed in .env file. Please undo the changes and restart the server';
 
 /**
+ * Deployment is still running the publicly known example secrets shipped in `.env.example`
+ */
+export const ENV_INSECURE_EXAMPLE_SECRETS =
+  'Refusing to start: the deployment is using the publicly known example secrets shipped in `.env.example`. Run `./setup.sh` or set your own values, then restart the server';
+
+/**
  * Tried to delete a user data document from fb firestore but failed.
  * (FirebaseService)
  */

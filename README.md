@@ -262,6 +262,23 @@ _Add-ons are developed and maintained under **[Hoppscotch Organization](https://
 2. Click "Send" to simulate the request
 3. View the response
 
+## Self-hosting
+
+```sh
+./setup.sh                          # generates .env with secrets unique to your deployment
+docker compose --profile default up
+```
+
+`setup.sh` creates a `.env` from `.env.example` with a random `POSTGRES_PASSWORD` and
+`DATA_ENCRYPTION_KEY`. Running compose without it fails fast rather than booting on the
+publicly known example values.
+
+A few things worth knowing before you expose an instance:
+
+- **Never deploy with the values from `.env.example`.** They are public. `DATA_ENCRYPTION_KEY` protects `JWT_SECRET`, `SESSION_SECRET` and your SMTP/OAuth credentials at rest, so leaving it at the example value lets anyone who can read the database forge sessions for any user, including admins. The backend refuses to start on example secrets when `PRODUCTION=true`.
+- **Back up `DATA_ENCRYPTION_KEY`.** It cannot be changed after the first boot without making every already-encrypted row unreadable.
+- **Keep the database off the public internet.** The preset Postgres container is published on `127.0.0.1:5432` only; the app reaches it over the internal Docker network, so it never needs a public bind.
+
 ## Developing
 
 Follow our [self-hosting documentation](https://docs.hoppscotch.io/documentation/self-host/getting-started) to get started with the development environment.

@@ -27,6 +27,17 @@
 # NOTE: The default and default-no-db profiles should not be mixed with individual service
 # profiles as they would conflict on ports.
 
+# SECURITY:
+#
+# Run `./setup.sh` before your first `docker compose up`. It creates a `.env` from `.env.example`
+# with a per-deployment random POSTGRES_PASSWORD and DATA_ENCRYPTION_KEY.
+# This file intentionally has no hardcoded database credentials: they are read from `.env`
+# and compose will refuse to start if they are missing.
+#
+# The preset database is published on 127.0.0.1 only. It is never required for the app to work
+# (services reach it over the internal Docker network via the `hoppscotch-db` alias), so do not
+# change this to a public bind unless you know the host is firewalled.
+
 services:
   # This service runs the backend app in the port 3170
   hoppscotch-backend:
@@ -41,7 +52,7 @@ services:
     restart: always
     environment:
       # Edit the below line to match your PostgresDB URL if you have an outside DB (make sure to update the .env file as well)
-      - DATABASE_URL=postgresql://postgres:testpass@hoppscotch-db:5432/hoppscotch?connect_timeout=300
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is not set. Run ./setup.sh to generate a .env with per-deployment secrets}@hoppscotch-db:5432/hoppscotch?connect_timeout=300
       - PORT=8080
     volumes:
       # Uncomment the line below when modifying code. Only applicable when using the "dev" target.
@@ -133,7 +144,8 @@ services:
 
   # The preset DB service, you can delete/comment the below lines if
   # you are using an external postgres instance
-  # This will be exposed at port 5432
+  # This is published on 127.0.0.1:5432 (host loopback) only, so that it is not reachable
+  # from outside the host. Other services connect over the internal Docker network instead.
   hoppscotch-db:
     profiles:
       [
@@ -147,13 +159,16 @@ services:
       ]
     image: postgres:15
     ports:
-      - "5432:5432"
+      # Bound to the host loopback on purpose. Do NOT change this to "5432:5432", that publishes
+      # the database on every host interface (0.0.0.0), i.e. potentially to the internet.
+      - "127.0.0.1:5432:5432"
     user: postgres
     environment:
       # The default user defined by the docker image
       POSTGRES_USER: postgres
-      # NOTE: Please UPDATE THIS PASSWORD!
-      POSTGRES_PASSWORD: testpass
+      # Read from .env. There is deliberately no default: a missing value aborts `docker compose up`
+      # instead of silently booting with a well-known password.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is not set. Run ./setup.sh to generate a .env with per-deployment secrets}
       POSTGRES_DB: hoppscotch
     healthcheck:
       test:
@@ -193,7 +208,7 @@ services:
     restart: always
     environment:
       # Edit the below line to match your PostgresDB URL if you have an outside DB (make sure to update the .env file as well)
-      - DATABASE_URL=postgresql://postgres:testpass@hoppscotch-db:5432/hoppscotch?connect_timeout=300
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is not set. Run ./setup.sh to generate a .env with per-deployment secrets}@hoppscotch-db:5432/hoppscotch?connect_timeout=300
       - PORT=3000
     volumes:
       # Uncomment the line below when modifying code. Only applicable when using the "dev" target.
@@ -232,6 +247,9 @@ services:
       - "3100:8080"
 
 # DEPLOYMENT SCENARIOS:
+# 0. First run, for every scenario below:
+#    ./setup.sh
+#
 # 1. Default deployment (recommended):
 #    docker compose --profile default up
 #    This will start: AIO + database + auto-migration

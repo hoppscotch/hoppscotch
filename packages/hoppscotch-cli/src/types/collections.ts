@@ -8,6 +8,7 @@ export type CollectionRunnerParam = {
   iterationData?: IterationDataItem[][];
   iterationCount?: number;
   legacySandbox: boolean;
+  bail?: boolean;
 };
 
 export type HoppCollectionFileExt = "json";

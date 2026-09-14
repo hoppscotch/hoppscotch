@@ -176,4 +176,72 @@ describe("mergeCollectionTree", () => {
     expect(updatedCollection.requests.length).toBe(1)
     expect(updatedCollection.folders.length).toBe(0)
   })
+
+  it("counts preserved scripts in retained folders and subtrees when keepMissingRequests is true", () => {
+    const existing = makeCollection({
+      name: "API Coll",
+      folders: [
+        makeCollection({
+          name: "Retained Folder",
+          folders: [],
+          requests: [
+            {
+              v: "1",
+              endpoint: "https://api.com/retained-req",
+              name: "Retained Request",
+              method: "GET",
+              auth: { authType: "inherit", authActive: true },
+              headers: [],
+              params: [],
+              body: { contentType: null, body: null },
+              preRequestScript: "pw.env.set('a', '1')",
+              testScript: "pw.test('ok', () => {})",
+            },
+          ],
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          variables: [],
+          preRequestScript: "console.log('folder pre')",
+          testScript: "console.log('folder test')",
+        }),
+      ],
+      requests: [],
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [],
+    })
+
+    const incoming = [
+      makeCollection({
+        name: "API Coll",
+        folders: [],
+        requests: [
+          {
+            v: "1",
+            endpoint: "https://api.com/new-req",
+            name: "New Request",
+            method: "GET",
+            auth: { authType: "inherit", authActive: true },
+            headers: [],
+            params: [],
+            body: { contentType: null, body: null },
+            preRequestScript: "",
+            testScript: "",
+          },
+        ],
+        auth: { authType: "inherit", authActive: true },
+        headers: [],
+        variables: [],
+      }),
+    ]
+
+    const { stats } = mergeCollectionTree(existing, incoming, {
+      preserveScripts: true,
+      keepMissingRequests: true,
+    })
+
+    expect(stats.preservedRequests).toBe(1)
+    // 2 folder scripts + 2 request scripts = 4 preserved scripts
+    expect(stats.preservedScripts).toBe(4)
+  })
 })

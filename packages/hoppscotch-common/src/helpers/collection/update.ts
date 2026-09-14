@@ -102,11 +102,31 @@ function countSubTreeAdded(folder: HoppCollection, stats: UpdateSummaryData) {
 
 function countSubTreePreserved(
   folder: HoppCollection,
-  stats: UpdateSummaryData
+  stats: UpdateSummaryData,
+  options: UpdateOptions
 ) {
   stats.preservedRequests += folder.requests.length
+
+  if (options.preserveScripts !== false) {
+    if (folder.preRequestScript && folder.preRequestScript.trim()) {
+      stats.preservedScripts++
+    }
+    if (folder.testScript && folder.testScript.trim()) {
+      stats.preservedScripts++
+    }
+    for (const req of folder.requests) {
+      const r = req as Partial<HoppRESTRequest>
+      if (r.preRequestScript && r.preRequestScript.trim()) {
+        stats.preservedScripts++
+      }
+      if (r.testScript && r.testScript.trim()) {
+        stats.preservedScripts++
+      }
+    }
+  }
+
   for (const sub of folder.folders) {
-    countSubTreePreserved(sub, stats)
+    countSubTreePreserved(sub, stats, options)
   }
 }
 
@@ -142,6 +162,15 @@ function mergeRequestsList(
     if (!matchedTargetIndices.has(idx)) {
       if (options.keepMissingRequests !== false) {
         stats.preservedRequests++
+        if (options.preserveScripts !== false) {
+          const r = req as Partial<HoppRESTRequest>
+          if (r.preRequestScript && r.preRequestScript.trim()) {
+            stats.preservedScripts++
+          }
+          if (r.testScript && r.testScript.trim()) {
+            stats.preservedScripts++
+          }
+        }
         result.push(cloneDeep(req))
       } else {
         stats.deletedRequests++
@@ -188,6 +217,18 @@ function mergeFoldersList(
         stats
       )
 
+      if (options.preserveScripts !== false) {
+        if (
+          existingFolder.preRequestScript &&
+          existingFolder.preRequestScript.trim()
+        ) {
+          stats.preservedScripts++
+        }
+        if (existingFolder.testScript && existingFolder.testScript.trim()) {
+          stats.preservedScripts++
+        }
+      }
+
       const mergedFolder: HoppCollection = {
         ...cloneDeep(incomingFolder),
         id: existingFolder.id,
@@ -229,7 +270,7 @@ function mergeFoldersList(
   targetFolders.forEach((folder, idx) => {
     if (!matchedTargetIndices.has(idx)) {
       if (options.keepMissingRequests !== false) {
-        countSubTreePreserved(folder, stats)
+        countSubTreePreserved(folder, stats, options)
         result.push(cloneDeep(folder))
       } else {
         countSubTreeDeleted(folder, stats)
@@ -253,6 +294,18 @@ export function mergeCollectionTree(
     updatedFolders: 0,
     addedFolders: 0,
     preservedScripts: 0,
+  }
+
+  if (options.preserveScripts !== false) {
+    if (
+      targetCollection.preRequestScript &&
+      targetCollection.preRequestScript.trim()
+    ) {
+      stats.preservedScripts++
+    }
+    if (targetCollection.testScript && targetCollection.testScript.trim()) {
+      stats.preservedScripts++
+    }
   }
 
   let incomingFolders: HoppCollection[] = []

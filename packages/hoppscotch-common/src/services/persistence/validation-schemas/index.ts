@@ -11,6 +11,7 @@ import {
   HoppCollection,
   GlobalEnvironment,
   CollectionVariable,
+  HoppGRPCRequest,
 } from "@hoppscotch/data"
 import { entityReference } from "verzod"
 import { z } from "zod"
@@ -399,6 +400,28 @@ export const GQL_TAB_STATE_SCHEMA = z
             optionTabPreference: z.optional(z.enum(validGqlOperations)),
             inheritedProperties: z.optional(HoppInheritedPropertySchema),
             cursorPosition: z.optional(z.number()),
+          })
+          .strict(),
+      })
+    ),
+  })
+  .strict()
+
+export const GRPC_TAB_STATE_SCHEMA = z
+  .object({
+    lastActiveTabID: z.string(),
+    orderedDocs: z.array(
+      z.object({
+        tabID: z.string(),
+        doc: z
+          .object({
+            request: entityReference(HoppGRPCRequest),
+            isDirty: z.boolean(),
+            response: z.optional(z.null()),
+            error: z.optional(z.null()),
+            optionTabPreference: z.optional(
+              z.enum(["body", "metadata", "proto"])
+            ),
           })
           .strict(),
       })

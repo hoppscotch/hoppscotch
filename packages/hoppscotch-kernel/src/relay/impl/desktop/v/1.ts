@@ -18,6 +18,48 @@ import {
   type RequestResult,
 } from "@hoppscotch/plugin-relay"
 
+// Native execute and cancel use separate Tauri IPC calls. The cancel IPC can
+// reach Rust before execute registers the request, so retry that one transient
+// error for roughly half a second. All other cancellation failures remain
+// immediate.
+const CANCEL_REGISTRATION_RETRY_ATTEMPTS = 20
+const CANCEL_REGISTRATION_RETRY_DELAY_MS = 25
+
+const isRequestRegistrationPendingError = (error: unknown): boolean => {
+  const message = error instanceof Error ? error.message : String(error)
+  return message.includes("Request not found")
+}
+
+const cancelNativeRequest = async (
+  requestID: number,
+  isExecutionSettled: () => boolean
+): Promise<void> => {
+  for (
+    let attempt = 0;
+    attempt < CANCEL_REGISTRATION_RETRY_ATTEMPTS;
+    attempt++
+  ) {
+    try {
+      await cancel(requestID)
+      return
+    } catch (error) {
+      if (isRequestRegistrationPendingError(error) && isExecutionSettled()) {
+        return
+      }
+
+      const shouldRetry =
+        isRequestRegistrationPendingError(error) &&
+        attempt < CANCEL_REGISTRATION_RETRY_ATTEMPTS - 1
+
+      if (!shouldRetry) throw error
+
+      await new Promise<void>((resolve) =>
+        setTimeout(resolve, CANCEL_REGISTRATION_RETRY_DELAY_MS)
+      )
+    }
+  }
+}
+
 export const implementation: VersionedAPI<RelayV1> = {
   version: { major: 1, minor: 0, patch: 0 },
   api: {
@@ -131,9 +173,24 @@ export const implementation: VersionedAPI<RelayV1> = {
         once: () => () => {},
         off: () => {},
       }
+      let nativeExecutionStarted = false
+      let nativeExecutionSettled = false
+      let cancellationRequested = false
+      let cancellationPromise: Promise<void> | null = null
+
+      const cancelRequest = () => {
+        cancellationRequested = true
+        if (!nativeExecutionStarted) return Promise.resolve()
+
+        cancellationPromise ??= cancelNativeRequest(
+          request.id,
+          () => nativeExecutionSettled
+        )
+        return cancellationPromise
+      }
 
       const responsePromise = relayRequestToNativeAdapter(request)
-        .then((request) => {
+        .then(async (request) => {
           // SAFETY: Type assertion is safe because:
           // 1. The capabilities system prevents requests with unsupported methods from reaching this point
           // 2. Content types not supported by the plugin are filtered by capabilities
@@ -153,7 +210,12 @@ export const implementation: VersionedAPI<RelayV1> = {
             meta: request.meta,
           }
 
-          return execute(pluginRequest)
+          const response = execute(pluginRequest).finally(() => {
+            nativeExecutionSettled = true
+          })
+          nativeExecutionStarted = true
+          if (cancellationRequested) await cancelRequest()
+          return response
         })
         .then((result: RequestResult): E.Either<RelayError, RelayResponse> => {
           if (result.kind === "success") {
@@ -191,9 +253,7 @@ export const implementation: VersionedAPI<RelayV1> = {
         })
 
       return {
-        cancel: async () => {
-          await cancel(request.id)
-        },
+        cancel: cancelRequest,
         emitter,
         response: responsePromise,
       }

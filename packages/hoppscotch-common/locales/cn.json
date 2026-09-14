@@ -1078,7 +1078,8 @@
     "mock_servers": "Mock 服务",
     "settings": "设置",
     "goto_app": "转到应用",
-    "authentication": "认证"
+    "authentication": "认证",
+    "grpc": "gRPC"
   },
   "mock_server": {
     "confirm_delete_log": "确定要删除此日志吗？",
@@ -1255,7 +1256,11 @@
     "generate_data_schema": "生成数据结构",
     "data_schema": "数据结构",
     "saved": "响应已保存",
-    "invalid_name": "请为响应提供名称"
+    "invalid_name": "请为响应提供名称",
+    "metadata": "元数据",
+    "no_metadata": "此响应不包含任何元数据",
+    "no_trailers": "此响应不包含任何尾部信息",
+    "trailers": "尾部信息"
   },
   "script": {
     "inheriting": "正在从以下位置继承脚本",
@@ -2357,5 +2362,14 @@
       "delete_success": "Mock 服务删除成功",
       "delete_error": "删除 Mock 服务失败"
     }
+  },
+  "grpc": {
+    "unsupported_title": "当前平台不支持 gRPC",
+    "unsupported_description": "请使用支持二进制 HTTP/2 的拦截器，例如桌面应用的原生拦截器。",
+    "invoke": "调用",
+    "server_url": "gRPC 服务器 URL",
+    "service": "服务",
+    "streaming": "流式传输",
+    "url_placeholder": "http://localhost:8080"
   }
 }

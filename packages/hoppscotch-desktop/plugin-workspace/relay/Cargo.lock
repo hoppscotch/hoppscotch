@@ -184,6 +184,7 @@ source = "git+https://github.com/CuriousCorrelation/curl-rust.git?rev=1ec8079cf5
 dependencies = [
  "cc",
  "libc",
+ "libnghttp2-sys",
  "libz-sys",
  "openssl-sys",
  "pkg-config",
@@ -508,6 +509,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "09d6582e104315a817dff97f75133544b2e094ee22447d2acf4a74e189ba06fc"
 
 [[package]]
+name = "libnghttp2-sys"
+version = "0.1.12+1.68.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "31d4c51112b381b39a072a6010bc5d3e5557996c5d0150abacd1d349b2636299"
+dependencies = [
+ "cc",
+ "libc",
+]
+
+[[package]]
 name = "libz-sys"
 version = "1.1.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -737,12 +748,14 @@ dependencies = [
  "bytes",
  "cookie",
  "curl",
+ "curl-sys",
  "dashmap",
  "env_logger",
  "http",
  "http-serde",
  "infer",
  "lazy_static",
+ "libnghttp2-sys",
  "log",
  "mime",
  "openssl",

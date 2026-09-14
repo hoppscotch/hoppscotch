@@ -540,7 +540,8 @@
     "profile": "Profile",
     "realtime": "Реалном времену",
     "rest": "REST",
-    "settings": "Подешавања"
+    "settings": "Подешавања",
+    "grpc": "gRPC"
   },
   "preRequest": {
     "javascript_code": "ЈаваСцрипт код",
@@ -637,7 +638,11 @@
     "title": "Одговор",
     "video": "Video",
     "waiting_for_connection": "чека везу",
-    "xml": "КСМЛ"
+    "xml": "КСМЛ",
+    "metadata": "Метаподаци",
+    "no_metadata": "Овај одговор не садржи метаподатке",
+    "no_trailers": "Овај одговор не садржи завршна заглавља",
+    "trailers": "Завршна заглавља"
   },
   "settings": {
     "accent_color": "Боја акцента",
@@ -1102,5 +1107,14 @@
     "not_found": "Shortcode not found",
     "short_code": "Short code",
     "url": "URL"
+  },
+  "grpc": {
+    "unsupported_title": "gRPC није доступан на тренутној платформи",
+    "unsupported_description": "Користите пресретач са подршком за бинарни HTTP/2, као што је изворни пресретач десктоп апликације.",
+    "invoke": "Позови",
+    "server_url": "URL gRPC сервера",
+    "service": "Услуга",
+    "streaming": "стримовање",
+    "url_placeholder": "http://localhost:8080"
   }
 }

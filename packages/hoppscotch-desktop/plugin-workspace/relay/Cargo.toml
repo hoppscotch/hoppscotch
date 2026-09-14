@@ -6,7 +6,12 @@ authors = ["CuriousCorrelation"]
 edition = "2021"
 
 [dependencies]
-curl = { git = "https://github.com/CuriousCorrelation/curl-rust.git", rev = "1ec8079cf527b9cf47cc7a48c68b458affdae273", features = ["ntlm"] }
+curl = { git = "https://github.com/CuriousCorrelation/curl-rust.git", rev = "1ec8079cf527b9cf47cc7a48c68b458affdae273", features = ["ntlm", "http2"] }
+# The pinned curl fork's `http2` feature enables curl's HTTP/2 sources but does
+# not activate its optional nghttp2 dependency. Depending on the same
+# `curl-sys` package directly feature-unifies the missing native dependency.
+curl-sys = { git = "https://github.com/CuriousCorrelation/curl-rust.git", rev = "1ec8079cf527b9cf47cc7a48c68b458affdae273", features = ["libnghttp2-sys"] }
+libnghttp2-sys = "0.1.3"
 cookie = "0.18"
 tokio-util = "0.7.12"
 lazy_static = "1.5.0"

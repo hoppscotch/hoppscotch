@@ -536,7 +536,8 @@
     "profile": "Профиль",
     "realtime": "Realtime",
     "rest": "REST",
-    "settings": "Настройки"
+    "settings": "Настройки",
+    "grpc": "gRPC"
   },
   "preRequest": {
     "javascript_code": "Код JavaScript",
@@ -632,7 +633,11 @@
     "title": "Ответ",
     "video": "Видео",
     "waiting_for_connection": "Ожидание соединения",
-    "xml": "XML"
+    "xml": "XML",
+    "metadata": "Метаданные",
+    "no_metadata": "Этот ответ не содержит метаданных",
+    "no_trailers": "Этот ответ не содержит трейлеров",
+    "trailers": "Трейлеры"
   },
   "settings": {
     "accent_color": "Основной цвет",
@@ -1085,5 +1090,14 @@
     "cli_command_generation_description_sh": "Скопируйте команду и запустите её в CLI. Заполните параметр <access token> своим токеном и проверьте, что сгенерирован верный URL сервера",
     "cli_command_generation_description_sh_with_server_url_placeholder": "Скопируйте команду и запустите её в CLI. Заполните параметр <access token> своим токеном и определите URL сервера",
     "run_collection": "Запустить коллекцию"
+  },
+  "grpc": {
+    "unsupported_title": "gRPC недоступен на текущей платформе",
+    "unsupported_description": "Используйте перехватчик с поддержкой двоичного HTTP/2, например встроенный перехватчик настольного приложения.",
+    "invoke": "Вызвать",
+    "server_url": "URL сервера gRPC",
+    "service": "Сервис",
+    "streaming": "потоковая передача",
+    "url_placeholder": "http://localhost:8080"
   }
 }

@@ -91,6 +91,7 @@
     "path": "0.12.7",
     "postman-collection": "5.3.1",
     "process": "0.11.10",
+    "protobufjs": "8.7.1",
     "qs": "6.15.3",
     "quicktype-core": "23.2.6",
     "rollup": "4.60.4",

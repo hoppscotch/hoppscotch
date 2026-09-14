@@ -8,8 +8,22 @@ use crate::{
     header::HeadersBuilder,
     interop::{ApiKeyLocation, AuthType, Request},
     security::SecurityHandler,
-    util::ToCurlVersion,
+    util::curl_version_for_url,
 };
+
+fn is_native_grpc_content_type(value: &str) -> bool {
+    let media_type = value
+        .split(';')
+        .next()
+        .unwrap_or_default()
+        .trim()
+        .to_ascii_lowercase();
+
+    media_type == "application/grpc"
+        || media_type
+            .strip_prefix("application/grpc+")
+            .is_some_and(|suffix| !suffix.is_empty())
+}
 
 pub(crate) struct CurlRequest<'a> {
     handle: &'a mut Easy,
@@ -93,15 +107,20 @@ impl<'a> CurlRequest<'a> {
         }
         */
 
-        self.handle
-            .http_version(self.request.version.to_curl_version())
-            .map_err(|e| {
-                tracing::error!(error = %e, "Failed to set HTTP version");
-                RelayError::Network {
-                    message: "Failed to set HTTP version".into(),
-                    cause: Some(e.to_string()),
-                }
-            })?;
+        let is_grpc = self.request.headers.as_ref().is_some_and(|headers| {
+            headers.iter().any(|(key, value)| {
+                key.eq_ignore_ascii_case("content-type") && is_native_grpc_content_type(value)
+            })
+        });
+        let http_version = curl_version_for_url(self.request.version, &self.request.url, is_grpc);
+
+        self.handle.http_version(http_version).map_err(|e| {
+            tracing::error!(error = %e, "Failed to set HTTP version");
+            RelayError::Network {
+                message: "Failed to set HTTP version".into(),
+                cause: Some(e.to_string()),
+            }
+        })?;
 
         // NOTE: `""` corresponds to accept all,
         // see: https://curl.se/libcurl/c/CURLOPT_ACCEPT_ENCODING.html
@@ -269,5 +288,26 @@ impl<'a> CurlRequest<'a> {
         }
 
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::is_native_grpc_content_type;
+
+    #[test]
+    fn detects_native_grpc_content_types() {
+        assert!(is_native_grpc_content_type("application/grpc"));
+        assert!(is_native_grpc_content_type(
+            "Application/Grpc; charset=utf-8"
+        ));
+        assert!(is_native_grpc_content_type("application/grpc+proto"));
+    }
+
+    #[test]
+    fn excludes_grpc_web_and_unrelated_content_types() {
+        assert!(!is_native_grpc_content_type("application/grpc-web"));
+        assert!(!is_native_grpc_content_type("application/grpc-web+proto"));
+        assert!(!is_native_grpc_content_type("application/json"));
     }
 }

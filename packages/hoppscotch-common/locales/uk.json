@@ -540,7 +540,8 @@
     "profile": "Профіль",
     "realtime": "Реальний час",
     "rest": "REST",
-    "settings": "Налаштування"
+    "settings": "Налаштування",
+    "grpc": "gRPC"
   },
   "preRequest": {
     "javascript_code": "Код JavaScript",
@@ -637,7 +638,11 @@
     "title": "Відповідь",
     "video": "Video",
     "waiting_for_connection": "очікування підключення",
-    "xml": "XML"
+    "xml": "XML",
+    "metadata": "Метадані",
+    "no_metadata": "Ця відповідь не містить метаданих",
+    "no_trailers": "Ця відповідь не містить трейлерів",
+    "trailers": "Трейлери"
   },
   "settings": {
     "accent_color": "Колір акценту",
@@ -1102,5 +1107,14 @@
     "not_found": "Короткий код не знайдено",
     "short_code": "Короткий код",
     "url": "URL"
+  },
+  "grpc": {
+    "unsupported_title": "gRPC недоступний на поточній платформі",
+    "unsupported_description": "Використовуйте перехоплювач із підтримкою двійкового HTTP/2, наприклад вбудований перехоплювач настільного застосунку.",
+    "invoke": "Викликати",
+    "server_url": "URL сервера gRPC",
+    "service": "Сервіс",
+    "streaming": "потокове передавання",
+    "url_placeholder": "http://localhost:8080"
   }
 }

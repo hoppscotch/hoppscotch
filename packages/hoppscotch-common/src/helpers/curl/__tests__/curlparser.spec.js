@@ -1281,7 +1281,7 @@ describe("Parse curl command to Hopp REST Request", () => {
     expect(JSON.parse(actual.body.body)).toEqual({ foo: "bar" })
   })
 
-  test("parses double-quoted URL and preserves RFC 3986 pipe and curly braces", () => {
+  test("parses double-quoted URL and preserves commonly tolerated unencoded characters", () => {
     const command = `curl "https://example.com/api?filter={id}|all"`
 
     const actual = parseCurlToHoppRESTReq(command)

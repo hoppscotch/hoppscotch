@@ -79,13 +79,10 @@ export class SecretEnvironmentService extends Service {
   }
 
   /**
-   * Update the current value of a single secret variable, leaving the rest of
-   * the environment's entries untouched.
+   * Update the current value of a single secret variable.
    *
-   * `key` is only consulted when the variable has no entry yet (for example a
-   * secret edited on this device for the first time). The
-   * `watchSecretEnvironments` cleanup drops environments whose variables all
-   * have empty keys, so a freshly created entry must carry the real key.
+   * `key` seeds a missing entry, which the `watchSecretEnvironments` cleanup
+   * otherwise drops.
    *
    * @param id ID of the environment
    * @param varIndex Index of the variable in the environment
@@ -112,9 +109,8 @@ export class SecretEnvironmentService extends Service {
   }
 
   /**
-   * Rename the key of an existing secret entry so key-based lookups
-   * (`hasSecretValue`, the env inspector) keep resolving after a variable is
-   * renamed. No-op when there is no entry for `varIndex`.
+   * Rename an entry so key-based lookups keep resolving after a rename.
+   * No-op when there is no entry for `varIndex`.
    *
    * @param id ID of the environment
    * @param varIndex Index of the variable in the environment

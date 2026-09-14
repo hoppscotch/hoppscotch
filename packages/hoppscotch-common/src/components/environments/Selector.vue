@@ -740,9 +740,7 @@ const globalEnvs = computed(() => {
   )
 })
 
-// Personal/team environments key their current values by the environment id;
-// the global section always uses "Global". Keep this in sync with
-// `resolveDisplayVariable` and the modal editor so both surfaces agree.
+// Globals use the literal "Global" as their value-store key, like the modal.
 const selectedEnvID = computed(() => {
   const env = selectedEnv.value
   return env.type === "MY_ENV" || env.type === "TEAM_ENV" ? env.id : null

@@ -186,10 +186,7 @@ const updateSelectedTeam = (newSelectedTeam: TeamWorkspace | undefined) => {
 }
 const updateEnvironmentType = (newEnvironmentType: EnvironmentType) => {
   environmentType.value.type = newEnvironmentType
-  // The Environments tab stays mounted across workspace switches, so a target
-  // left open in one workspace would render an empty editor in the next (a
-  // stale team id, or a personal env that no longer exists). Close it on every
-  // environment-type change.
+  // The tab stays mounted across switches, so close any editor left open.
   openEnvironment.value = null
 }
 

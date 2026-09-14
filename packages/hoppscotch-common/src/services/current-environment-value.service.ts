@@ -89,14 +89,10 @@ export class CurrentValueService extends Service {
   }
 
   /**
-   * Update the current value of a single environment variable, leaving the
-   * rest of the environment's entries untouched.
+   * Update the current value of a single environment variable.
    *
-   * `key` is only consulted when the variable has no entry yet (for example an
-   * environment synced to this device but never edited locally). The
-   * `watchCurrentEnvironments` cleanup drops environments whose variables all
-   * have empty keys, so a freshly created entry must carry the variable's real
-   * key to survive.
+   * `key` seeds a missing entry, which the `watchCurrentEnvironments` cleanup
+   * otherwise drops.
    *
    * @param id ID of the environment
    * @param varIndex Index of the variable in the environment
@@ -123,11 +119,8 @@ export class CurrentValueService extends Service {
   }
 
   /**
-   * Rename the key of an existing entry so lookups that match by key (code
-   * editor highlighting, docs preview, `hasValue`) keep resolving after a
-   * variable is renamed in the editor. No-op when the environment has no entry
-   * for `varIndex` — a variable that never had a current value set locally
-   * doesn't need one to survive a rename.
+   * Rename an entry so key-based lookups keep resolving after a rename.
+   * No-op when there is no entry for `varIndex`.
    *
    * @param id ID of the environment
    * @param varIndex Index of the variable in the environment

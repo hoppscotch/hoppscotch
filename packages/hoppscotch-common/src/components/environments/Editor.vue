@@ -193,8 +193,6 @@ const blurTarget = (event: Event) => {
   ;(event.target as HTMLInputElement).blur()
 }
 
-// Row-specific accessible names: several rows render the same control, so the
-// label has to carry the variable it belongs to.
 const valueAriaLabel = (row: Row) =>
   row.key
     ? `${t("environment.current_value")}: ${row.key}`
@@ -234,9 +232,8 @@ const commitValue = (row: Row, event: Event) => {
   )
 }
 
-// Pending key edits. The key input binds to this overlay, so a rejected edit
-// can be reverted, and every outgoing payload merges the overlay so a rename
-// sent before the previous subscription echo cannot drop the earlier one.
+// Pending key edits, merged into every payload so a quick second rename cannot
+// overwrite the first before the definition echoes it back.
 const draftKeys = ref<Record<number, string>>({})
 
 const variablesWithDraftKeys = (env: Environment) =>
@@ -245,8 +242,7 @@ const variablesWithDraftKeys = (env: Environment) =>
     key: draftKeys.value[index] ?? variable.key,
   }))
 
-// Drop a draft once the definition reflects it, and reset the overlay when the
-// target changes so a stale draft cannot leak into another environment.
+// Drop drafts once the definition reflects them; reset when the target changes.
 watch(targetEnv, (env) => {
   if (!env) {
     draftKeys.value = {}
@@ -289,9 +285,8 @@ const setVariableKeyInServices = (
   }
 }
 
-// Team environment writes are sequential: without this, two quick renames both
-// build a payload from the same definition snapshot and the later request
-// overwrites the earlier rename.
+// Serialize team writes so a second rename cannot build its payload from a
+// stale snapshot and overwrite the first.
 let teamKeySaveQueue: Promise<void> = Promise.resolve()
 
 const queueTeamKeySave = (
@@ -319,7 +314,6 @@ const queueTeamKeySave = (
       console.error(result.left)
       toast.error(t(getEnvActionErrorMessage(result.left)))
 
-      // Revert the rejected edit so the input does not keep an unpersisted key.
       const remaining = { ...draftKeys.value }
       delete remaining[varIndex]
       draftKeys.value = remaining
@@ -342,9 +336,7 @@ const persistKey = (varIndex: number, newKey: string) => {
     return
   }
 
-  // Mirror the modal: never write client-local values back into the environment
-  // definition. The sync layer strips on the wire too, but keeping the stored
-  // definition clean avoids the store and the value services disagreeing.
+  // Keep client-local values out of the stored definition, as the modal does.
   const variablesForWire = stripClientLocalValuesForWire(
     variablesWithDraftKeys(env)
   )
@@ -371,8 +363,7 @@ const commitKey = (row: Row, event: Event) => {
 
   if (props.keysReadonly || newKey === displayedKey) return
 
-  // Empty keys are dropped by the environment modal's save; revert to the
-  // persisted key instead of keeping a nameless variable.
+  // Empty keys are dropped by the modal's save; revert to the persisted key.
   if (!newKey) {
     const remaining = { ...draftKeys.value }
     delete remaining[row.varIndex]

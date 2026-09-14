@@ -29,7 +29,7 @@
         class="grid grid-cols-[minmax(0,5fr)_minmax(0,7fr)_auto] items-center gap-1 border-b border-dividerLight px-2 py-1"
       >
         <input
-          :value="row.key"
+          :value="draftKeys[row.varIndex] ?? row.key"
           class="min-w-0 truncate rounded bg-transparent px-1 py-1 text-secondaryDark focus:outline-none focus:ring-1 focus:ring-dividerDark"
           :class="{ 'opacity-50': keysReadonly }"
           :placeholder="t('count.variable', { count: row.varIndex + 1 })"
@@ -78,12 +78,10 @@ import { Environment, GlobalEnvironment } from "@hoppscotch/data"
 import { useReadonlyStream } from "@composables/stream"
 import { useToast } from "@composables/toast"
 import { useService } from "dioc/vue"
-import * as TE from "fp-ts/TaskEither"
-import { pipe } from "fp-ts/function"
+import * as E from "fp-ts/Either"
 import { cloneDeep } from "lodash-es"
-import { computed, ref } from "vue"
+import { computed, ref, watch } from "vue"
 import { useI18n } from "~/composables/i18n"
-import { GQLError } from "~/helpers/backend/GQLClient"
 import { updateTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
 import { stripClientLocalValuesForWire } from "~/helpers/clientLocalVariables"
 import { getEnvActionErrorMessage } from "~/helpers/error-messages"
@@ -236,6 +234,40 @@ const commitValue = (row: Row, event: Event) => {
   )
 }
 
+// Pending key edits. The key input binds to this overlay, so a rejected edit
+// can be reverted, and every outgoing payload merges the overlay so a rename
+// sent before the previous subscription echo cannot drop the earlier one.
+const draftKeys = ref<Record<number, string>>({})
+
+const variablesWithDraftKeys = (env: Environment) =>
+  env.variables.map((variable, index) => ({
+    ...variable,
+    key: draftKeys.value[index] ?? variable.key,
+  }))
+
+// Drop a draft once the definition reflects it, and reset the overlay when the
+// target changes so a stale draft cannot leak into another environment.
+watch(targetEnv, (env) => {
+  if (!env) {
+    draftKeys.value = {}
+    return
+  }
+
+  const remaining: Record<number, string> = {}
+  for (const [index, key] of Object.entries(draftKeys.value)) {
+    const varIndex = Number(index)
+    if (env.variables[varIndex]?.key !== key) remaining[varIndex] = key
+  }
+  draftKeys.value = remaining
+})
+
+watch(
+  () => props.target,
+  () => {
+    draftKeys.value = {}
+  }
+)
+
 const setVariableKeyInServices = (
   id: string,
   varIndex: number,
@@ -257,51 +289,76 @@ const setVariableKeyInServices = (
   }
 }
 
+// Team environment writes are sequential: without this, two quick renames both
+// build a payload from the same definition snapshot and the later request
+// overwrites the earlier rename.
+let teamKeySaveQueue: Promise<void> = Promise.resolve()
+
+const queueTeamKeySave = (
+  varIndex: number,
+  newKey: string,
+  isSecret: boolean
+) => {
+  teamKeySaveQueue = teamKeySaveQueue.then(async () => {
+    const env = targetEnv.value
+    const teamEnvID =
+      props.target.type === "team-environment" ? props.target.id : null
+    if (!env || !teamEnvID) return
+
+    const variablesForWire = stripClientLocalValuesForWire(
+      variablesWithDraftKeys(env)
+    )
+
+    const result = await updateTeamEnvironment(
+      JSON.stringify(variablesForWire),
+      teamEnvID,
+      envName.value
+    )()
+
+    if (E.isLeft(result)) {
+      console.error(result.left)
+      toast.error(t(getEnvActionErrorMessage(result.left)))
+
+      // Revert the rejected edit so the input does not keep an unpersisted key.
+      const remaining = { ...draftKeys.value }
+      delete remaining[varIndex]
+      draftKeys.value = remaining
+      return
+    }
+
+    setVariableKeyInServices(teamEnvID, varIndex, newKey, isSecret)
+  })
+}
+
 const persistKey = (varIndex: number, newKey: string) => {
   const env = targetEnv.value
   if (!env) return
 
   const isSecret = env.variables[varIndex]?.secret ?? false
+  draftKeys.value = { ...draftKeys.value, [varIndex]: newKey }
 
-  const updatedVariables = env.variables.map((variable, index) =>
-    index === varIndex ? { ...variable, key: newKey } : variable
-  )
+  if (props.target.type === "team-environment") {
+    queueTeamKeySave(varIndex, newKey, isSecret)
+    return
+  }
 
   // Mirror the modal: never write client-local values back into the environment
   // definition. The sync layer strips on the wire too, but keeping the stored
   // definition clean avoids the store and the value services disagreeing.
-  const variablesForWire = stripClientLocalValuesForWire(updatedVariables)
+  const variablesForWire = stripClientLocalValuesForWire(
+    variablesWithDraftKeys(env)
+  )
 
   if (props.target.type === "my-environment") {
     updateEnvironment(props.target.index, {
       ...cloneDeep(env),
       variables: variablesForWire,
     })
-  } else if (props.target.type === "global") {
+  } else {
     setGlobalEnvVariables({
       v: 2,
       variables: variablesForWire,
     } as GlobalEnvironment)
-  } else {
-    const teamEnvID = props.target.id
-    const teamEnvName = envName.value
-    pipe(
-      updateTeamEnvironment(
-        JSON.stringify(variablesForWire),
-        teamEnvID,
-        teamEnvName
-      ),
-      TE.match(
-        (err: GQLError<string>) => {
-          console.error(err)
-          toast.error(t(getEnvActionErrorMessage(err)))
-        },
-        () => {
-          setVariableKeyInServices(teamEnvID, varIndex, newKey, isSecret)
-        }
-      )
-    )()
-    return
   }
 
   setVariableKeyInServices(envID.value, varIndex, newKey, isSecret)
@@ -310,12 +367,16 @@ const persistKey = (varIndex: number, newKey: string) => {
 const commitKey = (row: Row, event: Event) => {
   const input = event.target as HTMLInputElement
   const newKey = input.value.trim()
+  const displayedKey = draftKeys.value[row.varIndex] ?? row.key
 
-  if (props.keysReadonly || newKey === row.key) return
+  if (props.keysReadonly || newKey === displayedKey) return
 
-  // Empty keys are dropped by the environment modal's save; revert instead of
-  // persisting a nameless variable.
+  // Empty keys are dropped by the environment modal's save; revert to the
+  // persisted key instead of keeping a nameless variable.
   if (!newKey) {
+    const remaining = { ...draftKeys.value }
+    delete remaining[row.varIndex]
+    draftKeys.value = remaining
     input.value = row.key
     return
   }

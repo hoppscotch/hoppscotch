@@ -34,6 +34,11 @@ import { getPreRequestMetrics } from "./pre-request";
 import { preProcessGQLRequest } from "./gql-request";
 import { buildJUnitReport, generateJUnitReportExport } from "./reporters/junit";
 import {
+  buildJSONReportIteration,
+  generateJSONReportExport,
+  JSONReport,
+} from "./reporters/json";
+import {
   getRequestMetrics,
   preProcessRequest,
   processRequest,
@@ -44,6 +49,21 @@ import { filterValidScripts } from "@hoppscotch/js-sandbox/scripting";
 const { WARN, FAIL, INFO } = exceptionColors;
 
 /**
+ * Result of a collection run, with per-iteration request reports grouped
+ * together and the full flat list of request reports.
+ */
+export type CollectionsRunnerResult = {
+  /**
+   * The request reports grouped by iteration (1-based index).
+   */
+  iterations: RequestReport[][];
+  /**
+   * The request reports of all iterations, in execution order.
+   */
+  requests: RequestReport[];
+};
+
+/**
  * Processes each requests within collections to prints details of subsequent requests,
  * tests and to display complete errors-report, failed-tests-report and test-metrics.
  * @param param Data of hopp-collection with hopp-requests, envs to be processed.
@@ -52,7 +72,7 @@ const { WARN, FAIL, INFO } = exceptionColors;
 
 export const collectionsRunner = async (
   param: CollectionRunnerParam
-): Promise<RequestReport[]> => {
+): Promise<CollectionsRunnerResult> => {
   const {
     collections,
     envs,
@@ -65,6 +85,7 @@ export const collectionsRunner = async (
   const resolvedDelay = delay ?? 0;
 
   const requestsReport: RequestReport[] = [];
+  const iterationReports: RequestReport[][] = [];
   const collectionQueue = getCollectionQueue(collections);
 
   // If iteration count is not supplied, it should be based on the size of iteration data if in scope
@@ -76,6 +97,9 @@ export const collectionsRunner = async (
     if (resolvedIterationCount > 1) {
       log(INFO(`\nIteration: ${count + 1}/${resolvedIterationCount}`));
     }
+
+    // Mark the start of this iteration's request reports
+    const iterationStart = requestsReport.length;
 
     // Reset `envs` to the original value at the start of each iteration
     envs.selected = [...originalSelectedEnvs];
@@ -104,9 +128,11 @@ export const collectionsRunner = async (
         legacySandbox
       );
     }
+
+    iterationReports.push(requestsReport.slice(iterationStart));
   }
 
-  return requestsReport;
+  return { iterations: iterationReports, requests: requestsReport };
 };
 
 const processCollection = async (
@@ -243,7 +269,9 @@ const getCollectionQueue = (collections: HoppCollection[]): CollectionQueue[] =>
  */
 export const collectionsRunnerResult = (
   requestsReport: RequestReport[],
-  reporterJUnitExportPath?: string
+  reporterJUnitExportPath?: string,
+  iterations?: RequestReport[][],
+  reporterJSONExportPath?: string
 ): boolean => {
   const overallTestMetrics = <TestMetrics>{
     tests: { failed: 0, passed: 0 },
@@ -352,6 +380,44 @@ export const collectionsRunnerResult = (
       testDuration: overallTestMetrics.duration,
       reporterJUnitExportPath,
     });
+  }
+
+  if (reporterJSONExportPath) {
+    // When iterations were grouped, report each group; otherwise treat the
+    // whole run as a single iteration.
+    const iterationGroups =
+      iterations !== undefined && iterations.length > 0
+        ? iterations
+        : [requestsReport];
+
+    const reportIterations = iterationGroups.map((group, index) =>
+      buildJSONReportIteration(index + 1, group)
+    );
+
+    const jsonReport: JSONReport = {
+      iterations: reportIterations,
+      summary: reportIterations.reduce(
+        (acc, iteration) => {
+          acc.iterations += 1;
+          acc.totalRequests += iteration.requests.length;
+          acc.passed += iteration.passed;
+          acc.failed += iteration.failed;
+          acc.errored += iteration.errored;
+          acc.duration += iteration.duration;
+          return acc;
+        },
+        {
+          iterations: 0,
+          totalRequests: 0,
+          passed: 0,
+          failed: 0,
+          errored: 0,
+          duration: 0,
+        }
+      ),
+    };
+
+    generateJSONReportExport(jsonReport, reporterJSONExportPath);
   }
 
   return finalResult;

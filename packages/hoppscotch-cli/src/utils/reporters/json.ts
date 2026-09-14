@@ -89,7 +89,10 @@ export const buildJSONReportIteration = (
       failed += 1;
     }
 
-    duration += requestDurations.request;
+    duration +=
+      requestDurations.request +
+      requestDurations.preRequest +
+      requestDurations.test;
 
     return {
       path,
@@ -110,7 +113,8 @@ export const buildJSONReportIteration = (
         // separately, mirroring the JUnit reporter's `errors` dimension
         errored: tests.reduce(
           (acc, suite) =>
-            acc + suite.expectResults.filter((t) => t.status === "error").length,
+            acc +
+            suite.expectResults.filter((t) => t.status === "error").length,
           0
         ),
       },
@@ -142,10 +146,11 @@ export const generateJSONReportExport = (
   report: JSONReport,
   reporterJSONExportPath: string
 ) => {
-  // Convert the report to a pretty-printed JSON string
-  const jsonDocString = JSON.stringify(report, null, 2);
-
   try {
+    // Convert the report to a pretty-printed JSON string so that a
+    // non-serializable report surfaces as REPORT_EXPORT_FAILED.
+    const jsonDocString = JSON.stringify(report, null, 2);
+
     const resolvedExportPath = path.resolve(reporterJSONExportPath);
 
     if (fs.existsSync(resolvedExportPath)) {

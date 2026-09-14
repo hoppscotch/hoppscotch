@@ -1062,7 +1062,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
         );
 
     beforeAll(() => {
-      fs.mkdirSync(genPath);
+      fs.mkdirSync(genPath, { recursive: true });
     });
 
     afterAll(() => {
@@ -1568,10 +1568,11 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
     });
 
     test("Report export fails with the code `REPORT_EXPORT_FAILED` while encountering an error during path creation", async () => {
-      const invalidPath =
-        process.platform === "win32"
-          ? "Z:/non-existent-path/report.json"
-          : "/non-existent/report.json";
+      // A path whose parent is an existing *file* always fails to create,
+      // regardless of the privileges the test runs with.
+      const blockerFile = path.join(genPath, "blocker-file");
+      fs.writeFileSync(blockerFile, "blocker");
+      const invalidPath = path.join(blockerFile, "report.json");
 
       const PASSES_COLL_PATH = getTestJsonFilePath(
         "passes-coll.json",

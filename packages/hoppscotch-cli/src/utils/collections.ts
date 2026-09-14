@@ -386,7 +386,9 @@ export const collectionsRunnerResult = (
     // When iterations were grouped, report each group; otherwise treat the
     // whole run as a single iteration.
     const iterationGroups =
-      iterations && iterations.length > 0 ? iterations : [requestsReport];
+      iterations !== undefined && iterations.length > 0
+        ? iterations
+        : [requestsReport];
 
     const reportIterations = iterationGroups.map((group, index) =>
       buildJSONReportIteration(index + 1, group)

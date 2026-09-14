@@ -455,8 +455,8 @@
     "postman_environment": "Postman-miljø",
     "postman_environment_description": "Importér Postman-miljø fra en JSON-fil",
     "title": "Importér",
-    "file_size_limit_exceeded_warning_multiple_files": "Valgte filer overstiger den anbefalede grænse på 10MB. Kun de første {files} valgte vil blive importeret",
-    "file_size_limit_exceeded_warning_single_file": "Den aktuelt valgte fil overstiger den anbefalede grænse på 10MB. Vælg venligst en anden fil.",
+    "file_size_limit_exceeded_warning_multiple_files": "Valgte filer overstiger den anbefalede grænse på {sizeLimit}MB. Kun de første {files} valgte vil blive importeret",
+    "file_size_limit_exceeded_warning_single_file": "Den aktuelt valgte fil overstiger den anbefalede grænse på {sizeLimit}MB. Vælg venligst en anden fil.",
     "success": "Importeret med succes"
   },
   "inspections": {
@@ -956,7 +956,6 @@
     "share_tab_request": "Del fanens anmodning",
     "socketio": "Socket.IO",
     "sse": "SSE",
-    "tests": "Tests",
     "types": "Typer",
     "variables": "Variabler",
     "websocket": "WebSocket"

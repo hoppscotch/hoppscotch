@@ -33,7 +33,7 @@
           class="min-w-0 truncate rounded bg-transparent px-1 py-1 text-secondaryDark focus:outline-none focus:ring-1 focus:ring-dividerDark"
           :class="{ 'opacity-50': keysReadonly }"
           :placeholder="t('count.variable', { count: row.varIndex + 1 })"
-          :aria-label="t('environment.name')"
+          :aria-label="t('count.variable', { count: row.varIndex + 1 })"
           :disabled="keysReadonly"
           @blur="commitKey(row, $event)"
           @keydown.enter.prevent="blurTarget($event)"
@@ -45,7 +45,7 @@
           "
           class="min-w-0 truncate rounded bg-transparent px-1 py-1 text-secondaryLight focus:outline-none focus:ring-1 focus:ring-dividerDark"
           :placeholder="t('count.currentValue', { count: row.varIndex + 1 })"
-          :aria-label="t('environment.current_value')"
+          :aria-label="valueAriaLabel(row)"
           @input="commitValue(row, $event)"
           @keydown.enter.prevent="blurTarget($event)"
         />
@@ -194,6 +194,13 @@ const rows = computed<Row[]>(() => {
 const blurTarget = (event: Event) => {
   ;(event.target as HTMLInputElement).blur()
 }
+
+// Row-specific accessible names: several rows render the same control, so the
+// label has to carry the variable it belongs to.
+const valueAriaLabel = (row: Row) =>
+  row.key
+    ? `${t("environment.current_value")}: ${row.key}`
+    : t("count.currentValue", { count: row.varIndex + 1 })
 
 // Secret values are local to this device, but stay masked until revealed.
 const revealedSecrets = ref<Record<number, boolean>>({})

@@ -4,7 +4,11 @@
     type="text"
     class="min-w-[4rem] w-full truncate rounded bg-transparent text-secondaryLight focus:outline-none focus:ring-1 focus:ring-dividerDark"
     :placeholder="t('environment.edit_current_value')"
-    :aria-label="t('environment.edit_current_value')"
+    :aria-label="
+      variableKey
+        ? `${t('environment.edit_current_value')}: ${variableKey}`
+        : t('environment.edit_current_value')
+    "
     :name="name"
   />
 </template>

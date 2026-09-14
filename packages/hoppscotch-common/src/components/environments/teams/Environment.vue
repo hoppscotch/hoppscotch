@@ -14,8 +14,10 @@
       <icon-lucide-layers v-else class="svg-icons" />
     </span>
     <span
+      v-tippy="{ theme: 'tooltip' }"
+      :title="t('action.edit')"
       class="flex min-w-0 flex-1 cursor-pointer py-2 pr-2 transition group-hover:text-secondaryDark"
-      @click="emit('select-environment')"
+      @click="emit('open-environment')"
     >
       <span class="truncate">
         {{ environment.environment.name }}
@@ -181,6 +183,7 @@ const emit = defineEmits<{
   (e: "edit-environment"): void
   (e: "show-environment-properties"): void
   (e: "select-environment"): void
+  (e: "open-environment"): void
 }>()
 
 const secretEnvironmentService = useService(SecretEnvironmentService)

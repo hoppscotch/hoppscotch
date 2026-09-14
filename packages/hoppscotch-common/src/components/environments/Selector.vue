@@ -260,7 +260,16 @@
                 <span class="min-w-[4rem] w-full truncate text-secondaryLight">
                   {{ variable.initialValue }}
                 </span>
-                <span class="min-w-[4rem] w-full truncate text-secondaryLight">
+                <CurrentValueInput
+                  v-if="!variable.secret"
+                  env-id="Global"
+                  :var-index="index"
+                  :variable-key="variable.key"
+                />
+                <span
+                  v-else
+                  class="min-w-[4rem] w-full truncate text-secondaryLight"
+                >
                   {{ variable.currentValue }}
                 </span>
               </div>
@@ -323,7 +332,16 @@
                 <span class="min-w-[4rem] w-full truncate text-secondaryLight">
                   {{ variable.initialValue }}
                 </span>
-                <span class="min-w-[4rem] w-full truncate text-secondaryLight">
+                <CurrentValueInput
+                  v-if="!variable.secret"
+                  :env-id="selectedEnvID ?? ''"
+                  :var-index="index"
+                  :variable-key="variable.key"
+                />
+                <span
+                  v-else
+                  class="min-w-[4rem] w-full truncate text-secondaryLight"
+                >
                   {{ variable.currentValue }}
                 </span>
               </div>
@@ -366,6 +384,7 @@ import {
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
 import { useLocalState } from "~/newstore/localstate"
+import CurrentValueInput from "~/components/environments/CurrentValueInput.vue"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { maskSecretValue } from "~/helpers/utils/secretMask"
@@ -721,9 +740,15 @@ const globalEnvs = computed(() => {
   )
 })
 
+// Globals use the literal "Global" as their value-store key, like the modal.
+const selectedEnvID = computed(() => {
+  const env = selectedEnv.value
+  return env.type === "MY_ENV" || env.type === "TEAM_ENV" ? env.id : null
+})
+
 const environmentVariables = computed(() => {
-  if (selectedEnv.value.variables && selectedEnv.value.id) {
-    const envID = selectedEnv.value.id
+  if (selectedEnv.value.variables && selectedEnvID.value) {
+    const envID = selectedEnvID.value
     return selectedEnv.value.variables.map((variable, index) =>
       resolveDisplayVariable(variable, envID, index)
     )

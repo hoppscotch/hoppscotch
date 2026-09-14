@@ -289,7 +289,9 @@
                     "
                   />
                   <HoppSmartItem
-                    v-if="!hasNoTeamAccess && isRootCollection"
+                    v-if="
+                      collectionsType === 'my-collections' && isRootCollection
+                    "
                     ref="updateAction"
                     :icon="IconRefreshCw"
                     :label="t('collection.update')"

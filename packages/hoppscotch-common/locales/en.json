@@ -371,6 +371,7 @@
     "requests_updated": "Requests updated",
     "requests_added": "Requests added",
     "requests_preserved": "Requests preserved",
+    "requests_deleted": "Requests deleted",
     "folders_updated": "Folders updated",
     "folders_added": "Folders added",
     "scripts_preserved": "Custom scripts preserved",

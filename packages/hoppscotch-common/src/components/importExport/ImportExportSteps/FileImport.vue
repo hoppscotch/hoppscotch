@@ -199,7 +199,7 @@ const handleImport = () => {
     emit("importFromFile", fileContent.value, {
       preserveScripts: preserveScripts.value,
       keepMissingRequests: keepMissingRequests.value,
-      fileName: selectedFileName.value || props.lastFileName,
+      fileName: selectedFileName.value || undefined,
       importScripts:
         props.showPostmanScriptOption && experimentalScriptingEnabled.value
           ? importScripts.value

@@ -92,14 +92,28 @@ function mergeRequest(
   } as HoppRESTRequest | HoppGQLRequest
 }
 
-function countSubTreeRequests(
-  folder: HoppCollection,
-  stats: UpdateSummaryData
-) {
+function countSubTreeAdded(folder: HoppCollection, stats: UpdateSummaryData) {
   stats.addedRequests += folder.requests.length
   for (const sub of folder.folders) {
     stats.addedFolders++
-    countSubTreeRequests(sub, stats)
+    countSubTreeAdded(sub, stats)
+  }
+}
+
+function countSubTreePreserved(
+  folder: HoppCollection,
+  stats: UpdateSummaryData
+) {
+  stats.preservedRequests += folder.requests.length
+  for (const sub of folder.folders) {
+    countSubTreePreserved(sub, stats)
+  }
+}
+
+function countSubTreeDeleted(folder: HoppCollection, stats: UpdateSummaryData) {
+  stats.deletedRequests += folder.requests.length
+  for (const sub of folder.folders) {
+    countSubTreeDeleted(sub, stats)
   }
 }
 
@@ -206,16 +220,19 @@ function mergeFoldersList(
       result.push(mergedFolder)
     } else {
       stats.addedFolders++
-      countSubTreeRequests(incomingFolder, stats)
+      countSubTreeAdded(incomingFolder, stats)
       result.push(cloneDeep(incomingFolder))
     }
   }
 
-  // Preserve unmatched existing folders
+  // Preserve or delete unmatched existing folders
   targetFolders.forEach((folder, idx) => {
     if (!matchedTargetIndices.has(idx)) {
       if (options.keepMissingRequests !== false) {
+        countSubTreePreserved(folder, stats)
         result.push(cloneDeep(folder))
+      } else {
+        countSubTreeDeleted(folder, stats)
       }
     }
   })

@@ -39,14 +39,25 @@
           <span>{{ t("collection.requests_preserved") }}</span>
         </p>
 
-        <p
-          v-if="stats.updatedFolders > 0 || stats.addedFolders > 0"
-          class="flex items-center space-x-2"
-        >
+        <p v-if="stats.deletedRequests > 0" class="flex items-center space-x-2">
+          <span class="font-medium text-red-500">
+            -{{ stats.deletedRequests }}
+          </span>
+          <span>{{ t("collection.requests_deleted") }}</span>
+        </p>
+
+        <p v-if="stats.updatedFolders > 0" class="flex items-center space-x-2">
           <span class="font-medium text-accent">
-            {{ stats.updatedFolders + stats.addedFolders }}
+            {{ stats.updatedFolders }}
           </span>
           <span>{{ t("collection.folders_updated") }}</span>
+        </p>
+
+        <p v-if="stats.addedFolders > 0" class="flex items-center space-x-2">
+          <span class="font-medium text-green-500">
+            +{{ stats.addedFolders }}
+          </span>
+          <span>{{ t("collection.folders_added") }}</span>
         </p>
 
         <p

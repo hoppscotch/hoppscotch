@@ -100,6 +100,8 @@ declare module 'vue' {
     CollectionsRequest: typeof import('./components/collections/Request.vue')['default']
     CollectionsSaveRequest: typeof import('./components/collections/SaveRequest.vue')['default']
     CollectionsTeamCollections: typeof import('./components/collections/TeamCollections.vue')['default']
+    CollectionsUpdate: typeof import('./components/collections/Update.vue')['default']
+    CollectionsUpdateSummary: typeof import('./components/collections/UpdateSummary.vue')['default']
     CollectionsVariables: typeof import('./components/collections/Variables.vue')['default']
     ConsoleItem: typeof import('./components/console/Item.vue')['default']
     ConsolePanel: typeof import('./components/console/Panel.vue')['default']

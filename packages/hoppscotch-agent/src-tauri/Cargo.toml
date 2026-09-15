@@ -48,6 +48,9 @@ sha2 = "0.10.9"
 file-rotate = "0.8.0"
 dirs = "6.0.0"
 
+[dev-dependencies]
+openssl = "0.10"
+
 [target.'cfg(windows)'.dependencies]
 tempfile = { version = "3.23.0" }
 winreg = { version = "0.52.0" }

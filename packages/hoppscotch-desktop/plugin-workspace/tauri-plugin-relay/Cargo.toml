@@ -9,11 +9,11 @@ exclude = ["/examples", "/webview-dist", "/webview-src", "/node_modules"]
 links = "tauri-plugin-relay"
 
 [dependencies]
-tauri = { version = "2.1.0" }
+tauri = { version = "2.11.3" }
 serde = "1.0"
 thiserror = "2"
 tracing = "0.1.41"
-relay = { git = "https://github.com/CuriousCorrelation/relay.git", rev = "1c4f1e16106ed48983926ea6ddb114c1dbb2f688" }
+relay = { git = "https://github.com/CuriousCorrelation/relay.git", rev = "0c9981650e935a7cf2eb7c93324f5d786656f456" }
 
 [build-dependencies]
-tauri-plugin = { version = "2.5.4", features = ["build"] }
+tauri-plugin = { version = "2.6.3", features = ["build"] }

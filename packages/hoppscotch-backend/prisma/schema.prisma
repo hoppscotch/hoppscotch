@@ -380,3 +380,56 @@ model PublishedDocs {
   @@unique([slug, version])
   @@index([collectionID])
 }
+
+// ============================================================
+// AI ASSISTANT
+// ============================================================
+
+// Separate from InfraConfig on purpose: every InfraConfig read decrypts, so a
+// key stored there could never be write-only, and saving infra config restarts
+// the backend for every user.
+model AiProviderConnection {
+  id           String   @id @default(cuid())
+  label        String // Unique, case-insensitively; it is what tells two apart
+  preset       String // ProviderPreset in the backend; a string so new ones need no migration
+  baseURL      String?
+  apiKey       String // Encrypted with DATA_ENCRYPTION_KEY, never returned to a client
+  models       String[]
+  defaultModel String
+  enabled      Boolean  @default(true)
+  isDefault    Boolean  @default(false) // At most one row is true
+  orderIndex   Int      @default(0)
+  createdOn    DateTime @default(now()) @db.Timestamptz(3)
+  updatedOn    DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([enabled])
+}
+
+// One row, id "singleton". Null on an override means "follow the preset",
+// which is not the same as false.
+model AiSettings {
+  id              String   @id @default("singleton")
+  enabled         Boolean  @default(false)
+  timeoutMs       Int?
+  maxRetries      Int?
+  toolSearch      Boolean?
+  promptCaching   Boolean?
+  reasoningEffort String?
+  updatedOn       DateTime @updatedAt @db.Timestamptz(3)
+}
+
+// Offered under "/" in the chat composer. A slug matching one of the built-in
+// skills replaces it rather than sitting beside it.
+model AiSkill {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String
+  prompt      String
+  enabled     Boolean  @default(true)
+  orderIndex  Int      @default(0)
+  createdOn   DateTime @default(now()) @db.Timestamptz(3)
+  updatedOn   DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([enabled])
+}

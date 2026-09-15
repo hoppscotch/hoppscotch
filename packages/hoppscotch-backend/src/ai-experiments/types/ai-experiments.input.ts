@@ -19,6 +19,17 @@ export class ChatInput {
   @IsOptional()
   @IsString()
   @MaxLength(100_000)
-  // Serialized snapshot of the current request/response/environment context
   context?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  model?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  // Which admin-registered connection the model belongs to. Omitted means the
+  // instance default.
+  connectionID?: string;
 }

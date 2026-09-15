@@ -666,3 +666,128 @@ export const buildChatTools = (deferNonCore: boolean): Anthropic.ToolUnion[] =>
         ),
       ]
     : [...CHAT_TOOLS];
+
+/**
+ * A stand-in for Anthropic's server-side tool search, for every provider that
+ * has none.
+ *
+ * Sending all 44 definitions on every step is what we are avoiding: vendor
+ * guidance puts the tool-selection cliff at thirty to fifty, and Postman
+ * published the same finding from building this at scale — hallucinated calls
+ * rise past roughly forty, and a better model reduces it without fixing it.
+ *
+ * The model asks for what it needs, the broker answers from the catalogue, and
+ * the expanded set is worked out again on each request from the transcript, so
+ * nothing has to be remembered between calls.
+ */
+export const FIND_TOOLS_TOOL: Anthropic.Tool = {
+  name: 'find_tools',
+  description:
+    'Search for tools that are not loaded yet. Call this FIRST whenever the user asks for something the loaded tools do not cover — collections, environments, teams, workspaces, tabs, documentation, mock servers or the interceptor. Returns the matching tool definitions, which you can then call normally in your next message.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      query: {
+        type: 'string',
+        description:
+          'What you are trying to do, in a few words, e.g. "create a collection" or "publish documentation".',
+      },
+    },
+    required: ['query'],
+  },
+};
+
+/** Tools the transcript shows were already called, so they stay available. */
+export const collectUsedToolNames = (messages: unknown[]): Set<string> => {
+  const used = new Set<string>();
+  for (const raw of messages) {
+    const message = raw as { role?: string; content?: unknown };
+    if (message?.role !== 'assistant' || !Array.isArray(message.content)) {
+      continue;
+    }
+    for (const block of message.content as Array<{
+      type?: string;
+      name?: string;
+    }>) {
+      if (block?.type === 'tool_use' && block.name) used.add(block.name);
+    }
+  }
+  return used;
+};
+
+const WORD = /[a-z0-9]+/g;
+
+/** Query terms, minus the noise words every request would otherwise match. */
+const terms = (query: string): string[] => {
+  const stop = new Set([
+    'the',
+    'a',
+    'an',
+    'to',
+    'for',
+    'of',
+    'in',
+    'on',
+    'and',
+    'or',
+    'my',
+    'this',
+    'that',
+    'it',
+    'is',
+    'do',
+    'can',
+    'i',
+    'want',
+    'need',
+    'please',
+    'with',
+  ]);
+  const words: string[] = query.toLowerCase().match(WORD) ?? [];
+  return words.filter((word) => word.length > 1 && !stop.has(word));
+};
+
+/**
+ * Ranks the unloaded tools against a query.
+ *
+ * A name match counts for far more than a description match: tool names here
+ * are verb_noun pairs that read like the request itself ("create_collection"),
+ * while descriptions share boilerplate and match almost anything.
+ */
+export const findToolsByQuery = (
+  query: string,
+  exclude: Set<string>,
+  limit = 8,
+): Anthropic.Tool[] => {
+  const words = terms(query);
+  if (!words.length) return [];
+
+  return CHAT_TOOLS.filter((tool) => !exclude.has(tool.name))
+    .map((tool) => {
+      const name = tool.name.toLowerCase();
+      const description = String(tool.description ?? '').toLowerCase();
+      let score = 0;
+      for (const word of words) {
+        if (name.includes(word)) score += 10;
+        else if (description.includes(word)) score += 1;
+      }
+      return { tool, score };
+    })
+    .filter((entry) => entry.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map((entry) => entry.tool);
+};
+
+/**
+ * The tool list for a provider with no server-side search: the core set, plus
+ * anything the conversation has already used, plus the finder itself.
+ */
+export const buildSearchableChatTools = (
+  available: Set<string>,
+): Anthropic.Tool[] => [
+  FIND_TOOLS_TOOL,
+  ...CHAT_TOOLS.filter(
+    (tool) => CORE_TOOL_NAMES.has(tool.name) || available.has(tool.name),
+  ),
+];

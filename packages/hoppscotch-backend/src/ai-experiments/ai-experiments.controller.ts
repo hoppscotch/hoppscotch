@@ -18,6 +18,8 @@ export class AIExperimentsController {
     const res = await this.aiExperimentsService.chat(
       chatInput.messages ?? [],
       chatInput.context ?? '',
+      chatInput.model,
+      chatInput.connectionID,
     );
 
     if (E.isLeft(res)) throwHTTPErr(res.left);

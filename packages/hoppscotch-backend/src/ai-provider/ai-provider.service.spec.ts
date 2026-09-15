@@ -224,6 +224,34 @@ describe('AIProviderService', () => {
       expect(data.label).toBe('OpenAI prod');
     });
 
+    test('clears the endpoint when the form sends an explicit null', async () => {
+      mockPrisma.aiProviderConnection.findUnique.mockResolvedValue(
+        row({ baseURL: 'https://proxy.internal/v1' }),
+      );
+      mockPrisma.aiProviderConnection.update.mockResolvedValue(row());
+
+      await service.update({ id: 'conn_1', baseURL: null });
+
+      const data = mockPrisma.aiProviderConnection.update.mock.calls[0][0]
+        .data as Record<string, unknown>;
+      // Merging with `??` read the cleared field as "unchanged" and wrote the
+      // stale endpoint back, while still reporting the save succeeded.
+      expect(data.baseURL).toBeNull();
+    });
+
+    test('keeps the stored endpoint when the field is not sent at all', async () => {
+      mockPrisma.aiProviderConnection.findUnique.mockResolvedValue(
+        row({ baseURL: 'https://proxy.internal/v1' }),
+      );
+      mockPrisma.aiProviderConnection.update.mockResolvedValue(row());
+
+      await service.update({ id: 'conn_1', label: 'Renamed' });
+
+      const data = mockPrisma.aiProviderConnection.update.mock.calls[0][0]
+        .data as Record<string, unknown>;
+      expect(data.baseURL).toBe('https://proxy.internal/v1');
+    });
+
     test('rotates the key when one is supplied', async () => {
       mockPrisma.aiProviderConnection.findUnique.mockResolvedValue(row());
       mockPrisma.aiProviderConnection.update.mockResolvedValue(row());

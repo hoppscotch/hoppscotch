@@ -238,7 +238,10 @@ export class AIProviderService {
     const merged = {
       label: input.label ?? current.label,
       preset: input.preset ?? current.preset,
-      baseURL: input.baseURL ?? current.baseURL,
+      // `undefined` means the field was not sent; an explicit null is the form
+      // saying the endpoint was cleared. `??` cannot tell those apart, so it
+      // used to write the stale endpoint back and still report success.
+      baseURL: input.baseURL === undefined ? current.baseURL : input.baseURL,
       models: input.models ?? current.models,
       defaultModel: input.defaultModel ?? current.defaultModel,
     };

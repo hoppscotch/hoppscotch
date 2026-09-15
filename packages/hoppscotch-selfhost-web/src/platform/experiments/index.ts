@@ -1,7 +1,16 @@
-import { ExperimentsPlatformDef } from "@hoppscotch/common/platform/experiments"
+import {
+  AIChatSelection,
+  ExperimentsPlatformDef,
+} from "@hoppscotch/common/platform/experiments"
 import { platform } from "@hoppscotch/common/platform"
+import { runGQLQuery } from "@hoppscotch/common/helpers/backend/GQLClient"
 import * as E from "fp-ts/Either"
 import { z } from "zod"
+import {
+  AiChatAvailabilityDocument,
+  AiChatAvailabilityQuery,
+  AiChatAvailabilityQueryVariables,
+} from "../../api/generated/graphql"
 
 /**
  * AI experiments platform def for self-host.
@@ -29,14 +38,18 @@ const ChatResponseSchema = z.object({
     )
     .default([]),
   trace_id: z.string(),
+  // Every counter is individually optional: the cache figures are an Anthropic
+  // concept, and a provider that reports only prompt and completion tokens must
+  // not have its whole response rejected as unparseable.
   usage: z
     .object({
-      input_tokens: z.number(),
-      cache_read_input_tokens: z.number(),
-      cache_creation_input_tokens: z.number(),
-      output_tokens: z.number(),
+      input_tokens: z.number().optional(),
+      cache_read_input_tokens: z.number().optional(),
+      cache_creation_input_tokens: z.number().optional(),
+      output_tokens: z.number().optional(),
     })
     .optional(),
+  model: z.string().optional(),
   assistant_content: z.array(z.any()).optional(),
   loaded_tools: z.array(z.string()).optional(),
 })
@@ -52,6 +65,7 @@ const BACKEND_ERROR_CODES: Record<string, string> = {
   "ai_experiments/chat_input_too_large": "INPUT_TOO_LARGE",
   "ai_experiments/invalid_chat_input": "INVALID_INPUT",
   "ai_experiments/cannot_run_chat": "CANNOT_RUN_CHAT",
+  "ai_experiments/model_unavailable": "MODEL_UNAVAILABLE",
 }
 
 const errorCodeFor = (status: number, body: unknown): string => {
@@ -73,16 +87,56 @@ const errorCodeFor = (status: number, body: unknown): string => {
   return "CANNOT_RUN_CHAT"
 }
 
+/**
+ * Whether the assistant is switched on here, and which models it offers.
+ *
+ * Both come from the admin dashboard rather than the environment, and both are
+ * guarded by the ordinary auth guard rather than the admin one — the payload
+ * carries labels and model ids, never an endpoint or a credential.
+ */
+const getChatAvailability = async () => {
+  const result = await runGQLQuery<
+    AiChatAvailabilityQuery,
+    AiChatAvailabilityQueryVariables,
+    ""
+  >({ query: AiChatAvailabilityDocument, variables: {} })
+
+  if (E.isLeft(result)) {
+    return E.left(
+      result.left.type === "network_error" ? "NETWORK" : "CANNOT_READ_AI_CONFIG"
+    )
+  }
+
+  return E.right({
+    enabled: result.right.aiChatEnabled,
+    models: result.right.aiChatModelOptions,
+    skills: result.right.aiChatSkills,
+  })
+}
+
 const chat = async (
   messages: { role: "user" | "assistant"; content: string | unknown[] }[],
-  context: string
+  context: string,
+  selection?: AIChatSelection
 ) => {
   try {
     const res = await fetch(
       `${import.meta.env.VITE_BACKEND_API_URL}/ai-experiments/chat`,
       {
         method: "POST",
-        body: JSON.stringify({ messages, context }),
+        // Both fields or neither: a model without its connection is resolved
+        // against the instance default, which refuses any model that default
+        // does not itself offer.
+        body: JSON.stringify({
+          messages,
+          context,
+          ...(selection
+            ? {
+                connectionID: selection.connectionID,
+                model: selection.model,
+              }
+            : {}),
+        }),
         credentials: "include",
         headers: {
           ...platform.auth.getBackendHeaders(),
@@ -109,6 +163,7 @@ const chat = async (
       content: result.data.content,
       tool_calls: result.data.tool_calls,
       trace_id: result.data.trace_id,
+      model: result.data.model,
       usage: result.data.usage,
       assistant_content: result.data.assistant_content,
       loaded_tools: result.data.loaded_tools,
@@ -120,7 +175,10 @@ const chat = async (
 
 export const def: ExperimentsPlatformDef = {
   aiExperiments: {
-    enableAIExperiments: import.meta.env.VITE_AI_CHAT_ENABLED === "true",
+    // The platform implements AI features; whether this particular instance
+    // offers them is the server's call, not a build-time flag.
+    enableAIExperiments: true,
     chat,
+    getChatAvailability,
   },
 }

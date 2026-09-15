@@ -1,0 +1,16 @@
+query AIChatAvailability {
+  aiChatEnabled
+  aiChatModelOptions {
+    connectionID
+    connectionLabel
+    preset
+    model
+    isDefault
+  }
+  aiChatSkills {
+    slug
+    title
+    description
+    prompt
+  }
+}

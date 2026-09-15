@@ -10,6 +10,18 @@
   >
     <template #body>
       <div class="space-y-4">
+        <div class="flex items-center">
+          <HoppSmartToggle
+            :on="enabled"
+            role="switch"
+            :aria-checked="enabled ? 'true' : 'false'"
+            @change="enabled = !enabled"
+            @keydown.space.prevent="enabled = !enabled"
+          >
+            {{ t('ai_providers.skill_enabled') }}
+          </HoppSmartToggle>
+        </div>
+
         <div class="space-y-2">
           <label class="font-semibold text-secondaryDark">
             {{ t('ai_providers.skill_slug') }}
@@ -56,10 +68,6 @@
             {{ t('ai_providers.skill_prompt_help') }}
           </p>
         </div>
-
-        <HoppSmartToggle :on="enabled" @change="enabled = !enabled">
-          {{ t('ai_providers.skill_enabled') }}
-        </HoppSmartToggle>
       </div>
     </template>
 

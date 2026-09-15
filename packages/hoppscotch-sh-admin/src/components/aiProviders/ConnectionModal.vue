@@ -10,6 +10,31 @@
   >
     <template #body>
       <div class="space-y-4">
+        <!-- The two switches that decide whether this connection is used at all
+             sit above the fields, so their state is read before anything is
+             edited rather than found after scrolling past the form. -->
+        <div class="flex flex-wrap items-center gap-x-6 gap-y-2">
+          <HoppSmartToggle
+            :on="enabled"
+            role="switch"
+            :aria-checked="enabled ? 'true' : 'false'"
+            @change="enabled = !enabled"
+            @keydown.space.prevent="enabled = !enabled"
+          >
+            {{ t('ai_providers.enabled') }}
+          </HoppSmartToggle>
+
+          <HoppSmartToggle
+            :on="isDefault"
+            role="switch"
+            :aria-checked="isDefault ? 'true' : 'false'"
+            @change="isDefault = !isDefault"
+            @keydown.space.prevent="isDefault = !isDefault"
+          >
+            {{ t('ai_providers.is_default') }}
+          </HoppSmartToggle>
+        </div>
+
         <div class="space-y-2">
           <label class="font-semibold text-secondaryDark">
             {{ t('ai_providers.label') }}
@@ -162,7 +187,7 @@
 
           <HoppSmartInput
             v-model="modelsInput"
-            :placeholder="t('ai_providers.models_placeholder')"
+            :placeholder="modelsPlaceholder"
           />
           <p class="text-tiny text-secondaryLight">
             {{
@@ -278,16 +303,6 @@
               </div>
             </div>
           </div>
-        </div>
-
-        <div class="flex flex-col items-start gap-3 pt-2">
-          <HoppSmartToggle :on="enabled" @change="enabled = !enabled">
-            {{ t('ai_providers.enabled') }}
-          </HoppSmartToggle>
-
-          <HoppSmartToggle :on="isDefault" @change="isDefault = !isDefault">
-            {{ t('ai_providers.is_default') }}
-          </HoppSmartToggle>
         </div>
       </div>
     </template>
@@ -433,6 +448,23 @@ const toggleModel = (name: string) => {
 const selectedPreset = computed(() =>
   props.presets.find((option) => option.name === preset.value),
 );
+
+/**
+ * The example shown in the models field, drawn from the chosen preset.
+ *
+ * Two of the preset's own suggestions, so the example demonstrates both a real
+ * id and the comma separation. Presets whose ids only the operator knows —
+ * Azure deployment names, a local runtime's catalogue, Bedrock's region
+ * profiles — carry no suggestions, and get a prompt rather than an invented id.
+ */
+const modelsPlaceholder = computed(() => {
+  const suggested = selectedPreset.value?.suggestedModels ?? [];
+  return suggested.length
+    ? t('ai_providers.models_placeholder', {
+        models: suggested.slice(0, 2).join(', '),
+      })
+    : t('ai_providers.models_placeholder_any');
+});
 
 const baseURLRequired = computed(
   () => selectedPreset.value?.requiresBaseURL ?? false,

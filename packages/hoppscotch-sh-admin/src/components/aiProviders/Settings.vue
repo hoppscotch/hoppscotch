@@ -1,14 +1,12 @@
 <template>
-  <div class="px-4 pt-8 pb-2 space-y-4">
-    <div class="flex items-start justify-between gap-4">
-      <div class="space-y-1">
-        <h4 class="font-bold text-secondaryDark heading">
-          {{ t('ai_providers.settings_title') }}
-        </h4>
-        <p class="text-secondaryLight">
-          {{ t('ai_providers.settings_description') }}
-        </p>
-      </div>
+  <div class="px-4 pt-8 pb-4 space-y-4">
+    <div class="space-y-1">
+      <h4 class="font-bold text-secondaryDark heading">
+        {{ t('ai_providers.settings_title') }}
+      </h4>
+      <p class="text-secondaryLight">
+        {{ t('ai_providers.settings_description') }}
+      </p>
     </div>
 
     <HoppSmartToggle :on="settings.enabled" @change="toggleEnabled">

@@ -1,5 +1,5 @@
 <template>
-  <div class="px-4 py-6 space-y-4">
+  <div class="px-4 pt-4 pb-8 space-y-4">
     <div class="space-y-1">
       <h4 class="font-bold text-secondaryDark heading">
         {{ t('ai_providers.skills_title') }}
@@ -28,11 +28,12 @@
       <div
         v-for="skill in skills"
         :key="skill.id"
-        class="flex flex-col gap-2 p-3 border rounded border-divider"
+        class="flex flex-col gap-2 p-3 border rounded border-divider min-w-0 sm:h-40"
       >
         <div class="flex min-w-0 items-start justify-between gap-2">
           <span
-            class="min-w-0 [overflow-wrap:anywhere] text-sm font-semibold text-secondaryDark"
+            class="min-w-0 truncate text-sm font-semibold text-secondaryDark"
+            :title="`/${skill.slug}`"
             >/{{ skill.slug }}</span
           >
           <span
@@ -43,16 +44,20 @@
           </span>
         </div>
 
-        <div class="[overflow-wrap:anywhere] text-tiny text-secondaryLight">
+        <div
+          class="truncate text-tiny text-secondaryLight"
+          :title="skill.title"
+        >
           {{ skill.title }}
         </div>
         <p
           class="[overflow-wrap:anywhere] text-tiny text-secondaryLight line-clamp-2"
+          :title="skill.description"
         >
           {{ skill.description }}
         </p>
 
-        <div class="flex items-center justify-end gap-2 pt-1">
+        <div class="mt-auto flex flex-wrap items-center gap-2 pt-1">
           <HoppButtonSecondary
             :label="t('action.edit')"
             filled

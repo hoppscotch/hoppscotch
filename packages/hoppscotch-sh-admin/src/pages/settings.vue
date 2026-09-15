@@ -41,6 +41,10 @@
       <HoppSmartTab :id="'token'" :label="t('configs.tabs.infra_tokens')">
         <Tokens />
       </HoppSmartTab>
+
+      <HoppSmartTab :id="'ai'" :label="t('ai_providers.tab_title')">
+        <AiProviders />
+      </HoppSmartTab>
       <HoppSmartTab
         id="proxy"
         :label="t('configs.tabs.proxy')"
@@ -121,6 +125,7 @@ type OptionTabs =
   | 'auth'
   | 'smtp'
   | 'token'
+  | 'ai'
   | 'proxy'
   | 'miscellaneous'
   | 'rate-limit'

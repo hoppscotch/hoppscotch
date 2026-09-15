@@ -11,6 +11,14 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AiProviders: typeof import('./components/aiProviders/index.vue')['default']
+    AiProvidersConnectionModal: typeof import('./components/aiProviders/ConnectionModal.vue')['default']
+    AiProvidersList: typeof import('./components/aiProviders/List.vue')['default']
+    AiProvidersOverrideSelect: typeof import('./components/aiProviders/OverrideSelect.vue')['default']
+    AiProvidersOverview: typeof import('./components/aiProviders/Overview.vue')['default']
+    AiProvidersSettings: typeof import('./components/aiProviders/Settings.vue')['default']
+    AiProvidersSkillModal: typeof import('./components/aiProviders/SkillModal.vue')['default']
+    AiProvidersSkills: typeof import('./components/aiProviders/Skills.vue')['default']
     AppHeader: typeof import('./components/app/Header.vue')['default']
     AppLogin: typeof import('./components/app/Login.vue')['default']
     AppLogout: typeof import('./components/app/Logout.vue')['default']
@@ -48,6 +56,7 @@ declare module 'vue' {
     IconLucideInfo: typeof import('~icons/lucide/info')['default']
     IconLucideSearch: typeof import('~icons/lucide/search')['default']
     IconLucideUser: typeof import('~icons/lucide/user')['default']
+    IconLucideX: typeof import('~icons/lucide/x')['default']
     OnboardingAuthProviderCard: typeof import('./components/onboarding/AuthProviderCard.vue')['default']
     OnboardingAuthSetup: typeof import('./components/onboarding/AuthSetup.vue')['default']
     OnboardingCompleteScreen: typeof import('./components/onboarding/CompleteScreen.vue')['default']

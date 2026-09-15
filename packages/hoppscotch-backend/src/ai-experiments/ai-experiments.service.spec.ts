@@ -817,6 +817,20 @@ describe('AIExperimentsService', () => {
       );
     });
 
+    test('cannot force tool search onto a dialect that lacks it', () => {
+      // The OpenAI dialect drops the search tool in translation, so honouring
+      // the force-on would advertise a tool that is not in the request.
+      expect(
+        applyOverrides(
+          connectionFromPreset('openai', {
+            apiKey: 'k',
+            model: 'gpt-5.6-luna',
+          }),
+          { toolSearch: true },
+        ).capabilities.toolSearch,
+      ).toBe(false);
+    });
+
     test('forces a capability off', () => {
       expect(
         applyOverrides(

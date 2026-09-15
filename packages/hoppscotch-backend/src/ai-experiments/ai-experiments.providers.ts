@@ -312,6 +312,24 @@ export type ConnectionOverrides = {
 };
 
 /**
+ * Whether server-side tool search is on for this turn.
+ *
+ * A force-on is honoured only where the dialect actually implements it. Only
+ * the Anthropic Messages shape carries native tool search; on an OpenAI-dialect
+ * connection the search tool is dropped in translation, so forcing it on used
+ * to ship the full tool list under a system prompt telling the model to call a
+ * tool that was not there. Forcing it OFF is always safe.
+ */
+const resolveToolSearch = (
+  dialect: ProviderDialect,
+  override: boolean | undefined,
+  presetValue: boolean,
+): boolean => {
+  const wanted = override ?? presetValue;
+  return dialect === 'anthropic' ? wanted : wanted && presetValue;
+};
+
+/**
  * Applies a preset to the fields that identify one connection.
  *
  * The single place a preset turns into a usable connection, so the environment
@@ -337,7 +355,11 @@ export const connectionFromPreset = (
     tokenLimitField: chosen.tokenLimitField,
     reasoningEffort: overrides.reasoningEffort ?? chosen.reasoningEffort,
     capabilities: {
-      toolSearch: overrides.toolSearch ?? chosen.capabilities.toolSearch,
+      toolSearch: resolveToolSearch(
+        chosen.dialect,
+        overrides.toolSearch,
+        chosen.capabilities.toolSearch,
+      ),
       promptCaching:
         overrides.promptCaching ?? chosen.capabilities.promptCaching,
       cacheUsageCounters: chosen.capabilities.cacheUsageCounters,
@@ -381,7 +403,11 @@ export const applyOverrides = (
   reasoningEffort: overrides.reasoningEffort ?? connection.reasoningEffort,
   capabilities: {
     ...connection.capabilities,
-    toolSearch: overrides.toolSearch ?? connection.capabilities.toolSearch,
+    toolSearch: resolveToolSearch(
+      connection.dialect,
+      overrides.toolSearch,
+      connection.capabilities.toolSearch,
+    ),
     promptCaching:
       overrides.promptCaching ?? connection.capabilities.promptCaching,
   },

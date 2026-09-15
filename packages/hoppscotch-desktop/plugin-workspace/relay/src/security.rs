@@ -1,3 +1,5 @@
+use std::sync::{Once, OnceLock};
+
 use bytes::Bytes;
 use curl::easy::Easy;
 
@@ -6,7 +8,66 @@ use openssl::pkcs12::Pkcs12;
 use crate::{
     error::{RelayError, Result},
     interop::{CertificateConfig, CertificateType, SecurityConfig},
+    trust::{self, TrustBundle},
 };
+
+// Vendored OpenSSL is built without a CA bundle or a compiled-in path to the
+// host trust store. `init_ssl_cert_env_vars` exports `SSL_CERT_FILE` and
+// `SSL_CERT_DIR` from the platform probe, and curl reads them through
+// `SSL_CTX_set_default_verify_paths` whenever no explicit blob is set. curl
+// already depends on `openssl-probe`, and declaring it here keeps this call
+// compiling if a later curl release drops that dependency.
+static SSL_ENV_INIT: Once = Once::new();
+
+pub(crate) fn ensure_system_ssl_env() {
+    SSL_ENV_INIT.call_once(|| {
+        openssl_probe::init_ssl_cert_env_vars();
+    });
+}
+
+// Read once per process, since reading the keychain or enumerating the Windows
+// stores is too slow to repeat on every request. The info record below is the
+// only log line naming which trust source supplied the anchors, so it is
+// written once at init with the source and the anchor counts.
+static TRUST: OnceLock<TrustBundle> = OnceLock::new();
+
+fn trust_bundle() -> &'static TrustBundle {
+    TRUST.get_or_init(|| {
+        ensure_system_ssl_env();
+        let bundle = trust::load();
+        tracing::info!(
+            source = bundle.source.as_str(),
+            anchors_read = bundle.read,
+            anchors = bundle.retained,
+            "Resolved TLS trust store"
+        );
+        bundle
+    })
+}
+
+fn system_ca_bundle() -> &'static [u8] {
+    trust_bundle().pem.as_slice()
+}
+
+// `CURLOPT_CAINFO_BLOB` replaces its previous value on every call and overrides
+// `CURLOPT_CAINFO`, so setting one blob per cert would keep only the last cert
+// and drop the system trust store as well. Concatenating the system anchors
+// first and the user CAs after them into one blob, set once, extends the host
+// store with every user CA.
+fn combine_ca_bundle(system: &[u8], user: &[Bytes]) -> Vec<u8> {
+    let mut combined: Vec<u8> = Vec::with_capacity(system.len() + 4096);
+    combined.extend_from_slice(system);
+    if !system.is_empty() && !combined.ends_with(b"\n") {
+        combined.push(b'\n');
+    }
+    for cert in user {
+        combined.extend_from_slice(cert);
+        if !combined.ends_with(b"\n") {
+            combined.push(b'\n');
+        }
+    }
+    combined
+}
 
 pub(crate) struct SecurityHandler<'a> {
     handle: &'a mut Easy,
@@ -47,6 +108,16 @@ impl<'a> SecurityHandler<'a> {
             self.configure_certificates(certs)?;
         }
 
+        // Applied on every request, since every request validates against the
+        // host store and curl reads that store only through the probe, which
+        // finds a usable file on Linux alone.
+        let user_cas = security
+            .certificates
+            .as_ref()
+            .and_then(|certs| certs.ca.as_deref())
+            .unwrap_or(&[]);
+        self.configure_ca_certificates(user_cas)?;
+
         tracing::debug!("Security configuration complete");
         Ok(())
     }
@@ -64,10 +135,6 @@ impl<'a> SecurityHandler<'a> {
                     self.configure_pfx_certificate(data, password)?;
                 }
             }
-        }
-
-        if let Some(ref ca_certs) = certs.ca {
-            self.configure_ca_certificates(ca_certs)?;
         }
 
         Ok(())
@@ -158,16 +225,148 @@ impl<'a> SecurityHandler<'a> {
     }
 
     fn configure_ca_certificates(&mut self, ca_certs: &[Bytes]) -> Result<()> {
+        // Checked before the concatenation, since OpenSSL skips an entry that
+        // is not PEM without reporting it, and the user who pasted that entry
+        // would see only a handshake failure.
         for (index, cert) in ca_certs.iter().enumerate() {
-            tracing::debug!(cert_index = index, "Setting CA certificate");
-            self.handle.ssl_cainfo_blob(cert).map_err(|e| {
-                tracing::error!(error = %e, cert_index = index, "Failed to set CA certificate");
-                RelayError::Certificate {
-                    message: format!("Failed to set CA certificate at index {}", index),
-                    cause: Some(e.to_string()),
-                }
-            })?;
+            if !trust::parses_as_pem(cert) {
+                tracing::error!(cert_index = index, "CA certificate is not valid PEM");
+                return Err(RelayError::Certificate {
+                    message: format!("CA certificate at index {index} is not valid PEM"),
+                    cause: None,
+                });
+            }
         }
+
+        let combined = combine_ca_bundle(system_ca_bundle(), ca_certs);
+        if combined.is_empty() {
+            tracing::debug!("No CA anchors resolved, leaving curl's own trust configuration");
+            return Ok(());
+        }
+
+        if !ca_certs.is_empty() {
+            tracing::debug!(
+                user_certs = ca_certs.len(),
+                "Extending the trust store with user CA certificates"
+            );
+        }
+
+        self.handle.ssl_cainfo_blob(&combined).map_err(|e| {
+            tracing::error!(error = %e, "Failed to set combined CA bundle");
+            RelayError::Certificate {
+                message: "Failed to set combined CA bundle".into(),
+                cause: Some(e.to_string()),
+            }
+        })?;
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{combine_ca_bundle, SecurityHandler};
+    use crate::interop::{CertificateConfig, SecurityConfig};
+    use bytes::Bytes;
+    use curl::easy::Easy;
+
+    fn cert(body: &str) -> Bytes {
+        Bytes::from(body.to_owned())
+    }
+
+    #[test]
+    fn an_empty_user_list_returns_the_system_bundle_unchanged() {
+        assert_eq!(combine_ca_bundle(b"sys\n", &[]), b"sys\n".to_vec());
+    }
+
+    #[test]
+    fn a_system_bundle_without_a_trailing_newline_gains_one() {
+        assert_eq!(combine_ca_bundle(b"sys", &[]), b"sys\n".to_vec());
+    }
+
+    #[test]
+    fn an_empty_system_bundle_returns_the_user_certs_alone() {
+        assert_eq!(combine_ca_bundle(b"", &[cert("a\n")]), b"a\n".to_vec());
+    }
+
+    #[test]
+    fn both_empty_returns_an_empty_blob() {
+        assert!(combine_ca_bundle(b"", &[]).is_empty());
+    }
+
+    #[test]
+    fn the_system_anchors_precede_the_user_certs() {
+        let blob = combine_ca_bundle(b"sys\n", &[cert("user\n")]);
+        assert_eq!(blob, b"sys\nuser\n".to_vec());
+        let text = String::from_utf8(blob).expect("utf8");
+        assert!(text.find("sys").unwrap() < text.find("user").unwrap());
+    }
+
+    // One `ssl_cainfo_blob` call per cert keeps only the last cert, so this
+    // asserts that every user CA is in the combined blob.
+    #[test]
+    fn every_user_cert_is_in_the_blob() {
+        let blob = combine_ca_bundle(b"sys\n", &[cert("one"), cert("two\n"), cert("three")]);
+        assert_eq!(blob, b"sys\none\ntwo\nthree\n".to_vec());
+        let text = String::from_utf8(blob).expect("utf8");
+        for name in ["one", "two", "three"] {
+            assert!(text.contains(name), "{name} missing from the combined blob");
+        }
+    }
+
+    fn perform(url: &str, ca: Option<Vec<Bytes>>) -> u32 {
+        let mut handle = Easy::new();
+        handle.url(url).expect("url");
+        handle.write_function(|data| Ok(data.len())).expect("sink");
+        SecurityHandler::new(&mut handle)
+            .configure(&SecurityConfig {
+                certificates: ca.map(|ca| CertificateConfig {
+                    client: None,
+                    ca: Some(ca),
+                }),
+                verify_host: Some(true),
+                verify_peer: Some(true),
+            })
+            .expect("configure");
+        handle.perform().expect("perform");
+        handle.response_code().expect("response code")
+    }
+
+    // Makes a network request, so it is ignored by default. The endpoint chains
+    // to ISRG Root X2, which the keychain has and `/etc/ssl/cert.pem` is
+    // missing, so on macOS it passes only when the keychain reader supplied the
+    // blob.
+    #[test]
+    #[ignore = "network"]
+    fn a_publicly_signed_endpoint_validates_with_no_user_ca_configured() {
+        assert_eq!(perform("https://valid-isrgrootx2.letsencrypt.org/", None), 200);
+    }
+
+    // The combined blob has to keep the public roots after a user CA is added.
+    // The certificate here is a self-signed root unrelated to the endpoint, so
+    // only the system anchors in the blob can validate its chain.
+    #[test]
+    #[ignore = "network"]
+    fn a_user_ca_extends_the_host_store() {
+        let unrelated = Bytes::from_static(include_bytes!("../tests/unrelated-root.pem"));
+        assert_eq!(
+            perform("https://valid-isrgrootx2.letsencrypt.org/", Some(vec![unrelated])),
+            200
+        );
+    }
+
+    #[test]
+    fn a_user_entry_that_is_not_pem_is_named_by_its_index() {
+        let mut handle = Easy::new();
+        let certs = vec![
+            Bytes::from_static(include_bytes!("../tests/unrelated-root.pem")),
+            Bytes::from_static(b"not a certificate"),
+        ];
+        let error = SecurityHandler::new(&mut handle)
+            .configure_ca_certificates(&certs)
+            .expect_err("an unparseable entry is an error");
+        assert!(
+            format!("{error:?}").contains("index 1"),
+            "the error names the offending entry, got {error:?}"
+        );
     }
 }

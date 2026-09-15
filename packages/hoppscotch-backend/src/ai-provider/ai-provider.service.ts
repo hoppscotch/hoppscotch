@@ -32,10 +32,14 @@ import {
   TestAIProviderConnectionInput,
   UpdateAIProviderConnectionInput,
 } from './request-response.dto';
+import { AISettingsService } from './ai-settings.service';
 
 @Injectable()
 export class AIProviderService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly settings: AISettingsService,
+  ) {}
 
   LABEL_MIN_LENGTH = 2;
 
@@ -420,12 +424,16 @@ export class AIProviderService {
     const models = (input.models?.length ? input.models : stored?.models) ?? [];
     if (!models.length) return E.left(AI_PROVIDER_MODELS_INVALID);
 
+    // The probe has to carry the instance settings, or a pass means only that
+    // the preset's own defaults work: a reasoning effort or timeout the admin
+    // set could still fail every real turn while this stayed green.
+    const overrides = await this.settings.overrides();
     const results = await Promise.all(
       models
         .slice(0, this.MAX_TEST_MODELS)
         .map((model) =>
           testChatConnection(
-            connectionFromPreset(preset, { apiKey, baseURL, model }),
+            connectionFromPreset(preset, { apiKey, baseURL, model }, overrides),
           ),
         ),
     );

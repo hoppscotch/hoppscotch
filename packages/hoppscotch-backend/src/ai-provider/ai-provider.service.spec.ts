@@ -19,11 +19,13 @@ process.env.DATA_ENCRYPTION_KEY = '0123456789abcdef0123456789abcdef';
 jest.mock('./ai-provider.tester', () => ({ testChatConnection: jest.fn() }));
 
 import { AIProviderService } from './ai-provider.service';
+import { AISettingsService } from './ai-settings.service';
 import { testChatConnection } from './ai-provider.tester';
 import { decrypt, encrypt } from 'src/utils';
 
 const mockPrisma = mockDeep<PrismaService>();
-const service = new AIProviderService(mockPrisma);
+const mockSettings = mockDeep<AISettingsService>();
+const service = new AIProviderService(mockPrisma, mockSettings);
 
 const row = (over: Partial<Record<string, unknown>> = {}) =>
   ({
@@ -57,6 +59,10 @@ const mockedTest = testChatConnection as jest.MockedFunction<
 
 beforeEach(() => {
   mockReset(mockPrisma);
+  mockReset(mockSettings);
+  // The probe carries the instance settings; an instance that overrides
+  // nothing is the ordinary case.
+  mockSettings.overrides.mockResolvedValue({});
   mockedTest.mockReset();
   mockedTest.mockImplementation((connection) =>
     Promise.resolve({ model: connection.model, ok: true, latencyMs: 1 }),
@@ -426,6 +432,24 @@ describe('AIProviderService', () => {
       expect(
         await service.testConnection({ preset: 'openai', apiKey: 'k' }),
       ).toEqualLeft(AI_PROVIDER_MODELS_INVALID);
+    });
+
+    test('probes with the instance settings the chat would use', async () => {
+      mockPrisma.aiProviderConnection.findUnique.mockResolvedValue(
+        row({ apiKey: encrypt('sk-stored') }),
+      );
+      mockSettings.overrides.mockResolvedValue({
+        reasoningEffort: 'low',
+        timeoutMs: 4000,
+      });
+
+      await service.testConnection({ id: 'conn_1' });
+
+      // A probe built from the preset alone can pass while every real turn
+      // fails on a setting the admin changed.
+      const probed = mockedTest.mock.calls[0][0];
+      expect(probed.reasoningEffort).toBe('low');
+      expect(probed.timeoutMs).toBe(4000);
     });
 
     test('caps the probes, because each one is a real billable call', async () => {

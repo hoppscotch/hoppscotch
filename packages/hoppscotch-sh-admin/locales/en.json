@@ -70,7 +70,7 @@
     "skill_prompt": "Prompt",
     "skill_prompt_placeholder": "The instruction sent on the user\u2019s behalf",
     "skill_prompt_help": "Dropped into the composer when picked, so the user can edit it before sending.",
-    "skill_enabled": "Offer this skill in the chat",
+    "skill_enabled": "Enable skill",
     "skill_invalid_slug": "The slug needs at least one letter or digit",
     "skill_incomplete": "A skill needs a name and a description",
     "skill_no_prompt": "A skill needs a prompt \u2014 that is what it does",

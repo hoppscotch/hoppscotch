@@ -173,7 +173,7 @@
 
 <script setup lang="ts">
 import { useI18n } from '~/composables/i18n';
-import { logoForPreset } from '~/helpers/aiProviderLogos';
+import { labelForPreset, logoForPreset } from '~/helpers/aiProviderLogos';
 import {
   AiProviderConnectionsQuery,
   TestAiProviderConnectionMutation,

@@ -1,0 +1,9 @@
+mutation TestAIProviderConnection($input: TestAIProviderConnectionInput!) {
+  testAIProviderConnection(input: $input) {
+    model
+    ok
+    latencyMs
+    reason
+    detail
+  }
+}

@@ -1,0 +1,3 @@
+mutation DeleteAISkill($id: ID!) {
+  deleteAISkill(id: $id)
+}

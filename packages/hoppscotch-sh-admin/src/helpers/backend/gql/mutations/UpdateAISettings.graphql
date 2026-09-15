@@ -1,0 +1,10 @@
+mutation UpdateAISettings($input: UpdateAISettingsInput!) {
+  updateAISettings(input: $input) {
+    enabled
+    timeoutMs
+    maxRetries
+    toolSearch
+    promptCaching
+    reasoningEffort
+  }
+}

@@ -1,0 +1,10 @@
+mutation UpdateAISkill($input: UpdateAISkillInput!) {
+  updateAISkill(input: $input) {
+    id
+    slug
+    title
+    description
+    prompt
+    enabled
+  }
+}

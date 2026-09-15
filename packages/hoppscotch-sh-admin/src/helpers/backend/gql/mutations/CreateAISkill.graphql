@@ -1,0 +1,10 @@
+mutation CreateAISkill($input: CreateAISkillInput!) {
+  createAISkill(input: $input) {
+    id
+    slug
+    title
+    description
+    prompt
+    enabled
+  }
+}

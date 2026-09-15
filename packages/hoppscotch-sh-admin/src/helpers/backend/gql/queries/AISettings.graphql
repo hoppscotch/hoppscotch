@@ -1,0 +1,10 @@
+query AISettings {
+  aiSettings {
+    enabled
+    timeoutMs
+    maxRetries
+    toolSearch
+    promptCaching
+    reasoningEffort
+  }
+}

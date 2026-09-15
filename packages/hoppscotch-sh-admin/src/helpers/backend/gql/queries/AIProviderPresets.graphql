@@ -1,0 +1,11 @@
+query AIProviderPresets {
+  aiProviderPresets {
+    name
+    dialect
+    baseURLHint
+    defaultBaseURL
+    requiresBaseURL
+    suggestedModels
+    verified
+  }
+}

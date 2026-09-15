@@ -1,0 +1,10 @@
+query AISkills {
+  aiSkills {
+    id
+    slug
+    title
+    description
+    prompt
+    enabled
+  }
+}

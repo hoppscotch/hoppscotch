@@ -1,0 +1,15 @@
+query AIProviderConnections {
+  aiProviderConnections {
+    id
+    label
+    preset
+    baseURL
+    models
+    defaultModel
+    enabled
+    isDefault
+    hasApiKey
+    createdOn
+    updatedOn
+  }
+}

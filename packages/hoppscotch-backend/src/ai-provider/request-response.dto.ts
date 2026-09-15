@@ -6,12 +6,28 @@ import {
   ArrayNotEmpty,
   IsArray,
   IsBoolean,
+  IsIn,
   IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsUrl,
   MaxLength,
 } from 'class-validator';
+
+/**
+ * An endpoint has to be an absolute http(s) URL, but it does NOT have to be a
+ * public one: pointing a connection at Ollama or vLLM on localhost is a first
+ * class case, which is why the TLD requirement is off.
+ */
+const BASE_URL_RULE = {
+  protocols: ['http', 'https'],
+  require_protocol: true,
+  require_tld: false,
+};
+
+/** What the dialects accept for `reasoning_effort`. */
+const REASONING_EFFORTS = ['none', 'minimal', 'low', 'medium', 'high'];
 
 @InputType()
 export class CreateAIProviderConnectionInput {
@@ -33,6 +49,7 @@ export class CreateAIProviderConnectionInput {
   @IsOptional()
   @IsString()
   @MaxLength(500)
+  @IsUrl(BASE_URL_RULE)
   baseURL?: string;
 
   @Field({
@@ -91,6 +108,7 @@ export class UpdateAIProviderConnectionInput {
   @IsOptional()
   @IsString()
   @MaxLength(500)
+  @IsUrl(BASE_URL_RULE)
   baseURL?: string;
 
   @Field({
@@ -155,6 +173,7 @@ export class TestAIProviderConnectionInput {
   @IsOptional()
   @IsString()
   @MaxLength(500)
+  @IsUrl(BASE_URL_RULE)
   baseURL?: string;
 
   @Field({
@@ -218,6 +237,7 @@ export class UpdateAISettingsInput {
   @IsOptional()
   @IsString()
   @MaxLength(20)
+  @IsIn(REASONING_EFFORTS)
   reasoningEffort?: string | null;
 }
 

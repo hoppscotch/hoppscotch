@@ -248,7 +248,7 @@
             :aria-expanded="skillMenuOpen"
             aria-controls="hopp-skill-menu"
             :aria-activedescendant="
-              skillMenuOpen ? `hopp-skill-${skillIndex}` : undefined
+              skillMenuHasChoices ? `hopp-skill-${skillIndex}` : undefined
             "
             @input="autoResize"
             @keydown="onKeydown"
@@ -500,6 +500,18 @@ const skillMenuOpen = computed(
     !noModelsConfigured.value
 )
 
+/**
+ * Whether the menu has something to choose.
+ *
+ * The menu stays open on a query that matches nothing, so it can say so — but
+ * it must not claim the keys that move through and pick a skill. Consuming
+ * Enter there left "/health" unsendable, and the wrap-around arithmetic ran
+ * modulo zero.
+ */
+const skillMenuHasChoices = computed(
+  () => skillMenuOpen.value && matchingSkills.value.length > 0
+)
+
 watch(skillQuery, () => {
   skillMenuDismissed.value = false
   skillIndex.value = 0
@@ -662,7 +674,10 @@ const send = async (text?: string) => {
 
 const onKeydown = (e: KeyboardEvent) => {
   if (skillMenuOpen.value) {
-    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+    if (
+      skillMenuHasChoices.value &&
+      (e.key === "ArrowDown" || e.key === "ArrowUp")
+    ) {
       e.preventDefault()
       const step = e.key === "ArrowDown" ? 1 : -1
       const count = matchingSkills.value.length
@@ -677,7 +692,11 @@ const onKeydown = (e: KeyboardEvent) => {
       skillMenuDismissed.value = true
       return
     }
-    if ((e.key === "Enter" || e.key === "Tab") && !e.isComposing) {
+    if (
+      skillMenuHasChoices.value &&
+      (e.key === "Enter" || e.key === "Tab") &&
+      !e.isComposing
+    ) {
       e.preventDefault()
       const chosen = matchingSkills.value[skillIndex.value]
       if (chosen) applySkill(chosen)

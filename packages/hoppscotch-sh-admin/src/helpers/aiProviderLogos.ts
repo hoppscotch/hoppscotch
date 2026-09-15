@@ -10,7 +10,7 @@ import IconOllama from '~icons/ai/ollama';
 import IconPlug from '~icons/lucide/plug';
 
 /**
- * A mark per provider preset.
+ * A mark per provider preset. The SVGs are vendored from Simple Icons (CC0).
  *
  * Imported statically rather than resolved by name so the bundler keeps only
  * these seven, and so a preset added to the backend without a matching icon

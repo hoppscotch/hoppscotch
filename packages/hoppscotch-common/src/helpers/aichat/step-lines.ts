@@ -159,3 +159,22 @@ export const parseStepLines = (content: string): StepLine[] => {
   for (const step of steps) step.text = step.text.trimEnd()
   return steps
 }
+
+/**
+ * Whether a tool's reply says the action did NOT happen, so the result can go
+ * back to the model flagged as an error rather than success-shaped prose.
+ *
+ * The glyph decides: a warning or a failure marker is unambiguous. An UNMARKED
+ * reply is the awkward case — most of them are refusals ("Open a request tab
+ * first", "There is no operation named X") but a context tool legitimately
+ * answers with an unmarked payload, so the caller says which it is.
+ */
+export const repliesFailure = (
+  reply: string,
+  unmarkedIsFailure: boolean
+): boolean => {
+  const kind = parseStepLines(reply)[0]?.kind
+  if (!kind) return false
+  if (kind === "error" || kind === "warn") return true
+  return unmarkedIsFailure && kind === "note"
+}

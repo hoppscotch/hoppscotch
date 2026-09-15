@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { parseStepLines } from "../step-lines"
+import { parseStepLines, repliesFailure } from "../step-lines"
 
 describe("parseStepLines", () => {
   it("maps each leading glyph to its kind and tone", () => {
@@ -150,5 +150,40 @@ describe("parseStepLines", () => {
       },
     ])
     expect(parseStepLines("")).toEqual([])
+  })
+})
+
+describe("repliesFailure", () => {
+  it("flags the marked failures", () => {
+    expect(
+      repliesFailure("\u26A0\uFE0F Couldn't create the team.", false)
+    ).toBe(true)
+    expect(repliesFailure("\u274C Network error.", false)).toBe(true)
+  })
+
+  it("does not flag a completed action", () => {
+    expect(repliesFailure("\u2713 Set the method to `POST`.", true)).toBe(false)
+    expect(repliesFailure("\u{1F4C1} Created collection **shop**.", true)).toBe(
+      false
+    )
+    expect(repliesFailure("\u2705 Response: **200**", true)).toBe(false)
+  })
+
+  it("flags an unmarked refusal, which is how most tools decline", () => {
+    // e.g. run_request with no tab open, or an operation that does not exist.
+    expect(
+      repliesFailure("Open a request tab first so I can run it.", true)
+    ).toBe(true)
+  })
+
+  it("leaves an unmarked context payload alone", () => {
+    // get_graphql_schema and list_collections answer with the payload itself.
+    expect(repliesFailure("### Schema\ntype Query { a: Int }", false)).toBe(
+      false
+    )
+  })
+
+  it("treats an empty reply as no verdict", () => {
+    expect(repliesFailure("", true)).toBe(false)
   })
 })

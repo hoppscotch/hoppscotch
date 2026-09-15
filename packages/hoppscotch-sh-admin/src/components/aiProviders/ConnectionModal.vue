@@ -42,7 +42,7 @@
                 />
                 <input
                   id="preset"
-                  :value="preset"
+                  :value="labelForPreset(preset)"
                   readonly
                   class="min-w-0 flex-1 bg-transparent cursor-pointer focus:outline-none"
                 />
@@ -60,7 +60,7 @@
                 <HoppSmartItem
                   v-for="option in presets"
                   :key="option.name"
-                  :label="option.name"
+                  :label="labelForPreset(option.name)"
                   :icon="logoForPreset(option.name)"
                   :active="option.name === preset"
                   :aria-selected="option.name === preset"
@@ -329,7 +329,7 @@
 import { VNodeRef, computed, ref, watch } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
-import { logoForPreset } from '~/helpers/aiProviderLogos';
+import { labelForPreset, logoForPreset } from '~/helpers/aiProviderLogos';
 import {
   AiProviderConnectionsQuery,
   AiProviderPresetsQuery,

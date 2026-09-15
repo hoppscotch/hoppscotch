@@ -10,7 +10,8 @@ import IconOllama from '~icons/ai/ollama';
 import IconPlug from '~icons/lucide/plug';
 
 /**
- * A mark per provider preset. The SVGs are vendored from Simple Icons (CC0).
+ * How a provider preset is presented: its mark, and how its name is written.
+ * The SVGs are vendored from Simple Icons (CC0).
  *
  * Imported statically rather than resolved by name so the bundler keeps only
  * these seven, and so a preset added to the backend without a matching icon
@@ -38,3 +39,35 @@ const LOGOS: Record<string, Component> = {
  */
 export const logoForPreset = (preset: string): Component =>
   LOGOS[preset] ?? IconPlug;
+
+/**
+ * Vendor casing for the presets this build knows.
+ *
+ * The stored value stays the lowercase identifier the server sends and expects
+ * back; this is display only.
+ */
+const LABELS: Record<string, string> = {
+  anthropic: 'Anthropic',
+  openai: 'OpenAI',
+  deepseek: 'DeepSeek',
+  bedrock: 'Bedrock',
+  azure: 'Azure',
+  'openai-compatible': 'OpenAI-compatible',
+  custom: 'Custom',
+  gemini: 'Gemini',
+};
+
+/**
+ * How a preset is written in the UI.
+ *
+ * Falls back to capitalising each hyphenated word rather than showing the bare
+ * identifier: the backend stores the preset as a free string so that new ones
+ * need no migration, which means a build can meet a preset this map has never
+ * heard of.
+ */
+export const labelForPreset = (preset: string): string =>
+  LABELS[preset] ??
+  preset
+    .split('-')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join('-');

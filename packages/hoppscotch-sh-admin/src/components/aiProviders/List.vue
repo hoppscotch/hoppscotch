@@ -38,7 +38,7 @@
                 {{ connection.label }}
               </div>
               <div class="text-tiny text-secondaryLight">
-                {{ connection.preset }}
+                {{ labelForPreset(connection.preset) }}
               </div>
             </div>
           </div>

@@ -2093,7 +2093,7 @@
     "modify_prerequest_error": "Failed to modify pre-request script",
     "chat": {
       "title": "AI Assistant",
-      "placeholder": "Ask anything, or describe a change…",
+      "placeholder": "Ask anything, or type / for skills",
       "context": "Context",
       "no_context": "Open a request to add context",
       "empty_title": "How can I help?",
@@ -2117,8 +2117,13 @@
       "step_warning": "Warning",
       "step_error": "Failed",
       "step_running": "In progress",
-      "hint_send": "to send",
-      "hint_newline": "for a new line"
+      "model": "Model",
+      "model_picker": "Choose the model",
+      "no_models_title": "No AI model is configured",
+      "no_models_subtitle": "An administrator needs to add a provider in the admin dashboard before the assistant can answer.",
+      "skills": "Skills",
+      "skill_custom": "Custom",
+      "skills_empty": "No skill matches that"
     }
   },
   "configs": {

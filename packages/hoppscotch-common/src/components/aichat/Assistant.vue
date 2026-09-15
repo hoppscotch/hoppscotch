@@ -1,6 +1,5 @@
 <template>
-  <div v-if="shouldEnableAIFeatures" class="contents">
-    <!-- Docked, resizable chat pane -->
+  <div v-if="shouldEnableAIFeatures && !instanceDisabled" class="contents">
     <aside
       v-if="chat.isOpen.value"
       class="chat-pane flex flex-col bg-primary"
@@ -12,7 +11,6 @@
       :style="mdAndLarger ? { width: paneWidth } : undefined"
       @keydown.esc="chat.close()"
     >
-      <!-- Resize handle (desktop only) -->
       <div
         v-if="mdAndLarger"
         class="group absolute inset-y-0 left-0 z-20 w-1.5 -translate-x-1/2 cursor-col-resize"
@@ -72,7 +70,6 @@
         </div>
       </header>
 
-      <!-- Context: off = dimmed text, no frame; on = hairline frame, accent icon -->
       <div
         class="flex shrink-0 flex-wrap items-center gap-1.5 border-b border-dividerLight px-3 py-2"
       >
@@ -109,14 +106,11 @@
         </span>
       </div>
 
-      <!-- Messages -->
       <div ref="scrollEl" class="flex-1 space-y-5 overflow-y-auto px-3 py-4">
-        <!-- Empty state -->
         <div
           v-if="chat.messages.value.length === 0"
           class="flex h-full flex-col items-center justify-center px-4 text-center"
         >
-          <!-- Hero mark over a soft halo that breathes very slowly -->
           <span
             class="relative inline-flex before:absolute before:-inset-5 before:animate-[hopp-chat-breathe_4s_ease-in-out_infinite] before:rounded-full before:content-[''] before:[background:radial-gradient(circle,color-mix(in_srgb,var(--accent-color)_18%,transparent),transparent_70%)] motion-reduce:before:animate-none"
           >
@@ -156,7 +150,6 @@
           :message="message"
         />
 
-        <!-- Contextual next-step suggestions for the completed turn -->
         <div v-if="followUps.length" class="flex flex-wrap gap-1.5 pt-1">
           <button
             v-for="s in followUps"
@@ -172,8 +165,70 @@
         </div>
       </div>
 
-      <!-- Composer: a quiet focus state (tinted border, no ring) -->
       <div class="shrink-0 border-t border-dividerLight px-3 py-3">
+        <div
+          v-if="noModelsConfigured"
+          class="mb-2 rounded-lg border border-dividerLight bg-primaryLight px-3 py-2"
+        >
+          <p class="text-xs font-semibold text-secondaryDark">
+            {{ t("ai_experiments.chat.no_models_title") }}
+          </p>
+          <p class="mt-0.5 text-tiny leading-relaxed text-secondaryLight">
+            {{ t("ai_experiments.chat.no_models_subtitle") }}
+          </p>
+        </div>
+
+        <div
+          v-if="skillMenuOpen"
+          ref="skillMenuEl"
+          class="mb-2 max-h-56 overflow-y-auto rounded-lg border border-divider bg-primary py-1 shadow-[0_8px_24px_-8px_rgb(0_0_0_/_0.45)]"
+          role="listbox"
+          :aria-label="t('ai_experiments.chat.skills')"
+        >
+          <button
+            v-for="(skill, index) in matchingSkills"
+            :id="`hopp-skill-${index}`"
+            :key="skill.slug"
+            role="option"
+            :aria-selected="index === skillIndex"
+            class="flex w-full flex-col gap-0.5 px-3 py-1.5 text-left transition"
+            :class="
+              index === skillIndex
+                ? '[background:color-mix(in_srgb,var(--accent-color)_12%,var(--primary-light-color))]'
+                : 'hover:bg-primaryLight'
+            "
+            @mousemove="skillIndex = index"
+            @click="applySkill(skill)"
+          >
+            <span class="flex min-w-0 items-center gap-1.5">
+              <span
+                class="min-w-0 truncate text-xs font-medium"
+                :class="
+                  index === skillIndex ? 'text-accent' : 'text-secondaryDark'
+                "
+                :title="`/${skill.slug}`"
+                >/{{ skill.slug }}</span
+              >
+              <span
+                v-if="skill.custom"
+                class="shrink-0 rounded border border-dividerLight px-1 text-[0.6rem] uppercase tracking-wide text-secondaryLight"
+                >{{ t("ai_experiments.chat.skill_custom") }}</span
+              >
+            </span>
+            <span
+              class="line-clamp-2 [overflow-wrap:anywhere] text-tiny text-secondaryLight"
+              >{{ skill.description }}</span
+            >
+          </button>
+
+          <p
+            v-if="!matchingSkills.length"
+            class="px-3 py-2 text-tiny text-secondaryLight"
+          >
+            {{ t("ai_experiments.chat.skills_empty") }}
+          </p>
+        </div>
+
         <div
           class="flex flex-col rounded-xl border border-divider bg-primaryLight transition-colors focus-within:[border-color:color-mix(in_srgb,var(--accent-color)_45%,var(--divider-color))]"
           :class="{
@@ -188,40 +243,105 @@
             rows="1"
             :placeholder="t('ai_experiments.chat.placeholder')"
             class="max-h-40 min-w-0 w-full resize-none whitespace-pre-wrap [overflow-wrap:anywhere] bg-transparent px-3 pt-2.5 text-xs text-secondaryDark placeholder:text-secondaryLight focus:outline-none"
+            :disabled="noModelsConfigured"
+            role="combobox"
+            :aria-expanded="skillMenuOpen"
+            aria-controls="hopp-skill-menu"
+            :aria-activedescendant="
+              skillMenuOpen ? `hopp-skill-${skillIndex}` : undefined
+            "
             @input="autoResize"
             @keydown="onKeydown"
           ></textarea>
           <div class="flex items-center justify-between gap-2 px-2 pb-1.5 pt-1">
-            <span
-              class="hidden items-center gap-1 text-tiny text-secondaryLight sm:flex"
+            <!-- Only worth a control when there is a choice to make. -->
+            <tippy
+              v-if="chat.modelOptions.value.length > 1"
+              interactive
+              trigger="click"
+              theme="popover"
+              placement="top-start"
+              :on-shown="() => modelDropdown?.focus()"
             >
-              <kbd :class="KBD">↵</kbd>
-              <span>{{ t("ai_experiments.chat.hint_send") }}</span>
-              <span class="mx-0.5 opacity-50">·</span>
-              <kbd :class="KBD">⇧ ↵</kbd>
-              <span>{{ t("ai_experiments.chat.hint_newline") }}</span>
-            </span>
+              <button
+                v-tippy="{ theme: 'tooltip' }"
+                :title="selectedModelLabel"
+                class="flex min-w-0 max-w-[9rem] items-center gap-1 rounded px-1.5 py-0.5 text-tiny text-secondaryLight transition hover:bg-primaryDark hover:text-secondary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-50"
+                :disabled="chat.isStreaming.value"
+                :aria-label="t('ai_experiments.chat.model_picker')"
+              >
+                <component
+                  :is="selectedLogo"
+                  class="h-3 w-3 shrink-0"
+                  aria-hidden="true"
+                />
+                <span class="truncate">{{ selectedModelLabel }}</span>
+                <IconChevronDown class="h-3 w-3 shrink-0" />
+              </button>
+
+              <template #content="{ hide }">
+                <div
+                  ref="modelDropdown"
+                  tabindex="0"
+                  role="menu"
+                  class="flex max-h-64 flex-col overflow-y-auto focus:outline-none"
+                  @keyup.escape="hide"
+                >
+                  <template
+                    v-for="group in groupedModels"
+                    :key="group.connectionID"
+                  >
+                    <div
+                      class="flex items-center gap-1.5 px-3 pb-1 pt-2 text-tiny font-semibold uppercase tracking-wide text-secondaryLight"
+                    >
+                      <component
+                        :is="logoForPreset(group.preset)"
+                        class="h-3 w-3 shrink-0"
+                        aria-hidden="true"
+                      />
+                      <span class="truncate">{{ group.label }}</span>
+                    </div>
+                    <HoppSmartItem
+                      v-for="option in group.models"
+                      :key="`${option.connectionID}:${option.model}`"
+                      :label="option.model"
+                      :icon="isSelected(option) ? IconCircleDot : IconCircle"
+                      :active="isSelected(option)"
+                      :aria-selected="isSelected(option)"
+                      @click="
+                        () => {
+                          chat.selectModel(option)
+                          hide()
+                        }
+                      "
+                    />
+                  </template>
+                </div>
+              </template>
+            </tippy>
+
             <button
               v-tippy="{ theme: 'tooltip' }"
               :title="t('ai_experiments.chat.send')"
               class="ml-auto flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent text-accentContrast transition enabled:hover:-translate-y-px enabled:hover:bg-accentDark enabled:hover:[box-shadow:0_4px_12px_-4px_color-mix(in_srgb,var(--accent-color)_55%,transparent)] enabled:active:translate-y-0 enabled:active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed motion-reduce:transition-none motion-reduce:enabled:hover:translate-y-0"
               :class="{ 'disabled:opacity-40': !chat.isStreaming.value }"
               :aria-label="t('ai_experiments.chat.send')"
-              :disabled="!input.trim() || chat.isStreaming.value"
+              :disabled="
+                !input.trim() || chat.isStreaming.value || noModelsConfigured
+              "
               @click="send()"
             >
               <IconLoaderCircle
                 v-if="chat.isStreaming.value"
                 class="h-3.5 w-3.5 animate-spin motion-reduce:animate-none"
               />
-              <IconArrowUp v-else class="h-4 w-4" />
+              <IconCornerDownLeft v-else class="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
       </div>
     </aside>
 
-    <!-- Launcher: a quiet surface circle; accent border and glow only on hover -->
     <button
       v-if="!chat.isOpen.value"
       v-tippy="{ theme: 'tooltip', placement: 'left' }"
@@ -252,12 +372,21 @@ import { AIChatService } from "~/services/ai-chat.service"
 import { getFollowUpSuggestions } from "~/helpers/aichat/suggestions"
 import { invokeAction } from "~/helpers/actions"
 import { platform } from "~/platform"
+import type { AIChatModelOption } from "~/platform/experiments"
+import { logoForPreset } from "~/helpers/aichat/provider-logos"
+import {
+  filterSkills,
+  skillQueryIn,
+  type ChatSkill,
+} from "~/helpers/aichat/skills"
 import IconActivity from "~icons/lucide/activity"
-import IconArrowUp from "~icons/lucide/arrow-up"
 import IconArrowUpRight from "~icons/lucide/arrow-up-right"
 import IconBraces from "~icons/lucide/braces"
 import IconBriefcase from "~icons/lucide/briefcase"
+import IconChevronDown from "~icons/lucide/chevron-down"
+import IconCircle from "~icons/lucide/circle"
 import IconCircleDot from "~icons/lucide/circle-dot"
+import IconCornerDownLeft from "~icons/lucide/corner-down-left"
 import IconFileText from "~icons/lucide/file-text"
 import IconFlaskConical from "~icons/lucide/flask-conical"
 import IconFolder from "~icons/lucide/folder"
@@ -273,10 +402,6 @@ import IconTrash2 from "~icons/lucide/trash-2"
 /** Accent-tinted badge behind the sparkles mark (header, empty state). */
 const ORB =
   "inline-flex shrink-0 items-center justify-center border text-accent [background:color-mix(in_srgb,var(--accent-color)_12%,var(--primary-light-color))] [border-color:color-mix(in_srgb,var(--accent-color)_25%,transparent)]"
-
-/** Keycap in the composer hint. */
-const KBD =
-  "inline-flex min-w-[1.1rem] items-center rounded border border-divider bg-primaryDark px-1 font-sans text-[0.6rem] leading-4 text-secondary"
 
 const t = useI18n()
 const { shouldEnableAIFeatures } = useAIExperiments("chat")
@@ -298,6 +423,17 @@ const openChat = () => {
   chat.open()
 }
 
+// The availability query needs a session, and the answer decides whether the
+// launcher belongs on screen at all — so it is asked as soon as there is one,
+// not deferred until the pane opens.
+watch(
+  currentUser,
+  (user) => {
+    if (user) void chat.loadAvailability()
+  },
+  { immediate: true }
+)
+
 // Logging out closes an open pane and drops the conversation — its history
 // (and any credentials typed into it) belongs to the session that ended.
 watch(currentUser, (user) => {
@@ -313,7 +449,116 @@ const breakpoints = useBreakpoints(breakpointsTailwind)
 const mdAndLarger = breakpoints.greater("md")
 
 const input = ref("")
+const modelDropdown = ref<HTMLElement | null>(null)
 const scrollEl = ref<HTMLElement | null>(null)
+
+const groupedModels = computed(() => {
+  const groups = new Map<string, AIChatModelOption[]>()
+  // Keyed by connection, not by label: two connections may share a label, and
+  // merging them would attach one provider's mark to the other's models.
+  for (const option of chat.modelOptions.value) {
+    const existing = groups.get(option.connectionID)
+    if (existing) existing.push(option)
+    else groups.set(option.connectionID, [option])
+  }
+  return [...groups.values()].map((models) => ({
+    connectionID: models[0].connectionID,
+    label: models[0].connectionLabel,
+    preset: models[0].preset,
+    models,
+  }))
+})
+
+const isSelected = (option: AIChatModelOption) =>
+  chat.selectedModel.value?.connectionID === option.connectionID &&
+  chat.selectedModel.value?.model === option.model
+
+const selectedModelLabel = computed(
+  () => chat.selectedModel.value?.model ?? t("ai_experiments.chat.model")
+)
+
+/**
+ * Dismissed with Escape, and reset the moment the query changes — otherwise a
+ * user who escaped once could never reopen the menu without clearing the input.
+ */
+const skillMenuDismissed = ref(false)
+const skillIndex = ref(0)
+const skillMenuEl = ref<HTMLElement | null>(null)
+
+const skillQuery = computed(() => skillQueryIn(input.value))
+
+const matchingSkills = computed(() =>
+  skillQuery.value === null
+    ? []
+    : filterSkills(chat.skills.value, skillQuery.value)
+)
+
+const skillMenuOpen = computed(
+  () =>
+    skillQuery.value !== null &&
+    !skillMenuDismissed.value &&
+    !noModelsConfigured.value
+)
+
+watch(skillQuery, () => {
+  skillMenuDismissed.value = false
+  skillIndex.value = 0
+  // A shorter list after filtering would otherwise stay scrolled where the
+  // longer one left it, showing empty space instead of the first match.
+  nextTick(() => skillMenuEl.value?.scrollTo({ top: 0 }))
+})
+
+/**
+ * Keeps the highlighted option in view.
+ *
+ * The menu is capped at max-h-56 and scrolls, so arrowing past its edge would
+ * move the selection somewhere the user cannot see — and the only feedback
+ * that anything happened is the highlight itself. `block: "nearest"` scrolls
+ * the minimum needed rather than recentring on every keystroke.
+ */
+watch(skillIndex, (index) => {
+  nextTick(() => {
+    skillMenuEl.value
+      ?.querySelector<HTMLElement>(`#hopp-skill-${index}`)
+      ?.scrollIntoView({ block: "nearest" })
+  })
+})
+
+/**
+ * Fills the composer with the skill's prompt instead of sending it.
+ *
+ * The prompt is a starting point — "debug this request" is more useful with
+ * "the 401 only happens in staging" appended — so the user gets to edit it.
+ */
+const applySkill = (skill: ChatSkill) => {
+  input.value = skill.prompt
+  skillMenuDismissed.value = false
+  nextTick(() => {
+    textareaEl.value?.focus()
+    autoResize()
+  })
+}
+
+const selectedLogo = computed(() => {
+  const selected = chat.modelOptions.value.find(isSelected)
+  return selected ? logoForPreset(selected.preset) : IconSparkles
+})
+
+/**
+ * True only once the server has actually answered with an empty list. A lookup
+ * that failed leaves this false, so a flaky request cannot disable a chat that
+ * would have worked.
+ */
+const noModelsConfigured = computed(
+  () => chat.availabilityKnown.value && chat.modelOptions.value.length === 0
+)
+
+/**
+ * Only true once the server has actually said "off". Null means we have not
+ * asked yet, and the launcher shows meanwhile rather than flickering in on
+ * every page load.
+ */
+const instanceDisabled = computed(() => chat.instanceEnabled.value === false)
 const textareaEl = ref<HTMLTextAreaElement | null>(null)
 
 const suggestions: Array<{ label: string; icon: Component }> = [
@@ -341,7 +586,6 @@ const CONTEXT_ICONS: Record<string, Component> = {
 const contextIcon = (id: string): Component =>
   CONTEXT_ICONS[id] ?? IconCircleDot
 
-// Next-step chips for the last completed turn, derived from what it executed.
 const followUps = computed(() => {
   if (
     chat.isStreaming.value ||
@@ -417,6 +661,30 @@ const send = async (text?: string) => {
 }
 
 const onKeydown = (e: KeyboardEvent) => {
+  if (skillMenuOpen.value) {
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault()
+      const step = e.key === "ArrowDown" ? 1 : -1
+      const count = matchingSkills.value.length
+      skillIndex.value = (skillIndex.value + step + count) % count
+      return
+    }
+    if (e.key === "Escape") {
+      e.preventDefault()
+      // The pane closes on Escape too. Dismissing the menu has to consume the
+      // key, or one press would shut the whole assistant.
+      e.stopPropagation()
+      skillMenuDismissed.value = true
+      return
+    }
+    if ((e.key === "Enter" || e.key === "Tab") && !e.isComposing) {
+      e.preventDefault()
+      const chosen = matchingSkills.value[skillIndex.value]
+      if (chosen) applySkill(chosen)
+      return
+    }
+  }
+
   // Enter during IME composition confirms the candidate, not the message.
   if (e.key === "Enter" && !e.shiftKey && !e.isComposing) {
     e.preventDefault()

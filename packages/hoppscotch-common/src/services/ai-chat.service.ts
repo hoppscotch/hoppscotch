@@ -65,6 +65,12 @@ import {
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { WorkspaceService } from "~/services/workspace.service"
 import { platform } from "~/platform"
+import type { AIChatModelOption, AIChatSelection } from "~/platform/experiments"
+import {
+  BUILT_IN_SKILLS,
+  mergeSkills,
+  type ChatSkill,
+} from "~/helpers/aichat/skills"
 import {
   invokeAction,
   isActionBound,
@@ -141,6 +147,7 @@ import {
   parseAppActionCommand,
   splitCommands,
 } from "~/helpers/aichat/app-actions"
+import { repliesFailure } from "~/helpers/aichat/step-lines"
 import type { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import type {
   HoppTabSaveContext,
@@ -249,7 +256,13 @@ type ChatContentBlock =
       name: string
       input: Record<string, unknown>
     }
-  | { type: "tool_result"; tool_use_id: string; content: string }
+  | {
+      type: "tool_result"
+      tool_use_id: string
+      content: string
+      /** Marks a tool that did not do what was asked. */
+      is_error?: boolean
+    }
 
 /** A chat message in model format — plain text, or content blocks mid tool loop. */
 interface ChatRequestMessage {
@@ -270,7 +283,8 @@ interface ChatToolCall {
 /** The backend chat function (LLM + tool use). */
 type ChatFn = (
   messages: ChatRequestMessage[],
-  context: string
+  context: string,
+  selection?: AIChatSelection
 ) => Promise<
   E.Either<
     string,
@@ -278,6 +292,8 @@ type ChatFn = (
       content: string
       tool_calls: ChatToolCall[]
       trace_id: string
+      /** The model that served the turn, where the backend reports one. */
+      model?: string
       usage?: ChatUsage
       assistant_content?: unknown[]
       loaded_tools?: string[]
@@ -285,12 +301,15 @@ type ChatFn = (
   >
 >
 
-/** Token accounting for one model round-trip. */
+/**
+ * Token accounting for one model round-trip. Every counter is optional: the
+ * cache figures exist only where the provider implements prompt caching.
+ */
 interface ChatUsage {
-  input_tokens: number
-  cache_read_input_tokens: number
-  cache_creation_input_tokens: number
-  output_tokens: number
+  input_tokens?: number
+  cache_read_input_tokens?: number
+  cache_creation_input_tokens?: number
+  output_tokens?: number
 }
 
 /** Most recent messages sent as conversation history to the model. */
@@ -415,6 +434,40 @@ export class AIChatService extends Service {
   public readonly lastTurnStatus = ref<"idle" | "ok" | "error">("idle")
 
   /**
+   * Models this instance offers, refreshed when the pane opens.
+   *
+   * Empty is meaningful: it means an administrator has registered nothing, and
+   * every message would fail. `availabilityKnown` separates that from "not
+   * asked yet", because a failed lookup must not be read as "no models".
+   */
+  public readonly modelOptions = ref<AIChatModelOption[]>([])
+
+  /**
+   * Whether the administrator has switched the assistant on. Null until the
+   * server has answered, so the launcher can show optimistically rather than
+   * flickering in on every page load.
+   */
+  public readonly instanceEnabled = ref<boolean | null>(null)
+
+  /** True once a lookup has succeeded, whatever it returned. */
+  public readonly availabilityKnown = ref(false)
+
+  /**
+   * The skills the composer offers under "/": the built-in set with any the
+   * admin defined laid over it. Starts as the built-ins so the menu works
+   * before the first lookup answers.
+   */
+  public readonly skills = ref<ChatSkill[]>(BUILT_IN_SKILLS)
+
+  /**
+   * The connection and model the next turn will use.
+   *
+   * Never read inside a turn — `sendMessage` snapshots it, so changing the
+   * choice mid-reply cannot swap the provider between steps of one turn.
+   */
+  public readonly selectedModel = ref<AIChatSelection | null>(null)
+
+  /**
    * Ad-hoc context registered by currently-open surfaces (e.g. modals), merged
    * into the chat context alongside the active request/response/environment.
    */
@@ -487,6 +540,64 @@ export class AIChatService extends Service {
 
   public open() {
     this.isOpen.value = true
+    void this.loadAvailability()
+  }
+
+  /**
+   * Asks the server whether the assistant is on and what it offers.
+   *
+   * A failed lookup changes nothing: an instance that chatted fine a moment ago
+   * should not be declared switched-off by one flaky request. Called when a
+   * session starts and again whenever the pane opens, because an administrator
+   * can change either while the app is loaded.
+   */
+  public async loadAvailability() {
+    const getAvailability =
+      platform.experiments?.aiExperiments?.getChatAvailability
+    if (!getAvailability) return
+
+    const result = await getAvailability()
+    if (E.isLeft(result)) return
+
+    this.instanceEnabled.value = result.right.enabled
+    this.modelOptions.value = result.right.models
+    this.skills.value = mergeSkills(result.right.skills)
+    this.availabilityKnown.value = true
+    this.reconcileSelection()
+  }
+
+  /**
+   * Keeps the choice pointing at something the instance still offers.
+   *
+   * Falls back to the instance default, then to whatever is first: a default
+   * can go missing (an admin disabling that connection), and a picker with
+   * nothing selected would send no selection at all.
+   */
+  private reconcileSelection() {
+    const options = this.modelOptions.value
+    const current = this.selectedModel.value
+
+    const stillOffered =
+      current &&
+      options.some(
+        (option) =>
+          option.connectionID === current.connectionID &&
+          option.model === current.model
+      )
+    if (stillOffered) return
+
+    const fallback = options.find((option) => option.isDefault) ?? options[0]
+    this.selectedModel.value = fallback
+      ? { connectionID: fallback.connectionID, model: fallback.model }
+      : null
+  }
+
+  /** Records the user's choice for subsequent turns. */
+  public selectModel(option: AIChatModelOption) {
+    this.selectedModel.value = {
+      connectionID: option.connectionID,
+      model: option.model,
+    }
   }
 
   public close() {
@@ -572,6 +683,12 @@ export class AIChatService extends Service {
 
     const generation = ++this.turnGeneration
 
+    // Snapshotted, not read per step: one turn is served by one connection,
+    // even if the user changes the picker while the reply is still arriving.
+    const selection = this.selectedModel.value
+      ? { ...this.selectedModel.value }
+      : undefined
+
     this.messages.value.push({
       id: this.nextId(),
       role: "user",
@@ -587,7 +704,7 @@ export class AIChatService extends Service {
       const chatFn = platform.experiments?.aiExperiments?.chat
       if (chatFn) {
         // Online: run the agentic loop, surfacing each step live.
-        await this.runAgentLoop(chatFn, contextString, generation)
+        await this.runAgentLoop(chatFn, contextString, generation, selection)
       } else {
         // Offline fallback: a single synchronous reply.
         const id = this.pushPending()
@@ -717,7 +834,8 @@ export class AIChatService extends Service {
   private async runAgentLoop(
     chatFn: ChatFn,
     contextString: string,
-    generation: number
+    generation: number,
+    selection?: AIChatSelection
   ) {
     // Working transcript in model format. Each step appends the assistant's
     // tool_use turn and our tool_result turn (real Anthropic round-trips).
@@ -729,7 +847,7 @@ export class AIChatService extends Service {
     for (let step = 0; step < MAX_TOOL_STEPS; step++) {
       const pendingId = this.pushPending()
       const stepStartedAt = Date.now()
-      const result = await chatFn(working, safeContextString)
+      const result = await chatFn(working, safeContextString, selection)
       if (this.isStaleTurn(generation)) return
 
       if (E.isLeft(result)) {
@@ -742,14 +860,28 @@ export class AIChatService extends Service {
           this.messages.value[i].kind = "error"
         }
         this.lastTurnStatus.value = "error"
+        // The chosen connection or model is gone. Clearing the chat cannot fix
+        // that, so refresh the list instead and let the picker settle on
+        // something that still exists.
+        if (result.left === "MODEL_UNAVAILABLE") void this.loadAvailability()
         return
       }
 
-      const { content, tool_calls, usage, assistant_content, loaded_tools } =
-        result.right
+      const {
+        content,
+        tool_calls,
+        usage,
+        model,
+        assistant_content,
+        loaded_tools,
+      } = result.right
       if (usage) {
+        // A missing counter is reported as such rather than as zero, so a
+        // provider that does not cache is not mistaken for one whose cache
+        // never warms.
+        const count = (value?: number) => value ?? "n/a"
         console.debug(
-          `[AIChat] step ${step + 1}: in=${usage.input_tokens} cache_read=${usage.cache_read_input_tokens} cache_write=${usage.cache_creation_input_tokens} out=${usage.output_tokens}`
+          `[AIChat] step ${step + 1}${model ? ` (${model})` : ""}: in=${count(usage.input_tokens)} cache_read=${count(usage.cache_read_input_tokens)} cache_write=${count(usage.cache_creation_input_tokens)} out=${count(usage.output_tokens)}`
         )
       }
 
@@ -853,6 +985,8 @@ export class AIChatService extends Service {
         return "⚠️ This conversation is too large for the AI service — clear the chat and try again."
       case "INVALID_INPUT":
         return "⚠️ The AI service rejected this conversation — clear the chat and try again."
+      case "MODEL_UNAVAILABLE":
+        return "⚠️ That model is no longer available on this server — pick another one and resend."
       case "CHAT_DISABLED":
         return "⚠️ The AI assistant isn't enabled on this server — ask your administrator to configure it."
       case "UNABLE_TO_PARSE_RESPONSE":
@@ -875,6 +1009,8 @@ export class AIChatService extends Service {
     // What the user sees per tool vs what the model gets back.
     const replyById = new Map<string, string>()
     const resultById = new Map<string, string>()
+    /** Calls whose result must travel back flagged as an error. */
+    const failedCalls = new Set<string>()
     for (const call of toolCalls) {
       // Abandoned mid-batch: stop before touching the workspace again.
       if (this.isStaleTurn(generation)) break
@@ -900,6 +1036,7 @@ export class AIChatService extends Service {
             >)
 
       let reply = ""
+      let threw = false
       try {
         if (APP_ACTION_TOOLS.has(call.name)) {
           reply = await this.runAppAction(
@@ -940,12 +1077,24 @@ export class AIChatService extends Service {
       } catch (e) {
         // One failing tool must not abort the turn with no trace of it.
         console.error(`[AIChat] tool "${call.name}" failed:`, e)
+        threw = true
         reply = `⚠️ ${call.name} failed: ${
           e instanceof Error ? e.message : "unexpected error"
         }`
       }
       const masked = this.maskResolvedSecrets(reply || "Done.", resolved)
       resultById.set(call.id, masked)
+      // A tool that failed or refused has to say so in the RESULT, not only in
+      // the prose beside it: a weaker model reads a success-shaped result as
+      // proof the action happened. The step glyph is the vocabulary for this,
+      // so the parser decides. Context tools are the one exception — their
+      // unmarked payload IS the success.
+      if (
+        threw ||
+        repliesFailure(masked, !CONTEXT_FETCH_TOOLS.has(call.name))
+      ) {
+        failedCalls.add(call.id)
+      }
       // Context tools show a short line instead of the payload — but a notice
       // or error must stay visible to the user.
       const short = CONTEXT_FETCH_TOOLS.get(call.name)
@@ -967,6 +1116,7 @@ export class AIChatService extends Service {
         type: "tool_result",
         tool_use_id: c.id,
         content: result.length > cap ? `${result.slice(0, cap)}…` : result,
+        ...(failedCalls.has(c.id) ? { is_error: true } : {}),
       }
     })
     return { replies, toolResults }

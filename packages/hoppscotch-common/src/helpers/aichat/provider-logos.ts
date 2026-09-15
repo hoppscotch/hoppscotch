@@ -11,6 +11,7 @@ import IconPlug from "~icons/lucide/plug"
 
 /**
  * A mark per provider preset, mirroring the admin dashboard's own map.
+ * The SVGs are vendored from Simple Icons (CC0).
  *
  * Imported statically so the bundler keeps only these, and so a preset the
  * backend gains before this map does falls back rather than failing to resolve.

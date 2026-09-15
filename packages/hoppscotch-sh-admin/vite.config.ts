@@ -46,7 +46,7 @@ export default defineConfig({
       resolvers: [
         IconResolver({
           prefix: 'icon',
-          customCollections: ['auth'],
+          customCollections: ['auth', 'ai'],
         }),
         (compName: string) => {
           if (compName.startsWith('Hopp'))
@@ -65,6 +65,8 @@ export default defineConfig({
       compiler: 'vue3',
       customCollections: {
         auth: FileSystemIconLoader('../hoppscotch-sh-admin/assets/icons/auth'),
+        // Provider marks, one per preset. See that folder's README for sources.
+        ai: FileSystemIconLoader('../hoppscotch-sh-admin/assets/icons/ai'),
       },
     }),
     Unfonts({

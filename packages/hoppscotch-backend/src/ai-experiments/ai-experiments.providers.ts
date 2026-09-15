@@ -82,6 +82,7 @@ const PRESETS: Record<ProviderPreset, Preset> = {
   anthropic: {
     dialect: 'anthropic',
     auth: 'api-key',
+    defaultBaseURL: 'https://api.anthropic.com',
     suggestedModels: [
       'claude-opus-5',
       'claude-sonnet-5',
@@ -133,6 +134,7 @@ const PRESETS: Record<ProviderPreset, Preset> = {
   openai: {
     dialect: 'openai',
     auth: 'api-key',
+    defaultBaseURL: 'https://api.openai.com/v1',
     tokenLimitField: 'max_completion_tokens',
     reasoningEffort: 'none',
     suggestedModels: ['gpt-5.6-luna', 'gpt-5.6-terra'],
@@ -182,6 +184,7 @@ const PRESETS: Record<ProviderPreset, Preset> = {
   custom: {
     dialect: 'anthropic',
     auth: 'api-key',
+    baseURLHint: 'https://your-gateway.example.com',
     capabilities: {
       toolSearch: false,
       promptCaching: false,
@@ -284,8 +287,8 @@ export type PresetDescriptor = {
 /**
  * Every preset with the details a form needs to ask for the right fields.
  *
- * `requiresBaseURL` repeats the condition the validator enforces rather than
- * stating its own, so a form built from this cannot ask for less than the
+ * `requiresBaseURL` calls the same helper the validator does rather than
+ * restating the rule, so a form built from this cannot ask for less than the
  * server will insist on.
  */
 export const describePresets = (): PresetDescriptor[] =>
@@ -294,7 +297,7 @@ export const describePresets = (): PresetDescriptor[] =>
     dialect: PRESETS[name].dialect,
     baseURLHint: PRESETS[name].baseURLHint,
     defaultBaseURL: PRESETS[name].defaultBaseURL,
-    requiresBaseURL: !!PRESETS[name].baseURLHint,
+    requiresBaseURL: requiresBaseURLFor(name),
     suggestedModels: PRESETS[name].suggestedModels ?? [],
     verified: PRESETS[name].verified,
   }));
@@ -346,6 +349,19 @@ export const connectionFromPreset = (
 
 export const baseURLHintFor = (preset: ProviderPreset): string | undefined =>
   PRESETS[preset].baseURLHint;
+
+/**
+ * Whether a connection on this preset cannot be reached without being told an
+ * endpoint.
+ *
+ * Keyed on the absence of a default endpoint, not on the presence of a hint: a
+ * hint is a message, and a preset can want one without needing one. Deriving it
+ * from the hint let `openai` and `custom` save with no endpoint at all — the
+ * first then failed every turn, and the second quietly sent its credential to
+ * the Anthropic SDK's own default.
+ */
+export const requiresBaseURLFor = (preset: ProviderPreset): boolean =>
+  !PRESETS[preset].defaultBaseURL;
 
 export const isPresetVerified = (preset: ProviderPreset): boolean =>
   PRESETS[preset].verified;

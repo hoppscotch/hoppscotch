@@ -16,7 +16,7 @@ import {
 } from 'src/errors';
 import {
   ChatConnection,
-  baseURLHintFor,
+  requiresBaseURLFor,
   connectionFromPreset,
   isKnownPreset,
   validateModelForPreset,
@@ -88,7 +88,7 @@ export class AIProviderService {
     if (new Set(fields.models).size !== fields.models.length) {
       return E.left(AI_PROVIDER_MODELS_INVALID);
     }
-    if (baseURLHintFor(fields.preset) && !fields.baseURL) {
+    if (requiresBaseURLFor(fields.preset) && !fields.baseURL) {
       return E.left(AI_PROVIDER_BASE_URL_REQUIRED);
     }
     for (const model of fields.models) {
@@ -410,7 +410,7 @@ export class AIProviderService {
     if (!apiKey) return E.left(AI_PROVIDER_KEY_REQUIRED);
 
     const baseURL = input.baseURL?.trim() || stored?.baseURL || undefined;
-    if (baseURLHintFor(preset) && !baseURL) {
+    if (requiresBaseURLFor(preset) && !baseURL) {
       return E.left(AI_PROVIDER_BASE_URL_REQUIRED);
     }
 

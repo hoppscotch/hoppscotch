@@ -166,6 +166,36 @@ describe('AIProviderService', () => {
       ).toEqualLeft(AI_PROVIDER_BASE_URL_REQUIRED);
     });
 
+    test('refuses a preset with no endpoint of its own, with none given', async () => {
+      // `custom` means "an endpoint we do not recognise". Accepting it blank
+      // used to hand the credential to the Anthropic SDK's own default.
+      expect(
+        await service.create({
+          ...validInput,
+          preset: 'custom',
+          baseURL: undefined,
+        }),
+      ).toEqualLeft(AI_PROVIDER_BASE_URL_REQUIRED);
+    });
+
+    test('accepts a preset that carries its own endpoint, with none given', async () => {
+      mockPrisma.aiProviderConnection.findFirst.mockResolvedValue(null);
+      mockPrisma.aiProviderConnection.count.mockResolvedValue(0);
+      mockPrisma.aiProviderConnection.create.mockResolvedValue(row());
+
+      expect(
+        E.isRight(
+          await service.create({
+            ...validInput,
+            preset: 'openai',
+            baseURL: undefined,
+            models: ['gpt-5.6-luna'],
+            defaultModel: 'gpt-5.6-luna',
+          }),
+        ),
+      ).toBe(true);
+    });
+
     test('refuses a model the preset would silently mis-serve', async () => {
       // DeepSeek answers an unknown id with its own default rather than failing.
       expect(

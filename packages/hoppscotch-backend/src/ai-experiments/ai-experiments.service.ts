@@ -22,6 +22,7 @@ import {
   ProviderTurn,
   SystemBlock,
   baseURLHintFor,
+  requiresBaseURLFor,
   createChatProvider,
   applyOverrides,
   validateModelForPreset,
@@ -341,12 +342,14 @@ export class AIExperimentsService {
       if (E.isLeft(resolved)) return resolved;
       const connection = resolved.right;
 
-      // A preset whose endpoint carries a region cannot supply its own, so an
-      // unset base URL is a misconfiguration rather than "use the default".
-      const hint = baseURLHintFor(connection.preset);
-      if (hint && !connection.baseURL) {
+      // A preset with no endpoint of its own cannot supply one, so an unset
+      // base URL is a misconfiguration rather than "use the default".
+      if (requiresBaseURLFor(connection.preset) && !connection.baseURL) {
+        const hint = baseURLHintFor(connection.preset);
         console.error(
-          `[AIExperiments] ${connection.preset} needs a base URL, e.g. ${hint}`,
+          `[AIExperiments] ${connection.preset} needs a base URL${
+            hint ? `, e.g. ${hint}` : ''
+          }`,
         );
         return E.left({
           message: AI_EXPERIMENTS_CHAT_DISABLED,

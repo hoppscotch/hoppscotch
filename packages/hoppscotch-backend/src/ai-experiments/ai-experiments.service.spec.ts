@@ -24,7 +24,10 @@ import {
 import {
   applyOverrides,
   connectionFromPreset,
+  describePresets,
+  listPresets,
   ProviderPreset,
+  requiresBaseURLFor,
   validateModelForPreset,
 } from './ai-experiments.providers';
 import { AISettingsService } from 'src/ai-provider/ai-settings.service';
@@ -754,6 +757,44 @@ describe('AIExperimentsService', () => {
         cache_creation_input_tokens: 0,
         output_tokens: 5,
       });
+    });
+  });
+
+  describe('knowing which presets need an endpoint', () => {
+    test('every preset either carries an endpoint or insists on one', () => {
+      // The invariant the whole feature rests on: a connection must never be
+      // savable with nowhere to send the credential. Deriving this from the
+      // presence of a hint instead let `openai` save and then fail every turn,
+      // and let `custom` fall through to the Anthropic SDK's own default.
+      for (const preset of listPresets()) {
+        const connection = connectionFromPreset(preset, {
+          apiKey: 'k',
+          model: 'm',
+        });
+        expect(!!connection.baseURL || requiresBaseURLFor(preset)).toBe(true);
+      }
+    });
+
+    test('openai resolves to the vendor endpoint on its own', () => {
+      expect(
+        connectionFromPreset('openai', { apiKey: 'k', model: 'gpt-5.6-luna' })
+          .baseURL,
+      ).toBe('https://api.openai.com/v1');
+    });
+
+    test('custom has nowhere to default to, so it demands an endpoint', () => {
+      expect(requiresBaseURLFor('custom')).toBe(true);
+      expect(
+        connectionFromPreset('custom', { apiKey: 'k', model: 'm' }).baseURL,
+      ).toBeUndefined();
+    });
+
+    test('the form is told exactly what the validator will enforce', () => {
+      for (const described of describePresets()) {
+        expect(described.requiresBaseURL).toBe(
+          requiresBaseURLFor(described.name),
+        );
+      }
     });
   });
 

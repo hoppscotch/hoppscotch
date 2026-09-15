@@ -30,6 +30,7 @@ import { UserSettingsUserResolver } from './user-settings/user.resolver';
 import { InfraResolver } from './admin/infra.resolver';
 import { InfraConfigResolver } from './infra-config/infra-config.resolver';
 import { InfraTokenResolver } from './infra-token/infra-token.resolver';
+import { AIProviderResolver } from './ai-provider/ai-provider.resolver';
 import { SortTeamCollectionResolver } from './orchestration/sort/sort-team-collection.resolver';
 import { SortUserCollectionResolver } from './orchestration/sort/sort-user-collection.resolver';
 import { MockServerResolver } from './mock-server/mock-server.resolver';
@@ -64,6 +65,7 @@ const RESOLVERS = [
   UserSettingsUserResolver,
   InfraConfigResolver,
   InfraTokenResolver,
+  AIProviderResolver,
   SortUserCollectionResolver,
   SortTeamCollectionResolver,
   MockServerResolver,

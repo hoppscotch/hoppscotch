@@ -1016,3 +1016,85 @@ export const AI_EXPERIMENTS_CHAT_INPUT_TOO_LARGE =
  * not configured) (AIExperimentsService)
  */
 export const AI_EXPERIMENTS_CHAT_DISABLED = 'ai_experiments/chat_disabled';
+
+/**
+ * The connection or model the request named is gone, disabled, or no longer
+ * offered. Distinct from invalid input: the fix is to choose again from a
+ * refreshed list, not to clear the conversation (AIExperimentsService)
+ */
+export const AI_EXPERIMENTS_MODEL_UNAVAILABLE =
+  'ai_experiments/model_unavailable';
+
+/**
+ * The requested AI provider connection does not exist (AIProviderService)
+ */
+export const AI_PROVIDER_NOT_FOUND = 'ai_provider/not_found';
+
+/**
+ * The connection label is too short to identify it in the picker
+ * (AIProviderService)
+ */
+export const AI_PROVIDER_LABEL_SHORT = 'ai_provider/label_short';
+
+/**
+ * The named provider preset is not one this build knows (AIProviderService)
+ */
+export const AI_PROVIDER_INVALID_PRESET = 'ai_provider/invalid_preset';
+
+/**
+ * A connection must offer at least one model, and its default must be among
+ * them (AIProviderService)
+ */
+export const AI_PROVIDER_MODELS_INVALID = 'ai_provider/models_invalid';
+
+/**
+ * This preset's endpoint carries a region or resource, so it cannot be
+ * defaulted and must be given (AIProviderService)
+ */
+export const AI_PROVIDER_BASE_URL_REQUIRED = 'ai_provider/base_url_required';
+
+/**
+ * A model id the preset rejects, e.g. a Bedrock id missing its region profile
+ * (AIProviderService)
+ */
+export const AI_PROVIDER_MODEL_REJECTED = 'ai_provider/model_rejected';
+
+/**
+ * A connection cannot be created or updated without a key (AIProviderService)
+ */
+export const AI_PROVIDER_KEY_REQUIRED = 'ai_provider/key_required';
+
+/**
+ * The stored key could not be decrypted — usually DATA_ENCRYPTION_KEY changed
+ * under it. The admin must re-enter the credential (AIProviderService)
+ */
+export const AI_PROVIDER_KEY_UNREADABLE = 'ai_provider/key_unreadable';
+
+/**
+ * Another connection already uses this label. The label is the only thing that
+ * tells two connections apart in the dashboard and the model picker, so it has
+ * to be unique (AIProviderService)
+ */
+export const AI_PROVIDER_LABEL_TAKEN = 'ai_provider/label_taken';
+
+/**
+ * The skill named in the request does not exist (AISkillService)
+ */
+export const AI_SKILL_NOT_FOUND = 'ai_skill/not_found';
+
+/**
+ * A skill's slug is what the user types after "/", so it has to be URL-safe:
+ * lowercase letters, digits and dashes (AISkillService)
+ */
+export const AI_SKILL_INVALID_SLUG = 'ai_skill/invalid_slug';
+
+/**
+ * Another skill already answers to this slug (AISkillService)
+ */
+export const AI_SKILL_SLUG_TAKEN = 'ai_skill/slug_taken';
+
+/**
+ * A skill needs a title, a description and a prompt — the first two are how it
+ * is found in the menu, the third is what it actually does (AISkillService)
+ */
+export const AI_SKILL_INCOMPLETE = 'ai_skill/incomplete';

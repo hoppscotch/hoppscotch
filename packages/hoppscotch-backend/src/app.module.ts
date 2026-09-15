@@ -39,6 +39,7 @@ import { SortModule } from './orchestration/sort/sort.module';
 import { MockServerModule } from './mock-server/mock-server.module';
 import { PublishedDocsModule } from './published-docs/published-docs.module';
 import { AIExperimentsModule } from './ai-experiments/ai-experiments.module';
+import { AIProviderModule } from './ai-provider/ai-provider.module';
 
 @Module({
   imports: [
@@ -130,6 +131,7 @@ import { AIExperimentsModule } from './ai-experiments/ai-experiments.module';
     MockServerModule,
     PublishedDocsModule,
     AIExperimentsModule,
+    AIProviderModule,
   ],
   providers: [
     GQLComplexityPlugin,

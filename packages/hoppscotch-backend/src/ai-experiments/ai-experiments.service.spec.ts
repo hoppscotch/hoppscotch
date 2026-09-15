@@ -1,4 +1,3 @@
-import { mockDeep, mockReset } from 'jest-mock-extended';
 import Anthropic from '@anthropic-ai/sdk';
 import * as E from 'fp-ts/Either';
 import {
@@ -1476,6 +1475,29 @@ describe('AIExperimentsService', () => {
       // The initial ask plus two answered rounds, then it gives up.
       expect(mockCreate).toHaveBeenCalledTimes(3);
       expect(result).toEqualRight(expect.objectContaining({ tool_calls: [] }));
+    });
+
+    test('drops the unanswered search from the content it hands back', async () => {
+      configureLocalSearch();
+      mockCreate.mockResolvedValue(searchTurn('collection'));
+
+      const result = await newService().chat(
+        [{ role: 'user', content: 'do something' }],
+        '',
+      );
+
+      // The client echoes assistant_content back verbatim on the next step. A
+      // tool_use no tool_result can ever answer makes the provider reject the
+      // whole turn, so stripping it from tool_calls alone is not enough.
+      const content = E.isRight(result)
+        ? ((result.right as Record<string, unknown>).assistant_content as
+            unknown[] | undefined)
+        : undefined;
+      expect(
+        (content ?? []).some(
+          (block) => (block as { name?: unknown })?.name === 'find_tools',
+        ),
+      ).toBe(false);
     });
 
     test('tells the model plainly when a search matched nothing', async () => {

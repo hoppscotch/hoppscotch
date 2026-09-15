@@ -612,10 +612,28 @@ export class AIExperimentsService {
       const searches = turn.toolCalls.filter((c) => c.name === 'find_tools');
       if (!searches.length || round >= MAX_LOCAL_SEARCH_ROUNDS) {
         // Any search left unanswered is dropped rather than sent to a client
-        // that has no such tool to run.
+        // that has no such tool to run. The raw content has to lose the same
+        // block: the client echoes it back verbatim on the next step, and a
+        // tool_use no tool_result can ever answer makes the provider reject
+        // the whole turn.
+        const toolCalls = turn.toolCalls.filter((c) => c.name !== 'find_tools');
+        const assistantContent = turn.assistantContent?.filter(
+          (block) =>
+            !(
+              typeof block === 'object' &&
+              block !== null &&
+              (block as { type?: unknown }).type === 'tool_use' &&
+              (block as { name?: unknown }).name === 'find_tools'
+            ),
+        );
         return {
           ...turn,
-          toolCalls: turn.toolCalls.filter((c) => c.name !== 'find_tools'),
+          toolCalls,
+          // An assistant turn that was nothing but searches has no content
+          // left worth echoing.
+          ...(assistantContent?.length
+            ? { assistantContent }
+            : { assistantContent: undefined }),
           loadedTools: [...found],
         };
       }

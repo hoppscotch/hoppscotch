@@ -122,6 +122,83 @@ describe("SecretEnvironmentService", () => {
     })
   })
 
+  describe("setSecretEnvironmentVariableValue", () => {
+    it("should update only the matching variable's value", () => {
+      const id = "testEnvironment"
+      service.addSecretEnvironment(id, [
+        { key: "key1", value: "value1", varIndex: 0 },
+        { key: "key2", value: "value2", varIndex: 1 },
+      ])
+
+      service.setSecretEnvironmentVariableValue(id, 1, "updated")
+
+      expect(service.secretEnvironments.get(id)).toEqual([
+        { key: "key1", value: "value1", varIndex: 0 },
+        { key: "key2", value: "updated", varIndex: 1 },
+      ])
+    })
+
+    it("should create a missing entry using the provided key", () => {
+      const id = "testEnvironment"
+      service.addSecretEnvironment(id, [
+        { key: "key1", value: "value1", varIndex: 0 },
+      ])
+
+      service.setSecretEnvironmentVariableValue(id, 1, "created", "key2")
+
+      expect(service.getSecretEnvironmentVariableValue(id, 1)).toEqual({
+        value: "created",
+        initialValue: "",
+      })
+      expect(service.getSecretEnvironmentVariable(id, 1)).toMatchObject({
+        key: "key2",
+      })
+    })
+
+    it("should create the environment when it does not exist yet", () => {
+      service.setSecretEnvironmentVariableValue("new-env", 0, "value", "key")
+
+      expect(service.getSecretEnvironmentVariableValue("new-env", 0)).toEqual({
+        value: "value",
+        initialValue: "",
+      })
+    })
+  })
+
+  describe("setSecretEnvironmentVariableKey", () => {
+    it("should rename only the matching variable's key", () => {
+      const id = "testEnvironment"
+      service.addSecretEnvironment(id, [
+        { key: "key1", value: "value1", varIndex: 0 },
+        { key: "key2", value: "value2", varIndex: 1 },
+      ])
+
+      service.setSecretEnvironmentVariableKey(id, 1, "renamed")
+
+      expect(service.secretEnvironments.get(id)).toEqual([
+        { key: "key1", value: "value1", varIndex: 0 },
+        { key: "renamed", value: "value2", varIndex: 1 },
+      ])
+      expect(service.hasSecretValue(id, "renamed")).toBe(true)
+    })
+
+    it("should do nothing when the environment has no entry for the index", () => {
+      const id = "testEnvironment"
+      const secretVars = [{ key: "key1", value: "value1", varIndex: 0 }]
+      service.addSecretEnvironment(id, secretVars)
+
+      service.setSecretEnvironmentVariableKey(id, 99, "renamed")
+
+      expect(service.secretEnvironments.get(id)).toEqual(secretVars)
+    })
+
+    it("should not create an environment that does not exist", () => {
+      service.setSecretEnvironmentVariableKey("missing", 0, "renamed")
+
+      expect(service.secretEnvironments.has("missing")).toBe(false)
+    })
+  })
+
   describe("loadSecretEnvironmentsFromPersistedState", () => {
     it("should load secret environments from the persisted state", () => {
       const persistedState = {

@@ -81,11 +81,12 @@ const transitionRuleset = [
       body: pipe(
         currentBody.body,
         A.map(
-          ({ key, value, isFile, active }) =>
+          ({ key, value, isFile, active, description }) =>
             <RawKeyValueEntry>{
               key,
               value: isFile ? "" : value,
               active,
+              description: description ?? "",
             }
         ),
         rawKeyValueEntriesToString
@@ -101,12 +102,13 @@ const transitionRuleset = [
         currentBody.body,
         parseRawKeyValueEntries,
         A.map(
-          ({ key, value, active }) =>
+          ({ key, value, active, description }) =>
             <FormDataKeyValue>{
               key,
               value,
               active,
               isFile: false,
+              description: description ?? "",
             }
         )
       ),

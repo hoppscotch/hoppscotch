@@ -13,10 +13,21 @@ export default defineVersion({
   schema: V9_SCHEMA,
   initial: false,
   up(old: z.infer<typeof V8_SCHEMA>) {
-    // No migration for body, the new contentType added to each formdata field is optional
+    const body = old.body
+    let migratedBody = body
+    if (body && body.contentType === "multipart/form-data") {
+      migratedBody = {
+        ...body,
+        body: body.body.map((entry: any) => ({
+          ...entry,
+          description: "",
+        })),
+      } as any
+    }
     return {
       ...old,
       v: "9" as const,
+      body: migratedBody as any,
     }
   },
 })

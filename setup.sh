@@ -33,21 +33,47 @@ if ! command -v openssl > /dev/null 2>&1; then
   exit 1
 fi
 
+# Prints a secret of exactly $1 characters, or fails.
 # `tr -d` drops the base64 characters that would need escaping inside a connection URL.
+# A pipeline would hide an openssl failure (its exit status is the last command's, i.e. `cut`),
+# so capture openssl separately and check the resulting length.
 random_secret() {
-  openssl rand -base64 48 | tr -d '\n=+/' | cut -c "1-$1"
+  raw=$(openssl rand -base64 48) || return 1
+  secret=$(printf '%s' "$raw" | tr -d '\n=+/' | cut -c "1-$1")
+  [ "${#secret}" -eq "$1" ] || return 1
+  printf '%s' "$secret"
 }
 
-POSTGRES_PASSWORD=$(random_secret 32)
-# AES-256 requires the key to be exactly 32 bytes.
-DATA_ENCRYPTION_KEY=$(random_secret 32)
+if ! POSTGRES_PASSWORD=$(random_secret 32); then
+  echo "error: openssl failed to generate a password" >&2
+  exit 1
+fi
 
+# AES-256 requires the key to be exactly 32 bytes.
+if ! DATA_ENCRYPTION_KEY=$(random_secret 32); then
+  echo "error: openssl failed to generate an encryption key" >&2
+  exit 1
+fi
+
+# Rendered with shell built-ins rather than `sed "s|...|$secret|"`, so that the generated
+# secrets never appear in a child process's arguments where `ps` would expose them.
 umask 077
-sed \
-  -e "s|^DATABASE_URL=.*|DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@hoppscotch-db:5432/hoppscotch|" \
-  -e "s|^DATA_ENCRYPTION_KEY=.*|DATA_ENCRYPTION_KEY=${DATA_ENCRYPTION_KEY}|" \
-  -e "s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=${POSTGRES_PASSWORD}|" \
-  "$ENV_EXAMPLE" > "$ENV_FILE"
+while IFS= read -r line || [ -n "$line" ]; do
+  case $line in
+    DATABASE_URL=*)
+      printf 'DATABASE_URL=postgresql://postgres:%s@hoppscotch-db:5432/hoppscotch?connect_timeout=300\n' "$POSTGRES_PASSWORD"
+      ;;
+    POSTGRES_PASSWORD=*)
+      printf 'POSTGRES_PASSWORD=%s\n' "$POSTGRES_PASSWORD"
+      ;;
+    DATA_ENCRYPTION_KEY=*)
+      printf 'DATA_ENCRYPTION_KEY=%s\n' "$DATA_ENCRYPTION_KEY"
+      ;;
+    *)
+      printf '%s\n' "$line"
+      ;;
+  esac
+done < "$ENV_EXAMPLE" > "$ENV_FILE"
 
 echo "Created $ENV_FILE with a generated POSTGRES_PASSWORD and DATA_ENCRYPTION_KEY."
 echo "Back it up: losing DATA_ENCRYPTION_KEY makes existing encrypted config unrecoverable."

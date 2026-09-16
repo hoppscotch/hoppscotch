@@ -409,7 +409,13 @@ function findInsecureExampleSecrets() {
   }
 
   try {
-    if (new URL(process.env.DATABASE_URL).password === EXAMPLE_DB_PASSWORD) {
+    // `URL` keeps the password percent-encoded, so decode before comparing to catch the example
+    // password written as e.g. `test%70ass`.
+    const password = decodeURIComponent(
+      new URL(process.env.DATABASE_URL).password,
+    );
+
+    if (password === EXAMPLE_DB_PASSWORD) {
       issues.push(
         'DATABASE_URL uses the example database password from `.env.example`.',
       );

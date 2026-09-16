@@ -270,14 +270,67 @@ docker compose --profile default up
 ```
 
 `setup.sh` creates a `.env` from `.env.example` with a random `POSTGRES_PASSWORD` and
-`DATA_ENCRYPTION_KEY`. Running compose without it fails fast rather than booting on the
-publicly known example values.
+`DATA_ENCRYPTION_KEY`. It will not overwrite an existing `.env`.
 
 A few things worth knowing before you expose an instance:
 
 - **Never deploy with the values from `.env.example`.** They are public. `DATA_ENCRYPTION_KEY` protects `JWT_SECRET`, `SESSION_SECRET` and your SMTP/OAuth credentials at rest, so leaving it at the example value lets anyone who can read the database forge sessions for any user, including admins. The backend refuses to start on example secrets when `PRODUCTION=true`.
-- **Back up `DATA_ENCRYPTION_KEY`.** It cannot be changed after the first boot without making every already-encrypted row unreadable.
+- **Back up `DATA_ENCRYPTION_KEY`.** It cannot be changed after the first boot without making every already-encrypted row unreadable. See below to rotate it.
 - **Keep the database off the public internet.** The preset Postgres container is published on `127.0.0.1:5432` only; the app reaches it over the internal Docker network, so it never needs a public bind.
+- **`DATABASE_URL` lives only in `.env`.** `docker-compose.yml` no longer overrides it, so `POSTGRES_PASSWORD` and the password embedded in `DATABASE_URL` have to match.
+
+### Upgrading an existing deployment
+
+`POSTGRES_PASSWORD` is a new variable, and an existing `.env` will not have it. Add it, set to the
+password already embedded in your `DATABASE_URL`:
+
+```sh
+echo "POSTGRES_PASSWORD=your-existing-password" >> .env
+```
+
+Your running database is unaffected if you skip this — Postgres only reads `POSTGRES_PASSWORD`
+when it initializes a new data directory, so an existing volume keeps its current password. But a
+deployment that is ever recreated from scratch (`docker compose down -v`) will refuse to start
+until the variable is set.
+
+If you are still on the example secrets, rotate them as described below.
+
+### Rotating secrets
+
+`POSTGRES_PASSWORD` can be changed on its own:
+
+```sh
+docker compose --profile default exec hoppscotch-db \
+  psql -U postgres -c "ALTER USER postgres WITH PASSWORD 'new-password';"
+```
+
+Then set the same value for `POSTGRES_PASSWORD` and inside `DATABASE_URL` in `.env`, and restart.
+
+`DATA_ENCRYPTION_KEY` needs more care: changing it makes every already-encrypted row fail to
+decrypt, and the backend then aborts with `"DATA_ENCRYPTION_KEY" value changed in .env file`.
+If your deployment is not yet in production, wiping the database and re-running `./setup.sh` is
+simpler than the procedure below.
+Only `InfraConfig` rows are encrypted — your users, teams, collections and requests are not — so
+rotating it costs you the generated session secrets and any credentials you entered in the admin
+dashboard, and nothing else:
+
+1. Note down the SMTP and OAuth provider credentials currently set in the admin dashboard; you will re-enter them.
+2. Stop the deployment and back up the database.
+3. Set the new `DATA_ENCRYPTION_KEY` in `.env`.
+4. Drop every row that was encrypted under the old key:
+
+   ```sql
+   DELETE FROM "InfraConfig" WHERE "isEncrypted" = true;
+   ```
+
+   Delete all of them, not a subset: the backend decrypts the whole table on boot, so a single row
+   left over from the old key still aborts startup.
+
+5. Start the deployment. `JWT_SECRET` and `SESSION_SECRET` are regenerated under the new key, and
+   the remaining rows are recreated empty.
+6. Re-enter the SMTP and OAuth credentials in the admin dashboard.
+
+Every user is signed out and has to log in again, since the session secrets changed.
 
 ## Developing
 

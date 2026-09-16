@@ -331,7 +331,8 @@ export const CHAT_TOOLS: Anthropic.Tool[] = [
   },
   {
     name: 'create_collection',
-    description: 'Create a top-level REST collection.',
+    description:
+      'Create a top-level REST collection. To nest one inside another, use create_folder.',
     input_schema: {
       type: 'object',
       properties: { name: { type: 'string' } },
@@ -499,6 +500,22 @@ export const CHAT_TOOLS: Anthropic.Tool[] = [
         },
       },
       required: ['description'],
+    },
+  },
+  {
+    name: 'create_folder',
+    description:
+      'Create a folder (a child collection) inside an existing collection or folder, matched by its exact name. Use this for anything nested; create_collection only makes top-level collections.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        parent: {
+          type: 'string',
+          description: 'Exact name of the collection or folder to nest inside',
+        },
+        name: { type: 'string', description: 'Name for the new folder' },
+      },
+      required: ['parent', 'name'],
     },
   },
   {

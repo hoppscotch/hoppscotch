@@ -29,6 +29,8 @@ export const APP_ACTION_TOOLS = new Set<string>([
   "create_team",
   "switch_workspace",
   "rename_team",
+  "rename_collection",
+  "delete_collection",
   "set_collection_properties",
   "set_request_description",
   "set_collection_description",

@@ -502,6 +502,31 @@ export const CHAT_TOOLS: Anthropic.Tool[] = [
     },
   },
   {
+    name: 'rename_collection',
+    description:
+      'Rename a collection or folder, matched by its exact current name. Nested folders are matched by their own name, shallowest first.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        collection: { type: 'string', description: 'Exact current name' },
+        new_name: { type: 'string' },
+      },
+      required: ['collection', 'new_name'],
+    },
+  },
+  {
+    name: 'delete_collection',
+    description:
+      'Delete a collection or folder by its exact name, together with every request and folder inside it. This cannot be undone, so only call it when the user has named what to delete; never as tidy-up the user did not ask for.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        collection: { type: 'string', description: 'Exact name' },
+      },
+      required: ['collection'],
+    },
+  },
+  {
     name: 'set_collection_description',
     description:
       'Set the Markdown documentation (description) of a collection or folder, by name.',

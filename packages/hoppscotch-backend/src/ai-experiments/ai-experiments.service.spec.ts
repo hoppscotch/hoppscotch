@@ -186,6 +186,17 @@ describe('AIExperimentsService', () => {
     });
 
     describe('AI chat tool contract', () => {
+      test('tells the model that deleting a collection is irreversible', () => {
+        // The model decides whether to call this. If the description stops
+        // saying so, it can start tidying up uninvited.
+        const del = CHAT_TOOLS.find(
+          (tool) => tool.name === 'delete_collection',
+        );
+        expect(del?.description).toMatch(/cannot be undone/i);
+        expect(del?.description).toMatch(/never as tidy-up/i);
+        expect(del?.input_schema).toMatchObject({ required: ['collection'] });
+      });
+
       test('exposes collection building and verification tools', () => {
         expect(CHAT_TOOLS.map((tool) => tool.name)).toEqual(
           expect.arrayContaining([
@@ -194,6 +205,8 @@ describe('AIExperimentsService', () => {
             'create_team',
             'switch_workspace',
             'rename_team',
+            'rename_collection',
+            'delete_collection',
             'set_collection_properties',
             'set_request_description',
             'set_collection_description',

@@ -509,7 +509,13 @@ export function runRESTRequest$(
   const { request, inheritedProperties } = tab.value.document
 
   const requestAuth =
-    request.auth.authType === "inherit" && request.auth.authActive
+    request.auth.authType === "inherit" &&
+    request.auth.authActive &&
+    !request.headers.some(
+      (requestHeader) =>
+        requestHeader.key.toLowerCase() === "authorization" &&
+        requestHeader.active
+    )
       ? inheritedProperties?.auth.inheritedAuth
       : request.auth
 
@@ -591,6 +597,26 @@ export function runRESTRequest$(
       resolvedRequest,
       preRequestScriptResult.right.updatedRequest
     )
+    // A pre-request script may have added, activated, or removed an
+    // Authorization header, or changed the request auth entirely.
+    // Re-evaluate against the final state: an active Authorization header
+    // suppresses auth-derived credentials; if the request still inherits
+    // collection auth (the script did not change it), fall back to the
+    // inherited auth when no explicit header remains.
+    const hasActiveAuthHeader = finalRequest.headers.some(
+      (header) => header.key.toLowerCase() === "authorization" && header.active
+    )
+    if (hasActiveAuthHeader) {
+      finalRequest.auth = { authType: "none", authActive: false }
+    } else if (
+      finalRequest.auth.authType === "inherit" &&
+      finalRequest.auth.authActive
+    ) {
+      finalRequest.auth = inheritedProperties?.auth.inheritedAuth ?? {
+        authType: "none",
+        authActive: false,
+      }
+    }
 
     // Propagate changes to request variables from the scripting context to the UI
     tab.value.document.request.requestVariables = finalRequest.requestVariables

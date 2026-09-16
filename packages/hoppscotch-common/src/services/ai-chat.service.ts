@@ -30,6 +30,7 @@ import {
   teamCollToHoppRESTColl,
 } from "~/helpers/backend/helpers"
 import {
+  createChildCollection as createTeamChildCollection,
   createNewRootCollection,
   deleteCollection as deleteTeamCollectionByID,
   renameCollection as renameTeamCollectionByID,
@@ -100,6 +101,7 @@ import {
 import { uniqueID } from "~/helpers/utils/uniqueID"
 import {
   addRESTCollection,
+  addRESTFolder,
   cascadeParentCollectionForProperties,
   editRESTCollection,
   editRESTFolder,
@@ -1729,6 +1731,11 @@ export class AIChatService extends Service {
           gqlActive
         )
 
+      case "create_folder":
+        return this.createFolder(
+          String(args.parent ?? "").trim(),
+          String(args.name ?? "").trim()
+        )
       case "rename_collection":
         return this.renameCollection(
           String(args.collection ?? "").trim(),
@@ -2103,6 +2110,48 @@ export class AIChatService extends Service {
       })
     )
     return `📁 Created collection **${name}**.`
+  }
+
+  /**
+   * Creates a folder inside an existing collection or folder.
+   *
+   * A folder is a child collection; `create_collection` only makes top-level
+   * ones, so without this the assistant could not nest anything.
+   */
+  private async createFolder(
+    parentName: string,
+    name: string
+  ): Promise<string> {
+    if (!parentName) return "Which collection should the folder go inside?"
+    if (!name) return "What should the folder be called?"
+
+    const team = this.teamWorkspace()
+    if (team) {
+      const writeError = this.teamWriteError()
+      if (writeError) return writeError
+      const parent = await this.findTeamCollectionByName(parentName)
+      if (!parent)
+        return `I couldn't find a team collection named "${parentName}".`
+      const res = await createTeamChildCollection(name, parent.node.id)()
+      if (E.isLeft(res)) {
+        return `⚠️ Couldn't create the folder: ${this.describeGQLError(res.left)}.`
+      }
+      return `📁 Created **${name}** inside **${parent.node.title}**.`
+    }
+
+    const parent = findCollectionByName(
+      restCollectionStore.value.state,
+      parentName
+    )
+    if (!parent) return `I couldn't find a collection named "${parentName}".`
+    const clash = (parent.collection.folders ?? []).find(
+      (f) => (f.name ?? "").trim().toLowerCase() === name.trim().toLowerCase()
+    )
+    if (clash) {
+      return `📁 **${parent.collection.name}** already has a folder called **${clash.name}**.`
+    }
+    addRESTFolder(name, parent.path)
+    return `📁 Created **${name}** inside **${parent.collection.name}**.`
   }
 
   /** Saves the active request into a collection (matched by name) of the active workspace. */

@@ -25,6 +25,7 @@ import { restCollectionStore, setRESTCollections } from "~/newstore/collections"
 
 /** Reaches past `private` to drive one handler without a whole turn. */
 type Internals = {
+  createFolder(parent: string, name: string): Promise<string>
   renameCollection(name: string, newName: string): Promise<string>
   deleteCollection(name: string): Promise<string>
 }
@@ -59,7 +60,7 @@ const deleteAnswering = async (
   return done
 }
 
-describe("AIChatService collection rename and delete", () => {
+describe("AIChatService collection tools", () => {
   let chat: AIChatService
 
   beforeEach(() => {
@@ -67,9 +68,63 @@ describe("AIChatService collection rename and delete", () => {
     setRESTCollections([collection("Auth"), collection("Billing")])
   })
 
-  it("registers both as app actions, not request-field edits", () => {
+  describe("create folder", () => {
+    it("nests a folder inside a top-level collection", async () => {
+      const reply = await inner(chat).createFolder("Auth", "v1")
+
+      const folders = restCollectionStore.value.state[0].folders
+      expect(folders.map((f) => f.name)).toEqual(["v1"])
+      expect(reply).toContain("v1")
+      expect(reply).toContain("Auth")
+    })
+
+    it("nests a folder inside another folder", async () => {
+      await inner(chat).createFolder("Auth", "v1")
+      await inner(chat).createFolder("v1", "users")
+
+      const v1 = restCollectionStore.value.state[0].folders[0]
+      expect(v1.folders.map((f) => f.name)).toEqual(["users"])
+    })
+
+    it("refuses when the parent does not exist", async () => {
+      const reply = await inner(chat).createFolder("Nope", "v1")
+
+      expect(restCollectionStore.value.state[0].folders).toEqual([])
+      expect(reply).toContain("couldn't find")
+    })
+
+    it("does not add a second folder of the same name", async () => {
+      await inner(chat).createFolder("Auth", "v1")
+      const reply = await inner(chat).createFolder("Auth", "v1")
+
+      expect(restCollectionStore.value.state[0].folders).toHaveLength(1)
+      expect(reply).toContain("already has")
+    })
+
+    it("asks for a name rather than creating an unnamed folder", async () => {
+      const reply = await inner(chat).createFolder("Auth", "")
+
+      expect(restCollectionStore.value.state[0].folders).toEqual([])
+      expect(reply).toContain("called")
+    })
+
+    // The half that already worked: once the folder exists, the existing
+    // name resolver reaches it, so nested deletes and renames apply to it too.
+    it("makes the new folder reachable by the other collection tools", async () => {
+      await inner(chat).createFolder("Auth", "v1")
+
+      await inner(chat).renameCollection("v1", "v2")
+      expect(restCollectionStore.value.state[0].folders[0].name).toBe("v2")
+
+      await deleteAnswering(chat, "v2", true)
+      expect(restCollectionStore.value.state[0].folders).toEqual([])
+    })
+  })
+
+  it("registers all three as app actions, not request-field edits", () => {
     // Routing is by name: a tool missing here reaches the request editor
     // instead and silently does nothing.
+    expect(APP_ACTION_TOOLS.has("create_folder")).toBe(true)
     expect(APP_ACTION_TOOLS.has("rename_collection")).toBe(true)
     expect(APP_ACTION_TOOLS.has("delete_collection")).toBe(true)
   })

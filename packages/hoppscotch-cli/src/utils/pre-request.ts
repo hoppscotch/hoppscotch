@@ -595,9 +595,11 @@ function getFinalBodyFromRequest(
     return E.right(body);
   }
 
-  // For JSON content types, parse the string body into a JavaScript object
-  // so axios can properly serialize it. This includes standard application/json
-  // and vendor-specific JSON media types (for example those with a +json suffix
+  // For JSON content types, strip JSONC comments/trailing commas, validate the
+  // result and send it as a raw string. It is intentionally NOT parsed into a
+  // JavaScript object, as that would lose precision for integers beyond
+  // `Number.MAX_SAFE_INTEGER`. This includes standard application/json and
+  // vendor-specific JSON media types (for example those with a +json suffix
   // or subtypes whose names end with "json" or "-json").
   if (request.body.contentType) {
     const mimeType = request.body.contentType

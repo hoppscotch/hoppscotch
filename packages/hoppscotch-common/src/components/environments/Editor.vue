@@ -314,9 +314,14 @@ const queueTeamKeySave = (
       console.error(result.left)
       toast.error(t(getEnvActionErrorMessage(result.left)))
 
-      const remaining = { ...draftKeys.value }
-      delete remaining[varIndex]
-      draftKeys.value = remaining
+      // Only drop the draft this request failed to save. A newer rename may
+      // have replaced it while the request was in flight, and that one should
+      // still be sent by the next queued save.
+      if (draftKeys.value[varIndex] === newKey) {
+        const remaining = { ...draftKeys.value }
+        delete remaining[varIndex]
+        draftKeys.value = remaining
+      }
       return
     }
 

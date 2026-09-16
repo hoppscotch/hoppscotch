@@ -31,6 +31,8 @@ import {
 } from "~/helpers/backend/helpers"
 import {
   createNewRootCollection,
+  deleteCollection as deleteTeamCollectionByID,
+  renameCollection as renameTeamCollectionByID,
   updateTeamCollection,
 } from "~/helpers/backend/mutations/TeamCollection"
 import {
@@ -102,6 +104,8 @@ import {
   editRESTCollection,
   editRESTFolder,
   editRESTRequest,
+  removeRESTCollection,
+  removeRESTFolder,
   restCollectionStore,
   saveRESTRequestAs,
 } from "~/newstore/collections"
@@ -1691,6 +1695,13 @@ export class AIChatService extends Service {
           gqlActive
         )
 
+      case "rename_collection":
+        return this.renameCollection(
+          String(args.collection ?? "").trim(),
+          String(args.new_name ?? "").trim()
+        )
+      case "delete_collection":
+        return this.deleteCollection(String(args.collection ?? "").trim())
       case "set_collection_description":
         return this.setCollectionDescription(
           String(args.collection ?? "").trim(),
@@ -3699,6 +3710,84 @@ export class AIChatService extends Service {
       description
     )
     return `📝 Documented **${request.name || reqName}**.`
+  }
+
+  /** Renames a collection or folder of the active workspace, matched by name. */
+  private async renameCollection(
+    collName: string,
+    newName: string
+  ): Promise<string> {
+    if (!collName) return "Which collection should I rename?"
+    if (!newName) return "What should I rename it to?"
+
+    const team = this.teamWorkspace()
+    if (team) {
+      const writeError = this.teamWriteError()
+      if (writeError) return writeError
+      const found = await this.findTeamCollectionByName(collName)
+      if (!found)
+        return `I couldn't find a team collection named "${collName}".`
+      const res = await renameTeamCollectionByID(found.node.id, newName)()
+      if (E.isLeft(res)) {
+        return `⚠️ Couldn't rename it: ${this.describeGQLError(res.left)}.`
+      }
+      const was = found.node.title
+      found.node.title = newName
+      return `✏️ Renamed team collection **${was}** to **${newName}**.`
+    }
+
+    const found = findCollectionByName(
+      restCollectionStore.value.state,
+      collName
+    )
+    if (!found) return `I couldn't find a collection named "${collName}".`
+    // The sync layer rebuilds the server payload from what we dispatch, so the
+    // partial has to carry the whole collection rather than just the name.
+    const updated = { ...found.collection, name: newName }
+    if (found.path.includes("/")) {
+      editRESTFolder(found.path, updated)
+    } else {
+      editRESTCollection(parseInt(found.path), updated)
+    }
+    return `✏️ Renamed **${found.collection.name}** to **${newName}**.`
+  }
+
+  /**
+   * Deletes a collection or folder of the active workspace, matched by name.
+   *
+   * Everything inside goes with it and there is no undo, so the match is exact
+   * and a near miss deletes nothing.
+   */
+  private async deleteCollection(collName: string): Promise<string> {
+    if (!collName) return "Which collection should I delete?"
+
+    const team = this.teamWorkspace()
+    if (team) {
+      const writeError = this.teamWriteError()
+      if (writeError) return writeError
+      const found = await this.findTeamCollectionByName(collName)
+      if (!found)
+        return `I couldn't find a team collection named "${collName}".`
+      const title = found.node.title
+      const res = await deleteTeamCollectionByID(found.node.id)()
+      if (E.isLeft(res)) {
+        return `⚠️ Couldn't delete it: ${this.describeGQLError(res.left)}.`
+      }
+      return `🗑️ Deleted team collection **${title}** and everything in it.`
+    }
+
+    const found = findCollectionByName(
+      restCollectionStore.value.state,
+      collName
+    )
+    if (!found) return `I couldn't find a collection named "${collName}".`
+    const name = found.collection.name
+    if (found.path.includes("/")) {
+      removeRESTFolder(found.path)
+    } else {
+      removeRESTCollection(parseInt(found.path), found.collection._ref_id)
+    }
+    return `🗑️ Deleted **${name}** and everything in it.`
   }
 
   private async setCollectionDescription(

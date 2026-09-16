@@ -623,6 +623,38 @@ export class AIChatService extends Service {
   }
 
   /**
+   * A destructive tool waiting on the user, or null.
+   *
+   * The model picked this target from a sentence rather than the user clicking
+   * it, so the prompt has to name what is about to go. The handler awaits
+   * `resolve`; nothing is destroyed until the UI settles it.
+   */
+  public readonly pendingConfirmation = ref<{
+    kind: "collection" | "mock-server"
+    name: string
+    resolve: (confirmed: boolean) => void
+  } | null>(null)
+
+  /** Settles the open confirmation. A second call is a no-op. */
+  public resolveConfirmation(confirmed: boolean) {
+    const pending = this.pendingConfirmation.value
+    this.pendingConfirmation.value = null
+    pending?.resolve(confirmed)
+  }
+
+  /** Asks the user before destroying `name`. Resolves false if abandoned. */
+  private confirmDestructive(
+    kind: "collection" | "mock-server",
+    name: string
+  ): Promise<boolean> {
+    // Only one can be open: a turn executes its tools in sequence.
+    this.resolveConfirmation(false)
+    return new Promise((resolve) => {
+      this.pendingConfirmation.value = { kind, name, resolve }
+    })
+  }
+
+  /**
    * Tears the conversation down unconditionally and abandons any turn still in
    * flight. Unlike `clear`, this never defers: it exists for the case where the
    * session itself has ended (logout), and the transcript, the pinned tab and
@@ -633,6 +665,8 @@ export class AIChatService extends Service {
    * conversation that is meant to be gone.
    */
   public reset() {
+    // An abandoned turn would otherwise leave the handler awaiting forever.
+    this.resolveConfirmation(false)
     this.turnGeneration++
     this.isStreaming.value = false
     this.messages.value = []
@@ -3769,6 +3803,9 @@ export class AIChatService extends Service {
       if (!found)
         return `I couldn't find a team collection named "${collName}".`
       const title = found.node.title
+      if (!(await this.confirmDestructive("collection", title))) {
+        return `Left **${title}** alone.`
+      }
       const res = await deleteTeamCollectionByID(found.node.id)()
       if (E.isLeft(res)) {
         return `⚠️ Couldn't delete it: ${this.describeGQLError(res.left)}.`
@@ -3782,6 +3819,9 @@ export class AIChatService extends Service {
     )
     if (!found) return `I couldn't find a collection named "${collName}".`
     const name = found.collection.name
+    if (!(await this.confirmDestructive("collection", name))) {
+      return `Left **${name}** alone.`
+    }
     if (found.path.includes("/")) {
       removeRESTFolder(found.path)
     } else {
@@ -4325,6 +4365,9 @@ export class AIChatService extends Service {
         .join(", ")} — which one should I delete?`
     }
     const server = match.server
+    if (!(await this.confirmDestructive("mock-server", server.name))) {
+      return `Left **${server.name}** alone.`
+    }
     const res = await platform.backend.deleteMockServer(server.id)()
     if (E.isLeft(res) || !res.right) {
       return `⚠️ Couldn't delete the mock server${

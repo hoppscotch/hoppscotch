@@ -2080,6 +2080,8 @@
     "modify_with_ai": "Modify with AI",
     "generate": "Generate",
     "generate_or_modify_request_body_input_placeholder": "Enter your prompt to modify request body",
+    "confirm_delete_collection": "Delete \"{name}\" and everything in it?",
+    "confirm_delete_mock_server": "Delete the mock server \"{name}\"?",
     "accept_change": "Accept Change",
     "feedback_success": "Feedback submitted successfully",
     "feedback_failure": "Failed to submit feedback",

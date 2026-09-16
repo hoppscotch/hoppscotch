@@ -29,6 +29,7 @@ type Internals = {
   deleteCollection(name: string): Promise<string>
 }
 
+const tick = () => new Promise((r) => setTimeout(r, 0))
 const inner = (c: AIChatService) => c as unknown as Internals
 
 const collection = (name: string, folders: unknown[] = []) =>
@@ -45,6 +46,18 @@ const collection = (name: string, folders: unknown[] = []) =>
   })
 
 const names = () => restCollectionStore.value.state.map((c) => c.name)
+
+/** Runs a delete and answers the confirmation it raises. */
+const deleteAnswering = async (
+  chat: AIChatService,
+  name: string,
+  answer: boolean
+) => {
+  const done = inner(chat).deleteCollection(name)
+  await tick()
+  chat.resolveConfirmation(answer)
+  return done
+}
 
 describe("AIChatService collection rename and delete", () => {
   let chat: AIChatService
@@ -98,17 +111,57 @@ describe("AIChatService collection rename and delete", () => {
   })
 
   describe("delete", () => {
-    it("deletes a top-level collection", async () => {
-      const reply = await inner(chat).deleteCollection("Billing")
+    it("asks before destroying anything, naming the target", async () => {
+      const done = inner(chat).deleteCollection("Billing")
+      await tick()
+
+      // Still intact while the question is open.
+      expect(chat.pendingConfirmation.value).toMatchObject({
+        kind: "collection",
+        name: "Billing",
+      })
+      expect(names()).toEqual(["Auth", "Billing"])
+
+      chat.resolveConfirmation(true)
+      await done
+      expect(names()).toEqual(["Auth"])
+    })
+
+    it("deletes a top-level collection once confirmed", async () => {
+      const reply = await deleteAnswering(chat, "Billing", true)
 
       expect(names()).toEqual(["Auth"])
       expect(reply).toContain("Billing")
     })
 
+    it("keeps the collection when the user declines", async () => {
+      const reply = await deleteAnswering(chat, "Billing", false)
+
+      expect(names()).toEqual(["Auth", "Billing"])
+      expect(reply).toContain("Left")
+    })
+
+    it("clears the prompt once it is answered", async () => {
+      await deleteAnswering(chat, "Billing", true)
+      expect(chat.pendingConfirmation.value).toBeNull()
+    })
+
+    it("settles an open prompt as declined when the chat is reset", async () => {
+      const done = inner(chat).deleteCollection("Billing")
+      await tick()
+
+      chat.reset()
+      const reply = await done
+
+      expect(names()).toEqual(["Auth", "Billing"])
+      expect(reply).toContain("Left")
+      expect(chat.pendingConfirmation.value).toBeNull()
+    })
+
     it("deletes a nested folder without taking its parent", async () => {
       setRESTCollections([collection("Auth", [collection("v1")])])
 
-      await inner(chat).deleteCollection("v1")
+      await deleteAnswering(chat, "v1", true)
 
       expect(names()).toEqual(["Auth"])
       expect(restCollectionStore.value.state[0].folders).toEqual([])
@@ -116,11 +169,13 @@ describe("AIChatService collection rename and delete", () => {
 
     // The property that matters most: this is irreversible, so a near miss has
     // to do nothing rather than guess at the closest collection.
-    it("deletes nothing when the name matches nothing", async () => {
+    it("deletes nothing, and asks nothing, when the name matches nothing", async () => {
       const reply = await inner(chat).deleteCollection("Bill")
 
       expect(names()).toEqual(["Auth", "Billing"])
       expect(reply).toContain("couldn't find")
+      // No target, so there is nothing to put in front of the user.
+      expect(chat.pendingConfirmation.value).toBeNull()
     })
 
     it("deletes nothing when given an empty name", async () => {

@@ -214,6 +214,11 @@ const toggleSecretReveal = (varIndex: number) => {
 const commitValue = (row: Row, event: Event) => {
   const value = (event.target as HTMLInputElement).value
 
+  // Both value services drop entries with an empty key, so a value typed for a
+  // keyless variable would be erased on the next tick. Ignore it until the
+  // variable has a key.
+  if (!row.key) return
+
   if (row.secret) {
     secretEnvironmentService.setSecretEnvironmentVariableValue(
       envID.value,

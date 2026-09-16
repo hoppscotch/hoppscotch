@@ -51,7 +51,7 @@
     "timeout_ms": "Request timeout (ms)",
     "max_retries": "Max retries",
     "reasoning_effort": "Reasoning effort",
-    "reasoning_effort_help": "Sent as reasoning_effort. OpenAI models refuse tools unless this is none.",
+    "reasoning_effort_help": "One of none, minimal, low, medium, high. OpenAI models refuse tools unless this is none.",
     "tool_search": "Server-side tool search",
     "prompt_caching": "Prompt caching",
     "override_follow_provider": "Follow the provider",

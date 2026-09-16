@@ -190,7 +190,9 @@ const PRESETS: Record<ProviderPreset, Preset> = {
       promptCaching: false,
       cacheUsageCounters: false,
     },
-    verified: true,
+    // Nobody can have verified an endpoint this build does not recognise, so
+    // the form keeps its "capabilities come from documentation" warning.
+    verified: false,
   },
 };
 

@@ -83,12 +83,23 @@ describe('testChatConnection', () => {
     expect(mockedCreate.mock.calls[0][0].maxRetries).toBe(0);
   });
 
-  test('keeps a connection-specific timeout rather than overriding it', async () => {
+  test('keeps a connection timeout shorter than the probe ceiling', async () => {
     withProvider(jest.fn().mockResolvedValue({ content: 'ok' }));
 
     await testChatConnection(connection({ timeoutMs: 5_000 }));
 
     expect(mockedCreate.mock.calls[0][0].timeoutMs).toBe(5_000);
+  });
+
+  test('caps a connection timeout longer than the probe ceiling', async () => {
+    withProvider(jest.fn().mockResolvedValue({ content: 'ok' }));
+
+    // The instance timeout is sized for a chat turn and reaches the probe
+    // through the settings overrides. An admin watching a spinner must not wait
+    // it out, times however many models the connection offers.
+    await testChatConnection(connection({ timeoutMs: 600_000 }));
+
+    expect(mockedCreate.mock.calls[0][0].timeoutMs).toBe(20_000);
   });
 
   test.each([
@@ -134,6 +145,23 @@ describe('testChatConnection', () => {
     const result = await testChatConnection(connection());
 
     expect(result.detail).not.toContain(KEY);
+    expect(result.detail).toContain('[redacted]');
+  });
+
+  test('redacts key-shaped text even when its own key is a placeholder', async () => {
+    // Local runtimes are routinely given something like "none" as the key, and
+    // the length floor on the literal match used to skip this scrub entirely.
+    withProvider(
+      jest.fn().mockRejectedValue(
+        new OpenAIHttpError(401, {
+          error: { message: 'upstream said sk-live-aaaaaaaaaaaaaaaa' },
+        }),
+      ),
+    );
+
+    const result = await testChatConnection(connection({ apiKey: 'none' }));
+
+    expect(result.detail).not.toContain('sk-live-');
     expect(result.detail).toContain('[redacted]');
   });
 

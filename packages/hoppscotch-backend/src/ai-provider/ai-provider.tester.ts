@@ -65,11 +65,15 @@ const MAX_DETAIL_LENGTH = 300;
  */
 const redactKey = (text: string, apiKey: string): string => {
   let safe = text;
+  // Only the literal match needs a length floor, to stop a one-character key
+  // blanking the whole message.
   if (apiKey.length >= 8) {
     safe = safe.split(apiKey).join('[redacted]');
-    // Vendors commonly echo a masked form; drop anything key-shaped too.
-    safe = safe.replace(/\b(sk|xoxb|ghp)-[A-Za-z0-9_-]{8,}/g, '[redacted]');
   }
+  // Key-shaped text goes regardless of what this connection stores: a local
+  // runtime is usually given a placeholder like "none", and the body echoed
+  // back can still carry a real credential from somewhere else.
+  safe = safe.replace(/\b(sk|xoxb|ghp)-[A-Za-z0-9_-]{8,}/g, '[redacted]');
   return safe.length > MAX_DETAIL_LENGTH
     ? `${safe.slice(0, MAX_DETAIL_LENGTH)}…`
     : safe;
@@ -140,7 +144,12 @@ export const testChatConnection = async (
   // rejected credential three times only lengthens the wait.
   const provider = createChatProvider({
     ...connection,
-    timeoutMs: connection.timeoutMs ?? TEST_TIMEOUT_MS,
+    // The instance timeout reaches here through the settings overrides, and it
+    // is sized for a chat turn. A probe is not one: capped, never widened.
+    timeoutMs: Math.min(
+      connection.timeoutMs ?? TEST_TIMEOUT_MS,
+      TEST_TIMEOUT_MS,
+    ),
     maxRetries: 0,
   });
 

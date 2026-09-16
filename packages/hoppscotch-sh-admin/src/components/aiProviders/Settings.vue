@@ -43,7 +43,7 @@
           <label>{{ t('ai_providers.reasoning_effort') }}</label>
           <HoppSmartInput
             v-model="reasoningInput"
-            placeholder="e.g., none"
+            placeholder="none"
             class="!my-2 !bg-primaryLight"
           />
           <p class="text-tiny text-secondaryLight">

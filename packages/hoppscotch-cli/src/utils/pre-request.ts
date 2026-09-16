@@ -636,10 +636,13 @@ function getFinalBodyFromRequest(
       // This ensures collections with comments work the same in CLI as in desktop app
       const cleanedBody = stripComments(bodyString);
 
-      // Try to parse the JSON body
+      // Validate the JSON body. The cleaned string itself is returned rather
+      // than a `JSON.parse` -> `JSON.stringify` round-trip, since that would
+      // coerce integers beyond `Number.MAX_SAFE_INTEGER` to IEEE-754 doubles
+      // and silently lose precision that `stripComments` preserved.
       try {
-        const parsedBody = JSON.parse(cleanedBody);
-        return E.right(JSON.stringify(parsedBody));
+        JSON.parse(cleanedBody);
+        return E.right(cleanedBody);
       } catch (err) {
         // If parsing fails after stripping comments, return error to provide
         // immediate feedback instead of sending invalid JSON to the API.

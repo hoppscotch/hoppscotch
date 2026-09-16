@@ -13,16 +13,17 @@
       />
       <icon-lucide-layers v-else class="svg-icons" />
     </span>
-    <span
+    <button
       v-tippy="{ theme: 'tooltip' }"
+      type="button"
       :title="t('action.edit')"
-      class="flex min-w-0 flex-1 cursor-pointer py-2 pr-2 transition group-hover:text-secondaryDark"
+      class="flex min-w-0 flex-1 cursor-pointer py-2 pr-2 text-left transition group-hover:text-secondaryDark"
       @click="emit('open-environment')"
     >
       <span class="truncate">
         {{ environment.environment.name }}
       </span>
-    </span>
+    </button>
 
     <div class="flex">
       <HoppButtonSecondary

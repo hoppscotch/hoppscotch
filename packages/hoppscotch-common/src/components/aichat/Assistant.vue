@@ -352,11 +352,27 @@
     >
       <IconSparkles class="h-5 w-5" />
     </button>
+
+    <!-- The model chose this target from a sentence the user typed, so the
+         prompt names what is about to go. Dismissing counts as "no". -->
+    <HoppSmartConfirmModal
+      :show="!!chat.pendingConfirmation.value"
+      :title="confirmTitle"
+      @hide-modal="chat.resolveConfirmation(false)"
+      @resolve="chat.resolveConfirmation(true)"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, watch, type Component } from "vue"
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  ref,
+  watch,
+  type Component,
+} from "vue"
 import {
   breakpointsTailwind,
   useBreakpoints,
@@ -492,6 +508,18 @@ const matchingSkills = computed(() =>
     ? []
     : filterSkills(chat.skills.value, skillQuery.value)
 )
+
+// The handler is awaiting this promise. If the pane goes away with one open,
+// nothing would ever settle it and the turn would hang.
+onBeforeUnmount(() => chat.resolveConfirmation(false))
+
+const confirmTitle = computed(() => {
+  const pending = chat.pendingConfirmation.value
+  if (!pending) return ""
+  return pending.kind === "collection"
+    ? t("ai_experiments.confirm_delete_collection", { name: pending.name })
+    : t("ai_experiments.confirm_delete_mock_server", { name: pending.name })
+})
 
 const skillMenuOpen = computed(
   () =>

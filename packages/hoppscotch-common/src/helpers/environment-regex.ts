@@ -7,11 +7,8 @@ const ENV_VAR_NAME_PATTERN = "[a-zA-Z0-9_.-]+"
 // `String.prototype.match` and CodeMirror's `MatchDecorator`.
 const HOPP_ENVIRONMENT_REGEX = new RegExp(`(<<${ENV_VAR_NAME_PATTERN}>>)`, "g")
 
-// Non-global variant, used for stateless `.test()` containment checks.
-// A global regex must not be used with `.test()`: it keeps a `lastIndex`
-// between calls, so testing the same (or a shorter) string repeatedly returns
-// alternating/incorrect results, and the state leaks across every module that
-// shares the regex.
+// For `.test()` containment checks — a global regex is stateful with `.test()`
+// (lastIndex leaks across calls and modules), so a non-global copy is needed.
 const HOPP_ENVIRONMENT_TEST_REGEX = new RegExp(`(<<${ENV_VAR_NAME_PATTERN}>>)`)
 
 const ENV_VAR_NAME_REGEX = new RegExp(ENV_VAR_NAME_PATTERN)

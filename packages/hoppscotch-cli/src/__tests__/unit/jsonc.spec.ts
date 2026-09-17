@@ -11,7 +11,8 @@ describe("stripComments", () => {
     });
 
     test("removes multiple inline comments", () => {
-      const input = '{\n  "key1": "value1", // comment1\n  "key2": "value2" // comment2\n}';
+      const input =
+        '{\n  "key1": "value1", // comment1\n  "key2": "value2" // comment2\n}';
       const result = stripComments(input);
       const parsed = JSON.parse(result);
       expect(parsed).toEqual({ key1: "value1", key2: "value2" });
@@ -27,7 +28,8 @@ describe("stripComments", () => {
     });
 
     test("removes multiline comment spanning multiple lines", () => {
-      const input = '{\n  /* This is\n     a multiline\n     comment */\n  "key": "value"\n}';
+      const input =
+        '{\n  /* This is\n     a multiline\n     comment */\n  "key": "value"\n}';
       const result = stripComments(input);
       const parsed = JSON.parse(result);
       expect(parsed).toEqual({ key: "value" });
@@ -59,14 +61,16 @@ describe("stripComments", () => {
 
   describe("handles combined cases", () => {
     test("removes both comments and trailing commas", () => {
-      const input = '{\n  "key1": "value1", // inline comment\n  /* block comment */\n  "key2": "value2",\n}';
+      const input =
+        '{\n  "key1": "value1", // inline comment\n  /* block comment */\n  "key2": "value2",\n}';
       const result = stripComments(input);
       const parsed = JSON.parse(result);
       expect(parsed).toEqual({ key1: "value1", key2: "value2" });
     });
 
     test("handles nested objects with comments and trailing commas", () => {
-      const input = '{\n  "outer": { // comment\n    "inner": "value",\n  },\n}';
+      const input =
+        '{\n  "outer": { // comment\n    "inner": "value",\n  },\n}';
       const result = stripComments(input);
       const parsed = JSON.parse(result);
       expect(parsed).toEqual({ outer: { inner: "value" } });
@@ -101,14 +105,16 @@ describe("stripComments", () => {
     });
 
     test("handles deeply nested structures", () => {
-      const input = '{\n  "a": {\n    "b": {\n      "c": {\n        "d": "value", // nested comment\n      },\n    },\n  },\n}';
+      const input =
+        '{\n  "a": {\n    "b": {\n      "c": {\n        "d": "value", // nested comment\n      },\n    },\n  },\n}';
       const result = stripComments(input);
       const parsed = JSON.parse(result);
       expect(parsed).toEqual({ a: { b: { c: { d: "value" } } } });
     });
 
     test("handles arrays with mixed content", () => {
-      const input = '[\n  "string",\n  123, // number\n  true, // boolean\n  null, // null\n  {"nested": "object",}, // object\n]';
+      const input =
+        '[\n  "string",\n  123, // number\n  true, // boolean\n  null, // null\n  {"nested": "object",}, // object\n]';
       const result = stripComments(input);
       const parsed = JSON.parse(result);
       expect(parsed).toEqual(["string", 123, true, null, { nested: "object" }]);
@@ -135,17 +141,17 @@ describe("stripComments", () => {
     });
 
     test("gracefully handles completely invalid JSON", () => {
-      const input = 'this is not json at all {]}{]';
+      const input = "this is not json at all {]}{]";
       const result = stripComments(input);
       // jsonc-parser extracts what it can and returns an object (even if mostly empty)
-      expect(result).toBe('{}');
+      expect(result).toBe("{}");
     });
 
     test("handles JSON with syntax errors", () => {
       const input = '{"key": undefined}'; // undefined is not valid JSON
       const result = stripComments(input);
       // Parser will handle this - exact behavior depends on jsonc-parser
-      expect(typeof result).toBe('string');
+      expect(typeof result).toBe("string");
     });
   });
 
@@ -177,7 +183,9 @@ describe("stripComments", () => {
 
     test("preserves large integer in array", () => {
       const input = '{"ids": [9007199254740993, 9007199254740994]}';
-      expect(stripComments(input)).toBe('{"ids":[9007199254740993,9007199254740994]}');
+      expect(stripComments(input)).toBe(
+        '{"ids":[9007199254740993,9007199254740994]}'
+      );
     });
 
     test("preserves integer at MAX_SAFE_INTEGER boundary", () => {
@@ -191,7 +199,8 @@ describe("stripComments", () => {
     });
 
     test("preserves large integer with both comment and trailing comma", () => {
-      const input = '{\n      // record ID\n      "id": 9007199254740993,\n    }';
+      const input =
+        '{\n      // record ID\n      "id": 9007199254740993,\n    }';
       expect(stripComments(input)).toBe('{"id":9007199254740993}');
     });
 
@@ -203,6 +212,23 @@ describe("stripComments", () => {
     test("preserves floating-point number verbatim", () => {
       const input = '{"ratio": 1.50}';
       expect(stripComments(input)).toBe('{"ratio":1.50}');
+    });
+
+    test("preserves exponent notation verbatim", () => {
+      const input = '{"big": 1e21, "neg": -2.5E-3}';
+      expect(stripComments(input)).toBe('{"big":1e21,"neg":-2.5E-3}');
+    });
+
+    test("normalizes lenient trailing-dot literals into valid JSON", () => {
+      const input = '{"a": 1., "b": -1.}';
+      const result = stripComments(input);
+      expect(result).toBe('{"a":1,"b":-1}');
+      expect(() => JSON.parse(result)).not.toThrow();
+    });
+
+    test("normalizes lenient literals while preserving valid large integers", () => {
+      const input = '{"a": 1., "id": 9007199254740993}';
+      expect(stripComments(input)).toBe('{"a":1,"id":9007199254740993}');
     });
   });
 });

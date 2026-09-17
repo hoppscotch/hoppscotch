@@ -64,4 +64,21 @@ describe("stripComments — numeric precision", () => {
     const input = `{"ratio": 1.50}`
     expect(stripComments(input)).toBe('{"ratio":1.50}')
   })
+
+  test("preserves exponent notation verbatim", () => {
+    const input = `{"big": 1e21, "neg": -2.5E-3}`
+    expect(stripComments(input)).toBe('{"big":1e21,"neg":-2.5E-3}')
+  })
+
+  test("normalizes lenient trailing-dot literals into valid JSON", () => {
+    const input = `{"a": 1., "b": -1.}`
+    const result = stripComments(input)
+    expect(result).toBe('{"a":1,"b":-1}')
+    expect(() => JSON.parse(result)).not.toThrow()
+  })
+
+  test("normalizes lenient literals while preserving valid large integers", () => {
+    const input = `{"a": 1., "id": 9007199254740993}`
+    expect(stripComments(input)).toBe('{"a":1,"id":9007199254740993}')
+  })
 })

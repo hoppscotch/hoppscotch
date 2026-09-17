@@ -11,6 +11,13 @@ class InvalidJSONCNodeError extends Error {
   }
 }
 
+/**
+ * Matches a number literal that is valid per the JSON grammar (RFC 8259 §6).
+ * jsonc-parser is lenient and also produces number nodes for forms like `1.`
+ * which are not valid JSON, so those must not be emitted verbatim.
+ */
+const JSON_NUMBER_REGEX = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/;
+
 // NOTE: If we choose to export this function, do refactor it to return a result discriminated union instead of throwing
 /**
  * @throws {InvalidJSONCNodeError} if the node is in an invalid configuration
@@ -30,11 +37,16 @@ function convertNodeToJSON(node: Node, originalText: string): string {
       return `[${node.children
         .map((child) => convertNodeToJSON(child, originalText))
         .join(",")}]`;
-    case "number":
+    case "number": {
       // Slice the original source text to preserve full numeric precision.
       // JSON.stringify(node.value) loses precision for integers beyond
       // Number.MAX_SAFE_INTEGER because jsonc-parser stores them as JS numbers.
-      return originalText.slice(node.offset, node.offset + node.length);
+      const raw = originalText.slice(node.offset, node.offset + node.length);
+
+      // Fall back to the normalized value for lenient forms that are not valid
+      // JSON (e.g. `1.`), so the output remains parseable as before.
+      return JSON_NUMBER_REGEX.test(raw) ? raw : JSON.stringify(node.value);
+    }
     case "boolean":
       return JSON.stringify(node.value);
     case "object":

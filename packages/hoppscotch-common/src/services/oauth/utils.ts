@@ -2,9 +2,12 @@ import * as E from "fp-ts/Either"
 import { z } from "zod"
 import { getService } from "~/modules/dioc"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
-import { content } from "@hoppscotch/kernel"
 import { decodeResponseAsJSON } from "./oauth.service"
 import { OAuth2AdvancedParam } from "@hoppscotch/data"
+import {
+  getPayloadForRefreshTokenRequest,
+  type ClientAuthentication,
+} from "./clientAuthentication"
 
 const interceptorService = getService(KernelInterceptorService)
 
@@ -23,6 +26,7 @@ export type RefreshTokenParams = {
   clientID: string
   refreshToken: string
   clientSecret?: string
+  clientAuthentication?: ClientAuthentication
   refreshRequestParams?: Array<RefreshRequestParam>
 }
 
@@ -36,53 +40,24 @@ export const refreshToken = async ({
   clientID,
   refreshToken,
   clientSecret,
+  clientAuthentication,
   refreshRequestParams,
 }: RefreshTokenParams) => {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/x-www-form-urlencoded",
-    Accept: "application/json",
+  let refreshRequest: ReturnType<typeof getPayloadForRefreshTokenRequest>
+  try {
+    refreshRequest = getPayloadForRefreshTokenRequest({
+      tokenEndpoint,
+      clientID,
+      clientSecret,
+      refreshToken,
+      clientAuthentication,
+      refreshRequestParams,
+    })
+  } catch (_error) {
+    return E.left("AUTH_TOKEN_REQUEST_FAILED" as const)
   }
 
-  const bodyParams: Record<string, string> = {
-    grant_type: "refresh_token",
-    refresh_token: refreshToken,
-    client_id: clientID,
-    ...(clientSecret && {
-      client_secret: clientSecret,
-    }),
-  }
-
-  const urlParams: Record<string, string> = {}
-
-  // Process additional refresh request parameters (if provided)
-  if (refreshRequestParams) {
-    refreshRequestParams
-      .filter((param) => param.active && param.key && param.value)
-      .forEach((param) => {
-        if (param.sendIn === "headers") {
-          headers[param.key] = param.value
-        } else if (param.sendIn === "url") {
-          urlParams[param.key] = param.value
-        } else {
-          // Default to body
-          bodyParams[param.key] = param.value
-        }
-      })
-  }
-
-  const url = new URL(tokenEndpoint)
-  Object.entries(urlParams).forEach(([key, value]) => {
-    url.searchParams.set(key, value)
-  })
-
-  const { response } = interceptorService.execute({
-    id: Date.now(),
-    url: url.toString(),
-    method: "POST",
-    version: "HTTP/1.1",
-    headers,
-    content: content.urlencoded(bodyParams),
-  })
+  const { response } = interceptorService.execute(refreshRequest)
 
   const res = await response
 

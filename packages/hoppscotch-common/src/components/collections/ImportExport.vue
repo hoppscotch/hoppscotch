@@ -117,11 +117,20 @@ const showImportFailedError = () => {
   toast.error(t("import.failed"))
 }
 
-const handleImportToStore = async (collections: HoppCollection[]) => {
+const handleImportToStore = async (
+  collections: HoppCollection[],
+  source?: HoppCollection["source"]
+) => {
+  const collectionsWithSource = source
+    ? collections.map((collection) => ({
+        ...collection,
+        source: { ...source, lastSyncedAt: new Date().toISOString() },
+      }))
+    : collections
   const importResult =
     props.collectionsType.type === "my-collections"
-      ? await importToPersonalWorkspace(collections)
-      : await importToTeamsWorkspace(collections)
+      ? await importToPersonalWorkspace(collectionsWithSource)
+      : await importToTeamsWorkspace(collectionsWithSource)
 
   if (E.isRight(importResult)) {
     toast.success(t("state.file_imported"))
@@ -428,13 +437,17 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
       step: UrlSource({
         caption: "import.from_url",
         description: "import.from_openapi_import_summary",
-        onImportFromURL: async (content) => {
+        onImportFromURL: async (content, url) => {
           isOpenAPIImporterInProgress.value = true
 
           const res = await hoppOpenAPIImporter([content])()
 
           if (E.isRight(res)) {
-            await handleImportToStore(res.right)
+            await handleImportToStore(res.right, {
+              type: "url",
+              url,
+              format: "openapi",
+            })
 
             setCurrentImportSummary(res.right)
 

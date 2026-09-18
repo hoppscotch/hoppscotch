@@ -104,5 +104,9 @@ program
 export const cli = async (args: string[]) => {
   try {
     await program.parseAsync(args);
-  } catch (e) {}
+  } catch (e: any) {
+    if (e && typeof e.exitCode === "number" && e.exitCode !== 0) {
+      process.exit(e.exitCode);
+    }
+  }
 };

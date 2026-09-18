@@ -2,7 +2,7 @@
   <HoppSmartModal
     v-if="show"
     dialog
-    title="Compare GraphQL Responses"
+    :title="t('compare.gql_title')"
     :full-width-body="true"
     styles="sm:max-w-[92vw] md:max-w-[88vw] lg:max-w-[85vw] xl:max-w-[85vw] 2xl:max-w-[85vw]"
     @close="hideModal"
@@ -15,12 +15,8 @@
         >
           <icon-lucide-info class="svg-icons text-accent flex-shrink-0" />
           <span>
-            <strong>How to Compare:</strong> Your current GraphQL tab's response
-            is loaded as <strong>Response A (Left)</strong>. Select another open
-            GraphQL tab with a response or paste raw JSON in
-            <strong>Raw Input</strong> to set
-            <strong>Response B (Right)</strong> and see a line-by-line visual
-            diff.
+            <strong>{{ t("compare.how_to_compare_title") }}</strong>
+            {{ t("compare.how_to_compare_gql") }}
           </span>
         </div>
 
@@ -29,19 +25,19 @@
           class="flex flex-col space-y-2 rounded border border-dividerLight bg-primaryLight p-3 flex-shrink-0"
         >
           <div class="flex items-center justify-between">
-            <span class="font-semibold text-secondary"
-              >Target Response (Response B):</span
-            >
+            <span class="font-semibold text-secondary">{{
+              t("compare.target_response")
+            }}</span>
             <div class="flex space-x-2">
               <HoppButtonSecondary
-                label="Open Tabs"
+                :label="t('compare.open_tabs')"
                 :outline="sourceType !== 'tabs'"
                 filled
                 class="!py-1 !px-3 text-xs"
                 @click="sourceType = 'tabs'"
               />
               <HoppButtonSecondary
-                label="Raw Input"
+                :label="t('compare.raw_input')"
                 :outline="sourceType !== 'raw'"
                 filled
                 class="!py-1 !px-3 text-xs"
@@ -57,7 +53,7 @@
               class="input w-full !bg-primary p-2 text-sm rounded border border-divider"
             >
               <option value="" disabled>
-                Select an open GraphQL tab response to compare...
+                {{ t("compare.select_gql_tab_placeholder") }}
               </option>
               <option
                 v-for="tItem in openGqlTabsList"
@@ -65,7 +61,8 @@
                 :value="tItem.id"
               >
                 {{
-                  tItem.document.request.name || tItem.document.request.endpoint
+                  tItem.document.request.name ||
+                  tItem.document.request.endpoint
                 }}
                 (Tab: {{ tItem.id }})
               </option>
@@ -74,8 +71,7 @@
               v-if="openGqlTabsList.length === 0"
               class="mt-1.5 text-xs text-secondaryLight italic"
             >
-              No other open GraphQL tabs with active responses found. Open
-              another GraphQL tab and run a query, or switch to Raw Input.
+              {{ t("compare.no_open_gql_tabs") }}
             </p>
           </div>
 
@@ -85,7 +81,7 @@
               v-model="rawInputText"
               rows="3"
               class="input w-full font-mono text-xs p-2 !bg-primary rounded border border-divider"
-              placeholder="Paste GraphQL JSON response text here to compare..."
+              :placeholder="t('compare.raw_input_placeholder')"
             />
           </div>
         </div>
@@ -96,22 +92,22 @@
         >
           <!-- Left Response Meta (Response A) -->
           <div class="flex flex-col space-y-1">
-            <span class="text-xs font-bold text-accent"
-              >Response A (Current)</span
-            >
+            <span class="text-xs font-bold text-accent">{{
+              t("compare.response_a")
+            }}</span>
             <div class="flex space-x-4 text-xs text-secondary">
               <span
-                >Status:
+                >{{ t("compare.status") }}:
                 <strong class="text-primary">{{
                   responseAStatus
                 }}</strong></span
               >
               <span
-                >Time:
+                >{{ t("compare.time") }}:
                 <strong class="text-primary">{{ responseATime }}</strong></span
               >
               <span
-                >Size:
+                >{{ t("compare.size") }}:
                 <strong class="text-primary">{{ responseASize }}</strong></span
               >
             </div>
@@ -119,22 +115,22 @@
 
           <!-- Right Response Meta (Response B) -->
           <div class="flex flex-col space-y-1 border-l border-divider pl-4">
-            <span class="text-xs font-bold text-accent"
-              >Response B (Target)</span
-            >
+            <span class="text-xs font-bold text-accent">{{
+              t("compare.response_b")
+            }}</span>
             <div class="flex space-x-4 text-xs text-secondary">
               <span
-                >Status:
+                >{{ t("compare.status") }}:
                 <strong class="text-primary">{{
                   responseBStatus
                 }}</strong></span
               >
               <span
-                >Time:
+                >{{ t("compare.time") }}:
                 <strong class="text-primary">{{ responseBTime }}</strong></span
               >
               <span
-                >Size:
+                >{{ t("compare.size") }}:
                 <strong class="text-primary">{{ responseBSize }}</strong></span
               >
             </div>
@@ -148,13 +144,13 @@
           <div
             class="flex items-center justify-between border-b border-divider bg-primaryLight px-4 py-2 text-xs font-semibold text-secondary flex-shrink-0"
           >
-            <span>Visual Diff (Side-by-Side)</span>
+            <span>{{ t("compare.visual_diff") }}</span>
             <div class="flex space-x-4 text-xs">
               <span class="text-green-500 font-semibold"
-                >+ {{ diffStats.added }} added</span
+                >+ {{ diffStats.added }} {{ t("compare.added") }}</span
               >
               <span class="text-red-500 font-semibold"
-                >- {{ diffStats.removed }} removed</span
+                >- {{ diffStats.removed }} {{ t("compare.removed") }}</span
               >
             </div>
           </div>
@@ -211,7 +207,12 @@
     </template>
     <template #footer>
       <div class="flex justify-end space-x-2">
-        <HoppButtonSecondary label="Close" outline filled @click="hideModal" />
+        <HoppButtonSecondary
+          :label="t('compare.close')"
+          outline
+          filled
+          @click="hideModal"
+        />
       </div>
     </template>
   </HoppSmartModal>
@@ -223,10 +224,15 @@ import type { GQLResponseEvent } from "~/helpers/graphql/connection"
 import { useService } from "dioc/vue"
 import { GQLTabService } from "~/services/tab/graphql"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
+import { useI18n } from "@composables/i18n"
+import { computeLineDiff, getUtf8ByteSize } from "~/helpers/diff"
+
+const t = useI18n()
 
 const props = defineProps<{
   show: boolean
   response: GQLResponseEvent[] | null | undefined
+  tabId?: string
 }>()
 
 const emit = defineEmits<{
@@ -243,10 +249,14 @@ const selectedTabId = ref<string>("")
 const rawInputText = ref<string>("")
 
 const openGqlTabsList = computed(() => {
-  const standaloneTabs = gqlTabs.getTabs()
+  const standaloneTabs = gqlTabs
+    .getTabs()
+    .filter((t) => t.id !== props.tabId)
   const wsGqlTabs = workspaceTabs
     .getTabs()
-    .filter((t) => t.document.type === "gql-request") as any[]
+    .filter(
+      (t) => t.id !== props.tabId && t.document.type === "gql-request"
+    ) as any[]
 
   const allTabs = [...standaloneTabs, ...wsGqlTabs]
   return allTabs.filter(
@@ -286,7 +296,7 @@ const responseATime = computed(() => {
 const responseASize = computed(() => {
   const ev = getSuccessResponseEvent(props.response)
   if (ev && ev.type === "response") {
-    const bytes = ev.document?.meta?.responseSize ?? ev.data?.length ?? 0
+    const bytes = ev.document?.meta?.responseSize ?? getUtf8ByteSize(ev.data || "")
     return bytes > 1000 ? `${(bytes / 1000).toFixed(2)} KB` : `${bytes} B`
   }
   return "N/A"
@@ -331,7 +341,7 @@ const responseBStatus = computed(() => {
   ) {
     return `${selectedTargetResponse.value.document?.statusCode || 200}`
   }
-  return sourceType.value === "raw" ? "Custom" : "N/A"
+  return sourceType.value === "raw" ? t("compare.custom") : "N/A"
 })
 
 const responseBTime = computed(() => {
@@ -340,7 +350,11 @@ const responseBTime = computed(() => {
     selectedTargetResponse.value &&
     selectedTargetResponse.value.type === "response"
   ) {
-    return `${selectedTargetResponse.value.document?.meta?.responseDuration ?? selectedTargetResponse.value.time ?? 0} ms`
+    return `${
+      selectedTargetResponse.value.document?.meta?.responseDuration ??
+      selectedTargetResponse.value.time ??
+      0
+    } ms`
   }
   return "N/A"
 })
@@ -353,12 +367,12 @@ const responseBSize = computed(() => {
   ) {
     const bytes =
       selectedTargetResponse.value.document?.meta?.responseSize ??
-      selectedTargetResponse.value.data?.length ??
-      0
+      getUtf8ByteSize(selectedTargetResponse.value.data || "")
     return bytes > 1000 ? `${(bytes / 1000).toFixed(2)} KB` : `${bytes} B`
   }
   if (sourceType.value === "raw") {
-    return `${rawInputText.value.length} B`
+    const bytes = getUtf8ByteSize(rawInputText.value)
+    return bytes > 1000 ? `${(bytes / 1000).toFixed(2)} KB` : `${bytes} B`
   }
   return "N/A"
 })
@@ -387,44 +401,10 @@ const responseBBodyText = computed(() => {
   return ""
 })
 
-// Line-by-line visual diff algorithm
-interface DiffLine {
-  lineNum?: number
-  text: string
-  type: "added" | "removed" | "unchanged" | "empty"
-}
-
 const diffResult = computed(() => {
-  const leftLines: DiffLine[] = []
-  const rightLines: DiffLine[] = []
-
   const textA = responseABodyText.value.split("\n")
   const textB = responseBBodyText.value.split("\n")
-
-  const maxLen = Math.max(textA.length, textB.length)
-
-  for (let i = 0; i < maxLen; i++) {
-    const lineA = textA[i]
-    const lineB = textB[i]
-
-    if (lineA !== undefined && lineB !== undefined) {
-      if (lineA === lineB) {
-        leftLines.push({ lineNum: i + 1, text: lineA, type: "unchanged" })
-        rightLines.push({ lineNum: i + 1, text: lineB, type: "unchanged" })
-      } else {
-        leftLines.push({ lineNum: i + 1, text: lineA, type: "removed" })
-        rightLines.push({ lineNum: i + 1, text: lineB, type: "added" })
-      }
-    } else if (lineA !== undefined) {
-      leftLines.push({ lineNum: i + 1, text: lineA, type: "removed" })
-      rightLines.push({ text: "", type: "empty" })
-    } else if (lineB !== undefined) {
-      leftLines.push({ text: "", type: "empty" })
-      rightLines.push({ lineNum: i + 1, text: lineB, type: "added" })
-    }
-  }
-
-  return { leftLines, rightLines }
+  return computeLineDiff(textA, textB)
 })
 
 const diffStats = computed(() => {

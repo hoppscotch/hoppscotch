@@ -96,6 +96,7 @@
     <GqlResponseCompareModal
       :show="showCompareModal"
       :response="response"
+      :tab-id="tabId"
       @hide-modal="showCompareModal = false"
     />
   </div>

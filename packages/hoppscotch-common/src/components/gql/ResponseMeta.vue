@@ -2,12 +2,24 @@
   <div
     class="sticky top-0 z-10 flex flex-shrink-0 items-center justify-center overflow-auto overflow-x-auto whitespace-nowrap bg-primary p-4"
   >
-    <AppShortcutsPrompt v-if="response == null && !isEmbed" class="flex-1" />
+    <div
+      v-if="isLoading"
+      class="flex flex-1 flex-col items-center justify-center"
+    >
+      <HoppSmartSpinner class="my-4" />
+      <span class="text-secondaryLight">{{ t("state.loading") }}</span>
+    </div>
 
-    <div v-if="response == null && isEmbed">
+    <AppShortcutsPrompt
+      v-else-if="(response == null || response.length === 0) && !isEmbed"
+      class="flex-1"
+      documentation-url="https://docs.hoppscotch.io/documentation/features/graphql-api-testing"
+    />
+
+    <div v-else-if="response == null || response.length === 0">
       <HoppButtonSecondary
         :label="`${t('app.documentation')}`"
-        to="https://docs.hoppscotch.io/documentation/features/rest-api-testing#response"
+        to="https://docs.hoppscotch.io/documentation/features/graphql-api-testing"
         :icon="IconExternalLink"
         blank
         outline
@@ -15,46 +27,13 @@
       />
     </div>
 
-    <div v-else-if="response" class="flex flex-1 flex-col">
-      <div
-        v-if="response.type === 'loading' || isLoading"
-        class="flex flex-col items-center justify-center"
-      >
-        <HoppSmartSpinner class="my-4" />
-        <span class="text-secondaryLight">{{ t("state.loading") }}</span>
-      </div>
-
-      <component
-        :is="response.component"
-        v-if="response.type === 'extension_error'"
-        class="flex-1"
-      />
+    <div v-else class="flex flex-1 flex-col">
       <HoppSmartPlaceholder
-        v-if="response.type === 'interceptor_error'"
+        v-if="errorResponse?.error?.component"
         :src="`/images/states/${colorMode.value}/upload_error.svg`"
-        :alt="
-          response.error?.humanMessage?.heading?.(t) || t('error.network_fail')
-        "
-        :heading="
-          response.error?.humanMessage?.heading?.(t) || t('error.network_fail')
-        "
-        :text="
-          response.error?.humanMessage?.description?.(t) ||
-          t('error.network_fail')
-        "
-      >
-        <template #body>
-          <AppKernelInterceptor
-            class="rounded border border-dividerLight p-2"
-          />
-        </template>
-      </HoppSmartPlaceholder>
-      <HoppSmartPlaceholder
-        v-if="response.type === 'network_fail'"
-        :src="`/images/states/${colorMode.value}/upload_error.svg`"
-        :alt="`${t('error.network_fail')}`"
+        :alt="t('error.network_fail')"
         :heading="t('error.network_fail')"
-        :text="t('helpers.network_fail')"
+        :text="errorResponse.error.message || t('helpers.network_fail')"
       >
         <template #body>
           <AppKernelInterceptor
@@ -62,61 +41,57 @@
           />
         </template>
       </HoppSmartPlaceholder>
+
       <HoppSmartPlaceholder
-        v-if="response.type === 'script_fail'"
+        v-if="errorResponse && !errorResponse.error.component"
         :src="`/images/states/${colorMode.value}/upload_error.svg`"
-        :alt="`${t('error.script_fail')}`"
-        :label="t('error.script_fail')"
-        :text="t('helpers.script_fail')"
+        :alt="errorResponse.error.message || t('error.network_fail')"
+        :heading="errorResponse.error.message || t('error.network_fail')"
+        :text="errorResponse.error.message || t('error.network_fail')"
       >
         <template #body>
-          <div
-            class="mt-2 w-full overflow-auto whitespace-normal rounded bg-primaryLight px-4 py-2 font-mono text-red-400"
-          >
-            {{ response.error.name }}: {{ response.error.message }}<br />
-            {{ response.error.stack }}
-          </div>
+          <AppKernelInterceptor
+            class="rounded border border-dividerLight p-2"
+          />
         </template>
       </HoppSmartPlaceholder>
+
       <div
-        v-if="
-          (response.type === 'success' || response.type === 'fail') &&
-          !isLoading
-        "
+        v-if="successResponse"
         class="flex items-center text-tiny font-semibold"
       >
         <div
           :class="statusCategory.className"
           class="inline-flex flex-1 items-center space-x-4"
         >
-          <span v-if="response.statusCode">
+          <span v-if="successResponse.document?.statusCode">
             <span class="text-secondary"> {{ t("response.status") }}: </span>
-            {{ `${response.statusCode}\xA0 • \xA0`
+            {{ `${successResponse.document.statusCode}\xA0 • \xA0`
             }}{{
               getStatusCodeReasonPhrase(
-                response.statusCode,
-                response.statusText
+                successResponse.document.statusCode,
+                successResponse.document.statusText
               )
             }}
           </span>
-          <span v-if="response.meta && response.meta.responseDuration">
+          <span v-if="successResponse.document?.meta?.responseDuration">
             <span class="text-secondary"> {{ t("response.time") }}: </span>
-            {{ `${response.meta.responseDuration} ms` }}
+            {{ `${successResponse.document.meta.responseDuration} ms` }}
           </span>
           <span
-            v-if="response.meta && response.meta.responseSize"
+            v-if="successResponse.document?.meta?.responseSize"
             v-tippy="
               readableResponseSize
                 ? { theme: 'tooltip' }
                 : { onShow: () => false }
             "
-            :title="`${response.meta.responseSize} B`"
+            :title="`${successResponse.document.meta.responseSize} B`"
           >
             <span class="text-secondary"> {{ t("response.size") }}: </span>
             {{
               readableResponseSize
                 ? readableResponseSize
-                : `${response.meta.responseSize} B`
+                : `${successResponse.document.meta.responseSize} B`
             }}
           </span>
           <HoppButtonSecondary
@@ -130,10 +105,10 @@
       </div>
     </div>
     <AppInspection
-      v-if="response?.type !== 'loading'"
+      v-if="!isLoading"
       :inspection-results="tabResults"
       :class="[
-        response === null || response?.type === 'network_fail'
+        !response || response.length === 0 || errorResponse
           ? 'absolute right-2 top-2'
           : '-m-2 ml-2',
       ]"
@@ -144,7 +119,7 @@
 <script setup lang="ts">
 import { computed } from "vue"
 import findStatusGroup from "@helpers/findStatusGroup"
-import type { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
+import type { GQLResponseEvent } from "~/services/gql-tab-connection.service"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
@@ -162,16 +137,27 @@ const t = useI18n()
 const colorMode = useColorMode()
 const tabs = useService(WorkspaceTabsService)
 
-const props = withDefaults(
-  defineProps<{
-    response: HoppRESTResponse | null | undefined
-    isEmbed?: boolean
-    isLoading?: boolean
-  }>(),
-  {
-    isLoading: false,
-  }
-)
+const props = defineProps<{
+  response: GQLResponseEvent[] | null | undefined
+  isEmbed?: boolean
+  tabId?: string
+  // Driven by the run-in-flight signal (doc.testResults === null) — the
+  // response prop keeps the PREVIOUS run's data during a re-run
+  isLoading?: boolean
+}>()
+
+const successResponse = computed(() => {
+  if (!props.response || props.response.length === 0) return null
+  const responses = props.response.filter((r) => r.type === "response")
+  if (responses.length === 0) return null
+  return responses[responses.length - 1]
+})
+
+const errorResponse = computed(() => {
+  if (!props.response || props.response.length === 0) return null
+  const firstResponse = props.response[0]
+  return firstResponse?.type === "error" ? firstResponse : null
+})
 
 /**
  * Gives the response size in a human readable format
@@ -180,18 +166,9 @@ const props = withDefaults(
  * it returns undefined
  */
 const readableResponseSize = computed(() => {
-  if (
-    props.response === null ||
-    props.response === undefined ||
-    props.response.type === "loading" ||
-    props.response.type === "network_fail" ||
-    props.response.type === "script_fail" ||
-    props.response.type === "fail" ||
-    props.response.type === "extension_error"
-  )
-    return undefined
+  if (!successResponse.value?.document?.meta?.responseSize) return undefined
 
-  const size = props.response.meta.responseSize
+  const size = successResponse.value.document.meta.responseSize
 
   if (size >= 100000) return (size / 1000000).toFixed(2) + " MB"
   if (size >= 1000) return (size / 1000).toFixed(2) + " KB"
@@ -200,26 +177,24 @@ const readableResponseSize = computed(() => {
 })
 
 const statusCategory = computed(() => {
-  if (
-    props.response === null ||
-    props.response === undefined ||
-    props.response.type === "loading" ||
-    props.response.type === "network_fail" ||
-    props.response.type === "script_fail" ||
-    props.response.type === "fail" ||
-    props.response.type === "extension_error"
-  )
+  if (!successResponse.value?.document?.statusCode) {
     return {
       name: "error",
       className: "text-red-500",
     }
-  return findStatusGroup(props.response.statusCode)
+  }
+  return findStatusGroup(successResponse.value.document.statusCode)
 })
 
 const inspectionService = useService(InspectionService)
 
-const tabResults = inspectionService.getResultViewFor(
-  tabs.currentTabID.value,
-  (result) => result.locations.type === "response"
+// Re-derived per tab change — a setup-time capture of `currentTabID` would
+// pin inspection results to whichever tab was active at mount
+const tabResults = computed(
+  () =>
+    inspectionService.getResultViewFor(
+      props.tabId ?? tabs.currentTabID.value,
+      (result) => result.locations.type === "response"
+    ).value
 )
 </script>

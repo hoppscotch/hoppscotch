@@ -24,6 +24,7 @@
   <HttpResponseCompareModal
     :show="showCompareModal"
     :response="doc.response"
+    :tab-id="tabId"
     @hide-modal="showCompareModal = false"
   />
 </template>

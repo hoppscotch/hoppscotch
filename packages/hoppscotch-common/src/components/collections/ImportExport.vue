@@ -409,11 +409,7 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
           const res = await hoppOpenAPIImporter(content)()
 
           if (E.isRight(res)) {
-            await handleImportToStore(res.right, {
-              type: "url",
-              url,
-              format: "openapi",
-            })
+            await handleImportToStore(res.right)
 
             setCurrentImportSummary(res.right)
 
@@ -447,7 +443,11 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
           const res = await hoppOpenAPIImporter([content])()
 
           if (E.isRight(res)) {
-            await handleImportToStore(res.right)
+            await handleImportToStore(res.right, {
+              type: "url",
+              url,
+              format: "openapi",
+            })
 
             setCurrentImportSummary(res.right)
 

@@ -1,9 +1,9 @@
 packages:
-  - 'packages/**'
+  - "packages/**"
 
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
-  - '@hoppscotch/ui'
+  - "@hoppscotch/ui"
 
 overrides:
   "@protobufjs/utf8@<=1.1.0": "1.1.2"

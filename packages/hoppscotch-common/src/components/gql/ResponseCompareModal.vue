@@ -61,8 +61,7 @@
                 :value="tItem.id"
               >
                 {{
-                  tItem.document.request.name ||
-                  tItem.document.request.endpoint
+                  tItem.document.request.name || tItem.document.request.endpoint
                 }}
                 (Tab: {{ tItem.id }})
               </option>
@@ -249,9 +248,7 @@ const selectedTabId = ref<string>("")
 const rawInputText = ref<string>("")
 
 const openGqlTabsList = computed(() => {
-  const standaloneTabs = gqlTabs
-    .getTabs()
-    .filter((t) => t.id !== props.tabId)
+  const standaloneTabs = gqlTabs.getTabs().filter((t) => t.id !== props.tabId)
   const wsGqlTabs = workspaceTabs
     .getTabs()
     .filter(
@@ -296,7 +293,8 @@ const responseATime = computed(() => {
 const responseASize = computed(() => {
   const ev = getSuccessResponseEvent(props.response)
   if (ev && ev.type === "response") {
-    const bytes = ev.document?.meta?.responseSize ?? getUtf8ByteSize(ev.data || "")
+    const bytes =
+      ev.document?.meta?.responseSize ?? getUtf8ByteSize(ev.data || "")
     return bytes > 1000 ? `${(bytes / 1000).toFixed(2)} KB` : `${bytes} B`
   }
   return "N/A"

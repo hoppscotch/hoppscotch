@@ -659,6 +659,10 @@ const emit = defineEmits<{
   ): void
   (event: "duplicate-response", payload: ResponsePayload): void
   (event: "export-data", payload: HoppCollection): void
+  (
+    event: "refresh-collection",
+    payload: { collectionIndex: string; collection: HoppCollection }
+  ): void
   (event: "remove-collection", payload: string): void
   (event: "remove-folder", payload: string): void
   (

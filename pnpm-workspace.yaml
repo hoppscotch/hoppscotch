@@ -1,6 +1,50 @@
 packages:
-  - 'packages/**'
+  - "packages/**"
 
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
-  - '@hoppscotch/ui'
+  - "@hoppscotch/ui"
+
+overrides:
+  "@protobufjs/utf8@<=1.1.0": "1.1.2"
+  "@xmldom/xmldom": "0.8.13"
+  "apiconnect-wsdl": "2.0.36"
+  "body-parser": "2.3.0"
+  "brace-expansion@<5.0.9": "5.0.9"
+  "cross-spawn": "7.0.6"
+  "deepmerge-ts@<8.0.0": "8.0.1"
+  "execa@<2.0.0": "2.0.0"
+  "fast-uri@>=3.0.0 <3.1.5": "3.1.5"
+  "find-my-way@9.6.0": "9.7.0"
+  "form-data@>=4.0.0 <4.0.6": "4.0.6"
+  "js-yaml@>=4.0.0 <4.3.1": "4.3.1"
+  "js-yaml@>=5.0.0 <=5.2.1": "5.2.2"
+  "linkify-it@<=5.0.1": "5.0.2"
+  "liquidjs@<10.27.0": "10.27.1"
+  "minimatch@>=4.0.0 <4.2.5": "4.2.5"
+  "mjml@<5.0.0-alpha.9": "5.4.0"
+  "nodemailer@<=9.0.0": "9.0.1"
+  "postcss@<=8.5.22": "8.5.26"
+  "qs@>=6.11.1 <6.15.2": "6.15.3"
+  "serialize-javascript@<7.0.7": "7.0.7"
+  "svgo@>=4.0.0 <4.0.2": "4.0.2"
+  "uuid@9.0.1": "11.1.1"
+  "valibot@<=1.4.1": "1.4.2"
+  "vue": "3.5.41"
+  "ws": "8.21.0"
+
+onlyBuiltDependencies:
+  - "@apollo/protobufjs"
+  - "@import-meta-env/unplugin"
+  - "@nestjs/core"
+  - "@prisma/client"
+  - "@prisma/engines"
+  - "@swc/core"
+  - "argon2"
+  - "bcrypt"
+  - "canvas"
+  - "core-js"
+  - "esbuild"
+  - "isolated-vm"
+  - "prisma"
+  - "vue-demi"

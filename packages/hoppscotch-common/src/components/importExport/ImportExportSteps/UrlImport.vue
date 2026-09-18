@@ -190,7 +190,7 @@ async function fetchUrlData() {
     return
   }
 
-  emit("importFromURL", res.right)
+  emit("importFromURL", res.right, inputChooseGistToImportFrom.value)
   isFetchingUrl.value = false
 }
 </script>

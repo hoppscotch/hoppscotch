@@ -2,9 +2,17 @@
   <div class="flex flex-col">
     <!-- Table View for All Users -->
     <div class="flex flex-col">
-      <h1 class="text-lg font-bold text-secondaryDark">
-        {{ t('users.users') }}
-      </h1>
+      <div class="flex items-center space-x-2">
+        <h1 class="text-lg font-bold text-secondaryDark">
+          {{ t('users.users') }}
+        </h1>
+        <span
+          v-if="typeof usersCount === 'number'"
+          class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-primaryDark border border-divider text-secondaryLight"
+        >
+          {{ usersCount }}
+        </span>
+      </div>
       <div class="flex items-center space-x-4 mt-10 mb-5">
         <HoppButtonPrimary
           :label="t('users.invite_user')"
@@ -21,26 +29,59 @@
         </div>
       </div>
       <div class="overflow-x-auto mb-5">
-        <div class="mb-3 flex items-center justify-end">
-          <HoppButtonSecondary
-            outline
-            filled
-            :icon="IconLeft"
-            :disabled="page === 1"
-            @click="changePage(PageDirection.Previous)"
-          />
-
-          <div class="flex h-full w-10 items-center justify-center">
-            <span>{{ page }}</span>
+        <div class="mb-3 flex items-center justify-between">
+          <div class="text-xs text-secondaryLight">
+            <span v-if="!searchQuery && usersCount && usersCount > 0">
+              {{
+                t('state.page_range', {
+                  start: (page - 1) * usersPerPage + 1,
+                  end: Math.min(page * usersPerPage, usersCount),
+                  total: usersCount,
+                })
+              }}
+            </span>
+            <span v-else-if="searchQuery">
+              <template v-if="totalPages <= 1">
+                {{ t('state.results', { count: usersList.length }) }}
+              </template>
+              <template v-else>
+                {{
+                  t('state.page_range', {
+                    start: (page - 1) * usersPerPage + 1,
+                    end: Math.min(page * usersPerPage, usersList.length),
+                    total: usersList.length,
+                  })
+                }}
+              </template>
+            </span>
           </div>
 
-          <HoppButtonSecondary
-            outline
-            filled
-            :icon="IconRight"
-            :disabled="page >= totalPages"
-            @click="changePage(PageDirection.Next)"
-          />
+          <div class="flex items-center">
+            <HoppButtonSecondary
+              outline
+              filled
+              :icon="IconLeft"
+              :disabled="page === 1"
+              @click="changePage(PageDirection.Previous)"
+            />
+
+            <div
+              class="flex h-full min-w-10 px-2 items-center justify-center text-sm font-medium"
+            >
+              <span>
+                {{ page }}
+                <template v-if="totalPages > 1"> / {{ totalPages }}</template>
+              </span>
+            </div>
+
+            <HoppButtonSecondary
+              outline
+              filled
+              :icon="IconRight"
+              :disabled="page >= totalPages"
+              @click="changePage(PageDirection.Next)"
+            />
+          </div>
         </div>
 
         <HoppSmartTable
@@ -162,6 +203,65 @@
             </td>
           </template>
         </HoppSmartTable>
+
+        <!-- Bottom Pagination -->
+        <div
+          v-if="finalUsersList.length > 0"
+          class="mt-4 flex items-center justify-between"
+        >
+          <div class="text-xs text-secondaryLight">
+            <span v-if="!searchQuery && usersCount && usersCount > 0">
+              {{
+                t('state.page_range', {
+                  start: (page - 1) * usersPerPage + 1,
+                  end: Math.min(page * usersPerPage, usersCount),
+                  total: usersCount,
+                })
+              }}
+            </span>
+            <span v-else-if="searchQuery">
+              <template v-if="totalPages <= 1">
+                {{ t('state.results', { count: usersList.length }) }}
+              </template>
+              <template v-else>
+                {{
+                  t('state.page_range', {
+                    start: (page - 1) * usersPerPage + 1,
+                    end: Math.min(page * usersPerPage, usersList.length),
+                    total: usersList.length,
+                  })
+                }}
+              </template>
+            </span>
+          </div>
+
+          <div class="flex items-center">
+            <HoppButtonSecondary
+              outline
+              filled
+              :icon="IconLeft"
+              :disabled="page === 1"
+              @click="changePage(PageDirection.Previous)"
+            />
+
+            <div
+              class="flex h-full min-w-10 px-2 items-center justify-center text-sm font-medium"
+            >
+              <span>
+                {{ page }}
+                <template v-if="totalPages > 1"> / {{ totalPages }}</template>
+              </span>
+            </div>
+
+            <HoppButtonSecondary
+              outline
+              filled
+              :icon="IconRight"
+              :disabled="page >= totalPages"
+              @click="changePage(PageDirection.Next)"
+            />
+          </div>
+        </div>
 
         <!-- Actions for Selected Rows -->
         <div
@@ -312,6 +412,12 @@ const headings = [
 // Get Paginated Results of all the users in the infra
 const usersPerPage = 20;
 
+const { data, executeQuery: refetchMetrics } = useQuery({
+  query: MetricsDocument,
+  variables: {},
+});
+const usersCount = computed(() => data?.value?.infra.usersCount);
+
 const {
   fetching,
   error,
@@ -372,7 +478,16 @@ const handleSearch = async (input: string) => {
     });
   } else {
     // If search query is present, fetch all the users filtered by the search query
-    await refetch({ searchString: input, take: usersCount.value!, skip: 0 });
+    let totalUsers = usersCount.value;
+    if (!totalUsers) {
+      const res = await refetchMetrics();
+      totalUsers = res.data?.value?.infra.usersCount;
+    }
+    await refetch({
+      searchString: input,
+      take: totalUsers,
+      skip: 0,
+    });
   }
 
   // Reset the page to 1 when the search query changes
@@ -420,8 +535,6 @@ enum PageDirection {
 }
 
 const page = ref(1);
-const { data } = useQuery({ query: MetricsDocument, variables: {} });
-const usersCount = computed(() => data?.value?.infra.usersCount);
 
 const changePage = (direction: PageDirection) => {
   const isPrevious = direction === PageDirection.Previous;
@@ -435,11 +548,11 @@ const changePage = (direction: PageDirection) => {
 };
 
 const totalPages = computed(() => {
-  if (!usersCount.value) return 0;
-  if (query.value.length > 0) {
-    return Math.ceil(usersList.value.length / usersPerPage);
+  if (searchQuery.value.length > 0) {
+    return Math.max(1, Math.ceil(usersList.value.length / usersPerPage));
   }
-  return Math.ceil(usersCount.value / usersPerPage);
+  if (!usersCount.value) return 1;
+  return Math.max(1, Math.ceil(usersCount.value / usersPerPage));
 });
 
 watch(page, async () => {
@@ -447,7 +560,7 @@ watch(page, async () => {
     return;
   }
   // Show spinner when moving to a different page when search query is present
-  else if (query.value.length > 0) {
+  else if (searchQuery.value.length > 0) {
     showSpinner.value = true;
     debounce(() => (showSpinner.value = false), 500);
   } else {
@@ -653,6 +766,17 @@ const deleteUsers = async (id: string | null) => {
     );
 
     selectedRows.value.splice(0, selectedRows.value.length);
+    refetchMetrics({ requestPolicy: 'network-only' });
+
+    if (page.value > totalPages.value) {
+      page.value = Math.max(1, totalPages.value);
+    } else if (!searchQuery.value) {
+      refetch({
+        searchString: '',
+        take: usersPerPage,
+        skip: (page.value - 1) * usersPerPage,
+      });
+    }
   }
   confirmUsersDeletion.value = false;
   deleteUserUID.value = null;

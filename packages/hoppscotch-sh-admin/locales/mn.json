@@ -362,6 +362,9 @@
     "require_auth_provider": "Нэвтрэхийн тулд та дор хаяж нэг баталгаажуулалтын үйлчилгээ үзүүлэгч тохируулах шаардлагатай.",
     "role_update_failed": "Дүрүүдийн шинэчлэл амжилтгүй боллоо!!",
     "role_update_success": "Дүрүүдийг амжилттай шинэчилсэн!!",
+    "page_range": "{start}-{end} / {total}",
+    "showing_range": "{start}-{end} харуулж байна",
+    "results": "{count} үр дүн",
     "selected": "{count} сонгосон",
     "self_host_docs": "Өөрөө хостын баримт бичиг",
     "send_magic_link": "Шидэт холбоос илгээх",
@@ -447,6 +450,7 @@
     "role": "Үүрэг",
     "role_unknown": "Тодорхойгүй",
     "show_more": "Илүү ихийг харуулах",
+    "showing_workspaces": "{count} ажлын талбар харуулж байна",
     "title": "Ажлын талбарууд",
     "workspace_id": "Ажлын талбарын ID",
     "workspace_name": "Ажлын талбарын нэр"

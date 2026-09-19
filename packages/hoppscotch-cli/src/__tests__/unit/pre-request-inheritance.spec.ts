@@ -4,6 +4,7 @@ import * as E from "fp-ts/Either";
 
 import { preRequestScriptRunner } from "../../utils/pre-request";
 import { HoppEnvs } from "../../types/request";
+import { isolatedVmSupported } from "../helpers/isolated-vm-compat";
 
 const SAMPLE_ENVS: HoppEnvs = {
   global: [],
@@ -182,35 +183,38 @@ describe("preRequestScriptRunner - inheritance", () => {
   // currently user-reachable in the CLI. The web worker path is where the
   // post-`await` drop is user-reachable; covered by the smoke fixture in
   // packages/hoppscotch-cli/src/__tests__/e2e/.
-  test("Legacy sandbox executes inherited scripts in order", async () => {
-    const rootScript = `pw.env.set("ORDER", "root");`;
-    const parentScript = `
-      const prev = pw.env.get("ORDER");
-      pw.env.set("ORDER", prev + ",parent");
-    `;
-    const request = makeRESTRequest({
-      ...SAMPLE_REQUEST,
-      preRequestScript: `
+  test.skipIf(!isolatedVmSupported)(
+    "Legacy sandbox executes inherited scripts in order",
+    async () => {
+      const rootScript = `pw.env.set("ORDER", "root");`;
+      const parentScript = `
         const prev = pw.env.get("ORDER");
-        pw.env.set("ORDER", prev + ",request");
-      `,
-    });
+        pw.env.set("ORDER", prev + ",parent");
+      `;
+      const request = makeRESTRequest({
+        ...SAMPLE_REQUEST,
+        preRequestScript: `
+          const prev = pw.env.get("ORDER");
+          pw.env.set("ORDER", prev + ",request");
+        `,
+      });
 
-    const result = await preRequestScriptRunner(
-      request,
-      SAMPLE_ENVS,
-      true,
-      undefined,
-      [rootScript, parentScript]
-    )();
+      const result = await preRequestScriptRunner(
+        request,
+        SAMPLE_ENVS,
+        true,
+        undefined,
+        [rootScript, parentScript]
+      )();
 
-    expect(result).toBeRight();
+      expect(result).toBeRight();
 
-    if (E.isRight(result)) {
-      const orderVar = result.right.updatedEnvs.selected.find(
-        (v) => v.key === "ORDER"
-      );
-      expect(orderVar?.currentValue).toBe("root,parent,request");
+      if (E.isRight(result)) {
+        const orderVar = result.right.updatedEnvs.selected.find(
+          (v) => v.key === "ORDER"
+        );
+        expect(orderVar?.currentValue).toBe("root,parent,request");
+      }
     }
-  });
+  );
 });

@@ -350,7 +350,7 @@ const authTypes: AuthType[] = [
   },
   {
     key: "bearer",
-    label: "Bearer",
+    label: "Bearer Token",
   },
   {
     key: "oauth-2",

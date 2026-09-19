@@ -18,6 +18,7 @@ export class WSConnection {
   connectionState$: BehaviorSubject<ConnectionState>
   event$: Subject<WSEvent> = new Subject()
   socket: WebSocket | undefined
+  private manualDisconnect = false
 
   constructor() {
     this.connectionState$ = new BehaviorSubject<ConnectionState>("DISCONNECTED")
@@ -54,8 +55,9 @@ export class WSConnection {
         this.addEvent({
           type: "DISCONNECTED",
           time: Date.now(),
-          manual: true,
+          manual: this.manualDisconnect,
         })
+        this.manualDisconnect = false
       }
 
       this.socket.onmessage = ({ data }) => {
@@ -78,7 +80,7 @@ export class WSConnection {
   }
 
   private handleError(error: WSErrorMessage) {
-    this.disconnect()
+    this.closeConnection()
     this.addEvent({
       time: Date.now(),
       type: "ERROR",
@@ -97,7 +99,20 @@ export class WSConnection {
     })
   }
 
+  private closeConnection() {
+    if (
+      !this.socket ||
+      this.socket.readyState === WebSocket.CLOSING ||
+      this.socket.readyState === WebSocket.CLOSED
+    ) {
+      this.manualDisconnect = false
+      return
+    }
+    this.socket.close()
+  }
+
   disconnect() {
-    this.socket?.close()
+    this.manualDisconnect = true
+    this.closeConnection()
   }
 }

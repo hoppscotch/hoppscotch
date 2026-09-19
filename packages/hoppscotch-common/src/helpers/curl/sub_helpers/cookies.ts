@@ -58,7 +58,10 @@ const parseCookieString = (cookieString: string): Record<string, string> => {
     .map((pair) => pair.trim())
     .filter(Boolean)
     .reduce((acc, pair) => {
-      const [key, value] = pair.split("=", 2)
-      return { ...acc, [key]: value || "" }
+      const [rawKey, ...rest] = pair.split("=")
+      if (!rawKey) return acc
+
+      const value = rest.join("=")
+      return { ...acc, [rawKey]: value }
     }, {})
 }

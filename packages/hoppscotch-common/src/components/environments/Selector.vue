@@ -552,7 +552,7 @@ const isEnvActive = (id: string | number) => {
     }
     return (
       selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
-      selectedEnv.value.teamEnvID === id
+      selectedEnvironmentIndex.value.teamEnvID === id
     )
   }
 }

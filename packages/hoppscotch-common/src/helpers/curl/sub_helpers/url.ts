@@ -49,12 +49,18 @@ const parseURL = (urlText: string | number) =>
     urlText,
     O.fromNullable,
     // preprocess url string
-    O.map((u) =>
-      u
-        .toString()
-        .replace(/^['"]|['"]$/g, "")
-        .replaceAll(/[^a-zA-Z0-9_\-./?&=:@%+#,;()'<>\s*~!$[\]{}|"]/g, "")
-    ),
+    O.map((u) => {
+      const str = u.toString()
+      const unquoted =
+        (str.startsWith('"') && str.endsWith('"')) ||
+        (str.startsWith("'") && str.endsWith("'"))
+          ? str.slice(1, -1)
+          : str
+      return unquoted.replaceAll(
+        /[^a-zA-Z0-9_\-./?&=:@%+#,;()'<>\s*~!$[\]{}|"]/g,
+        ""
+      )
+    }),
     O.filter((u) => u.length > 0),
     O.chain((u) =>
       pipe(

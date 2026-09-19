@@ -1096,6 +1096,7 @@ data2: {"type":"test2","typeId":"123"}`,
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -1134,6 +1135,7 @@ data2: {"type":"test2","typeId":"123"}`,
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   // Test case that ensures bash ANSI-C dollar-single-quote quoting format ( $'...' )
@@ -1156,6 +1158,7 @@ data2: {"type":"test2","typeId":"123"}`,
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
 ]
@@ -1293,6 +1296,60 @@ describe("Parse curl command to Hopp REST Request", () => {
         active: true,
         key: "filter",
         value: "{id}|all",
+        description: "",
+      },
+    ])
+  })
+
+  test("preserves dollar quote inside quoted url query parameter", () => {
+    const command = `curl "https://example.com/api?q=$'foo'"`
+
+    const actual = parseCurlToHoppRESTReq(command)
+
+    expect(actual.method).toBe("GET")
+    expect(actual.endpoint).toBe("https://example.com/api")
+    expect(actual.params).toEqual([
+      {
+        active: true,
+        key: "q",
+        value: "$'foo'",
+        description: "",
+      },
+    ])
+  })
+
+  test("does not rewrite flag-like text inside header values", () => {
+    const command = `curl 'https://example.com/api' -H 'X-Value: -q="value"'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+
+    const customHeader = actual.headers.find((h) => h.key === "X-Value")
+    expect(customHeader).toBeDefined()
+    expect(customHeader?.value).toBe(`-q="value"`)
+  })
+
+  test("does not rewrite long options inside json body payloads", () => {
+    const command = `curl 'https://example.com/api' -d '{"text":" --data=foo"}'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+
+    expect(actual.method).toBe("POST")
+    expect(actual.body.contentType).toBe("application/json")
+    expect(JSON.parse(actual.body.body)).toEqual({ text: " --data=foo" })
+  })
+
+  test("preserves inner double quote when URL is wrapped in single quotes", () => {
+    const command = `curl 'https://example.com/api?q=abc"'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+
+    expect(actual.method).toBe("GET")
+    expect(actual.endpoint).toBe("https://example.com/api")
+    expect(actual.params).toEqual([
+      {
+        active: true,
+        key: "q",
+        value: 'abc"',
         description: "",
       },
     ])

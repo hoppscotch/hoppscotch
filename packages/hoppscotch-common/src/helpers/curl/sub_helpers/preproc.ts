@@ -16,64 +16,126 @@ const replaceables: { [key: string]: string } = {
   "--get": "-G",
 }
 
-const paperCuts = flow(
-  // remove '\' and newlines
-  S.replace(/ ?\\ ?$/gm, " "),
-  S.replace(/\n/g, " "),
-  // remove all $ symbols from start of argument values
-  S.replace(/\$'/g, "'"),
-  S.replace(/\$"/g, '"'),
-  S.trim
-)
+const isWhitespace = (ch: string | undefined) =>
+  ch === " " || ch === "\t" || ch === "\n" || ch === "\r"
 
-// replace --zargs option with -Z
-const replaceLongOptions = (curlCmd: string) =>
-  pipe(Object.keys(replaceables), A.reduce(curlCmd, replaceFunction))
-
-const replaceFunction = (curlCmd: string, r: string) =>
-  pipe(
-    curlCmd,
-    O.fromPredicate(
-      () => r.includes("data") || r.includes("form") || r.includes("header")
-    ),
-    O.map(S.replace(RegExp(`[ \t]${r}(["' ])`, "g"), ` ${replaceables[r]}$1`)),
-    O.alt(() =>
-      pipe(
-        curlCmd,
-        S.replace(RegExp(`[ \t]${r}(["' ])`), ` ${replaceables[r]}$1`),
-        O.of
-      )
-    ),
-    O.getOrElse(() => "")
-  )
-
-// yargs parses -XPOST as separate arguments. just prescreen for it.
-const prescreenXArgs = flow(
-  S.replace(
-    / -X(GET|POST|PUT|PATCH|DELETE|HEAD|CONNECT|OPTIONS|TRACE)/,
-    " -X $1"
-  ),
-  S.trim
+const longOptionKeys = Object.keys(replaceables).sort(
+  (a, b) => b.length - a.length
 )
 
 /**
- * Sanitizes and makes curl string processable
+ * Sanitizes and makes curl string processable in a quote-aware manner.
+ * Option normalizations, short-option equals, and bash ANSI-C quote transformations
+ * are only performed outside shell-quoted arguments to prevent corrupting payloads or queries.
+ *
  * @param curlCommand Raw curl command string
  * @returns Processed curl command string
  */
-export const preProcessCurlCommand = (curlCommand: string) =>
-  pipe(
-    curlCommand,
-    O.fromPredicate((curlCmd) => curlCmd.length > 0),
-    O.map(flow(paperCuts, replaceLongOptions, prescreenXArgs)),
-    O.getOrElse(() => "")
-  )
+export const preProcessCurlCommand = (curlCommand: string) => {
+  if (!curlCommand || curlCommand.length === 0) return ""
+
+  // Join line continuations and newlines into spaces
+  const cmd = curlCommand.replace(/ ?\\ ?\r?\n/g, " ").replace(/\r?\n/g, " ")
+
+  let output = ""
+  let i = 0
+  let quote: "'" | '"' | null = null
+
+  while (i < cmd.length) {
+    const ch = cmd[i]
+
+    // Inside quotes: pass verbatim until matching closing quote
+    if (quote !== null) {
+      output += ch
+      if (ch === quote && (quote === "'" || cmd[i - 1] !== "\\")) {
+        quote = null
+      }
+      i++
+      continue
+    }
+
+    const isBoundary = i === 0 || isWhitespace(cmd[i - 1])
+
+    // Handle bash ANSI-C / locale quotes: $'...' or $"..." outside quotes
+    if (ch === "$" && (cmd[i + 1] === "'" || cmd[i + 1] === '"')) {
+      const nextQuote = cmd[i + 1] as "'" | '"'
+      output += nextQuote
+      quote = nextQuote
+      i += 2
+      continue
+    }
+
+    // Normal quote start
+    if (ch === "'" || ch === '"') {
+      output += ch
+      quote = ch
+      i++
+      continue
+    }
+
+    if (isBoundary) {
+      // 1. Check for long options
+      let matchedLongOpt: string | null = null
+      for (const opt of longOptionKeys) {
+        if (cmd.startsWith(opt, i)) {
+          const after = cmd[i + opt.length]
+          if (after === undefined || isWhitespace(after) || after === "=") {
+            matchedLongOpt = opt
+            break
+          }
+        }
+      }
+
+      if (matchedLongOpt) {
+        const replacement = replaceables[matchedLongOpt]
+        let j = i + matchedLongOpt.length
+        if (cmd[j] === "=") {
+          j++
+          if (replacement.length > 0) {
+            output += replacement + " "
+          }
+        } else {
+          if (replacement.length > 0) {
+            output += replacement
+          } else {
+            // E.g. --url without =: skip following whitespace if any to avoid extra space
+            while (isWhitespace(cmd[j])) j++
+          }
+        }
+        i = j
+        continue
+      }
+
+      // 2. Check for -X(METHOD) e.g. -XPOST
+      const methodMatch = cmd
+        .slice(i)
+        .match(
+          /^-X(GET|POST|PUT|PATCH|DELETE|HEAD|CONNECT|OPTIONS|TRACE)(?=[ \t'"]|$)/
+        )
+      if (methodMatch) {
+        output += "-X " + methodMatch[1]
+        i += methodMatch[0].length
+        continue
+      }
+
+      // 3. Check for short option with '=' followed by quote or value: -([a-zA-Z])=(?=['"]|\$['"])
+      const shortOptEqMatch = cmd.slice(i).match(/^-([a-zA-Z])=(?=['"]|\$['"])/)
+      if (shortOptEqMatch) {
+        output += "-" + shortOptEqMatch[1] + " "
+        i += shortOptEqMatch[0].length
+        continue
+      }
+    }
+
+    output += ch
+    i++
+  }
+
+  return output.trim()
+}
 
 const JSON_DATA_PLACEHOLDER_PREFIX = "__HOPP_CURL_JSON_DATA_"
 const JSON_DATA_PLACEHOLDER_SUFFIX = "__"
-
-const isWhitespace = (ch: string | undefined) =>
-  ch === " " || ch === "\t" || ch === "\n" || ch === "\r"
 
 const scanJSONValueEnd = (input: string, startIndex: number) => {
   const start = input[startIndex]

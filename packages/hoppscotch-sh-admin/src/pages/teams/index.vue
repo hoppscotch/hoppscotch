@@ -59,8 +59,8 @@
                   error
                     ? t('teams.load_list_error')
                     : searchQuery
-                      ? t('teams.no_search_results')
-                      : t('teams.no_teams')
+                    ? t('teams.no_search_results')
+                    : t('teams.no_teams')
                 }}
               </span>
             </td>
@@ -182,7 +182,7 @@ const { list: usersList } = usePagedQuery(
   (x) => x.infra.allUsers,
   usersPerPage.value,
   { cursor: undefined, take: usersPerPage.value },
-  (x) => x.uid,
+  (x) => x.uid
 );
 
 const allUsersEmail = computed(() => usersList.value.map((user) => user.email));

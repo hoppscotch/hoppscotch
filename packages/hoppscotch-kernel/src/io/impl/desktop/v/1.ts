@@ -30,7 +30,13 @@ export const implementation: VersionedAPI<IoV1> = {
       if (typeof opts.data === "string") {
         await writeTextFile(path, opts.data)
       } else {
-        await writeFile(path, opts.data)
+        // Ensure we pass Uint8Array to writeFile, as ArrayBuffer may arrive
+        // at runtime due to type mismatches at the platform/kernel boundary.
+        const bytes =
+          opts.data instanceof Uint8Array
+            ? opts.data
+            : new Uint8Array(opts.data as ArrayBuffer)
+        await writeFile(path, bytes)
       }
 
       return { type: "saved" as const, path }

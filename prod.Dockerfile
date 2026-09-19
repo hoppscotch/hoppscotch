@@ -60,10 +60,15 @@ RUN go build
 # This reuses the Go installation from go_builder, avoiding a separate image pull
 # and significantly reducing build time (especially on ARM64 in CI)
 FROM go_builder AS webapp_server_builder
-WORKDIR /usr/src/app
-COPY . .
 WORKDIR /usr/src/app/packages/hoppscotch-selfhost-web/webapp-server
+# Warm the module cache from the manifests alone, so an unrelated change anywhere
+# else in the monorepo does not re-run `go mod download`. Same shape as
+# `base_builder` below, which copies `pnpm-lock.yaml` and runs `pnpm fetch`
+# before the source. The module is self-contained: no `replace` directives and
+# no `go.work` in the repo.
+COPY packages/hoppscotch-selfhost-web/webapp-server/go.mod packages/hoppscotch-selfhost-web/webapp-server/go.sum ./
 RUN go mod download
+COPY packages/hoppscotch-selfhost-web/webapp-server/ ./
 RUN CGO_ENABLED=0 GOOS=linux go build -o webapp-server .
 
 

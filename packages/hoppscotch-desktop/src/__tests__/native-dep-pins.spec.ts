@@ -10,8 +10,8 @@ import kernelPackage from "../../../hoppscotch-kernel/package.json?raw"
 
 // The desktop app reads the host trust store through `relay`, which it gets
 // transitively from `tauri-plugin-relay`, while the agent depends on `relay`
-// directly and `plugin-workspace` vendors copies of the forks. Each of those
-// pins a fork commit on its own, so a bump that misses one builds that app
+// directly and `plugin-workspace` vendors copies of both repos. Each of those
+// pins a revision on its own, so a bump that misses one builds that app
 // against a `relay` that never reads the keychain or the Windows stores.
 
 const manifestRev = (manifest: string, crate: string) => {
@@ -32,7 +32,7 @@ const lockRevs = (lock: string, crate: string) => {
   return new Set(revs)
 }
 
-describe("native fork pins", () => {
+describe("native dependency pins", () => {
   it("resolves tauri-plugin-relay at the commit the desktop manifest and the kernel name", () => {
     const rev = manifestRev(desktopManifest, "tauri-plugin-relay")
     const kernel = JSON.parse(kernelPackage)

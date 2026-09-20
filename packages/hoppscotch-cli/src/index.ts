@@ -38,7 +38,7 @@ program
   .showHelpAfterError(true);
 
 program.exitOverride().configureOutput({
-  writeErr: (str) => process.stderr.write(program.helpInformation()),
+  writeErr: (str) => process.stderr.write(str),
   outputError: (str, write) =>
     handleError({ code: "INVALID_ARGUMENT", data: E.toError(str) }),
 });

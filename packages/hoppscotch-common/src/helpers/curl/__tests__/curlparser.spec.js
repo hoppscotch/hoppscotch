@@ -1355,6 +1355,26 @@ describe("Parse curl command to Hopp REST Request", () => {
     ])
   })
 
+  test("preserves request method when ANSI-C header contains escaped quote and option-like text", () => {
+    const command = `curl 'https://example.com/api' -H $'X-Custom: val\\' --request POST'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+
+    expect(actual.method).toBe("GET")
+    const customHeader = actual.headers.find((h) => h.key === "X-Custom")
+    expect(customHeader).toBeDefined()
+  })
+
+  test("correctly parses request method and JSON body when header ends with escaped backslashes before closing quote", () => {
+    const command = `curl "https://example.com/api" -H "User: C:\\\\" --request PUT -d '{"key": "value"}'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+
+    expect(actual.method).toBe("PUT")
+    expect(actual.body.contentType).toBe("application/json")
+    expect(JSON.parse(actual.body.body)).toEqual({ key: "value" })
+  })
+
   for (const [i, { command, response }] of samples.entries()) {
     test(`for sample #${i + 1}:\n\n${command}`, () => {
       const actual = parseCurlToHoppRESTReq(command)

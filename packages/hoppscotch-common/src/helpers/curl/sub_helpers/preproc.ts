@@ -23,6 +23,22 @@ const longOptionKeys = Object.keys(replaceables).sort(
   (a, b) => b.length - a.length
 )
 
+export const countPrecedingBackslashes = (
+  str: string,
+  index: number
+): number => {
+  let count = 0
+  let i = index - 1
+  while (i >= 0 && str[i] === "\\") {
+    count++
+    i--
+  }
+  return count
+}
+
+export const isQuoteEscaped = (str: string, index: number): boolean =>
+  countPrecedingBackslashes(str, index) % 2 === 1
+
 /**
  * Sanitizes and makes curl string processable in a quote-aware manner.
  * Option normalizations, short-option equals, and bash ANSI-C quote transformations
@@ -47,7 +63,7 @@ export const preProcessCurlCommand = (curlCommand: string) => {
     // Inside quotes: pass verbatim until matching closing quote
     if (quote !== null) {
       output += ch
-      if (ch === quote && (quote === "'" || cmd[i - 1] !== "\\")) {
+      if (ch === quote && !isQuoteEscaped(cmd, i)) {
         quote = null
       }
       i++
@@ -229,10 +245,7 @@ export const replaceJSONDataArgsWithPlaceholders = (curlCommand: string) => {
     // for the close. Skip flag detection so an embedded `-d`/`--data`
     // inside e.g. a header value doesn't get intercepted as a data flag.
     if (shellQuote !== null) {
-      if (
-        ch === shellQuote &&
-        (shellQuote === "'" || curlCommand[i - 1] !== "\\")
-      ) {
+      if (ch === shellQuote && !isQuoteEscaped(curlCommand, i)) {
         shellQuote = null
       }
       output += ch

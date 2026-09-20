@@ -662,7 +662,7 @@ dependencies = [
  "libc",
  "option-ext",
  "redox_users",
- "windows-sys 0.59.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2686,7 +2686,7 @@ checksum = "dc897dd8d9e8bd1ed8cdad82b5966c3e0ecae09fb1907d58efaa013543185d0a"
 [[package]]
 name = "relay"
 version = "0.1.1"
-source = "git+https://github.com/CuriousCorrelation/relay.git?rev=0c9981650e935a7cf2eb7c93324f5d786656f456#0c9981650e935a7cf2eb7c93324f5d786656f456"
+source = "git+https://github.com/CuriousCorrelation/relay.git?rev=1f8bd16c5610c1549f3e6bd90b0360568a68d68c#1f8bd16c5610c1549f3e6bd90b0360568a68d68c"
 dependencies = [
  "bytes",
  "cookie",
@@ -4384,7 +4384,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.59.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]

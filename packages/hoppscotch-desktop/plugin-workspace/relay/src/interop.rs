@@ -386,6 +386,7 @@ pub struct Cookie {
     pub value: String,
     pub domain: Option<String>,
     pub path: Option<String>,
+    #[serde(with = "time::serde::rfc3339::option")]
     pub expires: Option<OffsetDateTime>,
     pub secure: Option<bool>,
     #[serde(rename = "httpOnly")]

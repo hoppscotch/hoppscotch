@@ -151,6 +151,20 @@ fn serve(pki: &Pki) -> u16 {
     port
 }
 
+/// Builds a request with no security block. The app's interceptors always
+/// attach one, so this is the shape another client of the agent's HTTP API
+/// sends, and it configured no trust at all until `relay` applied the host
+/// anchors on that arm too.
+fn plain_request(url: &str) -> relay::Request {
+    serde_json::from_value(json!({
+        "id": NEXT_ID.fetch_add(1, Ordering::SeqCst),
+        "url": url,
+        "method": "GET",
+        "version": "HTTP/1.1",
+    }))
+    .expect("request json")
+}
+
 /// Builds the request the way the app serializes it, with `ca` as the
 /// certificate settings' CA list.
 fn request(url: &str, ca: Option<Vec<Vec<u8>>>) -> relay::Request {
@@ -175,9 +189,27 @@ async fn a_server_signed_by_an_unknown_ca_is_rejected() {
 
     let result = relay::execute(request(&format!("https://127.0.0.1:{port}/"), None)).await;
 
+    let error = result.expect_err("a CA outside every trust store");
+    let text = format!("{error:?}");
     assert!(
-        result.is_err(),
-        "the handshake validated against a CA no store has"
+        text.contains("certificate") || text.contains("SSL"),
+        "the error names the verification failure, got {text}"
+    );
+}
+
+#[tokio::test]
+async fn a_request_without_security_settings_is_rejected_by_the_same_ca() {
+    let pki = pki();
+    let port = serve(&pki);
+
+    let error = relay::execute(plain_request(&format!("https://127.0.0.1:{port}/")))
+        .await
+        .expect_err("a CA outside every trust store");
+
+    let text = format!("{error:?}");
+    assert!(
+        text.contains("certificate") || text.contains("SSL"),
+        "the error names the verification failure, got {text}"
     );
 }
 
@@ -224,6 +256,19 @@ async fn a_public_endpoint_validates_against_the_host_trust_store() {
     let response = relay::execute(request(PUBLIC_ENDPOINT, None))
         .await
         .expect("request with no CA configured");
+
+    assert_eq!(response.status.as_u16(), 200);
+}
+
+// A client of the agent's HTTP API that sends no security block reached curl
+// with whatever CA path the probe resolved, which on macOS is the file that
+// omits ISRG Root X2, so this is the assertion for that arm.
+#[tokio::test]
+#[ignore = "network"]
+async fn a_request_without_security_settings_uses_the_host_trust_store() {
+    let response = relay::execute(plain_request(PUBLIC_ENDPOINT))
+        .await
+        .expect("request with no security settings");
 
     assert_eq!(response.status.as_u16(), 200);
 }

@@ -1,4 +1,4 @@
-use std::sync::{Once, OnceLock};
+use std::sync::OnceLock;
 
 use bytes::Bytes;
 use curl::easy::Easy;
@@ -11,20 +11,6 @@ use crate::{
     trust::{self, TrustBundle},
 };
 
-// Vendored OpenSSL is built without a CA bundle or a compiled-in path to the
-// host trust store. `init_ssl_cert_env_vars` exports `SSL_CERT_FILE` and
-// `SSL_CERT_DIR` from the platform probe, and curl reads them through
-// `SSL_CTX_set_default_verify_paths` whenever no explicit blob is set. curl
-// already depends on `openssl-probe`, and declaring it here keeps this call
-// compiling if a later curl release drops that dependency.
-static SSL_ENV_INIT: Once = Once::new();
-
-pub(crate) fn ensure_system_ssl_env() {
-    SSL_ENV_INIT.call_once(|| {
-        openssl_probe::init_ssl_cert_env_vars();
-    });
-}
-
 // Read once per process, since reading the keychain or enumerating the Windows
 // stores is too slow to repeat on every request. The info record below is the
 // only log line naming which trust source supplied the anchors, so it is
@@ -33,14 +19,20 @@ static TRUST: OnceLock<TrustBundle> = OnceLock::new();
 
 fn trust_bundle() -> &'static TrustBundle {
     TRUST.get_or_init(|| {
-        ensure_system_ssl_env();
         let bundle = trust::load();
-        tracing::info!(
-            source = bundle.source.as_str(),
-            anchors_read = bundle.read,
-            anchors = bundle.retained,
-            "Resolved TLS trust store"
-        );
+        if matches!(bundle.source, trust::TrustSource::Bundled) {
+            tracing::warn!(
+                anchors = bundle.retained,
+                "Host trust store unread, using the bundled roots"
+            );
+        } else {
+            tracing::info!(
+                source = bundle.source.as_str(),
+                anchors_read = bundle.read,
+                anchors = bundle.retained,
+                "Resolved TLS trust store"
+            );
+        }
         bundle
     })
 }
@@ -79,6 +71,12 @@ impl<'a> SecurityHandler<'a> {
     }
 
     #[tracing::instrument(skip(self), level = "debug")]
+    /// Sets the host anchors with no user CA, for a request that carries no
+    /// security settings of its own.
+    pub(crate) fn configure_host_trust(&mut self) -> Result<()> {
+        self.configure_ca_certificates(&[])
+    }
+
     pub(crate) fn configure(&mut self, security: &SecurityConfig) -> Result<()> {
         tracing::info!("Configuring security settings");
 
@@ -192,7 +190,7 @@ impl<'a> SecurityHandler<'a> {
         let parsed = pkcs12.parse2(password).map_err(|e| {
             tracing::error!(error = %e, "Failed to parse PKCS#12 password");
             RelayError::Certificate {
-                message: "Failed to parse PKCS#12 password".into(),
+                message: "Failed to parse the PKCS#12 bundle".into(),
                 cause: Some(e.to_string()),
             }
         })?;
@@ -255,6 +253,18 @@ impl<'a> SecurityHandler<'a> {
             tracing::error!(error = %e, "Failed to set combined CA bundle");
             RelayError::Certificate {
                 message: "Failed to set combined CA bundle".into(),
+                cause: Some(e.to_string()),
+            }
+        })?;
+
+        // `CURLOPT_CAINFO_BLOB` covers the origin connection, and libcurl
+        // verifies an HTTPS proxy against its own CA setting, so a proxy whose
+        // certificate chains to a host anchor would otherwise fail the CONNECT
+        // with nothing the user can configure.
+        self.handle.proxy_ssl_cainfo_blob(&combined).map_err(|e| {
+            tracing::error!(error = %e, "Failed to set combined CA bundle for the proxy");
+            RelayError::Certificate {
+                message: "Failed to set combined CA bundle for the proxy".into(),
                 cause: Some(e.to_string()),
             }
         })?;

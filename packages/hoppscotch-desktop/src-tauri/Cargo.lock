@@ -1454,7 +1454,7 @@ dependencies = [
  "libc",
  "option-ext",
  "redox_users 0.5.0",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -3091,7 +3091,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fc2f4eb4bc735547cfed7c0a4922cbd04a4655978c09b54f1f7b228750664c34"
 dependencies = [
  "cfg-if",
- "windows-targets 0.48.5",
+ "windows-targets 0.52.6",
 ]
 
 [[package]]
@@ -3352,7 +3352,7 @@ dependencies = [
  "png 0.18.1",
  "serde",
  "thiserror 2.0.12",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -4733,7 +4733,7 @@ checksum = "2b15c43186be67a4fd63bee50d0303afffcef381492ebe2c5d87f324e1b8815c"
 [[package]]
 name = "relay"
 version = "0.1.1"
-source = "git+https://github.com/CuriousCorrelation/relay.git?rev=0c9981650e935a7cf2eb7c93324f5d786656f456#0c9981650e935a7cf2eb7c93324f5d786656f456"
+source = "git+https://github.com/CuriousCorrelation/relay.git?rev=1f8bd16c5610c1549f3e6bd90b0360568a68d68c#1f8bd16c5610c1549f3e6bd90b0360568a68d68c"
 dependencies = [
  "bytes",
  "cookie",
@@ -5443,7 +5443,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3a766e1110788c36f4fa1c2b71b387a7815aa65f88ce0229841826633d93723e"
 dependencies = [
  "libc",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -6061,7 +6061,7 @@ dependencies = [
 [[package]]
 name = "tauri-plugin-relay"
 version = "0.1.0"
-source = "git+https://github.com/CuriousCorrelation/tauri-plugin-relay?rev=061101571e309b0f21d822fc43b22c09f1a983b0#061101571e309b0f21d822fc43b22c09f1a983b0"
+source = "git+https://github.com/CuriousCorrelation/tauri-plugin-relay?rev=9ccf955f9328c1575a5a4eaabd72de1b98263e21#9ccf955f9328c1575a5a4eaabd72de1b98263e21"
 dependencies = [
  "relay",
  "serde",
@@ -6698,7 +6698,7 @@ dependencies = [
  "png 0.18.1",
  "serde",
  "thiserror 2.0.12",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -7274,7 +7274,7 @@ version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf221c93e13a30d793f7645a0e7762c55d169dbb0a49671918a2319d289b10bb"
 dependencies = [
- "windows-sys 0.48.0",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]

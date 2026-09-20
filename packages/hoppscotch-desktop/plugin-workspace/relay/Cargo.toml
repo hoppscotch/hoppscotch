@@ -15,7 +15,7 @@ curl-sys = { git = "https://github.com/CuriousCorrelation/curl-rust.git", rev = 
 cookie = "0.18"
 tokio-util = "0.7.12"
 lazy_static = "1.5.0"
-time = { version = "0.3.37", features = ["serde"] }
+time = { version = "0.3.37", features = ["serde", "serde-well-known"] }
 openssl = { version = "0.10.66", features = ["vendored"] }
 # NOTE: This crate follows `openssl-sys` from https://github.com/CuriousCorrelation/curl-rust.git
 # to avoid issues from version mismatch when compiling from source.

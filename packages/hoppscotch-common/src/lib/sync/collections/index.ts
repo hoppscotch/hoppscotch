@@ -1230,8 +1230,6 @@ function setupUserRequestDeletedSubscription() {
   return userRequestDeletedSub
 }
 
-export { syncPersonalRESTCollectionUpdate } from "./updateSync"
-
 export const def: CollectionsPlatformDef = {
   initCollectionsSync,
   loadUserCollections,

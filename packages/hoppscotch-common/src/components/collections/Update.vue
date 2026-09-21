@@ -174,7 +174,6 @@ const handleUpdateToStore = async (
     )
 
     const finalCollection = ensureRefIds(updatedCollection)
-    populateLocalStoresFromCollectionTree(finalCollection)
 
     if (props.collectionsType.type === "my-collections") {
       const syncResult = await syncPersonalRESTCollectionUpdate(
@@ -186,6 +185,8 @@ const handleUpdateToStore = async (
         unsetCurrentImportSummary()
         return
       }
+
+      populateLocalStoresFromCollectionTree(finalCollection)
 
       runDispatchWithOutSyncing(() => {
         editRESTCollection(

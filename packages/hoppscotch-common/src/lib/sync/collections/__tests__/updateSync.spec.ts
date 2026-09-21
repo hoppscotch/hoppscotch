@@ -12,6 +12,7 @@ vi.mock("../api", () => ({
   deleteUserCollection: vi.fn(),
   deleteUserRequest: vi.fn(),
   editUserRequest: vi.fn(),
+  moveUserCollection: vi.fn(),
   moveUserRequest: vi.fn(),
   updateUserCollection: vi.fn(),
 }))
@@ -280,5 +281,384 @@ describe("syncPersonalRESTCollectionUpdate", () => {
     const res = await syncPersonalRESTCollectionUpdate(original, final)
 
     expect(E.isLeft(res)).toBe(true)
+  })
+
+  it("propagates error when deleteUserRequest fails", async () => {
+    vi.mocked(api.updateUserCollection).mockResolvedValue(
+      E.right({ updateUserCollection: { id: "backend-coll-id" } } as any)
+    )
+    vi.mocked(api.deleteUserRequest).mockResolvedValue(
+      E.left("Network error deleting request" as any)
+    )
+
+    const original = makeCollection({
+      id: "backend-coll-id",
+      name: "My API",
+      folders: [],
+      requests: [
+        {
+          id: "to-delete-req",
+          v: "1",
+          endpoint: "https://api.com/delete",
+          name: "Delete Me",
+          method: "DELETE",
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          params: [],
+          body: { contentType: null, body: null },
+          preRequestScript: "",
+          testScript: "",
+        },
+      ],
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [],
+    })
+    const final = makeCollection({
+      name: "My API Updated",
+      folders: [],
+      requests: [],
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [],
+    })
+
+    const res = await syncPersonalRESTCollectionUpdate(original, final)
+
+    expect(E.isLeft(res)).toBe(true)
+    if (E.isLeft(res)) {
+      expect(res.left).toBe("Network error deleting request")
+    }
+  })
+
+  it("propagates error when deleteUserCollection fails", async () => {
+    vi.mocked(api.updateUserCollection).mockResolvedValue(
+      E.right({ updateUserCollection: { id: "backend-coll-id" } } as any)
+    )
+    vi.mocked(api.deleteUserCollection).mockResolvedValue(
+      E.left("Network error deleting folder" as any)
+    )
+
+    const original = makeCollection({
+      id: "backend-coll-id",
+      name: "My API",
+      folders: [
+        makeCollection({
+          id: "to-delete-folder",
+          name: "Delete Folder",
+          folders: [],
+          requests: [],
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          variables: [],
+        }),
+      ],
+      requests: [],
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [],
+    })
+    const final = makeCollection({
+      name: "My API Updated",
+      folders: [],
+      requests: [],
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [],
+    })
+
+    const res = await syncPersonalRESTCollectionUpdate(original, final)
+
+    expect(E.isLeft(res)).toBe(true)
+    if (E.isLeft(res)) {
+      expect(res.left).toBe("Network error deleting folder")
+    }
+  })
+
+  it("propagates error when moveUserRequest fails", async () => {
+    vi.mocked(api.updateUserCollection).mockResolvedValue(
+      E.right({ updateUserCollection: { id: "backend-coll-id" } } as any)
+    )
+    vi.mocked(api.moveUserRequest).mockResolvedValue(
+      E.left("Network error moving request" as any)
+    )
+
+    const original = makeCollection({
+      id: "backend-coll-id",
+      name: "My API",
+      folders: [
+        makeCollection({
+          id: "folder-1",
+          name: "Folder 1",
+          folders: [],
+          requests: [],
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          variables: [],
+        }),
+      ],
+      requests: [
+        {
+          id: "req-to-move",
+          v: "1",
+          endpoint: "https://api.com/move",
+          name: "Move Me",
+          method: "GET",
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          params: [],
+          body: { contentType: null, body: null },
+          preRequestScript: "",
+          testScript: "",
+        },
+      ],
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [],
+    })
+    const final = makeCollection({
+      name: "My API Updated",
+      folders: [
+        makeCollection({
+          id: "folder-1",
+          name: "Folder 1",
+          folders: [],
+          requests: [
+            {
+              id: "req-to-move",
+              v: "1",
+              endpoint: "https://api.com/move",
+              name: "Move Me",
+              method: "GET",
+              auth: { authType: "inherit", authActive: true },
+              headers: [],
+              params: [],
+              body: { contentType: null, body: null },
+              preRequestScript: "",
+              testScript: "",
+            },
+          ],
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          variables: [],
+        }),
+      ],
+      requests: [],
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [],
+    })
+
+    const res = await syncPersonalRESTCollectionUpdate(original, final)
+
+    expect(E.isLeft(res)).toBe(true)
+    expect(api.moveUserRequest).toHaveBeenCalledWith(
+      "backend-coll-id",
+      "folder-1",
+      "req-to-move"
+    )
+  })
+
+  it("moves existing folder to new parent via moveUserCollection and propagates error on failure", async () => {
+    vi.mocked(api.updateUserCollection).mockResolvedValue(
+      E.right({ updateUserCollection: { id: "backend-coll-id" } } as any)
+    )
+    vi.mocked(api.moveUserCollection).mockResolvedValue(
+      E.left("Network error moving collection" as any)
+    )
+
+    // Original: f2 is inside f1
+    const original = makeCollection({
+      id: "backend-coll-id",
+      name: "My API",
+      folders: [
+        makeCollection({
+          id: "f1",
+          name: "Folder 1",
+          folders: [
+            makeCollection({
+              id: "f2",
+              name: "Folder 2",
+              folders: [],
+              requests: [],
+              auth: { authType: "inherit", authActive: true },
+              headers: [],
+              variables: [],
+            }),
+          ],
+          requests: [],
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          variables: [],
+        }),
+      ],
+      requests: [],
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [],
+    })
+
+    // Final: f2 is now a direct child of the root collection
+    const final = makeCollection({
+      name: "My API Updated",
+      folders: [
+        makeCollection({
+          id: "f1",
+          name: "Folder 1",
+          folders: [],
+          requests: [],
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          variables: [],
+        }),
+        makeCollection({
+          id: "f2",
+          name: "Folder 2",
+          folders: [],
+          requests: [],
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          variables: [],
+        }),
+      ],
+      requests: [],
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [],
+    })
+
+    const res = await syncPersonalRESTCollectionUpdate(original, final)
+
+    expect(E.isLeft(res)).toBe(true)
+    expect(api.moveUserCollection).toHaveBeenCalledWith("f2", "backend-coll-id")
+  })
+
+  it("does not delete requests or folders if a prior update or create mutation fails", async () => {
+    vi.mocked(api.updateUserCollection).mockResolvedValue(
+      E.right({ updateUserCollection: { id: "backend-coll-id" } } as any)
+    )
+    vi.mocked(api.createRESTUserRequest).mockResolvedValue(
+      E.left("Request creation failed" as any)
+    )
+
+    const original = makeCollection({
+      id: "backend-coll-id",
+      name: "My API",
+      folders: [
+        makeCollection({
+          id: "folder-to-del",
+          name: "Folder To Delete",
+          folders: [],
+          requests: [],
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          variables: [],
+        }),
+      ],
+      requests: [
+        {
+          id: "req-to-del",
+          v: "1",
+          endpoint: "https://api.com/req-to-del",
+          name: "Req To Del",
+          method: "GET",
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          params: [],
+          body: { contentType: null, body: null },
+          preRequestScript: "",
+          testScript: "",
+        },
+      ],
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [],
+    })
+
+    // Final has a new request (no id) which will fail to create
+    const final = makeCollection({
+      name: "My API Updated",
+      folders: [],
+      requests: [
+        {
+          v: "1",
+          endpoint: "https://api.com/new-broken",
+          name: "New Broken",
+          method: "POST",
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          params: [],
+          body: { contentType: null, body: null },
+          preRequestScript: "",
+          testScript: "",
+        },
+      ],
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [],
+    })
+
+    const res = await syncPersonalRESTCollectionUpdate(original, final)
+
+    expect(E.isLeft(res)).toBe(true)
+    // Deletions MUST NOT be executed when earlier mutations fail
+    expect(api.deleteUserRequest).not.toHaveBeenCalled()
+    expect(api.deleteUserCollection).not.toHaveBeenCalled()
+  })
+
+  it("avoids redundant deleteUserCollection calls for child folders when parent folder is also deleted", async () => {
+    vi.mocked(api.updateUserCollection).mockResolvedValue(
+      E.right({ updateUserCollection: { id: "backend-coll-id" } } as any)
+    )
+    vi.mocked(api.deleteUserCollection).mockResolvedValue(
+      E.right({ deleteUserCollection: true } as any)
+    )
+
+    const original = makeCollection({
+      id: "backend-coll-id",
+      name: "My API",
+      folders: [
+        makeCollection({
+          id: "parent-folder",
+          name: "Parent Folder",
+          folders: [
+            makeCollection({
+              id: "child-folder",
+              name: "Child Folder",
+              folders: [],
+              requests: [],
+              auth: { authType: "inherit", authActive: true },
+              headers: [],
+              variables: [],
+            }),
+          ],
+          requests: [],
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          variables: [],
+        }),
+      ],
+      requests: [],
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [],
+    })
+
+    const final = makeCollection({
+      name: "My API Updated",
+      folders: [],
+      requests: [],
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [],
+    })
+
+    const res = await syncPersonalRESTCollectionUpdate(original, final)
+
+    expect(E.isRight(res)).toBe(true)
+    // Only the top-level removed folder should have deleteUserCollection called
+    expect(api.deleteUserCollection).toHaveBeenCalledTimes(1)
+    expect(api.deleteUserCollection).toHaveBeenCalledWith("parent-folder")
+    expect(api.deleteUserCollection).not.toHaveBeenCalledWith("child-folder")
   })
 })

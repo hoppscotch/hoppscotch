@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest"
+import { describe, it, expect, beforeEach, afterEach } from "vitest"
 import { makeCollection } from "@hoppscotch/data"
 import { mergeCollectionTree } from "../update"
 import { getService } from "~/modules/dioc"
@@ -6,6 +6,20 @@ import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 
 describe("mergeCollectionTree", () => {
+  beforeEach(() => {
+    const secretEnvService = getService(SecretEnvironmentService)
+    const currentValueService = getService(CurrentValueService)
+    secretEnvService.secretEnvironments.clear()
+    currentValueService.environments.clear()
+  })
+
+  afterEach(() => {
+    const secretEnvService = getService(SecretEnvironmentService)
+    const currentValueService = getService(CurrentValueService)
+    secretEnvService.secretEnvironments.clear()
+    currentValueService.environments.clear()
+  })
+
   it("merges incoming requests and adds new endpoints", () => {
     const existing = makeCollection({
       name: "API Coll",
@@ -471,9 +485,8 @@ describe("mergeCollectionTree", () => {
     const oldUsersFolder = updatedCollection.folders.find(
       (f) => f.name === "Users"
     )
-    if (oldUsersFolder) {
-      expect(oldUsersFolder.requests.length).toBe(0)
-    }
+    expect(oldUsersFolder).toBeDefined()
+    expect(oldUsersFolder!.requests.length).toBe(0)
   })
 
   it("reconciles endpoints moved between folders without creating duplicates (Comment 4)", () => {
@@ -580,5 +593,59 @@ describe("mergeCollectionTree", () => {
     expect((folderB.requests[0] as any).preRequestScript).toBe(
       "// custom script A"
     )
+  })
+
+  it("deep-clones preserved folders and requests so they do not share object references", () => {
+    const existingReq = {
+      v: "1",
+      endpoint: "https://api.com/existing-unique",
+      name: "Existing Unique",
+      method: "GET",
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      params: [],
+      body: { contentType: null, body: null },
+      preRequestScript: "",
+      testScript: "",
+    }
+    const existingFolder = makeCollection({
+      name: "Preserved Folder",
+      folders: [],
+      requests: [existingReq],
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [],
+    })
+    const existing = makeCollection({
+      name: "API Coll",
+      folders: [existingFolder],
+      requests: [],
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [],
+    })
+
+    const incoming = [
+      makeCollection({
+        name: "API Coll",
+        folders: [],
+        requests: [],
+        auth: { authType: "inherit", authActive: true },
+        headers: [],
+        variables: [],
+      }),
+    ]
+
+    const { updatedCollection } = mergeCollectionTree(existing, incoming, {
+      preserveScripts: true,
+      keepMissingRequests: true,
+    })
+
+    const preserved = updatedCollection.folders.find(
+      (f) => f.name === "Preserved Folder"
+    )!
+    expect(preserved).toBeDefined()
+    expect(preserved).not.toBe(existingFolder)
+    expect(preserved.requests[0]).not.toBe(existingReq)
   })
 })

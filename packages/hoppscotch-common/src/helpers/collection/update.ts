@@ -143,10 +143,10 @@ function filterClaimedFromSubtree(
   claimedExistingRequests: Set<HoppRESTRequest | HoppGQLRequest>
 ): HoppCollection {
   return {
-    ...folder,
-    requests: folder.requests.filter(
-      (req) => !claimedExistingRequests.has(req)
-    ),
+    ...cloneDeep(folder),
+    requests: folder.requests
+      .filter((req) => !claimedExistingRequests.has(req))
+      .map((req) => cloneDeep(req)),
     folders: folder.folders.map((sub) =>
       filterClaimedFromSubtree(sub, claimedExistingRequests)
     ),
@@ -187,35 +187,6 @@ function buildTreeWideRestIndex(
   return index
 }
 
-type CorrespondingFolderPair = {
-  targetFolder: HoppCollection
-  incomingFolder: HoppCollection
-}
-
-function collectCorrespondingFolderPairs(
-  targetFolders: HoppCollection[],
-  incomingFolders: HoppCollection[],
-  pairs: CorrespondingFolderPair[]
-) {
-  const matchedTargetIndices = new Set<number>()
-
-  for (const incoming of incomingFolders) {
-    const incomingName = incoming.name?.trim().toLowerCase()
-    const targetIdx = targetFolders.findIndex(
-      (f, idx) =>
-        !matchedTargetIndices.has(idx) &&
-        f.name?.trim().toLowerCase() === incomingName
-    )
-
-    if (targetIdx !== -1) {
-      matchedTargetIndices.add(targetIdx)
-      const existing = targetFolders[targetIdx]
-      pairs.push({ targetFolder: existing, incomingFolder: incoming })
-      collectCorrespondingFolderPairs(existing.folders, incoming.folders, pairs)
-    }
-  }
-}
-
 function reconcileRequestsTree(
   targetCollection: HoppCollection,
   incomingCollections: HoppCollection[]
@@ -247,23 +218,6 @@ function reconcileRequestsTree(
     }))
     rootIncomingRequests = []
   }
-
-  // 1. Identify all corresponding folder pairs
-  const folderPairs: CorrespondingFolderPair[] = [
-    {
-      targetFolder: targetCollection,
-      incomingFolder: {
-        ...targetCollection,
-        requests: rootIncomingRequests,
-        folders: incomingFolders,
-      },
-    },
-  ]
-  collectCorrespondingFolderPairs(
-    targetCollection.folders,
-    incomingFolders,
-    folderPairs
-  )
 
   // Collect all incoming requests across the entire incoming tree
   const allIncomingRequests: {

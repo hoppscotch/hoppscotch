@@ -13,6 +13,7 @@ import {
   deleteUserCollection,
   deleteUserRequest,
   editUserRequest,
+  moveUserCollection,
   moveUserRequest,
   updateUserCollection,
 } from "./api"
@@ -39,6 +40,7 @@ export async function syncPersonalRESTCollectionUpdate(
   try {
     const originalRequestParents = new Map<string, string>()
     const originalFolders = new Map<string, HoppCollection>()
+    const originalFolderParents = new Map<string, string>()
     const updatedFolderIds = new Set<string>()
     const updatedRequestIds = new Set<string>()
 
@@ -46,19 +48,18 @@ export async function syncPersonalRESTCollectionUpdate(
       collection: HoppCollection,
       parentId: string | null = null
     ) {
-      if (collection.id && parentId) {
-        originalFolders.set(collection.id, collection)
-      }
       const currentCollectionId = collection.id
+      if (currentCollectionId && parentId) {
+        originalFolders.set(currentCollectionId, collection)
+        originalFolderParents.set(currentCollectionId, parentId)
+      }
       if (currentCollectionId) {
         for (const req of collection.requests) {
           if (req.id) {
             originalRequestParents.set(req.id, currentCollectionId)
           }
         }
-      }
-      for (const folder of collection.folders) {
-        if (currentCollectionId) {
+        for (const folder of collection.folders) {
           collectOriginalNodes(folder, currentCollectionId)
         }
       }
@@ -80,46 +81,6 @@ export async function syncPersonalRESTCollectionUpdate(
     }
     collectUpdatedIds(finalCollection)
 
-    // 1. Delete removed requests
-    for (const [reqId] of originalRequestParents.entries()) {
-      if (!updatedRequestIds.has(reqId)) {
-        const delRes = await deleteUserRequest(reqId)
-        if (E.isLeft(delRes)) {
-          console.warn(`Failed to delete request ${reqId}:`, delRes.left)
-        }
-      }
-    }
-
-    // 2. Delete removed folders
-    for (const [folderId] of originalFolders.entries()) {
-      if (!updatedFolderIds.has(folderId)) {
-        const delRes = await deleteUserCollection(folderId)
-        if (E.isLeft(delRes)) {
-          console.warn(`Failed to delete collection ${folderId}:`, delRes.left)
-        }
-      }
-    }
-
-    // 3. Update root collection metadata
-    const rootData = {
-      auth: finalCollection.auth,
-      headers: finalCollection.headers,
-      variables: stripClientLocalValuesForWire(finalCollection.variables),
-      _ref_id: finalCollection._ref_id,
-      description: finalCollection.description ?? null,
-      preRequestScript: finalCollection.preRequestScript ?? "",
-      testScript: finalCollection.testScript ?? "",
-    }
-    const rootRes = await updateUserCollection(
-      originalCollection.id!,
-      finalCollection.name,
-      JSON.stringify(rootData)
-    )
-    if (E.isLeft(rootRes)) {
-      return E.left(rootRes.left)
-    }
-    finalCollection.id = originalCollection.id
-
     // Helper to sync requests in a collection or folder
     async function syncRequestsInCollection(
       requests: (HoppRESTRequest | HoppGQLRequest)[],
@@ -135,7 +96,7 @@ export async function syncPersonalRESTCollectionUpdate(
               req.id
             )
             if (E.isLeft(moveRes)) {
-              console.warn(`Failed to move request ${req.id}:`, moveRes.left)
+              return E.left(moveRes.left)
             }
           }
           const editRes = await editUserRequest(
@@ -179,6 +140,17 @@ export async function syncPersonalRESTCollectionUpdate(
       let currentFolderId = folder.id
 
       if (currentFolderId) {
+        const oldParentId = originalFolderParents.get(currentFolderId)
+        if (oldParentId && oldParentId !== parentCollectionId) {
+          const moveRes = await moveUserCollection(
+            currentFolderId,
+            parentCollectionId
+          )
+          if (E.isLeft(moveRes)) {
+            return E.left(moveRes.left)
+          }
+        }
+
         const updateRes = await updateUserCollection(
           currentFolderId,
           folder.name,
@@ -218,7 +190,27 @@ export async function syncPersonalRESTCollectionUpdate(
       return E.right(undefined)
     }
 
-    // 4. Sync root requests
+    // 1. Update root collection metadata
+    const rootData = {
+      auth: finalCollection.auth,
+      headers: finalCollection.headers,
+      variables: stripClientLocalValuesForWire(finalCollection.variables),
+      _ref_id: finalCollection._ref_id,
+      description: finalCollection.description ?? null,
+      preRequestScript: finalCollection.preRequestScript ?? "",
+      testScript: finalCollection.testScript ?? "",
+    }
+    const rootRes = await updateUserCollection(
+      originalCollection.id!,
+      finalCollection.name,
+      JSON.stringify(rootData)
+    )
+    if (E.isLeft(rootRes)) {
+      return E.left(rootRes.left)
+    }
+    finalCollection.id = originalCollection.id
+
+    // 2. Sync root requests (create, edit, move)
     const rootReqRes = await syncRequestsInCollection(
       finalCollection.requests,
       originalCollection.id!
@@ -227,11 +219,39 @@ export async function syncPersonalRESTCollectionUpdate(
       return rootReqRes
     }
 
-    // 5. Sync root folders
+    // 3. Sync root folders (create, edit, move, sync subtrees)
     for (const folder of finalCollection.folders) {
       const folderRes = await syncFolder(folder, originalCollection.id!)
       if (E.isLeft(folderRes)) {
         return folderRes
+      }
+    }
+
+    // 4. Delete removed requests (executed only after creates, updates, and moves succeed)
+    for (const [reqId] of originalRequestParents.entries()) {
+      if (!updatedRequestIds.has(reqId)) {
+        const delRes = await deleteUserRequest(reqId)
+        if (E.isLeft(delRes)) {
+          return E.left(delRes.left)
+        }
+      }
+    }
+
+    // 5. Delete removed folders (executed only after creates, updates, and moves succeed)
+    // Avoid redundant calls on child folders whose ancestor is already removed
+    for (const [folderId] of originalFolders.entries()) {
+      if (!updatedFolderIds.has(folderId)) {
+        const parentId = originalFolderParents.get(folderId)
+        const isParentAlsoDeleted =
+          parentId &&
+          !updatedFolderIds.has(parentId) &&
+          parentId !== originalCollection.id
+        if (!isParentAlsoDeleted) {
+          const delRes = await deleteUserCollection(folderId)
+          if (E.isLeft(delRes)) {
+            return E.left(delRes.left)
+          }
+        }
       }
     }
 

@@ -2,8 +2,10 @@ import {
   HoppCollection,
   HoppRESTRequest,
   HoppGQLRequest,
+  isGQLRequest,
 } from "@hoppscotch/data"
 import { cloneDeep } from "lodash-es"
+import { flushLocalStoresForCollectionTree } from "~/helpers/clientLocalVariables"
 
 export type UpdateOptions = {
   preserveScripts?: boolean
@@ -20,39 +22,6 @@ export type UpdateSummaryData = {
   preservedScripts: number
 }
 
-function findMatchingRequest(
-  incoming: HoppRESTRequest | HoppGQLRequest,
-  targetList: (HoppRESTRequest | HoppGQLRequest)[]
-): { match: HoppRESTRequest | HoppGQLRequest; index: number } | null {
-  const incomingRest = incoming as Partial<HoppRESTRequest>
-  const incomingMethod = incomingRest.method
-  const incomingEndpoint = incomingRest.endpoint?.trim().toLowerCase()
-
-  // 1. First priority: match by method + endpoint
-  if (incomingMethod && incomingEndpoint) {
-    const idx = targetList.findIndex((t) => {
-      const tRest = t as Partial<HoppRESTRequest>
-      const tMethod = tRest.method
-      const tEndpoint = tRest.endpoint?.trim().toLowerCase()
-      return tMethod === incomingMethod && tEndpoint === incomingEndpoint
-    })
-    if (idx !== -1) return { match: targetList[idx], index: idx }
-  }
-
-  // 2. Second priority: match by request name
-  const incomingName = incoming.name?.trim().toLowerCase()
-  if (incomingName) {
-    const idx = targetList.findIndex(
-      (t) =>
-        ("endpoint" in t) === ("endpoint" in incoming) &&
-        t.name?.trim().toLowerCase() === incomingName
-    )
-    if (idx !== -1) return { match: targetList[idx], index: idx }
-  }
-
-  return null
-}
-
 function mergeRequest(
   existing: HoppRESTRequest | HoppGQLRequest,
   incoming: HoppRESTRequest | HoppGQLRequest,
@@ -60,6 +29,36 @@ function mergeRequest(
   stats: UpdateSummaryData
 ): HoppRESTRequest | HoppGQLRequest {
   stats.updatedRequests++
+
+  if (isGQLRequest(incoming) && isGQLRequest(existing)) {
+    let preRequestScript = incoming.preRequestScript ?? ""
+    let testScript = incoming.testScript ?? ""
+
+    if (options.preserveScripts !== false) {
+      if (existing.preRequestScript && existing.preRequestScript.trim()) {
+        preRequestScript = existing.preRequestScript
+        stats.preservedScripts++
+      }
+      if (existing.testScript && existing.testScript.trim()) {
+        testScript = existing.testScript
+        stats.preservedScripts++
+      }
+    }
+
+    const description =
+      incoming.description && incoming.description.trim()
+        ? incoming.description
+        : (existing.description ?? null)
+
+    return {
+      ...cloneDeep(incoming),
+      id: existing.id,
+      _ref_id: existing._ref_id,
+      preRequestScript,
+      testScript,
+      description,
+    } as HoppGQLRequest
+  }
 
   const existingRest = existing as Partial<HoppRESTRequest>
   const incomingRest = incoming as Partial<HoppRESTRequest>
@@ -94,14 +93,6 @@ function mergeRequest(
   } as HoppRESTRequest | HoppGQLRequest
 }
 
-function countSubTreeAdded(folder: HoppCollection, stats: UpdateSummaryData) {
-  stats.addedRequests += folder.requests.length
-  for (const sub of folder.folders) {
-    stats.addedFolders++
-    countSubTreeAdded(sub, stats)
-  }
-}
-
 function countSubTreePreserved(
   folder: HoppCollection,
   stats: UpdateSummaryData,
@@ -132,27 +123,286 @@ function countSubTreePreserved(
   }
 }
 
-function countSubTreeDeleted(folder: HoppCollection, stats: UpdateSummaryData) {
-  stats.deletedRequests += folder.requests.length
-  for (const sub of folder.folders) {
-    countSubTreeDeleted(sub, stats)
+function countSubTreeDeleted(
+  folder: HoppCollection,
+  stats: UpdateSummaryData,
+  claimedExistingRequests?: Set<HoppRESTRequest | HoppGQLRequest>
+) {
+  for (const req of folder.requests) {
+    if (!claimedExistingRequests || !claimedExistingRequests.has(req)) {
+      stats.deletedRequests++
+    }
   }
+  for (const sub of folder.folders) {
+    countSubTreeDeleted(sub, stats, claimedExistingRequests)
+  }
+}
+
+function filterClaimedFromSubtree(
+  folder: HoppCollection,
+  claimedExistingRequests: Set<HoppRESTRequest | HoppGQLRequest>
+): HoppCollection {
+  return {
+    ...folder,
+    requests: folder.requests.filter(
+      (req) => !claimedExistingRequests.has(req)
+    ),
+    folders: folder.folders.map((sub) =>
+      filterClaimedFromSubtree(sub, claimedExistingRequests)
+    ),
+  }
+}
+
+function getRestEndpointKey(req: HoppRESTRequest): string | null {
+  const method = req.method?.toUpperCase()
+  const endpoint = req.endpoint?.trim().toLowerCase()
+  if (method && endpoint) {
+    return `${method}:::${endpoint}`
+  }
+  return null
+}
+
+function buildTreeWideRestIndex(
+  collection: HoppCollection
+): Map<string, HoppRESTRequest[]> {
+  const index = new Map<string, HoppRESTRequest[]>()
+
+  function walk(node: HoppCollection) {
+    for (const req of node.requests) {
+      if (!isGQLRequest(req)) {
+        const key = getRestEndpointKey(req as HoppRESTRequest)
+        if (key) {
+          const list = index.get(key) ?? []
+          list.push(req as HoppRESTRequest)
+          index.set(key, list)
+        }
+      }
+    }
+    for (const sub of node.folders) {
+      walk(sub)
+    }
+  }
+
+  walk(collection)
+  return index
+}
+
+type CorrespondingFolderPair = {
+  targetFolder: HoppCollection
+  incomingFolder: HoppCollection
+}
+
+function collectCorrespondingFolderPairs(
+  targetFolders: HoppCollection[],
+  incomingFolders: HoppCollection[],
+  pairs: CorrespondingFolderPair[]
+) {
+  const matchedTargetIndices = new Set<number>()
+
+  for (const incoming of incomingFolders) {
+    const incomingName = incoming.name?.trim().toLowerCase()
+    const targetIdx = targetFolders.findIndex(
+      (f, idx) =>
+        !matchedTargetIndices.has(idx) &&
+        f.name?.trim().toLowerCase() === incomingName
+    )
+
+    if (targetIdx !== -1) {
+      matchedTargetIndices.add(targetIdx)
+      const existing = targetFolders[targetIdx]
+      pairs.push({ targetFolder: existing, incomingFolder: incoming })
+      collectCorrespondingFolderPairs(existing.folders, incoming.folders, pairs)
+    }
+  }
+}
+
+function reconcileRequestsTree(
+  targetCollection: HoppCollection,
+  incomingCollections: HoppCollection[]
+): {
+  incomingToExistingMap: Map<
+    HoppRESTRequest | HoppGQLRequest,
+    HoppRESTRequest | HoppGQLRequest
+  >
+  claimedExistingRequests: Set<HoppRESTRequest | HoppGQLRequest>
+} {
+  const incomingToExistingMap = new Map<
+    HoppRESTRequest | HoppGQLRequest,
+    HoppRESTRequest | HoppGQLRequest
+  >()
+  const claimedExistingRequests = new Set<HoppRESTRequest | HoppGQLRequest>()
+
+  const treeWideRestIndex = buildTreeWideRestIndex(targetCollection)
+
+  let incomingFolders: HoppCollection[] = []
+  let rootIncomingRequests: (HoppRESTRequest | HoppGQLRequest)[] = []
+
+  if (incomingCollections.length === 1) {
+    incomingFolders = incomingCollections[0].folders
+    rootIncomingRequests = incomingCollections[0].requests
+  } else if (incomingCollections.length > 1) {
+    incomingFolders = incomingCollections.map((col) => ({
+      ...cloneDeep(col),
+      name: col.name,
+    }))
+    rootIncomingRequests = []
+  }
+
+  // 1. Identify all corresponding folder pairs
+  const folderPairs: CorrespondingFolderPair[] = [
+    {
+      targetFolder: targetCollection,
+      incomingFolder: {
+        ...targetCollection,
+        requests: rootIncomingRequests,
+        folders: incomingFolders,
+      },
+    },
+  ]
+  collectCorrespondingFolderPairs(
+    targetCollection.folders,
+    incomingFolders,
+    folderPairs
+  )
+
+  // Collect all incoming requests across the entire incoming tree
+  const allIncomingRequests: {
+    request: HoppRESTRequest | HoppGQLRequest
+    targetFolder: HoppCollection | null
+  }[] = []
+
+  // Add root incoming requests
+  for (const req of rootIncomingRequests) {
+    allIncomingRequests.push({ request: req, targetFolder: targetCollection })
+  }
+
+  function collectIncomingFromFolders(
+    folders: HoppCollection[],
+    targetFolders: HoppCollection[]
+  ) {
+    const matchedTargetIndices = new Set<number>()
+    for (const folder of folders) {
+      const incomingName = folder.name?.trim().toLowerCase()
+      const targetIdx = targetFolders.findIndex(
+        (f, idx) =>
+          !matchedTargetIndices.has(idx) &&
+          f.name?.trim().toLowerCase() === incomingName
+      )
+      const matchingTarget = targetIdx !== -1 ? targetFolders[targetIdx] : null
+      if (targetIdx !== -1) {
+        matchedTargetIndices.add(targetIdx)
+      }
+
+      for (const req of folder.requests) {
+        allIncomingRequests.push({ request: req, targetFolder: matchingTarget })
+      }
+
+      collectIncomingFromFolders(
+        folder.folders,
+        matchingTarget ? matchingTarget.folders : []
+      )
+    }
+  }
+
+  collectIncomingFromFolders(incomingFolders, targetCollection.folders)
+
+  // Stage 1: Local match (method + endpoint for REST, url for GQL) within corresponding folder
+  for (const { request: incoming, targetFolder } of allIncomingRequests) {
+    if (!targetFolder) continue
+
+    const incomingIsGql = isGQLRequest(incoming)
+
+    if (!incomingIsGql) {
+      const incomingKey = getRestEndpointKey(incoming as HoppRESTRequest)
+      if (incomingKey) {
+        const localMatch = targetFolder.requests.find((t) => {
+          if (isGQLRequest(t) || claimedExistingRequests.has(t)) return false
+          return getRestEndpointKey(t as HoppRESTRequest) === incomingKey
+        })
+        if (localMatch) {
+          incomingToExistingMap.set(incoming, localMatch)
+          claimedExistingRequests.add(localMatch)
+        }
+      }
+    } else {
+      const incomingGql = incoming as HoppGQLRequest
+      const incomingUrl = incomingGql.url?.trim().toLowerCase()
+      if (incomingUrl) {
+        const localMatch = targetFolder.requests.find((t) => {
+          if (!isGQLRequest(t) || claimedExistingRequests.has(t)) return false
+          return (t as HoppGQLRequest).url?.trim().toLowerCase() === incomingUrl
+        })
+        if (localMatch) {
+          incomingToExistingMap.set(incoming, localMatch)
+          claimedExistingRequests.add(localMatch)
+        }
+      }
+    }
+  }
+
+  // Stage 2: Tree-wide match by method + endpoint for remaining unmatched REST requests
+  // (handles moved endpoints and OpenAPI tag/folder renames)
+  for (const { request: incoming } of allIncomingRequests) {
+    if (incomingToExistingMap.has(incoming)) continue
+    if (isGQLRequest(incoming)) continue
+
+    const incomingKey = getRestEndpointKey(incoming as HoppRESTRequest)
+    if (incomingKey) {
+      const candidates = treeWideRestIndex.get(incomingKey)
+      if (candidates) {
+        const treeMatch = candidates.find(
+          (c) => !claimedExistingRequests.has(c)
+        )
+        if (treeMatch) {
+          incomingToExistingMap.set(incoming, treeMatch)
+          claimedExistingRequests.add(treeMatch)
+        }
+      }
+    }
+  }
+
+  // Stage 3: Local name fallback within corresponding folder (strictly same request kind)
+  for (const { request: incoming, targetFolder } of allIncomingRequests) {
+    if (incomingToExistingMap.has(incoming)) continue
+    if (!targetFolder) continue
+
+    const incomingIsGql = isGQLRequest(incoming)
+    const incomingName = incoming.name?.trim().toLowerCase()
+
+    if (incomingName) {
+      const nameMatch = targetFolder.requests.find((t) => {
+        if (claimedExistingRequests.has(t)) return false
+        // Restrict fallback to requests of the same kind
+        if (isGQLRequest(t) !== incomingIsGql) return false
+        return t.name?.trim().toLowerCase() === incomingName
+      })
+      if (nameMatch) {
+        incomingToExistingMap.set(incoming, nameMatch)
+        claimedExistingRequests.add(nameMatch)
+      }
+    }
+  }
+
+  return { incomingToExistingMap, claimedExistingRequests }
 }
 
 function mergeRequestsList(
   targetRequests: (HoppRESTRequest | HoppGQLRequest)[],
   incomingRequests: (HoppRESTRequest | HoppGQLRequest)[],
   options: UpdateOptions,
-  stats: UpdateSummaryData
+  stats: UpdateSummaryData,
+  incomingToExistingMap: Map<
+    HoppRESTRequest | HoppGQLRequest,
+    HoppRESTRequest | HoppGQLRequest
+  >,
+  claimedExistingRequests: Set<HoppRESTRequest | HoppGQLRequest>
 ): (HoppRESTRequest | HoppGQLRequest)[] {
   const result: (HoppRESTRequest | HoppGQLRequest)[] = []
-  const matchedTargetIndices = new Set<number>()
 
   for (const incoming of incomingRequests) {
-    const matched = findMatchingRequest(incoming, targetRequests)
-    if (matched && !matchedTargetIndices.has(matched.index)) {
-      matchedTargetIndices.add(matched.index)
-      result.push(mergeRequest(matched.match, incoming, options, stats))
+    const matched = incomingToExistingMap.get(incoming)
+    if (matched) {
+      result.push(mergeRequest(matched, incoming, options, stats))
     } else {
       stats.addedRequests++
       result.push(cloneDeep(incoming))
@@ -160,8 +410,8 @@ function mergeRequestsList(
   }
 
   // Preserve or drop unmatched existing requests
-  targetRequests.forEach((req, idx) => {
-    if (!matchedTargetIndices.has(idx)) {
+  targetRequests.forEach((req) => {
+    if (!claimedExistingRequests.has(req)) {
       if (options.keepMissingRequests !== false) {
         stats.preservedRequests++
         if (options.preserveScripts !== false) {
@@ -187,7 +437,12 @@ function mergeFoldersList(
   targetFolders: HoppCollection[],
   incomingFolders: HoppCollection[],
   options: UpdateOptions,
-  stats: UpdateSummaryData
+  stats: UpdateSummaryData,
+  incomingToExistingMap: Map<
+    HoppRESTRequest | HoppGQLRequest,
+    HoppRESTRequest | HoppGQLRequest
+  >,
+  claimedExistingRequests: Set<HoppRESTRequest | HoppGQLRequest>
 ): HoppCollection[] {
   const result: HoppCollection[] = []
   const matchedTargetIndices = new Set<number>()
@@ -209,14 +464,18 @@ function mergeFoldersList(
         existingFolder.requests,
         incomingFolder.requests,
         options,
-        stats
+        stats,
+        incomingToExistingMap,
+        claimedExistingRequests
       )
 
       const mergedSubFolders = mergeFoldersList(
         existingFolder.folders,
         incomingFolder.folders,
         options,
-        stats
+        stats,
+        incomingToExistingMap,
+        claimedExistingRequests
       )
 
       if (options.preserveScripts !== false) {
@@ -263,8 +522,27 @@ function mergeFoldersList(
       result.push(mergedFolder)
     } else {
       stats.addedFolders++
-      countSubTreeAdded(incomingFolder, stats)
-      result.push(cloneDeep(incomingFolder))
+      const mergedRequests = mergeRequestsList(
+        [],
+        incomingFolder.requests,
+        options,
+        stats,
+        incomingToExistingMap,
+        claimedExistingRequests
+      )
+      const mergedSubFolders = mergeFoldersList(
+        [],
+        incomingFolder.folders,
+        options,
+        stats,
+        incomingToExistingMap,
+        claimedExistingRequests
+      )
+      result.push({
+        ...cloneDeep(incomingFolder),
+        requests: mergedRequests,
+        folders: mergedSubFolders,
+      })
     }
   }
 
@@ -272,10 +550,15 @@ function mergeFoldersList(
   targetFolders.forEach((folder, idx) => {
     if (!matchedTargetIndices.has(idx)) {
       if (options.keepMissingRequests !== false) {
-        countSubTreePreserved(folder, stats, options)
-        result.push(cloneDeep(folder))
+        const preservedFolder = filterClaimedFromSubtree(
+          folder,
+          claimedExistingRequests
+        )
+        countSubTreePreserved(preservedFolder, stats, options)
+        result.push(preservedFolder)
       } else {
-        countSubTreeDeleted(folder, stats)
+        countSubTreeDeleted(folder, stats, claimedExistingRequests)
+        flushLocalStoresForCollectionTree(folder)
       }
     }
   })
@@ -327,18 +610,25 @@ export function mergeCollectionTree(
     incomingRequests = []
   }
 
+  const { incomingToExistingMap, claimedExistingRequests } =
+    reconcileRequestsTree(targetCollection, incomingCollections)
+
   const mergedFolders = mergeFoldersList(
     targetCollection.folders,
     incomingFolders,
     options,
-    stats
+    stats,
+    incomingToExistingMap,
+    claimedExistingRequests
   )
 
   const mergedRequests = mergeRequestsList(
     targetCollection.requests,
     incomingRequests,
     options,
-    stats
+    stats,
+    incomingToExistingMap,
+    claimedExistingRequests
   )
 
   const updatedCollection: HoppCollection = {

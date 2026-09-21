@@ -31,6 +31,8 @@ import {
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 import { editRESTCollection } from "~/newstore/collections"
+import { runDispatchWithOutSyncing } from "~/lib/sync"
+import { syncPersonalRESTCollectionUpdate } from "~/lib/sync/collections/updateSync"
 import {
   ensureRefIds,
   populateLocalStoresFromCollectionTree,
@@ -175,10 +177,23 @@ const handleUpdateToStore = async (
     populateLocalStoresFromCollectionTree(finalCollection)
 
     if (props.collectionsType.type === "my-collections") {
-      editRESTCollection(
-        props.collectionIndex,
-        stripCollectionTreeForStore(finalCollection)
+      const syncResult = await syncPersonalRESTCollectionUpdate(
+        props.collection,
+        finalCollection
       )
+      if (E.isLeft(syncResult)) {
+        showImportFailedError()
+        unsetCurrentImportSummary()
+        return
+      }
+
+      runDispatchWithOutSyncing(() => {
+        editRESTCollection(
+          props.collectionIndex,
+          stripCollectionTreeForStore(finalCollection)
+        )
+      })
+
       toast.success(t("collection.updated"))
       setCurrentImportSummary([finalCollection], stats)
 

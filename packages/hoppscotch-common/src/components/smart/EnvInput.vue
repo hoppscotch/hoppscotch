@@ -250,13 +250,14 @@ watch(
 
 const ARROW_KEYS = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"]
 
-const isTextNavigationKeystroke = (ev: KeyboardEvent) =>
+const isModifiedArrowKey = (ev: KeyboardEvent) =>
   (ev.shiftKey || ev.metaKey || ev.ctrlKey || ev.altKey) &&
   ARROW_KEYS.includes(ev.key)
 
 const handleKeystroke = (ev: KeyboardEvent) => {
-  // Selection and word jumps belong to CodeMirror, not the suggestion list below
-  if (isTextNavigationKeystroke(ev)) {
+  // Skip keys claimed upstream (app shortcuts, CodeMirror keymaps) and native
+  // caret moves, and drop the highlight so a later Enter can't apply it
+  if (ev.defaultPrevented || isModifiedArrowKey(ev)) {
     showSuggestionPopover.value = false
     return
   }
@@ -511,7 +512,6 @@ function handleTextSelection() {
   const selection = view.value?.state.selection.main
   if (selection) {
     const { from, to } = selection
-    if (from === to) return
     const text = view.value?.state.doc.sliceString(from, to)
     const coords = view.value?.coordsAtPos(from)
     const top = coords?.top ?? 0

@@ -43,7 +43,9 @@ function findMatchingRequest(
   const incomingName = incoming.name?.trim().toLowerCase()
   if (incomingName) {
     const idx = targetList.findIndex(
-      (t) => t.name?.trim().toLowerCase() === incomingName
+      (t) =>
+        ("endpoint" in t) === ("endpoint" in incoming) &&
+        t.name?.trim().toLowerCase() === incomingName
     )
     if (idx !== -1) return { match: targetList[idx], index: idx }
   }

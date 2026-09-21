@@ -21,7 +21,6 @@
         :class="styles"
         @click="emit('click', $event)"
         @keydown="handleKeystroke"
-        @focusin="showSuggestionPopover = true"
       />
       <HoppButtonSecondary
         v-if="secret"
@@ -36,9 +35,7 @@
       />
     </div>
     <ul
-      v-if="
-        showSuggestionPopover && autoCompleteSource && suggestions.length > 0
-      "
+      v-if="isSuggestionListVisible"
       ref="suggestionsMenu"
       class="suggestions"
     >
@@ -224,6 +221,10 @@ const suggestions = computed(() => {
   return uniqueAutoCompleteSource.value ?? []
 })
 
+const isSuggestionListVisible = computed(
+  () => showSuggestionPopover.value && suggestions.value.length > 0
+)
+
 const updateModelValue = (value: string) => {
   emit("update:modelValue", value)
   emit("change", value)
@@ -255,62 +256,76 @@ const isModifiedArrowKey = (ev: KeyboardEvent) =>
   ARROW_KEYS.includes(ev.key)
 
 const handleKeystroke = (ev: KeyboardEvent) => {
-  // Skip keys claimed upstream (app shortcuts, CodeMirror keymaps) and native
-  // caret moves, and drop the highlight so a later Enter can't apply it
+  // IME composition keys (e.g. Enter confirming a CJK candidate) belong to the
+  // IME, same as in helpers/keybindings.ts
+  if (ev.isComposing || ev.keyCode === 229) return
+
+  // Skip keys claimed upstream (app shortcuts, CodeMirror keymaps) and
+  // modifier+arrow selection/word jumps, closing the list so a later Enter
+  // can't apply a stale highlight
   if (ev.defaultPrevented || isModifiedArrowKey(ev)) {
     showSuggestionPopover.value = false
     return
   }
 
-  if (["ArrowDown", "ArrowUp", "Enter", "Escape"].includes(ev.key)) {
+  if (ev.key === "Enter" || ev.key === "Escape") {
     ev.preventDefault()
   }
 
-  if (["Escape", "Tab", "Shift"].includes(ev.key)) {
+  if (ev.key === "Escape" || ev.key === "Tab") {
     showSuggestionPopover.value = false
+    return
   }
 
   if (ev.key === "Enter") {
-    if (suggestions.value.length > 0 && currentSuggestionIndex.value > -1) {
-      updateModelValue(suggestions.value[currentSuggestionIndex.value])
-      currentSuggestionIndex.value = -1
+    const suggestion = isSuggestionListVisible.value
+      ? suggestions.value[currentSuggestionIndex.value]
+      : undefined
 
-      //used to set codemirror cursor at the end of the line after selecting a suggestion
-      nextTick(() => {
-        view.value?.dispatch({
-          selection: EditorSelection.create([
-            EditorSelection.range(
-              props.modelValue.length,
-              props.modelValue.length
-            ),
-          ]),
-        })
-      })
-    }
-
-    if (showSuggestionPopover.value) {
+    // Without a highlighted suggestion, Enter submits the field
+    if (suggestion === undefined) {
       showSuggestionPopover.value = false
-    } else {
       emit("enter", ev)
+      return
     }
-  } else {
-    showSuggestionPopover.value = true
+
+    updateModelValue(suggestion)
+    currentSuggestionIndex.value = -1
+
+    //used to set codemirror cursor at the end of the line after selecting a suggestion
+    nextTick(() => {
+      view.value?.dispatch({
+        selection: EditorSelection.create([
+          EditorSelection.range(
+            props.modelValue.length,
+            props.modelValue.length
+          ),
+        ]),
+      })
+    })
+    return
   }
 
-  if (ev.key === "ArrowDown") {
-    scrollActiveElIntoView()
+  // Up/Down open the list and move the highlight; with nothing to suggest,
+  // they stay native caret moves
+  if (
+    (ev.key !== "ArrowDown" && ev.key !== "ArrowUp") ||
+    suggestions.value.length === 0
+  ) {
+    return
+  }
 
+  ev.preventDefault()
+  showSuggestionPopover.value = true
+
+  if (ev.key === "ArrowDown") {
     currentSuggestionIndex.value =
       currentSuggestionIndex.value < suggestions.value.length - 1
         ? currentSuggestionIndex.value + 1
         : suggestions.value.length - 1
 
     emit("keydown", ev)
-  }
-
-  if (ev.key === "ArrowUp") {
-    scrollActiveElIntoView()
-
+  } else {
     currentSuggestionIndex.value =
       currentSuggestionIndex.value - 1 >= 0
         ? currentSuggestionIndex.value - 1
@@ -319,25 +334,9 @@ const handleKeystroke = (ev: KeyboardEvent) => {
     emit("keyup", ev)
   }
 
-  // used to scroll to the first suggestion when left arrow is pressed
-  if (ev.key === "ArrowLeft") {
-    if (suggestions.value.length > 0) {
-      currentSuggestionIndex.value = 0
-      nextTick(() => {
-        scrollActiveElIntoView()
-      })
-    }
-  }
-
-  // used to scroll to the last suggestion when right arrow is pressed
-  if (ev.key === "ArrowRight") {
-    if (suggestions.value.length > 0) {
-      currentSuggestionIndex.value = suggestions.value.length - 1
-      nextTick(() => {
-        scrollActiveElIntoView()
-      })
-    }
-  }
+  nextTick(() => {
+    scrollActiveElIntoView()
+  })
 }
 
 // reset currentSuggestionIndex showSuggestionPopover is false
@@ -635,6 +634,16 @@ const getExtensions = (readonly: boolean): Extension => {
 
             emit("update:modelValue", value)
             emit("change", value)
+
+            // Suggestions open as the user edits the text, not on focus
+            if (
+              update.transactions.some(
+                (txn) => txn.isUserEvent("input") || txn.isUserEvent("delete")
+              )
+            ) {
+              showSuggestionPopover.value = true
+              currentSuggestionIndex.value = -1
+            }
 
             const pasted = !!update.transactions.find((txn) =>
               txn.isUserEvent("input.paste")

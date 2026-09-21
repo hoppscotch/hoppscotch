@@ -621,6 +621,12 @@ const getExtensions = (readonly: boolean): Extension => {
           // since the readonly prop is reactive, we need to check if it has changed
           if (props.readonly) return
 
+          // A user caret move (keyboard or click) returns focus to the text,
+          // so Enter shouldn't apply a suggestion highlighted before it
+          if (update.transactions.some((txn) => txn.isUserEvent("select"))) {
+            currentSuggestionIndex.value = -1
+          }
+
           if (update.docChanged) {
             const prevValue = clone(cachedValue.value)
 

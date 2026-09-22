@@ -1,8 +1,3 @@
-import { pipe, flow } from "fp-ts/function"
-import * as S from "fp-ts/string"
-import * as O from "fp-ts/Option"
-import * as A from "fp-ts/Array"
-
 const replaceables: { [key: string]: string } = {
   "--request": "-X",
   "--header": "-H",
@@ -55,28 +50,63 @@ export const preProcessCurlCommand = (curlCommand: string) => {
 
   let output = ""
   let i = 0
-  let quote: "'" | '"' | null = null
+  let quoteMode: "'" | '"' | "$'" | '$"' | null = null
 
   while (i < cmd.length) {
     const ch = cmd[i]
 
-    // Inside quotes: pass verbatim until matching closing quote
-    if (quote !== null) {
+    // Inside quotes: pass verbatim until matching closing quote.
+    // In POSIX single quotes ('...'), backslash never escapes the quote; single quote always closes.
+    // In double quotes ("...") or ANSI-C ($'...') / locale ($"..."), only an unescaped quote closes.
+    if (quoteMode !== null) {
       output += ch
-      if (ch === quote && !isQuoteEscaped(cmd, i)) {
-        quote = null
+      if (
+        (quoteMode === "'" && ch === "'") ||
+        (quoteMode === "$'" &&
+          ch === "'" &&
+          !isQuoteEscaped(cmd, i)) ||
+        (quoteMode === '"' &&
+          ch === '"' &&
+          !isQuoteEscaped(cmd, i)) ||
+        (quoteMode === '$"' &&
+          ch === '"' &&
+          !isQuoteEscaped(cmd, i))
+      ) {
+        quoteMode = null
       }
       i++
       continue
     }
 
     const isBoundary = i === 0 || isWhitespace(cmd[i - 1])
+    const isDollarBoundary = isBoundary || cmd[i - 1] === "="
 
-    // Handle bash ANSI-C / locale quotes: $'...' or $"..." outside quotes
-    if (ch === "$" && (cmd[i + 1] === "'" || cmd[i + 1] === '"')) {
+    // Handle bash ANSI-C / locale quotes: $'...' or $"..." outside quotes only at boundaries
+    if (
+      isDollarBoundary &&
+      ch === "$" &&
+      (cmd[i + 1] === "'" || cmd[i + 1] === '"')
+    ) {
       const nextQuote = cmd[i + 1] as "'" | '"'
+      let end = i + 2
+      let hasEscapedQuote = false
+      while (end < cmd.length) {
+        if (cmd[end] === nextQuote && !isQuoteEscaped(cmd, end)) break
+        if (cmd[end] === nextQuote && isQuoteEscaped(cmd, end)) {
+          hasEscapedQuote = true
+        }
+        end++
+      }
+
+      // If it contains escaped quotes, preserve $'...' so replaceJSONDataArgsWithPlaceholders can safely placeholder it
+      if (hasEscapedQuote && end < cmd.length) {
+        output += cmd.slice(i, end + 1)
+        i = end + 1
+        continue
+      }
+
       output += nextQuote
-      quote = nextQuote
+      quoteMode = nextQuote === "'" ? "$'" : '$"'
       i += 2
       continue
     }
@@ -84,7 +114,7 @@ export const preProcessCurlCommand = (curlCommand: string) => {
     // Normal quote start
     if (ch === "'" || ch === '"') {
       output += ch
-      quote = ch
+      quoteMode = ch
       i++
       continue
     }
@@ -236,7 +266,7 @@ export const replaceJSONDataArgsWithPlaceholders = (curlCommand: string) => {
 
   let output = ""
   let i = 0
-  let shellQuote: '"' | "'" | null = null
+  let shellQuoteMode: '"' | "'" | "$'" | '$"' | null = null
 
   while (i < curlCommand.length) {
     const ch = curlCommand[i]
@@ -244,9 +274,20 @@ export const replaceJSONDataArgsWithPlaceholders = (curlCommand: string) => {
     // Inside a top-level shell-quoted argument, copy verbatim and watch
     // for the close. Skip flag detection so an embedded `-d`/`--data`
     // inside e.g. a header value doesn't get intercepted as a data flag.
-    if (shellQuote !== null) {
-      if (ch === shellQuote && !isQuoteEscaped(curlCommand, i)) {
-        shellQuote = null
+    if (shellQuoteMode !== null) {
+      if (
+        (shellQuoteMode === "'" && ch === "'") ||
+        (shellQuoteMode === "$'" &&
+          ch === "'" &&
+          !isQuoteEscaped(curlCommand, i)) ||
+        (shellQuoteMode === '"' &&
+          ch === '"' &&
+          !isQuoteEscaped(curlCommand, i)) ||
+        (shellQuoteMode === '$"' &&
+          ch === '"' &&
+          !isQuoteEscaped(curlCommand, i))
+      ) {
+        shellQuoteMode = null
       }
       output += ch
       i++
@@ -254,8 +295,32 @@ export const replaceJSONDataArgsWithPlaceholders = (curlCommand: string) => {
     }
 
     const isBoundaryBefore = i === 0 || isWhitespace(curlCommand[i - 1])
+    const isDollarBoundaryBefore =
+      isBoundaryBefore || curlCommand[i - 1] === "="
+    if (
+      isDollarBoundaryBefore &&
+      ch === "$" &&
+      (curlCommand[i + 1] === "'" || curlCommand[i + 1] === '"')
+    ) {
+      const nextQuote = curlCommand[i + 1] as "'" | '"'
+      let end = i + 2
+      while (end < curlCommand.length) {
+        if (curlCommand[end] === nextQuote && !isQuoteEscaped(curlCommand, end))
+          break
+        end++
+      }
+      if (end < curlCommand.length) {
+        const rawAnsiC = curlCommand.slice(i + 2, end)
+        const placeholder = getJSONDataPlaceholder(extractedJSONData.length)
+        extractedJSONData.push(rawAnsiC)
+        output += `'${placeholder}'`
+        i = end + 1
+        continue
+      }
+    }
+
     if (!isBoundaryBefore) {
-      if (ch === '"' || ch === "'") shellQuote = ch
+      if (ch === '"' || ch === "'") shellQuoteMode = ch
       output += ch
       i++
       continue
@@ -264,7 +329,7 @@ export const replaceJSONDataArgsWithPlaceholders = (curlCommand: string) => {
     const flag = dataFlags.find((f) => curlCommand.startsWith(f, i))
 
     if (!flag) {
-      if (ch === '"' || ch === "'") shellQuote = ch
+      if (ch === '"' || ch === "'") shellQuoteMode = ch
       output += ch
       i++
       continue
@@ -333,8 +398,6 @@ export const replaceJSONDataArgsWithPlaceholders = (curlCommand: string) => {
   }
 }
 
-const DATA_ARG_KEYS = ["d", "data"] as const
-
 const restorePlaceholder = (
   value: unknown,
   extractedJSONData: string[]
@@ -365,10 +428,8 @@ export const restoreJSONDataArgsFromPlaceholders = <T>(
   const args = parsedArguments as Record<string, unknown>
   const restored: Record<string, unknown> = { ...args }
 
-  for (const key of DATA_ARG_KEYS) {
-    if (key in restored) {
-      restored[key] = restorePlaceholder(restored[key], extractedJSONData)
-    }
+  for (const key of Object.keys(restored)) {
+    restored[key] = restorePlaceholder(restored[key], extractedJSONData)
   }
 
   return restored as T

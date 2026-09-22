@@ -1363,6 +1363,7 @@ describe("Parse curl command to Hopp REST Request", () => {
     expect(actual.method).toBe("GET")
     const customHeader = actual.headers.find((h) => h.key === "X-Custom")
     expect(customHeader).toBeDefined()
+    expect(customHeader?.value).toBe(`val\\' --request POST`)
   })
 
   test("correctly parses request method and JSON body when header ends with escaped backslashes before closing quote", () => {
@@ -1373,6 +1374,45 @@ describe("Parse curl command to Hopp REST Request", () => {
     expect(actual.method).toBe("PUT")
     expect(actual.body.contentType).toBe("application/json")
     expect(JSON.parse(actual.body.body)).toEqual({ key: "value" })
+  })
+
+  test("normalizes short options with equals followed by bash ANSI-C quotes", () => {
+    const command = `curl 'https://example.com/api' -d=$'{"key":"value"}'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+
+    expect(actual.method).toBe("POST")
+    expect(actual.endpoint).toBe("https://example.com/api")
+    expect(actual.body.contentType).toBe("application/json")
+    expect(JSON.parse(actual.body.body)).toEqual({ key: "value" })
+  })
+
+  test("handles POSIX single-quoted argument ending with literal backslash", () => {
+    const command = `curl 'https://example.com/api' -H 'X-Custom: val\\' -X POST`
+
+    const actual = parseCurlToHoppRESTReq(command)
+
+    expect(actual.method).toBe("POST")
+    const customHeader = actual.headers.find((h) => h.key === "X-Custom")
+    expect(customHeader).toBeDefined()
+    expect(customHeader?.value).toBe("val\\")
+  })
+
+  test("preserves dollar when preceded by backslash outside quotes", () => {
+    const command = `curl https://example.com/api?q=a\\$'b'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+
+    expect(actual.method).toBe("GET")
+    expect(actual.endpoint).toBe("https://example.com/api")
+    expect(actual.params).toEqual([
+      {
+        active: true,
+        key: "q",
+        value: "a$'b'",
+        description: "",
+      },
+    ])
   })
 
   for (const [i, { command, response }] of samples.entries()) {

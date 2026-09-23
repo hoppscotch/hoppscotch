@@ -12,19 +12,25 @@ import {
  * call — they are the largest pieces of context and rarely needed.
  */
 
+const TRUNCATED = "…[truncated]"
+
 /** Cuts at `max` without splitting an emoji into a lone surrogate. */
 export const truncateText = (value: string, max: number) => {
   if (value.length <= max) return value
   const code = value.charCodeAt(max - 1)
   const cut = code >= 0xd800 && code <= 0xdbff ? max - 1 : max
-  return `${value.slice(0, cut)}…[truncated]`
+  return `${value.slice(0, cut)}${TRUNCATED}`
 }
 
+const SCHEMA_SEP = "\n\n"
+const MORE_TYPES = "…(schema truncated — more types exist)"
+
 /**
- * Compact SDL snapshot of an introspected schema. The operation roots
- * (Query / Mutation / Subscription) always ship — they name every operation
- * the endpoint offers — and the remaining named types follow until the
- * budget runs out, since real schemas can be megabytes.
+ * Compact SDL snapshot of an introspected schema, at most `totalBudget`
+ * characters. The operation roots (Query / Mutation / Subscription) go first
+ * — they name every operation the endpoint offers — each cut to `rootBudget`,
+ * and the remaining named types follow until the budget runs out, since real
+ * schemas can be megabytes.
  */
 export const serializeGQLSchema = (
   schema: GraphQLSchema,
@@ -32,7 +38,13 @@ export const serializeGQLSchema = (
   rootBudget = 2000
 ): string => {
   const parts: string[] = ["### GraphQL schema (introspected)"]
-  let used = parts[0].length
+  // The note is held back up front, so adding it never breaks the budget.
+  let used = parts[0].length + SCHEMA_SEP.length + MORE_TYPES.length
+  const room = () => totalBudget - used - SCHEMA_SEP.length
+  const add = (text: string) => {
+    parts.push(text)
+    used += SCHEMA_SEP.length + text.length
+  }
 
   const roots = [
     schema.getQueryType(),
@@ -41,33 +53,35 @@ export const serializeGQLSchema = (
   ].filter((t): t is NonNullable<typeof t> => !!t)
   const rootNames = new Set(roots.map((t) => t.name))
 
+  let truncated = false
   for (const t of roots) {
-    const printed = truncateText(printType(t), rootBudget)
-    parts.push(printed)
-    used += printed.length
+    const printed = printType(t)
+    const max = Math.min(rootBudget, room())
+    if (printed.length <= max) add(printed)
+    else if (max > TRUNCATED.length)
+      add(truncateText(printed, max - TRUNCATED.length))
+    else truncated = true
   }
 
-  let truncated = false
   for (const t of Object.values(schema.getTypeMap())) {
+    if (truncated) break
     if (rootNames.has(t.name)) continue
     if (isIntrospectionType(t) || isSpecifiedScalarType(t)) continue
     const printed = printType(t)
-    if (used + printed.length > totalBudget) {
-      truncated = true
-      break
-    }
-    parts.push(printed)
-    used += printed.length
+    if (printed.length > room()) truncated = true
+    else add(printed)
   }
-  if (truncated) parts.push("…(schema truncated — more types exist)")
+  if (truncated) parts.push(MORE_TYPES)
 
-  return parts.join("\n\n")
+  return parts.join(SCHEMA_SEP)
 }
 
 /** Deepest folder level the outline walks; deeper ones are counted, not listed. */
 const MAX_DEPTH = 3
 
-/** Compact outline of a collection tree — capped so the result stays bounded. */
+const MORE_COLLECTIONS = "…(truncated — more collections/requests exist)"
+
+/** Compact outline of a collection tree, at most `maxChars` characters. */
 export const serializeCollections = (
   collections: HoppCollection[],
   maxLines = 80,
@@ -75,7 +89,8 @@ export const serializeCollections = (
 ): string => {
   const lines: string[] = ["### Collections"]
   let count = 0
-  let used = lines[0].length
+  // The note's line is held back up front, so adding it never breaks the cap.
+  let used = lines[0].length + 1 + MORE_COLLECTIONS.length
   let truncated = false
 
   const push = (line: string): boolean => {
@@ -119,6 +134,6 @@ export const serializeCollections = (
   }
 
   walk(collections, 0)
-  if (truncated) lines.push("…(truncated — more collections/requests exist)")
+  if (truncated) lines.push(MORE_COLLECTIONS)
   return lines.join("\n")
 }

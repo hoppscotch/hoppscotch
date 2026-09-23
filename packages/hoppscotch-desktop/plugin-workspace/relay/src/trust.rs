@@ -193,9 +193,12 @@ fn pem_encode(ders: &[Vec<u8>]) -> (Vec<u8>, usize) {
 }
 
 /// True where the bytes parse as at least one PEM certificate, which is
-/// how a user entry is checked before it is added to the combined blob.
+/// how a user entry is checked before it is added to the combined blob. The
+/// check is the lenient one the host store reads with, ∵ a bundle whose last
+/// block is corrupt still carries the CAs before it, and rejecting the entry
+/// would drop them all.
 pub(crate) fn parses_as_pem(pem: &[u8]) -> bool {
-    X509::stack_from_pem(pem).map(|s| !s.is_empty()).unwrap_or(false)
+    !parse_lenient(pem).is_empty()
 }
 
 #[cfg_attr(not(target_os = "windows"), allow(dead_code))]
@@ -277,33 +280,41 @@ fn read_platform() -> Option<TrustBundle> {
                     }
                 }
                 Ok(_) => Decision::Defer,
-                // A read that fails on a certificate an administrator or the
-                // user installed keeps it, ∵ deferring drops a corporate root
-                // that no lower domain lists, and the call is a live keychain
-                // read that fails transiently.
+                // A policy that cannot be read grants nothing, ∵ an anchor
+                // exported on a failed read is one curl trusts while the
+                // keychain may deny it, and the warning says which domain
+                // went unread so a missing corporate root has a cause.
                 Err(e) => {
                     tracing::warn!(error = %e, domain = ?domain, "Trust settings read failed");
-                    if matches!(domain, Domain::System) {
-                        Decision::Defer
-                    } else {
-                        Decision::Trust
-                    }
+                    Decision::Defer
                 }
             };
             entries.push((der.clone(), der, decision));
         }
     }
 
+    let denied: Vec<Vec<u8>> = entries
+        .iter()
+        .filter(|(_, _, decision)| *decision == Decision::Deny)
+        .map(|(_, der, _)| der.clone())
+        .collect();
     let mut ders = resolve_by_precedence(entries);
-    if ders.is_empty() {
+    if read == 0 {
         return None;
     }
     // A System domain that failed to open leaves the public roots out, and a
     // blob of locally installed roots alone would fail every public endpoint,
-    // so the compiled-in set stands in for the domain that went unread.
-    if !system_read {
-        tracing::warn!("System trust domain unread, extending with the bundled roots");
-        ders.extend(parse_lenient(curl_sys::certs::get_cert_content().as_bytes()));
+    // so the compiled-in set stands in for the domain that went unread. The
+    // roots a domain denied are removed from it, ∵ a fallback that restored
+    // them would undo the denial that made the read empty.
+    if !system_read || ders.is_empty() {
+        tracing::warn!(
+            anchors = ders.len(),
+            "Host trust store read short, extending with the bundled roots"
+        );
+        let mut bundled = parse_lenient(curl_sys::certs::get_cert_content().as_bytes());
+        bundled.retain(|der| !denied.contains(der));
+        ders.extend(bundled);
     }
 
     let ders = dedup_exact(ders);
@@ -322,7 +333,8 @@ fn read_platform() -> Option<TrustBundle> {
 
     use windows_sys::Win32::Foundation::{GetLastError, CRYPT_E_NOT_FOUND};
     use windows_sys::Win32::Security::Cryptography::{
-        CertCloseStore, CertEnumCertificatesInStore, CertOpenStore, CERT_CONTEXT,
+        CertCloseStore, CertEnumCertificatesInStore, CertGetEnhancedKeyUsage, CertOpenStore,
+        CERT_CONTEXT, CERT_ENHKEY_USAGE, CERT_FIND_PROP_ONLY_ENHKEY_USAGE_FLAG,
         CERT_STORE_OPEN_EXISTING_FLAG, CERT_STORE_PROV_SYSTEM_W, CERT_STORE_READONLY_FLAG,
         CERT_SYSTEM_STORE_CURRENT_USER, CERT_SYSTEM_STORE_CURRENT_USER_GROUP_POLICY,
         CERT_SYSTEM_STORE_LOCAL_MACHINE, CERT_SYSTEM_STORE_LOCAL_MACHINE_ENTERPRISE,
@@ -353,7 +365,63 @@ fn read_platform() -> Option<TrustBundle> {
     // `CA` store holds intermediates that Windows chains through a root, so
     // anchors come from `ROOT` and `Disallowed` says which of them an
     // administrator has revoked.
-    fn read_store(flag: u32, label: &str, name: &str) -> Option<Vec<Vec<u8>>> {
+    // What the store entry says a root may be used for. Windows keeps the
+    // permitted purposes in the entry's enhanced key usage property, which
+    // `pbCertEncoded` does not carry, so a root restricted to code signing
+    // looks unrestricted to anything that reads the certificate alone.
+    enum StoreUsage {
+        Restricted(Vec<String>),
+        Unrestricted,
+    }
+
+    const SERVER_AUTH_OID: &str = "1.3.6.1.5.5.7.3.1";
+    const ANY_USAGE_OID: &str = "2.5.29.37.0";
+
+    fn store_usage(ctx: *const CERT_CONTEXT) -> StoreUsage {
+        let mut size = 0u32;
+        let ok = unsafe {
+            CertGetEnhancedKeyUsage(
+                ctx,
+                CERT_FIND_PROP_ONLY_ENHKEY_USAGE_FLAG,
+                std::ptr::null_mut(),
+                &mut size,
+            )
+        };
+        if ok == 0 || size == 0 {
+            return StoreUsage::Unrestricted;
+        }
+        let mut buffer = vec![0u8; size as usize];
+        let usage = buffer.as_mut_ptr() as *mut CERT_ENHKEY_USAGE;
+        let ok = unsafe {
+            CertGetEnhancedKeyUsage(
+                ctx,
+                CERT_FIND_PROP_ONLY_ENHKEY_USAGE_FLAG,
+                usage,
+                &mut size,
+            )
+        };
+        if ok == 0 {
+            return StoreUsage::Unrestricted;
+        }
+        let usage = unsafe { &*usage };
+        if usage.cUsageIdentifier == 0 {
+            return StoreUsage::Unrestricted;
+        }
+        let mut oids = Vec::with_capacity(usage.cUsageIdentifier as usize);
+        for index in 0..usage.cUsageIdentifier as usize {
+            let oid = unsafe { *usage.rgpszUsageIdentifier.add(index) };
+            if oid.is_null() {
+                continue;
+            }
+            let text = unsafe { std::ffi::CStr::from_ptr(oid as *const i8) };
+            if let Ok(text) = text.to_str() {
+                oids.push(text.to_owned());
+            }
+        }
+        StoreUsage::Restricted(oids)
+    }
+
+    fn read_store(flag: u32, label: &str, name: &str) -> Option<Vec<(Vec<u8>, StoreUsage)>> {
         let wide: Vec<u16> = name.encode_utf16().chain(std::iter::once(0)).collect();
         let store = unsafe {
             CertOpenStore(
@@ -386,12 +454,11 @@ fn read_platform() -> Option<TrustBundle> {
                 }
                 break;
             }
-            ders.push(
-                unsafe {
-                    std::slice::from_raw_parts((*ctx).pbCertEncoded, (*ctx).cbCertEncoded as usize)
-                }
-                .to_vec(),
-            );
+            let der = unsafe {
+                std::slice::from_raw_parts((*ctx).pbCertEncoded, (*ctx).cbCertEncoded as usize)
+            }
+            .to_vec();
+            ders.push((der, store_usage(ctx)));
         }
         // Closed on the enumeration's only exit, so every store that opens is
         // released exactly once.
@@ -399,22 +466,30 @@ fn read_platform() -> Option<TrustBundle> {
         complete.then_some(ders)
     }
 
-    let mut roots: Vec<Vec<u8>> = Vec::new();
+    let mut roots: Vec<(Vec<u8>, StoreUsage)> = Vec::new();
     let mut revoked: Vec<Vec<u8>> = Vec::new();
     let mut read = 0usize;
     for (flag, label) in LOCATIONS {
-        if let Some(ders) = read_store(*flag, label, "ROOT") {
-            read += ders.len();
-            roots.extend(ders);
+        if let Some(entries) = read_store(*flag, label, "ROOT") {
+            read += entries.len();
+            roots.extend(entries);
         }
-        if let Some(ders) = read_store(*flag, label, "Disallowed") {
-            revoked.extend(ders);
+        if let Some(entries) = read_store(*flag, label, "Disallowed") {
+            revoked.extend(entries.into_iter().map(|(der, _)| der));
         }
     }
 
-    // A root Windows restricts to code signing or timestamping through its
-    // store entry is still a TLS anchor once it is in the blob, and the
-    // extension is the only constraint a PEM export can express.
+    // A root Windows restricts to code signing or timestamping is still a TLS
+    // anchor once it is in the blob, and the restriction lives in the store
+    // entry's enhanced key usage property as often as in the certificate, so
+    // both are read.
+    roots.retain(|(_, usage)| match usage {
+        StoreUsage::Restricted(oids) => oids
+            .iter()
+            .any(|oid| oid == SERVER_AUTH_OID || oid == ANY_USAGE_OID),
+        StoreUsage::Unrestricted => true,
+    });
+    let mut roots: Vec<Vec<u8>> = roots.into_iter().map(|(der, _)| der).collect();
     roots.retain(|der| valid_for_tls(der));
     roots.retain(|der| !revoked.contains(der));
 
@@ -611,6 +686,18 @@ mod tests {
         let (pem, encoded) = pem_encode(&[der.clone(), b"not a certificate".to_vec()]);
         assert_eq!(encoded, 1);
         assert_eq!(parse_lenient(&pem), vec![der]);
+    }
+
+    // A user entry is checked with the same lenient parser the host store is
+    // read with, so a bundle whose last block is corrupt keeps the CAs before
+    // it instead of being rejected whole.
+    #[test]
+    fn a_bundle_with_one_corrupt_block_still_parses_as_pem() {
+        let (pem, _) = pem_encode(&[root("good", &key(), None)]);
+        let mut mixed = pem.clone();
+        mixed.extend_from_slice(b"-----BEGIN CERTIFICATE-----\ntruncated\n-----END CERTIFICATE-----\n");
+        assert!(parses_as_pem(&mixed));
+        assert!(!parses_as_pem(b"not a certificate"));
     }
 
     #[test]

@@ -1,10 +1,13 @@
 import { getPlatformAlternateKey, getPlatformSpecialKey } from "./platformutils"
 import { getKernelMode } from "@hoppscotch/kernel"
+import type { HoppAction } from "./actions"
 
 export type ShortcutDef = {
   label: string
   keys: string[]
   section: string
+  // Gated key: does nothing while no mounted view handles this action
+  action?: HoppAction
 }
 
 export function getShortcuts(t: (x: string) => string): ShortcutDef[] {
@@ -160,6 +163,7 @@ export function getShortcuts(t: (x: string) => string): ShortcutDef[] {
       keys: [getPlatformAlternateKey(), "T"],
       label: t("shortcut.tabs.switch_protocol"),
       section: t("shortcut.tabs.title"),
+      action: "tab.switch-protocol",
     },
 
     // Miscellaneous

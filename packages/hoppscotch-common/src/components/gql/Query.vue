@@ -138,8 +138,15 @@ const props = withDefaults(
     subscriptionState?: SubscriptionState
     // Embed-only env scope for `<<var>>` highlights
     envs?: AggregateEnvironment[]
+    // Workspace tab this editor shows; scopes requested cursor moves
+    tabId?: string
   }>(),
-  { showRunActions: true, subscriptionState: undefined, envs: undefined }
+  {
+    showRunActions: true,
+    subscriptionState: undefined,
+    envs: undefined,
+    tabId: undefined,
+  }
 )
 
 const emit = defineEmits<{
@@ -265,28 +272,43 @@ watch(updatedQuery, async (newQuery) => {
 // Cursor-only moves requested by non-editor surfaces (e.g. the AI chat
 // pointing at the operation it runs or just wrote) — the `updatedQuery`
 // watcher above only fires when the query text itself changes.
+const applyRequestedCursor = async (
+  req: NonNullable<typeof queryBuilder.requestedCursor.value>
+) => {
+  // Let a same-tick query update land in the editor first so the position
+  // exists in the document being addressed.
+  await nextTick()
+  // A newer request superseded this one while waiting.
+  if (queryBuilder.requestedCursor.value !== req) return
+  // The editor focuses itself when its cursor is set; a move requested by
+  // another surface (the chat) must not pull focus away from it.
+  const previouslyFocused = document.activeElement
+  cmQueryEditor.cursor.value = { line: req.line, ch: req.ch }
+  queryBuilder.requestedCursor.value = null
+  await nextTick()
+  if (
+    previouslyFocused instanceof HTMLElement &&
+    previouslyFocused !== document.activeElement &&
+    previouslyFocused.isConnected
+  ) {
+    previouslyFocused.focus({ preventScroll: true })
+  }
+}
+
 watch(
   () => queryBuilder.requestedCursor.value,
-  async (pos) => {
-    if (!pos) return
-    // Let a same-tick query update land in the editor first so the position
-    // exists in the document being addressed.
-    await nextTick()
-    // The editor focuses itself when its cursor is set; a move requested by
-    // another surface (the chat) must not pull focus away from it.
-    const previouslyFocused = document.activeElement
-    cmQueryEditor.cursor.value = pos
-    queryBuilder.requestedCursor.value = null
-    await nextTick()
-    if (
-      previouslyFocused instanceof HTMLElement &&
-      previouslyFocused !== document.activeElement &&
-      previouslyFocused.isConnected
-    ) {
-      previouslyFocused.focus({ preventScroll: true })
-    }
+  (req) => {
+    // A move for another tab was computed from that tab's document.
+    if (req && (!req.tabId || req.tabId === props.tabId))
+      applyRequestedCursor(req)
   }
 )
+
+// Picks up a move requested for this tab while its editor was unmounted.
+onMounted(() => {
+  const req = queryBuilder.requestedCursor.value
+  if (req?.tabId && req.tabId === props.tabId) applyRequestedCursor(req)
+})
 
 const prettifyQuery = () => {
   try {

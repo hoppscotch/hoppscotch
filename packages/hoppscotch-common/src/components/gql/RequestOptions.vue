@@ -15,6 +15,7 @@
         :show-run-actions="showRunActions"
         :subscription-state="subscriptionState"
         :envs="envs"
+        :tab-id="tabId"
         @run-query="runQuery"
         @stop-query="stopQuery"
         @save-request="() => invokeAction('request-response.save')"
@@ -414,9 +415,8 @@ const changeOptionTab = (e: GQLOptionTabs) => {
 
 const runActionsActive = computed(() => props.showRunActions)
 
-/** Resolves a named operation from the current query document, if present. */
-const findOperationByName = (name?: string) => {
-  if (!name) return null
+/** The named operation; null if absent, undefined if the query doesn't parse. */
+const findOperationByName = (name: string) => {
   try {
     return (
       gql
@@ -427,15 +427,35 @@ const findOperationByName = (name?: string) => {
         ) ?? null
     )
   } catch (_e) {
-    return null
+    return undefined
+  }
+}
+
+/**
+ * Runs the named operation (multi-operation documents); without a name,
+ * runQuery falls back to the document's first operation.
+ */
+const runNamedOperation = (name?: string) => {
+  if (!name) return runQuery()
+  const definition = findOperationByName(name)
+  if (definition) return runQuery(definition)
+  // Unparseable before env templating: send as before, the server decides.
+  if (definition === undefined) return runQuery()
+  // A name that doesn't resolve must not run another operation.
+  if (props.tabId) {
+    gqlTabConn.getTabMessageEvent(props.tabId).value = {
+      type: "error",
+      error: {
+        type: "operation_not_found",
+        message: `No operation named "${name}" in the query.`,
+      },
+    }
   }
 }
 
 defineActionHandler(
   "request.send-cancel",
-  // The payload can name which operation to run (multi-operation documents);
-  // without it, runQuery falls back to the document's first operation.
-  (payload) => runQuery(findOperationByName(payload?.operationName)),
+  (payload) => runNamedOperation(payload?.operationName),
   runActionsActive
 )
 defineActionHandler("request.reset", clearGQLQuery, runActionsActive)

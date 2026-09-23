@@ -2770,7 +2770,10 @@ export class AIChatService extends Service {
       const before = query.slice(0, offset)
       const line = (before.match(/\n/g) ?? []).length
       const ch = offset - (before.lastIndexOf("\n") + 1)
-      this.gqlQueryBuilder.moveCursorTo(line, ch)
+      // Pinned to the turn's tab: the user may have switched tabs meanwhile.
+      const tabId = this.resolveTurnTab()?.id
+      if (!tabId) return
+      this.gqlQueryBuilder.moveCursorTo(line, ch, tabId)
     } catch (_e) {
       // Unparseable query — leave the cursor where it is.
     }

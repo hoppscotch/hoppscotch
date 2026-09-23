@@ -38,6 +38,7 @@ import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { WorkspaceService } from "~/services/workspace.service"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { TestRunnerService } from "~/services/test-runner/test-runner.service"
+import { GQLQueryBuilderService } from "~/services/gql-query-builder.service"
 import { TeamAccessRole } from "~/helpers/backend/graphql"
 import { defineActionHandler } from "~/helpers/actions"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
@@ -101,6 +102,7 @@ describe("AIChatService run/save mechanics", () => {
   let workspace: WorkspaceService
   let teamCollections: TeamCollectionsService
   let runner: TestRunnerService
+  let gqlBuilder: GQLQueryBuilderService
   let app: App | null
   /** Tab ids whose pane handled a send / save. */
   let sent: string[]
@@ -229,6 +231,7 @@ describe("AIChatService run/save mechanics", () => {
     workspace = c.bind(WorkspaceService)
     teamCollections = c.bind(TeamCollectionsService)
     runner = c.bind(TestRunnerService)
+    gqlBuilder = c.bind(GQLQueryBuilderService)
     app = null
     sent = []
     saved = []
@@ -334,6 +337,41 @@ describe("AIChatService run/save mechanics", () => {
       { url: "https://new.example/graphql", variables: '{"id":"7"}' },
     ])
     expect(replies[2]).toMatch(/^✅ Operation completed/)
+  })
+
+  it("moves the pinned GraphQL tab's cursor, not the front tab's", async () => {
+    const gqlTab = (query: string) =>
+      tabs.createNewTab({
+        type: "gql-request",
+        request: {
+          ...getDefaultGQLRequest(),
+          url: "https://a.example/graphql",
+          query,
+        },
+        isDirty: false,
+        response: [],
+      } as never)
+    const pinned = gqlTab("query A { a }")
+    const front = gqlTab("query B { b }")
+    tabs.setActiveTab(pinned.id)
+    await mount()
+    inner(chat).syncTurnTab()
+    tabs.setActiveTab(front.id)
+    await nextTick()
+
+    await run([
+      {
+        id: "1",
+        name: "set_query",
+        input: { query: "query A { a }\nquery C { c }" },
+      },
+    ])
+
+    expect(gqlBuilder.requestedCursor.value).toEqual({
+      line: 1,
+      ch: 0,
+      tabId: pinned.id,
+    })
   })
 
   describe("off the workspace page", () => {

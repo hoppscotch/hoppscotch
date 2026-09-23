@@ -33,6 +33,7 @@ vi.mock("~/platform", () => ({
 }))
 
 import { AIChatService } from "../ai-chat.service"
+import { platform } from "~/platform"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { WorkspaceService } from "~/services/workspace.service"
 import { TeamCollectionsService } from "~/services/team-collection.service"
@@ -2337,4 +2338,38 @@ describe("AIChatService run/save mechanics", () => {
     })
   })
 
+  describe("offline chained commands", () => {
+    const ai = platform.experiments!.aiExperiments as unknown as {
+      chat?: unknown
+    }
+    let online: unknown
+
+    beforeEach(() => {
+      online = ai.chat
+      ai.chat = undefined
+    })
+
+    afterEach(() => {
+      ai.chat = online
+    })
+
+    it("acts on the tab an earlier step opened", async () => {
+      const a = tabs.createNewTab(restTab("https://a.example"))
+      tabs.setActiveTab(a.id)
+      await mount()
+
+      await chat.sendMessage(
+        "open a new tab and set url to https://b.example and run the request",
+        ""
+      )
+
+      const opened = tabs.currentActiveTab.value
+      expect(opened.id).not.toBe(a.id)
+      expect(sent).toEqual([opened.id])
+      const doc = tabs.getTabRef(a.id).value.document
+      if (doc.type !== "request") throw new Error("not a request tab")
+      expect(doc.request.endpoint).toBe("https://a.example")
+      expect(chat.lastTurnTools.value).toContain("run_request")
+    })
+  })
 })

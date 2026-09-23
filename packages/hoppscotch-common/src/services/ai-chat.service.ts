@@ -2089,7 +2089,7 @@ export class AIChatService extends Service {
     batch: ToolBatch
   ): Promise<string> {
     // Off the workspace page its tabs are hidden, so none is edited.
-    const active = this.onWorkspacePage() ? this.getActiveRequest() : null
+    let active = this.onWorkspacePage() ? this.getActiveRequest() : null
 
     // The regex parsers are not built for essays — bound their input.
     if (userText.length > MAX_OFFLINE_COMMAND_LENGTH) {
@@ -2117,6 +2117,7 @@ export class AIChatService extends Service {
           }
           handledAny = true
           batch.sent = false
+          batch.activatedTabId = null
           const reply = await this.runAppAction(
             appAction.name,
             appAction.input,
@@ -2127,6 +2128,14 @@ export class AIChatService extends Service {
             this.recordTool(appAction.name)
           }
           if (reply) replies.push(reply)
+          // Later segments act on the tab this one opened.
+          const activated = batch.activatedTabId
+          if (activated) {
+            await nextTick()
+            if (this.isStaleTurn(batch.generation)) break
+            this.turnTabId = activated
+            active = this.onWorkspacePage() ? this.getActiveRequest() : null
+          }
           continue
         }
 

@@ -87,10 +87,15 @@ export type ExperimentsPlatformDef = {
         }
       >
     >
+    /**
+     * One model round-trip. An aborted `signal` (the user pressed Stop)
+     * resolves to `E.left("ABORTED")`.
+     */
     chat?: (
       messages: { role: "user" | "assistant"; content: string | unknown[] }[],
       context: string,
-      selection?: AIChatSelection
+      selection?: AIChatSelection,
+      options?: { signal?: AbortSignal }
     ) => Promise<
       E.Either<
         string,

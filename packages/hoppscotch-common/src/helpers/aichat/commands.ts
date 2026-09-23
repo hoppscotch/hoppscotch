@@ -633,7 +633,8 @@ export function applyToolCall(
       const contentType = args.contentType
         ? String(args.contentType)
         : undefined
-      if (typeof args.body !== "string") {
+      const body = args.body
+      if (body === undefined || body === null) {
         if (!contentType) {
           return {
             handled: true,
@@ -652,10 +653,38 @@ export function applyToolCall(
           reply: applyChatBody(req, current, contentType),
         }
       }
+      if (typeof body === "string") {
+        return {
+          handled: true,
+          changed: true,
+          reply: applyChatBody(req, body, contentType),
+        }
+      }
+      // Weaker models send a JSON body as an object: serialize it as JSON.
+      const type =
+        contentType && ALLOWED_BODY_TYPES.has(contentType) ? contentType : null
+      if (type && !/json/i.test(type)) {
+        return {
+          handled: true,
+          changed: false,
+          reply: `⚠️ A ${code(type)} body must be text — nothing changed.`,
+        }
+      }
+      // Keep a JSON variant (vnd.api+json…) the request already uses.
+      const current =
+        req.body && "contentType" in req.body ? req.body.contentType : null
+      const currentJSON =
+        current && ALLOWED_BODY_TYPES.has(current) && /json/i.test(current)
+          ? current
+          : null
       return {
         handled: true,
         changed: true,
-        reply: applyChatBody(req, args.body, contentType),
+        reply: applyChatBody(
+          req,
+          JSON.stringify(body, null, 2),
+          type ?? currentJSON ?? "application/json"
+        ),
       }
     }
 

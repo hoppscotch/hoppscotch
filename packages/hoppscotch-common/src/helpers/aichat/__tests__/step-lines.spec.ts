@@ -1,3 +1,5 @@
+import { readdirSync, readFileSync } from "node:fs"
+import { resolve } from "node:path"
 import { describe, expect, it } from "vitest"
 import { parseStepLines, repliesFailure } from "../step-lines"
 
@@ -16,6 +18,7 @@ describe("parseStepLines", () => {
         "📁 Created collection **fakestore**.",
         "🗂️ Opened a new tab.",
         "🗙 Closed the tab.",
+        "🗑️ Deleted **Payments** and everything in it.",
         "💾 Saved the request.",
         "👥 Created team **acme** and switched to it.",
         "🏠 Switched to your personal workspace.",
@@ -42,6 +45,7 @@ describe("parseStepLines", () => {
       ["collection", "neutral"],
       ["tab", "neutral"],
       ["closed", "neutral"],
+      ["deleted", "neutral"],
       ["saved", "neutral"],
       ["team", "neutral"],
       ["personal", "neutral"],
@@ -185,5 +189,42 @@ describe("repliesFailure", () => {
 
   it("treats an empty reply as no verdict", () => {
     expect(repliesFailure("", true)).toBe(false)
+  })
+
+  it("does not flag a completed delete", () => {
+    expect(
+      repliesFailure(
+        "\u{1F5D1}\uFE0F Deleted **Payments** and everything in it.",
+        true
+      )
+    ).toBe(false)
+  })
+})
+
+describe("glyph vocabulary", () => {
+  // A glyph the parser doesn't know turns a success into an unmarked "note",
+  // which goes back to the model as a failure.
+  const helpers = resolve(__dirname, "..")
+  const sources = [
+    resolve(helpers, "../../services/ai-chat.service.ts"),
+    ...readdirSync(helpers)
+      .filter((f) => f.endsWith(".ts") && f !== "step-lines.ts")
+      .map((f) => resolve(helpers, f)),
+  ]
+  const LEADING_GLYPH =
+    /(?:["'`]|\\n)([\u2190-\u2BFF\u{1F000}-\u{1FAFF}]\uFE0F?)/gu
+
+  const emitted = new Set<string>()
+  for (const file of sources) {
+    for (const [, glyph] of readFileSync(file, "utf8").matchAll(LEADING_GLYPH))
+      emitted.add(glyph)
+  }
+
+  it("finds the service's glyphs", () => {
+    expect(emitted.size).toBeGreaterThan(15)
+  })
+
+  it.each([...emitted])("knows %s", (glyph) => {
+    expect(parseStepLines(`${glyph} x`)[0].kind).not.toBe("note")
   })
 })

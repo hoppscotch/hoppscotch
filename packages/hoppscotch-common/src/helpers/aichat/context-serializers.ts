@@ -12,8 +12,13 @@ import {
  * call — they are the largest pieces of context and rarely needed.
  */
 
-export const truncateText = (value: string, max: number) =>
-  value.length > max ? `${value.slice(0, max)}…[truncated]` : value
+/** Cuts at `max` without splitting an emoji into a lone surrogate. */
+export const truncateText = (value: string, max: number) => {
+  if (value.length <= max) return value
+  const code = value.charCodeAt(max - 1)
+  const cut = code >= 0xd800 && code <= 0xdbff ? max - 1 : max
+  return `${value.slice(0, cut)}…[truncated]`
+}
 
 /**
  * Compact SDL snapshot of an introspected schema. The operation roots
@@ -59,6 +64,9 @@ export const serializeGQLSchema = (
   return parts.join("\n\n")
 }
 
+/** Deepest folder level the outline walks; deeper ones are counted, not listed. */
+const MAX_DEPTH = 3
+
 /** Compact outline of a collection tree — capped so the result stays bounded. */
 export const serializeCollections = (
   collections: HoppCollection[],
@@ -98,7 +106,15 @@ export const serializeCollections = (
           return
         }
       }
-      if (depth < 3) walk(c.folders ?? [], depth + 1)
+      const folders = c.folders ?? []
+      if (depth < MAX_DEPTH) {
+        walk(folders, depth + 1)
+      } else if (folders.length) {
+        const n = folders.length
+        push(
+          `${"  ".repeat(depth + 1)}- …${n} more folder${n > 1 ? "s" : ""} nested deeper`
+        )
+      }
     }
   }
 

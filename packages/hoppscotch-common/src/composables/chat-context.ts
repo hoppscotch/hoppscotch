@@ -22,15 +22,16 @@ import {
 import { restCollections$ } from "~/newstore/collections"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { teamCollToHoppRESTColl } from "~/helpers/backend/helpers"
+import { truncateText } from "~/helpers/aichat/context-serializers"
+import { isActionBound } from "~/helpers/actions"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import type { TeamAccessRole } from "~/helpers/backend/graphql"
 import type { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
+import type { HoppTabDocument } from "~/helpers/tab/document"
+import type { HoppTab } from "~/services/tab"
 import { AIChatService, type ChatContextItem } from "~/services/ai-chat.service"
 
 export type { ChatContextItem }
-
-const truncate = (value: string, max: number) =>
-  value.length > max ? `${value.slice(0, max)}…[truncated]` : value
 
 // Every character here is re-sent on each model round-trip, so the caps are
 // deliberately tight — the model asks for more when it needs it.
@@ -39,19 +40,32 @@ const HEADER_VALUE_CHARS = 120
 const MAX_RESPONSE_HEADERS = 12
 const MAX_ENV_NAMES = 20
 
-const headerLines = (headers: Array<{ key: string; value: string }>) =>
+const OFF_PAGE_NOTE =
+  "No request is open: the user is on another page. Request and tab tools refuse until they open the workspace."
+
+/** Puts resolved credentials back behind their references. */
+type Mask = (text: string) => string
+
+// Masked before the cut: a truncated credential no longer matches its value.
+const clip = (value: string, max: number, mask: Mask) =>
+  truncateText(mask(value), max)
+
+const headerLines = (
+  headers: Array<{ key: string; value: string }>,
+  mask: Mask
+) =>
   headers
-    .map((h) => `- ${h.key}: ${truncate(h.value, HEADER_VALUE_CHARS)}`)
+    .map((h) => `- ${h.key}: ${clip(h.value, HEADER_VALUE_CHARS, mask)}`)
     .join("\n")
 
-const serializeRequest = (req: HoppRESTRequest): string => {
+const serializeRequest = (req: HoppRESTRequest, mask: Mask): string => {
   const lines: string[] = [
     "### Current request",
     `${req.method} ${req.endpoint}`,
   ]
 
   if (req.description?.trim()) {
-    lines.push(`Documentation:\n${truncate(req.description, 400)}`)
+    lines.push(`Documentation:\n${clip(req.description, 400, mask)}`)
   }
 
   const params = (req.params ?? []).filter((p) => p.active && p.key)
@@ -63,7 +77,7 @@ const serializeRequest = (req: HoppRESTRequest): string => {
 
   const headers = (req.headers ?? []).filter((h) => h.active && h.key)
   if (headers.length) {
-    lines.push("Headers:\n" + headerLines(headers))
+    lines.push("Headers:\n" + headerLines(headers, mask))
   }
 
   if (
@@ -82,13 +96,13 @@ const serializeRequest = (req: HoppRESTRequest): string => {
     body.body.trim()
   ) {
     const contentType = "contentType" in body ? body.contentType : "raw"
-    lines.push(`Body (${contentType}):\n${truncate(body.body, BODY_CHARS)}`)
+    lines.push(`Body (${contentType}):\n${clip(body.body, BODY_CHARS, mask)}`)
   }
 
   return lines.join("\n")
 }
 
-const serializeResponse = (res: HoppRESTResponse): string => {
+const serializeResponse = (res: HoppRESTResponse, mask: Mask): string => {
   if (res.type !== "success" && res.type !== "failure") return ""
 
   const lines: string[] = [
@@ -102,7 +116,7 @@ const serializeResponse = (res: HoppRESTResponse): string => {
     .filter((h: { key: string; value: string }) => h.key)
     .slice(0, MAX_RESPONSE_HEADERS)
   if (headers.length) {
-    lines.push("Headers:\n" + headerLines(headers))
+    lines.push("Headers:\n" + headerLines(headers, mask))
   }
 
   let bodyText = ""
@@ -112,7 +126,7 @@ const serializeResponse = (res: HoppRESTResponse): string => {
     bodyText = ""
   }
   if (bodyText.trim()) {
-    lines.push(`Body (truncated):\n${truncate(bodyText, BODY_CHARS)}`)
+    lines.push(`Body (truncated):\n${clip(bodyText, BODY_CHARS, mask)}`)
   }
 
   return lines.join("\n")
@@ -120,7 +134,8 @@ const serializeResponse = (res: HoppRESTResponse): string => {
 
 const serializeGQLRequest = (
   req: HoppGQLRequest,
-  hasSchema: boolean
+  hasSchema: boolean,
+  mask: Mask
 ): string => {
   const lines: string[] = [
     "### Current request (GraphQL)",
@@ -129,7 +144,7 @@ const serializeGQLRequest = (
 
   const headers = (req.headers ?? []).filter((h) => h.active && h.key)
   if (headers.length) {
-    lines.push("Headers:\n" + headerLines(headers))
+    lines.push("Headers:\n" + headerLines(headers, mask))
   }
 
   if (
@@ -141,7 +156,7 @@ const serializeGQLRequest = (
   }
 
   if (req.query?.trim()) {
-    lines.push(`Query:\n${truncate(req.query, BODY_CHARS)}`)
+    lines.push(`Query:\n${clip(req.query, BODY_CHARS, mask)}`)
 
     // A document can hold several operations — spell them out so the model
     // can pick one via run_request { operation: "<name>" }.
@@ -167,7 +182,7 @@ const serializeGQLRequest = (
     }
   }
   if (req.variables?.trim()) {
-    lines.push(`Query variables:\n${truncate(req.variables, 500)}`)
+    lines.push(`Query variables:\n${clip(req.variables, 500, mask)}`)
   }
 
   lines.push(
@@ -188,7 +203,10 @@ const lastGQLResponse = (events: GQLResponseEvent[]) => {
   return null
 }
 
-const serializeGQLResponse = (events: GQLResponseEvent[]): string => {
+const serializeGQLResponse = (
+  events: GQLResponseEvent[],
+  mask: Mask
+): string => {
   const last = lastGQLResponse(events)
   if (!last) return ""
 
@@ -202,7 +220,7 @@ const serializeGQLResponse = (events: GQLResponseEvent[]): string => {
     )
   }
   if (last.data?.trim()) {
-    lines.push(`Body (truncated):\n${truncate(last.data, BODY_CHARS)}`)
+    lines.push(`Body (truncated):\n${clip(last.data, BODY_CHARS, mask)}`)
   }
 
   return lines.join("\n")
@@ -252,11 +270,15 @@ const serializeWorkspace = (
  * Builds the live, toggleable context for the AI chat from whatever the user is
  * currently looking at — the active REST request, its latest response, and the
  * selected environment.
+ *
+ * @param active Whether the assistant is in use; team environments are only
+ * fetched and subscribed to while it is.
  */
-export function useChatContext() {
+export function useChatContext(active: () => boolean = () => true) {
   const restTabs = useService(WorkspaceTabsService)
   const gqlTabConn = useService(GQLTabConnectionService)
   const chat = useService(AIChatService)
+  const mask: Mask = (text) => chat.maskLocalSecrets(text)
   const workspaceService = useService(WorkspaceService)
 
   const currentEnv = useReadonlyStream(
@@ -281,27 +303,23 @@ export function useChatContext() {
   // component so a remounted layout does not double-subscribe.
   tryOnScopeDispose(() => teamEnvAdapter.unsubscribeSubscriptions())
   const teamCollectionService = useService(TeamCollectionsService)
+  // Only pages/index.vue binds this; elsewhere its tabs are hidden.
+  const onWorkspacePage = isActionBound("rest.request.open")
   watch(
-    workspaceService.currentWorkspace,
-    (ws) => {
-      teamEnvAdapter.changeTeamID(ws.type === "team" ? ws.teamID : undefined)
+    () => {
+      const ws = workspaceService.currentWorkspace.value
+      return active() && ws.type === "team" ? ws.teamID : undefined
     },
+    (teamID) => teamEnvAdapter.changeTeamID(teamID),
     { immediate: true }
   )
 
-  const activeRequestDoc = computed(() => {
-    const doc = restTabs.currentActiveTab.value?.document
-    return doc && doc.type === "request" ? doc : null
-  })
-
-  // The unified workspace also hosts GraphQL request tabs.
-  const activeGQLRequestDoc = computed(() => {
-    const doc = restTabs.currentActiveTab.value?.document
-    return doc && doc.type === "gql-request" ? doc : null
-  })
-
-  const items = computed<ChatContextItem[]>(() => {
+  /** The context items for `tab` and the workspace around it. */
+  const buildItems = (
+    tab: HoppTab<HoppTabDocument> | null | undefined
+  ): ChatContextItem[] => {
     const out: ChatContextItem[] = []
+    const offPage = !onWorkspacePage.value
 
     const workspace = workspaceService.currentWorkspace.value
     out.push({
@@ -311,17 +329,20 @@ export function useChatContext() {
         workspace.type === "team"
           ? `Team workspace: ${workspace.teamName}`
           : "Personal workspace",
-      serialize: () => serializeWorkspace(workspace, teamList.value ?? []),
+      serialize: () =>
+        serializeWorkspace(workspace, teamList.value ?? []) +
+        (offPage ? `\n${OFF_PAGE_NOTE}` : ""),
     })
 
-    const doc = activeRequestDoc.value
+    const tabDoc = offPage ? undefined : tab?.document
+    const doc = tabDoc?.type === "request" ? tabDoc : null
     if (doc?.request) {
       const req = doc.request
       out.push({
         id: "request",
         label: "Request",
         detail: `${req.method} ${req.endpoint || "—"}`,
-        serialize: () => serializeRequest(req),
+        serialize: () => serializeRequest(req, mask),
       })
 
       const res = doc.response
@@ -330,21 +351,25 @@ export function useChatContext() {
           id: "response",
           label: "Response",
           detail: `${res.statusCode} ${res.statusText}`,
-          serialize: () => serializeResponse(res),
+          serialize: () => serializeResponse(res, mask),
         })
       }
     }
 
-    const gqlDoc = activeGQLRequestDoc.value
-    if (gqlDoc?.request) {
+    // The unified workspace also hosts GraphQL request tabs.
+    const gqlDoc = tabDoc?.type === "gql-request" ? tabDoc : null
+    if (tab && gqlDoc?.request) {
       const req = gqlDoc.request
-      const schema = gqlTabConn.activeTabSchema.value
+      const schema =
+        tab.id === restTabs.currentActiveTab.value?.id
+          ? gqlTabConn.activeTabSchema.value
+          : gqlTabConn.getTabConnectionState(tab.id).schema
 
       out.push({
         id: "request",
         label: "Request",
         detail: `GQL ${req.url || "—"}`,
-        serialize: () => serializeGQLRequest(req, !!schema),
+        serialize: () => serializeGQLRequest(req, !!schema, mask),
       })
 
       // The introspected schema (once the tab has connected) — this is what
@@ -370,7 +395,7 @@ export function useChatContext() {
           detail: last.document
             ? `${last.document.statusCode} ${last.document.statusText}`
             : "GraphQL response",
-          serialize: () => serializeGQLResponse(events),
+          serialize: () => serializeGQLResponse(events, mask),
         })
       }
     }
@@ -426,7 +451,9 @@ export function useChatContext() {
     out.push(...chat.registeredContext.value)
 
     return out
-  })
+  }
+
+  const items = computed(() => buildItems(restTabs.currentActiveTab.value))
 
   // Context ids the user has explicitly toggled off (everything is on by default).
   const excluded = ref<Set<string>>(new Set())
@@ -440,14 +467,30 @@ export function useChatContext() {
     excluded.value = next
   }
 
-  const contextString = computed(() =>
-    items.value
-      .filter((item) => isIncluded(item.id))
-      .map((item) => item.serialize())
-      .join("\n\n")
-  )
+  // A credential the chat resolved into the request goes back as its reference.
+  const serializeItems = (list: ChatContextItem[]) =>
+    chat.maskLocalSecrets(
+      list
+        .filter((item) => isIncluded(item.id))
+        .map((item) => item.serialize())
+        .join("\n\n")
+    )
 
-  return { items, isIncluded, toggle, contextString }
+  /**
+   * The context for the tab a turn is pinned to (null: the active one), built
+   * fresh on each call so every step sees what the last one opened or ran.
+   * Never cached: the secrets to mask aren't reactive.
+   */
+  const contextFor = (tabId: string | null) => {
+    const active = restTabs.currentActiveTab.value
+    const tab =
+      !tabId || active?.id === tabId
+        ? active
+        : restTabs.getActiveTabs().value.find((t) => t.id === tabId)
+    return serializeItems(buildItems(tab))
+  }
+
+  return { items, isIncluded, toggle, contextFor }
 }
 
 /**

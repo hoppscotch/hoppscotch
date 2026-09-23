@@ -152,7 +152,7 @@ describe("AIChatService teardown", () => {
         E.right({ content: "one two three four five six", tool_calls: [] })
       )
       const turn = chat.sendMessage("hello", "")
-      await tick(12) // inside streamText's per-token delay
+      await tick(12) // inside streamText's first frame
       chat.reset()
       await turn
 

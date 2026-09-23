@@ -18,6 +18,7 @@ export type StepKind =
   | "properties"
   | "tab"
   | "closed"
+  | "deleted"
   | "saved"
   | "team"
   | "personal"
@@ -55,6 +56,7 @@ const GLYPHS: Array<[string, StepKind]> = [
   ["📂", "tab"],
   ["🗂️", "tab"],
   ["🗙", "closed"],
+  ["🗑️", "deleted"],
   ["💾", "saved"],
   ["👥", "team"],
   ["🏠", "personal"],
@@ -97,6 +99,7 @@ const TONES: Record<StepKind, StepTone> = {
   properties: "neutral",
   tab: "neutral",
   closed: "neutral",
+  deleted: "neutral",
   saved: "neutral",
   team: "neutral",
   personal: "neutral",

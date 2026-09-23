@@ -1,5 +1,12 @@
 import { Service } from "dioc"
-import { nextTick, ref, shallowRef, watch, type ShallowRef } from "vue"
+import {
+  computed,
+  nextTick,
+  ref,
+  shallowRef,
+  watch,
+  type ShallowRef,
+} from "vue"
 import * as E from "fp-ts/Either"
 import type {
   HoppCollection,
@@ -66,7 +73,7 @@ import {
   switchActiveTabToREST,
 } from "~/helpers/tab/protocol-switch"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
-import { WorkspaceService } from "~/services/workspace.service"
+import { WorkspaceService, type Workspace } from "~/services/workspace.service"
 import { platform } from "~/platform"
 import type { AIChatModelOption, AIChatSelection } from "~/platform/experiments"
 import {
@@ -81,6 +88,7 @@ import {
   type HoppActionWithOptionalArgs,
 } from "~/helpers/actions"
 import { settingsStore } from "~/newstore/settings"
+import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { getI18n } from "~/modules/i18n"
 import {
   createEnvironment,
@@ -95,6 +103,8 @@ import {
   updateTeamEnvironment,
 } from "~/helpers/backend/mutations/TeamEnvironment"
 import {
+  flushLocalStoresForCollectionTree,
+  flushLocalStoresForTeamCollectionTree,
   populateLocalStoresFromVariables,
   stripClientLocalValuesForWire,
 } from "~/helpers/clientLocalVariables"
@@ -106,6 +116,7 @@ import {
   editRESTCollection,
   editRESTFolder,
   editRESTRequest,
+  getRESTCollectionInheritedProps,
   removeRESTCollection,
   removeRESTFolder,
   restCollectionStore,
@@ -118,7 +129,6 @@ import {
 } from "~/newstore/mockServers"
 import type { MockServer } from "~/helpers/backend/types/MockServer"
 import type { CollectionDataProps } from "~/helpers/backend/helpers"
-import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
 import {
   serializeCollections,
   serializeGQLSchema,
@@ -128,11 +138,24 @@ import {
   type PublishedDocInfo,
 } from "~/services/documentation.service"
 import {
-  findCollectionByName,
+  describeAmbiguous,
   findRequestInTree,
   findTopLevelCollection,
   listRequestNames,
+  lookupCollection,
+  lookupRequest,
+  matchTreeNodes,
+  parseCollectionRef,
+  pickByName,
+  type Lookup,
+  type TreeAccess,
 } from "~/helpers/aichat/collections"
+import {
+  getFoldersByPath,
+  resetTeamRequestsContext,
+  resolveSaveContextOnCollectionReorder,
+  updateInheritedPropertiesForAffectedRequests,
+} from "~/helpers/collection/collection"
 import {
   runChatCommand,
   applyToolCall,
@@ -141,10 +164,13 @@ import {
 import {
   buildCollectionRequest,
   parseCollectionRequestDefinitions,
+  type CollectionRequestDefinition,
 } from "~/helpers/aichat/collection-requests"
 import {
   containsLocalSecretReference,
   LOCAL_SECRET_REFERENCE_GLOBAL,
+  makeLocalSecretReference,
+  REDACTED_VALUE,
   redactSensitiveChatValues,
   replaceSensitiveChatValues,
 } from "~/helpers/aichat/secret-references"
@@ -171,7 +197,11 @@ export interface ChatMessage {
   id: string
   role: ChatRole
   content: string
-  /** Sanitized content sent to the model when the displayed text has a secret. */
+  /**
+   * Sanitized content sent to the model when the displayed text has a secret.
+   * On a step line or error notice, what the model is told (others stay
+   * UI-only).
+   */
   modelContent?: string
   /** True while the assistant message is still streaming in. */
   pending?: boolean
@@ -201,6 +231,43 @@ export interface ChatContextItem {
   /** Serializes this context into the string sent to the model. */
   serialize: () => string
 }
+
+/** Builds the context for the tab a turn is pinned to (null: the active tab). */
+export type ChatContextSource = (tabId: string | null) => string
+
+/** What a turn changed that alters what a run sends. */
+export type RunRisk = "host" | "script" | "env"
+
+/** A tool waiting on the user's yes/no. */
+export interface PendingConfirmation {
+  kind:
+    | "collection"
+    | "mock-server"
+    | "run"
+    | "publish-docs"
+    | "unpublish-docs"
+    | "public-mock-server"
+    | "save"
+  name: string
+  /** Team name, or null for the personal workspace. */
+  workspace: string | null
+  /** For a run or save: what the chat changed. */
+  reasons?: RunRisk[]
+  /** The hosts behind a "host" reason. */
+  hosts?: string[]
+  /** For docs: the version, and an environment whose values go public. */
+  version?: string
+  environment?: string
+  resolve: (confirmed: boolean) => void
+}
+
+/** What a confirmation shows besides its target; workspace overrides the current one. */
+type ConfirmDetail = Partial<
+  Pick<
+    PendingConfirmation,
+    "reasons" | "hosts" | "version" | "environment" | "workspace"
+  >
+>
 
 /** A v2 environment variable as edited from the chat. */
 interface EnvVar {
@@ -241,6 +308,26 @@ type TeamListEntry = GetMyTeamsQuery["myTeams"][number]
 const TEAM_TREE_TIMEOUT_MS = 10_000
 /** Most root collections expanded when searching a team by name. */
 const MAX_TEAM_ROOTS_TO_EXPAND = 20
+
+/** How collection lookups walk the (lazily loaded) team tree. */
+const TEAM_TREE: TreeAccess<TeamCollection> = {
+  name: (c) => c.title ?? "",
+  children: (c) => c.children,
+}
+
+/** A resolved team collection: its node, id path and "Parent/Child" label. */
+interface TeamFoundCollection {
+  node: TeamCollection
+  path: string
+  label: string
+}
+
+/** A team request with its collection's id path and its "Parent/Name" label. */
+interface TeamRequestHit {
+  request: TeamRequest
+  path: string
+  label: string
+}
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -290,7 +377,8 @@ interface ChatToolCall {
 type ChatFn = (
   messages: ChatRequestMessage[],
   context: string,
-  selection?: AIChatSelection
+  selection?: AIChatSelection,
+  options?: { signal?: AbortSignal }
 ) => Promise<
   E.Either<
     string,
@@ -331,17 +419,113 @@ const MAX_HISTORY_CHARS = 8_000
 const MAX_OLD_ASSISTANT_CHARS = 800
 const MAX_OLD_USER_CHARS = 4_000
 
+/**
+ * Moves a cut index off the middle of a surrogate pair: a lone surrogate makes
+ * the provider reject the whole request body.
+ */
+const surrogateSafeCut = (text: string, cut: number): number => {
+  const code = text.charCodeAt(cut - 1)
+  return code >= 0xd800 && code <= 0xdbff ? cut - 1 : cut
+}
+
+/** A cut at or before `max` that splits no `<<local-ref:…>>` token. */
+const refSafeCut = (text: string, max: number): number => {
+  let cut = max
+  const open = text.lastIndexOf("<<", cut)
+  // The token ends after its `>>`: a cut between the two splits it too.
+  const close = open === -1 ? -1 : text.indexOf(">>", open)
+  if (close !== -1 && close + 2 > cut) cut = open
+  return surrogateSafeCut(text, cut)
+}
+
 /** Cuts `text` at `max` without splitting a `<<local-ref:…>>` token. */
 const truncateForHistory = (text: string, max: number): string => {
   if (text.length <= max) return text
-  let cut = max
-  const open = text.lastIndexOf("<<", cut)
-  if (open !== -1 && text.indexOf(">>", open) >= cut) cut = open
+  const cut = refSafeCut(text, max)
   return `${text.slice(0, cut)}\n[… ${text.length - cut} more characters from this earlier message were omitted — ask the user to re-send them if needed]`
+}
+
+/** Longest line per tool in a note to the model on what ran. */
+const MAX_RAN_LINE_CHARS = 160
+
+/** A tool's line in a note to the model, and whether it failed with no effect. */
+interface RanOutcome {
+  line: string
+  failed: boolean
+}
+
+/** A tool's line in such a note: its name and how it ended. */
+const ranLine = (name: string, result: string, short?: string): string => {
+  const text =
+    short && result.startsWith("### ")
+      ? short
+      : (result.split("\n").find((l) => l.trim()) ?? "Done.").trim()
+  const line =
+    text.length > MAX_RAN_LINE_CHARS
+      ? `${text.slice(0, refSafeCut(text, MAX_RAN_LINE_CHARS))}…`
+      : text
+  return `- ${name.replace(/[^\w-]/g, "").slice(0, 64) || "tool"}: ${line}`
 }
 
 /** Longest tool reply echoed back to the model (the UI still shows it all). */
 const MAX_TOOL_RESULT_CHARS = 800
+
+/**
+ * The host a request sends to, as the send path resolves it: a REST endpoint
+ * without http(s):// gets "https://" (Request.vue), a GraphQL URL resolves
+ * against the page. So "//evil.example" is evil.example, not "". A templated
+ * host (`<<baseUrl>>`) counts as itself.
+ */
+const hostOf = (url: string, rest = true): string => {
+  const raw = url.replace(/[\t\n\r]/g, "").trim()
+  if (!raw) return ""
+  // Templated: skip the scheme (`<<protocol>>://` too) and any slashes, drop
+  // userinfo.
+  const authorityOf = (text: string) => {
+    const [, scheme = "", authority = ""] =
+      /^([a-z][\w+.-]*:|<<[^<>]+>>:?(?=[/\\]{2}))?[/\\]*([^/\\?#]*)/i.exec(
+        text
+      ) ?? []
+    const host = authority.slice(authority.lastIndexOf("@") + 1).toLowerCase()
+    // `<<x>>//host`: x may hold a scheme or a whole base URL, so both count.
+    return scheme.endsWith(">>") ? `${scheme}//${host}` : host
+  }
+  if (raw.startsWith("<<")) return authorityOf(raw)
+  const full = rest && !/^https?:\/\//i.test(raw) ? `https://${raw}` : raw
+  try {
+    const base = rest ? undefined : globalThis.location?.href
+    return new URL(full, base).host.toLowerCase()
+  } catch (_e) {
+    return authorityOf(full)
+  }
+}
+
+/** Key words naming a URL or host: `baseUrl`, `API_HOST`, `apiBase`. */
+const URL_KEY_WORD =
+  /^(?:url|uri|host|hostname|domain|endpoint|origin|server|base|baseurl)$/
+
+/** Whether a variable key names a URL or host. */
+const isURLKey = (key: string) =>
+  key
+    .replace(/([a-z\d])([A-Z])/g, "$1 $2")
+    .toLowerCase()
+    .split(/[^a-z]+/)
+    .some((word) => URL_KEY_WORD.test(word))
+
+/**
+ * The host a variable value names, else "": a URL (`<<proto>>://` too), or,
+ * when `bare`, a bare host or `<<var>>` (`john.doe` is no host).
+ */
+const valueHost = (value: string, bare: boolean): string => {
+  const v = value.trim()
+  return /^(?:https?:|<<[^<>]+>>:?)?\/\//i.test(v) ||
+    (bare &&
+      /^(?:<<[^<>]+>>|localhost|\d{1,3}(?:\.\d{1,3}){3}|(?:[\w-]+\.)+[a-z]{2,24})(?::\d+)?(?:[/?#]|$)/i.test(
+        v
+      ))
+    ? hostOf(v)
+    : ""
+}
 
 /**
  * Context-fetching tools: their whole point is a large result for the model,
@@ -353,18 +537,214 @@ const CONTEXT_FETCH_TOOLS = new Map<string, string>([
 ])
 const MAX_CONTEXT_RESULT_CHARS = 8_000
 
-/** App actions after which the turn's pinned tab must follow the active tab. */
-const TAB_CHANGING_TOOLS = new Set<string>([
+/** App actions that act on the turn's pinned tab. */
+const TURN_TAB_TOOLS = new Set<string>([
+  "run_request",
+  "save_request",
+  "close_tab",
+  "duplicate_tab",
+  "switch_protocol",
+  "save_request_to_collection",
+  "get_graphql_schema",
+])
+
+/** Platform chat error code → its `ai_experiments.chat.errors` key. */
+const CHAT_ERROR_KEYS = new Map<string, string>([
+  ["UNAUTHORIZED", "unauthorized"],
+  ["RATE_LIMITED", "rate_limited"],
+  ["INPUT_TOO_LARGE", "input_too_large"],
+  ["INVALID_INPUT", "invalid_input"],
+  ["MODEL_UNAVAILABLE", "model_unavailable"],
+  ["CHAT_DISABLED", "chat_disabled"],
+  ["PROVIDER_MISCONFIGURED", "provider_misconfigured"],
+  ["PROVIDER_TIMEOUT", "provider_timeout"],
+  ["NETWORK", "network"],
+  ["UNABLE_TO_PARSE_RESPONSE", "unable_to_parse_response"],
+  ["CANNOT_RUN_CHAT", "cannot_run_chat"],
+  ["ABORTED", "aborted"],
+])
+
+/** Resolved secrets shorter than this stay as they are in the context. */
+const MIN_MASKED_SECRET_LENGTH = 4
+
+/** Below this length a masked value must stand alone, not inside a word. */
+const WHOLE_WORD_SECRET_LENGTH = 12
+
+/**
+ * Worth masking: long, or mixing character classes. "admin", "test", "true"
+ * or "1234" also name paths, roles and flags the model needs to read.
+ */
+const looksLikeSecret = (value: string): boolean => {
+  if (value.length >= 8) return true
+  const classes = [/[a-z]/, /[A-Z]/, /\d/, /[^a-zA-Z\d]/].filter((re) =>
+    re.test(value)
+  ).length
+  return value.length >= MIN_MASKED_SECRET_LENGTH && classes >= 2
+}
+
+/**
+ * Replaces `value` with `ref`. A short value is replaced only where it is a
+ * whole word: "adm1n" inside "adm1nistrator" stays.
+ */
+const replaceSecretIn = (text: string, value: string, ref: string): string => {
+  if (value.length >= WHOLE_WORD_SECRET_LENGTH)
+    return text.split(value).join(ref)
+  const joined = (a = "", b = "") => /[a-z\d]/i.test(a) && /[a-z\d]/i.test(b)
+  let out = ""
+  let last = 0
+  let i = text.indexOf(value)
+  while (i !== -1) {
+    const end = i + value.length
+    if (
+      joined(text[i - 1], value[0]) ||
+      joined(value[value.length - 1], text[end])
+    ) {
+      i = text.indexOf(value, i + 1)
+      continue
+    }
+    out += text.slice(last, i) + ref
+    last = end
+    i = text.indexOf(value, end)
+  }
+  return out + text.slice(last)
+}
+
+const TAB_CLOSED_REPLY =
+  "⚠️ The tab I was working on was closed — nothing changed."
+
+/** Tab tools without their own page check; the rest use unavailableReply. */
+const WORKSPACE_PAGE_TOOLS = new Set<string>([
+  "open_request",
+  "run_collection",
+  "save_request_to_collection",
+  "get_graphql_schema",
+])
+
+const OFF_WORKSPACE_REPLY =
+  "⚠️ Open the workspace to edit requests — nothing changed."
+
+/** App actions that never read the current workspace. */
+const WORKSPACE_FREE_TOOLS = new Set<string>([
+  "run_request",
+  "save_request",
   "open_new_tab",
   "close_tab",
   "duplicate_tab",
   "switch_tab",
   "switch_protocol",
-  "open_request",
-  "run_collection",
-  "create_team",
+  "set_interceptor",
   "switch_workspace",
+  "create_team",
+  "get_graphql_schema",
 ])
+
+const WORKSPACE_MOVED_REPLY =
+  "⚠️ The workspace changed during this reply — nothing changed."
+
+/** What the model reads for a Stop: the message before it is cancelled. */
+const STOPPED_NOTE =
+  "[The user pressed Stop: don't act on the message before this unless asked again.]"
+
+/** A run's line when its turn was stopped after the request went out. */
+const SENT_BEFORE_STOP = "■ Sent before the stop — see the response panel."
+
+/** Input copied from redacted context would write the marker in. */
+const REDACTED_INPUT_REPLY = `⚠️ A value was redacted; ask the user for it — nothing changed. A literal "${REDACTED_VALUE}" must be added by hand.`
+
+/** Occurrences of the redaction marker in a string or tool input. */
+const redactedCount = (value: unknown): number =>
+  (typeof value === "string"
+    ? value
+    : (JSON.stringify(value ?? {}) ?? "")
+  ).split(REDACTED_VALUE).length - 1
+
+/** Longest a chat-triggered save may take (token check, team mutation). */
+const SAVE_TIMEOUT_MS = 10_000
+
+/** Longest run_request waits for the response before reporting it later. */
+const RUN_WAIT_MS = 30_000
+
+/** Upper bound on the cosmetic typing of one reply, and its frame length. */
+const MAX_TYPING_MS = 240
+const TYPING_TICK_MS = 16
+
+/** A started run and its outcome. */
+interface RunStep {
+  /** The step message holding the ▶ line, once the batch posts it. */
+  stepId: string | null
+  /** True until the batch that started the run posts its step. */
+  awaitingStep: boolean
+  /** An outcome that settled before its step line existed. */
+  parked: string | null
+  /** Set when the batch was abandoned: the outcome is not reported. */
+  dropped: boolean
+  /** The outcome, once the response landed (or the watch timed out). */
+  outcome: string | null
+  /** Set once run_request stopped waiting: the step line takes the outcome. */
+  reportLater: boolean
+  /** Called with the outcome while run_request is still waiting on it. */
+  onOutcome: ((text: string) => void) | null
+  /** Stops the watcher and its timer. */
+  cancel: () => void
+}
+
+/** What a tool batch threads into its handlers. */
+interface ToolBatch {
+  generation: number
+  /** Runs this batch leaves running; null outside the agent loop. */
+  runs: RunStep[] | null
+  /** Aborted when the turn is stopped. */
+  signal?: AbortSignal
+  /** The tab the running tool activated; the pin moves there after it. */
+  activatedTabId?: string | null
+  /** Set by the running tool when it switched workspace itself. */
+  switchedWorkspace?: boolean
+  /** Set once a run's request went out: a failed outcome still took effect. */
+  sent?: boolean
+}
+
+/**
+ * What the chat wrote this conversation that a run or save would send, by
+ * content: a copy in another tab, turn or saved request still asks.
+ */
+interface ChatRisks {
+  /** Hosts the chat set that the user never typed. */
+  hosts: Set<string>
+  /** Scripts the chat wrote into a request, trimmed. */
+  scripts: Set<string>
+  /** Variable values the user never typed. */
+  env: boolean
+  /** Hosts and scripts approved for a run, by `riskKey`. */
+  runApproved: Set<string>
+  /** Saves approved, as "target\0" + `riskKey`: one target doesn't cover another. */
+  saveApproved: Set<string>
+}
+
+const noRisks = (): ChatRisks => ({
+  hosts: new Set(),
+  scripts: new Set(),
+  env: false,
+  runApproved: new Set(),
+  saveApproved: new Set(),
+})
+
+const riskKey = (kind: "host" | "script", value: string) => `${kind}\0${value}`
+
+/** Where a request sends and the scripts it runs (pre-request, test). */
+interface RunSurface {
+  host: string
+  scripts: [string, string]
+}
+
+/** Where a save writes: a stable key, its name, and its workspace label. */
+interface SaveTarget {
+  key: string
+  name: string
+  /** Team name or null (personal); undefined means the current workspace. */
+  workspace?: string | null
+}
+
+const RUN_RISK_ORDER: RunRisk[] = ["host", "script", "env"]
 
 /** Max model round-trips per user message (bounds the agentic tool loop). */
 const MAX_TOOL_STEPS = 6
@@ -450,13 +830,25 @@ export class AIChatService extends Service {
 
   /**
    * Whether the administrator has switched the assistant on. Null until the
-   * server has answered, so the launcher can show optimistically rather than
-   * flickering in on every page load.
+   * server has answered.
    */
   public readonly instanceEnabled = ref<boolean | null>(null)
 
   /** True once a lookup has succeeded, whatever it returned. */
   public readonly availabilityKnown = ref(false)
+
+  /** Bumped by `clearAvailability`, so an in-flight lookup is dropped. */
+  private availabilitySession = 0
+
+  /**
+   * Whether the assistant may be offered. Unknown counts as no; a platform
+   * with no server-side switch offers it whenever it can chat.
+   */
+  public readonly available = computed(() => {
+    const ai = platform.experiments?.aiExperiments
+    if (ai?.getChatAvailability) return this.instanceEnabled.value === true
+    return !!ai?.chat
+  })
 
   /**
    * The skills the composer offers under "/": the built-in set with any the
@@ -512,6 +904,9 @@ export class AIChatService extends Service {
 
   private readonly localSecretValues = new Map<string, string>()
 
+  /** Encoded forms of a captured secret → their own id in localSecretValues. */
+  private readonly localSecretForms = new Map<string, string>()
+
   /**
    * Bumped whenever the conversation is torn down or a new turn starts. A turn
    * captures the value when it begins and abandons itself once it no longer
@@ -527,6 +922,41 @@ export class AIChatService extends Service {
    */
   private turnTabId: string | null = null
 
+  /**
+   * The workspace the current turn acts on, pinned like the tab: a user
+   * switching workspace mid-reply must not redirect creates or deletes.
+   */
+  private turnWorkspace: Workspace | null = null
+
+  /** Aborts the current turn's round-trip and waits (Stop, logout). */
+  private turnAbort: AbortController | null = null
+
+  /** The current turn's user message, raw. */
+  private turnUserText = ""
+
+  /** What the chat changed that a run or save would send, and what's approved. */
+  private chatRisks: ChatRisks = noRisks()
+
+  /** Runs still watching for their response, across turns. */
+  private readonly liveRuns = new Set<RunStep>()
+
+  /** The last Stop: the turn it ended, its "■ Stopped." line, what ran first. */
+  private stopped: {
+    generation: number
+    stepId: string
+    ran: RanOutcome[]
+  } | null = null
+
+  /**
+   * The running turn's tool outcomes so far, for a Stop's note, and the
+   * step-cap reply that already lists them.
+   */
+  private turnRan: {
+    generation: number
+    outcomes: RanOutcome[]
+    listedIn?: string
+  } | null = null
+
   private nextId(): string {
     this.idCounter += 1
     return `msg_${Date.now()}_${this.idCounter}`
@@ -538,10 +968,51 @@ export class AIChatService extends Service {
     return id
   }
 
+  /** The id resolving to exactly this encoded form, minted once. */
+  private localSecretFormId(form: string): string {
+    const known = this.localSecretForms.get(form)
+    if (known) return known
+    const id = this.captureLocalSecret(form)
+    this.localSecretForms.set(form, id)
+    return id
+  }
+
   private contentForModel(content: string): string {
     return replaceSensitiveChatValues(content, (secret) =>
       this.captureLocalSecret(secret)
     )
+  }
+
+  /**
+   * Puts every credential this conversation resolved back behind its
+   * reference, so one a tool wrote into the request can't reach the model
+   * through the context. A short or plain word ("admin", "true") is left:
+   * masking it would mangle URLs and fields that merely contain it.
+   */
+  public maskLocalSecrets(text: string): string {
+    const forms = new Set(this.localSecretForms.values())
+    return [...this.localSecretValues]
+      .filter(([id, value]) => !forms.has(id) && looksLikeSecret(value))
+      .flatMap(([id, value]) => [
+        [id, value] as const,
+        // A JSON string body or URL component shows it too. That form gets
+        // its own ref: resolving to the raw value would decode it in place.
+        ...[
+          ...new Set([
+            JSON.stringify(value).slice(1, -1),
+            encodeURIComponent(value),
+          ]),
+        ]
+          .filter((form) => form !== value && text.includes(form))
+          .map((form) => [this.localSecretFormId(form), form] as const),
+      ])
+      .filter(([, value]) => value.length >= MIN_MASKED_SECRET_LENGTH)
+      .sort(([, a], [, b]) => b.length - a.length)
+      .reduce(
+        (out, [id, value]) =>
+          replaceSecretIn(out, value, makeLocalSecretReference(id)),
+        text
+      )
   }
 
   public open() {
@@ -562,14 +1033,25 @@ export class AIChatService extends Service {
       platform.experiments?.aiExperiments?.getChatAvailability
     if (!getAvailability) return
 
+    const session = this.availabilitySession
     const result = await getAvailability()
-    if (E.isLeft(result)) return
+    // A lookup that outlived its session must not answer for the next one.
+    if (E.isLeft(result) || session !== this.availabilitySession) return
 
     this.instanceEnabled.value = result.right.enabled
     this.modelOptions.value = result.right.models
     this.skills.value = mergeSkills(result.right.skills)
     this.availabilityKnown.value = true
     this.reconcileSelection()
+  }
+
+  /** Forgets the last answer: it belonged to the session that ended. */
+  public clearAvailability() {
+    this.availabilitySession++
+    this.instanceEnabled.value = null
+    this.availabilityKnown.value = false
+    this.modelOptions.value = []
+    this.skills.value = BUILT_IN_SKILLS
   }
 
   /**
@@ -625,17 +1107,14 @@ export class AIChatService extends Service {
   }
 
   /**
-   * A destructive tool waiting on the user, or null.
+   * A tool waiting on the user, or null: a delete, or a run after this turn
+   * changed what the run sends.
    *
    * The model picked this target from a sentence rather than the user clicking
    * it, so the prompt has to name what is about to go. The handler awaits
-   * `resolve`; nothing is destroyed until the UI settles it.
+   * `resolve`; nothing happens until the UI settles it.
    */
-  public readonly pendingConfirmation = ref<{
-    kind: "collection" | "mock-server"
-    name: string
-    resolve: (confirmed: boolean) => void
-  } | null>(null)
+  public readonly pendingConfirmation = ref<PendingConfirmation | null>(null)
 
   /** Settles the open confirmation. A second call is a no-op. */
   public resolveConfirmation(confirmed: boolean) {
@@ -644,16 +1123,121 @@ export class AIChatService extends Service {
     pending?.resolve(confirmed)
   }
 
-  /** Asks the user before destroying `name`. Resolves false if abandoned. */
-  private confirmDestructive(
-    kind: "collection" | "mock-server",
-    name: string
+  /** Asks the user. Resolves false if declined or the turn was abandoned. */
+  private confirm(
+    kind: PendingConfirmation["kind"],
+    name: string,
+    generation: number,
+    detail: ConfirmDetail = {}
   ): Promise<boolean> {
+    // A stopped turn must not prompt, nor close a live turn's prompt.
+    if (this.isStaleTurn(generation)) return Promise.resolve(false)
     // Only one can be open: a turn executes its tools in sequence.
     this.resolveConfirmation(false)
+    const ws = this.workspaceService.currentWorkspace.value
+    const { workspace, ...rest } = detail
     return new Promise((resolve) => {
-      this.pendingConfirmation.value = { kind, name, resolve }
+      this.pendingConfirmation.value = {
+        kind,
+        name,
+        workspace:
+          workspace !== undefined
+            ? workspace
+            : ws.type === "team"
+              ? ws.teamName
+              : null,
+        ...rest,
+        resolve,
+      }
     })
+  }
+
+  /**
+   * Abandons the turn in flight: its round-trip is aborted, any prompt is
+   * declined, and no further tool runs. A tool already mid-flight finishes.
+   */
+  public stop() {
+    if (!this.isStreaming.value) return
+    const generation = this.turnGeneration
+    this.abandonTurn()
+    // Settle the bubbles the abandoned step left open.
+    this.messages.value = this.messages.value.filter(
+      (m) => !(m.pending && !m.content)
+    )
+    for (const m of this.messages.value) m.pending = false
+    const stepId = this.pushStep("■ Stopped.")
+    // Told to the model too: the stopped message is not a live request, and
+    // what earlier steps did must not be redone on "go ahead".
+    const turn = this.turnRan?.generation === generation ? this.turnRan : null
+    // A step-cap reply that is typing lists them already.
+    const listed = this.messages.value.some((m) => m.id === turn?.listedIn)
+    const ran = turn && !listed ? [...turn.outcomes] : []
+    const step = this.messages.value.find((m) => m.id === stepId)
+    if (step) step.modelContent = this.stoppedNote(ran)
+    this.stopped = { generation, stepId, ran }
+    this.lastTurnStatus.value = "idle"
+  }
+
+  /** Lists what a stopped batch already did above its "■ Stopped." line. */
+  private reportStoppedBatch(
+    generation: number,
+    replies: string[],
+    outcomes: RanOutcome[]
+  ) {
+    const stopped = this.stopped
+    if (!replies.length || stopped?.generation !== generation) return
+    const step = this.messages.value.find((m) => m.id === stopped.stepId)
+    if (!step) return
+    this.pushStepBefore(step.id, replies.join("\n\n"))
+    step.modelContent = this.stoppedNote([...stopped.ran, ...outcomes])
+  }
+
+  /** What the model reads for a Stop: the cancel, and what already ran. */
+  private stoppedNote(ran: RanOutcome[]): string {
+    if (!ran.length) return STOPPED_NOTE
+    const budget = MAX_OLD_ASSISTANT_CHARS - STOPPED_NOTE.length - 20
+    return `${STOPPED_NOTE} ${this.outcomesNote("Done before the stop:", ran, budget)}`
+  }
+
+  /**
+   * Tool outcomes for the model, whole lines within `budget`: what took
+   * effect under `head`, failures and refusals apart so a retry redoes them.
+   */
+  private outcomesNote(
+    head: string,
+    ran: RanOutcome[],
+    budget: number
+  ): string {
+    const done = ran.filter((r) => !r.failed)
+    const failed = ran.filter((r) => r.failed)
+    const items = [
+      ...(done.length ? [head, ...done.map((r) => r.line)] : []),
+      ...(failed.length
+        ? ["These failed or were refused:", ...failed.map((r) => r.line)]
+        : []),
+    ]
+    const lines: string[] = []
+    let size = 0
+    for (const item of items) {
+      // Masked again: a credential resolved after the line was written.
+      const line = this.maskLocalSecrets(item)
+      if (size + line.length + 1 > budget) break
+      lines.push(line)
+      size += line.length + 1
+    }
+    const more = ran.length - lines.filter((l) => l.startsWith("- ")).length
+    if (more) lines.push(`- …${more} more`)
+    return lines.join("\n")
+  }
+
+  /** Invalidates the current turn and releases everything it awaits. */
+  private abandonTurn() {
+    this.turnGeneration++
+    this.turnAbort?.abort()
+    this.turnAbort = null
+    // An abandoned turn would otherwise leave the handler awaiting forever.
+    this.resolveConfirmation(false)
+    this.isStreaming.value = false
   }
 
   /**
@@ -662,27 +1246,28 @@ export class AIChatService extends Service {
    * session itself has ended (logout), and the transcript, the pinned tab and
    * the local secret values all belong to the session that just ended.
    *
-   * A turn already awaiting a round-trip cannot be interrupted, so it is
-   * invalidated instead — it discards its result rather than repopulating a
-   * conversation that is meant to be gone.
+   * A turn already awaiting a round-trip is aborted and invalidated — it
+   * discards its result rather than repopulating a conversation that is meant
+   * to be gone. Runs still waiting on a response are dropped with it.
    */
   public reset() {
-    // An abandoned turn would otherwise leave the handler awaiting forever.
-    this.resolveConfirmation(false)
-    this.turnGeneration++
-    this.isStreaming.value = false
+    this.abandonTurn()
+    for (const run of this.liveRuns) this.dropRun(run)
     this.messages.value = []
     this.lastTurnTools.value = []
     this.lastTurnStatus.value = "idle"
     this.localSecretValues.clear()
+    this.localSecretForms.clear()
     // The counter is deliberately NOT rewound. A turn abandoned mid-batch can
     // still resolve `<<local-ref:secret_N>>`, so re-minting that id would hand
     // it the next session's credential. Monotonic ids make a stale reference
     // resolve to nothing, which every consumer already handles.
     this.turnTabId = null
-    this.runStepMessageId = null
-    this.awaitingRunStep = false
-    this.pendingRunOutcome = null
+    this.turnWorkspace = null
+    this.turnUserText = ""
+    this.chatRisks = noRisks()
+    this.stopped = null
+    this.turnRan = null
   }
 
   /** True once `reset` (or a newer turn) has abandoned the given turn. */
@@ -715,13 +1300,16 @@ export class AIChatService extends Service {
   /**
    * Sends a user message and streams back an assistant reply.
    * @param text The user's message.
-   * @param contextString A serialized snapshot of the currently-attached context.
+   * @param context The attached context: a snapshot, or a source re-read for
+   * the pinned tab before every step so the model sees what its tools changed.
    */
-  public async sendMessage(text: string, contextString: string) {
+  public async sendMessage(text: string, context: string | ChatContextSource) {
     const content = text.trim()
     if (!content || this.isStreaming.value) return
 
     const generation = ++this.turnGeneration
+    const abort = new AbortController()
+    this.turnAbort = abort
 
     // Snapshotted, not read per step: one turn is served by one connection,
     // even if the user changes the picker while the reply is still arriving.
@@ -739,17 +1327,23 @@ export class AIChatService extends Service {
     this.lastTurnTools.value = []
     this.lastTurnStatus.value = "idle"
     this.syncTurnTab()
+    this.pinWorkspace()
+    this.turnUserText = content
+
+    const readContext = () =>
+      typeof context === "function" ? context(this.turnTabId) : context
+    const batch: ToolBatch = { generation, runs: null, signal: abort.signal }
 
     try {
       const chatFn = platform.experiments?.aiExperiments?.chat
       if (chatFn) {
         // Online: run the agentic loop, surfacing each step live.
-        await this.runAgentLoop(chatFn, contextString, generation, selection)
+        await this.runAgentLoop(chatFn, readContext, batch, selection)
       } else {
         // Offline fallback: a single synchronous reply.
         const id = this.pushPending()
         const startedAt = Date.now()
-        const reply = await this.buildReply(content, contextString)
+        const reply = await this.buildReply(content, readContext(), batch)
         if (this.isStaleTurn(generation)) return
         this.setThinkingDuration(id, startedAt)
         await this.streamText(id, reply)
@@ -759,7 +1353,10 @@ export class AIChatService extends Service {
       }
     } finally {
       // An abandoned turn must not clear the flag for whatever replaced it.
-      if (!this.isStaleTurn(generation)) this.isStreaming.value = false
+      if (!this.isStaleTurn(generation)) {
+        this.isStreaming.value = false
+        this.turnAbort = null
+      }
     }
   }
 
@@ -774,22 +1371,6 @@ export class AIChatService extends Service {
     })
     return id
   }
-
-  /**
-   * The step message holding a "▶ Running…" line — its line is swapped for
-   * the outcome when the run settles, so a stale "Running…" never outlives
-   * the finished request.
-   */
-  private runStepMessageId: string | null = null
-
-  /**
-   * True from the moment a batch containing run_request starts executing until
-   * its step line exists — an outcome that settles in that window is parked in
-   * `pendingRunOutcome` instead of orphaning a permanent "▶ Running…" line.
-   */
-  private awaitingRunStep = false
-
-  private pendingRunOutcome: string | null = null
 
   /** Inserts a step line just before the message with `beforeId` (else appends). */
   private pushStepBefore(beforeId: string, content: string): string {
@@ -818,30 +1399,117 @@ export class AIChatService extends Service {
     return id
   }
 
+  /** Tracks a run just started; its watcher fills in `cancel`. */
+  private trackRun(): RunStep {
+    const run: RunStep = {
+      stepId: null,
+      awaitingStep: false,
+      parked: null,
+      dropped: false,
+      outcome: null,
+      reportLater: false,
+      onOutcome: null,
+      cancel: () => {},
+    }
+    this.liveRuns.add(run)
+    return run
+  }
+
+  /** Records a run's outcome: to run_request if it still waits, else its step. */
+  private finishRun(run: RunStep, text: string) {
+    this.liveRuns.delete(run)
+    run.outcome = text
+    run.onOutcome?.(text)
+    if (run.reportLater) this.settleRun(run, text)
+  }
+
+  /** Stops watching a run whose turn or conversation is gone. */
+  private dropRun(run: RunStep) {
+    run.dropped = true
+    run.cancel()
+    this.liveRuns.delete(run)
+  }
+
+  /** The run's outcome, or null after RUN_WAIT_MS or once the turn stops. */
+  private awaitRunOutcome(
+    run: RunStep,
+    signal?: AbortSignal
+  ): Promise<string | null> {
+    if (run.outcome !== null) return Promise.resolve(run.outcome)
+    if (signal?.aborted) return Promise.resolve(null)
+    return new Promise((resolve) => {
+      const settle = (value: string | null) => {
+        clearTimeout(timer)
+        signal?.removeEventListener("abort", onAbort)
+        run.onOutcome = null
+        resolve(value)
+      }
+      const onAbort = () => settle(null)
+      const timer = setTimeout(onAbort, RUN_WAIT_MS)
+      signal?.addEventListener("abort", onAbort)
+      run.onOutcome = settle
+    })
+  }
+
   /**
-   * Settles an armed "▶ Running…" step line with the run outcome, in place.
-   * Falls back to a fresh step message when the line is gone (offline path,
-   * cleared conversation).
+   * Waits for a started run so its outcome is the tool result. A run still
+   * going after RUN_WAIT_MS says so, and settles its step line later. One
+   * that isn't awaited (a subscription) settles its step line from the start.
    */
-  private resolveRunStep(text: string) {
-    if (!this.runStepMessageId && this.awaitingRunStep) {
-      this.pendingRunOutcome = text
+  private async runReply(
+    run: RunStep,
+    batch: ToolBatch,
+    running: string,
+    wait = true
+  ): Promise<string> {
+    const outcome = wait
+      ? await this.awaitRunOutcome(run, batch.signal)
+      : run.outcome
+    if (outcome !== null) return outcome
+    if (this.isStaleTurn(batch.generation)) {
+      this.dropRun(run)
+      return SENT_BEFORE_STOP
+    }
+    run.reportLater = true
+    run.awaitingStep = !!batch.runs
+    batch.runs?.push(run)
+    return wait
+      ? `${running} No response after ${RUN_WAIT_MS / 1000}s yet.`
+      : running
+  }
+
+  /**
+   * Settles a run's "▶ Running…" step line with its outcome, in place. Falls
+   * back to a fresh step message when the line is gone (offline path).
+   */
+  private settleRun(run: RunStep, text: string) {
+    if (run.dropped) return
+    if (run.awaitingStep) {
+      run.parked = text
       return
     }
-    const id = this.runStepMessageId
-    this.runStepMessageId = null
-    if (id) {
-      const i = this.messages.value.findIndex((m) => m.id === id)
-      if (i !== -1) {
-        const msg = this.messages.value[i]
-        const updated = msg.content.replace(/^▶ .*$/m, text)
-        if (updated !== msg.content) {
-          msg.content = updated
-          return
-        }
+    const msg = run.stepId
+      ? this.messages.value.find((m) => m.id === run.stepId)
+      : undefined
+    if (msg) {
+      const updated = msg.content.replace(/^▶ .*$/m, text)
+      if (updated !== msg.content) {
+        msg.content = updated
+        return
       }
     }
     void this.postAssistantMessage(text, "tool")
+  }
+
+  /** Hands a batch's runs their step line and flushes outcomes parked meanwhile. */
+  private releaseRuns(runs: RunStep[], stepId: string | null) {
+    for (const run of runs) {
+      run.stepId = stepId
+      run.awaitingStep = false
+      const parked = run.parked
+      run.parked = null
+      if (parked !== null) this.settleRun(run, parked)
+    }
   }
 
   /** Clears the pending flag on a message, by id. */
@@ -873,37 +1541,57 @@ export class AIChatService extends Service {
    */
   private async runAgentLoop(
     chatFn: ChatFn,
-    contextString: string,
-    generation: number,
+    readContext: () => string,
+    batch: ToolBatch,
     selection?: AIChatSelection
   ) {
+    const { generation, signal } = batch
     // Working transcript in model format. Each step appends the assistant's
     // tool_use turn and our tool_result turn (real Anthropic round-trips).
     const working: ChatRequestMessage[] = this.sanitizeHistory(
       this.messages.value
     )
-    const safeContextString = redactSensitiveChatValues(contextString)
+    // This turn's tool outcomes, told to the model if the turn then fails,
+    // stops or hits the step cap.
+    const ran: RanOutcome[] = []
+    this.turnRan = { generation, outcomes: ran }
 
     for (let step = 0; step < MAX_TOOL_STEPS; step++) {
+      // Re-read every step: the last one may have opened, edited or run a
+      // request, and the model must reason over that, not the turn's start.
+      const context = redactSensitiveChatValues(readContext())
       const pendingId = this.pushPending()
       const stepStartedAt = Date.now()
-      const result = await chatFn(working, safeContextString, selection)
+      const result = await chatFn(working, context, selection, { signal })
       if (this.isStaleTurn(generation)) return
+
+      // A stop the platform reports rather than the stale check (defensive).
+      if (E.isLeft(result) && result.left === "ABORTED") {
+        this.dropPlaceholder(pendingId)
+        return
+      }
 
       if (E.isLeft(result)) {
         const i = this.messages.value.findIndex((m) => m.id === pendingId)
         if (i !== -1) {
-          this.messages.value[i].content = this.describeChatError(result.left)
-          this.messages.value[i].pending = false
-          // An error notice is UI-only — it must not be replayed to the model
-          // as something the assistant said.
-          this.messages.value[i].kind = "error"
+          const notice = this.messages.value[i]
+          notice.content = this.describeChatError(result.left)
+          notice.pending = false
+          notice.kind = "error"
+          // The model gets what already ran, not the notice: a retry
+          // continues rather than repeats it.
+          notice.modelContent = this.failedTurnNote(result.left, ran)
         }
         this.lastTurnStatus.value = "error"
-        // The chosen connection or model is gone. Clearing the chat cannot fix
-        // that, so refresh the list instead and let the picker settle on
-        // something that still exists.
-        if (result.left === "MODEL_UNAVAILABLE") void this.loadAvailability()
+        // The chosen model is gone, or the assistant was switched off.
+        // Clearing the chat cannot fix either, so re-read what the server
+        // offers: the picker settles, or the launcher goes.
+        if (
+          result.left === "MODEL_UNAVAILABLE" ||
+          result.left === "CHAT_DISABLED"
+        ) {
+          void this.loadAvailability()
+        }
         return
       }
 
@@ -981,34 +1669,47 @@ export class AIChatService extends Service {
       }
 
       // Execute the calls, show each as a step, and feed the results back.
-      const runsRequest = tool_calls.some((c) => c.name === "run_request")
       if (this.isStaleTurn(generation)) return
-      if (runsRequest) this.awaitingRunStep = true
-      const { replies, toolResults } = await this.executeToolCalls(
+      // Runs this batch leaves running; each settles its own ▶ line later.
+      const runs: RunStep[] = []
+      const { replies, toolResults, outcomes } = await this.executeToolCalls(
         tool_calls,
-        generation
+        generation,
+        runs,
+        signal
       )
-      if (this.isStaleTurn(generation)) return
-      if (replies.length) {
-        // Blank line between replies: each tool's reply owns its own step, so
-        // one that carries no status glyph cannot inherit the previous icon.
-        const stepId = this.pushStep(replies.join("\n\n"))
-        // A run in this batch reports back into its own step line.
-        if (runsRequest) this.runStepMessageId = stepId
+      if (this.isStaleTurn(generation)) {
+        for (const run of runs) this.dropRun(run)
+        // A request already sent must not vanish behind "■ Stopped.".
+        this.reportStoppedBatch(generation, replies, outcomes)
+        return
       }
-      if (runsRequest) {
-        this.awaitingRunStep = false
-        const parked = this.pendingRunOutcome
-        this.pendingRunOutcome = null
-        if (parked) this.resolveRunStep(parked)
-      }
+      ran.push(...outcomes)
+      // Blank line between replies: each tool's reply owns its own step, so
+      // one that carries no status glyph cannot inherit the previous icon.
+      const stepId = replies.length ? this.pushStep(replies.join("\n\n")) : null
+      // A run started in this batch reports back into this step line.
+      this.releaseRuns(runs, stepId)
       working.push({ role: "user", content: toolResults })
     }
 
     // Step cap reached — the turn still did useful work, but the model never
-    // got to wrap up; say so instead of ending on a bare step line.
+    // got to wrap up; say so instead of ending on a bare step line. The model
+    // never sees step lines, so it gets what ran: "continue" must not redo it.
+    const capped = `I stopped after ${MAX_TOOL_STEPS} tool steps`
+    const lead = `[${capped} before finishing. `
+    const capId = this.nextId()
+    // A Stop while it types keeps this reply, and so its list.
+    if (this.turnRan?.generation === generation) this.turnRan.listedIn = capId
     await this.postAssistantMessage(
-      `I stopped after ${MAX_TOOL_STEPS} tool steps. The actions above were applied — ask me to continue if something is still missing.`
+      `${capped}. The actions above were applied — ask me to continue if something is still missing.`,
+      undefined,
+      `${lead}${this.outcomesNote(
+        "These already ran; don't redo them:",
+        ran,
+        MAX_OLD_ASSISTANT_CHARS - lead.length - 20
+      )}]`,
+      capId
     )
     if (this.isStaleTurn(generation)) return
     this.lastTurnStatus.value = "ok"
@@ -1016,24 +1717,22 @@ export class AIChatService extends Service {
 
   /** Maps a platform chat error code to something the user can act on. */
   private describeChatError(code: string): string {
-    switch (code) {
-      case "UNAUTHORIZED":
-        return "⚠️ Your session has expired — sign in again and resend the message."
-      case "RATE_LIMITED":
-        return "⚠️ Too many requests right now — wait a moment and try again."
-      case "INPUT_TOO_LARGE":
-        return "⚠️ This conversation is too large for the AI service — clear the chat and try again."
-      case "INVALID_INPUT":
-        return "⚠️ The AI service rejected this conversation — clear the chat and try again."
-      case "MODEL_UNAVAILABLE":
-        return "⚠️ That model is no longer available on this server — pick another one and resend."
-      case "CHAT_DISABLED":
-        return "⚠️ The AI assistant isn't enabled on this server — ask your administrator to configure it."
-      case "UNABLE_TO_PARSE_RESPONSE":
-        return "⚠️ The AI service returned an unexpected response. Please try again."
-      default:
-        return "⚠️ Sorry, I couldn't reach the AI service. Please try again."
-    }
+    const key = CHAT_ERROR_KEYS.get(code) ?? "cannot_run_chat"
+    return `⚠️ ${this.t(`ai_experiments.chat.errors.${key}`)}`
+  }
+
+  /** What the model reads for a failed turn: the error and what already ran. */
+  private failedTurnNote(code: string, ran: RanOutcome[]): string {
+    const key = CHAT_ERROR_KEYS.get(code) ?? "cannot_run_chat"
+    const head = `[The last reply failed (${key}) before finishing`
+    if (!ran.length) return `${head}; no tool ran.]`
+    const lead = `${head}. `
+    // Fits whole: older assistant turns are cut at MAX_OLD_ASSISTANT_CHARS.
+    return `${lead}${this.outcomesNote(
+      "These already ran; on a retry, don't redo them:",
+      ran,
+      MAX_OLD_ASSISTANT_CHARS - lead.length - 20
+    )}]`
   }
 
   /**
@@ -1044,16 +1743,26 @@ export class AIChatService extends Service {
    */
   private async executeToolCalls(
     toolCalls: ChatToolCall[],
-    generation: number
-  ): Promise<{ replies: string[]; toolResults: ChatContentBlock[] }> {
+    generation: number,
+    runs: RunStep[] | null = null,
+    signal?: AbortSignal
+  ): Promise<{
+    replies: string[]
+    toolResults: ChatContentBlock[]
+    /** Each call that ran, in order: for a failed, stopped or capped turn. */
+    outcomes: RanOutcome[]
+  }> {
+    const batch: ToolBatch = { generation, runs, signal }
     // What the user sees per tool vs what the model gets back.
     const replyById = new Map<string, string>()
     const resultById = new Map<string, string>()
     /** Calls whose result must travel back flagged as an error. */
     const failedCalls = new Set<string>()
+    const outcomes: RanOutcome[] = []
     for (const call of toolCalls) {
       // Abandoned mid-batch: stop before touching the workspace again.
       if (this.isStaleTurn(generation)) break
+      batch.sent = false
       // Environment tools resolve `<<local-ref:…>>` themselves (and insist the
       // target is a secret variable). Every other tool gets the real value —
       // it never leaves the client, and the echo below is masked again.
@@ -1078,26 +1787,57 @@ export class AIChatService extends Service {
       let reply = ""
       let threw = false
       try {
-        if (APP_ACTION_TOOLS.has(call.name)) {
+        if (this.writesRedacted(call, input)) {
+          reply = REDACTED_INPUT_REPLY
+        } else if (
+          APP_ACTION_TOOLS.has(call.name) &&
+          !WORKSPACE_FREE_TOOLS.has(call.name) &&
+          this.workspaceMoved()
+        ) {
+          reply = WORKSPACE_MOVED_REPLY
+        } else if (APP_ACTION_TOOLS.has(call.name)) {
+          // Recorded on this batch: a stopped turn's tool that finishes late
+          // must not move this turn's pins.
+          batch.activatedTabId = null
+          batch.switchedWorkspace = false
           reply = await this.runAppAction(
             call.name,
             input,
-            this.getActiveRequest()
+            this.getActiveRequest(),
+            batch
           )
-          // A tab tool may have activated another tab — follow it. Other
-          // actions leave the pin alone (the user may be browsing tabs).
-          if (TAB_CHANGING_TOOLS.has(call.name)) {
+          // This turn's own switch moves the workspace pin with it.
+          if (batch.switchedWorkspace && !this.isStaleTurn(generation)) {
+            this.pinWorkspace()
+          }
+          // Follow a tab the tool activated. Otherwise the pin stays put, even
+          // if the user browsed elsewhere while a long tool ran.
+          const activated = batch.activatedTabId
+          if (activated) {
             await nextTick()
             // A call that was already in flight when the turn was abandoned
             // must not re-pin the tab for the turn that replaced it.
-            if (!this.isStaleTurn(generation)) this.syncTurnTab()
+            if (!this.isStaleTurn(generation)) this.turnTabId = activated
           }
+        } else if (!this.isRequestFieldTool(call.name)) {
+          reply = `⚠️ Unknown tool${
+            call.name ? ` \`${call.name.replace(/`/g, "")}\`` : ""
+          } — nothing changed.`
+        } else if (!this.onWorkspacePage()) {
+          reply = OFF_WORKSPACE_REPLY
+        } else if (this.turnTabClosed()) {
+          reply = TAB_CLOSED_REPLY
         } else {
           const active = this.getActiveRequest()
           const gqlActive = active ? null : this.getActiveGQLRequest()
+          const edited = active?.request ?? gqlActive?.request
+          const before = edited ? this.runSurface(edited) : null
           const res = active
             ? applyToolCall(active.request, call.name, input)
             : applyGQLToolCall(gqlActive?.request ?? null, call.name, input)
+          if (res.changed && edited && before) {
+            this.noteEditRisks(before, this.runSurface(edited))
+          }
           if (res.changed) {
             if (active) {
               active.commit()
@@ -1122,7 +1862,11 @@ export class AIChatService extends Service {
           e instanceof Error ? e.message : "unexpected error"
         }`
       }
-      const masked = this.maskResolvedSecrets(reply || "Done.", resolved)
+      // Any credential the conversation resolved goes back as its reference,
+      // not only this call's: a tool may echo one an earlier call wrote.
+      const masked = this.maskLocalSecrets(
+        this.maskResolvedSecrets(reply || "Done.", resolved)
+      )
       resultById.set(call.id, masked)
       // A tool that failed or refused has to say so in the RESULT, not only in
       // the prose beside it: a weaker model reads a success-shaped result as
@@ -1142,6 +1886,11 @@ export class AIChatService extends Service {
         call.id,
         short && masked.startsWith("### ") ? short : masked
       )
+      outcomes.push({
+        line: ranLine(call.name, masked, short),
+        // A 500 or a failing test still went out: a retry mustn't resend it.
+        failed: failedCalls.has(call.id) && !batch.sent,
+      })
     }
 
     const replies = toolCalls
@@ -1155,11 +1904,45 @@ export class AIChatService extends Service {
       return {
         type: "tool_result",
         tool_use_id: c.id,
-        content: result.length > cap ? `${result.slice(0, cap)}…` : result,
+        content:
+          result.length > cap
+            ? `${result.slice(0, surrogateSafeCut(result, cap))}…`
+            : result,
         ...(failedCalls.has(c.id) ? { is_error: true } : {}),
       }
     })
-    return { replies, toolResults }
+    return { replies, toolResults, outcomes }
+  }
+
+  /**
+   * Whether a call writes a `[REDACTED]` copied from the sanitized context.
+   * One the edited field already holds (a test asserting masking) is the
+   * user's own text, so an edit that keeps it goes through.
+   */
+  private writesRedacted(
+    call: ChatToolCall,
+    input: Record<string, unknown>
+  ): boolean {
+    if (!redactedCount(call.input)) return false
+    const active = this.getActiveRequest()
+    const request = (active ?? this.getActiveGQLRequest())?.request
+    if (this.isRequestFieldTool(call.name)) {
+      // No request, no write: the edit path says so.
+      if (!request) return false
+      // Dry-run on a copy: only markers the edit adds are copied ones.
+      const draft = JSON.parse(JSON.stringify(request))
+      const res = active
+        ? applyToolCall(draft, call.name, input)
+        : applyGQLToolCall(draft, call.name, input)
+      return !!res.changed && redactedCount(draft) > redactedCount(request)
+    }
+    if (call.name === "set_request_description" && !call.input?.request) {
+      return (
+        redactedCount(String(call.input?.description ?? "")) >
+        redactedCount(request?.description ?? "")
+      )
+    }
+    return true
   }
 
   /**
@@ -1217,9 +2000,14 @@ export class AIChatService extends Service {
   ): { role: ChatRole; content: string }[] {
     const out: { role: ChatRole; content: string }[] = []
     // Count only what the model will see: step lines, error notices, and
-    // pending placeholders are UI artifacts and must not eat the window.
+    // pending placeholders are UI artifacts and must not eat the window. A
+    // step or notice with its own modelContent (a Stop, a failed turn's
+    // note) is meant for the model.
     const visible = messages.filter(
-      (m) => !m.pending && !m.kind && (m.modelContent ?? m.content).trim()
+      (m) =>
+        !m.pending &&
+        (!m.kind || m.modelContent !== undefined) &&
+        (m.modelContent ?? m.content).trim()
     )
     const recent = visible.slice(-MAX_HISTORY_MESSAGES)
     const newest = recent[recent.length - 1]
@@ -1263,9 +2051,11 @@ export class AIChatService extends Service {
    */
   private async buildReply(
     userText: string,
-    contextString: string
+    contextString: string,
+    batch: ToolBatch
   ): Promise<string> {
-    const active = this.getActiveRequest()
+    // Off the workspace page its tabs are hidden, so none is edited.
+    const active = this.onWorkspacePage() ? this.getActiveRequest() : null
 
     // The regex parsers are not built for essays — bound their input.
     if (userText.length > MAX_OFFLINE_COMMAND_LENGTH) {
@@ -1296,7 +2086,8 @@ export class AIChatService extends Service {
           const reply = await this.runAppAction(
             appAction.name,
             appAction.input,
-            active
+            active,
+            batch
           )
           if (reply) replies.push(reply)
           continue
@@ -1320,7 +2111,7 @@ export class AIChatService extends Service {
     const appAction = parseAppActionCommand(userText)
     if (appAction) {
       this.recordTool(appAction.name)
-      return this.runAppAction(appAction.name, appAction.input, active)
+      return this.runAppAction(appAction.name, appAction.input, active, batch)
     }
 
     const result = runChatCommand(active?.request ?? null, userText)
@@ -1376,25 +2167,381 @@ export class AIChatService extends Service {
   }
 
   /**
-   * The tab this turn acts on: the pinned one while it still exists, else the
-   * currently active tab (which also re-pins).
+   * The tab this turn acts on: the pinned one while it exists, else the active
+   * tab when nothing is pinned. A pin the user closed resolves to null rather
+   * than silently re-pointing at another tab.
    */
   private resolveTurnTab() {
     const active = this.tabService.currentActiveTab.value
     if (!this.turnTabId || active?.id === this.turnTabId) return active
-    const pinned = this.tabService
-      .getActiveTabs()
-      .value.find((tab) => tab.id === this.turnTabId)
-    if (!pinned) {
-      this.turnTabId = active?.id ?? null
-      return active
-    }
-    return pinned
+    return (
+      this.tabService
+        .getActiveTabs()
+        .value.find((tab) => tab.id === this.turnTabId) ?? null
+    )
+  }
+
+  /** True once the pinned tab was closed outside the turn's own tab tools. */
+  private turnTabClosed(): boolean {
+    const id = this.turnTabId
+    return (
+      !!id && !this.tabService.getActiveTabs().value.some((t) => t.id === id)
+    )
   }
 
   /** Pins the turn to whatever tab is active right now. */
   private syncTurnTab() {
     this.turnTabId = this.tabService.currentActiveTab.value?.id ?? null
+  }
+
+  /** Pins the turn to the current workspace. */
+  private pinWorkspace() {
+    this.turnWorkspace = { ...this.workspaceService.currentWorkspace.value }
+  }
+
+  /** True once the user left the workspace this turn is pinned to. */
+  private workspaceMoved(): boolean {
+    const pinned = this.turnWorkspace
+    if (!pinned) return false
+    const ws = this.workspaceService.currentWorkspace.value
+    if (ws.type !== pinned.type) return true
+    return ws.type === "team" && pinned.type === "team"
+      ? ws.teamID !== pinned.teamID
+      : false
+  }
+
+  /**
+   * Whether the user typed `value` in this turn's message as a whole word:
+   * "hub.com" inside "api.github.com" doesn't count.
+   */
+  private typedByUser(value: string): boolean {
+    const v = value.trim().toLowerCase()
+    if (!v) return false
+    const text = this.turnUserText.toLowerCase()
+    // A word character, or a dot/hyphen joining one, continues the word.
+    const joins = (ch = "", next = "") =>
+      /\w/.test(ch) || (/[.-]/.test(ch) && /\w/.test(next))
+    for (let i = text.indexOf(v); i !== -1; i = text.indexOf(v, i + 1)) {
+      const end = i + v.length
+      if (!joins(text[i - 1], text[i - 2]) && !joins(text[end], text[end + 1]))
+        return true
+    }
+    return false
+  }
+
+  /** Whether `host` is one the user's message names, compared exactly. */
+  private typedHost(host: string): boolean {
+    return this.turnUserText
+      .split(/[\s"'`()[\]{},;|]+/)
+      .map((token) =>
+        token
+          .replace(/^<(?!<)/, "")
+          .replace(/(?<!>)>$/, "")
+          .replace(/[.,;:!?]+$/, "")
+      )
+      .some(
+        (token) => /[.:]|^<<|^localhost$/i.test(token) && hostOf(token) === host
+      )
+  }
+
+  /** The parts of a request that decide where a run sends and what runs. */
+  private runSurface(request: HoppRESTRequest | HoppGQLRequest): RunSurface {
+    return {
+      host:
+        "endpoint" in request
+          ? hostOf(request.endpoint)
+          : hostOf(request.url, false),
+      scripts: [request.preRequestScript ?? "", request.testScript ?? ""],
+    }
+  }
+
+  /** Records what an edit to the pinned tab changed that a run would send. */
+  private noteEditRisks(before: RunSurface, after: RunSurface) {
+    // A host the user typed is their choice, not an injected one.
+    if (after.host !== before.host && after.host && !this.typedHost(after.host))
+      this.chatRisks.hosts.add(after.host)
+    // Clearing a script is harmless; writing one is not.
+    after.scripts.forEach((script, i) => {
+      if (script.trim() && script !== before.scripts[i])
+        this.chatRisks.scripts.add(script.trim())
+    })
+  }
+
+  /** Records a variable write unless the user typed every value. */
+  private noteVariableRisk(values: string[]) {
+    if (values.some((value) => value.trim() && !this.typedByUser(value)))
+      this.chatRisks.env = true
+  }
+
+  /**
+   * New hosts that plain variable values now name, the user never typed.
+   * Synced to a team, teammates' `<<var>>` requests send there.
+   */
+  private variableHosts(
+    incoming: EnvVar[],
+    existing: Array<{ key: string; initialValue?: string; secret?: boolean }>
+  ): string[] {
+    const hosts = incoming.flatMap((v) => {
+      const old = existing.find((e) => e.key.trim() === v.key.trim())
+      // A secret stays local, and a plain value can't overwrite one.
+      if (v.secret || old?.secret) return []
+      const before = old?.initialValue ?? ""
+      // A bare host counts where the key or old value says it is one.
+      const bare = isURLKey(v.key) || valueHost(before, false) !== ""
+      const host = valueHost(v.initialValue, bare)
+      return host && host !== valueHost(before, bare) && !this.typedHost(host)
+        ? [host]
+        : []
+    })
+    return [...new Set(hosts)]
+  }
+
+  /** Records a host an upserted collection request now sends to. */
+  private noteUpsertRisk(
+    definition: CollectionRequestDefinition,
+    existing?: HoppRESTRequest
+  ) {
+    const host = hostOf(definition.url)
+    if (
+      host &&
+      host !== hostOf(existing?.endpoint ?? "") &&
+      !this.typedHost(host)
+    )
+      this.chatRisks.hosts.add(host)
+  }
+
+  /**
+   * Hosts an upsert would save into a collection whose requests send
+   * elsewhere, that the user never typed. A new, empty collection has nothing
+   * to redirect yet (a run still asks); a bare `<<var>>` host is the
+   * environment's choice.
+   */
+  private upsertHosts(
+    definitions: CollectionRequestDefinition[],
+    saved: Array<{ endpoint: string } | undefined>
+  ): string[] {
+    const known = new Set(
+      saved.map((r) => hostOf(r?.endpoint ?? "")).filter(Boolean)
+    )
+    if (!known.size) return []
+    return [
+      ...new Set(
+        definitions
+          .map((d) => hostOf(d.url))
+          .filter(
+            (host) =>
+              host &&
+              !known.has(host) &&
+              !/^<<[^<>]+>>$/.test(host) &&
+              !this.typedHost(host)
+          )
+      ),
+    ]
+  }
+
+  /** Scripts an upsert writes, trimmed. */
+  private upsertScripts(
+    definitions: CollectionRequestDefinition[],
+    existingOf: (d: CollectionRequestDefinition) => HoppRESTRequest | undefined
+  ): string[] {
+    const written = (script: string | undefined, current = "") =>
+      script?.trim() && script !== current ? [script.trim()] : []
+    return definitions.flatMap((d) => [
+      ...written(d.preRequestScript, existingOf(d)?.preRequestScript),
+      ...written(d.testScript, existingOf(d)?.testScript),
+    ])
+  }
+
+  /** Run surfaces of every request in a collection tree, and its own scripts. */
+  private collectionSurfaces(collection: HoppCollection): RunSurface[] {
+    return [
+      {
+        host: "",
+        scripts: [
+          collection.preRequestScript ?? "",
+          collection.testScript ?? "",
+        ],
+      },
+      ...(collection.requests ?? []).map((r) =>
+        this.runSurface(r as HoppRESTRequest | HoppGQLRequest)
+      ),
+      ...(collection.folders ?? []).flatMap((f) => this.collectionSurfaces(f)),
+    ]
+  }
+
+  /** Scripts in these surfaces the chat wrote, trimmed and unique. */
+  private chatScriptsIn(surfaces: RunSurface[]): string[] {
+    return [
+      ...new Set(
+        surfaces
+          .flatMap((s) => s.scripts)
+          .map((s) => s.trim())
+          .filter((s) => s && this.chatRisks.scripts.has(s))
+      ),
+    ]
+  }
+
+  /**
+   * Asks before a run that sends what the chat changed: a host the user never
+   * typed, a script, or variable values. Read from the requests themselves,
+   * so a duplicate or a later turn still asks. Null means go ahead.
+   */
+  private async confirmRun(
+    name: string,
+    surfaces: RunSurface[],
+    generation: number
+  ): Promise<string | null> {
+    const unapproved = (kind: "host" | "script", value: string) =>
+      !this.chatRisks.runApproved.has(riskKey(kind, value))
+    const hosts = [...new Set(surfaces.map((s) => s.host))].filter(
+      (host) => this.chatRisks.hosts.has(host) && unapproved("host", host)
+    )
+    const scripts = this.chatScriptsIn(surfaces).filter((s) =>
+      unapproved("script", s)
+    )
+    const found = new Set<RunRisk>()
+    if (hosts.length) found.add("host")
+    if (scripts.length) found.add("script")
+    if (this.chatRisks.env) found.add("env")
+    if (!found.size) return null
+    const reasons = RUN_RISK_ORDER.filter((risk) => found.has(risk))
+    if (!(await this.confirm("run", name, generation, { reasons, hosts }))) {
+      // The edit stays: a manual Send or save would still go there.
+      const still = hosts.length
+        ? ` It still points at ${hosts.map((h) => `**${h}**`).join(", ")}.`
+        : ""
+      return `⚠️ You declined the run — nothing was sent.${still}`
+    }
+    // Approved: the same changes don't ask twice for a run. A save still does.
+    for (const host of hosts)
+      this.chatRisks.runApproved.add(riskKey("host", host))
+    for (const s of scripts)
+      this.chatRisks.runApproved.add(riskKey("script", s))
+    this.chatRisks.env = false
+    return null
+  }
+
+  /** What the chat wrote into this request that a save would persist. */
+  private chatWritesIn(request: HoppRESTRequest | HoppGQLRequest) {
+    const surface = this.runSurface(request)
+    return {
+      hosts: this.chatRisks.hosts.has(surface.host) ? [surface.host] : [],
+      scripts: this.chatScriptsIn([surface]),
+    }
+  }
+
+  /**
+   * Asks before persisting a host or script the chat wrote: saved, it runs
+   * for everyone who later runs the request. An approval covers this target
+   * only; a run approval covers none. Null means go ahead.
+   */
+  private async confirmSave(
+    target: SaveTarget,
+    written: { hosts: string[]; scripts: string[] },
+    generation: number
+  ): Promise<string | null> {
+    const approvalKey = (kind: "host" | "script", value: string) =>
+      `${target.key}\0${riskKey(kind, value)}`
+    const hosts = [...new Set(written.hosts)].filter(
+      (h) => !this.chatRisks.saveApproved.has(approvalKey("host", h))
+    )
+    const scripts = [...new Set(written.scripts)].filter(
+      (s) => !this.chatRisks.saveApproved.has(approvalKey("script", s))
+    )
+    if (!hosts.length && !scripts.length) return null
+    const reasons: RunRisk[] = []
+    if (hosts.length) reasons.push("host")
+    if (scripts.length) reasons.push("script")
+    const approved = await this.confirm("save", target.name, generation, {
+      reasons,
+      hosts,
+      workspace: target.workspace,
+    })
+    if (!approved) {
+      const what = hosts.length
+        ? scripts.length
+          ? "the new host and scripts"
+          : "the new host"
+        : "the scripts"
+      return `Didn't save ${what} to **${target.name}** — nothing changed.`
+    }
+    // Saved, it runs anyway: the same changes don't ask for a run either.
+    for (const [kind, values] of [
+      ["host", hosts],
+      ["script", scripts],
+    ] as const) {
+      for (const value of values) {
+        this.chatRisks.saveApproved.add(approvalKey(kind, value))
+        this.chatRisks.runApproved.add(riskKey(kind, value))
+      }
+    }
+    return null
+  }
+
+  /** A personal collection's save-approval key, by identity. */
+  private personalCollectionKey(found: {
+    collection: HoppCollection
+    path: string
+  }): string {
+    const c = found.collection
+    return `user-coll:${c._ref_id ?? c.id ?? found.path}`
+  }
+
+  /**
+   * Where save_request writes a bound tab, and that binding's workspace: a
+   * team tab outlives a switch to Personal, so the current one can mislead.
+   */
+  private savedRequestTarget(
+    saveContext: NonNullable<HoppTabSaveContext>,
+    name: string
+  ): SaveTarget {
+    if (saveContext.originLocation === "user-collection") {
+      return {
+        key: `user-req:${saveContext.folderPath}/${saveContext.requestRefID ?? saveContext.requestIndex}`,
+        name,
+        workspace: null,
+      }
+    }
+    const ws = this.workspaceService.currentWorkspace.value
+    const teamID = saveContext.teamID
+    const team =
+      ws.type === "team" && (!teamID || ws.teamID === teamID)
+        ? ws.teamName
+        : this.teamListAdapter().teamList$.value.find((t) => t.id === teamID)
+            ?.name
+    return {
+      key: `team-req:${saveContext.requestID}`,
+      name,
+      workspace: team ?? this.t("ai_experiments.team_workspace"),
+    }
+  }
+
+  /** " — `METHOD url`" for the request a tab holds, so a result says what opened. */
+  private describeTabRequest(tabId?: string | null): string {
+    const tab = tabId
+      ? this.tabService.getActiveTabs().value.find((t) => t.id === tabId)
+      : this.tabService.currentActiveTab.value
+    const doc = tab?.document
+    const line =
+      doc?.type === "request"
+        ? `${doc.request.method} ${doc.request.endpoint || "(no URL)"}`
+        : doc?.type === "gql-request"
+          ? `GraphQL ${doc.request.url || "(no URL)"}`
+          : ""
+    return line
+      ? ` — \`${redactSensitiveChatValues(line).replace(/`/g, "")}\``
+      : ""
+  }
+
+  /** Activates a tab for a tool; the batch's pin follows it. */
+  private activateTab(id: string, batch: ToolBatch) {
+    this.tabService.setActiveTab(id)
+    batch.activatedTabId = id
+  }
+
+  /** Records the tab a page action just activated, for the pin to follow. */
+  private followActiveTab(batch: ToolBatch) {
+    batch.activatedTabId = this.tabService.currentActiveTab.value?.id ?? null
   }
 
   /**
@@ -1408,11 +2555,81 @@ export class AIChatService extends Service {
     }
   }
 
-  /** Reply for an app action whose HoppAction handler is not bound on this page. */
-  private unavailableReply(action: HoppAction, what: string): string | null {
-    return isActionBound(action).value
+  /**
+   * Focuses the pinned tab and waits for its pane to render: run/save
+   * handlers bind on mount and read props, so the same tick hits stale ones.
+   */
+  private async bringTurnTabToFront(): Promise<boolean> {
+    const tab = this.resolveTurnTab()
+    if (!tab) return false
+    this.focusTurnTab()
+    await nextTick()
+    return this.tabService.currentActiveTab.value?.id === tab.id
+  }
+
+  /** Waits for a save to clear the dirty flag; stops early if the binding is dropped. */
+  private async awaitSaved(document: {
+    isDirty: boolean
+    saveContext?: HoppTabSaveContext
+  }): Promise<boolean> {
+    const started = Date.now()
+    while (
+      document.isDirty &&
+      document.saveContext &&
+      Date.now() - started < SAVE_TIMEOUT_MS
+    ) {
+      await delay(50)
+    }
+    return !document.isDirty
+  }
+
+  /** Whether `name` is a request-field edit tool (probed on a throwaway request). */
+  private isRequestFieldTool(name: string): boolean {
+    return applyToolCall(getDefaultRESTRequest(), name, {}).handled
+  }
+
+  /**
+   * Whether the unified workspace page is mounted — only it binds
+   * `rest.request.open`. Elsewhere its tabs exist but are hidden.
+   */
+  private onWorkspacePage(): boolean {
+    return isActionBound("rest.request.open").value
+  }
+
+  /** A tab tool that would act on a hidden workspace tab off-page. */
+  private needsWorkspacePage(name: string, args: Record<string, unknown>) {
+    return (
+      !this.onWorkspacePage() &&
+      (WORKSPACE_PAGE_TOOLS.has(name) ||
+        (name === "set_request_description" && !args.request))
+    )
+  }
+
+  /**
+   * Reply for an app action the workspace page can't take right now. Other
+   * pages (/graphql, /realtime) bind the same action names, so the page itself
+   * must be mounted.
+   */
+  private unavailableReply(
+    action: HoppAction | null,
+    what: string
+  ): string | null {
+    return this.onWorkspacePage() && (!action || isActionBound(action).value)
       ? null
       : `${what} isn't available on this page — open the REST/GraphQL workspace first.`
+  }
+
+  /**
+   * Brings the pinned tab to the front, then checks its pane binds `action`:
+   * a runner or example tab in front binds neither run nor save.
+   */
+  private async frontPaneReply(
+    action: HoppAction,
+    what: string,
+    notInFront: string
+  ): Promise<string | null> {
+    if (!(await this.bringTurnTabToFront())) return notInFront
+    return this.unavailableReply(action, what)
   }
 
   /** Named operations in a GraphQL document, or null when it doesn't parse. */
@@ -1424,6 +2641,22 @@ export class AIChatService extends Service {
         )
         .map((o) => o.name?.value ?? "")
         .filter(Boolean)
+    } catch (_e) {
+      return null
+    }
+  }
+
+  /** The type of the operation a run executes: the named one, else the first. */
+  private gqlOperationType(query: string, operationName?: string) {
+    try {
+      const operations = parseGQLDocument(query).definitions.filter(
+        (d): d is OperationDefinitionNode => d.kind === "OperationDefinition"
+      )
+      const target =
+        (operationName
+          ? operations.find((o) => o.name?.value === operationName)
+          : undefined) ?? operations[0]
+      return target?.operation ?? null
     } catch (_e) {
       return null
     }
@@ -1518,9 +2751,15 @@ export class AIChatService extends Service {
   private async runAppAction(
     name: string,
     input: Record<string, unknown> | null | undefined,
-    active: ActiveRequestHandle | null
+    active: ActiveRequestHandle | null,
+    batch: ToolBatch
   ): Promise<string> {
     const args = input ?? {}
+    const usesTurnTab =
+      TURN_TAB_TOOLS.has(name) ||
+      (name === "set_request_description" && !args.request)
+    if (this.needsWorkspacePage(name, args)) return OFF_WORKSPACE_REPLY
+    if (usesTurnTab && this.turnTabClosed()) return TAB_CLOSED_REPLY
     // The unified workspace's GQL tabs bind the same run/save actions the
     // REST pane does, so both request types are runnable/saveable from chat.
     const gqlActive = active ? null : this.getActiveGQLRequest()
@@ -1530,27 +2769,41 @@ export class AIChatService extends Service {
         if (!active && !gqlActive) {
           return "Open a request tab first so I can run it."
         }
-        const unavailable = this.unavailableReply(
-          "request.send-cancel",
-          "Running requests"
-        )
+        // Only the front tab's pane binds the action: check it once ours is.
+        const unavailable = this.unavailableReply(null, "Running requests")
         if (unavailable) return unavailable
-        // The send action acts on the ACTIVE tab — make sure that is ours.
-        this.focusTurnTab()
+        const notInFront =
+          "⚠️ Couldn't bring the request's tab to the front — nothing ran."
 
         if (active) {
+          if (!active.request.endpoint.trim()) {
+            return "The request has no URL yet — set one first."
+          }
+          const declined = await this.confirmRun(
+            active.request.name || "the request",
+            [this.runSurface(active.request)],
+            batch.generation
+          )
+          if (declined) return declined
           // `request.send-cancel` is a toggle: invoking it mid-flight would
           // cancel the run while we report "Running…".
           if (active.getResponse()?.type === "loading") {
             return "A request is already running — wait for it to finish before running again."
           }
-          if (!active.request.endpoint.trim()) {
-            return "The request has no URL yet — set one first."
-          }
+          // The send action acts on the ACTIVE tab's pane — make sure it is ours.
+          const unbound = await this.frontPaneReply(
+            "request.send-cancel",
+            "Running requests",
+            notInFront
+          )
+          if (unbound) return unbound
           invokeAction("request.send-cancel")
-          // Post a follow-up message once the response comes back.
-          this.reportRunOutcome(active.getResponse)
-          return "▶ Running the request…"
+          batch.sent = true
+          return this.runReply(
+            this.reportRunOutcome(active.getResponse),
+            batch,
+            "▶ Running the request…"
+          )
         }
         if (gqlActive) {
           if (!gqlActive.request.url.trim()) {
@@ -1568,6 +2821,26 @@ export class AIChatService extends Service {
               }.`
             }
           }
+          const declined = await this.confirmRun(
+            gqlActive.request.name || "the request",
+            [this.runSurface(gqlActive.request)],
+            batch.generation
+          )
+          if (declined) return declined
+          // A subscription only opens here; its first event may never come.
+          const subscription =
+            this.gqlOperationType(
+              gqlActive.request.query,
+              operation || undefined
+            ) === "subscription"
+          // The GQL panes read the URL and request as props — let this
+          // batch's committed edits reach them before running.
+          const unbound = await this.frontPaneReply(
+            "request.send-cancel",
+            "Running requests",
+            notInFront
+          )
+          if (unbound) return unbound
           // Mirror the run target in the editor so the visible cursor sits
           // on the operation being executed.
           this.moveGQLCursorToOperation(
@@ -1579,31 +2852,66 @@ export class AIChatService extends Service {
             "request.send-cancel",
             operation ? { operationName: operation } : undefined
           )
-          this.reportGQLRunOutcome(gqlActive.getEvents)
-          return operation
-            ? `▶ Running the **${operation}** operation…`
-            : "▶ Running the GraphQL operation…"
+          batch.sent = true
+          return this.runReply(
+            this.reportGQLRunOutcome(gqlActive.getEvents),
+            batch,
+            operation
+              ? `▶ Running the **${operation}** operation…`
+              : "▶ Running the GraphQL operation…",
+            !subscription
+          )
         }
         return "Open a request tab first so I can run it."
       }
 
       case "save_request": {
-        if (!active && !gqlActive)
-          return "Open a request tab first so I can save it."
-        const unavailable = this.unavailableReply(
-          "request-response.save",
-          "Saving requests"
+        const document = this.resolveTurnTab()?.document
+        if (
+          (!active && !gqlActive) ||
+          (document?.type !== "request" && document?.type !== "gql-request")
         )
+          return "Open a request tab first so I can save it."
+        const unavailable = this.unavailableReply(null, "Saving requests")
         if (unavailable) return unavailable
-        this.focusTurnTab()
-        const document = this.resolveTurnTab()?.document as
-          { saveContext?: unknown } | undefined
-        const bound = !!document?.saveContext
+        const saveContext = document.saveContext
+        if (saveContext?.originLocation === "team-collection") {
+          const writeError = this.teamWriteError()
+          if (writeError) return writeError
+        }
+        // The panes open Save As for an unbound tab, or a personal binding
+        // with no request index: the user saves there, not this call.
+        const opensDialog =
+          !saveContext ||
+          (saveContext.originLocation === "user-collection" &&
+            saveContext.requestIndex === undefined)
+        if (saveContext && !opensDialog) {
+          const declined = await this.confirmSave(
+            this.savedRequestTarget(
+              saveContext,
+              document.request.name || "the request"
+            ),
+            this.chatWritesIn(document.request),
+            batch.generation
+          )
+          if (declined) return declined
+        }
+        const unbound = await this.frontPaneReply(
+          "request-response.save",
+          "Saving requests",
+          "⚠️ Couldn't bring the request's tab to the front — nothing was saved."
+        )
+        if (unbound) return unbound
         invokeAction("request-response.save")
-        // An unbound tab gets the Save-As dialog, not a silent save.
-        return bound
-          ? "💾 Saved the request."
-          : "💾 Opened the save dialog — pick a collection and confirm to finish saving."
+        const dialogReply =
+          "💾 Opened the save dialog — pick a collection and confirm to finish saving."
+        if (opensDialog) return dialogReply
+        // The handler is async (token check, team mutation) and reports only by toast.
+        if (await this.awaitSaved(document)) return "💾 Saved the request."
+        // A stale binding is dropped and the handler reopens Save As.
+        return document.saveContext
+          ? "⚠️ The save didn't complete — check the app for the error."
+          : dialogReply
       }
 
       case "open_new_tab": {
@@ -1613,7 +2921,8 @@ export class AIChatService extends Service {
         )
         if (unavailable) return unavailable
         invokeAction("tab.open-new")
-        return "🗂️ Opened a new tab."
+        this.followActiveTab(batch)
+        return `🗂️ Opened a new tab${this.describeTabRequest()}.`
       }
 
       case "close_tab": {
@@ -1632,6 +2941,7 @@ export class AIChatService extends Service {
         if (stillOpen) {
           return "The tab wasn't closed — if it has unsaved changes, confirm in the dialog that just opened."
         }
+        this.followActiveTab(batch)
         return "🗙 Closed the tab."
       }
 
@@ -1643,6 +2953,7 @@ export class AIChatService extends Service {
         if (unavailable) return unavailable
         this.focusTurnTab()
         invokeAction("tab.duplicate-tab", {})
+        this.followActiveTab(batch)
         return "🗂️ Duplicated the current tab."
       }
 
@@ -1664,12 +2975,16 @@ export class AIChatService extends Service {
         const unavailable = this.unavailableReply(action, "Switching tabs")
         if (unavailable) return unavailable
         invokeAction(action)
-        return `🗂️ Switched to the ${dir} tab.`
+        this.followActiveTab(batch)
+        return `🗂️ Switched to the ${dir} tab${this.describeTabRequest()}.`
       }
 
-      case "switch_protocol":
+      case "switch_protocol": {
+        const unavailable = this.unavailableReply(null, "Switching protocols")
+        if (unavailable) return unavailable
         this.focusTurnTab()
         return this.switchProtocol(String(args.protocol ?? "").toLowerCase())
+      }
 
       case "set_interceptor":
         return this.setInterceptor(String(args.interceptor ?? "").trim())
@@ -1681,13 +2996,13 @@ export class AIChatService extends Service {
         return this.selectEnv(String(args.name ?? "").trim())
 
       case "add_or_update_environment_variables":
-        return this.addEnvVars(args.variables)
+        return this.addEnvVars(args.variables, batch.generation)
 
       case "create_team":
-        return this.createTeamWorkspace(String(args.name ?? "").trim())
+        return this.createTeamWorkspace(String(args.name ?? "").trim(), batch)
 
       case "switch_workspace":
-        return this.switchWorkspace(String(args.workspace ?? "").trim())
+        return this.switchWorkspace(String(args.workspace ?? "").trim(), batch)
 
       case "rename_team":
         return this.renameTeamWorkspace(
@@ -1701,25 +3016,29 @@ export class AIChatService extends Service {
       case "save_request_to_collection":
         return this.saveRequestToCollection(
           String(args.collection ?? "").trim(),
-          active
+          active,
+          batch.generation
         )
 
       case "add_or_update_collection_requests":
         return this.upsertCollectionRequests(
           String(args.collection ?? "").trim(),
-          args.requests
+          args.requests,
+          batch.generation
         )
 
       case "open_request":
         return this.openCollectionRequest(
           String(args.request ?? "").trim(),
-          args.collection ? String(args.collection).trim() : undefined
+          args.collection ? String(args.collection).trim() : undefined,
+          batch
         )
 
       case "set_collection_properties":
         return this.setCollectionProperties(
           String(args.collection ?? "").trim(),
-          args
+          args,
+          batch.generation
         )
 
       case "set_request_description":
@@ -1742,7 +3061,10 @@ export class AIChatService extends Service {
           String(args.new_name ?? "").trim()
         )
       case "delete_collection":
-        return this.deleteCollection(String(args.collection ?? "").trim())
+        return this.deleteCollection(
+          String(args.collection ?? "").trim(),
+          batch.generation
+        )
       case "set_collection_description":
         return this.setCollectionDescription(
           String(args.collection ?? "").trim(),
@@ -1754,13 +3076,15 @@ export class AIChatService extends Service {
           String(args.collection ?? "").trim(),
           args.title ? String(args.title).trim() : undefined,
           args.version ? String(args.version).trim() : undefined,
-          args.environment ? String(args.environment).trim() : undefined
+          args.environment ? String(args.environment).trim() : undefined,
+          batch.generation
         )
 
       case "unpublish_documentation":
         return this.unpublishDocumentation(
           String(args.collection ?? "").trim(),
-          args.version ? String(args.version).trim() : undefined
+          args.version ? String(args.version).trim() : undefined,
+          batch.generation
         )
 
       case "create_mock_server":
@@ -1768,7 +3092,8 @@ export class AIChatService extends Service {
           String(args.collection ?? "").trim(),
           args.name ? String(args.name).trim() : undefined,
           this.optionalNumber(args.delay_ms),
-          typeof args.public === "boolean" ? args.public : undefined
+          typeof args.public === "boolean" ? args.public : undefined,
+          batch.generation
         )
 
       case "list_mock_servers":
@@ -1780,10 +3105,14 @@ export class AIChatService extends Service {
           delayMs: this.optionalNumber(args.delay_ms),
           isPublic: typeof args.public === "boolean" ? args.public : undefined,
           newName: args.new_name ? String(args.new_name).trim() : undefined,
+          generation: batch.generation,
         })
 
       case "delete_mock_server":
-        return this.deleteMockServer(String(args.name ?? "").trim())
+        return this.deleteMockServer(
+          String(args.name ?? "").trim(),
+          batch.generation
+        )
 
       case "get_graphql_schema":
         return this.getGraphQLSchema()
@@ -1794,7 +3123,8 @@ export class AIChatService extends Service {
       case "run_collection":
         return this.runCollection(
           String(args.collection ?? "").trim(),
-          args.environment ? String(args.environment).trim() : undefined
+          args.environment ? String(args.environment).trim() : undefined,
+          batch
         )
 
       default:
@@ -1929,6 +3259,8 @@ export class AIChatService extends Service {
       : ""
 
     const storedVars = stripClientLocalValuesForWire(vars)
+    // The new environment becomes active, so its values reach the next run.
+    this.noteVariableRisk(vars.map((v) => v.currentValue))
     const team = this.teamWorkspace()
     if (team) {
       const res = await createTeamEnvironment(
@@ -1970,16 +3302,28 @@ export class AIChatService extends Service {
     const team = this.teamWorkspace()
     if (team) {
       const envs = await this.fetchTeamEnvironments(team.teamID)
+      // A switch meanwhile already cleared team envs; selecting one would stick.
+      if (
+        this.workspaceMoved() ||
+        this.teamWorkspace()?.teamID !== team.teamID
+      ) {
+        return WORKSPACE_MOVED_REPLY
+      }
       if (!envs.length) {
         return "This team has no environments yet — want me to create one?"
       }
       const names = envs.map((e) => e.environment.name).join(", ")
-      const match =
-        envs.find((e) => e.environment.name.toLowerCase() === n) ??
-        envs.find((e) => e.environment.name.toLowerCase().includes(n))
-      if (!match) {
+      const picked = pickByName(envs, name, (e) => e.environment.name)
+      if (!picked) {
         return `I couldn't find a team environment matching "${name}". Available: ${names}.`
       }
+      if ("ambiguous" in picked) {
+        return this.ambiguousEnvReply(
+          name,
+          picked.ambiguous.map((e) => e.environment.name)
+        )
+      }
+      const match = picked.item
       setSelectedEnvironmentIndex({
         type: "TEAM_ENV",
         teamID: team.teamID,
@@ -1993,26 +3337,71 @@ export class AIChatService extends Service {
       return "There are no environments yet — want me to create one?"
     }
     const names = envs.map((e) => e.name).join(", ")
-    let index = envs.findIndex((e) => e.name.toLowerCase() === n)
-    if (index === -1) {
-      index = envs.findIndex((e) => e.name.toLowerCase().includes(n))
-    }
-    if (index === -1) {
+    const picked = pickByName(
+      envs.map((env, index) => ({ env, index })),
+      name,
+      (e) => e.env.name
+    )
+    if (!picked) {
       return `I couldn't find an environment matching "${name}". Available: ${names}.`
     }
+    if ("ambiguous" in picked) {
+      return this.ambiguousEnvReply(
+        name,
+        picked.ambiguous.map((e) => e.env.name)
+      )
+    }
+    const { index } = picked.item
     setSelectedEnvironmentIndex({ type: "MY_ENV", index })
     return `🌐 Switched the active environment to **${envs[index].name}**.`
   }
 
+  /** Several environments match: ask rather than act on the wrong one. */
+  private ambiguousEnvReply(name: string, matches: string[]): string {
+    // No argument tells same-named ones apart, so asking again loops.
+    const shared =
+      new Set(matches.map((m) => m.trim().toLowerCase())).size < matches.length
+    return `Several environments match "${name}": ${matches.join(
+      ", "
+    )} — which one?${shared ? " Some share a name; rename one first." : ""}`
+  }
+
   /** Adds / updates variables in the currently selected environment. */
-  private async addEnvVars(variables: unknown): Promise<string> {
+  private async addEnvVars(
+    variables: unknown,
+    generation = this.turnGeneration
+  ): Promise<string> {
     const parsedVars = this.toEnvVars(variables)
     if (parsedVars.error) return `⚠️ ${parsedVars.error}`
     const incoming = parsedVars.variables
     if (!incoming.length) return "No variables were provided."
     const count = incoming.length
 
-    const selected = getSelectedEnvironmentIndex()
+    let selected = getSelectedEnvironmentIndex()
+
+    if (selected.type === "TEAM_ENV") {
+      const envID = selected.teamEnvID
+      // Synced to the team, a variable's new host redirects teammates' runs.
+      const hosts = this.variableHosts(
+        incoming,
+        selected.environment.variables as EnvVar[]
+      )
+      if (hosts.length) {
+        const declined = await this.confirmSave(
+          { key: `team-env:${envID}`, name: selected.environment.name },
+          { hosts, scripts: [] },
+          generation
+        )
+        if (declined) return declined
+        // The prompt may have stayed open while the user moved on.
+        if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
+        selected = getSelectedEnvironmentIndex()
+        if (selected.type !== "TEAM_ENV" || selected.teamEnvID !== envID) {
+          return "⚠️ The active environment changed meanwhile — nothing changed."
+        }
+      }
+    }
+    this.noteVariableRisk(incoming.map((v) => v.currentValue))
 
     if (selected.type === "TEAM_ENV") {
       const env = selected.environment
@@ -2129,70 +3518,102 @@ export class AIChatService extends Service {
     if (team) {
       const writeError = this.teamWriteError()
       if (writeError) return writeError
-      const parent = await this.findTeamCollectionByName(parentName)
-      if (!parent)
-        return `I couldn't find a team collection named "${parentName}".`
+      const lookup = await this.lookupTeamCollection(parentName)
+      if (!lookup || "ambiguous" in lookup) {
+        return this.collectionMiss(parentName, lookup, true)
+      }
+      const parent = lookup.found
       const res = await createTeamChildCollection(name, parent.node.id)()
       if (E.isLeft(res)) {
         return `⚠️ Couldn't create the folder: ${this.describeGQLError(res.left)}.`
       }
-      return `📁 Created **${name}** inside **${parent.node.title}**.`
+      // A follow-up tool in this turn must find it; an unexpanded parent
+      // drops the echo, so load it instead.
+      const id = res.right.createChildCollection.id
+      if (!(await this.awaitTeamFolderInTree(parent.node.id, id))) {
+        return `📁 Created **${name}** inside **${parent.label}** on the server, but the workspace hasn't shown it yet — reload before adding to it.`
+      }
+      return `📁 Created **${name}** inside **${parent.label}**.`
     }
 
-    const parent = findCollectionByName(
-      restCollectionStore.value.state,
-      parentName
-    )
-    if (!parent) return `I couldn't find a collection named "${parentName}".`
+    const lookup = lookupCollection(restCollectionStore.value.state, parentName)
+    if (!lookup || "ambiguous" in lookup) {
+      return this.collectionMiss(parentName, lookup)
+    }
+    const parent = lookup.found
     const clash = (parent.collection.folders ?? []).find(
       (f) => (f.name ?? "").trim().toLowerCase() === name.trim().toLowerCase()
     )
     if (clash) {
-      return `📁 **${parent.collection.name}** already has a folder called **${clash.name}**.`
+      return `📁 **${parent.label}** already has a folder called **${clash.name}**.`
     }
     addRESTFolder(name, parent.path)
-    return `📁 Created **${name}** inside **${parent.collection.name}**.`
+    return `📁 Created **${name}** inside **${parent.label}**.`
   }
 
   /** Saves the active request into a collection (matched by name) of the active workspace. */
   private async saveRequestToCollection(
     name: string,
-    active: ActiveRequestHandle | null
+    active: ActiveRequestHandle | null,
+    generation = this.turnGeneration
   ): Promise<string> {
     if (!active) return "Open a request tab first so I can save it."
     if (!name) return "Which collection should I save it into?"
     const team = this.teamWorkspace()
-    if (team) return this.saveRequestToTeamCollection(name, active, team.teamID)
+    if (team)
+      return this.saveRequestToTeamCollection(
+        name,
+        active,
+        team.teamID,
+        generation
+      )
     const collections = restCollectionStore.value.state
-    const found = findCollectionByName(collections, name)
-    if (!found) {
+    const lookup = lookupCollection(collections, name)
+    if (!lookup || "ambiguous" in lookup) {
       const names = collections
         .map((c) => c.name)
         .filter(Boolean)
         .join(", ")
-      return `I couldn't find a collection named "${name}". Available: ${
-        names || "none"
-      }.`
+      return this.collectionMiss(
+        name,
+        lookup,
+        false,
+        `I couldn't find a collection named "${name}". Available: ${
+          names || "none"
+        }.`
+      )
+    }
+    const found = lookup.found
+    const declined = await this.confirmSave(
+      { key: this.personalCollectionKey(found), name: found.label },
+      this.chatWritesIn(active.request),
+      generation
+    )
+    if (declined) return declined
+    // The prompt may have stayed open while the store shifted.
+    const target = this.findPersonalNode(found.collection)
+    if (!target) {
+      return `⚠️ **${found.label}** moved or was removed meanwhile — nothing saved.`
     }
     // A new collection entry needs its own identity — with the source's
     // `id`/`_ref_id`, sync would edit the original row instead of adding one.
     const saved = this.cloneRequest(active.request)
     saved._ref_id = generateUniqueRefId("req")
     delete (saved as { id?: string }).id
-    const insertionIndex = saveRESTRequestAs(found.path, saved)
+    const insertionIndex = saveRESTRequestAs(target.path, saved)
     // Bind the tab to the saved entry (as the Save dialog does) so a follow-up
     // save updates it instead of creating another copy.
     active.bindToCollection(
       {
         originLocation: "user-collection",
-        folderPath: found.path,
+        folderPath: target.path,
         requestIndex: insertionIndex,
         requestRefID: saved._ref_id,
         exampleID: undefined,
       },
       this.cloneRequest(saved)
     )
-    return `📁 Saved the request into **${found.collection.name}**.`
+    return `📁 Saved the request into **${found.label}**.`
   }
 
   /**
@@ -2201,37 +3622,72 @@ export class AIChatService extends Service {
    */
   private async upsertCollectionRequests(
     name: string,
-    requests: unknown
+    requests: unknown,
+    generation = this.turnGeneration
   ): Promise<string> {
     if (!name) return "Which collection should contain these requests?"
     const team = this.teamWorkspace()
     if (team)
-      return this.upsertTeamCollectionRequests(name, requests, team.teamID)
+      return this.upsertTeamCollectionRequests(
+        name,
+        requests,
+        team.teamID,
+        generation
+      )
 
-    const found = findCollectionByName(restCollectionStore.value.state, name)
-    if (!found) return `I couldn't find a collection named "${name}".`
+    const lookup = lookupCollection(restCollectionStore.value.state, name)
+    if (!lookup || "ambiguous" in lookup)
+      return this.collectionMiss(name, lookup)
+    const found = lookup.found
 
     const parsed = parseCollectionRequestDefinitions(requests)
     if ("error" in parsed) return `⚠️ ${parsed.error}`
 
-    let created = 0
-    let updated = 0
-    const path = found.path
-
-    for (const definition of parsed.definitions) {
-      const requestIndex = found.collection.requests.findIndex(
+    const existingIn = (collection: HoppCollection, requestName: string) => {
+      const index = collection.requests.findIndex(
         (request) =>
           isRESTRequest(request) &&
-          request.name.trim().toLowerCase() === definition.name.toLowerCase()
+          request.name.trim().toLowerCase() === requestName.toLowerCase()
       )
-      const candidate =
-        requestIndex === -1
-          ? undefined
-          : found.collection.requests[requestIndex]
-      const request = buildCollectionRequest(
-        definition,
-        candidate && isRESTRequest(candidate) ? candidate : undefined
+      const candidate = index === -1 ? undefined : collection.requests[index]
+      return {
+        index,
+        existing: candidate && isRESTRequest(candidate) ? candidate : undefined,
+      }
+    }
+    // A saved host or script runs for everyone who later runs the request.
+    const existingOf = (d: CollectionRequestDefinition) =>
+      existingIn(found.collection, d.name).existing
+    const declined = await this.confirmSave(
+      { key: this.personalCollectionKey(found), name: found.label },
+      {
+        hosts: this.upsertHosts(
+          parsed.definitions,
+          found.collection.requests.filter(isRESTRequest)
+        ),
+        scripts: this.upsertScripts(parsed.definitions, existingOf),
+      },
+      generation
+    )
+    if (declined) return declined
+    // The prompt may have stayed open while the store shifted.
+    const target = this.findPersonalNode(found.collection)
+    if (!target) {
+      return `⚠️ **${found.label}** moved or was removed meanwhile — nothing changed.`
+    }
+
+    let created = 0
+    let updated = 0
+    const keptTabs: string[] = []
+    const path = target.path
+
+    for (const definition of parsed.definitions) {
+      const { index: requestIndex, existing } = existingIn(
+        target.node,
+        definition.name
       )
+      this.noteUpsertRisk(definition, existing)
+      const request = buildCollectionRequest(definition, existing)
 
       if (requestIndex === -1) {
         saveRESTRequestAs(path, request)
@@ -2241,17 +3697,17 @@ export class AIChatService extends Service {
         updated += 1
         // A tab already showing this request would otherwise keep (and later
         // re-save) the stale version.
-        const bound = this.tabService.getTabRefWithSaveContext({
-          originLocation: "user-collection",
-          folderPath: path,
-          requestIndex,
-          requestRefID: request._ref_id ?? request.id ?? "",
-          exampleID: undefined,
-        })
-        if (bound && bound.value.document.type === "request") {
-          bound.value.document.request = this.cloneRequest(request)
-          bound.value.document.isDirty = false
-        }
+        this.refreshBoundTabs(
+          {
+            originLocation: "user-collection",
+            folderPath: path,
+            requestIndex,
+            requestRefID: request._ref_id ?? request.id ?? "",
+            exampleID: undefined,
+          },
+          request,
+          keptTabs
+        )
       }
     }
 
@@ -2261,18 +3717,56 @@ export class AIChatService extends Service {
     ]
       .filter(Boolean)
       .join(", ")
-    return `📁 Collection **${found.collection.name}**: ${changes}.`
+    return `📁 Collection **${found.label}**: ${changes}.${this.keptTabsNote(keptTabs)}`
+  }
+
+  /**
+   * Shows an updated request in the tab bound to it. A tab with unsaved edits
+   * is left alone: overwriting it would silently discard them.
+   */
+  private refreshBoundTabs(
+    saveContext: HoppTabSaveContext,
+    request: HoppRESTRequest,
+    keptTabs: string[]
+  ) {
+    for (const tab of this.tabService.getTabsRefWithSaveContext(saveContext)) {
+      const document = tab.value.document
+      if (document.type !== "request") continue
+      if (document.isDirty) {
+        if (!keptTabs.includes(request.name)) keptTabs.push(request.name)
+        continue
+      }
+      document.request = this.cloneRequest(request)
+      document.isDirty = false
+    }
+  }
+
+  /** Tells the model which open tabs kept their unsaved edits. */
+  private keptTabsNote(keptTabs: string[]): string {
+    return keptTabs.length
+      ? ` Open tab${keptTabs.length > 1 ? "s" : ""} with unsaved edits left as is: ${keptTabs
+          .map((n) => `**${n}**`)
+          .join(
+            ", "
+          )} — saving ${keptTabs.length > 1 ? "them" : "it"} overwrites this update.`
+      : ""
   }
 
   /** Opens a saved request from the active workspace's collections into a tab (by name). */
   private async openCollectionRequest(
     reqName: string,
-    collName?: string
+    collName: string | undefined,
+    batch: ToolBatch
   ): Promise<string> {
     if (!reqName) return "Which request should I open?"
     const team = this.teamWorkspace()
     if (team)
-      return this.openTeamCollectionRequest(reqName, collName, team.teamID)
+      return this.openTeamCollectionRequest(
+        reqName,
+        collName,
+        team.teamID,
+        batch
+      )
     const collections = restCollectionStore.value.state
     const found = findRequestInTree(collections, reqName, collName)
     if (!found) {
@@ -2296,10 +3790,9 @@ export class AIChatService extends Service {
     }
 
     const existing = this.tabService.getTabRefWithSaveContext(saveContext)
-    if (existing) {
-      this.tabService.setActiveTab(existing.value.id)
-    } else {
-      const created = this.tabService.createNewTab({
+    const tabId =
+      existing?.value.id ??
+      this.tabService.createNewTab({
         type: "request",
         request: this.cloneRequest(request),
         isDirty: false,
@@ -2308,33 +3801,41 @@ export class AIChatService extends Service {
           folderPath,
           "rest"
         ),
-      })
-      // createNewTab focuses it already; set it explicitly to be safe.
-      this.tabService.setActiveTab(created.id)
-    }
-    return `📂 Opened **${request.name || "request"}** in a tab.`
+      }).id
+    // createNewTab focuses it already; set it explicitly to be safe.
+    this.activateTab(tabId, batch)
+    return `📂 Opened **${request.name || "request"}** in a tab${this.describeTabRequest(tabId)}.`
   }
 
   /** Runs a personal collection and resolves after its test-runner summary is available. */
   private async runCollection(
     name: string,
-    environmentName?: string
+    environmentName?: string,
+    batch: ToolBatch = { generation: this.turnGeneration, runs: null }
   ): Promise<string> {
     if (!name) return "Which collection should I run?"
     const team = this.teamWorkspace()
-    if (team) return this.runTeamCollection(name, environmentName)
+    if (team) return this.runTeamCollection(name, environmentName, batch)
 
-    const found = findCollectionByName(restCollectionStore.value.state, name)
-    if (!found) return `I couldn't find a collection named "${name}".`
+    const lookup = lookupCollection(restCollectionStore.value.state, name)
+    if (!lookup || "ambiguous" in lookup)
+      return this.collectionMiss(name, lookup)
+    const found = lookup.found
 
     const totalRequests = this.countCollectionRequests(found.collection)
     if (totalRequests === 0) {
-      return `⚠️ Collection **${found.collection.name}** has no requests to run.`
+      return `⚠️ Collection **${found.label}** has no requests to run.`
     }
     const collectionID = found.collection._ref_id
     if (!collectionID) {
-      return `⚠️ Collection **${found.collection.name}** has no stable identifier and cannot be run.`
+      return `⚠️ Collection **${found.label}** has no stable identifier and cannot be run.`
     }
+    const declined = await this.confirmRun(
+      found.label,
+      this.collectionSurfaces(found.collection),
+      batch.generation
+    )
+    if (declined) return declined
 
     if (environmentName) {
       const selectionReply = await this.selectEnv(environmentName)
@@ -2371,24 +3872,37 @@ export class AIChatService extends Service {
       },
     })
 
+    batch.activatedTabId = tab.id
     const runnerTab = this.getTestRunnerTabRef(tab.id)
+    // A folder inherits from its ancestors: resolve them as Runner.vue does.
+    const inherited = getRESTCollectionInheritedProps(collectionID) ?? {
+      auth: { authActive: true, authType: "none" as const },
+      headers: [],
+      ancestorVariables: [],
+      ancestorPreRequestScripts: [],
+      ancestorTestScripts: [],
+    }
+    const root = runnerTab.value.document.collection
+    const resolvedCollection: HoppCollection = {
+      ...root,
+      auth: inherited.auth,
+      headers: inherited.headers,
+      variables: root.variables ?? [],
+    }
     const stopRef = ref(false)
-    const result = this.waitForCollectionRun(
-      tab.id,
-      found.collection.name,
-      () => {
-        if (!this.testRunnerService.stopRun(tab.id)) {
-          stopRef.value = true
-        }
+    const result = this.waitForCollectionRun(tab.id, found.label, () => {
+      if (!this.testRunnerService.stopRun(tab.id)) {
+        stopRef.value = true
       }
-    )
+    })
+    batch.sent = true
     this.testRunnerService.runTests(
       runnerTab,
-      runnerTab.value.document.collection,
-      {
-        ...runnerTab.value.document.config,
-        stopRef,
-      }
+      resolvedCollection,
+      { ...runnerTab.value.document.config, stopRef },
+      inherited.ancestorPreRequestScripts,
+      inherited.ancestorTestScripts,
+      inherited.ancestorVariables
     )
     return result
   }
@@ -2639,11 +4153,14 @@ export class AIChatService extends Service {
   }
 
   /** Switches to a team and waits for its collection tree to load. */
-  private async switchToTeam(team: {
-    id: string
-    name: string
-    myRole?: TeamAccessRole | null
-  }) {
+  private async switchToTeam(
+    team: {
+      id: string
+      name: string
+      myRole?: TeamAccessRole | null
+    },
+    batch: ToolBatch
+  ) {
     applyLocalState("REMEMBERED_TEAM_ID", team.id)
     this.workspaceService.changeWorkspace({
       type: "team",
@@ -2651,13 +4168,17 @@ export class AIChatService extends Service {
       teamName: team.name,
       role: team.myRole,
     })
+    batch.switchedWorkspace = true
     await this.teamListAdapter()
       .fetchList()
       .catch(() => {})
     await this.awaitTeamCollectionsLoaded()
   }
 
-  private async createTeamWorkspace(name: string): Promise<string> {
+  private async createTeamWorkspace(
+    name: string,
+    batch: ToolBatch
+  ): Promise<string> {
     if (!name) return "What should the team be called?"
     const decoded = TeamNameCodec.decode(name)
     if (E.isLeft(decoded)) return `⚠️ "${name}" isn't a valid team name.`
@@ -2666,15 +4187,25 @@ export class AIChatService extends Service {
       return `⚠️ Couldn't create the team: ${this.describeGQLError(res.left)}.`
     }
     const team = res.right
-    await this.switchToTeam({
-      id: team.id,
-      name: team.name,
-      myRole: team.myRole,
-    })
+    // Stopped meanwhile: the next turn is pinned where the user is.
+    if (this.isStaleTurn(batch.generation)) {
+      return `👥 Created team **${team.name}**; stopped before switching.`
+    }
+    await this.switchToTeam(
+      {
+        id: team.id,
+        name: team.name,
+        myRole: team.myRole,
+      },
+      batch
+    )
     return `👥 Created team **${team.name}** and switched to it.`
   }
 
-  private async switchWorkspace(target: string): Promise<string> {
+  private async switchWorkspace(
+    target: string,
+    batch: ToolBatch
+  ): Promise<string> {
     const t = target.toLowerCase()
     if (!t) return 'Which workspace — "personal" or a team name?'
     const current = this.workspaceService.currentWorkspace.value
@@ -2684,14 +4215,20 @@ export class AIChatService extends Service {
       t === "me" ||
       t === "mine"
     ) {
+      // Chosen explicitly: the pin follows even if the user got here first.
+      batch.switchedWorkspace = true
       if (current.type === "personal") {
-        return "You're already in your personal workspace."
+        return "🏠 You're already in your personal workspace."
       }
       applyLocalState("REMEMBERED_TEAM_ID", undefined)
       this.workspaceService.changeWorkspace({ type: "personal" })
       return "🏠 Switched to your personal workspace."
     }
     const teams = await this.loadTeams()
+    // Stopped meanwhile: switching now would move the next turn's workspace.
+    if (this.isStaleTurn(batch.generation)) {
+      return "■ Stopped before switching workspace."
+    }
     const match = this.findTeam(teams, target)
     if (!match) {
       const names = teams.map((x) => x.name).join(", ")
@@ -2703,10 +4240,12 @@ export class AIChatService extends Service {
         .join(", ")} — which one?`
     }
     const team = match.team
-    if (current.type === "team" && current.teamID === team.id) {
-      return `You're already in team **${team.name}**.`
+    const now = this.workspaceService.currentWorkspace.value
+    if (now.type === "team" && now.teamID === team.id) {
+      batch.switchedWorkspace = true
+      return `👥 You're already in team **${team.name}**.`
     }
-    await this.switchToTeam(team)
+    await this.switchToTeam(team, batch)
     return `👥 Switched to team **${team.name}**.`
   }
 
@@ -2837,74 +4376,220 @@ export class AIChatService extends Service {
   }
 
   /**
-   * Finds a team collection or folder by name in the loaded tree — roots
-   * first, then one level of folders (expanding roots on demand, bounded).
-   * Returns the node and its slash-joined id path (what save contexts need).
+   * Loads the team tree a collection argument can reach: every root (bounded),
+   * so a name repeated in another root is seen, and each level a path walks.
    */
-  private async findTeamCollectionByName(
-    name: string
-  ): Promise<{ node: TeamCollection; path: string } | null> {
+  private async loadTeamTreeFor(ref: string) {
     await this.awaitTeamCollectionsLoaded()
-    const n = name.trim().toLowerCase()
-    if (!n) return null
-    const walk = (
-      nodes: TeamCollection[],
-      parentPath: string
-    ): { node: TeamCollection; path: string } | null => {
-      for (const node of nodes) {
-        const path = parentPath ? `${parentPath}/${node.id}` : node.id
-        if ((node.title ?? "").trim().toLowerCase() === n) return { node, path }
-      }
-      for (const node of nodes) {
-        const path = parentPath ? `${parentPath}/${node.id}` : node.id
-        const inner = node.children ? walk(node.children, path) : null
-        if (inner) return inner
-      }
-      return null
-    }
-    const roots = this.teamCollectionService.collections.value
-    const direct = walk(roots, "")
-    if (direct) return direct
-    for (const root of roots.slice(0, MAX_TEAM_ROOTS_TO_EXPAND)) {
+    const tree = () => this.teamCollectionService.collections.value
+    for (const root of tree().slice(0, MAX_TEAM_ROOTS_TO_EXPAND)) {
       if (root.children === null) await this.expandTeamCollection(root.id)
     }
-    return walk(this.teamCollectionService.collections.value, "")
+    const { anchored, segments } = parseCollectionRef(ref)
+    for (let depth = 1; depth < segments.length; depth++) {
+      const prefix = `${anchored ? "/" : ""}${segments.slice(0, depth).join("/")}`
+      const hits = matchTreeNodes(tree(), prefix, TEAM_TREE)
+      for (const hit of hits.slice(0, MAX_TEAM_ROOTS_TO_EXPAND)) {
+        if (hit.node.children === null) {
+          await this.expandTeamCollection(hit.node.id)
+        }
+      }
+    }
+  }
+
+  /** Folders whose children were never loaded, shallowest first. */
+  private unloadedTeamFolders(): TeamCollection[] {
+    const out: TeamCollection[] = []
+    let level = this.teamCollectionService.collections.value
+    while (level.length) {
+      out.push(...level.filter((c) => c.children === null))
+      level = level.flatMap((c) => c.children ?? [])
+    }
+    return out
+  }
+
+  /**
+   * Resolves a team collection or folder argument (name or path) in the
+   * loaded tree; a repeated name is reported, never guessed. The path is the
+   * slash-joined id chain save contexts need.
+   *
+   * A folder never loaded may hide a same-named one, so an unanchored
+   * argument loads a bounded number of them first. If some stay unloaded, a
+   * `strict` lookup (delete) trusts only an anchored "/Top/…" path; others
+   * take a unique match. A workspace switch meanwhile answers `moved`.
+   */
+  private async lookupTeamCollection(
+    ref: string,
+    strict = false
+  ): Promise<
+    | Lookup<TeamFoundCollection>
+    | { ambiguous: string[]; unloaded: true }
+    | { ambiguous: []; moved: true }
+  > {
+    const { anchored, segments } = parseCollectionRef(ref)
+    if (!segments.length) return null
+    await this.loadTeamTreeFor(ref)
+    let unloaded = false
+    if (!anchored) {
+      const tried = new Set<string>()
+      let budget = MAX_TEAM_ROOTS_TO_EXPAND
+      while (budget > 0) {
+        const next = this.unloadedTeamFolders()
+          .filter((c) => !tried.has(c.id))
+          .slice(0, budget)
+        if (!next.length) break
+        budget -= next.length
+        for (const c of next) tried.add(c.id)
+        await Promise.all(next.map((c) => this.expandTeamCollection(c.id)))
+      }
+      unloaded = this.unloadedTeamFolders().length > 0
+    }
+    // The loads awaited: after a switch the tree is another team's.
+    if (this.workspaceMoved()) return { ambiguous: [], moved: true }
+    const matches = matchTreeNodes(
+      this.teamCollectionService.collections.value,
+      ref,
+      TEAM_TREE
+    )
+    if (matches.length > 1) return { ambiguous: matches.map((m) => m.label) }
+    if (unloaded && (strict || !matches.length)) {
+      return { ambiguous: matches.map((m) => m.label), unloaded }
+    }
+    if (!matches.length) return null
+    const [m] = matches
+    return {
+      found: {
+        node: m.node,
+        path: [...m.ancestors, m.node].map((n) => n.id).join("/"),
+        label: m.label,
+      },
+    }
+  }
+
+  /** The reply for a collection argument that matched nothing or several. */
+  private collectionMiss(
+    ref: string,
+    lookup: { ambiguous: string[]; unloaded?: true; moved?: true } | null,
+    team = false,
+    notFound = `I couldn't find a ${team ? "team " : ""}collection named "${ref}".`
+  ): string {
+    if (lookup?.moved) return WORKSPACE_MOVED_REPLY
+    if (lookup?.unloaded) {
+      const [label] = lookup.ambiguous
+      return label
+        ? `Found /${label}, but some folders aren't loaded and may share the name — pass that full path.`
+        : `${notFound} Some folders aren't loaded yet — pass the full path, e.g. /Parent/Child.`
+    }
+    return lookup
+      ? describeAmbiguous("collections", ref, lookup.ambiguous)
+      : notFound
+  }
+
+  /**
+   * Waits for a new team folder to reach the tree. An unexpanded parent drops
+   * the echo, so it is loaded (which fetches the folder) instead.
+   */
+  private async awaitTeamFolderInTree(
+    parentID: string,
+    folderID: string
+  ): Promise<boolean> {
+    const parent = this.teamCollectionService.findCollectionByID(parentID)
+    if (parent && parent.children === null) {
+      await this.expandTeamCollection(parentID)
+    }
+    if (await this.awaitTeamCollectionInTree(folderID)) return true
+    // Echo lost: fetch the parent's children again.
+    await this.teamCollectionService.expandCollection(parentID, true)
+    return !!this.teamCollectionService.findCollectionByID(folderID)
+  }
+
+  /**
+   * Every request in the team's loaded tree, or under the nodes `collName`
+   * names (null when it names none). Roots and scopes load on demand.
+   */
+  private async teamRequestsInScope(
+    collName?: string
+  ): Promise<TeamRequestHit[] | null> {
+    await this.awaitTeamCollectionsLoaded()
+    const tree = () => this.teamCollectionService.collections.value
+    let scope: Array<{ node: TeamCollection; path: string; label: string }>
+    if (collName) {
+      await this.loadTeamTreeFor(collName)
+      const matches = matchTreeNodes(tree(), collName, TEAM_TREE)
+      if (!matches.length) return null
+      for (const m of matches.slice(0, MAX_TEAM_ROOTS_TO_EXPAND)) {
+        await this.expandTeamCollection(m.node.id)
+      }
+      scope = matches.map((m) => ({
+        node: m.node,
+        path: [...m.ancestors, m.node].map((n) => n.id).join("/"),
+        label: m.label,
+      }))
+    } else {
+      for (const root of tree().slice(0, MAX_TEAM_ROOTS_TO_EXPAND)) {
+        if (root.requests === null) await this.expandTeamCollection(root.id)
+      }
+      scope = tree().map((node) => ({
+        node,
+        path: node.id,
+        label: node.title?.trim() || "Untitled",
+      }))
+    }
+    const hits: TeamRequestHit[] = []
+    // A scope and its descendant may both match: list each request once.
+    const seen = new Set<string>()
+    const collect = (node: TeamCollection, path: string, label: string) => {
+      for (const request of node.requests ?? []) {
+        if (seen.has(request.id)) continue
+        seen.add(request.id)
+        const name = request.title || request.request.name || "Untitled"
+        hits.push({ request, path, label: `${label}/${name}` })
+      }
+      for (const child of node.children ?? []) {
+        collect(
+          child,
+          `${path}/${child.id}`,
+          `${label}/${child.title?.trim() || "Untitled"}`
+        )
+      }
+    }
+    for (const s of scope) collect(s.node, s.path, s.label)
+    return hits
+  }
+
+  /**
+   * Exact (case-insensitive) team request lookup for writes: a near miss
+   * must not overwrite another request, and a repeated name is reported.
+   */
+  private async lookupTeamRequest(
+    reqName: string,
+    collName?: string
+  ): Promise<Lookup<TeamRequestHit>> {
+    const target = reqName.trim().toLowerCase()
+    const candidates = await this.teamRequestsInScope(collName)
+    if (!target || !candidates) return null
+    const hits = candidates.filter(
+      (c) =>
+        (c.request.title || c.request.request.name || "")
+          .trim()
+          .toLowerCase() === target
+    )
+    if (!hits.length) return null
+    if (hits.length > 1) return { ambiguous: hits.map((h) => h.label) }
+    return { found: hits[0] }
   }
 
   /**
    * Finds a request by name in the team's collections (optionally scoped to a
-   * collection/folder), ranked like the personal lookup. Only loaded
-   * (expanded) folders are searched; roots are expanded on demand.
+   * collection/folder), ranked like the personal lookup. Tolerant: only for
+   * read-only uses like opening a tab.
    */
   private async findTeamRequestByName(
     reqName: string,
     collName?: string
-  ): Promise<{ request: TeamRequest; path: string } | null> {
-    await this.awaitTeamCollectionsLoaded()
-    let scope: Array<{ node: TeamCollection; path: string }>
-    if (collName) {
-      const found = await this.findTeamCollectionByName(collName)
-      if (!found) return null
-      await this.expandTeamCollection(found.node.id)
-      scope = [found]
-    } else {
-      const roots = this.teamCollectionService.collections.value
-      for (const root of roots.slice(0, MAX_TEAM_ROOTS_TO_EXPAND)) {
-        if (root.requests === null) await this.expandTeamCollection(root.id)
-      }
-      scope = this.teamCollectionService.collections.value.map((node) => ({
-        node,
-        path: node.id,
-      }))
-    }
-    const candidates: Array<{ request: TeamRequest; path: string }> = []
-    const collect = (node: TeamCollection, path: string) => {
-      for (const request of node.requests ?? [])
-        candidates.push({ request, path })
-      for (const child of node.children ?? [])
-        collect(child, `${path}/${child.id}`)
-    }
-    for (const { node, path } of scope) collect(node, path)
+  ): Promise<TeamRequestHit | null> {
+    const candidates = await this.teamRequestsInScope(collName)
+    if (!candidates) return null
 
     const target = reqName.trim().toLowerCase()
     const title = (c: { request: TeamRequest }) =>
@@ -2955,18 +4640,33 @@ export class AIChatService extends Service {
   private async saveRequestToTeamCollection(
     name: string,
     active: ActiveRequestHandle,
-    teamID: string
+    teamID: string,
+    generation: number
   ): Promise<string> {
     const writeError = this.teamWriteError()
     if (writeError) return writeError
-    const found = await this.findTeamCollectionByName(name)
-    if (!found) {
+    const lookup = await this.lookupTeamCollection(name)
+    if (!lookup || "ambiguous" in lookup) {
       const names = this.teamCollectionService.collections.value
         .map((c) => c.title)
         .filter(Boolean)
         .join(", ")
-      return `I couldn't find a team collection named "${name}". Available: ${names || "none"}.`
+      return this.collectionMiss(
+        name,
+        lookup,
+        true,
+        `I couldn't find a team collection named "${name}". Available: ${names || "none"}.`
+      )
     }
+    const found = lookup.found
+    if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
+    const declined = await this.confirmSave(
+      { key: `team-coll:${found.node.id}`, name: found.label },
+      this.chatWritesIn(active.request),
+      generation
+    )
+    if (declined) return declined
+    if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
     // A new entry needs its own identity — the backend row id is carried in
     // the save context, and a stale `id` would make sync edit the original.
     const saved = this.cloneRequest(active.request)
@@ -2994,44 +4694,69 @@ export class AIChatService extends Service {
       this.cloneRequest(saved),
       inheritedProperties
     )
-    return `📁 Saved the request into team collection **${found.node.title}**.`
+    return `📁 Saved the request into team collection **${found.label}**.`
   }
 
   private async upsertTeamCollectionRequests(
     name: string,
     requests: unknown,
-    teamID: string
+    teamID: string,
+    generation = this.turnGeneration
   ): Promise<string> {
     const writeError = this.teamWriteError()
     if (writeError) return writeError
-    const found = await this.findTeamCollectionByName(name)
-    if (!found) return `I couldn't find a team collection named "${name}".`
+    const lookup = await this.lookupTeamCollection(name)
+    if (!lookup || "ambiguous" in lookup) {
+      return this.collectionMiss(name, lookup, true)
+    }
+    const found = lookup.found
     const parsed = parseCollectionRequestDefinitions(requests)
     if ("error" in parsed) return `⚠️ ${parsed.error}`
     // Existing requests are matched by title, so the folder must be loaded.
     await this.expandTeamCollection(found.node.id)
 
+    // REST rows only — a team collection also holds GraphQL requests, and
+    // a same-named one must never be overwritten with a REST body.
+    const savedRow = (title: string) =>
+      (found.node.requests ?? []).find(
+        (r) =>
+          isRESTRequest(r.request) &&
+          (r.title || r.request.name || "").trim().toLowerCase() === title
+      )
+    const restOf = (row?: TeamRequest) =>
+      row && isRESTRequest(row.request) ? row.request : undefined
+    // The folder load awaited: a switch meanwhile would write to a team the
+    // user left.
+    if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
+    // A synced host or script runs for every teammate who runs the request.
+    const existingOf = (d: CollectionRequestDefinition) =>
+      restOf(savedRow(d.name.toLowerCase()))
+    const declined = await this.confirmSave(
+      { key: `team-coll:${found.node.id}`, name: found.label },
+      {
+        hosts: this.upsertHosts(
+          parsed.definitions,
+          (found.node.requests ?? []).map((r) => restOf(r))
+        ),
+        scripts: this.upsertScripts(parsed.definitions, existingOf),
+      },
+      generation
+    )
+    if (declined) return declined
+    if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
+
     let created = 0
     let updated = 0
+    const keptTabs: string[] = []
     const failures: string[] = []
     // Requests created earlier in this call, in case the server echo that
     // adds them to the tree has not landed yet.
     const createdByTitle = new Map<string, TeamRequest>()
     for (const definition of parsed.definitions) {
       const target = definition.name.toLowerCase()
-      // REST rows only — a team collection also holds GraphQL requests, and
-      // a same-named one must never be overwritten with a REST body.
-      const existing =
-        createdByTitle.get(target) ??
-        (found.node.requests ?? []).find(
-          (r) =>
-            isRESTRequest(r.request) &&
-            (r.title || r.request.name || "").trim().toLowerCase() === target
-        )
-      const base =
-        existing && isRESTRequest(existing.request)
-          ? existing.request
-          : undefined
+      const existing = createdByTitle.get(target) ?? savedRow(target)
+      const base = restOf(existing)
+      this.noteUpsertRisk(definition, base)
       const request = buildCollectionRequest(definition, base)
 
       if (existing) {
@@ -3049,15 +4774,15 @@ export class AIChatService extends Service {
         // Keep the sidebar copy and any open tab in step with the server.
         existing.request = request
         existing.title = request.name
-        const bound = this.tabService.getTabRefWithSaveContext({
-          originLocation: "team-collection",
-          requestID: existing.id,
-          exampleID: undefined,
-        })
-        if (bound && bound.value.document.type === "request") {
-          bound.value.document.request = this.cloneRequest(request)
-          bound.value.document.isDirty = false
-        }
+        this.refreshBoundTabs(
+          {
+            originLocation: "team-collection",
+            requestID: existing.id,
+            exampleID: undefined,
+          },
+          request,
+          keptTabs
+        )
       } else {
         request._ref_id = generateUniqueRefId("req")
         delete (request as { id?: string }).id
@@ -3095,17 +4820,20 @@ export class AIChatService extends Service {
     ]
       .filter(Boolean)
       .join(", ")
-    return `📁 Team collection **${found.node.title}**: ${changes || "no changes"}.${
+    return `📁 Team collection **${found.label}**: ${changes || "no changes"}.${
       failures.length ? ` Issues: ${failures.join("; ")}` : ""
-    }`
+    }${this.keptTabsNote(keptTabs)}`
   }
 
   private async openTeamCollectionRequest(
     reqName: string,
     collName: string | undefined,
-    teamID: string
+    teamID: string,
+    batch: ToolBatch
   ): Promise<string> {
     const found = await this.findTeamRequestByName(reqName, collName)
+    // The tree loads awaited: after a switch it is another team's.
+    if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
     if (!found) {
       return `I couldn't find a request named "${reqName}" in this team's collections${
         collName ? ` under "${collName}"` : ""
@@ -3121,11 +4849,10 @@ export class AIChatService extends Service {
       requestID: teamRequest.id,
       exampleID: undefined,
     })
-    if (existing) {
-      this.tabService.setActiveTab(existing.value.id)
-    } else {
+    let tabId = existing?.value.id
+    if (!tabId) {
       const inheritedProperties = await this.teamInheritedProperties(path)
-      const created = this.tabService.createNewTab({
+      tabId = this.tabService.createNewTab({
         type: "request",
         request: this.cloneRequest(teamRequest.request),
         isDirty: false,
@@ -3138,18 +4865,22 @@ export class AIChatService extends Service {
           requestRefID: teamRequest.request.id,
         },
         inheritedProperties,
-      })
-      this.tabService.setActiveTab(created.id)
+      }).id
     }
-    return `📂 Opened **${label}** in a tab.`
+    this.activateTab(tabId, batch)
+    return `📂 Opened **${label}** in a tab${this.describeTabRequest(tabId)}.`
   }
 
   private async runTeamCollection(
     name: string,
-    environmentName: string | undefined
+    environmentName: string | undefined,
+    batch: ToolBatch
   ): Promise<string> {
-    const found = await this.findTeamCollectionByName(name)
-    if (!found) return `I couldn't find a team collection named "${name}".`
+    const lookup = await this.lookupTeamCollection(name)
+    if (!lookup || "ambiguous" in lookup) {
+      return this.collectionMiss(name, lookup, true)
+    }
+    const found = lookup.found
 
     // The runner needs the complete subtree with requests — the sidebar tree
     // is lazily loaded, so fetch it like the runner dialog does.
@@ -3163,17 +4894,28 @@ export class AIChatService extends Service {
         (coll) => teamCollToHoppRESTColl(coll)
       )
     )()
+    // Each await below may outlast a switch: B's env must not run A's tree.
+    if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
     if (!tree) {
-      return `⚠️ Couldn't load team collection **${found.node.title}** from the server.`
+      return `⚠️ Couldn't load team collection **${found.label}** from the server.`
     }
     if (this.countCollectionRequests(tree) === 0) {
-      return `⚠️ Collection **${tree.name}** has no requests to run.`
+      return `⚠️ Collection **${found.label}** has no requests to run.`
     }
+    const declined = await this.confirmRun(
+      found.label,
+      this.collectionSurfaces(tree),
+      batch.generation
+    )
+    if (declined) return declined
+    if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
     if (environmentName) {
       const selectionReply = await this.selectEnv(environmentName)
+      if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
       if (!selectionReply.startsWith("🌐")) return selectionReply
     }
     const inheritedProperties = await this.teamInheritedProperties(found.path)
+    if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
 
     const tab = this.tabService.createNewTab({
       type: "test-runner",
@@ -3205,6 +4947,7 @@ export class AIChatService extends Service {
       },
       inheritedProperties,
     })
+    batch.activatedTabId = tab.id
 
     // Start the run here (the personal path does the same) instead of relying
     // on the runner UI's mount-time auto-run, which only happens while the
@@ -3250,11 +4993,12 @@ export class AIChatService extends Service {
     }
 
     const stopRef = ref(false)
-    const result = this.waitForCollectionRun(tab.id, tree.name, () => {
+    const result = this.waitForCollectionRun(tab.id, found.label, () => {
       if (!this.testRunnerService.stopRun(tab.id)) {
         stopRef.value = true
       }
     })
+    batch.sent = true
     this.testRunnerService.runTests(
       runnerTab,
       resolvedCollection,
@@ -3410,7 +5154,8 @@ export class AIChatService extends Service {
    */
   private async setCollectionProperties(
     collName: string,
-    args: Record<string, unknown>
+    args: Record<string, unknown>,
+    generation = this.turnGeneration
   ): Promise<string> {
     if (!collName) return "Which collection should I update?"
     const team = this.teamWorkspace()
@@ -3465,27 +5210,68 @@ export class AIChatService extends Service {
     // ---- resolve the target and its current (hydrated) state ----
     let current: HoppCollection
     let storeKey: string
+    let saveKey: string
+    let label: string
     let personal: { path: string } | null = null
     let teamNode: { node: TeamCollection; path: string } | null = null
     if (team) {
-      const found = await this.findTeamCollectionByName(collName)
-      if (!found)
-        return `I couldn't find a team collection named "${collName}".`
+      const lookup = await this.lookupTeamCollection(collName)
+      if (!lookup || "ambiguous" in lookup) {
+        return this.collectionMiss(collName, lookup, true)
+      }
+      const found = lookup.found
       teamNode = found
+      label = found.label
       current = teamCollToHoppRESTColl(found.node)
       storeKey = found.node.id
+      saveKey = `team-coll:${found.node.id}`
     } else {
-      const found = findCollectionByName(
-        restCollectionStore.value.state,
-        collName
-      )
-      if (!found) return `I couldn't find a collection named "${collName}".`
+      const lookup = lookupCollection(restCollectionStore.value.state, collName)
+      if (!lookup || "ambiguous" in lookup) {
+        return this.collectionMiss(collName, lookup)
+      }
+      const found = lookup.found
       personal = { path: found.path }
+      label = found.label
       current = found.collection
       storeKey =
         found.collection._ref_id ??
         found.collection.id ??
         found.path.split("/").pop()!
+      saveKey = this.personalCollectionKey(found)
+    }
+
+    // ---- a script every later run executes: the user decides ----
+    const writesScript = (script: string | undefined, now = "") =>
+      script?.trim() && script !== now ? [script.trim()] : []
+    const scripts = [
+      ...writesScript(preRequestScript, current.preRequestScript),
+      ...writesScript(testScript, current.testScript),
+    ]
+    // Synced to the team, a variable's new host redirects teammates' runs.
+    const hosts = teamNode
+      ? this.variableHosts(parsedVars.variables, current.variables ?? [])
+      : []
+    if (scripts.length || hosts.length) {
+      if (teamNode && this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
+      const declined = await this.confirmSave(
+        { key: saveKey, name: label },
+        { hosts, scripts },
+        generation
+      )
+      if (declined) return declined
+      // The prompt may have stayed open while the target changed.
+      if (teamNode) {
+        if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
+        current = teamCollToHoppRESTColl(teamNode.node)
+      } else {
+        const fresh = this.findPersonalNode(current)
+        if (!fresh) {
+          return `⚠️ **${label}** moved or was removed meanwhile — nothing changed.`
+        }
+        personal = { path: fresh.path }
+        current = fresh.node
+      }
     }
 
     // ---- merge ----
@@ -3537,7 +5323,7 @@ export class AIChatService extends Service {
       preRequestScript === undefined &&
       testScript === undefined
     ) {
-      return `Nothing to change on **${current.name}**${
+      return `Nothing to change on **${label}**${
         skippedSecretKeys.length
           ? ` — ${skippedSecretKeys.join(", ")} ${skippedSecretKeys.length > 1 ? "are secrets" : "is a secret"}; pass secret: true to overwrite`
           : removeHeaders.length || removeVariables.length
@@ -3599,6 +5385,10 @@ export class AIChatService extends Service {
       )
     }
 
+    // Requests in this collection inherit these on their next run.
+    if (updatedVarCount)
+      this.noteVariableRisk(parsedVars.variables.map((v) => v.currentValue))
+
     const parts = [
       auth ? `auth: ${auth.authType}` : "",
       headerPairs.length
@@ -3620,7 +5410,7 @@ export class AIChatService extends Service {
       preRequestScript !== undefined ? "pre-request script" : "",
       testScript !== undefined ? "test script" : "",
     ].filter(Boolean)
-    return `🗂️ Updated **${current.name}**: ${parts.join(", ")}.${
+    return `🗂️ Updated **${label}**: ${parts.join(", ")}.${
       skippedSecretKeys.length
         ? ` Skipped secret variable${skippedSecretKeys.length > 1 ? "s" : ""} ${skippedSecretKeys.join(", ")} — pass secret: true to overwrite.`
         : ""
@@ -3748,10 +5538,20 @@ export class AIChatService extends Service {
     if (team) {
       const writeError = this.teamWriteError()
       if (writeError) return writeError
-      const found = await this.findTeamRequestByName(reqName, collName)
-      if (!found) {
-        return `I couldn't find a request named "${reqName}" in this team's collections.`
+      // Exact match only: a near miss would overwrite another request's docs.
+      const lookup = await this.lookupTeamRequest(reqName, collName)
+      if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
+      if (!lookup || "ambiguous" in lookup) {
+        return this.requestMiss(
+          reqName,
+          collName,
+          lookup,
+          `I couldn't find a request named exactly "${reqName}" in this team's collections${
+            collName ? ` under "${collName}"` : ""
+          }.`
+        )
       }
+      const found = lookup.found
       const updated = { ...found.request.request, description }
       const res = await updateTeamRequest(found.request.id, {
         request: JSON.stringify(updated),
@@ -3769,17 +5569,26 @@ export class AIChatService extends Service {
         },
         description
       )
-      return `📝 Documented **${updated.name || reqName}**.`
+      return `📝 Documented **${found.label}**.`
     }
 
     const collections = restCollectionStore.value.state
-    const found = findRequestInTree(collections, reqName, collName)
-    if (!found) {
-      return `I couldn't find a request named "${reqName}"${
-        collName ? ` in "${collName}"` : ""
-      }.`
+    const lookup = lookupRequest(collections, reqName, collName)
+    if (!lookup || "ambiguous" in lookup) {
+      return this.requestMiss(
+        reqName,
+        collName,
+        lookup,
+        `I couldn't find a request named exactly "${reqName}"${
+          collName ? ` in "${collName}"` : ""
+        }.${
+          listRequestNames(collections)
+            ? ` Available: ${listRequestNames(collections)}.`
+            : ""
+        }`
+      )
     }
-    const { request, folderPath, requestIndex } = found
+    const { request, folderPath, requestIndex, label } = lookup.found
     // Replaced wholesale by the store — always send the full request.
     editRESTRequest(folderPath, requestIndex, { ...request, description })
     this.syncOpenTabDescription(
@@ -3792,7 +5601,23 @@ export class AIChatService extends Service {
       },
       description
     )
-    return `📝 Documented **${request.name || reqName}**.`
+    return `📝 Documented **${label}**.`
+  }
+
+  /** The reply for a request name that matched nothing or several. */
+  private requestMiss(
+    reqName: string,
+    collName: string | undefined,
+    lookup: { ambiguous: string[] } | null,
+    notFound: string
+  ): string {
+    if (!lookup) return notFound
+    return describeAmbiguous(
+      "requests",
+      collName ? `${collName}/${reqName}` : reqName,
+      lookup.ambiguous,
+      "pass its collection's path as `collection`"
+    )
   }
 
   /** Renames a collection or folder of the active workspace, matched by name. */
@@ -3807,23 +5632,24 @@ export class AIChatService extends Service {
     if (team) {
       const writeError = this.teamWriteError()
       if (writeError) return writeError
-      const found = await this.findTeamCollectionByName(collName)
-      if (!found)
-        return `I couldn't find a team collection named "${collName}".`
+      const lookup = await this.lookupTeamCollection(collName)
+      if (!lookup || "ambiguous" in lookup) {
+        return this.collectionMiss(collName, lookup, true)
+      }
+      const found = lookup.found
       const res = await renameTeamCollectionByID(found.node.id, newName)()
       if (E.isLeft(res)) {
         return `⚠️ Couldn't rename it: ${this.describeGQLError(res.left)}.`
       }
-      const was = found.node.title
       found.node.title = newName
-      return `✏️ Renamed team collection **${was}** to **${newName}**.`
+      return `✏️ Renamed team collection **${found.label}** to **${newName}**.`
     }
 
-    const found = findCollectionByName(
-      restCollectionStore.value.state,
-      collName
-    )
-    if (!found) return `I couldn't find a collection named "${collName}".`
+    const lookup = lookupCollection(restCollectionStore.value.state, collName)
+    if (!lookup || "ambiguous" in lookup) {
+      return this.collectionMiss(collName, lookup)
+    }
+    const found = lookup.found
     // The sync layer rebuilds the server payload from what we dispatch, so the
     // partial has to carry the whole collection rather than just the name.
     const updated = { ...found.collection, name: newName }
@@ -3832,7 +5658,7 @@ export class AIChatService extends Service {
     } else {
       editRESTCollection(parseInt(found.path), updated)
     }
-    return `✏️ Renamed **${found.collection.name}** to **${newName}**.`
+    return `✏️ Renamed **${found.label}** to **${newName}**.`
   }
 
   /**
@@ -3841,42 +5667,148 @@ export class AIChatService extends Service {
    * Everything inside goes with it and there is no undo, so the match is exact
    * and a near miss deletes nothing.
    */
-  private async deleteCollection(collName: string): Promise<string> {
+  private async deleteCollection(
+    collName: string,
+    generation = this.turnGeneration
+  ): Promise<string> {
     if (!collName) return "Which collection should I delete?"
 
     const team = this.teamWorkspace()
     if (team) {
       const writeError = this.teamWriteError()
       if (writeError) return writeError
-      const found = await this.findTeamCollectionByName(collName)
-      if (!found)
-        return `I couldn't find a team collection named "${collName}".`
-      const title = found.node.title
-      if (!(await this.confirmDestructive("collection", title))) {
-        return `Left **${title}** alone.`
+      // Strict: a folder still unloaded may share the name, and this deletes.
+      const lookup = await this.lookupTeamCollection(collName, true)
+      if (!lookup || "ambiguous" in lookup) {
+        return this.collectionMiss(collName, lookup, true)
       }
+      const found = lookup.found
+      const label = found.label
+      if (!(await this.confirm("collection", label, generation))) {
+        return `Left **${label}** alone.`
+      }
+      // Snapshot first: the removal echo drops the subtree from the tree.
+      const subtree = this.teamCollectionService.findCollectionByID(
+        found.node.id
+      )
       const res = await deleteTeamCollectionByID(found.node.id)()
       if (E.isLeft(res)) {
         return `⚠️ Couldn't delete it: ${this.describeGQLError(res.left)}.`
       }
-      return `🗑️ Deleted team collection **${title}** and everything in it.`
+      await this.cleanUpDeletedTeamCollection(found.node.id, subtree)
+      return `🗑️ Deleted team collection **${label}** and everything in it.`
     }
 
-    const found = findCollectionByName(
-      restCollectionStore.value.state,
-      collName
+    const lookup = lookupCollection(restCollectionStore.value.state, collName)
+    if (!lookup || "ambiguous" in lookup) {
+      return this.collectionMiss(collName, lookup)
+    }
+    const { label, collection } = lookup.found
+    if (!(await this.confirm("collection", label, generation))) {
+      return `Left **${label}** alone.`
+    }
+    // The prompt may have stayed open while the store shifted: the old index
+    // path could now point at another collection.
+    const current = this.findPersonalNode(collection)
+    if (!current) {
+      return `⚠️ **${label}** moved or was removed meanwhile — nothing deleted.`
+    }
+    this.removePersonalNode(current.path, current.node)
+    return `🗑️ Deleted **${label}** and everything in it.`
+  }
+
+  /** A personal collection or folder's current index path, by identity. */
+  private findPersonalNode(
+    target: HoppCollection
+  ): { node: HoppCollection; path: string } | null {
+    const same = (c: HoppCollection) =>
+      target._ref_id
+        ? c._ref_id === target._ref_id
+        : target.id
+          ? c.id === target.id
+          : c === target
+    const walk = (
+      nodes: HoppCollection[],
+      prefix: number[]
+    ): { node: HoppCollection; path: string } | null => {
+      for (const [i, node] of nodes.entries()) {
+        if (same(node)) return { node, path: [...prefix, i].join("/") }
+        const inner = walk(node.folders ?? [], [...prefix, i])
+        if (inner) return inner
+      }
+      return null
+    }
+    return walk(restCollectionStore.value.state, [])
+  }
+
+  /**
+   * Removes a personal collection or folder as the sidebar does: by backend
+   * id (what sync deletes by), then re-indexing or unbinding the tabs it
+   * shifted and flushing its local secret and current values.
+   */
+  private removePersonalNode(path: string, node: HoppCollection) {
+    const indices = path.split("/").map((i) => parseInt(i))
+    const lastIndex = indices[indices.length - 1]
+    const parentPath = indices.slice(0, -1).join("/")
+    if (parentPath) removeRESTFolder(path, node.id)
+    else removeRESTCollection(lastIndex, node.id)
+    const tree = restCollectionStore.value.state
+    resolveSaveContextOnCollectionReorder({
+      lastIndex,
+      newIndex: -1,
+      folderPath: parentPath,
+      length: (parentPath ? getFoldersByPath(tree, parentPath) : tree).length,
+    })
+    this.shiftNestedSaveContexts(parentPath, lastIndex)
+    flushLocalStoresForCollectionTree(node)
+  }
+
+  /**
+   * The sidebar's re-index covers the removed node's siblings only; tabs bound
+   * deeper inside a later sibling shift too, or a save writes elsewhere.
+   */
+  private shiftNestedSaveContexts(parentPath: string, removedIndex: number) {
+    const depth = parentPath ? parentPath.split("/").length : 0
+    const tabs = this.tabService.getTabsRefTo(
+      (tab) =>
+        tab.document.type !== "test-runner" &&
+        tab.document.saveContext?.originLocation === "user-collection"
     )
-    if (!found) return `I couldn't find a collection named "${collName}".`
-    const name = found.collection.name
-    if (!(await this.confirmDestructive("collection", name))) {
-      return `Left **${name}** alone.`
+    for (const tab of tabs) {
+      const doc = tab.value.document
+      if (doc.type === "test-runner") continue
+      const ctx = doc.saveContext
+      if (ctx?.originLocation !== "user-collection") continue
+      const parts = ctx.folderPath.split("/")
+      if (parts.length <= depth + 1) continue
+      if (parts.slice(0, depth).join("/") !== parentPath) continue
+      const index = parseInt(parts[depth])
+      if (index > removedIndex) {
+        parts[depth] = String(index - 1)
+        ctx.folderPath = parts.join("/")
+      }
     }
-    if (found.path.includes("/")) {
-      removeRESTFolder(found.path)
+  }
+
+  /**
+   * As the sidebar does after a team delete: unbind tabs of requests that
+   * are gone and flush the subtree's local secret and current values.
+   */
+  private async cleanUpDeletedTeamCollection(
+    id: string,
+    subtree: TeamCollection | null | undefined
+  ) {
+    try {
+      await resetTeamRequestsContext()
+    } catch (e) {
+      console.error("[AIChat] failed to reset deleted team tabs:", e)
+    }
+    if (subtree) {
+      flushLocalStoresForTeamCollectionTree(subtree)
     } else {
-      removeRESTCollection(parseInt(found.path), found.collection._ref_id)
+      this.secretEnvironmentService.deleteSecretEnvironment(id)
+      this.currentEnvironmentValueService.deleteEnvironment(id)
     }
-    return `🗑️ Deleted **${name}** and everything in it.`
   }
 
   private async setCollectionDescription(
@@ -3888,9 +5820,11 @@ export class AIChatService extends Service {
     if (team) {
       const writeError = this.teamWriteError()
       if (writeError) return writeError
-      const found = await this.findTeamCollectionByName(collName)
-      if (!found)
-        return `I couldn't find a team collection named "${collName}".`
+      const lookup = await this.lookupTeamCollection(collName)
+      if (!lookup || "ambiguous" in lookup) {
+        return this.collectionMiss(collName, lookup, true)
+      }
+      const found = lookup.found
       // The backend replaces the whole `data` column — merge every property
       // from the current node, and never send client-local variable values.
       const current = teamCollToHoppRESTColl(found.node)
@@ -3907,14 +5841,14 @@ export class AIChatService extends Service {
         return `⚠️ Couldn't save the documentation: ${this.describeGQLError(res.left)}.`
       }
       found.node.data = JSON.stringify(data)
-      return `📝 Documented team collection **${found.node.title}**.`
+      return `📝 Documented team collection **${found.label}**.`
     }
 
-    const found = findCollectionByName(
-      restCollectionStore.value.state,
-      collName
-    )
-    if (!found) return `I couldn't find a collection named "${collName}".`
+    const lookup = lookupCollection(restCollectionStore.value.state, collName)
+    if (!lookup || "ambiguous" in lookup) {
+      return this.collectionMiss(collName, lookup)
+    }
+    const found = lookup.found
     // The sync layer builds the server payload from the partial we dispatch,
     // so it must carry the FULL collection, not just the description.
     const updated = { ...found.collection, description }
@@ -3923,67 +5857,94 @@ export class AIChatService extends Service {
     } else {
       editRESTCollection(parseInt(found.path), updated)
     }
-    return `📝 Documented collection **${found.collection.name}**.`
+    return `📝 Documented collection **${found.label}**.`
   }
 
   /**
    * Resolves the backend id of a collection for publishing / mocking.
    * `root` picks the top-level ancestor (mock servers are per root collection).
+   * `name` is the "Parent/Child" label; `title` the node's own name.
    */
   private async resolveBackendCollection(
     collName: string,
     root = false
-  ): Promise<{ id: string; name: string } | { error: string }> {
+  ): Promise<{ id: string; name: string; title: string } | { error: string }> {
     const team = this.teamWorkspace()
     if (team) {
-      const found = await this.findTeamCollectionByName(collName)
-      if (!found)
-        return {
-          error: `I couldn't find a team collection named "${collName}".`,
-        }
+      const lookup = await this.lookupTeamCollection(collName)
+      if (!lookup || "ambiguous" in lookup) {
+        return { error: this.collectionMiss(collName, lookup, true) }
+      }
+      const found = lookup.found
       if (root) {
         const rootID = found.path.split("/")[0]
         const rootNode = this.teamCollectionService.findCollectionByID(rootID)
-        return { id: rootID, name: rootNode?.title ?? found.node.title }
+        const name = rootNode?.title ?? found.label
+        return { id: rootID, name, title: name }
       }
-      return { id: found.node.id, name: found.node.title }
+      return {
+        id: found.node.id,
+        name: found.label,
+        title: found.node.title?.trim() || found.label,
+      }
     }
     const collections = restCollectionStore.value.state
-    const found = findCollectionByName(collections, collName)
-    if (!found)
-      return { error: `I couldn't find a collection named "${collName}".` }
+    const lookup = lookupCollection(collections, collName)
+    if (!lookup || "ambiguous" in lookup) {
+      return { error: this.collectionMiss(collName, lookup) }
+    }
+    const found = lookup.found
     const target = root
       ? collections[parseInt(found.path.split("/")[0])]
       : found.collection
     if (!target?.id) {
       return {
-        error: `**${target?.name ?? collName}** hasn't been synced to the server yet (sign in and wait a moment), so it can't be used here.`,
+        error: `**${(root ? target?.name : found.label) ?? collName}** hasn't been synced to the server yet (sign in and wait a moment), so it can't be used here.`,
       }
     }
-    return { id: target.id, name: target.name }
+    return {
+      id: target.id,
+      name: root ? target.name : found.label,
+      title: target.name?.trim() || found.label,
+    }
   }
 
   /** Backend id of an environment by name, in the active workspace. */
   private async resolveEnvironmentID(
     envName: string
   ): Promise<{ id: string; name: string } | { error: string }> {
-    const n = envName.toLowerCase()
     const team = this.teamWorkspace()
     if (team) {
       const envs = await this.fetchTeamEnvironments(team.teamID)
-      const match =
-        envs.find((e) => e.environment.name.toLowerCase() === n) ??
-        envs.find((e) => e.environment.name.toLowerCase().includes(n))
-      return match
-        ? { id: match.id, name: match.environment.name }
-        : { error: `I couldn't find a team environment named "${envName}".` }
+      const picked = pickByName(envs, envName, (e) => e.environment.name)
+      if (!picked) {
+        return {
+          error: `I couldn't find a team environment named "${envName}".`,
+        }
+      }
+      if ("ambiguous" in picked) {
+        return {
+          error: this.ambiguousEnvReply(
+            envName,
+            picked.ambiguous.map((e) => e.environment.name)
+          ),
+        }
+      }
+      return { id: picked.item.id, name: picked.item.environment.name }
     }
     const envs = environmentsStore.value.environments
-    const match =
-      envs.find((e) => e.name.toLowerCase() === n) ??
-      envs.find((e) => e.name.toLowerCase().includes(n))
-    if (!match)
+    const picked = pickByName(envs, envName, (e) => e.name)
+    if (!picked)
       return { error: `I couldn't find an environment named "${envName}".` }
+    if ("ambiguous" in picked) {
+      return {
+        error: this.ambiguousEnvReply(
+          envName,
+          picked.ambiguous.map((e) => e.name)
+        ),
+      }
+    }
+    const match = picked.item
     if (!match.id) {
       return {
         error: `Environment **${match.name}** hasn't been synced to the server yet, so it can't be attached.`,
@@ -4023,7 +5984,8 @@ export class AIChatService extends Service {
     collName: string,
     title: string | undefined,
     version: string | undefined,
-    envName: string | undefined
+    envName: string | undefined,
+    generation = this.turnGeneration
   ): Promise<string> {
     if (!collName) return "Which collection should I publish?"
     if (!settingsStore.value.ENABLE_EXPERIMENTAL_DOCUMENTATION) {
@@ -4049,15 +6011,29 @@ export class AIChatService extends Service {
 
     const docs = await this.loadPublishedDocs(target.id)
     const existing = this.findPublishedVersion(docs, docVersion)
+    if (existing && !title && !environment) {
+      return `**${target.name}** already has a published ${
+        existing.autoSync ? "live" : "snapshot"
+      } version ${existing.version}: ${existing.url}. Pass a title or environment to change it.`
+    }
+    // Going public, or exposing an environment's values: the user decides.
+    if (!existing || environment) {
+      if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
+      const confirmed = await this.confirm(
+        "publish-docs",
+        target.name,
+        generation,
+        {
+          version: existing?.version ?? docVersion,
+          environment: environment?.name,
+        }
+      )
+      if (!confirmed) return `Didn't publish **${target.name}**.`
+    }
     let info: PublishedDocInfo
     if (existing) {
       // Update only what was asked for. The sync mode is deliberately not
       // sent: forcing autoSync on would wipe a frozen snapshot version.
-      if (!title && !environment) {
-        return `**${target.name}** already has a published ${
-          existing.autoSync ? "live" : "snapshot"
-        } version ${existing.version}: ${existing.url}. Pass a title or environment to change it.`
-      }
       const args: UpdatePublishedDocsArgs = {
         ...(title ? { title } : {}),
         ...(environment ? { environmentID: environment.id } : {}),
@@ -4086,7 +6062,8 @@ export class AIChatService extends Service {
       this.documentationService.setPublishedDocStatus(target.id, info)
     } else {
       const args: CreatePublishedDocsArgs = {
-        title: title || target.name,
+        // The page is titled like the folder, not its path.
+        title: title || target.title,
         version: docVersion,
         autoSync: true,
         workspaceType: team ? WorkspaceType.Team : WorkspaceType.User,
@@ -4125,9 +6102,13 @@ export class AIChatService extends Service {
 
   private async unpublishDocumentation(
     collName: string,
-    version: string | undefined
+    version: string | undefined,
+    generation = this.turnGeneration
   ): Promise<string> {
     if (!collName) return "Which collection's documentation should I unpublish?"
+    if (!settingsStore.value.ENABLE_EXPERIMENTAL_DOCUMENTATION) {
+      return 'Documentation publishing is turned off — enable "Documentation" under Settings > Experiments first.'
+    }
     const team = this.teamWorkspace()
     if (team) {
       const writeError = this.teamWriteError()
@@ -4154,6 +6135,15 @@ export class AIChatService extends Service {
         .map((d) => d.version)
         .join(", ")}) — which one should I unpublish?`
     }
+    // Irreversible: the public link breaks and a snapshot is gone for good.
+    if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
+    const confirmed = await this.confirm(
+      "unpublish-docs",
+      target.name,
+      generation,
+      { version: doc.version }
+    )
+    if (!confirmed) return `Left **${target.name}** ${doc.version} published.`
     const res = await platform.backend.deletePublishedDoc(doc.id)()
     if (E.isLeft(res)) {
       return `⚠️ Couldn't unpublish: ${this.describeGQLError(res.left)}.`
@@ -4246,7 +6236,8 @@ export class AIChatService extends Service {
     collName: string,
     name: string | undefined,
     delayMs: number | undefined,
-    isPublic: boolean | undefined
+    isPublic: boolean | undefined,
+    generation = this.turnGeneration
   ): Promise<string> {
     if (!collName) return "Which collection should the mock server serve?"
     const disabled = this.mockServersEnabledError()
@@ -4272,6 +6263,13 @@ export class AIChatService extends Service {
     )
     if (!serverName) return "What should the mock server be called?"
     const delay = Math.min(60_000, Math.max(0, Math.round(delayMs ?? 0)))
+    // A public server answers anyone with its URL: the user decides.
+    if (isPublic ?? true) {
+      if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
+      if (!(await this.confirm("public-mock-server", serverName, generation))) {
+        return `Didn't create **${serverName}**.`
+      }
+    }
 
     const res = await platform.backend.createMockServer(
       serverName,
@@ -4307,7 +6305,7 @@ export class AIChatService extends Service {
     const loaded = await this.loadMockServersForWorkspace()
     if ("error" in loaded) return loaded.error
     if (!loaded.servers.length) {
-      return "There are no mock servers in this workspace yet."
+      return "🧪 There are no mock servers in this workspace yet."
     }
     const lines = loaded.servers.map(
       (s) =>
@@ -4325,6 +6323,7 @@ export class AIChatService extends Service {
       delayMs?: number
       isPublic?: boolean
       newName?: string
+      generation?: number
     }
   ): Promise<string> {
     if (!name) return "Which mock server should I update?"
@@ -4371,6 +6370,15 @@ export class AIChatService extends Service {
     if (!Object.keys(input).length) {
       return "What should change on the mock server?"
     }
+    if (input.isPublic && !server.isPublic) {
+      if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
+      const confirmed = await this.confirm(
+        "public-mock-server",
+        server.name,
+        changes.generation ?? this.turnGeneration
+      )
+      if (!confirmed) return `Left **${server.name}** private.`
+    }
     const res = await platform.backend.updateMockServer(server.id, input)()
     if (E.isLeft(res)) {
       return `⚠️ Couldn't update the mock server: ${this.describeMockServerError(res.left)}.`
@@ -4395,7 +6403,10 @@ export class AIChatService extends Service {
     return `🧪 Updated mock server **${server.name}**: ${parts.join(", ")}.`
   }
 
-  private async deleteMockServer(name: string): Promise<string> {
+  private async deleteMockServer(
+    name: string,
+    generation = this.turnGeneration
+  ): Promise<string> {
     if (!name) return "Which mock server should I delete?"
     const disabled = this.mockServersEnabledError()
     if (disabled) return disabled
@@ -4414,7 +6425,8 @@ export class AIChatService extends Service {
         .join(", ")} — which one should I delete?`
     }
     const server = match.server
-    if (!(await this.confirmDestructive("mock-server", server.name))) {
+    if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
+    if (!(await this.confirm("mock-server", server.name, generation))) {
       return `Left **${server.name}** alone.`
     }
     const res = await platform.backend.deleteMockServer(server.id)()
@@ -4507,22 +6519,26 @@ export class AIChatService extends Service {
   }
 
   /**
-   * Watches the active tab's response after a run is triggered and posts a
-   * follow-up assistant message summarizing the outcome (status, time, size).
+   * Watches the active tab's response after a run is triggered and records
+   * the outcome (status, time, size) on the returned run.
    */
   private reportRunOutcome(
     getResponse: () => HoppRESTResponse | null | undefined
-  ) {
+  ): RunStep {
+    const run = this.trackRun()
     let settled = false
     let stop: (() => void) | null = null
     let timer: ReturnType<typeof setTimeout> | null = null
 
-    const finish = (text: string) => {
-      if (settled) return
+    run.cancel = () => {
       settled = true
       if (stop) stop()
       if (timer) clearTimeout(timer)
-      this.resolveRunStep(text)
+    }
+    const finish = (text: string) => {
+      if (settled) return
+      run.cancel()
+      this.finishRun(run, text)
     }
 
     // `newSendRequest` sets the response to "loading" synchronously, so the next
@@ -4536,6 +6552,7 @@ export class AIChatService extends Service {
     timer = setTimeout(() => {
       finish("⏱️ Still running — check the response panel for the result.")
     }, 120_000)
+    return run
   }
 
   /**
@@ -4545,7 +6562,7 @@ export class AIChatService extends Service {
    */
   private reportGQLRunOutcome(
     getEvents: () => GQLResponseEvent[] | null | undefined
-  ) {
+  ): RunStep {
     // A discrete run REPLACES the doc's event array with a fresh one (only
     // subscription streams append — see gql/RequestOptions.vue's message-event
     // watcher), so the array length may not change between runs. Track the
@@ -4554,16 +6571,20 @@ export class AIChatService extends Service {
     // compares unequal to the baseline.
     const initial = getEvents()
     const baselineLast = initial?.length ? initial[initial.length - 1] : null
+    const run = this.trackRun()
     let settled = false
     let stop: (() => void) | null = null
     let timer: ReturnType<typeof setTimeout> | null = null
 
-    const finish = (text: string) => {
-      if (settled) return
+    run.cancel = () => {
       settled = true
       if (stop) stop()
       if (timer) clearTimeout(timer)
-      this.resolveRunStep(text)
+    }
+    const finish = (text: string) => {
+      if (settled) return
+      run.cancel()
+      this.finishRun(run, text)
     }
 
     stop = watch(
@@ -4580,6 +6601,7 @@ export class AIChatService extends Service {
     timer = setTimeout(() => {
       finish("⏱️ Still running — check the response panel for the result.")
     }, 120_000)
+    return run
   }
 
   /** Turns a GQL run/subscription event into a short status line. */
@@ -4648,8 +6670,12 @@ export class AIChatService extends Service {
   }
 
   /** Appends a fresh assistant message and streams `text` into it. */
-  private async postAssistantMessage(text: string, kind?: "tool") {
-    const id = this.nextId()
+  private async postAssistantMessage(
+    text: string,
+    kind?: "tool",
+    modelContent?: string,
+    id = this.nextId()
+  ) {
     const msg: ChatMessage = {
       id,
       role: "assistant",
@@ -4657,6 +6683,7 @@ export class AIChatService extends Service {
       pending: true,
     }
     if (kind) msg.kind = kind
+    if (modelContent !== undefined) msg.modelContent = modelContent
     this.messages.value.push(msg)
     try {
       await this.streamText(id, text)
@@ -4665,15 +6692,25 @@ export class AIChatService extends Service {
     }
   }
 
-  /** Simulates token streaming into the assistant message with the given id. */
+  /**
+   * Types `text` into the message with the given id. Cosmetic, and the tool
+   * loop waits on it, so it is capped at MAX_TYPING_MS — and instant in a
+   * hidden tab, where timers are throttled to a second or more.
+   */
   private async streamText(id: string, text: string) {
     const tokens = text.match(/\s+|\S+/g) ?? [text]
-    for (const token of tokens) {
-      await new Promise((resolve) => setTimeout(resolve, 8))
-      const i = this.messages.value.findIndex((m) => m.id === id)
-      // The message may have been cleared/removed mid-stream.
-      if (i === -1) break
-      this.messages.value[i].content += token
+    const perTick = Math.ceil(
+      tokens.length / Math.floor(MAX_TYPING_MS / TYPING_TICK_MS)
+    )
+    for (let i = 0; i < tokens.length; i += perTick) {
+      const hidden = typeof document !== "undefined" && document.hidden
+      if (!hidden) await delay(TYPING_TICK_MS)
+      const msg = this.messages.value.find((m) => m.id === id)
+      // Cleared mid-stream, or settled by Stop: typing on would re-announce it.
+      if (!msg?.pending) return
+      const end = hidden ? tokens.length : i + perTick
+      msg.content += tokens.slice(i, end).join("")
+      if (hidden) return
     }
   }
 }

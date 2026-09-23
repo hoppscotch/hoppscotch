@@ -166,6 +166,7 @@ import {
   parseCollectionRequestDefinitions,
   type CollectionRequestDefinition,
 } from "~/helpers/aichat/collection-requests"
+import { scriptSends } from "~/helpers/aichat/script-hosts"
 import {
   containsLocalSecretReference,
   LOCAL_SECRET_REFERENCE_GLOBAL,
@@ -708,6 +709,8 @@ interface ChatRisks {
   runApproved: Set<string>
   /** Saves approved, as "target\0host": one target doesn't cover another. */
   saveApproved: Set<string>
+  /** Scripts the chat wrote, by trimmed text: where each sends unasked. */
+  scripts: Map<string, string[]>
 }
 
 const noRisks = (): ChatRisks => ({
@@ -715,12 +718,26 @@ const noRisks = (): ChatRisks => ({
   vars: new Map(),
   runApproved: new Set(),
   saveApproved: new Set(),
+  scripts: new Map(),
 })
 
-/** Where a request sends. */
+/** Marks a chat script's send that only a run can place; the script follows. */
+const OPAQUE_SEND = "\0script\0"
+
+/** Where a request sends, and the scripts that run with it. */
 interface RunSurface {
   host: string
+  scripts: string[]
 }
+
+/** Each level's pre-request and test scripts. */
+const scriptsOf = (
+  levels: Array<{ preRequestScript?: string; testScript?: string }>
+): string[] =>
+  levels.flatMap((level) => [
+    level.preRequestScript ?? "",
+    level.testScript ?? "",
+  ])
 
 /** Where a save writes: a stable key, its name, and its workspace label. */
 interface SaveTarget {
@@ -2221,21 +2238,81 @@ export class AIChatService extends Service {
       )
   }
 
-  /** Where a run of this request sends. */
-  private runSurface(request: HoppRESTRequest | HoppGQLRequest): RunSurface {
+  /** Where a run of this request sends, with the collection scripts it inherits. */
+  private runSurface(
+    request: HoppRESTRequest | HoppGQLRequest,
+    inherited: Array<{ preRequestScript: string; testScript: string }> = []
+  ): RunSurface {
     return {
       host:
         "endpoint" in request
           ? hostOf(request.endpoint)
           : hostOf(request.url, false),
+      scripts: scriptsOf([request, ...inherited]),
     }
   }
 
-  /** Records a host an edit to the pinned tab pointed it at. */
+  /** The collection scripts the turn's tab runs its request with. */
+  private tabInheritedScripts() {
+    const document = this.resolveTurnTab()?.document
+    return document && "inheritedProperties" in document
+      ? (document.inheritedProperties?.scripts ?? [])
+      : []
+  }
+
+  /** Records a host or script an edit to the pinned tab pointed it at. */
   private noteEditRisks(before: RunSurface, after: RunSurface) {
     // A host the user typed is their choice, not an injected one.
     if (after.host !== before.host && after.host && !this.typedHost(after.host))
       this.chatRisks.hosts.add(after.host)
+    after.scripts.forEach((script, i) => {
+      if (script !== before.scripts[i])
+        this.noteScriptWrite(script, before.scripts[i])
+    })
+  }
+
+  /**
+   * Records where a script the chat wrote sends that the user never typed and
+   * the user's own `previous` script didn't already send to.
+   */
+  private noteScriptWrite(script: string | undefined, previous = "") {
+    const text = script?.trim()
+    if (!text || text === previous.trim()) return
+    const sends = scriptSends(text)
+    // A script the chat wrote earlier is no baseline.
+    const had = this.chatRisks.scripts.has(previous.trim())
+      ? []
+      : scriptSends(previous).hosts
+    const risks = [
+      ...sends.hosts.filter(
+        (host) => !had.includes(host) && !this.typedHost(host)
+      ),
+      // Any edit can move a send only a run can place, so none is a baseline.
+      ...(sends.unknown ? [`${OPAQUE_SEND}${text}`] : []),
+    ]
+    if (!risks.length) return
+    const known = this.chatRisks.scripts.get(text) ?? []
+    this.chatRisks.scripts.set(text, [...new Set([...known, ...risks])])
+  }
+
+  /** Where chat-written scripts among these send unasked. */
+  private scriptRisks(scripts: string[]): string[] {
+    return scripts.flatMap(
+      (script) => this.chatRisks.scripts.get(script.trim()) ?? []
+    )
+  }
+
+  /** Risks as a prompt names them: a host, or a script's unknown address. */
+  private riskLabels(risks: string[]): string[] {
+    return [
+      ...new Set(
+        risks.map((risk) =>
+          risk.startsWith(OPAQUE_SEND)
+            ? this.t("ai_experiments.script_unknown_host")
+            : risk
+        )
+      ),
+    ]
   }
 
   /**
@@ -2303,7 +2380,7 @@ export class AIChatService extends Service {
     return [...new Set(hosts)]
   }
 
-  /** Records a host an upserted collection request now sends to. */
+  /** Records a host an upserted collection request, or its script, now sends to. */
   private noteUpsertRisk(
     definition: CollectionRequestDefinition,
     existing?: HoppRESTRequest
@@ -2315,6 +2392,11 @@ export class AIChatService extends Service {
       !this.typedHost(host)
     )
       this.chatRisks.hosts.add(host)
+    this.noteScriptWrite(
+      definition.preRequestScript,
+      existing?.preRequestScript
+    )
+    this.noteScriptWrite(definition.testScript, existing?.testScript)
   }
 
   /**
@@ -2346,9 +2428,10 @@ export class AIChatService extends Service {
     ]
   }
 
-  /** Run surfaces of every request in a collection tree. */
+  /** Run surfaces of every request in a collection tree, and its scripts. */
   private collectionSurfaces(collection: HoppCollection): RunSurface[] {
     return [
+      { host: "", scripts: scriptsOf([collection]) },
       ...(collection.requests ?? []).map((r) =>
         this.runSurface(r as HoppRESTRequest | HoppGQLRequest)
       ),
@@ -2358,9 +2441,9 @@ export class AIChatService extends Service {
 
   /**
    * Asks before a run that sends to a host the chat chose and the user never
-   * typed, in the URL or, for a `<<var>>` host, in a variable. Read from the
-   * requests themselves, so a duplicate or a later turn still asks. Null
-   * means go ahead.
+   * typed, in the URL, for a `<<var>>` host in a variable, or in a script it
+   * wrote. Read from the requests themselves, so a duplicate or a later turn
+   * still asks. Null means go ahead.
    */
   private async confirmRun(
     name: string,
@@ -2368,14 +2451,16 @@ export class AIChatService extends Service {
     generation: number
   ): Promise<string | null> {
     const unapproved = (host: string) => !this.chatRisks.runApproved.has(host)
-    const hosts = surfaces.map(({ host }) =>
-      this.chatRisks.hosts.has(host) ? host : this.chatVariableHost(host)
-    )
+    const hosts = surfaces.flatMap(({ host, scripts }) => [
+      this.chatRisks.hosts.has(host) ? host : this.chatVariableHost(host),
+      ...this.scriptRisks(scripts),
+    ])
     const asked = [...new Set(hosts)].filter((host) => host && unapproved(host))
     if (!asked.length) return null
-    if (!(await this.confirm("run", name, generation, { hosts: asked }))) {
+    const labels = this.riskLabels(asked)
+    if (!(await this.confirm("run", name, generation, { hosts: labels }))) {
       // The edit stays: a manual Send or save would still go there.
-      return `⚠️ You declined the run — nothing was sent. It still points at ${asked
+      return `⚠️ You declined the run — nothing was sent. It still points at ${labels
         .map((h) => `**${h}**`)
         .join(", ")}.`
     }
@@ -2384,10 +2469,11 @@ export class AIChatService extends Service {
     return null
   }
 
-  /** The host the chat pointed this request at, if a save would persist it. */
+  /** Where the chat pointed this request or its scripts, if a save would persist it. */
   private chatWritesIn(request: HoppRESTRequest | HoppGQLRequest): string[] {
-    const { host } = this.runSurface(request)
-    if (this.chatRisks.hosts.has(host)) return [host]
+    const { host, scripts } = this.runSurface(request)
+    const viaScripts = this.scriptRisks(scripts)
+    if (this.chatRisks.hosts.has(host)) return [host, ...viaScripts]
     // Its own variables are saved with it; environment ones are not.
     const own = new Map(
       ("requestVariables" in request ? request.requestVariables : []).map(
@@ -2398,7 +2484,7 @@ export class AIChatService extends Service {
       host,
       (key) => own.get(key) === this.chatRisks.vars.get(key)
     )
-    return viaVariable ? [viaVariable] : []
+    return viaVariable ? [viaVariable, ...viaScripts] : viaScripts
   }
 
   /**
@@ -2417,7 +2503,7 @@ export class AIChatService extends Service {
     )
     if (!hosts.length) return null
     const approved = await this.confirm("save", target.name, generation, {
-      hosts,
+      hosts: this.riskLabels(hosts),
       workspace: target.workspace,
     })
     if (!approved) {
@@ -2734,7 +2820,7 @@ export class AIChatService extends Service {
           }
           const declined = await this.confirmRun(
             active.request.name || "the request",
-            [this.runSurface(active.request)],
+            [this.runSurface(active.request, this.tabInheritedScripts())],
             batch.generation
           )
           if (declined) return declined
@@ -2776,7 +2862,7 @@ export class AIChatService extends Service {
           }
           const declined = await this.confirmRun(
             gqlActive.request.name || "the request",
-            [this.runSurface(gqlActive.request)],
+            [this.runSurface(gqlActive.request, this.tabInheritedScripts())],
             batch.generation
           )
           if (declined) return declined
@@ -3791,9 +3877,20 @@ export class AIChatService extends Service {
     if (!collectionID) {
       return `⚠️ Collection **${found.label}** has no stable identifier and cannot be run.`
     }
+    // A folder runs its ancestors' scripts too.
+    const ancestors = getRESTCollectionInheritedProps(collectionID)
     const declined = await this.confirmRun(
       found.label,
-      this.collectionSurfaces(found.collection),
+      [
+        ...this.collectionSurfaces(found.collection),
+        {
+          host: "",
+          scripts: [
+            ...(ancestors?.ancestorPreRequestScripts ?? []),
+            ...(ancestors?.ancestorTestScripts ?? []),
+          ],
+        },
+      ],
       batch.generation
     )
     if (declined) return declined
@@ -4858,9 +4955,15 @@ export class AIChatService extends Service {
     if (this.countCollectionRequests(tree) === 0) {
       return `⚠️ Collection **${found.label}** has no requests to run.`
     }
+    // Read before asking: a folder runs its ancestors' scripts too.
+    const inheritedProperties = await this.teamInheritedProperties(found.path)
+    if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
     const declined = await this.confirmRun(
       found.label,
-      this.collectionSurfaces(tree),
+      [
+        ...this.collectionSurfaces(tree),
+        { host: "", scripts: scriptsOf(inheritedProperties.scripts ?? []) },
+      ],
       batch.generation
     )
     if (declined) return declined
@@ -4870,8 +4973,6 @@ export class AIChatService extends Service {
       if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
       if (!selectionReply.startsWith("🌐")) return selectionReply
     }
-    const inheritedProperties = await this.teamInheritedProperties(found.path)
-    if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
 
     const tab = this.tabService.createNewTab({
       type: "test-runner",
@@ -5323,6 +5424,8 @@ export class AIChatService extends Service {
     }
 
     // Requests in this collection inherit these on their next run.
+    this.noteScriptWrite(preRequestScript, current.preRequestScript)
+    this.noteScriptWrite(testScript, current.testScript)
     if (updatedVarCount)
       this.noteVariableWrites(
         parsedVars.variables.map((v) => ({

@@ -840,7 +840,7 @@ describe("AIChatService run/save mechanics", () => {
         {
           id: "1",
           name: "set_prerequest_script",
-          input: { script: "hopp.fetch('https://x.example')" },
+          input: { script: "pw.env.set('checked', 'yes')" },
         },
       ])
 

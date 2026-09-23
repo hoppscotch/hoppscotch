@@ -2088,6 +2088,7 @@
     "confirm_unpublish_docs": "Unpublish \"{name}\" docs ({version})? Its link stops working.",
     "confirm_public_mock_server": "Make mock server \"{name}\" public? Anyone with its URL can call it.",
     "confirm_save": "Save to \"{name}\" in {workspace}? The assistant pointed it at {hosts}.",
+    "script_unknown_host": "an address its script builds at run time",
     "team_workspace": "a team workspace",
     "accept_change": "Accept Change",
     "feedback_success": "Feedback submitted successfully",

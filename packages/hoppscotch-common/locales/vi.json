@@ -540,7 +540,8 @@
     "profile": "Hồ sơ",
     "realtime": "Thời gian thực",
     "rest": "REST",
-    "settings": "Cài đặt"
+    "settings": "Cài đặt",
+    "grpc": "gRPC"
   },
   "preRequest": {
     "javascript_code": "Mã JavaScript",
@@ -637,7 +638,11 @@
     "title": "Phản hồi",
     "video": "Video",
     "waiting_for_connection": "đang chờ kết nối",
-    "xml": "XML"
+    "xml": "XML",
+    "metadata": "Siêu dữ liệu",
+    "no_metadata": "Phản hồi này không có siêu dữ liệu",
+    "no_trailers": "Phản hồi này không có phần kết",
+    "trailers": "Phần kết"
   },
   "settings": {
     "accent_color": "Accent color",
@@ -1102,5 +1107,14 @@
     "not_found": "Không tìm thấy Shortcode",
     "short_code": "Short code",
     "url": "URL"
+  },
+  "grpc": {
+    "unsupported_title": "gRPC không khả dụng trên nền tảng hiện tại",
+    "unsupported_description": "Hãy dùng một interceptor hỗ trợ HTTP/2 nhị phân, chẳng hạn interceptor gốc của ứng dụng máy tính.",
+    "invoke": "Gọi",
+    "server_url": "URL máy chủ gRPC",
+    "service": "Dịch vụ",
+    "streaming": "truyền phát",
+    "url_placeholder": "http://localhost:8080"
   }
 }

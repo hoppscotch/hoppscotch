@@ -540,7 +540,8 @@
     "profile": "Profiel",
     "realtime": "Real-time",
     "rest": "REST",
-    "settings": "Instellingen"
+    "settings": "Instellingen",
+    "grpc": "gRPC"
   },
   "preRequest": {
     "javascript_code": "JavaScript-code",
@@ -637,7 +638,11 @@
     "title": "Antwoord",
     "video": "Video",
     "waiting_for_connection": "wachten op verbinding",
-    "xml": "XML"
+    "xml": "XML",
+    "metadata": "Metagegevens",
+    "no_metadata": "Dit antwoord bevat geen metagegevens",
+    "no_trailers": "Dit antwoord bevat geen trailers",
+    "trailers": "Trailers"
   },
   "settings": {
     "accent_color": "Accentkleur",
@@ -1102,5 +1107,14 @@
     "not_found": "Shortcode niet gevonden",
     "short_code": "Shortcode",
     "url": "URL"
+  },
+  "grpc": {
+    "unsupported_title": "gRPC is niet beschikbaar op het huidige platform",
+    "unsupported_description": "Gebruik een interceptor met ondersteuning voor binaire HTTP/2, zoals de native interceptor van de desktop-app.",
+    "invoke": "Aanroepen",
+    "server_url": "URL van gRPC-server",
+    "service": "Service",
+    "streaming": "streaming",
+    "url_placeholder": "http://localhost:8080"
   }
 }

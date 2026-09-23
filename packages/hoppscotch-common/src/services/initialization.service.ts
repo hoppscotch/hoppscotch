@@ -5,6 +5,7 @@ import { getService } from "~/modules/dioc"
 import { PersistenceService } from "~/services/persistence"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { GQLTabService } from "~/services/tab/graphql"
+import { GRPCTabService } from "~/services/tab/grpc"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 
 import { platform } from "~/platform"
@@ -75,8 +76,13 @@ export class InitializationService extends Service<InitEvent> {
 
     const workspaceTabsService = getService(WorkspaceTabsService)
     const gqlTabService = getService(GQLTabService)
+    const grpcTabService = getService(GRPCTabService)
 
-    await Promise.all([workspaceTabsService.init(), gqlTabService.init()])
+    await Promise.all([
+      workspaceTabsService.init(),
+      gqlTabService.init(),
+      grpcTabService.init(),
+    ])
 
     this.initState.tabs = true
     this.emit({ type: "TABS_READY" })

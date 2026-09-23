@@ -540,7 +540,8 @@
     "profile": "الملف الشخصي",
     "realtime": "في الوقت الحالى",
     "rest": "REST",
-    "settings": "إعدادات"
+    "settings": "إعدادات",
+    "grpc": "gRPC"
   },
   "preRequest": {
     "javascript_code": "كود جافا سكريبت",
@@ -637,7 +638,11 @@
     "title": "الاستجابة",
     "video": "فيديو",
     "waiting_for_connection": "في انتظار الاتصال",
-    "xml": "XML"
+    "xml": "XML",
+    "metadata": "البيانات الوصفية",
+    "no_metadata": "لا تحتوي هذه الاستجابة على أي بيانات وصفية",
+    "no_trailers": "لا تحتوي هذه الاستجابة على أي تذييلات",
+    "trailers": "التذييلات"
   },
   "settings": {
     "accent_color": "لون التمييز",
@@ -1102,5 +1107,14 @@
     "not_found": "الرمز القصير غير موجود",
     "short_code": "رمز قصير",
     "url": "الرابط"
+  },
+  "grpc": {
+    "unsupported_title": "gRPC غير متاح على المنصة الحالية",
+    "unsupported_description": "استخدم وسيطًا يدعم HTTP/2 الثنائي، مثل الوسيط الأصلي لتطبيق سطح المكتب.",
+    "invoke": "استدعاء",
+    "server_url": "عنوان URL لخادم gRPC",
+    "service": "الخدمة",
+    "streaming": "تدفّق",
+    "url_placeholder": "http://localhost:8080"
   }
 }

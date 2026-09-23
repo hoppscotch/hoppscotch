@@ -1087,7 +1087,8 @@
     "mock_servers": "Mock-palvelimet",
     "settings": "Asetukset",
     "goto_app": "Siirry sovellukseen",
-    "authentication": "Todennus"
+    "authentication": "Todennus",
+    "grpc": "gRPC"
   },
   "mock_server": {
     "confirm_delete_log": "Haluatko varmasti poistaa tämän lokin?",
@@ -1264,7 +1265,11 @@
     "generate_data_schema": "Luo tietoskeema",
     "data_schema": "Tietoskeema",
     "saved": "Vastaus tallennettu",
-    "invalid_name": "Anna vastaukselle nimi"
+    "invalid_name": "Anna vastaukselle nimi",
+    "metadata": "Metatiedot",
+    "no_metadata": "Tämä vastaus ei sisällä metatietoja",
+    "no_trailers": "Tämä vastaus ei sisällä loppuotsakkeita",
+    "trailers": "Loppuotsakkeet"
   },
   "script": {
     "inheriting": "Perityt skriptit kohteesta",
@@ -2374,5 +2379,14 @@
       "delete_success": "Mock-palvelin poistettu onnistuneesti",
       "delete_error": "Mock-palvelimen poisto epäonnistui"
     }
+  },
+  "grpc": {
+    "unsupported_title": "gRPC ei ole käytettävissä nykyisellä alustalla",
+    "unsupported_description": "Käytä binääristä HTTP/2:ta tukevaa välittäjää, kuten työpöytäsovelluksen natiivia välittäjää.",
+    "invoke": "Kutsu",
+    "server_url": "gRPC-palvelimen URL",
+    "service": "Palvelu",
+    "streaming": "suoratoisto",
+    "url_placeholder": "http://localhost:8080"
   }
 }

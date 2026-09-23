@@ -1087,7 +1087,8 @@
     "mock_servers": "Mock Server",
     "settings": "การตั้งค่า",
     "goto_app": "ไปที่แอป",
-    "authentication": "การยืนยันตัวตน"
+    "authentication": "การยืนยันตัวตน",
+    "grpc": "gRPC"
   },
   "mock_server": {
     "confirm_delete_log": "คุณแน่ใจหรือไม่ว่าต้องการลบบันทึกนี้?",
@@ -1264,7 +1265,11 @@
     "generate_data_schema": "สร้างสคีมาข้อมูล",
     "data_schema": "สคีมาข้อมูล",
     "saved": "บันทึกการตอบกลับแล้ว",
-    "invalid_name": "โปรดระบุชื่อสำหรับการตอบกลับ"
+    "invalid_name": "โปรดระบุชื่อสำหรับการตอบกลับ",
+    "metadata": "ข้อมูลเมตา",
+    "no_metadata": "การตอบกลับนี้ไม่มีข้อมูลเมตา",
+    "no_trailers": "การตอบกลับนี้ไม่มีเทรลเลอร์",
+    "trailers": "เทรลเลอร์"
   },
   "script": {
     "inheriting": "กำลังสืบทอดสคริปต์จาก",
@@ -2374,5 +2379,14 @@
       "delete_success": "ลบ Mock Server สำเร็จ",
       "delete_error": "ไม่สามารถลบ Mock Server ได้"
     }
+  },
+  "grpc": {
+    "unsupported_title": "gRPC ไม่พร้อมใช้งานบนแพลตฟอร์มปัจจุบัน",
+    "unsupported_description": "ใช้ตัวดักจับที่รองรับ HTTP/2 แบบไบนารี เช่น ตัวดักจับแบบเนทีฟของแอปเดสก์ท็อป",
+    "invoke": "เรียกใช้",
+    "server_url": "URL เซิร์ฟเวอร์ gRPC",
+    "service": "บริการ",
+    "streaming": "การสตรีม",
+    "url_placeholder": "http://localhost:8080"
   }
 }

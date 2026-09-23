@@ -540,7 +540,8 @@
     "profile": "Profil",
     "realtime": "Timp real",
     "rest": "REST",
-    "settings": "Setări"
+    "settings": "Setări",
+    "grpc": "gRPC"
   },
   "preRequest": {
     "javascript_code": "Cod JavaScript",
@@ -637,7 +638,11 @@
     "title": "Raspuns",
     "video": "Video",
     "waiting_for_connection": "Așteptând conexiunea",
-    "xml": "XML"
+    "xml": "XML",
+    "metadata": "Metadate",
+    "no_metadata": "Acest răspuns nu conține metadate",
+    "no_trailers": "Acest răspuns nu conține trailere",
+    "trailers": "Trailere"
   },
   "settings": {
     "accent_color": "Culoare de accent",
@@ -1102,5 +1107,14 @@
     "not_found": "Codul scurt nu a fost găsit",
     "short_code": "Cod scurt",
     "url": "URL"
+  },
+  "grpc": {
+    "unsupported_title": "gRPC nu este disponibil pe platforma curentă",
+    "unsupported_description": "Folosiți un interceptor cu suport HTTP/2 binar, precum interceptorul nativ al aplicației desktop.",
+    "invoke": "Invocă",
+    "server_url": "URL server gRPC",
+    "service": "Serviciu",
+    "streaming": "streaming",
+    "url_placeholder": "http://localhost:8080"
   }
 }

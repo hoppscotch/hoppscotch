@@ -67,7 +67,7 @@ export class NativeKernelInterceptorService
       "peerverification",
     ]),
     proxy: new Set(["http", "https", "authentication", "certificates"]),
-    advanced: new Set(["redirects", "cookies", "localaccess"]),
+    advanced: new Set(["redirects", "cookies", "http2", "localaccess"]),
   } as const
   public readonly settingsEntry = markRaw({
     title: (t: ReturnType<typeof getI18n>) =>
@@ -79,16 +79,23 @@ export class NativeKernelInterceptorService
     request: RelayRequest
   ): ExecutionResult<KernelInterceptorError> {
     let relayExecution: { cancel: () => Promise<void> } | null = null
+    let cancellationRequested = false
+    let cancellationPromise: Promise<void> | null = null
+
+    const cancel = () => {
+      cancellationRequested = true
+      if (!relayExecution) return Promise.resolve()
+
+      cancellationPromise ??= relayExecution.cancel()
+      return cancellationPromise
+    }
 
     return {
-      cancel: async () => {
-        if (relayExecution) {
-          await relayExecution.cancel()
-        }
-      },
+      cancel,
       response: pipe(
-        this.executeRequest(request, (execution) => {
+        this.executeRequest(request, async (execution) => {
           relayExecution = execution
+          if (cancellationRequested) await cancel()
         }),
         (promise) =>
           promise.then((either) =>
@@ -178,7 +185,9 @@ export class NativeKernelInterceptorService
 
   private async executeRequest(
     request: RelayRequest,
-    setRelayExecution: (execution: { cancel: () => Promise<void> }) => void
+    setRelayExecution: (execution: {
+      cancel: () => Promise<void>
+    }) => Promise<void>
   ): Promise<E.Either<any, RelayResponse>> {
     try {
       const effectiveRequest = this.store.completeRequest(
@@ -221,7 +230,7 @@ export class NativeKernelInterceptorService
       const postProcessedRequest = postProcessRelayRequest(nativeRequest)
       const relayExecution = Relay.execute(postProcessedRequest)
 
-      setRelayExecution(relayExecution)
+      await setRelayExecution(relayExecution)
 
       const relayResponse = await relayExecution.response
       if (E.isRight(relayResponse) && useCookieJar) {

@@ -540,7 +540,8 @@
     "profile": "Profil",
     "realtime": "Realtime",
     "rest": "REST",
-    "settings": "Pengaturan"
+    "settings": "Pengaturan",
+    "grpc": "gRPC"
   },
   "preRequest": {
     "javascript_code": "JavaScript Code",
@@ -637,7 +638,11 @@
     "title": "Response",
     "video": "Video",
     "waiting_for_connection": "Menunggu koneksi",
-    "xml": "XML"
+    "xml": "XML",
+    "metadata": "Metadata",
+    "no_metadata": "Respons ini tidak memiliki metadata",
+    "no_trailers": "Respons ini tidak memiliki trailer",
+    "trailers": "Trailer"
   },
   "settings": {
     "accent_color": "Accent color",
@@ -1102,5 +1107,14 @@
     "not_found": "Shortcode tidak ditemukan",
     "short_code": "Short code",
     "url": "URL"
+  },
+  "grpc": {
+    "unsupported_title": "gRPC tidak tersedia di platform saat ini",
+    "unsupported_description": "Gunakan interceptor yang mendukung HTTP/2 biner, seperti interceptor native aplikasi desktop.",
+    "invoke": "Jalankan",
+    "server_url": "URL server gRPC",
+    "service": "Layanan",
+    "streaming": "streaming",
+    "url_placeholder": "http://localhost:8080"
   }
 }

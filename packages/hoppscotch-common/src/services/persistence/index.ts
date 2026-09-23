@@ -17,6 +17,7 @@ import { StoreError } from "@hoppscotch/kernel"
 import { Store } from "~/kernel/store"
 import { diag } from "~/kernel/log"
 import { GQLTabService } from "~/services/tab/graphql"
+import { GRPCTabService } from "~/services/tab/grpc"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import {
   SecretEnvironmentService,
@@ -76,6 +77,7 @@ import {
   GQL_COLLECTION_SCHEMA,
   GQL_HISTORY_ENTRY_SCHEMA,
   GQL_TAB_STATE_SCHEMA,
+  GRPC_TAB_STATE_SCHEMA,
   LOCAL_STATE_SCHEMA,
   MQTT_REQUEST_SCHEMA,
   NUXT_COLOR_MODE_SCHEMA,
@@ -94,6 +96,7 @@ import {
 import { PersistableTabState } from "../tab"
 import { HoppTabDocument } from "~/helpers/tab/document"
 import { HoppGQLDocument } from "~/helpers/graphql/document"
+import { HoppGRPCDocument } from "~/helpers/grpc/document"
 import {
   CurrentValueService,
   Variable,
@@ -124,6 +127,7 @@ export const STORE_KEYS = {
   GLOBAL_ENV: "globalEnv",
   REST_TABS: "restTabs",
   GQL_TABS: "gqlTabs",
+  GRPC_TABS: "grpcTabs",
   SECRET_ENVIRONMENTS: "secretEnvironments",
   CURRENT_ENVIRONMENT_VALUE: "currentEnvironmentValue",
   CURRENT_SORT_VALUES: "currentSortValues",
@@ -258,6 +262,7 @@ export class PersistenceService extends Service {
 
   private readonly workspaceTabsService = this.bind(WorkspaceTabsService)
   private readonly gqlTabService = this.bind(GQLTabService)
+  private readonly grpcTabService = this.bind(GRPCTabService)
   private readonly secretEnvironmentService = this.bind(
     SecretEnvironmentService
   )
@@ -1173,6 +1178,45 @@ export class PersistenceService extends Service {
     )
   }
 
+  private async setupGRPCTabsPersistence() {
+    const loadResult = await Store.get<any>(
+      STORE_NAMESPACE,
+      STORE_KEYS.GRPC_TABS
+    )
+
+    try {
+      if (E.isRight(loadResult) && loadResult.right) {
+        const result = GRPC_TAB_STATE_SCHEMA.safeParse(loadResult.right)
+        if (result.success) {
+          this.grpcTabService.loadTabsFromPersistedState(
+            result.data as PersistableTabState<HoppGRPCDocument>
+          )
+        } else {
+          this.showErrorToast(STORE_KEYS.GRPC_TABS)
+          await Store.set(
+            STORE_NAMESPACE,
+            `${STORE_KEYS.GRPC_TABS}-backup`,
+            loadResult.right
+          )
+          console.error(
+            `Failed parsing persisted GRPC_TABS:`,
+            JSON.stringify(loadResult.right)
+          )
+        }
+      }
+    } catch (_e) {
+      console.error(`Failed parsing persisted GRPC_TABS:`, loadResult)
+    }
+
+    watchDebounced(
+      this.grpcTabService.persistableTabState,
+      async (newData) => {
+        await Store.set(STORE_NAMESPACE, STORE_KEYS.GRPC_TABS, newData)
+      },
+      { debounce: 500, deep: true }
+    )
+  }
+
   public async setupFirst() {
     diag("persistence", "setupFirst() start")
     await this.init()
@@ -1203,6 +1247,7 @@ export class PersistenceService extends Service {
       this.setupMQTTPersistence(),
       this.setupWorkspaceTabsPersistence(),
       this.setupGQLTabsPersistence(),
+      this.setupGRPCTabsPersistence(),
 
       this.setupSecretEnvironmentsPersistence(),
       this.setupCurrentEnvironmentValuePersistence(),

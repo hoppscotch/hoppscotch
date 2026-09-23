@@ -540,7 +540,8 @@
     "profile": "Profilo",
     "realtime": "Tempo reale",
     "rest": "REST",
-    "settings": "Impostazioni"
+    "settings": "Impostazioni",
+    "grpc": "gRPC"
   },
   "preRequest": {
     "javascript_code": "Codice JavaScript",
@@ -637,7 +638,11 @@
     "title": "Risposta",
     "video": "Video",
     "waiting_for_connection": "In attesa di connessione",
-    "xml": "XML"
+    "xml": "XML",
+    "metadata": "Metadati",
+    "no_metadata": "Questa risposta non contiene metadati",
+    "no_trailers": "Questa risposta non contiene trailer",
+    "trailers": "Trailer"
   },
   "settings": {
     "accent_color": "Colore in risalto",
@@ -1102,5 +1107,14 @@
     "not_found": "Shortcode not found",
     "short_code": "Short code",
     "url": "URL"
+  },
+  "grpc": {
+    "unsupported_title": "gRPC non è disponibile sulla piattaforma attuale",
+    "unsupported_description": "Utilizza un interceptor con supporto HTTP/2 binario, come l'interceptor nativo dell'app desktop.",
+    "invoke": "Invoca",
+    "server_url": "URL del server gRPC",
+    "service": "Servizio",
+    "streaming": "streaming",
+    "url_placeholder": "http://localhost:8080"
   }
 }

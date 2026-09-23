@@ -19,7 +19,7 @@
           :exact="item.exactMatch"
           class="tab"
           :class="[{ vertical: vertical }]"
-          :aria-label="item.label || ''"
+          :aria-label="item.label || 'Navigation Tab'"
           role="link"
         >
           <component

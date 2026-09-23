@@ -95,10 +95,16 @@ export const BUILT_IN_SKILLS: ChatSkill[] = [
 export const mergeSkills = (
   custom: Omit<ChatSkill, "custom">[]
 ): ChatSkill[] => {
-  const overridden = new Set(custom.map((skill) => skill.slug))
+  const overridden = new Set<string>()
+  // One entry per slug: the first custom record wins.
+  const own = custom.filter((skill) => {
+    if (overridden.has(skill.slug)) return false
+    overridden.add(skill.slug)
+    return true
+  })
   return [
     ...BUILT_IN_SKILLS.filter((skill) => !overridden.has(skill.slug)),
-    ...custom.map((skill) => ({ ...skill, custom: true })),
+    ...own.map((skill) => ({ ...skill, custom: true })),
   ]
 }
 

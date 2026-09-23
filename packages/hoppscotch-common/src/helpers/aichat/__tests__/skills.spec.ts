@@ -53,6 +53,20 @@ describe("merging an admin's skills over the built-ins", () => {
     expect(matches[0]).toMatchObject({ title: "Our explain", custom: true })
   })
 
+  test("keeps one entry per slug when a record repeats", () => {
+    const merged = mergeSkills([
+      custom("smoke-test", { title: "First" }),
+      custom("explain", { title: "Our explain" }),
+      custom("smoke-test", { title: "Second" }),
+      custom("explain", { title: "Again" }),
+    ])
+
+    const slugs = merged.map((s) => s.slug)
+    expect(new Set(slugs).size).toBe(slugs.length)
+    expect(merged.find((s) => s.slug === "smoke-test")?.title).toBe("First")
+    expect(merged.find((s) => s.slug === "explain")?.title).toBe("Our explain")
+  })
+
   test("leaves the built-ins alone when there are none", () => {
     expect(mergeSkills([])).toEqual(BUILT_IN_SKILLS)
   })

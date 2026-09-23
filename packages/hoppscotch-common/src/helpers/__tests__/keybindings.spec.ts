@@ -1,5 +1,10 @@
 import { describe, expect, test } from "vitest"
-import { bindings, resolvePressedKey } from "../keybindings"
+import {
+  bindings,
+  isKeybindingsEnabled,
+  resolvePressedKey,
+  useKeybindingDisabler,
+} from "../keybindings"
 
 // Fixture builder to keep individual cases readable. Layout name in the
 // describe block is the conceptual layout; `key` and `code` are what the
@@ -217,5 +222,38 @@ describe("bindings: native word-delete chords stay unmapped", () => {
 
   test("no chord maps to response.erase", () => {
     expect(Object.values(bindings)).not.toContain("response.erase")
+  })
+})
+
+describe("useKeybindingDisabler: reference-counted locks", () => {
+  // hoppscotch/hoppscotch#6531: keybindingsEnabled used to be a plain
+  // boolean, so if two modals both disabled keybindings and the first one
+  // closed, the second modal's still-open lock was clobbered and shortcuts
+  // re-enabled early. It must now behave like a lock count that only
+  // reaches zero once every caller has released its lock.
+  test("stays disabled while a second lock is still held after the first is released", () => {
+    const { disableKeybindings, enableKeybindings } = useKeybindingDisabler()
+
+    disableKeybindings() // modal A opens
+    disableKeybindings() // modal B opens
+    expect(isKeybindingsEnabled()).toBe(false)
+
+    enableKeybindings() // modal A closes
+    expect(isKeybindingsEnabled()).toBe(false) // modal B is still open
+
+    enableKeybindings() // modal B closes
+    expect(isKeybindingsEnabled()).toBe(true)
+  })
+
+  test("an extra enableKeybindings() call does not go negative or re-enable early", () => {
+    const { disableKeybindings, enableKeybindings } = useKeybindingDisabler()
+
+    disableKeybindings()
+    disableKeybindings()
+    enableKeybindings()
+    enableKeybindings()
+    enableKeybindings() // no matching lock left - should be a no-op
+
+    expect(isKeybindingsEnabled()).toBe(true)
   })
 })

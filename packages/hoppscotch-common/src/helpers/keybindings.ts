@@ -16,11 +16,13 @@ import { getKernelMode } from "@hoppscotch/kernel"
 import { listen } from "@tauri-apps/api/event"
 
 /**
- * This variable keeps track whether keybindings are being accepted
- * true -> Keybindings are checked
- * false -> Key presses are ignored (Keybindings are not checked)
+ * Number of outstanding `disableKeybindings()` calls that haven't been
+ * matched by a corresponding `enableKeybindings()` yet. Keybindings are
+ * accepted only when this is 0, so bindings stay disabled as long as at
+ * least one caller (e.g. an open modal) still holds a lock, even if other
+ * callers have already released theirs.
  */
-let keybindingsEnabled = true
+let keybindingsDisableLockCount = 0
 
 /**
  * Unlisten function for Tauri event
@@ -175,7 +177,7 @@ export function hookKeybindingsListener() {
 
 function handleKeyDown(ev: KeyboardEvent) {
   // Do not check keybinds if the mode is disabled
-  if (!keybindingsEnabled) return
+  if (keybindingsDisableLockCount > 0) return
 
   // Skip during IME composition (CJK input). Modern browsers report
   // `isComposing`. Older ones use the sentinel `keyCode === 229`.
@@ -271,7 +273,7 @@ function handleTauriShortcut(shortcut: string) {
   console.info("Tauri shortcut:", shortcut)
 
   // Do not check keybinds if the mode is disabled
-  if (!keybindingsEnabled) return
+  if (keybindingsDisableLockCount > 0) return
 
   const activeBindings = getActiveBindings()
   const boundAction = activeBindings[shortcut as ShortcutKey]
@@ -449,17 +451,24 @@ function getActiveModifier(ev: KeyboardEvent): ModifierKeys | null {
  * This composable allows for the UI component to be disabled if the component in question is mounted
  */
 export function useKeybindingDisabler() {
-  // TODO: Move to a lock based system that keeps the bindings disabled until all locks are lifted
   const disableKeybindings = () => {
-    keybindingsEnabled = false
+    keybindingsDisableLockCount += 1
   }
 
   const enableKeybindings = () => {
-    keybindingsEnabled = true
+    keybindingsDisableLockCount = Math.max(0, keybindingsDisableLockCount - 1)
   }
 
   return {
     disableKeybindings,
     enableKeybindings,
   }
+}
+
+/**
+ * Whether keybindings are currently accepted, i.e. no caller (e.g. an open
+ * modal) still holds a `disableKeybindings()` lock.
+ */
+export function isKeybindingsEnabled() {
+  return keybindingsDisableLockCount === 0
 }

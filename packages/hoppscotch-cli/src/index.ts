@@ -79,6 +79,7 @@ program
     "path to a CSV file for data-driven testing"
   )
   .option("--legacy-sandbox", "Opt out from the experimental scripting sandbox")
+  .option("--bail", "stop running tests after the first failure")
   .allowExcessArguments(false)
   .allowUnknownOption(false)
   .description("running hoppscotch collection.json file")

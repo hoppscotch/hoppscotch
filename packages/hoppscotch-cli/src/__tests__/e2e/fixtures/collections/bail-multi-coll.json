@@ -1,0 +1,55 @@
+[
+  {
+    "v": 1,
+    "name": "Collection A",
+    "folders": [],
+    "requests": [
+      {
+        "v": "3",
+        "endpoint": "https://echo.hoppscotch.io",
+        "name": "A-Request 1 - passes",
+        "params": [],
+        "headers": [],
+        "method": "GET",
+        "auth": { "authType": "none", "authActive": true },
+        "preRequestScript": "",
+        "testScript": "pw.test(\"Status is 200\", () => { pw.expect(pw.response.status).toBe(200); });",
+        "body": { "contentType": null, "body": null },
+        "requestVariables": []
+      },
+      {
+        "v": "3",
+        "endpoint": "https://echo.hoppscotch.io",
+        "name": "A-Request 2 - fails",
+        "params": [],
+        "headers": [],
+        "method": "GET",
+        "auth": { "authType": "none", "authActive": true },
+        "preRequestScript": "",
+        "testScript": "pw.test(\"This always fails\", () => { pw.expect(pw.response.status).toBe(999); });",
+        "body": { "contentType": null, "body": null },
+        "requestVariables": []
+      }
+    ]
+  },
+  {
+    "v": 1,
+    "name": "Collection B",
+    "folders": [],
+    "requests": [
+      {
+        "v": "3",
+        "endpoint": "https://echo.hoppscotch.io",
+        "name": "B-Request 1 - should not run with bail",
+        "params": [],
+        "headers": [],
+        "method": "GET",
+        "auth": { "authType": "none", "authActive": true },
+        "preRequestScript": "",
+        "testScript": "pw.test(\"Status is 200\", () => { pw.expect(pw.response.status).toBe(200); });",
+        "body": { "contentType": null, "body": null },
+        "requestVariables": []
+      }
+    ]
+  }
+]

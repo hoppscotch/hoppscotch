@@ -201,11 +201,12 @@ pub(crate) fn parses_as_pem(pem: &[u8]) -> bool {
     !parse_lenient(pem).is_empty()
 }
 
-#[cfg_attr(not(target_os = "windows"), allow(dead_code))]
-fn pem_to_ders(pem: &[u8]) -> Vec<Vec<u8>> {
-    X509::stack_from_pem(pem)
-        .map(|stack| stack.iter().filter_map(|cert| cert.to_der().ok()).collect())
-        .unwrap_or_default()
+/// The certificates of a user entry, re-encoded, since `CURLOPT_CAINFO_BLOB`
+/// is parsed all at once and one malformed block in the middle of the blob
+/// discards every certificate OpenSSL had read from it, the user's and the
+/// host's alike.
+pub(crate) fn normalize_pem(pem: &[u8]) -> Vec<u8> {
+    pem_encode(&parse_lenient(pem)).0
 }
 
 /// What a domain says about one certificate. `Defer` passes the question to
@@ -372,10 +373,23 @@ fn read_platform() -> Option<TrustBundle> {
     enum StoreUsage {
         Restricted(Vec<String>),
         Unrestricted,
+        // The property could not be read, or it is present and names no usage
+        // at all, which Windows distinguishes from an absent property by the
+        // last error and which means the entry is valid for no purpose.
+        Denied,
     }
 
     const SERVER_AUTH_OID: &str = "1.3.6.1.5.5.7.3.1";
     const ANY_USAGE_OID: &str = "2.5.29.37.0";
+
+    // An absent property and an unreadable one are the same return value, so
+    // the last error separates them, `CRYPT_E_NOT_FOUND` for the entry that
+    // constrains nothing and anything else for a policy this process could not
+    // read, which is denied rather than exported.
+    fn no_property() -> bool {
+        let error = unsafe { GetLastError() };
+        error as i32 == CRYPT_E_NOT_FOUND
+    }
 
     fn store_usage(ctx: *const CERT_CONTEXT) -> StoreUsage {
         let mut size = 0u32;
@@ -387,10 +401,22 @@ fn read_platform() -> Option<TrustBundle> {
                 &mut size,
             )
         };
-        if ok == 0 || size == 0 {
-            return StoreUsage::Unrestricted;
+        if ok == 0 {
+            return if no_property() {
+                StoreUsage::Unrestricted
+            } else {
+                tracing::warn!("Store entry usage property unreadable, entry denied");
+                StoreUsage::Denied
+            };
         }
-        let mut buffer = vec![0u8; size as usize];
+        if size < std::mem::size_of::<CERT_ENHKEY_USAGE>() as u32 {
+            return StoreUsage::Denied;
+        }
+        // `CERT_ENHKEY_USAGE` holds a pointer, so the buffer the API writes it
+        // into is allocated as words rather than bytes, ∵ a `Vec<u8>` carries
+        // no alignment the cast could rely on.
+        let words = (size as usize).div_ceil(std::mem::size_of::<usize>());
+        let mut buffer = vec![0usize; words];
         let usage = buffer.as_mut_ptr() as *mut CERT_ENHKEY_USAGE;
         let ok = unsafe {
             CertGetEnhancedKeyUsage(
@@ -401,11 +427,16 @@ fn read_platform() -> Option<TrustBundle> {
             )
         };
         if ok == 0 {
-            return StoreUsage::Unrestricted;
+            tracing::warn!("Store entry usage property unreadable, entry denied");
+            return StoreUsage::Denied;
         }
         let usage = unsafe { &*usage };
         if usage.cUsageIdentifier == 0 {
-            return StoreUsage::Unrestricted;
+            return if no_property() {
+                StoreUsage::Unrestricted
+            } else {
+                StoreUsage::Denied
+            };
         }
         let mut oids = Vec::with_capacity(usage.cUsageIdentifier as usize);
         for index in 0..usage.cUsageIdentifier as usize {
@@ -483,12 +514,22 @@ fn read_platform() -> Option<TrustBundle> {
     // anchor once it is in the blob, and the restriction lives in the store
     // entry's enhanced key usage property as often as in the certificate, so
     // both are read.
-    roots.retain(|(_, usage)| match usage {
+    let permitted = |usage: &StoreUsage| match usage {
         StoreUsage::Restricted(oids) => oids
             .iter()
             .any(|oid| oid == SERVER_AUTH_OID || oid == ANY_USAGE_OID),
         StoreUsage::Unrestricted => true,
-    });
+        StoreUsage::Denied => false,
+    };
+    // A root the store entry keeps from TLS is also in the compiled-in set
+    // often enough that the union below would hand it back, so what the entry
+    // denies is subtracted from the bundle as well.
+    let restricted: Vec<Vec<u8>> = roots
+        .iter()
+        .filter(|(_, usage)| !permitted(usage))
+        .map(|(der, _)| der.clone())
+        .collect();
+    roots.retain(|(_, usage)| permitted(usage));
     let mut roots: Vec<Vec<u8>> = roots.into_iter().map(|(der, _)| der).collect();
     roots.retain(|der| valid_for_tls(der));
     roots.retain(|der| !revoked.contains(der));
@@ -499,7 +540,7 @@ fn read_platform() -> Option<TrustBundle> {
     // export cannot trigger that download, so the bundle supplies the public
     // CAs the store is missing, minus anything `Disallowed` names.
     let mut bundled = parse_lenient(curl_sys::certs::get_cert_content().as_bytes());
-    bundled.retain(|der| !revoked.contains(der));
+    bundled.retain(|der| !revoked.contains(der) && !restricted.contains(der));
     roots.extend(bundled);
 
     let ders = dedup_exact(roots);

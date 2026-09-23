@@ -52,8 +52,12 @@ fn combine_ca_bundle(system: &[u8], user: &[Bytes]) -> Vec<u8> {
     if !system.is_empty() && !combined.ends_with(b"\n") {
         combined.push(b'\n');
     }
+    // Each user entry is re-encoded from the blocks that parsed, ∵ OpenSSL
+    // reads the blob as a whole and a malformed block anywhere in it discards
+    // the certificates already read, which would take the host anchors down
+    // with the entry that carried the bad block.
     for cert in user {
-        combined.extend_from_slice(cert);
+        combined.extend_from_slice(&trust::normalize_pem(cert));
         if !combined.ends_with(b"\n") {
             combined.push(b'\n');
         }
@@ -278,9 +282,39 @@ mod tests {
     use crate::interop::{CertificateConfig, SecurityConfig};
     use bytes::Bytes;
     use curl::easy::Easy;
+    use openssl::asn1::Asn1Time;
+    use openssl::hash::MessageDigest;
+    use openssl::pkey::PKey;
+    use openssl::rsa::Rsa;
+    use openssl::x509::{X509Name, X509};
 
-    fn cert(body: &str) -> Bytes {
-        Bytes::from(body.to_owned())
+    // A real certificate, ∵ `combine_ca_bundle` re-encodes each user entry
+    // from the blocks that parse and a placeholder string parses as nothing.
+    fn cert(cn: &str) -> Bytes {
+        let key = PKey::from_rsa(Rsa::generate(2048).expect("rsa")).expect("pkey");
+        let mut name = X509Name::builder().expect("name builder");
+        name.append_entry_by_text("CN", cn).expect("cn");
+        let name = name.build();
+
+        let mut builder = X509::builder().expect("cert builder");
+        builder.set_version(2).expect("version");
+        builder.set_subject_name(&name).expect("subject");
+        builder.set_issuer_name(&name).expect("issuer");
+        builder.set_pubkey(&key).expect("pubkey");
+        builder
+            .set_not_before(&Asn1Time::days_from_now(0).expect("now"))
+            .expect("not before");
+        builder
+            .set_not_after(&Asn1Time::days_from_now(365).expect("year"))
+            .expect("not after");
+        builder.sign(&key, MessageDigest::sha256()).expect("sign");
+        Bytes::from(builder.build().to_pem().expect("pem"))
+    }
+
+    fn anchors(blob: &[u8]) -> usize {
+        blob.windows(27)
+            .filter(|window| *window == b"-----BEGIN CERTIFICATE-----")
+            .count()
     }
 
     #[test]
@@ -295,7 +329,8 @@ mod tests {
 
     #[test]
     fn an_empty_system_bundle_returns_the_user_certs_alone() {
-        assert_eq!(combine_ca_bundle(b"", &[cert("a\n")]), b"a\n".to_vec());
+        let user = cert("alone");
+        assert_eq!(combine_ca_bundle(b"", &[user.clone()]), user.to_vec());
     }
 
     #[test]
@@ -305,22 +340,43 @@ mod tests {
 
     #[test]
     fn the_system_anchors_precede_the_user_certs() {
-        let blob = combine_ca_bundle(b"sys\n", &[cert("user\n")]);
-        assert_eq!(blob, b"sys\nuser\n".to_vec());
-        let text = String::from_utf8(blob).expect("utf8");
-        assert!(text.find("sys").unwrap() < text.find("user").unwrap());
+        let system = cert("system");
+        let user = cert("user");
+        let blob = combine_ca_bundle(&system, &[user.clone()]);
+        assert!(blob.starts_with(&system));
+        assert!(blob.ends_with(&user));
+        assert_eq!(anchors(&blob), 2);
     }
 
     // One `ssl_cainfo_blob` call per cert keeps only the last cert, so this
     // asserts that every user CA is in the combined blob.
     #[test]
     fn every_user_cert_is_in_the_blob() {
-        let blob = combine_ca_bundle(b"sys\n", &[cert("one"), cert("two\n"), cert("three")]);
-        assert_eq!(blob, b"sys\none\ntwo\nthree\n".to_vec());
-        let text = String::from_utf8(blob).expect("utf8");
-        for name in ["one", "two", "three"] {
-            assert!(text.contains(name), "{name} missing from the combined blob");
+        let system = cert("system");
+        let user = [cert("one"), cert("two"), cert("three")];
+        let blob = combine_ca_bundle(&system, &user);
+        for entry in &user {
+            assert!(
+                blob.windows(entry.len()).any(|window| window == &entry[..]),
+                "a user certificate is missing from the combined blob"
+            );
         }
+        assert_eq!(anchors(&blob), 4);
+    }
+
+    // The lenient check accepts an entry whose blocks parse in part, and the
+    // blob OpenSSL reads is all-or-nothing, so the entry reaches it as the
+    // certificates that parsed and the corrupt block is left behind.
+    #[test]
+    fn a_user_entry_with_a_corrupt_block_keeps_its_certificate() {
+        let good = cert("good");
+        let mut mixed = good.to_vec();
+        mixed.extend_from_slice(
+            b"-----BEGIN CERTIFICATE-----\ntruncated\n-----END CERTIFICATE-----\n",
+        );
+        let blob = combine_ca_bundle(b"", &[Bytes::from(mixed)]);
+        assert_eq!(blob, good.to_vec());
+        assert_eq!(anchors(&blob), 1);
     }
 
     fn perform(url: &str, ca: Option<Vec<Bytes>>) -> u32 {

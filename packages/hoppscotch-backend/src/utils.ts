@@ -8,7 +8,11 @@ import { pipe } from 'fp-ts/lib/function';
 import * as O from 'fp-ts/Option';
 import * as T from 'fp-ts/Task';
 import * as TE from 'fp-ts/TaskEither';
-import { ENV_NOT_FOUND_KEY_DATA_ENCRYPTION_KEY, JSON_INVALID } from './errors';
+import {
+  ENV_INSECURE_EXAMPLE_SECRETS,
+  ENV_NOT_FOUND_KEY_DATA_ENCRYPTION_KEY,
+  JSON_INVALID,
+} from './errors';
 import { TeamAccessRole } from './team/team.model';
 import { RESTError } from './types/RESTError';
 import * as crypto from 'crypto';
@@ -384,4 +388,61 @@ export function decrypt(
   let decrypted = decipher.update(encryptedText);
   decrypted = Buffer.concat([decrypted, decipher.final()]);
   return decrypted.toString();
+}
+
+// Values shipped in `.env.example`. They are public, so a deployment still using them has no
+// secrets at all: anyone can decrypt `InfraConfig` (and therefore forge JWTs) or log into the DB.
+const EXAMPLE_DATA_ENCRYPTION_KEY = 'data encryption key with 32 char';
+const EXAMPLE_DB_PASSWORD = 'testpass';
+
+/**
+ * Collects the publicly known example secrets that are still in use
+ * @returns Human readable descriptions of each insecure value found
+ */
+function findInsecureExampleSecrets() {
+  const issues: string[] = [];
+
+  if (process.env.DATA_ENCRYPTION_KEY === EXAMPLE_DATA_ENCRYPTION_KEY) {
+    issues.push(
+      'DATA_ENCRYPTION_KEY is the example value from `.env.example`. Every encrypted value in the InfraConfig table (JWT_SECRET, SESSION_SECRET, SMTP and OAuth credentials) can be decrypted by anyone who can read the database.',
+    );
+  }
+
+  try {
+    // `URL` keeps the password percent-encoded, so decode before comparing to catch the example
+    // password written as e.g. `test%70ass`.
+    const password = decodeURIComponent(
+      new URL(process.env.DATABASE_URL).password,
+    );
+
+    if (password === EXAMPLE_DB_PASSWORD) {
+      issues.push(
+        'DATABASE_URL uses the example database password from `.env.example`.',
+      );
+    }
+  } catch {
+    // A malformed/absent DATABASE_URL is reported by Prisma, nothing to check here.
+  }
+
+  return issues;
+}
+
+/**
+ * Fails startup (in production) when the deployment still uses the example secrets
+ * @throws When PRODUCTION is 'true' and an example secret is in use
+ */
+export function assertNoInsecureExampleSecrets() {
+  const issues = findInsecureExampleSecrets();
+  if (issues.length === 0) return;
+
+  const details = issues.map((issue) => `  - ${issue}`).join('\n');
+
+  if (process.env.PRODUCTION === 'true') {
+    throw new Error(`${ENV_INSECURE_EXAMPLE_SECRETS}\n${details}`);
+  }
+
+  console.warn(
+    `[SECURITY] This deployment is using the publicly known example secrets shipped in \`.env.example\`:\n${details}\n` +
+      'Run `./setup.sh` or set your own values before exposing this instance. Startup is blocked when PRODUCTION=true.',
+  );
 }

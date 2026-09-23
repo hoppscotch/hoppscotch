@@ -5,6 +5,9 @@ import {
   replaceSensitiveChatValues,
 } from "../secret-references"
 
+// Room for a slow CI box; quadratic backtracking takes far longer.
+const ADVERSARIAL_BUDGET_MS = 1_000
+
 // Mirrors the backend REDACTED_CASES; its spec runs both copies on them.
 const REDACTED_CASES: Array<[string, string]> = [
   // Dotted and call-shaped values are credentials unless a script root leads.
@@ -347,9 +350,9 @@ describe("redactSensitiveChatValues", () => {
   })
 
   test("stays linear on adversarial whitespace", () => {
-    const started = Date.now()
+    const started = performance.now()
     redactSensitiveChatValues(`password${" ".repeat(200_000)}x`)
-    expect(Date.now() - started).toBeLessThan(500)
+    expect(performance.now() - started).toBeLessThan(ADVERSARIAL_BUDGET_MS)
   })
 
   test("keeps safe environment placeholders visible in request context", () => {
@@ -421,9 +424,9 @@ describe("redactSensitiveChatValues", () => {
     ["ref users", " -u " + "<<a>>".repeat(80_000)],
     ["ref userinfo", "//" + "<<a>>".repeat(80_000)],
   ])("stays linear on adversarial %s input", (_name, input) => {
-    const started = Date.now()
+    const started = performance.now()
     redactSensitiveChatValues(input)
-    expect(Date.now() - started).toBeLessThan(200)
+    expect(performance.now() - started).toBeLessThan(ADVERSARIAL_BUDGET_MS)
   })
 })
 

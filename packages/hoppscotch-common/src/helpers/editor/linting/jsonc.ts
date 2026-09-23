@@ -1,4 +1,4 @@
-import { Node, parseTree, stripComments as stripComments_ } from "jsonc-parser"
+import { Node, parseTree} from "jsonc-parser"
 import jsoncParse from "~/helpers/jsoncParse"
 import { convertIndexToLineCh } from "../utils"
 import { LinterDefinition, LinterResult } from "./linter"
@@ -102,7 +102,7 @@ function stripCommentsAndCommas(text: string): string {
  */
 
 export function stripComments(jsonString: string) {
-  return stripCommentsAndCommas(stripComments_(jsonString) ?? jsonString)
+  return stripCommentsAndCommas(jsonString)
 }
 
 export default linter

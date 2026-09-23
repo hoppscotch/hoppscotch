@@ -41,6 +41,16 @@ const COLLECTION_EDIT_TOOLS = new Set<string>([
   "add_or_update_collection_requests",
 ])
 
+/** Recorded beside a collection upsert that carried no test script. */
+export const COLLECTION_UNTESTED = "collection_untested"
+
+/** Whether an upsert's request definitions carry a non-empty test script. */
+export const upsertWritesTests = (requests: unknown): boolean =>
+  Array.isArray(requests) &&
+  requests.some(
+    (r) => typeof r?.testScript === "string" && r.testScript.trim().length > 0
+  )
+
 const KEY_PREFIX = "ai_experiments.chat."
 
 /**
@@ -56,9 +66,11 @@ export function getFollowUpSuggestions(executedTools: string[]): string[] {
     executedTools.includes("save_request") ||
     executedTools.includes("save_request_to_collection") ||
     executedTools.includes("add_or_update_collection_requests")
+  // An upsert counts unless the service flagged it untested.
   const wroteTests =
     executedTools.includes("set_test_script") ||
-    executedTools.includes("add_or_update_collection_requests")
+    (executedTools.includes("add_or_update_collection_requests") &&
+      !executedTools.includes(COLLECTION_UNTESTED))
   const edited =
     executedTools.some((t) => REQUEST_EDIT_TOOLS.has(t)) ||
     executedTools.some((t) => COLLECTION_EDIT_TOOLS.has(t))

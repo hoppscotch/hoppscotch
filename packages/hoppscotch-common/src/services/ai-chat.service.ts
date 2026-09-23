@@ -181,6 +181,10 @@ import {
   splitCommands,
 } from "~/helpers/aichat/app-actions"
 import { repliesFailure } from "~/helpers/aichat/step-lines"
+import {
+  COLLECTION_UNTESTED,
+  upsertWritesTests,
+} from "~/helpers/aichat/suggestions"
 import type { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import type {
   HoppTabSaveContext,
@@ -1284,6 +1288,14 @@ export class AIChatService extends Service {
     this.lastTurnTools.value = [...this.lastTurnTools.value, name]
   }
 
+  /** A refused action isn't recorded; a run that went out is, even if it failed. */
+  private tookEffect(name: string, reply: string, batch: ToolBatch) {
+    return (
+      !!batch.sent ||
+      !repliesFailure(reply ?? "", !CONTEXT_FETCH_TOOLS.has(name))
+    )
+  }
+
   /**
    * Registers an ad-hoc context item (e.g. the doc being edited in an open
    * modal). Returns an unregister function. Re-registering the same `id`
@@ -1651,8 +1663,6 @@ export class AIChatService extends Service {
         return
       }
 
-      for (const call of tool_calls) this.recordTool(call.name)
-
       // Echo the assistant's turn so the next round has full context. Prefer
       // the provider's own blocks: they include the tool-search results that
       // keep discovered tools loaded for the rest of this turn.
@@ -1902,11 +1912,19 @@ export class AIChatService extends Service {
         call.id,
         short && masked.startsWith("### ") ? short : masked
       )
-      outcomes.push({
-        line: ranLine(call.name, masked, short),
-        // A 500 or a failing test still went out: a retry mustn't resend it.
-        failed: failedCalls.has(call.id) && !batch.sent,
-      })
+      // A 500 or a failing test still went out: a retry mustn't resend it.
+      const failed = failedCalls.has(call.id) && !batch.sent
+      outcomes.push({ line: ranLine(call.name, masked, short), failed })
+      // Follow-up chips read only what took effect.
+      if (!failed && !this.isStaleTurn(generation)) {
+        this.recordTool(call.name)
+        if (
+          call.name === "add_or_update_collection_requests" &&
+          !upsertWritesTests(input.requests)
+        ) {
+          this.recordTool(COLLECTION_UNTESTED)
+        }
+      }
     }
 
     const replies = toolCalls
@@ -2098,13 +2116,16 @@ export class AIChatService extends Service {
             changed = false
           }
           handledAny = true
-          this.recordTool(appAction.name)
+          batch.sent = false
           const reply = await this.runAppAction(
             appAction.name,
             appAction.input,
             active,
             batch
           )
+          if (this.tookEffect(appAction.name, reply, batch)) {
+            this.recordTool(appAction.name)
+          }
           if (reply) replies.push(reply)
           continue
         }
@@ -2126,8 +2147,17 @@ export class AIChatService extends Service {
 
     const appAction = parseAppActionCommand(userText)
     if (appAction) {
-      this.recordTool(appAction.name)
-      return this.runAppAction(appAction.name, appAction.input, active, batch)
+      batch.sent = false
+      const reply = await this.runAppAction(
+        appAction.name,
+        appAction.input,
+        active,
+        batch
+      )
+      if (this.tookEffect(appAction.name, reply, batch)) {
+        this.recordTool(appAction.name)
+      }
+      return reply
     }
 
     const result = runChatCommand(active?.request ?? null, userText)

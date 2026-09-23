@@ -1,5 +1,9 @@
 import { describe, expect, test } from "vitest"
-import { getFollowUpSuggestions } from "../suggestions"
+import {
+  COLLECTION_UNTESTED,
+  getFollowUpSuggestions,
+  upsertWritesTests,
+} from "../suggestions"
 
 const K = (name: string) => `ai_experiments.chat.${name}`
 
@@ -62,6 +66,25 @@ describe("getFollowUpSuggestions", () => {
     expect(out).toContain(K("suggestion_explain_response"))
   })
 
+  test("a collection built without tests still suggests writing them after a run", () => {
+    const out = getFollowUpSuggestions([
+      "add_or_update_collection_requests",
+      COLLECTION_UNTESTED,
+      "run_collection",
+    ])
+
+    expect(out).toContain(K("suggestion_write_tests"))
+  })
+
+  test("an upsert writes tests only when a request carries a test script", () => {
+    expect(upsertWritesTests([{ name: "a", testScript: "pw.test()" }])).toBe(
+      true
+    )
+    expect(upsertWritesTests([{ name: "a" }, { testScript: "  " }])).toBe(false)
+    expect(upsertWritesTests("nope")).toBe(false)
+    expect(upsertWritesTests([null])).toBe(false)
+  })
+
   test("environment-only turns nudge toward using the variables", () => {
     const out = getFollowUpSuggestions([
       "create_environment",
@@ -71,12 +94,13 @@ describe("getFollowUpSuggestions", () => {
   })
 
   test("caps at three unique suggestions", () => {
+    // Four candidates before the cap: tests, explain response, save, explain.
     const out = getFollowUpSuggestions([
-      "set_url",
+      "run_request",
       "open_request",
-      "create_environment",
+      "set_url",
     ])
-    expect(out.length).toBeLessThanOrEqual(3)
+    expect(out).toHaveLength(3)
     expect(new Set(out).size).toBe(out.length)
   })
 })

@@ -2242,4 +2242,99 @@ describe("AIChatService run/save mechanics", () => {
       expect(replies[1]).toMatch(/GraphQL request tabs/)
     })
   })
+
+  describe("follow-up chips", () => {
+    const apiCollection = () =>
+      makeCollection({
+        name: "API",
+        folders: [],
+        requests: [],
+        auth: { authType: "inherit", authActive: true },
+        headers: [],
+        variables: [],
+        description: null,
+        preRequestScript: "",
+        testScript: "",
+      })
+
+    /** One agent turn that makes `calls`, then answers. */
+    const turn = async (calls: ToolCall[]) => {
+      chatFn
+        .mockResolvedValueOnce(reply(calls))
+        .mockResolvedValueOnce(reply([], "done"))
+      await chat.sendMessage("go", "")
+    }
+
+    it("skips a run that was refused", async () => {
+      tabs.setActiveTab(tabs.createNewTab(restTab("")).id)
+      await mount()
+
+      await turn([{ id: "1", name: "run_request", input: {} }])
+
+      expect(toolSteps(chat).join("\n")).toMatch(/no URL yet/)
+      expect(chat.lastTurnTools.value).toEqual([])
+    })
+
+    it("counts a run that went out, even a failing one", async () => {
+      response = { ...(ok200 as object), statusCode: 500 }
+      tabs.setActiveTab(tabs.createNewTab(restTab("https://a.example")).id)
+      await mount()
+
+      await turn([{ id: "1", name: "run_request", input: {} }])
+
+      expect(sent).toHaveLength(1)
+      expect(chat.lastTurnTools.value).toEqual(["run_request"])
+    })
+
+    it("flags an upsert that wrote no tests", async () => {
+      setRESTCollections([apiCollection()])
+      await mount()
+
+      await turn([
+        {
+          id: "1",
+          name: "add_or_update_collection_requests",
+          input: {
+            collection: "API",
+            requests: [
+              { name: "login", method: "GET", url: "https://api.example" },
+            ],
+          },
+        },
+      ])
+
+      expect(chat.lastTurnTools.value).toEqual([
+        "add_or_update_collection_requests",
+        "collection_untested",
+      ])
+    })
+
+    it("doesn't flag an upsert that wrote tests", async () => {
+      setRESTCollections([apiCollection()])
+      await mount()
+
+      await turn([
+        {
+          id: "1",
+          name: "add_or_update_collection_requests",
+          input: {
+            collection: "API",
+            requests: [
+              {
+                name: "login",
+                method: "GET",
+                url: "https://api.example",
+                testScript: "pw.test('ok', () => {})",
+              },
+            ],
+          },
+        },
+      ])
+
+      expect(chat.lastTurnTools.value).toEqual([
+        "add_or_update_collection_requests",
+      ])
+    })
+  })
+
 })

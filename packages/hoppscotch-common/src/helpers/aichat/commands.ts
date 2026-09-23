@@ -1,7 +1,8 @@
-import type {
-  HoppGQLRequest,
-  HoppRESTRequest,
-  HoppRESTReqBody,
+import {
+  rawKeyValueEntriesToString,
+  type HoppGQLRequest,
+  type HoppRESTRequest,
+  type HoppRESTReqBody,
 } from "@hoppscotch/data"
 
 export interface ChatCommandResult {
@@ -139,16 +140,18 @@ export function toRawKeyValueLines(body: string): string {
       return part
     }
   }
-  return trimmed
-    .split("&")
-    .filter(Boolean)
-    .map((pair) => {
-      const eq = pair.indexOf("=")
-      const key = eq === -1 ? pair : pair.slice(0, eq)
-      const value = eq === -1 ? "" : pair.slice(eq + 1)
-      return `${decode(key)}: ${decode(value)}`
-    })
-    .join("\n")
+  // Escaped so a decoded newline or colon survives the raw parser.
+  return rawKeyValueEntriesToString(
+    trimmed
+      .split("&")
+      .filter(Boolean)
+      .map((pair) => {
+        const eq = pair.indexOf("=")
+        const key = eq === -1 ? pair : pair.slice(0, eq)
+        const value = eq === -1 ? "" : pair.slice(eq + 1)
+        return { key: decode(key), value: decode(value), active: true }
+      })
+  )
 }
 
 /**
@@ -216,11 +219,15 @@ export function runChatCommand(
     }
   }
 
-  // Rename request
-  m = t.match(
-    /\b(?:rename|(?:set|change|update)\s+(?:the\s+)?name)\b.*?(?:to|=|:)?\s*["'`]?(.+?)["'`]?$/i
-  )
-  if (m && /\b(?:rename|name)\b/i.test(t)) {
+  // Rename request: only the request itself, or a bare "rename to …"
+  m =
+    t.match(
+      /\brename\s+(?:(?:the|this|my|current)\s+)*(?:(?:request|tab|it)\s+)?(?:to|as)\s+["'`]?(.+?)["'`]?$/i
+    ) ??
+    t.match(
+      /\b(?:set|change|update)\s+(?:(?:the|this|my|current)\s+)*(?:(?:request|tab)(?:'s)?\s+)?name(?:\s+of\s+(?:(?:the|this|my|current)\s+)*(?:request|tab|it))?\s*(?:to|as|=|:)\s*["'`]?(.+?)["'`]?$/i
+    )
+  if (m) {
     if (!req) return NEED_REQUEST
     const reqName = m[1].trim()
     if (reqName) {
@@ -231,6 +238,10 @@ export function runChatCommand(
         reply: `✓ Renamed the request to ${code(reqName)}.`,
       }
     }
+  }
+  // Renaming a header, collection… isn't an offline edit.
+  if (/^(?:rename|(?:set|change|update)\s+(?:the\s+)?name\s+of)\b/i.test(t)) {
+    return { handled: false, reply: "" }
   }
 
   // Remove header
@@ -273,21 +284,32 @@ export function runChatCommand(
     }
   }
 
-  // Method
+  // Method: names "method", or "make the request a POST" / "switch to GET"
   if (
     /\b(?:set|change|switch|make|use)\b/i.test(t) &&
-    /\bmethod\b|\brequest\b/i.test(t)
+    !/\b(?:url|endpoint|address|body|headers?|param(?:eter)?s?|variables?)\b/i.test(
+      t
+    )
   ) {
-    const mm = t
-      .toUpperCase()
-      .match(new RegExp(`\\b(${CHAT_HTTP_METHODS.join("|")})\\b`))
+    const verbs = CHAT_HTTP_METHODS.join("|")
+    const mm =
+      t.match(new RegExp(`\\bmethod\\b[^]*?\\b(${verbs})\\b`, "i")) ??
+      t.match(new RegExp(`\\b(${verbs})\\b[^]*?\\bmethod\\b`, "i")) ??
+      t.match(
+        new RegExp(
+          `\\b(?:set|change|switch|make|use)\\s+(?:(?:(?:the|this)\\s+)?request\\s+|it\\s+|this\\s+)?(?:(?:to|as|into)\\s+)?(?:an?\\s+)?(${verbs})(?:\\s+(?:for\\s+(?:the\\s+|this\\s+)?)?request)?\\s*[.!]*$`,
+          "i"
+        )
+      )
     if (mm) {
       if (!req) return NEED_REQUEST
-      req.method = mm[1]
+      const method = mm[1].toUpperCase()
+      const changed = req.method !== method
+      req.method = method
       return {
         handled: true,
-        changed: true,
-        reply: `✓ Set the method to ${code(mm[1])}.`,
+        changed,
+        reply: `✓ Set the method to ${code(method)}.`,
       }
     }
   }
@@ -561,10 +583,11 @@ export function applyToolCall(
           changed: false,
           reply: `Unsupported method ${code(method)}. Use one of: ${CHAT_HTTP_METHODS.join(", ")}.`,
         }
+      const changed = req.method !== method
       req.method = method
       return {
         handled: true,
-        changed: true,
+        changed,
         reply: `✓ Set the method to ${code(method)}.`,
       }
     }

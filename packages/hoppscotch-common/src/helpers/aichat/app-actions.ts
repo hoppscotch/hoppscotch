@@ -125,15 +125,19 @@ export function parseAppActionCommand(text: string): AppActionCall | null {
 
   // Interceptor / connection agent change
   if (
-    /\binterceptor\b|\bagent\b|\bproxy\b/i.test(t) &&
+    /\binterceptor\b|(?<![\w-])(?:agent|proxy)(?![\w-])/i.test(t) &&
     /\b(?:use|switch|change|set|select)\b/i.test(t)
   ) {
-    const hint = t
-      .replace(/.*\b(?:to|use)\b\s*/i, "")
-      .replace(/\binterceptor\b/gi, "")
+    let hint = t
       .replace(/[.!?]+$/, "")
-      .replace(/^(?:the|a|an)\s+/i, "")
+      .replace(/.*\b(?:to|use)\b\s*/i, "")
+      .replace(/^(?:switch|change|set|select)\b\s*/i, "")
+      .replace(/\binterceptors?\b/gi, " ")
+      .replace(/^\s*(?:the|a|an)\s+/i, "")
+      .replace(/\s+/g, " ")
       .trim()
+    // "Agent" and "Proxy" are interceptor names too: drop them only as a noun.
+    if (hint.includes(" ")) hint = hint.replace(/\s+(?:agent|proxy)$/i, "")
     return { name: "set_interceptor", input: { interceptor: hint } }
   }
 
@@ -157,14 +161,32 @@ export function parseAppActionCommand(text: string): AppActionCall | null {
     }
   }
 
-  // Collection: create
-  const createColl = looksLikeQuestion
-    ? null
-    : t.match(
-        /\b(?:create|new|make)\b[^]*?\bcollection\b(?:\s+(?:called|named))?\s*["'`]?([\w][\w .-]*?)["'`]?\s*[.!?]*$/i
-      )
-  if (createColl && !isEnvStopword(createColl[1].trim())) {
-    return { name: "create_collection", input: { name: createColl[1].trim() } }
+  // Collection: create. A bare "collection for …" names no collection.
+  // Separate matches keep the lazy scans from nesting on long input.
+  if (
+    !looksLikeQuestion &&
+    /\b(?:create|new|make)\b[^]*?\bcollection\b/i.test(t)
+  ) {
+    const named = t.match(
+      /\bcollection\b[^]*?\b(?:called|named)\s+(["'`]?)([\w][\w .-]*?)["'`]?\s*[.!?]*$/i
+    )
+    const bare = named
+      ? null
+      : t.match(
+          /\b(?:create|new|make)\b[^]*?\bcollection\s+(["'`]?)([\w][\w .-]*?)["'`]?\s*[.!?]*$/i
+        )
+    const collName = (named ?? bare)?.[2].trim() ?? ""
+    if (
+      (named ||
+        (bare &&
+          (bare[1] ||
+            !/^(?:for|to|with|of|about|from|in|into|on|that|which|containing|using|called|named)\b/i.test(
+              collName
+            )))) &&
+      !isEnvStopword(collName)
+    ) {
+      return { name: "create_collection", input: { name: collName } }
+    }
   }
 
   // Collection: save the current request into one

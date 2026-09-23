@@ -136,6 +136,18 @@ describe("collection request definitions", () => {
     })
   })
 
+  test("accepts a method with surrounding whitespace", () => {
+    expect(
+      parseCollectionRequestDefinitions([
+        { name: "List", method: " get\n", url: "https://api.example.com" },
+      ])
+    ).toEqual({
+      definitions: [
+        { name: "List", method: "GET", url: "https://api.example.com" },
+      ],
+    })
+  })
+
   test("rejects an invalid batch before any request is built", () => {
     expect(
       parseCollectionRequestDefinitions([

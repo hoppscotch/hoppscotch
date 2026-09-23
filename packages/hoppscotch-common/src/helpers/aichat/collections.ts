@@ -177,7 +177,9 @@ export function findTopLevelCollection(
   name: string
 ): { collection: HoppCollection; index: number } | null {
   const n = name.trim().toLowerCase()
-  const index = collections.findIndex((c) => (c.name ?? "").toLowerCase() === n)
+  const index = collections.findIndex(
+    (c) => (c.name ?? "").trim().toLowerCase() === n
+  )
   return index === -1 ? null : { collection: collections[index], index }
 }
 

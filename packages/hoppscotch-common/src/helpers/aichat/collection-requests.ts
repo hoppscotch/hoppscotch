@@ -75,7 +75,9 @@ export function parseCollectionRequestDefinitions(value: unknown): ParseResult {
 
     const name = typeof candidate.name === "string" ? candidate.name.trim() : ""
     const method =
-      typeof candidate.method === "string" ? candidate.method.toUpperCase() : ""
+      typeof candidate.method === "string"
+        ? candidate.method.trim().toUpperCase()
+        : ""
     const url = typeof candidate.url === "string" ? candidate.url.trim() : ""
 
     if (!name || !method || !url) {

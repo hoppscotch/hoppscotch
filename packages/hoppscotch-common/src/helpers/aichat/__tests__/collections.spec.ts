@@ -3,6 +3,7 @@ import type { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import {
   describeAmbiguous,
   findRequestInTree,
+  findTopLevelCollection,
   lookupCollection,
   lookupRequest,
   pickByName,
@@ -123,6 +124,19 @@ describe("lookupCollection", () => {
     expect(describeAmbiguous("collections", "A", ["A", "A"])).toContain(
       "rename one first"
     )
+  })
+})
+
+describe("findTopLevelCollection", () => {
+  // create_collection used to add a second "Users" beside " Users ".
+  test("ignores whitespace around the stored name", () => {
+    const tree = [node("Orders"), node(" Users ")]
+    expect(findTopLevelCollection(tree, "users")?.index).toBe(1)
+    expect(findTopLevelCollection(tree, " ORDERS ")?.index).toBe(0)
+  })
+
+  test("matches only top-level names", () => {
+    expect(findTopLevelCollection([node("A", [node("B")])], "B")).toBeNull()
   })
 })
 

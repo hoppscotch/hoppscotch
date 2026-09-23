@@ -65,7 +65,11 @@ export function useDownloadResponse(
   const t = useI18n()
 
   const downloadResponse = async () => {
-    const dataToWrite = responseBody.value
+    const rawData = responseBody.value
+    // Ensure binary data is passed as Uint8Array for cross-platform compatibility.
+    // The kernel IO layer expects string | Uint8Array, not ArrayBuffer.
+    const dataToWrite =
+      rawData instanceof ArrayBuffer ? new Uint8Array(rawData) : rawData
 
     // TODO: Look at the mime type and determine extension ?
     const result = await platform.kernelIO.saveFileWithDialog({

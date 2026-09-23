@@ -223,7 +223,7 @@ import {
   AddUserToTeamByAdminDocument,
   MetricsDocument,
   TeamAccessRole,
-  UsersListDocument,
+  UsersListV2Document,
 } from '../../helpers/backend/graphql';
 
 const t = useI18n();
@@ -249,11 +249,10 @@ const { data } = useQuery({ query: MetricsDocument, variables: {} });
 const usersPerPage = computed(() => data.value?.infra.usersCount || 10000);
 
 const { list: usersList } = usePagedQuery(
-  UsersListDocument,
-  (x) => x.infra.allUsers,
-  (x) => x.uid,
+  UsersListV2Document,
+  (x) => x.infra.allUsersV2,
   usersPerPage.value,
-  { cursor: undefined, take: usersPerPage.value }
+  { searchString: undefined, skip: 0, take: usersPerPage.value }
 );
 
 const allUsersEmail = computed(() => usersList.value.map((user) => user.email));

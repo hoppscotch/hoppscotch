@@ -1,15 +1,15 @@
 <template>
-  <div v-if="shouldEnableAIFeatures && !instanceDisabled" class="contents">
+  <div v-if="shouldEnableAIFeatures" class="contents">
     <aside
       v-if="chat.isOpen.value"
       class="chat-pane flex flex-col bg-primary"
       :class="
         mdAndLarger
           ? 'relative h-full shrink-0 border-l border-dividerLight'
-          : 'fixed inset-0 z-[1100]'
+          : 'fixed inset-0 z-[999]'
       "
       :style="mdAndLarger ? { width: paneWidth } : undefined"
-      @keydown.esc="chat.close()"
+      @keydown.esc="onPaneEscape"
     >
       <div
         v-if="mdAndLarger"
@@ -106,6 +106,11 @@
         </span>
       </div>
 
+      <!-- Streaming rewrites the bubbles; only settled text is announced. -->
+      <p class="sr-only" role="status" aria-live="polite">
+        {{ announcement }}
+      </p>
+
       <div ref="scrollEl" class="flex-1 space-y-5 overflow-y-auto px-3 py-4">
         <div
           v-if="chat.messages.value.length === 0"
@@ -131,11 +136,12 @@
             <button
               v-for="s in suggestions"
               :key="s.label"
-              class="group flex w-full items-center gap-2 rounded-lg border border-dividerLight bg-primaryLight px-2.5 py-2 text-left text-xs text-secondary transition hover:-translate-y-px hover:border-dividerDark hover:text-secondaryDark hover:shadow-[0_4px_12px_-6px_rgb(0_0_0_/_0.35)] focus-visible:-translate-y-px focus-visible:border-dividerDark focus-visible:text-secondaryDark focus-visible:outline-none active:translate-y-0 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+              class="group flex w-full items-center gap-2 rounded-lg border border-dividerLight bg-primaryLight px-2.5 py-2 text-left text-xs text-secondary transition enabled:hover:-translate-y-px enabled:hover:border-dividerDark enabled:hover:text-secondaryDark enabled:hover:shadow-[0_4px_12px_-6px_rgb(0_0_0_/_0.35)] focus-visible:-translate-y-px focus-visible:border-dividerDark focus-visible:text-secondaryDark focus-visible:outline-none active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+              :disabled="noModelsConfigured"
               @click="send(t(s.label))"
             >
               <span
-                class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-primaryDark text-secondaryLight transition group-hover:text-accent group-hover:[background:color-mix(in_srgb,var(--accent-color)_12%,var(--primary-light-color))] group-focus-visible:text-accent motion-reduce:transition-none"
+                class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-primaryDark text-secondaryLight transition group-enabled:group-hover:text-accent group-enabled:group-hover:[background:color-mix(in_srgb,var(--accent-color)_12%,var(--primary-light-color))] group-focus-visible:text-accent motion-reduce:transition-none"
               >
                 <component :is="s.icon" class="h-3.5 w-3.5" />
               </span>
@@ -154,11 +160,12 @@
           <button
             v-for="s in followUps"
             :key="s"
-            class="group inline-flex items-center gap-1 rounded-full border border-dividerLight bg-primaryLight py-1 pl-2 pr-2.5 text-tiny text-secondary transition hover:-translate-y-px hover:border-dividerDark hover:text-secondaryDark focus-visible:border-dividerDark focus-visible:text-secondaryDark focus-visible:outline-none motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+            class="group inline-flex items-center gap-1 rounded-full border border-dividerLight bg-primaryLight py-1 pl-2 pr-2.5 text-tiny text-secondary transition enabled:hover:-translate-y-px enabled:hover:border-dividerDark enabled:hover:text-secondaryDark focus-visible:border-dividerDark focus-visible:text-secondaryDark focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+            :disabled="noModelsConfigured"
             @click="send(t(s))"
           >
             <IconArrowUpRight
-              class="h-3 w-3 shrink-0 text-secondaryLight transition group-hover:text-accent group-focus-visible:text-accent motion-reduce:transition-none"
+              class="h-3 w-3 shrink-0 text-secondaryLight transition group-enabled:group-hover:text-accent group-focus-visible:text-accent motion-reduce:transition-none"
             />
             <span class="truncate">{{ t(s) }}</span>
           </button>
@@ -180,6 +187,7 @@
 
         <div
           v-if="skillMenuOpen"
+          id="hopp-skill-menu"
           ref="skillMenuEl"
           class="mb-2 max-h-56 overflow-y-auto rounded-lg border border-divider bg-primary py-1 shadow-[0_8px_24px_-8px_rgb(0_0_0_/_0.45)]"
           role="listbox"
@@ -321,21 +329,25 @@
             </tippy>
 
             <button
+              v-if="chat.isStreaming.value"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('ai_experiments.chat.stop')"
+              class="ml-auto flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent text-accentContrast transition hover:bg-accentDark active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none"
+              :aria-label="t('ai_experiments.chat.stop')"
+              @click="stop"
+            >
+              <IconSquare class="h-3 w-3 fill-current" />
+            </button>
+            <button
+              v-else
               v-tippy="{ theme: 'tooltip' }"
               :title="t('ai_experiments.chat.send')"
-              class="ml-auto flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent text-accentContrast transition enabled:hover:-translate-y-px enabled:hover:bg-accentDark enabled:hover:[box-shadow:0_4px_12px_-4px_color-mix(in_srgb,var(--accent-color)_55%,transparent)] enabled:active:translate-y-0 enabled:active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed motion-reduce:transition-none motion-reduce:enabled:hover:translate-y-0"
-              :class="{ 'disabled:opacity-40': !chat.isStreaming.value }"
+              class="ml-auto flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent text-accentContrast transition enabled:hover:-translate-y-px enabled:hover:bg-accentDark enabled:hover:[box-shadow:0_4px_12px_-4px_color-mix(in_srgb,var(--accent-color)_55%,transparent)] enabled:active:translate-y-0 enabled:active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-40 motion-reduce:transition-none motion-reduce:enabled:hover:translate-y-0"
               :aria-label="t('ai_experiments.chat.send')"
-              :disabled="
-                !input.trim() || chat.isStreaming.value || noModelsConfigured
-              "
+              :disabled="!input.trim() || noModelsConfigured"
               @click="send()"
             >
-              <IconLoaderCircle
-                v-if="chat.isStreaming.value"
-                class="h-3.5 w-3.5 animate-spin motion-reduce:animate-none"
-              />
-              <IconCornerDownLeft v-else class="h-3.5 w-3.5" />
+              <IconCornerDownLeft class="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
@@ -343,10 +355,11 @@
     </aside>
 
     <button
-      v-if="!chat.isOpen.value"
+      v-if="!chat.isOpen.value && offered"
       v-tippy="{ theme: 'tooltip', placement: 'left' }"
       :title="t('ai_experiments.chat.title')"
-      class="fixed bottom-4 right-4 z-[1100] flex h-11 w-11 items-center justify-center rounded-full border border-dividerLight bg-primary text-accent shadow-[0_2px_10px_-2px_rgb(0_0_0_/_0.25)] transition hover:scale-105 hover:bg-primaryLight hover:[border-color:color-mix(in_srgb,var(--accent-color)_45%,transparent)] hover:[box-shadow:0_4px_16px_-4px_color-mix(in_srgb,var(--accent-color)_35%,transparent)] focus-visible:scale-105 focus-visible:outline-none focus-visible:[border-color:color-mix(in_srgb,var(--accent-color)_45%,transparent)] active:scale-95 motion-reduce:transition-none motion-reduce:hover:scale-100"
+      :class="mdAndLarger ? 'bottom-4' : 'bottom-20'"
+      class="fixed right-4 z-[100] flex h-11 w-11 items-center justify-center rounded-full border border-dividerLight bg-primary text-accent shadow-[0_2px_10px_-2px_rgb(0_0_0_/_0.25)] transition hover:scale-105 hover:bg-primaryLight hover:[border-color:color-mix(in_srgb,var(--accent-color)_45%,transparent)] hover:[box-shadow:0_4px_16px_-4px_color-mix(in_srgb,var(--accent-color)_35%,transparent)] focus-visible:scale-105 focus-visible:outline-none focus-visible:[border-color:color-mix(in_srgb,var(--accent-color)_45%,transparent)] active:scale-95 motion-reduce:transition-none motion-reduce:hover:scale-100"
       :aria-label="t('ai_experiments.chat.title')"
       @click="openChat"
     >
@@ -358,6 +371,7 @@
     <HoppSmartConfirmModal
       :show="!!chat.pendingConfirmation.value"
       :title="confirmTitle"
+      :yes="confirmYes"
       @hide-modal="chat.resolveConfirmation(false)"
       @resolve="chat.resolveConfirmation(true)"
     />
@@ -384,8 +398,13 @@ import { useI18n } from "~/composables/i18n"
 import { useReadonlyStream } from "~/composables/stream"
 import { useAIExperiments } from "~/composables/ai-experiments"
 import { useChatContext } from "~/composables/chat-context"
-import { AIChatService } from "~/services/ai-chat.service"
+import {
+  AIChatService,
+  type ChatMessage,
+  type PendingConfirmation,
+} from "~/services/ai-chat.service"
 import { getFollowUpSuggestions } from "~/helpers/aichat/suggestions"
+import { parseStepLines } from "~/helpers/aichat/step-lines"
 import { invokeAction } from "~/helpers/actions"
 import { platform } from "~/platform"
 import type { AIChatModelOption } from "~/platform/experiments"
@@ -408,11 +427,11 @@ import IconFlaskConical from "~icons/lucide/flask-conical"
 import IconFolder from "~icons/lucide/folder"
 import IconGlobe from "~icons/lucide/globe"
 import IconKeyRound from "~icons/lucide/key-round"
-import IconLoaderCircle from "~icons/lucide/loader-circle"
 import IconMessageSquareText from "~icons/lucide/message-square-text"
 import IconPanelRightClose from "~icons/lucide/panel-right-close"
 import IconPlay from "~icons/lucide/play"
 import IconSparkles from "~icons/lucide/sparkles"
+import IconSquare from "~icons/lucide/square"
 import IconTrash2 from "~icons/lucide/trash-2"
 
 /** Accent-tinted badge behind the sparkles mark (header, empty state). */
@@ -422,11 +441,28 @@ const ORB =
 const t = useI18n()
 const { shouldEnableAIFeatures } = useAIExperiments("chat")
 const chat = useService(AIChatService)
-const context = useChatContext()
 
 const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),
   platform.auth.getCurrentUser()
+)
+
+/**
+ * Signed in, and the server said the assistant is on. Unknown counts as no:
+ * guests, a failed lookup and an unlicensed instance all hide the launcher.
+ */
+const offered = computed(() => !!currentUser.value && chat.available.value)
+
+// Team environment lookups wait for the first open.
+const used = ref(chat.isOpen.value)
+watch(
+  () => chat.isOpen.value,
+  (open) => {
+    if (open) used.value = true
+  }
+)
+const context = useChatContext(
+  () => shouldEnableAIFeatures.value && offered.value && used.value
 )
 
 // The chat backend only serves authenticated sessions — funnel logged-out
@@ -441,14 +477,24 @@ const openChat = () => {
 
 // The availability query needs a session, and the answer decides whether the
 // launcher belongs on screen at all — so it is asked as soon as there is one,
-// not deferred until the pane opens.
+// not deferred until the pane opens. Not while AI is switched off here.
 watch(
-  currentUser,
-  (user) => {
-    if (user) void chat.loadAvailability()
+  () => [currentUser.value, shouldEnableAIFeatures.value] as const,
+  ([user, enabled]) => {
+    if (user && enabled) void chat.loadAvailability()
   },
   { immediate: true }
 )
+
+// A failed lookup hides the launcher; ask again when the user is back.
+useEventListener(window, ["focus", "online"], () => {
+  if (
+    currentUser.value &&
+    shouldEnableAIFeatures.value &&
+    !chat.availabilityKnown.value
+  )
+    void chat.loadAvailability()
+})
 
 // Logging out closes an open pane and drops the conversation — its history
 // (and any credentials typed into it) belongs to the session that ended.
@@ -458,6 +504,7 @@ watch(currentUser, (user) => {
     // reset, not clear: clear defers while a reply is streaming, which is
     // exactly when the transcript and its secrets must not survive.
     chat.reset()
+    chat.clearAvailability()
   }
 })
 
@@ -513,12 +560,89 @@ const matchingSkills = computed(() =>
 // nothing would ever settle it and the turn would hang.
 onBeforeUnmount(() => chat.resolveConfirmation(false))
 
+/** What the chat changed, naming a new host: nothing else on screen may. */
+const describeReasons = (pending: PendingConfirmation) =>
+  (pending.reasons ?? [])
+    .map((reason) =>
+      reason === "host" && pending.hosts?.length
+        ? t("ai_experiments.run_reason_host_named", {
+            host: pending.hosts.join(", "),
+          })
+        : t(`ai_experiments.run_reason_${reason}`)
+    )
+    .join(", ")
+
 const confirmTitle = computed(() => {
   const pending = chat.pendingConfirmation.value
   if (!pending) return ""
+  if (pending.kind === "run") {
+    return t("ai_experiments.confirm_run", {
+      name: pending.name,
+      reasons: describeReasons(pending),
+    })
+  }
+  if (pending.kind === "publish-docs") {
+    return pending.environment
+      ? t("ai_experiments.confirm_publish_docs_env", {
+          name: pending.name,
+          version: pending.version,
+          environment: pending.environment,
+        })
+      : t("ai_experiments.confirm_publish_docs", {
+          name: pending.name,
+          version: pending.version,
+        })
+  }
+  if (pending.kind === "unpublish-docs") {
+    return t("ai_experiments.confirm_unpublish_docs", {
+      name: pending.name,
+      version: pending.version,
+    })
+  }
+  if (pending.kind === "public-mock-server") {
+    return t("ai_experiments.confirm_public_mock_server", {
+      name: pending.name,
+    })
+  }
+  // Names the workspace: a delete must not land in one the user left.
+  const workspace = pending.workspace ?? t("workspace.personal")
+  if (pending.kind === "save") {
+    return pending.reasons?.includes("host")
+      ? t("ai_experiments.confirm_save", {
+          name: pending.name,
+          workspace,
+          reasons: describeReasons(pending),
+        })
+      : t("ai_experiments.confirm_save_script", {
+          name: pending.name,
+          workspace,
+        })
+  }
   return pending.kind === "collection"
-    ? t("ai_experiments.confirm_delete_collection", { name: pending.name })
-    : t("ai_experiments.confirm_delete_mock_server", { name: pending.name })
+    ? t("ai_experiments.confirm_delete_collection", {
+        name: pending.name,
+        workspace,
+      })
+    : t("ai_experiments.confirm_delete_mock_server", {
+        name: pending.name,
+        workspace,
+      })
+})
+
+/** The confirm button says what happens; deletes keep the default. */
+const confirmYes = computed(() => {
+  switch (chat.pendingConfirmation.value?.kind) {
+    case "run":
+      return t("request.run")
+    case "publish-docs":
+      return t("documentation.publish.button")
+    case "unpublish-docs":
+      return t("action.unpublish")
+    case "save":
+      return t("action.save")
+    default:
+      return null
+  }
 })
 
 const skillMenuOpen = computed(
@@ -593,12 +717,6 @@ const noModelsConfigured = computed(
   () => chat.availabilityKnown.value && chat.modelOptions.value.length === 0
 )
 
-/**
- * Only true once the server has actually said "off". Null means we have not
- * asked yet, and the launcher shows meanwhile rather than flickering in on
- * every page load.
- */
-const instanceDisabled = computed(() => chat.instanceEnabled.value === false)
 const textareaEl = ref<HTMLTextAreaElement | null>(null)
 
 const suggestions: Array<{ label: string; icon: Component }> = [
@@ -694,13 +812,43 @@ const scrollToBottom = () => {
 
 const send = async (text?: string) => {
   const value = (text ?? input.value).trim()
-  if (!value || chat.isStreaming.value) return
+  // No model to answer: a chip would only send a turn that fails.
+  if (!value || chat.isStreaming.value || noModelsConfigured.value) return
   input.value = ""
   resetInputHeight()
-  await chat.sendMessage(value, context.contextString.value)
+  // Read per step for the pinned tab, so the model sees what its tools did.
+  await chat.sendMessage(value, (tabId) => context.contextFor(tabId))
 }
 
+// Stop takes Send's place: a double-click on Send must not stop the turn.
+const stop = (e: MouseEvent) => {
+  if (e.detail >= 2) return
+  chat.stop()
+  // The focused Stop button is gone; keep a keyboard user in the composer.
+  nextTick(() => textareaEl.value?.focus())
+}
+
+/** Safari commits an IME candidate with keyCode 229 and isComposing false. */
+const isComposing = (e: KeyboardEvent) => e.isComposing || e.keyCode === 229
+
+// Escape cancelling an IME conversion must not close the pane.
+const onPaneEscape = (e: KeyboardEvent) => {
+  if (!isComposing(e)) chat.close()
+}
+
+// Switched off mid-turn: the pane and its prompts hide, so end the turn too.
+watch(shouldEnableAIFeatures, (enabled) => {
+  if (enabled) return
+  chat.stop()
+  chat.close()
+})
+
 const onKeydown = (e: KeyboardEvent) => {
+  // Keys during IME composition belong to the candidate, not the composer.
+  if (isComposing(e)) return
+  // Ctrl/Cmd+Enter means "send the request" elsewhere in the app.
+  if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) return
+
   if (skillMenuOpen.value) {
     if (
       skillMenuHasChoices.value &&
@@ -720,11 +868,7 @@ const onKeydown = (e: KeyboardEvent) => {
       skillMenuDismissed.value = true
       return
     }
-    if (
-      skillMenuHasChoices.value &&
-      (e.key === "Enter" || e.key === "Tab") &&
-      !e.isComposing
-    ) {
+    if (skillMenuHasChoices.value && (e.key === "Enter" || e.key === "Tab")) {
       e.preventDefault()
       const chosen = matchingSkills.value[skillIndex.value]
       if (chosen) applySkill(chosen)
@@ -732,12 +876,64 @@ const onKeydown = (e: KeyboardEvent) => {
     }
   }
 
-  // Enter during IME composition confirms the candidate, not the message.
-  if (e.key === "Enter" && !e.shiftKey && !e.isComposing) {
+  if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault()
     send()
   }
 }
+
+// App shortcuts listen on document in the capture phase; window hears the key
+// first. Keep the ones that clash with typing here: Ctrl/Cmd+Enter would send
+// the open request, and Alt keys (characters on macOS) change its method or
+// page. Save, search and the rest still reach the app.
+useEventListener(
+  window,
+  "keydown",
+  (e: KeyboardEvent) => {
+    if (!textareaEl.value || e.target !== textareaEl.value) return
+    const altOnly = e.altKey && !e.ctrlKey && !e.metaKey
+    const sendKey = e.key === "Enter" && (e.ctrlKey || e.metaKey)
+    if (!altOnly && !sendKey) return
+    e.stopPropagation()
+    onKeydown(e)
+  },
+  { capture: true }
+)
+
+/**
+ * Settled replies and steps, read out once each; streaming text is not. Kept
+ * per line: a run settling in place reads its outcome, not the whole batch.
+ */
+const announcement = ref("")
+const spoken = new Map<string, string[]>()
+const speakable = (m: ChatMessage) =>
+  m.role !== "user" && !m.pending && !!m.content
+const linesOf = (m: ChatMessage) =>
+  m.kind === "tool"
+    ? parseStepLines(m.content).map((step) => step.text)
+    : [m.content]
+for (const m of chat.messages.value)
+  if (speakable(m)) spoken.set(m.id, linesOf(m))
+
+watch(
+  () => chat.messages.value.map((m) => (speakable(m) ? m.content : "")),
+  () => {
+    const fresh: string[] = []
+    for (const m of chat.messages.value) {
+      if (!speakable(m)) continue
+      const lines = linesOf(m)
+      const before = spoken.get(m.id) ?? []
+      spoken.set(m.id, lines)
+      const changed = lines.filter((line, i) => line !== before[i])
+      if (changed.length) fresh.push(changed.join(". "))
+    }
+    if (!fresh.length) return
+    announcement.value = fresh
+      .join(" ")
+      .replace(/[*`]+/g, "")
+      .replace(/^#+\s*/gm, "")
+  }
+)
 
 // Keep the conversation scrolled to the bottom as it streams / opens — and
 // when the follow-up chips appear after a turn settles.

@@ -1,4 +1,5 @@
-import { computed, Ref, ref } from "vue"
+import { computed, Ref, ref, watch } from "vue"
+import { useService } from "dioc/vue"
 import { useReadonlyStream } from "./stream"
 import { platform } from "~/platform"
 import { useSetting } from "./settings"
@@ -7,6 +8,7 @@ import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import * as E from "fp-ts/Either"
 import { invokeAction } from "~/helpers/actions"
+import { AIChatService } from "~/services/ai-chat.service"
 
 export const useRequestNameGeneration = (targetNameRef: Ref<string>) => {
   const toast = useToast()
@@ -112,6 +114,40 @@ export const useAIExperiments = (capability?: AIExperimentsCapability) => {
   return {
     shouldEnableAIFeatures,
   }
+}
+
+/**
+ * Whether the "AI Experiments" setting is worth showing. Where the chat is the
+ * platform's only AI feature, that waits for the server to say it is on.
+ */
+export const useAIExperimentsSupport = () => {
+  const ai = platform.experiments?.aiExperiments
+  const chat = useService(AIChatService)
+  const ENABLE_AI_EXPERIMENTS = useSetting("ENABLE_AI_EXPERIMENTS")
+  const currentUser = useReadonlyStream(
+    platform.auth.getCurrentUserStream(),
+    platform.auth.getCurrentUser()
+  )
+
+  // The assistant skips its lookup while AI is off; this still needs it.
+  watch(
+    currentUser,
+    (user) => {
+      if (user && !ENABLE_AI_EXPERIMENTS.value && !chat.availabilityKnown.value)
+        void chat.loadAvailability()
+    },
+    { immediate: true }
+  )
+
+  const offersOtherAI = !!(
+    ai?.generateRequestName ||
+    ai?.modifyRequestBody ||
+    ai?.modifyPreRequestScript ||
+    ai?.modifyTestScript
+  )
+  return computed(
+    () => !!ai?.enableAIExperiments && (offersOtherAI || chat.available.value)
+  )
 }
 
 export const useModifyRequestBody = (

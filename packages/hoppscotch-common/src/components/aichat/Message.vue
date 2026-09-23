@@ -149,6 +149,7 @@ import IconPlug from "~icons/lucide/plug"
 import IconSave from "~icons/lucide/save"
 import IconSlidersHorizontal from "~icons/lucide/sliders-horizontal"
 import IconSparkles from "~icons/lucide/sparkles"
+import IconTrash2 from "~icons/lucide/trash-2"
 import IconTriangleAlert from "~icons/lucide/triangle-alert"
 import IconUsers from "~icons/lucide/users"
 import IconWrench from "~icons/lucide/wrench"
@@ -174,6 +175,7 @@ const STEP_ICONS: Record<StepKind, Component> = {
   properties: IconSlidersHorizontal,
   tab: IconPanelsTopLeft,
   closed: IconX,
+  deleted: IconTrash2,
   saved: IconSave,
   team: IconUsers,
   personal: IconHouse,
@@ -244,8 +246,31 @@ md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
   return defaultLinkRender(tokens, idx, options, env, self)
 }
 
+// A remote image would load unasked and could carry context out; link it instead.
+md.renderer.rules.image = (tokens, idx) => {
+  const src = tokens[idx].attrGet("src") ?? ""
+  const label = tokens[idx].content
+  // Inside a link (a badge) a nested <a> would split it: keep the outer
+  // link's target, labelled by the alt text or that target.
+  let depth = 0
+  for (let i = idx - 1; i >= 0; i--) {
+    if (tokens[i].type === "link_close") depth--
+    if (tokens[i].type !== "link_open") continue
+    depth++
+    if (depth > 0) {
+      return md.utils.escapeHtml(label || tokens[i].attrGet("href") || "")
+    }
+  }
+  // A data: URL has no page to open.
+  if (/^data:/i.test(src.trim())) return md.utils.escapeHtml(label)
+  return `<a href="${md.utils.escapeHtml(src)}" target="_blank" rel="noopener noreferrer">${md.utils.escapeHtml(label || src)}</a>`
+}
+
 const render = (text: string) =>
-  DOMPurify.sanitize(md.render(text), { ADD_ATTR: ["target"] })
+  DOMPurify.sanitize(md.render(text), {
+    ADD_ATTR: ["target"],
+    FORBID_TAGS: ["img"],
+  })
 
 const rendered = computed(() => render(props.message.content || ""))
 
@@ -431,10 +456,6 @@ const copy = () => {
   border: 1px solid var(--divider-color);
   padding: 0.25rem 0.5rem;
   text-align: left;
-}
-.chat-md :deep(img) {
-  max-width: 100%;
-  border-radius: 0.375rem;
 }
 
 /* Blinking caret at the end of the reply while it streams in. */

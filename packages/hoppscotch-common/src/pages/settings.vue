@@ -300,6 +300,7 @@ import * as A from "fp-ts/Array"
 import { platform } from "~/platform"
 import IconDone from "~icons/lucide/check"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
+import { useAIExperimentsSupport } from "~/composables/ai-experiments"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -377,14 +378,13 @@ const hasPlatformTelemetry = Boolean(platform.platformFeatureFlags.hasTelemetry)
 
 const confirmRemove = ref(false)
 
-const hasAIExperimentsSupport =
-  !!platform.experiments?.aiExperiments?.enableAIExperiments
+const aiExperiments = platform.experiments?.aiExperiments
+const hasAIExperimentsSupport = useAIExperimentsSupport()
 
 // The naming-style preference only matters when the platform can generate
 // request names — platforms may implement just a subset of the AI features.
 const hasAIRequestNamingSupport =
-  hasAIExperimentsSupport &&
-  !!platform.experiments?.aiExperiments?.generateRequestName
+  !!aiExperiments?.enableAIExperiments && !!aiExperiments?.generateRequestName
 
 const showConfirmModal = () => {
   if (TELEMETRY_ENABLED.value) confirmRemove.value = true

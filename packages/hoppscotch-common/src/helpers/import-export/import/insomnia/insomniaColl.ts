@@ -10,6 +10,8 @@ import {
   knownContentTypes,
   makeCollection,
   makeRESTRequest,
+  RawKeyValueEntry,
+  rawKeyValueEntriesToString,
 } from "@hoppscotch/data"
 
 import * as A from "fp-ts/Array"
@@ -158,21 +160,25 @@ const getHoppReqBody = (req: InsomniaRequestResource): HoppRESTReqBody => {
           value: replaceVarTemplating(param.value ?? ""),
           active: !(param.disabled ?? false),
           isFile: false,
+          description: param.description ? String(param.description) : "",
         })) ?? [],
     }
   } else if (req.body.mimeType === "application/x-www-form-urlencoded") {
     return {
       contentType: "application/x-www-form-urlencoded",
-      body:
-        req.body.params
-          ?.filter((param) => !(param.disabled ?? false))
-          .map(
-            (param) =>
-              `${replaceVarTemplating(param.name)}: ${replaceVarTemplating(
-                param.value ?? ""
-              )}`
-          )
-          .join("\n") ?? "",
+      body: pipe(
+        req.body.params ?? [],
+        A.map(
+          (param) =>
+            <RawKeyValueEntry>{
+              key: replaceVarTemplating(param.name),
+              value: replaceVarTemplating(param.value ?? ""),
+              active: !(param.disabled ?? false),
+              description: param.description ? String(param.description) : "",
+            }
+        ),
+        rawKeyValueEntriesToString
+      ),
     }
   } else if (
     Object.keys(knownContentTypes).includes(req.body.mimeType ?? "text/plain")

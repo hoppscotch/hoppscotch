@@ -19,6 +19,7 @@ export type RawKeyValueEntry = {
   key: string
   value: string
   active: boolean
+  description?: string
 }
 
 /* Beginning of Parser Definitions */
@@ -171,8 +172,10 @@ export const rawKeyValueEntriesToString = (entries: RawKeyValueEntry[]) =>
       flow(
         recordUpdate("key", applyEscapeIfNeeded),
         recordUpdate("value", applyEscapeIfNeeded),
-        ({ key, value, active }) =>
-          active ? `${(key)}: ${value}` : `# ${key}: ${value}`
+        ({ key, value, active, description }) => {
+          const base = active ? `${key}: ${value}` : `# ${key}: ${value}`
+          return description ? `${base} # ${description}` : base
+        }
       )
     ),
     stringArrayJoin("\n")
@@ -195,13 +198,21 @@ export const parseRawKeyValueEntriesE = (s: string) =>
     E.map(
       ({ value }) => pipe(
         value,
-        RA.map(({ key, value, commented }) =>
-          <RawKeyValueEntry>{
+        RA.map(({ key, value, commented }) => {
+          let parsedValue = value
+          let description = ""
+          const commentIndex = value.indexOf(" #")
+          if (commentIndex !== -1) {
+            parsedValue = value.substring(0, commentIndex).trim()
+            description = value.substring(commentIndex + 2).trim()
+          }
+          return <RawKeyValueEntry>{
             active: !commented,
             key,
-            value
+            value: parsedValue,
+            description,
           }
-        )
+        })
       )
     )
   )
@@ -223,13 +234,21 @@ export const strictParseRawKeyValueEntriesE = (s: string) =>
     E.map(
       ({ value }) => pipe(
         value,
-        RA.map(({ key, value, commented }) =>
-          <RawKeyValueEntry>{
+        RA.map(({ key, value, commented }) => {
+          let parsedValue = value
+          let description = ""
+          const commentIndex = value.indexOf(" #")
+          if (commentIndex !== -1) {
+            parsedValue = value.substring(0, commentIndex).trim()
+            description = value.substring(commentIndex + 2).trim()
+          }
+          return <RawKeyValueEntry>{
             active: !commented,
             key,
-            value
+            value: parsedValue,
+            description,
           }
-        )
+        })
       )
     )
   )

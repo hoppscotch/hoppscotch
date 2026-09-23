@@ -130,7 +130,10 @@ const convertPostDataToHoppBody = (
     } else if (postData.params) {
       bodyContent = postData.params
         .map((param) => {
-          return `${param.name}:${param.value}`
+          const key = param.name
+          const value = param.value
+          const description = param.comment ? String(param.comment) : ""
+          return description ? `${key}:${value} # ${description}` : `${key}:${value}`
         })
         .join("\n")
     }
@@ -148,18 +151,21 @@ const convertPostDataToHoppBody = (
       contentType: "multipart/form-data",
       body:
         postData.params?.map((param) => {
+          const description = param.comment ? String(param.comment) : ""
           return param.fileName
             ? {
                 active: true,
                 isFile: true as const,
                 key: param.name,
                 value: [],
+                description,
               }
             : {
                 active: true,
                 isFile: false as const,
                 key: param.name,
                 value: param.value ?? "",
+                description,
               }
         }) ?? [],
     }

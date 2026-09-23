@@ -308,6 +308,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   (e: "hide-modal"): void
+  (e: "environments-changed"): void
 }>()
 
 const idTicker = ref(0)
@@ -597,6 +598,7 @@ const saveEnvironment = async () => {
             }
             hideModal()
             toast.success(`${t("environment.created")}`)
+            emit("environments-changed")
             isLoading.value = false
           }
         )
@@ -651,7 +653,7 @@ const saveEnvironment = async () => {
             }
             hideModal()
             toast.success(`${t("environment.updated")}`)
-
+            emit("environments-changed")
             isLoading.value = false
           }
         )

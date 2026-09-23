@@ -33,7 +33,7 @@ const lockRevs = (lock: string, crate: string) => {
 }
 
 describe("native dependency pins", () => {
-  it("resolves tauri-plugin-relay at the commit the desktop manifest and the kernel name", () => {
+  it("resolves tauri-plugin-relay at one commit across the desktop manifest, the desktop lock and the kernel package", () => {
     const rev = manifestRev(desktopManifest, "tauri-plugin-relay")
     const kernel = JSON.parse(kernelPackage)
 

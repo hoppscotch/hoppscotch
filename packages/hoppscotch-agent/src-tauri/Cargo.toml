@@ -49,7 +49,10 @@ file-rotate = "0.8.0"
 dirs = "6.0.0"
 
 [dev-dependencies]
-openssl = "0.10"
+# Vendored, ∵ the trust store tests are the only thing that links OpenSSL here
+# and a macOS or Windows machine without Homebrew OpenSSL or vcpkg has nothing
+# for `openssl-sys` to find, so `cargo test` would fail to build before it ran.
+openssl = { version = "0.10", features = ["vendored"] }
 
 [target.'cfg(windows)'.dependencies]
 tempfile = { version = "3.23.0" }

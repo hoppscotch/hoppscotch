@@ -1,4 +1,5 @@
 import { computed, Ref, ref, watch } from "vue"
+import { useEventListener } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { useReadonlyStream } from "./stream"
 import { platform } from "~/platform"
@@ -24,14 +25,9 @@ export const useRequestNameGeneration = (targetNameRef: Ref<string>) => {
     platform.auth.getCurrentUser()
   )
 
-  const ENABLE_AI_EXPERIMENTS = useSetting("ENABLE_AI_EXPERIMENTS")
-
-  const canDoRequestNameGeneration = computed(() => {
-    return (
-      ENABLE_AI_EXPERIMENTS.value &&
-      !!platform.experiments?.aiExperiments?.generateRequestName
-    )
-  })
+  // The settings page gates the naming-style picker on the same check.
+  const { shouldEnableAIFeatures: canDoRequestNameGeneration } =
+    useAIExperiments("generateRequestName")
 
   const lastTraceID = ref<string | null>(null)
 
@@ -130,14 +126,17 @@ export const useAIExperimentsSupport = () => {
   )
 
   // The assistant skips its lookup while AI is off; this still needs it.
-  watch(
-    currentUser,
-    (user) => {
-      if (user && !ENABLE_AI_EXPERIMENTS.value && !chat.availabilityKnown.value)
-        void chat.loadAvailability()
-    },
-    { immediate: true }
-  )
+  const lookUp = () => {
+    if (
+      currentUser.value &&
+      !ENABLE_AI_EXPERIMENTS.value &&
+      !chat.availabilityKnown.value
+    )
+      void chat.loadAvailability()
+  }
+  watch(currentUser, lookUp, { immediate: true })
+  // A failed lookup would hide the setting; ask again when the user is back.
+  useEventListener(window, ["focus", "online"], lookUp)
 
   const offersOtherAI = !!(
     ai?.generateRequestName ||

@@ -37,7 +37,7 @@
             </Splitpanes>
           </Pane>
         </Splitpanes>
-        <AichatAssistant />
+        <AichatAssistant v-if="hasAIChat" />
       </Pane>
       <Pane v-if="mdAndLarger" style="height: auto">
         <AppFooter />
@@ -111,6 +111,9 @@ const uiExtensionService = useService(UIExtensionService)
 const rootExtensionComponents = uiExtensionService.rootUIExtensionComponents
 
 const HAS_OPENED_SPOTLIGHT = useSetting("HAS_OPENED_SPOTLIGHT")
+
+// Fixed per platform; a platform that can't chat skips the assistant entirely.
+const hasAIChat = !!platform.experiments?.aiExperiments?.chat
 
 onBeforeMount(() => {
   if (!mdAndLarger.value) {

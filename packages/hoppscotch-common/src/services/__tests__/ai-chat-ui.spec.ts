@@ -4,7 +4,8 @@ import { TestContainer } from "dioc/testing"
 import { diocPlugin } from "dioc/vue"
 import * as E from "fp-ts/Either"
 import { BehaviorSubject } from "rxjs"
-import { createApp, defineComponent, h, nextTick, type App } from "vue"
+import { createApp, defineComponent, h, nextTick, ref, type App } from "vue"
+import { createMemoryHistory, createRouter } from "vue-router"
 
 vi.mock("~/modules/i18n", () => ({
   getI18n: () => (key: string) => key,
@@ -40,8 +41,11 @@ vi.mock("~/platform", () => ({
     },
     // The team list stays pending; nothing here reads it.
     backend: { getUserTeams: () => new Promise(() => {}) },
+    platformFeatureFlags: {},
   },
 }))
+// Pages set the document title; no head manager here.
+vi.mock("@composables/head", () => ({ usePageHead: () => {} }))
 
 // Workspace services start team queries on login; keep them off the network.
 vi.mock("~/helpers/backend/GQLClient", async (orig) => ({
@@ -66,7 +70,13 @@ import { hookKeybindingsListener } from "~/helpers/keybindings"
 import { applySetting } from "~/newstore/settings"
 import { TeamAccessRole } from "~/helpers/backend/graphql"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
-import { useAIExperimentsSupport } from "~/composables/ai-experiments"
+import {
+  useAIExperimentsSupport,
+  useRequestNameGeneration,
+} from "~/composables/ai-experiments"
+import Settings from "~/pages/settings.vue"
+import DefaultLayout from "~/layouts/default.vue"
+import { PersistenceService } from "~/services/persistence"
 import { useChatContext } from "~/composables/chat-context"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
@@ -825,6 +835,118 @@ describe("AI Experiments setting", () => {
     getAvailability.mockResolvedValue(on(false))
 
     expect((await support()).value).toBe(true)
+  })
+
+  it("asks again on focus after a failed lookup", async () => {
+    applySetting("ENABLE_AI_EXPERIMENTS", false)
+    getAvailability.mockResolvedValue(E.left("NETWORK"))
+    const shown = await support()
+    expect(shown.value).toBe(false)
+
+    getAvailability.mockResolvedValue(on(true))
+    window.dispatchEvent(new Event("focus"))
+    await tick()
+    expect(shown.value).toBe(true)
+  })
+})
+
+describe("AI request naming", () => {
+  let app: App | null = null
+
+  afterEach(() => {
+    app?.unmount()
+    app = null
+    ai.enableAIExperiments = true
+    ai.generateRequestName = undefined
+    applySetting("ENABLE_AI_EXPERIMENTS", true)
+  })
+
+  // Without the master flag, the button still shows; so must its style.
+  it("shows the naming style wherever the generate button shows", async () => {
+    ai.enableAIExperiments = false
+    ai.generateRequestName = vi.fn()
+    auth.user$ = new BehaviorSubject<unknown>(null)
+
+    let canGenerate!: { value: boolean }
+    const el = document.createElement("div")
+    app = createApp(
+      defineComponent({
+        setup() {
+          canGenerate = useRequestNameGeneration(
+            ref("")
+          ).canDoRequestNameGeneration
+          return () => h(Settings)
+        },
+      })
+    )
+    app.use(diocPlugin, { container: new TestContainer() })
+    app.provide("colorMode", { preference: "system", value: "light" })
+    app.config.warnHandler = () => {}
+    app.mount(el)
+    await nextTick()
+    const styleShown = () =>
+      Array.from(el.querySelectorAll("label")).some(
+        (l) => l.textContent?.trim() === "settings.ai_request_naming_style"
+      )
+
+    expect(canGenerate.value).toBe(true)
+    expect(styleShown()).toBe(true)
+
+    applySetting("ENABLE_AI_EXPERIMENTS", false)
+    await nextTick()
+    expect(canGenerate.value).toBe(false)
+    expect(styleShown()).toBe(false)
+  })
+})
+
+describe("default layout", () => {
+  let app: App | null = null
+
+  afterEach(() => {
+    app?.unmount()
+    app = null
+    ai.chat = undefined
+  })
+
+  /** Whether the layout set the assistant up at all. */
+  const mountsAssistant = async () => {
+    const setUp = vi.fn()
+    vi.spyOn(PersistenceService.prototype, "getLocalConfig").mockResolvedValue(
+      "yes"
+    )
+    auth.user$ = new BehaviorSubject<unknown>(null)
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [{ path: "/", component: Stub }],
+    })
+    app = createApp(DefaultLayout)
+    app.use(router)
+    app.use(diocPlugin, { container: new TestContainer() })
+    app.config.warnHandler = () => {}
+    app.component(
+      "AichatAssistant",
+      defineComponent({
+        setup() {
+          setUp()
+          return () => h("div")
+        },
+      })
+    )
+    app.mount(document.createElement("div"))
+    await router.isReady()
+    await nextTick()
+    vi.restoreAllMocks()
+    return setUp.mock.calls.length > 0
+  }
+
+  it("skips the assistant on a platform that can't chat", async () => {
+    ai.chat = undefined
+    expect(await mountsAssistant()).toBe(false)
+  })
+
+  it("sets it up where the platform can chat", async () => {
+    ai.chat = vi.fn()
+    expect(await mountsAssistant()).toBe(true)
   })
 })
 

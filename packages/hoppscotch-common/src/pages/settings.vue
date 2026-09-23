@@ -79,10 +79,7 @@
                   {{ t("settings.ai_experiments") }}
                 </HoppSmartToggle>
               </div>
-              <div
-                v-if="hasAIRequestNamingSupport && ENABLE_AI_EXPERIMENTS"
-                class="flex items-center"
-              >
+              <div v-if="hasAIRequestNaming" class="flex items-center">
                 <div class="flex flex-col space-y-2 w-full">
                   <label class="text-secondaryLight">{{
                     t("settings.ai_request_naming_style")
@@ -300,7 +297,10 @@ import * as A from "fp-ts/Array"
 import { platform } from "~/platform"
 import IconDone from "~icons/lucide/check"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
-import { useAIExperimentsSupport } from "~/composables/ai-experiments"
+import {
+  useAIExperiments,
+  useAIExperimentsSupport,
+} from "~/composables/ai-experiments"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -378,13 +378,12 @@ const hasPlatformTelemetry = Boolean(platform.platformFeatureFlags.hasTelemetry)
 
 const confirmRemove = ref(false)
 
-const aiExperiments = platform.experiments?.aiExperiments
 const hasAIExperimentsSupport = useAIExperimentsSupport()
 
-// The naming-style preference only matters when the platform can generate
-// request names — platforms may implement just a subset of the AI features.
-const hasAIRequestNamingSupport =
-  !!aiExperiments?.enableAIExperiments && !!aiExperiments?.generateRequestName
+// Shown wherever the generate-name button is: same capability, same gate.
+const { shouldEnableAIFeatures: hasAIRequestNaming } = useAIExperiments(
+  "generateRequestName"
+)
 
 const showConfirmModal = () => {
   if (TELEMETRY_ENABLED.value) confirmRemove.value = true

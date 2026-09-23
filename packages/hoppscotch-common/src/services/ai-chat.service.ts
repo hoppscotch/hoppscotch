@@ -838,8 +838,10 @@ export class AIChatService extends Service {
   /** True once a lookup has succeeded, whatever it returned. */
   public readonly availabilityKnown = ref(false)
 
-  /** Bumped by `clearAvailability`, so an in-flight lookup is dropped. */
-  private availabilitySession = 0
+  /** Numbers each lookup, so an older answer can't replace a newer one. */
+  private availabilityRequests = 0
+  /** The newest lookup applied; `clearAvailability` moves it past any in flight. */
+  private availabilityApplied = 0
 
   /**
    * Whether the assistant may be offered. Unknown counts as no; a platform
@@ -1034,10 +1036,11 @@ export class AIChatService extends Service {
       platform.experiments?.aiExperiments?.getChatAvailability
     if (!getAvailability) return
 
-    const session = this.availabilitySession
+    const request = ++this.availabilityRequests
     const result = await getAvailability()
-    // A lookup that outlived its session must not answer for the next one.
-    if (E.isLeft(result) || session !== this.availabilitySession) return
+    // Stale: a newer lookup answered, or the session it asked for ended.
+    if (E.isLeft(result) || request <= this.availabilityApplied) return
+    this.availabilityApplied = request
 
     this.instanceEnabled.value = result.right.enabled
     this.modelOptions.value = result.right.models
@@ -1048,7 +1051,7 @@ export class AIChatService extends Service {
 
   /** Forgets the last answer: it belonged to the session that ended. */
   public clearAvailability() {
-    this.availabilitySession++
+    this.availabilityApplied = this.availabilityRequests
     this.instanceEnabled.value = null
     this.availabilityKnown.value = false
     this.modelOptions.value = []

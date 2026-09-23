@@ -7,6 +7,7 @@ import vendoredRelayManifest from "../../plugin-workspace/relay/Cargo.toml?raw"
 import agentManifest from "../../../hoppscotch-agent/src-tauri/Cargo.toml?raw"
 import agentLock from "../../../hoppscotch-agent/src-tauri/Cargo.lock?raw"
 import kernelPackage from "../../../hoppscotch-kernel/package.json?raw"
+import pnpmLock from "../../../../pnpm-lock.yaml?raw"
 
 // The desktop app reads the host trust store through `relay`, which it gets
 // transitively from `tauri-plugin-relay`, while the agent depends on `relay`
@@ -41,6 +42,27 @@ describe("native dependency pins", () => {
       `github:CuriousCorrelation/tauri-plugin-relay#${rev}`
     )
     expect(lockRevs(desktopLock, "tauri-plugin-relay")).toEqual(new Set([rev]))
+  })
+
+  // A pin bumped in the kernel package without `pnpm install` leaves the lock
+  // resolving the previous tarball, which the frozen install CI performs
+  // refuses, and which no Cargo-side assertion can see.
+  it("resolves the relay plugin in pnpm-lock at the commit the kernel package names", () => {
+    const kernel = JSON.parse(kernelPackage)
+    const rev = kernel.dependencies["@hoppscotch/plugin-relay"].split("#")[1]
+
+    expect(rev, "the kernel pins the plugin by commit").toMatch(
+      /^[0-9a-f]{40}$/
+    )
+    expect(pnpmLock).toContain(
+      `specifier: github:CuriousCorrelation/tauri-plugin-relay#${rev}`
+    )
+    const stale = [
+      ...pnpmLock.matchAll(/tauri-plugin-relay\/tar\.gz\/([0-9a-f]{40})/g),
+    ]
+      .map((m) => m[1])
+      .filter((resolved) => resolved !== rev)
+    expect(stale, "every lock entry resolves the pinned commit").toHaveLength(0)
   })
 
   it("resolves relay at the vendored tauri-plugin-relay pin in the desktop app and the agent", () => {

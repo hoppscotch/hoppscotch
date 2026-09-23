@@ -3894,9 +3894,12 @@ export class AIChatService extends Service {
       batch.generation
     )
     if (declined) return declined
+    // The prompt may have stayed open while the user switched workspace.
+    if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
 
     if (environmentName) {
       const selectionReply = await this.selectEnv(environmentName)
+      if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
       if (!selectionReply.startsWith("🌐")) return selectionReply
     }
 
@@ -5737,6 +5740,8 @@ export class AIChatService extends Service {
       if (!(await this.confirm("collection", label, generation))) {
         return `Left **${label}** alone.`
       }
+      // The prompt may have stayed open across a workspace switch.
+      if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
       // Snapshot first: the removal echo drops the subtree from the tree.
       const subtree = this.teamCollectionService.findCollectionByID(
         found.node.id
@@ -5757,6 +5762,7 @@ export class AIChatService extends Service {
     if (!(await this.confirm("collection", label, generation))) {
       return `Left **${label}** alone.`
     }
+    if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
     // The prompt may have stayed open while the store shifted: the old index
     // path could now point at another collection.
     const current = this.findPersonalNode(collection)
@@ -6079,6 +6085,7 @@ export class AIChatService extends Service {
         }
       )
       if (!confirmed) return `Didn't publish **${target.name}**.`
+      if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
     }
     let info: PublishedDocInfo
     if (existing) {
@@ -6194,6 +6201,7 @@ export class AIChatService extends Service {
       { version: doc.version }
     )
     if (!confirmed) return `Left **${target.name}** ${doc.version} published.`
+    if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
     const res = await platform.backend.deletePublishedDoc(doc.id)()
     if (E.isLeft(res)) {
       return `⚠️ Couldn't unpublish: ${this.describeGQLError(res.left)}.`
@@ -6319,6 +6327,7 @@ export class AIChatService extends Service {
       if (!(await this.confirm("public-mock-server", serverName, generation))) {
         return `Didn't create **${serverName}**.`
       }
+      if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
     }
 
     const res = await platform.backend.createMockServer(
@@ -6428,6 +6437,7 @@ export class AIChatService extends Service {
         changes.generation ?? this.turnGeneration
       )
       if (!confirmed) return `Left **${server.name}** private.`
+      if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
     }
     const res = await platform.backend.updateMockServer(server.id, input)()
     if (E.isLeft(res)) {
@@ -6479,6 +6489,7 @@ export class AIChatService extends Service {
     if (!(await this.confirm("mock-server", server.name, generation))) {
       return `Left **${server.name}** alone.`
     }
+    if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
     const res = await platform.backend.deleteMockServer(server.id)()
     if (E.isLeft(res) || !res.right) {
       return `⚠️ Couldn't delete the mock server${

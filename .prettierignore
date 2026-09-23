@@ -1,8 +1,2 @@
-.dependabot
-.github
-.nuxt
-.hoppscotch
-.vscode
-package-lock.json
-node_modules
-dist
+.npmrc
+.vscode/

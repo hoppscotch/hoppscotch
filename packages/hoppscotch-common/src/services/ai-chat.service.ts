@@ -235,9 +235,6 @@ export interface ChatContextItem {
 /** Builds the context for the tab a turn is pinned to (null: the active tab). */
 export type ChatContextSource = (tabId: string | null) => string
 
-/** What a turn changed that alters what a run sends. */
-export type RunRisk = "host" | "script" | "env"
-
 /** A tool waiting on the user's yes/no. */
 export interface PendingConfirmation {
   kind:
@@ -251,9 +248,7 @@ export interface PendingConfirmation {
   name: string
   /** Team name, or null for the personal workspace. */
   workspace: string | null
-  /** For a run or save: what the chat changed. */
-  reasons?: RunRisk[]
-  /** The hosts behind a "host" reason. */
+  /** For a run or save: the hosts the chat pointed it at. */
   hosts?: string[]
   /** For docs: the version, and an environment whose values go public. */
   version?: string
@@ -263,10 +258,7 @@ export interface PendingConfirmation {
 
 /** What a confirmation shows besides its target; workspace overrides the current one. */
 type ConfirmDetail = Partial<
-  Pick<
-    PendingConfirmation,
-    "reasons" | "hosts" | "version" | "environment" | "workspace"
-  >
+  Pick<PendingConfirmation, "hosts" | "version" | "environment" | "workspace">
 >
 
 /** A v2 environment variable as edited from the chat. */
@@ -704,36 +696,30 @@ interface ToolBatch {
 }
 
 /**
- * What the chat wrote this conversation that a run or save would send, by
- * content: a copy in another tab, turn or saved request still asks.
+ * Hosts the chat pointed requests at this conversation that the user never
+ * typed, by content: a copy in another tab, turn or saved request still asks.
  */
 interface ChatRisks {
-  /** Hosts the chat set that the user never typed. */
+  /** Hosts the chat set in a request URL. */
   hosts: Set<string>
-  /** Scripts the chat wrote into a request, trimmed. */
-  scripts: Set<string>
-  /** Variable values the user never typed. */
-  env: boolean
-  /** Hosts and scripts approved for a run, by `riskKey`. */
+  /** Values the chat wrote into variables, by lowercased key. */
+  vars: Map<string, string>
+  /** Hosts approved for a run. */
   runApproved: Set<string>
-  /** Saves approved, as "target\0" + `riskKey`: one target doesn't cover another. */
+  /** Saves approved, as "target\0host": one target doesn't cover another. */
   saveApproved: Set<string>
 }
 
 const noRisks = (): ChatRisks => ({
   hosts: new Set(),
-  scripts: new Set(),
-  env: false,
+  vars: new Map(),
   runApproved: new Set(),
   saveApproved: new Set(),
 })
 
-const riskKey = (kind: "host" | "script", value: string) => `${kind}\0${value}`
-
-/** Where a request sends and the scripts it runs (pre-request, test). */
+/** Where a request sends. */
 interface RunSurface {
   host: string
-  scripts: [string, string]
 }
 
 /** Where a save writes: a stable key, its name, and its workspace label. */
@@ -743,8 +729,6 @@ interface SaveTarget {
   /** Team name or null (personal); undefined means the current workspace. */
   workspace?: string | null
 }
-
-const RUN_RISK_ORDER: RunRisk[] = ["host", "script", "env"]
 
 /** Max model round-trips per user message (bounds the agentic tool loop). */
 const MAX_TOOL_STEPS = 6
@@ -1832,12 +1816,24 @@ export class AIChatService extends Service {
           const gqlActive = active ? null : this.getActiveGQLRequest()
           const edited = active?.request ?? gqlActive?.request
           const before = edited ? this.runSurface(edited) : null
+          const varsBefore =
+            active?.request.requestVariables.map((v) => ({ ...v })) ?? []
           const res = active
             ? applyToolCall(active.request, call.name, input)
             : applyGQLToolCall(gqlActive?.request ?? null, call.name, input)
           if (res.changed && edited && before) {
             this.noteEditRisks(before, this.runSurface(edited))
           }
+          if (res.changed && call.name === "add_or_update_request_variables")
+            this.noteVariableWrites(
+              (Array.isArray(input.variables) ? input.variables : []).map(
+                (v: { key?: unknown; value?: unknown }) => ({
+                  key: String(v?.key ?? ""),
+                  value: String(v?.value ?? ""),
+                })
+              ),
+              varsBefore
+            )
           if (res.changed) {
             if (active) {
               active.commit()
@@ -2210,25 +2206,6 @@ export class AIChatService extends Service {
       : false
   }
 
-  /**
-   * Whether the user typed `value` in this turn's message as a whole word:
-   * "hub.com" inside "api.github.com" doesn't count.
-   */
-  private typedByUser(value: string): boolean {
-    const v = value.trim().toLowerCase()
-    if (!v) return false
-    const text = this.turnUserText.toLowerCase()
-    // A word character, or a dot/hyphen joining one, continues the word.
-    const joins = (ch = "", next = "") =>
-      /\w/.test(ch) || (/[.-]/.test(ch) && /\w/.test(next))
-    for (let i = text.indexOf(v); i !== -1; i = text.indexOf(v, i + 1)) {
-      const end = i + v.length
-      if (!joins(text[i - 1], text[i - 2]) && !joins(text[end], text[end + 1]))
-        return true
-    }
-    return false
-  }
-
   /** Whether `host` is one the user's message names, compared exactly. */
   private typedHost(host: string): boolean {
     return this.turnUserText
@@ -2244,33 +2221,63 @@ export class AIChatService extends Service {
       )
   }
 
-  /** The parts of a request that decide where a run sends and what runs. */
+  /** Where a run of this request sends. */
   private runSurface(request: HoppRESTRequest | HoppGQLRequest): RunSurface {
     return {
       host:
         "endpoint" in request
           ? hostOf(request.endpoint)
           : hostOf(request.url, false),
-      scripts: [request.preRequestScript ?? "", request.testScript ?? ""],
     }
   }
 
-  /** Records what an edit to the pinned tab changed that a run would send. */
+  /** Records a host an edit to the pinned tab pointed it at. */
   private noteEditRisks(before: RunSurface, after: RunSurface) {
     // A host the user typed is their choice, not an injected one.
     if (after.host !== before.host && after.host && !this.typedHost(after.host))
       this.chatRisks.hosts.add(after.host)
-    // Clearing a script is harmless; writing one is not.
-    after.scripts.forEach((script, i) => {
-      if (script.trim() && script !== before.scripts[i])
-        this.chatRisks.scripts.add(script.trim())
-    })
   }
 
-  /** Records a variable write unless the user typed every value. */
-  private noteVariableRisk(values: string[]) {
-    if (values.some((value) => value.trim() && !this.typedByUser(value)))
-      this.chatRisks.env = true
+  /**
+   * Records values the chat wrote into variables, by key; one that leaves a
+   * value as it was changes nothing.
+   */
+  private noteVariableWrites(
+    written: Array<{ key: string; value: string }>,
+    existing: Array<{ key: string; value?: string; initialValue?: string }> = []
+  ) {
+    for (const { key, value } of written) {
+      const k = key.trim().toLowerCase()
+      const v = value.trim()
+      if (!k || !v) continue
+      const same = existing.some(
+        (e) =>
+          e.key.trim().toLowerCase() === k &&
+          (e.value?.trim() === v || e.initialValue?.trim() === v)
+      )
+      if (!same) this.chatRisks.vars.set(k, v)
+    }
+  }
+
+  /**
+   * Where a `<<var>>` host sends once the values the chat wrote are filled
+   * in, or "" when none of its variables is the chat's (or `counts` skips it).
+   */
+  private chatVariableHost(
+    host: string,
+    counts: (key: string) => boolean = () => true
+  ): string {
+    let wrote = false
+    const resolved = host.replace(/<<([^<>]+)>>/g, (token, name: string) => {
+      const key = name.trim().toLowerCase()
+      const value = this.chatRisks.vars.get(key)
+      if (value === undefined || !counts(key)) return token
+      wrote = true
+      return value
+    })
+    if (!wrote) return ""
+    const sendsTo = hostOf(resolved)
+    return sendsTo && !this.typedHost(sendsTo) ? sendsTo : ""
   }
 
   /**
@@ -2339,29 +2346,9 @@ export class AIChatService extends Service {
     ]
   }
 
-  /** Scripts an upsert writes, trimmed. */
-  private upsertScripts(
-    definitions: CollectionRequestDefinition[],
-    existingOf: (d: CollectionRequestDefinition) => HoppRESTRequest | undefined
-  ): string[] {
-    const written = (script: string | undefined, current = "") =>
-      script?.trim() && script !== current ? [script.trim()] : []
-    return definitions.flatMap((d) => [
-      ...written(d.preRequestScript, existingOf(d)?.preRequestScript),
-      ...written(d.testScript, existingOf(d)?.testScript),
-    ])
-  }
-
-  /** Run surfaces of every request in a collection tree, and its own scripts. */
+  /** Run surfaces of every request in a collection tree. */
   private collectionSurfaces(collection: HoppCollection): RunSurface[] {
     return [
-      {
-        host: "",
-        scripts: [
-          collection.preRequestScript ?? "",
-          collection.testScript ?? "",
-        ],
-      },
       ...(collection.requests ?? []).map((r) =>
         this.runSurface(r as HoppRESTRequest | HoppGQLRequest)
       ),
@@ -2369,111 +2356,77 @@ export class AIChatService extends Service {
     ]
   }
 
-  /** Scripts in these surfaces the chat wrote, trimmed and unique. */
-  private chatScriptsIn(surfaces: RunSurface[]): string[] {
-    return [
-      ...new Set(
-        surfaces
-          .flatMap((s) => s.scripts)
-          .map((s) => s.trim())
-          .filter((s) => s && this.chatRisks.scripts.has(s))
-      ),
-    ]
-  }
-
   /**
-   * Asks before a run that sends what the chat changed: a host the user never
-   * typed, a script, or variable values. Read from the requests themselves,
-   * so a duplicate or a later turn still asks. Null means go ahead.
+   * Asks before a run that sends to a host the chat chose and the user never
+   * typed, in the URL or, for a `<<var>>` host, in a variable. Read from the
+   * requests themselves, so a duplicate or a later turn still asks. Null
+   * means go ahead.
    */
   private async confirmRun(
     name: string,
     surfaces: RunSurface[],
     generation: number
   ): Promise<string | null> {
-    const unapproved = (kind: "host" | "script", value: string) =>
-      !this.chatRisks.runApproved.has(riskKey(kind, value))
-    const hosts = [...new Set(surfaces.map((s) => s.host))].filter(
-      (host) => this.chatRisks.hosts.has(host) && unapproved("host", host)
+    const unapproved = (host: string) => !this.chatRisks.runApproved.has(host)
+    const hosts = surfaces.map(({ host }) =>
+      this.chatRisks.hosts.has(host) ? host : this.chatVariableHost(host)
     )
-    const scripts = this.chatScriptsIn(surfaces).filter((s) =>
-      unapproved("script", s)
-    )
-    const found = new Set<RunRisk>()
-    if (hosts.length) found.add("host")
-    if (scripts.length) found.add("script")
-    if (this.chatRisks.env) found.add("env")
-    if (!found.size) return null
-    const reasons = RUN_RISK_ORDER.filter((risk) => found.has(risk))
-    if (!(await this.confirm("run", name, generation, { reasons, hosts }))) {
+    const asked = [...new Set(hosts)].filter((host) => host && unapproved(host))
+    if (!asked.length) return null
+    if (!(await this.confirm("run", name, generation, { hosts: asked }))) {
       // The edit stays: a manual Send or save would still go there.
-      const still = hosts.length
-        ? ` It still points at ${hosts.map((h) => `**${h}**`).join(", ")}.`
-        : ""
-      return `⚠️ You declined the run — nothing was sent.${still}`
+      return `⚠️ You declined the run — nothing was sent. It still points at ${asked
+        .map((h) => `**${h}**`)
+        .join(", ")}.`
     }
-    // Approved: the same changes don't ask twice for a run. A save still does.
-    for (const host of hosts)
-      this.chatRisks.runApproved.add(riskKey("host", host))
-    for (const s of scripts)
-      this.chatRisks.runApproved.add(riskKey("script", s))
-    this.chatRisks.env = false
+    // Approved: the same hosts don't ask twice for a run. A save still does.
+    for (const host of asked) this.chatRisks.runApproved.add(host)
     return null
   }
 
-  /** What the chat wrote into this request that a save would persist. */
-  private chatWritesIn(request: HoppRESTRequest | HoppGQLRequest) {
-    const surface = this.runSurface(request)
-    return {
-      hosts: this.chatRisks.hosts.has(surface.host) ? [surface.host] : [],
-      scripts: this.chatScriptsIn([surface]),
-    }
+  /** The host the chat pointed this request at, if a save would persist it. */
+  private chatWritesIn(request: HoppRESTRequest | HoppGQLRequest): string[] {
+    const { host } = this.runSurface(request)
+    if (this.chatRisks.hosts.has(host)) return [host]
+    // Its own variables are saved with it; environment ones are not.
+    const own = new Map(
+      ("requestVariables" in request ? request.requestVariables : []).map(
+        (v) => [v.key.trim().toLowerCase(), v.value.trim()]
+      )
+    )
+    const viaVariable = this.chatVariableHost(
+      host,
+      (key) => own.get(key) === this.chatRisks.vars.get(key)
+    )
+    return viaVariable ? [viaVariable] : []
   }
 
   /**
-   * Asks before persisting a host or script the chat wrote: saved, it runs
-   * for everyone who later runs the request. An approval covers this target
-   * only; a run approval covers none. Null means go ahead.
+   * Asks before persisting a host the chat chose: saved, requests send there
+   * for everyone who later runs them. An approval covers this target only; a
+   * run approval covers none. Null means go ahead.
    */
   private async confirmSave(
     target: SaveTarget,
-    written: { hosts: string[]; scripts: string[] },
+    written: string[],
     generation: number
   ): Promise<string | null> {
-    const approvalKey = (kind: "host" | "script", value: string) =>
-      `${target.key}\0${riskKey(kind, value)}`
-    const hosts = [...new Set(written.hosts)].filter(
-      (h) => !this.chatRisks.saveApproved.has(approvalKey("host", h))
+    const approvalKey = (host: string) => `${target.key}\0${host}`
+    const hosts = [...new Set(written)].filter(
+      (h) => !this.chatRisks.saveApproved.has(approvalKey(h))
     )
-    const scripts = [...new Set(written.scripts)].filter(
-      (s) => !this.chatRisks.saveApproved.has(approvalKey("script", s))
-    )
-    if (!hosts.length && !scripts.length) return null
-    const reasons: RunRisk[] = []
-    if (hosts.length) reasons.push("host")
-    if (scripts.length) reasons.push("script")
+    if (!hosts.length) return null
     const approved = await this.confirm("save", target.name, generation, {
-      reasons,
       hosts,
       workspace: target.workspace,
     })
     if (!approved) {
-      const what = hosts.length
-        ? scripts.length
-          ? "the new host and scripts"
-          : "the new host"
-        : "the scripts"
-      return `Didn't save ${what} to **${target.name}** — nothing changed.`
+      return `Didn't save the new host to **${target.name}** — nothing changed.`
     }
-    // Saved, it runs anyway: the same changes don't ask for a run either.
-    for (const [kind, values] of [
-      ["host", hosts],
-      ["script", scripts],
-    ] as const) {
-      for (const value of values) {
-        this.chatRisks.saveApproved.add(approvalKey(kind, value))
-        this.chatRisks.runApproved.add(riskKey(kind, value))
-      }
+    // Saved, it sends there anyway: the same hosts don't ask for a run either.
+    for (const host of hosts) {
+      this.chatRisks.saveApproved.add(approvalKey(host))
+      this.chatRisks.runApproved.add(host)
     }
     return null
   }
@@ -3260,7 +3213,9 @@ export class AIChatService extends Service {
 
     const storedVars = stripClientLocalValuesForWire(vars)
     // The new environment becomes active, so its values reach the next run.
-    this.noteVariableRisk(vars.map((v) => v.currentValue))
+    this.noteVariableWrites(
+      vars.map((v) => ({ key: v.key, value: v.currentValue || v.initialValue }))
+    )
     const team = this.teamWorkspace()
     if (team) {
       const res = await createTeamEnvironment(
@@ -3389,7 +3344,7 @@ export class AIChatService extends Service {
       if (hosts.length) {
         const declined = await this.confirmSave(
           { key: `team-env:${envID}`, name: selected.environment.name },
-          { hosts, scripts: [] },
+          hosts,
           generation
         )
         if (declined) return declined
@@ -3401,7 +3356,18 @@ export class AIChatService extends Service {
         }
       }
     }
-    this.noteVariableRisk(incoming.map((v) => v.currentValue))
+    this.noteVariableWrites(
+      incoming.map((v) => ({
+        key: v.key,
+        value: v.currentValue || v.initialValue,
+      })),
+      (selected.type === "TEAM_ENV"
+        ? selected.environment.variables
+        : selected.type === "MY_ENV"
+          ? (environmentsStore.value.environments[selected.index]?.variables ??
+            [])
+          : []) as Array<{ key: string; initialValue?: string }>
+    )
 
     if (selected.type === "TEAM_ENV") {
       const env = selected.environment
@@ -3655,18 +3621,13 @@ export class AIChatService extends Service {
         existing: candidate && isRESTRequest(candidate) ? candidate : undefined,
       }
     }
-    // A saved host or script runs for everyone who later runs the request.
-    const existingOf = (d: CollectionRequestDefinition) =>
-      existingIn(found.collection, d.name).existing
+    // A saved host is where the request sends for everyone who runs it.
     const declined = await this.confirmSave(
       { key: this.personalCollectionKey(found), name: found.label },
-      {
-        hosts: this.upsertHosts(
-          parsed.definitions,
-          found.collection.requests.filter(isRESTRequest)
-        ),
-        scripts: this.upsertScripts(parsed.definitions, existingOf),
-      },
+      this.upsertHosts(
+        parsed.definitions,
+        found.collection.requests.filter(isRESTRequest)
+      ),
       generation
     )
     if (declined) return declined
@@ -4728,18 +4689,13 @@ export class AIChatService extends Service {
     // The folder load awaited: a switch meanwhile would write to a team the
     // user left.
     if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
-    // A synced host or script runs for every teammate who runs the request.
-    const existingOf = (d: CollectionRequestDefinition) =>
-      restOf(savedRow(d.name.toLowerCase()))
+    // A synced host is where the request sends for every teammate.
     const declined = await this.confirmSave(
       { key: `team-coll:${found.node.id}`, name: found.label },
-      {
-        hosts: this.upsertHosts(
-          parsed.definitions,
-          (found.node.requests ?? []).map((r) => restOf(r))
-        ),
-        scripts: this.upsertScripts(parsed.definitions, existingOf),
-      },
+      this.upsertHosts(
+        parsed.definitions,
+        (found.node.requests ?? []).map((r) => restOf(r))
+      ),
       generation
     )
     if (declined) return declined
@@ -5210,7 +5166,6 @@ export class AIChatService extends Service {
     // ---- resolve the target and its current (hydrated) state ----
     let current: HoppCollection
     let storeKey: string
-    let saveKey: string
     let label: string
     let personal: { path: string } | null = null
     let teamNode: { node: TeamCollection; path: string } | null = null
@@ -5224,7 +5179,6 @@ export class AIChatService extends Service {
       label = found.label
       current = teamCollToHoppRESTColl(found.node)
       storeKey = found.node.id
-      saveKey = `team-coll:${found.node.id}`
     } else {
       const lookup = lookupCollection(restCollectionStore.value.state, collName)
       if (!lookup || "ambiguous" in lookup) {
@@ -5238,40 +5192,23 @@ export class AIChatService extends Service {
         found.collection._ref_id ??
         found.collection.id ??
         found.path.split("/").pop()!
-      saveKey = this.personalCollectionKey(found)
     }
 
-    // ---- a script every later run executes: the user decides ----
-    const writesScript = (script: string | undefined, now = "") =>
-      script?.trim() && script !== now ? [script.trim()] : []
-    const scripts = [
-      ...writesScript(preRequestScript, current.preRequestScript),
-      ...writesScript(testScript, current.testScript),
-    ]
     // Synced to the team, a variable's new host redirects teammates' runs.
     const hosts = teamNode
       ? this.variableHosts(parsedVars.variables, current.variables ?? [])
       : []
-    if (scripts.length || hosts.length) {
-      if (teamNode && this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
+    if (teamNode && hosts.length) {
+      if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
       const declined = await this.confirmSave(
-        { key: saveKey, name: label },
-        { hosts, scripts },
+        { key: `team-coll:${teamNode.node.id}`, name: label },
+        hosts,
         generation
       )
       if (declined) return declined
-      // The prompt may have stayed open while the target changed.
-      if (teamNode) {
-        if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
-        current = teamCollToHoppRESTColl(teamNode.node)
-      } else {
-        const fresh = this.findPersonalNode(current)
-        if (!fresh) {
-          return `⚠️ **${label}** moved or was removed meanwhile — nothing changed.`
-        }
-        personal = { path: fresh.path }
-        current = fresh.node
-      }
+      // The prompt may have stayed open while the user moved on.
+      if (this.workspaceMoved()) return WORKSPACE_MOVED_REPLY
+      current = teamCollToHoppRESTColl(teamNode.node)
     }
 
     // ---- merge ----
@@ -5387,7 +5324,17 @@ export class AIChatService extends Service {
 
     // Requests in this collection inherit these on their next run.
     if (updatedVarCount)
-      this.noteVariableRisk(parsedVars.variables.map((v) => v.currentValue))
+      this.noteVariableWrites(
+        parsedVars.variables.map((v) => ({
+          key: v.key,
+          value: v.currentValue || v.initialValue,
+        })),
+        existingVars.map((v) => ({
+          key: v.key,
+          value: v.currentValue,
+          initialValue: v.initialValue,
+        }))
+      )
 
     const parts = [
       auth ? `auth: ${auth.authType}` : "",

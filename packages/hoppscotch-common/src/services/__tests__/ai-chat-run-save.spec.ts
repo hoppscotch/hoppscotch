@@ -802,7 +802,6 @@ describe("AIChatService run/save mechanics", () => {
       while (!chat.pendingConfirmation.value) await tick(5)
       expect(chat.pendingConfirmation.value).toMatchObject({
         kind: "run",
-        reasons: ["host"],
       })
       chat.resolveConfirmation(false)
       await turn
@@ -830,64 +829,67 @@ describe("AIChatService run/save mechanics", () => {
       expect(resultsSent()[1].content).toBe(OK_LINE)
     })
 
-    it("asks after a script write, and runs once approved", async () => {
+    it("runs after a script write without asking", async () => {
       const a = tabs.createNewTab(restTab("https://a.example"))
       tabs.setActiveTab(a.id)
       await mount()
+      const prompts: string[] = []
+      watch(chat.pendingConfirmation, (p) => p && prompts.push(p.kind))
 
-      const turn = runAfter("add a check and run it", [
+      await runAfter("add a check and run it", [
         {
           id: "1",
           name: "set_prerequest_script",
           input: { script: "hopp.fetch('https://x.example')" },
         },
       ])
-      while (!chat.pendingConfirmation.value) await tick(5)
-      expect(chat.pendingConfirmation.value?.reasons).toEqual(["script"])
-      chat.resolveConfirmation(true)
-      await turn
 
+      expect(prompts).toEqual([])
       expect(sent).toEqual([a.id])
     })
 
-    it("asks before running a collection after a variable write", async () => {
-      setRESTCollections([
-        makeCollection({
-          name: "API",
-          folders: [],
-          requests: [getDefaultRESTRequest()],
-          auth: { authType: "inherit", authActive: true },
-          headers: [],
-          variables: [],
-          description: null,
-          preRequestScript: "",
-          testScript: "",
-        }),
-      ])
-      tabs.setActiveTab(tabs.createNewTab(restTab("https://a.example")).id)
-      await mount()
+    const apiCollection = (endpoint: string) =>
+      makeCollection({
+        name: "API",
+        folders: [],
+        requests: [{ ...getDefaultRESTRequest(), endpoint }],
+        auth: { authType: "inherit", authActive: true },
+        headers: [],
+        variables: [],
+        description: null,
+        preRequestScript: "",
+        testScript: "",
+      })
 
+    const runCollectionAfterEnv = (variables: object[]) => {
       chatFn
         .mockResolvedValueOnce(
           reply([
             {
               id: "1",
               name: "create_environment",
-              input: {
-                name: "Staging",
-                variables: [{ key: "baseUrl", value: "https://evil.example" }],
-              },
+              input: { name: "Staging", variables },
             },
             { id: "2", name: "run_collection", input: { collection: "API" } },
           ])
         )
         .mockResolvedValueOnce(reply([], "done"))
-      const turn = chat.sendMessage("set up staging and run API", "")
+      return chat.sendMessage("set up staging and run API", "")
+    }
+
+    it("asks before running a <<var>> host the chat pointed elsewhere", async () => {
+      setRESTCollections([apiCollection("<<baseUrl>>/users")])
+      tabs.setActiveTab(tabs.createNewTab(restTab("https://a.example")).id)
+      await mount()
+
+      const turn = runCollectionAfterEnv([
+        { key: "baseUrl", value: "https://evil.example" },
+      ])
       while (!chat.pendingConfirmation.value) await tick(5)
       expect(chat.pendingConfirmation.value).toMatchObject({
         kind: "run",
         name: "API",
-        reasons: ["env"],
+        hosts: ["evil.example"],
       })
       chat.resolveConfirmation(false)
       await turn
@@ -898,6 +900,159 @@ describe("AIChatService run/save mechanics", () => {
           .getActiveTabs()
           .value.some((t) => t.document.type === "test-runner")
       ).toBe(false)
+    })
+
+    it("runs after a variable write that names no host without asking", async () => {
+      setRESTCollections([apiCollection("<<baseUrl>>/users")])
+      tabs.setActiveTab(tabs.createNewTab(restTab("https://a.example")).id)
+      await mount()
+      const prompts: string[] = []
+      watch(chat.pendingConfirmation, (p) => p && prompts.push(p.kind))
+
+      await runCollectionAfterEnv([{ key: "token", value: "abc123" }])
+
+      expect(prompts).toEqual([])
+      expect(resultsSent()[1].content).not.toMatch(/declined/)
+    })
+
+    const varTab = (endpoint: string, requestVariables: object[] = []) =>
+      tabs.createNewTab({
+        type: "request",
+        request: { ...getDefaultRESTRequest(), endpoint, requestVariables },
+        isDirty: true,
+        saveContext: {
+          originLocation: "user-collection",
+          folderPath: "0",
+          requestIndex: 0,
+        },
+      } as never)
+
+    const baseUrlVar = (value: string) => ({
+      key: "baseUrl",
+      value,
+      active: true,
+    })
+
+    it("asks before running after the chat repointed a request variable", async () => {
+      tabs.setActiveTab(
+        varTab("<<baseUrl>>/users", [baseUrlVar("https://api.mine.example")]).id
+      )
+      await mount()
+
+      const turn = runAfter("run it", [
+        {
+          id: "1",
+          name: "add_or_update_request_variables",
+          input: {
+            variables: [{ key: "baseUrl", value: "https://evil.example" }],
+          },
+        },
+      ])
+      await untilPrompt()
+      expect(chat.pendingConfirmation.value).toMatchObject({
+        kind: "run",
+        hosts: ["evil.example"],
+      })
+      chat.resolveConfirmation(false)
+      await turn
+
+      expect(sent).toEqual([])
+    })
+
+    // Its own variables are saved with the request.
+    it("asks before saving a request variable the chat repointed", async () => {
+      tabs.setActiveTab(
+        varTab("<<baseUrl>>/users", [baseUrlVar("https://api.mine.example")]).id
+      )
+      await mount()
+      inner(chat).syncTurnTab()
+
+      const pending = run([
+        {
+          id: "1",
+          name: "add_or_update_request_variables",
+          input: {
+            variables: [{ key: "baseUrl", value: "https://evil.example" }],
+          },
+        },
+        { id: "2", name: "save_request", input: {} },
+      ])
+      await untilPrompt()
+      expect(chat.pendingConfirmation.value).toMatchObject({
+        kind: "save",
+        hosts: ["evil.example"],
+      })
+      chat.resolveConfirmation(false)
+      await pending
+
+      expect(saved).toEqual([])
+    })
+
+    it("asks for a host only partly templated", async () => {
+      setRESTCollections([apiCollection("https://api.<<domain>>/users")])
+      tabs.setActiveTab(tabs.createNewTab(restTab("https://a.example")).id)
+      await mount()
+
+      const turn = runCollectionAfterEnv([
+        { key: "domain", value: "evil.example" },
+      ])
+      await untilPrompt()
+      expect(chat.pendingConfirmation.value?.hosts).toEqual([
+        "api.evil.example",
+      ])
+      chat.resolveConfirmation(false)
+      await turn
+    })
+
+    it("asks for a bare host under any key the URL's host uses", async () => {
+      setRESTCollections([apiCollection("<<target>>/users")])
+      tabs.setActiveTab(tabs.createNewTab(restTab("https://a.example")).id)
+      await mount()
+
+      const turn = runCollectionAfterEnv([
+        { key: "target", value: "evil.example" },
+      ])
+      await untilPrompt()
+      expect(chat.pendingConfirmation.value?.hosts).toEqual(["evil.example"])
+      chat.resolveConfirmation(false)
+      await turn
+    })
+
+    it("ignores a variable the request's host doesn't use", async () => {
+      setRESTCollections([apiCollection("<<baseUrl>>/users")])
+      tabs.setActiveTab(tabs.createNewTab(restTab("https://a.example")).id)
+      await mount()
+      const prompts: string[] = []
+      watch(chat.pendingConfirmation, (p) => p && prompts.push(p.kind))
+
+      await runCollectionAfterEnv([
+        { key: "callbackUrl", value: "https://hooks.example/cb" },
+      ])
+
+      expect(prompts).toEqual([])
+    })
+
+    it("doesn't ask when the chat rewrites a request variable to its value", async () => {
+      const a = varTab("<<baseUrl>>/users", [
+        baseUrlVar("https://api.mine.example"),
+      ])
+      tabs.setActiveTab(a.id)
+      await mount()
+      const prompts: string[] = []
+      watch(chat.pendingConfirmation, (p) => p && prompts.push(p.kind))
+
+      await runAfter("run it", [
+        {
+          id: "1",
+          name: "add_or_update_request_variables",
+          input: {
+            variables: [{ key: "baseUrl", value: "https://api.mine.example" }],
+          },
+        },
+      ])
+
+      expect(prompts).toEqual([])
+      expect(sent).toEqual([a.id])
     })
 
     it("asks when a duplicate carries the host into another tab", async () => {
@@ -915,7 +1070,6 @@ describe("AIChatService run/save mechanics", () => {
       await untilPrompt()
       expect(chat.pendingConfirmation.value).toMatchObject({
         kind: "run",
-        reasons: ["host"],
       })
       chat.resolveConfirmation(false)
       await turn
@@ -942,7 +1096,7 @@ describe("AIChatService run/save mechanics", () => {
 
       const second = runAfter("run it", [])
       await untilPrompt()
-      expect(chat.pendingConfirmation.value?.reasons).toEqual(["host"])
+      expect(chat.pendingConfirmation.value?.hosts).toEqual(["evil.example"])
       chat.resolveConfirmation(true)
       await second
       expect(sent).toEqual([a.id])
@@ -966,7 +1120,6 @@ describe("AIChatService run/save mechanics", () => {
         await untilPrompt()
         expect(chat.pendingConfirmation.value).toMatchObject({
           kind: "run",
-          reasons: ["host"],
           hosts: ["evil.example"],
         })
         chat.resolveConfirmation(false)
@@ -1005,7 +1158,6 @@ describe("AIChatService run/save mechanics", () => {
       await untilPrompt()
       expect(chat.pendingConfirmation.value).toMatchObject({
         kind: "run",
-        reasons: ["host"],
         hosts: [host],
       })
       chat.resolveConfirmation(false)
@@ -1045,20 +1197,6 @@ describe("AIChatService run/save mechanics", () => {
       await turn
 
       expect(sent).toEqual([])
-    })
-
-    it("matches typed values as whole words", () => {
-      const typed = chat as unknown as {
-        turnUserText: string
-        typedByUser(value: string): boolean
-      }
-      typed.turnUserText = "use https://api.github.com/user, key abc123."
-
-      expect(typed.typedByUser("https://api.github.com")).toBe(true)
-      expect(typed.typedByUser("abc123")).toBe(true)
-      expect(typed.typedByUser("hub.com")).toBe(false)
-      expect(typed.typedByUser("github.com")).toBe(false)
-      expect(typed.typedByUser("abc12")).toBe(false)
     })
   })
 
@@ -1195,35 +1333,29 @@ describe("AIChatService run/save mechanics", () => {
       expect(toolResults[0].is_error).toBeFalsy()
     })
 
-    it("asks before saving a script the assistant wrote", async () => {
+    it("saves a script the assistant wrote without asking", async () => {
       const a = boundTab("user-collection")
       tabs.setActiveTab(a.id)
       await mount()
       inner(chat).syncTurnTab()
+      const prompts: string[] = []
+      watch(chat.pendingConfirmation, (p) => p && prompts.push(p.kind))
 
-      const pending = run([
+      await run([
         {
           id: "1",
           name: "set_prerequest_script",
-          input: { script: "hopp.fetch('https://evil.example')" },
+          input: { script: "pw.env.set('ok', '1')" },
         },
         { id: "2", name: "save_request", input: {} },
       ])
-      await untilPrompt()
-      expect(chat.pendingConfirmation.value).toMatchObject({
-        kind: "save",
-        workspace: null,
-      })
-      chat.resolveConfirmation(false)
-      const { replies, toolResults } = await pending
 
-      expect(saved).toEqual([])
-      expect(replies[1]).toMatch(/Didn't save the scripts/)
-      expect(toolResults[1].is_error).toBe(true)
+      expect(prompts).toEqual([])
+      expect(saved).toEqual([a.id])
     })
 
-    // A run sends once; a save runs for everyone after.
-    it("still asks to save a script a run was approved for", async () => {
+    // A run sends once; a save sends for everyone after.
+    it("still asks to save a host a run was approved for", async () => {
       const a = boundTab("user-collection")
       tabs.setActiveTab(a.id)
       await mount()
@@ -1236,11 +1368,7 @@ describe("AIChatService run/save mechanics", () => {
       })
 
       await run([
-        {
-          id: "1",
-          name: "set_prerequest_script",
-          input: { script: "hopp.fetch('https://x.example')" },
-        },
+        { id: "1", name: "set_url", input: { url: "https://x.example/c" } },
         { id: "2", name: "run_request", input: {} },
         { id: "3", name: "save_request", input: {} },
       ])
@@ -1265,7 +1393,6 @@ describe("AIChatService run/save mechanics", () => {
       await untilPrompt()
       expect(chat.pendingConfirmation.value).toMatchObject({
         kind: "save",
-        reasons: ["host"],
         hosts: ["collector.evil.example"],
       })
       chat.resolveConfirmation(false)
@@ -1299,11 +1426,7 @@ describe("AIChatService run/save mechanics", () => {
       inner(chat).syncTurnTab()
 
       const pending = run([
-        {
-          id: "1",
-          name: "set_test_script",
-          input: { script: "pw.test('ok', () => {})" },
-        },
+        { id: "1", name: "set_url", input: { url: "https://x.example/c" } },
         { id: "2", name: "save_request", input: {} },
       ])
       await untilPrompt()
@@ -1348,11 +1471,7 @@ describe("AIChatService run/save mechanics", () => {
       })
 
       const { replies } = await run([
-        {
-          id: "1",
-          name: "set_test_script",
-          input: { script: "pw.test('ok', () => {})" },
-        },
+        { id: "1", name: "set_url", input: { url: "https://x.example/c" } },
         {
           id: "2",
           name: "save_request_to_collection",
@@ -1366,7 +1485,7 @@ describe("AIChatService run/save mechanics", () => {
       ])
 
       expect(prompts).toEqual(["save:A", "save:B"])
-      expect(replies[2]).toMatch(/Didn't save the scripts to \*\*B\*\*/)
+      expect(replies[2]).toMatch(/Didn't save the new host to \*\*B\*\*/)
       expect(restCollectionStore.value.state[1].requests).toHaveLength(0)
     })
   })

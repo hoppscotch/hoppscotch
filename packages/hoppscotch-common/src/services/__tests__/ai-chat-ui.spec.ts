@@ -300,18 +300,14 @@ describe("AI assistant UI", () => {
 
     it("labels every confirmation with a string that exists", async () => {
       await openPane()
-      const prompts: Array<
-        Pick<PendingConfirmation, "kind" | "reasons" | "hosts">
-      > = [
+      const prompts: Array<Pick<PendingConfirmation, "kind" | "hosts">> = [
         { kind: "collection" },
         { kind: "mock-server" },
-        { kind: "run", reasons: ["host", "script", "env"] },
-        { kind: "run", reasons: ["host"], hosts: ["a.example"] },
+        { kind: "run", hosts: ["a.example"] },
         { kind: "publish-docs" },
         { kind: "unpublish-docs" },
         { kind: "public-mock-server" },
-        { kind: "save", reasons: ["script"] },
-        { kind: "save", reasons: ["host", "script"], hosts: ["a.example"] },
+        { kind: "save", hosts: ["a.example", "b.example"] },
       ]
 
       for (const prompt of prompts) {
@@ -325,7 +321,7 @@ describe("AI assistant UI", () => {
           ...prompt,
         }
         await nextTick()
-        // Every key the title, its reasons and the button asked for.
+        // Every key the title and the button asked for.
         expect(i18n.keys.length).toBeGreaterThan(0)
         for (const key of i18n.keys)
           expect(hasString(key), `${prompt.kind}: ${key}`).toBe(true)
@@ -341,7 +337,6 @@ describe("AI assistant UI", () => {
           kind,
           name: "A",
           workspace: null,
-          reasons: ["host"],
           hosts: ["collector.evil.example"],
           resolve: () => {},
         }

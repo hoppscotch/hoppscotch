@@ -560,17 +560,9 @@ const matchingSkills = computed(() =>
 // nothing would ever settle it and the turn would hang.
 onBeforeUnmount(() => chat.resolveConfirmation(false))
 
-/** What the chat changed, naming a new host: nothing else on screen may. */
-const describeReasons = (pending: PendingConfirmation) =>
-  (pending.reasons ?? [])
-    .map((reason) =>
-      reason === "host" && pending.hosts?.length
-        ? t("ai_experiments.run_reason_host_named", {
-            host: pending.hosts.join(", "),
-          })
-        : t(`ai_experiments.run_reason_${reason}`)
-    )
-    .join(", ")
+/** The new hosts, named: nothing else on screen may. */
+const hostList = (pending: PendingConfirmation) =>
+  (pending.hosts ?? []).join(", ")
 
 const confirmTitle = computed(() => {
   const pending = chat.pendingConfirmation.value
@@ -578,7 +570,7 @@ const confirmTitle = computed(() => {
   if (pending.kind === "run") {
     return t("ai_experiments.confirm_run", {
       name: pending.name,
-      reasons: describeReasons(pending),
+      hosts: hostList(pending),
     })
   }
   if (pending.kind === "publish-docs") {
@@ -607,16 +599,11 @@ const confirmTitle = computed(() => {
   // Names the workspace: a delete must not land in one the user left.
   const workspace = pending.workspace ?? t("workspace.personal")
   if (pending.kind === "save") {
-    return pending.reasons?.includes("host")
-      ? t("ai_experiments.confirm_save", {
-          name: pending.name,
-          workspace,
-          reasons: describeReasons(pending),
-        })
-      : t("ai_experiments.confirm_save_script", {
-          name: pending.name,
-          workspace,
-        })
+    return t("ai_experiments.confirm_save", {
+      name: pending.name,
+      workspace,
+      hosts: hostList(pending),
+    })
   }
   return pending.kind === "collection"
     ? t("ai_experiments.confirm_delete_collection", {

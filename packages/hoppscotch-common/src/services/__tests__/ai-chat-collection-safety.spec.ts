@@ -125,7 +125,7 @@ type Internals = {
   runCollection(name: string, environment?: string): Promise<string>
   selectEnv(name: string): Promise<string>
   addEnvVars(variables: unknown): Promise<string>
-  chatRisks: { env: boolean }
+  chatRisks: { hosts: Set<string> }
   setRequestDescription(
     description: string,
     reqName?: string,
@@ -415,20 +415,15 @@ describe("AIChatService collection safety", () => {
         { key: "X-Unsaved", value: "1", active: true, description: "" },
       ]
 
-      const { reply, prompt } = await prompted(
-        chat,
-        () =>
-          inner(chat).upsertCollectionRequests("C", [
-            {
-              name: "login",
-              method: "GET",
-              url: "https://api.example/login",
-              testScript: "pw.test('ok', () => {})",
-            },
-          ]),
-        true
-      )
-      expect(prompt).toMatchObject({ kind: "save", name: "C" })
+      const reply = await inner(chat).upsertCollectionRequests("C", [
+        {
+          name: "login",
+          method: "GET",
+          url: "https://api.example/login",
+          testScript: "pw.test('ok', () => {})",
+        },
+      ])
+      expect(chat.pendingConfirmation.value).toBeNull()
 
       const after = tabs.getTabRef(tab.id).value.document
       if (after.type !== "request") throw new Error("not a request tab")
@@ -461,47 +456,35 @@ describe("AIChatService collection safety", () => {
     })
   })
 
-  describe("scripts that persist ask first", () => {
-    it("set_collection_properties writes no script the user declined", async () => {
+  describe("hosts that persist ask first", () => {
+    it("set_collection_properties writes a script without asking", async () => {
       setRESTCollections([collection("API")])
 
-      const { reply, prompt } = await prompted(
-        chat,
-        () =>
-          inner(chat).setCollectionProperties("API", {
-            pre_request_script: EVIL,
-          }),
-        false
-      )
+      await inner(chat).setCollectionProperties("API", {
+        pre_request_script: EVIL,
+      })
 
-      expect(prompt).toMatchObject({ kind: "save", name: "API" })
-      expect(reply).toContain("Didn't save the scripts")
-      expect(restCollectionStore.value.state[0].preRequestScript).toBe("")
+      expect(chat.pendingConfirmation.value).toBeNull()
+      expect(restCollectionStore.value.state[0].preRequestScript).toBe(EVIL)
     })
 
-    it("add_or_update_collection_requests writes nothing the user declined", async () => {
+    it("add_or_update_collection_requests writes a script without asking", async () => {
       setRESTCollections([collection("API")])
 
-      const { reply, prompt } = await prompted(
-        chat,
-        () =>
-          inner(chat).upsertCollectionRequests("API", [
-            {
-              name: "login",
-              method: "GET",
-              url: "https://api.example/login",
-              preRequestScript: EVIL,
-            },
-          ]),
-        false
-      )
+      await inner(chat).upsertCollectionRequests("API", [
+        {
+          name: "login",
+          method: "GET",
+          url: "https://api.example/login",
+          preRequestScript: EVIL,
+        },
+      ])
 
-      expect(prompt).toMatchObject({ kind: "save", name: "API" })
-      expect(reply).toContain("Didn't save the scripts")
-      expect(restCollectionStore.value.state[0].requests).toHaveLength(0)
+      expect(chat.pendingConfirmation.value).toBeNull()
+      expect(restCollectionStore.value.state[0].requests).toHaveLength(1)
     })
 
-    it("doesn't ask for requests without a new script", async () => {
+    it("doesn't ask for a new collection's first requests", async () => {
       setRESTCollections([collection("API")])
 
       await inner(chat).upsertCollectionRequests("API", [
@@ -531,7 +514,6 @@ describe("AIChatService collection safety", () => {
 
       expect(prompt).toMatchObject({
         kind: "save",
-        reasons: ["host"],
         hosts: ["collector.evil.example"],
       })
       expect(reply).toContain("Didn't save the new host")
@@ -971,35 +953,17 @@ describe("AIChatService collection safety", () => {
       expect(teamApi.updateTeamCollection).not.toHaveBeenCalled()
     })
 
-    it("set_collection_properties asks before syncing a script", async () => {
+    it("set_collection_properties syncs a script without asking", async () => {
       teamCollections.collections.value = [teamNode("r1", "API")]
       teamApi.updateTeamCollection.mockReturnValue(
         right({ updateCollection: { id: "r1" } })
       )
 
-      const declined = await prompted(
-        chat,
-        () =>
-          inner(chat).setCollectionProperties("API", {
-            pre_request_script: EVIL,
-          }),
-        false
-      )
-      expect(declined.prompt).toMatchObject({
-        kind: "save",
-        name: "API",
-        workspace: "Acme",
+      await inner(chat).setCollectionProperties("API", {
+        pre_request_script: EVIL,
       })
-      expect(teamApi.updateTeamCollection).not.toHaveBeenCalled()
 
-      await answering(
-        chat,
-        () =>
-          inner(chat).setCollectionProperties("API", {
-            pre_request_script: EVIL,
-          }),
-        true
-      )
+      expect(chat.pendingConfirmation.value).toBeNull()
       expect(teamApi.updateTeamCollection).toHaveBeenCalledWith(
         "r1",
         expect.objectContaining({ preRequestScript: EVIL })
@@ -1043,7 +1007,6 @@ describe("AIChatService collection safety", () => {
       expect(declined.prompt).toMatchObject({
         kind: "save",
         name: "API",
-        reasons: ["host"],
         hosts: ["evil.example"],
       })
       expect(declined.reply).toContain("Didn't save the new host")
@@ -1205,8 +1168,8 @@ describe("AIChatService collection safety", () => {
         .spyOn(runner, "runTests")
         .mockImplementation(() => undefined as never)
       inner(chat).pinWorkspace()
-      // A variable the chat wrote earlier: the run asks first.
-      inner(chat).chatRisks.env = true
+      // A host the chat set earlier: the run asks first.
+      inner(chat).chatRisks.hosts.add("api.example")
 
       const done = inner(chat).runCollection("API")
       for (let i = 0; i < 50 && !chat.pendingConfirmation.value; i++)

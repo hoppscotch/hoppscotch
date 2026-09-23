@@ -35,7 +35,7 @@
         @click="selectRequest()"
       >
         <span
-          class="pointer-events-none flex w-8 items-center justify-start truncate px-0.5"
+          class="pointer-events-none flex min-w-10 shrink-0 items-center justify-start truncate px-0.5"
           :style="{
             color: isGQL
               ? undefined
@@ -59,7 +59,7 @@
           </span>
         </span>
         <span
-          class="pointer-events-none flex min-w-0 flex-1 items-center py-2 pr-2 transition group-hover:text-secondaryDark"
+          class="pointer-events-none flex min-w-0  flex-1 items-center py-2 pr-2 transition group-hover:text-secondaryDark"
         >
           <span class="truncate" :class="{ 'text-accent': isSelected }">
             {{ request.name }}

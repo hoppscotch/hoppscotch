@@ -1,5 +1,4 @@
-import { computed, ref, watch, watchEffect } from "vue"
-import { tryOnScopeDispose } from "@vueuse/core"
+import { computed, ref, shallowRef, watch, watchEffect } from "vue"
 import { useService } from "dioc/vue"
 import type {
   Environment,
@@ -25,6 +24,7 @@ import { teamCollToHoppRESTColl } from "~/helpers/backend/helpers"
 import { truncateText } from "~/helpers/aichat/context-serializers"
 import { isActionBound } from "~/helpers/actions"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
+import type { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import type { TeamAccessRole } from "~/helpers/backend/graphql"
 import type { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import type { HoppTabDocument } from "~/helpers/tab/document"
@@ -36,7 +36,9 @@ export type { ChatContextItem }
 // Every character here is re-sent on each model round-trip, so the caps are
 // deliberately tight — the model asks for more when it needs it.
 const BODY_CHARS = 1000
-const HEADER_VALUE_CHARS = 120
+const PAIR_VALUE_CHARS = 120
+// URL-bar query strings stay in the endpoint, not the params table.
+const URL_CHARS = 2000
 const MAX_RESPONSE_HEADERS = 12
 const MAX_ENV_NAMES = 20
 
@@ -50,18 +52,16 @@ type Mask = (text: string) => string
 const clip = (value: string, max: number, mask: Mask) =>
   truncateText(mask(value), max)
 
-const headerLines = (
-  headers: Array<{ key: string; value: string }>,
-  mask: Mask
-) =>
-  headers
-    .map((h) => `- ${h.key}: ${clip(h.value, HEADER_VALUE_CHARS, mask)}`)
+/** Header or query-param lines, each value capped. */
+const pairLines = (pairs: Array<{ key: string; value: string }>, mask: Mask) =>
+  pairs
+    .map((p) => `- ${p.key}: ${clip(p.value, PAIR_VALUE_CHARS, mask)}`)
     .join("\n")
 
 const serializeRequest = (req: HoppRESTRequest, mask: Mask): string => {
   const lines: string[] = [
     "### Current request",
-    `${req.method} ${req.endpoint}`,
+    `${req.method} ${clip(req.endpoint, URL_CHARS, mask)}`,
   ]
 
   if (req.description?.trim()) {
@@ -70,14 +70,12 @@ const serializeRequest = (req: HoppRESTRequest, mask: Mask): string => {
 
   const params = (req.params ?? []).filter((p) => p.active && p.key)
   if (params.length) {
-    lines.push(
-      "Query params:\n" + params.map((p) => `- ${p.key}: ${p.value}`).join("\n")
-    )
+    lines.push("Query params:\n" + pairLines(params, mask))
   }
 
   const headers = (req.headers ?? []).filter((h) => h.active && h.key)
   if (headers.length) {
-    lines.push("Headers:\n" + headerLines(headers, mask))
+    lines.push("Headers:\n" + pairLines(headers, mask))
   }
 
   if (
@@ -116,7 +114,7 @@ const serializeResponse = (res: HoppRESTResponse, mask: Mask): string => {
     .filter((h: { key: string; value: string }) => h.key)
     .slice(0, MAX_RESPONSE_HEADERS)
   if (headers.length) {
-    lines.push("Headers:\n" + headerLines(headers, mask))
+    lines.push("Headers:\n" + pairLines(headers, mask))
   }
 
   let bodyText = ""
@@ -139,12 +137,12 @@ const serializeGQLRequest = (
 ): string => {
   const lines: string[] = [
     "### Current request (GraphQL)",
-    `POST ${req.url || "—"}`,
+    `POST ${req.url ? clip(req.url, URL_CHARS, mask) : "—"}`,
   ]
 
   const headers = (req.headers ?? []).filter((h) => h.active && h.key)
   if (headers.length) {
-    lines.push("Headers:\n" + headerLines(headers, mask))
+    lines.push("Headers:\n" + pairLines(headers, mask))
   }
 
   if (
@@ -294,23 +292,29 @@ export function useChatContext(active: () => boolean = () => true) {
     workspaceService.acquireTeamListAdapter(null).teamList$,
     []
   )
-  const teamEnvAdapter = new TeamEnvironmentAdapter(undefined)
-  const teamEnvironments = useReadonlyStream(
-    teamEnvAdapter.teamEnvironmentList$,
-    []
-  )
-  // The adapter opens GraphQL subscriptions per team — drop them with the
-  // component so a remounted layout does not double-subscribe.
-  tryOnScopeDispose(() => teamEnvAdapter.unsubscribeSubscriptions())
+  const teamEnvironments = shallowRef<TeamEnvironment[]>([])
   const teamCollectionService = useService(TeamCollectionsService)
   // Only pages/index.vue binds this; elsewhere its tabs are hidden.
   const onWorkspacePage = isActionBound("rest.request.open")
+  // One adapter per team: a stale fetch can't publish here or subscribe.
   watch(
     () => {
       const ws = workspaceService.currentWorkspace.value
       return active() && ws.type === "team" ? ws.teamID : undefined
     },
-    (teamID) => teamEnvAdapter.changeTeamID(teamID),
+    (teamID, _, onCleanup) => {
+      teamEnvironments.value = []
+      if (!teamID) return
+      const adapter = new TeamEnvironmentAdapter(teamID)
+      const sub = adapter.teamEnvironmentList$.subscribe(
+        (list) => (teamEnvironments.value = [...list])
+      )
+      // Runs on unmount too; with no team set, a late fetch won't subscribe.
+      onCleanup(() => {
+        sub.unsubscribe()
+        adapter.changeTeamID(undefined)
+      })
+    },
     { immediate: true }
   )
 

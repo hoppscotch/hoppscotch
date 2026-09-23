@@ -24,6 +24,7 @@ const service = getService(TestRunnerService)
 afterEach(() => {
   currentValues.environments.clear()
   secretEnvs.secretEnvironments.clear()
+  vi.restoreAllMocks()
 })
 
 const planCollection = (collection: unknown, parentVariables: unknown[] = []) =>
@@ -372,14 +373,12 @@ describe("TestRunnerService.getTestResultInfo — pass/fail counting", () => {
       }) as any
 
       let finishRun: (() => void) | undefined
-      const run = vi
-        .spyOn(service as any, "runTestIterations")
-        .mockImplementation(
-          () =>
-            new Promise<void>((resolve) => {
-              finishRun = resolve
-            })
-        )
+      vi.spyOn(service as any, "runTestIterations").mockImplementation(
+        () =>
+          new Promise<void>((resolve) => {
+            finishRun = resolve
+          })
+      )
 
       service.runTests(tab, collection, {
         iterations: 1,
@@ -397,7 +396,6 @@ describe("TestRunnerService.getTestResultInfo — pass/fail counting", () => {
       await new Promise((resolve) => setTimeout(resolve, 0))
 
       expect(service.stopRun("cancellable-runner")).toBe(false)
-      run.mockRestore()
     })
   })
 

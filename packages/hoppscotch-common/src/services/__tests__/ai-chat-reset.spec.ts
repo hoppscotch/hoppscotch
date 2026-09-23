@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { TestContainer } from "dioc/testing"
 import * as E from "fp-ts/Either"
 
@@ -31,7 +31,14 @@ const deferred = () => {
   return { promise, resolve }
 }
 
-const tick = (ms = 0) => new Promise((r) => setTimeout(r, ms))
+/** Runs one TYPING_TICK_MS frame (fake timers); returns the part-typed reply. */
+const firstFrame = async (chat: AIChatService) => {
+  await vi.advanceTimersByTimeAsync(16)
+  const typing = chat.messages.value.at(-1)
+  expect(typing?.pending).toBe(true)
+  expect(typing?.content).not.toBe("")
+  return typing!
+}
 
 /** Reaches past `private` to assert the security properties directly. */
 type Internals = {
@@ -51,6 +58,10 @@ describe("AIChatService teardown", () => {
   beforeEach(() => {
     chatFn.mockReset()
     chat = new TestContainer().bind(AIChatService)
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   describe("clear vs reset", () => {
@@ -148,14 +159,19 @@ describe("AIChatService teardown", () => {
     })
 
     it("stops streaming text into a conversation that is gone", async () => {
+      vi.useFakeTimers()
       chatFn.mockResolvedValue(
         E.right({ content: "one two three four five six", tool_calls: [] })
       )
       const turn = chat.sendMessage("hello", "")
-      await tick(12) // inside streamText's first frame
+      const typing = await firstFrame(chat)
+      const shown = typing.content
+
       chat.reset()
+      await vi.runAllTimersAsync()
       await turn
 
+      expect(typing.content).toBe(shown)
       expect(chat.messages.value).toEqual([])
       expect(chat.lastTurnStatus.value).toBe("idle")
     })
@@ -201,10 +217,15 @@ describe("AIChatService teardown", () => {
       const saved = platform.experiments!.aiExperiments!.chat
       platform.experiments!.aiExperiments!.chat = undefined
       try {
+        vi.useFakeTimers()
         const turn = chat.sendMessage("set the url to https://example.com", "")
-        await tick(12)
+        const typing = await firstFrame(chat)
+        const shown = typing.content
+
         chat.reset()
+        await vi.runAllTimersAsync()
         await turn
+        expect(typing.content).toBe(shown)
         expect(chat.lastTurnStatus.value).toBe("idle")
         expect(chat.messages.value).toEqual([])
       } finally {

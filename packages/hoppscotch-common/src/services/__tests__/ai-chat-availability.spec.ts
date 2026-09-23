@@ -196,6 +196,7 @@ describe("AIChatService availability and errors", () => {
       const done = run("delete_collection", { collection: "Payments" })
       for (let i = 0; i < 50 && !chat.pendingConfirmation.value; i++)
         await tick()
+      expect(chat.pendingConfirmation.value).not.toBeNull()
       chat.resolveConfirmation(true)
       const [result] = (await done).toolResults
 

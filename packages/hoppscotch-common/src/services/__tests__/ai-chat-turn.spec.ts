@@ -56,6 +56,12 @@ const deferred = <T = unknown>() => {
 }
 const tick = (ms = 0) => new Promise((r) => setTimeout(r, ms))
 
+/** Polls until `ready` holds; fails fast when it never does. */
+const until = async (ready: () => unknown) => {
+  for (let i = 0; i < 100 && !ready(); i++) await tick(5)
+  expect(ready()).toBeTruthy()
+}
+
 const reply = (tool_calls: ToolCall[], content = "") =>
   E.right({ content, tool_calls, trace_id: "t" })
 
@@ -221,7 +227,7 @@ describe("AIChatService turn lifecycle", () => {
         [{ id: "1", name: "delete_mock_server", input: { name: "Orders" } }],
         inner(chat).turnGeneration
       )
-      while (!chat.pendingConfirmation.value) await tick(5)
+      await until(() => chat.pendingConfirmation.value)
       expect(chat.pendingConfirmation.value).toMatchObject({
         kind: "mock-server",
         name: "Orders Mock",
@@ -274,7 +280,7 @@ describe("AIChatService turn lifecycle", () => {
         ])
       )
       const turn = chat.sendMessage("drop Staging, make it a DELETE", "")
-      while (!chat.pendingConfirmation.value) await tick(5)
+      await until(() => chat.pendingConfirmation.value)
 
       chat.stop()
       await turn
@@ -299,7 +305,7 @@ describe("AIChatService turn lifecycle", () => {
         reply([{ id: "1", name: "delete_mock_server", input: { name: "M" } }])
       )
       const turn = chat.sendMessage("delete mock server M", "")
-      while (!mockServers.mock.calls.length) await tick(5)
+      await until(() => mockServers.mock.calls.length)
       return { turn, servers }
     }
 
@@ -327,7 +333,7 @@ describe("AIChatService turn lifecycle", () => {
         ])
       )
       const live = chat.sendMessage("drop Staging", "")
-      while (!chat.pendingConfirmation.value) await tick(5)
+      await until(() => chat.pendingConfirmation.value)
 
       servers.resolve(E.right([{ id: "m1", name: "M" }]))
       await turn

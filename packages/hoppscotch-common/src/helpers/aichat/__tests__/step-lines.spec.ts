@@ -98,6 +98,45 @@ describe("parseStepLines", () => {
     expect(steps[0].text).toBe("Set the body:\n```\n\u2705 ok\n```")
   })
 
+  it.each([
+    ["the other marker", "```\n~~~\n✅ ok\n```"],
+    ["a shorter run", "````\n```\n✅ ok\n````"],
+    ["an info string", "```\n```js\n✅ ok\n```"],
+  ])("does not close a fence on %s", (_name, block) => {
+    const steps = parseStepLines(`✓ Set the body:\n${block}`)
+    expect(steps).toHaveLength(1)
+    expect(steps[0].text).toBe(`Set the body:\n${block}`)
+  })
+
+  it("reads glyphs again once the matching fence closes", () => {
+    const kinds = (content: string) =>
+      parseStepLines(content).map((s) => s.kind)
+    expect(kinds("✓ Body:\n~~~\n```\n~~~~\n✅ ok")).toEqual([
+      "done",
+      "verified",
+    ])
+    expect(kinds("✓ Body:\r\n```\r\n✅ in\r\n```\r\n❌ bad")).toEqual([
+      "done",
+      "error",
+    ])
+  })
+
+  it("does not open a fence on inline code", () => {
+    const kinds = (content: string) =>
+      parseStepLines(content).map((s) => s.kind)
+    expect(kinds("✓ A:\n```a```\n✅ ok")).toEqual(["done", "verified"])
+    expect(kinds("✓ A:\n```a```\n✅ ok\n```js\n❌ bad\n```\n⚠️ w")).toEqual([
+      "done",
+      "verified",
+      "warn",
+    ])
+    // A tilde info string may hold a backtick.
+    expect(kinds("✓ A:\n~~~ `x`\n✅ in\n~~~\n❌ bad")).toEqual([
+      "done",
+      "error",
+    ])
+  })
+
   it("handles a bare glyph and CRLF line endings", () => {
     expect(parseStepLines("\u26A0\uFE0F")).toEqual([
       { kind: "warn", tone: "warning", text: "" },

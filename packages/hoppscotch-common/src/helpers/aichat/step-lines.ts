@@ -80,8 +80,21 @@ const GLYPH_TABLE = GLYPHS.map(
   ([glyph, kind]) => [stripSelector(glyph), kind] as const
 )
 
-/** Opens or closes a fenced code block. */
-const FENCE = /^\s*(?:```|~~~)/
+/** A fence line: its marker run, then any info string. */
+const FENCE = /^\s*(`{3,}|~{3,})(.*)/
+
+/** The fence still open after `line`, given the one open before it. */
+const nextFence = (line: string, open: string | null): string | null => {
+  const m = FENCE.exec(line)
+  if (!m) return open
+  const [, marker, rest] = m
+  // A backtick info string can't hold a backtick; that line is inline code.
+  if (!open) return marker[0] === "`" && rest.includes("`") ? null : marker
+  // Only the same character, at least as long and bare, closes the block.
+  const closes =
+    marker[0] === open[0] && marker.length >= open.length && !rest.trim()
+  return closes ? null : open
+}
 
 const TONES: Record<StepKind, StepTone> = {
   done: "accent",
@@ -135,10 +148,11 @@ const matchGlyph = (line: string): { kind: StepKind; text: string } | null => {
  */
 export const parseStepLines = (content: string): StepLine[] => {
   const steps: StepLine[] = []
-  let inFence = false
+  let fence: string | null = null
   let open: StepLine | null = null
   for (const raw of content.split("\n")) {
-    if (FENCE.test(raw)) inFence = !inFence
+    fence = nextFence(raw, fence)
+    const inFence = fence !== null
     // Inside a fenced block a leading glyph is code, not a new step.
     const matched = inFence ? null : matchGlyph(raw)
     if (matched) {

@@ -210,9 +210,7 @@
     "save_to_collection": "儲存到集合",
     "select": "選擇一個集合",
     "select_location": "選擇位置",
-    "details": "Details",
-    "select_team": "選擇一個團隊",
-    "team_collections": "團隊集合"
+    "details": "Details"
   },
   "confirm": {
     "close_unsaved_tab": "您確定要關閉此分頁嗎？",
@@ -293,8 +291,7 @@
     "team_name": "團隊名稱為空",
     "teams": "團隊為空",
     "tests": "沒有針對該請求的測試",
-    "access_tokens": "Access tokens are empty",
-    "shortcodes": "Shortcodes 為空"
+    "access_tokens": "Access tokens are empty"
   },
   "environment": {
     "add_to_global": "新增至全域",
@@ -383,8 +380,7 @@
     "secret_gist_success": "Successfully exported as secret Gist",
     "require_github": "使用 GitHub 登入以建立私密 Gist",
     "title": "匯出",
-    "success": "Successfully exported",
-    "gist_created": "已建立 Gist"
+    "success": "Successfully exported"
   },
   "filter": {
     "all": "全部",
@@ -474,8 +470,8 @@
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment from a JSON file",
     "title": "匯入",
-    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of 10MB. Only the first {files} selected will be imported",
-    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of 10MB. Please select another file.",
+    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of {sizeLimit}MB. Only the first {files} selected will be imported",
+    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of {sizeLimit}MB. Please select another file.",
     "success": "Successfully imported"
   },
   "inspections": {
@@ -633,8 +629,7 @@
     "url": "網址",
     "url_placeholder": "Enter a URL or paste a cURL command",
     "variables": "變數",
-    "view_my_links": "檢視我的連結",
-    "copy_link": "複製連結"
+    "view_my_links": "檢視我的連結"
   },
   "response": {
     "audio": "音訊",
@@ -779,8 +774,7 @@
       "send_request": "傳送請求",
       "share_request": "分享請求",
       "show_code": "產生程式碼片段",
-      "title": "請求",
-      "copy_request_link": "複製請求連結"
+      "title": "請求"
     },
     "response": {
       "copy": "複製回應至剪貼簿",
@@ -950,8 +944,7 @@
     "github": "在 GitHub 關注我們",
     "shortcuts": "更快瀏覽應用程式",
     "title": "支援",
-    "twitter": "在 Twitter 關注我們",
-    "team": "與團隊保持聯絡"
+    "twitter": "在 Twitter 關注我們"
   },
   "tab": {
     "authorization": "授權",
@@ -976,7 +969,6 @@
     "share_tab_request": "Share tab request",
     "socketio": "Socket.IO",
     "sse": "SSE",
-    "tests": "測試",
     "types": "類型",
     "variables": "變數",
     "websocket": "WebSocket"
@@ -1000,10 +992,10 @@
     "invite": "邀請",
     "invite_more": "邀請更多",
     "invite_tooltip": "邀請他人到這個工作區",
-    "invited_to_team": "{owner} 邀請您加入 {team}",
+    "invited_to_team": "{owner} 邀請您加入 {workspace}",
     "join": "已接受邀請",
-    "join_team": "加入 {team}",
-    "joined_team": "您已加入 {team}",
+    "join_team": "加入 {workspace}",
+    "joined_team": "您已加入 {workspace}",
     "joined_team_description": "您現在是這個團隊的成員",
     "left": "您已離開團隊",
     "login_to_continue": "登入以繼續",
@@ -1038,8 +1030,7 @@
     "we_sent_invite_link_description": "請所有受邀者檢查他們的收件匣。點擊連結加入團隊。",
     "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of Hoppscotch. Please use the Copy link button to copy and share the invite link manually.",
     "copy_invite_link": "Copy Invite Link",
-    "search_title": "Team Requests",
-    "join_beta": "加入 Beta 計畫以存取團隊。"
+    "search_title": "Team Requests"
   },
   "team_environment": {
     "deleted": "已刪除環境",
@@ -1109,14 +1100,5 @@
     "cli_command_generation_description_sh": "Copy the below command and run it from the CLI. Please specify a personal access token and verify the generated SH instance server URL.",
     "cli_command_generation_description_sh_with_server_url_placeholder": "Copy the below command and run it from the CLI. Please specify a personal access token and the SH instance server URL.",
     "run_collection": "Run collection"
-  },
-  "shortcodes": {
-    "actions": "操作",
-    "created_on": "建立於",
-    "deleted": "已刪除快捷碼",
-    "method": "方法",
-    "not_found": "找不到快捷碼",
-    "short_code": "快捷碼",
-    "url": "網址"
   }
 }

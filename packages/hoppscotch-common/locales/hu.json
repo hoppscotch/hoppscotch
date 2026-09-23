@@ -194,9 +194,7 @@
     "save_to_collection": "Mentés egy gyűjteménybe",
     "select": "Gyűjtemény kiválasztása",
     "select_location": "Hely kiválasztása",
-    "details": "Details",
-    "select_team": "Csapat kiválasztása",
-    "team_collections": "Csapat gyűjteményei"
+    "details": "Details"
   },
   "confirm": {
     "close_unsaved_tab": "Biztos, hogy bezárja ezt a lapot?",
@@ -277,8 +275,7 @@
     "team_name": "A csapat neve üres",
     "teams": "Ön nem tartozik semmilyen csapathoz",
     "tests": "Nincsenek tesztek ehhez a kéréshez",
-    "access_tokens": "Access tokens are empty",
-    "shortcodes": "A rövid kódok üresek"
+    "access_tokens": "Access tokens are empty"
   },
   "environment": {
     "add_to_global": "Hozzáadás a globálishoz",
@@ -367,8 +364,7 @@
     "secret_gist_success": "Successfully exported as secret Gist",
     "require_github": "Jelentkezzen be GitHub használatával a titkos Gist létrehozásához",
     "title": "Exportálás",
-    "success": "Successfully exported",
-    "gist_created": "Gist létrehozva"
+    "success": "Successfully exported"
   },
   "filter": {
     "all": "Összes",
@@ -458,8 +454,8 @@
     "postman_environment": "Postman környezet",
     "postman_environment_description": "Postman környezet importálása  JSON fájlból",
     "title": "Importálás",
-    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of 10MB. Only the first {files} selected will be imported",
-    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of 10MB. Please select another file.",
+    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of {sizeLimit}MB. Only the first {files} selected will be imported",
+    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of {sizeLimit}MB. Please select another file.",
     "success": "Successfully imported"
   },
   "inspections": {
@@ -617,8 +613,7 @@
     "url": "URL",
     "url_placeholder": "Enter a URL or paste a cURL command",
     "variables": "Változók",
-    "view_my_links": "Saját hivatkozások megtekintése",
-    "copy_link": "Hivatkozás másolása"
+    "view_my_links": "Saját hivatkozások megtekintése"
   },
   "response": {
     "audio": "Hang",
@@ -763,8 +758,7 @@
       "send_request": "Kérés elküldése",
       "share_request": "Kérés megosztása",
       "show_code": "Kódrészlet generálása",
-      "title": "Kérés",
-      "copy_request_link": "Kérés hivatkozásának másolása"
+      "title": "Kérés"
     },
     "response": {
       "copy": "Válasz másolása a vágólapra",
@@ -934,8 +928,7 @@
     "github": "Kövessen minket GitHubon",
     "shortcuts": "Az alkalmazás gyorsabb böngészése",
     "title": "Támogatás",
-    "twitter": "Kövessen minket Twitteren",
-    "team": "Vegye fel a kapcsolatot a csapattal"
+    "twitter": "Kövessen minket Twitteren"
   },
   "tab": {
     "authorization": "Azonosítás",
@@ -960,7 +953,6 @@
     "share_tab_request": "Share tab request",
     "socketio": "Socket.IO",
     "sse": "SSE",
-    "tests": "Tesztek",
     "types": "Típusok",
     "variables": "Változók",
     "websocket": "WebSocket"
@@ -984,10 +976,10 @@
     "invite": "Meghívás",
     "invite_more": "Továbbiak meghívása",
     "invite_tooltip": "Emberek meghívása erre a munkaterületre",
-    "invited_to_team": "{owner} meghívta Önt, hogy csatlakozzon ehhez a csapathoz: {team}",
+    "invited_to_team": "{owner} meghívta Önt, hogy csatlakozzon ehhez a csapathoz: {workspace}",
     "join": "Meghívás elfogadva",
-    "join_team": "Csatlakozás ehhez: {team}",
-    "joined_team": "Ön csatlakozott ehhez a csapathoz: {team}",
+    "join_team": "Csatlakozás ehhez: {workspace}",
+    "joined_team": "Ön csatlakozott ehhez a csapathoz: {workspace}",
     "joined_team_description": "Ön mostantól ennek a csapatnak a tagja",
     "left": "Ön elhagyta a csapatot",
     "login_to_continue": "Jelentkezzen be a folytatáshoz",
@@ -1022,8 +1014,7 @@
     "we_sent_invite_link_description": "Kérje meg az összes meghívottat, hogy nézzék meg a beérkező leveleiket. Kattintsanak a hivatkozásra a csapathoz való csatlakozáshoz.",
     "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of Hoppscotch. Please use the Copy link button to copy and share the invite link manually.",
     "copy_invite_link": "Copy Invite Link",
-    "search_title": "Team Requests",
-    "join_beta": "Csatlakozzon a béta programhoz, hogy hozzáférjen a csapatokhoz."
+    "search_title": "Team Requests"
   },
   "team_environment": {
     "deleted": "Környezet törölve",
@@ -1093,14 +1084,5 @@
     "cli_command_generation_description_sh": "Copy the below command and run it from the CLI. Please specify a personal access token and verify the generated SH instance server URL.",
     "cli_command_generation_description_sh_with_server_url_placeholder": "Copy the below command and run it from the CLI. Please specify a personal access token and the SH instance server URL.",
     "run_collection": "Run collection"
-  },
-  "shortcodes": {
-    "actions": "Műveletek",
-    "created_on": "Létrehozva",
-    "deleted": "Rövid kód törölve",
-    "method": "Módszer",
-    "not_found": "A rövid kód nem található",
-    "short_code": "Rövid kód",
-    "url": "URL"
   }
 }

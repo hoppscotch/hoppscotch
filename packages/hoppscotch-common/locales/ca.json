@@ -194,9 +194,7 @@
     "save_to_collection": "Save to Collection",
     "select": "Seleccionar una col·lecció",
     "select_location": "Seleccionar la ubicació",
-    "details": "Details",
-    "select_team": "Seleccionar un equip",
-    "team_collections": "Col·leccions per equips"
+    "details": "Details"
   },
   "confirm": {
     "close_unsaved_tab": "Are you sure you want to close this tab?",
@@ -277,8 +275,7 @@
     "team_name": "El nom de l'equip és buit",
     "teams": "Els equips estan buits",
     "tests": "No hi ha proves per a aquesta sol·licitud",
-    "access_tokens": "Access tokens are empty",
-    "shortcodes": "Els shortcodes estan buits"
+    "access_tokens": "Access tokens are empty"
   },
   "environment": {
     "add_to_global": "Afegir-ho a Global",
@@ -367,8 +364,7 @@
     "secret_gist_success": "Successfully exported as secret Gist",
     "require_github": "Inicieu la sessió amb GitHub per crear un Gisst secret",
     "title": "Exportar",
-    "success": "Successfully exported",
-    "gist_created": "Gist creat"
+    "success": "Successfully exported"
   },
   "filter": {
     "all": "All",
@@ -458,8 +454,8 @@
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment from a JSON file",
     "title": "Importació",
-    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of 10MB. Only the first {files} selected will be imported",
-    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of 10MB. Please select another file.",
+    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of {sizeLimit}MB. Only the first {files} selected will be imported",
+    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of {sizeLimit}MB. Please select another file.",
     "success": "Successfully imported"
   },
   "inspections": {
@@ -617,8 +613,7 @@
     "url": "URL",
     "url_placeholder": "Enter a URL or paste a cURL command",
     "variables": "Variables",
-    "view_my_links": "Visualitzar els meus enllaços",
-    "copy_link": "Copia l'enllaç"
+    "view_my_links": "Visualitzar els meus enllaços"
   },
   "response": {
     "audio": "Audio",
@@ -763,8 +758,7 @@
       "send_request": "Enviar sol.licitud",
       "share_request": "Share Request",
       "show_code": "Generate code snippet",
-      "title": "Sol·licitud",
-      "copy_request_link": "Copiar l'enllaç de la sol·licitud"
+      "title": "Sol·licitud"
     },
     "response": {
       "copy": "Copy response to clipboard",
@@ -916,7 +910,7 @@
     "none": "Cap",
     "nothing_found": "No s'ha trobat res per",
     "published_error": "S'ha produït un error en publicar el missatge: {topic} al tema: {message}",
-    "published_message": "Missatge publicat: {missatge} al tema: {tema}",
+    "published_message": "Missatge publicat: {message} al tema: {topic}",
     "reconnection_error": "No s'ha pogut tornar a connectar",
     "show": "Show",
     "subscribed_failed": "No s'ha pogut subscriure al tema: {topic}",
@@ -934,8 +928,7 @@
     "github": "Segueix-nos a Github",
     "shortcuts": "Navega per l'aplicació més ràpidament",
     "title": "Suport",
-    "twitter": "Segueix-nos a Twitter",
-    "team": "Poseu-vos en contacte amb l'equip"
+    "twitter": "Segueix-nos a Twitter"
   },
   "tab": {
     "authorization": "Autorització",
@@ -960,7 +953,6 @@
     "share_tab_request": "Share tab request",
     "socketio": "Socket.IO",
     "sse": "SSE",
-    "tests": "Proves",
     "types": "Tipus",
     "variables": "Variables",
     "websocket": "WebSocket"
@@ -984,10 +976,10 @@
     "invite": "Invitar",
     "invite_more": "Invitar més",
     "invite_tooltip": "Invitar persones a aquest espai de treball",
-    "invited_to_team": "{owner} t'ha invitat a unir-te a {team}",
+    "invited_to_team": "{owner} t'ha invitat a unir-te a {workspace}",
     "join": "S'ha acceptat la invitació",
-    "join_team": "Uneix-te a {team}",
-    "joined_team": "T'has unit a {team}",
+    "join_team": "Uneix-te a {workspace}",
+    "joined_team": "T'has unit a {workspace}",
     "joined_team_description": "Ara ets membre d'aquest equip",
     "left": "Has deixat l'equip",
     "login_to_continue": "Inicieu sessió per continuar",
@@ -1022,8 +1014,7 @@
     "we_sent_invite_link_description": "Demaneu a tots els convidats que comprovin la seva safata d'entrada. Feu clic a l'enllaç per unir-vos a l'equip.",
     "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of Hoppscotch. Please use the Copy link button to copy and share the invite link manually.",
     "copy_invite_link": "Copy Invite Link",
-    "search_title": "Team Requests",
-    "join_beta": "Uneix-te al programa beta per accedir als equips."
+    "search_title": "Team Requests"
   },
   "team_environment": {
     "deleted": "Environment Deleted",
@@ -1093,14 +1084,5 @@
     "cli_command_generation_description_sh": "Copy the below command and run it from the CLI. Please specify a personal access token and verify the generated SH instance server URL.",
     "cli_command_generation_description_sh_with_server_url_placeholder": "Copy the below command and run it from the CLI. Please specify a personal access token and the SH instance server URL.",
     "run_collection": "Run collection"
-  },
-  "shortcodes": {
-    "actions": "Accions",
-    "created_on": "Creat el",
-    "deleted": "S'ha suprimit el shortcode",
-    "method": "Mètode",
-    "not_found": "No s'ha trobat el shortcode",
-    "short_code": "Short code",
-    "url": "URL"
   }
 }

@@ -5,6 +5,7 @@ import { getService } from "~/modules/dioc"
 import { PersistenceService } from "~/services/persistence"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { content } from "@hoppscotch/kernel"
+import { createPKCECodeChallenge } from "./pkce"
 
 const kernelInterceptor = getService(KernelInterceptorService)
 const persistenceService = getService(PersistenceService)
@@ -47,21 +48,6 @@ const generateRandomString = () => {
   return Array.from(array, (dec) => `0${dec.toString(16)}`.slice(-2)).join("")
 }
 
-const base64urlencode = (str: ArrayBuffer) => {
-  const hashArray = Array.from(new Uint8Array(str))
-  return btoa(String.fromCharCode.apply(null, hashArray))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "")
-}
-
-const pkceChallengeFromVerifier = async (v: string) => {
-  const encoder = new TextEncoder()
-  const data = encoder.encode(v)
-  const hashed = await window.crypto.subtle.digest("SHA-256", data)
-  return base64urlencode(hashed)
-}
-
 export const tokenRequest = async ({
   oidcDiscoveryUrl,
   grantType,
@@ -98,7 +84,7 @@ export const tokenRequest = async ({
   const codeVerifier = generateRandomString()
   await persistenceService.setLocalConfig("pkce_codeVerifier", codeVerifier)
 
-  const codeChallenge = await pkceChallengeFromVerifier(codeVerifier)
+  const codeChallenge = await createPKCECodeChallenge(codeVerifier, "S256")
 
   const url = new URL(authUrl)
   url.searchParams.set("response_type", grantType)

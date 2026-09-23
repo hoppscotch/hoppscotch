@@ -12,6 +12,7 @@
       <div class="flex items-center space-x-4">
         <button
           class="p-2 rounded-3xl bg-divider hover:bg-dividerDark transition flex justify-center items-center"
+          :aria-label="t('app.back')"
           @click="router.push('/teams')"
         >
           <icon-lucide-arrow-left class="text-xl" />

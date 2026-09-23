@@ -227,6 +227,7 @@ export function exportedCollectionToHoppCollection(
       variables: data.variables ?? [],
       preRequestScript: data.preRequestScript ?? "",
       testScript: data.testScript ?? "",
+      source: data.source,
     })
   }
   const gqlCollection = collection as ExportedUserCollectionGQL
@@ -258,6 +259,7 @@ export function exportedCollectionToHoppCollection(
     description: data.description ?? null,
     preRequestScript: data.preRequestScript ?? "",
     testScript: data.testScript ?? "",
+    source: data.source,
   })
 }
 

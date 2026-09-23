@@ -254,7 +254,7 @@
             :disabled="noModelsConfigured"
             role="combobox"
             :aria-expanded="skillMenuOpen"
-            aria-controls="hopp-skill-menu"
+            :aria-controls="skillMenuOpen ? 'hopp-skill-menu' : undefined"
             :aria-activedescendant="
               skillMenuHasChoices ? `hopp-skill-${skillIndex}` : undefined
             "
@@ -767,18 +767,26 @@ const startResize = (e: MouseEvent) => {
   e.preventDefault()
 }
 
-useEventListener(window, "mousemove", (e: MouseEvent) => {
-  if (!isResizing.value) return
-  // Handle is on the pane's left edge — dragging left widens the pane.
-  storedWidth.value = clampWidth(startWidth + (startX - e.clientX))
-})
-
-useEventListener(window, "mouseup", () => {
+const stopResize = () => {
   if (!isResizing.value) return
   isResizing.value = false
   document.body.style.userSelect = ""
   document.body.style.cursor = ""
+}
+
+useEventListener(window, "mousemove", (e: MouseEvent) => {
+  if (!isResizing.value) return
+  // Released where no mouseup reached us (another window, an iframe).
+  if (!(e.buttons & 1)) {
+    stopResize()
+    return
+  }
+  // Handle is on the pane's left edge — dragging left widens the pane.
+  storedWidth.value = clampWidth(startWidth + (startX - e.clientX))
 })
+
+useEventListener(window, ["mouseup", "blur"], stopResize)
+onBeforeUnmount(stopResize)
 
 const autoResize = () => {
   const el = textareaEl.value
@@ -823,12 +831,15 @@ const onPaneEscape = (e: KeyboardEvent) => {
   if (!isComposing(e)) chat.close()
 }
 
-// Switched off mid-turn: the pane and its prompts hide, so end the turn too.
-watch(shouldEnableAIFeatures, (enabled) => {
-  if (enabled) return
-  chat.stop()
-  chat.close()
-})
+// Switched off mid-turn, here or by the server: end the turn and the pane.
+watch(
+  () => shouldEnableAIFeatures.value && offered.value,
+  (on) => {
+    if (on) return
+    chat.stop()
+    chat.close()
+  }
+)
 
 const onKeydown = (e: KeyboardEvent) => {
   // Keys during IME composition belong to the candidate, not the composer.

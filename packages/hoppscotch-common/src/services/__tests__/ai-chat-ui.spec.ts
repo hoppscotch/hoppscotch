@@ -403,6 +403,24 @@ describe("AI assistant UI", () => {
       expect(chat.isOpen.value).toBe(false)
     })
 
+    it("closes and ends the turn once the server switches it off", async () => {
+      await openPane()
+      chatFn.mockReturnValue(new Promise(() => {}))
+      await type("hello")
+      press({ key: "Enter", code: "Enter" })
+      await nextTick()
+      expect(chat.isStreaming.value).toBe(true)
+
+      getAvailability.mockResolvedValue(on(false))
+      await chat.loadAvailability()
+      await nextTick()
+
+      expect(chat.isStreaming.value).toBe(false)
+      expect(chat.isOpen.value).toBe(false)
+      expect(el.querySelector("aside")).toBeNull()
+      expect(launcher()).toBeNull()
+    })
+
     it("reads out only the step line a settled run rewrote", async () => {
       await openPane()
       const live = () =>
@@ -424,6 +442,8 @@ describe("AI assistant UI", () => {
 
     it("points the combobox at the skill menu it opens", async () => {
       await openPane()
+      // Nothing to point at while the menu is shut.
+      expect(composer().hasAttribute("aria-controls")).toBe(false)
       await type("/")
 
       const id = composer().getAttribute("aria-controls")!
@@ -442,6 +462,77 @@ describe("AI assistant UI", () => {
 
       const live = el.querySelector('[aria-live="polite"][role="status"]')
       expect(live?.textContent?.trim()).toBe("The API is up.")
+    })
+  })
+
+  describe("resize", () => {
+    beforeEach(() => {
+      // Wide enough for the side pane and its drag handle.
+      vi.stubGlobal("matchMedia", (media: string) => ({
+        matches: true,
+        media,
+        onchange: null,
+        addEventListener() {},
+        removeEventListener() {},
+        addListener() {},
+        removeListener() {},
+        dispatchEvent: () => false,
+      }))
+    })
+    afterEach(() => vi.unstubAllGlobals())
+
+    const grab = async () => {
+      getAvailability.mockResolvedValue(on(true))
+      await mount()
+      await signIn()
+      launcher()!.click()
+      await tick()
+      await nextTick()
+      el.querySelector(".cursor-col-resize")!.dispatchEvent(
+        new MouseEvent("mousedown", {
+          bubbles: true,
+          cancelable: true,
+          clientX: 500,
+          buttons: 1,
+        })
+      )
+      expect(document.body.style.cursor).toBe("col-resize")
+    }
+    const move = async (clientX: number, buttons: number) => {
+      window.dispatchEvent(new MouseEvent("mousemove", { clientX, buttons }))
+      await nextTick()
+    }
+    // Stored across tests, so read relative to where the drag began.
+    const width = () => parseInt(el.querySelector("aside")!.style.width)
+    const released = () =>
+      document.body.style.cursor === "" && document.body.style.userSelect === ""
+
+    it("ends a drag released where no mouseup reached the window", async () => {
+      await grab()
+      const start = width()
+      await move(480, 1)
+      expect(width()).toBe(start + 20)
+
+      await move(400, 0)
+      expect(width()).toBe(start + 20)
+      expect(released()).toBe(true)
+    })
+
+    it("ends a drag when the window loses focus", async () => {
+      await grab()
+      const start = width()
+      window.dispatchEvent(new Event("blur"))
+      expect(released()).toBe(true)
+
+      await move(480, 1)
+      expect(width()).toBe(start)
+    })
+
+    it("releases the page when unmounted mid-drag", async () => {
+      await grab()
+      app!.unmount()
+      app = null
+      expect(released()).toBe(true)
     })
   })
 

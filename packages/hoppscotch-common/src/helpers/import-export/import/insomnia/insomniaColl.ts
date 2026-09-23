@@ -43,10 +43,16 @@ const isV5InsomniaDoc = (data: InsomniaDoc) =>
   typeof data.type === "string" &&
   (data.type as string).startsWith("collection.insomnia.rest/5")
 
-const replacePathVarTemplating = (expression: string) =>
-  expression.replaceAll(/:([^/]+)/g, "<<$1>>")
+export const replacePathVarTemplating = (expression: unknown) => {
+  // Same coercion as replaceInsomniaTemplating: v5 export values are typed as
+  // strings but arrive as numbers/booleans/null in real files (#6606).
+  const safe = String(expression ?? "")
+  // The colon must start a path segment: a bare ":([^/]+)" pattern also
+  // swallows port numbers in absolute URLs (http://localhost:3000 -> <<3000>>).
+  return safe.replaceAll(/(?<=\/):([^/]+)/g, "<<$1>>")
+}
 
-const replaceVarTemplating = (expression: string, pathVar = false) => {
+const replaceVarTemplating = (expression: unknown, pathVar = false) => {
   return pipe(
     expression,
     pathVar ? replacePathVarTemplating : (x) => x,
@@ -80,7 +86,7 @@ const getRequestsIn = (
   )
 
 const getCollectionVariables = (
-  environment: Record<string, string> | undefined,
+  environment: Record<string, unknown> | undefined,
   folderRes?: InsomniaFolderResource
 ): HoppCollectionVariable[] => {
   const env =
@@ -91,7 +97,10 @@ const getCollectionVariables = (
   return Object.entries(env).map(([key, value]) => ({
     key: replaceVarTemplating(key),
     currentValue: "", // set it as empty value since it is handled by currentValue service and we don't want it to sync with BE
-    initialValue: replaceVarTemplating(value),
+    // Values in real v5 exports are not guaranteed to be strings (numbers,
+    // booleans, null all show up); coerce so the import never crashes. Plain
+    // String() keeps JSON null round-trippable as "null", like the env importer.
+    initialValue: replaceVarTemplating(String(value)),
     secret: false,
   }))
 }

@@ -16,8 +16,8 @@
 
     <div v-else class="px-4 py-3 space-y-2">
       <ConsoleItem
-        v-for="(entry, index) in renderedMessages"
-        :key="index"
+        v-for="entry in renderedMessages"
+        :key="entry.id"
         :entry="entry"
       />
     </div>
@@ -28,6 +28,7 @@
 import { computed } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { useColorMode } from "~/composables/theming"
+import { renderConsoleEntries } from "./entries"
 
 export type ConsoleEntryType =
   | "log"
@@ -48,6 +49,7 @@ export type ConsoleEntryType =
 
 export type ConsoleEntry = {
   type: ConsoleEntryType
+  id?: number
   args: unknown[]
   timestamp: number
   collapsed?: boolean
@@ -61,47 +63,5 @@ const props = defineProps<{
 const colorMode = useColorMode()
 const t = useI18n()
 
-const renderedMessages = computed(() => {
-  const output: ConsoleEntry[] = []
-
-  const groupStack: ConsoleEntry[] = []
-  const appendEntry = (entry: ConsoleEntry) => {
-    const currentGroup = groupStack[groupStack.length - 1]
-
-    if (currentGroup) {
-      currentGroup.children?.push(entry)
-      return
-    }
-
-    output.push(entry)
-  }
-
-  for (const entry of props.messages) {
-    if (entry.type === "clear") {
-      output.length = 0
-      groupStack.length = 0
-      continue
-    }
-
-    if (entry.type === "group") {
-      const groupEntry: ConsoleEntry = {
-        ...entry,
-        children: [],
-      }
-
-      appendEntry(groupEntry)
-      groupStack.push(groupEntry)
-      continue
-    }
-
-    if (entry.type === "groupEnd") {
-      groupStack.pop()
-      continue
-    }
-
-    appendEntry(entry)
-  }
-
-  return output
-})
+const renderedMessages = computed(() => renderConsoleEntries(props.messages))
 </script>

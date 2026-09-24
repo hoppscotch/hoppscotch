@@ -1335,7 +1335,7 @@
     "desktop_updates": "Mises à jour",
     "disable_encode_mode_tooltip": "Ne jamais encoder les paramètres dans la requête",
     "disable_update_checks": "Désactiver les vérifications de mise à jour automatiques",
-    "disable_update_checks_description": "Ignorer la vérification de mise à jour au démarrage de l'application. Utilisez le bouton ci-dessus pour vérifier à la requête.",
+    "disable_update_checks_description": "Ignorer la vérification de mise à jour au démarrage de l'application. Utilisez le bouton ci-dessus pour vérifier à la demande.",
     "connection_timeout": "Délai d'expiration de la connexion",
     "connection_timeout_description": "Combien de temps attendre la réponse de votre instance. Le téléchargement d'une instance permet dix fois cette limite. Redémarrez l'application pour qu'une modification soit appliquée au téléchargement.",
     "connection_timeout_seconds": "{seconds} secondes",

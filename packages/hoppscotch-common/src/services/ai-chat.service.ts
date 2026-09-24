@@ -725,8 +725,11 @@ const noRisks = (): ChatRisks => ({
   scripts: new Map(),
 })
 
-/** Marks a chat script's send that only a run can place; the script follows. */
-const OPAQUE_SEND = "\0script\0"
+/**
+ * Marks a chat script's send that only a run can place; the script follows.
+ * No host can match it: a host with a "/" starts with "<<".
+ */
+const OPAQUE_SEND = "\0script/"
 
 /** Where a request sends, and the scripts that run with it. */
 interface RunSurface {

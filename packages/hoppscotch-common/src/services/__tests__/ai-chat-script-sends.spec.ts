@@ -426,9 +426,11 @@ describe("AIChatService scripts that send", () => {
 
     expect(prompts).toHaveLength(forged.length + 1)
     // Each forged host is named as itself, not as the script's address.
-    expect(
-      prompts.slice(0, forged.length).flatMap((p) => p.hosts)
-    ).not.toContain(UNKNOWN)
+    expect(prompts.slice(0, forged.length).map((p) => p.hosts)).toEqual([
+      [`\0script\0${HOOK}`],
+      ["\0script\x001"],
+      ["\0script"],
+    ])
     expect(prompts[forged.length]).toEqual({ kind: "run", hosts: [UNKNOWN] })
     expect(sent).toEqual(forged.map(() => b.id))
   })

@@ -49,6 +49,32 @@ export const APP_ACTION_TOOLS = new Set<string>([
 const isEnvStopword = (s: string) =>
   !s || /^(?:the|an?|my|environment|env|to)$/i.test(s)
 
+// Interceptor switch: filler, a verb opening the message, the name last.
+// Anchoring both ends keeps "set header proxy: on" a header edit.
+const ITC_LEAD = [
+  "please|pls|kindly|ok|okay|alright|sure|yes|yeah|no|actually|maybe|just|so",
+  "thanks|great|cool|fine|right|hmm|oh|wait",
+  "now|then|also|and|go ahead|let me|let's|lets|time to|i think|(?:hey|hi)(?: claude)?",
+  "(?:can|could|would|will) you|(?:i|we)(?:'d|'ll| would| should| need to| want to| have to)",
+  "(?:like|prefer) to|(?:make|configure|have) it(?: to)?|(?:i|we) want (?:it|requests) to",
+  "(?:for|on) (?:the|this) (?:interceptor|request|tab)|interceptor ?:",
+].join("|")
+const ITC_NAME = "browser(?: extension)?|native|extension|agent|proxy"
+// One way to match each word: "browser extension" as a phrase would backtrack.
+const ITC_WORD =
+  "back|over|it|use|using|for|the|an?|my|our|your|this|that|current|active" +
+  "|default|request|tab|tab's|one|interceptors?|browser|native|extension|agent|proxy"
+const INTERCEPTOR_SWITCH = new RegExp(
+  `^(?:(?:${ITC_LEAD}),? )*(?:use|switch|change|set|select)` +
+    // Lazy, so "the extension agent" names the extension; "from" needs a "to".
+    `(?: (?:to|from(?: (?:${ITC_WORD}))+ to|${ITC_WORD}))*?` +
+    // The name, or a bare "interceptor" to ask which.
+    `(?: (?<name>${ITC_NAME})(?: (?:agent|interceptors?|one))?| interceptors?)` +
+    // "please", "from the browser", and the `,` splitCommands leaves.
+    `(?:,? (?:please|then|now|not|instead(?: of)?|from|for)(?: (?:${ITC_WORD}))*)?[ .!?,;]*$`,
+  "i"
+)
+
 export interface AppActionCall {
   name: string
   input: Record<string, unknown>
@@ -124,21 +150,12 @@ export function parseAppActionCommand(text: string): AppActionCall | null {
   }
 
   // Interceptor / connection agent change
-  if (
-    /\binterceptor\b|(?<![\w-])(?:agent|proxy)(?![\w-])/i.test(t) &&
-    /\b(?:use|switch|change|set|select)\b/i.test(t)
-  ) {
-    let hint = t
-      .replace(/[.!?]+$/, "")
-      .replace(/.*\b(?:to|use)\b\s*/i, "")
-      .replace(/^(?:switch|change|set|select)\b\s*/i, "")
-      .replace(/\binterceptors?\b/gi, " ")
-      .replace(/^\s*(?:the|a|an)\s+/i, "")
-      .replace(/\s+/g, " ")
-      .trim()
-    // "Agent" and "Proxy" are interceptor names too: drop them only as a noun.
-    if (hint.includes(" ")) hint = hint.replace(/\s+(?:agent|proxy)$/i, "")
-    return { name: "set_interceptor", input: { interceptor: hint } }
+  const itc = INTERCEPTOR_SWITCH.exec(t.replace(/\s+/g, " ").replace(/’/g, "'"))
+  if (itc) {
+    return {
+      name: "set_interceptor",
+      input: { interceptor: itc.groups?.name ?? "" },
+    }
   }
 
   // Environment: add / update variables (checked before create/select so

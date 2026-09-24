@@ -1,4 +1,4 @@
-import { onBeforeUnmount, onMounted } from "vue"
+import { getCurrentInstance, onBeforeUnmount, onMounted } from "vue"
 import { HoppActionWithOptionalArgs, invokeAction } from "./actions"
 import {
   getKeyboardLayoutStrategy,
@@ -20,7 +20,10 @@ import { listen } from "@tauri-apps/api/event"
  * owners release their locks, so closing one of several open modals cannot
  * re-enable shortcuts while another modal still needs them disabled.
  */
-export const keybindingLocks = new Map<symbol, number>()
+const keybindingLocks = new Map<symbol, number>()
+
+export const __resetKeybindingLocksForTest = () => keybindingLocks.clear()
+export const __getKeybindingLockCountForTest = () => keybindingLocks.size
 
 /**
  * Unlisten function for Tauri event
@@ -465,6 +468,10 @@ export function useKeybindingDisabler() {
     } else {
       keybindingLocks.set(lock, count - 1)
     }
+  }
+
+  if (getCurrentInstance()) {
+    onBeforeUnmount(() => keybindingLocks.delete(lock))
   }
 
   return {

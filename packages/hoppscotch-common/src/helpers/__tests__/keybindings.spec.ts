@@ -1,37 +1,38 @@
 import { describe, expect, test } from "vitest"
 import {
+  __getKeybindingLockCountForTest,
+  __resetKeybindingLocksForTest,
   bindings,
-  keybindingLocks,
   resolvePressedKey,
   useKeybindingDisabler,
 } from "../keybindings"
 
 describe("useKeybindingDisabler", () => {
   test("keeps an instance locked until matching enables complete", () => {
-    keybindingLocks.clear()
+    __resetKeybindingLocksForTest()
     const disabler = useKeybindingDisabler()
 
     disabler.disableKeybindings()
     disabler.disableKeybindings()
-    expect(keybindingLocks.size).toBe(1)
+    expect(__getKeybindingLockCountForTest()).toBe(1)
 
     disabler.enableKeybindings()
-    expect(keybindingLocks.size).toBe(1)
+    expect(__getKeybindingLockCountForTest()).toBe(1)
     disabler.enableKeybindings()
-    expect(keybindingLocks.size).toBe(0)
+    expect(__getKeybindingLockCountForTest()).toBe(0)
   })
 
   test("keeps independent instances isolated", () => {
-    keybindingLocks.clear()
+    __resetKeybindingLocksForTest()
     const first = useKeybindingDisabler()
     const second = useKeybindingDisabler()
 
     first.disableKeybindings()
     second.disableKeybindings()
     first.enableKeybindings()
-    expect(keybindingLocks.size).toBe(1)
+    expect(__getKeybindingLockCountForTest()).toBe(1)
     second.enableKeybindings()
-    expect(keybindingLocks.size).toBe(0)
+    expect(__getKeybindingLockCountForTest()).toBe(0)
   })
 })
 

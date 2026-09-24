@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import { parseRawKeyValueEntries } from "@hoppscotch/data"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { applyToolCall, runChatCommand, toRawKeyValueLines } from "../commands"
+import { splitCommands } from "../app-actions"
 
 const withBody = (body: string, contentType = "application/json") => ({
   ...getDefaultRESTRequest(),
@@ -120,6 +121,34 @@ describe("runChatCommand rename", () => {
     expect(res.changed).toBe(true)
     expect(r.name).toBe(name)
     expect(r.method).toBe("GET")
+  })
+
+  it.each([
+    ["rename the request to Get users.", "Get users"],
+    ["rename the request to Get users,", "Get users"],
+    ["rename to Login ?!", "Login"],
+    ["rename it to `List items`.", "List items"],
+    ["set the name to Search;", "Search"],
+    ["rename the request to Get users (v2).", "Get users (v2)"],
+    ["rename to v1.2", "v1.2"],
+    ["rename to Hello, world", "Hello, world"],
+    ['rename the request to "Hello, world."', "Hello, world."],
+    ['set the request name to "Done?!".', "Done?!"],
+  ])("trims trailing punctuation for %s", (text, name) => {
+    const r = req()
+    runChatCommand(r, text)
+
+    expect(r.name).toBe(name)
+  })
+
+  it("drops the comma a chained rename leaves behind", () => {
+    const r = req()
+    const [segment] = splitCommands(
+      "rename the request to Get users, then run it"
+    )
+    runChatCommand(r, segment)
+
+    expect(r.name).toBe("Get users")
   })
 })
 

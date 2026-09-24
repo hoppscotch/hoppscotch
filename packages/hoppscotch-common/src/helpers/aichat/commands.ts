@@ -219,13 +219,14 @@ export function runChatCommand(
     }
   }
 
-  // Rename request: only the request itself, or a bare "rename to …"
+  // Rename request: only the request itself, or a bare "rename to …".
+  // Trailing `,`/`;` is what splitCommands leaves before "then run it".
   m =
     t.match(
-      /\brename\s+(?:(?:the|this|my|current)\s+)*(?:(?:request|tab|it)\s+)?(?:to|as)\s+["'`]?(.+?)["'`]?$/i
+      /\brename\s+(?:(?:the|this|my|current)\s+)*(?:(?:request|tab|it)\s+)?(?:to|as)\s+["'`]?(.+?)["'`]?\s*[.!?,;]*$/i
     ) ??
     t.match(
-      /\b(?:set|change|update)\s+(?:(?:the|this|my|current)\s+)*(?:(?:request|tab)(?:'s)?\s+)?name(?:\s+of\s+(?:(?:the|this|my|current)\s+)*(?:request|tab|it))?\s*(?:to|as|=|:)\s*["'`]?(.+?)["'`]?$/i
+      /\b(?:set|change|update)\s+(?:(?:the|this|my|current)\s+)*(?:(?:request|tab)(?:'s)?\s+)?name(?:\s+of\s+(?:(?:the|this|my|current)\s+)*(?:request|tab|it))?\s*(?:to|as|=|:)\s*["'`]?(.+?)["'`]?\s*[.!?,;]*$/i
     )
   if (m) {
     if (!req) return NEED_REQUEST

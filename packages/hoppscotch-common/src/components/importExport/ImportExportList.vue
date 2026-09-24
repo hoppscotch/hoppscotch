@@ -6,13 +6,24 @@
     }"
   >
     <div class="flex flex-col space-y-2">
-      <HoppSmartItem
+      <div
         v-for="importer in importers"
         :key="importer.id"
-        :icon="importer.icon"
-        :label="t(`${importer.name}`)"
-        @click="emit('importer-selected', importer.id)"
-      />
+        class="relative flex items-center"
+      >
+        <HoppSmartItem
+          class="flex-1"
+          :icon="importer.icon"
+          :label="t(`${importer.name}`)"
+          @click="emit('importer-selected', importer.id)"
+        />
+        <span
+          v-if="lastUsedImporterId && importer.id === lastUsedImporterId"
+          class="absolute right-3 px-1.5 py-0.5 text-tiny font-medium rounded bg-accentDark/10 text-accent pointer-events-none"
+        >
+          {{ t("collection.last_used") }}
+        </span>
+      </div>
     </div>
     <hr v-if="hasTeamWriteAccess" />
     <div class="flex flex-col space-y-2">
@@ -70,6 +81,7 @@ defineProps<{
   importers: ImportExportEntryMeta[]
   exporters: ImportExportEntryMeta[]
   hasTeamWriteAccess: boolean
+  lastUsedImporterId?: string
 }>()
 
 const emit = defineEmits<{

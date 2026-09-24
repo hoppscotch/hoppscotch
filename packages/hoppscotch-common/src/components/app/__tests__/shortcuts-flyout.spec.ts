@@ -5,8 +5,10 @@ import { createApp, defineComponent, h, nextTick, type App } from "vue"
 vi.mock("@composables/i18n", () => ({ useI18n: () => (x: string) => x }))
 vi.mock("@hoppscotch/kernel", () => ({ getKernelMode: () => "web" }))
 
+import MiniSearch from "minisearch"
 import Flyout from "~/components/app/Shortcuts.vue"
 import { bindAction, unbindAction } from "~/helpers/actions"
+import { getShortcuts } from "~/helpers/shortcuts"
 
 const Empty = defineComponent({ render: () => null })
 
@@ -29,7 +31,10 @@ const stubs = {
             emit("update:modelValue", (e.target as HTMLInputElement).value),
         }),
   }),
-  HoppSmartPlaceholder: Empty,
+  HoppSmartPlaceholder: defineComponent({
+    props: { text: { type: String, default: "" } },
+    setup: (props) => () => h("p", props.text),
+  }),
   AppShortcutsEntry: defineComponent({
     props: { shortcut: { type: Object, required: true } },
     setup: (props) => () => h("p", props.shortcut.label),
@@ -39,6 +44,8 @@ const stubs = {
 }
 
 const SWITCH = "shortcut.tabs.switch_protocol"
+
+const indexing = vi.spyOn(MiniSearch.prototype, "addAllAsync")
 
 describe("shortcuts flyout", () => {
   let app: App | null = null
@@ -50,12 +57,15 @@ describe("shortcuts flyout", () => {
   })
 
   const mount = async () => {
+    indexing.mockClear()
     el = document.body.appendChild(document.createElement("div"))
     app = createApp(Flyout, { show: true })
     for (const [name, c] of Object.entries(stubs)) app.component(name, c)
     app.mount(el)
-    // The search index fills asynchronously.
-    await new Promise((r) => setTimeout(r, 50))
+    // Wait for the search index to fill; fail loudly if it doesn't
+    await indexing.mock.results[0]?.value
+    const index = indexing.mock.contexts[0] as MiniSearch | undefined
+    expect(index?.documentCount).toBe(getShortcuts((x) => x).length)
   }
 
   const text = () => el?.textContent ?? ""
@@ -74,13 +84,15 @@ describe("shortcuts flyout", () => {
 
     const handler = () => {}
     bindAction("tab.switch-protocol", handler)
-    await nextTick()
-    expect(text()).toContain(SWITCH)
+    try {
+      await nextTick()
+      expect(text()).toContain(SWITCH)
 
-    await search("switch")
-    expect(text()).toContain(SWITCH)
-
-    unbindAction("tab.switch-protocol", handler)
+      await search("switch")
+      expect(text()).toContain(SWITCH)
+    } finally {
+      unbindAction("tab.switch-protocol", handler)
+    }
     await nextTick()
     expect(text()).not.toContain(SWITCH)
   })
@@ -88,6 +100,7 @@ describe("shortcuts flyout", () => {
   it("keeps it out of search results while unhandled", async () => {
     await mount()
     await search("switch")
+    expect(text()).toContain("state.nothing_found")
     expect(text()).not.toContain(SWITCH)
   })
 })

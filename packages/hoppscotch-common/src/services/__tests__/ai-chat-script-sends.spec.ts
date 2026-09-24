@@ -99,7 +99,7 @@ describe("AIChatService scripts that send", () => {
   let prompts: { kind: string; hosts?: string[] }[]
   /** How the stand-in user answers a prompt. */
   let answer: boolean
-  let stopAnswering: () => void
+  let stopAnswering = () => {}
 
   // Stand-in for the request pane: binds send and save for the active tab.
   const Pane = defineComponent({

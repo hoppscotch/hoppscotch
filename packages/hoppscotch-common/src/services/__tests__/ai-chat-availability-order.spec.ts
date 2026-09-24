@@ -23,9 +23,12 @@ vi.mock("~/platform", () => ({
 }))
 
 import { AIChatService } from "../ai-chat.service"
+import type { AIChatModelOption } from "~/platform/experiments"
 
-const model = (name: string) => ({
+const model = (name: string): AIChatModelOption => ({
   connectionID: "c1",
+  connectionLabel: "C1",
+  preset: "openai",
   model: name,
   isDefault: true,
 })

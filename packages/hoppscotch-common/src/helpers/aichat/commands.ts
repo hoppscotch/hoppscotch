@@ -162,6 +162,19 @@ export function toRawKeyValueLines(body: string): string {
  * @returns `handled: false` when the message isn't a recognized command (so the
  * caller can fall back to a normal chat reply).
  */
+/**
+ * A quoted name is kept as typed. Unquoted, only the `,`/`;` splitCommands
+ * leaves before "then run it" is dropped: "What's new?" keeps its "?".
+ */
+const requestName = (raw: string) => {
+  const quoted = raw.match(/^(["'`])(.+)\1\s*[.!?,;]*$/)
+  if (quoted) return quoted[2].trim()
+  return raw
+    .replace(/\s*[,;]+$/, "")
+    .replace(/^["'`]|["'`]$/g, "")
+    .trim()
+}
+
 export function runChatCommand(
   req: HoppRESTRequest | null,
   text: string
@@ -219,18 +232,17 @@ export function runChatCommand(
     }
   }
 
-  // Rename request: only the request itself, or a bare "rename to …".
-  // Trailing `,`/`;` is what splitCommands leaves before "then run it".
+  // Rename request: only the request itself, or a bare "rename to …"
   m =
     t.match(
-      /\brename\s+(?:(?:the|this|my|current)\s+)*(?:(?:request|tab|it)\s+)?(?:to|as)\s+["'`]?(.+?)["'`]?\s*[.!?,;]*$/i
+      /\brename\s+(?:(?:the|this|my|current)\s+)*(?:(?:request|tab|it)\s+)?(?:to|as)\s+(.+?)\s*$/i
     ) ??
     t.match(
-      /\b(?:set|change|update)\s+(?:(?:the|this|my|current)\s+)*(?:(?:request|tab)(?:'s)?\s+)?name(?:\s+of\s+(?:(?:the|this|my|current)\s+)*(?:request|tab|it))?\s*(?:to|as|=|:)\s*["'`]?(.+?)["'`]?\s*[.!?,;]*$/i
+      /\b(?:set|change|update)\s+(?:(?:the|this|my|current)\s+)*(?:(?:request|tab)(?:'s)?\s+)?name(?:\s+of\s+(?:(?:the|this|my|current)\s+)*(?:request|tab|it))?\s*(?:to|as|=|:)\s*(.+?)\s*$/i
     )
   if (m) {
     if (!req) return NEED_REQUEST
-    const reqName = m[1].trim()
+    const reqName = requestName(m[1])
     if (reqName) {
       req.name = reqName
       return {

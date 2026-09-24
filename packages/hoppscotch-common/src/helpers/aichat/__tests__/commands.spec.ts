@@ -124,17 +124,19 @@ describe("runChatCommand rename", () => {
   })
 
   it.each([
-    ["rename the request to Get users.", "Get users"],
+    ["rename to What's new?", "What's new?"],
+    ["rename the request to Get users.", "Get users."],
+    ["rename to Login ?!", "Login ?!"],
     ["rename the request to Get users,", "Get users"],
-    ["rename to Login ?!", "Login"],
-    ["rename it to `List items`.", "List items"],
     ["set the name to Search;", "Search"],
-    ["rename the request to Get users (v2).", "Get users (v2)"],
+    ["rename it to `List items`.", "List items"],
+    ["rename the request to Get users (v2)", "Get users (v2)"],
     ["rename to v1.2", "v1.2"],
     ["rename to Hello, world", "Hello, world"],
     ['rename the request to "Hello, world."', "Hello, world."],
     ['set the request name to "Done?!".', "Done?!"],
-  ])("trims trailing punctuation for %s", (text, name) => {
+    ['rename to "Unclosed', "Unclosed"],
+  ])("keeps the name as typed but a chain delimiter for %s", (text, name) => {
     const r = req()
     runChatCommand(r, text)
 

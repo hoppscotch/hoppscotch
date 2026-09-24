@@ -11,7 +11,7 @@ export class FetchAllShortcodesArgs extends PaginationArgs {
   @Field({
     name: 'userEmail',
     nullable: true,
-    description: 'Users email to filter shortcodes by',
+    description: "User's email to filter shortcodes by",
   })
   @IsString()
   @IsOptional()

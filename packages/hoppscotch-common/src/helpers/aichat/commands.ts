@@ -155,14 +155,6 @@ export function toRawKeyValueLines(body: string): string {
 }
 
 /**
- * Interprets a chat message as a request-editing command and applies it to
- * `req` (mutating it in place). This is the local stand-in for LLM tool use —
- * the same edits will later be driven by the model via tool calls.
- *
- * @returns `handled: false` when the message isn't a recognized command (so the
- * caller can fall back to a normal chat reply).
- */
-/**
  * A quoted name is kept as typed. Unquoted, only the `,`/`;` splitCommands
  * leaves before "then run it" is dropped: "What's new?" keeps its "?".
  */
@@ -175,6 +167,14 @@ const requestName = (raw: string) => {
     .trim()
 }
 
+/**
+ * Interprets a chat message as a request-editing command and applies it to
+ * `req` (mutating it in place). This is the local stand-in for LLM tool use —
+ * the same edits will later be driven by the model via tool calls.
+ *
+ * @returns `handled: false` when the message isn't a recognized command (so the
+ * caller can fall back to a normal chat reply).
+ */
 export function runChatCommand(
   req: HoppRESTRequest | null,
   text: string

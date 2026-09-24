@@ -38,7 +38,7 @@ export const serializeGQLSchema = (
   rootBudget = 2000
 ): string => {
   const parts: string[] = ["### GraphQL schema (introspected)"]
-  // The note is held back up front, so adding it never breaks the budget.
+  // The note is held back up front: adding it never breaks a budget that fits it.
   let used = parts[0].length + SCHEMA_SEP.length + MORE_TYPES.length
   const room = () => totalBudget - used - SCHEMA_SEP.length
   const add = (text: string) => {
@@ -73,7 +73,8 @@ export const serializeGQLSchema = (
   }
   if (truncated) parts.push(MORE_TYPES)
 
-  return parts.join(SCHEMA_SEP)
+  // Only a budget below the header and note overflows here; clip it.
+  return parts.join(SCHEMA_SEP).slice(0, Math.max(0, totalBudget))
 }
 
 /** Deepest folder level the outline walks; deeper ones are counted, not listed. */
@@ -89,7 +90,7 @@ export const serializeCollections = (
 ): string => {
   const lines: string[] = ["### Collections"]
   let count = 0
-  // The note's line is held back up front, so adding it never breaks the cap.
+  // The note's line is held back up front: adding it never breaks a cap that fits it.
   let used = lines[0].length + 1 + MORE_COLLECTIONS.length
   let truncated = false
 
@@ -135,5 +136,6 @@ export const serializeCollections = (
 
   walk(collections, 0)
   if (truncated) lines.push(MORE_COLLECTIONS)
-  return lines.join("\n")
+  // Only a cap below the header and note overflows here; clip it.
+  return lines.join("\n").slice(0, Math.max(0, maxChars))
 }

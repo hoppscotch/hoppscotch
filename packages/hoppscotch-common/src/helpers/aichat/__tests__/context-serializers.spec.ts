@@ -82,6 +82,27 @@ describe("serializeCollections", () => {
     expect(out.endsWith(`\n${MORE}`)).toBe(true)
     expect(out).toContain("Root-req0")
   })
+
+  const FLOOR = `### Collections\n${MORE}`
+
+  it("holds caps below the header and note", () => {
+    const tree = [folder("Root", [], 3)]
+
+    for (const cap of [0, 1, 10, 15, 16, FLOOR.length - 1]) {
+      expect(serializeCollections(tree, 80, cap)).toBe(FLOOR.slice(0, cap))
+    }
+    expect(serializeCollections(tree, 80, -1)).toBe("")
+    expect(serializeCollections([], 80, 5)).toBe("### C")
+  })
+
+  it("fills the cap exactly at the boundary", () => {
+    const tree = [folder("Root", [], 3)]
+    const oneLine = `### Collections\n- Root/\n${MORE}`
+
+    expect(serializeCollections(tree, 80, FLOOR.length)).toBe(FLOOR)
+    expect(serializeCollections(tree, 80, oneLine.length - 1)).toBe(FLOOR)
+    expect(serializeCollections(tree, 80, oneLine.length)).toBe(oneLine)
+  })
 })
 
 describe("serializeGQLSchema", () => {
@@ -115,7 +136,7 @@ ${fields("watchThingNumber", 100)}
   })
 
   it("holds a tight budget too", () => {
-    for (const budget of [150, 400, 1000]) {
+    for (const budget of [0, 10, 50, 150, 400, 1000]) {
       expect(
         serializeGQLSchema(schema, budget, 200).length
       ).toBeLessThanOrEqual(budget)

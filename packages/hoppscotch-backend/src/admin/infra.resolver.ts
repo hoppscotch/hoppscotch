@@ -34,7 +34,11 @@ import {
 } from 'src/infra-config/input-args';
 import { InfraConfigEnum } from 'src/types/InfraConfig';
 import { ServiceStatus } from 'src/infra-config/helper';
-import { FetchAllTeamsV2Args, FetchAllUsersV2Args } from './input-types.args';
+import {
+  FetchAllShortcodesArgs,
+  FetchAllTeamsV2Args,
+  FetchAllUsersV2Args,
+} from './input-types.args';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => Infra)
@@ -255,19 +259,11 @@ export class InfraResolver {
   @ResolveField(() => [ShortcodeWithUserEmail], {
     description: 'Returns a list of all the shortcodes in the infra',
   })
-  async allShortcodes(
-    @Args() args: PaginationArgs,
-    @Args({
-      name: 'userEmail',
-      nullable: true,
-      description: 'Users email to filter shortcodes by',
-    })
-    userEmail: string,
-  ) {
+  async allShortcodes(@Args() args: FetchAllShortcodesArgs) {
     return await this.adminService.fetchAllShortcodes(
       args.cursor,
       args.take,
-      userEmail,
+      args.userEmail,
     );
   }
 

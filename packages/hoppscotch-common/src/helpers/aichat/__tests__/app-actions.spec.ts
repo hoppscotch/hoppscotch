@@ -31,6 +31,7 @@ describe("set_interceptor", () => {
     ["switch the active interceptor to browser", "browser"],
     ["change the request interceptor to native", "native"],
     ["set this tab’s interceptor to agent", "agent"],
+    ["set this tab‘s interceptor to agent", "agent"],
     ["set the interceptor for this tab to proxy", "proxy"],
     [
       "Please switch the interceptor over to the browser extension",

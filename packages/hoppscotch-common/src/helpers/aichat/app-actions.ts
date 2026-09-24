@@ -150,7 +150,9 @@ export function parseAppActionCommand(text: string): AppActionCall | null {
   }
 
   // Interceptor / connection agent change
-  const itc = INTERCEPTOR_SWITCH.exec(t.replace(/\s+/g, " ").replace(/’/g, "'"))
+  const itc = INTERCEPTOR_SWITCH.exec(
+    t.replace(/\s+/g, " ").replace(/[‘’]/g, "'")
+  )
   if (itc) {
     return {
       name: "set_interceptor",

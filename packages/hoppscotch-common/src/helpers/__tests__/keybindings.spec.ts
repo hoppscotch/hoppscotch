@@ -1,5 +1,62 @@
-import { describe, expect, test } from "vitest"
-import { bindings, resolvePressedKey } from "../keybindings"
+import { describe, expect, test, vi } from "vitest"
+
+const { invokeActionMock } = vi.hoisted(() => ({ invokeActionMock: vi.fn() }))
+
+vi.mock("../actions", () => ({ invokeAction: invokeActionMock }))
+vi.mock("../platformutils", () => ({ isAppleDevice: () => false }))
+
+import {
+  __getKeybindingLockCountForTest,
+  __resetKeybindingLocksForTest,
+  bindings,
+  handleKeyDown,
+  resolvePressedKey,
+  useKeybindingDisabler,
+} from "../keybindings"
+
+describe("useKeybindingDisabler", () => {
+  test("keeps shortcuts disabled until matching enables complete", () => {
+    __resetKeybindingLocksForTest()
+    invokeActionMock.mockReset()
+    const disabler = useKeybindingDisabler()
+    const shortcut = new KeyboardEvent("keydown", {
+      key: "k",
+      code: "KeyK",
+      ctrlKey: true,
+    })
+
+    disabler.disableKeybindings()
+    disabler.disableKeybindings()
+    handleKeyDown(shortcut)
+    expect(invokeActionMock).not.toHaveBeenCalled()
+
+    disabler.enableKeybindings()
+    handleKeyDown(shortcut)
+    expect(invokeActionMock).not.toHaveBeenCalled()
+
+    disabler.enableKeybindings()
+    handleKeyDown(shortcut)
+    expect(invokeActionMock).toHaveBeenCalledOnce()
+    expect(invokeActionMock).toHaveBeenCalledWith(
+      "modals.search.toggle",
+      undefined,
+      "keypress"
+    )
+  })
+
+  test("keeps independent instances isolated", () => {
+    __resetKeybindingLocksForTest()
+    const first = useKeybindingDisabler()
+    const second = useKeybindingDisabler()
+
+    first.disableKeybindings()
+    second.disableKeybindings()
+    first.enableKeybindings()
+    expect(__getKeybindingLockCountForTest()).toBe(1)
+    second.enableKeybindings()
+    expect(__getKeybindingLockCountForTest()).toBe(0)
+  })
+})
 
 // Fixture builder to keep individual cases readable. Layout name in the
 // describe block is the conceptual layout; `key` and `code` are what the

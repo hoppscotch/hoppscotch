@@ -44,6 +44,10 @@ describe("console output capture", () => {
             args: [],
           }),
           expect.objectContaining({
+            type: "group",
+            args: ["outer"],
+          }),
+          expect.objectContaining({
             type: "count",
             args: ["default", 1],
           }),
@@ -62,10 +66,6 @@ describe("console output capture", () => {
           expect.objectContaining({
             type: "assert",
             args: ["Assertion failed"],
-          }),
-          expect.objectContaining({
-            type: "group",
-            args: ["outer"],
           }),
           expect.objectContaining({
             type: "log",

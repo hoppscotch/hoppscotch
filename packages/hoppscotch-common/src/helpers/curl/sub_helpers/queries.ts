@@ -4,6 +4,12 @@ import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as Sep from "fp-ts/Separated"
 
+const stripQuotes = (val: string) =>
+  (val.startsWith('"') && val.endsWith('"')) ||
+  (val.startsWith("'") && val.endsWith("'"))
+    ? val.slice(1, -1)
+    : val
+
 const isDangling = ([, value]: [string, string]) => !value
 
 /**
@@ -24,7 +30,7 @@ export function getQueries(params: Array<[string, string]>): {
         Sep.bimap(
           A.map(([key, value]) => ({
             key,
-            value,
+            value: stripQuotes(value),
             active: true,
             description: "",
           })),

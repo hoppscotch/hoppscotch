@@ -132,13 +132,7 @@ export const preProcessCurlCommand = (curlCommand: string) => {
         // For bash ANSI-C quotes $'...'
         if (hasEscapedQuote) {
           const unescapedContent = rawContent.replace(/\\'/g, "'")
-          if (isBoundary) {
-            output += `"${escapeDoubleQuotedWrapper(unescapedContent)}"`
-            i = end + 1
-            continue
-          }
-          // Inside a param / URL (e.g. ?q=$'a\'b')
-          output += unescapedContent
+          output += `"${escapeDoubleQuotedWrapper(unescapedContent)}"`
           i = end + 1
           continue
         }

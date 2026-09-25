@@ -93,18 +93,15 @@ export const preProcessCurlCommand = (curlCommand: string) => {
       continue
     }
 
-    const isBoundary = i === 0 || isWhitespace(cmd[i - 1])
-    const isShortOpt =
-      i >= 2 &&
-      /[a-zA-Z]/.test(cmd[i - 1]) &&
-      cmd[i - 2] === "-" &&
-      (i === 2 || isWhitespace(cmd[i - 3]))
-    const isDollarBoundary = isBoundary || cmd[i - 1] === "=" || isShortOpt
+    const isBoundary =
+      i === 0 ||
+      isWhitespace(cmd[i - 1]) ||
+      (output.length > 0 && isWhitespace(output[output.length - 1]))
 
-    // Handle bash ANSI-C / locale quotes: $'...' or $"..." outside quotes only at boundaries
+    // Handle bash ANSI-C / locale quotes: $'...' or $"..." outside quotes
     if (
-      isDollarBoundary &&
       ch === "$" &&
+      !isQuoteEscaped(cmd, i) &&
       (cmd[i + 1] === "'" || cmd[i + 1] === '"')
     ) {
       const nextQuote = cmd[i + 1] as "'" | '"'
@@ -122,27 +119,28 @@ export const preProcessCurlCommand = (curlCommand: string) => {
         const rawContent = cmd.slice(i + 2, end)
 
         if (nextQuote === '"') {
-          output += `"${escapeDoubleQuotedWrapper(rawContent)}"`
+          output += isBoundary
+            ? `"${escapeDoubleQuotedWrapper(rawContent)}"`
+            : rawContent
           i = end + 1
           continue
         }
 
         // For bash ANSI-C quotes $'...'
-        if (hasEscapedQuote) {
-          if (isBoundary) {
+        if (isBoundary) {
+          if (hasEscapedQuote) {
             const unescapedContent = rawContent.replace(/\\'/g, "'")
             output += `"${escapeDoubleQuotedWrapper(unescapedContent)}"`
-            i = end + 1
-            continue
+          } else {
+            output += `'${rawContent}'`
           }
-          // Inside a param / URL (e.g. ?q=$'a\'b')
-          // Percent-encode apostrophe so it doesn't leave an unbalanced single quote in yargs-parser
-          output += rawContent.replace(/\\'/g, "%27")
           i = end + 1
           continue
         }
 
-        output += `'${rawContent}'`
+        // Inside a param / URL or concatenated word (e.g. ?q=abc$'def' or ?q=$'a\'b')
+        // Percent-encode apostrophe so it doesn't leave an unbalanced single quote in yargs-parser
+        output += rawContent.replace(/\\'/g, "%27")
         i = end + 1
         continue
       }

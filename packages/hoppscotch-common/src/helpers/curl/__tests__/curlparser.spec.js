@@ -1491,6 +1491,32 @@ describe("Parse curl command to Hopp REST Request", () => {
     expect(JSON.parse(actual.body.body)).toEqual({ a: 1 })
   })
 
+  test("correctly parses concatenated ANSI-C and locale quotes in query parameters", () => {
+    const command = `curl https://example.com/api?q=abc$'def'&r=$'foo'&s=hello$"world"`
+
+    const actual = parseCurlToHoppRESTReq(command)
+    expect(actual.method).toBe("GET")
+    expect(actual.endpoint).toBe("https://example.com/api")
+    expect(actual.params).toContainEqual({
+      key: "q",
+      value: "abcdef",
+      active: true,
+      description: "",
+    })
+    expect(actual.params).toContainEqual({
+      key: "r",
+      value: "foo",
+      active: true,
+      description: "",
+    })
+    expect(actual.params).toContainEqual({
+      key: "s",
+      value: "helloworld",
+      active: true,
+      description: "",
+    })
+  })
+
   test("does not overwrite literal placeholder in non-data arguments when JSON data is extracted", () => {
     const command = `curl 'https://example.com/api' -H 'X-Test: __HOPP_CURL_JSON_DATA_0__' -d '{"target":"body"}'`
 

@@ -175,16 +175,12 @@ export const preProcessCurlCommand = (curlCommand: string) => {
         if (cmd[j] === "=") {
           j++
           if (replacement.length > 0) {
-            output += replacement + " "
-            // If the argument following '=' starts with '-' and is unquoted,
-            // quote it so yargs-parser treats it as the option value rather than another option flag
-            if (cmd[j] === "-") {
-              let k = j
-              while (k < cmd.length && !isWhitespace(cmd[k])) k++
-              const word = cmd.slice(j, k)
-              output += `'${word}' `
-              i = k
-              continue
+            // If followed by bash ANSI-C or locale quote, normalize with space
+            // so the quote handler can wrap it as a clean argument
+            if (cmd[j] === "$" && (cmd[j + 1] === "'" || cmd[j + 1] === '"')) {
+              output += replacement + " "
+            } else {
+              output += replacement + "="
             }
           }
         } else {
@@ -211,24 +207,13 @@ export const preProcessCurlCommand = (curlCommand: string) => {
         continue
       }
 
-      // 3. Check for short option with '=' followed by quote or value, or directly attached to ANSI-C quote:
+      // 3. Check for short option with '=' followed by quote, or directly attached to ANSI-C quote:
       const shortOptMatch = cmd
         .slice(i)
-        .match(/^-([a-zA-Z])(?:=(?=['"]|\$['"]|-)|(?=\$['"]))/i)
+        .match(/^-([a-zA-Z])(?:=(?=['"]|\$['"])|(?=\$['"]))/i)
       if (shortOptMatch) {
-        const optLetter = shortOptMatch[1]
-        const matchLen = shortOptMatch[0].length
-        output += "-" + optLetter + " "
-        // If short option had '=' followed by '-' and unquoted word, quote the word
-        if (cmd[i + 2] === "=" && cmd[i + 3] === "-") {
-          let k = i + 3
-          while (k < cmd.length && !isWhitespace(cmd[k])) k++
-          const word = cmd.slice(i + 3, k)
-          output += `'${word}' `
-          i = k
-          continue
-        }
-        i += matchLen
+        output += "-" + shortOptMatch[1] + " "
+        i += shortOptMatch[0].length
         continue
       }
     }

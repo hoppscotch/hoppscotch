@@ -177,7 +177,9 @@ const serializeConsoleValue = (value: unknown): string => {
 const copyEntry = () => {
   const content = displayArgs.value.map(serializeConsoleValue).join(" ")
 
-  if (!content) return
+  if (isGroup.value && sanitizedArgs.value.length === 0) {
+    return
+  }
 
   copyToClipboard(content)
   copyIcon.value = IconCheck

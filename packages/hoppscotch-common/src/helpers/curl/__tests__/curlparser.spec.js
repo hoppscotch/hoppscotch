@@ -4,6 +4,7 @@
 import { describe, expect, test } from "vitest"
 import { makeRESTRequest, rawKeyValueEntriesToString } from "@hoppscotch/data"
 import { parseCurlToHoppRESTReq } from ".."
+import { preProcessCurlCommand } from "../sub_helpers/preproc"
 
 const samples = [
   {
@@ -1413,6 +1414,46 @@ describe("Parse curl command to Hopp REST Request", () => {
         description: "",
       },
     ])
+  })
+
+  test("does not swallow subsequent options when escaped quote appears outside quotes during preprocessing", () => {
+    const command = `curl https://example.com/api?q=a\\"b -XPOST`
+
+    expect(preProcessCurlCommand(command)).toBe(
+      `curl https://example.com/api?q=a\\"b -X POST`
+    )
+  })
+
+  test("preserves query param and avoids placeholder leaks for ANSI-C strings with escaped quotes in URL", () => {
+    const command = `curl https://example.com/api?q=$'a\\'b'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+
+    expect(actual.method).toBe("GET")
+    expect(actual.endpoint).toBe("https://example.com/api")
+    expect(actual.params).toEqual([
+      {
+        active: true,
+        key: "q",
+        value: "a'b",
+        description: "",
+      },
+    ])
+  })
+
+  test("does not overwrite literal placeholder in non-data arguments when JSON data is extracted", () => {
+    const command = `curl 'https://example.com/api' -H 'X-Test: __HOPP_CURL_JSON_DATA_0__' -d '{"target":"body"}'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+
+    expect(actual.headers).toContainEqual({
+      key: "X-Test",
+      value: "__HOPP_CURL_JSON_DATA_0__",
+      active: true,
+      description: "",
+    })
+    expect(actual.body.contentType).toBe("application/json")
+    expect(JSON.parse(actual.body.body)).toEqual({ target: "body" })
   })
 
   for (const [i, { command, response }] of samples.entries()) {

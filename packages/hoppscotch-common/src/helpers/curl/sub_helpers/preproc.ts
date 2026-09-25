@@ -93,9 +93,9 @@ export const preProcessCurlCommand = (curlCommand: string) => {
       continue
     }
 
+    const isCmdBoundary = i === 0 || isWhitespace(cmd[i - 1])
     const isBoundary =
-      i === 0 ||
-      isWhitespace(cmd[i - 1]) ||
+      isCmdBoundary ||
       (output.length > 0 && isWhitespace(output[output.length - 1]))
 
     // Handle bash ANSI-C / locale quotes: $'...' or $"..." outside quotes
@@ -121,7 +121,7 @@ export const preProcessCurlCommand = (curlCommand: string) => {
         if (nextQuote === '"') {
           output += isBoundary
             ? `"${escapeDoubleQuotedWrapper(rawContent)}"`
-            : rawContent
+            : rawContent.replace(/[ \t\r\n]/g, (m) => encodeURIComponent(m))
           i = end + 1
           continue
         }
@@ -138,9 +138,11 @@ export const preProcessCurlCommand = (curlCommand: string) => {
           continue
         }
 
-        // Inside a param / URL or concatenated word (e.g. ?q=abc$'def' or ?q=$'a\'b')
-        // Percent-encode apostrophe so it doesn't leave an unbalanced single quote in yargs-parser
-        output += rawContent.replace(/\\'/g, "%27")
+        // Inside a param / URL or concatenated word (e.g. ?q=abc$'def' or ?q=$'hello world')
+        // Percent-encode apostrophe and whitespace so it preserves token boundaries in yargs-parser
+        output += rawContent
+          .replace(/\\'/g, "%27")
+          .replace(/[ \t\r\n]/g, (m) => encodeURIComponent(m))
         i = end + 1
         continue
       }
@@ -154,7 +156,7 @@ export const preProcessCurlCommand = (curlCommand: string) => {
       continue
     }
 
-    if (isBoundary) {
+    if (isCmdBoundary) {
       // 1. Check for long options
       let matchedLongOpt: string | null = null
       for (const opt of longOptionKeys) {
@@ -174,6 +176,16 @@ export const preProcessCurlCommand = (curlCommand: string) => {
           j++
           if (replacement.length > 0) {
             output += replacement + " "
+            // If the argument following '=' starts with '-' and is unquoted,
+            // quote it so yargs-parser treats it as the option value rather than another option flag
+            if (cmd[j] === "-") {
+              let k = j
+              while (k < cmd.length && !isWhitespace(cmd[k])) k++
+              const word = cmd.slice(j, k)
+              output += `'${word}' `
+              i = k
+              continue
+            }
           }
         } else {
           if (replacement.length > 0) {
@@ -202,10 +214,21 @@ export const preProcessCurlCommand = (curlCommand: string) => {
       // 3. Check for short option with '=' followed by quote or value, or directly attached to ANSI-C quote:
       const shortOptMatch = cmd
         .slice(i)
-        .match(/^-([a-zA-Z])(?:=(?=['"]|\$['"])|(?=\$['"]))/i)
+        .match(/^-([a-zA-Z])(?:=(?=['"]|\$['"]|-)|(?=\$['"]))/i)
       if (shortOptMatch) {
-        output += "-" + shortOptMatch[1] + " "
-        i += shortOptMatch[0].length
+        const optLetter = shortOptMatch[1]
+        const matchLen = shortOptMatch[0].length
+        output += "-" + optLetter + " "
+        // If short option had '=' followed by '-' and unquoted word, quote the word
+        if (cmd[i + 2] === "=" && cmd[i + 3] === "-") {
+          let k = i + 3
+          while (k < cmd.length && !isWhitespace(cmd[k])) k++
+          const word = cmd.slice(i + 3, k)
+          output += `'${word}' `
+          i = k
+          continue
+        }
+        i += matchLen
         continue
       }
     }

@@ -1531,6 +1531,38 @@ describe("Parse curl command to Hopp REST Request", () => {
     })
   })
 
+  test("preserves option-like values passed with equals in --data and -d", () => {
+    const cmd1 = `curl --data=--get https://example.com`
+    const actual1 = parseCurlToHoppRESTReq(cmd1)
+    expect(actual1.method).toBe("POST")
+    expect(actual1.body.body).toBe("--get")
+
+    const cmd2 = `curl -d=--get https://example.com`
+    const actual2 = parseCurlToHoppRESTReq(cmd2)
+    expect(actual2.method).toBe("POST")
+    expect(actual2.body.body).toBe("--get")
+  })
+
+  test("preserves token boundaries and spaces for mid-word locale and ANSI-C quotes", () => {
+    const command = `curl https://example.com/api?q=$"hello world"&r=$'it\\'s great'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+    expect(actual.method).toBe("GET")
+    expect(actual.endpoint).toBe("https://example.com/api")
+    expect(actual.params).toContainEqual({
+      key: "q",
+      value: "hello world",
+      active: true,
+      description: "",
+    })
+    expect(actual.params).toContainEqual({
+      key: "r",
+      value: "it's great",
+      active: true,
+      description: "",
+    })
+  })
+
   test("does not overwrite literal placeholder in non-data arguments when JSON data is extracted", () => {
     const command = `curl 'https://example.com/api' -H 'X-Test: __HOPP_CURL_JSON_DATA_0__' -d '{"target":"body"}'`
 

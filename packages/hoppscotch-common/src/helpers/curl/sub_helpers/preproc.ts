@@ -55,7 +55,6 @@ export const escapeDoubleQuotedWrapper = (str: string): string => {
   return result
 }
 
-
 /**
  * Sanitizes and makes curl string processable in a quote-aware manner.
  * Option normalizations, short-option equals, and bash ANSI-C quote transformations
@@ -84,15 +83,9 @@ export const preProcessCurlCommand = (curlCommand: string) => {
       output += ch
       if (
         (quoteMode === "'" && ch === "'") ||
-        (quoteMode === "$'" &&
-          ch === "'" &&
-          !isQuoteEscaped(cmd, i)) ||
-        (quoteMode === '"' &&
-          ch === '"' &&
-          !isQuoteEscaped(cmd, i)) ||
-        (quoteMode === '$"' &&
-          ch === '"' &&
-          !isQuoteEscaped(cmd, i))
+        (quoteMode === "$'" && ch === "'" && !isQuoteEscaped(cmd, i)) ||
+        (quoteMode === '"' && ch === '"' && !isQuoteEscaped(cmd, i)) ||
+        (quoteMode === '$"' && ch === '"' && !isQuoteEscaped(cmd, i))
       ) {
         quoteMode = null
       }
@@ -101,7 +94,12 @@ export const preProcessCurlCommand = (curlCommand: string) => {
     }
 
     const isBoundary = i === 0 || isWhitespace(cmd[i - 1])
-    const isDollarBoundary = isBoundary || cmd[i - 1] === "="
+    const isShortOpt =
+      i >= 2 &&
+      /[a-zA-Z]/.test(cmd[i - 1]) &&
+      cmd[i - 2] === "-" &&
+      (i === 2 || isWhitespace(cmd[i - 3]))
+    const isDollarBoundary = isBoundary || cmd[i - 1] === "=" || isShortOpt
 
     // Handle bash ANSI-C / locale quotes: $'...' or $"..." outside quotes only at boundaries
     if (
@@ -203,11 +201,13 @@ export const preProcessCurlCommand = (curlCommand: string) => {
         continue
       }
 
-      // 3. Check for short option with '=' followed by quote or value: -([a-zA-Z])=(?=['"]|\$['"])
-      const shortOptEqMatch = cmd.slice(i).match(/^-([a-zA-Z])=(?=['"]|\$['"])/)
-      if (shortOptEqMatch) {
-        output += "-" + shortOptEqMatch[1] + " "
-        i += shortOptEqMatch[0].length
+      // 3. Check for short option with '=' followed by quote or value, or directly attached to ANSI-C quote:
+      const shortOptMatch = cmd
+        .slice(i)
+        .match(/^-([a-zA-Z])(?:=(?=['"]|\$['"])|(?=\$['"]))/i)
+      if (shortOptMatch) {
+        output += "-" + shortOptMatch[1] + " "
+        i += shortOptMatch[0].length
         continue
       }
     }
@@ -319,9 +319,7 @@ export const restoreEscapedDoubleQuotes = <T>(
 
   const restoreVal = (val: unknown): unknown => {
     if (typeof val === "string") {
-      return val.includes(placeholder)
-        ? val.split(placeholder).join('"')
-        : val
+      return val.includes(placeholder) ? val.split(placeholder).join('"') : val
     }
     if (Array.isArray(val)) {
       return val.map(restoreVal)
@@ -343,8 +341,6 @@ export const restoreEscapedDoubleQuotes = <T>(
   }
   return restored as T
 }
-
-
 
 const JSON_DATA_PLACEHOLDER_PREFIX = "__HOPP_CURL_JSON_DATA_"
 const JSON_DATA_PLACEHOLDER_SUFFIX = "__"

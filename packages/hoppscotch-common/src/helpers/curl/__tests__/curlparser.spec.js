@@ -1476,6 +1476,21 @@ describe("Parse curl command to Hopp REST Request", () => {
     ])
   })
 
+  test("correctly parses ANSI-C arguments directly attached to short options", () => {
+    const command = `curl 'https://example.com/api' -d$'{"a":1}' -H$'X-Test: value'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+    expect(actual.method).toBe("POST")
+    expect(actual.headers).toContainEqual({
+      key: "X-Test",
+      value: "value",
+      active: true,
+      description: "",
+    })
+    expect(actual.body.contentType).toBe("application/json")
+    expect(JSON.parse(actual.body.body)).toEqual({ a: 1 })
+  })
+
   test("does not overwrite literal placeholder in non-data arguments when JSON data is extracted", () => {
     const command = `curl 'https://example.com/api' -H 'X-Test: __HOPP_CURL_JSON_DATA_0__' -d '{"target":"body"}'`
 

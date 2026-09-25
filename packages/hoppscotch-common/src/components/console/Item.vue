@@ -177,6 +177,8 @@ const serializeConsoleValue = (value: unknown): string => {
 const copyEntry = () => {
   const content = displayArgs.value.map(serializeConsoleValue).join(" ")
 
+  if (!content) return
+
   copyToClipboard(content)
   copyIcon.value = IconCheck
   toast.success(t("state.copied_to_clipboard"))

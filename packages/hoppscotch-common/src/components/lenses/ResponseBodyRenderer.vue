@@ -158,7 +158,9 @@ const showConsoleTab = computed(() => {
   }
 
   return (
-    doc.value.testResults?.consoleEntries.length > 0 &&
+    doc.value.testResults.consoleEntries.some(
+      ({ type }) => type !== "clear" && type !== "groupEnd"
+    ) &&
     EXPERIMENTAL_SCRIPTING_SANDBOX.value
   )
 })

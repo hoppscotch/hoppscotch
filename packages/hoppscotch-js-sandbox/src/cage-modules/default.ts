@@ -74,11 +74,7 @@ export const defaultModules = (config?: DefaultModulesConfig) => {
       ) {
         const displayLabel = label ?? "default"
 
-        if (label === undefined) {
-          console.timeLog()
-        } else {
-          console.timeLog(label, ...args)
-        }
+        console.timeLog(displayLabel, ...args)
 
         emitConsoleEntry({
           type: "timeLog",

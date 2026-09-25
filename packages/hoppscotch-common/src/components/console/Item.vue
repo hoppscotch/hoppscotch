@@ -139,7 +139,7 @@ const sanitizedArgs = computed(() => props.entry.args.map(sanitizeArg))
 
 const displayArgs = computed(() => {
   if (isGroup.value && sanitizedArgs.value.length === 0) {
-    return [props.entry.collapsed ? "console.groupCollapsed" : "console.group"]
+    return []
   }
 
   return sanitizedArgs.value

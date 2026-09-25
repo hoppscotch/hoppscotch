@@ -24,7 +24,9 @@ import { getBody, getFArgumentMultipartData } from "./sub_helpers/body"
 import { getMethod } from "./sub_helpers/method"
 import {
   preProcessCurlCommand,
+  protectEscapedDoubleQuotes,
   replaceJSONDataArgsWithPlaceholders,
+  restoreEscapedDoubleQuotes,
   restoreJSONDataArgsFromPlaceholders,
 } from "./sub_helpers/preproc"
 import { getQueries } from "./sub_helpers/queries"
@@ -46,8 +48,12 @@ export const parseCurlCommand = (curlCommand: string) => {
   const { curlCommand: sanitizedCurlCommand, extractedJSONData } =
     replaceJSONDataArgsWithPlaceholders(curlCommand)
 
+  const protectedCommand = protectEscapedDoubleQuotes(sanitizedCurlCommand)
+
+  const rawArgs = restoreEscapedDoubleQuotes(parser(protectedCommand))
+
   const args: parser.Arguments = restoreJSONDataArgsFromPlaceholders(
-    parser(sanitizedCurlCommand),
+    rawArgs,
     extractedJSONData
   )
 

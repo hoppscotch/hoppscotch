@@ -1456,6 +1456,50 @@ describe("Parse curl command to Hopp REST Request", () => {
     expect(JSON.parse(actual.body.body)).toEqual({ target: "body" })
   })
 
+  test("correctly parses ANSI-C header containing both escaped single quote and double quotes", () => {
+    const command = `curl 'https://example.com/api' -H $'X-Test: it\\'s "a b"'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+    expect(actual.headers).toContainEqual({
+      key: "X-Test",
+      value: `it\\'s "a b"`,
+      active: true,
+      description: "",
+    })
+  })
+
+  test("correctly parses ANSI-C header containing double quotes and trailing escaped single quote", () => {
+    const command = `curl 'https://example.com/api' -H $'X-Test: "quoted" \\''`
+
+    const actual = parseCurlToHoppRESTReq(command)
+    expect(actual.headers).toContainEqual({
+      key: "X-Test",
+      value: `"quoted" \\'`,
+      active: true,
+      description: "",
+    })
+  })
+
+  test("correctly parses locale string header with embedded quotes", () => {
+    const command = `curl 'https://example.com/api' -H $"X-Test: \\"quoted\\" \\'"`
+
+    const actual = parseCurlToHoppRESTReq(command)
+    expect(actual.headers).toContainEqual({
+      key: "X-Test",
+      value: `"quoted" \\'`,
+      active: true,
+      description: "",
+    })
+  })
+
+  test("correctly parses ANSI-C JSON body with escaped double quotes", () => {
+    const command = `curl 'https://example.com/api' -H 'Content-Type: application/json' -d $'{"name": "it\\'s \\"special\\""}'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+    expect(actual.body.contentType).toBe("application/json")
+    expect(actual.body.body).toBeDefined()
+  })
+
   for (const [i, { command, response }] of samples.entries()) {
     test(`for sample #${i + 1}:\n\n${command}`, () => {
       const actual = parseCurlToHoppRESTReq(command)

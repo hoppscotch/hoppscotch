@@ -35,6 +35,28 @@ export const isQuoteEscaped = (str: string, index: number): boolean =>
   countPrecedingBackslashes(str, index) % 2 === 1
 
 /**
+ * Escapes backslashes and double quotes so that the content can be safely
+ * wrapped in double quotes without prematurely terminating the wrapper or
+ * corrupting escaped characters.
+ */
+export const escapeDoubleQuotedWrapper = (str: string): string => {
+  let result = ""
+  for (let idx = 0; idx < str.length; idx++) {
+    const ch = str[idx]
+    if (ch === '"' && !isQuoteEscaped(str, idx)) {
+      result += '\\"'
+      continue
+    }
+    result += ch
+  }
+  if (countPrecedingBackslashes(str, str.length) % 2 === 1) {
+    result += "\\"
+  }
+  return result
+}
+
+
+/**
  * Sanitizes and makes curl string processable in a quote-aware manner.
  * Option normalizations, short-option equals, and bash ANSI-C quote transformations
  * are only performed outside shell-quoted arguments to prevent corrupting payloads or queries.
@@ -102,7 +124,7 @@ export const preProcessCurlCommand = (curlCommand: string) => {
         const rawContent = cmd.slice(i + 2, end)
 
         if (nextQuote === '"') {
-          output += `"${rawContent}"`
+          output += `"${escapeDoubleQuotedWrapper(rawContent)}"`
           i = end + 1
           continue
         }
@@ -110,7 +132,7 @@ export const preProcessCurlCommand = (curlCommand: string) => {
         // For bash ANSI-C quotes $'...'
         if (hasEscapedQuote) {
           if (isBoundary) {
-            output += `"${rawContent}"`
+            output += `"${escapeDoubleQuotedWrapper(rawContent)}"`
             i = end + 1
             continue
           }
@@ -194,6 +216,99 @@ export const preProcessCurlCommand = (curlCommand: string) => {
 
   return output.trim()
 }
+
+export const ESCAPED_DQUOTE_PLACEHOLDER = "__HOPP_ESC_DQUOTE__"
+
+/**
+ * Replaces escaped double quotes (\") inside double-quoted arguments with a placeholder
+ * so that yargs-parser does not prematurely terminate the quoted string and split on spaces.
+ */
+export const protectEscapedDoubleQuotes = (cmd: string): string => {
+  let output = ""
+  let quote: "'" | '"' | null = null
+
+  for (let i = 0; i < cmd.length; i++) {
+    const ch = cmd[i]
+
+    if (quote === "'") {
+      if (ch === "'") {
+        quote = null
+      }
+      output += ch
+      continue
+    }
+
+    if (quote === '"') {
+      if (ch === '"' && !isQuoteEscaped(cmd, i)) {
+        quote = null
+        output += ch
+        continue
+      }
+      if (ch === '"' && isQuoteEscaped(cmd, i)) {
+        if (output.endsWith("\\")) {
+          output = output.slice(0, -1)
+        }
+        output += ESCAPED_DQUOTE_PLACEHOLDER
+        continue
+      }
+      output += ch
+      continue
+    }
+
+    if (ch === "'" && !isQuoteEscaped(cmd, i)) {
+      quote = "'"
+      output += ch
+      continue
+    }
+
+    if (ch === '"' && !isQuoteEscaped(cmd, i)) {
+      quote = '"'
+      output += ch
+      continue
+    }
+
+    output += ch
+  }
+
+  return output
+}
+
+/**
+ * Restores escaped double quote placeholders in parsed arguments.
+ */
+export const restoreEscapedDoubleQuotes = <T>(parsedArguments: T): T => {
+  if (!parsedArguments || typeof parsedArguments !== "object") {
+    return parsedArguments
+  }
+
+  const restoreVal = (val: unknown): unknown => {
+    if (typeof val === "string") {
+      return val.includes(ESCAPED_DQUOTE_PLACEHOLDER)
+        ? val.split(ESCAPED_DQUOTE_PLACEHOLDER).join('"')
+        : val
+    }
+    if (Array.isArray(val)) {
+      return val.map(restoreVal)
+    }
+    if (val && typeof val === "object") {
+      const res: Record<string, unknown> = {}
+      for (const k of Object.keys(val)) {
+        res[k] = restoreVal((val as Record<string, unknown>)[k])
+      }
+      return res
+    }
+    return val
+  }
+
+  const args = parsedArguments as Record<string, unknown>
+  const restored: Record<string, unknown> = {}
+  for (const k of Object.keys(args)) {
+    restored[k] = restoreVal(args[k])
+  }
+  return restored as T
+}
+
+
 
 const JSON_DATA_PLACEHOLDER_PREFIX = "__HOPP_CURL_JSON_DATA_"
 const JSON_DATA_PLACEHOLDER_SUFFIX = "__"

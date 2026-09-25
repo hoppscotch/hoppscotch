@@ -1456,6 +1456,26 @@ describe("Parse curl command to Hopp REST Request", () => {
     ])
   })
 
+  test("preserves literal quotes in query parameter values", () => {
+    const command = `curl 'https://example.com/api?q="hello world"&a="'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+    expect(actual.params).toEqual([
+      {
+        active: true,
+        key: "q",
+        value: '"hello world"',
+        description: "",
+      },
+      {
+        active: true,
+        key: "a",
+        value: '"',
+        description: "",
+      },
+    ])
+  })
+
   test("does not overwrite literal placeholder in non-data arguments when JSON data is extracted", () => {
     const command = `curl 'https://example.com/api' -H 'X-Test: __HOPP_CURL_JSON_DATA_0__' -d '{"target":"body"}'`
 

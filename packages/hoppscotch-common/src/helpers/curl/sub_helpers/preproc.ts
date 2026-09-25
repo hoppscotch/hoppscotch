@@ -131,8 +131,15 @@ export const preProcessCurlCommand = (curlCommand: string) => {
 
         // For bash ANSI-C quotes $'...'
         if (hasEscapedQuote) {
-          const unescapedContent = rawContent.replace(/\\'/g, "'")
-          output += `"${escapeDoubleQuotedWrapper(unescapedContent)}"`
+          if (isBoundary) {
+            const unescapedContent = rawContent.replace(/\\'/g, "'")
+            output += `"${escapeDoubleQuotedWrapper(unescapedContent)}"`
+            i = end + 1
+            continue
+          }
+          // Inside a param / URL (e.g. ?q=$'a\'b')
+          // Percent-encode apostrophe so it doesn't leave an unbalanced single quote in yargs-parser
+          output += rawContent.replace(/\\'/g, "%27")
           i = end + 1
           continue
         }

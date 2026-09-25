@@ -1364,7 +1364,7 @@ describe("Parse curl command to Hopp REST Request", () => {
     expect(actual.method).toBe("GET")
     const customHeader = actual.headers.find((h) => h.key === "X-Custom")
     expect(customHeader).toBeDefined()
-    expect(customHeader?.value).toBe(`val\\' --request POST`)
+    expect(customHeader?.value).toBe("val' --request POST")
   })
 
   test("correctly parses request method and JSON body when header ends with escaped backslashes before closing quote", () => {
@@ -1462,7 +1462,7 @@ describe("Parse curl command to Hopp REST Request", () => {
     const actual = parseCurlToHoppRESTReq(command)
     expect(actual.headers).toContainEqual({
       key: "X-Test",
-      value: `it\\'s "a b"`,
+      value: `it's "a b"`,
       active: true,
       description: "",
     })
@@ -1474,7 +1474,7 @@ describe("Parse curl command to Hopp REST Request", () => {
     const actual = parseCurlToHoppRESTReq(command)
     expect(actual.headers).toContainEqual({
       key: "X-Test",
-      value: `"quoted" \\'`,
+      value: `"quoted" '`,
       active: true,
       description: "",
     })
@@ -1492,12 +1492,51 @@ describe("Parse curl command to Hopp REST Request", () => {
     })
   })
 
-  test("correctly parses ANSI-C JSON body with escaped double quotes", () => {
-    const command = `curl 'https://example.com/api' -H 'Content-Type: application/json' -d $'{"name": "it\\'s \\"special\\""}'`
+  test("correctly parses ANSI-C JSON body with escaped quote", () => {
+    const command = `curl 'https://example.com/api' -H 'Content-Type: application/json' -d $'{"name": "it\\'s special"}'`
 
     const actual = parseCurlToHoppRESTReq(command)
     expect(actual.body.contentType).toBe("application/json")
-    expect(actual.body.body).toBeDefined()
+    expect(actual.body.body).toBe('{\n  "name": "it\'s special"\n}')
+    expect(JSON.parse(actual.body.body)).toEqual({ name: "it's special" })
+  })
+
+  test("correctly preserves request method and body for non-JSON --data-raw argument", () => {
+    const command = `curl 'https://example.com/api' --data-raw 'a=b&c=d'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+    expect(actual.method).toBe("POST")
+    expect(actual.body.body).toBe("a: b\nc: d")
+  })
+
+  test("does not restore literal sentinel string when no quotes were protected", () => {
+    const command = `curl "https://example.com/" -H "X-Tag: __HOPP_ESC_DQUOTE__"`
+
+    const actual = parseCurlToHoppRESTReq(command)
+    expect(actual.headers).toContainEqual({
+      key: "X-Tag",
+      value: "__HOPP_ESC_DQUOTE__",
+      active: true,
+      description: "",
+    })
+  })
+
+  test("does not overwrite literal sentinel string even if other escaped quotes exist", () => {
+    const command = `curl 'https://example.com/api' -H 'X-Test: __HOPP_ESC_DQUOTE__' -H $'X-Other: "quoted" \\''`
+
+    const actual = parseCurlToHoppRESTReq(command)
+    expect(actual.headers).toContainEqual({
+      key: "X-Test",
+      value: "__HOPP_ESC_DQUOTE__",
+      active: true,
+      description: "",
+    })
+    expect(actual.headers).toContainEqual({
+      key: "X-Other",
+      value: `"quoted" '`,
+      active: true,
+      description: "",
+    })
   })
 
   for (const [i, { command, response }] of samples.entries()) {

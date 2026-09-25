@@ -3,7 +3,7 @@ const replaceables: { [key: string]: string } = {
   "--header": "-H",
   "--url": "",
   "--form": "-F",
-  "--data-raw": "--data",
+  "--data-raw": "-d",
   "--data": "-d",
   "--data-ascii": "-d",
   "--data-binary": "-d",
@@ -131,13 +131,14 @@ export const preProcessCurlCommand = (curlCommand: string) => {
 
         // For bash ANSI-C quotes $'...'
         if (hasEscapedQuote) {
+          const unescapedContent = rawContent.replace(/\\'/g, "'")
           if (isBoundary) {
-            output += `"${escapeDoubleQuotedWrapper(rawContent)}"`
+            output += `"${escapeDoubleQuotedWrapper(unescapedContent)}"`
             i = end + 1
             continue
           }
           // Inside a param / URL (e.g. ?q=$'a\'b')
-          output += rawContent.replace(/\\'/g, "'")
+          output += unescapedContent
           i = end + 1
           continue
         }
@@ -217,15 +218,35 @@ export const preProcessCurlCommand = (curlCommand: string) => {
   return output.trim()
 }
 
-export const ESCAPED_DQUOTE_PLACEHOLDER = "__HOPP_ESC_DQUOTE__"
+export interface ProtectedCommandResult {
+  protectedCommand: string
+  placeholder: string | null
+}
 
 /**
- * Replaces escaped double quotes (\") inside double-quoted arguments with a placeholder
- * so that yargs-parser does not prematurely terminate the quoted string and split on spaces.
+ * Replaces escaped double quotes (\") inside double-quoted arguments with a collision-proof
+ * dynamic placeholder so that yargs-parser does not prematurely terminate the quoted string
+ * and split on spaces.
  */
-export const protectEscapedDoubleQuotes = (cmd: string): string => {
+export const protectEscapedDoubleQuotes = (
+  cmd: string
+): ProtectedCommandResult => {
+  if (!cmd.includes('\\"')) {
+    return {
+      protectedCommand: cmd,
+      placeholder: null,
+    }
+  }
+
+  // Generate a collision-proof dynamic placeholder guaranteed not to exist in cmd
+  let candidate = `__HOPP_ESC_DQUOTE_${Math.random().toString(36).slice(2)}__`
+  while (cmd.includes(candidate)) {
+    candidate = `__HOPP_ESC_DQUOTE_${Math.random().toString(36).slice(2)}__`
+  }
+
   let output = ""
   let quote: "'" | '"' | null = null
+  let replacementCount = 0
 
   for (let i = 0; i < cmd.length; i++) {
     const ch = cmd[i]
@@ -248,7 +269,8 @@ export const protectEscapedDoubleQuotes = (cmd: string): string => {
         if (output.endsWith("\\")) {
           output = output.slice(0, -1)
         }
-        output += ESCAPED_DQUOTE_PLACEHOLDER
+        output += candidate
+        replacementCount++
         continue
       }
       output += ch
@@ -270,21 +292,34 @@ export const protectEscapedDoubleQuotes = (cmd: string): string => {
     output += ch
   }
 
-  return output
+  if (replacementCount === 0) {
+    return {
+      protectedCommand: cmd,
+      placeholder: null,
+    }
+  }
+
+  return {
+    protectedCommand: output,
+    placeholder: candidate,
+  }
 }
 
 /**
  * Restores escaped double quote placeholders in parsed arguments.
  */
-export const restoreEscapedDoubleQuotes = <T>(parsedArguments: T): T => {
-  if (!parsedArguments || typeof parsedArguments !== "object") {
+export const restoreEscapedDoubleQuotes = <T>(
+  parsedArguments: T,
+  placeholder: string | null
+): T => {
+  if (!placeholder || !parsedArguments || typeof parsedArguments !== "object") {
     return parsedArguments
   }
 
   const restoreVal = (val: unknown): unknown => {
     if (typeof val === "string") {
-      return val.includes(ESCAPED_DQUOTE_PLACEHOLDER)
-        ? val.split(ESCAPED_DQUOTE_PLACEHOLDER).join('"')
+      return val.includes(placeholder)
+        ? val.split(placeholder).join('"')
         : val
     }
     if (Array.isArray(val)) {

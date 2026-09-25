@@ -176,7 +176,7 @@ export function hookKeybindingsListener() {
   })
 }
 
-function handleKeyDown(ev: KeyboardEvent) {
+export function handleKeyDown(ev: KeyboardEvent) {
   // Do not check keybinds if the mode is disabled
   if (keybindingLocks.size > 0) return
 

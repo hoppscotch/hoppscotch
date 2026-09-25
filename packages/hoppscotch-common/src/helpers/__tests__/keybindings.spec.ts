@@ -1,25 +1,47 @@
-import { describe, expect, test } from "vitest"
+import { describe, expect, test, vi } from "vitest"
+
+const { invokeActionMock } = vi.hoisted(() => ({ invokeActionMock: vi.fn() }))
+
+vi.mock("../actions", () => ({ invokeAction: invokeActionMock }))
+vi.mock("../platformutils", () => ({ isAppleDevice: () => false }))
+
 import {
   __getKeybindingLockCountForTest,
   __resetKeybindingLocksForTest,
   bindings,
+  handleKeyDown,
   resolvePressedKey,
   useKeybindingDisabler,
 } from "../keybindings"
 
 describe("useKeybindingDisabler", () => {
-  test("keeps an instance locked until matching enables complete", () => {
+  test("keeps shortcuts disabled until matching enables complete", () => {
     __resetKeybindingLocksForTest()
+    invokeActionMock.mockReset()
     const disabler = useKeybindingDisabler()
+    const shortcut = new KeyboardEvent("keydown", {
+      key: "k",
+      code: "KeyK",
+      ctrlKey: true,
+    })
 
     disabler.disableKeybindings()
     disabler.disableKeybindings()
-    expect(__getKeybindingLockCountForTest()).toBe(1)
+    handleKeyDown(shortcut)
+    expect(invokeActionMock).not.toHaveBeenCalled()
 
     disabler.enableKeybindings()
-    expect(__getKeybindingLockCountForTest()).toBe(1)
+    handleKeyDown(shortcut)
+    expect(invokeActionMock).not.toHaveBeenCalled()
+
     disabler.enableKeybindings()
-    expect(__getKeybindingLockCountForTest()).toBe(0)
+    handleKeyDown(shortcut)
+    expect(invokeActionMock).toHaveBeenCalledOnce()
+    expect(invokeActionMock).toHaveBeenCalledWith(
+      "modals.search.toggle",
+      undefined,
+      "keypress"
+    )
   })
 
   test("keeps independent instances isolated", () => {

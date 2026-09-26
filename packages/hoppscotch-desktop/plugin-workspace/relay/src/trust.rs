@@ -281,6 +281,17 @@ fn decide(
     }
 }
 
+/// How many of the resolved anchors the System domain contributed, which is
+/// what decides the fallback, ∵ the public roots are System's and a trusted
+/// User or Admin anchor beside an empty System domain is not a trust store.
+#[cfg(target_os = "macos")]
+fn system_anchor_count(resolved: &[Vec<u8>], system: &[Vec<u8>]) -> usize {
+    resolved
+        .iter()
+        .filter(|der| system.contains(der))
+        .count()
+}
+
 #[cfg(target_os = "macos")]
 fn read_platform() -> Option<TrustBundle> {
     use security_framework::trust_settings::{Domain, TrustSettings};
@@ -288,6 +299,7 @@ fn read_platform() -> Option<TrustBundle> {
     let mut entries: Vec<(Vec<u8>, Vec<u8>, Decision)> = Vec::new();
     let mut read = 0usize;
     let mut system_read = false;
+    let mut system_certificates: Vec<Vec<u8>> = Vec::new();
 
     // User settings override Admin settings, which override what the System
     // domain ships, so the domains are read in that order and the first
@@ -313,6 +325,9 @@ fn read_platform() -> Option<TrustBundle> {
                     tracing::warn!(error = %e, domain = ?domain, "Trust settings read failed");
                 });
             let decision = decide(matches!(domain, Domain::System), setting, &der);
+            if matches!(domain, Domain::System) {
+                system_certificates.push(der.clone());
+            }
             entries.push((der.clone(), der, decision));
         }
     }
@@ -326,14 +341,18 @@ fn read_platform() -> Option<TrustBundle> {
     if read == 0 {
         return None;
     }
-    // A System domain that failed to open leaves the public roots out, and a
-    // blob of locally installed roots alone would fail every public endpoint,
-    // so the compiled-in set stands in for the domain that went unread. The
-    // roots a domain denied are removed from it, ∵ a fallback that restored
-    // them would undo the denial that made the read empty.
-    if !system_read || ders.is_empty() {
+    // The public roots come from the System domain, so the fallback keys on
+    // what that domain contributed rather than on the resolved set, ∵ one
+    // trusted User anchor beside a System domain that went unread, or whose
+    // every entry was denied, would otherwise pass as a full trust store and
+    // fail every public endpoint. The roots a domain denied are removed from
+    // the compiled-in set, ∵ a fallback that restored them would undo the
+    // denial that emptied the read.
+    let system_anchors = system_anchor_count(&ders, &system_certificates);
+    if !system_read || system_anchors == 0 {
         tracing::warn!(
             anchors = ders.len(),
+            system_anchors,
             "Host trust store read short, extending with the bundled roots"
         );
         let mut bundled = parse_lenient(curl_sys::certs::get_cert_content().as_bytes());
@@ -483,7 +502,16 @@ fn read_platform() -> Option<TrustBundle> {
         StoreUsage::Restricted(oids)
     }
 
-    fn read_store(flag: u32, label: &str, name: &str) -> Option<Vec<(Vec<u8>, StoreUsage)>> {
+    // A store that is not there and a store that would not read are different
+    // answers, ∵ several locations ship no `Disallowed` store at all while a
+    // read that fails partway leaves revocations unseen.
+    enum StoreRead {
+        Entries(Vec<(Vec<u8>, StoreUsage)>),
+        Absent,
+        Failed,
+    }
+
+    fn read_store(flag: u32, label: &str, name: &str) -> StoreRead {
         let wide: Vec<u16> = name.encode_utf16().chain(std::iter::once(0)).collect();
         let store = unsafe {
             CertOpenStore(
@@ -496,7 +524,7 @@ fn read_platform() -> Option<TrustBundle> {
         };
         if store.is_null() {
             tracing::debug!(store = %format!("{label}/{name}"), "Certificate store absent");
-            return None;
+            return StoreRead::Absent;
         }
         let mut ders = Vec::new();
         let mut ctx: *const CERT_CONTEXT = ptr::null();
@@ -525,19 +553,37 @@ fn read_platform() -> Option<TrustBundle> {
         // Closed on the enumeration's only exit, so every store that opens is
         // released exactly once.
         unsafe { CertCloseStore(store, 0) };
-        complete.then_some(ders)
+        if complete {
+            StoreRead::Entries(ders)
+        } else {
+            StoreRead::Failed
+        }
     }
 
     let mut roots: Vec<(Vec<u8>, StoreUsage)> = Vec::new();
     let mut revoked: Vec<Vec<u8>> = Vec::new();
     let mut read = 0usize;
     for (flag, label) in LOCATIONS {
-        if let Some(entries) = read_store(*flag, label, "ROOT") {
+        // A `Disallowed` store that will not read leaves revocations unknown
+        // for this location, and exporting its roots would hand curl the
+        // certificates Windows revoked, so the host read is abandoned and the
+        // compiled-in roots stand in for the whole store.
+        match read_store(*flag, label, "Disallowed") {
+            StoreRead::Entries(entries) => {
+                revoked.extend(entries.into_iter().map(|(der, _)| der));
+            }
+            StoreRead::Absent => {}
+            StoreRead::Failed => {
+                tracing::warn!(
+                    location = %label,
+                    "Disallowed store unreadable, falling back to the bundled roots"
+                );
+                return None;
+            }
+        }
+        if let StoreRead::Entries(entries) = read_store(*flag, label, "ROOT") {
             read += entries.len();
             roots.extend(entries);
-        }
-        if let Some(entries) = read_store(*flag, label, "Disallowed") {
-            revoked.extend(entries.into_iter().map(|(der, _)| der));
         }
     }
 
@@ -720,6 +766,23 @@ mod tests {
                 decide(true, Ok(Some(TrustSettingsForCertificate::TrustRoot)), &der),
                 Decision::Trust
             );
+        }
+
+        // A User anchor beside a System domain whose entries were all denied
+        // used to read as a full trust store, so the compiled-in roots stayed
+        // out and every public endpoint failed.
+        #[test]
+        fn a_user_anchor_alone_leaves_the_system_count_at_zero() {
+            let system = vec![root("system-denied", &key(), None)];
+            let resolved = vec![root("user-trusted", &key(), None)];
+            assert_eq!(system_anchor_count(&resolved, &system), 0);
+        }
+
+        #[test]
+        fn a_retained_system_anchor_is_counted() {
+            let der = root("system-kept", &key(), None);
+            let system = vec![der.clone()];
+            assert_eq!(system_anchor_count(&[der], &system), 1);
         }
 
         #[test]

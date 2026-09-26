@@ -38,6 +38,7 @@ describe("parseBodyEnvVariables", () => {
 
   test("returns the body unchanged when variables reference each other in a loop", () => {
     const loopVars: Environment["variables"] = [
+      ...vars,
       { key: "a", initialValue: "<<b>>", currentValue: "<<b>>", secret: false },
       { key: "b", initialValue: "<<a>>", currentValue: "<<a>>", secret: false },
     ]

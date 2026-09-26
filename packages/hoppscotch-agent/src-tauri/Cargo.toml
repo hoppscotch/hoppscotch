@@ -32,7 +32,7 @@ rand = "0.8.5"
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.20", features = ["env-filter", "json", "fmt", "std", "time"] }
 tracing-appender = "0.2.3"
-relay = { git = "https://github.com/CuriousCorrelation/relay.git", rev = "0b15521e5ba2bccfc2f07d1c4c40b2dc49770868" }
+relay = { git = "https://github.com/CuriousCorrelation/relay.git", rev = "a885701d7c4e9670c2c863e3c66fa82f3b00de1b" }
 thiserror = "1.0.69"
 tauri-plugin-store = "2.4.1"
 x25519-dalek = { version = "2.0.1", features = ["getrandom"] }

@@ -355,7 +355,7 @@ fn read_platform() -> Option<TrustBundle> {
 fn read_platform() -> Option<TrustBundle> {
     use std::ptr;
 
-    use windows_sys::Win32::Foundation::{GetLastError, CRYPT_E_NOT_FOUND};
+    use windows_sys::Win32::Foundation::{GetLastError, SetLastError, CRYPT_E_NOT_FOUND};
     use windows_sys::Win32::Security::Cryptography::{
         CertCloseStore, CertEnumCertificatesInStore, CertGetEnhancedKeyUsage, CertOpenStore,
         CERT_CONTEXT, CERT_ENHKEY_USAGE, CERT_FIND_PROP_ONLY_ENHKEY_USAGE_FLAG,
@@ -405,10 +405,16 @@ fn read_platform() -> Option<TrustBundle> {
     const SERVER_AUTH_OID: &str = "1.3.6.1.5.5.7.3.1";
     const ANY_USAGE_OID: &str = "2.5.29.37.0";
 
-    // An absent property and an unreadable one are the same return value, so
-    // the last error separates them, `CRYPT_E_NOT_FOUND` for the entry that
-    // constrains nothing and anything else for a policy this process could not
-    // read, which is denied rather than exported.
+    // An absent property and an unreadable one are the same return value, and
+    // a property present but naming no usage is the same as one naming every
+    // usage, so `CertGetEnhancedKeyUsage` answers all three through the last
+    // error, `CRYPT_E_NOT_FOUND` where the entry constrains nothing and
+    // anything else where the entry permits nothing or could not be read.
+    //
+    // The error is cleared before each call, ∵ the value is only meaningful
+    // when this call set it, and the store enumeration around it ends with
+    // `CRYPT_E_NOT_FOUND` of its own, which an entry permitting nothing would
+    // otherwise inherit and be exported on.
     fn no_property() -> bool {
         let error = unsafe { GetLastError() };
         error as i32 == CRYPT_E_NOT_FOUND
@@ -417,6 +423,7 @@ fn read_platform() -> Option<TrustBundle> {
     fn store_usage(ctx: *const CERT_CONTEXT) -> StoreUsage {
         let mut size = 0u32;
         let ok = unsafe {
+            SetLastError(0);
             CertGetEnhancedKeyUsage(
                 ctx,
                 CERT_FIND_PROP_ONLY_ENHKEY_USAGE_FLAG,
@@ -442,6 +449,7 @@ fn read_platform() -> Option<TrustBundle> {
         let mut buffer = vec![0usize; words];
         let usage = buffer.as_mut_ptr() as *mut CERT_ENHKEY_USAGE;
         let ok = unsafe {
+            SetLastError(0);
             CertGetEnhancedKeyUsage(
                 ctx,
                 CERT_FIND_PROP_ONLY_ENHKEY_USAGE_FLAG,

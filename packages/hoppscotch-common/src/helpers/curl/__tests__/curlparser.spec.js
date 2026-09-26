@@ -1841,6 +1841,18 @@ describe("Parse curl command to Hopp REST Request", () => {
     })
   })
 
+  test("correctly parses Basic auth with question mark and ANSI-C space in password without percent encoding", () => {
+    const command = `curl https://example.com -u user:p?$' a'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+    expect(actual.auth).toEqual({
+      authActive: true,
+      authType: "basic",
+      username: "user",
+      password: "p? a",
+    })
+  })
+
   for (const [i, { command, response }] of samples.entries()) {
     test(`for sample #${i + 1}:\n\n${command}`, () => {
       const actual = parseCurlToHoppRESTReq(command)

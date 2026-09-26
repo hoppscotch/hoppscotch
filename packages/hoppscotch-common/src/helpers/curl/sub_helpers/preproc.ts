@@ -55,17 +55,65 @@ export const escapeDoubleQuotedWrapper = (str: string): string => {
   return result
 }
 
+const nonUrlFlags = [
+  "-u",
+  "--user",
+  "-H",
+  "--header",
+  "-d",
+  "--data",
+  "--data-raw",
+  "--data-ascii",
+  "--data-binary",
+  "--data-urlencode",
+  "-F",
+  "--form",
+  "-X",
+  "--request",
+  "-A",
+  "--user-agent",
+  "-b",
+  "--cookie",
+  "-c",
+  "--cookie-jar",
+  "-o",
+  "--output",
+]
+
 const isInsideUrlToken = (output: string): boolean => {
   let lastSpace = output.length - 1
   while (lastSpace >= 0 && !isWhitespace(output[lastSpace])) {
     lastSpace--
   }
   const currentToken = output.slice(lastSpace + 1)
+
+  // Check the preceding token (if any)
+  let prevEnd = lastSpace
+  while (prevEnd >= 0 && isWhitespace(output[prevEnd])) {
+    prevEnd--
+  }
+  let prevStart = prevEnd
+  while (prevStart >= 0 && !isWhitespace(output[prevStart])) {
+    prevStart--
+  }
+  const prevToken = output.slice(prevStart + 1, prevEnd + 1)
+
+  // If the previous token is a flag that takes an argument, currentToken is that flag's value, not a URL
+  if (nonUrlFlags.includes(prevToken)) {
+    return false
+  }
+
+  // Also if currentToken starts with an option flag like -u, -H, -d, etc. (attached option)
+  if (/^-[a-zA-Z]/.test(currentToken) || currentToken.startsWith("--")) {
+    return false
+  }
+
   return (
     currentToken.includes("://") ||
     currentToken.startsWith("http://") ||
     currentToken.startsWith("https://") ||
     currentToken.startsWith("localhost") ||
+    currentToken.startsWith("127.") ||
     currentToken.includes("?")
   )
 }

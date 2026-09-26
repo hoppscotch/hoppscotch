@@ -1661,6 +1661,162 @@ describe("Parse curl command to Hopp REST Request", () => {
     })
   })
 
+  test("correctly parses query parameters with escaped double quotes outside quotes without swallowing following arguments", () => {
+    const command = `curl https://example.com/api?q=a\\"b -X POST`
+
+    const actual = parseCurlToHoppRESTReq(command)
+    expect(actual.method).toBe("POST")
+    expect(actual.params).toContainEqual({
+      key: "q",
+      value: 'a"b',
+      active: true,
+      description: "",
+    })
+  })
+
+  test("correctly parses query parameters with escaped single quotes outside quotes without swallowing following arguments", () => {
+    const command = `curl https://example.com/api?q=a\\'b -X POST`
+
+    const actual = parseCurlToHoppRESTReq(command)
+    expect(actual.method).toBe("POST")
+    expect(actual.params).toContainEqual({
+      key: "q",
+      value: "a'b",
+      active: true,
+      description: "",
+    })
+  })
+
+  test("correctly parses query parameters with escaped space outside quotes", () => {
+    const command = `curl https://example.com/api?q=a\\ b -X POST`
+
+    const actual = parseCurlToHoppRESTReq(command)
+    expect(actual.method).toBe("POST")
+    expect(actual.params).toContainEqual({
+      key: "q",
+      value: "a b",
+      active: true,
+      description: "",
+    })
+  })
+
+  test("correctly preserves following headers when query parameters contain escaped quotes", () => {
+    const command = `curl https://example.com/api?q=a\\'b -H 'Authorization: Bearer 123'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+    expect(actual.headers).toContainEqual({
+      key: "Authorization",
+      value: "Bearer 123",
+      active: true,
+      description: "",
+    })
+    expect(actual.params).toContainEqual({
+      key: "q",
+      value: "a'b",
+      active: true,
+      description: "",
+    })
+  })
+
+  test("correctly parses query parameters with locale quotes containing single quotes", () => {
+    const command = `curl https://example.com/api?q=$"a'b" -X POST`
+
+    const actual = parseCurlToHoppRESTReq(command)
+    expect(actual.method).toBe("POST")
+    expect(actual.params).toContainEqual({
+      key: "q",
+      value: "a'b",
+      active: true,
+      description: "",
+    })
+  })
+
+  test("correctly parses query parameters with ANSI-C quotes containing double quotes", () => {
+    const command = `curl https://example.com/api?q=$'a"b' -X POST`
+
+    const actual = parseCurlToHoppRESTReq(command)
+    expect(actual.method).toBe("POST")
+    expect(actual.params).toContainEqual({
+      key: "q",
+      value: 'a"b',
+      active: true,
+      description: "",
+    })
+  })
+
+  test("correctly parses query parameters with locale quotes containing escaped double quotes", () => {
+    const command = `curl https://example.com/api?q=$"a\\"b" -X POST`
+
+    const actual = parseCurlToHoppRESTReq(command)
+    expect(actual.method).toBe("POST")
+    expect(actual.params).toContainEqual({
+      key: "q",
+      value: 'a"b',
+      active: true,
+      description: "",
+    })
+  })
+
+  test("correctly parses headers containing colons with spaces in values", () => {
+    const command = `curl 'https://example.com' -H 'X-Custom: foo: bar'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+    expect(actual.headers).toContainEqual({
+      key: "X-Custom",
+      value: "foo: bar",
+      active: true,
+      description: "",
+    })
+  })
+
+  test("correctly parses HTTP/2 pseudo-headers starting with a colon", () => {
+    const command = `curl 'https://example.com' -H ':authority: echo.hoppscotch.io'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+    expect(actual.headers).toContainEqual({
+      key: ":authority",
+      value: "echo.hoppscotch.io",
+      active: true,
+      description: "",
+    })
+  })
+
+  test("correctly parses Basic auth with passwords containing colons", () => {
+    const command = `curl -u "user:my:secret:pass" https://example.com`
+
+    const actual = parseCurlToHoppRESTReq(command)
+    expect(actual.auth).toEqual({
+      authActive: true,
+      authType: "basic",
+      username: "user",
+      password: "my:secret:pass",
+    })
+  })
+
+  test("correctly parses unquoted headers with escaped spaces", () => {
+    const command = `curl -H Authorization:\\ Bearer\\ 123 https://example.com/api`
+
+    const actual = parseCurlToHoppRESTReq(command)
+    expect(actual.headers).toContainEqual({
+      key: "Authorization",
+      value: "Bearer 123",
+      active: true,
+      description: "",
+    })
+  })
+
+  test("correctly parses Basic auth with escaped quotes and spaces outside quotes", () => {
+    const command = `curl -u user:p\\"a\\'s\\ s https://example.com/api`
+
+    const actual = parseCurlToHoppRESTReq(command)
+    expect(actual.auth).toEqual({
+      authActive: true,
+      authType: "basic",
+      username: "user",
+      password: `p"a's s`,
+    })
+  })
+
   for (const [i, { command, response }] of samples.entries()) {
     test(`for sample #${i + 1}:\n\n${command}`, () => {
       const actual = parseCurlToHoppRESTReq(command)

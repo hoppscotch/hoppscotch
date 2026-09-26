@@ -121,7 +121,12 @@ export const preProcessCurlCommand = (curlCommand: string) => {
         if (nextQuote === '"') {
           output += isBoundary
             ? `"${escapeDoubleQuotedWrapper(rawContent)}"`
-            : rawContent.replace(/[ \t\r\n]/g, (m) => encodeURIComponent(m))
+            : rawContent
+                .replace(/\\'/g, "%27")
+                .replace(/'/g, "%27")
+                .replace(/\\"/g, "%22")
+                .replace(/"/g, "%22")
+                .replace(/[ \t\r\n]/g, (m) => encodeURIComponent(m))
           i = end + 1
           continue
         }
@@ -139,9 +144,11 @@ export const preProcessCurlCommand = (curlCommand: string) => {
         }
 
         // Inside a param / URL or concatenated word (e.g. ?q=abc$'def' or ?q=$'hello world')
-        // Percent-encode apostrophe and whitespace so it preserves token boundaries in yargs-parser
+        // Percent-encode apostrophe, double quote, and whitespace so it preserves token boundaries in yargs-parser
         output += rawContent
           .replace(/\\'/g, "%27")
+          .replace(/\\"/g, "%22")
+          .replace(/"/g, "%22")
           .replace(/[ \t\r\n]/g, (m) => encodeURIComponent(m))
         i = end + 1
         continue
@@ -225,35 +232,58 @@ export const preProcessCurlCommand = (curlCommand: string) => {
   return output.trim()
 }
 
+export interface PlaceholderReplacement {
+  placeholder: string
+  replacement: string
+}
+
 export interface ProtectedCommandResult {
   protectedCommand: string
   placeholder: string | null
+  placeholders?: PlaceholderReplacement[]
 }
 
 /**
- * Replaces escaped double quotes (\") inside double-quoted arguments with a collision-proof
- * dynamic placeholder so that yargs-parser does not prematurely terminate the quoted string
- * and split on spaces.
+ * Replaces escaped double quotes (\") inside double-quoted arguments or outside quotes,
+ * escaped single quotes (\'), and escaped whitespace (\ ) outside quotes with collision-proof
+ * dynamic placeholders so that yargs-parser does not prematurely terminate or corrupt arguments.
  */
 export const protectEscapedDoubleQuotes = (
   cmd: string
 ): ProtectedCommandResult => {
-  if (!cmd.includes('\\"')) {
+  if (!cmd.includes("\\")) {
     return {
       protectedCommand: cmd,
       placeholder: null,
+      placeholders: [],
     }
   }
 
-  // Generate a collision-proof dynamic placeholder guaranteed not to exist in cmd
-  let candidate = `__HOPP_ESC_DQUOTE_${Math.random().toString(36).slice(2)}__`
-  while (cmd.includes(candidate)) {
-    candidate = `__HOPP_ESC_DQUOTE_${Math.random().toString(36).slice(2)}__`
+  // Generate collision-proof dynamic placeholders guaranteed not to exist in cmd
+  let dquoteCandidate = `__HOPP_ESC_DQUOTE_${Math.random().toString(36).slice(2)}__`
+  while (cmd.includes(dquoteCandidate)) {
+    dquoteCandidate = `__HOPP_ESC_DQUOTE_${Math.random().toString(36).slice(2)}__`
+  }
+
+  let squoteCandidate = `__HOPP_ESC_SQUOTE_${Math.random().toString(36).slice(2)}__`
+  while (cmd.includes(squoteCandidate) || squoteCandidate === dquoteCandidate) {
+    squoteCandidate = `__HOPP_ESC_SQUOTE_${Math.random().toString(36).slice(2)}__`
+  }
+
+  let spaceCandidate = `__HOPP_ESC_SPACE_${Math.random().toString(36).slice(2)}__`
+  while (
+    cmd.includes(spaceCandidate) ||
+    spaceCandidate === dquoteCandidate ||
+    spaceCandidate === squoteCandidate
+  ) {
+    spaceCandidate = `__HOPP_ESC_SPACE_${Math.random().toString(36).slice(2)}__`
   }
 
   let output = ""
   let quote: "'" | '"' | null = null
-  let replacementCount = 0
+  let dquoteReplacements = 0
+  let squoteReplacements = 0
+  let spaceReplacements = 0
 
   for (let i = 0; i < cmd.length; i++) {
     const ch = cmd[i]
@@ -276,22 +306,52 @@ export const protectEscapedDoubleQuotes = (
         if (output.endsWith("\\")) {
           output = output.slice(0, -1)
         }
-        output += candidate
-        replacementCount++
+        output += dquoteCandidate
+        dquoteReplacements++
         continue
       }
       output += ch
       continue
     }
 
-    if (ch === "'" && !isQuoteEscaped(cmd, i)) {
+    // Outside quotes:
+    if (ch === '"') {
+      if (isQuoteEscaped(cmd, i)) {
+        if (output.endsWith("\\")) {
+          output = output.slice(0, -1)
+        }
+        output += dquoteCandidate
+        dquoteReplacements++
+        continue
+      }
+      quote = '"'
+      output += ch
+      continue
+    }
+
+    if (ch === "'") {
+      if (isQuoteEscaped(cmd, i)) {
+        if (output.endsWith("\\")) {
+          output = output.slice(0, -1)
+        }
+        output += squoteCandidate
+        squoteReplacements++
+        continue
+      }
       quote = "'"
       output += ch
       continue
     }
 
-    if (ch === '"' && !isQuoteEscaped(cmd, i)) {
-      quote = '"'
+    if (isWhitespace(ch)) {
+      if (isQuoteEscaped(cmd, i)) {
+        if (output.endsWith("\\")) {
+          output = output.slice(0, -1)
+        }
+        output += spaceCandidate
+        spaceReplacements++
+        continue
+      }
       output += ch
       continue
     }
@@ -299,33 +359,67 @@ export const protectEscapedDoubleQuotes = (
     output += ch
   }
 
-  if (replacementCount === 0) {
+  const replacements: PlaceholderReplacement[] = []
+  if (dquoteReplacements > 0) {
+    replacements.push({ placeholder: dquoteCandidate, replacement: '"' })
+  }
+  if (squoteReplacements > 0) {
+    replacements.push({ placeholder: squoteCandidate, replacement: "'" })
+  }
+  if (spaceReplacements > 0) {
+    replacements.push({ placeholder: spaceCandidate, replacement: " " })
+  }
+
+  if (replacements.length === 0) {
     return {
       protectedCommand: cmd,
       placeholder: null,
+      placeholders: [],
     }
   }
 
   return {
     protectedCommand: output,
-    placeholder: candidate,
+    placeholder: dquoteReplacements > 0 ? dquoteCandidate : null,
+    placeholders: replacements,
   }
 }
 
 /**
- * Restores escaped double quote placeholders in parsed arguments.
+ * Restores escaped quote and character placeholders in parsed arguments.
  */
 export const restoreEscapedDoubleQuotes = <T>(
   parsedArguments: T,
-  placeholder: string | null
+  placeholders?: string | PlaceholderReplacement[] | null
 ): T => {
-  if (!placeholder || !parsedArguments || typeof parsedArguments !== "object") {
+  if (
+    !placeholders ||
+    !parsedArguments ||
+    typeof parsedArguments !== "object"
+  ) {
+    return parsedArguments
+  }
+
+  const replacementsList: PlaceholderReplacement[] =
+    typeof placeholders === "string"
+      ? [{ placeholder: placeholders, replacement: '"' }]
+      : Array.isArray(placeholders)
+        ? placeholders
+        : []
+
+  if (replacementsList.length === 0) {
     return parsedArguments
   }
 
   const restoreVal = (val: unknown): unknown => {
     if (typeof val === "string") {
-      return val.includes(placeholder) ? val.split(placeholder).join('"') : val
+      let str = val
+      for (const { placeholder, replacement } of replacementsList) {
+        if (str.includes(placeholder)) {
+          str = str.split(placeholder).join(replacement)
+        }
+      }
+      return str
     }
     if (Array.isArray(val)) {
       return val.map(restoreVal)

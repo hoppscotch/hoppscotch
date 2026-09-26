@@ -66,6 +66,34 @@ const getResolvedVariableValue = (variable: {
   initialValue?: string
 }): string => variable.currentValue || variable.initialValue || ""
 
+/**
+ * Runs one pass of `<<var>>` substitution over a request body
+ */
+const expandBodyEnvVariablesOnce = (
+  body: string,
+  env: Environment["variables"],
+  keepMissingAsKey: boolean
+) =>
+  body.replace(REGEX_ENV_VAR, (key) => {
+    const variableName = key.replace(/[<>]/g, "")
+
+    // Prioritise predefined variable values over normal environment variables processing.
+    const foundPredefinedVar = HOPP_SUPPORTED_PREDEFINED_VARIABLES.find(
+      (preVar) => preVar.key === variableName
+    )
+
+    if (foundPredefinedVar) {
+      return foundPredefinedVar.getValue()
+    }
+
+    const foundEnv = env.find((envVar) => envVar.key === variableName)
+
+    if (foundEnv && "currentValue" in foundEnv) {
+      return getResolvedVariableValue(foundEnv)
+    }
+    return keepMissingAsKey ? key : ""
+  })
+
 export function parseBodyEnvVariablesE(
   body: string,
   env: Environment["variables"],
@@ -77,33 +105,8 @@ export function parseBodyEnvVariablesE(
   let depth = 0
 
   while (result.match(REGEX_ENV_VAR) != null && depth <= ENV_MAX_EXPAND_LIMIT) {
-    const currentResult = result.replace(REGEX_ENV_VAR, (key) => {
-      const variableName = key.replace(/[<>]/g, "")
+    result = expandBodyEnvVariablesOnce(result, env, keepMissingAsKey)
 
-      // Prioritise predefined variable values over normal environment variables processing.
-      const foundPredefinedVar = HOPP_SUPPORTED_PREDEFINED_VARIABLES.find(
-        (preVar) => preVar.key === variableName
-      )
-
-      if (foundPredefinedVar) {
-        return foundPredefinedVar.getValue()
-      }
-
-      const foundEnv = env.find((envVar) => envVar.key === variableName)
-
-      if (foundEnv && "currentValue" in foundEnv) {
-        return getResolvedVariableValue(foundEnv)
-      }
-      return keepMissingAsKey ? key : ""
-    })
-
-    // Missing vars kept as `<<key>>` leave the body unchanged; stop here
-    // instead of counting that as a loop
-    if (currentResult === result) {
-      break
-    }
-
-    result = currentResult
     depth++
   }
 
@@ -119,11 +122,23 @@ export const parseBodyEnvVariables = (
   body: string,
   env: Environment["variables"],
   keepMissingAsKey = true
-) =>
-  pipe(
-    parseBodyEnvVariablesE(body, env, keepMissingAsKey),
-    E.getOrElse(() => body)
-  )
+) => {
+  // A missing var kept as `<<key>>` still matches, so the strict version
+  // reports ENV_EXPAND_LOOP for it. Stop once a pass changes nothing so the
+  // other variables in the body are still resolved.
+  let result = body
+
+  for (let depth = 0; depth <= ENV_MAX_EXPAND_LIMIT; depth++) {
+    const next = expandBodyEnvVariablesOnce(result, env, keepMissingAsKey)
+
+    if (next === result) return result
+
+    result = next
+  }
+
+  // Variables that keep expanding reference each other in a loop
+  return body
+}
 
 export function parseTemplateStringE(
   str: string,

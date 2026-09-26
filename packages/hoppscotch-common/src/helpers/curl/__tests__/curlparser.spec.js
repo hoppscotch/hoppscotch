@@ -1817,6 +1817,30 @@ describe("Parse curl command to Hopp REST Request", () => {
     })
   })
 
+  test("correctly parses Basic auth with locale-quoted password containing escaped quotes", () => {
+    const command = `curl https://example.com -u user:$"p\\"ass"`
+
+    const actual = parseCurlToHoppRESTReq(command)
+    expect(actual.auth).toEqual({
+      authActive: true,
+      authType: "basic",
+      username: "user",
+      password: 'p"ass',
+    })
+  })
+
+  test("correctly parses Basic auth with ANSI-C quoted password containing escaped apostrophe", () => {
+    const command = `curl https://example.com -u user:$'p\\'ass'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+    expect(actual.auth).toEqual({
+      authActive: true,
+      authType: "basic",
+      username: "user",
+      password: "p'ass",
+    })
+  })
+
   for (const [i, { command, response }] of samples.entries()) {
     test(`for sample #${i + 1}:\n\n${command}`, () => {
       const actual = parseCurlToHoppRESTReq(command)

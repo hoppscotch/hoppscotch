@@ -55,6 +55,21 @@ export const escapeDoubleQuotedWrapper = (str: string): string => {
   return result
 }
 
+const isInsideUrlToken = (output: string): boolean => {
+  let lastSpace = output.length - 1
+  while (lastSpace >= 0 && !isWhitespace(output[lastSpace])) {
+    lastSpace--
+  }
+  const currentToken = output.slice(lastSpace + 1)
+  return (
+    currentToken.includes("://") ||
+    currentToken.startsWith("http://") ||
+    currentToken.startsWith("https://") ||
+    currentToken.startsWith("localhost") ||
+    currentToken.includes("?")
+  )
+}
+
 /**
  * Sanitizes and makes curl string processable in a quote-aware manner.
  * Option normalizations, short-option equals, and bash ANSI-C quote transformations
@@ -119,14 +134,21 @@ export const preProcessCurlCommand = (curlCommand: string) => {
         const rawContent = cmd.slice(i + 2, end)
 
         if (nextQuote === '"') {
-          output += isBoundary
-            ? `"${escapeDoubleQuotedWrapper(rawContent)}"`
-            : rawContent
-                .replace(/\\'/g, "%27")
-                .replace(/'/g, "%27")
-                .replace(/\\"/g, "%22")
-                .replace(/"/g, "%22")
-                .replace(/[ \t\r\n]/g, (m) => encodeURIComponent(m))
+          if (isBoundary) {
+            output += `"${escapeDoubleQuotedWrapper(rawContent)}"`
+          } else if (isInsideUrlToken(output)) {
+            output += rawContent
+              .replace(/\\'/g, "%27")
+              .replace(/'/g, "%27")
+              .replace(/\\"/g, "%22")
+              .replace(/"/g, "%22")
+              .replace(/[ \t\r\n]/g, (m) => encodeURIComponent(m))
+          } else {
+            output += rawContent
+              .replace(/(?<!\\)"/g, '\\"')
+              .replace(/(?<!\\)'/g, "\\'")
+              .replace(/(?<!\\)[ \t\r\n]/g, "\\ ")
+          }
           i = end + 1
           continue
         }
@@ -143,13 +165,19 @@ export const preProcessCurlCommand = (curlCommand: string) => {
           continue
         }
 
-        // Inside a param / URL or concatenated word (e.g. ?q=abc$'def' or ?q=$'hello world')
-        // Percent-encode apostrophe, double quote, and whitespace so it preserves token boundaries in yargs-parser
-        output += rawContent
-          .replace(/\\'/g, "%27")
-          .replace(/\\"/g, "%22")
-          .replace(/"/g, "%22")
-          .replace(/[ \t\r\n]/g, (m) => encodeURIComponent(m))
+        if (isInsideUrlToken(output)) {
+          // Inside a param / URL or concatenated word (e.g. ?q=abc$'def' or ?q=$'hello world')
+          // Percent-encode apostrophe, double quote, and whitespace so it preserves token boundaries in yargs-parser
+          output += rawContent
+            .replace(/\\'/g, "%27")
+            .replace(/\\"/g, "%22")
+            .replace(/"/g, "%22")
+            .replace(/[ \t\r\n]/g, (m) => encodeURIComponent(m))
+        } else {
+          output += rawContent
+            .replace(/(?<!\\)"/g, '\\"')
+            .replace(/(?<!\\)[ \t\r\n]/g, "\\ ")
+        }
         i = end + 1
         continue
       }

@@ -77,7 +77,7 @@ export function parseBodyEnvVariablesE(
   let depth = 0
 
   while (result.match(REGEX_ENV_VAR) != null && depth <= ENV_MAX_EXPAND_LIMIT) {
-    result = result.replace(REGEX_ENV_VAR, (key) => {
+    const currentResult = result.replace(REGEX_ENV_VAR, (key) => {
       const variableName = key.replace(/[<>]/g, "")
 
       // Prioritise predefined variable values over normal environment variables processing.
@@ -97,6 +97,13 @@ export function parseBodyEnvVariablesE(
       return keepMissingAsKey ? key : ""
     })
 
+    // Missing vars kept as `<<key>>` leave the body unchanged; stop here
+    // instead of counting that as a loop
+    if (currentResult === result) {
+      break
+    }
+
+    result = currentResult
     depth++
   }
 

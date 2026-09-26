@@ -240,9 +240,50 @@ fn resolve_by_precedence(entries: Vec<(Vec<u8>, Vec<u8>, Decision)>) -> Vec<Vec<
     out
 }
 
+/// The decision a domain's trust setting makes about one certificate, kept
+/// apart from the keychain read so the policy can be exercised offline.
+///
+/// An explicit SSL trust setting in Admin or User is taken without the
+/// extended key usage check, ∵ an administrator or the person at the machine
+/// chose that policy against what the certificate itself states. The System
+/// domain gets no such exemption, ∵ Apple ships those settings beside roots
+/// issued for code signing, timestamping and S/MIME, and an entry stating no
+/// server authentication usage is not a TLS anchor whatever the shipped
+/// setting says. An empty settings array means trusted in System and defer
+/// elsewhere, and a setting this process could not read grants nothing.
+#[cfg(target_os = "macos")]
+fn decide(
+    is_system: bool,
+    setting: Result<Option<security_framework::trust_settings::TrustSettingsForCertificate>, ()>,
+    der: &[u8],
+) -> Decision {
+    use security_framework::trust_settings::TrustSettingsForCertificate;
+
+    match setting {
+        Ok(Some(TrustSettingsForCertificate::TrustRoot))
+        | Ok(Some(TrustSettingsForCertificate::TrustAsRoot)) => {
+            if is_system && !valid_for_tls(der) {
+                Decision::Deny
+            } else {
+                Decision::Trust
+            }
+        }
+        Ok(Some(TrustSettingsForCertificate::Deny)) => Decision::Deny,
+        Ok(None) if is_system => {
+            if valid_for_tls(der) {
+                Decision::Trust
+            } else {
+                Decision::Deny
+            }
+        }
+        Ok(_) => Decision::Defer,
+        Err(()) => Decision::Defer,
+    }
+}
+
 #[cfg(target_os = "macos")]
 fn read_platform() -> Option<TrustBundle> {
-    use security_framework::trust_settings::{Domain, TrustSettings, TrustSettingsForCertificate};
+    use security_framework::trust_settings::{Domain, TrustSettings};
 
     let mut entries: Vec<(Vec<u8>, Vec<u8>, Decision)> = Vec::new();
     let mut read = 0usize;
@@ -263,33 +304,15 @@ fn read_platform() -> Option<TrustBundle> {
         for cert in certificates {
             read += 1;
             let der = cert.to_der();
-            let decision = match settings.tls_trust_settings_for_certificate(&cert) {
-                // An administrator's explicit SSL trust setting is taken
-                // without the extended key usage check, since the
-                // administrator already chose the policy.
-                Ok(Some(TrustSettingsForCertificate::TrustRoot))
-                | Ok(Some(TrustSettingsForCertificate::TrustAsRoot)) => Decision::Trust,
-                Ok(Some(TrustSettingsForCertificate::Deny)) => Decision::Deny,
-                // An empty trust settings array means trusted in the System
-                // domain, where it is the default for every anchor Apple
-                // ships, and means defer in Admin and User.
-                Ok(None) if matches!(domain, Domain::System) => {
-                    if valid_for_tls(&der) {
-                        Decision::Trust
-                    } else {
-                        Decision::Deny
-                    }
-                }
-                Ok(_) => Decision::Defer,
-                // A policy that cannot be read grants nothing, ∵ an anchor
-                // exported on a failed read is one curl trusts while the
-                // keychain may deny it, and the warning says which domain
-                // went unread so a missing corporate root has a cause.
-                Err(e) => {
+            // A policy that cannot be read grants nothing, and the warning
+            // names the domain, so a corporate root absent from the blob has a
+            // cause to follow.
+            let setting = settings
+                .tls_trust_settings_for_certificate(&cert)
+                .map_err(|e| {
                     tracing::warn!(error = %e, domain = ?domain, "Trust settings read failed");
-                    Decision::Defer
-                }
-            };
+                });
+            let decision = decide(matches!(domain, Domain::System), setting, &der);
             entries.push((der.clone(), der, decision));
         }
     }
@@ -638,6 +661,70 @@ mod tests {
         }
         builder.sign(key, MessageDigest::sha256()).expect("sign");
         builder.build().to_der().expect("der")
+    }
+
+    #[cfg(target_os = "macos")]
+    mod macos_policy {
+        use super::*;
+        use security_framework::trust_settings::TrustSettingsForCertificate;
+
+        fn code_signing(cn: &str) -> Vec<u8> {
+            let mut eku = ExtendedKeyUsage::new();
+            eku.code_signing();
+            root(cn, &key(), Some(eku))
+        }
+
+        // Apple ships explicit settings beside roots issued for code signing,
+        // so the System domain answers to the usage check as it does for an
+        // entry with no settings at all.
+        #[test]
+        fn a_system_entry_restricted_to_code_signing_is_denied_despite_its_setting() {
+            let der = code_signing("system-signing");
+            assert_eq!(
+                decide(true, Ok(Some(TrustSettingsForCertificate::TrustRoot)), &der),
+                Decision::Deny
+            );
+            assert_eq!(decide(true, Ok(None), &der), Decision::Deny);
+        }
+
+        // An administrator naming the policy has decided the question, and the
+        // certificate's own usage does not overrule it.
+        #[test]
+        fn an_admin_entry_restricted_to_code_signing_is_trusted_on_its_setting() {
+            let der = code_signing("admin-signing");
+            assert_eq!(
+                decide(false, Ok(Some(TrustSettingsForCertificate::TrustRoot)), &der),
+                Decision::Trust
+            );
+            assert_eq!(
+                decide(false, Ok(Some(TrustSettingsForCertificate::TrustAsRoot)), &der),
+                Decision::Trust
+            );
+        }
+
+        #[test]
+        fn a_server_auth_system_entry_is_trusted() {
+            let mut eku = ExtendedKeyUsage::new();
+            eku.server_auth();
+            let der = root("system-tls", &key(), Some(eku));
+            assert_eq!(decide(true, Ok(None), &der), Decision::Trust);
+            assert_eq!(
+                decide(true, Ok(Some(TrustSettingsForCertificate::TrustRoot)), &der),
+                Decision::Trust
+            );
+        }
+
+        #[test]
+        fn a_denial_and_an_unreadable_setting_grant_nothing() {
+            let der = root("plain", &key(), None);
+            assert_eq!(
+                decide(false, Ok(Some(TrustSettingsForCertificate::Deny)), &der),
+                Decision::Deny
+            );
+            assert_eq!(decide(false, Err(()), &der), Decision::Defer);
+            assert_eq!(decide(true, Err(()), &der), Decision::Defer);
+            assert_eq!(decide(false, Ok(None), &der), Decision::Defer);
+        }
     }
 
     #[test]

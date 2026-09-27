@@ -275,6 +275,9 @@ export const processRequest =
     // HoppEnvs even if the pre-request script fails.
     let updatedEnvs: HoppEnvs = processedEnvs;
 
+    // Measure the pre-request phase here, since the runner's success type
+    // carries no duration. Stored so `duration.preRequest` is no longer 0.
+    const preRequestStart = hrtime();
     const preRequestRes = await preRequestScriptRunner(
       request,
       processedEnvs,
@@ -282,6 +285,7 @@ export const processRequest =
       collectionVariables,
       inheritedPreRequestScripts
     )();
+    report.duration.preRequest = getDurationInSeconds(hrtime(preRequestStart));
     if (E.isLeft(preRequestRes)) {
       printPreRequestRunner.fail();
 

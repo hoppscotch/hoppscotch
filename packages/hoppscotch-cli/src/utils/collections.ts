@@ -384,11 +384,13 @@ export const collectionsRunnerResult = (
 
   if (reporterJSONExportPath) {
     // When iterations were grouped, report each group; otherwise treat the
-    // whole run as a single iteration.
+    // whole run as a single iteration. The check is `undefined`-based on
+    // purpose: an explicit empty array means zero iterations actually ran
+    // (e.g. an empty iteration-data file), and collapsing that into a
+    // synthetic iteration 1 would make the summary claim a run that never
+    // happened.
     const iterationGroups =
-      iterations !== undefined && iterations.length > 0
-        ? iterations
-        : [requestsReport];
+      iterations !== undefined ? iterations : [requestsReport];
 
     const reportIterations = iterationGroups.map((group, index) =>
       buildJSONReportIteration(index + 1, group)

@@ -79,7 +79,6 @@ export const yaakEnvImporter = (contents: string[]) =>
         )
       )
     ),
-    ),
 
     // Fail if parsing/validation failed
     TE.fromOption(() => IMPORTER_INVALID_FILE_FORMAT)

@@ -108,6 +108,7 @@ import { toggleNestedSetting } from "~/newstore/settings"
 import { useAIExperiments } from "~/composables/ai-experiments"
 import { prettifyJSONC } from "~/helpers/editor/linting/jsoncPretty"
 import { useReadonlyStream } from "~/composables/stream"
+import type { AggregateEnvironment } from "~/newstore/environments"
 import { platform } from "~/platform"
 import { invokeAction } from "~/helpers/actions"
 
@@ -120,6 +121,8 @@ type Body = HoppRESTReqBody & { contentType: PossibleContentTypes }
 
 const props = defineProps<{
   modelValue: Body
+  // Embed-only codemirror scope — workspace omits it to stay on the live stream
+  scopedEnvs?: AggregateEnvironment[]
 }>()
 
 const emit = defineEmits<{
@@ -180,6 +183,7 @@ useCodemirror(
     linter: langLinter,
     completer: null,
     environmentHighlights: true,
+    envs: computed(() => props.scopedEnvs),
     predefinedVariablesHighlights: true,
   })
 )

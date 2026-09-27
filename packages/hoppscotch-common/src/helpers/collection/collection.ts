@@ -4,10 +4,11 @@ import { GetSingleRequestDocument } from "../backend/graphql"
 import { runGQLQuery } from "../backend/GQLClient"
 import * as E from "fp-ts/Either"
 import { getService } from "~/modules/dioc"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { GQLTabService } from "~/services/tab/graphql"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { cascadeParentCollectionForProperties } from "~/newstore/collections"
+import { stripClientLocalValuesForWire } from "../clientLocalVariables"
 import { CollectionDataProps } from "../backend/helpers"
 import { CollectionFolder } from "../backend/queries/PublishedDocs"
 
@@ -55,7 +56,7 @@ export function resolveSaveContextOnCollectionReorder(
     }
   }
 
-  const tabService = getService(RESTTabService)
+  const tabService = getService(WorkspaceTabsService)
 
   const tabs = tabService.getTabsRefTo((tab) => {
     if (tab.document.type === "test-runner") return false
@@ -115,7 +116,7 @@ export function updateSaveContextForAffectedRequests(
   oldFolderPath: string,
   newFolderPath: string | null
 ) {
-  const tabService = getService(RESTTabService)
+  const tabService = getService(WorkspaceTabsService)
   const tabs = tabService.getTabsRefTo((tab) => {
     if (tab.document.type === "test-runner") return false
 
@@ -161,7 +162,9 @@ export function updateInheritedPropertiesForAffectedRequests(
   type: "rest" | "graphql"
 ) {
   const tabService =
-    type === "rest" ? getService(RESTTabService) : getService(GQLTabService)
+    type === "rest"
+      ? getService(WorkspaceTabsService)
+      : getService(GQLTabService)
   const teamCollectionService = getService(TeamCollectionsService)
 
   const effectedTabs = tabService.getTabsRefTo((tab) => {
@@ -214,7 +217,7 @@ export function updateInheritedPropertiesForAffectedRequests(
 }
 
 function resetSaveContextForAffectedRequests(folderPath: string) {
-  const tabService = getService(RESTTabService)
+  const tabService = getService(WorkspaceTabsService)
   const tabs = tabService.getTabsRefTo((tab) => {
     if (tab.document.type === "test-runner") return false
     return (
@@ -234,6 +237,9 @@ function resetSaveContextForAffectedRequests(folderPath: string) {
 
       // remove inherited properties
       tab.value.document.inheritedProperties = undefined
+    } else if (tab.value.document.type === "gql-request") {
+      // GQL requests have no saved responses; just drop inherited properties
+      tab.value.document.inheritedProperties = undefined
     }
   }
 }
@@ -243,7 +249,7 @@ function resetSaveContextForAffectedRequests(folderPath: string) {
  * only runs when collection or folder is deleted
  */
 export async function resetTeamRequestsContext() {
-  const tabService = getService(RESTTabService)
+  const tabService = getService(WorkspaceTabsService)
   const tabs = tabService.getTabsRefTo((tab) => {
     if (tab.document.type === "test-runner") return false
     return tab.document.saveContext?.originLocation === "team-collection"
@@ -266,6 +272,9 @@ export async function resetTeamRequestsContext() {
           tab.value.document.request.responses = {}
 
           // remove inherited properties
+          tab.value.document.inheritedProperties = undefined
+        } else if (tab.value.document.type === "gql-request") {
+          // GQL requests have no saved responses; just drop inherited properties
           tab.value.document.inheritedProperties = undefined
         }
       }
@@ -298,6 +307,7 @@ export function getFoldersByPath(
 /**
  * Transforms a collection to the format expected by team or personal collections.
  * BE expects CollectionFolder format with a data field containing auth, headers, variables, and description.
+ *
  * @param collection The collection to transform
  * @returns The transformed collection
  */
@@ -309,8 +319,14 @@ export function transformCollectionForImport(
   const data: CollectionDataProps = {
     auth: collection.auth,
     headers: collection.headers,
-    variables: collection.variables,
+    variables: stripClientLocalValuesForWire(collection.variables ?? []),
+    // Round-trip the local-store key so the team-collection-added handler
+    // (`TeamCollectionsService.addCollection`) can migrate the importer's
+    // secret entries from this `_ref_id` to the backend-assigned `id`.
+    _ref_id: collection._ref_id,
     description: collection.description,
+    preRequestScript: collection.preRequestScript ?? "",
+    testScript: collection.testScript ?? "",
   }
 
   const obj: CollectionFolder = {

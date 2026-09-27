@@ -4,29 +4,29 @@ export type PredefinedVariable = {
   getValue: () => string
 }
 
+const generateV4Uuid = () => {
+  const characters = "0123456789abcdef"
+  let uuid = ""
+  for (let i = 0; i < 36; i++) {
+    if (i === 8 || i === 13 || i === 18 || i === 23) {
+      uuid += "-"
+    } else if (i === 14) {
+      uuid += "4"
+    } else if (i === 19) {
+      uuid += characters.charAt(8 + Math.floor(Math.random() * 4))
+    } else {
+      uuid += characters.charAt(Math.floor(Math.random() * characters.length))
+    }
+  }
+  return uuid
+}
+
 export const HOPP_SUPPORTED_PREDEFINED_VARIABLES: PredefinedVariable[] = [
   // Common
   {
     key: "$guid",
     description: "A v4 style GUID.",
-    getValue: () => {
-      const characters = "0123456789abcdef"
-      let guid = ""
-      for (let i = 0; i < 36; i++) {
-        if (i === 8 || i === 13 || i === 18 || i === 23) {
-          guid += "-"
-        } else if (i === 14) {
-          guid += "4"
-        } else if (i === 19) {
-          guid += characters.charAt(8 + Math.floor(Math.random() * 4))
-        } else {
-          guid += characters.charAt(
-            Math.floor(Math.random() * characters.length)
-          )
-        }
-      }
-      return guid
-    },
+    getValue: generateV4Uuid,
   },
   {
     key: "$timestamp",
@@ -42,20 +42,7 @@ export const HOPP_SUPPORTED_PREDEFINED_VARIABLES: PredefinedVariable[] = [
   {
     key: "$randomUUID",
     description: "A random 36-character UUID.",
-    getValue: () => {
-      const characters = "0123456789abcdef"
-      let uuid = ""
-      for (let i = 0; i < 36; i++) {
-        if (i === 8 || i === 13 || i === 18 || i === 23) {
-          uuid += "-"
-        } else {
-          uuid += characters.charAt(
-            Math.floor(Math.random() * characters.length)
-          )
-        }
-      }
-      return uuid
-    },
+    getValue: generateV4Uuid,
   },
 
   // Text, numbers, and colors
@@ -140,7 +127,7 @@ export const HOPP_SUPPORTED_PREDEFINED_VARIABLES: PredefinedVariable[] = [
     description: "A random IPv6 address.",
     getValue: () => {
       const ip = Array.from({ length: 8 }, () =>
-        Math.floor(Math.random() * 65536).toString(16)
+        Math.floor(Math.random() * 65536).toString(16).padStart(4, "0")
       )
       return ip.join(":")
     },
@@ -151,7 +138,7 @@ export const HOPP_SUPPORTED_PREDEFINED_VARIABLES: PredefinedVariable[] = [
     description: "A random MAC address.",
     getValue: () => {
       const mac = Array.from({ length: 6 }, () =>
-        Math.floor(Math.random() * 256).toString(16)
+        Math.floor(Math.random() * 256).toString(16).padStart(2, "0")
       )
       return mac.join(":")
     },

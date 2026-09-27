@@ -114,6 +114,29 @@ const buildHarPostData = (req: HoppRESTRequest): Har.PostData | undefined => {
     }
   }
 
+  // application/octet-stream bodies are File | null; emit @filename for file uploads
+  if (req.body.contentType === "application/octet-stream") {
+    const file = req.body.body
+
+    if (!file) {
+      return {
+        mimeType: req.body.contentType,
+        text: "",
+      }
+    }
+
+    // `path` exists in some desktop runtimes; `name` is the standard File field.
+    const filename =
+      "path" in file && typeof file.path === "string" && file.path
+        ? file.path
+        : file.name || "<binary-file>"
+
+    return {
+      mimeType: req.body.contentType,
+      text: `@${filename}`,
+    }
+  }
+
   return {
     mimeType: req.body.contentType, // Let's assume by default content type is JSON
     text: (req.body.body as string) ?? "",

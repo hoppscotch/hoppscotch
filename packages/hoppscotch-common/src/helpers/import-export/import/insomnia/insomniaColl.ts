@@ -245,6 +245,8 @@ const getHoppFolder = (
     headers: [],
     variables: getCollectionVariables(undefined, folderRes), // undefined is used to indicate no environment variables for v4 and below
     description: folderRes.meta?.description ?? null,
+    preRequestScript: "",
+    testScript: "",
   })
 
 const getHoppCollections = (docs: InsomniaDoc[]) => {
@@ -283,6 +285,8 @@ const getParsedHoppFolder = (
     headers: [],
     variables: getCollectionVariables(collection.environment),
     description: collection.meta.description ?? null,
+    preRequestScript: "",
+    testScript: "",
   })
 }
 
@@ -323,6 +327,8 @@ const getParsedHoppCollections = (docs: InsomniaDocV5[]): HoppCollection[] =>
         headers: [],
         variables: getCollectionVariables(doc.environments?.data),
         description: doc.meta.description ?? null,
+        preRequestScript: "",
+        testScript: "",
       })
     }
 

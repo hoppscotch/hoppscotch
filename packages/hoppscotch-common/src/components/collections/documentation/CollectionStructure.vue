@@ -10,7 +10,7 @@
       class="sticky top-0 z-[99] py-2 border-b border-divider bg-primaryLight flex items-center justify-between space-x-3"
     >
       <div
-        class="font-medium text-secondaryDark flex flex-1 items-center text-xs px-4 truncate cursor-pointer transition-colors"
+        class="font-medium text-secondaryDark flex min-w-0 flex-1 items-center text-xs px-4 truncate cursor-pointer transition-colors"
         @click="scrollToTop"
       >
         <span class="truncate">
@@ -51,7 +51,7 @@
         <CollectionsDocumentationRequestItem
           v-for="(request, requestIndex) in collectionRequests"
           :key="getRequestId(request, requestIndex)"
-          :request="request as HoppRESTRequest"
+          :request="request"
           :depth="0"
           @request-select="onRequestSelect"
         />
@@ -108,7 +108,7 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  (e: "request-select", request: HoppRESTRequest): void
+  (e: "request-select", request: HoppRequest): void
   (e: "folder-select", folder: HoppCollection): void
   (e: "scroll-to-top"): void
 }>()
@@ -198,7 +198,7 @@ const toggleAllFolders = () => {
   }
 }
 
-const onRequestSelect = (request: HoppRESTRequest) => {
+const onRequestSelect = (request: HoppRequest) => {
   emit("request-select", request)
 }
 

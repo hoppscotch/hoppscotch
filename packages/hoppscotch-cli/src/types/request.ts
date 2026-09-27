@@ -44,4 +44,6 @@ export type ProcessRequestParams = {
   delay: number;
   legacySandbox?: boolean;
   collectionVariables?: HoppCollectionVariable[];
+  inheritedPreRequestScripts?: string[];
+  inheritedTestScripts?: string[];
 };

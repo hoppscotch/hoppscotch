@@ -41,7 +41,7 @@
               >
                 <component
                   :is="
-                    platform.organization.customOrganizationSwitcherComponent
+                    platform.organization?.customOrganizationSwitcherComponent
                   "
                   v-if="
                     platform.organization?.customOrganizationSwitcherComponent
@@ -87,6 +87,8 @@
             :on-shown="() => downloadableLinksRef.focus()"
           >
             <HoppButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('app.downloads')"
               :icon="IconDownload"
               class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
             />
@@ -399,6 +401,7 @@ const t = useI18n()
 const toast = useToast()
 const kernelMode = getKernelMode()
 
+const headerRef = ref<HTMLElement | null>(null)
 const downloadableLinksRef =
   kernelMode === "web" ? ref<any | null>(null) : ref(null)
 const switcherRef = ref<HTMLElement | null>(null)

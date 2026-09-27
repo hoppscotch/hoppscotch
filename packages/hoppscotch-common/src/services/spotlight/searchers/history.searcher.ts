@@ -19,8 +19,8 @@ import { shortDateTime } from "~/helpers/utils/date"
 import { useStreamStatic } from "~/composables/stream"
 import { activeActions$, invokeAction } from "~/helpers/actions"
 import { map } from "rxjs/operators"
-import { HoppRequestDocument } from "~/helpers/rest/document"
-import { platform } from "~/platform"
+import { HoppRequestDocument } from "~/helpers/tab/document"
+import { def as historySync } from "~/lib/sync/history"
 
 /**
  * This searcher is responsible for searching through the history.
@@ -49,10 +49,10 @@ export class HistorySpotlightSearcherService
     }
   )[0]
 
-  private hasHistoryPlatformDef = "requestHistoryStore" in platform.sync.history
+  private hasHistoryPlatformDef = !!historySync.requestHistoryStore
 
   private isHistoryEnabledPlatformRef =
-    platform.sync.history.requestHistoryStore?.isHistoryStoreEnabled
+    historySync.requestHistoryStore?.isHistoryStoreEnabled
 
   private clearHistoryActionEnabledCombined = computed(() => {
     // if the platform has not defined the history store, by default we consider history is enabled
@@ -75,9 +75,17 @@ export class HistorySpotlightSearcherService
     }
   )[0]
 
+  // Openable via the legacy /graphql page OR the unified workspace
   private gqlHistoryEntryOpenable = useStreamStatic(
-    activeActions$.pipe(map((actions) => actions.includes("gql.request.open"))),
-    activeActions$.value.includes("gql.request.open"),
+    activeActions$.pipe(
+      map(
+        (actions) =>
+          actions.includes("gql.request.open") ||
+          actions.includes("rest.gql-request.open")
+      )
+    ),
+    activeActions$.value.includes("gql.request.open") ||
+      activeActions$.value.includes("rest.gql-request.open"),
     () => {
       /* noop */
     }
@@ -120,8 +128,11 @@ export class HistorySpotlightSearcherService
     if (this.restHistoryEntryOpenable.value) {
       minisearch.addAll(
         restHistoryStore.value.state
-          .filter((x) => !!x.updatedOn)
-          .map((entry, index) => {
+          // Index BEFORE filtering — the result id is used to look the entry
+          // back up in the unfiltered store, so it must be the store index
+          .map((entry, index) => ({ entry, index }))
+          .filter(({ entry }) => !!entry.updatedOn)
+          .map(({ entry, index }) => {
             const relTimeString = capitalize(
               useTimeAgo(entry.updatedOn!, {
                 updateInterval: 0,
@@ -141,8 +152,10 @@ export class HistorySpotlightSearcherService
     if (this.gqlHistoryEntryOpenable.value) {
       minisearch.addAll(
         graphqlHistoryStore.value.state
-          .filter((x) => !!x.updatedOn)
-          .map((entry, index) => {
+          // Index BEFORE filtering — see the REST block above
+          .map((entry, index) => ({ entry, index }))
+          .filter(({ entry }) => !!entry.updatedOn)
+          .map(({ entry, index }) => {
             const relTimeString = capitalize(
               useTimeAgo(entry.updatedOn!, {
                 updateInterval: 0,
@@ -262,9 +275,21 @@ export class HistorySpotlightSearcherService
         graphqlHistoryStore.value.state[parseInt(result.id.split("-")[1])]
           .request
 
-      invokeAction("gql.request.open", {
-        request: req,
-      })
+      // Legacy /graphql page handler when bound; else the unified workspace
+      if (activeActions$.value.includes("gql.request.open")) {
+        invokeAction("gql.request.open", {
+          request: req,
+        })
+      } else {
+        invokeAction("rest.gql-request.open", {
+          doc: {
+            type: "gql-request",
+            request: req,
+            isDirty: false,
+            cursorPosition: 0,
+          },
+        })
+      }
     }
   }
 }

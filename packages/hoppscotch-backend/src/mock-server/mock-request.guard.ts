@@ -103,6 +103,7 @@ export class MockRequestGuard implements CanActivate {
     // but the mock server ID comes from the subdomain, not the path
     const subdomainId = this.extractFromSubdomain(host);
     if (subdomainId) {
+      (request as any).isSubdomainAccess = true;
       return subdomainId;
     }
 
@@ -111,6 +112,7 @@ export class MockRequestGuard implements CanActivate {
     // Route pattern: /mock/mock-server-id/...
     const routeId = this.extractFromRoute(path);
     if (routeId) {
+      (request as any).isSubdomainAccess = false;
       return routeId;
     }
 

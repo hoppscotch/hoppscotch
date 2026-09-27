@@ -23,4 +23,10 @@ export type HoppInheritedProperty = {
     parentName: string
     inheritedVariables: HoppCollectionVariable[]
   }[]
+  scripts: {
+    parentID: string
+    parentName: string
+    preRequestScript: string
+    testScript: string
+  }[]
 }

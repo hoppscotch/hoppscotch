@@ -19,10 +19,11 @@ import { AuthConfig, authExchange } from "@urql/exchange-auth"
 import { SubscriptionClient } from "subscriptions-transport-ws"
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
-import { pipe, constVoid, flow } from "fp-ts/function"
+import { pipe, flow } from "fp-ts/function"
 import { subscribe, pipe as wonkaPipe } from "wonka"
-import { filter, map, Subject } from "rxjs"
+import { filter, map, Subject, Subscription } from "rxjs"
 import { platform } from "~/platform"
+import { createAuthRetryGuard } from "~/helpers/retryAuthGuard"
 
 // TODO: Implement caching
 
@@ -64,6 +65,8 @@ const createSubscriptionClient = () => {
     },
   })
 }
+
+const authRetryGuard = createAuthRetryGuard(() => platform.auth.signOutUser())
 
 const createHoppClient = () => {
   const exchanges = [
@@ -107,9 +110,9 @@ const createHoppClient = () => {
         },
         async refreshAuth() {
           const refresh = platform.auth.refreshAuthToken
-          // should we logout if refreshAuthToken is not defined?
           if (!refresh) return
-          await refresh()
+
+          await authRetryGuard.execute(() => refresh.call(platform.auth))
         },
       }
     }),
@@ -146,10 +149,22 @@ const createHoppClient = () => {
 }
 
 let subscriptionClient: SubscriptionClient | null
+let authEventSubscription: Subscription | null = null
 export const client = ref<Client>()
 
 export function initBackendGQLClient() {
   client.value = createHoppClient()
+
+  // Reset the retry guard only on successful login, not on every
+  // client recreation (which also fires on logout/token_refresh).
+  authEventSubscription?.unsubscribe()
+  authEventSubscription = platform.auth
+    .getAuthEventsStream()
+    .subscribe((event) => {
+      if (event.event === "login") {
+        authRetryGuard.reset()
+      }
+    })
 
   platform.auth.onBackendGQLClientShouldReconnect(() => {
     const currentUser = platform.auth.getCurrentUser()
@@ -177,6 +192,11 @@ export function initBackendGQLClient() {
 type RunQueryOptions<T = any, V = AnyVariables> = {
   query: TypedDocumentNode<T, V>
   variables: V
+  // When true, skip awaiting `platform.auth.waitOrganizationInfoReady` before
+  // issuing the request. This MUST be left unset for ordinary calls: it exists
+  // for the org-info bootstrap query itself (GetOrganizationInfoByDomain),
+  // which determines the org id and would otherwise deadlock waiting on itself.
+  skipOrgInfoWait?: boolean
 }
 
 /**
@@ -192,13 +212,28 @@ export type GQLError<T extends string> =
       error: T
     }
 
-export const runGQLQuery = <
+export const runGQLQuery = async <
   DocType,
   DocVarType extends AnyVariables,
   DocErrorType extends string,
 >(
   args: RunQueryOptions<DocType, DocVarType>
 ): Promise<E.Either<GQLError<DocErrorType>, DocType>> => {
+  // Gate the request on the org info lookup so `getBackendHeaders` has the
+  // `x-organization-id` set by the time the call goes out. The bootstrap
+  // query (which resolves the org id) passes `skipOrgInfoWait` to avoid
+  // waiting on itself.
+  if (!args.skipOrgInfoWait) {
+    try {
+      await platform.auth.waitOrganizationInfoReady?.()
+    } catch (e: any) {
+      return E.left({
+        type: "network_error",
+        error: e instanceof Error ? e : new Error(String(e)),
+      })
+    }
+  }
+
   const request = createRequest<DocType, DocVarType>(args.query, args.variables)
   const source = client.value!.executeQuery(request, {
     requestPolicy: "network-only",
@@ -265,53 +300,87 @@ export const runGQLSubscription = <
 ) => {
   const result$ = new Subject<E.Either<GQLError<DocErrorType>, DocType>>()
 
-  const source = client.value!.executeSubscription(
-    createRequest(args.query, args.variables)
-  )
+  // The wonka subscription isn't created until after the org-info wait below,
+  // so track it here and expose a stable handle that callers can unsubscribe
+  // from immediately (matches the shape of the previously returned sub).
+  let wonkaSub: { unsubscribe: () => void } | null = null
+  let unsubscribeRequested = false
+  const sub = {
+    unsubscribe() {
+      unsubscribeRequested = true
+      wonkaSub?.unsubscribe()
+    },
+  }
 
-  const sub = wonkaPipe(
-    source,
-    subscribe((res) => {
+  ;(async () => {
+    // Gate the subscription on org info so `connectionParams` carries the
+    // `x-organization-id`. See runGQLQuery for the bootstrap skip rationale.
+    try {
+      if (!args.skipOrgInfoWait) {
+        await platform.auth.waitOrganizationInfoReady?.()
+      }
+    } catch (e: any) {
       result$.next(
-        pipe(
-          // The target
-          res.data as DocType | undefined,
-          // Define what happens if data does not exist (it is an error)
-          E.fromNullable(
-            pipe(
-              // Take the network error value
-              res.error?.networkError,
-              // If it null, set the left to the generic error name
-              E.fromNullable(res.error?.message),
-              E.match(
-                // The left case (network error was null)
-                (gqlErr) => {
-                  if (res.error) {
-                    gqlClientError$.next({
-                      type: "GQL_CLIENT_REPORTED_ERROR",
-                      opType: "subscription",
-                      opResult: res,
-                    })
-                  }
+        E.left({
+          type: "network_error",
+          error: e instanceof Error ? e : new Error(String(e)),
+        })
+      )
+      return
+    }
 
-                  return <GQLError<DocErrorType>>{
-                    type: "gql_error",
-                    error: parseGQLErrorString(gqlErr ?? "") as DocErrorType,
-                  }
-                },
-                // The right case (it was a GraphQL Error)
-                (networkErr) =>
-                  <GQLError<DocErrorType>>{
-                    type: "network_error",
-                    error: networkErr,
-                  }
+    const source = client.value!.executeSubscription(
+      createRequest(args.query, args.variables)
+    )
+
+    wonkaSub = wonkaPipe(
+      source,
+      subscribe((res) => {
+        result$.next(
+          pipe(
+            // The target
+            res.data as DocType | undefined,
+            // Define what happens if data does not exist (it is an error)
+            E.fromNullable(
+              pipe(
+                // Take the network error value
+                res.error?.networkError,
+                // If it null, set the left to the generic error name
+                E.fromNullable(res.error?.message),
+                E.match(
+                  // The left case (network error was null)
+                  (gqlErr) => {
+                    if (res.error) {
+                      gqlClientError$.next({
+                        type: "GQL_CLIENT_REPORTED_ERROR",
+                        opType: "subscription",
+                        opResult: res,
+                      })
+                    }
+
+                    return <GQLError<DocErrorType>>{
+                      type: "gql_error",
+                      error: parseGQLErrorString(gqlErr ?? "") as DocErrorType,
+                    }
+                  },
+                  // The right case (it was a GraphQL Error)
+                  (networkErr) =>
+                    <GQLError<DocErrorType>>{
+                      type: "network_error",
+                      error: networkErr,
+                    }
+                )
               )
             )
           )
         )
-      )
-    })
-  )
+      })
+    )
+
+    if (unsubscribeRequested) {
+      wonkaSub.unsubscribe()
+    }
+  })()
 
   // Returns the stream and a subscription handle to unsub
   return [result$, sub] as const
@@ -357,14 +426,23 @@ export const runMutation = <
 ): TE.TaskEither<GQLError<DocErrors>, DocType> =>
   pipe(
     TE.tryCatch(
-      () =>
-        client
+      async () => {
+        // Gate the mutation on org info so the `x-organization-id` header is
+        // present. Mutations are user-triggered and never part of the org-id
+        // bootstrap, so they always wait.
+        await platform.auth.waitOrganizationInfoReady?.()
+        return client
           .value!.mutation(mutation, variables, {
             requestPolicy: "cache-and-network",
             ...additionalConfig,
           })
-          .toPromise(),
-      () => constVoid() as never // The mutation function can never fail, so this will never be called ;)
+          .toPromise()
+      },
+      (err) =>
+        ({
+          type: "network_error",
+          error: err instanceof Error ? err : new Error(String(err)),
+        }) as GQLError<DocErrors>
     ),
     TE.chainEitherK((result) =>
       pipe(

@@ -25,7 +25,7 @@
 <script setup lang="ts">
 import { useVModel } from "@vueuse/core"
 import { computed, ref } from "vue"
-import { HoppRequestDocument } from "~/helpers/rest/document"
+import { HoppRequestDocument } from "~/helpers/tab/document"
 import { useResponseBody } from "@composables/lens-actions"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
 import {

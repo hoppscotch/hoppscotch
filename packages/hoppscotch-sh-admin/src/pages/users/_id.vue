@@ -36,6 +36,13 @@
         <HoppSmartTab :id="'requests'" :label="t('shared_requests.title')">
           <UsersSharedRequests :email="user.email" />
         </HoppSmartTab>
+        <HoppSmartTab :id="'teams'" :label="t('user_teams.title')">
+          <UsersTeams
+            v-if="hasOpenedTeamsTab"
+            :user-uid="user.uid"
+            class="py-8"
+          />
+        </HoppSmartTab>
       </HoppSmartTabs>
     </div>
 
@@ -62,7 +69,7 @@
 
 <script setup lang="ts">
 import { useMutation } from '@urql/vue';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
@@ -79,8 +86,19 @@ const t = useI18n();
 const toast = useToast();
 
 // Tabs
-type OptionTabs = 'details' | 'requests';
+type OptionTabs = 'details' | 'requests' | 'teams';
 const selectedOptionTab = ref<OptionTabs>('details');
+const hasOpenedTeamsTab = ref(false);
+
+watch(
+  selectedOptionTab,
+  (tab) => {
+    if (tab === 'teams') {
+      hasOpenedTeamsTab.value = true;
+    }
+  },
+  { immediate: true },
+);
 
 const currentTabName = computed(() => {
   switch (selectedOptionTab.value) {
@@ -88,6 +106,8 @@ const currentTabName = computed(() => {
       return t('users.details');
     case 'requests':
       return t('shared_requests.title');
+    case 'teams':
+      return t('user_teams.title');
     default:
       return '';
   }
@@ -99,7 +119,7 @@ const { fetching, error, data, fetchData } = useClientHandler(
   UserInfoDocument,
   {
     uid: route.params.id.toString(),
-  }
+  },
 );
 
 onMounted(async () => {

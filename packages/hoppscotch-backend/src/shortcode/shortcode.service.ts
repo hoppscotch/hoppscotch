@@ -298,7 +298,7 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
     const shortCodes = await this.prisma.shortcode.findMany({
       where: userEmail
         ? {
-            User: {
+            user: {
               email: {
                 equals: userEmail,
                 mode: 'insensitive',
@@ -313,7 +313,7 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
       take: args.take,
       cursor: args.cursor ? { id: args.cursor } : undefined,
       include: {
-        User: true,
+        user: true,
       },
     });
 
@@ -327,10 +327,10 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
               ? JSON.stringify(code.embedProperties)
               : null,
           createdOn: code.createdOn,
-          creator: code.User
+          creator: code.user
             ? {
-                uid: code.User.uid,
-                email: code.User.email,
+                uid: code.user.uid,
+                email: code.user.email,
               }
             : null,
         };

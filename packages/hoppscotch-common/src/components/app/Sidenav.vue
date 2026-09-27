@@ -10,6 +10,7 @@
           content: !EXPAND_NAVIGATION ? t(navigation.title) : null,
         }"
         :to="navigation.target"
+        :aria-label="!EXPAND_NAVIGATION ? t(navigation.title) : null"
         class="nav-link"
         tabindex="0"
         :exact="navigation.exact"

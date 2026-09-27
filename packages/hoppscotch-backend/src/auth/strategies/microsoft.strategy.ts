@@ -8,6 +8,7 @@ import * as E from 'fp-ts/Either';
 import { ConfigService } from '@nestjs/config';
 import { validateEmail } from 'src/utils';
 import { AUTH_EMAIL_NOT_PROVIDED_BY_OAUTH } from 'src/errors';
+import { StatelessStateStore } from '../stateless-state-store';
 
 @Injectable()
 export class MicrosoftStrategy extends PassportStrategy(Strategy) {
@@ -22,7 +23,13 @@ export class MicrosoftStrategy extends PassportStrategy(Strategy) {
       callbackURL: configService.get<string>('INFRA.MICROSOFT_CALLBACK_URL'),
       scope: configService.get<string>('INFRA.MICROSOFT_SCOPE').split(','),
       tenant: configService.get<string>('INFRA.MICROSOFT_TENANT'),
-      store: true,
+      store: new StatelessStateStore(
+        configService.get<string>('INFRA.SESSION_SECRET'),
+        undefined,
+        (configService.get<string>('INFRA.SESSION_COOKIE_NAME') ||
+          '__oauth_nonce') + '_microsoft',
+        configService.get<string>('INFRA.ALLOW_SECURE_COOKIES') === 'true',
+      ),
     });
   }
 

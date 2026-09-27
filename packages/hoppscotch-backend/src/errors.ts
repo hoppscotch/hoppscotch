@@ -190,6 +190,12 @@ export const TEAM_FB_COLL_PATH_RESOLVE_FAIL = 'team/fb_coll_path_resolve_fail';
 export const TEAM_COLL_NOT_FOUND = 'team_coll/collection_not_found';
 
 /**
+ * The collection does not have the same parent as the expected parent
+ * (TeamCollectionService)
+ */
+export const TEAM_COLL_NOT_SAME_PARENT = 'team_coll/not_same_parent';
+
+/**
  * Could not find the team in the database
  * (TeamCollectionService)
  */
@@ -220,13 +226,6 @@ export const TEAM_COLL_DEST_SAME =
  */
 export const TEAM_COL_ALREADY_ROOT =
   'team_coll/target_collection_is_already_root_collection';
-
-/**
- * Collections have different parents
- * (TeamCollectionService)
- */
-export const TEAM_COL_NOT_SAME_PARENT =
-  'team_coll/team_collections_have_different_parents';
 
 /**
  * Collection and next Collection are the same
@@ -424,8 +423,8 @@ export const USER_SETTINGS_NULL_SETTINGS =
  * Global environment doesn't exist for the user
  * (UserEnvironmentsService)
  */
-export const USER_ENVIRONMENT_GLOBAL_ENV_DOES_NOT_EXISTS =
-  'user_environment/global_env_does_not_exists' as const;
+export const USER_ENVIRONMENT_GLOBAL_ENV_DOES_NOT_EXIST =
+  'user_environment/global_env_does_not_exist' as const;
 
 /**
  * Global environment already exists for the user
@@ -438,8 +437,8 @@ export const USER_ENVIRONMENT_GLOBAL_ENV_EXISTS =
  * User environment doesn't exist for the user
  * (UserEnvironmentsService)
  */
-export const USER_ENVIRONMENT_ENV_DOES_NOT_EXISTS =
-  'user_environment/user_env_does_not_exists' as const;
+export const USER_ENVIRONMENT_ENV_DOES_NOT_EXIST =
+  'user_environment/user_env_does_not_exist' as const;
 
 /**
  * Cannot delete the global user environment
@@ -461,6 +460,12 @@ export const USER_ENVIRONMENT_IS_NOT_GLOBAL =
  */
 export const USER_ENVIRONMENT_UPDATE_FAILED =
   'user_environment/user_env_update_failed' as const;
+
+/**
+ * User environment not found for the user
+ * (UserEnvironmentsService)
+ */
+export const USER_ENVIRONMENT_NOT_FOUND = 'user_environment/not_found' as const;
 
 /**
  * User environment invalid environment name
@@ -977,8 +982,8 @@ export const PUBLISHED_DOCS_DELETION_FAILED = 'published_docs/deletion_failed';
  * Published Docs invalid environment
  * (PublishedDocsService)
  */
-export const PUBLISHED_DOCS_INVALID_ENVIRONMENT =
-  'published_docs/invalid_environment';
+export const PUBLISHED_DOCS_FORBIDDEN_ENVIRONMENT_ACCESS =
+  'published_docs/forbidden_environment_access';
 
 /**
  * Published Docs not found

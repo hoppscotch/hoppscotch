@@ -7,12 +7,7 @@ let
     else pkgs;
 
   darwinPackages = with pkgs; [
-    darwin.apple_sdk.frameworks.Security
-    darwin.apple_sdk.frameworks.CoreServices
-    darwin.apple_sdk.frameworks.CoreFoundation
-    darwin.apple_sdk.frameworks.Foundation
-    darwin.apple_sdk.frameworks.AppKit
-    darwin.apple_sdk.frameworks.WebKit
+    apple-sdk
   ];
 
   linuxPackages = with pkgs; [
@@ -27,8 +22,8 @@ in {
   packages = with pkgs; [
     git
     nodejs_22
-    nodePackages_latest.typescript-language-server
-    nodePackages_latest.vue-language-server
+    typescript-language-server
+    vue-language-server
     cargo-edit
   ] ++ lib.optionals pkgs.stdenv.isDarwin darwinPackages
     ++ lib.optionals pkgs.stdenv.isLinux linuxPackages;

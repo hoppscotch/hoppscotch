@@ -11,11 +11,11 @@ export const V16_SCHEMA = V15_SCHEMA.extend({
 const V16_VERSION = defineVersion({
   schema: V16_SCHEMA,
   initial: false,
-  up(old: z.infer<typeof V16_SCHEMA>) {
+  up(old: z.infer<typeof V15_SCHEMA>) {
     return {
       ...old,
       v: "16" as const,
-      _ref_id: old._ref_id ?? generateUniqueRefId("req"),
+      _ref_id: generateUniqueRefId("req"),
     }
   },
 })

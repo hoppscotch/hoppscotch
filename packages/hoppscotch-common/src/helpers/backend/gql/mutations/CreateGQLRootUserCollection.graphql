@@ -1,0 +1,6 @@
+mutation CreateGQLRootUserCollection($title: String!, $data: String) {
+  createGQLRootUserCollection(title: $title, data: $data) {
+    id
+    data
+  }
+}

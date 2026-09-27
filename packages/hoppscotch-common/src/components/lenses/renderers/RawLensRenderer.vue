@@ -118,8 +118,7 @@ const t = useI18n()
 
 const props = defineProps<{
   response:
-    | (HoppRESTResponse & { type: "success" | "fail" })
-    | HoppRESTRequestResponse
+    (HoppRESTResponse & { type: "success" | "fail" }) | HoppRESTRequestResponse
   isEditable: boolean
   isSavable: boolean
   tabId: string

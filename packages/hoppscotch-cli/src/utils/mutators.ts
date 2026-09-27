@@ -1,4 +1,9 @@
-import { Environment, HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
+import {
+  Environment,
+  HoppCollection,
+  HoppGQLRequest,
+  HoppRESTRequest,
+} from "@hoppscotch/data";
 import fs from "fs/promises";
 import { entityReference } from "verzod";
 import { z } from "zod";
@@ -14,9 +19,17 @@ const getValidRequests = (
   collectionFilePath: string
 ) => {
   return collections.map((collection) => {
-    // Validate requests using zod schema
+    // Unified collections can mix REST and GraphQL requests — validate each
+    // entry against its own schema (REST first; a GraphQL request lacks
+    // `endpoint`, so it can never mis-validate as REST). Order is preserved:
+    // runs execute requests in collection order regardless of protocol.
     const requestSchemaParsedResult = z
-      .array(entityReference(HoppRESTRequest))
+      .array(
+        z.union([
+          entityReference(HoppRESTRequest),
+          entityReference(HoppGQLRequest),
+        ])
+      )
       .safeParse(collection.requests);
 
     // Handle validation errors
@@ -158,19 +171,3 @@ export async function parseCollectionData(
 
   return getValidRequests(collectionSchemaParsedResult.data, pathOrId);
 }
-
-/**
- * Module prefix added by Monaco editor for TypeScript module mode.
- */
-const MODULE_PREFIX = "export {};\n" as const;
-
-/**
- * Strips `export {};\n` prefix from scripts before sandbox execution.
- * The prefix is added by the web app's Monaco editor for IntelliSense
- * and must be removed before execution.
- */
-export const stripModulePrefix = (script: string): string => {
-  return script.startsWith(MODULE_PREFIX)
-    ? script.slice(MODULE_PREFIX.length)
-    : script;
-};

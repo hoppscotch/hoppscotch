@@ -51,14 +51,12 @@
                   <div v-if="isJsonResponse(example)">
                     <pre
                       class="bg-primaryLight p-3 rounded my-2 overflow-auto max-h-64 text-sm font-mono text-secondaryLight"
-                      >{{ formatJSON(example.body) }}</pre
-                    >
+                      >{{ formatJSON(example.body) }}</pre>
                   </div>
                   <div v-else>
                     <pre
                       class="bg-primaryLight p-3 rounded my-2 overflow-auto max-h-64 text-sm font-mono text-secondaryLight"
-                      >{{ example.body }}</pre
-                    >
+                      >{{ example.body }}</pre>
                   </div>
                 </div>
               </HoppSmartTab>

@@ -1,55 +1,32 @@
 <template>
   <div class="flex flex-col space-y-6">
-    <div>
-      <HoppSmartInput
-        v-model="titleModel"
-        :label="t('documentation.publish.doc_title')"
-        type="text"
-        input-styles="floating-input"
-      />
-    </div>
+    <HoppSmartInput
+      v-model="titleModel"
+      :label="t('documentation.publish.doc_title')"
+      type="text"
+      input-styles="floating-input"
+    />
 
-    <div
-      v-if="isFirstPublish"
-      class="flex items-start space-x-2 px-3 py-2.5 rounded-md bg-green-500/5 border border-green-500/15"
+    <!-- Version Input -->
+    <HoppSmartInput
+      v-model="versionModel"
+      :label="t('documentation.publish.doc_version')"
+      :input-styles="[
+        'floating-input',
+        !isValidVersion && versionModel.length > 0
+          ? '!border-red-500 !focus:border-red-500'
+          : '',
+      ]"
+    />
+    <span
+      v-if="!isValidVersion && versionModel.length > 0"
+      class="text-xs text-red-500 mt-1 block"
     >
-      <icon-lucide-info
-        class="w-3.5 h-3.5 text-green-600 flex-shrink-0 mt-0.5"
-      />
-      <span class="text-xs text-green-600 leading-relaxed">
-        {{ t("documentation.publish.first_publish_hint") }}
-      </span>
-    </div>
+      {{ t("documentation.publish.invalid_version") }}
+    </span>
 
-    <!-- Version Input (hidden for first publish) -->
-    <div v-if="!isFirstPublish">
-      <HoppSmartInput
-        v-model="versionModel"
-        :label="t('documentation.publish.doc_version')"
-        :disabled="mode === 'update'"
-        :input-styles="[
-          'floating-input',
-          !isValidVersion && versionModel.length > 0
-            ? '!border-red-500 !focus:border-red-500'
-            : '',
-        ]"
-      />
-      <span
-        v-if="!isValidVersion && versionModel.length > 0"
-        class="text-xs text-red-500 mt-1 block"
-      >
-        {{ t("documentation.publish.invalid_version") }}
-      </span>
-      <span
-        v-if="mode === 'create' && isValidVersion"
-        class="text-xs text-secondaryLight mt-1 block"
-      >
-        {{ t("documentation.publish.snapshot_description") }}
-      </span>
-    </div>
-
-    <!-- Auto-sync Toggle (hidden for first publish and for live versions) -->
-    <div v-if="!isFirstPublish && !isAutoSyncLocked" class="flex items-start">
+    <!-- Auto-sync Toggle -->
+    <div class="flex items-start">
       <HoppSmartCheckbox
         :on="autoSyncModel"
         @change="autoSyncModel = !autoSyncModel"
@@ -63,6 +40,19 @@
           </span>
         </div>
       </HoppSmartCheckbox>
+    </div>
+
+    <!-- Info notice: turning off auto-sync on a live version will freeze it -->
+    <div
+      v-if="mode === 'update' && !autoSyncModel"
+      class="flex items-start space-x-2 px-3 py-2.5 rounded-md bg-blue-500/5 border border-blue-500/20"
+    >
+      <icon-lucide-info
+        class="w-3.5 h-3.5 text-blue-600 flex-shrink-0 mt-0.5"
+      />
+      <span class="text-xs text-blue-600 leading-relaxed">
+        {{ t("documentation.publish.live_freeze_notice") }}
+      </span>
     </div>
 
     <!-- Environment Selector -->
@@ -130,8 +120,6 @@ const props = defineProps<{
   autoSync: boolean
   selectedEnvironmentID: string | null
   publishedUrl: string | null
-  isFirstPublish: boolean
-  isAutoSyncLocked: boolean
   isValidVersion: boolean
   workspaceType: WorkspaceType
   workspaceID: string

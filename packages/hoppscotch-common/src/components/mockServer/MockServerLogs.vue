@@ -115,10 +115,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue"
 import { useI18n } from "~/composables/i18n"
-import {
-  getMockServerLogs,
-  deleteMockServerLog,
-} from "~/helpers/backend/queries/MockServerLogs"
+import { platform } from "~/platform"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 import { useToast } from "~/composables/toast"
@@ -141,7 +138,7 @@ const logToDelete = ref<string | null>(null)
 const fetchLogs = async () => {
   loading.value = true
   await pipe(
-    getMockServerLogs(props.mockServerID),
+    platform.backend.getMockServerLogs(props.mockServerID),
     TE.match(
       () => {
         toast.error(t("error.something_went_wrong"))
@@ -169,7 +166,7 @@ const confirmRemoveLog = (id: string) => {
 const confirmDelete = async () => {
   if (logToDelete.value) {
     await pipe(
-      deleteMockServerLog(logToDelete.value),
+      platform.backend.deleteMockServerLog(logToDelete.value),
       TE.match(
         () => {
           toast.error(t("error.something_went_wrong"))

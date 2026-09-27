@@ -1,4 +1,8 @@
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
+import {
+  HoppCollection,
+  HoppRESTRequest,
+  isGQLRequest,
+} from "@hoppscotch/data";
 import chalk from "chalk";
 import { log } from "console";
 import * as A from "fp-ts/Array";
@@ -27,6 +31,7 @@ import {
 } from "./display";
 import { exceptionColors } from "./getters";
 import { getPreRequestMetrics } from "./pre-request";
+import { preProcessGQLRequest } from "./gql-request";
 import { buildJUnitReport, generateJUnitReportExport } from "./reporters/junit";
 import {
   getRequestMetrics,
@@ -34,6 +39,7 @@ import {
   processRequest,
 } from "./request";
 import { getTestMetrics } from "./test";
+import { filterValidScripts } from "@hoppscotch/js-sandbox/scripting";
 
 const { WARN, FAIL, INFO } = exceptionColors;
 
@@ -109,11 +115,27 @@ const processCollection = async (
   envs: HoppEnvs,
   delay: number,
   requestsReport: RequestReport[],
-  legacySandbox?: boolean
+  legacySandbox?: boolean,
+  ancestorPreRequestScripts: string[] = [],
+  ancestorTestScripts: string[] = []
 ) => {
-  // Process each request in the collection
+  // Accumulate scripts from root -> current collection for inheritance
+  // filterValidScripts strips empty, whitespace-only, and module-prefix-only scripts
+  const inheritedPreRequestScripts = filterValidScripts([
+    ...ancestorPreRequestScripts,
+    collection.preRequestScript,
+  ]);
+  const inheritedTestScripts = filterValidScripts([
+    ...ancestorTestScripts,
+    collection.testScript,
+  ]);
+
+  // GraphQL requests become REST-shaped stubs so the shared pipeline runs
+  // them unchanged; unrunnable stubs fail at effective-request time
   for (const request of collection.requests) {
-    const _request = preProcessRequest(request as HoppRESTRequest, collection);
+    const _request = isGQLRequest(request)
+      ? preProcessGQLRequest(request, collection)
+      : preProcessRequest(request as HoppRESTRequest, collection);
     const requestPath = `${path}/${_request.name}`;
 
     const collectionVariables = collection.variables.filter(
@@ -127,6 +149,8 @@ const processCollection = async (
       delay,
       legacySandbox,
       collectionVariables,
+      inheritedPreRequestScripts,
+      inheritedTestScripts,
     };
 
     // Request processing initiated message.
@@ -188,7 +212,9 @@ const processCollection = async (
       envs,
       delay,
       requestsReport,
-      legacySandbox
+      legacySandbox,
+      inheritedPreRequestScripts,
+      inheritedTestScripts
     );
   }
 };

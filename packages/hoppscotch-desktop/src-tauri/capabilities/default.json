@@ -14,6 +14,7 @@
     "core:event:default",
     "core:path:default",
     "core:webview:default",
+    "core:webview:allow-set-webview-zoom",
     "shell:allow-open",
     "store:default",
     "dialog:default",

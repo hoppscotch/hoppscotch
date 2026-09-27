@@ -195,3 +195,14 @@ export function constrainTooltipToViewport(
   tooltipContent.style.overflow = "hidden"
   tooltipContent.style.boxSizing = "border-box"
 }
+
+/**
+ * Standardized helper to stabilize interactive tooltips in CodeMirror.
+ * Adds a CSS-based bridge to extend the hover area, allowing the user
+ * to move the cursor into the tooltip without it closing.
+ *
+ * @param dom - The outer tooltip container element (.tippy-box)
+ */
+export function stabilizeTooltipHover(dom: HTMLElement): void {
+  dom.classList.add("hopp-tooltip-interactive-wrapper")
+}

@@ -2,41 +2,13 @@ import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 import { BehaviorSubject } from "rxjs"
 import { pluck } from "rxjs/operators"
-import {
-  getMyMockServers,
-  getTeamMockServers,
-} from "~/helpers/backend/queries/MockServer"
 import { getService } from "~/modules/dioc"
 import { WorkspaceService } from "~/services/workspace.service"
+import { platform } from "~/platform"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 
-export type WorkspaceType = "USER" | "TEAM"
-
-export type MockServer = {
-  id: string
-  name: string
-  subdomain: string
-  serverUrlPathBased?: string
-  serverUrlDomainBased?: string | null
-  workspaceType: WorkspaceType
-  workspaceID?: string | null
-  delayInMs?: number
-  isPublic: boolean
-  isActive: boolean
-  createdOn: Date
-  updatedOn: Date
-  creator?: {
-    uid: string
-  }
-  collection?: {
-    id: string
-    title: string
-    requests?: any[]
-  } | null
-  // Legacy fields for backward compatibility
-  userUid?: string
-  collectionID?: string
-}
+import type { MockServer } from "~/helpers/backend/types/MockServer"
+import { WorkspaceType } from "~/helpers/backend/graphql"
 
 export type CreateMockServerInput = {
   name: string
@@ -179,7 +151,7 @@ export function loadMockServers(skip?: number, take?: number) {
     }
     setLoading(true)
     return pipe(
-      getMyMockServers(skip, take),
+      platform.backend.getMyMockServers(skip, take),
       TE.match(
         (error) => {
           console.error("Failed to load mock servers:", error)
@@ -195,7 +167,7 @@ export function loadMockServers(skip?: number, take?: number) {
     // Fallback to user mock servers if workspace service is not available
     setLoading(true)
     return pipe(
-      getMyMockServers(skip, take),
+      platform.backend.getMyMockServers(skip, take),
       TE.match(
         (error) => {
           console.error("Failed to load mock servers:", error)
@@ -218,7 +190,7 @@ export function loadTeamMockServers(
 ) {
   setLoading(true)
   return pipe(
-    getTeamMockServers(teamID, skip, take),
+    platform.backend.getTeamMockServers(teamID, skip, take),
     TE.match(
       (error) => {
         console.error("Failed to load team mock servers:", error)

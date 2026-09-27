@@ -11,15 +11,17 @@ import {
   GQLHeader,
 } from "@hoppscotch/data"
 import { cloneDeep } from "lodash-es"
+import { hasActualScript } from "@hoppscotch/js-sandbox/scripting"
 import { pluck } from "rxjs/operators"
 import { resolveSaveContextOnRequestReorder } from "~/helpers/collection/request"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { getService } from "~/modules/dioc"
 import { getI18n } from "~/modules/i18n"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { CurrentValueService } from "~/services/current-environment-value.service"
+import { populateValuesInInheritedCollectionVars } from "~/helpers/utils/inheritedCollectionVarTransformer"
 
 //collection variables current value and secret value
 const secretEnvironmentService = getService(SecretEnvironmentService)
@@ -38,6 +40,8 @@ const defaultRESTCollectionState = {
       headers: [],
       variables: [],
       description: null,
+      preRequestScript: "",
+      testScript: "",
     }),
   ],
 }
@@ -55,6 +59,8 @@ const defaultGraphqlCollectionState = {
       headers: [],
       variables: [],
       description: null,
+      preRequestScript: "",
+      testScript: "",
     }),
   ],
 }
@@ -118,7 +124,11 @@ function populateValues(
 /**
  * Used to obtain the inherited auth and headers for a given folder path, used for both REST and GraphQL personal collections
  * @param folderPath the path of the folder to cascade the auth from
- * @param type the type of collection
+ * @param type Names the COLLECTION STORE the `folderPath` indexes — NOT the
+ * protocol of the request being opened. "rest" is the unified store
+ * (`restCollectionStore`), which also holds GQL requests as embedded rows, so
+ * a GQL request opened from a unified collection cascades with "rest".
+ * "graphql" is the legacy GQL-only store backing the standalone /graphql page.
  * @param showSecret whether to show secret values in the collection variables
  * @returns the inherited auth and headers for the given folder path
  */
@@ -142,14 +152,16 @@ export function cascadeParentCollectionForProperties(
 
   const variables: HoppInheritedProperty["variables"] = []
 
-  if (!folderPath) return { auth, headers, variables }
+  const scripts: HoppInheritedProperty["scripts"] = []
+
+  if (!folderPath) return { auth, headers, variables, scripts }
 
   const path = folderPath.split("/").map((i) => parseInt(i))
 
   // Check if the path is empty or invalid
   if (!path || path.length === 0) {
     console.error("Invalid path:", folderPath)
-    return { auth, headers, variables }
+    return { auth, headers, variables, scripts }
   }
 
   // Loop through the path and get the last parent folder with authType other than 'inherit'
@@ -162,13 +174,12 @@ export function cascadeParentCollectionForProperties(
     // Check if parentFolder is undefined or null
     if (!parentFolder) {
       console.error("Parent folder not found for path:", path)
-      return { auth, headers, variables }
+      return { auth, headers, variables, scripts }
     }
 
     const parentFolderAuth = parentFolder.auth as HoppRESTAuth | HoppGQLAuth
     const parentFolderHeaders = parentFolder.headers as
-      | HoppRESTHeaders
-      | GQLHeader[]
+      HoppRESTHeaders | GQLHeader[]
     const parentFolderVariables =
       parentFolder.variables as HoppCollectionVariable[]
 
@@ -223,9 +234,27 @@ export function cascadeParentCollectionForProperties(
         ),
       })
     }
+
+    // Collect scripts from the collection hierarchy (root to child order)
+    const parentPreRequestScript = parentFolder.preRequestScript ?? ""
+    const parentTestScript = parentFolder.testScript ?? ""
+
+    if (
+      hasActualScript(parentPreRequestScript) ||
+      hasActualScript(parentTestScript)
+    ) {
+      const currentPath = [...path.slice(0, i + 1)].join("/")
+
+      scripts.push({
+        parentID: parentFolder._ref_id ?? parentFolder.id ?? currentPath,
+        parentName: parentFolder.name,
+        preRequestScript: parentPreRequestScript,
+        testScript: parentTestScript,
+      })
+    }
   }
 
-  return { auth, headers, variables }
+  return { auth, headers, variables, scripts }
 }
 
 function reorderItems(array: unknown[], from: number, to: number) {
@@ -365,6 +394,8 @@ const restCollectionDispatchers = defineDispatchers({
       headers: [],
       variables: [],
       description: null,
+      preRequestScript: "",
+      testScript: "",
     })
 
     const newState = state
@@ -481,6 +512,12 @@ const restCollectionDispatchers = defineDispatchers({
         return {}
       }
 
+      if (folderIndex < 0 || folderIndex >= containingFolder.folders.length) {
+        console.error(
+          `Folder index ${folderIndex} out of bounds. Skipping request.`
+        )
+        return {}
+      }
       const theFolder = containingFolder.folders.splice(folderIndex, 1)
       newState.push(theFolder[0] as HoppCollection)
 
@@ -502,6 +539,23 @@ const restCollectionDispatchers = defineDispatchers({
       return {}
     }
 
+    // Block self-move: moving a folder to its own location
+    if (path === destinationPath) {
+      console.error(
+        `Cannot move folder to itself. Skipping request to move folder '${path}'.`
+      )
+      return {}
+    }
+
+    // Block descendant move: moving a folder into itself or its descendants
+    // This would create a cyclic tree structure
+    if (destinationPath.startsWith(path + "/")) {
+      console.error(
+        `Cannot move folder into its descendant. Destination '${destinationPath}' is inside source '${path}'. Skipping request.`
+      )
+      return {}
+    }
+
     const target = navigateToFolderWithIndexPath(
       newState,
       destinationIndexPaths
@@ -518,10 +572,22 @@ const restCollectionDispatchers = defineDispatchers({
     const containingFolder = navigateToFolderWithIndexPath(newState, indexPaths)
     // We are moving a folder from the root
     if (containingFolder === null) {
+      if (folderIndex < 0 || folderIndex >= newState.length) {
+        console.error(
+          `Folder index ${folderIndex} out of bounds in root. Skipping request.`
+        )
+        return {}
+      }
       const theFolder = newState.splice(folderIndex, 1)
 
       target.folders.push(theFolder[0])
     } else {
+      if (folderIndex < 0 || folderIndex >= containingFolder.folders.length) {
+        console.error(
+          `Folder index ${folderIndex} out of bounds. Skipping request.`
+        )
+        return {}
+      }
       const theFolder = containingFolder.folders.splice(folderIndex, 1)
 
       target.folders.push(theFolder[0])
@@ -668,7 +734,17 @@ const restCollectionDispatchers = defineDispatchers({
           _ref_id: generateUniqueRefId("coll"),
         }
 
-        newCollection.folders = newCollection.folders.map((folder) =>
+        // Copied requests need their own identity too — matching falls back to
+        // the backend `id`, so even a legacy request copied without a fresh
+        // `_ref_id` would fight the original for tabs
+        newCollection.requests = (newCollection.requests ?? []).map(
+          (request) => ({
+            ...request,
+            _ref_id: generateUniqueRefId("req"),
+          })
+        )
+
+        newCollection.folders = (newCollection.folders ?? []).map((folder) =>
           recursiveChangeRefIdToAvoidConflicts(folder)
         )
 
@@ -785,7 +861,7 @@ const restCollectionDispatchers = defineDispatchers({
     // Deal with situations where a tab with the given thing is deleted
     // We are just going to dissociate the save context of the tab and mark it dirty
 
-    const tabService = getService(RESTTabService)
+    const tabService = getService(WorkspaceTabsService)
 
     const tab = tabService.getTabRefWithSaveContext({
       originLocation: "user-collection",
@@ -793,7 +869,7 @@ const restCollectionDispatchers = defineDispatchers({
       requestIndex: requestIndex,
     })
 
-    if (tab) {
+    if (tab && tab.value.document.type !== "test-runner") {
       tab.value.document.saveContext = undefined
       tab.value.document.isDirty = true
     }
@@ -845,14 +921,14 @@ const restCollectionDispatchers = defineDispatchers({
     destLocation.requests.push(req)
     targetLocation.requests.splice(requestIndex, 1)
 
-    const tabService = getService(RESTTabService)
+    const tabService = getService(WorkspaceTabsService)
     const possibleTab = tabService.getTabRefWithSaveContext({
       originLocation: "user-collection",
       folderPath: path,
       requestIndex,
     })
 
-    if (possibleTab) {
+    if (possibleTab && possibleTab.value.document.type !== "test-runner") {
       possibleTab.value.document.saveContext = {
         originLocation: "user-collection",
         folderPath: destinationPath,
@@ -1026,6 +1102,8 @@ const gqlCollectionDispatchers = defineDispatchers({
       headers: [],
       variables: [],
       description: null,
+      preRequestScript: "",
+      testScript: "",
     })
     const newState = state
     const indexPaths = path.split("/").map((x) => parseInt(x))
@@ -1107,6 +1185,251 @@ const gqlCollectionDispatchers = defineDispatchers({
     }
   },
 
+  moveFolder(
+    { state }: GraphqlCollectionStoreType,
+    { path, destinationPath }: { path: string; destinationPath: string | null }
+  ) {
+    const newState = state
+
+    // Move the folder to the root
+    if (destinationPath === null) {
+      const indexPaths = path.split("/").map((x) => parseInt(x))
+
+      if (indexPaths.length === 0) {
+        console.log("Given path too short. Skipping request.")
+        return {}
+      }
+
+      const folderIndex = indexPaths.pop() as number
+
+      const containingFolder = navigateToFolderWithIndexPath(
+        newState,
+        indexPaths
+      )
+      if (containingFolder === null) {
+        console.error(
+          `The folder to move is already in the root. Skipping request to move folder.`
+        )
+        return {}
+      }
+
+      if (folderIndex < 0 || folderIndex >= containingFolder.folders.length) {
+        console.error(
+          `Folder index ${folderIndex} out of bounds. Skipping request.`
+        )
+        return {}
+      }
+      const theFolder = containingFolder.folders.splice(folderIndex, 1)
+      newState.push(theFolder[0] as HoppCollection)
+
+      return {
+        state: newState,
+      }
+    }
+
+    const indexPaths = path.split("/").map((x) => parseInt(x))
+
+    const destinationIndexPaths = destinationPath
+      .split("/")
+      .map((x) => parseInt(x))
+
+    if (indexPaths.length === 0 || destinationIndexPaths.length === 0) {
+      console.error(
+        `Given path is too short. Skipping request to move folder '${path}' to destination '${destinationPath}'.`
+      )
+      return {}
+    }
+
+    // Block self-move: moving a folder to its own location
+    if (path === destinationPath) {
+      console.error(
+        `Cannot move folder to itself. Skipping request to move folder '${path}'.`
+      )
+      return {}
+    }
+
+    // Block descendant move: moving a folder into itself or its descendants
+    // This would create a cyclic tree structure
+    if (destinationPath.startsWith(path + "/")) {
+      console.error(
+        `Cannot move folder into its descendant. Destination '${destinationPath}' is inside source '${path}'. Skipping request.`
+      )
+      return {}
+    }
+
+    const target = navigateToFolderWithIndexPath(
+      newState,
+      destinationIndexPaths
+    )
+    if (target === null) {
+      console.error(
+        `Could not resolve destination path '${destinationPath}'. Skipping moveFolder dispatch.`
+      )
+      return {}
+    }
+
+    const folderIndex = indexPaths.pop() as number
+
+    const containingFolder = navigateToFolderWithIndexPath(newState, indexPaths)
+    // We are moving a folder from the root
+    if (containingFolder === null) {
+      if (folderIndex < 0 || folderIndex >= newState.length) {
+        console.error(
+          `Folder index ${folderIndex} out of bounds in root. Skipping request.`
+        )
+        return {}
+      }
+      const theFolder = newState.splice(folderIndex, 1)
+
+      target.folders.push(theFolder[0])
+    } else {
+      if (folderIndex < 0 || folderIndex >= containingFolder.folders.length) {
+        console.error(
+          `Folder index ${folderIndex} out of bounds. Skipping request.`
+        )
+        return {}
+      }
+      const theFolder = containingFolder.folders.splice(folderIndex, 1)
+
+      target.folders.push(theFolder[0])
+    }
+
+    return { state: newState }
+  },
+
+  sortGraphqlCollection(
+    { state }: GraphqlCollectionStoreType,
+    {
+      collectionPath,
+      sortOrder,
+    }: { collectionPath: number | null; sortOrder: "asc" | "desc" }
+  ) {
+    const newState = state
+
+    if (collectionPath === null || isNaN(collectionPath)) {
+      return {
+        state: newState.sort(createComparator("name", sortOrder)),
+      }
+    }
+
+    const collection = newState.find((_, index) => index === collectionPath)
+
+    if (!collection) {
+      console.error(`Collection not found.`)
+      return {}
+    }
+
+    collection.requests.sort(createComparator("name", sortOrder))
+    collection.folders.sort(createComparator("name", sortOrder))
+
+    return {
+      state: newState,
+    }
+  },
+
+  sortGraphqlFolder(
+    { state }: GraphqlCollectionStoreType,
+    { path, sortOrder }: { path: string; sortOrder: "asc" | "desc" }
+  ) {
+    const newState = state
+
+    const indexPaths = path.split("/").map((x) => parseInt(x))
+    if (indexPaths.length === 0) {
+      console.log("Given path too short. Skipping request.")
+      return {}
+    }
+
+    const target = navigateToFolderWithIndexPath(newState, indexPaths)
+    if (target === null) {
+      console.log(
+        `Could not resolve path '${path}'. Ignoring sortGraphqlFolder dispatch.`
+      )
+      return {}
+    }
+
+    target.requests.sort(createComparator("name", sortOrder))
+    target.folders.sort(createComparator("name", sortOrder))
+
+    return {
+      state: newState,
+    }
+  },
+
+  updateCollectionOrder(
+    { state }: GraphqlCollectionStoreType,
+    {
+      collectionIndex,
+      destinationCollectionIndex,
+    }: {
+      collectionIndex: string
+      destinationCollectionIndex: string | null
+    }
+  ) {
+    const newState = state
+
+    const indexPaths = collectionIndex.split("/").map((x) => parseInt(x))
+
+    if (indexPaths.length === 0) {
+      console.log("Given path too short. Skipping request.")
+      return {}
+    }
+
+    if (destinationCollectionIndex === null) {
+      const folderIndex = indexPaths.pop() as number
+
+      const containingFolder = navigateToFolderWithIndexPath(
+        newState,
+        indexPaths
+      )
+
+      if (containingFolder === null) {
+        newState.push(newState.splice(folderIndex, 1)[0])
+        return {
+          state: newState,
+        }
+      }
+
+      containingFolder.folders.push(
+        containingFolder.folders.splice(folderIndex, 1)[0]
+      )
+
+      return {
+        state: newState,
+      }
+    }
+
+    const destinationIndexPaths = destinationCollectionIndex
+      .split("/")
+      .map((x) => parseInt(x))
+
+    if (destinationIndexPaths.length === 0) {
+      console.log("Given path too short. Skipping request.")
+      return {}
+    }
+
+    const folderIndex = indexPaths.pop() as number
+    const destinationFolderIndex = destinationIndexPaths.pop() as number
+
+    const containingFolder = navigateToFolderWithIndexPath(
+      newState,
+      destinationIndexPaths
+    )
+
+    if (containingFolder === null) {
+      reorderItems(newState, folderIndex, destinationFolderIndex)
+
+      return {
+        state: newState,
+      }
+    }
+
+    reorderItems(containingFolder.folders, folderIndex, destinationFolderIndex)
+
+    return {
+      state: newState,
+    }
+  },
+
   duplicateCollection(
     { state }: GraphqlCollectionStoreType,
     // `collectionSyncID` is used to sync the duplicated collection in `gqlCollections.sync.ts`
@@ -1126,13 +1449,37 @@ const gqlCollectionDispatchers = defineDispatchers({
     if (collection) {
       const name = `${collection.name} - ${t("action.duplicate")}`
 
-      const duplicatedCollection = {
+      // Re-stamp `_ref_id` recursively so the duplicate doesn't alias the
+      // original's local secret-store entries — sharing a `_ref_id` would
+      // mean editing secrets on the duplicate mutates the source. Mirrors
+      // the REST `duplicateCollection` dispatcher above.
+      function recursiveChangeRefIdToAvoidConflicts(
+        coll: HoppCollection
+      ): HoppCollection {
+        const next = {
+          ...coll,
+          _ref_id: generateUniqueRefId("coll"),
+        }
+
+        // Copied requests need fresh `_ref_id`s too, else they alias the originals' tabs
+        next.requests = (next.requests ?? []).map((request) => ({
+          ...request,
+          _ref_id: generateUniqueRefId("req"),
+        }))
+
+        next.folders = (next.folders ?? []).map(
+          recursiveChangeRefIdToAvoidConflicts
+        )
+        return next
+      }
+
+      const duplicatedCollection = recursiveChangeRefIdToAvoidConflicts({
         ...cloneDeep(collection),
         name,
         ...(collection.id
           ? { id: `${collection.id}-duplicate-collection` }
           : {}),
-      }
+      })
 
       if (isRootCollection) {
         newState.push(duplicatedCollection)
@@ -1351,6 +1698,9 @@ export function removeRESTCollection(
   collectionIndex: number,
   collectionID?: string
 ) {
+  if (!collectionID) {
+    collectionID = restCollectionStore.value.state[collectionIndex]?._ref_id
+  }
   restCollectionStore.dispatch({
     dispatcher: "removeCollection",
     payload: {
@@ -1364,18 +1714,34 @@ export function getRESTCollection(collectionIndex: number) {
   return restCollectionStore.value.state[collectionIndex]
 }
 
+export type RESTCollectionInheritedProps = {
+  auth: HoppRESTAuth
+  headers: HoppRESTHeaders
+  /**
+   * Ancestor collection variables only (root → target's parent), each level
+   * resolved under its OWNING collection's ID — resolved for EXECUTION
+   * (secret values included; never render or persist them). The target's own
+   * variables are deliberately NOT merged in: the runner resolves those
+   * itself, and re-resolving a merged array under one ID reads other
+   * variables' slots by index collision.
+   */
+  ancestorVariables: HoppCollectionVariable[]
+  // Ancestor scripts for partial-scope runs (root → target's parent).
+  // Empty when running from the topmost collection.
+  ancestorPreRequestScripts: string[]
+  ancestorTestScripts: string[]
+}
+
 function computeCollectionInheritedProps(
   collection: HoppCollection,
   ref_id: string,
   type: "my-collections" | "team-collections" = "my-collections",
   parentAuth: HoppRESTAuth | null = null,
   parentHeaders: HoppRESTHeaders | null = null,
-  parentVariables: HoppCollectionVariable[] | null = null
-): {
-  auth: HoppRESTAuth
-  headers: HoppRESTHeaders
-  variables: HoppCollectionVariable[]
-} | null {
+  parentVariables: HoppCollectionVariable[] | null = null,
+  parentPreRequestScripts: string[] = [],
+  parentTestScripts: string[] = []
+): RESTCollectionInheritedProps | null {
   // Determine the inherited authentication and headers
   const inheritedAuth =
     collection.auth?.authType === "inherit" && collection.auth.authActive
@@ -1387,9 +1753,19 @@ function computeCollectionInheritedProps(
     ...collection.headers,
   ]
 
+  // Each level's own variables are resolved under the level's OWN ID — the
+  // `(collectionID, varIndex)` key shape current values are stored with.
+  // Consumers must never re-resolve the merged array under a single ID.
+  // Secrets resolve (`showSecret`) because this only feeds the collection
+  // runner's execution path — the output is never rendered or persisted.
   const inheritedVariables = [
     ...(parentVariables ?? []),
-    ...collection.variables,
+    ...populateValuesInInheritedCollectionVars(
+      collection.variables,
+      collection._ref_id || collection.id,
+      collection.id,
+      true
+    ),
   ]
 
   // Check if the current collection matches the target reference ID
@@ -1402,9 +1778,19 @@ function computeCollectionInheritedProps(
     return {
       auth: inheritedAuth,
       headers: inheritedHeaders,
-      variables: inheritedVariables,
+      ancestorVariables: parentVariables ?? [],
+      ancestorPreRequestScripts: parentPreRequestScripts,
+      ancestorTestScripts: parentTestScripts,
     }
   }
+
+  // Append this collection's scripts before descending so children see them.
+  const nextPreRequestScripts = hasActualScript(collection.preRequestScript)
+    ? [...parentPreRequestScripts, collection.preRequestScript]
+    : parentPreRequestScripts
+  const nextTestScripts = hasActualScript(collection.testScript)
+    ? [...parentTestScripts, collection.testScript]
+    : parentTestScripts
 
   // Recursively search in folders
   for (const folder of collection.folders) {
@@ -1414,7 +1800,9 @@ function computeCollectionInheritedProps(
       type,
       inheritedAuth,
       inheritedHeaders,
-      inheritedVariables
+      inheritedVariables,
+      nextPreRequestScripts,
+      nextTestScripts
     )
     if (result) return result // Return as soon as a match is found
   }
@@ -1426,11 +1814,7 @@ export function getRESTCollectionInheritedProps(
   collectionID: string,
   collections: HoppCollection[] = restCollectionStore.value.state,
   type: "my-collections" | "team-collections" = "my-collections"
-): {
-  auth: HoppRESTAuth
-  headers: HoppRESTHeaders
-  variables: HoppCollectionVariable[]
-} | null {
+): RESTCollectionInheritedProps | null {
   for (const collection of collections) {
     const result = computeCollectionInheritedProps(
       collection,
@@ -1518,6 +1902,13 @@ export function editRESTFolder(path: string, folder: Partial<HoppCollection>) {
 }
 
 export function removeRESTFolder(path: string, folderID?: string) {
+  if (!folderID) {
+    const folder = navigateToFolderWithIndexPath(
+      restCollectionStore.value.state,
+      path.split("/").map((index) => parseInt(index))
+    )
+    folderID = folder?._ref_id
+  }
   restCollectionStore.dispatch({
     dispatcher: "removeFolder",
     payload: {
@@ -1578,7 +1969,7 @@ export function removeDuplicateRESTCollectionOrFolder(
 export function editRESTRequest(
   path: string,
   requestIndex: number,
-  requestNew: HoppRESTRequest
+  requestNew: HoppRESTRequest | HoppGQLRequest
 ) {
   const indexPaths = path.split("/").map((x) => parseInt(x))
   if (
@@ -1596,7 +1987,10 @@ export function editRESTRequest(
   })
 }
 
-export function saveRESTRequestAs(path: string, request: HoppRESTRequest) {
+export function saveRESTRequestAs(
+  path: string,
+  request: HoppRESTRequest | HoppGQLRequest
+) {
   // For calculating the insertion request index
   const targetLocation = navigateToFolderWithIndexPath(
     restCollectionStore.value.state,
@@ -1621,6 +2015,13 @@ export function removeRESTRequest(
   requestIndex: number,
   requestID?: string
 ) {
+  if (!requestID) {
+    const request = navigateToFolderWithIndexPath(
+      restCollectionStore.value.state,
+      path.split("/").map((index) => parseInt(index))
+    )?.requests[requestIndex]
+    requestID = request?.id || (request as HoppRESTRequest)?._ref_id
+  }
   restCollectionStore.dispatch({
     dispatcher: "removeRequest",
     payload: {
@@ -1705,6 +2106,9 @@ export function removeGraphqlCollection(
   collectionIndex: number,
   collectionID?: string
 ) {
+  if (!collectionID) {
+    collectionID = graphqlCollectionStore.value.state[collectionIndex]?.id
+  }
   graphqlCollectionStore.dispatch({
     dispatcher: "removeCollection",
     payload: {
@@ -1751,6 +2155,13 @@ export function editGraphqlFolder(
 }
 
 export function removeGraphqlFolder(path: string, folderID?: string) {
+  if (!folderID) {
+    const folder = navigateToFolderWithIndexPath(
+      graphqlCollectionStore.value.state,
+      path.split("/").map((index) => parseInt(index))
+    )
+    folderID = folder?.id
+  }
   graphqlCollectionStore.dispatch({
     dispatcher: "removeFolder",
     payload: {
@@ -1828,6 +2239,13 @@ export function removeGraphqlRequest(
   requestIndex: number,
   requestID?: string
 ) {
+  if (!requestID) {
+    const request = navigateToFolderWithIndexPath(
+      graphqlCollectionStore.value.state,
+      path.split("/").map((index) => parseInt(index))
+    )?.requests[requestIndex]
+    requestID = request?.id || `${path}/${requestIndex}`
+  }
   graphqlCollectionStore.dispatch({
     dispatcher: "removeRequest",
     payload: {
@@ -1849,6 +2267,55 @@ export function moveGraphqlRequest(
       path,
       requestIndex,
       destinationPath,
+    },
+  })
+}
+
+export function moveGraphqlFolder(
+  path: string,
+  destinationPath: string | null
+) {
+  graphqlCollectionStore.dispatch({
+    dispatcher: "moveFolder",
+    payload: {
+      path,
+      destinationPath,
+    },
+  })
+}
+
+export function sortGraphqlCollection(
+  collectionPath: number | null,
+  sortOrder: "asc" | "desc"
+) {
+  graphqlCollectionStore.dispatch({
+    dispatcher: "sortGraphqlCollection",
+    payload: {
+      collectionPath,
+      sortOrder,
+    },
+  })
+}
+
+export function sortGraphqlFolder(path: string, sortOrder: "asc" | "desc") {
+  graphqlCollectionStore.dispatch({
+    dispatcher: "sortGraphqlFolder",
+    payload: {
+      path,
+      sortOrder,
+    },
+  })
+}
+
+export function updateGraphqlCollectionOrder(
+  collectionIndex: string,
+  destinationCollectionIndex: string | null
+) {
+  graphqlCollectionStore.dispatch({
+    dispatcher: "updateCollectionOrder",
+    payload: {
+      collectionIndex,
+      destinationCollectionIndex,
     },
   })
 }

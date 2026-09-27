@@ -1,0 +1,5 @@
+mutation UpdateUserDisplayName($updatedDisplayName: String!) {
+  updateDisplayName(updatedDisplayName: $updatedDisplayName) {
+    displayName
+  }
+}

@@ -48,7 +48,7 @@
     </HoppSmartTab>
   </HoppSmartTabs>
   <CollectionsSaveRequest
-    mode="graphql"
+    mode="legacy-graphql"
     :show="showSaveRequestModal"
     @hide-modal="hideRequestModal"
   />
@@ -82,6 +82,10 @@ const _VALID_GQL_OPERATIONS = [
   "headers",
   "variables",
   "authorization",
+  // Script tabs exist only on the unified workspace's gql/RequestOptions —
+  // this legacy page doesn't render them, but it owns the GQLOptionTabs type
+  "preRequestScript",
+  "tests",
 ] as const
 
 export type GQLOptionTabs = (typeof _VALID_GQL_OPERATIONS)[number]

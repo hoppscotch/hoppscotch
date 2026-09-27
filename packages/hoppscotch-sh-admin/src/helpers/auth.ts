@@ -56,12 +56,12 @@ export type OnboardingStatus = {
 const currentUser$ = new BehaviorSubject<HoppUser | null>(null);
 
 const signOut = async (reloadWindow = false) => {
-  await authQuery.logout();
-
-  // Reload the window if both `access_token` and `refresh_token`is invalid
-  // there by the user is taken to the login page
-  if (reloadWindow) {
-    window.location.reload();
+  // Best-effort backend logout — local state must be cleared regardless
+  // so the UI never stays stuck in an authenticated state.
+  try {
+    await authQuery.logout();
+  } catch (_) {
+    // Backend unreachable — continue with local cleanup
   }
 
   currentUser$.next(null);
@@ -70,6 +70,12 @@ const signOut = async (reloadWindow = false) => {
   authEvents$.next({
     event: 'logout',
   });
+
+  // Reload the window if both `access_token` and `refresh_token` are invalid
+  // thereby the user is taken to the login page
+  if (reloadWindow) {
+    window.location.reload();
+  }
 };
 
 const getUserDetails = async () => {
@@ -132,10 +138,15 @@ const setInitialUser = async () => {
 const refreshToken = async () => {
   try {
     const res = await authQuery.refreshToken();
-    authEvents$.next({
-      event: 'token_refresh',
-    });
-    return res.status === 200;
+    const isSuccessful = res.status === 200;
+
+    if (isSuccessful) {
+      authEvents$.next({
+        event: 'token_refresh',
+      });
+    }
+
+    return isSuccessful;
   } catch {
     return false;
   }

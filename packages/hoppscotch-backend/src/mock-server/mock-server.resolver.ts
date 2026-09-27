@@ -19,6 +19,7 @@ import {
   MockServerMutationArgs,
   MockServerCollection,
   MockServerLog,
+  FetchTeamMockServersArgs,
 } from './mock-server.model';
 import * as E from 'fp-ts/Either';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
@@ -47,8 +48,8 @@ export class MockServerResolver {
     if (E.isLeft(creator)) throwErr(creator.left);
     return {
       ...creator.right,
-      currentGQLSession: JSON.stringify(creator.right.currentGQLSession),
-      currentRESTSession: JSON.stringify(creator.right.currentRESTSession),
+      currentGQLSession: null,
+      currentRESTSession: null,
     };
   }
 
@@ -90,15 +91,12 @@ export class MockServerResolver {
     TeamAccessRole.OWNER,
   )
   async teamMockServers(
-    @Args({
-      name: 'teamID',
-      type: () => ID,
-      description: 'Id of the team to add to',
-    })
-    teamID: string,
-    @Args() args: OffsetPaginationArgs,
+    @Args() args: FetchTeamMockServersArgs,
   ): Promise<MockServer[]> {
-    return this.mockServerService.getTeamMockServers(teamID, args);
+    return this.mockServerService.getTeamMockServers(args.teamID, {
+      skip: args.skip,
+      take: args.take,
+    });
   }
 
   @Query(() => MockServer, {

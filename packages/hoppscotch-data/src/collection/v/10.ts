@@ -2,7 +2,7 @@ import { defineVersion, entityRefUptoVersion } from "verzod"
 import { z } from "zod"
 
 import { HoppCollection } from ".."
-import { v9_baseCollectionSchema } from "./9"
+import { v9_baseCollectionSchema, V9_SCHEMA } from "./9"
 
 export const CollectionVariable = z.object({
   key: z.string(),
@@ -33,7 +33,7 @@ export const V10_SCHEMA = v10_baseCollectionSchema.extend({
 export default defineVersion({
   initial: false,
   schema: V10_SCHEMA,
-  up(old: z.infer<typeof V10_SCHEMA>) {
+  up(old: z.infer<typeof V9_SCHEMA>) {
     const result: z.infer<typeof V10_SCHEMA> = {
       ...old,
       v: 10 as const,

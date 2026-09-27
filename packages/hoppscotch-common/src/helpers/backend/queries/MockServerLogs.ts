@@ -17,10 +17,10 @@ export const getMockServerLogs = (
   TE.tryCatch(
     async () => {
       const result = await client
-        .value!.query<
-          GetMockServerLogsQuery,
-          GetMockServerLogsQueryVariables
-        >(GetMockServerLogsDocument, { mockServerID, skip, take })
+        .value!.query<GetMockServerLogsQuery, GetMockServerLogsQueryVariables>(
+          GetMockServerLogsDocument,
+          { mockServerID, skip, take }
+        )
         .toPromise()
 
       if (result.error)

@@ -152,9 +152,9 @@ fn serve(pki: &Pki) -> u16 {
 }
 
 /// Builds a request with no security block. The app's interceptors always
-/// attach one, so this is the shape another client of the agent's HTTP API
-/// sends, and it configured no trust at all until `relay` applied the host
-/// anchors on that arm too.
+/// attach one, so this is what another client of the agent's HTTP API sends,
+/// and it configured no trust at all until `relay` applied the host anchors
+/// on that arm too.
 fn plain_request(url: &str) -> relay::Request {
     serde_json::from_value(json!({
         "id": NEXT_ID.fetch_add(1, Ordering::SeqCst),

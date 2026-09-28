@@ -55,7 +55,7 @@ fn combine_ca_bundle(system: &[u8], user: &[Bytes]) -> Vec<u8> {
     // Each user entry is re-encoded from the blocks that parsed, ∵ OpenSSL
     // reads the blob as a whole and a malformed block anywhere in it discards
     // the certificates already read, which would take the host anchors down
-    // with the entry that carried the bad block.
+    // down with the entry the bad block came in.
     for cert in user {
         combined.extend_from_slice(&trust::normalize_pem(cert));
         if !combined.ends_with(b"\n") {
@@ -75,7 +75,7 @@ impl<'a> SecurityHandler<'a> {
     }
 
     #[tracing::instrument(skip(self), level = "debug")]
-    /// Sets the host anchors with no user CA, for a request that carries no
+    /// Sets the host anchors with no user CA, for a request that sends no
     /// security settings of its own.
     pub(crate) fn configure_host_trust(&mut self) -> Result<()> {
         self.configure_ca_certificates(&[])

@@ -11,7 +11,7 @@ import pnpmLock from "../../../../pnpm-lock.yaml?raw"
 
 // The desktop app reads the host trust store through `relay`, which it gets
 // transitively from `tauri-plugin-relay`, while the agent depends on `relay`
-// directly and `plugin-workspace` vendors copies of both repos. Each of those
+// directly and `plugin-workspace` vendors copies of each. Each of those
 // pins a revision on its own, so a bump that misses one builds that app
 // against a `relay` that never reads the keychain or the Windows stores.
 

@@ -10,7 +10,7 @@
 //! the probe on Linux, where the bundle file is the host store.
 //!
 //! The usage filter applies to the platforms that export a store, ∵ macOS and
-//! Windows both hold code signing and timestamping roots beside the TLS ones,
+//! Windows both keep code signing and timestamping roots beside the TLS ones,
 //! where a `ca-certificates.crt` on Linux is a TLS anchor set already and its
 //! maintainer decided what belongs in it.
 
@@ -88,8 +88,8 @@ pub(crate) fn load() -> TrustBundle {
 /// Certificates OpenSSL can parse out of a PEM blob, block by block, since
 /// `X509::stack_from_pem` discards every certificate it had already parsed
 /// when it meets a malformed one, and a `ca-certificates.crt` with a single
-/// bad entry among a hundred good ones is more likely than a file that holds
-/// nothing parseable at all.
+/// bad entry among a hundred good ones is more likely than a file with
+/// nothing parseable in it at all.
 fn parse_lenient(pem: &[u8]) -> Vec<Vec<u8>> {
     let mut out = Vec::new();
     let mut rest = pem;
@@ -177,7 +177,7 @@ fn dedup_exact(ders: Vec<Vec<u8>>) -> Vec<Vec<u8>> {
     not(any(target_os = "macos", target_os = "windows")),
     allow(dead_code)
 )]
-/// The PEM blob and the anchors it holds, which is what the trust source line
+/// The PEM blob and the count of anchors in it, which is what the trust source line
 /// reports, since an anchor that fails re-encoding is absent from the blob and
 /// counting before this point would overstate what curl received.
 fn pem_encode(ders: &[Vec<u8>]) -> (Vec<u8>, usize) {
@@ -200,7 +200,7 @@ fn pem_encode(ders: &[Vec<u8>]) -> (Vec<u8>, usize) {
 /// True where the bytes parse as at least one PEM certificate, which is
 /// how a user entry is checked before it is added to the combined blob. The
 /// check is the lenient one the host store reads with, ∵ a bundle whose last
-/// block is corrupt still carries the CAs before it, and rejecting the entry
+/// block is corrupt still supplies the CAs before it, and rejecting the entry
 /// would drop them all.
 pub(crate) fn parses_as_pem(pem: &[u8]) -> bool {
     !parse_lenient(pem).is_empty()
@@ -376,7 +376,7 @@ fn read_platform() -> Option<TrustBundle> {
         // Where an Admin or User domain would not enumerate, the roots it
         // denies are unknown to every call this process can make, so the
         // subtraction covers the denials that were read and the warning above
-        // says which case this is. FE-1382 carries the limit.
+        // says which case this is. FE-1382 decides the limit.
         let mut bundled = parse_lenient(curl_sys::certs::get_cert_content().as_bytes());
         bundled.retain(|der| !denied.contains(der));
         ders.extend(bundled);
@@ -397,44 +397,54 @@ fn read_platform() -> Option<TrustBundle> {
     use std::ptr;
 
     use windows_sys::Win32::Foundation::{
-        GetLastError, SetLastError, CRYPT_E_NOT_FOUND, ERROR_FILE_NOT_FOUND, ERROR_PATH_NOT_FOUND,
+        GetLastError, SetLastError, CRYPT_E_NOT_FOUND, ERROR_NO_MORE_FILES,
     };
     use windows_sys::Win32::Security::Cryptography::{
         CertCloseStore, CertEnumCertificatesInStore, CertGetEnhancedKeyUsage, CertOpenStore,
-        CERT_CONTEXT, CERT_ENHKEY_USAGE, CERT_FIND_PROP_ONLY_ENHKEY_USAGE_FLAG,
-        CERT_STORE_OPEN_EXISTING_FLAG, CERT_STORE_PROV_SYSTEM_W, CERT_STORE_READONLY_FLAG,
-        CERT_SYSTEM_STORE_CURRENT_USER, CERT_SYSTEM_STORE_CURRENT_USER_GROUP_POLICY,
-        CERT_SYSTEM_STORE_LOCAL_MACHINE, CERT_SYSTEM_STORE_LOCAL_MACHINE_ENTERPRISE,
-        CERT_SYSTEM_STORE_LOCAL_MACHINE_GROUP_POLICY,
+        CERT_CONTEXT, CERT_STORE_OPEN_EXISTING_FLAG, CERT_STORE_PROV_SYSTEM_W,
+        CERT_STORE_READONLY_FLAG, CERT_SYSTEM_STORE_CURRENT_USER,
+        CERT_SYSTEM_STORE_CURRENT_USER_GROUP_POLICY_ID, CERT_SYSTEM_STORE_LOCAL_MACHINE,
+        CERT_SYSTEM_STORE_LOCAL_MACHINE_ENTERPRISE_ID,
+        CERT_SYSTEM_STORE_LOCAL_MACHINE_GROUP_POLICY_ID, CERT_SYSTEM_STORE_LOCATION_SHIFT,
+        CTL_USAGE,
     };
 
-    // Windows can install an enterprise root into any of these locations, and
-    // the group policy and enterprise locations are separate physical stores
-    // that the system view does not always merge.
-    const LOCATIONS: &[(u32, &str)] = &[
+    // `Root` at `LOCAL_MACHINE` is a collection whose physical members are
+    // `.Default`, `.AuthRoot`, `.GroupPolicy`, `.Enterprise` and `.SmartCard`,
+    // and `Root` at `CURRENT_USER` adds `.LocalMachine`, so the first two
+    // locations already cover the group policy and enterprise roots. The
+    // policy locations are read as well, ∵ a physical store an administrator
+    // unregisters from the collection is still readable at its own location,
+    // and `dedup_exact` removes what the collections already returned.
+    // `CertOpenStore` takes the location in the high word of `dwFlags`, and
+    // `windows-sys` ships the machine and user locations already shifted while
+    // the policy and enterprise locations exist only as their identifiers, so
+    // those are shifted here by the documented amount.
+    const LOCATION_SHIFT: u32 = CERT_SYSTEM_STORE_LOCATION_SHIFT;
+    let locations: [(u32, &str); 5] = [
         (CERT_SYSTEM_STORE_LOCAL_MACHINE, "LocalMachine"),
         (CERT_SYSTEM_STORE_CURRENT_USER, "CurrentUser"),
         (
-            CERT_SYSTEM_STORE_LOCAL_MACHINE_GROUP_POLICY,
+            CERT_SYSTEM_STORE_LOCAL_MACHINE_GROUP_POLICY_ID << LOCATION_SHIFT,
             "LocalMachineGroupPolicy",
         ),
         (
-            CERT_SYSTEM_STORE_CURRENT_USER_GROUP_POLICY,
+            CERT_SYSTEM_STORE_CURRENT_USER_GROUP_POLICY_ID << LOCATION_SHIFT,
             "CurrentUserGroupPolicy",
         ),
         (
-            CERT_SYSTEM_STORE_LOCAL_MACHINE_ENTERPRISE,
+            CERT_SYSTEM_STORE_LOCAL_MACHINE_ENTERPRISE_ID << LOCATION_SHIFT,
             "LocalMachineEnterprise",
         ),
     ];
 
     // Every certificate in a `CURLOPT_CAINFO_BLOB` is a trust anchor, and the
-    // `CA` store holds intermediates that Windows chains through a root, so
+    // `CA` store keeps intermediates that Windows chains through a root, so
     // anchors come from `ROOT` and `Disallowed` says which of them an
     // administrator has revoked.
     // What the store entry says a root may be used for. Windows keeps the
     // permitted purposes in the entry's enhanced key usage property, which
-    // `pbCertEncoded` does not carry, so a root restricted to code signing
+    // `pbCertEncoded` leaves out, so a root restricted to code signing
     // looks unrestricted to anything that reads the certificate alone.
     enum StoreUsage {
         Restricted(Vec<String>),
@@ -448,16 +458,19 @@ fn read_platform() -> Option<TrustBundle> {
     const SERVER_AUTH_OID: &str = "1.3.6.1.5.5.7.3.1";
     const ANY_USAGE_OID: &str = "2.5.29.37.0";
 
-    // An absent property and an unreadable one are the same return value, and
-    // a property present but naming no usage is the same as one naming every
-    // usage, so `CertGetEnhancedKeyUsage` answers all three through the last
-    // error, `CRYPT_E_NOT_FOUND` where the entry constrains nothing and
-    // anything else where the entry permits nothing or could not be read.
+    // Windows itself computes the usages a certificate is valid for, and its
+    // rule is the intersection, "If a certificate has both an EKU extension
+    // and EKU extended properties, it is valid only for the uses that are on
+    // both lists", so the call takes `dwFlags` of zero and the intersection
+    // comes back rather than being assembled here from the property and the
+    // extension separately.
     //
-    // The error is cleared before each call, ∵ the value is only meaningful
-    // when this call set it, and the store enumeration around it ends with
-    // `CRYPT_E_NOT_FOUND` of its own, which an entry permitting nothing would
-    // otherwise inherit and be exported on.
+    // A zero usage count is ambiguous, and the documented test is the last
+    // error, `CRYPT_E_NOT_FOUND` for a certificate valid for every use and
+    // zero for one valid for none. The error is cleared
+    // before each call, ∵ the enumeration around it ends with
+    // `CRYPT_E_NOT_FOUND` of its own, which a certificate valid for no use
+    // would otherwise inherit and be exported on.
     fn no_property() -> bool {
         let error = unsafe { GetLastError() };
         error as i32 == CRYPT_E_NOT_FOUND
@@ -467,12 +480,7 @@ fn read_platform() -> Option<TrustBundle> {
         let mut size = 0u32;
         let ok = unsafe {
             SetLastError(0);
-            CertGetEnhancedKeyUsage(
-                ctx,
-                CERT_FIND_PROP_ONLY_ENHKEY_USAGE_FLAG,
-                std::ptr::null_mut(),
-                &mut size,
-            )
+            CertGetEnhancedKeyUsage(ctx, 0, std::ptr::null_mut(), &mut size)
         };
         if ok == 0 {
             return if no_property() {
@@ -482,23 +490,18 @@ fn read_platform() -> Option<TrustBundle> {
                 StoreUsage::Denied
             };
         }
-        if size < std::mem::size_of::<CERT_ENHKEY_USAGE>() as u32 {
+        if size < std::mem::size_of::<CTL_USAGE>() as u32 {
             return StoreUsage::Denied;
         }
-        // `CERT_ENHKEY_USAGE` holds a pointer, so the buffer the API writes it
-        // into is allocated as words rather than bytes, ∵ a `Vec<u8>` carries
-        // no alignment the cast could rely on.
+        // `CTL_USAGE` declares a pointer member, so the buffer the API writes
+        // it into is allocated as words rather than bytes, ∵ a `Vec<u8>` gives
+        // the cast no alignment to rely on.
         let words = (size as usize).div_ceil(std::mem::size_of::<usize>());
         let mut buffer = vec![0usize; words];
-        let usage = buffer.as_mut_ptr() as *mut CERT_ENHKEY_USAGE;
+        let usage = buffer.as_mut_ptr() as *mut CTL_USAGE;
         let ok = unsafe {
             SetLastError(0);
-            CertGetEnhancedKeyUsage(
-                ctx,
-                CERT_FIND_PROP_ONLY_ENHKEY_USAGE_FLAG,
-                usage,
-                &mut size,
-            )
+            CertGetEnhancedKeyUsage(ctx, 0, usage, &mut size)
         };
         if ok == 0 {
             tracing::warn!("Store entry usage property unreadable, entry denied");
@@ -529,19 +532,24 @@ fn read_platform() -> Option<TrustBundle> {
     // A store that is not there and a store that would not read are different
     // answers, ∵ several locations ship no `Disallowed` store at all while a
     // read that fails partway leaves revocations unseen.
-    enum StoreRead {
-        Entries(Vec<(Vec<u8>, StoreUsage)>),
-        Absent,
-        // What the read returned before it failed, ∵ a partial `ROOT` read
-        // still names roots this machine trusts and discarding them would drop
-        // the enterprise anchors the whole reader exists for.
-        Failed(Vec<(Vec<u8>, StoreUsage)>),
+    // `CertOpenStore` documents one error code of its own and propagates
+    // registry errors otherwise, so a store that is not provisioned and a
+    // store an access failure kept shut cannot be told apart by the error.
+    // The caller decides from what else that location returned instead.
+    enum StoreError {
+        Open,
+        // What the enumeration returned before it failed, ∵ a partial `ROOT`
+        // read still names roots this machine trusts and discarding them would
+        // drop the enterprise anchors the whole reader exists for.
+        Incomplete(Vec<(Vec<u8>, StoreUsage)>),
     }
 
-    // The usage property decides whether a root may anchor a TLS chain, and a
-    // `Disallowed` entry is a revocation whatever its usage says, so the
-    // property is read for `ROOT` alone rather than logged over a store where
-    // it changes nothing.
+    type StoreRead = std::result::Result<Vec<(Vec<u8>, StoreUsage)>, StoreError>;
+
+    // The usage decides whether a root may anchor a TLS chain, and a
+    // `Disallowed` entry is a revocation whatever its usage says, so the usage
+    // is read for `ROOT` alone rather than computed over a store where it
+    // changes nothing.
     fn read_store(flag: u32, label: &str, name: &str, with_usage: bool) -> StoreRead {
         let wide: Vec<u16> = name.encode_utf16().chain(std::iter::once(0)).collect();
         let store = unsafe {
@@ -554,34 +562,26 @@ fn read_platform() -> Option<TrustBundle> {
             )
         };
         if store.is_null() {
-            // A store that is not there and a store that will not open are the
-            // same null, ∵ `CertOpenStore` reports the difference through the
-            // last error alone, and only the not-found codes mean absent.
             let error = unsafe { GetLastError() };
-            let absent = error == ERROR_FILE_NOT_FOUND
-                || error == ERROR_PATH_NOT_FOUND
-                || error as i32 == CRYPT_E_NOT_FOUND;
-            if absent {
-                tracing::debug!(store = %format!("{label}/{name}"), "Certificate store absent");
-                return StoreRead::Absent;
-            }
-            tracing::warn!(
+            tracing::debug!(
                 store = %format!("{label}/{name}"),
                 error,
-                "Certificate store would not open"
+                "Certificate store did not open"
             );
-            return StoreRead::Failed(Vec::new());
+            return Err(StoreError::Open);
         }
         let mut ders = Vec::new();
         let mut ctx: *const CERT_CONTEXT = ptr::null();
-        let mut complete = false;
+        let complete;
         loop {
             ctx = unsafe { CertEnumCertificatesInStore(store, ctx) };
             if ctx.is_null() {
                 // The API returns null both at the end of the store and on a
-                // failure, and only `CRYPT_E_NOT_FOUND` means the store was
-                // read to its end.
-                complete = unsafe { GetLastError() } as i32 == CRYPT_E_NOT_FOUND;
+                // failure, and the documented end-of-store codes are
+                // `CRYPT_E_NOT_FOUND` and, for an external store,
+                // `ERROR_NO_MORE_FILES`.
+                let error = unsafe { GetLastError() };
+                complete = error as i32 == CRYPT_E_NOT_FOUND || error == ERROR_NO_MORE_FILES;
                 if !complete {
                     tracing::warn!(
                         store = %format!("{label}/{name}"),
@@ -605,57 +605,65 @@ fn read_platform() -> Option<TrustBundle> {
         // released exactly once.
         unsafe { CertCloseStore(store, 0) };
         if complete {
-            StoreRead::Entries(ders)
+            Ok(ders)
         } else {
-            StoreRead::Failed(ders)
+            Err(StoreError::Incomplete(ders))
         }
     }
 
     let mut roots: Vec<(Vec<u8>, StoreUsage)> = Vec::new();
     let mut revoked: Vec<Vec<u8>> = Vec::new();
     let mut read = 0usize;
-    // A `Disallowed` store that will not read leaves the revocations of that
-    // location unknown, and a host root exported against an unknown revocation
-    // set is one Windows may have revoked, so the host roots are dropped while
-    // every revocation already read still filters the compiled-in set.
+    // A location whose `Disallowed` store cannot be read while its `ROOT`
+    // store returned certificates leaves the revocations of that location
+    // unknown, and a root exported against an unknown revocation set is one
+    // Windows may have revoked, so the host roots are dropped and the
+    // compiled-in set is used instead, filtered by every revocation that was read.
     let mut revocations_known = true;
-    for (flag, label) in LOCATIONS {
-        match read_store(*flag, label, "Disallowed", false) {
-            StoreRead::Entries(entries) => {
-                revoked.extend(entries.into_iter().map(|(der, _)| der));
-            }
-            StoreRead::Absent => {}
-            StoreRead::Failed(partial) => {
-                tracing::warn!(
-                    location = %label,
-                    read = partial.len(),
-                    "Disallowed store unreadable, dropping the host roots"
-                );
-                revoked.extend(partial.into_iter().map(|(der, _)| der));
-                revocations_known = false;
-            }
-        }
-        // A `ROOT` read that fails partway keeps what it read, ∵ those are
-        // roots this machine trusts and the bundle below cannot supply them.
-        match read_store(*flag, label, "ROOT", true) {
-            StoreRead::Entries(entries) => {
-                read += entries.len();
-                roots.extend(entries);
-            }
-            StoreRead::Absent => {}
-            StoreRead::Failed(partial) => {
+    for (flag, label) in &locations {
+        let from_this_location = match read_store(*flag, label, "ROOT", true) {
+            Ok(entries) => entries,
+            Err(StoreError::Incomplete(partial)) => {
                 tracing::warn!(
                     location = %label,
                     read = partial.len(),
                     "Root store read failed partway, keeping what it returned"
                 );
-                read += partial.len();
-                roots.extend(partial);
+                partial
+            }
+            // Nothing opened here, so this location contributes no root and
+            // its revocations decide nothing.
+            Err(StoreError::Open) => continue,
+        };
+        if from_this_location.is_empty() {
+            continue;
+        }
+        read += from_this_location.len();
+        roots.extend(from_this_location);
+
+        match read_store(*flag, label, "Disallowed", false) {
+            Ok(entries) => revoked.extend(entries.into_iter().map(|(der, _)| der)),
+            Err(StoreError::Incomplete(partial)) => {
+                tracing::warn!(
+                    location = %label,
+                    read = partial.len(),
+                    "Disallowed store read failed partway, dropping the host roots"
+                );
+                revoked.extend(partial.into_iter().map(|(der, _)| der));
+                revocations_known = false;
+            }
+            Err(StoreError::Open) => {
+                tracing::warn!(
+                    location = %label,
+                    "Disallowed store did not open beside a populated root store, dropping the host roots"
+                );
+                revocations_known = false;
             }
         }
     }
+
     // A root Windows restricts to code signing or timestamping is still a TLS
-    // anchor once it is in the blob, and the restriction lives in the store
+    // anchor once it is in the blob, and the restriction is recorded in the store
     // entry's enhanced key usage property as often as in the certificate, so
     // both are read.
     let permitted = |usage: &StoreUsage| match usage {
@@ -666,7 +674,7 @@ fn read_platform() -> Option<TrustBundle> {
         StoreUsage::Denied => false,
     };
     // A root the store entry keeps from TLS is also in the compiled-in set
-    // often enough that the union below would hand it back, so what the entry
+    // often enough that the union below would restore it, so what the entry
     // denies is subtracted from the bundle as well.
     let restricted: Vec<Vec<u8>> = roots
         .iter()
@@ -680,7 +688,7 @@ fn read_platform() -> Option<TrustBundle> {
     // The host roots go where a revocation store would not read, ∵ a root
     // exported against an unknown revocation set is one Windows may have
     // revoked, and the restrictions collected above still filter the
-    // compiled-in set that stands in for them.
+    // compiled-in set used in their place.
     if !revocations_known {
         roots.clear();
     }
@@ -1019,7 +1027,7 @@ mod tests {
     }
 
     // A `ca-certificates.crt` with one malformed entry among many good ones is
-    // likelier than a file that holds nothing parseable, and `stack_from_pem`
+    // likelier than a file with nothing parseable in it, and `stack_from_pem`
     // discards everything it had read when it meets the bad one.
     #[test]
     fn one_malformed_block_leaves_the_rest_of_the_file() {

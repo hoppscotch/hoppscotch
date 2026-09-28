@@ -109,6 +109,7 @@ export function usePreview(
         responseBodyText.value,
         "text/html"
       )
+      previewDocument.documentElement.style.colorScheme = "light"
       // Inject <base href="..."> tag to head, to fix relative CSS/HTML paths.
       previewDocument.head.innerHTML =
         `<base href="${url.value}">` + previewDocument.head.innerHTML

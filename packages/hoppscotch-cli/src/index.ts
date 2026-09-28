@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { Command } from "commander";
+import { Command, CommanderError } from "commander";
 import * as E from "fp-ts/Either";
 
 import { version } from "../package.json";
@@ -39,8 +39,10 @@ program
 
 program.exitOverride().configureOutput({
   writeErr: (str) => program.help(),
-  outputError: (str, write) =>
-    handleError({ code: "INVALID_ARGUMENT", data: E.toError(str) }),
+  outputError: (str) => {
+    process.exitCode = 1;
+    handleError({ code: "INVALID_ARGUMENT", data: E.toError(str) });
+  },
 });
 
 /**
@@ -102,7 +104,25 @@ program
   });
 
 export const cli = async (args: string[]) => {
+  if (args.length <= 2) {
+    handleError({
+      code: "INVALID_ARGUMENT",
+      data: E.toError("No command provided"),
+    });
+    program.outputHelp();
+    process.exitCode = 1;
+    return;
+  }
+
   try {
     await program.parseAsync(args);
-  } catch (e) {}
+  } catch (e) {
+    // Commander throws with exitOverride enabled. Its help/version exits with 0,
+    // but argument errors must remain failures even when writeErr prints help.
+    if (e instanceof CommanderError && e.exitCode !== 0) {
+      process.exitCode = e.exitCode;
+    } else if (!(e instanceof CommanderError)) {
+      throw e;
+    }
+  }
 };

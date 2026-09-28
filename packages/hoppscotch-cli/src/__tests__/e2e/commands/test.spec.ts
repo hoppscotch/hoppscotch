@@ -16,12 +16,32 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
 
   describe("Test `hopp test <file_path_or_id>` command:", () => {
     describe("Argument parsing", () => {
+      test("Exits with failure when no command is supplied", async () => {
+        const { error, stderr, stdout } = await runCLI("");
+        expect(getErrorCode(stderr)).toBe<HoppErrorCode>("INVALID_ARGUMENT");
+        expect(stdout).toContain("Usage: hopp");
+        expect(error?.code).toBe(1);
+      });
+
       test("Errors with the code `INVALID_ARGUMENT` for not supplying enough arguments", async () => {
         const args = "test";
-        const { stderr } = await runCLI(args);
+        const { error, stderr } = await runCLI(args);
 
         const out = getErrorCode(stderr);
         expect(out).toBe<HoppErrorCode>("INVALID_ARGUMENT");
+        expect(error?.code).toBe(1);
+      });
+
+      test("Exits with failure for excess arguments", async () => {
+        const { error, stderr } = await runCLI("test first.json second.json");
+        expect(getErrorCode(stderr)).toBe<HoppErrorCode>("INVALID_ARGUMENT");
+        expect(error?.code).toBe(1);
+      });
+
+      test("Help exits successfully", async () => {
+        const { error, stdout } = await runCLI("--help");
+        expect(error).toBeNull();
+        expect(stdout).toContain("Usage: hopp");
       });
 
       test("Errors with the code `INVALID_ARGUMENT` for an invalid command", async () => {

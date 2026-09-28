@@ -95,9 +95,12 @@ build script cannot configure for that target from a host whose `perl` writes
 POSIX paths.
 
 The module is checked by copying the `#[cfg(target_os = "windows")]`
-`read_platform` into a crate that depends on `windows-sys` alone, stubbing
-`valid_for_tls`, `parse_lenient`, `dedup_exact`, `pem_encode` and
-`curl_sys::certs::get_cert_content`, then running
+`read_platform` into a crate that depends on `windows-sys`, with the same
+features this crate takes, and on `tracing` for the warnings the module
+writes. The copy stubs `TrustBundle`, `TrustSource`, `valid_for_tls`,
+`parse_lenient`, `dedup_exact`, `pem_encode` and
+`curl_sys::certs::get_cert_content`, since none of them is what the check is
+for, then runs
 
 ```
 cargo check --target x86_64-pc-windows-msvc -Zbuild-std=std,panic_abort

@@ -55,7 +55,7 @@ fn combine_ca_bundle(system: &[u8], user: &[Bytes]) -> Vec<u8> {
     // Each user entry is re-encoded from the blocks that parsed, ∵ OpenSSL
     // reads the blob as a whole and a malformed block anywhere in it discards
     // the certificates already read, which would take the host anchors down
-    // down with the entry the bad block came in.
+    // with the entry the bad block came in.
     for cert in user {
         combined.extend_from_slice(&trust::normalize_pem(cert));
         if !combined.ends_with(b"\n") {

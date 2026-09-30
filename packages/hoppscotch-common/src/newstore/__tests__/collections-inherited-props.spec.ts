@@ -13,6 +13,7 @@ vi.mock("~/modules/i18n", () => ({ getI18n: () => (k: string) => k }))
 import { getService } from "~/modules/dioc"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
+import { getRESTCollectionInheritedProps } from "../collections"
 
 // The value stores are module-scoped singletons — drop everything a test
 // stored so no state leaks into the next one.
@@ -49,9 +50,7 @@ const node = (
 })
 
 describe("getRESTCollectionInheritedProps — collection variable values", () => {
-  test("resolves every ancestor level's CURRENT value, not just the top one", async () => {
-    const { getRESTCollectionInheritedProps } = await import("../collections")
-
+  test("resolves every ancestor level's CURRENT value, not just the top one", () => {
     const currentValues = getService(CurrentValueService)
     currentValues.addEnvironment("ref-root", [
       {
@@ -133,8 +132,7 @@ describe("getRESTCollectionInheritedProps — collection variable values", () =>
     expect(props!.ancestorVariables).toHaveLength(1)
   })
 
-  test("running the root: no ancestors", async () => {
-    const { getRESTCollectionInheritedProps } = await import("../collections")
+  test("running the root: no ancestors", () => {
     const tree = node("ref-solo", "Solo", [collectionVar("x", "x-initial")])
     const props = getRESTCollectionInheritedProps(
       "ref-solo",
@@ -146,9 +144,7 @@ describe("getRESTCollectionInheritedProps — collection variable values", () =>
 
   // Secret values live in SecretEnvironmentService, not CurrentValueService —
   // this output feeds the runner's execution path, so secrets must resolve.
-  test("resolves an ancestor's SECRET value for the runner", async () => {
-    const { getRESTCollectionInheritedProps } = await import("../collections")
-
+  test("resolves an ancestor's SECRET value for the runner", () => {
     getService(SecretEnvironmentService).addSecretEnvironment("ref-sec-root", [
       { key: "TOKEN", value: "root-s3cret", varIndex: 0 },
     ])

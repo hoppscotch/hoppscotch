@@ -73,6 +73,7 @@
       @sort-collections="sortCollections"
       @update-request-order="updateRequestOrder"
       @update-collection-order="updateCollectionOrder"
+      @update-collection="onUpdateCollection"
     />
 
     <CollectionsTeamCollections
@@ -247,6 +248,18 @@
       v-if="showModalImportExport"
       :collections-type="collectionsType"
       @hide-modal="displayModalImportExport(false)"
+    />
+
+    <CollectionsUpdate
+      v-if="
+        showModalUpdate &&
+        updatingCollection &&
+        updatingCollectionIndex !== null
+      "
+      :collections-type="collectionsType"
+      :collection="updatingCollection"
+      :collection-index="updatingCollectionIndex"
+      @hide-modal="displayModalUpdate(false)"
     />
 
     <TeamsAdd
@@ -837,6 +850,9 @@ const showModalEditFolder = ref(false)
 const showModalEditRequest = ref(false)
 const showModalEditResponse = ref(false)
 const showModalImportExport = ref(false)
+const showModalUpdate = ref(false)
+const updatingCollection = ref<HoppCollection | null>(null)
+const updatingCollectionIndex = ref<number | null>(null)
 const showModalEditProperties = ref(false)
 const showModalDocumentation = ref(false)
 const showConfirmModal = ref(false)
@@ -898,6 +914,25 @@ const displayModalImportExport = async (
   showModalImportExport.value = show
 
   if (!show) resetSelectedData()
+}
+
+const displayModalUpdate = (show: boolean) => {
+  showModalUpdate.value = show
+
+  if (!show) {
+    updatingCollection.value = null
+    updatingCollectionIndex.value = null
+    resetSelectedData()
+  }
+}
+
+const onUpdateCollection = (payload: {
+  collectionIndex: number
+  collection: HoppCollection
+}) => {
+  updatingCollection.value = payload.collection
+  updatingCollectionIndex.value = payload.collectionIndex
+  displayModalUpdate(true)
 }
 
 const displayModalEditProperties = (show: boolean) => {

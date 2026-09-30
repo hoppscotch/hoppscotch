@@ -181,7 +181,7 @@ export class NativeKernelInterceptorService
     setRelayExecution: (execution: { cancel: () => Promise<void> }) => void
   ): Promise<E.Either<any, RelayResponse>> {
     try {
-      const effectiveRequest = this.store.completeRequest(
+      const effectiveRequest = await this.store.completeRequest(
         preProcessRelayRequest(request)
       )
 

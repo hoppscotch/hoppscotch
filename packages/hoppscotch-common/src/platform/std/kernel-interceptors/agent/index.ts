@@ -123,7 +123,7 @@ export class AgentKernelInterceptorService
         throw new Error("Agent not running")
       }
 
-      const effectiveRequest = this.store.completeRequest(
+      const effectiveRequest = await this.store.completeRequest(
         preProcessRelayRequest(request)
       )
 

@@ -165,103 +165,22 @@
       @close="showClientCertModal = false"
     >
       <template #body>
-        <HoppSmartTabs v-model="certType">
-          <HoppSmartTab id="pem" :label="t('PEM')">
-            <div class="p-4 space-y-4">
-              <div class="flex flex-col space-y-2">
-                <label>{{ t("settings.certificate") }}</label>
-                <HoppButtonSecondary
-                  :icon="
-                    domainSettings[selectedDomain]?.security?.certificates
-                      ?.client?.kind === 'pem' &&
-                    domainSettings[selectedDomain]?.security?.certificates
-                      ?.client?.cert
-                      ? IconFile
-                      : IconPlus
-                  "
-                  :label="
-                    (domainSettings[selectedDomain]?.security?.certificates
-                      ?.client?.kind === 'pem' &&
-                      domainSettings[selectedDomain]?.security?.certificates
-                        ?.client?.cert?.name) ||
-                    t('settings.select_file')
-                  "
-                  outline
-                  @click="pickPEMCertificate"
-                />
-              </div>
-              <div class="flex flex-col space-y-2">
-                <label>{{ t("settings.key") }}</label>
-                <HoppButtonSecondary
-                  :icon="
-                    domainSettings[selectedDomain]?.security?.certificates
-                      ?.client?.kind === 'pem' &&
-                    domainSettings[selectedDomain]?.security?.certificates
-                      ?.client?.key
-                      ? IconFile
-                      : IconPlus
-                  "
-                  :label="
-                    (domainSettings[selectedDomain]?.security?.certificates
-                      ?.client?.kind === 'pem' &&
-                      domainSettings[selectedDomain]?.security?.certificates
-                        ?.client?.key?.name) ||
-                    t('settings.select_file')
-                  "
-                  outline
-                  @click="pickPEMKey"
-                />
-              </div>
-            </div>
-          </HoppSmartTab>
-          <HoppSmartTab id="pfx" :label="t('PFX')">
-            <div class="p-4 space-y-4">
-              <div class="flex flex-col space-y-2">
-                <label>{{ t("settings.certificate") }}</label>
-                <HoppButtonSecondary
-                  :icon="
-                    domainSettings[selectedDomain]?.security?.certificates
-                      ?.client?.kind === 'pfx' &&
-                    domainSettings[selectedDomain]?.security?.certificates
-                      ?.client?.data
-                      ? IconFile
-                      : IconPlus
-                  "
-                  :label="
-                    (domainSettings[selectedDomain]?.security?.certificates
-                      ?.client?.kind === 'pfx' &&
-                      domainSettings[selectedDomain]?.security?.certificates
-                        ?.client?.data?.name) ||
-                    t('settings.select_file')
-                  "
-                  outline
-                  @click="pickPFXCertificate"
-                />
-              </div>
-              <div class="border border-divider rounded">
-                <HoppSmartInput
-                  v-model="pfxPassword"
-                  type="password"
-                  :label="t('settings.password')"
-                  input-styles="floating-input !border-0"
-                  :placeholder="' '"
-                  @update:model-value="updatePFXPassword"
-                />
-              </div>
-            </div>
-          </HoppSmartTab>
-        </HoppSmartTabs>
+        <div class="p-4">
+          <SettingsCertificateManager
+            :model-value="clientCerts"
+            :save="onClientCertsUpdate"
+            :legacy-client="
+              domainSettings[selectedDomain]?.security?.certificates?.client
+            "
+            :clear-legacy="clearLegacyClientCert"
+          />
+        </div>
       </template>
       <template #footer>
-        <div class="flex justify-end">
+        <div class="flex justify-end px-4 pb-4">
           <HoppButtonPrimary
             :label="t('action.done')"
-            :disabled="isClientCertIncomplete"
             @click="showClientCertModal = false"
-          />
-          <HoppButtonSecondary
-            :label="t('action.clear')"
-            @click="clearClientCerts"
           />
         </div>
       </template>
@@ -336,11 +255,11 @@ import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { useCertificatePicker } from "@composables/picker"
 import { KernelInterceptorAgentStore } from "~/platform/std/kernel-interceptors/agent/store"
+import type { ClientCertEntry } from "~/helpers/functional/cert-registry"
 
 import IconTrash from "~icons/lucide/trash"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCircle from "~icons/lucide/circle"
-import IconFile from "~icons/lucide/file"
 import IconPlus from "~icons/lucide/plus"
 import IconEye from "~icons/lucide/eye"
 import IconEyeOff from "~icons/lucide/eye-off"
@@ -363,95 +282,35 @@ const domains = ref<string[]>(store.getDomains())
 
 const showClientCertModal = ref(false)
 const showCACertModal = ref(false)
-const isClientCertIncomplete = computed(() => {
-  const client =
-    domainSettings[selectedDomain.value]?.security?.certificates?.client
-  if (!client) return false
 
-  return client.kind === "pem"
-    ? !client.cert || !client.key
-    : !client.data || !client.password
-})
+// ---------------------------------------------------------------------------
+// Multi-certificate registry
+// ---------------------------------------------------------------------------
+const clientCerts = ref<ClientCertEntry[]>(store.getClientCerts())
 
-const {
-  certType,
-  pfxPassword,
-  pickPEMCertificate,
-  pickPEMKey,
-  pickPFXCertificate,
-  pickCACertificate,
-} = useCertificatePicker({
-  async onPEMCertChange(file) {
-    if (!file) return
+async function onClientCertsUpdate(updated: ClientCertEntry[]) {
+  await store.saveClientCerts(updated)
+  clientCerts.value = updated
+}
 
-    const cert = {
-      include: true,
-      name: file.name,
-      size: file.size,
-      lastModified: file.lastModified,
-      content: new Uint8Array(await file.arrayBuffer()),
-    }
+async function clearLegacyClientCert() {
+  const domain = selectedDomain.value
+  const current = store.getDomainSettings(domain)
+  const certificates = { ...current.security?.certificates }
+  delete certificates.client
+  const updated = {
+    ...current,
+    security: { ...current.security, certificates },
+  }
+  await store.saveDomainSettings(domain, updated)
+  domainSettings[domain] = updated
+}
 
-    updateDomainSettings({
-      security: {
-        certificates: {
-          client: {
-            kind: "pem",
-            cert,
-            key: domainSettings[selectedDomain.value]?.security?.certificates
-              ?.client?.key,
-          },
-        },
-      },
-    })
-  },
-  async onPEMKeyChange(file) {
-    if (!file) return
+// ---------------------------------------------------------------------------
+// CA cert picker (kept from original)
+// ---------------------------------------------------------------------------
 
-    const key = {
-      include: true,
-      name: file.name,
-      size: file.size,
-      lastModified: file.lastModified,
-      content: new Uint8Array(await file.arrayBuffer()),
-    }
-
-    updateDomainSettings({
-      security: {
-        certificates: {
-          client: {
-            kind: "pem",
-            key,
-            cert: domainSettings[selectedDomain.value]?.security?.certificates
-              ?.client?.cert,
-          },
-        },
-      },
-    })
-  },
-  async onPFXChange(file) {
-    if (!file) return
-
-    const data = {
-      include: true,
-      name: file.name,
-      size: file.size,
-      lastModified: file.lastModified,
-      content: new Uint8Array(await file.arrayBuffer()),
-    }
-
-    updateDomainSettings({
-      security: {
-        certificates: {
-          client: {
-            kind: "pfx",
-            data,
-            password: pfxPassword.value,
-          },
-        },
-      },
-    })
-  },
+const { pickCACertificate } = useCertificatePicker({
   async onCACertAdd(file) {
     const cert = {
       include: true,
@@ -602,23 +461,6 @@ function updateProxyPassword(value: string) {
   })
 }
 
-function updatePFXPassword(value: string) {
-  const currentClient =
-    domainSettings[selectedDomain.value]?.security?.certificates?.client
-  if (currentClient?.kind !== "pfx") return
-
-  updateDomainSettings({
-    security: {
-      certificates: {
-        client: {
-          ...currentClient,
-          password: value,
-        },
-      },
-    },
-  })
-}
-
 function toggleCACertFromStore(index: number) {
   const currentCerts =
     domainSettings[selectedDomain.value]?.security?.certificates?.ca || []
@@ -652,16 +494,6 @@ function clearCACert(index: number) {
   })
 }
 
-function clearClientCerts() {
-  updateDomainSettings({
-    security: {
-      certificates: {
-        client: undefined,
-      },
-    },
-  })
-}
-
 async function updateMaskedAuthKey() {
   if (!store.authKey.value) return
 
@@ -676,6 +508,7 @@ async function updateMaskedAuthKey() {
 onMounted(async () => {
   const initialSettings = store.getDomainSettings("*")
   domainSettings["*"] = initialSettings
+  clientCerts.value = store.getClientCerts()
 
   if (store.authKey.value) {
     await updateMaskedAuthKey()

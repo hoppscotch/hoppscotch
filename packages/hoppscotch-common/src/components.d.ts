@@ -347,6 +347,7 @@ declare module 'vue' {
     RealtimeSubscription: typeof import('./components/realtime/Subscription.vue')['default']
     SettingsAgent: typeof import('./components/settings/Agent.vue')['default']
     SettingsAgentSubtitle: typeof import('./components/settings/AgentSubtitle.vue')['default']
+    SettingsCertificateManager: typeof import('./components/settings/CertificateManager.vue')['default']
     SettingsDesktop: typeof import('./components/settings/Desktop.vue')['default']
     SettingsExtension: typeof import('./components/settings/Extension.vue')['default']
     SettingsExtensionSubtitle: typeof import('./components/settings/ExtensionSubtitle.vue')['default']

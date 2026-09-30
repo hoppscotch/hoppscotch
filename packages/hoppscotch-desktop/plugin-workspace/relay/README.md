@@ -85,6 +85,29 @@ pub enum RelayError {
 }
 ```
 
+## Checking the Windows Trust Reader From Another Host
+
+`src/trust.rs` reads the Windows certificate stores through `crypt32`, and a
+macOS or Linux host compiles none of it, so a name that does not exist in
+`windows-sys` is invisible until a Windows build runs. `cargo check --target
+x86_64-pc-windows-msvc` does not answer it either, since the vendored OpenSSL
+build script cannot configure for that target from a host whose `perl` writes
+POSIX paths.
+
+The module is checked by copying the `#[cfg(target_os = "windows")]`
+`read_platform` into a crate that depends on `windows-sys` alone, stubbing
+`valid_for_tls`, `parse_lenient`, `dedup_exact`, `pem_encode` and
+`curl_sys::certs::get_cert_content`, then running
+
+```
+cargo check --target x86_64-pc-windows-msvc -Zbuild-std=std,panic_abort
+```
+
+which needs a nightly toolchain with `rust-src` and no Windows SDK, since a
+check never links. That is how the reader's four wrong `windows-sys` names were
+found on 2026-09-28, `CERT_ENHKEY_USAGE`, which the crate spells `CTL_USAGE`,
+and the three location constants that exist only as unshifted identifiers.
+
 ## Requirements
 
 - Rust 1.77.2 or later

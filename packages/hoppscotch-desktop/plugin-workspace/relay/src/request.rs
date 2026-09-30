@@ -216,13 +216,19 @@ impl<'a> CurlRequest<'a> {
             AuthHandler::new(self.handle, &mut headers).set_auth(auth)?;
         }
 
-        if let Some(ref security) = self.request.security {
-            tracing::trace!(
-                verify_peer = ?security.verify_peer,
-                verify_host = ?security.verify_host,
-                "Configuring security settings"
-            );
-            SecurityHandler::new(self.handle).configure(security)?;
+        match self.request.security {
+            Some(ref security) => {
+                tracing::trace!(
+                    verify_peer = ?security.verify_peer,
+                    verify_host = ?security.verify_host,
+                    "Configuring security settings"
+                );
+                SecurityHandler::new(self.handle).configure(security)?;
+            }
+            // A request without a security block is the ordinary case, and it
+            // validates against the host store like any other, so the trust
+            // bundle is configured whether or not the caller sent settings.
+            None => SecurityHandler::new(self.handle).configure_host_trust()?,
         }
 
         if let Some(ref proxy) = self.request.proxy {

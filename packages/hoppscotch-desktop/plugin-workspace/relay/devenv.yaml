@@ -10,6 +10,11 @@ inputs:
     inputs:
       nixpkgs:
         follows: nixpkgs
+  rust-overlay:
+    url: github:oxalica/rust-overlay
+    inputs:
+      nixpkgs:
+        follows: nixpkgs
 
 # If you're using non-OSS software, you can set allowUnfree to true.
 allowUnfree: true

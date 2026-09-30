@@ -156,6 +156,22 @@ export class AdminService {
   }
 
   /**
+   * Update the email of a user
+   * @param userUid Who's email is being updated
+   * @param email New email of the user
+   * @returns an Either of boolean or error
+   */
+  async updateUserEmail(userUid: string, email: string) {
+    const updatedUser = await this.userService.updateUserEmail(
+      userUid,
+      email,
+    );
+    if (E.isLeft(updatedUser)) return E.left(updatedUser.left);
+
+    return E.right(true);
+  }
+
+  /**
    * Revoke infra level user invitations
    * @param inviteeEmails Invitee's emails
    * @param adminUid Admin Uid

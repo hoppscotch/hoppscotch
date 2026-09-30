@@ -5,6 +5,7 @@
       :response="response"
       :tab-id="tabId"
       :is-loading="isTestResultsLoading"
+      @compare="showCompareModal = true"
     />
     <HoppSmartTabs
       v-if="
@@ -152,6 +153,12 @@
     @submit="onSaveAsExample"
     @hide-modal="showSaveResponseName = false"
   />
+  <GqlResponseCompareModal
+    :show="showCompareModal"
+    :response="response"
+    :tab-id="tabId"
+    @hide-modal="showCompareModal = false"
+  />
 </template>
 
 <script setup lang="ts">
@@ -160,6 +167,9 @@ import IconNetwork from "~icons/lucide/network"
 import IconMore from "~icons/lucide/more-horizontal"
 import IconSave from "~icons/lucide/save"
 import { computed, reactive, ref, watch } from "vue"
+import GqlResponseCompareModal from "./ResponseCompareModal.vue"
+
+const showCompareModal = ref(false)
 import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import {

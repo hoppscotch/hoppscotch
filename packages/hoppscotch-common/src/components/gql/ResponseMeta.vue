@@ -62,7 +62,7 @@
       >
         <div
           :class="statusCategory.className"
-          class="inline-flex flex-1 space-x-4"
+          class="inline-flex flex-1 items-center space-x-4"
         >
           <span v-if="successResponse.document?.statusCode">
             <span class="text-secondary"> {{ t("response.status") }}: </span>
@@ -94,6 +94,13 @@
                 : `${successResponse.document.meta.responseSize} B`
             }}
           </span>
+          <HoppButtonSecondary
+            :icon="IconGitCompare"
+            :label="t('response.compare')"
+            outline
+            class="!py-1 !px-2.5 rounded"
+            @click="emit('compare')"
+          />
         </div>
       </div>
     </div>
@@ -120,6 +127,11 @@ import { useService } from "dioc/vue"
 import { InspectionService } from "~/services/inspection"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import IconExternalLink from "~icons/lucide/external-link"
+import IconGitCompare from "~icons/lucide/git-compare"
+
+const emit = defineEmits<{
+  (e: "compare"): void
+}>()
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -147,6 +159,12 @@ const errorResponse = computed(() => {
   return firstResponse?.type === "error" ? firstResponse : null
 })
 
+/**
+ * Gives the response size in a human readable format
+ * (changes unit from B to MB/KB depending on the size)
+ * If no changes (error res state) or value can be made (size < 1KB ?),
+ * it returns undefined
+ */
 const readableResponseSize = computed(() => {
   if (!successResponse.value?.document?.meta?.responseSize) return undefined
 

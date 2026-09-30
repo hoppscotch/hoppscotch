@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { InfraTokenModule } from './infra-token/infra-token.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { assertNoInsecureExampleSecrets } from './utils';
 
 function setupSwagger(
   app: NestExpressApplication,
@@ -40,6 +41,9 @@ function setupSwagger(
 }
 
 async function bootstrap() {
+  // Runs before the app is created so a deployment on the example secrets never serves traffic.
+  assertNoInsecureExampleSecrets();
+
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   const configService = app.get(ConfigService);

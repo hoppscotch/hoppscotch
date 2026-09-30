@@ -7,7 +7,8 @@ services:
     user: postgres
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: testpass
+      # Must match the password in the DATABASE_URL of the .env used for this deployment.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is not set. Run ./setup.sh to generate a .env with per-deployment secrets}
       POSTGRES_DB: hoppscotch
     healthcheck:
       test:
@@ -28,7 +29,7 @@ services:
     environment:
       # DATABASE_URL is read from the .env file to allow the backend to connect with an external database.
       # This allows the backend to retain existing data and prevents database resets during deployments.
-      # - DATABASE_URL=postgresql://postgres:testpass@hoppscotch-db:5432/hoppscotch
+      # - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@hoppscotch-db:5432/hoppscotch
       - ENABLE_SUBPATH_BASED_ACCESS=true
     env_file:
       - ./.env

@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { InfraTokenModule } from './infra-token/infra-token.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { getWhitelistedOrigins } from './utils';
 
 function setupSwagger(
   app: NestExpressApplication,
@@ -58,7 +59,7 @@ async function bootstrap() {
   if (isProduction) {
     console.log('Enabling CORS with production settings');
     app.enableCors({
-      origin: configService.get('WHITELISTED_ORIGINS').split(','),
+      origin: getWhitelistedOrigins(configService.get('WHITELISTED_ORIGINS')),
       credentials: true,
     });
   } else {

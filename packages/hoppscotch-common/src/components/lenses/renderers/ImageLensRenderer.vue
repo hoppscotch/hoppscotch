@@ -61,7 +61,10 @@ import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { computed, onMounted, ref, watch } from "vue"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
-import { useDownloadResponse } from "~/composables/lens-actions"
+import {
+  useDownloadResponse,
+  useResponseFilename,
+} from "~/composables/lens-actions"
 import { flow, pipe } from "fp-ts/function"
 import * as S from "fp-ts/string"
 import * as RNEA from "fp-ts/ReadonlyNonEmptyArray"
@@ -106,9 +109,13 @@ const responseType = computed(() =>
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   responseType.value,
   computed(() => props.response.body),
-  t("filename.lens", {
-    request_name: props.response.req.name,
-  })
+  useResponseFilename(
+    () => props.response,
+    () =>
+      t("filename.lens", {
+        request_name: props.response.req.name,
+      })
+  )
 )
 
 watch(props.response, () => {

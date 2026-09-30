@@ -58,7 +58,10 @@
 import { computed, ref } from "vue"
 import VuePdfEmbed from "vue-pdf-embed"
 import { useI18n } from "@composables/i18n"
-import { useDownloadResponse } from "@composables/lens-actions"
+import {
+  useDownloadResponse,
+  useResponseFilename,
+} from "@composables/lens-actions"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
@@ -89,14 +92,13 @@ const pdfsrc = computed(() =>
   )
 )
 
-const filename = t("filename.lens", {
-  request_name: props.response.req.name,
-})
-
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "application/pdf",
   computed(() => props.response.body),
-  `${filename}.pdf`
+  useResponseFilename(
+    () => props.response,
+    () => `${t("filename.lens", { request_name: props.response.req.name })}.pdf`
+  )
 )
 
 /**

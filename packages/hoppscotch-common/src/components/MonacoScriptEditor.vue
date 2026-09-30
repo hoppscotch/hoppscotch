@@ -5,6 +5,8 @@
     language="typescript"
     :options="MONACO_EDITOR_OPTIONS"
     :model="editorModel"
+    width="100%"
+    height="100%"
   />
 </template>
 

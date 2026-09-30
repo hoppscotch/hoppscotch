@@ -52,7 +52,6 @@ import { TeamNameCodec } from "~/helpers/backend/types/TeamName"
 import { runGQLQuery, type GQLError } from "~/helpers/backend/GQLClient"
 import {
   GetTeamEnvironmentsDocument,
-  TeamAccessRole,
   WorkspaceType,
   type CreatePublishedDocsArgs,
   type GetMyTeamsQuery,
@@ -73,7 +72,11 @@ import {
   switchActiveTabToREST,
 } from "~/helpers/tab/protocol-switch"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
-import { WorkspaceService, type Workspace } from "~/services/workspace.service"
+import {
+  WorkspaceService,
+  TeamAccessRole,
+  type Workspace,
+} from "~/services/workspace.service"
 import { platform } from "~/platform"
 import type { AIChatModelOption, AIChatSelection } from "~/platform/experiments"
 import {

@@ -11,7 +11,11 @@ import {
   GQLTabConnectionService,
   type GQLResponseEvent,
 } from "~/services/gql-tab-connection.service"
-import { WorkspaceService, type Workspace } from "~/services/workspace.service"
+import {
+  WorkspaceService,
+  type TeamAccessRole,
+  type Workspace,
+} from "~/services/workspace.service"
 import { useReadonlyStream } from "~/composables/stream"
 import {
   currentEnvironment$,
@@ -25,7 +29,6 @@ import { truncateText } from "~/helpers/aichat/context-serializers"
 import { isActionBound } from "~/helpers/actions"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import type { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
-import type { TeamAccessRole } from "~/helpers/backend/graphql"
 import type { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import type { HoppTabDocument } from "~/helpers/tab/document"
 import type { HoppTab } from "~/services/tab"

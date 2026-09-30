@@ -98,7 +98,7 @@ import { WorkspaceService } from "~/services/workspace.service"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { TestRunnerService } from "~/services/test-runner/test-runner.service"
-import { TeamAccessRole } from "~/helpers/backend/graphql"
+import { TeamAccessRole } from "~/services/workspace.service"
 import type { TeamCollection } from "~/helpers/teams/TeamCollection"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import {

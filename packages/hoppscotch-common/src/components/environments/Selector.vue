@@ -548,11 +548,11 @@ const isEnvActive = (id: string | number) => {
     }
   } else {
     if (selectedEnvironmentIndex.value.type === "MY_ENV") {
-      return selectedEnv.value.index === id
+      return selectedEnvironmentIndex.value.index === id
     }
     return (
       selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
-      selectedEnv.value.teamEnvID === id
+      selectedEnvironmentIndex.value.teamEnvID === id
     )
   }
 }

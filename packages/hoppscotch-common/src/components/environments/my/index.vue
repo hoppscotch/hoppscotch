@@ -41,6 +41,7 @@
       :selected="isEnvironmentSelected(index)"
       @edit-environment="editEnvironment(index)"
       @select-environment="selectEnvironment(index, env)"
+      @open-environment="openEnvironment(index)"
     />
     <HoppSmartPlaceholder
       v-if="filteredAndAlphabetizedPersonalEnvs.length === 0"
@@ -127,6 +128,7 @@ const colorMode = useColorMode()
 
 const emit = defineEmits<{
   (e: "select-environment", data: HandleEnvChangeProp): void
+  (e: "open-environment", data: { type: "my-environment"; index: number }): void
 }>()
 
 const environments = useReadonlyStream(environments$, [])
@@ -195,6 +197,8 @@ const editEnvironment = (environmentIndex: number) => {
   action.value = "edit"
   displayModalEdit(true)
 }
+const openEnvironment = (index: number) =>
+  emit("open-environment", { type: "my-environment", index })
 const resetSelectedData = () => {
   editingEnvironmentIndex.value = null
   editingVariableName.value = ""

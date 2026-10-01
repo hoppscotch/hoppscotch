@@ -75,6 +75,88 @@ describe("CurrentValueService", () => {
     })
   })
 
+  describe("setEnvironmentVariableValue", () => {
+    it("should update only the matching variable's current value", () => {
+      const id = "env1"
+      const vars: Variable[] = [
+        { key: "key1", currentValue: "value1", varIndex: 1, isSecret: false },
+        { key: "key2", currentValue: "value2", varIndex: 2, isSecret: false },
+      ]
+      service.addEnvironment(id, vars)
+
+      service.setEnvironmentVariableValue(id, 2, "updated")
+
+      expect(service.getEnvironment(id)).toEqual([
+        { key: "key1", currentValue: "value1", varIndex: 1, isSecret: false },
+        { key: "key2", currentValue: "updated", varIndex: 2, isSecret: false },
+      ])
+    })
+
+    it("should create a missing entry using the provided key", () => {
+      const id = "env1"
+      service.addEnvironment(id, [
+        { key: "key1", currentValue: "value1", varIndex: 0, isSecret: false },
+      ])
+
+      service.setEnvironmentVariableValue(id, 1, "created", "key2")
+
+      expect(service.getEnvironmentVariableValue(id, 1)).toBe("created")
+      expect(service.getEnvironmentVariable(id, 1)).toMatchObject({
+        key: "key2",
+        isSecret: false,
+      })
+    })
+
+    it("should create the environment when it does not exist yet", () => {
+      service.setEnvironmentVariableValue("new-env", 0, "value", "key")
+
+      expect(service.getEnvironmentVariableValue("new-env", 0)).toBe("value")
+    })
+  })
+
+  describe("setEnvironmentVariableKey", () => {
+    it("should rename only the matching variable's key", () => {
+      const id = "env1"
+      service.addEnvironment(id, [
+        { key: "key1", currentValue: "value1", varIndex: 0, isSecret: false },
+        { key: "key2", currentValue: "value2", varIndex: 1, isSecret: false },
+      ])
+
+      service.setEnvironmentVariableKey(id, 1, "renamed")
+
+      expect(service.getEnvironment(id)).toEqual([
+        { key: "key1", currentValue: "value1", varIndex: 0, isSecret: false },
+        {
+          key: "renamed",
+          currentValue: "value2",
+          varIndex: 1,
+          isSecret: false,
+        },
+      ])
+      expect(service.getEnvironmentByKey(id, "renamed")).toMatchObject({
+        currentValue: "value2",
+      })
+    })
+
+    it("should do nothing when the environment has no entry for the index", () => {
+      const id = "env1"
+      const vars = [
+        { key: "key1", currentValue: "value1", varIndex: 0, isSecret: false },
+      ]
+      service.addEnvironment(id, vars)
+
+      service.setEnvironmentVariableKey(id, 99, "renamed")
+
+      expect(service.getEnvironment(id)).toEqual(vars)
+    })
+
+    it("should not create an environment that does not exist", () => {
+      service.setEnvironmentVariableKey("missing", 0, "renamed")
+
+      expect(service.environments.has("missing")).toBe(false)
+    })
+  })
+
   describe("loadEnvironmentsFromPersistedState", () => {
     it("should load environments correctly", () => {
       const state = {

@@ -2,6 +2,7 @@
   "action": {
     "add": "Add",
     "autoscroll": "Autoscroll",
+    "back": "Back",
     "cancel": "Cancel",
     "choose_file": "Choose a file",
     "choose_workspace": "Choose a workspace",
@@ -643,6 +644,7 @@
     "deleted": "Environment variable deleted",
     "duplicated": "Environment duplicated",
     "edit": "Edit Environment",
+    "edit_current_value": "Edit current value",
     "empty_variables": "No variables",
     "global": "Global",
     "global_variables": "Global variables",

@@ -161,7 +161,9 @@ const showConsoleTab = computed(() => {
   }
 
   return (
-    doc.value.testResults?.consoleEntries.length > 0 &&
+    doc.value.testResults.consoleEntries.some(
+      ({ type }) => type !== "clear" && type !== "groupEnd"
+    ) &&
     EXPERIMENTAL_SCRIPTING_SANDBOX.value
   )
 })
@@ -171,9 +173,7 @@ const consoleEntries = computed(() => {
     return []
   }
 
-  return doc.value.testResults?.consoleEntries.filter(({ type }) =>
-    ["log", "warn", "debug", "error", "info"].includes(type)
-  ) as ConsoleEntry[]
+  return doc.value.testResults?.consoleEntries as ConsoleEntry[]
 })
 
 watch(

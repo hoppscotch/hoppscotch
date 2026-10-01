@@ -1175,8 +1175,15 @@ describe("Parse curl command to Hopp REST Request", () => {
        * @returns {Omit<T, "_ref_id">}
        */
       const stripRefId = (obj) => {
-        const clone = { ...obj }
+        const clone = JSON.parse(JSON.stringify(obj))
         delete clone._ref_id
+        if (clone.body && Array.isArray(clone.body.body)) {
+          clone.body.body = clone.body.body.map((param) => {
+            const p = { ...param }
+            delete p.description
+            return p
+          })
+        }
         return clone
       }
 

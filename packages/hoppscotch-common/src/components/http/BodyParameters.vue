@@ -108,6 +108,7 @@
                 active: entry.active,
                 isFile: entry.isFile,
                 contentType: entry.contentType,
+                description: entry.description,
               })
             "
           />
@@ -135,6 +136,7 @@
                   active: entry.active,
                   isFile: entry.isFile,
                   contentType: entry.contentType,
+                  description: entry.description,
                 })
               "
             />
@@ -156,10 +158,28 @@
                   active: entry.active,
                   isFile: entry.isFile,
                   contentType: $event,
+                  description: entry.description,
                 })
               "
             />
           </span>
+          <input
+            v-model="entry.description"
+            :placeholder="t('count.description')"
+            class="flex flex-1 px-4 bg-transparent text-secondaryDark"
+            type="text"
+            :class="{ 'opacity-50': !entry.active }"
+            @change="
+              updateBodyParam(index, {
+                key: entry.key,
+                value: entry.value,
+                active: entry.active,
+                isFile: entry.isFile,
+                contentType: entry.contentType,
+                description: $event.target.value,
+              })
+            "
+          />
           <span>
             <label :for="`attachment${index}`" class="p-0">
               <input
@@ -364,6 +384,7 @@ const workingParams = ref<WorkingFormDataKeyValue[]>([
     entry: {
       key: "",
       value: "",
+      description: "",
       active: true,
       isFile: false,
       contentType: undefined,
@@ -382,6 +403,7 @@ watch(workingParams, (paramsList) => {
       entry: {
         key: "",
         value: "",
+        description: "",
         active: true,
         isFile: false,
       },
@@ -438,6 +460,7 @@ const addBodyParam = () => {
     entry: {
       key: "",
       value: "",
+      description: "",
       active: true,
       isFile: false,
     },
@@ -530,6 +553,7 @@ watch(bulkEditContent, () => {
         entry: {
           key: entry.key,
           value: entry.value,
+          description: entry.description ?? "",
           active: entry.active,
           isFile: false as const,
         },
@@ -577,6 +601,7 @@ const clearContent = () => {
       entry: {
         key: "",
         value: "",
+        description: "",
         active: true,
         isFile: false,
       },

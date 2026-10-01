@@ -251,6 +251,7 @@ export const parseCurlCommand = (curlCommand: string) => {
                   isFile: false,
                   key,
                   value,
+                  description: "",
                 }
             ),
             (b) =>

@@ -24,7 +24,6 @@ import { Ref } from "vue"
 
 import { map } from "fp-ts/Either"
 
-import { runPreRequestScript, runTestScript } from "@hoppscotch/js-sandbox/web"
 import { useSetting } from "~/composables/settings"
 import { getService } from "~/modules/dioc"
 import {
@@ -369,7 +368,11 @@ const getEnvironmentVariableValue = (
 // (the GQL tab-connection service imports it from here)
 export { filterNonEmptyEnvironmentVariables }
 
-export const delegatePreRequestScriptRunner = (
+// The script sandbox (QuickJS WASM + runtime, several MB) is only needed once a
+// request actually has a script, so load it on first use instead of at startup.
+const loadSandbox = () => import("@hoppscotch/js-sandbox/web")
+
+export const delegatePreRequestScriptRunner = async (
   request: HoppRESTRequest,
   envs: {
     global: Environment["variables"]
@@ -399,6 +402,8 @@ export const delegatePreRequestScriptRunner = (
     )
   }
 
+  const { runPreRequestScript } = await loadSandbox()
+
   if (!experimentalScriptingSandbox) {
     return runPreRequestScript(combinedScript, {
       envs,
@@ -417,7 +422,7 @@ export const delegatePreRequestScriptRunner = (
   })
 }
 
-export const runPostRequestScript = (
+export const runPostRequestScript = async (
   envs: TestResult["envs"],
   request: HoppRESTRequest,
   response: HoppRESTResponse,
@@ -445,6 +450,8 @@ export const runPostRequestScript = (
       } satisfies SandboxTestResult)
     )
   }
+
+  const { runTestScript } = await loadSandbox()
 
   if (!experimentalScriptingSandbox) {
     return runTestScript(combinedScript, {

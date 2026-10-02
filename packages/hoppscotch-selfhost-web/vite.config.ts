@@ -11,11 +11,28 @@ import Pages from "vite-plugin-pages"
 import Layouts from "vite-plugin-vue-layouts"
 import IconResolver from "unplugin-icons/resolver"
 import { FileSystemIconLoader } from "unplugin-icons/loaders"
+import * as fs from "fs"
 import * as path from "path"
 import Unfonts from "unplugin-fonts/vite"
 import ImportMetaEnv from "@import-meta-env/unplugin"
 
 const ENV = loadEnv("development", path.resolve(__dirname, "../../"), ["VITE_"])
+
+// Large chunks only some users or features need. They're left out of the
+// service worker precache (which every first visit downloads in full) and
+// cached at runtime instead, once actually used.
+const ON_DEMAND_CHUNKS = [
+  // Non-English locales: one is loaded only if that language is selected
+  ...fs
+    .readdirSync(path.resolve(__dirname, "../hoppscotch-common/locales"))
+    .filter((file) => file.endsWith(".json") && file !== "en.json")
+    .map((file) => `assets/${path.basename(file, ".json")}-*.js`),
+  // Monaco language workers, used only by the script editor
+  "assets/{editor,ts,css,html,json}.worker-*.js",
+  // PDF response preview and HAR import
+  "assets/PDFLensRenderer-*.js",
+  "assets/har-*.js",
+]
 
 export default defineConfig({
   envPrefix: process.env.HOPP_ALLOW_RUNTIME_ENV ? "VITE_BUILDTIME_" : "VITE_",
@@ -212,6 +229,23 @@ export default defineConfig({
       workbox: {
         cleanupOutdatedCaches: true,
         maximumFileSizeToCacheInBytes: 15728640, // 15 MB
+        globIgnores: ON_DEMAND_CHUNKS,
+        runtimeCaching: [
+          {
+            // Chunks not in the precache (see ON_DEMAND_CHUNKS), so they keep
+            // working offline once loaded. Revalidated in the background as
+            // asset contents are rewritten with runtime env at startup.
+            urlPattern: ({ sameOrigin, url }) =>
+              sameOrigin &&
+              url.pathname.startsWith("/assets/") &&
+              url.pathname.endsWith(".js"),
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "hopp-lazy-chunks",
+              expiration: { maxEntries: 100 },
+            },
+          },
+        ],
         navigateFallbackDenylist: [
           /robots.txt/,
           /sitemap.xml/,
@@ -229,6 +263,18 @@ export default defineConfig({
       },
     }),
     Unfonts({
+      // Only preload the Latin subsets. The other subsets (Cyrillic, Greek,
+      // Vietnamese, ...) are still declared with unicode-range and fetched by
+      // the browser when a page actually uses those characters.
+      custom: {
+        families: [],
+        linkFilter: (tags) =>
+          tags.filter(
+            (tag) =>
+              tag.attrs?.as !== "font" ||
+              /-latin-wght-normal-/.test(String(tag.attrs?.href))
+          ),
+      },
       fontsource: {
         families: [
           {

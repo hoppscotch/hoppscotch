@@ -35,12 +35,19 @@
           {{ t("shared_requests.preview") }}
         </span>
         <div class="w-full">
-          <ShareTemplatesEmbeds
-            v-if="selectedWidget.value === 'embed'"
-            :endpoint="request?.endpoint"
-            :method="request?.method"
-            :model-value="embedOption"
-          />
+          <template v-if="selectedWidget.value === 'embed'">
+            <ShareTemplatesEmbedsGQL
+              v-if="request && !isRESTRequest(request)"
+              :url="(request as HoppGQLRequest).url"
+              :model-value="gqlEmbedOption"
+            />
+            <ShareTemplatesEmbeds
+              v-else
+              :endpoint="(request as HoppRESTRequest | null)?.endpoint"
+              :method="(request as HoppRESTRequest | null)?.method"
+              :model-value="embedOption"
+            />
+          </template>
           <ShareTemplatesButton
             v-else-if="selectedWidget.value === 'button'"
             img="badge.svg"
@@ -53,16 +60,17 @@
 </template>
 
 <script lang="ts" setup>
-import { HoppRESTRequest } from "@hoppscotch/data"
+import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
 import { PropType, ref } from "vue"
 import { useI18n } from "~/composables/i18n"
+import { isRESTRequest } from "~/helpers/request-type"
 
 const t = useI18n()
 
 const props = defineProps({
   request: {
-    type: Object as PropType<HoppRESTRequest | null>,
+    type: Object as PropType<HoppRESTRequest | HoppGQLRequest | null>,
     required: true,
   },
   modelValue: {
@@ -133,6 +141,35 @@ const embedOption = ref<EmbedOption>({
       label: t("tab.headers"),
       enabled: true,
     },
+    {
+      value: "authorization",
+      label: t("tab.authorization"),
+      enabled: false,
+    },
+  ],
+  theme: "system",
+})
+
+// GraphQL preview shape — different tab set, separate ref so the REST
+// preview's selections aren't accidentally clobbered when toggling between
+// request types.
+type GQLTabs = "query" | "variables" | "headers" | "authorization"
+type GQLEmbedOption = {
+  selectedTab: GQLTabs
+  tabs: {
+    value: GQLTabs
+    label: string
+    enabled: boolean
+  }[]
+  theme: "light" | "dark" | "system"
+}
+
+const gqlEmbedOption = ref<GQLEmbedOption>({
+  selectedTab: "query",
+  tabs: [
+    { value: "query", label: t("tab.query"), enabled: true },
+    { value: "variables", label: t("tab.variables"), enabled: true },
+    { value: "headers", label: t("tab.headers"), enabled: true },
     {
       value: "authorization",
       label: t("tab.authorization"),

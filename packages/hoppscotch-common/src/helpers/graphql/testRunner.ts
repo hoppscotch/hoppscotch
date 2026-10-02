@@ -1,0 +1,407 @@
+import {
+  Environment,
+  GQLHeader,
+  HoppCollectionVariable,
+  HoppGQLRequest,
+  HoppRESTAuth,
+  HoppRESTRequest,
+} from "@hoppscotch/data"
+import * as E from "fp-ts/Either"
+import { parse } from "graphql"
+import type { OperationDefinitionNode } from "graphql"
+
+import { getDefaultRESTRequest } from "~/helpers/rest/default"
+import {
+  InitialEnvironmentState,
+  combineEnvVariables,
+  delegatePreRequestScriptRunner,
+  filterNonEmptyEnvironmentVariables,
+  getTestableBody,
+  hasEnvironmentChanges,
+  runPostRequestScript,
+  translateToSandboxTestResults,
+  updateEnvsAfterTestScript,
+} from "~/helpers/RequestRunner"
+import { stripIterationVarsFromEnvs } from "~/helpers/runner/iteration-vars"
+import {
+  getTemporaryVariables,
+  scriptEnvsToTemporaryVariables,
+  setTemporaryVariables,
+} from "~/helpers/runner/temp_envs"
+import { HoppTestResult } from "~/helpers/types/HoppTestResult"
+import { TestResult } from "@hoppscotch/js-sandbox"
+import { getI18n } from "~/modules/i18n"
+import { getEffectiveHoppGQLRequest } from "~/helpers/utils/EffectiveURL"
+import {
+  generateAuthHeaders,
+  generateAuthParams,
+} from "~/helpers/auth/auth-types"
+import { GQLRequest } from "~/helpers/kernel/gql/request"
+import { RESTResponse } from "~/helpers/kernel/rest/response"
+import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
+import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
+import { getService } from "~/modules/dioc"
+
+const kernelInterceptorService = getService(KernelInterceptorService)
+
+export type GQLTestRunnerFailure =
+  | { type: "subscription_unsupported" }
+  | { type: "request_fail"; message: string }
+
+/**
+ * Picks the operation a collection-run should execute. Mirrors the tab
+ * behaviour of defaulting to the first operation in the document — runs
+ * don't have a cursor position to disambiguate with.
+ */
+const getRunnableOperation = (
+  query: string
+): E.Either<GQLTestRunnerFailure, OperationDefinitionNode | null> => {
+  try {
+    const ast = parse(query)
+    const operations = ast.definitions.filter(
+      (d): d is OperationDefinitionNode => d.kind === "OperationDefinition"
+    )
+
+    if (operations.length === 0) return E.right(null)
+
+    const op = operations[0]
+    if (op.operation === "subscription") {
+      return E.left({ type: "subscription_unsupported" })
+    }
+    return E.right(op)
+  } catch (_e) {
+    // Let the server report the syntax error — it produces a real GraphQL
+    // error response the user can read in the result panel, which beats a
+    // client-side parse message.
+    return E.right(null)
+  }
+}
+
+/**
+ * Executes a GraphQL request inside a collection run.
+ *
+ * The result is shaped as a `HoppRESTResponse`. For a run this is the honest
+ * shape, not a coercion: a GraphQL-over-HTTP query/mutation is a single POST
+ * returning a single HTTP response (status, headers, JSON body), and
+ * `HoppRESTResponse` is the app's plain "HTTP response" type — so the runner
+ * result tree, status chips, response lenses, run-meta accounting, and the
+ * persistence schema all render it with zero protocol branches. The GQL
+ * tab's `GQLResponseEvent[]` shape exists to model subscription event
+ * streams, which runs skip — one-shot runs would carry that as dead weight
+ * and force discrimination through every consumer.
+ *
+ * Known trade-off: GraphQL servers report operation errors as
+ * `200 OK` + `{ errors: [...] }` in the body, so such rows chip green
+ * (HTTP-level truth; REST rows behave the same for error payloads).
+ * Surfacing body-level GraphQL errors on the row is a planned enhancement
+ * in `runTestGQLRequest` — purely additive, no change to this shape.
+ *
+ * Mirrors `runTestRunnerRequest` including the script stages: the combined
+ * (root → request) pre-request script mutates envs/headers before execution,
+ * and the (request → root) test script runs against the HTTP response. The
+ * sandbox is REST-shaped, so scripts see the GQL request as a synthetic POST.
+ *
+ * The `request` arrives with auth already resolved by the test-runner
+ * service walk; inherited headers are passed separately so auth headers can
+ * be applied between them and the request's own headers
+ * (precedence: request > auth > inherited).
+ */
+export async function runTestRunnerGQLRequest(
+  request: HoppGQLRequest,
+  persistEnv = true,
+  inheritedVariables: HoppCollectionVariable[] = [],
+  initialEnvironmentState: InitialEnvironmentState,
+  inheritedHeaders: GQLHeader[] = [],
+  inheritedPreRequestScripts: string[] = [],
+  inheritedTestScripts: string[] = [],
+  iterationVars: Environment["variables"] = []
+): Promise<
+  E.Either<
+    GQLTestRunnerFailure,
+    { response: HoppRESTResponse; testResult: HoppTestResult }
+  >
+> {
+  const {
+    initialGlobalEnvs,
+    initialEnvID,
+    initialSelectedEnvs,
+    initialEnvironmentIndex,
+    initialEnvName,
+    initialEnvs,
+    initialEnvsForComparison,
+  } = initialEnvironmentState
+
+  const iterationVarKeys = new Set(iterationVars.map(({ key }) => key))
+  // Injected into `selected` only — the sandbox env shape has no data scope;
+  // template resolution gets the iteration values via the env list below.
+  // Mirrors `runTestRunnerRequest`.
+  const initialEnvsWithIterationData = {
+    ...initialEnvs,
+    selected: [...iterationVars, ...initialEnvs.selected],
+  }
+  const stripIterationVars = (envs: TestResult["envs"]): TestResult["envs"] =>
+    stripIterationVarsFromEnvs(envs, iterationVarKeys, initialEnvs.selected)
+
+  // --- Pre-request script stage --- (short-circuits when no script exists)
+  const scriptSyntheticRequest: HoppRESTRequest = {
+    ...getDefaultRESTRequest(),
+    name: request.name,
+    method: "POST",
+    endpoint: request.url,
+    headers: request.headers,
+    auth: request.auth as HoppRESTAuth,
+    preRequestScript: request.preRequestScript ?? "",
+    testScript: request.testScript ?? "",
+  }
+
+  const preResult = await delegatePreRequestScriptRunner(
+    scriptSyntheticRequest,
+    initialEnvsWithIterationData,
+    null,
+    inheritedPreRequestScripts
+  )
+  if (E.isLeft(preResult)) {
+    return E.left({
+      type: "request_fail",
+      message: `Pre-request script failed: ${preResult.left}`,
+    })
+  }
+
+  // v1 request-mutation surface: headers only (hopp.request.setHeader) —
+  // REST and GQL header shapes are structurally identical
+  const scriptedRequest = preResult.right.updatedRequest?.headers
+    ? { ...request, headers: preResult.right.updatedRequest.headers }
+    : request
+
+  const envVars = filterNonEmptyEnvironmentVariables([
+    // Data-file iteration values take precedence over every other scope for
+    // the duration of the iteration — REST parity (see runTestRunnerRequest):
+    // prepend them once, then drop those keys from the combined scopes so
+    // each appears exactly once and stays authoritative.
+    ...iterationVars,
+    ...combineEnvVariables({
+      environments: {
+        ...preResult.right.updatedEnvs,
+        temp: !persistEnv ? getTemporaryVariables() : [],
+      },
+      // GraphQL requests have no request-level variables (REST-style
+      // requestVariables) — collection variables are the innermost scope.
+      requestVariables: [],
+      collectionVariables: inheritedVariables as Environment["variables"],
+    }).filter(({ key }) => !iterationVarKeys.has(key)),
+  ]) as Environment["variables"]
+
+  const effective = getEffectiveHoppGQLRequest(scriptedRequest, envVars, {
+    inheritedHeaders,
+  })
+
+  // Detect on the env-resolved query — a templated document (e.g. the whole
+  // query in a `<<doc>>` variable) only reveals its operations after
+  // substitution.
+  const operationResult = getRunnableOperation(effective.effectiveFinalQuery)
+  if (E.isLeft(operationResult)) return operationResult
+  const operation = operationResult.right
+
+  // Synthetic REST request for auth signing and the response viewer's `req`
+  // field. Truthful for GraphQL-over-HTTP: a POST to the resolved URL.
+  // Signing-sensitive auth types (AWS, digest, HAWK) hash exactly this
+  // method + URL pair.
+  const syntheticRESTRequest: HoppRESTRequest = {
+    ...getDefaultRESTRequest(),
+    name: request.name,
+    method: "POST",
+    endpoint: effective.effectiveFinalURL,
+  }
+
+  // GQL auth is a structural subset of REST auth for the shared types, and
+  // collection-inherited auth can legitimately be a REST-only type (digest,
+  // HAWK, JWT…) — the REST generators handle the full union, so GraphQL
+  // requests get complete auth coverage in runs.
+  const effectiveAuth = effective.effectiveFinalAuth as HoppRESTAuth
+
+  const authHeaders = effectiveAuth.authActive
+    ? await generateAuthHeaders(effectiveAuth, syntheticRESTRequest, envVars)
+    : []
+  const authParams = effectiveAuth.authActive
+    ? await generateAuthParams(effectiveAuth, syntheticRESTRequest, envVars)
+    : []
+
+  let finalUrl = effective.effectiveFinalURL
+  if (authParams.length > 0) {
+    try {
+      const urlObj = new URL(finalUrl)
+      for (const param of authParams) {
+        urlObj.searchParams.append(param.key, param.value)
+      }
+      finalUrl = urlObj.toString()
+    } catch (_e) {
+      // Unparseable URL — let the network layer surface the real error.
+    }
+  }
+
+  // Precedence: request > auth > inherited (same as the tab execution path).
+  const finalHeaders: Record<string, string> = {}
+  effective.effectiveFinalHeaders.forEach((h) => {
+    finalHeaders[h.key] = h.value
+  })
+  authHeaders.forEach((h) => {
+    finalHeaders[h.key] = h.value
+  })
+  effective.effectiveFinalRequestHeaders.forEach((h) => {
+    finalHeaders[h.key] = h.value
+  })
+
+  const gqlRequest: HoppGQLRequest = {
+    v: 10,
+    name: request.name,
+    url: finalUrl,
+    headers: Object.entries(finalHeaders).map(([key, value]) => ({
+      active: true,
+      key,
+      value,
+      description: "",
+    })),
+    query: effective.effectiveFinalQuery,
+    variables: effective.effectiveFinalVariables,
+    auth: effective.effectiveFinalAuth,
+    description: null,
+    responses: {},
+    // Wire-shape object only — scripts never ride the network request
+    preRequestScript: "",
+    testScript: "",
+  }
+
+  try {
+    const kernelRequest = await GQLRequest.toRequest(gqlRequest)
+
+    // Multi-operation documents need an explicit operationName — match the
+    // tab behaviour of running the first operation.
+    if (operation?.name?.value && kernelRequest.content?.kind === "json") {
+      const jsonContent = kernelRequest.content.content as Record<
+        string,
+        unknown
+      >
+      jsonContent.operationName = operation.name.value
+    }
+
+    const { response } = kernelInterceptorService.execute(kernelRequest)
+    const result = await response
+
+    if (E.isLeft(result)) {
+      // `humanMessage.heading` is a translator-taking function, not a string
+      const message =
+        result.left === "cancellation"
+          ? "Request cancelled"
+          : (result.left.humanMessage?.heading?.(getI18n()) ??
+            result.left.error?.message ??
+            "Request execution failed")
+      return E.left({ type: "request_fail", message })
+    }
+
+    const parsedResponse = await RESTResponse.toResponse(
+      result.right,
+      syntheticRESTRequest
+    )
+
+    if (parsedResponse.type === "fail") {
+      return E.left({
+        type: "request_fail",
+        message: parsedResponse.error.message,
+      })
+    }
+
+    // --- Post-request (test) script stage --- (short-circuits when empty)
+    // Test scripts observe the executed request (resolved URL, final wire
+    // headers), mirroring REST runs
+    const executedScriptRequest: HoppRESTRequest = {
+      ...scriptSyntheticRequest,
+      endpoint: finalUrl,
+      headers: gqlRequest.headers,
+    }
+    const postResult = await runPostRequestScript(
+      preResult.right.updatedEnvs,
+      executedScriptRequest,
+      {
+        status: parsedResponse.statusCode,
+        body: getTestableBody(parsedResponse),
+        headers: parsedResponse.headers,
+        statusText: parsedResponse.statusText,
+        responseTime: parsedResponse.meta.responseDuration,
+        // Runtime contract is TestResponse — the param annotation says
+        // HoppRESTResponse but every call site passes this shape
+      } as never,
+      preResult.right.updatedCookies ?? null,
+      inheritedTestScripts
+    )
+
+    if (E.isLeft(postResult)) {
+      console.error("[Post-Request Script Error]", postResult.left)
+      return E.right({
+        response: parsedResponse,
+        testResult: {
+          description: "",
+          expectResults: [],
+          tests: [],
+          envDiff: {
+            global: { additions: [], deletions: [], updations: [] },
+            selected: { additions: [], deletions: [], updations: [] },
+          },
+          scriptError: true,
+          consoleEntries: [],
+        },
+      })
+    }
+
+    // Iteration values are injected into the environment for the duration of
+    // the request only; strip them back out so a data run never persists
+    // data-file columns as environment variables — REST parity
+    const filteredPostResult = {
+      ...postResult.right,
+      envs: stripIterationVars(postResult.right.envs),
+    }
+
+    const combinedResult = {
+      ...filteredPostResult,
+      consoleEntries: [
+        ...(preResult.right.consoleEntries ?? []),
+        ...(postResult.right.consoleEntries ?? []),
+      ],
+    }
+
+    const testResult = translateToSandboxTestResults(
+      combinedResult,
+      initialGlobalEnvs,
+      initialSelectedEnvs
+    )
+
+    // Persist env mutations after the test script (or stash them as
+    // temporary variables when keepVariableValues is off) — REST parity
+    if (persistEnv) {
+      if (
+        hasEnvironmentChanges(initialEnvsForComparison, filteredPostResult.envs)
+      ) {
+        updateEnvsAfterTestScript(
+          filteredPostResult.envs,
+          initialEnvironmentIndex,
+          initialEnvName,
+          initialEnvsForComparison,
+          initialEnvID
+        )
+      }
+    } else {
+      // `selected` before `global` — the temp store dedupes
+      // first-occurrence-wins, and the selected scope must shadow global
+      setTemporaryVariables(
+        scriptEnvsToTemporaryVariables(filteredPostResult.envs)
+      )
+    }
+
+    return E.right({ response: parsedResponse, testResult })
+  } catch (error) {
+    return E.left({
+      type: "request_fail",
+      message:
+        error instanceof Error ? error.message : "Request execution failed",
+    })
+  }
+}

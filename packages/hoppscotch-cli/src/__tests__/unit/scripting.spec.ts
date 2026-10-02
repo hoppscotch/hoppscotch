@@ -4,7 +4,7 @@ import {
   combineScriptsWithIIFE,
   stripModulePrefix,
   MODULE_PREFIX,
-} from "../../utils/scripting";
+} from "@hoppscotch/js-sandbox/scripting";
 
 describe("scripting", () => {
   describe("stripModulePrefix", () => {
@@ -163,6 +163,79 @@ describe("scripting", () => {
         /^const __hoppReporter = globalThis\.__hoppReportScriptExecutionError;\s*try \{/
       );
       expect(result).toContain("await (async function() {");
+    });
+
+    test("hoists top-level imports outside the IIFE wrapper", () => {
+      const script = `import { value } from "data:text/javascript,export const value=1";\npw.env.set("x", value);`;
+      const result = combineScriptsWithIIFE([script]);
+
+      const importIdx = result.indexOf("import { value }");
+      const tryIdx = result.indexOf("try {");
+      expect(importIdx).toBeGreaterThanOrEqual(0);
+      expect(importIdx).toBeLessThan(tryIdx);
+      expect(result).toContain('pw.env.set("x", value);');
+    });
+
+    test("preserves imports across an inheritance chain", () => {
+      const root = `import { rootVal } from "data:text/javascript,export const rootVal=1";`;
+      const folder = `import { folderVal } from "data:text/javascript,export const folderVal=2";`;
+      const request = `import { reqVal } from "data:text/javascript,export const reqVal=3";\npw.env.set("sum", String(rootVal + folderVal + reqVal));`;
+      const result = combineScriptsWithIIFE([root, folder, request]);
+
+      expect(result).toContain("import { rootVal }");
+      expect(result).toContain("import { folderVal }");
+      expect(result).toContain("import { reqVal }");
+
+      const tryIdx = result.indexOf("try {");
+      expect(result.indexOf("import { rootVal }")).toBeLessThan(tryIdx);
+      expect(result.indexOf("import { folderVal }")).toBeLessThan(tryIdx);
+      expect(result.indexOf("import { reqVal }")).toBeLessThan(tryIdx);
+    });
+
+    test("dedupes identical imports across scripts to a single emit", () => {
+      const folder = `import lodash from "data:text/javascript,export default {}";`;
+      const request = `import lodash from "data:text/javascript,export default {}";`;
+      const result = combineScriptsWithIIFE([folder, request]);
+
+      const importMatches = result.match(/^import lodash from /gm) ?? [];
+      expect(importMatches).toHaveLength(1);
+      expect(result).not.toContain("imported from different sources");
+    });
+
+    test("emits a synthetic SyntaxError when same name imports clash across sources", () => {
+      const folder = `import lodash from "data:text/javascript,export default 'A'";`;
+      const request = `import lodash from "data:text/javascript,export default 'B'";`;
+      const result = combineScriptsWithIIFE([folder, request]);
+
+      expect(result).toContain(
+        "'lodash' is imported from different sources across scripts in this request's chain"
+      );
+      expect(result).not.toContain("import lodash");
+    });
+
+    test("leaves output unchanged when no scripts use imports", () => {
+      const result = combineScriptsWithIIFE(["const x = 1;", "const y = 2;"]);
+      expect(result.startsWith("const __hoppReporter")).toBe(true);
+      expect(result).not.toContain("import ");
+    });
+
+    test("legacy target preserves original wrapping (no import hoisting)", () => {
+      const script = `import { value } from "data:text/javascript,export const value=1";`;
+      const result = combineScriptsWithIIFE([script], "legacy");
+      expect(result).toContain("import { value }");
+      expect(result).toMatch(/^;\(function\(\) \{/);
+    });
+
+    test("hoists imports even when the script body uses top-level return", () => {
+      // IIFE semantics let user scripts early-return; the AST parse must
+      // permit that or imports stay trapped inside the wrapper.
+      const script = `import { value } from "data:text/javascript,export const value=1";\nif (!value) return;\npw.env.set("OK", "yes");`;
+      const result = combineScriptsWithIIFE([script]);
+      const importIdx = result.indexOf("import { value }");
+      const tryIdx = result.indexOf("try {");
+      expect(importIdx).toBeGreaterThanOrEqual(0);
+      expect(importIdx).toBeLessThan(tryIdx);
+      expect(result).toContain("if (!value) return;");
     });
   });
 });

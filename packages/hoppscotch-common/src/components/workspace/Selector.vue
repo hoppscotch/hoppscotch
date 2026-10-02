@@ -186,10 +186,7 @@ const switchToPersonalWorkspace = () => {
 watch(
   () => currentUser.value,
   (user) => {
-    if (!user) {
-      switchToPersonalWorkspace()
-      teamListadapter.dispose()
-    }
+    if (!user) teamListadapter.dispose()
   }
 )
 

@@ -1,6 +1,10 @@
 import { Service } from "dioc"
 import { reactive, computed, ref } from "vue"
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import {
+  HoppCollection,
+  HoppGQLRequest,
+  HoppRESTRequest,
+} from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import { platform } from "~/platform"
 
@@ -55,12 +59,11 @@ export interface RequestDocumentationItem extends BaseDocumentationItem {
   folderPath: string
   requestID?: string // For team requests
   requestIndex?: number // For personal requests
-  requestData: HoppRESTRequest
+  requestData: HoppRESTRequest | HoppGQLRequest
 }
 
 export type DocumentationItem =
-  | CollectionDocumentationItem
-  | RequestDocumentationItem
+  CollectionDocumentationItem | RequestDocumentationItem
 
 /**
  * Base options for setting documentation
@@ -89,7 +92,7 @@ export interface SetRequestDocumentationOptions extends BaseDocumentationOptions
   folderPath: string
   requestID?: string // For team requests
   requestIndex?: number // For personal requests
-  requestData: HoppRESTRequest
+  requestData: HoppRESTRequest | HoppGQLRequest
 }
 
 /**

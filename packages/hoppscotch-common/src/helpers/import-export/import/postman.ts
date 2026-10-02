@@ -121,11 +121,17 @@ const getHoppCollVariables = (
         variable.key.length > 0
     ),
     A.map((variable) => {
+      // Postman 12+ uses `secret: true`; older exports use `type: "secret"`.
+      // The SDK's types don't surface the new flag, so read it off raw.
+      const isSecret =
+        variable.type === "secret" ||
+        (variable as { secret?: boolean }).secret === true
+
       return <HoppCollectionVariable>{
         key: replacePMVarTemplating(variable.key ?? ""),
         initialValue: replacePMVarTemplating(variable.value ?? ""),
         currentValue: "",
-        secret: variable.type === "secret",
+        secret: isSecret,
       }
     })
   )

@@ -1,9 +1,13 @@
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import {
+  HoppCollection,
+  HoppGQLRequest,
+  HoppRESTRequest,
+} from "@hoppscotch/data"
 import { ref, readonly } from "vue"
 
 export interface DocumentationItem {
   type: "folder" | "request"
-  item: HoppCollection | HoppRESTRequest
+  item: HoppCollection | HoppRESTRequest | HoppGQLRequest
   parentPath: string
   id: string
   pathOrID?: string | null

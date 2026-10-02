@@ -13,6 +13,8 @@
       <HoppSmartTab
         id="auth-providers"
         :label="t('configs.auth_providers.oauth')"
+        :indicator="subTabHasError('auth-providers')"
+        indicator-variant="error"
       >
         <div class="pb-8 px-4">
           <SettingsOAuthProviderConfigurations
@@ -62,7 +64,12 @@
         </div>
       </HoppSmartTab>
 
-      <HoppSmartTab id="token" :label="t('configs.auth_providers.token.title')">
+      <HoppSmartTab
+        id="token"
+        :label="t('configs.auth_providers.token.title')"
+        :indicator="subTabHasError('token')"
+        indicator-variant="error"
+      >
         <div class="pb-8 px-4">
           <SettingsAuthToken v-model:config="workingConfigs" />
         </div>
@@ -75,9 +82,19 @@
 import { useVModel } from '@vueuse/core';
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
-import { ServerConfigs } from '~/helpers/configs';
+import {
+  ConfigSubTab,
+  ServerConfigs,
+  tabHasConfigIssue,
+  useConfigValidation,
+} from '~/helpers/configs';
 
 const t = useI18n();
+
+const { configValidationIssues } = useConfigValidation();
+
+const subTabHasError = (subTab: ConfigSubTab) =>
+  tabHasConfigIssue(configValidationIssues.value, 'auth', subTab);
 
 const props = defineProps<{
   config: ServerConfigs;
@@ -95,7 +112,7 @@ const workingConfigs = useVModel(props, 'config', emit);
 
 // Check if SMTP is activated but not saved yet. Used to track if SMTP was enabled after the last save.
 const isSMTPActivated = computed(
-  () => workingConfigs.value?.mailConfigs.enabled ?? false
+  () => workingConfigs.value?.mailConfigs.enabled ?? false,
 );
 
 // Check if Email authentication is enabled

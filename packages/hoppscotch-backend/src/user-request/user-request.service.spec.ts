@@ -379,6 +379,7 @@ describe('UserRequestService', () => {
       const id = userRequests[0].id;
       const type = userRequests[0].type;
       const args: UpdateUserRequestArgs = {
+        id,
         title: userRequests[0].title,
         request: userRequests[0].request,
       };
@@ -401,6 +402,7 @@ describe('UserRequestService', () => {
       const id = userRequests[0].id;
       const type = userRequests[0].type;
       const args: UpdateUserRequestArgs = {
+        id,
         title: userRequests[0].title,
         request: userRequests[0].request,
       };
@@ -420,7 +422,7 @@ describe('UserRequestService', () => {
       expect(mockPrisma.userRequest.update).toHaveBeenCalledWith({
         where: { id },
         data: {
-          ...args,
+          title: args.title,
           request: JSON.parse(args.request),
         },
       });
@@ -429,6 +431,7 @@ describe('UserRequestService', () => {
       const id = userRequests[0].id;
       const type = userRequests[0].type;
       const args: UpdateUserRequestArgs = {
+        id,
         title: userRequests[0].title,
         request: userRequests[0].request,
       };
@@ -454,6 +457,7 @@ describe('UserRequestService', () => {
       const id = userRequests[0].id;
       const type = userRequests[0].type;
       const args: UpdateUserRequestArgs = {
+        id,
         title: userRequests[0].title,
         request: userRequests[0].request,
       };
@@ -474,6 +478,7 @@ describe('UserRequestService', () => {
       const id = userRequests[0].id;
       const type = userRequests[0].type;
       const args: UpdateUserRequestArgs = {
+        id,
         title: userRequests[0].title,
         request: 'invalid json',
       };

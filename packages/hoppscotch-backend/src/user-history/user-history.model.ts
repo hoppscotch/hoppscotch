@@ -1,4 +1,4 @@
-import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { ReqType } from 'src/types/RequestTypes';
 
 @ObjectType()
@@ -51,7 +51,3 @@ export class UserHistoryDeletedManyData {
   })
   reqType: ReqType;
 }
-
-registerEnumType(ReqType, {
-  name: 'ReqType',
-});

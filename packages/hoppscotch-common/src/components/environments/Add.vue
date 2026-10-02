@@ -79,19 +79,20 @@ import { useToast } from "~/composables/toast"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { updateTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
 import { getEnvActionErrorMessage } from "~/helpers/error-messages"
+import { stripClientLocalValuesForWire } from "~/helpers/clientLocalVariables"
 import {
   setGlobalEnvVariables,
   updateEnvironment,
 } from "~/newstore/environments"
 import { CurrentValueService } from "~/services/current-environment-value.service"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { Scope } from "./Selector.vue"
 import { GlobalEnvironment } from "@hoppscotch/data"
 
 const t = useI18n()
 const toast = useToast()
 
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 const currentEnvironmentValueService = useService(CurrentValueService)
 
 const props = defineProps<{
@@ -205,7 +206,7 @@ const addEnvironment = async () => {
 
     await pipe(
       updateTeamEnvironment(
-        JSON.stringify(newVariables),
+        JSON.stringify(stripClientLocalValuesForWire(newVariables)),
         scope.value.environment.id,
         scope.value.environment.environment.name
       ),
@@ -222,8 +223,10 @@ const addEnvironment = async () => {
                 key: editingName.value,
                 currentValue: editingValue.value,
                 isSecret: false,
-                varIndex:
-                  scope.value.environment.environment.variables.length - 1,
+                // The new variable is appended at index `length` of the
+                // pre-append array; `length - 1` collided with the previous
+                // last variable's slot.
+                varIndex: scope.value.environment.environment.variables.length,
               }
             )
           }
@@ -236,12 +239,18 @@ const addEnvironment = async () => {
   if (replaceWithVariable.value) {
     //replace the current tab endpoint with the variable name with << and >>
     const variableName = `<<${editingName.value}>>`
-    //replace the currenttab endpoint containing the value in the text with variablename
-    tabs.currentActiveTab.value.document.request.endpoint =
-      tabs.currentActiveTab.value.document.request.endpoint.replace(
+    const doc = tabs.currentActiveTab.value.document
+    if (doc.type === "request") {
+      doc.request.endpoint = doc.request.endpoint.replace(
         editingValue.value,
         variableName
       )
+    } else if (doc.type === "gql-request") {
+      doc.request.url = doc.request.url.replace(
+        editingValue.value,
+        variableName
+      )
+    }
   }
 
   hideModal()

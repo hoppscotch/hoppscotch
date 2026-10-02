@@ -28,6 +28,9 @@
       @click="resetSettings"
     />
   </div>
+  <div v-if="isProxyUrlInvalid" class="text-tiny text-red-500 -mt-2 pb-2">
+    {{ t("settings.proxy_url_invalid") }}
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -39,6 +42,7 @@ import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 import { useReadonlyStream } from "~/composables/stream"
 import { platform } from "~/platform"
+import { isValidProxyUrl } from "~/helpers/proxyUrl"
 
 import { KernelInterceptorProxyStore } from "~/platform/std/kernel-interceptors/proxy/store"
 import { ProxyKernelInterceptorService } from "~/platform/std/kernel-interceptors/proxy/index"
@@ -56,6 +60,12 @@ const proxyInterceptorService = useService(ProxyKernelInterceptorService)
 
 // Local editable copy, synced from the reactive store
 const proxyUrl = ref(store.settings$.value.proxyUrl)
+
+// Empty is treated as invalid here — the proxy interceptor needs a real
+// URL to execute requests against; use the Reset button to restore the
+// platform default. Regex is shared with the store-boundary validator
+// so what the UI accepts is exactly what the store will persist.
+const isProxyUrlInvalid = computed(() => !isValidProxyUrl(proxyUrl.value))
 
 // When the store's settings change (e.g. async init resolves, or external
 // tab updates via the Store watcher), keep the local input in sync —
@@ -98,6 +108,10 @@ const clearIcon = refAutoReset<typeof IconRotateCCW | typeof IconCheck>(
 )
 
 async function updateProxyUrl() {
+  if (isProxyUrlInvalid.value) {
+    toast.error(t("settings.proxy_url_invalid"))
+    return
+  }
   await store.updateSettings({ proxyUrl: proxyUrl.value })
   toast.success(t("state.saved"))
 }

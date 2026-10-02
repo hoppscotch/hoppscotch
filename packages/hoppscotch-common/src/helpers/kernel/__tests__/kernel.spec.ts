@@ -136,13 +136,17 @@ describe("GraphQL Response Transformation", () => {
 
 describe("GraphQL Request Transformation", () => {
   const baseRequest: HoppGQLRequest = {
-    v: 9,
+    v: 10,
     name: "Test Query",
     url: "https://api.example.com/graphql",
     headers: [],
     query: "",
     variables: "",
     auth: { authType: "none", authActive: true },
+    description: null,
+    responses: {},
+    preRequestScript: "",
+    testScript: "",
   }
 
   it("transforms a basic GraphQL request correctly", async () => {

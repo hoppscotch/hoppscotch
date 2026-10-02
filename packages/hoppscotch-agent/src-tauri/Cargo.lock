@@ -2070,7 +2070,7 @@ dependencies = [
 
 [[package]]
 name = "hoppscotch-agent"
-version = "0.1.17"
+version = "0.1.18"
 dependencies = [
  "aes-gcm",
  "axum",
@@ -4203,9 +4203,10 @@ checksum = "7a2d987857b319362043e95f5353c0535c1f58eec5336fdfcf626430af7def58"
 [[package]]
 name = "relay"
 version = "0.1.1"
-source = "git+https://github.com/CuriousCorrelation/relay.git#ed2329e4ebb71bb984c4705aa950cb9c3f9ff931"
+source = "git+https://github.com/CuriousCorrelation/relay.git?rev=1c4f1e16106ed48983926ea6ddb114c1dbb2f688#1c4f1e16106ed48983926ea6ddb114c1dbb2f688"
 dependencies = [
  "bytes",
+ "cookie",
  "curl",
  "dashmap",
  "env_logger",

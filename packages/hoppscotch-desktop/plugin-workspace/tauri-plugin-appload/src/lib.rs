@@ -106,7 +106,11 @@ pub fn init<R: Runtime>(config: Config) -> TauriPlugin<R> {
             ));
 
             tracing::debug!("Setting up bundle loader.");
-            let bundle_loader = Arc::new(bundle::BundleLoader::new(cache.clone(), storage.clone()));
+            let bundle_loader = Arc::new(bundle::BundleLoader::new(
+                cache.clone(),
+                storage.clone(),
+                config.api.timeout,
+            ));
 
             tracing::debug!("Initializing host mapper.");
             let host_mapper = Arc::new(mapping::HostMapper::new());

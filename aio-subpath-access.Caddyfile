@@ -3,7 +3,7 @@
   persist_config off
 }
 
-:{$HOPP_AIO_ALTERNATE_PORT:80} {
+:{$HOPP_ALTERNATE_PORT:80} {
 	# Serve the `selfhost-web` SPA by default
 	root * /site/selfhost-web
 	file_server

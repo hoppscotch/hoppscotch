@@ -6,6 +6,7 @@ import {
   HoppCollectionVariable,
   HoppRESTAuth,
   HoppRESTHeaders,
+  HoppGQLRequest,
   HoppRESTRequest,
 } from "@hoppscotch/data";
 
@@ -39,12 +40,17 @@ interface WorkspaceRequest {
  * Transforms the incoming list of workspace requests by applying `JSON.parse` to the `request` field.
  * It includes the `v` field indicating the schema version, but migration is handled already at the `parseCollectionData()` helper function.
  *
+ * Unified team collections can mix REST and GraphQL requests — both are
+ * returned (in order) and validated per-schema downstream in
+ * `getValidRequests`; the runner routes each by shape at execution time.
+ *
  * @param {WorkspaceRequest[]} requests - An array of workspace request objects to be transformed.
- * @returns {HoppRESTRequest[]} The transformed array of requests conforming to the `HoppRESTRequest` type.
+ * @returns The transformed array of REST/GraphQL requests.
  */
 const transformWorkspaceRequests = (
   requests: WorkspaceRequest[]
-): HoppRESTRequest[] => requests.map(({ request }) => JSON.parse(request));
+): (HoppRESTRequest | HoppGQLRequest)[] =>
+  requests.map(({ request }) => JSON.parse(request));
 
 /**
  * Apply relevant migrations for data conforming to older formats

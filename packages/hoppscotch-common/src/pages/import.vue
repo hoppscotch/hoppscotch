@@ -14,9 +14,17 @@ import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
 import { HoppCollection } from "@hoppscotch/data"
 import { appendRESTCollections } from "~/newstore/collections"
+import {
+  ensureRefIds,
+  populateLocalStoresFromCollectionTree,
+  stripCollectionTreeForStore,
+} from "~/helpers/clientLocalVariables"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { IMPORTER_INVALID_FILE_FORMAT } from "~/helpers/import-export/import"
+import {
+  IMPORTER_INVALID_FILE_FORMAT,
+  sanitizeCollection,
+} from "~/helpers/import-export/import"
 import { OPENAPI_DEREF_ERROR } from "~/helpers/import-export/import/openapi"
 import { isOfType } from "~/helpers/functional/primtive"
 import { TELeftType } from "~/helpers/functional/taskEither"
@@ -111,7 +119,15 @@ const handleImportFailure = (error: ImportCollectionsError) => {
 }
 
 const handleImportSuccess = (collections: HoppCollection[]) => {
-  appendRESTCollections(collections)
+  // Mirror the modal-import path: sanitize file-carried identities, stamp
+  // `_ref_id`s, persist any raw secret values to the local secret store, then
+  // append the stripped tree to newstore so localStorage / future syncs stay
+  // clean.
+  const withRefIds = collections.map(sanitizeCollection).map(ensureRefIds)
+
+  withRefIds.forEach(populateLocalStoresFromCollectionTree)
+  appendRESTCollections(withRefIds.map(stripCollectionTreeForStore))
+
   toast.success(t("import.import_from_url_success").toString())
 }
 

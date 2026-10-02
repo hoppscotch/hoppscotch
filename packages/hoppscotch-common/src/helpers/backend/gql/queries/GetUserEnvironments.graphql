@@ -1,0 +1,11 @@
+query GetUserEnvironments {
+  me {
+    environments {
+      id
+      isGlobal
+      name
+      userUid
+      variables
+    }
+  }
+}

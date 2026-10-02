@@ -52,9 +52,26 @@ const ENV_EXPAND_LOOP = "ENV_EXPAND_LOOP" as const
 
 export const EnvironmentSchemaVersion = 2
 
+/**
+ * Resolves the effective value of an environment variable while expanding
+ * `<<var>>` templates: the current value is what's in use, but an empty current
+ * value falls back to the initial value (which acts as the default).
+ *
+ * This is the single place the current→initial fallback lives for execution /
+ * resolution. Surfaces that display the raw current value must NOT go through
+ * here — they read `currentValue` directly so an empty value stays empty.
+ */
+const getResolvedVariableValue = (variable: {
+  currentValue?: string
+  initialValue?: string
+}): string => variable.currentValue || variable.initialValue || ""
+
 export function parseBodyEnvVariablesE(
   body: string,
-  env: Environment["variables"]
+  env: Environment["variables"],
+  // Missing vars stay as literal `<<key>>` by default (long-standing body
+  // behavior); pass false to resolve them to "" like parseTemplateStringE
+  keepMissingAsKey = true
 ) {
   let result = body
   let depth = 0
@@ -75,9 +92,9 @@ export function parseBodyEnvVariablesE(
       const foundEnv = env.find((envVar) => envVar.key === variableName)
 
       if (foundEnv && "currentValue" in foundEnv) {
-        return foundEnv.currentValue
+        return getResolvedVariableValue(foundEnv)
       }
-      return key
+      return keepMissingAsKey ? key : ""
     })
 
     depth++
@@ -93,10 +110,11 @@ export function parseBodyEnvVariablesE(
  */
 export const parseBodyEnvVariables = (
   body: string,
-  env: Environment["variables"]
+  env: Environment["variables"],
+  keepMissingAsKey = true
 ) =>
   pipe(
-    parseBodyEnvVariablesE(body, env),
+    parseBodyEnvVariablesE(body, env, keepMissingAsKey),
     E.getOrElse(() => body)
   )
 
@@ -135,6 +153,9 @@ export function parseTemplateStringE(
         const variable = variables.find((x) => x && x.key === p1)
 
         if (variable && "currentValue" in variable) {
+          // Current value in use, falling back to the initial value when empty.
+          const resolvedValue = getResolvedVariableValue(variable)
+
           // Show the key if it is a secret and explicitly specified
           if (variable.secret && showKeyIfSecret) {
             isSecret = true
@@ -142,18 +163,9 @@ export function parseTemplateStringE(
           }
           // Mask the value if it is a secret and explicitly specified
           if (variable.secret && maskValue) {
-            return "*".repeat(
-              (
-                variable as {
-                  secret: true
-                  initialValue: string
-                  currentValue: string
-                  key: string
-                }
-              ).currentValue.length
-            )
+            return "*".repeat(resolvedValue.length)
           }
-          return variable.currentValue
+          return resolvedValue
         }
 
         if (showKeyIfNotFound) {

@@ -1,4 +1,9 @@
-import { Environment, HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
+import {
+  Environment,
+  HoppCollection,
+  HoppGQLRequest,
+  HoppRESTRequest,
+} from "@hoppscotch/data";
 import fs from "fs/promises";
 import { entityReference } from "verzod";
 import { z } from "zod";
@@ -9,17 +14,22 @@ import { FormDataEntry } from "../types/request";
 import { isHoppErrnoException } from "./checks";
 import { getResourceContents } from "./getters";
 
-// Re-export from the canonical implementation in scripting.ts
-export { stripModulePrefix } from "./scripting";
-
 const getValidRequests = (
   collections: HoppCollection[],
   collectionFilePath: string
 ) => {
   return collections.map((collection) => {
-    // Validate requests using zod schema
+    // Unified collections can mix REST and GraphQL requests — validate each
+    // entry against its own schema (REST first; a GraphQL request lacks
+    // `endpoint`, so it can never mis-validate as REST). Order is preserved:
+    // runs execute requests in collection order regardless of protocol.
     const requestSchemaParsedResult = z
-      .array(entityReference(HoppRESTRequest))
+      .array(
+        z.union([
+          entityReference(HoppRESTRequest),
+          entityReference(HoppGQLRequest),
+        ])
+      )
       .safeParse(collection.requests);
 
     // Handle validation errors

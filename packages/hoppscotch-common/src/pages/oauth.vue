@@ -11,7 +11,7 @@ import { useToast } from "~/composables/toast"
 import { useService } from "dioc/vue"
 import * as E from "fp-ts/Either"
 import { onMounted } from "vue"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 
 import { useRouter } from "vue-router"
 
@@ -29,7 +29,7 @@ const toast = useToast()
 
 const gqlTabs = useService(GQLTabService)
 const persistenceService = useService(PersistenceService)
-const restTabs = useService(RESTTabService)
+const workspaceTabs = useService(WorkspaceTabsService)
 
 function translateOAuthRedirectError(error: string) {
   switch (error) {
@@ -114,7 +114,7 @@ onMounted(async () => {
   }
 
   const routeToRedirect = source === "GraphQL" ? "/graphql" : "/"
-  const tabService = source === "GraphQL" ? gqlTabs : restTabs
+  const tabService = source === "GraphQL" ? gqlTabs : workspaceTabs
 
   if (
     tabService.currentActiveTab.value.document.request.auth.authType ===

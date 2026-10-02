@@ -563,7 +563,7 @@ import {
 import * as E from "fp-ts/Either"
 import { PersistenceService } from "~/services/persistence"
 import { GQLTabService } from "~/services/tab/graphql"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import IconChevronDown from "~icons/lucide/chevron-down"
 import IconChevronUp from "~icons/lucide/chevron-up"
 import IconCircle from "~icons/lucide/circle"
@@ -670,7 +670,7 @@ const passBy = computed(() => {
 })
 
 const gqlTabsService = useService(GQLTabService)
-const restTabsService = useService(RESTTabService)
+const workspaceTabsService = useService(WorkspaceTabsService)
 const persistenceService = useService(PersistenceService)
 
 const setAccessTokenInActiveContext = (
@@ -699,24 +699,25 @@ const setAccessTokenInActiveContext = (
   }
 
   if (props.source === "REST") {
-    const restTab = restTabsService.currentActiveTab.value
+    const workspaceTab = workspaceTabsService.currentActiveTab.value
     if (
-      "request" in restTab.document &&
-      restTab.document.request &&
-      restTab.document.request.auth.authType === "oauth-2" &&
+      "request" in workspaceTab.document &&
+      workspaceTab.document.request &&
+      workspaceTab.document.request.auth.authType === "oauth-2" &&
       accessToken
     ) {
-      restTab.document.request.auth.grantTypeInfo.token = accessToken
+      workspaceTab.document.request.auth.grantTypeInfo.token = accessToken
     }
 
     if (
       refreshToken &&
-      "request" in restTab.document &&
-      restTab.document.request &&
-      restTab.document.request.auth.authType === "oauth-2"
+      "request" in workspaceTab.document &&
+      workspaceTab.document.request &&
+      workspaceTab.document.request.auth.authType === "oauth-2"
     ) {
       // @ts-expect-error - TODO: narrow the grantType to only supporting refresh tokens
-      restTab.document.request.auth.grantTypeInfo.refreshToken = refreshToken
+      workspaceTab.document.request.auth.grantTypeInfo.refreshToken =
+        refreshToken
     }
   } else {
     const gqlTab = gqlTabsService.currentActiveTab.value

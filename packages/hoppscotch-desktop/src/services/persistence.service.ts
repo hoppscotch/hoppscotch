@@ -34,6 +34,7 @@ export const STORE_KEYS = {
   UPDATE_STATE: UPDATE_STATE_STORE_KEY,
   CONNECTION_STATE: "connectionState",
   RECENT_INSTANCES: "recentInstances",
+  INSTANCE_AUTH_FAILURE: "instanceAuthFailure",
   SCHEMA_VERSION: "schema_version",
   // Legacy key. Written by portable builds in schema v1. Read only by the
   // v1 to v2 migration. All other code uses `DESKTOP_SETTINGS`.
@@ -219,6 +220,15 @@ export class DesktopPersistenceService {
   readonly updateState: StoreResource<UpdateState | null>
   readonly connectionState: StoreResource<PersistedConnectionState | null>
   readonly recentInstances: StoreResource<Instance[]>
+  // Cross-context record of the last instance whose auth flow failed.
+  // Written by an instance's webview when it routes to its login-required
+  // screen, read by the launcher on the next startup so it can skip resuming
+  // an instance it has no way to authenticate and continue to the vendored
+  // app's switcher. Set to the failing `serverUrl`, or `null` when there is no
+  // pending failure. The launcher window cannot verify the session itself
+  // because the bearer tokens are in the instance webview's `localStorage`,
+  // a separate context, so this shared record is the only auth signal it has.
+  readonly instanceAuthFailure: StoreResource<string | null>
 
   private constructor() {
     this.desktopSettings = createStoreResource(
@@ -244,6 +254,12 @@ export class DesktopPersistenceService {
       STORE_KEYS.RECENT_INSTANCES,
       z.array(INSTANCE_SCHEMA),
       () => []
+    )
+    this.instanceAuthFailure = createStoreResource(
+      STORE_NAMESPACE,
+      STORE_KEYS.INSTANCE_AUTH_FAILURE,
+      z.string().nullable(),
+      () => null
     )
   }
 

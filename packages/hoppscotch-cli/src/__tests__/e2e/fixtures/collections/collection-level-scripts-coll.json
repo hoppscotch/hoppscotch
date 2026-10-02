@@ -54,6 +54,50 @@
           "requestVariables": [],
           "responses": {},
           "description": null
+        },
+        {
+          "v": "17",
+          "id": "cl-script-req-with-import",
+          "name": "request-with-top-level-import",
+          "method": "GET",
+          "endpoint": "https://echo.hoppscotch.io",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "import { value } from \"data:text/javascript,export const value = 'esm-import-ok'\";\npw.env.set(\"IMPORTED_VALUE\", value);\npw.env.set(\"PRE_ORDER\", pw.env.get(\"PRE_ORDER\") + \"->req-with-import\");",
+          "testScript": "pw.env.set(\"TEST_ORDER\", \"req-with-import\");\npw.test(\"top-level ESM import in pre-request script resolved\", () => {\n  pw.expect(pw.env.get(\"IMPORTED_VALUE\")).toBe(\"esm-import-ok\");\n});\npw.test(\"cascade order preserved with import-using request\", () => {\n  pw.expect(pw.env.get(\"PRE_ORDER\")).toBe(\"root->target-folder->req-with-import\");\n});",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "cl-script-req-with-test-import",
+          "name": "request-with-test-script-imports",
+          "method": "GET",
+          "endpoint": "https://echo.hoppscotch.io",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "pw.env.set(\"PRE_ORDER\", pw.env.get(\"PRE_ORDER\") + \"->req-with-test-import\");",
+          "testScript": "import lodash from \"data:text/javascript,export default { pick: (obj, keys) => keys.reduce((acc, k) => (k in obj ? Object.assign(acc, { [k]: obj[k] }) : acc), {}) }\";\nimport axios from \"data:text/javascript,export default { name: 'axios-stub', version: '1.6.0' }\";\nimport { format } from \"data:text/javascript,export const format = (_d, fmt) => fmt.replace('yyyy', '2026').replace('MM', '05').replace('dd', '07')\";\nimport * as ns from \"data:text/javascript,export const a = 1; export const b = 2\";\nimport combo, { tag } from \"data:text/javascript,export default 7; export const tag = 'mixed'\";\nconst picked = lodash.pick({ id: 1, name: \"hopp\", email: \"x@y.z\", extra: \"drop\" }, [\"id\", \"name\", \"email\"]);\npw.env.set(\"TEST_IMPORT_PICKED\", JSON.stringify(picked));\npw.env.set(\"TEST_IMPORT_AXIOS\", axios.name);\npw.env.set(\"TEST_IMPORT_FORMATTED\", format(new Date(), \"yyyy-MM-dd\"));\npw.env.set(\"TEST_IMPORT_NAMESPACE_SUM\", String(ns.a + ns.b));\npw.env.set(\"TEST_IMPORT_MIXED\", String(combo) + \"-\" + tag);\npw.env.set(\"TEST_ORDER\", \"req-with-test-import\");\npw.test(\"test-script default imports resolve\", () => {\n  pw.expect(pw.env.get(\"TEST_IMPORT_AXIOS\")).toBe(\"axios-stub\");\n});\npw.test(\"test-script named import resolves\", () => {\n  pw.expect(pw.env.get(\"TEST_IMPORT_FORMATTED\")).toBe(\"2026-05-07\");\n});\npw.test(\"test-script namespace import resolves\", () => {\n  pw.expect(pw.env.get(\"TEST_IMPORT_NAMESPACE_SUM\")).toBe(\"3\");\n});\npw.test(\"test-script mixed default and named import resolves\", () => {\n  pw.expect(pw.env.get(\"TEST_IMPORT_MIXED\")).toBe(\"7-mixed\");\n});\npw.test(\"test-script imports run alongside test logic\", () => {\n  pw.expect(pw.env.get(\"TEST_IMPORT_PICKED\")).toBe(JSON.stringify({ id: 1, name: \"hopp\", email: \"x@y.z\" }));\n});",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
         }
       ],
       "auth": {
@@ -80,7 +124,7 @@
           "params": [],
           "headers": [],
           "preRequestScript": "pw.env.set(\"PRE_ORDER\", pw.env.get(\"PRE_ORDER\") + \"->sibling-req-in-sibling\");",
-          "testScript": "pw.env.set(\"TEST_ORDER\", \"sibling-req-in-sibling\");\npw.test(\"sibling-folder cascade is root->sibling-folder->this-request (no target-folder leak)\", () => {\n  pw.expect(pw.env.get(\"PRE_ORDER\")).toBe(\"root->sibling-folder->sibling-req-in-sibling\");\n});\npw.test(\"target-folder pre-script ran exactly twice (one per request in target-folder)\", () => {\n  pw.expect(pw.env.get(\"TARGET_FOLDER_RUN_COUNT\")).toBe(\"2\");\n});",
+          "testScript": "pw.env.set(\"TEST_ORDER\", \"sibling-req-in-sibling\");\npw.test(\"sibling-folder cascade is root->sibling-folder->this-request (no target-folder leak)\", () => {\n  pw.expect(pw.env.get(\"PRE_ORDER\")).toBe(\"root->sibling-folder->sibling-req-in-sibling\");\n});\npw.test(\"target-folder pre-script ran once per request in target-folder\", () => {\n  pw.expect(pw.env.get(\"TARGET_FOLDER_RUN_COUNT\")).toBe(\"4\");\n});",
           "auth": {
             "authType": "inherit",
             "authActive": true
@@ -110,5 +154,5 @@
   },
   "headers": [],
   "preRequestScript": "pw.env.set(\"ROOT_RAN\", \"yes\");\npw.env.set(\"PRE_ORDER\", \"root\");",
-  "testScript": "pw.env.set(\"TEST_ORDER\", pw.env.get(\"TEST_ORDER\") + \"->root\");\npw.test(\"test-script cascade ran in request->folder->root order for every request\", () => {\n  pw.expect([\"target-req->target-folder->root\", \"sibling-req-in-target->target-folder->root\", \"sibling-req-in-sibling->sibling-folder->root\"].includes(pw.env.get(\"TEST_ORDER\"))).toBe(true);\n});"
+  "testScript": "pw.env.set(\"TEST_ORDER\", pw.env.get(\"TEST_ORDER\") + \"->root\");\npw.test(\"test-script cascade ran in request->folder->root order for every request\", () => {\n  pw.expect([\"target-req->target-folder->root\", \"sibling-req-in-target->target-folder->root\", \"req-with-import->target-folder->root\", \"req-with-test-import->target-folder->root\", \"sibling-req-in-sibling->sibling-folder->root\"].includes(pw.env.get(\"TEST_ORDER\"))).toBe(true);\n});"
 }

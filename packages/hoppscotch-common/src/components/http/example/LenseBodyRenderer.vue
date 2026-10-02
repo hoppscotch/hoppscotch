@@ -15,6 +15,7 @@
         v-model:response="doc.response"
         :is-savable="false"
         :is-editable="true"
+        :tab-id="tabId"
         @save-as-example="$emit('save-as-example')"
       />
     </HoppSmartTab>
@@ -45,10 +46,11 @@ import { useVModel } from "@vueuse/core"
 import {
   HoppRequestDocument,
   HoppSavedExampleDocument,
-} from "~/helpers/rest/document"
+} from "~/helpers/tab/document"
 
 const props = defineProps<{
   document: HoppSavedExampleDocument
+  tabId: string
 }>()
 
 const emit = defineEmits<{

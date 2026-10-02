@@ -19,12 +19,10 @@ type CreatePublishedDocError =
   | "team/invalid_id"
 
 type UpdatePublishedDocError =
-  | "published_docs/update_failed"
-  | "published_docs/not_found"
+  "published_docs/update_failed" | "published_docs/not_found"
 
 type DeletePublishedDocError =
-  | "published_docs/deletion_failed"
-  | "published_docs/not_found"
+  "published_docs/deletion_failed" | "published_docs/not_found"
 
 export const createPublishedDoc = (doc: CreatePublishedDocsArgs) =>
   runMutation<

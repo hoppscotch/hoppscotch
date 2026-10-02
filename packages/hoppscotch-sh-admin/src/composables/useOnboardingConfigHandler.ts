@@ -403,7 +403,7 @@ export function useOnboardingConfigHandler() {
         // cause provider-name mismatches in downstream `.includes()` checks.
         const parsed = allowed
           .split(',')
-          .map((p) => p.trim())
+          .map((p: string) => p.trim())
           .filter(Boolean) as EnabledConfig[];
 
         // The backend persists only 'EMAIL' in VITE_ALLOWED_AUTH_PROVIDERS,

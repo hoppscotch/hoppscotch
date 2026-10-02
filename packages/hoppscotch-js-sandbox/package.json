@@ -66,7 +66,7 @@
   },
   "devDependencies": {
     "@digitak/esrun": "3.2.26",
-    "@eslint/eslintrc": "3.3.6",
+    "@eslint/eslintrc": "3.3.7",
     "@eslint/js": "9.39.2",
     "@relmify/jest-fp-ts": "2.1.1",
     "@types/chai": "5.2.3",
@@ -80,7 +80,7 @@
     "eslint-plugin-prettier": "5.5.6",
     "globals": "16.5.0",
     "io-ts": "2.2.22",
-    "prettier": "3.9.6",
+    "prettier": "3.9.9",
     "typescript": "5.9.3",
     "vite": "7.3.2",
     "vitest": "4.1.11"

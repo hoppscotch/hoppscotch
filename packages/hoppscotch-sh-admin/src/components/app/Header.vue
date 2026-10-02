@@ -73,7 +73,6 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { TippyComponent } from 'vue-tippy';
 import { useReadonlyStream } from '~/composables/stream';
 import { useSidebar } from '~/composables/useSidebar';
 import { auth } from '~/helpers/auth';
@@ -89,7 +88,7 @@ const { isOpen, isExpanded } = useSidebar();
 
 const currentUser = useReadonlyStream(
   auth.getCurrentUserStream(),
-  auth.getCurrentUser()
+  auth.getCurrentUser(),
 );
 
 const expandSidebar = () => {
@@ -97,5 +96,5 @@ const expandSidebar = () => {
 };
 
 // Template refs
-const tippyActions = ref<TippyComponent | null>(null);
+const tippyActions = ref<HTMLElement | null>(null);
 </script>

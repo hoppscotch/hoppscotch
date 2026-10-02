@@ -39,7 +39,7 @@
                 w-full pl-3 bg-neutral-900 border-gray-600
               "
               class="flex-1 !flex"
-              @input="(email: string) => member.key = email"
+              @input="(email: string) => (member.key = email)"
             />
             <span>
               <tippy
@@ -251,12 +251,14 @@ const usersPerPage = computed(() => data.value?.infra.usersCount || 10000);
 const { list: usersList } = usePagedQuery(
   UsersListDocument,
   (x) => x.infra.allUsers,
-  (x) => x.uid,
   usersPerPage.value,
-  { cursor: undefined, take: usersPerPage.value }
+  { cursor: undefined, take: usersPerPage.value },
+  (x) => x.uid,
 );
 
-const allUsersEmail = computed(() => usersList.value.map((user) => user.email));
+const allUsersEmail = computed(() =>
+  usersList.value.flatMap((user) => (user.email ? [user.email] : [])),
+);
 
 const newMembersList = ref<Array<{ key: string; value: TeamAccessRole }>>([
   {
@@ -290,18 +292,18 @@ const addUserasTeamMember = async () => {
     newMembersList.value,
     O.fromPredicate(
       (
-        memberInvites
+        memberInvites,
       ): memberInvites is Array<{ key: Email; value: TeamAccessRole }> =>
         pipe(
           memberInvites,
-          A.every((member) => EmailCodec.is(member.key))
-        )
+          A.every((member) => EmailCodec.is(member.key)),
+        ),
     ),
     O.map(
       A.map((member) =>
-        addUserToTeam(member.key, member.value, props.editingTeamID)
-      )
-    )
+        addUserToTeam(member.key, member.value, props.editingTeamID),
+      ),
+    ),
   );
 
   if (O.isNone(validationResult)) {
@@ -329,7 +331,7 @@ const addUserToTeamMutation = useMutation(AddUserToTeamByAdminDocument);
 const addUserToTeam = async (
   email: string,
   userRole: TeamAccessRole,
-  teamID: string
+  teamID: string,
 ) => {
   const variables = { userEmail: email, role: userRole, teamID: teamID };
 

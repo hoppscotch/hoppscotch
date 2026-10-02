@@ -1,3 +1,6 @@
+// The package's d.ts default-exports the `Plugin` *type* rather than a value,
+// so TypeScript can't see the import being used at runtime.
+// @ts-expect-error see above
 import Toasted from '@hoppscotch/vue-toasted';
 import type { ToastOptions } from '@hoppscotch/vue-toasted';
 import { HoppModule } from '.';
@@ -10,6 +13,7 @@ import '@hoppscotch/vue-toasted/style.css';
 
 export default <HoppModule>{
   onVueAppInit(app) {
+    // @ts-expect-error see the import above
     app.use(Toasted, <ToastOptions>{
       position: 'bottom-center',
       duration: 3000,

@@ -185,7 +185,9 @@ const { list: usersList } = usePagedQuery(
   (x) => x.uid,
 );
 
-const allUsersEmail = computed(() => usersList.value.map((user) => user.email));
+const allUsersEmail = computed(() =>
+  usersList.value.flatMap((user) => (user.email ? [user.email] : [])),
+);
 
 // Paginated Teams with server-side search
 const teamsPerPage = 20;

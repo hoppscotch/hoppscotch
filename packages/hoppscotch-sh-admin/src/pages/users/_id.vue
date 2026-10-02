@@ -34,7 +34,7 @@
           />
         </HoppSmartTab>
         <HoppSmartTab :id="'requests'" :label="t('shared_requests.title')">
-          <UsersSharedRequests :email="user.email" />
+          <UsersSharedRequests :email="user.email ?? ''" />
         </HoppSmartTab>
         <HoppSmartTab :id="'teams'" :label="t('user_teams.title')">
           <UsersTeams

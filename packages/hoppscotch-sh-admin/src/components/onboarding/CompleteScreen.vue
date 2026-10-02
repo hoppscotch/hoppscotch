@@ -107,7 +107,7 @@ const emit = defineEmits<{
 }>();
 
 const duration = ref(30);
-const timer = ref<NodeJS.Timeout | null>(null);
+const timer = ref<ReturnType<typeof setInterval> | null>(null);
 
 const startCountdown = () => {
   timer.value = setInterval(() => {

@@ -469,7 +469,7 @@ const { data: status } = useQuery({
   query: IsSmtpEnabledDocument,
   variables: {},
 });
-const smtpEnabled = computed(() => status?.value?.isSMTPEnabled);
+const smtpEnabled = computed(() => status?.value?.isSMTPEnabled ?? false);
 const inviteSuccessModal = ref(false);
 
 const baseURL = import.meta.env.VITE_BASE_URL ?? '';

@@ -3,12 +3,24 @@
     class="flex justify-between border-b border-dividerLight px-4 py-2 text-tiny text-secondaryLight"
   >
     <div class="flex items-center overflow-x-auto whitespace-nowrap">
-      <span class="truncate">
+      <span
+        class="truncate cursor-pointer hover:text-accent"
+        @click="navigateToWorkspace"
+      >
         {{ currentWorkspace }}
       </span>
+
       <icon-lucide-chevron-right v-if="section" class="mx-2" />
-      {{ section }}
+
+      <span
+        v-if="section"
+        class="cursor-pointer hover:text-accent"
+        @click="navigateToSection"
+      >
+        {{ section }}
+      </span>
     </div>
+
     <slot name="item"></slot>
   </div>
 </template>
@@ -16,10 +28,12 @@
 <script setup lang="ts">
 import { useService } from "dioc/vue"
 import { computed } from "vue"
+import { useRouter } from "vue-router"
 import { useI18n } from "~/composables/i18n"
 import { WorkspaceService } from "~/services/workspace.service"
 
 const t = useI18n()
+const router = useRouter()
 
 const props = defineProps<{
   section?: string
@@ -33,6 +47,7 @@ const currentWorkspace = computed(() => {
   if (props.isOnlyPersonal || workspace.value.type === "personal") {
     return t("workspace.personal")
   }
+
   return teamWorkspaceName.value
 })
 
@@ -40,6 +55,15 @@ const teamWorkspaceName = computed(() => {
   if (workspace.value.type === "team" && workspace.value.teamName) {
     return workspace.value.teamName
   }
+
   return `${t("workspace.team")}`
 })
+
+const navigateToWorkspace = () => {
+  router.push("/")
+}
+
+const navigateToSection = () => {
+  return
+}
 </script>

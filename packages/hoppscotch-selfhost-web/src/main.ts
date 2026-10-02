@@ -181,6 +181,8 @@ async function initApp() {
     platformFeatureFlags: {
       exportAsGIST: false,
       hasTelemetry: false,
+      // Upstream release notes don't apply to this build.
+      showWhatsNew: false,
       cookiesEnabled: config.cookiesEnabled,
       promptAsUsingCookies: false,
       hasCookieBasedAuth: platform === "web",

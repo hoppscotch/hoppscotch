@@ -1,7 +1,5 @@
-import { defineConfig, loadEnv, normalizePath } from "vite"
+import { defineConfig, loadEnv } from "vite"
 import { APP_INFO, META_TAGS } from "./meta"
-import { viteStaticCopy as StaticCopy } from "vite-plugin-static-copy"
-import generateSitemap from "vite-plugin-pages-sitemap"
 import HtmlConfig from "vite-plugin-html-config"
 import Vue from "@vitejs/plugin-vue"
 import VueI18n from "@intlify/unplugin-vue-i18n/vite"
@@ -15,7 +13,6 @@ import IconResolver from "unplugin-icons/resolver"
 import { FileSystemIconLoader } from "unplugin-icons/loaders"
 import * as path from "path"
 import Unfonts from "unplugin-fonts/vite"
-import legacy from "@vitejs/plugin-legacy"
 import ImportMetaEnv from "@import-meta-env/unplugin"
 
 const ENV = loadEnv("development", path.resolve(__dirname, "../../"), ["VITE_"])
@@ -37,7 +34,10 @@ export default defineConfig({
   },
   publicDir: path.resolve(__dirname, "../hoppscotch-common/public"),
   build: {
-    sourcemap: true,
+    // Sourcemaps roughly double the output that gets shipped, scanned for env
+    // injection at startup and loaded into webapp-server's in-memory bundle.
+    // Opt in with HOPP_BUILD_SOURCEMAP=true when debugging a production build.
+    sourcemap: process.env.HOPP_BUILD_SOURCEMAP === "true",
     emptyOutDir: true,
     rollupOptions: {
       maxParallelFileOps: 2,
@@ -108,23 +108,6 @@ export default defineConfig({
       routeStyle: "nuxt",
       dirs: ["../hoppscotch-common/src/pages", "./src/pages"],
       importMode: "async",
-      onRoutesGenerated(routes) {
-        generateSitemap({
-          routes,
-          nuxtStyle: true,
-          allowRobots: true,
-          dest: ".sitemap-gen",
-          hostname: ENV.VITE_BASE_URL,
-        })
-      },
-    }),
-    StaticCopy({
-      targets: [
-        {
-          src: normalizePath(path.resolve(__dirname, "./.sitemap-gen/*")),
-          dest: normalizePath(path.resolve(__dirname, "./dist")),
-        },
-      ],
     }),
     Layouts({
       layoutsDirs: "../hoppscotch-common/src/layouts",
@@ -253,19 +236,11 @@ export default defineConfig({
             variables: ["variable-full"],
           },
           {
-            name: "Material Symbols Rounded Variable",
-            variables: ["variable-full"],
-          },
-          {
             name: "Roboto Mono Variable",
             variables: ["variable-full"],
           },
         ],
       },
-    }),
-    legacy({
-      modernPolyfills: ["es.string.replace-all"],
-      renderLegacyChunks: false,
     }),
     process.env.HOPP_ALLOW_RUNTIME_ENV
       ? ImportMetaEnv.vite({

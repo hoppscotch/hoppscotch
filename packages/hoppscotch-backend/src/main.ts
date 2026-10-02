@@ -86,7 +86,12 @@ async function bootstrap() {
     app.set('trust proxy', true);
   }
 
-  app.use(morgan(':remote-addr :method :url :status - :response-time ms'));
+  // Skip the container healthcheck's /ping so it doesn't flood the logs.
+  app.use(
+    morgan(':remote-addr :method :url :status - :response-time ms', {
+      skip: (req) => req.url === '/ping',
+    }),
+  );
 
   await setupSwagger(app, isProduction);
 

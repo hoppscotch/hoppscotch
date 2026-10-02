@@ -47,7 +47,6 @@ export class GQLComplexityPlugin implements ApolloServerPlugin {
             `Query is too complex: ${complexity}. Maximum allowed complexity: ${COMPLEXITY_LIMIT}`,
           );
         }
-        console.log('Query Complexity:', complexity);
       },
     };
   }

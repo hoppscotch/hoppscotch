@@ -1,6 +1,8 @@
 import { I18n, createI18n } from 'vue-i18n';
 import { HoppModule } from '.';
-import messages from '@intlify/unplugin-vue-i18n/messages';
+// The dashboard is English-only (locale is fixed below), so bundle just `en`
+// instead of every locale in ./locales.
+import en from '../../locales/en.json';
 
 // A reference to the i18n instance
 let i18nInstance: I18n<
@@ -22,7 +24,7 @@ export default <HoppModule>{
   onVueAppInit(app) {
     const i18n = createI18n({
       locale: 'en',
-      messages,
+      messages: { en },
       fallbackLocale: 'en',
       legacy: false,
       allowComposition: true,

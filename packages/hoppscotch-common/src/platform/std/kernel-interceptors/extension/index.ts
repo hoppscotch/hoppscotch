@@ -177,8 +177,14 @@ export class ExtensionKernelInterceptorService
        * of the extension, but will have a slight lag.
        * 0.24 users will get the benefits of 0.24, while the extension won't break for the old users
        */
+      // The extension injects its hook while the page loads, so give up after
+      // ~30s instead of polling for the lifetime of the tab.
+      let attemptsLeft = 15
       extensionPollIntervalId.value = setInterval(() => {
-        if (this.tryDetectExtension() && extensionPollIntervalId.value) {
+        if (
+          (this.tryDetectExtension() || --attemptsLeft <= 0) &&
+          extensionPollIntervalId.value
+        ) {
           clearInterval(extensionPollIntervalId.value)
         }
       }, 2000)

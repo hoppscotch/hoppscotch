@@ -89,8 +89,10 @@ const emit = defineEmits<{
   (event: 'setupComplete', status: boolean): void;
 }>();
 
-const dataSharingToggle = ref(true);
-const newsletterToggle = ref(true);
+// Opt-in: both send data to Hoppscotch's servers (usage stats via PostHog, and
+// the admin's name and email to their newsletter list).
+const dataSharingToggle = ref(false);
+const newsletterToggle = ref(false);
 
 // Toggle data sharing
 const dataSharingMutation = useMutation(ToggleAnalyticsCollectionDocument);

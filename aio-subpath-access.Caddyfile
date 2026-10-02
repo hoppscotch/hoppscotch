@@ -4,11 +4,15 @@
 }
 
 :{$HOPP_ALTERNATE_PORT:80} {
+	encode zstd gzip
+
 	# Serve the `selfhost-web` SPA by default
 	root * /site/selfhost-web
 	file_server
 
 	handle_path /admin* {
+		# Revalidate via ETag: files are rewritten with runtime env at startup
+		header Cache-Control "no-cache"
 		root * /site/sh-admin-subpath-access
 		file_server
 
@@ -39,6 +43,7 @@
 
 	# Catch-all route for unknown paths, serves `selfhost-web` SPA
 	handle {
+		header Cache-Control "no-cache"
 		root * /site/selfhost-web
 		file_server
 		try_files {path} /

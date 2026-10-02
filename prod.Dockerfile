@@ -54,7 +54,8 @@ RUN tar -xzf /tmp/caddy-build/src.tar.gz && \
   go mod tidy && \
   go mod vendor
 WORKDIR /tmp/caddy-build/cmd/caddy
-RUN go build
+# Static, stripped binary (no symbol/DWARF tables, no local paths): ~30% smaller.
+RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w"
 
 
 
@@ -62,11 +63,13 @@ RUN go build
 # This reuses the Go installation from go_builder, avoiding a separate image pull
 # and significantly reducing build time (especially on ARM64 in CI)
 FROM go_builder AS webapp_server_builder
-WORKDIR /usr/src/app
-COPY . .
 WORKDIR /usr/src/app/packages/hoppscotch-selfhost-web/webapp-server
+# Copy only what the Go build needs so unrelated source changes keep the
+# module download and build layers cached.
+COPY packages/hoppscotch-selfhost-web/webapp-server/go.mod packages/hoppscotch-selfhost-web/webapp-server/go.sum ./
 RUN go mod download
-RUN CGO_ENABLED=0 GOOS=linux go build -o webapp-server .
+COPY packages/hoppscotch-selfhost-web/webapp-server/ ./
+RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o webapp-server .
 
 
 
@@ -310,6 +313,9 @@ COPY --from=caddy_builder /tmp/caddy-build/cmd/caddy/caddy /usr/bin/caddy
 
 ENV PRODUCTION="true"
 ENV PORT=8080
+# Production mode for Express/Apollo/graphql-js: no stack traces in error
+# responses, GraphQL introspection off, and skips dev-only runtime checks.
+ENV NODE_ENV=production
 
 # Open Containers Initiative (OCI) labels - useful for bots like Renovate
 LABEL org.opencontainers.image.title="osapidev" \
@@ -348,7 +354,9 @@ RUN mkdir -p /data/webapp-server && chmod g=rwX /data /data/webapp-server
 
 ENTRYPOINT [ "tini", "--" ]
 COPY --chmod=755 healthcheck.sh /
-HEALTHCHECK --interval=2s --start-period=15s CMD /bin/sh /healthcheck.sh
+# Probe every 2s while starting so the container turns healthy quickly, then
+# every 30s instead of running three curls every 2s for the container's lifetime.
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=60s --start-interval=2s CMD /bin/sh /healthcheck.sh
 
 WORKDIR /dist/backend
 CMD ["node", "/usr/src/app/aio_run.mjs"]

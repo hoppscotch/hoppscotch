@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PostHog } from 'posthog-node';
+import type { PostHog } from 'posthog-node';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -17,19 +17,31 @@ export class PostHogService {
   ) {}
 
   async onModuleInit() {
-    if (this.configService.get('INFRA.ALLOW_ANALYTICS_COLLECTION') === 'true') {
-      console.log('Initializing PostHog');
-      this.postHogClient = new PostHog(this.POSTHOG_API_KEY, {
-        host: 'https://eu.posthog.com',
-      });
-    }
+    if (this.isEnabled()) await this.initClient();
   }
 
   @Cron(CronExpression.EVERY_WEEK)
   async handleCron() {
-    if (this.configService.get('INFRA.ALLOW_ANALYTICS_COLLECTION') === 'true') {
-      await this.capture();
-    }
+    if (!this.isEnabled()) return;
+    // Analytics can be switched on at runtime, after onModuleInit ran.
+    await this.initClient();
+    await this.capture();
+  }
+
+  private isEnabled() {
+    return (
+      this.configService.get('INFRA.ALLOW_ANALYTICS_COLLECTION') === 'true'
+    );
+  }
+
+  // posthog-node is only loaded when analytics collection is enabled.
+  private async initClient() {
+    if (this.postHogClient) return;
+    console.log('Initializing PostHog');
+    const { PostHog } = await import('posthog-node');
+    this.postHogClient = new PostHog(this.POSTHOG_API_KEY, {
+      host: 'https://eu.posthog.com',
+    });
   }
 
   async capture() {

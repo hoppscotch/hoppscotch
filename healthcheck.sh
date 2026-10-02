@@ -1,5 +1,5 @@
 curlCheck() {
-  if ! curl -s --head "$1" | head -n 1 | grep -q "HTTP/1.[01] [23].."; then
+  if ! curl -s --max-time 4 --head "$1" | head -n 1 | grep -q "HTTP/1.[01] [23].."; then
     echo "URL request failed!"
     return 1
   else
@@ -8,13 +8,8 @@ curlCheck() {
   fi
 }
 
-# Wait for initial startup period to avoid unnecessary error logs
-# Check if the container has been running for at least 15 seconds
-UPTIME=$(awk '{print int($1)}' /proc/uptime)
-if [ "$UPTIME" -lt 15 ]; then
-  echo "Container still starting up (uptime: ${UPTIME}s), skipping health check..."
-  exit 0
-fi
+# Startup is covered by the HEALTHCHECK start period: failures during it don't
+# count towards the retries.
 
 if [ "$ENABLE_SUBPATH_BASED_ACCESS" = "true" ]; then
   curlCheck "http://localhost:${HOPP_ALTERNATE_PORT:-${HOPP_AIO_ALTERNATE_PORT:-80}}/backend/ping" || exit 1

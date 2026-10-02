@@ -33,6 +33,12 @@ export type PlatformDef = {
     hasTelemetry: boolean
 
     /**
+     * Whether to fetch the upstream release notes and show the "What's new"
+     * toast after an upgrade. If a value is not given, it is assumed to be true
+     */
+    showWhatsNew?: boolean
+
+    /**
      *  Whether the platform supports cookies (affects whether the cookies footer item is shown)
      *  If a value is not given, then the value is assumed to be false
      */

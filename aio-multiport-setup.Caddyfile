@@ -3,19 +3,29 @@
 	persist_config off
 }
 
-:3000 {
+# Static SPAs. JS/CSS are rewritten with runtime env values at container start
+# (import-meta-env), so hashed filenames don't guarantee unchanged content:
+# revalidate via ETag instead of caching blindly, and compress on the fly.
+(static_spa) {
+	encode zstd gzip
+	header Cache-Control "no-cache"
 	try_files {path} /
-	root * /site/selfhost-web
 	file_server
+}
+
+:3000 {
+	root * /site/selfhost-web
+	import static_spa
 }
 
 :3100 {
-	try_files {path} /
 	root * /site/sh-admin-multiport-setup
-	file_server
+	import static_spa
 }
 
 :3170 {
+	encode zstd gzip
+
 	@mock {
 		header_regexp host Host ^[^.]+\.mock\..*$
 	}

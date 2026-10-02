@@ -7,7 +7,6 @@ import ErrorComponent from './pages/_.vue';
 
 // STYLES
 import '@fontsource-variable/inter';
-import '@fontsource-variable/material-symbols-rounded';
 import '@fontsource-variable/roboto-mono';
 import '@hoppscotch/ui/style.css';
 import '../assets/scss/styles.scss';

@@ -3,11 +3,6 @@ import { Log } from "./kernel/log"
 import { HOPP_MODULES } from "@modules/."
 import { createApp } from "vue"
 
-import { loader } from "@guolao/vue-monaco-editor"
-import * as monaco from "monaco-editor"
-import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker"
-import tsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker"
-
 import { PlatformDef, setPlatformDef } from "./platform"
 
 import "nprogress/nprogress.css"
@@ -49,18 +44,6 @@ export async function createHoppApp(
       "Failed connecting to the backend, make sure the service is running and accessible on the network"
     )
   }
-
-  self.MonacoEnvironment = {
-    getWorker(_, label) {
-      if (label === "typescript") {
-        return new tsWorker()
-      }
-
-      return new editorWorker()
-    },
-  }
-
-  loader.config({ monaco })
 
   HOPP_MODULES.forEach((mod) => mod.onVueAppInit?.(app))
   platformDef.addedHoppModules?.forEach((mod) => mod.onVueAppInit?.(app))

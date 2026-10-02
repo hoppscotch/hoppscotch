@@ -26,7 +26,7 @@ cp .env.example .env          # set DATA_ENCRYPTION_KEY (32 chars) and your publ
 docker compose -f docker-compose.osapidev.yml up -d osapidev-db
 
 # apply database migrations (first run and after every upgrade)
-docker compose -f docker-compose.osapidev.yml run --rm --entrypoint sh osapidev -c "pnpx prisma migrate deploy"
+docker compose -f docker-compose.osapidev.yml run --rm --entrypoint sh osapidev -c "pnpm exec prisma migrate deploy"
 
 docker compose -f docker-compose.osapidev.yml up -d
 ```

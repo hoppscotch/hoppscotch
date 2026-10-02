@@ -39,6 +39,13 @@ export const createPwNamespaceMethods = (
         return envMethods.pw.set(key, value, options)
       }
     ),
+    envSetSecret: defineSandboxFn(
+      ctx,
+      "envSetSecret",
+      function (key: SandboxValue, value: SandboxValue, options: SandboxValue) {
+        return envMethods.pw.setSecret(key, value, options)
+      }
+    ),
     envUnset: defineSandboxFn(
       ctx,
       "envUnset",

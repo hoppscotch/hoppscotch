@@ -150,6 +150,11 @@ export class WorkspaceSpotlightSearcherService extends StaticSpotlightSearcherSe
   }
 }
 
+// Matches the GetMyTeams GraphQL query's page size (see also
+// TeamListAdapter.ts's identically-valued BACKEND_PAGE_SIZE) - a page
+// shorter than this means there are no more teams to fetch.
+const WORKSPACE_SEARCH_PAGE_SIZE = 10
+
 /**
  * This searcher is responsible for searching through the environment.
  * And switching between them.
@@ -172,21 +177,29 @@ export class SwitchWorkspaceSpotlightSearcherService
     this.spotlight.registerSearcher(this)
   }
 
-  private fetchMyTeams(): Promise<GetMyTeamsQuery["myTeams"]> {
-    return new Promise(async (resolve) => {
-      const currentUser = platform.auth.getCurrentUser()
-      if (!currentUser) return resolve([])
+  private async fetchMyTeams(): Promise<GetMyTeamsQuery["myTeams"]> {
+    const currentUser = platform.auth.getCurrentUser()
+    if (!currentUser) return []
 
-      const results: GetMyTeamsQuery["myTeams"] = []
+    const results: GetMyTeamsQuery["myTeams"] = []
 
+    // Paginated - keep fetching pages until a partial (or empty) page
+    // tells us we've reached the end, otherwise only the first page of
+    // teams would ever be searchable.
+    while (true) {
       const cursor =
         results.length > 0 ? results[results.length - 1].id : undefined
 
       const result = await platform.backend.getUserTeams(cursor)
 
-      if (E.isRight(result)) results.push(...result.right.myTeams)
-      resolve(results)
-    })
+      if (E.isLeft(result)) break
+
+      results.push(...result.right.myTeams)
+
+      if (result.right.myTeams.length !== WORKSPACE_SEARCH_PAGE_SIZE) break
+    }
+
+    return results
   }
 
   private workspace = this.workspaceService.currentWorkspace

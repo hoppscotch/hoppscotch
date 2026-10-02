@@ -6404,7 +6404,7 @@ export class AIChatService extends Service {
         : ""
     return `🧪 Created mock server **${serverName}** for **${target.name}**: ${url}\nIt answers with each request's saved example responses (requests without examples return 404).${delayNote}${
       isPublic === false
-        ? " It's private — send requests with an x-api-key header set to a Hoppscotch Personal Access Token."
+        ? " It's private — send requests with an x-api-key header set to an osapidev Personal Access Token."
         : ""
     }`
   }

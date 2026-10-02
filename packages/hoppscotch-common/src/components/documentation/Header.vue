@@ -182,7 +182,7 @@ const props = defineProps({
   },
   instanceDisplayName: {
     type: String,
-    default: "Hoppscotch",
+    default: "osapidev",
   },
   versions: {
     type: Array as PropType<PublishedDocVersion[]>,

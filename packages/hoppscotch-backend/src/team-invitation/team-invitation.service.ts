@@ -151,7 +151,7 @@ export class TeamInvitationService {
     await this.mailerService.sendEmail(inviteeEmail, {
       template: 'team-invitation',
       variables: {
-        invitee: creator.displayName ?? 'A Hoppscotch User',
+        invitee: creator.displayName ?? 'An osapidev User',
         action_url: `${this.configService.get('VITE_BASE_URL')}/join-team?id=${
           dbInvitation.id
         }`,

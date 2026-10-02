@@ -103,8 +103,8 @@
         "star": "Ավելացնել աստղ"
     },
     "agent": {
-        "registration_instruction": "Խնդրում ենք գրանցել Hoppscotch գործակալը ձեր վեբ հաճախորդի հետ՝ շարունակելու համար:",
-        "enter_otp_instruction": "Խնդրում ենք մուտքագրել Hoppscotch գործակալի կողմից ստեղծված ստուգման կոդը և ավարտել գրանցումը",
+        "registration_instruction": "Խնդրում ենք գրանցել osapidev գործակալը ձեր վեբ հաճախորդի հետ՝ շարունակելու համար:",
+        "enter_otp_instruction": "Խնդրում ենք մուտքագրել osapidev գործակալի կողմից ստեղծված ստուգման կոդը և ավարտել գրանցումը",
         "otp_label": "Ստուգման կոդ",
         "processing": "Ձեր հարցումը մշակվում է...",
         "not_running_title": "Գործակալը չի հայտնաբերվել",
@@ -113,7 +113,7 @@
         "ca_certs": "CA վկայականներ",
         "client_certs": "Հաճախորդի վկայականներ",
         "use_http_proxy": "Օգտագործել HTTP պրոքսի",
-        "proxy_capabilities": "Hoppscotch գործակալը աջակցում է HTTP/HTTPS/SOCKS պրոքսիներ, ինչպես նաև NTLM և հիմնական նույնականացում այդ պրոքսիներում: Ներառեք օգտանունը և գաղտնաբառը պրոքսիի նույնականացման համար URL-ի մեջ:",
+        "proxy_capabilities": "osapidev գործակալը աջակցում է HTTP/HTTPS/SOCKS պրոքսիներ, ինչպես նաև NTLM և հիմնական նույնականացում այդ պրոքսիներում: Ներառեք օգտանունը և գաղտնաբառը պրոքսիի նույնականացման համար URL-ի մեջ:",
         "add_cert_file": "Ավելացնել վկայականի ֆայլ",
         "add_client_cert": "Ավելացնել հաճախորդի վկայական",
         "add_key_file": "Ավելացնել բանալու ֆայլ",
@@ -150,7 +150,7 @@
         "invite_your_friends": "Հրավիրեք ձեր ընկերներին",
         "join_discord_community": "Միացեք մեր Discord համայնքին",
         "keyboard_shortcuts": "Ստեղնաշարի դյուրանցումներ",
-        "name": "Hoppscotch",
+        "name": "osapidev",
         "new_version_found": "Հայտնաբերվել է նոր տարբերակ: Թարմացրեք՝ նորացնելու համար:",
         "open_in_hoppscotch": "Բացել Hoppscotch-ում",
         "options": "Ընտրանքներ",
@@ -195,7 +195,7 @@
         "logged_out": "Դուրս եկած",
         "login": "Մուտք",
         "login_success": "Հաջողությամբ մուտք եք գործել",
-        "login_to_hoppscotch": "Մուտք գործել Hoppscotch",
+        "login_to_hoppscotch": "Մուտք գործել osapidev",
         "logout": "Դուրս գալ",
         "re_enter_email": "Կրկին մուտքագրեք էլ. փոստը",
         "send_magic_link": "Ուղարկել կախարդական հղում",
@@ -479,7 +479,7 @@
         "error_rendering_markdown": "Սխալ markdown-ի արտապատկերման ժամանակ:",
         "fetching_documentation": "Փաստաթղթավորման ստացում...",
         "generate": "Ստեղծել փաստաթղթավորում",
-        "generate_message": "Ներմուծեք ցանկացած Hoppscotch հավաքածու՝ API փաստաթղթավորում ստեղծելու համար:",
+        "generate_message": "Ներմուծեք ցանկացած osapidev հավաքածու՝ API փաստաթղթավորում ստեղծելու համար:",
         "headers": {
             "no_headers": "Վերնագրեր սահմանված չեն",
             "title": "Վերնագրեր"
@@ -833,18 +833,18 @@
         "collections": "Ներմուծել հավաքածուներ",
         "curl": "Ներմուծել cURL",
         "environments_from_gist": "Ներմուծել Gist-ից",
-        "environments_from_gist_description": "Ներմուծել Hoppscotch միջավայրեր Gist-ից",
+        "environments_from_gist_description": "Ներմուծել osapidev միջավայրեր Gist-ից",
         "failed": "Սխալ ներմուծման ժամանակ՝ ձևաչափը չի ճանաչվել",
         "from_file": "Ներմուծել ֆայլից",
         "from_gist": "Ներմուծել Gist-ից",
         "from_gist_description": "Ներմուծել Gist URL-ից",
-        "from_gist_import_summary": "Bolor Hoppscotch հնարավորությունները ներմուծված են:",
-        "from_hoppscotch_importer_summary": "Bolor Hoppscotch հնարավորությունները ներմուծված են:",
+        "from_gist_import_summary": "Bolor osapidev հնարավորությունները ներմուծված են:",
+        "from_hoppscotch_importer_summary": "Bolor osapidev հնարավորությունները ներմուծված են:",
         "from_insomnia": "Ներմուծել Insomnia-ից",
         "from_insomnia_description": "Ներմուծել Insomnia հավաքածուից",
         "from_insomnia_import_summary": "Հավաքածուները և հարցումները կներմուծվեն:",
         "from_json": "Ներմուծել Hoppscotch-ից",
-        "from_json_description": "Ներմուծել Hoppscotch հավաքածուի ֆայլից",
+        "from_json_description": "Ներմուծել osapidev հավաքածուի ֆայլից",
         "from_my_collections": "Ներմուծել անձնական հավաքածուներից",
         "from_my_collections_description": "Ներմուծել անձնական հավաքածուների ֆայլից",
         "from_all_collections": "Ներմուծել այլ աշխատանքային տիրույթից",
@@ -863,14 +863,14 @@
         "from_har_description": "Ներմուծել HAR ֆայլից",
         "from_har_import_summary": "Հարցումները կներմուծվեն լռելյայն հավաքածու:",
         "gql_collections_from_gist_description": "Ներմուծել GraphQL հավաքածուներ Gist-ից",
-        "hoppscotch_environment": "Hoppscotch միջավայր",
-        "hoppscotch_environment_description": "Ներմուծել Hoppscotch միջավայրի JSON ֆայլ",
+        "hoppscotch_environment": "osapidev միջավայր",
+        "hoppscotch_environment_description": "Ներմուծել osapidev միջավայրի JSON ֆայլ",
         "import_from_url_invalid_fetch": "Չհաջողվեց ստանալ տվյալներ URL-ից",
         "import_from_url_invalid_file_format": "Սխալ հավաքածուների ներմուծման ժամանակ",
         "import_from_url_invalid_type": "Չաջակցվող տեսակ: Ընդունվող արժեքներն են 'hoppscotch', 'openapi', 'postman', 'insomnia'",
         "import_from_url_success": "Հավաքածուները ներմուծվել են",
         "insomnia_environment_description": "Ներմուծել Insomnia միջավայր JSON/YAML ֆայլից",
-        "json_description": "Ներմուծել հավաքածուներ Hoppscotch հավաքածուների JSON ֆայլից",
+        "json_description": "Ներմուծել հավաքածուներ osapidev հավաքածուների JSON ֆայլից",
         "postman_environment": "Postman միջավայր",
         "postman_environment_description": "Ներմուծել Postman միջավայր JSON ֆայլից",
         "title": "Ներմուծել",
@@ -895,7 +895,7 @@
         }
     },
     "instances": {
-        "switch": "Փոխել Hoppscotch նմուշը",
+        "switch": "Փոխել osapidev նմուշը",
         "enter_server_url": "Միանալ ինքնասպասարկվող նմուշի",
         "already_connected": "Դուք արդեն միացած եք այս նմուշին",
         "recent_connections": "Վերջին կապերը",
@@ -947,7 +947,7 @@
         "title": "Տեսուչ",
         "url": {
             "extension_not_installed": "Ընդլայնումը տեղադրված չէ:",
-            "extension_unknown_origin": "Համոզվեք, որ ավելացրել եք API վերջնակետի ծագման աղբյուրը (origin) Hoppscotch դիտարկիչի ընդլայնման ցանկում:",
+            "extension_unknown_origin": "Համոզվեք, որ ավելացրել եք API վերջնակետի ծագման աղբյուրը (origin) osapidev դիտարկիչի ընդլայնման ցանկում:",
             "extention_enable_action": "Միացնել դիտարկիչի ընդլայնումը",
             "extention_not_enabled": "Ընդլայնումը միացված չէ:",
             "localaccess_unsupported": "Ընթացիկ որսիչը չի աջակցում տեղական հասանելիություն, խնդրում ենք օգտագործել Agent, Extension որսիչներ կամ Desktop հավելվածը"
@@ -1343,7 +1343,7 @@
     },
     "shared_requests": {
         "button": "Կոճակ",
-        "button_info": "Ստեղծեք 'Run in Hoppscotch' կոճակ ձեր կայքի, բլոգի կամ README-ի համար:",
+        "button_info": "Ստեղծեք 'Run in osapidev' կոճակ ձեր կայքի, բլոգի կամ README-ի համար:",
         "copy_html": "Պատճենել HTML",
         "copy_link": "Պատճենել հղումը",
         "copy_markdown": "Պատճենել Markdown",
@@ -1352,7 +1352,7 @@
         "deleted": "Համօգտագործվող հարցումը ջնջվել է",
         "description": "Ընտրեք վիջեթ, դուք կարող եք փոխել և հարմարեցնել այն ավելի ուշ",
         "embed": "Ներդնել (Embed)",
-        "embed_info": "Ավելացրեք մինի 'Hoppscotch API Playground' ձեր կայքում, բլոգում կամ փաստաթղթերում:",
+        "embed_info": "Ավելացրեք մինի 'osapidev API Playground' ձեր կայքում, բլոգում կամ փաստաթղթերում:",
         "link": "Հղում",
         "link_info": "Ստեղծեք համօգտագործելի հղում՝ դիտելու իրավունքով ինտերնետում ցանկացած մեկի հետ կիսվելու համար:",
         "modified": "Համօգտագործվող հարցումը փոփոխվել է",
@@ -1398,7 +1398,7 @@
             "redo": "Վերարկել (Redo)"
         },
         "miscellaneous": {
-            "invite": "Հրավիրել մարդկանց Hoppscotch",
+            "invite": "Հրավիրել մարդկանց osapidev",
             "title": "Տարբեր"
         },
         "navigation": {
@@ -1502,7 +1502,7 @@
             "disconnect": "Անջատվել սերվերից"
         },
         "miscellaneous": {
-            "invite": "Հրավիրեք ձեր ընկերներին Hoppscotch",
+            "invite": "Հրավիրեք ձեր ընկերներին osapidev",
             "title": "Տարբեր"
         },
         "request": {
@@ -1875,13 +1875,13 @@
     },
     "site_protection": {
         "login_to_continue": "Մուտք գործեք շարունակելու համար",
-        "login_to_continue_description": "Անհրաժեշտ է մուտք գործել Hoppscotch Enterprise օրինակին հասանելիություն ստանալու համար:",
+        "login_to_continue_description": "Անհրաժեշտ է մուտք գործել osapidev Enterprise օրինակին հասանելիություն ստանալու համար:",
         "error_fetching_site_protection_status": "Ինչ-որ բան սխալ գնաց Կայքի Պաշտպանության Կարգավիճակը ստանալիս"
     },
     "access_tokens": {
         "tab_title": "Տոկեններ",
         "section_title": "Անձնական մուտքի տոկեններ",
-        "section_description": "Անձնական մուտքի տոկենները ներկայումս օգնում են ձեզ կապել CLI-ն ձեր Hoppscotch հաշվին",
+        "section_description": "Անձնական մուտքի տոկենները ներկայումս օգնում են ձեզ կապել CLI-ն ձեր osapidev հաշվին",
         "last_used_on": "Վերջին անգամ օգտագործվել է",
         "expires_on": "Սպառվում է",
         "no_expiration": "Սպառման ժամկետ չկա",
@@ -1959,7 +1959,7 @@
             "title": "Նույնականացման Մատակարարներ",
             "update_failure": "Չհաջողվեց թարմացնել նույնականացման մատակարարի կարգավորումները!!"
         },
-        "confirm_changes": "Hoppscotch սերվերը պետք է վերագործարկվի՝ նոր փոփոխությունները արտացոլելու համար: Հաստատե՞լ սերվերի կարգավորումներում կատարված փոփոխությունները:",
+        "confirm_changes": "osapidev սերվերը պետք է վերագործարկվի՝ նոր փոփոխությունները արտացոլելու համար: Հաստատե՞լ սերվերի կարգավորումներում կատարված փոփոխությունները:",
         "input_empty": "Խնդրում ենք լրացնել բոլոր դաշտերը նախքան կարգավորումները թարմացնելը",
         "data_sharing": {
             "title": "Տվյալների Փոխանակում",
@@ -1989,7 +1989,7 @@
             "user": "MAILER USER"
         },
         "reset": {
-            "confirm_reset": "Hoppscotch սերվերը պետք է վերագործարկվի՝ նոր փոփոխությունները արտացոլելու համար: Հաստատե՞լ սերվերի կարգավորումների վերականգնումը:",
+            "confirm_reset": "osapidev սերվերը պետք է վերագործարկվի՝ նոր փոփոխությունները արտացոլելու համար: Հաստատե՞լ սերվերի կարգավորումների վերականգնումը:",
             "description": "Կանխադրված կարգավորումները կբեռնվեն, ինչպես նշված է միջավայրի ֆայլում",
             "failure": "Չհաջողվեց վերականգնել կարգավորումները!!",
             "title": "Վերականգնել Կարգավորումները",
@@ -2005,15 +2005,15 @@
         "update_failure": "Չհաջողվեց թարմացնել սերվերի կարգավորումները",
         "restrict_access": "Սահմանափակել Մուտքը",
         "site_protection": {
-            "control_access": "Վերահսկեք, թե ով կարող է մուտք գործել Hoppscotch հավելված",
-            "description": "Հարմարեցրեք, թե ինչպես են այցելուները մուտք գործում ձեր Hoppscotch հավելված՝ օգտագործելով կայքի պաշտպանության կարգավորումները:",
+            "control_access": "Վերահսկեք, թե ով կարող է մուտք գործել osapidev հավելված",
+            "description": "Հարմարեցրեք, թե ինչպես են այցելուները մուտք գործում ձեր osapidev հավելված՝ օգտագործելով կայքի պաշտպանության կարգավորումները:",
             "enable": "Միացնել կայքի պաշտպանությունը",
-            "note": "Hoppscotch հավելված այցելող օգտատերերը կտեսնեն մուտքի էջը, հավելվածին մուտք գործելու համար պարտադիր մուտք է պահանջվում: Ադմինի հաստատումը դեռ պահանջվում է հեղինակավորման համար",
+            "note": "osapidev հավելված այցելող օգտատերերը կտեսնեն մուտքի էջը, հավելվածին մուտք գործելու համար պարտադիր մուտք է պահանջվում: Ադմինի հաստատումը դեռ պահանջվում է հեղինակավորման համար",
             "update_failure": "Չհաջողվեց թարմացնել կայքի պաշտպանության կարգավորումները!!"
         },
         "domain_whitelisting": {
             "add_domain": "Ավելացնել Նոր Դոմեն",
-            "description": "Սպիտակ ցուցակում ներառված դոմեններում գրանցված էլ. փոստի ID ունեցող օգտատերերը չեն պահանջում ադմինի հստակ հաստատումը Hoppscotch հավելված մուտք գործելու համար",
+            "description": "Սպիտակ ցուցակում ներառված դոմեններում գրանցված էլ. փոստի ID ունեցող օգտատերերը չեն պահանջում ադմինի հստակ հաստատումը osapidev հավելված մուտք գործելու համար",
             "enable": "Միացնել դոմենների սպիտակ ցուցակը",
             "enter_domain": "Մուտքագրեք դոմեն",
             "title": "Սպիտակ ցուցակում ներառված Դոմեններ",
@@ -2071,7 +2071,7 @@
         "last_used_on": "Վերջին անգամ օգտագործվել է",
         "no_expiration": "Սպառման ժամկետ չկա",
         "no_expiration_verbose": "Այս տոկենը երբեք չի սպառվի!",
-        "section_description": "Կառավարեք ձեր Hoppscotch օգտատերերին API-ների միջոցով Infra տոկեններով",
+        "section_description": "Կառավարեք ձեր osapidev օգտատերերին API-ների միջոցով Infra տոկեններով",
         "section_title": "Infra Տոկեններ",
         "tab_title": "Infra Տոկեններ",
         "token_expires_on": "Այս տոկենը կսպառվի",
@@ -2183,7 +2183,7 @@
         "name": "Անուն",
         "new_user_added": "Նոր Օգտատեր Ավելացվեց",
         "no_invite": "Սպասվող հրավերներ չկան",
-        "no_invite_description": "Սպասվող հրավերներ չկան! Սկսեք հրավիրել ձեր թիմակիցներին Hoppscotch",
+        "no_invite_description": "Սպասվող հրավերներ չկան! Սկսեք հրավիրել ձեր թիմակիցներին osapidev",
         "no_shared_requests": "Օգտատիրոջ կողմից ստեղծված համօգտագործվող հարցումներ չկան",
         "no_users": "Օգտատերեր չեն գտնվել",
         "not_available": "Հասանելի չէ",
@@ -2209,8 +2209,8 @@
         "create_an_organization": "Ստեղծել կազմակերպություն",
         "deactivate_user_failure": "Օգտատիրոջ ապաակտիվացումը ձախողվեց!!",
         "deactivate_user_success": "Օգտատերը հաջողությամբ ապաակտիվացվեց!!",
-        "delete_account_description": "Սա կջնջի ձեր Hoppscotch հաշվի հետ կապված բոլոր տվյալները, ներառյալ այս և ցանկացած այլ կազմակերպությունները, որոնց անդամ եք:",
-        "delete_account": "Ջնջել Hoppscotch Հաշիվը",
+        "delete_account_description": "Սա կջնջի ձեր osapidev հաշվի հետ կապված բոլոր տվյալները, ներառյալ այս և ցանկացած այլ կազմակերպությունները, որոնց անդամ եք:",
+        "delete_account": "Ջնջել osapidev Հաշիվը",
         "user_deletion_failed_sole_admin": "Օգտատերը մեկ կամ ավելի կազմակերպության օրինակների միակ ադմինն է: Խնդրում ենք իջեցնել օգտատիրոջ կարգավիճակը նախքան ջնջելու փորձ կատարելը:",
         "user_deletion_failed_sole_team_owner": "Օգտատերը մեկ կամ ավելի կազմակերպության օրինակների միակ թիմի սեփականատերն է: Խնդրում ենք փոխանցել սեփականության իրավունքը կամ ջնջել համապատասխան աշխատանքային տիրույթները նախքան ջնջելու փորձ կատարելը:",
         "no_organizations": "Դուք որևէ կազմակերպության անդամ չեք",

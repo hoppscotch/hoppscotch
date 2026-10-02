@@ -1,7 +1,7 @@
 import { IHTMLTag } from "vite-plugin-html-config"
 
 export const APP_INFO = {
-  name: "Hoppscotch",
+  name: "osapidev",
   shortDescription: "Open source API development ecosystem",
   description:
     "Helps you create requests faster, saving precious time on development.",

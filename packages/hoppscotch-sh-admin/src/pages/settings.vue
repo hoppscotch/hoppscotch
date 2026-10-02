@@ -189,7 +189,7 @@ const logConfigValidationIssues = () => {
 
   // eslint-disable-next-line no-console
   console.warn(
-    `[Hoppscotch Admin] Save blocked — ${issues.length} configuration field(s) need attention:`,
+    `[osapidev Admin] Save blocked — ${issues.length} configuration field(s) need attention:`,
   );
   // eslint-disable-next-line no-console
   console.table(rows);

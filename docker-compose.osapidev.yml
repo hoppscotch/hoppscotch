@@ -1,0 +1,45 @@
+# osapidev All-in-One (AIO) deployment using the prebuilt image from GHCR.
+#
+#   cp .env.example .env              # then edit secrets / URLs
+#   docker compose -f docker-compose.osapidev.yml up -d
+#
+# First run (and after each upgrade) apply database migrations:
+#   docker compose -f docker-compose.osapidev.yml run --rm --entrypoint sh osapidev -c "pnpx prisma migrate deploy"
+
+services:
+  osapidev:
+    image: ghcr.io/angwdev/osapidev:${OSAPIDEV_VERSION:-latest}
+    container_name: osapidev
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-testpass}@osapidev-db:5432/osapidev
+    depends_on:
+      osapidev-db:
+        condition: service_healthy
+    ports:
+      - "3000:3000" # app
+      - "3100:3100" # admin dashboard
+      - "3170:3170" # backend API
+      - "3200:3200" # webapp bundle server (desktop app)
+      - "3080:${HOPP_ALTERNATE_PORT:-80}" # subpath mode
+
+  osapidev-db:
+    image: postgres:15
+    container_name: osapidev-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-testpass}
+      POSTGRES_DB: osapidev
+    volumes:
+      - osapidev-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d osapidev"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  osapidev-db:

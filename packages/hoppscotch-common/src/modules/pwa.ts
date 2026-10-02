@@ -29,10 +29,10 @@ export const installPWA = async () => {
     ).userChoice
 
     if (outcome === "accepted") {
-      console.info("Hoppscotch was installed successfully.")
+      console.info("osapidev was installed successfully.")
     } else {
       console.info(
-        "Hoppscotch could not be installed. (Installation rejected by user.)"
+        "osapidev could not be installed. (Installation rejected by user.)"
       )
     }
 

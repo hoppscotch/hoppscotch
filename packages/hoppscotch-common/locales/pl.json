@@ -69,20 +69,20 @@
     "copy_interface_type": "Copy interface type",
     "copy_user_id": "Copy User Auth Token",
     "developer_option": "Developer options",
-    "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
+    "developer_option_description": "Developer tools which helps in development and maintenance of osapidev.",
     "discord": "Discord",
     "documentation": "Dokumentacja",
     "github": "GitHub",
     "help": "Pomoc, opinie i dokumentacja",
     "home": "Start",
     "invite": "Zaproś",
-    "invite_description": "W Hoppscotch zaprojektowaliśmy prosty i intuicyjny interfejs do tworzenia i zarządzania Twoimi API. Hoppscotch to narzędzie, które pomaga budować, testować, dokumentować i udostępniać interfejsy API.",
+    "invite_description": "W osapidev zaprojektowaliśmy prosty i intuicyjny interfejs do tworzenia i zarządzania Twoimi API. osapidev to narzędzie, które pomaga budować, testować, dokumentować i udostępniać interfejsy API.",
     "invite_your_friends": "Zaproś swoich znajomych",
     "join_discord_community": "Dołącz do naszej społeczności Discord",
     "keyboard_shortcuts": "Skróty klawiszowe",
-    "name": "Hoppscotch",
+    "name": "osapidev",
     "new_version_found": "Znaleziono nową wersję. Odśwież, aby zaktualizować.",
-    "open_in_hoppscotch": "Open in Hoppscotch",
+    "open_in_hoppscotch": "Open in osapidev",
     "options": "Options",
     "proxy_privacy_policy": "Polityka prywatności proxy",
     "reload": "Przeładuj",
@@ -98,7 +98,7 @@
     "twitter": "Twitter",
     "type_a_command_search": "Wpisz polecenie lub wyszukaj…",
     "we_use_cookies": "Używamy plików cookie",
-    "updated_text": "Hoppscotch has been updated to v{version} 🎉",
+    "updated_text": "osapidev has been updated to v{version} 🎉",
     "whats_new": "Co nowego?",
     "see_whats_new": "See what’s new",
     "wiki": "Wiki"
@@ -116,7 +116,7 @@
     "logged_out": "Wylogowano",
     "login": "Zaloguj sie",
     "login_success": "Zalogowano się pomyślnie",
-    "login_to_hoppscotch": "Zaloguj się do Hoppscotch",
+    "login_to_hoppscotch": "Zaloguj się do osapidev",
     "logout": "Wyloguj",
     "re_enter_email": "Wprowadź email ponownie",
     "send_magic_link": "Wyślij magiczny link",
@@ -249,7 +249,7 @@
   },
   "documentation": {
     "generate": "Wygeneruj dokumentację",
-    "generate_message": "Importuj dowolną kolekcję Hoppscotch, aby generować dokumentację API na żądanie."
+    "generate_message": "Importuj dowolną kolekcję osapidev, aby generować dokumentację API na żądanie."
   },
   "empty": {
     "authorization": "To żądanie nie używa żadnej autoryzacji",
@@ -270,7 +270,7 @@
     "protocols": "Protokoły są puste",
     "request_variables": "This request does not have any request variables",
     "schema": "Połącz się z punktem końcowym GraphQL",
-    "secret_environments": "Secrets are not synced to Hoppscotch",
+    "secret_environments": "Secrets are not synced to osapidev",
     "shared_requests": "Shared requests are empty",
     "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "Subscriptions are empty",
@@ -429,15 +429,15 @@
     "collections": "Importuj kolekcje",
     "curl": "Importuj CURL",
     "environments_from_gist": "Import From Gist",
-    "environments_from_gist_description": "Import Hoppscotch Environments From Gist",
+    "environments_from_gist_description": "Import osapidev Environments From Gist",
     "failed": "Import nie powiódł się",
     "from_file": "Import from File",
     "from_gist": "Importuj z Gist",
     "from_gist_description": "Import from Gist URL",
     "from_insomnia": "Import from Insomnia",
     "from_insomnia_description": "Import from Insomnia collection",
-    "from_json": "Import from Hoppscotch",
-    "from_json_description": "Import from Hoppscotch collection file",
+    "from_json": "Import from osapidev",
+    "from_json_description": "Import from osapidev collection file",
     "from_my_collections": "Importuj z Moich kolekcji",
     "from_my_collections_description": "Import from My Collections file",
     "from_openapi": "Import from OpenAPI",
@@ -447,14 +447,14 @@
     "from_url": "Import from URL",
     "gist_url": "Wpisz adres URL Gist",
     "gql_collections_from_gist_description": "Import GraphQL Collections From Gist",
-    "hoppscotch_environment": "Hoppscotch Environment",
-    "hoppscotch_environment_description": "Import Hoppscotch Environment JSON file",
+    "hoppscotch_environment": "osapidev Environment",
+    "hoppscotch_environment_description": "Import osapidev Environment JSON file",
     "import_from_url_invalid_fetch": "Couldn't get data from the url",
     "import_from_url_invalid_file_format": "Error while importing collections",
     "import_from_url_invalid_type": "Unsupported type. accepted values are 'hoppscotch', 'openapi', 'postman', 'insomnia'",
     "import_from_url_success": "Collections Imported",
     "insomnia_environment_description": "Import Insomnia Environment from a JSON/YAML file",
-    "json_description": "Import collections from a Hoppscotch Collections JSON file",
+    "json_description": "Import collections from a osapidev Collections JSON file",
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment from a JSON file",
     "title": "Import",
@@ -471,7 +471,7 @@
       "not_found": "Environment variable “{environment}” not found."
     },
     "header": {
-      "cookie": "The browser doesn't allow Hoppscotch to set the Cookie Header. While we're working on the Hoppscotch Desktop App (coming soon), please use the Authorization Header instead."
+      "cookie": "The browser doesn't allow osapidev to set the Cookie Header. While we're working on the Hoppscotch Desktop App (coming soon), please use the Authorization Header instead."
     },
     "response": {
       "401_error": "Please check your authentication credentials.",
@@ -609,7 +609,7 @@
     "save_as": "Zapisz jako",
     "saved": "Żądanie zostało zapisane",
     "share": "Udostępnij",
-    "share_description": "Share Hoppscotch with your friends",
+    "share_description": "Share osapidev with your friends",
     "share_request": "Share Request",
     "stop": "Stop",
     "title": "Żądanie",
@@ -665,7 +665,7 @@
     "interceptor_description": "Oprogramowanie pośredniczące między aplikacją a interfejsami API.",
     "language": "Język",
     "light_mode": "Jasny",
-    "official_proxy_hosting": "Oficjalne proxy jest obsługiwane przez Hoppscotch.",
+    "official_proxy_hosting": "Oficjalne proxy jest obsługiwane przez osapidev.",
     "profile": "Profile",
     "profile_description": "Update your profile details",
     "profile_email": "Email address",
@@ -695,7 +695,7 @@
   },
   "shared_requests": {
     "button": "Button",
-    "button_info": "Create a 'Run in Hoppscotch' button for your website, blog or a README.",
+    "button_info": "Create a 'Run in osapidev' button for your website, blog or a README.",
     "copy_html": "Copy HTML",
     "copy_link": "Copy Link",
     "copy_markdown": "Copy Markdown",
@@ -704,14 +704,14 @@
     "deleted": "Shared request deleted",
     "description": "Select a widget, you can change and customize this later",
     "embed": "Embed",
-    "embed_info": "Add a mini 'Hoppscotch API Playground' to your website, blog or documentation.",
+    "embed_info": "Add a mini 'osapidev API Playground' to your website, blog or documentation.",
     "link": "Link",
     "link_info": "Create a shareable link to share with anyone on the internet with view access.",
     "modified": "Shared request modified",
     "not_found": "Shared request not found",
     "open_new_tab": "Open in new tab",
     "preview": "Preview",
-    "run_in_hoppscotch": "Run in Hoppscotch",
+    "run_in_hoppscotch": "Run in osapidev",
     "theme": {
       "dark": "Dark",
       "light": "Light",
@@ -728,7 +728,7 @@
       "title": "Ogólny"
     },
     "miscellaneous": {
-      "invite": "Zaproś ludzi do Hoppscotch",
+      "invite": "Zaproś ludzi do osapidev",
       "title": "Różne"
     },
     "navigation": {
@@ -819,7 +819,7 @@
       "disconnect": "Disconnect from server"
     },
     "miscellaneous": {
-      "invite": "Invite your friends to Hoppscotch",
+      "invite": "Invite your friends to osapidev",
       "title": "Miscellaneous"
     },
     "request": {
@@ -929,7 +929,7 @@
     "changelog": "Przeczytaj więcej o najnowszych wydaniach",
     "chat": "Pytania? Porozmawiaj z nami!",
     "community": "Zadawaj pytania i pomagaj innym",
-    "documentation": "Przeczytaj więcej o Hoppscotch",
+    "documentation": "Przeczytaj więcej o osapidev",
     "forum": "Zadawaj pytania i otrzymuj odpowiedzi",
     "github": "Follow us on Github",
     "shortcuts": "Przeglądaj aplikację szybciej",
@@ -1020,7 +1020,7 @@
     "we_sent_invite_link": "We sent an invite link to all invitees!",
     "invite_sent_smtp_disabled": "Invite links generated",
     "we_sent_invite_link_description": "Ask all invitees to check their inbox. Click on the link to join the team.",
-    "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of Hoppscotch. Please use the Copy link button to copy and share the invite link manually.",
+    "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of osapidev. Please use the Copy link button to copy and share the invite link manually.",
     "copy_invite_link": "Copy Invite Link",
     "search_title": "Team Requests",
     "join_beta": "Dołącz do programu beta, aby uzyskać dostęp do zespołów."
@@ -1056,13 +1056,13 @@
   },
   "site_protection": {
     "login_to_continue": "Login to continue",
-    "login_to_continue_description": "You need to be logged in to access this Hoppscotch Enterprise Instance.",
+    "login_to_continue_description": "You need to be logged in to access this osapidev Enterprise Instance.",
     "error_fetching_site_protection_status": "Something Went Wrong While Fetching Site Protection Status"
   },
   "access_tokens": {
     "tab_title": "Tokens",
     "section_title": "Personal Access Tokens",
-    "section_description": "Personal access tokens currently helps you connect the CLI to your Hoppscotch account",
+    "section_description": "Personal access tokens currently helps you connect the CLI to your osapidev account",
     "last_used_on": "Last used on",
     "expires_on": "Expires on",
     "no_expiration": "No expiration",
@@ -1084,8 +1084,8 @@
   "collection_runner": {
     "collection_id": "Collection ID",
     "environment_id": "Environment ID",
-    "cli_collection_id_description": "This collection ID will be used by the CLI collection runner for Hoppscotch.",
-    "cli_environment_id_description": "This environment ID will be used by the CLI collection runner for Hoppscotch.",
+    "cli_collection_id_description": "This collection ID will be used by the CLI collection runner for osapidev.",
+    "cli_environment_id_description": "This environment ID will be used by the CLI collection runner for osapidev.",
     "include_active_environment": "Include active environment:",
     "cli": "CLI",
     "ui": "Runner (coming soon)",

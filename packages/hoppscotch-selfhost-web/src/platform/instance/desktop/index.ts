@@ -74,7 +74,7 @@ export class DesktopInstanceService
   public readonly config: InstancePlatformDef["config"] = {
     maxRecentInstances: 10,
     defaultWindowOptions: {
-      title: "Hoppscotch",
+      title: "osapidev",
       width: 1200,
       height: 800,
       resizable: true,
@@ -936,7 +936,7 @@ export class DesktopInstanceService
     options?: Partial<LoadOptions>
   ): LoadOptions {
     const defaultWindowOptions = this.config?.defaultWindowOptions || {
-      title: "Hoppscotch",
+      title: "osapidev",
       width: 1200,
       height: 800,
       resizable: true,

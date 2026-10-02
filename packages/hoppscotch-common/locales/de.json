@@ -132,20 +132,20 @@
     "copy_interface_type": "Schnittstellentyp kopieren",
     "copy_user_id": "Kopiere Nutzer-Authentisierungstoken",
     "developer_option": "Entwickleroptionen",
-    "developer_option_description": "Entwicklungswerkzeuge, die helfen Hoppscotch weiter zu entwickeln und zu warten.",
+    "developer_option_description": "Entwicklungswerkzeuge, die helfen osapidev weiter zu entwickeln und zu warten.",
     "discord": "Discord",
     "documentation": "Dokumentation",
     "github": "GitHub",
     "help": "Hilfe, Feedback und Dokumentation",
     "home": "Home",
     "invite": "Einladen",
-    "invite_description": "In Hoppscotch haben wir eine einfache und intuitive Benutzeroberfläche zum Erstellen und Verwalten Deiner APIs entwickelt. Hoppscotch ist ein Tool, mit dem Du Deine APIs erstellen, testen, dokumentieren und teilen kannst.",
+    "invite_description": "In osapidev haben wir eine einfache und intuitive Benutzeroberfläche zum Erstellen und Verwalten Deiner APIs entwickelt. osapidev ist ein Tool, mit dem Du Deine APIs erstellen, testen, dokumentieren und teilen kannst.",
     "invite_your_friends": "Lade Deine Freunde ein",
     "join_discord_community": "Tritt unserer Discord-Community bei",
     "keyboard_shortcuts": "Tastaturkürzel",
-    "name": "Hoppscotch",
+    "name": "osapidev",
     "new_version_found": "Neue Version gefunden. Zum Aktualisieren Seite neu laden.",
-    "open_in_hoppscotch": "Open in Hoppscotch",
+    "open_in_hoppscotch": "Open in osapidev",
     "options": "Options",
     "proxy_privacy_policy": "Proxy-Datenschutzrichtlinie",
     "reload": "Neu laden",
@@ -161,7 +161,7 @@
     "twitter": "Twitter",
     "type_a_command_search": "Gib einen Befehl ein oder suche…",
     "we_use_cookies": "Wir verwenden Cookies",
-    "updated_text": "Hoppscotch wurde auf die Version v{version} aktualisiert 🎉",
+    "updated_text": "osapidev wurde auf die Version v{version} aktualisiert 🎉",
     "whats_new": "Was gibt's Neues?",
     "see_whats_new": "Sieh dir an, was neu ist",
     "wiki": "Wiki",
@@ -187,7 +187,7 @@
     "logged_out": "Abgemeldet",
     "login": "Anmelden",
     "login_success": "Erfolgreich eingeloggt",
-    "login_to_hoppscotch": "Anmelden bei Hoppscotch",
+    "login_to_hoppscotch": "Anmelden bei osapidev",
     "logout": "Ausloggen",
     "re_enter_email": "E-Mail erneut eingeben",
     "send_magic_link": "Magischen Link schicken",
@@ -253,7 +253,7 @@
       "aws_region": "AWS-Region",
       "service_token": "Dienst-Token",
       "advance_config": "Erweiterte Konfiguration",
-      "advance_config_description": "Hoppscotch weist automatisch Standardwerte für bestimmte Felder zu, wenn kein expliziter Wert angegeben wird."
+      "advance_config_description": "osapidev weist automatisch Standardwerte für bestimmte Felder zu, wenn kein expliziter Wert angegeben wird."
     }
   },
   "collection": {
@@ -356,7 +356,7 @@
     "protocols": "Protokolle sind leer",
     "request_variables": "Diese Anfrage hat keine Anfragevariablen",
     "schema": "Verbinden mit einem GraphQL-Endpunkt",
-    "secret_environments": "Geheimnisse werden nicht mit dem Hoppscotch Server synchronisiert",
+    "secret_environments": "Geheimnisse werden nicht mit dem osapidev Server synchronisiert",
     "shared_requests": "Keine geteilten Abfragen",
     "shared_requests_logout": "Melde dich an, um geteilte Anfragen zu sehen oder eine neue zu erstellen",
     "subscription": "Keine Abonnements",
@@ -530,7 +530,7 @@
     "from_gist_description": "Aus GitHub Gist URL importieren",
     "from_insomnia": "Aus Insomnia importieren",
     "from_insomnia_description": "Insomnia-Sammlung importieren",
-    "from_json": "Aus Hoppscotch importieren",
+    "from_json": "Aus osapidev importieren",
     "from_json_description": "Hoppscotch-Sammlung importieren",
     "from_my_collections": "Aus 'Meine Sammlungen' importieren",
     "from_my_collections_description": "Meine-Sammlungen-Datei importieren",
@@ -569,7 +569,7 @@
       "not_found": "Umgebungsvariable “{environment}” nicht gefunden."
     },
     "header": {
-      "cookie": "Der Browser erlaubt Hoppscotch nicht, den Cookie-Header zu setzen. Während wir an der Hoppscotch Desktop App arbeiten (kommt bald), verwende bitte stattdessen den Authorization Header."
+      "cookie": "Der Browser erlaubt osapidev nicht, den Cookie-Header zu setzen. Während wir an der Hoppscotch Desktop App arbeiten (kommt bald), verwende bitte stattdessen den Authorization Header."
     },
     "response": {
       "401_error": "Bitte überprüfe die Authentifizierungsdaten.",
@@ -581,7 +581,7 @@
     "title": "Inspector",
     "url": {
       "extension_not_installed": "Erweiterung nicht installiert.",
-      "extension_unknown_origin": "Stelle sicher, dass du die Quelle für den API-Endpunkt zur Liste in der Hoppscotch Browsererweiterungen hinzugefügt hast.",
+      "extension_unknown_origin": "Stelle sicher, dass du die Quelle für den API-Endpunkt zur Liste in der osapidev Browsererweiterungen hinzugefügt hast.",
       "extention_enable_action": "Browsererweiterung aktivieren",
       "extention_not_enabled": "Browsererweiterungen nicht aktiviert."
     }
@@ -711,7 +711,7 @@
     "save_as": "Speichern als",
     "saved": "Anfrage gespeichert",
     "share": "Teilen",
-    "share_description": "Teile Hoppscotch mit Deinen Freunden",
+    "share_description": "Teile osapidev mit Deinen Freunden",
     "share_request": "Anfrage teilen",
     "stop": "Stop",
     "title": "Anfrage",
@@ -775,7 +775,7 @@
     "interceptor_description": "Middleware zwischen Anwendung und APIs.",
     "language": "Sprache",
     "light_mode": "Hell",
-    "official_proxy_hosting": "Offizieller Proxy, von Hoppscotch gehostet.",
+    "official_proxy_hosting": "Offizieller Proxy, von osapidev gehostet.",
     "profile": "Profil",
     "profile_description": "Aktualisiere Deine Profildaten.",
     "profile_email": "E-Mail-Adresse",
@@ -806,7 +806,7 @@
   },
   "shared_requests": {
     "button": "Schaltfläche",
-    "button_info": "Erstelle einen 'Run in Hoppscotch'-Schaltfläche für deine Website, deinen Blog oder eine README.",
+    "button_info": "Erstelle einen 'Run in osapidev'-Schaltfläche für deine Website, deinen Blog oder eine README.",
     "copy_html": "HTML kopieren",
     "copy_link": "Link kopieren",
     "copy_markdown": "Markdown kopieren",
@@ -815,14 +815,14 @@
     "deleted": "Geteilte Anfrage gelöscht",
     "description": "Wähle ein Widget aus. Du kannst es später noch ändern und anpassen.",
     "embed": "Embed",
-    "embed_info": "Füge deiner Website, deinem Blog oder deiner Dokumentation einen kleinen 'Hoppscotch API Playground' hinzu.",
+    "embed_info": "Füge deiner Website, deinem Blog oder deiner Dokumentation einen kleinen 'osapidev API Playground' hinzu.",
     "link": "Link",
     "link_info": "Erstelle einen Link, den du mit jedem im Internet teilen kannst, der Berechtigungen zur Ansicht bekommt.",
     "modified": "Geteilte Anfrage geändert",
     "not_found": "Geteilte Anfrage nicht gefunden",
     "open_new_tab": "In neuem Tab öffnen",
     "preview": "Vorschau",
-    "run_in_hoppscotch": "In Hoppscotch ausführen",
+    "run_in_hoppscotch": "In osapidev ausführen",
     "theme": {
       "dark": "Dunkel",
       "light": "Hell",
@@ -839,7 +839,7 @@
       "title": "Allgemein"
     },
     "miscellaneous": {
-      "invite": "Lade Leute zu Hoppscotch ein",
+      "invite": "Lade Leute zu osapidev ein",
       "title": "Sonstiges"
     },
     "navigation": {
@@ -929,7 +929,7 @@
       "disconnect": "Verbindung zum Server trennen"
     },
     "miscellaneous": {
-      "invite": "Lade deine Freunde zu Hoppscotch ein",
+      "invite": "Lade deine Freunde zu osapidev ein",
       "title": "Verschiedenes"
     },
     "request": {
@@ -1041,10 +1041,10 @@
     "changelog": "Lese mehr über die neuesten Versionen",
     "chat": "Fragen? Chatte mit uns!",
     "community": "Stelle Fragen und helfe anderen",
-    "documentation": "Lese mehr über Hoppscotch",
+    "documentation": "Lese mehr über osapidev",
     "forum": "Stelle Fragen und erhalte Antworten",
     "github": "Folge uns auf GitHub",
-    "shortcuts": "Hoppscotch schneller bedienen",
+    "shortcuts": "osapidev schneller bedienen",
     "title": "Hilfe",
     "twitter": "Folge uns auf Twitter"
   },
@@ -1131,7 +1131,7 @@
     "we_sent_invite_link": "Einladungen wurden an alle E-Mails verschickt!",
     "invite_sent_smtp_disabled": "Einladungslinks erstellt",
     "we_sent_invite_link_description": "Bitte alle eingeladenen Personen, ihren Posteingang zu überprüfen und auf den Link zu klicken, um dem Team beizutreten.",
-    "invite_sent_smtp_disabled_description": "Das Versenden von Einladungsemails ist für diese Instanz von Hoppscotch deaktiviert. Bitte verwende die Schaltfläche 'Link kopieren', um den Einladungslink manuell zu kopieren und zu teilen.",
+    "invite_sent_smtp_disabled_description": "Das Versenden von Einladungsemails ist für diese Instanz von osapidev deaktiviert. Bitte verwende die Schaltfläche 'Link kopieren', um den Einladungslink manuell zu kopieren und zu teilen.",
     "copy_invite_link": "Einladungslink kopieren",
     "search_title": "Team-Anfragen"
   },
@@ -1166,7 +1166,7 @@
   },
   "site_protection": {
     "login_to_continue": "Einloggen, um fortzufahren",
-    "login_to_continue_description": "Du musst eingeloggt sein, um auf diese Hoppscotch Enterprise-Instanz zuzugreifen.",
+    "login_to_continue_description": "Du musst eingeloggt sein, um auf diese osapidev Enterprise-Instanz zuzugreifen.",
     "error_fetching_site_protection_status": "Beim Abrufen des Status der Seiten­schutz­maßnahmen ist ein Fehler aufgetreten."
   },
   "access_tokens": {
@@ -1194,8 +1194,8 @@
   "collection_runner": {
     "collection_id": "Sammlungs-ID",
     "environment_id": "Umgebungs-ID",
-    "cli_collection_id_description": "Diese Sammlungs-ID wird vom CLI-Sammlungs-Runner für Hoppscotch verwendet.",
-    "cli_environment_id_description": "Diese Umgebungs-ID wird vom CLI-Sammlungs-Runner für Hoppscotch verwendet.",
+    "cli_collection_id_description": "Diese Sammlungs-ID wird vom CLI-Sammlungs-Runner für osapidev verwendet.",
+    "cli_environment_id_description": "Diese Umgebungs-ID wird vom CLI-Sammlungs-Runner für osapidev verwendet.",
     "include_active_environment": "Aktive Umgebung einbeziehen:",
     "cli": "CLI",
     "ui": "Runner (kommt bald)",

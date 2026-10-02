@@ -84,12 +84,12 @@ const currentState =
       )
     : ref({
         status: "disconnected" as const,
-        instance: { displayName: "Hoppscotch" },
+        instance: { displayName: "osapidev" },
       })
 
 const instanceDisplayName = computed(() => {
   if (currentState.value.status !== "connected") {
-    return "Hoppscotch"
+    return "osapidev"
   }
   return currentState.value.instance.displayName
 })
@@ -304,7 +304,7 @@ watch(
 
 usePageHead({
   title: computed(
-    () => publishedDoc.value?.title || "Hoppscotch Documentation"
+    () => publishedDoc.value?.title || "osapidev Documentation"
   ),
   meta: [
     {
@@ -312,13 +312,13 @@ usePageHead({
       content: computed(
         () =>
           collectionData.value?.description ||
-          "Hoppscotch API Documentation - Open source API development ecosystem"
+          "osapidev API Documentation - Open source API development ecosystem"
       ),
     },
     {
       property: "og:title",
       content: computed(
-        () => publishedDoc.value?.title || "Hoppscotch Documentation"
+        () => publishedDoc.value?.title || "osapidev Documentation"
       ),
     },
     {
@@ -326,12 +326,12 @@ usePageHead({
       content: computed(
         () =>
           collectionData.value?.description ||
-          "Hoppscotch API Documentation - Open source API development ecosystem"
+          "osapidev API Documentation - Open source API development ecosystem"
       ),
     },
     {
       property: "og:site_name",
-      content: "Hoppscotch",
+      content: "osapidev",
     },
     {
       property: "og:image",
@@ -352,7 +352,7 @@ usePageHead({
     {
       name: "twitter:title",
       content: computed(
-        () => publishedDoc.value?.title || "Hoppscotch Documentation"
+        () => publishedDoc.value?.title || "osapidev Documentation"
       ),
     },
     {
@@ -360,7 +360,7 @@ usePageHead({
       content: computed(
         () =>
           collectionData.value?.description ||
-          "Hoppscotch API Documentation - Open source API development ecosystem"
+          "osapidev API Documentation - Open source API development ecosystem"
       ),
     },
     {

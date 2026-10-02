@@ -85,20 +85,20 @@
     "copy_interface_type": "Copy interface type",
     "copy_user_id": "複製使用者驗證權杖",
     "developer_option": "開發者選項",
-    "developer_option_description": "協助開發和維護 Hoppscotch 的工具。",
+    "developer_option_description": "協助開發和維護 osapidev 的工具。",
     "discord": "Discord",
     "documentation": "幫助文件",
     "github": "GitHub",
     "help": "幫助與回饋",
     "home": "主頁",
     "invite": "邀請",
-    "invite_description": "Hoppscotch 是一個開源的 API 開發生態系統。我們設計了簡單而直觀的介面來建立和管理您的 API。Hoppscotch 是一個幫助您構建、測試、記錄與分享您的 API 的工具。",
+    "invite_description": "osapidev 是一個開源的 API 開發生態系統。我們設計了簡單而直觀的介面來建立和管理您的 API。osapidev 是一個幫助您構建、測試、記錄與分享您的 API 的工具。",
     "invite_your_friends": "邀請您的夥伴",
     "join_discord_community": "加入我們的 Discord 社群",
     "keyboard_shortcuts": "鍵盤快捷鍵",
-    "name": "Hoppscotch",
+    "name": "osapidev",
     "new_version_found": "已發現新版本。重新整理頁面以更新。",
-    "open_in_hoppscotch": "Open in Hoppscotch",
+    "open_in_hoppscotch": "Open in osapidev",
     "options": "選項",
     "proxy_privacy_policy": "Proxy 隱私政策",
     "reload": "重新載入",
@@ -114,7 +114,7 @@
     "twitter": "Twitter",
     "type_a_command_search": "輸入命令或搜尋內容……",
     "we_use_cookies": "我們使用 cookies",
-    "updated_text": "Hoppscotch has been updated to v{version} 🎉",
+    "updated_text": "osapidev has been updated to v{version} 🎉",
     "whats_new": "新功能",
     "see_whats_new": "See what’s new",
     "wiki": "維基"
@@ -132,7 +132,7 @@
     "logged_out": "登出",
     "login": "登入",
     "login_success": "登入成功",
-    "login_to_hoppscotch": "登入 Hoppscotch",
+    "login_to_hoppscotch": "登入 osapidev",
     "logout": "登出",
     "re_enter_email": "重新輸入電子郵件",
     "send_magic_link": "傳送魔術連結",
@@ -265,7 +265,7 @@
   },
   "documentation": {
     "generate": "產生文件",
-    "generate_message": "匯入 Hoppscotch 集合以隨時隨地產生 API 文件。"
+    "generate_message": "匯入 osapidev 集合以隨時隨地產生 API 文件。"
   },
   "empty": {
     "authorization": "該請求沒有使用任何授權",
@@ -286,7 +286,7 @@
     "protocols": "協定為空",
     "request_variables": "This request does not have any request variables",
     "schema": "連線至 GraphQL 端點",
-    "secret_environments": "Secrets are not synced to Hoppscotch",
+    "secret_environments": "Secrets are not synced to osapidev",
     "shared_requests": "Shared requests are empty",
     "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "訂閱為空",
@@ -445,15 +445,15 @@
     "collections": "匯入集合",
     "curl": "匯入 cURL",
     "environments_from_gist": "Import From Gist",
-    "environments_from_gist_description": "Import Hoppscotch Environments From Gist",
+    "environments_from_gist_description": "Import osapidev Environments From Gist",
     "failed": "匯入失敗",
     "from_file": "Import from File",
     "from_gist": "從 Gist 匯入",
     "from_gist_description": "從 Gist 網址匯入",
     "from_insomnia": "從 Insomnia 匯入",
     "from_insomnia_description": "從 Insomnia 集合匯入",
-    "from_json": "從 Hoppscotch 匯入",
-    "from_json_description": "從 Hoppscotch 集合檔匯入",
+    "from_json": "從 osapidev 匯入",
+    "from_json_description": "從 osapidev 集合檔匯入",
     "from_my_collections": "從我的集合匯入",
     "from_my_collections_description": "從我的集合檔匯入",
     "from_openapi": "從 OpenAPI 匯入",
@@ -463,14 +463,14 @@
     "from_url": "從網址匯入",
     "gist_url": "輸入 Gist 網址",
     "gql_collections_from_gist_description": "Import GraphQL Collections From Gist",
-    "hoppscotch_environment": "Hoppscotch Environment",
-    "hoppscotch_environment_description": "Import Hoppscotch Environment JSON file",
+    "hoppscotch_environment": "osapidev Environment",
+    "hoppscotch_environment_description": "Import osapidev Environment JSON file",
     "import_from_url_invalid_fetch": "無法從網址取得資料",
     "import_from_url_invalid_file_format": "匯入集合時發生錯誤",
     "import_from_url_invalid_type": "不支援此類型。可接受的值為 'hoppscotch'、'openapi'、'postman'、'insomnia'",
     "import_from_url_success": "已匯入集合",
     "insomnia_environment_description": "Import Insomnia Environment from a JSON/YAML file",
-    "json_description": "從 Hoppscotch 集合 JSON 檔匯入集合",
+    "json_description": "從 osapidev 集合 JSON 檔匯入集合",
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment from a JSON file",
     "title": "匯入",
@@ -487,7 +487,7 @@
       "not_found": "找不到環境變數 “{environment}”。"
     },
     "header": {
-      "cookie": "瀏覽器不允許 Hoppscotch 設定 Cookie 標頭。在我們推出 Hoppscotch 桌面版前，請先使用 Authorization 標頭。"
+      "cookie": "瀏覽器不允許 osapidev 設定 Cookie 標頭。在我們推出 osapidev 桌面版前，請先使用 Authorization 標頭。"
     },
     "response": {
       "401_error": "請檢查您的授權認證。",
@@ -499,7 +499,7 @@
     "title": "檢查工具",
     "url": {
       "extension_not_installed": "未安裝擴充套件。",
-      "extension_unknown_origin": "請確認您是否已將 API 端點的來源加入 Hoppscotch 擴充套件的清單。",
+      "extension_unknown_origin": "請確認您是否已將 API 端點的來源加入 osapidev 擴充套件的清單。",
       "extention_enable_action": "啟用瀏覽器擴充套件",
       "extention_not_enabled": "未啟用擴充套件。"
     }
@@ -625,7 +625,7 @@
     "save_as": "另存為",
     "saved": "請求已儲存",
     "share": "分享",
-    "share_description": "與您的朋友分享 Hoppscotch",
+    "share_description": "與您的朋友分享 osapidev",
     "share_request": "Share Request",
     "stop": "Stop",
     "title": "請求",
@@ -681,7 +681,7 @@
     "interceptor_description": "應用程式和 API 之間的中介軟體。",
     "language": "語言",
     "light_mode": "亮色",
-    "official_proxy_hosting": "官方 Proxy 由 Hoppscotch 託管。",
+    "official_proxy_hosting": "官方 Proxy 由 osapidev 託管。",
     "profile": "設定檔",
     "profile_description": "更新您的設定檔詳細資料",
     "profile_email": "電子郵件地址",
@@ -711,7 +711,7 @@
   },
   "shared_requests": {
     "button": "按鈕",
-    "button_info": "為你的網站、部落格或 README 文件建立「在 Hoppscotch 執行」按鈕。",
+    "button_info": "為你的網站、部落格或 README 文件建立「在 osapidev 執行」按鈕。",
     "copy_html": "複製 HTML",
     "copy_link": "複製連結",
     "copy_markdown": "複製 Markdown",
@@ -720,14 +720,14 @@
     "deleted": "已刪除共享請求",
     "description": "選擇一個元件，你可以稍後進行修改與自訂。",
     "embed": "嵌入",
-    "embed_info": "在你的網站、部落格或文件中新增「Hoppscotch API Playground」小工具。",
+    "embed_info": "在你的網站、部落格或文件中新增「osapidev API Playground」小工具。",
     "link": "連結",
     "link_info": "建立任何人均可檢視的分享連結。",
     "modified": "已修改共享請求",
     "not_found": "找不到共享請求",
     "open_new_tab": "在新分頁開啟",
     "preview": "預覽",
-    "run_in_hoppscotch": "在 Hoppscotch 執行",
+    "run_in_hoppscotch": "在 osapidev 執行",
     "theme": {
       "dark": "暗色",
       "light": "亮色",
@@ -744,7 +744,7 @@
       "title": "一般"
     },
     "miscellaneous": {
-      "invite": "邀請使用 Hoppscotch",
+      "invite": "邀請使用 osapidev",
       "title": "雜項"
     },
     "navigation": {
@@ -835,7 +835,7 @@
       "disconnect": "斷開與伺服器的連線"
     },
     "miscellaneous": {
-      "invite": "邀請您的朋友使用 Hoppscotch",
+      "invite": "邀請您的朋友使用 osapidev",
       "title": "雜項"
     },
     "request": {
@@ -945,7 +945,7 @@
     "changelog": "閱讀更多有關最新版本的內容",
     "chat": "有問題？來和我們交流吧！",
     "community": "提問與互助",
-    "documentation": "閱讀更多有關 Hoppscotch 的內容",
+    "documentation": "閱讀更多有關 osapidev 的內容",
     "forum": "答疑解惑",
     "github": "在 GitHub 關注我們",
     "shortcuts": "更快瀏覽應用程式",
@@ -1036,7 +1036,7 @@
     "we_sent_invite_link": "我們向所有受邀者傳送了邀請連結！",
     "invite_sent_smtp_disabled": "Invite links generated",
     "we_sent_invite_link_description": "請所有受邀者檢查他們的收件匣。點擊連結加入團隊。",
-    "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of Hoppscotch. Please use the Copy link button to copy and share the invite link manually.",
+    "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of osapidev. Please use the Copy link button to copy and share the invite link manually.",
     "copy_invite_link": "Copy Invite Link",
     "search_title": "Team Requests",
     "join_beta": "加入 Beta 計畫以存取團隊。"
@@ -1072,13 +1072,13 @@
   },
   "site_protection": {
     "login_to_continue": "Login to continue",
-    "login_to_continue_description": "You need to be logged in to access this Hoppscotch Enterprise Instance.",
+    "login_to_continue_description": "You need to be logged in to access this osapidev Enterprise Instance.",
     "error_fetching_site_protection_status": "Something Went Wrong While Fetching Site Protection Status"
   },
   "access_tokens": {
     "tab_title": "Tokens",
     "section_title": "Personal Access Tokens",
-    "section_description": "Personal access tokens currently helps you connect the CLI to your Hoppscotch account",
+    "section_description": "Personal access tokens currently helps you connect the CLI to your osapidev account",
     "last_used_on": "Last used on",
     "expires_on": "Expires on",
     "no_expiration": "No expiration",
@@ -1100,8 +1100,8 @@
   "collection_runner": {
     "collection_id": "Collection ID",
     "environment_id": "Environment ID",
-    "cli_collection_id_description": "This collection ID will be used by the CLI collection runner for Hoppscotch.",
-    "cli_environment_id_description": "This environment ID will be used by the CLI collection runner for Hoppscotch.",
+    "cli_collection_id_description": "This collection ID will be used by the CLI collection runner for osapidev.",
+    "cli_environment_id_description": "This environment ID will be used by the CLI collection runner for osapidev.",
     "include_active_environment": "Include active environment:",
     "cli": "CLI",
     "ui": "Runner (coming soon)",

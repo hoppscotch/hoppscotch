@@ -13,7 +13,7 @@
     "collapse_sidebar": "ย่อแถบด้านข้าง",
     "continue_to_dashboard": "ดำเนินการต่อไปยังแดชบอร์ด",
     "expand_sidebar": "ขยายแถบด้านข้าง",
-    "name": "HOPPSCOTCH",
+    "name": "OSAPIDEV",
     "no_name": "ไม่มีชื่อ",
     "open_navigation": "เปิดการนำทาง",
     "read_documentation": "อ่านเอกสารประกอบ"
@@ -29,7 +29,7 @@
   "configs": {
     "auth_providers": {
       "auth_provider_config": "การกำหนดค่าการยืนยันตัวตน",
-      "auth_provider_description": "ตั้งค่าวิธีการยืนยันตัวตนสำหรับอินสแตนซ์ Hoppscotch ของคุณโดยใช้ OAuth หรืออีเมล",
+      "auth_provider_description": "ตั้งค่าวิธีการยืนยันตัวตนสำหรับอินสแตนซ์ osapidev ของคุณโดยใช้ OAuth หรืออีเมล",
       "callback_url": "CALLBACK URL",
       "client_id": "CLIENT ID",
       "client_secret": "CLIENT SECRET",
@@ -59,13 +59,13 @@
       },
       "update_failure": "ไม่สามารถอัปเดตการกำหนดค่าผู้ให้บริการยืนยันตัวตนได้!!"
     },
-    "confirm_changes": "เซิร์ฟเวอร์ Hoppscotch ต้องรีสตาร์ทเพื่อให้การเปลี่ยนแปลงใหม่มีผล ยืนยันการเปลี่ยนแปลงที่ทำกับการกำหนดค่าเซิร์ฟเวอร์หรือไม่?",
+    "confirm_changes": "เซิร์ฟเวอร์ osapidev ต้องรีสตาร์ทเพื่อให้การเปลี่ยนแปลงใหม่มีผล ยืนยันการเปลี่ยนแปลงที่ทำกับการกำหนดค่าเซิร์ฟเวอร์หรือไม่?",
     "invalid_number": "โปรดป้อนตัวเลขที่ถูกต้องสำหรับช่องนี้",
     "input_empty": "โปรดกรอกข้อมูลทุกช่องก่อนอัปเดตการกำหนดค่า",
     "input_validation_error": "บางช่องมีค่าที่ไม่ถูกต้อง โปรดแก้ไขก่อนอัปเดตการกำหนดค่า",
     "data_sharing": {
       "title": "การแบ่งปันข้อมูล",
-      "description": "ช่วยปรับปรุง Hoppscotch ด้วยการแบ่งปันข้อมูลแบบไม่ระบุตัวตน",
+      "description": "ช่วยปรับปรุง osapidev ด้วยการแบ่งปันข้อมูลแบบไม่ระบุตัวตน",
       "enable": "เปิดใช้งานการแบ่งปันข้อมูล",
       "secondary_title": "การกำหนดค่าการแบ่งปันข้อมูล",
       "see_shared": "ดูข้อมูลที่แบ่งปัน",
@@ -103,7 +103,7 @@
       "user": "SMTP User"
     },
     "history_configs": {
-      "description": "ปิดหรือเปิดการติดตามประวัติคำขอที่ส่งจากแอป Hoppscotch",
+      "description": "ปิดหรือเปิดการติดตามประวัติคำขอที่ส่งจากแอป osapidev",
       "title": "การกำหนดค่าประวัติ",
       "enable_history": "เปิดใช้งานประวัติ",
       "clear_history": "ล้างประวัติที่มีอยู่",
@@ -113,7 +113,7 @@
       "clear_confirm": "คุณแน่ใจหรือไม่ว่าต้องการล้างประวัติทั้งหมด?"
     },
     "rate_limit": {
-      "description": "กำหนดค่าการจำกัดอัตราสำหรับอินสแตนซ์ Hoppscotch ของคุณ",
+      "description": "กำหนดค่าการจำกัดอัตราสำหรับอินสแตนซ์ osapidev ของคุณ",
       "rate_limit_max": "คำขอสูงสุด",
       "rate_limit_ttl": "ระยะเวลาคงอยู่ (เป็นมิลลิวินาที)",
       "title": "การกำหนดค่าการจำกัดอัตรา",
@@ -128,7 +128,7 @@
       "url_placeholder": "ป้อน Proxy URL"
     },
     "reset": {
-      "confirm_reset": "เซิร์ฟเวอร์ Hoppscotch ต้องรีสตาร์ทเพื่อให้การเปลี่ยนแปลงใหม่มีผล ยืนยันการรีเซ็ตการกำหนดค่าเซิร์ฟเวอร์หรือไม่?",
+      "confirm_reset": "เซิร์ฟเวอร์ osapidev ต้องรีสตาร์ทเพื่อให้การเปลี่ยนแปลงใหม่มีผล ยืนยันการรีเซ็ตการกำหนดค่าเซิร์ฟเวอร์หรือไม่?",
       "description": "การกำหนดค่าเริ่มต้นจะถูกโหลดตามที่ระบุไว้ในไฟล์ environment",
       "failure": "ไม่สามารถรีเซ็ตการกำหนดค่าได้!!",
       "title": "รีเซ็ตการกำหนดค่า",
@@ -164,11 +164,11 @@
     "update_failure": "ไม่สามารถอัปเดตการกำหนดค่าเซิร์ฟเวอร์ได้"
   },
   "data_sharing": {
-    "description": "แชร์ข้อมูลการใช้งานแบบไม่ระบุตัวตนเพื่อปรับปรุง Hoppscotch",
+    "description": "แชร์ข้อมูลการใช้งานแบบไม่ระบุตัวตนเพื่อปรับปรุง osapidev",
     "enable": "เปิดใช้งานการแชร์ข้อมูล",
     "see_shared": "ดูสิ่งที่แชร์",
-    "toggle_description": "แชร์ข้อมูลและทำให้ Hoppscotch ดียิ่งขึ้น",
-    "title": "ทำให้ Hoppscotch ดียิ่งขึ้น",
+    "toggle_description": "แชร์ข้อมูลและทำให้ osapidev ดียิ่งขึ้น",
+    "title": "ทำให้ osapidev ดียิ่งขึ้น",
     "welcome": "ยินดีต้อนรับสู่"
   },
   "infra_tokens": {
@@ -185,7 +185,7 @@
     "last_used_on": "ใช้งานล่าสุดเมื่อ",
     "no_expiration": "ไม่มีการหมดอายุ",
     "no_expiration_verbose": "โทเค็นนี้จะไม่มีวันหมดอายุ!",
-    "section_description": "จัดการผู้ใช้ Hoppscotch ของคุณผ่าน API ด้วย Infra Token",
+    "section_description": "จัดการผู้ใช้ osapidev ของคุณผ่าน API ด้วย Infra Token",
     "section_title": "Infra Tokens",
     "tab_title": "Infra Tokens",
     "token_expires_on": "โทเค็นนี้จะหมดอายุเมื่อ",
@@ -203,7 +203,7 @@
     "description": "รับข่าวสารล่าสุดของเรา",
     "subscribe": "สมัครรับข้อมูล",
     "title": "ติดต่อกันไว้",
-    "toggle_description": "รับข่าวสารล่าสุดเกี่ยวกับ Hoppscotch",
+    "toggle_description": "รับข่าวสารล่าสุดเกี่ยวกับ osapidev",
     "unsubscribe": "ยกเลิกการสมัครรับข้อมูล"
   },
   "onboarding": {
@@ -214,12 +214,12 @@
     "auth_setup": "การตั้งค่าการยืนยันตัวตน",
     "auth_successfully_configured": "กำหนดค่าการยืนยันตัวตนสำเร็จแล้ว",
     "complete": "เสร็จสมบูรณ์",
-    "complete_description": "คุณได้เสร็จสิ้นกระบวนการเริ่มต้นใช้งานแล้ว ตอนนี้คุณสามารถเริ่มใช้งาน Hoppscotch ได้",
+    "complete_description": "คุณได้เสร็จสิ้นกระบวนการเริ่มต้นใช้งานแล้ว ตอนนี้คุณสามารถเริ่มใช้งาน osapidev ได้",
     "complete_title": "การเริ่มต้นใช้งานเสร็จสมบูรณ์",
     "configurations": "การกำหนดค่า",
     "configurations_added_successfully": "เพิ่มการกำหนดค่าการเริ่มต้นใช้งานสำเร็จแล้ว",
     "configurations_adding_failed": "ไม่สามารถเพิ่มการกำหนดค่าการเริ่มต้นใช้งานได้ โปรดลองอีกครั้ง",
-    "configurations_description": "กำหนดค่าการตั้งค่าอินสแตนซ์ Hoppscotch ของคุณ",
+    "configurations_description": "กำหนดค่าการตั้งค่าอินสแตนซ์ osapidev ของคุณ",
     "configuration_error": "ไม่สามารถเพิ่มการกำหนดค่าได้",
     "configurations_title": "การกำหนดค่าเซิร์ฟเวอร์",
     "configuration_summary": "สรุปการกำหนดค่า",
@@ -237,7 +237,7 @@
     "save_auth_config": "บันทึกการกำหนดค่าการยืนยันตัวตน",
     "setup_complete": {
       "title": "การตั้งค่าเสร็จสมบูรณ์",
-      "description": "คุณได้ทำกระบวนการเริ่มต้นใช้งานสำหรับอินสแตนซ์ Hoppscotch ของคุณเสร็จสมบูรณ์แล้ว",
+      "description": "คุณได้ทำกระบวนการเริ่มต้นใช้งานสำหรับอินสแตนซ์ osapidev ของคุณเสร็จสมบูรณ์แล้ว",
       "description_sub": "หน้านี้จะเปลี่ยนเส้นทางไปยังแดชบอร์ดโดยอัตโนมัติในอีกไม่กี่วินาที หรือคุณสามารถโหลดซ้ำได้เมื่อเซิร์ฟเวอร์รีสตาร์ทแล้ว"
     },
     "server_restarting": "เซิร์ฟเวอร์จะรีสตาร์ทในอีก {time} วินาที...",
@@ -252,7 +252,7 @@
     "select_atleast_one": "โปรดเลือกผู้ให้บริการยืนยันตัวตนอย่างน้อยหนึ่งรายเพื่อดำเนินการต่อ",
     "start_onboarding": "เริ่มการเริ่มต้นใช้งาน",
     "welcome": "ยินดีต้อนรับ",
-    "welcome_screen_description": "ยินดีต้อนรับสู่ Hoppscotch! มาเริ่มต้นการตั้งค่ากันเลย",
+    "welcome_screen_description": "ยินดีต้อนรับสู่ osapidev! มาเริ่มต้นการตั้งค่ากันเลย",
     "welcome_screen_sub_description": "โปรดตั้งค่า SMTP หรือ OAuth อย่างใดอย่างหนึ่งสำหรับการยืนยันตัวตน"
   },
   "settings": {
@@ -386,7 +386,7 @@
     "users_to_admin_failure": "ยกระดับผู้ใช้ที่เลือกเป็นสถานะผู้ดูแลระบบไม่สำเร็จ!!"
   },
   "support": {
-    "description": "รับความช่วยเหลือจากชุมชน Hoppscotch",
+    "description": "รับความช่วยเหลือจากชุมชน osapidev",
     "documentation": "เอกสารประกอบ",
     "more_info": "ข้อมูลเพิ่มเติม"
   },
@@ -480,7 +480,7 @@
     "invalid_user": "ผู้ใช้ไม่ถูกต้อง",
     "invite_load_list_error": "ไม่สามารถโหลดรายการผู้ใช้ที่ได้รับเชิญได้",
     "invite_user": "เชิญผู้ใช้",
-    "invite_users_description": "เชิญสมาชิกในทีมของคุณเข้าร่วม Hoppscotch",
+    "invite_users_description": "เชิญสมาชิกในทีมของคุณเข้าร่วม osapidev",
     "invited_by": "เชิญโดย",
     "invited_on": "เชิญเมื่อ",
     "invited_users": "ผู้ใช้ที่ได้รับเชิญ",

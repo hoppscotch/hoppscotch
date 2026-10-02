@@ -69,20 +69,20 @@
     "copy_interface_type": "Copy interface type",
     "copy_user_id": "Copy User Auth Token",
     "developer_option": "Developer options",
-    "developer_option_description": "Εργαλεία για προγραμματιστές που βοηθάνε στην ανάπτυξη και συντήρηση του Hoppscotch.",
+    "developer_option_description": "Εργαλεία για προγραμματιστές που βοηθάνε στην ανάπτυξη και συντήρηση του osapidev.",
     "discord": "Discord",
     "documentation": "Τεκμηρίωση",
     "github": "GitHub",
     "help": "Βοήθεια, σχόλια και τεκμηρίωση",
     "home": "Σπίτι",
     "invite": "Καλώ",
-    "invite_description": "Στο Hoppscotch, σχεδιάσαμε μια απλή και διαισθητική διεπαφή για τη δημιουργία και τη διαχείριση των API σας. Το Hoppscotch είναι ένα εργαλείο που σας βοηθά να δημιουργήσετε, να δοκιμάσετε, να τεκμηριώσετε και να μοιραστείτε τα API σας.",
+    "invite_description": "Στο osapidev, σχεδιάσαμε μια απλή και διαισθητική διεπαφή για τη δημιουργία και τη διαχείριση των API σας. Το osapidev είναι ένα εργαλείο που σας βοηθά να δημιουργήσετε, να δοκιμάσετε, να τεκμηριώσετε και να μοιραστείτε τα API σας.",
     "invite_your_friends": "Κάλεσε τους φίλους σου",
     "join_discord_community": "Γίνετε μέλος της κοινότητάς μας Discord",
     "keyboard_shortcuts": "Συντομεύσεις πληκτρολογίου",
-    "name": "Hoppscotch",
+    "name": "osapidev",
     "new_version_found": "Βρέθηκε νέα έκδοση. Ανανέωση για ενημέρωση.",
-    "open_in_hoppscotch": "Open in Hoppscotch",
+    "open_in_hoppscotch": "Open in osapidev",
     "options": "Options",
     "proxy_privacy_policy": "Πολιτική απορρήτου μεσολάβησης",
     "reload": "Φορτώνω πάλι",
@@ -98,7 +98,7 @@
     "twitter": "Twitter",
     "type_a_command_search": "Πληκτρολογήστε μια εντολή ή αναζήτηση…",
     "we_use_cookies": "Χρησιμοποιούμε cookies",
-    "updated_text": "Hoppscotch has been updated to v{version} 🎉",
+    "updated_text": "osapidev has been updated to v{version} 🎉",
     "whats_new": "Τι νέα?",
     "see_whats_new": "See what’s new",
     "wiki": "Wiki"
@@ -116,7 +116,7 @@
     "logged_out": "Αποσυνδέθηκα",
     "login": "Σύνδεση",
     "login_success": "Επιτυχής σύνδεση",
-    "login_to_hoppscotch": "Συνδεθείτε στο Hoppscotch",
+    "login_to_hoppscotch": "Συνδεθείτε στο osapidev",
     "logout": "Αποσύνδεση",
     "re_enter_email": "Εισάγετε ξανά τη διεύθυνση ηλεκτρονικού ταχυδρομείου",
     "send_magic_link": "Στείλτε έναν μαγικό σύνδεσμο",
@@ -249,7 +249,7 @@
   },
   "documentation": {
     "generate": "Δημιουργήστε τεκμηρίωση",
-    "generate_message": "Εισαγάγετε οποιαδήποτε συλλογή Hoppscotch για να δημιουργήσετε τεκμηρίωση API εν κινήσει."
+    "generate_message": "Εισαγάγετε οποιαδήποτε συλλογή osapidev για να δημιουργήσετε τεκμηρίωση API εν κινήσει."
   },
   "empty": {
     "authorization": "Αυτό το αίτημα δεν χρησιμοποιεί καμία εξουσιοδότηση",
@@ -270,7 +270,7 @@
     "protocols": "Τα πρωτόκολλα είναι κενά",
     "request_variables": "This request does not have any request variables",
     "schema": "Συνδεθείτε σε ένα τελικό σημείο GraphQL",
-    "secret_environments": "Secrets are not synced to Hoppscotch",
+    "secret_environments": "Secrets are not synced to osapidev",
     "shared_requests": "Shared requests are empty",
     "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "Subscriptions are empty",
@@ -429,15 +429,15 @@
     "collections": "Εισαγωγή συλλογών",
     "curl": "Εισαγωγή cURL",
     "environments_from_gist": "Import From Gist",
-    "environments_from_gist_description": "Import Hoppscotch Environments From Gist",
+    "environments_from_gist_description": "Import osapidev Environments From Gist",
     "failed": "Η εισαγωγή απέτυχε",
     "from_file": "Import from File",
     "from_gist": "Εισαγωγή από το Gist",
     "from_gist_description": "Εισαγωγή από Gist URL",
     "from_insomnia": "Εισαγωγή από Insomnia",
     "from_insomnia_description": "Εισαγωγή από Συλλογή Insomnia",
-    "from_json": "Εισαγωγή από Hoppscotch",
-    "from_json_description": "Εισαγωγή από αρχείο συλλογών Hoppscotch",
+    "from_json": "Εισαγωγή από osapidev",
+    "from_json_description": "Εισαγωγή από αρχείο συλλογών osapidev",
     "from_my_collections": "Εισαγωγή από τις Συλλογές μου",
     "from_my_collections_description": "Εισαγωγή από αρχείο οι Συλλογές μου",
     "from_openapi": "Εισαγωγή από OpenAPI",
@@ -447,14 +447,14 @@
     "from_url": "Εισαγωγή από URL",
     "gist_url": "Εισαγάγετε Gist URL",
     "gql_collections_from_gist_description": "Import GraphQL Collections From Gist",
-    "hoppscotch_environment": "Hoppscotch Environment",
-    "hoppscotch_environment_description": "Import Hoppscotch Environment JSON file",
+    "hoppscotch_environment": "osapidev Environment",
+    "hoppscotch_environment_description": "Import osapidev Environment JSON file",
     "import_from_url_invalid_fetch": "Δεν μπορέσαμε να πάρουμε δεδομένα από το url",
     "import_from_url_invalid_file_format": "Σφάλμα κατά την εισαγωγή των Συλλογών",
     "import_from_url_invalid_type": "Μη υποστηριζόμενος τύπος. Αποδεκτές τιμές είναι 'hoppscotch', 'openapi', 'postman', 'insomnia'",
     "import_from_url_success": "Η εισαγωγή των Συλλογών ήταν επιτυχής",
     "insomnia_environment_description": "Import Insomnia Environment from a JSON/YAML file",
-    "json_description": "Εισαγωγή συλλογών αρχείο JSON Hoppscotch Collections",
+    "json_description": "Εισαγωγή συλλογών αρχείο JSON osapidev Collections",
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment from a JSON file",
     "title": "Εισαγωγή",
@@ -471,7 +471,7 @@
       "not_found": "Environment variable “{environment}” not found."
     },
     "header": {
-      "cookie": "The browser doesn't allow Hoppscotch to set the Cookie Header. While we're working on the Hoppscotch Desktop App (coming soon), please use the Authorization Header instead."
+      "cookie": "The browser doesn't allow osapidev to set the Cookie Header. While we're working on the Hoppscotch Desktop App (coming soon), please use the Authorization Header instead."
     },
     "response": {
       "401_error": "Please check your authentication credentials.",
@@ -609,7 +609,7 @@
     "save_as": "Αποθήκευση ως",
     "saved": "Το αίτημα αποθηκεύτηκε",
     "share": "Μερίδιο",
-    "share_description": "Κοινοποίηση Hoppscotch στους φίλους σου",
+    "share_description": "Κοινοποίηση osapidev στους φίλους σου",
     "share_request": "Share Request",
     "stop": "Stop",
     "title": "Αίτηση",
@@ -665,7 +665,7 @@
     "interceptor_description": "Middleware μεταξύ εφαρμογής και API.",
     "language": "Γλώσσα",
     "light_mode": "Φως",
-    "official_proxy_hosting": "Το Official Proxy φιλοξενείται από το Hoppscotch.",
+    "official_proxy_hosting": "Το Official Proxy φιλοξενείται από το osapidev.",
     "profile": "Profile",
     "profile_description": "Ανανεώστε τις λεπτομέρειες του προφίλ σας",
     "profile_email": "Διευθυνση Email",
@@ -695,7 +695,7 @@
   },
   "shared_requests": {
     "button": "Button",
-    "button_info": "Create a 'Run in Hoppscotch' button for your website, blog or a README.",
+    "button_info": "Create a 'Run in osapidev' button for your website, blog or a README.",
     "copy_html": "Copy HTML",
     "copy_link": "Copy Link",
     "copy_markdown": "Copy Markdown",
@@ -704,14 +704,14 @@
     "deleted": "Shared request deleted",
     "description": "Select a widget, you can change and customize this later",
     "embed": "Embed",
-    "embed_info": "Add a mini 'Hoppscotch API Playground' to your website, blog or documentation.",
+    "embed_info": "Add a mini 'osapidev API Playground' to your website, blog or documentation.",
     "link": "Link",
     "link_info": "Create a shareable link to share with anyone on the internet with view access.",
     "modified": "Shared request modified",
     "not_found": "Shared request not found",
     "open_new_tab": "Open in new tab",
     "preview": "Preview",
-    "run_in_hoppscotch": "Run in Hoppscotch",
+    "run_in_hoppscotch": "Run in osapidev",
     "theme": {
       "dark": "Dark",
       "light": "Light",
@@ -728,7 +728,7 @@
       "title": "Γενικός"
     },
     "miscellaneous": {
-      "invite": "Προσκαλέστε άτομα στο Hoppscotch",
+      "invite": "Προσκαλέστε άτομα στο osapidev",
       "title": "Διάφορα"
     },
     "navigation": {
@@ -819,7 +819,7 @@
       "disconnect": "Disconnect from server"
     },
     "miscellaneous": {
-      "invite": "Invite your friends to Hoppscotch",
+      "invite": "Invite your friends to osapidev",
       "title": "Miscellaneous"
     },
     "request": {
@@ -929,7 +929,7 @@
     "changelog": "Διαβάστε περισσότερα για τις τελευταίες κυκλοφορίες",
     "chat": "Ερωτήσεις; Μίλα μαζί μας!",
     "community": "Κάντε ερωτήσεις και βοηθήστε τους άλλους",
-    "documentation": "Διαβάστε περισσότερα για Hoppscotch",
+    "documentation": "Διαβάστε περισσότερα για osapidev",
     "forum": "Κάντε ερωτήσεις και λάβετε απαντήσεις",
     "github": "Follow us on Github",
     "shortcuts": "Περιηγηθείτε πιο γρήγορα στην εφαρμογή",
@@ -1020,7 +1020,7 @@
     "we_sent_invite_link": "Στείλαμε έναν σύνδεσμο πρόσκλησης σε όλους!",
     "invite_sent_smtp_disabled": "Invite links generated",
     "we_sent_invite_link_description": "Ζητήστε από όλους όσους στείλατε πρόσκληση να ελέγξουν τα email τους. Click στον σύνδεσμο για εισαγωγή στην ομάδα.",
-    "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of Hoppscotch. Please use the Copy link button to copy and share the invite link manually.",
+    "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of osapidev. Please use the Copy link button to copy and share the invite link manually.",
     "copy_invite_link": "Copy Invite Link",
     "search_title": "Team Requests",
     "join_beta": "Εγγραφείτε στο πρόγραμμα beta για πρόσβαση σε ομάδες."
@@ -1056,13 +1056,13 @@
   },
   "site_protection": {
     "login_to_continue": "Login to continue",
-    "login_to_continue_description": "You need to be logged in to access this Hoppscotch Enterprise Instance.",
+    "login_to_continue_description": "You need to be logged in to access this osapidev Enterprise Instance.",
     "error_fetching_site_protection_status": "Something Went Wrong While Fetching Site Protection Status"
   },
   "access_tokens": {
     "tab_title": "Tokens",
     "section_title": "Personal Access Tokens",
-    "section_description": "Personal access tokens currently helps you connect the CLI to your Hoppscotch account",
+    "section_description": "Personal access tokens currently helps you connect the CLI to your osapidev account",
     "last_used_on": "Last used on",
     "expires_on": "Expires on",
     "no_expiration": "No expiration",
@@ -1084,8 +1084,8 @@
   "collection_runner": {
     "collection_id": "Collection ID",
     "environment_id": "Environment ID",
-    "cli_collection_id_description": "This collection ID will be used by the CLI collection runner for Hoppscotch.",
-    "cli_environment_id_description": "This environment ID will be used by the CLI collection runner for Hoppscotch.",
+    "cli_collection_id_description": "This collection ID will be used by the CLI collection runner for osapidev.",
+    "cli_environment_id_description": "This environment ID will be used by the CLI collection runner for osapidev.",
     "include_active_environment": "Include active environment:",
     "cli": "CLI",
     "ui": "Runner (coming soon)",

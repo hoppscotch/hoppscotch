@@ -29,10 +29,10 @@ export class MailerService {
   ): string {
     switch (mailDesc.template) {
       case 'team-invitation':
-        return `A user has invited you to join a team workspace in Hoppscotch`;
+        return `A user has invited you to join a team workspace in osapidev`;
 
       case 'user-invitation':
-        return 'Sign in to Hoppscotch';
+        return 'Sign in to osapidev';
     }
   }
 

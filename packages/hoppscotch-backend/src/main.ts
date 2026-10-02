@@ -17,7 +17,7 @@ function setupSwagger(
   const swaggerDocPath = '/api-docs';
 
   const config = new DocumentBuilder()
-    .setTitle('Hoppscotch API Documentation')
+    .setTitle('osapidev API Documentation')
     .setDescription('APIs for external integration')
     .addApiKey(
       {

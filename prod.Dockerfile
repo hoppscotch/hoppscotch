@@ -312,8 +312,9 @@ ENV PRODUCTION="true"
 ENV PORT=8080
 
 # Open Containers Initiative (OCI) labels - useful for bots like Renovate
-LABEL org.opencontainers.image.source="https://github.com/hoppscotch/hoppscotch" \
-  org.opencontainers.image.url="https://docs.hoppscotch.io" \
+LABEL org.opencontainers.image.title="osapidev" \
+  org.opencontainers.image.source="https://github.com/angwdev/osapidev" \
+  org.opencontainers.image.url="https://github.com/angwdev/osapidev" \
   org.opencontainers.image.licenses="MIT"
 
 # Copy necessary files

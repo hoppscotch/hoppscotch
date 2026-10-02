@@ -97,8 +97,8 @@
     "star": "Ajouter une étoile"
   },
   "agent": {
-    "registration_instruction": "Veuillez enregistrer l'agent Hoppscotch avec votre client web pour continuer.",
-    "enter_otp_instruction": "Veuillez entrer le code de vérification généré par l'agent Hoppscotch pour compléter l'enregistrement",
+    "registration_instruction": "Veuillez enregistrer l'agent osapidev avec votre client web pour continuer.",
+    "enter_otp_instruction": "Veuillez entrer le code de vérification généré par l'agent osapidev pour compléter l'enregistrement",
     "otp_label": "Code de vérification",
     "processing": "Traitement de votre requête...",
     "not_running_title": "Agent non détecté",
@@ -107,7 +107,7 @@
     "ca_certs": "Certificats de l'autorité de certification",
     "client_certs": "Certificats client",
     "use_http_proxy": "Utiliser le proxy HTTP",
-    "proxy_capabilities": "L'agent Hoppscotch prend en charge les proxy HTTP/HTTPS/SOCKS avec NLTM et l'authentification basique (Basic) pour ces proxy. Le nom d'utilisateur et le mot de passe doivent être passés en paramètre de l'URL elle-même pour l'authentification via proxy.",
+    "proxy_capabilities": "L'agent osapidev prend en charge les proxy HTTP/HTTPS/SOCKS avec NLTM et l'authentification basique (Basic) pour ces proxy. Le nom d'utilisateur et le mot de passe doivent être passés en paramètre de l'URL elle-même pour l'authentification via proxy.",
     "add_cert_file": "Ajouter un fichier de certificat",
     "add_client_cert": "Ajouter un certificat client",
     "add_key_file": "Ajouter une clé de certificat",
@@ -133,20 +133,20 @@
     "copy_interface_type": "Copier le type d'interface",
     "copy_user_id": "Copier le jeton d'authentification utilisateur",
     "developer_option": "Outils du développeur",
-    "developer_option_description": "Outils du développeur qui aident sur le développement et la maintenance d'Hoppscotch.",
+    "developer_option_description": "Outils du développeur qui aident sur le développement et la maintenance d'osapidev.",
     "discord": "Discord",
     "documentation": "Documentation",
     "github": "GitHub",
     "help": "Aide & commentaires",
     "home": "Accueil",
     "invite": "Inviter",
-    "invite_description": "Hoppscotch est un écosystème de développement d'API OpenSource. Nous avons conçu une interface simple et intuitive pour créer et gérer vos APIs. Hoppscotch est un outil qui vous aide à créer, tester, documenter et partager vos APIs.",
+    "invite_description": "osapidev est un écosystème de développement d'API OpenSource. Nous avons conçu une interface simple et intuitive pour créer et gérer vos APIs. osapidev est un outil qui vous aide à créer, tester, documenter et partager vos APIs.",
     "invite_your_friends": "Inviter des amis",
     "join_discord_community": "Rejoignez notre communauté Discord",
     "keyboard_shortcuts": "Raccourcis clavier",
-    "name": "Hoppscotch",
+    "name": "osapidev",
     "new_version_found": "Nouvelle version trouvée. Actualisez la page pour mettre à jour.",
-    "open_in_hoppscotch": "Ouvrir dans Hoppscotch",
+    "open_in_hoppscotch": "Ouvrir dans osapidev",
     "options": "Options",
     "proxy_privacy_policy": "Politique de confidentialité du proxy",
     "reload": "Rafraîchir",
@@ -162,7 +162,7 @@
     "twitter": "Twitter",
     "type_a_command_search": "Entrez une commande ou votre recherche…",
     "we_use_cookies": "Nous utilisons des cookies",
-    "updated_text": "Hoppscotch a bien été mis à jour vers la version v{version} 🎉",
+    "updated_text": "osapidev a bien été mis à jour vers la version v{version} 🎉",
     "whats_new": "Nouveautés",
     "see_whats_new": "Voir les nouveautés",
     "wiki": "Wiki",
@@ -188,7 +188,7 @@
     "logged_out": "Déconnecté",
     "login": "Connexion",
     "login_success": "Connexion réussie",
-    "login_to_hoppscotch": "Se connecter à Hoppscotch",
+    "login_to_hoppscotch": "Se connecter à osapidev",
     "logout": "Se déconnecter",
     "re_enter_email": "Entrez votre adresse e-mail à nouveau",
     "send_magic_link": "Envoyer un lien de connexion",
@@ -261,7 +261,7 @@
     "type": "Type d'authentification",
     "username": "Nom d'utilisateur",
     "advance_config": "Configuration avancée",
-    "advance_config_description": "Hoppscotch assigne automatiquement des valeurs par défaut pour les champs qui ne sont pas explicitement renseignés",
+    "advance_config_description": "osapidev assigne automatiquement des valeurs par défaut pour les champs qui ne sont pas explicitement renseignés",
     "algorithm": "Algorithme",
     "payload": "Charge utile (Payload)",
     "secret": "Clé secrète",
@@ -404,7 +404,7 @@
   },
   "documentation": {
     "generate": "Générer la documentation",
-    "generate_message": "Importer une collection Hoppscotch pour générer directement la documentation d'API associée."
+    "generate_message": "Importer une collection osapidev pour générer directement la documentation d'API associée."
   },
   "empty": {
     "activity_logs": "Aucune entrée de journalisation d'activité trouvée",
@@ -428,7 +428,7 @@
     "request_variables": "Cette requête ne possède aucune variable",
     "schema": "Se connecter à un point de terminaison GraphQL pour visualiser la structure",
     "search_environment": "Aucun environnement trouvé pour",
-    "secret_environments": "Les clés secrètes ne sont pas synchronisés dans Hoppscotch",
+    "secret_environments": "Les clés secrètes ne sont pas synchronisés dans osapidev",
     "shared_requests": "Les requêtes partagées sont vides",
     "shared_requests_logout": "Connectez-vous pour voir vos requêtes partagées ou pour en créer une nouvelle",
     "subscription": "Les abonnements sont vides",
@@ -641,8 +641,8 @@
     "collection_properties_header": "Cette en-tête sera définie par défaut pour chaque requête de cette collection.",
     "generate_documentation_first": "Générez la documentation d'abord",
     "network_fail": "Impossible de joindre le point de terminaison API. Veuillez vérifier votre connexion réseau ou sélectionnez un Intercepteur différent puis réessayez.",
-    "offline": "Vous utilisez Hoppscotch hors-ligne. Les modifications seront synchronisés quand vous serez à nouveau en ligne suivant les paramètres de votre espace de travail.",
-    "offline_short": "Vous utilisez Hoppscotch hors-ligne.",
+    "offline": "Vous utilisez osapidev hors-ligne. Les modifications seront synchronisés quand vous serez à nouveau en ligne suivant les paramètres de votre espace de travail.",
+    "offline_short": "Vous utilisez osapidev hors-ligne.",
     "post_request_tests": "Les scripts post-requête sont écrits en JavaScript et sont exécutés après que la réponse ait été reçue.",
     "pre_request_script": "Les scripts post-requête sont écrits en JavaScript et sont exécutés avant que la requête ne soit envoyée.",
     "script_fail": "Il semblerait qu'il y ait un bug dans le script de pré-requête. Veuillez vérifier l'erreur ci-dessous et corrigez le script en conséquence.",
@@ -660,18 +660,18 @@
     "collections": "Importer les collections",
     "curl": "Importer un cURL",
     "environments_from_gist": "Importer depuis Gist",
-    "environments_from_gist_description": "Importer les environnements Hoppscotch depuis Gist",
+    "environments_from_gist_description": "Importer les environnements osapidev depuis Gist",
     "failed": "Erreur pendant l'import : le format n'est pas reconnu",
     "from_file": "Importer depuis un fichier",
     "from_gist": "Importer depuis Gist",
     "from_gist_description": "Inporter depuis une URL Gist",
-    "from_gist_import_summary": "Toutes les fonctionnalités d'Hoppscotch depuis Gist ont été importées.",
-    "from_hoppscotch_importer_summary": "Toutes les fonctionnalités d'Hoppscotch ont été importées.",
+    "from_gist_import_summary": "Toutes les fonctionnalités d'osapidev depuis Gist ont été importées.",
+    "from_hoppscotch_importer_summary": "Toutes les fonctionnalités d'osapidev ont été importées.",
     "from_insomnia": "Importer depuis Insomnia",
     "from_insomnia_description": "Importer depuis une collection Insomnia",
     "from_insomnia_import_summary": "Les collections et les requêtes vont être importées.",
-    "from_json": "Importer depuis Hoppscotch",
-    "from_json_description": "Importer depuis un fichier de collections Hoppscotch",
+    "from_json": "Importer depuis osapidev",
+    "from_json_description": "Importer depuis un fichier de collections osapidev",
     "from_my_collections": "Importer depuis les collections personnelles",
     "from_my_collections_description": "Importer depuis un fichier de collections personnelles",
     "from_all_collections": "Importer depuis un autre espace de travail",
@@ -688,14 +688,14 @@
     "from_har_description": "Importer depuis un fichier HAR",
     "from_har_import_summary": "Les requêtes seront importées dans une collection par défaut.",
     "gql_collections_from_gist_description": "Importer les collections GraphQL depuis Gist",
-    "hoppscotch_environment": "Environnement Hoppscotch",
-    "hoppscotch_environment_description": "Importer un fichier JSON d'environnement Hoppscotch",
+    "hoppscotch_environment": "Environnement osapidev",
+    "hoppscotch_environment_description": "Importer un fichier JSON d'environnement osapidev",
     "import_from_url_invalid_fetch": "Impossible de récupérer les données depuis l'URL",
     "import_from_url_invalid_file_format": "Erreur lors de l'importation des collections",
     "import_from_url_invalid_type": "Format non géré. Les valeurs de format gérées sont 'hoppscotch', 'openapi', 'postman', 'insomnia'",
     "import_from_url_success": "Collections importées",
     "insomnia_environment_description": "Importer un environnement Insomnia depuis un fichier JSON/YAML",
-    "json_description": "Importer des collections depuis un fichier JSON de collections Hoppscotch",
+    "json_description": "Importer des collections depuis un fichier JSON de collections osapidev",
     "postman_environment": "Environnement Postman",
     "postman_environment_description": "Importer un environnement Postman depuis un fichier JSON",
     "title": "Importer",
@@ -717,7 +717,7 @@
     }
   },
   "instances": {
-    "switch": "Changer d'instance Hoppscotch",
+    "switch": "Changer d'instance osapidev",
     "enter_server_url": "Se connecter à une instance auto-hébergée",
     "already_connected": "Vous êtes actuellement connecté(e) à cette instance",
     "recent_connections": "Connexions récentes",
@@ -736,7 +736,7 @@
       "not_found": "La variable d'environnement '{environment}' n'a pas été trouvée."
     },
     "header": {
-      "cookie": "Le navigateur web n'autorise pas Hoppscotch à définir les en-têtes de Cookie. Veuillez utiliser les en-têtes Authorization à la place. Cependant, notre application de bureau Hoppscotch est disponible et sait gérer les cookies."
+      "cookie": "Le navigateur web n'autorise pas osapidev à définir les en-têtes de Cookie. Veuillez utiliser les en-têtes Authorization à la place. Cependant, notre application de bureau osapidev est disponible et sait gérer les cookies."
     },
     "response": {
       "401_error": "Veuillez vérifier vos identifiants d'authentification.",
@@ -748,10 +748,10 @@
     "title": "Inspecteur",
     "url": {
       "extension_not_installed": "Extension non installée.",
-      "extension_unknown_origin": "Assurez-vous d'avoir ajouté l'origine du point de terminaison API dans la liste de l'extension web Hoppscotch.",
+      "extension_unknown_origin": "Assurez-vous d'avoir ajouté l'origine du point de terminaison API dans la liste de l'extension web osapidev.",
       "extention_enable_action": "Activer l'extension web",
       "extention_not_enabled": "Extension désactivée.",
-      "localaccess_unsupported": "L'intercepteur actuel ne gère pas l'accès local, veuillez considérer l'utilisation d'Agent, des extensions des intercepteurs ou l'application de bureau Hoppscotch"
+      "localaccess_unsupported": "L'intercepteur actuel ne gère pas l'accès local, veuillez considérer l'utilisation d'Agent, des extensions des intercepteurs ou l'application de bureau osapidev"
     },
     "auth": {
       "digest": "L'Agent intercepteur de l'application web ou l'intercepteur natif de l'application de bureau sont recommandés pour l'utilisation de l'authentification de type Digest.",
@@ -914,7 +914,7 @@
     "save_as": "Enregistrer sous",
     "saved": "Requête enregistrée",
     "share": "Partager",
-    "share_description": "Partager Hoppscotch avec vos amis",
+    "share_description": "Partager osapidev avec vos amis",
     "share_request": "Partager la requête",
     "stop": "Stopper",
     "title": "Requête",
@@ -964,8 +964,8 @@
     "additional": "Paramètres additionnels",
     "agent_not_running": "Agent Hoopscotch non détecté. Veuillez vérifier que l'agent est en cours d'exécution.",
     "agent_not_running_short": "Vérifiez le statut de l'agent.",
-    "agent_running": "L'agent Hoppscotch est en cours d'exécution.",
-    "agent_running_short": "L'agent Hoppscotch est en ligne.",
+    "agent_running": "L'agent osapidev est en cours d'exécution.",
+    "agent_running_short": "L'agent osapidev est en ligne.",
     "agent_discard_registration": "Annuler l'enregistrement de l'agent",
     "agent_registered": "Agent enregistré",
     "agent_registration_successful": "Agent enregistré avec succès",
@@ -998,7 +998,7 @@
     "kernel_interceptor_description": "Middleware entre l'application et les APIs.",
     "language": "Langue",
     "light_mode": "Clair",
-    "official_proxy_hosting": "Proxy officiel hébergé par Hoppscotch.",
+    "official_proxy_hosting": "Proxy officiel hébergé par osapidev.",
     "query_parameters_encoding": "Encodage des paramètres de requête",
     "query_parameters_encoding_description": "Configurer l'encodage pour les paramètres de requête",
     "profile": "Profil",
@@ -1061,13 +1061,13 @@
     "remove_domain": "Supprimer domaine",
     "ca_certificate": "Certificat de l'autorité certifiante",
     "ca_certificates": "Certificats de l'autorité certifiante",
-    "ca_certificates_support": "Hoppscotch prend en charge les fichiers .crt, .cer ou .pem contenant un ou plusieurs certificats.",
-    "proxy_capabilities": "L'agent Hoppscotch prend en charge les proxy HTTP/HTTPS/SOCKS avec NLTM et l'authentification basique (Basic) pour ces proxy. Le nom d'utilisateur et le mot de passe doivent être passés en paramètre de l'URL elle-même pour l'authentification via proxy.",
+    "ca_certificates_support": "osapidev prend en charge les fichiers .crt, .cer ou .pem contenant un ou plusieurs certificats.",
+    "proxy_capabilities": "L'agent osapidev prend en charge les proxy HTTP/HTTPS/SOCKS avec NLTM et l'authentification basique (Basic) pour ces proxy. Le nom d'utilisateur et le mot de passe doivent être passés en paramètre de l'URL elle-même pour l'authentification via proxy.",
     "proxy_auth": "Vous pouvez aussi inclure le nom d'utilisateur et le mot de passe dans l'URL."
   },
   "shared_requests": {
     "button": "Bouton",
-    "button_info": "Créer un bouton 'Exécuter dans Hoppscotch' pour votre site web, blog ou pour un README.",
+    "button_info": "Créer un bouton 'Exécuter dans osapidev' pour votre site web, blog ou pour un README.",
     "copy_html": "Copier le code HTML",
     "copy_link": "Copier le lien",
     "copy_markdown": "Copier le code Markdown",
@@ -1076,14 +1076,14 @@
     "deleted": "Requête partagée supprimée",
     "description": "Choisissez un widget, vous pourrez le changer et le personnaliser plus tard",
     "embed": "Encadrer",
-    "embed_info": "Ajouter un bouton 'API bac à sable Hoppscotch' pour votre site web, blog ou documentation.",
+    "embed_info": "Ajouter un bouton 'API bac à sable osapidev' pour votre site web, blog ou documentation.",
     "link": "Lien",
     "link_info": "Créer un lien internet partageable à partager avec tous ceux qui ont un accès en consultation.",
     "modified": "Requête partagée modifiée",
     "not_found": "Requête partagée non trouvée",
     "open_new_tab": "Ouvrir dans un nouvel onglet",
     "preview": "Prévisualiser",
-    "run_in_hoppscotch": "Exécuter dans Hoppscotch",
+    "run_in_hoppscotch": "Exécuter dans osapidev",
     "theme": {
       "dark": "Sombre",
       "light": "Clair",
@@ -1118,7 +1118,7 @@
       "title": "Général"
     },
     "miscellaneous": {
-      "invite": "Inviter des personnes sur Hoppscotch",
+      "invite": "Inviter des personnes sur osapidev",
       "title": "Divers"
     },
     "navigation": {
@@ -1219,7 +1219,7 @@
       "disconnect": "Se déconnecter d'un serveur"
     },
     "miscellaneous": {
-      "invite": "Inviter des personnes sur Hoppscotch",
+      "invite": "Inviter des personnes sur osapidev",
       "title": "Divers"
     },
     "request": {
@@ -1442,7 +1442,7 @@
     "changelog": "En savoir plus sur les dernières mises à jour",
     "chat": "Des questions ? Discutez avec nous !",
     "community": "Posez vos questions et aidez les autres",
-    "documentation": "En savoir plus sur Hoppscotch",
+    "documentation": "En savoir plus sur osapidev",
     "forum": "Posez vos questions et obtenez des réponses",
     "github": "Suivez-nous sur GitHub",
     "shortcuts": "Parcourir l'application plus rapidement",
@@ -1541,7 +1541,7 @@
     "we_sent_invite_link": "Les invitations sont en route",
     "invite_sent_smtp_disabled": "Liens d'invitation générés",
     "we_sent_invite_link_description": "Les nouveaux invités vont recevoir un lien pour rejoindre l'espace de travail, les membres actuels et les invitations en attente ne recevront pas de nouveaux liens.",
-    "invite_sent_smtp_disabled_description": "L'envoi d'invitations par e-mail est désactivé pour cette instance d'Hoppscotch. Veuillez utiliser le bouton dédié pour copier le lien d'invitation et le partager manuellement.",
+    "invite_sent_smtp_disabled_description": "L'envoi d'invitations par e-mail est désactivé pour cette instance d'osapidev. Veuillez utiliser le bouton dédié pour copier le lien d'invitation et le partager manuellement.",
     "copy_invite_link": "Copier le lien d'invitation",
     "search_title": "Requêtes d'équipe",
     "user_not_found": "Utilisateur non trouvé dans l'instance.",
@@ -1587,13 +1587,13 @@
   },
   "site_protection": {
     "login_to_continue": "Connectez-vous pour continuer",
-    "login_to_continue_description": "Vous devez être connecté pour accéder à cette instance d'Hoppscotch Entreprise.",
+    "login_to_continue_description": "Vous devez être connecté pour accéder à cette instance d'osapidev Entreprise.",
     "error_fetching_site_protection_status": "Une erreur est survenue pendant la récupération du statut de protection du site"
   },
   "access_tokens": {
     "tab_title": "Jetons",
     "section_title": "Jetons d'authentification personnels",
-    "section_description": "Les jetons d'authentification personnels permettent une connexion depuis un terminal ou une console (CLI) vers votre compte utilisateur Hoppscotch",
+    "section_description": "Les jetons d'authentification personnels permettent une connexion depuis un terminal ou une console (CLI) vers votre compte utilisateur osapidev",
     "last_used_on": "Utilisé la dernière fois le",
     "expires_on": "Expire le",
     "no_expiration": "Aucune expiration",
@@ -1615,8 +1615,8 @@
   "collection_runner": {
     "collection_id": "ID de collection",
     "environment_id": "ID d'environnement",
-    "cli_collection_id_description": "Cet ID de collection sera utilisé pour l'exécution de collection via le terminal (CLI) d'Hoppscotch.",
-    "cli_environment_id_description": "Cet ID d'environnement sera utilisé pour l'exécution de collection via le terminal (CLI) d'Hoppscotch",
+    "cli_collection_id_description": "Cet ID de collection sera utilisé pour l'exécution de collection via le terminal (CLI) d'osapidev.",
+    "cli_environment_id_description": "Cet ID d'environnement sera utilisé pour l'exécution de collection via le terminal (CLI) d'osapidev",
     "include_active_environment": "Inclure l'environnement actif :",
     "cli": "Console (CLI)",
     "cli_comming_soon_for_personal_collection": "L'exécution des collections personnelles via le terminal (CLI) sera bientôt disponible.",
@@ -1671,11 +1671,11 @@
       "title": "Fournisseurs de services d'authentification",
       "update_failure": "Impossible de mettre à jour les configurations des fournisseurs de services d'authentification."
     },
-    "confirm_changes": "Le serveur Hoppscotch doit redémarrer pour appliquer les nouveaux changements. Voulez-vous appliquer les modifications apportées à la configuration du serveur ?",
+    "confirm_changes": "Le serveur osapidev doit redémarrer pour appliquer les nouveaux changements. Voulez-vous appliquer les modifications apportées à la configuration du serveur ?",
     "input_empty": "Veuillez renseigner l'ensemble des champs avant de mettre à jour les configurations",
     "data_sharing": {
       "title": "Partage des données",
-      "description": "Aidez-nous à améliorer Hoppscotch en partageant des données anonymisées",
+      "description": "Aidez-nous à améliorer osapidev en partageant des données anonymisées",
       "enable": "Activer le partage des données",
       "secondary_title": "Configuration du partage des données",
       "see_shared": "Voir ce qui est collecté",
@@ -1701,7 +1701,7 @@
       "user": "Nom d'utilisateur (Mail)"
     },
     "reset": {
-      "confirm_reset": "Le serveur Hoppscotch doit redémarrer afin d'appliquer les nouveaux changements. Voulez-vous appliquer la réinitialisation des configurations serveur ?",
+      "confirm_reset": "Le serveur osapidev doit redémarrer afin d'appliquer les nouveaux changements. Voulez-vous appliquer la réinitialisation des configurations serveur ?",
       "description": "Les configurations par défaut seront chargées comme spécifiées dans le fichier d'environnement",
       "failure": "Impossible de réinitialiser les configurations.",
       "title": "Réinitialiser les configurations",
@@ -1717,15 +1717,15 @@
     "update_failure": "Impossible de mettre à jour les configurations serveur",
     "restrict_access": "Restreindre les accès",
     "site_protection": {
-      "control_access": "Contrôlez qui a accès à l'application Hoppscotch",
-      "description": "Personnalisez les moyens par lesquels les visiteurs accèdent à l'application Hoppscotch en utilisant les paramètres de protection de site.",
+      "control_access": "Contrôlez qui a accès à l'application osapidev",
+      "description": "Personnalisez les moyens par lesquels les visiteurs accèdent à l'application osapidev en utilisant les paramètres de protection de site.",
       "enable": "Activer la protection de site",
-      "note": "Les utilisateurs visitant l'application Hoppscotch pourront voir la page de connexion, une authentification sera requise pour accéder à l'application. Une approbation par un administrateur sera toujours requise pour valider l'authentification",
+      "note": "Les utilisateurs visitant l'application osapidev pourront voir la page de connexion, une authentification sera requise pour accéder à l'application. Une approbation par un administrateur sera toujours requise pour valider l'authentification",
       "update_failure": "Impossible de mettre à jour les configurations de protection de site."
     },
     "domain_whitelisting": {
       "add_domain": "Ajouter un nouveau domaine",
-      "description": "Les utilisateurs avec une adresse e-mail enregistrée dans les domaines en liste blanche ne requièrent aucune approbation explicite par un administrateur pour accéder à l'application Hoppscotch",
+      "description": "Les utilisateurs avec une adresse e-mail enregistrée dans les domaines en liste blanche ne requièrent aucune approbation explicite par un administrateur pour accéder à l'application osapidev",
       "enable": "Activer la liste blanche des domaines",
       "enter_domain": "Entrer un domaine",
       "title": "Domaines en liste blanche",
@@ -1762,11 +1762,11 @@
     }
   },
   "data_sharing": {
-    "description": "Partager des données d'utilisation anonymisées nous permet d'améliorer Hoppscotch",
+    "description": "Partager des données d'utilisation anonymisées nous permet d'améliorer osapidev",
     "enable": "Activer le partage des données",
     "see_shared": "Voir ce qui est collecté",
-    "toggle_description": "Partager les données pour améliorer Hoppscotch",
-    "title": "Améliorer Hoppscotch",
+    "toggle_description": "Partager les données pour améliorer osapidev",
+    "title": "Améliorer osapidev",
     "welcome": "Bienvenue dans"
   },
   "infra_tokens": {
@@ -1783,7 +1783,7 @@
     "last_used_on": "Dernière utilisation le",
     "no_expiration": "Aucune expiration",
     "no_expiration_verbose": "Ce jeton ne va jamais expirer !",
-    "section_description": "Gérez vos utilisateurs Hoppscotch via les APIs grâce aux jetons internes",
+    "section_description": "Gérez vos utilisateurs osapidev via les APIs grâce aux jetons internes",
     "section_title": "Jetons internes",
     "tab_title": "Jetons internes",
     "token_expires_on": "Ce jeton va expirer le",
@@ -1801,7 +1801,7 @@
     "description": "Restez informés sur nos dernières actualités",
     "subscribe": "S'abonner",
     "title": "Rester en contact",
-    "toggle_description": "Soyez informés des dernières mises à jour sur Hoppscotch",
+    "toggle_description": "Soyez informés des dernières mises à jour sur osapidev",
     "unsubscribe": "Se désabonner"
   },
   "teams": {
@@ -1895,7 +1895,7 @@
     "name": "Nom",
     "new_user_added": "Nouvel utilisateur ajouté",
     "no_invite": "Aucune invitation en attente trouvée",
-    "no_invite_description": "Aucune invitation en attente ! Invitez vos collaborateurs sur Hoppscotch",
+    "no_invite_description": "Aucune invitation en attente ! Invitez vos collaborateurs sur osapidev",
     "no_shared_requests": "Aucune requête partagée créée par l'utilisateur",
     "no_users": "Aucun utilisateur trouvé",
     "not_available": "Indisponible",
@@ -1921,8 +1921,8 @@
     "create_an_organization": "Créer une organisation",
     "deactivate_user_failure": "Erreur lors de la désactivation de l'utilisateur.",
     "deactivate_user_success": "Utilisateur désactivé avec succès.",
-    "delete_account_description": "Cette action va supprimer toutes les données associées à votre compte Hoppscotch, incluant vos données dans cette organisation et dans celles dont vous faites partie.",
-    "delete_account": "Supprimer le compte Hoppscotch",
+    "delete_account_description": "Cette action va supprimer toutes les données associées à votre compte osapidev, incluant vos données dans cette organisation et dans celles dont vous faites partie.",
+    "delete_account": "Supprimer le compte osapidev",
     "user_deletion_failed_sole_admin": "L'utilisateur est l'unique administrateur d'une ou plusieurs organisations. Veuillez rétrograder l'utilisateur avant de retenter sa suppression.",
     "user_deletion_failed_sole_team_owner": "L'utilisateur est l'unique administrateur d'une ou plusieurs organisations. Veuillez transférer le droit de propriété ou supprimez les organisations associées à l'utilisateur avant de retenter sa suppression."
   },

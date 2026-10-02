@@ -15,7 +15,7 @@ export default <HoppModule>{
     useHead({
       title: `${APP_INFO.name} • ${APP_INFO.shortDescription}`,
       titleTemplate(title) {
-        return title === "Hoppscotch" ? title : `${title} • Hoppscotch`
+        return title === "osapidev" ? title : `${title} • osapidev`
       },
     })
   },

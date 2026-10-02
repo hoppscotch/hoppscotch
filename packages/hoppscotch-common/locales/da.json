@@ -69,20 +69,20 @@
     "copy_interface_type": "Kopiér interfacetype",
     "copy_user_id": "Kopiér brugerautentifikationstoken",
     "developer_option": "Udviklermuligheder",
-    "developer_option_description": "Udviklingsværktøjer, der hjælper med udvikling og vedligeholdelse af Hoppscotch.",
+    "developer_option_description": "Udviklingsværktøjer, der hjælper med udvikling og vedligeholdelse af osapidev.",
     "discord": "Discord",
     "documentation": "Dokumentation",
     "github": "GitHub",
     "help": "Hjælp og feedback",
     "home": "Hjem",
     "invite": "Invitér",
-    "invite_description": "Hoppscotch er et open source API-udviklingsøkosystem. Vi har designet en simpel og intuitiv brugerflade til at oprette og administrere dine API'er. Hoppscotch er et værktøj, der hjælper dig med at bygge, teste, dokumentere og dele dine API'er.",
+    "invite_description": "osapidev er et open source API-udviklingsøkosystem. Vi har designet en simpel og intuitiv brugerflade til at oprette og administrere dine API'er. osapidev er et værktøj, der hjælper dig med at bygge, teste, dokumentere og dele dine API'er.",
     "invite_your_friends": "Invitér dine venner",
     "join_discord_community": "Tilslut dig vores Discord-fællesskab",
     "keyboard_shortcuts": "Tastaturgenveje",
-    "name": "Hoppscotch",
+    "name": "osapidev",
     "new_version_found": "Ny version fundet. Opdatér for at opdatere.",
-    "open_in_hoppscotch": "Åbn i Hoppscotch",
+    "open_in_hoppscotch": "Åbn i osapidev",
     "options": "Indstillinger",
     "proxy_privacy_policy": "Proxy privatlivspolitik",
     "reload": "Genindlæs",
@@ -98,7 +98,7 @@
     "twitter": "Twitter",
     "type_a_command_search": "Skriv en kommando eller søg...",
     "we_use_cookies": "Vi bruger cookies",
-    "updated_text": "Hoppscotch er blevet opdateret til v{version} 🎉",
+    "updated_text": "osapidev er blevet opdateret til v{version} 🎉",
     "whats_new": "Hvad er nyt?",
     "see_whats_new": "Se hvad der er nyt",
     "wiki": "Wiki"
@@ -116,7 +116,7 @@
     "logged_out": "Logget ud",
     "login": "Log ind",
     "login_success": "Logget ind med succes",
-    "login_to_hoppscotch": "Log ind på Hoppscotch",
+    "login_to_hoppscotch": "Log ind på osapidev",
     "logout": "Log ud",
     "re_enter_email": "Indtast e-mail igen",
     "send_magic_link": "Send et magisk link",
@@ -269,7 +269,7 @@
     "protocols": "Protokoller er tomme",
     "request_variables": "Denne anmodning har ingen anmodningsvariabler",
     "schema": "Forbind til et GraphQL-endepunkt for at se skema",
-    "secret_environments": "Hemmeligheder synkroniseres ikke til Hoppscotch",
+    "secret_environments": "Hemmeligheder synkroniseres ikke til osapidev",
     "shared_requests": "Delte anmodninger er tomme",
     "shared_requests_logout": "Log ind for at se dine delte anmodninger eller opret en ny",
     "subscription": "Abonnementer er tomme",
@@ -408,8 +408,8 @@
     "collection_properties_header": "Denne header vil blive indstillet for hver anmodning i denne samling.",
     "generate_documentation_first": "Generer dokumentation først",
     "network_fail": "Kan ikke nå API-endepunktet. Tjek din netværksforbindelse eller vælg en anden Interceptor og prøv igen.",
-    "offline": "Du bruger Hoppscotch offline. Opdateringer vil synkronisere, når du er online, baseret på arbejdsområdeindstillinger.",
-    "offline_short": "Du bruger Hoppscotch offline.",
+    "offline": "Du bruger osapidev offline. Opdateringer vil synkronisere, når du er online, baseret på arbejdsområdeindstillinger.",
+    "offline_short": "Du bruger osapidev offline.",
     "post_request_tests": "Testscripts er skrevet i JavaScript og køres efter svaret er modtaget.",
     "pre_request_script": "Pre-request scripts er skrevet i JavaScript og køres før anmodningen sendes.",
     "script_fail": "Det ser ud til, at der er en fejl i pre-request scriptet. Tjek fejlen nedenfor og ret scriptet i overensstemmelse hermed.",
@@ -433,7 +433,7 @@
     "from_gist_description": "Importér fra Gist-URL",
     "from_insomnia": "Importér fra Insomnia",
     "from_insomnia_description": "Importér fra Insomnia-samling",
-    "from_json": "Importér fra Hoppscotch",
+    "from_json": "Importér fra osapidev",
     "from_json_description": "Importér fra Hoppscotch-samlingsfil",
     "from_my_collections": "Importér fra personlige samlinger",
     "from_my_collections_description": "Importér fra personlige samlingsfil",
@@ -468,7 +468,7 @@
       "not_found": "Miljøvariabel \"{environment}\" blev ikke fundet"
     },
     "header": {
-      "cookie": "Browseren tillader ikke Hoppscotch at indstille Cookie-headere. Brug venligst autorisationsheadere i stedet. Vores Hoppscotch Desktop App er dog live nu og understøtter cookies."
+      "cookie": "Browseren tillader ikke osapidev at indstille Cookie-headere. Brug venligst autorisationsheadere i stedet. Vores Hoppscotch Desktop App er dog live nu og understøtter cookies."
     },
     "response": {
       "401_error": "Tjek venligst dine autentifikationsoplysninger.",
@@ -606,7 +606,7 @@
     "save_as": "Gem som",
     "saved": "Anmodning gemt",
     "share": "Del",
-    "share_description": "Del Hoppscotch med dine venner",
+    "share_description": "Del osapidev med dine venner",
     "share_request": "Del anmodning",
     "stop": "Stop",
     "title": "Anmodning",
@@ -662,7 +662,7 @@
     "interceptor_description": "Middleware mellem applikation og API'er.",
     "language": "Sprog",
     "light_mode": "Lys",
-    "official_proxy_hosting": "Officiel Proxy hostes af Hoppscotch.",
+    "official_proxy_hosting": "Officiel Proxy hostes af osapidev.",
     "profile": "Profil",
     "profile_description": "Opdater dine profildetaljer",
     "profile_email": "E-mailadresse",
@@ -693,7 +693,7 @@
   },
   "shared_requests": {
     "button": "Knap",
-    "button_info": "Opret en 'Kør i Hoppscotch' knap til dit websted, blog eller en README.",
+    "button_info": "Opret en 'Kør i osapidev' knap til dit websted, blog eller en README.",
     "copy_html": "Kopiér HTML",
     "copy_link": "Kopiér link",
     "copy_markdown": "Kopiér Markdown",
@@ -702,14 +702,14 @@
     "deleted": "Delt anmodning slettet",
     "description": "Vælg en widget, du kan ændre og tilpasse dette senere",
     "embed": "Indlejr",
-    "embed_info": "Tilføj en mini 'Hoppscotch API Playground' til dit websted, blog eller dokumentation.",
+    "embed_info": "Tilføj en mini 'osapidev API Playground' til dit websted, blog eller dokumentation.",
     "link": "Link",
     "link_info": "Opret et delbart link til at dele med hvem som helst på internettet med visningsadgang.",
     "modified": "Delt anmodning ændret",
     "not_found": "Delt anmodning ikke fundet",
     "open_new_tab": "Åbn i ny fane",
     "preview": "Forhåndsvis",
-    "run_in_hoppscotch": "Kør i Hoppscotch",
+    "run_in_hoppscotch": "Kør i osapidev",
     "theme": {
       "dark": "Mørk",
       "light": "Lys",
@@ -726,7 +726,7 @@
       "title": "Generelt"
     },
     "miscellaneous": {
-      "invite": "Invitér folk til Hoppscotch",
+      "invite": "Invitér folk til osapidev",
       "title": "Diverse"
     },
     "navigation": {
@@ -816,7 +816,7 @@
       "disconnect": "Afbryd forbindelse fra server"
     },
     "miscellaneous": {
-      "invite": "Invitér dine venner til Hoppscotch",
+      "invite": "Invitér dine venner til osapidev",
       "title": "Diverse"
     },
     "request": {
@@ -926,7 +926,7 @@
     "changelog": "Læs mere om de seneste udgivelser",
     "chat": "Spørgsmål? Chat med os!",
     "community": "Stil spørgsmål og hjælp andre",
-    "documentation": "Læs mere om Hoppscotch",
+    "documentation": "Læs mere om osapidev",
     "forum": "Stil spørgsmål og få svar",
     "github": "Følg os på Github",
     "shortcuts": "Naviger i appen hurtigere",
@@ -1016,7 +1016,7 @@
     "we_sent_invite_link": "Vi sendte et invitationslink til alle inviterede!",
     "invite_sent_smtp_disabled": "Invitationslinks genereret",
     "we_sent_invite_link_description": "Bed alle inviterede om at tjekke deres indbakke. Klik på linket for at tilslutte sig arbejdsområdet.",
-    "invite_sent_smtp_disabled_description": "Afsendelse af invitations-e-mails er deaktiveret for denne instans af Hoppscotch. Brug venligst knappen Kopiér link til at kopiere og dele invitationslinket manuelt.",
+    "invite_sent_smtp_disabled_description": "Afsendelse af invitations-e-mails er deaktiveret for denne instans af osapidev. Brug venligst knappen Kopiér link til at kopiere og dele invitationslinket manuelt.",
     "copy_invite_link": "Kopiér invitationslink",
     "search_title": "Teamanmodninger"
   },
@@ -1051,7 +1051,7 @@
   },
   "site_protection": {
     "login_to_continue": "Log ind for at fortsætte",
-    "login_to_continue_description": "Du skal være logget ind for at få adgang til denne Hoppscotch Enterprise-instans.",
+    "login_to_continue_description": "Du skal være logget ind for at få adgang til denne osapidev Enterprise-instans.",
     "error_fetching_site_protection_status": "Noget gik galt under hentning af sitebeskyttelsesstatus"
   },
   "access_tokens": {
@@ -1079,8 +1079,8 @@
   "collection_runner": {
     "collection_id": "Samlings-ID",
     "environment_id": "Miljø-ID",
-    "cli_collection_id_description": "Dette samlings-ID vil blive brugt af CLI-samlingsløberen for Hoppscotch.",
-    "cli_environment_id_description": "Dette miljø-ID vil blive brugt af CLI-samlingsløberen for Hoppscotch.",
+    "cli_collection_id_description": "Dette samlings-ID vil blive brugt af CLI-samlingsløberen for osapidev.",
+    "cli_environment_id_description": "Dette miljø-ID vil blive brugt af CLI-samlingsløberen for osapidev.",
     "include_active_environment": "Inkludér aktivt miljø:",
     "cli": "CLI",
     "ui": "Løber (kommer snart)",

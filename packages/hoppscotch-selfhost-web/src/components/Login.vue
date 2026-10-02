@@ -12,7 +12,7 @@
     <h2 class="text-secondaryDark font-semibold text-lg">
       Continue in your browser
     </h2>
-    <p>We have opened Hoppscotch in your browser to continue your login.</p>
+    <p>We have opened osapidev in your browser to continue your login.</p>
     <div class="py-3 flex space-x-4 items-center">
       <HoppButtonPrimary
         :label="'Open Again'"

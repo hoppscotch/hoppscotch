@@ -1,9 +1,8 @@
 name: "Push containers to Docker Hub on release"
 
+# Upstream Docker Hub release flow. Manual-only in osapidev: the AIO image is
+# published to GHCR by osapidev-aio-ghcr.yml.
 on:
-  push:
-    tags:
-      - '*.*.*'
   workflow_dispatch:
     inputs:
       # NO INPUTS

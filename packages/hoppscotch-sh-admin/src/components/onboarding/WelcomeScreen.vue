@@ -2,7 +2,7 @@
   <div class="flex flex-1 justify-center items-center">
     <div class="max-w-screen-md mx-auto p-8 flex flex-col space-y-4">
       <div class="flex flex-col space-y-2 mb-4">
-        <img src="/logo.svg" alt="hoppscotch-logo" class="w-20 mb-4" />
+        <img src="/logo.svg" alt="osapidev-logo" class="w-20 mb-4" />
         <h1 class="text-3xl font-bold text-secondaryDark">
           {{ t('onboarding.welcome') }}
         </h1>

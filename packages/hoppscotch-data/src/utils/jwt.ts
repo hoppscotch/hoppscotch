@@ -59,7 +59,7 @@ export async function generateJWTToken(
   }
 
   try {
-    let cryptoKey: Uint8Array
+    let key: Uint8Array | CryptoKey
 
     // Use private key for RSA/ECDSA algorithms, secret for HMAC algorithms
     if (
@@ -67,19 +67,35 @@ export async function generateJWTToken(
       algorithm.startsWith("ES") ||
       algorithm.startsWith("PS")
     ) {
-      // RSA or ECDSA algorithms - use private key
+      // RSA, ECDSA, or PSS algorithms - import private key
       if (!privateKey) {
-        console.error("Private key is required for RSA/ECDSA algorithms")
+        console.error("Private key is required for RSA/ECDSA/PSS algorithms")
         return null
       }
-      cryptoKey = new TextEncoder().encode(privateKey)
+
+      try {
+        // Import the private key for asymmetric algorithms
+        if (algorithm.startsWith("RS") || algorithm.startsWith("PS")) {
+          // RSA algorithms
+          key = await jose.importPKCS8(privateKey, algorithm)
+        } else if (algorithm.startsWith("ES")) {
+          // ECDSA algorithms
+          key = await jose.importPKCS8(privateKey, algorithm)
+        } else {
+          console.error("Unsupported algorithm:", algorithm)
+          return null
+        }
+      } catch (keyError) {
+        console.error("Failed to import private key:", keyError)
+        return null
+      }
     } else {
-      // HMAC algorithms - use secret
+      // HMAC algorithms - use secret as Uint8Array
       if (!secret) {
         console.error("Secret is required for HMAC algorithms")
         return null
       }
-      cryptoKey = isSecretBase64Encoded
+      key = isSecretBase64Encoded
         ? Uint8Array.from(Buffer.from(secret, "base64"))
         : new TextEncoder().encode(secret)
     }
@@ -89,7 +105,7 @@ export async function generateJWTToken(
         alg: algorithm,
         ...parsedHeaders,
       })
-      .sign(cryptoKey)
+      .sign(key)
 
     return token
   } catch (e) {

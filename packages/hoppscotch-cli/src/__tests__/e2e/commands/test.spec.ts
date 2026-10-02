@@ -18,10 +18,11 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
     describe("Argument parsing", () => {
       test("Errors with the code `INVALID_ARGUMENT` for not supplying enough arguments", async () => {
         const args = "test";
-        const { stderr } = await runCLI(args);
+        const { stderr, error } = await runCLI(args);
 
         const out = getErrorCode(stderr);
         expect(out).toBe<HoppErrorCode>("INVALID_ARGUMENT");
+        expect(error).toMatchObject<ExecException>({ code: 1 });
       });
 
       test("Errors with the code `INVALID_ARGUMENT` for an invalid command", async () => {

@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { Command } from "commander";
+import { Command, CommanderError } from "commander";
 import * as E from "fp-ts/Either";
 
 import { version } from "../package.json";
@@ -104,5 +104,7 @@ program
 export const cli = async (args: string[]) => {
   try {
     await program.parseAsync(args);
-  } catch (e) {}
+  } catch (error) {
+    process.exitCode = error instanceof CommanderError ? error.exitCode : 1;
+  }
 };

@@ -53,7 +53,9 @@ const parseURL = (urlText: string | number) =>
       u
         .toString()
         .replace(/^'|'$/g, "")
-        .replaceAll(/[^a-zA-Z0-9_\-./?&=:@%+#,;()'<>\s]/g, "")
+        // `*` is a valid RFC 3986 sub-delim (e.g. in query values) and must
+        // not be stripped out here
+        .replaceAll(/[^a-zA-Z0-9_\-./?&=:@%+#,;()'<>*\s]/g, "")
     ),
     O.filter((u) => u.length > 0),
     O.chain((u) =>

@@ -1,9 +1,16 @@
 <template>
-  <div class="relative flex flex-1 flex-col overflow-auto">
+  <div
+    class="relative flex flex-1 flex-col overflow-auto"
+    :class="{
+      '!fixed !inset-0 !z-30 !h-screen !w-screen bg-primary': isFullscreen,
+    }"
+  >
     <HttpResponseMeta
       :response="doc.response"
       :is-embed="isEmbed"
       :is-loading="loading"
+      :is-fullscreen="isFullscreen"
+      @toggle-fullscreen="toggleFullscreen"
     />
     <LensesResponseBodyRenderer
       v-if="!loading && hasResponse"
@@ -23,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { useVModel } from "@vueuse/core"
+import { useEventListener, useVModel } from "@vueuse/core"
 import { computed, ref } from "vue"
 import { HoppRequestDocument } from "~/helpers/tab/document"
 import { useResponseBody } from "@composables/lens-actions"
@@ -54,6 +61,18 @@ const emit = defineEmits<{
 }>()
 
 const doc = useVModel(props, "document", emit)
+
+const isFullscreen = ref(false)
+
+const toggleFullscreen = () => {
+  isFullscreen.value = !isFullscreen.value
+}
+
+useEventListener("keydown", (e: KeyboardEvent) => {
+  if (e.key === "Escape" && isFullscreen.value) {
+    isFullscreen.value = false
+  }
+})
 
 const hasResponse = computed(
   () =>

@@ -7,6 +7,7 @@ export type TestCmdOptions = {
   iterationCount?: number;
   iterationData?: string;
   legacySandbox?: boolean;
+  bail?: boolean;
 };
 
 // Consumed in the collection `file_path_or_id` argument action handler

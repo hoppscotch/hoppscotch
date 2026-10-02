@@ -1,0 +1,66 @@
+[
+  {
+    "v": 1,
+    "name": "bail-test",
+    "folders": [],
+    "requests": [
+      {
+        "v": "3",
+        "endpoint": "https://echo.hoppscotch.io",
+        "name": "Request 1 - passes",
+        "params": [],
+        "headers": [],
+        "method": "GET",
+        "auth": {
+          "authType": "none",
+          "authActive": true
+        },
+        "preRequestScript": "",
+        "testScript": "pw.test(\"Status code is 200\", () => {\n  pw.expect(pw.response.status).toBe(200);\n});",
+        "body": {
+          "contentType": null,
+          "body": null
+        },
+        "requestVariables": []
+      },
+      {
+        "v": "3",
+        "endpoint": "https://echo.hoppscotch.io",
+        "name": "Request 2 - fails",
+        "params": [],
+        "headers": [],
+        "method": "GET",
+        "auth": {
+          "authType": "none",
+          "authActive": true
+        },
+        "preRequestScript": "",
+        "testScript": "pw.test(\"This test always fails\", () => {\n  pw.expect(pw.response.status).toBe(999);\n});",
+        "body": {
+          "contentType": null,
+          "body": null
+        },
+        "requestVariables": []
+      },
+      {
+        "v": "3",
+        "endpoint": "https://echo.hoppscotch.io",
+        "name": "Request 3 - should not run with bail",
+        "params": [],
+        "headers": [],
+        "method": "GET",
+        "auth": {
+          "authType": "none",
+          "authActive": true
+        },
+        "preRequestScript": "",
+        "testScript": "pw.test(\"Status code is 200\", () => {\n  pw.expect(pw.response.status).toBe(200);\n});",
+        "body": {
+          "contentType": null,
+          "body": null
+        },
+        "requestVariables": []
+      }
+    ]
+  }
+]

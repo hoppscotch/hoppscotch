@@ -124,6 +124,7 @@
         :selected="isEnvironmentSelected(env.id)"
         @edit-environment="editEnvironment(env)"
         @select-environment="selectEnvironment(env)"
+        @environments-changed="emit('environments-changed')"
         @show-environment-properties="
           showEnvironmentProperties(env.environment.id)
         "
@@ -139,6 +140,7 @@
       :is-secret-option-selected="secretOptionSelected"
       :is-viewer="team?.role === 'VIEWER'"
       @hide-modal="displayModalEdit(false)"
+      @environments-changed="emit('environments-changed')"
     />
     <EnvironmentsImportExport
       v-if="showModalImportExport"
@@ -187,6 +189,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "select-environment", data: HandleEnvChangeProp): void
+  (e: "environments-changed"): void
 }>()
 
 const filterText = ref("")

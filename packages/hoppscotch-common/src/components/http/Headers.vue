@@ -215,9 +215,11 @@
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :icon="IconInfo"
-                :title="`This header is inherited from Parent Collection ${
-                  header.inheritedFrom ?? ''
-                }`"
+                :title="
+                t('request.inherited_header_description', {
+                  parent: header.inheritedFrom ?? '',
+                })
+              "
               />
             </span>
           </div>

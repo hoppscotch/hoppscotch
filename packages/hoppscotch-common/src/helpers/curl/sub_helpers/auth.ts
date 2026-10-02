@@ -1,12 +1,19 @@
 import { HoppRESTAuth } from "@hoppscotch/data"
 import parser from "yargs-parser"
 import * as O from "fp-ts/Option"
-import * as S from "fp-ts/string"
 import { pipe } from "fp-ts/function"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { objHasProperty } from "~/helpers/functional/object"
 
 const defaultRESTReq = getDefaultRESTRequest()
+
+const splitAuthUserPass = (authStr: string): [string, string] => {
+  const colonIndex = authStr.indexOf(":")
+  if (colonIndex === -1) {
+    return [authStr, ""]
+  }
+  return [authStr.slice(0, colonIndex), authStr.slice(colonIndex + 1)]
+}
 
 const getAuthFromAuthHeader = (headers: Record<string, string>) =>
   pipe(
@@ -27,13 +34,9 @@ const getAuthFromAuthHeader = (headers: Record<string, string>) =>
             case "basic": {
               const [username, password] = pipe(
                 O.tryCatch(() => atob(kv[1])),
-                O.map(S.split(":")),
+                O.map(splitAuthUserPass),
                 // can have a username with no password
-                O.filter((arr) => arr.length > 0),
-                O.map(
-                  ([username, password]) =>
-                    <[string, string]>[username, password]
-                ),
+                O.filter(([username]) => username.length > 0),
                 O.getOrElse(() => ["", ""])
               )
 
@@ -43,7 +46,7 @@ const getAuthFromAuthHeader = (headers: Record<string, string>) =>
                 authActive: true,
                 authType: "basic",
                 username,
-                password: password ?? "",
+                password,
               }
             }
             default:
@@ -61,12 +64,9 @@ const getAuthFromParsedArgs = (parsedArguments: parser.Arguments) =>
     O.chain((args) =>
       pipe(
         args.u,
-        S.split(":"),
+        splitAuthUserPass,
         // can have a username with no password
-        O.fromPredicate((arr) => arr.length > 0 && arr[0].length > 0),
-        O.map(
-          ([username, password]) => <[string, string]>[username, password ?? ""]
-        )
+        O.fromPredicate(([username]) => username.length > 0)
       )
     ),
     O.map(

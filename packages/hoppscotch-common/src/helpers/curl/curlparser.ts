@@ -24,7 +24,9 @@ import { getBody, getFArgumentMultipartData } from "./sub_helpers/body"
 import { getMethod } from "./sub_helpers/method"
 import {
   preProcessCurlCommand,
+  protectEscapedDoubleQuotes,
   replaceJSONDataArgsWithPlaceholders,
+  restoreEscapedDoubleQuotes,
   restoreJSONDataArgsFromPlaceholders,
 } from "./sub_helpers/preproc"
 import { getQueries } from "./sub_helpers/queries"
@@ -41,16 +43,24 @@ const defaultRESTReq = getDefaultRESTRequest()
 const containsEnvVariables = (str: string) => HOPP_ENVIRONMENT_REGEX.test(str)
 
 export const parseCurlCommand = (curlCommand: string) => {
-  // const isDataBinary = curlCommand.includes(" --data-binary")
-  // const compressed = !!parsedArguments.compressed
-
   curlCommand = preProcessCurlCommand(curlCommand)
 
   const { curlCommand: sanitizedCurlCommand, extractedJSONData } =
     replaceJSONDataArgsWithPlaceholders(curlCommand)
 
+  const {
+    protectedCommand,
+    placeholder: escDquotePlaceholder,
+    placeholders: escPlaceholders,
+  } = protectEscapedDoubleQuotes(sanitizedCurlCommand)
+
+  const rawArgs = restoreEscapedDoubleQuotes(
+    parser(protectedCommand),
+    escPlaceholders ?? escDquotePlaceholder
+  )
+
   const args: parser.Arguments = restoreJSONDataArgsFromPlaceholders(
-    parser(sanitizedCurlCommand),
+    rawArgs,
     extractedJSONData
   )
 

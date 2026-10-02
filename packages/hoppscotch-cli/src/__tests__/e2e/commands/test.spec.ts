@@ -236,8 +236,6 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
 
       const expectedStaticParts = [
         "https://example.com/path?foo=bar&baz=qux",
-        "'0': 72",
-        "'12': 33",
         "Decoded: Hello, world!",
         "Hello after 1s",
       ];
@@ -245,6 +243,20 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       expectedStaticParts.forEach((part) => {
         expect(result.stdout).toContain(part);
       });
+
+      // `TextEncoder.encode("Hello, world!")` should log as a real array of
+      // UTF-8 byte values (not an object missing `length`/`byteLength` -
+      // see the fix for #6008). Node wraps long arrays across multiple
+      // lines, so pull out the numbers between "Encoded: [" and "]" instead
+      // of matching on exact whitespace/line breaks.
+      const encodedMatch = result.stdout.match(/Encoded:\s*\[([\s\S]*?)\]/);
+      expect(encodedMatch).not.toBeNull();
+      const encodedBytes = encodedMatch![1]
+        .split(",")
+        .map((n) => parseInt(n.trim(), 10));
+      expect(encodedBytes).toEqual([
+        72, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 33,
+      ]);
 
       const every500msCount = (result.stdout.match(/Every 500ms/g) || [])
         .length;

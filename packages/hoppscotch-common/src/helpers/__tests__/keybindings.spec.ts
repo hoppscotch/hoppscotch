@@ -1,15 +1,12 @@
-import { describe, expect, test, vi } from "vitest"
-
-const { invokeActionMock } = vi.hoisted(() => ({ invokeActionMock: vi.fn() }))
-
-vi.mock("../actions", () => ({ invokeAction: invokeActionMock }))
-vi.mock("../platformutils", () => ({ isAppleDevice: () => false }))
-
+import { afterAll, beforeAll, describe, expect, test, vi } from "vitest"
+import { createApp, defineComponent } from "vue"
+import { bindAction, unbindAction } from "../actions"
 import {
   __getKeybindingLockCountForTest,
   __resetKeybindingLocksForTest,
   bindings,
   handleKeyDown,
+  hookKeybindingsListener,
   resolvePressedKey,
   useKeybindingDisabler,
 } from "../keybindings"
@@ -17,7 +14,8 @@ import {
 describe("useKeybindingDisabler", () => {
   test("keeps shortcuts disabled until matching enables complete", () => {
     __resetKeybindingLocksForTest()
-    invokeActionMock.mockReset()
+    const handler = vi.fn()
+    bindAction("modals.search.toggle", handler)
     const disabler = useKeybindingDisabler()
     const shortcut = new KeyboardEvent("keydown", {
       key: "k",
@@ -25,23 +23,22 @@ describe("useKeybindingDisabler", () => {
       ctrlKey: true,
     })
 
-    disabler.disableKeybindings()
-    disabler.disableKeybindings()
-    handleKeyDown(shortcut)
-    expect(invokeActionMock).not.toHaveBeenCalled()
+    try {
+      disabler.disableKeybindings()
+      disabler.disableKeybindings()
+      handleKeyDown(shortcut)
+      expect(handler).not.toHaveBeenCalled()
 
-    disabler.enableKeybindings()
-    handleKeyDown(shortcut)
-    expect(invokeActionMock).not.toHaveBeenCalled()
+      disabler.enableKeybindings()
+      handleKeyDown(shortcut)
+      expect(handler).not.toHaveBeenCalled()
 
-    disabler.enableKeybindings()
-    handleKeyDown(shortcut)
-    expect(invokeActionMock).toHaveBeenCalledOnce()
-    expect(invokeActionMock).toHaveBeenCalledWith(
-      "modals.search.toggle",
-      undefined,
-      "keypress"
-    )
+      disabler.enableKeybindings()
+      handleKeyDown(shortcut)
+      expect(handler).toHaveBeenCalledOnce()
+    } finally {
+      unbindAction("modals.search.toggle", handler)
+    }
   })
 
   test("keeps independent instances isolated", () => {
@@ -274,5 +271,53 @@ describe("bindings: native word-delete chords stay unmapped", () => {
 
   test("no chord maps to response.erase", () => {
     expect(Object.values(bindings)).not.toContain("response.erase")
+  })
+})
+
+describe("handleKeyDown: tab.switch-protocol", () => {
+  // Mount a listener the way the app layout does
+  const app = createApp(
+    defineComponent({
+      setup() {
+        hookKeybindingsListener()
+        return () => null
+      },
+    })
+  )
+
+  beforeAll(() => {
+    app.mount(document.createElement("div"))
+  })
+
+  afterAll(() => {
+    app.unmount()
+  })
+
+  const pressAltT = () => {
+    const ev = new KeyboardEvent("keydown", {
+      key: "t",
+      code: "KeyT",
+      altKey: true,
+      bubbles: true,
+      cancelable: true,
+    })
+    document.body.dispatchEvent(ev)
+    return ev
+  }
+
+  test("leaves Alt+T alone while no view handles it", () => {
+    expect(pressAltT().defaultPrevented).toBe(false)
+  })
+
+  test("claims Alt+T and fires the handler once while one is bound", () => {
+    const handler = vi.fn()
+    bindAction("tab.switch-protocol", handler)
+
+    try {
+      expect(pressAltT().defaultPrevented).toBe(true)
+      expect(handler).toHaveBeenCalledTimes(1)
+    } finally {
+      unbindAction("tab.switch-protocol", handler)
+    }
   })
 })

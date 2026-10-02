@@ -69,6 +69,13 @@ export function getAuthProviderRequiredKeys(
       InfraConfigEnum.MICROSOFT_SCOPE,
       InfraConfigEnum.MICROSOFT_TENANT,
     ],
+    [AuthProvider.OIDC]: [
+      InfraConfigEnum.OIDC_ISSUER,
+      InfraConfigEnum.OIDC_CLIENT_ID,
+      InfraConfigEnum.OIDC_CLIENT_SECRET,
+      InfraConfigEnum.OIDC_CALLBACK_URL,
+      InfraConfigEnum.OIDC_SCOPE,
+    ],
     [AuthProvider.EMAIL]:
       env['INFRA'].MAILER_USE_CUSTOM_CONFIGS === 'true'
         ? [
@@ -343,6 +350,31 @@ export async function getDefaultInfraConfigs(): Promise<DefaultInfraConfig[]> {
       isEncrypted: false,
     },
     {
+      name: InfraConfigEnum.OIDC_ISSUER,
+      value: null,
+      isEncrypted: false,
+    },
+    {
+      name: InfraConfigEnum.OIDC_CLIENT_ID,
+      value: null,
+      isEncrypted: true,
+    },
+    {
+      name: InfraConfigEnum.OIDC_CLIENT_SECRET,
+      value: null,
+      isEncrypted: true,
+    },
+    {
+      name: InfraConfigEnum.OIDC_CALLBACK_URL,
+      value: null,
+      isEncrypted: false,
+    },
+    {
+      name: InfraConfigEnum.OIDC_SCOPE,
+      value: null,
+      isEncrypted: false,
+    },
+    {
       name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
       value: null,
       isEncrypted: false,
@@ -609,6 +641,7 @@ export async function buildDerivedEnv() {
       path: '/auth/microsoft/callback',
     },
     { key: InfraConfigEnum.GITHUB_CALLBACK_URL, path: '/auth/github/callback' },
+    { key: InfraConfigEnum.OIDC_CALLBACK_URL, path: '/auth/oidc/callback' },
   ];
   // Update callback URLs if they don't match the backend
   for (const { key, path } of callbackConfigs) {

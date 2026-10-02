@@ -192,6 +192,7 @@
     "continue_with_github_enterprise": "Continue with GitHub Enterprise",
     "continue_with_google": "Continue with Google",
     "continue_with_microsoft": "Continue with Microsoft",
+    "continue_with_sso": "Continue with SSO",
     "email": "Email",
     "logged_out": "Logged out",
     "login": "Login",

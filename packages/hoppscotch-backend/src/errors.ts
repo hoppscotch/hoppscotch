@@ -45,6 +45,19 @@ export const AUTH_EMAIL_NOT_PROVIDED_BY_OAUTH =
   'auth/email_not_provided_by_oauth';
 
 /**
+ * Email returned by the OIDC provider is explicitly marked as unverified
+ * (OIDC Strategy)
+ */
+export const AUTH_EMAIL_NOT_VERIFIED_BY_OIDC =
+  'auth/email_not_verified_by_oidc';
+
+/**
+ * OIDC is enabled but the provider's discovery document could not be loaded at startup
+ * (OIDC Guard)
+ */
+export const AUTH_OIDC_PROVIDER_UNAVAILABLE = 'auth/oidc_provider_unavailable';
+
+/**
  * Environment variable "DATA_ENCRYPTION_KEY" is not present in .env file
  */
 export const ENV_NOT_FOUND_KEY_DATA_ENCRYPTION_KEY =

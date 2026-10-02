@@ -22,7 +22,7 @@
               :on="provider.enabled"
               @change="provider.enabled = !provider.enabled"
             >
-              {{ capitalize(provider.name) }}
+              {{ providerLabel(provider.name) }}
             </HoppSmartToggle>
             <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip', allowHTML: true }"
@@ -114,12 +114,15 @@ const workingConfigs = useVModel(props, 'config', emit);
 const capitalize = (text: string) =>
   text.charAt(0).toUpperCase() + text.slice(1);
 
+const providerLabel = (name: SsoAuthProviders) =>
+  name === 'oidc' ? t('configs.auth_providers.oidc') : capitalize(name);
+
 // Union type for all possible field keys
 type ProviderFieldKeys = keyof ProviderFields;
 
 type ProviderFields = {
   [Field in keyof ServerConfigs['providers'][SsoAuthProviders]['fields']]: boolean;
-} & Partial<{ tenant: boolean }>;
+} & Partial<{ tenant: boolean; issuer: boolean }>;
 
 type ProviderFieldMetadata = {
   name: string;
@@ -129,24 +132,29 @@ type ProviderFieldMetadata = {
 
 const providerConfigFields = <ProviderFieldMetadata[]>[
   {
+    name: t('configs.auth_providers.issuer'),
+    key: 'issuer',
+    applicableProviders: ['oidc'],
+  },
+  {
     name: t('configs.auth_providers.client_id'),
     key: 'client_id',
-    applicableProviders: ['google', 'github', 'microsoft'],
+    applicableProviders: ['google', 'github', 'microsoft', 'oidc'],
   },
   {
     name: t('configs.auth_providers.client_secret'),
     key: 'client_secret',
-    applicableProviders: ['google', 'github', 'microsoft'],
+    applicableProviders: ['google', 'github', 'microsoft', 'oidc'],
   },
   {
     name: t('configs.auth_providers.callback_url'),
     key: 'callback_url',
-    applicableProviders: ['google', 'github', 'microsoft'],
+    applicableProviders: ['google', 'github', 'microsoft', 'oidc'],
   },
   {
     name: t('configs.auth_providers.scope'),
     key: 'scope',
-    applicableProviders: ['google', 'github', 'microsoft'],
+    applicableProviders: ['google', 'github', 'microsoft', 'oidc'],
   },
   {
     name: t('configs.auth_providers.tenant'),
@@ -174,6 +182,13 @@ const maskState = reactive<Record<SsoAuthProviders, ProviderFields>>({
     callback_url: true,
     scope: true,
     tenant: true,
+  },
+  oidc: {
+    issuer: false,
+    client_id: true,
+    client_secret: true,
+    callback_url: false,
+    scope: false,
   },
 });
 

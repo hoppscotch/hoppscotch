@@ -240,6 +240,12 @@ export type AuthPlatformDef = {
    * @returns A promise that resolves with the user info when auth is completed
    */
   signInUserWithMicrosoft: () => Promise<void>
+  /**
+   * Signs user in with the instance's OpenID Connect (SSO) provider.
+   * Platforms without OIDC support leave this undefined.
+   * @returns A promise that resolves when the redirect to the provider has been started
+   */
+  signInUserWithOIDC?: () => Promise<void>
 
   /**
    * Signs out the user from auth

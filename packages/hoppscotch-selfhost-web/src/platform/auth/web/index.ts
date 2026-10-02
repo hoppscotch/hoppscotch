@@ -39,6 +39,10 @@ async function signInUserWithMicrosoftFB() {
   }/auth/microsoft`
 }
 
+async function signInUserWithOIDCFB() {
+  window.location.href = `${import.meta.env.VITE_BACKEND_API_URL}/auth/oidc`
+}
+
 async function getInitialUserDetails() {
   const res = await axios.post<{
     data?: {
@@ -295,6 +299,9 @@ export const def: AuthPlatformDef = {
   },
   async signInUserWithMicrosoft() {
     await signInUserWithMicrosoftFB()
+  },
+  async signInUserWithOIDC() {
+    await signInUserWithOIDCFB()
   },
   async signInWithEmailLink(email: string, url: string) {
     const urlObject = new URL(url)

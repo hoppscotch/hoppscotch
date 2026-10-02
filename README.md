@@ -37,6 +37,25 @@ docker compose -f docker-compose.osapidev.yml up -d
 
 Pin a version with `OSAPIDEV_VERSION=1.2.3 docker compose -f docker-compose.osapidev.yml up -d`.
 
+### Single sign-on (OpenID Connect)
+
+osapidev can sign users in through any OpenID Connect provider (Okta, Keycloak, Microsoft Entra ID, Auth0, Authentik, Google Workspace, …).
+
+1. In your identity provider, create a confidential **web** client using the authorization code flow, and register this redirect URI:
+   `<VITE_BACKEND_API_URL>/auth/oidc/callback` (for example `http://localhost:3170/v1/auth/oidc/callback`).
+2. In the admin dashboard, open **Settings → Auth providers**, enable **OpenID Connect (SSO)** and fill in:
+   - **Issuer URL**: the issuer from your provider, which must serve `<issuer>/.well-known/openid-configuration` (for example `https://keycloak.example.com/realms/acme`)
+   - **Client ID** and **Client secret**
+   - **Callback URL**: pre-filled; it must match the redirect URI registered in step 1
+   - **Scope**: `openid,email,profile` (default)
+3. Save. The server restarts, and **Continue with SSO** appears on the app and admin login pages.
+
+Users are matched to existing accounts by email. Logins are refused when the provider marks the email as unverified (`email_verified: false`). If the issuer can't be reached when the server starts, SSO login returns `503 auth/oidc_provider_unavailable` (the reason is in the server log) and every other login method keeps working.
+
+### Teams, shared collections and roles
+
+Team workspaces, shared team collections, requests and environments, and per-team roles (**Owner**, **Editor**, **Viewer**, enforced by the server) are built in. Create teams from the app's workspace switcher, or manage them under **Teams** in the admin dashboard.
+
 ### Build locally
 
 ```sh

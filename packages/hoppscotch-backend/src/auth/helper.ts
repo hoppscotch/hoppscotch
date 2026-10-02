@@ -26,6 +26,7 @@ export enum AuthProvider {
   GOOGLE = 'GOOGLE',
   GITHUB = 'GITHUB',
   MICROSOFT = 'MICROSOFT',
+  OIDC = 'OIDC',
   EMAIL = 'EMAIL',
 }
 

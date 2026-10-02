@@ -303,9 +303,7 @@ watch(
 )
 
 usePageHead({
-  title: computed(
-    () => publishedDoc.value?.title || "osapidev Documentation"
-  ),
+  title: computed(() => publishedDoc.value?.title || "osapidev Documentation"),
   meta: [
     {
       name: "description",

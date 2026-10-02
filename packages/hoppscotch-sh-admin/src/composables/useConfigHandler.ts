@@ -26,6 +26,7 @@ import {
   MAIL_CONFIGS,
   MICROSOFT_CONFIGS,
   MOCK_SERVER_CONFIGS,
+  OIDC_CONFIGS,
   PROXY_URL_CONFIGS,
   ServerConfigs,
   UpdatedConfigs,
@@ -114,6 +115,21 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
             callback_url: getFieldValue(InfraConfigEnum.MicrosoftCallbackUrl),
             scope: getFieldValue(InfraConfigEnum.MicrosoftScope),
             tenant: getFieldValue(InfraConfigEnum.MicrosoftTenant),
+          },
+        },
+        oidc: {
+          name: 'oidc',
+          enabled: allowedAuthProviders.value.includes(AuthProvider.Oidc),
+          fields: {
+            issuer: getFieldValue(InfraConfigEnum.OidcIssuer),
+            client_id: getFieldValue(InfraConfigEnum.OidcClientId),
+            client_secret: getFieldValue(InfraConfigEnum.OidcClientSecret),
+            // Pre-fill the callback so admins only need to copy it into their IdP
+            callback_url:
+              getFieldValue(InfraConfigEnum.OidcCallbackUrl) ||
+              `${import.meta.env.VITE_BACKEND_API_URL}/auth/oidc/callback`,
+            scope:
+              getFieldValue(InfraConfigEnum.OidcScope) || 'openid,email,profile',
           },
         },
       },
@@ -267,6 +283,11 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
         fields: updatedConfigs?.providers.microsoft.fields,
       },
       {
+        config: OIDC_CONFIGS,
+        enabled: updatedConfigs?.providers.oidc.enabled,
+        fields: updatedConfigs?.providers.oidc.fields,
+      },
+      {
         config: MAIL_CONFIGS,
         enabled: updatedConfigs?.mailConfigs.enabled,
         fields: mailConfigFields,
@@ -345,6 +366,12 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       {
         provider: AuthProvider.Microsoft,
         status: updatedConfigs?.providers.microsoft.enabled
+          ? ServiceStatus.Enable
+          : ServiceStatus.Disable,
+      },
+      {
+        provider: AuthProvider.Oidc,
+        status: updatedConfigs?.providers.oidc.enabled
           ? ServiceStatus.Enable
           : ServiceStatus.Disable,
       },

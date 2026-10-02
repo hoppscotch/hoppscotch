@@ -157,6 +157,7 @@ import IconEmail from "~icons/auth/email"
 import IconGithub from "~icons/auth/github"
 import IconGoogle from "~icons/auth/google"
 import IconMicrosoft from "~icons/auth/microsoft"
+import IconKeyRound from "~icons/lucide/key-round"
 import IconArrowLeft from "~icons/lucide/arrow-left"
 import IconFileText from "~icons/lucide/file-text"
 
@@ -185,6 +186,7 @@ const isLoadingAllowedAuthProviders = ref(true)
 const signingInWithGoogle = ref(false)
 const signingInWithGitHub = ref(false)
 const signingInWithMicrosoft = ref(false)
+const signingInWithOIDC = ref(false)
 const signingInWithEmail = ref(false)
 const mode = ref("sign-in")
 
@@ -337,6 +339,19 @@ const signInWithMicrosoft = async () => {
   signingInWithMicrosoft.value = false
 }
 
+const signInWithOIDC = async () => {
+  signingInWithOIDC.value = true
+
+  try {
+    await platform.auth.signInUserWithOIDC?.()
+  } catch (e) {
+    console.error(e)
+    toast.error(`${t("error.something_went_wrong")}`)
+  }
+
+  signingInWithOIDC.value = false
+}
+
 const signInWithEmail = async () => {
   signingInWithEmail.value = true
 
@@ -386,6 +401,17 @@ const authProvidersAvailable: AuthProviderItem[] = [
     action: signInWithMicrosoft,
     isLoading: signingInWithMicrosoft,
   },
+  ...(platform.auth.signInUserWithOIDC
+    ? [
+        {
+          id: "OIDC",
+          icon: IconKeyRound,
+          label: t("auth.continue_with_sso"),
+          action: signInWithOIDC,
+          isLoading: signingInWithOIDC,
+        },
+      ]
+    : []),
   {
     id: "EMAIL",
     icon: IconEmail,

@@ -5,6 +5,7 @@
       '!flex-row-reverse': SIDEBAR_ON_LEFT && mdAndLarger,
       'smart-splitter': SIDEBAR && hasSidebar,
       'no-splitter': !(SIDEBAR && hasSidebar),
+      'drag-to-collapse': isDraggingToCollapse,
     }"
     :horizontal="!mdAndLarger"
     @resize="setPaneEvent($event, 'vertical')"
@@ -54,7 +55,7 @@ import "splitpanes/dist/splitpanes.css"
 import { useSetting } from "@composables/settings"
 import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
 import { useService } from "dioc/vue"
-import { computed, onMounted, ref, useSlots } from "vue"
+import { computed, onMounted, onUnmounted, ref, useSlots, watch } from "vue"
 import { PersistenceService } from "~/services/persistence"
 
 const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
@@ -99,6 +100,13 @@ const PANE_SIDEBAR_SIZE = ref(30)
 const PANE_MAIN_TOP_SIZE = ref(35)
 const PANE_MAIN_BOTTOM_SIZE = ref(65)
 
+// State for drag-to-collapse visual feedback
+const isDraggingToCollapse = ref(false)
+const dragCollapseThreshold = 28 // Show visual feedback when approaching minimum
+const collapseThreshold = 25.5 // Trigger collapse just at minimum constraint
+let dragFeedbackTimeout: ReturnType<typeof setTimeout> | null = null
+let collapseTimeout: ReturnType<typeof setTimeout> | null = null
+
 if (!COLUMN_LAYOUT.value) {
   PANE_MAIN_TOP_SIZE.value = 50
   PANE_MAIN_BOTTOM_SIZE.value = 50
@@ -109,6 +117,51 @@ async function setPaneEvent(
   type: "vertical" | "horizontal"
 ) {
   if (!props.layoutId) return
+  
+  // Handle drag-to-collapse functionality for vertical resize (sidebar)
+  // Only enable on larger screens where the sidebar can be dragged
+  if (type === "vertical" && hasSidebar.value && SIDEBAR.value && mdAndLarger.value) {
+    // The sidebar is always the second pane (index 1) in the splitpanes events array
+    // regardless of visual positioning (RTL, flex-row-reverse)
+    const sidebarPane = event[1]
+    
+    if (sidebarPane) {
+      // Clear any existing timeout
+      if (dragFeedbackTimeout) {
+        clearTimeout(dragFeedbackTimeout)
+      }
+      
+      // Update visual feedback state when user approaches minimum size
+      const shouldShowFeedback = sidebarPane.size <= dragCollapseThreshold
+      isDraggingToCollapse.value = shouldShowFeedback
+      
+      // Auto-collapse sidebar when user reaches minimum size
+      // This covers both cases: hitting exact minimum OR being blocked by min-size constraint
+      if (sidebarPane.size <= collapseThreshold) {
+        // Clear any existing collapse timeout
+        if (collapseTimeout) {
+          clearTimeout(collapseTimeout)
+        }
+        
+        // Add a small delay to make the transition feel more natural
+        collapseTimeout = setTimeout(() => {
+          SIDEBAR.value = false
+          isDraggingToCollapse.value = false
+          collapseTimeout = null
+        }, 100)
+        return // Don't save the resize event when collapsing
+      } else {
+        // Set timeout to clear feedback state if user stops dragging
+        dragFeedbackTimeout = setTimeout(() => {
+          isDraggingToCollapse.value = false
+        }, 200)
+      }
+      
+      // Update last size for next comparison
+      lastSidebarSize = sidebarPane.size
+    }
+  }
+  
   const storageKey = `${props.layoutId}-pane-config-${type}`
   await persistenceService.setLocalConfig(storageKey, JSON.stringify(event))
 }
@@ -140,7 +193,52 @@ async function getPaneData(
   return JSON.parse(paneEvent)
 }
 
+// Watch for external SIDEBAR changes to clean up visual state
+watch(SIDEBAR, (newValue) => {
+  if (!newValue) {
+    // Sidebar was collapsed externally, clean up drag state
+    isDraggingToCollapse.value = false
+    if (dragFeedbackTimeout) {
+      clearTimeout(dragFeedbackTimeout)
+      dragFeedbackTimeout = null
+    }
+    if (collapseTimeout) {
+      clearTimeout(collapseTimeout)
+      collapseTimeout = null
+    }
+  }
+})
+
 onMounted(async () => {
   await populatePaneEvent()
 })
+
+onUnmounted(() => {
+  // Clean up any pending timeouts to prevent memory leaks
+  if (dragFeedbackTimeout) {
+    clearTimeout(dragFeedbackTimeout)
+    dragFeedbackTimeout = null
+  }
+  if (collapseTimeout) {
+    clearTimeout(collapseTimeout)
+    collapseTimeout = null
+  }
+})
 </script>
+
+<style scoped>
+/* Visual feedback for drag-to-collapse */
+:deep(.drag-to-collapse .splitpanes__splitter::before) {
+  @apply bg-red-500 opacity-75;
+  animation: pulse 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+  from {
+    opacity: 0.5;
+  }
+  to {
+    opacity: 1;
+  }
+}
+</style>

@@ -828,6 +828,10 @@
     "sorted": "Folder sorted"
   },
   "graphql": {
+    "add_argument_to_query": "Add argument to query",
+    "remove_argument_from_query": "Remove argument from query",
+    "add_field_to_query": "Add field to query",
+    "remove_field_from_query": "Remove field from query",
     "arguments": "Arguments",
     "connection_switch_confirm": "Do you want to connect with the latest GraphQL endpoint?",
     "connection_error_http": "Failed to fetch GraphQL Schema due to network error.",

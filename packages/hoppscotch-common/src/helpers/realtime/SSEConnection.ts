@@ -41,7 +41,7 @@ export class SSEConnection {
         }
         this.sse.onerror = (e) => {
           this.handleError(e)
-          this.stop()
+          this.stop(false)
         }
         this.sse.addEventListener(eventType, ({ data }) => {
           this.addEvent({
@@ -77,13 +77,13 @@ export class SSEConnection {
     })
   }
 
-  stop() {
+  stop(manual = true) {
     this.sse?.close()
     this.connectionState$.next("STOPPED")
     this.addEvent({
       type: "STOPPED",
       time: Date.now(),
-      manual: true,
+      manual,
     })
   }
 }

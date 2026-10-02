@@ -23,7 +23,7 @@ function checkURL(url: string): boolean {
     new URL(url)
     return true
   } catch {
-    return /^(https?:\/\/)?([\w.-]+)(\.[\w.-]+)+([/?].*)?$/.test(url)
+    return /^(https?:\/\/)?([\w-]+)(\.[\w-]+)+([/?].*)?$/.test(url)
   }
 }
 

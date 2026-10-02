@@ -89,7 +89,7 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  (e: "importFromURL", content: unknown): void
+  (e: "importFromURL", content: unknown, url: string): void
 }>()
 
 const inputChooseGistToImportFrom = ref<string>("")
@@ -164,7 +164,7 @@ const retryWithProxy = async () => {
 
     if (E.isRight(res)) {
       showCorsError.value = false
-      emit("importFromURL", res.right)
+      emit("importFromURL", res.right, inputChooseGistToImportFrom.value)
     } else {
       toast.error(t("import.failed"))
     }
@@ -190,7 +190,7 @@ async function fetchUrlData() {
     return
   }
 
-  emit("importFromURL", res.right)
+  emit("importFromURL", res.right, inputChooseGistToImportFrom.value)
   isFetchingUrl.value = false
 }
 </script>

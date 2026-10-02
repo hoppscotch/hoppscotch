@@ -87,11 +87,18 @@ export class BrowserKernelInterceptorService
               },
               description: (t: ReturnType<typeof getI18n>) => {
                 switch (error.kind) {
-                  case "network":
+                  case "network": {
+                     const isUnknownCause = !error.cause
+
+                      const causeMessage = isUnknownCause
+                        ? t("error.network.cors_hint")
+                        : error.cause
+
                     return t("error.network.description", {
-                      message: error.message,
-                      cause: error.cause ?? t("error.unknown.cause"),
-                    })
+                    message: error.message,
+                     cause: causeMessage,
+                      })
+                   }
                   case "timeout":
                     return t("error.timeout.description", {
                       message: error.message,

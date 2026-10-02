@@ -1159,6 +1159,16 @@ describe("Parse curl command to Hopp REST Request", () => {
     expect(customHeader.value).toBe(`-d {"fake":1}`)
   })
 
+  test("preserves colons in header values", () => {
+    const command = `curl 'https://example.com/api' -H 'X-Custom: first: second'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+
+    const customHeader = actual.headers.find((h) => h.key === "X-Custom")
+    expect(customHeader).toBeDefined()
+    expect(customHeader.value).toBe("first: second")
+  })
+
   for (const [i, { command, response }] of samples.entries()) {
     test(`for sample #${i + 1}:\n\n${command}`, () => {
       const actual = parseCurlToHoppRESTReq(command)

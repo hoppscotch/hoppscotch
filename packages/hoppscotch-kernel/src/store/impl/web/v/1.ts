@@ -10,14 +10,157 @@ import {
   StoreEventEmitter,
 } from "@store/v/1"
 
+class IndexedDBStoreManager {
+  private dbName = "hoppscotch-store"
+  private dbVersion = 1
+  private db: IDBDatabase | null = null
+  private storeName = "data"
+  private static instance: IndexedDBStoreManager
+  private initPromise: Promise<void> | null = null
+
+  static getInstance(): IndexedDBStoreManager {
+    if (!IndexedDBStoreManager.instance) {
+      IndexedDBStoreManager.instance = new IndexedDBStoreManager()
+    }
+    return IndexedDBStoreManager.instance
+  }
+
+  async init(): Promise<void> {
+    if (this.db) return
+    if (this.initPromise) return this.initPromise
+    this.initPromise = new Promise((resolve, reject) => {
+      const request = indexedDB.open(this.dbName, this.dbVersion)
+      request.onerror = () => {
+        reject(request.error)
+      }
+      request.onsuccess = () => {
+        this.db = request.result
+        resolve()
+      }
+      request.onupgradeneeded = () => {
+        const db = request.result
+        if (!db.objectStoreNames.contains(String(this.storeName))) {
+          db.createObjectStore(String(this.storeName))
+        }
+      }
+    })
+    return this.initPromise
+  }
+
+  async set(key: string, value: string): Promise<void> {
+    await this.init()
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(this.storeName, "readwrite")
+      const store = transaction.objectStore(this.storeName)
+      const request = store.put(value, key)
+      request.onsuccess = () => resolve()
+      request.onerror = () => reject(request.error)
+    })
+  }
+
+  async get(key: string): Promise<string | null> {
+    await this.init()
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(this.storeName, "readonly")
+      const store = transaction.objectStore(this.storeName)
+      const request = store.get(key)
+      request.onsuccess = () => {
+        const result = request.result as string | undefined
+        resolve(result ?? null)
+      }
+      request.onerror = () => reject(request.error)
+    })
+  }
+
+  async delete(key: string): Promise<void> {
+    await this.init()
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(this.storeName, "readwrite")
+      const store = transaction.objectStore(this.storeName)
+      const request = store.delete(key)
+      request.onsuccess = () => resolve()
+      request.onerror = () => reject(request.error)
+    })
+  }
+
+  async clear(): Promise<void> {
+    await this.init()
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(this.storeName, "readwrite")
+      const store = transaction.objectStore(this.storeName)
+      const request = store.clear()
+      request.onsuccess = () => resolve()
+      request.onerror = () => reject(request.error)
+    })
+  }
+
+  async getKeysByNamespace(namespace: string): Promise<string[]> {
+    await this.init()
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(this.storeName, "readonly")
+      const store = transaction.objectStore(this.storeName)
+      const request = store.getAllKeys()
+      request.onsuccess = () => {
+        const keys = request.result as string[]
+        const filteredKeys = keys.filter((key) =>
+          key.startsWith(`${namespace}:`)
+        )
+        const mappedKeys = filteredKeys.map((key) =>
+          key.replace(`${namespace}:`, "")
+        )
+        resolve(mappedKeys)
+      }
+      request.onerror = () => reject(request.error)
+    })
+  }
+
+  async getAllNamespaces(): Promise<string[]> {
+    await this.init()
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(this.storeName, "readonly")
+      const store = transaction.objectStore(this.storeName)
+      const request = store.getAllKeys()
+      request.onsuccess = () => {
+        const keys = request.result as string[]
+        const namespaces = keys.map((key) => key.split(":")[0])
+        const uniqueNamespaces = [...new Set(namespaces)]
+        resolve(uniqueNamespaces)
+      }
+      request.onerror = () => reject(request.error)
+    })
+  }
+
+  async has(namespace: string, key: string): Promise<boolean> {
+    await this.init()
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(this.storeName, "readonly")
+      const store = transaction.objectStore(this.storeName)
+      const request = store.get(`${namespace}:${key}`)
+      request.onsuccess = () => resolve(request.result != null)
+      request.onerror = () => reject(request.error)
+    })
+  }
+}
+
 class BrowserStoreManager {
   private static instance: BrowserStoreManager
   private listeners = new Map<
     string,
     Set<(payload: StoreEvents["change"]) => void>
   >()
+  private db: IndexedDBStoreManager
+  private dbInited = false
 
-  private constructor() {}
+  private constructor() {
+    this.db = IndexedDBStoreManager.getInstance()
+  }
+
+  private async ensureInit() {
+    if (!this.dbInited) {
+      await this.db.init()
+      this.dbInited = true
+    }
+  }
 
   static new(): BrowserStoreManager {
     if (!BrowserStoreManager.instance) {
@@ -37,11 +180,11 @@ class BrowserStoreManager {
   }
 
   async set(namespace: string, key: string, value: StoredData): Promise<void> {
+    await this.ensureInit()
     const validated = StoredDataSchema.parse(value)
-    localStorage.setItem(
-      this.getFullKey(namespace, key),
-      superjson.stringify(validated)
-    )
+    const serialized = superjson.stringify(validated)
+    const fullKey = this.getFullKey(namespace, key)
+    await this.db.set(fullKey, serialized)
     this.notifyListeners(namespace, key, validated.data)
   }
 
@@ -49,12 +192,11 @@ class BrowserStoreManager {
     namespace: string,
     key: string
   ): Promise<StoredData | undefined> {
-    const rawValue = localStorage.getItem(this.getFullKey(namespace, key))
+    await this.ensureInit()
+    const rawValue = await this.db.get(this.getFullKey(namespace, key))
     if (!rawValue) return undefined
-
-    const parsed = superjson.parse(rawValue)
-    const validated = StoredDataSchema.parse(parsed)
-    return validated
+    const parsed = superjson.parse(rawValue) as StoredData
+    return parsed as StoredData
   }
 
   async get<T>(namespace: string, key: string): Promise<T | undefined> {
@@ -63,43 +205,40 @@ class BrowserStoreManager {
   }
 
   async has(namespace: string, key: string): Promise<boolean> {
-    return localStorage.getItem(this.getFullKey(namespace, key)) !== null
+    await this.ensureInit()
+    return await this.db.has(namespace, key)
   }
 
   async delete(namespace: string, key: string): Promise<boolean> {
-    const exists = await this.has(namespace, key)
-    if (exists) {
-      localStorage.removeItem(this.getFullKey(namespace, key))
-      this.notifyListeners(namespace, key, undefined)
-    }
-    return exists
+    await this.ensureInit()
+    const fullKey = this.getFullKey(namespace, key)
+    await this.db.delete(fullKey)
+    this.notifyListeners(namespace, key, undefined)
+    return true
   }
 
   async clear(namespace?: string): Promise<void> {
+    await this.ensureInit()
     if (namespace) {
-      const keysToRemove = Object.keys(localStorage).filter((key) =>
-        key.startsWith(`${namespace}:`)
-      )
-      keysToRemove.forEach((key) => localStorage.removeItem(key))
+      const keys = await this.db.getKeysByNamespace(namespace)
+      for (const key of keys) {
+        const fullKey = this.getFullKey(namespace, key)
+        await this.db.delete(fullKey)
+      }
     } else {
-      localStorage.clear()
+      await this.db.clear()
     }
     this.listeners.clear()
   }
 
   async listNamespaces(): Promise<string[]> {
-    const namespaces = new Set<string>()
-    Object.keys(localStorage).forEach((key) => {
-      const [namespace] = key.split(":")
-      namespaces.add(namespace)
-    })
-    return Array.from(namespaces)
+    await this.ensureInit()
+    return await this.db.getAllNamespaces()
   }
 
   async listKeys(namespace: string): Promise<string[]> {
-    return Object.keys(localStorage)
-      .filter((key) => key.startsWith(`${namespace}:`))
-      .map((key) => key.replace(`${namespace}:`, ""))
+    await this.ensureInit()
+    return await this.db.getKeysByNamespace(namespace)
   }
 
   async watch(
@@ -155,6 +294,8 @@ export const implementation: VersionedAPI<StoreV1> = {
     // is the path that filteres to the "realm" makes it easier to reason around
     async init(_storePath) {
       try {
+        const manager = BrowserStoreManager.new()
+        await (manager as any).db.init()
         return E.right(undefined)
       } catch (e) {
         return E.left({

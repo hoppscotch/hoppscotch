@@ -515,7 +515,9 @@ const runTests = async () => {
 }
 
 const stopTests = () => {
-  testRunnerStopRef.value = true
+  if (!testRunnerService.stopRun(tab.value.id)) {
+    testRunnerStopRef.value = true
+  }
   // when we manually stop the test runner, we need to update the tab document with the current state
   tab.value.document.testRunnerMeta = {
     ...tab.value.document.testRunnerMeta,

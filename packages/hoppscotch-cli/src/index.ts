@@ -70,6 +70,10 @@ program
     "generate JUnit report optionally specifying the path"
   )
   .option(
+    "--reporter-json [path]",
+    "generate a JSON report optionally specifying the path"
+  )
+  .option(
     "--iteration-count <no_of_iterations>",
     "number of iterations to run the test",
     parseInt
@@ -94,6 +98,11 @@ program
     // Choose `hopp-junit-report.xml` as the default value if `reporter-junit` flag is supplied without a value
     if (options.reporterJunit === true) {
       overrides.reporterJunit = "hopp-junit-report.xml";
+    }
+
+    // Choose `hopp-json-report.json` as the default value if `reporter-json` flag is supplied without a value
+    if (options.reporterJson === true) {
+      overrides.reporterJson = "hopp-json-report.json";
     }
 
     const effectiveOptions = { ...options, ...overrides };

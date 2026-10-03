@@ -133,7 +133,7 @@
                 :shortcut="['⌫']"
                 @click="
                   () => {
-                    clearContent()
+                    confirmClearAll = true
                     hide()
                   }
                 "
@@ -232,6 +232,17 @@
       :request="request"
       @hide-modal="showSaveRequestModal = false"
     />
+    <HoppSmartConfirmModal
+      :show="confirmClearAll"
+      :title="`${t('confirm.clear_all_fields')}`"
+      @hide-modal="confirmClearAll = false"
+      @resolve="
+        () => {
+          clearContent()
+          confirmClearAll = false
+        }
+      "
+    />
   </div>
 </template>
 
@@ -313,6 +324,7 @@ const isTabResponseLoading = computed(
 
 const showCurlImportModal = ref(false)
 const showCodegenModal = ref(false)
+const confirmClearAll = ref(false)
 const showSaveRequestModal = ref(false)
 
 const methodTippyActions = ref<any | null>(null)

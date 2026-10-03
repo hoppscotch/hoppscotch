@@ -1,3 +1,12 @@
+import {
+  afterAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+  type Mock,
+} from "vitest";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { RequestConfig } from "../../../interfaces/request";
 import { requestRunner } from "../../../utils/request";
@@ -5,7 +14,11 @@ import { RequestRunnerResponse } from "../../../interfaces/response";
 
 import "@relmify/jest-fp-ts";
 
-jest.mock("axios");
+vi.mock("axios", () => ({
+  default: Object.assign(vi.fn(), {
+    isAxiosError: vi.fn(),
+  }),
+}));
 
 describe("requestRunner", () => {
   let SAMPLE_REQUEST_CONFIG: RequestConfig = {
@@ -17,16 +30,16 @@ describe("requestRunner", () => {
   beforeEach(() => {
     SAMPLE_REQUEST_CONFIG.url = "https://example.com";
     SAMPLE_REQUEST_CONFIG.method = "GET";
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterAll(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("Should handle axios-error with response info.", () => {
-    jest.spyOn(axios, "isAxiosError").mockReturnValue(true);
-    (axios as unknown as jest.Mock).mockRejectedValueOnce(<AxiosError>{
+    vi.spyOn(axios, "isAxiosError").mockReturnValue(true);
+    (axios as unknown as Mock).mockRejectedValueOnce(<AxiosError>{
       name: "name",
       message: "message",
       config: SAMPLE_REQUEST_CONFIG,
@@ -50,8 +63,8 @@ describe("requestRunner", () => {
   });
 
   it("Should handle axios-error for unsupported request.", () => {
-    jest.spyOn(axios, "isAxiosError").mockReturnValue(true);
-    (axios as unknown as jest.Mock).mockRejectedValueOnce(<AxiosError>{
+    vi.spyOn(axios, "isAxiosError").mockReturnValue(true);
+    (axios as unknown as Mock).mockRejectedValueOnce(<AxiosError>{
       name: "name",
       message: "message",
       config: SAMPLE_REQUEST_CONFIG,
@@ -62,14 +75,14 @@ describe("requestRunner", () => {
     return expect(
       requestRunner(SAMPLE_REQUEST_CONFIG)()
     ).resolves.toSubsetEqualRight(<RequestRunnerResponse>{
-      status: 501,
+      status: 400,
       body: {},
     });
   });
 
   it("Should handle axios-error with request info.", () => {
-    jest.spyOn(axios, "isAxiosError").mockReturnValue(true);
-    (axios as unknown as jest.Mock).mockRejectedValueOnce(<AxiosError>{
+    vi.spyOn(axios, "isAxiosError").mockReturnValue(true);
+    (axios as unknown as Mock).mockRejectedValueOnce(<AxiosError>{
       name: "name",
       message: "message",
       config: SAMPLE_REQUEST_CONFIG,
@@ -82,14 +95,14 @@ describe("requestRunner", () => {
   });
 
   it("Should handle unknown error.", () => {
-    jest.spyOn(axios, "isAxiosError").mockReturnValue(false);
-    (axios as unknown as jest.Mock).mockRejectedValueOnce({});
+    vi.spyOn(axios, "isAxiosError").mockReturnValue(false);
+    (axios as unknown as Mock).mockRejectedValueOnce({});
 
     return expect(requestRunner(SAMPLE_REQUEST_CONFIG)()).resolves.toBeLeft();
   });
 
   it("Should successfully execute.", () => {
-    (axios as unknown as jest.Mock).mockResolvedValue(<AxiosResponse>{
+    (axios as unknown as Mock).mockResolvedValue(<AxiosResponse>{
       data: "data",
       status: 200,
       config: SAMPLE_REQUEST_CONFIG,

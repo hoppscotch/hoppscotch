@@ -1,3 +1,4 @@
+import { describe, expect, test } from "vitest";
 import { DEFAULT_DURATION_PRECISION } from "../../../utils/constants";
 import { getDurationInSeconds } from "../../../utils/getters";
 

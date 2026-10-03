@@ -1,3 +1,4 @@
+import { beforeAll, describe, expect, test, vi } from "vitest";
 import { HoppRESTRequest } from "@hoppscotch/data";
 import { HoppEnvs } from "../../../types/request";
 import * as E from "fp-ts/Either";
@@ -6,6 +7,19 @@ import { EffectiveHoppRESTRequest } from "../../../interfaces/request";
 import { preRequestScriptRunner } from "../../../utils/pre-request";
 
 import "@relmify/jest-fp-ts";
+
+vi.mock("axios", () => ({
+  default: Object.assign(vi.fn(), {
+    create: vi.fn(),
+    isAxiosError: vi.fn(),
+  }),
+}));
+vi.mock("axios-cookiejar-support", () => ({
+  wrapper: (instance: unknown) => instance,
+}));
+vi.mock("tough-cookie", () => ({
+  CookieJar: vi.fn(),
+}));
 
 const SAMPLE_ENVS: HoppEnvs = {
   global: [],
@@ -29,6 +43,7 @@ const SAMPLE_REQUEST: HoppRESTRequest = {
     contentType: null,
     body: null,
   },
+  requestVariables: [],
 };
 
 describe("preRequestScriptRunner", () => {
@@ -56,10 +71,10 @@ describe("preRequestScriptRunner", () => {
   });
 
   test("Parsing of request endpoint with set ENV.", () => {
-    expect(SUCCESS_PRE_REQUEST_RUNNER).toSubsetEqualRight(<
-      EffectiveHoppRESTRequest
-    >{
-      effectiveFinalURL: "https://example.com",
+    expect(SUCCESS_PRE_REQUEST_RUNNER).toSubsetEqualRight({
+      effectiveRequest: <EffectiveHoppRESTRequest>{
+        effectiveFinalURL: "https://example.com",
+      },
     });
   });
 

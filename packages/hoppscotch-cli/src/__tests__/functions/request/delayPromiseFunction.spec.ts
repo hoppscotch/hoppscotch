@@ -1,30 +1,36 @@
-import { hrtime } from "process";
-import { getDurationInSeconds } from "../../../utils/getters";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { delayPromiseFunction } from "../../../utils/request";
 
 describe("describePromiseFunction", () => {
-  let promiseFunc = (): Promise<number> => new Promise((resolve) => resolve(2));
-  beforeEach(() => {
-    promiseFunc = (): Promise<number> => new Promise((resolve) => resolve(2));
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it("Should resolve the promise<number> after 2 seconds.", async () => {
-    const start = hrtime();
-    const res = await delayPromiseFunction(promiseFunc, 2000);
-    const end = hrtime(start);
-    const duration = getDurationInSeconds(end);
+    vi.useFakeTimers();
+    const promiseFunc = vi.fn().mockResolvedValue(2);
+    const result = delayPromiseFunction(promiseFunc, 2000);
 
-    expect(Math.floor(duration)).toEqual(2);
-    expect(typeof res).toBe("number");
+    expect(promiseFunc).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1999);
+    expect(promiseFunc).not.toHaveBeenCalled();
+
+    await vi.advanceTimersByTimeAsync(1);
+    await expect(result).resolves.toBe(2);
+    expect(promiseFunc).toHaveBeenCalledOnce();
   });
 
   it("Should resolve the promise<number> after 4 seconds.", async () => {
-    const start = hrtime();
-    const res = await delayPromiseFunction(promiseFunc, 4000);
-    const end = hrtime(start);
-    const duration = getDurationInSeconds(end);
+    vi.useFakeTimers();
+    const promiseFunc = vi.fn().mockResolvedValue(2);
+    const result = delayPromiseFunction(promiseFunc, 4000);
 
-    expect(Math.floor(duration)).toEqual(4);
-    expect(typeof res).toBe("number");
+    expect(promiseFunc).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(3999);
+    expect(promiseFunc).not.toHaveBeenCalled();
+
+    await vi.advanceTimersByTimeAsync(1);
+    await expect(result).resolves.toBe(2);
+    expect(promiseFunc).toHaveBeenCalledOnce();
   });
 });

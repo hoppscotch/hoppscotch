@@ -1,10 +1,37 @@
+import {
+  afterAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+  type Mock,
+} from "vitest";
 import { collectionsRunner } from "../../../utils/collections";
 import { HoppRESTRequest } from "@hoppscotch/data";
 import axios, { AxiosResponse } from "axios";
 
 import "@relmify/jest-fp-ts";
 
-jest.mock("axios");
+vi.mock("axios", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("axios")>();
+  const mockAxios = Object.assign(vi.fn(), {
+    create: vi.fn(),
+    get: vi.fn(),
+    request: vi.fn(),
+    isAxiosError: vi.fn(),
+  });
+
+  mockAxios.create.mockReturnValue(mockAxios);
+
+  return { ...actual, default: mockAxios };
+});
+vi.mock("axios-cookiejar-support", () => ({
+  wrapper: (instance: unknown) => instance,
+}));
+vi.mock("tough-cookie", () => ({
+  CookieJar: vi.fn(),
+}));
 
 const SAMPLE_HOPP_REQUEST = <HoppRESTRequest>{
   v: "1",
@@ -23,6 +50,7 @@ const SAMPLE_HOPP_REQUEST = <HoppRESTRequest>{
     contentType: null,
     body: null,
   },
+  requestVariables: [],
 };
 
 const SAMPLE_RESOLVED_RESPONSE = <AxiosResponse>{
@@ -41,11 +69,12 @@ const SAMPLE_ENVS = { global: [], selected: [] };
 
 describe("collectionsRunner", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
+    (axios.create as unknown as Mock).mockReturnValue(axios);
   });
 
   afterAll(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test("Empty HoppCollection.", () => {
@@ -62,6 +91,12 @@ describe("collectionsRunner", () => {
             v: 1,
             name: "name",
             folders: [],
+            auth: { authActive: false, authType: "none" },
+            headers: [],
+            variables: [],
+            preRequestScript: "",
+            testScript: "",
+            description: null,
             requests: [],
           },
         ],
@@ -71,7 +106,7 @@ describe("collectionsRunner", () => {
   });
 
   test("Non-empty requests in collection.", () => {
-    (axios as unknown as jest.Mock).mockResolvedValue(SAMPLE_RESOLVED_RESPONSE);
+    (axios as unknown as Mock).mockResolvedValue(SAMPLE_RESOLVED_RESPONSE);
 
     return expect(
       collectionsRunner({
@@ -80,6 +115,12 @@ describe("collectionsRunner", () => {
             v: 1,
             name: "collection",
             folders: [],
+            auth: { authActive: false, authType: "none" },
+            headers: [],
+            variables: [],
+            preRequestScript: "",
+            testScript: "",
+            description: null,
             requests: [SAMPLE_HOPP_REQUEST],
           },
         ],
@@ -96,7 +137,7 @@ describe("collectionsRunner", () => {
   });
 
   test("Non-empty folders in collection.", () => {
-    (axios as unknown as jest.Mock).mockResolvedValue(SAMPLE_RESOLVED_RESPONSE);
+    (axios as unknown as Mock).mockResolvedValue(SAMPLE_RESOLVED_RESPONSE);
 
     return expect(
       collectionsRunner({
@@ -109,10 +150,22 @@ describe("collectionsRunner", () => {
                 v: 1,
                 name: "folder",
                 folders: [],
+                auth: { authActive: false, authType: "none" },
+                headers: [],
+                variables: [],
+                preRequestScript: "",
+                testScript: "",
+                description: null,
                 requests: [SAMPLE_HOPP_REQUEST],
               },
             ],
             requests: [],
+            auth: { authActive: false, authType: "none" },
+            headers: [],
+            variables: [],
+            preRequestScript: "",
+            testScript: "",
+            description: null,
           },
         ],
         envs: SAMPLE_ENVS,

@@ -1,3 +1,12 @@
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+  type Mock,
+} from "vitest";
 import { HoppRESTRequest } from "@hoppscotch/data";
 import axios, { AxiosResponse } from "axios";
 import { processRequest } from "../../../utils/request";
@@ -5,7 +14,18 @@ import { HoppEnvs } from "../../../types/request";
 
 import "@relmify/jest-fp-ts";
 
-jest.mock("axios");
+vi.mock("axios", () => ({
+  default: Object.assign(vi.fn(), {
+    create: vi.fn(),
+    isAxiosError: vi.fn(),
+  }),
+}));
+vi.mock("axios-cookiejar-support", () => ({
+  wrapper: (instance: unknown) => instance,
+}));
+vi.mock("tough-cookie", () => ({
+  CookieJar: vi.fn(),
+}));
 
 const DEFAULT_REQUEST = <HoppRESTRequest>{
   v: "1",
@@ -24,6 +44,7 @@ const DEFAULT_REQUEST = <HoppRESTRequest>{
     contentType: null,
     body: null,
   },
+  requestVariables: [],
 };
 
 const DEFAULT_RESPONSE = <AxiosResponse>{
@@ -47,7 +68,8 @@ describe("processRequest", () => {
   let SAMPLE_REQUEST = DEFAULT_REQUEST;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
+    (axios.create as unknown as Mock).mockReturnValue(axios);
   });
 
   afterEach(() => {
@@ -55,7 +77,7 @@ describe("processRequest", () => {
   });
 
   test("With empty envs for 'true' result.", () => {
-    (axios as unknown as jest.Mock).mockResolvedValue(DEFAULT_RESPONSE);
+    (axios as unknown as Mock).mockResolvedValue(DEFAULT_RESPONSE);
 
     return expect(
       processRequest({
@@ -81,7 +103,7 @@ describe("processRequest", () => {
 			});
 		`;
 
-    (axios as unknown as jest.Mock).mockResolvedValue(DEFAULT_RESPONSE);
+    (axios as unknown as Mock).mockResolvedValue(DEFAULT_RESPONSE);
 
     return expect(
       processRequest({
@@ -92,7 +114,14 @@ describe("processRequest", () => {
       })()
     ).resolves.toMatchObject({
       envs: {
-        selected: [{ key: "ENDPOINT", value: "https://example.com" }],
+        selected: [
+          {
+            key: "ENDPOINT",
+            initialValue: "https://example.com",
+            currentValue: "https://example.com",
+            secret: false,
+          },
+        ],
       },
       report: {
         result: true,
@@ -103,7 +132,7 @@ describe("processRequest", () => {
   test("With invalid-pre-request-script.", () => {
     SAMPLE_REQUEST.preRequestScript = `invalid`;
 
-    (axios as unknown as jest.Mock).mockResolvedValue(DEFAULT_RESPONSE);
+    (axios as unknown as Mock).mockResolvedValue(DEFAULT_RESPONSE);
 
     return expect(
       processRequest({

@@ -1,4 +1,6 @@
+import { beforeAll, describe, expect, it, test } from "vitest";
 import { TestResponse } from "@hoppscotch/js-sandbox";
+import { makeRESTRequest } from "@hoppscotch/data";
 import * as E from "fp-ts/Either";
 import { TestRunnerRes } from "../../../types/response";
 import { HoppCLIError } from "../../../types/errors";
@@ -12,15 +14,34 @@ const SAMPLE_ENVS: HoppEnvs = {
   selected: [
     {
       key: "DEVBLIN",
-      value: "set-by-devblin",
+      initialValue: "set-by-devblin",
+      currentValue: "set-by-devblin",
+      secret: false,
     },
   ],
 };
 const SAMPLE_RESPONSE: TestResponse = {
   status: 200,
+  statusText: "OK",
+  responseTime: 0,
   headers: [],
   body: {},
 };
+
+const SAMPLE_REQUEST = makeRESTRequest({
+  name: "request",
+  method: "GET",
+  endpoint: "https://example.com",
+  params: [],
+  headers: [],
+  preRequestScript: "",
+  testScript: "",
+  auth: { authActive: false, authType: "none" },
+  body: { contentType: null, body: null },
+  requestVariables: [],
+  description: null,
+  responses: {},
+});
 
 describe("testRunner", () => {
   let SUCCESS_TEST_RUNNER_RES: E.Either<HoppCLIError, TestRunnerRes>,
@@ -28,7 +49,9 @@ describe("testRunner", () => {
 
   beforeAll(async () => {
     SUCCESS_TEST_RUNNER_RES = await testRunner({
-      testScript: `
+      request: makeRESTRequest({
+        ...SAMPLE_REQUEST,
+        testScript: `
 			// Check status code is 200
 			pw.test("Status code is 200", ()=> {
 					pw.expect(pw.response.status).toBe(200);
@@ -40,14 +63,17 @@ describe("testRunner", () => {
 					pw.expect(pw.response.body).toBe("body");
 			});
 			`,
+      }),
       envs: SAMPLE_ENVS,
       response: SAMPLE_RESPONSE,
+      legacySandbox: false,
     })();
 
     FAILURE_TEST_RUNNER_RES = await testRunner({
-      testScript: "a",
+      request: makeRESTRequest({ ...SAMPLE_REQUEST, testScript: "a" }),
       envs: SAMPLE_ENVS,
       response: SAMPLE_RESPONSE,
+      legacySandbox: false,
     })();
   });
 

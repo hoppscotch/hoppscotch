@@ -14,7 +14,7 @@
     ></div>
     <div
       class="group flex items-center"
-      :draggable="!hasNoTeamAccess"
+      :draggable="!hasNoTeamAccess && !isSearchResult"
       @drop="handelDrop"
       @dragstart="dragStart"
       @dragover="handleDragOver($event)"
@@ -82,7 +82,7 @@
       </div>
       <div class="flex">
         <HoppButtonSecondary
-          v-if="!saveRequest && !hasNoTeamAccess"
+          v-if="!saveRequest && !hasNoTeamAccess && !isSearchResult"
           v-tippy="{ theme: 'tooltip' }"
           :icon="IconRotateCCW"
           :title="t('action.restore')"
@@ -116,7 +116,7 @@
                 @keyup.escape="hide()"
               >
                 <HoppSmartItem
-                  v-if="!hasNoTeamAccess"
+                  v-if="!hasNoTeamAccess && !isSearchResult"
                   ref="edit"
                   :icon="IconEdit"
                   :label="t('action.edit')"
@@ -142,7 +142,7 @@
                   "
                 />
                 <HoppSmartItem
-                  v-if="!hasNoTeamAccess"
+                  v-if="!hasNoTeamAccess && !isSearchResult"
                   ref="addExampleAction"
                   :icon="IconPlusCircle"
                   :label="t('action.add_example')"
@@ -168,7 +168,7 @@
                   "
                 />
                 <HoppSmartItem
-                  v-if="!hasNoTeamAccess"
+                  v-if="!hasNoTeamAccess && !isSearchResult"
                   ref="shareAction"
                   :icon="IconShare2"
                   :label="t('action.share')"
@@ -181,7 +181,7 @@
                   "
                 />
                 <HoppSmartItem
-                  v-if="!hasNoTeamAccess"
+                  v-if="!hasNoTeamAccess && !isSearchResult"
                   ref="deleteAction"
                   :icon="IconTrash2"
                   :label="t('action.delete')"
@@ -313,6 +313,11 @@ const props = defineProps({
     required: false,
   },
   hasNoTeamAccess: {
+    type: Boolean,
+    default: false,
+    required: false,
+  },
+  isSearchResult: {
     type: Boolean,
     default: false,
     required: false,

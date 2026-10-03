@@ -8,12 +8,23 @@ import { preRequestScriptRunner } from "../../../utils/pre-request";
 
 import "@relmify/jest-fp-ts";
 
-vi.mock("axios", () => ({
-  default: Object.assign(vi.fn(), {
-    create: vi.fn(),
+vi.mock("axios", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("axios")>();
+  const axiosInstance = vi.fn().mockResolvedValue({
+    status: 200,
+    statusText: "OK",
+    headers: {},
+    data: new ArrayBuffer(0),
+  });
+  const mockAxios = Object.assign(vi.fn(), {
+    create: vi.fn(() => axiosInstance),
+    get: vi.fn(),
+    request: vi.fn(),
     isAxiosError: vi.fn(),
-  }),
-}));
+  });
+
+  return { ...actual, default: mockAxios };
+});
 vi.mock("axios-cookiejar-support", () => ({
   wrapper: (instance: unknown) => instance,
 }));

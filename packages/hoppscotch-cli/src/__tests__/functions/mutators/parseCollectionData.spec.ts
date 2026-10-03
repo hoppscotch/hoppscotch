@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { mkdtempSync, writeFileSync } from "fs";
+import { mkdtempSync, rmSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 import { HoppCLIError } from "../../../types/errors";
@@ -18,18 +18,21 @@ describe("parseCollectionData", () => {
     });
   });
 
-  test("Unparseable JSON contents.", () => {
-    const file = join(
-      mkdtempSync(join(tmpdir(), "hopp-cli-test-")),
-      "invalid.json"
-    );
-    writeFileSync(file, "{ invalid json");
+  test("Unparseable JSON contents.", async () => {
+    const directory = mkdtempSync(join(tmpdir(), "hopp-cli-test-"));
+    const file = join(directory, "invalid.json");
 
-    return expect(parseCollectionData(file, {})).rejects.toMatchObject(<
-      HoppCLIError
-    >{
-      code: "UNKNOWN_ERROR",
-    });
+    try {
+      writeFileSync(file, "{ invalid json");
+
+      await expect(parseCollectionData(file, {})).rejects.toMatchObject(<
+        HoppCLIError
+      >{
+        code: "UNKNOWN_ERROR",
+      });
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
   });
 
   test("Invalid HoppCollection.", () => {

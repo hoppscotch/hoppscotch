@@ -13,12 +13,19 @@ import axios, { AxiosResponse } from "axios";
 
 import "@relmify/jest-fp-ts";
 
-vi.mock("axios", () => ({
-  default: Object.assign(vi.fn(), {
+vi.mock("axios", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("axios")>();
+  const mockAxios = Object.assign(vi.fn(), {
     create: vi.fn(),
+    get: vi.fn(),
+    request: vi.fn(),
     isAxiosError: vi.fn(),
-  }),
-}));
+  });
+
+  mockAxios.create.mockReturnValue(mockAxios);
+
+  return { ...actual, default: mockAxios };
+});
 vi.mock("axios-cookiejar-support", () => ({
   wrapper: (instance: unknown) => instance,
 }));

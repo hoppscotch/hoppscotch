@@ -66,12 +66,14 @@ describe("testRunner", () => {
       }),
       envs: SAMPLE_ENVS,
       response: SAMPLE_RESPONSE,
+      legacySandbox: false,
     })();
 
     FAILURE_TEST_RUNNER_RES = await testRunner({
       request: makeRESTRequest({ ...SAMPLE_REQUEST, testScript: "a" }),
       envs: SAMPLE_ENVS,
       response: SAMPLE_RESPONSE,
+      legacySandbox: false,
     })();
   });
 

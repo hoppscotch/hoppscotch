@@ -269,7 +269,13 @@ function convertRelayResponseToSerializableResponse(
       bodyBytes = Array.from(actualBody)
     } else if (ArrayBuffer.isView(actualBody)) {
       // Other typed array
-      bodyBytes = Array.from(new Uint8Array(actualBody.buffer))
+      bodyBytes = Array.from(
+        new Uint8Array(
+          actualBody.buffer,
+          actualBody.byteOffset,
+          actualBody.byteLength
+        )
+      )
     } else if (typeof actualBody === "object") {
       // Check if it's a Buffer-like object with 'type' and 'data' properties
       if ("type" in actualBody && "data" in actualBody) {

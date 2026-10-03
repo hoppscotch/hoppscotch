@@ -160,7 +160,9 @@ function createSerializableResponse(
       bodyBytes = Array.from(body);
     } else if (ArrayBuffer.isView(body)) {
       // Other typed array
-      bodyBytes = Array.from(new Uint8Array(body.buffer));
+      bodyBytes = Array.from(
+        new Uint8Array(body.buffer, body.byteOffset, body.byteLength)
+      );
     } else if (typeof body === "string") {
       // String body
       bodyBytes = Array.from(new TextEncoder().encode(body));

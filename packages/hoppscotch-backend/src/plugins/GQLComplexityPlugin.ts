@@ -1,11 +1,6 @@
-import { GraphQLSchemaHost } from '@nestjs/graphql';
-import {
-  ApolloServerPlugin,
-  BaseContext,
-  GraphQLRequestListener,
-} from '@apollo/server';
-import { Plugin } from '@nestjs/apollo';
 import { GraphQLError } from 'graphql';
+import type { ExecutionArgs } from 'graphql';
+import type { Plugin } from 'graphql-yoga';
 import {
   ComplexityEstimatorArgs,
   fieldExtensionsEstimator,
@@ -15,39 +10,45 @@ import {
 
 const COMPLEXITY_LIMIT = 50;
 
-@Plugin()
-export class GQLComplexityPlugin implements ApolloServerPlugin {
-  constructor(private gqlSchemaHost: GraphQLSchemaHost) {}
-
-  async requestDidStart(): Promise<GraphQLRequestListener<BaseContext>> {
-    const { schema } = this.gqlSchemaHost;
-
-    return {
-      async didResolveOperation({ request, document }) {
-        const complexity = getComplexity({
-          schema,
-          operationName: request.operationName,
-          query: document,
-          variables: request.variables,
-          estimators: [
-            // Custom estimator for introspection fields
-            (args: ComplexityEstimatorArgs) => {
-              const fieldName = args.field.name;
-              if (fieldName.startsWith('__')) {
-                return 0; // Return 0 complexity for introspection fields
-              }
-              return;
-            },
-            fieldExtensionsEstimator(),
-            simpleEstimator({ defaultComplexity: 1 }),
-          ],
-        });
-        if (complexity > COMPLEXITY_LIMIT) {
-          throw new GraphQLError(
-            `Query is too complex: ${complexity}. Maximum allowed complexity: ${COMPLEXITY_LIMIT}`,
-          );
+const complexityError = (args: ExecutionArgs, limit: number) => {
+  const complexity = getComplexity({
+    schema: args.schema,
+    operationName: args.operationName ?? undefined,
+    query: args.document,
+    variables: (args.variableValues ?? {}) as Record<string, unknown>,
+    estimators: [
+      // Custom estimator for introspection fields
+      (estimatorArgs: ComplexityEstimatorArgs) => {
+        if (estimatorArgs.field.name.startsWith('__')) {
+          return 0; // Return 0 complexity for introspection fields
         }
+        return;
       },
-    };
-  }
-}
+      fieldExtensionsEstimator(),
+      simpleEstimator({ defaultComplexity: 1 }),
+    ],
+  });
+
+  return complexity > limit
+    ? new GraphQLError(
+        `Query is too complex: ${complexity}. Maximum allowed complexity: ${limit}`,
+      )
+    : null;
+};
+
+/**
+ * Rejects operations (queries, mutations and subscriptions) whose estimated
+ * complexity exceeds the limit, before they are executed.
+ */
+export const useComplexityLimit = (
+  limit: number = COMPLEXITY_LIMIT,
+): Plugin => ({
+  onExecute({ args, setResultAndStopExecution }) {
+    const error = complexityError(args, limit);
+    if (error) setResultAndStopExecution({ errors: [error] });
+  },
+  onSubscribe({ args, setResultAndStopExecution }) {
+    const error = complexityError(args, limit);
+    if (error) setResultAndStopExecution({ errors: [error] });
+  },
+});

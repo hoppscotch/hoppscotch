@@ -16,7 +16,7 @@ import {
 } from "@urql/core"
 import { AuthConfig, authExchange } from "@urql/exchange-auth"
 // import { devtoolsExchange } from "@urql/devtools"
-import { SubscriptionClient } from "subscriptions-transport-ws"
+import { createClient as createWSClient, Client as WSClient } from "graphql-ws"
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 import { pipe, flow } from "fp-ts/function"
@@ -51,17 +51,36 @@ export type GQLClientErrorEvent =
  */
 export const gqlClientError$ = new Subject<GQLClientErrorEvent>()
 
+/**
+ * Subscriptions to the backend use the `graphql-ws` (graphql-transport-ws) protocol.
+ * The socket currently open, kept so a reconnect can be forced to re-send fresh
+ * auth `connectionParams` (e.g. after a token refresh).
+ */
+let activeSocket: WebSocket | null = null
+
+/** Close code graphql-ws treats as retryable, so the client reconnects */
+const CLIENT_RESTART_CLOSE_CODE = 4205
+
 const createSubscriptionClient = () => {
-  return new SubscriptionClient(BACKEND_WS_URL, {
-    reconnect: true,
+  return createWSClient({
+    url: BACKEND_WS_URL,
+    lazy: false,
+    retryAttempts: Infinity,
+    shouldRetry: () => true,
     connectionParams: () => platform.auth.getBackendHeaders(),
-    connectionCallback(error) {
-      if (error?.length > 0) {
+    on: {
+      connected: (socket) => {
+        activeSocket = socket as WebSocket
+      },
+      closed: () => {
+        activeSocket = null
+      },
+      error: (error) => {
         gqlClientError$.next({
           type: "SUBSCRIPTION_CONN_CALLBACK_ERR_REPORT",
-          errors: error,
+          errors: [error instanceof Error ? error : new Error(String(error))],
         })
-      }
+      },
     },
   })
 }
@@ -131,8 +150,13 @@ const createHoppClient = () => {
   if (subscriptionClient) {
     exchanges.push(
       subscriptionExchange({
-        forwardSubscription: (operation) => {
-          return subscriptionClient!.request(operation)
+        forwardSubscription: (request) => {
+          const input = { ...request, query: request.query || "" }
+          return {
+            subscribe: (sink) => ({
+              unsubscribe: subscriptionClient!.subscribe(input, sink),
+            }),
+          }
         },
       })
     )
@@ -148,7 +172,7 @@ const createHoppClient = () => {
   })
 }
 
-let subscriptionClient: SubscriptionClient | null
+let subscriptionClient: WSClient | null
 let authEventSubscription: Subscription | null = null
 export const client = ref<Client>()
 
@@ -169,9 +193,9 @@ export function initBackendGQLClient() {
   platform.auth.onBackendGQLClientShouldReconnect(() => {
     const currentUser = platform.auth.getCurrentUser()
 
-    // triggering reconnect by closing the websocket client
+    // triggering reconnect by closing the socket; the client retries with fresh connectionParams
     if (currentUser && subscriptionClient) {
-      subscriptionClient?.client?.close()
+      activeSocket?.close(CLIENT_RESTART_CLOSE_CODE, "Client Restart")
     }
 
     // creating new subscription
@@ -181,7 +205,7 @@ export function initBackendGQLClient() {
 
     // closing existing subscription client.
     if (!currentUser && subscriptionClient) {
-      subscriptionClient.close()
+      subscriptionClient.dispose()
       subscriptionClient = null
     }
 

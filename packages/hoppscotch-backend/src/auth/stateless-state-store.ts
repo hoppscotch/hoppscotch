@@ -1,3 +1,4 @@
+import type { AuthGuardAuthenticateOptions } from '@nestjs/passport';
 import * as crypto from 'crypto';
 
 /**
@@ -87,11 +88,13 @@ export class StatelessStateStore {
    * `state` (the app state, e.g. { redirect_uri }) so that verify() can
    * return them both correctly to each library's restore/loaded callback.
    */
+  // Trailing params are optional (TS-only, `.length` is unchanged) so this
+  // satisfies each overload of passport's StateStore type.
   store(
     req: any,
-    ctxOrState: any,
-    stateOrMeta: any,
-    metaOrCb: any,
+    ctxOrState?: any,
+    stateOrMeta?: any,
+    metaOrCb?: any,
     cb?: Function,
   ): void {
     let ctx: any;
@@ -181,7 +184,9 @@ export class StatelessStateStore {
    *   - passport-oauth2 just needs truthy (or a PKCE verifier string)
    *   - passport-openidconnect needs the OIDC context object
    */
-  verify(req: any, providedState: string, cb: Function): void {
+  // `cb` is typed loosely: passport's 4-arity overload puts `meta` in this
+  // position, but with `.length === 3` passport always calls this one.
+  verify(req: any, providedState: string, cb: any): void {
     try {
       // Read the browser-bound nonce from the cookie
       const cookieNonce = req.cookies?.[this.cookieName];
@@ -268,3 +273,14 @@ export class StatelessStateStore {
     return hmac.digest('base64url');
   }
 }
+
+/**
+ * Authenticate options carrying an app-state object (e.g. `{ redirect_uri }`).
+ * passport-oauth2 and passport-openidconnect hand a non-string `state` to the
+ * state store as app state (see StatelessStateStore.store), but passport's
+ * typings only allow a string there.
+ */
+export const authenticateOptionsWithAppState = (
+  state: Record<string, unknown>,
+): AuthGuardAuthenticateOptions =>
+  ({ state }) as unknown as AuthGuardAuthenticateOptions;

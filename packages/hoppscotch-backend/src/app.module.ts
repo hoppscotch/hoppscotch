@@ -1,8 +1,12 @@
-import { HttpException, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { YogaDriver, YogaDriverConfig } from '@graphql-yoga/nestjs';
+import { useDisableIntrospection } from '@graphql-yoga/plugin-disable-introspection';
+import type { IncomingHttpHeaders, IncomingMessage } from 'http';
 import { UserModule } from './user/user.module';
-import { GQLComplexityPlugin } from './plugins/GQLComplexityPlugin';
+import { useComplexityLimit } from './plugins/GQLComplexityPlugin';
+import { useCsrfPrevention } from './plugins/csrf-prevention';
+import { maskNestError } from './plugins/nest-error-mask';
 import { AuthModule } from './auth/auth.module';
 import { UserSettingsModule } from './user-settings/user-settings.module';
 import { UserEnvironmentsModule } from './user-environment/user-environments.module';
@@ -20,7 +24,6 @@ import { TeamInvitationModule } from './team-invitation/team-invitation.module';
 import { AdminModule } from './admin/admin.module';
 import { UserCollectionModule } from './user-collection/user-collection.module';
 import { ShortcodeModule } from './shortcode/shortcode.module';
-import { COOKIES_NOT_FOUND } from './errors';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -39,57 +42,78 @@ import { SortModule } from './orchestration/sort/sort.module';
 import { MockServerModule } from './mock-server/mock-server.module';
 import { PublishedDocsModule } from './published-docs/published-docs.module';
 
+/** graphql-ws `ctx.extra` for sockets served by `ws`, plus our auth headers. */
+type SubscriptionSocketExtra = {
+  request: IncomingMessage;
+  headers?: Record<string, unknown>;
+};
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       load: [async () => loadInfraConfiguration()],
     }),
-    GraphQLModule.forRootAsync<ApolloDriverConfig>({
-      driver: ApolloDriver,
+    GraphQLModule.forRootAsync<YogaDriverConfig>({
+      driver: YogaDriver,
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
+        const isProduction = configService.get('PRODUCTION') === 'true';
+
         return {
           buildSchemaOptions: {
             numberScalarMode: 'integer',
           },
-          playground: configService.get('PRODUCTION') !== 'true',
           autoSchemaFile: true,
-          installSubscriptionHandlers: true,
+          graphiql: !isProduction,
+          maskedErrors: { maskError: maskNestError },
+          plugins: [
+            useCsrfPrevention(!isProduction),
+            useComplexityLimit(),
+            ...(isProduction ? [useDisableIntrospection()] : []),
+          ],
           subscriptions: {
-            'subscriptions-transport-ws': {
+            'graphql-ws': {
               path: '/graphql',
-              onConnect: (connectionParams, websocket) => {
-                const websocketHeaders = websocket?.upgradeReq?.headers;
+              // Resolve the auth headers once per socket; the guards read them
+              // from the `headers` context field (see GqlAuthGuard).
+              onConnect: (ctx) => {
+                const extra = ctx.extra as SubscriptionSocketExtra;
+                const websocketHeaders = extra.request.headers;
 
                 try {
-                  const accessToken =
-                    extractAccessTokenFromAuthRecords(connectionParams);
-                  const authorization = `Bearer ${accessToken}`;
-
-                  return { headers: { ...websocketHeaders, authorization } };
-                } catch (authError) {
+                  const accessToken = extractAccessTokenFromAuthRecords(
+                    (ctx.connectionParams ?? {}) as IncomingHttpHeaders,
+                  );
+                  extra.headers = {
+                    ...websocketHeaders,
+                    authorization: `Bearer ${accessToken}`,
+                  };
+                  return true;
+                } catch {
                   const cookiesFromHeader = websocketHeaders?.cookie;
-                  const cookies = cookiesFromHeader
-                    ? subscriptionContextCookieParser(cookiesFromHeader)
-                    : null;
+                  if (!cookiesFromHeader) return false;
 
-                  if (!cookies) {
-                    throw new HttpException(COOKIES_NOT_FOUND, 400, {
-                      cause: new Error(COOKIES_NOT_FOUND),
-                    });
+                  try {
+                    extra.headers = {
+                      ...websocketHeaders,
+                      cookies: subscriptionContextCookieParser(cookiesFromHeader),
+                    };
+                    return true;
+                  } catch {
+                    return false;
                   }
-
-                  return { headers: { ...websocketHeaders, cookies } };
                 }
               },
             },
           },
-          context: ({ req, res, connection }) => ({
-            req,
-            res,
-            connection,
-          }),
+          context: ({ req, res, extra }) =>
+            extra
+              ? {
+                  req: (extra as SubscriptionSocketExtra).request,
+                  headers: (extra as SubscriptionSocketExtra).headers,
+                }
+              : { req, res },
         };
       },
     }),
@@ -130,7 +154,6 @@ import { PublishedDocsModule } from './published-docs/published-docs.module';
     PublishedDocsModule,
   ],
   providers: [
-    GQLComplexityPlugin,
     { provide: 'APP_INTERCEPTOR', useClass: UserLastActiveOnInterceptor },
   ],
   controllers: [AppController],

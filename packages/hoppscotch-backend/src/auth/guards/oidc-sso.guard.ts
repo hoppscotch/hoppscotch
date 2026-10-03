@@ -6,6 +6,7 @@ import {
   Optional,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { authenticateOptionsWithAppState } from '../stateless-state-store';
 import { AuthProvider, authProviderCheck } from '../helper';
 import { Observable } from 'rxjs';
 import {
@@ -56,10 +57,8 @@ export class OidcSSOGuard extends AuthGuard('oidc') implements CanActivate {
   getAuthenticateOptions(context: ExecutionContext) {
     const req = context.switchToHttp().getRequest();
 
-    return {
-      state: {
-        redirect_uri: req.query.redirect_uri,
-      },
-    };
+    return authenticateOptionsWithAppState({
+      redirect_uri: req.query.redirect_uri,
+    });
   }
 }

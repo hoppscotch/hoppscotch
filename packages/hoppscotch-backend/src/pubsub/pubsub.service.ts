@@ -1,10 +1,11 @@
 import { OnModuleInit, Injectable } from '@nestjs/common';
-import { PubSub as LocalPubSub } from 'graphql-subscriptions';
+import { createPubSub } from 'graphql-yoga';
 import { TopicDef } from './topicsDefs';
 
+type LocalPubSub = ReturnType<typeof createPubSub<Record<string, [unknown]>>>;
+
 /*
- * Figure out which PubSub to use (simple/local for dev and Redis for production)
- * and expose it
+ * In-memory PubSub (single instance, as the AIO image runs one backend).
  */
 
 @Injectable()
@@ -14,14 +15,14 @@ export class PubSubService implements OnModuleInit {
   onModuleInit() {
     console.log('Initialize PubSub');
 
-    this.pubsub = new LocalPubSub();
+    this.pubsub = createPubSub<Record<string, [unknown]>>();
   }
 
-  asyncIterator<T>(topic: string | string[]): AsyncIterator<T> {
-    return this.pubsub.asyncIterableIterator(topic);
+  asyncIterator<T>(topic: string): AsyncIterator<T> {
+    return this.pubsub.subscribe(topic) as AsyncIterator<T>;
   }
 
   async publish<T extends keyof TopicDef>(topic: T, payload: TopicDef[T]) {
-    await this.pubsub.publish(topic, payload);
+    this.pubsub.publish(topic, payload);
   }
 }

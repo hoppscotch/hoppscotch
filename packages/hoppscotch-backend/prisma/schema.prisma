@@ -1,6 +1,8 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  // The backend compiles to CommonJS; without this Prisma infers ESM from tsconfig's "module"
+  moduleFormat = "cjs"
 }
 
 datasource db {

@@ -15,7 +15,7 @@ jobs:
       matrix:
         # Pinned to Node.js 22 due to known test failures on Node.js 24.
         # Future TODO: Investigate test failures and move to Node.js 24 (Active LTS).
-        node-version: [22]
+        node-version: [24]
 
     steps:
       - name: Checkout

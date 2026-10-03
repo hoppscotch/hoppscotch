@@ -62,7 +62,7 @@
       "uuid@9.0.1": "11.1.1",
       "valibot@<=1.4.1": "1.4.2",
       "vue": "3.5.43",
-      "ws": "8.21.0"
+      "ws": "8.22.0"
     },
     "onlyBuiltDependencies": [
       "@apollo/protobufjs",
@@ -79,6 +79,13 @@
       "isolated-vm",
       "prisma",
       "vue-demi"
-    ]
+    ],
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "@graphql-yoga/nestjs>@nestjs/common": "12",
+        "@graphql-yoga/nestjs>@nestjs/core": "12",
+        "@graphql-yoga/nestjs>@nestjs/graphql": "14"
+      }
+    }
   }
 }

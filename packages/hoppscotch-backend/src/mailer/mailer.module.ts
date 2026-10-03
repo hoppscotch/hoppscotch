@@ -1,5 +1,8 @@
 import { Global, Module } from '@nestjs/common';
-import { MailerModule as NestMailerModule } from '@nestjs-modules/mailer';
+import {
+  MailerModule as NestMailerModule,
+  type MailerOptions,
+} from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
 import { MailerService } from './mailer.service';
 import { loadInfraConfiguration } from 'src/infra-config/helper';
@@ -37,9 +40,11 @@ export class MailerModule {
       imports: [
         NestMailerModule.forRoot({
           transport: transportOption,
+          // @nestjs-modules/mailer's typings still target the pre-v10
+          // nodemailer layout, so its `defaults` type misses `from`.
           defaults: {
             from: mailerAddressFrom,
-          },
+          } as MailerOptions['defaults'],
           template: {
             dir: __dirname + '/templates',
             adapter: new HandlebarsAdapter(),

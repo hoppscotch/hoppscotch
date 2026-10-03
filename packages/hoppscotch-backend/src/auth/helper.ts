@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { AuthTokens } from 'src/types/AuthTokens';
 import { Response } from 'express';
-import * as cookie from 'cookie';
+import { parseCookie } from 'cookie';
 import {
   AUTH_HEADER_NOT_FOUND,
   AUTH_PROVIDER_NOT_SPECIFIED,
@@ -88,7 +88,7 @@ export const authCookieHandler = (
  * @returns AuthTokens for JWT strategy to use
  */
 export const subscriptionContextCookieParser = (rawCookies: string) => {
-  const cookies = cookie.parse(rawCookies);
+  const cookies = parseCookie(rawCookies);
 
   if (
     !cookies[AuthTokenType.ACCESS_TOKEN] &&

@@ -37,10 +37,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-divider bg-clip-content;
+  @apply bg-dividerDark bg-clip-content;
   @apply rounded-full;
-  @apply border-4 border-solid border-transparent;
-  @apply hover:bg-dividerDark;
+  @apply border-[3px] border-solid border-transparent;
+  @apply hover:bg-dividerDark hover:opacity-80;
   @apply hover:bg-clip-content;
 }
 

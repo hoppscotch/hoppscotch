@@ -40,7 +40,7 @@
   @apply bg-dividerDark bg-clip-content;
   @apply rounded-full;
   @apply border-[3px] border-solid border-transparent;
-  @apply hover:bg-dividerDark;
+  @apply hover:bg-dividerDark hover:opacity-80;
   @apply hover:bg-clip-content;
 }
 

@@ -7,10 +7,7 @@
  * Forcing a light color-scheme restores the usual browser defaults without
  * overriding a response that already declares its own color-scheme.
  */
-export function buildHtmlPreviewSrcdoc(
-  html: string,
-  baseHref = ""
-): string {
+export function buildHtmlPreviewSrcdoc(html: string, baseHref = ""): string {
   const previewDocument = new DOMParser().parseFromString(html, "text/html")
 
   const base = previewDocument.createElement("base")

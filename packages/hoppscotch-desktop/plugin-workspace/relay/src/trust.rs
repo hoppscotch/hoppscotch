@@ -101,7 +101,9 @@ fn parse_lenient(pem: &[u8]) -> Vec<Vec<u8>> {
         // truncated one this scan is here to survive.
         let next = find(block, PEM_HEADER);
         let end = match find(block, PEM_FOOTER) {
-            Some(e) if next.is_none_or(|n| e < n) => e + PEM_FOOTER.len(),
+            // `Option::is_none_or` would read better and is stable only from
+            // Rust 1.82, past the 1.77.2 the README states.
+            Some(e) if !matches!(next, Some(n) if n <= e) => e + PEM_FOOTER.len(),
             _ => {
                 rest = match next {
                     Some(n) => &block[n..],
@@ -305,15 +307,31 @@ fn decide(
     }
 }
 
-/// How many of the resolved anchors the System domain contributed, which is
-/// what decides the fallback, ∵ the public roots are System's and a trusted
-/// User or Admin anchor beside an empty System domain is not a trust store.
-#[cfg(target_os = "macos")]
-fn system_anchor_count(resolved: &[Vec<u8>], system: &[Vec<u8>]) -> usize {
-    resolved
+/// How many anchors the System domain decided itself, which is what decides
+/// the fallback, ∵ the public roots are System's and a trusted User or Admin
+/// anchor beside an empty System domain is not a trust store. `entries` is in
+/// precedence order with System's from `system_start` on, and a System root
+/// that User or Admin already decided counts for neither side here, ∵ an
+/// override of the System entry is the higher domain's anchor, and counting it
+/// would skip the fallback where that override is the only anchor left.
+#[cfg_attr(not(target_os = "macos"), allow(dead_code))]
+fn system_anchor_count(entries: &[(Vec<u8>, Vec<u8>, Decision)], system_start: usize) -> usize {
+    let (above, system) = entries.split_at(system_start.min(entries.len()));
+    let mut settled: HashSet<&[u8]> = above
         .iter()
-        .filter(|der| system.contains(der))
-        .count()
+        .filter(|(_, _, decision)| *decision != Decision::Defer)
+        .map(|(key, _, _)| key.as_slice())
+        .collect();
+    let mut count = 0;
+    for (key, _, decision) in system {
+        if *decision == Decision::Defer || !settled.insert(key.as_slice()) {
+            continue;
+        }
+        if *decision == Decision::Trust {
+            count += 1;
+        }
+    }
+    count
 }
 
 #[cfg(target_os = "macos")]
@@ -324,7 +342,7 @@ fn read_platform() -> Option<TrustBundle> {
     let mut read = 0usize;
     let mut system_read = false;
     let mut denials_known = true;
-    let mut system_certificates: Vec<Vec<u8>> = Vec::new();
+    let mut system_start: Option<usize> = None;
 
     // User settings override Admin settings, which override what the System
     // domain ships, so the domains are read in that order and the first
@@ -343,6 +361,7 @@ fn read_platform() -> Option<TrustBundle> {
         };
         if matches!(domain, Domain::System) {
             system_read = true;
+            system_start = Some(entries.len());
         }
         for cert in certificates {
             read += 1;
@@ -356,9 +375,6 @@ fn read_platform() -> Option<TrustBundle> {
                     tracing::warn!(error = %e, domain = ?domain, "Trust settings read failed");
                 });
             let decision = decide(matches!(domain, Domain::System), setting, &der);
-            if matches!(domain, Domain::System) {
-                system_certificates.push(der.clone());
-            }
             entries.push((der.clone(), der, decision));
         }
     }
@@ -368,6 +384,7 @@ fn read_platform() -> Option<TrustBundle> {
         .filter(|(_, _, decision)| *decision == Decision::Deny)
         .map(|(_, der, _)| der.clone())
         .collect();
+    let system_anchors = system_anchor_count(&entries, system_start.unwrap_or(entries.len()));
     let mut ders = resolve_by_precedence(entries);
     if read == 0 {
         return None;
@@ -379,7 +396,6 @@ fn read_platform() -> Option<TrustBundle> {
     // fail every public endpoint. The roots a domain denied are removed from
     // the compiled-in set, ∵ a fallback that restored them would undo the
     // denial that emptied the read.
-    let system_anchors = system_anchor_count(&ders, &system_certificates);
     if !system_read || system_anchors == 0 {
         tracing::warn!(
             anchors = ders.len(),
@@ -656,10 +672,17 @@ fn read_platform() -> Option<TrustBundle> {
             }
             // `CertOpenStore` gives no code for a store that is not
             // provisioned, and a location with no `Disallowed` store at all is
-            // ordinary, so the read counts as unknown only where that location
-            // exists on the evidence of its `ROOT` store opening.
+            // ordinary, so the read counts as unknown only where that
+            // location's `ROOT` store returned certificates. An open `ROOT`
+            // with nothing in it is how a policy location nobody configured
+            // reads, and counting it would drop the enterprise roots every
+            // other location returned.
             Err(StoreError::Open) => {
-                if root.is_ok() || matches!(root, Err(StoreError::Incomplete(_))) {
+                let returned = match &root {
+                    Ok(entries) | Err(StoreError::Incomplete(entries)) => !entries.is_empty(),
+                    Err(StoreError::Open) => false,
+                };
+                if returned {
                     tracing::warn!(
                         location = %label,
                         "Disallowed store did not open where the root store did, revocations for this location are unknown"
@@ -699,12 +722,13 @@ fn read_platform() -> Option<TrustBundle> {
         StoreUsage::Unrestricted => true,
         StoreUsage::Denied => false,
     };
-    // A root the store entry keeps from TLS is also in the compiled-in set
-    // often enough that the union below would restore it, so what the entry
-    // denies is subtracted from the bundle as well.
+    // A root kept from TLS, by its store entry or by the usage inside the
+    // certificate, is also in the compiled-in set often enough that the union
+    // below would restore it, so what either denies is subtracted from the
+    // bundle as well.
     let restricted: Vec<Vec<u8>> = roots
         .iter()
-        .filter(|(_, usage)| !permitted(usage))
+        .filter(|(der, usage)| !permitted(usage) || !valid_for_tls(der))
         .map(|(der, _)| der.clone())
         .collect();
     roots.retain(|(_, usage)| permitted(usage));
@@ -902,16 +926,35 @@ mod tests {
         // out and every public endpoint failed.
         #[test]
         fn a_user_anchor_alone_leaves_the_system_count_at_zero() {
-            let system = vec![root("system-denied", &key(), None)];
-            let resolved = vec![root("user-trusted", &key(), None)];
-            assert_eq!(system_anchor_count(&resolved, &system), 0);
+            let user = root("user-trusted", &key(), None);
+            let system = root("system-denied", &key(), None);
+            let entries = vec![
+                (user.clone(), user, Decision::Trust),
+                (system.clone(), system, Decision::Deny),
+            ];
+            assert_eq!(system_anchor_count(&entries, 1), 0);
         }
 
         #[test]
         fn a_retained_system_anchor_is_counted() {
             let der = root("system-kept", &key(), None);
-            let system = vec![der.clone()];
-            assert_eq!(system_anchor_count(&[der], &system), 1);
+            let entries = vec![(der.clone(), der, Decision::Trust)];
+            assert_eq!(system_anchor_count(&entries, 0), 1);
+        }
+
+        // A User trust on a root System also lists used to count as System's
+        // contribution, so where every System settings read failed the
+        // compiled-in roots stayed out and the blob held that root alone.
+        #[test]
+        fn a_user_override_of_a_system_root_is_not_counted_as_system() {
+            let der = root("overridden", &key(), None);
+            let other = root("system-unread", &key(), None);
+            let entries = vec![
+                (der.clone(), der.clone(), Decision::Trust),
+                (der.clone(), der, Decision::Deny),
+                (other.clone(), other, Decision::Defer),
+            ];
+            assert_eq!(system_anchor_count(&entries, 1), 0);
         }
 
         #[test]

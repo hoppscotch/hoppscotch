@@ -193,7 +193,7 @@ const currentRequest = computed(() =>
     : null
 )
 
-const { shouldEnableAIFeatures } = useAIExperiments()
+const { shouldEnableAIFeatures } = useAIExperiments("modifyTestScript")
 const isModifyTestScriptModalOpen = ref(false)
 
 const currentUser = useReadonlyStream(

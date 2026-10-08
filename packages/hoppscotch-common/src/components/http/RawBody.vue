@@ -245,7 +245,7 @@ const showModifyBodyModal = () => {
   isModifyBodyModalOpen.value = true
 }
 
-const { shouldEnableAIFeatures } = useAIExperiments()
+const { shouldEnableAIFeatures } = useAIExperiments("modifyRequestBody")
 
 const prettifyXML = (xml: string) => {
   return xmlFormat(xml, {

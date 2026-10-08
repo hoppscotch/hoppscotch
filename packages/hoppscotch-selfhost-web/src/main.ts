@@ -43,7 +43,11 @@ const PLATFORM_CONFIG = {
       AgentKernelInterceptorService,
       ExtensionKernelInterceptorService,
     ],
-    defaultInterceptor: import.meta.env.VITE_DEFAULT_INTERCEPTOR || "browser",
+    defaultInterceptor: ["browser", "proxy", "agent", "extension"].includes(
+      import.meta.env.VITE_DEFAULT_INTERCEPTOR ?? ""
+    )
+      ? import.meta.env.VITE_DEFAULT_INTERCEPTOR!
+      : "browser",
     menuItems: stdFooterItems,
     supportItems: stdSupportOptionItems,
     cookiesEnabled: false,

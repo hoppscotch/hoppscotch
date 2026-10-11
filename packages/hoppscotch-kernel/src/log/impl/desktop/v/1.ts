@@ -21,8 +21,7 @@ const FLUSH_INTERVAL_MS = 500
 
 // lazy-loaded Tauri invoke. loaded once, shared across all instances
 let invoke:
-  | (<T>(cmd: string, args?: Record<string, unknown>) => Promise<T>)
-  | null = null
+  (<T>(cmd: string, args?: Record<string, unknown>) => Promise<T>) | null = null
 let invokePromise: Promise<void> | null = null
 
 const ensureInvoke = async () => {

@@ -5,7 +5,7 @@
       class="flex-1 min-w-0 flex flex-col space-y-8 overflow-y-auto"
     >
       <div class="px-4">
-        <h1 class="text-3xl font-bold text-secondaryDark my-2">
+        <h1 class="text-3xl font-bold text-secondaryDark my-2 truncate">
           {{ collectionName }}
         </h1>
       </div>

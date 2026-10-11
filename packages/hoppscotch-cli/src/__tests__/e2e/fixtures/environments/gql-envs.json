@@ -1,0 +1,13 @@
+{
+  "id": "gql-envs",
+  "v": 2,
+  "name": "gql-envs",
+  "variables": [
+    {
+      "key": "greeting",
+      "initialValue": "hello-world",
+      "currentValue": "hello-world",
+      "secret": false
+    }
+  ]
+}

@@ -2,6 +2,10 @@ import { describe, expect, vi, it, beforeEach, afterEach } from "vitest"
 import { TestContainer } from "dioc/testing"
 import { WorkspaceService } from "../workspace.service"
 import { setPlatformDef } from "~/platform"
+import {
+  getSelectedEnvironmentIndex,
+  setSelectedEnvironmentIndex,
+} from "~/newstore/environments"
 import { BehaviorSubject } from "rxjs"
 import { effectScope, nextTick } from "vue"
 
@@ -44,6 +48,18 @@ vi.mock("../documentation.service", () => ({
 
     fetchTeamPublishedDocs = vi.fn()
     fetchUserPublishedDocs = vi.fn()
+
+    onServiceInit = vi.fn()
+  },
+}))
+
+// Mock WorkspaceTabsService — it indirectly pulls in PersistenceService which
+// triggers an i18n getService() call at module init, breaking this test's setup.
+vi.mock("../tab/workspace-tabs", () => ({
+  WorkspaceTabsService: class MockWorkspaceTabsService {
+    static readonly ID = "WORKSPACE_TABS_SERVICE"
+
+    attachToWorkspace = vi.fn()
 
     onServiceInit = vi.fn()
   },
@@ -136,6 +152,149 @@ describe("WorkspaceService", () => {
         teamName: "test",
         role: null,
       })
+    })
+
+    it("is a no-op when re-selecting the current workspace", () => {
+      const container = new TestContainer()
+      const service = container.bind(WorkspaceService)
+
+      service.changeWorkspace({
+        type: "team",
+        teamID: "test",
+        teamName: "test",
+        role: null,
+      })
+      const before = service.currentWorkspace.value
+
+      // Fresh-but-identical object must not retrigger workspace watchers
+      service.changeWorkspace({
+        type: "team",
+        teamID: "test",
+        teamName: "test",
+        role: null,
+      })
+
+      expect(service.currentWorkspace.value).toBe(before)
+    })
+
+    it("resets a selected team environment when switching to the personal workspace", () => {
+      const container = new TestContainer()
+      const service = container.bind(WorkspaceService)
+
+      service.changeWorkspace({
+        type: "team",
+        teamID: "team-a",
+        teamName: "Team A",
+        role: null,
+      })
+      setSelectedEnvironmentIndex({
+        type: "TEAM_ENV",
+        teamID: "team-a",
+        teamEnvID: "env-1",
+        environment: { v: 2, id: "env-1", name: "Team Env", variables: [] },
+      })
+
+      service.changeWorkspace({ type: "personal" })
+
+      expect(getSelectedEnvironmentIndex()).toEqual({
+        type: "NO_ENV_SELECTED",
+      })
+    })
+
+    it("resets a selected team environment when switching to a different team", () => {
+      const container = new TestContainer()
+      const service = container.bind(WorkspaceService)
+
+      setSelectedEnvironmentIndex({
+        type: "TEAM_ENV",
+        teamID: "team-a",
+        teamEnvID: "env-1",
+        environment: { v: 2, id: "env-1", name: "Team Env", variables: [] },
+      })
+
+      service.changeWorkspace({
+        type: "team",
+        teamID: "team-b",
+        teamName: "Other Team",
+        role: null,
+      })
+
+      expect(getSelectedEnvironmentIndex()).toEqual({
+        type: "NO_ENV_SELECTED",
+      })
+    })
+
+    it("keeps the selected team environment when switching within the same team", () => {
+      const container = new TestContainer()
+      const service = container.bind(WorkspaceService)
+
+      setSelectedEnvironmentIndex({
+        type: "TEAM_ENV",
+        teamID: "team-a",
+        teamEnvID: "env-1",
+        environment: { v: 2, id: "env-1", name: "Team Env", variables: [] },
+      })
+
+      service.changeWorkspace({
+        type: "team",
+        teamID: "team-a",
+        teamName: "Same Team",
+        role: null,
+      })
+
+      expect(getSelectedEnvironmentIndex().type).toBe("TEAM_ENV")
+    })
+
+    it("keeps a selected personal environment when switching workspaces", () => {
+      const container = new TestContainer()
+      const service = container.bind(WorkspaceService)
+
+      setSelectedEnvironmentIndex({ type: "MY_ENV", index: 0 })
+
+      service.changeWorkspace({ type: "personal" })
+
+      expect(getSelectedEnvironmentIndex()).toEqual({
+        type: "MY_ENV",
+        index: 0,
+      })
+    })
+  })
+
+  describe("logout", () => {
+    it("falls back to the personal workspace when the user logs out of a team", async () => {
+      const userStream = new BehaviorSubject<unknown>({ uid: "user-1" })
+      platformMock.auth.getCurrentUserStream.mockReturnValue(userStream)
+      platformMock.auth.getCurrentUser.mockReturnValue({ uid: "user-1" })
+
+      const container = new TestContainer()
+      const service = container.bind(WorkspaceService)
+
+      service.changeWorkspace({
+        type: "team",
+        teamID: "team-a",
+        teamName: "Team A",
+        role: null,
+      })
+      expect(service.currentWorkspace.value.type).toBe("team")
+
+      userStream.next(null)
+      await nextTick()
+
+      expect(service.currentWorkspace.value).toEqual({ type: "personal" })
+    })
+
+    it("leaves a personal workspace untouched on logout", async () => {
+      const userStream = new BehaviorSubject<unknown>({ uid: "user-1" })
+      platformMock.auth.getCurrentUserStream.mockReturnValue(userStream)
+      platformMock.auth.getCurrentUser.mockReturnValue({ uid: "user-1" })
+
+      const container = new TestContainer()
+      const service = container.bind(WorkspaceService)
+
+      userStream.next(null)
+      await nextTick()
+
+      expect(service.currentWorkspace.value).toEqual({ type: "personal" })
     })
   })
 

@@ -87,7 +87,7 @@ function setupSubscriptions() {
 }
 
 function mergeHistoryEntries<
-  T extends { id?: string; updatedOn?: Date | string | null }
+  T extends { id?: string; updatedOn?: Date | string | null },
 >(local: T[], fetched: T[]): T[] {
   const fetchedMap = new Map<string, T>()
   for (const entry of fetched) {

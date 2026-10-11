@@ -50,6 +50,7 @@ interface Cookie {
   secure: boolean
   httpOnly: boolean
   sameSite: "None" | "Lax" | "Strict"
+  hostOnly?: boolean
 }
 
 type AuthLocation = "HEADERS" | "QUERY_PARAMS"

@@ -64,9 +64,7 @@ export type InsomniaDocV5 = {
     description?: string
   }
   collection: (
-    | InsomniaFolderV5
-    | InsomniaRequestResource
-    | InsomniaScriptOnlyV5
+    InsomniaFolderV5 | InsomniaRequestResource | InsomniaScriptOnlyV5
   )[]
   cookieJar?: InsomniaCookieJarV5
   environments?: InsomniaEnvironmentV5

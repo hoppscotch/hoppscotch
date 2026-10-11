@@ -16,8 +16,7 @@ let cachedStorePath: string | undefined
 // For more context, take a look at how `hoppscotch-kernel/.../store/v1/` works
 // and how the `web` mode store kernel ignores the first file directory input.
 let invoke:
-  | (<T>(cmd: string, args?: Record<string, unknown>) => Promise<T>)
-  | undefined
+  (<T>(cmd: string, args?: Record<string, unknown>) => Promise<T>) | undefined
 let join: ((...paths: string[]) => Promise<string>) | undefined
 
 // Single init promise to avoid multiple imports and race conditions

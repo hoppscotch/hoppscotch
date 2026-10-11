@@ -86,7 +86,7 @@
           <label class="text-secondaryLight">{{
             t("settings.connection_timeout")
           }}</label>
-          <div class="mt-3">
+          <div class="mt-3 w-[15rem]">
             <tippy
               interactive
               trigger="click"

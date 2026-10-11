@@ -266,6 +266,8 @@ _Add-ons are developed and maintained under **[Hoppscotch Organization](https://
 
 Follow our [self-hosting documentation](https://docs.hoppscotch.io/documentation/self-host/getting-started) to get started with the development environment.
 
+For self-hosted container deployments, set `PROXY_APP_URL` to configure the default proxy URL. Container startup makes this value available to the frontend when local storage is empty. Frontend builds without runtime container injection can set `VITE_PROXY_APP_URL` instead; it takes precedence if both variables are set. See [`.env.example`](.env.example).
+
 ## Contributing
 
 Please contribute using [GitHub Flow](https://guides.github.com/introduction/flow). Create a branch, add commits, and [open a pull request](https://github.com/hoppscotch/hoppscotch/compare).

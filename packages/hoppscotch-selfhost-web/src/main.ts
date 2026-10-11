@@ -33,6 +33,16 @@ import { ProxyKernelInterceptorService } from "@hoppscotch/common/platform/std/k
 import { ExtensionKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/extension"
 import { BrowserKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/browser"
 
+const DEFAULT_WEB_INTERCEPTOR_IDS = [
+  "browser",
+  "proxy",
+  "agent",
+  "extension",
+] as const
+
+const configuredDefaultInterceptor =
+  import.meta.env.VITE_DEFAULT_INTERCEPTOR ?? ""
+
 const PLATFORM_CONFIG = {
   web: {
     auth: webAuth,
@@ -43,7 +53,10 @@ const PLATFORM_CONFIG = {
       AgentKernelInterceptorService,
       ExtensionKernelInterceptorService,
     ],
-    defaultInterceptor: "browser",
+    defaultInterceptor:
+      DEFAULT_WEB_INTERCEPTOR_IDS.find(
+        (interceptorId) => interceptorId === configuredDefaultInterceptor
+      ) ?? "browser",
     menuItems: stdFooterItems,
     supportItems: stdSupportOptionItems,
     cookiesEnabled: false,

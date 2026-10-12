@@ -938,10 +938,12 @@ export const getTestRunnerScriptMethods = (envs: TestResult["envs"]) => {
       children: [],
     })
 
-    testFunc()
-
-    const child = testRunStack.pop() as TestDescriptor
-    testRunStack[testRunStack.length - 1].children.push(child)
+    try {
+      testFunc()
+    } finally {
+      const child = testRunStack.pop() as TestDescriptor
+      testRunStack[testRunStack.length - 1].children.push(child)
+    }
   }
 
   const expectFn = (expectVal: unknown) =>

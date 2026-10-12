@@ -245,10 +245,18 @@ fn apply_chunk(
     state.downloaded += chunk_length as u64;
 
     if let Some(total) = state.total {
-        state.percentage = (state.downloaded as f64 / total as f64) * 100.0;
+        state.percentage = (state.downloaded as f64 * 100.0) / total as f64;
     }
 
-    let percent = state.total.map(|_| state.percentage.floor() as u64);
+    // Integer division, since a float divided before it is multiplied lands
+    // just under some whole percents, 29 of 100 bytes as 28.999..., and the
+    // step to 29% was skipped. A total of 0 has no percent, so every chunk is
+    // emitted.
+    let percent = state.total.and_then(|total| {
+        (state.downloaded as u128 * 100)
+            .checked_div(total as u128)
+            .map(|p| p as u64)
+    });
     if percent.is_none() || percent != *last_emitted_percent {
         *last_emitted_percent = percent;
         events.push(UpdateEvent::DownloadProgress {
@@ -415,6 +423,20 @@ mod tests {
             .map(|p| p.percentage.floor() as u64)
             .collect();
         assert_eq!(percents, (0..=100).collect::<Vec<_>>());
+    }
+
+    #[test]
+    fn no_percent_is_skipped_when_the_float_lands_under_it() {
+        let (mut state, mut last) = fresh();
+        let mut all = Vec::new();
+        // 29, 57 and 58 of 100 bytes, divided before multiplying, each land
+        // just under the percent
+        for _ in 0..100 {
+            all.extend(apply_chunk(&mut state, &mut last, 1, Some(100)));
+        }
+        let downloaded: Vec<u64> = progress_events(&all).iter().map(|p| p.downloaded).collect();
+
+        assert_eq!(downloaded, (1..=100).collect::<Vec<_>>());
     }
 
     #[test]

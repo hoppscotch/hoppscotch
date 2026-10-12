@@ -15,6 +15,7 @@
         :show-run-actions="showRunActions"
         :subscription-state="subscriptionState"
         :envs="envs"
+        :tab-id="tabId"
         @run-query="runQuery"
         @stop-query="stopQuery"
         @save-request="() => invokeAction('request-response.save')"
@@ -413,7 +414,50 @@ const changeOptionTab = (e: GQLOptionTabs) => {
 }
 
 const runActionsActive = computed(() => props.showRunActions)
-defineActionHandler("request.send-cancel", runQuery, runActionsActive)
+
+/** The named operation; null if absent, undefined if the query doesn't parse. */
+const findOperationByName = (name: string) => {
+  try {
+    return (
+      gql
+        .parse(request.value.query)
+        .definitions.find(
+          (d): d is gql.OperationDefinitionNode =>
+            d.kind === "OperationDefinition" && d.name?.value === name
+        ) ?? null
+    )
+  } catch (_e) {
+    return undefined
+  }
+}
+
+/**
+ * Runs the named operation (multi-operation documents); without a name,
+ * runQuery falls back to the document's first operation.
+ */
+const runNamedOperation = (name?: string) => {
+  if (!name) return runQuery()
+  const definition = findOperationByName(name)
+  if (definition) return runQuery(definition)
+  // Unparseable before env templating: send as before, the server decides.
+  if (definition === undefined) return runQuery()
+  // A name that doesn't resolve must not run another operation.
+  if (props.tabId) {
+    gqlTabConn.getTabMessageEvent(props.tabId).value = {
+      type: "error",
+      error: {
+        type: "operation_not_found",
+        message: `No operation named "${name}" in the query.`,
+      },
+    }
+  }
+}
+
+defineActionHandler(
+  "request.send-cancel",
+  (payload) => runNamedOperation(payload?.operationName),
+  runActionsActive
+)
 defineActionHandler("request.reset", clearGQLQuery, runActionsActive)
 
 defineActionHandler("request.open-tab", ({ tab }) => {

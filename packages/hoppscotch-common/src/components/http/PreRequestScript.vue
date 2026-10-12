@@ -196,7 +196,7 @@ const currentRequest = computed(() =>
     : null
 )
 
-const { shouldEnableAIFeatures } = useAIExperiments()
+const { shouldEnableAIFeatures } = useAIExperiments("modifyPreRequestScript")
 const isModifyPreRequestModalOpen = ref(false)
 
 const currentUser = useReadonlyStream(

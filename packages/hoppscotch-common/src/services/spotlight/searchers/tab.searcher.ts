@@ -15,7 +15,9 @@ import IconArrowLeft from "~icons/lucide/arrow-left"
 import IconArrowRight from "~icons/lucide/arrow-right"
 import IconChevronsLeft from "~icons/lucide/chevrons-left"
 import IconChevronsRight from "~icons/lucide/chevrons-right"
-import { invokeAction } from "~/helpers/actions"
+import IconGlobe from "~icons/lucide/globe"
+import IconGraphql from "~icons/hopp/graphql"
+import { invokeAction, isActionBound } from "~/helpers/actions"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { GQLTabService } from "~/services/tab/graphql"
 import { Container } from "dioc"
@@ -60,6 +62,16 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
 
   private isDesktopMode = computed(() => getKernelMode() === "desktop")
 
+  // Protocol switching only exists on the unified workspace's request tabs —
+  // each direction shows only when the active tab is on the other protocol.
+  private activeDocType = computed(
+    () => this.workspaceTab.currentActiveTab.value?.document.type
+  )
+
+  // The switcher binds `tab.switch-protocol` only while it is mounted (REST
+  // page with the GQL-in-REST setting on) — offer nothing that would no-op.
+  private canSwitchProtocol = isActionBound("tab.switch-protocol")
+
   private documents: Record<string, Doc> = reactive({
     duplicate_tab: {
       text: [this.t("spotlight.tab.title"), this.t("spotlight.tab.duplicate")],
@@ -94,6 +106,34 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
       alternates: ["tab", "new", "open tab"],
       icon: markRaw(IconCopyPlus),
       excludeFromSearch: computed(() => !this.showAction.value),
+    },
+    switch_protocol_gql: {
+      text: [
+        this.t("spotlight.tab.title"),
+        this.t("spotlight.tab.switch_to_graphql"),
+      ],
+      alternates: ["tab", "protocol", "graphql", "gql", "switch", "convert"],
+      icon: markRaw(IconGraphql),
+      excludeFromSearch: computed(
+        () =>
+          this.route.name !== "index" ||
+          this.activeDocType.value !== "request" ||
+          !this.canSwitchProtocol.value
+      ),
+    },
+    switch_protocol_rest: {
+      text: [
+        this.t("spotlight.tab.title"),
+        this.t("spotlight.tab.switch_to_rest"),
+      ],
+      alternates: ["tab", "protocol", "rest", "http", "switch", "convert"],
+      icon: markRaw(IconGlobe),
+      excludeFromSearch: computed(
+        () =>
+          this.route.name !== "index" ||
+          this.activeDocType.value !== "gql-request" ||
+          !this.canSwitchProtocol.value
+      ),
     },
     // NOTE: Desktop-only actions
     tab_prev: {
@@ -205,6 +245,10 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
     if (id === "close_current_tab") invokeAction("tab.close-current")
     if (id === "close_other_tabs") invokeAction("tab.close-other")
     if (id === "open_new_tab") invokeAction("tab.open-new")
+    if (id === "switch_protocol_gql")
+      invokeAction("tab.switch-protocol", { protocol: "graphql" })
+    if (id === "switch_protocol_rest")
+      invokeAction("tab.switch-protocol", { protocol: "rest" })
     if (id === "tab_prev") invokeAction("tab.prev")
     if (id === "tab_next") invokeAction("tab.next")
     if (id === "tab_switch_to_first") invokeAction("tab.switch-to-first")

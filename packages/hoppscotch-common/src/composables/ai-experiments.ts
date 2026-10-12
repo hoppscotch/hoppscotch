@@ -1,4 +1,6 @@
-import { computed, Ref, ref } from "vue"
+import { computed, Ref, ref, watch } from "vue"
+import { useEventListener } from "@vueuse/core"
+import { useService } from "dioc/vue"
 import { useReadonlyStream } from "./stream"
 import { platform } from "~/platform"
 import { useSetting } from "./settings"
@@ -7,6 +9,7 @@ import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import * as E from "fp-ts/Either"
 import { invokeAction } from "~/helpers/actions"
+import { AIChatService } from "~/services/ai-chat.service"
 
 export const useRequestNameGeneration = (targetNameRef: Ref<string>) => {
   const toast = useToast()
@@ -22,11 +25,9 @@ export const useRequestNameGeneration = (targetNameRef: Ref<string>) => {
     platform.auth.getCurrentUser()
   )
 
-  const ENABLE_AI_EXPERIMENTS = useSetting("ENABLE_AI_EXPERIMENTS")
-
-  const canDoRequestNameGeneration = computed(() => {
-    return ENABLE_AI_EXPERIMENTS.value && !!platform.experiments?.aiExperiments
-  })
+  // The settings page gates the naming-style picker on the same check.
+  const { shouldEnableAIFeatures: canDoRequestNameGeneration } =
+    useAIExperiments("generateRequestName")
 
   const lastTraceID = ref<string | null>(null)
 
@@ -82,16 +83,70 @@ export const useRequestNameGeneration = (targetNameRef: Ref<string>) => {
   }
 }
 
-export const useAIExperiments = () => {
+/**
+ * The individual AI capabilities a platform may implement. Mirrors the
+ * function members of `ExperimentsPlatformDef["aiExperiments"]`.
+ */
+export type AIExperimentsCapability = keyof Omit<
+  NonNullable<NonNullable<typeof platform.experiments>["aiExperiments"]>,
+  "enableAIExperiments"
+>
+
+/**
+ * Whether AI features should be surfaced. Pass the capability a feature relies
+ * on so its UI only shows when the platform actually implements it — platforms
+ * may provide a subset (e.g. self-host implements only `chat`). With no
+ * capability given, checks only that AI experiments exist at all.
+ */
+export const useAIExperiments = (capability?: AIExperimentsCapability) => {
   const ENABLE_AI_EXPERIMENTS = useSetting("ENABLE_AI_EXPERIMENTS")
 
   const shouldEnableAIFeatures = computed(() => {
-    return ENABLE_AI_EXPERIMENTS.value && !!platform.experiments?.aiExperiments
+    const aiExperiments = platform.experiments?.aiExperiments
+    if (!ENABLE_AI_EXPERIMENTS.value || !aiExperiments) return false
+    return capability ? !!aiExperiments[capability] : true
   })
 
   return {
     shouldEnableAIFeatures,
   }
+}
+
+/**
+ * Whether the "AI Experiments" setting is worth showing. Where the chat is the
+ * platform's only AI feature, that waits for the server to say it is on.
+ */
+export const useAIExperimentsSupport = () => {
+  const ai = platform.experiments?.aiExperiments
+  const chat = useService(AIChatService)
+  const ENABLE_AI_EXPERIMENTS = useSetting("ENABLE_AI_EXPERIMENTS")
+  const currentUser = useReadonlyStream(
+    platform.auth.getCurrentUserStream(),
+    platform.auth.getCurrentUser()
+  )
+
+  // The assistant skips its lookup while AI is off; this still needs it.
+  const lookUp = () => {
+    if (
+      currentUser.value &&
+      !ENABLE_AI_EXPERIMENTS.value &&
+      !chat.availabilityKnown.value
+    )
+      void chat.loadAvailability()
+  }
+  watch(currentUser, lookUp, { immediate: true })
+  // A failed lookup would hide the setting; ask again when the user is back.
+  useEventListener(window, ["focus", "online"], lookUp)
+
+  const offersOtherAI = !!(
+    ai?.generateRequestName ||
+    ai?.modifyRequestBody ||
+    ai?.modifyPreRequestScript ||
+    ai?.modifyTestScript
+  )
+  return computed(
+    () => !!ai?.enableAIExperiments && (offersOtherAI || chat.available.value)
+  )
 }
 
 export const useModifyRequestBody = (

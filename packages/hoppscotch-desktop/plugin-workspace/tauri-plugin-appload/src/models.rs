@@ -209,6 +209,14 @@ pub struct WindowOptions {
     pub height: f64,
     #[serde(default = "default_resizable")]
     pub resizable: bool,
+    /// Initial WebView zoom factor applied between window creation and first
+    /// paint. When `None`, the WebView opens at its native default of `1.0`.
+    /// Callers that persist a user-chosen zoom (the Hoppscotch desktop shell
+    /// reads `DesktopSettings.zoomLevel`) pass it here so the bundled app
+    /// renders at the right scale on first paint, avoiding the 100% flash
+    /// that a post-mount JS-side `setZoom` would otherwise produce.
+    #[serde(default)]
+    pub zoom_level: Option<f64>,
 }
 
 fn default_window_title() -> String {
@@ -234,6 +242,7 @@ impl Default for WindowOptions {
             width: default_window_width(),
             height: default_window_height(),
             resizable: default_resizable(),
+            zoom_level: None,
         }
     }
 }

@@ -10,8 +10,10 @@ const versionedObject = z.object({
   v: z.number(),
 })
 
+export const GLOBAL_ENV_LATEST_VERSION = 2 as const
+
 export const GlobalEnvironment = createVersionedEntity({
-  latestVersion: 2,
+  latestVersion: GLOBAL_ENV_LATEST_VERSION,
   versionMap: {
     0: V0_VERSION,
     1: V1_VERSION,
@@ -33,3 +35,5 @@ export type GlobalEnvironment = InferredEntity<typeof GlobalEnvironment>
 export type GlobalEnvironmentVariable = InferredEntity<
   typeof GlobalEnvironment
 >["variables"][number]
+
+export const GlobalEnvironmentSchemaVersion = 2

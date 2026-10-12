@@ -274,6 +274,67 @@ describe('InfraConfigService', () => {
     });
   });
 
+  describe('updateOnboardingConfig (allowlist filtering)', () => {
+    it('should drop keys outside ONBOARDING_ALLOWED_KEYS before persisting', async () => {
+      // Pretend the DTO has extra disallowed keys (mimicking a bypass of the
+      // ValidationPipe, e.g. an internal caller). The service must still not
+      // persist keys like JWT_SECRET / SESSION_SECRET / ALLOW_SECURE_COOKIES.
+      const dto = {
+        [InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS]: 'GOOGLE',
+        [InfraConfigEnum.GOOGLE_CLIENT_ID]: 'gid',
+        [InfraConfigEnum.GOOGLE_CLIENT_SECRET]: 'gsecret',
+        [InfraConfigEnum.GOOGLE_CALLBACK_URL]: 'https://example.com/cb',
+        [InfraConfigEnum.GOOGLE_SCOPE]: 'email',
+        [InfraConfigEnum.JWT_SECRET]: 'ATTACKER',
+        [InfraConfigEnum.SESSION_SECRET]: 'ATTACKER',
+        [InfraConfigEnum.ALLOW_SECURE_COOKIES]: 'true',
+      } as any;
+
+      const updateManySpy = jest
+        .spyOn(infraConfigService, 'updateMany')
+        .mockResolvedValueOnce(E.right([] as any));
+
+      await infraConfigService.updateOnboardingConfig(dto);
+
+      expect(updateManySpy).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({
+            name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
+            value: 'GOOGLE',
+          }),
+          expect.objectContaining({
+            name: InfraConfigEnum.GOOGLE_CLIENT_ID,
+            value: 'gid',
+          }),
+          expect.objectContaining({
+            name: InfraConfigEnum.GOOGLE_CLIENT_SECRET,
+            value: 'gsecret',
+          }),
+          expect.objectContaining({
+            name: InfraConfigEnum.GOOGLE_CALLBACK_URL,
+            value: 'https://example.com/cb',
+          }),
+          expect.objectContaining({
+            name: InfraConfigEnum.GOOGLE_SCOPE,
+            value: 'email',
+          }),
+
+          expect.objectContaining({
+            name: InfraConfigEnum.ONBOARDING_COMPLETED,
+            value: 'true',
+          }),
+          expect.objectContaining({
+            name: InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN,
+            value: expect.any(String),
+          }),
+        ]),
+        false,
+      );
+
+      updateManySpy.mockRestore();
+    });
+  });
+
   describe('isUserHistoryEnabled', () => {
     it('should return true if the user history is enabled', async () => {
       const response = {

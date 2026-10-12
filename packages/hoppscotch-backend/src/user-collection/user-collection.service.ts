@@ -1287,7 +1287,7 @@ export class UserCollectionService {
    * Duplicate a User Collection
    *
    * @param collectionID The Collection ID
-   * @returns Boolean of duplication status
+   * @returns An Either of the duplicated UserCollectionExportJSONData
    */
   async duplicateUserCollection(
     collectionID: string,
@@ -1321,7 +1321,7 @@ export class UserCollectionService {
     );
     if (E.isLeft(result)) return E.left(result.left as string);
 
-    return E.right(true);
+    return E.right(result.right);
   }
 
   /**

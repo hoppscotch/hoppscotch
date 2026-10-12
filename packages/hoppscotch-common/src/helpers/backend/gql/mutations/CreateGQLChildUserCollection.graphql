@@ -1,0 +1,14 @@
+mutation CreateGQLChildUserCollection(
+  $title: String!
+  $parentUserCollectionID: ID!
+  $data: String
+) {
+  createGQLChildUserCollection(
+    title: $title
+    parentUserCollectionID: $parentUserCollectionID
+    data: $data
+  ) {
+    id
+    data
+  }
+}

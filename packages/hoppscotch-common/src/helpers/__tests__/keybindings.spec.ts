@@ -1,5 +1,11 @@
-import { describe, expect, test } from "vitest"
-import { resolvePressedKey } from "../keybindings"
+import { afterAll, beforeAll, describe, expect, test, vi } from "vitest"
+import { createApp, defineComponent } from "vue"
+import { bindAction, unbindAction } from "../actions"
+import {
+  bindings,
+  hookKeybindingsListener,
+  resolvePressedKey,
+} from "../keybindings"
 
 // Fixture builder to keep individual cases readable. Layout name in the
 // describe block is the conceptual layout; `key` and `code` are what the
@@ -194,5 +200,76 @@ describe("resolvePressedKey: edge cases", () => {
         "hybrid"
       )
     ).toBeNull()
+  })
+})
+
+describe("bindings: native word-delete chords stay unmapped", () => {
+  // ctrl-backspace and ctrl-delete are the browser's word-delete chords in
+  // any editable input (URL bar, header value, body). Mapping either to
+  // response.erase wiped the response pane while the user was only deleting
+  // a word (hoppscotch/hoppscotch#5967). handleKeyDown lets the native chord
+  // through only while it stays unmapped, so a future shortcut addition that
+  // rebinds either one would silently bring the bug back. These assertions
+  // are the guard against that.
+  const chords = Object.keys(bindings)
+
+  test("ctrl-backspace has no action", () => {
+    expect(chords).not.toContain("ctrl-backspace")
+  })
+
+  test("ctrl-delete has no action", () => {
+    expect(chords).not.toContain("ctrl-delete")
+  })
+
+  test("no chord maps to response.erase", () => {
+    expect(Object.values(bindings)).not.toContain("response.erase")
+  })
+})
+
+describe("handleKeyDown: tab.switch-protocol", () => {
+  // Mount a listener the way the app layout does
+  const app = createApp(
+    defineComponent({
+      setup() {
+        hookKeybindingsListener()
+        return () => null
+      },
+    })
+  )
+
+  beforeAll(() => {
+    app.mount(document.createElement("div"))
+  })
+
+  afterAll(() => {
+    app.unmount()
+  })
+
+  const pressAltT = () => {
+    const ev = new KeyboardEvent("keydown", {
+      key: "t",
+      code: "KeyT",
+      altKey: true,
+      bubbles: true,
+      cancelable: true,
+    })
+    document.body.dispatchEvent(ev)
+    return ev
+  }
+
+  test("leaves Alt+T alone while no view handles it", () => {
+    expect(pressAltT().defaultPrevented).toBe(false)
+  })
+
+  test("claims Alt+T and fires the handler once while one is bound", () => {
+    const handler = vi.fn()
+    bindAction("tab.switch-protocol", handler)
+
+    try {
+      expect(pressAltT().defaultPrevented).toBe(true)
+      expect(handler).toHaveBeenCalledTimes(1)
+    } finally {
+      unbindAction("tab.switch-protocol", handler)
+    }
   })
 })

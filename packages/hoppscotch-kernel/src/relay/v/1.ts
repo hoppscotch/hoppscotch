@@ -209,12 +209,7 @@ export interface RelayRequestEvents {
   }
   stateChange: {
     state:
-      | "preparing"
-      | "connecting"
-      | "sending"
-      | "waiting"
-      | "receiving"
-      | "done"
+      "preparing" | "connecting" | "sending" | "waiting" | "receiving" | "done"
   }
   authChallenge: {
     type: "basic" | "digest" | "oauth2"
@@ -272,14 +267,7 @@ export type ContentCapability =
   | "compression"
 
 export type AuthCapability =
-  | "none"
-  | "basic"
-  | "bearer"
-  | "digest"
-  | "oauth2"
-  | "apikey"
-  | "aws"
-  | "mtls"
+  "none" | "basic" | "bearer" | "digest" | "oauth2" | "apikey" | "aws" | "mtls"
 
 export type SecurityCapability =
   | "clientcertificates"
@@ -289,11 +277,7 @@ export type SecurityCapability =
   | "peerverification"
 
 export type ProxyCapability =
-  | "http"
-  | "https"
-  | "socks"
-  | "authentication"
-  | "certificates"
+  "http" | "https" | "socks" | "authentication" | "certificates"
 
 export type AdvancedCapability =
   | "retry"

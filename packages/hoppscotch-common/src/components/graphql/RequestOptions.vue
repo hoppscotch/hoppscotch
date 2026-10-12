@@ -48,7 +48,7 @@
     </HoppSmartTab>
   </HoppSmartTabs>
   <CollectionsSaveRequest
-    mode="graphql"
+    mode="legacy-graphql"
     :show="showSaveRequestModal"
     @hide-modal="hideRequestModal"
   />
@@ -82,6 +82,10 @@ const _VALID_GQL_OPERATIONS = [
   "headers",
   "variables",
   "authorization",
+  // Script tabs exist only on the unified workspace's gql/RequestOptions —
+  // this legacy page doesn't render them, but it owns the GQLOptionTabs type
+  "preRequestScript",
+  "tests",
 ] as const
 
 export type GQLOptionTabs = (typeof _VALID_GQL_OPERATIONS)[number]
@@ -255,7 +259,9 @@ const changeOptionTab = (e: GQLOptionTabs) => {
   selectedOptionTab.value = e
 }
 
-defineActionHandler("request.send-cancel", runQuery)
+// The action's optional payload (operationName) is for the unified workspace
+// GQL pane — this legacy page keeps its cursor-driven behavior.
+defineActionHandler("request.send-cancel", () => runQuery())
 defineActionHandler("request-response.save", saveRequest)
 defineActionHandler("request.save-as", () => {
   showSaveRequestModal.value = true

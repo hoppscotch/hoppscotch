@@ -40,6 +40,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -151,6 +152,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -170,6 +172,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -196,6 +199,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -228,6 +232,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -260,6 +265,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -292,6 +298,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -324,6 +331,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -354,6 +362,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -387,6 +396,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -422,6 +432,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -493,6 +504,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -523,6 +535,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -588,6 +601,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -637,6 +651,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -688,6 +703,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -704,6 +720,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -730,6 +747,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -749,6 +767,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -775,6 +794,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -794,6 +814,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -820,6 +841,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -844,6 +866,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -866,6 +889,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -889,6 +913,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -911,6 +936,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -944,6 +970,7 @@ const samples = [
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -978,6 +1005,7 @@ data2: {"type":"test2","typeId":"123"}`,
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
   {
@@ -1026,11 +1054,111 @@ data2: {"type":"test2","typeId":"123"}`,
       testScript: "",
       requestVariables: [],
       responses: {},
+      description: null,
     }),
   },
 ]
 
 describe("Parse curl command to Hopp REST Request", () => {
+  test("parses json body with semicolon-only headers", () => {
+    const command = String.raw`curl 'https://echo.hoppscotch.io/api/process/insert' \
+  -H 'Authorization-OAuth2;' \
+  -H 'Authorization-OAuth2-Client;' \
+  -H 'Authorization-OAuth2-Refresh;' \
+  -H 'Content-Type: application/json;charset=UTF-8' \
+  --data-raw '{"insertProcessDto":{"name":"测hi退回"},"formSaveDTO":{"formProps":"{\"list\":[]}"}}' \
+  --insecure`
+
+    const actual = parseCurlToHoppRESTReq(command)
+
+    expect(actual.method).toBe("POST")
+    expect(actual.endpoint).toBe(
+      "https://echo.hoppscotch.io/api/process/insert"
+    )
+    expect(actual.body.contentType).toBe("application/json")
+
+    const parsedBody = JSON.parse(actual.body.body)
+    expect(parsedBody.insertProcessDto.name).toBe("测hi退回")
+    expect(JSON.parse(parsedBody.formSaveDTO.formProps)).toEqual({ list: [] })
+  })
+
+  test("parses json body containing escaped XML", () => {
+    const command = String.raw`curl 'https://echo.hoppscotch.io/api/process/insert' \
+  -H 'Authorization-OAuth2;' \
+  -H 'Authorization-OAuth2-Client;' \
+  -H 'Authorization-OAuth2-Refresh;' \
+  -H 'Content-Type: application/json;charset=UTF-8' \
+  --data-raw '{"insertProcessDto":{"bpmnXmlString":"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<bpmn2:definitions xmlns:bpmn2=\"http://www.omg.org/spec/BPMN/20100524/MODEL\"></bpmn2:definitions>"},"formSaveDTO":{"formProps":"{\"list\":[]}"}}' \
+  --insecure`
+
+    const actual = parseCurlToHoppRESTReq(command)
+
+    expect(actual.method).toBe("POST")
+    expect(actual.endpoint).toBe(
+      "https://echo.hoppscotch.io/api/process/insert"
+    )
+    expect(actual.body.contentType).toBe("application/json")
+
+    const parsedBody = JSON.parse(actual.body.body)
+    expect(parsedBody.insertProcessDto.bpmnXmlString).toContain("<?xml")
+    expect(parsedBody.insertProcessDto.bpmnXmlString).toContain(
+      "bpmn2:definitions"
+    )
+    expect(JSON.parse(parsedBody.formSaveDTO.formProps)).toEqual({ list: [] })
+  })
+
+  test("does not drop JSON body for -d with many headers", () => {
+    const command = `curl 'https://echo.hoppscotch.io/api/chat/completions' -d '{"response_format":{"type":"json_object"},"messages":[{"content":"Translate array of texts from en into zh and return JSON result with the same array length, do not add any additional text, and do not return code blocks, such as: {\\"translations\\": [\\"translation of input text 1\\", ...]}","role":"system"},{"content":"[\\"Epic Games CEO Tim Sweeney argues banning Twitter over its ability to AI-generate pornographic images of minors is just '''gatekeepers''' attempting to '''censor all of their political opponents'''\\"]","role":"user"}],"model":"gpt-translate","temperature":0.30000001192092896}' -H ':authority: echo.hoppscotch.io' -H 'accept: */*' -H 'content-type: application/json' -H 'accept-language: en-US;q=1.0, zh-Hans-US;q=0.9' -H 'authorization: Bearer <redacted>' -H 'accept-encoding: br;q=1.0, gzip;q=0.9, deflate;q=0.8' -H 'user-agent: TranslationExtension/1.14.5 (org.lesslab.relingo.TranslationExtension; build:104; iOS 26.2.0) Alamofire/5.10.2' -H 'priority: u=3, i' --compressed`
+
+    const actual = parseCurlToHoppRESTReq(command)
+
+    expect(actual.method).toBe("POST")
+    expect(actual.endpoint).toBe(
+      "https://echo.hoppscotch.io/api/chat/completions"
+    )
+    expect(actual.body.contentType).toBe("application/json")
+
+    const parsedBody = JSON.parse(actual.body.body)
+    expect(parsedBody.model).toBe("gpt-translate")
+    expect(parsedBody.temperature).toBe(0.30000001192092896)
+    expect(parsedBody.response_format).toEqual({ type: "json_object" })
+    expect(parsedBody.messages).toHaveLength(2)
+    expect(parsedBody.messages[0].role).toBe("system")
+    expect(parsedBody.messages[0].content).toBe(
+      `Translate array of texts from en into zh and return JSON result with the same array length, do not add any additional text, and do not return code blocks, such as: {"translations": ["translation of input text 1", ...]}`
+    )
+    expect(parsedBody.messages[1].role).toBe("user")
+    expect(parsedBody.messages[1].content).toBe(
+      `["Epic Games CEO Tim Sweeney argues banning Twitter over its ability to AI-generate pornographic images of minors is just '''gatekeepers''' attempting to '''censor all of their political opponents'''"]`
+    )
+  })
+
+  test("preserves -d POST without -G as form-urlencoded", () => {
+    const command = `curl -X POST 'https://example.com/submit' -d 'name=alice&role=admin'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+
+    expect(actual.method).toBe("POST")
+    expect(actual.endpoint).toBe("https://example.com/submit")
+    expect(actual.body.contentType).toBe("application/x-www-form-urlencoded")
+    expect(actual.body.body).toBe("name: alice\nrole: admin")
+  })
+
+  test("does not intercept -d inside a quoted header value", () => {
+    const command = `curl 'https://example.com/api' -H 'X-Custom: -d {"fake":1}' -d '{"real":true}'`
+
+    const actual = parseCurlToHoppRESTReq(command)
+
+    expect(actual.method).toBe("POST")
+    expect(actual.endpoint).toBe("https://example.com/api")
+    expect(actual.body.contentType).toBe("application/json")
+    expect(JSON.parse(actual.body.body)).toEqual({ real: true })
+
+    const customHeader = actual.headers.find((h) => h.key === "X-Custom")
+    expect(customHeader).toBeDefined()
+    expect(customHeader.value).toBe(`-d {"fake":1}`)
+  })
+
   for (const [i, { command, response }] of samples.entries()) {
     test(`for sample #${i + 1}:\n\n${command}`, () => {
       const actual = parseCurlToHoppRESTReq(command)

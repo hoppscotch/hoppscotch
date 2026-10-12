@@ -57,6 +57,7 @@
 <script setup lang="ts">
 import { useReadonlyStream, useStream } from "@composables/stream"
 import { Environment, GlobalEnvironment } from "@hoppscotch/data"
+import { stripClientLocalValuesForWire } from "~/helpers/clientLocalVariables"
 import { useService } from "dioc/vue"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
@@ -76,12 +77,16 @@ import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import {
   createEnvironment,
   deleteEnvironment,
+  environmentsStore,
   getGlobalVariables,
   getSelectedEnvironmentIndex,
   globalEnv$,
   selectedEnvironmentIndex$,
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
+import { getService } from "~/modules/dioc"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
+import { CurrentValueService } from "~/services/current-environment-value.service"
 import { useLocalState } from "~/newstore/localstate"
 import { platform } from "~/platform"
 import { TeamWorkspace, WorkspaceService } from "~/services/workspace.service"
@@ -101,7 +106,10 @@ const environmentType = ref<EnvironmentsChooseType>({
   selectedTeam: undefined,
 })
 
-const globalEnv = useReadonlyStream(globalEnv$, {} as GlobalEnvironment)
+const globalEnv = useReadonlyStream(globalEnv$, {
+  v: 2,
+  variables: [],
+} as GlobalEnvironment)
 
 const globalEnvironment = computed<Environment>(() => ({
   v: 2 as const,
@@ -157,32 +165,17 @@ const updateEnvironmentType = (newEnvironmentType: EnvironmentType) => {
 
 const workspace = workspaceService.currentWorkspace
 
-// Switch to my environments if workspace is personal and to team environments if workspace is team
-// also resets selected environment if workspace is personal and the previous selected environment was a team environment
+// Switch to my environments if workspace is personal and to team
+// environments if workspace is team. Resetting a stale team-env selection
+// is handled by WorkspaceService.changeWorkspace — the single funnel every
+// workspace switch goes through, mounted or not.
 watch(
   workspace,
   (newWorkspace) => {
-    const { type: newWorkspaceType } = newWorkspace
-
-    if (newWorkspaceType === "personal") {
+    if (newWorkspace.type === "personal") {
       switchToMyEnvironments()
     } else {
       updateSelectedTeam(newWorkspace)
-    }
-
-    const newTeamID =
-      newWorkspaceType === "team" ? newWorkspace.teamID : undefined
-
-    // Set active environment to the `No environment` state
-    // if navigating away from a team workspace
-    if (
-      selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
-      newTeamID &&
-      selectedEnvironmentIndex.value.teamID !== newTeamID
-    ) {
-      setSelectedEnvironmentIndex({
-        type: "NO_ENV_SELECTED",
-      })
     }
   },
   { immediate: true }
@@ -265,7 +258,9 @@ const duplicateGlobalEnvironment = async () => {
 
     await pipe(
       createTeamEnvironment(
-        JSON.stringify(globalEnvironment.value.variables),
+        JSON.stringify(
+          stripClientLocalValuesForWire(globalEnvironment.value.variables)
+        ),
         workspace.value.teamID,
         `Global - ${t("action.duplicate")}`
       ),
@@ -276,6 +271,9 @@ const duplicateGlobalEnvironment = async () => {
           toast.error(t(getEnvActionErrorMessage(err)))
         },
         () => {
+          // Secret variable values are intentionally NOT copied to the
+          // duplicated environment — duplicates start fresh on secrets per
+          // the per-entity secret model.
           toast.success(t("environment.duplicated"))
         }
       )
@@ -294,23 +292,41 @@ const duplicateGlobalEnvironment = async () => {
   toast.success(`${t("environment.duplicated")}`)
 }
 
+const secretEnvironmentService = getService(SecretEnvironmentService)
+const currentEnvironmentValueService = getService(CurrentValueService)
+
 const removeSelectedEnvironment = () => {
   const selectedEnvIndex = getSelectedEnvironmentIndex()
   if (selectedEnvIndex?.type === "NO_ENV_SELECTED") return
 
   if (selectedEnvIndex?.type === "MY_ENV") {
-    deleteEnvironment(selectedEnvIndex.index)
+    // Pass envID so the selfhost sync handler can call the backend delete
+    // for already-synced envs. The handler internally guards against the
+    // create-window race (`pendingTempEnvIds` set in `sync.ts`) so a temp
+    // `uniqueID()` here won't 404; only real backend ids reach the wire.
+    const envID =
+      environmentsStore.value.environments[selectedEnvIndex.index]?.id
+    deleteEnvironment(selectedEnvIndex.index, envID)
+    if (envID) {
+      secretEnvironmentService.deleteSecretEnvironment(envID)
+      currentEnvironmentValueService.deleteEnvironment(envID)
+    }
     toast.success(`${t("state.deleted")}`)
   }
 
   if (selectedEnvIndex?.type === "TEAM_ENV") {
+    const teamEnvID = selectedEnvIndex.teamEnvID
     pipe(
-      deleteTeamEnvironment(selectedEnvIndex.teamEnvID),
+      deleteTeamEnvironment(teamEnvID),
       TE.match(
         (err: GQLError<string>) => {
           console.error(err)
         },
         () => {
+          // Same lifecycle hygiene as MY_ENV — flush after backend
+          // success so the secret service doesn't retain the entry.
+          secretEnvironmentService.deleteSecretEnvironment(teamEnvID)
+          currentEnvironmentValueService.deleteEnvironment(teamEnvID)
           toast.success(`${t("team_environment.deleted")}`)
         }
       )

@@ -12,6 +12,7 @@ import { parseBodyAsJSON } from "@hoppscotch/common/helpers/functional/json"
 import { AuthEvent, AuthPlatformDef } from "@hoppscotch/common/platform/auth"
 import { PersistenceService } from "@hoppscotch/common/services/persistence"
 import { KernelInterceptorService } from "@hoppscotch/common/services/kernel-interceptor.service"
+import { CookieJarService } from "@hoppscotch/common/services/cookie-jar.service"
 
 import Login from "@app/components/Login.vue"
 import { getAllowedAuthProviders, updateUserDisplayName } from "./api"
@@ -46,6 +47,22 @@ const isGettingInitialUser: Ref<null | boolean> = ref(null)
 
 const persistenceService = getService(PersistenceService)
 const interceptorService = getService(KernelInterceptorService)
+// Deferred: this module is evaluated before `initKernel`, so a top-level
+// `getService(CookieJarService)` would permanently fail the jar's init and
+// the cleanup below would see an empty jar.
+const getCookieJarService = () => getService(CookieJarService)
+
+// Every backend call in this module authenticates with a bearer token
+// from local config, so none of them should touch the shared request
+// cookie jar. Without this the interceptor captures the backend's auth
+// `Set-Cookie` into the jar and reattaches it to later calls, where a
+// stale or blank `access_token` cookie is read in preference to the
+// bearer token, the request is rejected, and desktop login stalls.
+// Used as each request's `meta` so it opts out of jar attach and
+// capture. A factory returns a fresh object per call, so a request that
+// later needs other `meta.options` can add them inline without a shared
+// top-level spread overwriting the whole `meta`.
+const noCookieJarMeta = () => ({ options: { cookies: false } })
 
 async function logout() {
   const { response } = interceptorService.execute({
@@ -53,6 +70,7 @@ async function logout() {
     url: `${import.meta.env.VITE_BACKEND_API_URL}/auth/logout`,
     version: "HTTP/1.1",
     method: "GET",
+    meta: noCookieJarMeta(),
   })
 
   await response
@@ -117,6 +135,7 @@ async function getInitialUserDetails(): Promise<
          }
        }`,
       }),
+      meta: noCookieJarMeta(),
     })
 
     const responseBytes = await response
@@ -165,6 +184,50 @@ async function setUser(user: HoppUserWithAuthDetail | null) {
     "login_state",
     JSON.stringify(userWithToken)
   )
+}
+
+// Older installs captured the backend's auth `Set-Cookie` into the shared
+// jar before the opt-out above existed, so a blank or stale `access_token`
+// or `refresh_token` cookie can still be persisted from a prior version and
+// keep the login loop going. Remove any such entry for the backend host
+// once on init. New installs never capture these, so this only heals state
+// an earlier build left behind.
+async function clearPersistedAuthCookiesFromJar() {
+  const cookieJarService = getCookieJarService()
+  await cookieJarService.whenReady()
+
+  const authCookieNames = new Set(["access_token", "refresh_token"])
+  const backendHosts = new Set<string>()
+  for (const rawUrl of [
+    import.meta.env.VITE_BACKEND_API_URL,
+    import.meta.env.VITE_BACKEND_GQL_URL,
+  ]) {
+    try {
+      backendHosts.add(
+        cookieJarService.canonStoreDomain(new URL(rawUrl).hostname)
+      )
+    } catch {
+      // A malformed env URL leaves no host to clear.
+    }
+  }
+
+  const targets: Array<{ domain: string; name: string; path: string }> = []
+  for (const host of backendHosts) {
+    const bucket = cookieJarService.cookieJar.value.get(host) ?? []
+    for (const cookie of bucket) {
+      if (authCookieNames.has(cookie.name)) {
+        targets.push({
+          domain: cookie.domain,
+          name: cookie.name,
+          path: cookie.path,
+        })
+      }
+    }
+  }
+
+  if (targets.length > 0) {
+    await cookieJarService.deleteCookies(targets)
+  }
 }
 
 export async function setInitialUser() {
@@ -232,6 +295,7 @@ async function refreshToken() {
       headers: {
         Authorization: `Bearer ${refreshToken}`,
       },
+      meta: noCookieJarMeta(),
     })
 
     const res = await response
@@ -269,6 +333,7 @@ async function sendMagicLink(email: string) {
       "Content-Type": "application/json",
     },
     content: content.json({ email }),
+    meta: noCookieJarMeta(),
   })
 
   const res = await response
@@ -381,6 +446,7 @@ export const def: AuthPlatformDef = {
     const loginState = await persistenceService.getLocalConfig("login_state")
     const probableUser = JSON.parse(loginState ?? "null")
     probableUser$.next(probableUser)
+    await clearPersistedAuthCookiesFromJar()
     await setInitialUser()
 
     await listen<string>(
@@ -474,6 +540,7 @@ export const def: AuthPlatformDef = {
         token: verifyToken,
         deviceIdentifier,
       }),
+      meta: noCookieJarMeta(),
     })
 
     const res = await response
@@ -542,6 +609,7 @@ export const def: AuthPlatformDef = {
         "Content-Type": "application/json",
         ...this.getBackendHeaders(),
       },
+      meta: noCookieJarMeta(),
     })
 
     const res = await response

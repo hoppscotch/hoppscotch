@@ -253,8 +253,8 @@ export class PublishedDocsService {
     const creator = user
       ? {
           ...user,
-          currentGQLSession: JSON.stringify(user.currentGQLSession),
-          currentRESTSession: JSON.stringify(user.currentRESTSession),
+          currentGQLSession: null,
+          currentRESTSession: null,
         }
       : null;
 

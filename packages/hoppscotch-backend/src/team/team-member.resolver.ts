@@ -17,8 +17,8 @@ export class TeamMemberResolver {
 
     return {
       ...member.value,
-      currentRESTSession: JSON.stringify(member.value.currentRESTSession),
-      currentGQLSession: JSON.stringify(member.value.currentGQLSession),
+      currentRESTSession: null,
+      currentGQLSession: null,
     };
   }
 }

@@ -89,7 +89,6 @@ export default defineConfig({
       "@app/composables": path.resolve(__dirname, "./src/composables"),
       "@app/helpers": path.resolve(__dirname, "./src/helpers"),
       "@app/api": path.resolve(__dirname, "./src/api"),
-      "@app/lib": path.resolve(__dirname, "./src/lib"),
       "@app/kernel": path.resolve(__dirname, "./src/kernel"),
 
       // Node.js polyfills

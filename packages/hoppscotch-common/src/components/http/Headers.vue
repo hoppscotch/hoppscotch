@@ -263,7 +263,7 @@ import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as RA from "fp-ts/ReadonlyArray"
 import { cloneDeep, isEqual } from "lodash-es"
-import { reactive, Ref, ref, toRef, watch } from "vue"
+import { computed, reactive, Ref, ref, toRef, watch } from "vue"
 import draggable from "vuedraggable-es"
 
 import { useVModel } from "@vueuse/core"
@@ -280,14 +280,18 @@ import {
 } from "~/helpers/utils/EffectiveURL"
 import { isDragDropAllowed, DragDropEvent } from "~/helpers/dragDropValidation"
 import {
+  filterNonEmptyEnvironmentVariables,
+  normalizeAggregateEnvs,
+} from "~/helpers/utils/environments"
+import {
   AggregateEnvironment,
-  aggregateEnvs$,
-  getAggregateEnvs,
+  aggregateEnvsWithCurrentValue$,
+  getAggregateEnvsWithCurrentValue,
   getCurrentEnvironment,
 } from "~/newstore/environments"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { InspectionService, InspectorResult } from "~/services/inspection"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import IconArrowUpRight from "~icons/lucide/arrow-up-right"
 import IconEdit from "~icons/lucide/edit"
 import IconEye from "~icons/lucide/eye"
@@ -305,7 +309,7 @@ import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 const t = useI18n()
 const toast = useToast()
 
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 
 const colorMode = useColorMode()
 
@@ -331,6 +335,8 @@ const props = defineProps<{
   isCollectionProperty?: boolean
   inheritedProperties?: HoppInheritedProperty
   envs?: AggregateEnvironment[]
+  // Embed-only codemirror scope — `envs` alone must keep workspace editors live
+  scopedEnvs?: AggregateEnvironment[]
 }>()
 
 const emit = defineEmits<{
@@ -352,6 +358,7 @@ useCodemirror(
     linter,
     completer: null,
     environmentHighlights: true,
+    envs: computed(() => props.scopedEnvs),
     predefinedVariablesHighlights: true,
   })
 )
@@ -502,12 +509,10 @@ const updateHeader = (
 const deleteHeader = (index: number) => {
   const headersBeforeDeletion = cloneDeep(workingHeaders.value)
 
-  if (
-    !(
-      headersBeforeDeletion.length > 0 &&
-      index === headersBeforeDeletion.length - 1
-    )
-  ) {
+  if (!(
+    headersBeforeDeletion.length > 0 &&
+    index === headersBeforeDeletion.length - 1
+  )) {
     if (deletionToast.value) {
       deletionToast.value.goAway(0)
       deletionToast.value = null
@@ -553,7 +558,10 @@ const clearContent = () => {
   bulkHeaders.value = ""
 }
 
-const aggregateEnvs = useReadonlyStream(aggregateEnvs$, getAggregateEnvs())
+const aggregateEnvs = useReadonlyStream(
+  aggregateEnvsWithCurrentValue$,
+  getAggregateEnvsWithCurrentValue()
+)
 
 const computedHeaders: Ref<
   {
@@ -572,10 +580,12 @@ const inheritedProperty = ref<
   }[]
 >([])
 
-const currentSelectedEnvironment = getCurrentEnvironment()
-
-watch([props.modelValue, aggregateEnvs], async () => {
-  const resolvedEnvs = aggregateEnvs.value.map((env) => {
+const resolvedEnvs = computed(() => {
+  // Normalize to the v2 env shape so any legacy `{ key, value }` rows still
+  // resolve correctly in the computed headers/auth below.
+  if (props.envs) return normalizeAggregateEnvs(props.envs)
+  const currentSelectedEnvironment = getCurrentEnvironment()
+  return aggregateEnvs.value.map((env) => {
     return {
       ...env,
       currentValue:
@@ -589,20 +599,45 @@ watch([props.modelValue, aggregateEnvs], async () => {
             )?.currentValue ?? ""),
     }
   })
-  computedHeaders.value = (
-    await getComputedHeaders(props.modelValue, resolvedEnvs)
-  ).map((header, index) => ({
-    id: `header-${index}`,
-    ...header,
-  }))
 })
 
 watch(
-  () => [props.inheritedProperties, request.value],
-  async () => {
-    if (!props.inheritedProperties) return
+  [() => props.modelValue, resolvedEnvs],
+  async (_newVals, _oldVals, onCleanup) => {
+    let isStale = false
+    onCleanup(() => {
+      isStale = true
+    })
 
-    //filter out headers that are already in the request headers
+    const headers = await getComputedHeaders(
+      props.modelValue,
+      filterNonEmptyEnvironmentVariables(resolvedEnvs.value)
+    )
+    if (isStale) return
+
+    computedHeaders.value = headers.map((header, index) => ({
+      id: `header-${index}`,
+      ...header,
+    }))
+  },
+  { immediate: true, deep: true }
+)
+
+watch(
+  [() => props.inheritedProperties, request, resolvedEnvs],
+  async (_newVals, _oldVals, onCleanup) => {
+    let isStale = false
+    onCleanup(() => {
+      isStale = true
+    })
+
+    if (!props.inheritedProperties) {
+      // Clear any previously-computed inherited rows so they don't linger when
+      // the request switches to one without inherited collection settings.
+      inheritedProperty.value = []
+      return
+    }
+
     const inheritedHeaders = props.inheritedProperties.headers.filter(
       (header) =>
         !request.value.headers.some(
@@ -611,9 +646,9 @@ watch(
             requestHeader.active
         )
     )
-    inheritedProperty.value = inheritedHeaders.map((header, index) => ({
-      inheritedFrom: props.inheritedProperties!.headers[index].parentName!,
-      source: "headers",
+    const headersList = inheritedHeaders.map((header, index) => ({
+      inheritedFrom: header.parentName,
+      source: "headers" as const,
       id: `header-${index}`,
       header: header.inheritedHeader,
     }))
@@ -628,20 +663,24 @@ watch(
       )
     ) {
       const [computedAuthHeader] = await getComputedAuthHeaders(
-        aggregateEnvs.value,
+        filterNonEmptyEnvironmentVariables(resolvedEnvs.value),
         request.value,
         props.inheritedProperties.auth.inheritedAuth,
         false
       )
+      if (isStale) return
+
       if (computedAuthHeader) {
-        inheritedProperty.value.push({
+        headersList.push({
           inheritedFrom: props.inheritedProperties.auth.parentName,
-          source: "auth",
+          source: "auth" as const,
           id: `header-auth`,
           header: computedAuthHeader,
         })
       }
     }
+
+    inheritedProperty.value = headersList
   },
   { immediate: true, deep: true }
 )

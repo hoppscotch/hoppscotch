@@ -53,8 +53,12 @@ export const DESKTOP_SETTINGS_SCHEMA = z.object({
   disableUpdateChecks: z.boolean().default(false),
   disableUpdateDownloads: z.boolean().default(false),
 
-  // Display and UX. User-facing zoom control is future scope.
-  zoomLevel: z.number().positive().default(1.0),
+  // Display and UX. The bounds match Tauri v2's `setZoom` accepted
+  // range (0.2 to 10.0). A value outside that range would either be
+  // silently rejected by the WebView or trigger engine-level layout
+  // breakage, so the schema gate makes a corrupted store fall back
+  // to the default rather than reaching the runtime apply.
+  zoomLevel: z.number().min(0.2).max(10.0).default(1.0),
 
   // Keyboard shortcut dispatch strategy. The hybrid strategy prefers
   // event.key when it produces a Latin glyph (so AZERTY's "A" key fires

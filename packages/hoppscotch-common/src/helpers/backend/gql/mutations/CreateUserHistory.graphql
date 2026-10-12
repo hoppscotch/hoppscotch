@@ -1,0 +1,13 @@
+mutation CreateUserHistory(
+  $reqData: String!
+  $resMetadata: String!
+  $reqType: ReqType!
+) {
+  createUserHistory(
+    reqData: $reqData
+    resMetadata: $resMetadata
+    reqType: $reqType
+  ) {
+    id
+  }
+}

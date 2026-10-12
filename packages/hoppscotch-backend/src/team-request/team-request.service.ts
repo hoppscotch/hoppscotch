@@ -35,7 +35,7 @@ export class TeamRequestService {
    * A helper function to cast the Prisma TeamRequest model to the TeamRequest model
    * @param tr TeamRequest model from Prisma
    */
-  private cast(tr: DbTeamRequest) {
+  private cast(tr: DbTeamRequest): TeamRequest {
     return {
       id: tr.id,
       collectionID: tr.collectionID,
@@ -226,8 +226,15 @@ export class TeamRequestService {
 
   /**
    * Fetch team requests by Collection ID
+   *
+   * Pagination is keyed on `orderIndex` (unique per collection, see the
+   * `TeamRequest_teamID_collectionID_orderIndex_key` constraint) instead of
+   * Prisma's `cursor` + `skip`, so a page never depends on the offset of the
+   * cursor row within the result set.
+   *
    * @param collectionID Collection ID to fetch requests in
-   * @param cursor Cursor for pagination
+   * @param cursor ID of the last request of the previous page. Must belong to
+   * `collectionID`; an unknown cursor resolves to an empty page
    * @param take Take number of requests
    * @returns
    */
@@ -236,20 +243,31 @@ export class TeamRequestService {
     cursor: string,
     take = 10,
   ) {
+    let whereClause: Prisma.TeamRequestWhereInput = { collectionID };
+
+    if (cursor) {
+      const cursorItem = await this.prisma.teamRequest.findFirst({
+        where: { id: cursor, collectionID },
+        select: { orderIndex: true },
+      });
+
+      if (!cursorItem) return [];
+
+      whereClause = {
+        collectionID,
+        orderIndex: { gt: cursorItem.orderIndex },
+      };
+    }
+
     const dbTeamRequests = await this.prisma.teamRequest.findMany({
-      cursor: cursor ? { id: cursor } : undefined,
-      take: take,
-      skip: cursor ? 1 : 0,
-      where: {
-        collectionID: collectionID,
-      },
+      take,
+      where: whereClause,
       orderBy: {
         orderIndex: 'asc',
       },
     });
 
-    const teamRequests = dbTeamRequests.map((tr) => this.cast(tr));
-    return teamRequests;
+    return dbTeamRequests.map((tr) => this.cast(tr));
   }
 
   /**
@@ -370,6 +388,17 @@ export class TeamRequestService {
     });
     if (!request) return E.left(TEAM_REQ_NOT_FOUND);
 
+    // The destination collection must exist and belong to the same team as
+    // the request
+    const destCollection = await this.prisma.teamCollection.findUnique({
+      where: { id: destCollID },
+      select: { teamID: true },
+    });
+    if (!destCollection) return E.left(TEAM_INVALID_COLL_ID);
+    if (destCollection.teamID !== request.teamID) {
+      return E.left(TEAM_REQ_INVALID_TARGET_COLL_ID);
+    }
+
     let nextRequest = null;
     if (nextRequestID) {
       nextRequest = await this.prisma.teamRequest.findFirst({
@@ -381,18 +410,6 @@ export class TeamRequestService {
         nextRequest.collectionID !== destCollID ||
         request.teamID !== nextRequest.teamID
       ) {
-        return E.left(TEAM_REQ_INVALID_TARGET_COLL_ID);
-      }
-    } else {
-      // When nextRequestID is null, validate that the destination collection
-      // belongs to the same team as the request to prevent cross-team moves
-      const destCollection = await this.prisma.teamCollection.findUnique({
-        where: { id: destCollID },
-        select: { teamID: true },
-      });
-      if (!destCollection) return E.left(TEAM_INVALID_COLL_ID);
-
-      if (destCollection.teamID !== request.teamID) {
         return E.left(TEAM_REQ_INVALID_TARGET_COLL_ID);
       }
     }

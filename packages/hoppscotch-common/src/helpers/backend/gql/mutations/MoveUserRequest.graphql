@@ -1,0 +1,15 @@
+mutation MoveUserRequest(
+  $sourceCollectionID: ID!
+  $requestID: ID!
+  $destinationCollectionID: ID!
+  $nextRequestID: ID
+) {
+  moveUserRequest(
+    sourceCollectionID: $sourceCollectionID
+    requestID: $requestID
+    destinationCollectionID: $destinationCollectionID
+    nextRequestID: $nextRequestID
+  ) {
+    id
+  }
+}

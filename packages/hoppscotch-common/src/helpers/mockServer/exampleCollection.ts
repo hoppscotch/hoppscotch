@@ -88,6 +88,7 @@ export function createExamplePetStoreCollection(
           ],
         },
       },
+      description: null,
     }),
 
     // GET - Get a single pet by ID
@@ -137,6 +138,7 @@ export function createExamplePetStoreCollection(
           ],
         },
       },
+      description: null,
     }),
 
     // POST - Create a new pet
@@ -213,6 +215,7 @@ export function createExamplePetStoreCollection(
           ],
         },
       },
+      description: null,
     }),
 
     // PUT - Update an existing pet
@@ -283,6 +286,7 @@ export function createExamplePetStoreCollection(
           ],
         },
       },
+      description: null,
     }),
 
     // DELETE - Delete a pet
@@ -311,6 +315,7 @@ export function createExamplePetStoreCollection(
           headers: [],
         },
       },
+      description: null,
     }),
   ]
 

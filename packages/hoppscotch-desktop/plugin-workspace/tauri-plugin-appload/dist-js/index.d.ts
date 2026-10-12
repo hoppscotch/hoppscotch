@@ -12,6 +12,13 @@ export interface WindowOptions {
     width?: number;
     height?: number;
     resizable?: boolean;
+    /**
+     * Initial WebView zoom factor applied between window creation and first
+     * paint. When omitted, the WebView opens at its native default of 1.0.
+     * Pass a persisted user preference here to avoid the 100% flash that a
+     * post-mount setZoom from the bundle would produce.
+     */
+    zoomLevel?: number;
 }
 export interface LoadOptions {
     bundleName: string;

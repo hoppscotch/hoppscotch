@@ -1,14 +1,13 @@
 import { TestContainer } from "dioc/testing"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { HistorySpotlightSearcherService } from "../history.searcher"
 import { nextTick, ref } from "vue"
-import { SpotlightService } from "../.."
-import { GQLHistoryEntry, RESTHistoryEntry } from "~/newstore/history"
-import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { HoppAction, HoppActionWithArgs } from "~/helpers/actions"
 import { getDefaultGQLRequest } from "~/helpers/graphql/default"
-import { RESTTabService } from "~/services/tab/rest"
-import { PlatformDef, setPlatformDef } from "~/platform"
+import { getDefaultRESTRequest } from "~/helpers/rest/default"
+import { GQLHistoryEntry, RESTHistoryEntry } from "~/newstore/history"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
+import { SpotlightService } from "../.."
+import { HistorySpotlightSearcherService } from "../history.searcher"
 
 async function flushPromises() {
   return await new Promise((r) => setTimeout(r))
@@ -53,6 +52,18 @@ vi.mock("~/newstore/history", () => ({
   },
 }))
 
+vi.mock("~/lib/sync/history", () => ({
+  __esModule: true,
+  def: {
+    initHistorySync: vi.fn(),
+    requestHistoryStore: {
+      isHistoryStoreEnabled: { value: true },
+      isFetchingHistoryStoreStatus: { value: false },
+      hasErrorFetchingHistoryStoreStatus: { value: false },
+    },
+  },
+}))
+
 describe("HistorySpotlightSearcherService", () => {
   beforeEach(() => {
     let x = actionsMock.value.pop()
@@ -65,24 +76,21 @@ describe("HistorySpotlightSearcherService", () => {
       y = historyMock.restEntries.pop()
     }
 
+    let z = historyMock.gqlEntries.pop()
+    while (z) {
+      z = historyMock.gqlEntries.pop()
+    }
+
     const container = new TestContainer()
 
     const createNewTabFn = vi.fn()
 
-    container.bindMock(RESTTabService, {
+    container.bindMock(WorkspaceTabsService, {
       createNewTab: createNewTabFn,
     })
 
     actionsMock.invokeAction.mockReset()
     createNewTabFn.mockReset()
-
-    const platform = {
-      sync: {
-        history: {},
-      },
-    }
-
-    setPlatformDef(platform as PlatformDef)
   })
 
   it("registers with the spotlight service upon initialization", async () => {
@@ -304,6 +312,103 @@ describe("HistorySpotlightSearcherService", () => {
     expect(actionsMock.invokeAction).toHaveBeenCalledOnce()
     expect(actionsMock.invokeAction).toHaveBeenCalledWith("gql.request.open", {
       request: historyEntry.request,
+    })
+  })
+
+  it("selecting an entry opens that same entry when earlier entries lack updatedOn", async () => {
+    actionsMock.value.push("rest.request.open")
+
+    // Entries without `updatedOn` are filtered out of the search index, but
+    // result ids must still address the unfiltered store
+    historyMock.restEntries.push({
+      request: {
+        ...getDefaultRESTRequest(),
+        endpoint: "skipped.com",
+      },
+      responseMeta: { duration: null, statusCode: null },
+      star: false,
+      v: 1,
+      updatedOn: undefined,
+    } as unknown as RESTHistoryEntry)
+
+    const targetEntry: RESTHistoryEntry = {
+      request: {
+        ...getDefaultRESTRequest(),
+        endpoint: "bla.com",
+      },
+      responseMeta: { duration: null, statusCode: null },
+      star: false,
+      v: 1,
+      updatedOn: new Date(),
+    }
+
+    historyMock.restEntries.push(targetEntry)
+
+    const container = new TestContainer()
+
+    const history = container.bind(HistorySpotlightSearcherService)
+    await flushPromises()
+
+    const query = ref("bla")
+    const [result] = history.createSearchSession(query)
+    await nextTick()
+
+    // Store index (1), not the filtered index (0)
+    expect(result.value.results[0].id).toBe("rest-1")
+
+    history.onResultSelect(result.value.results[0])
+
+    expect(actionsMock.invokeAction).toHaveBeenCalledWith("rest.request.open", {
+      doc: {
+        request: targetEntry.request,
+        isDirty: false,
+        type: "request",
+      },
+    })
+  })
+
+  it("selecting a graphql entry opens that same entry when earlier entries lack updatedOn", async () => {
+    actionsMock.value.push("gql.request.open")
+
+    historyMock.gqlEntries.push({
+      request: {
+        ...getDefaultGQLRequest(),
+        url: "skipped.com",
+      },
+      response: "{}",
+      star: false,
+      v: 1,
+      updatedOn: undefined,
+    } as unknown as GQLHistoryEntry)
+
+    const targetEntry: GQLHistoryEntry = {
+      request: {
+        ...getDefaultGQLRequest(),
+        url: "bla.com",
+      },
+      response: "{}",
+      star: false,
+      v: 1,
+      updatedOn: new Date(),
+    }
+
+    historyMock.gqlEntries.push(targetEntry)
+
+    const container = new TestContainer()
+
+    const history = container.bind(HistorySpotlightSearcherService)
+    await flushPromises()
+
+    const query = ref("bla")
+    const [result] = history.createSearchSession(query)
+    await nextTick()
+
+    expect(result.value.results[0].id).toBe("gql-1")
+
+    history.onResultSelect(result.value.results[0])
+
+    expect(actionsMock.invokeAction).toHaveBeenCalledWith("gql.request.open", {
+      request: targetEntry.request,
     })
   })
 

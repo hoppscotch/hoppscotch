@@ -137,6 +137,7 @@
                   class="flex flex-col focus:outline-none"
                   tabindex="0"
                   @keyup.r="requestAction?.$el.click()"
+                  @keyup.g="gqlRequestAction?.$el.click()"
                   @keyup.n="folderAction?.$el.click()"
                   @keyup.e="edit?.$el.click()"
                   @keyup.d="duplicateAction?.$el.click()"
@@ -160,6 +161,19 @@
                     @click="
                       () => {
                         emit('add-request')
+                        hide()
+                      }
+                    "
+                  />
+                  <HoppSmartItem
+                    v-if="!hasNoTeamAccess && isGqlWorkspaceEnabled"
+                    ref="gqlRequestAction"
+                    :icon="IconGraphql"
+                    :label="t('request.new_gql')"
+                    :shortcut="['G']"
+                    @click="
+                      () => {
+                        emit('add-gql-request')
                         hide()
                       }
                     "
@@ -263,17 +277,16 @@
                     v-if="!hasNoTeamAccess"
                     ref="exportAction"
                     :icon="IconDownload"
-                    :label="t('export.title')"
+                    :label="t('export.collection')"
                     :shortcut="['X']"
                     :loading="exportLoading"
                     @click="
                       () => {
-                        ;(emit('export-data'),
-                          collectionsType === 'my-collections' ? hide() : null)
+                        emit('export-data')
+                        hide()
                       }
                     "
                   />
-
                   <HoppSmartItem
                     ref="propertiesAction"
                     :icon="IconSettings2"
@@ -327,6 +340,7 @@
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { useDocumentationVisibility } from "~/composables/documentationVisibility"
+import { useGqlWorkspaceVisibility } from "~/composables/gqlWorkspaceVisibility"
 import { HoppCollection } from "@hoppscotch/data"
 import { computed, ref, watch } from "vue"
 import { TippyComponent } from "vue-tippy"
@@ -351,6 +365,7 @@ import IconSettings2 from "~icons/lucide/settings-2"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconArrowUpDown from "~icons/lucide/arrow-up-down"
 import IconBook from "~icons/lucide/book"
+import IconGraphql from "~icons/hopp/graphql"
 import { CurrentSortValuesService } from "~/services/current-sort.service"
 import { useService } from "dioc/vue"
 import { useMockServerStatus } from "~/composables/mockServer"
@@ -404,6 +419,7 @@ const props = withDefaults(
 const emit = defineEmits<{
   (event: "toggle-children"): void
   (event: "add-request"): void
+  (event: "add-gql-request"): void
   (event: "add-folder"): void
   (event: "run-collection"): void
   (event: "edit-collection"): void
@@ -431,6 +447,7 @@ const emit = defineEmits<{
 
 const tippyActions = ref<HTMLDivElement | null>(null)
 const requestAction = ref<HTMLButtonElement | null>(null)
+const gqlRequestAction = ref<HTMLButtonElement | null>(null)
 const folderAction = ref<HTMLButtonElement | null>(null)
 const edit = ref<HTMLButtonElement | null>(null)
 const duplicateAction = ref<HTMLButtonElement | null>(null)
@@ -444,6 +461,7 @@ const sortAction = ref<HTMLButtonElement | null>(null)
 const documentationAction = ref<HTMLButtonElement | null>(null)
 
 const { isDocumentationVisible } = useDocumentationVisibility()
+const { isGqlWorkspaceEnabled } = useGqlWorkspaceVisibility()
 
 const dragging = ref(false)
 const ordering = ref(false)

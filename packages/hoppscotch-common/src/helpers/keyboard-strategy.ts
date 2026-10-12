@@ -1,4 +1,9 @@
-import type { DesktopSettings } from "~/platform/desktop-settings"
+// Relative import rather than the `~/` alias because this module is
+// consumed transitively by both the web entry (where `~` resolves to
+// common's src) and the desktop shell entry (where `~` resolves to the
+// shell's own src). See `composables/desktop-settings.ts` for the full
+// rationale.
+import type { DesktopSettings } from "../platform/desktop-settings"
 
 /**
  * Web-safe holder for the keyboard layout strategy.

@@ -24,14 +24,10 @@ export type OpenExternalLinkOptions = {
 }
 
 export type SaveFileResponse =
-  | { type: "unknown" }
-  | { type: "cancelled" }
-  | { type: "saved"; path: string }
+  { type: "unknown" } | { type: "cancelled" } | { type: "saved"; path: string }
 
 export type OpenExternalLinkResponse =
-  | { type: "unknown" }
-  | { type: "cancelled" }
-  | { type: "opened" }
+  { type: "unknown" } | { type: "cancelled" } | { type: "opened" }
 
 export interface IoV1 {
   saveFileWithDialog: (

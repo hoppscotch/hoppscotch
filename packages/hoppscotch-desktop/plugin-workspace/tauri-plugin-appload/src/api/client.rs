@@ -11,35 +11,52 @@ use super::{
     API_VERSION,
 };
 
-const DEFAULT_TIMEOUT: Duration = Duration::from_secs(30);
+// A bundle download transfers several orders of magnitude more bytes than a
+// manifest or key request, so its client gets this multiple of the
+// configured timeout.
+const DOWNLOAD_TIMEOUT_FACTOR: u32 = 10;
 
+/// HTTP client for one instance server, built with the timeout the host
+/// configured through `ApiConfig`.
+///
+/// The `timeout` field is kept after the client is built because
+/// `download_bundle` constructs a second client with its own allowance, and
+/// reqwest bakes timeouts in at build time with no way to read one back off
+/// a built `Client`.
 #[derive(Debug, Clone)]
 pub struct ApiClient {
     client: HttpClient,
     base_url: Url,
+    timeout: Duration,
 }
 
 impl ApiClient {
-    pub fn new(base_url: impl AsRef<str>) -> Result<Self> {
+    pub fn new(base_url: impl AsRef<str>, timeout: Duration) -> Result<Self> {
         tracing::info!(
-            "Initializing ApiClient with base URL: {}",
-            base_url.as_ref()
+            base_url = base_url.as_ref(),
+            ?timeout,
+            "Initializing ApiClient"
         );
 
         let client = HttpClient::builder()
-            .timeout(DEFAULT_TIMEOUT)
-            .user_agent(format!(
-                "{}/{}",
-                env!("CARGO_PKG_NAME"),
-                env!("CARGO_PKG_VERSION")
-            ))
+            .timeout(timeout)
+            .user_agent(Self::user_agent())
             .build()
             .map_err(ApiError::RequestFailed)?;
 
         Ok(Self {
             client,
             base_url: base_url.as_ref().parse().map_err(ApiError::InvalidUrl)?,
+            timeout,
         })
+    }
+
+    fn user_agent() -> String {
+        format!(
+            "{}/{}",
+            env!("CARGO_PKG_NAME"),
+            env!("CARGO_PKG_VERSION")
+        )
     }
 
     pub async fn list_key(&self) -> Result<PublicKeyInfo> {
@@ -59,12 +76,8 @@ impl ApiClient {
         let url = self.build_url(&format!("/api/{API_VERSION}/bundle"))?;
 
         let download_client = HttpClient::builder()
-            .timeout(10 * DEFAULT_TIMEOUT)
-            .user_agent(format!(
-                "{}/{}",
-                env!("CARGO_PKG_NAME"),
-                env!("CARGO_PKG_VERSION")
-            ))
+            .timeout(DOWNLOAD_TIMEOUT_FACTOR * self.timeout)
+            .user_agent(Self::user_agent())
             .build()
             .map_err(ApiError::RequestFailed)?;
 

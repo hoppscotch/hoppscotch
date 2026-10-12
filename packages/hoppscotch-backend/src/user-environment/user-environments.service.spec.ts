@@ -3,8 +3,9 @@ import { mockDeep, mockReset } from 'jest-mock-extended';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserEnvironmentsService } from './user-environments.service';
 import {
-  USER_ENVIRONMENT_ENV_DOES_NOT_EXISTS,
+  USER_ENVIRONMENT_ENV_DOES_NOT_EXIST,
   USER_ENVIRONMENT_GLOBAL_ENV_DELETION_FAILED,
+  USER_ENVIRONMENT_GLOBAL_ENV_DOES_NOT_EXIST,
   USER_ENVIRONMENT_GLOBAL_ENV_EXISTS,
   USER_ENVIRONMENT_INVALID_ENVIRONMENT_NAME,
 } from '../errors';
@@ -140,7 +141,7 @@ describe('UserEnvironmentsService', () => {
 
       expect(
         await userEnvironmentsService.fetchUserGlobalEnvironment('abc'),
-      ).toEqualLeft(USER_ENVIRONMENT_ENV_DOES_NOT_EXISTS);
+      ).toEqualLeft(USER_ENVIRONMENT_GLOBAL_ENV_DOES_NOT_EXIST);
     });
   });
 
@@ -359,7 +360,7 @@ describe('UserEnvironmentsService', () => {
           '[{}]',
           mockUser,
         ),
-      ).toEqualLeft(USER_ENVIRONMENT_ENV_DOES_NOT_EXISTS);
+      ).toEqualLeft(USER_ENVIRONMENT_ENV_DOES_NOT_EXIST);
     });
 
     test('Should update a users personal environment and publish an updated subscription ', async () => {
@@ -458,7 +459,7 @@ describe('UserEnvironmentsService', () => {
 
       return expect(
         await userEnvironmentsService.deleteUserEnvironment('abc123', 'env1'),
-      ).toEqualLeft(USER_ENVIRONMENT_ENV_DOES_NOT_EXISTS);
+      ).toEqualLeft(USER_ENVIRONMENT_ENV_DOES_NOT_EXIST);
     });
 
     test('Should resolve right, delete a users personal environment and publish a deleted subscription', async () => {
@@ -545,7 +546,7 @@ describe('UserEnvironmentsService', () => {
 
       return expect(
         await userEnvironmentsService.deleteUserEnvironment('abc123', 'genv1'),
-      ).toEqualLeft(USER_ENVIRONMENT_ENV_DOES_NOT_EXISTS);
+      ).toEqualLeft(USER_ENVIRONMENT_ENV_DOES_NOT_EXIST);
     });
 
     test('Should resolve right,delete all variables inside users global environment and publish an updated subscription', async () => {

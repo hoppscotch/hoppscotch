@@ -208,6 +208,7 @@ import { ref, watch, markRaw, computed } from "vue"
 import { useI18n } from "~/composables/i18n"
 import {
   HoppCollection,
+  HoppGQLRequest,
   HoppRESTRequest,
   Environment,
   translateToNewEnvironmentVariables,
@@ -290,7 +291,7 @@ const handleCopyUrl = () => {
 type SnapshotDocumentationItem = {
   id: string
   type: "folder" | "request"
-  item: HoppCollection | HoppRESTRequest
+  item: HoppCollection | HoppRESTRequest | HoppGQLRequest
   inheritedProperties: HoppInheritedProperty
 }
 
@@ -380,14 +381,17 @@ const flattenCollection = (
   }
 
   if (collection.requests && collection.requests.length > 0) {
-    ;(collection.requests as HoppRESTRequest[]).forEach((request) => {
-      items.push({
-        id: request.id || (request as any)._ref_id || `request-${request.name}`,
-        type: "request",
-        item: request,
-        inheritedProperties: currentInheritedProps,
-      })
-    })
+    ;(collection.requests as (HoppRESTRequest | HoppGQLRequest)[]).forEach(
+      (request) => {
+        items.push({
+          id:
+            request.id || (request as any)._ref_id || `request-${request.name}`,
+          type: "request",
+          item: request,
+          inheritedProperties: currentInheritedProps,
+        })
+      }
+    )
   }
 
   return items
@@ -429,14 +433,9 @@ const fetchSnapshotPreview = async () => {
         const parsedVars =
           typeof rawEnvVars === "string" ? JSON.parse(rawEnvVars) : rawEnvVars
         if (Array.isArray(parsedVars)) {
-          snapshotEnvironmentVariables.value = parsedVars.map((v) => {
-            const normalized = translateToNewEnvironmentVariables(v)
-            // Ensure currentValue falls back to initialValue
-            return {
-              ...normalized,
-              currentValue: normalized.currentValue || normalized.initialValue,
-            }
-          })
+          snapshotEnvironmentVariables.value = parsedVars.map((v) =>
+            translateToNewEnvironmentVariables(v)
+          )
         }
       } catch (e) {
         console.error("Error parsing snapshot environment variables:", e)

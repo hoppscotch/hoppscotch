@@ -11,7 +11,7 @@
   >
     <Pane
       :size="SIDEBAR && hasSidebar ? PANE_MAIN_SIZE : 100"
-      min-size="65"
+      :min-size="MAIN_PANE_MIN_SIZE"
       class="flex flex-col overflow-hidden"
     >
       <Splitpanes
@@ -38,7 +38,7 @@
     </Pane>
     <Pane
       :size="SIDEBAR && hasSidebar ? PANE_SIDEBAR_SIZE : 0"
-      :min-size="25"
+      :min-size="SIDEBAR && hasSidebar ? SIDEBAR_PANE_MIN_SIZE : 0"
       class="flex flex-col !overflow-auto bg-primaryContrast"
     >
       <slot name="sidebar" />
@@ -98,6 +98,12 @@ const PANE_MAIN_SIZE = ref(70)
 const PANE_SIDEBAR_SIZE = ref(30)
 const PANE_MAIN_TOP_SIZE = ref(35)
 const PANE_MAIN_BOTTOM_SIZE = ref(65)
+
+// Previously sidebar min was 25% and main min 65%, so the sidebar could only
+// live in the 25–35% band. Lower floors let users reclaim space on small
+// screens / vertical layout (#6627) while keeping a usable residual width.
+const SIDEBAR_PANE_MIN_SIZE = 10
+const MAIN_PANE_MIN_SIZE = 50
 
 if (!COLUMN_LAYOUT.value) {
   PANE_MAIN_TOP_SIZE.value = 50

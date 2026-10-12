@@ -39,14 +39,16 @@ RUN expected="e44e457ba3f2b5b8447952d2de0ae0a91b09d1a013e2521527e08b6f52acc9eb" 
   (echo "❌ Caddy Source Checksum failed!" && exit 1)
 WORKDIR /tmp/caddy-build
 RUN tar -xzf /tmp/caddy-build/src.tar.gz && \
-  # Fix GHSA-hrxh-6v49-42gf: upgrade grpc v1.82.1 (HIGH - DoS via crafted HTTP/2 request)
-  go get google.golang.org/grpc@v1.82.1 && \
+  # Fix CVE-2026-84304, CVE-2026-84445: upgrade grpc v1.83.2 (HIGH)
+  go get google.golang.org/grpc@v1.83.2 && \
+  # Fix CVE-2026-56854: upgrade golang.org/x/crypto v0.56.0 (HIGH - SSH auth bypass)
+  go get golang.org/x/crypto@v0.56.0 && \
   # Fix CVE-2026-34986: upgrade go-jose v3 (HIGH - DoS via crafted JWE)
   go get github.com/go-jose/go-jose/v3@v3.0.5 && \
-  # Fix CVE-2026-46600: upgrade golang.org/x/net v0.56.0 (HIGH - panic on invalid DNS RR)
-  go get golang.org/x/net@v0.56.0 && \
-  # Fix CVE-2026-56852: upgrade golang.org/x/text v0.39.0 (HIGH - infinite loop on input)
-  go get golang.org/x/text@v0.39.0 && \
+  # Fix CVE-2026-46600: upgrade golang.org/x/net v0.58.0 (HIGH - panic on invalid DNS RR)
+  go get golang.org/x/net@v0.58.0 && \
+  # Fix CVE-2026-56852: upgrade golang.org/x/text v0.41.0 (HIGH - infinite loop on input)
+  go get golang.org/x/text@v0.41.0 && \
   # Clean up any existing vendor directory and regenerate with updated deps
   rm -rf vendor && \
   go mod tidy && \

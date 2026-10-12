@@ -1,6 +1,8 @@
 /**
  * Schemes a chat reply link may open outside the app. Any other link, a
- * `mailto:`, a relative path or an in-page `#anchor`, is left to the webview.
+ * `mailto:`, a relative path or an in-page `#anchor`, is not handled here and
+ * keeps the renderer's `target="_blank"`, so on desktop a click on one still
+ * opens nothing, as before this handler.
  */
 const EXTERNAL_PROTOCOLS = new Set(["http:", "https:"])
 

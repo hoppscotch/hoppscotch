@@ -1,6 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest"
 import { makeCollection } from "@hoppscotch/data"
 import { mergeCollectionTree } from "../update"
+import {
+  flushLocalStoresForCollectionTree,
+  syncLocalStoresForCollectionUpdate,
+} from "~/helpers/clientLocalVariables"
 import { getService } from "~/modules/dioc"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { CurrentValueService } from "~/services/current-environment-value.service"
@@ -384,12 +388,21 @@ describe("mergeCollectionTree", () => {
       }),
     ]
 
-    mergeCollectionTree(existing, incoming, {
+    const { deletedFolders } = mergeCollectionTree(existing, incoming, {
       preserveScripts: true,
       keepMissingRequests: false,
     })
 
-    // The dropped folder's secret environment and current values should be deleted
+    // Stores must NOT be deleted during merge before backend sync succeeds
+    expect(secretEnvService.secretEnvironments.has(folderRefId)).toBe(true)
+    expect(currentValueService.environments.has(folderRefId)).toBe(true)
+
+    // deletedFolders must contain the dropped folder so cleanup happens after successful update
+    expect(deletedFolders).toHaveLength(1)
+    expect(deletedFolders[0]._ref_id).toBe(folderRefId)
+
+    // Flushing after update deletes the stores
+    deletedFolders.forEach(flushLocalStoresForCollectionTree)
     expect(secretEnvService.secretEnvironments.has(folderRefId)).toBe(false)
     expect(currentValueService.environments.has(folderRefId)).toBe(false)
   })
@@ -647,5 +660,350 @@ describe("mergeCollectionTree", () => {
     expect(preserved).toBeDefined()
     expect(preserved).not.toBe(existingFolder)
     expect(preserved.requests[0]).not.toBe(existingReq)
+  })
+
+  it("preserves path and query case when comparing REST endpoints", () => {
+    const existing = makeCollection({
+      name: "API Coll",
+      folders: [],
+      requests: [
+        {
+          id: "req-users-upper",
+          v: "1",
+          endpoint: "https://api.com/Users",
+          name: "Get Users (Case Sensitive)",
+          method: "GET",
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          params: [],
+          body: { contentType: null, body: null },
+          preRequestScript: "console.log('existing Users');",
+          testScript: "",
+        },
+      ],
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [],
+    })
+
+    const incoming = [
+      makeCollection({
+        name: "API Coll",
+        folders: [],
+        requests: [
+          {
+            v: "1",
+            endpoint: "https://api.com/users",
+            name: "Get users (lowercase)",
+            method: "GET",
+            auth: { authType: "inherit", authActive: true },
+            headers: [],
+            params: [],
+            body: { contentType: null, body: null },
+            preRequestScript: "",
+            testScript: "",
+          },
+        ],
+        auth: { authType: "inherit", authActive: true },
+        headers: [],
+        variables: [],
+      }),
+    ]
+
+    const { updatedCollection, stats } = mergeCollectionTree(
+      existing,
+      incoming,
+      {
+        preserveScripts: true,
+        keepMissingRequests: true,
+      }
+    )
+
+    // /Users and /users must NOT match as the same endpoint
+    expect(stats.addedRequests).toBe(1)
+    expect(stats.preservedRequests).toBe(1)
+    expect(updatedCollection.requests).toHaveLength(2)
+
+    const preserved = updatedCollection.requests.find(
+      (r: any) => r.endpoint === "https://api.com/Users"
+    )
+    const added = updatedCollection.requests.find(
+      (r: any) => r.endpoint === "https://api.com/users"
+    )
+    expect(preserved?.id).toBe("req-users-upper")
+    expect(preserved?.preRequestScript).toBe("console.log('existing Users');")
+    expect(added?.id).toBeUndefined()
+  })
+
+  it("distinguishes GraphQL operations sharing the same URL without swapping scripts", () => {
+    const existing = makeCollection({
+      name: "GQL Coll",
+      folders: [],
+      requests: [
+        {
+          id: "gql-get-user",
+          name: "GetUser",
+          url: "https://api.com/graphql",
+          query: "query GetUser { user { id name } }",
+          headers: [],
+          variables: "{}",
+          auth: { authType: "inherit", authActive: true },
+          preRequestScript: "console.log('script A - get user');",
+          testScript: "",
+        } as any,
+        {
+          id: "gql-update-user",
+          name: "UpdateUser",
+          url: "https://api.com/graphql",
+          query: "mutation UpdateUser { updateUser { id } }",
+          headers: [],
+          variables: "{}",
+          auth: { authType: "inherit", authActive: true },
+          preRequestScript: "console.log('script B - update user');",
+          testScript: "",
+        } as any,
+      ],
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [],
+    })
+
+    // Incoming reverses the two operations at the same URL
+    const incoming = [
+      makeCollection({
+        name: "GQL Coll",
+        folders: [],
+        requests: [
+          {
+            name: "UpdateUser",
+            url: "https://api.com/graphql",
+            query: "mutation UpdateUser { updateUser { id } }",
+            headers: [],
+            variables: "{}",
+            auth: { authType: "inherit", authActive: true },
+            preRequestScript: "",
+            testScript: "",
+          } as any,
+          {
+            name: "GetUser",
+            url: "https://api.com/graphql",
+            query: "query GetUser { user { id name } }",
+            headers: [],
+            variables: "{}",
+            auth: { authType: "inherit", authActive: true },
+            preRequestScript: "",
+            testScript: "",
+          } as any,
+        ],
+        auth: { authType: "inherit", authActive: true },
+        headers: [],
+        variables: [],
+      }),
+    ]
+
+    const { updatedCollection } = mergeCollectionTree(existing, incoming, {
+      preserveScripts: true,
+      keepMissingRequests: true,
+    })
+
+    const updatedUpdateUser = updatedCollection.requests.find(
+      (r) => r.name === "UpdateUser"
+    )
+    const updatedGetUser = updatedCollection.requests.find(
+      (r) => r.name === "GetUser"
+    )
+
+    // IDs and preserved scripts must belong to the correct operation, not swapped
+    expect(updatedUpdateUser?.id).toBe("gql-update-user")
+    expect(updatedUpdateUser?.preRequestScript).toBe(
+      "console.log('script B - update user');"
+    )
+
+    expect(updatedGetUser?.id).toBe("gql-get-user")
+    expect(updatedGetUser?.preRequestScript).toBe(
+      "console.log('script A - get user');"
+    )
+  })
+
+  it("preserves scripts when multiple incoming collections are merged", () => {
+    const existing = makeCollection({
+      name: "API Coll",
+      folders: [
+        makeCollection({
+          name: "Users",
+          folders: [],
+          requests: [
+            {
+              id: "existing-req-id",
+              v: "1",
+              endpoint: "https://api.com/users",
+              name: "Get Users",
+              method: "GET",
+              auth: { authType: "inherit", authActive: true },
+              headers: [],
+              params: [],
+              body: { contentType: null, body: null },
+              preRequestScript: "console.log('preserve me');",
+              testScript: "",
+            },
+          ],
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          variables: [],
+        }),
+      ],
+      requests: [],
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [],
+    })
+
+    // Multiple incoming collections (e.g. OpenAPI tags)
+    const incoming = [
+      makeCollection({
+        name: "Users",
+        folders: [],
+        requests: [
+          {
+            v: "1",
+            endpoint: "https://api.com/users",
+            name: "Get Users",
+            method: "GET",
+            auth: { authType: "inherit", authActive: true },
+            headers: [],
+            params: [],
+            body: { contentType: null, body: null },
+            preRequestScript: "",
+            testScript: "",
+          },
+        ],
+        auth: { authType: "inherit", authActive: true },
+        headers: [],
+        variables: [],
+      }),
+      makeCollection({
+        name: "Posts",
+        folders: [],
+        requests: [
+          {
+            v: "1",
+            endpoint: "https://api.com/posts",
+            name: "Get Posts",
+            method: "GET",
+            auth: { authType: "inherit", authActive: true },
+            headers: [],
+            params: [],
+            body: { contentType: null, body: null },
+            preRequestScript: "",
+            testScript: "",
+          },
+        ],
+        auth: { authType: "inherit", authActive: true },
+        headers: [],
+        variables: [],
+      }),
+    ]
+
+    const { updatedCollection, stats } = mergeCollectionTree(
+      existing,
+      incoming,
+      {
+        preserveScripts: true,
+        keepMissingRequests: true,
+      }
+    )
+
+    expect(stats.preservedScripts).toBe(1)
+    const usersFolder = updatedCollection.folders.find(
+      (f) => f.name === "Users"
+    )
+    expect(usersFolder).toBeDefined()
+    const usersReq = usersFolder?.requests.find((r) => r.name === "Get Users")
+    expect(usersReq?.id).toBe("existing-req-id")
+    expect(usersReq?.preRequestScript).toBe("console.log('preserve me');")
+  })
+
+  it("syncLocalStoresForCollectionUpdate preserves local secrets and current values for retained nodes", () => {
+    const secretEnvService = getService(SecretEnvironmentService)
+    const currentValueService = getService(CurrentValueService)
+
+    const rootRefId = "root-ref-id"
+    const original = makeCollection({
+      _ref_id: rootRefId,
+      name: "API Coll",
+      folders: [],
+      requests: [],
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [
+        {
+          key: "API_SECRET",
+          value: "",
+          initialValue: "",
+          secret: true,
+        } as any,
+        {
+          key: "BASE_URL",
+          value: "https://default.com",
+          initialValue: "https://default.com",
+          secret: false,
+        } as any,
+      ],
+    })
+
+    // Seed local stores with user's saved secret and current value
+    secretEnvService.addSecretEnvironment(rootRefId, [
+      {
+        key: "API_SECRET",
+        value: "my-top-secret-token",
+        initialValue: "",
+        varIndex: 0,
+      },
+    ])
+    currentValueService.addEnvironment(rootRefId, [
+      {
+        key: "BASE_URL",
+        currentValue: "https://custom-environment.com",
+        varIndex: 1,
+        isSecret: false,
+      },
+    ])
+
+    const incomingNoVars = [
+      makeCollection({
+        name: "API Coll",
+        folders: [],
+        requests: [],
+        auth: { authType: "inherit", authActive: true },
+        headers: [],
+        variables: [],
+      }),
+    ]
+
+    const { updatedCollection, incomingHadVariablesMap } = mergeCollectionTree(
+      original,
+      incomingNoVars,
+      { preserveScripts: true, keepMissingRequests: true }
+    )
+
+    // Call syncLocalStoresForCollectionUpdate
+    syncLocalStoresForCollectionUpdate(
+      original,
+      updatedCollection,
+      incomingHadVariablesMap
+    )
+
+    // Local stores must be completely preserved
+    const secret = secretEnvService.getSecretEnvironmentVariableValue(
+      rootRefId,
+      0
+    )
+    expect(secret?.value).toBe("my-top-secret-token")
+
+    const currVal = currentValueService.getEnvironmentVariableValue(
+      rootRefId,
+      1
+    )
+    expect(currVal).toBe("https://custom-environment.com")
   })
 })

@@ -16,6 +16,7 @@ import {
   moveUserCollection,
   moveUserRequest,
   updateUserCollection,
+  updateUserCollectionOrder,
 } from "./api"
 
 /**
@@ -119,6 +120,24 @@ export async function syncPersonalRESTCollectionUpdate(
           req.id = createRes.right.createRESTUserRequest.id
         }
       }
+
+      // Reorder requests to match the final merged order
+      for (let i = requests.length - 2; i >= 0; i--) {
+        const reqId = requests[i].id
+        const nextReqId = requests[i + 1].id
+        if (reqId && nextReqId) {
+          const reorderRes = await moveUserRequest(
+            collectionId,
+            collectionId,
+            reqId,
+            nextReqId
+          )
+          if (E.isLeft(reorderRes)) {
+            return E.left(reorderRes.left)
+          }
+        }
+      }
+
       return E.right(undefined)
     }
 
@@ -187,6 +206,21 @@ export async function syncPersonalRESTCollectionUpdate(
         }
       }
 
+      // Reorder child folders to match merged order
+      for (let i = folder.folders.length - 2; i >= 0; i--) {
+        const folderId = folder.folders[i].id
+        const nextFolderId = folder.folders[i + 1].id
+        if (folderId && nextFolderId) {
+          const reorderRes = await updateUserCollectionOrder(
+            folderId,
+            nextFolderId
+          )
+          if (E.isLeft(reorderRes)) {
+            return E.left(reorderRes.left)
+          }
+        }
+      }
+
       return E.right(undefined)
     }
 
@@ -224,6 +258,21 @@ export async function syncPersonalRESTCollectionUpdate(
       const folderRes = await syncFolder(folder, originalCollection.id!)
       if (E.isLeft(folderRes)) {
         return folderRes
+      }
+    }
+
+    // Reorder root folders to match merged order
+    for (let i = finalCollection.folders.length - 2; i >= 0; i--) {
+      const folderId = finalCollection.folders[i].id
+      const nextFolderId = finalCollection.folders[i + 1].id
+      if (folderId && nextFolderId) {
+        const reorderRes = await updateUserCollectionOrder(
+          folderId,
+          nextFolderId
+        )
+        if (E.isLeft(reorderRes)) {
+          return E.left(reorderRes.left)
+        }
       }
     }
 

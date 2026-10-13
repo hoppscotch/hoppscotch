@@ -5,7 +5,6 @@ import {
   isGQLRequest,
 } from "@hoppscotch/data"
 import { cloneDeep } from "lodash-es"
-import { flushLocalStoresForCollectionTree } from "~/helpers/clientLocalVariables"
 
 export type UpdateOptions = {
   preserveScripts?: boolean
@@ -155,11 +154,65 @@ function filterClaimedFromSubtree(
 
 function getRestEndpointKey(req: HoppRESTRequest): string | null {
   const method = req.method?.toUpperCase()
-  const endpoint = req.endpoint?.trim().toLowerCase()
-  if (method && endpoint) {
+  const endpoint = req.endpoint?.trim()
+  if (!method || !endpoint) return null
+
+  try {
+    const url = new URL(endpoint)
+    return `${method}:::${url.origin}${url.pathname}${url.search}`
+  } catch {
     return `${method}:::${endpoint}`
   }
-  return null
+}
+
+function extractGqlOperationName(query?: string): string | null {
+  if (!query) return null
+  const match = query.match(
+    /(?:query|mutation|subscription)\s+([_A-Za-z][_0-9A-Za-z]*)/
+  )
+  return match ? match[1].toLowerCase() : null
+}
+
+function normalizeGqlQuery(query?: string): string | null {
+  if (!query) return null
+  const collapsed = query.replace(/\s+/g, " ").trim()
+  return collapsed.length > 0 ? collapsed : null
+}
+
+function getGqlUrlKey(url?: string): string | null {
+  const trimmed = url?.trim()
+  if (!trimmed) return null
+  try {
+    const parsed = new URL(trimmed)
+    return `${parsed.origin}${parsed.pathname}${parsed.search}`
+  } catch {
+    return trimmed
+  }
+}
+
+function matchGqlRequest(
+  incoming: HoppGQLRequest,
+  candidate: HoppGQLRequest
+): boolean {
+  const incomingOp = extractGqlOperationName(incoming.query)
+  const candidateOp = extractGqlOperationName(candidate.query)
+  if (incomingOp && candidateOp && incomingOp === candidateOp) {
+    return true
+  }
+
+  const incomingName = incoming.name?.trim().toLowerCase()
+  const candidateName = candidate.name?.trim().toLowerCase()
+  if (incomingName && candidateName && incomingName === candidateName) {
+    return true
+  }
+
+  const incomingQuery = normalizeGqlQuery(incoming.query)
+  const candidateQuery = normalizeGqlQuery(candidate.query)
+  if (incomingQuery && candidateQuery && incomingQuery === candidateQuery) {
+    return true
+  }
+
+  return false
 }
 
 function buildTreeWideRestIndex(
@@ -189,7 +242,8 @@ function buildTreeWideRestIndex(
 
 function reconcileRequestsTree(
   targetCollection: HoppCollection,
-  incomingCollections: HoppCollection[]
+  incomingFolders: HoppCollection[],
+  incomingRequests: (HoppRESTRequest | HoppGQLRequest)[]
 ): {
   incomingToExistingMap: Map<
     HoppRESTRequest | HoppGQLRequest,
@@ -205,20 +259,6 @@ function reconcileRequestsTree(
 
   const treeWideRestIndex = buildTreeWideRestIndex(targetCollection)
 
-  let incomingFolders: HoppCollection[] = []
-  let rootIncomingRequests: (HoppRESTRequest | HoppGQLRequest)[] = []
-
-  if (incomingCollections.length === 1) {
-    incomingFolders = incomingCollections[0].folders
-    rootIncomingRequests = incomingCollections[0].requests
-  } else if (incomingCollections.length > 1) {
-    incomingFolders = incomingCollections.map((col) => ({
-      ...cloneDeep(col),
-      name: col.name,
-    }))
-    rootIncomingRequests = []
-  }
-
   // Collect all incoming requests across the entire incoming tree
   const allIncomingRequests: {
     request: HoppRESTRequest | HoppGQLRequest
@@ -226,7 +266,7 @@ function reconcileRequestsTree(
   }[] = []
 
   // Add root incoming requests
-  for (const req of rootIncomingRequests) {
+  for (const req of incomingRequests) {
     allIncomingRequests.push({ request: req, targetFolder: targetCollection })
   }
 
@@ -260,7 +300,7 @@ function reconcileRequestsTree(
 
   collectIncomingFromFolders(incomingFolders, targetCollection.folders)
 
-  // Stage 1: Local match (method + endpoint for REST, url for GQL) within corresponding folder
+  // Stage 1: Local match (method + endpoint for REST, url + distinguishing op for GQL) within corresponding folder
   for (const { request: incoming, targetFolder } of allIncomingRequests) {
     if (!targetFolder) continue
 
@@ -280,12 +320,36 @@ function reconcileRequestsTree(
       }
     } else {
       const incomingGql = incoming as HoppGQLRequest
-      const incomingUrl = incomingGql.url?.trim().toLowerCase()
+      const incomingUrl = getGqlUrlKey(incomingGql.url)
       if (incomingUrl) {
-        const localMatch = targetFolder.requests.find((t) => {
+        let localMatch = targetFolder.requests.find((t) => {
           if (!isGQLRequest(t) || claimedExistingRequests.has(t)) return false
-          return (t as HoppGQLRequest).url?.trim().toLowerCase() === incomingUrl
+          const cand = t as HoppGQLRequest
+          if (getGqlUrlKey(cand.url) !== incomingUrl) return false
+          return matchGqlRequest(incomingGql, cand)
         })
+
+        if (!localMatch) {
+          const matchingUrlCandidates = targetFolder.requests.filter(
+            (t) =>
+              isGQLRequest(t) &&
+              !claimedExistingRequests.has(t) &&
+              getGqlUrlKey((t as HoppGQLRequest).url) === incomingUrl
+          )
+          const allIncomingAtUrl = allIncomingRequests.filter(
+            (item) =>
+              item.targetFolder === targetFolder &&
+              isGQLRequest(item.request) &&
+              getGqlUrlKey((item.request as HoppGQLRequest).url) === incomingUrl
+          )
+          if (
+            matchingUrlCandidates.length === 1 &&
+            allIncomingAtUrl.length === 1
+          ) {
+            localMatch = matchingUrlCandidates[0]
+          }
+        }
+
         if (localMatch) {
           incomingToExistingMap.set(incoming, localMatch)
           claimedExistingRequests.add(localMatch)
@@ -396,7 +460,9 @@ function mergeFoldersList(
     HoppRESTRequest | HoppGQLRequest,
     HoppRESTRequest | HoppGQLRequest
   >,
-  claimedExistingRequests: Set<HoppRESTRequest | HoppGQLRequest>
+  claimedExistingRequests: Set<HoppRESTRequest | HoppGQLRequest>,
+  deletedFolders: HoppCollection[],
+  incomingHadVariablesMap: Map<string, boolean>
 ): HoppCollection[] {
   const result: HoppCollection[] = []
   const matchedTargetIndices = new Set<number>()
@@ -414,6 +480,15 @@ function mergeFoldersList(
       stats.updatedFolders++
       const existingFolder = targetFolders[targetIdx]
 
+      if (existingFolder._ref_id) {
+        incomingHadVariablesMap.set(
+          existingFolder._ref_id,
+          Boolean(
+            incomingFolder.variables && incomingFolder.variables.length > 0
+          )
+        )
+      }
+
       const mergedRequests = mergeRequestsList(
         existingFolder.requests,
         incomingFolder.requests,
@@ -429,7 +504,9 @@ function mergeFoldersList(
         options,
         stats,
         incomingToExistingMap,
-        claimedExistingRequests
+        claimedExistingRequests,
+        deletedFolders,
+        incomingHadVariablesMap
       )
 
       if (options.preserveScripts !== false) {
@@ -490,7 +567,9 @@ function mergeFoldersList(
         options,
         stats,
         incomingToExistingMap,
-        claimedExistingRequests
+        claimedExistingRequests,
+        deletedFolders,
+        incomingHadVariablesMap
       )
       result.push({
         ...cloneDeep(incomingFolder),
@@ -512,7 +591,7 @@ function mergeFoldersList(
         result.push(preservedFolder)
       } else {
         countSubTreeDeleted(folder, stats, claimedExistingRequests)
-        flushLocalStoresForCollectionTree(folder)
+        deletedFolders.push(folder)
       }
     }
   })
@@ -524,7 +603,12 @@ export function mergeCollectionTree(
   targetCollection: HoppCollection,
   incomingCollections: HoppCollection[],
   options: UpdateOptions = { preserveScripts: true, keepMissingRequests: true }
-): { updatedCollection: HoppCollection; stats: UpdateSummaryData } {
+): {
+  updatedCollection: HoppCollection
+  stats: UpdateSummaryData
+  deletedFolders: HoppCollection[]
+  incomingHadVariablesMap: Map<string, boolean>
+} {
   const stats: UpdateSummaryData = {
     updatedRequests: 0,
     addedRequests: 0,
@@ -534,6 +618,9 @@ export function mergeCollectionTree(
     addedFolders: 0,
     preservedScripts: 0,
   }
+
+  const deletedFolders: HoppCollection[] = []
+  const incomingHadVariablesMap = new Map<string, boolean>()
 
   if (options.preserveScripts !== false) {
     if (
@@ -551,6 +638,13 @@ export function mergeCollectionTree(
   let incomingRequests: (HoppRESTRequest | HoppGQLRequest)[] = []
   const firstImported = incomingCollections[0]
 
+  if (targetCollection._ref_id) {
+    incomingHadVariablesMap.set(
+      targetCollection._ref_id,
+      Boolean(firstImported?.variables && firstImported.variables.length > 0)
+    )
+  }
+
   if (incomingCollections.length === 1) {
     incomingFolders = incomingCollections[0].folders
     incomingRequests = incomingCollections[0].requests
@@ -565,7 +659,7 @@ export function mergeCollectionTree(
   }
 
   const { incomingToExistingMap, claimedExistingRequests } =
-    reconcileRequestsTree(targetCollection, incomingCollections)
+    reconcileRequestsTree(targetCollection, incomingFolders, incomingRequests)
 
   const mergedFolders = mergeFoldersList(
     targetCollection.folders,
@@ -573,7 +667,9 @@ export function mergeCollectionTree(
     options,
     stats,
     incomingToExistingMap,
-    claimedExistingRequests
+    claimedExistingRequests,
+    deletedFolders,
+    incomingHadVariablesMap
   )
 
   const mergedRequests = mergeRequestsList(
@@ -611,5 +707,5 @@ export function mergeCollectionTree(
         : (firstImported?.testScript ?? targetCollection.testScript),
   }
 
-  return { updatedCollection, stats }
+  return { updatedCollection, stats, deletedFolders, incomingHadVariablesMap }
 }

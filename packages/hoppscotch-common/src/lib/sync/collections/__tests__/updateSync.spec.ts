@@ -15,6 +15,7 @@ vi.mock("../api", () => ({
   moveUserCollection: vi.fn(),
   moveUserRequest: vi.fn(),
   updateUserCollection: vi.fn(),
+  updateUserCollectionOrder: vi.fn(),
 }))
 
 vi.mock("~/newstore/settings", () => ({
@@ -40,6 +41,12 @@ describe("syncPersonalRESTCollectionUpdate", () => {
     vi.mocked(platform.auth.getCurrentUser).mockReturnValue({
       uid: "test-user-id",
     } as any)
+    vi.mocked(api.moveUserRequest).mockResolvedValue(
+      E.right({ moveUserRequest: { id: "req-id" } } as any)
+    )
+    vi.mocked(api.updateUserCollectionOrder).mockResolvedValue(
+      E.right({ updateUserCollectionOrder: true } as any)
+    )
   })
 
   it("returns immediately without calling backend APIs if collection has no id", async () => {
@@ -660,5 +667,192 @@ describe("syncPersonalRESTCollectionUpdate", () => {
     expect(api.deleteUserCollection).toHaveBeenCalledTimes(1)
     expect(api.deleteUserCollection).toHaveBeenCalledWith("parent-folder")
     expect(api.deleteUserCollection).not.toHaveBeenCalledWith("child-folder")
+  })
+
+  it("synchronizes request ordering within collection via moveUserRequest", async () => {
+    vi.mocked(api.updateUserCollection).mockResolvedValue(
+      E.right({ updateUserCollection: { id: "backend-coll-id" } } as any)
+    )
+    vi.mocked(api.editUserRequest).mockResolvedValue(
+      E.right({ updateRESTUserRequest: { id: "req-1" } } as any)
+    )
+
+    const original = makeCollection({
+      id: "backend-coll-id",
+      name: "Coll",
+      folders: [],
+      requests: [
+        {
+          id: "req-1",
+          v: "1",
+          endpoint: "https://api.com/1",
+          name: "Req 1",
+          method: "GET",
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          params: [],
+          body: { contentType: null, body: null },
+          preRequestScript: "",
+          testScript: "",
+        },
+        {
+          id: "req-2",
+          v: "1",
+          endpoint: "https://api.com/2",
+          name: "Req 2",
+          method: "GET",
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          params: [],
+          body: { contentType: null, body: null },
+          preRequestScript: "",
+          testScript: "",
+        },
+      ],
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [],
+    })
+
+    // Reversed order: req-2 then req-1
+    const final = makeCollection({
+      id: "backend-coll-id",
+      name: "Coll",
+      folders: [],
+      requests: [
+        {
+          id: "req-2",
+          v: "1",
+          endpoint: "https://api.com/2",
+          name: "Req 2",
+          method: "GET",
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          params: [],
+          body: { contentType: null, body: null },
+          preRequestScript: "",
+          testScript: "",
+        },
+        {
+          id: "req-1",
+          v: "1",
+          endpoint: "https://api.com/1",
+          name: "Req 1",
+          method: "GET",
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          params: [],
+          body: { contentType: null, body: null },
+          preRequestScript: "",
+          testScript: "",
+        },
+      ],
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [],
+    })
+
+    const res = await syncPersonalRESTCollectionUpdate(original, final)
+
+    expect(E.isRight(res)).toBe(true)
+    expect(api.moveUserRequest).toHaveBeenCalledWith(
+      "backend-coll-id",
+      "backend-coll-id",
+      "req-2",
+      "req-1"
+    )
+  })
+
+  it("propagates error when reordering requests fails", async () => {
+    vi.mocked(api.updateUserCollection).mockResolvedValue(
+      E.right({ updateUserCollection: { id: "backend-coll-id" } } as any)
+    )
+    vi.mocked(api.editUserRequest).mockResolvedValue(
+      E.right({ updateRESTUserRequest: { id: "req-1" } } as any)
+    )
+    vi.mocked(api.moveUserRequest).mockResolvedValue(
+      E.left("Network error reordering request" as any)
+    )
+
+    const original = makeCollection({
+      id: "backend-coll-id",
+      name: "Coll",
+      folders: [],
+      requests: [
+        {
+          id: "req-1",
+          v: "1",
+          endpoint: "https://api.com/1",
+          name: "Req 1",
+          method: "GET",
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          params: [],
+          body: { contentType: null, body: null },
+          preRequestScript: "",
+          testScript: "",
+        },
+        {
+          id: "req-2",
+          v: "1",
+          endpoint: "https://api.com/2",
+          name: "Req 2",
+          method: "GET",
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          params: [],
+          body: { contentType: null, body: null },
+          preRequestScript: "",
+          testScript: "",
+        },
+      ],
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [],
+    })
+
+    const final = makeCollection({
+      id: "backend-coll-id",
+      name: "Coll",
+      folders: [],
+      requests: [
+        {
+          id: "req-2",
+          v: "1",
+          endpoint: "https://api.com/2",
+          name: "Req 2",
+          method: "GET",
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          params: [],
+          body: { contentType: null, body: null },
+          preRequestScript: "",
+          testScript: "",
+        },
+        {
+          id: "req-1",
+          v: "1",
+          endpoint: "https://api.com/1",
+          name: "Req 1",
+          method: "GET",
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          params: [],
+          body: { contentType: null, body: null },
+          preRequestScript: "",
+          testScript: "",
+        },
+      ],
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [],
+    })
+
+    const res = await syncPersonalRESTCollectionUpdate(original, final)
+
+    expect(E.isLeft(res)).toBe(true)
+    if (E.isLeft(res)) {
+      expect(res.left).toBe("Network error reordering request")
+    }
   })
 })

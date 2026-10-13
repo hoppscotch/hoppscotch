@@ -30,13 +30,14 @@ import {
 
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
-import { editRESTCollection } from "~/newstore/collections"
+import { editRESTCollection, restCollectionStore } from "~/newstore/collections"
 import { runDispatchWithOutSyncing } from "~/lib/sync"
 import { syncPersonalRESTCollectionUpdate } from "~/lib/sync/collections/updateSync"
 import {
   ensureRefIds,
-  populateLocalStoresFromCollectionTree,
+  flushLocalStoresForCollectionTree,
   stripCollectionTreeForStore,
+  syncLocalStoresForCollectionUpdate,
 } from "~/helpers/clientLocalVariables"
 
 import IconInsomnia from "~icons/hopp/insomnia"
@@ -162,22 +163,38 @@ const handleUpdateToStore = async (
   }
 
   try {
+    let targetCollection = props.collection
+    let targetIndex = props.collectionIndex
+
+    if (props.collectionsType.type === "my-collections") {
+      const refId = props.collection._ref_id
+      const syncId = props.collection.id
+      const storeIndex = restCollectionStore.value.state.findIndex(
+        (c) => (refId && c._ref_id === refId) || (syncId && c.id === syncId)
+      )
+      if (storeIndex !== -1) {
+        targetCollection = restCollectionStore.value.state[storeIndex]
+        targetIndex = storeIndex
+      }
+    }
+
     const sanitizedCollections = collections
       .map(sanitizeCollection)
       .map(ensureRefIds)
 
-    // Execute intelligent merge with conflict options
-    const { updatedCollection, stats } = mergeCollectionTree(
-      props.collection,
-      sanitizedCollections,
-      options
-    )
+    // Execute intelligent merge with conflict options against complete, current tree
+    const {
+      updatedCollection,
+      stats,
+      deletedFolders,
+      incomingHadVariablesMap,
+    } = mergeCollectionTree(targetCollection, sanitizedCollections, options)
 
     const finalCollection = ensureRefIds(updatedCollection)
 
     if (props.collectionsType.type === "my-collections") {
       const syncResult = await syncPersonalRESTCollectionUpdate(
-        props.collection,
+        targetCollection,
         finalCollection
       )
       if (E.isLeft(syncResult)) {
@@ -186,14 +203,24 @@ const handleUpdateToStore = async (
         return
       }
 
-      populateLocalStoresFromCollectionTree(finalCollection)
-
       runDispatchWithOutSyncing(() => {
         editRESTCollection(
-          props.collectionIndex,
+          targetIndex,
           stripCollectionTreeForStore(finalCollection)
         )
       })
+
+      // Sync local variable stores: preserve retained node values and only seed new/deliberately changed variables
+      syncLocalStoresForCollectionUpdate(
+        targetCollection,
+        finalCollection,
+        incomingHadVariablesMap
+      )
+
+      // Only flush local stores for deleted folders AFTER successful sync and store update
+      for (const deletedFolder of deletedFolders) {
+        flushLocalStoresForCollectionTree(deletedFolder)
+      }
 
       toast.success(t("collection.updated"))
       setCurrentImportSummary([finalCollection], stats)

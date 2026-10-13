@@ -45,13 +45,55 @@
       />
     </p>
 
+    <!-- Conflict / Update Options -->
+    <div
+      v-if="showUpdateOptions"
+      class="flex flex-col space-y-3 px-1 py-2 border-t border-dividerLight"
+    >
+      <div class="flex items-start space-x-3">
+        <HoppSmartCheckbox
+          :on="preserveScripts"
+          @change="preserveScripts = !preserveScripts"
+        />
+        <label
+          class="cursor-pointer select-none text-secondary flex flex-col space-y-0.5"
+          @click="preserveScripts = !preserveScripts"
+        >
+          <span class="font-medium text-sm">
+            {{ t("collection.preserve_scripts") }}
+          </span>
+          <span class="text-tiny text-secondaryLight">
+            {{ t("collection.preserve_scripts_description") }}
+          </span>
+        </label>
+      </div>
+
+      <div class="flex items-start space-x-3">
+        <HoppSmartCheckbox
+          :on="keepMissingRequests"
+          @change="keepMissingRequests = !keepMissingRequests"
+        />
+        <label
+          class="cursor-pointer select-none text-secondary flex flex-col space-y-0.5"
+          @click="keepMissingRequests = !keepMissingRequests"
+        >
+          <span class="font-medium text-sm">
+            {{ t("collection.keep_missing_requests") }}
+          </span>
+          <span class="text-tiny text-secondaryLight">
+            {{ t("collection.keep_missing_requests_description") }}
+          </span>
+        </label>
+      </div>
+    </div>
+
     <div>
       <HoppButtonPrimary
         class="w-full"
         :label="
           showCorsError
             ? t('import.cors_error_modal.retry_with_proxy')
-            : t('import.title')
+            : t(actionLabel)
         "
         :disabled="disableImportCTA"
         :loading="isFetchingUrl || loading"
@@ -81,21 +123,45 @@ const toast = useToast()
 const props = withDefaults(
   defineProps<{
     caption: string
+    actionLabel?: string
     fetchLogic?: (url: string) => Promise<E.Either<unknown, unknown>>
     loading?: boolean
     description?: string
+    showUpdateOptions?: boolean
+    initialUrl?: string
   }>(),
-  { fetchLogic: undefined, loading: false, description: undefined }
+  {
+    actionLabel: "import.title",
+    fetchLogic: undefined,
+    loading: false,
+    description: undefined,
+    showUpdateOptions: false,
+    initialUrl: "",
+  }
 )
 
+const preserveScripts = ref(true)
+const keepMissingRequests = ref(true)
+
 const emit = defineEmits<{
-  (e: "importFromURL", content: unknown): void
+  (e: "importFromURL", content: unknown, ...additionalArgs: any[]): void
 }>()
 
-const inputChooseGistToImportFrom = ref<string>("")
-const hasURL = ref(false)
+const inputChooseGistToImportFrom = ref<string>(props.initialUrl ?? "")
+const hasURL = ref(!!props.initialUrl)
 const isFetchingUrl = ref(false)
 const showCorsError = ref(false)
+
+watch(
+  () => props.initialUrl,
+  (val) => {
+    if (val && !inputChooseGistToImportFrom.value) {
+      inputChooseGistToImportFrom.value = val
+      hasURL.value = true
+    }
+  },
+  { immediate: true }
+)
 
 watch(inputChooseGistToImportFrom, (url) => {
   hasURL.value = !!url
@@ -164,7 +230,17 @@ const retryWithProxy = async () => {
 
     if (E.isRight(res)) {
       showCorsError.value = false
-      emit("importFromURL", res.right)
+      if (props.showUpdateOptions) {
+        emit("importFromURL", res.right, {
+          preserveScripts: preserveScripts.value,
+          keepMissingRequests: keepMissingRequests.value,
+          url: inputChooseGistToImportFrom.value,
+        })
+      } else {
+        emit("importFromURL", res.right, {
+          url: inputChooseGistToImportFrom.value,
+        })
+      }
     } else {
       toast.error(t("import.failed"))
     }
@@ -190,7 +266,17 @@ async function fetchUrlData() {
     return
   }
 
-  emit("importFromURL", res.right)
+  if (props.showUpdateOptions) {
+    emit("importFromURL", res.right, {
+      preserveScripts: preserveScripts.value,
+      keepMissingRequests: keepMissingRequests.value,
+      url: inputChooseGistToImportFrom.value,
+    })
+  } else {
+    emit("importFromURL", res.right, {
+      url: inputChooseGistToImportFrom.value,
+    })
+  }
   isFetchingUrl.value = false
 }
 </script>

@@ -26,7 +26,11 @@ export type ImporterOrExporter = {
   importSummary?: Ref<{
     showImportSummary: boolean
     importedCollections: HoppCollection[] | null
+    scriptsImported?: boolean
+    originalScriptCounts?: { preRequest: number; test: number }
+    updateSummaryData?: any
   }>
+  summaryComponent?: Component
   component?: ReturnType<typeof defineStep>
   action?: (...args: any[]) => any
   onSelect?: () => boolean

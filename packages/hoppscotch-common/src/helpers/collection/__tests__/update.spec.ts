@@ -1,6 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest"
 import { makeCollection } from "@hoppscotch/data"
-import { mergeCollectionTree } from "../update"
+import {
+  mergeCollectionTree,
+  extractGqlOperation,
+  normalizeGqlQuery,
+} from "../update"
 import {
   flushLocalStoresForCollectionTree,
   syncLocalStoresForCollectionUpdate,
@@ -1005,5 +1009,357 @@ describe("mergeCollectionTree", () => {
       1
     )
     expect(currVal).toBe("https://custom-environment.com")
+  })
+
+  it("preserves credentials in REST endpoints without swapping scripts on re-import", () => {
+    const existing = makeCollection({
+      name: "Accounts API",
+      folders: [],
+      requests: [
+        {
+          id: "alice-id",
+          v: "1",
+          endpoint: "https://alice:pw@api.example.com/me",
+          name: "Alice Profile",
+          method: "GET",
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          params: [],
+          body: { contentType: null, body: null },
+          preRequestScript: "// alice script",
+          testScript: "// alice test",
+        },
+        {
+          id: "bob-id",
+          v: "1",
+          endpoint: "https://bob:pw@api.example.com/me",
+          name: "Bob Profile",
+          method: "GET",
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          params: [],
+          body: { contentType: null, body: null },
+          preRequestScript: "// bob script",
+          testScript: "// bob test",
+        },
+      ],
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [],
+    })
+
+    // Incoming with reversed order
+    const incoming = [
+      makeCollection({
+        name: "Accounts API",
+        folders: [],
+        requests: [
+          {
+            v: "1",
+            endpoint: "https://bob:pw@api.example.com/me",
+            name: "Bob Profile (Updated)",
+            method: "GET",
+            auth: { authType: "inherit", authActive: true },
+            headers: [],
+            params: [],
+            body: { contentType: null, body: null },
+            preRequestScript: "",
+            testScript: "",
+          },
+          {
+            v: "1",
+            endpoint: "https://alice:pw@api.example.com/me",
+            name: "Alice Profile (Updated)",
+            method: "GET",
+            auth: { authType: "inherit", authActive: true },
+            headers: [],
+            params: [],
+            body: { contentType: null, body: null },
+            preRequestScript: "",
+            testScript: "",
+          },
+        ],
+        auth: { authType: "inherit", authActive: true },
+        headers: [],
+        variables: [],
+      }),
+    ]
+
+    const { updatedCollection, stats } = mergeCollectionTree(
+      existing,
+      incoming,
+      { preserveScripts: true, keepMissingRequests: true }
+    )
+
+    expect(stats.preservedScripts).toBe(4)
+    const aliceReq = updatedCollection.requests.find((r) =>
+      (r as any).endpoint?.includes("alice:pw")
+    )
+    const bobReq = updatedCollection.requests.find((r) =>
+      (r as any).endpoint?.includes("bob:pw")
+    )
+
+    expect(aliceReq?.id).toBe("alice-id")
+    expect((aliceReq as any).preRequestScript).toBe("// alice script")
+    expect((aliceReq as any).testScript).toBe("// alice test")
+
+    expect(bobReq?.id).toBe("bob-id")
+    expect((bobReq as any).preRequestScript).toBe("// bob script")
+    expect((bobReq as any).testScript).toBe("// bob test")
+  })
+
+  it("syncLocalStoresForCollectionUpdate preserves distinct saved values for repeated variable names", () => {
+    const secretEnvService = getService(SecretEnvironmentService)
+    const currentValueService = getService(CurrentValueService)
+
+    const rootRefId = "root-repeated-vars"
+    const original = makeCollection({
+      _ref_id: rootRefId,
+      name: "Repeated Vars Coll",
+      folders: [],
+      requests: [],
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [
+        {
+          key: "API_KEY",
+          value: "",
+          initialValue: "",
+          secret: true,
+        } as any,
+        {
+          key: "API_KEY",
+          value: "",
+          initialValue: "",
+          secret: true,
+        } as any,
+        {
+          key: "ENV",
+          value: "default-env-1",
+          initialValue: "default-env-1",
+          secret: false,
+        } as any,
+        {
+          key: "ENV",
+          value: "default-env-2",
+          initialValue: "default-env-2",
+          secret: false,
+        } as any,
+      ],
+    })
+
+    // Seed distinct local values per varIndex
+    secretEnvService.addSecretEnvironment(rootRefId, [
+      {
+        key: "API_KEY",
+        value: "secret-token-one",
+        initialValue: "",
+        varIndex: 0,
+      },
+      {
+        key: "API_KEY",
+        value: "secret-token-two",
+        initialValue: "",
+        varIndex: 1,
+      },
+    ])
+
+    currentValueService.addEnvironment(rootRefId, [
+      {
+        key: "ENV",
+        currentValue: "production",
+        varIndex: 2,
+        isSecret: false,
+      },
+      {
+        key: "ENV",
+        currentValue: "staging",
+        varIndex: 3,
+        isSecret: false,
+      },
+    ])
+
+    // Incoming collection has the exact same repeated variables
+    const incoming = [
+      makeCollection({
+        name: "Repeated Vars Coll",
+        folders: [],
+        requests: [],
+        auth: { authType: "inherit", authActive: true },
+        headers: [],
+        variables: [
+          {
+            key: "API_KEY",
+            value: "",
+            initialValue: "",
+            secret: true,
+          } as any,
+          {
+            key: "API_KEY",
+            value: "",
+            initialValue: "",
+            secret: true,
+          } as any,
+          {
+            key: "ENV",
+            value: "default-env-1",
+            initialValue: "default-env-1",
+            secret: false,
+          } as any,
+          {
+            key: "ENV",
+            value: "default-env-2",
+            initialValue: "default-env-2",
+            secret: false,
+          } as any,
+        ],
+      }),
+    ]
+
+    const { updatedCollection, incomingHadVariablesMap } = mergeCollectionTree(
+      original,
+      incoming,
+      { preserveScripts: true, keepMissingRequests: true }
+    )
+
+    syncLocalStoresForCollectionUpdate(
+      original,
+      updatedCollection,
+      incomingHadVariablesMap
+    )
+
+    // Verify occurrence 0 has secret-token-one, occurrence 1 has secret-token-two
+    const secret0 = secretEnvService.getSecretEnvironmentVariableValue(
+      rootRefId,
+      0
+    )
+    const secret1 = secretEnvService.getSecretEnvironmentVariableValue(
+      rootRefId,
+      1
+    )
+    expect(secret0?.value).toBe("secret-token-one")
+    expect(secret1?.value).toBe("secret-token-two")
+
+    // Verify occurrence 2 has production, occurrence 3 has staging
+    const curr2 = currentValueService.getEnvironmentVariableValue(rootRefId, 2)
+    const curr3 = currentValueService.getEnvironmentVariableValue(rootRefId, 3)
+    expect(curr2).toBe("production")
+    expect(curr3).toBe("staging")
+  })
+
+  it("distinguishes GraphQL operations by operation kind and case", () => {
+    expect(extractGqlOperation("query GetUser { me }")).toBe("query:GetUser")
+    expect(extractGqlOperation("mutation GetUser { me }")).toBe(
+      "mutation:GetUser"
+    )
+    expect(extractGqlOperation("subscription GetUser { me }")).toBe(
+      "subscription:GetUser"
+    )
+    expect(extractGqlOperation("query getUser { me }")).toBe("query:getUser")
+  })
+
+  it("normalizes insignificant GraphQL whitespace while preserving string literal whitespace", () => {
+    const queryA = 'query { field(arg: "a  b") }'
+    const queryB = 'query { field(arg: "a b") }'
+
+    expect(normalizeGqlQuery(queryA)).not.toBe(normalizeGqlQuery(queryB))
+
+    const multilineWithComments = `
+      query {
+        # comment
+        user,
+        name
+      }
+    `
+    expect(normalizeGqlQuery(multilineWithComments)).toBe("query { user name }")
+  })
+
+  it("does not match GraphQL requests on ambiguous duplicate display names with different queries", () => {
+    const existing = makeCollection({
+      name: "GQL Coll",
+      folders: [],
+      requests: [
+        {
+          id: "req-users",
+          name: "New Request",
+          url: "https://api.com/graphql",
+          query: "query GetUsers { users { id } }",
+          variables: "{}",
+          headers: [],
+          auth: { authType: "inherit", authActive: true },
+          preRequestScript: "// users script",
+          testScript: "// users test",
+        } as any,
+        {
+          id: "req-orders",
+          name: "New Request",
+          url: "https://api.com/graphql",
+          query: "query GetOrders { orders { id } }",
+          variables: "{}",
+          headers: [],
+          auth: { authType: "inherit", authActive: true },
+          preRequestScript: "// orders script",
+          testScript: "// orders test",
+        } as any,
+      ],
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [],
+    })
+
+    // Incoming has them in reverse order, still both named "New Request"
+    const incoming = [
+      makeCollection({
+        name: "GQL Coll",
+        folders: [],
+        requests: [
+          {
+            name: "New Request",
+            url: "https://api.com/graphql",
+            query: "query GetOrders { orders { id } }",
+            variables: "{}",
+            headers: [],
+            auth: { authType: "inherit", authActive: true },
+            preRequestScript: "",
+            testScript: "",
+          } as any,
+          {
+            name: "New Request",
+            url: "https://api.com/graphql",
+            query: "query GetUsers { users { id } }",
+            variables: "{}",
+            headers: [],
+            auth: { authType: "inherit", authActive: true },
+            preRequestScript: "",
+            testScript: "",
+          } as any,
+        ],
+        auth: { authType: "inherit", authActive: true },
+        headers: [],
+        variables: [],
+      }),
+    ]
+
+    const { updatedCollection, stats } = mergeCollectionTree(
+      existing,
+      incoming,
+      { preserveScripts: true, keepMissingRequests: true }
+    )
+
+    expect(stats.preservedScripts).toBe(4)
+    const ordersReq = updatedCollection.requests.find((r) =>
+      (r as any).query?.includes("GetOrders")
+    )
+    const usersReq = updatedCollection.requests.find((r) =>
+      (r as any).query?.includes("GetUsers")
+    )
+
+    expect(ordersReq?.id).toBe("req-orders")
+    expect((ordersReq as any).preRequestScript).toBe("// orders script")
+    expect((ordersReq as any).testScript).toBe("// orders test")
+
+    expect(usersReq?.id).toBe("req-users")
+    expect((usersReq as any).preRequestScript).toBe("// users script")
+    expect((usersReq as any).testScript).toBe("// users test")
   })
 })

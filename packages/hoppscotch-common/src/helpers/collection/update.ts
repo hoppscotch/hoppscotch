@@ -152,67 +152,123 @@ function filterClaimedFromSubtree(
   }
 }
 
-function getRestEndpointKey(req: HoppRESTRequest): string | null {
+export function getRestEndpointKey(req: HoppRESTRequest): string | null {
   const method = req.method?.toUpperCase()
   const endpoint = req.endpoint?.trim()
   if (!method || !endpoint) return null
 
   try {
     const url = new URL(endpoint)
-    return `${method}:::${url.origin}${url.pathname}${url.search}`
+    const auth =
+      url.username || url.password
+        ? `${url.username}${url.password ? `:${url.password}` : ""}@`
+        : ""
+    return `${method}:::${url.protocol}//${auth}${url.host}${url.pathname}${url.search}`
   } catch {
     return `${method}:::${endpoint}`
   }
 }
 
-function extractGqlOperationName(query?: string): string | null {
+export function extractGqlOperation(query?: string): string | null {
   if (!query) return null
   const match = query.match(
-    /(?:query|mutation|subscription)\s+([_A-Za-z][_0-9A-Za-z]*)/
+    /(query|mutation|subscription)\s+([_A-Za-z][_0-9A-Za-z]*)/
   )
-  return match ? match[1].toLowerCase() : null
+  return match ? `${match[1]}:${match[2]}` : null
 }
 
-function normalizeGqlQuery(query?: string): string | null {
+export function normalizeGqlQuery(query?: string): string | null {
   if (!query) return null
-  const collapsed = query.replace(/\s+/g, " ").trim()
-  return collapsed.length > 0 ? collapsed : null
+  const trimmed = query.trim()
+  if (!trimmed) return null
+
+  let result = ""
+  let inString = false
+  let inBlockString = false
+  let isEscaped = false
+  let lastWasWhitespace = false
+
+  for (let i = 0; i < trimmed.length; i++) {
+    const ch = trimmed[i]
+
+    if (inBlockString) {
+      result += ch
+      if (
+        ch === '"' &&
+        trimmed[i - 1] === '"' &&
+        trimmed[i - 2] === '"' &&
+        !isEscaped
+      ) {
+        inBlockString = false
+      }
+      isEscaped = ch === "\\" && !isEscaped
+      continue
+    }
+
+    if (inString) {
+      result += ch
+      if (ch === '"' && !isEscaped) {
+        inString = false
+      }
+      isEscaped = ch === "\\" && !isEscaped
+      continue
+    }
+
+    // Check start of string literal
+    if (ch === '"') {
+      if (trimmed.slice(i, i + 3) === '"""') {
+        inBlockString = true
+        result += '"""'
+        i += 2
+      } else {
+        inString = true
+        result += '"'
+      }
+      lastWasWhitespace = false
+      continue
+    }
+
+    // Strip GraphQL comments
+    if (ch === "#") {
+      while (i < trimmed.length && trimmed[i] !== "\n" && trimmed[i] !== "\r") {
+        i++
+      }
+      if (!lastWasWhitespace && result.length > 0) {
+        result += " "
+        lastWasWhitespace = true
+      }
+      continue
+    }
+
+    // Insignificant whitespace: whitespace and comma
+    if (/\s/.test(ch) || ch === ",") {
+      if (!lastWasWhitespace && result.length > 0) {
+        result += " "
+        lastWasWhitespace = true
+      }
+    } else {
+      result += ch
+      lastWasWhitespace = false
+    }
+  }
+
+  const final = result.trim()
+  return final.length > 0 ? final : null
 }
 
-function getGqlUrlKey(url?: string): string | null {
+export function getGqlUrlKey(url?: string): string | null {
   const trimmed = url?.trim()
   if (!trimmed) return null
   try {
     const parsed = new URL(trimmed)
-    return `${parsed.origin}${parsed.pathname}${parsed.search}`
+    const auth =
+      parsed.username || parsed.password
+        ? `${parsed.username}${parsed.password ? `:${parsed.password}` : ""}@`
+        : ""
+    return `${parsed.protocol}//${auth}${parsed.host}${parsed.pathname}${parsed.search}`
   } catch {
     return trimmed
   }
-}
-
-function matchGqlRequest(
-  incoming: HoppGQLRequest,
-  candidate: HoppGQLRequest
-): boolean {
-  const incomingOp = extractGqlOperationName(incoming.query)
-  const candidateOp = extractGqlOperationName(candidate.query)
-  if (incomingOp && candidateOp && incomingOp === candidateOp) {
-    return true
-  }
-
-  const incomingName = incoming.name?.trim().toLowerCase()
-  const candidateName = candidate.name?.trim().toLowerCase()
-  if (incomingName && candidateName && incomingName === candidateName) {
-    return true
-  }
-
-  const incomingQuery = normalizeGqlQuery(incoming.query)
-  const candidateQuery = normalizeGqlQuery(candidate.query)
-  if (incomingQuery && candidateQuery && incomingQuery === candidateQuery) {
-    return true
-  }
-
-  return false
 }
 
 function buildTreeWideRestIndex(
@@ -300,61 +356,154 @@ function reconcileRequestsTree(
 
   collectIncomingFromFolders(incomingFolders, targetCollection.folders)
 
-  // Stage 1: Local match (method + endpoint for REST, url + distinguishing op for GQL) within corresponding folder
+  // Stage 1: Local match within corresponding folder
+  // 1a. REST requests (method + endpoint)
   for (const { request: incoming, targetFolder } of allIncomingRequests) {
-    if (!targetFolder) continue
+    if (!targetFolder || isGQLRequest(incoming)) continue
 
-    const incomingIsGql = isGQLRequest(incoming)
-
-    if (!incomingIsGql) {
-      const incomingKey = getRestEndpointKey(incoming as HoppRESTRequest)
-      if (incomingKey) {
-        const localMatch = targetFolder.requests.find((t) => {
-          if (isGQLRequest(t) || claimedExistingRequests.has(t)) return false
-          return getRestEndpointKey(t as HoppRESTRequest) === incomingKey
-        })
-        if (localMatch) {
-          incomingToExistingMap.set(incoming, localMatch)
-          claimedExistingRequests.add(localMatch)
-        }
+    const incomingKey = getRestEndpointKey(incoming as HoppRESTRequest)
+    if (incomingKey) {
+      const localMatch = targetFolder.requests.find((t) => {
+        if (isGQLRequest(t) || claimedExistingRequests.has(t)) return false
+        return getRestEndpointKey(t as HoppRESTRequest) === incomingKey
+      })
+      if (localMatch) {
+        incomingToExistingMap.set(incoming, localMatch)
+        claimedExistingRequests.add(localMatch)
       }
-    } else {
-      const incomingGql = incoming as HoppGQLRequest
-      const incomingUrl = getGqlUrlKey(incomingGql.url)
-      if (incomingUrl) {
-        let localMatch = targetFolder.requests.find((t) => {
-          if (!isGQLRequest(t) || claimedExistingRequests.has(t)) return false
-          const cand = t as HoppGQLRequest
-          if (getGqlUrlKey(cand.url) !== incomingUrl) return false
-          return matchGqlRequest(incomingGql, cand)
-        })
+    }
+  }
 
-        if (!localMatch) {
-          const matchingUrlCandidates = targetFolder.requests.filter(
-            (t) =>
-              isGQLRequest(t) &&
-              !claimedExistingRequests.has(t) &&
-              getGqlUrlKey((t as HoppGQLRequest).url) === incomingUrl
-          )
-          const allIncomingAtUrl = allIncomingRequests.filter(
-            (item) =>
-              item.targetFolder === targetFolder &&
-              isGQLRequest(item.request) &&
-              getGqlUrlKey((item.request as HoppGQLRequest).url) === incomingUrl
-          )
-          if (
-            matchingUrlCandidates.length === 1 &&
-            allIncomingAtUrl.length === 1
-          ) {
-            localMatch = matchingUrlCandidates[0]
-          }
-        }
+  // 1b. GQL requests: Pass 1 - exact operation type + case-sensitive name
+  for (const { request: incoming, targetFolder } of allIncomingRequests) {
+    if (
+      !targetFolder ||
+      !isGQLRequest(incoming) ||
+      incomingToExistingMap.has(incoming)
+    )
+      continue
+    const incomingGql = incoming as HoppGQLRequest
+    const incomingUrl = getGqlUrlKey(incomingGql.url)
+    const incomingOp = extractGqlOperation(incomingGql.query)
+    if (!incomingUrl || !incomingOp) continue
 
-        if (localMatch) {
-          incomingToExistingMap.set(incoming, localMatch)
-          claimedExistingRequests.add(localMatch)
-        }
-      }
+    const match = targetFolder.requests.find((t) => {
+      if (!isGQLRequest(t) || claimedExistingRequests.has(t)) return false
+      const cand = t as HoppGQLRequest
+      return (
+        getGqlUrlKey(cand.url) === incomingUrl &&
+        extractGqlOperation(cand.query) === incomingOp
+      )
+    })
+    if (match) {
+      incomingToExistingMap.set(incoming, match)
+      claimedExistingRequests.add(match)
+    }
+  }
+
+  // 1c. GQL requests: Pass 2 - normalized query content (preserving strings, normalizing insignificant whitespace)
+  for (const { request: incoming, targetFolder } of allIncomingRequests) {
+    if (
+      !targetFolder ||
+      !isGQLRequest(incoming) ||
+      incomingToExistingMap.has(incoming)
+    )
+      continue
+    const incomingGql = incoming as HoppGQLRequest
+    const incomingUrl = getGqlUrlKey(incomingGql.url)
+    const incomingQuery = normalizeGqlQuery(incomingGql.query)
+    if (!incomingUrl || !incomingQuery) continue
+
+    const match = targetFolder.requests.find((t) => {
+      if (!isGQLRequest(t) || claimedExistingRequests.has(t)) return false
+      const cand = t as HoppGQLRequest
+      return (
+        getGqlUrlKey(cand.url) === incomingUrl &&
+        normalizeGqlQuery(cand.query) === incomingQuery
+      )
+    })
+    if (match) {
+      incomingToExistingMap.set(incoming, match)
+      claimedExistingRequests.add(match)
+    }
+  }
+
+  // 1d. GQL requests: Pass 3 - unambiguous display name
+  for (const { request: incoming, targetFolder } of allIncomingRequests) {
+    if (
+      !targetFolder ||
+      !isGQLRequest(incoming) ||
+      incomingToExistingMap.has(incoming)
+    )
+      continue
+    const incomingGql = incoming as HoppGQLRequest
+    const incomingUrl = getGqlUrlKey(incomingGql.url)
+    const incomingName = incomingGql.name?.trim().toLowerCase()
+    if (!incomingUrl || !incomingName) continue
+
+    const candidateMatches = targetFolder.requests.filter((t) => {
+      if (!isGQLRequest(t) || claimedExistingRequests.has(t)) return false
+      const cand = t as HoppGQLRequest
+      return (
+        getGqlUrlKey(cand.url) === incomingUrl &&
+        cand.name?.trim().toLowerCase() === incomingName
+      )
+    })
+
+    const incomingMatches = allIncomingRequests.filter((item) => {
+      if (
+        item.targetFolder !== targetFolder ||
+        !isGQLRequest(item.request) ||
+        incomingToExistingMap.has(item.request)
+      )
+        return false
+      const req = item.request as HoppGQLRequest
+      return (
+        getGqlUrlKey(req.url) === incomingUrl &&
+        req.name?.trim().toLowerCase() === incomingName
+      )
+    })
+
+    if (candidateMatches.length === 1 && incomingMatches.length === 1) {
+      const match = candidateMatches[0]
+      incomingToExistingMap.set(incoming, match)
+      claimedExistingRequests.add(match)
+    }
+  }
+
+  // 1e. GQL requests: Pass 4 - unambiguous 1:1 URL fallback
+  for (const { request: incoming, targetFolder } of allIncomingRequests) {
+    if (
+      !targetFolder ||
+      !isGQLRequest(incoming) ||
+      incomingToExistingMap.has(incoming)
+    )
+      continue
+    const incomingGql = incoming as HoppGQLRequest
+    const incomingUrl = getGqlUrlKey(incomingGql.url)
+    if (!incomingUrl) continue
+
+    const candidateMatches = targetFolder.requests.filter((t) => {
+      if (!isGQLRequest(t) || claimedExistingRequests.has(t)) return false
+      const cand = t as HoppGQLRequest
+      return getGqlUrlKey(cand.url) === incomingUrl
+    })
+
+    const incomingMatches = allIncomingRequests.filter((item) => {
+      if (
+        item.targetFolder !== targetFolder ||
+        !isGQLRequest(item.request) ||
+        incomingToExistingMap.has(item.request)
+      )
+        return false
+      const req = item.request as HoppGQLRequest
+      return getGqlUrlKey(req.url) === incomingUrl
+    })
+
+    if (candidateMatches.length === 1 && incomingMatches.length === 1) {
+      const match = candidateMatches[0]
+      incomingToExistingMap.set(incoming, match)
+      claimedExistingRequests.add(match)
     }
   }
 
@@ -379,22 +528,30 @@ function reconcileRequestsTree(
     }
   }
 
-  // Stage 3: Local name fallback within corresponding folder (strictly same request kind)
+  // Stage 3: Local name fallback within corresponding folder (REST only, unambiguous match)
   for (const { request: incoming, targetFolder } of allIncomingRequests) {
     if (incomingToExistingMap.has(incoming)) continue
-    if (!targetFolder) continue
+    if (!targetFolder || isGQLRequest(incoming)) continue
 
-    const incomingIsGql = isGQLRequest(incoming)
     const incomingName = incoming.name?.trim().toLowerCase()
 
     if (incomingName) {
-      const nameMatch = targetFolder.requests.find((t) => {
-        if (claimedExistingRequests.has(t)) return false
-        // Restrict fallback to requests of the same kind
-        if (isGQLRequest(t) !== incomingIsGql) return false
+      const candidateMatches = targetFolder.requests.filter((t) => {
+        if (claimedExistingRequests.has(t) || isGQLRequest(t)) return false
         return t.name?.trim().toLowerCase() === incomingName
       })
-      if (nameMatch) {
+      const incomingMatches = allIncomingRequests.filter((item) => {
+        if (
+          item.targetFolder !== targetFolder ||
+          incomingToExistingMap.has(item.request) ||
+          isGQLRequest(item.request)
+        )
+          return false
+        return item.request.name?.trim().toLowerCase() === incomingName
+      })
+
+      if (candidateMatches.length === 1 && incomingMatches.length === 1) {
+        const nameMatch = candidateMatches[0]
         incomingToExistingMap.set(incoming, nameMatch)
         claimedExistingRequests.add(nameMatch)
       }

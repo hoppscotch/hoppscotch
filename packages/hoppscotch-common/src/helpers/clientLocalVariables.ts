@@ -163,13 +163,25 @@ export const syncLocalStoresForCollectionUpdate = (
         const existingCurrentVals =
           currentEnvironmentValueService.getEnvironment(node._ref_id) ?? []
 
-        const secretsMap = new Map<string, string>()
-        for (const s of existingSecrets) {
-          secretsMap.set(s.key, s.value)
+        // Sort by varIndex to guarantee strict FIFO preservation order
+        const sortedExistingSecrets = [...existingSecrets].sort(
+          (a, b) => a.varIndex - b.varIndex
+        )
+        const sortedExistingCurrentVals = [...existingCurrentVals].sort(
+          (a, b) => a.varIndex - b.varIndex
+        )
+
+        const secretsQueue = new Map<string, string[]>()
+        for (const s of sortedExistingSecrets) {
+          const list = secretsQueue.get(s.key) ?? []
+          list.push(s.value)
+          secretsQueue.set(s.key, list)
         }
-        const currentValsMap = new Map<string, string>()
-        for (const c of existingCurrentVals) {
-          currentValsMap.set(c.key, c.currentValue)
+        const currentValsQueue = new Map<string, string[]>()
+        for (const c of sortedExistingCurrentVals) {
+          const list = currentValsQueue.get(c.key) ?? []
+          list.push(c.currentValue)
+          currentValsQueue.set(c.key, list)
         }
 
         const promoted = promoteInitialValueForImport(node.variables ?? [])
@@ -178,7 +190,9 @@ export const syncLocalStoresForCollectionUpdate = (
 
         promoted.forEach((v, index) => {
           if (v.secret) {
-            const existingVal = secretsMap.get(v.key)
+            const queue = secretsQueue.get(v.key)
+            const existingVal =
+              queue && queue.length > 0 ? queue.shift() : undefined
             newSecrets.push({
               key: v.key,
               value:
@@ -189,7 +203,9 @@ export const syncLocalStoresForCollectionUpdate = (
               varIndex: index,
             })
           } else {
-            const existingVal = currentValsMap.get(v.key)
+            const queue = currentValsQueue.get(v.key)
+            const existingVal =
+              queue && queue.length > 0 ? queue.shift() : undefined
             newNonSecrets.push({
               key: v.key,
               currentValue:

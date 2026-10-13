@@ -1271,7 +1271,9 @@ describe("mergeCollectionTree", () => {
         name
       }
     `
-    expect(normalizeGqlQuery(multilineWithComments)).toBe("query { user name }")
+    expect(normalizeGqlQuery(multilineWithComments)).toBe(
+      normalizeGqlQuery("query { user, name }")
+    )
   })
 
   it("does not match GraphQL requests on ambiguous duplicate display names with different queries", () => {
@@ -1361,5 +1363,98 @@ describe("mergeCollectionTree", () => {
     expect(usersReq?.id).toBe("req-users")
     expect((usersReq as any).preRequestScript).toBe("// users script")
     expect((usersReq as any).testScript).toBe("// users test")
+  })
+
+  it("handles block strings with escaped triple quotes in GraphQL queries without swapping scripts", () => {
+    const q1 = '{ f(arg: """a\\"""b#one\nc""") }'
+    const q2 = '{ f(arg: """a\\"""b#two\nc""") }'
+
+    // normalizeGqlQuery must distinguish queries differing only within block strings having escaped quotes
+    expect(normalizeGqlQuery(q1)).not.toBe(normalizeGqlQuery(q2))
+
+    const existing = makeCollection({
+      name: "Block Strings Coll",
+      folders: [],
+      requests: [
+        {
+          id: "req-one",
+          name: "Anon Query One",
+          url: "https://api.com/graphql",
+          query: q1,
+          variables: "{}",
+          headers: [],
+          auth: { authType: "inherit", authActive: true },
+          preRequestScript: "// script one",
+          testScript: "// test one",
+        } as any,
+        {
+          id: "req-two",
+          name: "Anon Query Two",
+          url: "https://api.com/graphql",
+          query: q2,
+          variables: "{}",
+          headers: [],
+          auth: { authType: "inherit", authActive: true },
+          preRequestScript: "// script two",
+          testScript: "// test two",
+        } as any,
+      ],
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [],
+    })
+
+    // Incoming has them in reverse order
+    const incoming = [
+      makeCollection({
+        name: "Block Strings Coll",
+        folders: [],
+        requests: [
+          {
+            name: "Anon Query Two (Updated)",
+            url: "https://api.com/graphql",
+            query: q2,
+            variables: "{}",
+            headers: [],
+            auth: { authType: "inherit", authActive: true },
+            preRequestScript: "",
+            testScript: "",
+          } as any,
+          {
+            name: "Anon Query One (Updated)",
+            url: "https://api.com/graphql",
+            query: q1,
+            variables: "{}",
+            headers: [],
+            auth: { authType: "inherit", authActive: true },
+            preRequestScript: "",
+            testScript: "",
+          } as any,
+        ],
+        auth: { authType: "inherit", authActive: true },
+        headers: [],
+        variables: [],
+      }),
+    ]
+
+    const { updatedCollection, stats } = mergeCollectionTree(
+      existing,
+      incoming,
+      { preserveScripts: true, keepMissingRequests: true }
+    )
+
+    expect(stats.preservedScripts).toBe(4)
+    const reqTwo = updatedCollection.requests.find((r) =>
+      (r as any).query?.includes("#two")
+    )
+    const reqOne = updatedCollection.requests.find((r) =>
+      (r as any).query?.includes("#one")
+    )
+
+    expect(reqTwo?.id).toBe("req-two")
+    expect((reqTwo as any).preRequestScript).toBe("// script two")
+
+    expect(reqOne?.id).toBe("req-one")
+    expect((reqOne as any).preRequestScript).toBe("// script one")
   })
 })

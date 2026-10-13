@@ -5,6 +5,7 @@ import {
   isGQLRequest,
 } from "@hoppscotch/data"
 import { cloneDeep } from "lodash-es"
+import { parse, print } from "graphql"
 
 export type UpdateOptions = {
   preserveScripts?: boolean
@@ -171,59 +172,80 @@ export function getRestEndpointKey(req: HoppRESTRequest): string | null {
 
 export function extractGqlOperation(query?: string): string | null {
   if (!query) return null
-  const match = query.match(
-    /(query|mutation|subscription)\s+([_A-Za-z][_0-9A-Za-z]*)/
-  )
-  return match ? `${match[1]}:${match[2]}` : null
-}
-
-export function normalizeGqlQuery(query?: string): string | null {
-  if (!query) return null
   const trimmed = query.trim()
   if (!trimmed) return null
 
+  try {
+    const ast = parse(trimmed)
+    for (const def of ast.definitions) {
+      if (def.kind === "OperationDefinition" && def.name?.value) {
+        return `${def.operation}:${def.name.value}`
+      }
+    }
+  } catch {
+    // Fallback regex matching if query contains template variables or partial syntax
+    const match = trimmed.match(
+      /(query|mutation|subscription)\s+([_A-Za-z][_0-9A-Za-z]*)/
+    )
+    if (match) {
+      return `${match[1]}:${match[2]}`
+    }
+  }
+  return null
+}
+
+function normalizeGqlQueryFallback(trimmed: string): string | null {
   let result = ""
   let inString = false
   let inBlockString = false
-  let isEscaped = false
   let lastWasWhitespace = false
 
   for (let i = 0; i < trimmed.length; i++) {
     const ch = trimmed[i]
 
     if (inBlockString) {
-      result += ch
-      if (
-        ch === '"' &&
-        trimmed[i - 1] === '"' &&
-        trimmed[i - 2] === '"' &&
-        !isEscaped
-      ) {
-        inBlockString = false
+      if (trimmed.startsWith('\\"""', i)) {
+        result += '\\"""'
+        i += 3
+        continue
       }
-      isEscaped = ch === "\\" && !isEscaped
+      if (trimmed.startsWith('"""', i)) {
+        result += '"""'
+        i += 2
+        inBlockString = false
+        continue
+      }
+      result += ch
       continue
     }
 
     if (inString) {
+      if (ch === "\\") {
+        result += ch
+        if (i + 1 < trimmed.length) {
+          result += trimmed[++i]
+        }
+        continue
+      }
       result += ch
-      if (ch === '"' && !isEscaped) {
+      if (ch === '"') {
         inString = false
       }
-      isEscaped = ch === "\\" && !isEscaped
       continue
     }
 
     // Check start of string literal
+    if (trimmed.startsWith('"""', i)) {
+      inBlockString = true
+      result += '"""'
+      i += 2
+      lastWasWhitespace = false
+      continue
+    }
+
     if (ch === '"') {
-      if (trimmed.slice(i, i + 3) === '"""') {
-        inBlockString = true
-        result += '"""'
-        i += 2
-      } else {
-        inString = true
-        result += '"'
-      }
+      inString = true
+      result += '"'
       lastWasWhitespace = false
       continue
     }
@@ -254,6 +276,18 @@ export function normalizeGqlQuery(query?: string): string | null {
 
   const final = result.trim()
   return final.length > 0 ? final : null
+}
+
+export function normalizeGqlQuery(query?: string): string | null {
+  if (!query) return null
+  const trimmed = query.trim()
+  if (!trimmed) return null
+
+  try {
+    return print(parse(trimmed))
+  } catch {
+    return normalizeGqlQueryFallback(trimmed)
+  }
 }
 
 export function getGqlUrlKey(url?: string): string | null {

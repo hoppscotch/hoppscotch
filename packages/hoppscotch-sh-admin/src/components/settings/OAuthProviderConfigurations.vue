@@ -46,7 +46,11 @@
                 <label>{{ makeReadableKey(field.name, true) }}</label>
                 <span class="flex max-w-lg">
                   <HoppSmartInput
-                    v-model="provider.fields[field.key as keyof typeof provider['fields']]"
+                    v-model="
+                      provider.fields[
+                        field.key as keyof (typeof provider)['fields']
+                      ]
+                    "
                     :type="
                       isMasked(provider.name, field.key) ? 'password' : 'text'
                     "
@@ -118,8 +122,10 @@ const capitalize = (text: string) =>
 type ProviderFieldKeys = keyof ProviderFields;
 
 type ProviderFields = {
-  [Field in keyof ServerConfigs['providers'][SsoAuthProviders]['fields']]: boolean;
-} & Partial<{ tenant: boolean }>;
+  [
+    Field in keyof ServerConfigs['providers'][SsoAuthProviders]['fields']
+  ]: boolean;
+} & Partial<{ tenant: boolean; issuer_url: boolean }>;
 
 type ProviderFieldMetadata = {
   name: string;
@@ -131,27 +137,32 @@ const providerConfigFields = <ProviderFieldMetadata[]>[
   {
     name: t('configs.auth_providers.client_id'),
     key: 'client_id',
-    applicableProviders: ['google', 'github', 'microsoft'],
+    applicableProviders: ['google', 'github', 'microsoft', 'keycloak'],
   },
   {
     name: t('configs.auth_providers.client_secret'),
     key: 'client_secret',
-    applicableProviders: ['google', 'github', 'microsoft'],
+    applicableProviders: ['google', 'github', 'microsoft', 'keycloak'],
   },
   {
     name: t('configs.auth_providers.callback_url'),
     key: 'callback_url',
-    applicableProviders: ['google', 'github', 'microsoft'],
+    applicableProviders: ['google', 'github', 'microsoft', 'keycloak'],
   },
   {
     name: t('configs.auth_providers.scope'),
     key: 'scope',
-    applicableProviders: ['google', 'github', 'microsoft'],
+    applicableProviders: ['google', 'github', 'microsoft', 'keycloak'],
   },
   {
     name: t('configs.auth_providers.tenant'),
     key: 'tenant',
     applicableProviders: ['microsoft'],
+  },
+  {
+    name: t('configs.auth_providers.issuer'),
+    key: 'issuer_url',
+    applicableProviders: ['keycloak'],
   },
 ];
 
@@ -174,6 +185,13 @@ const maskState = reactive<Record<SsoAuthProviders, ProviderFields>>({
     callback_url: true,
     scope: true,
     tenant: true,
+  },
+  keycloak: {
+    issuer_url: false,
+    client_id: true,
+    client_secret: true,
+    callback_url: true,
+    scope: true,
   },
 });
 

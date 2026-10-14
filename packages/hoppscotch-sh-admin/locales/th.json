@@ -36,6 +36,7 @@
       "description": "กำหนดค่าผู้ให้บริการยืนยันตัวตนสำหรับเซิร์ฟเวอร์ของคุณ",
       "email": "อีเมล",
       "github_enterprise": "เปิดใช้งาน Github Enterprise",
+      "issuer": "ISSUER URL",
       "oauth": "OAuth",
       "oauth_providers": "ผู้ให้บริการ OAuth",
       "provider_not_specified": "โปรดเปิดใช้งานผู้ให้บริการยืนยันตัวตนอย่างน้อยหนึ่งราย",
@@ -224,7 +225,7 @@
     "configurations_title": "การกำหนดค่าเซิร์ฟเวอร์",
     "configuration_summary": "สรุปการกำหนดค่า",
     "oauth": {
-      "description": "ตั้งค่าผู้ให้บริการ OAuth เช่น Google, GitHub, Microsoft ฯลฯ",
+      "description": "ตั้งค่าผู้ให้บริการ OAuth เช่น Google, GitHub, Microsoft หรือ Keycloak",
       "description_accordian": "เลือกผู้ให้บริการ OAuth ที่คุณต้องการเปิดใช้งานและระบุการกำหนดค่าที่จำเป็น",
       "title": "OAuth"
     },
@@ -300,6 +301,7 @@
     "continue_email": "ดำเนินการต่อด้วยอีเมล",
     "continue_github": "ดำเนินการต่อด้วย Github",
     "continue_google": "ดำเนินการต่อด้วย Google",
+    "continue_keycloak": "ดำเนินการต่อด้วย Keycloak",
     "continue_microsoft": "ดำเนินการต่อด้วย Microsoft",
     "copied_to_clipboard": "คัดลอกไปยังคลิปบอร์ดแล้ว",
     "create_team_failure": "สร้างพื้นที่ทำงานไม่สำเร็จ!!",
@@ -332,6 +334,7 @@
     "generate_infra_token_failure": "เกิดข้อผิดพลาดขณะสร้าง Infra Token",
     "github_signin_failure": "เข้าสู่ระบบด้วย Github ไม่สำเร็จ",
     "google_signin_failure": "เข้าสู่ระบบด้วย Google ไม่สำเร็จ",
+    "keycloak_signin_failure": "เข้าสู่ระบบด้วย Keycloak ไม่สำเร็จ",
     "infra_token_label_short": "ป้ายกำกับ Infra Token มีความยาวตัวอักษรน้อยเกินไป!!",
     "invalid_email": "โปรดป้อนที่อยู่อีเมลที่ถูกต้อง",
     "link_copied_to_clipboard": "คัดลอกลิงก์ไปยังคลิปบอร์ดแล้ว",

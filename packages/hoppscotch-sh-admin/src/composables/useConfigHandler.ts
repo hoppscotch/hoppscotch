@@ -23,6 +23,7 @@ import {
   ConfigTransform,
   GITHUB_CONFIGS,
   GOOGLE_CONFIGS,
+  KEYCLOAK_CONFIGS,
   MAIL_CONFIGS,
   MICROSOFT_CONFIGS,
   MOCK_SERVER_CONFIGS,
@@ -114,6 +115,17 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
             callback_url: getFieldValue(InfraConfigEnum.MicrosoftCallbackUrl),
             scope: getFieldValue(InfraConfigEnum.MicrosoftScope),
             tenant: getFieldValue(InfraConfigEnum.MicrosoftTenant),
+          },
+        },
+        keycloak: {
+          name: 'keycloak',
+          enabled: allowedAuthProviders.value.includes(AuthProvider.Keycloak),
+          fields: {
+            issuer_url: getFieldValue(InfraConfigEnum.KeycloakIssuer),
+            client_id: getFieldValue(InfraConfigEnum.KeycloakClientId),
+            client_secret: getFieldValue(InfraConfigEnum.KeycloakClientSecret),
+            callback_url: getFieldValue(InfraConfigEnum.KeycloakCallbackUrl),
+            scope: getFieldValue(InfraConfigEnum.KeycloakScope),
           },
         },
       },
@@ -267,6 +279,11 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
         fields: updatedConfigs?.providers.microsoft.fields,
       },
       {
+        config: KEYCLOAK_CONFIGS,
+        enabled: updatedConfigs?.providers.keycloak.enabled,
+        fields: updatedConfigs?.providers.keycloak.fields,
+      },
+      {
         config: MAIL_CONFIGS,
         enabled: updatedConfigs?.mailConfigs.enabled,
         fields: mailConfigFields,
@@ -351,6 +368,12 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       {
         provider: AuthProvider.Github,
         status: updatedConfigs?.providers.github.enabled
+          ? ServiceStatus.Enable
+          : ServiceStatus.Disable,
+      },
+      {
+        provider: AuthProvider.Keycloak,
+        status: updatedConfigs?.providers.keycloak.enabled
           ? ServiceStatus.Enable
           : ServiceStatus.Disable,
       },

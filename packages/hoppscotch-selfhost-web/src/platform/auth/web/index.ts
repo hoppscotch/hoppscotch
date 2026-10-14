@@ -10,6 +10,7 @@ import {
   HoppUser,
 } from "@hoppscotch/common/platform/auth"
 import { PersistenceService } from "@hoppscotch/common/services/persistence"
+import IconKeyRound from "~icons/lucide/key-round"
 
 import { getAllowedAuthProviders, updateUserDisplayName } from "./api"
 
@@ -37,6 +38,10 @@ async function signInUserWithMicrosoftFB() {
   window.location.href = `${
     import.meta.env.VITE_BACKEND_API_URL
   }/auth/microsoft`
+}
+
+async function signInUserWithKeycloak() {
+  window.location.href = `${import.meta.env.VITE_BACKEND_API_URL}/auth/keycloak`
 }
 
 async function getInitialUserDetails() {
@@ -196,6 +201,15 @@ async function sendMagicLink(email: string) {
 }
 
 export const def: AuthPlatformDef = {
+  additionalLoginItems: [
+    {
+      id: "KEYCLOAK",
+      icon: IconKeyRound,
+      text: (t) =>
+        t("auth.continue_with_auth_provider", { provider: "Keycloak" }),
+      onClick: signInUserWithKeycloak,
+    },
+  ],
   getCurrentUserStream: () => currentUser$,
   getAuthEventsStream: () => authEvents$,
   getProbableUserStream: () => probableUser$,

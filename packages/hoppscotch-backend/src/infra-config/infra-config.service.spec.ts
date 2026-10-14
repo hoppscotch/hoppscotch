@@ -407,6 +407,33 @@ describe('InfraConfigService', () => {
         expect(result).toEqualLeft(INFRA_CONFIG_INVALID_INPUT);
       });
     });
+
+    describe('KEYCLOAK_ISSUER', () => {
+      it('should accept a secure Keycloak realm issuer URL', () => {
+        const result = infraConfigService.validateEnvValues([
+          {
+            name: InfraConfigEnum.KEYCLOAK_ISSUER,
+            value: 'https://keycloak.example.com/realms/hoppscotch',
+          },
+        ]);
+
+        expect(result).toEqualRight(true);
+      });
+
+      it.each([
+        'http://keycloak.example.com/realms/hoppscotch',
+        'https://user:password@keycloak.example.com/realms/hoppscotch',
+        'https://keycloak.example.com/realms/hoppscotch?query=value',
+        'https://keycloak.example.com/realms/hoppscotch#fragment',
+        'not-a-url',
+      ])('should reject an invalid issuer URL: %s', (value) => {
+        const result = infraConfigService.validateEnvValues([
+          { name: InfraConfigEnum.KEYCLOAK_ISSUER, value },
+        ]);
+
+        expect(result).toEqualLeft(INFRA_CONFIG_INVALID_INPUT);
+      });
+    });
   });
 
   describe('getOnboardingConfig', () => {

@@ -24,6 +24,10 @@ import { isValidLocalhostRedirectUri } from './redirect-uri.validator';
 import { GoogleSSOGuard } from './guards/google-sso.guard';
 import { GithubSSOGuard } from './guards/github-sso.guard';
 import { MicrosoftSSOGuard } from './guards/microsoft-sso.guard';
+import {
+  KeycloakSSOCallbackGuard,
+  KeycloakSSOStartGuard,
+} from './guards/keycloak-sso.guard';
 import { ThrottlerBehindProxyGuard } from 'src/guards/throttler-behind-proxy.guard';
 import { SkipThrottle } from '@nestjs/throttler';
 import { AUTH_PROVIDER_NOT_SPECIFIED } from 'src/errors';
@@ -169,6 +173,34 @@ export class AuthController {
   @UseGuards(MicrosoftSSOGuard)
   @UseInterceptors(UserLastLoginInterceptor)
   async microsoftAuthRedirect(@Request() req, @Res() res) {
+    const authTokens = await this.authService.generateAuthTokens(req.user.uid);
+    if (E.isLeft(authTokens)) throwHTTPErr(authTokens.left);
+    authCookieHandler(
+      res,
+      authTokens.right,
+      true,
+      req.authInfo.state.redirect_uri,
+      this.configService,
+    );
+  }
+
+  /**
+   ** Route to initiate Keycloak OpenID Connect authentication
+   */
+  @Get('keycloak')
+  @UseGuards(KeycloakSSOStartGuard)
+  keycloakAuth() {
+    return undefined;
+  }
+
+  /**
+   ** Callback URL for Keycloak OpenID Connect authentication
+   */
+  @Get('keycloak/callback')
+  @SkipThrottle()
+  @UseGuards(KeycloakSSOCallbackGuard)
+  @UseInterceptors(UserLastLoginInterceptor)
+  async keycloakAuthRedirect(@Request() req, @Res() res) {
     const authTokens = await this.authService.generateAuthTokens(req.user.uid);
     if (E.isLeft(authTokens)) throwHTTPErr(authTokens.left);
     authCookieHandler(

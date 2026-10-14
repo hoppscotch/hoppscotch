@@ -69,6 +69,13 @@ export function getAuthProviderRequiredKeys(
       InfraConfigEnum.MICROSOFT_SCOPE,
       InfraConfigEnum.MICROSOFT_TENANT,
     ],
+    [AuthProvider.KEYCLOAK]: [
+      InfraConfigEnum.KEYCLOAK_ISSUER,
+      InfraConfigEnum.KEYCLOAK_CLIENT_ID,
+      InfraConfigEnum.KEYCLOAK_CLIENT_SECRET,
+      InfraConfigEnum.KEYCLOAK_CALLBACK_URL,
+      InfraConfigEnum.KEYCLOAK_SCOPE,
+    ],
     [AuthProvider.EMAIL]:
       env['INFRA'].MAILER_USE_CUSTOM_CONFIGS === 'true'
         ? [
@@ -343,6 +350,31 @@ export async function getDefaultInfraConfigs(): Promise<DefaultInfraConfig[]> {
       isEncrypted: false,
     },
     {
+      name: InfraConfigEnum.KEYCLOAK_ISSUER,
+      value: null,
+      isEncrypted: false,
+    },
+    {
+      name: InfraConfigEnum.KEYCLOAK_CLIENT_ID,
+      value: null,
+      isEncrypted: true,
+    },
+    {
+      name: InfraConfigEnum.KEYCLOAK_CLIENT_SECRET,
+      value: null,
+      isEncrypted: true,
+    },
+    {
+      name: InfraConfigEnum.KEYCLOAK_CALLBACK_URL,
+      value: null,
+      isEncrypted: false,
+    },
+    {
+      name: InfraConfigEnum.KEYCLOAK_SCOPE,
+      value: 'openid,profile,email',
+      isEncrypted: false,
+    },
+    {
       name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
       value: null,
       isEncrypted: false,
@@ -600,7 +632,7 @@ export async function buildDerivedEnv() {
     derivedEnv.ALLOW_SECURE_COOKIES = expectedSecure;
   }
 
-  // Set GOOGLE_CALLBACK_URL, MICROSOFT_CALLBACK_URL, and GITHUB_CALLBACK_URL based on backend URL (self healing) if user changed the backend URL
+  // Repair OAuth callback URLs when the backend URL changes.
   // Callback URL definitions
   const callbackConfigs = [
     { key: InfraConfigEnum.GOOGLE_CALLBACK_URL, path: '/auth/google/callback' },
@@ -609,6 +641,10 @@ export async function buildDerivedEnv() {
       path: '/auth/microsoft/callback',
     },
     { key: InfraConfigEnum.GITHUB_CALLBACK_URL, path: '/auth/github/callback' },
+    {
+      key: InfraConfigEnum.KEYCLOAK_CALLBACK_URL,
+      path: '/auth/keycloak/callback',
+    },
   ];
   // Update callback URLs if they don't match the backend
   for (const { key, path } of callbackConfigs) {

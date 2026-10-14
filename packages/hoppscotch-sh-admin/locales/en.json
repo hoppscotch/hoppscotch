@@ -36,6 +36,7 @@
       "description": "Configure authentication providers for your server",
       "email": "Email",
       "github_enterprise": "Enable Github Enterprise",
+      "issuer": "ISSUER URL",
       "oauth": "OAuth",
       "oauth_providers": "OAuth Providers",
       "provider_not_specified": "Please enable at least one authentication provider",
@@ -224,7 +225,7 @@
     "configurations_title": "Server Configurations",
     "configuration_summary": "Configuration Summary",
     "oauth": {
-      "description": "Set up OAuth providers like Google, GitHub, Microsoft, etc.",
+      "description": "Set up OAuth providers like Google, GitHub, Microsoft, or Keycloak.",
       "description_accordian": "Select the OAuth providers you want to enable and provide the necessary configurations.",
       "title": "OAuth"
     },
@@ -300,6 +301,7 @@
     "continue_email": "Continue with Email",
     "continue_github": "Continue with Github",
     "continue_google": "Continue with Google",
+    "continue_keycloak": "Continue with Keycloak",
     "continue_microsoft": "Continue with Microsoft",
     "copied_to_clipboard": "Copied to clipboard",
     "create_team_failure": "Failed to create workspace!!",
@@ -332,6 +334,7 @@
     "generate_infra_token_failure": "Something went wrong while generating the infra token",
     "github_signin_failure": "Failed to login with Github",
     "google_signin_failure": "Failed to login with Google",
+    "keycloak_signin_failure": "Failed to login with Keycloak",
     "infra_token_label_short": "Infra Token Label character length is too short!!",
     "invalid_email": "Please enter a valid email address",
     "link_copied_to_clipboard": "Link copied to clipboard",

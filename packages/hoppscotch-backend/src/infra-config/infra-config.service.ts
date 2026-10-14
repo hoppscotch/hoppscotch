@@ -328,6 +328,14 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
           configMap.MICROSOFT_SCOPE &&
           configMap.MICROSOFT_TENANT
         );
+      case AuthProvider.KEYCLOAK:
+        return (
+          configMap.KEYCLOAK_ISSUER &&
+          configMap.KEYCLOAK_CLIENT_ID &&
+          configMap.KEYCLOAK_CLIENT_SECRET &&
+          configMap.KEYCLOAK_CALLBACK_URL &&
+          configMap.KEYCLOAK_SCOPE
+        );
       case AuthProvider.EMAIL:
         if (configMap.MAILER_SMTP_ENABLE !== 'true') return false;
         if (configMap.MAILER_USE_CUSTOM_CONFIGS === 'true') {
@@ -808,6 +816,9 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
         case InfraConfigEnum.MICROSOFT_CLIENT_SECRET:
         case InfraConfigEnum.MICROSOFT_SCOPE:
         case InfraConfigEnum.MICROSOFT_TENANT:
+        case InfraConfigEnum.KEYCLOAK_CLIENT_ID:
+        case InfraConfigEnum.KEYCLOAK_CLIENT_SECRET:
+        case InfraConfigEnum.KEYCLOAK_SCOPE:
           if (!value) return fail();
           break;
 
@@ -815,6 +826,28 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
         case InfraConfigEnum.GITHUB_CALLBACK_URL:
         case InfraConfigEnum.MICROSOFT_CALLBACK_URL:
         case InfraConfigEnum.PROXY_APP_URL:
+          if (!validateUrl(value)) return fail();
+          break;
+
+        case InfraConfigEnum.KEYCLOAK_ISSUER:
+          try {
+            const issuer = new URL(value);
+            if (
+              issuer.protocol !== 'https:' ||
+              !issuer.hostname ||
+              issuer.username ||
+              issuer.password ||
+              issuer.search ||
+              issuer.hash
+            ) {
+              return fail();
+            }
+          } catch {
+            return fail();
+          }
+          break;
+
+        case InfraConfigEnum.KEYCLOAK_CALLBACK_URL:
           if (!validateUrl(value)) return fail();
           break;
 

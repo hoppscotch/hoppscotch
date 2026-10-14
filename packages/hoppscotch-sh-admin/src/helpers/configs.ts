@@ -1,7 +1,7 @@
 import { inject, provide, ref, type InjectionKey, type Ref } from 'vue';
 import { InfraConfigEnum } from './backend/graphql';
 
-export type SsoAuthProviders = 'google' | 'microsoft' | 'github';
+export type SsoAuthProviders = 'google' | 'microsoft' | 'github' | 'keycloak';
 
 export type ServerConfigs = {
   providers: {
@@ -34,6 +34,17 @@ export type ServerConfigs = {
         callback_url: string;
         scope: string;
         tenant: string;
+      };
+    };
+    keycloak: {
+      name: SsoAuthProviders;
+      enabled: boolean;
+      fields: {
+        issuer_url: string;
+        client_id: string;
+        client_secret: string;
+        callback_url: string;
+        scope: string;
       };
     };
   };
@@ -192,6 +203,29 @@ export const GITHUB_CONFIGS: Config[] = [
   },
   {
     name: InfraConfigEnum.GithubScope,
+    key: 'scope',
+  },
+];
+
+export const KEYCLOAK_CONFIGS: Config[] = [
+  {
+    name: InfraConfigEnum.KeycloakIssuer,
+    key: 'issuer_url',
+  },
+  {
+    name: InfraConfigEnum.KeycloakClientId,
+    key: 'client_id',
+  },
+  {
+    name: InfraConfigEnum.KeycloakClientSecret,
+    key: 'client_secret',
+  },
+  {
+    name: InfraConfigEnum.KeycloakCallbackUrl,
+    key: 'callback_url',
+  },
+  {
+    name: InfraConfigEnum.KeycloakScope,
     key: 'scope',
   },
 ];
@@ -359,6 +393,7 @@ export const ALL_CONFIGS = [
   GOOGLE_CONFIGS,
   MICROSOFT_CONFIGS,
   GITHUB_CONFIGS,
+  KEYCLOAK_CONFIGS,
   MAIL_CONFIGS,
   CUSTOM_MAIL_CONFIGS,
   DATA_SHARING_CONFIGS,
@@ -453,6 +488,7 @@ const PROVIDER_CONFIGS: Record<SsoAuthProviders, Config[]> = {
   google: GOOGLE_CONFIGS,
   github: GITHUB_CONFIGS,
   microsoft: MICROSOFT_CONFIGS,
+  keycloak: KEYCLOAK_CONFIGS,
 };
 
 export const getConfigValidationIssues = (

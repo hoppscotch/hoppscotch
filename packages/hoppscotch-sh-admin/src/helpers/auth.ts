@@ -203,6 +203,12 @@ export const auth = {
     }/auth/microsoft?redirect_uri=${import.meta.env.VITE_ADMIN_URL}`;
   },
 
+  signInUserWithKeycloak: () => {
+    window.location.href = `${
+      import.meta.env.VITE_BACKEND_API_URL
+    }/auth/keycloak?redirect_uri=${encodeURIComponent(import.meta.env.VITE_ADMIN_URL)}`;
+  },
+
   signInWithEmailLink: (url: string) => {
     const urlObject = new URL(url);
     const searchParams = new URLSearchParams(urlObject.search);

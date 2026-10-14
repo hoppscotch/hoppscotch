@@ -53,6 +53,10 @@
                   src="/assets/icons/auth/microsoft.svg"
                   class="relative inline-block h-6 w-6 rounded-full border-2 border-primary object-cover object-center hover:z-10 focus:z-10"
                 />
+                <IconKeyRound
+                  aria-label="Keycloak"
+                  class="relative inline-block h-6 w-6 rounded-full border-2 border-primary p-1 object-cover object-center hover:z-10 focus:z-10"
+                />
               </AuthProviderCard>
 
               <AuthProviderCard
@@ -163,6 +167,7 @@ import SmtpSetup from './SmtpSetup.vue';
 import IconLucideArrowRight from '~icons/lucide/arrow-right';
 import IconLucideArrowLeft from '~icons/lucide/arrow-left';
 import IconLucideSave from '~icons/lucide/save';
+import IconKeyRound from '~icons/lucide/key-round';
 import AuthProviderCard from './AuthProviderCard.vue';
 
 const t = useI18n();
@@ -196,6 +201,7 @@ const OAuthProviders: (OAuthProvider | 'OAUTH')[] = [
   'GOOGLE',
   'GITHUB',
   'MICROSOFT',
+  'KEYCLOAK',
   'OAUTH',
 ];
 const isOAuthEnabled = ref(false);

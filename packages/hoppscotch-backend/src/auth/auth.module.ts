@@ -9,6 +9,11 @@ import { RTJwtStrategy } from './strategies/rt-jwt.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { GithubStrategy } from './strategies/github.strategy';
 import { MicrosoftStrategy } from './strategies/microsoft.strategy';
+import { KeycloakOIDCService } from './keycloak-oidc.service';
+import {
+  KeycloakSSOCallbackGuard,
+  KeycloakSSOStartGuard,
+} from './guards/keycloak-sso.guard';
 import { AuthProvider, authProviderCheck } from './helper';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -29,7 +34,12 @@ import { InfraConfigModule } from 'src/infra-config/infra-config.module';
     }),
     InfraConfigModule,
   ],
-  providers: [AuthService],
+  providers: [
+    AuthService,
+    KeycloakOIDCService,
+    KeycloakSSOStartGuard,
+    KeycloakSSOCallbackGuard,
+  ],
   controllers: [AuthController],
 })
 export class AuthModule {

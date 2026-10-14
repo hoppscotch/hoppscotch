@@ -36,6 +36,7 @@
       "description": "Сервертээ баталгаажуулах үйлчилгээ үзүүлэгчдийг тохируулна уу",
       "email": "Имэйл",
       "github_enterprise": "Github Enterprise-г идэвхжүүлнэ үү",
+      "issuer": "ISSUER URL",
       "oauth": "OAuth",
       "oauth_providers": "OAuth үйлчилгээ үзүүлэгчид",
       "provider_not_specified": "Дор хаяж нэг баталгаажуулалтын үйлчилгээ үзүүлэгчийг идэвхжүүлнэ үү",
@@ -216,7 +217,7 @@
     "configurations_title": "Серверийн тохиргоо",
     "configuration_summary": "Тохиргооны хураангуй",
     "oauth": {
-      "description": "Google, GitHub, Microsoft гэх мэт OAuth үйлчилгээ үзүүлэгчдийг тохируулна уу.",
+      "description": "Google, GitHub, Microsoft эсвэл Keycloak зэрэг OAuth үйлчилгээ үзүүлэгчдийг тохируулна уу.",
       "description_accordian": "Идэвхжүүлэхийг хүсч буй OAuth үйлчилгээ үзүүлэгчээ сонгоод шаардлагатай тохиргоог хийнэ үү.",
       "title": "OAuth"
     },
@@ -292,6 +293,7 @@
     "continue_email": "Цахим шуудангаар үргэлжлүүлнэ үү",
     "continue_github": "Github-ийг үргэлжлүүлнэ үү",
     "continue_google": "Google-тэй үргэлжлүүлнэ үү",
+    "continue_keycloak": "Keycloak-оор үргэлжлүүлнэ үү",
     "continue_microsoft": "Майкрософттой үргэлжлүүлнэ үү",
     "copied_to_clipboard": "Түр санах ой руу хуулсан",
     "create_team_failure": "Ажлын талбар үүсгэж чадсангүй!!",
@@ -324,6 +326,7 @@
     "generate_infra_token_failure": "Инфра жетон үүсгэх явцад алдаа гарлаа",
     "github_signin_failure": "Github-ээр нэвтэрч чадсангүй",
     "google_signin_failure": "Google-ээр нэвтэрч чадсангүй",
+    "keycloak_signin_failure": "Keycloak-оор нэвтрэхэд алдаа гарлаа",
     "infra_token_label_short": "Infra Token Label тэмдэгтийн урт хэт богино байна!!",
     "invalid_email": "Хүчинтэй имэйл хаяг оруулна уу",
     "link_copied_to_clipboard": "Холбоосыг санах ой руу хуулсан",

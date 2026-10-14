@@ -60,6 +60,24 @@ describe('team field resolvers', () => {
       TEAM_MEMBER_NOT_FOUND,
     );
     expect(teamService.getTeamMembers).not.toHaveBeenCalled();
+  });
+
+  test('does not load the deprecated members list for a non-member', async () => {
+    const guard = deniedGuard();
+    const teamService = {
+      getMembersOfTeam: jest.fn(),
+      getTeamMembers: jest.fn(),
+    };
+    const resolver = new TeamResolver(
+      teamService as never,
+      {} as never,
+      {} as never,
+      guard as never,
+    );
+
+    await expect(resolver.members(team, invitee)).rejects.toThrow(
+      TEAM_MEMBER_NOT_FOUND,
+    );
     expect(teamService.getMembersOfTeam).not.toHaveBeenCalled();
   });
 });

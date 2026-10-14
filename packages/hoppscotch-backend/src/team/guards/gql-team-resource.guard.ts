@@ -1,5 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { GqlExecutionContext } from '@nestjs/graphql';
+import { Injectable } from '@nestjs/common';
 import {
   BUG_AUTH_NO_USER_CTX,
   BUG_TEAM_NO_TEAM_ID,
@@ -13,18 +12,8 @@ import { TeamService } from '../team.service';
  * Admins pass anyway, the dashboard isn't on the team.
  */
 @Injectable()
-export class GqlTeamResourceGuard implements CanActivate {
+export class GqlTeamResourceGuard {
   constructor(private readonly teamService: TeamService) {}
-
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const gqlExecCtx = GqlExecutionContext.create(context);
-    const { req, headers } = gqlExecCtx.getContext();
-    const user = headers ? headers.user : req?.user;
-    const parent = gqlExecCtx.getRoot<{ id?: string }>();
-
-    await this.assertCanRead(user, parent?.id);
-    return true;
-  }
 
   // @UseGuards on ResolveField does not run in this app.
   // resolvers have to call this themselves.

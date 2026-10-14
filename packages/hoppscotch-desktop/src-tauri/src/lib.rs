@@ -62,6 +62,7 @@ fn setup_deep_link_handler(app: &tauri::App) -> Result<(), HoppError> {
 
 fn setup_server(app: &tauri::App) -> Result<u16, HoppError> {
     let server_port: u16 = PortPicker::new()
+        .host("127.0.0.1".to_string())
         .protocol(Protocol::Tcp)
         .port_range(15000..=25000)
         .pick()

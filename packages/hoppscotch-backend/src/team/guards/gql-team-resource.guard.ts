@@ -20,19 +20,26 @@ export class GqlTeamResourceGuard implements CanActivate {
     const gqlExecCtx = GqlExecutionContext.create(context);
     const { req, headers } = gqlExecCtx.getContext();
     const user = headers ? headers.user : req?.user;
+    const parent = gqlExecCtx.getRoot<{ id?: string }>();
 
+    await this.assertCanRead(user, parent?.id);
+    return true;
+  }
+
+  // @UseGuards on ResolveField does not run in this app.
+  // resolvers have to call this themselves.
+  async assertCanRead(
+    user: { uid: string; isAdmin?: boolean } | null | undefined,
+    teamID: string | null | undefined,
+  ): Promise<void> {
     if (user == undefined) throw new Error(BUG_AUTH_NO_USER_CTX);
 
     // dashboard reads this without joining the team
-    if (user.isAdmin) return true;
+    if (user.isAdmin) return;
 
-    const parent = gqlExecCtx.getRoot<{ id?: string }>();
-    const teamID = parent?.id;
     if (!teamID) throw new Error(BUG_TEAM_NO_TEAM_ID);
 
     const teamMember = await this.teamService.getTeamMember(teamID, user.uid);
     if (!teamMember) throw new Error(TEAM_MEMBER_NOT_FOUND);
-
-    return true;
   }
 }

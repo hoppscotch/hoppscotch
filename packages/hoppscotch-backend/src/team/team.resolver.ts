@@ -35,6 +35,7 @@ export class TeamResolver {
     private readonly teamService: TeamService,
     private readonly pubsub: PubSubService,
     private readonly userService: UserService,
+    private readonly teamResourceGuard: GqlTeamResourceGuard,
   ) {}
 
   // Field Resolvers
@@ -43,9 +44,9 @@ export class TeamResolver {
     description: 'Returns the list of members of a team',
     complexity: 10,
   })
-  @UseGuards(GqlAuthGuard, GqlTeamResourceGuard)
-  members(
+  async members(
     @Parent() team: Team,
+    @GqlUser() user: AuthUser,
     @Args({
       name: 'cursor',
       type: () => ID,
@@ -55,6 +56,7 @@ export class TeamResolver {
     })
     cursor?: string,
   ): Promise<TeamMember[]> {
+    await this.teamResourceGuard.assertCanRead(user, team.id);
     return this.teamService.getMembersOfTeam(team.id, cursor ?? null);
   }
 
@@ -62,8 +64,11 @@ export class TeamResolver {
     description: 'Returns the list of members of a team',
     complexity: 10,
   })
-  @UseGuards(GqlAuthGuard, GqlTeamResourceGuard)
-  teamMembers(@Parent() team: Team): Promise<TeamMember[]> {
+  async teamMembers(
+    @Parent() team: Team,
+    @GqlUser() user: AuthUser,
+  ): Promise<TeamMember[]> {
+    await this.teamResourceGuard.assertCanRead(user, team.id);
     return this.teamService.getTeamMembers(team.id);
   }
 
@@ -82,8 +87,11 @@ export class TeamResolver {
   @ResolveField(() => Int, {
     description: 'The number of users with the OWNER role in the team',
   })
-  @UseGuards(GqlAuthGuard, GqlTeamResourceGuard)
-  ownersCount(@Parent() team: Team): Promise<number> {
+  async ownersCount(
+    @Parent() team: Team,
+    @GqlUser() user: AuthUser,
+  ): Promise<number> {
+    await this.teamResourceGuard.assertCanRead(user, team.id);
     return this.teamService.getCountOfUsersWithRoleInTeam(
       team.id,
       TeamAccessRole.OWNER,
@@ -93,8 +101,11 @@ export class TeamResolver {
   @ResolveField(() => Int, {
     description: 'The number of users with the EDITOR role in the team',
   })
-  @UseGuards(GqlAuthGuard, GqlTeamResourceGuard)
-  editorsCount(@Parent() team: Team): Promise<number> {
+  async editorsCount(
+    @Parent() team: Team,
+    @GqlUser() user: AuthUser,
+  ): Promise<number> {
+    await this.teamResourceGuard.assertCanRead(user, team.id);
     return this.teamService.getCountOfUsersWithRoleInTeam(
       team.id,
       TeamAccessRole.EDITOR,
@@ -104,8 +115,11 @@ export class TeamResolver {
   @ResolveField(() => Int, {
     description: 'The number of users with the VIEWER role in the team',
   })
-  @UseGuards(GqlAuthGuard, GqlTeamResourceGuard)
-  viewersCount(@Parent() team: Team): Promise<number> {
+  async viewersCount(
+    @Parent() team: Team,
+    @GqlUser() user: AuthUser,
+  ): Promise<number> {
+    await this.teamResourceGuard.assertCanRead(user, team.id);
     return this.teamService.getCountOfUsersWithRoleInTeam(
       team.id,
       TeamAccessRole.VIEWER,

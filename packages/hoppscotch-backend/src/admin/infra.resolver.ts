@@ -40,7 +40,7 @@ import {
   FetchAllUsersV2Args,
 } from './input-types.args';
 
-@UseGuards(GqlThrottlerGuard)
+@UseGuards(GqlThrottlerGuard, GqlAuthGuard, GqlAdminGuard)
 @Resolver(() => Infra)
 export class InfraResolver {
   constructor(

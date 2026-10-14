@@ -16,6 +16,7 @@ import { GqlUser } from '../decorators/gql-user.decorator';
 import { UseGuards } from '@nestjs/common';
 import { RequiresTeamRole } from './decorators/requires-team-role.decorator';
 import { GqlTeamMemberGuard } from './guards/gql-team-member.guard';
+import { GqlTeamResourceGuard } from './guards/gql-team-resource.guard';
 import { PubSubService } from '../pubsub/pubsub.service';
 import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
@@ -42,6 +43,7 @@ export class TeamResolver {
     description: 'Returns the list of members of a team',
     complexity: 10,
   })
+  @UseGuards(GqlAuthGuard, GqlTeamResourceGuard)
   members(
     @Parent() team: Team,
     @Args({
@@ -60,6 +62,7 @@ export class TeamResolver {
     description: 'Returns the list of members of a team',
     complexity: 10,
   })
+  @UseGuards(GqlAuthGuard, GqlTeamResourceGuard)
   teamMembers(@Parent() team: Team): Promise<TeamMember[]> {
     return this.teamService.getTeamMembers(team.id);
   }
@@ -79,6 +82,7 @@ export class TeamResolver {
   @ResolveField(() => Int, {
     description: 'The number of users with the OWNER role in the team',
   })
+  @UseGuards(GqlAuthGuard, GqlTeamResourceGuard)
   ownersCount(@Parent() team: Team): Promise<number> {
     return this.teamService.getCountOfUsersWithRoleInTeam(
       team.id,
@@ -89,6 +93,7 @@ export class TeamResolver {
   @ResolveField(() => Int, {
     description: 'The number of users with the EDITOR role in the team',
   })
+  @UseGuards(GqlAuthGuard, GqlTeamResourceGuard)
   editorsCount(@Parent() team: Team): Promise<number> {
     return this.teamService.getCountOfUsersWithRoleInTeam(
       team.id,
@@ -99,6 +104,7 @@ export class TeamResolver {
   @ResolveField(() => Int, {
     description: 'The number of users with the VIEWER role in the team',
   })
+  @UseGuards(GqlAuthGuard, GqlTeamResourceGuard)
   viewersCount(@Parent() team: Team): Promise<number> {
     return this.teamService.getCountOfUsersWithRoleInTeam(
       team.id,

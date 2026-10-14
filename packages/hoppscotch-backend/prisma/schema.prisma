@@ -263,7 +263,7 @@ model MockServer {
   workspaceType WorkspaceType
   workspaceID   String
   delayInMs     Int           @default(0)
-  isPublic      Boolean       @default(true)
+  isPublic      Boolean       @default(false)
   isActive      Boolean       @default(true)
   hitCount      Int           @default(0)
   lastHitAt     DateTime?     @db.Timestamptz(3)

@@ -567,12 +567,14 @@ function getFinalBodyFromRequest(
               key: parseTemplateString(x.key, resolvedVariables),
               value: v as string | Blob,
               contentType: x.contentType,
+              isFile: true,
             }))
           : [
               {
                 key: parseTemplateString(x.key, resolvedVariables),
                 value: parseTemplateString(x.value, resolvedVariables),
                 contentType: x.contentType,
+                isFile: false,
               },
             ]
       ),

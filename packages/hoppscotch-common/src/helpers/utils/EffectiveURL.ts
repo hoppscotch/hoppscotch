@@ -371,12 +371,14 @@ export function getFinalBodyFromRequest(
               key: parseTemplateString(x.key, envVariables),
               value: v as string | Blob,
               contentType: x.contentType,
+              isFile: true,
             }))
           : [
               {
                 key: parseTemplateString(x.key, envVariables),
                 value: parseTemplateString(x.value, envVariables),
                 contentType: x.contentType,
+                isFile: false,
               },
             ]
       ),

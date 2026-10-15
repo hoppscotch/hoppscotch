@@ -129,7 +129,11 @@ pub enum MediaType {
 #[serde(tag = "kind", rename_all = "camelCase")]
 pub enum FormValue {
     #[serde(rename_all = "camelCase")]
-    Text { value: String },
+    Text {
+        value: String,
+        #[serde(default)]
+        content_type: Option<String>,
+    },
     #[serde(rename_all = "camelCase")]
     File {
         filename: String,

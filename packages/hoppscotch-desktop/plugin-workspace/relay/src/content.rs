@@ -213,11 +213,17 @@ impl<'a> ContentHandler<'a> {
         for (key, values) in content {
             for value in values {
                 match value {
-                    FormValue::Text { value: text } => {
+                    FormValue::Text {
+                        value: text,
+                        content_type,
+                    } => {
                         tracing::debug!(key = %key, text_length = text.len(), "Adding form text field");
-                        form.part(key)
-                            .contents(text.as_bytes())
-                            .add()
+                        let part = form.part(key);
+                        part.contents(text.as_bytes());
+                        if let Some(content_type) = content_type {
+                            part.content_type(content_type.as_str());
+                        }
+                        part.add()
                             .map_err(|e| {
                                 tracing::error!(error = %e, key = %key, "Failed to add form text field");
                                 RelayError::Network {

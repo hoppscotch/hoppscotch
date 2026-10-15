@@ -48,15 +48,12 @@ export const parseCurlCommand = (curlCommand: string) => {
   const { curlCommand: sanitizedCurlCommand, extractedJSONData } =
     replaceJSONDataArgsWithPlaceholders(curlCommand)
 
-  const {
-    protectedCommand,
-    placeholder: escDquotePlaceholder,
-    placeholders: escPlaceholders,
-  } = protectEscapedDoubleQuotes(sanitizedCurlCommand)
+  const { protectedCommand, placeholders: escPlaceholders } =
+    protectEscapedDoubleQuotes(sanitizedCurlCommand)
 
   const rawArgs = restoreEscapedDoubleQuotes(
     parser(protectedCommand),
-    escPlaceholders ?? escDquotePlaceholder
+    escPlaceholders
   )
 
   const args: parser.Arguments = restoreJSONDataArgsFromPlaceholders(

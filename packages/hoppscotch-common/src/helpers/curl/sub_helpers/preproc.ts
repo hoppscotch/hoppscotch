@@ -315,8 +315,8 @@ export interface PlaceholderReplacement {
 
 export interface ProtectedCommandResult {
   protectedCommand: string
-  placeholder: string | null
-  placeholders?: PlaceholderReplacement[]
+  placeholder?: string | null
+  placeholders: PlaceholderReplacement[]
 }
 
 /**

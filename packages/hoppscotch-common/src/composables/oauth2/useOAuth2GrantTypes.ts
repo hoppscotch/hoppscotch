@@ -2,6 +2,7 @@ import { HoppGQLAuthOAuth2, HoppRESTAuthOAuth2 } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import { Ref, computed } from "vue"
 import { z } from "zod"
+import { AggregateEnvironment } from "~/newstore/environments"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 import { refWithCallbackOnChange } from "~/composables/ref"
@@ -42,7 +43,11 @@ export const useOAuth2GrantTypes = (
   workingTokenRequestParams: Ref<TokenRequestParam[]>,
   workingRefreshRequestParams: Ref<TokenRequestParam[]>,
   pkceTippyActions: Ref<HTMLElement | null>,
-  clientAuthenticationTippyActions: Ref<HTMLElement | null>
+  clientAuthenticationTippyActions: Ref<HTMLElement | null>,
+  // Supplies a precedence-ordered variable list to resolve `<<var>>` references
+  // against instead of the active tab's. A getter so computed values re-resolve
+  // when the list changes.
+  getVariables: () => AggregateEnvironment[] | undefined = () => undefined
 ) => {
   const t = useI18n()
   const toast = useToast()
@@ -67,8 +72,8 @@ export const useOAuth2GrantTypes = (
       .filter((p) => p.active && p.key && p.value)
       .map((p) => ({
         id: p.id,
-        key: replaceTemplateString(p.key),
-        value: replaceTemplateString(p.value),
+        key: replaceTemplateString(p.key, getVariables()),
+        value: replaceTemplateString(p.value, getVariables()),
         active: p.active,
         sendIn: p.sendIn || "body",
       }))
@@ -256,7 +261,11 @@ export const useOAuth2GrantTypes = (
             refreshToken,
           }
 
-          const unwrappedParams = replaceTemplateStringsInObjectValues(params)
+          const unwrappedParams = replaceTemplateStringsInObjectValues(
+            params,
+            "REST",
+            getVariables()
+          )
 
           const refreshTokenFunc = authCode.refreshToken
 
@@ -298,7 +307,11 @@ export const useOAuth2GrantTypes = (
             tokenType: tokenType.value.id,
           }
 
-          const unwrappedParams = replaceTemplateStringsInObjectValues(params)
+          const unwrappedParams = replaceTemplateStringsInObjectValues(
+            params,
+            "REST",
+            getVariables()
+          )
 
           const parsedArgs = authCode.params.safeParse(unwrappedParams)
 
@@ -501,16 +514,20 @@ export const useOAuth2GrantTypes = (
 
         const runAction = async () => {
           const values: ClientCredentialsFlowParams =
-            replaceTemplateStringsInObjectValues({
-              authEndpoint: authEndpoint.value,
-              clientID: clientID.value,
-              clientSecret: clientSecret.value,
-              scopes: scopes.value,
-              clientAuthentication: clientAuthentication.value.id,
-              tokenRequestParams: preparedTokenRequestParams.value,
-              refreshRequestParams: preparedRefreshRequestParams.value,
-              tokenType: tokenType.value.id,
-            })
+            replaceTemplateStringsInObjectValues(
+              {
+                authEndpoint: authEndpoint.value,
+                clientID: clientID.value,
+                clientSecret: clientSecret.value,
+                scopes: scopes.value,
+                clientAuthentication: clientAuthentication.value.id,
+                tokenRequestParams: preparedTokenRequestParams.value,
+                refreshRequestParams: preparedRefreshRequestParams.value,
+                tokenType: tokenType.value.id,
+              },
+              "REST",
+              getVariables()
+            )
 
           const parsedArgs = clientCredentials.params.safeParse(values)
 
@@ -688,17 +705,21 @@ export const useOAuth2GrantTypes = (
 
         const runAction = async () => {
           const values: PasswordFlowParams =
-            replaceTemplateStringsInObjectValues({
-              authEndpoint: authEndpoint.value,
-              clientID: clientID.value,
-              clientSecret: clientSecret.value,
-              scopes: scopes.value,
-              username: username.value,
-              password: password.value,
-              tokenRequestParams: preparedTokenRequestParams.value,
-              refreshRequestParams: preparedRefreshRequestParams.value,
-              tokenType: tokenType.value.id,
-            })
+            replaceTemplateStringsInObjectValues(
+              {
+                authEndpoint: authEndpoint.value,
+                clientID: clientID.value,
+                clientSecret: clientSecret.value,
+                scopes: scopes.value,
+                username: username.value,
+                password: password.value,
+                tokenRequestParams: preparedTokenRequestParams.value,
+                refreshRequestParams: preparedRefreshRequestParams.value,
+                tokenType: tokenType.value.id,
+              },
+              "REST",
+              getVariables()
+            )
 
           const parsedArgs = passwordFlow.params.safeParse(values)
 
@@ -827,16 +848,24 @@ export const useOAuth2GrantTypes = (
 
         const runAction = () => {
           const values: ImplicitOauthFlowParams =
-            replaceTemplateStringsInObjectValues({
-              authEndpoint: authEndpoint.value,
-              clientID: clientID.value,
-              scopes: scopes.value,
-              authRequestParams: preparedAuthRequestParams.value,
-              refreshRequestParams: preparedRefreshRequestParams.value,
-              tokenType: tokenType.value.id,
-            })
+            replaceTemplateStringsInObjectValues(
+              {
+                authEndpoint: authEndpoint.value,
+                clientID: clientID.value,
+                scopes: scopes.value,
+                authRequestParams: preparedAuthRequestParams.value,
+                refreshRequestParams: preparedRefreshRequestParams.value,
+                tokenType: tokenType.value.id,
+              },
+              "REST",
+              getVariables()
+            )
 
-          const unwrappedValues = replaceTemplateStringsInObjectValues(values)
+          const unwrappedValues = replaceTemplateStringsInObjectValues(
+            values,
+            "REST",
+            getVariables()
+          )
 
           const parsedArgs = implicit.params.safeParse(unwrappedValues)
 

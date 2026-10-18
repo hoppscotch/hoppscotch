@@ -507,20 +507,18 @@ const getHoppReqURL = (url: Item["request"]["url"] | null): string => {
   if (!url) return ""
   return pipe(
     url.toString(false),
-    // Strip the query first: a %3F surviving in a path segment would otherwise
-    // be decoded to "?" and take the rest of the path with it.
     S.replace(/\?.+/g, ""),
     // Postman SDK's toString() percent-encodes path segments, which turns
     // variable syntax {{var}} into %7B%7Bvar%7D%7D and leaves
     // replacePMVarTemplating nothing to match.
     //
-    // Only the brace delimiters are decoded, not the whole URL. A blanket
-    // decodeURI also decodes every other non-reserved escape, which changes
-    // where the request goes: /files/a%252Fb (a literal "%2Fb") becomes
-    // /files/a%2Fb, which the sender treats as an encoded slash, and %20
-    // becomes a raw space.
-    S.replace(/%7B%7B/gi, "{{"),
-    S.replace(/%7D%7D/gi, "}}"),
+    // Matched pairs only, in one pass, and nothing else in the URL. Decoding
+    // the delimiters independently would rewrite a lone encoded brace, which
+    // replacePMVarTemplating then turns into "<<"/">>" -- /x/%7D%7D would
+    // import as /x/>>. A blanket decodeURI is worse still: it decodes every
+    // non-reserved escape, so /files/a%252Fb (the literal text "a%2Fb")
+    // becomes /files/a%2Fb, which the sender reads as an encoded slash.
+    S.replace(/%7B%7B(.*?)%7D%7D/gi, "{{$1}}"),
     replacePMVarTemplating
   )
 }

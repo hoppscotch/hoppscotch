@@ -67,6 +67,23 @@ describe("postman import — URL percent-encoding", () => {
     )
   })
 
+  it("leaves a lone encoded brace alone", async () => {
+    // Decoding the delimiters independently turned this into "/x/}}", which
+    // replacePMVarTemplating then rewrote to "/x/>>".
+    expect(await importURL("https://example.com/x/%7D%7D")).toBe(
+      "https://example.com/x/%7D%7D"
+    )
+    expect(await importURL("https://example.com/x/%7B%7B")).toBe(
+      "https://example.com/x/%7B%7B"
+    )
+  })
+
+  it("accepts lowercase escapes, which the regex's `i` flag is there for", async () => {
+    expect(await importURL("https://example.com/v1/%7b%7buserId%7d%7d")).toBe(
+      "https://example.com/v1/<<userId>>"
+    )
+  })
+
   it("still strips the query string", async () => {
     expect(await importURL("https://example.com/p?a=1&b=2")).toBe(
       "https://example.com/p"

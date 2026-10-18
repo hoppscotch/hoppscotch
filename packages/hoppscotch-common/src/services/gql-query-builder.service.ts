@@ -68,6 +68,25 @@ export class GQLQueryBuilderService extends Service {
   public readonly cursorPosition = ref({ line: 0, ch: 1 })
   public readonly operations = ref<OperationDefinitionNode[]>([])
 
+  /**
+   * One-shot signal asking a query editor to move its cursor (0-based line;
+   * `ch: -1` = end of line) without a query-text change. Set via
+   * `moveCursorTo`, consumed and cleared by the editor component — lets
+   * non-editor surfaces (e.g. the AI chat) point the editor at the operation
+   * they are acting on. With `tabId`, only that tab's editor applies it (also
+   * on a later mount).
+   */
+  public readonly requestedCursor = ref<{
+    line: number
+    ch: number
+    tabId?: string
+  } | null>(null)
+
+  /** Asks the query editor (of `tabId`, when given) to place its cursor. */
+  public moveCursorTo(line: number, ch: number, tabId?: string) {
+    this.requestedCursor.value = { line, ch, tabId }
+  }
+
   private getActiveGQLDoc() {
     const tab = this.workspaceTabs.currentActiveTab.value
     return tab?.document.type === "gql-request" ? tab.document : undefined

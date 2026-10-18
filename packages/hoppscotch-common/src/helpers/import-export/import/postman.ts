@@ -507,13 +507,20 @@ const getHoppReqURL = (url: Item["request"]["url"] | null): string => {
   if (!url) return ""
   return pipe(
     url.toString(false),
-    // Strip query string before decoding to avoid decoded %3F in path
-    // segments being erroneously removed by the query-strip regex.
+    // Strip the query first: a %3F surviving in a path segment would otherwise
+    // be decoded to "?" and take the rest of the path with it.
     S.replace(/\?.+/g, ""),
-    // Postman SDK's toString() URL-encodes path segments, which turns
-    // variable syntax {{var}} into %7B%7Bvar%7D%7D. Decode after query
-    // removal so replacePMVarTemplating can match double-brace patterns.
-    (s) => { try { return decodeURI(s) } catch { return s } },
+    // Postman SDK's toString() percent-encodes path segments, which turns
+    // variable syntax {{var}} into %7B%7Bvar%7D%7D and leaves
+    // replacePMVarTemplating nothing to match.
+    //
+    // Only the brace delimiters are decoded, not the whole URL. A blanket
+    // decodeURI also decodes every other non-reserved escape, which changes
+    // where the request goes: /files/a%252Fb (a literal "%2Fb") becomes
+    // /files/a%2Fb, which the sender treats as an encoded slash, and %20
+    // becomes a raw space.
+    S.replace(/%7B%7B/gi, "{{"),
+    S.replace(/%7D%7D/gi, "}}"),
     replacePMVarTemplating
   )
 }

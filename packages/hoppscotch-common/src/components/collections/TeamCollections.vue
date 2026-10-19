@@ -851,7 +851,8 @@ const hasNoTeamAccess = computed(
   () =>
     props.collectionsType.type === "team-collections" &&
     (props.collectionsType.selectedTeam === undefined ||
-      props.collectionsType.selectedTeam.role === "VIEWER")
+      (props.collectionsType.selectedTeam.role !== "OWNER" &&
+        props.collectionsType.selectedTeam.role !== "EDITOR"))
 )
 
 const isSelected = ({

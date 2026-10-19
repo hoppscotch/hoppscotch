@@ -35,7 +35,7 @@
         @click="selectRequest()"
       >
         <span
-          class="pointer-events-none flex min-w-10 shrink-0 items-center justify-start truncate px-0.5"
+class="pointer-events-none flex min-w-10 max-w-full shrink-0 items-center justify-start truncate px-0.5"
           :style="{
             color: isGQL
               ? undefined

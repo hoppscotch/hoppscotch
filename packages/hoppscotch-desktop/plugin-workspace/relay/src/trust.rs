@@ -269,7 +269,10 @@ fn resolve_by_precedence(entries: Vec<(Vec<u8>, Vec<u8>, Decision)>) -> Vec<Vec<
 /// issued for code signing, timestamping and S/MIME, and an entry stating no
 /// server authentication usage is not a TLS anchor whatever the shipped
 /// setting says. An empty settings array means trusted in System and defer
-/// elsewhere, and a setting this process could not read grants nothing.
+/// elsewhere. An Admin or User setting this process could not read denies,
+/// ∵ it may be the denial of a root System trusts, and a deferral would let
+/// the System entry decide it. A System setting that could not read defers,
+/// ∵ the bundled roots stand in for the System roots.
 #[cfg(target_os = "macos")]
 fn decide(
     is_system: bool,
@@ -303,7 +306,8 @@ fn decide(
             }
         }
         Ok(_) => Decision::Defer,
-        Err(()) => Decision::Defer,
+        Err(()) if is_system => Decision::Defer,
+        Err(()) => Decision::Deny,
     }
 }
 
@@ -427,7 +431,8 @@ fn read_platform() -> Option<TrustBundle> {
     use std::ptr;
 
     use windows_sys::Win32::Foundation::{
-        GetLastError, SetLastError, CRYPT_E_NOT_FOUND, ERROR_NO_MORE_FILES,
+        GetLastError, SetLastError, CRYPT_E_NOT_FOUND, ERROR_FILE_NOT_FOUND,
+        ERROR_NO_MORE_FILES, ERROR_PATH_NOT_FOUND,
     };
     use windows_sys::Win32::Security::Cryptography::{
         CertCloseStore, CertEnumCertificatesInStore, CertGetEnhancedKeyUsage, CertOpenStore,
@@ -562,11 +567,16 @@ fn read_platform() -> Option<TrustBundle> {
     // A store that is not there and a store that would not read are different
     // answers, ∵ several locations ship no `Disallowed` store at all while a
     // read that fails partway leaves revocations unseen.
-    // `CertOpenStore` documents one error code of its own and propagates
-    // registry errors otherwise, so a store that is not provisioned and a
-    // store an access failure kept shut cannot be told apart by the error.
-    // The caller decides from what else that location returned instead.
+    // `CertOpenStore` documents one error code of its own, `ERROR_FILE_NOT_FOUND`
+    // for a provider it cannot find, which the built-in system provider never
+    // answers, and propagates registry errors otherwise. With
+    // `CERT_STORE_OPEN_EXISTING_FLAG` the system provider opens the store's key
+    // through `RegOpenKeyExW`, which answers a key that does not exist with
+    // `ERROR_FILE_NOT_FOUND`, or `ERROR_PATH_NOT_FOUND` where a parent key is
+    // missing too, so those two codes mean the store is not provisioned and
+    // every other code is a store that exists and would not open.
     enum StoreError {
+        Absent,
         Open,
         // What the enumeration returned before it failed, ∵ a partial `ROOT`
         // read still names roots this machine trusts and discarding them would
@@ -593,7 +603,14 @@ fn read_platform() -> Option<TrustBundle> {
         };
         if store.is_null() {
             let error = unsafe { GetLastError() };
-            tracing::debug!(
+            if error == ERROR_FILE_NOT_FOUND || error == ERROR_PATH_NOT_FOUND {
+                tracing::debug!(
+                    store = %format!("{label}/{name}"),
+                    "Certificate store not provisioned"
+                );
+                return Err(StoreError::Absent);
+            }
+            tracing::warn!(
                 store = %format!("{label}/{name}"),
                 error,
                 "Certificate store did not open"
@@ -644,9 +661,9 @@ fn read_platform() -> Option<TrustBundle> {
     let mut roots: Vec<(Vec<u8>, StoreUsage)> = Vec::new();
     let mut revoked: Vec<Vec<u8>> = Vec::new();
     let mut read = 0usize;
-    // A location whose `Disallowed` store cannot be read while its `ROOT`
-    // store returned certificates leaves the revocations of that location
-    // unknown, and a root exported against an unknown revocation set is one
+    // A location whose `Disallowed` store exists and cannot be read leaves the
+    // revocations of that location unknown, and a root exported against an
+    // unknown revocation set is one
     // Windows may have revoked, so the host roots are dropped and the
     // compiled-in set is used instead, filtered by every revocation that was read.
     let mut revocations_known = true;
@@ -670,25 +687,21 @@ fn read_platform() -> Option<TrustBundle> {
                 revoked.extend(partial.into_iter().map(|(der, _)| der));
                 revocations_known = false;
             }
-            // `CertOpenStore` gives no code for a store that is not
-            // provisioned, and a location with no `Disallowed` store at all is
-            // ordinary, so the read counts as unknown only where that
-            // location's `ROOT` store returned certificates. An open `ROOT`
-            // with nothing in it is how a policy location nobody configured
-            // reads, and counting it would drop the enterprise roots every
-            // other location returned.
+            // A location with no `Disallowed` store at all is ordinary, and a
+            // policy location nobody configured reads that way, so it revokes
+            // nothing and the enterprise roots every other location returned
+            // stay in the blob.
+            Err(StoreError::Absent) => {}
+            // A policy location can distrust a public CA without adding a root
+            // of its own, so a `Disallowed` store that exists and would not open
+            // leaves the revocations unknown whatever that location's `ROOT`
+            // store returned.
             Err(StoreError::Open) => {
-                let returned = match &root {
-                    Ok(entries) | Err(StoreError::Incomplete(entries)) => !entries.is_empty(),
-                    Err(StoreError::Open) => false,
-                };
-                if returned {
-                    tracing::warn!(
-                        location = %label,
-                        "Disallowed store did not open where the root store did, revocations for this location are unknown"
-                    );
-                    revocations_known = false;
-                }
+                tracing::warn!(
+                    location = %label,
+                    "Disallowed store did not open, revocations for this location are unknown"
+                );
+                revocations_known = false;
             }
         }
 
@@ -707,7 +720,7 @@ fn read_platform() -> Option<TrustBundle> {
                 roots.extend(partial);
             }
             // Nothing opened here, so this location contributes no anchor.
-            Err(StoreError::Open) => {}
+            Err(StoreError::Absent) | Err(StoreError::Open) => {}
         }
     }
 
@@ -964,9 +977,21 @@ mod tests {
                 decide(false, Ok(Some(TrustSettingsForCertificate::Deny)), &der),
                 Decision::Deny
             );
-            assert_eq!(decide(false, Err(()), &der), Decision::Defer);
+            assert_eq!(decide(false, Err(()), &der), Decision::Deny);
             assert_eq!(decide(true, Err(()), &der), Decision::Defer);
             assert_eq!(decide(false, Ok(None), &der), Decision::Defer);
+        }
+
+        #[test]
+        fn an_unreadable_user_setting_keeps_a_system_root_out() {
+            let der = root("system-trusted", &key(), None);
+            let user = decide(false, Err(()), &der);
+            let system = decide(true, Ok(None), &der);
+            let anchors = resolve_by_precedence(vec![
+                (der.clone(), der.clone(), user),
+                (der.clone(), der, system),
+            ]);
+            assert!(anchors.is_empty());
         }
     }
 

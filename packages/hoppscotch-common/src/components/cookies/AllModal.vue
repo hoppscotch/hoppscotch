@@ -90,6 +90,14 @@
                       readonly
                     />
                     <span
+                      v-if="entry.hostOnly"
+                      v-tippy="{ theme: 'tooltip' }"
+                      :title="t('cookies.modal.host_only_info')"
+                      class="px-2 text-tiny font-semibold text-secondaryLight"
+                    >
+                      {{ t("cookies.modal.host_only") }}
+                    </span>
+                    <span
                       v-if="entry.httpOnly"
                       v-tippy="{ theme: 'tooltip' }"
                       :title="t('cookies.modal.http_only_info')"
@@ -391,6 +399,10 @@ function saveCookie(value: string) {
   }
 }
 
+// A manual entry gets no `hostOnly`. RFC 6265 5.3 derives the flag
+// from a Set-Cookie with no Domain attribute, and a cookie typed
+// into a domain row was never sent by a server, so it keeps the
+// subdomain matching manual entries had before the flag existed.
 function makeUICookie(domain: string, value: string, name: string): Cookie {
   return {
     name,

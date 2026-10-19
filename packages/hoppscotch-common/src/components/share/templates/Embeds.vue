@@ -58,11 +58,7 @@ import { computed } from "vue"
 import { useI18n } from "~/composables/i18n"
 
 type Tabs =
-  | "params"
-  | "bodyParams"
-  | "headers"
-  | "authorization"
-  | "requestVariables"
+  "params" | "bodyParams" | "headers" | "authorization" | "requestVariables"
 
 type EmbedOption = {
   selectedTab: Tabs

@@ -4,6 +4,7 @@ import { parseString as setCookieParse } from "set-cookie-parser-es"
 import { Cookie } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import { Store } from "~/kernel/store"
+import type { SetCookieValues } from "set-cookie-parser-es"
 
 // Cookies are per-organization state, so they persist through the
 // org-scoped `Store` (`~/kernel/store`), which resolves to
@@ -233,13 +234,19 @@ export class CookieJarService extends Service {
           typeof (c as { value?: unknown }).value !== "string" ||
           typeof (c as { domain?: unknown }).domain !== "string" ||
           typeof (c as { path?: unknown }).path !== "string" ||
-          typeof (c as { secure?: unknown }).secure !== "boolean"
+          typeof (c as { secure?: unknown }).secure !== "boolean" ||
+          ((c as { hostOnly?: unknown }).hostOnly !== undefined &&
+            typeof (c as { hostOnly?: unknown }).hostOnly !== "boolean")
         ) {
           // `path` is what `pathMatches` reads to decide whether
           // a cookie applies, `secure` is what gates the HTTPS-only
           // attach in `applyCookiesToRequest`, so a schema-drifted
           // payload that smuggled a string `"false"` past either
           // would silently mismatch path scope or attach over HTTP.
+          // `hostOnly` is checked only when present, because absent
+          // is the pre-flag jar that `toMap` migrates. A present but
+          // non-boolean value would read as false there and widen a
+          // host-only cookie to every subdomain.
           throw new Error("payload has malformed cookie")
         }
       }
@@ -276,6 +283,13 @@ export class CookieJarService extends Service {
         const canonized: Cookie = {
           ...c,
           domain: this.canonStoreDomain(c.domain ?? key) || key,
+          // A jar persisted before the host-only flag existed has no
+          // `hostOnly` on its entries. Treating those as non-host-only
+          // keeps the subdomain matching they had before the
+          // upgrade, so an existing cookie whose bucket key is a parent
+          // domain keeps applying to child hosts as before. An entry
+          // that already has the flag keeps its value.
+          hostOnly: typeof c.hostOnly === "boolean" ? c.hostOnly : false,
         }
         // NUL separator matches the `cookieKey` pattern in
         // `RequestRunner.ts`. Empty-string path collapses to
@@ -400,6 +414,13 @@ export class CookieJarService extends Service {
         secure: typeof cookie.secure === "boolean" ? cookie.secure : false,
         httpOnly:
           typeof cookie.httpOnly === "boolean" ? cookie.httpOnly : false,
+        // `parseStored` rejects a present non-boolean `hostOnly` and a
+        // rejected payload fails the whole load, so a script-set value
+        // of the wrong type is dropped at the write instead of
+        // persisted. Absent stays absent, which `toMap` reads as the
+        // pre-flag jar and migrates.
+        hostOnly:
+          typeof cookie.hostOnly === "boolean" ? cookie.hostOnly : undefined,
       }
       const existing = this.cookieJar.value.get(normalized.domain) ?? []
 
@@ -441,6 +462,36 @@ export class CookieJarService extends Service {
     return stripped.toLowerCase()
   }
 
+  // Whether a response from `host` may set a cookie for `domain`.
+  // RFC 6265 5.3 step 5 treats an IP-literal host as an address
+  // rather than as a label chain, so only an exact match is allowed
+  // there. Running `domainMatches` on `192.168.1.1` would accept
+  // `Domain=1.1` as a parent, and the cookie would then attach to
+  // the unrelated address `10.0.1.1`, which shares the suffix and
+  // nothing else. Everything else is the 5.1.3 comparison, so a
+  // subdomain setting its parent domain still passes.
+  private hostAcceptsDomain(host: string, domain: string): boolean {
+    if (this.isIPLiteral(host)) {
+      return host === domain
+    }
+    // `hostOnly` is false because this runs only where the response
+    // sent a `Domain` attribute, and the host-only flag describes a
+    // response that sent none. A capture without the attribute takes
+    // the request host as its domain and never reaches here.
+    return this.domainMatches(host, domain, false)
+  }
+
+  // `URL.hostname` renders an IPv6 address bracketed, so the two
+  // forms are recognized separately. An IPv4 check on the four
+  // dotted fields is enough here, since a host that reached this
+  // point already parsed as a URL.
+  private isIPLiteral(host: string): boolean {
+    if (host.startsWith("[") && host.endsWith("]")) {
+      return true
+    }
+    return /^\d{1,3}(\.\d{1,3}){3}$/.test(host)
+  }
+
   // Canonicalizes a cookie domain that came from a Set-Cookie
   // `Domain` attribute. Calls `canonStoreDomain` then rejects a
   // single-label domain that would let the cookie attach to every
@@ -480,8 +531,9 @@ export class CookieJarService extends Service {
 
   // Normalizes the kernel relay response cookies into the
   // `@hoppscotch/data` shape and merges them. Domain falls back to the
-  // request host (host-only cookie), path to "/", the flags default
-  // off, and SameSite to "Lax" matching the browser default.
+  // request host with the host-only flag set, path to "/", the
+  // httpOnly/secure flags default off, and SameSite to "Lax" matching
+  // the browser default.
   public async extractFromResponse(
     cookies: ResponseCookie[] | undefined,
     requestURL: URL
@@ -494,8 +546,30 @@ export class CookieJarService extends Service {
     const normalized: Cookie[] = []
     for (const c of cookies) {
       let domain: string | null
+      // A Set-Cookie without a Domain attribute is host-only per RFC 6265
+      // 5.3, so it applies to the request host alone. The flag is what
+      // `domainMatches` reads to enforce that, so a
+      // host-only entry stored under a parent host cannot also apply to a
+      // child-host request where a Domain-scoped cookie of the same name
+      // already applies.
+      const hostOnly = !c.domain
       if (c.domain) {
         domain = this.canonAttrDomain(c.domain)
+        // RFC 6265 5.3 step 6 rejects a `Domain` attribute the
+        // request host does not domain-match. Without it a response
+        // from one host writes a cookie stored under another, and
+        // the next request to that other host attaches it, which is
+        // a cross-origin write for every capture path that reaches
+        // here. `api.example.com` setting `Domain=example.com` still
+        // passes, since `domainMatches` is the same 5.1.3 comparison
+        // the read side uses.
+        if (domain !== null && !this.hostAcceptsDomain(requestHost, domain)) {
+          console.warn(
+            "[CookieJar] Dropped cookie with a cross-domain Domain:",
+            c.domain
+          )
+          continue
+        }
       } else {
         domain = this.canonHostOnly(requestHost)
       }
@@ -532,6 +606,7 @@ export class CookieJarService extends Service {
         httpOnly: c.httpOnly ?? false,
         secure: c.secure ?? false,
         sameSite: c.sameSite ?? "Lax",
+        hostOnly,
         ...(expires !== undefined ? { expires } : {}),
       })
     }
@@ -637,9 +712,19 @@ export class CookieJarService extends Service {
   // bare `hostname.endsWith(domain)`, which let `evil-example.com`
   // match `example.com` because there was no label boundary. Hosts
   // are lowercased here, stored domains were lowercased on capture,
-  // so the comparison is case-insensitive per RFC 6265 5.1.2.
-  private domainMatches(host: string, domain: string): boolean {
+  // so the comparison is case-insensitive per RFC 6265 5.1.2. A
+  // host-only cookie (RFC 6265 5.4 step 1.1, no Domain attribute on
+  // capture) requires exact host equality so it never applies to a
+  // subdomain of the host that set it.
+  private domainMatches(
+    host: string,
+    domain: string,
+    hostOnly: boolean
+  ): boolean {
     const h = host.toLowerCase()
+    if (hostOnly) {
+      return h === domain
+    }
     return h === domain || h.endsWith(`.${domain}`)
   }
 
@@ -662,11 +747,17 @@ export class CookieJarService extends Service {
     const result: Cookie[] = []
 
     for (const [domain, cookies] of this.cookieJar.value.entries()) {
-      if (!this.domainMatches(url.hostname, domain)) {
-        continue
-      }
-
       for (const cookie of cookies) {
+        // The domain check runs per cookie, not per bucket, because
+        // the host-only flag is a per-cookie property. A bucket can
+        // contain both a host-only entry and a Domain-scoped one, and
+        // only the latter applies to a subdomain request.
+        if (
+          !this.domainMatches(url.hostname, domain, cookie.hostOnly ?? false)
+        ) {
+          continue
+        }
+
         const passesPath = this.pathMatches(url.pathname, cookie.path || "/")
 
         const passesExpires = (() => {
@@ -822,10 +913,97 @@ export class CookieJarService extends Service {
     request.headers["Cookie"] = serialized
   }
 
+  // Maps the `set-cookie-parser-es` SameSite union (lowercase or a
+  // bare boolean) onto the `@hoppscotch/data` casing
+  // `extractFromResponse` expects. An unrecognized or boolean value
+  // yields undefined so the extractor applies its "Lax" default.
+  private normalizeSameSite(
+    raw: SetCookieValues["sameSite"]
+  ): ResponseCookie["sameSite"] {
+    if (typeof raw !== "string") {
+      return undefined
+    }
+    switch (raw.toLowerCase()) {
+      case "strict":
+        return "Strict"
+      case "lax":
+        return "Lax"
+      case "none":
+        return "None"
+      default:
+        return undefined
+    }
+  }
+
+  // Parses raw Set-Cookie header strings into the response-cookie
+  // objects `extractFromResponse` canonicalizes. The agent relay joins
+  // multiple Set-Cookie headers with newlines (see the agent
+  // interceptor's multiHeaders split), so each line is parsed on its
+  // own. Lines the parser cannot resolve to a name are dropped rather
+  // than stored as `undefined=...`. Returns undefined when there is no
+  // Set-Cookie header to read, empty value included, and an array
+  // otherwise. `decodeValues` is off so a percent-encoded value is
+  // stored exactly as the relay's structured path stores it, since a
+  // decoded value would be re-emitted unencoded by
+  // `serializeCookieHeader`.
+  private cookiesFromSetCookieHeader(
+    headers: Record<string, string> | undefined
+  ): ResponseCookie[] | undefined {
+    if (!headers) {
+      return undefined
+    }
+    const key = Object.keys(headers).find(
+      (h) => h.toLowerCase() === "set-cookie"
+    )
+    if (key === undefined) {
+      return undefined
+    }
+    const raw = headers[key]
+    if (!raw) {
+      return undefined
+    }
+    const cookies: ResponseCookie[] = []
+    for (const line of raw
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean)) {
+      const parsed = setCookieParse(line, { decodeValues: false })
+      if (!parsed.name) {
+        continue
+      }
+      cookies.push({
+        name: parsed.name,
+        value: parsed.value,
+        domain: parsed.domain,
+        path: parsed.path,
+        // RFC 6265 4.1.2.2, Max-Age takes precedence over Expires, and
+        // the structured relay path has already resolved it into an
+        // expiry by the time cookies arrive that way. Converting here
+        // keeps a `Max-Age` cookie from being stored as a session
+        // cookie, and lets `Max-Age=0` expire an entry on capture.
+        // A non-positive age resolves one millisecond behind the
+        // capture instant rather than onto it, since `pruneExpired`
+        // and the read filter both keep an entry while its expiry
+        // equals the current time, which would carry a deleted
+        // cookie into a read taken in that same millisecond.
+        expires:
+          parsed.maxAge !== undefined && Number.isFinite(parsed.maxAge)
+            ? new Date(
+                Date.now() + (parsed.maxAge > 0 ? parsed.maxAge * 1000 : -1)
+              )
+            : parsed.expires,
+        secure: parsed.secure,
+        httpOnly: parsed.httpOnly,
+        sameSite: this.normalizeSameSite(parsed.sameSite),
+      })
+    }
+    return cookies
+  }
+
   // The one shared receive path. Captures structured cookies the
   // relay parsed out of the response into the jar.
   public async captureResponseCookies(
-    response: { cookies?: ResponseCookie[] },
+    response: { cookies?: ResponseCookie[]; headers?: Record<string, string> },
     requestUrl: string | undefined
   ): Promise<void> {
     if (!requestUrl) {
@@ -833,6 +1011,21 @@ export class CookieJarService extends Service {
     }
     const url = this.parseRequestURL(requestUrl)
     if (url === null) {
+      return
+    }
+    // Agent binaries built against a relay revision without
+    // `parse_cookies` return no structured `cookies` while the
+    // Set-Cookie headers are still present in `headers`. Parsing the
+    // header string in that case keeps the jar working on older agent
+    // builds. The fallback runs only when `cookies` is absent, since a
+    // present array (even empty) is the relay's own answer that the
+    // response had no cookies, and re-parsing headers would risk
+    // double-counting.
+    if (response.cookies === undefined) {
+      await this.extractFromResponse(
+        this.cookiesFromSetCookieHeader(response.headers),
+        url
+      )
       return
     }
     await this.extractFromResponse(response.cookies, url)

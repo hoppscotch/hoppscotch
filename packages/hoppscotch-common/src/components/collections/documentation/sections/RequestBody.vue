@@ -19,8 +19,7 @@
       <div v-if="body.contentType === 'application/json'">
         <pre
           class="bg-primaryLight p-3 rounded my-2 overflow-auto max-h-64 text-xs font-mono text-secondaryLight"
-          >{{ formatJSON(body.body) }}</pre
-        >
+          >{{ formatJSON(body.body) }}</pre>
       </div>
 
       <div v-else-if="body.contentType === 'application/x-www-form-urlencoded'">
@@ -55,8 +54,7 @@
       <div v-else>
         <pre
           class="bg-primaryLight p-3 rounded my-2 overflow-auto max-h-64 font-mono text-secondaryLight"
-          >{{ body.body }}</pre
-        >
+          >{{ body.body }}</pre>
       </div>
     </div>
   </div>

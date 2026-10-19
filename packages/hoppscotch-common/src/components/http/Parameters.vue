@@ -109,7 +109,7 @@ import IconTrash2 from "~icons/lucide/trash-2"
 import IconEdit from "~icons/lucide/edit"
 import IconPlus from "~icons/lucide/plus"
 import IconWrapText from "~icons/lucide/wrap-text"
-import { reactive, ref, watch } from "vue"
+import { reactive, ref, watch, computed } from "vue"
 import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
@@ -134,7 +134,7 @@ import { objRemoveKey } from "@functional/object"
 import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { InspectionService, InspectorResult } from "~/services/inspection"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { AggregateEnvironment } from "~/newstore/environments"
@@ -143,7 +143,7 @@ const colorMode = useColorMode()
 
 const t = useI18n()
 const toast = useToast()
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 
 const idTicker = ref(0)
 
@@ -153,6 +153,14 @@ const bulkEditor = ref<any | null>(null)
 const WRAP_LINES = useNestedSetting("WRAP_LINES", "httpParams")
 
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
+
+// Declared before `useCodemirror` — its options read props at setup
+const props = defineProps<{
+  modelValue: HoppRESTParam[]
+  envs?: AggregateEnvironment[]
+  // Embed-only codemirror scope — `envs` alone must keep workspace editors live
+  scopedEnvs?: AggregateEnvironment[]
+}>()
 
 useCodemirror(
   bulkEditor,
@@ -166,14 +174,10 @@ useCodemirror(
     linter,
     completer: null,
     environmentHighlights: true,
+    envs: computed(() => props.scopedEnvs),
     predefinedVariablesHighlights: true,
   })
 )
-
-const props = defineProps<{
-  modelValue: HoppRESTParam[]
-  envs?: AggregateEnvironment[]
-}>()
 
 const emit = defineEmits<{
   (e: "update:modelValue", value: Array<HoppRESTParam>): void
@@ -316,12 +320,9 @@ const updateParam = (index: number, param: HoppRESTParam & { id: number }) => {
 const deleteParam = (index: number) => {
   const paramsBeforeDeletion = cloneDeep(workingParams.value)
 
-  if (
-    !(
-      paramsBeforeDeletion.length > 0 &&
-      index === paramsBeforeDeletion.length - 1
-    )
-  ) {
+  if (!(
+    paramsBeforeDeletion.length > 0 && index === paramsBeforeDeletion.length - 1
+  )) {
     if (deletionToast.value) {
       deletionToast.value.goAway(0)
       deletionToast.value = null

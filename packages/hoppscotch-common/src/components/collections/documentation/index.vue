@@ -10,7 +10,7 @@
     <template #body>
       <div class="w-full h-[80vh] overflow-hidden">
         <div class="flex h-full">
-          <div class="flex-1 flex">
+          <div class="flex min-w-0 flex-1">
             <CollectionsDocumentationPreview
               v-if="currentCollection"
               v-model:documentation-description="documentationDescription"
@@ -259,7 +259,11 @@ import { useToast } from "~/composables/toast"
 import { useDocumentationWorker } from "~/composables/useDocumentationWorker"
 import { useService } from "dioc/vue"
 
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import {
+  HoppCollection,
+  HoppGQLRequest,
+  HoppRESTRequest,
+} from "@hoppscotch/data"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
 
 import {
@@ -278,6 +282,8 @@ import {
 } from "~/helpers/backend/helpers"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { getErrorMessage } from "~/helpers/backend/mutations/MockServer"
+import { HoppTabSaveContext } from "~/helpers/tab/document"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 
 import {
   DocumentationService,
@@ -322,7 +328,7 @@ const props = withDefaults(
     folderPath?: string | null
     requestIndex?: number | null
     requestID?: string | null
-    request?: HoppRESTRequest | null
+    request?: HoppRESTRequest | HoppGQLRequest | null
     teamID?: string
     isTeamCollection?: boolean
   }>(),
@@ -342,6 +348,36 @@ const props = withDefaults(
 )
 
 const documentationService = useService(DocumentationService)
+const restTabs = useService(WorkspaceTabsService)
+
+/**
+ * Mirrors a saved documentation description onto any open tabs of the request —
+ * otherwise a tab keeps its pre-edit copy and its next save writes the stale
+ * description back over the one just saved.
+ */
+const syncOpenRequestTabDescription = (
+  saveContext: HoppTabSaveContext,
+  description: string
+) => {
+  const possibleTabs = restTabs.getTabsRefWithSaveContext(saveContext)
+
+  for (const possibleTab of possibleTabs) {
+    // Hold the document, not the tab ref — the ref's getter throws once the
+    // tab is closed, and it's read again after a tick
+    const tabDocument = possibleTab.value.document
+
+    if (tabDocument.type !== "request" && tabDocument.type !== "gql-request")
+      continue
+
+    const wasDirty = tabDocument.isDirty
+    tabDocument.request.description = description
+
+    // The tab marks itself dirty on any request change; restore its prior state
+    nextTick(() => {
+      tabDocument.isDirty = wasDirty
+    })
+  }
+}
 
 const isLoadingTeamCollection = ref<boolean>(false)
 const isSavingDocumentation = ref<boolean>(false)
@@ -774,9 +810,13 @@ const saveCollectionDocumentation = async () => {
 }
 
 const saveRequestDocumentation = async () => {
+  // The editor stays live while the team mutation is in flight — sync the tab
+  // with what was persisted, not whatever the editor holds when it resolves
+  const savedDescription = documentationDescription.value
+
   const updatedRequest = {
     ...props.request!,
-    description: documentationDescription.value,
+    description: savedDescription,
   }
 
   if (props.isTeamCollection && props.requestID) {
@@ -796,6 +836,13 @@ const saveRequestDocumentation = async () => {
           isSavingDocumentation.value = false
         },
         () => {
+          syncOpenRequestTabDescription(
+            {
+              originLocation: "team-collection",
+              requestID: props.requestID!,
+            },
+            savedDescription
+          )
           toast.success(t("documentation.save_success"))
           isSavingDocumentation.value = false
         }
@@ -804,6 +851,15 @@ const saveRequestDocumentation = async () => {
   } else {
     // Personal request
     editRESTRequest(props.folderPath!, props.requestIndex!, updatedRequest)
+    syncOpenRequestTabDescription(
+      {
+        originLocation: "user-collection",
+        folderPath: props.folderPath!,
+        requestIndex: props.requestIndex!,
+        requestRefID: updatedRequest._ref_id ?? updatedRequest.id,
+      },
+      savedDescription
+    )
     toast.success(t("documentation.save_success"))
   }
 }
@@ -916,6 +972,13 @@ const saveRequestDocumentationById = async (
             return false
           },
           () => {
+            syncOpenRequestTabDescription(
+              {
+                originLocation: "team-collection",
+                requestID: item.requestID!,
+              },
+              documentation
+            )
             return true
           }
         )
@@ -939,6 +1002,15 @@ const saveRequestDocumentationById = async (
 
     try {
       editRESTRequest(folderPath, item.requestIndex, updatedRequest)
+      syncOpenRequestTabDescription(
+        {
+          originLocation: "user-collection",
+          folderPath,
+          requestIndex: item.requestIndex,
+          requestRefID: updatedRequest._ref_id ?? updatedRequest.id,
+        },
+        documentation
+      )
       return true
     } catch (e) {
       console.error(e)

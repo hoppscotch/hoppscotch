@@ -290,6 +290,13 @@ export const processRequest =
 
       // Ensure, the CLI fails with a non-zero exit code if there are any errors
       report.result = false;
+
+      // REQUEST_ERROR here means the request could not be constructed
+      // (GraphQL subscription / invalid variables) — nothing to send
+      if (preRequestRes.left.code === "REQUEST_ERROR") {
+        result.report = report;
+        return result;
+      }
     } else {
       // Updating effective-request and consuming updated envs after pre-request script execution
       ({ effectiveRequest, updatedEnvs } = preRequestRes.right);

@@ -66,12 +66,8 @@ import IconMinimize2 from "~icons/lucide/minimize-2"
 import IconMaximize2 from "~icons/lucide/maximize-2"
 
 import { useI18n } from "@composables/i18n"
-import { makeGQLRequest } from "@hoppscotch/data"
-import { useService } from "dioc/vue"
-import { GQLTabService } from "~/services/tab/graphql"
 
 const t = useI18n()
-const tabs = useService(GQLTabService)
 
 const props = defineProps<{
   entry: GQLHistoryEntry
@@ -81,6 +77,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "delete-entry"): void
   (e: "toggle-star"): void
+  (e: "use-entry"): void
 }>()
 
 const expand = ref(false)
@@ -95,16 +92,9 @@ const query = computed(() =>
 )
 
 const useEntry = () => {
-  tabs.createNewTab({
-    request: makeGQLRequest({
-      name: props.entry.request.name,
-      url: props.entry.request.url,
-      headers: props.entry.request.headers,
-      query: props.entry.request.query,
-      variables: props.entry.request.variables,
-      auth: props.entry.request.auth,
-    }),
-    isDirty: false,
-  })
+  // Tab creation is owned by the parent (HistoryPersonal) so the same card
+  // works both on the legacy /graphql page (GQLTabService) and inside the
+  // unified workspace (WorkspaceTabsService with type "gql-request").
+  emit("use-entry")
 }
 </script>

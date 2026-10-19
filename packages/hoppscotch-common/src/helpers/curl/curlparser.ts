@@ -80,7 +80,8 @@ export const parseCurlCommand = (curlCommand: string) => {
     headers,
     O.fromPredicate(() => Object.keys(headers).length > 0),
     O.map(recordToHoppHeaders),
-    O.getOrElse(() => defaultRESTReq.headers)
+    // Copy the default so the Cookie push below cannot mutate the shared module level default
+    O.getOrElse(() => [...defaultRESTReq.headers])
   )
 
   const method = getMethod(parsedArguments)

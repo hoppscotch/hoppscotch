@@ -1184,4 +1184,21 @@ describe("Parse curl command to Hopp REST Request", () => {
       expect(stripRefId(actual)).toEqual(stripRefId(response))
     })
   }
+
+  test("cookies from one import do not leak into the next import", () => {
+    const withCookie = parseCurlToHoppRESTReq(
+      `curl https://example.com/a -b 'session=secret'`
+    )
+    expect(withCookie.headers).toEqual([
+      {
+        key: "Cookie",
+        value: "session=secret",
+        active: true,
+        description: "",
+      },
+    ])
+
+    const plain = parseCurlToHoppRESTReq(`curl https://example.com/b`)
+    expect(plain.headers).toEqual([])
+  })
 })

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { prettifyJSONCWithValidation } from "../jsoncPretty"
+import { isValidJSONC, prettifyJSONCWithValidation } from "../jsoncPretty"
 import jsoncLinter from "../jsonc"
 
 describe("prettifying annotated response bodies", () => {
@@ -28,12 +28,44 @@ describe("prettifying annotated response bodies", () => {
     }
   )
 
-  it.each(['{"id":1}', "[1,2]", "null", "42", '"hello"'])(
-    "still formats plain JSON: %s",
+  it.each([
+    [
+      '{"id":1,"tags":["a","b"]}',
+      '{\n  "id": 1,\n  "tags": [\n    "a",\n    "b"\n  ]\n}\n',
+    ],
+    ["[1,2]", "[\n  1,\n  2\n]\n"],
+    ["null", "null\n"],
+    ["42", "42\n"],
+    ['"hello"', '"hello"\n'],
+  ])("formats plain JSON: %s", (body, expected) => {
+    expect(prettifyJSONCWithValidation(body)).toBe(expected)
+  })
+
+  it.each(['{"id":1}', "[1,2]", "null", '{"a":/* c */1,}'])(
+    "isValidJSONC accepts: %s",
     (body) => {
-      expect(JSON.parse(prettifyJSONCWithValidation(body))).toEqual(
-        JSON.parse(body)
-      )
+      expect(isValidJSONC(body)).toBe(true)
+    }
+  )
+
+  it.each(['{"id":}', '{"id":1', "", "not json"])(
+    "isValidJSONC rejects: %s",
+    (body) => {
+      expect(isValidJSONC(body)).toBe(false)
+    }
+  )
+
+  it.each(["42", "null", '"hello"', "true", "// note\n42"])(
+    "linter accepts valid scalar body: %s",
+    async (body) => {
+      expect(await jsoncLinter(body)).toEqual([])
+    }
+  )
+
+  it.each(["{", "[1,", "42 43", "/* unfinished", "nope"])(
+    "linter still reports invalid body: %s",
+    async (body) => {
+      expect(await jsoncLinter(body)).not.toEqual([])
     }
   )
 

@@ -15,9 +15,18 @@ export function prettifyJSONC(str: string) {
   return applyEdits(str, editResult)
 }
 
-export function prettifyJSONCWithValidation(str: string) {
+function getJSONCParseErrors(str: string): ParseError[] {
   const errors: ParseError[] = []
   parse(str, errors, { allowTrailingComma: true })
+  return errors
+}
+
+export function isValidJSONC(str: string): boolean {
+  return getJSONCParseErrors(str).length === 0
+}
+
+export function prettifyJSONCWithValidation(str: string) {
+  const errors = getJSONCParseErrors(str)
   if (errors.length > 0) {
     throw new SyntaxError(printParseErrorCode(errors[0].error))
   }

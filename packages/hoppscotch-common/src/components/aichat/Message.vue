@@ -41,6 +41,7 @@
         <div
           class="chat-md chat-step-text min-w-0 flex-1 break-words pt-0.5 text-tiny leading-normal"
           :class="TONE_STYLES[step.tone].text"
+          @click="openLink"
           v-html="render(step.text)"
         ></div>
         <!-- eslint-enable vue/no-v-html -->
@@ -83,6 +84,7 @@
         <div
           class="chat-md break-words text-xs text-secondary"
           :class="{ 'is-streaming': message.pending }"
+          @click="openLink"
           v-html="rendered"
         ></div>
         <!-- eslint-enable vue/no-v-html -->
@@ -118,8 +120,11 @@
 import MarkdownIt from "markdown-it"
 import DOMPurify from "dompurify"
 import { computed, ref, type Component } from "vue"
+import { getKernelMode } from "@hoppscotch/kernel"
 import { useI18n } from "~/composables/i18n"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
+import { openChatLinkExternally } from "~/helpers/aichat/external-links"
+import { platform } from "~/platform"
 import {
   parseStepLines,
   type StepKind,
@@ -287,6 +292,17 @@ const thoughtDuration = computed(() => {
     ? `${(ms / 1000).toFixed(1)}s`
     : `${Math.round(ms / 1000)}s`
 })
+
+// The desktop instance window has no new-window handler for
+// `target="_blank"`, so reply links there open through the platform's
+// external link opener. The web keeps the browser's own new-tab handling,
+// with `rel="noopener noreferrer"` intact.
+const openLink = (event: MouseEvent) => {
+  if (getKernelMode() !== "desktop") return
+  openChatLinkExternally(event, (url) =>
+    platform.kernelIO.openExternalLink({ url })
+  )
+}
 
 const copied = ref(false)
 let copyTimer: ReturnType<typeof setTimeout> | null = null

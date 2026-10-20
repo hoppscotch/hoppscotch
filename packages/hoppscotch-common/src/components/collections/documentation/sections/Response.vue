@@ -135,6 +135,10 @@ import IconCopy from "~icons/lucide/copy"
 import { useToast } from "~/composables/toast"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
 import { useI18n } from "~/composables/i18n"
+import {
+  isValidJSONC,
+  prettifyJSONCWithValidation,
+} from "~/helpers/editor/linting/jsoncPretty"
 
 const t = useI18n()
 
@@ -207,12 +211,7 @@ function isJsonResponse(example: ResponseExample): boolean {
   }
 
   // Try to parse as JSON to determine if it's valid JSON
-  try {
-    JSON.parse(example.body || "")
-    return true
-  } catch (_e) {
-    return false
-  }
+  return isValidJSONC(example.body || "")
 }
 
 /**
@@ -222,8 +221,7 @@ function isJsonResponse(example: ResponseExample): boolean {
  */
 function formatJSON(jsonString: string): string {
   try {
-    const parsed = JSON.parse(jsonString || "{}")
-    return JSON.stringify(parsed, null, 2)
+    return prettifyJSONCWithValidation(jsonString || "{}")
   } catch (_e) {
     return jsonString || ""
   }

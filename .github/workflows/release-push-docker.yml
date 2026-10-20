@@ -13,19 +13,16 @@ jobs:
     strategy:
       matrix:
         platform: [
-          { platform: linux/amd64, cache: docker-release-amd64, artifactSuffix: amd64 },
-          { platform: linux/arm64, cache: docker-release-arm64, artifactSuffix: arm64 },
+          { runner: ubuntu-latest, platform: linux/amd64, cache: docker-release-amd64, artifactSuffix: amd64 },
+          { runner: ubuntu-24.04-arm, platform: linux/arm64, cache: docker-release-arm64, artifactSuffix: arm64 },
         ]
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.platform.runner }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup environment
         run: cp .env.example .env
-
-      - name: Setup QEMU
-        uses: docker/setup-qemu-action@v3
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3

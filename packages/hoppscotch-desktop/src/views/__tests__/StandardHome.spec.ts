@@ -1,155 +1,127 @@
 import { describe, it, expect, beforeEach } from "vitest"
 import { AppState } from "~/composables/useAppInitialization"
-import type { UpdateEvent, DownloadProgress } from "~/services/updater.client"
+import {
+  applyUpdateEvent,
+  getUpdateFlowState,
+  createUpdateState,
+} from "~/services/updater-state"
 
-/**
- * State machine and update event handling logic matching StandardHome.vue
- */
-function createUpdateStateMachine() {
-  let appState = AppState.UPDATE_AVAILABLE
-  let error = ""
-  let downloadProgress: DownloadProgress = {
-    downloaded: 0,
-    total: undefined,
-    percentage: 0,
-  }
-
-  const getUpdateFlowState = ():
-    | "available"
-    | "downloading"
-    | "installing"
-    | "ready" => {
-    switch (appState) {
-      case AppState.UPDATE_AVAILABLE:
-        return "available"
-      case AppState.UPDATE_IN_PROGRESS:
-        return downloadProgress.percentage < 100
-          ? "downloading"
-          : "installing"
-      case AppState.UPDATE_READY:
-        return "ready"
-      default:
-        return "available"
-    }
-  }
-
-  const handleUpdateEvent = (event: UpdateEvent) => {
-    switch (event.type) {
-      case "DownloadProgress":
-        downloadProgress = event.progress
-        break
-      case "DownloadCompleted":
-      case "InstallStarted":
-        appState = AppState.UPDATE_IN_PROGRESS
-        downloadProgress.percentage = 100
-        if (downloadProgress.total) {
-          downloadProgress.downloaded = downloadProgress.total
-        }
-        break
-      case "InstallCompleted":
-        appState = AppState.UPDATE_IN_PROGRESS
-        break
-      case "RestartRequired":
-        appState = AppState.UPDATE_READY
-        break
-      case "Error":
-        error = event.message
-        appState = AppState.ERROR
-        break
-    }
-  }
-
-  return {
-    getState: () => ({
-      appState,
-      error,
-      downloadProgress: { ...downloadProgress },
-      updateFlowState: getUpdateFlowState(),
-      isRestartActionVisible: getUpdateFlowState() === "ready",
-    }),
-    handleUpdateEvent,
-    setAppState: (state: AppState) => {
-      appState = state
-    },
-  }
-}
-
-describe("StandardHome update flow state transitions", () => {
-  let machine: ReturnType<typeof createUpdateStateMachine>
+describe("StandardHome updater state machine (production logic)", () => {
+  let state: ReturnType<typeof createUpdateState>
 
   beforeEach(() => {
-    machine = createUpdateStateMachine()
+    state = createUpdateState(AppState.UPDATE_AVAILABLE)
   })
 
-  it("1. DownloadProgress updates progress without showing the restart action", () => {
-    machine.setAppState(AppState.UPDATE_IN_PROGRESS)
+  it("1. Download completion followed by installation start", () => {
+    state.appState.value = AppState.UPDATE_IN_PROGRESS
+    state.downloadProgress.value = {
+      downloaded: 950,
+      total: 1000,
+      percentage: 95,
+    }
+    expect(state.flowState).toBe("downloading")
+    expect(state.isRestartReady).toBe(false)
 
-    machine.handleUpdateEvent({
-      type: "DownloadProgress",
-      progress: { downloaded: 500, total: 1000, percentage: 50 },
-    })
+    // DownloadCompleted arrives
+    state.handleEvent({ type: "DownloadCompleted" })
+    expect(state.appState.value).toBe(AppState.UPDATE_IN_PROGRESS)
+    expect(state.downloadProgress.value.percentage).toBe(100)
+    expect(state.downloadProgress.value.downloaded).toBe(1000)
+    expect(state.flowState).toBe("installing")
+    expect(state.isRestartReady).toBe(false)
 
-    const state = machine.getState()
-    expect(state.downloadProgress.percentage).toBe(50)
-    expect(state.downloadProgress.downloaded).toBe(500)
-    expect(state.updateFlowState).toBe("downloading")
-    expect(state.isRestartActionVisible).toBe(false)
+    // Followed by InstallStarted
+    state.handleEvent({ type: "InstallStarted" })
+    expect(state.appState.value).toBe(AppState.UPDATE_IN_PROGRESS)
+    expect(state.downloadProgress.value.percentage).toBe(100)
+    expect(state.flowState).toBe("installing")
+    expect(state.isRestartReady).toBe(false)
   })
 
-  it("2. DownloadCompleted and InstallStarted leave the UI in an installing state", () => {
-    machine.setAppState(AppState.UPDATE_IN_PROGRESS)
+  it("2. Installation completion leaves UI in installing state without prematurely exposing restart", () => {
+    state.appState.value = AppState.UPDATE_IN_PROGRESS
+    state.handleEvent({ type: "InstallStarted" })
+    expect(state.flowState).toBe("installing")
+    expect(state.isRestartReady).toBe(false)
 
-    machine.handleUpdateEvent({
-      type: "DownloadProgress",
-      progress: { downloaded: 1000, total: 1000, percentage: 99 },
-    })
-    expect(machine.getState().updateFlowState).toBe("downloading")
-
-    machine.handleUpdateEvent({ type: "DownloadCompleted" })
-    expect(machine.getState().updateFlowState).toBe("installing")
-    expect(machine.getState().isRestartActionVisible).toBe(false)
-    expect(machine.getState().downloadProgress.percentage).toBe(100)
-
-    machine.handleUpdateEvent({ type: "InstallStarted" })
-    expect(machine.getState().updateFlowState).toBe("installing")
-    expect(machine.getState().isRestartActionVisible).toBe(false)
+    // InstallCompleted arrives before RestartRequired
+    state.handleEvent({ type: "InstallCompleted" })
+    expect(state.appState.value).toBe(AppState.UPDATE_IN_PROGRESS)
+    expect(state.flowState).toBe("installing")
+    expect(state.isRestartReady).toBe(false)
   })
 
-  it("3. RestartRequired transitions to the ready state and enables restart action", () => {
-    machine.setAppState(AppState.UPDATE_IN_PROGRESS)
-    machine.handleUpdateEvent({ type: "InstallStarted" })
+  it("3. RestartRequired transitions to the ready-to-restart state", () => {
+    state.appState.value = AppState.UPDATE_IN_PROGRESS
+    state.handleEvent({ type: "InstallStarted" })
+    state.handleEvent({ type: "InstallCompleted" })
+    expect(state.flowState).toBe("installing")
+    expect(state.isRestartReady).toBe(false)
 
-    machine.handleUpdateEvent({ type: "RestartRequired" })
-
-    const state = machine.getState()
-    expect(state.appState).toBe(AppState.UPDATE_READY)
-    expect(state.updateFlowState).toBe("ready")
-    expect(state.isRestartActionVisible).toBe(true)
+    // RestartRequired arrives after installation succeeds
+    state.handleEvent({ type: "RestartRequired" })
+    expect(state.appState.value).toBe(AppState.UPDATE_READY)
+    expect(state.flowState).toBe("ready")
+    expect(state.isRestartReady).toBe(true)
   })
 
-  it("4. Error transitions to the error state and prevents the restart action", () => {
-    machine.setAppState(AppState.UPDATE_IN_PROGRESS)
+  it("4. Installation errors transition to error state without transitioning to restart-ready", () => {
+    state.appState.value = AppState.UPDATE_IN_PROGRESS
+    state.handleEvent({ type: "InstallStarted" })
 
-    machine.handleUpdateEvent({
+    // Error occurs during installation/verification
+    state.handleEvent({
       type: "Error",
-      message: "Signature verification failed",
+      message: "Package signature verification failed",
     })
 
-    const state = machine.getState()
-    expect(state.appState).toBe(AppState.ERROR)
-    expect(state.error).toBe("Signature verification failed")
-    expect(state.isRestartActionVisible).toBe(false)
+    expect(state.appState.value).toBe(AppState.ERROR)
+    expect(state.error.value).toBe("Package signature verification failed")
+    expect(state.flowState).toBe("available")
+    expect(state.isRestartReady).toBe(false)
   })
 
-  it("5. InstallCompleted alone does not incorrectly bypass the required restart transition", () => {
-    machine.setAppState(AppState.UPDATE_IN_PROGRESS)
-    machine.handleUpdateEvent({ type: "InstallStarted" })
+  it("5. Correct progress handling during installation", () => {
+    state.appState.value = AppState.UPDATE_IN_PROGRESS
 
-    machine.handleUpdateEvent({ type: "InstallCompleted" })
+    // DownloadProgress updates progress during download
+    state.handleEvent({
+      type: "DownloadProgress",
+      progress: { downloaded: 450, total: 1000, percentage: 45 },
+    })
+    expect(state.downloadProgress.value.percentage).toBe(45)
+    expect(state.downloadProgress.value.downloaded).toBe(450)
+    expect(state.downloadProgress.value.total).toBe(1000)
+    expect(state.flowState).toBe("downloading")
+    expect(state.isRestartReady).toBe(false)
 
-    const state = machine.getState()
-    expect(state.appState).toBe(AppState.UPDATE_IN_PROGRESS)
-    expect(state.updateFlowState).toBe("installing")
-    expect(state.isRestartActionVisible).toBe(false)
+    // Transition to installation snaps progress to 100% and sets downloaded = total
+    state.handleEvent({ type: "InstallStarted" })
+    expect(state.downloadProgress.value.percentage).toBe(100)
+    expect(state.downloadProgress.value.downloaded).toBe(1000)
+    expect(state.flowState).toBe("installing")
+    expect(state.isRestartReady).toBe(false)
+  })
+
+  it("6. Direct applyUpdateEvent and getUpdateFlowState invocation on raw targets", () => {
+    const rawTarget = {
+      appState: { value: AppState.UPDATE_AVAILABLE },
+      downloadProgress: {
+        value: { downloaded: 0, total: undefined, percentage: 0 },
+      },
+      error: { value: "" },
+    }
+
+    // Direct invocation matches StandardHome.vue integration
+    applyUpdateEvent({ type: "DownloadCompleted" }, rawTarget)
+    expect(rawTarget.appState.value).toBe(AppState.UPDATE_IN_PROGRESS)
+    expect(rawTarget.downloadProgress.value.percentage).toBe(100)
+    expect(
+      getUpdateFlowState(
+        rawTarget.appState.value,
+        rawTarget.downloadProgress.value.percentage
+      )
+    ).toBe("installing")
   })
 })

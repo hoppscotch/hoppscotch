@@ -15,7 +15,7 @@ pub struct UpdateInfo {
     pub release_notes: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DownloadProgress {
     pub downloaded: u64,
@@ -55,14 +55,143 @@ pub enum UpdateEvent {
 static UPDATE_STATE: std::sync::LazyLock<Arc<Mutex<Option<Update>>>> =
     std::sync::LazyLock::new(|| Arc::new(Mutex::new(None)));
 
-static DOWNLOAD_STATE: std::sync::LazyLock<Arc<Mutex<DownloadProgress>>> =
-    std::sync::LazyLock::new(|| {
-        Arc::new(Mutex::new(DownloadProgress {
+#[derive(Debug, Clone, PartialEq)]
+pub struct ProgressTracker {
+    pub downloaded: u64,
+    pub total: Option<u64>,
+    pub percentage: f64,
+    last_emitted_percent: Option<u32>,
+    last_emitted_bytes: u64,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ChunkEffect {
+    pub progress: Option<DownloadProgress>,
+    pub new_total: Option<u64>,
+}
+
+impl ProgressTracker {
+    pub fn new() -> Self {
+        Self {
             downloaded: 0,
             total: None,
             percentage: 0.0,
-        }))
-    });
+            last_emitted_percent: None,
+            last_emitted_bytes: 0,
+        }
+    }
+
+    pub fn reset(&mut self) {
+        self.downloaded = 0;
+        self.total = None;
+        self.percentage = 0.0;
+        self.last_emitted_percent = None;
+        self.last_emitted_bytes = 0;
+    }
+
+    pub fn current_progress(&self) -> DownloadProgress {
+        DownloadProgress {
+            downloaded: self.downloaded,
+            total: self.total,
+            percentage: self.percentage,
+        }
+    }
+
+    pub fn handle_chunk(
+        &mut self,
+        chunk_length: usize,
+        content_length: Option<u64>,
+    ) -> ChunkEffect {
+        let mut new_total = None;
+        if self.total.is_none() {
+            if let Some(total) = content_length {
+                if total > 0 {
+                    self.total = Some(total);
+                    new_total = Some(total);
+                }
+            }
+        }
+
+        self.downloaded = self.downloaded.saturating_add(chunk_length as u64);
+
+        let mut should_emit = false;
+
+        if let Some(total) = self.total {
+            if total > 0 {
+                let raw_pct = (self.downloaded as f64 / total as f64) * 100.0;
+                let clamped = if raw_pct.is_nan() {
+                    0.0
+                } else {
+                    raw_pct.clamp(0.0, 100.0)
+                };
+
+                // Keep progress monotonic
+                if clamped > self.percentage {
+                    self.percentage = clamped;
+                }
+
+                let integer_percent = self.percentage.floor() as u32;
+
+                // Reserve 100% for finalize_download so download completion is distinct
+                if integer_percent < 100 {
+                    match self.last_emitted_percent {
+                        None => {
+                            self.last_emitted_percent = Some(integer_percent);
+                            should_emit = true;
+                        }
+                        Some(last) if integer_percent > last => {
+                            self.last_emitted_percent = Some(integer_percent);
+                            should_emit = true;
+                        }
+                        _ => {}
+                    }
+                }
+            }
+        } else {
+            // Unknown total content length
+            // Throttle by byte threshold (emit on first chunk and every 512 KiB)
+            const BYTE_THROTTLE_THRESHOLD: u64 = 512 * 1024;
+            if self.last_emitted_bytes == 0
+                || self.downloaded.saturating_sub(self.last_emitted_bytes)
+                    >= BYTE_THROTTLE_THRESHOLD
+            {
+                self.last_emitted_bytes = self.downloaded;
+                should_emit = true;
+            }
+        }
+
+        let progress = if should_emit {
+            Some(self.current_progress())
+        } else {
+            None
+        };
+
+        ChunkEffect {
+            progress,
+            new_total,
+        }
+    }
+
+    pub fn finalize_download(&mut self) -> DownloadProgress {
+        if let Some(total) = self.total {
+            if self.downloaded < total {
+                self.downloaded = total;
+            }
+        } else if self.total.is_none() && self.downloaded > 0 {
+            self.total = Some(self.downloaded);
+        }
+        self.percentage = 100.0;
+        self.last_emitted_percent = Some(100);
+        self.current_progress()
+    }
+}
+
+static DOWNLOAD_STATE: std::sync::LazyLock<std::sync::Mutex<ProgressTracker>> =
+    std::sync::LazyLock::new(|| std::sync::Mutex::new(ProgressTracker::new()));
+
+fn lock_download_state() -> std::sync::MutexGuard<'static, ProgressTracker> {
+    DOWNLOAD_STATE.lock().unwrap_or_else(|p| p.into_inner())
+}
 
 /// Check for updates and returns basic information
 /// For portable mode: Shows native dialog if update found
@@ -170,10 +299,8 @@ pub async fn download_and_install_update(app: AppHandle) -> Result<(), String> {
     );
 
     {
-        let mut download_state = DOWNLOAD_STATE.lock().await;
-        download_state.downloaded = 0;
-        download_state.total = None;
-        download_state.percentage = 0.0;
+        let mut tracker = lock_download_state();
+        tracker.reset();
     }
 
     let app_progress = app.clone();
@@ -182,49 +309,45 @@ pub async fn download_and_install_update(app: AppHandle) -> Result<(), String> {
     update
         .download_and_install(
             move |chunk_length, content_length| {
-                let app = app_progress.clone();
-                tauri::async_runtime::spawn(async move {
-                    let mut download_state = DOWNLOAD_STATE.lock().await;
+                let effect = {
+                    let mut tracker = lock_download_state();
+                    tracker.handle_chunk(chunk_length, content_length)
+                };
 
-                    if let Some(total) = content_length {
-                        if download_state.total.is_none() {
-                            download_state.total = Some(total);
-                            let _ = app.emit(
-                                "updater-event",
-                                UpdateEvent::DownloadStarted {
-                                    total_bytes: Some(total),
-                                },
-                            );
-                        }
-                    }
+                if let Some(total) = effect.new_total {
+                    let _ = app_progress.emit(
+                        "updater-event",
+                        UpdateEvent::DownloadStarted {
+                            total_bytes: Some(total),
+                        },
+                    );
+                }
 
-                    download_state.downloaded += chunk_length as u64;
-
-                    if let Some(total) = download_state.total {
-                        download_state.percentage =
-                            (download_state.downloaded as f64 / total as f64) * 100.0;
-                    }
-
-                    let progress = download_state.clone();
-                    // Release the lock before emitting
-                    // TODO: See if it's possible to not have a lock at all
-                    drop(download_state);
-
-                    let _ = app.emit("updater-event", UpdateEvent::DownloadProgress { progress });
-                });
+                if let Some(progress) = effect.progress {
+                    let _ = app_progress
+                        .emit("updater-event", UpdateEvent::DownloadProgress { progress });
+                }
             },
             move || {
-                let app = app_callback.clone();
-                tauri::async_runtime::spawn(async move {
-                    let _ = app.emit("updater-event", UpdateEvent::DownloadCompleted);
-                    let _ = app.emit("updater-event", UpdateEvent::InstallStarted);
-                    let _ = app.emit("updater-event", UpdateEvent::RestartRequired);
-                });
+                let final_progress = {
+                    let mut tracker = lock_download_state();
+                    tracker.finalize_download()
+                };
+
+                let _ = app_callback.emit(
+                    "updater-event",
+                    UpdateEvent::DownloadProgress {
+                        progress: final_progress,
+                    },
+                );
+                let _ = app_callback.emit("updater-event", UpdateEvent::DownloadCompleted);
+                let _ = app_callback.emit("updater-event", UpdateEvent::InstallStarted);
             },
         )
         .await
         .map_err(|e| {
             let error_msg = format!("Failed to download and install update: {}", e);
+            tracing::error!("{}", error_msg);
             let _ = app.emit(
                 "updater-event",
                 UpdateEvent::Error {
@@ -233,6 +356,9 @@ pub async fn download_and_install_update(app: AppHandle) -> Result<(), String> {
             );
             error_msg
         })?;
+
+    let _ = app.emit("updater-event", UpdateEvent::InstallCompleted);
+    let _ = app.emit("updater-event", UpdateEvent::RestartRequired);
 
     tracing::info!("Update download and installation completed successfully");
     Ok(())
@@ -260,10 +386,8 @@ pub async fn cancel_update(app: AppHandle) -> Result<(), String> {
     }
 
     {
-        let mut download_state = DOWNLOAD_STATE.lock().await;
-        download_state.downloaded = 0;
-        download_state.total = None;
-        download_state.percentage = 0.0;
+        let mut tracker = lock_download_state();
+        tracker.reset();
     }
 
     let _ = app.emit("updater-event", UpdateEvent::UpdateCancelled);
@@ -273,8 +397,8 @@ pub async fn cancel_update(app: AppHandle) -> Result<(), String> {
 /// Get current download progress (for polling if needed)
 #[tauri::command]
 pub async fn get_download_progress() -> Result<DownloadProgress, String> {
-    let download_state = DOWNLOAD_STATE.lock().await;
-    Ok(download_state.clone())
+    let tracker = lock_download_state();
+    Ok(tracker.current_progress())
 }
 
 /// Check if we're running in portable mode (for frontend convenience)
@@ -305,4 +429,149 @@ async fn handle_portable_update_dialog(
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_increasing_progress_and_duplicate_suppression() {
+        let mut tracker = ProgressTracker::new();
+        let total = 1_000u64;
+
+        // Chunk 1: 5 bytes (0.5% -> floor is 0). First chunk emits 0%.
+        let effect1 = tracker.handle_chunk(5, Some(total));
+        assert_eq!(effect1.new_total, Some(total));
+        assert!(effect1.progress.is_some());
+        let p1 = effect1.progress.unwrap();
+        assert_eq!(p1.downloaded, 5);
+        assert!((p1.percentage - 0.5).abs() < f64::EPSILON);
+
+        // Chunk 2: 4 bytes (9 bytes total -> 0.9% -> floor is 0).
+        // 0% was already emitted, so duplicate percent is suppressed.
+        let effect2 = tracker.handle_chunk(4, Some(total));
+        assert_eq!(effect2.new_total, None);
+        assert!(effect2.progress.is_none());
+
+        // Chunk 3: 5 bytes (14 bytes total -> 1.4% -> floor is 1).
+        // Advances to 1%, emits progress.
+        let effect3 = tracker.handle_chunk(5, Some(total));
+        assert!(effect3.progress.is_some());
+        let p3 = effect3.progress.unwrap();
+        assert_eq!(p3.downloaded, 14);
+        assert!((p3.percentage - 1.4).abs() < 1e-10);
+
+        // Chunk 4: 1 byte (15 bytes total -> 1.5% -> floor is 1). Suppressed.
+        let effect4 = tracker.handle_chunk(1, Some(total));
+        assert!(effect4.progress.is_none());
+    }
+
+    #[test]
+    fn test_monotonic_progress() {
+        let mut tracker = ProgressTracker::new();
+        let total = 100u64;
+
+        let effect1 = tracker.handle_chunk(50, Some(total));
+        assert!(effect1.progress.is_some());
+        assert_eq!(tracker.percentage, 50.0);
+
+        // Even with a 0-length chunk, percentage never decreases.
+        let _ = tracker.handle_chunk(0, Some(total));
+        assert_eq!(tracker.percentage, 50.0);
+    }
+
+    #[test]
+    fn test_unknown_content_length() {
+        let mut tracker = ProgressTracker::new();
+
+        // First chunk emits initial progress with unknown total
+        let effect1 = tracker.handle_chunk(100 * 1024, None);
+        assert_eq!(effect1.new_total, None);
+        assert!(effect1.progress.is_some());
+        let p1 = effect1.progress.unwrap();
+        assert_eq!(p1.downloaded, 100 * 1024);
+        assert_eq!(p1.total, None);
+        assert_eq!(p1.percentage, 0.0);
+
+        // Second chunk below 512 KiB delta -> suppressed
+        let effect2 = tracker.handle_chunk(100 * 1024, None);
+        assert!(effect2.progress.is_none());
+
+        // Third chunk crosses 512 KiB delta -> emits
+        let effect3 = tracker.handle_chunk(420 * 1024, None);
+        assert!(effect3.progress.is_some());
+        let p3 = effect3.progress.unwrap();
+        assert_eq!(p3.downloaded, 620 * 1024);
+        assert_eq!(p3.total, None);
+
+        // Finalize sets 100% and resolves total to downloaded bytes
+        let final_p = tracker.finalize_download();
+        assert_eq!(final_p.percentage, 100.0);
+        assert_eq!(final_p.total, Some(620 * 1024));
+        assert_eq!(final_p.downloaded, 620 * 1024);
+    }
+
+    #[test]
+    fn test_zero_content_length() {
+        let mut tracker = ProgressTracker::new();
+
+        // Some(0) must not cause division by zero or NaN
+        let effect = tracker.handle_chunk(1024, Some(0));
+        assert_eq!(effect.new_total, None);
+        assert_eq!(tracker.percentage, 0.0);
+
+        let final_p = tracker.finalize_download();
+        assert_eq!(final_p.percentage, 100.0);
+    }
+
+    #[test]
+    fn test_completion_reaching_100_percent() {
+        let mut tracker = ProgressTracker::new();
+        let total = 200u64;
+
+        // Chunks reaching 100% bytes do not emit 100% in chunk handler
+        let _ = tracker.handle_chunk(100, Some(total));
+        let effect = tracker.handle_chunk(100, Some(total));
+        assert!(effect.progress.is_none()); // 100% reserved for finalize_download
+
+        // finalize_download produces the final 100% event
+        let final_p = tracker.finalize_download();
+        assert_eq!(final_p.percentage, 100.0);
+        assert_eq!(final_p.downloaded, 200);
+        assert_eq!(final_p.total, Some(200));
+    }
+
+    #[test]
+    fn test_large_download_sizes_no_overflow() {
+        let mut tracker = ProgressTracker::new();
+        // 10 GB file
+        let total = 10 * 1024 * 1024 * 1024u64;
+        let chunk = 100 * 1024 * 1024usize; // 100 MB
+
+        let effect = tracker.handle_chunk(chunk, Some(total));
+        assert!(effect.progress.is_some());
+        let p = effect.progress.unwrap();
+        assert_eq!(p.downloaded, 100 * 1024 * 1024);
+        assert!(p.percentage > 0.0);
+
+        // Saturating add prevents overflow even at u64 limits
+        tracker.downloaded = u64::MAX - 10;
+        let _effect_overflow = tracker.handle_chunk(50, Some(total));
+        assert_eq!(tracker.downloaded, u64::MAX);
+    }
+
+    #[test]
+    fn test_reset() {
+        let mut tracker = ProgressTracker::new();
+        let _ = tracker.handle_chunk(100, Some(1000));
+        assert!(tracker.downloaded > 0);
+
+        tracker.reset();
+        assert_eq!(tracker.downloaded, 0);
+        assert_eq!(tracker.total, None);
+        assert_eq!(tracker.percentage, 0.0);
+        assert_eq!(tracker.last_emitted_percent, None);
+        assert_eq!(tracker.last_emitted_bytes, 0);
+    }
 }

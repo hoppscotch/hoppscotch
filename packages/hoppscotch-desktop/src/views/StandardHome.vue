@@ -50,6 +50,10 @@ import {
   type UpdateEvent,
   type DownloadProgress,
 } from "~/services/updater.client"
+import {
+  applyUpdateEvent,
+  getUpdateFlowState,
+} from "~/services/updater-state"
 import { DesktopPersistenceService } from "~/services/persistence.service"
 
 import AppHeader from "./shared/AppHeader.vue"
@@ -70,20 +74,9 @@ const downloadProgress = ref<DownloadProgress>({
   percentage: 0,
 })
 
-const updateFlowState = computed(() => {
-  switch (appState.value) {
-    case AppState.UPDATE_AVAILABLE:
-      return "available"
-    case AppState.UPDATE_IN_PROGRESS:
-      return downloadProgress.value.percentage < 100
-        ? "downloading"
-        : "installing"
-    case AppState.UPDATE_READY:
-      return "ready"
-    default:
-      return "available"
-  }
-})
+const updateFlowState = computed(() =>
+  getUpdateFlowState(appState.value, downloadProgress.value.percentage)
+)
 
 const installUpdate = async () => {
   try {
@@ -166,21 +159,7 @@ const initializeStandardMode = async () => {
 
 onMounted(async () => {
   await updaterClient.listenToUpdates((event: UpdateEvent) => {
-    switch (event.type) {
-      case "DownloadProgress":
-        downloadProgress.value = event.progress
-        break
-      case "DownloadCompleted":
-        appState.value = AppState.UPDATE_IN_PROGRESS
-        break
-      case "RestartRequired":
-        appState.value = AppState.UPDATE_READY
-        break
-      case "Error":
-        error.value = event.message
-        appState.value = AppState.ERROR
-        break
-    }
+    applyUpdateEvent(event, { appState, downloadProgress, error })
   })
 
   await initialize(initializeStandardMode)

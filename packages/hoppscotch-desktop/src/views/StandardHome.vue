@@ -171,6 +171,14 @@ onMounted(async () => {
         downloadProgress.value = event.progress
         break
       case "DownloadCompleted":
+      case "InstallStarted":
+        appState.value = AppState.UPDATE_IN_PROGRESS
+        downloadProgress.value.percentage = 100
+        if (downloadProgress.value.total) {
+          downloadProgress.value.downloaded = downloadProgress.value.total
+        }
+        break
+      case "InstallCompleted":
         appState.value = AppState.UPDATE_IN_PROGRESS
         break
       case "RestartRequired":

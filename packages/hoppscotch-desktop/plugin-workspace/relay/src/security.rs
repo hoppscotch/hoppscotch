@@ -240,12 +240,12 @@ impl<'a> SecurityHandler<'a> {
             }
         }
 
-        // The host store comes back empty only where its policy denies every
-        // root, the bundled ones included, and the empty blob is still set,
-        // ∵ curl's own trust configuration would trust the roots that policy
-        // denies. libcurl fails a TLS connection that verifies the peer on a
-        // blob with no certificate, and a plain HTTP request or one that
-        // turned verification off never reads the blob.
+        // The host store is empty only where its policy denies every root,
+        // the bundled ones included, and that empty blob is set, ∵ curl's own
+        // trust configuration would trust the roots that policy denies.
+        // libcurl fails a TLS connection that verifies the peer on a blob with
+        // no certificate, and a plain HTTP request or one that turned
+        // verification off never reads the blob.
         let combined = combine_ca_bundle(system_ca_bundle(), ca_certs);
         if combined.is_empty() {
             tracing::warn!("Host trust policy denies every root, verified TLS connections fail");
